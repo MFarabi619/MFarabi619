@@ -1,7 +1,7 @@
-- 👋 Hi, I’m Mumtahin Farabi :)
+- 👋 Hi, I go by Farabi :)
 - 🌱 I’m currently learning Front End Web-Development.
 - 👀 While I’m interested in Full-stack web apps, I also have experience with lower level languages such as C/C++, and Java🍵
-- 💻 I'm also a passionate Vim enthusiasist :)
+- 💻 I'm also a passionate Vim enthusiasist🥳
 - 📫 I can be reached at mumtahin.farabi@gmail.com or via [LinkedIn](https://www.linkedin.com/in/mfarabi/). 
 
 <!---
