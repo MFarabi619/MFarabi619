@@ -6,7 +6,7 @@
 
 
 
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Mfarabi619&langs_count=20&layout=compact)](https://github.com/Mfarabi619/github-readme-stats)
+[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Mfarabi619&langs_count=20&layout=compact&theme=great-gatsby)](https://github.com/Mfarabi619/github-readme-stats)
 
 
 
