@@ -1,13 +1,10 @@
-<div style="display: flex; flex-direction: row;">
+#Hi there, I'm Farabi!👋
 
-[![Farabi's GitHub stats](https://github-readme-stats.vercel.app/api?username=Mfarabi619&hide=stars&count_private=true&show_icons=true&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd&title_color=00000&)](https://github.com/Mfarabi619/github-readme-stats?) 
+<div style="display: flex; flex-direction: row;">
+ <img src="https://github-readme-stats.vercel.app/api?username=Mfarabi619&hide=stars&count_private=true&show_icons=true&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd&title_color=00000&)](https://github.com/Mfarabi619/github-readme-stats?" />
+ <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Mfarabi619&langs_count=20&layout=compact&theme=great-gatsby)](https://github.com/Mfarabi619/github-readme-stats" />
 
 </div>
-
-
-
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Mfarabi619&langs_count=20&layout=compact&theme=great-gatsby)](https://github.com/Mfarabi619/github-readme-stats)
-
 
 
 - 👋 Hi, I go by Farabi :)
