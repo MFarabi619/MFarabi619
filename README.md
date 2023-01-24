@@ -4,7 +4,7 @@ Hi there, I'm Farabi!👋
 </h1>
 
 
-<div >
+<div align="center">
     <table>
         <tr>
             <td>
@@ -15,20 +15,18 @@ Hi there, I'm Farabi!👋
             </td>
         </tr>
     </table>
- <tr>
-  <td>
-        <img src="https://streak-stats.demolab.com?user=Mfarabi619&theme=radical&border_radius=6" />
-    </td>
-  <td>
-  
-  </td>
-  </tr>
+        <img align="center" src="https://streak-stats.demolab.com?user=Mfarabi619&theme=radical&border_radius=6" />
    </div>
+
 
 
 <br/><br/>
 
-<div class="tg-wrap" align="center"><table>
+<div class="tg-wrap" align="center">
+    
+    
+    
+<table>
 <thead>
   <tr>
     <th>Tools</th>
@@ -125,7 +123,12 @@ Hi there, I'm Farabi!👋
    </td>
   </tr>
 </tbody>
-</table></div>
+</table>
+
+
+
+
+</div>
 
 
 </br></br>
