@@ -8,7 +8,7 @@ Hi there, I'm Farabi!👋
     <table>
         <tr>
             <td>
-                <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd&title_color=00000&)](https://github.com/Mfarabi619/github-readme-stats?" />
+                <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&title_color=00000&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd&)](https://github.com/Mfarabi619/github-readme-stats?" />
             </td>
             <td>
                 <img   src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=great-gatsby"/>
