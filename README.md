@@ -5,8 +5,8 @@ Hi there, I'm Farabi!👋
 
 
 <div style="" align="center">
- <img style="" src="https://github-readme-stats-mfarabi1.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd&title_color=00000&)](https://github.com/Mfarabi619/github-readme-stats?" />
- <img style=""  src="https://github-readme-stats-mfarabi1.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=great-gatsby"/>
+ <img style="" src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd&title_color=00000&)](https://github.com/Mfarabi619/github-readme-stats?" />
+ <img style=""  src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=great-gatsby"/>
 
 [![GitHub Streak](https://streak-stats.demolab.com?user=Mfarabi619&theme=radical&border_radius=6)](https://git.io/streak-stats)
  
