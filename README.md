@@ -25,7 +25,7 @@ Hi there, I'm Farabi!👋
 <div class="tg-wrap" align="center"><table>
 <thead>
   <tr>
-    <th>Tools</th>
+    <th style="width: 20px">Tools</th>
     <th>Languages</th>
     <th>Libraries/Frameworks</th>
   </tr>
