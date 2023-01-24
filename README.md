@@ -185,7 +185,7 @@
 - 👀 While I’m interested in Full-stack web apps, I also have experience with lower level languages such as C/C++, and Java🍵
 - 💻 I'm also a passionate Vim enthusiasist🥳
 
-If you liked the format of this README, please feel free to copy it and leave a star! :)\
+If you liked the format of this README, please feel free to copy it and leave a star! :)
 
 <a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge" target="_top"><img src="https://data.typeracer.com/misc/badge?user=killshot619" border="0" alt="TypeRacer.com scorecard for user killshot619"/></a>
 
