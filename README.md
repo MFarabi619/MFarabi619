@@ -140,7 +140,13 @@ Hi there, I'm Farabi!👋
       height="40"
     />
   </a>
-      <a href="https://dart.dev" target="_blank" rel="noreferrer">
+   <a href="https://www.cprogramming.com/" target="_blank" rel="noreferrer"> 
+       <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/c/c-original.svg" alt="c" width="40" height="40"/> 
+        </a>
+     <a href="https://www.w3schools.com/cpp/" target="_blank" rel="noreferrer"> 
+         <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="cplusplus" width="40" height="40"/> 
+        </a>
+              <a href="https://dart.dev" target="_blank" rel="noreferrer">
     <img
       src="https://www.vectorlogo.zone/logos/dartlang/dartlang-icon.svg"
       alt="dart"
@@ -148,8 +154,6 @@ Hi there, I'm Farabi!👋
       height="40"
     />
   </a>
-   <a href="https://www.cprogramming.com/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/c/c-original.svg" alt="c" width="40" height="40"/> </a>
-     <a href="https://www.w3schools.com/cpp/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="cplusplus" width="40" height="40"/> </a>
    </td>
     <td>
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/react_logo.svg" alt="bootstrap" width="40" height="40"/> </a>
