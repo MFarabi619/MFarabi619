@@ -184,6 +184,9 @@ Hi there, I'm Farabi!👋
 - 🌱 I’m currently learning Front End Web-Development🕸️
 - 👀 While I’m interested in Full-stack web apps, I also have experience with lower level languages such as C/C++, and Java🍵
 - 💻 I'm also a passionate Vim enthusiasist🥳
+
+If you like the format of this README, please feel free to copy it and leave a star! :)
+
 <!--- 📫 I can be reached at mumtahin.farabi@gmail.com or via [LinkedIn](https://www.linkedin.com/in/mfarabi/)💼--->
 
 <!---
