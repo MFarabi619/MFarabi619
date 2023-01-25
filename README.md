@@ -170,6 +170,7 @@
 </br></br>
 🔗 &nbsp;**Connect with me**:</br></br>
 <a href="https://linkedin.com/in/mfarabi" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="mfarabilinkedIn" height="50" width="50" /></a>
+<a href="https://www.youtube.com/@mumtahinfarabi7502/videos" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/youtube.svg" alt="mfarabiYoutube" height="50" width="50" /></a>
 <a href="https://leetcode.com/MFarabi619/" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/leet-code.svg" alt="mfarabileetCode" height="50" width="50" /></a>
 <a href="https://codepen.io/mfarabi619" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/codepen.svg" alt="mfarabicodepen" height="50" width="50" /></a>
 <a href="https://stackoverflow.com/users/21068374/killshot619" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/stack-overflow.svg" alt="mfarabistackoverflow" height="50" width="50" /></a>
