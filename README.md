@@ -34,6 +34,20 @@
 <tbody>
     <tr>
         <td>
+            <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.worldvectorlogo.com/logos/linux-tux.svg"
+                alt="vscodelogo"
+                width="40"
+                height="40"
+                />
+               <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
+                <img
+                src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+                alt="vscodelogo"
+                width="40"
+                height="40"
+                />
             <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
                 <img
                 src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg"
@@ -87,7 +101,21 @@
       width="40"
       height="40"
     />
-  </a>
+          <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
+    <img
+      src="https://cdn.worldvectorlogo.com/logos/jira-1.svg"
+      alt="flutter"
+      width="40"
+      height="40"
+    />
+     <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
+    <img
+      src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg"
+      alt="flutter"
+      width="40"
+      height="40"
+    />         
+       
    </td>
     <td>
      <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
@@ -159,6 +187,15 @@
     <td>
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/react_logo.svg" alt="bootstrap" width="40" height="40"/> </a>
       <a href="https://getbootstrap.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" alt="bootstrap" width="40" height="40"/> </a> 
+         </a>
+     <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
+    <img
+      src="https://blog.testproject.io/wp-content/uploads/2020/06/Pyunit.png"
+      alt="flutter"
+      width="40"
+      height="40"
+    />
+  </a>
    </td>
   </tr>
 </tbody>
