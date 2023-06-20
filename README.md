@@ -62,10 +62,10 @@
                 width="40"
                 height="40"
                 />
-               <a href="https://developer.android.com/studio" target="_blank" rel="noreferrer">
+                  <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
                 <img
-                src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/androidstudio_logo.svg"
-                alt="vscodelogo"
+                src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg"
+                alt="tmuxlogo"
                 width="40"
                 height="40"
                 />
@@ -79,7 +79,7 @@
   </a>
                    <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
     <img
-      src="https://www.vectorlogo.zone/logos/gnu_bash/gnu_bash-icon.svg"
+      src="https://bashlogo.com/img/symbol/png/monochrome_light.png"
       alt="git"
       width="40"
       height="40"
@@ -98,6 +98,13 @@
  <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
                 <img
                 src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/latex_logo.svg"
+                alt="vscodelogo"
+                width="40"
+                height="40"
+                />
+  <a href="https://developer.android.com/studio" target="_blank" rel="noreferrer">
+                <img
+                src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/androidstudio_logo.svg"
                 alt="vscodelogo"
                 width="40"
                 height="40"
@@ -199,6 +206,14 @@
      <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
     <img
       src="https://blog.testproject.io/wp-content/uploads/2020/06/Pyunit.png"
+      alt="flutter"
+      width="40"
+      height="40"
+    />
+  </a>
+  <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
+    <img
+      src="  https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
       alt="flutter"
       width="40"
       height="40"
