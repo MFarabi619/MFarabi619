@@ -206,15 +206,15 @@
      <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
     <img
       src="https://blog.testproject.io/wp-content/uploads/2020/06/Pyunit.png"
-      alt="flutter"
+      alt="unittest"
       width="40"
       height="40"
     />
   </a>
   <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
     <img
-      src="  https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
-      alt="flutter"
+      src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
+      alt="pytest"
       width="40"
       height="40"
     />
