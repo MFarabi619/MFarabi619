@@ -149,16 +149,6 @@
       height="40"
     />
   </a>
-     <a
-    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"
-    target="_blank"
-    rel="noreferrer">
-    <img
-      src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg"
-      alt="javascript"
-      width="40"
-      height="40"
-    />
   </a>
      <a href="https://sass-lang.com" target="_blank" rel="noreferrer">
     <img
@@ -168,6 +158,16 @@
       height="40"
     />
   </a>
+   <a
+    href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+    target="_blank"
+    rel="noreferrer">
+    <img
+      src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg"
+      alt="javascript"
+      width="40"
+      height="40"
+    />
        <a href="https://www.python.org" target="_blank" rel="noreferrer">
     <img
       src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
@@ -203,18 +203,18 @@
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/react_logo.svg" alt="bootstrap" width="40" height="40"/> </a>
       <a href="https://getbootstrap.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" alt="bootstrap" width="40" height="40"/> </a> 
          </a>
-     <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
-    <img
-      src="https://blog.testproject.io/wp-content/uploads/2020/06/Pyunit.png"
-      alt="unittest"
-      width="40"
-      height="40"
-    />
-  </a>
   <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
     <img
       src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
       alt="pytest"
+      width="40"
+      height="40"
+    />
+  </a>
+  <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
+    <img
+      src="https://blog.testproject.io/wp-content/uploads/2020/06/Pyunit.png"
+      alt="unittest"
       width="40"
       height="40"
     />
