@@ -213,7 +213,7 @@
   </a>
    </td>
     <td>
-    <a href="https://reactjs.org/" target="_blank" rel="noreferrer"> 
+    <a href="https://nextjs.org/" target="_blank" rel="noreferrer"> 
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
     alt="Next.js" 
     width="40" 
