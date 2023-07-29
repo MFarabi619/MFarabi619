@@ -1,4 +1,5 @@
- 
+ <!-- markdownlint-disable -->
+
 <h1 align="center">
 <img style="width:100%" src="https://github.com/MFarabi619/MFarabi619/blob/main/Personal%20Logo%20Ideas%20(Banner%20(Landscape))%20(1).gif?raw=true"/>
 </h1>
@@ -18,8 +19,6 @@
     </table>
         <img align="center" src="https://streak-stats.demolab.com?user=Mfarabi619&theme=radical&border_radius=6" />
    </div>
-
-
 
 <br/><br/>
 
@@ -76,15 +75,7 @@
       width="40"
       height="40"
     />
-  </a>
-                   <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
-    <img
-      src="https://bashlogo.com/img/symbol/png/monochrome_light.png"
-      alt="git"
-      width="40"
-      height="40"
-    />
-  </a>
+    </a>
                 <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
                   <img
                     src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
@@ -168,6 +159,16 @@
       width="40"
       height="40"
     />
+   <a
+    href="https://www.typescriptlang.org/"
+    target="_blank"
+    rel="noreferrer">
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
+      alt="javascript"
+      width="40"
+      height="40"
+    />
        <a href="https://www.python.org" target="_blank" rel="noreferrer">
     <img
       src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
@@ -184,11 +185,23 @@
       height="40"
     />
   </a>
+
+ <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
+    <img
+      src="https://bashlogo.com/img/symbol/png/monochrome_light.png"
+      alt="git"
+      width="40"
+      height="40"
+    />
+  </a>
    <a href="https://www.cprogramming.com/" target="_blank" rel="noreferrer"> 
        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/c/c-original.svg" alt="c" width="40" height="40"/> 
         </a>
      <a href="https://www.w3schools.com/cpp/" target="_blank" rel="noreferrer"> 
          <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="cplusplus" width="40" height="40"/> 
+        </a>
+     <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer"> 
+         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="cplusplus" width="40" height="40"/> 
         </a>
               <a href="https://dart.dev" target="_blank" rel="noreferrer">
     <img
@@ -200,8 +213,28 @@
   </a>
    </td>
     <td>
-<a href="https://reactjs.org/" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/react_logo.svg" alt="bootstrap" width="40" height="40"/> </a>
-      <a href="https://getbootstrap.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" alt="bootstrap" width="40" height="40"/> </a> 
+    <a href="https://reactjs.org/" target="_blank" rel="noreferrer"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
+    alt="Next.js" 
+    width="40" 
+    height="40"/> </a>
+<a href="https://reactjs.org/" target="_blank" rel="noreferrer"> 
+<img 
+src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/react_logo.svg" 
+alt="React" 
+width="40" 
+height="40"/> 
+</a>
+<a href="https://tailwindcss.com/" target="_blank" rel="noreferrer"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" 
+      alt="Bootstrap" 
+      width="40" 
+      height="40"/> 
+</a> 
+<a href="https://getbootstrap.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" 
+      alt="Bootstrap" 
+      width="40" 
+      height="40"/> 
+</a> 
          </a>
   <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
     <img
@@ -227,7 +260,6 @@
    </tr>
    </div>
 
-
 </br></br>
 🔗 &nbsp;**Connect with me**:</br></br>
 <a href="https://linkedin.com/in/mfarabi" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="mfarabilinkedIn" height="50" width="50" /></a>
@@ -237,6 +269,7 @@
 <a href="https://stackoverflow.com/users/21068374/killshot619" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/stack-overflow.svg" alt="mfarabistackoverflow" height="50" width="50" /></a>
 <a href="https://www.freecodecamp.org/mfarabi" target="blank"><img align="center" src="https://cdn.rawgit.com/Deftwun/e3756a8b518cbb354425/raw/6584db8babd6cbc4ecb35ed36f0d184a506b979e/free-code-camp-logo.svg" alt="mfarabilinkedIn" height="50" width="50" /></a>
 <a href="https://www.youtube.com/watch?v=BBJa32lCaaY" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="getrickrolled" height="30" width="40" /></a>
+
 <!--<a href="" target="blank"><img align="center" src="" alt="mfarabilinkedIn" height="30" width="40" /></a>--->
 
 </br>
@@ -256,4 +289,4 @@
 <!---
 MFarabi619/MFarabi619 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
----> 
+--->
