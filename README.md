@@ -177,6 +177,14 @@
       height="40"
     />
   </a>
+       <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-plain-wordmark.svg"
+    alt="Lua"
+      width="40"
+      height="40"
+    />
+  </a>
        <a href="https://www.java.com" target="_blank" rel="noreferrer">
     <img
       src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg"
