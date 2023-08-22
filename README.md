@@ -1,4 +1,4 @@
- <!-- markdownlint-disable -->  
+ <!-- markdownlint-disable -->
 
 <h1 align="center">
 <img style="width:100%" src="https://github.com/MFarabi619/MFarabi619/blob/main/Personal%20Logo%20Ideas%20(Banner%20(Landscape))%20(1).gif?raw=true"/>
@@ -8,16 +8,25 @@
 
 <div align="center">
     <table>
+            <tr>
+<td>
+                <img align="center" src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&title_color=00000&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd" />
+</td>
+<td>
+        <img align="center" src="https://streak-stats.demolab.com?user=Mfarabi619&theme=radical&border_radius=6" />
+</td>
+        </tr>
         <tr>
             <td>
-                <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&title_color=00000&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd&)](https://github.com/Mfarabi619/github-readme-stats?" />
+                <img align="center" src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=10&theme=great-gatsby"/>
             </td>
             <td>
-                <img   src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=great-gatsby"/>
+            <a href="https://leetcode.com/MFarabi619/">
+        <img align="center" src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=unicorn&ext=heatmap"/>
+            </a>
             </td>
         </tr>
     </table>
-        <img align="center" src="https://streak-stats.demolab.com?user=Mfarabi619&theme=radical&border_radius=6" />
    </div>
 
 <br/><br/>
