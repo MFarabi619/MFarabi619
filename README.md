@@ -1,7 +1,7 @@
  <!-- markdownlint-disable -->  
 
 <h1 align="center">
-<img style="width:100%" src="https://github.com/MFarabi619/MFarabi619/blob/main/Personal%20Logo%20Ideas%20(Banner%20(Landscape))%20(1).gif?raw=true"/>
+<img style="width:100%" src="https://github.com/MFarabi619/MFarabi619/blob/main/Personal%20Logo%20Ideas%20(Banner%20(Landscape))%20.gif?raw=true"/>
 </h1>
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
