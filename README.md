@@ -295,7 +295,7 @@ height="40"/>
   </br>
 
 - 🌱 I began my self-taught developer journey in January 2023. I’m currently learning Full-Stack Web Development, and Embedded Systems Development🕸️🤖
-- 👀 While I’m interested in Full-Stack web apps, I also have experience with lower level languages such as C/C++, and Java🍵
+- 👀 While I’m interested in web apps, I also have experience with lower level languages such as C/C++, and Java🍵
 - 💻 I'm also a passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python🥳
 
 <!-- If you liked the format of this README, feel free to copy it and [leave a star! :)](https://github.com/MFarabi619/MFarabi619) -->
