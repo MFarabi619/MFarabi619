@@ -1,5 +1,5 @@
  <!-- markdownlint-disable -->
-  
+
 <div align="center">
   <img style="width:100%" src="https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif"/>
 </div>
@@ -232,6 +232,20 @@
   </a> -->
    </td>
     <td>
+    <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer"> 
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" 
+    width="40" 
+    height="40"/> </a>
+    <a href="https://expressjs.com/" target="_blank" rel="noreferrer"> 
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg" 
+    width="40" 
+    height="40"/>
+         </a> 
+    <a href="https://emberjs.com/" target="_blank" rel="noreferrer"> 
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
+              width="40" 
+    height="40"/>
+         </a> 
     <a href="https://nextjs.org/" target="_blank" rel="noreferrer"> 
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
     alt="Next.js" 
