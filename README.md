@@ -111,27 +111,27 @@
                 width="40"
                 height="40"
                 />
-     <a href="https://flutter.dev" target="_blank" rel="noreferrer">
+<!--      <a href="https://flutter.dev" target="_blank" rel="noreferrer">
     <img
       src="https://www.vectorlogo.zone/logos/flutterio/flutterio-icon.svg"
       alt="flutter"
       width="40"
       height="40"
-    />
+    /></a> -->
           <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
     <img
       src="https://cdn.worldvectorlogo.com/logos/jira-1.svg"
-      alt="flutter"
+      alt="jira logo"
       width="40"
       height="40"
-    />
+    /></a>
      <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
     <img
       src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg"
-      alt="flutter"
+      alt="confluence logo"
       width="40"
       height="40"
-    />         
+    /></a>         
        
    </td>
     <td>
@@ -222,14 +222,14 @@
      <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer"> 
          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="cplusplus" width="40" height="40"/> 
         </a>
-              <a href="https://dart.dev" target="_blank" rel="noreferrer">
+<!--               <a href="https://dart.dev" target="_blank" rel="noreferrer">
     <img
       src="https://www.vectorlogo.zone/logos/dartlang/dartlang-icon.svg"
       alt="dart"
       width="40"
       height="40"
     />
-  </a>
+  </a> -->
    </td>
     <td>
     <a href="https://nextjs.org/" target="_blank" rel="noreferrer"> 
