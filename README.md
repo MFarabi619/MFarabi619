@@ -211,6 +211,8 @@
 <a href="https://www.youtube.com/watch?v=BBJa32lCaaY" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="Twitter Logo" height="40" width="30" /></a>
 
 
+<!-- markdownlint-disable -->
+
 <br/>
 <summary><b>✨ About Me</b></summary>
 <br/>
@@ -233,4 +235,5 @@ MFarabi619/MFarabi619 is a ✨ special ✨ repository because its `README.md` (t
 You can click the Preview link to take a look at your changes.
 --->
 
+This readme is generated dynamically using a python script.
 
