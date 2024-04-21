@@ -1,3 +1,5 @@
+<!-- markdownlint-disable -->
+
 <div class="tg-wrap" align="center">
   <table>
     <thead>

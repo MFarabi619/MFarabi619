@@ -1,3 +1,5 @@
+<!-- markdownlint-disable -->
+
 🔗 **Connect with me**:<br/><br/>
 <a href="https://linkedin.com/in/mfarabi" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="mfarabilinkedIn" height="50" width="50" /></a>
 <a href="https://www.youtube.com/@mumtahinfarabi7502/videos" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/youtube.svg" alt="mfarabiYoutube" height="50" width="50" /></a>

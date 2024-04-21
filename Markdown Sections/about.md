@@ -1,3 +1,5 @@
+<!-- markdownlint-disable -->
+
 <br/>
 <summary><b>✨ About Me</b></summary>
 <br/>
