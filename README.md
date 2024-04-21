@@ -44,7 +44,7 @@
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td align='center'>
           <!-- HTML -->
           <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40"/>
@@ -94,7 +94,7 @@
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40"/>
           </a>
         </td>
-        <td>
+        <td align='center'>
           <!-- Node.js -->
           <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40"/>
@@ -136,7 +136,7 @@
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg" alt="PyTest Logo" width="40" height="40"/>
           </a>
         </td>
-        <td>
+        <td align='center'>
           <!-- Git -->
           <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
             <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40"/>

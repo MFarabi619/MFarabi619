@@ -33,7 +33,7 @@ def generate_skills_section(data: Dict[str, List[Dict]], category: str) -> str:
     )
 
     for key, items in data.items():
-        content += "        <td>\n"
+        content += "        <td align='center'>\n"
         for item in items:
             width = item.get("width", "40")
             height = item.get("height", "40")
