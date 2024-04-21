@@ -309,7 +309,7 @@ height="40"/>
 <summary><b>✨&nbsp;&nbsp;About&nbsp;Me</b></summary>
   </br>
 
-- 🌱 I began my self-taught developer journey in January 2023. I’m currently learning Full-Stack Web Development, and Embedded Systems Development🕸️🤖
+- 🌱 I began my self-taught developer journey in January 2023. I’m currently learning Full-Stack Web Development, and Automated Software Testing🕸️🤖
 - 👀 While I’m interested in web apps, I also have experience with lower level languages such as C/C++, and Java🍵
 - 💻 I'm also a passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python🥳
 - 🛠️ I believe that a good developer experience (DX) is key to a good UI/UX. I regularly explore technologies and features that reduce fatigue and improve productivity🚀 
