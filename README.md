@@ -44,92 +44,103 @@
 <tbody>
     <tr>
     <td>
+    <!-- HTML -->
      <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
     <img
       src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg"
-      alt="html5"
+      alt="HTML Logo"
       width="40"
       height="40"
     />
   </a>
+    <!-- CSS -->
       <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
     <img
       src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
-      alt="css3"
+      alt="CSS3 Logo"
       width="40"
       height="40"
     />
   </a>
+  <!-- SCSS -->
   </a>
      <a href="https://sass-lang.com" target="_blank" rel="noreferrer">
     <img
       src="https://raw.githubusercontent.com/devicons/devicon/master/icons/sass/sass-original.svg"
-      alt="sass"
+      alt="SCSS Logo"
       width="40"
       height="40"
     />
   </a>
+  <!-- JavaScript -->
    <a
     href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"
     target="_blank"
     rel="noreferrer">
     <img
       src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg"
-      alt="javascript"
+      alt="JavaScript Logo"
       width="40"
       height="40"
     />
+   <!-- TypeScript -->
    <a
     href="https://www.typescriptlang.org/"
     target="_blank"
     rel="noreferrer">
     <img
       src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
-      alt="javascript"
+      alt="TypeScript Logo"
       width="40"
       height="40"
     />
-       <a href="https://www.python.org" target="_blank" rel="noreferrer">
-    <img
-      src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
-      alt="python"
-      width="40"
-      height="40"
-    />
-  </a>
-       <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
-    <img
-      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-plain-wordmark.svg"
-    alt="Lua"
-      width="40"
-      height="40"
-    />
-  </a>
+  <!-- Java -->
        <a href="https://www.java.com" target="_blank" rel="noreferrer">
     <img
       src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg"
-      alt="java"
+      alt="Java Logo"
       width="40"
       height="40"
     />
   </a>
-
+      <!-- Python  -->
+       <a href="https://www.python.org" target="_blank" rel="noreferrer">
+    <img
+      src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
+      alt="Python Logo"
+      width="40"
+      height="40"
+    />
+  </a>
+<!-- Bash -->
  <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
     <img
       src="https://bashlogo.com/img/symbol/png/monochrome_light.png"
-      alt="git"
+      alt="Bash Logo"
       width="40"
       height="40"
     />
   </a>
-   <a href="https://www.cprogramming.com/" target="_blank" rel="noreferrer"> 
-       <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/c/c-original.svg" alt="c" width="40" height="40"/> 
+  <!-- Lua -->
+       <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
+    <img
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/lua/lua-original.svg"
+    alt="Lua Logo"
+      width="40"
+      height="40"
+    />
+  </a>
+  <!-- Embedded C -->
+   <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer"> 
+       <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40"/> 
         </a>
+      <!-- C++ -->
      <a href="https://www.w3schools.com/cpp/" target="_blank" rel="noreferrer"> 
-         <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="cplusplus" width="40" height="40"/> 
+         <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C Plus Plus Logo" width="40" height="40"/> 
         </a>
+        <!-- Arduino -->
      <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer"> 
-         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="cplusplus" width="40" height="40"/> 
+         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40"/> 
         </a>
 <!--               <a href="https://dart.dev" target="_blank" rel="noreferrer">
     <img
@@ -141,10 +152,13 @@
   </a> -->
    </td>
     <td>
+    <!-- Node.js -->
     <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer"> 
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" 
-    width="40" 
-    height="40"/> </a>
+            <img
+            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" 
+            width="40" 
+            height="40"/> </a>
+            <!-- Express -->
     <a href="https://expressjs.com/" target="_blank" rel="noreferrer"> 
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg" 
     width="40" 
@@ -154,46 +168,51 @@
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
               width="40" 
     height="40"/>
+    <!-- Next.js -->
          </a> 
     <a href="https://nextjs.org/" target="_blank" rel="noreferrer"> 
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
-    alt="Next.js" 
+    alt="Next.js Logo" 
     width="40" 
     height="40"/> </a>
+    <!-- React -->
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer"> 
 <img 
 src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/react_logo.svg" 
-alt="React" 
+alt="React Logo" 
 width="40" 
 height="40"/> 
 </a>
-<a href="https://tailwindcss.com/" target="_blank" rel="noreferrer"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" 
-      alt="Bootstrap" 
+<!-- Tailwind CSS -->
+<a href="https://tailwindcss.com/" target="_blank" rel="noreferrer"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" 
+      alt="Tailwind CSS Logo" 
       width="40" 
       height="40"/> 
 </a> 
 <a href="https://getbootstrap.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" 
-      alt="Bootstrap" 
+      alt="Bootstrap Logo" 
       width="40" 
       height="40"/> 
 </a> 
+<!-- PyTest -->
          </a>
   <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
     <img
       src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
-      alt="pytest"
+      alt="Pytest Logo"
       width="40"
       height="40"
     />
   </a>
-  <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
+  <!-- Python Unittest -->
+  <!-- <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
     <img
       src="https://blog.testproject.io/wp-content/uploads/2020/06/Pyunit.png"
-      alt="unittest"
+      alt="Python Unittest Logo"
       width="40"
       height="40"
     />
-  </a>
+  </a> -->
    </td>
         <td>
          <!-- Git -->
