@@ -36,104 +36,13 @@
 <div class="tg-wrap" align="center"><table>
 <thead>
   <tr>
-    <th style="width: 20px">Tools</th>
     <th>Languages</th>
     <th>Libraries/Frameworks</th>
+    <th style="width: 20px">Tools</th>
   </tr>
 </thead>
 <tbody>
     <tr>
-        <td>
-            <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-                <img
-                src="https://cdn.worldvectorlogo.com/logos/linux-tux.svg"
-                alt="vscodelogo"
-                width="40"
-                height="40"
-                />
-               <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
-                <img
-                src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
-                alt="vscodelogo"
-                width="40"
-                height="40"
-                />
-            <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
-                <img
-                src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg"
-                alt="vscodelogo"
-                width="40"
-                height="40"
-                />
-                 <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
-                <img
-                src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/vim_logo.svg"
-                alt="vscodelogo"
-                width="40"
-                height="40"
-                />
-                  <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
-                <img
-                src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg"
-                alt="tmuxlogo"
-                width="40"
-                height="40"
-                />
-                  <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
-    <img
-      src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
-      alt="git"
-      width="40"
-      height="40"
-    />
-    </a>
-                <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
-                  <img
-                    src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
-                    alt="figma"
-                    width="40"
-                    height="40"
-                  />
-                </a>
-            </a>
-
- <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
-                <img
-                src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/latex_logo.svg"
-                alt="vscodelogo"
-                width="40"
-                height="40"
-                />
-  <a href="https://developer.android.com/studio" target="_blank" rel="noreferrer">
-                <img
-                src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/androidstudio_logo.svg"
-                alt="vscodelogo"
-                width="40"
-                height="40"
-                />
-<!--      <a href="https://flutter.dev" target="_blank" rel="noreferrer">
-    <img
-      src="https://www.vectorlogo.zone/logos/flutterio/flutterio-icon.svg"
-      alt="flutter"
-      width="40"
-      height="40"
-    /></a> -->
-          <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
-    <img
-      src="https://cdn.worldvectorlogo.com/logos/jira-1.svg"
-      alt="jira logo"
-      width="40"
-      height="40"
-    /></a>
-     <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
-    <img
-      src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg"
-      alt="confluence logo"
-      width="40"
-      height="40"
-    /></a>         
-       
-   </td>
     <td>
      <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
     <img
@@ -231,6 +140,119 @@
     />
   </a> -->
    </td>
+        <td>
+         <!-- Git -->
+                  <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
+    <img
+      src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
+      alt="Git logo"
+      width="40"
+      height="40"
+    />
+           <!-- Linux -->
+            <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.worldvectorlogo.com/logos/linux-tux.svg"
+                alt="Linux Tux Logo"
+                width="40"
+                height="40"
+                />
+               <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
+                <img
+                src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+                alt="Ubuntu Logo"
+                width="40"
+                height="40"
+                />
+              <!-- Docker -->
+            <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-plain-wordmark.svg"
+                alt="Docker Logo"
+                width="40"
+                height="40"
+                />
+                 <!-- Vim -->
+                 <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
+                <img
+                src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/vim_logo.svg"
+                alt="Vim Logo"
+                width="40"
+                height="40"
+                />
+                   <!-- Azure DevOps -->
+            <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azuredevops/azuredevops-original.svg"
+                alt="Azure DevOps Logo"
+                width="40"
+                height="40"
+                />
+            <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg"
+                alt="VS Code Logo"
+                width="40"
+                height="40"
+                />
+                <!-- Tmux -->
+                  <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
+                <img
+                src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg"
+                alt="Tmux Logo"
+                width="40"
+                height="40"
+                />
+    </a>
+            </a>
+<!-- LaTeX -->
+ <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
+                <img
+                src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/latex_logo.svg"
+                alt="LaTeX"
+                width="40"
+                height="40"
+                />
+                       <!-- Android Studio -->
+  <!-- <a href="https://developer.android.com/studio" target="_blank" rel="noreferrer"> -->
+  <!--               <img -->
+  <!--               src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/androidstudio_logo.svg" -->
+  <!--               alt="Android Studio Logo" -->
+  <!--               width="40" -->
+  <!--               height="40" -->
+  <!--               /> -->
+<!--      <a href="https://flutter.dev" target="_blank" rel="noreferrer">
+    <img
+      src="https://www.vectorlogo.zone/logos/flutterio/flutterio-icon.svg"
+      alt="Flutter Logo"
+      width="40"
+      height="40"
+    /></a> -->
+          <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
+    <img
+      src="https://cdn.worldvectorlogo.com/logos/jira-1.svg"
+      alt="Jira Logo"
+      width="40"
+      height="40"
+    /></a>
+     <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
+    <img
+      src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg"
+      alt="confluence logo"
+      width="40"
+      height="40"
+    /></a>         
+                       <!-- Figma -->
+                <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
+                  <img
+                    src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
+                    alt="Figma Logo"
+                    width="40"
+                    height="40"
+                  />
+                </a>
+       
+   </td>
     <td>
     <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer"> 
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" 
@@ -312,7 +334,7 @@ height="40"/>
 - 🌱 I began my self-taught developer journey in January 2023. I’m currently learning Full-Stack Web Development, and Automated Software Testing🕸️🤖
 - 👀 While I’m interested in web apps, I also have experience with lower level languages such as C/C++, and Java🍵
 - 💻 I'm also a passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python🥳
-- 🛠️ I believe that a good developer experience (DX) is key to a good UI/UX. I regularly explore technologies and features that reduce fatigue and improve productivity🚀 
+- 🛠️ I believe that a good developer experience (DX) is key to a good UI/UX. I regularly explore technologies and features that reduce fatigue and improve productivity🚀
 
 <!-- If you liked the format of this README, feel free to copy it and [leave a star! :)](https://github.com/MFarabi619/MFarabi619) -->
 
