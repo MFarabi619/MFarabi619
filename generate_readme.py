@@ -22,7 +22,7 @@ def read_json(file_path: str) -> Dict:
         return {}
 
 
-def generate_skills_section(data: Dict[str, List[Dict]], category: str) -> str:
+def generate_skills_section(data: Dict[str, List[Dict]],) -> str:
     """Generates markdown for the skills section based on the provided data."""
     content = (
         '<div class="tg-wrap" align="center">\n  <table>\n    <thead>\n      <tr>\n'
@@ -75,7 +75,7 @@ def combine_markdown_files() -> None:
 
     # Generate and append skills section
     skills_data = read_json("./Markdown Sections/Section Data/skills.json")
-    skills_md = generate_skills_section(skills_data, "Skills")
+    skills_md = generate_skills_section(skills_data)
     write_to_readme(skills_md)
 
     # Generate and append connect section
