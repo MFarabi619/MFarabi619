@@ -70,7 +70,7 @@
     {
       "name": "Express",
       "url": "https://expressjs.com/",
-      "icon": "/Markdown Sections/Section Data/express_logo.svg"
+      "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg"
     },
     {
       "name": "Next.js",
@@ -157,7 +157,7 @@
     {
       "name": "LaTeX",
       "url": "https://www.latex-project.org/",
-      "icon": "/Markdown Sections/Section Data/latex_logo.svg"
+      "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg"
     },
     {
       "name": "VS Code",

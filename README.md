@@ -101,7 +101,7 @@
           </a>
           <!-- Express -->
           <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
-            <img src="/Markdown Sections/Section Data/express_logo.svg" alt="Express Logo" width="40" height="40"/>
+            <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40"/>
           </a>
           <!-- Next.js -->
           <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
@@ -171,7 +171,7 @@
           </a>
           <!-- LaTeX -->
           <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
-            <img src="/Markdown Sections/Section Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40"/>
+            <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40"/>
           </a>
           <!-- VS Code -->
           <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
