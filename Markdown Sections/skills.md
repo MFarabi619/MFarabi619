@@ -133,7 +133,7 @@
           </a>
           <!-- LaTeX -->
           <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/latex_logo.svg" alt="LaTeX" width="40" height="40" />
+            <img src="https://cdn.worldvectorlogo.com/logos/latex.svg" alt="LaTeX" width="40" height="40" />
           </a>
           <!-- VS Code -->
           <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">

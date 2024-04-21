@@ -70,7 +70,7 @@
     {
       "name": "Express",
       "url": "https://expressjs.com/",
-      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg"
+      "icon": "/Markdown Sections/Section Data/express_logo.svg"
     },
     {
       "name": "Next.js",
@@ -157,7 +157,7 @@
     {
       "name": "LaTeX",
       "url": "https://www.latex-project.org/",
-      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/latex/latex-original.svg"
+      "icon": "/Markdown Sections/Section Data/latex_logo.svg"
     },
     {
       "name": "VS Code",
