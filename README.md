@@ -140,6 +140,61 @@
     />
   </a> -->
    </td>
+    <td>
+    <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer"> 
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" 
+    width="40" 
+    height="40"/> </a>
+    <a href="https://expressjs.com/" target="_blank" rel="noreferrer"> 
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg" 
+    width="40" 
+    height="40"/>
+         </a> 
+    <a href="https://emberjs.com/" target="_blank" rel="noreferrer"> 
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
+              width="40" 
+    height="40"/>
+         </a> 
+    <a href="https://nextjs.org/" target="_blank" rel="noreferrer"> 
+    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
+    alt="Next.js" 
+    width="40" 
+    height="40"/> </a>
+<a href="https://reactjs.org/" target="_blank" rel="noreferrer"> 
+<img 
+src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/react_logo.svg" 
+alt="React" 
+width="40" 
+height="40"/> 
+</a>
+<a href="https://tailwindcss.com/" target="_blank" rel="noreferrer"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" 
+      alt="Bootstrap" 
+      width="40" 
+      height="40"/> 
+</a> 
+<a href="https://getbootstrap.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" 
+      alt="Bootstrap" 
+      width="40" 
+      height="40"/> 
+</a> 
+         </a>
+  <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
+      alt="pytest"
+      width="40"
+      height="40"
+    />
+  </a>
+  <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
+    <img
+      src="https://blog.testproject.io/wp-content/uploads/2020/06/Pyunit.png"
+      alt="unittest"
+      width="40"
+      height="40"
+    />
+  </a>
+   </td>
         <td>
          <!-- Git -->
                   <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
@@ -252,61 +307,6 @@
                   />
                 </a>
        
-   </td>
-    <td>
-    <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer"> 
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" 
-    width="40" 
-    height="40"/> </a>
-    <a href="https://expressjs.com/" target="_blank" rel="noreferrer"> 
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg" 
-    width="40" 
-    height="40"/>
-         </a> 
-    <a href="https://emberjs.com/" target="_blank" rel="noreferrer"> 
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
-              width="40" 
-    height="40"/>
-         </a> 
-    <a href="https://nextjs.org/" target="_blank" rel="noreferrer"> 
-    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" 
-    alt="Next.js" 
-    width="40" 
-    height="40"/> </a>
-<a href="https://reactjs.org/" target="_blank" rel="noreferrer"> 
-<img 
-src="https://raw.githubusercontent.com/MFarabi619/personal-portfolio-website/fd0a5dd8cb29f0420b7d000d7ad3e9928310aaeb/src/assets/svg/react_logo.svg" 
-alt="React" 
-width="40" 
-height="40"/> 
-</a>
-<a href="https://tailwindcss.com/" target="_blank" rel="noreferrer"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" 
-      alt="Bootstrap" 
-      width="40" 
-      height="40"/> 
-</a> 
-<a href="https://getbootstrap.com" target="_blank" rel="noreferrer"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" 
-      alt="Bootstrap" 
-      width="40" 
-      height="40"/> 
-</a> 
-         </a>
-  <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
-    <img
-      src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
-      alt="pytest"
-      width="40"
-      height="40"
-    />
-  </a>
-  <a href="https://docs.python.org/3/library/unittest.html" target="_blank" rel="noreferrer">
-    <img
-      src="https://blog.testproject.io/wp-content/uploads/2020/06/Pyunit.png"
-      alt="unittest"
-      width="40"
-      height="40"
-    />
-  </a>
    </td>
   </tr>
 </tbody>
