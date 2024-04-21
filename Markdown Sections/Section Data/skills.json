@@ -1,0 +1,178 @@
+{
+  "Languages": [
+    {
+      "name": "HTML",
+      "url": "https://www.w3.org/html/",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg"
+    },
+    {
+      "name": "CSS",
+      "url": "https://www.w3schools.com/css/",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
+    },
+    {
+      "name": "SCSS",
+      "url": "https://sass-lang.com",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/sass/sass-original.svg"
+    },
+    {
+      "name": "JavaScript",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg"
+    },
+    {
+      "name": "TypeScript",
+      "url": "https://www.typescriptlang.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
+    },
+    {
+      "name": "Java",
+      "url": "https://www.java.com",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg"
+    },
+    {
+      "name": "Python",
+      "url": "https://www.python.org",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
+    },
+    {
+      "name": "Bash",
+      "url": "https://www.gnu.org/software/bash/",
+      "icon": "https://bashlogo.com/img/symbol/png/monochrome_light.png"
+    },
+    {
+      "name": "Lua",
+      "url": "https://www.lua.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg"
+    },
+    {
+      "name": "Embedded C",
+      "url": "https://en.wikipedia.org/wiki/Embedded_C",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg"
+    },
+    {
+      "name": "C++",
+      "url": "https://www.w3schools.com/cpp/",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
+    },
+    {
+      "name": "Arduino",
+      "url": "https://www.arduino.cc/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
+    }
+  ],
+  "Libraries/Frameworks": [
+    {
+      "name": "Node.js",
+      "url": "https://nodejs.org/en/about",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg"
+    },
+    {
+      "name": "Express",
+      "url": "https://expressjs.com/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg"
+    },
+    {
+      "name": "Ember.js",
+      "url": "https://emberjs.com/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
+    },
+    {
+      "name": "Next.js",
+      "url": "https://nextjs.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
+    },
+    {
+      "name": "React",
+      "url": "https://reactjs.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+    },
+    {
+      "name": "Tailwind CSS",
+      "url": "https://tailwindcss.com/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
+    },
+    {
+      "name": "Bootstrap",
+      "url": "https://getbootstrap.com",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg"
+    },
+    {
+      "name": "PyTest",
+      "url": "https://docs.pytest.org/en/7.3.x/",
+      "icon": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
+    }
+  ],
+  "Tools": [
+    {
+      "name": "Git",
+      "url": "https://git-scm.com/",
+      "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
+    },
+    {
+      "name": "Linux",
+      "url": "https://www.linux.org/",
+      "icon": "https://cdn.worldvectorlogo.com/logos/linux-tux.svg"
+    },
+    {
+      "name": "Ubuntu",
+      "url": "https://ubuntu.com/",
+      "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+    },
+    {
+      "name": "Docker",
+      "url": "https://www.docker.com/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
+    },
+    {
+      "name": "NeoVim",
+      "url": "https://neovim.io/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg"
+    },
+    {
+      "name": "Vim",
+      "url": "https://www.vim.org/",
+      "icon": "https://cdn.worldvectorlogo.com/logos/vim.svg"
+    },
+    {
+      "name": "Tmux",
+      "url": "https://github.com/tmux/tmux/wiki",
+      "icon": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg"
+    },
+    {
+      "name": "Figma",
+      "url": "https://www.figma.com/",
+      "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
+    },
+    {
+      "name": "LaTeX",
+      "url": "https://www.latex-project.org/",
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/latex/latex-original.svg"
+    },
+    {
+      "name": "VS Code",
+      "url": "https://code.visualstudio.com/",
+      "icon": "https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg"
+    },
+    {
+      "name": "Azure DevOps",
+      "url": "https://azure.microsoft.com/en-ca/products/devops",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg"
+    },
+    {
+      "name": "BitBucket",
+      "url": "https://bitbucket.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg"
+    },
+    {
+      "name": "Jira",
+      "url": "https://www.atlassian.com/software/jira",
+      "icon": "https://cdn.worldvectorlogo.com/logos/jira-1.svg"
+    },
+    {
+      "name": "Confluence",
+      "url": "https://www.atlassian.com/software/confluence",
+      "icon": "https://cdn.worldvectorlogo.com/logos/confluence-1.svg"
+    }
+  ]
+}
