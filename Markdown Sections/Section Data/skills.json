@@ -73,11 +73,6 @@
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg"
     },
     {
-      "name": "Ember.js",
-      "url": "https://emberjs.com/",
-      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
-    },
-    {
       "name": "Next.js",
       "url": "https://nextjs.org/",
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
@@ -88,14 +83,29 @@
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
     },
     {
+      "name": "Ember.js",
+      "url": "https://emberjs.com/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
+    },
+    {
       "name": "Tailwind CSS",
       "url": "https://tailwindcss.com/",
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
     },
     {
-      "name": "Bootstrap",
-      "url": "https://getbootstrap.com",
-      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg"
+      "name": "Jest",
+      "url": "https://jestjs.io/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg"
+    },
+    {
+      "name": "Chai",
+      "url": "https://www.chaijs.com/",
+      "icon": "https://avatars.githubusercontent.com/u/1515293?s=280&v=4"
+    },
+    {
+      "name": "Mocha",
+      "url": "https://mochajs.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg"
     },
     {
       "name": "PyTest",

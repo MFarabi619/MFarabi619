@@ -103,10 +103,6 @@
           <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original-wordmark.svg" alt="Express Logo" width="40" height="40"/>
           </a>
-          <!-- Ember.js -->
-          <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40"/>
-          </a>
           <!-- Next.js -->
           <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40"/>
@@ -115,13 +111,25 @@
           <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40"/>
           </a>
+          <!-- Ember.js -->
+          <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40"/>
+          </a>
           <!-- Tailwind CSS -->
           <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40"/>
           </a>
-          <!-- Bootstrap -->
-          <a href="https://getbootstrap.com" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" alt="Bootstrap Logo" width="40" height="40"/>
+          <!-- Jest -->
+          <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40"/>
+          </a>
+          <!-- Chai -->
+          <a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
+            <img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40"/>
+          </a>
+          <!-- Mocha -->
+          <a href="https://mochajs.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40"/>
           </a>
           <!-- PyTest -->
           <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
