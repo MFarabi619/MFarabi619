@@ -203,7 +203,7 @@ height="40"/>
       alt="Git logo"
       width="40"
       height="40"
-    />
+    /></a>
            <!-- Linux -->
             <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
                 <img
@@ -211,14 +211,14 @@ height="40"/>
                 alt="Linux Tux Logo"
                 width="40"
                 height="40"
-                />
+                /></a>
                <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
                 <img
                 src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
                 alt="Ubuntu Logo"
                 width="40"
                 height="40"
-                />
+                /></a>
               <!-- Docker -->
             <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
                 <img
@@ -226,7 +226,15 @@ height="40"/>
                 alt="Docker Logo"
                 width="40"
                 height="40"
-                />
+                /></a>
+                <!-- NeoVim -->
+                 <a href="https://neovim.io/" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/neovim/neovim-original.svg"
+                alt="NeoVim Logo"
+                width="40"
+                height="40"
+                /></a>
                  <!-- Vim -->
                  <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
                 <img
@@ -234,22 +242,7 @@ height="40"/>
                 alt="Vim Logo"
                 width="40"
                 height="40"
-                />
-                   <!-- Azure DevOps -->
-            <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
-                <img
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azuredevops/azuredevops-original.svg"
-                alt="Azure DevOps Logo"
-                width="40"
-                height="40"
-                />
-            <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
-                <img
-                src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg"
-                alt="VS Code Logo"
-                width="40"
-                height="40"
-                />
+                /></a>
                 <!-- Tmux -->
                   <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
                 <img
@@ -257,9 +250,15 @@ height="40"/>
                 alt="Tmux Logo"
                 width="40"
                 height="40"
-                />
-    </a>
-            </a>
+                /></a>
+                <!-- Figma -->
+                <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
+                  <img
+                    src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
+                    alt="Figma Logo"
+                    width="40"
+                    height="40"
+                  /></a>
 <!-- LaTeX -->
  <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
                 <img
@@ -267,7 +266,31 @@ height="40"/>
                 alt="LaTeX"
                 width="40"
                 height="40"
-                />
+                /></a>
+                <!-- VS Code -->
+            <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg"
+                alt="VS Code Logo"
+                width="40"
+                height="40"
+                /></a>
+                   <!-- Azure DevOps -->
+            <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azuredevops/azuredevops-original.svg"
+                alt="Azure DevOps Logo"
+                width="40"
+                height="40"
+                /></a>
+                   <!-- BitBucket -->
+            <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
+                <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/bitbucket/bitbucket-original.svg"
+                alt="BitBucket Logo"
+                width="40"
+                height="40"
+                /></a>
                        <!-- Android Studio -->
   <!-- <a href="https://developer.android.com/studio" target="_blank" rel="noreferrer"> -->
   <!--               <img -->
@@ -297,15 +320,6 @@ height="40"/>
       width="40"
       height="40"
     /></a>         
-                       <!-- Figma -->
-                <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
-                  <img
-                    src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
-                    alt="Figma Logo"
-                    width="40"
-                    height="40"
-                  />
-                </a>
        
    </td>
   </tr>
