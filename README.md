@@ -220,7 +220,7 @@
 - 🌱 I began my self-taught developer journey in January 2023. I’m currently learning Full-Stack Web Development, and Automated Software Testing 🕸️🤖
 - 👀 While I’m interested in web apps, I also have experience with lower level languages such as C/C++, and Java 🍵
 - 💻 I'm also a passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
-    - My [Dotfiles](https://github.com/MFarabi619/dotfiles/tree/main/macos)
+    - [My Dotfiles](https://github.com/MFarabi619/dotfiles/tree/main/macos)
 - 🛠️ I believe that a good developer experience (DX) is key to a good UI/UX. I regularly explore technologies and features that reduce fatigue and improve productivity 🚀
 
 <!-- If you liked the format of this README, feel free to copy it and [leave a star! :)](https://github.com/MFarabi619/MFarabi619) -->
@@ -236,5 +236,5 @@ MFarabi619/MFarabi619 is a ✨ special ✨ repository because its `README.md` (t
 You can click the Preview link to take a look at your changes.
 --->
 
-This readme is generated dynamically using a python script.
 
+This readme is generated dynamically using a python script.
