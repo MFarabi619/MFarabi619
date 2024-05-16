@@ -163,7 +163,7 @@
           </a>
           <!-- GitHub Actions -->
           <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
-            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Actions Logo" width="40" height="40"/>
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40"/>
           </a>
           <!-- Sanity -->
           <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
