@@ -93,6 +93,11 @@
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
     },
     {
+      "name": "Storybook",
+      "url": "https://storybook.js.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg"
+    },
+    {
       "name": "Jest",
       "url": "https://jestjs.io/",
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg"
@@ -106,6 +111,11 @@
       "name": "Mocha",
       "url": "https://mochajs.org/",
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg"
+    },
+    {
+    "name": "Playwright",
+    "url": "https://playwright.dev/",
+    "icon": "https://playwright.dev/img/playwright-logo.svg"
     },
     {
       "name": "PyTest",
@@ -133,6 +143,16 @@
       "name": "Docker",
       "url": "https://www.docker.com/",
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
+    },
+    {
+    "name": "GitHub Actions",
+    "url": "https://github.com/features/actions",
+    "icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+    },
+    {
+    "name": "Sanity",
+    "url": "https://www.sanity.io/",
+    "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg"
     },
     {
       "name": "NeoVim",
