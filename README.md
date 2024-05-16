@@ -237,4 +237,4 @@ You can click the Preview link to take a look at your changes.
 --->
 
   
-This readme is generated dynamically using a python script.
+This readme is generated dynamically using a Python script running on a GitHub Actions workflow.
