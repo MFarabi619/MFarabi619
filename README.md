@@ -119,6 +119,10 @@
           <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40"/>
           </a>
+          <!-- Storybook -->
+          <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40"/>
+          </a>
           <!-- Jest -->
           <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40"/>
@@ -130,6 +134,10 @@
           <!-- Mocha -->
           <a href="https://mochajs.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40"/>
+          </a>
+          <!-- Playwright -->
+          <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
+            <img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40"/>
           </a>
           <!-- PyTest -->
           <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
@@ -152,6 +160,14 @@
           <!-- Docker -->
           <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40"/>
+          </a>
+          <!-- GitHub Actions -->
+          <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Actions Logo" width="40" height="40"/>
+          </a>
+          <!-- Sanity -->
+          <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40"/>
           </a>
           <!-- NeoVim -->
           <a href="https://neovim.io/" target="_blank" rel="noreferrer">
@@ -236,5 +252,6 @@ MFarabi619/MFarabi619 is a ✨ special ✨ repository because its `README.md` (t
 You can click the Preview link to take a look at your changes.
 --->
 
-   
-This readme is generated dynamically using a Python script running on a GitHub Actions workflow.
+This readme is generated dynamically using a python script running on a cloud GitHub action.
+
+
