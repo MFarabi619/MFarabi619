@@ -151,7 +151,7 @@
           </a>
           <!-- Linux -->
           <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.worldvectorlogo.com/logos/linux-tux.svg" alt="Linux Logo" width="40" height="40"/>
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="Linux Logo" width="40" height="40"/>
           </a>
           <!-- Ubuntu -->
           <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
