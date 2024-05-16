@@ -1,0 +1,19 @@
+name: Simple Check
+
+on:
+  push:
+    branches: main
+
+  workflow_dispatch: # Allow for manual triggering
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run a simple command
+        run: echo "This is a simple check to get a green tick!"
+
