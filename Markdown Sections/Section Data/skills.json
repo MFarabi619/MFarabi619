@@ -132,7 +132,7 @@
     {
       "name": "Linux",
       "url": "https://www.linux.org/",
-      "icon": "https://cdn.worldvectorlogo.com/logos/linux-tux.svg"
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg"
     },
     {
       "name": "Ubuntu",
