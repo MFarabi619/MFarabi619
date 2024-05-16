@@ -147,7 +147,7 @@
     {
     "name": "GitHub Actions",
     "url": "https://github.com/features/actions",
-    "icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+    "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
     },
     {
     "name": "Sanity",
