@@ -61,7 +61,7 @@
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
     }
   ],
-  "Libraries/Frameworks": [
+  "Frameworks & Libraries": [
     {
       "name": "Node.js",
       "url": "https://nodejs.org/en/about",
