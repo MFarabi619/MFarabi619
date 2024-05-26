@@ -19,8 +19,8 @@
       </td>
     </tr>
     <tr>
-      <td>
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=10&theme=great-gatsby"/>
+      <td align="center">
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=great-gatsby"/>
       </td>
       <td>
         <a href="https://leetcode.com/MFarabi619/">
