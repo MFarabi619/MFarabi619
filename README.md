@@ -238,9 +238,7 @@
 - 👀 While I’m interested in web apps, I also have experience with lower level languages such as C/C++, and Java 🍵
 - 💻 I'm also a passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
   - [My Dotfiles](https://github.com/MFarabi619/dotfiles/tree/main/macos)
-- 🛠️ I believe that a good developer experience (DX) is key to a good UI/UX. I regularly explore technologies and features that reduce fatigue and improve productivity 🚀
-
-<!-- If you liked the format of this README, feel free to copy it and [leave a star! :)](https://github.com/MFarabi619/MFarabi619) -->
+- 🛠️ I believe that a good developer experience is key to a good user experience. I regularly explore technologies and features that reduce fatigue and improve productivity 🏃‍♂️💨
 
 <a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge" target="_top">
   <img src="https://data.typeracer.com/misc/badge?user=killshot619" border="0" alt="TypeRacer.com scorecard for user killshot619"/>
