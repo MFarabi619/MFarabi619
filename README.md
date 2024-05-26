@@ -40,7 +40,7 @@
   <table>
     <thead>
       <tr>
-<th>Languages</th><th>Libraries/Frameworks</th><th>Tools</th>
+<th>Languages</th><th>Frameworks & Libraries</th><th>Tools</th>
       </tr>
     </thead>
     <tbody>
