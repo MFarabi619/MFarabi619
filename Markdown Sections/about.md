@@ -1,8 +1,8 @@
 <!-- markdownlint-disable -->
 
 <br/>
-<summary><b>✨ About Me</b></summary>
-<br/>
+<b>✨ About Me</b>
+<br/><br/>
 
 - 🌱 I began my self-taught developer journey in January 2023. I’m currently learning Full-Stack Web Development, and Automated Software Testing 🕸️🤖
 - 👀 While I’m interested in web apps, I also have experience with lower level languages such as C/C++, and Java 🍵
