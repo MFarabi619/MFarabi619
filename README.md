@@ -130,7 +130,7 @@
           </a>
           <!-- Framer Motion -->
           <a href="https://www.framer.com/motion/" target="_blank" rel="noreferrer">
-            <img src="https://svgshare.com/i/16i9.svg" alt="Framer Motion Logo" width="40" height="40"/>
+            <img src="https://svgshare.com/i/16jP.svg" alt="Framer Motion Logo" width="40" height="40"/>
           </a>
           <!-- Storybook -->
           <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
