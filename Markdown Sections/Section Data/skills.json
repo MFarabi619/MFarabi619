@@ -73,6 +73,16 @@
       "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg"
     },
     {
+      "name": "PostgreSQL",
+      "url": "https://www.postgresql.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg"
+    },
+    {
+      "name": "GraphQL",
+      "url": "https://graphql.org/",
+      "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg"
+    },
+    {
       "name": "Next.js",
       "url": "https://nextjs.org/",
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
@@ -91,6 +101,11 @@
       "name": "Tailwind CSS",
       "url": "https://tailwindcss.com/",
       "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
+    },
+    {
+      "name": "Framer Motion",
+      "url": "https://www.framer.com/motion/",
+      "icon": "https://svgshare.com/i/16i9.svg"
     },
     {
       "name": "Storybook",
