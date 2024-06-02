@@ -104,6 +104,14 @@
           <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40"/>
           </a>
+          <!-- PostgreSQL -->
+          <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40"/>
+          </a>
+          <!-- GraphQL -->
+          <a href="https://graphql.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40"/>
+          </a>
           <!-- Next.js -->
           <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40"/>
@@ -119,6 +127,10 @@
           <!-- Tailwind CSS -->
           <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40"/>
+          </a>
+          <!-- Framer Motion -->
+          <a href="https://www.framer.com/motion/" target="_blank" rel="noreferrer">
+            <img src="https://svgshare.com/i/16i9.svg" alt="Framer Motion Logo" width="40" height="40"/>
           </a>
           <!-- Storybook -->
           <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
