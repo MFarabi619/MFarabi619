@@ -46,6 +46,10 @@
     <tbody>
       <tr>
         <td align='center'>
+          <!-- HTML -->
+          <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40"/>
+          </a>
           <!-- CSS -->
           <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40"/>
