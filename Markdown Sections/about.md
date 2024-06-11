@@ -53,6 +53,3 @@ Got a suggestion? Add it to the list :)
     </tr>
   </tbody>
 </table>
-
-
-This README is generated dynamically using a [Python script](https://github.com/MFarabi619/MFarabi619/blob/main/generate_readme.py) running on a cloud [GitHub Action](https://github.com/MFarabi619/MFarabi619/actions) 🤖
