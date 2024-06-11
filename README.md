@@ -287,9 +287,6 @@ Got a suggestion? Add it to the list :)
 </table>
 
 
-This README is generated dynamically using a [Python script](https://github.com/MFarabi619/MFarabi619/blob/main/generate_readme.py) running on a cloud [GitHub Action](https://github.com/MFarabi619/MFarabi619/actions) 🤖
-
-
 🔗 **Connect with me**:<br/><br/>
 <a href="https://linkedin.com/in/mfarabi" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="LinkedIn Logo" height="50" width="50" /></a>
 <a href="https://www.youtube.com/@mumtahinfarabi7502/videos" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/youtube.svg" alt="YouTube Logo" height="50" width="50" /></a>
