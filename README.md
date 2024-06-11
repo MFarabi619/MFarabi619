@@ -241,17 +241,17 @@
   - [My Dotfiles](https://github.com/MFarabi619/dotfiles/tree/main/macos)
 - 🛠️ I believe that a good developer experience is key to a good user experience. I regularly explore technologies and features that reduce fatigue and improve productivity 🏃‍♂️💨
 <hr/>
-<b>📚 Books</b>
+<b>📖 Books</b>
 <br/><br/>
 
 Got a suggestion? Add it to the list :)
 
-<table style="width: 100%; table-layout: fixed;">
+<table>
   <thead>
     <tr>
-      <th style="width: 33%; text-align: center; color: #ADD8E6;">To Read</th>
-      <th style="width: 33%; text-align: center; color: #FFD700;">Currently Reading</th>
-      <th style="width: 33%; text-align: center; color: #90EE90;">Read</th>
+      <th>📚</th>
+      <th>🙇</th>
+      <th>✅</th>
     </tr>
   </thead>
   <tbody>
