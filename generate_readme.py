@@ -78,16 +78,16 @@ def combine_markdown_files() -> None:
     skills_md = generate_skills_section(skills_data)
     write_to_readme(skills_md)
 
+
+    # Append 'about' section
+    about_content = read_file("./Markdown Sections/about.md")
+    write_to_readme(about_content)
+
     # Generate and append connect section
     connect_data = read_json("./Markdown Sections/Section Data/connect.json")[
         "socialLinks"
     ]
     connect_md = generate_connect_section(connect_data)
     write_to_readme(connect_md)
-
-    # Append 'about' section
-    about_content = read_file("./Markdown Sections/about.md")
-    write_to_readme(about_content)
-
 
 combine_markdown_files()
