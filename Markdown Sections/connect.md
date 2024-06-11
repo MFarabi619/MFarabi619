@@ -1,5 +1,4 @@
 <!-- markdownlint-disable -->
-
 <hr/>
 
 🔗 **Connect with me**:<br/><br/>
