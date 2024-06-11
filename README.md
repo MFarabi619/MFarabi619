@@ -33,8 +33,6 @@
   </table>
 </div>
 
-<br/>
-
 
 <div class="tg-wrap" align="center">
   <table>
