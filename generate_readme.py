@@ -84,10 +84,11 @@ def combine_markdown_files() -> None:
     write_to_readme(about_content)
 
     # Generate and append connect section
-    connect_data = read_json("./Markdown Sections/Section Data/connect.json")[
-        "socialLinks"
-    ]
-    connect_md = generate_connect_section(connect_data)
+    # connect_data = read_json("./Markdown Sections/Section Data/connect.json")[
+    #    "socialLinks"
+    #]
+    #connect_md = generate_connect_section(connect_data)
+    connect_md = ["./Markdown Sections/connect.md"]
     write_to_readme(connect_md)
 
 combine_markdown_files()
