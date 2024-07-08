@@ -5,10 +5,11 @@
 <br/><br/>
 
 
-- 🌱 I began my self-taught developer journey in January 2023. I’m currently learning Full-Stack Web Development, and Automated Software Testing 🕸️🤖
-- 👀 While I’m interested in web apps, I also have experience with lower level languages such as C/C++, and Java 🍵
-- 💻 I'm also a passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
-  - [My Dotfiles](https://github.com/MFarabi619/dotfiles/tree/main/macos)
+- 🌱 Began self-taught developer journey in January 2023. Currently learning Full-Stack Web Development, and Automated Software Testing 🕸️🤖
+- 👀 Familiar with lower level languages such as C/C++, and Java 🍵
+- 💻 Passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
+  - [Dotfiles](https://github.com/MFarabi619/dotfiles/tree/main/macos)
+  - Yes, I debug my PDE on a regular basis
 - 🛠️ I believe that a good developer experience is key to a good user experience. I regularly explore technologies and features that reduce fatigue and improve productivity 🏃‍♂️💨
 <hr/>
 <b>📖 Books</b>
