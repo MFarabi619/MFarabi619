@@ -1,7 +1,8 @@
+# 🛠️ Current Setup
 - [Linux](https://www.linux.org/) Kernel
-- [GNU](https://www.gnu.org/home.en.html) User Space
-- [Ubuntu 22.04 LTS - Jammy Jellfish](https://releases.ubuntu.com/jammy/) Distribution
-    - [Arch Linux](https://archlinux.org/) migration in progress
+  - [GNU](https://www.gnu.org/home.en.html) User Space
+  - [Ubuntu 22.04 LTS - Jammy Jellfish](https://releases.ubuntu.com/jammy/) Distribution
+      - [Arch Linux](https://archlinux.org/) migration in progress
 - [LazyVim](https://www.lazyvim.org/)
     - [Edgy](https://github.com/folke/edgy.nvim) for window management
     - [Neotree](https://github.com/nvim-neo-tree/neo-tree.nvim) for file browsing
