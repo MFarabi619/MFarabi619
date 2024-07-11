@@ -1,7 +1,6 @@
 import json
 from typing import Dict, List
 
-
 def read_file(file_path: str) -> str:
     """Reads and returns the content of a file as a string."""
     try:
@@ -88,7 +87,8 @@ def combine_markdown_files() -> None:
     #    "socialLinks"
     #]
     #connect_md = generate_connect_section(connect_data)
-    connect_md = ["./Markdown Sections/connect.md"]
+    connect_md = read_file("./Markdown Sections/connect.md")
+
     write_to_readme(connect_md)
 
 combine_markdown_files()
