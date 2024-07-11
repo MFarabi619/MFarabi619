@@ -163,5 +163,3 @@
     </tbody>
   </table>
 </div>
-
-<br/>

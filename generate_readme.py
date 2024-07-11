@@ -23,46 +23,75 @@ def read_json(file_path: str) -> Dict:
 
 
 def generate_skills_section(
-    data: Dict[str, List[Dict]],
+    data: Dict[str, Dict[str, List[Dict]]],
 ) -> str:
-    """Generate markdown for 'Skills' section based on provided datak"""
-    content = (
-        '<div class="tg-wrap" align="center">\n  <table>\n    <thead>\n      <tr>\n'
-    )
+    """Generate markdown for 'Skills' section based on provided data"""
+    content = """Please note that my technical competency fluctuates based on my active projects.<br/>
+            I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
+            <div class="tg-wrap" align="center">
+            <table>
+            <thead>
+            <tr>
+            """
+    
+    # Add table headers for each main category (Languages, Frameworks & Libraries, Tools)
     content += (
-        "".join([f"<th>{key}</th>" for key in data.keys()])
-        + "\n      </tr>\n    </thead>\n    <tbody>\n      <tr>\n"
+        "".join([f"<th>{category}</th>" for category in next(iter(data.values())).keys()])
+        + """</tr>
+          </thead>
+          <tbody>
+    """
     )
 
-    for key, items in data.items():
-        content += "        <td align='center'>\n"
-        for item in items:
-            width = item.get("width", "40")
-            height = item.get("height", "40")
-            alt_text = item.get("alt", f"{item['name']} Logo")
-            content += f'          <!-- {item["name"]} -->\n'
-            content += (
-                f'          <a href="{item["url"]}" target="_blank" rel="noreferrer">\n'
-            )
-            content += f'            <img src="{item["icon"]}" alt="{alt_text}" width="{width}" height="{height}"/>\n          </a>\n'
-        content += "        </td>\n"
+    # Helper function to generate table rows for each category and their respective items
+    def generate_category_rows(category: str, category_data: Dict[str, List[Dict]]) -> str:
+        rows = f"""<tr>
+              <td colspan="3" align="center">
+                <b>{category}</b>
+              </td>
+            </tr>
+            <tr>
+        """
+        for subcategory, items in category_data.items():
+            rows += "        <td align='center'>\n"
+            for item in items:
+                width = item.get("width", "40")
+                height = item.get("height", "40")
+                alt_text = item.get("alt", f"{item['name']} Logo")
+                rows += f'          <!-- {item["name"]} -->\n'
+                rows += (
+                    f'          <a href="{item["url"]}" target="_blank" rel="noreferrer">\n'
+                )
+                rows += f'            <img src="{item["icon"]}" alt="{alt_text}" width="{width}" height="{height}"/>\n          </a>\n'
+            rows += "        </td>\n"
+        rows += "    </tr>\n"
+        return rows
 
-    content += "      </tr>\n    </tbody>\n  </table>\n</div>\n<br/>\n"
+    # Generate rows for each main category: Actively Using, Previously Used, Intend to Use in Future
+    content += generate_category_rows("Actively Using", data["Actively Using"])
+    content += generate_category_rows("Previously Used", data["Previously Used"])
+    content += generate_category_rows("Intend to Use in Future", data["Intend to Use in Future"])
+
+    content += """</tbody>
+    </table>
+    </div>
+
+"""
     return content
 
 
 def generate_connect_section(social_links: List[Dict[str, str]]) -> str:
     """Generate markdown content for 'connect' section based on data"""
-    markdown_content = "🔗 **Connect with me**:<br/><br/>\n"
+    markdown_content = "🔗 **Connect with me**:<br/><br/>"
     for link in social_links:
-        markdown_content += f'<a href="{link["url"]}" target="blank"><img src="{link["icon"]}" alt="{link["alt"]}" height="{link["height"]}" width="{link["width"]}" /></a>\n'
+        markdown_content += f'<a href="{link["url"]}" target="blank"><img src="{link["icon"]}" alt="{link["alt"]}" height="{link["height"]}" width="{link["width"]}" /></a>'
     return markdown_content
 
 
 def write_to_readme(content: str, mode: str = "a") -> None:
     """Write content to README.md"""
     with open("README.md", mode, encoding="utf-8") as file:
-        file.write(content + "\n\n")
+        file.write(content)
 
 
 def combine_markdown_files() -> None:
@@ -79,6 +108,10 @@ def combine_markdown_files() -> None:
     skills_data = read_json("./Markdown Sections/Section Data/skills.json")
     skills_md = generate_skills_section(skills_data)
     write_to_readme(skills_md)
+
+    # Append 'Current Setup' section
+    current_setup = read_file("./Markdown Sections/current_setup.md")
+    write_to_readme(current_setup)
 
     # Append 'About' section
     about_content = read_file("./Markdown Sections/about.md")

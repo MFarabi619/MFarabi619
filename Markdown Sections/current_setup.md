@@ -1,4 +1,4 @@
-# 🛠️ Current Setup
+## 🛠️ Current Setup
 - [Linux](https://www.linux.org/) Kernel
   - [GNU](https://www.gnu.org/home.en.html) User Space
   - [Ubuntu 22.04 LTS - Jammy Jellyfish](https://releases.ubuntu.com/jammy/) Distribution

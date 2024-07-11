@@ -1,6 +1,4 @@
-<!-- markdownlint-disable -->
-
-<div align="center">
+<!-- markdownlint-disable --><div align="center">
   <img src="https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif" style="width:100%"/>
 </div>
 
@@ -32,18 +30,22 @@
     </tr>
   </table>
 </div>
-
-
-<div class="tg-wrap" align="center">
-  <table>
-    <thead>
-      <tr>
-<th>Languages</th><th>Frameworks & Libraries</th><th>Tools</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td align='center'>
+Please note that my technical competency fluctuates based on my active projects.<br/>
+            I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
+            <div class="tg-wrap" align="center">
+            <table>
+            <thead>
+            <tr>
+            <th>Languages</th><th>Frameworks & Libraries</th><th>Tools</th></tr>
+          </thead>
+          <tbody>
+    <tr>
+              <td colspan="3" align="center">
+                <b>Actively Using</b>
+              </td>
+            </tr>
+            <tr>
+                <td align='center'>
           <!-- HTML -->
           <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40"/>
@@ -51,14 +53,6 @@
           <!-- CSS -->
           <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40"/>
-          </a>
-          <!-- SCSS -->
-          <a href="https://sass-lang.com" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/sass/sass-original.svg" alt="SCSS Logo" width="40" height="40"/>
-          </a>
-          <!-- JavaScript -->
-          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="JavaScript Logo" width="40" height="40"/>
           </a>
           <!-- TypeScript -->
           <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
@@ -79,18 +73,6 @@
           <!-- Lua -->
           <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40"/>
-          </a>
-          <!-- Embedded C -->
-          <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40"/>
-          </a>
-          <!-- C++ -->
-          <a href="https://www.w3schools.com/cpp/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40"/>
-          </a>
-          <!-- Arduino -->
-          <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40"/>
           </a>
         </td>
         <td align='center'>
@@ -118,10 +100,6 @@
           <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40"/>
           </a>
-          <!-- Ember.js -->
-          <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40"/>
-          </a>
           <!-- Tailwind CSS -->
           <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40"/>
@@ -138,21 +116,9 @@
           <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40"/>
           </a>
-          <!-- Chai -->
-          <a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
-            <img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40"/>
-          </a>
-          <!-- Mocha -->
-          <a href="https://mochajs.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40"/>
-          </a>
           <!-- Playwright -->
           <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
             <img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40"/>
-          </a>
-          <!-- PyTest -->
-          <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg" alt="PyTest Logo" width="40" height="40"/>
           </a>
         </td>
         <td align='center'>
@@ -184,10 +150,6 @@
           <a href="https://neovim.io/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40"/>
           </a>
-          <!-- Vim -->
-          <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Logo" width="40" height="40"/>
-          </a>
           <!-- Tmux -->
           <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
             <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40"/>
@@ -200,13 +162,74 @@
           <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40"/>
           </a>
-          <!-- VS Code -->
-          <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" alt="VS Code Logo" width="40" height="40"/>
-          </a>
           <!-- Azure DevOps -->
           <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40"/>
+          </a>
+        </td>
+    </tr>
+<tr>
+              <td colspan="3" align="center">
+                <b>Previously Used</b>
+              </td>
+            </tr>
+            <tr>
+                <td align='center'>
+          <!-- JavaScript -->
+          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="JavaScript Logo" width="40" height="40"/>
+          </a>
+          <!-- Svelte -->
+          <a href="https://svelte.dev/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original-wordmark.svg" alt="Svelte Logo" width="40" height="40"/>
+          </a>
+          <!-- Embedded C -->
+          <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40"/>
+          </a>
+          <!-- C++ -->
+          <a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40"/>
+          </a>
+          <!-- Arduino -->
+          <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40"/>
+          </a>
+        </td>
+        <td align='center'>
+          <!-- Astro -->
+          <a href="https://astro.build/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original-wordmark.svg" alt="Astro Logo" width="40" height="40"/>
+          </a>
+          <!-- SvelteKit -->
+          <a href="https://kit.svelte.dev/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" alt="SvelteKit Logo" width="40" height="40"/>
+          </a>
+          <!-- Ember.js -->
+          <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40"/>
+          </a>
+          <!-- Chai -->
+          <a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
+            <img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40"/>
+          </a>
+          <!-- Mocha -->
+          <a href="https://mochajs.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40"/>
+          </a>
+          <!-- PyTest -->
+          <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg" alt="PyTest Logo" width="40" height="40"/>
+          </a>
+        </td>
+        <td align='center'>
+          <!-- Vim -->
+          <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Logo" width="40" height="40"/>
+          </a>
+          <!-- VS Code -->
+          <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" alt="VS Code Logo" width="40" height="40"/>
           </a>
           <!-- BitBucket -->
           <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
@@ -221,11 +244,101 @@
             <img src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg" alt="Confluence Logo" width="40" height="40"/>
           </a>
         </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<br/>
+    </tr>
+<tr>
+              <td colspan="3" align="center">
+                <b>Intend to Use in Future</b>
+              </td>
+            </tr>
+            <tr>
+                <td align='center'>
+          <!-- Terraform -->
+          <a href="https://www.terraform.io/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/terraform/terraform-original-wordmark.svg" alt="Terraform Logo" width="40" height="40"/>
+          </a>
+          <!-- Rust -->
+          <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Rust_programming_language_black_logo.svg" alt="Rust Logo" width="40" height="40"/>
+          </a>
+          <!-- Go -->
+          <a href="https://golang.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg" alt="Go Logo" width="40" height="40"/>
+          </a>
+        </td>
+        <td align='center'>
+          <!-- Angular -->
+          <a href="https://angular.dev/" target="_blank" rel="noreferrer">
+            <img src="https://logosandtypes.com/wp-content/uploads/2024/01/angular.svg" alt="Angular Logo" width="40" height="40"/>
+          </a>
+          <!-- Spring Boot -->
+          <a href="https://spring.io/projects/spring-boot" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original-wordmark.svg" alt="Spring Boot Logo" width="40" height="40"/>
+          </a>
+          <!-- PyTorch -->
+          <a href="https://pytorch.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-plain-wordmark.svg" alt="PyTorch Logo" width="40" height="40"/>
+          </a>
+        </td>
+        <td align='center'>
+          <!-- Arch Linux -->
+          <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40"/>
+          </a>
+          <!-- AWS -->
+          <a href="https://aws.amazon.com/?nc2=h_lg" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS Logo" width="40" height="40"/>
+          </a>
+          <!-- Pharo -->
+          <a href="https://pharo.org/" target="_blank" rel="noreferrer">
+            <img src="https://pharo.org/web/files/pharo.png" alt="Pharo Logo" width="40" height="40"/>
+          </a>
+        </td>
+    </tr>
+</tbody>
+    </table>
+    </div>
+
+## 🛠️ Current Setup
+- [Linux](https://www.linux.org/) Kernel
+  - [GNU](https://www.gnu.org/home.en.html) User Space
+  - [Ubuntu 22.04 LTS - Jammy Jellyfish](https://releases.ubuntu.com/jammy/) Distribution
+      - [Arch Linux](https://archlinux.org/) migration in progress
+- [LazyVim](https://www.lazyvim.org/)
+    - [Edgy](https://github.com/folke/edgy.nvim) for window management
+    - [Neotree](https://github.com/nvim-neo-tree/neo-tree.nvim) for file browsing
+    - [Toggleterm](https://github.com/akinsho/toggleterm.nvim) for split/floating terminals
+    - [Dadbod](https://github.com/tpope/vim-dadbod) for database queries
+    - [Aerial](https://github.com/stevearc/aerial.nvim) and [Outline](https://github.com/hedyhli/outline.nvim) for [Treesitter Language Server Protocol](https://github.com/nvim-treesitter/nvim-treesitter) symbol navigation
+
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/dd8cc181-6cb5-4937-abbb-10eb007502e5)
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/13903c9b-0b3b-4a45-9f5b-83cb78ef9600)
+
+- [Codeium](https://codeium.com/) + [GitHub Copilot](https://github.com/features/copilot) for AI input and code review
+  
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/370366b0-f599-4e20-9203-bcb47f5b569a)
+
+- [Nvim DAP](https://github.com/mfussenegger/nvim-dap) for bug hunting 🐞
+
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/3dddc8a8-b209-486f-9775-41ef11c2866d)
+
+- [Neotest](https://github.com/nvim-neotest/neotest) for running test suites
+- [Rest](https://github.com/rest-nvim/rest.nvim) to ping API endpoints
+  
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/d68c6a55-5ba1-49ff-9dc0-af38063819a4)
+
+- [Overseer](https://github.com/stevearc/overseer.nvim) for running tasks
+  
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/9bca3578-7434-48b9-8249-2e096d04ca39)
+
+- [Lazygit](https://github.com/jesseduffield/lazygit) for Git client
+  
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/600e57c5-f1ae-46fa-9c29-272a1798918f)
+
+- [Telescope]() + [fzf]() for fuzzy finding
+
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/f86dee15-68a2-42c9-b8ca-a3baef623782)
+
+- [SurfingKeys](https://github.com/brookhong/Surfingkeys) for Vim browser navigation
 
 
 <!-- markdownlint-disable -->
@@ -235,12 +348,12 @@
 <br/><br/>
 
 
-- 🌱 Began self-taught developer journey in January 2023. Currently learning Full-Stack Web Development, and Automated Software Testing 🕸️🤖
-- 👀 Familiar with lower level languages such as C/C++, and Java 🍵
+- 🌱 Began self-taught developer journey in January 2023. Currently architecting Full-Stack software solutions, and practicing automation 🕸️🤖
+- ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
 - 💻 Passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
   - [Dotfiles](https://github.com/MFarabi619/dotfiles/tree/main/macos)
   - Yes, I debug my PDE on a regular basis
-- 🛠️ I believe that a good developer experience is key to a good user experience. I regularly explore technologies and features that reduce fatigue and improve productivity 🏃‍♂️💨
+- 🛠️ I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity 🏃‍♂️💨
 <hr/>
 <b>📖 Books</b>
 <br/><br/>
@@ -284,15 +397,41 @@ Got a suggestion? Add it to the list :)
     </tr>
   </tbody>
 </table>
+<!-- markdownlint-disable -->
 
+## 🔗 **Connect with me**:<br/>
+<a href="https://linkedin.com/in/mfarabi" target="blank">
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="mfarabilinkedIn" height="50" width="50" />
+</a>
 
-🔗 **Connect with me**:<br/><br/>
-<a href="https://linkedin.com/in/mfarabi" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="LinkedIn Logo" height="50" width="50" /></a>
-<a href="https://www.youtube.com/@mumtahinfarabi7502/videos" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/youtube.svg" alt="YouTube Logo" height="50" width="50" /></a>
-<a href="https://leetcode.com/MFarabi619/" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/leet-code.svg" alt="LeetCode Logo" height="50" width="50" /></a>
-<a href="https://codepen.io/mfarabi619" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/codepen.svg" alt="CodePen Logo" height="50" width="50" /></a>
-<a href="https://stackoverflow.com/users/21068374/killshot619" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/stack-overflow.svg" alt="Stack Overflow Logo" height="50" width="50" /></a>
-<a href="https://www.freecodecamp.org/mfarabi" target="blank"><img src="https://cdn.rawgit.com/Deftwun/e3756a8b518cbb354425/raw/6584db8babd6cbc4ecb35ed36f0d184a506b979e/free-code-camp-logo.svg" alt="FreeCodeCamp Logo" height="50" width="50" /></a>
-<a href="https://www.youtube.com/watch?v=BBJa32lCaaY" target="blank"><img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="Twitter Logo" height="40" width="30" /></a>
+<a href="https://www.youtube.com/@mumtahinfarabi7502/videos" target="blank">
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/youtube.svg" alt="mfarabiYoutube" height="50" width="50" />
+</a>
 
+<a href="https://leetcode.com/MFarabi619/" target="blank">
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/leet-code.svg" alt="mfarabileetCode" height="50" width="50" />
+</a>
 
+<a href="https://codepen.io/mfarabi619" target="blank">
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/codepen.svg" alt="mfarabicodepen" height="50" width="50" />
+</a>
+
+<a href="https://stackoverflow.com/users/21068374/killshot619" target="blank">
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/stack-overflow.svg" alt="mfarabistackoverflow" height="50" width="50" />
+</a>
+
+<a href="https://www.freecodecamp.org/mfarabi" target="blank">
+  <img src="https://cdn.rawgit.com/Deftwun/e3756a8b518cbb354425/raw/6584db8babd6cbc4ecb35ed36f0d184a506b979e/free-code-camp-logo.svg" alt="mfarabilinkedIn" height="50" width="50" />
+</a>
+
+<a href="https://www.youtube.com/watch?v=BBJa32lCaaY" target="blank">
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="getrickrolled" height="30" width="40" />
+</a>
+<br/>
+<a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge" target="_top">
+  <img src="https://data.typeracer.com/misc/badge?user=killshot619" border="0" alt="TypeRacer.com scorecard for user killshot619"/>
+</a>
+
+<hr/>
+
+This README is generated dynamically using a [Python script](https://github.com/MFarabi619/MFarabi619/blob/main/generate_readme.py) running on a cloud [GitHub Action](https://github.com/MFarabi619/MFarabi619/actions) 🤖
