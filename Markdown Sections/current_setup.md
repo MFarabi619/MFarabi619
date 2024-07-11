@@ -22,8 +22,13 @@
 ![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/d68c6a55-5ba1-49ff-9dc0-af38063819a4)
 
 - [Overseer](https://github.com/stevearc/overseer.nvim) for running tasks
+  
 ![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/9bca3578-7434-48b9-8249-2e096d04ca39)
 
 - [Lazygit](https://github.com/jesseduffield/lazygit) for Git client
   
 ![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/600e57c5-f1ae-46fa-9c29-272a1798918f)
+
+- [Telescope]() + [fzf]() for fuzzy finding
+
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/f86dee15-68a2-42c9-b8ca-a3baef623782)
