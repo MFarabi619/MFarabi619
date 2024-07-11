@@ -1,8 +1,6 @@
 <!-- markdownlint-disable -->
-<hr/>
 
-🔗 **Connect with me**:<br/><br/>
-
+## 🔗 **Connect with me**:<br/>
 <a href="https://linkedin.com/in/mfarabi" target="blank">
   <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="mfarabilinkedIn" height="50" width="50" />
 </a>
@@ -30,9 +28,7 @@
 <a href="https://www.youtube.com/watch?v=BBJa32lCaaY" target="blank">
   <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="getrickrolled" height="30" width="40" />
 </a>
-
-<br/><br/>
-
+<br/>
 <a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge" target="_top">
   <img src="https://data.typeracer.com/misc/badge?user=killshot619" border="0" alt="TypeRacer.com scorecard for user killshot619"/>
 </a>
@@ -40,10 +36,3 @@
 <hr/>
 
 This README is generated dynamically using a [Python script](https://github.com/MFarabi619/MFarabi619/blob/main/generate_readme.py) running on a cloud [GitHub Action](https://github.com/MFarabi619/MFarabi619/actions) 🤖
-
-<!--- 📫 I can be reached at mumtahin.farabi@gmail.com or via [LinkedIn](https://www.linkedin.com/in/mfarabi/)💼--->
-
-<!---
-MFarabi619/MFarabi619 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
