@@ -16,6 +16,10 @@
   
 ![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/370366b0-f599-4e20-9203-bcb47f5b569a)
 
+- [Nvim DAP](https://github.com/mfussenegger/nvim-dap) for bug hunting 🐞
+
+![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/3dddc8a8-b209-486f-9775-41ef11c2866d)
+
 - [Neotest](https://github.com/nvim-neotest/neotest) for running test suites
 - [Rest](https://github.com/rest-nvim/rest.nvim) to ping API endpoints
   
