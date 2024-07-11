@@ -1,8 +1,9 @@
 import json
 from typing import Dict, List
 
+
 def read_file(file_path: str) -> str:
-    """Reads and returns the content of a file as a string."""
+    """Read and return the content of file"""
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             return file.read()
@@ -12,7 +13,7 @@ def read_file(file_path: str) -> str:
 
 
 def read_json(file_path: str) -> Dict:
-    """Reads and returns JSON data from a file."""
+    """Read and return from JSON file"""
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             return json.load(file)
@@ -21,8 +22,10 @@ def read_json(file_path: str) -> Dict:
         return {}
 
 
-def generate_skills_section(data: Dict[str, List[Dict]],) -> str:
-    """Generates markdown for the skills section based on the provided data."""
+def generate_skills_section(
+    data: Dict[str, List[Dict]],
+) -> str:
+    """Generate markdown for 'Skills' section based on provided datak"""
     content = (
         '<div class="tg-wrap" align="center">\n  <table>\n    <thead>\n      <tr>\n'
     )
@@ -49,7 +52,7 @@ def generate_skills_section(data: Dict[str, List[Dict]],) -> str:
 
 
 def generate_connect_section(social_links: List[Dict[str, str]]) -> str:
-    """Generates markdown content for the 'connect' section based on JSON data."""
+    """Generate markdown content for 'connect' section based on data"""
     markdown_content = "🔗 **Connect with me**:<br/><br/>\n"
     for link in social_links:
         markdown_content += f'<a href="{link["url"]}" target="blank"><img src="{link["icon"]}" alt="{link["alt"]}" height="{link["height"]}" width="{link["width"]}" /></a>\n'
@@ -57,13 +60,13 @@ def generate_connect_section(social_links: List[Dict[str, str]]) -> str:
 
 
 def write_to_readme(content: str, mode: str = "a") -> None:
-    """Writes content to README.md."""
+    """Write content to README.md"""
     with open("README.md", mode, encoding="utf-8") as file:
         file.write(content + "\n\n")
 
 
 def combine_markdown_files() -> None:
-    """Combines all markdown sections into README.md."""
+    """Combine markdown sections into README.md"""
     write_to_readme("<!-- markdownlint-disable -->", "w")
 
     # Integrate static markdown sections
@@ -77,18 +80,15 @@ def combine_markdown_files() -> None:
     skills_md = generate_skills_section(skills_data)
     write_to_readme(skills_md)
 
-
-    # Append 'about' section
+    # Append 'About' section
     about_content = read_file("./Markdown Sections/about.md")
     write_to_readme(about_content)
 
-    # Generate and append connect section
-    # connect_data = read_json("./Markdown Sections/Section Data/connect.json")[
-    #    "socialLinks"
-    #]
-    #connect_md = generate_connect_section(connect_data)
+    # Append 'Connect' section
     connect_md = read_file("./Markdown Sections/connect.md")
 
     write_to_readme(connect_md)
 
+
+# Entry point
 combine_markdown_files()
