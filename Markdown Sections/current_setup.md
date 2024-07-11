@@ -37,3 +37,7 @@
 - [Telescope]() + [fzf]() for fuzzy finding
 
 ![image](https://github.com/MFarabi619/MFarabi619/assets/54924158/f86dee15-68a2-42c9-b8ca-a3baef623782)
+
+- [SurfingKeys](https://github.com/brookhong/Surfingkeys) for Vim browser navigation
+
+
