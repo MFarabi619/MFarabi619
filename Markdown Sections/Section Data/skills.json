@@ -84,9 +84,9 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg"
       },
       {
-        "name": "Jest",
-        "url": "https://jestjs.io/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg"
+        "name": "Vitest",
+        "url": "https://vitest.dev/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg"
       },
       {
         "name": "Playwright",
@@ -106,9 +106,9 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg"
       },
       {
-        "name": "Ubuntu",
-        "url": "https://ubuntu.com/",
-        "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+        "name": "Arch Linux",
+        "url": "https://archlinux.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
       },
       {
         "name": "Docker",
@@ -121,19 +121,14 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
       },
       {
-        "name": "Sanity",
-        "url": "https://www.sanity.io/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg"
+        "name": "Payload CMS",
+        "url": "https://payloadcms.com/",
+        "icon": "https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg"
       },
       {
         "name": "NeoVim",
         "url": "https://neovim.io/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg"
-      },
-      {
-        "name": "Tmux",
-        "url": "https://github.com/tmux/tmux/wiki",
-        "icon": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg"
       },
       {
         "name": "Figma",
@@ -197,6 +192,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
       },
       {
+        "name": "Jest",
+        "url": "https://jestjs.io/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg"
+      },
+      {
         "name": "Chai",
         "url": "https://www.chaijs.com/",
         "icon": "https://avatars.githubusercontent.com/u/1515293?s=280&v=4"
@@ -214,6 +214,11 @@
     ],
     "Tools": [
       {
+        "name": "Ubuntu",
+        "url": "https://ubuntu.com/",
+        "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+      },
+      {
         "name": "Vim",
         "url": "https://www.vim.org/",
         "icon": "https://cdn.worldvectorlogo.com/logos/vim.svg"
@@ -222,6 +227,11 @@
         "name": "VS Code",
         "url": "https://code.visualstudio.com/",
         "icon": "https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg"
+      },
+      {
+        "name": "Tmux",
+        "url": "https://github.com/tmux/tmux/wiki",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg"
       },
       {
         "name": "BitBucket",
@@ -237,6 +247,11 @@
         "name": "Confluence",
         "url": "https://www.atlassian.com/software/confluence",
         "icon": "https://cdn.worldvectorlogo.com/logos/confluence-1.svg"
+      },
+      {
+        "name": "Sanity",
+        "url": "https://www.sanity.io/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg"
       }
     ]
   },
@@ -260,6 +275,16 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "Remix.js",
+        "url": "https://remix.run/",
+        "icon": "https://remix.run/img/og.1.jpg"
+      },
+      {
+        "name": "Analog.js",
+        "url": "https://analogjs.org/",
+        "icon": "https://analogjs.org/img/logos/analog-logo.svg"
+      },
+      {
         "name": "Angular",
         "url": "https://angular.dev/",
         "icon": "https://logosandtypes.com/wp-content/uploads/2024/01/angular.svg"
@@ -276,11 +301,6 @@
       }
     ],
     "Tools": [
-      {
-        "name": "Arch Linux",
-        "url": "https://archlinux.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
-      },
       {
         "name": "AWS",
         "url": "https://aws.amazon.com/?nc2=h_lg",
