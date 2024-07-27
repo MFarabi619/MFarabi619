@@ -112,9 +112,9 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40"/>
           </a>
-          <!-- Jest -->
-          <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40"/>
+          <!-- Vitest -->
+          <a href="https://vitest.dev/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40"/>
           </a>
           <!-- Playwright -->
           <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
@@ -130,9 +130,9 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="Linux Logo" width="40" height="40"/>
           </a>
-          <!-- Ubuntu -->
-          <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
-            <img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40"/>
+          <!-- Arch Linux -->
+          <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40"/>
           </a>
           <!-- Docker -->
           <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
@@ -142,17 +142,13 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40"/>
           </a>
-          <!-- Sanity -->
-          <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40"/>
+          <!-- Payload CMS -->
+          <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg" alt="Payload CMS Logo" width="40" height="40"/>
           </a>
           <!-- NeoVim -->
           <a href="https://neovim.io/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40"/>
-          </a>
-          <!-- Tmux -->
-          <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40"/>
           </a>
           <!-- Figma -->
           <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
@@ -209,6 +205,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40"/>
           </a>
+          <!-- Jest -->
+          <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40"/>
+          </a>
           <!-- Chai -->
           <a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
             <img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40"/>
@@ -223,6 +223,10 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
+          <!-- Ubuntu -->
+          <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
+            <img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40"/>
+          </a>
           <!-- Vim -->
           <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Logo" width="40" height="40"/>
@@ -230,6 +234,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <!-- VS Code -->
           <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" alt="VS Code Logo" width="40" height="40"/>
+          </a>
+          <!-- Tmux -->
+          <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40"/>
           </a>
           <!-- BitBucket -->
           <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
@@ -242,6 +250,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <!-- Confluence -->
           <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
             <img src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg" alt="Confluence Logo" width="40" height="40"/>
+          </a>
+          <!-- Sanity -->
+          <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40"/>
           </a>
         </td>
     </tr>
@@ -266,6 +278,14 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
+          <!-- Remix.js -->
+          <a href="https://remix.run/" target="_blank" rel="noreferrer">
+            <img src="https://remix.run/img/og.1.jpg" alt="Remix.js Logo" width="40" height="40"/>
+          </a>
+          <!-- Analog.js -->
+          <a href="https://analogjs.org/" target="_blank" rel="noreferrer">
+            <img src="https://analogjs.org/img/logos/analog-logo.svg" alt="Analog.js Logo" width="40" height="40"/>
+          </a>
           <!-- Angular -->
           <a href="https://angular.dev/" target="_blank" rel="noreferrer">
             <img src="https://logosandtypes.com/wp-content/uploads/2024/01/angular.svg" alt="Angular Logo" width="40" height="40"/>
@@ -280,10 +300,6 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
-          <!-- Arch Linux -->
-          <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40"/>
-          </a>
           <!-- AWS -->
           <a href="https://aws.amazon.com/?nc2=h_lg" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS Logo" width="40" height="40"/>
