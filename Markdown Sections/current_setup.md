@@ -1,6 +1,13 @@
-## 🛠️ Current Setup
+## 🛠️ Current Setup Showcase
 
 - [Arch Linux](https://archlinux.org/)
+    - [Hyprland](https://hyprland.org/) compositor with [Hyprdots](https://github.com/prasanthrangan/hyprdots) configuration
+
+![image](https://github.com/user-attachments/assets/0ba6cd55-2dc9-49b4-9699-c13769e45f99)
+![image](https://github.com/user-attachments/assets/5d84d918-ef2f-461a-a0ec-c618fbf4c166)
+![240727_01h58m17s_screenshot](https://github.com/user-attachments/assets/aa2f8f96-4774-4617-bcb4-ab967ab08c88)
+
+
 - [LazyVim](https://www.lazyvim.org/)
     - [Edgy](https://github.com/folke/edgy.nvim) for window management
     - [Neotree](https://github.com/nvim-neo-tree/neo-tree.nvim) for file browsing
