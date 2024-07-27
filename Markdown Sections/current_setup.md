@@ -1,4 +1,4 @@
-## 🛠️ Current Setup Showcase
+## 🛠️ Current Setup
 
 - [Arch Linux](https://archlinux.org/)
     - [Hyprland](https://hyprland.org/) compositor with [Hyprdots](https://github.com/prasanthrangan/hyprdots) configuration
