@@ -74,6 +74,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40"/>
           </a>
+          <!-- LaTeX -->
+          <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40"/>
+          </a>
         </td>
         <td align='center'>
           <!-- Node.js -->
@@ -122,17 +126,25 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
-          <!-- Git -->
-          <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
-            <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40"/>
-          </a>
-          <!-- Linux -->
+          <!-- GNU/Linux -->
           <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="Linux Logo" width="40" height="40"/>
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="GNU/Linux Logo" width="40" height="40"/>
           </a>
           <!-- Arch Linux -->
           <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40"/>
+          </a>
+          <!-- NeoVim -->
+          <a href="https://neovim.io/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40"/>
+          </a>
+          <!-- Git -->
+          <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
+            <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40"/>
+          </a>
+          <!-- Nx -->
+          <a href="https://nx.dev" target="_blank" rel="noreferrer">
+            <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40"/>
           </a>
           <!-- Docker -->
           <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
@@ -146,17 +158,9 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg" alt="Payload CMS Logo" width="40" height="40"/>
           </a>
-          <!-- NeoVim -->
-          <a href="https://neovim.io/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40"/>
-          </a>
           <!-- Figma -->
           <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
             <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40"/>
-          </a>
-          <!-- LaTeX -->
-          <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40"/>
           </a>
           <!-- Azure DevOps -->
           <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
