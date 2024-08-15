@@ -35,6 +35,11 @@
         "name": "Lua",
         "url": "https://www.lua.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg"
+      },
+      {
+        "name": "LaTeX",
+        "url": "https://www.latex-project.org/",
+        "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg"
       }
     ],
     "Frameworks & Libraries": [
@@ -96,12 +101,7 @@
     ],
     "Tools": [
       {
-        "name": "Git",
-        "url": "https://git-scm.com/",
-        "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
-      },
-      {
-        "name": "Linux",
+        "name": "GNU/Linux",
         "url": "https://www.linux.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg"
       },
@@ -109,6 +109,21 @@
         "name": "Arch Linux",
         "url": "https://archlinux.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
+      },
+      {
+        "name": "NeoVim",
+        "url": "https://neovim.io/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg"
+      },
+      {
+        "name": "Git",
+        "url": "https://git-scm.com/",
+        "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
+      },
+      {
+        "name": "Nx",
+        "url": "https://nx.dev",
+        "icon": "https://api.iconify.design/logos:nx.svg"
       },
       {
         "name": "Docker",
@@ -126,19 +141,9 @@
         "icon": "https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg"
       },
       {
-        "name": "NeoVim",
-        "url": "https://neovim.io/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg"
-      },
-      {
         "name": "Figma",
         "url": "https://www.figma.com/",
         "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
-      },
-      {
-        "name": "LaTeX",
-        "url": "https://www.latex-project.org/",
-        "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg"
       },
       {
         "name": "Azure DevOps",
