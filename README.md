@@ -434,7 +434,6 @@ Please note that my technical competency fluctuates based on my active projects.
 
 Got a suggestion? Add it to the list :)
 
-<div align="center">
 <table>
   <thead>
     <tr>
@@ -468,15 +467,10 @@ Got a suggestion? Add it to the list :)
         <a href="https://www.refactoringui.com/">
           <img src="https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1544555766i/43190966.jpg" alt="Refactoring UI" width="100" height="150" style="margin: 10px;">
         </a>
-        <a href="https://trunkbaseddevelopment.com/">
-          <img src="https://github.com/user-attachments/assets/0660ef3c-e818-4f67-8043-49d859e3b9ca" alt="Trunk Based Development" width="100" height="150" style="margin: 10px;">
-        </a>
       </td>
     </tr>
   </tbody>
 </table>
-</div>
-
 <!-- markdownlint-disable -->
 
 ## 🔗 **Connect with me**:<br/>
