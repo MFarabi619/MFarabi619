@@ -183,7 +183,7 @@
         "name": "Lua",
         "url": "https://www.lua.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg"
-      },
+      }
     ],
     "Frameworks & Libraries": [
       {
