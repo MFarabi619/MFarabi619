@@ -32,9 +32,9 @@
         "icon": "https://bashlogo.com/img/symbol/png/monochrome_light.png"
       },
       {
-        "name": "Lua",
-        "url": "https://www.lua.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg"
+        "name": "Emacs Lisp",
+        "url": "https://en.wikipedia.org/wiki/Emacs_Lisp",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg"
       },
       {
         "name": "LaTeX",
@@ -178,7 +178,12 @@
         "name": "Arduino",
         "url": "https://www.arduino.cc/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
-      }
+      },
+      {
+        "name": "Lua",
+        "url": "https://www.lua.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg"
+      },
     ],
     "Frameworks & Libraries": [
       {
