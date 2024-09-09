@@ -111,9 +111,9 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
       },
       {
-        "name": "NeoVim",
-        "url": "https://neovim.io/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg"
+        "name": "Doom Emacs",
+        "url": "https://github.com/doomemacs/doomemacs",
+        "icon": "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png"
       },
       {
         "name": "Git",
@@ -222,6 +222,11 @@
         "name": "Ubuntu",
         "url": "https://ubuntu.com/",
         "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+      },
+      {
+        "name": "NeoVim",
+        "url": "https://neovim.io/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg"
       },
       {
         "name": "Vim",
