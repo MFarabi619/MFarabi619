@@ -134,9 +134,9 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40"/>
           </a>
-          <!-- NeoVim -->
-          <a href="https://neovim.io/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40"/>
+          <!-- Doom Emacs -->
+          <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
+            <img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40"/>
           </a>
           <!-- Git -->
           <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
@@ -230,6 +230,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <!-- Ubuntu -->
           <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
             <img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40"/>
+          </a>
+          <!-- NeoVim -->
+          <a href="https://neovim.io/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40"/>
           </a>
           <!-- Vim -->
           <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
