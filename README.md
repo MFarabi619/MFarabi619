@@ -70,9 +70,9 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
             <img src="https://bashlogo.com/img/symbol/png/monochrome_light.png" alt="Bash Logo" width="40" height="40"/>
           </a>
-          <!-- Lua -->
-          <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40"/>
+          <!-- Emacs Lisp -->
+          <a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40"/>
           </a>
           <!-- LaTeX -->
           <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
@@ -194,6 +194,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <!-- Arduino -->
           <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40"/>
+          </a>
+          <!-- Lua -->
+          <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40"/>
           </a>
         </td>
         <td align='center'>
