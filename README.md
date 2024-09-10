@@ -312,9 +312,17 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
+          <!-- FreeBSD Unix -->
+          <a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
+            <img src="https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png" alt="FreeBSD Unix Logo" width="40" height="40"/>
+          </a>
           <!-- AWS -->
           <a href="https://aws.amazon.com/?nc2=h_lg" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS Logo" width="40" height="40"/>
+          </a>
+          <!-- Kubernetes -->
+          <a href="https://kubernetes.io" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40"/>
           </a>
           <!-- Pharo -->
           <a href="https://pharo.org/" target="_blank" rel="noreferrer">
