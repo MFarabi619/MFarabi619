@@ -317,9 +317,19 @@
     ],
     "Tools": [
       {
+        "name": "FreeBSD Unix",
+        "url": "https://www.freebsd.org",
+        "icon": "https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png"
+      },
+      {
         "name": "AWS",
         "url": "https://aws.amazon.com/?nc2=h_lg",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"
+      },
+      {
+        "name": "Kubernetes",
+        "url": "https://kubernetes.io",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
       },
       {
         "name": "Pharo",
