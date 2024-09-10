@@ -340,7 +340,11 @@ Please note that my technical competency fluctuates based on my active projects.
   </tr>
 </table>
 
-### [NeoVim](https://neovim.io)
+<h3><a href="https://neovim.io">NeoVim</a> (Migrating to <a href="https://github.com/doomemacs/doomemacs">Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a>) 
+<a href="https://www.freebsd.org">
+  <img src="https://github.com/user-attachments/assets/f096c64f-4bf5-44bb-9460-d7bbe8acc3ca" alt="emoji" width="25" height="25">
+</a>
+</h3>
 
 #### [LazyVim](https://www.lazyvim.org/)
 
