@@ -67,10 +67,10 @@ def generate_skills_section(
         rows += "    </tr>\n"
         return rows
 
-    # Generate rows for each main category: Actively Using, Previously Used, Intend to Use in Future
+    # Generate rows for each main category: Actively Using, Previously Used, Would like to learn
     content += generate_category_rows("Actively Using", data["Actively Using"])
     content += generate_category_rows("Previously Used", data["Previously Used"])
-    content += generate_category_rows("Intend to Use in Future", data["Intend to Use in Future"])
+    content += generate_category_rows("Intend to Use in Future", data["Would like to learn"])
 
     content += """</tbody>
     </table>
