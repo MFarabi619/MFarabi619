@@ -96,6 +96,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://graphql.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40"/>
           </a>
+          <!-- Remix.js -->
+          <a href="https://remix.run/" target="_blank" rel="noreferrer">
+            <img src="https://remix.run/img/og.1.jpg" alt="Remix.js Logo" width="40" height="40"/>
+          </a>
           <!-- Next.js -->
           <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40"/>
@@ -142,9 +146,13 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
             <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40"/>
           </a>
-          <!-- Nx -->
-          <a href="https://nx.dev" target="_blank" rel="noreferrer">
-            <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40"/>
+          <!-- Figma -->
+          <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
+            <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40"/>
+          </a>
+          <!-- Org-mode -->
+          <a href="https://orgmode.org" target="_blank" rel="noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org-mode Logo" width="40" height="40"/>
           </a>
           <!-- Docker -->
           <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
@@ -154,17 +162,13 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40"/>
           </a>
+          <!-- Nx -->
+          <a href="https://nx.dev" target="_blank" rel="noreferrer">
+            <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40"/>
+          </a>
           <!-- Payload CMS -->
           <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg" alt="Payload CMS Logo" width="40" height="40"/>
-          </a>
-          <!-- Figma -->
-          <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
-            <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40"/>
-          </a>
-          <!-- Azure DevOps -->
-          <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40"/>
           </a>
         </td>
     </tr>
@@ -251,17 +255,21 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
             <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40"/>
           </a>
-          <!-- BitBucket -->
-          <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg" alt="BitBucket Logo" width="40" height="40"/>
-          </a>
           <!-- Jira -->
           <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
             <img src="https://cdn.worldvectorlogo.com/logos/jira-1.svg" alt="Jira Logo" width="40" height="40"/>
           </a>
+          <!-- BitBucket -->
+          <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg" alt="BitBucket Logo" width="40" height="40"/>
+          </a>
           <!-- Confluence -->
           <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
             <img src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg" alt="Confluence Logo" width="40" height="40"/>
+          </a>
+          <!-- Azure DevOps -->
+          <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40"/>
           </a>
           <!-- Sanity -->
           <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
@@ -290,10 +298,6 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
-          <!-- Remix.js -->
-          <a href="https://remix.run/" target="_blank" rel="noreferrer">
-            <img src="https://remix.run/img/og.1.jpg" alt="Remix.js Logo" width="40" height="40"/>
-          </a>
           <!-- Analog.js -->
           <a href="https://analogjs.org/" target="_blank" rel="noreferrer">
             <img src="https://analogjs.org/img/logos/analog-logo.svg" alt="Analog.js Logo" width="40" height="40"/>
