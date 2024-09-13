@@ -64,6 +64,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg"
       },
       {
+        "name": "Remix.js",
+        "url": "https://remix.run/",
+        "icon": "https://remix.run/img/og.1.jpg"
+      },
+      {
         "name": "Next.js",
         "url": "https://nextjs.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
@@ -294,11 +299,6 @@
       }
     ],
     "Frameworks & Libraries": [
-      {
-        "name": "Remix.js",
-        "url": "https://remix.run/",
-        "icon": "https://remix.run/img/og.1.jpg"
-      },
       {
         "name": "Analog.js",
         "url": "https://analogjs.org/",
