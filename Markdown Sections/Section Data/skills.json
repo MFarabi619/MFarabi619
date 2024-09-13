@@ -121,9 +121,14 @@
         "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
       },
       {
-        "name": "Nx",
-        "url": "https://nx.dev",
-        "icon": "https://api.iconify.design/logos:nx.svg"
+        "name": "Figma",
+        "url": "https://www.figma.com/",
+        "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
+      },
+      {
+        "name": "Org-mode",
+        "url": "https://orgmode.org",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg"
       },
       {
         "name": "Docker",
@@ -136,19 +141,14 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
       },
       {
+        "name": "Nx",
+        "url": "https://nx.dev",
+        "icon": "https://api.iconify.design/logos:nx.svg"
+      },
+      {
         "name": "Payload CMS",
         "url": "https://payloadcms.com/",
         "icon": "https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg"
-      },
-      {
-        "name": "Figma",
-        "url": "https://www.figma.com/",
-        "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
-      },
-      {
-        "name": "Azure DevOps",
-        "url": "https://azure.microsoft.com/en-ca/products/devops",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg"
       }
     ]
   },
@@ -249,19 +249,24 @@
         "icon": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg"
       },
       {
-        "name": "BitBucket",
-        "url": "https://bitbucket.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg"
-      },
-      {
         "name": "Jira",
         "url": "https://www.atlassian.com/software/jira",
         "icon": "https://cdn.worldvectorlogo.com/logos/jira-1.svg"
       },
       {
+        "name": "BitBucket",
+        "url": "https://bitbucket.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg"
+      },
+      {
         "name": "Confluence",
         "url": "https://www.atlassian.com/software/confluence",
         "icon": "https://cdn.worldvectorlogo.com/logos/confluence-1.svg"
+      },
+      {
+        "name": "Azure DevOps",
+        "url": "https://azure.microsoft.com/en-ca/products/devops",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg"
       },
       {
         "name": "Sanity",
