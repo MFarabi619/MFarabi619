@@ -12,11 +12,22 @@
   </tr>
 </table>
 
-<h3><a href="https://neovim.io">NeoVim</a> (Migrating to <a href="https://github.com/doomemacs/doomemacs">Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a>) 
-<a href="https://www.freebsd.org">
+Migrating to <a href="https://github.com/doomemacs/doomemacs">Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.freebsd.org">
   <img src="https://github.com/user-attachments/assets/f096c64f-4bf5-44bb-9460-d7bbe8acc3ca" alt="emoji" width="25" height="25">
 </a>
-</h3>
+
+<!-- fastfetch + htop + Doom Emacs dashboard -->
+![image](https://github.com/user-attachments/assets/572bb20c-9eee-462e-b850-a63c063ae633)
+
+<!-- Doom Emacs Dashboard -->
+<!-- ![image](https://github.com/user-attachments/assets/28a1bb4d-df3a-46aa-b185-24a2babc2cda) -->
+
+
+
+<details>
+<summary>
+  <h3><a href="https://neovim.io">NeoVim</a></h3>
+</summary>
 
 #### [LazyVim](https://www.lazyvim.org/)
 
@@ -99,3 +110,4 @@
     <td><img src="https://github.com/MFarabi619/MFarabi619/assets/54924158/ab0711b1-738e-4eb4-9164-559a9a0b46af" alt="image"></td>
   </tr>
 </table>
+</details>
