@@ -17,7 +17,7 @@ Migrating to <a href="https://github.com/doomemacs/doomemacs">Doom Emacs</a> + <
 </a>
 
 <!-- fastfetch + htop + Doom Emacs dashboard -->
-![image](https://github.com/user-attachments/assets/572bb20c-9eee-462e-b850-a63c063ae633)
+![image](https://github.com/user-attachments/assets/4a9b4fac-df33-4c48-8eb9-c1bba848df97)
 
 <!-- Doom Emacs Dashboard -->
 <!-- ![image](https://github.com/user-attachments/assets/28a1bb4d-df3a-46aa-b185-24a2babc2cda) -->
