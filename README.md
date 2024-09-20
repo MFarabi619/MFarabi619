@@ -460,9 +460,9 @@ Migrating to <a href="https://github.com/doomemacs/doomemacs">Doom Emacs</a> + <
 
 - 🌱 Began self-taught developer journey in January 2023. Currently architecting Full-Stack software solutions, and practicing automation 🕸️🤖
 - ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
-- 💻 Passionate Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
-  - [Dotfiles](https://github.com/MFarabi619/dotfiles/tree/main/macos)
-  - Yes, I debug my PDE on a regular basis
+- 💻 Passionate Emacs/Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
+  - [Dotfiles](https://github.com/MFarabi619/dotfiles/)
+  - Yes, I debug my PDE on a regular basis.
 - 🛠️ I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity 🏃‍♂️💨
 <hr/>
 <b>📖 Books</b>
@@ -495,6 +495,9 @@ Got a suggestion? Add it to the list :)
         </a>
         <a href="https://kevinczarzasty.medium.com/summarizing-the-devops-handbook-how-to-create-world-class-agility-reliability-and-security-in-86d8357d9995">
           <img src="https://github.com/MFarabi619/MFarabi619/assets/54924158/9a02b8c8-3d0a-4d9f-9287-ad68d348916a" alt="The DevOps Handbook" width="100" height="150" style="margin: 10px;">
+        </a>
+        <a href="https://www.masteringemacs.org">
+          <img src="https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1472003350i/25587882.jpg" alt="Mastering Emacs" width="100" height="150" style="margin: 10px;">
         </a>
       </td>
       <td style="text-align: center;">
