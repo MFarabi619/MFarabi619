@@ -22,9 +22,13 @@
 <!-- Doom Emacs Dashboard -->
 <!-- ![image](https://github.com/user-attachments/assets/28a1bb4d-df3a-46aa-b185-24a2babc2cda) -->
 
+<h3>Previously on <a href="https://neovim.io">NeoVim</a></h3>
+
+![image](https://github.com/user-attachments/assets/1dd903ce-f3e2-4e9b-b99a-e42c27198b7c)
+
 <details>
 <summary>
-  <h3>Previously on <a href="https://neovim.io">NeoVim</a></h3>
+  <h3>See More</h3>
 </summary>
 
 #### [LazyVim](https://www.lazyvim.org/)
