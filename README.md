@@ -364,7 +364,7 @@ Please note that my technical competency fluctuates based on my active projects.
 
 <h3>Previously on <a href="https://neovim.io">NeoVim</a></h3>
 
-![image](https://github.com/user-attachments/assets/1dd903ce-f3e2-4e9b-b99a-e42c27198b7c)
+![image](https://github.com/user-attachments/assets/b8b4c0ce-f721-46d6-963a-042685de13a5)
 
 <details>
 <summary>
