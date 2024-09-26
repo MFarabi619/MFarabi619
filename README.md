@@ -364,7 +364,9 @@ Please note that my technical competency fluctuates based on my active projects.
 
 <h3>Previously on <a href="https://neovim.io">NeoVim</a></h3>
 
-![image](https://github.com/user-attachments/assets/b8b4c0ce-f721-46d6-963a-042685de13a5)
+<!-- ![archvim](https://github.com/user-attachments/assets/b8b4c0ce-f721-46d6-963a-042685de13a5) -->
+
+![archvim_rice](https://github.com/user-attachments/assets/1bb8a7c6-041a-4d28-89f7-48bb992f9e47) 
 
 <details>
 <summary>
