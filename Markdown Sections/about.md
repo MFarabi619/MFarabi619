@@ -4,6 +4,8 @@
 <b>✨ About Me</b>
 <br/><br/>
 
+Hello
+
 
 - 🌱 Began self-taught developer journey in January 2023. Currently architecting Full-Stack software solutions, and practicing automation 🕸️🤖
 - ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
