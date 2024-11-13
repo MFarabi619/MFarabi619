@@ -47,6 +47,9 @@ Got a suggestion? Add it to the list :)
         </a>
       </td>
       <td style="text-align: center;">
+        <a href="https://go.nx.dev/react-book">
+          <img src="https://github.com/user-attachments/assets/34f403e1-1fd0-4fa7-bcd4-8b4eba9c1a7e" alt="Effective React Development with Nx Book" width="100" height="150" style="margin: 10px;">
+        </a>
        <a href="https://trunkbaseddevelopment.com">
           <img src="https://github.com/user-attachments/assets/1ba9518a-daf7-4970-a148-ad9f1abaeef3" alt="Trunk-Based Development" width="100" height="150" style="margin: 10px;">
         </a>
