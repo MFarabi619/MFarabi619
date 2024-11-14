@@ -493,6 +493,9 @@ Got a suggestion? Add it to the list :)
         </a>
       </td>
       <td style="text-align: center;">
+        <a href="https://www.amazon.ca/Full-Stack-Development-Remix-production-ready-ebook/dp/B0BNC2F14C">
+          <img src="https://github.com/user-attachments/assets/f7333c00-c187-4e16-a790-90aa1397adfe" alt="Full Stack Web Development with Remix" width="100" height="150" style="margin: 10px;">
+        </a>
         <a href="https://www.amazon.ca/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882">
           <img src="https://m.media-amazon.com/images/I/51E2055ZGUL._AC_UF1000,1000_QL80_.jpg" alt="Clean Code" width="100" height="150" style="margin: 10px;">
         </a>
@@ -504,6 +507,9 @@ Got a suggestion? Add it to the list :)
         </a>
       </td>
       <td style="text-align: center;">
+        <a href="https://go.nx.dev/react-book">
+          <img src="https://github.com/user-attachments/assets/34f403e1-1fd0-4fa7-bcd4-8b4eba9c1a7e" alt="Effective React Development with Nx Book" width="100" height="150" style="margin: 10px;">
+        </a>
        <a href="https://trunkbaseddevelopment.com">
           <img src="https://github.com/user-attachments/assets/1ba9518a-daf7-4970-a148-ad9f1abaeef3" alt="Trunk-Based Development" width="100" height="150" style="margin: 10px;">
         </a>
