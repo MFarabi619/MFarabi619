@@ -36,6 +36,9 @@ Got a suggestion? Add it to the list :)
         </a>
       </td>
       <td style="text-align: center;">
+        <a href="https://www.amazon.ca/Full-Stack-Development-Remix-production-ready-ebook/dp/B0BNC2F14C">
+          <img src="https://github.com/user-attachments/assets/f7333c00-c187-4e16-a790-90aa1397adfe" alt="Full Stack Web Development with Remix" width="100" height="150" style="margin: 10px;">
+        </a>
         <a href="https://www.amazon.ca/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882">
           <img src="https://m.media-amazon.com/images/I/51E2055ZGUL._AC_UF1000,1000_QL80_.jpg" alt="Clean Code" width="100" height="150" style="margin: 10px;">
         </a>
