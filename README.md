@@ -342,7 +342,7 @@ Please note that my technical competency fluctuates based on my active projects.
 
 ### [Arch Linux](https://archlinux.org/)
 
-#### [Hyprland](https://hyprland.org/) compositor with [Hyprdots](https://github.com/prasanthrangan/hyprdots) configuration
+#### [Hyprland](https://hyprland.org/) compositor + [Hyprdots](https://github.com/prasanthrangan/hyprdots) configs
 
 <table>
   <tr>
@@ -362,7 +362,7 @@ Please note that my technical competency fluctuates based on my active projects.
 <!-- Doom Emacs Dashboard -->
 <!-- ![image](https://github.com/user-attachments/assets/28a1bb4d-df3a-46aa-b185-24a2babc2cda) -->
 
-<h3>Previously on <a href="https://neovim.io">NeoVim</a></h3>
+<h3>Previously on <a href="https://neovim.io">Neovim</a></h3>
 
 <!-- ![archvim](https://github.com/user-attachments/assets/b8b4c0ce-f721-46d6-963a-042685de13a5) -->
 
@@ -455,6 +455,20 @@ Please note that my technical competency fluctuates based on my active projects.
   </tr>
 </table>
 </details>
+
+### [Piantor](https://github.com/beekeeb/piantor) with [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) layout
+
+![image](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6)
+
+<br/>
+
+![image](https://github.com/user-attachments/assets/8d5bbf3f-87b0-45d1-9a17-95fdb6ac1c99)
+
+<br/>
+
+<a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge" target="_top">
+  <img src="https://data.typeracer.com/misc/badge?user=killshot619" border="0" alt="TypeRacer.com scorecard for user killshot619"/>
+</a>
 <!-- markdownlint-disable -->
 
 <hr/>
