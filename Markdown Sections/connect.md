@@ -28,10 +28,6 @@
 <a href="https://www.youtube.com/watch?v=BBJa32lCaaY" target="blank">
   <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="getrickrolled" height="30" width="40" />
 </a>
-<br/>
-<a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge" target="_top">
-  <img src="https://data.typeracer.com/misc/badge?user=killshot619" border="0" alt="TypeRacer.com scorecard for user killshot619"/>
-</a>
 
 <hr/>
 
