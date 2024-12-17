@@ -6,7 +6,7 @@
 
 - 🌱 Began self-taught developer journey in January 2023. Currently architecting Full-Stack software solutions, and practicing automation 🕸️🤖
 - ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
-- 💻 Passionate Emacs/Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
+- 💻 Passionate Emacs/Vim/Neovim enthusiast that enjoys task automation with Bash and Python 🥳
   - [Dotfiles](https://github.com/MFarabi619/dotfiles/)
   - Yes, I debug my PDE on a regular basis.
 - 🛠️ I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity 🏃‍♂️💨

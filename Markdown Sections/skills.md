@@ -163,3 +163,7 @@
     </tbody>
   </table>
 </div>
+
+Technologies come and go. They're simply a means to an end. Real value lies in humility and mental aptitude.
+
+Give me a marker good enough and a board on which to draw, and I shall move the world.

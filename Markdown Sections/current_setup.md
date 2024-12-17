@@ -2,7 +2,7 @@
 
 ### [Arch Linux](https://archlinux.org/)
 
-#### [Hyprland](https://hyprland.org/) compositor + [Hyprdots](https://github.com/prasanthrangan/hyprdots) configs
+#### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator.
 
 <table>
   <tr>
