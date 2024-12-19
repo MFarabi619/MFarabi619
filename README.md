@@ -31,7 +31,8 @@
   </table>
 </div>
 Please note that my technical competency fluctuates based on my active projects.<br/>
-            I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
+            I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/>
+            On occasions I've worked with as many as 8 different languages in a single day. <br/><br/>
             <div class="tg-wrap" align="center">
             <table>
             <thead>
@@ -138,21 +139,13 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40"/>
           </a>
-          <!-- Doom Emacs -->
-          <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
-            <img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40"/>
+          <!-- NixOS -->
+          <a href="https://nixos.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="NixOS Logo" width="40" height="40"/>
           </a>
           <!-- Git -->
           <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
             <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40"/>
-          </a>
-          <!-- Figma -->
-          <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
-            <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40"/>
-          </a>
-          <!-- Org-mode -->
-          <a href="https://orgmode.org" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org-mode Logo" width="40" height="40"/>
           </a>
           <!-- Docker -->
           <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
@@ -165,6 +158,18 @@ Please note that my technical competency fluctuates based on my active projects.
           <!-- Nx -->
           <a href="https://nx.dev" target="_blank" rel="noreferrer">
             <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40"/>
+          </a>
+          <!-- Doom Emacs -->
+          <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
+            <img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40"/>
+          </a>
+          <!-- Org-mode -->
+          <a href="https://orgmode.org" target="_blank" rel="noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org-mode Logo" width="40" height="40"/>
+          </a>
+          <!-- Figma -->
+          <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
+            <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40"/>
           </a>
           <!-- Payload CMS -->
           <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
@@ -342,7 +347,7 @@ Please note that my technical competency fluctuates based on my active projects.
 
 ### [Arch Linux](https://archlinux.org/)
 
-#### [Hyprland](https://hyprland.org/) compositor + [Hyprdots](https://github.com/prasanthrangan/hyprdots) configs
+#### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator.
 
 <table>
   <tr>
@@ -477,7 +482,7 @@ Please note that my technical competency fluctuates based on my active projects.
 
 - 🌱 Began self-taught developer journey in January 2023. Currently architecting Full-Stack software solutions, and practicing automation 🕸️🤖
 - ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
-- 💻 Passionate Emacs/Vim/NeoVim enthusiast that enjoys task automation with Bash and Python 🥳
+- 💻 Passionate Emacs/Vim/Neovim enthusiast that enjoys task automation with Bash and Python 🥳
   - [Dotfiles](https://github.com/MFarabi619/dotfiles/)
   - Yes, I debug my PDE on a regular basis.
 - 🛠️ I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity 🏃‍♂️💨
@@ -571,4 +576,4 @@ Got a suggestion? Add it to the list :)
 
 <hr/>
 
-This README is generated dynamically using a [Python script](https://github.com/MFarabi619/MFarabi619/blob/main/generate_readme.py) running on a cloud [GitHub Action](https://github.com/MFarabi619/MFarabi619/actions) 🤖
+This README is generated dynamically using a [Python script](https://github.com/MFarabi619/MFarabi619/blob/main/generate_readme.py) executed on a self-hosted runner using [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) 🤖
