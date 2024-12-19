@@ -27,7 +27,8 @@ def generate_skills_section(
 ) -> str:
     """Generate markdown for 'Skills' section based on provided data"""
     content = """Please note that my technical competency fluctuates based on my active projects.<br/>
-            I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
+            I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/>
+            On occasions I've worked with as many as 8 different languages in a single day. <br/><br/>
             <div class="tg-wrap" align="center">
             <table>
             <thead>
