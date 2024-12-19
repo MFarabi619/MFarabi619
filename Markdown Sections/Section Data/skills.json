@@ -116,24 +116,14 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
       },
       {
-        "name": "Doom Emacs",
-        "url": "https://github.com/doomemacs/doomemacs",
-        "icon": "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png"
+        "name": "NixOS",
+        "url": "https://nixos.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
       },
       {
         "name": "Git",
         "url": "https://git-scm.com/",
         "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
-      },
-      {
-        "name": "Figma",
-        "url": "https://www.figma.com/",
-        "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
-      },
-      {
-        "name": "Org-mode",
-        "url": "https://orgmode.org",
-        "icon": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg"
       },
       {
         "name": "Docker",
@@ -149,6 +139,21 @@
         "name": "Nx",
         "url": "https://nx.dev",
         "icon": "https://api.iconify.design/logos:nx.svg"
+      },
+      {
+        "name": "Doom Emacs",
+        "url": "https://github.com/doomemacs/doomemacs",
+        "icon": "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png"
+      },
+      {
+        "name": "Org-mode",
+        "url": "https://orgmode.org",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg"
+      },
+      {
+        "name": "Figma",
+        "url": "https://www.figma.com/",
+        "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
       },
       {
         "name": "Payload CMS",
