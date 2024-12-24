@@ -97,6 +97,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://graphql.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40"/>
           </a>
+          <!-- Nest.js -->
+          <a href="https://nestjs.com/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40"/>
+          </a>
           <!-- Remix.js -->
           <a href="https://remix.run/" target="_blank" rel="noreferrer">
             <img src="https://remix.run/img/og.1.jpg" alt="Remix.js Logo" width="40" height="40"/>
