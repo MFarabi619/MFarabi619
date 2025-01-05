@@ -358,6 +358,16 @@ Please note that my technical competency fluctuates based on my active projects.
     <td><img src="https://github.com/user-attachments/assets/5d84d918-ef2f-461a-a0ec-c618fbf4c166" alt="image"></td>
     <td><img src="https://github.com/user-attachments/assets/aa2f8f96-4774-4617-bcb4-ab967ab08c88" alt="image"></td>
   </tr>
+    <tr>
+    <td><img src="https://github.com/user-attachments/assets/7d3cb417-33e2-4eb7-a3bd-910eff87010c" alt="image"></td>
+    <td><img src="https://github.com/user-attachments/assets/b4962240-c274-46e8-bd7d-1cfc0fd38225" alt="image"></td>
+    <td><img src="https://github.com/user-attachments/assets/7cab75e8-167b-4d35-964f-cebef4258b49" alt="image"></td>
+  </tr>
+    <tr>
+    <td><img src="https://github.com/user-attachments/assets/9630c715-e3d6-4f07-9e3d-7292cad37074" alt="image"></td>
+    <td><img src="https://github.com/user-attachments/assets/3e96634d-c09f-4be8-ab95-05194ba9bd37" alt="image"></td>
+    <td><img src="https://github.com/user-attachments/assets/2cf16316-91a1-4329-aa4a-a5d6f3822e6c" alt="image"></td>
+  </tr>
 </table>
 
 <strong><a href="https://github.com/doomemacs/doomemacs">Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.freebsd.org">
@@ -446,12 +456,36 @@ Please note that my technical competency fluctuates based on my active projects.
       <a href="https://github.com/minad/corfu">corfu</a> for fuzzy finding
     </td>
     <td width="50%">
-      <a href="https://github.com/brookhong/Surfingkeys">SurfingKeys</a> for browser navigation
+      <a href="https://github.com/openscad/emacs-scad-mode">scad-mode</a> for 3D modelling
     </td>
   </tr>
   <tr>
     <td><img src="https://github.com/user-attachments/assets/945019d9-58e2-4f6f-b721-756476fc1436" alt="image"></td>
-    <td><img src="https://github.com/MFarabi619/MFarabi619/assets/54924158/ab0711b1-738e-4eb4-9164-559a9a0b46af" alt="image"></td>
+     <td><img src="https://github.com/user-attachments/assets/b1d080df-f7eb-43ef-9c4c-c7137d5ec41d" alt="image"></td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <a href="https://orgmode.org/">org-mode</a> for notes
+    </td>
+    <td width="50%">
+      <a href="https://www.gnu.org/software/emacs/manual/html_mono/eww.html">eww</a> for web browsing
+    </td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/1a99a06d-c8d0-4b45-ab4e-31dfd3b7964e" alt="image"></td>
+<td><img src="https://github.com/user-attachments/assets/2ee4a2c0-50cf-4f78-a342-f0b2d11e33a2" alt="image"></td>
+  </tr>
+  <tr>
+    <td width="50%">
+        <a href="https://pdftools.wiki/">pdf-tools</a> for pdf documents
+    </td>
+    <td width="50%">
+      <a href="https://github.com/johanvts/emacs-fireplace">fireplace</a> for philosophical discussions
+    </td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/7bf86580-7c5a-431d-bf81-76514eed96fb" alt="image"></td>
+<td><img src="https://github.com/user-attachments/assets/b13cafb1-3b61-4f80-ae7c-11556ea9a38f" alt="image"></td>
   </tr>
 </table>
 </details>
