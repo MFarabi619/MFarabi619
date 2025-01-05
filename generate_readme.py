@@ -26,8 +26,7 @@ def generate_skills_section(
     data: Dict[str, Dict[str, List[Dict]]],
 ) -> str:
     """Generate markdown for 'Skills' section based on provided data"""
-    content = """Please note that my technical competency fluctuates based on my active projects.<br/>
-            I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/>
+    content = """Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
             On occasions I've worked with as many as 8 different languages in a single day. <br/><br/>
             <div class="tg-wrap" align="center">
             <table>
