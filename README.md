@@ -30,8 +30,7 @@
     </tr>
   </table>
 </div>
-Please note that my technical competency fluctuates based on my active projects.<br/>
-            I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/>
+Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
             On occasions I've worked with as many as 8 different languages in a single day. <br/><br/>
             <div class="tg-wrap" align="center">
             <table>
@@ -351,7 +350,7 @@ Please note that my technical competency fluctuates based on my active projects.
 
 ### [Arch Linux](https://archlinux.org/)
 
-#### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator.
+#### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator
 
 <table>
   <tr>
@@ -370,6 +369,92 @@ Please note that my technical competency fluctuates based on my active projects.
 
 <!-- Doom Emacs Dashboard -->
 <!-- ![image](https://github.com/user-attachments/assets/28a1bb4d-df3a-46aa-b185-24a2babc2cda) -->
+
+<details>
+<summary>
+  <h3>See More</h3>
+</summary>
+
+<table>
+  <tr>
+    <td width="50%">
+<ul>
+  <li>
+    <a href="https://github.com/abo-abo/ace-window">ace-window</a> for window management
+  </li>
+  <li>
+    <a href="https://github.com/alexluigit/dirvish">Dirvish</a> for file browsing
+  </li>
+  <li>
+    <a href="https://github.com/emacsmirror/vterm">vterm</a> for split/full terminals
+  </li>
+  <li>
+    <a href="https://emarsden.github.io/pgmacs/">pgmacs</a> for database queries
+  </li>
+</ul>
+    </td>
+    <td width="50%">
+      <a href="https://emacs-tree-sitter.github.io/">tree-sitter</a> and
+      <a href="https://emacs-lsp.github.io/lsp-mode/">lsp-mode</a> for
+      syntax highlighting, structural editing, definition lookup, symbol navigation, intellisense, diagnostics etc.
+    </td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/d0a05995-58d9-4e78-933c-6a795e2dbf9c" alt="image"></td>
+    <td><img src="https://github.com/user-attachments/assets/a2035de7-2389-4fe6-b33d-7febfbdf0ac7" alt="image"></td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <a href="https://github.com/s-kostyaev/ellama">Ellama</a> +
+      <a href="https://github.com/chep/copilot-chat.el">copilot-chat</a> for AI input and code review
+    </td>
+    <td width="50%">
+      <a href="https://emacs-lsp.github.io/dap-mode/">dap-mode</a> for bug hunting 🐞
+    </td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/63e73123-fd2c-40b6-ab0e-04aa1cfa7172" alt="image"></td>
+    <td><img src="https://github.com/user-attachments/assets/99bf56b4-11d3-4e3a-bcaa-203f5a7fde15" alt="image"></td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <a href="https://github.com/astoff/devdocs.el">devdocs.el</a> for quick references
+    </td>
+    <td width="50%">
+      <a href="https://github.com/pashky/restclient.el">restclient-mode</a> to ping API endpoints
+    </td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/a4371515-a783-4d80-b22c-f9ae838d71f0" alt="image"></td>
+    <td><img src="https://github.com/user-attachments/assets/38c5f3d7-727e-4ee7-8903-644a005641ad" alt="image"></td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <a href="https://github.com/rajasegar/pnpm-mode">pnpm-mode</a> for running tasks
+    </td>
+    <td width="50%">
+      <a href="https://magit.vc/">Magit</a> for Git client
+    </td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/6bb96937-a4e5-49f3-b709-f989a8c1af7b" alt="image"></td>
+    <td><img src="https://github.com/user-attachments/assets/af389732-ecf5-47e2-8d42-72d35db65441" alt="image"></td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <a href="https://github.com/minad/vertico">Vertico</a> +
+      <a href="https://github.com/minad/corfu">corfu</a> for fuzzy finding
+    </td>
+    <td width="50%">
+      <a href="https://github.com/brookhong/Surfingkeys">SurfingKeys</a> for browser navigation
+    </td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/945019d9-58e2-4f6f-b721-756476fc1436" alt="image"></td>
+    <td><img src="https://github.com/MFarabi619/MFarabi619/assets/54924158/ab0711b1-738e-4eb4-9164-559a9a0b46af" alt="image"></td>
+  </tr>
+</table>
+</details>
 
 <h3>Previously on <a href="https://neovim.io">Neovim</a></h3>
 
