@@ -91,7 +91,7 @@
       {
         "name": "Framer Motion",
         "url": "https://www.framer.com/motion/",
-        "icon": "https://svgshare.com/i/16jP.svg"
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/framermotion/framermotion-original.svg"
       },
       {
         "name": "Storybook",
