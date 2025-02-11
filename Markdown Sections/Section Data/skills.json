@@ -107,8 +107,8 @@
       },
       {
         "name": "Framer Motion",
-        "url": "https://www.framer.com/motion/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/framermotion/framermotion-original.svg"
+        "url": "https://motion.dev",
+        "icon": "https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png"
       },
       {
         "name": "Storybook",
