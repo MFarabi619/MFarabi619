@@ -81,9 +81,9 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
       },     
       {
-        "name": "Remix.js",
-        "url": "https://remix.run/",
-        "icon": "https://remix.run/img/og.1.jpg"
+        "name": "React Router",
+        "url": "https://reactrouter.com",
+        "icon":"https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
       },
       {
         "name": "Next.js",
@@ -222,6 +222,11 @@
       }
     ],
     "Frameworks & Libraries": [
+      {
+        "name": "Remix.js",
+        "url": "https://remix.run/",
+        "icon": "https://github.com/user-attachments/assets/5ac0e523-a337-42a2-ba56-c13d314fdaac"
+      },
       {
         "name": "Astro",
         "url": "https://astro.build/",
