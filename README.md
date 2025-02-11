@@ -88,9 +88,17 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40"/>
           </a>
+          <!-- XState -->
+          <a href="https://xstate.js.org" target="_blank" rel="noreferrer">
+            <img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40"/>
+          </a>
           <!-- PostgreSQL -->
           <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40"/>
+          </a>
+          <!-- Drizzle -->
+          <a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
+            <img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40"/>
           </a>
           <!-- GraphQL -->
           <a href="https://graphql.org/" target="_blank" rel="noreferrer">
@@ -100,13 +108,21 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://nestjs.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40"/>
           </a>
-          <!-- Remix.js -->
-          <a href="https://remix.run/" target="_blank" rel="noreferrer">
-            <img src="https://remix.run/img/og.1.jpg" alt="Remix.js Logo" width="40" height="40"/>
+          <!-- Payload CMS -->
+          <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg" alt="Payload CMS Logo" width="40" height="40"/>
+          </a>
+          <!-- React Router -->
+          <a href="https://reactrouter.com" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router Logo" width="40" height="40"/>
           </a>
           <!-- Next.js -->
           <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40"/>
+          </a>
+          <!-- Sli.dev -->
+          <a href="https://sli.dev" target="_blank" rel="noreferrer">
+            <img src="https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67" alt="Sli.dev Logo" width="40" height="40"/>
           </a>
           <!-- React -->
           <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
@@ -117,8 +133,8 @@ Please note that my technical competency fluctuates based on my active projects.
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40"/>
           </a>
           <!-- Framer Motion -->
-          <a href="https://www.framer.com/motion/" target="_blank" rel="noreferrer">
-            <img src="https://svgshare.com/i/16jP.svg" alt="Framer Motion Logo" width="40" height="40"/>
+          <a href="https://motion.dev" target="_blank" rel="noreferrer">
+            <img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40"/>
           </a>
           <!-- Storybook -->
           <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
@@ -142,13 +158,13 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40"/>
           </a>
-          <!-- NixOS -->
-          <a href="https://nixos.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="NixOS Logo" width="40" height="40"/>
-          </a>
           <!-- Git -->
           <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
             <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40"/>
+          </a>
+          <!-- NixOS -->
+          <a href="https://nixos.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="NixOS Logo" width="40" height="40"/>
           </a>
           <!-- Docker -->
           <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
@@ -174,9 +190,13 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
             <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40"/>
           </a>
-          <!-- Payload CMS -->
-          <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg" alt="Payload CMS Logo" width="40" height="40"/>
+          <!-- Supabase -->
+          <a href="https://supabase.com" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40"/>
+          </a>
+          <!-- Netlify -->
+          <a href="https://netlify.com" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40"/>
           </a>
         </td>
     </tr>
@@ -213,9 +233,13 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
+          <!-- Remix.js -->
+          <a href="https://remix.run/" target="_blank" rel="noreferrer">
+            <img src="https://github.com/user-attachments/assets/5ac0e523-a337-42a2-ba56-c13d314fdaac" alt="Remix.js Logo" width="40" height="40"/>
+          </a>
           <!-- Astro -->
           <a href="https://astro.build/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original-wordmark.svg" alt="Astro Logo" width="40" height="40"/>
+            <img src="https://www.svgrepo.com/show/373446/astro.svg" alt="Astro Logo" width="40" height="40"/>
           </a>
           <!-- SvelteKit -->
           <a href="https://kit.svelte.dev/" target="_blank" rel="noreferrer">
@@ -292,13 +316,17 @@ Please note that my technical competency fluctuates based on my active projects.
             </tr>
             <tr>
                 <td align='center'>
-          <!-- Terraform -->
-          <a href="https://www.terraform.io/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/terraform/terraform-original-wordmark.svg" alt="Terraform Logo" width="40" height="40"/>
+          <!-- Smalltalk -->
+          <a href="https://squeak.org" target="_blank" rel="noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg" alt="Smalltalk Logo" width="40" height="40"/>
+          </a>
+          <!-- Pulumi -->
+          <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40"/>
           </a>
           <!-- Rust -->
           <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Rust_programming_language_black_logo.svg" alt="Rust Logo" width="40" height="40"/>
+            <img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40"/>
           </a>
           <!-- Go -->
           <a href="https://golang.org/" target="_blank" rel="noreferrer">
@@ -306,6 +334,18 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
+          <!-- Leptos -->
+          <a href="https://leptos.dev" target="_blank" rel="noreferrer">
+            <img src="https://avatars.githubusercontent.com/u/118319153?s=200&v=4" alt="Leptos Logo" width="40" height="40"/>
+          </a>
+          <!-- Node.ts -->
+          <a href="https://typestrong.org/ts-node/" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg" alt="Node.ts Logo" width="40" height="40"/>
+          </a>
+          <!-- NestJS TRPC -->
+          <a href="https://www.nestjs-trpc.io" target="_blank" rel="noreferrer">
+            <img src="https://www.nestjs-trpc.io/logo.png" alt="NestJS TRPC Logo" width="40" height="40"/>
+          </a>
           <!-- Analog.js -->
           <a href="https://analogjs.org/" target="_blank" rel="noreferrer">
             <img src="https://analogjs.org/img/logos/analog-logo.svg" alt="Analog.js Logo" width="40" height="40"/>
