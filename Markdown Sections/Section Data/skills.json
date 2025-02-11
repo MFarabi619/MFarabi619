@@ -225,7 +225,7 @@
       {
         "name": "Astro",
         "url": "https://astro.build/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/astro/astro-original-wordmark.svg"
+        "icon": "https://www.svgrepo.com/show/373446/astro.svg"
       },
       {
         "name": "SvelteKit",
