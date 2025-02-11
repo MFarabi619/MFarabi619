@@ -53,6 +53,13 @@
         "url": "https://expressjs.com/",
         "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg"
       },
+      
+      {
+        "name": "XState",
+        "url": "https://xstate.js.org",
+        "icon": "https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png"
+      },
+
       {
         "name": "PostgreSQL",
         "url": "https://www.postgresql.org/",
