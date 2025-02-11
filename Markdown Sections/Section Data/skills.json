@@ -271,6 +271,12 @@
     ],
     "Tools": [
       {
+        "name": "Oracle Enterprise Linux",
+        "url": "https://www.oracle.com/ca-en/linux/",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg"
+      },
+      {
+        
         "name": "Ubuntu",
         "url": "https://ubuntu.com/",
         "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
