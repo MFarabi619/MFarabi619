@@ -325,6 +325,11 @@
   "Would like to learn": {
     "Languages": [
       {
+        "name": "Smalltalk",
+        "url":"https://squeak.org",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg"
+      },
+      {
         "name": "Pulumi",
         "url": "https://www.pulumi.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
