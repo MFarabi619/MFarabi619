@@ -66,6 +66,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg"
       },
       {
+        "name": "Drizzle",
+        "url": "https://orm.drizzle.team/",
+        "icon": "https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg"
+      },
+      {
         "name": "GraphQL",
         "url": "https://graphql.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg"
