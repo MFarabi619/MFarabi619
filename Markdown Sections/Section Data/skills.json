@@ -314,9 +314,9 @@
   "Would like to learn": {
     "Languages": [
       {
-        "name": "Terraform",
-        "url": "https://www.terraform.io/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/terraform/terraform-original-wordmark.svg"
+        "name": "Pulumi",
+        "url": "https://www.pulumi.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
       },
       {
         "name": "Rust",
