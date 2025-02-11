@@ -357,6 +357,11 @@
         "icon": "https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg"
       },
       {
+        "name": "NestJS TRPC",
+        "url": "https://www.nestjs-trpc.io",
+        "icon": "https://www.nestjs-trpc.io/logo.png"
+      },
+      {
         "name": "Analog.js",
         "url": "https://analogjs.org/",
         "icon": "https://analogjs.org/img/logos/analog-logo.svg"
