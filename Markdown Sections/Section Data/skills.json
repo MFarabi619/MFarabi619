@@ -91,6 +91,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
       },
       {
+        "name": "Sli.dev",
+        "url": "https://sli.dev",
+        "icon": "https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67"
+      },
+      {
         "name": "React",
         "url": "https://reactjs.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
