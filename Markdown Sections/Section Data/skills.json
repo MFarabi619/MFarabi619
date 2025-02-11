@@ -81,6 +81,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
       },     
       {
+        "name": "Payload CMS",
+        "url": "https://payloadcms.com/",
+        "icon": "https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg"
+      },
+      {
         "name": "React Router",
         "url": "https://reactrouter.com",
         "icon":"https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
@@ -178,9 +183,10 @@
         "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
       },
       {
-        "name": "Payload CMS",
-        "url": "https://payloadcms.com/",
-        "icon": "https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg"
+        "name": "Supabase",
+        "url": "https://supabase.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
+      },
       {
         "name": "Netlify",
         "url": "https://netlify.com",
