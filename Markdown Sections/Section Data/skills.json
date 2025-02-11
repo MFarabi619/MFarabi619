@@ -138,14 +138,14 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
       },
       {
-        "name": "NixOS",
-        "url": "https://nixos.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
-      },
-      {
         "name": "Git",
         "url": "https://git-scm.com/",
         "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
+      },
+      {
+        "name": "NixOS",
+        "url": "https://nixos.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
       },
       {
         "name": "Docker",
