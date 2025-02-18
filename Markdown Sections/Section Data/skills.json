@@ -44,6 +44,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "Pulumi",
+        "url": "https://www.pulumi.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
+      },
+      {
         "name": "Node.js",
         "url": "https://nodejs.org/en/about",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg"
@@ -53,7 +58,7 @@
         "url": "https://expressjs.com/",
         "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg"
       },
-      
+
       {
         "name": "XState",
         "url": "https://xstate.js.org",
@@ -79,7 +84,7 @@
         "name": "Nest.js",
         "url": "https://nestjs.com/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
-      },     
+      },
       {
         "name": "Payload CMS",
         "url": "https://payloadcms.com/",
@@ -88,7 +93,7 @@
       {
         "name": "React Router",
         "url": "https://reactrouter.com",
-        "icon":"https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
       },
       {
         "name": "Next.js",
@@ -334,11 +339,6 @@
         "name": "Smalltalk",
         "url":"https://squeak.org",
         "icon": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg"
-      },
-      {
-        "name": "Pulumi",
-        "url": "https://www.pulumi.com",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
       },
       {
         "name": "Rust",
