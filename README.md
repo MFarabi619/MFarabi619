@@ -80,6 +80,10 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
         </td>
         <td align='center'>
+          <!-- Pulumi -->
+          <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40"/>
+          </a>
           <!-- Node.js -->
           <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40"/>
@@ -323,10 +327,6 @@ Please note that my technical competency fluctuates based on my active projects.
           <!-- Smalltalk -->
           <a href="https://squeak.org" target="_blank" rel="noreferrer">
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg" alt="Smalltalk Logo" width="40" height="40"/>
-          </a>
-          <!-- Pulumi -->
-          <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40"/>
           </a>
           <!-- Rust -->
           <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
