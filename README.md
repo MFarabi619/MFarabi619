@@ -1,6 +1,8 @@
 <!-- markdownlint-disable --><div align="center">
-  <img src="https://s3.gifyu.com/images/bSEAd.gif" style="width:100%"/>
+  <img src="https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif" style="width:100%"/>
 </div>
+
+<!-- ![Logo](https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif) -->
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
