@@ -356,6 +356,11 @@
         "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
       },
       {
+        "name": "Solidity",
+        "url": "https://soliditylang.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg"
+      },
+      {
         "name": "Go",
         "url": "https://golang.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
