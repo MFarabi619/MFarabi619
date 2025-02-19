@@ -153,14 +153,29 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
       },
       {
+        "name": "Nx",
+        "url": "https://nx.dev",
+        "icon": "https://api.iconify.design/logos:nx.svg"
+      },
+      {
+        "name": "Supabase",
+        "url": "https://supabase.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
+      },
+      {
         "name": "GitHub Actions",
         "url": "https://github.com/features/actions",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
       },
       {
-        "name": "Nx",
-        "url": "https://nx.dev",
-        "icon": "https://api.iconify.design/logos:nx.svg"
+        "name": "Netlify",
+        "url": "https://netlify.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
+      },
+      {
+        "name": "LikeC4",
+        "url": "https://likec4.dev",
+        "icon": "https://avatars.githubusercontent.com/u/128791862?s=200&v=4"
       },
       {
         "name": "Doom Emacs",
@@ -176,16 +191,6 @@
         "name": "Figma",
         "url": "https://www.figma.com/",
         "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
-      },
-      {
-        "name": "Supabase",
-        "url": "https://supabase.com",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
-      },
-      {
-        "name": "Netlify",
-        "url": "https://netlify.com",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
       }
     ]
   },
