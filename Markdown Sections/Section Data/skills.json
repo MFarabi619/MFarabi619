@@ -106,11 +106,6 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
       },
       {
-        "name": "Framer Motion",
-        "url": "https://motion.dev",
-        "icon": "https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png"
-      },
-      {
         "name": "Storybook",
         "url": "https://storybook.js.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg"
@@ -252,6 +247,11 @@
         "name": "Ember.js",
         "url": "https://emberjs.com/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
+      },
+      {
+        "name": "Framer Motion",
+        "url": "https://motion.dev",
+        "icon": "https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png"
       },
       {
         "name": "Jest",
