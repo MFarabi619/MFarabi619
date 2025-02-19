@@ -2,31 +2,6 @@
   "Actively Using": {
     "Languages": [
       {
-        "name": "HTML",
-        "url": "https://www.w3.org/html/",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg"
-      },
-      {
-        "name": "CSS",
-        "url": "https://www.w3schools.com/css/",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
-      },
-      {
-        "name": "TypeScript",
-        "url": "https://www.typescriptlang.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
-      },
-      {
-        "name": "Java",
-        "url": "https://www.java.com",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg"
-      },
-      {
-        "name": "Python",
-        "url": "https://www.python.org",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
-      },
-      {
         "name": "Bash",
         "url": "https://www.gnu.org/software/bash/",
         "icon": "https://bashlogo.com/img/symbol/png/monochrome_light.png"
@@ -37,9 +12,24 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg"
       },
       {
+        "name": "TypeScript",
+        "url": "https://www.typescriptlang.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
+      },
+      {
         "name": "LaTeX",
         "url": "https://www.latex-project.org/",
         "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg"
+      },
+      {
+        "name": "HTML",
+        "url": "https://www.w3.org/html/",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg"
+      },
+      {
+        "name": "CSS",
+        "url": "https://www.w3schools.com/css/",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
       }
     ],
     "Frameworks & Libraries": [
@@ -201,6 +191,16 @@
   },
   "Previously Used": {
     "Languages": [
+      {
+        "name": "Java",
+        "url": "https://www.java.com",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg"
+      },
+      {
+        "name": "Python",
+        "url": "https://www.python.org",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
+      },
       {
         "name": "JavaScript",
         "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
