@@ -46,26 +46,6 @@ Please note that my technical competency fluctuates based on my active projects.
             </tr>
             <tr>
                 <td align='center'>
-          <!-- HTML -->
-          <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40"/>
-          </a>
-          <!-- CSS -->
-          <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40"/>
-          </a>
-          <!-- TypeScript -->
-          <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40"/>
-          </a>
-          <!-- Java -->
-          <a href="https://www.java.com" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="Java Logo" width="40" height="40"/>
-          </a>
-          <!-- Python -->
-          <a href="https://www.python.org" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="40" height="40"/>
-          </a>
           <!-- Bash -->
           <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
             <img src="https://bashlogo.com/img/symbol/png/monochrome_light.png" alt="Bash Logo" width="40" height="40"/>
@@ -74,9 +54,21 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40"/>
           </a>
+          <!-- TypeScript -->
+          <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40"/>
+          </a>
           <!-- LaTeX -->
           <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40"/>
+          </a>
+          <!-- HTML -->
+          <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40"/>
+          </a>
+          <!-- CSS -->
+          <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40"/>
           </a>
         </td>
         <td align='center'>
@@ -114,7 +106,7 @@ Please note that my technical competency fluctuates based on my active projects.
           </a>
           <!-- Payload CMS -->
           <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.prod.website-files.com/5f15081919fdf673994ab5fd/6609e72483b3cbc5f7631d49_Payload-Logo.svg" alt="Payload CMS Logo" width="40" height="40"/>
+            <img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40"/>
           </a>
           <!-- React Router -->
           <a href="https://reactrouter.com" target="_blank" rel="noreferrer">
@@ -136,21 +128,21 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40"/>
           </a>
-          <!-- Framer Motion -->
-          <a href="https://motion.dev" target="_blank" rel="noreferrer">
-            <img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40"/>
-          </a>
           <!-- Storybook -->
           <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40"/>
           </a>
-          <!-- Vitest -->
-          <a href="https://vitest.dev/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40"/>
+          <!-- Serenity.js Screenplay Pattern -->
+          <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
+            <img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40"/>
           </a>
           <!-- Playwright -->
           <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
             <img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40"/>
+          </a>
+          <!-- Vitest -->
+          <a href="https://vitest.dev/" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40"/>
           </a>
         </td>
         <td align='center'>
@@ -174,13 +166,25 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40"/>
           </a>
+          <!-- Nx -->
+          <a href="https://nx.dev" target="_blank" rel="noreferrer">
+            <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40"/>
+          </a>
+          <!-- Supabase -->
+          <a href="https://supabase.com" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40"/>
+          </a>
           <!-- GitHub Actions -->
           <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40"/>
           </a>
-          <!-- Nx -->
-          <a href="https://nx.dev" target="_blank" rel="noreferrer">
-            <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40"/>
+          <!-- Netlify -->
+          <a href="https://netlify.com" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40"/>
+          </a>
+          <!-- LikeC4 -->
+          <a href="https://likec4.dev" target="_blank" rel="noreferrer">
+            <img src="https://avatars.githubusercontent.com/u/128791862?s=200&v=4" alt="LikeC4 Logo" width="40" height="40"/>
           </a>
           <!-- Doom Emacs -->
           <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
@@ -194,14 +198,6 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
             <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40"/>
           </a>
-          <!-- Supabase -->
-          <a href="https://supabase.com" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40"/>
-          </a>
-          <!-- Netlify -->
-          <a href="https://netlify.com" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40"/>
-          </a>
         </td>
     </tr>
 <tr>
@@ -211,6 +207,14 @@ Please note that my technical competency fluctuates based on my active projects.
             </tr>
             <tr>
                 <td align='center'>
+          <!-- Java -->
+          <a href="https://www.java.com" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="Java Logo" width="40" height="40"/>
+          </a>
+          <!-- Python -->
+          <a href="https://www.python.org" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="40" height="40"/>
+          </a>
           <!-- JavaScript -->
           <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
             <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="JavaScript Logo" width="40" height="40"/>
@@ -252,6 +256,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <!-- Ember.js -->
           <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40"/>
+          </a>
+          <!-- Framer Motion -->
+          <a href="https://motion.dev" target="_blank" rel="noreferrer">
+            <img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40"/>
           </a>
           <!-- Jest -->
           <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
@@ -331,6 +339,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <!-- Rust -->
           <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
             <img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40"/>
+          </a>
+          <!-- Solidity -->
+          <a href="https://soliditylang.org" target="_blank" rel="noreferrer">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg" alt="Solidity Logo" width="40" height="40"/>
           </a>
           <!-- Go -->
           <a href="https://golang.org/" target="_blank" rel="noreferrer">
