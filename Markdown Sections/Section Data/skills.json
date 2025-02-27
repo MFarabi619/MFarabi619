@@ -148,6 +148,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
       },
       {
+        "name": "Zellij",
+        "url": "https://zellij.dev/",
+        "icon": "https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png"
+      },
+      {
         "name": "Docker",
         "url": "https://www.docker.com/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
