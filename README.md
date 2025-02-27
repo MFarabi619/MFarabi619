@@ -162,6 +162,10 @@ Please note that my technical competency fluctuates based on my active projects.
           <a href="https://nixos.org/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="NixOS Logo" width="40" height="40"/>
           </a>
+          <!-- Zellij -->
+          <a href="https://zellij.dev/" target="_blank" rel="noreferrer">
+            <img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40"/>
+          </a>
           <!-- Docker -->
           <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
             <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40"/>
