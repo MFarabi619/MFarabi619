@@ -1,0 +1,63 @@
+# 🔹 Compiled Output
+dist/
+tmp/
+out-tsc/
+.next/
+out/
+build/
+
+# 🔹 Dependencies
+node_modules/
+.pnp/
+.pnp.js
+.yarn/install-state.gz
+
+# 🔹 IDEs & Editors
+.idea/
+.idea/runConfigurations
+.vscode/
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# 🔹 Testing & Coverage
+coverage/
+test-output/
+
+# 🔹 Logs & Debugging
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+testem.log
+libpeerconnection.log
+
+# 🔹 System & OS Files
+.DS_Store
+Thumbs.db
+
+# 🔹 Nx (Monorepo)
+.nx/cache
+.nx/workspace-data
+
+# 🔹 Environment Variables
+.env
+.env*.local
+.env.backup
+
+# 🔹 Misc
+.sass-cache/
+connect.lock
+typings/
+apps/admin/media
+
+# 🔹 Hosting & Deployment
+.vercel/
+
+# Other
+infra/pgdata/

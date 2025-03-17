@@ -1,0 +1,96 @@
+layout {
+    default_tab_template {
+        pane {
+            size 1
+            borderless true
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane {
+            size 2
+            borderless true
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    tab name="🧮 Servers" focus=true {
+        pane {
+        split_direction "vertical"
+        pane{
+        split_direction "horizontal"
+            pane {
+            name "💿 Database | 5432 | Nix-PostgreSQL"
+            command "pnpm"
+            args "nx" "up" "infra"
+            cwd "../"
+            }
+            pane {
+            name "⚙ Admin Panel | 8000"
+            command "pnpm"
+            args "nx" "dev" "admin"
+            cwd "../"
+            }
+            }
+            pane {
+            split_direction "horizontal"
+            pane {
+            name "🗺 Project Graph - Nx | 4211 | graph.mfarabi.dev"
+            command "pnpm"
+            args "nx" "graph" "--groupByFolder" "--verbose"
+            cwd "../"
+            size "50%"
+            start_suspended true
+                }
+            }
+            }
+
+
+        floating_panes {
+            pane {
+                name "🩺 System Health - btop"
+                command "btop"
+            }
+        }
+    }
+
+    tab name="🟩 Status" {
+        pane split_direction="vertical" {
+            pane {
+                name "🍒 Git - Lazygit"
+                command "lazygit"
+            }
+
+            pane {
+                name "📁 File Browser - Yazi"
+                command "env"
+                args "YAZI_CONFIG_HOME=./" "yazi"
+            }
+        }
+
+        floating_panes {
+            pane {
+                name "🧠 TGPT"
+                command "tgpt"
+                args "-m"
+            }
+        }
+    }
+
+  tab name="🔌 API" hide_floating_panes=true {
+        pane split_direction="vertical" {
+                pane {
+                    name "Posting"
+                    cwd "posting"
+                    command "posting"
+                    args "-e" "dev.env" "--collection" "."
+                }
+        }
+    }
+
+     tab name="💿 Database" {
+        pane {
+        command "harlequin"
+        args "--adapter=postgres" "postgres://postgres:password@127.0.0.1:5432/postgres?sslmode=disable"
+        }
+    }
+}
