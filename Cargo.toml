@@ -3,6 +3,7 @@
 resolver = '2'
 members = [
 	'apps/learning/rust',
+	'libs/learning/rust/cats',
 ]
 
 [profile.release]
