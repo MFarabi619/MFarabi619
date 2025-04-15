@@ -1,0 +1,9 @@
+
+[workspace]
+resolver = '2'
+members = [
+	'apps/learning/rust',
+]
+
+[profile.release]
+lto = true

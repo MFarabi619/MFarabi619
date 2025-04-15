@@ -93,8 +93,6 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
     "@antfu/eslint-config": "^3.16.0",
     "@babel/core": "^7.26.8",
     "@babel/preset-react": "^7.26.3",
@@ -107,6 +105,7 @@
     "@eslint/config-inspector": "^0.5.6",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.20.0",
+    "@monodon/rust": "^2.3.0",
     "@nx-extend/shadcn-ui": "^4.2.1",
     "@nx/devkit": "20.4.2",
     "@nx/eslint": "20.4.2",
@@ -207,6 +206,8 @@
     "postcss": "^8.5.1",
     "prettier": "^3.5.0",
     "prettier-plugin-slidev": "^1.0.5",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-icons": "^5.4.0",
     "rehype-katex": "^7.0.1",
     "rehype-mermaid": "^2.1.0",

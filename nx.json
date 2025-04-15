@@ -12,7 +12,10 @@
       "!{projectRoot}/tsconfig.storybook.json",
       "!{projectRoot}/src/test-setup.[jt]s"
     ],
-    "sharedGlobals": ["{workspaceRoot}/package.json", "{workspaceRoot}/pnpm-lock.yaml"]
+    "sharedGlobals": [
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/pnpm-lock.yaml"
+    ]
   },
   "plugins": [
     {
@@ -63,7 +66,8 @@
         "serveTargetName": "serve",
         "previewTargetName": "preview"
       }
-    }
+    },
+    "@monodon/rust"
   ],
   "targetDefaults": {
     "e2e-ci--**/*": {
