@@ -1,0 +1,10 @@
+{
+  "name": "fuel",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/learning/fuel/src",
+  "tags": [
+    "learning"
+  ],
+  "targets": {}
+}
