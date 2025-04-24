@@ -5,6 +5,9 @@ members = [
 	'apps/learning/rust',
 	'libs/learning/rust/cats',
 ]
+exclude = [
+	'apps/learning/fuel/counter-contract',
+]
 
 [profile.release]
 lto = true
