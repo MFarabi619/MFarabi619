@@ -7,6 +7,11 @@
         "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
       },
       {
+        "name": "Sway",
+        "url": "https://docs.fuel.network/docs/sway/",
+        "icon": "https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg"
+      },
+      {
         "name": "Bash",
         "url": "https://www.gnu.org/software/bash/",
         "icon": "https://bashlogo.com/img/symbol/png/monochrome_light.png"
