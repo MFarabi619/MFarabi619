@@ -22,6 +22,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg"
       },
       {
+        "name": "https://nix.dev",
+        "url": "https://nixos.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
+      },
+      {
         "name": "TypeScript",
         "url": "https://www.typescriptlang.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
