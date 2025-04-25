@@ -2,6 +2,11 @@
   "Actively Using": {
     "Languages": [
       {
+        "name": "Rust",
+        "url": "https://www.rust-lang.org/",
+        "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
+      },
+      {
         "name": "Bash",
         "url": "https://www.gnu.org/software/bash/",
         "icon": "https://bashlogo.com/img/symbol/png/monochrome_light.png"
@@ -352,13 +357,8 @@
     "Languages": [
       {
         "name": "Smalltalk",
-        "url":"https://squeak.org",
+        "url": "https://squeak.org",
         "icon": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg"
-      },
-      {
-        "name": "Rust",
-        "url": "https://www.rust-lang.org/",
-        "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
       },
       {
         "name": "Solidity",
