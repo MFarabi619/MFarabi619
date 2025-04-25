@@ -159,7 +159,7 @@
       {
         "name": "NixOS",
         "url": "https://nixos.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
+        "icon": "https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg"
       },
       {
         "name": "Zellij",
