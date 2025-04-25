@@ -1,7 +1,10 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
@@ -27,13 +30,20 @@
         "buildTargetName": "build",
         "serveStaticTargetName": "serve-static",
         "typecheckTargetName": "typecheck"
-      }
+      },
+      "exclude": [
+        "apps/learning/fuel/frontend/**/*"
+      ]
     },
     {
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "lint"
-      }
+      },
+      "exclude": [
+        "apps/learning/fuel/frontend/**/*",
+        "apps/learning/fuel/sway-store/**/*"
+      ]
     },
     {
       "plugin": "@nx/playwright/plugin",
@@ -71,7 +81,9 @@
   ],
   "targetDefaults": {
     "e2e-ci--**/*": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     }
   },
   "generators": {
