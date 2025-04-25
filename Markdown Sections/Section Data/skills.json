@@ -187,6 +187,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
       },
       {
+        "name": "Vercel",
+        "url": "https://vercel.com",
+        "icon": "https://avatars.githubusercontent.com/u/14985020?s=48&v=4"
+      },
+      {
         "name": "Netlify",
         "url": "https://netlify.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
