@@ -32,9 +32,19 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
       },
       {
+        "name": "Org-mode",
+        "url": "https://orgmode.org",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg"
+      },
+      {
         "name": "LaTeX",
         "url": "https://www.latex-project.org/",
         "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg"
+      },
+      {
+        "name": "LikeC4",
+        "url": "https://likec4.dev",
+        "icon": "https://likec4.dev/_astro/logo-dark.h9QdQ6Li.svg"
       },
       {
         "name": "HTML",
@@ -42,9 +52,9 @@
         "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg"
       },
       {
-        "name": "CSS",
-        "url": "https://www.w3schools.com/css/",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
+        "name": "Tailwind CSS",
+        "url": "https://tailwindcss.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
       }
     ],
     "Frameworks & Libraries": [
@@ -68,7 +78,6 @@
         "url": "https://xstate.js.org",
         "icon": "https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png"
       },
-
       {
         "name": "PostgreSQL",
         "url": "https://www.postgresql.org/",
@@ -113,11 +122,6 @@
         "name": "React",
         "url": "https://reactjs.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
-      },
-      {
-        "name": "Tailwind CSS",
-        "url": "https://tailwindcss.com/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
       },
       {
         "name": "Storybook",
@@ -197,29 +201,34 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
       },
       {
-        "name": "LikeC4",
-        "url": "https://likec4.dev",
-        "icon": "https://avatars.githubusercontent.com/u/128791862?s=200&v=4"
-      },
-      {
         "name": "Doom Emacs",
         "url": "https://github.com/doomemacs/doomemacs",
         "icon": "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png"
       },
       {
-        "name": "Org-mode",
-        "url": "https://orgmode.org",
-        "icon": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg"
-      },
-      {
-        "name": "Figma",
-        "url": "https://www.figma.com/",
-        "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
+        "name": "Penpot",
+        "url": "https://www.penpot.com/",
+        "icon": "https://logowik.com/content/uploads/images/penpot-design-tool-icon1721166198.logowik.com.webp"
       }
     ]
   },
   "Previously Used": {
     "Languages": [
+      {
+        "name": "Embedded C",
+        "url": "https://en.wikipedia.org/wiki/Embedded_C",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg"
+      },
+      {
+        "name": "C++",
+        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
+      },
+      {
+        "name": "Arduino",
+        "url": "https://www.arduino.cc/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
+      },
       {
         "name": "Java",
         "url": "https://www.java.com",
@@ -241,24 +250,14 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original-wordmark.svg"
       },
       {
-        "name": "Embedded C",
-        "url": "https://en.wikipedia.org/wiki/Embedded_C",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg"
-      },
-      {
-        "name": "C++",
-        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
-      },
-      {
-        "name": "Arduino",
-        "url": "https://www.arduino.cc/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
-      },
-      {
         "name": "Lua",
         "url": "https://www.lua.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg"
+      },
+      {
+        "name": "CSS",
+        "url": "https://www.w3schools.com/css/",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
       }
     ],
     "Frameworks & Libraries": [
@@ -320,7 +319,6 @@
         "icon": "https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg"
       },
       {
-        
         "name": "Ubuntu",
         "url": "https://ubuntu.com/",
         "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
@@ -369,6 +367,11 @@
         "name": "Sanity",
         "url": "https://www.sanity.io/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg"
+      },
+      {
+        "name": "Figma",
+        "url": "https://www.figma.com/",
+        "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
       }
     ]
   },
