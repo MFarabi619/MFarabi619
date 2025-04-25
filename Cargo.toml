@@ -4,6 +4,7 @@ resolver = '2'
 members = [
 	'apps/learning/rust',
 	'libs/learning/rust/cats',
+	'apps/readme',
 ]
 exclude = [
 	'apps/learning/fuel/counter-contract',
