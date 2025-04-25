@@ -24,7 +24,7 @@
       </td>
       <td>
         <a href="https://leetcode.com/MFarabi619/">
-          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=unicorn&ext=heatmap"/>
+          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=dark&ext=heatmap"/>
         </a>
       </td>
     </tr>
