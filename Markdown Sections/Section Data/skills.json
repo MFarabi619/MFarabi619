@@ -49,6 +49,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "Loco",
+        "url": "https://loco.rs",
+        "icon": "https://loco.rs/icon.svg"
+      },
+      {
         "name": "Pulumi",
         "url": "https://www.pulumi.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
