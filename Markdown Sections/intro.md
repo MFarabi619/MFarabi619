@@ -15,7 +15,7 @@
         <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=great-gatsby" />
       </td>
       <td>
-        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=radical&border_radius=6" />
+        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=great-gatsby&border_radius=6" />
       </td>
     </tr>
     <tr>
