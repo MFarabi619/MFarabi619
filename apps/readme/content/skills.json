@@ -64,6 +64,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "devenv",
+        "url": "https://devenv.sh",
+        "icon": "https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg"
+      },
+      {
         "name": "Loco",
         "url": "https://loco.rs",
         "icon": "https://loco.rs/icon.svg"
