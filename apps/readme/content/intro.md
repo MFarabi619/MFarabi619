@@ -10,15 +10,15 @@
   <table>
     <tr>
       <td>
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=outrun&border_color=ffee00&bg_color=3c004c" />
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=outrun&border_color=ffee00&bg_color=000" />
       </td>
       <td>
-        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=outrun&border_radius=6&border=ffee00&background=3c004c" />
+        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=outrun&border_radius=6&border=ffee00&background=000" />
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=outrun&border_color=ffee00&bg_color=3c004c"/>
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=outrun&border_color=ffee00&bg_color=000"/>
       </td>
       <td>
         <a href="https://leetcode.com/MFarabi619/">

@@ -11,15 +11,15 @@
   <table>
     <tr>
       <td>
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=outrun&border_color=ffee00&bg_color=3c004c" />
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=outrun&border_color=ffee00&bg_color=000" />
       </td>
       <td>
-        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=outrun&border_radius=6&border=ffee00&background=3c004c" />
+        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=outrun&border_radius=6&border=ffee00&background=000" />
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=outrun&border_color=ffee00&bg_color=3c004c"/>
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=outrun&border_color=ffee00&bg_color=000"/>
       </td>
       <td>
         <a href="https://leetcode.com/MFarabi619/">
@@ -448,44 +448,23 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </table>
 </div>
 
-## 🛠️ Current Setup
+## 🛠 Current Setup
 
 ### [Arch Linux](https://archlinux.org/) - Migrating to [NixOS](https://nixos.org)
 
 #### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator
 
-<table>
-  <tr>
-    <td><img src="https://github.com/user-attachments/assets/0ba6cd55-2dc9-49b4-9699-c13769e45f99" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/6ff3db4c-ecbc-4a3b-b15f-873b4e7d057a" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/aa2f8f96-4774-4617-bcb4-ab967ab08c88" alt="image"></td>
-  </tr>
-    <tr>
-    <td><img src="https://github.com/user-attachments/assets/3e96634d-c09f-4be8-ab95-05194ba9bd37" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/2cf16316-91a1-4329-aa4a-a5d6f3822e6c" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/5d84d918-ef2f-461a-a0ec-c618fbf4c166" alt="image"></td>
-  </tr>
-    <tr>
-    <td><img src="https://github.com/user-attachments/assets/b4962240-c274-46e8-bd7d-1cfc0fd38225" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/7cab75e8-167b-4d35-964f-cebef4258b49" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/fa60e70c-89b8-4752-b312-49a911feacda" alt="image"></td>
-  </tr>
-    <tr>
-    <td><img src="https://github.com/user-attachments/assets/7d3cb417-33e2-4eb7-a3bd-910eff87010c" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/9630c715-e3d6-4f07-9e3d-7292cad37074" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/630387a9-ccea-4cdd-a7a8-0074331c2360" alt="image"></td>
-  </tr>
-</table>
+| ![Decay Green theme with greek statue wallpaper](https://github.com/user-attachments/assets/0ba6cd55-2dc9-49b4-9699-c13769e45f99) | ![Dracula-themed wallpaper with bats flying around Arch Linux logo](https://github.com/user-attachments/assets/6ff3db4c-ecbc-4a3b-b15f-873b4e7d057a) | ![Tokyo Night theme terminal rice with fastfetch](https://github.com/user-attachments/assets/aa2f8f96-4774-4617-bcb4-ab967ab08c88) |
+|-|-|-|
+| ![Material Sakura theme with cat in the middle](https://github.com/user-attachments/assets/3e96634d-c09f-4be8-ab95-05194ba9bd37) | ![MacOS theme with Rofi selector](https://github.com/user-attachments/assets/2cf16316-91a1-4329-aa4a-a5d6f3822e6c) | ![Edge Runner theme with keybinds window](https://github.com/user-attachments/assets/5d84d918-ef2f-461a-a0ec-c618fbf4c166) |
+| ![Hack the Box theme with btop](https://github.com/user-attachments/assets/b4962240-c274-46e8-bd7d-1cfc0fd38225) | ![Decay Green theme with ugm and pacseek](https://github.com/user-attachments/assets/7cab75e8-167b-4d35-964f-cebef4258b49) | ![Red Stone theme with Lazydocker and K9S](https://github.com/user-attachments/assets/fa60e70c-89b8-4752-b312-49a911feacda) |
+| ![Gruvbox theme with Lazydocker and kmon](https://github.com/user-attachments/assets/7d3cb417-33e2-4eb7-a3bd-910eff87010c) | ![Catpuccin Mocha theme with procs and netscanner](https://github.com/user-attachments/assets/9630c715-e3d6-4f07-9e3d-7292cad37074) | ![Rose Pine theme with Gather on Vivaldi and Discord](https://github.com/user-attachments/assets/630387a9-ccea-4cdd-a7a8-0074331c2360) |
 
 <strong><a href="https://github.com/doomemacs/doomemacs">Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.freebsd.org">
   <img src="https://github.com/user-attachments/assets/f096c64f-4bf5-44bb-9460-d7bbe8acc3ca" alt="emoji" width="25" height="25">
 </a> </strong>
 
-<!-- fastfetch + pacman -Syu + Doom Emacs dashboard -->
-![image](https://github.com/user-attachments/assets/4016386f-be76-4222-a362-bc4baaa25a6a)
-
-<!-- Doom Emacs Dashboard -->
-<!-- ![image](https://github.com/user-attachments/assets/28a1bb4d-df3a-46aa-b185-24a2babc2cda) -->
+![Fastfetch + Pacman -Syu + Doom Emacs Dashboard](https://github.com/user-attachments/assets/4016386f-be76-4222-a362-bc4baaa25a6a)
 
 <details>
 <summary>
@@ -597,18 +576,14 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </table>
 </details>
 
-<h3>Previously on <a href="https://neovim.io">Neovim</a></h3>
+#### Previously on [Neovim](https://neovim.io) + [LazyVim](https://www.lazyvim.org/)
 
-<!-- ![archvim](https://github.com/user-attachments/assets/b8b4c0ce-f721-46d6-963a-042685de13a5) -->
-
-![archvim_rice](https://github.com/user-attachments/assets/1bb8a7c6-041a-4d28-89f7-48bb992f9e47) 
+![ArchVim Rice](https://github.com/user-attachments/assets/1bb8a7c6-041a-4d28-89f7-48bb992f9e47) 
 
 <details>
 <summary>
   <h3>See More</h3>
 </summary>
-
-#### [LazyVim](https://www.lazyvim.org/)
 
 <table>
   <tr>
@@ -693,28 +668,35 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 ### [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) + Gear Shifting
 
-### Previously on [Piantor](https://github.com/beekeeb/piantor) + [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) layout
+![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/ferris/keymap.svg)
 
-### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
+#### Previously on [Piantor](https://github.com/beekeeb/piantor)
 
 <details>
 <summary>
   <h3>See More</h3>
 </summary>
 
-![image](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6)
+![Piantor Split Keyboard Layout](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6)
+
+
+|||
+|-|-|
+| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/piantor/disassembled_on_bed.jpg)  |
+
+#### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
+
+![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/libs/shared/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
 
 </details>
 
 <br/>
 
-![image](https://github.com/user-attachments/assets/8d5bbf3f-87b0-45d1-9a17-95fdb6ac1c99)
+![Monkeytype Symbol Practice with Burning Tux Mascot](https://github.com/user-attachments/assets/8d5bbf3f-87b0-45d1-9a17-95fdb6ac1c99)
 
 <br/>
 
-<a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge" target="_top">
-  <img src="https://data.typeracer.com/misc/badge?user=killshot619" border="0" alt="TypeRacer.com scorecard for user killshot619"/>
-</a>
+[![TypeRacer.com scorecard for user killshot619](https://data.typeracer.com/misc/badge?user=killshot619)](https://data.typeracer.com/pit/profile?user=killshot619&ref=badge)
 <!-- markdownlint-disable -->
 
 <hr/>
@@ -786,7 +768,10 @@ Got a suggestion? Add it to the list :)
 </div>
 <!-- markdownlint-disable -->
 
-## 🔗 **Connect with me**:<br/>
+## 🔗 **Connect**:
+
+<br/>
+
 <a href="https://linkedin.com/in/mfarabi" target="blank">
   <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="mfarabilinkedIn" height="50" width="50" />
 </a>
@@ -803,10 +788,6 @@ Got a suggestion? Add it to the list :)
   <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/codepen.svg" alt="mfarabicodepen" height="50" width="50" />
 </a>
 
-<a href="https://stackoverflow.com/users/21068374/killshot619" target="blank">
-  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/stack-overflow.svg" alt="mfarabistackoverflow" height="50" width="50" />
-</a>
-
 <a href="https://www.freecodecamp.org/mfarabi" target="blank">
   <img src="https://cdn.rawgit.com/Deftwun/e3756a8b518cbb354425/raw/6584db8babd6cbc4ecb35ed36f0d184a506b979e/free-code-camp-logo.svg" alt="mfarabilinkedIn" height="50" width="50" />
 </a>
@@ -815,6 +796,6 @@ Got a suggestion? Add it to the list :)
   <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="getrickrolled" height="30" width="40" />
 </a>
 
-<hr/>
+--
 
 README generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
