@@ -415,6 +415,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "Qiskit",
+        "url": "https://www.ibm.com/quantum/qiskit",
+        "icon": "https://avatars.githubusercontent.com/u/30696987?s=200&v=4"
+      },
+      {
         "name": "Leptos",
         "url": "https://leptos.dev",
         "icon": "https://avatars.githubusercontent.com/u/118319153?s=200&v=4"
