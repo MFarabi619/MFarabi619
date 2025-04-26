@@ -1,4 +1,5 @@
-<!-- markdownlint-disable --><div align="center">
+<!-- markdownlint-disable -->
+<div align="center">
   <img src="https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif" style="width:100%"/>
 </div>
 
@@ -12,10 +13,10 @@
   <table>
     <tr>
       <td>
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&title_color=00000&bg_color=10,e9d40d,e0ac72,ed6c6c,fa2dfd" />
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=great-gatsby" />
       </td>
       <td>
-        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=radical&border_radius=6" />
+        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=great-gatsby&border_radius=6" />
       </td>
     </tr>
     <tr>
@@ -24,387 +25,402 @@
       </td>
       <td>
         <a href="https://leetcode.com/MFarabi619/">
-          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=unicorn&ext=heatmap"/>
+          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=dark&ext=heatmap"/>
         </a>
       </td>
     </tr>
   </table>
 </div>
 Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
-            On occasions I've worked with as many as 8 different languages in a single day. <br/><br/>
-            <div class="tg-wrap" align="center">
-            <table>
-            <thead>
-            <tr>
-            <th>Languages</th><th>Frameworks & Libraries</th><th>Tools</th></tr>
-          </thead>
-          <tbody>
-    <tr>
-              <td colspan="3" align="center">
-                <b>Actively Using</b>
-              </td>
-            </tr>
-            <tr>
-                <td align='center'>
-          <!-- Bash -->
-          <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
-            <img src="https://bashlogo.com/img/symbol/png/monochrome_light.png" alt="Bash Logo" width="40" height="40"/>
-          </a>
-          <!-- Emacs Lisp -->
-          <a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40"/>
-          </a>
-          <!-- TypeScript -->
-          <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40"/>
-          </a>
-          <!-- LaTeX -->
-          <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40"/>
-          </a>
-          <!-- HTML -->
-          <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40"/>
-          </a>
-          <!-- CSS -->
-          <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40"/>
-          </a>
-        </td>
-        <td align='center'>
-          <!-- Pulumi -->
-          <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40"/>
-          </a>
-          <!-- Node.js -->
-          <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40"/>
-          </a>
-          <!-- Express -->
-          <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40"/>
-          </a>
-          <!-- XState -->
-          <a href="https://xstate.js.org" target="_blank" rel="noreferrer">
-            <img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40"/>
-          </a>
-          <!-- PostgreSQL -->
-          <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40"/>
-          </a>
-          <!-- Drizzle -->
-          <a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
-            <img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40"/>
-          </a>
-          <!-- GraphQL -->
-          <a href="https://graphql.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40"/>
-          </a>
-          <!-- Nest.js -->
-          <a href="https://nestjs.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40"/>
-          </a>
-          <!-- Payload CMS -->
-          <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
-            <img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40"/>
-          </a>
-          <!-- React Router -->
-          <a href="https://reactrouter.com" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router Logo" width="40" height="40"/>
-          </a>
-          <!-- Next.js -->
-          <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40"/>
-          </a>
-          <!-- Sli.dev -->
-          <a href="https://sli.dev" target="_blank" rel="noreferrer">
-            <img src="https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67" alt="Sli.dev Logo" width="40" height="40"/>
-          </a>
-          <!-- React -->
-          <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40"/>
-          </a>
-          <!-- Tailwind CSS -->
-          <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40"/>
-          </a>
-          <!-- Storybook -->
-          <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40"/>
-          </a>
-          <!-- Serenity.js Screenplay Pattern -->
-          <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
-            <img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40"/>
-          </a>
-          <!-- Playwright -->
-          <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
-            <img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40"/>
-          </a>
-          <!-- Vitest -->
-          <a href="https://vitest.dev/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40"/>
-          </a>
-        </td>
-        <td align='center'>
-          <!-- GNU/Linux -->
-          <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="GNU/Linux Logo" width="40" height="40"/>
-          </a>
-          <!-- Arch Linux -->
-          <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40"/>
-          </a>
-          <!-- Git -->
-          <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
-            <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40"/>
-          </a>
-          <!-- NixOS -->
-          <a href="https://nixos.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="NixOS Logo" width="40" height="40"/>
-          </a>
-          <!-- Zellij -->
-          <a href="https://zellij.dev/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40"/>
-          </a>
-          <!-- Docker -->
-          <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40"/>
-          </a>
-          <!-- Nx -->
-          <a href="https://nx.dev" target="_blank" rel="noreferrer">
-            <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40"/>
-          </a>
-          <!-- Supabase -->
-          <a href="https://supabase.com" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40"/>
-          </a>
-          <!-- GitHub Actions -->
-          <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40"/>
-          </a>
-          <!-- Netlify -->
-          <a href="https://netlify.com" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40"/>
-          </a>
-          <!-- LikeC4 -->
-          <a href="https://likec4.dev" target="_blank" rel="noreferrer">
-            <img src="https://avatars.githubusercontent.com/u/128791862?s=200&v=4" alt="LikeC4 Logo" width="40" height="40"/>
-          </a>
-          <!-- Doom Emacs -->
-          <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
-            <img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40"/>
-          </a>
-          <!-- Org-mode -->
-          <a href="https://orgmode.org" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org-mode Logo" width="40" height="40"/>
-          </a>
-          <!-- Figma -->
-          <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
-            <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40"/>
-          </a>
-        </td>
-    </tr>
+On occasions I've worked with as many as 8 different languages in a single day.<br/><br/>
+<div class="tg-wrap" align="center">
+<table>
+<thead>
 <tr>
-              <td colspan="3" align="center">
-                <b>Previously Used</b>
-              </td>
-            </tr>
-            <tr>
-                <td align='center'>
-          <!-- Java -->
-          <a href="https://www.java.com" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="Java Logo" width="40" height="40"/>
-          </a>
-          <!-- Python -->
-          <a href="https://www.python.org" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="40" height="40"/>
-          </a>
-          <!-- JavaScript -->
-          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="JavaScript Logo" width="40" height="40"/>
-          </a>
-          <!-- Svelte -->
-          <a href="https://svelte.dev/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original-wordmark.svg" alt="Svelte Logo" width="40" height="40"/>
-          </a>
-          <!-- Embedded C -->
-          <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40"/>
-          </a>
-          <!-- C++ -->
-          <a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40"/>
-          </a>
-          <!-- Arduino -->
-          <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40"/>
-          </a>
-          <!-- Lua -->
-          <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40"/>
-          </a>
-        </td>
-        <td align='center'>
-          <!-- Remix.js -->
-          <a href="https://remix.run/" target="_blank" rel="noreferrer">
-            <img src="https://github.com/user-attachments/assets/5ac0e523-a337-42a2-ba56-c13d314fdaac" alt="Remix.js Logo" width="40" height="40"/>
-          </a>
-          <!-- Astro -->
-          <a href="https://astro.build/" target="_blank" rel="noreferrer">
-            <img src="https://www.svgrepo.com/show/373446/astro.svg" alt="Astro Logo" width="40" height="40"/>
-          </a>
-          <!-- SvelteKit -->
-          <a href="https://kit.svelte.dev/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" alt="SvelteKit Logo" width="40" height="40"/>
-          </a>
-          <!-- Ember.js -->
-          <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40"/>
-          </a>
-          <!-- Framer Motion -->
-          <a href="https://motion.dev" target="_blank" rel="noreferrer">
-            <img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40"/>
-          </a>
-          <!-- Jest -->
-          <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40"/>
-          </a>
-          <!-- Chai -->
-          <a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
-            <img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40"/>
-          </a>
-          <!-- Mocha -->
-          <a href="https://mochajs.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40"/>
-          </a>
-          <!-- PyTest -->
-          <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg" alt="PyTest Logo" width="40" height="40"/>
-          </a>
-        </td>
-        <td align='center'>
-          <!-- Oracle Enterprise Linux -->
-          <a href="https://www.oracle.com/ca-en/linux/" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg" alt="Oracle Enterprise Linux Logo" width="40" height="40"/>
-          </a>
-          <!-- Ubuntu -->
-          <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
-            <img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40"/>
-          </a>
-          <!-- NeoVim -->
-          <a href="https://neovim.io/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40"/>
-          </a>
-          <!-- Vim -->
-          <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Logo" width="40" height="40"/>
-          </a>
-          <!-- VS Code -->
-          <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" alt="VS Code Logo" width="40" height="40"/>
-          </a>
-          <!-- Tmux -->
-          <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40"/>
-          </a>
-          <!-- Jira -->
-          <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
-            <img src="https://cdn.worldvectorlogo.com/logos/jira-1.svg" alt="Jira Logo" width="40" height="40"/>
-          </a>
-          <!-- BitBucket -->
-          <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg" alt="BitBucket Logo" width="40" height="40"/>
-          </a>
-          <!-- Confluence -->
-          <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
-            <img src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg" alt="Confluence Logo" width="40" height="40"/>
-          </a>
-          <!-- Azure DevOps -->
-          <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40"/>
-          </a>
-          <!-- Sanity -->
-          <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40"/>
-          </a>
-        </td>
-    </tr>
+<th>Languages</th><th>Frameworks & Libraries</th><th>Tools</th>
+</tr>
+</thead>
+<tbody>
 <tr>
-              <td colspan="3" align="center">
-                <b>Intend to Use in Future</b>
-              </td>
-            </tr>
-            <tr>
-                <td align='center'>
-          <!-- Smalltalk -->
-          <a href="https://squeak.org" target="_blank" rel="noreferrer">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg" alt="Smalltalk Logo" width="40" height="40"/>
-          </a>
-          <!-- Rust -->
-          <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
-            <img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40"/>
-          </a>
-          <!-- Solidity -->
-          <a href="https://soliditylang.org" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg" alt="Solidity Logo" width="40" height="40"/>
-          </a>
-          <!-- Go -->
-          <a href="https://golang.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg" alt="Go Logo" width="40" height="40"/>
-          </a>
-        </td>
-        <td align='center'>
-          <!-- Leptos -->
-          <a href="https://leptos.dev" target="_blank" rel="noreferrer">
-            <img src="https://avatars.githubusercontent.com/u/118319153?s=200&v=4" alt="Leptos Logo" width="40" height="40"/>
-          </a>
-          <!-- Node.ts -->
-          <a href="https://typestrong.org/ts-node/" target="_blank" rel="noreferrer">
-            <img src="https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg" alt="Node.ts Logo" width="40" height="40"/>
-          </a>
-          <!-- NestJS TRPC -->
-          <a href="https://www.nestjs-trpc.io" target="_blank" rel="noreferrer">
-            <img src="https://www.nestjs-trpc.io/logo.png" alt="NestJS TRPC Logo" width="40" height="40"/>
-          </a>
-          <!-- Analog.js -->
-          <a href="https://analogjs.org/" target="_blank" rel="noreferrer">
-            <img src="https://analogjs.org/img/logos/analog-logo.svg" alt="Analog.js Logo" width="40" height="40"/>
-          </a>
-          <!-- Angular -->
-          <a href="https://angular.dev/" target="_blank" rel="noreferrer">
-            <img src="https://logosandtypes.com/wp-content/uploads/2024/01/angular.svg" alt="Angular Logo" width="40" height="40"/>
-          </a>
-          <!-- Spring Boot -->
-          <a href="https://spring.io/projects/spring-boot" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original-wordmark.svg" alt="Spring Boot Logo" width="40" height="40"/>
-          </a>
-          <!-- PyTorch -->
-          <a href="https://pytorch.org/" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-plain-wordmark.svg" alt="PyTorch Logo" width="40" height="40"/>
-          </a>
-        </td>
-        <td align='center'>
-          <!-- FreeBSD Unix -->
-          <a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
-            <img src="https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png" alt="FreeBSD Unix Logo" width="40" height="40"/>
-          </a>
-          <!-- AWS -->
-          <a href="https://aws.amazon.com/?nc2=h_lg" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS Logo" width="40" height="40"/>
-          </a>
-          <!-- Kubernetes -->
-          <a href="https://kubernetes.io" target="_blank" rel="noreferrer">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40"/>
-          </a>
-          <!-- Pharo -->
-          <a href="https://pharo.org/" target="_blank" rel="noreferrer">
-            <img src="https://pharo.org/web/files/pharo.png" alt="Pharo Logo" width="40" height="40"/>
-          </a>
-        </td>
-    </tr>
+<td colspan="3" align="center"><b>Actively Using</b></td>
+</tr>
+<tr>
+<td align='center'>
+<!-- Rust -->
+<a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
+<img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40" />
+</a>
+<!-- Sway -->
+<a href="https://docs.fuel.network/docs/sway/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg" alt="Sway Logo" width="40" height="40" />
+</a>
+<!-- Bash -->
+<a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
+<img src="https://bashlogo.com/img/symbol/png/monochrome_light.png" alt="Bash Logo" width="40" height="40" />
+</a>
+<!-- Emacs Lisp -->
+<a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40" />
+</a>
+<!-- https://nix.dev -->
+<a href="https://nixos.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="https://nix.dev Logo" width="40" height="40" />
+</a>
+<!-- TypeScript -->
+<a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40" />
+</a>
+<!-- Org-mode -->
+<a href="https://orgmode.org" target="_blank" rel="noreferrer">
+<img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org-mode Logo" width="40" height="40" />
+</a>
+<!-- LaTeX -->
+<a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40" />
+</a>
+<!-- LikeC4 -->
+<a href="https://likec4.dev" target="_blank" rel="noreferrer">
+<img src="https://likec4.dev/_astro/logo-dark.h9QdQ6Li.svg" alt="LikeC4 Logo" width="40" height="40" />
+</a>
+<!-- HTML -->
+<a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40" />
+</a>
+<!-- Tailwind CSS -->
+<a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40" />
+</a>
+</td>
+<td align='center'>
+<!-- Loco -->
+<a href="https://loco.rs" target="_blank" rel="noreferrer">
+<img src="https://loco.rs/icon.svg" alt="Loco Logo" width="40" height="40" />
+</a>
+<!-- Pulumi -->
+<a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40" />
+</a>
+<!-- Node.js -->
+<a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40" />
+</a>
+<!-- XState -->
+<a href="https://xstate.js.org" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40" />
+</a>
+<!-- PostgreSQL -->
+<a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40" />
+</a>
+<!-- Drizzle -->
+<a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40" />
+</a>
+<!-- GraphQL -->
+<a href="https://graphql.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40" />
+</a>
+<!-- Nest.js -->
+<a href="https://nestjs.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
+</a>
+<!-- Payload CMS -->
+<a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40" />
+</a>
+<!-- React Router -->
+<a href="https://reactrouter.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router Logo" width="40" height="40" />
+</a>
+<!-- Next.js -->
+<a href="https://nextjs.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40" />
+</a>
+<!-- Sli.dev -->
+<a href="https://sli.dev" target="_blank" rel="noreferrer">
+<img src="https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67" alt="Sli.dev Logo" width="40" height="40" />
+</a>
+<!-- React -->
+<a href="https://reactjs.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40" />
+</a>
+<!-- Storybook -->
+<a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40" />
+</a>
+<!-- Serenity.js Screenplay Pattern -->
+<a href="https://playwright.dev/" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40" />
+</a>
+<!-- Playwright -->
+<a href="https://playwright.dev/" target="_blank" rel="noreferrer">
+<img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40" />
+</a>
+<!-- Vitest -->
+<a href="https://vitest.dev/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40" />
+</a>
+</td>
+<td align='center'>
+<!-- GNU/Linux -->
+<a href="https://www.linux.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="GNU/Linux Logo" width="40" height="40" />
+</a>
+<!-- Arch Linux -->
+<a href="https://archlinux.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40" />
+</a>
+<!-- Git -->
+<a href="https://git-scm.com/" target="_blank" rel="noreferrer">
+<img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40" />
+</a>
+<!-- NixOS -->
+<a href="https://nixos.org/" target="_blank" rel="noreferrer">
+<img src="https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg" alt="NixOS Logo" width="40" height="40" />
+</a>
+<!-- Zellij -->
+<a href="https://zellij.dev/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
+</a>
+<!-- Docker -->
+<a href="https://www.docker.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40" />
+</a>
+<!-- Nx -->
+<a href="https://nx.dev" target="_blank" rel="noreferrer">
+<img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40" />
+</a>
+<!-- Supabase -->
+<a href="https://supabase.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
+</a>
+<!-- GitHub Actions -->
+<a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40" />
+</a>
+<!-- Vercel -->
+<a href="https://vercel.com" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/14985020?s=48&v=4" alt="Vercel Logo" width="40" height="40" />
+</a>
+<!-- Netlify -->
+<a href="https://netlify.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
+</a>
+<!-- Doom Emacs -->
+<a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
+<img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40" />
+</a>
+<!-- Penpot -->
+<a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
+<img src="https://logowik.com/content/uploads/images/penpot-design-tool-icon1721166198.logowik.com.webp" alt="Penpot Logo" width="40" height="40" />
+</a>
+</td>
+</tr>
+<tr>
+<td colspan="3" align="center"><b>Previously Used</b></td>
+</tr>
+<tr>
+<td align='center'>
+<!-- Embedded C -->
+<a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40" />
+</a>
+<!-- C++ -->
+<a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
+</a>
+<!-- Arduino -->
+<a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
+</a>
+<!-- Java -->
+<a href="https://www.java.com" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="Java Logo" width="40" height="40" />
+</a>
+<!-- Python -->
+<a href="https://www.python.org" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="40" height="40" />
+</a>
+<!-- JavaScript -->
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="JavaScript Logo" width="40" height="40" />
+</a>
+<!-- Svelte -->
+<a href="https://svelte.dev/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original-wordmark.svg" alt="Svelte Logo" width="40" height="40" />
+</a>
+<!-- Lua -->
+<a href="https://www.lua.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40" />
+</a>
+<!-- CSS -->
+<a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40" />
+</a>
+</td>
+<td align='center'>
+<!-- Express -->
+<a href="https://expressjs.com/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40" />
+</a>
+<!-- Remix.js -->
+<a href="https://remix.run/" target="_blank" rel="noreferrer">
+<img src="https://github.com/user-attachments/assets/5ac0e523-a337-42a2-ba56-c13d314fdaac" alt="Remix.js Logo" width="40" height="40" />
+</a>
+<!-- Astro -->
+<a href="https://astro.build/" target="_blank" rel="noreferrer">
+<img src="https://www.svgrepo.com/show/373446/astro.svg" alt="Astro Logo" width="40" height="40" />
+</a>
+<!-- SvelteKit -->
+<a href="https://kit.svelte.dev/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" alt="SvelteKit Logo" width="40" height="40" />
+</a>
+<!-- Ember.js -->
+<a href="https://emberjs.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40" />
+</a>
+<!-- Framer Motion -->
+<a href="https://motion.dev" target="_blank" rel="noreferrer">
+<img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40" />
+</a>
+<!-- Jest -->
+<a href="https://jestjs.io/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40" />
+</a>
+<!-- Chai -->
+<a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40" />
+</a>
+<!-- Mocha -->
+<a href="https://mochajs.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40" />
+</a>
+<!-- PyTest -->
+<a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
+<img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg" alt="PyTest Logo" width="40" height="40" />
+</a>
+</td>
+<td align='center'>
+<!-- Oracle Enterprise Linux -->
+<a href="https://www.oracle.com/ca-en/linux/" target="_blank" rel="noreferrer">
+<img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg" alt="Oracle Enterprise Linux Logo" width="40" height="40" />
+</a>
+<!-- Ubuntu -->
+<a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
+<img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40" />
+</a>
+<!-- NeoVim -->
+<a href="https://neovim.io/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40" />
+</a>
+<!-- Vim -->
+<a href="https://www.vim.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Logo" width="40" height="40" />
+</a>
+<!-- VS Code -->
+<a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" alt="VS Code Logo" width="40" height="40" />
+</a>
+<!-- Tmux -->
+<a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
+<img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40" />
+</a>
+<!-- Jira -->
+<a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
+<img src="https://cdn.worldvectorlogo.com/logos/jira-1.svg" alt="Jira Logo" width="40" height="40" />
+</a>
+<!-- BitBucket -->
+<a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg" alt="BitBucket Logo" width="40" height="40" />
+</a>
+<!-- Confluence -->
+<a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
+<img src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg" alt="Confluence Logo" width="40" height="40" />
+</a>
+<!-- Azure DevOps -->
+<a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40" />
+</a>
+<!-- Sanity -->
+<a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40" />
+</a>
+<!-- Figma -->
+<a href="https://www.figma.com/" target="_blank" rel="noreferrer">
+<img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40" />
+</a>
+</td>
+</tr>
+<tr>
+<td colspan="3" align="center"><b>Intend to Use in Future</b></td>
+</tr>
+<tr>
+<td align='center'>
+<!-- Smalltalk -->
+<a href="https://squeak.org" target="_blank" rel="noreferrer">
+<img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg" alt="Smalltalk Logo" width="40" height="40" />
+</a>
+<!-- Solidity -->
+<a href="https://soliditylang.org" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg" alt="Solidity Logo" width="40" height="40" />
+</a>
+<!-- Go -->
+<a href="https://golang.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg" alt="Go Logo" width="40" height="40" />
+</a>
+</td>
+<td align='center'>
+<!-- Leptos -->
+<a href="https://leptos.dev" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/118319153?s=200&v=4" alt="Leptos Logo" width="40" height="40" />
+</a>
+<!-- Node.ts -->
+<a href="https://typestrong.org/ts-node/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg" alt="Node.ts Logo" width="40" height="40" />
+</a>
+<!-- NestJS TRPC -->
+<a href="https://www.nestjs-trpc.io" target="_blank" rel="noreferrer">
+<img src="https://www.nestjs-trpc.io/logo.png" alt="NestJS TRPC Logo" width="40" height="40" />
+</a>
+<!-- Analog.js -->
+<a href="https://analogjs.org/" target="_blank" rel="noreferrer">
+<img src="https://analogjs.org/img/logos/analog-logo.svg" alt="Analog.js Logo" width="40" height="40" />
+</a>
+<!-- Angular -->
+<a href="https://angular.dev/" target="_blank" rel="noreferrer">
+<img src="https://logosandtypes.com/wp-content/uploads/2024/01/angular.svg" alt="Angular Logo" width="40" height="40" />
+</a>
+<!-- Spring Boot -->
+<a href="https://spring.io/projects/spring-boot" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original-wordmark.svg" alt="Spring Boot Logo" width="40" height="40" />
+</a>
+<!-- PyTorch -->
+<a href="https://pytorch.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-plain-wordmark.svg" alt="PyTorch Logo" width="40" height="40" />
+</a>
+</td>
+<td align='center'>
+<!-- FreeBSD Unix -->
+<a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
+<img src="https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png" alt="FreeBSD Unix Logo" width="40" height="40" />
+</a>
+<!-- AWS -->
+<a href="https://aws.amazon.com/?nc2=h_lg" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS Logo" width="40" height="40" />
+</a>
+<!-- Kubernetes -->
+<a href="https://kubernetes.io" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
+</a>
+<!-- Pharo -->
+<a href="https://pharo.org/" target="_blank" rel="noreferrer">
+<img src="https://pharo.org/web/files/pharo.png" alt="Pharo Logo" width="40" height="40" />
+</a>
+</td>
+</tr>
 </tbody>
-    </table>
-    </div>
+</table>
+</div>
 
 ## 🛠️ Current Setup
 
@@ -764,4 +780,4 @@ Got a suggestion? Add it to the list :)
 
 <hr/>
 
-This README is generated dynamically using a [Python script](https://github.com/MFarabi619/MFarabi619/blob/main/generate_readme.py) executed on a self-hosted runner using [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) 🤖
+README generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
