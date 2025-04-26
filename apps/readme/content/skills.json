@@ -171,6 +171,11 @@
         "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
       },
       {
+        "name": "Trunk-Based Development",
+        "url": "https://trunkbaseddevelopment.com",
+        "icon": "https://trunkbaseddevelopment.com/images/logo.png"
+      },
+      {
         "name": "NixOS",
         "url": "https://nixos.org/",
         "icon": "https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg"
