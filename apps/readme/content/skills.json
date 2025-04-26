@@ -425,6 +425,11 @@
         "icon": "https://avatars.githubusercontent.com/u/118319153?s=200&v=4"
       },
       {
+        "name": "Deno",
+        "url": "https://deno.com",
+        "icon": "https://avatars.githubusercontent.com/u/42048915?s=48&v=4"
+      },
+      {
         "name": "Node.ts",
         "url": "https://typestrong.org/ts-node/",
         "icon": "https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg"
