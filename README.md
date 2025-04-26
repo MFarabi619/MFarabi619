@@ -1,9 +1,7 @@
 <!-- markdownlint-disable -->
 <div align="center">
-  <img src="https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif" style="width:100%"/>
+  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/libs/shared/assets/cover.png" style="width:100%"/>
 </div>
-
-<!-- ![Logo](https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif) -->
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
@@ -13,19 +11,19 @@
   <table>
     <tr>
       <td>
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=great-gatsby" />
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=outrun&border_color=ffee00&bg_color=3c004c" />
       </td>
       <td>
-        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=great-gatsby&border_radius=6" />
+        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=outrun&border_radius=6&border=ffee00&background=3c004c" />
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=great-gatsby"/>
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=outrun&border_color=ffee00&bg_color=3c004c"/>
       </td>
       <td>
         <a href="https://leetcode.com/MFarabi619/">
-          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=dark&ext=heatmap"/>
+          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=chartreuse&ext=heatmap"/>
         </a>
       </td>
     </tr>
@@ -82,6 +80,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://likec4.dev" target="_blank" rel="noreferrer">
 <img src="https://likec4.dev/_astro/logo-dark.h9QdQ6Li.svg" alt="LikeC4 Logo" width="40" height="40" />
 </a>
+<!-- KDL -->
+<a href="https://kdl.dev" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg" alt="KDL Logo" width="40" height="40" />
+</a>
 <!-- HTML -->
 <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40" />
@@ -92,6 +94,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
+<!-- devenv -->
+<a href="https://devenv.sh" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg" alt="devenv Logo" width="40" height="40" />
+</a>
 <!-- Loco -->
 <a href="https://loco.rs" target="_blank" rel="noreferrer">
 <img src="https://loco.rs/icon.svg" alt="Loco Logo" width="40" height="40" />
@@ -170,9 +176,17 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40" />
 </a>
+<!-- Doom Emacs -->
+<a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
+<img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40" />
+</a>
 <!-- Git -->
 <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40" />
+</a>
+<!-- Trunk-Based Development -->
+<a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
+<img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
 </a>
 <!-- NixOS -->
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
@@ -206,9 +220,9 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://netlify.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
 </a>
-<!-- Doom Emacs -->
-<a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
-<img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40" />
+<!-- Fuel -->
+<a href="https://fuel.network" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg" alt="Fuel Logo" width="40" height="40" />
 </a>
 <!-- Penpot -->
 <a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
@@ -370,9 +384,21 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
+<!-- Qiskit -->
+<a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/30696987?s=200&v=4" alt="Qiskit Logo" width="40" height="40" />
+</a>
+<!-- Ratatui -->
+<a href="https://ratatui.rs" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/125200832?s=48&v=4" alt="Ratatui Logo" width="40" height="40" />
+</a>
 <!-- Leptos -->
 <a href="https://leptos.dev" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/118319153?s=200&v=4" alt="Leptos Logo" width="40" height="40" />
+</a>
+<!-- Deno -->
+<a href="https://deno.com" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
 </a>
 <!-- Node.ts -->
 <a href="https://typestrong.org/ts-node/" target="_blank" rel="noreferrer">
@@ -424,7 +450,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 ## 🛠️ Current Setup
 
-### [Arch Linux](https://archlinux.org/)
+### [Arch Linux](https://archlinux.org/) - Migrating to [NixOS](https://nixos.org)
 
 #### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator
 
@@ -665,9 +691,20 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </table>
 </details>
 
-### [Piantor](https://github.com/beekeeb/piantor) with [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) layout
+### [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) + Gear Shifting
+
+### Previously on [Piantor](https://github.com/beekeeb/piantor) + [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) layout
+
+### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
+
+<details>
+<summary>
+  <h3>See More</h3>
+</summary>
 
 ![image](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6)
+
+</details>
 
 <br/>
 

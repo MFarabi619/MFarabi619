@@ -1,8 +1,6 @@
 <div align="center">
-  <img src="https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif" style="width:100%"/>
+  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/libs/shared/assets/cover.png" style="width:100%"/>
 </div>
-
-<!-- ![Logo](https://i.ibb.co/J3dqs48/Personal-Logo-Ideas-Banner-Landscape.gif) -->
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
@@ -12,19 +10,19 @@
   <table>
     <tr>
       <td>
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=great-gatsby" />
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api?username=Mfarabi619&count_private=true&show_icons=true&show=prs_merged&rank_icon=percentile&theme=outrun&border_color=ffee00&bg_color=3c004c" />
       </td>
       <td>
-        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=great-gatsby&border_radius=6" />
+        <img src="https://github-readme-streak-stats-vercel.vercel.app?user=MFarabi619&theme=outrun&border_radius=6&border=ffee00&background=3c004c" />
       </td>
     </tr>
     <tr>
       <td align="center">
-        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=great-gatsby"/>
+        <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=outrun&border_color=ffee00&bg_color=3c004c"/>
       </td>
       <td>
         <a href="https://leetcode.com/MFarabi619/">
-          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=dark&ext=heatmap"/>
+          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=chartreuse&ext=heatmap"/>
         </a>
       </td>
     </tr>
