@@ -166,6 +166,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
       },
       {
+        "name": "Doom Emacs",
+        "url": "https://github.com/doomemacs/doomemacs",
+        "icon": "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png"
+      },
+      {
         "name": "Git",
         "url": "https://git-scm.com/",
         "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
@@ -219,11 +224,6 @@
         "name": "Fuel",
         "url": "https://fuel.network",
         "icon": "https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg"
-      },
-      {
-        "name": "Doom Emacs",
-        "url": "https://github.com/doomemacs/doomemacs",
-        "icon": "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png"
       },
       {
         "name": "Penpot",
@@ -418,6 +418,11 @@
         "name": "Qiskit",
         "url": "https://www.ibm.com/quantum/qiskit",
         "icon": "https://avatars.githubusercontent.com/u/30696987?s=200&v=4"
+      },
+      {
+        "name": "Ratatui",
+        "url": "https://ratatui.rs",
+        "icon": "https://avatars.githubusercontent.com/u/125200832?s=48&v=4"
       },
       {
         "name": "Leptos",
