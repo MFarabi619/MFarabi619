@@ -1,0 +1,218 @@
+[Stow has forever changed the way I manage my dotfiles](https://www.youtube.com/watch?v=y6XCebnB9gs)
+
+* Arch Linux
+
+[Arch Linux+Hyprland Install](https://www.youtube.com/watch?v=D8D7voS-G_o&t)
+https://wiki.archlinux.org/title/Archiso
+
+ mount -o remount,size=4g /run/archiso/cowspace
+
+```
+setfont ter-132n
+```
+```
+ping google.com
+```
+```
+iwctl
+```
+```
+device list
+```
+```
+device wlan0 set-property Powered on;
+```
+or
+https://wiki.archlinux.org/title/Network_configuration/Wireless#Rfkill_caveat
+rfkill unblock wlan
+```
+device wlan0 show
+```
+```
+station wlan0 get-networks
+```
+```
+station wlan0 connect "IT HURTS WHEN IP 5G"
+```
+Enter passphrase.
+```
+ping google.com
+```
+
+`Ctrl+C` to quit.
+
+```
+pacman -Syu
+```
+```
+lsblk
+```
+```
+fdisk -l
+```
+```
+gdisk /dev/nvme0n1
+```
+```
+x
+```
+```
+z
+```
+```
+Y
+```
+```
+Y
+```
+```
+lsblk
+```
+```
+pacman -Syu archinstall
+
+```
+```
+archinstall
+```
+Change mirror region to Canada.
+Use spacebar to check/uncheck.
+```
+Mirrors=Canada
+Disk=btrfs best effort partition
+Disk Encryption=blank
+Swap=Swap on zram enabled
+Bootloader=systemd-boot
+Unified kernel images=true
+Hostname=archlinux
+Root password=Yes set a simple one
+Set user=yes with root
+Profile=Minimal
+Audio=Pipewire
+Kernel=linux
+Additional packages=git vim rust gcc cmake less python
+Network Configuration=NetworkManager
+Timezone=America/Toronto
+```
+
+``` shell
+bcfg boot dump -b
+bcfg boot rm #
+```
+
+Hit no when asked to chroot.
+``` shell
+shutdown now
+```
+
+``` shell
+setfont -d
+sudo nmcli dev wifi connect "IT HURTS WHEN IP 5G" password *****
+ping google.com
+sudo pacman -Syu git
+pacman -S --needed git base-devel
+git clone --depth 1 https://github.com/HyDE-Project/HyDE ~/HyDE
+cd ~/HyDE/Scripts
+ls
+./install.sh
+1-yay
+1-zsh
+1-gnu-free-fonts
+2-multimedia-streamer
+2-corners
+```
+```
+cowsay
+figlet
+lolcat
+nyancat
+cmatrix
+lazygit
+lazydocker
+pacseek
+yazi
+btop
+kmon
+ugm
+netscanner
+procs
+```
+
+## Requirements
+
+Ensure you have the following installed on your system
+
+### Git
+
+```
+pacman -Syu git
+```
+
+### [GNU Stow](https://www.gnu.org/software/stow/)
+
+```
+pacman -Syu stow
+```
+
+## Installation
+
+Check out dotfiles repo in $HOME directory using git
+
+```
+$ git clone git@github.com/dreamsofautonomy/dotfiles.git
+$ cd dotfiles
+```
+
+then use GNU stow to create symlinks
+
+``` shell
+stow --adopt .
+```
+
+* NixOS
+** Flash Image to USB
+
+[[https://nixos.org/download/#nixos-iso][NixOS ISO]]
+
+```sh
+sudo dd if=/home/mfarabi/Downloads/nixos-gnome-24.11.716389.c570c1f53044-x86_64-linux.iso of=/dev/sda bs=4M status=progress conv=fdatasync
+```
+
+** Install
+
+[[https://github.com/richen604/hydenix/tree/main][HyDEnix]]
+
+- Enable experimental features
+  ```sh
+  # Add to /etc/nixos/configuration.nix
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+   # then rebuild your system
+   sudo nixos-rebuild switch`
+  ```
+
+  `sudo nano /etc/nixos/configuration.nix`
+
+ `nix-shell -p git`
+
+
+ - Template the Hydenix Flake
+   ```
+   mkdir hydenix && cd hydenix
+   ```
+   ```
+   nix flake init -t github:richen604/hydenix
+   ```
+Options needing to be changed are marked with ! EDIT
+   ```
+   nano configuration.nix
+   ```
+
+(optional) in your template flake folder, review both ./configuration.nix and ./modules/hm/default.nix for more options
+
+run sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
+git init && git add . (flakes have to be managed via git)
+run any of the packages in your new flake.nix
+for rebuild, use sudo nixos-rebuild switch --flake .
+DON'T FORGET: change your password for all users with passwd from initialPassword set in configuration.nix
+NOTE: After launching hydenix, you can run hyde-shell reload to generate cache for remaining themes if you want.
