@@ -46,3 +46,14 @@ fn withdraw_funds();
 #[storage(read)]
 fn get_count() -> u64;
 }
+
+storage {
+// counter for total items listed
+item_counter: u64 = 0,
+
+// map of item IDs to Items
+item_map: StorageMap<u64, Item> = StorageMap {},
+
+// owner of the contract
+owner: Option<Identity> = Option::None,
+}
