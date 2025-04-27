@@ -3,27 +3,36 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/admin/src",
   "projectType": "application",
+  "tags": [],
   "targets": {
     "dev": {
-      "command": "cross-env NODE_OPTIONS=--no-deprecation next dev -p $PAYLOADCMS_DEV_SERVER_PORT",
+      "dependsOn": [
+        {
+          "projects": [
+            "db"
+          ],
+          "target": "start"
+        }
+      ],
+      "command": "ascii-image-converter ../../libs/shared/assets/cover.png --color --complex; next dev -p $ADMIN_DEV_SERVER_PORT",
       "options": {
-        "cwd": "apps/admin"
+        "cwd": "apps/admin",
+        "env": {
+          "NODE_OPTIONS": "--no-deprecation"
+        }
       }
     },
-    "devsafe": {
-      "command": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev -p $PAYLOADCMS_DEV_SERVER_PORT",
+    "start": {
+      "dependsOn": [
+        "build"
+      ],
+      "command": "cross-env NODE_OPTIONS=--no-deprecation next start -p $ADMIN_DEV_SERVER_PORT",
       "options": {
         "cwd": "apps/admin"
       }
     },
     "build": {
       "command": "cross-env NODE_OPTIONS=--no-deprecation next build",
-      "options": {
-        "cwd": "apps/admin"
-      }
-    },
-    "start": {
-      "command": "cross-env NODE_OPTIONS=--no-deprecation next start -p $PAYLOADCMS_DEV_SERVER_PORT",
       "options": {
         "cwd": "apps/admin"
       }
@@ -42,18 +51,6 @@
     },
     "importmap": {
       "command": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
-      "options": {
-        "cwd": "apps/admin"
-      }
-    },
-    "types": {
-      "command": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-      "options": {
-        "cwd": "apps/admin"
-      }
-    },
-    "schema": {
-      "command": "cross-env NODE_OPTIONS=--no-deprecation payload generate:db-schema",
       "options": {
         "cwd": "apps/admin"
       }
@@ -100,12 +97,5 @@
         "cwd": "apps/admin"
       }
     },
-    "delete:user": {
-      "command": "cross-env NODE_OPTIONS=--no-deprecation payload run src/delete-user.ts",
-      "options": {
-        "cwd": "apps/admin"
-      }
-    }
-  },
-  "tags": []
+  }
 }

@@ -9,7 +9,6 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "@/cms": ["libs/cms/index.ts"],
       "@/cms/*": ["libs/cms/*"],
       "@/db": ["libs/db/index.ts"],
       "@/db/*": ["libs/db/*"],

@@ -2,29 +2,23 @@ import { CollectionSlug, GlobalSlug } from 'payload'
 import {
   Image,
   LucideProps,
-  Mail,
   Star,
   User,
 MousePointer2,
   Inbox,
-  Trophy,
-  Flag,
-  Github,
-  Shell,
-  CalendarDays,
-  Cpu
+  List,
 } from 'lucide-react'
 import { ExoticComponent } from 'react'
 
 export const navIconMap: Partial<
   Record<CollectionSlug | GlobalSlug, ExoticComponent<LucideProps>>
 > = {
+  constants: List,
   media: Image,
   brands: Star,
   users: User,
   forms: MousePointer2,
   "form-submissions": Inbox,
-  github: Github
 }
 
 export const getNavIcon = (slug: string) =>

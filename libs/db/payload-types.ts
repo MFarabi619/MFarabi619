@@ -54,6 +54,7 @@ export type SupportedTimezones =
   | 'Asia/Singapore'
   | 'Asia/Tokyo'
   | 'Asia/Seoul'
+  | 'Australia/Brisbane'
   | 'Australia/Sydney'
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
@@ -69,7 +70,6 @@ export interface Config {
     users: User;
     brands: Brand;
     media: Media;
-    skills: Skill;
     forms: Form;
     'form-submissions': FormSubmission;
     'payload-locked-documents': PayloadLockedDocument;
@@ -81,7 +81,6 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    skills: SkillsSelect<false> | SkillsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -92,10 +91,10 @@ export interface Config {
     defaultIDType: number;
   };
   globals: {
-    github: Github;
+    constants: Constant;
   };
   globalsSelect: {
-    github: GithubSelect<false> | GithubSelect<true>;
+    constants: ConstantsSelect<false> | ConstantsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -130,7 +129,37 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
-  name?: string | null;
+  firstName?: string | null;
+  middleName?: string | null;
+  lastName?: string | null;
+  preferredDisplayName?: string | null;
+  avatar?: (number | null) | Media;
+  website?: string | null;
+  linkedinVanity?: string | null;
+  linkedinId?: string | null;
+  linkedinEmailVerified?: boolean | null;
+  linkedinLocale?: string | null;
+  githubUrl?: string | null;
+  githubEmail?: string | null;
+  githubId?: string | null;
+  githubAvatarUrl?: string | null;
+  githubType?: string | null;
+  githubHtmlUrl?: string | null;
+  githubName?: string | null;
+  githubBlog?: string | null;
+  githubLocation?: string | null;
+  githubHireable?: string | null;
+  githubPublicRepos?: string | null;
+  githubLinkedin?: string | null;
+  githubInstagram?: string | null;
+  discordUsername?: string | null;
+  discordGlobalName?: string | null;
+  discordVerified?: boolean | null;
+  discordDiscriminator?: string | null;
+  discordLocale?: string | null;
+  discordId?: string | null;
+  googleEmail?: string | null;
+  googleEmailVerified?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -141,28 +170,6 @@ export interface User {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands".
- */
-export interface Brand {
-  id: number;
-  symbol?: (number | null) | Media;
-  wordmark?: (number | null) | Media;
-  name: string;
-  description?: string | null;
-  domain?: string | null;
-  links?:
-    | {
-        name?: string | null;
-        link?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -185,27 +192,25 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "skills".
+ * via the `definition` "brands".
  */
-export interface Skill {
+export interface Brand {
   id: number;
-  activelyUsing?: {
-    languages?: (number | Brand)[] | null;
-    frameworksAndLibraries?: (number | Brand)[] | null;
-    tools?: (number | Brand)[] | null;
-  };
-  previouslyUsed?: {
-    languages?: (number | Brand)[] | null;
-    frameworksAndLibraries?: (number | Brand)[] | null;
-    tools?: (number | Brand)[] | null;
-  };
-  intendToUse?: {
-    languages?: (number | Brand)[] | null;
-    frameworksAndLibraries?: (number | Brand)[] | null;
-    tools?: (number | Brand)[] | null;
-  };
+  symbol?: (number | null) | Media;
+  wordmark?: (number | null) | Media;
+  name: string;
+  description?: string | null;
+  domain?: string | null;
+  links?:
+    | {
+        name?: string | null;
+        link?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -279,6 +284,7 @@ export interface Form {
             label?: string | null;
             width?: number | null;
             defaultValue?: string | null;
+            placeholder?: string | null;
             options?:
               | {
                   label: string;
@@ -419,10 +425,6 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
-        relationTo: 'skills';
-        value: number | Skill;
-      } | null)
-    | ({
         relationTo: 'forms';
         value: number | Form;
       } | null)
@@ -477,7 +479,37 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  name?: T;
+  firstName?: T;
+  middleName?: T;
+  lastName?: T;
+  preferredDisplayName?: T;
+  avatar?: T;
+  website?: T;
+  linkedinVanity?: T;
+  linkedinId?: T;
+  linkedinEmailVerified?: T;
+  linkedinLocale?: T;
+  githubUrl?: T;
+  githubEmail?: T;
+  githubId?: T;
+  githubAvatarUrl?: T;
+  githubType?: T;
+  githubHtmlUrl?: T;
+  githubName?: T;
+  githubBlog?: T;
+  githubLocation?: T;
+  githubHireable?: T;
+  githubPublicRepos?: T;
+  githubLinkedin?: T;
+  githubInstagram?: T;
+  discordUsername?: T;
+  discordGlobalName?: T;
+  discordVerified?: T;
+  discordDiscriminator?: T;
+  discordLocale?: T;
+  discordId?: T;
+  googleEmail?: T;
+  googleEmailVerified?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -526,35 +558,6 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "skills_select".
- */
-export interface SkillsSelect<T extends boolean = true> {
-  activelyUsing?:
-    | T
-    | {
-        languages?: T;
-        frameworksAndLibraries?: T;
-        tools?: T;
-      };
-  previouslyUsed?:
-    | T
-    | {
-        languages?: T;
-        frameworksAndLibraries?: T;
-        tools?: T;
-      };
-  intendToUse?:
-    | T
-    | {
-        languages?: T;
-        frameworksAndLibraries?: T;
-        tools?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -621,6 +624,7 @@ export interface FormsSelect<T extends boolean = true> {
               label?: T;
               width?: T;
               defaultValue?: T;
+              placeholder?: T;
               options?:
                 | T
                 | {
@@ -740,71 +744,19 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "github".
+ * via the `definition` "constants".
  */
-export interface Github {
+export interface Constant {
   id: number;
-  text?: {
-    root: {
-      type: string;
-      children: {
-        type: string;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  skills?: (number | null) | Skill;
-  projects?:
-    | {
-        name?: string | null;
-        repoUrl?: string | null;
-        techStack?: (number | Brand)[] | null;
-        id?: string | null;
-      }[]
-    | null;
-  githubStats?: {
-    totalRepos?: number | null;
-    totalCommits?: number | null;
-    followers?: number | null;
-    following?: number | null;
-    stars?: number | null;
-    forks?: number | null;
-  };
   _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "github_select".
+ * via the `definition` "constants_select".
  */
-export interface GithubSelect<T extends boolean = true> {
-  text?: T;
-  skills?: T;
-  projects?:
-    | T
-    | {
-        name?: T;
-        repoUrl?: T;
-        techStack?: T;
-        id?: T;
-      };
-  githubStats?:
-    | T
-    | {
-        totalRepos?: T;
-        totalCommits?: T;
-        followers?: T;
-        following?: T;
-        stars?: T;
-        forks?: T;
-      };
+export interface ConstantsSelect<T extends boolean = true> {
   _status?: T;
   updatedAt?: T;
   createdAt?: T;

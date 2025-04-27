@@ -12,38 +12,35 @@ layout {
             plugin location="zellij:status-bar"
         }
     }
-
-    tab name="🧮 Servers" focus=true {
-        pane {
-        split_direction "vertical"
-        pane{
-        split_direction "horizontal"
+    tab name="🧮 SERVERS" focus=true split_direction="vertical" cwd="../"  {
             pane {
-            name "💿 Database | 5432 | Nix-PostgreSQL"
-            command "pnpm"
-            args "nx" "up" "infra"
-            cwd "../"
-            }
-            pane {
-            name "⚙ Admin Panel | 8000"
-            command "pnpm"
-            args "nx" "dev" "admin"
-            cwd "../"
-            }
+                name "🕹 Admin | 8000 | admin.mfarabi.dev"
+                command "pnpm"
+                args "nx" "dev" "admin"
             }
             pane {
             split_direction "horizontal"
             pane {
-            name "🗺 Project Graph - Nx | 4211 | graph.mfarabi.dev"
-            command "pnpm"
-            args "nx" "graph" "--groupByFolder" "--verbose"
-            cwd "../"
-            size "50%"
-            start_suspended true
+                command "pnpm"
+                name "🎨 Storybook | 6006 | design.mfarabi.dev"
+                args "storybook"
+                start_suspended true
+            }
+            }
+            pane split_direction="horizontal" {
+                pane {
+                    command "pnpm"
+                    name "🏛 Architecture | 5173 | arch.mfarabi.dev"
+                    args "nx" "dev" "arch"
+                    start_suspended true
+                }
+                pane {
+                    name "🗺 Project Graph - Nx | 4211 | graph.mfarabi.dev"
+                    command "pnpm"
+                    args "nx" "graph" "--groupByFolder"
+                    start_suspended true
                 }
             }
-            }
-
 
         floating_panes {
             pane {
@@ -53,19 +50,18 @@ layout {
         }
     }
 
-    tab name="🟩 Status" {
-        pane split_direction="vertical" {
+    tab name="🟩 STATUS" split_direction="vertical"  {
             pane {
                 name "🍒 Git - Lazygit"
                 command "lazygit"
             }
 
             pane {
+                cwd "infra"
                 name "📁 File Browser - Yazi"
                 command "env"
                 args "YAZI_CONFIG_HOME=./" "yazi"
             }
-        }
 
         floating_panes {
             pane {
@@ -76,21 +72,36 @@ layout {
         }
     }
 
-  tab name="🔌 API" hide_floating_panes=true {
-        pane split_direction="vertical" {
-                pane {
-                    name "Posting"
-                    cwd "posting"
-                    command "posting"
-                    args "-e" "dev.env" "--collection" "."
-                }
+    tab name="🔍🤨 INSPECT" split_direction="vertical" cwd="../" {
+        pane {
+            name "💿 DATABASE"
+            command "lazysql"
+            args "postgresql://postgres:postgres@127.0.0.1:54322/postgres?sslmode=disable"
+            // args "./libs/db/sqlite.db"
+        }
+        pane {
+            name "🔌 API"
+            command "posting"
+            args "-e" "infra/posting/dev.env" "--collection" "infra/posting"
+        }
+        floating_panes {
+            pane {
+                name "📊 Drizzle Studio | local.drizzle.studio + 👀 Schema Visualizer | 5600"
+                command "pnpm"
+                args "nx" "view" "db"
+                start_suspended true
+            }
+            pane {
+                name "📦 Node Modules Inspector | 7000"
+                command "pnpm"
+                args "node-modules-inspector" "--depth=7" "--port=7000"
+                start_suspended true
+            }
         }
     }
-
-     tab name="💿 Database" {
-        pane {
-        command "harlequin"
-        args "--adapter=postgres" "postgres://postgres:password@127.0.0.1:5432/postgres?sslmode=disable"
-        }
+    tab name="🐳 CONTAINERS" split_direction="vertical" cwd="../" {
+            pane {
+                command "lazydocker"
+            }
     }
 }

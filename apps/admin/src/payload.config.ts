@@ -1,9 +1,12 @@
 import { buildConfig } from "payload";
-import { clientConfig, adminConfig, baseConfig } from '@/cms/configs'
+import { clientConfig, adminConfig, serverConfig } from '@/cms/configs'
+import { dataBaseConfig } from '@/db/config'
 
 export default buildConfig({
-  ...baseConfig,
+  ...serverConfig,
   ...clientConfig,
   admin: {
     ...adminConfig,
-  }})
+  },
+...dataBaseConfig
+})
