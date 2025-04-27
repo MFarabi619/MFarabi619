@@ -1,0 +1,169 @@
+#+title:  ENGCOMM
+
+* Key Details:
+
+How to prepare website: https://www.engcomm.ca/how-to-prepare-engcomm
+
+* Schedule
+
+* Rules & Regulations
+
+* Underwater Hyperloop Design
+
+** Introduction
+
+China, South Korea and Japan are leaders in bleeding edge technologies. In a historic shift in policy, the three countries are coming together to build a metaphorical and literal bridge to foster
+economic and trade growth between them.
+- [ ] Why are they leaders in bleeding edge tech?
+- [ ] What exactly is the tech and why is it bleeding edge?
+- [ ] What was the historic policy shift?
+- [ ] Why did the historic shift in policy happen?
+
+In September 2011, the three countries initiated the “Trilateral Cooperation Secretariat” in Seoul. Trade chiefs from Japan, China and South Korea have agreed to promote negotiations on free trade and cooperation in the energy sector as well.
+- [ ] Why September 2011? What was happening in the world in this time?
+- [ ] Again, why these three countries? What differences did they put aside? What historical tensions did they have and what was the incentive?
+
+So far, negotiations amongst the three have eliminated tariffs on 90 percent of the goods traded between China and South Korea.
+- [ ] What were the goods?
+- [ ] What was the monetary value of the goods?
+- [ ] Who initiated the negotiations?
+- [ ] What was the spark that initiated the negotiations?
+
+Seoul’s trade ministry estimated this would boost China-South Korea trade to over $300 billion a year. Negotiations are also projected to lift South Korea’s GDP by roughly 1 percent within the next ten years. China, meanwhile, is expected to see its GDP rise by 0.3 percent during the same time frame thanks to the FTA.
+- [ ] Why did they estimate that? Can we find that paper publicly?
+- [ ] What is the pie chart of that 300 billion? What products?
+- [ ] What was South Korea's GDP at the time?
+- [ ] What is the FTA?
+- [ ] Why would China and South Korea work with each other? China doesn't seem to have much to gain from it.
+
+In 2023 only, Japan and South Korea contributed to 19.7% of total imports to China. In return, 16% of exported goods from China were imported to South Korea and Japan (see Appendix 1 for more info). The three countries have built a solid trade relationship such that in the past 4 years, they constantly showed up in each other’s top 5 import/export annual reports.
+- [ ] What products were the total imports that China was bringing in?
+- [ ] What were the factors as to why that trade relationship solidified? What were the political reasons?
+
+To that end, a construction project to link the three countries together is being thoroughly planned. To initiate the project, the three countries have founded a new Asian Development Bank (ADB) with substantial capital, bonds, and loan guarantees.
+- [ ] What were the capital, bonds, and loan guarantees?
+- [ ] Which parties from the countries are planning it?
+
+The trio recognizes that building such a bridge will be costly, but they believe that starting a new chapter in their collective history will significantly improve trade and that the increase in trade will substantially grow their economies. They would support a project that would pay for itself in 50 years.
+- [ ] What was costing them so much to begin with that building that bridge justified itself?
+- [ ] Are there other technological benefits to that project? Is there research being trialed?
+- [ ] There must be benefits even if the project fails, what are those benefits?
+- [ ] Who exactly is profiting from this?
+
+Interestingly, in the USA it has now been a few years since some companies unveiled their plans to revolutionize transportation mechanisms. One of such emerging ideas titled “Hyperloop” - introduced by Musk in 2013 - envisions a radical and ambitious high-speed transit line that promises a travel time of 35 minutes from Los Angeles to San Francisco.
+- [ ] What are the details of this? Need papers and news articles.
+
+Hyperloop transport system, as described by Musk, houses people in a pressurized capsule riding on a cushion of air, and may use a number of propulsion systems such as magnetic levitation, or air pressure like that in an air hockey table.
+- [ ] How many people?
+- [ ] How pressurized is the cabin?
+- [ ] What exactly are the propulsion systems?
+- [ ] How do they work?
+
+This has attracted lots of attention in many parts of the world. Hyperloop Technologies and Rival Hyperloop Transportation Technologies were both vying to build the world’s first Hyperloops by 2020 with one building a test track in Las Vegas and one hoping to have a mini five-mile Hyperloop up and running in California by 2020.
+- [ ] Which parts of the world?
+- [ ] Who owns those companies?
+
+In addition, Hyperloop One, a Los Angeles-based startup started developing the technology for a Hyperloop that can travel underwater.
+- [ ] When were they founded and why?
+
+In Europe, the Norwegian government is investigating a project that could see a number of floating underwater tunnels built across the country and running through the nation's various fjords.
+- [ ] Why are they investigating it? What pain points are they trying to address?
+
+*Now is the time for Japan, China and South Korea to cultivate the idea and see if an underwater Hyperloop can be a viable solution for their economic and trade needs.*
+
+** Objective
+
+The goal is to transform current shipping practices in the East China Sea between Shanghai (China), Busan (South Korea), and a port of your interest in Japan. You are hired as a consultant by the three governments, funding and loan guarantees will be provided by the ADB.
+- [ ] Who is ADB?
+- [ ] What are the funding and loan guarantees?
+
+You must design a Hyperloop that will connect and permit shipping amongst these three ports. To cross the sea, this loop may take advantage of the buoyancy force to be positioned at a certain depth below the surface of the water.
+- [ ] Where exactly are the three ports?
+- [ ] Why those three ports in particular?
+- [ ] What is the buoyancy force?
+- [ ] What is the depth below the surface of the water?
+
+Comparing to current transportation alternatives, *your design must deliver at least 5 out of these 7 qualities:*
+- [ ] What are the current transportation alternatives?
+
+1. Safer
+2. Faster
+3. Lower cost
+4. Energy efficiency
+5. Environmental impact
+6. Resistant to Natural forces (weather, earthquakes)
+7. Impact on the economy and trade
+
+- [ ] Need numbers on those for all of the transportation alternatives
+
+A plausible design must identify and account for numerous challenges that occur during construction of an underwater structure, a Hyperloop in this case.
+- [ ] Who decides whether the design is plausible or not?
+- [ ] What are the details of a plausible design?
+- [ ] What are the challenges that occur?
+- [ ] How is underwater construction done?
+
+Another concern is the straightness of the Hyperloop path. At high speeds, even a gentle curve jerks cargo to the side. In physics, it’s known as lateral G-force. Your design must consider a balance between the curviness of Hyperloop and traveling speed and an acceptable level of G-force for the cargo.
+- [ ] What are the exact values and relationships between variables?
+- [ ] What load is the Hyperloop carrying? This relates back to the goods being traded
+- [ ] What types of load would provide the best bang for buck?
+- [ ] Is the Hyperloop carrying people? That drastically changes things
+
+Current Hyperloop designs include a magnetic linear accelerator based on a Rand Corporation patent from 1978. For the purpose of this case, it is favorable to use more recent technologies.
+- [ ] What is the Rand Corporation?
+- [ ] Why did they make that technology? Who was the original client?
+
+** Engineering Criteria:
+
+*** Extensive design specifications
+- [ ] Dimensions - shape - material choice - structure strength - resistance to pressure - Degree of flexibility of the loop
+- [ ] Loop depth
+- [ ] Strength: How your design responds to current forces.
+- [ ] Buoyancy of the loop.
+- [ ] Medium inside the loop and how it is maintained.
+- [ ] Overcoming the Kantrowitz Limit.
+- [ ] Reliability of the system and related FMEA analysis
+- [ ] Shipping/transportation system used inside the loop.
+
+** Business Criteria:
+
+- [ ] Provide a cost benefit analysis considering real-world scenario shipping practices and ensure your model is profitable within 50 years (positive ROI, tax revenue).
+- [ ] Provide a 50-year budget estimate (total cost).
+- [ ] Describe the impact on GDP.
+- [ ] Provide a high-level maintenance strategy based on reliability of the system and estimate the costs.
+- [ ] What industries/potential markets can benefit from your design and what is your estimate of the potential additional revenue?
+
+**  Appendix 1 - Import/Export Stats
+
+*** Imports in 2023 (in USD Billion)
+
+| Country     | From China | From Japan | From South Korea |
+|-------------+------------+------------+------------------|
+| China       | -          | 160.48     | 161.74           |
+| Japan       | 168.06     | -          | 30.24            |
+| South Korea | 90.2       | 54.71      | -                |
+
+*** Exports in 2023 (in USD Billion)
+
+| Country     | To China   | To Japan   | To South Korea   |
+|-------------+------------+------------+------------------|
+| China       | -          | 157        | 149              |
+| Japan       | 126.44     | -          | 46.8             |
+| South Korea | 155.79     | 30.61      | -                |
+
+** Notes
+- Source: http://www.trademap.org/ & https://tradingeconomics.com
+- Unit: USD Billion
+
+While using tables above, please note that it is sometimes assumed that corresponding export and import data between partner countries should be consistent. Meaning, the exports from Country A to B should be equal to the imports of Country B from A, after taking into account the insurance and freight costs under the generally observed case that Country B imports are valued on a cost, insurance, freight (c.i.f.) basis. The DOTS estimation system uses this assumption in cases where one partner has not reported data.
+
+However, notwithstanding the inclusion of insurance and freight in imports c.i.f., it should be noted that there are several complications that can cause inconsistency between exports to a partner and the partner’s recorded imports f.o.b., or between imports free on board (f.o.b.) from a partner and the partner’s recorded exports.
+
+The principal reasons for inconsistent statistics on destination and origin for a given shipment are differences in:
+
+1) Classification concepts and detail
+2) Time of recording
+3) Valuation
+4) Coverage
+5) Processing errors
+
+DOTS Link: http://data.imf.org/?sk=9D6028D4-F14A-464C-A2F2-59B2CD424B85
