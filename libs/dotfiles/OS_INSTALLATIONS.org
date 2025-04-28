@@ -1,218 +1,272 @@
-[Stow has forever changed the way I manage my dotfiles](https://www.youtube.com/watch?v=y6XCebnB9gs)
+* System Setup and Installation Guide
 
-* Arch Linux
+** Arch Linux Installation
 
-[Arch Linux+Hyprland Install](https://www.youtube.com/watch?v=D8D7voS-G_o&t)
-https://wiki.archlinux.org/title/Archiso
+*** Preparing the Live Environment
 
- mount -o remount,size=4g /run/archiso/cowspace
+1. *Set up archiso cowspace (temporary writable space):*
+    #+begin_src bash
+    mount -o remount,size=4g /run/archiso/cowspace
+    #+end_src
+2. *Set console font for better visibility:*
+    #+begin_src bash
+    setfont ter-132n
+    #+end_src
+3. *Test internet connectivity:*
+    #+begin_src bash
+    ping google.com
+    #+end_src
 
-```
-setfont ter-132n
-```
-```
-ping google.com
-```
-```
-iwctl
-```
-```
-device list
-```
-```
-device wlan0 set-property Powered on;
-```
-or
-https://wiki.archlinux.org/title/Network_configuration/Wireless#Rfkill_caveat
-rfkill unblock wlan
-```
-device wlan0 show
-```
-```
-station wlan0 get-networks
-```
-```
-station wlan0 connect "IT HURTS WHEN IP 5G"
-```
-Enter passphrase.
-```
-ping google.com
-```
+*** Wireless Configuration with =iwctl=
 
-`Ctrl+C` to quit.
+1. Open =iwctl=:
+    #+begin_src bash
+    iwctl
+    #+end_src
+2. List wireless devices:
+    #+begin_src bash
+    device list
+    #+end_src
+3. Power on your wireless card (if not already enabled):
+    #+begin_src bash
+    device wlan0 set-property Powered on
+    #+end_src
+    *OR* if rfkill is blocking it:
+    #+begin_src bash
+    rfkill unblock wlan
+    #+end_src
+4. Verify wireless device properties:
+    #+begin_src bash
+    device wlan0 show
+    #+end_src
+5. Scan for networks:
+    #+begin_src bash
+    station wlan0 get-networks
+    #+end_src
+6. Connect to your WiFi:
+    #+begin_src bash
+    station wlan0 connect "IT HURTS WHEN IP 5G"
+    #+end_src
+    Enter the WiFi passphrase when prompted.
+7. Verify connectivity:
+    #+begin_src bash
+    ping google.com
+    #+end_src
 
-```
-pacman -Syu
-```
-```
-lsblk
-```
-```
-fdisk -l
-```
-```
-gdisk /dev/nvme0n1
-```
-```
-x
-```
-```
-z
-```
-```
-Y
-```
-```
-Y
-```
-```
-lsblk
-```
-```
-pacman -Syu archinstall
+Exit =iwctl= by pressing =Ctrl+C=.
 
-```
-```
-archinstall
-```
-Change mirror region to Canada.
-Use spacebar to check/uncheck.
-```
-Mirrors=Canada
-Disk=btrfs best effort partition
-Disk Encryption=blank
-Swap=Swap on zram enabled
-Bootloader=systemd-boot
-Unified kernel images=true
-Hostname=archlinux
-Root password=Yes set a simple one
-Set user=yes with root
-Profile=Minimal
-Audio=Pipewire
-Kernel=linux
-Additional packages=git vim rust gcc cmake less python
-Network Configuration=NetworkManager
-Timezone=America/Toronto
-```
+---
 
-``` shell
-bcfg boot dump -b
-bcfg boot rm #
-```
+*** Disk Preparation
 
-Hit no when asked to chroot.
-``` shell
-shutdown now
-```
+1. Update the package database:
+    #+begin_src bash
+    pacman -Syu
+    #+end_src
+2. List disk partitions:
+    #+begin_src bash
+    lsblk
+    #+end_src
+3. Check current partition setup:
+    #+begin_src bash
+    fdisk -l
+    #+end_src
+4. Initialize disk setup (example for =/dev/nvme0n1=):
+    #+begin_src bash
+    gdisk /dev/nvme0n1
+    #+end_src
+    Steps in =gdisk=:
+    - Enter expert mode:
+      #+begin_src bash
+      x
+      #+end_src
+    - Zap the disk:
+      #+begin_src bash
+      z
+      #+end_src
+    - Confirm twice:
+      #+begin_src bash
+      Y
+      Y
+      #+end_src
+5. Recheck disk after changes:
+    #+begin_src bash
+    lsblk
+    #+end_src
 
-``` shell
-setfont -d
-sudo nmcli dev wifi connect "IT HURTS WHEN IP 5G" password *****
-ping google.com
-sudo pacman -Syu git
-pacman -S --needed git base-devel
-git clone --depth 1 https://github.com/HyDE-Project/HyDE ~/HyDE
-cd ~/HyDE/Scripts
-ls
-./install.sh
-1-yay
-1-zsh
-1-gnu-free-fonts
-2-multimedia-streamer
-2-corners
-```
-```
-cowsay
-figlet
-lolcat
-nyancat
-cmatrix
-lazygit
-lazydocker
-pacseek
-yazi
-btop
-kmon
-ugm
-netscanner
-procs
-```
+---
 
-## Requirements
+*** Install and Run ArchInstall Script
 
-Ensure you have the following installed on your system
+1. Install =archinstall=:
+    #+begin_src bash
+    pacman -Syu archinstall
+    #+end_src
+2. Run the installer:
+    #+begin_src bash
+    archinstall
+    #+end_src
+3. Example options in =archinstall=:
+    - *Mirror region:* Canada
+    - *Filesystem:* Btrfs
+    - *Swap:* Swap on zram enabled
+    - *Encryption:* None
+    - *Bootloader:* systemd-boot with unified kernel images
+    - *Hostname:* =archlinux=
+    - *User setup:* Include root and a standard user
+    - *Profile:* Minimal
+    - *Audio:* Pipewire
+    - *Additional packages:* =git vim rust gcc cmake less python=
+    - *Network configuration:* NetworkManager
+    - *Timezone:* =America/Toronto=
 
-### Git
+4. After installation:
+    #+begin_src bash
+    bcfg boot dump -b
+    bcfg boot rm #
+    #+end_src
+5. Exit installation and shutdown:
+    #+begin_src bash
+    shutdown now
+    #+end_src
 
-```
-pacman -Syu git
-```
+---
 
-### [GNU Stow](https://www.gnu.org/software/stow/)
+*** Post-Installation Setup
 
-```
-pacman -Syu stow
-```
+1. Set console font:
+    #+begin_src bash
+    setfont -d
+    #+end_src
+2. Reconnect to WiFi:
+    #+begin_src bash
+    sudo nmcli dev wifi connect "IT HURTS WHEN IP 5G" password "*****"
+    #+end_src
+3. Update the system and install essential tools:
+    #+begin_src bash
+    sudo pacman -Syu git base-devel
+    #+end_src
 
-## Installation
+---
 
-Check out dotfiles repo in $HOME directory using git
+*** Hyprland Installation
 
-```
-$ git clone git@github.com/dreamsofautonomy/dotfiles.git
-$ cd dotfiles
-```
+1. Clone the HyDE repository:
+    #+begin_src bash
+    git clone --depth 1 https://github.com/HyDE-Project/HyDE ~/HyDE
+    cd ~/HyDE/Scripts
+    #+end_src
+2. Run the installer:
+    #+begin_src bash
+    ./install.sh
+    #+end_src
+    Select options:
+    - =1-yay=
+    - =1-zsh=
+    - =1-gnu-free-fonts=
+    - =2-multimedia-streamer=
+    - =2-corners=
 
-then use GNU stow to create symlinks
+3. Useful additional utilities:
+    #+begin_src bash
+    cowsay figlet lolcat nyancat cmatrix lazygit lazydocker pacseek yazi btop kmon ugm netscanner procs
+    #+end_src
 
-``` shell
-stow --adopt .
-```
+---
 
-* NixOS
-** Flash Image to USB
+** GNU Stow for Dotfiles Management
 
-[[https://nixos.org/download/#nixos-iso][NixOS ISO]]
+*** Install GNU Stow
 
-```sh
-sudo dd if=/home/mfarabi/Downloads/nixos-gnome-24.11.716389.c570c1f53044-x86_64-linux.iso of=/dev/sda bs=4M status=progress conv=fdatasync
-```
+1. Install =stow=:
+    #+begin_src bash
+    pacman -Syu stow
+    #+end_src
 
-** Install
+*** Clone and Stow Dotfiles
 
-[[https://github.com/richen604/hydenix/tree/main][HyDEnix]]
+1. Clone your dotfiles repository:
+    #+begin_src bash
+    git clone git@github.com/dreamsofautonomy/dotfiles.git ~/dotfiles
+    cd ~/dotfiles
+    #+end_src
+2. Symlink the dotfiles:
+    #+begin_src bash
+    stow --adopt .
+    #+end_src
 
-- Enable experimental features
-  ```sh
-  # Add to /etc/nixos/configuration.nix
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+---
 
-   # then rebuild your system
-   sudo nixos-rebuild switch`
-  ```
+** NixOS Installation
 
-  `sudo nano /etc/nixos/configuration.nix`
+*** Flash NixOS ISO to USB
 
- `nix-shell -p git`
+1. Download the ISO:
+   [https://nixos.org/download/#nixos-iso](https://nixos.org/download/#nixos-iso)
 
+2. Flash ISO:
+    #+begin_src bash
+    sudo dd if=/path/to/nixos.iso of=/dev/sdX bs=4M status=progress conv=fdatasync
+    #+end_src
 
- - Template the Hydenix Flake
-   ```
-   mkdir hydenix && cd hydenix
-   ```
-   ```
-   nix flake init -t github:richen604/hydenix
-   ```
-Options needing to be changed are marked with ! EDIT
-   ```
-   nano configuration.nix
-   ```
+---
 
-(optional) in your template flake folder, review both ./configuration.nix and ./modules/hm/default.nix for more options
+*** Install NixOS with HyDE
 
-run sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
-git init && git add . (flakes have to be managed via git)
-run any of the packages in your new flake.nix
-for rebuild, use sudo nixos-rebuild switch --flake .
-DON'T FORGET: change your password for all users with passwd from initialPassword set in configuration.nix
-NOTE: After launching hydenix, you can run hyde-shell reload to generate cache for remaining themes if you want.
+1. Enable experimental features:
+    Add this to =/etc/nixos/configuration.nix=:
+    #+begin_src nix
+    nix.settings.experimental-features = [ "nix-command" "flakes" ];
+    #+end_src
+    Apply the changes:
+    #+begin_src bash
+    sudo nixos-rebuild switch
+    #+end_src
+2. Install =git= if needed:
+    #+begin_src bash
+    nix-shell -p git
+    #+end_src
+
+3. Clone and use HyDE templates:
+    #+begin_src bash
+    mkdir hydenix && cd hydenix
+    nix flake init -t github:richen604/hydenix
+    #+end_src
+
+4. Open =configuration.nix=:
+    #+begin_src bash
+    nano configuration.nix
+    #+end_src
+    Modify options marked as =! EDIT=.
+
+5. Save hardware configuration:
+    #+begin_src bash
+    sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
+    #+end_src
+
+6. Initialize Git and commit:
+    #+begin_src bash
+    git init && git add .
+    #+end_src
+
+7. Rebuild system using flakes:
+    #+begin_src bash
+    sudo nixos-rebuild switch --flake .
+    #+end_src
+
+---
+
+*** Additional Notes
+
+- Change user passwords:
+    #+begin_src bash
+    passwd
+    #+end_src
+- After HyDE setup, rebuild theme caches:
+    #+begin_src bash
+    hyde-shell reload
+    #+end_src
+
+---
+
+This cleaned-up org file organizes tasks into clear sections for efficient reference.
