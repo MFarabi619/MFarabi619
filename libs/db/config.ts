@@ -5,11 +5,11 @@ import { Brands } from './collections/Brands';
 import { Media } from './collections/Media';
 import { Users } from './collections/Users';
 
-import {Constants} from "@/db/globals"
+import { Constants } from './globals/Constants';
 
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { postgresAdapter } from "@payloadcms/db-postgres";
-// import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { s3Storage } from '@payloadcms/storage-s3'
 
 export const dataBaseConfig = {
@@ -18,11 +18,8 @@ export const dataBaseConfig = {
     Brands,
     Media,
   ],
-  globals:[
-    Constants
-  ],
-  blocks:[
-  ],
+  globals:[Constants],
+  blocks:[],
   plugins: [
 formBuilderPlugin({
   defaultToEmail: 'info@mfarabi.dev',
@@ -88,15 +85,18 @@ formOverrides: {
     },
   }),
 ],
-  db: postgresAdapter({
-    pool: {
-      connectionString: process.env.DATABASE_URI,
-    },
-// db: sqliteAdapter({
-//     client: {
-//       url: "file:../../libs/db/sqlite.db",
-//       // authToken: process.env.DATABASE_AUTH_TOKEN,
-//     },
-    generateSchemaOutputFile: "../../libs/db/schema.ts", // resolves from location of payload.config.ts
-  })
+db: process.env.SQLITE
+  ? sqliteAdapter({
+      client: {
+        url: "file:../../libs/db/sqlite.db",
+        // authToken: process.env.DATABASE_AUTH_TOKEN,
+      },
+      generateSchemaOutputFile: "../../libs/db/schema.ts", // resolves from location of payload.config.ts
+    })
+  : postgresAdapter({
+      pool: {
+        connectionString: process.env.DATABASE_URI,
+      },
+      generateSchemaOutputFile: "../../libs/db/schema.ts",
+    })
 }
