@@ -104,11 +104,6 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg"
       },
       {
-        "name": "Nest.js",
-        "url": "https://nestjs.com/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
-      },
-      {
         "name": "Payload CMS",
         "url": "https://payloadcms.com/",
         "icon": "https://avatars.githubusercontent.com/u/62968818?s=48&v=4"
@@ -438,6 +433,11 @@
         "name": "Node.ts",
         "url": "https://typestrong.org/ts-node/",
         "icon": "https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg"
+      },
+      {
+        "name": "Nest.js",
+        "url": "https://nestjs.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
       },
       {
         "name": "NestJS TRPC",
