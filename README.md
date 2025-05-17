@@ -126,10 +126,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://graphql.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40" />
 </a>
-<!-- Nest.js -->
-<a href="https://nestjs.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
-</a>
 <!-- Payload CMS -->
 <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40" />
@@ -141,6 +137,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Next.js -->
 <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40" />
+</a>
+<!-- WXT -->
+<a href="https://wxt.dev" target="_blank" rel="noreferrer">
+<img src="https://wxt.dev/hero-logo.svg" alt="WXT Logo" width="40" height="40" />
 </a>
 <!-- Sli.dev -->
 <a href="https://sli.dev" target="_blank" rel="noreferrer">
@@ -403,6 +403,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Node.ts -->
 <a href="https://typestrong.org/ts-node/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg" alt="Node.ts Logo" width="40" height="40" />
+</a>
+<!-- Nest.js -->
+<a href="https://nestjs.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
 </a>
 <!-- NestJS TRPC -->
 <a href="https://www.nestjs-trpc.io" target="_blank" rel="noreferrer">
