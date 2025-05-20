@@ -5,5 +5,5 @@ async fn hello(State(_ctx): State<AppContext>) -> Result<Response> {
 }
 
 pub fn routes() -> Routes {
-  Routes::new().prefix("home").add("/hello", get(hello))
+  Routes::new().add("/", get(hello))
 }
