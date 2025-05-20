@@ -1,0 +1,5 @@
+[alias]
+loco = "run --bin platform-cli --"
+loco-tool = "run --"
+
+playground = "run --example playground"
