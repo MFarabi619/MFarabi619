@@ -2,6 +2,7 @@
 [workspace]
 resolver = '2'
 members = [
+	'apps/web',
 	'apps/learning/rust',
 	'libs/learning/rust/cats',
 	'apps/readme',
