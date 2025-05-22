@@ -1,0 +1,10 @@
+[toolchain]
+channel = "stable"
+targets = ["wasm32-unknown-unknown"]
+profile = "minimal"
+
+[components]
+cargo-binstall = true
+
+# [env]
+# HOME = "/root"
