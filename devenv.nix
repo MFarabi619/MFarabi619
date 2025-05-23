@@ -9,7 +9,7 @@
 {
   name = "mfarabi-dev-env";
   env = {
-    GREET = "devenv 🧩";
+    GREET = "devenv";
     #====================================================
     #                      FLAGS
     #====================================================
@@ -60,7 +60,11 @@
     #   rosettaPkgs = pkgs.pkgsx86_64Darwin;
     # in {
       packages =  with pkgs; [
+        vim
+        neovim
         git
+        eza
+        bat
         moon
         zellij
         nerd-fonts.jetbrains-mono
@@ -115,7 +119,6 @@
             install.enable = true;
           };
         };
-
         languages.typescript.enable = true;
 
         processes.cargo-watch.exec = "cargo-watch";
@@ -141,12 +144,11 @@
           package = pkgs.postgresql_17;
           listen_addresses = "*";
           port = 54322;
-          initialDatabases = [
-            { name = "postgres";
+          initialDatabases = [{
+            name = "postgres";
             user = "postgres";
             pass = "postgres";
-            }
-          ];
+            }];
           # hbaConf = "pg_hba.conf";
           settings = {
             shared_buffers = "128MB";
@@ -199,19 +201,29 @@
           starship.enable = true;
           starship.config = {
             enable = true;
-            path = "${config.env.DEVENV_ROOT}/libs/shared/configs/starship/default.toml";
+            # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/default/starship.toml";
+            path = "${config.env.DEVENV_ROOT}/libs/configs/starship/gruvbox-rainbow/starship.toml";
+            # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/jetpack/starship.toml";
+            # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/pastel-powerline/starship.toml";
+            # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/catppuccin-powerline/starship.toml";
           };
 
           scripts.hello.exec = ''
-            echo 👋 Hello from $GREET
+            figlet  Hello from $GREET | lolcat
           '';
 
-          # difftastic.enable = true;
-          delta.enable = true;
           enterShell = ''
-            ascii-image-converter ${config.env.DEVENV_ROOT}/libs/assets/devenv-symbol-dark-bg.png --color --complex
+            alias  l='eza -alh  --icons=auto' # long list
+            alias ls='eza -a -1   --icons=auto' # short list
+            alias ll='eza -lha --icons=auto --sort=name --group-directories-first' # long list all
+            alias ld='eza -lhD --icons=auto' # long list dirs
+            alias lt='eza --icons=auto --tree' # list folder as tree
+            alias cat='bat'
+            alias mkdir='mkdir -p'
 
-            hello
+            ascii-image-converter ${config.env.DEVENV_ROOT}/libs/assets/devenv-symbol-dark-bg.png --color --complex
+            # hello
+            echo 👋🧩
           '';
 
           # https://devenv.sh/tasks/
@@ -234,6 +246,8 @@
               figlet "Tests Passed 🥳" | lolcat
             '';
 
+            # difftastic.enable = true;
+            delta.enable = true;
             git-hooks.hooks = {
               # shellcheck.enable = true;
               eslint.enable = true;
