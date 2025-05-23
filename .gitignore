@@ -1,53 +1,9 @@
-#====================================================
-#               Build/Test Outputs
-#====================================================
-**/dist
-**/target
-**/.next
-**/out
-out-tsc/
-**/build
-**/generated
-**/playwright-report
-**/test-results
-**/storybook-static
-**/coverage
-**/*.tsbuildinfo
-**/next-env.d.ts
-**/*.tar.gz
-**/.env
-**/.env.sentry-build-plugin
-**/.vercel
-**/.drizzle
+# Devenv
+.devenv*
+devenv.local.nix
 
-#====================================================
-#                     Caches
-#====================================================
-.nx/cache
-.nx/workspace-data
-apps/admin/media
-libs/db/data/*
-**/postgresql.log
-libs/db/supabase/.branches
-libs/db/supabase/.temp
+# direnv
+.direnv
 
-#====================================================
-#                  Dependencies
-#====================================================
-**/node_modules
-/.pnp
-.pnp.js
-
-#====================================================
-#                  Miscellaneous
-#====================================================
-.DS_Store
-*.pem
-*tmp*
-.idea/
-
-#====================================================
-#              Environment Variables
-#====================================================
-.env
-.env*.local
+# pre-commit
+.pre-commit-config.yaml

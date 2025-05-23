@@ -1,6 +1,0 @@
-{
-  "name": "competitions",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/competitions",
-  "projectType": "library"
-}
