@@ -250,16 +250,16 @@
             delta.enable = true;
             git-hooks.hooks = {
               # shellcheck.enable = true;
-              eslint.enable = true;
-              cargo-check.enable = true;
+              # eslint.enable = true;
+              # cargo-check.enable = true;
               check-json.enable = true;
-              check-toml.enable = true;
-              check-yaml.enable = true;
+              # check-toml.enable = true;
+              # check-yaml.enable = true;
               commitizen.enable = true;
-              eclint.enable = true;
-              html-tidy.enable = true;
-              rustfmt.enable = true;
-              clippy.enable = true;
+              # eclint.enable = true;
+              # html-tidy.enable = true;
+              # rustfmt.enable = true;
+              # clippy.enable = true;
               actionlint.enable = true;
             };
 }

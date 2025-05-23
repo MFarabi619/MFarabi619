@@ -1,13 +1,44 @@
-# Devenv
+#====================================================
+#               Build/Test Outputs
+#====================================================
+**/debug/
+**/target/
+debug/
+target/
+
+#====================================================
+#                 Caches & Logs
+#====================================================
 .devenv*
 devenv.local.nix
-
-# direnv
 .direnv
-
-# pre-commit
 .pre-commit-config.yaml
-
-# moon
 .moon/cache
 .moon/docker
+**/*.rs.bk
+# MSVC Windows builds of rustc generate these, which store debugging information
+*.pdb
+*.sqlite
+*.sqlite-*
+
+#====================================================
+#                  Miscellaneous
+#====================================================
+**/config/local.yaml
+**/config/*.local.yaml
+**/config/production.yaml
+.DS_Store
+*.pem
+*tmp*
+.idea/
+.project
+.classpath
+.c9
+*.launch
+.vscode/*
+.settings
+!.vscode/extensions.json
+!.vscode/settings-example.json
+
+!Cargo.lock
+**/!Cargo.lock

@@ -4,10 +4,7 @@ $schema: './cache/schemas/toolchain.json'
 # extends: './shared/toolchain.yml'
 
 rust:
-  version: '~1.87'
-  bins: []
-  components: []
+  version: 'stable'
   syncToolchainConfig: true
-  targets: []
 
 bun: {}
