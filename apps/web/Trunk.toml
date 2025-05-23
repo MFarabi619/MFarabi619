@@ -1,0 +1,6 @@
+# Learn how to configure this here:
+# https://trunkrs.dev/configuration/
+
+[build]
+release = true
+# release = false

@@ -1,8 +1,13 @@
 [workspace]
-resolver = '2'
 members = [
-"apps/api"
+    "apps/web",
+    "apps/api",
 ]
 
-[workspace.dependencies]
-loco-rs = { version = "0.15" }
+resolver = "2"
+
+[workspace.dependencies.loco-rs]
+version = "0.15"
+
+[profile.release]
+lto = true
