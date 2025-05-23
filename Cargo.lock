@@ -3661,6 +3661,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "readme"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "redis"
 version = "0.22.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
