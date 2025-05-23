@@ -1,0 +1,116 @@
+* QMK Installation Steps
+
+https://docs.qmk.fm/newbs
+
+sudo pacman -Syu qmk
+
+qmk setup -H ~/dotfiles/qmk_firmware
+
+```sh
+☒ Could not find qmk_firmware!
+Would you like to clone qmk/qmk_firmware to /home/mfarabi/dotfiles/qmk_firmware? [y/n]
+Would you like to clone qmk/qmk_firmware to /home/mfarabi/dotfiles/qmk_firmware? [y/n] y
+Cloning into '/home/mfarabi/dotfiles/qmk_firmware'...
+bmodule 'ext/mcux-sdk' (https://github.com/NXPmicro/mcux-sdk) registered for path 'lib/chibios-contrib/ext/mcux-sdk'
+Cloning into '/home/mfarabi/dotfiles/qmk_firmware/lib/chibios-contrib/ext/mcux-sdk'...
+Submodule path 'lib/chibios-contrib/ext/mcux-sdk': checked out '102c27d7cc2aaac87c133702e7829a105e0cb433'
+Submodule path 'lib/googletest': checked out 'e2239ee6043f73722e7aa812a459f54a28552929'
+Submodule path 'lib/lufa': checked out '549b97320d515bfca2f95c145a67bd13be968faa'
+Submodule path 'lib/lvgl': checked out 'e19410f8f8a256609da72cff549598e0df6fa4cf'
+Submodule path 'lib/pico-sdk': checked out 'a3398d8d3a772f37fef44a74743a1de69770e9c2'
+Submodule path 'lib/printf': checked out 'c2e3b4e10d281e7f0f694d3ecbd9f320977288cc'
+Submodule path 'lib/vusb': checked out '819dbc1e5d5926b17e27e00ca6d3d2988adae04e'
+Ψ Successfully cloned https://github.com/qmk/qmk_firmware to /home/mfarabi/dotfiles/qmk_firmware!
+Ψ Added https://github.com/qmk/qmk_firmware as remote upstream.
+Would you like to set /home/mfarabi/dotfiles/qmk_firmware as your QMK home? [y/n] y
+Ψ Wrote configuration to /home/mfarabi/.config/qmk/qmk.ini
+Ψ QMK Doctor is checking your environment.
+Ψ CLI version: 1.1.5
+Ψ QMK home: /home/mfarabi/dotfiles/qmk_firmware
+Ψ Detected Linux (Arch Linux).
+Ψ Userspace enabled: False
+Ψ Git branch: master
+Ψ Repo version: 0.26.9
+Ψ - Latest master: 2024-10-21 23:38:11 +0200 (459de98222) -- Fix 6x13 default keymap (#24509)
+Ψ - Latest upstream/master: 2024-10-21 23:38:11 +0200 (459de98222) -- Fix 6x13 default keymap (#24509)
+Ψ - Latest upstream/develop: None
+Ψ - Common ancestor with upstream/master: 2024-10-21 23:38:11 +0200 (459de98222) -- Fix 6x13 default keymap (#24509)
+Ψ - Common ancestor with upstream/develop: None
+Ψ All dependencies are installed.
+Ψ Found arm-none-eabi-gcc version 14.1.0
+Ψ Found avr-gcc version 14.1.0
+Ψ Found avrdude version 8.0
+Ψ Found dfu-programmer version 1.1.0
+Ψ Found dfu-util version 0.11
+Ψ Submodules are up to date.
+Ψ Submodule status:
+Ψ - lib/chibios: 2024-02-17 19:20:06 +0000 --  (be44b3305)
+Ψ - lib/chibios-contrib: 2024-04-03 20:39:24 +0800 --  (77cb0a4f)
+Ψ - lib/googletest: 2021-06-11 06:37:43 -0700 --  (e2239ee6)
+Ψ - lib/lufa: 2022-08-26 12:09:55 +1000 --  (549b97320)
+Ψ - lib/vusb: 2022-06-13 09:18:17 +1000 --  (819dbc1)
+Ψ - lib/printf: 2022-06-29 23:59:58 +0300 --  (c2e3b4e)
+Ψ - lib/pico-sdk: 2023-02-12 20:19:37 +0100 --  (a3398d8)
+Ψ - lib/lvgl: 2022-04-11 04:44:53 -0600 --  (e19410f8)
+Ψ QMK is ready to go
+
+```
+
+qmk compile -kb keebio/iris/rev5 -km default
+
+qmk config user.keyboard=keebio/iris/rev5
+
+```
+user.keyboard: None -> keebio/iris/rev5
+Ψ Wrote configuration to /home/mfarabi/.config/qmk/qmk.ini
+```
+
+ qmk new-keymap
+
+```
+Ψ Generating a new keymap
+
+
+Name Your Keymap
+Used for maintainer, copyright, etc
+
+Your GitHub Username?  [Mumtahin Farabi]
+Ψ Created a new keymap called Mumtahin Farabi in: /home/mfarabi/dotfiles/qmk_firmware/keyboards/keebio/iris/keymaps/Mumtahin Farabi.
+Ψ Compile a firmware with your new keymap by typing: qmk compile -kb keebio/iris/rev5 -km
+
+* Keymap Discovery
+
+** Goal
+- Create ergonomic split keyboard layout that doesn't sacrifice on fast navigation
+
+** Research
+- https://keymapdb.com
+- https://github.com/manna-harbour/miryoku
+- https://keymap-drawer.streamlit.app/
+- https://getreuer.info/posts/keyboards/symbol-layer/index.html
+
+** Findings
+
+Most keymaps don't account for use of:
+- Tiling Window Manager
+- Emacs
+- Vim
+- Quick access to numbers & symbols for programming
+- Vivaldi
+
+Symbol layer efficiency varies based on programming language used.
+
+** Requirements
+*** Desktop
+**** Workspaces
+- Switch
+- Cycle
+**** Windows
+- Switch
+- Maximize
+*** Emacs
+- Switch buffers
+*** Vim
+- Quick access to symbols
+*** Vivaldi
+- Quick switcher
