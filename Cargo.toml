@@ -2,6 +2,7 @@
 members = [
     "apps/web",
     "apps/api",
+    "apps/readme",
 ]
 
 resolver = "2"

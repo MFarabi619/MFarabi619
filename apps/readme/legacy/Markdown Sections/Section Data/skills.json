@@ -1,0 +1,456 @@
+{
+  "Actively Using": {
+    "Languages": [
+      {
+        "name": "Rust",
+        "url": "https://www.rust-lang.org/",
+        "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
+      },
+      {
+        "name": "Sway",
+        "url": "https://docs.fuel.network/docs/sway/",
+        "icon": "https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg"
+      },
+      {
+        "name": "Bash",
+        "url": "https://www.gnu.org/software/bash/",
+        "icon": "https://bashlogo.com/img/symbol/png/monochrome_light.png"
+      },
+      {
+        "name": "Emacs Lisp",
+        "url": "https://en.wikipedia.org/wiki/Emacs_Lisp",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg"
+      },
+      {
+        "name": "https://nix.dev",
+        "url": "https://nixos.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
+      },
+      {
+        "name": "TypeScript",
+        "url": "https://www.typescriptlang.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
+      },
+      {
+        "name": "Org-mode",
+        "url": "https://orgmode.org",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg"
+      },
+      {
+        "name": "LaTeX",
+        "url": "https://www.latex-project.org/",
+        "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg"
+      },
+      {
+        "name": "LikeC4",
+        "url": "https://likec4.dev",
+        "icon": "https://likec4.dev/_astro/logo-dark.h9QdQ6Li.svg"
+      },
+      {
+        "name": "HTML",
+        "url": "https://www.w3.org/html/",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg"
+      },
+      {
+        "name": "Tailwind CSS",
+        "url": "https://tailwindcss.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
+      }
+    ],
+    "Frameworks & Libraries": [
+      {
+        "name": "Loco",
+        "url": "https://loco.rs",
+        "icon": "https://loco.rs/icon.svg"
+      },
+      {
+        "name": "Pulumi",
+        "url": "https://www.pulumi.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
+      },
+      {
+        "name": "Node.js",
+        "url": "https://nodejs.org/en/about",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg"
+      },
+      {
+        "name": "XState",
+        "url": "https://xstate.js.org",
+        "icon": "https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png"
+      },
+      {
+        "name": "PostgreSQL",
+        "url": "https://www.postgresql.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg"
+      },
+      {
+        "name": "Drizzle",
+        "url": "https://orm.drizzle.team/",
+        "icon": "https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg"
+      },
+      {
+        "name": "GraphQL",
+        "url": "https://graphql.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg"
+      },
+      {
+        "name": "Nest.js",
+        "url": "https://nestjs.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
+      },
+      {
+        "name": "Payload CMS",
+        "url": "https://payloadcms.com/",
+        "icon": "https://avatars.githubusercontent.com/u/62968818?s=48&v=4"
+      },
+      {
+        "name": "React Router",
+        "url": "https://reactrouter.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
+      },
+      {
+        "name": "Next.js",
+        "url": "https://nextjs.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
+      },
+      {
+        "name": "Sli.dev",
+        "url": "https://sli.dev",
+        "icon": "https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67"
+      },
+      {
+        "name": "React",
+        "url": "https://reactjs.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+      },
+      {
+        "name": "Storybook",
+        "url": "https://storybook.js.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg"
+      },
+      {
+        "name": "Serenity.js Screenplay Pattern",
+        "url": "https://playwright.dev/",
+        "icon": "https://avatars.githubusercontent.com/u/25189746?s=200&v=4"
+      },
+      {
+        "name": "Playwright",
+        "url": "https://playwright.dev/",
+        "icon": "https://playwright.dev/img/playwright-logo.svg"
+      },
+      {
+        "name": "Vitest",
+        "url": "https://vitest.dev/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg"
+      }
+    ],
+    "Tools": [
+      {
+        "name": "GNU/Linux",
+        "url": "https://www.linux.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg"
+      },
+      {
+        "name": "Arch Linux",
+        "url": "https://archlinux.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
+      },
+      {
+        "name": "Git",
+        "url": "https://git-scm.com/",
+        "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
+      },
+      {
+        "name": "NixOS",
+        "url": "https://nixos.org/",
+        "icon": "https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg"
+      },
+      {
+        "name": "Zellij",
+        "url": "https://zellij.dev/",
+        "icon": "https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png"
+      },
+      {
+        "name": "Docker",
+        "url": "https://www.docker.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
+      },
+      {
+        "name": "Nx",
+        "url": "https://nx.dev",
+        "icon": "https://api.iconify.design/logos:nx.svg"
+      },
+      {
+        "name": "Supabase",
+        "url": "https://supabase.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
+      },
+      {
+        "name": "GitHub Actions",
+        "url": "https://github.com/features/actions",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
+      },
+      {
+        "name": "Vercel",
+        "url": "https://vercel.com",
+        "icon": "https://avatars.githubusercontent.com/u/14985020?s=48&v=4"
+      },
+      {
+        "name": "Netlify",
+        "url": "https://netlify.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
+      },
+      {
+        "name": "Doom Emacs",
+        "url": "https://github.com/doomemacs/doomemacs",
+        "icon": "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png"
+      },
+      {
+        "name": "Penpot",
+        "url": "https://www.penpot.com/",
+        "icon": "https://logowik.com/content/uploads/images/penpot-design-tool-icon1721166198.logowik.com.webp"
+      }
+    ]
+  },
+  "Previously Used": {
+    "Languages": [
+      {
+        "name": "Embedded C",
+        "url": "https://en.wikipedia.org/wiki/Embedded_C",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg"
+      },
+      {
+        "name": "C++",
+        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
+      },
+      {
+        "name": "Arduino",
+        "url": "https://www.arduino.cc/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
+      },
+      {
+        "name": "Java",
+        "url": "https://www.java.com",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg"
+      },
+      {
+        "name": "Python",
+        "url": "https://www.python.org",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
+      },
+      {
+        "name": "JavaScript",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg"
+      },
+      {
+        "name": "Svelte",
+        "url": "https://svelte.dev/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original-wordmark.svg"
+      },
+      {
+        "name": "Lua",
+        "url": "https://www.lua.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg"
+      },
+      {
+        "name": "CSS",
+        "url": "https://www.w3schools.com/css/",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
+      }
+    ],
+    "Frameworks & Libraries": [
+      {
+        "name": "Express",
+        "url": "https://expressjs.com/",
+        "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg"
+      },
+      {
+        "name": "Remix.js",
+        "url": "https://remix.run/",
+        "icon": "https://github.com/user-attachments/assets/5ac0e523-a337-42a2-ba56-c13d314fdaac"
+      },
+      {
+        "name": "Astro",
+        "url": "https://astro.build/",
+        "icon": "https://www.svgrepo.com/show/373446/astro.svg"
+      },
+      {
+        "name": "SvelteKit",
+        "url": "https://kit.svelte.dev/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg"
+      },
+      {
+        "name": "Ember.js",
+        "url": "https://emberjs.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
+      },
+      {
+        "name": "Framer Motion",
+        "url": "https://motion.dev",
+        "icon": "https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png"
+      },
+      {
+        "name": "Jest",
+        "url": "https://jestjs.io/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg"
+      },
+      {
+        "name": "Chai",
+        "url": "https://www.chaijs.com/",
+        "icon": "https://avatars.githubusercontent.com/u/1515293?s=280&v=4"
+      },
+      {
+        "name": "Mocha",
+        "url": "https://mochajs.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg"
+      },
+      {
+        "name": "PyTest",
+        "url": "https://docs.pytest.org/en/7.3.x/",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg"
+      }
+    ],
+    "Tools": [
+      {
+        "name": "Oracle Enterprise Linux",
+        "url": "https://www.oracle.com/ca-en/linux/",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg"
+      },
+      {
+        "name": "Ubuntu",
+        "url": "https://ubuntu.com/",
+        "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+      },
+      {
+        "name": "NeoVim",
+        "url": "https://neovim.io/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg"
+      },
+      {
+        "name": "Vim",
+        "url": "https://www.vim.org/",
+        "icon": "https://cdn.worldvectorlogo.com/logos/vim.svg"
+      },
+      {
+        "name": "VS Code",
+        "url": "https://code.visualstudio.com/",
+        "icon": "https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg"
+      },
+      {
+        "name": "Tmux",
+        "url": "https://github.com/tmux/tmux/wiki",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg"
+      },
+      {
+        "name": "Jira",
+        "url": "https://www.atlassian.com/software/jira",
+        "icon": "https://cdn.worldvectorlogo.com/logos/jira-1.svg"
+      },
+      {
+        "name": "BitBucket",
+        "url": "https://bitbucket.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg"
+      },
+      {
+        "name": "Confluence",
+        "url": "https://www.atlassian.com/software/confluence",
+        "icon": "https://cdn.worldvectorlogo.com/logos/confluence-1.svg"
+      },
+      {
+        "name": "Azure DevOps",
+        "url": "https://azure.microsoft.com/en-ca/products/devops",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg"
+      },
+      {
+        "name": "Sanity",
+        "url": "https://www.sanity.io/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg"
+      },
+      {
+        "name": "Figma",
+        "url": "https://www.figma.com/",
+        "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
+      }
+    ]
+  },
+  "Would like to learn": {
+    "Languages": [
+      {
+        "name": "Smalltalk",
+        "url": "https://squeak.org",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg"
+      },
+      {
+        "name": "Solidity",
+        "url": "https://soliditylang.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg"
+      },
+      {
+        "name": "Go",
+        "url": "https://golang.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
+      }
+    ],
+    "Frameworks & Libraries": [
+      {
+        "name": "Leptos",
+        "url": "https://leptos.dev",
+        "icon": "https://avatars.githubusercontent.com/u/118319153?s=200&v=4"
+      },
+      {
+        "name": "Node.ts",
+        "url": "https://typestrong.org/ts-node/",
+        "icon": "https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg"
+      },
+      {
+        "name": "NestJS TRPC",
+        "url": "https://www.nestjs-trpc.io",
+        "icon": "https://www.nestjs-trpc.io/logo.png"
+      },
+      {
+        "name": "Analog.js",
+        "url": "https://analogjs.org/",
+        "icon": "https://analogjs.org/img/logos/analog-logo.svg"
+      },
+      {
+        "name": "Angular",
+        "url": "https://angular.dev/",
+        "icon": "https://logosandtypes.com/wp-content/uploads/2024/01/angular.svg"
+      },
+      {
+        "name": "Spring Boot",
+        "url": "https://spring.io/projects/spring-boot",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original-wordmark.svg"
+      },
+      {
+        "name": "PyTorch",
+        "url": "https://pytorch.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-plain-wordmark.svg"
+      }
+    ],
+    "Tools": [
+      {
+        "name": "FreeBSD Unix",
+        "url": "https://www.freebsd.org",
+        "icon": "https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png"
+      },
+      {
+        "name": "AWS",
+        "url": "https://aws.amazon.com/?nc2=h_lg",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"
+      },
+      {
+        "name": "Kubernetes",
+        "url": "https://kubernetes.io",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
+      },
+      {
+        "name": "Pharo",
+        "url": "https://pharo.org/",
+        "icon": "https://pharo.org/web/files/pharo.png"
+      }
+    ]
+  }
+}
