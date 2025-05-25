@@ -88,6 +88,7 @@
         supabase-cli
         ttyd
         ncdu
+        nix-tree
       ] ++ lib.optionals stdenv.isLinux [
         inotify-tools
       ] ++ lib.optionals stdenv.isDarwin [
@@ -122,22 +123,101 @@
         };
         languages.typescript.enable = true;
 
-        processes.cargo-watch.exec = "cargo-watch";
+        process.manager.args = {"theme"="One Dark";};
 
+        # github.com/cachix/devenv/blob/main/src/modules/process-managers/process-compose.nix
         process.managers.process-compose = {
           settings = {
+          processes = {
+            api = {
+            #   process-compose = {
+            # log_configuration = {
+            # fields_order = ["level" "message" "time"];
+            # };
+            #   };
+              description = "Back-End Server using Loco.rs";
+              is_tty = true;
+              command = "moon run api:start";
+              depends_on = {
+                  postgres.condition = "process_healthy";
+              };
+              readiness_probe = {
+                http_get = {
+                  port = "5150";
+                  host = "localhost";
+                  scheme = "http";
+                };
+              };
+              namespace = "⚙ Back-End";
+            };
+            web = {
+            log_configuration = {
+            fields_order = ["level" "message" "time"];
+            };
+              description = "Front-End Server using Dioxus";
+              is_tty = true;
+              command = "moon run web:serve";
+              depends_on = {
+                  api.condition = "process_healthy";
+              };
+              readiness_probe = {
+                http_get = {
+                  port = "8080";
+                  host = "localhost";
+                  scheme = "http";
+                };
+              };
+              namespace = "✨ Front-End";
+            };
+# depends_on.some-other-process.condition =
+#           "process_completed_successfully";
+#       };
+            cargo-watch = {
+              command = "cargo-watch";
+              disabled = true;
+              namespace = "⚒ Tooling";
+              ready_log_line = "[Finished running. Exit Status: 0]";
+            };
+
+            moonrepo-action-graph = {
+              command = "moon action-graph";
+              disabled = true;
+              namespace = "🌕 Build System";
+              ready_log_line = "Started server on http://";
+            };
+
+            moonrepo-task-graph = {
+              command = "moon task-graph";
+              disabled = true;
+              namespace = "🌕 Build System";
+              ready_log_line = "Started server on http://";
+            };
+
+            moonrepo-project-graph = {
+              command = "moon project-graph";
+              disabled = true;
+              namespace = "🌕 Build System";
+              ready_log_line = "Started server on http://";
+            };
+
+            asciiquarium = {
+              is_tty = true;
+              command = "asciiquarium";
+              disabled = true;
+              namespace = "⚒ Tooling";
+            };
+          };
             availability = {
+              restart = "on_failure";
               backoff_seconds = 2;
               max_restarts = 5;
-              restart = "on_failure";
             };
             # environment = [
             #   "ENVVAR_FOR_THIS_PROCESS_ONLY=foobar"
             # ];
-            theme = "Monokai";
           };
-          tui.enable = true;
         };
+
 
         # https://devenv.sh/services/
         services.postgres = {
