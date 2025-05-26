@@ -492,6 +492,11 @@
         "icon": "https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png"
       },
       {
+        "name": "Kafka",
+        "url": "https://kafka.apache.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apachekafka/apachekafka-original.svg"
+      },
+      {
         "name": "Redis",
         "url": "https://redis.io",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg"
