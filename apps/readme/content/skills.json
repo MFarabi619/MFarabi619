@@ -2,6 +2,11 @@
   "Actively Using": {
     "Languages": [
       {
+        "name": "Nix Language",
+        "url": "https://nixos.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
+      },
+      {
         "name": "Rust",
         "url": "https://www.rust-lang.org/",
         "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
@@ -22,17 +27,12 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg"
       },
       {
-        "name": "https://nix.dev",
-        "url": "https://nixos.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
-      },
-      {
         "name": "TypeScript",
         "url": "https://www.typescriptlang.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
       },
       {
-        "name": "Org-mode",
+        "name": "Org mode",
         "url": "https://orgmode.org",
         "icon": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg"
       },
@@ -78,7 +78,6 @@
         "url": "https://dioxuslabs.com",
         "icon": "https://avatars.githubusercontent.com/u/79236386?s=200&v=4"
       },
-
       {
         "name": "Pulumi",
         "url": "https://www.pulumi.com",
@@ -115,7 +114,7 @@
         "icon": "https://avatars.githubusercontent.com/u/62968818?s=48&v=4"
       },
       {
-        "name": "React Router",
+        "name": "React Router 7",
         "url": "https://reactrouter.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
       },
@@ -129,7 +128,6 @@
         "url": "https://wxt.dev",
         "icon": "https://wxt.dev/hero-logo.svg"
       },
-
       {
         "name": "Sli.dev",
         "url": "https://sli.dev",
