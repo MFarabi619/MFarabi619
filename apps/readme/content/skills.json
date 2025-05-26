@@ -161,6 +161,11 @@
     ],
     "Tools": [
       {
+        "name": "NixOS",
+        "url": "https://nixos.org/",
+        "icon": "https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg"
+      },
+      {
         "name": "GNU/Linux",
         "url": "https://www.linux.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg"
@@ -184,11 +189,6 @@
         "name": "Trunk-Based Development",
         "url": "https://trunkbaseddevelopment.com",
         "icon": "https://trunkbaseddevelopment.com/images/logo.png"
-      },
-      {
-        "name": "NixOS",
-        "url": "https://nixos.org/",
-        "icon": "https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg"
       },
       {
         "name": "Zellij",
@@ -226,7 +226,7 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
       },
       {
-        "name": "Fuel",
+        "name": "Fuel SDKs",
         "url": "https://fuel.network",
         "icon": "https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg"
       },
