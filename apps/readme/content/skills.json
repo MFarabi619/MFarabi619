@@ -428,6 +428,11 @@
   "Would like to learn": {
     "Languages": [
       {
+        "name": "Embedded Rust",
+        "url": "https://rust-embedded.org",
+        "icon": "https://camo.githubusercontent.com/c2ef6279b9e015bb4af11062960247e033ed4d59846093f3f32eda472089bb2a/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67"
+      },
+      {
         "name": "Smalltalk",
         "url": "https://squeak.org",
         "icon": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg"
