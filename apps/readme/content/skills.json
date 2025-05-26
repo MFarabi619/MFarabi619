@@ -492,6 +492,11 @@
     ],
     "Tools": [
       {
+        "name": "Bazel",
+        "url": "https://bazel.build",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Bazel_logo.svg/768px-Bazel_logo.svg.png?20170728105517"
+      },
+      {
         "name": "Blocktorch",
         "url": "https://blocktorch.xyz",
         "icon": "https://cdn.prod.website-files.com/645a274bb89991808d214c54/645a274bb899913b91214c66_Torch_mini.png"
