@@ -40,12 +40,12 @@ impl App {
     fn render(&self, frame: &mut Frame) {
         let counter = self.counter.borrow();
         let block = Block::bordered()
-            .title("ratzilla-vercel-template")
+            .title("Mumtahin Farabi")
             .title_alignment(Alignment::Center)
             .border_type(BorderType::Rounded);
 
         let text = format!(
-            "This is a Ratzilla template.\n\
+            "Currently learning Rust.\n\
              Press left and right to increment and decrement the counter respectively.\n\
              Counter: {counter}",
         );
