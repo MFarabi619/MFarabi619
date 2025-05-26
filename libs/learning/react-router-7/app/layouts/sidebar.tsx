@@ -4,6 +4,7 @@ import {
   NavLink,
   Outlet,
   useNavigation,
+  useSubmit
 } from "react-router";
 import {useState, useEffect} from "react";
 import { getContacts } from "../data";
@@ -23,6 +24,7 @@ export default function SidebarLayout({
 }: Route.ComponentProps) {
   const { contacts, q } = loaderData;
   const navigation = useNavigation();
+  const submit = useSubmit();
   const [query, setQuery] = useState(q || "")
 
   useEffect(()=>{
@@ -36,7 +38,11 @@ export default function SidebarLayout({
           <Link to="about">React Router Contacts</Link>
         </h1>
         <div>
-          <Form id="search-form" role="search">
+          <Form id="search-form"
+            onChange={(event)=>
+            submit(event.currentTarget)
+            }
+            role="search">
             <input
               aria-label="Search contacts"
               defaultValue={q || ""}
