@@ -9,11 +9,11 @@ fileGroups:
     - "src/**/*"
     - "Cargo.toml"
   tests:
-    - "apps/**/benches/**/*"
-    - "apps/**/tests/**/*"
+    - "**/benches/**/*"
+    - "**/tests/**/*"
 
 tasks:
-  check:
-    command: "cargo check --workspace"
+  generate:
+    command: "cargo run"
     inputs:
       - "@globs(sources)"
