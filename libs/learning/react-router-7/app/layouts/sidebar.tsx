@@ -5,6 +5,7 @@ import {
   Outlet,
   useNavigation,
 } from "react-router";
+import {useState, useEffect} from "react";
 import { getContacts } from "../data";
 import type { Route } from "./+types/sidebar";
 
@@ -22,6 +23,11 @@ export default function SidebarLayout({
 }: Route.ComponentProps) {
   const { contacts, q } = loaderData;
   const navigation = useNavigation();
+  const [query, setQuery] = useState(q || "")
+
+  useEffect(()=>{
+    setQuery(q || "")
+  }, [q])
 
   return (
     <>
@@ -36,8 +42,12 @@ export default function SidebarLayout({
               defaultValue={q || ""}
               id="q"
               name="q"
+              onChange={(event)=>
+                setQuery(event.currentTarget.value)
+              }
               placeholder="Search"
               type="search"
+              value={query}
             />
             <div
               aria-hidden
