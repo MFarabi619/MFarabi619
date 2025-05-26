@@ -14,13 +14,13 @@ export async function loader({
   const url = new URL(request.url)
   const q = url.searchParams.get("q")
   const contacts = await getContacts(q);
-  return { contacts };
+  return { contacts, q };
 }
 
 export default function SidebarLayout({
   loaderData,
 }: Route.ComponentProps) {
-  const { contacts } = loaderData;
+  const { contacts, q } = loaderData;
   const navigation = useNavigation();
 
   return (
@@ -33,6 +33,7 @@ export default function SidebarLayout({
           <Form id="search-form" role="search">
             <input
               aria-label="Search contacts"
+              defaultValue={q || ""}
               id="q"
               name="q"
               placeholder="Search"
