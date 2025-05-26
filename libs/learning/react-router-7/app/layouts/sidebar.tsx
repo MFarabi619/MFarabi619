@@ -45,7 +45,9 @@ export default function SidebarLayout({
         <div>
           <Form id="search-form"
             onChange={(event)=>
-            submit(event.currentTarget)
+            submit(event.currentTarget,{
+              replace: !isFirstSearch
+            })
             }
             role="search">
             <input
