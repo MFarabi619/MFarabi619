@@ -487,6 +487,11 @@
     ],
     "Tools": [
       {
+        "name": "Blocktorch",
+        "url": "https://blocktorch.xyz",
+        "icon": "https://cdn.prod.website-files.com/645a274bb89991808d214c54/645a274bb899913b91214c66_Torch_mini.png"
+      },
+      {
         "name": "FreeBSD Unix",
         "url": "https://www.freebsd.org",
         "icon": "https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png"
