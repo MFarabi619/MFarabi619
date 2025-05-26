@@ -408,7 +408,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 <!-- Ruby -->
 <a href="https://www.ruby-lang.org/en/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg" alt="Ruby Logo" width="40" height="40" />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/ruby/ruby-original.svg" alt="Ruby Logo" width="40" height="40" />
 </a>
 <!-- Haskell -->
 <a href="https://www.haskell.org" target="_blank" rel="noreferrer">
