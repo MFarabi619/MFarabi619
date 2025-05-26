@@ -43,7 +43,7 @@ fn read_json<T: for<'de> Deserialize<'de>>(file_path: &str) -> Option<T> {
 }
 
 fn write_to_readme(content: &str, mode: &str) {
-    let path = "README.md";
+    let path = "../../README.md";
     let mut file = match mode {
         "w" => File::create(path).expect("Unable to create README.md"),
         "a" => OpenOptions::new()
@@ -131,23 +131,21 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 fn combine_markdown_files() {
     write_to_readme("<!-- markdownlint-disable -->\n", "w");
 
-    let intro_content = read_file("./apps/readme/content/intro.md");
+    let intro_content = read_file("content/intro.md");
     write_to_readme(&intro_content, "a");
 
-    if let Some(skills_data) =
-        read_json::<SkillsData>("./apps/readme/content/skills.json")
-    {
+    if let Some(skills_data) = read_json::<SkillsData>("content/skills.json") {
         let skills_md = generate_skills_section(&skills_data);
         write_to_readme(&skills_md, "a");
     }
 
-    let current_setup = read_file("./apps/readme/content/current_setup.md");
+    let current_setup = read_file("content/current_setup.md");
     write_to_readme(&current_setup, "a");
 
-    let about_content = read_file("./apps/readme/content/about.md");
+    let about_content = read_file("content/about.md");
     write_to_readme(&about_content, "a");
 
-    let connect_content = read_file("./apps/readme/content/connect.md");
+    let connect_content = read_file("content/connect.md");
     write_to_readme(&connect_content, "a");
 }
 
