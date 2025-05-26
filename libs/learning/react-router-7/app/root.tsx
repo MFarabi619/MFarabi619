@@ -1,5 +1,6 @@
 import {
   Form,
+  Link,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -7,9 +8,16 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 
+import {getContacts} from "./data"
+
 import appStylesHref from "./app.css?url";
 
-export default function App() {
+export async function clientLoader() {
+  const contacts = await getContacts();
+  return {contacts };
+}
+
+export default function App({loaderData}) {
   return (
     <>
       <div id="sidebar">
@@ -32,10 +40,10 @@ export default function App() {
         <nav>
           <ul>
             <li>
-              <a href={`/contacts/1`}>Your Name</a>
+              <Link to={`/contacts/1`}>Your Name</Link>
             </li>
             <li>
-              <a href={`/contacts/2`}>Your Friend</a>
+              <Link href={`/contacts/2`}>Your Friend</Link>
             </li>
           </ul>
         </nav>
