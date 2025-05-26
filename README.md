@@ -44,6 +44,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </tr>
 <tr>
 <td align='center'>
+<!-- Nix Language -->
+<a href="https://nixos.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="Nix Language Logo" width="40" height="40" />
+</a>
 <!-- Rust -->
 <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
 <img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40" />
@@ -60,17 +64,13 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40" />
 </a>
-<!-- https://nix.dev -->
-<a href="https://nixos.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="https://nix.dev Logo" width="40" height="40" />
-</a>
 <!-- TypeScript -->
 <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40" />
 </a>
-<!-- Org-mode -->
+<!-- Org mode -->
 <a href="https://orgmode.org" target="_blank" rel="noreferrer">
-<img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org-mode Logo" width="40" height="40" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org mode Logo" width="40" height="40" />
 </a>
 <!-- LaTeX -->
 <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
@@ -94,21 +94,37 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
-<!-- devenv -->
-<a href="https://devenv.sh" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg" alt="devenv Logo" width="40" height="40" />
+<!-- Kubenix -->
+<a href="https://kubenix.org" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg" alt="Kubenix Logo" width="40" height="40" />
 </a>
-<!-- Loco -->
+<!-- Devenv -->
+<a href="https://devenv.sh" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg" alt="Devenv Logo" width="40" height="40" />
+</a>
+<!-- Loco.rs -->
 <a href="https://loco.rs" target="_blank" rel="noreferrer">
-<img src="https://loco.rs/icon.svg" alt="Loco Logo" width="40" height="40" />
+<img src="https://loco.rs/icon.svg" alt="Loco.rs Logo" width="40" height="40" />
+</a>
+<!-- Ratatui -->
+<a href="https://ratatui.rs" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/125200832?s=48&v=4" alt="Ratatui Logo" width="40" height="40" />
+</a>
+<!-- Dioxus -->
+<a href="https://dioxuslabs.com" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/79236386?s=200&v=4" alt="Dioxus Logo" width="40" height="40" />
 </a>
 <!-- Pulumi -->
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40" />
 </a>
-<!-- Node.js -->
-<a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40" />
+<!-- Deno -->
+<a href="https://deno.com" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
+</a>
+<!-- Nest.js -->
+<a href="https://nestjs.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
 </a>
 <!-- XState -->
 <a href="https://xstate.js.org" target="_blank" rel="noreferrer">
@@ -130,13 +146,9 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40" />
 </a>
-<!-- React Router -->
+<!-- React Router 7 -->
 <a href="https://reactrouter.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router Logo" width="40" height="40" />
-</a>
-<!-- Next.js -->
-<a href="https://nextjs.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40" />
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router 7 Logo" width="40" height="40" />
 </a>
 <!-- WXT -->
 <a href="https://wxt.dev" target="_blank" rel="noreferrer">
@@ -168,6 +180,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
+<!-- NixOS -->
+<a href="https://nixos.org/" target="_blank" rel="noreferrer">
+<img src="https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg" alt="NixOS Logo" width="40" height="40" />
+</a>
 <!-- GNU/Linux -->
 <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="GNU/Linux Logo" width="40" height="40" />
@@ -184,21 +200,21 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40" />
 </a>
-<!-- Trunk-Based Development -->
-<a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
-<img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
-</a>
-<!-- NixOS -->
-<a href="https://nixos.org/" target="_blank" rel="noreferrer">
-<img src="https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg" alt="NixOS Logo" width="40" height="40" />
-</a>
-<!-- Zellij -->
-<a href="https://zellij.dev/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
+<!-- Kubernetes -->
+<a href="https://kubernetes.io" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
 </a>
 <!-- Docker -->
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40" />
+</a>
+<!-- Trunk-Based Development -->
+<a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
+<img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
+</a>
+<!-- Zellij -->
+<a href="https://zellij.dev/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
 </a>
 <!-- Nx -->
 <a href="https://nx.dev" target="_blank" rel="noreferrer">
@@ -220,9 +236,9 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://netlify.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
 </a>
-<!-- Fuel -->
+<!-- Fuel SDKs -->
 <a href="https://fuel.network" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg" alt="Fuel Logo" width="40" height="40" />
+<img src="https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg" alt="Fuel SDKs Logo" width="40" height="40" />
 </a>
 <!-- Penpot -->
 <a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
@@ -273,9 +289,17 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
+<!-- Node.js -->
+<a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40" />
+</a>
 <!-- Express -->
 <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40" />
+</a>
+<!-- Next.js -->
+<a href="https://nextjs.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40" />
 </a>
 <!-- Remix.js -->
 <a href="https://remix.run/" target="_blank" rel="noreferrer">
@@ -382,31 +406,19 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://golang.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg" alt="Go Logo" width="40" height="40" />
 </a>
+<!-- Ruby -->
+<a href="https://www.ruby-lang.org/en/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg" alt="Ruby Logo" width="40" height="40" />
+</a>
+<!-- Haskell -->
+<a href="https://www.haskell.org" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg" alt="Haskell Logo" width="40" height="40" />
+</a>
 </td>
 <td align='center'>
 <!-- Qiskit -->
 <a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/30696987?s=200&v=4" alt="Qiskit Logo" width="40" height="40" />
-</a>
-<!-- Ratatui -->
-<a href="https://ratatui.rs" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/125200832?s=48&v=4" alt="Ratatui Logo" width="40" height="40" />
-</a>
-<!-- Leptos -->
-<a href="https://leptos.dev" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/118319153?s=200&v=4" alt="Leptos Logo" width="40" height="40" />
-</a>
-<!-- Deno -->
-<a href="https://deno.com" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
-</a>
-<!-- Node.ts -->
-<a href="https://typestrong.org/ts-node/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg" alt="Node.ts Logo" width="40" height="40" />
-</a>
-<!-- Nest.js -->
-<a href="https://nestjs.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
 </a>
 <!-- NestJS TRPC -->
 <a href="https://www.nestjs-trpc.io" target="_blank" rel="noreferrer">
@@ -437,10 +449,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- AWS -->
 <a href="https://aws.amazon.com/?nc2=h_lg" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS Logo" width="40" height="40" />
-</a>
-<!-- Kubernetes -->
-<a href="https://kubernetes.io" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
 </a>
 <!-- Pharo -->
 <a href="https://pharo.org/" target="_blank" rel="noreferrer">

@@ -64,6 +64,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "Kubenix",
+        "url": "https://kubenix.org",
+        "icon": "https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg"
+      },
+      {
         "name": "Devenv",
         "url": "https://devenv.sh",
         "icon": "https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg"
@@ -72,6 +77,11 @@
         "name": "Loco.rs",
         "url": "https://loco.rs",
         "icon": "https://loco.rs/icon.svg"
+      },
+      {
+        "name": "Ratatui",
+        "url": "https://ratatui.rs",
+        "icon": "https://avatars.githubusercontent.com/u/125200832?s=48&v=4"
       },
       {
         "name": "Dioxus",
@@ -84,9 +94,14 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
       },
       {
-        "name": "Node.js",
-        "url": "https://nodejs.org/en/about",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg"
+        "name": "Deno",
+        "url": "https://deno.com",
+        "icon": "https://avatars.githubusercontent.com/u/42048915?s=48&v=4"
+      },
+      {
+        "name": "Nest.js",
+        "url": "https://nestjs.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
       },
       {
         "name": "XState",
@@ -117,11 +132,6 @@
         "name": "React Router 7",
         "url": "https://reactrouter.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
-      },
-      {
-        "name": "Next.js",
-        "url": "https://nextjs.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
       },
       {
         "name": "WXT",
@@ -186,6 +196,16 @@
         "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
       },
       {
+        "name": "Kubernetes",
+        "url": "https://kubernetes.io",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
+      },
+      {
+        "name": "Docker",
+        "url": "https://www.docker.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
+      },
+      {
         "name": "Trunk-Based Development",
         "url": "https://trunkbaseddevelopment.com",
         "icon": "https://trunkbaseddevelopment.com/images/logo.png"
@@ -194,11 +214,6 @@
         "name": "Zellij",
         "url": "https://zellij.dev/",
         "icon": "https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png"
-      },
-      {
-        "name": "Docker",
-        "url": "https://www.docker.com/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
       },
       {
         "name": "Nx",
@@ -287,9 +302,19 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "Node.js",
+        "url": "https://nodejs.org/en/about",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg"
+      },
+      {
         "name": "Express",
         "url": "https://expressjs.com/",
         "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg"
+      },
+      {
+        "name": "Next.js",
+        "url": "https://nextjs.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg"
       },
       {
         "name": "Remix.js",
@@ -416,6 +441,16 @@
         "name": "Go",
         "url": "https://golang.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
+      },
+      {
+        "name": "Ruby",
+        "url": "https://www.ruby-lang.org/en/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg"
+      },
+      {
+        "name": "Haskell",
+        "url": "https://www.haskell.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg"
       }
     ],
     "Frameworks & Libraries": [
@@ -423,26 +458,6 @@
         "name": "Qiskit",
         "url": "https://www.ibm.com/quantum/qiskit",
         "icon": "https://avatars.githubusercontent.com/u/30696987?s=200&v=4"
-      },
-      {
-        "name": "Ratatui",
-        "url": "https://ratatui.rs",
-        "icon": "https://avatars.githubusercontent.com/u/125200832?s=48&v=4"
-      },
-      {
-        "name": "Deno",
-        "url": "https://deno.com",
-        "icon": "https://avatars.githubusercontent.com/u/42048915?s=48&v=4"
-      },
-      {
-        "name": "Node.ts",
-        "url": "https://typestrong.org/ts-node/",
-        "icon": "https://raw.githubusercontent.com/TypeStrong/ts-node/main/logo.svg"
-      },
-      {
-        "name": "Nest.js",
-        "url": "https://nestjs.com/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
       },
       {
         "name": "NestJS TRPC",
@@ -480,11 +495,6 @@
         "name": "AWS",
         "url": "https://aws.amazon.com/?nc2=h_lg",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"
-      },
-      {
-        "name": "Kubernetes",
-        "url": "https://kubernetes.io",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
       },
       {
         "name": "Pharo",
