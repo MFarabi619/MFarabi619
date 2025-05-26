@@ -17,7 +17,9 @@ export async function clientLoader() {
   return {contacts };
 }
 
-export default function App({loaderData}) {
+export default function App({loaderData}: Route.ComponentProps) {
+  const {contacts} = loaderData;
+
   return (
     <>
       <div id="sidebar">
@@ -38,14 +40,30 @@ export default function App({loaderData}) {
           </Form>
         </div>
         <nav>
-          <ul>
-            <li>
-              <Link to={`/contacts/1`}>Your Name</Link>
-            </li>
-            <li>
-              <Link href={`/contacts/2`}>Your Friend</Link>
-            </li>
-          </ul>
+ {contacts.length ? (
+            <ul>
+              {contacts.map((contact) => (
+                <li key={contact.id}>
+                  <Link to={`contacts/${contact.id}`}>
+                    {contact.first || contact.last ? (
+                      <>
+                        {contact.first} {contact.last}
+                      </>
+                    ) : (
+                      <i>No Name</i>
+                    )}
+                    {contact.favorite ? (
+                      <span>★</span>
+                    ) : null}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>
+              <i>No contacts</i>
+            </p>
+          )}
         </nav>
       </div>
       <div id="detail">
