@@ -424,6 +424,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/30696987?s=200&v=4" alt="Qiskit Logo" width="40" height="40" />
 </a>
+<!-- Ruby on Rails -->
+<a href="https://rubyonrails.org" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rails/rails-plain-wordmark.svg" alt="Ruby on Rails Logo" width="40" height="40" />
+</a>
 <!-- NestJS TRPC -->
 <a href="https://www.nestjs-trpc.io" target="_blank" rel="noreferrer">
 <img src="https://www.nestjs-trpc.io/logo.png" alt="NestJS TRPC Logo" width="40" height="40" />

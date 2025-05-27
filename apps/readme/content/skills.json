@@ -465,6 +465,11 @@
         "icon": "https://avatars.githubusercontent.com/u/30696987?s=200&v=4"
       },
       {
+        "name": "Ruby on Rails",
+        "url": "https://rubyonrails.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rails/rails-plain-wordmark.svg"
+      },
+      {
         "name": "NestJS TRPC",
         "url": "https://www.nestjs-trpc.io",
         "icon": "https://www.nestjs-trpc.io/logo.png"
