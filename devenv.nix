@@ -121,7 +121,10 @@
             install.enable = true;
           };
         };
+
         languages.typescript.enable = true;
+
+        languages.ruby.enable = true;
 
         process.manager.args = {"theme"="One Dark";};
 
