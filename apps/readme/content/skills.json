@@ -470,6 +470,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rails/rails-plain-wordmark.svg"
       },
       {
+        "name": "Integrated Haskell Platform",
+        "url": "https://ihp.digitallyinduced.com",
+        "icon": "https://ihp.digitallyinduced.com/Guide/images/ihp-logo-readme.svg"
+      },
+      {
         "name": "NestJS TRPC",
         "url": "https://www.nestjs-trpc.io",
         "icon": "https://www.nestjs-trpc.io/logo.png"
