@@ -4,6 +4,9 @@
   "private": true,
   "packageManager": "pnpm@10.11.0",
   "license": "GNU GPL 3.0",
+  "engines": {
+    "node": "22.15.0"
+  },
   "scripts": {
     "build": "slidev build",
     "dev": "slidev --open",
@@ -14,5 +17,6 @@
     "@slidev/theme-default": "latest",
     "@slidev/theme-seriph": "latest",
     "vue": "^3.5.14"
-  }
+  },
+  "engineStrict": true
 }
