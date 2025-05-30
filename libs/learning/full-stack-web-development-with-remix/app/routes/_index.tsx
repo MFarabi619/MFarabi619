@@ -8,9 +8,10 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Index() {
-  console.log("Another hello to the world!")
+  const userAgent = navigator.userAgent;
+  console.log(`Another hello to the ${userAgent}!`)
   return (
-    <h1>Hello World!</h1>
+    <h1>Hello to {userAgent}!</h1>
   );
 }
 
