@@ -2,6 +2,7 @@
   "name": "slidev",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@10.11.0",
   "scripts": {
     "build": "slidev build",
     "dev": "slidev --open",
