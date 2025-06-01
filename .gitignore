@@ -5,13 +5,15 @@
 **/target/
 debug/
 target/
+**/result
 
 #====================================================
 #                 Caches & Logs
 #====================================================
 .devenv*
 devenv.local.nix
-.direnv
+**/.direnv/
+**.qcow2
 .pre-commit-config.yaml
 .moon/cache
 .moon/docker
@@ -42,3 +44,5 @@ devenv.local.nix
 
 !Cargo.lock
 **/!Cargo.lock
+
+**/.git-hooks
