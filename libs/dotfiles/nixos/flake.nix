@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
 
     # Hydenix and its nixpkgs - kept separate to avoid conflicts
     hydenix = {
@@ -21,7 +22,11 @@
   };
 
   outputs =
-    { ... }@inputs:
+    {
+    emacs-overlay,
+    ...
+    }@inputs:
+
     let
       HOSTNAME = "hydenix";
 
@@ -34,7 +39,6 @@
           ./configuration.nix
         ];
       };
-
     in
     {
       nixosConfigurations.nixos = hydenixConfig;

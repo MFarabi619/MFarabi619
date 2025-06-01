@@ -14,16 +14,14 @@
   };
 
   programs = {
-    vivaldi = {
-      enable = true;
-    };
+  fd.enable = true;
+  ripgrep.enable = true;
+    vivaldi.enable = true;
     yazi = {
       enable = true;
       enableZshIntegration = true;
     };
-    btop = {
-      enable = true;
-    };
+    btop.enable = true;
     lazydocker.enable = true;
     lazygit = {
       enable = true;
@@ -38,7 +36,6 @@
       enable = true;
       enableAlias = true;
     };
-    ripgrep.enable = true;
     superfile.enable = true;
     zed-editor = {
       enable = true;
@@ -62,7 +59,7 @@
         wallbash = true; # enable wallbash extension for vscode
       };
       vim = true; # enable vim module
-      default = "code"; # default text editor
+      default = "emacs"; # default text editor
     };
     fastfetch.enable = true; # fastfetch configuration
     firefox = {
@@ -92,7 +89,7 @@
       grim.enable = true; # enable grim screenshot tool
       slurp.enable = true; # enable slurp region selection tool
       satty.enable = true; # enable satty screenshot annotation tool
-      swappy.enable = false; # enable swappy screenshot editor
+      swappy.enable = true; # enable swappy screenshot editor
     };
     shell = {
       enable = true; # enable shell module

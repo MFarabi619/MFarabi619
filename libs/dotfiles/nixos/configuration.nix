@@ -7,7 +7,9 @@ let
     inherit (inputs.hydenix.lib) system;
     config.allowUnfree = true;
     overlays = [
-      inputs.hydenix.lib.overlays
+    inputs.hydenix.lib.overlays
+    inputs.emacs-overlay.overlays.default
+
       (final: prev: {
         userPkgs = import inputs.nixpkgs {
           config.allowUnfree = true;
@@ -58,6 +60,19 @@ in
           inputs.nix-index-database.hmModules.nix-index
           ./modules/hm
         ];
+
+  programs.emacs = {
+  enable = true;
+  package = pkgs.emacs-git;
+  };
+  services = {
+  emacs = {
+  enable = true;
+  package = pkgs.emacs-git;
+  socketActivation.enable = true;
+  client.enable = true;
+  };
+  };
       };
   };
 
@@ -99,6 +114,23 @@ in
       # Add other groups as needed
     ];
     shell = pkgs.zsh;
+    packages = with pkgs; [
+      cmatrix
+      asciiquarium
+      netscanner
+      devenv
+      figlet
+      docker
+      cowsay
+      nyancat
+      hollywood
+      kmon
+      ugm
+      lazyjournal
+      coreutils
+      clang
+      emacs-git
+    ];
   };
 
   system.stateVersion = "25.05";
