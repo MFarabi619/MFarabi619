@@ -160,10 +160,10 @@
       pokego.enable = false; # enable Pokemon ASCII art scripts
     };
     social = {
-      enable = true; # enable social module
-      discord.enable = false; # enable discord module
-      webcord.enable = false; # enable webcord module
-      vesktop.enable = true; # enable vesktop module
+      enable = true;
+      discord.enable = true;
+      webcord.enable = true;
+      vesktop.enable = true;
     };
     spotify.enable = false;
     swww.enable = true; # enable swww wallpaper daemon
