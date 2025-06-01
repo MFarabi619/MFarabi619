@@ -116,8 +116,11 @@
         configText = "";
       };
     };
+    waybar.enable = true;
+    wlogout.enable = true;
+    xdg.enable = true;
     theme = {
-      enable = true; # enable theme module
+      enable = true;
       active = "Catppuccin Mocha"; # active theme name
       themes = [
         "Catppuccin Mocha"
@@ -171,10 +174,7 @@
         "Tokyo Night"
         "Vanta Black"
         "Windows 11"
-      ]; # default enabled themes, full list in https://github.com/richen604/hydenix/tree/main/hydenix/sources/themes
+      ]; # Full list: https://github.com/richen604/hydenix/tree/main/hydenix/sources/themes
     };
-    waybar.enable = true;
-    wlogout.enable = true;
-    xdg.enable = true;
   };
 }
