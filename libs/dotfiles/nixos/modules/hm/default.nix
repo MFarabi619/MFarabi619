@@ -56,6 +56,7 @@
     };
     gh-dash.enable = true;
     k9s.enable = true;
+    bun.enable = true;
     kubecolor = {
       enable = true;
       enableAlias = true;
