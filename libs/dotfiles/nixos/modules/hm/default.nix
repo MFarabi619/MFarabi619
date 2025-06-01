@@ -48,7 +48,12 @@
     };
     bat.enable = true;
     direnv.enable = true;
-    gh.enable = true;
+    gh = {
+      enable = true;
+      settings = {
+       git_protocol = "https";
+      };
+    };
     gh-dash.enable = true;
     k9s.enable = true;
     kubecolor = {
