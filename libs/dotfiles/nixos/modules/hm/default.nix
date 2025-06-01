@@ -25,7 +25,26 @@
     lazydocker.enable = true;
     lazygit = {
       enable = true;
-      # settings = ""
+      settings = {
+        gui = {
+          nerdFontsVersion = "3";
+          parseEmoji = true;
+          scrollPastBottom = true;
+          scrollOffBehaviour = "jump";
+          sidePanelWidth = 0.33;
+          switchTabsWithPanelJumpKeys = true;
+        };
+        os = {
+          edit = "emacsclient -n {{filename}}";
+          editAtLine = "emacsclient -n +{{line}} {{filename}}";
+          openDirInEditor = "emacsclient {{dir}}";
+          editInTerminal = false; # Suspend until an edit process returns
+        };
+        git = {
+          branchPrefix = "mfarabi/";
+        };
+        promptToReturnFromSubprocess = true;
+      };
     };
     bat.enable = true;
     direnv.enable = true;
