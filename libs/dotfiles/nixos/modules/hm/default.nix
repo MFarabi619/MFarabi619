@@ -51,7 +51,7 @@
     gh = {
       enable = true;
       settings = {
-       git_protocol = "https";
+        git_protocol = "https";
       };
     };
     gh-dash.enable = true;
@@ -92,6 +92,11 @@
       extensions = [
         "html" "toml" "dockerfile" "git-firefly" "nix" "vue" "sql" "ruby" "latex" "svelte" "lua" "docker-compose" "graphql" "csv" "basher" "nginx" "solidity" "unocss" "stylint"
       ];
+    };
+    zsh = {
+      shellAliases = {
+        cat = "bat";
+      };
     };
     zellij = {
       enable = true;
@@ -145,13 +150,13 @@
       swappy.enable = true; # enable swappy screenshot editor
     };
     shell = {
-      enable = true; # enable shell module
+      enable = true;
       zsh = {
-	      enable = true; # enable zsh shell
+        enable = true;
         configText = ""; # zsh config text
-	    };
-      bash.enable = false; # enable bash shell
-      fish.enable = false; # enable fish shell
+      };
+      bash.enable = true;
+      fish.enable = false;
       pokego.enable = false; # enable Pokemon ASCII art scripts
     };
     social = {
