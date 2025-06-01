@@ -115,7 +115,7 @@
 
 (setq browse-url-browser-function 'browse-url-default-browser)
 
-(setq projectile-project-search-path '("~/workspace/" "~/Documents/")) ;; Projectile search directories
+(setq projectile-project-search-path '("~/workspace/" "~/Documents/" "~/MFarabi619/")) ;; Projectile search directories
 
 ;;; :editor evil
 (setq evil-split-window-below t ;; Focus new window after splitting
@@ -310,18 +310,18 @@
   (setq nerd-icons-completion-mode t))
 
 ;; Add LikeC4 to LSP language configuration
-(after! lsp-mode
-  (setq lsp-eslint-package-manager "pnpm"
-        lsp-eslint-run "onSave"
-        lsp-typescript-format-enable nil)
+;; (after! lsp-mode
+;;   (setq lsp-eslint-package-manager "pnpm"
+;;         lsp-eslint-run "onSave"
+;;         lsp-typescript-format-enable nil)
 
-  (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
+;;   (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
 
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
-    :activation-fn (lsp-activate-on "likec4")
-    :server-id 'likec4-ls)))
+;;   (lsp-register-client
+;;    (make-lsp-client
+;;     :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
+;;     :activation-fn (lsp-activate-on "likec4")
+;;     :server-id 'likec4-ls)))
 
 ;; (define-derived-mode sway-mode rust-ts-mode "sway")
 
@@ -345,7 +345,7 @@
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
-(setq fancy-splash-image "~/dotfiles/.config/doom/doom-emacs-color2.svg") ;; Custom banner
+(setq fancy-splash-image "~/MFarabi619/libs/dotfiles/nixos/modules/doomdir/doom-emacs-color2.svg") ;; Custom banner
 (defun my-custom-dashboard-text ()
   "Insert custom text into the Doom dashboard."
   (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n"))

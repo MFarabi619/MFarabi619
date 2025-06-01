@@ -6,7 +6,6 @@
   ];
 
   home = {
-
     packages = [
       # pkgs.vscode - hydenix's vscode version
       # pkgs.userPkgs.vscode - your personal nixpkgs version
@@ -14,8 +13,12 @@
   };
 
   programs = {
-  fd.enable = true;
-  ripgrep.enable = true;
+  mu.enable = true;
+  nh.enable = true;
+  jq.enable = true;
+  java.enable = true;
+  texlive.enable = true;
+  tex-fmt.enable = true;
     vivaldi.enable = true;
     yazi = {
       enable = true;
@@ -61,6 +64,8 @@
       enable = true;
       enableAlias = true;
     };
+    fd.enable = true;
+    ripgrep.enable = true;
     superfile.enable = true;
     zed-editor = {
       enable = true;
@@ -100,13 +105,48 @@
     };
     zellij = {
       enable = true;
-      enableZshIntegration = true;
+      # enableZshIntegration = true;
+      # attachExistingSession = true;
+    };
+    pandoc.enable = true;
+    doom-emacs = {
+      enable = true;
+      doomDir = ../doomdir;
+      extraPackages = epkgs: [
+       epkgs.pdf-tools
+       epkgs.editorconfig
+       epkgs.shfmt
+       epkgs.nixfmt
+       epkgs.npm
+       epkgs.rustic
+       epkgs.lsp-java
+       epkgs.lsp-docker
+       epkgs.lsp-latex
+       epkgs.lsp-pyright
+       epkgs.lsp-tailwindcss
+       epkgs.lsp-treemacs
+       epkgs.lsp-haskell
+       epkgs.typescript-mode
+       epkgs.jtsx
+       epkgs.yaml
+       epkgs.xclip
+       epkgs.wttrin
+       epkgs.vue3-mode
+      ];
+      # provideEmacs = false;
+    };
+  };
+
+  services = {
+    emacs = {
+      enable = true;
+      socketActivation.enable = true;
+      client.enable = true;
     };
   };
 
   hydenix.hm = {
     enable = true;
-
     comma.enable = true; # useful nix tool to run software without installing it first
     dolphin.enable = true;
     editors = {
@@ -155,7 +195,7 @@
         enable = true;
         configText = ""; # zsh config text
       };
-      bash.enable = true;
+      bash.enable = false;
       fish.enable = false;
       pokego.enable = false; # enable Pokemon ASCII art scripts
     };
@@ -179,7 +219,7 @@
     xdg.enable = true;
     theme = {
       enable = true;
-      active = "Catppuccin Mocha"; # active theme name
+      active = "Green Lush";
       themes = [
         "Catppuccin Mocha"
         "Catppuccin Latte"
