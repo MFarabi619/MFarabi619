@@ -428,6 +428,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://rubyonrails.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rails/rails-plain-wordmark.svg" alt="Ruby on Rails Logo" width="40" height="40" />
 </a>
+<!-- Integrated Haskell Platform -->
+<a href="https://ihp.digitallyinduced.com" target="_blank" rel="noreferrer">
+<img src="https://ihp.digitallyinduced.com/Guide/images/ihp-logo-readme.svg" alt="Integrated Haskell Platform Logo" width="40" height="40" />
+</a>
 <!-- NestJS TRPC -->
 <a href="https://www.nestjs-trpc.io" target="_blank" rel="noreferrer">
 <img src="https://www.nestjs-trpc.io/logo.png" alt="NestJS TRPC Logo" width="40" height="40" />
@@ -486,7 +490,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 ## 🛠 Current Setup
 
-### [Arch Linux](https://archlinux.org/) - Migrating to [NixOS](https://nixos.org)
+<strong><a href="https://archlinux.org/">Arch Linux</a> - Migrating to <a href="https://nixos.org">NixOS</a> <a href="https://nixos.org">
+  <img src="libs/assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
+</a> </strong>
+
 
 #### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator
 
