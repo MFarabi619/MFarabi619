@@ -21,6 +21,16 @@
               natural_scroll = true
             }
           }
+
+          unbind = Shift, F11
+          unbind = Alt, Return
+          $wm=Window Management
+          $d=[$wm]
+          bindd = Alt, Return, $d toggle fullscreen, fullscreen
+
+          animations {
+            enabled = true
+          }
         '';
         force = true;
         mutable = true;
@@ -166,13 +176,13 @@
     comma.enable = true; # useful nix tool to run software without installing it first
     dolphin.enable = true;
     editors = {
-      enable = true; # enable editors module
-      neovim = true; # enable neovim module
+      enable = true;
+      neovim = true;
       vscode = {
-        enable = true; # enable vscode module
+        enable = true;
         wallbash = true; # enable wallbash extension for vscode
       };
-      vim = true; # enable vim module
+      vim = true;
       default = "emacs"; # default text editor
     };
     fastfetch.enable = true; # fastfetch configuration
@@ -222,7 +232,7 @@
       vesktop.enable = true;
     };
     spotify.enable = false;
-    swww.enable = true; # enable swww wallpaper daemon
+    swww.enable = true;
     terminals = {
       enable = true;
       kitty = {
