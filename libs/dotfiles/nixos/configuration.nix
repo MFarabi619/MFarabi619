@@ -107,7 +107,8 @@ in
     shell = pkgs.zsh;
     packages = with pkgs; [
       # ==========  Doom Emacs ===========
-      nil
+      ispell        # spelling
+      nil           # nix lang formatting
       cmake
       binutils      # native-comp needs 'as', provided by this
       gnutls        # for TLS connectivity
