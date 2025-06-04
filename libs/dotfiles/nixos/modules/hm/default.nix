@@ -1,4 +1,7 @@
-{ ... }:
+{
+  lib,
+  ...
+}:
 
 {
   imports = [
@@ -10,6 +13,19 @@
       # pkgs.vscode - hydenix's vscode version
       # pkgs.userPkgs.vscode - your personal nixpkgs version
     ];
+    file = {
+      ".config/hypr/userprefs.conf" = lib.mkForce {
+        text = ''
+          input {
+            touchpad {
+              natural_scroll = true
+            }
+          }
+        '';
+        force = true;
+        mutable = true;
+      };
+    };
   };
 
   programs = {
