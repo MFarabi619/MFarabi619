@@ -16,6 +16,9 @@
     file = {
       ".config/hypr/userprefs.conf" = lib.mkForce {
         text = ''
+          $editor = emacs
+          $browser = vivaldi
+
           input {
             touchpad {
               natural_scroll = true
