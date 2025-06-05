@@ -143,8 +143,7 @@
         evil-escape-key-sequence "jk")
   ;; Move by visual lines instead of physical lines
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
-  )
+  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
 
 ;; (keycast-tab-line-mode)
 
@@ -194,34 +193,34 @@
         ;;   (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
         ))
 
-(after! magit
-  (setq magit-diff-refine-hunk 'all)
+;; (after! magit
+;;   (setq magit-diff-refine-hunk 'all)
 
-  (use-package! magit-todos
-    :config (magit-todos-mode 1))
+;;   (use-package! magit-todos
+;;     :config (magit-todos-mode 1))
 
-  (setq magit-log-margin-show-committer-date t)
+;;   (setq magit-log-margin-show-committer-date t)
 
-  ;; Enable commit graphs
-  (setq magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256"))
-  (setq magit-status-margin
-        '(t age magit-log-margin-width t 22))
+;;   ;; Enable commit graphs
+;;   (setq magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256"))
+;;   (setq magit-status-margin
+;;         '(t age magit-log-margin-width t 22))
 
-  (setq magit-log-margin-show-author t)
+;;   (setq magit-log-margin-show-author t)
 
-  (setq magit-section-visibility-indicator '(" " . " "))
-  (setq magit-format-file-function #'magit-format-file-nerd-icons)
-  (setq magit-revision-insert-related-refs t)
-  (add-hook 'magit-mode-hook 'hl-line-mode)
-  (add-hook 'magit-mode-hook 'display-line-numbers-mode))
+;;   (setq magit-section-visibility-indicator '(" " . " "))
+;;   (setq magit-format-file-function #'magit-format-file-nerd-icons)
+;;   (setq magit-revision-insert-related-refs t)
+;;   (add-hook 'magit-mode-hook 'hl-line-mode)
+;;   (add-hook 'magit-mode-hook 'display-line-numbers-mode))
 
-(custom-set-faces
- '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
- '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
- '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
- '(magit-diff-context ((t (:foreground "#b0b0b0"))))
- '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
- '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff")))))
+;; (custom-set-faces
+;;  '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
+;;  '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
+;;  '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
+;;  '(magit-diff-context ((t (:foreground "#b0b0b0"))))
+;;  '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
+;;  '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff")))))
 
 ;; When viewing a pdf, view it in dark mode instead of the default light mode
 (add-hook
@@ -262,17 +261,13 @@
   (setq centaur-tabs-enable-key-bindings t)
   (setq centaur-tabs-show-navigation-buttons t))
 
-(after! js-mode
-  (setq +javascript-npm-mode-hook
-        '(doom--enable-+web-phaser-mode-in-+javascript-npm-mode-h
-          doom--enable-+web-react-mode-in-+javascript-npm-mode-h
-          doom--enable-+web-angularjs-mode-in-+javascript-npm-mode-h
-          pnpm-mode
-          +javascript-add-npm-path-h)))
-
-(after! vterm
-  (set-popup-rule! "*doom:vterm-popup:*" :size 0.5 :vslot -4 :select t :quit nil :ttl 0 :side 'right)
-  (add-hook 'vterm-mode-hook #'evil-normal-state)) ;; Start vterm in normal mode
+;; (after! js-mode
+;;   (setq +javascript-npm-mode-hook
+;;         '(doom--enable-+web-phaser-mode-in-+javascript-npm-mode-h
+;;           doom--enable-+web-react-mode-in-+javascript-npm-mode-h
+;;           doom--enable-+web-angularjs-mode-in-+javascript-npm-mode-h
+;;           pnpm-mode
+;;           +javascript-add-npm-path-h)))
 
 (setq doom-modeline-hud t)
 (setq doom-modeline-persp-name t)
@@ -280,20 +275,23 @@
 
 (after! nyan-mode
   (setq nyan-animate-nyancat t
-        nyan-wavy-trail t)
-  )
+        nyan-wavy-trail t))
 
 (add-hook 'doom-modeline-mode-hook #'nyan-mode)
 
-;; (map! :leader "g g" nil) ;; Unbind default Magit
+(after! vterm
+  (set-popup-rule! "*doom:vterm-popup:*" :size 0.5 :vslot -4 :select t :quit nil :ttl nil :side 'right)
+  (add-hook 'vterm-mode-hook #'evil-normal-state)) ;; Start vterm in normal mode
+
+
 (map! :leader
       :desc "Lazygit"
       "g l" (lambda ()
               (interactive)
-              (let ((window-config (current-window-configuration))) ;; Save current layout
-                (delete-other-windows)  ;; Maximize window for vterm
+              (let ((window-config (current-window-configuration)))
+                (delete-other-windows)
                 (vterm "*lazygit*")
-                (vterm-send-string "lazygit; exit") ;; Exit vterm when lazygit exits
+                (vterm-send-string "lazygit; exit")
                 (vterm-send-return)
 
                 ;; Restore layout when vterm process exits
@@ -301,8 +299,60 @@
                  (get-buffer-process "*lazygit*")
                  (lambda (_process _event)
                    (when (buffer-live-p (get-buffer "*lazygit*"))
-                     (kill-buffer "*lazygit*")) ;; Kill vterm buffer
-                   (set-window-configuration window-config)))))) ;; Restore layout
+                     (kill-buffer "*lazygit*"))
+                   (set-window-configuration window-config))))))
+
+;; (map! :leader
+;;       :desc "Toggle Lazygit"
+;;       "g g"
+;;       (lambda ()
+;;         (interactive)
+;;         (let ((buf-name "*lazygit*"))
+;;           (set-popup-rule! buf-name
+;;             :size 0.3
+;;             :select nil
+;;             :quit t
+;;             :ttl 0
+;;             :side 'top
+;;             )
+;;           (if (get-buffer-window buf-name)
+;;               ;; If visible, bury the buffer to hide it
+;;               (delete-window (get-buffer-window buf-name))
+;;             ;; Else, show or create the buffer
+;;             (if (get-buffer buf-name)
+;;                 (pop-to-buffer buf-name)
+;;               (progn
+;;                 (vterm buf-name)
+;;                 (vterm-send-string "lazygit -ucf ~/dotfiles/.config/doom/lazygit.config.yml; exit")
+;;                 (vterm-send-return)))))))
+
+;; (map! :leader
+;;       :desc "Toggle Lazygit"
+;;       "o g"
+;;       (lambda ()
+;;         (interactive)
+;;         (let ((buf-name "*lazygit*"))
+;;           (set-popup-rule! buf-name
+;;             :side 'right
+;;             :slot 0
+;;             :size 0.175
+;;             :select t
+;;             :quit t
+;;             :ttl 0)
+;;           (if (get-buffer-window buf-name)
+;;               (delete-window (get-buffer-window buf-name))
+;;             (if (get-buffer buf-name)
+;;                 (progn
+;;                   (pop-to-buffer buf-name)
+;;                   (with-current-buffer buf-name
+;;                     (text-scale-decrease 1)))
+;;               (progn
+;;                 (vterm buf-name)
+;;                 (with-current-buffer buf-name
+;;                   (text-scale-decrease 1))
+;;                 (vterm-send-string "lazygit -ucf ~/dotfiles/.config/doom/lazygit.config.yml; exit")
+;;                 (vterm-send-return)))))))
+
 
 (setq plstore-cache-passphrase-for-symmetric-encryption t)
 
