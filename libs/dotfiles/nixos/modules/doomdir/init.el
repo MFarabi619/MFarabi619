@@ -141,8 +141,8 @@
        ;;         +tree-sitter)          ; erlang done right
        ;;elm             ; care for a cup of TEA?
        emacs-lisp        ; drown in parentheses
-       (erlang +lsp
-               +tree-sitter)          ; an elegant language for a more civilized age
+       ;; (erlang +lsp
+       ;;         +tree-sitter)          ; an elegant language for a more civilized age
        (ess +stan
             +tree-sitter); emacs speaks statistics
        ;;factor
