@@ -174,28 +174,6 @@ Exit =iwctl= by pressing =Ctrl+C=.
 
 ---
 
-** GNU Stow for Dotfiles Management
-
-*** Install GNU Stow
-
-1. Install =stow=:
-    #+begin_src bash
-    pacman -Syu stow
-    #+end_src
-
-*** Clone and Stow Dotfiles
-
-1. Clone your dotfiles repository:
-    #+begin_src bash
-    git clone git@github.com/dreamsofautonomy/dotfiles.git ~/dotfiles
-    cd ~/dotfiles
-    #+end_src
-2. Symlink the dotfiles:
-    #+begin_src bash
-    stow --adopt .
-    #+end_src
-
----
 
 ** NixOS Installation
 

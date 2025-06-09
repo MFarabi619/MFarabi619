@@ -77,17 +77,6 @@ Source zsh again:
 source ~/.zshrc
 ```
 
-Install GNU Stow:
-```bash
-sudo apt-get install stow
-```
-
-Navigate to dotfiles directory and run stow to create symlinks:
-```bash
-cd ~/dotfiles
-stow .
-```
-
 ## Mouse setup
 
 ![image](https://github.com/MFarabi619/dotfiles/assets/54924158/a1a5e18b-1c3b-4708-9be2-4a3dc886a8b9)
@@ -179,32 +168,11 @@ brew install --cask alt-tab
 
 ![image](https://github.com/MFarabi619/dotfiles/assets/54924158/09ce8880-d11a-45f3-85c7-c4d691f4ec55)
 
-## Install [NeoVim](https://neovim.io/)
-
-```bash
-brew install neovim
-```
-
 ## Install [LazyVim](https://www.lazyvim.org/)
-
-Before installing LazyVim, install its required dependencies.
-
-[LazyGit](https://github.com/jesseduffield/lazygit)
+Install required dependencies.
 
 ```bash
-brew install lazygit
-```
-
-[ripgrep](https://github.com/BurntSushi/ripgrep)
-
-```bash
-brew install ripgrep
-```
-
-[fd](https://github.com/sharkdp/fd)
-
-```bash
-brew install fd
+brew install neovim lazygit ripgrep fd
 ```
 
 ```bash
