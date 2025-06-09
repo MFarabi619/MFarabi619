@@ -1,6 +1,6 @@
 <!-- markdownlint-disable -->
 <div align="center">
-  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/libs/shared/assets/cover.png" style="width:100%"/>
+  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/libs/assets/cover.png" style="width:100%"/>
 </div>
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
@@ -729,7 +729,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 
-![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/libs/shared/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
+![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/libs/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
 
 </details>
 

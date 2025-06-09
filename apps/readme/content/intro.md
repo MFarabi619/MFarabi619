@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/libs/shared/assets/cover.png" style="width:100%"/>
+  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/libs/assets/cover.png" style="width:100%"/>
 </div>
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">

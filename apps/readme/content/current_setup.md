@@ -239,7 +239,7 @@
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 
-![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/libs/shared/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
+![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
 
 </details>
 
