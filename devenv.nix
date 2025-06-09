@@ -44,11 +44,7 @@
     enable = true;
     config = {
         enable = true;
-        # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/default/starship.toml";
-        path = "${config.env.DEVENV_ROOT}/libs/configs/starship/gruvbox-rainbow/starship.toml";
-        # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/jetpack/starship.toml";
-        # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/pastel-powerline/starship.toml";
-        # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/catppuccin-powerline/starship.toml";
+        path = "${config.env.DEVENV_ROOT}/libs/dotfiles/.config/starship/gruvbox-rainbow.toml";
       };
   };
 
@@ -56,35 +52,41 @@
     #   rosettaPkgs = pkgs.pkgsx86_64Darwin;
     # in {
       packages =  with pkgs; [
+        # ============= 🧑‍💻🐞‍ ================
         vim
         neovim
-        git
-        eza
-        bat
-        moon
         zellij
         nerd-fonts.jetbrains-mono
-        ascii-image-converter
-        asciiquarium
-        lazygit
+        git
+        gh
         btop
-        yazi
-        tgpt
-        uv
-        shellspec
-        fastfetch
-        figlet
-        lolcat
-        ansi
-        ncurses
+        lazygit
         lazysql
-        glibcLocales
+        yazi
+        shellspec
         docker
         lazydocker
         supabase-cli
+        pik
+        moon
+        uv
+        termshark
         ttyd
+        tgpt
         ncdu
         nix-tree
+        # ============== 🤪 =================
+        asciiquarium
+        bat
+        eza
+        ascii-image-converter
+        # chafa
+        ansi
+        glibcLocales
+        ncurses
+        figlet
+        lolcat
+        fastfetch
       ] ++ lib.optionals stdenv.isLinux [
         inotify-tools
       ] ++ lib.optionals stdenv.isDarwin [
@@ -141,9 +143,9 @@
               };
               namespace = "✨ Front-End";
             };
-# depends_on.some-other-process.condition =
-#           "process_completed_successfully";
-#       };
+            # depends_on.some-other-process.condition = {
+            #           "process_completed_successfully";
+            #       };
             cargo-watch = {
               command = "cargo-watch";
               disabled = true;
@@ -190,9 +192,8 @@
           };
         };
 
-
-        # https://devenv.sh/services/
-        services.postgres = {
+        services = {
+          postgres = {
           enable = true;
           package = pkgs.postgresql_17;
           listen_addresses = "*";
@@ -217,39 +218,35 @@
           };
         };
 
-        # services.kafka = {
-        #   enable = true;
-        # };
-
-        # services.redis = {
+        # kafka = {enable = true; };
+        # redis = {
           # enable = true;
           # bind = "127.0.0.1";
           # extraConfig = "";
           # port = 6379;
-          # };
-
-          # services.mongodb = {
-          #   enable = true;
-          #   #  additionalArgs = [
-          #     # "--port"
-          #     # "27017"
-          #     # "--noauth"
-          #     #  ];
-          #     initDatabaseUsername = "mongodb";
-          #     initDatabasePassword = "mongodb";
-          # };
-
-          # services.nginx = {
-          #   enable = true;
-          #   httpConfig = ''
-          #     server {
-          #     listen 8080;
-          #     location / {
-          #     return 200 "Hello, world!";
-          #     }
-          #     }
-          #   '';
-          # };
+        # };
+        # mongodb = {
+        #   enable = true;
+        #   #  additionalArgs = [
+        #     # "--port"
+        #     # "27017"
+        #     # "--noauth"
+        #     #  ];
+        #     initDatabaseUsername = "mongodb";
+        #     initDatabasePassword = "mongodb";
+        # };
+        # nginx = {
+        #   enable = true;
+        #   httpConfig = ''
+        #     server {
+        #     listen 8080;
+        #     location / {
+        #     return 200 "Hello, world!";
+        #     }
+        #     }
+        #   '';
+        # };
+        };
 
           scripts.hello.exec = ''
             figlet  Hello from $GREET | lolcat
@@ -275,83 +272,83 @@
             #   "devenv:enterShell".after = [ "myproj:setup" ];
             # };
 
-            enterTest = ''
-              set -ex
-              echo "Running tests"
-              git --version | grep --color=auto "${pkgs.git.version}"
-              wait_for_port 8080
-              curl -s localhost:8080 | grep "Hello, world!"
-              cargo --version
-              rustc --version
+          enterTest = ''
+            set -ex
+            echo "Running tests"
+            git --version | grep --color=auto "${pkgs.git.version}"
+            wait_for_port 8080
+            curl -s localhost:8080 | grep "Hello, world!"
+            cargo --version
+            rustc --version
 
-              [[ "$CARGO_INSTALL_ROOT" == "$DEVENV_STATE/cargo-install" ]]
-              echo "$PATH" | grep -- "$CARGO_INSTALL_ROOT/bin"
-              figlet "Tests Passed 🥳" | lolcat
-            '';
+            [[ "$CARGO_INSTALL_ROOT" == "$DEVENV_STATE/cargo-install" ]]
+            echo "$PATH" | grep -- "$CARGO_INSTALL_ROOT/bin"
+            figlet "Tests Passed 🥳" | lolcat
+          '';
 
-            # difftastic.enable = true;
-            delta.enable = true;
-            git-hooks.hooks = {
-              # shellcheck.enable = true;
-              # eslint.enable = true;
-              # cargo-check.enable = true;
-              check-json.enable = true;
-              # check-toml.enable = true;
-              # check-yaml.enable = true;
-              commitizen.enable = true;
-              # eclint.enable = true;
-              # html-tidy.enable = true;
-              # rustfmt.enable = true;
-              # clippy.enable = true;
-              actionlint.enable = true;
-            };
+          # difftastic.enable = true;
+          delta.enable = true;
+          git-hooks.hooks = {
+            # shellcheck.enable = true;
+            # eslint.enable = true;
+            # cargo-check.enable = true;
+            check-json.enable = true;
+            # check-toml.enable = true;
+            # check-yaml.enable = true;
+            commitizen.enable = true;
+            # eclint.enable = true;
+            # html-tidy.enable = true;
+            # rustfmt.enable = true;
+            # clippy.enable = true;
+            actionlint.enable = true;
+          };
 
-            # devcontainer.enable = true;
-            # NOTE: Existing env variables set in devenv.nix will have priority.
-            dotenv = {
-              enable = true;
-              filename = [
-                ".env"
-                # ".env.development"
-                # ".env.production"
-              ];
-            };
+          # devcontainer.enable = true;
+          # NOTE: Existing env variables set in devenv.nix will have priority.
+          dotenv = {
+            enable = true;
+            filename = [
+              ".env"
+              # ".env.development"
+              # ".env.production"
+            ];
+          };
 
-            env = {
-              GREET = "devenv";
-              #====================================================
-              #                      FLAGS
-              #====================================================
-              # SUPABASE=true; # Requires Docker
-              # SQLITE=true;
-              # ZELLIJ_AUTO_ATTACH=true;
-              # ZELLIJ_AUTO_EXIT=true;
+          env = {
+            GREET = "devenv";
+            #====================================================
+            #                      FLAGS
+            #====================================================
+            # SUPABASE=true; # Requires Docker
+            # SQLITE=true;
+            # ZELLIJ_AUTO_ATTACH=true;
+            # ZELLIJ_AUTO_EXIT=true;
 
-              #====================================================
-              #                    DATABASE
-              #====================================================
-              # PGDATA="$PWD/libs/db/data";
-              PG_COLOR="always";
-              DATABASE_URI="postgresql://postgres:postgres@127.0.0.1:54322/postgres";
-              # DATABASE_URI="postgresql://[NAME]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres";
-              # S3_ACCESS_KEY_ID="";
-              # S3_SECRET_ACCESS_KEY="";
-              # S3_BUCKET="staging";
-              # S3_REGION="us-east-1";
-              # S3_ENDPOINT="https://[ID].supabase.co/storage/v1/s3";
+            #====================================================
+            #                    DATABASE
+            #====================================================
+            # PGDATA="$PWD/libs/db/data";
+            PG_COLOR="always";
+            DATABASE_URI="postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+            # DATABASE_URI="postgresql://[NAME]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres";
+            # S3_ACCESS_KEY_ID="";
+            # S3_SECRET_ACCESS_KEY="";
+            # S3_BUCKET="staging";
+            # S3_REGION="us-east-1";
+            # S3_ENDPOINT="https://[ID].supabase.co/storage/v1/s3";
 
-              #====================================================
-              #                      PORTS
-              #====================================================
-              WEB_SERVER_PORT="3000";
-              API_SERVER_PORT="5150";
-              UI_SERVER_PORT="6006";
+            #====================================================
+            #                      PORTS
+            #====================================================
+            WEB_SERVER_PORT="3000";
+            API_SERVER_PORT="5150";
+            UI_SERVER_PORT="6006";
 
-              #====================================================
-              #                      URLS
-              #====================================================
-              # BASE_URL="https://mfarabi.dev";
-              # LOCALHOST_STRING="http://localhost";
-              SUPABASE_STUDIO_URL = "$LOCALHOST_STRING:54323";
-            };
+            #====================================================
+            #                      URLS
+            #====================================================
+            # BASE_URL="https://mfarabi.dev";
+            # LOCALHOST_STRING="http://localhost";
+            SUPABASE_STUDIO_URL = "$LOCALHOST_STRING:54323";
+          };
 }
