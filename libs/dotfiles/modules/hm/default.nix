@@ -5,7 +5,13 @@
 
 {
   imports = [
-    # ./example.nix - add your modules here
+      ./doom-emacs.nix
+      ./zsh.nix
+      ./git.nix
+      ./lazygit.nix
+      ./gh.nix
+      ./zed.nix
+      ./yazi.nix
   ];
 
   home = {
@@ -57,127 +63,18 @@
     superfile.enable = true;
     mu.enable = true;
     nh.enable = true;
-    jq.enable = true;
     java.enable = true;
-    lazygit = {
-      enable = true;
-      settings = {
-        gui = {
-          nerdFontsVersion = "3";
-          parseEmoji = true;
-          scrollPastBottom = true;
-          scrollOffBehaviour = "jump";
-          sidePanelWidth = 0.33;
-          switchTabsWithPanelJumpKeys = true;
-        };
-        os = {
-          edit = "emacsclient -n {{filename}}";
-          editAtLine = "emacsclient -n +{{line}} {{filename}}";
-          openDirInEditor = "emacsclient {{dir}}";
-          editInTerminal = false;
-        };
-        git = {
-          branchPrefix = "mfarabi/";
-        };
-        promptToReturnFromSubprocess = true;
-      };
-    };
-    gh-dash.enable = true;
-    gh = {
-      enable = true;
-      settings = {
-        git_protocol = "https";
-      };
-    };
     k9s.enable = true;
     kubecolor = {
       enable = true;
       enableAlias = true;
-    };
-    zed-editor = {
-      enable = true;
-      userSettings = {
-        "base_keymap" = "VSCode";
-        telemetry = {
-          metrics = false;
-          diagnostics = false;
-        };
-        vim_mode = true;
-        "ui_font_size" = 16;
-        "buffer_font_size" = 16;
-        theme = {
-          mode = "system";
-          light = "One Light";
-          dark = "Gruvbox Dark Hard";
-        };
-        "pane_split_direction_vertical" = "left";
-        "project_panel" = {
-          dock = "right";
-        };
-        "outline_panel" = {
-          dock = "right";
-        };
-        "git_panel" = {
-          dock = "right";
-        };
-      };
-      extensions = [
-        "html" "toml" "dockerfile" "git-firefly" "nix" "vue" "sql" "ruby" "latex" "svelte" "lua" "docker-compose" "graphql" "csv" "basher" "nginx" "solidity" "unocss" "stylint"
-      ];
-    };
-    yazi = {
-      enable = true;
-      enableZshIntegration = true;
-      manager = {
-        show_hidden = true;
-        show_symlink = true;
-      };
-    };
-    zsh = {
-      shellAliases = {
-        cat = "bat";
-      };
     };
     zellij = {
       enable = true;
       # enableZshIntegration = true;
       # attachExistingSession = true;
     };
-    doom-emacs = {
-      enable = true;
-      doomDir = ../doom;
-      extraPackages = epkgs: [
-        epkgs.pdf-tools
-        epkgs.editorconfig
-        epkgs.shfmt
-        epkgs.nixfmt
-        epkgs.npm
-        epkgs.rustic
-        epkgs.lsp-java
-        epkgs.lsp-docker
-        epkgs.lsp-latex
-        epkgs.lsp-pyright
-        epkgs.lsp-tailwindcss
-        epkgs.lsp-treemacs
-        epkgs.lsp-haskell
-        epkgs.typescript-mode
-        epkgs.jtsx
-        epkgs.yaml
-        epkgs.xclip
-        epkgs.wttrin
-        epkgs.vue3-mode
-      ];
-      # provideEmacs = false;
-    };
-  };
-
-  services = {
-    emacs = {
-      enable = true;
-      socketActivation.enable = true;
-      client.enable = true;
-    };
-  };
+};
 
   hydenix.hm = {
     enable = true;
@@ -211,11 +108,7 @@
       useUserJs = true;      # if useHydeConfig is true, apply hyde user.js preferences
       useExtensions = true;  # if useHydeConfig is true, install hyde firefox extensions
     };
-    git = {
-      enable = true;
-      name = "Mumtahin Farabi";
-      email = "mfarabi619@gmail.com";
-    };
+    git.enable = false;
     lockscreen = {
       enable = true;
       hyprlock = true;
@@ -230,13 +123,11 @@
     };
     shell = {
       enable = true;
+      bash.enable = false;
       zsh = {
         enable = true;
-        configText = ""; # zsh config text
+        configText = "";
       };
-      bash.enable = false;
-      fish.enable = false;
-      pokego.enable = false;
     };
     social = {
       enable = true;

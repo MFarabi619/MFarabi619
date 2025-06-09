@@ -2,7 +2,7 @@
 
 {
   imports = [
-    # ./example.nix - add your modules here
+    # ./hardware.nix
   ];
 
   environment.systemPackages = [
