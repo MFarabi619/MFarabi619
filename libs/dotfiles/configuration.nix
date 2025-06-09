@@ -106,6 +106,8 @@ in
       gnutls        # for TLS connectivity
       epub-thumbnailer # dired epub previews
       poppler-utils # dired pdf previews
+      openscad
+      openscad-lsp
       vips          # dired image previews
       imagemagick   # for image-dired
       tuntox        # collab
