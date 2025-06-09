@@ -107,20 +107,20 @@ in
     shell = pkgs.zsh;
     packages = with pkgs; [
       # ==========  Doom Emacs ===========
-      ispell        # spelling
-      nil           # nix lang formatting
-      cmake
+      clang
+      cmake         # vterm compilation and more
+      coreutils
       binutils      # native-comp needs 'as', provided by this
       gnutls        # for TLS connectivity
       epub-thumbnailer # dired epub previews
       poppler-utils # dired pdf previews
       vips          # dired image previews
       imagemagick   # for image-dired
-      coreutils
-      clang
-      shellcheck
       tuntox        # collab
       sqlite        # :tools lookup & :lang org +roam
+      ispell        # spelling
+      nil           # nix lang formatting
+      shellcheck    # shell script formatting
       # texlive     # :lang latex & :lang org (latex previews)
       # ============== 🤪 =================
       asciiquarium

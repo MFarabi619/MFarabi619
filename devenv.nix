@@ -8,53 +8,49 @@
 
 {
   name = "mfarabi-dev-env";
-  env = {
-    GREET = "devenv";
-    #====================================================
-    #                      FLAGS
-    #====================================================
-    # SUPABASE=true; # Requires Docker
-    # SQLITE=true;
-    # TERM=xterm-256color;
-    # ZELLIJ_AUTO_ATTACH=true;
-    # ZELLIJ_AUTO_EXIT=true;
 
-    #====================================================
-    #                    DATABASE
-    #====================================================
-    # PGDATA="$PWD/libs/db/data";
-    PG_COLOR="always";
-    DATABASE_URI="postgresql://postgres:postgres@127.0.0.1:54322/postgres";
-    # DATABASE_URI="postgresql://[NAME]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres";
-    # S3_ACCESS_KEY_ID="";
-    # S3_SECRET_ACCESS_KEY="";
-    # S3_BUCKET="staging";
-    # S3_REGION="us-east-1";
-    # S3_ENDPOINT="https://[ID].supabase.co/storage/v1/s3";
-
-    #====================================================
-    #                      PORTS
-    #====================================================
-    WEB_SERVER_PORT="3000";
-    API_SERVER_PORT="5150";
-    UI_SERVER_PORT="6006";
-
-    #====================================================
-    #                      URLS
-    #====================================================
-    # BASE_URL="https://mfarabi.dev";
-    # LOCALHOST_STRING="http://localhost";
-
-    SUPABASE_STUDIO_URL = "$LOCALHOST_STRING:54323";
+  languages = {
+    shell.enable = true;
+    nix.enable = true;
+    rust = {
+      enable = true;
+      channel = "stable";
+      targets = [ "wasm32-unknown-unknown" ];
+      components = [ "rustc" "cargo" "clippy" "rustfmt" "rust-analyzer" ];
+    };
+    javascript = {
+      enable = true;
+      # bun = {
+        #   enable = true;
+        #   install.enable = true;
+        # };
+        pnpm = {
+          enable = true;
+          install.enable = true;
+        };
+    };
+    typescript.enable = true;
+    python = {
+      enable = true;
+      uv.enable = true;
+    };
+    ruby = { # needed for lolcat
+      enable = true;
+      bundler.enable = true;
+    };
   };
 
-  # devcontainer.enable = true;
-  # dotenv.enable = true;
-  # Optionally, you can choose which filename to load.
-  # dotenv.filename = ".env.production";
-  # or
-  # dotenv.filename = [ ".env.production" ".env.development" ]
-  # Existing env variables set in devenv.nix will have priority.
+  starship = {
+    enable = true;
+    config = {
+        enable = true;
+        # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/default/starship.toml";
+        path = "${config.env.DEVENV_ROOT}/libs/configs/starship/gruvbox-rainbow/starship.toml";
+        # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/jetpack/starship.toml";
+        # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/pastel-powerline/starship.toml";
+        # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/catppuccin-powerline/starship.toml";
+      };
+  };
 
   # let
     #   rosettaPkgs = pkgs.pkgsx86_64Darwin;
@@ -98,33 +94,6 @@
         #     rosettaPkgs.dmd
         #   ];
         # }
-
-        languages.nix.enable = true;
-
-        languages.rust = {
-          enable = true;
-          channel = "stable";
-          targets = [ "wasm32-unknown-unknown" ];
-          components = [ "rustc" "cargo" "clippy" "rustfmt" "rust-analyzer" ];
-        };
-
-        languages.shell.enable = true;
-
-        languages.javascript = {
-          enable = true;
-          bun = {
-            enable = true;
-            install.enable = true;
-          };
-          pnpm = {
-            enable = true;
-            install.enable = true;
-          };
-        };
-
-        languages.typescript.enable = true;
-
-        languages.ruby.enable = true;
 
         process.manager.args = {"theme"="One Dark";};
 
@@ -282,16 +251,6 @@
           #   '';
           # };
 
-          starship.enable = true;
-          starship.config = {
-            enable = true;
-            # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/default/starship.toml";
-            path = "${config.env.DEVENV_ROOT}/libs/configs/starship/gruvbox-rainbow/starship.toml";
-            # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/jetpack/starship.toml";
-            # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/pastel-powerline/starship.toml";
-            # path = "${config.env.DEVENV_ROOT}/libs/configs/starship/catppuccin-powerline/starship.toml";
-          };
-
           scripts.hello.exec = ''
             figlet  Hello from $GREET | lolcat
           '';
@@ -345,5 +304,54 @@
               # rustfmt.enable = true;
               # clippy.enable = true;
               actionlint.enable = true;
+            };
+
+            # devcontainer.enable = true;
+            # NOTE: Existing env variables set in devenv.nix will have priority.
+            dotenv = {
+              enable = true;
+              filename = [
+                ".env"
+                # ".env.development"
+                # ".env.production"
+              ];
+            };
+
+            env = {
+              GREET = "devenv";
+              #====================================================
+              #                      FLAGS
+              #====================================================
+              # SUPABASE=true; # Requires Docker
+              # SQLITE=true;
+              # ZELLIJ_AUTO_ATTACH=true;
+              # ZELLIJ_AUTO_EXIT=true;
+
+              #====================================================
+              #                    DATABASE
+              #====================================================
+              # PGDATA="$PWD/libs/db/data";
+              PG_COLOR="always";
+              DATABASE_URI="postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+              # DATABASE_URI="postgresql://[NAME]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres";
+              # S3_ACCESS_KEY_ID="";
+              # S3_SECRET_ACCESS_KEY="";
+              # S3_BUCKET="staging";
+              # S3_REGION="us-east-1";
+              # S3_ENDPOINT="https://[ID].supabase.co/storage/v1/s3";
+
+              #====================================================
+              #                      PORTS
+              #====================================================
+              WEB_SERVER_PORT="3000";
+              API_SERVER_PORT="5150";
+              UI_SERVER_PORT="6006";
+
+              #====================================================
+              #                      URLS
+              #====================================================
+              # BASE_URL="https://mfarabi.dev";
+              # LOCALHOST_STRING="http://localhost";
+              SUPABASE_STUDIO_URL = "$LOCALHOST_STRING:54323";
             };
 }

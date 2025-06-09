@@ -107,7 +107,7 @@
        direnv
        (docker +lsp)
        editorconfig      ; let someone else argue about tabs vs spaces
-       ein             ; tame Jupyter notebooks with emacs
+       ;; ein             ; tame Jupyter notebooks with emacs
        (eval +overlay)   ; run code, run (also, repls)
        lookup            ; navigate your code and its documentation
        (lsp +peek)       ; M-x vscode
@@ -116,7 +116,7 @@
        pass              ; password manager for nerds
        pdf               ; pdf enhancements
        ;; prodigy           ; FIXME managing external services & code builders
-       (terraform +lsp)  ; infrastructure as code
+       ;; (terraform +lsp)  ; infrastructure as code
        ;; tmux           ; an API for interacting with tmux
        tree-sitter       ; syntax and parsing, sitting in a tree...
        upload            ; map local to remote projects via ssh/ftp
@@ -151,16 +151,16 @@
        ;;fsharp          ; ML stands for Microsoft's Language
        ;;fstar           ; (dependent) types and (monadic) effects and Z3
        ;;gdscript        ; the language you waited for
-       (go +lsp
-           +tree-sitter) ; the hipster dialect
+       ;; (go +lsp
+       ;;     +tree-sitter) ; the hipster dialect
        (graphql +lsp)    ; Give queries a REST
        ;;(haskell +lsp)  ; a language that's lazier than I am
        ;;hy              ; readability of scheme w/ speed of python
        ;;idris           ; a language you can depend on
        (json +lsp        ; At least it ain't XML
              +tree-sitter)
-       (java +lsp        ; the poster child for carpal tunnel syndrome
-             +tree-sitter)
+       ;; (java +lsp        ; the poster child for carpal tunnel syndrome
+       ;;       +tree-sitter)
        (javascript +lsp  ; all(hope(abandon(ye(who(enter(here))))))
                    +tree-sitter)
        ;;julia           ; a better, faster MATLAB
@@ -217,7 +217,7 @@
            +lsp
            +tree-sitter)
        ;;sml
-       (solidity +lsp)    ; do you need a blockchain? No.
+       ;; (solidity +lsp)    ; do you need a blockchain? No.
        ;;swift            ; who asked for emoji variables?
        ;;terra            ; Earth and Moon in alignment for performance.
        (web +lsp

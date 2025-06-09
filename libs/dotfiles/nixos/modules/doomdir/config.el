@@ -51,6 +51,16 @@
   (setq dirvish-side-auto-close t)
   (setq dirvish-side-follow-mode t))
 
+(after! dirvish
+  (setq! dirvish-quick-access-entries
+         `(("h" "~/"                          "Home")
+           ("e" ,user-emacs-directory         "Emacs user directory")
+           ("w" "~/workspace/"                "Workspace")
+           ("d" "~/Downloads/"                "Downloads")
+           ("p" "~/Pictures/"                 "Pictures")
+           ("m" "/mnt/"                       "Mounted drives")
+           ("t" "~/.local/share/Trash/files/" "Trash"))))
+
 (menu-bar--display-line-numbers-mode-relative)
 (setq display-line-numbers-type 'relative)
 
@@ -280,6 +290,10 @@
 (add-hook 'doom-modeline-mode-hook #'nyan-mode)
 
 (after! vterm
+  (setq vterm-environment '("TERM=xterm-kitty"))
+  (setq vterm-term-environment-variable "xterm-kitty")
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
   (set-popup-rule! "*doom:vterm-popup:*" :size 0.5 :vslot -4 :select t :quit nil :ttl nil :side 'right)
   (add-hook 'vterm-mode-hook #'evil-normal-state)) ;; Start vterm in normal mode
 
