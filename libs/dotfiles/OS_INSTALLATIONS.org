@@ -1,6 +1,4 @@
-* System Setup and Installation Guide
-
-** Arch Linux Installation
+* Arch Linux
 
 *** Preparing the Live Environment
 
@@ -174,8 +172,7 @@ Exit =iwctl= by pressing =Ctrl+C=.
 
 ---
 
-
-** NixOS Installation
+* NixOS
 
 *** Flash NixOS ISO to USB
 
@@ -184,7 +181,7 @@ Exit =iwctl= by pressing =Ctrl+C=.
 
 2. Flash ISO:
     #+begin_src bash
-    sudo dd if=/path/to/nixos.iso of=/dev/sdX bs=4M status=progress conv=fdatasync
+    sudo dd if=/path/to/nixos.iso of=/dev/sdX status=progress conv=fdatasync
     #+end_src
 
 ---
@@ -232,6 +229,11 @@ Exit =iwctl= by pressing =Ctrl+C=.
     sudo nixos-rebuild switch --flake .
     #+end_src
 
+**** configuration.nix template
+  #+begin_src nix
+
+  #+end_src
+
 ---
 
 *** Additional Notes
@@ -246,3 +248,93 @@ Exit =iwctl= by pressing =Ctrl+C=.
     #+end_src
 
 ---
+
+* FreeBSD
+
+** Add user to video group
+#+begin_src bash
+pw groupmod video -m mfarabi
+groups mfarabi
+#+end_src
+
+** Install packages
+
+*** Core Hyprland
+#+begin_src bash
+pkg install hyprland hypridle hyprlock hyprpaper hyprpicker xdg-desktop-portal-hyprland mousepad kitty dolphin
+#+end_src
+
+*** GUI + Fonts & Theming
+#+begin_src bash
+pkg install fastfetch zellij cmatrix cowsay asciiquarium figlet lolcat nyancat nerd-fonts noto-emoji rgb-tui
+#+end_src
+
+#+begin_src bash
+sudo pkg install ripgrep-all coreutils fd ohmyzsh
+#+end_src
+
+#+begin_src bash
+sudo pkg install eza yazi zsh-autosuggestions zsh-fast-syntax-highlighting
+#+end_src
+
+#+begin_src bash
+eval "$(fzf --zsh)"; echo "source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh" > ~/.zshrc; echo "source /usr/local/share/zsh-fast-syntax-highlighting/zsh-fast-syntax-highlighting.zsh"
+#+end_src
+
+#+begin_src bash
+sudo git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+#+end_src
+Open ~/.zshrc, find the line that sets ZSH_THEME, and change its value to "powerlevel10k/powerlevel10k".
+
+*** Devtools
+#+begin_src bash
+pkg install vim neovim emacs btop git lazygit direnv bash zsh bat nix cmake vips docker docker-compose k9s
+#+end_src
+
+*** Extras
+#+begin_src bash
+pkg install nginx-full
+#+end_src
+
+
+** Start Hyprland (with seatd)
+#+begin_src bash
+seat-launch hyprland
+#+end_src
+
+*** Verify GPU (Intel)
+#+begin_src bash
+pciconf -lv | grep -B3 display
+#+end_src
+
+Example output:
+
+vgapci0@pci0:0:2:0: class=0x030000 card=...
+vendor = 'Intel Corporation'
+device = 'HD Graphics 620'
+
+*** Set up Intel GPU driver
+#+begin_src bash
+pkg install drm-kmod
+#+end_src
+
+#+begin_src bash
+sysrc kld_list+="i915kms"
+echo 'kern.vty=vt' | tee -a /boot/loader.conf
+#+end_src
+
+#+begin_src bash
+reboot
+#+end_src
+
+*** Verify DRM driver
+#+begin_src bash
+dmesg | grep drm
+ls /dev/dri
+#+end_src
+
+Expected:
+
+[drm] Initialized i915 ...
+/dev/dri/card0
+/dev/dri/renderD128
