@@ -13,6 +13,7 @@
       # pkgs.vscode - hydenix's vscode version
       # pkgs.userPkgs.vscode - your personal nixpkgs version
     ];
+
     file = {
       ".config/hypr/userprefs.conf" = lib.mkForce {
         text = ''
@@ -21,7 +22,7 @@
 
           input {
             touchpad {
-              natural_scroll = true
+            natural_scroll = true
             }
           }
 
@@ -42,19 +43,20 @@
   };
 
   programs = {
-  mu.enable = true;
-  nh.enable = true;
-  jq.enable = true;
-  java.enable = true;
-  texlive.enable = true;
-  tex-fmt.enable = true;
+    mu.enable = true;
+    nh.enable = true;
+    jq.enable = true;
+    java.enable = true;
+    texlive.enable = true;
+    tex-fmt.enable = true;
     vivaldi.enable = true;
-    yazi = {
-      enable = true;
-      enableZshIntegration = true;
-    };
+    bat.enable = true;
+    bun.enable = true;
     btop.enable = true;
     lazydocker.enable = true;
+    fd.enable = true;
+    ripgrep.enable = true;
+    superfile.enable = true;
     lazygit = {
       enable = true;
       settings = {
@@ -78,24 +80,19 @@
         promptToReturnFromSubprocess = true;
       };
     };
-    bat.enable = true;
     direnv.enable = true;
+    gh-dash.enable = true;
     gh = {
       enable = true;
       settings = {
         git_protocol = "https";
       };
     };
-    gh-dash.enable = true;
     k9s.enable = true;
-    bun.enable = true;
     kubecolor = {
       enable = true;
       enableAlias = true;
     };
-    fd.enable = true;
-    ripgrep.enable = true;
-    superfile.enable = true;
     zed-editor = {
       enable = true;
       userSettings = {
@@ -127,6 +124,10 @@
         "html" "toml" "dockerfile" "git-firefly" "nix" "vue" "sql" "ruby" "latex" "svelte" "lua" "docker-compose" "graphql" "csv" "basher" "nginx" "solidity" "unocss" "stylint"
       ];
     };
+    yazi = {
+      enable = true;
+      enableZshIntegration = true;
+    };
     zsh = {
       shellAliases = {
         cat = "bat";
@@ -137,33 +138,33 @@
       # enableZshIntegration = true;
       # attachExistingSession = true;
     };
-    pandoc.enable = true;
     doom-emacs = {
       enable = true;
       doomDir = ../doomdir;
       extraPackages = epkgs: [
-       epkgs.pdf-tools
-       epkgs.editorconfig
-       epkgs.shfmt
-       epkgs.nixfmt
-       epkgs.npm
-       epkgs.rustic
-       epkgs.lsp-java
-       epkgs.lsp-docker
-       epkgs.lsp-latex
-       epkgs.lsp-pyright
-       epkgs.lsp-tailwindcss
-       epkgs.lsp-treemacs
-       epkgs.lsp-haskell
-       epkgs.typescript-mode
-       epkgs.jtsx
-       epkgs.yaml
-       epkgs.xclip
-       epkgs.wttrin
-       epkgs.vue3-mode
+        epkgs.pdf-tools
+        epkgs.editorconfig
+        epkgs.shfmt
+        epkgs.nixfmt
+        epkgs.npm
+        epkgs.rustic
+        epkgs.lsp-java
+        epkgs.lsp-docker
+        epkgs.lsp-latex
+        epkgs.lsp-pyright
+        epkgs.lsp-tailwindcss
+        epkgs.lsp-treemacs
+        epkgs.lsp-haskell
+        epkgs.typescript-mode
+        epkgs.jtsx
+        epkgs.yaml
+        epkgs.xclip
+        epkgs.wttrin
+        epkgs.vue3-mode
       ];
       # provideEmacs = false;
     };
+    pandoc.enable = true;
   };
 
   services = {
@@ -188,9 +189,9 @@
       vim = true;
       default = "emacs"; # default text editor
     };
-    fastfetch.enable = true; # fastfetch configuration
+    fastfetch.enable = true;
     firefox = {
-      enable = true; # enable firefox module
+      enable = true;
       useHydeConfig = false; # use hyde firefox configuration and extensions
       useUserChrome = true; # if useHydeConfig is true, apply hyde userChrome CSS customizations
       useUserJs = true; # if useHydeConfig is true, apply hyde user.js preferences
@@ -198,21 +199,21 @@
     };
     git = {
       enable = true;
-      name = "Mumtahin Farabi"; # git user name eg "John Doe"
-      email = "mfarabi619@gmail.com"; # git user email eg "john.doe@example.com"
+      name = "Mumtahin Farabi";
+      email = "mfarabi619@gmail.com";
     };
-    hyde.enable = true; # enable hyde module
-    hyprland.enable = true; # enable hyprland module
+    hyde.enable = true;
+    hyprland.enable = true;
     lockscreen = {
-      enable = true; # enable lockscreen module
-      hyprlock = true; # enable hyprlock lockscreen
-      swaylock = false; # enable swaylock lockscreen
+      enable = true;
+      hyprlock = true;
+      swaylock = false;
     };
     notifications.enable = true;
     qt.enable = true;
     rofi.enable = true;
     screenshots = {
-      enable = true; # enable screenshots module
+      enable = true;
       grim.enable = true; # enable grim screenshot tool
       slurp.enable = true; # enable slurp region selection tool
       satty.enable = true; # enable satty screenshot annotation tool
@@ -226,7 +227,7 @@
       };
       bash.enable = false;
       fish.enable = false;
-      pokego.enable = false; # enable Pokemon ASCII art scripts
+      pokego.enable = false;
     };
     social = {
       enable = true;
