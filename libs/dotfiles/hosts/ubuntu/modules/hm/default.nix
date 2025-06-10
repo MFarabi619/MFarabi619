@@ -44,7 +44,7 @@ inputs.nix-doom-emacs-unstraightened.homeModule
       lolcat
       hollywood
       # ============= 🧑‍💻🐞‍ ================
-      pnpm
+      # pnpm
       devenv
       nix-inspect
       tgpt
@@ -78,11 +78,6 @@ inputs.nix-doom-emacs-unstraightened.homeModule
     #   };
     # };
 
-  environment.pathsToLink = [
-    "/share/zsh"
-    "/share/bash-completion"
-  ];
-
   programs = {
     home-manager.enable = true;
     neovim.enable = true;
@@ -109,6 +104,7 @@ inputs.nix-doom-emacs-unstraightened.homeModule
     };
     bat.enable = true;
     zsh = {
+      enable = true;
       autocd.enable = true;
       autosuggestion.enable = true;
       enableCompletion = true;
