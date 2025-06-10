@@ -4,6 +4,8 @@
 
 imports = [
 inputs.lazyvim.homeManagerModules.default
+inputs.nix-doom-emacs-unstraightened.homeModule
+../../../../modules/hm/doom-emacs.nix
 ../../../../modules/hm/git.nix
 ../../../../modules/hm/lazygit.nix
 ../../../../modules/hm/gh.nix
