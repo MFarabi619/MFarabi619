@@ -64,6 +64,13 @@
     texlive.enable = true;
     tex-fmt.enable = true;
     vivaldi.enable = true;
+    chromium = {
+     enable = true;
+     extensions = [
+       {id = "dldjpboieedgcmpkchcjcbijingjcgok";} # fuel wallet
+       {id = "gfbliohnnapiefjpjlpjnehglfpaknnc";} # surfingkeys
+     ];
+    };
     superfile.enable = true;
     mu.enable = true;
     nh.enable = true;
