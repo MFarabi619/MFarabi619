@@ -13,6 +13,9 @@ let
         userPkgs = import inputs.nixpkgs {
           config.allowUnfree = true;
         };
+
+         inherit (inputs.playwright-web-flake.packages.${inputs.hydenix.lib.system})
+        playwright-test playwright-driver;
       })
     ];
   };
@@ -43,7 +46,7 @@ in
     inputs.hydenix.inputs.nixos-hardware.nixosModules.common-pc-ssd
   ];
 
-  # nix.settings.trusted-users = [ "root" "mfarabi" ];
+  nix.settings.trusted-users = [ "root" "mfarabi" ];
 
   home-manager = {
     useGlobalPkgs = true;
@@ -125,14 +128,15 @@ in
       lolcat
       hollywood
       # ============= 🧑‍💻🐞‍ ================
+      pnpm
+      devenv
       nix-inspect
       tgpt
       kmon
       ugm
+      playwright-test
       lazyjournal
       lazysql
-      # playwright
-      # playwright-test
       pik
       netscanner
       systemctl-tui
@@ -142,6 +146,7 @@ in
 
   programs = {
     npm.enable = true;
+    nix-ld.enable = true; # for pnpm to install deps properly
     virt-manager.enable = true;
   };
 
@@ -172,6 +177,13 @@ in
       autoPrune.enable = true;
     };
     podman.enable = false;
+  };
+
+  environment = {
+   shellInit = ''
+    export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}"
+    export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    '';
   };
 
   system.stateVersion = "25.05";

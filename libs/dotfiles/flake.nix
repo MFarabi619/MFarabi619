@@ -17,8 +17,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-doom-emacs-unstraightened.url = "github:marienz/nix-doom-emacs-unstraightened";
-    nix-doom-emacs-unstraightened.inputs.nixpkgs.follows = "";
+    nix-doom-emacs-unstraightened = {
+       url = "github:marienz/nix-doom-emacs-unstraightened";
+       inputs.nixpkgs.follows = "";
+      };
+
+    playwright-web-flake.url = "github:pietdevries94/playwright-web-flake";
   };
 
   outputs =
