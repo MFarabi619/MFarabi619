@@ -53,7 +53,11 @@
     bun.enable = true;
     btop.enable = true;
     lazydocker.enable = true;
-    direnv.enable = true;
+    direnv = {
+      enable = true;
+      enableBashIntegration = true;
+      enableZshIntegration = true;
+    };
     fd.enable = true;
     ripgrep.enable = true;
     pandoc.enable = true;
