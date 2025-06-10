@@ -338,3 +338,17 @@ Expected:
 [drm] Initialized i915 ...
 /dev/dri/card0
 /dev/dri/renderD128
+
+* Ubuntu
+
+[[https://tech.aufomm.com/my-nix-journey-use-nix-with-ubuntu/]]
+
+
+#+begin_src sh
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+#+end_src
+
+
+#+begin_src sh
+cd ~MFarabi619/libs/dotfiles/hosts/ubuntu; git add .; nix run nixpkgs#home-manager -- switch --flake ./#$USER
+#+end_src
