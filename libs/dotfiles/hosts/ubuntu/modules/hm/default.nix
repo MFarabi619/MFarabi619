@@ -78,6 +78,11 @@ inputs.nix-doom-emacs-unstraightened.homeModule
     #   };
     # };
 
+  environment.pathsToLink = [
+    "/share/zsh"
+    "/share/bash-completion"
+  ];
+
   programs = {
     home-manager.enable = true;
     neovim.enable = true;
