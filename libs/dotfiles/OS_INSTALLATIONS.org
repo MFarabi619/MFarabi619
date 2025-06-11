@@ -352,3 +352,7 @@ curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix 
 #+begin_src sh
 cd ~MFarabi619/libs/dotfiles/hosts/ubuntu; git add .; nix run nixpkgs#home-manager -- switch --flake ./#$USER
 #+end_src
+
+* macOS Silicon
+
+[[https://docs.determinate.systems/getting-started/organizations][Adopt Determinate in your organization]]
