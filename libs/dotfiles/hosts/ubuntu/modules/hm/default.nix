@@ -105,7 +105,7 @@ inputs.nix-doom-emacs-unstraightened.homeModule
     bat.enable = true;
     zsh = {
       enable = true;
-      autocd.enable = true;
+      autocd = true;
       autosuggestion.enable = true;
       enableCompletion = true;
       oh-my-zsh = {
