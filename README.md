@@ -1,6 +1,6 @@
 <!-- markdownlint-disable -->
 <div align="center">
-  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/libs/assets/cover.png" style="width:100%"/>
+  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/workspace/libs/assets/cover.png" style="width:100%"/>
 </div>
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
@@ -22,8 +22,8 @@
         <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=outrun&border_color=ffee00&bg_color=000"/>
       </td>
       <td>
-        <a href="https://leetcode.com/MFarabi619/">
-          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=chartreuse&ext=heatmap"/>
+        <a href="https://leetcode.com/MFarabi619">
+          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=chartreuse&ext=heatmap" />
         </a>
       </td>
     </tr>
@@ -491,7 +491,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 ## 🛠 Current Setup
 
 <strong><a href="https://archlinux.org/">Arch Linux</a> - Migrating to <a href="https://nixos.org">NixOS</a> <a href="https://nixos.org">
-  <img src="libs/assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
+  <img src="workspace/libs/assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
 </a> </strong>
 
 
@@ -711,7 +711,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 ### [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) + Gear Shifting
 
-![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/ferris-sweep/keymap.svg)
+![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/keyboards/ferris-sweep/keymap.svg)
 
 #### Previously on [Piantor](https://github.com/beekeeb/piantor)
 
@@ -725,11 +725,11 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 |||
 |-|-|
-| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
+| ![Piantor Split Keyboard with Luna in front of Framework Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 
-![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/libs/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
+![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/libs/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
 
 </details>
 
@@ -839,6 +839,6 @@ Got a suggestion? Add it to the list :)
   <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="getrickrolled" height="30" width="40" />
 </a>
 
---
+---
 
-README generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
+README generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖

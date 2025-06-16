@@ -1,7 +1,7 @@
 ## 🛠 Current Setup
 
 <strong><a href="https://archlinux.org/">Arch Linux</a> - Migrating to <a href="https://nixos.org">NixOS</a> <a href="https://nixos.org">
-  <img src="libs/assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
+  <img src="workspace/libs/assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
 </a> </strong>
 
 
@@ -221,7 +221,7 @@
 
 ### [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) + Gear Shifting
 
-![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/ferris-sweep/keymap.svg)
+![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/keyboards/ferris-sweep/keymap.svg)
 
 #### Previously on [Piantor](https://github.com/beekeeb/piantor)
 
@@ -235,7 +235,7 @@
 
 |||
 |-|-|
-| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/libs/dotfiles/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
+| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 
