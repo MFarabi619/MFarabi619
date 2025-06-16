@@ -53,7 +53,7 @@ pkg update && pkg upgrade
 #+end_src
 
 #+begin_src bash
-pkg install git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij coreutils markdown nerd-fonts noto-emoji npm vips docker docker-compose k9s
+pkg install git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown nerd-fonts noto-emoji npm vips docker docker-compose k9s
 #+end_src
 
 #+begin_src bash
@@ -102,7 +102,7 @@ source ~/.zshrc
 *** Set up editors
 
 #+begin_src bash
-pkg install neovim py311-pynvim emacs-devel cmake aspell en-aspell aspell-ispell
+pkg install neovim py311-pynvim emacs-devel ffmpegthumbnailer coreutils cmake poppler 7-zip aspell en-aspell aspell-ispell
 #+end_src
 
 [[https://www.lazyvim.org/installation][Lazyvim]]
