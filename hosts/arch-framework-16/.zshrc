@@ -36,7 +36,7 @@ function command_not_found_handler {
     return 127
 }
 
-# Detect the AUR wrapper
+# Detect AUR wrapper
 if pacman -Qi yay &>/dev/null ; then
    aurhelper="yay"
 elif pacman -Qi paru &>/dev/null ; then
@@ -65,8 +65,7 @@ function in {
     fi
 }
 
-# Helpful aliases
-alias  c='clear' # clear terminal
+alias  c='clear'
 alias  l='eza -lh  --icons=auto' # long list
 alias ls='eza -1   --icons=auto' # short list
 alias ll='eza -lha --icons=auto --sort=name --group-directories-first' # long list all
@@ -81,32 +80,23 @@ alias po='$aurhelper -Qtdq | $aurhelper -Rns -' # remove unused packages, also t
 alias vc='code' # gui code editor
 alias cat='bat'
 
-# Handy change dir shortcuts
 alias ..='cd ..'
 alias ...='cd ../..'
 alias .3='cd ../../..'
 alias .4='cd ../../../..'
 alias .5='cd ../../../../..'
 
-# Always mkdir a path (this doesn't inhibit functionality to make a single dir)
+# always mkdir a path (doesn't inhibit functionality to make a single dir)
 alias mkdir='mkdir -p'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# Display Pokemon
-# pokemon-colorscripts --no-title -r 1,3,6
-
-# Display fastfetch
-# fastfetch
-
-# pnpm
 export PNPM_HOME="/home/mfarabi/.local/share/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-# pnpm end
 
 # shell wrapper that provides the ability to change the current working directory when exiting Yazi
 function yy() {
