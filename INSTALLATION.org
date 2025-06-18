@@ -53,11 +53,23 @@ pkg update && pkg upgrade
 #+end_src
 
 #+begin_src bash
-pkg install git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown nerd-fonts noto-emoji npm vips docker docker-compose k9s
+pkg install git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown jetbrains-mono nerd-fonts noto-emoji npm vips docker docker-compose k9s
+#+end_src
+
+#+begin_src bash
+fc-cache -fv
+#+end_src
+
+#+begin_src bash
+curl -fsSL https://git.io/shellspec | sh
 #+end_src
 
 #+begin_src bash
 pkg install tree eza fd fzf ripgrep ripgrep-all
+#+end_src
+
+#+begin_src bash
+pkg install s-tui stress smartmontools gnupg symon sysmon nifmon batmon
 #+end_src
 
 #+begin_src bash
@@ -150,9 +162,20 @@ pkg install drm-kmod # Intel
 
 3. Add to =/etc/rc.conf=
 #+begin_src
+# ========= SERVICES/DAEMONS ===========
 seatd_enable="YES"
+moused_enable="YES" # mouse
+sshd_enable="YES"   # ssh
 dbus_enable="YES"
-kld_list="i915kms"
+smartd_enable="YES" # disk
+
+# ========== KERNEL MODULES ============
+kld_list="i915kms"  # kernel loadable modules - graphics
+#+end_src
+
+5. Modify in =/etc/ssh/sshd_config=
+#+begin_src bash
+PubkeyAuthentication yes
 #+end_src
 
 4. Add to =/boot/loader.conf=
