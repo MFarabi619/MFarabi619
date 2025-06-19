@@ -53,7 +53,7 @@ pkg update && pkg upgrade
 #+end_src
 
 #+begin_src bash
-pkg install git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown jetbrains-mono nerd-fonts noto-emoji npm vips docker docker-compose k9s
+pkg install yazi git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown jetbrains-mono nerd-fonts noto-emoji npm vips docker docker-compose k9s
 #+end_src
 
 #+begin_src bash
@@ -65,7 +65,7 @@ curl -fsSL https://git.io/shellspec | sh
 #+end_src
 
 #+begin_src bash
-pkg install tree eza fd fzf ripgrep ripgrep-all
+pkg install tree eza fzf ripgrep ripgrep-all
 #+end_src
 
 #+begin_src bash
@@ -111,6 +111,10 @@ Source =~/.zshrc=:
 source ~/.zshrc
 #+end_src
 
+#+begin_src bash
+/home/mfarabi/.local/lib/shellspec/bin/shellspec . --format documentation
+#+end_src
+
 *** Set up editors
 
 #+begin_src bash
@@ -131,7 +135,7 @@ git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs; ~/.c
 
 1. Install packages
 #+begin_src bash
-pkg install dbus xdg-desktop-portal hyprland qt6-wayland xdg-desktop-portal-hyprland hypridle hyprlock hyprpaper hyprpicker imlib2-jxl kf5-kimageformacs gimp-jxl-plugin mousepad kitty dolphin pavucontrol wl-clipboard waybar swaylock-effects yt-dlp grim slurp nsxiv pamixer unzip icu
+pkg install dbus xdg-desktop-portal wayland xwayland hyprland qt6-wayland xdg-desktop-portal-hyprland hypridle hyprlock hyprpaper hyprpicker imlib2-jxl kf5-kimageformacs gimp-jxl-plugin mousepad kitty dolphin pavucontrol wl-clipboard rofi waybar wlogout swaylock-effects cava nwg-look byobu kvantum yt-dlp grim slurp nsxiv pamixer unzip icu
 #+end_src
 
 2. Add user to =video= group
@@ -163,17 +167,22 @@ pkg install drm-kmod # Intel
 3. Add to =/etc/rc.conf=
 #+begin_src
 # ========= SERVICES/DAEMONS ===========
-seatd_enable="YES"
+seatd_enable="YES"  # let non-root graphics car users manage access to shared system devices
 moused_enable="YES" # mouse
 sshd_enable="YES"   # ssh
-dbus_enable="YES"
+dbus_enable="YES"   # message bus and hardware abstraction
 smartd_enable="YES" # disk
+sddm_enable="YES"
 
 # ========== KERNEL MODULES ============
 kld_list="i915kms"  # kernel loadable modules - graphics
+
+# ========== MESSAGES BUFFER ============
+net.local.stream.recvspace=65536
+net.local.stream.sendspace=65536
 #+end_src
 
-5. Modify in =/etc/ssh/sshd_config=
+1. Modify in =/etc/ssh/sshd_config=
 #+begin_src bash
 PubkeyAuthentication yes
 #+end_src

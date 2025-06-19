@@ -405,7 +405,7 @@
    '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))
    ))
 
-(setq fancy-splash-image "~/MFarabi619/libs/dotfiles/modules/doom/doom-emacs-color2.svg") ;; Custom banner
+(setq fancy-splash-image "~/MFarabi619/modules/doom/doom-emacs-color2.svg") ;; Custom banner
 (defun my-custom-dashboard-text ()
   "Insert custom text into the Doom dashboard."
   (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n"))
