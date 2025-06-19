@@ -262,6 +262,25 @@ Your SDL library has been built with libvgl support, which means that you
 Message from pwcview-1.4.1_9:
 #+end_src
 
+#+begin_src bash
+sudo pkg install ly
+#+end_src
+
+#+begin_src bash
+Add the following entry to /etc/gettytab:
+
+Ly:\
+	:lo=/usr/local/bin/ly:\
+	:al=root:
+
+Modify the command field of the ttyv1 terminal entry in /etc/ttys
+
+ttyv1   "/usr/libexec/getty Ly"     xterm onifexists secure
+
+Make sure that "tty" is set appropriately in the /usr/local/etc/ly/config.ini file if
+you decide to configure a different TTY for Ly instead.
+#+end_src
+
 **** Set up GPU
 
 1. Verify display device
