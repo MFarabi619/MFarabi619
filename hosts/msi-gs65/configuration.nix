@@ -7,7 +7,7 @@
 {
   imports =
     [ 
-    ./hardware-configuration.nix
+    ../../hardware-configuration/msi-gs65.nix
     ];
 
     boot = {
