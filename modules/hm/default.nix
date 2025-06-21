@@ -140,7 +140,9 @@
       bash.enable = false;
       zsh = {
         enable = true;
-        configText = "";
+        configText = ''
+        [[ ! -f ~/MFarabi619/.p10k.zsh ]] || source ~/MFarabi619/.p10k.zsh
+        '';
       };
     };
     social = {
