@@ -160,14 +160,14 @@ in
       writeable = true;
       port = 7681;
     };
-    github-runners = {
-      nixos = {
-        enable = true;
-        nodeRuntimes = "node22";
-        url = "https://github.com/mira-amm/mira-amm-web";
-        tokenFile = ./.runner.token;
-      };
-    };
+#     github-runners = {
+#       nixos = {
+#         enable = true;
+#         nodeRuntimes = "node22";
+#         url = "https://github.com/mira-amm/mira-amm-web";
+#         tokenFile = ./.runner.token;
+#       };
+#     };
   };
 
   virtualisation = {
