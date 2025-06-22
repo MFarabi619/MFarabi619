@@ -140,9 +140,15 @@ git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs; ~/.c
 
 - Switch to root user then visudo.
 
+wheel NOPASSWD all
+
+sudo pkg install dbus xdg-desktop-portal wayland xwayland hyprland qt6-wayland xdg-desktop-portal-hyprland hyprland-qt-support hyprland-qtutils nwg-dock-hyprland hyprgraphics hyprlang hyprutils hyprwayland-scanner hyprsunset hypridle hyprlock hyprpaper hyprpicker imlib2-jxl gimp-jxl-plugin mousepad kitty dolphin pavucontrol wl-clipboard rofi waybar wlogout swaylock-effects wifimgr cava nwg-look byobu kvantum nsxiv pamixer pa-applet wmwifi sddm sddm-freebsd-black-theme wayland wayland-logout wayland-protocols wayland-utils xwayland xwayland-run xwayland-satellite xwaylandvideobridge aimage qimageblitz qt6-imageformats xloadimage terminal-image-viewer bsd-splash-changer bsdebfetch bsdinfo bsdsensors pwcbsd wmbsdbatt openconnect-freebsd-daemon viewglob sysctlview webcamd pwcview fontpreview epdfview glcapsviewer xdg-terminal-exec swww pango cairo pipewire
+
+grim slurp
+
 2. Install packages
 #+begin_src bash
-pkg install dbus xdg-desktop-portal wayland xwayland hyprland qt6-wayland xdg-desktop-portal-hyprland hyprland-qt-support hyprland-qtutils nwg-dock-hyprland hyprgraphics hyprlang hyprutils hyprwayland-scanner hyprsunset hypridle hyprlock hyprpaper hyprpicker imlib2-jxl gimp-jxl-plugin mousepad kitty dolphin pavucontrol wl-clipboard rofi waybar wlogout swaylock-effects wifimgr cava nwg-look byobu kvantum yt-dlp grim slurp nsxiv pamixer unzip icu pa-applet wmwifi sniffnet libvirt libvirt-dbus virtboard virt-manager virt-viewer pkg_tree sddm sddm-freebsd-black-theme wayland wayland-logout wayland-protocols wayland-utils xwayland xwayland-run xwayland-satellite xwaylandvideobridge vlc texlive-full diskimage-tools aimage qimageblitz qt6-imageformats xloadimage terminal-image-viewer bsd-splash-changer bsdebfetch bsdinfo bsdsensors pwcbsd wmbsdbatt openconnect-freebsd-daemon viewglob sysctlview webcamd pwcview fontpreview epdfview glcapsviewer xdg-terminal-exec kubectl minikube masscan caddy ezjail swww pango cairo gstreamer1 openscad-devel libudisks pipewire wireplumber security/portacl-rc virtualbox-ose qt5-sqldrivers-mysql qt5-sqldrivers-odbc qt5-sqldrivers-pgsql qt5-sqldrivers-sqlite2 qt5-sqldrivers-sqlite3 qt5-sqldrivers-tds netpbm
+pkg install yt-dlp  unzip icu  sniffnet libvirt libvirt-dbus virtboard virt-manager virt-viewer pkg_tree  vlc texlive-full diskimage-tools  kubectl minikube masscan caddy ezjail  gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc virtualbox-ose qt5-sqldrivers-mysql qt5-sqldrivers-odbc qt5-sqldrivers-pgsql qt5-sqldrivers-sqlite2 qt5-sqldrivers-sqlite3 qt5-sqldrivers-tds netpbm
 #+end_src
 
 #+begin_src
