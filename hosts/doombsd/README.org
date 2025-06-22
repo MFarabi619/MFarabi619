@@ -1,0 +1,339 @@
+Work in Progress.
+
+=man tuning=
+
+*** Connect to network
+
+=bsdconfig= or =dhclient ue0=
+
+*** Enable =sudo=
+
+*** Set up shell
+#+begin_src bash
+pkg update && pkg upgrade
+#+end_src
+
+#+begin_src bash
+pkg install yazi git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown markdownfmt jetbrains-mono nerd-fonts noto-emoji npm vips docker docker-compose k9s
+#+end_src
+
+#+begin_src bash
+fc-cache -fv
+#+end_src
+
+#+begin_src bash
+curl -fsSL https://git.io/shellspec | sh
+#+end_src
+
+#+begin_src bash
+pkg install tree eza fzf ripgrep ripgrep-all
+#+end_src
+
+#+begin_src bash
+pkg install s-tui stress smartmontools gnupg symon sysmon nifmon batmon
+#+end_src
+
+#+begin_src bash
+pkg install procs btop fastfetch cmatrix cowsay asciiquarium figlet lolcat nyancat rgb-tui
+#+end_src
+
+[[https://ohmyz.sh/][Oh My Zsh]]
+#+begin_src bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+#+end_src
+
+[[https://github.com/romkatv/powerlevel10k][PowerLevel10K]]
+#+begin_src bash
+git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
+#+end_src
+
+[[https://github.com/zsh-users/zsh-autosuggestions][zsh-autosuggestions]]
+#+begin_src bash
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+#+end_src
+
+[[https://github.com/zsh-users/zsh-syntax-highlighting][zsh-syntax-highlighting]]
+#+begin_src bash
+git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+#+end_src
+
+Edit =ZSH_THEME= in =~/.zshrc=
+#+begin_src bash
+ZSH_THEME="powerlevel10k/powerlevel10k"
+#+end_src
+
+Add plugins to =~/.zshrc=.
+#+begin_src bash
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting web-search)
+#+end_src
+
+Source =~/.zshrc=:
+#+begin_src bash
+source ~/.zshrc
+#+end_src
+
+#+begin_src bash
+/home/mfarabi/.local/lib/shellspec/bin/shellspec . --format documentation
+#+end_src
+
+*** Set up editors
+
+#+begin_src bash
+pkg install neovim py311-pynvim emacs-devel ffmpegthumbnailer coreutils cmake poppler 7-zip aspell en-aspell aspell-ispell
+#+end_src
+
+[[https://www.lazyvim.org/installation][Lazyvim]]
+#+begin_src bash
+git clone https://github.com/LazyVim/starter ~/.config/nvim; rm -rf ~/.config/nvim/.git;
+#+end_src
+
+[[https://github.com/doomemacs/doomemacs?tab=readme-ov-file#install][Doom Emacs]]
+#+begin_src bash
+git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs; ~/.config/emacs/bin/doom install;
+#+end_src
+
+*** Set up Hyprland
+
+1. Add user to =video= group
+  #+begin_src bash
+  pw groupmod video -m mfarabi; groups mfarabi;
+  #+end_src
+
+- Switch to root user then visudo.
+
+wheel NOPASSWD all
+
+sudo pkg install dbus xdg-desktop-portal wayland xwayland hyprland qt6-wayland xdg-desktop-portal-hyprland hyprland-qt-support hyprland-qtutils nwg-dock-hyprland hyprgraphics hyprlang hyprutils hyprwayland-scanner hyprsunset hypridle hyprlock hyprpaper hyprpicker imlib2-jxl gimp-jxl-plugin mousepad kitty dolphin pavucontrol wl-clipboard rofi waybar wlogout swaylock-effects wifimgr cava nwg-look byobu kvantum nsxiv pamixer pa-applet wmwifi sddm sddm-freebsd-black-theme wayland wayland-logout wayland-protocols wayland-utils xwayland xwayland-run xwayland-satellite xwaylandvideobridge aimage qimageblitz qt6-imageformats xloadimage terminal-image-viewer bsd-splash-changer bsdebfetch bsdinfo bsdsensors pwcbsd wmbsdbatt openconnect-freebsd-daemon viewglob sysctlview webcamd pwcview fontpreview epdfview glcapsviewer xdg-terminal-exec swww pango cairo pipewire
+
+grim slurp
+
+2. Install packages
+#+begin_src bash
+pkg install yt-dlp  unzip icu  sniffnet libvirt libvirt-dbus virtboard virt-manager virt-viewer pkg_tree vlc texlive-full diskimage-tools kubectl minikube masscan caddy ezjail  gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc virtualbox-ose qt5-sqldrivers-mysql qt5-sqldrivers-odbc qt5-sqldrivers-pgsql qt5-sqldrivers-sqlite2 qt5-sqldrivers-sqlite3 qt5-sqldrivers-tds netpbm
+#+end_src
+
+#+begin_src
+--
+To enable libvirtd please add libvirtd_enable="YES" to
+/etc/rc.conf.
+
+NOTE ON CONFIGURATION:
+
+The libvirt port does not come with networking configuration enabled.
+The 'default' network definition is available at:
+
+  /usr/local/share/examples/libvirt/networks/default.xml
+
+To enable this network please do the following:
+
+  cp /usr/local/share/examples/libvirt/networks/default.xml /usr/local/etc/libvirt/qemu/networks
+
+To configure this network for autostart, execute the following:
+
+  ln -s ../default.xml /usr/local/etc/libvirt/qemu/networks/autostart/default.xml
+
+If you have libvirtd already running you'll need to restart it for changes
+to take effect.
+#+end_src
+
+#+begin_src bash
+ sudo cp /usr/local/share/examples/libvirt/networks/default.xml /usr/local/etc/libvirt/qemu/networks
+#+end_src
+
+#+begin_src bash
+sudo ln -s ../default.xml /usr/local/etc/libvirt/qemu/networks/autostart/default.xml
+#+end_src
+
+#+begin_src
+Message from sddm-freebsd-black-theme-1.3:
+
+--
+To enable this theme edit:
+
+ /usr/local/etc/sddm.conf
+
+ This theme use the x11-fonts/montserrat font by default. However, it
+ can be changed to any desired font editing:
+
+ /usr/local/share/sddm/themes/sddm-freebsd-black-theme/theme.conf
+--
+===>   NOTICE:
+
+The sddm-freebsd-black-theme port currently does not have a maintainer. As a result, it is
+more likely to have unresolved issues, not be up-to-date, or even be removed in
+the future. To volunteer to maintain this port, please create an issue at:
+
+https://bugs.freebsd.org/bugzilla
+
+More information about port maintainership is available at:
+
+https://docs.freebsd.org/en/articles/contributing/#ports-contributing
+=====
+Message from sddm-0.21.0.36_1:
+
+--
+SDDM lists a "user session" which needs either an .xinitrc in the user's
+home directory, or as a fallback, xterm. In order to use the "user session"
+feature, a ~/.xinitrc is recommended.
+#+end_src
+
+#+begin_src bash
+sudo pw groupmod vboxusers -m mfarabi;
+sudo pw groupmod operator -m mfarabi;
+#+end_src
+
+Add the following to =/etc/devfs.rules= (create if it doesn't exist):
+#+begin_src bash
+[system=10]
+add path 'usb/*' mode 0660 group operator
+#+end_src
+
+Add the following lines in =/etc/fstab=:
+
+#+begin_src bash
+fdesc	/dev/fd		fdescfs		rw	0	0
+proc	/proc		procfs		rw	0	0
+#+end_src
+
+#+begin_src bash
+sudo pkg install arduino
+#+end_src
+#+begin_src
+To allow serial port locking, add your user to the dialer group:
+    pw groupmod dialer -m mfarabi
+    User settings are in ~/.arduino/preferences.txt.  Edit the file
+when the IDE is not running.
+
+Setting the launcher for help files:
+    launcher=firefox
+
+Showing what the IDE is doing for build and upload commands (only
+visible if you started the IDE from a console):
+    build.verbose=true
+    upload.verbose=true
+
+To start the IDE:
+    /usr/local/bin/arduino
+#+end_src
+
+
+#+begin_src bash
+--
+Your SDL library has been built with libvgl support, which means that you
+ can run almost any SDL application straight on your console (VESA 2.0
+ compatible videocard is required).
+
+ To do this you have to load the vesa kernel module or enable it in your
+ kernel, and set environment variable "SDL_VIDEODRIVER=vgl".
+=====
+Message from pwcview-1.4.1_9:
+#+end_src
+
+#+begin_src bash
+sudo pkg install ly
+#+end_src
+
+#+begin_src bash
+Add the following entry to /etc/gettytab:
+
+Ly:\
+	:lo=/usr/local/bin/ly:\
+	:al=root:
+
+Modify the command field of the ttyv1 terminal entry in /etc/ttys
+
+ttyv1   "/usr/libexec/getty Ly"     xterm onifexists secure
+
+Make sure that "tty" is set appropriately in the /usr/local/etc/ly/config.ini file if
+you decide to configure a different TTY for Ly instead.
+#+end_src
+
+**** Set up GPU
+
+1. Verify display device
+  #+begin_src bash
+  pciconf -lv | grep -B3 display
+  #+end_src
+
+  #+begin_src
+  # Example output
+  vgapci0@pci0:0:2:0: class=0x030000 card=...
+  vendor = 'Intel Corporation'
+  device = 'HD Graphics 620'
+  #+end_src
+
+2. Install graphics driver
+#+begin_src bash
+pkg install drm-kmod # Intel
+#+end_src
+
+3. Add to =/etc/rc.conf=
+#+begin_src
+# ========= SERVICES/DAEMONS ===========
+seatd_enable="YES"    # let non-root graphics car users manage access to shared system devices
+moused_enable="YES"   # mouse
+sshd_enable="YES"     # ssh
+dbus_enable="YES"     # message bus and hardware abstraction
+smartd_enable="YES"   # disk
+sddm_enable="YES"     # login manager
+libvirtd_enable="YES" # virtualization
+
+# ========== KERNEL MODULES ============
+kld_list="i915kms"  # kernel loadable modules - graphics
+
+# ========== MESSAGES BUFFER ============
+# net.local.stream.recvspace=65536
+# net.local.stream.sendspace=65536
+#+end_src
+
+1. Modify in =/etc/ssh/sshd_config=
+#+begin_src bash
+PubkeyAuthentication yes
+#+end_src
+
+4. Add to =/boot/loader.conf=
+#+begin_src bash
+kern.vty=vt
+#+end_src
+
+5. Reboot system
+#+begin_src bash
+reboot
+#+end_src
+
+6. Verify DRM driver
+#+begin_src bash
+dmesg | grep drm; ls /dev/dri;
+#+end_src
+
+Expected:
+#+begin_src
+[drm] Initialized i915 ...
+/dev/dri/card0
+/dev/dri/renderD128
+#+end_src
+
+7. Start Hyprland
+#+begin_src bash
+# seatd-launch hyprland
+hyprland
+#+end_src
+
+
+***** Resources:
+- [[https://github.com/wisonye/freebsd-handbook/blob/master/chapters/install-hyprland.org][wisonye's Personal FreeBSD Handbook - Install Hyprland]]
+- [[https://lemmy.world/post/1685763][Lenny Mackners - Run Hyprland on FreeBSD]]
+- [[https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=283123][i915kms regression issue]]
+
+
+*** Attributions
+
+DoomBSD borrows HEAVILY from the following projects:
+
+- [[https://github.com/HyDE-Project/HyDE][HyDE]]
+- [[https://github.com/doomemacs/doomemacs][Doom Emacs - Henrik Lissner]]
+  - Reading the *Introduction* was a memorable experience and instantly had me hooked
+  - DoomBSD is named in reference to this project and its philosophies
+- [[https://gitlab.com/Zaney/zaneyos][ZaneyOS - Tyler Kelley]]
+  - Incredibly well-structured NixOS modules and a shining example of good codebase architecture that's easily navigable
+- [[https://www.lazyvim.org][LazyVim]]

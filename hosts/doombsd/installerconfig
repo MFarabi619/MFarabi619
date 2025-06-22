@@ -1,0 +1,13 @@
+     DISTRIBUTIONS="kernel.txz base.txz"
+         export ZFSBOOT_POOL_NAME="zroot"
+	     export ZFSBOOT_VDEV_TYPE=stripe
+	     # export ZFSBOOT_DISKS="ada0"
+	     # export nonInteractive="YES"
+         export ZFSBOOT_FORCE_4K_SECTORS=1
+         export ZFSBOOT_SWAP_SIZE="2g"
+         export ZFSBOOT_CONFIRM_LAYOUT=1
+
+	     #!/bin/sh
+	     echo "ifconfig_DEFAULT=DHCP" >> /etc/rc.conf
+	     echo "sshd_enable=YES" >> /etc/rc.conf
+#	     pkg install puppet

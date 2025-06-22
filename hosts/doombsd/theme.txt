@@ -1,0 +1,77 @@
+# DoomBSD bsddialog theme
+# Aesthetic: Hell-red screen, black dialog boxes, white text, green highlights
+
+# Colors: black red green yellow blue magenta cyan white.
+# Attributes: bold reverse underline blink halfbright highlight.
+# `f_*` refers to focused/selected state
+
+version 1.0.4
+
+# TERMINAL BACKGROUND AND TEXT
+theme.screen.color black red
+
+# SHADOW
+theme.shadow.color black black
+theme.shadow.y 1
+theme.shadow.x 2
+
+# DIALOG
+theme.dialog.color white black
+
+theme.dialog.delimtitle true
+theme.dialog.titlecolor red black
+theme.dialog.bottomtitlecolor white black
+
+theme.dialog.lineraisecolor red black
+theme.dialog.linelowercolor red black
+
+theme.dialog.arrowcolor black red
+
+# MENU
+theme.menu.f_selectorcolor red black
+theme.menu.selectorcolor white black
+
+theme.menu.f_prefixcolor black black
+theme.menu.prefixcolor black black
+
+theme.menu.f_namecolor red black
+theme.menu.namecolor white black
+
+theme.menu.f_desccolor red black
+theme.menu.desccolor white black
+
+theme.menu.f_shortcutcolor red black
+theme.menu.shortcutcolor white black
+
+theme.menu.bottomdesccolor black red
+
+# CHECKLIST SEPARATORS (if used)
+theme.menu.sepnamecolor red white
+theme.menu.sepdesccolor red white
+
+# INPUT FORMS
+theme.form.f_fieldcolor white red bold
+theme.form.fieldcolor white red bold
+
+theme.form.readonlycolor red white bold
+theme.form.bottomdesccolor white red
+
+# PROGRESS BARS, RANGE SLIDERS, ETC.
+theme.bar.f_color white red bold
+theme.bar.color red white bold
+
+# BUTTONS
+theme.button.minmargin 1
+theme.button.maxmargin 5
+
+theme.button.leftdelim [
+theme.button.rightdelim ]
+
+theme.button.f_delimcolor black red
+theme.button.delimcolor white black
+
+theme.button.f_color black red
+theme.button.color white black
+
+theme.button.f_shortcutcolor black red
+theme.button.shortcutcolor white black

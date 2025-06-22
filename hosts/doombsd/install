@@ -1,0 +1,182 @@
+#!/bin/sh
+#-
+# Copyright (c) 2025 Mumtahin Farabi
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted under the conditions stated below.
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above notice,
+#    this list of conditions, and the following disclaimer in the
+#    documentation and/or other materials.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+# IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DAMAGES ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE.
+#
+# $FreeBSD$
+
+export BSDDIALOG_THEMEFILE="./theme.txt"
+
+while :; do
+  bsddialog --backtitle " DoomBSD Catacombs" \
+    --title "󰇺 Main Menu" \
+    --ok-label "PROCEED" \
+    --cancel-label "RETREAT" \
+    --no-label "FLEE" \
+    --help-button \
+    --help-label "HELP" \
+    --hline "• ←→ move • ⇥ TAB • ⏎ ENTER •" \
+    --item-help \
+    --menu "Welcome traveller, you have come not seeking peace... but madness, mayhem, and the cursed power of the Void.
+
+Be warned: this path leads only to insane efficiency, terminal sorcery, exceptional UNIX grokking, and ultimate aesthetic overfunction.
+
+Begin the Rite of Configuration, ONLY IF YOU DARE!" \
+    0 0 8 \
+    "D" " The Summoning Ritual" "Tweak existing packages used by DoomBSD." \
+    "X" "󰏗 Extras" "Experimental features not meant for mortals. You are already who you must become." \
+    "L" " Lore" "Credits, inspirations, and heresies." \
+    "?" " Seek Help" "Links to guides, or whatever remains of them." \
+    "H" "󰊢 Health" "Check your temperature, fan the flames." \
+    2>/tmp/menuitem.$$
+
+  code=$?
+  menuitem=$(cat /tmp/menuitem.$$)
+  rm -f /tmp/menuitem.$$
+
+  # Handle dialog exit codes
+  case $code in
+  0) ;; # Proceed
+  1)
+    bsddialog --msgbox "Cowardice detected. Fleeing the void..." 6 50
+    exit 1
+    ;;
+  3)
+    bsddialog --msgbox "You take a moment to collect yourself... but the ritual remains unfinished." 6 50
+    continue
+    ;;
+  *)
+    bsddialog --msgbox "Unknown signal. The abyss stirs..." 6 50
+    continue
+    ;;
+  esac
+
+  case "$menuitem" in
+  D)
+    OUTFILE=$(mktemp)
+    bsddialog --title " The Summoning Ritual" \
+      --backtitle "DoomBSD Catacombs" \
+      --hline "• ←→ move • ⇥ TAB • ⏎ ENTER •" \
+      --checklist "Here in the chamber, unseen daemons stir beneath the surface... shaping the destiny of your system." 0 0 18 \
+      "ui" "" off \
+      "hyprland (HyDE)" "" off \
+      "dbus" "" off \
+      "xdg-desktop-portal" "" off \
+      "wayland" "" off \
+      "xwayland" "" off \
+      "editor" "" off \
+      "neovim" "" off \
+      "py311-pynvim" "" off \
+      "emacs" "" off \
+      "git" "" off \
+      "jetbrains-mono" "" off \
+      "nerd-fonts" "" off \
+      "noto-emoji" "" off \
+      "term" "" off \
+      "vips" "" off \
+      "direnv" "" off \
+      "yazi" "" off \
+      "bash" "" off \
+      "zsh" "" off \
+      "tree" "" off \
+      "eza" "" off \
+      "fzf" "" off \
+      "ripgrep" "" off \
+      "ripgrep-all" "" off \
+      "bat" "" off \
+      "app" "" off \
+      "arduino" "" off \
+      "yt-dlp" "" off \
+      "unzip" "" off \
+      "icu" "" off \
+      "vlc" "" off \
+      2>"$OUTFILE"
+
+    code=$?
+    if [ $code -eq 0 ]; then
+      selected=$(cat "$OUTFILE")
+      bsddialog --msgbox "You chose to configure:\n\n$selected\n\nLet the rite begin..." 12 60
+    else
+      bsddialog --msgbox "You fled the chamber. No changes made to your fate." 6 60
+    fi
+    rm -f "$OUTFILE"
+    ;;
+
+  X)
+    OUTFILE=$(mktemp)
+    bsddialog --title "Extras: System Setup Tree" \
+      --backtitle "DoomBSD Extras Configuration" \
+      --hline "• ←→ move • ⇥ TAB • ⏎ ENTER •" \
+      --checklist "Select optional setup steps:" 0 0 15 \
+      "ffmpegthumbnailer" "" off \
+      "coreutils" "" off \
+      "cmake" "" off \
+      "poppler" "" off \
+      "7-zip" "" off \
+      "aspell" "" off \
+      "en-aspell" "" off \
+      "aspell-ispell" "" off \
+      "lazyvim" "" off \
+      "doom emacs" "" off \
+      "procs" "" off \
+      "btop" "" off \
+      "fastfetch" "" off \
+      "lazygit" "" off \
+      "zellij" "" off \
+      "markdown" "" off \
+      "markdown-fmt" "" off \
+      "npm" "" off \
+      "docker" "" off \
+      "docker-compose" "" off \
+      "k9s" "" off \
+      "cmatrix" "" off \
+      "cowsay" "" off \
+      "asciiquarium" "" off \
+      "figlet" "" off \
+      "lolcat" "" off \
+      "nyancat" "" off \
+      "rgb-tui" "" off \
+      2>"$OUTFILE"
+
+    code=$?
+    if [ $code -eq 0 ]; then
+      selected=$(cat "$OUTFILE")
+      bsddialog --msgbox "You selected:\n$selected" 10 60
+    else
+      bsddialog --msgbox "No extras selected. The void remains untouched." 6 60
+    fi
+    rm -f "$OUTFILE"
+    ;;
+
+  L)
+    bsddialog --title "📖 THE LORE" \
+      --msgbox "DoomBSD draws inspiration from:\n\n- Doom Emacs by Henrik Lissner\n- HyDE Project\n- ZaneyOS\n- LazyVim\n- FreeBSD-SetupScript by es-j3\n  https://github.com/es-j3/FreeBSD-SetupScript\n\nA testament to those who dare dream deeper in dotfiles and the dark." 14 70
+    ;;
+
+  ?)
+    bsddialog --title "❓ Seek Help" \
+      --msgbox "Need help?\n\n- Handbook: https://docs.freebsd.org/en/books/handbook/\n- DoomBSD Docs: No gods. No tech support. Only source code.\n- Community: Nonexistent :/" 12 60
+    ;;
+
+  H)
+    bsddialog --msgbox "There is no help here, return from whence you came." 6 60
+    ;;
+
+  *)
+    bsddialog --msgbox "The Void does not recognize this path..." 6 50
+    ;;
+  esac
+done
