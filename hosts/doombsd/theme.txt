@@ -1,0 +1,69 @@
+# DoomBSD bsddialog theme
+# Aesthetic: Hell-red screen, black dialog boxes, white text, green highlights
+
+# Colors: black red green yellow blue magenta cyan white.
+# Attributes: bold reverse underline blink halfbright highlight.
+# `f_*` refers to focused/selected state
+
+version 1.0.4
+
+# TERMINAL BACKGROUND AND TEXT
+theme.screen.color white yellow bold
+
+# SHADOW BENEATH WIDGETS
+theme.shadow.color black black
+theme.shadow.y 1
+theme.shadow.x 2
+
+# DIALOG BOX APPEARANCE
+theme.dialog.color white black
+theme.dialog.delimtitle true
+theme.dialog.titlecolor red black bold highlight
+theme.dialog.lineraisecolor yellow black
+theme.dialog.linelowercolor yellow black
+theme.dialog.bottomtitlecolor black white bold
+theme.dialog.arrowcolor black yellow
+
+# CHECKLIST / MENU ITEMS
+theme.menu.f_selectorcolor yellow black
+theme.menu.selectorcolor white black
+
+theme.menu.f_prefixcolor black black
+theme.menu.prefixcolor black black
+
+theme.menu.f_namecolor yellow black
+theme.menu.namecolor white black
+
+theme.menu.f_desccolor yellow black
+theme.menu.desccolor white black
+
+theme.menu.f_shortcutcolor yellow black
+theme.menu.shortcutcolor white black
+
+theme.menu.bottomdesccolor black yellow
+
+# CHECKLIST SEPARATORS (if used)
+theme.menu.sepnamecolor yellow white
+theme.menu.sepdesccolor yellow white
+
+# INPUT FORMS
+theme.form.f_fieldcolor white yellow bold
+theme.form.fieldcolor white yellow bold
+theme.form.readonlycolor yellow white bold
+theme.form.bottomdesccolor white yellow
+
+# PROGRESS BARS, RANGE SLIDERS, ETC.
+theme.bar.f_color white yellow bold
+theme.bar.color yellow white bold
+
+# BUTTONS
+theme.button.minmargin 1
+theme.button.maxmargin 5
+theme.button.leftdelim [
+theme.button.rightdelim ]
+theme.button.f_delimcolor white yellow bold
+theme.button.delimcolor white black
+theme.button.f_color white yellow bold
+theme.button.color white black
+theme.button.f_shortcutcolor white yellow bold
+theme.button.shortcutcolor white black
