@@ -27,7 +27,6 @@
         # };
         pnpm = {
           enable = true;
-          install.enable = true;
         };
     };
     typescript.enable = true;
