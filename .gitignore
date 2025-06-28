@@ -15,8 +15,8 @@ devenv.local.nix
 **/.direnv/
 **.qcow2
 .pre-commit-config.yaml
-.moon/cache
-.moon/docker
+**/.moon/cache
+**/.moon/docker
 **/*.rs.bk
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
