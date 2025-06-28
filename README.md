@@ -22,8 +22,8 @@
         <img src="https://github-readme-stats-mfarabi.vercel.app/api/top-langs/?username=Mfarabi619&layout=compact&show_icons=true&langs_count=20&theme=outrun&border_color=ffee00&bg_color=000"/>
       </td>
       <td>
-        <a href="https://leetcode.com/MFarabi619">
-          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=chartreuse&ext=heatmap" />
+        <a href="https://leetcode.com/MFarabi619/">
+          <img src="https://leetcard.jacoblin.cool/MFarabi619?radius=6&theme=chartreuse&ext=heatmap"/>
         </a>
       </td>
     </tr>
@@ -725,11 +725,11 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 |||
 |-|-|
-| ![Piantor Split Keyboard with Luna in front of Framework Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
+| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 
-![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/libs/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
+![Keebio Iris Rev. 5 RGB in front of Framework](https://github.com/MFarabi619/MFarabi619/blob/main/assets/rgb_split_keyboard_in_front_of_framework_laptop.jpg)
 
 </details>
 
@@ -746,11 +746,9 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <b>✨ About Me</b>
 <br/><br/>
 
-- 🌱 Began self-taught developer journey in January 2023. Currently architecting Full-Stack software solutions, and practicing automation 🕸️🤖
+- 🌱 Began self-taught developer journey in January 2023.
 - ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
-- 💻 Passionate Emacs/Vim/Neovim enthusiast that enjoys task automation with Bash and Python 🥳
-  - [Dotfiles](https://github.com/MFarabi619/dotfiles/)
-  - Yes, I debug my PDE on a regular basis.
+- 💻 Passionate Vim/Neovim/Emacs & Operating Systems enthusiast.
 - 🛠️ I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity 🏃‍♂️💨
 <hr/>
 <b>📖 Books</b>
@@ -798,7 +796,7 @@ Got a suggestion? Add it to the list :)
        <a href="https://trunkbaseddevelopment.com">
           <img src="https://github.com/user-attachments/assets/1ba9518a-daf7-4970-a148-ad9f1abaeef3" alt="Trunk-Based Development" width="100" height="150" style="margin: 10px;">
         </a>
-<a href="https://www.refactoringui.com/">
+        <a href="https://www.refactoringui.com/">
           <img src="https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1544555766i/43190966.jpg" alt="Refactoring UI" width="100" height="150" style="margin: 10px;">
         </a>
         <a href="https://pragprog.com/titles/dnvim2/practical-vim-second-edition/">
@@ -839,6 +837,6 @@ Got a suggestion? Add it to the list :)
   <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="getrickrolled" height="30" width="40" />
 </a>
 
----
+--
 
-README generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
+Generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖

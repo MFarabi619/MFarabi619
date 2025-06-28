@@ -6,8 +6,7 @@
 
 - 🌱 Began self-taught developer journey in January 2023.
 - ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
-- 💻 Passionate Vim/Neovim/Emacs & Operating Systems enthusiast
-  - [Dotfiles](https://github.com/MFarabi619/MFarabi619/)
+- 💻 Passionate Vim/Neovim/Emacs & Operating Systems enthusiast.
 - 🛠️ I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity 🏃‍♂️💨
 <hr/>
 <b>📖 Books</b>
@@ -55,7 +54,7 @@ Got a suggestion? Add it to the list :)
        <a href="https://trunkbaseddevelopment.com">
           <img src="https://github.com/user-attachments/assets/1ba9518a-daf7-4970-a148-ad9f1abaeef3" alt="Trunk-Based Development" width="100" height="150" style="margin: 10px;">
         </a>
-<a href="https://www.refactoringui.com/">
+        <a href="https://www.refactoringui.com/">
           <img src="https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1544555766i/43190966.jpg" alt="Refactoring UI" width="100" height="150" style="margin: 10px;">
         </a>
         <a href="https://pragprog.com/titles/dnvim2/practical-vim-second-edition/">
