@@ -180,6 +180,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
+<!-- FreeBSD Unix -->
+<a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
+<img src="https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png" alt="FreeBSD Unix Logo" width="40" height="40" />
+</a>
 <!-- NixOS -->
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
 <img src="https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg" alt="NixOS Logo" width="40" height="40" />
@@ -461,10 +465,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Blocktorch -->
 <a href="https://blocktorch.xyz" target="_blank" rel="noreferrer">
 <img src="https://cdn.prod.website-files.com/645a274bb89991808d214c54/645a274bb899913b91214c66_Torch_mini.png" alt="Blocktorch Logo" width="40" height="40" />
-</a>
-<!-- FreeBSD Unix -->
-<a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
-<img src="https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png" alt="FreeBSD Unix Logo" width="40" height="40" />
 </a>
 <!-- Kafka -->
 <a href="https://kafka.apache.org" target="_blank" rel="noreferrer">
@@ -814,29 +814,25 @@ Got a suggestion? Add it to the list :)
 <br/>
 
 <a href="https://linkedin.com/in/mfarabi" target="blank">
-  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="mfarabilinkedIn" height="50" width="50" />
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="Mumtahin Farabi's LinkedIn Profile" height="50" width="50" />
 </a>
 
 <a href="https://www.youtube.com/@mumtahinfarabi7502/videos" target="blank">
-  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/youtube.svg" alt="mfarabiYoutube" height="50" width="50" />
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/youtube.svg" alt="Mumtahin Farabi's YouTube Channel" height="50" width="50" />
 </a>
 
 <a href="https://leetcode.com/MFarabi619/" target="blank">
-  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/leet-code.svg" alt="mfarabileetCode" height="50" width="50" />
-</a>
-
-<a href="https://codepen.io/mfarabi619" target="blank">
-  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/codepen.svg" alt="mfarabicodepen" height="50" width="50" />
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/leet-code.svg" alt="Mumtahin Farabi's LeetCode Profile" height="50" width="50" />
 </a>
 
 <a href="https://www.freecodecamp.org/mfarabi" target="blank">
-  <img src="https://cdn.rawgit.com/Deftwun/e3756a8b518cbb354425/raw/6584db8babd6cbc4ecb35ed36f0d184a506b979e/free-code-camp-logo.svg" alt="mfarabilinkedIn" height="50" width="50" />
+  <img src="https://cdn.rawgit.com/Deftwun/e3756a8b518cbb354425/raw/6584db8babd6cbc4ecb35ed36f0d184a506b979e/free-code-camp-logo.svg" alt="Mumtahin Farabi's FreeCodeCamp Profile" height="50" width="50" />
 </a>
 
 <a href="https://www.youtube.com/watch?v=BBJa32lCaaY" target="blank">
-  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="getrickrolled" height="30" width="40" />
+  <img src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="Mumtahin Farabi's X Account" height="30" width="40" />
 </a>
 
---
+---
 
 Generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
