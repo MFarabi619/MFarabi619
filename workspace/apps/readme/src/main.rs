@@ -43,7 +43,7 @@ fn read_json<T: for<'de> Deserialize<'de>>(file_path: &str) -> Option<T> {
 }
 
 fn write_to_readme(content: &str, mode: &str) {
-    let path = "../../README.md";
+    let path = "../../../README.md";
     let mut file = match mode {
         "w" => File::create(path).expect("Unable to create README.md"),
         "a" => OpenOptions::new()
