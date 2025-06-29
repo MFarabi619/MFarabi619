@@ -16,7 +16,7 @@
       enable = true;
       channel = "stable";
       targets = [ "wasm32-unknown-unknown" ];
-      components = [ "rustc" "cargo" "clippy" "rustfmt" "rust-analyzer" ];
+      components = [ "rustc" "cargo" "clippy" "rustfmt" "rust-analyzer"];
     };
     javascript = {
       enable = true;
@@ -72,6 +72,7 @@
         uv
         termshark
         ttyd
+        trunk                     # rust web app server
         tgpt
         ncdu
         nix-tree
@@ -295,7 +296,7 @@
             check-json.enable = true;
             # check-toml.enable = true;
             # check-yaml.enable = true;
-            commitizen.enable = true;
+            # commitizen.enable = true;
             # eclint.enable = true;
             # html-tidy.enable = true;
             # rustfmt.enable = true;

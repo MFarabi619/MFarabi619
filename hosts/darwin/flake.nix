@@ -4,6 +4,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+    lix-module = {
+        url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.1.tar.gz";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,14 +37,16 @@
 
   outputs = inputs@{
     self,
-    nix-darwin,
     nixpkgs,
+    lix-module,
+    nix-darwin,
     home-manager,
     stylix,
       ...
   }: {
     darwinConfigurations."mfarabi" = nix-darwin.lib.darwinSystem {
       modules = [
+        lix-module.nixosModules.default
         stylix.darwinModules.stylix
         ./configuration.nix
 
