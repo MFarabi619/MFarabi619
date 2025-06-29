@@ -1,70 +1,71 @@
-use std::{cell::RefCell, io, rc::Rc};
+//! # [Ratatui] Original Demo example
+//!
+//! The latest version of this example is available in the [examples] folder in the upstream.
+//!
+//! [Ratatui]: https://github.com/ratatui/ratatui
+//! [examples]: https://github.com/ratatui/ratatui/blob/main/examples
+//! [examples readme]: https://github.com/ratatui/ratatui/blob/main/examples/README.md
 
-use ratatui::{
-    layout::Alignment,
-    style::{Color, Stylize},
-    widgets::{Block, BorderType, Paragraph},
-    Frame, Terminal,
-};
+use std::{cell::RefCell, io::Result, rc::Rc};
 
-use ratzilla::{
-    event::{KeyCode, KeyEvent},
-    DomBackend, WebRenderer,
-};
+use app::App;
+use clap::Parser;
+use ratzilla::event::KeyCode;
+use ratzilla::ratatui::style::Color;
+use ratzilla::ratatui::Terminal;
+use ratzilla::{CanvasBackend, WebRenderer};
 
-fn main() -> io::Result<()> {
-    let backend = DomBackend::new()?;
+mod app;
+mod effects;
+mod ui;
+
+#[derive(Debug, Parser)]
+struct Cli {
+    /// time in ms between two ticks.
+    #[arg(short, long, default_value_t = 250)]
+    tick_rate: u64,
+
+    /// whether unicode symbols are used to improve the overall look of the app
+    #[arg(short, long, default_value_t = true)]
+    unicode: bool,
+}
+
+fn main() -> Result<()> {
+    let app_state = Rc::new(RefCell::new(App::new(
+        " 🔱 Mumtahin Farabi 🔱 ",
+        false,
+    )));
+    let mut backend = CanvasBackend::new_with_size(1600, 900)?;
+    backend.set_background_color(Color::Rgb(1, 1, 1));
     let terminal = Terminal::new(backend)?;
-
-    let state = Rc::new(App::default());
-
-    let event_state = Rc::clone(&state);
-    terminal.on_key_event(move |key_event| {
-        event_state.handle_events(key_event);
+    terminal.on_key_event({
+        let app_state_cloned = app_state.clone();
+        move |event| {
+            let mut app_state = app_state_cloned.borrow_mut();
+            match event.code {
+                KeyCode::Right => {
+                    app_state.on_right();
+                }
+                KeyCode::Left => {
+                    app_state.on_left();
+                }
+                KeyCode::Up => {
+                    app_state.on_up();
+                }
+                KeyCode::Down => {
+                    app_state.on_down();
+                }
+                KeyCode::Char(c) => app_state.on_key(c),
+                _ => {}
+            }
+        }
     });
 
-    let render_state = Rc::clone(&state);
-    terminal.draw_web(move |frame| {
-        render_state.render(frame);
+    terminal.draw_web(move |f| {
+        let mut app_state = app_state.borrow_mut();
+        let elapsed = app_state.on_tick();
+        ui::draw(elapsed, f, &mut app_state);
     });
 
     Ok(())
-}
-
-#[derive(Default)]
-struct App {
-    counter: RefCell<u8>,
-}
-
-impl App {
-    fn render(&self, frame: &mut Frame) {
-        let counter = self.counter.borrow();
-        let block = Block::bordered()
-            .title("Mumtahin Farabi")
-            .title_alignment(Alignment::Center)
-            .border_type(BorderType::Rounded);
-
-        let text = format!(
-            "Currently learning Rust.\n\
-             Press left and right to increment and decrement the counter respectively.\n\
-             Counter: {counter}",
-        );
-
-        let paragraph = Paragraph::new(text)
-            .block(block)
-            .fg(Color::White)
-            .bg(Color::Black)
-            .centered();
-
-        frame.render_widget(paragraph, frame.area());
-    }
-
-    fn handle_events(&self, key_event: KeyEvent) {
-        let mut counter = self.counter.borrow_mut();
-        match key_event.code {
-            KeyCode::Left => *counter = counter.saturating_sub(1),
-            KeyCode::Right => *counter = counter.saturating_add(1),
-            _ => {}
-        }
-    }
 }

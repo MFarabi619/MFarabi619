@@ -5,6 +5,10 @@ license = "GNU GPL 3.0"
 edition = "2021"
 
 [dependencies]
+clap = { version = "4.5.23", features = ["derive"] }
+rand = { version = "0.8.5", features = ["small_rng"], default-features = false }
 ratatui = { version = "0.29.0", default-features = false }
+tachyonfx = { version = "0.15.0", default-features = false, features = ["web-time"] }
+web-time = "1.1.0"
 color-eyre = "0.6.3"
 ratzilla = "0.0.4"
