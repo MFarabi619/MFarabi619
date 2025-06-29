@@ -432,6 +432,12 @@
   },
   "Would like to learn": {
     "Languages": [
+
+      {
+        "name": "SPARK",
+        "url": "https://www.adacore.com/about-spark",
+        "icon": "https://www.adacore.com/uploads/page_content/about-header.png"
+      },
       {
         "name": "Embedded Rust",
         "url": "https://rust-embedded.org",
@@ -506,6 +512,11 @@
       }
     ],
     "Tools": [
+      {
+        "name": "seL4",
+        "url": "https://sel4.systems",
+        "icon": "https://sel4.systems/images/seL4.svg"
+      },
       {
         "name": "Bazel",
         "url": "https://bazel.build",

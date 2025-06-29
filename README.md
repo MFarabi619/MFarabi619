@@ -398,6 +398,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </tr>
 <tr>
 <td align='center'>
+<!-- SPARK -->
+<a href="https://www.adacore.com/about-spark" target="_blank" rel="noreferrer">
+<img src="https://www.adacore.com/uploads/page_content/about-header.png" alt="SPARK Logo" width="40" height="40" />
+</a>
 <!-- Embedded Rust -->
 <a href="https://rust-embedded.org" target="_blank" rel="noreferrer">
 <img src="https://camo.githubusercontent.com/c2ef6279b9e015bb4af11062960247e033ed4d59846093f3f32eda472089bb2a/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67" alt="Embedded Rust Logo" width="40" height="40" />
@@ -458,6 +462,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
+<!-- seL4 -->
+<a href="https://sel4.systems" target="_blank" rel="noreferrer">
+<img src="https://sel4.systems/images/seL4.svg" alt="seL4 Logo" width="40" height="40" />
+</a>
 <!-- Bazel -->
 <a href="https://bazel.build" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Bazel_logo.svg/768px-Bazel_logo.svg.png?20170728105517" alt="Bazel Logo" width="40" height="40" />
