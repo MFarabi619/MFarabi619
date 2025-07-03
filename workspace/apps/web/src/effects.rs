@@ -30,22 +30,22 @@ pub(super) fn pulsate_selected_tab() -> Effect {
 
 pub(super) fn change_tab() -> Effect {
     let layout = Layout::vertical([Constraint::Length(3), Constraint::Min(0)]);
-    let dissolved = Style::default().fg(Color::White).bg(BG_COLOR);
+    // let dissolved = Style::default().fg(Color::White).bg(BG_COLOR);
 
-    let flash_color = Color::from_u32(0x3232030);
+    // let flash_color = Color::from_u32(0x3232030);
 
     sequence(&[
         // close panel effect
-        with_duration(
-            Duration::from_millis(300),
-            parallel(&[
-                style_all_cells(),
-                never_complete(fade_to(flash_color, flash_color, (30, ExpoInOut))),
-                never_complete(dissolve_to(dissolved, (125, ExpoInOut))),
-                never_complete(fade_to_fg(BG_COLOR, (125, BounceOut))),
-            ])
-            .with_color_space(ColorSpace::Rgb),
-        ),
+        // with_duration(
+        //     Duration::from_millis(300),
+        //     parallel(&[
+        //         style_all_cells(),
+        //         never_complete(fade_to(flash_color, flash_color, (30, ExpoInOut))),
+        //         never_complete(dissolve_to(dissolved, (125, ExpoInOut))),
+        //         never_complete(fade_to_fg(BG_COLOR, (125, BounceOut))),
+        //     ])
+        //     .with_color_space(ColorSpace::Rgb),
+        // ),
         // init pane, after having closed the (not) "old" one
         parallel(&[
             style_all_cells(),
@@ -73,4 +73,4 @@ fn style_all_cells() -> Effect {
     }))
 }
 
-const BG_COLOR: Color = Color::from_u32(0x121212);
+const BG_COLOR: Color = Color::Black;
