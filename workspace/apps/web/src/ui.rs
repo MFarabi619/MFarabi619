@@ -25,10 +25,15 @@ pub fn draw(elapsed: Duration, frame: &mut Frame, app: &mut App) {
         .collect::<Tabs>()
         .block(
             Block::bordered()
-                .title(app.title)
+                .title(Span::styled(
+                    app.title,
+                    Style::default()
+                        .fg(Color::LightMagenta)
+                        .add_modifier(Modifier::BOLD),
+                ))
                 .title_alignment(Alignment::Center)
                 .border_style(Color::Magenta)
-                .border_type(BorderType::Rounded),
+                .border_type(BorderType::Double),
         )
         .highlight_style(Style::default().fg(Color::LightYellow))
         .select(app.tabs.index);
@@ -90,7 +95,7 @@ fn draw_text(frame: &mut Frame, area: Rect) {
         Line::from("🐙 GitHub:                  github.com/MFarabi619/MFarabi619"),
         Line::from(""),
         Line::from(Span::styled(
-            "🤔 ========== ~/todo ========== 🤔",
+            "🤔 =========== ~/todo ============ 🤔",
             Style::default()
                 .fg(Color::LightMagenta)
                 .add_modifier(Modifier::BOLD),
@@ -134,7 +139,7 @@ fn draw_text(frame: &mut Frame, area: Rect) {
 
     let block = Block::bordered()
         .border_style(Color::Magenta)
-        .border_type(BorderType::Rounded)
+        .border_type(BorderType::Double)
         .title(Span::styled(
             "📚 README 📚",
             Style::default()
@@ -212,7 +217,17 @@ fn draw_second_tab(frame: &mut Frame, app: &mut App, area: Rect) {
         .top_margin(1)
         .bottom_margin(1),
     )
-    .block(Block::bordered().title("📠 Servers"));
+    .block(
+        Block::bordered()
+            .title(Span::styled(
+                "📠 Servers 📠",
+                Style::default()
+                    .fg(Color::LightMagenta)
+                    .add_modifier(Modifier::BOLD),
+            ))
+            .border_style(Color::Magenta)
+            .border_type(BorderType::Double),
+    );
     frame.render_widget(table, chunks[0]);
 
     let map = Canvas::default()
@@ -314,7 +329,17 @@ fn draw_third_tab(frame: &mut Frame, _app: &mut App, area: Rect) {
             Constraint::Ratio(1, 3),
         ],
     )
-    .block(Block::bordered().title(" 🤹 workspace"));
+    .block(
+        Block::bordered()
+            .title(Span::styled(
+                "🤹 workspace 🤹",
+                Style::default()
+                    .fg(Color::LightMagenta)
+                    .add_modifier(Modifier::BOLD),
+            ))
+            .border_style(Color::Magenta)
+            .border_type(BorderType::Double),
+    );
 
     frame.render_widget(table, chunks[0]);
 }
