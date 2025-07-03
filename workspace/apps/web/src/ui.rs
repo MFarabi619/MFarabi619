@@ -286,7 +286,8 @@ fn draw_second_tab(frame: &mut Frame, app: &mut App, area: Rect) {
 }
 
 fn draw_third_tab(frame: &mut Frame, _app: &mut App, area: Rect) {
-    let chunks = Layout::horizontal([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)]).split(area);
+    // let chunks = Layout::horizontal([Constraint::Ratio(1, 2), Constraint::Ratio(1, 2)]).split(area);
+    let chunks = Layout::horizontal([Constraint::Ratio(1, 1)]).split(area);
     let colors = [
         Color::Reset,
         Color::Black,
@@ -310,10 +311,9 @@ fn draw_third_tab(frame: &mut Frame, _app: &mut App, area: Rect) {
         .iter()
         .map(|c| {
             let cells = vec![
-                Cell::from(Span::raw("WIP")),
-                // Cell::from(Span::raw(format!("{c:?}: "))),
-                // Cell::from(Span::styled("Foreground", Style::default().fg(*c))),
-                // Cell::from(Span::styled("Background", Style::default().bg(*c))),
+                Cell::from(Span::raw(format!("{c:?}: "))),
+                Cell::from(Span::styled("Foreground", Style::default().fg(*c))),
+                Cell::from(Span::styled("Background", Style::default().bg(*c))),
             ];
             Row::new(cells)
         })
