@@ -31,11 +31,8 @@ struct Cli {
 }
 
 fn main() -> Result<()> {
-    let app_state = Rc::new(RefCell::new(App::new(
-        " 🔱 Mumtahin Farabi 🔱 ",
-        false,
-    )));
-    let mut backend = CanvasBackend::new_with_size(1600, 900)?;
+    let app_state = Rc::new(RefCell::new(App::new(" 🔱 Mumtahin Farabi 🔱 ", false)));
+    let mut backend = CanvasBackend::new()?;
     backend.set_background_color(Color::Rgb(1, 1, 1));
     let terminal = Terminal::new(backend)?;
     terminal.on_key_event({
