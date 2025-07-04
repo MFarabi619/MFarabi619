@@ -60,7 +60,7 @@ fn draw_text(frame: &mut Frame, area: Rect) {
     let text = vec![
         Line::from(""),
         Line::from(vec![Span::styled(
-            " Open-Source @ ChartHouse Labs ",
+            " ⚓ Open-Source @ ChartHouse Labs & LikeC4 core team 🧊",
             Style::default()
                 .fg(Color::LightCyan)
                 .add_modifier(Modifier::BOLD),
