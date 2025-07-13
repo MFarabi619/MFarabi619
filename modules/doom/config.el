@@ -263,6 +263,10 @@
       "e" #'evil-switch-to-windows-last-buffer)
 ;; "e" #'my/switch-to-last-buffer-in-split)
 
+(map! :leader
+      :desc "Open Dirvish Side"
+      "[" #'dirvish-side)
+
 ;; (minimap-mode)
 
 (after! centaur-tabs-mode
