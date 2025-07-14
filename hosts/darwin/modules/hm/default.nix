@@ -269,6 +269,7 @@ fonts = {
     lazydocker.enable = true;
     direnv = {
       enable = true;
+      silent = true;
       enableBashIntegration = true;
       enableZshIntegration = true;
     };
