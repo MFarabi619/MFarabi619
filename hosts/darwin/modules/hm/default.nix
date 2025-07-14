@@ -85,6 +85,9 @@ fonts = {
 
   targets = {
     darwin = {
+      linkApps = {
+        enable = true;
+      };
     search = "Google";
     currentHostDefaults = {
       "com.apple.controlcenter" = {
