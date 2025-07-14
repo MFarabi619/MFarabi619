@@ -78,6 +78,7 @@
         AppleTemperatureUnit = "Celsius";
         NSAutomaticSpellingCorrectionEnabled = false;
         NSAutomaticWindowAnimationsEnabled = false;
+        NSDisableAutomaticTermination = false;
         NSDocumentSaveNewDocumentsToCloud = false;
         NSWindowShouldDragOnGesture = true;
         "com.apple.swipescrolldirection" = true;
