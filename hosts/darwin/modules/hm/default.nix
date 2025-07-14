@@ -128,6 +128,15 @@ fonts = {
 
   programs = {
     home-manager.enable = true;
+    sketchybar = {
+      enable = true;
+      service.enable = true;
+      includeSystemPath = true;
+      config = {
+       source = ../sketchybar;
+       recursive = true;
+      };
+    };
     aerospace = {
       enable = true;
       userSettings = {
