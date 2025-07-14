@@ -48,9 +48,12 @@
   system = {
     primaryUser = "mfarabi";
     defaults = {
-      universalaccess = {
-        reduceMotion = true;
-        reduceTransparency = false;
+      finder = {
+        QuitMenuItem = true;
+        ShowHardDrivesOnDesktop = true;
+        ShowMountedServersOnDesktop = true;
+        _FXSortFoldersFirst = true;
+        _FXSortFoldersFirstOnDesktop = true;
       };
       screencapture ={
         disable-shadow = true;
@@ -59,6 +62,10 @@
         target = "preview";
         type = "png";
       };
+      # universalaccess = {
+      #   reduceMotion = true;
+      #   reduceTransparency = false;
+      # };
 
       trackpad = {
         ActuationStrength = 0;
