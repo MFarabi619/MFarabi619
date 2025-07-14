@@ -87,6 +87,7 @@
       };
 
       controlcenter = {
+        AirDrop = false;
         Bluetooth = true;
         Display = true;
       };
