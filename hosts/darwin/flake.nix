@@ -44,7 +44,7 @@
     stylix,
       ...
   }: {
-    darwinConfigurations."mfarabi" = nix-darwin.lib.darwinSystem {
+    darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
       modules = [
         lix-module.nixosModules.default
         stylix.darwinModules.stylix
