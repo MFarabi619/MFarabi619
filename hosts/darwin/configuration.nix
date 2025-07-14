@@ -53,6 +53,16 @@
         reduceTransparency = false;
       };
 
+      trackpad = {
+        ActuationStrength = 0;
+        Clicking = true;
+        Dragging = true;
+        FirstClickThreshold = 0;
+        SecondClickThreshold = 0;
+        TrackpadThreeFingerDrag = true;
+        TrackpadRightClick = true;
+      };
+
       SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
 
       NSGlobalDomain = {
