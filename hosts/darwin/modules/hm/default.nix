@@ -106,6 +106,7 @@ fonts = {
           "com.apple.finder" = {
             AppleShowAllFiles = true;
             showPathBar = true;
+            ShowStatusBar = true;
             };
           "com.apple.dock" = {
             autohide = true;
