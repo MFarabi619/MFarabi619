@@ -93,6 +93,8 @@
       };
 
       dock = {
+        launchanim = false;
+        expose-animation-duration = 0.0;
         mru-spaces = false;
         persistent-apps = [
           { app = "/Applications/Vivaldi.app"; }
