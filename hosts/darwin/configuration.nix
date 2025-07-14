@@ -52,6 +52,13 @@
         reduceMotion = true;
         reduceTransparency = false;
       };
+      screencapture ={
+        disable-shadow = true;
+        include-date = true;
+        show-thumbnail = true;
+        target = "preview";
+        type = "png";
+      };
 
       trackpad = {
         ActuationStrength = 0;
