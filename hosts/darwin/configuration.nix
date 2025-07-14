@@ -96,6 +96,7 @@
      remapCapsLockToControl = true;
     };
 
+    startup.chime = true;
     stateVersion = 6;
   };
 
