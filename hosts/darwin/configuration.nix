@@ -48,6 +48,10 @@
   system = {
     primaryUser = "mfarabi";
     defaults = {
+      universalaccess = {
+        reduceMotion = true;
+        reduceTransparency = false;
+      };
 
       SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
 
