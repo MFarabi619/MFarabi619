@@ -39,6 +39,12 @@
     };
   };
 
+  documentation = {
+   doc.enable = true;
+   info.enable = true;
+   man.enable = true;
+  };
+
   system = {
     primaryUser = "mfarabi";
     defaults = {
