@@ -148,4 +148,20 @@
       # harddisk = "never";
     };
   };
+
+  services = {
+#     github-runners = {
+#       macos = {
+#         enable = true;
+#         nodeRuntimes = "node22";
+#         url = "https://github.com/mira-amm/mira-amm-web";
+#         tokenFile = ./.runner.token;
+#         ephemeral = false;
+#         extraLabels = ["macbook-air"];
+#       };
+#     };
+    openssh = {
+      enable = true;
+    };
+  };
 }
