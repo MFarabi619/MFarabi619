@@ -90,6 +90,12 @@
           ];
       };
     };
+
+    keyboard = {
+     enableKeyMapping = true;
+     remapCapsLockToControl = true;
+    };
+
     stateVersion = 6;
   };
 
