@@ -30,6 +30,9 @@
     gc = {
      automatic = true;
     };
+    optimise = {
+     automatic = true;
+    };
     settings = {
       trusted-users = [ "root" "mfarabi" ];
       experimental-features = [ "nix-command" "flakes" ];
