@@ -102,6 +102,13 @@
 
     time.timeZone = "America/Toronto";
 
+  networking = {
+    computerName = "macos";
+    hostName = "macos";
+    localHostName = "macos";
+    wakeOnLan.enable = true;
+  };
+
   nixpkgs = {
     hostPlatform = "aarch64-darwin";
     config = {
