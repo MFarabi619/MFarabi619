@@ -27,6 +27,9 @@
   };
 
   nix = {
+    gc = {
+     automatic = true;
+    };
     settings = {
       trusted-users = [ "root" "mfarabi" ];
       experimental-features = [ "nix-command" "flakes" ];
