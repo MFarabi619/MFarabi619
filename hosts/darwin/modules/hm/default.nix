@@ -114,7 +114,9 @@ fonts = {
             orientation = "bottom";
             };
           "com.apple.menuextra.clock" = {
+            IsAnalog = true;
             ShowAMPM = true;
+            ShowDate = 1;
             };
           };
     #      keybindings = {
