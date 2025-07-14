@@ -1,7 +1,8 @@
 { config, lib, pkgs, ... }:
 
 {
-  environment.systemPackages = with pkgs; [
+  environment = {
+    systemPackages = with pkgs; [
       # ==========  Doom Emacs ===========
       # clang
       cmake         # vterm compilation and more
@@ -20,10 +21,18 @@
       nil           # nix lang formatting
       shellcheck    # shell script formatting
       # texlive     # :lang latex & :lang org (latex previews)
-  ];
+    ];
 
-  users.users.mfarabi = {
-    home = "/Users/mfarabi";
+   pathsToLink = [
+      "/share/zsh"
+      "/share/bash-completion"
+    ];
+  };
+
+  users.users = {
+    mfarabi = {
+      home = "/Users/mfarabi";
+    };
   };
 
   nix = {
@@ -82,6 +91,7 @@
       NSGlobalDomain = {
         AppleFontSmoothing = 2;
         AppleInterfaceStyle = "Dark";
+        AppleInterfaceStyleSwitchesAutomatically = true;
         AppleTemperatureUnit = "Celsius";
         NSAutomaticSpellingCorrectionEnabled = false;
         NSAutomaticWindowAnimationsEnabled = false;
@@ -90,7 +100,10 @@
         NSWindowShouldDragOnGesture = true;
         "com.apple.swipescrolldirection" = true;
         "com.apple.trackpad.enableSecondaryClick" = true;
+        "com.apple.trackpad.trackpadCornerClickBehavior" = 1;
         "com.apple.trackpad.scaling" = 3.0;
+        "com.apple.sound.beep.feedback" = 1;
+
       };
 
       controlcenter = {
@@ -128,16 +141,13 @@
   };
 
   nixpkgs = {
+    # buildPlatform = "aarch64-darwin";
     hostPlatform = "aarch64-darwin";
     config = {
       allowUnfree = true;
     };
   };
 
-  environment.pathsToLink = [
-    "/share/zsh"
-    "/share/bash-completion"
-  ];
   power = {
    restartAfterFreeze = true;
    # restartAfterPowerFailure = true;
