@@ -100,6 +100,8 @@
     stateVersion = 6;
   };
 
+    time.timeZone = "America/Toronto";
+
   nixpkgs = {
     hostPlatform = "aarch64-darwin";
     config = {
