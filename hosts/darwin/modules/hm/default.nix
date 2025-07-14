@@ -95,6 +95,10 @@ fonts = {
         };
       };
     defaults = {
+      "com.apple.desktopservices" = {
+        DSDontWriteNetworkStores = true;
+        DSDontWriteUSBStores = true;
+      };
       NSGlobalDomain = {
           AppleMetricUnits = true;
             AppleMesurementUnits = "Centimeters";
