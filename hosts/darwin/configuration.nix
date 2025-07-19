@@ -96,7 +96,7 @@
       NSGlobalDomain = {
         AppleFontSmoothing = 2;
         AppleInterfaceStyle = "Dark";
-        AppleInterfaceStyleSwitchesAutomatically = true;
+        AppleInterfaceStyleSwitchesAutomatically = false;
         AppleTemperatureUnit = "Celsius";
         NSAutomaticSpellingCorrectionEnabled = false;
         NSAutomaticWindowAnimationsEnabled = false;
