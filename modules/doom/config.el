@@ -33,8 +33,30 @@
 ;; https://tecosaur.github.io/emacs-config
 
 ;; (+global-word-wrap-mode +1)
+;; (keycast-tab-line-mode)
+(global-undo-tree-mode 1)
+(display-time-mode 1)
+(menu-bar--display-line-numbers-mode-relative)
+(setq user-full-name "Mumtahin Farabi"
+      user-mail-address "mfarabi619@gmail.com"
+      plstore-cache-passphrase-for-symmetric-encryption t
+      treemacs-git-mode 'extended
+      which-key-idle-delay 0.25 ;; Make popup faster
+      which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
+      doom-modeline-hud t
+      doom-modeline-time-icon t
+      display-time-day-and-date t
+      doom-modeline-persp-name t
+      doom-modeline-major-mode-icon t
+      display-line-numbers-type 'relative
+      browse-url-browser-function 'browse-url-default-browser
+      projectile-project-search-path '("~/workspace/" "~/Documents/")
+      evil-split-window-below t
+      evil-vsplit-window-right t
+      ;; If you use `org' and don't want your org files in the default location below,
+      ;; change `org-directory'. It must be set before org loads!
+      org-directory "~/Documents/")
 
-(setq treemacs-git-mode 'extended)
 (after! treemacs
   treemacs-git-commit-diff-mode t
   treemacs-indent-guide-mode t
@@ -44,95 +66,109 @@
   ;; lsp-treemacs-theme "NetBeans"
   ;; lsp-treemacs-theme "Idea"
   lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35)))
-
 (after! dired
-  (setq dirvish-side-display-alist '((side . right) (slot . -1)))
-  (setq dirvish-peek-mode t)
-  (setq dirvish-side-auto-close t)
-  (setq dirvish-side-follow-mode t))
+  (setq dirvish-side-display-alist '((side . right) (slot . -1))
+        dirvish-peek-mode t
+        dirvish-side-auto-close t
+        dirvish-side-follow-mode t))
 
 (after! dirvish
-  (setq! dirvish-quick-access-entries
-         `(("h" "~/"                          "Home")
-           ("e" ,user-emacs-directory         "Emacs user directory")
-           ("w" "~/workspace/"                "Workspace")
-           ("d" "~/Downloads/"                "Downloads")
-           ("p" "~/Pictures/"                 "Pictures")
-           ("m" "/mnt/"                       "Mounted drives")
-           ("t" "~/.local/share/Trash/files/" "Trash"))))
-
-(menu-bar--display-line-numbers-mode-relative)
-(setq display-line-numbers-type 'relative)
+  (setq!
+   dirvish-default-layout '(1 0.11 0.70)
+   dirvish-quick-access-entries
+   `(("h" "~/"                          "Home")
+     ("e" ,user-emacs-directory         "Emacs user directory")
+     ("w" "~/workspace/"                "Workspace")
+     ("d" "~/Downloads/"                "Downloads")
+     ("p" "~/Pictures/"                 "Pictures")
+     ("m" "/mnt/"                       "Mounted drives")
+     ("t" "~/.local/share/Trash/files/" "Trash"))))
 
 (use-package! gptel
   :config
   ;; (setq! gptel-api-key "your key")
-  (setq
-   gptel-default-mode #'org-mode
-   gptel-model 'gpt-4o-2024-11-20
-   gptel-backend (gptel-make-gh-copilot "Copilot")
-   gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi. I also use Nix for configuration management, and write code in Rust.")
-                      (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-                      (writing     . "You are a large language model and a writing assistant. Respond concisely.")
-                      (chat        . "You are a large language model and a conversation partner. Respond concisely.")))
-  (set-popup-rule! "*Copilot*" :size 0.5 :vslot -4 :select t :quit nil :ttl 0 :side 'left)
-  (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
-  (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
+  (setq gptel-default-mode #'org-mode
+        gptel-model 'gpt-4o-2024-11-20
+        gptel-backend (gptel-make-gh-copilot "Copilot")
+        gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi. I also use Nix for configuration management, and write code in Rust.")
+                           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+                           (writing     . "You are a large language model and a writing assistant. Respond concisely.")
+                           (chat        . "You are a large language model and a conversation partner. Respond concisely.")))
+  (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll
+            'gptel-post-response-functions 'gptel-end-of-response))
 
-  ;; (defvar gptel-lookup--history nil)
+;; (minimap-mode)
 
-  ;; (defun gptel-lookup (prompt)
-  ;;   (interactive (list (read-string "Ask AI: " nil gptel-lookup--history)))
-  ;;   (when (string= prompt "") (user-error "A prompt is required."))
-  ;;   (gptel-request
-  ;;       prompt
-  ;;     :callback
-  ;;     (lambda (response info)
-  ;;       (if (not response)
-  ;;           (message "gptel-lookup failed with message: %s" (plist-get info :status))
-  ;;         (with-current-buffer (get-buffer-create "*Copilot*")
-  ;;           (let ((inhibit-read-only t))
-  ;;             (erase-buffer)
-  ;;             (insert response))
-  ;;           (special-mode)
-  ;;           (display-buffer (current-buffer)
-  ;;                           `((display-buffer-in-side-window)
-  ;;                             (side . left)
-  ;;                             (window-height . ,#'fit-window-to-buffer))))))))
-  )
+;; (add-hook 'vterm-mode-hook #'evil-normal-state)
+;; (setq vterm-environment '("TERM=xterm-kitty")
+;; (vterm-term-environment-variable "xterm-kitty")
 
-(map!
- :leader
- :desc "Open AI Chat buffer"
- "d"
- #'gptel
- ;; #'gptel-send
- ;; #'gptel-lookup
- ;; (lambda ()
- ;;   (interactive)
- ;;   (gptel "*Copilot*")
- ;;   (select-window
- ;;    (display-buffer-in-side-window
- ;;     (get-buffer "*Copilot*")
- ;;     '((side . left)
- ;;       (slot . 0)
- ;;       (window-width . 0.5)
- ;;       (select . t)))))
- )
+(map! :n "C-l" nil :n "C-l" #'+lazygit/toggle
+      :n "C-;" nil :n "C-;" #'+vterm/toggle
+      :n "C-/" nil :n "C-/" #'dirvish
+      :n "C-t" nil :n "C-t" (lambda () (interactive) (execute-kbd-macro (kbd "SPC o p")))
+      :leader :desc "Open AI Chat buffer" "d" #'gptel)
 
-(display-time-mode 1)
-(setq display-time-day-and-date t)
+(set-popup-rule! "*doom:vterm-popup:*"
+  :height 0.5
+  :width 0.5
+  :slot 0
+  :vslot 0
+  :select t
+  :quit t
+  :ttl nil
+  :modeline t
+  :side 'right)
 
-(setq browse-url-browser-function 'browse-url-default-browser)
+(set-popup-rule! "*doom:vterm-popup:lazygit*"
+  :height 0.5
+  :width 0.5
+  :slot 0
+  :vslot 0
+  :select t
+  :quit t
+  :ttl nil
+  :modeline t
+  :side 'right)
 
-(setq projectile-project-search-path '("~/workspace/" "~/Documents/" "~/MFarabi619/")) ;; Projectile search directories
+(defun +lazygit/toggle ()
+  "Bring up or reuse a vterm popup running lazygit."
+  (interactive)
+  (+vterm--configure-project-root-and-display
+   nil
+   (lambda ()
+     (let* ((buffer-name
+             (format "*doom:vterm-popup:lazygit-%s*"
+                     (if (bound-and-true-p persp-mode)
+                         (safe-persp-name (get-current-persp))
+                       "main")))
+            (buffer (or (cl-loop for buf in (doom-buffers-in-mode 'vterm-mode)
+                                 if (equal (buffer-local-value '+vterm--id buf)
+                                           buffer-name)
+                                 return buf)
+                        (get-buffer-create buffer-name)))
+            (proc   (get-buffer-process buffer))
+            (need-launch (not (and proc (process-live-p proc)))))
+       (if-let ((win (get-buffer-window buffer-name)))
+           (delete-window win)
+         (with-current-buffer buffer
+           (unless (eq major-mode 'vterm-mode)
+             (vterm-mode))
+           (setq-local +vterm--id buffer-name))
+         (pop-to-buffer buffer)
+         (when need-launch
+           (vterm-send-string "lazygit status -sm normal; exit")
+           (vterm-send-return)))
+       buffer))))
 
-;;; :editor evil
-(setq evil-split-window-below t ;; Focus new window after splitting
-      evil-vsplit-window-right t)
-(defadvice! prompt-for-buffer (&rest _)
-  :after '(evil-window-split evil-window-vsplit)
-  (consult-buffer))
+(map! :leader ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
+      :desc "Switch to last buffer"
+      "e" #'evil-switch-to-windows-last-buffer)
+;; "e" #'my/switch-to-last-buffer-in-split)
+;;
+(map! :leader
+      :desc "Open Dirvish Side"
+      "[" #'dirvish-side)
 
 (map! :map evil-window-map
       "SPC" #'rotate-layout
@@ -147,22 +183,36 @@
       "C-<up>"         #'+evil/window-move-up
       "C-<right>"      #'+evil/window-move-right)
 
-;; Implicit /g flag on evil ex substitution, because I use the default behavior less often.
+(defun my/switch-to-last-buffer-in-split ()
+  "Show last buffer on split screen."
+  (interactive)
+  (let ((current-buffer (current-buffer)))
+    (if (one-window-p)
+        (progn
+          (split-window-right)
+          (evil-switch-to-windows-last-buffer)
+          (switch-to-buffer current-buffer)))))
+
+
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (consult-buffer))
+
+(set-popup-rule! "*Copilot*" :size 0.5 :vslot -4 :select t :quit nil :ttl 0 :side 'left)
+(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom :size 0.4 :select t) ;; move flycheck errors to bottom
+
+(add-hook
+ 'pdf-view-mode-hook
+ 'pdf-view-midnight-minor-mode
+ 'doom-modeline-mode-hook #'nyan-mode)
+
 (after! evil
-  (setq evil-ex-substitute-global t
+  (setq evil-ex-substitute-global t ;; implicit /g flag on evil ex substitution
         evil-escape-key-sequence "jk")
+  (add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
   ;; Move by visual lines instead of physical lines
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
-
-;; (keycast-tab-line-mode)
-
-;; Make flycheck errors much better
-(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom :size 0.4 :select t)
-
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/Documents/")
 
 (after! org
   ;; Allow linking to non-headlines
@@ -177,6 +227,7 @@
   '((?A :foreground "#e45649")
     (?B :foreground "#da8548")
     (?C :foreground "#0098dd"))
+
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
 
   (setq org-modern-star ["◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"]
@@ -204,42 +255,28 @@
         ))
 
 ;; (after! magit
-;;   (setq magit-diff-refine-hunk 'all)
-
 ;;   (use-package! magit-todos
 ;;     :config (magit-todos-mode 1))
-
-;;   (setq magit-log-margin-show-committer-date t)
-
-;;   ;; Enable commit graphs
-;;   (setq magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256"))
-;;   (setq magit-status-margin
-;;         '(t age magit-log-margin-width t 22))
-
-;;   (setq magit-log-margin-show-author t)
-
-;;   (setq magit-section-visibility-indicator '(" " . " "))
-;;   (setq magit-format-file-function #'magit-format-file-nerd-icons)
-;;   (setq magit-revision-insert-related-refs t)
-;;   (add-hook 'magit-mode-hook 'hl-line-mode)
-;;   (add-hook 'magit-mode-hook 'display-line-numbers-mode))
-
-;; (custom-set-faces
-;;  '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
-;;  '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
-;;  '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
-;;  '(magit-diff-context ((t (:foreground "#b0b0b0"))))
-;;  '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
-;;  '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff")))))
-
-;; When viewing a pdf, view it in dark mode instead of the default light mode
-(add-hook
- 'pdf-view-mode-hook
- 'pdf-view-midnight-minor-mode)
+;;   (setq magit-diff-refine-hunk 'all
+;;         magit-log-margin-show-committer-date t
+;;         magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256") ;; Enable commit graphs
+;;         magit-status-margin '(t age magit-log-margin-width t 22)
+;;         magit-log-margin-show-author t
+;;         magit-section-visibility-indicator '(" " . " ")
+;;         magit-format-file-function #'magit-format-file-nerd-icons
+;;         magit-revision-insert-related-refs t)
+;;   (add-hook 'magit-mode-hook 'hl-line-mode
+;;             'magit-mode-hook 'display-line-numbers-mode)
+;;   (custom-set-faces
+;;    '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
+;;    '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
+;;    '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
+;;    '(magit-diff-context ((t (:foreground "#b0b0b0"))))
+;;    '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
+;;    '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff"))))))
 
 (after! pdf-tools
   (setq pdf-view-continuous t))
-
 (use-package! nov-xwidget
   :demand t
   :after nov
@@ -247,33 +284,11 @@
   (define-key nov-mode-map (kbd "o") 'nov-xwidget-view)
   (add-hook 'nov-mode-hook 'nov-xwidget-inject-all-files))
 
-(defun my/switch-to-last-buffer-in-split ()
-  "Show last buffer on split screen."
-  (interactive)
-  (let ((current-buffer (current-buffer)))
-    (if (one-window-p)
-        (progn
-          (split-window-right)
-          (evil-switch-to-windows-last-buffer)
-          (switch-to-buffer current-buffer)
-          ))))
-
-(map! :leader ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
-      :desc "Switch to last buffer"
-      "e" #'evil-switch-to-windows-last-buffer)
-;; "e" #'my/switch-to-last-buffer-in-split)
-
-(map! :leader
-      :desc "Open Dirvish Side"
-      "[" #'dirvish-side)
-
-;; (minimap-mode)
-
 (after! centaur-tabs-mode
-  (setq centaur-tabs-gray-out-icons t)
-  (setq centaur-tabs-show-count t)
-  (setq centaur-tabs-enable-key-bindings t)
-  (setq centaur-tabs-show-navigation-buttons t))
+  (setq centaur-tabs-gray-out-icons t
+        centaur-tabs-show-count t
+        centaur-tabs-enable-key-bindings t
+        centaur-tabs-show-navigation-buttons t))
 
 ;; (after! js-mode
 ;;   (setq +javascript-npm-mode-hook
@@ -283,136 +298,58 @@
 ;;           pnpm-mode
 ;;           +javascript-add-npm-path-h)))
 
-(setq doom-modeline-hud t)
-(setq doom-modeline-persp-name t)
-(setq doom-modeline-major-mode-icon t)
-
 (after! nyan-mode
   (setq nyan-animate-nyancat t
         nyan-wavy-trail t))
 
-(add-hook 'doom-modeline-mode-hook #'nyan-mode)
+(use-package! fretboard
+  :defer nil)
+(after! fretboard
+  (setq fretboard-fret-count 15)
+  (add-hook 'fretboard-mode-hook #'evil-emacs-state))
 
-(after! vterm
-  (setq vterm-environment '("TERM=xterm-kitty"))
-  (setq vterm-term-environment-variable "xterm-kitty")
-  (set-language-environment "UTF-8")
-  (set-default-coding-systems 'utf-8)
-  (set-popup-rule! "*doom:vterm-popup:*" :size 0.5 :vslot -4 :select t :quit nil :ttl nil :side 'right)
-  (add-hook 'vterm-mode-hook #'evil-normal-state)) ;; Start vterm in normal mode
-
-
-(map! :leader
-      :desc "Lazygit"
-      "g l" (lambda ()
-              (interactive)
-              (let ((window-config (current-window-configuration)))
-                (delete-other-windows)
-                (vterm "*lazygit*")
-                (vterm-send-string "lazygit; exit")
-                (vterm-send-return)
-
-                ;; Restore layout when vterm process exits
-                (set-process-sentinel
-                 (get-buffer-process "*lazygit*")
-                 (lambda (_process _event)
-                   (when (buffer-live-p (get-buffer "*lazygit*"))
-                     (kill-buffer "*lazygit*"))
-                   (set-window-configuration window-config))))))
-
-;; (map! :leader
-;;       :desc "Toggle Lazygit"
-;;       "g g"
-;;       (lambda ()
-;;         (interactive)
-;;         (let ((buf-name "*lazygit*"))
-;;           (set-popup-rule! buf-name
-;;             :size 0.3
-;;             :select nil
-;;             :quit t
-;;             :ttl 0
-;;             :side 'top
-;;             )
-;;           (if (get-buffer-window buf-name)
-;;               ;; If visible, bury the buffer to hide it
-;;               (delete-window (get-buffer-window buf-name))
-;;             ;; Else, show or create the buffer
-;;             (if (get-buffer buf-name)
-;;                 (pop-to-buffer buf-name)
-;;               (progn
-;;                 (vterm buf-name)
-;;                 (vterm-send-string "lazygit -ucf ~/dotfiles/.config/doom/lazygit.config.yml; exit")
-;;                 (vterm-send-return)))))))
-
-;; (map! :leader
-;;       :desc "Toggle Lazygit"
-;;       "o g"
-;;       (lambda ()
-;;         (interactive)
-;;         (let ((buf-name "*lazygit*"))
-;;           (set-popup-rule! buf-name
-;;             :side 'right
-;;             :slot 0
-;;             :size 0.175
-;;             :select t
-;;             :quit t
-;;             :ttl 0)
-;;           (if (get-buffer-window buf-name)
-;;               (delete-window (get-buffer-window buf-name))
-;;             (if (get-buffer buf-name)
-;;                 (progn
-;;                   (pop-to-buffer buf-name)
-;;                   (with-current-buffer buf-name
-;;                     (text-scale-decrease 1)))
-;;               (progn
-;;                 (vterm buf-name)
-;;                 (with-current-buffer buf-name
-;;                   (text-scale-decrease 1))
-;;                 (vterm-send-string "lazygit -ucf ~/dotfiles/.config/doom/lazygit.config.yml; exit")
-;;                 (vterm-send-return)))))))
-
-
-(setq plstore-cache-passphrase-for-symmetric-encryption t)
+(set-language-environment "UTF-8")
+(set-default-coding-systems 'utf-8)
 
 (after! nerd-icons
   (setq nerd-icons-completion-mode t))
 
 ;; Add LikeC4 to LSP language configuration
-;; (after! lsp-mode
-;;   (setq lsp-eslint-package-manager "pnpm"
-;;         lsp-eslint-run "onSave"
-;;         lsp-typescript-format-enable nil)
+(after! lsp-mode
+  (setq lsp-eslint-package-manager "pnpm"
+        lsp-eslint-run "onSave"
+        lsp-typescript-format-enable nil)
 
-;;   (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
+  (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
 
-;;   (lsp-register-client
-;;    (make-lsp-client
-;;     :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
-;;     :activation-fn (lsp-activate-on "likec4")
-;;     :server-id 'likec4-ls)))
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
+    :activation-fn (lsp-activate-on "likec4")
+    :server-id 'likec4-ls)))
 
 ;; (define-derived-mode sway-mode rust-ts-mode "sway")
-
 ;; (add-to-list 'auto-mode-alist '("\\.sw\\'" . sway-mode))
-
 ;; (add-to-list
 ;;  'eglot-server-programs
 ;;  '((sway-mode) .
 ;;    ("nix" "shell" "github:fuellabs/fuel.nix#fuel" "--command" "forc-lsp")))
 
-(setq which-key-idle-delay 0.25) ;; Make popup faster
-(setq which-key-allow-multiple-replacements t) ;; Remove 'evil-' in too many popups
 (after! which-key
   (pushnew!
    which-key-replacement-alist
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
-   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))
-   ))
+   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
 
-(setq fancy-splash-image "~/MFarabi619/modules/doom/doom-emacs-color2.svg") ;; Custom banner
+;; Place your private configuration here! Remember, you do not need to run 'doom
+;; sync' after modifying this file!
+
 (defun my-custom-dashboard-text ()
   "Insert custom text into the Doom dashboard."
   (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n"))
+
+;; (setq fancy-splash-image "~/dotfiles/.config/doom/doom-emacs-color2.svg")
+(setq fancy-splash-image "~/dotfiles/.config/doom/apollyon-emacs.png")
 
 ;; Find `doom-dashboard-widget-banner` in the list and insert after it
 (let ((pos (cl-position #'doom-dashboard-widget-banner +doom-dashboard-functions)))
@@ -446,6 +383,7 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 ;; (setq doom-theme 'doom-gruvbox)
+
 (setq doom-theme
       ;; 'doom-lantern
       'doom-gruvbox
@@ -453,22 +391,9 @@
       ;; 'doom-solarized-light
       ;; doom-lantern-brighter-modeline t
       ;; doom-lantern-brighter-comments t
-      doom-lantern-padded-modeline t)
-
-(setq doom-font
-      (font-spec :family "JetBrainsMono Nerd Font"
-                 :size 20)
-      doom-variable-pitch-font
-      (font-spec :family "JetBrainsMono Nerd Font"
-                 :size 20)
-      doom-big-font
-      (font-spec :family "JetBrainsMono Nerd Font"
-                 :size 40))
-
-(setq user-full-name "Mumtahin Farabi"
-      user-mail-address "mfarabi619@gmail.com")
+      doom-lantern-padded-modeline t
+      doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 20)
+      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 20)
+      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 40))
 
 ;; https://www.ovistoica.com/blog/2024-7-05-modern-emacs-typescript-web-tsx-config
-
-(use-package! fretboard
-  :defer nil)
