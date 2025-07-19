@@ -84,3 +84,4 @@
 (package! nyan-mode)
 
 (package! fretboard)
+(package! abc-mode)
