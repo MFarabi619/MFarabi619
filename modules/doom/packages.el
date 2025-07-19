@@ -85,3 +85,4 @@
 
 (package! fretboard)
 (package! abc-mode)
+(package! chordpro-mode)
