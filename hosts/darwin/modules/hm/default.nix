@@ -1,4 +1,10 @@
-{ inputs, config, lib, pkgs, ... }:
+{
+  inputs,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
@@ -40,8 +46,8 @@
     ];
 
     shell = {
-enableShellIntegration = true;
-enableZshIntegration = true;
+      enableShellIntegration = true;
+      enableZshIntegration = true;
     };
   };
 
@@ -49,39 +55,38 @@ enableZshIntegration = true;
 
   manual = {
     manpages.enable = true;
-html.enable = true;
+    html.enable = true;
     json.enable = true;
   };
 
   services = {
-home-manager = {
-# autoUpgrade = {
-# enable = true;
-#         frequency = "daily";
-#       };
+    home-manager = {
+      # autoUpgrade = {
+      # enable = true;
+      #         frequency = "daily";
+      #       };
     };
   };
 
-
-fonts = {
-  fontconfig = {
-    enable = true;
-    defaultFonts = {
-      serif = [
+  fonts = {
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        serif = [
           "JetBrainsMono Nerd Font"
         ];
-      sansSerif = [
-        "JetBrainsMono Nerd Font"
+        sansSerif = [
+          "JetBrainsMono Nerd Font"
         ];
-      monospace = [
-        "JetBrainsMono Nerd Font"
+        monospace = [
+          "JetBrainsMono Nerd Font"
         ];
-      emoji = [
-        "Noto Color Emoji"
+        emoji = [
+          "Noto Color Emoji"
         ];
       };
     };
-};
+  };
 
   targets = {
     darwin = {
@@ -124,6 +129,24 @@ fonts = {
     #  "^w" = "deleteWordBackward:";
     #      };
         };
+        "com.apple.finder" = {
+          AppleShowAllFiles = true;
+          showPathBar = true;
+        };
+        "com.apple.dock" = {
+          autohide = true;
+          tileSize = 48;
+          orientation = "bottom";
+        };
+        "com.apple.menuextra.clock" = {
+          ShowAMPM = true;
+        };
+      };
+      #      keybindings = {
+      # "^u" = "deleteToBeginningOfLine:";
+      #  "^w" = "deleteWordBackward:";
+      #      };
+    };
   };
 
   programs = {
@@ -144,20 +167,20 @@ fonts = {
         accordion-padding = 30;
         mode.main.binding = {
           alt-enter = ''
-              exec-and-forget osascript -e '
-              tell application "Kitty"
-                  do script
-                  activate
-              end tell'
-              '';
+            exec-and-forget osascript -e '
+            tell application "Kitty"
+                do script
+                activate
+            end tell'
+          '';
           alt-tab = "workspace-back-and-forth";
-          };
+        };
         gaps = {
-            outer.left = 8;
-            outer.bottom = 8;
-            outer.top = 8;
-            outer.right = 8;
-          };
+          outer.left = 8;
+          outer.bottom = 8;
+          outer.top = 8;
+          outer.right = 8;
+        };
         on-focus-changed = [
           "move-mouse monitor-lazy-center"
         ];
@@ -180,8 +203,8 @@ fonts = {
     kitty = {
       enable = true;
       shellIntegration = {
-      enableBashIntegration = true;
-      enableZshIntegration = true;
+        enableBashIntegration = true;
+        enableZshIntegration = true;
       };
       enableGitIntegration = true;
     };
@@ -221,7 +244,7 @@ fonts = {
     bat.enable = true;
     fastfetch = {
       enable = true;
-        settings = {
+      settings = {
       };
     };
     eza = {
@@ -246,27 +269,26 @@ fonts = {
       autosuggestion.enable = true;
       enableCompletion = true;
       initContent = lib.mkBefore ''
-          source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
+        source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
 
-          [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/libs/dotfiles/hosts/darwin/modules/hm/.p10k.zsh
-        '';
+        [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/libs/dotfiles/hosts/darwin/modules/hm/.p10k.zsh
+      '';
       oh-my-zsh = {
         enable = true;
-        plugins =
-          [
-            "sudo"
-            "git"
-            "colored-man-pages"
-            "colorize"
-            "docker"
-            "docker-compose"
-            "git"
-            "kubectl"
-          ]
-          ++ lib.optionals pkgs.stdenv.isDarwin [
-            "dash"
-            "macos"
-          ];
+        plugins = [
+          "sudo"
+          "git"
+          "colored-man-pages"
+          "colorize"
+          "docker"
+          "docker-compose"
+          "git"
+          "kubectl"
+        ]
+        ++ lib.optionals pkgs.stdenv.isDarwin [
+          "dash"
+          "macos"
+        ];
       };
 
       shellAliases = {
@@ -296,7 +318,7 @@ fonts = {
     zellij = {
       enable = true;
       settings = {
-    };
+      };
       # enableZshIntegration = true;
       # attachExistingSession = true;
     };
