@@ -274,6 +274,26 @@ Exit =iwctl= with =Ctrl+C=.
    - =2-multimedia-streamer=
    - =2-corners=
 
+** Apollyon Linux
+
+#+begin_src bash
+nix --accept-flake-config profile install github:cachix/devenv
+#+end_src
+
+[[https://omnix.page/index.html][Omnix]]
+#+begin_src bash
+nix --accept-flake-config profile install github:juspay/omnix
+#+end_src
+
+#+begin_src bash
+nix --accept-flake-config run github:juspay/omnix -- \
+  init -o ~/nix-config github:srid/nixos-unified#home
+#+end_src
+
+#+begin_src bash
+git add .; nix run .#activate $USER@
+#+end_src
+
 ** [[https://ubuntu.com][Ubuntu]]
 
 #+begin_src bash
