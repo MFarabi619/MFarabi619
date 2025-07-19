@@ -469,3 +469,6 @@
       user-mail-address "mfarabi619@gmail.com")
 
 ;; https://www.ovistoica.com/blog/2024-7-05-modern-emacs-typescript-web-tsx-config
+
+(use-package! fretboard
+  :defer nil)

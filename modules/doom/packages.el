@@ -53,16 +53,17 @@
 (package! magit-todos)
 (package! consult-gh)
 
-; (package! pgmacs
-;   :recipe (:host github :repo "emarsden/pg-el/"))
-; (package! pgmacs
-;   :recipe (:host github :repo "emarsden/pgmacs"))
+;; (package! pgmacs
+;;   :recipe (:host github :repo "emarsden/pg-el/"))
+;; (package! pgmacs
+;;   :recipe (:host github :repo "emarsden/pgmacs"))
 
 (package! org-super-agenda)
-; (package! org-pandoc-import
-;   :recipe (:host github
-;            :repo "tecosaur/org-pandoc-import"
-;            :files ("*.el" "filters" "preprocessors")))
+;; (package! org-pandoc-import
+;;   :recipe (:host github
+;;            :repo "tecosaur/org-pandoc-import"
+;;            :files ("*.el" "filters" "preprocessors")))
+
 (package! org-gcal)
 
 (package! circe)
@@ -81,3 +82,5 @@
 (package! speed-type)
 (package! key-quiz)
 (package! nyan-mode)
+
+(package! fretboard)
