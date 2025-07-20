@@ -1,6 +1,5 @@
 {
   inputs,
-  config,
   lib,
   pkgs,
   ...
@@ -22,6 +21,7 @@
     stateVersion = "25.05";
     username = "mfarabi";
     packages = with pkgs; [
+      devenv
       # ============== 🤪 =================
       asciiquarium
       cowsay
@@ -62,9 +62,9 @@
   services = {
     home-manager = {
       # autoUpgrade = {
-      # enable = true;
-      #         frequency = "daily";
-      #       };
+      #  enable = true;
+      #  frequency = "daily";
+      # };
     };
   };
 
@@ -93,45 +93,25 @@
       linkApps = {
         enable = true;
       };
-    search = "Google";
-    currentHostDefaults = {
-      "com.apple.controlcenter" = {
-        BatteryShowPercentage = true;
+      search = "Google";
+      currentHostDefaults = {
+        "com.apple.controlcenter" = {
+          BatteryShowPercentage = true;
         };
       };
-    defaults = {
-      "com.apple.desktopservices" = {
-        DSDontWriteNetworkStores = true;
-        DSDontWriteUSBStores = true;
-      };
-      NSGlobalDomain = {
+      defaults = {
+        "com.apple.desktopservices" = {
+          DSDontWriteNetworkStores = true;
+          DSDontWriteUSBStores = true;
+        };
+        NSGlobalDomain = {
           AppleMetricUnits = true;
-            AppleMesurementUnits = "Centimeters";
-            };
-          "com.apple.finder" = {
-            AppleShowAllFiles = true;
-            showPathBar = true;
-            ShowStatusBar = true;
-            };
-          "com.apple.dock" = {
-            autohide = true;
-            tileSize = 48;
-            orientation = "bottom";
-            };
-          "com.apple.menuextra.clock" = {
-            IsAnalog = true;
-            ShowAMPM = true;
-            ShowDate = 1;
-            };
-          };
-    #      keybindings = {
-    # "^u" = "deleteToBeginningOfLine:";
-    #  "^w" = "deleteWordBackward:";
-    #      };
+          AppleMesurementUnits = "Centimeters";
         };
         "com.apple.finder" = {
           AppleShowAllFiles = true;
           showPathBar = true;
+          ShowStatusBar = true;
         };
         "com.apple.dock" = {
           autohide = true;
@@ -139,7 +119,9 @@
           orientation = "bottom";
         };
         "com.apple.menuextra.clock" = {
+          IsAnalog = true;
           ShowAMPM = true;
+          ShowDate = 1;
         };
       };
       #      keybindings = {
@@ -156,8 +138,8 @@
       service.enable = true;
       includeSystemPath = true;
       config = {
-       source = ../sketchybar;
-       recursive = true;
+        source = ../sketchybar;
+        recursive = true;
       };
     };
     aerospace = {
@@ -275,20 +257,21 @@
       '';
       oh-my-zsh = {
         enable = true;
-        plugins = [
-          "sudo"
-          "git"
-          "colored-man-pages"
-          "colorize"
-          "docker"
-          "docker-compose"
-          "git"
-          "kubectl"
-        ]
-        ++ lib.optionals pkgs.stdenv.isDarwin [
-          "dash"
-          "macos"
-        ];
+        plugins =
+          [
+            "sudo"
+            "git"
+            "colored-man-pages"
+            "colorize"
+            "docker"
+            "docker-compose"
+            "git"
+            "kubectl"
+          ]
+          ++ lib.optionals pkgs.stdenv.isDarwin [
+            "dash"
+            "macos"
+          ];
       };
 
       shellAliases = {

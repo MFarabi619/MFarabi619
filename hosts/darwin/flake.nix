@@ -5,9 +5,9 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     lix-module = {
-        url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.1.tar.gz";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.1.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin/master";
@@ -30,40 +30,42 @@
     };
 
     nix-doom-emacs-unstraightened = {
-       url = "github:marienz/nix-doom-emacs-unstraightened";
-       inputs.nixpkgs.follows = "";
-      };
-  };
-
-  outputs = inputs@{
-    self,
-    nixpkgs,
-    lix-module,
-    nix-darwin,
-    home-manager,
-    stylix,
-      ...
-  }: {
-    darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
-      modules = [
-        lix-module.nixosModules.default
-        stylix.darwinModules.stylix
-        ./configuration.nix
-
-        home-manager.darwinModules.home-manager
-        {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            extraSpecialArgs = {
-              inherit inputs;
-            };
-            users.mfarabi = import ./modules/hm;
-          };
-        }
-      ];
+      url = "github:marienz/nix-doom-emacs-unstraightened";
+      inputs.nixpkgs.follows = "";
     };
-
-    darwinPackages = self.darwinConfigurations."mfarabi".pkgs;
   };
+
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      lix-module,
+      nix-darwin,
+      home-manager,
+      stylix,
+      ...
+    }:
+    {
+      darwinConfigurations."macos" = nix-darwin.lib.darwinSystem {
+        modules = [
+          lix-module.nixosModules.default
+          stylix.darwinModules.stylix
+          ./configuration.nix
+
+          home-manager.darwinModules.home-manager
+          {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              extraSpecialArgs = {
+                inherit inputs;
+              };
+              users.mfarabi = import ./modules/hm;
+            };
+          }
+        ];
+      };
+
+      darwinPackages = self.darwinConfigurations."mfarabi".pkgs;
+    };
 }

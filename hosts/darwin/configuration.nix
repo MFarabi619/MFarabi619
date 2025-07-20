@@ -1,34 +1,44 @@
 {
-  config,
-  lib,
   pkgs,
   ...
 }:
 
 {
+
+  stylix = {
+    enable = true;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+  };
+
+  fonts = {
+    packages = with pkgs; [
+      nerd-fonts.jetbrains-mono
+    ];
+  };
+
   environment = {
     systemPackages = with pkgs; [
       # ==========  Doom Emacs ===========
       # clang
-      cmake         # vterm compilation and more
+      cmake # vterm compilation and more
       coreutils
-      binutils      # native-comp needs 'as', provided by this
-      gnutls        # for TLS connectivity
+      binutils # native-comp needs 'as', provided by this
+      gnutls # for TLS connectivity
       epub-thumbnailer # dired epub previews
       poppler-utils # dired pdf previews
       openscad
       openscad-lsp
-      vips          # dired image previews
-      imagemagick   # for image-dired
-      tuntox        # collab
-      sqlite        # :tools lookup & :lang org +roam
-      ispell        # spelling
-      nil           # nix lang formatting
-      shellcheck    # shell script formatting
+      vips # dired image previews
+      imagemagick # for image-dired
+      tuntox # collab
+      sqlite # :tools lookup & :lang org +roam
+      ispell # spelling
+      nil # nix lang formatting
+      shellcheck # shell script formatting
       # texlive     # :lang latex & :lang org (latex previews)
     ];
 
-   pathsToLink = [
+    pathsToLink = [
       "/share/zsh"
       "/share/bash-completion"
     ];
@@ -56,21 +66,29 @@
     };
     channel.enable = true;
     gc = {
-     automatic = true;
+      automatic = true;
     };
     optimise = {
-     automatic = true;
+      automatic = true;
     };
     settings = {
-      trusted-users = [ "root" "mfarabi" ];
-      experimental-features = [ "nix-command" "flakes" ];
+      auto-optimise-store = true;
+      trusted-users = [
+        "root"
+        "mfarabi"
+      ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
     };
   };
 
   documentation = {
-   doc.enable = true;
-   info.enable = true;
-   man.enable = true;
+    enable = true;
+    doc.enable = true;
+    info.enable = true;
+    man.enable = true;
   };
 
   system = {
@@ -80,10 +98,11 @@
         QuitMenuItem = true;
         ShowHardDrivesOnDesktop = true;
         ShowMountedServersOnDesktop = true;
+        # ShowPathBar = true;
         _FXSortFoldersFirst = true;
         _FXSortFoldersFirstOnDesktop = true;
       };
-      screencapture ={
+      screencapture = {
         disable-shadow = true;
         include-date = true;
         show-thumbnail = true;
@@ -137,20 +156,20 @@
         mru-spaces = false;
         persistent-apps = [
           { app = "/Applications/Vivaldi.app"; }
-          ];
+        ];
       };
     };
 
     keyboard = {
-     enableKeyMapping = true;
-     remapCapsLockToControl = true;
+      enableKeyMapping = true;
+      remapCapsLockToControl = true;
     };
 
     startup.chime = true;
     stateVersion = 6;
   };
 
-    time.timeZone = "America/Toronto";
+  time.timeZone = "America/Toronto";
 
   networking = {
     computerName = "macos";
@@ -168,9 +187,9 @@
   };
 
   power = {
-   restartAfterFreeze = true;
-   # restartAfterPowerFailure = true;
-   sleep = {
+    restartAfterFreeze = true;
+    # restartAfterPowerFailure = true;
+    sleep = {
       allowSleepByPowerButton = true;
       computer = "never";
       display = "never";
@@ -179,16 +198,16 @@
   };
 
   services = {
-#     github-runners = {
-#       macos = {
-#         enable = true;
-#         nodeRuntimes = "node22";
-#         url = "https://github.com/mira-amm/mira-amm-web";
-#         tokenFile = ./.runner.token;
-#         ephemeral = false;
-#         extraLabels = ["macbook-air"];
-#       };
-#     };
+    #     github-runners = {
+    #       macos = {
+    #         enable = true;
+    #         nodeRuntimes = "node22";
+    #         url = "https://github.com/mira-amm/mira-amm-web";
+    #         tokenFile = ./.runner.token;
+    #         ephemeral = false;
+    #         extraLabels = ["macbook-air"];
+    #       };
+    #     };
     openssh = {
       enable = true;
     };
