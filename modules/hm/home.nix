@@ -29,6 +29,7 @@
 
     shell = {
       enableShellIntegration = true;
+      enableBashIntegration = true;
       enableZshIntegration = true;
     };
   };
