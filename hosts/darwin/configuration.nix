@@ -54,6 +54,7 @@
         "big-parallel"
       ];
     };
+    channel.enable = true;
     gc = {
      automatic = true;
     };
