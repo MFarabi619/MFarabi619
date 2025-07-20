@@ -41,6 +41,19 @@
   };
 
   nix = {
+    linux-builder = {
+      enable = false;
+      workingDirectory = "var/lib/linux-builder";
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      supportedFeatures = [
+        "kvm"
+        "benchmark"
+        "big-parallel"
+      ];
+    };
     gc = {
      automatic = true;
     };
