@@ -46,27 +46,9 @@
           { pkgs, ... }:
           {
             imports = [
-              # ../../modules/hm/lazygit.nix
+              ../../modules/hm/programs
             ];
 
-            manual = {
-              html.enable = true;
-              json.enable = true;
-            };
-
-            programs = {
-              home-manager = {
-                enable = true;
-              };
-              git = {
-                enable = true;
-                userName = "Mumtahin Farabi";
-                userEmail = "mfarabi619@gmail.com";
-              };
-              bat.enable = true;
-              # starship.enable = true;
-              # bash.enable = true;
-            };
           };
       };
     };
