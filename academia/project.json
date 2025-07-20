@@ -1,6 +1,0 @@
-{
-  "name": "academia",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/academia",
-  "projectType": "library"
-}

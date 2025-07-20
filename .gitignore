@@ -15,8 +15,6 @@ devenv.local.nix
 **/.direnv/
 **.qcow2
 .pre-commit-config.yaml
-**/.moon/cache
-**/.moon/docker
 **/*.rs.bk
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
@@ -46,3 +44,5 @@ devenv.local.nix
 **/!Cargo.lock
 
 **/.git-hooks
+.open-webui
+.webui_secret_key

@@ -1,0 +1,5 @@
+{
+  languages = {
+    shell.enable = true;
+  };
+}

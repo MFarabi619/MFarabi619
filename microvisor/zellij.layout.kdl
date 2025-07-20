@@ -1,0 +1,77 @@
+layout {
+    default_tab_template {
+        pane {
+            size 1
+            borderless true
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane {
+            size 2
+            borderless true
+            plugin location="zellij:status-bar"
+        }
+    }
+    tab name="🧮 SERVERS" split_direction="vertical" {
+            pane {
+                name "🎉 kernel"
+                command "kernel"
+                args "up"
+                size "60%"
+            }
+            pane split_direction="horizontal" {
+                pane {
+                name "🐞 Process Interactive Kill - pik"
+                command "pik"
+                args "-F" ":"
+                size "30%"
+            }
+            pane {
+                name "🩺 System Health - btop"
+                command "btop"
+            }
+            }
+    }
+
+    tab name="🟩 STATUS" split_direction="vertical"  {
+            pane {
+                name "🍒 Git - Lazygit"
+                command "lazygit"
+            }
+
+            pane split_direction="horizontal" {
+                pane {
+                    name "📁 File Browser - Yazi"
+                    command "env"
+                    args "YAZI_CONFIG_HOME=./apps/microvisor" "yazi"
+                }
+
+                pane {
+                    focus true
+                    name "🧠 TGPT | Model:phind"
+                    command "tgpt"
+                    args "-m"
+                }
+            }
+    }
+
+    tab name="🔍🤨 INSPECT" split_direction="vertical" {
+        pane {
+            name "🔌 API"
+            command "uvx"
+            args "--python" "3.13" "posting" "-e" "api/posting/dev.env" "--collection" "api/posting"
+        }
+        pane {
+            name "💿 DATABASE"
+            command "lazysql"
+            args "postgresql://postgres:postgres@127.0.0.1:54322/postgres?sslmode=disable"
+            // args "./libs/db/sqlite.db"
+            start_suspended true
+        }
+    }
+    tab name="🐳 CONTAINERS" split_direction="vertical" {
+            pane {
+                command "lazydocker"
+            }
+    }
+}

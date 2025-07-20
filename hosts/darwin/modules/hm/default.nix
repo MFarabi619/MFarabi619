@@ -21,7 +21,6 @@
     stateVersion = "25.05";
     username = "mfarabi";
     packages = with pkgs; [
-      devenv
       # ============== 🤪 =================
       asciiquarium
       cowsay

@@ -1,6 +1,6 @@
 <!-- markdownlint-disable -->
 <div align="center">
-  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/workspace/libs/assets/cover.png" style="width:100%"/>
+  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/assets/cover.png" style="width:100%"/>
 </div>
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
@@ -499,7 +499,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 ## 🛠 Current Setup
 
 <strong><a href="https://archlinux.org/">Arch Linux</a> - Migrating to <a href="https://nixos.org">NixOS</a> <a href="https://nixos.org">
-  <img src="workspace/libs/assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
+  <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
 </a> </strong>
 
 
@@ -843,4 +843,4 @@ Got a suggestion? Add it to the list :)
 
 ---
 
-Generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/workspace/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
+Generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
