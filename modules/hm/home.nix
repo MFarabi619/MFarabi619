@@ -32,5 +32,9 @@
       enableBashIntegration = true;
       enableZshIntegration = true;
     };
+
+    language = {
+      base = "en_US";
+    };
   };
 }
