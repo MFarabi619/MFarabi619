@@ -14,121 +14,14 @@
     ../../../../modules/hm/lazygit.nix
     ../../../../modules/hm/gh.nix
     ../../../../modules/hm/yazi.nix
-    ./stylix.nix
+    ../../../../modules/hm/stylix.nix
+    ../../../../modules/hm/manual.nix
+    ../../../../modules/hm/home.nix
+    ../../../../modules/hm/editorconfig.nix
+    ../../../../modules/hm/services.nix
+    ./darwin.nix
+    ../../../../modules/hm/aerospace.nix
   ];
-
-  home = {
-    stateVersion = "25.05";
-    username = "mfarabi";
-    packages = with pkgs; [
-      # ============== 🤪 =================
-      asciiquarium
-      cowsay
-      cmatrix
-      figlet
-      nyancat
-      lolcat
-      # hollywood
-      # ============= 🧑‍💻🐞‍ ================
-      # pnpm
-      devenv
-      nix-inspect
-      tgpt
-      # ugm
-      lazyjournal
-      pik
-      systemctl-tui
-      # virt-viewer
-      # ===================
-      zsh-powerlevel10k
-      meslo-lgs-nf
-    ];
-
-    shell = {
-      enableShellIntegration = true;
-      enableZshIntegration = true;
-    };
-  };
-
-  editorconfig.enable = true;
-
-  manual = {
-    manpages.enable = true;
-    html.enable = true;
-    json.enable = true;
-  };
-
-  services = {
-    home-manager = {
-      # autoUpgrade = {
-      #  enable = true;
-      #  frequency = "daily";
-      # };
-    };
-  };
-
-  fonts = {
-    fontconfig = {
-      enable = true;
-      defaultFonts = {
-        serif = [
-          "JetBrainsMono Nerd Font"
-        ];
-        sansSerif = [
-          "JetBrainsMono Nerd Font"
-        ];
-        monospace = [
-          "JetBrainsMono Nerd Font"
-        ];
-        emoji = [
-          "Noto Color Emoji"
-        ];
-      };
-    };
-  };
-
-  targets = {
-    darwin = {
-      linkApps = {
-        enable = true;
-      };
-      search = "Google";
-      currentHostDefaults = {
-        "com.apple.controlcenter" = {
-          BatteryShowPercentage = true;
-        };
-      };
-      defaults = {
-        "com.apple.desktopservices" = {
-          DSDontWriteNetworkStores = true;
-          DSDontWriteUSBStores = true;
-        };
-        NSGlobalDomain = {
-          AppleMetricUnits = true;
-          AppleMesurementUnits = "Centimeters";
-        };
-        "com.apple.finder" = {
-          AppleShowAllFiles = true;
-          showPathBar = true;
-          ShowStatusBar = true;
-        };
-        "com.apple.dock" = {
-          autohide = true;
-          tileSize = 48;
-          orientation = "bottom";
-        };
-        "com.apple.menuextra.clock" = {
-          IsAnalog = true;
-          ShowAMPM = true;
-          ShowDate = 1;
-        };
-      };
-      #      keybindings = {
-      # "^u" = "deleteToBeginningOfLine:";
-      #  "^w" = "deleteWordBackward:";
-      #      };
-    };
-  };
 
   programs = {
     home-manager.enable = true;
@@ -137,37 +30,8 @@
       service.enable = true;
       includeSystemPath = true;
       config = {
-        source = ../sketchybar;
+        source = ../../../../modules/hm/sketchybar;
         recursive = true;
-      };
-    };
-    aerospace = {
-      enable = true;
-      userSettings = {
-        start-at-login = true;
-        accordion-padding = 30;
-        mode.main.binding = {
-          alt-enter = ''
-            exec-and-forget osascript -e '
-            tell application "Kitty"
-                do script
-                activate
-            end tell'
-          '';
-          alt-tab = "workspace-back-and-forth";
-        };
-        gaps = {
-          outer.left = 8;
-          outer.bottom = 8;
-          outer.top = 8;
-          outer.right = 8;
-        };
-        on-focus-changed = [
-          "move-mouse monitor-lazy-center"
-        ];
-        on-focused-monitor-changed = [
-          "move-mouse monitor-lazy-center"
-        ];
       };
     };
     go = {
