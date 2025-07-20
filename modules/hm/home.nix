@@ -37,4 +37,12 @@
       base = "en_US";
     };
   };
+
+  nix = {
+    gc = {
+      automatic = true;
+      frequency = "daily";
+      persistent = true;
+    };
+  };
 }
