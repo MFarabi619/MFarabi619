@@ -280,15 +280,15 @@ Exit =iwctl= with =Ctrl+C=.
 nix --accept-flake-config profile install github:cachix/devenv
 #+end_src
 
-[[https://omnix.page/index.html][Omnix]]
-#+begin_src bash
-nix --accept-flake-config profile install github:juspay/omnix
-#+end_src
+# [[https://omnix.page/index.html][Omnix]]
+# #+begin_src bash
+# nix --accept-flake-config profile install github:juspay/omnix
+# #+end_src
 
-#+begin_src bash
-nix --accept-flake-config run github:juspay/omnix -- \
-  init -o ~/nix-config github:srid/nixos-unified#home
-#+end_src
+# #+begin_src bash
+# nix --accept-flake-config run github:juspay/omnix -- \
+#   init -o ~/nix-config github:srid/nixos-unified#home
+# #+end_src
 
 #+begin_src bash
 git add .; nix run .#activate $USER@
@@ -314,5 +314,8 @@ sudo apt update && sudo apt upgrade -y
 5. Install Ubuntu from Marketplace
 6. Install NixOS-WSL
 7. Change user
+** Raspberry Pi 5 ARM NixOS
 
+** Android NixOS
 
+[[https://github.com/nix-community/nix-on-droid?tab=readme-ov-file][GitHub - nix-community/nix-on-droid]]
