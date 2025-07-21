@@ -1,52 +1,63 @@
 {
-  description = "Mumtahin Farabi's NixOS Configuration.";
+  description = "Mumtahin Farabi's distributed NixOS Configurations.";
 
   inputs = {
+    # update with `nix run .#update`
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    hydenix = {
-      # Hydenix and its nixpkgs - kept separate to avoid conflicts
-      url = "github:richen604/hydenix"; # Main
-      # Available inputs:
-      # url = "github:richen604/hydenix/dev"; # Dev
-      # url = "github:richen604/hydenix/<commit-hash>"; # Commit
-      # url = "github:richen604/hydenix/v1.0.0"; # Version
-    };
 
     nix-index-database = {
       # Nix-index-database - for comma and command-not-found
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    nix-doom-emacs-unstraightened = {
-      url = "github:marienz/nix-doom-emacs-unstraightened";
-      inputs.nixpkgs.follows = "";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    playwright-web-flake.url = "github:pietdevries94/playwright-web-flake";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    nixos-unified.url = "github:srid/nixos-unified";
   };
 
   outputs =
-    { ... }@inputs:
+    inputs@{ self, ... }:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+        "x86_64-darwin"
+      ];
+      imports = [
+        inputs.nixos-unified.flakeModules.default
+      ];
 
-    let
-      HOSTNAME = "hydenix";
-
-      hydenixConfig = inputs.hydenix.inputs.hydenix-nixpkgs.lib.nixosSystem {
-        inherit (inputs.hydenix.lib) system;
-        specialArgs = {
-          inherit inputs;
+      perSystem =
+        { pkgs, ... }:
+        let
+          myUserName = "mfarabi";
+        in
+        {
+          legacyPackages.homeConfigurations.${myUserName} = self.nixos-unified.lib.mkHomeConfiguration pkgs (
+            { pkgs, ... }:
+            {
+              imports = [ self.homeModules.default ];
+              home = {
+                username = myUserName;
+                stateVersion = "24.11";
+              };
+            }
+          );
         };
-        modules = [
-          ./configuration.nix
-        ];
-      };
-    in
-    {
-      nixosConfigurations = {
-        nixos = hydenixConfig;
-        ${HOSTNAME} = hydenixConfig;
+
+      flake = {
+        homeModules.default =
+          { pkgs, ... }:
+          {
+            imports = [
+              ./modules/hm/programs
+            ];
+
+          };
       };
     };
 }
