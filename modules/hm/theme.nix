@@ -39,73 +39,75 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Convert theme names to their corresponding packages, filtering out missing ones
-    home.packages = lib.filter (p: p != null) (map findThemeByName availableThemes);
+    home = {
+      # Convert theme names to their corresponding packages, filtering out missing ones
+      packages = lib.filter (p: p != null) (map findThemeByName availableThemes);
 
-    # walks through the themes and creates symlinks in the hyde themes directory
-    home.file =
-      let
-        # Find the package for each theme name, filtering out missing ones
-        themesList = lib.filter (t: t.pkg != null) (
-          map (themeName: {
-            name = themeName;
-            pkg = findThemeByName themeName;
-          }) availableThemes
+      # walks through the themes and creates symlinks in the hyde themes directory
+      file =
+        let
+          # Find the package for each theme name, filtering out missing ones
+          themesList = lib.filter (t: t.pkg != null) (
+            map (themeName: {
+              name = themeName;
+              pkg = findThemeByName themeName;
+            }) availableThemes
+          );
+        in
+        lib.mkMerge (
+          map (theme: {
+            ".config/hyde/themes/${theme.name}" = {
+              source = "${theme.pkg}/share/hyde/themes/${theme.name}";
+              force = true;
+              recursive = true;
+              mutable = true;
+            };
+          }) themesList
         );
-      in
-      lib.mkMerge (
-        map (theme: {
-          ".config/hyde/themes/${theme.name}" = {
-            source = "${theme.pkg}/share/hyde/themes/${theme.name}";
-            force = true;
-            recursive = true;
-            mutable = true;
-          };
-        }) themesList
-      );
 
-    # Add activation script to set the active theme
-    home.activation.setTheme = lib.hm.dag.entryAfter [ "mutableGeneration" ] ''
-      # Define path with required tools
-      export PATH="${
-        lib.makeBinPath (
-          with pkgs;
-          [
-            swww
-            killall
-            hyprland
-            dunst
-            libnotify
-            systemd
-            waybar
-            kitty
-            gawk
-            coreutils
-            parallel
-            imagemagick
-            hydenix.hyde
-            which
-            util-linux
-            dconf
-          ]
-        )
-      }:$PATH"
+      # Add activation script to set the active theme
+      activation.setTheme = lib.hm.dag.entryAfter [ "mutableGeneration" ] ''
+        # Define path with required tools
+        export PATH="${
+          lib.makeBinPath (
+            with pkgs;
+            [
+              swww
+              killall
+              hyprland
+              dunst
+              libnotify
+              systemd
+              waybar
+              kitty
+              gawk
+              coreutils
+              parallel
+              imagemagick
+              hydenix.hyde
+              which
+              util-linux
+              dconf
+            ]
+          )
+        }:$PATH"
 
-      # Set up logging
-      LOG_FILE="$HOME/.local/state/hyde/theme-switch.log"
-      mkdir -p $HOME/.local/state/hyde
-      # Clear the log file before writing
-      : > "$LOG_FILE"
-      chmod 644 $LOG_FILE
+        # Set up logging
+        LOG_FILE="$HOME/.local/state/hyde/theme-switch.log"
+        mkdir -p $HOME/.local/state/hyde
+        # Clear the log file before writing
+        : > "$LOG_FILE"
+        chmod 644 $LOG_FILE
 
-      echo "Setting theme to ${cfg.active}..." | tee -a "$LOG_FILE"
+        echo "Setting theme to ${cfg.active}..." | tee -a "$LOG_FILE"
 
-      export LOG_LEVEL=debug
+        export LOG_LEVEL=debug
 
-      # Run the theme switch commands with the custom runtime dir
-      $HOME/.local/lib/hyde/theme.switch.sh -s "${cfg.active}" >> "$LOG_FILE" 2>&1
+        # Run the theme switch commands with the custom runtime dir
+        $HOME/.local/lib/hyde/theme.switch.sh -s "${cfg.active}" >> "$LOG_FILE" 2>&1
 
-      echo "Theme switch completed. Log saved to $LOG_FILE" | tee -a "$LOG_FILE"
-    '';
+        echo "Theme switch completed. Log saved to $LOG_FILE" | tee -a "$LOG_FILE"
+      '';
+    };
   };
 }

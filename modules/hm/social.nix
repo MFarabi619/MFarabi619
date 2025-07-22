@@ -42,15 +42,17 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = with pkgs; [
-      (lib.mkIf cfg.discord.enable discord)
-      (lib.mkIf cfg.webcord.enable webcord)
-      (lib.mkIf cfg.vesktop.enable vesktop)
-    ];
+    home = {
+      packages = with pkgs; [
+        (lib.mkIf cfg.discord.enable discord)
+        (lib.mkIf cfg.webcord.enable webcord)
+        (lib.mkIf cfg.vesktop.enable vesktop)
+      ];
 
-    home.file = {
-      ".config/electron-flags.conf" = {
-        source = "${pkgs.hydenix.hyde}/Configs/.config/electron-flags.conf";
+      file = {
+        ".config/electron-flags.conf" = {
+          source = "${pkgs.hydenix.hyde}/Configs/.config/electron-flags.conf";
+        };
       };
     };
   };

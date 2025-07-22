@@ -18,12 +18,13 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = with pkgs; [
-      firefox # browser
-    ];
-
-    home.sessionVariables = {
-      MOZ_ENABLE_WAYLAND = "1";
+    home = {
+      packages = with pkgs; [
+        firefox # browser
+      ];
+      sessionVariables = {
+        MOZ_ENABLE_WAYLAND = "1";
+      };
     };
   };
 }

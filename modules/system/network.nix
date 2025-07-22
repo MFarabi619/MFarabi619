@@ -23,18 +23,20 @@ in
       networkmanagerapplet
     ];
 
-    networking.networkmanager.enable = true;
-    networking.firewall = {
-      enable = true;
-      allowedTCPPorts = [
-        # SSH
-        22
-      ];
-      allowedUDPPorts = [
-        # DHCP
-        68
-        546
-      ];
+    networking = {
+      networkmanager.enable = true;
+      firewall = {
+        enable = true;
+        allowedTCPPorts = [
+          # SSH
+          22
+        ];
+        allowedUDPPorts = [
+          # DHCP
+          68
+          546
+        ];
+      };
     };
   };
 }

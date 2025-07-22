@@ -25,12 +25,14 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    programs.nix-index-database.comma.enable = true;
-    programs.nix-index = {
-      enable = true;
-      enableZshIntegration = config.hydenix.hm.shell.zsh.enable;
-      enableBashIntegration = config.hydenix.hm.shell.bash.enable;
-      enableFishIntegration = config.hydenix.hm.shell.fish.enable;
+    programs = {
+      nix-index-database.comma.enable = true;
+      nix-index = {
+        enable = true;
+        enableZshIntegration = config.hydenix.hm.shell.zsh.enable;
+        enableBashIntegration = config.hydenix.hm.shell.bash.enable;
+        enableFishIntegration = config.hydenix.hm.shell.fish.enable;
+      };
     };
   };
 }

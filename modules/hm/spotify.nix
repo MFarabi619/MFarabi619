@@ -18,16 +18,18 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = with pkgs; [
-      spotify
-    ];
+    home = {
+      packages = with pkgs; [
+        spotify
+      ];
 
-    home.file = {
-      ".config/spotify-flags.conf" = {
-        source = "${pkgs.hydenix.hyde}/Configs/.config/spotify-flags.conf";
-      };
-      ".config/electron-flags.conf" = {
-        source = "${pkgs.hydenix.hyde}/Configs/.config/electron-flags.conf";
+      file = {
+        ".config/spotify-flags.conf" = {
+          source = "${pkgs.hydenix.hyde}/Configs/.config/spotify-flags.conf";
+        };
+        ".config/electron-flags.conf" = {
+          source = "${pkgs.hydenix.hyde}/Configs/.config/electron-flags.conf";
+        };
       };
     };
   };

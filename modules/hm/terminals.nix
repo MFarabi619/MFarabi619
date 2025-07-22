@@ -31,32 +31,34 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = with pkgs; [
-      (lib.mkIf cfg.kitty.enable kitty) # terminal
-    ];
+    home = {
+      packages = with pkgs; [
+        (lib.mkIf cfg.kitty.enable kitty) # terminal
+      ];
 
-    home.file = {
-      ".config/kitty/hyde.conf" = {
-        source = "${pkgs.hydenix.hyde}/Configs/.config/kitty/hyde.conf";
-      };
-      ".config/kitty/kitty.conf" = {
-        text = ''
-          include hyde.conf
+      file = {
+        ".config/kitty/hyde.conf" = {
+          source = "${pkgs.hydenix.hyde}/Configs/.config/kitty/hyde.conf";
+        };
+        ".config/kitty/kitty.conf" = {
+          text = ''
+            include hyde.conf
 
-          # Add your custom configurations here
-          ${cfg.kitty.configText}
-        '';
-        force = true;
-        mutable = true;
-      };
+            # Add your custom configurations here
+            ${cfg.kitty.configText}
+          '';
+          force = true;
+          mutable = true;
+        };
 
-      # Kitty
-      # stateful file for kitty wallbash
+        # Kitty
+        # stateful file for kitty wallbash
 
-      ".config/kitty/theme.conf" = {
-        source = "${pkgs.hydenix.hyde}/Configs/.config/kitty/theme.conf";
-        force = true;
-        mutable = true;
+        ".config/kitty/theme.conf" = {
+          source = "${pkgs.hydenix.hyde}/Configs/.config/kitty/theme.conf";
+          force = true;
+          mutable = true;
+        };
       };
     };
   };

@@ -27,15 +27,17 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = [
-      pkgs.hydenix.hyde
-      pkgs.Bibata-Modern-Ice
-    ];
+    environment = {
+      systemPackages = [
+        pkgs.hydenix.hyde
+        pkgs.Bibata-Modern-Ice
+      ];
 
-    # Add this section to ensure cursor theme is properly loaded
-    environment.sessionVariables = {
-      XCURSOR_THEME = "Bibata-Modern-Ice";
-      XCURSOR_SIZE = "24";
+      # Add this section to ensure cursor theme is properly loaded
+      sessionVariables = {
+        XCURSOR_THEME = "Bibata-Modern-Ice";
+        XCURSOR_SIZE = "24";
+      };
     };
 
     services.displayManager.sddm = {
