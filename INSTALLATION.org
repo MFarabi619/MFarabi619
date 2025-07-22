@@ -315,6 +315,17 @@ sudo apt update && sudo apt upgrade -y
 6. Install NixOS-WSL
 7. Change user
 ** Raspberry Pi 5 ARM NixOS
+[[https://wiki.nixos.org/wiki/NixOS_on_ARM/Raspberry_Pi_5][NixOS on ARM/Raspberry Pi 5 - NixOS Wiki]]
+
+#+begin_src bash
+nix build github:nvmd/nixos-raspberrypi#installerImages.rpi5
+#+end_src
+
+Flash to USB, clone this repo, then build flake.
+
+#+begin_src bash
+nixos-rebuild switch --flake .
+#+end_src
 
 ** Android NixOS
 

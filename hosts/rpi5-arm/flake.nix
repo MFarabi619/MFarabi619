@@ -1,5 +1,3 @@
-# nixos-rebuild switch --flake .#rpi5
-
 {
   description = "Raspberry Pi 5 configuration flake";
   inputs = {
