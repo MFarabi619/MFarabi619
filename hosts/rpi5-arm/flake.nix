@@ -64,10 +64,10 @@
               };
               users.mfarabi = {
                 imports = [
-                  ../../hosts/darwin/modules/hm/programs.nix
-                  ../../modules/hm/programs
-                  # ../../modules/hm/stylix.nix
-                  ../../modules/hm/manual.nix
+                  ../../modules/darwin/hm/programs.nix
+                  ../../modules/home/programs
+                  # ../../modules/home/stylix.nix
+                  ../../modules/home/manual.nix
                 ];
 
                 home = {

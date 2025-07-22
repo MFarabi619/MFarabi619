@@ -10,8 +10,8 @@
   imports = [
     inputs.lazyvim.homeManagerModules.default
     inputs.nix-doom-emacs-unstraightened.homeModule
-    ../../../../modules/hm/doom-emacs.nix
-    ../../../../modules/hm/progams
+    ../../../../modules/home/doom-emacs.nix
+    ../../../../modules/home/progams
   ];
 
   home = {

@@ -64,7 +64,7 @@
       initContent = lib.mkBefore ''
         source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
 
-        [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/libs/dotfiles/hosts/darwin/modules/hm/.p10k.zsh
+        [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/configurations/home/.p10k.zsh
       '';
       oh-my-zsh = {
         enable = true;

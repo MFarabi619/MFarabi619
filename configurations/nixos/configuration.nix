@@ -14,8 +14,10 @@ let
           config.allowUnfree = true;
         };
 
-         inherit (inputs.playwright-web-flake.packages.${inputs.hydenix.lib.system})
-        playwright-test playwright-driver;
+        inherit (inputs.playwright-web-flake.packages.${inputs.hydenix.lib.system})
+          playwright-test
+          playwright-driver
+          ;
       })
     ];
   };
@@ -31,8 +33,8 @@ in
 
     # === GPU ===
     /*
-    Leveraging `nixos-hardware` for drivers.
-    Most common drivers are below. See more options: https://github.com/NixOS/nixos-hardware
+      Leveraging `nixos-hardware` for drivers.
+      Most common drivers are below. See more options: https://github.com/NixOS/nixos-hardware
     */
     # inputs.hydenix.inputs.nixos-hardware.nixosModules.common-gpu-nvidia # NVIDIA setups
     # inputs.hydenix.inputs.nixos-hardware.nixosModules.common-gpu-amd # AMD setups
@@ -46,7 +48,10 @@ in
     inputs.hydenix.inputs.nixos-hardware.nixosModules.common-pc-ssd
   ];
 
-  nix.settings.trusted-users = [ "root" "mfarabi" ];
+  nix.settings.trusted-users = [
+    "root"
+    "mfarabi"
+  ];
 
   home-manager = {
     useGlobalPkgs = true;
@@ -62,7 +67,7 @@ in
           inputs.hydenix.lib.homeModules
           inputs.nix-index-database.hmModules.nix-index # Nix-index-database - for comma and command-not-found
           inputs.nix-doom-emacs-unstraightened.homeModule
-          ./modules/hm
+          ../modules/home
         ];
       };
   };
@@ -82,7 +87,7 @@ in
       enable = true;
       useSystemdBoot = true;
       grubTheme = pkgs.hydenix.grub-retroboot; # or pkgs.hydenix.grub-pochita
-      grubExtraConfig = "";                    # additional GRUB configuration
+      grubExtraConfig = ""; # additional GRUB configuration
       kernelPackages = pkgs.linuxPackages_zen;
     };
     sddm = {
@@ -95,29 +100,29 @@ in
     isNormalUser = true;
     initialPassword = "mfarabi";
     extraGroups = [
-      "wheel"          # sudo
+      "wheel" # sudo
       "networkmanager" # network management
-      "video"          # display/graphics
+      "video" # display/graphics
     ];
     shell = pkgs.zsh;
     packages = with pkgs; [
       # ==========  Doom Emacs ===========
       clang
-      cmake         # vterm compilation and more
+      cmake # vterm compilation and more
       coreutils
-      binutils      # native-comp needs 'as', provided by this
-      gnutls        # for TLS connectivity
+      binutils # native-comp needs 'as', provided by this
+      gnutls # for TLS connectivity
       epub-thumbnailer # dired epub previews
       poppler-utils # dired pdf previews
       openscad
       openscad-lsp
-      vips          # dired image previews
-      imagemagick   # for image-dired
-      tuntox        # collab
-      sqlite        # :tools lookup & :lang org +roam
-      ispell        # spelling
-      nil           # nix lang formatting
-      shellcheck    # shell script formatting
+      vips # dired image previews
+      imagemagick # for image-dired
+      tuntox # collab
+      sqlite # :tools lookup & :lang org +roam
+      ispell # spelling
+      nil # nix lang formatting
+      shellcheck # shell script formatting
       # texlive     # :lang latex & :lang org (latex previews)
       # ============== 🤪 =================
       asciiquarium
@@ -152,27 +157,28 @@ in
 
   services = {
     udev.extraHwdb = ''
-          evdev:atkbd:*
-            KEYBOARD_KEY_3a=leftctrl
-        '';
+      evdev:atkbd:*
+        KEYBOARD_KEY_3a=leftctrl
+    '';
     ttyd = {
       enable = true;
       writeable = true;
       port = 7681;
     };
-#     github-runners = {
-#       nixos = {
-#         enable = true;
-#         nodeRuntimes = "node22";
-#         url = "https://github.com/mira-amm/mira-amm-web";
-#         tokenFile = ./.runner.token;
-#       };
-#     };
+    #     github-runners = {
+    #       nixos = {
+    #         enable = true;
+    #         nodeRuntimes = "node22";
+    #         url = "https://github.com/mira-amm/mira-amm-web";
+    #         tokenFile = ./.runner.token;
+    #       };
+    #     };
   };
 
   virtualisation = {
     libvirtd.enable = true;
-    docker = { # only enable either docker or podman -- Not both
+    docker = {
+      # only enable either docker or podman -- Not both
       enable = true;
       autoPrune.enable = true;
     };
@@ -180,9 +186,9 @@ in
   };
 
   environment = {
-   shellInit = ''
-    export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}"
-    export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    shellInit = ''
+      export PLAYWRIGHT_BROWSERS_PATH="${pkgs.playwright-driver.browsers}"
+      export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
     '';
   };
 

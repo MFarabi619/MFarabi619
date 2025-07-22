@@ -60,7 +60,7 @@
               extraSpecialArgs = {
                 inherit inputs;
               };
-              users.mfarabi = import ./modules/hm;
+              users.mfarabi = import ../../modules/darwin/hm;
             };
           }
         ];

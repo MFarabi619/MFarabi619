@@ -56,7 +56,7 @@
 
 3. Initialize from Flake
    #+begin_src sh
-   cd ~MFarabi619/libs/dotfiles/hosts/ubuntu; nix run nixpkgs#home-manager -- switch --flake .;
+   cd ~/MFarabi619/hosts/ubuntu; nix run nixpkgs#home-manager -- switch --flake .;
    #+end_src
 
 * Install Host

@@ -1,3 +1,4 @@
+# git add .; nix run .#activate $USER@$HOSTNAME --show-trace
 {
   description = "Mumtahin Farabi's distributed NixOS Configurations.";
 
@@ -14,7 +15,9 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     flake-parts.url = "github:hercules-ci/flake-parts";
+
     nixos-unified.url = "github:srid/nixos-unified";
 
     lix-module = {
@@ -53,21 +56,23 @@
       stylix,
       ...
     }:
+
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+
       systems = [
         "x86_64-linux"
         "aarch64-linux"
         "aarch64-darwin"
-        "x86_64-darwin"
       ];
+
       imports = [
         inputs.nixos-unified.flakeModules.default
       ];
 
-      perSystem =
-        { pkgs, system, ... }:
+      flake =
         let
           myUserName = "mfarabi";
+          pkgs = import nixpkgs { system = builtins.currentSystem; };
         in
         {
           legacyPackages.homeConfigurations.${myUserName} = self.nixos-unified.lib.mkHomeConfiguration pkgs (
@@ -80,42 +85,42 @@
               };
             }
           );
-        };
 
-      flake = {
-        homeModules.default =
-          { pkgs, ... }:
-          {
+          nixosConfigurations."nixos" = self.nixos-unified.lib.mkLinuxSystem { home-manager = true; } {
+            nixpkgs.hostPlatform = "x86_64-linux";
             imports = [
-              ./modules/hm/programs
+              ./configurations/nixos/flake.nix
+              # Setup home-manager in NixOS config
+              # {
+              #   home-manager.users.${myUserName} = {
+              #     imports = [ self.homeModules.default ];
+              #     home.stateVersion = "24.11";
+              #   };
+              # }
             ];
           };
-        # Add Darwin (macOS) support
-        darwinConfigurations = {
-          macos = nix-darwin.lib.darwinSystem {
-            system = "aarch64-darwin";
-            specialArgs = { inherit inputs; };
-            modules = [
-              lix-module.nixosModules.default
-              stylix.darwinModules.stylix
-              ./hosts/darwin/configuration.nix
 
-              home-manager.darwinModules.home-manager
-              {
-                home-manager = {
-                  useGlobalPkgs = true;
-                  useUserPackages = true;
-                  extraSpecialArgs = {
-                    inherit inputs;
-                  };
-                  users.mfarabi = import ./hosts/darwin/modules/hm;
-                };
-              }
+          darwinConfigurations."macos" = self.nixos-unified.lib.mkMacosSystem { home-manager = true; } {
+            nixpkgs.hostPlatform = "aarch64-darwin";
+            imports = [
+              ./configurations/darwin/flake.nix
+              # Setup home-manager in nix-darwin config
+              # {
+              #   home-manager.users.${myUserName} = {
+              #     imports = [ self.homeModules.default ];
+              #     home.stateVersion = "24.11";
+              #   };
+              # }
             ];
           };
+
+          homeModules.default =
+            { pkgs, ... }:
+            {
+              imports = [
+                ./modules/home/programs
+              ];
+            };
         };
-
-        darwinPackages = self.darwinConfigurations."mfarabi".pkgs;
-      };
     };
 }
