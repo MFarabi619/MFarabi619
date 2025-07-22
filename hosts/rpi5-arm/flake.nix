@@ -57,6 +57,37 @@
           )
           ./configuration.nix
           ./hardware-configuration.nix
+          home-manager.nixosModules.home-manager
+          {
+            home-manager = {
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              extraSpecialArgs = {
+                inherit inputs;
+              };
+              users.mfarabi = {
+                imports = [
+                  ../../modules/hm/programs
+                ];
+                home = {
+                  username = "mfarabi";
+                  stateVersion = "25.05";
+
+                  shell = {
+                    enableShellIntegration = true;
+                    enableBashIntegration = true;
+                    enableZshIntegration = true;
+                  };
+
+                  language = {
+                    base = "en_US";
+                  };
+                };
+              };
+            };
+            # Optionally, use home-manager.extraSpecialArgs to pass
+            # arguments to home.nix
+          }
         ];
       };
     };
