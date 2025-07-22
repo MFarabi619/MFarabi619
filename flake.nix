@@ -47,80 +47,9 @@
   };
 
   outputs =
-    inputs@{
-      self,
-      nixpkgs,
-      lix-module,
-      home-manager,
-      nix-darwin,
-      stylix,
-      ...
-    }:
-
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "aarch64-darwin"
-      ];
-
-      imports = [
-        inputs.nixos-unified.flakeModules.default
-      ];
-
-      flake =
-        let
-          myUserName = "mfarabi";
-          pkgs = import nixpkgs { system = builtins.currentSystem; };
-        in
-        {
-          legacyPackages.homeConfigurations.${myUserName} = self.nixos-unified.lib.mkHomeConfiguration pkgs (
-            { pkgs, ... }:
-            {
-              imports = [ self.homeModules.default ];
-              home = {
-                username = myUserName;
-                stateVersion = "24.11";
-              };
-            }
-          );
-
-          nixosConfigurations."nixos" = self.nixos-unified.lib.mkLinuxSystem { home-manager = true; } {
-            nixpkgs.hostPlatform = "x86_64-linux";
-            imports = [
-              ./configurations/nixos/flake.nix
-              # Setup home-manager in NixOS config
-              # {
-              #   home-manager.users.${myUserName} = {
-              #     imports = [ self.homeModules.default ];
-              #     home.stateVersion = "24.11";
-              #   };
-              # }
-            ];
-          };
-
-          darwinConfigurations."macos" = self.nixos-unified.lib.mkMacosSystem { home-manager = true; } {
-            nixpkgs.hostPlatform = "aarch64-darwin";
-            imports = [
-              ./configurations/darwin/flake.nix
-              # Setup home-manager in nix-darwin config
-              # {
-              #   home-manager.users.${myUserName} = {
-              #     imports = [ self.homeModules.default ];
-              #     home.stateVersion = "24.11";
-              #   };
-              # }
-            ];
-          };
-
-          homeModules.default =
-            { pkgs, ... }:
-            {
-              imports = [
-                ./modules/home/programs
-              ];
-            };
-        };
+    inputs:
+    inputs.nixos-unified.lib.mkFlake {
+      inherit inputs;
+      root = ./.;
     };
 }

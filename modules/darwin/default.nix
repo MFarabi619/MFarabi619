@@ -1,9 +1,14 @@
+# This is your nix-darwin configuration.
+# For home configuration, see /modules/home/*
 {
   pkgs,
   ...
 }:
-
 {
+  imports = [
+    ./hm
+  ];
+
   stylix = {
     enable = true;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
@@ -41,12 +46,6 @@
       "/share/zsh"
       "/share/bash-completion"
     ];
-  };
-
-  users.users = {
-    mfarabi = {
-      home = "/Users/mfarabi";
-    };
   };
 
   nix = {
@@ -90,6 +89,57 @@
     man.enable = true;
   };
 
+  time.timeZone = "America/Toronto";
+
+  networking = {
+    computerName = "macos";
+    hostName = "macos";
+    localHostName = "macos";
+    wakeOnLan.enable = true;
+  };
+
+  nixpkgs = {
+    # buildPlatform = "aarch64-darwin";
+    hostPlatform = "aarch64-darwin";
+    config = {
+      allowUnfree = true;
+    };
+  };
+
+  power = {
+    restartAfterFreeze = true;
+    # restartAfterPowerFailure = true;
+    sleep = {
+      allowSleepByPowerButton = true;
+      computer = "never";
+      display = "never";
+      # harddisk = "never";
+    };
+  };
+
+  services = {
+    #     github-runners = {
+    #       macos = {
+    #         enable = true;
+    #         nodeRuntimes = "node22";
+    #         url = "https://github.com/mira-amm/mira-amm-web";
+    #         tokenFile = ./.runner.token;
+    #         ephemeral = false;
+    #         extraLabels = ["macbook-air"];
+    #       };
+    #     };
+    openssh = {
+      enable = true;
+    };
+  };
+
+  security.pam.services.sudo_local = {
+    touchIdAuth = true;
+    watchIdAuth = true;
+  };
+
+  # Configure macOS system
+  # More examples => https://github.com/ryan4yin/nix-darwin-kickstarter/blob/main/rich-demo/modules/system.nix
   system = {
     primaryUser = "mfarabi";
     defaults = {
@@ -166,54 +216,5 @@
 
     startup.chime = true;
     stateVersion = 6;
-  };
-
-  time.timeZone = "America/Toronto";
-
-  networking = {
-    computerName = "macos";
-    hostName = "macos";
-    localHostName = "macos";
-    wakeOnLan.enable = true;
-  };
-
-  nixpkgs = {
-    # buildPlatform = "aarch64-darwin";
-    hostPlatform = "aarch64-darwin";
-    config = {
-      allowUnfree = true;
-    };
-  };
-
-  power = {
-    restartAfterFreeze = true;
-    # restartAfterPowerFailure = true;
-    sleep = {
-      allowSleepByPowerButton = true;
-      computer = "never";
-      display = "never";
-      # harddisk = "never";
-    };
-  };
-
-  services = {
-    #     github-runners = {
-    #       macos = {
-    #         enable = true;
-    #         nodeRuntimes = "node22";
-    #         url = "https://github.com/mira-amm/mira-amm-web";
-    #         tokenFile = ./.runner.token;
-    #         ephemeral = false;
-    #         extraLabels = ["macbook-air"];
-    #       };
-    #     };
-    openssh = {
-      enable = true;
-    };
-  };
-
-  security.pam.services.sudo_local = {
-    touchIdAuth = true;
-    watchIdAuth = true;
   };
 }

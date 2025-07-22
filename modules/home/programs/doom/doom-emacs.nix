@@ -1,8 +1,17 @@
 {
+  inputs,
+  ...
+}:
+{
+
+  imports = [
+    inputs.nix-doom-emacs-unstraightened.homeModule
+  ];
+
   programs = {
     doom-emacs = {
       enable = true;
-      doomDir = ../doom;
+      doomDir = ./;
       extraPackages = epkgs: [
         epkgs.pdf-tools
         epkgs.editorconfig
@@ -26,7 +35,7 @@
       ];
       # provideEmacs = false;
     };
-    };
+  };
 
   services = {
     emacs = {
