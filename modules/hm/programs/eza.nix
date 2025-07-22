@@ -2,8 +2,8 @@
   programs = {
     eza = {
       enable = true;
-      icons = "auto";
-      colors = "auto";
+      icons = "always";
+      colors = "always";
       git = true;
       enableBashIntegration = true;
       enableZshIntegration = true;
