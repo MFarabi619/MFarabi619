@@ -6,6 +6,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
 
+    lix-module = {
+      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.1.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -22,20 +27,12 @@
     };
   };
 
-  # nixConfig = {
-  #   extra-substituters = [
-  #     "https://nixos-raspberrypi.cachix.org"
-  #   ];
-  #   extra-trusted-public-keys = [
-  #     "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
-  #   ];
-  # };
-
   outputs =
     {
       self,
       nixpkgs,
       nixos-raspberrypi,
+      lix-module,
       home-manager,
       stylix,
       ...
@@ -44,6 +41,10 @@
       nixosConfigurations."rpi5" = nixos-raspberrypi.lib.nixosSystem {
         specialArgs = inputs;
         modules = [
+          lix-module.nixosModules.default
+          stylix.nixosModules.stylix
+          ./configuration.nix
+          ./hardware-configuration.nix
           (
             { ... }:
             {
@@ -55,8 +56,6 @@
               ];
             }
           )
-          ./configuration.nix
-          ./hardware-configuration.nix
           home-manager.nixosModules.home-manager
           {
             home-manager = {
@@ -67,8 +66,12 @@
               };
               users.mfarabi = {
                 imports = [
+                  ../../hosts/darwin/modules/hm/programs.nix
                   ../../modules/hm/programs
+                  # ../../modules/hm/stylix.nix
+                  ../../modules/hm/manual.nix
                 ];
+
                 home = {
                   username = "mfarabi";
                   stateVersion = "25.05";

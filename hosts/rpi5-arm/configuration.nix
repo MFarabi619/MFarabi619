@@ -1,5 +1,16 @@
-{ ... }:
+{ pkgs, lib, ... }:
 {
+  # stylix = {
+  #   enable = true;
+  #   base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+  # };
+
+  fonts = {
+    packages = with pkgs; [
+      nerd-fonts.jetbrains-mono
+    ];
+  };
+
   networking = {
     # Use networkd instead of the pile of shell scripts
     # NOTE: SK: is it safe to combine with NetworkManager on desktops?
@@ -34,8 +45,54 @@
         "networkmanager"
         "video"
       ];
+      shell = pkgs.zsh;
     };
     root.initialHashedPassword = "";
+  };
+
+  programs = {
+    zsh.enable = true;
+  };
+
+  environment = {
+    systemPackages = with pkgs; [
+      # ==========  Doom Emacs ===========
+      # clang
+      cmake # vterm compilation and more
+      coreutils
+      binutils # native-comp needs 'as', provided by this
+      gnutls # for TLS connectivity
+      epub-thumbnailer # dired epub previews
+      poppler-utils # dired pdf previews
+      openscad
+      openscad-lsp
+      vips # dired image previews
+      imagemagick # for image-dired
+      tuntox # collab
+      sqlite # :tools lookup & :lang org +roam
+      ispell # spelling
+      nil # nix lang formatting
+      shellcheck # shell script formatting
+      # texlive     # :lang latex & :lang org (latex previews)
+      # ========== Stylix ===========
+      dconf # configuration storage system
+      dconf-editor # dconf editor
+      zsh-powerlevel10k
+      meslo-lgs-nf
+    ];
+
+    variables = {
+      NIXOS_OZONE_WL = "1";
+    };
+    pathsToLink = [
+      "/share/zsh"
+      "/share/bash-completion"
+      # "/share/icons"
+      # "/share/themes"
+      # "/share/fonts"
+      # "/share/xdg-desktop-portal"
+      # "/share/applications"
+    ];
   };
 
   security = {
