@@ -1,4 +1,5 @@
 {
+  flake,
   inputs,
   lib,
   pkgs,
@@ -6,7 +7,7 @@
 }:
 {
   imports = [
-    inputs.lazyvim.homeManagerModules.default
+    flake.inputs.lazyvim.homeManagerModules.default
   ];
 
   programs = {
@@ -64,7 +65,7 @@
       initContent = lib.mkBefore ''
         source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
 
-        [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/configurations/home/.p10k.zsh
+        [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/nixos-unified/configurations/home/.p10k.zsh
       '';
       oh-my-zsh = {
         enable = true;

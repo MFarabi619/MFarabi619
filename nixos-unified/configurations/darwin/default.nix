@@ -9,6 +9,8 @@ in
 {
   imports = [
     self.darwinModules.default
+    inputs.lix-module.nixosModules.default
+    inputs.stylix.darwinModules.stylix
   ];
 
   nixpkgs = {

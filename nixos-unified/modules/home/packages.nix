@@ -3,15 +3,29 @@
   imports = [
     ./programs
   ];
-  # Nix packages to install to $HOME
-  # search.nixos.org/packages
+
   home.packages = with pkgs; [
+    # ==========  Doom Emacs ===========
+    # clang
+    cmake # vterm compilation and more
+    coreutils
+    binutils # native-comp needs 'as', provided by this
+    gnutls # for TLS connectivity
+    epub-thumbnailer # dired epub previews
+    poppler-utils # dired pdf previews
+    openscad
+    openscad-lsp
+    vips # dired image previews
+    imagemagick # for image-dired
+    tuntox # collab
+    sqlite # :tools lookup & :lang org +roam
+    ispell # spelling
+    nil # nix lang formatting
+    shellcheck # shell script formatting
+    # texlive     # :lang latex & :lang org (latex previews)
+    #
     omnix
 
-    # Unix tools
-    # ripgrep # Better `grep`
-    fd
-    sd
     tree
     gnumake
 
@@ -35,7 +49,15 @@
   programs = {
     tmate = {
       enable = true;
-      #host = ""; #In case you wish to use a server other than tmate.io 
+      #host = ""; #In case you wish to use a server other than tmate.io
     };
   };
+
+services = {
+    cachix-agent = {
+      name = "nixos-msi-gs65";
+      enable = true;
+      verbose = true;
+    };
+};
 }

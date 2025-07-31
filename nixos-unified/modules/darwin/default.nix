@@ -1,9 +1,17 @@
 # This is your nix-darwin configuration.
 # For home configuration, see /modules/home/*
+{inputs, pkgs, ...}:
 {
   imports = [
     ./common
   ];
+
+  environment = {
+    pathsToLink = [
+      "/share/zsh"
+      "/share/bash-completion"
+    ];
+  };
 
   stylix = {
     enable = true;
