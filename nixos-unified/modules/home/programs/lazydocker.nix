@@ -1,0 +1,5 @@
+{
+  programs = {
+    lazydocker.enable = true;
+  };
+}

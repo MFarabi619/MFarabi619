@@ -1,0 +1,30 @@
+{
+  imports = [
+    ./home-manager.nix
+    ./lazydocker.nix
+    ./lazysql.nix
+    ./btop.nix
+    ./bat.nix
+    ./fd.nix
+    ./fzf.nix
+    ./direnv.nix
+    ./jq.nix
+    ./go.nix
+    ./git.nix
+    ./gh.nix
+    ./lazygit.nix
+    ./eza.nix
+    ./zellij.nix
+    ./ripgrep.nix
+    ./nix-index.nix
+    ./pandoc.nix
+    ./texlive.nix
+    ./tex-fmt.nix
+    ./nh.nix
+    ./k9s.nix
+    ./kubecolor.nix
+    ./yazi.nix
+    ./zed.nix
+    # ./vivaldi.nix
+  ];
+}

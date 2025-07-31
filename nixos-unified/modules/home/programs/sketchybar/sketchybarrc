@@ -1,0 +1,47 @@
+# B A R
+bar=(
+  height=40
+  position=top
+#   blur_radius=30
+#   sticky=off
+#   padding_left=10
+#   padding_right=10
+#   color=0x7f000000
+)
+
+sketchybar --bar "${bar[@]}"
+
+# D E F A U L T S
+default=(
+  padding_left=5
+  padding_right=5
+  icon.font="VictorMono Nerd Font:Bold:17.0"
+  label.font="VictorMono Nerd Font:Bold:17.0"
+  icon.color=0xffffffff
+  label.color=0xffffffff
+  icon.align=center
+  label.align=center
+  icon.y_offset=1
+  label.y_offset=1
+  icon.padding_left=5
+  icon.padding_right=5
+  label.padding_left=5
+  label.padding_right=5
+)
+sketchybar --default "${default[@]}"
+
+# M O D E
+mode=(
+  icon.drawing=off
+  background.color=0xff{{ .dracula.hex.green }}
+  background.corner_radius=5
+  background.height=20
+  label.padding_right=6
+  label.color=0xff000000
+  label="N"
+)
+
+sketchybar --add item mode left \
+    --set mode "${mode[@]}"
+
+sketchybar --update
