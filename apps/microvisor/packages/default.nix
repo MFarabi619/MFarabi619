@@ -8,9 +8,7 @@
     ./shell.nix
   ];
 
-  packages =
-    with pkgs;
-    [
+  packages = with pkgs; [
       trunk # rust web app server
       nix-tree
 
