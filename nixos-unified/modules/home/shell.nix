@@ -15,6 +15,18 @@
       autosuggestion.enable = true;
       syntaxHighlighting.enable = true;
       enableCompletion = true;
+      shellAliases = {
+        cat = "bat";
+      };
+      oh-my-zsh = {
+        enable = true;
+        plugins = [
+          "git"
+          "sudo"
+          "zsh-256color"
+        ];
+        # theme = "";
+      };
       envExtra = ''
         # Custom ~/.zshenv goes here
       '';
@@ -33,24 +45,24 @@
     zoxide.enable = true;
 
     # Better shell prompt!
-    starship = {
-      enable = true;
-      settings = {
-        username = {
-          style_user = "blue bold";
-          style_root = "red bold";
-          format = "[$user]($style) ";
-          disabled = false;
-          show_always = true;
-        };
-        hostname = {
-          ssh_only = false;
-          ssh_symbol = "🌐 ";
-          format = "on [$hostname](bold red) ";
-          trim_at = ".local";
-          disabled = false;
-        };
-      };
-    };
+    # starship = {
+    #   enable = true;
+    #   settings = {
+    #     username = {
+    #       style_user = "blue bold";
+    #       style_root = "red bold";
+    #       format = "[$user]($style) ";
+    #       disabled = false;
+    #       show_always = true;
+    #     };
+    #     hostname = {
+    #       ssh_only = false;
+    #       ssh_symbol = "🌐 ";
+    #       format = "on [$hostname](bold red) ";
+    #       trim_at = ".local";
+    #       disabled = false;
+    #     };
+    #   };
+    # };
   };
 }

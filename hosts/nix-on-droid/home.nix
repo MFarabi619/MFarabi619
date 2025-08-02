@@ -30,7 +30,7 @@
     ../../nixos-unified/modules/home/programs/yazi.nix
     ../../nixos-unified/modules/home/gc.nix
     ../../nixos-unified/modules/home/manual.nix
-    ../../nixos-unified/modules/home/zsh.nix
+    ../../nixos-unified/modules/home/shell.nix
   ];
 
   home = {
