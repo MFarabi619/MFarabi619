@@ -120,6 +120,7 @@ wayland = {
   windowManager = {
     hyprland = {
       enable = true;
+      systemd.enable = false;
       settings = {
         env = [
           "XDG_CURRENT_DESKTOP,Hyprland"
@@ -238,7 +239,7 @@ wayland = {
           force_default_wallpaper = 0;
         };
 
-        monitor = ",preferred,auto,auto";
+        monitor = ",highres,auto,auto";
         xwayland = {
           force_zero_scaling = true;
         };

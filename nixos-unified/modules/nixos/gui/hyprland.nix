@@ -10,12 +10,34 @@
       withUWSM = true;
       xwayland.enable = true;
     };
+    nix-ld.enable = true;
+    dconf.enable = true;
+    gnupg.agent = {
+      enable = true;
+      enableSSHSupport = true;
+    };
     hyprlock = {
       enable = true;
     };
   };
 
   environment = {
+    variables = {
+      NIXOS_OZONE_WL = "1";
+    };
+
+    pathsToLink = [
+      "/share/icons"
+      "/share/themes"
+      "/share/fonts"
+      "/share/xdg-desktop-portal"
+      "/share/applications"
+      "/share/mime"
+      "/share/wayland-sessions"
+      "/share/zsh"
+      "/share/bash-completion"
+      "/share/fish"
+    ];
     systemPackages = with pkgs; [
       kitty
     ];
@@ -48,10 +70,6 @@
       #   enable = true;
       #   createDirectories = true;
       # };
-  };
-
-  hardware = {
-    graphics.enable = true;
   };
 
   services = {

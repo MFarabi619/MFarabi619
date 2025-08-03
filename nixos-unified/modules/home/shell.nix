@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, lib, ... }:
 {
   programs = {
     # on macOS, you probably don't need this
@@ -9,7 +9,7 @@
       '';
     };
 
-    # For macOS's default shell.
+    # macOS's default shell.
     zsh = {
       enable = true;
       autosuggestion.enable = true;
@@ -18,14 +18,22 @@
       shellAliases = {
         cat = "bat";
       };
+      initContent = lib.mkBefore ''
+        source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
+
+        [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/nixos-unified/.p10k.zsh
+      '';
       oh-my-zsh = {
         enable = true;
         plugins = [
-          "git"
           "sudo"
-          "zsh-256color"
+          "git"
+          "colored-man-pages"
+          "colorize"
+          "docker"
+          "docker-compose"
+          "kubectl"
         ];
-        # theme = "";
       };
       envExtra = ''
         # Custom ~/.zshenv goes here
@@ -42,9 +50,15 @@
     };
 
     # Type `z <pat>` to cd to some directory
-    zoxide.enable = true;
+    zoxide = {
+      enable = true;
+      enableBashIntegration = true;
+      enableZshIntegration = true;
+      # options = [
 
-    # Better shell prompt!
+      # ];
+    };
+
     # starship = {
     #   enable = true;
     #   settings = {
