@@ -1,6 +1,7 @@
 {
   imports = [
     ./home-manager.nix
+    ./doom
     ./lazydocker.nix
     ./lazysql.nix
     ./btop.nix

@@ -1,17 +1,18 @@
 {
+  flake,
   inputs,
   ...
 }:
 {
 
   imports = [
-    inputs.nix-doom-emacs-unstraightened.homeModule
+    flake.inputs.nix-doom-emacs-unstraightened.homeModule
   ];
 
   programs = {
     doom-emacs = {
       enable = true;
-      doomDir = ./;
+      doomDir = ./.;
       extraPackages = epkgs: [
         epkgs.pdf-tools
         epkgs.editorconfig
