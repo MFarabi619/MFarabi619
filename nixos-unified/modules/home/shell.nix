@@ -49,6 +49,9 @@
           "docker"
           "docker-compose"
           "kubectl"
+        ] ++ lib.optionals pkgs.stdenv.isDarwin [
+          "dash"
+          "macos"
         ];
       };
 

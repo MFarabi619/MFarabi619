@@ -26,13 +26,13 @@
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-parts.follows = "flake-parts";
-      };
-    };
+    # nixvim = {
+    #   url = "github:nix-community/nixvim";
+    #   inputs = {
+    #     nixpkgs.follows = "nixpkgs";
+    #     flake-parts.follows = "flake-parts";
+    #   };
+    # };
 
     stylix = {
       url = "github:danth/stylix";
