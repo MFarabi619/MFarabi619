@@ -1,9 +1,16 @@
 {pkgs, inputs, ...}:
 
 {
-
   programs = {
-    uwsm.enable = true;
+    uwsm = {
+      enable = true;
+      # waylandCompositors = {
+      #     prettyName = "Hyprland";
+      #     comment = "Hyprland compositor managed by UWSM";
+      #     binPath = "/run/current-system/sw/bin/hyprland";
+      # };
+    };
+    xwayland.enable = true;
     hyprland = {
       enable = true;
       # package = inputs.hyprland.packages."${pkgs.system}".hyprland;
@@ -45,11 +52,27 @@
       NIXOS_OZONE_WL = "1";
     };
   };
+  services = {
+    displayManager = {
+      sddm = {
+       enable = true;
+       # settings = {
+
+       # };
+       wayland = {
+         enable = true;
+         # compositor = "kwin";
+       };
+       # theme = "";
+       enableHidpi = true;
+      };
+    };
+  };
 
   xdg = {
-    # enable = true;
     portal = {
       enable = true;
+      wlr.enable = true;
       extraPortals = with pkgs; [
         xdg-desktop-portal-hyprland
         xdg-desktop-portal-gtk
@@ -64,16 +87,5 @@
         xdg-desktop-portal
       ];
     };
-    # mimeApps.enable = true;
-
-    # userDirs = {
-      #   enable = true;
-      #   createDirectories = true;
-      # };
-  };
-
-  services = {
-    # xserver.enable = true;
-    # hyprlock.enable = true;
   };
 }

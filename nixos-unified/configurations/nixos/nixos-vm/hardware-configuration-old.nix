@@ -4,29 +4,38 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  imports =
-    [ (modulesPath + "/profiles/qemu-guest.nix")
-    ];
+  imports = [
+    (modulesPath + "/profiles/qemu-guest.nix")
+  ];
 
-  boot.initrd.availableKernelModules = [ "ahci" "xhci_pci" "virtio_pci" "sr_mod" "virtio_blk" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
+  boot = {
+    initrd = {
+      availableKernelModules = [
+        "ata_piix"
+        "ahci"
+        "xhci_pci"
+        "virtio_pci"
+        "sd_mod"
+        "sr_mod"
+        "virtio_blk"
+        "virtio_scsi"
+      ];
+      kernelModules = [ ];
+    };
+    kernelModules = [ "kvm-amd" ];
+    extraModulePackages = [ ];
+  };
 
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/365b9945-917a-4097-8331-0b9f884224a7";
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-uuid/c790b34f-5649-41d6-b868-0c985d8e6354";
       fsType = "ext4";
     };
+  };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/76D9-2ABA";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-
-  swapDevices =
-    [ { device = "/dev/disk/by-uuid/7d052b23-dd62-4ce4-8f26-97c8bfc6a3c4"; }
-    ];
+  swapDevices = [
+    { device = "/dev/disk/by-uuid/83f792a9-b9bf-4088-94c7-9937dd83c50b"; }
+  ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's

@@ -5,9 +5,9 @@
       enable = true;
       settings = {
         disableStartupPopups = true;
+        notARepository = "skip";
         gui = {
           nerdFontsVersion = "3";
-          parseEmoji = true;
           scrollPastBottom = true;
           scrollOffBehaviour = "jump";
           sidePanelWidth = 0.33;
@@ -22,6 +22,7 @@
         git = {
           commit.signOff = true;
           branchPrefix = "${config.me.username}/";
+          parseEmoji = true;
         };
         promptToReturnFromSubprocess = true;
       };

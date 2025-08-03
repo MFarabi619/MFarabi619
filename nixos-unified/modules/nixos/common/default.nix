@@ -1,9 +1,24 @@
+{pkgs,...}:
 {
   imports = [
     ./myusers.nix
   ];
 
+  fonts = {
+    packages = with pkgs; [
+      noto-fonts-emoji
+      noto-fonts-cjk-sans
+      font-awesome
+      symbola
+      material-icons
+      fira-code
+      fira-code-symbols
+    ];
+  };
+
   hardware = {
+    enableRedistributableFirmware = true;
+    enableAllFirmware = true;
     graphics.enable = true;
 
     bluetooth = {
@@ -38,7 +53,17 @@
     };
   };
 
+# console = {
+#   font = "";
+# };
+
   services = {
+    xserver.videoDrivers = [
+      "modesetting"
+      "fbdev"
+      "vesa"
+    ];
+    fwupd.enable = true;
     pipewire = {
       enable = true;
       alsa = {

@@ -32,6 +32,7 @@
 
     rofi-wayland
     wl-clipboard
+    noto-fonts
 
     omnix
 
@@ -116,11 +117,39 @@
     # };
   };
 
+  xdg = {
+    enable = true;
+    mime.enable = true;
+    mimeApps = {
+      enable = true;
+    };
+    portal = {
+      enable = true;
+      extraPortals = with pkgs; [
+       xdg-desktop-portal-hyprland
+      ];
+      configPackages = with pkgs; [
+       hyprland
+      ];
+    };
+  };
+
+  systemd.user.targets.hyprland-session.Unit.Wants = [
+    "xdg-desktop-autostart.target"
+  ];
+
 wayland = {
   windowManager = {
     hyprland = {
       enable = true;
-      systemd.enable = false;
+      package = null;
+      systemd = {
+        enable = true;
+        enableXdgAutostart = true;
+        variables = [
+         "--all"
+        ];
+      };
       settings = {
         env = [
           "XDG_CURRENT_DESKTOP,Hyprland"
@@ -131,7 +160,7 @@ wayland = {
           "QT_WAYLAND_DISABLE_WINDOWDECORATION,1"
           "QT_AUTO_SCREEN_SCALE_FACTOR,1"
           "MOZ_ENABLE_WAYLAND,1"
-          "GDK_SCALE,1"
+          "GDK_SCALE,2"
         ];
         "$mainMod" = "SUPER";
         "$editor" = "nvim";
@@ -151,19 +180,24 @@ wayland = {
           "$mainMod, G, togglegroup"    # toggle focus/group
           "Alt, Return, fullscreen"     # toggle focus/fullscreen
           "Ctrl+Alt, W, exec, killall waybar || waybar"
+          "$mainMod,Q,killactive,"
 
           # Move/Change window focus
           "$mainMod, Left, movefocus, l"
           "$mainMod, Right, movefocus, r"
           "$mainMod, Up, movefocus, u"
           "$mainMod, Down, movefocus, d"
-          "Alt, Tab, movefocus, d"
+          "ALT,Tab,cyclenext"
+          "ALT,Tab,bringactivetotop"
 
           # Move focused window around the current workspace
           "$mainMod+Shift+Ctrl, H, movewindow, l"
           "$mainMod+Shift+Ctrl, L, movewindow, r"
           "$mainMod+Shift+Ctrl, K, movewindow, u"
           "$mainMod+Shift+Ctrl, J, movewindow, d"
+
+          ",XF86MonBrightnessDown,exec,brightnessctl set 5%-"
+          ",XF86MonBrightnessUp,exec,brightnessctl set +5%"
         ] ++ (
             # Switch workspaces
             builtins.concatLists (builtins.genList (i:
@@ -183,8 +217,12 @@ wayland = {
         ];
         exec-once = [
          "waybar"
+         "kitty"
          "wl-paste --type text --watch cliphist store"
          "wl-paste --type image --watch cliphist store"
+         "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+         "dbus-update-activation-environment --systemd --all"
+         "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
         ];
         animations = {
         enabled = false;
@@ -210,6 +248,9 @@ wayland = {
           preserve_split = true;
           pseudotile = true;
         };
+        master = {
+          new_status = "master";
+          };
         general = {
           allow_tearing = false;
           border_size = 5;
@@ -233,17 +274,27 @@ wayland = {
           };
         };
         misc = {
-          vrr = 0;
+          enable_swallow = false;
+          vfr = true; # Variable Frame Rate
+          vrr = 2; #Variable Refresh Rate  Might need to set to 0 for NVIDIA/AQ_DRM_DEVICES
           disable_hyprland_logo = true;
           disable_splash_rendering = true;
           force_default_wallpaper = 0;
         };
 
-        monitor = ",highres,auto,auto";
+        render = {
+          direct_scanout = 0;
+        };
+
+        monitor = ",highres,auto,2";
         xwayland = {
           force_zero_scaling = true;
         };
       };
+      extraConfig = "
+      monitor=Virtual-1,4096x2160@165,auto,3.2
+      windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0
+";
     };
   };
 };

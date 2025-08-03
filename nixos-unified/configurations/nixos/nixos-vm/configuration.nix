@@ -7,11 +7,14 @@
 
   boot = {
     loader = {
-      grub = {
-        enable = true;
-        device = "/dev/vda";
-        useOSProber = true;
-      };
+      systemd-boot.enable = true;
+      # grub = {
+      #   enable = true;
+      #   device = "/dev/vda";
+      #   useOSProber = true;
+      #   # efiSupport = true;
+      # };
+      efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_latest;
   };
@@ -28,11 +31,24 @@
 
       networkmanager.enable = true;
 
-      # firewall = {
-        # enable = false;
-        # allowedTCPPorts = [ ... ];
-        # allowedUDPPorts = [ ... ];
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [
+        22
+        80
+        443
+        59010
+        59011
+        8080
+      ];
+      allowedUDPPorts = [
+        59010
+        59011
+      ];
+    };
   };
+
+  environment.systemPackages = with pkgs; [networkmanagerapplet];
 
   time.timeZone = "America/Toronto";
 

@@ -13,6 +13,9 @@
 
     nixos-unified.url = "github:srid/nixos-unified";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware/master";
+    };
 
     nix-darwin = {
         url = "github:nix-darwin/nix-darwin/master";
@@ -52,13 +55,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland = {
-      url = "github:hyprwm/Hyprland";
-      };
-      hyprland-plugins = {
-        url = "github:hyprwm/hyprland-plugins";
-        inputs.hyprland.follows = "hyprland";
-      };
+    hyprland = { url = "github:hyprwm/Hyprland"; };
+    hyprland-plugins = {
+      url = "github:hyprwm/hyprland-plugins";
+      inputs.hyprland.follows = "hyprland";
+    };
   };
 
   # nixos-unified.org/autowiring.html

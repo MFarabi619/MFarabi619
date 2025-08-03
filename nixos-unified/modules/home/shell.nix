@@ -13,16 +13,32 @@
     zsh = {
       enable = true;
       autosuggestion.enable = true;
-      syntaxHighlighting.enable = true;
+      syntaxHighlighting = {
+        enable = true;
+        highlighters = ["main" "brackets" "pattern" "regexp" "root" "line"];
+      };
       enableCompletion = true;
       shellAliases = {
         cat = "bat";
+        man = "batman";
       };
-      initContent = lib.mkBefore ''
-        source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
+      # initContent = lib.mkBefore ''
+      #   source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
 
-        [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/nixos-unified/.p10k.zsh
-      '';
+      #   [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/nixos-unified/.p10k.zsh
+      # '';
+      plugins = [
+        {
+          name = "powerlevel10k";
+          src = pkgs.zsh-powerlevel10k;
+          file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+        }
+        {
+          name = "powerlevel10k-config";
+          src = lib.cleanSource ../..;
+          file = ".p10k.zsh";
+        }
+      ];
       oh-my-zsh = {
         enable = true;
         plugins = [
@@ -35,6 +51,7 @@
           "kubectl"
         ];
       };
+
       envExtra = ''
         # Custom ~/.zshenv goes here
       '';
