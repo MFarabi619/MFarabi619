@@ -3,7 +3,7 @@
 let
   inherit (flake.inputs) self;
   mapListToAttrs = m: f:
-    lib.listToAttrs (map (name: { inherit name; value = f name; }) m);
+  lib.listToAttrs (map (name: { inherit name; value = f name; }) m);
 in
 {
   options = {
@@ -26,13 +26,12 @@ in
     # For home-manager to work.
     # https://github.com/nix-community/home-manager/issues/4026#issuecomment-1565487545
     users.users = mapListToAttrs config.myusers (name:
-      lib.optionalAttrs pkgs.stdenv.isDarwin
-        {
-          home = "/Users/${name}";
-        } // lib.optionalAttrs pkgs.stdenv.isLinux {
-        isNormalUser = true;
-      }
-    );
+    lib.optionalAttrs pkgs.stdenv.isDarwin
+    {
+      home = "/Users/${name}";
+    } // lib.optionalAttrs pkgs.stdenv.isLinux {
+      isNormalUser = true;
+    });
 
     # Enable home-manager for our user
     home-manager.users = mapListToAttrs config.myusers (name: {
@@ -40,8 +39,12 @@ in
     });
 
     # All users can add Nix caches.
-    nix.settings.trusted-users = [
-      "root"
-    ] ++ config.myusers;
+    nix = {
+      settings = {
+        trusted-users = [
+          "root"
+        ] ++ config.myusers;
+      };
+    };
   };
 }
