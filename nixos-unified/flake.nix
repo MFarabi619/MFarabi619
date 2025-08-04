@@ -12,19 +12,27 @@
     };
 
     nixos-unified.url = "github:srid/nixos-unified";
+
     flake-parts.url = "github:hercules-ci/flake-parts";
+
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
     };
 
     nix-darwin = {
-        url = "github:nix-darwin/nix-darwin/master";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      url = "github:nix-darwin/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
-        url = "github:nix-community/home-manager";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # nixvim = {
     #   url = "github:nix-community/nixvim";
@@ -64,6 +72,9 @@
 
   # nixos-unified.org/autowiring.html
   outputs = inputs:
-    inputs.nixos-unified.lib.mkFlake
-      { inherit inputs; root = ./.; };
+  inputs.nixos-unified.lib.mkFlake
+  {
+    inherit inputs;
+    root = ./.;
+  };
 }

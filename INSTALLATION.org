@@ -317,6 +317,43 @@ sudo apt update && sudo apt upgrade -y
 5. Install Ubuntu from Marketplace
 6. Install NixOS-WSL
 7. Change user
+
+#+begin_src bash
+sudo nix-channel --update
+#+end_src
+
+#+begin_src bash
+nix-shell -p git lazygit
+#+end_src
+
+#+begin_src bash
+git clone https://github.com/MFarabi619/MFarabi619
+#+end_src
+
+#+begin_src bash
+wsl -s NixOS
+#+end_src
+
+[[nix-community.github.io/NixOS-WSL/how-to/change-username]]
+
+#+begin_src bash
+sudo nixos-rebuild boot --flake .
+#+end_src
+
+#+begin_src bash
+wsl -t NixOS; wsl -d NixOS --user root exit; wsl -t NixOS
+#+end_src
+
+[[https://lgug2z.github.io/komorebi/installation.html][Installation - Komorebi]]
+
+Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
+
+winget install --id=DEVCOM.JetBrainsMonoNerdFont  -e
+winget install LGUG2Z.komorebi LGUG2Z.whkd
+
+komorebic quickstart
+komorebic start --whkd --bar
+
 ** Raspberry Pi 5 ARM NixOS
 [[https://wiki.nixos.org/wiki/NixOS_on_ARM/Raspberry_Pi_5][NixOS on ARM/Raspberry Pi 5 - NixOS Wiki]]
 
