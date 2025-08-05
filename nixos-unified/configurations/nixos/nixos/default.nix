@@ -9,6 +9,7 @@ in
 {
   imports = [
     self.nixosModules.default
+    flake.inputs.lix-module.nixosModules.default
     self.nixosModules.gui
     ./configuration.nix
   ];

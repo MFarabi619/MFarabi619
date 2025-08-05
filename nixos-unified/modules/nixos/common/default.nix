@@ -1,4 +1,4 @@
-{pkgs,...}:
+{ pkgs, ... }:
 {
   imports = [
     ./myusers.nix
@@ -53,9 +53,9 @@
     };
   };
 
-# console = {
-#   font = "";
-# };
+  # console = {
+  #   font = "";
+  # };
 
   services = {
     xserver.videoDrivers = [
@@ -86,38 +86,38 @@
     # For trash-cli to work properly
     gvfs.enable = true;
     # cachix-watch-store = {
-      #   enable = true;
-      #   verbose = true;
-      #   # host = "";
-      #   cacheName = "charthouse-labs";
-      #   # jobs = 12;
-      #   # compressionLevel = 0;
-      #   cachixTokenFile = ../../cachixTokenFile;
-      #   # signingKeyFile = "";
-      # };
-      hercules-ci-agent = {
-        enable = true;
-        settings = {
-          concurrentTasks = 4;
-          #   baseDirectory = "";
-          #   binaryCachesPath = "";
-          #   clusterJoinTokenPath = "";
-          #   labels = "";
-          #   workDirectory = "";
-          #   apiBaseUrl = "";
-        };
-      };
-      # https://nixos.wiki/wiki/Hydra
-      #
-      #  hydra-create-user mfarabi --full-name 'Mumtahin Farabi' --email-address 'mfarabi619@gmail.com' --password-prompt --role admin
-      hydra = {
-       enable = true;
-       hydraURL = "http:/localhost:9870";
-       notificationSender = "hydra@localhost";
-       buildMachinesFiles = [];
-       useSubstitutes = true;
-       # logo = ./;
-      };
+    #   enable = true;
+    #   verbose = true;
+    #   # host = "";
+    #   cacheName = "charthouse-labs";
+    #   # jobs = 12;
+    #   # compressionLevel = 0;
+    #   cachixTokenFile = ../../cachixTokenFile;
+    #   # signingKeyFile = "";
+    # };
+    # hercules-ci-agent = {
+    #   enable = true;
+    #   settings = {
+    #     concurrentTasks = 4;
+    #     #   baseDirectory = "";
+    #     #   binaryCachesPath = "";
+    #     #   clusterJoinTokenPath = "";
+    #     #   labels = "";
+    #     #   workDirectory = "";
+    #     #   apiBaseUrl = "";
+    #   };
+    # };
+    # https://nixos.wiki/wiki/Hydra
+    #
+    #  hydra-create-user mfarabi --full-name 'Mumtahin Farabi' --email-address 'mfarabi619@gmail.com' --password-prompt --role admin
+    # hydra = {
+    #   enable = true;
+    #   hydraURL = "http:/localhost:9870";
+    #   notificationSender = "hydra@localhost";
+    #   buildMachinesFiles = [ ];
+    #   useSubstitutes = true;
+    #   # logo = ./;
+    # };
   };
 
   virtualisation = {
