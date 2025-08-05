@@ -719,7 +719,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 ### [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) + Gear Shifting
 
-![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/configurations/keyboards/ferris-sweep/keymap.svg)
+![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/ferris-sweep/keymap.svg)
 
 #### Previously on [Piantor](https://github.com/beekeeb/piantor)
 
