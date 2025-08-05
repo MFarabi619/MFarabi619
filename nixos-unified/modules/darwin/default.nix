@@ -1,10 +1,27 @@
 # This is your nix-darwin configuration.
 # For home configuration, see /modules/home/*
-{inputs, pkgs, ...}:
+{ inputs, pkgs, ... }:
 {
   imports = [
     ./common
   ];
+
+  nixpkgs = {
+    # buildPlatform = "aarch64-darwin";
+    hostPlatform = "aarch64-darwin";
+    config = {
+      allowUnfree = true;
+    };
+  };
+
+  networking = {
+    computerName = "macos";
+    hostName = "macos";
+    localHostName = "macos";
+    wakeOnLan.enable = true;
+  };
+
+  system.primaryUser = "mfarabi";
 
   environment = {
     pathsToLink = [
@@ -25,35 +42,10 @@
   };
 
   nix = {
-    linux-builder = {
-      enable = false;
-      workingDirectory = "var/lib/linux-builder";
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      supportedFeatures = [
-        "kvm"
-        "benchmark"
-        "big-parallel"
-      ];
-    };
-    channel.enable = true;
-    gc = {
-      automatic = true;
-    };
-    optimise = {
-      automatic = true;
-    };
     settings = {
-      auto-optimise-store = true;
       trusted-users = [
         "root"
         "mfarabi"
-      ];
-      experimental-features = [
-        "nix-command"
-        "flakes"
       ];
     };
   };

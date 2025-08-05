@@ -1,6 +1,6 @@
 # See /modules/darwin/* for actual settings
 # This file is just *top-level* configuration.
-{ flake, lib, ... }:
+{ flake, ... }:
 
 let
   inherit (flake) inputs;
@@ -12,23 +12,6 @@ in
     inputs.lix-module.nixosModules.default
     inputs.stylix.darwinModules.stylix
   ];
-
-  nixpkgs = {
-    # buildPlatform = "aarch64-darwin";
-    hostPlatform = "aarch64-darwin";
-    config = {
-      allowUnfree = true;
-    };
-  };
-
-  networking = {
-    computerName = "macos";
-    hostName = "macos";
-    localHostName = "macos";
-    wakeOnLan.enable = true;
-  };
-
-  system.primaryUser = "mfarabi";
 
   # Automatically move old dotfiles out of the way
   #
