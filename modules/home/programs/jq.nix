@@ -1,7 +1,0 @@
-{
-  programs = {
-    jq = {
-      enable = true;
-    };
-  };
-}

@@ -21,7 +21,8 @@
         };
         git = {
           commit.signOff = true;
-          branchPrefix = "${config.me.username}/";
+          # branchPrefix = "${config.me.username}/";
+          branchPrefix = "mfarabi/";
           parseEmoji = true;
         };
         promptToReturnFromSubprocess = true;

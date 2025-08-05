@@ -1,5 +1,0 @@
-{
-  programs = {
-    vivaldi.enable = true;
-  };
-}
