@@ -12,6 +12,12 @@ let
   port = 8022;
 in
 {
+  imports = [
+    ../../modules/nixos/common/time.nix
+  ];
+
+  system.stateVersion = "24.05";
+
   build = {
     activation = {
       sshd = ''
@@ -69,64 +75,54 @@ in
       '')
     ];
 
-  # Backup etc files instead of failing to activate generation if a file already exists in /etc
-  etcBackupExtension = ".bak";
+    # Backup etc files instead of failing to activate generation if a file already exists in /etc
+    etcBackupExtension = ".bak";
 
-  sessionVariables = {
-    EDITOR = "nvim";
+    sessionVariables = {
+      EDITOR = "nvim";
+    };
   };
-};
 
-system.stateVersion = "24.05";
-
-# user = {
+  # user = {
   # userName = "mfarabi";
   # home = "";
   # shell = "/bin/zsh";
-# };
-
-nix = {
-  substituters = [
-    "https://cache.nixos.org"
-    "https://cache.lix.systems"
-    "https://nix-community.cachix.org"
-  ];
-  trustedPublicKeys = [
-    "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZP"
-    "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbv"
-    "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-  ];
-  extraOptions = ''
-    experimental-features = nix-command flakes
-    auto-optimise-store = true
-  '';
-};
-# github.com/nix-community/nix-on-droid/wiki
-# nix-community.github.io/nix-on-droid/nix-on-droid-options.html
-android-integration = {
-  am.enable = true;
-  termux-open.enable = true;
-  termux-open-url.enable = true;
-  termux-reload-settings.enable = true;
-  termux-setup-storage.enable = true;
-  termux-wake-lock.enable = true;
-  xdg-open.enable = true;
-};
-
-terminal = {
-  # colors = {
-    #   };
-    font = "${pkgs.terminus_font_ttf}/share/fonts/truetype/TerminusTTF.ttf";
-};
-
-# documentation = {
-  #   enable = true;
-  #   doc.enable = true;
-  #   info.enable = true;
-  #   man.enable = true;
   # };
 
-  time.timeZone = "America/Toronto";
+  nix = {
+    substituters = [
+      "https://cache.nixos.org"
+      "https://cache.lix.systems"
+      "https://nix-community.cachix.org"
+    ];
+    trustedPublicKeys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZP"
+      "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbv"
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
+    extraOptions = ''
+      experimental-features = nix-command flakes
+      auto-optimise-store = true
+    '';
+  };
+
+  # github.com/nix-community/nix-on-droid/wiki
+  # nix-community.github.io/nix-on-droid/nix-on-droid-options.html
+  android-integration = {
+    am.enable = true;
+    termux-open.enable = true;
+    termux-open-url.enable = true;
+    termux-reload-settings.enable = true;
+    termux-setup-storage.enable = true;
+    termux-wake-lock.enable = true;
+    xdg-open.enable = true;
+  };
+
+  terminal = {
+    # colors = {
+    #   };
+    font = "${pkgs.terminus_font_ttf}/share/fonts/truetype/TerminusTTF.ttf";
+  };
 
   home-manager = {
     config = ./home.nix;
@@ -134,4 +130,3 @@ terminal = {
     useGlobalPkgs = true;
   };
 }
-

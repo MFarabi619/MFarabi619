@@ -3,7 +3,6 @@
   ...
 }:
 {
-
   imports = [
     inputs.nix-doom-emacs-unstraightened.homeModule
   ];

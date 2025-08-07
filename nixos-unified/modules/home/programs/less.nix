@@ -1,0 +1,3 @@
+{
+  programs.less.enable = true;
+}

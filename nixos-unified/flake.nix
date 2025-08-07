@@ -58,23 +58,31 @@
     };
 
     vertex.url = "github:juspay/vertex";
+
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland = { url = "github:hyprwm/Hyprland"; };
+    hyprland = {
+      url = "github:hyprwm/Hyprland";
+    };
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
       inputs.hyprland.follows = "hyprland";
     };
+
+    nixos-raspberrypi = {
+      url = "github:nvmd/nixos-raspberrypi/main";
+      # inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # nixos-unified.org/autowiring.html
-  outputs = inputs:
-  inputs.nixos-unified.lib.mkFlake
-  {
-    inherit inputs;
-    root = ./.;
-  };
+  outputs =
+    inputs:
+    inputs.nixos-unified.lib.mkFlake {
+      inherit inputs;
+      root = ./.;
+    };
 }

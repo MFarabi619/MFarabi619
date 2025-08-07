@@ -13,20 +13,22 @@
     zsh = {
       enable = true;
       autosuggestion.enable = true;
-      syntaxHighlighting = {
-        enable = true;
-        highlighters = ["main" "brackets" "pattern" "regexp" "root" "line"];
-      };
       enableCompletion = true;
       shellAliases = {
         cat = "bat";
         man = "batman";
       };
-      # initContent = lib.mkBefore ''
-      #   source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
-
-      #   [[ -f ~/.p10k.zsh ]] && source ~/MFarabi619/nixos-unified/.p10k.zsh
-      # '';
+      syntaxHighlighting = {
+        enable = true;
+        highlighters = [
+          "main"
+          "brackets"
+          "pattern"
+          "regexp"
+          "root"
+          "line"
+        ];
+      };
       plugins = [
         {
           name = "powerlevel10k";
@@ -49,7 +51,8 @@
           "docker"
           "docker-compose"
           "kubectl"
-        ] ++ lib.optionals pkgs.stdenv.isDarwin [
+        ]
+        ++ lib.optionals pkgs.stdenv.isDarwin [
           "dash"
           "macos"
         ];
@@ -67,16 +70,6 @@
       logoutExtra = ''
         # Custom ~/.zlogout goes here
       '';
-    };
-
-    # Type `z <pat>` to cd to some directory
-    zoxide = {
-      enable = true;
-      enableBashIntegration = true;
-      enableZshIntegration = true;
-      # options = [
-
-      # ];
     };
 
     # starship = {

@@ -23,17 +23,18 @@
     };
   };
 
-  outputs = {
+  outputs =
+    {
       self,
       nixpkgs,
       home-manager,
       nix-on-droid,
-      lix-module
+      lix-module,
     }@inputs:
     {
       nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
         modules = [
-          # lix-module.nixosModules.default
+          lix-module.nixosModules.default
           ./configuration.nix
 
           # list of extra modules for Nix-on-Droid system
@@ -44,9 +45,9 @@
           # flake.nixOnDroidModules.module
         ];
 
-        extraSpecialArgs = {
-          rootPath = ./.;
-        };
+        # extraSpecialArgs = {
+        #   rootPath = ./.;
+        # };
 
         pkgs = import nixpkgs {
           system = "aarch64-linux";

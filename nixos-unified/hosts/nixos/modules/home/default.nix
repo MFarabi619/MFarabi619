@@ -5,7 +5,7 @@
 
 {
   imports = [
-    ./programs
+    ./doom
     ../../../../modules/home/fonts.nix
     ../../../../modules/home/editorconfig.nix
     ../../../../modules/home/manual.nix
@@ -46,20 +46,6 @@
         mutable = true;
       };
     };
-  };
-
-  programs = {
-    vivaldi.enable = true;
-    chromium = {
-      enable = true;
-      extensions = [
-        { id = "dldjpboieedgcmpkchcjcbijingjcgok"; } # fuel wallet
-        { id = "gfbliohnnapiefjpjlpjnehglfpaknnc"; } # surfingkeys
-      ];
-    };
-    superfile.enable = true;
-    mu.enable = true;
-    java.enable = true;
   };
 
   hydenix.hm = {

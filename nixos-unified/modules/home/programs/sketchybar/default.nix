@@ -1,13 +1,15 @@
 {
-  programs = {
-    sketchybar = {
-      enable = true;
-      service.enable = true;
-      includeSystemPath = true;
-      config = {
-        source = ./sketchybarrc;
-        recursive = true;
-      };
+  pkgs,
+  ...
+}:
+{
+  programs.sketchybar = {
+    enable = pkgs.stdenv.isDarwin;
+    service.enable = true;
+    includeSystemPath = true;
+    config = {
+      source = ./sketchybarrc;
+      recursive = true;
     };
   };
 }

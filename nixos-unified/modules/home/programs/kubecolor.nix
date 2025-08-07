@@ -1,8 +1,6 @@
 {
-  programs = {
-    kubecolor = {
-      enable = true;
-      enableAlias = true;
-    };
+  programs.kubecolor = {
+    enable = true;
+    enableAlias = true;
   };
 }

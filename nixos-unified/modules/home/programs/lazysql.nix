@@ -1,5 +1,3 @@
 {
-  programs = {
-    lazysql.enable = true;
-  };
+  programs.lazysql.enable = true;
 }

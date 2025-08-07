@@ -1,4 +1,5 @@
 {
+  pkgs,
   flake,
   inputs,
   ...
@@ -13,27 +14,28 @@
     doom-emacs = {
       enable = true;
       doomDir = ./.;
-      extraPackages = epkgs: [
-        epkgs.pdf-tools
-        epkgs.editorconfig
-        epkgs.shfmt
-        epkgs.nixfmt
-        epkgs.npm
-        epkgs.rustic
-        epkgs.lsp-java
-        epkgs.lsp-docker
-        epkgs.lsp-latex
-        epkgs.lsp-pyright
-        epkgs.lsp-tailwindcss
-        epkgs.lsp-treemacs
-        epkgs.lsp-haskell
-        epkgs.typescript-mode
-        epkgs.jtsx
-        epkgs.yaml
-        epkgs.xclip
-        epkgs.wttrin
-        epkgs.vue3-mode
-      ];
+      extraPackages =
+        epkgs: with epkgs; [
+          pdf-tools
+          editorconfig
+          shfmt
+          nixfmt
+          npm
+          rustic
+          lsp-java
+          lsp-docker
+          lsp-latex
+          lsp-pyright
+          lsp-tailwindcss
+          lsp-treemacs
+          lsp-haskell
+          typescript-mode
+          jtsx
+          yaml
+          xclip
+          wttrin
+          vue3-mode
+        ];
       # provideEmacs = false;
     };
   };

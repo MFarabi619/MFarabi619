@@ -1,4 +1,4 @@
-{pkgs, inputs, ...}:
+{ pkgs, inputs, ... }:
 
 {
   programs = {
@@ -17,7 +17,6 @@
       withUWSM = true;
       xwayland.enable = true;
     };
-    nix-ld.enable = true;
     dconf.enable = true;
     gnupg.agent = {
       enable = true;
@@ -48,23 +47,25 @@
     systemPackages = with pkgs; [
       kitty
     ];
+
     sessionVariables = {
       NIXOS_OZONE_WL = "1";
     };
   };
+
   services = {
     displayManager = {
       sddm = {
-       enable = true;
-       # settings = {
+        enable = true;
+        # settings = {
 
-       # };
-       wayland = {
-         enable = true;
-         # compositor = "kwin";
-       };
-       # theme = "";
-       enableHidpi = true;
+        # };
+        wayland = {
+          enable = true;
+          # compositor = "kwin";
+        };
+        # theme = "";
+        enableHidpi = true;
       };
     };
   };

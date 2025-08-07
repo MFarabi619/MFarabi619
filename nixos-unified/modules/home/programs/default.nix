@@ -1,33 +1,6 @@
+# A module that automatically imports everything else in the parent folder.
 {
-  imports = [
-    ./home-manager.nix
-    # ./doom
-    ./lazydocker.nix
-    ./lazysql.nix
-    ./btop.nix
-    ./bat.nix
-    ./fd.nix
-    ./fzf.nix
-    ./direnv.nix
-    ./jq.nix
-    ./go.nix
-    ./git.nix
-    ./gh.nix
-    ./lazygit.nix
-    ./eza.nix
-    ./zellij.nix
-    ./ripgrep.nix
-    ./nix-index.nix
-    ./pandoc.nix
-    ./texlive.nix
-    ./tex-fmt.nix
-    ./nh.nix
-    ./k9s.nix
-    ./obs-studio.nix
-    ./kubecolor.nix
-    ./television.nix
-    ./yazi.nix
-    ./zed.nix
-    # ./vivaldi.nix
-  ];
+  imports =
+    with builtins;
+    map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
 }

@@ -1,5 +1,8 @@
 {
-  programs = {
-    tex-fmt.enable = true;
+  programs.tex-fmt = {
+    enable = true;
+    # settings = {
+
+    # };
   };
 }
