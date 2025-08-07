@@ -6,6 +6,9 @@
 {
   imports = [
     ./programs
+    ../../../../modules/home/fonts.nix
+    ../../../../modules/home/editorconfig.nix
+    ../../../../modules/home/manual.nix
   ];
 
   home = {

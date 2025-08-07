@@ -1,5 +1,9 @@
 { pkgs, lib, ... }:
 {
+  imports = [
+    ../../modules/nixos/gui
+  ];
+
   # stylix = {
   #   enable = true;
   #   base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
@@ -83,25 +87,14 @@
 
   environment = {
     systemPackages = with pkgs; [
-      # ==========  Doom Emacs ===========
-      # clang
-      cmake # vterm compilation and more
-      coreutils
-      binutils # native-comp needs 'as', provided by this
-      gnutls # for TLS connectivity
-      epub-thumbnailer # dired epub previews
-      poppler-utils # dired pdf previews
-      openscad
-      openscad-lsp
-      vips # dired image previews
-      imagemagick # for image-dired
-      tuntox # collab
-      sqlite # :tools lookup & :lang org +roam
-      ispell # spelling
-      nil # nix lang formatting
-      shellcheck # shell script formatting
-      # texlive     # :lang latex & :lang org (latex previews)
-
+      brightnessctl # screen brightness control
+      udiskie # manage removable media
+      ntfs3g # ntfs support
+      exfat # exFAT support
+      libinput-gestures # actions touchpad gestures using libinput
+      libinput # libinput library
+      lm_sensors # system sensors
+      pciutils # pci utils
       # ========== Stylix ===========
       dconf # configuration storage system
       dconf-editor # dconf editor
@@ -115,11 +108,11 @@
     pathsToLink = [
       "/share/zsh"
       "/share/bash-completion"
-      # "/share/icons"
-      # "/share/themes"
-      # "/share/fonts"
-      # "/share/xdg-desktop-portal"
-      # "/share/applications"
+      "/share/icons"
+      "/share/themes"
+      "/share/fonts"
+      "/share/xdg-desktop-portal"
+      "/share/applications"
     ];
   };
 
@@ -150,8 +143,14 @@
       auto-optimise-store = true;
       max-jobs = "auto";
 
-      trusted-users = [ "root" "mfarabi" ];
-      experimental-features = [ "nix-command" "flakes" ];
+      trusted-users = [
+        "root"
+        "mfarabi"
+      ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
 
       substituters = [
         "https://cache.nixos.org"

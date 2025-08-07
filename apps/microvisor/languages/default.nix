@@ -1,9 +1,10 @@
 {
   imports = [
-   ./rust.nix
    ./javascript.nix
-   ./typescript.nix
    ./nix.nix
+   ./python.nix
+   ./rust.nix
    ./shell.nix
+   ./typescript.nix
   ];
 }

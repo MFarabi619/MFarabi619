@@ -2,18 +2,18 @@
 
 {
   imports = [
-    ./ai.nix
     ./db.nix
     ./git.nix
     ./shell.nix
+    # ./ai.nix
   ];
 
-  packages = with pkgs; [
+  packages =
+    with pkgs;
+    [
       trunk # rust web app server
       nix-tree
 
-      curl
-      wget
       pulumi
       pulumi-esc
       pulumiPackages.pulumi-nodejs
@@ -21,7 +21,7 @@
     ]
     ++ lib.optionals (stdenv.isLinux) [
       vips
-      netscanner
+      # netscanner
     ]
     ++ lib.optionals (stdenv.isDarwin && stdenv.isAarch64) [
       cowsay

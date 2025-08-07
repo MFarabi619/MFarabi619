@@ -1,6 +1,6 @@
 {
   processes = {
-    "api" = {
+    api = {
       exec = "cargo loco start --binding 0.0.0.0";
       process-compose = {
         description = "Back-End Server using Loco.rs";
@@ -19,7 +19,7 @@
       };
     };
 
-    "web" = {
+    web = {
       exec = "trunk serve";
       process-compose = {
         log_configuration = {
@@ -45,7 +45,7 @@
       };
     };
 
-    "💊 Microdoctor" = {
+    microdoctor = {
       exec = "doctor";
       process-compose = {
         description = "💊 Microdoctor";
@@ -55,7 +55,7 @@
       };
     };
 
-    "🔮 fastfetch -C all.jsonc" = {
+    fastfetch--C-all-jsonc = {
       exec = "fastfetch -C all.jsonc";
       process-compose = {
         namespace = "🩺 HEALTH CHECK";
@@ -64,7 +64,7 @@
       };
     };
 
-    "🤖 open-webui serve --port 1212" = {
+    open-webui-serve---port-1212 = {
       exec = "open-webui serve --port 1212";
       process-compose = {
         description = "🤖 Use the GPT LLM of your choice";
@@ -74,7 +74,7 @@
       };
     };
 
-    "🟩 supabase start" = {
+    supabase-start = {
       exec = "process-compose process stop postgres; supabase start --workdir microvisor/services";
       process-compose = {
         description = "🟩 Supabase | 54323";
@@ -88,7 +88,7 @@
       };
     };
 
-    "👋 hello" = {
+    hello = {
       exec = "hello";
       process-compose = {
         description = "👋🧩 Show the Devenv logo art and a friendly greeting";
@@ -97,7 +97,7 @@
       };
     };
 
-    "🕹  console" = {
+    console = {
       exec = ''
         ttyd --writable --browser --url-arg --once devenv up
       '';
@@ -108,7 +108,7 @@
       };
     };
 
-    "📦 node-modules-inspector --depth=7 --port=7000" = {
+    node-modules-inspector---depth-7---port-7000 = {
       exec = "pnpm node-modules-inspector --depth=7 --port=7000";
       process-compose = {
         description = "📦 Node Modules Inspector | 7000";
@@ -125,7 +125,7 @@
       };
     };
 
-    "ℹ devenv info" = {
+    devenv-info = {
       exec = "devenv info";
       process-compose = {
         description = "❄ devenv info";

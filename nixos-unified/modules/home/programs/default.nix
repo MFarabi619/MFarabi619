@@ -23,7 +23,9 @@
     ./tex-fmt.nix
     ./nh.nix
     ./k9s.nix
+    ./obs-studio.nix
     ./kubecolor.nix
+    ./television.nix
     ./yazi.nix
     ./zed.nix
     # ./vivaldi.nix

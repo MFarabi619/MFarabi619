@@ -6,6 +6,7 @@
   name = "🧮 microvisor 🧮";
 
   imports = [
+    ./cachix
     ./env
     ./languages
     ./packages

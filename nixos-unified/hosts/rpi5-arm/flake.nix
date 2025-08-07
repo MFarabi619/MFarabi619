@@ -84,11 +84,6 @@
               };
               users.mfarabi = {
                 imports = [
-                  ../nixos/modules/home/programs
-                  ../../modules/home/editorconfig.nix
-                  ../../modules/home/manual.nix
-                  ../../modules/home/shell.nix
-                  ../../modules/home/programs
                   ./home.nix
                 ];
               };

@@ -12,7 +12,7 @@
     ./fastfetch.nix
     ./firefox.nix
     ./gtk.nix
-    ./git.nix
+    ./programs/git.nix
     ./hyde.nix
     ./hyprland.nix
     ./lockscreen.nix
