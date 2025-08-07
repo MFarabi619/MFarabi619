@@ -4,5 +4,6 @@
    ./javascript.nix
    ./typescript.nix
    ./nix.nix
+   ./shell.nix
   ];
 }
