@@ -1,6 +1,52 @@
-# A module that automatically imports everything else in the parent folder.
+{ lib, pkgs, ... }:
 {
-  imports =
-    with builtins;
-    map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
+  imports = [
+    ./doom
+    ./bash.nix
+    ./bat.nix
+    ./btop.nix
+    ./chromium.nix
+    ./direnv.nix
+    ./eza.nix
+    ./fastfetch.nix
+    ./fd.nix
+    ./fzf.nix
+    ./gh.nix
+    ./git.nix
+    ./go.nix
+    ./gpg.nix
+    ./home-manager.nix
+    ./jq.nix
+    ./k9s.nix
+    ./kitty.nix
+    ./kubecolor.nix
+    ./lazydocker.nix
+    ./lazygit.nix
+    ./lazysql.nix
+    ./less.nix
+    ./mu.nix
+    ./neovim.nix
+    ./nh.nix
+    ./nix-index.nix
+    ./obs-studio.nix
+    ./pandoc.nix
+    ./ripgrep.nix
+    ./sftpman.nix
+    ./starship.nix
+    ./television.nix
+    ./texlive.nix
+    ./tex-fmt.nix
+    ./yazi.nix
+    ./zed.nix
+    ./zellij.nix
+    ./zoxide.nix
+    ./zsh.nix
+  ]
+  ++ lib.optionals pkgs.stdenv.isLinux [
+    ./hyprland.nix
+    ./vivaldi.nix
+  ]
+  ++ lib.optionals pkgs.stdenv.isDarwin [
+    ./sketchybar
+  ];
 }

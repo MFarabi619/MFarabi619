@@ -7,6 +7,9 @@
     enable = true;
     userName = "Mumtahin Farabi";
     userEmail = "mfarabi619@gmail.com";
+    # signing = {
+    #  format = "";
+    # };
     ignores = [
       "*~"
       "*.swp"

@@ -1,15 +1,8 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
-
+{ ... }:
 {
   hardware.raspberry-pi.config = {
     all = {
       # [all] conditional filter, https://www.raspberrypi.com/documentation/computers/config_txt.html#conditional-filters
-
       options = {
         # https://www.raspberrypi.com/documentation/computers/config_txt.html#enable_uart
         # in conjunction with `console=serial0,115200` in kernel command line (`cmdline.txt`)
@@ -27,11 +20,9 @@
           value = true;
         };
       };
-
       # Base DTB parameters
       # https://github.com/raspberrypi/linux/blob/a1d3defcca200077e1e382fe049ca613d16efd2b/arch/arm/boot/dts/overlays/README#L132
       base-dt-params = {
-
         # https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#enable-pcie
         pciex1 = {
           enable = true;
@@ -43,9 +34,7 @@
           enable = true;
           value = "3";
         };
-
       };
-
     };
   };
 }

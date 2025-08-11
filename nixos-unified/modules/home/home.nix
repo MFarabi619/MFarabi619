@@ -31,8 +31,6 @@
       shellcheck # shell script formatting
       # texlive     # :lang latex & :lang org (latex previews)
 
-      rofi-wayland
-      wl-clipboard
       noto-fonts
 
       omnix

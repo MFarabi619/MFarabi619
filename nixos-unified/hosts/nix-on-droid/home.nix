@@ -9,6 +9,5 @@
   imports = [
     ../../modules/home/programs
     ../../modules/home/manual.nix
-    ../../modules/home/shell.nix
   ];
 }

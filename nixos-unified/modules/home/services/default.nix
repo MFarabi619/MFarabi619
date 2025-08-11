@@ -1,12 +1,19 @@
 {
-  services.home-manager = {
-    autoExpire = {
-      enable = true;
-      frequency = "daily";
+  services = {
+    home-manager = {
+      autoExpire = {
+        enable = true;
+        frequency = "daily";
+      };
+      autoUpgrade = {
+        enable = true;
+        frequency = "daily";
+      };
     };
-    autoUpgrade = {
+    gpg-agent = {
       enable = true;
-      frequency = "daily";
+      enableExtraSocket = true;
+      enableSshSupport = true;
     };
   };
 }

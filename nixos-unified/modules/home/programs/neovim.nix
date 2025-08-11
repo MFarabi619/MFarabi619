@@ -1,17 +1,17 @@
 {
-  flake,
+  # flake,
   inputs,
-  lib,
   pkgs,
   ...
 }:
+
 {
   imports = [
-    flake.inputs.lazyvim.homeManagerModules.default
+    inputs.lazyvim.homeManagerModules.default
+    # ./nixvim.nix
   ];
 
   programs = {
-    # vivaldi.enable = true;
     neovim = {
       enable = true;
       defaultEditor = true;
@@ -44,5 +44,8 @@
         dap.core.enable = true;
       };
     };
+    # nixvim = {
+    #   enable = true;
+    # };
   };
 }

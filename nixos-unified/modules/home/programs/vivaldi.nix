@@ -1,3 +1,3 @@
 {
-  # programs.vivaldi.enable = true;
+  programs.vivaldi.enable = true;
 }

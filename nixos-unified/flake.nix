@@ -2,9 +2,27 @@
 {
   description = "Mumtahin Farabi's distributed NixOS Configurations.";
 
+  # nixConfig = {
+  #   extra-substituters = [
+  #     "https://nixos-raspberrypi.cachix.org"
+  #   ];
+  #   extra-trusted-public-keys = [
+  #     "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
+  #   ];
+  # };
+
   inputs = {
     # update with `nix run .#update`
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    # use fork to allow disabling modules introduced by mkRemovedOptionModule
+    # and similar functions
+    # see PR nixos:nixpkgs#398456 (https://github.com/NixOS/nixpkgs/pull/398456)
+    # nixpkgs-nvmd-modules-with-keys.url = "github:nvmd/nixpkgs/modules-with-keys-25.05";
+    nixos-raspberrypi = {
+      url = "github:nvmd/nixos-raspberrypi/main";
+      # inputs.nixpkgs.follows = "nixpkgs-nvmd-modules-with-keys";
+    };
 
     lix-module = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.3-1.tar.gz";
@@ -57,7 +75,7 @@
       inputs.nixpkgs.follows = "";
     };
 
-    vertex.url = "github:juspay/vertex";
+    # vertex.url = "github:juspay/vertex";
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -72,10 +90,12 @@
       inputs.hyprland.follows = "hyprland";
     };
 
-    nixos-raspberrypi = {
-      url = "github:nvmd/nixos-raspberrypi/main";
-      # inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # argononed = {
+    #   # url = "git+file:../argononed?shallow=1";
+    #   # url = "git+https://gitlab.com/DarkElvenAngel/argononed.git";
+    #   url = "github:nvmd/argononed";
+    #   flake = false;
+    # };
   };
 
   # nixos-unified.org/autowiring.html

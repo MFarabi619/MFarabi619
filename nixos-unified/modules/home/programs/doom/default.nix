@@ -1,13 +1,12 @@
 {
   pkgs,
-  flake,
   inputs,
   ...
 }:
 {
 
   imports = [
-    flake.inputs.nix-doom-emacs-unstraightened.homeModule
+    inputs.nix-doom-emacs-unstraightened.homeModule
   ];
 
   programs = {

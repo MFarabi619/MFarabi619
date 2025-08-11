@@ -1,9 +1,66 @@
+{ pkgs, ... }:
 {
-  # system.stateVersion = "24.11";
+
+  imports = [
+    ./hardware-configuration.nix
+    ../../../modules/nixos/gui
+    ../../../modules/nixos/common/console.nix
+    ../../../modules/nixos/common/environment.nix
+    ../../../modules/nixos/common/fonts.nix
+    ../../../modules/nixos/common/hardware.nix
+    ../../../modules/nixos/common/i18n.nix
+    ../../../modules/nixos/common/networking.nix
+    ../../../modules/nixos/common/nix.nix
+    ../../../modules/nixos/common/programs.nix
+    ../../../modules/nixos/common/security.nix
+    ../../../modules/nixos/common/systemd.nix
+    ../../../modules/nixos/common/time.nix
+    ../../../modules/nixos/common/virtualisation.nix
+    ../../../modules/nixos/common/services
+  ];
+
+  nix = {
+    settings = {
+      trusted-users = [
+        "mfarabi"
+        "root"
+      ];
+    };
+  };
 
   nixpkgs = {
     config.allowUnfree = true;
     hostPlatform = "aarch64-linux";
+  };
+
+  networking = {
+    # Use networkd instead of the pile of shell scripts
+    # NOTE: SK: is it safe to combine with NetworkManager on desktops?
+    useNetworkd = true;
+    hostName = "rpi5";
+  };
+
+  users.users = {
+    mfarabi = {
+      isNormalUser = true;
+      extraGroups = [
+        "wheel"
+        "networkmanager"
+        "video"
+      ];
+      shell = pkgs.zsh;
+    };
+    root.initialHashedPassword = "";
+  };
+
+  services = {
+    udev.extraRules = ''
+      # Ignore partitions with "Required Partition" GPT partition attribute
+      # On our RPis this is firmware (/boot/firmware) partition
+      ENV{ID_PART_ENTRY_SCHEME}=="gpt", \
+      ENV{ID_PART_ENTRY_FLAGS}=="0x1", \
+      ENV{UDISKS_IGNORE}="1"
+    '';
   };
 
   systemd = {
@@ -11,6 +68,7 @@
     services = {
       # The notion of "online" is a broken concept
       # https://github.com/systemd/systemd/blob/e1b45a756f71deac8c1aa9a008bd0dab47f64777/NEWS#L13
+
       # https://github.com/NixOS/nixpkgs/issues/247608
       NetworkManager-wait-online.enable = false;
       # Do not take down the network for too long when upgrading,
@@ -23,22 +81,5 @@
     };
   };
 
-  networking = {
-    hostName = "rpi5";
-    # Use networkd instead of the pile of shell scripts
-    # NOTE: SK: is it safe to combine with NetworkManager on desktops?
-    useNetworkd = true;
-    # Keep dmesg/journalctl -k output readable by NOT logging
-    # each refused connection on the open internet.
-    firewall.logRefusedConnections = false;
-  };
-
-  services.udev.extraRules = ''
-    # Ignore partitions with "Required Partition" GPT partition attribute
-    # On our RPis this is firmware (/boot/firmware) partition
-    ENV{ID_PART_ENTRY_SCHEME}=="gpt", \
-    ENV{ID_PART_ENTRY_FLAGS}=="0x1", \
-    ENV{UDISKS_IGNORE}="1"
-  '';
-
+  system.stateVersion = "25.05";
 }

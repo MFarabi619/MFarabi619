@@ -2,7 +2,11 @@
   description = "Raspberry Pi 5 configuration flake";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixos-raspberrypi.url = "github:nvmd/nixos-raspberrypi/main";
+
+    nixos-raspberrypi = {
+      url = "github:nvmd/nixos-raspberrypi/main";
+      # inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     lix-module = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.3-1.tar.gz";
@@ -62,18 +66,14 @@
           lix-module.nixosModules.default
           stylix.nixosModules.stylix
           ./configuration.nix
-          ./hardware-configuration.nix
-          (
-            { ... }:
-            {
-              imports = with nixos-raspberrypi.nixosModules; [
-                raspberry-pi-5.base
-                raspberry-pi-5.bluetooth
-                raspberry-pi-5.display-vc4
-                ./pi5-configtext.nix
-              ];
-            }
-          )
+          {
+            imports = with inputs.nixos-raspberrypi.nixosModules; [
+              raspberry-pi-5.base
+              raspberry-pi-5.bluetooth
+              raspberry-pi-5.display-vc4
+              ./pi5-configtxt.nix
+            ];
+          }
           home-manager.nixosModules.home-manager
           {
             home-manager = {
@@ -83,8 +83,15 @@
                 inherit inputs;
               };
               users.mfarabi = {
+                home.stateVersion = "25.05";
                 imports = [
-                  ./home.nix
+                  ../../../modules/home/editorconfig.nix
+                  ../../../modules/home/fonts.nix
+                  ../../../modules/home/home.nix
+                  ../../../modules/home/manual.nix
+                  ../../../modules/home/nix.nix
+                  ../../../modules/home/programs
+                  ../../../modules/home/services
                 ];
               };
             };

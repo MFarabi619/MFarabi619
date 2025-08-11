@@ -44,6 +44,7 @@
       "/share/bash-completion"
       "/share/fish"
     ];
+
     systemPackages = with pkgs; [
       kitty
     ];
@@ -56,7 +57,7 @@
   services = {
     displayManager = {
       sddm = {
-        enable = true;
+        enable = false;
         # settings = {
 
         # };

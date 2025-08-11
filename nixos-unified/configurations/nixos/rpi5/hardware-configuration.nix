@@ -1,17 +1,5 @@
+{ ... }:
 {
-  config,
-  lib,
-  pkgs,
-  modulesPath,
-  ...
-}:
-
-{
-  imports = [ ];
-
-  nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
-
-  networking.useDHCP = lib.mkDefault true;
 
   fileSystems = {
     "/boot/firmware" = {
