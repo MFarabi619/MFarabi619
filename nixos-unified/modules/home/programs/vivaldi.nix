@@ -1,3 +1,4 @@
+{ pkgs, ... }:
 {
-  programs.vivaldi.enable = true;
+  programs.vivaldi.enable = pkgs.stdenv.isLinux;
 }

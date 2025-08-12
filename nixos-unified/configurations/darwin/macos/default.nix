@@ -9,8 +9,8 @@ in
 {
   imports = [
     self.darwinModules.default
-    inputs.lix-module.nixosModules.default
-    inputs.stylix.darwinModules.stylix
+    # flake.inputs.lix-module.nixosModules.default
+    flake.inputs.stylix.darwinModules.stylix
   ];
 
   # Automatically move old dotfiles out of the way

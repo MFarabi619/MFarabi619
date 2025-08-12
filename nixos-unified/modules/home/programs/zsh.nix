@@ -8,6 +8,7 @@
       cat = "bat";
       man = "batman";
     };
+
     syntaxHighlighting = {
       enable = true;
       highlighters = [
@@ -19,6 +20,7 @@
         "line"
       ];
     };
+
     plugins = [
       {
         name = "powerlevel10k";

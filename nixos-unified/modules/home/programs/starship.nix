@@ -1,4 +1,3 @@
-{ pkgs, lib, ... }:
 {
   programs.starship = {
     enable = false;

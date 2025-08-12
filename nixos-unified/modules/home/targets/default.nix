@@ -1,10 +1,16 @@
 {
+  pkgs,
+  lib,
+  ...
+}:
+{
   targets = {
-    darwin = {
+    darwin = lib.mkIf pkgs.stdenv.isDarwin {
+      search = "Google";
       linkApps = {
         enable = true;
+        directory = "Applications/Nix Apps";
       };
-      search = "Google";
       currentHostDefaults = {
         "com.apple.controlcenter" = {
           BatteryShowPercentage = true;
@@ -35,10 +41,10 @@
           ShowDate = 1;
         };
       };
-      #      keybindings = {
-      # "^u" = "deleteToBeginningOfLine:";
-      #  "^w" = "deleteWordBackward:";
-      #      };
+      keybindings = {
+        "^u" = "deleteToBeginningOfLine:";
+        "^w" = "deleteWordBackward:";
+      };
     };
   };
 }

@@ -1,11 +1,10 @@
-{ lib, pkgs, ... }:
 {
   imports = [
-    ./doom
     ./bash.nix
     ./bat.nix
     ./btop.nix
     ./chromium.nix
+    ./doom
     ./direnv.nix
     ./eza.nix
     ./fastfetch.nix
@@ -16,6 +15,7 @@
     ./go.nix
     ./gpg.nix
     ./home-manager.nix
+    ./hyprland.nix
     ./jq.nix
     ./k9s.nix
     ./kitty.nix
@@ -28,7 +28,6 @@
     ./neovim.nix
     ./nh.nix
     ./nix-index.nix
-    ./obs-studio.nix
     ./pandoc.nix
     ./ripgrep.nix
     ./sftpman.nix
@@ -36,17 +35,14 @@
     ./television.nix
     ./texlive.nix
     ./tex-fmt.nix
+    ./tmux.nix
     ./yazi.nix
     ./zed.nix
     ./zellij.nix
     ./zoxide.nix
     ./zsh.nix
-  ]
-  ++ lib.optionals pkgs.stdenv.isLinux [
-    ./hyprland.nix
+    ./obs-studio.nix
     ./vivaldi.nix
-  ]
-  ++ lib.optionals pkgs.stdenv.isDarwin [
-    ./sketchybar
+    ./sketchybar.nix
   ];
 }

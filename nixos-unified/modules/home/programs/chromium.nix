@@ -1,6 +1,7 @@
+{ pkgs, ... }:
 {
   programs.chromium = {
-    enable = true;
+    enable = pkgs.stdenv.isLinux;
     extensions = [
       { id = "dldjpboieedgcmpkchcjcbijingjcgok"; } # fuel wallet
       { id = "gfbliohnnapiefjpjlpjnehglfpaknnc"; } # surfingkeys

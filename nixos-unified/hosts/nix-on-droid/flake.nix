@@ -14,12 +14,27 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    lazyvim = {
+      url = "github:matadaniel/LazyVim-module";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-on-droid = {
       url = "github:nix-community/nix-on-droid/release-24.05";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         home-manager.follows = "home-manager";
       };
+    };
+
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -30,9 +45,12 @@
       home-manager,
       nix-on-droid,
       lix-module,
+      nix-doom-emacs-unstraightened,
+      nix-index-database,
     }@inputs:
     {
       nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
+        specialArgs = inputs;
         modules = [
           lix-module.nixosModules.default
           ./configuration.nix

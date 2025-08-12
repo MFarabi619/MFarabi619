@@ -2,7 +2,7 @@
   programs.zellij = {
     enable = true;
     enableBashIntegration = true;
-    enableZshIntegration = true;
+    enableZshIntegration = false;
     attachExistingSession = true;
     # exitShellOnExit = true;
     themes = { };
@@ -12,6 +12,8 @@
           hide_session_name = true;
         };
       };
+      show_startup_tips = false;
+      show_release_notes = false;
     };
     layouts = {
       dev = {

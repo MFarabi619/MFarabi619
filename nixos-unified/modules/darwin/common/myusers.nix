@@ -55,7 +55,6 @@ in
     # All users can add Nix caches.
     nix = {
       settings = {
-        auto-optimise-store = true;
         trusted-users = [
           "root"
         ]

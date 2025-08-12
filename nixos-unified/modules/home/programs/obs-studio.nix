@@ -1,6 +1,7 @@
+{ pkgs, ... }:
 {
   programs.obs-studio = {
-    enable = true;
+    enable = pkgs.stdenv.isLinux;
     plugins = [ ];
   };
 }
