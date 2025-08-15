@@ -44,6 +44,7 @@
             "--all"
           ];
         };
+
         settings = {
           env = [
             "XDG_CURRENT_DESKTOP,Hyprland"
@@ -56,12 +57,26 @@
             "MOZ_ENABLE_WAYLAND,1"
             "GDK_SCALE,2"
           ];
+
           "$mainMod" = "SUPER";
           "$editor" = "nvim";
           "$file" = "dolphin";
           "$term" = "kitty";
           "$browser" = "vivaldi";
           "$menu" = "rofi -show drun";
+
+          exec-once = [
+            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+            "dbus-update-activation-environment --systemd --all"
+            "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+            "waybar"
+            "$term --hold fastfetch"
+            "wl-paste --type text --watch cliphist store"
+            "wl-paste --type image --watch cliphist store"
+            "vivaldi"
+            "emacs -nw"
+          ];
+
           bind = [
             # Apps
             "$mainMod, T, exec, $term"
@@ -84,6 +99,16 @@
             "ALT,Tab,cyclenext"
             "ALT,Tab,bringactivetotop"
 
+            # Switch workspaces to a relative workspace
+            "$mainMod, L, workspace, r+1"
+            "$mainMod, H, workspace, r-1"
+
+            # Move focused window around the current workspace
+            "$mainMod+Shift+Ctrl, H, movewindow, l"
+            "$mainMod+Shift+Ctrl, L, movewindow, r"
+            "$mainMod+Shift+Ctrl, K, movewindow, u"
+            "$mainMod+Shift+Ctrl, J, movewindow, d"
+
             # Move focused window around the current workspace
             "$mainMod+Shift+Ctrl, H, movewindow, l"
             "$mainMod+Shift+Ctrl, L, movewindow, r"
@@ -91,6 +116,13 @@
             "$mainMod+Shift+Ctrl, J, movewindow, d"
             ",XF86MonBrightnessDown,exec,brightnessctl set 5%-"
             ",XF86MonBrightnessUp,exec,brightnessctl set +5%"
+
+            # Show keybind hints
+            "$mainMod, code:61, exec, pkill -x rofi || rofi -show keys"
+
+            # Rofi menus
+            "$mainMod, A, exec, pkill -x rofi || $menu" # launch application launcher
+            "$mainMod, R, exec, pkill -x rofi || rofi -show run" # launch program launcher
           ]
           ++ (
             # Switch workspaces
@@ -107,62 +139,69 @@
               ) 9
             )
           );
+
           bindm = [
+            # Move/resize windows with mainMod + LMB/RMB and dragging
             "$mainMod, mouse:272, movewindow"
             "$mainMod, mouse:273, resizewindow"
             "$mainMod, Z, movewindow"
             "$mainMod, X, resizewindow"
           ];
-          exec-once = [
-            "waybar"
-            "kitty"
-            "wl-paste --type text --watch cliphist store"
-            "wl-paste --type image --watch cliphist store"
-            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-            "dbus-update-activation-environment --systemd --all"
-            "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-          ];
+
           animations = {
             enabled = false;
           };
+
           decoration = {
-            blur = {
-              enabled = true;
-              passes = 1;
-              size = 3;
-              vibrancy = 0.1696;
-            };
+            rounding = 10;
+            rounding_power = 2;
+
+            active_opacity = 0.9;
+            inactive_opacity = 0.7;
+
             shadow = {
-              # color = "rgba(1a1a1aee)";
               enabled = true;
               range = 4;
               render_power = 3;
+              # color = "rgba(1a1a1aee)";
             };
-            active_opacity = 1.0;
-            inactive_opacity = 1.0;
-            rounding = 10;
+
+            blur = {
+              enabled = true;
+              size = 3;
+              passes = 1;
+              vibrancy = 0.1696;
+            };
           };
+
           dwindle = {
             preserve_split = true;
             pseudotile = true;
           };
+
           master = {
             new_status = "master";
           };
+
           general = {
-            allow_tearing = false;
-            border_size = 5;
             gaps_in = 5;
             gaps_out = 20;
-            layout = "master";
+            border_size = 2;
+
             resize_on_border = true;
+
+            allow_tearing = false;
+
+            layout = "dwindle";
           };
+
           gestures = {
             workspace_swipe = true;
             workspace_swipe_fingers = 3;
             workspace_swipe_forever = true;
             workspace_swipe_invert = false;
           };
+
           input = {
             kb_layout = "us";
             kb_options = "ctrl:nocaps";
@@ -170,7 +209,10 @@
             touchpad = {
               natural_scroll = true;
             };
+
+            follow_mouse = 1;
           };
+
           misc = {
             enable_swallow = false;
             vfr = true; # Variable Frame Rate

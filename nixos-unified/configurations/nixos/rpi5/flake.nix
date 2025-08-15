@@ -71,6 +71,9 @@
               raspberry-pi-5.base
               raspberry-pi-5.bluetooth
               raspberry-pi-5.display-vc4
+              usb-gadget-ethernet
+              trusted-nix-caches
+              # nixpkgs-rpi
               ./pi5-configtxt.nix
             ];
           }

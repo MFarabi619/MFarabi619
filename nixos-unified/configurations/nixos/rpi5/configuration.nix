@@ -19,6 +19,10 @@
     ./hardware-configuration.nix
   ];
 
+  environment.systemPackages = with pkgs; [
+    i2c-tools
+  ];
+
   # stylix = {
   #   enable = true;
   #   base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
@@ -28,6 +32,7 @@
     trusted-users = [
       "mfarabi"
       "root"
+      "nixos" # allow nix-copy to live system
     ];
   };
 
@@ -52,11 +57,20 @@
         "video"
       ];
       shell = pkgs.zsh;
+      # allow graphical user to login without password
+      initialHashedPassword = "";
+      openssh = {
+        authorizedKeys.keys = [
+          # YOUR SSH PUB KEY HERE
+        ];
+      };
     };
     root.initialHashedPassword = "";
   };
 
   services = {
+    # auto login at virtual console
+    getty.autologinUser = "mfarabi";
     udev.extraRules = ''
       # Ignore partitions with "Required Partition" GPT partition attribute
       # On our RPis this is firmware (/boot/firmware) partition
