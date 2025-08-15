@@ -72,6 +72,7 @@
         figlet
         nyancat
         lolcat
+        cointop
       ]
       ++ lib.optionals stdenv.isLinux [
         ugm
