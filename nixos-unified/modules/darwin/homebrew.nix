@@ -1,13 +1,19 @@
 {
+  # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   homebrew = {
-    enable = false;
+    enable = true;
     onActivation = {
-      # autoUpdate = true;
-      # upgrade = true;
+      autoUpdate = true;
+      upgrade = true;
       extraFlags = [
         "--verbose"
       ];
     };
-    brews = [ ];
+    casks = [
+      "vivaldi"
+    ];
+    brews = [
+      "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
+    ];
   };
 }
