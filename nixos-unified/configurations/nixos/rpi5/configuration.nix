@@ -2,7 +2,7 @@
 {
 
   imports = [
-    ./hardware-configuration.nix
+    ../../../modules/nixos/common/services
     ../../../modules/nixos/gui
     ../../../modules/nixos/common/console.nix
     ../../../modules/nixos/common/environment.nix
@@ -16,16 +16,19 @@
     ../../../modules/nixos/common/systemd.nix
     ../../../modules/nixos/common/time.nix
     ../../../modules/nixos/common/virtualisation.nix
-    ../../../modules/nixos/common/services
+    ./hardware-configuration.nix
   ];
 
-  nix = {
-    settings = {
-      trusted-users = [
-        "mfarabi"
-        "root"
-      ];
-    };
+  # stylix = {
+  #   enable = true;
+  #   base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+  # };
+
+  nix.settings = {
+    trusted-users = [
+      "mfarabi"
+      "root"
+    ];
   };
 
   nixpkgs = {

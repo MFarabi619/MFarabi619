@@ -20,40 +20,35 @@
     };
 
     nix-doom-emacs-unstraightened = {
-       url = "github:marienz/nix-doom-emacs-unstraightened";
-       inputs.nixpkgs.follows = "";
-      };
+      url = "github:marienz/nix-doom-emacs-unstraightened";
+      inputs.nixpkgs.follows = "";
+    };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    home-manager,
-    system-manager,
-    ...
-  }@inputs:
-  {
-    homeConfigurations = {
-      mfarabi = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux; # "aarch64-linux"; # for ARM architecture
-           extraSpecialArgs = {
-          inherit inputs;
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      system-manager,
+      ...
+    }@inputs:
+    {
+      homeConfigurations = {
+        mfarabi = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.x86_64-linux; # "aarch64-linux"; # for ARM architecture
+          extraSpecialArgs = {
+            inherit inputs;
+          };
+          modules = [
+            ./modules/hm
+          ];
         };
+      };
+      systemConfigs.default = system-manager.lib.makeSystemConfig {
         modules = [
-          ./modules/hm
+          ./modules/system
         ];
       };
     };
-   systemConfigs.default = system-manager.lib.makeSystemConfig {
-      modules = [
-        ./modules/system
-      ];
-    };
-
-  environment.pathsToLink = [
-    "/share/zsh"
-    "/share/bash-completion"
-  ];
-
-  };
 }

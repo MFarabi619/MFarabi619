@@ -1,5 +1,8 @@
 {
   imports = [
+    ./programs
+    ./services
+    ./targets
     ./editorconfig.nix
     ./fonts.nix
     ./home.nix
@@ -7,10 +10,7 @@
     ./me.nix
     ./nix-index.nix
     # ./nix.nix
-    ./services
-    ./programs
     ./stylix.nix
-    ./targets
     ./xdg.nix
   ];
 }

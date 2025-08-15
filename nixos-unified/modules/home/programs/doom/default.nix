@@ -1,5 +1,5 @@
 {
-  flake,
+  # flake,
   pkgs,
   inputs,
   ...
@@ -7,7 +7,8 @@
 {
 
   imports = [
-    flake.inputs.nix-doom-emacs-unstraightened.homeModule
+    # flake.inputs.nix-doom-emacs-unstraightened.homeModule
+    inputs.nix-doom-emacs-unstraightened.homeModule
   ];
 
   programs.doom-emacs = {
@@ -42,8 +43,8 @@
     enable = true;
     socketActivation.enable = true;
     client.enable = true;
-    extraOptions = [
-      "-nw"
-    ];
+    # extraOptions = [
+    #   "-nw"
+    # ];
   };
 }

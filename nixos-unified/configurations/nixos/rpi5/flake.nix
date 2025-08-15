@@ -85,13 +85,17 @@
               users.mfarabi = {
                 home.stateVersion = "25.05";
                 imports = [
+                  stylix.homeModules.stylix
+                  ../../../modules/home/programs
+                  ../../../modules/home/services
+                  ../../../modules/home/targets
                   ../../../modules/home/editorconfig.nix
                   ../../../modules/home/fonts.nix
                   ../../../modules/home/home.nix
                   ../../../modules/home/manual.nix
-                  ../../../modules/home/nix.nix
-                  ../../../modules/home/programs
-                  ../../../modules/home/services
+                  # ../../../modules/home/nix-index.nix
+                  ../../../modules/home/stylix.nix
+                  ../../../modules/home/xdg.nix
                 ];
               };
             };

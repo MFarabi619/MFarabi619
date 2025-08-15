@@ -1,3 +1,3 @@
 {
-  time.timeZone = "America/Toronto";
+  time.timeZone = "America/Costa_Rica";
 }

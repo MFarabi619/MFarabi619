@@ -14,10 +14,7 @@
     packages =
       with pkgs;
       [
-        tree
-        gnumake
-
-        devenv
+        noto-fonts
 
         # ==========  Doom Emacs ===========
         # clang
@@ -37,13 +34,24 @@
         shellcheck # shell script formatting
         # texlive     # :lang latex & :lang org (latex previews)
 
-        noto-fonts
+        # ============= 🧑‍💻🐞‍ ================
+        # pnpm
+        tgpt
+        ugm
+        pik
+        wiki-tui
+        gpg-tui
+        isd
+        termscp
+        dysk
+        bandwhich
 
         omnix
 
         tree
         gnumake
 
+        devenv
         cachix
         nil
         nix-info
@@ -59,20 +67,39 @@
         # Setup Claude Code using Google Vertex AI Platform
         # https://github.com/juspay/vertex
         # flake.inputs.vertex.packages.${system}.default
+
+        # ============== 🤪 =================
+        asciiquarium
+        cowsay
+        cmatrix
+        figlet
+        nyancat
+        lolcat
       ]
-      ++ lib.optionals pkgs.stdenv.isLinux [
+      ++ lib.optionals stdenv.isLinux [
         rofi-wayland
         wl-clipboard
+
+        netscanner
+
+        kmon
+        lazyjournal
+        systemctl-tui
+        virt-viewer
+
+        hollywood
       ];
 
     sessionVariables = lib.mkIf pkgs.stdenv.isLinux {
       NIXOS_OZONE_WL = "1";
 
+      MOZ_ENABLE_WAYLAND = "1";
+
       # XDG_CACHE_HOME = config.xdg.cacheHome;
       # XDG_CONFIG_HOME = config.xdg.configHome;
       # XDG_DATA_HOME = config.xdg.dataHome;
       # XDG_STATE_HOME = config.xdg.stateHome;
-      # XDG_RUNTIME_DIR = "/run/user/$(id -u)";
+      XDG_RUNTIME_DIR = "/run/user/$(id -u)";
 
       # XDG_DESKTOP_DIR = config.xdg.userDirs.desktop;
       # XDG_DOCUMENTS_DIR = config.xdg.userDirs.documents;
