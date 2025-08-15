@@ -15,7 +15,7 @@
       # Configure bar
       sketchybar --bar height=32 \
                       position=top \
-                      topmost=on \
+                      topmost=off \
                       shadow=on \
                       show_in_fullscreen=on \
                       padding_left=10 \

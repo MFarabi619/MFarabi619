@@ -85,6 +85,8 @@
               users.mfarabi = {
                 home.stateVersion = "25.05";
                 imports = [
+                  inputs.nix-doom-emacs-unstraightened.homeModule
+                  inputs.lazyvim.homeManagerModules.default
                   stylix.homeModules.stylix
                   ../../../modules/home/programs
                   ../../../modules/home/services

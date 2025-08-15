@@ -1,14 +1,10 @@
 {
-  # flake,
-  inputs,
   pkgs,
   ...
 }:
 
 {
   imports = [
-    # flake.inputs.lazyvim.homeManagerModules.default
-    inputs.lazyvim.homeManagerModules.default
     # ./nixvim.nix
   ];
 

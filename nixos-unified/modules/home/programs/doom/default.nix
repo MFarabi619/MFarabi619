@@ -1,16 +1,4 @@
 {
-  # flake,
-  pkgs,
-  inputs,
-  ...
-}:
-{
-
-  imports = [
-    # flake.inputs.nix-doom-emacs-unstraightened.homeModule
-    inputs.nix-doom-emacs-unstraightened.homeModule
-  ];
-
   programs.doom-emacs = {
     enable = true;
     doomDir = ./.;

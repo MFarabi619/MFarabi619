@@ -49,7 +49,11 @@ in
 
     # Enable home-manager for our user
     home-manager.users = mapListToAttrs config.myusers (name: {
-      imports = [ (self + /configurations/home/${name}.nix) ];
+      imports = [
+        (self + /configurations/home/${name}.nix)
+        flake.inputs.nix-doom-emacs-unstraightened.homeModule
+        flake.inputs.lazyvim.homeManagerModules.default
+      ];
     });
 
     # All users can add Nix caches.
@@ -105,14 +109,14 @@ in
           "https://nix-community.cachix.org"
           "https://cache.lix.systems"
           "https://devenv.cachix.org"
-          # "https://fuellabs.cachix.org"
+          "https://fuellabs.cachix.org"
         ];
         extra-trusted-public-keys = [
           "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
           "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
           "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
-          # "fuellabs.cachix.org-1:3gOmll82VDbT7EggylzOVJ6dr0jgPVU/KMN6+Kf8qx8="
+          "fuellabs.cachix.org-1:3gOmll82VDbT7EggylzOVJ6dr0jgPVU/KMN6+Kf8qx8="
         ];
       };
 
