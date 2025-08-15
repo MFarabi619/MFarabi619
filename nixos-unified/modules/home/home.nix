@@ -37,13 +37,10 @@
         # ============= 🧑‍💻🐞‍ ================
         # pnpm
         tgpt
-        ugm
         pik
         wiki-tui
         gpg-tui
-        isd
         termscp
-        dysk
         bandwhich
 
         omnix
@@ -77,6 +74,10 @@
         lolcat
       ]
       ++ lib.optionals stdenv.isLinux [
+        ugm
+        isd # systemd units TUI
+        dysk # see mounted disks
+
         rofi-wayland
         wl-clipboard
 
