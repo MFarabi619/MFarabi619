@@ -1,0 +1,6 @@
+{
+  "name": "learning-likec4",
+  "exclude": [
+    "**/node_modules/**/*"
+  ]
+}

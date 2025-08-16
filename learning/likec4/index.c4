@@ -1,0 +1,208 @@
+// pnpx likec4 start
+
+specification {
+    element context {
+    notation "Context"
+}
+    element component {
+    notation "Component"
+}
+    element container {
+    notation "Container"
+}
+    element code {
+    notation "Code"
+}
+}
+
+global {
+
+}
+
+model {
+
+c4-model = context "C4 Model" {
+description: '''
+**"Abstraction-first"** philosophy of communicating software architecture, authored by [Simon Brown](https://simonbrown.je).
+'''
+link: https://c4model.com
+icon: https://d2sofvawe08yqg.cloudfront.net/visualising-software-architecture/s_hero?1653735204
+style {
+opacity: 40%
+}
+
+context = container "Context" {
+description: '''
+Provides a starting point, showing how the problem in scope fits into the world around it.
+'''
+
+}
+component = container "Component" {
+description: '''
+Zooms into the system in scope, showing the applications and data stores inside it.
+'''
+}
+container = container "Container" {
+description: '''
+Zooms into an individual container, showing components inside it.
+'''
+}
+
+code = container "Code" {
+description: '''
+Zooms into component. Optional. Could be UML, Mermaid, etc.
+'''
+}
+
+context -> container
+ container -> component
+component -> code
+
+}
+
+likec4 = context "LikeC4" {
+description: '''
+A DSL for the C4 Model, authored by [Denis Davydkov](https://github.com/davydkov).
+'''
+
+icon: https://avatars.githubusercontent.com/u/128791862?s=200&v=4
+link: https://likec4.dev "Website"
+link: https://playground.likec4.dev "Playground"
+
+style {
+color: sky
+opacity: 40%
+}
+
+
+styling = container "Styling" {
+style {
+color: indigo
+opacity: 40%
+}
+
+shapes = component "Shapes" {
+style {
+color: indigo
+opacity: 40%
+}
+rectangle = component "Rectangle" {
+description: '''
+```
+color: primary
+```
+'''
+icon tech:linux
+
+style {
+color: primary
+size: xsmall
+padding: xsmall
+textSize: xsmall
+}
+}
+
+storage = component "Storage" {
+description: '''
+```
+color: secondary
+```
+'''
+icon tech:postgresql
+
+style {
+shape: storage
+color: secondary
+size: small
+padding: small
+textSize: small
+}
+}
+
+
+queue = component "Queue" {
+description: '''
+```
+color: sky
+```
+'''
+icon tech:rabbitmq
+
+style {
+shape: queue
+color: sky
+size: medium
+padding: medium
+textSize: medium
+}
+}
+
+person = component "Person" {
+description: '''
+```
+color: muted
+```
+'''
+icon tech:playwrite
+
+style {
+shape: person
+color: muted
+size: large
+padding: large
+textSize: large
+}
+}
+}
+}
+
+spec = container "Specification" {
+style {
+color: sky
+opacity: 40%
+}
+spec-element = container "Element" {
+description: "Defines the element kind, that are used in the model."
+}
+spec-relationship = container "Relationship" {
+description: "Connections, data flow, and interactions of the elements."
+}
+spec-tag = container "Tag" {
+description: "Used to mark, group, filter elements/relationships/views, or provide additional semantics."
+}
+spec-color = container "Color" {
+description: "Can be defined to extend built-in themes."
+}
+}
+
+}
+
+likec4 -> c4-model "Inspired by"
+}
+
+views {
+view index {
+title: "System Context"
+description: '''
+**Top Level** overview.
+'''
+include *
+}
+
+view c4-model of c4-model {
+title: "C4 Model"
+include *
+}
+
+view likec4 of likec4 {
+title: "LikeC4"
+include *
+include spec.*
+}
+
+view styling of likec4.styling {
+title: "Styling"
+include *
+include styling.**
+}
+}

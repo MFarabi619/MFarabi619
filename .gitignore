@@ -6,6 +6,7 @@
 debug/
 target/
 **/result
+**/node_modules
 
 #====================================================
 #                 Caches & Logs
