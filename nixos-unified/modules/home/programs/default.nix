@@ -36,6 +36,7 @@
     ./texlive.nix
     ./tex-fmt.nix
     ./tmux.nix
+    ./vscode.nix
     ./yazi.nix
     ./zed.nix
     ./zellij.nix
