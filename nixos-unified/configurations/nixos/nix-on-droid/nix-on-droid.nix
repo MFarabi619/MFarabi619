@@ -1,39 +1,53 @@
 # nix-on-droid switch --flake .
 {
-  inputs,
   config,
   lib,
   pkgs,
   ...
 }:
 
-let
-  sshdTmpDirectory = "${config.user.home}/ssh-tmp";
-  sshdDirectory = "${config.user.home}/sshd";
-  pathToPubKey = "../../../";
-  port = 8022;
-in
 {
-  imports = [
-    ./environment.nix
-    ./android-integration.nix
-    ./terminal.nix
-    ../../../modules/nixos/common/time.nix
-  ];
+  system.stateVersion = "24.05";
 
   user = {
     # userName = "mfarabi";
     shell = "${pkgs.zsh}/bin/zsh";
   };
 
-  # Read the changelog before changing this value
-  system.stateVersion = "24.05";
-
   nix = {
     extraOptions = ''
       experimental-features = nix-command flakes
       trusted-users = root mfarabi
     '';
+    substituters = [
+      "https://cache.nixos.org"
+      "https://hyprland.cachix.org"
+      "https://nix-community.cachix.org"
+      "https://devenv.cachix.org"
+      "https://cache.lix.systems"
+      "https://nix-darwin.cachix.org"
+      "https://mfarabi.cachix.org"
+      "https://cachix.cachix.org"
+      "https://emacs-ci.cachix.org"
+      "https://nixvim.cachix.org"
+      "https://nix-on-droid.cachix.org"
+      "https://fuellabs.cachix.org"
+    ];
+
+    trustedPublicKeys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
+      "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
+      "nix-darwin.cachix.org-1:LxMyKzQk7Uqkc1Pfq5uhm9GSn07xkERpy+7cpwc006A="
+      "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="
+      "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
+      "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
+      "nixvim.cachix.org-1:8xrm/43sWNaE3sqFYil49+3wO5LqCbS4FHGhMCuPNNA="
+      "nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU="
+      "fuellabs.cachix.org-1:3gOmll82VDbT7EggylzOVJ6dr0jgPVU/KMN6+Kf8qx8="
+    ];
   };
 
   # nixpkgs = {
@@ -41,64 +55,4 @@ in
   # allowBroken = true;
   # };
   # };
-
-  home-manager = {
-    backupFileExtension = "hm-bak";
-    useGlobalPkgs = true;
-
-    config = {
-      home = {
-        stateVersion = "24.05";
-        packages = with pkgs; [
-          noto-fonts
-
-          tree
-
-          cachix
-          nil
-          nix-info
-          nix-inspect
-          nix-search-tv
-
-          termscp
-        ];
-      };
-
-      imports = [
-        ../../../modules/home/editorconfig.nix
-        ../../../modules/home/fonts.nix
-        ../../../modules/home/programs/bash.nix
-        ../../../modules/home/programs/bat.nix
-        ../../../modules/home/programs/btop.nix
-        ../../../modules/home/programs/direnv.nix
-        ../../../modules/home/programs/eza.nix
-        ../../../modules/home/programs/fastfetch.nix
-        ../../../modules/home/programs/fd.nix
-        ../../../modules/home/programs/fzf.nix
-        ../../../modules/home/programs/git.nix
-        ../../../modules/home/programs/gh.nix
-        ../../../modules/home/programs/go.nix
-        ../../../modules/home/programs/gpg.nix
-        ../../../modules/home/programs/home-manager.nix
-        ../../../modules/home/programs/jq.nix
-        ../../../modules/home/programs/lazygit.nix
-        ../../../modules/home/programs/lazysql.nix
-        ../../../modules/home/programs/less.nix
-        ../../../modules/home/programs/nh.nix
-        # ../../../modules/home/home.nix
-        ../../../modules/home/programs/pandoc.nix
-        ../../../modules/home/programs/ripgrep.nix
-        # ../../../modules/home/stylix.nix
-        ../../../modules/home/programs/television.nix
-        ../../../modules/home/programs/tmux.nix
-        ../../../modules/home/programs/yazi.nix
-        inputs.lazyvim.homeManagerModules.default
-        ../../../modules/home/programs/neovim.nix
-        ../../../modules/home/programs/zellij.nix
-        ../../../modules/home/programs/zoxide.nix
-        ../../../modules/home/programs/zsh.nix
-        ../../../modules/home/services
-      ];
-    };
-  };
 }

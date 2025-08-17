@@ -45,6 +45,11 @@
     {
 
       nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
+        home-manager-path = home-manager.outPath;
+        extraSpecialArgs = {
+          # rootPath = ./.;
+          inputs = inputs;
+        };
 
         pkgs = import nixpkgs {
           system = "aarch64-linux";
@@ -57,14 +62,14 @@
         modules = [
           # stylix.nixosModules.stylix
           ./nix-on-droid.nix
+          ./environment.nix
+          ./android-integration.nix
+          ./terminal.nix
+          ./home-manager.nix
+          ../../../modules/nixos/common/time.nix
+          # ./ssh.nix
         ];
 
-        extraSpecialArgs = {
-          # rootPath = ./.;
-          inputs = inputs;
-        };
-
-        home-manager-path = home-manager.outPath;
       };
 
     };

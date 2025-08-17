@@ -24,12 +24,13 @@ let
 in
 {
   nixpkgs.pkgs = pkgs;
+  system.stateVersion = "25.05";
 
   imports = [
     inputs.hydenix.inputs.home-manager.nixosModules.home-manager
     inputs.hydenix.lib.nixOsModules
     ./framework-16.nix
-    ./modules/system
+    ./system
 
     # === GPU ===
     /*
@@ -122,62 +123,6 @@ in
       "video" # display/graphics
     ];
     shell = pkgs.zsh;
-    packages = with pkgs; [
-      # ============== 🤪 =================
-      asciiquarium
-      cowsay
-      cmatrix
-      figlet
-      nyancat
-      lolcat
-      hollywood
-      # ============= 🧑‍💻🐞‍ ================
-      pnpm
-      devenv
-      nix-inspect
-      tgpt
-      kmon
-      ugm
-      playwright-test
-      lazyjournal
-      lazysql
-      pik
-      netscanner
-      systemctl-tui
-      virt-viewer
-    ];
-  };
-
-  programs = {
-    npm.enable = true;
-    nix-ld.enable = true; # for pnpm to install deps properly
-    virt-manager.enable = true;
-  };
-
-  services = {
-    ttyd = {
-      enable = true;
-      writeable = true;
-      port = 7681;
-    };
-    #     github-runners = {
-    #       nixos = {
-    #         enable = true;
-    #         nodeRuntimes = "node22";
-    #         url = "https://github.com/mira-amm/mira-amm-web";
-    #         tokenFile = ./.runner.token;
-    #       };
-    #     };
-  };
-
-  virtualisation = {
-    libvirtd.enable = true;
-    docker = {
-      # only enable either docker or podman -- Not both
-      enable = true;
-      autoPrune.enable = true;
-    };
-    podman.enable = false;
   };
 
   environment = {
@@ -187,5 +132,4 @@ in
     '';
   };
 
-  system.stateVersion = "25.05";
 }

@@ -94,14 +94,14 @@
 
     sessionVariables = lib.mkIf pkgs.stdenv.isLinux {
       NIXOS_OZONE_WL = "1";
-
       MOZ_ENABLE_WAYLAND = "1";
+
+      XDG_RUNTIME_DIR = "/run/user/$(id -u)";
 
       # XDG_CACHE_HOME = config.xdg.cacheHome;
       # XDG_CONFIG_HOME = config.xdg.configHome;
       # XDG_DATA_HOME = config.xdg.dataHome;
       # XDG_STATE_HOME = config.xdg.stateHome;
-      XDG_RUNTIME_DIR = "/run/user/$(id -u)";
 
       # XDG_DESKTOP_DIR = config.xdg.userDirs.desktop;
       # XDG_DOCUMENTS_DIR = config.xdg.userDirs.documents;

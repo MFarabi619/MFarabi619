@@ -31,7 +31,7 @@
     ./pandoc.nix
     ./ripgrep.nix
     ./sftpman.nix
-    ./starship.nix
+    ./starship
     ./television.nix
     ./texlive.nix
     ./tex-fmt.nix

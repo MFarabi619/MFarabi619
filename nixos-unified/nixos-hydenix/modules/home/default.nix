@@ -5,7 +5,7 @@
 
 {
   imports = [
-    ./doom
+    ../../../../modules/home/doom
     ../../../../modules/home/fonts.nix
     ../../../../modules/home/editorconfig.nix
     ../../../../modules/home/manual.nix
