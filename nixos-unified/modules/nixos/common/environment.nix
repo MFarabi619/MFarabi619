@@ -20,6 +20,8 @@
       dconf-editor # dconf editor
       zsh-powerlevel10k
       meslo-lgs-nf
+
+      # i2c-tools # raspberry pi
     ];
 
     variables = {

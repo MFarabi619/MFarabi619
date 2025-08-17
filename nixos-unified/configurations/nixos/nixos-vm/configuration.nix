@@ -1,8 +1,11 @@
 { config, pkgs, ... }:
 
 {
+  system.stateVersion = "25.05";
+
   imports = [
     ./hardware-configuration.nix
+    ../../../modules/nixos/common/networking.nix
   ];
 
   boot = {
@@ -15,9 +18,6 @@
 
   networking = {
     hostName = "nixos-vm";
-
-    networkmanager.enable = true;
-
     firewall = {
       enable = true;
       allowedTCPPorts = [
@@ -35,8 +35,6 @@
     };
   };
 
-  environment.systemPackages = with pkgs; [ networkmanagerapplet ];
-
   users.users.mfarabi = {
     isNormalUser = true;
     description = "Mumtahin Farabi";
@@ -51,5 +49,4 @@
     hostPlatform = "x86_64-linux";
   };
 
-  system.stateVersion = "25.05";
 }
