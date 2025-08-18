@@ -15,6 +15,7 @@
       lm_sensors # system sensors
       pciutils # pci utils
       usbutils # usb utils
+      ffmpeg # terminal video/audio editing
 
       # ========== Stylix ===========
       dconf # configuration storage system
