@@ -369,6 +369,9 @@ winget install LGUG2Z.komorebi LGUG2Z.whkd
 komorebic quickstart
 komorebic start --whkd --bar
 
+winget install --id=Vivaldi.Vivaldi -e
+winget install --id=Microsoft.PowerToys -e
+
 ** Raspberry Pi 5 ARM NixOS
 [[https://wiki.nixos.org/wiki/NixOS_on_ARM/Raspberry_Pi_5][NixOS on ARM/Raspberry Pi 5 - NixOS Wiki]]
 
