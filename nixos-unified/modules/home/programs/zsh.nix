@@ -21,6 +21,12 @@
       ];
     };
 
+    # history = {
+    #   ignoreDups = true;
+    #   save = 10000;
+    #   size = 10000;
+    # };
+
     plugins = [
       {
         name = "powerlevel10k";
@@ -29,8 +35,8 @@
       }
       {
         name = "powerlevel10k-config";
-        src = lib.cleanSource ../../..;
-        file = ".p10k.zsh";
+        src = lib.cleanSource ./p10k-config;
+        file = "p10k.zsh";
       }
     ];
     oh-my-zsh = {
