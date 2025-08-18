@@ -17,7 +17,7 @@
                       position=top \
                       topmost=off \
                       shadow=on \
-                      show_in_fullscreen=on \
+                      show_in_fullscreen=off \
                       padding_left=10 \
                       padding_right=10 \
                       color=$COLOR_BLACK

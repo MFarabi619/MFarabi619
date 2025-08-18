@@ -5,13 +5,13 @@
     ./common
     ./documentation.nix
     ./environment.nix
-    ./nixpkgs.nix
-    ./networking.nix
     ./homebrew.nix
+    ./networking.nix
+    ./nixpkgs.nix
     ./power.nix
     ../nixos/common/fonts.nix
     ./security.nix
-    ./services.nix
+    ./services
     ./system.nix
     ./stylix.nix
   ];

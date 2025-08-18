@@ -41,6 +41,7 @@
           ShowDate = 1;
         };
       };
+      # https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/TextDefaultsBindings/TextDefaultsBindings.html
       keybindings = {
         "^u" = "deleteToBeginningOfLine:";
         "^w" = "deleteWordBackward:";

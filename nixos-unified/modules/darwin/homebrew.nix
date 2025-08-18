@@ -14,6 +14,7 @@
     ];
     brews = [
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
+      "media-control"
     ];
   };
 }

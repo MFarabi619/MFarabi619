@@ -90,6 +90,11 @@
         virt-viewer
 
         hollywood
+      ]
+      ++ lib.optionals stdenv.isDarwin [
+        sketchybar-app-font
+        sbarlua
+        alt-tab-macos
       ];
 
     sessionVariables = lib.mkIf pkgs.stdenv.isLinux {
