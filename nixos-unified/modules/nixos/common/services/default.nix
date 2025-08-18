@@ -10,6 +10,7 @@
     libinput.enable = true; # input handling
     fstrim.enable = true; # ssd optimizer
     gvfs.enable = true; # For trash-cli to work properly, mounting USB + more
+    tumbler.enable = true; # image/video preview
 
     udev.extraHwdb = ''
       evdev:atkbd:*
