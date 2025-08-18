@@ -7,8 +7,9 @@
   services = {
     dbus.enable = true;
     upower.enable = true;
-    libinput.enable = true;
-    gvfs.enable = true; # For trash-cli to work properly
+    libinput.enable = true; # input handling
+    fstrim.enable = true; # ssd optimizer
+    gvfs.enable = true; # For trash-cli to work properly, mounting USB + more
 
     udev.extraHwdb = ''
       evdev:atkbd:*
