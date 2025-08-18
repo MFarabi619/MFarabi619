@@ -49,4 +49,9 @@
     hostPlatform = "x86_64-linux";
   };
 
+  services = {
+    qemuGuest.enable = true;
+    spice-vdagentd.enable = true;
+    spice-webdavd.enable = true;
+  };
 }
