@@ -79,7 +79,6 @@
         isd # systemd units TUI
         dysk # see mounted disks
 
-        rofi-wayland
         wl-clipboard
 
         netscanner

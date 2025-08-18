@@ -10,22 +10,31 @@
       enable = true;
     };
 
-    # rofi = {
-    #   enable = true;
-    #   location = "center";
-    #   # font = "";
-    #   # terminal = "${pkgs.kitty}/";
-    #   plugins = with pkgs; [
-    #   ];
-    #   modes = [
-    #   "drun"
-    #   "emoji"
-    #   "ssh"
-    #   ];
-    #   # pass = {
-    #   #   enable = true;
-    #   #   };
-    # };
+    rofi = {
+      enable = true;
+      package = pkgs.rofi-wayland;
+      extraConfig = {
+        show-icons = true;
+        icon-theme = "Papirus";
+        location = "center";
+        font = "JetBrainsMono Nerd Font Mono 12";
+        drun-display-format = "{icon} {name}";
+        display-drum = "Apps";
+        display-run = "Run";
+        display-filebrowser = "File";
+      };
+      # terminal = "${pkgs.kitty}/";
+      # plugins = with pkgs; [
+      # ];
+      modes = [
+        "drun"
+        "emoji"
+        "ssh"
+      ];
+      # pass = {
+      #   enable = true;
+      #   };
+    };
   };
 
   systemd.user.targets.hyprland-session.Unit.Wants = lib.mkIf pkgs.stdenv.isLinux [
@@ -44,6 +53,8 @@
             "--all"
           ];
         };
+
+        xwayland.enable = true;
 
         settings = {
           env = [
@@ -227,9 +238,6 @@
           };
 
           monitor = ",1920x1080@144,auto,1.6";
-          xwayland = {
-            force_zero_scaling = true;
-          };
         };
         extraConfig = "
         monitor=Virtual-1,4096x2160@165,auto,3.2
