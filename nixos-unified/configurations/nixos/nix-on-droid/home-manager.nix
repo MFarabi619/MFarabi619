@@ -25,6 +25,7 @@
 
       imports = [
         inputs.lazyvim.homeManagerModules.default
+        # inputs.nix-doom-emacs-unstraightened.homeModule
         ../../../modules/home/editorconfig.nix
         ../../../modules/home/fonts.nix
         ../../../modules/home/programs/bash.nix
@@ -48,7 +49,7 @@
         # ../../../modules/home/home.nix
         ../../../modules/home/programs/pandoc.nix
         ../../../modules/home/programs/ripgrep.nix
-        # ../../../modules/home/stylix.nix
+        ../../../modules/home/stylix.nix
         ../../../modules/home/programs/television.nix
         ../../../modules/home/programs/tmux.nix
         ../../../modules/home/programs/yazi.nix

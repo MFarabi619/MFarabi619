@@ -60,7 +60,7 @@
         };
 
         modules = [
-          # stylix.nixosModules.stylix
+          stylix.nixOnDroidModules.stylix
           ./nix-on-droid.nix
           ./environment.nix
           ./android-integration.nix
