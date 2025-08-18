@@ -1,5 +1,8 @@
-{ pkgs, lib, ... }:
+{ inputs, pkgs, lib, ... }:
 
+let
+  fuel-nix = inputs.fuel-nix.packages.${pkgs.system};
+in
 {
   imports = [
     ./db.nix
@@ -18,6 +21,9 @@
       pulumi-esc
       pulumiPackages.pulumi-nodejs
       pulumiPackages.pulumi-command
+
+      fuel-nix.fuel-core
+      fuel-nix.forc
     ]
     ++ lib.optionals (stdenv.isLinux) [
       vips
