@@ -14,6 +14,7 @@
       libinput # libinput library
       lm_sensors # system sensors
       pciutils # pci utils
+      usbutils # usb utils
 
       # ========== Stylix ===========
       dconf # configuration storage system
