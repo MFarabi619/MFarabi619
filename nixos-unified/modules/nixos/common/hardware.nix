@@ -7,5 +7,11 @@
     keyboard = {
       qmk.enable = true;
     };
+    logitech = {
+      wireless = {
+        enable = false;
+        enableGraphical = false;
+      };
+    };
   };
 }
