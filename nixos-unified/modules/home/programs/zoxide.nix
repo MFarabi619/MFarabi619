@@ -4,6 +4,8 @@
     enable = true;
     enableBashIntegration = true;
     enableZshIntegration = true;
-    options = [ ];
+    options = [
+      "--cmd cd"
+    ];
   };
 }
