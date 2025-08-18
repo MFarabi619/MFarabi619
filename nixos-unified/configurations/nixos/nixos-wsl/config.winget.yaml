@@ -1,126 +1,120 @@
-# yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.3
-$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
-metadata:
-  winget:
-    processor:
-      identifier: "dscv3"
-resources:
-- name: Microsoft.WinGet/Package_z9j2bkkv
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Configure Microsoft.PowerShell"
-  properties:
-    id: "Microsoft.PowerShell"
-    source: "winget"
-- name: Microsoft.WinGet/UserSettingsFile-0
-  type: Microsoft.WinGet/UserSettingsFile
-  properties:
-    settings:
-      $schema: "https://aka.ms/winget-settings.schema.json"
-- name: Microsoft.WinGet/AdminSettings-0
-  type: Microsoft.WinGet/AdminSettings
-  metadata:
-    winget:
-      securityContext: "elevated"
-  properties:
-    settings:
-      LocalManifestFiles: false
-      ProxyCommandLineOptions: false
-      BypassCertificatePinningForMicrosoftStore: false
-      InstallerHashOverride: false
-      LocalArchiveMalwareScanOverride: false
-- name: winget_LGUG2Z.komorebi
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install LGUG2Z.komorebi"
-  properties:
-    id: "LGUG2Z.komorebi"
-    source: "winget"
-- name: winget_LGUG2Z.whkd
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install LGUG2Z.whkd"
-  properties:
-    id: "LGUG2Z.whkd"
-    source: "winget"
-- name: winget_wez.wezterm
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install wez.wezterm"
-  properties:
-    id: "wez.wezterm"
-    source: "winget"
-- name: winget_Microsoft.PowerShell
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install Microsoft.PowerShell"
-  properties:
-    id: "Microsoft.PowerShell"
-    source: "winget"
-- name: winget_Microsoft.Edge
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install Microsoft.Edge"
-  properties:
-    id: "Microsoft.Edge"
-    source: "winget"
-- name: winget_DEVCOM.JetBrainsMonoNerdFont
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install DEVCOM.JetBrainsMonoNerdFont"
-  properties:
-    id: "DEVCOM.JetBrainsMonoNerdFont"
-    source: "winget"
-- name: winget_Microsoft.OneDrive
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install Microsoft.OneDrive"
-  properties:
-    id: "Microsoft.OneDrive"
-    source: "winget"
-- name: winget_Canonical.Ubuntu
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install Canonical.Ubuntu"
-  properties:
-    id: "Canonical.Ubuntu"
-    source: "winget"
-- name: winget_Microsoft.AppInstaller
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install Microsoft.AppInstaller"
-  properties:
-    id: "Microsoft.AppInstaller"
-    source: "winget"
-- name: winget_Microsoft.UI.Xaml.2.8
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install Microsoft.UI.Xaml.2.8"
-  properties:
-    id: "Microsoft.UI.Xaml.2.8"
-    source: "winget"
-- name: winget_Microsoft.VCLibs.Desktop.14
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install Microsoft.VCLibs.Desktop.14"
-  properties:
-    id: "Microsoft.VCLibs.Desktop.14"
-    source: "winget"
-- name: winget_Microsoft.WindowsTerminal
-  type: Microsoft.WinGet/Package
-  metadata:
-    description: "Install Microsoft.WindowsTerminal"
-  properties:
-    id: "Microsoft.WindowsTerminal"
-    source: "winget"
+# yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.2
 
-- resource: Microsoft.Windows.Settings/WindowsSettings
-    directives:
-      allowPrerelease: true
-      description: Modify Windows Settings
-      securityContext: elevated
-    settings:
-      AppColorMode: Dark
-      DeveloperMode: true
-      SystemColorMode: Dark
-      TaskbarAlignment: Center
+###########################################################################
+# This configuration will modify various Windows Settings.                #
+# PowerShell module: Microsoft.Windows.Settings (v0.1.0-alpha)            #
+###########################################################################
+
+manifestVersion: 1.0.0
+name: "win11"
+description: "Windows 11 + NixOS WSL"
+version: 1.0.0
+
+properties:
+  configurationVersion: 0.2.0
+  resources:
+    - resource: Microsoft.Windows.Settings/WindowsSettings
+      directives:
+        allowPrerelease: true
+        description: Modify Windows Settings
+        securityContext: elevated
+      settings:
+        AppColorMode: Dark
+        DeveloperMode: true
+        SystemColorMode: Dark
+        TaskbarAlignment: Middle
+
+    - resource: Microsoft.Windows.Developer/Taskbar
+      directives:
+        description: Modify taskbar settings
+        allowPrerelease: true
+      settings:
+        Alignment: Middle # [Left, Middle]
+        HideLabelsMode: Never # [KeepCurrentValue, WhenFull, Always]
+        SearchBoxMode: Hide # [ShowIconAndLabel, ShowIconOnly, SearchBox, Hide]
+        TaskViewButton: Hide # [Show, Hide]
+        WidgetsButton: Hide # [Show, Hide]
+        RestartExplorer: True # Use caution when setting `RestartExplorer: true` as this will force explorer to close. Required for `HideLabelsMode`.
+
+    - resource: Microsoft.Windows.Developer/WindowsExplorer
+      directives:
+        description: Modify Windows Explorer settings
+        allowPrerelease: true
+      settings:
+        FileExtensions: Show # [Show, Hide]
+        HiddenFiles: Show # [Show, Hide]
+        ItemCheckBoxes: Hide # [Show, Hide]
+        RestartExplorer: True # Use caution when setting `RestartExplorer: true` as this will force explorer to close. Required for all WindowsExplorer settings.
+
+    - resource: Microsoft.WinGet.Dsc.Registry
+      id: EnableLongPaths
+      settings:
+        Key: HKLM\SYSTEM\CurrentControlSet\Control\FileSystem
+        Value: LongPathsEnabled
+        Data: 1
+        Type: DWord
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: JetBrainsMonoNerdFont
+      settings:
+        PackageIdentifier: DEVCOM.JetBrainsMonoNerdFont
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: komorebi
+      settings:
+        PackageIdentifier: LGUG2Z.komorebi
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: whkd
+      settings:
+        PackageIdentifier: LGUG2Z.whkd
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: Vivaldi
+      settings:
+        PackageIdentifier: Vivaldi.Vivaldi
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: PowerToys
+      settings:
+        PackageIdentifier: Microsoft.PowerToys
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: PowerShell
+      settings:
+        PackageIdentifier: Microsoft.PowerShell
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: wezterm
+      settings:
+        PackageIdentifier: wez.wezterm
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: OneDrive
+      settings:
+        PackageIdentifier: Microsoft.OneDrive
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: Ubuntu
+      settings:
+        PackageIdentifier: Ubuntu
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: AppInstaller
+      settings:
+        PackageIdentifier: Microsoft.AppInstaller
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: UIXaml
+      settings:
+        PackageIdentifier: Microsoft.UI.Xaml.2.8
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: VCLibsDesktop14
+      settings:
+        PackageIdentifier: Microsoft.VCLibs.Desktop.14
+
+    - resource: Microsoft.WinGet.Dsc.Package
+      id: WindowsTerminal
+      settings:
+        PackageIdentifier: Microsoft.WindowsTerminal

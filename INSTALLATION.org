@@ -323,54 +323,103 @@ sudo apt update && sudo apt upgrade -y
 
 ** [[https://github.com/nix-community/NixOS-WSL][NixOS-WSL]]
 
-1. Install Windows and update system
-2. Activate Dark mode
-3. Remove bloat programs
-4. Install [[https://www.nerdfonts.com/font-downloads][Nerd Fonts]]
-5. Fix the god-awful default terminal
-4. Activate optional features for WSL
-5. Install Ubuntu from Marketplace
-6. Install NixOS-WSL
-7. Change user
+1. Install Windows 11
 
-#+begin_src bash
-sudo nix-channel --update
-#+end_src
+  #+begin_src bash
+  sudo woeusb -d ~/Downloads/iso-images/Win11_24H2_English_x64.iso /dev/sdb
+  #+end_src
 
-#+begin_src bash
-nix-shell -p git lazygit
-#+end_src
+2. Remove bloat
+  # winget search DesiredStateConfiguration --source msstore
+  # winget install --id 9NVTPZWRC6KQ --source msstore
 
-#+begin_src bash
-git clone https://github.com/MFarabi619/MFarabi619
-#+end_src
+  #+begin_src powershell
+  winget add DesiredStateConfiguration --accept-package-agreements
+  #+end_src
 
-#+begin_src bash
-wsl -s NixOS
-#+end_src
+  #+begin_src powershell
+  dsc resource list
+  #+end_src
 
-[[nix-community.github.io/NixOS-WSL/how-to/change-username]]
+  #+begin_src powershell
+  winget list
+  #+end_src
 
-#+begin_src bash
-sudo nixos-rebuild boot --flake .
-#+end_src
+  #+begin_src powershell
+  "Family", "Teams", "Photos", "Bing", "Edge", "365 (Office)", "To DO", "Clipchamp", "Edge Game Assist", "Calculator", | ForEach-Object { winget uninstall "Microsoft $_" }
+  #+end_src
 
-#+begin_src bash
-wsl -t NixOS; wsl -d NixOS --user root exit; wsl -t NixOS
-#+end_src
+  #+begin_src powershell
+  "Outlook for Windows", "Feedback Hub", "Phone Link", "Power Automate" | ForEach-Object { winget uninstall $_ }
+  #+end_src
 
-[[https://lgug2z.github.io/komorebi/installation.html][Installation - Komorebi]]
+3. Activate optional features for WSL
 
-Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
+4. Install programs
 
-winget install --id=DEVCOM.JetBrainsMonoNerdFont  -e
-winget install LGUG2Z.komorebi LGUG2Z.whkd
+  #+begin_src powershell
+  Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
+  #+end_src
 
-komorebic quickstart
-komorebic start --whkd --bar
+  #+begin_src powershell
+  winget add powertoys vivaldi ubuntu -s msstore --accept-package-agreements
+  #+end_src
 
-winget install --id=Vivaldi.Vivaldi -e
-winget install --id=Microsoft.PowerToys -e
+  [[https://lgug2z.github.io/komorebi/installation.html][Installation - Komorebi]]
+
+  #+begin_src powershell
+  winget add vial komorebi whkd "QMK Toolbox" "JetBrainsMono Nerd Font"
+  #+end_src
+
+  #+begin_src powershell
+  komorebic quickstart
+  komorebic start --whkd --bar
+  #+end_src
+
+5. Install NixOS-WSL
+    #+begin_src bash
+    sudo nix-channel --update
+    #+end_src
+
+    #+begin_src bash
+    nix-shell -p neovim
+    #+end_src
+
+    #+begin_src bash
+    cd /etc/nixos; sudo nvim configuration.nix
+    #+end_src
+
+    wsl.defaultUser = "mfarabi"
+    networking.hostName = "nixos-wsl";
+
+    [[nix-community.github.io/NixOS-WSL/how-to/change-username]]
+
+    #+begin_src bash
+    sudo nixos-rebuild boot --flake .
+    #+end_src
+
+    #+begin_src bash
+    exit
+    #+end_src
+
+    #+begin_src powershell
+    wsl -t NixOS; wsl -d NixOS --user root exit; wsl -t NixOS; wsl -s NixOS
+    #+end_src
+
+    Set default terminal profile to NixOS.
+
+    #+begin_src bash
+    nix-shell -p git lazygit neovim yazi
+    #+end_src
+
+    #+begin_src bash
+    git clone https://github.com/MFarabi619/MFarabi619;
+    cd MFarabi619/nixos-unified;
+    #+end_src
+
+    #+begin_src bash
+    sudo nixos-rebuild boot --flake .
+    #+end_src
 
 ** Raspberry Pi 5 ARM NixOS
 [[https://wiki.nixos.org/wiki/NixOS_on_ARM/Raspberry_Pi_5][NixOS on ARM/Raspberry Pi 5 - NixOS Wiki]]
