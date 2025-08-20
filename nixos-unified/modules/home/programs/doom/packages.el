@@ -48,6 +48,8 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
 
+(package! mermaid-mode)
+(package! ob-mermaid)
 (package! nov)
 
 (package! magit-todos)

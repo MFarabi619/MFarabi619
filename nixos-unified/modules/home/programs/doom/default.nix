@@ -4,12 +4,15 @@
     doomDir = ./.;
     extraPackages =
       epkgs: with epkgs; [
-        pdf-tools
         editorconfig
+        xclip
+        wttrin
+        # ================
         shfmt
         nixfmt
-        npm
+        # ================
         rustic
+        # ================
         lsp-java
         lsp-docker
         lsp-latex
@@ -17,12 +20,19 @@
         lsp-tailwindcss
         lsp-treemacs
         lsp-haskell
+        # ================
+        ob-mermaid # org babel mermaid
+        mermaid-mode # github.com/abrochard/mermaid-mode
+        # ================
+        npm
         typescript-mode
         jtsx
-        yaml
-        xclip
-        wttrin
         vue3-mode
+        # ================
+        yaml
+        # ================
+        pdf-tools
+        # ================
       ];
     # provideEmacs = false;
   };
