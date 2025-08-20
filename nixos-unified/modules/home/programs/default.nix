@@ -1,10 +1,10 @@
 {
   imports = [
+    ./doom
     ./bash.nix
     ./bat.nix
     ./btop.nix
     ./chromium.nix
-    ./doom
     ./direnv.nix
     ./eza.nix
     ./fastfetch.nix
@@ -17,6 +17,7 @@
     ./home-manager.nix
     ./hyprland.nix
     ./jq.nix
+    ./jqp.nix
     ./k9s.nix
     ./kitty.nix
     ./kubecolor.nix
