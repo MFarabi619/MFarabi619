@@ -1,5 +1,6 @@
 { pkgs, ... }:
 
+
 {
   programs.vscode = {
     enable = true;
@@ -17,9 +18,12 @@
           graphql.vscode-graphql-syntax
           unifiedjs.vscode-mdx
           bbenoist.nix
+          jnoortheen.nix-ide
           christian-kohler.npm-intellisense
           christian-kohler.path-intellisense
           esbenp.prettier-vscode
+          bierner.markdown-mermaid
+
           # solidity
           # supabase
           # unocss
