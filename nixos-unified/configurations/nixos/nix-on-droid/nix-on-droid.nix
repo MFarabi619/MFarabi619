@@ -8,6 +8,9 @@
 
 {
   system.stateVersion = "24.05";
+  # stylix = {
+  #   enable = true;
+  # };
 
   user = {
     # userName = "mfarabi";
