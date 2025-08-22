@@ -121,6 +121,15 @@ model {
                     style {
                         color: red
                     }
+                }
+
+                athenaos = component "Athena OS" {
+                description: "Batteries-supercharged multi distro system for cybersecurity power users."
+                    link https://athenaos.org "Website"
+                    icon https://athenaos.org/_astro/athena-dark.zw0VuR1C.svg
+                    style {
+                        color: yellow
+                    }
 
                 }
 
@@ -204,6 +213,7 @@ description: "Shared libraries"
         }
         userspaces ->  kernels "run on"
         userspaces.arch-linux ->  kernels.linux
+        userspaces.athenaos ->  kernels.linux
         userspaces.nixos-raspberrypi ->  kernels.linux
         userspaces.nix-on-droid ->  kernels.linux
         userspaces.nixos-wsl ->  kernels.linux
