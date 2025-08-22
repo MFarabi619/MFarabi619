@@ -182,7 +182,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <td align='center'>
 <!-- FreeBSD Unix -->
 <a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
-<img src="https://wiki.installgentoo.com/images/thumb/0/0a/Freebsd.png/600px-Freebsd.png" alt="FreeBSD Unix Logo" width="40" height="40" />
+<img src="https://wiki.installgentoo.com/images/archive/0/0a/20250805094942%21Freebsd.png" alt="FreeBSD Unix Logo" width="40" height="40" />
 </a>
 <!-- NixOS -->
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
