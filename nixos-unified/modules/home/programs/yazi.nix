@@ -11,7 +11,7 @@
       smart-enter = pkgs.yaziPlugins.smart-enter;
     };
     settings = {
-      manager = {
+      mgr = {
         ratio = [
           1
           4
