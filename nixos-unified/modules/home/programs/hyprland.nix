@@ -13,11 +13,11 @@
     rofi = {
       enable = true;
       package = pkgs.rofi-wayland;
+      location = "center";
+      # font = "JetBrainsMono Nerd Font Mono 12";
       extraConfig = {
         show-icons = true;
-        icon-theme = "Papirus";
-        location = "center";
-        font = "JetBrainsMono Nerd Font Mono 12";
+        # icon-theme = "Papirus";
         drun-display-format = "{icon} {name}";
         display-drum = "Apps";
         display-run = "Run";

@@ -34,6 +34,7 @@
     ./ripgrep.nix
     ./ssh.nix
     ./sftpman.nix
+    ./sketchybar.nix
     ./starship
     ./television.nix
     ./texlive.nix
@@ -47,7 +48,6 @@
     ./zsh.nix
     ./obs-studio.nix
     ./vivaldi.nix
-    ./sketchybar.nix
     ./uv.nix
   ];
 }
