@@ -47,5 +47,6 @@
     ./obs-studio.nix
     ./vivaldi.nix
     ./sketchybar.nix
+    ./uv.nix
   ];
 }
