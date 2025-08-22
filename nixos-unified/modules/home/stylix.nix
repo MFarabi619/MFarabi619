@@ -20,47 +20,30 @@
           signColumn = true;
         };
       };
-      bat.enable = true;
-      fzf.enable = true;
       kitty = {
         enable = true;
         variant256Colors = false;
       };
-      lazygit.enable = true;
-      zellij.enable = true;
     };
 
     icons = {
       enable = true;
+      package = pkgs.nerd-fonts.symbols-only;
+      light = "light";
+      dark = "dark";
     };
-
-    #    iconTheme = {
-    #      enable = true;
-    #    };
 
     opacity = {
       applications = 0.9;
       terminal = 0.9;
       desktop = 1.0;
+      popups = 0.9;
     };
 
     fonts = {
-      packages =
-        with pkgs;
-        [
-          noto-fonts-emoji
-          noto-fonts-cjk-sans
-          font-awesome
-          symbola
-          material-icons
-          fira-code
-          fira-code-symbols
-          nerd-fonts.jetbrains-mono
-        ]
-        ++ lib.optionals stdenv.isDarwin [
-          sketchybar-app-font
-        ];
-
+      sizes = {
+        # terminal = 12;
+      };
       serif = {
         package = pkgs.nerd-fonts.jetbrains-mono;
         name = "JetBrainsMono Nerd Font";
@@ -77,7 +60,7 @@
       };
 
       emoji = {
-        package = pkgs.noto-fonts-emoji;
+        package = pkgs.noto-fonts-color-emoji;
         name = "Noto Color Emoji";
       };
     };
