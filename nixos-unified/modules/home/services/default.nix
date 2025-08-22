@@ -5,5 +5,6 @@
     ./gpg-agent.nix
     ./home-manager.nix
     ./skhd.nix
+    ./ollama.nix
   ];
 }
