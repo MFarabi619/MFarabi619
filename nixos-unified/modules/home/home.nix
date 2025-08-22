@@ -14,27 +14,35 @@
     packages =
       with pkgs;
       [
-        noto-fonts
-
-        # ==========  Doom Emacs ===========
         # clang
+        # =============
         cmake # vterm compilation and more
         coreutils
         binutils # native-comp needs 'as', provided by this
         gnutls # for TLS connectivity
-        epub-thumbnailer # dired epub previews
-        poppler-utils # dired pdf previews
+        # =============
         openscad
         openscad-lsp
+        # =============
         vips # dired image previews
+        epub-thumbnailer # dired epub previews
+        poppler-utils # dired pdf previews
         imagemagick # for image-dired
+        # =============
+        octaveFull # gnu octave
+        mermaid-cli # mermaid diagram support
+        # =============
         tuntox # collab
+        # =============
         sqlite # :tools lookup & :lang org +roam
+        # =============
         ispell # spelling
+        # =============
         shellcheck # shell script formatting
+        # =============
         # texlive     # :lang latex & :lang org (latex previews)
-
-        # ============= 🧑‍💻🐞‍ ================
+        # vimPlugins.nvim-treesitter-parsers.mermaid
+        # ============= 🧑‍💻🐞✨‍ ================
         # pnpm
         tgpt
         pik
@@ -42,19 +50,20 @@
         gpg-tui
         termscp
         bandwhich
-
-        omnix
+        cointop # crypto price feed
+        nix-inspect
 
         tree
         gnumake
 
-        devenv
-        cachix
-        nil
+        # ============= ‍❄🕸 ================
+        nil # nix formatter
         nix-info
         nix-inspect
         nixpkgs-fmt
         nix-health
+        omnix
+        devenv
 
         # On ubuntu, we need this less for `man home-configuration.nix`'s pager to
         # work.
@@ -65,28 +74,26 @@
         # flake.inputs.vertex.packages.${system}.default
 
         # ============== 🤪 =================
-        asciiquarium
+        asciiquarium # ascii aquarium
         cowsay
         cmatrix
-        figlet
-        nyancat
-        lolcat
-        cointop
+        figlet # fancy ascii text output
+        nyancat # rainbow flying cat
+        lolcat # rainbow text output
       ]
       ++ lib.optionals stdenv.isLinux [
-        ugm
-        isd # systemd units TUI
-        dysk # see mounted disks
-
-        wl-clipboard
-
-        netscanner
-
+        # ============= 🧑‍💻🐞✨‍ ================
         kmon
         lazyjournal
         systemctl-tui
+        netscanner
+        ugm # user group management
+        isd # systemd units
+        dysk # see mounted
+
         virt-viewer
 
+        # ============== 🤪 =================
         hollywood
       ]
       ++ lib.optionals stdenv.isDarwin [
@@ -96,9 +103,6 @@
       ];
 
     sessionVariables = lib.mkIf pkgs.stdenv.isLinux {
-      NIXOS_OZONE_WL = "1";
-      MOZ_ENABLE_WAYLAND = "1";
-
       XDG_RUNTIME_DIR = "/run/user/$(id -u)";
 
       # XDG_CACHE_HOME = config.xdg.cacheHome;

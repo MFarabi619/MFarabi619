@@ -5,6 +5,16 @@
   ...
 }:
 {
+  home = lib.mkIf pkgs.stdenv.isLinux {
+    packages = with pkgs; [
+      wl-clipboard
+    ];
+    sessionVariables =  {
+    NIXOS_OZONE_WL = "1";
+    MOZ_ENABLE_WAYLAND = "1";
+  };
+  };
+
   programs = lib.mkIf pkgs.stdenv.isLinux {
     waybar = {
       enable = true;
@@ -40,6 +50,10 @@
   systemd.user.targets.hyprland-session.Unit.Wants = lib.mkIf pkgs.stdenv.isLinux [
     "xdg-desktop-autostart.target"
   ];
+
+  services = {
+    swww.enable = false;
+  };
 
   wayland = lib.mkIf pkgs.stdenv.isLinux {
     windowManager = {
@@ -246,8 +260,4 @@
       };
     };
   };
-
-  # services = {
-  #   swww.enable = true;
-  # };
 }
