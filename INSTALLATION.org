@@ -68,7 +68,7 @@ Can share internet from phone via USB C Tethering.
 
 [[https://github.com/Pyenb/macOS-ISOs?tab=readme-ov-file][GitHub - Pyenb/macOS-ISOs: macOS ISOs]]
 
-     #+BEGIN_SRC sh
+#+BEGIN_SRC sh
 # Install with flakes
 curl -sSf -L https://install.lix.systems/lix | sh -s -- install
 # sudo mkdir -p /etc/nix-darwin
@@ -81,7 +81,7 @@ sudo nix-channel --update
 nix shell nipkgs#git --command git clone https://github.com/MFarabi619/MFarabi619
 sudo mv /etc/nix/nix.conf /etc/nix/nix.conf.before-nix-darwin
 sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin/master#darwin-rebuild -- switch --flake .
-   #+end_src
+#+end_src
 
 ** [[https://www.freebsd.org][FreeBSD]]
 
@@ -258,8 +258,7 @@ Exit =iwctl= with =Ctrl+C=.
 
 3. After installation
     #+begin_src bash
-    bcfg boot dump -b;
-    bcfg boot rm;
+    bcfg boot dump -b; bcfg boot rm;
     #+end_src
 
 4. Reboot
@@ -360,13 +359,13 @@ sudo apt update && sudo apt upgrade -y
 
 
   #+begin_src powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine;
-New-Item -Path $PROFILE -Type File -Force;
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine;
+  New-Item -Path $PROFILE -Type File -Force;
   Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1;
   #+end_src
 
   #+begin_src powershell
-  winget add powertoys vivaldi ubuntu -s msstore --accept-package-agreements
+  winget add powertoys vivaldi ubuntu "Athena OS" -s msstore --accept-package-agreements
   #+end_src
 
   [[https://lgug2z.github.io/komorebi/installation.html][Installation - Komorebi]]
@@ -390,7 +389,7 @@ New-Item -Path $PROFILE -Type File -Force;
     #+end_src
 
     #+begin_src bash
-    sudo cp MFarabi619/nixos-unified/configurations/nixos/nixos-wsl/initial-boot.nix /etc/nixos/configuration.nix
+    sudo cp ~/MFarabi619/nixos-unified/configurations/nixos/nixos-wsl/initial-boot.nix /etc/nixos/configuration.nix
     #+end_src
 
     [[nix-community.github.io/NixOS-WSL/how-to/change-username]]
