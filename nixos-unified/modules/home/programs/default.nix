@@ -32,6 +32,7 @@
     ./nix-search-tv.nix
     ./pandoc.nix
     ./ripgrep.nix
+    ./ssh.nix
     ./sftpman.nix
     ./starship
     ./television.nix
