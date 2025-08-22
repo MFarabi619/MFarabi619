@@ -53,7 +53,6 @@
         nil
         nix-info
         nix-inspect
-        nix-search-tv
         nixpkgs-fmt
         nix-health
 

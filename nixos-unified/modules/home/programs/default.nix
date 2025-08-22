@@ -29,6 +29,7 @@
     ./neovim.nix
     ./nh.nix
     ./nix-index.nix
+    ./nix-search-tv.nix
     ./pandoc.nix
     ./ripgrep.nix
     ./sftpman.nix
