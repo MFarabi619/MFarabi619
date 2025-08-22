@@ -357,8 +357,12 @@ sudo apt update && sudo apt upgrade -y
 
 4. Install programs
 
+
+
   #+begin_src powershell
-  Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine;
+New-Item -Path $PROFILE -Type File -Force;
+  Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name 'LongPathsEnabled' -Value 1;
   #+end_src
 
   #+begin_src powershell
@@ -368,7 +372,7 @@ sudo apt update && sudo apt upgrade -y
   [[https://lgug2z.github.io/komorebi/installation.html][Installation - Komorebi]]
 
   #+begin_src powershell
-  winget add vial komorebi whkd "QMK Toolbox" "JetBrainsMono Nerd Font"
+  winget add vial komorebi whkd wezterm starship docker.desktop qmk.qmktoolbox devcom.jetbrainsmononerdfont
   #+end_src
 
   #+begin_src powershell
@@ -382,20 +386,17 @@ sudo apt update && sudo apt upgrade -y
     #+end_src
 
     #+begin_src bash
-    nix-shell -p neovim
+    nix-shell -p git lazygit
     #+end_src
 
     #+begin_src bash
-    cd /etc/nixos; sudo nvim configuration.nix
+    sudo cp MFarabi619/nixos-unified/configurations/nixos/nixos-wsl/initial-boot.nix /etc/nixos/configuration.nix
     #+end_src
-
-    wsl.defaultUser = "mfarabi"
-    networking.hostName = "nixos-wsl";
 
     [[nix-community.github.io/NixOS-WSL/how-to/change-username]]
 
     #+begin_src bash
-    sudo nixos-rebuild boot --flake .
+    sudo nixos-rebuild boot
     #+end_src
 
     #+begin_src bash
