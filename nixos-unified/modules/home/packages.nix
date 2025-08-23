@@ -9,8 +9,6 @@
     [
       # clang
       # =============
-      cmake # vterm compilation and more
-      coreutils
       binutils # native-comp needs 'as', provided by this
       gnutls # for TLS connectivity
       # =============
@@ -47,7 +45,6 @@
       nix-inspect
 
       tree
-      gnumake
 
       # ============= ‍❄🕸 ================
       nil # nix formatter
@@ -58,9 +55,20 @@
       omnix
       devenv
 
-      # On ubuntu, we need this less for `man home-configuration.nix`'s pager to
-      # work.
+      # `man home-configuration.nix`'s pager to work on Ubuntu
       less
+
+      # ============= 🤖 ==================
+      # https://github.com/Vaishnav-Sabari-Girish/arduino-cli-interactive?ref=terminaltrove
+      cmake # vterm compilation and more
+      gnumake
+      coreutils
+      arduino-cli
+      arduino-ide
+      arduino-language-server
+      platformio
+
+      fritzing
 
       # Setup Claude Code using Google Vertex AI Platform
       # https://github.com/juspay/vertex

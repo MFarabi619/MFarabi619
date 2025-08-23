@@ -33,6 +33,9 @@
         # ================
         pdf-tools
         # ================
+        arduino-mode
+        company-arduino
+        arduino-cli-mode
       ];
     # provideEmacs = false;
   };

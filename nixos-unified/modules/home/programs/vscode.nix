@@ -1,6 +1,5 @@
 { pkgs, ... }:
 
-
 {
   programs.vscode = {
     enable = true;
@@ -23,6 +22,13 @@
           christian-kohler.path-intellisense
           esbenp.prettier-vscode
           bierner.markdown-mermaid
+          ms-vscode-remote.vscode-remote-extensionpack
+          antfu.slidev
+          vscodevim.vim
+          vue.volar
+          vue.vscode-typescript-vue-plugin
+          ms-kubernetes-tools.vscode-kubernetes-tools
+          platformio.platformio-vscode-ide
 
           # solidity
           # supabase
@@ -40,16 +46,10 @@
           # pulumi
           # pulumi copilot
           # pulumi yaml
-          ms-vscode-remote.vscode-remote-extensionpack
-          antfu.slidev
           # sway
-          vscodevim.vim
-          vue.volar
-          vue.vscode-typescript-vue-plugin
           # vite
           # ms-vscode-remote.remote-wsl
           # xstate vscode
-          ms-kubernetes-tools.vscode-kubernetes-tools
         ];
         userSettings = {
           editor = {
