@@ -26,7 +26,7 @@
     ./lazysql.nix
     ./less.nix
     ./mu.nix
-    ./neovim.nix
+    ./neovim
     ./nh.nix
     ./nix-index.nix
     ./nix-search-tv.nix
@@ -45,7 +45,7 @@
     ./zed.nix
     ./zellij.nix
     ./zoxide.nix
-    ./zsh.nix
+    ./zsh
     ./obs-studio.nix
     ./vivaldi.nix
     ./uv.nix

@@ -4,11 +4,21 @@
     enable = true;
     enableBashIntegration = true;
     enableZshIntegration = true;
+    shellWrapperName = "yy";
+    # keymap = {};
+    # flavors = { inherit (pkgs.yaziPlugins); };
+    # theme = {};
     plugins = {
-      lazygit = pkgs.yaziPlugins.lazygit;
-      full-border = pkgs.yaziPlugins.full-border;
-      git = pkgs.yaziPlugins.git;
-      smart-enter = pkgs.yaziPlugins.smart-enter;
+      inherit (pkgs.yaziPlugins)
+        sudo
+        git
+        lazygit
+        smart-enter
+        smart-filter
+        full-border
+        rich-preview
+        wl-clipboard
+        ;
     };
     settings = {
       mgr = {
@@ -21,6 +31,7 @@
         show_symlink = true;
         sort_dir_first = true;
       };
+      # yazi = {};
     };
     initLua = ''
       require("full-border"):setup()

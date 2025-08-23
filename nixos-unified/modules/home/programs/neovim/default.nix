@@ -4,10 +4,6 @@
 }:
 
 {
-  imports = [
-    # ./nixvim.nix
-  ];
-  # programs.nixvim.enable = true;
   programs = {
     neovim = {
       enable = true;
@@ -16,9 +12,29 @@
     };
     lazyvim = {
       enable = true;
-      plugins = with pkgs; [
-        vimPlugins.base16-nvim
+      plugins = with pkgs.vimPlugins; [
+        base16-nvim
+        undotree
+        dashboard-nvim
+        yazi-nvim
       ];
+      pluginsFile = {
+        "yazi-nvim.lua".source = ./plugins/yazi-nvim.lua;
+        "dashboard.lua".source = ./plugins/dashboard.lua;
+      };
+      pluginsSpecs = {
+        "undotree.lua" = [
+          {
+            ref = "mbbill/undotree";
+            keys = [
+              [
+                "<leader>uu"
+                "<cmd>UndotreeToggle<cr>"
+              ]
+            ];
+          }
+        ];
+      };
       extras = {
         # test.core.enable = true;
         dap.core.enable = true;
@@ -30,7 +46,7 @@
         };
         util = {
           dot.enable = true;
-          # mini-hipatterns.enable = true;
+          mini-hipatterns.enable = true;
         };
         editor = {
           fzf.enable = true;
@@ -50,5 +66,9 @@
         };
       };
     };
+    # nixvim.enable = true;
   };
+  imports = [
+    # ./nixvim.nix
+  ];
 }

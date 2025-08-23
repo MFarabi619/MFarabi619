@@ -8,7 +8,6 @@
       cat = "bat";
       man = "batman";
       lg = "lazygit";
-      yy = "yazi";
       enw = "emacs -nw";
       z = "zoxide";
       zlj = "zellij";
@@ -40,7 +39,7 @@
       }
       {
         name = "powerlevel10k-config";
-        src = lib.cleanSource ./p10k-config;
+        src = lib.cleanSource ./.;
         file = "p10k.zsh";
       }
     ];

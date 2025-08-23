@@ -51,7 +51,7 @@
         ../../../modules/home/programs/lazysql.nix
         ../../../modules/home/programs/less.nix
         ../../../modules/home/programs/mu.nix
-        ../../../modules/home/programs/neovim.nix
+        ../../../modules/home/programs/neovim
         ../../../modules/home/programs/nh.nix
         ../../../modules/home/programs/nix-index.nix
         ../../../modules/home/programs/nix-search-tv.nix
@@ -66,7 +66,7 @@
         ../../../modules/home/programs/yazi.nix
         ../../../modules/home/programs/zellij.nix
         ../../../modules/home/programs/zoxide.nix
-        ../../../modules/home/programs/zsh.nix
+        ../../../modules/home/programs/zsh
       ];
     };
   };

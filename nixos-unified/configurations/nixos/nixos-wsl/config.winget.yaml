@@ -13,17 +13,6 @@ version: 1.0.0
 properties:
   configurationVersion: 0.2.0
   resources:
-    - resource: Microsoft.Windows.Settings/WindowsSettings
-      directives:
-        allowPrerelease: true
-        description: Modify Windows Settings
-        securityContext: elevated
-      settings:
-        AppColorMode: Dark
-        DeveloperMode: true
-        SystemColorMode: Dark
-        TaskbarAlignment: Middle
-
     - resource: Microsoft.Windows.Developer/Taskbar
       directives:
         description: Modify taskbar settings
@@ -55,21 +44,6 @@ properties:
         Type: DWord
 
     - resource: Microsoft.WinGet.Dsc.Package
-      id: JetBrainsMonoNerdFont
-      settings:
-        PackageIdentifier: DEVCOM.JetBrainsMonoNerdFont
-
-    - resource: Microsoft.WinGet.Dsc.Package
-      id: komorebi
-      settings:
-        PackageIdentifier: LGUG2Z.komorebi
-
-    - resource: Microsoft.WinGet.Dsc.Package
-      id: whkd
-      settings:
-        PackageIdentifier: LGUG2Z.whkd
-
-    - resource: Microsoft.WinGet.Dsc.Package
       id: Vivaldi
       settings:
         PackageIdentifier: Vivaldi.Vivaldi
@@ -85,36 +59,6 @@ properties:
         PackageIdentifier: Microsoft.PowerShell
 
     - resource: Microsoft.WinGet.Dsc.Package
-      id: wezterm
-      settings:
-        PackageIdentifier: wez.wezterm
-
-    - resource: Microsoft.WinGet.Dsc.Package
-      id: OneDrive
-      settings:
-        PackageIdentifier: Microsoft.OneDrive
-
-    - resource: Microsoft.WinGet.Dsc.Package
       id: Ubuntu
       settings:
         PackageIdentifier: Ubuntu
-
-    - resource: Microsoft.WinGet.Dsc.Package
-      id: AppInstaller
-      settings:
-        PackageIdentifier: Microsoft.AppInstaller
-
-    - resource: Microsoft.WinGet.Dsc.Package
-      id: UIXaml
-      settings:
-        PackageIdentifier: Microsoft.UI.Xaml.2.8
-
-    - resource: Microsoft.WinGet.Dsc.Package
-      id: VCLibsDesktop14
-      settings:
-        PackageIdentifier: Microsoft.VCLibs.Desktop.14
-
-    - resource: Microsoft.WinGet.Dsc.Package
-      id: WindowsTerminal
-      settings:
-        PackageIdentifier: Microsoft.WindowsTerminal
