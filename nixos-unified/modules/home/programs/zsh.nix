@@ -7,6 +7,7 @@
     shellAliases = {
       cat = "bat";
       man = "batman";
+      lg = "lazygit";
     };
 
     syntaxHighlighting = {
