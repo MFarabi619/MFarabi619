@@ -10,6 +10,7 @@
       lg = "lazygit";
       yy = "yazi";
       enw = "emacs -nw";
+      z = "zoxide";
     };
 
     syntaxHighlighting = {
