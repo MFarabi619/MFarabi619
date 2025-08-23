@@ -333,14 +333,6 @@ sudo apt update && sudo apt upgrade -y
   # winget install --id 9NVTPZWRC6KQ --source msstore
 
   #+begin_src powershell
-  winget add DesiredStateConfiguration --accept-package-agreements
-  #+end_src
-
-  #+begin_src powershell
-  dsc resource list
-  #+end_src
-
-  #+begin_src powershell
   winget list
   #+end_src
 
@@ -352,11 +344,31 @@ sudo apt update && sudo apt upgrade -y
   "Outlook for Windows", "Feedback Hub", "Phone Link", "Power Automate" | ForEach-Object { winget uninstall $_ }
   #+end_src
 
+ https://github.com/pit-ray/win-vind
+
 3. Activate optional features for WSL
 
+#+begin_src powershell
+Get-WindowsOptionalFeature -Online
+  #+end_src
+
+#+begin_src powershell
+    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-RemoteDesktopConnection HypervisorPlatform VirtualMachineplatform Microsoft-Windows-Subsystem-Linux
+  #+end_src
+
+#+begin_src powershell
+    Disable-WindowsOptionalFeature -Online -NoRestart -FeatureName WindowsMediaPlayer SearchEngine-Client-Package
+  #+end_src
+
+#+begin_src powershell
+Get-WindowsPackage -Online
+  #+end_src
+
+#+begin_src powershell
+Remove-WindowsPackage -Online -FeatureName ""
+  #+end_src
+
 4. Install programs
-
-
 
   #+begin_src powershell
   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine;
@@ -365,18 +377,39 @@ sudo apt update && sudo apt upgrade -y
   #+end_src
 
   #+begin_src powershell
-  winget add powertoys vivaldi ubuntu "Athena OS" -s msstore --accept-package-agreements
+  winget add emacs openscad git.git zig winrar gnuwin32.tar burntsushi.ripgrep.gnu llvm fd fzf curl.curl cmake television qemu neovim tailscale lazydocker lazygit eza yazi ttyd microsoft.windowsterminal.preview github.cli audacity.audacity steam obsproject.obsstudio videolan.vlc vscode gimp.gimp.3 authormore.penpotdesktop discord.discord figma pnpm.pnpm vial komorebi whkd wezterm starship docker.desktop qmk.qmktoolbox devcom.jetbrainsmononerdfont
+  #+end_src
+
+  #+begin_src powershell
+    nvim $PROFILE;
+  #+end_src
+
+    Invoke-Expression ($starship init powershell)
+    Set-Alias -Name l -Value eza
+    Set-Alias -Name yy -Value yazi
+    Set-Alias -Name lg -Value lazygit
+
+  #+begin_src powershell
+    starship preset gruvbox-rainbow -o ~/.config/starship.toml
+  #+end_src
+
+  #+begin_src powershell
+    . $PROFILE
   #+end_src
 
   [[https://lgug2z.github.io/komorebi/installation.html][Installation - Komorebi]]
 
   #+begin_src powershell
-  winget add vial komorebi whkd wezterm starship docker.desktop qmk.qmktoolbox devcom.jetbrainsmononerdfont
+  komorebic quickstart
+  komorebic start --whkd --bar
   #+end_src
 
   #+begin_src powershell
-  komorebic quickstart
-  komorebic start --whkd --bar
+  winget add DesiredStateConfiguration powertoys vivaldi ubuntu "Athena OS" -s msstore --accept-package-agreements
+  #+end_src
+
+  #+begin_src powershell
+  dsc resource list
   #+end_src
 
 5. Install NixOS-WSL
