@@ -9,6 +9,7 @@
       man = "batman";
       lg = "lazygit";
       yy = "yazi";
+      enw = "emacs -nw";
     };
 
     syntaxHighlighting = {
