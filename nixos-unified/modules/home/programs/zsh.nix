@@ -8,6 +8,7 @@
       cat = "bat";
       man = "batman";
       lg = "lazygit";
+      yy = "yazi";
     };
 
     syntaxHighlighting = {
