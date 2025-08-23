@@ -11,6 +11,7 @@
       yy = "yazi";
       enw = "emacs -nw";
       z = "zoxide";
+      zlj = "zellij";
     };
 
     syntaxHighlighting = {
