@@ -48,7 +48,7 @@
     ./zsh
     ./obs-studio.nix
     ./obsidian.nix
-    ./vivaldi.nix
+    ./vivaldi
     ./uv.nix
   ];
 }

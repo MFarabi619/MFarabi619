@@ -1,0 +1,47 @@
+{
+  "flags": {
+    "double_click_menu": {
+      "friendly_name": "Show context menu on a double click",
+      "description": "Use a double click anywhere in the page to show its context menu. Requires a restart of Vivaldi to take effect.",
+      "internal_value": true,
+      "internal_locked": true
+    },
+    "css_mods": {
+      "friendly_name": "Allow CSS modifications",
+      "description": "Allow user interface CSS modifications set in Appearance settings.",
+      "internal_value": false,
+      "internal_locked": false
+    },
+    "chrome_pages": {
+      "friendly_name": "Enable Chrome Pages",
+      "description": "Do not redirect chrome pages to vivaldi pages",
+      "internal_value": false,
+      "internal_locked": false
+    },
+    "location_override": {
+      "friendly_name": "Enable Location Override",
+      "description": "Spoof and protect your geolocation with Location Override.",
+      "internal_value": true,
+      "internal_locked": false
+    },
+    "tabs_button": {
+      "friendly_name": "Enable Tabs Button",
+      "description": "Make the Tabs Button available to use.",
+      "internal_value": false,
+      "internal_locked": false
+    },
+    "speeddial_widgets": {
+      "friendly_name": "Enable Widgets on Speed Dial Groups",
+      "description": "Allow dashboard widgets to be added on speed dial groups.",
+      "internal_value": false,
+      "internal_locked": false
+    },
+    "new_privacy_report": {
+      "friendly_name": "Use new Privacy Report",
+      "description": "Enable vivaldi:privacy-report page.",
+      "internal_value": false,
+      "internal_locked": false,
+      "os": "mac,win,linux"
+    }
+  }
+}
