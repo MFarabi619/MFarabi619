@@ -60,7 +60,7 @@
       evil-vsplit-window-right t
       ;; If you use `org' and don't want your org files in the default location below,
       ;; change `org-directory'. It must be set before org loads!
-      org-directory "~/Documents/")
+      org-directory "~/Documents/org/")
 
 (after! treemacs
   treemacs-git-commit-diff-mode t
@@ -358,7 +358,7 @@
   (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n"))
 
 ;; (setq fancy-splash-image "~/dotfiles/.config/doom/doom-emacs-color2.svg")
-(setq fancy-splash-image "./apollyon-emacs.png")
+(setq fancy-splash-image "~/MFarabi619/nixos-unified/modules/home/programs/doom/apollyon-emacs.png")
 
 ;; Find `doom-dashboard-widget-banner` in the list and insert after it
 (let ((pos (cl-position #'doom-dashboard-widget-banner +doom-dashboard-functions)))
