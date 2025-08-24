@@ -28,14 +28,6 @@
   '';
 
   enterShell = ''
-    alias l='eza -alh  --icons=auto'                                       # long list
-    alias ls='eza -a -1   --icons=auto'                                    # short list
-    alias ll='eza -lha --icons=auto --sort=name --group-directories-first' # long list all
-    alias ld='eza -lhD --icons=auto'                                       # long list dirs
-    alias lt='eza --icons=auto --tree'                                     # list folder as tree
-    alias cat='bat'
-    alias mkdir='mkdir -p'
-
     devenv info
     hello
   '';
