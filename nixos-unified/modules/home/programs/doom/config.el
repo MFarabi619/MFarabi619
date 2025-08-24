@@ -32,6 +32,11 @@
 
 ;; https://tecosaur.github.io/emacs-config
 
+;; https://git.sr.ht/~morgansmith/sway-ts-mode
+;; ;; (load! "./extra/sway-ts-mode")
+;; (add-load-path "./extra")
+;; (setq treesit-extra-load-path "./extra")
+
 ;; (+global-word-wrap-mode +1)
 ;; (keycast-tab-line-mode)
 (global-undo-tree-mode 1)
@@ -318,7 +323,11 @@
 (after! lsp-mode
   (setq lsp-eslint-package-manager "pnpm"
         lsp-eslint-run "onSave"
-        lsp-typescript-format-enable nil)
+        lsp-typescript-format-enable t
+        lsp-typescript-references-code-lens-enabled t
+        lsp-typescript-suggest-complete-function-calls t)
+
+  ;; (gfm-mode-hook 'gfm-view-mode)
 
   (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
 
@@ -349,7 +358,7 @@
   (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n"))
 
 ;; (setq fancy-splash-image "~/dotfiles/.config/doom/doom-emacs-color2.svg")
-(setq fancy-splash-image "~/MFarabi619/modules/doom/apollyon-emacs.png")
+(setq fancy-splash-image "./apollyon-emacs.png")
 
 ;; Find `doom-dashboard-widget-banner` in the list and insert after it
 (let ((pos (cl-position #'doom-dashboard-widget-banner +doom-dashboard-functions)))
