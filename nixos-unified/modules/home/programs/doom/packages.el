@@ -48,6 +48,7 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
 
+(package! nix-ts-mode)
 (package! mermaid-mode)
 (package! ob-mermaid)
 (package! nov)
