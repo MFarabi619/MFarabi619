@@ -9,10 +9,10 @@
     packages = with pkgs; [
       wl-clipboard
     ];
-    sessionVariables =  {
-    NIXOS_OZONE_WL = "1";
-    MOZ_ENABLE_WAYLAND = "1";
-  };
+    sessionVariables = {
+      NIXOS_OZONE_WL = "1";
+      MOZ_ENABLE_WAYLAND = "1";
+    };
   };
 
   programs = lib.mkIf pkgs.stdenv.isLinux {
@@ -38,7 +38,7 @@
       # ];
       modes = [
         "drun"
-        "emoji"
+        # "emoji"
         "ssh"
       ];
       # pass = {

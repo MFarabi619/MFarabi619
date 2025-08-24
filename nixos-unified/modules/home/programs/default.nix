@@ -47,6 +47,7 @@
     ./zoxide.nix
     ./zsh
     ./obs-studio.nix
+    ./obsidian.nix
     ./vivaldi.nix
     ./uv.nix
   ];
