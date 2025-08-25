@@ -1,13 +1,20 @@
 {
   programs.zed-editor = {
     enable = true;
+    installRemoteServer = true;
+    themes = {};
+    userKeymaps = [];
+    userTasks = [];
     userSettings = {
+      vim_mode = true;
+      features = {
+        copilot = false;
+      };
       "base_keymap" = "VSCode";
       telemetry = {
         metrics = false;
         diagnostics = false;
       };
-      vim_mode = true;
       # "ui_font_size" = 16;
       # "buffer_font_size" = 16;
       # theme = {

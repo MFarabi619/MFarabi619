@@ -4,5 +4,16 @@
     enable = true;
     enableBashIntegration = true;
     enableZshIntegration = true;
+    # defaultCommand = "";
+    # defaultOptions = [ "" ];
+    # changeDirWidgetCommand = "";
+    # changeDirWidgetOptions = [ "" ];
+    # historyWidgetOptions = [ "" ];
+    # fileWidgetCommand = "";
+    # fileWidgetOptions = [ "" ];
+    tmux = {
+      enableShellIntegration = false;
+      shellIntegrationOptions = [ ];
+    };
   };
 }

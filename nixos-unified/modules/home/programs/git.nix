@@ -18,5 +18,8 @@
       init.defaultBranch = "main";
       pull.rebase = false;
     };
+    lfs = {
+      enable = false;
+    };
   };
 }

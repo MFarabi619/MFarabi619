@@ -2,6 +2,9 @@
   programs.obsidian = {
     enable = false;
     defaultSettings = {
+      communityPlugins = [
+
+      ];
       corePlugins = [
         "backlink"
         "bookmarks"
