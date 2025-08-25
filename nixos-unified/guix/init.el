@@ -1,51 +1,47 @@
 ;; -*- lexical-binding: t; -*-
 
+(evil-mode 1)
+(tab-bar-mode 1)
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-
-(setq inhibit-startup-screen nil
-      inhibit-startup-buffer-menu nil
-      initial-buffer-choice 'fancy-startup)
-
-(tab-bar-mode 1)
-(setq display-line-numbers-type 'relative)
-(global-display-line-numbers-mode 1)
-
-(display-battery-mode 1)
+(centaur-tabs-mode t)
 (display-time-mode 1)
-(setq display-time-day-and-date t)
+(doom-modeline-mode 1)
+(display-battery-mode 1)
+(pixel-scroll-precision-mode 1)
+(global-display-line-numbers-mode 1)
 
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(pixel-scroll-precision-mode 1)
-(setq doom-theme 'doom-gruvbox)
+(add-hook 'doom-modeline-mode-hook #'nyan-mode)
+(define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
+(define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+(global-set-key (kbd "<f8>") #'dirvish-side)
 
-(doom-modeline-mode 1)
-(setq doom-modeline-hud t)
-(setq doom-modeline-persp-name t)
-(setq doom-modeline-major-mode-icon t)
+(setq inhibit-startup-screen nil
+      inhibit-startup-buffer-menu nil
+      initial-buffer-choice 'fancy-startup
+      display-line-numbers-type 'relative
+      display-time-day-and-date t
+      doom-theme 'doom-gruvbox
+      doom-modeline-hud t
+      doom-modeline-persp-name t
+      doom-modeline-major-mode-icon t
+      evil-ex-substitute-global t
+      evil-escape-key-sequence "jk"
+      centaur-tabs-gray-out-icons t
+      centaur-tabs-show-count t
+      centaur-tabs-enable-key-bindings t
+      centaur-tabs-show-navigation-buttons t
+      user-full-name "Mumtahin Farabi"
+      user-mail-address "mfarabi619@gmail.com")
 
 (use-package nyan-mode
   :ensure t
   :config
   (setq nyan-animate-nyancat t
         nyan-wavy-trail t))
-
-(add-hook 'doom-modeline-mode-hook #'nyan-mode)
-
-(evil-mode 1)
-(setq evil-ex-substitute-global t
-      evil-escape-key-sequence "jk")
-(define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-(define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
-
-
-(centaur-tabs-mode t)
-(setq centaur-tabs-gray-out-icons t)
-(setq centaur-tabs-show-count t)
-(setq centaur-tabs-enable-key-bindings t)
-(setq centaur-tabs-show-navigation-buttons t)
 
 (use-package dirvish
   :ensure t
@@ -67,7 +63,3 @@
         (setq dirvish-side-follow-mode t)
         (add-hook 'emacs-startup-hook #'dirvish-side))
 
-  (global-set-key (kbd "<f8>") #'dirvish-side)
-
-  (setq user-full-name "Mumtahin Farabi"
-        user-mail-address "mfarabi619@gmail.com")
