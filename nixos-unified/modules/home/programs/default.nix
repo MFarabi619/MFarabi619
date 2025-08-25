@@ -10,10 +10,12 @@
     ./fastfetch.nix
     ./fd.nix
     ./fzf.nix
+    ./gcc.nix
     ./gh.nix
     ./git.nix
     ./go.nix
     ./gpg.nix
+    ./grep.nix
     ./home-manager.nix
     ./hyprland.nix
     ./jq.nix
