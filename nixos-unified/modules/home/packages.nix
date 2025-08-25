@@ -9,7 +9,7 @@
     [
       # clang
       # =============
-      binutils # native-comp needs 'as', provided by this
+      # binutils # native-comp needs 'as', provided by this
       gnutls # for TLS connectivity
       # =============
       openscad
@@ -64,7 +64,6 @@
       gnumake
       coreutils
       arduino-cli
-      arduino-ide
       arduino-language-server
       platformio
 
@@ -83,6 +82,7 @@
       lolcat # rainbow text output
     ]
     ++ lib.optionals stdenv.isLinux [
+      arduino-ide
       # ============= 🧑‍💻🐞✨‍ ================
       kmon
       lazyjournal
@@ -96,6 +96,9 @@
 
       # ============== 🤪 =================
       hollywood
+    ]
+    ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
+      arduino-ide
     ]
     ++ lib.optionals stdenv.isDarwin [
       sketchybar-app-font

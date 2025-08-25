@@ -32,6 +32,8 @@
     ./nh.nix
     ./nix-index.nix
     ./nix-search-tv.nix
+    ./obs-studio.nix
+    ./obsidian.nix
     ./pandoc.nix
     ./ripgrep.nix
     ./ssh.nix
@@ -42,15 +44,13 @@
     ./texlive.nix
     ./tex-fmt.nix
     ./tmux.nix
+    ./uv.nix
+    ./vivaldi
     ./vscode.nix
     ./yazi.nix
     ./zed.nix
     ./zellij.nix
     ./zoxide.nix
     ./zsh
-    ./obs-studio.nix
-    ./obsidian.nix
-    ./vivaldi
-    ./uv.nix
   ];
 }

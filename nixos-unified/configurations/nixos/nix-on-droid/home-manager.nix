@@ -23,27 +23,29 @@
       };
 
       imports = [
+        inputs.stylix.homeModules.stylix
+        inputs.lazyvim.homeManagerModules.default
+        # inputs.nix-doom-emacs-unstraightened.homeModule
+        # ../../../modules/home/programs/doom
         ../../../modules/home/services
         ../../../modules/home/editorconfig.nix
         ../../../modules/home/fonts.nix
-        inputs.stylix.homeModules.stylix
         ../../../modules/home/stylix.nix
         ../../../modules/home/manual.nix
-        inputs.lazyvim.homeManagerModules.default
         ../../../modules/home/programs/bash.nix
         ../../../modules/home/programs/bat.nix
         ../../../modules/home/programs/btop.nix
-        # inputs.nix-doom-emacs-unstraightened.homeModule
-        # ../../../modules/home/programs/doom
         ../../../modules/home/programs/direnv.nix
         ../../../modules/home/programs/eza.nix
         ../../../modules/home/programs/fastfetch.nix
         ../../../modules/home/programs/fd.nix
         ../../../modules/home/programs/fzf.nix
+        ../../../modules/home/programs/gcc.nix
         ../../../modules/home/programs/gh.nix
         ../../../modules/home/programs/git.nix
         ../../../modules/home/programs/go.nix
         ../../../modules/home/programs/gpg.nix
+        ../../../modules/home/programs/grep.nix
         ../../../modules/home/programs/home-manager.nix
         ../../../modules/home/programs/jq.nix
         ../../../modules/home/programs/jqp.nix
