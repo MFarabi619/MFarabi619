@@ -1,6 +1,8 @@
 {
   programs.gcc = {
     enable = true;
-    # colors = {};
+    colors = {
+      error = "01;31";
+    };
   };
 }
