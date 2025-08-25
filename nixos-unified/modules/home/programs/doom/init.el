@@ -211,7 +211,7 @@
         +lsp
         +tree-sitter)
        ;;scala            ; java, but good
-       ;;(scheme +guile)  ; a fully conniving family of lisps
+       (scheme +guile)  ; a fully conniving family of lisps
        (sh +fish          ; she sells {ba,z,fi}sh shells on the C xor
            +powershell
            +lsp
