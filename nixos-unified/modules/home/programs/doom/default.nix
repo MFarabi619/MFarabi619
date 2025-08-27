@@ -4,6 +4,7 @@
     doomDir = ./.;
     extraPackages =
       epkgs: with epkgs; [
+        ast-grep
         editorconfig
         xclip
         wttrin
@@ -38,6 +39,7 @@
         arduino-mode
         company-arduino
         arduino-cli-mode
+        tree-sitter-langs
       ];
     # provideEmacs = false;
   };

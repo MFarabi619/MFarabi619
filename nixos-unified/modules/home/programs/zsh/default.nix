@@ -11,6 +11,7 @@
       enw = "emacs -nw";
       z = "zoxide";
       zlj = "zellij";
+      mkdir = "mkdir -p";
     };
 
     syntaxHighlighting = {
@@ -40,7 +41,7 @@
       {
         name = "powerlevel10k-config";
         src = lib.cleanSource ./.;
-        file = "p10k.zsh";
+        file = ".p10k.zsh";
       }
     ];
     oh-my-zsh = {
@@ -60,17 +61,17 @@
       ];
     };
 
-    envExtra = ''
-      # Custom ~/.zshenv goes here
-    '';
-    profileExtra = ''
-      # Custom ~/.zprofile goes here
-    '';
-    loginExtra = ''
-      # Custom ~/.zlogin goes here
-    '';
-    logoutExtra = ''
-      # Custom ~/.zlogout goes here
-    '';
+    # envExtra = ''
+    #   # Custom ~/.zshenv goes here
+    # '';
+    # profileExtra = ''
+    #   # Custom ~/.zprofile goes here
+    # '';
+    # loginExtra = ''
+    #   # Custom ~/.zlogin goes here
+    # '';
+    # logoutExtra = ''
+    #   # Custom ~/.zlogout goes here
+    # '';
   };
 }

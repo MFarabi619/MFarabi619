@@ -5,10 +5,12 @@
     ./bat.nix
     ./btop.nix
     ./chromium.nix
+    ./command-not-found.nix
     ./direnv.nix
     ./eza.nix
     ./fastfetch.nix
     ./fd.nix
+    # ./firefox.nix
     ./fzf.nix
     ./gcc.nix
     ./gh.nix
@@ -27,6 +29,7 @@
     ./lazygit.nix
     ./lazysql.nix
     ./less.nix
+    ./man.nix
     ./mu.nix
     ./neovim
     ./nh.nix
@@ -45,6 +48,7 @@
     ./tex-fmt.nix
     ./tmux.nix
     ./uv.nix
+    ./vim.nix
     ./vivaldi
     ./vscode.nix
     ./yazi.nix

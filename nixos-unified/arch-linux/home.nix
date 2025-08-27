@@ -6,12 +6,16 @@
 }:
 
 {
+  targets.genericLinux.enable = true;
   imports = [
     ../modules/home/services
     ../modules/home/manual.nix
+    ../modules/home/packages.nix
     ../modules/home/editorconfig.nix
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix
+    ../modules/home/programs/command-not-found.nix
+    ../modules/home/programs/chromium.nix
     ../modules/home/programs/eza.nix
     ../modules/home/programs/fd.nix
     ../modules/home/programs/fzf.nix
@@ -30,6 +34,7 @@
     ../modules/home/programs/lazygit.nix
     ../modules/home/programs/lazysql.nix
     ../modules/home/programs/less.nix
+    ../modules/home/programs/man.nix
     ../modules/home/programs/mu.nix
     ../modules/home/programs/neovim
     ../modules/home/programs/nh.nix
@@ -42,48 +47,52 @@
     ../modules/home/programs/tex-fmt.nix
     ../modules/home/programs/texlive.nix
     ../modules/home/programs/uv.nix
+    ../modules/home/programs/vim.nix
     ../modules/home/programs/yazi.nix
+    ../modules/home/programs/zsh
     ../modules/home/programs/zed.nix
     ../modules/home/programs/zellij.nix
     ../modules/home/programs/zoxide.nix
   ];
+
   programs = {
     nh = {
-     flake = ./.;
+      flake = ./.;
     };
   };
-targets.genericLinux.enable = true;
+
+
   home = {
     username = "mfarabi";
-    homeDirectory = "/home/mfarabi";
     stateVersion = "25.05";
+    homeDirectory = "/home/mfarabi";
+    shell = {
+      enableShellIntegration = true;
+      enableBashIntegration = true;
+      enableZshIntegration = true;
+    };
     packages = with pkgs; [
-      # # It's sometimes useful to fine-tune packages, for example, by applying
-      # # overrides. You can do that directly here, just don't forget the
-      # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
-      # # fonts?
+      #  It's sometimes useful to fine-tune packages, for example, by applying
+      #  overrides. You can do that directly here, just don't forget the
+      #  parentheses. Maybe you want to install Nerd Fonts with a limited number of
+      #  fonts?
       # (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
 
-      # # You can also create simple shell scripts directly inside your
-      # # configuration. For example, this adds a command 'my-hello' to your
-      # # environment:
+      # simple shell scripts
       (writeShellScriptBin "my-hello" ''
         echo "Hello, ${config.home.username}!"
       '')
     ];
-    # Home Manager is pretty good at managing dotfiles. The primary way to manage
-    # plain files is through 'home.file'.
     file = {
-      # # Building this configuration will create a copy of 'dotfiles/screenrc' in
-      # # the Nix store. Activating the configuration will then make '~/.screenrc' a
-      # # symlink to the Nix store copy.
-      # ".screenrc".source = dotfiles/screenrc;
+      # Building this configuration will create a copy of 'dotfiles/screenrc' in
+      # the Nix store. Activating the configuration will then make '~/.screenrc' a
+      # symlink to the Nix store copy.
+      # .screenrc".source = dotfiles/screenrc;
 
-      # # You can also set the file content immediately.
-      # ".gradle/gradle.properties".text = ''
-      #   org.gradle.console=verbose
-      #   org.gradle.daemon.idletimeout=3600000
-      # '';
+      ".config/surfingkeys/surfingkeys.js" = {
+        enable = true;
+        source = ./.surfingkeys.js;
+      };
     };
 
     # Home Manager can also manage your environment variables through
@@ -97,8 +106,8 @@ targets.genericLinux.enable = true;
     #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
     # or
     #  /etc/profiles/per-user/mfarabi/etc/profile.d/hm-session-vars.sh
-    sessionVariables = {
-      # EDITOR = "emacs";
-    };
+    # sessionVariables = {
+    # EDITOR = "emacs";
+    # };
   };
 }

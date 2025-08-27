@@ -53,8 +53,8 @@
 (package! ob-mermaid)
 (package! nov)
 
-(package! magit-todos)
-(package! consult-gh)
+;; (package! magit-todos)
+;; (package! consult-gh)
 
 ;; (package! pgmacs
 ;;   :recipe (:host github :repo "emarsden/pg-el/"))
@@ -67,7 +67,7 @@
 ;;            :repo "tecosaur/org-pandoc-import"
 ;;            :files ("*.el" "filters" "preprocessors")))
 
-(package! org-gcal)
+;; (package! org-gcal)
 
 (package! circe)
 

@@ -20,6 +20,13 @@
       '';
     };
 
+    docs = {
+      description = " 📚 RTFM";
+      exec = ''
+        pnpx likec4 start
+      '';
+    };
+
     console = {
       description = "🕹  Fire up the Microvisor Console";
       exec = ''

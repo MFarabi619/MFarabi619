@@ -1,3 +1,36 @@
+# uvx parllama
+# uvx netshow
+# uvx exosphere
+# crates-tui
+# cargo-selector
+# fnug
+# godap
+# jwt-tui
+# mcp-probe
+# isd
+# bagels
+# moneyterm
+# ticker
+# mqtttui
+# taproom
+# termscp
+# tuistash
+# vi-mongo
+# arduino-cli-interactive
+# bandwhich
+# ballast
+# blink
+# bluetui
+# calcure
+# caligula
+# duf
+# dysk
+# gama
+# gpg-tui
+# hostctl
+# impala
+# neoss
+# nap
 {
   pkgs,
   lib,
@@ -7,6 +40,8 @@
   home.packages =
     with pkgs;
     [
+      ast-grep
+      tree-sitter
       # clang
       # =============
       # binutils # native-comp needs 'as', provided by this
@@ -31,7 +66,6 @@
       # =============
       shellcheck # shell script formatting
       # =============
-      # texlive     # :lang latex & :lang org (latex previews)
       # vimPlugins.nvim-treesitter-parsers.mermaid
       # ============= 🧑‍💻🐞✨‍ ================
       # pnpm
@@ -68,6 +102,8 @@
       platformio
 
       fritzing
+
+      vial
 
       # Setup Claude Code using Google Vertex AI Platform
       # https://github.com/juspay/vertex

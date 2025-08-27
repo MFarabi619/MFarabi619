@@ -8,17 +8,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    lazyvim = {
-      url = "github:matadaniel/LazyVim-module";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # lazyvim = {
+    #   url = "github:matadaniel/LazyVim-module";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
   outputs =
     {
       nixpkgs,
       home-manager,
-      lazyvim,
+      # lazyvim,
       ...
     }@inputs:
     let
@@ -29,7 +29,7 @@
       homeConfigurations."mfarabi" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
-          inputs.lazyvim.homeManagerModules.default
+          # inputs.lazyvim.homeManagerModules.default
           ./home.nix
         ];
       };
