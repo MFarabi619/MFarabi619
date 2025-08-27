@@ -23,11 +23,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    lazyvim = {
-      url = "github:matadaniel/LazyVim-module";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nix-doom-emacs-unstraightened = {
       url = "github:marienz/nix-doom-emacs-unstraightened";
       inputs.nixpkgs.follows = "";
@@ -89,7 +84,6 @@
                 home.stateVersion = "25.05";
                 imports = [
                   inputs.nix-doom-emacs-unstraightened.homeModule
-                  inputs.lazyvim.homeManagerModules.default
                   stylix.homeModules.stylix
                   ../../../modules/home/programs
                   ../../../modules/home/services

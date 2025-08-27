@@ -14,11 +14,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    lazyvim = {
-      url = "github:matadaniel/LazyVim-module";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nix-doom-emacs-unstraightened = {
       url = "github:marienz/nix-doom-emacs-unstraightened";
       inputs.nixpkgs.follows = "";
@@ -37,7 +32,6 @@
       nixpkgs,
       home-manager,
       stylix,
-      lazyvim,
       nix-doom-emacs-unstraightened,
       nix-on-droid,
       ...

@@ -80,6 +80,7 @@
 
       tree
 
+      stylelint
       # ============= ‍❄🕸 ================
       nil # nix formatter
       nix-info

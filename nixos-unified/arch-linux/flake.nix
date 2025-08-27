@@ -7,18 +7,17 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # lazyvim = {
-    #   url = "github:matadaniel/LazyVim-module";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+    nix-doom-emacs-unstraightened = {
+      url = "github:marienz/nix-doom-emacs-unstraightened";
+      inputs.nixpkgs.follows = "";
+    };
   };
 
   outputs =
     {
       nixpkgs,
       home-manager,
-      # lazyvim,
+      nix-doom-emacs-unstraightened,
       ...
     }@inputs:
     let
@@ -29,7 +28,7 @@
       homeConfigurations."mfarabi" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
-          # inputs.lazyvim.homeManagerModules.default
+                  inputs.nix-doom-emacs-unstraightened.homeModule
           ./home.nix
         ];
       };

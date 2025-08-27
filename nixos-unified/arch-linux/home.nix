@@ -12,6 +12,7 @@
     ../modules/home/manual.nix
     ../modules/home/packages.nix
     ../modules/home/editorconfig.nix
+    ../modules/home/programs/doom
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix
     ../modules/home/programs/command-not-found.nix
@@ -89,9 +90,9 @@
       # symlink to the Nix store copy.
       # .screenrc".source = dotfiles/screenrc;
 
-      ".config/surfingkeys/surfingkeys.js" = {
+      ".config/surfingkeys/.surfingkeys.js" = {
         enable = true;
-        source = ./.surfingkeys.js;
+        source = ../modules/home/programs/.surfingkeys.js;
       };
     };
 

@@ -24,7 +24,6 @@
 
       imports = [
         inputs.stylix.homeModules.stylix
-        inputs.lazyvim.homeManagerModules.default
         # inputs.nix-doom-emacs-unstraightened.homeModule
         # ../../../modules/home/programs/doom
         ../../../modules/home/services
@@ -37,7 +36,7 @@
         ../../../modules/home/programs/btop.nix
         ../../../modules/home/programs/direnv.nix
         ../../../modules/home/programs/eza.nix
-        ../../../modules/home/programs/fastfetch.nix
+        ../../../modules/home/programs/fastfetch
         ../../../modules/home/programs/fd.nix
         ../../../modules/home/programs/fzf.nix
         ../../../modules/home/programs/gcc.nix

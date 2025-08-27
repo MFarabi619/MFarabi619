@@ -14,6 +14,9 @@
         # ================
         rustic
         # ================
+        rust-mode
+        lsp-mode
+        lua-mode
         lsp-java
         lsp-docker
         lsp-latex
@@ -21,6 +24,7 @@
         lsp-tailwindcss
         lsp-treemacs
         lsp-haskell
+        lsp-scheme
         # ================
         ob-mermaid # org babel mermaid
         mermaid-mode # github.com/abrochard/mermaid-mode
@@ -48,6 +52,7 @@
     enable = true;
     socketActivation.enable = true;
     client.enable = true;
+    defaultEditor = false;
     # extraOptions = [
     #   "-nw"
     # ];

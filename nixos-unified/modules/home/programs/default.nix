@@ -8,7 +8,7 @@
     ./command-not-found.nix
     ./direnv.nix
     ./eza.nix
-    ./fastfetch.nix
+    ./fastfetch
     ./fd.nix
     # ./firefox.nix
     ./fzf.nix
