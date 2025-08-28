@@ -6,7 +6,47 @@
     # extraConfig = "";
     # extraOptionOverrides = {};
     matchBlocks = {
-      "rpi5" = {
+      archlinux = {
+        port = 22;
+        host = "archlinux";
+        user = "mfarabi";
+        hostname = "10.0.0.146";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      macos = {
+        port = 22;
+        host = "macos";
+        user = "mfarabi";
+        hostname = "10.0.0.135";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      freebsd = {
+        port = 22;
+        host = "freebsd";
+        user = "mfarabi";
+        hostname = "10.0.0.230";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      nixos = {
+        port = 22;
+        host = "nixos";
+        user = "mfarabi";
+        hostname = "192.168.1.47";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      rpi5 = {
         port = 22;
         host = "rpi5";
         user = "mfarabi";
@@ -15,8 +55,8 @@
         checkHostIP = true;
         addKeysToAgent = "yes";
 
-        # sendEnv = {};
         setEnv.TERM = "xterm-kitty";
+        # sendEnv = {};
 
         # addressFamily = null; # "any" | "inet" | "inet6"
         # certificateFile = [ ./.file ];
