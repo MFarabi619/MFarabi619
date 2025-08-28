@@ -121,6 +121,8 @@
     ++ lib.optionals stdenv.isLinux [
       arduino-ide
       # ============= 🧑‍💻🐞✨‍ ================
+
+      smartmontools
       kmon
       lazyjournal
       systemctl-tui
