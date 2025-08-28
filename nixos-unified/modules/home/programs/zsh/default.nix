@@ -2,8 +2,17 @@
 {
   programs.zsh = {
     enable = true;
-    autosuggestion.enable = true;
+    autocd = false;
     enableCompletion = true;
+    autosuggestion = {
+      enable = true;
+      strategy = [
+        "history"
+        "completion"
+      ];
+      # highlight = "fg=#ff00ff,bg=cyan,bold,underline";
+    };
+
     shellAliases = {
       cat = "bat";
       man = "batman";
@@ -26,11 +35,17 @@
       ];
     };
 
-    # history = {
-    #   ignoreDups = true;
-    #   save = 10000;
-    #   size = 10000;
-    # };
+    history = {
+      size = 10000;
+      save = 10000;
+      share = true;
+      append = true;
+      extended = true;
+      ignoreDups = true;
+      ignoreAllDups = true;
+      expireDuplicatesFirst = true;
+      # path = "`\${config.programs.zsh.dotDir}/.zsh_history`"; # default
+    };
 
     plugins = [
       {
