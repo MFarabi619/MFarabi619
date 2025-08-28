@@ -19,7 +19,7 @@
     ./gpg.nix
     ./grep.nix
     ./home-manager.nix
-    ./hyprland.nix
+    ./hyprland
     ./jq.nix
     ./jqp.nix
     ./k9s.nix

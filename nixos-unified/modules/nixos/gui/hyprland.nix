@@ -2,6 +2,8 @@
 
 {
   programs = {
+    xwayland.enable = true;
+    hyprlock.enable = true;
     uwsm = {
       enable = true;
       # waylandCompositors = {
@@ -10,7 +12,6 @@
       #     binPath = "/run/current-system/sw/bin/hyprland";
       # };
     };
-    xwayland.enable = true;
     hyprland = {
       enable = true;
       # package = inputs.hyprland.packages."${pkgs.system}".hyprland;
@@ -30,15 +31,13 @@
       enable = true;
       enableSSHSupport = true;
     };
-    hyprlock = {
-      enable = true;
-    };
   };
 
   environment = {
-    variables = {
-      NIXOS_OZONE_WL = "1";
-    };
+    variables.NIXOS_OZONE_WL = "1";
+    sessionVariables.NIXOS_OZONE_WL = "1";
+
+    systemPackages = with pkgs; [ kitty ];
 
     pathsToLink = [
       "/share/icons"
@@ -52,17 +51,10 @@
       "/share/bash-completion"
       "/share/fish"
     ];
-
-    systemPackages = with pkgs; [
-      kitty
-    ];
-
-    sessionVariables = {
-      NIXOS_OZONE_WL = "1";
-    };
   };
 
   services = {
+    getty.autologinUser = "mfarabi";
     displayManager = {
       sddm = {
         enable = false;
@@ -83,14 +75,12 @@
     portal = {
       enable = true;
       wlr.enable = true;
+      xdgOpenUsePortal = true;
       extraPortals = with pkgs; [
         xdg-desktop-portal-hyprland
         xdg-desktop-portal-gtk
         xdg-desktop-portal
       ];
-
-      xdgOpenUsePortal = true;
-
       configPackages = with pkgs; [
         xdg-desktop-portal-hyprland
         xdg-desktop-portal-gtk
