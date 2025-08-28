@@ -3,10 +3,10 @@
     "devenv": {
       "locked": {
         "dir": "src/modules",
-        "lastModified": 1753981111,
+        "lastModified": 1756101922,
         "owner": "cachix",
         "repo": "devenv",
-        "rev": "d4d70df706b153b601a87ab8e81c88a0b1a373b6",
+        "rev": "372c975fd0d5b7fc1ffbb15c75a21d7f9ea97603",
         "type": "github"
       },
       "original": {
@@ -39,10 +39,10 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1755056915,
+        "lastModified": 1756002688,
         "owner": "fuellabs",
         "repo": "fuel.nix",
-        "rev": "9e925290a6bd09222983f2ddce11a0fecb19781a",
+        "rev": "9a68bd9bd8f6ab798056b15ac23336c702683259",
         "type": "github"
       },
       "original": {
@@ -60,10 +60,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1750779888,
+        "lastModified": 1755960406,
         "owner": "cachix",
         "repo": "git-hooks.nix",
-        "rev": "16ec914f6fb6f599ce988427d9d94efddf25fe6d",
+        "rev": "e891a93b193fcaf2fc8012d890dc7f0befe86ec2",
         "type": "github"
       },
       "original": {
@@ -94,10 +94,10 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1754725699,
+        "lastModified": 1756266583,
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "85dbfc7aaf52ecb755f87e577ddbe6dbbdbc1054",
+        "rev": "8a6d5427d99ec71c64f0b93d45778c889005d9c2",
         "type": "github"
       },
       "original": {
@@ -109,10 +109,10 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1753934836,
+        "lastModified": 1756256966,
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "8679b16e11becd487b45d568358ddf9d5640d860",
+        "rev": "4c202d26483c5ccf3cb95e0053163facde9f047e",
         "type": "github"
       },
       "original": {
@@ -124,10 +124,10 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1753719760,
+        "lastModified": 1755783167,
         "owner": "cachix",
         "repo": "devenv-nixpkgs",
-        "rev": "0f871fffdc0e5852ec25af99ea5f09ca7be9b632",
+        "rev": "4a880fb247d24fbca57269af672e8f78935b0328",
         "type": "github"
       },
       "original": {
@@ -158,10 +158,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1755052812,
+        "lastModified": 1756262090,
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "433023cba5f4fa66b8b0fdbb8f91d420c9cc2527",
+        "rev": "df7ea78aded79f195a92fc5423de96af2b8a85d1",
         "type": "github"
       },
       "original": {
@@ -178,10 +178,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1754016903,
+        "lastModified": 1756262090,
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "ddd488184f01603b712ddbb6dc9fe0b8447eb7fc",
+        "rev": "df7ea78aded79f195a92fc5423de96af2b8a85d1",
         "type": "github"
       },
       "original": {
