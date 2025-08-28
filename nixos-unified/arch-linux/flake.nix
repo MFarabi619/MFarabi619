@@ -28,7 +28,7 @@
       homeConfigurations."mfarabi" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
-                  inputs.nix-doom-emacs-unstraightened.homeModule
+          inputs.nix-doom-emacs-unstraightened.homeModule
           ./home.nix
         ];
       };

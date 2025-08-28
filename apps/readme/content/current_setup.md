@@ -235,7 +235,7 @@
 
 |||
 |-|-|
-| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/configurations/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/configurations/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
+| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 

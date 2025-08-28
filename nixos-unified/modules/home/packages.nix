@@ -17,7 +17,6 @@
 # tuistash
 # vi-mongo
 # arduino-cli-interactive
-# bandwhich
 # ballast
 # blink
 # bluetui
@@ -37,7 +36,8 @@
   ...
 }:
 {
-  home.packages =
+  home = {
+    packages =
     with pkgs;
     [
       ast-grep
@@ -117,6 +117,13 @@
       figlet # fancy ascii text output
       nyancat # rainbow flying cat
       lolcat # rainbow text output
+
+      #  Fine-tune packages by applying overrides, for example
+      # (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; }) # Nerd Fonts with a limited number of fonts
+      # simple shell scripts
+      # (writeShellScriptBin "my-hello" ''
+      #   echo "Hello, ${config.home.username}!"
+      # '')
     ]
     ++ lib.optionals stdenv.isLinux [
       arduino-ide
@@ -144,4 +151,15 @@
       sbarlua
       alt-tab-macos
     ];
+    file = {
+      # Building this configuration will create a copy of 'dotfiles/screenrc' in
+      # the Nix store. Activating the configuration will then make '~/.screenrc' a
+      # symlink to the Nix store copy.
+      # .screenrc".source = dotfiles/screenrc;
+      ".config/surfingkeys/.surfingkeys.js" = {
+        enable = true;
+        source = ./programs/.surfingkeys.js;
+      };
+    };
+};
 }
