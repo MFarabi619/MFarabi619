@@ -10,11 +10,11 @@
         # };
         # editor = ""
       };
-      hosts = {
-        "github.com" = {
-          user = "MFarabi619";
-        };
-      };
+      # hosts = {
+      #   "github.com" = {
+      #     user = "MFarabi619";
+      #   };
+      # };
   #     gitCredentialHelper = {
   #      enable = true;
   #      hosts = [
