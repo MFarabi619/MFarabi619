@@ -51,6 +51,7 @@ in
 
     # Enable home-manager for our user
     home-manager = {
+      backupFileExtension = "hm-bak";
       users = mapListToAttrs config.myusers (name: {
         imports = [
           (self + /configurations/home/${name}.nix)
