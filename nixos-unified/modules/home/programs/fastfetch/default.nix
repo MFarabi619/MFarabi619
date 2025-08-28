@@ -11,7 +11,7 @@
       };
 
       logo = {
-        source = ./nix-mfarabi.png;
+        # source = ./nix-mfarabi.png;
         type = "kitty-direct";
         height = 10;
         width = 20;
