@@ -7,5 +7,6 @@
     ./ssh-agent.nix
     ./skhd.nix
     ./ollama.nix
+    ./glance.nix
   ];
 }
