@@ -12,6 +12,7 @@
     ../modules/home/fonts.nix
     ../modules/home/manual.nix
     ../modules/home/editorconfig.nix
+    ../modules/home/programs/aichat.nix
     ../modules/home/programs/doom
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix

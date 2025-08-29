@@ -1,5 +1,6 @@
 {
   imports = [
+    ./aichat.nix
     ./doom
     ./bash.nix
     ./bat.nix
