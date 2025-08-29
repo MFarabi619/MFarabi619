@@ -63,6 +63,17 @@ model {
                     color: green
                     opacity: 40%
                 }
+
+                guix = container "GNU GUIX" {
+                    link https://guix.gnu.org "Website"
+                    icon https://guix.gnu.org/themes/initial/img/icon.svg
+                    description: "NixOS alternative in Scheme from the GNU project, with a focus on libre software for academics."
+                    style {
+                        color: yellow
+                        opacity: 40%
+                    }
+                    }
+
                 nixos = container "NixOS" {
                     link https://nixos.org "Website"
                     icon https://raw.githubusercontent.com/NixOS/nixos-artwork/9d2cdedd73d64a068214482902adea3d02783ba8/logo/nix-snowflake-rainbow.svg
@@ -128,7 +139,7 @@ model {
                     link https://athenaos.org "Website"
                     icon https://athenaos.org/_astro/athena-dark.zw0VuR1C.svg
                     style {
-                        color: yellow
+                        color: amber
                     }
 
                 }
@@ -143,7 +154,6 @@ model {
                     }
 
                 }
-
 
 
                 devenv = component "Devenv" {
@@ -214,6 +224,7 @@ description: "Shared libraries"
         userspaces ->  kernels "run on"
         userspaces.arch-linux ->  kernels.linux
         userspaces.athenaos ->  kernels.linux
+        userspaces.guix ->  kernels.linux
         userspaces.nixos-raspberrypi ->  kernels.linux
         userspaces.nix-on-droid ->  kernels.linux
         userspaces.nixos-wsl ->  kernels.linux
