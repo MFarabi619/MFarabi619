@@ -6,8 +6,8 @@
   services.cachix-agent = {
     enable = false;
     verbose = true;
-    name = "";
-    host = "";
-    # credentialsFile = "${config.xdg.configHome}/cachix-agent.token";
+    name = "archlinux";
+    # host = null;
+    # credentialsFile = "${config.xdg.configHome}/cachix-agent.token"; # default
   };
 }

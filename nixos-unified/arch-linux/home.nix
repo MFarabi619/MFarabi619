@@ -22,6 +22,7 @@
     ../modules/home/programs/eza.nix
     ../modules/home/programs/fd.nix
     ../modules/home/programs/fzf.nix
+    ../modules/home/programs/fastfetch
     ../modules/home/programs/gcc.nix
     ../modules/home/programs/gh.nix
     ../modules/home/programs/git.nix
@@ -81,6 +82,13 @@
     # sessionVariables = {
     # EDITOR = "emacs";
     # };
+
+    packages = with pkgs; [
+     ttyd
+     # fw-fanctrl
+     wl-screenrec
+     inputmodule-control
+    ];
   };
 
   programs.nh.flake = ./.;

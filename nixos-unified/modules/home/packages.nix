@@ -7,27 +7,20 @@
 # godap
 # jwt-tui
 # mcp-probe
-# isd
 # bagels
 # moneyterm
 # ticker
 # mqtttui
 # taproom
-# termscp
 # tuistash
-# vi-mongo
 # arduino-cli-interactive
 # ballast
 # blink
-# bluetui
 # calcure
-# caligula
 # duf
 # dysk
 # gama
-# gpg-tui
 # hostctl
-# impala
 # neoss
 # nap
 {
@@ -38,119 +31,149 @@
 {
   home = {
     packages =
-    with pkgs;
-    [
-      ast-grep
-      tree-sitter
-      # clang
-      # =============
-      # binutils # native-comp needs 'as', provided by this
-      gnutls # for TLS connectivity
-      # =============
-      openscad
-      openscad-lsp
-      # =============
-      vips # dired image previews
-      epub-thumbnailer # dired epub previews
-      poppler-utils # dired pdf previews
-      imagemagick # for image-dired
-      # =============
-      octaveFull # gnu octave
-      mermaid-cli # mermaid diagram support
-      # =============
-      tuntox # collab
-      # =============
-      sqlite # :tools lookup & :lang org +roam
-      # =============
-      ispell # spelling
-      # =============
-      shellcheck # shell script formatting
-      # =============
-      # vimPlugins.nvim-treesitter-parsers.mermaid
-      # ============= 🧑‍💻🐞✨‍ ================
-      # pnpm
-      tgpt
-      pik
-      wiki-tui
-      gpg-tui
-      termscp
-      bandwhich
-      cointop # crypto price feed
-      nix-inspect
+      with pkgs;
+      [
+        ast-grep
+        tree-sitter
+        # clang
+        # =============
+        # binutils # native-comp needs 'as', provided by this
+        gnutls # for TLS connectivity
+        nmap
+        # =============
+        # kicad
+        freecad
+        openscad
+        openscad-lsp
+        # =============
+        vips # dired image previews
+        epub-thumbnailer # dired epub previews
+        poppler-utils # dired pdf previews
+        imagemagick # for image-dired
+        # =============
+        octaveFull # gnu octave
+        mermaid-cli # mermaid diagram support
+        gnuplot
+        # =============
+        tuntox # collab
+        # =============
+        sqlite # :tools lookup & :lang org +roam
+        # =============
+        ispell # spelling
+        # =============
+        shellcheck # shell script formatting
+        penpot-desktop
+        # =============
+        # vimPlugins.nvim-treesitter-parsers.mermaid
+        # ============= 🧑‍💻🐞✨‍ ================
+        # pnpm
+        tgpt
+        pik # local port tui
+        sshs # ssh tui
+        impala # wifi mgmt tui
+        wiki-tui
+        gpg-tui
+        bluetui
+        termscp
+        bandwhich
+        tcpdump
+        cointop # crypto price feed
 
-      tree
+        # lazyhetzner
+        caligula # disk imaging
 
-      stylelint
-      # ============= ‍❄🕸 ================
-      nil # nix formatter
-      nix-info
-      nix-inspect
-      nixpkgs-fmt
-      nix-health
-      omnix
-      devenv
+        codeberg-cli
 
-      # `man home-configuration.nix`'s pager to work on Ubuntu
-      less
+        vi-mongo
 
-      # ============= 🤖 ==================
-      # https://github.com/Vaishnav-Sabari-Girish/arduino-cli-interactive?ref=terminaltrove
-      cmake # vterm compilation and more
-      gnumake
-      coreutils
-      arduino-cli
-      arduino-language-server
-      platformio
+        tree
+        presenterm
 
-      fritzing
+        wireshark-cli
 
-      vial
+        stylelint
+        # ============= ‍❄🕸 ================
+        nil # nix formatter
+        omnix
+        devenv
+        cachix
+        nix-info
+        nix-inspect
+        nixpkgs-fmt
+        nix-health
+        nix-weather
 
-      # Setup Claude Code using Google Vertex AI Platform
-      # https://github.com/juspay/vertex
-      # flake.inputs.vertex.packages.${system}.default
+        # `man home-configuration.nix`'s pager to work on Ubuntu
+        less
 
-      # ============== 🤪 =================
-      asciiquarium # ascii aquarium
-      cowsay
-      cmatrix
-      figlet # fancy ascii text output
-      nyancat # rainbow flying cat
-      lolcat # rainbow text output
+        # ============= 🤖 ==================
+        # https://github.com/Vaishnav-Sabari-Girish/arduino-cli-interactive?ref=terminaltrove
+        cmake # vterm compilation and more
+        gnumake
+        gparted
+        coreutils
+        arduino-cli
+        arduino-language-server
+        platformio
 
-      #  Fine-tune packages by applying overrides, for example
-      # (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; }) # Nerd Fonts with a limited number of fonts
-      # simple shell scripts
-      # (writeShellScriptBin "my-hello" ''
-      #   echo "Hello, ${config.home.username}!"
-      # '')
-    ]
-    ++ lib.optionals stdenv.isLinux [
-      arduino-ide
-      # ============= 🧑‍💻🐞✨‍ ================
+        fritzing
 
-      smartmontools
-      kmon
-      lazyjournal
-      systemctl-tui
-      netscanner
-      ugm # user group management
-      isd # systemd units
-      dysk # see mounted
+        via
+        vial
 
-      virt-viewer
+        framework-tool
 
-      # ============== 🤪 =================
-      hollywood
-    ]
-    ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
-      arduino-ide
-    ]
-    ++ lib.optionals stdenv.isDarwin [
-      sketchybar-app-font
-      sbarlua
-      alt-tab-macos
-    ];
+        woeusb-ng # flash bootable windows iso
+
+        # Setup Claude Code using Google Vertex AI Platform
+        # https://github.com/juspay/vertex
+        # flake.inputs.vertex.packages.${system}.default
+
+        # ============== 🤪 =================
+        asciiquarium # ascii aquarium
+        cowsay
+        cmatrix
+        figlet # fancy ascii text output
+        nyancat # rainbow flying cat
+        lolcat # rainbow text output
+
+        #  Fine-tune packages by applying overrides, for example
+        # (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; }) # Nerd Fonts with a limited number of fonts
+        # simple shell scripts
+        # (writeShellScriptBin "my-hello" ''
+        #   echo "Hello, ${config.home.username}!"
+        # '')
+
+        discordo
+      ]
+      ++ lib.optionals stdenv.isLinux [
+        arduino-ide
+        # ============= 🧑‍💻🐞✨‍ ================
+
+        ugm # user group management
+        isd # systemd units
+        dysk # see mounted
+        kmon
+        termshark # wireshark-like TUI
+        netscanner
+        lazyjournal
+        systemctl-tui
+
+        virt-viewer
+        smartmontools
+
+        # ============== 🤪 =================
+        hollywood
+      ]
+      ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
+        arduino-ide
+        webcord-vencord
+      ]
+      ++ lib.optionals stdenv.isDarwin [
+        sketchybar-app-font
+        sbarlua
+        alt-tab-macos
+      ];
     file = {
       # Building this configuration will create a copy of 'dotfiles/screenrc' in
       # the Nix store. Activating the configuration will then make '~/.screenrc' a
@@ -161,5 +184,5 @@
         source = ./programs/.surfingkeys.js;
       };
     };
-};
+  };
 }
