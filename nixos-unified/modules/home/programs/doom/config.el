@@ -126,7 +126,8 @@
 
 (map! :n "C-l" nil :n "C-l" #'+lazygit/toggle
       :n "C-;" nil :n "C-;" #'+vterm/toggle
-      :n "C-/" nil :n "C-/" #'dirvish
+      ;; :n "C-/" nil :n "C-/" #'dirvish
+      :leader :desc "Open Dirvish" "e" #'dirvish
       :n "C-t" nil :n "C-t" (lambda () (interactive) (execute-kbd-macro (kbd "SPC o p")))
       :leader :desc "Open AI Chat buffer" "d" #'gptel)
 
@@ -182,9 +183,9 @@
            (vterm-send-return)))
        buffer))))
 
-(map! :leader ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
-      :desc "Switch to last buffer"
-      "e" #'evil-switch-to-windows-last-buffer)
+;; (map! :leader ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
+;;       :desc "Switch to last buffer"
+;;       "e" #'evil-switch-to-windows-last-buffer)
 ;; "e" #'my/switch-to-last-buffer-in-split)
 ;;
 (map! :leader
