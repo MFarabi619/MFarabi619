@@ -44,6 +44,7 @@
     ../modules/home/programs/nix-index.nix
     ../modules/home/programs/nix-search-tv.nix
     ../modules/home/programs/obs-studio.nix
+    ../modules/home/programs/opencode.nix
     ../modules/home/programs/pandoc.nix
     ../modules/home/programs/ripgrep.nix
     ../modules/home/programs/ssh.nix

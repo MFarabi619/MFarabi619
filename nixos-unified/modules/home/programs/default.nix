@@ -38,6 +38,7 @@
     ./nix-search-tv.nix
     ./obs-studio.nix
     ./obsidian.nix
+    ./opencode.nix
     ./pandoc.nix
     ./ripgrep.nix
     ./ssh.nix
