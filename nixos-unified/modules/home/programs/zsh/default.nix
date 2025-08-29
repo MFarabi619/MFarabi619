@@ -6,29 +6,6 @@
     enableCompletion = true;
     shellAliases.mkdir = "mkdir -p";
 
-    autosuggestion = {
-      enable = true;
-      strategy = [
-        "history"
-        "completion"
-      ];
-      # highlight = "fg=#ff00ff,bg=cyan,bold,underline";
-    };
-
-    };
-
-    syntaxHighlighting = {
-      enable = true;
-      highlighters = [
-        "main"
-        "brackets"
-        "pattern"
-        "regexp"
-        "root"
-        "line"
-      ];
-    };
-
     history = {
       size = 10000;
       save = 10000;
@@ -39,6 +16,27 @@
       ignoreAllDups = true;
       expireDuplicatesFirst = true;
       # path = "`\${config.programs.zsh.dotDir}/.zsh_history`"; # default
+    };
+
+
+    autosuggestion = {
+      enable = true;
+      strategy = [
+        "history"
+        "completion"
+      ];
+    };
+
+    syntaxHighlighting = {
+      enable = true;
+      highlighters = [
+        "line"
+        "main"
+        "root"
+        "regexp"
+        "pattern"
+        "brackets"
+      ];
     };
 
     plugins = [
@@ -53,16 +51,17 @@
         file = ".p10k.zsh";
       }
     ];
+
     oh-my-zsh = {
       enable = true;
       plugins = [
-        "sudo"
         "git"
-        "colored-man-pages"
-        "colorize"
+        "sudo"
         "docker"
-        "docker-compose"
         "kubectl"
+        "colorize"
+        "docker-compose"
+        "colored-man-pages"
       ]
       ++ lib.optionals pkgs.stdenv.isDarwin [
         "dash"
@@ -70,17 +69,9 @@
       ];
     };
 
-    # envExtra = ''
-    #   # Custom ~/.zshenv goes here
-    # '';
-    # profileExtra = ''
-    #   # Custom ~/.zprofile goes here
-    # '';
-    # loginExtra = ''
-    #   # Custom ~/.zlogin goes here
-    # '';
-    # logoutExtra = ''
-    #   # Custom ~/.zlogout goes here
-    # '';
+    # envExtra = '''';     # ~/.zshenv
+    # loginExtra = '''';   # ~/.zlogin
+    # logoutExtra = '''';  # ~/.zlogout
+    # profileExtra = ''''; # ~/.zprofile
   };
 }
