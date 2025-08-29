@@ -4,9 +4,22 @@
   programs.vscode = {
     enable = true;
     profiles = {
-      mfarabi = {
+      default = {
         enableUpdateCheck = true;
         enableExtensionUpdateCheck = true;
+      };
+
+      mfarabi = {
+        userTasks = {};
+
+        keybindings = [
+          {
+            key = "ctrl+c";
+            command = "editor.action.clipboardCopyAction";
+            when = "textInputFocus";
+          }
+        ];
+
         extensions = with pkgs.vscode-extensions; [
           ms-vsliveshare.vsliveshare
           timonwong.shellcheck
@@ -51,6 +64,7 @@
           # ms-vscode-remote.remote-wsl
           # xstate vscode
         ];
+
         userSettings = {
           editor = {
             minimap = {
@@ -95,16 +109,6 @@
             scminput = false;
           };
         };
-        userTasks = {
-
-        };
-        keybindings = [
-          {
-            key = "ctrl+c";
-            command = "editor.action.clipboardCopyAction";
-            when = "textInputFocus";
-          }
-        ];
       };
     };
   };

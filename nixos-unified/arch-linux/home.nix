@@ -54,6 +54,7 @@
     ../modules/home/programs/texlive.nix
     ../modules/home/programs/uv.nix
     ../modules/home/programs/vim.nix
+    ../modules/home/programs/vscode.nix
     ../modules/home/programs/yazi.nix
     ../modules/home/programs/zed.nix
     ../modules/home/programs/zellij.nix
