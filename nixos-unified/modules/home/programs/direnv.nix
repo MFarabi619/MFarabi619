@@ -1,17 +1,14 @@
-{ config, pkgs, ... }:
 {
-  # https://nixos.asia/en/direnv
-  programs.direnv = {
+  home.shellAliases.da = "direnv allow";
+  programs.direnv = { # https://nixos.asia/en/direnv
     enable = true;
     silent = true;
-    enableBashIntegration = true;
+    mise.enable = false;
+    nix-direnv.enable = true;
     enableZshIntegration = true;
-    nix-direnv = {
-      enable = true;
-    };
-    config.global = {
-      # Make direnv messages less verbose
-      # hide_env_diff = true;
-    };
+    enableBashIntegration = true;
+
+    # stdlib = "";
+    # config.global = {};
   };
 }

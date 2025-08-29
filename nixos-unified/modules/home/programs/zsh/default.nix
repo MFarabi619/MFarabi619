@@ -4,6 +4,8 @@
     enable = true;
     autocd = false;
     enableCompletion = true;
+    shellAliases.mkdir = "mkdir -p";
+
     autosuggestion = {
       enable = true;
       strategy = [
@@ -13,14 +15,6 @@
       # highlight = "fg=#ff00ff,bg=cyan,bold,underline";
     };
 
-    shellAliases = {
-      cat = "bat";
-      man = "batman";
-      lg = "lazygit";
-      enw = "emacs -nw";
-      z = "zoxide";
-      zlj = "zellij";
-      mkdir = "mkdir -p";
     };
 
     syntaxHighlighting = {

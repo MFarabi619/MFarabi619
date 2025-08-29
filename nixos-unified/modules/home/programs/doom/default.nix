@@ -1,4 +1,5 @@
 {
+  home.shellAliases.enw = "emacsclient -nw";
   programs.doom-emacs = {
     enable = true;
     doomDir = ./.;

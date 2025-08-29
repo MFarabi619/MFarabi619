@@ -1,5 +1,5 @@
 {
-  # `z <path>` to cd to some directory
+  home.shellAliases.z = "zoxide";
   programs.zoxide = {
     enable = true;
     enableBashIntegration = true;

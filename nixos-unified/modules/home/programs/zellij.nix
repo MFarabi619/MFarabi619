@@ -1,4 +1,5 @@
 {
+  home.shellAliases.zlj = "zellij";
   programs.zellij = {
     enable = true;
     enableBashIntegration = true;
