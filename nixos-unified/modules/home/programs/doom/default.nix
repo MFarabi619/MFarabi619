@@ -28,6 +28,7 @@
         # ================
         ob-mermaid # org babel mermaid
         mermaid-mode # github.com/abrochard/mermaid-mode
+        jira
         # ================
         lua
         # ================

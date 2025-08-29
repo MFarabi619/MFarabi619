@@ -37,11 +37,14 @@
 ;; (add-load-path "./extra")
 ;; (setq treesit-extra-load-path "./extra")
 
-;; (+global-word-wrap-mode +1)
-;; (keycast-tab-line-mode)
-(global-undo-tree-mode 1)
 (display-time-mode 1)
+(global-undo-tree-mode 1)
+;; (keycast-tab-line-mode)
+;; (+global-word-wrap-mode +1)
+(set-language-environment "UTF-8")
+(set-default-coding-systems 'utf-8)
 (menu-bar--display-line-numbers-mode-relative)
+
 (setq user-full-name "Mumtahin Farabi"
       user-mail-address "mfarabi619@gmail.com"
       plstore-cache-passphrase-for-symmetric-encryption t
@@ -71,6 +74,7 @@
   ;; lsp-treemacs-theme "NetBeans"
   ;; lsp-treemacs-theme "Idea"
   lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35)))
+
 (after! dired
   (setq dirvish-side-display-alist '((side . right) (slot . -1))
         dirvish-peek-mode t
@@ -91,9 +95,9 @@
 
 (use-package! gptel
   :config
-  ;; (setq! gptel-api-key "your key")
   (setq gptel-default-mode #'org-mode
-        gptel-model 'gpt-4o-2024-11-20
+        gptel-model 'gpt-4o
+        ;; gptel-api-key "your key"
         gptel-backend (gptel-make-gh-copilot "Copilot")
         gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi. I also use Nix for configuration management, and write code in Rust.")
                            (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
@@ -101,6 +105,18 @@
                            (chat        . "You are a large language model and a conversation partner. Respond concisely.")))
   (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll
             'gptel-post-response-functions 'gptel-end-of-response))
+
+(use-package! jira
+  :config
+  (setq jira-base-url "https://charthouse.atlassian.net"
+        jira-username "mfarabi619@gmail.com"
+        ;; https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
+        jira-token ""
+        jira-token-is-personal-access-token nil
+        jira-api-version 3 ;; Version 2 is also allowed
+        ;; https://apidocs.tempo.io/
+        ;; jira-tempo-token "foobar123123")
+        ))
 
 ;; (minimap-mode)
 
@@ -282,6 +298,7 @@
 
 (after! pdf-tools
   (setq pdf-view-continuous t))
+
 (use-package! nov-xwidget
   :demand t
   :after nov
@@ -307,14 +324,10 @@
   (setq nyan-animate-nyancat t
         nyan-wavy-trail t))
 
-(use-package! fretboard
-  :defer nil)
+(use-package! fretboard :defer nil)
 (after! fretboard
   (setq fretboard-fret-count 15)
   (add-hook 'fretboard-mode-hook #'evil-emacs-state))
-
-(set-language-environment "UTF-8")
-(set-default-coding-systems 'utf-8)
 
 (after! nerd-icons
   (setq nerd-icons-completion-mode t))
@@ -327,8 +340,6 @@
         lsp-typescript-references-code-lens-enabled t
         lsp-typescript-suggest-complete-function-calls t)
 
-  ;; (gfm-mode-hook 'gfm-view-mode)
-
   (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
 
   (lsp-register-client
@@ -336,6 +347,8 @@
     :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
     :activation-fn (lsp-activate-on "likec4")
     :server-id 'likec4-ls)))
+
+  ;; (gfm-mode-hook 'gfm-view-mode)
 
 ;; (define-derived-mode sway-mode rust-ts-mode "sway")
 ;; (add-to-list 'auto-mode-alist '("\\.sw\\'" . sway-mode))
