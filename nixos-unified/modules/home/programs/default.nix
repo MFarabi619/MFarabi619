@@ -39,6 +39,7 @@
     ./obs-studio.nix
     ./obsidian.nix
     ./opencode.nix
+    ./openstackclient.nix
     ./pandoc.nix
     ./ripgrep.nix
     ./ssh.nix
