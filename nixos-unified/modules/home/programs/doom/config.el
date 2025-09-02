@@ -37,67 +37,76 @@
 ;; (add-load-path "./extra")
 ;; (setq treesit-extra-load-path "./extra")
 
+;; (minimap-mode)
 (display-time-mode 1)
 (global-undo-tree-mode 1)
 ;; (keycast-tab-line-mode)
 ;; (+global-word-wrap-mode +1)
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(menu-bar--display-line-numbers-mode-relative)
 
-(setq user-full-name "Mumtahin Farabi"
+(setq doom-modeline-hud t
+      doom-theme 'doom-gruvbox
+      ;; 'doom-lantern
+      ;; 'doom-gruvbox-light
+      ;; 'doom-solarized-light
+      ;; doom-lantern-brighter-modeline t
+      ;; doom-lantern-brighter-comments t
+      which-key-idle-delay 0.25
+      evil-split-window-below t
+      doom-modeline-time-icon t
+      evil-vsplit-window-right t
+      doom-modeline-persp-name t
+      display-time-day-and-date t
+      treemacs-git-mode 'extended
+      doom-lantern-padded-modeline t
+      doom-modeline-major-mode-icon t
+      org-directory "~/Documents/org/"
+      user-full-name "Mumtahin Farabi"
+      display-line-numbers-type 'relative
+      which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
       user-mail-address "mfarabi619@gmail.com"
       plstore-cache-passphrase-for-symmetric-encryption t
-      treemacs-git-mode 'extended
-      which-key-idle-delay 0.25 ;; Make popup faster
-      which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
-      doom-modeline-hud t
-      doom-modeline-time-icon t
-      display-time-day-and-date t
-      doom-modeline-persp-name t
-      doom-modeline-major-mode-icon t
-      display-line-numbers-type 'relative
       browse-url-browser-function 'browse-url-default-browser
       projectile-project-search-path '("~/workspace/" "~/Documents/")
-      evil-split-window-below t
-      evil-vsplit-window-right t
-      ;; If you use `org' and don't want your org files in the default location below,
-      ;; change `org-directory'. It must be set before org loads!
-      org-directory "~/Documents/org/")
+      doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 20)
+      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 40)
+      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 20)
+      fancy-splash-image "~/MFarabi619/nixos-unified/modules/home/programs/doom/apollyon-emacs.png")
 
 (after! treemacs
-  treemacs-git-commit-diff-mode t
-  treemacs-indent-guide-mode t
-  treemacs-position 'left
-  ;; treemacs-load-theme "doom-colors")
-  ;; lsp-treemacs-theme "Eclipse"
-  ;; lsp-treemacs-theme "NetBeans"
-  ;; lsp-treemacs-theme "Idea"
-  lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35)))
+  (setq
+   treemacs-position 'left
+   treemacs-indent-guide-mode t
+   ;; lsp-treemacs-theme "Idea"
+   ;; "Eclipse"
+   ;; "NetBeans"
+   treemacs-git-commit-diff-mode t
+   ;; treemacs-load-theme "doom-colors"
+   lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35))))
 
 (after! dired
-  (setq dirvish-side-display-alist '((side . right) (slot . -1))
-        dirvish-peek-mode t
+  (setq dirvish-peek-mode t
         dirvish-side-auto-close t
-        dirvish-side-follow-mode t))
+        dirvish-side-follow-mode t
+        dirvish-side-display-alist '((side . right) (slot . -1))))
 
 (after! dirvish
-  (setq!
-   dirvish-default-layout '(1 0.11 0.70)
-   dirvish-quick-access-entries
-   `(("h" "~/"                          "Home")
-     ("e" ,user-emacs-directory         "Emacs user directory")
-     ("w" "~/workspace/"                "Workspace")
-     ("d" "~/Downloads/"                "Downloads")
-     ("p" "~/Pictures/"                 "Pictures")
-     ("m" "/mnt/"                       "Mounted drives")
-     ("t" "~/.local/share/Trash/files/" "Trash"))))
+  (setq dirvish-default-layout '(1 0.11 0.70)
+        dirvish-quick-access-entries
+        `(("h" "~/"                          "Home")
+          ("t" "~/.local/share/Trash/files/" "Trash")
+          ("p" "~/Pictures/"                 "Pictures")
+          ("w" "~/workspace/"                "Workspace")
+          ("d" "~/Downloads/"                "Downloads")
+          ("m" "/mnt/"                       "Mounted drives")
+          ("e" ,user-emacs-directory         "Emacs user directory"))))
 
 (use-package! gptel
   :config
-  (setq gptel-default-mode #'org-mode
-        gptel-model 'gpt-4o
+  (setq gptel-model 'gpt-4o
         ;; gptel-api-key "your key"
+        gptel-default-mode #'org-mode
         gptel-backend (gptel-make-gh-copilot "Copilot")
         gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi. I also use Nix for configuration management, and write code in Rust.")
                            (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
@@ -108,48 +117,63 @@
 
 (use-package! jira
   :config
-  (setq jira-base-url "https://charthouse.atlassian.net"
+  (setq jira-api-version 3 ;; Version 2 is also allowed
+        ;; jira-tempo-token "foobar123123") ;; https://apidocs.tempo.io
         jira-username "mfarabi619@gmail.com"
-        ;; https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
-        jira-token ""
         jira-token-is-personal-access-token nil
-        jira-api-version 3 ;; Version 2 is also allowed
-        ;; https://apidocs.tempo.io/
-        ;; jira-tempo-token "foobar123123")
-        ))
-
-;; (minimap-mode)
-
-;; (add-hook 'vterm-mode-hook #'evil-normal-state)
-;; (setq vterm-environment '("TERM=xterm-kitty")
-;; (vterm-term-environment-variable "xterm-kitty")
+        jira-base-url "https://charthouse.atlassian.net"
+        ;; https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
+        jira-token ""))
 
 (map! :n "C-l" nil :n "C-l" #'+lazygit/toggle
-      :n "C-;" nil :n "C-;" #'+vterm/toggle
-      ;; :n "C-/" nil :n "C-/" #'dirvish
       :leader :desc "Open Dirvish" "e" #'dirvish
-      :n "C-t" nil :n "C-t" (lambda () (interactive) (execute-kbd-macro (kbd "SPC o p")))
-      :leader :desc "Open AI Chat buffer" "d" #'gptel)
+      :leader :desc "Open AI Chat buffer" "d" #'gptel
+      ;; :leader :desc "Toggle vterm" "k" #'+vterm/toggle
+      :leader :desc "Open Dirvish Side" "[" #'dirvish-side)
+
+(map! :map evil-window-map
+      "SPC"       #'rotate-layout
+      "<up>"      #'evil-window-up
+      "<left>"    #'evil-window-left
+      "<down>"    #'evil-window-down
+      "<right>"   #'evil-window-right
+      "C-<up>"    #'+evil/window-move-up
+      "C-<left>"  #'+evil/window-move-left
+      "C-<down>"  #'+evil/window-move-down
+      "C-<right>" #'+evil/window-move-right)
+
+(set-popup-rule! "*Copilot*"
+  :ttl 0
+  :size 0.5
+  :vslot -4
+  :quit nil
+  :select t
+  :side 'left)
+
+(set-popup-rule! "^\\*Flycheck errors\\*$"
+  :size 0.4
+  :select t
+  :side 'bottom)
 
 (set-popup-rule! "*doom:vterm-popup:*"
-  :height 0.5
-  :width 0.5
+  :quit t
   :slot 0
+  :ttl nil
   :vslot 0
   :select t
-  :quit t
-  :ttl nil
+  :width 0.5
+  :height 0.5
   :modeline t
   :side 'right)
 
 (set-popup-rule! "*doom:vterm-popup:lazygit*"
-  :height 0.5
-  :width 0.5
+  :quit t
   :slot 0
   :vslot 0
-  :select t
-  :quit t
   :ttl nil
+  :select t
+  :width 0.5
+  :height 0.5
   :modeline t
   :side 'right)
 
@@ -187,23 +211,6 @@
 ;;       :desc "Switch to last buffer"
 ;;       "e" #'evil-switch-to-windows-last-buffer)
 ;; "e" #'my/switch-to-last-buffer-in-split)
-;;
-(map! :leader
-      :desc "Open Dirvish Side"
-      "[" #'dirvish-side)
-
-(map! :map evil-window-map
-      "SPC" #'rotate-layout
-      ;; Navigation
-      "<left>"     #'evil-window-left
-      "<down>"     #'evil-window-down
-      "<up>"       #'evil-window-up
-      "<right>"    #'evil-window-right
-      ;; Swapping windows
-      "C-<left>"       #'+evil/window-move-left
-      "C-<down>"       #'+evil/window-move-down
-      "C-<up>"         #'+evil/window-move-up
-      "C-<right>"      #'+evil/window-move-right)
 
 (defun my/switch-to-last-buffer-in-split ()
   "Show last buffer on split screen."
@@ -215,13 +222,9 @@
           (evil-switch-to-windows-last-buffer)
           (switch-to-buffer current-buffer)))))
 
-
 (defadvice! prompt-for-buffer (&rest _)
   :after '(evil-window-split evil-window-vsplit)
   (consult-buffer))
-
-(set-popup-rule! "*Copilot*" :size 0.5 :vslot -4 :select t :quit nil :ttl 0 :side 'left)
-(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom :size 0.4 :select t) ;; move flycheck errors to bottom
 
 (add-hook
  'pdf-view-mode-hook
@@ -232,124 +235,102 @@
   (setq evil-ex-substitute-global t ;; implicit /g flag on evil ex substitution
         evil-escape-key-sequence "jk")
   (add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
-  ;; Move by visual lines instead of physical lines
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
 
 (after! org
-  ;; Allow linking to non-headlines
-  (setq org-link-search-must-match-exact-headline nil)
-  org-todo-keywords '((sequence "TODO(t)" "INPROGRESS(i)" "BLOCKED(b)" "|" "DONE(d)" "CANCELLED(c)"))
-  org-todo-keyword-faces '(("TODO" :foreground "#7c7c75" :weight normal :underline t)
-                           ("INPROGRESS" :foreground "#0098dd" :weight normal :underline t)
-                           ("DONE" :foreground "#50a14f" :weight normal :underline t)
-                           ("CANCELLED" :foreground "#ff6480" :weight normal :underline t)
-                           ("BLOCKED" :foreground "#ff9800" :weight normal :underline t))
-  org-priority-faces
-  '((?A :foreground "#e45649")
-    (?B :foreground "#da8548")
-    (?C :foreground "#0098dd"))
-
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
-
-  (setq org-modern-star ["◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"]
-        org-modern-table-vertical 1
-        org-modern-table-horizontal 0.2
-        org-modern-list '((43 . "➤")
-                          (45 . "–")
-                          (42 . "•"))
-        ;; org-modern-todo '((sequence "TODO(t)" "INPROGRESS(i)" "BLOCKED(b)" "|" "DONE(d)" "CANCELLED(c)"))
-        ;; org-modern-todo-faces '(("TODO" :foreground "#7c7c75" :weight normal :underline t)
-        ;;                         ("INPROGRESS" :foreground "#0098dd" :weight normal :underline t)
-        ;;                         ("DONE" :foreground "#50a14f" :weight normal :underline t)
-        ;;                         ("CANCELLED" :foreground "#ff6480" :weight normal :underline t)
-        ;;                         ("BLOCKED" :foreground "#ff9800" :weight normal :underline t))
-        ;; org-modern-priority-faces '((?A :foreground "#e45649")
-        ;;                             (?B :foreground "#da8548")
-        ;;                             (?C :foreground "#0098dd"))
-        ;; org-modern-priority nil
-        ;; org-modern-todo nil
-        ;; org-modern-footnote (cons nil (cadr org-script-display))
-        ;; (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))
-
-        ;; (after! spell-fu
-        ;;   (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
-        ))
+  (setq
+   org-modern-table-vertical 1
+   org-modern-table-horizontal 0.2
+   org-link-search-must-match-exact-headline nil
+   ;; org-modern-priority-faces
+   org-priority-faces '((?A :foreground "#e45649")
+                        (?B :foreground "#da8548")
+                        (?C :foreground "#0098dd"))
+   org-modern-star ["◉" "○" "✸" "✿" "✤" "✜" "◆" "▶"]
+   org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
+   ;; org-modern-todo-faces
+   org-todo-keyword-faces '(("DONE" :foreground "#50a14f" :weight normal :underline t)
+                            ("TODO" :foreground "#7c7c75" :weight normal :underline t)
+                            ("BLOCKED" :foreground "#ff9800" :weight normal :underline t)
+                            ("CANCELLED" :foreground "#ff6480" :weight normal :underline t)
+                            ("INPROGRESS" :foreground "#0098dd" :weight normal :underline t))
+   ;; org-modern-todo
+   org-todo-keywords  '((sequence "TODO(t)" "INPROGRESS(i)" "BLOCKED(b)" "|" "DONE(d)" "CANCELLED(c)")))
+  ;; org-modern-todo nil
+  ;; org-modern-priority nil
+  ;; org-modern-footnote (cons nil (cadr org-script-display))
+  ;; (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))
+  ;; (after! spell-fu (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
+  )
 
 ;; (after! magit
 ;;   (use-package! magit-todos
 ;;     :config (magit-todos-mode 1))
 ;;   (setq magit-diff-refine-hunk 'all
-;;         magit-log-margin-show-committer-date t
-;;         magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256") ;; Enable commit graphs
-;;         magit-status-margin '(t age magit-log-margin-width t 22)
 ;;         magit-log-margin-show-author t
+;;         magit-revision-insert-related-refs t
+;;         magit-log-margin-show-committer-date t
 ;;         magit-section-visibility-indicator '(" " . " ")
+;;         magit-status-margin '(t age magit-log-margin-width t 22)
 ;;         magit-format-file-function #'magit-format-file-nerd-icons
-;;         magit-revision-insert-related-refs t)
+;;         magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256") )
 ;;   (add-hook 'magit-mode-hook 'hl-line-mode
 ;;             'magit-mode-hook 'display-line-numbers-mode)
 ;;   (custom-set-faces
-;;    '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
-;;    '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
-;;    '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
 ;;    '(magit-diff-context ((t (:foreground "#b0b0b0"))))
 ;;    '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
+;;    '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
+;;    '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
+;;    '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
 ;;    '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff"))))))
+
+;; (gfm-mode-hook 'gfm-view-mode)
+
+(after! nerd-icons
+  (setq nerd-icons-completion-mode t))
 
 (after! pdf-tools
   (setq pdf-view-continuous t))
 
-(use-package! nov-xwidget
+;; (use-package! nov-xwidget
+(after! nov-xwidget
   :demand t
   :after nov
   :config
   (define-key nov-mode-map (kbd "o") 'nov-xwidget-view)
   (add-hook 'nov-mode-hook 'nov-xwidget-inject-all-files))
 
+(after! nyan-mode
+  (setq nyan-wavy-trail t
+        nyan-animate-nyancat t))
+
 (after! centaur-tabs-mode
-  (setq centaur-tabs-gray-out-icons t
-        centaur-tabs-show-count t
+  (setq centaur-tabs-show-count t
+        centaur-tabs-gray-out-icons t
         centaur-tabs-enable-key-bindings t
         centaur-tabs-show-navigation-buttons t))
 
-;; (after! js-mode
-;;   (setq +javascript-npm-mode-hook
-;;         '(doom--enable-+web-phaser-mode-in-+javascript-npm-mode-h
-;;           doom--enable-+web-react-mode-in-+javascript-npm-mode-h
-;;           doom--enable-+web-angularjs-mode-in-+javascript-npm-mode-h
-;;           pnpm-mode
-;;           +javascript-add-npm-path-h)))
-
-(after! nyan-mode
-  (setq nyan-animate-nyancat t
-        nyan-wavy-trail t))
-
-(use-package! fretboard :defer nil)
+;; (use-package! fretboard :defer nil)
 (after! fretboard
   (setq fretboard-fret-count 15)
   (add-hook 'fretboard-mode-hook #'evil-emacs-state))
 
-(after! nerd-icons
-  (setq nerd-icons-completion-mode t))
-
-;; Add LikeC4 to LSP language configuration
 (after! lsp-mode
-  (setq lsp-eslint-package-manager "pnpm"
-        lsp-eslint-run "onSave"
+  (setq lsp-eslint-run "onSave"
         lsp-typescript-format-enable t
+        lsp-eslint-package-manager "pnpm"
         lsp-typescript-references-code-lens-enabled t
         lsp-typescript-suggest-complete-function-calls t)
 
-  (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
-
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
-    :activation-fn (lsp-activate-on "likec4")
-    :server-id 'likec4-ls)))
-
-  ;; (gfm-mode-hook 'gfm-view-mode)
+  ;; (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
+  ;; (lsp-register-client
+  ;;  (make-lsp-client
+  ;;   :server-id 'likec4-ls)
+  ;;  :activation-fn (lsp-activate-on "likec4")
+  ;;  :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio")))
+  )
 
 ;; (define-derived-mode sway-mode rust-ts-mode "sway")
 ;; (add-to-list 'auto-mode-alist '("\\.sw\\'" . sway-mode))
@@ -364,15 +345,11 @@
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
    '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
 
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
+;; You do not need to run 'doom sync' after modifying this file!
 
 (defun my-custom-dashboard-text ()
   "Insert custom text into the Doom dashboard."
   (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n"))
-
-;; (setq fancy-splash-image "~/dotfiles/.config/doom/doom-emacs-color2.svg")
-(setq fancy-splash-image "~/MFarabi619/nixos-unified/modules/home/programs/doom/apollyon-emacs.png")
 
 ;; Find `doom-dashboard-widget-banner` in the list and insert after it
 (let ((pos (cl-position #'doom-dashboard-widget-banner +doom-dashboard-functions)))
@@ -383,13 +360,11 @@
                   (cl-subseq +doom-dashboard-functions (1+ pos))))))
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
-;;
-;; - `doom-font' -- the primary font to use
-;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
-;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
+;; - `doom-font' -- primary font to use
+;; - `doom-big-font' -- used for `doom-big-font-mode'
+;; - `doom-serif-font' -- for `fixed-pitch-serif' face
 ;; - `doom-symbol-font' -- for symbols
-;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
+;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
 ;;
 ;; See 'C-h v doom-font' for documentation and more examples of what they
 ;; accept. For example:
@@ -404,19 +379,6 @@
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-;; (setq doom-theme 'doom-gruvbox)
-
-(setq doom-theme
-      ;; 'doom-lantern
-      'doom-gruvbox
-      ;; 'doom-gruvbox-light
-      ;; 'doom-solarized-light
-      ;; doom-lantern-brighter-modeline t
-      ;; doom-lantern-brighter-comments t
-      doom-lantern-padded-modeline t
-      doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 20)
-      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 20)
-      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 40))
+;; `load-theme' function.
 
 ;; https://www.ovistoica.com/blog/2024-7-05-modern-emacs-typescript-web-tsx-config
