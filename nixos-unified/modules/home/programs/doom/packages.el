@@ -39,7 +39,6 @@
 ;; Use `:pin' to specify a particular commit to install.
 ;; (package! builtin-package :pin "1a2b3c4d5e")
 
-
 ;; Doom's packages are pinned to a specific commit and updated from release to
 ;; release. The `unpin!' macro allows you to unpin single packages...
 ;; (unpin! pinned-package)
@@ -48,44 +47,36 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
 
-(package! nix-ts-mode)
-(package! mermaid-mode)
-(package! ob-mermaid)
-(package! nov)
-
-;; (package! magit-todos)
-;; (package! consult-gh)
-
 ;; (package! pgmacs
 ;;   :recipe (:host github :repo "emarsden/pg-el/"))
 ;; (package! pgmacs
 ;;   :recipe (:host github :repo "emarsden/pgmacs"))
 
-(package! org-super-agenda)
 ;; (package! org-pandoc-import
 ;;   :recipe (:host github
 ;;            :repo "tecosaur/org-pandoc-import"
 ;;            :files ("*.el" "filters" "preprocessors")))
 
-;; (package! org-gcal)
-
+(package! nov)
+(package! verb)
 (package! circe)
-
+(package! pacmacs)
+(package! devdocs)
 (package! keycast)
-
+;; (package! org-gcal)
+(package! abc-mode)
+(package! key-quiz)
 (package! pnpm-mode)
 (package! scad-mode)
-
-(package! gptel :recipe (:nonrecursive t))
-(package! devdocs)
-(package! verb)
-
 (package! fireplace)
-(package! pacmacs)
-(package! speed-type)
-(package! key-quiz)
 (package! nyan-mode)
-
+(package! ob-mermaid)
 (package! fretboard)
-(package! abc-mode)
+(package! speed-type)
+(package! nix-ts-mode)
+(package! mermaid-mode)
 (package! chordpro-mode)
+;; (package! consult-gh)
+;; (package! magit-todos)
+(package! org-super-agenda)
+(package! gptel :recipe (:nonrecursive t))
