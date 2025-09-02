@@ -33,6 +33,7 @@
     packages =
       with pkgs;
       [
+        pnpm
         ast-grep
         tree-sitter
         # clang
