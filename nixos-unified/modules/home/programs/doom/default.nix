@@ -5,6 +5,7 @@
     doomDir = ./.;
     extraPackages =
       epkgs: with epkgs; [
+        mu4e
         ast-grep
         editorconfig
         xclip
