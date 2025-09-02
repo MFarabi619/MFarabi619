@@ -2,6 +2,8 @@
 {
   environment = {
     systemPackages = with pkgs; [
+      wget          # when curl doesn't work
+
       brightnessctl # screen brightness control
       udiskie # manage removable media
       ntfs3g # ntfs support
@@ -20,8 +22,6 @@
       # ========== Stylix ===========
       dconf # configuration storage system
       dconf-editor # dconf editor
-      zsh-powerlevel10k
-      meslo-lgs-nf
 
       # i2c-tools # raspberry pi
     ];

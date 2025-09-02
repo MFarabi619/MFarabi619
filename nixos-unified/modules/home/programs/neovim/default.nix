@@ -4,6 +4,20 @@
 }:
 
 {
+  programs = {
+    neovim = {
+      enable = true;
+      defaultEditor = true;
+      # vimAlias = true;
+      withNodeJs = true;
+      withPython3 = true;
+      withRuby = true;
+      plugins = with pkgs.vimPlugins; [
+        LazyVim
+      ];
+    };
+  };
+
   home = {
     file = {
       ".config/nvim/init.lua" = {
@@ -57,23 +71,4 @@
       };
     };
   };
-
-  programs = {
-    neovim = {
-      enable = true;
-      defaultEditor = true;
-      # vimAlias = true;
-      withNodeJs = true;
-      withPython3 = true;
-      withRuby = true;
-      plugins = with pkgs.vimPlugins; [
-        LazyVim
-      ];
-    };
-    # nixvim.enable = true;
-  };
-
-  imports = [
-    # ./nixvim.nix
-  ];
 }

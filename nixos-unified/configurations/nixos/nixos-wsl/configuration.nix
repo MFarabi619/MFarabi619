@@ -14,6 +14,10 @@
     # hostPlatform = lib.mkDefault "x86_64-linux";
   };
 
+  hardware = {
+    uinput.enable = true;
+  };
+
   services = {
     seatd = {
       enable = true;
