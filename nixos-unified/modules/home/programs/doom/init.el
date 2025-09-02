@@ -32,7 +32,9 @@
        ;;  )           ; the *other* search engine for love and life
        ;;ido             ; the other *other* search engine...
        ;;ivy             ; a search engine for love and life
-       (vertico +childframe +icons)  ; the search engine of the future
+       (vertico          ; the search engine of the future
+        +icons
+        +childframe)
 
        :ui
        deft              ; notational velocity for Emacs
@@ -58,7 +60,7 @@
        (window-select    ; visually switch windows
         +numbers)
        workspaces        ; tab emulation, persistence & separate workspaces
-       ;; zen            ; distraction-free coding or writing
+       zen            ; distraction-free coding or writing
 
        :editor
        (evil +everywhere); come to the dark side, we have cookies
