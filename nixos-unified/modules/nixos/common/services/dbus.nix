@@ -1,0 +1,3 @@
+{
+  servces.dbus.enable = true;
+}
