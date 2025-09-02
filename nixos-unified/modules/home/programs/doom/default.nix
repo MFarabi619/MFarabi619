@@ -6,6 +6,7 @@
     extraPackages =
       epkgs: with epkgs; [
         mu4e
+        jira
         ast-grep
         editorconfig
         xclip
@@ -16,21 +17,20 @@
         # ================
         rustic
         # ================
-        rust-mode
-        lsp-mode
         lua-mode
+        lsp-mode
         lsp-java
-        lsp-docker
         lsp-latex
-        lsp-pyright
-        lsp-tailwindcss
-        lsp-treemacs
-        lsp-haskell
+        rust-mode
         lsp-scheme
+        lsp-docker
+        lsp-pyright
+        lsp-haskell
+        lsp-treemacs
+        lsp-tailwindcss
         # ================
         ob-mermaid # org babel mermaid
         mermaid-mode # github.com/abrochard/mermaid-mode
-        jira
         # ================
         lua
         # ================
