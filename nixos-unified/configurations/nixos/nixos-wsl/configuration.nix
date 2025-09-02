@@ -14,10 +14,13 @@
     # hostPlatform = lib.mkDefault "x86_64-linux";
   };
 
-  services.seatd = {
-    enable = true;
-    user = "root"; # default
-    group = "seat"; # default
+  services = {
+    seatd = {
+      enable = true;
+      user = "root"; # default
+      group = "seat"; # default
+    };
+    qemuGuest.enable = true;
   };
 
   wsl = {
