@@ -6,7 +6,6 @@ in
 {
   imports = [
     ./db.nix
-    ./git.nix
     ./shell.nix
     # ./ai.nix
   ];
