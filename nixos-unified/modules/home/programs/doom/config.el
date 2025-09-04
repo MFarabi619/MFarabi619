@@ -45,7 +45,10 @@
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 
-(setq doom-modeline-hud t
+(setq nyan-mode t
+      nyan-wavy-trail t
+      nyan-animate-nyancat t
+      doom-modeline-hud t
       doom-theme 'doom-gruvbox
       ;; 'doom-lantern
       ;; 'doom-gruvbox-light
@@ -78,7 +81,7 @@
   (setq
    treemacs-position 'left
    treemacs-indent-guide-mode t
-   ;; lsp-treemacs-theme "Idea"
+   lsp-treemacs-theme "Idea"
    ;; "Eclipse"
    ;; "NetBeans"
    treemacs-git-commit-diff-mode t
@@ -125,10 +128,11 @@
         ;; https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
         jira-token ""))
 
-(map! :n "C-l" nil :n "C-l" #'+lazygit/toggle
+(map! :n "C-'" #'+vterm/toggle
+      :n "C-l" nil :n "C-l" #'+lazygit/toggle
       :leader :desc "Open Dirvish" "e" #'dirvish
       :leader :desc "Open AI Chat buffer" "d" #'gptel
-      ;; :leader :desc "Toggle vterm" "k" #'+vterm/toggle
+      :leader :desc "Toggle vterm" "j" #'+vterm/toggle
       :leader :desc "Open Dirvish Side" "[" #'dirvish-side)
 
 (map! :map evil-window-map
@@ -302,10 +306,6 @@
   (define-key nov-mode-map (kbd "o") 'nov-xwidget-view)
   (add-hook 'nov-mode-hook 'nov-xwidget-inject-all-files))
 
-(after! nyan-mode
-  (setq nyan-wavy-trail t
-        nyan-animate-nyancat t))
-
 (after! centaur-tabs-mode
   (setq centaur-tabs-show-count t
         centaur-tabs-gray-out-icons t
@@ -319,7 +319,7 @@
 
 (after! lsp-mode
   (setq lsp-eslint-run "onSave"
-        lsp-typescript-format-enable t
+        ;; lsp-typescript-format-enable t
         lsp-eslint-package-manager "pnpm"
         lsp-typescript-references-code-lens-enabled t
         lsp-typescript-suggest-complete-function-calls t)
