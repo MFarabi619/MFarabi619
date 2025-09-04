@@ -98,6 +98,7 @@
         omnix
         devenv
         cachix
+        nix-du # store visualizer
         nix-info
         nix-inspect
         nixpkgs-fmt
