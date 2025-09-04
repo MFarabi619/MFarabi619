@@ -14,7 +14,6 @@
 # tuistash
 # arduino-cli-interactive
 # ballast
-# blink
 # calcure
 # duf
 # gama
@@ -160,6 +159,7 @@
         hollywood
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
+        blink
         arduino-ide
         webcord-vencord
       ]
