@@ -150,6 +150,7 @@
         # '')
 
         discordo
+        # nvtopPackages.full
       ]
       ++ lib.optionals stdenv.isLinux [
         arduino-ide

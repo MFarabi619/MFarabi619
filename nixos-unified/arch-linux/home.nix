@@ -92,6 +92,7 @@
      nix-ld
      # fw-fanctrl
      wl-screenrec
+    nvtopPackages.amd
     ];
   };
 
