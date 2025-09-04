@@ -2,6 +2,7 @@
 # uvx netshow
 # uvx exosphere
 # cargo-selector
+# nemu
 # fnug
 # godap
 # jwt-tui
@@ -16,7 +17,6 @@
 # ballast
 # calcure
 # duf
-# gama
 # goto
 # sshclick
 # hostctl
@@ -75,6 +75,7 @@
         caligula # disk imaging
 
         codeberg-cli
+        # gama-tui
 
         vi-mongo
 

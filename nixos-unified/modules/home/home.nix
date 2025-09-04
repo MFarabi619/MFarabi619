@@ -18,11 +18,11 @@
     sessionVariables = lib.mkIf pkgs.stdenv.isLinux {
       XDG_BACKEND = "wayland";
       XDG_RUNTIME_DIR = "/run/user/$(id -u)";
+
       # XDG_VTNR = "1";
 
-      # XDG_SESSION_CLASS = "user";
-
       # TODO: move to xdg
+      # XDG_SESSION_CLASS = "user";
       # XDG_CACHE_HOME = config.xdg.cacheHome;
       # XDG_CONFIG_HOME = config.xdg.configHome;
       # XDG_DATA_HOME = config.xdg.dataHome;
@@ -38,7 +38,6 @@
       # XDG_VIDEOS_DIR = config.xdg.userDirs.videos;
 
       # Additional XDG-related variables
-      LESSHISTFILE = "/tmp/less-hist";
       # PARALLEL_HOME = "${config.xdg.configHome}/parallel";
       # SCREENRC = "${config.xdg.configHome}/screen/screenrc";
     };
