@@ -14,6 +14,12 @@
       "*~"
       "*.swp"
     ];
+
+    aliases = {
+      ga = "git add .";
+      gama = "";
+    };
+
     extraConfig = {
       init.defaultBranch = "main";
       pull.rebase = false;
