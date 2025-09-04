@@ -11,6 +11,7 @@ target/
 #====================================================
 #                 Caches & Logs
 #====================================================
+logs
 .devenv*
 devenv.local.nix
 **/.direnv/
@@ -40,6 +41,8 @@ devenv.local.nix
 .settings
 !.vscode/extensions.json
 !.vscode/settings-example.json
+apps/microvisor/services/supabase/.branches
+apps/microvisor/services/supabase/.temp
 
 !Cargo.lock
 **/!Cargo.lock
@@ -47,3 +50,10 @@ devenv.local.nix
 **/.git-hooks
 .open-webui
 .webui_secret_key
+
+#====================================================
+#                  Dependencies
+#====================================================
+**/node_modules
+/.pnp
+.pnp.js
