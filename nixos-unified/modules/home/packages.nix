@@ -101,6 +101,7 @@
         nix-du # store visualizer
         nix-btm # nix process monitor
         nix-top # nix process visualizer
+        nix-web # web gui
         nix-info
         nix-inspect
         nixpkgs-fmt
