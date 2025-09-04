@@ -1,7 +1,6 @@
 # uvx parllama
 # uvx netshow
 # uvx exosphere
-# crates-tui
 # cargo-selector
 # fnug
 # godap
@@ -57,6 +56,7 @@
         mermaid-cli # mermaid diagram support
         penpot-desktop
         # ============= 🧑‍💻🐞✨‍ ================
+        crates-tui
         nmap
         tgpt
         dysk # view disk usage
