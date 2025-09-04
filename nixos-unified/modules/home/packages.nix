@@ -2,7 +2,10 @@
 # uvx netshow
 # uvx exosphere
 # cargo-selector
+# systemd-manager mtui
 # nemu
+# doxx
+# hwinfo-tui
 # fnug
 # godap
 # jwt-tui
@@ -23,6 +26,9 @@
 # neoss
 # nap
 # pinix
+# lazy-etherscan
+# chamber
+# tick-rs
 {
   pkgs,
   lib,
@@ -116,8 +122,6 @@
 
         fritzing
 
-        framework-tool
-
         woeusb-ng # flash bootable windows iso
 
         # Setup Claude Code using Google Vertex AI Platform
@@ -149,6 +153,7 @@
         dysk # see mounted
         kmon
         termshark # wireshark-like TUI
+        systeroid # powerful sysctl alternative
         netscanner
         lazyjournal
         systemctl-tui
