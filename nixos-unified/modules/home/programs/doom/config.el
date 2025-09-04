@@ -319,6 +319,7 @@
 
 (after! lsp-mode
   (setq lsp-eslint-run "onSave"
+        lsp-format-buffer-on-save t
         ;; lsp-typescript-format-enable t
         lsp-eslint-package-manager "pnpm"
         lsp-typescript-references-code-lens-enabled t
