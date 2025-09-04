@@ -1,18 +1,32 @@
 {
   programs.ssh = {
     enable = true;
-    enableDefaultConfig = false;
     # includes = [];
-    # extraConfig = "";
+    enableDefaultConfig = false;
     # extraOptionOverrides = {};
+
     matchBlocks = {
+        nixbuild = {
+          checkHostIP = false;
+          identitiesOnly = true;
+          addKeysToAgent = "yes";
+          host = "eu.nixbuild.net";
+          serverAliveInterval = 60;
+          hostname = "eu.nixbuild.net";
+          identityFile = ["~/.ssh/my-nixbuild-key"];
+          extraOptions = {
+            PubkeyAcceptedKeyTypes = "ssh-ed25519";
+            IPQoS = "throughput";
+          };
+    };
+
       archlinux = {
         port = 22;
-        host = "archlinux";
         user = "mfarabi";
-        hostname = "10.0.0.146";
+        host = "archlinux";
         checkHostIP = true;
         addKeysToAgent = "yes";
+        hostname = "10.0.0.145";
         setEnv.TERM = "xterm-kitty";
       };
 
@@ -50,7 +64,7 @@
         port = 22;
         host = "rpi5";
         user = "mfarabi";
-        hostname = "192.168.1.115";
+        hostname = "10.0.0.29";
 
         checkHostIP = true;
         addKeysToAgent = "yes";
@@ -64,14 +78,14 @@
         # compression = false;
         # controlmaster = null; # "yes" | "no" | "ask" | "auto" | "autoask"
         # controlPath = null; # path to control socket used for connection sharing
-        # controlPersist = "10am"; # whether control socket should remain open in backgroung
+        # controlPersist = "10am"; # whether control socket should remain open in background
 
         # identityFile = [];
         # identityAgent = [];
         # identitiesOnly = false;
 
-        # userKnownHostsFile = ./file;
         # hashKnownHosts = null;
+        # userKnownHostsFile = "~/.ssh/known_hosts";
 
         # serverAliveInterval = 5;
         # serverAliveCountMax = 5;

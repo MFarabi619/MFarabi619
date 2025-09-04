@@ -1,40 +1,28 @@
 {
   nix = {
-    # distributedBuilds.enable = true;
-    # buildMachines = {
-    #   msi-gs65 = {
-    #     system = "x86-64-linux";
-    #     systems = [
-    #       "x86-64-linux"
-    #     ];
-    #     sshUser = "builder";
-    #     sshKey = "";
-    #     speedFactor = 1;
-    #     publicHostKey = "";
-    #     protocol = "";
-    #     maxJobs = 1;
-    #     mandatoryFeatures = [
-    #       "big-parallel"
-    #     ];
-    #     hostName = "nixos";
-    #   };
+    channel.enable = false;
 
-    channel.enable = true;
-    optimise = {
-      automatic = true;
-      # dates = "daily";
-      # persistent = true;
-    };
-    gc = {
-      automatic = true;
-      # persistent = true;
-      # dates = "daily";
-      # options = "";
-    };
-
+distributedBuilds = true;
+  # distributedBuilds.enable = true;
+  buildMachines = [
+    {
+      maxJobs = 100;
+      sshUser = null;
+      speedFactor = 1;
+      protocol = "ssh-ng";
+      hostName = "eu.nixbuild.net";
+      sshKey = "~/.ssh/id_ed25519";
+      systems = ["x86_64-linux"
+        # "aarch64-darwin"
+      ];
+      supportedFeatures = [ "benchmark" "big-parallel" ];
+      publicHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM";
+    #     mandatoryFeatures = [ "big-parallel" ];
+    }
+  ];
     settings = {
-      auto-optimise-store = true;
       max-jobs = "auto";
+      # auto-optimise-store = true;
       experimental-features = [
         "nix-command"
         "flakes"
