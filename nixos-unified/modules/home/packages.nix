@@ -19,9 +19,12 @@
 # calcure
 # duf
 # gama
+# goto
+# sshclick
 # hostctl
 # neoss
 # nap
+# pinix
 {
   pkgs,
   lib,
@@ -33,13 +36,7 @@
       with pkgs;
       [
         pnpm
-        ast-grep
-        tree-sitter
-        # clang
-        # =============
-        # binutils # native-comp needs 'as', provided by this
         gnutls # for TLS connectivity
-        nmap
         # =============
         # kicad
         freecad
@@ -47,26 +44,20 @@
         openscad-lsp
         # =============
         vips # dired image previews
-        epub-thumbnailer # dired epub previews
-        poppler-utils # dired pdf previews
         imagemagick # for image-dired
-        # =============
-        octaveFull # gnu octave
-        mermaid-cli # mermaid diagram support
-        gnuplot
+        poppler-utils # dired pdf previews
+        epub-thumbnailer # dired epub previews
         # =============
         tuntox # collab
-        # =============
         sqlite # :tools lookup & :lang org +roam
-        # =============
         ispell # spelling
-        # =============
+        gnuplot
         shellcheck # shell script formatting
+        octaveFull # gnu octave
+        mermaid-cli # mermaid diagram support
         penpot-desktop
-        # =============
-        # vimPlugins.nvim-treesitter-parsers.mermaid
         # ============= 🧑‍💻🐞✨‍ ================
-        # pnpm
+        nmap
         tgpt
         dysk # view disk usage
         pik # local port tui
@@ -76,9 +67,9 @@
         gpg-tui
         bluetui
         termscp
-        bandwhich
         tcpdump
         cointop # crypto price feed
+        bandwhich
 
         # lazyhetzner
         caligula # disk imaging
@@ -99,14 +90,14 @@
         devenv
         cachix
         nix-du # store visualizer
+        # nix-ld # run unpatched dynamic binaries
         nix-btm # nix process monitor
         nix-top # nix process visualizer
         nix-web # web gui
         nix-info
-        nix-inspect
-        nixpkgs-fmt
-        nix-health
-        nix-weather
+        nix-health # health check
+        nix-inspect # flake explorer tui
+        nix-weather # check binary cache availability
 
         # `man home-configuration.nix`'s pager to work on Ubuntu
         less
@@ -117,14 +108,11 @@
         gnumake
         gparted
         coreutils
+        platformio
         arduino-cli
         arduino-language-server
-        platformio
 
         fritzing
-
-        via
-        vial
 
         framework-tool
 
@@ -135,12 +123,12 @@
         # flake.inputs.vertex.packages.${system}.default
 
         # ============== 🤪 =================
-        asciiquarium # ascii aquarium
         cowsay
-        cmatrix
+        lolcat # rainbow text output
         figlet # fancy ascii text output
         nyancat # rainbow flying cat
-        lolcat # rainbow text output
+        cmatrix
+        asciiquarium # ascii aquarium
 
         #  Fine-tune packages by applying overrides, for example
         # (nerdfonts.override { fonts = [ "FantasqueSansMono" ]; }) # Nerd Fonts with a limited number of fonts
@@ -153,9 +141,7 @@
         # nvtopPackages.full
       ]
       ++ lib.optionals stdenv.isLinux [
-        arduino-ide
         # ============= 🧑‍💻🐞✨‍ ================
-
         ugm # user group management
         isd # systemd units
         dysk # see mounted
@@ -176,10 +162,11 @@
         webcord-vencord
       ]
       ++ lib.optionals stdenv.isDarwin [
-        sketchybar-app-font
         sbarlua
         alt-tab-macos
+        sketchybar-app-font
       ];
+
     file = {
       # Building this configuration will create a copy of 'dotfiles/screenrc' in
       # the Nix store. Activating the configuration will then make '~/.screenrc' a

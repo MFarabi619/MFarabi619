@@ -7,28 +7,31 @@
   programs.lazygit = {
     enable = true;
     settings = {
-      disableStartupPopups = true;
       notARepository = "skip";
+      disableStartupPopups = true;
+      promptToReturnFromSubprocess = true;
+
       gui = {
+        sidePanelWidth = 0.33;
         nerdFontsVersion = "3";
         scrollPastBottom = true;
         scrollOffBehaviour = "jump";
-        sidePanelWidth = 0.33;
         switchTabsWithPanelJumpKeys = true;
       };
+
       os = {
-        edit = "emacsclient -n {{filename}}";
-        editAtLine = "emacsclient -n +{{line}} {{filename}}";
-        openDirInEditor = "emacsclient {{dir}}";
-        editInTerminal = false;
+        editInTerminal = true;
+        edit = "emacsclient -nw {{filename}}";
+        openDirInEditor = "emacsclient -nw {{dir}}";
+        editAtLine = "emacsclient -nw +{{line}} {{filename}}";
       };
+
       git = {
-        commit.signOff = true;
-        # branchPrefix = "${config.me.username}/";
-        branchPrefix = "mfarabi/";
         parseEmoji = true;
+        commit.signOff = true;
+        branchPrefix = "mfarabi/";
+        # branchPrefix = "${config.me.username}/";
       };
-      promptToReturnFromSubprocess = true;
     };
   };
 }

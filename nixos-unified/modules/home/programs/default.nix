@@ -47,8 +47,8 @@
     ./sketchybar.nix
     ./starship
     ./television.nix
-    ./texlive.nix
     ./tex-fmt.nix
+    ./texlive.nix
     ./tmux.nix
     ./uv.nix
     ./vim.nix
