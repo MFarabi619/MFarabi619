@@ -4,10 +4,14 @@
     enableTelevisionIntegration = true;
     settings = {
       indexes = [
-        "nixpkgs"
-        "home-manager"
+        "nur"
         "nixos"
-        "nix-darwin"
+        "nixpkgs"
+        "darwin"
+        "home-manager"
+        # "nixos-wsl"
+        # "nix-on-droid"
+        # "nixos-raspberry-pi"
       ];
     };
   };
