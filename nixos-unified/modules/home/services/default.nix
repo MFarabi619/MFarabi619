@@ -1,6 +1,7 @@
 { lib, pkgs, ... }:
 {
   imports = [
+    ./activitywatch.nix
     ./cachix-agent.nix
     ./gpg-agent.nix
     ./home-manager.nix
