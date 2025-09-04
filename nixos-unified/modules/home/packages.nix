@@ -96,6 +96,7 @@
         nix-top # nix process visualizer
         nix-web # web gui
         nix-info
+        mcp-nixos # mcp server for NixOS
         nix-health # health check
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
