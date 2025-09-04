@@ -18,7 +18,6 @@
 # blink
 # calcure
 # duf
-# dysk
 # gama
 # hostctl
 # neoss
@@ -69,6 +68,7 @@
         # ============= 🧑‍💻🐞✨‍ ================
         # pnpm
         tgpt
+        dysk # view disk usage
         pik # local port tui
         sshs # ssh tui
         impala # wifi mgmt tui
