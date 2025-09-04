@@ -3,8 +3,10 @@
     api = {
       exec = "cargo loco start --binding 0.0.0.0";
       process-compose = {
-        description = "Back-End Server using Loco.rs";
         is_tty = true;
+        disabled = true;
+        namespace = "⚙ Back-End";
+        description = "Back-End Server using Loco.rs";
         depends_on = {
           postgres.condition = "process_healthy";
         };
@@ -15,13 +17,14 @@
             scheme = "http";
           };
         };
-        namespace = "⚙ Back-End";
       };
     };
 
     web = {
       exec = "trunk serve";
       process-compose = {
+        disabled = true;
+        description = "Front-End Server using Dioxus";
         log_configuration = {
           fields_order = [
             "level"
@@ -29,7 +32,6 @@
             "time"
           ];
         };
-        description = "Front-End Server using Dioxus";
         is_tty = true;
         depends_on = {
           api.condition = "process_healthy";
@@ -67,10 +69,10 @@
     open-webui-serve---port-1212 = {
       exec = "open-webui serve --port 1212";
       process-compose = {
-        description = "🤖 Use the GPT LLM of your choice";
-        namespace = "🧮 VIEWS";
-        disabled = false;
         is_tty = true;
+        disabled = true;
+        namespace = "🧮 VIEWS";
+        description = "🤖 Use the GPT LLM of your choice";
       };
     };
 
