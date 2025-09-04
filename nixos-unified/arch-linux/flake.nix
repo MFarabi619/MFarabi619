@@ -3,10 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     nix-doom-emacs-unstraightened = {
       url = "github:marienz/nix-doom-emacs-unstraightened";
       inputs.nixpkgs.follows = "";
@@ -30,6 +32,7 @@
     {
       homeConfigurations."mfarabi" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
+        # extraSpecialArgs = {inherit inputs; };
         modules = [
           inputs.nix-doom-emacs-unstraightened.homeModule
           ./home.nix

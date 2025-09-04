@@ -12,17 +12,18 @@
     ../modules/home/fonts.nix
     ../modules/home/manual.nix
     ../modules/home/editorconfig.nix
+
     ../modules/home/programs/aichat.nix
     ../modules/home/programs/doom
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix
-    ../modules/home/programs/command-not-found.nix
     ../modules/home/programs/chromium.nix
+    ../modules/home/programs/command-not-found.nix
     ../modules/home/programs/direnv.nix
     ../modules/home/programs/eza.nix
+    ../modules/home/programs/fastfetch
     ../modules/home/programs/fd.nix
     ../modules/home/programs/fzf.nix
-    ../modules/home/programs/fastfetch
     ../modules/home/programs/gcc.nix
     ../modules/home/programs/gh.nix
     ../modules/home/programs/git.nix
@@ -45,7 +46,9 @@
     ../modules/home/programs/nix-index.nix
     ../modules/home/programs/nix-search-tv.nix
     ../modules/home/programs/obs-studio.nix
+    # ../modules/home/programs/obsidian.nix
     ../modules/home/programs/opencode.nix
+    ../modules/home/programs/openstackclient.nix
     ../modules/home/programs/pandoc.nix
     ../modules/home/programs/ripgrep.nix
     ../modules/home/programs/ssh.nix
@@ -53,6 +56,7 @@
     ../modules/home/programs/television.nix
     ../modules/home/programs/tex-fmt.nix
     ../modules/home/programs/texlive.nix
+    ../modules/home/programs/tmux.nix
     ../modules/home/programs/uv.nix
     ../modules/home/programs/vim.nix
     ../modules/home/programs/vscode.nix
@@ -85,12 +89,11 @@
 
     packages = with pkgs; [
      ttyd
+     nix-ld
      # fw-fanctrl
      wl-screenrec
-     inputmodule-control
     ];
   };
 
-  programs.nh.flake = ./.;
   targets.genericLinux.enable = true;
 }
