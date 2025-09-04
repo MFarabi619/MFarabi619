@@ -1,0 +1,242 @@
+// pnpx likec4 start ./learning/fuel/counter-contract
+
+specification {
+    element actor {
+        style {
+            shape person
+        }
+    }
+
+    element brand
+
+    element context
+    element component
+    element container
+    element code
+}
+
+model {
+    developer = actor "Developer" {
+        style {
+            color secondary
+            multiple true
+            opacity 50%
+        }
+    }
+    context ecosystem {
+        title: "Fuel"
+        description: "Layer 3 EVM-based Rollup with UTXO model transactions."
+
+        icon: https://avatars.githubusercontent.com/u/55993183?s=200&v=4
+        link: https://github.com/fuellabs
+
+        style {
+            color: green
+            opacity: 50%
+        }
+
+        fuelvm = container "FuelVM" {
+            style {
+                color: green
+                opacity: 40%
+                shape: queue
+            }
+            transactions = component "Transactions" {
+                description: "UTXO Model"
+                style {
+                    color: green
+                    opacity: 40%
+                }
+                components = component "Components" {
+                    style {
+                        color: green
+                        opacity: 40%
+                    }
+
+                    inputs = component "Inputs" {
+                        coins = component "Coins" {
+                            description: '''
+                            Units for some asset users can spend as part of the transaction.
+                           |name|type|description|
+                           |-|-|
+                           ||| 
+                            '''
+                        }
+                        contracts = component "Contracts"
+                        messages = component "Messages"
+                    }
+                    scripts = component "Scripts" {
+
+                    }
+                    outputs = component "Outputs" {
+
+                    }
+                    witnesses = component "Witnesses" {
+
+                    }
+                }
+
+                categories = component "Categories" {
+                    style {
+                        color: green
+                        opacity: 40%
+                    }
+
+                    script = component "Script" {
+                        style {
+                            shape: queue
+                        }
+                    }
+                    create = component "Create" {
+                    }
+                    mint = component "Mint" {
+                        style {
+
+                        }
+                    }
+                    upgrade = component "Upgrade" {
+
+                    }
+                }
+            }
+
+            predicates = component {
+                title: "Predicates"
+                description: "Statelessly define spending conditions for native assets."
+                style {
+                    color: indigo
+                    shape: queue
+                }
+            }
+
+            contexts = component {
+                title: "Contexts"
+                description: "Isolated execution environments with memory ownership."
+
+
+                predicate-estimation = component {
+                    title: "Predicate Estimation"
+                }
+                predicate-verification = component {
+                    title: "Predicate Verification"
+                }
+                script-execution = component {
+                    title: "Script Execution"
+                }
+                Calls = component {
+                    title: "Script Execution"
+                }
+            }
+
+            contracts = component {
+                title: "Contracts"
+                description: "Programs with persistent storage & business logic."
+
+                style {
+                    color: green
+                    shape: storage
+                }
+            }
+            scripts = component {
+                title: "Scripts"
+                description: "Entry point for Fuel transactions."
+
+                style {
+                    color: sky
+                    shape: queue
+                }
+            }
+
+
+        }
+        packages = container {
+            title: "Packages"
+            style {
+                color: gray
+                opacity: 40%
+            }
+
+            forc = container {
+                title: "Forc (Fuel Orchestrator)"
+                description: "CLI Toolchain"
+            }
+
+            sdks = container {
+                title: "SDKs"
+                style {
+                    opacity: 40%
+                }
+
+                wallet-sdk = component {
+                    title: "Wallet"
+                    icon: tech:typescript
+                    link: https://github.com/mira-amm/mira-v1-ts
+                    style {
+                        color: slate
+                        shape: queue
+                    }
+                }
+                typescript-sdk = component {
+                    title: "TypeScript"
+                    icon: tech:typescript
+                    link: https://github.com/mira-amm/mira-v1-ts
+                    style {
+                        color: slate
+                        shape: queue
+                    }
+                }
+
+                rust-sdk = component {
+                    title: "Rust"
+                    icon: tech:rust
+                    link: https://github.com/mira-amm/mira-v1-rs
+                    style {
+                        color: amber
+                        shape: queue
+                    }
+                }
+            }
+        }
+        scripts -> contracts {
+            title: "calls input of"
+            technology: "HTTPS"
+            description: ""
+
+        }
+    }
+    developer -> ecosystem "Builds on"
+
+
+}
+
+views {
+    view index {
+        include *
+    }
+
+    view ecosystem of ecosystem {
+        title: "Fuel Ecosystem"
+        include *
+        include fuelvm.*
+        include packages.**
+    }
+    view fuelvm of ecosystem.fuelvm {
+        title: "FuelVM"
+        include *
+        include contexts.*
+    }
+    view contexts of ecosystem.fuelvm.contexts {
+        title: "Contexts"
+        include *
+    }
+    view transactions of ecosystem.fuelvm.transactions {
+        title: "Transactions"
+        include *
+        include components.*
+        include categories.*
+    }
+    view inputs of ecosystem.fuelvm.transactions.inputs {
+        title: "Inputs"
+        include *
+    }
+}
