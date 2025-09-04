@@ -93,6 +93,12 @@
       ttyd
       hydra
       nix-ld
+      argocd
+      argocd-autopilot
+      argocd-vault-plugin
+      kubectl
+      # microk8s
+      minikube
       # fw-fanctrl
       wl-screenrec
       framework-tool
