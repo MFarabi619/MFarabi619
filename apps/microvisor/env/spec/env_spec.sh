@@ -5,18 +5,18 @@ The status should be success
 The line 3 should be undefined
 End
 
-It "greater than or equal to version 10.10.0"
+It "greater than or equal to version 10.14.0"
 When run pnpm --version
 The status should be success
-The output should include '10.10'
+The output should include '10.14'
 End
 End
 
 Describe "🟢 Node.js should be:"
-It "greater than or equal to version 22.14.0"
+It "greater than or equal to version 22.17.0"
 When run which node
 The status should be success
-The output should include 'nodejs-22.14'
+The output should include 'nodejs-22.17'
 The output should end with '/bin/node'
 End
 End
@@ -37,7 +37,6 @@ Describe "🖥 The Environment Variables should be defined as:"
 Parameters
 # "DATABASE_URI" "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 "NX_VERBOSE_LOGGING" true
-"NEXT_PUBLIC_ENABLE_AUTOLOGIN" "true"
 End
 
 Example "${1}=$2"
@@ -52,11 +51,10 @@ Skip if "Running Inside Zellij Session" [ "$(echo $ZELLIJ)" = "0" ]
 Parameters
 "APP_DEV_SERVER_PORT" "3000"
 "ADMIN_DEV_SERVER_PORT" "8000"
-"UI_SERVER_PORT" "6006"
 "DOCS_DEV_SERVER_PORT" "4000"
-"ARCHITECTURE_DEV_SERVER_PORT" "5173"
 "GRAPH_DEV_SERVER_PORT" "4211"
 "NODE_MODULES_INSPECTOR_PORT" "7000"
+"ARCHITECTURE_DEV_SERVER_PORT" "5173"
 End
 
 Example "${1}=${2}"
