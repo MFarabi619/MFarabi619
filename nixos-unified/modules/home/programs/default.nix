@@ -49,6 +49,7 @@
     ./television.nix
     ./tex-fmt.nix
     ./texlive.nix
+    ./tiny.nix
     ./tmux.nix
     ./uv.nix
     ./vim.nix

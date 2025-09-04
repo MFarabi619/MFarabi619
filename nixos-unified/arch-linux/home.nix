@@ -56,6 +56,7 @@
     ../modules/home/programs/television.nix
     ../modules/home/programs/tex-fmt.nix
     ../modules/home/programs/texlive.nix
+    ../modules/home/programs/tiny.nix
     ../modules/home/programs/tmux.nix
     ../modules/home/programs/uv.nix
     ../modules/home/programs/vim.nix
