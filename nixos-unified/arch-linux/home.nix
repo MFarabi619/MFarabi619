@@ -7,7 +7,7 @@
 
 {
   imports = [
-    ../modules/home/accounts.nix
+    # ../modules/home/accounts.nix
     ../modules/home/home.nix
     ../modules/home/services
     ../modules/home/fonts.nix
@@ -91,11 +91,12 @@
 
     packages = with pkgs; [
       ttyd
+      hydra
       nix-ld
       # fw-fanctrl
       wl-screenrec
+      framework-tool
       nvtopPackages.amd
-      hydra
     ];
   };
 
