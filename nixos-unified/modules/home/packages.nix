@@ -99,6 +99,7 @@
         devenv
         cachix
         nix-du # store visualizer
+        nix-btm # nix process monitor
         nix-info
         nix-inspect
         nixpkgs-fmt
