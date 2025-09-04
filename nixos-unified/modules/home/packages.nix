@@ -57,6 +57,7 @@
         penpot-desktop
         # ============= 🧑‍💻🐞✨‍ ================
         crates-tui
+        cargo-seek
         nmap
         tgpt
         dysk # view disk usage
