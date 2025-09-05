@@ -99,4 +99,20 @@
     # settings = { };
   };
 
+  services.podman = {
+    enable = true;
+    enableTypeChecks = true;
+    autoUpdate.enable = true;
+    # networks = { };
+    # images = { };
+    # containers = { };
+    # volumes = { };
+    # builds = { };
+    # settings = {
+    #   containers = { };
+    #   mounts = [ ];
+    #   policy = { };
+    #   storage = { };
+    # };
+  };
 }
