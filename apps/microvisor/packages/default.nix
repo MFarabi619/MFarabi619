@@ -1,35 +1,28 @@
 { inputs, pkgs, lib, ... }:
 
-let
-  fuel-nix = inputs.fuel-nix.packages.${pkgs.system};
-in
+# let
+#   fuel-nix = inputs.fuel-nix.packages.${pkgs.system};
+# in
 {
   imports = [
-    ./shell.nix
     # ./ai.nix
   ];
 
   packages =
     with pkgs;
     [
+      trunk # rust web app server
+
+      pulumi-esc
       supabase-cli
 
-      trunk # rust web app server
-      nix-tree
-
-      pulumi
-      pulumi-esc
-      pulumiPackages.pulumi-nodejs
-      pulumiPackages.pulumi-command
-
-      fuel-nix.fuel-core
-      fuel-nix.forc
+      # fuel-nix.forc
+      # fuel-nix.fuel-core
     ]
     ++ lib.optionals (stdenv.isLinux) [
-      vips
       # netscanner
     ]
     ++ lib.optionals (stdenv.isDarwin && stdenv.isAarch64) [
-      cowsay
+      macmon
     ];
 }

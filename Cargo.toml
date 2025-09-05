@@ -1,11 +1,11 @@
+resolver = "2"
+
 [workspace]
 members = [
     "apps/web",
     "apps/api",
     "apps/readme",
 ]
-
-resolver = "2"
 
 [workspace.dependencies.loco-rs]
 version = "0.15"

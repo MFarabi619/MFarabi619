@@ -2,7 +2,7 @@
   imports = [
     ./javascript.nix
     ./nix.nix
-    ./python.nix
+    # ./python.nix
     # ./ruby.nix
     ./rust.nix
     ./shell.nix

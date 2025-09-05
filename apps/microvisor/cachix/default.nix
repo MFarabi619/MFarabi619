@@ -1,21 +1,21 @@
 {
   cachix = {
     enable = true;
-    pull = [
-      "fuellabs"
-      "pre-commit-hooks"
-      # "rad"
-      "oxalica"
-      "nixpkgs"
-      "nix-community"
-      "devenv"
-      "nix-darwin"
-      "mfarabi"
-      "charthouse-labs"
-      "cachix"
-      "emacs-ci"
-    ];
     push = "mfarabi";
+    pull = [
+      # "rad"
+      "cachix"
+      "oxalica"
+      "devenv"
+      "nixpkgs"
+      "mfarabi"
+      "emacs-ci"
+      "fuellabs"
+      "nix-darwin"
+      "nix-community"
+      "charthouse-labs"
+      "pre-commit-hooks"
+    ];
   };
 }
 

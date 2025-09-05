@@ -13,8 +13,8 @@ inputs:
     inputs:
       nixpkgs:
         follows: nixpkgs
-  fuel-nix:
-    url: github:fuellabs/fuel.nix
+  # fuel-nix:
+  #   url: github:fuellabs/fuel.nix
 
   # TODO: investigate usage & gotchas of venv
   # nixpkgs-python:
