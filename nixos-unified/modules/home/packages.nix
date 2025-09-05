@@ -67,15 +67,17 @@
         pik # local port tui
         sshs # ssh tui
         impala # wifi mgmt tui
-        wiki-tui
         gpg-tui
         bluetui
         termscp
         tcpdump
         cointop # crypto price feed
+        wiki-tui
         bandwhich
         cargo-seek
 
+
+        keymapviz # visualize keyboard layout in ascii
         # lazyhetzner
         caligula # disk imaging
 
