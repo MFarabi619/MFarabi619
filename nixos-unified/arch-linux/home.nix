@@ -93,4 +93,10 @@
   };
 
   targets.genericLinux.enable = true;
+  programs.docker-cli = {
+    enable = true;
+    # configDir = "";
+    # settings = { };
+  };
+
 }
