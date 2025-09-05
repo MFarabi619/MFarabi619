@@ -298,7 +298,6 @@
 (after! pdf-tools
   (setq pdf-view-continuous t))
 
-;; (use-package! nov-xwidget
 (after! nov-xwidget
   :demand t
   :after nov
@@ -312,7 +311,6 @@
         centaur-tabs-enable-key-bindings t
         centaur-tabs-show-navigation-buttons t))
 
-;; (use-package! fretboard :defer nil)
 (after! fretboard
   (setq fretboard-fret-count 15)
   (add-hook 'fretboard-mode-hook #'evil-emacs-state))

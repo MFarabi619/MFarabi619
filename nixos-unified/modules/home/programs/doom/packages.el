@@ -58,7 +58,6 @@
 ;;            :files ("*.el" "filters" "preprocessors")))
 
 ;; (package! org-gcal)
-(package! fretboard)
 ;; (package! consult-gh)
 ;; (package! magit-todos)
 ;; (package! gptel :recipe (:nonrecursive t))

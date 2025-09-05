@@ -36,6 +36,7 @@
         key-quiz
         nyan-mode
         fireplace
+        fretboard
         speed-type
         chordpro-mode
         org-super-agenda
