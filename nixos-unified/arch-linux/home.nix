@@ -74,23 +74,9 @@
     stateVersion = "25.05";
     homeDirectory = "/home/mfarabi";
 
-    # Home Manager can also manage your environment variables through
-    # 'home.sessionVariables'. These will be explicitly sourced when using a
-    # shell provided by Home Manager. If you don't want to manage your shell
-    # through Home Manager then you have to manually source 'hm-session-vars.sh'
-    # located at either
-    #
-    #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-    # or
-    #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
-    # or
-    #  /etc/profiles/per-user/mfarabi/etc/profile.d/hm-session-vars.sh
-    # sessionVariables = {
-    # EDITOR = "emacs";
-    # };
-
     packages = with pkgs; [
       ttyd
+      arion
       hydra
       nix-ld
       argocd
