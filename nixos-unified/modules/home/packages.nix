@@ -78,6 +78,8 @@
 
 
         keymapviz # visualize keyboard layout in ascii
+        keymap-drawer # visualize keyboard layout
+
         # lazyhetzner
         caligula # disk imaging
 
