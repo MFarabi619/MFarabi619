@@ -61,8 +61,6 @@
         mermaid-cli # mermaid diagram support
         penpot-desktop
         # ============= 🧑‍💻🐞✨‍ ================
-        crates-tui
-        cargo-seek
         nmap
         tgpt
         dysk # view disk usage
@@ -76,12 +74,13 @@
         tcpdump
         cointop # crypto price feed
         bandwhich
+        cargo-seek
 
         # lazyhetzner
         caligula # disk imaging
 
+        gama-tui
         codeberg-cli
-        # gama-tui
 
         vi-mongo
 
@@ -166,6 +165,7 @@
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
         blink
+        crates-tui
         arduino-ide
         webcord-vencord
       ]
