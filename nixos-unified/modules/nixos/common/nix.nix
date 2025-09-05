@@ -38,12 +38,14 @@ distributedBuilds = true;
         "https://devenv.cachix.org"
 
         "https://nix-darwin.cachix.org"
+        "https://nix-on-droid.cachix.org"
         "https://nixos-raspberrypi.cachix.org"
 
-        "https://charthouse-labs.cachix.org"
         "https://mfarabi.cachix.org"
         "https://fuellabs.cachix.org"
+        "https://charthouse-labs.cachix.org"
 
+        "https://emacsng.cachix.org"
         "https://emacs-ci.cachix.org"
         "https://nixvim.cachix.org"
 
@@ -82,7 +84,9 @@ distributedBuilds = true;
         "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
         "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="
         "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
+        "emacsng.cachix.org-1:i7wOr4YpdRpWWtShI8bT6V7lOTnPeI7Ho6HaZegFWMI="
         "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
+        "nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU="
         "nixvim.cachix.org-1:8xrm/43sWNaE3sqFYil49+3wO5LqCbS4FHGhMCuPNNA="
         "fuellabs.cachix.org-1:3gOmll82VDbT7EggylzOVJ6dr0jgPVU/KMN6+Kf8qx8="
         "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
