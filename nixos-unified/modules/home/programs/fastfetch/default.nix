@@ -2,127 +2,258 @@
   programs.fastfetch = {
     enable = true;
     settings = {
-      display = {
-        color = {
-          keys = "35";
-          output = "95";
-        };
-        separator = " ➜  ";
-      };
-
       logo = {
         source = ./nix-mfarabi.png;
         type = "kitty-direct";
-        height = 20;
-        width = 25;
+        height = 15;
+        width = 38;
         padding = {
-          top = 2;
+          top = 3;
           left = 2;
         };
       };
 
+      display = {
+        color = {
+          keys = "red";
+        };
+        separator = "";
+        constants = [
+          "──────────────────────────────────────────────"
+          "\u001b[47D"
+          "\u001b[47C"
+          "\u001b[46C"
+        ];
+        bar = {
+          width = 6;
+          charTotal = "-";
+          charElapsed = "=";
+        };
+        percent = {
+          type = 3;
+        };
+        brightColor = true;
+      };
+
       modules = [
-        "break"
-        {
-          type = "os";
-          key = "NixOS";
-          keyColor = "31";
-        }
         {
           type = "kernel";
-          key = " ├  ";
-          keyColor = "31";
+          key = "┌───────────────┬─{$1}┐\u001b[46D";
+          format = "\u001b[1m{#keys}  {1} {2} ";
+          brightColor = true;
         }
+        # Hardware
         {
-          type = "packages";
-          key = " ├ 󰏖 ";
-          keyColor = "31";
+          type = "custom";
+          key = "│{#cyan}┌──────────────┬{$1}┐{#keys}│\u001b[37D";
+          format = "{#bright_cyan} HARDWARE ";
         }
-        {
-          type = "shell";
-          key = " └  ";
-          keyColor = "31";
-        }
-        "break"
-        {
-          type = "wm";
-          key = "WM   ";
-          keyColor = "32";
-        }
-        {
-          type = "wmtheme";
-          key = " ├ 󰉼 ";
-          keyColor = "32";
-        }
-        {
-          type = "icons";
-          key = " ├ 󰀻 ";
-          keyColor = "32";
-        }
-        {
-          type = "cursor";
-          key = " ├  ";
-          keyColor = "32";
-        }
-        {
-          type = "terminal";
-          key = " ├  ";
-          keyColor = "32";
-        }
-        {
-          type = "terminalfont";
-          key = " └  ";
-          keyColor = "32";
-        }
-        "break"
         {
           type = "host";
-          format = "{5} {1} Type {2}";
-          key = "PC   ";
-          keyColor = "33";
+          key = "│{#cyan}│ 󰇺  Chassis   │{$4}│{#keys}│{$2}";
         }
         {
           type = "cpu";
-          format = "{1} ({3}) @ {7} GHz";
-          key = " ├  ";
-          keyColor = "33";
+          key = "│{#cyan}│ {icon}  CPU       │{$4}│{#keys}│{$2}";
+          showPeCoreCount = true;
         }
         {
           type = "gpu";
-          format = "{1} {2} @ {12} GHz";
-          key = " ├ 󰢮 ";
-          keyColor = "33";
+          key = "│{#cyan}│ {icon}  GPU       │{$4}│{#keys}│{$2}";
         }
         {
           type = "memory";
-          key = " ├  ";
-          keyColor = "33";
+          key = "│{#cyan}│ {icon}  RAM       │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "swap";
+          key = "│{#cyan}│ {icon}  Swap      │{$4}│{#keys}│{$2}";
         }
         {
           type = "disk";
-          key = " ├ 󰋊 ";
-          keyColor = "33";
+          key = "│{#cyan}│ {icon}  Disk      │{$4}│{#keys}│{$2}";
+          # format = "{size-used} \/ {size-total} ({size-percentage}) - {filesystem}";
         }
         {
-          type = "monitor";
-          key = " ├  ";
-          keyColor = "33";
+          type = "battery";
+          key = "│{#cyan}│ {icon}  Battery   │{$4}│{#keys}│{$2}";
         }
         {
-          type = "player";
-          key = " ├ 󰥠 ";
-          keyColor = "33";
+          type = "custom";
+          key = "│{#cyan}└──────────────┴{$1}┘{#keys}│";
+          format = "";
+        }
+        # // Desktop
+        {
+          type = "custom";
+          key = "│{#green}┌──────────────┬{$1}┐{#keys}│\u001b[37D";
+          format = "{#bright_green} DESKTOP ";
         }
         {
-          type = "media";
-          key = " └ 󰝚 ";
-          keyColor = "33";
+          type = "de";
+          key = "│{#green}│ {icon}  Desktop   │{$4}│{#keys}│{$2}";
         }
-        "break"
+        {
+          type = "wm";
+          key = "│{#green}│ {icon}  Session   │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "display";
+          key = "│{#green}│ {icon}  Display   │{$4}│{#keys}│{$2}";
+          compactType = "original-with-refresh-rate";
+        }
+        {
+          type = "gpu";
+          key = "│{#green}│ {icon}  G-Driver  │{$4}│{#keys}│{$2}";
+          format = "{driver}";
+        }
+        {
+          type = "custom";
+          key = "│{#green}└──────────────┴{$1}┘{#keys}│";
+          format = "";
+        }
+        # // Terminal
+        {
+          type = "custom";
+          key = "│{#yellow}┌──────────────┬{$1}┐{#keys}│\u001b[37D";
+          format = "{#bright_yellow} TERMINAL ";
+        }
+        {
+          type = "shell";
+          key = "│{#yellow}│ {icon}  Shell     │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "terminal";
+          key = "│{#yellow}│ {icon}  Emulator  │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "terminalfont";
+          key = "│{#yellow}│ {icon}  Font      │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "terminaltheme";
+          key = "│{#yellow}│ {icon}  Colors    │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "packages";
+          key = "│{#yellow}│ 󰏗  Packages  │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "custom";
+          key = "│{#yellow}└──────────────┴{$1}┘{#keys}│";
+          format = "";
+        }
+
+        # // Development
+        {
+          type = "custom";
+          key = "│{#1;38;5;208}┌──────────────┬{$1}┐{#keys}│\u001b[39D";
+          format = "{#1;38;5;208} DEVELOPMENT ";
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = "│{#1;38;5;208}│ {icon}  Rust      │{$4}│{#keys}│{$2}";
+          text = "rustc --version | cut -d' ' -f2";
+          format = "rustc {}";
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = "│{#1;38;5;208}│ {icon}  Clang     │{$4}│{#keys}│{$2}";
+          text = "clang --version | head -1 | awk '{print $NF}'";
+          format = "clang {}";
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = "│{#1;38;5;208}│ {icon}  NodeJS    │{$4}│{#keys}│{$2}";
+          text = "node --version";
+          format = "node {~1}";
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = "│{#1;38;5;208}│ {icon}  Go        │{$4}│{#keys}│{$2}";
+          text = "go version | cut -d' ' -f3";
+          format = "go {~2}";
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = "│{#1;38;5;208}│ {icon}  Zig       │{$4}│{#keys}│{$2}";
+          text = "zig version";
+          format = "zig {}";
+        }
+        {
+          type = "editor";
+          key = "│{#1;38;5;208}│ {icon}  Editor    │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "command";
+          keyIcon = "󰊢";
+          key = "│{#1;38;5;208}│ {icon}  Git       │{$4}│{#keys}│{$2}";
+          text = "git version";
+          format = "git {~12}";
+        }
+        {
+          type = "font";
+          key = "│{#1;38;5;208}│ {icon}  Interface │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "custom";
+          key = "│{#1;38;5;208}└──────────────┴{$1}┘{#keys}│";
+          format = "";
+        }
+
+        # // Uptime
+        {
+          type = "custom";
+          key = "│{#magenta}┌──────────────┬{$1}┐{#keys}│\u001b[36D";
+          format = "{#bright_magenta} GENERAL ";
+        }
         {
           type = "uptime";
-          key = "   Uptime   ";
+          key = "│{#magenta}│ {icon}  Uptime    │{$4}│{#keys}│{$2}";
         }
+        {
+          type = "users";
+          myselfOnly = true;
+          keyIcon = "";
+          key = "│{#magenta}│ {icon}  Login     │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "datetime";
+          key = "│{#magenta}│ {icon}  Fetched   │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "locale";
+          key = "│{#magenta}│ {icon}  Locale    │{$4}│{#keys}│{$2}";
+        }
+        {
+          type = "disk";
+          keyIcon = "";
+          key = "│{#magenta}│ {icon}  Age       │{$4}│{#keys}│{$2}";
+          folders = "/"; # // On macOS, "/System/Volumes/VM" works for me;
+          format = "{create-time:10} [{days} days]";
+        }
+        {
+          type = "custom";
+          key = "│{#magenta}└──────────────┴{$1}┘{#keys}│";
+          format = "";
+        }
+        {
+          type = "custom";
+          key = "└─────────────────{$1}┘";
+          format = "";
+        }
+        {
+          type = "colors";
+          paddingLeft = 2;
+          symbol = "star";
+        }
+        # // End
+        "break"
       ];
     };
   };
