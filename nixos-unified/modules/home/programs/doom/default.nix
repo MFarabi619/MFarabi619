@@ -9,6 +9,7 @@
     doomDir = ./.;
     extraPackages =
       epkgs: with epkgs; [
+        pg
         nov
         jira
         verb
