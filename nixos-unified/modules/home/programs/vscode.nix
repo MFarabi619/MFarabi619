@@ -21,27 +21,28 @@
         ];
 
         extensions = with pkgs.vscode-extensions; [
-          ms-vsliveshare.vsliveshare
-          timonwong.shellcheck
-          bradlc.vscode-tailwindcss
-          tamasfe.even-better-toml
-          github.vscode-github-actions
-          graphql.vscode-graphql
-          graphql.vscode-graphql-syntax
-          unifiedjs.vscode-mdx
+          vue.volar
+          antfu.slidev
           bbenoist.nix
+          vscodevim.vim
           jnoortheen.nix-ide
+          unifiedjs.vscode-mdx
+          timonwong.shellcheck
+          esbenp.prettier-vscode
+          graphql.vscode-graphql
+          tamasfe.even-better-toml
+          bierner.markdown-mermaid
+          bradlc.vscode-tailwindcss
+          ms-vsliveshare.vsliveshare
+          tailscale.vscode-tailscale
+          github.vscode-github-actions
+          graphql.vscode-graphql-syntax
+          platformio.platformio-vscode-ide
+          vue.vscode-typescript-vue-plugin
           christian-kohler.npm-intellisense
           christian-kohler.path-intellisense
-          esbenp.prettier-vscode
-          bierner.markdown-mermaid
           ms-vscode-remote.vscode-remote-extensionpack
-          antfu.slidev
-          vscodevim.vim
-          vue.volar
-          vue.vscode-typescript-vue-plugin
           ms-kubernetes-tools.vscode-kubernetes-tools
-          platformio.platformio-vscode-ide
 
           # solidity
           # supabase

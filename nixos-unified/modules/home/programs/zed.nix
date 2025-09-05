@@ -1,10 +1,10 @@
 {
   programs.zed-editor = {
     enable = true;
-    installRemoteServer = true;
     themes = {};
     userKeymaps = [];
     userTasks = [];
+    installRemoteServer = true;
     userSettings = {
       vim_mode = true;
       features = {
@@ -33,6 +33,7 @@
         dock = "right";
       };
     };
+
     extensions = [
       "html"
       "toml"
