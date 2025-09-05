@@ -5,7 +5,6 @@ let
 in
 {
   imports = [
-    ./db.nix
     ./shell.nix
     # ./ai.nix
   ];
@@ -13,6 +12,8 @@ in
   packages =
     with pkgs;
     [
+      supabase-cli
+
       trunk # rust web app server
       nix-tree
 
