@@ -19,6 +19,7 @@
         wttrin
         devdocs
         keycast
+        leetcode
         treesit-grammars.with-all-grammars
         # ================
         abc-mode
