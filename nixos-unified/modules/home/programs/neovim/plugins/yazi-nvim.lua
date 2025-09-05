@@ -9,11 +9,6 @@ return {
   },
   keys = {
     {
-      "<leader>o/",
-      "<cmd>Yazi<cr>",
-      desc = "Open yazi at the current file",
-    },
-    {
       "<leader>cw",
       "<cmd>Yazi cwd<cr>",
       desc = "Open the file manager in nvim's working directory",
