@@ -15,6 +15,13 @@
       enableZshIntegration = true;
     };
 
+    file = {
+      "receipt.json" = {
+        enable = false;
+        source = ./receipt.json;
+      };
+    };
+
     sessionVariables = lib.mkIf pkgs.stdenv.isLinux {
       XDG_BACKEND = "wayland";
       XDG_RUNTIME_DIR = "/run/user/$(id -u)";
@@ -48,4 +55,5 @@
       "/usr/local/bin"
     ];
   };
+
 }
