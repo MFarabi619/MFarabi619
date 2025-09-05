@@ -43,6 +43,7 @@
         gnutls # for TLS connectivity
         # =============
         # kicad
+        # logseq
         freecad
         openscad
         openscad-lsp
@@ -76,6 +77,7 @@
         bandwhich
         cargo-seek
 
+        # leetcode-tui
 
         keymapviz # visualize keyboard layout in ascii
         keymap-drawer # visualize keyboard layout
