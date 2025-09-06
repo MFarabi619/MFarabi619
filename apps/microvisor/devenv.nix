@@ -10,6 +10,7 @@
     ./containers.nix
     ./devcontainer.nix
     ./env
+    ./git-hooks.nix
     ./languages
     ./packages
     ./processes
