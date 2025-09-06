@@ -8,6 +8,7 @@
   imports = [
     ./cachix
     ./containers.nix
+    ./devcontainer.nix
     ./env
     ./languages
     ./packages
