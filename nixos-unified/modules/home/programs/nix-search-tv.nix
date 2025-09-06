@@ -6,8 +6,8 @@
       indexes = [
         "nur"
         "nixos"
-        "nixpkgs"
         "darwin"
+        "nixpkgs"
         "home-manager"
         # "nixos-wsl"
         # "nix-on-droid"

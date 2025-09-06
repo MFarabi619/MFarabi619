@@ -58,6 +58,7 @@ in
     # All users can add Nix caches.
     nix = {
       settings = {
+        max-jobs = "auto";
         trusted-users = [
           "root"
         ]
@@ -66,7 +67,6 @@ in
           "nix-command"
           "flakes"
         ];
-        max-jobs = "auto";
         substituters = [
           "https://cache.nixos.org"
           "https://hyprland.cachix.org"

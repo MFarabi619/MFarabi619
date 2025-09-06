@@ -3,10 +3,10 @@
     restartAfterFreeze = true;
     # restartAfterPowerFailure = true;
     sleep = {
-      allowSleepByPowerButton = true;
-      computer = "never";
       display = "never";
+      computer = "never";
       # harddisk = "never";
+      allowSleepByPowerButton = true;
     };
   };
 }

@@ -50,10 +50,9 @@
     };
 
     sessionPath = lib.mkIf pkgs.stdenv.isDarwin [
+      "/usr/local/bin"
       "/etc/profiles/per-user/$USER/bin"
       "/nix/var/nix/profiles/system/sw/bin"
-      "/usr/local/bin"
     ];
   };
-
 }

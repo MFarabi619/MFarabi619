@@ -9,9 +9,9 @@
       enable = true;
       defaultEditor = true;
       # vimAlias = true;
+      withRuby = true;
       withNodeJs = true;
       withPython3 = true;
-      withRuby = true;
       plugins = with pkgs.vimPlugins; [
         LazyVim
         qmk-nvim
@@ -65,9 +65,9 @@
       ".config/nvim/stylua.toml" = {
         enable = true;
         text = ''
-          indent_type = "Spaces"
           indent_width = 2
           column_width = 120
+          indent_type = "Spaces"
         '';
       };
     };
