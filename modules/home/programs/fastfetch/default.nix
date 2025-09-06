@@ -1,0 +1,251 @@
+{
+  programs.fastfetch = {
+    enable = true;
+    settings = {
+      logo = {
+        width = 38;
+        height = 15;
+        type = "kitty-direct";
+        source = ./nix-mfarabi.png;
+        padding = {
+          top = 3;
+          left = 2;
+        };
+      };
+
+      display = {
+        separator = "";
+        percent.type = 3;
+        color.keys = "red";
+        brightColor = true;
+
+        constants = [
+          ''──────────────────────────────────────────────''
+          ''\u001b[47D''
+          ''\u001b[47C''
+          ''\u001b[46C''
+        ];
+
+        bar = {
+          width = 6;
+          charTotal = "-";
+          char.elapsed = "=";
+        };
+      };
+
+      modules = [
+        {
+          type = "kernel";
+          key = ''┌───────────────┬─{$1}┐\u001b[46D'';
+          format = ''\u001b[1m{#keys}  {1} {2} '';
+          brightColor = true;
+        }
+        {
+          type = "custom";
+          key = ''│{#cyan}┌──────────────┬{$1}┐{#keys}│\u001b[37D'';
+          format = "{#bright_cyan} HARDWARE ";
+        }
+        {
+          type = "host";
+          key = ''│{#cyan}│ 󰇺  Chassis   │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "cpu";
+          key = ''│{#cyan}│ {icon}  CPU       │{$4}│{#keys}│{$2}'';
+          showPeCoreCount = true;
+        }
+        {
+          type = "gpu";
+          key = ''│{#cyan}│ {icon}  GPU       │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "memory";
+          key = ''│{#cyan}│ {icon}  RAM       │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "swap";
+          key = ''│{#cyan}│ {icon}  Swap      │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "disk";
+          key = ''│{#cyan}│ {icon}  Disk      │{$4}│{#keys}│{$2}'';
+          format = ''{size-used} \/ {size-total} ({size-percentage}) - {filesystem}'';
+        }
+        {
+          type = "battery";
+          key = ''│{#cyan}│ {icon}  Battery   │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "custom";
+          key = ''│{#cyan}└──────────────┴{$1}┘{#keys}│'';
+          format = "";
+        }
+        {
+          type = "custom";
+          key = ''│{#green}┌──────────────┬{$1}┐{#keys}│\u001b[37D'';
+          format = "{#bright_green} DESKTOP ";
+        }
+        {
+          type = "de";
+          key = ''│{#green}│ {icon}  Desktop   │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "wm";
+          key = ''│{#green}│ {icon}  Session   │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "display";
+          key = ''│{#green}│ {icon}  Display   │{$4}│{#keys}│{$2}'';
+          compactType = "original-with-refresh-rate";
+        }
+        {
+          type = "gpu";
+          key = ''│{#green}│ {icon}  G-Driver  │{$4}│{#keys}│{$2}'';
+          format = ''{driver}'';
+        }
+        {
+          type = "custom";
+          key = ''│{#green}└──────────────┴{$1}┘{#keys}│'';
+          format = "";
+        }
+        {
+          type = "custom";
+          key = ''│{#yellow}┌──────────────┬{$1}┐{#keys}│\u001b[37D'';
+          format = "{#bright_yellow} TERMINAL ";
+        }
+        {
+          type = "shell";
+          key = ''│{#yellow}│ {icon}  Shell     │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "terminal";
+          key = ''│{#yellow}│ {icon}  Emulator  │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "terminalfont";
+          key = ''│{#yellow}│ {icon}  Font      │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "terminaltheme";
+          key = ''│{#yellow}│ {icon}  Colors    │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "packages";
+          key = ''│{#yellow}│ 󰏗  Packages  │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "custom";
+          key = ''│{#yellow}└──────────────┴{$1}┘{#keys}│'';
+          format = "";
+        }
+
+        {
+          type = "custom";
+          key = ''│{#1;38;5;208}┌──────────────┬{$1}┐{#keys}│\u001b[39D'';
+          format = "{#1;38;5;208} DEVELOPMENT ";
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = ''│{#1;38;5;208}│ {icon}  Rust      │{$4}│{#keys}│{$2}'';
+          text = "rustc --version | cut -d' ' -f2";
+          format = ''rustc {}'';
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = ''│{#1;38;5;208}│ {icon}  Clang     │{$4}│{#keys}│{$2}'';
+          text = "clang --version | head -1 | awk '{print $NF}'";
+          format = ''clang {}'';
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = ''│{#1;38;5;208}│ {icon}  NodeJS    │{$4}│{#keys}│{$2}'';
+          text = "node --version";
+          format = ''node {~1}'';
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = ''│{#1;38;5;208}│ {icon}  Go        │{$4}│{#keys}│{$2}'';
+          text = "go version | cut -d' ' -f3";
+          format = ''go {~2}'';
+        }
+        {
+          type = "command";
+          keyIcon = "";
+          key = ''│{#1;38;5;208}│ {icon}  Zig       │{$4}│{#keys}│{$2}'';
+          text = "zig version";
+          format = ''zig {}'';
+        }
+        {
+          type = "editor";
+          key = ''│{#1;38;5;208}│ {icon}  Editor    │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "command";
+          keyIcon = "󰊢";
+          key = ''│{#1;38;5;208}│ {icon}  Git       │{$4}│{#keys}│{$2}'';
+          text = "git version";
+          format = ''git {~12}'';
+        }
+        {
+          type = "font";
+          key = ''│{#1;38;5;208}│ {icon}  Interface │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "custom";
+          key = ''│{#1;38;5;208}└──────────────┴{$1}┘{#keys}│'';
+          format = "";
+        }           
+        {
+          type = "custom";
+          key = ''│{#magenta}┌──────────────┬{$1}┐{#keys}│\u001b[36D'';
+          format = "{#bright_magenta} GENERAL ";
+        }
+        {
+          type = "uptime";
+          key = ''│{#magenta}│ {icon}  Uptime    │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "users";
+          myselfOnly = true;
+          keyIcon = "";
+          key = ''│{#magenta}│ {icon}  Login     │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "datetime";
+          key = ''│{#magenta}│ {icon}  Fetched   │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "locale";
+          key = ''│{#magenta}│ {icon}  Locale    │{$4}│{#keys}│{$2}'';
+        }
+        {
+          type = "disk";
+          keyIcon = "";
+          key = ''│{#magenta}│ {icon}  Age       │{$4}│{#keys}│{$2}'';
+          folders = "/";
+          format = "{create-time:10} [{days} days]";
+        }
+        {
+          type = "custom";
+          key = ''│{#magenta}└──────────────┴{$1}┘{#keys}│'';
+          format = "";
+        }
+        {
+          type = "custom";
+          key = ''└─────────────────{$1}┘'';
+          format = "";
+        }
+        {
+          type = "colors";
+          paddingLeft = 2;
+          symbol = "star";
+        }
+        "break"
+      ];
+    };
+  };
+}

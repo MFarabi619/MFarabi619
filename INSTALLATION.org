@@ -428,7 +428,7 @@ Remove-WindowsPackage -Online -FeatureName ""
     #+end_src
 
     #+begin_src bash
-    sudo cp ~/MFarabi619/nixos-unified/configurations/nixos/nixos-wsl/initial-boot.nix /etc/nixos/configuration.nix
+    sudo cp ~/MFarabi619/configurations/nixos/nixos-wsl/initial-boot.nix /etc/nixos/configuration.nix
     #+end_src
 
     [[nix-community.github.io/NixOS-WSL/how-to/change-username]]
@@ -453,7 +453,7 @@ Remove-WindowsPackage -Online -FeatureName ""
 
     #+begin_src bash
     git clone https://github.com/MFarabi619/MFarabi619;
-    cd MFarabi619/nixos-unified;
+    cd MFarabi619;
     #+end_src
 
     #+begin_src bash
