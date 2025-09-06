@@ -3,7 +3,11 @@
   ...
 }:
 {
-  name = "🧮 microvisor 🧮";
+  name = "🧮 Microvisor 🧮";
+
+  infoSections = {
+    name = [ "Mumtahin Farabi" ];
+  };
 
   imports = [
     ./cachix
@@ -17,11 +21,6 @@
     ./scripts
     ./services
     ./tasks
-  ];
-
-  packages = with pkgs; [
-    eza
-    bat
   ];
 
   # NOTE: uses native nixos test syntax | nixos.org/manual/nixos/stable/#sec-writing-nixos-tests

@@ -1,10 +1,1 @@
-{
-  pkgs,
-  lib,
-  config,
-  inputs,
-  ...
-}:
-
-{
-}
+{}
