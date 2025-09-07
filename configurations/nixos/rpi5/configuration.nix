@@ -53,8 +53,8 @@
       isNormalUser = true;
       extraGroups = [
         "wheel"
-        "networkmanager"
         "video"
+        "networkmanager"
       ];
       shell = pkgs.zsh;
       # allow graphical user to login without password
