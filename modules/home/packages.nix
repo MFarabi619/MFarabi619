@@ -3,6 +3,9 @@
 # uvx exosphere
 # cargo-selector
 # systemd-manager mtui
+# tewi
+# ssh-para
+# terminaltexteffects
 # nemu
 # doxx
 # hwinfo-tui
@@ -23,6 +26,7 @@
 # goto
 # sshclick
 # hostctl
+# lssh
 # neoss
 # nap
 # pinix
@@ -62,6 +66,7 @@
         mermaid-cli # mermaid diagram support
         penpot-desktop
         # ============= 🧑‍💻🐞✨‍ ================
+        # tsui # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         nmap
         tgpt
         dysk # view disk usage

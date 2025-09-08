@@ -83,6 +83,8 @@
       kubectl
       # microk8s
       minikube
+      tailscale
+      tscli
       # fw-fanctrl
       wl-screenrec
       framework-tool
