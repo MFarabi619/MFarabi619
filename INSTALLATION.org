@@ -476,3 +476,9 @@ nixos-rebuild switch --flake .
 ** Android NixOS
 
 [[https://github.com/nix-community/nix-on-droid?tab=readme-ov-file][GitHub - nix-community/nix-on-droid]]
+
+** Hetzner
+
+#+begin_src bash
+  curl https://raw.githubusercontent.com/elitak/nixos-infect/master/nixos-infect | NIX_CHANNEL=nixos-25.05 bash -x
+#+end_src
