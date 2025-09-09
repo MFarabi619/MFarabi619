@@ -21,6 +21,7 @@
         keycast
         kdl-mode
         leetcode
+        all-the-icons
         treesit-grammars.with-all-grammars
         # ================
         abc-mode
