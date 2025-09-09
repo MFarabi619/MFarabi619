@@ -2,7 +2,7 @@
 
 let
   firmwarePartition = lib.recursiveUpdate {
-    # label = "FIRMWARE";
+    label = "FIRMWARE";
     priority = 1;
     type = "0700"; # Microsoft basic data
     size = "1024M";
@@ -23,7 +23,7 @@ let
   };
 
   espPartition = lib.recursiveUpdate {
-    # label = "ESP";
+    label = "ESP";
     type = "EF00"; # EFI System Partition (ESP)
     size = "1024M";
     attributes = [
@@ -34,11 +34,11 @@ let
       type = "filesystem";
       # mountpoint = "/boot";
       mountOptions = [
-        "noatime"
         "noauto"
+        "noatime"
+        "umask=0077"
         "x-systemd.automount"
         "x-systemd.idle-timeout=1min"
-        "umask=0077"
       ];
     };
   };

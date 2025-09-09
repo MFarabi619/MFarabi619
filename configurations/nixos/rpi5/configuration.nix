@@ -17,7 +17,7 @@
     ../../../modules/nixos/systemd.nix
     ../../../modules/nixos/time.nix
     ../../../modules/nixos/virtualisation.nix
-    ./hardware-configuration.nix
+    ./hardware-configuration-new.nix
     ./services.nix
     ./systemd.nix
   ];
@@ -29,9 +29,9 @@
 
   nix.settings = {
     trusted-users = [
-      "mfarabi"
       "root"
       "nixos" # allow nix-copy to live system
+      "mfarabi"
     ];
   };
 
@@ -41,10 +41,10 @@
   };
 
   networking = {
+    hostName = "rpi5";
     # Use networkd instead of the pile of shell scripts
     # NOTE: SK: is it safe to combine with NetworkManager on desktops?
     useNetworkd = true;
-    hostName = "rpi5";
   };
 
   users.users = {
@@ -59,11 +59,11 @@
       shell = pkgs.zsh;
       # allow graphical user to login without password
       initialHashedPassword = "";
-      openssh = {
-        authorizedKeys.keys = [
-          # YOUR SSH PUB KEY HERE
-        ];
-      };
+      # openssh = {
+      #   authorizedKeys.keys = [
+      #     # YOUR SSH PUB KEY HERE
+      #   ];
+      # };
     };
   };
 }

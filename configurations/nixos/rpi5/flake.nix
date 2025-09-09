@@ -58,7 +58,7 @@
       nixosConfigurations."rpi5" = nixos-raspberrypi.lib.nixosSystem {
         specialArgs = inputs;
         modules = [
-          lix-module.nixosModules.default
+          # lix-module.nixosModules.default
           stylix.nixosModules.stylix
           ./configuration.nix
           {

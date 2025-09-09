@@ -14,8 +14,8 @@ let
       type = "filesystem";
       # mountpoint = "/boot/firmware";
       mountOptions = [
-        "noatime"
         "noauto"
+        "noatime"
         "x-systemd.automount"
         "x-systemd.idle-timeout=1min"
       ];
@@ -34,11 +34,11 @@ let
       type = "filesystem";
       # mountpoint = "/boot";
       mountOptions = [
-        "noatime"
         "noauto"
+        "noatime"
+        "umask=0077"
         "x-systemd.automount"
         "x-systemd.idle-timeout=1min"
-        "umask=0077"
       ];
     };
   };
@@ -60,7 +60,8 @@ in
   disko.devices.disk.main = {
     type = "disk";
     # device = "/dev/sda";
-    device = "/dev/mmcblk0";
+    device = "/dev/nvme0n1";
+    # device = "/dev/mmcblk0";
 
     content = {
       type = "gpt";
