@@ -1,4 +1,3 @@
-{ lib, pkgs, ... }:
 {
   imports = [
     ./activitywatch.nix
@@ -9,5 +8,6 @@
     ./skhd.nix
     ./ollama.nix
     ./glance.nix
+    ./trayscale.nix
   ];
 }
