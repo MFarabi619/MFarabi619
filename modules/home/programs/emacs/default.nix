@@ -19,6 +19,7 @@
         wttrin
         devdocs
         keycast
+        kdl-mode
         leetcode
         treesit-grammars.with-all-grammars
         # ================
