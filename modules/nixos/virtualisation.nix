@@ -1,18 +1,28 @@
 {
   virtualisation = {
+    lxc.enable = false;
+    lxd.enable = false;
+    # tpm = {
+    #   enable = false;
+    # };
     # useSecureBoot = false;
     # useEFIBoot = false;
     # useDefaultFileSystems = true;
     # graphics = true;
-    # tpm = {
-    #   enable = false;
-    # };
     libvirtd = {
       enable = true;
+      startDelay = 0;
+      sshProxy = true;
+      onBoot = "ignore";
+      parallelShutdown = 0;
+      shutdownTimeout = 300;
+      allowedBridges = [
+       "virbr0"
+      ];
       qemu = {
-        ovmf = {
-          enable = true;
-        };
+        runAsRoot = true;
+        ovmf.enable = true;
+        swtpm.enable = true;
       };
     };
     docker = {
