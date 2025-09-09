@@ -475,11 +475,43 @@ curl -sSf -L https://install.lix.systems/lix | sh -s -- install
 nix build github:nvmd/nixos-raspberrypi#installerImages.rpi5
 #+end_src
 
-Flash to USB, clone this repo, then build flake.
+#+begin_src bash
+scp ./result mfarabi@ip...:
+#+end_src
+
+# flash same sd card with scp'ed image
+#+begin_src bash
+caligula burn --show-all-disks ./nixos-installer-rpi5-kernel.img.zst
+#+end_src
+
+Boot to sd card, then connect to network.
 
 #+begin_src bash
-nixos-rebuild switch --flake .
+iwctl
 #+end_src
+
+#+begin_src bash
+  station wlan0 connect "IT HURTS WHEN IP 5G"
+#+end_src
+
+Clone this repo, then build flake.
+
+#+begin_src bash
+nix shell nixpkgs#{git,lazygit,neovim,yazi,zellij,btop,nix-btm}
+#+end_src
+
+#+begin_src bash
+git clone https://github.com/MFarabi619/MFarabi619
+#+end_src
+
+#+begin_src bash
+cd ~/MFarabi619/configurations/nixos/rpi5/installation
+#+end_src
+
+#+begin_src bash
+nixos-rebuild switch --flake .#<system> --target-host root@<hostname>
+#+end_src
+
 
 ** Android NixOS
 
