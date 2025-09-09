@@ -57,7 +57,8 @@ in {
 
   disko.devices.disk.main = {
     type = "disk";
-    device = "/dev/sda";
+    # device = "/dev/sda";
+    device = "/dev/mmcblk0";
 
     content = {
       type = "gpt";
@@ -153,6 +154,5 @@ in {
 
       };
     };
-
   };  # disko.devices.disk.main
 }

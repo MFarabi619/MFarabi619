@@ -293,9 +293,11 @@
               users.users = {
                 mfarabi.openssh.authorizedKeys.keys = [
                   # YOUR SSH PUB KEY HERE #
+                  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM"
                 ];
                 root.openssh.authorizedKeys.keys = [
                   # YOUR SSH PUB KEY HERE #
+                  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM"
                 ];
               };
 
