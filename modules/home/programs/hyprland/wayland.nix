@@ -12,6 +12,16 @@
       variables = [
         "--all"
       ];
+      extraCommands = [
+        "wl-paste --type text --watch cliphist store"
+        "wl-paste --type image --watch cliphist store"
+        "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+        "dbus-update-activation-environment --systemd --all"
+        "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+        "$term --hold fastfetch"
+        "vivaldi"
+        "emacs -nw"
+      ];
     };
 
     extraConfig = "
@@ -42,16 +52,8 @@
       "$browser" = "vivaldi";
       "$menu" = "rofi -show drun";
 
-      exec-once = [
-        "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-        "dbus-update-activation-environment --systemd --all"
-        "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-        "$term --hold fastfetch"
-        "wl-paste --type text --watch cliphist store"
-        "wl-paste --type image --watch cliphist store"
-        "vivaldi"
-        "emacs -nw"
-      ];
+      # exec-once = [
+      # ];
 
       bind = [
         # Apps
