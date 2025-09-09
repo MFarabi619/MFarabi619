@@ -463,6 +463,14 @@ Remove-WindowsPackage -Online -FeatureName ""
 ** Raspberry Pi 5 ARM NixOS
 [[https://wiki.nixos.org/wiki/NixOS_on_ARM/Raspberry_Pi_5][NixOS on ARM/Raspberry Pi 5 - NixOS Wiki]]
 
+Download [[https://www.raspberrypi.com/software/operating-systems/][Raspberry Pi OS with desktop and recommended software]]
+
+Flash to SD card & boot, then ...
+
+#+begin_src bash
+curl -sSf -L https://install.lix.systems/lix | sh -s -- install
+#+end_src
+
 #+begin_src bash
 nix build github:nvmd/nixos-raspberrypi#installerImages.rpi5
 #+end_src

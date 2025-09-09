@@ -1,0 +1,60 @@
+layout {
+    default_tab_template {
+        pane {
+            size 1
+            borderless true
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane {
+            size 2
+            borderless true
+            plugin location="zellij:status-bar"
+        }
+    }
+    tab name="🔍🤨 INSPECT" split_direction="vertical" {
+            pane split_direction="horizontal" {
+            pane {
+              command "nix-inspect"
+              args "-p" "."
+              start_suspended true
+            }
+            pane {
+                name "Health"
+                command "nix-health"
+                size "30%"
+            }
+            }
+            pane {
+              command "pacseek"
+              args "-i"
+            }
+    }
+
+    tab name="🟩 STATUS" split_direction="vertical"  {
+            pane {
+                name "🍒 Git - Lazygit"
+                command "lazygit"
+            }
+
+            pane split_direction="horizontal" {
+                pane {
+                    name "📁 File Browser - Yazi"
+                    command "env"
+                    args "YAZI_CONFIG_HOME=./apps/microvisor" "yazi"
+                }
+
+                pane {
+                    focus true
+                    name "🧠 TGPT | Model:phind"
+                    command "tgpt"
+                    args "-m"
+                }
+            }
+    }
+    tab name="🐳 CONTAINERS" split_direction="vertical" {
+            pane {
+                command "lazydocker"
+            }
+    }
+}
