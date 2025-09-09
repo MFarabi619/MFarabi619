@@ -6,9 +6,9 @@
       };
 
       videoDrivers = [
-        "modesetting"
-        "fbdev"
         "vesa"
+        "fbdev"
+        "modesetting"
       ];
     };
 }

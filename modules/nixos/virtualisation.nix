@@ -2,13 +2,12 @@
   virtualisation = {
     lxc.enable = false;
     lxd.enable = false;
-    # tpm = {
-    #   enable = false;
-    # };
-    # useSecureBoot = false;
     # useEFIBoot = false;
-    # useDefaultFileSystems = true;
+    # useSecureBoot = false;
     # graphics = true;
+    # useDefaultFileSystems = true;
+    # tpmr.enable = false;;
+
     libvirtd = {
       enable = true;
       startDelay = 0;
@@ -25,6 +24,7 @@
         swtpm.enable = true;
       };
     };
+
     docker = {
       # only enable either docker or podman -- Not both
       enable = true;
@@ -41,6 +41,7 @@
       };
       extraOptions = '''';
     };
+
     podman = {
       enable = false;
       dockerCompat = true;

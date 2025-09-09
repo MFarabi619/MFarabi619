@@ -3,8 +3,8 @@
   services.github-runners = {
     nixos = {
       enable = false;
-      ephemeral = false;
       replace = false;
+      ephemeral = false;
       extraLabels = [ "nixos" ];
       nodeRuntimes = ["node22"];
       extraPackages = with pkgs; [

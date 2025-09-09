@@ -1,20 +1,18 @@
 { pkgs, lib, ... }:
 {
-  fonts = {
-    packages =
+  fonts.packages =
       with pkgs;
       [
-        noto-fonts-emoji
-        noto-fonts-cjk-sans
-        font-awesome
         symbola
-        material-icons
         fira-code
+        font-awesome
+        material-icons
+        noto-fonts-emoji
         fira-code-symbols
+        noto-fonts-cjk-sans
         nerd-fonts.jetbrains-mono
       ]
       ++ lib.optionals stdenv.isDarwin [
         sketchybar-app-font
       ];
-  };
 }

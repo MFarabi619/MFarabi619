@@ -5,8 +5,8 @@
     port = 7681;
     signal = 1;
     logLevel = 7;
-    writeable = true;
     maxClients = 0;
+    writeable = true;
     checkOrigin = false;
     entrypoint = (pkgs.zsh);
     terminalType = "xterm-kitty";

@@ -1,11 +1,11 @@
 {
   security = {
+    rtkit.enable = true;
+    polkit.enable = true;
+    pam.services.swaylock = { };
     sudo = {
       enable = true;
       wheelNeedsPassword = false;
     };
-    polkit.enable = true;
-    pam.services.swaylock = { };
-    rtkit.enable = true;
   };
 }
