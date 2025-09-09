@@ -2,25 +2,28 @@
   nix = {
     channel.enable = false;
 
-distributedBuilds = true;
-  # distributedBuilds.enable = true;
-  buildMachines = [
-    {
-      maxJobs = 100;
-      sshUser = null;
-      speedFactor = 1;
-      protocol = "ssh-ng";
-      hostName = "eu.nixbuild.net";
-      sshKey = "~/.ssh/id_ed25519";
-      systems = [
-        "x86_64-linux"
-        # "aarch64-darwin"
-      ];
-      supportedFeatures = [ "benchmark" "big-parallel" ];
-      publicHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM";
-    #     mandatoryFeatures = [ "big-parallel" ];
-    }
-  ];
+    distributedBuilds = true;
+    # distributedBuilds.enable = true;
+    buildMachines = [
+      {
+        maxJobs = 100;
+        sshUser = null;
+        speedFactor = 1;
+        # protocol = "ssh-ng";
+        hostName = "eu.nixbuild.net";
+        sshKey = "~/.ssh/id_ed25519";
+        systems = [
+          "x86_64-linux"
+          # "aarch64-darwin"
+        ];
+        supportedFeatures = [
+          "benchmark"
+          "big-parallel"
+        ];
+        publicHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM";
+        #     mandatoryFeatures = [ "big-parallel" ];
+      }
+    ];
     settings = {
       max-jobs = "auto";
       # auto-optimise-store = true;

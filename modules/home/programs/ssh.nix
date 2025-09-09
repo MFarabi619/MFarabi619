@@ -6,19 +6,29 @@
     # extraOptionOverrides = {};
 
     matchBlocks = {
-        nixbuild = {
-          checkHostIP = false;
-          identitiesOnly = true;
-          addKeysToAgent = "yes";
-          host = "eu.nixbuild.net";
-          serverAliveInterval = 60;
-          hostname = "eu.nixbuild.net";
-          identityFile = ["~/.ssh/my-nixbuild-key"];
-          extraOptions = {
-            PubkeyAcceptedKeyTypes = "ssh-ed25519";
-            IPQoS = "throughput";
-          };
-    };
+      nixbuild = {
+        checkHostIP = false;
+        identitiesOnly = true;
+        addKeysToAgent = "yes";
+        host = "eu.nixbuild.net";
+        serverAliveInterval = 60;
+        hostname = "eu.nixbuild.net";
+        identityFile = [ "~/.ssh/my-nixbuild-key" ];
+        extraOptions = {
+          PubkeyAcceptedKeyTypes = "ssh-ed25519";
+          IPQoS = "throughput";
+        };
+      };
+
+      nixos-hetzner = {
+        port = 22;
+        user = "mfarabi";
+        host = "nixos-hetzner";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        hostname = "5.161.84.168";
+        setEnv.TERM = "xterm-kitty";
+      };
 
       archlinux = {
         port = 22;

@@ -14,10 +14,10 @@
         git
         lazygit
         smart-enter
-        smart-filter
         full-border
+        smart-filter
         rich-preview
-        wl-clipboard
+        # wl-clipboard
         ;
     };
     settings = {

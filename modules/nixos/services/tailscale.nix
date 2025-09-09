@@ -7,7 +7,7 @@
     disableTaildrop = false;
     useRoutingFeatures = "both"; # one of "none", "client", "server", "both"
     interfaceName = "tailscale0"; # default
-    authKeykfile = "/run/secrets/tailscale_key";
+    authKeyFile = "/run/secrets/tailscale_key";
     # extraDaemonFlags = [ ];
     extraUpFlags = [
       "--ssh"

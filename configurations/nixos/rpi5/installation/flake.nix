@@ -70,7 +70,7 @@
 
               # Use less privileged user
               users.users = {
-                mfarabi = {
+                nixos = {
                   isNormalUser = true;
                   extraGroups = [
                     "wheel"
@@ -92,7 +92,7 @@
               };
 
               services = {
-                getty.autologinUser = "mfarabi";
+                getty.autologinUser = "nixos";
                 # We run sshd by default. Login is only possible after adding a
                 # password via "passwd" or by adding a ssh key to ~/.ssh/authorized_keys.
                 # The latter one is particular useful if keys are manually added to
@@ -109,6 +109,7 @@
                 settings = {
                   max-jobs = "auto";
                   trusted-users = [
+                    "nixos"
                     "mfarabi"
                     "root"
                   ];
@@ -291,7 +292,7 @@
               ];
 
               users.users = {
-                mfarabi.openssh.authorizedKeys.keys = [
+                nixos.openssh.authorizedKeys.keys = [
                   # YOUR SSH PUB KEY HERE #
                   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM"
                 ];

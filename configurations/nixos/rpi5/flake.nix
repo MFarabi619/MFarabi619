@@ -92,6 +92,7 @@
                   ../../../modules/home/fonts.nix
                   ../../../modules/home/home.nix
                   ../../../modules/home/manual.nix
+                  ../../../modules/home/packages.nix
                   # ../../../modules/home/nix-index.nix
                   ../../../modules/home/stylix.nix
                   ../../../modules/home/xdg.nix

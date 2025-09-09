@@ -16,6 +16,9 @@
         gptel
         vterm
         circe
+        corfu
+        corfu-terminal
+        nerd-icons-corfu
         wttrin
         devdocs
         keycast

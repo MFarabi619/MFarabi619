@@ -3,20 +3,20 @@
   system.stateVersion = "25.05";
 
   imports = [
-    ../../../modules/nixos/common/services
-    ../../../modules/nixos/gui
-    ../../../modules/nixos/common/console.nix
-    ../../../modules/nixos/common/environment.nix
-    ../../../modules/nixos/common/fonts.nix
-    ../../../modules/nixos/common/hardware.nix
-    ../../../modules/nixos/common/i18n.nix
-    ../../../modules/nixos/common/networking.nix
-    ../../../modules/nixos/common/nix.nix
-    ../../../modules/nixos/common/programs.nix
-    ../../../modules/nixos/common/security.nix
-    ../../../modules/nixos/common/systemd.nix
-    ../../../modules/nixos/common/time.nix
-    ../../../modules/nixos/common/virtualisation.nix
+    ../../../modules/nixos/services
+    ../../../modules/nixos/hyprland.nix
+    ../../../modules/nixos/console.nix
+    ../../../modules/nixos/environment.nix
+    ../../../modules/nixos/fonts.nix
+    ../../../modules/nixos/hardware.nix
+    ../../../modules/nixos/i18n.nix
+    ../../../modules/nixos/networking.nix
+    ../../../modules/nixos/nix.nix
+    ../../../modules/nixos/programs.nix
+    ../../../modules/nixos/security.nix
+    ../../../modules/nixos/systemd.nix
+    ../../../modules/nixos/time.nix
+    ../../../modules/nixos/virtualisation.nix
     ./hardware-configuration.nix
     ./services.nix
     ./systemd.nix

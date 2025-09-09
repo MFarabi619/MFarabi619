@@ -7,7 +7,7 @@
     tracker = "";
     extraEnv = {};
     maxServers = 25;
-    listendhost = "*";
+    listenHost = "*";
     extraConfig = '''';
     debugServer = false;
     useSubstitutes = false;

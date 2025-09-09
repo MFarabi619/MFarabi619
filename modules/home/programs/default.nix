@@ -1,7 +1,7 @@
 {
   imports = [
     ./aichat.nix
-    ./doom
+    ./emacs
     ./bash.nix
     ./bat.nix
     ./btop.nix

@@ -85,7 +85,7 @@
         # leetcode-tui
 
         keymapviz # visualize keyboard layout in ascii
-        keymap-drawer # visualize keyboard layout
+        # keymap-drawer # visualize keyboard layout
 
         # lazyhetzner
         caligula # disk imaging
@@ -112,7 +112,7 @@
         nix-top # nix process visualizer
         nix-web # web gui
         nix-info
-        mcp-nixos # mcp server for NixOS
+        # mcp-nixos # mcp server for NixOS
         nix-health # health check
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
@@ -170,6 +170,9 @@
 
         virt-viewer
         smartmontools
+        # qmk
+        # qmk_hid
+        # qmk-udev-rules
 
         # ============== 🤪 =================
         hollywood
