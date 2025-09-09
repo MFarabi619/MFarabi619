@@ -8,7 +8,8 @@
     neovim = {
       enable = true;
       defaultEditor = true;
-      # vimAlias = true;
+      viAlias = false;
+      vimAlias = false;
       withRuby = true;
       withNodeJs = true;
       withPython3 = true;
