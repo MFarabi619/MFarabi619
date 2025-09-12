@@ -2,13 +2,13 @@
   devcontainer = {
     enable = false;
     settings = {
-     name = "Microvisor";
+      name = "Microvisor";
       privileged = false;
-     overrideCommand = false;
-     updateContentCommand = "devenv test";
-     image = "ghcr.io/cachix/devenv/devcontainer:latest";
+      overrideCommand = false;
+      updateContentCommand = "devenv test";
+      image = "ghcr.io/cachix/devenv/devcontainer:latest";
       features = {
-        "ghcr.io/devcontainers/features/github-cli"= {};
+        "ghcr.io/devcontainers/features/github-cli" = { };
       };
       customizations.vscode.extensions = [
         "antfu.vite"

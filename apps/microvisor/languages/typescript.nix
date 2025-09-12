@@ -1,5 +1,3 @@
 {
-  languages = {
-    typescript.enable = true;
-  };
+  languages.typescript.enable = true;
 }

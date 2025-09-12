@@ -1,8 +1,4 @@
 {
-  pkgs,
-  ...
-}:
-{
   name = "🧮 Microvisor 🧮";
 
   infoSections = {
@@ -10,17 +6,17 @@
   };
 
   imports = [
+    ./env
+    ./tasks
     ./cachix
+    ./scripts
+    ./packages
+    ./services
+    ./processes
+    ./languages
+    ./git-hooks.nix
     ./containers.nix
     ./devcontainer.nix
-    ./env
-    ./git-hooks.nix
-    ./languages
-    ./packages
-    ./processes
-    ./scripts
-    ./services
-    ./tasks
   ];
 
   # NOTE: uses native nixos test syntax | nixos.org/manual/nixos/stable/#sec-writing-nixos-tests

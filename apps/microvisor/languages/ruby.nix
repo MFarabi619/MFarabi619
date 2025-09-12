@@ -1,8 +1,6 @@
 {
-  languages = {
-    ruby = {
-      enable = true;
-      bundler.enable = true;
-    };
+  languages.ruby = {
+    enable = true;
+    bundler.enable = true;
   };
 }
