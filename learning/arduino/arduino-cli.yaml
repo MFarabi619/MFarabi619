@@ -4,13 +4,14 @@ board_manager:
     # enable_unsafe_install: false
 # daemon:
 #     port: "4879"
-# directories:
-    # user: ""
-    # data: ""
-    # builtin:
-    #    libraries: ""
+directories:
+    builtin:
+        libraries: /home/mfarabi/.arduino15/libraries
+    data: /home/mfarabi/.arduino15
+    user: /home/mfarabi/MFarabi619/learning/arduino
     #    tools: []
     # downloads: ""
+locale: en
 # library:
 #     enable_unsafe_install: false
 logging:

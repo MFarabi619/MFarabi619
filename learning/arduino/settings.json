@@ -1,0 +1,47 @@
+{
+  "files.autoSave": "afterDelay",
+  "breadcrumbs.enabled": true,
+  "terminal.integrated.copyOnSelection": true,
+  "window": {
+    "titleBarStyle": "native",
+    "zoomLevel": 0,
+    "menuBarVisibility": "visible",
+    "tabbar.enhancedPreview": "enhanced",
+  },
+  "editor": {
+    "highlightModifiedTabs": true,
+    "fontSize": 20,
+    "quickSuggestions": {
+      "other": false,
+      "comments": false,
+      "strings": false
+    },
+    "fontFamily": "'JetBrains Mono', 'monospace', monospace",
+    "wordWrap": "wordWrapColumn",
+    "bracketPairColorization": {
+      "enabled": true,
+      "independentColorPoolPerBracketType": true,
+    },
+    "codeActionWidget.includeNearbyQuickfixes": true,
+  },
+  "arduino": {
+    "window.autoScale": true,
+    "compile": {
+      "verbose": false,
+      "warnings": "Default",
+    },
+    "upload": {
+      "verbose": false,
+      "verify": true,
+    },
+    "sketchbook.showAllFiles": true,
+    "cloud.enabled": false,
+  },
+  "notebook.lineNumbers": "on",
+  "search.smartCase": true,
+  "workbench": {
+    "colorTheme": "arduino-theme-dark",
+    "iconTheme": "theia-file-icons",
+    "tree.renderIndentGuides": "always",
+  }
+}
