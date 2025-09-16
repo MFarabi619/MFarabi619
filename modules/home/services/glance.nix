@@ -1,5 +1,10 @@
 {
-  services.glance = {
+  lib,
+  pkgs,
+  ...
+}:
+{
+  services.glance = lib.mkIf pkgs.stdenv.isLinux {
     enable = true;
     settings = {
       pages = [

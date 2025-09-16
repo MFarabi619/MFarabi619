@@ -9,7 +9,7 @@
     ./networking.nix
     ./nixpkgs.nix
     ./power.nix
-    ../nixos/common/fonts.nix
+    ../nixos/fonts.nix
     ./security.nix
     ./services
     ./system.nix

@@ -20,7 +20,7 @@ in
   config = lib.mkIf cfg.enable {
     home = {
       packages = with pkgs; [
-        rofi-wayland # application launcher
+        rofi # application launcher
       ];
 
       file = {

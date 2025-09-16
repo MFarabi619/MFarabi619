@@ -1,32 +1,22 @@
 {
   nix = {
     channel.enable = false;
+    optimise = {
+      automatic = true;
+      # dates = "daily";
+      # persistent = true;
+    };
+    gc = {
+      automatic = true;
+      # persistent = true;
+      # dates = "daily";
+      # options = "";
+    };
 
-    distributedBuilds = true;
-    # distributedBuilds.enable = true;
-    buildMachines = [
-      {
-        maxJobs = 100;
-        sshUser = null;
-        speedFactor = 1;
-        # protocol = "ssh-ng";
-        hostName = "eu.nixbuild.net";
-        sshKey = "~/.ssh/id_ed25519";
-        systems = [
-          "x86_64-linux"
-          # "aarch64-darwin"
-        ];
-        supportedFeatures = [
-          "benchmark"
-          "big-parallel"
-        ];
-        publicHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM";
-        #     mandatoryFeatures = [ "big-parallel" ];
-      }
-    ];
     settings = {
       max-jobs = "auto";
-      # auto-optimise-store = true;
+      auto-optimise-store = true;
+      builders-user-substitutes = true;
       experimental-features = [
         "nix-command"
         "flakes"
@@ -51,6 +41,7 @@
 
         "https://emacsng.cachix.org"
         "https://emacs-ci.cachix.org"
+        "https://emacsng.cachix.org"
         "https://nixvim.cachix.org"
 
         "https://hyprland.cachix.org"
@@ -73,6 +64,7 @@
         "https://fuellabs.cachix.org"
 
         "https://emacs-ci.cachix.org"
+        "https://emacsng.cachix.org"
         "https://nixvim.cachix.org"
 
         "https://hyprland.cachix.org"
