@@ -44,7 +44,7 @@
         port = 22;
         host = "macos";
         user = "mfarabi";
-        hostname = "10.0.0.135";
+        hostname = "10.0.0.13";
         checkHostIP = true;
         addKeysToAgent = "yes";
         setEnv.TERM = "xterm-kitty";

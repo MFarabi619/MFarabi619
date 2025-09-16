@@ -1,7 +1,7 @@
 {
   virtualisation = {
     lxc.enable = false;
-    lxd.enable = false;
+    # lxd.enable = false;
     # useEFIBoot = false;
     # useSecureBoot = false;
     # graphics = true;

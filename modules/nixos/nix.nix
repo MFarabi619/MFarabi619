@@ -1,32 +1,22 @@
 {
   nix = {
     channel.enable = false;
+    optimise = {
+      automatic = true;
+      # dates = "daily";
+      # persistent = true;
+    };
+    gc = {
+      automatic = true;
+      # persistent = true;
+      # dates = "daily";
+      # options = "";
+    };
 
-    distributedBuilds = true;
-    # distributedBuilds.enable = true;
-    buildMachines = [
-      {
-        maxJobs = 100;
-        sshUser = null;
-        speedFactor = 1;
-        # protocol = "ssh-ng";
-        hostName = "eu.nixbuild.net";
-        sshKey = "~/.ssh/id_ed25519";
-        systems = [
-          "x86_64-linux"
-          # "aarch64-darwin"
-        ];
-        supportedFeatures = [
-          "benchmark"
-          "big-parallel"
-        ];
-        publicHostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM";
-        #     mandatoryFeatures = [ "big-parallel" ];
-      }
-    ];
     settings = {
       max-jobs = "auto";
-      # auto-optimise-store = true;
+      auto-optimise-store = true;
+      builders-use-substitutes = true;
       experimental-features = [
         "nix-command"
         "flakes"
@@ -47,10 +37,10 @@
 
         "https://mfarabi.cachix.org"
         "https://fuellabs.cachix.org"
-        "https://charthouse-labs.cachix.org"
 
         "https://emacsng.cachix.org"
         "https://emacs-ci.cachix.org"
+        "https://emacsng.cachix.org"
         "https://nixvim.cachix.org"
 
         "https://hyprland.cachix.org"
@@ -68,11 +58,11 @@
         "https://nix-darwin.cachix.org"
         "https://nixos-raspberrypi.cachix.org"
 
-        "https://charthouse-labs.cachix.org"
         "https://mfarabi.cachix.org"
         "https://fuellabs.cachix.org"
 
         "https://emacs-ci.cachix.org"
+        "https://emacsng.cachix.org"
         "https://nixvim.cachix.org"
 
         "https://hyprland.cachix.org"
@@ -86,7 +76,6 @@
         "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
         "nix-darwin.cachix.org-1:LxMyKzQk7Uqkc1Pfq5uhm9GSn07xkERpy+7cpwc006A="
         "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
-        "charthouse-labs.cachix.org-1:6R5o8MQocvl45MoSIIWKawTLDqghQjW0arZ/S6+W2AQ="
         "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="
         "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
         "emacsng.cachix.org-1:i7wOr4YpdRpWWtShI8bT6V7lOTnPeI7Ho6HaZegFWMI="
@@ -110,7 +99,6 @@
         "https://nix-darwin.cachix.org"
         "https://nixos-raspberrypi.cachix.org"
 
-        "https://charthouse-labs.cachix.org"
         "https://mfarabi.cachix.org"
         "https://fuellabs.cachix.org"
 
@@ -133,7 +121,6 @@
         "nix-darwin.cachix.org-1:LxMyKzQk7Uqkc1Pfq5uhm9GSn07xkERpy+7cpwc006A="
         "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
 
-        "charthouse-labs.cachix.org-1:6R5o8MQocvl45MoSIIWKawTLDqghQjW0arZ/S6+W2AQ="
         "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="
         "fuellabs.cachix.org-1:3gOmll82VDbT7EggylzOVJ6dr0jgPVU/KMN6+Kf8qx8="
 

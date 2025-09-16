@@ -337,7 +337,7 @@ sudo apt update && sudo apt upgrade -y
   #+end_src
 
   #+begin_src powershell
-  "Family", "Teams", "Photos", "Bing", "Edge", "365 (Office)", "To DO", "Clipchamp", "Edge Game Assist", "Calculator", | ForEach-Object { winget uninstall "Microsoft $_" }
+  "Family", "Teams", "Photos", "Bing", "Edge", "365 (Office)", "To DO", "Clipchamp", "Edge Game Assist", "Calculator" | ForEach-Object { winget uninstall "Microsoft $_" }
   #+end_src
 
   #+begin_src powershell
@@ -353,11 +353,11 @@ Get-WindowsOptionalFeature -Online
   #+end_src
 
 #+begin_src powershell
-    Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-RemoteDesktopConnection HypervisorPlatform VirtualMachineplatform Microsoft-Windows-Subsystem-Linux
+    Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-RemoteDesktopConnection" "HypervisorPlatform" "VirtualMachinePlatform" "Microsoft-Windows-Subsystem-Linux"
   #+end_src
 
 #+begin_src powershell
-    Disable-WindowsOptionalFeature -Online -NoRestart -FeatureName WindowsMediaPlayer SearchEngine-Client-Package
+    Disable-WindowsOptionalFeature -Online -NoRestart -FeatureName "WindowsMediaPlayer" "SearchEngine-Client-Package"
   #+end_src
 
 #+begin_src powershell
@@ -377,7 +377,7 @@ Remove-WindowsPackage -Online -FeatureName ""
   #+end_src
 
   #+begin_src powershell
-  winget add emacs openscad git.git zig winrar gnuwin32.tar burntsushi.ripgrep.gnu llvm fd fzf curl.curl cmake television qemu neovim tailscale lazydocker lazygit eza yazi ttyd microsoft.windowsterminal.preview github.cli audacity.audacity steam obsproject.obsstudio videolan.vlc vscode gimp.gimp.3 authormore.penpotdesktop discord.discord figma vial komorebi whkd wezterm starship docker.desktop qmk.qmktoolbox devcom.jetbrainsmononerdfont
+  winget add fastfetch emacs openscad git.git zig winrar gnuwin32.tar burntsushi.ripgrep.gnu llvm fd fzf curl.curl cmake television qemu neovim tailscale lazydocker lazygit eza yazi ttyd microsoft.windowsterminal.preview github.cli audacity.audacity steam obsproject.obsstudio videolan.vlc vscode gimp.gimp.3 authormore.penpotdesktop discord.discord figma Vial.vial komorebi whkd starship docker.desktop qmk.qmktoolbox devcom.jetbrainsmononerdfont
   #+end_src
 
   #+begin_src powershell
@@ -388,13 +388,13 @@ Remove-WindowsPackage -Online -FeatureName ""
     nvim $PROFILE;
   #+end_src
 
-    Invoke-Expression ($starship init powershell)
+    Invoke-Expression $(starship init powershell)
     Set-Alias -Name l -Value eza
     Set-Alias -Name yy -Value yazi
     Set-Alias -Name lg -Value lazygit
 
   #+begin_src powershell
-    starship preset gruvbox-rainbow -o ~/.config/starship.toml
+    starship preset gruvbox-rainbow -o ~\.config\starship.toml
   #+end_src
 
   #+begin_src powershell
@@ -522,3 +522,5 @@ nixos-rebuild switch --flake .#<system> --target-host root@<hostname>
 #+begin_src bash
   curl https://raw.githubusercontent.com/elitak/nixos-infect/master/nixos-infect | NIX_CHANNEL=nixos-25.05 bash -x
 #+end_src
+
+vsxsrv

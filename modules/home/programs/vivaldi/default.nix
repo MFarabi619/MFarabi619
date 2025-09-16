@@ -2,9 +2,14 @@
 {
   programs.vivaldi = {
     enable = pkgs.stdenv.isLinux;
-    nativeMessagingHosts = [];
+    nativeMessagingHosts = [ ];
   };
-  home.packages = with pkgs; [
-   vivaldi-ffmpeg-codecs
-  ];
+
+  home.packages =
+    with pkgs;
+    [
+    ]
+    ++ lib.optionals stdenv.isLinux [
+      vivaldi-ffmpeg-codecs
+    ];
 }

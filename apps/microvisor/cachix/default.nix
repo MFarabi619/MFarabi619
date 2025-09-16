@@ -13,7 +13,6 @@
       "fuellabs"
       "nix-darwin"
       "nix-community"
-      "charthouse-labs"
       "pre-commit-hooks"
     ];
   };

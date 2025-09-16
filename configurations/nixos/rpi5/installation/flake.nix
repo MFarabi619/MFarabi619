@@ -132,7 +132,6 @@
 
                     "https://mfarabi.cachix.org"
                     "https://fuellabs.cachix.org"
-                    "https://charthouse-labs.cachix.org"
 
                     "https://emacsng.cachix.org"
                     "https://emacs-ci.cachix.org"
@@ -153,7 +152,6 @@
                     "https://nix-darwin.cachix.org"
                     "https://nixos-raspberrypi.cachix.org"
 
-                    "https://charthouse-labs.cachix.org"
                     "https://mfarabi.cachix.org"
                     "https://fuellabs.cachix.org"
 
@@ -194,7 +192,6 @@
                     "https://nix-darwin.cachix.org"
                     "https://nixos-raspberrypi.cachix.org"
 
-                    "https://charthouse-labs.cachix.org"
                     "https://mfarabi.cachix.org"
                     "https://fuellabs.cachix.org"
 

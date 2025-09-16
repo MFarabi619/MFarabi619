@@ -2,21 +2,46 @@
 
 {
   home-manager = {
-    backupFileExtension = "hm-bak";
     useGlobalPkgs = true;
+    backupFileExtension = "hm-bak";
 
     config = {
       home = {
         stateVersion = "24.05";
+        shell = {
+          enableShellIntegration = true;
+          enableBashIntegration = true;
+          enableZshIntegration = true;
+        };
+
         packages = with pkgs; [
           noto-fonts
 
           tree
+          gnutls # for TLS connectivity
+          sqlite # :tools lookup & :lang org +roam
 
-          cachix
           nil
+          cachix
           nix-info
           nix-inspect
+
+          tgpt
+          cointop # crypto price feed
+          nix-health # health check
+          cmake # vterm compilation and more
+          gnumake
+          coreutils
+
+
+          # ============== 🤪 =================
+          cowsay
+          lolcat # rainbow text output
+          figlet # fancy ascii text output
+          cmatrix
+          nyancat # rainbow flying cat
+          asciiquarium # ascii aquarium
+          hollywood
 
           termscp
         ];
@@ -24,6 +49,7 @@
 
       imports = [
         inputs.stylix.homeModules.stylix
+        ../../../modules/home/programs/fastfetch
         # inputs.nix-doom-emacs-unstraightened.homeModule
         # ../../../modules/home/programs/emacs
         # ../../../modules/home/home.nix
@@ -37,7 +63,6 @@
         ../../../modules/home/programs/btop.nix
         ../../../modules/home/programs/direnv.nix
         ../../../modules/home/programs/eza.nix
-        ../../../modules/home/programs/fastfetch
         ../../../modules/home/programs/fd.nix
         ../../../modules/home/programs/fzf.nix
         ../../../modules/home/programs/gcc.nix

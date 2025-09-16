@@ -12,6 +12,25 @@ layout {
             plugin location="zellij:status-bar"
         }
     }
+    tab name="🐞 SHELL" split_direction="vertical" {
+            pane split_direction="horizontal" {
+            pane {
+              command "termshark"
+              start_suspended true
+            }
+            pane {
+                name "netscanner"
+                command "su"
+                size "30%"
+            }
+            }
+            pane {
+              command "kmon"
+            }
+            pane {
+              command "ugm"
+            }
+    }
     tab name="🔍🤨 INSPECT" split_direction="vertical" {
             pane split_direction="horizontal" {
             pane {

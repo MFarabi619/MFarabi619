@@ -1,11 +1,11 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   system.stateVersion = "25.05";
 
   imports = [
     ./hardware-configuration.nix
-    ../../../modules/nixos/common/networking.nix
+    ../../../modules/nixos/networking.nix
   ];
 
   boot = {
@@ -14,6 +14,11 @@
       efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_latest;
+  };
+
+  nixpkgs = {
+    config.allowUnfree = true;
+    hostPlatform = "x86_64-linux";
   };
 
   networking = {
@@ -42,11 +47,6 @@
       "networkmanager"
       "wheel"
     ];
-  };
-
-  nixpkgs = {
-    config.allowUnfree = true;
-    hostPlatform = "x86_64-linux";
   };
 
   services = {

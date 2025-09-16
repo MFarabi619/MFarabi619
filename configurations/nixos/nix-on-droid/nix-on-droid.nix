@@ -13,15 +13,18 @@
   # };
 
   user = {
+    # home = "mfarabi";
+    # group = "mfarabi";
     # userName = "mfarabi";
     shell = "${pkgs.zsh}/bin/zsh";
   };
 
   nix = {
     extraOptions = ''
-      experimental-features = nix-command flakes
       trusted-users = root mfarabi
+      experimental-features = nix-command flakes
     '';
+
     substituters = [
       "https://cache.nixos.org"
       "https://hyprland.cachix.org"

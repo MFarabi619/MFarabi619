@@ -1,3 +1,4 @@
+# pog
 # uvx parllama
 # uvx netshow
 # uvx exosphere
@@ -13,6 +14,7 @@
 # godap
 # jwt-tui
 # mcp-probe
+# mcp-nixos
 # bagels
 # moneyterm
 # ticker
@@ -48,7 +50,6 @@
         # =============
         # kicad
         # logseq
-        freecad
         openscad
         openscad-lsp
         # =============
@@ -64,17 +65,13 @@
         shellcheck # shell script formatting
         octaveFull # gnu octave
         mermaid-cli # mermaid diagram support
-        penpot-desktop
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         nmap
         tgpt
-        dysk # view disk usage
         pik # local port tui
         sshs # ssh tui
-        impala # wifi mgmt tui
         gpg-tui
-        bluetui
         termscp
         tcpdump
         cointop # crypto price feed
@@ -124,15 +121,12 @@
         # https://github.com/Vaishnav-Sabari-Girish/arduino-cli-interactive?ref=terminaltrove
         cmake # vterm compilation and more
         gnumake
-        gparted
         coreutils
         platformio
         arduino-cli
         arduino-language-server
 
         fritzing
-
-        woeusb-ng # flash bootable windows iso
 
         # Setup Claude Code using Google Vertex AI Platform
         # https://github.com/juspay/vertex
@@ -158,6 +152,9 @@
         # nvtopPackages.full
       ]
       ++ lib.optionals stdenv.isLinux [
+        freecad
+        woeusb-ng # flash bootable windows iso
+
         # ============= 🧑‍💻🐞✨‍ ================
         ugm # user group management
         isd # systemd units
@@ -179,6 +176,13 @@
         hollywood
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
+        gparted
+
+        penpot-desktop
+
+        impala # wifi mgmt tui
+        bluetui
+
         blink
         crates-tui
         arduino-ide

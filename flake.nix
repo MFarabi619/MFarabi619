@@ -85,13 +85,46 @@
     #   url = "github:nvmd/argononed";
     #   flake = false;
     # };
+
+    nix-on-droid = {
+      url = "github:nix-community/nix-on-droid/release-24.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   # nixos-unified.org/autowiring.html
   outputs =
     inputs:
-    inputs.nixos-unified.lib.mkFlake {
-      inherit inputs;
-      root = ./.;
+    let
+      flake = inputs.nixos-unified.lib.mkFlake {
+        inherit inputs;
+        root = ./.;
+      };
+    in
+    flake // {
+      nixOnDroidConfigurations.default = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
+        home-manager-path = inputs.home-manager.outPath;
+        extraSpecialArgs = {
+          # rootPath = ./.;
+          inputs = inputs;
+        };
+
+        pkgs = import inputs.nixpkgs {
+          system = "aarch64-linux";
+          overlays = [
+            inputs.nix-on-droid.overlays.default
+          ];
+        };
+
+        modules = [
+          ./modules/nixos/time.nix
+          ./configurations/nixos/nix-on-droid/terminal.nix
+          ./configurations/nixos/nix-on-droid/environment.nix
+          ./configurations/nixos/nix-on-droid/nix-on-droid.nix
+          ./configurations/nixos/nix-on-droid/home-manager.nix
+          ./configurations/nixos/nix-on-droid/android-integration.nix
+        ];
+      };
     };
 }

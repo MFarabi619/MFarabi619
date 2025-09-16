@@ -60,7 +60,7 @@
           ./android-integration.nix
           ./terminal.nix
           ./home-manager.nix
-          ../../../modules/nixos/common/time.nix
+          ../../../modules/nixos/time.nix
           # ./ssh.nix
         ];
 

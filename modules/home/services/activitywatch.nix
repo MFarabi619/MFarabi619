@@ -1,10 +1,11 @@
-# {
-#   pkgs,
-#   ...
-# }:
 {
-  services.activitywatch = {
-   enable = true;
+  lib,
+  pkgs,
+  ...
+}:
+{
+  services.activitywatch = lib.mkIf pkgs.stdenv.isLinux {
+   enable = false;
     # settings = {
     #   port = 3012;
 

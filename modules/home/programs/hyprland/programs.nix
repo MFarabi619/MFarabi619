@@ -1,4 +1,4 @@
-{lib, pkgs, ...}:
+{ lib, pkgs, ... }:
 {
   programs = lib.mkIf pkgs.stdenv.isLinux {
     waybar = {
@@ -6,10 +6,10 @@
       # package = pkgs.waybar;
 
       systemd = {
-       enable = true;
-       # target = "";
-       # enableInspect = true;
-       # enableDebug = true;
+        enable = true;
+        # target = "";
+        # enableInspect = true;
+        # enableDebug = true;
       };
 
       # settings = [
@@ -45,7 +45,7 @@
 
     rofi = {
       enable = true;
-      package = pkgs.rofi-wayland;
+      package = pkgs.rofi;
       location = "center";
       # font = "JetBrainsMono Nerd Font Mono 12";
       extraConfig = {

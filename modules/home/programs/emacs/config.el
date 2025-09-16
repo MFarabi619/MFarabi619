@@ -119,8 +119,9 @@
         ;; jira-tempo-token "foobar123123") ;; https://apidocs.tempo.io
         jira-username "mfarabi619@gmail.com"
         jira-token-is-personal-access-token nil
-        jira-base-url "https://charthouse.atlassian.net"
+        jira-base-url ""
         ;; https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
+        ;; put into encrypted token file and look into gpg
         jira-token ""))
 
 (map! :n "C-'" #'+vterm/toggle
