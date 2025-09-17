@@ -6,19 +6,19 @@
     # extraOptionOverrides = {};
 
     matchBlocks = {
-      nixbuild = {
-        checkHostIP = false;
-        identitiesOnly = true;
-        addKeysToAgent = "yes";
-        host = "eu.nixbuild.net";
-        serverAliveInterval = 60;
-        hostname = "eu.nixbuild.net";
-        identityFile = [ "~/.ssh/my-nixbuild-key" ];
-        extraOptions = {
-          PubkeyAcceptedKeyTypes = "ssh-ed25519";
-          IPQoS = "throughput";
-        };
-      };
+      # nixbuild = {
+      #   checkHostIP = false;
+      #   identitiesOnly = true;
+      #   addKeysToAgent = "yes";
+      #   host = "eu.nixbuild.net";
+      #   serverAliveInterval = 60;
+      #   hostname = "eu.nixbuild.net";
+      #   identityFile = [ "~/.ssh/my-nixbuild-key" ];
+      #   extraOptions = {
+      #     PubkeyAcceptedKeyTypes = "ssh-ed25519";
+      #     IPQoS = "throughput";
+      #   };
+      # };
 
       nixos-hetzner = {
         port = 22;
