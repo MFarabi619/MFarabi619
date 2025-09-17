@@ -139,11 +139,12 @@
         # flake.inputs.vertex.packages.${system}.default
 
         # ============== 🤪 =================
+        genact
         cowsay
         lolcat # rainbow text output
         figlet # fancy ascii text output
-        nyancat # rainbow flying cat
         cmatrix
+        nyancat # rainbow flying cat
         asciiquarium # ascii aquarium
 
         #  Fine-tune packages by applying overrides, for example
