@@ -6,6 +6,7 @@
     ./bat.nix
     ./btop.nix
     ./chromium.nix
+    ./claude-code.nix
     ./command-not-found.nix
     ./direnv.nix
     ./eza.nix

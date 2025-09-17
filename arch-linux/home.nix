@@ -19,6 +19,7 @@
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix
     ../modules/home/programs/chromium.nix
+    ../modules/home/programs/claude-code.nix
     ../modules/home/programs/command-not-found.nix
     ../modules/home/programs/direnv.nix
     ../modules/home/programs/eza.nix
