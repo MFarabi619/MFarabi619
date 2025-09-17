@@ -74,7 +74,7 @@
         port = 22;
         host = "rpi5";
         user = "mfarabi";
-        hostname = "10.0.0.29";
+        hostname = "10.0.0.28";
 
         checkHostIP = true;
         addKeysToAgent = "yes";
