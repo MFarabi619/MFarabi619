@@ -6,5 +6,6 @@
     ./karabiner-elements.nix
     ./skhd.nix
     ./yabai.nix
+    ./tailscale.nix
   ];
 }
