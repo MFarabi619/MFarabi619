@@ -169,12 +169,12 @@
         resize_on_border = true;
       };
 
-      gestures = {
-        workspace_swipe = true;
-        workspace_swipe_fingers = 3;
-        workspace_swipe_forever = true;
-        workspace_swipe_invert = false;
-      };
+      # gestures = {
+      #   workspace_swipe = true;
+      #   workspace_swipe_fingers = 3;
+      #   workspace_swipe_forever = true;
+      #   workspace_swipe_invert = false;
+      # };
 
       input = {
         kb_layout = "us";
