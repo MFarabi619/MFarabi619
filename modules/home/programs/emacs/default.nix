@@ -51,7 +51,7 @@
       ];
 
     # provideEmacs = false;
-        # experimentalFetchTree = true;
+        experimentalFetchTree = true;
     # extraBinPackages = with pkgs; [fd git ripgrep];
   };
 
