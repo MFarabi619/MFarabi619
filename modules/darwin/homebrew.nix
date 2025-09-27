@@ -12,6 +12,7 @@
     };
 
     casks = [
+      "huly"
       "vivaldi"
     ];
 
