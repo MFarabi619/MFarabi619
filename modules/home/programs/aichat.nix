@@ -1,8 +1,14 @@
 {
   programs.aichat = {
     enable = true;
-    settings = {
-      model = "ollama:mistral-small3.1:latest";
+    settings ={
+      stream = true;
+      wrap = "auto";
+      theme = "dark";
+      wrap_code = true;
+      highlight = true;
+      keybindings = "vi";
+      model = "ollama:mistral-small3.1:latest"; # ollama pull mistral-small3.1:latest
       clients = [
         {
           name = "ollama";
@@ -10,8 +16,18 @@
           api_base = "http://localhost:11434/v1";
           models = [
             {
-              supports_vision = true;
               name = "mistral-small3.1:latest";
+              supports_vision = true;
+              supports_function_calling = true;
+            }
+            {
+              name = "phind-codellama:latest";
+              supports_vision = true;
+              supports_function_calling = true;
+            }
+            {
+              name = "phi:latest";
+              supports_vision = true;
               supports_function_calling = true;
             }
           ];
