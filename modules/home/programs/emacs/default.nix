@@ -51,8 +51,8 @@
       ];
 
     # provideEmacs = false;
-        experimentalFetchTree = true;
     # extraBinPackages = with pkgs; [fd git ripgrep];
+    experimentalFetchTree = true;
   };
 
   services.emacs = {
