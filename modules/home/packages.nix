@@ -3,7 +3,7 @@
 # uvx netshow
 # uvx exosphere
 # cargo-selector
-# systemd-manager mtui
+# systemd-manager-tui
 # tewi
 # ssh-para
 # terminaltexteffects
@@ -149,7 +149,7 @@
         # '')
 
         discordo
-        # nvtopPackages.full
+        nvtopPackages.full
       ]
       ++ lib.optionals stdenv.isLinux [
         freecad
@@ -159,12 +159,12 @@
         ugm # user group management
         isd # systemd units
         dysk # see mounted
-        kmon
+        kmon # kernel monitor
         termshark # wireshark-like TUI
         systeroid # powerful sysctl alternative
         netscanner
-        lazyjournal
-        systemctl-tui
+        lazyjournal # journal logs
+        systemctl-tui # systemctl logs
 
         virt-viewer
         smartmontools

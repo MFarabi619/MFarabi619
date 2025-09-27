@@ -90,7 +90,7 @@
       wl-screenrec
       framework-tool
       argocd-autopilot
-      nvtopPackages.amd
+      # nvtopPackages.amd
       argocd-vault-plugin
     ];
   };
