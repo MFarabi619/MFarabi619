@@ -160,6 +160,7 @@
         isd # systemd units
         dysk # see mounted
         kmon # kernel monitor
+        lazyssh # ssh
         termshark # wireshark-like TUI
         systeroid # powerful sysctl alternative
         netscanner
