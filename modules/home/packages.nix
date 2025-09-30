@@ -190,6 +190,7 @@
         webcord-vencord
       ]
       ++ lib.optionals stdenv.isDarwin [
+        ttyd
         sbarlua
         alt-tab-macos
         sketchybar-app-font
