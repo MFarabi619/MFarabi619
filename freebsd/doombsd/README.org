@@ -14,7 +14,7 @@ pkg update && pkg upgrade
 #+end_src
 
 #+begin_src bash
-pkg install yazi git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown markdownfmt jetbrains-mono nerd-fonts noto-emoji npm vips docker docker-compose k9s
+sudo pkg install yazi git bash zsh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown markdownfmt jetbrains-mono nerd-fonts noto-emoji npm vips docker docker-compose k9s
 #+end_src
 
 #+begin_src bash
@@ -26,15 +26,15 @@ curl -fsSL https://git.io/shellspec | sh
 #+end_src
 
 #+begin_src bash
-pkg install tree eza fzf ripgrep ripgrep-all
+sudo pkg install tree eza fzf ripgrep ripgrep-all
 #+end_src
 
 #+begin_src bash
-pkg install s-tui stress smartmontools gnupg symon sysmon nifmon batmon
+sudo pkg install s-tui stress smartmontools gnupg symon sysmon nifmon batmon
 #+end_src
 
 #+begin_src bash
-pkg install procs btop fastfetch cmatrix cowsay asciiquarium figlet lolcat nyancat rgb-tui
+sudo pkg install procs btop fastfetch cmatrix cowsay asciiquarium figlet lolcat nyancat rgb-tui
 #+end_src
 
 [[https://ohmyz.sh/][Oh My Zsh]]
@@ -64,7 +64,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 
 Add plugins to =~/.zshrc=.
 #+begin_src bash
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting web-search)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 #+end_src
 
 Source =~/.zshrc=:
@@ -79,7 +79,7 @@ source ~/.zshrc
 *** Set up editors
 
 #+begin_src bash
-pkg install neovim py311-pynvim emacs-devel ffmpegthumbnailer coreutils cmake poppler 7-zip aspell en-aspell aspell-ispell
+sudo pkg install neovim py311-pynvim emacs-devel ffmpegthumbnailer coreutils cmake poppler 7-zip aspell en-aspell aspell-ispell
 #+end_src
 
 [[https://www.lazyvim.org/installation][Lazyvim]]
@@ -103,13 +103,61 @@ git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs; ~/.c
 
 wheel NOPASSWD all
 
-sudo pkg install dbus xdg-desktop-portal wayland xwayland hyprland qt6-wayland xdg-desktop-portal-hyprland hyprland-qt-support hyprland-qtutils nwg-dock-hyprland hyprgraphics hyprlang hyprutils hyprwayland-scanner hyprsunset hypridle hyprlock hyprpaper hyprpicker imlib2-jxl gimp-jxl-plugin mousepad kitty dolphin pavucontrol wl-clipboard rofi waybar wlogout swaylock-effects wifimgr cava nwg-look byobu kvantum nsxiv pamixer pa-applet wmwifi sddm sddm-freebsd-black-theme wayland wayland-logout wayland-protocols wayland-utils xwayland xwayland-run xwayland-satellite xwaylandvideobridge aimage qimageblitz qt6-imageformats xloadimage terminal-image-viewer bsd-splash-changer bsdebfetch bsdinfo bsdsensors pwcbsd wmbsdbatt openconnect-freebsd-daemon viewglob sysctlview webcamd pwcview fontpreview epdfview glcapsviewer xdg-terminal-exec swww pango cairo pipewire
+#+begin_src bash
+sudo pkg install dbus xdg-desktop-portal xdg-terminal-exec
+#+end_src
 
-grim slurp
+#+begin_src bash
+sudo kldload fusefs
+#+end_src
+
+#+begin_src bash
+sudo pkg install wayland wayland-logout wayland-protocols wayland-utils qt6-wayland
+#+end_src
+
+#+begin_src bash
+sudo pkg install xwayland xwaylandvideobridge xwayland-satellite xwayland-run
+#+end_src
+
+#+begin_src bash
+sudo pkg install hyprland hyprland-qt-support hyprland-qtutils nwg-dock-hyprland xdg-desktop-portal-hyprland kitty
+#+end_src
+
+#+begin_src bash
+sudo pkg install sddm-freebsd-black-theme
+#+end_src
+
+#+begin_src bash
+sudo pkg install hyprgraphics hyprlang hyprutils hyprland hyprwayland-scanner hyprsunset hypridle hyprlock hyprpaper hyprpicker
+#+end_src
+
+#+begin_src bash
+sudo pkg install imlib2-jxl gimp-jxl-plugin mousepad
+#+end_src
+
+#+begin_src bash
+sudo pkg install rofi waybar wlogout dolphin pavucontrol wl-clipboard swaylock-effects
+#+end_src
+
+#+begin_src bash
+sudo pkg install cava nwg-look wifimgr byobu kvantum nsxiv pamixer pa-applet wmwifi sddm aimage qimageblitz qt6-imageformats xloadimage terminal-image-viewer bsd-splash-changer bsdebfetch bsdinfo bsdsensors pwcbsd wmbsdbatt openconnect-freebsd-daemon viewglob sysctlview
+#+end_src
+
+#+begin_src bash
+sudo kldload sysctlinfo
+#+end_src
+
+#+begin_src bash
+sudo pkg install webcamd pwcview fontpreview epdfview glcapsviewer swww pango cairo pipewire grim slurp
+#+end_src
+
+sudo sysrc webcamd_enable=YES
+sudo service devd restart
+sudo pw groupmod webcamd -m mfarabi
 
 2. Install packages
 #+begin_src bash
-pkg install yt-dlp  unzip icu  sniffnet libvirt libvirt-dbus virtboard virt-manager virt-viewer pkg_tree vlc texlive-full diskimage-tools kubectl minikube masscan caddy ezjail  gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc virtualbox-ose qt5-sqldrivers-mysql qt5-sqldrivers-odbc qt5-sqldrivers-pgsql qt5-sqldrivers-sqlite2 qt5-sqldrivers-sqlite3 qt5-sqldrivers-tds netpbm
+pkg install yt-dlp unzip icu  sniffnet libvirt libvirt-dbus virtboard virt-manager virt-viewer pkg_tree vlc texlive-full diskimage-tools kubectl minikube masscan caddy ezjail  gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc virtualbox-ose qt5-sqldrivers-mysql qt5-sqldrivers-odbc qt5-sqldrivers-pgsql qt5-sqldrivers-sqlite2 qt5-sqldrivers-sqlite3 qt5-sqldrivers-tds netpbm
 #+end_src
 
 #+begin_src
@@ -240,13 +288,16 @@ Ly:\
 	:lo=/usr/local/bin/ly:\
 	:al=root:
 
+#+end_src
+
 Modify the command field of the ttyv1 terminal entry in /etc/ttys
 
+#+begin_src bash
 ttyv1   "/usr/libexec/getty Ly"     xterm onifexists secure
+#+end_src
 
 Make sure that "tty" is set appropriately in the /usr/local/etc/ly/config.ini file if
 you decide to configure a different TTY for Ly instead.
-#+end_src
 
 **** Set up GPU
 
