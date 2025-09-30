@@ -14,6 +14,7 @@
     casks = [
       "huly"
       "vivaldi"
+      "arduino-cli"
     ];
 
     brews = [
