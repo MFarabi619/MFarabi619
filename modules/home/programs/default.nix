@@ -43,6 +43,7 @@
     ./openstackclient.nix
     ./pandoc.nix
     ./ripgrep.nix
+    ./rtorrent.nix
     ./ssh.nix
     ./sftpman.nix
     ./sketchybar.nix
