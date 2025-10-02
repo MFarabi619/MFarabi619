@@ -60,7 +60,7 @@ fn draw_text(frame: &mut Frame, area: Rect) {
     let text = vec![
         Line::from(""),
         Line::from(vec![Span::styled(
-            " ⚓ Open-Source @ ChartHouse Labs & LikeC4 core team 🧊",
+            " ⚓ Open-Source @ Microvisor Systems & LikeC4 core team 🧊",
             Style::default()
                 .fg(Color::LightCyan)
                 .add_modifier(Modifier::BOLD),
@@ -78,7 +78,6 @@ fn draw_text(frame: &mut Frame, area: Rect) {
                 .add_modifier(Modifier::BOLD),
         )),
         Line::from(""),
-        Line::from("⚡ Zap:                     🏗"),
         Line::from("👹 DoomBSD:                 🏗"),
         Line::from("🧮 Microvisor:              🏗"),
         Line::from("🦕 Mira AMM:                mira.ly"),

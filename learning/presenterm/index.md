@@ -31,7 +31,7 @@ fn main() {
     }
 }
 ```
-### Open-Source Software @ <span style="color: blue; background-color: black">ChartHouse Labs</span>
+### Open-Source Software @ <span style="color: blue; background-color: black">Microvisor Systems</span>
 ## CS @ Carleton
 
 <!-- end_slide -->
