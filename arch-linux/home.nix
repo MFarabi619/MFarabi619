@@ -48,6 +48,7 @@
     ../modules/home/programs/nix-index.nix
     ../modules/home/programs/nix-search-tv.nix
     ../modules/home/programs/obs-studio.nix
+    ../modules/home/programs/offlineimap.nix
     # ../modules/home/programs/obsidian.nix
     ../modules/home/programs/opencode.nix
     ../modules/home/programs/openstackclient.nix
@@ -92,7 +93,6 @@
       wl-screenrec
       framework-tool
       argocd-autopilot
-      # nvtopPackages.amd
       argocd-vault-plugin
     ];
   };

@@ -1,6 +1,6 @@
 {
   programs.mu = {
     enable = true;
-    # home = "~/Documents/.mu";
+    # home = "config.xdg.cacheHome + '/mu'"; # default
     };
 }

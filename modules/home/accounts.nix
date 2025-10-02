@@ -35,7 +35,22 @@
         neomutt.enable = false;
         notmuch.enable  = false;
         himalaya.enable = false;
-        offlineimap.enable = false;
+        offlineimap={
+          enable = true;
+          # postSyncHookCommand = "";
+          # extraConfig = {
+          #   account = {
+          #     autrefresh = 20;
+          #   };
+          # };
+          # local = {
+          #   sync_deletes = true;
+          # };
+          # remote = {
+          #   expunge = false;
+          #   maxconnections = 2;
+          # };
+          };
        thunderbird = {
          enable = false;
          profiles = {
