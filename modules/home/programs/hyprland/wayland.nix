@@ -6,12 +6,14 @@
     xwayland = {
       enable = true;
     };
+
     systemd = {
       enable = true;
       enableXdgAutostart = true;
       variables = [
         "--all"
       ];
+
       extraCommands = [
         "wl-paste --type text --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
@@ -127,7 +129,7 @@
       };
 
       decoration = {
-        rounding = 10;
+        rounding = 2;
         rounding_power = 2;
 
         active_opacity = 0.9;
@@ -144,10 +146,10 @@
           enabled = true;
           size = 4;
           passes = 2;
-          new_optimizations = true;
+          xray = false;
           vibrancy = 0.1696;
           ignore_opacity = true;
-          xray = false;
+          new_optimizations = true;
         };
       };
 
@@ -169,13 +171,6 @@
         resize_on_border = true;
       };
 
-      # gestures = {
-      #   workspace_swipe = true;
-      #   workspace_swipe_fingers = 3;
-      #   workspace_swipe_forever = true;
-      #   workspace_swipe_invert = false;
-      # };
-
       input = {
         kb_layout = "us";
         kb_options = "ctrl:nocaps";
@@ -188,12 +183,12 @@
       };
 
       misc = {
-        enable_swallow = false;
-        vfr = true; # Variable Frame Rate
         vrr = 2; # Variable Refresh Rate  Might need to set to 0 for NVIDIA/AQ_DRM_DEVICES
+        vfr = true; # Variable Frame Rate
+        enable_swallow = false;
+        force_default_wallpaper = 0;
         disable_hyprland_logo = true;
         disable_splash_rendering = true;
-        force_default_wallpaper = 0;
       };
 
       render = {
