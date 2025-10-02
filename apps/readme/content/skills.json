@@ -12,9 +12,19 @@
         "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
       },
       {
-        "name": "Sway",
-        "url": "https://docs.fuel.network/docs/sway/",
-        "icon": "https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg"
+        "name": "Embedded C",
+        "url": "https://en.wikipedia.org/wiki/Embedded_C",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg"
+      },
+      {
+        "name": "C++",
+        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
+      },
+      {
+        "name": "Arduino",
+        "url": "https://www.arduino.cc/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
       },
       {
         "name": "Bash",
@@ -25,11 +35,6 @@
         "name": "Emacs Lisp",
         "url": "https://en.wikipedia.org/wiki/Emacs_Lisp",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg"
-      },
-      {
-        "name": "TypeScript",
-        "url": "https://www.typescriptlang.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
       },
       {
         "name": "Org mode",
@@ -50,16 +55,6 @@
         "name": "KDL",
         "url": "https://kdl.dev",
         "icon": "https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg"
-      },
-      {
-        "name": "HTML",
-        "url": "https://www.w3.org/html/",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg"
-      },
-      {
-        "name": "Tailwind CSS",
-        "url": "https://tailwindcss.com/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
       }
     ],
     "Frameworks & Libraries": [
@@ -124,16 +119,6 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg"
       },
       {
-        "name": "Payload CMS",
-        "url": "https://payloadcms.com/",
-        "icon": "https://avatars.githubusercontent.com/u/62968818?s=48&v=4"
-      },
-      {
-        "name": "React Router 7",
-        "url": "https://reactrouter.com",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
-      },
-      {
         "name": "WXT",
         "url": "https://wxt.dev",
         "icon": "https://wxt.dev/hero-logo.svg"
@@ -142,16 +127,6 @@
         "name": "Sli.dev",
         "url": "https://sli.dev",
         "icon": "https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67"
-      },
-      {
-        "name": "React",
-        "url": "https://reactjs.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
-      },
-      {
-        "name": "Storybook",
-        "url": "https://storybook.js.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg"
       },
       {
         "name": "Serenity.js Screenplay Pattern",
@@ -236,19 +211,14 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
       },
       {
-        "name": "Vercel",
-        "url": "https://vercel.com",
-        "icon": "https://avatars.githubusercontent.com/u/14985020?s=48&v=4"
+        "name": "Cloudflare",
+        "url": "https://www.cloudflare.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg"
       },
       {
         "name": "Netlify",
         "url": "https://netlify.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
-      },
-      {
-        "name": "Fuel SDKs",
-        "url": "https://fuel.network",
-        "icon": "https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg"
       },
       {
         "name": "Penpot",
@@ -260,19 +230,9 @@
   "Previously Used": {
     "Languages": [
       {
-        "name": "Embedded C",
-        "url": "https://en.wikipedia.org/wiki/Embedded_C",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg"
-      },
-      {
-        "name": "C++",
-        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
-      },
-      {
-        "name": "Arduino",
-        "url": "https://www.arduino.cc/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
+        "name": "Sway",
+        "url": "https://docs.fuel.network/docs/sway/",
+        "icon": "https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg"
       },
       {
         "name": "Java",
@@ -283,6 +243,11 @@
         "name": "Python",
         "url": "https://www.python.org",
         "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg"
+      },
+      {
+        "name": "TypeScript",
+        "url": "https://www.typescriptlang.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"
       },
       {
         "name": "JavaScript",
@@ -300,6 +265,16 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg"
       },
       {
+        "name": "Tailwind CSS",
+        "url": "https://tailwindcss.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg"
+      },
+      {
+        "name": "HTML",
+        "url": "https://www.w3.org/html/",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg"
+      },
+      {
         "name": "CSS",
         "url": "https://www.w3schools.com/css/",
         "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
@@ -315,6 +290,16 @@
         "name": "Express",
         "url": "https://expressjs.com/",
         "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg"
+      },
+      {
+        "name": "Payload CMS",
+        "url": "https://payloadcms.com/",
+        "icon": "https://avatars.githubusercontent.com/u/62968818?s=48&v=4"
+      },
+      {
+        "name": "React Router 7",
+        "url": "https://reactrouter.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg"
       },
       {
         "name": "Next.js",
@@ -340,6 +325,16 @@
         "name": "Ember.js",
         "url": "https://emberjs.com/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg"
+      },
+      {
+        "name": "React",
+        "url": "https://reactjs.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
+      },
+      {
+        "name": "Storybook",
+        "url": "https://storybook.js.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg"
       },
       {
         "name": "Framer Motion",
@@ -422,6 +417,16 @@
         "name": "Sanity",
         "url": "https://www.sanity.io/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg"
+      },
+      {
+        "name": "Vercel",
+        "url": "https://vercel.com",
+        "icon": "https://avatars.githubusercontent.com/u/14985020?s=48&v=4"
+      },
+      {
+        "name": "Fuel SDKs",
+        "url": "https://fuel.network",
+        "icon": "https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg"
       },
       {
         "name": "Figma",

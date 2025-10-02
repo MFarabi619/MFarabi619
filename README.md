@@ -52,9 +52,17 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
 <img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40" />
 </a>
-<!-- Sway -->
-<a href="https://docs.fuel.network/docs/sway/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg" alt="Sway Logo" width="40" height="40" />
+<!-- Embedded C -->
+<a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40" />
+</a>
+<!-- C++ -->
+<a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
+</a>
+<!-- Arduino -->
+<a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
 </a>
 <!-- Bash -->
 <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
@@ -63,10 +71,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Emacs Lisp -->
 <a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40" />
-</a>
-<!-- TypeScript -->
-<a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40" />
 </a>
 <!-- Org mode -->
 <a href="https://orgmode.org" target="_blank" rel="noreferrer">
@@ -83,14 +87,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- KDL -->
 <a href="https://kdl.dev" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg" alt="KDL Logo" width="40" height="40" />
-</a>
-<!-- HTML -->
-<a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40" />
-</a>
-<!-- Tailwind CSS -->
-<a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40" />
 </a>
 </td>
 <td align='center'>
@@ -142,14 +138,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://graphql.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40" />
 </a>
-<!-- Payload CMS -->
-<a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40" />
-</a>
-<!-- React Router 7 -->
-<a href="https://reactrouter.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router 7 Logo" width="40" height="40" />
-</a>
 <!-- WXT -->
 <a href="https://wxt.dev" target="_blank" rel="noreferrer">
 <img src="https://wxt.dev/hero-logo.svg" alt="WXT Logo" width="40" height="40" />
@@ -157,14 +145,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Sli.dev -->
 <a href="https://sli.dev" target="_blank" rel="noreferrer">
 <img src="https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67" alt="Sli.dev Logo" width="40" height="40" />
-</a>
-<!-- React -->
-<a href="https://reactjs.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40" />
-</a>
-<!-- Storybook -->
-<a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40" />
 </a>
 <!-- Serenity.js Screenplay Pattern -->
 <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
@@ -232,17 +212,13 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40" />
 </a>
-<!-- Vercel -->
-<a href="https://vercel.com" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/14985020?s=48&v=4" alt="Vercel Logo" width="40" height="40" />
+<!-- Cloudflare -->
+<a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" alt="Cloudflare Logo" width="40" height="40" />
 </a>
 <!-- Netlify -->
 <a href="https://netlify.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
-</a>
-<!-- Fuel SDKs -->
-<a href="https://fuel.network" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg" alt="Fuel SDKs Logo" width="40" height="40" />
 </a>
 <!-- Penpot -->
 <a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
@@ -255,17 +231,9 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </tr>
 <tr>
 <td align='center'>
-<!-- Embedded C -->
-<a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40" />
-</a>
-<!-- C++ -->
-<a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
-</a>
-<!-- Arduino -->
-<a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
+<!-- Sway -->
+<a href="https://docs.fuel.network/docs/sway/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg" alt="Sway Logo" width="40" height="40" />
 </a>
 <!-- Java -->
 <a href="https://www.java.com" target="_blank" rel="noreferrer">
@@ -274,6 +242,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Python -->
 <a href="https://www.python.org" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="40" height="40" />
+</a>
+<!-- TypeScript -->
+<a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40" />
 </a>
 <!-- JavaScript -->
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
@@ -286,6 +258,14 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Lua -->
 <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40" />
+</a>
+<!-- Tailwind CSS -->
+<a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40" />
+</a>
+<!-- HTML -->
+<a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40" />
 </a>
 <!-- CSS -->
 <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
@@ -300,6 +280,14 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Express -->
 <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40" />
+</a>
+<!-- Payload CMS -->
+<a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40" />
+</a>
+<!-- React Router 7 -->
+<a href="https://reactrouter.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router 7 Logo" width="40" height="40" />
 </a>
 <!-- Next.js -->
 <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
@@ -320,6 +308,14 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Ember.js -->
 <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40" />
+</a>
+<!-- React -->
+<a href="https://reactjs.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40" />
+</a>
+<!-- Storybook -->
+<a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40" />
 </a>
 <!-- Framer Motion -->
 <a href="https://motion.dev" target="_blank" rel="noreferrer">
@@ -386,6 +382,14 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Sanity -->
 <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40" />
+</a>
+<!-- Vercel -->
+<a href="https://vercel.com" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/14985020?s=48&v=4" alt="Vercel Logo" width="40" height="40" />
+</a>
+<!-- Fuel SDKs -->
+<a href="https://fuel.network" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg" alt="Fuel SDKs Logo" width="40" height="40" />
 </a>
 <!-- Figma -->
 <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
@@ -498,10 +502,9 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 
 ## 🛠 Current Setup
 
-<strong><a href="https://archlinux.org/">Arch Linux</a> - Migrating to <a href="https://nixos.org">NixOS</a> <a href="https://nixos.org">
+<strong><a href="https://archlinux.org/">Apollyon Linux</a><a href="https://nixos.org">
   <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
 </a> </strong>
-
 
 #### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator
 
@@ -754,7 +757,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <b>✨ About Me</b>
 <br/><br/>
 
-- 🌱 Began self-taught developer journey in January 2023.
 - ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
 - 💻 Passionate Vim/Neovim/Emacs & Operating Systems enthusiast.
 - 🛠️ I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity 🏃‍♂️💨
@@ -784,9 +786,6 @@ Got a suggestion? Add it to the list :)
         </a>
       </td>
       <td style="text-align: center;">
-        <a href="https://www.amazon.ca/Full-Stack-Development-Remix-production-ready-ebook/dp/B0BNC2F14C">
-          <img src="https://github.com/user-attachments/assets/f7333c00-c187-4e16-a790-90aa1397adfe" alt="Full Stack Web Development with Remix" width="100" height="150" style="margin: 10px;">
-        </a>
         <a href="https://www.amazon.ca/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882">
           <img src="https://m.media-amazon.com/images/I/51E2055ZGUL._AC_UF1000,1000_QL80_.jpg" alt="Clean Code" width="100" height="150" style="margin: 10px;">
         </a>
@@ -798,6 +797,9 @@ Got a suggestion? Add it to the list :)
         </a>
       </td>
       <td style="text-align: center;">
+        <a href="https://www.amazon.ca/Full-Stack-Development-Remix-production-ready-ebook/dp/B0BNC2F14C">
+          <img src="https://github.com/user-attachments/assets/f7333c00-c187-4e16-a790-90aa1397adfe" alt="Full Stack Web Development with Remix" width="100" height="150" style="margin: 10px;">
+        </a>
         <a href="https://go.nx.dev/react-book">
           <img src="https://github.com/user-attachments/assets/34f403e1-1fd0-4fa7-bcd4-8b4eba9c1a7e" alt="Effective React Development with Nx Book" width="100" height="150" style="margin: 10px;">
         </a>

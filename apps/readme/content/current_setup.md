@@ -1,9 +1,8 @@
 ## 🛠 Current Setup
 
-<strong><a href="https://archlinux.org/">Arch Linux</a> - Migrating to <a href="https://nixos.org">NixOS</a> <a href="https://nixos.org">
+<strong><a href="https://archlinux.org/">Apollyon Linux</a><a href="https://nixos.org">
   <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
 </a> </strong>
-
 
 #### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator
 
