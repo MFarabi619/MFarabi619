@@ -9,6 +9,7 @@
     ./claude-code.nix
     ./command-not-found.nix
     ./direnv.nix
+    ./element-desktop.nix
     ./eza.nix
     ./fastfetch
     ./fd.nix
