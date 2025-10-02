@@ -48,8 +48,8 @@
 
       screencapture = {
         type = "png";
-        target = "preview";
         include-date = true;
+        target = "clipboard";
         disable-shadow = true;
         show-thumbnail = true;
       };
