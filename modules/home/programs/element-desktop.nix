@@ -47,5 +47,5 @@
     #     integrations_ui_url = "https://scalar.vector.im/";
     #     integrations_rest_url = "https://scalar.vector.im/api";
     #   };
-  }
+  };
 }

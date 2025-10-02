@@ -26,7 +26,7 @@
     ./jq.nix
     ./jqp.nix
     ./k9s.nix
-    ./kitty.nix
+    ./kitty
     ./kubecolor.nix
     ./lazydocker.nix
     ./lazygit.nix
