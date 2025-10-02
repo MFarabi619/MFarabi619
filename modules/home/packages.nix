@@ -150,8 +150,10 @@
 
         discordo
         nvtopPackages.full
+        jellyfin-tui
       ]
       ++ lib.optionals stdenv.isLinux [
+        # ventoy-full # flash multiple isos to usb
         freecad
         woeusb-ng # flash bootable windows iso
 
