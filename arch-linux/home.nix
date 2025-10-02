@@ -77,6 +77,7 @@
 
     packages = with pkgs; [
       ttyd
+      tscli
       arion
       hydra
       nix-ld
@@ -84,8 +85,8 @@
       kubectl
       # microk8s
       minikube
+      jellyfin
       tailscale
-      tscli
       # fw-fanctrl
       wl-screenrec
       framework-tool
