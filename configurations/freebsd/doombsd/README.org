@@ -92,7 +92,7 @@ git clone https://github.com/LazyVim/starter ~/.config/nvim; rm -rf ~/.config/nv
 git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs; ~/.config/emacs/bin/doom install;
 #+end_src
 
-*** Set up Hyprland
+*** Set up FreeBSD Hyprland
 
 1. Add user to =video= group
   #+begin_src bash
@@ -151,9 +151,24 @@ sudo kldload sysctlinfo
 sudo pkg install webcamd pwcview fontpreview epdfview glcapsviewer swww pango cairo pipewire grim slurp
 #+end_src
 
+#+begin_src bash
 sudo sysrc webcamd_enable=YES
+#+end_src
+#+begin_src bash
 sudo service devd restart
+#+end_src
+#+begin_src bash
 sudo pw groupmod webcamd -m mfarabi
+#+end_src
+#+begin_src bash
+sudo kldload cuse
+#+end_src
+#+begin_src bash
+sudo sysrc kld_list+=cuse
+#+end_src
+#+begin_src bash
+sudo webcamd -l
+#+end_src
 
 2. Install packages
 #+begin_src bash
@@ -244,7 +259,7 @@ proc	/proc		procfs		rw	0	0
 #+end_src
 
 #+begin_src bash
-sudo pkg install arduino
+sudo pkg install arduino arduino-avrdude avr-gcc avrdude arduino-bsd-mk arduino-core
 #+end_src
 #+begin_src
 To allow serial port locking, add your user to the dialer group:
@@ -262,6 +277,14 @@ visible if you started the IDE from a console):
 
 To start the IDE:
     /usr/local/bin/arduino
+#+end_src
+
+https://wiki.freebsd.org/Arduino
+
+sudo kldload uarduno.ko
+
+#+begin_src bash
+uarduno_load="YES"
 #+end_src
 
 
@@ -370,6 +393,54 @@ Expected:
 hyprland
 #+end_src
 
+
+*** Other
+#+begin_src bash
+sudo pkg install systeroid sysctl-tui framework-system television pkg_search podman aichat ollama python ztop desktop-installer htop jtop ntopng nats-top mkdesktop portopscli sntop xdesktopwaves usbtop treetop toppler radeon top ghostscript netpbm redis wl-gammarelay-rs wl-mkbptr wl-screenrec networkmgr firefox gh ttyd sysutils/lazyssh qmk_hid realtek-re-kmod realtek-re-kmod198 linux-steam-utils win-proton libc6-shim tree-sitter tailscale languageclient-neovim firefox linux-bitwarden-cli mixertui audio/moc scrot wf-recorder tree-sitter-graph
+#+end_src
+
+#+begin_src bash
+sudo pkg install texlive-full
+#+end_src
+
+#+begin_src bash
+sudo pkg install
+bandwhich
+bmon
+shfmt mu py311-offlineimap rubygem-neovim
+hs-ShellCheck gnuplot
+xclip wininfo # for emacs-everywhere
+py311-grp # markdown preview
+linux-discord
+#+end_src
+
+#+begin_src bash
+sudo kldload snd_driver
+#+end_src
+
+#+begin_src bash
+sudo kldload vmm
+sudo ifconfig tap0 create
+sudo sysctl net.link.tap.up_on_open=1
+sudo ifconfig bridge0 create
+sudo ifconfig bridge0 addm ue0 addm tap0 # change `ue0` to your preferred network interface
+sudo ifconfig bridge0 up
+sudo truncate -s 100G guest.img
+sudo sh /usr/share/examples/bhyve/vmrun.sh -c 8 -m 48000M -t tap0 -d guest.img -i -I FreeBSD-14.3-RELEASE-amd64-bootonly.iso guestname
+#+end_src
+
+#+begin_src bash
+sudo kldload nullfs
+#+end_src
+
+
+#+begin_src bash
+sudo ya pkg add yazi-rs/plugins:{git,mime-ext,smart-enter,smart-filter,smart-paste,chmod,mount,toggle-pane,vcs-files,zoom}
+#+end_src
+
+#+begin_src bash
+sudo pkg install go wget unzip
+#+end_src
 
 ***** Resources:
 - [[https://github.com/wisonye/freebsd-handbook/blob/master/chapters/install-hyprland.org][wisonye's Personal FreeBSD Handbook - Install Hyprland]]
