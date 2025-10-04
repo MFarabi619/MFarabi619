@@ -4,7 +4,7 @@ resolver = "2"
 members = [
     "apps/web",
     "apps/api",
-    "apps/readme",
+    "apps/readme", "learning/rust",
 ]
 
 [workspace.dependencies.loco-rs]
