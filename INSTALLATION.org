@@ -524,3 +524,4 @@ nixos-rebuild switch --flake .#<system> --target-host root@<hostname>
 #+end_src
 
 vsxsrv
+PiKVM
