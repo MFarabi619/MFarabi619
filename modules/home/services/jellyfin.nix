@@ -1,5 +1,10 @@
 {
-  services.jellyfin-mpv-shim = {
+  lib,
+  pkgs,
+  ...
+}:
+{
+  services.jellyfin-mpv-shim = lib.mkIf pkgs.stdenv.isLinux {
    enable = true;
     settings = {
      auto_play = true;
