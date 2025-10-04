@@ -1,9 +1,9 @@
 {
   programs.eza = {
+    git = true;
     enable = true;
     icons = "auto";
     colors = "always";
-    git = true;
     enableBashIntegration = true;
     enableZshIntegration = true;
     extraOptions = [

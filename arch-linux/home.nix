@@ -34,6 +34,7 @@
     ../modules/home/programs/gpg.nix
     ../modules/home/programs/grep.nix
     ../modules/home/programs/home-manager.nix
+    ../modules/home/programs/info.nix
     ../modules/home/programs/jq.nix
     ../modules/home/programs/jqp.nix
     ../modules/home/programs/k9s.nix
@@ -93,6 +94,7 @@
       # fw-fanctrl
       wl-screenrec
       framework-tool
+      # cp210x-program
       argocd-autopilot
       argocd-vault-plugin
     ];

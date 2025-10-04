@@ -24,6 +24,7 @@
     ./grep.nix
     ./home-manager.nix
     ./hyprland
+    ./info.nix
     ./jq.nix
     ./jqp.nix
     ./k9s.nix
