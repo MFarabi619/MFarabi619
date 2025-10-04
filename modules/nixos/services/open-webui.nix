@@ -1,9 +1,11 @@
 {
   services.open-webui = {
-   enable = false;
-    port = 8080;
-    host = "127.0.0.1";
-    stateDir = "/var/lib/open-webui";
+    port = 7777;
+    enable = true;
+    # openFirewall = false; # default
+    # host = "127.0.0.1"; # default
+    stateDir = "/var/lib/open-webui"; # default
+    # environmentFile = "/var/lib/secrets/openWebuiSecrets";
     environment = {
       # WEBUI_AUTH = "True";
       DO_NO_TRACK = "True";
