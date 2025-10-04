@@ -20,13 +20,13 @@
       #   };
       # };
 
-      nixos-hetzner = {
+      nixos-server = {
         port = 22;
         user = "mfarabi";
-        host = "nixos-hetzner";
+        host = "nixos-server";
         checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "5.161.84.168";
+        hostname = "10.0.0.214";
         setEnv.TERM = "xterm-kitty";
       };
 
@@ -50,6 +50,16 @@
         setEnv.TERM = "xterm-kitty";
       };
 
+      macos-intel = {
+        port = 22;
+        host = "macos-intel";
+        user = "mfarabi";
+        hostname = "10.0.0.90";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        setEnv.TERM = "xterm-kitty";
+      };
+
       freebsd = {
         port = 22;
         host = "freebsd";
@@ -64,7 +74,7 @@
         port = 22;
         host = "nixos";
         user = "mfarabi";
-        hostname = "192.168.1.47";
+        hostname = "10.0.0.191";
         checkHostIP = true;
         addKeysToAgent = "yes";
         setEnv.TERM = "xterm-kitty";
