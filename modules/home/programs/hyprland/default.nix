@@ -12,6 +12,7 @@
     ./programs.nix
     ./services.nix
     ./systemd.nix
+    ./waybar.nix
     ./wayland.nix
   ];
 }
