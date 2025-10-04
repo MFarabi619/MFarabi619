@@ -57,10 +57,17 @@
     getty.autologinUser = "mfarabi";
     displayManager = {
       sddm = {
-        enable = false;
-        # settings = {
-
-        # };
+        enable = true;
+        autoNumlock = false;
+        # setupScript = "";
+          # stopScript = "";
+        # extraPackages = [];
+        settings = {
+          Autologin = {
+            Session = "Hyprland";
+            User = "mfarabi";
+          };
+        };
         wayland = {
           enable = true;
           # compositor = "kwin";
