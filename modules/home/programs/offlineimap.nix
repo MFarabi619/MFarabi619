@@ -11,10 +11,11 @@
      # default = {
      #   gmailtrashfolder = "[Gmail]/Papierkorb";
      # };
-     # general = {
-     #   maxage = 30;
-     #   ui = "blinkedlights";
-     # };
+     general = {
+       maxage = 30;
+       accounts = "Gmail";
+       # ui = "blinkedlights";
+     };
      # mbnames = {
      #   filename = "~/.config/mutt/mailboxes";
      #   header = "'mailboxes '";

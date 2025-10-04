@@ -16,25 +16,30 @@
       };
      };
     };
+
     email = {
+     maildirBasePath = "Maildir"; # default
      accounts = {
-      mfarabi = {
+       "mfarabi" = {
        enable = true;
-        mu.enable = true;
-        aerc.enable = false;
-        lieer.enable = false;
-        msmtp.enable = false;
-        mbsync.enable = false;
-        mujmap.enable = false;
-        astroid.enable = false;
+       realName = "Mumtahin Farabi";
+       smtp.host = "smtp.gmail.com";
+       imapnotify.enable = false;
+       smtp.tls.enable = true;
+       address = "mfarabi619@gmail.com";
+       userName = "mfarabi619@gmail.com";
+
+       imap={
+        host = "imap.gmail.com";
+        tls.enable = true;
+       };
+
+       mu.enable = true;
         getmail = {
           enable = false;
           delete = false;
           readAll = true;
       };
-        neomutt.enable = false;
-        notmuch.enable  = false;
-        himalaya.enable = false;
         offlineimap={
           enable = true;
           # postSyncHookCommand = "";
@@ -51,19 +56,6 @@
           #   maxconnections = 2;
           # };
           };
-       thunderbird = {
-         enable = false;
-         profiles = {
-          accountsOrder = [];
-          calendarAccountsOrder = [];
-         };
-      };
-       # vdirsyncer = {
-       #  enable = false;
-       # };
-        imap.tls.enable = true;
-        imapnotify.enable = false;
-        smtp.tls.enable = true;
       };
      };
     };
