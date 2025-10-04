@@ -9,7 +9,7 @@
 
   imports = [
     ./home.nix
-    ./programs.nix
+    ./rofi.nix
     ./services.nix
     ./systemd.nix
     ./waybar.nix

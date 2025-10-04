@@ -1,5 +1,10 @@
 {
-  programs.waybar = {
+  lib,
+  pkgs,
+  ...
+}:
+{
+  programs.waybar = lib.mkIf pkgs.stdenv.isLinux {
     enable = true;
     systemd={
       enable = true;
@@ -9,18 +14,34 @@
   };
     settings = {
       mainBar = {
+        height = 30;
+        mod = "dock";
         layer = "top";
         output = [ "*" ];
         position = "top";
-        mod = "dock";
-        height = 31;
         exclusive = true;
         passthrough = false;
         gtk-layer-shell = true;
         reload_style_on_change = true;
+
         # modules-left = ["cpu"];
         # modules-center = ["hyprland/workspaces"];
         # modules-right = ["hyprland/workspaces"];
+
+        #       "sway/workspaces" = {
+        #         disable-scroll = true;
+        #         all-outputs = true;
+        #       };
+        #       "custom/hello-from-waybar" = {
+        #         format = "hello {}";
+        #         max-length = 40;
+        #         interval = "once";
+        #         exec = pkgs.writeShellScript "hello-from-waybar" ''
+        #           echo "from within waybar"
+        #         '';
+        #       };
+        #     };
+        #   }
       };
     };
   # style = ''
