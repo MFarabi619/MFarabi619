@@ -1,7 +1,12 @@
-{lib, pkgs, ...}:
+{
+  lib,
+  pkgs,
+  ...
+}:
 {
   home = lib.mkIf pkgs.stdenv.isLinux {
     packages = with pkgs; [
+      wl-screenrec
       wl-clipboard
     ];
 
