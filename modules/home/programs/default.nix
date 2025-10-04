@@ -7,6 +7,7 @@
     ./btop.nix
     ./chromium.nix
     ./claude-code.nix
+    ./clock-rs.nix
     ./command-not-found.nix
     ./direnv.nix
     ./element-desktop.nix
