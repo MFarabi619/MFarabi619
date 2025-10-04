@@ -2,9 +2,9 @@
 # and may be overwritten by future invocations.  Please make changes
 # to /etc/nixos/configuration.nix instead.
 {
-  config,
   lib,
   pkgs,
+  config,
   modulesPath,
   ...
 }:
@@ -14,29 +14,31 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  nixpkgs={
+    hostPlatform = lib.mkDefault "x86_64-linux";
+    };
 
   hardware = {
-    enableRedistributableFirmware = true;
-    enableAllFirmware = true;
     graphics.enable = true;
+    enableAllFirmware = true;
+    enableRedistributableFirmware = true;
     cpu = {
       intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
     };
   };
 
   boot = {
+    extraModulePackages = [ ];
+    kernelModules = [ "kvm-intel" ];
     initrd = {
+      kernelModules = [ ];
       availableKernelModules = [
         "xhci_pci"
         "nvme"
         "usb_storage"
         "sd_mod"
       ];
-      kernelModules = [ ];
     };
-    kernelModules = [ "kvm-intel" ];
-    extraModulePackages = [ ];
   };
 
   fileSystems = {

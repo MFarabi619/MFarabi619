@@ -2,13 +2,18 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  ...
+}:
 
 {
   system.stateVersion = "25.05";
 
   imports = [
-    ./hardware-configuration.nix
+    # ./hardware-configuration.nix
+    ./framework-desktop.nix
   ];
 
   boot = {
@@ -28,8 +33,9 @@
     isNormalUser = true;
     description = "Mumtahin Farabi";
     extraGroups = [
-      "networkmanager"
       "wheel"
+      "video"
+      "networkmanager"
     ];
   };
 
