@@ -278,7 +278,7 @@ let
   base0F = "D65D0E";
 in
 with lib; {
-  programs.waybar = {
+  programs.waybar = lib.mkIf pkgs.stdenv.isLinux {
     enable = true;
     systemd = {
       enable = true;
