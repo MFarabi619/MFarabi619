@@ -5,6 +5,7 @@
       enable = true;
       allowedTCPPorts = [
         22 # SSH
+        19999 # netdata
       ];
       allowedUDPPorts = [
         68 # DHCP
