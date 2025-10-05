@@ -49,7 +49,8 @@
       nyan-wavy-trail t
       nyan-animate-nyancat t
       doom-modeline-hud t
-      doom-theme 'doom-gruvbox
+      ;; doom-theme 'doom-gruvbox
+      doom-theme 'catppuccin
       which-key-idle-delay 0.25
       evil-split-window-below t
       doom-modeline-time-icon t

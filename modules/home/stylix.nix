@@ -7,7 +7,8 @@
     enable = true;
     autoEnable = true;
     polarity = "dark";
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+    # base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-macchiato.yaml";
 
     targets = {
       vim.enable = true;
@@ -15,7 +16,7 @@
       font-packages.enable = true;
 
       neovim = {
-        enable = false;
+        enable = true;
         transparentBackground = {
           main = true;
           numberLine = true;
@@ -25,7 +26,7 @@
 
       kitty = {
         enable = true;
-        variant256Colors = false;
+        variant256Colors = true;
       };
     };
 
@@ -49,23 +50,23 @@
       };
 
       emoji = {
-        package = pkgs.noto-fonts-color-emoji;
         name = "Noto Color Emoji";
+        package = pkgs.noto-fonts-color-emoji;
       };
 
       serif = {
-        package = pkgs.nerd-fonts.jetbrains-mono;
         name = "JetBrainsMono Nerd Font";
+        package = pkgs.nerd-fonts.jetbrains-mono;
       };
 
       sansSerif = {
-        package = pkgs.nerd-fonts.jetbrains-mono;
         name = "JetBrainsMono Nerd Font";
+        package = pkgs.nerd-fonts.jetbrains-mono;
       };
 
       monospace = {
-        package = pkgs.nerd-fonts.jetbrains-mono;
         name = "JetBrainsMono Nerd Font";
+        package = pkgs.nerd-fonts.jetbrains-mono;
       };
     };
   };

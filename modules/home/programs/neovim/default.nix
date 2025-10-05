@@ -7,12 +7,12 @@
   programs = {
     neovim = {
       enable = true;
-      defaultEditor = true;
       viAlias = false;
       vimAlias = false;
       withRuby = true;
       withNodeJs = true;
       withPython3 = true;
+      defaultEditor = true;
       plugins = with pkgs.vimPlugins; [
         LazyVim
         qmk-nvim
@@ -23,7 +23,7 @@
   home = {
     file = {
       ".config/nvim/init.lua" = {
-        enable = true;
+        enable = false;
         text = ''
           -- bootstrap lazy.nvim, LazyVim and your plugins
           require("config.lazy")

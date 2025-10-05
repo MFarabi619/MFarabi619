@@ -48,6 +48,8 @@
         speed-type
         chordpro-mode
         org-super-agenda
+        # ================
+        catppuccin-theme
       ];
 
     # provideEmacs = false;
