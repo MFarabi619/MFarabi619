@@ -15,11 +15,12 @@
     casks = [
       "huly"
       "vivaldi"
-      "arduino-cli"
+      "arduino-ide"
     ];
 
     brews = [
       "glab"
+      "arduino-cli"
       "media-control"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ];
