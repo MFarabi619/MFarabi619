@@ -1,5 +1,6 @@
 {
   imports = [
+    ./atuin.nix
     ./aichat.nix
     ./emacs
     ./bash.nix
