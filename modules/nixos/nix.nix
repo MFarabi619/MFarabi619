@@ -40,7 +40,6 @@
         "https://emacsng.cachix.org"
         "https://emacs-ci.cachix.org"
         "https://emacsng.cachix.org"
-        "https://nixvim.cachix.org"
 
         "https://hyprland.cachix.org"
       ];
@@ -61,7 +60,6 @@
 
         "https://emacs-ci.cachix.org"
         "https://emacsng.cachix.org"
-        "https://nixvim.cachix.org"
 
         "https://hyprland.cachix.org"
       ];
@@ -79,7 +77,6 @@
         "emacsng.cachix.org-1:i7wOr4YpdRpWWtShI8bT6V7lOTnPeI7Ho6HaZegFWMI="
         "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
         "nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU="
-        "nixvim.cachix.org-1:8xrm/43sWNaE3sqFYil49+3wO5LqCbS4FHGhMCuPNNA="
         "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       ];
 
@@ -99,7 +96,6 @@
         "https://mfarabi.cachix.org"
 
         "https://emacs-ci.cachix.org"
-        "https://nixvim.cachix.org"
 
         "https://hyprland.cachix.org"
       ];
@@ -120,7 +116,6 @@
         "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="
 
         "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
-        "nixvim.cachix.org-1:8xrm/43sWNaE3sqFYil49+3wO5LqCbS4FHGhMCuPNNA="
 
         "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       ];

@@ -78,7 +78,6 @@ in
           "https://cachix.cachix.org"
           "https://emacs-ci.cachix.org"
           "https://emacsng.cachix.org"
-          "https://nixvim.cachix.org"
         ];
         trusted-substituters = [
           "https://cache.nixos.org"
@@ -91,7 +90,6 @@ in
           "https://cachix.cachix.org"
           "https://emacs-ci.cachix.org"
           "https://emacsng.cachix.org"
-          "https://nixvim.cachix.org"
         ];
         trusted-public-keys = [
           "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
@@ -104,7 +102,6 @@ in
           "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
           "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
           "emacsng.cachix.org-1:i7wOr4YpdRpWWtShI8bT6V7lOTnPeI7Ho6HaZegFWMI="
-          "nixvim.cachix.org-1:8xrm/43sWNaE3sqFYil49+3wO5LqCbS4FHGhMCuPNNA="
         ];
         extra-substituters = [
           "https://cache.nixos.org"
