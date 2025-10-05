@@ -5,6 +5,7 @@
     ./myusers.nix
     ./documentation.nix
     ./environment.nix
+    ./fonts.nix
     ./homebrew.nix
     ./networking.nix
     ./nixpkgs.nix
