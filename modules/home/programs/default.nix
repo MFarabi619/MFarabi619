@@ -1,5 +1,6 @@
 {
   imports = [
+    ./aerospace.nix
     ./aichat.nix
     ./emacs
     ./bash.nix
@@ -49,7 +50,7 @@
     ./rtorrent.nix
     ./ssh.nix
     ./sftpman.nix
-    ./sketchybar.nix
+    ./sketchybar
     ./starship
     ./television.nix
     ./tex-fmt.nix

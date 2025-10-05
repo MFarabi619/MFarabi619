@@ -10,7 +10,8 @@
 
       linkApps = {
         enable = true;
-        directory = "Applications/Nix Apps";
+        # directory = "Applications/Nix Apps";
+        directory = "/Users/mfarabi/Applications/Nix Apps";
       };
 
       currentHostDefaults = {
@@ -48,10 +49,14 @@
           ShowAMPM = true;
         };
       };
+
       # https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/TextDefaultsBindings/TextDefaultsBindings.html
       keybindings = {
-        "^u" = "deleteToBeginningOfLine:";
-        "^w" = "deleteWordBackward:";
+        "^c" = "copy:";
+        "^x" = "cut:";
+        "^v" = "paste:";
+        # "^w" = "deleteWordBackward:";
+        # "^u" = "deleteToBeginningOfLine:";
       };
     };
   };
