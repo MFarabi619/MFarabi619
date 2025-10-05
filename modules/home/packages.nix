@@ -1,3 +1,4 @@
+# hygg # TUI book reader
 # pog
 # uvx parllama
 # uvx netshow
@@ -134,6 +135,7 @@
 
         # ============== 🤪 =================
         genact
+        smassh # TUI monkeytype
         cowsay
         lolcat # rainbow text output
         figlet # fancy ascii text output
