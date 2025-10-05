@@ -8,6 +8,9 @@
 
     defaults = {
       spaces.spans-displays = false;
+      LaunchServices.LSQuarantine = false;
+      SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
+      CustomUserPreferences."com.apple.AdLib".allowApplePersonalizedAdvertising = false;
 
       finder = {
         ShowPathbar = true;
@@ -33,13 +36,13 @@
 
       WindowManager = {
         AutoHide = false; # Auto hide stage strip showing recent apps.
-        HideDesktop = false;
+        HideDesktop = true;
         GloballyEnabled = false; # Enable Stage Manager Stage Manager arranges your recent windows into a single strip for reduced clutter and quick access
-        StandardHideWidgets = false;
+        StandardHideWidgets = true;
         EnableTilingByEdgeDrag = true; # Enable dragging windows to screen edges to tile them
-        StageManagerHideWidgets = false;
+        StageManagerHideWidgets = true;
         EnableTiledWindowMargins = true; # Enable window margins when tiling windows.
-        StandardHideDesktopIcons = false;
+        StandardHideDesktopIcons = true;
         AppWindowGroupingBehavior = true; # Grouping strategy when showing windows from an application
         EnableTopTilingByEdgeDrag = true; # Enable dragging windows to the menu bar to fill the screen.
         EnableTilingOptionAccelerator = true; # Enable holding alt to tile windows.
@@ -76,8 +79,6 @@
         TrackpadThreeFingerDrag = true;
       };
 
-      SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
-
       NSGlobalDomain = {
         AppleFontSmoothing = 2;
         AppleInterfaceStyle = "Dark";
@@ -105,9 +106,13 @@
       };
 
       controlcenter = {
-        Display = true;
+        Sound = false;
+        Display = false;
         AirDrop = false;
-        Bluetooth = true;
+        Bluetooth = false;
+        FocusModes = false;
+        NowPlaying = false;
+        BatteryShowPercentage = false;
       };
 
       dock = {
