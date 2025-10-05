@@ -15,6 +15,7 @@
     casks = [
       "huly"
       "vivaldi"
+      "leader-key"
       "arduino-ide"
     ];
 
