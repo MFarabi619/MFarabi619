@@ -131,7 +131,6 @@
                     "https://nixos-raspberrypi.cachix.org"
 
                     "https://mfarabi.cachix.org"
-                    "https://fuellabs.cachix.org"
 
                     "https://emacsng.cachix.org"
                     "https://emacs-ci.cachix.org"
@@ -153,7 +152,6 @@
                     "https://nixos-raspberrypi.cachix.org"
 
                     "https://mfarabi.cachix.org"
-                    "https://fuellabs.cachix.org"
 
                     "https://emacs-ci.cachix.org"
                     "https://nixvim.cachix.org"
@@ -175,7 +173,6 @@
                     "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
                     "nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU="
                     "nixvim.cachix.org-1:8xrm/43sWNaE3sqFYil49+3wO5LqCbS4FHGhMCuPNNA="
-                    "fuellabs.cachix.org-1:3gOmll82VDbT7EggylzOVJ6dr0jgPVU/KMN6+Kf8qx8="
                     "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
                   ];
 
@@ -193,7 +190,6 @@
                     "https://nixos-raspberrypi.cachix.org"
 
                     "https://mfarabi.cachix.org"
-                    "https://fuellabs.cachix.org"
 
                     "https://emacs-ci.cachix.org"
                     "https://nixvim.cachix.org"
@@ -213,7 +209,6 @@
                     "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
                     "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
                     "nixvim.cachix.org-1:8xrm/43sWNaE3sqFYil49+3wO5LqCbS4FHGhMCuPNNA="
-                    "fuellabs.cachix.org-1:3gOmll82VDbT7EggylzOVJ6dr0jgPVU/KMN6+Kf8qx8="
                     "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
                   ];
                 };

@@ -38,7 +38,6 @@
       "https://emacsng.cachix.org"
       "https://nixvim.cachix.org"
       "https://nix-on-droid.cachix.org"
-      "https://fuellabs.cachix.org"
     ];
 
     trustedPublicKeys = [
@@ -54,7 +53,6 @@
       "emacsng.cachix.org-1:i7wOr4YpdRpWWtShI8bT6V7lOTnPeI7Ho6HaZegFWMI="
       "nixvim.cachix.org-1:8xrm/43sWNaE3sqFYil49+3wO5LqCbS4FHGhMCuPNNA="
       "nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU="
-      "fuellabs.cachix.org-1:3gOmll82VDbT7EggylzOVJ6dr0jgPVU/KMN6+Kf8qx8="
     ];
   };
 
