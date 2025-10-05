@@ -1,5 +1,5 @@
 {
   services.skhd = {
-    enable = true;
+    enable = false;
   };
 }

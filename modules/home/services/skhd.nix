@@ -1,7 +1,7 @@
 { lib, pkgs, ... }:
 {
   services.skhd = lib.mkIf pkgs.stdenv.isDarwin {
-    enable = true;
+    enable = false;
     config = ''
       # change window focus within space
       alt - j : yabai -m window --focus south
