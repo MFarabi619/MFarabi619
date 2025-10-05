@@ -88,7 +88,7 @@
         NSAutomaticSpellingCorrectionEnabled = false;
         AppleInterfaceStyleSwitchesAutomatically = false;
 
-        NSWindowResizeTime = 0.1;
+        NSWindowResizeTime = 0.05;
         NSDocumentSaveNewDocumentsToCloud = false;
         NSNavPanelExpandedStateForSaveMode = false;
 

@@ -1,5 +1,6 @@
 {
   imports = [
+    ./aerospace.nix
     ./github-runners.nix
     ./ipfs.nix
     ./jankyborders.nix

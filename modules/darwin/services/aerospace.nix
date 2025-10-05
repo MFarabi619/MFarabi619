@@ -1,18 +1,13 @@
 {
-  lib,
-  pkgs,
-  ...
-}:
-{
-  programs.aerospace = lib.mkIf pkgs.stdenv.isDarwin {
+  services.aerospace = {
    enable = true;
-    launchd = {
-      enable = true;
-      keepAlive = true;
-    };
 
-    userSettings = { # yoinked from github.com/ryangchung/ryangchung/blob/main/modules/home/programs/aerospace.nix
-      start-at-login = true;
+    settings = { # yoinked from github.com/ryangchung/ryangchung/blob/main/modules/home/programs/aerospace.nix
+      # start-at-login = true;
+      after-startup-command = [
+        "layout tiles"
+      ];
+
       gaps = {
         inner = {
           vertical = 0;
@@ -20,12 +15,13 @@
         };
 
         outer = {
-          top = 2;
-          left = 8;
-          right = 8;
-          bottom = 2;
+          top = 10;
+          left = 10;
+          right = 10;
+          bottom = 8;
         };
       };
+
       mode.main.binding = {
         alt-tab = "workspace-back-and-forth";
 
@@ -74,12 +70,11 @@
 
         alt-shift-semicolon = "mode service";
 
-        exec-on-workspace-change = [
-          "/bin/bash"
-          "-c"
-          "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
-        ];
-
+        # exec-on-workspace-change = [
+        #   "/bin/bash"
+        #   "-c"
+        #   "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
+        # ];
 
         # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
         # --focus-follows-window is used to ensure workspace changes to trigger the callback for sketchybar to update
@@ -97,7 +92,7 @@
         alt-shift-c = "move-node-to-workspace C --focus-follows-window";
         alt-shift-d = "move-node-to-workspace D --focus-follows-window";
         alt-shift-e = "move-node-to-workspace E --focus-follows-window";
-        #alt-shift-f = "move-node-to-workspace F' # disabled as it's a common code format hotke"
+        #alt-shift-f = "move-node-to-workspace F' # disabled as it's a common code formatting hotkey"
         alt-shift-g = "move-node-to-workspace G --focus-follows-window";
         alt-shift-i = "move-node-to-workspace I --focus-follows-window";
         alt-shift-m = "move-node-to-workspace M --focus-follows-window";
@@ -116,18 +111,18 @@
         alt-shift-z = "move-node-to-workspace Z --focus-follows-window";
       };
 
-      # "workspace-to-monitor-force-assignment" = {
-      #     "1" = "main";
-      #     "2" = "main";
-      #     "3" = "main";
-      #     "4" = "main";
-      #     "5" = "main";
-      #     "6" = "main";
-      #     "7" = "main";
-      #     "8" = "main";
-      #     "9" = "main";
-      #     "10" = "secondary";
-      # };
+      "workspace-to-monitor-force-assignment" = {
+          "1" = "main";
+          "2" = "main";
+          "3" = "main";
+          "4" = "main";
+          "5" = "main";
+          "6" = "main";
+          "7" = "main";
+          "8" = "main";
+          "9" = "main";
+          "10" = "secondary";
+      };
     };
   };
 }

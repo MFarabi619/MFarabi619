@@ -1,6 +1,5 @@
 {
   imports = [
-    ./aerospace.nix
     ./aichat.nix
     ./emacs
     ./bash.nix
