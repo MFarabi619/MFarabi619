@@ -1,7 +1,7 @@
 {
   # https://github.com/koekeishiya/yabai/wiki/Disabling-System-Integrity-Protection
   services.yabai = {
-    enable = true;
+    enable = false;
     enableScriptingAddition = true;
     config = {
       layout = "bsp"; # bsp(default) | stack | float
@@ -25,7 +25,7 @@
       # split_ratio = 0.5;
 
       menubar_opacity = 0.75;
-      # external_bar = "all:36:0";
+      external_bar = "all:36:0";
 
       mouse_follows_focus = "on";
       focus_follows_mouse = "autoraise";
