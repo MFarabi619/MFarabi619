@@ -37,6 +37,7 @@
       window_padding_width = 10;
 
       tab_fade = 1;
+      background_blur = 4;
       tab_bar_edge = "top";
       tab_bar_align = "left";
       tab_bar_style = "powerline";
