@@ -2,22 +2,27 @@
 {
   programs.yazi = {
     enable = true;
-    enableBashIntegration = true;
-    enableZshIntegration = true;
     shellWrapperName = "yy";
+    enableZshIntegration = true;
+    enableBashIntegration = true;
     # keymap = {};
     # flavors = { inherit (pkgs.yaziPlugins); };
     # theme = {};
     plugins = {
       inherit (pkgs.yaziPlugins)
-        sudo
         git
+        sudo
         lazygit
+        restore
+        yatline
+        smart-paste
         smart-enter
         full-border
         smart-filter
         rich-preview
         # wl-clipboard
+        yatline-githead
+        yatline-catppuccin
         ;
     };
     settings = {
@@ -34,6 +39,7 @@
       # yazi = {};
     };
     initLua = ''
+      require("yatline"):setup()
       require("full-border"):setup()
       require("git"):setup()
       require("smart-enter"):setup {
