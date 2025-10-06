@@ -1,0 +1,40 @@
+{
+  "actions" : [
+    {
+      "key" : "e",
+      "type" : "application",
+      "value" : "/nix/store/0mh6ibb5p9v6k7mg25d1s6f0dk4crxxc-emacs-with-doom-30.2/Applications/Emacs.app"
+    },
+    {
+      "key" : "s",
+      "type" : "application",
+      "value" : "/System/Applications/System Settings.app"
+    },
+    {
+      "key" : "t",
+      "type" : "application",
+      "value" : "/nix/store/kj0dp918ipfvv0y1h39nk7wqfjm5vj1f-kitty-0.43.1/Applications/kitty.app"
+    },
+    {
+      "key" : "f",
+      "type" : "application",
+      "value" : "/System/Applications/Launchpad.app"
+    },
+    {
+      "key" : "v",
+      "type" : "application",
+      "value" : "/Applications/Vivaldi.app"
+    },
+    {
+      "key" : "l",
+      "type" : "application",
+      "value" : "/Applications/Leader Key.app"
+    },
+    {
+      "key" : "d",
+      "type" : "folder",
+      "value" : "/Users/mfarabi/Downloads"
+    }
+  ],
+  "type" : "group"
+}

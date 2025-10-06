@@ -3,24 +3,40 @@
    enable = true;
 
     settings = { # yoinked from github.com/ryangchung/ryangchung/blob/main/modules/home/programs/aerospace.nix
-      # start-at-login = true;
       after-startup-command = [
         "layout tiles"
       ];
 
+      default-root-container-layout = "tiles"; # tiles | accordion
+      # Possible values: horizontal|vertical|auto
+      # 'auto' means: wide monitor (anything wider than high) gets horizontal orientation,
+      #               tall monitor (anything higher than wide) gets vertical orientation
+      default-root-container-orientation = "auto";
+      automatically-unhide-macos-hidden-apps = false;
+      # nikitabobko.github.io/AeroSpace/guide#normalization
+      enable-normalization-flatten-containers = true;
+      enable-normalization-opposite-orientation-for-nested-containers = true;
+
       gaps = {
         inner = {
-          vertical = 0;
-          horizontal = 0;
+          vertical = 10;
+          horizontal = 10;
         };
 
         outer = {
           top = 10;
-          left = 10;
-          right = 10;
+          left = 8;
+          right = 8;
           bottom = 8;
         };
       };
+
+        exec-on-workspace-change = [
+          "/bin/bash"
+          "-c"
+          "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
+        ];
+
 
       mode.main.binding = {
         alt-tab = "workspace-back-and-forth";
@@ -28,21 +44,26 @@
         alt-slash = "layout tiles horizontal vertical";
         alt-comma = "layout accordion horizontal vertical";
 
-        alt-h = "focus left";
-        alt-j = "focus down";
-        alt-k = "focus up";
-        alt-l = "focus right";
+        alt-h = "move left";
+        alt-j = "move down";
+        alt-k = "move up";
+        alt-l = "move right";
 
-        alt-shift-h = "move left";
-        alt-shift-j = "move down";
-        alt-shift-k = "move up";
-        alt-shift-l = "move right";
+        # alt-h = "focus left";
+        # alt-j = "focus down";
+        # alt-k = "focus up";
+        # alt-l = "focus right";
+
+        # cmd-ctrl-shift-h = "move left";
+        # cmd-ctrl-shift-j = "move down";
+        # cmd-ctrl-shift-k = "move up";
+        # cmd-ctrl--shift-l = "move right";
 
         alt-minus = "resize smart -50";
         alt-equal = "resize smart +50";
 
-        cmd-enter = "fullscreen";
-        alt-enter = "macos-native-fullscreen";
+        alt-enter = "fullscreen";
+        cmd-enter = "macos-native-fullscreen";
 
         cmd-1 = "workspace 1";
         cmd-2 = "workspace 2";
@@ -69,12 +90,6 @@
         cmd-alt-tab = "move-workspace-to-monitor --wrap-around next";
 
         alt-shift-semicolon = "mode service";
-
-        # exec-on-workspace-change = [
-        #   "/bin/bash"
-        #   "-c"
-        #   "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
-        # ];
 
         # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
         # --focus-follows-window is used to ensure workspace changes to trigger the callback for sketchybar to update
