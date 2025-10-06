@@ -31,10 +31,21 @@
         };
       };
 
+        on-focused-monitor-changed = [
+          "move-mouse monitor-lazy-center"
+        ];
+
+        on-focus-changed = [
+          "move-mouse window-lazy-center"
+          "exec-and-forget /bin/bash -c sketchybar --trigger front_app_switched"
+          "exec-and-forget sketchybar --trigger update_windows"
+        ];
+
         exec-on-workspace-change = [
           "/bin/bash"
           "-c"
-          "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
+          # "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
+          "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE"
         ];
 
 
@@ -76,16 +87,16 @@
         cmd-9 = "workspace 9";
         cmd-0 = "workspace 10";
 
-        cmd-alt-1 = "move-node-to-workspace 1";
-        cmd-alt-2 = "move-node-to-workspace 2";
-        cmd-alt-3 = "move-node-to-workspace 3";
-        cmd-alt-4 = "move-node-to-workspace 4";
-        cmd-alt-5 = "move-node-to-workspace 5";
-        cmd-alt-6 = "move-node-to-workspace 6";
-        cmd-alt-7 = "move-node-to-workspace 7";
-        cmd-alt-8 = "move-node-to-workspace 8";
-        cmd-alt-9 = "move-node-to-workspace 9";
-        cmd-alt-0 = "move-node-to-workspace 10";
+        # cmd-alt-1 = "move-node-to-workspace 1";
+        # cmd-alt-2 = "move-node-to-workspace 2";
+        # cmd-alt-3 = "move-node-to-workspace 3";
+        # cmd-alt-4 = "move-node-to-workspace 4";
+        # cmd-alt-5 = "move-node-to-workspace 5";
+        # cmd-alt-6 = "move-node-to-workspace 6";
+        # cmd-alt-7 = "move-node-to-workspace 7";
+        # cmd-alt-8 = "move-node-to-workspace 8";
+        # cmd-alt-9 = "move-node-to-workspace 9";
+        # cmd-alt-0 = "move-node-to-workspace 10";
 
         cmd-alt-tab = "move-workspace-to-monitor --wrap-around next";
 
@@ -93,37 +104,37 @@
 
         # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
         # --focus-follows-window is used to ensure workspace changes to trigger the callback for sketchybar to update
-        alt-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
-        alt-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
-        alt-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
-        alt-shift-4 = "move-node-to-workspace 4 --focus-follows-window";
-        alt-shift-5 = "move-node-to-workspace 5 --focus-follows-window";
-        alt-shift-6 = "move-node-to-workspace 6 --focus-follows-window";
-        alt-shift-7 = "move-node-to-workspace 7 --focus-follows-window";
-        alt-shift-8 = "move-node-to-workspace 8 --focus-follows-window";
-        alt-shift-9 = "move-node-to-workspace 9 --focus-follows-window";
-        alt-shift-a = "move-node-to-workspace A --focus-follows-window";
-        alt-shift-b = "move-node-to-workspace B --focus-follows-window";
-        alt-shift-c = "move-node-to-workspace C --focus-follows-window";
-        alt-shift-d = "move-node-to-workspace D --focus-follows-window";
-        alt-shift-e = "move-node-to-workspace E --focus-follows-window";
+        cmd-shift-1 = "move-node-to-workspace 1 --focus-follows-window";
+        cmd-shift-2 = "move-node-to-workspace 2 --focus-follows-window";
+        cmd-shift-3 = "move-node-to-workspace 3 --focus-follows-window";
+        cmd-shift-4 = "move-node-to-workspace 4 --focus-follows-window";
+        cmd-shift-5 = "move-node-to-workspace 5 --focus-follows-window";
+        cmd-shift-6 = "move-node-to-workspace 6 --focus-follows-window";
+        cmd-shift-7 = "move-node-to-workspace 7 --focus-follows-window";
+        cmd-shift-8 = "move-node-to-workspace 8 --focus-follows-window";
+        cmd-shift-9 = "move-node-to-workspace 9 --focus-follows-window";
+        cmd-shift-a = "move-node-to-workspace A --focus-follows-window";
+        cmd-shift-b = "move-node-to-workspace B --focus-follows-window";
+        cmd-shift-c = "move-node-to-workspace C --focus-follows-window";
+        cmd-shift-d = "move-node-to-workspace D --focus-follows-window";
+        cmd-shift-e = "move-node-to-workspace E --focus-follows-window";
         #alt-shift-f = "move-node-to-workspace F' # disabled as it's a common code formatting hotkey"
-        alt-shift-g = "move-node-to-workspace G --focus-follows-window";
-        alt-shift-i = "move-node-to-workspace I --focus-follows-window";
-        alt-shift-m = "move-node-to-workspace M --focus-follows-window";
-        alt-shift-n = "move-node-to-workspace N --focus-follows-window";
-        alt-shift-o = "move-node-to-workspace O --focus-follows-window";
-        alt-shift-p = "move-node-to-workspace P --focus-follows-window";
-        alt-shift-q = "move-node-to-workspace Q --focus-follows-window";
-        alt-shift-r = "move-node-to-workspace R --focus-follows-window";
-        alt-shift-s = "move-node-to-workspace S --focus-follows-window";
-        alt-shift-t = "move-node-to-workspace T --focus-follows-window";
-        alt-shift-u = "move-node-to-workspace U --focus-follows-window";
-        alt-shift-v = "move-node-to-workspace V --focus-follows-window";
-        alt-shift-w = "move-node-to-workspace W --focus-follows-window";
-        alt-shift-x = "move-node-to-workspace X --focus-follows-window";
-        alt-shift-y = "move-node-to-workspace Y --focus-follows-window";
-        alt-shift-z = "move-node-to-workspace Z --focus-follows-window";
+        cmd-shift-g = "move-node-to-workspace G --focus-follows-window";
+        cmd-shift-i = "move-node-to-workspace I --focus-follows-window";
+        cmd-shift-m = "move-node-to-workspace M --focus-follows-window";
+        cmd-shift-n = "move-node-to-workspace N --focus-follows-window";
+        cmd-shift-o = "move-node-to-workspace O --focus-follows-window";
+        cmd-shift-p = "move-node-to-workspace P --focus-follows-window";
+        cmd-shift-q = "move-node-to-workspace Q --focus-follows-window";
+        cmd-shift-r = "move-node-to-workspace R --focus-follows-window";
+        cmd-shift-s = "move-node-to-workspace S --focus-follows-window";
+        cmd-shift-t = "move-node-to-workspace T --focus-follows-window";
+        cmd-shift-u = "move-node-to-workspace U --focus-follows-window";
+        cmd-shift-v = "move-node-to-workspace V --focus-follows-window";
+        cmd-shift-w = "move-node-to-workspace W --focus-follows-window";
+        cmd-shift-x = "move-node-to-workspace X --focus-follows-window";
+        cmd-shift-y = "move-node-to-workspace Y --focus-follows-window";
+        cmd-shift-z = "move-node-to-workspace Z --focus-follows-window";
       };
 
       "workspace-to-monitor-force-assignment" = {

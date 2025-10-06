@@ -1,8 +1,4 @@
 {
-  pkgs,
-  ...
-}:
-{
   programs.kitty = {
     enable = true;
     enableGitIntegration = true;
@@ -10,7 +6,6 @@
     shellIntegration = {
       enableZshIntegration = true;
       enableBashIntegration = true;
-      # enableFishIntegration = false; # default
     };
 
     # themeFile = "SpaceGray_Eighties";
@@ -37,13 +32,14 @@
       window_padding_width = 10;
 
       tab_fade = 1;
-      background_blur = 4;
+      background_blur = 30;
       tab_bar_edge = "top";
       tab_bar_align = "left";
       tab_bar_style = "powerline";
       tab_powerline_style = "angled";
       active_tab_font_style = "bold";
       inactive_tab_font_style = "bold";
+      dynamic_background_opacity = "yes";
     };
 
     # extraConfig = ''
