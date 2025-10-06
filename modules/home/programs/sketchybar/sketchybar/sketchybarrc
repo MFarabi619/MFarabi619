@@ -1,239 +1,148 @@
-# Icon font: JetBrainsMono Nerd Font
-# Search for icons here: nerdfonts.com/cheat-sheet
-#                          ﱦ 齃     ﮂ 爵        ﭵ     ﱦ  ﰊ 異 ﴱ אַ
+#!/usr/bin/env bash
 
-# Ensure mode file exists
-if [ ! -f ".bar_mode" ]; then
-    echo "normal" > ".bar_mode"
-fi
-
+# mode bootstrap
+[ -f ".bar_mode" ] || echo "normal" > ".bar_mode"
 MODE=$(<.bar_mode)
 
+# helpers
+is_compact() { [ "$MODE" = "compact" ]; }
+cv() { if is_compact; then echo "$1"; else echo "$2"; fi; }
+
+C_BASE_BG=0x221b1e28
+C_ICON=0xffECEFF4
+C_LABEL=0xffECEFF4
+C_HILITE=0xffE48FA8
+C_WS_BG=0xff3C3E4F
+C_LOGO_TEAL=0xffA5E0D5
+C_SPOT_BG=0xffEDC4E5
+C_TIME_BADGE=0xffF5E3B5
+C_DATE_BADGE=0xff92B3F5
+C_PWR_BADGE=0xffB3E1A7
+C_TEMP_BADGE=0xffE0A3AD
+C_BADGE_ICON=0xff121219
+C_TITLE=0xffb7bdf4
+C_SEP_ICON=0xff92B3F5
+
+FONT_BASE="JetBrainsMono Nerd Font"
+FONT_LABEL="$FONT_BASE:Bold:16.0"
+FONT_ICON_BAR=$(cv "JetBrainsMono Nerd Font:Bold:16.0" "JetBrainsMono Nerd Font:Bold:18.0")
+FONT_ICON_ITEM=$(cv "JetBrainsMono Nerd Font:Bold:16.0" "JetBrainsMono Nerd Font:Bold:20.0")
+
 AEROSPACE_FOCUSED_MONITOR_NO=$(aerospace list-workspaces --focused)
-AEROSPACE_LIST_OF_WINDOWS_IN_FOCUSED_MONITOR=$(aerospace list-windows --workspace $AEROSPACE_FOCUSED_MONITOR_NO | awk -F'|' '{gsub(/^ *| *$/, "", $2); print $2}')
+AEROSPACE_LIST_OF_WINDOWS_IN_FOCUSED_MONITOR=$(
+  aerospace list-windows --workspace "$AEROSPACE_FOCUSED_MONITOR_NO" | awk -F'|' '{gsub(/^ *| *$/, "", $2); print $2}'
+)
 
-############## BAR ##############
-sketchybar --bar height=$([ "$MODE" = "compact" ] && echo 22 || echo 45) \
-                 padding_left=$([ "$MODE" = "compact" ] && echo 0 || echo 4) \
-                 padding_right=$([ "$MODE" = "compact" ] && echo 0 || echo 4) \
-                 margin=0 \
-                 y_offset=0 \
-                 position=top \
-                 blur_radius=0 \
-                 corner_radius=0 \
-                 color=0xff1e1d2e \
-                 shadow=on
+sketchybar --bar height=$(cv 22 44) \
+  margin=8 shadow=on y_offset=4 position=top blur_radius=15 corner_radius=12 color=$C_BASE_BG \
+  padding_left=$(cv 4 8) padding_right=$(cv 4 8)
 
-############## GLOBAL DEFAULTS ##############
-sketchybar --default updates=when_shown \
-                     background.height=30 \
-                     icon.color=0xffECEFF4 \
-                     label.color=0xffECEFF4 \
-                     background.corner_radius=5 \
-                     icon.highlight_color=0xffE48FA8 \
-                     label.font="JetBrainsMono Nerd Font:Bold:16.0" \
-                     icon.font="$([ "$MODE" = "compact" ] && echo "JetBrainsMono Nerd Font:Bold:16.0" || echo "JetBrainsMono Nerd Font:Bold:18.0")"
+sketchybar --default updates=when_shown background.height=30 background.corner_radius=5 \
+  icon.color=$C_ICON label.color=$C_LABEL icon.highlight_color=$C_HILITE \
+  label.font="$FONT_LABEL" icon.font="$FONT_ICON_BAR"
 
 sketchybar --add item logo left \
-           --set logo icon= \
-                 icon.color=0xff010101 \
-                 icon.padding_left=16 \
-                 icon.padding_right=16 \
-                 background.color=0xffA5E0D5 \
-                 background.padding_right="$([ "$MODE" = "compact" ] && echo 0 || echo 8)" \
-                 background.padding_left="$([ "$MODE" = "compact" ] && echo 0 || echo 4)" \
-                 click_script="sketchybar --update"
+  --set logo icon= icon.color=0xff010101 icon.padding_left=16 icon.padding_right=16 \
+  background.color=$C_LOGO_TEAL click_script="sketchybar --update" \
+  background.padding_right=$(cv 0 8) background.padding_left=$(cv 0 4)
 
 sketchybar --add event aerospace_workspace_change
 sketchybar --add event aerospace_monitor_change
 
 for sid in $(aerospace list-workspaces --all); do
-    sketchybar --add item space.$sid left \
-        --subscribe space.$sid aerospace_workspace_change \
-        --set space.$sid \
-        display="$(
-          v=$(aerospace list-windows --workspace "$sid" --format "%{monitor-appkit-nsscreen-screens-id}" | cut -c1)
-          echo "${v:-1}"
-        )" \
-        drawing=off \
-        icon="$sid" \
-        icon.highlight_color=0xffE48FA8 \
-        icon.padding_left=20 \
-        icon.padding_right=20 \
-        background.color=0xff3C3E4F \
-        background.padding_left=-4 \
-        background.padding_right=-4 \
-        background.drawing=on \
-        label.drawing=off \
-        click_script="aerospace workspace $sid" \
-        script="$CONFIG_DIR/plugins/aerospace.sh $sid"
+  sketchybar --add item space."$sid" left \
+    --subscribe space."$sid" aerospace_workspace_change \
+    --set space."$sid" \
+      display="$(
+        v=$(aerospace list-windows --workspace "$sid" --format "%{monitor-appkit-nsscreen-screens-id}" | cut -c1)
+        echo "${v:-1}"
+      )" \
+      drawing=off icon="$sid" icon.highlight_color=$C_HILITE \
+      icon.padding_left=20 icon.padding_right=20 \
+      background.color=$C_WS_BG background.padding_left=-4 background.padding_right=-4 background.drawing=on \
+      label.drawing=off click_script="aerospace workspace $sid" \
+      script="$CONFIG_DIR/plugins/aerospace.sh $sid"
 done
 
 sketchybar --add item standalone_item left \
-    --subscribe standalone_item aerospace_workspace_change \
-    --set standalone_item \
-        label="" \
-        label.drawing=off \
-        script="$CONFIG_DIR/plugins/update_workspaces.sh"
+  --subscribe standalone_item aerospace_workspace_change \
+  --set standalone_item label="" label.drawing=off \
+  script="$CONFIG_DIR/plugins/update_workspaces.sh"
 
 sketchybar --add item space_separator left \
-    --set space_separator \
-        label.drawing=off \
-        background.drawing=off \
-        script="$CONFIG_DIR/plugins/space_windows.sh" \
-    --subscribe space_separator aerospace_workspace_change front_app_switched space_windows_change aerospace_monitor_change
-           --set space_separator icon= \
-                                 background.padding_left=23 \
-                                 background.padding_right=23 \
-                                 label.drawing=off \
-                                 icon.color=0xff92B3F5 \
-                                 click_script="$CONFIG_DIR/toggle_bar_mode.sh"
+  --subscribe space_separator aerospace_workspace_change front_app_switched space_windows_change aerospace_monitor_change \
+  --set space_separator icon= icon.color=$C_SEP_ICON \
+    label.drawing=off background.drawing=off \
+    background.padding_left=23 background.padding_right=23 \
+    script="$CONFIG_DIR/plugins/space_windows.sh" \
+    click_script="$CONFIG_DIR/toggle_bar_mode.sh"
 
 sketchybar --add item window_title left \
-           --set window_title    script="~/.config/sketchybar/plugins/window_title.sh" \
-                                 icon.drawing=on \
-                                 label.color=0xffb7bdf4 \
-           --subscribe window_title front_app_switched
+  --subscribe window_title front_app_switched \
+  --set window_title script="~/.config/sketchybar/plugins/window_title.sh" \
+    icon.drawing=on label.color=$C_TITLE
 
-############## LEFT ITEMS ##############
-
-
-############## ITEM DEFAULTS ###############
-sketchybar --default label.padding_left=6 \
-                     label.padding_right="$([ "$MODE" = "compact" ] && echo 8 || echo 6)" \
-                     icon.padding_left=6 \
-                     icon.padding_right=6 \
-                     icon.font="$([ "$MODE" = "compact" ] && echo "JetBrainsMono Nerd Font:Bold:16.0" || echo "JetBrainsMono Nerd Font:Bold:20.0")" \
-                     background.height=30 \
-                     background.padding_left="$([ "$MODE" = "compact" ] && echo 0 || echo 4)" \
-                     background.padding_right="$([ "$MODE" = "compact" ] && echo 0 || echo 4)" \
-                     background.corner_radius=5
+sketchybar --default \
+  label.padding_left=6 label.padding_right=$(cv 8 6) \
+  icon.padding_left=6 icon.padding_right=6 \
+  background.height=30 background.padding_left=$(cv 0 4) background.padding_right=$(cv 0 4) \
+  icon.font="$FONT_ICON_ITEM" background.corner_radius=5
 
 sketchybar --add item spot_logo center \
-           --set spot_logo icon= \
-                           label.drawing=off \
-                           icon.color=0xff121219 \
-                           background.color=0xffEDC4E5
-
+  --set spot_logo icon= label.drawing=off icon.color=$C_BADGE_ICON background.color=$C_SPOT_BG
 
 sketchybar --add item spot center \
-           --set spot update_freq=1 \
-                      icon.drawing=off \
-                      updates=on \
-                      script="~/.config/sketchybar/plugins/spotifyIndicator.sh" \
-                      background.color=0xff3C3E4F \
-                      background.padding_left=0
+  --set spot update_freq=1 updates=on icon.drawing=off background.padding_left=0 \
+    background.color=$C_WS_BG script="~/.config/sketchybar/plugins/spotifyIndicator.sh"
 
-############## RIGHT ITEMS ##############
 sketchybar --add item time right \
-           --set time update_freq=1 \
-                      icon.drawing=off \
-                      script="~/.config/sketchybar/plugins/time.sh" \
-                      background.color=0xff3C3E4F \
-                      background.padding_left=0 \
-                      background.padding_right="$([ "$MODE" = "compact" ] && echo 0 || echo 10)" \
-                      # $([ "$MODE" = "compact" ] && echo "width=80")
+  --set time update_freq=1 shadow=on icon.drawing=off blur_radius=15 \
+    background.color=$C_BASE_BG background.padding_left=0 \
+    script="~/.config/sketchybar/plugins/time.sh" \
+    background.padding_right=$(cv 0 10)
 
-sketchybar --add item time_logo right\
-           --set time_logo icon= \
-                           label.drawing=off \
-                           icon.color=0xff121219 \
-                           label.drawing=off \
-                           background.color=0xffF5E3B5
+sketchybar --add item time_logo right \
+  --set time_logo icon= label.drawing=off icon.color=$C_BADGE_ICON background.color=$C_TIME_BADGE
 
 sketchybar --add item date right \
-           --set date update_freq=1000 \
-                      icon.drawing=off \
-                      script="~/.config/sketchybar/plugins/date.sh" \
-                      background.color=0xff3C3E4F \
-                      background.padding_left=0
+  --set date update_freq=1000 icon.drawing=off blur_radius=15 background.padding_left=0 \
+    background.color=$C_BASE_BG script="~/.config/sketchybar/plugins/date.sh"
 
-sketchybar --add item clock_logo right\
-           --set clock_logo icon= \
-                            icon.color=0xff121219\
-                            label.drawing=off \
-                            background.color=0xff92B3F5
+sketchybar --add item clock_logo right \
+  --set clock_logo icon= icon.color=$C_BADGE_ICON label.drawing=off background.color=$C_DATE_BADGE
 
 sketchybar --add item battery right \
-           --set battery update_freq=3 \
-                         icon.drawing=off \
-                         script="~/.config/sketchybar/plugins/power.sh" \
-                         background.color=0xff3C3E4F \
-                         background.padding_left=0
+  --set battery update_freq=3 icon.drawing=off background.padding_left=0 \
+    background.color=$C_BASE_BG script="~/.config/sketchybar/plugins/power.sh"
 
 sketchybar --add item power_logo right \
-           --set power_logo icon= \
-                 icon.color=0xff121219 \
-                 label.drawing=off \
-                 background.color=0xffB3E1A7
-
-# sketchybar --add item net right \
-#            --set net script="~/.config/sketchybar/plugins/net.sh" \
-#                      icon.drawing=off \
-#                      background.color=0xff3C3E4F \
-#                      background.padding_left=0
-#
-# sketchybar --add item net_logo right \
-#            --set net_logo icon=\
-#                      icon.color=0xff121219\
-#                      label.drawing=off \
-#                      background.color=0xffE0A3AD
+  --set power_logo icon= label.drawing=off icon.color=$C_BADGE_ICON background.color=$C_PWR_BADGE
 
 sketchybar --add item temp right \
-           --set temp update_freq=1 \
-                     script="~/.config/sketchybar/plugins/temp.sh" \
-                     icon.drawing=off \
-                     background.color=0xff3C3E4F \
-                     background.padding_left=0
+  --set temp update_freq=1 icon.drawing=off background.padding_left=0 \
+    background.color=$C_BASE_BG script="~/.config/sketchybar/plugins/temp.sh"
 
 sketchybar --add item temp_logo right \
-           --set temp_logo icon=\
-                     icon.color=0xff121219\
-                     label.drawing=off \
-                     background.color=0xffE0A3AD
-
-# sketchybar --add item pressure right \
-#            --set pressure update_freq=60 \
-#                      script="~/.config/sketchybar/plugins/pressure.sh" \
-#                      icon.drawing=off \
-#                      background.color=0xff3C3E4F \
-#                      background.padding_left=0
-
-# sketchybar --add item pressure_logo right \
-#            --set pressure_logo icon=󰈸\
-#                      icon.color=0xff121219\
-#                      label.drawing=off \
-#                      background.color=0xff94E2D5
-#
+  --set temp_logo icon= label.drawing=off icon.color=$C_BADGE_ICON background.color=$C_TEMP_BADGE
 
 sketchybar --add item volume right \
-           --set volume script="~/.config/sketchybar/plugins/volume.sh" \
-                        icon.drawing=off \
-                        background.color=0xff3C3E4F \
-                        background.padding_left=0 \
-                        label.drawing=on \
-           --subscribe volume volume_change
+  --subscribe volume volume_change \
+  --set volume icon.drawing=off label.drawing=on background.padding_left=0 \
+    background.color=$C_BASE_BG script="~/.config/sketchybar/plugins/volume.sh"
 
 sketchybar --add item volume_logo right \
-           --set volume_logo icon=󰖁 \
-                             icon.color=0xff121219 \
-                             label.drawing=off \
-                             background.color=0xffE0A3AD
+  --set volume_logo icon=󰖁 label.drawing=off icon.color=$C_BADGE_ICON background.color=$C_TEMP_BADGE
 
-sketchybar --subscribe net wifi_change wired_change
-
-############## FINALIZING THE SETUP ##############
 sketchybar --update
 
-if [ "$MODE" = "compact" ]; then
+if is_compact; then
   TOP='[{ monitor."Built-in" = 4 }, 36]'
 else
   TOP='[{ monitor."Built-in" = 25 }, 60]'
 fi
 
-# Replace placeholder and write to aerospace.toml
-sed "s|{{OUTER_TOP}}|$TOP|" ~/.config/aerospace/aerospace.template.toml > ~/.config/aerospace/aerospace.toml
+sed "s|{{OUTER_TOP}}|$TOP|" \
+  ~/.config/aerospace/aerospace.template.toml > ~/.config/aerospace/aerospace.toml
 
 aerospace reload-config
-
 echo "sketchybar configuration loaded..."

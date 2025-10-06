@@ -10,7 +10,7 @@
     settings = {
       mouse_mode = true;
       mirror_session = true;
-      theme = "gruvbox-dark";
+      # theme = "gruvbox-dark";
       default_mode = "normal";
       show_startup_tips = false;
       show_release_notes = false;
@@ -52,27 +52,27 @@
             {
               tab = {
                 _props = {
-                  name = "SHELL";
-                  focus = true;
-                };
-                _children = [
-                  {
-                    pane = {
-                      command = "fastfetch";
-                    };
-                  }
-                ];
-              };
-            }
-            {
-              tab = {
-                _props = {
                   name = "STATUS";
                 };
                 _children = [
                   {
                     pane = {
+                      command = "asciiquarium";
+                    };
+                  }
+                  {
+                    pane = {
+                      command = "fastfetch -C examples/25.jsonc";
+                    };
+                  }
+                  {
+                    pane = {
                       command = "lazygit";
+                    };
+                  }
+                  {
+                    pane = {
+                      command = "yazi";
                     };
                   }
                 ];
@@ -86,7 +86,12 @@
                 _children = [
                   {
                     pane = {
-                      command = "yazi";
+                      command = "emacs -nw";
+                    };
+                  }
+                    {
+                    pane = {
+                      command = "btop";
                     };
                   }
                 ];
