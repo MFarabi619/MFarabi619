@@ -29,7 +29,7 @@
       cursor_trail = 1;
       copy_on_select = "yes";
       tab_bar_margin_width = 0;
-      window_padding_width = 10;
+      window_padding_width = 2;
 
       tab_fade = 1;
       background_blur = 30;
