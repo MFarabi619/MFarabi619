@@ -38,10 +38,10 @@
     };
 
     opacity = {
-      popups = 0.9;
-      desktop = 1.0;
-      terminal = 0.9;
-      applications = 0.9;
+      popups = 0.8;
+      desktop = 0.8;
+      terminal = 0.8;
+      applications = 0.8;
     };
 
     fonts = {
