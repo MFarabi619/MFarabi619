@@ -17,6 +17,7 @@
       "vivaldi"
       "leader-key"
       "arduino-ide"
+      "autoraiseapp"
     ];
 
     brews = [
