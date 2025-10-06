@@ -1,7 +1,7 @@
 {
   programs.atuin = {
-   enable = true;
-   daemon.enable = true;
+   enable = false;
+   daemon.enable = false;
    enableZshIntegration = true;
    enableBashIntegration = true;
     # settings = {
