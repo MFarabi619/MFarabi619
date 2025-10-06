@@ -1,17 +1,12 @@
 {
-  lib,
-  pkgs,
-  ...
-}:
-{
   services.jankyborders = {
-    width = 6.0;
+    width = 1.0;
     hidpi = true;
     enable = true;
-    order = "below";
+    order = "above";
     style = "round";
     ax_focus = false; # use slower accessibility focus api if true
-    blur_radius = 6.0;
+    # blur_radius = 0.5;
     # active_color = "";
     # inactive_color = "";
     # blacklist = [
