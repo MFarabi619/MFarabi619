@@ -16,7 +16,7 @@
       font-packages.enable = true;
 
       neovim = {
-        enable = true;
+        enable = false;
         transparentBackground = {
           main = true;
           numberLine = true;

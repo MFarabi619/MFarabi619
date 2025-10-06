@@ -20,10 +20,11 @@
     };
   };
 
+
   home = {
     file = {
       ".config/nvim/init.lua" = {
-        enable = false;
+        enable = true;
         text = ''
           -- bootstrap lazy.nvim, LazyVim and your plugins
           require("config.lazy")
