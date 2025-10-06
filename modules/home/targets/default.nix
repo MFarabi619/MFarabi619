@@ -52,9 +52,12 @@
 
       # https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/TextDefaultsBindings/TextDefaultsBindings.html
       keybindings = {
-        "^c" = "copy:";
         "^x" = "cut:";
+        "^z" = "undo:";
+        "^y" = "redo:";
+        "^c" = "copy:";
         "^v" = "paste:";
+        "^a" = "selectAll:";
         # "^w" = "deleteWordBackward:";
         # "^u" = "deleteToBeginningOfLine:";
       };
