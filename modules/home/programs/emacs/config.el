@@ -69,9 +69,9 @@
       browse-url-browser-function 'browse-url-default-browser
       fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
       projectile-project-search-path '("~/workspace/" "~/Documents/")
-      doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 12)
-      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 28)
-      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 12))
+      doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
+      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 32)
+      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14))
 
 (after! treemacs
   (setq
