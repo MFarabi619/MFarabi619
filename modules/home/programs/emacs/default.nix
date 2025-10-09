@@ -39,6 +39,7 @@
         org-roam-ui
         # ================
         arduino-mode
+        platformio-mode
         company-arduino
         arduino-cli-mode
         # ================
