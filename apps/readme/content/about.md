@@ -4,9 +4,8 @@
 <b>✨ About Me</b>
 <br/><br/>
 
-- ✋ Open-source software advocate, curious process miner, and craftsperson 🎨
-- 💻 Passionate Vim/Neovim/Emacs & Operating Systems enthusiast.
-- 🛠️ I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity 🏃‍♂️💨
+- Open-source software advocate, curious process miner, and craftsperson.
+- I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity.
 <hr/>
 <b>📖 Books</b>
 <br/><br/>

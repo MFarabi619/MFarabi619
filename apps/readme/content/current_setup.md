@@ -1,19 +1,22 @@
 ## 🛠 Current Setup
 
-<strong><a href="https://archlinux.org/">Apollyon Linux</a><a href="https://nixos.org">
+<strong><a href="https://freebsd.org">
+  <img src="assets/freebsd-symbol.svg" alt="freebsd-symbol-orb" width="25" height="25">
+</a>DoomBSD</a> Apollyon Linux <a href="https://nixos.org">
   <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
-</a> </strong>
+</a> <img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"></strong>
 
-#### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/prasanthrangan/hyprdots) configurator
+#### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/HyDE-Project/HyDE) configurator
 
-| ![Decay Green theme with greek statue wallpaper](https://github.com/user-attachments/assets/0ba6cd55-2dc9-49b4-9699-c13769e45f99) | ![Dracula-themed wallpaper with bats flying around Arch Linux logo](https://github.com/user-attachments/assets/6ff3db4c-ecbc-4a3b-b15f-873b4e7d057a) | ![Tokyo Night theme terminal rice with fastfetch](https://github.com/user-attachments/assets/aa2f8f96-4774-4617-bcb4-ab967ab08c88) |
+| ![DoomBSD](configurations/freebsd/doombsd/Screenshots/doombsd-6.png) | ![macOS - Nix Darwin](assets/nix-darwin-1.webp) | ![Hydenix Lush Green](assets/hydenix-lush-green.jpeg) |
 |-|-|-|
+| ![Decay Green theme with greek statue wallpaper](https://github.com/user-attachments/assets/0ba6cd55-2dc9-49b4-9699-c13769e45f99) | ![Dracula-themed wallpaper with bats flying around Arch Linux logo](https://github.com/user-attachments/assets/6ff3db4c-ecbc-4a3b-b15f-873b4e7d057a) | ![Tokyo Night theme terminal rice with fastfetch](https://github.com/user-attachments/assets/aa2f8f96-4774-4617-bcb4-ab967ab08c88) |
 | ![Material Sakura theme with cat in the middle](https://github.com/user-attachments/assets/3e96634d-c09f-4be8-ab95-05194ba9bd37) | ![MacOS theme with Rofi selector](https://github.com/user-attachments/assets/2cf16316-91a1-4329-aa4a-a5d6f3822e6c) | ![Edge Runner theme with keybinds window](https://github.com/user-attachments/assets/5d84d918-ef2f-461a-a0ec-c618fbf4c166) |
 | ![Hack the Box theme with btop](https://github.com/user-attachments/assets/b4962240-c274-46e8-bd7d-1cfc0fd38225) | ![Decay Green theme with ugm and pacseek](https://github.com/user-attachments/assets/7cab75e8-167b-4d35-964f-cebef4258b49) | ![Red Stone theme with Lazydocker and K9S](https://github.com/user-attachments/assets/fa60e70c-89b8-4752-b312-49a911feacda) |
 | ![Gruvbox theme with Lazydocker and kmon](https://github.com/user-attachments/assets/7d3cb417-33e2-4eb7-a3bd-910eff87010c) | ![Catpuccin Mocha theme with procs and netscanner](https://github.com/user-attachments/assets/9630c715-e3d6-4f07-9e3d-7292cad37074) | ![Rose Pine theme with Gather on Vivaldi and Discord](https://github.com/user-attachments/assets/630387a9-ccea-4cdd-a7a8-0074331c2360) |
 
-<strong><a href="https://github.com/doomemacs/doomemacs">Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.freebsd.org">
-  <img src="https://github.com/user-attachments/assets/f096c64f-4bf5-44bb-9460-d7bbe8acc3ca" alt="emoji" width="25" height="25">
+<strong><a href="https://www.gnu.org/software/emacs/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Symbol" width="25" height="25" /></a><a href="https://github.com/doomemacs/doomemacs" >Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.vim.org">
+  <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Symbol" width="25" height="25">
 </a> </strong>
 
 ![Fastfetch + Pacman -Syu + Doom Emacs Dashboard](https://github.com/user-attachments/assets/4016386f-be76-4222-a362-bc4baaa25a6a)
