@@ -50,7 +50,7 @@
 
 
       mode.main.binding = {
-        alt-tab = "workspace-back-and-forth";
+        # alt-tab = "workspace-back-and-forth";
 
         alt-slash = "layout tiles horizontal vertical";
         alt-comma = "layout accordion horizontal vertical";
