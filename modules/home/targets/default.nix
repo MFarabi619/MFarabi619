@@ -58,7 +58,7 @@
         "^c" = "copy:";
         "^v" = "paste:";
         "^a" = "selectAll:";
-        # "^w" = "deleteWordBackward:";
+        "^\010" = "deleteWordBackward:";
         # "^u" = "deleteToBeginningOfLine:";
       };
     };
