@@ -21,6 +21,7 @@
     ];
 
     brews = [
+      "qemu"
       "glab"
       "arduino-cli"
       "media-control"
