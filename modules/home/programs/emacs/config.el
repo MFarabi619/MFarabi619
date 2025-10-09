@@ -101,6 +101,20 @@
           ("m" "/mnt/"                       "Mounted drives")
           ("e" ,user-emacs-directory         "Emacs user directory"))))
 
+(use-package! arduino-mode
+  :config
+  (add-hook 'arduino-mode-hook #'arduino-cli-mode))
+
+(use-package! arduino-cli-mode
+  :after arduino-mode
+  :config
+  (setq arduino-cli-verify t
+        arduino-cli-warnings 'all
+        arduino-cli-verbosity "verbose"
+        arduino-cli-monitor-default-baud-rate 115200
+        arduino-cli-default-fqbn "esp32:esp32:esp32s3"
+        arduino-cli-default-port "/dev/cu.SLAB_USBtoUART"))
+
 (use-package! gptel
   :config
   (setq gptel-model 'gpt-4o
