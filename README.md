@@ -52,6 +52,14 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
 <img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40" />
 </a>
+<!-- Embedded Rust -->
+<a href="https://rust-embedded.org" target="_blank" rel="noreferrer">
+<img src="https://camo.githubusercontent.com/c2ef6279b9e015bb4af11062960247e033ed4d59846093f3f32eda472089bb2a/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67" alt="Embedded Rust Logo" width="40" height="40" />
+</a>
+<!-- Go -->
+<a href="https://golang.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg" alt="Go Logo" width="40" height="40" />
+</a>
 <!-- Embedded C -->
 <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40" />
@@ -59,10 +67,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- C++ -->
 <a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
-</a>
-<!-- Arduino -->
-<a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
 </a>
 <!-- Bash -->
 <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
@@ -110,53 +114,41 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://dioxuslabs.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/79236386?s=200&v=4" alt="Dioxus Logo" width="40" height="40" />
 </a>
+<!-- Burn -->
+<a href="https://burn.dev" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png" alt="Burn Logo" width="40" height="40" />
+</a>
+<!-- Embassy -->
+<a href="https://embassy.dev" target="_blank" rel="noreferrer">
+<img src="https://embassy.dev/favicon.png" alt="Embassy Logo" width="40" height="40" />
+</a>
+<!-- TinyGo -->
+<a href="https://tinygo.org" target="_blank" rel="noreferrer">
+<img src="https://tinygo.org/images/tinygo-logo.png" alt="TinyGo Logo" width="40" height="40" />
+</a>
+<!-- Arduino -->
+<a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
+</a>
 <!-- Pulumi -->
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40" />
-</a>
-<!-- Deno -->
-<a href="https://deno.com" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
-</a>
-<!-- Nest.js -->
-<a href="https://nestjs.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
 </a>
 <!-- XState -->
 <a href="https://xstate.js.org" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40" />
 </a>
+<!-- SQLite -->
+<a href="https://sqlite.org" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" alt="SQLite Logo" width="40" height="40" />
+</a>
 <!-- PostgreSQL -->
 <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40" />
 </a>
-<!-- Drizzle -->
-<a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40" />
-</a>
-<!-- GraphQL -->
-<a href="https://graphql.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40" />
-</a>
-<!-- WXT -->
-<a href="https://wxt.dev" target="_blank" rel="noreferrer">
-<img src="https://wxt.dev/hero-logo.svg" alt="WXT Logo" width="40" height="40" />
-</a>
-<!-- Sli.dev -->
+<!-- Slidev -->
 <a href="https://sli.dev" target="_blank" rel="noreferrer">
-<img src="https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67" alt="Sli.dev Logo" width="40" height="40" />
-</a>
-<!-- Serenity.js Screenplay Pattern -->
-<a href="https://playwright.dev/" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40" />
-</a>
-<!-- Playwright -->
-<a href="https://playwright.dev/" target="_blank" rel="noreferrer">
-<img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40" />
-</a>
-<!-- Vitest -->
-<a href="https://vitest.dev/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40" />
+<img src="https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67" alt="Slidev Logo" width="40" height="40" />
 </a>
 </td>
 <td align='center'>
@@ -216,10 +208,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" alt="Cloudflare Logo" width="40" height="40" />
 </a>
-<!-- Netlify -->
-<a href="https://netlify.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
-</a>
 <!-- Penpot -->
 <a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
 <img src="https://logowik.com/content/uploads/images/penpot-design-tool-icon1721166198.logowik.com.webp" alt="Penpot Logo" width="40" height="40" />
@@ -273,6 +261,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
+<!-- Deno -->
+<a href="https://deno.com" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
+</a>
 <!-- Node.js -->
 <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40" />
@@ -280,6 +272,18 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Express -->
 <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40" />
+</a>
+<!-- Nest.js -->
+<a href="https://nestjs.com/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
+</a>
+<!-- Drizzle -->
+<a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40" />
+</a>
+<!-- GraphQL -->
+<a href="https://graphql.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40" />
 </a>
 <!-- Payload CMS -->
 <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
@@ -313,6 +317,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40" />
 </a>
+<!-- WXT -->
+<a href="https://wxt.dev" target="_blank" rel="noreferrer">
+<img src="https://wxt.dev/hero-logo.svg" alt="WXT Logo" width="40" height="40" />
+</a>
 <!-- Storybook -->
 <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40" />
@@ -320,6 +328,18 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Framer Motion -->
 <a href="https://motion.dev" target="_blank" rel="noreferrer">
 <img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40" />
+</a>
+<!-- Serenity.js Screenplay Pattern -->
+<a href="https://playwright.dev/" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40" />
+</a>
+<!-- Playwright -->
+<a href="https://playwright.dev/" target="_blank" rel="noreferrer">
+<img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40" />
+</a>
+<!-- Vitest -->
+<a href="https://vitest.dev/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40" />
 </a>
 <!-- Jest -->
 <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
@@ -383,6 +403,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40" />
 </a>
+<!-- Netlify -->
+<a href="https://netlify.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
+</a>
 <!-- Vercel -->
 <a href="https://vercel.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/14985020?s=48&v=4" alt="Vercel Logo" width="40" height="40" />
@@ -406,10 +430,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.adacore.com/about-spark" target="_blank" rel="noreferrer">
 <img src="https://www.adacore.com/uploads/page_content/about-header.png" alt="SPARK Logo" width="40" height="40" />
 </a>
-<!-- Embedded Rust -->
-<a href="https://rust-embedded.org" target="_blank" rel="noreferrer">
-<img src="https://camo.githubusercontent.com/c2ef6279b9e015bb4af11062960247e033ed4d59846093f3f32eda472089bb2a/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67" alt="Embedded Rust Logo" width="40" height="40" />
-</a>
 <!-- Smalltalk -->
 <a href="https://squeak.org" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg" alt="Smalltalk Logo" width="40" height="40" />
@@ -417,10 +437,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Solidity -->
 <a href="https://soliditylang.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg" alt="Solidity Logo" width="40" height="40" />
-</a>
-<!-- Go -->
-<a href="https://golang.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg" alt="Go Logo" width="40" height="40" />
 </a>
 <!-- Ruby -->
 <a href="https://www.ruby-lang.org/en/" target="_blank" rel="noreferrer">

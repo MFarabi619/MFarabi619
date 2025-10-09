@@ -12,6 +12,16 @@
         "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
       },
       {
+        "name": "Embedded Rust",
+        "url": "https://rust-embedded.org",
+        "icon": "https://camo.githubusercontent.com/c2ef6279b9e015bb4af11062960247e033ed4d59846093f3f32eda472089bb2a/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67"
+      },
+      {
+        "name": "Go",
+        "url": "https://golang.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
+      },
+      {
         "name": "Embedded C",
         "url": "https://en.wikipedia.org/wiki/Embedded_C",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg"
@@ -20,11 +30,6 @@
         "name": "C++",
         "url": "https://en.wikipedia.org/wiki/C%2B%2B",
         "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
-      },
-      {
-        "name": "Arduino",
-        "url": "https://www.arduino.cc/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
       },
       {
         "name": "Bash",
@@ -84,19 +89,29 @@
         "icon": "https://avatars.githubusercontent.com/u/79236386?s=200&v=4"
       },
       {
+        "name": "Burn",
+        "url": "https://burn.dev",
+        "icon": "https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png"
+      },
+      {
+        "name": "Embassy",
+        "url": "https://embassy.dev",
+        "icon": "https://embassy.dev/favicon.png"
+      },
+      {
+        "name": "TinyGo",
+        "url": "https://tinygo.org",
+        "icon": "https://tinygo.org/images/tinygo-logo.png"
+      },
+      {
+        "name": "Arduino",
+        "url": "https://www.arduino.cc/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
+      },
+      {
         "name": "Pulumi",
         "url": "https://www.pulumi.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
-      },
-      {
-        "name": "Deno",
-        "url": "https://deno.com",
-        "icon": "https://avatars.githubusercontent.com/u/42048915?s=48&v=4"
-      },
-      {
-        "name": "Nest.js",
-        "url": "https://nestjs.com/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
       },
       {
         "name": "XState",
@@ -104,44 +119,19 @@
         "icon": "https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png"
       },
       {
+        "name": "SQLite",
+        "url": "https://sqlite.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg"
+      },
+      {
         "name": "PostgreSQL",
         "url": "https://www.postgresql.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg"
       },
       {
-        "name": "Drizzle",
-        "url": "https://orm.drizzle.team/",
-        "icon": "https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg"
-      },
-      {
-        "name": "GraphQL",
-        "url": "https://graphql.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg"
-      },
-      {
-        "name": "WXT",
-        "url": "https://wxt.dev",
-        "icon": "https://wxt.dev/hero-logo.svg"
-      },
-      {
-        "name": "Sli.dev",
+        "name": "Slidev",
         "url": "https://sli.dev",
         "icon": "https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67"
-      },
-      {
-        "name": "Serenity.js Screenplay Pattern",
-        "url": "https://playwright.dev/",
-        "icon": "https://avatars.githubusercontent.com/u/25189746?s=200&v=4"
-      },
-      {
-        "name": "Playwright",
-        "url": "https://playwright.dev/",
-        "icon": "https://playwright.dev/img/playwright-logo.svg"
-      },
-      {
-        "name": "Vitest",
-        "url": "https://vitest.dev/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg"
       }
     ],
     "Tools": [
@@ -216,11 +206,6 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg"
       },
       {
-        "name": "Netlify",
-        "url": "https://netlify.com",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
-      },
-      {
         "name": "Penpot",
         "url": "https://www.penpot.com/",
         "icon": "https://logowik.com/content/uploads/images/penpot-design-tool-icon1721166198.logowik.com.webp"
@@ -282,6 +267,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "Deno",
+        "url": "https://deno.com",
+        "icon": "https://avatars.githubusercontent.com/u/42048915?s=48&v=4"
+      },
+      {
         "name": "Node.js",
         "url": "https://nodejs.org/en/about",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg"
@@ -290,6 +280,21 @@
         "name": "Express",
         "url": "https://expressjs.com/",
         "icon": "https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg"
+      },
+      {
+        "name": "Nest.js",
+        "url": "https://nestjs.com/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg"
+      },
+      {
+        "name": "Drizzle",
+        "url": "https://orm.drizzle.team/",
+        "icon": "https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg"
+      },
+      {
+        "name": "GraphQL",
+        "url": "https://graphql.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg"
       },
       {
         "name": "Payload CMS",
@@ -332,6 +337,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"
       },
       {
+        "name": "WXT",
+        "url": "https://wxt.dev",
+        "icon": "https://wxt.dev/hero-logo.svg"
+      },
+      {
         "name": "Storybook",
         "url": "https://storybook.js.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg"
@@ -340,6 +350,21 @@
         "name": "Framer Motion",
         "url": "https://motion.dev",
         "icon": "https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png"
+      },
+      {
+        "name": "Serenity.js Screenplay Pattern",
+        "url": "https://playwright.dev/",
+        "icon": "https://avatars.githubusercontent.com/u/25189746?s=200&v=4"
+      },
+      {
+        "name": "Playwright",
+        "url": "https://playwright.dev/",
+        "icon": "https://playwright.dev/img/playwright-logo.svg"
+      },
+      {
+        "name": "Vitest",
+        "url": "https://vitest.dev/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg"
       },
       {
         "name": "Jest",
@@ -419,6 +444,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg"
       },
       {
+        "name": "Netlify",
+        "url": "https://netlify.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg"
+      },
+      {
         "name": "Vercel",
         "url": "https://vercel.com",
         "icon": "https://avatars.githubusercontent.com/u/14985020?s=48&v=4"
@@ -443,11 +473,6 @@
         "icon": "https://www.adacore.com/uploads/page_content/about-header.png"
       },
       {
-        "name": "Embedded Rust",
-        "url": "https://rust-embedded.org",
-        "icon": "https://camo.githubusercontent.com/c2ef6279b9e015bb4af11062960247e033ed4d59846093f3f32eda472089bb2a/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67"
-      },
-      {
         "name": "Smalltalk",
         "url": "https://squeak.org",
         "icon": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg"
@@ -456,11 +481,6 @@
         "name": "Solidity",
         "url": "https://soliditylang.org",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg"
-      },
-      {
-        "name": "Go",
-        "url": "https://golang.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg"
       },
       {
         "name": "Ruby",
