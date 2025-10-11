@@ -10,8 +10,7 @@
 
       linkApps = {
         enable = true;
-        # directory = "Applications/Nix Apps";
-        directory = "/Users/mfarabi/Applications/Nix Apps";
+        directory = "Applications";
       };
 
       currentHostDefaults = {
