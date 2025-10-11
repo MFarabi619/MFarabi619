@@ -128,6 +128,9 @@
 
         persistent-apps = [
           { app = "/Applications/Vivaldi.app"; }
+          { app = "/Applications/Leader Key.app"; }
+          { app = "/Applications/GarageBand.app"; }
+          { app = "/Applications/Arduino IDE.app"; }
         ];
       };
     };
