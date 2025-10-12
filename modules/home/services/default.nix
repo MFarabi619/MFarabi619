@@ -6,7 +6,6 @@
     ./home-manager.nix
     ./jellyfin.nix
     ./ssh-agent.nix
-    ./skhd.nix
     ./ollama.nix
     ./glance.nix
     ./trayscale.nix
