@@ -115,9 +115,6 @@
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
 
-        # `man home-configuration.nix`'s pager to work on Ubuntu
-        less
-
         # ============= 🤖 ==================
         # https://github.com/Vaishnav-Sabari-Girish/arduino-cli-interactive?ref=terminaltrove
         cmake # vterm compilation and more
