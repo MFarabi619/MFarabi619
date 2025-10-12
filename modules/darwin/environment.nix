@@ -10,6 +10,7 @@
       # yabai
       # skhd
       coreutils
+      alt-tab-macos # alt-tab on mac
     ];
 
     systemPath = [
