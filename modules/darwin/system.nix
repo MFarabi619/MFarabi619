@@ -150,9 +150,9 @@
 
     keyboard = {
       enableKeyMapping = true;
-      swapLeftCtrlAndFn = true;
+      swapLeftCtrlAndFn = false;
       remapCapsLockToControl = true;
-      swapLeftCommandAndLeftAlt = true;
+      swapLeftCommandAndLeftAlt = false;
     };
   };
 }

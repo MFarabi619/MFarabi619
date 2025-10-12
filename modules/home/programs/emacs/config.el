@@ -101,6 +101,13 @@
           ("m" "/mnt/"                       "Mounted drives")
           ("e" ,user-emacs-directory         "Emacs user directory"))))
 
+(use-package! kbd-mode)
+
+;; (after! kbd-mode
+;;   :custom
+;;   (kbd-mode-kill-kanata "pkill -9 kanata")
+;;   (kbd-mode-start-kanata "sudo kanata -dc ~/MFarabi619/modules/home/programs/kanata.kbd"))
+
 (use-package! arduino-mode
   :config
   (add-hook 'arduino-mode-hook #'arduino-cli-mode))

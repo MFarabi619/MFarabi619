@@ -7,11 +7,11 @@
     systemPackages = with pkgs; [
       # yabai
       # skhd
-      kanata        # keyboard layering
-      macmon        # mac monitoring TUI
+      macmon             # mac monitoring TUI
       coreutils
       # menubar-cli
-      alt-tab-macos # alt-tab on mac
+      alt-tab-macos      # alt-tab on mac
+      # kanata-with-cmd    # keyboard layering
     ];
 
     systemPath = [

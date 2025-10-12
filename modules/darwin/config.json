@@ -1,7 +1,7 @@
 {
   "actions" : [
     {
-      "key" : "t",
+      "key" : "k",
       "type" : "application",
       "value" : "/Users/mfarabi/Applications/Kitty.app"
     },
@@ -26,7 +26,6 @@
       "value" : "/Applications/Vivaldi.app"
     },
     {
-      "iconPath" : "/Users/mfarabi/Downloads",
       "key" : "d",
       "type" : "application",
       "value" : "/Users/mfarabi/Downloads"

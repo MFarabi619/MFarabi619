@@ -18,11 +18,13 @@
       "leader-key"
       "arduino-ide"
       "autoraiseapp"
+      "karabiner-elements"
     ];
 
     brews = [
       "qemu"
       "glab"
+      "kanata"
       "arduino-cli"
       "media-control"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI

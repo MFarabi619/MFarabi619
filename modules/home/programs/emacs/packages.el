@@ -63,3 +63,8 @@
 ;;            :branch "main"
 ;;            :files (:defaults "*.el" "*.sh"))
 ;;   :pin "91f2c21b7730caa55a6277ae1240328d9b8a0657")
+
+(package! kbd-mode
+  :recipe (:host github
+           :repo "kmonad/kbd-mode")
+  :pin "f8951b2efc5c29954b0105a9e57e973515125b0d")

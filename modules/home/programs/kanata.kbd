@@ -1,98 +1,90 @@
+(platform (macos)
+          (defoverrides
+           (lctl bspc) (lalt bspc)
+           (rctl bspc) (lalt bspc)
+           (lmet left) (lalt left)
+           (lmet right) (lalt right)
+           )
+          )
+;; sudo kanata -dc ~/MFarabi619/modules/home/programs/kanata.kbd
+
+(defcfg
+ process-unmapped-keys yes
+ )
+
 (defsrc
-  IntlBackslash  1    2    3    4    5       6    7    8    9    0       -    =    bspc
-  tab            q    w    e    r    t       y    u    i    o    p       [    ]    ret
-  caps           a    s    d    f    g       h    j    k    l    ;       '    \
-  lsft   `       z    x    c    v    b       n    m    ,    .    /       rsft
-  lctl           lalt lmet          spc            rmet ralt
-)
+ esc   f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  f12
+ `     1    2    3    4    5    6    7    8    9    0    -    =    bspc   ins   home  pgup
+ tab   q    w    e    r    t    y    u    i    o    p    [    ]    \      del   end   pgdn
+ caps  a    s    d    f    g    h    j    k    l    ;    '         enter
+ lsft  z    x    c    v    b    n    m    ,    .    /              rsft   up
+ lctl  lalt lmet                   spc                   rmet  ralt  rctl  left  down  right
+ )
 
 (defvar
-  ;; Note: consider using different time values for your different fingers.
-  ;; For example, your pinkies might be slower to release keys and index
-  ;; fingers faster.
   tap-time 200
   hold-time 200
-  hold-time-slow 300
-)
+  )
 
 (defalias
-  meh  (multi ctl alt sft)
-  tmeh (tap-hold $tap-time $hold-time spc @meh)
-   l_cmd (layer-toggle cmd)
-   l_sys1 (layer-toggle sys1)
-   l_sys2 (layer-toggle sys2)
-   l_num (layer-toggle num)
-   s (tap-hold $tap-time $hold-time s @l_cmd)
-   h (tap-hold $tap-time $hold-time h @l_cmd)
-   t (tap-hold $tap-time $hold-time t @l_sys1)
-   a (tap-hold $tap-time $hold-time-slow a @l_sys1)
-   r (tap-hold $tap-time $hold-time r @l_sys2)
-   e (tap-hold $tap-time $hold-time e @l_sys2)
-   n (tap-hold $tap-time $hold-time-slow n @l_num)
-   i (tap-hold $tap-time $hold-time-slow i @l_num)
-   l (tap-hold $tap-time $hold-time-slow l lctl)
-   d (tap-hold $tap-time $hold-time d lalt)
-   w (tap-hold $tap-time $hold-time w lmet)
-   u (tap-hold $tap-time $hold-time-slow u lctl)
-   o (tap-hold $tap-time $hold-time o lalt)
-   f (tap-hold $tap-time $hold-time f rmet)
-   d_h (tap-hold $tap-time $hold-time del home)
-   p_e (tap-hold $tap-time $hold-time M-[ end)
-   c_uz_r (chord underscore r)
-   c_uz_t (chord underscore t)
-   c_uz_s (chord underscore s)
-   c_apos_h (chord apos h)
-   c_apos_a (chord apos a)
-)
-(defchords underscore 15
-  (r    ) @r
-  (  t  ) @t
-  (    s) @s
-  (r t  ) -
-  (  t s) z
-)
+  lmet-mod (tap-hold $tap-time $hold-time bspc (layer-while-held nav))
 
-(defchords apos 15
-  (h  ) @h
-  (  a) @a
-  (h a) '
-)
+  a-mod (tap-hold $tap-time $hold-time a lmet)
+  s-mod (tap-hold $tap-time $hold-time s lalt)
+  d-mod (tap-hold $tap-time $hold-time d lsft)
+  f-mod (tap-hold $tap-time $hold-time f rctl)
 
+  j-mod (tap-hold $tap-time $hold-time j rctl)
+  k-mod (tap-hold $tap-time $hold-time k rsft)
+  l-mod (tap-hold $tap-time $hold-time l lalt)
+  ;-mod (tap-hold $tap-time $hold-time ' rmet)
+  '-mod (tap-hold $tap-time $hold-time enter ;)
 
-(deflayer graphite
-  XX        XX    XX    XX        XX        XX    XX    XX    XX    XX    XX    XX    XX    XX
-  XX        b    @l     @d        @w        v    k    @f    @o    @u    j    XX    XX    XX
-  XX        @n   @c_uz_r @c_uz_t  @c_uz_s   g    y    @c_apos_h   @c_apos_a    @e    @i    XX    XX
-  XX   XX   q    x      m         c       XX    lsft    p    .    ,    /   XX
-  XX   XX   XX         @tmeh        XX XX
-)
+  spc-mod (tap-hold $tap-time $hold-time spc (layer-while-held symnum))
+  rmet-mod (tap-hold $tap-time $hold-time tab (layer-while-held nav))
 
-(deflayer cmd
-  XX   XX   XX     XX        XX     XX     XX    XX     XX    XX      XX     XX    XX    XX
-  XX   tab   esc    C-S-tab   C-tab  XX    XX    M-c    up    bspc    M-v    XX    XX    XX
-  XX   M-tab   @d_h   @p_e      M-]    C-M-S-4    XX    left   down  right   ret    XX    XX
-  XX   XX   XX     XX        XX     XX    XX     lsft     XX    XX      XX     XX    XX
-  XX   XX   XX lmet XX XX
-)
+  mwu (mwheel-up 50 120)
+  mwd (mwheel-down 50 120)
+  mwl (mwheel-left 50 120)
+  mwr (mwheel-right 50 120)
 
-(deflayer sys1
-  XX         XX    XX    XX    XX    XX      XX    XX    XX    XX    XX     XX    XX    XX
-  XX         S-1   A-3   S-3   S-4   S-5     S-6   S-7   S-8   S-9   S-0    XX    XX    XX
-  XX         `     S-2   -     \     S-=     XX    S-;   ;     [     ]      XX    XX
-  XX   XX    XX    XX    XX    XX    XX      lsft    +     =     S-[   S-]    XX
-  XX   XX   XX lmet XX XX
-)
-(deflayer sys2
-  XX        XX   XX    XX     XX     XX       XX    XX    XX    XX     XX    XX    XX    XX
-  XX        XX   XX    A-]    S-A-]    M-v       XX    XX    XX    XX     XX    XX    XX    XX
-  XX        XX   XX    A-[    S-A-[     XX     XX       XX    XX    XX    XX   XX     XX
-  XX   XX   XX   XX    XX     M-c    XX     lsft     XX    XX      XX     XX    XX
-  XX   XX   XX lmet XX XX
-)
-(deflayer num
-  XX         XX    XX   XX     XX     XX       XX    XX    XX    XX    XX    XX    XX    XX
-  XX         XX    XX   XX     XX     XX       XX    7     8     9     0     XX    XX    XX
-  XX         XX    XX   XX     XX     XX       XX    4     5     6     .     XX    XX
-  XX   XX    XX    XX   XX     XX     XX     lsft    1     2     3     XX    XX
-  XX   XX   XX lmet XX XX
-)
+  ms↑ (movemouse-up 1 1)
+  ms← (movemouse-left 1 1)
+  ms↓ (movemouse-down 1 1)
+  ms→ (movemouse-right 1 1)
+
+  ma↑ (movemouse-accel-up 1 1000 1 5)
+  ma← (movemouse-accel-left 1 1000 1 5)
+  ma↓ (movemouse-accel-down 1 1000 1 5)
+  ma→ (movemouse-accel-right 1 1000 1 5)
+
+  sm (setmouse 32228 32228)
+  fst (movemouse-speed 200)
+  )
+
+(deflayer base
+          esc  🔅   🔆    ✗    ✗    ✗    ✗    ◀◀   ▶⏸   ▶▶   🔇   🔉   🔊
+          `     1    2    3    4    5    6    7    8    9    0    -    =    bspc   ins   home  pgup
+          tab   q    w    e    r    t    y    u    i    o    p    [    ]    \      del   end   pgdn
+          lctl  @a-mod @s-mod @d-mod @f-mod g    h    @j-mod @k-mod @l-mod @;-mod @'-mod enter
+          lsft  z    x    c    v    b    n    m    ,    .    /              rsft   up
+          lctl  lalt @lmet-mod           @spc-mod            @rmet-mod ralt rctl  left  down  right
+          )
+
+(deflayer symnum
+          esc   _    _    _    _    _    _    _    _    _    _    _    _
+          _     _    _    _    _    _    _    _    _    _    _    _    _    _      _     _     _
+          _     `    _   esc    _    _    _    _    _    _    _    _    _    _      _     _     _
+          _     1    2    3    4    5    6    7    8    9    0    _    _    _
+          _     _    _    _    _    ;    _    _   _    _    _              _      _
+          _     _    _                    _                    _     _     _       _     _
+          )
+
+(deflayer nav
+          _     _     _     _     _     _     _     _     _     _     _     _     _ _ _
+          _     _     _     _    _   _     _     _     _     _     _     _     _     _     _     _
+          _   🔆  _ _  _     _     _     _     _     _     _     _     _     _     _     _
+          _   🔉    🔅    🔊  _   _     _     _     _     _     _     _           _
+          _     _     _     _     _     _     _     _     _     _     _     _           _
+          _     _     _                       _                       _     _     _     _     _     _
+          )
