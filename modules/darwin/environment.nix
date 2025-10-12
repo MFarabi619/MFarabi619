@@ -6,9 +6,9 @@
   environment = {
     systemPackages = with pkgs; [
       # menubar-cli
-      skhd
       macmon
       # yabai
+      # skhd
       coreutils
     ];
 
