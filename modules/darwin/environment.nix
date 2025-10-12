@@ -9,6 +9,7 @@
       macmon
       # yabai
       # skhd
+      kanata        # keyboard layering
       coreutils
       alt-tab-macos # alt-tab on mac
     ];
