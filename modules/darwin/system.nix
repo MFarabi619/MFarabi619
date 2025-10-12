@@ -10,11 +10,51 @@
       spaces.spans-displays = false;
       LaunchServices.LSQuarantine = false;
       SoftwareUpdate.AutomaticallyInstallMacOSUpdates = true;
-      CustomUserPreferences."com.apple.AdLib".allowApplePersonalizedAdvertising = false;
+
+      # Customize settings that not supported by nix-darwin directly
+      # see the source code of this project to get more undocumented options:
+      #    https://github.com/rgcr/m-cli
+      #
+      # All custom entries can be found by running `defaults read` command.
+      # or `defaults read xxx` to read a specific domain.
+      CustomUserPreferences={
+       "com.apple.AdLib" = {
+          personalizedAdsMigrated = false;
+          allowIdentifierForAdvertising = false;
+          allowApplePersonalizedAdvertising = false;
+         };
+      };
+
+      screencapture = {
+        type = "png";
+        include-date = true;
+        target = "clipboard";
+        disable-shadow = true;
+        show-thumbnail = true;
+      };
+
+      dock = {
+        autohide = true;
+        launchanim = false;
+        mru-spaces = false;
+        autohide-delay = 0.0;
+        orientation = "right";
+        autohide-time-modifier = 1.0;
+        expose-animation-duration = 0.0;
+        appswitcher-all-displays = false;
+
+        persistent-apps = [
+          { app = "/Applications/Vivaldi.app"; }
+          { app = "/Applications/Leader Key.app"; }
+          { app = "/Applications/GarageBand.app"; }
+          { app = "/Applications/Arduino IDE.app"; }
+        ];
+      };
 
       finder = {
         ShowPathbar = true;
         QuitMenuItem = true;
+        ShowStatusBar = true;
         CreateDesktop = true;
         NewWindowTarget = "Home";
 
@@ -30,31 +70,22 @@
         ShowRemovableMediaOnDesktop = true;
         ShowExternalHardDrivesOnDesktop = true;
 
-        ShowStatusBar = true;
         AppleShowAllExtensions = true;
       };
 
       WindowManager = {
-        AutoHide = false; # Auto hide stage strip showing recent apps.
+        AutoHide = false;                         # Auto hide stage strip showing recent apps
         HideDesktop = true;
-        GloballyEnabled = false; # Enable Stage Manager Stage Manager arranges your recent windows into a single strip for reduced clutter and quick access
+        GloballyEnabled = false;                  # Enable Stage Manager Stage Manager arranges your recent windows into a single strip for reduced clutter and quick access
         StandardHideWidgets = true;
-        EnableTilingByEdgeDrag = true; # Enable dragging windows to screen edges to tile them
+        EnableTilingByEdgeDrag = true;            # Enable dragging windows to screen edges to tile them
         StageManagerHideWidgets = true;
-        EnableTiledWindowMargins = true; # Enable window margins when tiling windows.
+        EnableTiledWindowMargins = true;          # Enable window margins when tiling windows.
         StandardHideDesktopIcons = true;
-        AppWindowGroupingBehavior = true; # Grouping strategy when showing windows from an application
-        EnableTopTilingByEdgeDrag = true; # Enable dragging windows to the menu bar to fill the screen.
-        EnableTilingOptionAccelerator = true; # Enable holding alt to tile windows.
+        AppWindowGroupingBehavior = true;         # Grouping strategy when showing windows from an application
+        EnableTopTilingByEdgeDrag = true;         # Enable dragging windows to the menu bar to fill the screen.
+        EnableTilingOptionAccelerator = true;     # Enable holding alt to tile windows.
         EnableStandardClickToShowDesktop = false; # false means “Only in Stage Manager” true means “Always”
-      };
-
-      screencapture = {
-        type = "png";
-        include-date = true;
-        target = "clipboard";
-        disable-shadow = true;
-        show-thumbnail = true;
       };
 
       loginwindow = {
@@ -80,29 +111,29 @@
       };
 
       NSGlobalDomain = {
+        _HIHideMenuBar = true;
         AppleFontSmoothing = 2;
+        NSWindowResizeTime = 0.05;
         AppleInterfaceStyle = "Dark";
         AppleTemperatureUnit = "Celsius";
+        NSWindowShouldDragOnGesture = true;
         NSDisableAutomaticTermination = true;
+        NSDocumentSaveNewDocumentsToCloud = false;
+        NSNavPanelExpandedStateForSaveMode = false;
         NSAutomaticWindowAnimationsEnabled = false;
         NSAutomaticSpellingCorrectionEnabled = false;
         AppleInterfaceStyleSwitchesAutomatically = false;
 
-        NSWindowResizeTime = 0.05;
-        NSDocumentSaveNewDocumentsToCloud = false;
-        NSNavPanelExpandedStateForSaveMode = false;
-
-        _HIHideMenuBar = true;
-        NSWindowShouldDragOnGesture = true;
 
         "com.apple.springing.delay" = 0.0;
         "com.apple.springing.enabled" = false;
 
         "com.apple.trackpad.scaling" = 3.0;
-        "com.apple.sound.beep.feedback" = 1;
-        "com.apple.swipescrolldirection" = true;
         "com.apple.trackpad.enableSecondaryClick" = true;
         "com.apple.trackpad.trackpadCornerClickBehavior" = 1;
+
+        "com.apple.sound.beep.feedback" = 1;
+        "com.apple.swipescrolldirection" = true;
       };
 
       controlcenter = {
@@ -115,24 +146,6 @@
         BatteryShowPercentage = false;
       };
 
-      dock = {
-        autohide = true;
-        launchanim = false;
-        mru-spaces = false;
-        autohide-delay = 0.0;
-        orientation = "right";
-        autohide-time-modifier = 1.0;
-        expose-animation-duration = 0.0;
-
-        appswitcher-all-displays = false;
-
-        persistent-apps = [
-          { app = "/Applications/Vivaldi.app"; }
-          { app = "/Applications/Leader Key.app"; }
-          { app = "/Applications/GarageBand.app"; }
-          { app = "/Applications/Arduino IDE.app"; }
-        ];
-      };
     };
 
     keyboard = {

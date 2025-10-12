@@ -5,12 +5,12 @@
 {
   environment = {
     systemPackages = with pkgs; [
-      # menubar-cli
-      macmon
       # yabai
       # skhd
       kanata        # keyboard layering
+      macmon        # mac monitoring TUI
       coreutils
+      # menubar-cli
       alt-tab-macos # alt-tab on mac
     ];
 

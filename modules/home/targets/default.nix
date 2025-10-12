@@ -27,7 +27,7 @@
 
         NSGlobalDomain = {
           AppleMetricUnits = true;
-          AppleMesurementUnits = "Centimeters";
+          AppleMeasurementUnits = "Centimeters";
         };
 
         "com.apple.finder" = {
