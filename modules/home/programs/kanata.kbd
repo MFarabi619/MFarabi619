@@ -43,20 +43,20 @@
   spc-mod (tap-hold $tap-time $hold-time spc (layer-while-held symnum))
   rmet-mod (tap-hold $tap-time $hold-time tab (layer-while-held nav))
 
-  mwu (mwheel-up 50 120)
-  mwd (mwheel-down 50 120)
-  mwl (mwheel-left 50 120)
-  mwr (mwheel-right 50 120)
+  mwu (mwheel-up 5 20)
+  mwd (mwheel-down 5 20)
+  mwl (mwheel-left 5 20)
+  mwr (mwheel-right 5 20)
 
   ms↑ (movemouse-up 1 1)
   ms← (movemouse-left 1 1)
   ms↓ (movemouse-down 1 1)
   ms→ (movemouse-right 1 1)
 
-  ma↑ (movemouse-accel-up 1 1000 1 5)
-  ma← (movemouse-accel-left 1 1000 1 5)
-  ma↓ (movemouse-accel-down 1 1000 1 5)
-  ma→ (movemouse-accel-right 1 1000 1 5)
+  ma↑ (movemouse-accel-up 1 500 1 7)
+  ma← (movemouse-accel-left 1 500 1 7)
+  ma↓ (movemouse-accel-down 1 500 1 7)
+  ma→ (movemouse-accel-right 1 500 1 7)
 
   sm (setmouse 32228 32228)
   fst (movemouse-speed 200)
@@ -74,17 +74,17 @@
 (deflayer symnum
           esc   _    _    _    _    _    _    _    _    _    _    _    _
           _     _    _    _    _    _    _    _    _    _    _    _    _    _      _     _     _
-          _     `    _   esc    _    _    _    _    _    _    _    _    _    _      _     _     _
+          _     `   S-`   esc    _    _    _    _    _    _    \    _    _    _      _     _     _
           _     1    2    3    4    5    6    7    8    9    0    _    _    _
-          _     _    _    _    _    ;    _    _   _    _    _              _      _
+          _     _    _    _    _    ;    -    [   ]    =    _              _      _
           _     _    _                    _                    _     _     _       _     _
           )
 
 (deflayer nav
           _     _     _     _     _     _     _     _     _     _     _     _     _ _ _
-          _     _     _     _    _   _     _     _     _     _     _     _     _     _     _     _
-          _   🔆  _ _  _     _     _     _     _     _     _     _     _     _     _     _
-          _   🔉    🔅    🔊  _   _     _     _     _     _     _     _           _
-          _     _     _     _     _     _     _     _     _     _     _     _           _
+          _     _     _     _    _   _     _     _     _     _     _     _     _     _     _
+          _      _    ◀◀    🔆    ▶▶    _     mwl     mwu    @ma↑   mwd    mwr     _     _     _     _     _     _
+          _     _     🔉    🔅    🔊    _     mltp    @ma←  @ma↓  @ma→     _     _           _
+          _     _     _     _     _     _      _       mrtp    _     _     _     _           _
           _     _     _                       _                       _     _     _     _     _     _
           )
