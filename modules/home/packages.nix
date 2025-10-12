@@ -22,7 +22,7 @@
 # mqtttui
 # taproom
 # tuistash
-# arduino-cli-interactive
+# arduino-cli-interactive # github.com/Vaishnav-Sabari-Girish/arduino-cli-interactive?ref=terminaltrove
 # ballast
 # calcure
 # duf
@@ -46,77 +46,77 @@
     packages =
       with pkgs;
       [
+        tree
         pnpm
-        gnutls # for TLS connectivity
+        gnutls           # for TLS connectivity
         # =============
         # kicad
         # logseq
         openscad
         openscad-lsp
         # =============
-        vips # dired image previews
-        imagemagick # for image-dired
-        poppler-utils # dired pdf previews
+        vips             # dired image previews
+        imagemagick      # for image-dired
+        poppler-utils    # dired pdf previews
         epub-thumbnailer # dired epub previews
         # =============
-        tuntox # collab
-        sqlite # :tools lookup & :lang org +roam
-        ispell # spelling
+        tuntox           # collab
+        sqlite           # :tools lookup & :lang org +roam
+        ispell           # spelling
         gnuplot
-        shellcheck # shell script formatting
-        octaveFull # gnu octave
-        mermaid-cli # mermaid diagram support
+        shellcheck       # shell script formatting
+        octaveFull       # gnu octave
+        mermaid-cli      # mermaid diagram support
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         nmap
         tgpt
-        pik # local port tui
-        sshs # ssh tui
+        pik              # local port tui
+        sshs             # ssh tui
         gpg-tui
         termscp
+        caligula         # disk imaging
+        keymapviz        # visualize keyboard layout in ascii
         tcpdump
-        cointop # crypto price feed
+        cointop          # crypto price feed
         wiki-tui
         bandwhich
         cargo-seek
+        nvtopPackages.full # btop for gpu
 
         # leetcode-tui
 
-        keymapviz # visualize keyboard layout in ascii
         # keymap-drawer # visualize keyboard layout
 
         # lazyhetzner
-        caligula # disk imaging
 
-        gama-tui
+        gama-tui         # github actions runners
         codeberg-cli
 
         vi-mongo
 
-        tree
         presenterm
 
         wireshark-cli
 
         stylelint
         # ============= ‍❄🕸 ================
-        nil # nix formatter
+        nil         # nix formatter
         omnix
         devenv
         cachix
-        nix-du # store visualizer
-        # nix-ld # run unpatched dynamic binaries
-        nix-btm # nix process monitor
-        nix-top # nix process visualizer
-        nix-web # web gui
+        nix-du      # store visualizer
+        # nix-ld      # run unpatched dynamic binaries
+        nix-btm     # nix process monitor
+        nix-top     # nix process visualizer
+        nix-web     # web gui
         nix-info
         # mcp-nixos # mcp server for NixOS
-        nix-health # health check
+        nix-health  # health check
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
 
         # ============= 🤖 ==================
-        # https://github.com/Vaishnav-Sabari-Girish/arduino-cli-interactive?ref=terminaltrove
         cmake # vterm compilation and more
         gnumake
         coreutils
@@ -132,12 +132,12 @@
 
         # ============== 🤪 =================
         genact
-        smassh # TUI monkeytype
-        cowsay
-        lolcat # rainbow text output
-        figlet # fancy ascii text output
-        cmatrix
-        nyancat # rainbow flying cat
+        smassh       # TUI monkeytype
+        cowsay       # ascii cow
+        lolcat       # rainbow text output
+        figlet       # fancy ascii text output
+        cmatrix      # matrix animation
+        nyancat      # rainbow flying cat
         asciiquarium # ascii aquarium
 
         #  Fine-tune packages by applying overrides, for example
@@ -148,24 +148,24 @@
         # '')
 
         discordo
-        nvtopPackages.full
         jellyfin-tui
       ]
       ++ lib.optionals stdenv.isLinux [
         # ventoy-full # flash multiple isos to usb
+        # super-slicer # 3D printing
         freecad
-        woeusb-ng # flash bootable windows iso
+        woeusb-ng     # flash bootable windows iso
 
         # ============= 🧑‍💻🐞✨‍ ================
-        ugm # user group management
-        isd # systemd units
-        dysk # see mounted
-        kmon # kernel monitor
-        lazyssh # ssh
-        termshark # wireshark-like TUI
-        systeroid # powerful sysctl alternative
+        ugm           # user group management
+        isd           # systemd units
+        dysk          # see mounted
+        kmon          # kernel monitor
+        lazyssh       # ssh
+        termshark     # wireshark-like TUI
+        systeroid     # powerful sysctl alternative
         netscanner
-        lazyjournal # journal logs
+        lazyjournal   # journal logs
         systemctl-tui # systemctl logs
 
         virt-viewer
