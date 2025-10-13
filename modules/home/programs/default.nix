@@ -47,6 +47,7 @@
     ./openstackclient.nix
     ./password-store.nix
     ./pandoc.nix
+    ./rbw.nix
     ./ripgrep.nix
     ./rtorrent.nix
     ./ssh.nix
