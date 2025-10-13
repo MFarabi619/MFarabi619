@@ -1,6 +1,6 @@
 {
   programs.offlineimap = {
-    enable = true;
+    enable = false;
     # pythonFile = ''
     #   import subprocess
 
