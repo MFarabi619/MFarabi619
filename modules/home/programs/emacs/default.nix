@@ -11,7 +11,7 @@
       epkgs: with epkgs; [
         pg
         nov
-        jira
+        # jira
         verb
         gptel
         vterm
