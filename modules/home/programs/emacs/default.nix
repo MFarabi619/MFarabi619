@@ -21,13 +21,14 @@
         nerd-icons-corfu
         wttrin
         devdocs
+        devdocs-browser
         keycast
         kdl-mode
         leetcode
-        all-the-icons
-        treesit-grammars.with-all-grammars
         nix-update
         nix-ts-mode
+        all-the-icons
+        treesit-grammars.with-all-grammars
         # ================
         abc-mode
         scad-mode
