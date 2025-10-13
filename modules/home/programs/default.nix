@@ -45,6 +45,7 @@
     ./obsidian.nix
     ./opencode.nix
     ./openstackclient.nix
+    ./password-store.nix
     ./pandoc.nix
     ./ripgrep.nix
     ./rtorrent.nix
