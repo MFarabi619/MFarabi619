@@ -22,6 +22,7 @@
         wttrin
         devdocs
         devdocs-browser
+        shrface
         keycast
         kdl-mode
         leetcode
