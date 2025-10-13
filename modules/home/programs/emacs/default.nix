@@ -35,6 +35,7 @@
         scad-mode
         ob-mermaid # org babel mermaid
         mermaid-mode # github.com/abrochard/mermaid-mode
+        org-table-highlight
         # ================
         obsidian
         pdf-tools
