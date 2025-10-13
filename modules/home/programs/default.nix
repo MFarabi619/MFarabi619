@@ -36,6 +36,7 @@
     ./lazysql.nix
     ./less.nix
     ./man.nix
+    ./msmtp.nix
     ./mu.nix
     ./neovim
     ./nh.nix
