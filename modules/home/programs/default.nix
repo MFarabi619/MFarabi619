@@ -37,6 +37,7 @@
     ./less.nix
     ./man.nix
     ./msmtp.nix
+    ./mbsync.nix
     ./mu.nix
     ./neovim
     ./nh.nix
