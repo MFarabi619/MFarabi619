@@ -38,10 +38,10 @@
         pdf-tools
         org-roam-ui
         # ================
-        arduino-mode
-        platformio-mode
-        company-arduino
-        arduino-cli-mode
+        # arduino-mode
+        # platformio-mode
+        # company-arduino
+        # arduino-cli-mode
         # ================
         pacmacs
         key-quiz

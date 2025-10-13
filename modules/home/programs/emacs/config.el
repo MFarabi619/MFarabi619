@@ -17,7 +17,7 @@
 ;; - `load!' for loading external *.el files relative to this one
 ;; - `use-package!' for configuring packages
 ;; - `after!' for running code after a package has loaded
-;; - `add-load-path!rectories to the `load-path', relative to
+;; - `add-load-path! directories to the `load-path', relative to
 ;;   this file. Emacs searches the `load-path' when you load packages with
 ;;   `require' or `use-package'.
 ;; - `map!' for binding new keys
@@ -34,7 +34,6 @@
 
 ;; https://git.sr.ht/~morgansmith/sway-ts-mode
 ;; ;; (load! "./extra/sway-ts-mode")
-;; (add-load-path "./extra")
 ;; (setq treesit-extra-load-path "./extra")
 
 ;; (minimap-mode)
@@ -108,19 +107,19 @@
 ;;   (kbd-mode-kill-kanata "pkill -9 kanata")
 ;;   (kbd-mode-start-kanata "sudo kanata -dc ~/MFarabi619/modules/home/programs/kanata.kbd"))
 
-(use-package! arduino-mode
-  :config
-  (add-hook 'arduino-mode-hook #'arduino-cli-mode))
+;; (use-package! arduino-mode
+;;   :config
+;;   (add-hook 'arduino-mode-hook #'arduino-cli-mode))
 
-(use-package! arduino-cli-mode
-  :after arduino-mode
-  :config
-  (setq arduino-cli-verify t
-        arduino-cli-warnings 'all
-        arduino-cli-verbosity "verbose"
-        arduino-cli-monitor-default-baud-rate 115200
-        arduino-cli-default-fqbn "esp32:esp32:esp32s3"
-        arduino-cli-default-port "/dev/cu.SLAB_USBtoUART"))
+;; (use-package! arduino-cli-mode
+;;   :after arduino-mode
+;;   :config
+;;   (setq arduino-cli-verify t
+;;         arduino-cli-warnings 'all
+;;         arduino-cli-verbosity "verbose"
+;;         arduino-cli-monitor-default-baud-rate 115200
+;;         arduino-cli-default-fqbn "esp32:esp32:esp32s3"
+;;         arduino-cli-default-port "/dev/cu.SLAB_USBtoUART"))
 
 (use-package! gptel
   :config
@@ -375,6 +374,9 @@
           (append (cl-subseq +doom-dashboard-functions 0 (1+ pos))
                   (list #'my-custom-dashboard-text)
                   (cl-subseq +doom-dashboard-functions (1+ pos))))))
+
+;; (add-load-path! "pio-mode")
+;; (use-package! pio-mode)
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;; - `doom-font' -- primary font to use
