@@ -10,6 +10,7 @@
       "https://mfarabi.cachix.org"
       "https://emacs-ci.cachix.org"
       "https://hyprland.cachix.org"
+      "https://ros.cachix.org"
     ];
 
     trusted-substituters = [
@@ -22,6 +23,7 @@
       "https://mfarabi.cachix.org"
       "https://emacs-ci.cachix.org"
       "https://hyprland.cachix.org"
+      "https://ros.cachix.org"
     ];
 
     trusted-public-keys = [
@@ -34,6 +36,7 @@
       "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="
       "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
       "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      "ros.cachix.org-1:dSyZxI8geDCJrwgvCOHDoAfOm5sV1wCPjBkKL+38Rvo="
     ];
 
     extra-substituters = [
@@ -46,6 +49,7 @@
       "https://mfarabi.cachix.org"
       "https://emacs-ci.cachix.org"
       "https://hyprland.cachix.org"
+      "https://ros.cachix.org"
     ];
 
     extra-trusted-public-keys = [
@@ -58,6 +62,7 @@
       "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="
       "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
       "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      "ros.cachix.org-1:dSyZxI8geDCJrwgvCOHDoAfOm5sV1wCPjBkKL+38Rvo="
     ];
   };
 }
