@@ -18,6 +18,7 @@
       "leader-key"
       "arduino-ide"
       "autoraiseapp"
+      "docker-desktop"
       "karabiner-elements"
     ];
 
