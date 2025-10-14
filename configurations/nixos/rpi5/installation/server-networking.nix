@@ -8,7 +8,7 @@
       # Keep dmesg/journalctl -k output readable by NOT logging
       # each refused connection on the open internet.
       logRefusedConnections = lib.mkDefault false;
-      nallowPing = true; # Allow PMTU / DHCP
+      allowPing = true; # Allow PMTU / DHCP
     };
     # Use networkd instead of the pile of shell scripts
     # NOTE: SK: is it safe to combine with NetworkManager on desktops?

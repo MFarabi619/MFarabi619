@@ -4,15 +4,6 @@
 {
   description = "Mumtahin Farabi's distributed NixOS Configurations.";
 
-  # nixConfig = {
-  #   extra-substituters = [
-  #     "https://nixos-raspberrypi.cachix.org"
-  #   ];
-  #   extra-trusted-public-keys = [
-  #     "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
-  #   ];
-  # };
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixos-unified.url = "github:srid/nixos-unified";
@@ -66,8 +57,6 @@
       inputs.nixpkgs.follows = "";
     };
 
-    # vertex.url = "github:juspay/vertex";
-
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -78,13 +67,6 @@
       url = "github:hyprwm/hyprland-plugins";
       inputs.hyprland.follows = "hyprland";
     };
-
-    # argononed = {
-    #   # url = "git+file:../argononed?shallow=1";
-    #   # url = "git+https://gitlab.com/DarkElvenAngel/argononed.git";
-    #   url = "github:nvmd/argononed";
-    #   flake = false;
-    # };
 
     nix-on-droid = {
       url = "github:nix-community/nix-on-droid/release-24.05";
@@ -102,7 +84,8 @@
         root = ./.;
       };
     in
-    flake // {
+    flake
+    // {
       nixOnDroidConfigurations.default = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
         home-manager-path = inputs.home-manager.outPath;
         extraSpecialArgs = {

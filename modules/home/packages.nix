@@ -124,7 +124,7 @@
         arduino-cli
         arduino-language-server
 
-        fritzing
+        # fritzing
 
         # Setup Claude Code using Google Vertex AI Platform
         # https://github.com/juspay/vertex
