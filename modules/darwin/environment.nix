@@ -5,7 +5,6 @@
 {
   environment = {
     systemPackages = with pkgs; [
-      # yabai
       # skhd
       macmon             # mac monitoring TUI
       coreutils
