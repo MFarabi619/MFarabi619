@@ -1,11 +1,11 @@
 {
   programs.television = {
     enable = true;
-    enableBashIntegration = true;
     enableZshIntegration = true;
+    enableBashIntegration = true;
     settings = {
       tick_rate = 50;
-      default_channel = "files";
+      default_channel = "nix-search-tv";
       ui = {
         ui_scale = 120;
         scrollbar = true;
