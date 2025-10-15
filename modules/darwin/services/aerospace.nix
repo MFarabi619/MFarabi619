@@ -19,27 +19,27 @@
 
       gaps = {
         inner = {
-          vertical = 10;
-          horizontal = 10;
+          vertical = 0;
+          horizontal = 0;
         };
 
         outer = {
-          top = 14;
-          left = 8;
-          right = 8;
-          bottom = 8;
+          top = 10;
+          left = 0;
+          right = 0;
+          bottom = 0;
         };
       };
 
-        on-focused-monitor-changed = [
-          "move-mouse monitor-lazy-center"
-        ];
+        # on-focused-monitor-changed = [
+        #   "move-mouse monitor-lazy-center"
+        # ];
 
-        on-focus-changed = [
-          "move-mouse window-lazy-center"
-          "exec-and-forget /bin/bash -c sketchybar --trigger front_app_switched"
-          "exec-and-forget sketchybar --trigger update_windows"
-        ];
+        # on-focus-changed = [
+        #   "move-mouse window-lazy-center"
+        #   "exec-and-forget /bin/bash -c sketchybar --trigger front_app_switched"
+        #   "exec-and-forget sketchybar --trigger update_windows"
+        # ];
 
         exec-on-workspace-change = [
           "/bin/bash"
