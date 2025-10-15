@@ -26,7 +26,7 @@
     };
 
     settings = {
-      cursor_trail = 1;
+      # cursor_trail = 1;
       copy_on_select = "yes";
       tab_bar_margin_width = 0;
       window_padding_width = 2;
