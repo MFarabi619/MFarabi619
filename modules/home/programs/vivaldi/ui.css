@@ -1,0 +1,4 @@
+/* https://forum.vivaldi.net/topic/84699/is-there-a-way-to-hide-the-title-bar-on-macos */
+#browser:not(.tabs-top) #header {
+	min-height: 0px !important;
+}
