@@ -20,7 +20,6 @@
       "huly"
       "vivaldi"
       "leader-key"
-      "arduino-ide"
       "autoraiseapp"
       "docker-desktop"
       "karabiner-elements"
@@ -35,7 +34,6 @@
       "glab"
       "kanata"
       # "whalebrew"
-      "arduino-cli"
       "media-control"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ];
