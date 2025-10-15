@@ -2,7 +2,7 @@
   services.jankyborders = {
     width = 1.0;
     hidpi = true;
-    enable = true;
+    enable = false;
     order = "above";
     style = "round";
     ax_focus = false; # use slower accessibility focus api if true
