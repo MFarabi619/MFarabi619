@@ -40,6 +40,7 @@
       active_tab_font_style = "bold";
       inactive_tab_font_style = "bold";
       dynamic_background_opacity = "yes";
+      hide_window_decorations = "titlebar-only";
     };
 
     # extraConfig = ''
