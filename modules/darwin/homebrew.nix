@@ -6,6 +6,7 @@
 
     onActivation = {
       upgrade = true;
+      cleanup = "zap";
       autoUpdate = true;
       extraFlags = [
         "--verbose"
