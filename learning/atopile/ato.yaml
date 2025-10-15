@@ -1,0 +1,22 @@
+requires-atopile: "0.12.4"
+
+paths:
+  src: ./
+  layout: ./layouts
+
+builds:
+  default:
+    entry: main.ato:App
+
+# This metadata is only required for publishing
+# Uncomment it and fill out the fields to publish your package
+# package:
+#   identifier: # fill me!/atopile
+#   repository: # fill me!
+#   version: "0.1.0"  # recommended first version
+#   authors:
+#     - name: Mumtahin Farabi
+#       email: mfarabi619@gmail.com
+#   summary: # fill me!
+#   license: GNU General Public License v3
+#   homepage: # fill me!
