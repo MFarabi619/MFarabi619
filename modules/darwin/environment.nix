@@ -5,7 +5,6 @@
 {
   environment = {
     systemPackages = with pkgs; [
-      # skhd
       macmon             # mac monitoring TUI
       coreutils
       # menubar-cli
