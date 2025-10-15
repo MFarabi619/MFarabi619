@@ -12,6 +12,10 @@
       ];
     };
 
+    global = {
+      autoUpdate = true;
+    };
+
     casks = [
       "huly"
       "vivaldi"
@@ -22,10 +26,15 @@
       "karabiner-elements"
     ];
 
+    # whalebrews = [
+    #   "kilted-ros-base-noble"
+    # ];
+
     brews = [
       "qemu"
       "glab"
       "kanata"
+      # "whalebrew"
       "arduino-cli"
       "media-control"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
