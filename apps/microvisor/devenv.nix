@@ -8,6 +8,7 @@
   imports = [
     ./env
     ./tasks
+    ./files
     ./cachix
     ./scripts
     ./packages

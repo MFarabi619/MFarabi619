@@ -1,10 +1,26 @@
 {
+  pkgs,
+  config,
+  ...
+}:
+{
   imports = [
-    ./doctor.nix
     ./hello.nix
   ];
 
   scripts = {
+    doctor = {
+      packages = with pkgs; [
+        figlet
+        shellspec
+      ];
+
+      description = " 💊 Run Microdoctor health-check suite with docs output";
+      exec = ''
+        figlet -cf slant "💊 Microdoctor";
+        shellspec -c "${config.env.DEVENV_ROOT}/tests" --quiet "$@";
+      '';
+    };
 
     ai = {
       description = "     🤖 Use the GPT LLM of your choice";

@@ -2,6 +2,7 @@
 #               Build/Test Outputs
 #====================================================
 .shellspec
+tests/env_spec.sh
 **/debug/
 **/target/
 debug/
