@@ -23,6 +23,7 @@
       "leader-key"
       # "autoraiseapp"
       "docker-desktop"
+      "visual-studio-code"
     ];
 
     brews = [
