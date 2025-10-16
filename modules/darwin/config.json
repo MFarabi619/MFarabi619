@@ -1,7 +1,7 @@
 {
   "actions" : [
     {
-      "key" : "k",
+      "key" : "t",
       "type" : "application",
       "value" : "/Users/mfarabi/Applications/Kitty.app"
     },
@@ -21,24 +21,56 @@
       "value" : "/System/Applications/Launchpad.app"
     },
     {
-      "key" : "v",
-      "type" : "application",
-      "value" : "/Applications/Vivaldi.app"
-    },
-    {
       "key" : "d",
-      "type" : "application",
+      "type" : "folder",
       "value" : "/Users/mfarabi/Downloads"
     },
     {
-      "key" : "a",
-      "type" : "application",
+      "key" : "m",
+      "type" : "folder",
       "value" : "/Users/mfarabi"
     },
     {
       "key" : "h",
       "type" : "application",
       "value" : "/Applications/Huly.app"
+    },
+    {
+      "key" : "c",
+      "type" : "application",
+      "value" : "/Applications/Visual Studio Code.app"
+    },
+    {
+      "key" : "g",
+      "type" : "application",
+      "value" : "/Applications/GarageBand.app"
+    },
+    {
+      "key" : "a",
+      "type" : "folder",
+      "value" : "/Applications"
+    },
+    {
+      "key" : "p",
+      "type" : "application",
+      "value" : "/Applications/Penpot Desktop.app"
+    },
+    {
+      "key" : "v",
+      "type" : "application",
+      "value" : "/Applications/Vivaldi.app"
+    },
+    {
+      "iconPath" : "keyboard.fill",
+      "key" : "k",
+      "label" : "🖮 Start Karabiner Driver + Kanata",
+      "type" : "command",
+      "value" : "sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -q &"
+    },
+    {
+      "key" : "i",
+      "type" : "folder",
+      "value" : "/Users/mfarabi/Pictures"
     }
   ],
   "type" : "group"
