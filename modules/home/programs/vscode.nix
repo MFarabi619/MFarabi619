@@ -2,7 +2,8 @@
 
 {
   programs.vscode = {
-    enable = true;
+    enable = false;
+    # mutableExtensionsDir = true;
     profiles = {
       default = {
         enableUpdateCheck = true;
@@ -10,7 +11,7 @@
       };
 
       mfarabi = {
-        userTasks = {};
+        userTasks = { };
 
         keybindings = [
           {
@@ -25,8 +26,11 @@
           antfu.slidev
           bbenoist.nix
           vscodevim.vim
+          atopile.atopile
+          ms-vscode.cpptools
           jnoortheen.nix-ide
           unifiedjs.vscode-mdx
+          likec4.likec4-vscode
           timonwong.shellcheck
           esbenp.prettier-vscode
           graphql.vscode-graphql
@@ -38,7 +42,6 @@
           github.vscode-github-actions
           graphql.vscode-graphql-syntax
           platformio.platformio-vscode-ide
-          vue.vscode-typescript-vue-plugin
           christian-kohler.npm-intellisense
           christian-kohler.path-intellisense
           ms-vscode-remote.vscode-remote-extensionpack
@@ -68,13 +71,13 @@
 
         userSettings = {
           editor = {
-            minimap = {
-              enabled = true;
-            };
             wordWrap = "on";
-            files = {
-              autoSave = "afterDelay";
-            };
+            formatOnSave = true;
+            formatOnPaste = true;
+            minimap.enabled = false;
+            files.autoSave = "afterDelay";
+            fontFamily = "JetBrainsMono Nerd Font";
+
           };
           workbench = {
             panel = {
@@ -89,6 +92,8 @@
             layoutControl = {
               enabled = false;
             };
+            statusBar.visible = false;
+            tips.enabled = false;
           };
           window = {
             titleBarStyle = "native";

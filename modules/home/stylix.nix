@@ -14,6 +14,7 @@
       vim.enable = true;
       fontconfig.enable = true;
       font-packages.enable = true;
+      vscode.enable = false;
 
       neovim = {
         enable = false;
