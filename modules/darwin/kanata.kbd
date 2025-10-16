@@ -29,6 +29,7 @@
 (defalias
   lmet-mod (tap-hold $tap-time $hold-time bspc (layer-while-held nav))
 
+  q-mod (tap-hold $tap-time $hold-time q `)
   a-mod (tap-hold $tap-time $hold-time a lmet)
   s-mod (tap-hold $tap-time $hold-time s lalt)
   d-mod (tap-hold $tap-time $hold-time d lsft)
@@ -39,6 +40,9 @@
   l-mod (tap-hold $tap-time $hold-time l lalt)
   ;-mod (tap-hold $tap-time $hold-time ' rmet)
   '-mod (tap-hold $tap-time $hold-time enter ;)
+  ,-mod (tap-hold $tap-time $hold-time , -)
+  .-mod (tap-hold $tap-time $hold-time . =)
+  ;; /-mod (tap-hold $tap-time $hold-time / \)
 
   spc-mod (tap-hold $tap-time $hold-time spc (layer-while-held symnum))
   rmet-mod (tap-hold $tap-time $hold-time tab (layer-while-held nav))
@@ -60,6 +64,8 @@
 
   sm (setmouse 32228 32228)
   fst (movemouse-speed 200)
+
+  alt-tab (macro A-(tab))
   )
 
 (deflayer base
@@ -67,14 +73,14 @@
           `     1    2    3    4    5    6    7    8    9    0    -    =    bspc   ins   home  pgup
           tab   q    w    e    r    t    y    u    i    o    p    [    ]    \      del   end   pgdn
           lctl  @a-mod @s-mod @d-mod @f-mod g    h    @j-mod @k-mod @l-mod @;-mod @'-mod enter
-          lsft  z    x    c    v    b    n    m    ,    .    /              rsft   up
+          lsft  z    x    c    v    b    n    m    @,-mod    @.-mod    /              rsft   up
           lctl  lalt @lmet-mod           @spc-mod            @rmet-mod ralt rctl  left  down  right
           )
 
 (deflayer symnum
           esc   _    _    _    _    _    _    _    _    _    _    _    _
           _     _    _    _    _    _    _    _    _    _    _    _    _    _      _     _     _
-          _     esc   S-`   `    _    _    _    _    _    _    \    _    _    _      _     _     _
+          _     @alt-tab   `   esc    _    _    _    _    _    _    \    _    _    _      _     _     _
           _     1    2    3    4    5    6    7    8    9    0    _    _    _
           _     _    _    _    _    ;    -    [   ]    =    _              _      _
           _     _    _                    _                    _     _     _       _     _

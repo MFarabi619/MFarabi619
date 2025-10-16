@@ -55,6 +55,7 @@
         "^z" = "undo:";
         "^y" = "redo:";
         "^c" = "copy:";
+        "@a" = "noop:";
         "^v" = "paste:";
         "^a" = "selectAll:";
         "^\010" = "deleteWordBackward:";
