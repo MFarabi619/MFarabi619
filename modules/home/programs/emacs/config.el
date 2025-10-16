@@ -48,8 +48,8 @@
       nyan-wavy-trail t
       nyan-animate-nyancat t
       doom-modeline-hud t
-      ;; doom-theme 'doom-gruvbox
-      doom-theme 'catppuccin
+      doom-theme 'doom-gruvbox
+      ;; doom-theme 'catppuccin
       which-key-idle-delay 0.25
       evil-split-window-below t
       doom-modeline-time-icon t
@@ -57,14 +57,14 @@
       doom-modeline-persp-name t
       display-time-day-and-date t
       treemacs-git-mode 'extended
-      doom-lantern-padded-modeline t
+      ;; doom-lantern-padded-modeline t
       doom-modeline-major-mode-icon t
       org-directory "~/Documents/org/"
       user-full-name "Mumtahin Farabi"
       display-line-numbers-type 'relative
       which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
       user-mail-address "mfarabi619@gmail.com"
-      plstore-cache-passphrase-for-symmetric-encryption t
+      ;; plstore-cache-passphrase-for-symmetric-encryption t
       browse-url-browser-function 'browse-url-default-browser
       fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
       projectile-project-search-path '("~/workspace/" "~/Documents/")

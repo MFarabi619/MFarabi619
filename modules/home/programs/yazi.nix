@@ -22,7 +22,7 @@
         rich-preview
         # wl-clipboard
         yatline-githead
-        yatline-catppuccin
+        # yatline-catppuccin
         ;
     };
     settings = {
