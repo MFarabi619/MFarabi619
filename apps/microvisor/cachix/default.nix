@@ -3,14 +3,12 @@
     enable = true;
     push = "mfarabi";
     pull = [
-      # "rad"
       "cachix"
       "oxalica"
       "devenv"
       "nixpkgs"
       "mfarabi"
       "emacs-ci"
-      "fuellabs"
       "nix-darwin"
       "nix-community"
       "pre-commit-hooks"

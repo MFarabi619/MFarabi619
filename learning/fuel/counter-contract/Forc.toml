@@ -1,6 +1,0 @@
-[project]
-authors = ["mfarabi"]
-entry = "main.sw"
-name = "counter-contract"
-
-[dependencies]
