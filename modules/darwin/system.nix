@@ -17,12 +17,12 @@
       #
       # All custom entries can be found by running `defaults read` command.
       # or `defaults read xxx` to read a specific domain.
-      CustomUserPreferences={
-       "com.apple.AdLib" = {
+      CustomUserPreferences = {
+        "com.apple.AdLib" = {
           personalizedAdsMigrated = false;
           allowIdentifierForAdvertising = false;
           allowApplePersonalizedAdvertising = false;
-         };
+        };
       };
 
       screencapture = {
@@ -44,10 +44,8 @@
         appswitcher-all-displays = false;
 
         persistent-apps = [
-          { app = "/Applications/Vivaldi.app"; }
-          { app = "/Applications/Leader Key.app"; }
           { app = "/Applications/GarageBand.app"; }
-          { app = "/Applications/Arduino IDE.app"; }
+          { app = "/Applications/Visual Studio Code.app"; }
         ];
       };
 
@@ -74,17 +72,17 @@
       };
 
       WindowManager = {
-        AutoHide = false;                         # Auto hide stage strip showing recent apps
+        AutoHide = false; # Auto hide stage strip showing recent apps
         HideDesktop = true;
-        GloballyEnabled = false;                  # Enable Stage Manager Stage Manager arranges your recent windows into a single strip for reduced clutter and quick access
+        GloballyEnabled = false; # Enable Stage Manager Stage Manager arranges your recent windows into a single strip for reduced clutter and quick access
         StandardHideWidgets = true;
-        EnableTilingByEdgeDrag = true;            # Enable dragging windows to screen edges to tile them
+        EnableTilingByEdgeDrag = true; # Enable dragging windows to screen edges to tile them
         StageManagerHideWidgets = true;
-        EnableTiledWindowMargins = true;          # Enable window margins when tiling windows.
+        EnableTiledWindowMargins = true; # Enable window margins when tiling windows.
         StandardHideDesktopIcons = true;
-        AppWindowGroupingBehavior = true;         # Grouping strategy when showing windows from an application
-        EnableTopTilingByEdgeDrag = true;         # Enable dragging windows to the menu bar to fill the screen.
-        EnableTilingOptionAccelerator = true;     # Enable holding alt to tile windows.
+        AppWindowGroupingBehavior = true; # Grouping strategy when showing windows from an application
+        EnableTopTilingByEdgeDrag = true; # Enable dragging windows to the menu bar to fill the screen.
+        EnableTilingOptionAccelerator = true; # Enable holding alt to tile windows.
         EnableStandardClickToShowDesktop = false; # false means “Only in Stage Manager” true means “Always”
       };
 
@@ -123,7 +121,6 @@
         NSAutomaticWindowAnimationsEnabled = false;
         NSAutomaticSpellingCorrectionEnabled = false;
         AppleInterfaceStyleSwitchesAutomatically = false;
-
 
         "com.apple.springing.delay" = 0.0;
         "com.apple.springing.enabled" = false;
