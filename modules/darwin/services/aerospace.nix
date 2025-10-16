@@ -1,8 +1,9 @@
 {
   services.aerospace = {
-   enable = true;
+    enable = true;
 
-    settings = { # yoinked from github.com/ryangchung/ryangchung/blob/main/modules/home/programs/aerospace.nix
+    settings = {
+      # yoinked from github.com/ryangchung/ryangchung/blob/main/modules/home/programs/aerospace.nix
       after-startup-command = [
         "layout tiles"
       ];
@@ -24,30 +25,29 @@
         };
 
         outer = {
-          top = 10;
+          top = 16;
           left = 0;
           right = 0;
           bottom = 0;
         };
       };
 
-        # on-focused-monitor-changed = [
-        #   "move-mouse monitor-lazy-center"
-        # ];
+      # on-focused-monitor-changed = [
+      #   "move-mouse monitor-lazy-center"
+      # ];
 
-        # on-focus-changed = [
-        #   "move-mouse window-lazy-center"
-        #   "exec-and-forget /bin/bash -c sketchybar --trigger front_app_switched"
-        #   "exec-and-forget sketchybar --trigger update_windows"
-        # ];
+      # on-focus-changed = [
+      #   "move-mouse window-lazy-center"
+      #   "exec-and-forget /bin/bash -c sketchybar --trigger front_app_switched"
+      #   "exec-and-forget sketchybar --trigger update_windows"
+      # ];
 
-        exec-on-workspace-change = [
-          "/bin/bash"
-          "-c"
-          # "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
-          "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE"
-        ];
-
+      exec-on-workspace-change = [
+        "/bin/bash"
+        "-c"
+        # "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
+        "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE"
+      ];
 
       mode.main.binding = {
         # alt-tab = "workspace-back-and-forth";
@@ -138,16 +138,16 @@
       };
 
       "workspace-to-monitor-force-assignment" = {
-          "1" = "main";
-          "2" = "main";
-          "3" = "main";
-          "4" = "main";
-          "5" = "main";
-          "6" = "main";
-          "7" = "main";
-          "8" = "main";
-          "9" = "main";
-          "10" = "secondary";
+        "1" = "main";
+        "2" = "main";
+        "3" = "main";
+        "4" = "main";
+        "5" = "main";
+        "6" = "main";
+        "7" = "main";
+        "8" = "main";
+        "9" = "main";
+        "10" = "secondary";
       };
     };
   };
