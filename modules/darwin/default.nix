@@ -7,6 +7,7 @@
     ./environment.nix
     ./fonts.nix
     ./homebrew.nix
+    ./launchd.nix
     ./networking.nix
     ./nixpkgs.nix
     ./power.nix

@@ -13,17 +13,17 @@
         orientation = "landscape";
         use_nerd_font_icons = true;
       };
-      actions = {
-        edit = {
-          mode = "fork";
-          command = "nvim {}";
-          description = "Open selected file in editor";
-        };
-      };
+      # actions = {
+      #   edit = {
+      #     mode = "fork";
+      #     command = "nvim {}";
+      #     description = "Open selected file in editor";
+      #   };
+      # };
       keybindings = {
-       ctrl-g = "quit";
-       ctrl-e = "actions:edit";
-       alt-x ="toggle_help";
+        ctrl-g = "quit";
+        alt-x = "toggle_help";
+        # enter = "actions:edit";
       };
     };
     # channels = { };

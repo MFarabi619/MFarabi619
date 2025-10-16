@@ -60,16 +60,12 @@ in
     nix = {
       settings = {
         max-jobs = "auto";
-        trusted-users = [
-          "root"
-        ]
+        trusted-users = [ ]
         ++ config.myusers;
         experimental-features = [
           "nix-command"
           "flakes"
         ];
-
-
 
         extra-substituters = [
           "https://cache.nixos.org"

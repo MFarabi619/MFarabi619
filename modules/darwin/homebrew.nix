@@ -21,21 +21,12 @@
       "huly"
       "vivaldi"
       "leader-key"
-      "autoraiseapp"
+      # "autoraiseapp"
       "docker-desktop"
-      "karabiner-elements"
     ];
-
-    # whalebrews = [
-    #   "kilted-ros-base-noble"
-    # ];
 
     brews = [
       "qemu"
-      "glab"
-      "kanata"
-      # "whalebrew"
-      "media-control"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ];
   };

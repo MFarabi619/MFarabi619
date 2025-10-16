@@ -5,11 +5,10 @@
 {
   environment = {
     systemPackages = with pkgs; [
-      macmon             # mac monitoring TUI
+      macmon        # mac monitoring TUI
       coreutils
-      # menubar-cli
-      alt-tab-macos      # alt-tab on mac
-      # kanata-with-cmd    # keyboard layering
+      alt-tab-macos
+      kanata-with-cmd
     ];
 
     systemPath = [
@@ -29,3 +28,30 @@
     ];
   };
 }
+
+# Read:
+
+# github.com/jtroo/kanata/releases/tag/v1.9.0
+# github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/tree/main
+# github.com/jtroo/kanata/discussions/1537
+
+# Download:
+# github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-6.2.0.pkg
+
+# Install:
+# /Applications/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager activate
+
+# sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &
+# sudo kanata -q &
+
+# or
+
+# sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -q &
+
+# stop with:
+# sudo killall Karabiner-VirtualHIDDevice-Daemon; sudo killall kanata
+
+# Uninstall:
+# bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall/deactivate_driver.sh'
+# sudo bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall/remove_files.sh'
+# sudo killall Karabiner-VirtualHIDDevice-Daemon

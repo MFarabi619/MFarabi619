@@ -151,6 +151,7 @@
         jellyfin-tui
       ]
       ++ lib.optionals stdenv.isLinux [
+        # atopile # circuit diagrams as code
         # ventoy-full # flash multiple isos to usb
         # super-slicer # 3D printing
         freecad
@@ -202,6 +203,11 @@
       ".config/surfingkeys/.surfingkeys.js" = {
         enable = true;
         source = ./programs/.surfingkeys.js;
+      };
+
+      "/Library/Application Support/kanata/kanata.kbd" = {
+        enable = pkgs.stdenv.isDarwin;
+        source = ../darwin/kanata.kbd;
       };
     };
   };

@@ -9,7 +9,7 @@ in
 {
   imports = [
     self.darwinModules.default
-    # flake.inputs.lix-module.nixosModules.default
+    flake.inputs.lix-module.nixosModules.default
     flake.inputs.stylix.darwinModules.stylix
   ];
 
