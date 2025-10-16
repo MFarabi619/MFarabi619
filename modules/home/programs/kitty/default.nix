@@ -17,8 +17,8 @@
     # };
 
     keybindings = {
-     "ctrl+c" = "copy_or_interrupt";
-     "ctrl+shift+v" = "paste_from_selection";
+      "ctrl+c" = "copy_or_interrupt";
+      "ctrl+shift+v" = "paste_from_selection";
     };
 
     environment = {
@@ -32,7 +32,7 @@
       window_padding_width = 2;
 
       tab_fade = 1;
-      background_blur = 30;
+      background_blur = 40;
       tab_bar_edge = "top";
       tab_bar_align = "left";
       tab_bar_style = "powerline";
