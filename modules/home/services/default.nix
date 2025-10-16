@@ -8,6 +8,7 @@
     ./mbsync.nix
     ./ssh-agent.nix
     ./ollama.nix
+    ./podman.nix
     ./glance.nix
     ./trayscale.nix
   ];
