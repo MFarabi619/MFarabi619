@@ -1,77 +1,87 @@
 {
-  "actions": [
+  "actions" : [
     {
-      "key": "t",
-      "type": "application",
-      "value": "/Users/mfarabi/Applications/Kitty.app"
+      "key" : "t",
+      "type" : "application",
+      "value" : "/Users/mfarabi/Applications/Kitty.app"
     },
     {
-      "key": "e",
-      "type": "application",
-      "value": "/Users/mfarabi/Applications/Emacs.app"
+      "key" : "e",
+      "type" : "application",
+      "value" : "/Users/mfarabi/Applications/Emacs.app"
     },
     {
-      "key": "s",
-      "type": "application",
-      "value": "/System/Applications/System Settings.app"
+      "key" : "s",
+      "type" : "application",
+      "value" : "/System/Applications/System Settings.app"
     },
     {
-      "key": "l",
-      "type": "application",
-      "value": "/System/Applications/Launchpad.app"
+      "key" : "l",
+      "type" : "application",
+      "value" : "/System/Applications/Launchpad.app"
     },
     {
-      "key": "d",
-      "type": "folder",
-      "value": "/Users/mfarabi/Downloads"
+      "key" : "d",
+      "type" : "folder",
+      "value" : "/Users/mfarabi/Downloads"
     },
     {
-      "key": "m",
-      "type": "folder",
-      "value": "/Users/mfarabi"
+      "key" : "m",
+      "type" : "folder",
+      "value" : "/Users/mfarabi"
     },
     {
-      "key": "h",
-      "type": "application",
-      "value": "/Applications/Huly.app"
+      "key" : "h",
+      "type" : "application",
+      "value" : "/Applications/Huly.app"
     },
     {
-      "key": "c",
-      "type": "application",
-      "value": "/Applications/Visual Studio Code.app"
+      "key" : "c",
+      "type" : "application",
+      "value" : "/Applications/Visual Studio Code.app"
     },
     {
-      "key": "g",
-      "type": "application",
-      "value": "/Applications/GarageBand.app"
+      "key" : "g",
+      "type" : "application",
+      "value" : "/Applications/GarageBand.app"
     },
     {
-      "key": "a",
-      "type": "folder",
-      "value": "/Applications"
+      "key" : "a",
+      "type" : "folder",
+      "value" : "/Applications"
     },
     {
-      "key": "p",
-      "type": "application",
-      "value": "/Applications/Penpot Desktop.app"
+      "key" : "p",
+      "type" : "application",
+      "value" : "/Applications/Penpot Desktop.app"
     },
     {
-      "key": "v",
-      "type": "application",
-      "value": "/Applications/Vivaldi.app"
+      "key" : "v",
+      "type" : "application",
+      "value" : "/Applications/Vivaldi.app"
     },
     {
-      "iconPath": "keyboard.fill",
-      "key": "k",
-      "label": "🖮 Start Karabiner Driver + Kanata",
-      "type": "command",
-      "value": "sudo killall Karabiner-VirtualHIDDevice-Daemon; sudo killall kanata; sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -qc ~/MFarabi619/modules/darwin/kanata.kbd &"
+      "iconPath" : "keyboard.fill",
+      "key" : "k",
+      "label" : "🖮 Start Karabiner Driver + Kanata",
+      "type" : "command",
+      "value" : "sudo killall Karabiner-VirtualHIDDevice-Daemon; sudo killall kanata; sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -qc ~/MFarabi619/modules/darwin/kanata.kbd &"
     },
     {
-      "key": "i",
-      "type": "folder",
-      "value": "/Users/mfarabi/Pictures"
+      "key" : "u",
+      "type" : "application",
+      "value" : "/Users/mfarabi/Applications/UTM.app"
+    },
+    {
+      "key" : "o",
+      "type" : "application",
+      "value" : "/Applications/ElegooSlicer.app"
+    },
+    {
+      "key" : "i",
+      "type" : "folder",
+      "value" : "/Users/mfarabi/Pictures"
     }
   ],
-  "type": "group"
+  "type" : "group"
 }
