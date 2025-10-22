@@ -202,7 +202,7 @@
       # .screenrc".source = dotfiles/screenrc;
       ".config/surfingkeys/.surfingkeys.js" = {
         enable = true;
-        source = ./programs/.surfingkeys.js;
+        source = ./programs/surfingkeys/index.js;
       };
 
       "/Library/Application Support/kanata/kanata.kbd" = {
