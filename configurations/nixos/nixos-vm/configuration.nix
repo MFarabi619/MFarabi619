@@ -18,7 +18,7 @@
 
   nixpkgs = {
     config.allowUnfree = true;
-    hostPlatform = "x86_64-linux";
+   # hostPlatform = "x86_64-linux";
   };
 
   networking = {
@@ -44,8 +44,8 @@
     isNormalUser = true;
     description = "Mumtahin Farabi";
     extraGroups = [
-      "networkmanager"
       "wheel"
+      "networkmanager"
     ];
   };
 

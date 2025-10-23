@@ -17,9 +17,9 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 
   hardware = {
-    enableRedistributableFirmware = true;
-    enableAllFirmware = true;
     graphics.enable = true;
+    enableAllFirmware = true;
+    enableRedistributableFirmware = true;
   };
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
@@ -30,27 +30,21 @@
   # networking.interfaces.enp1s0.useDHCP = lib.mkDefault true;
 
   boot = {
+    kernelModules = [ "kvm-amd" ];
+    extraModulePackages = [ ];
     initrd = {
       availableKernelModules = [
         "ahci"
+        "sr_mod"
         "xhci_pci"
         "virtio_pci"
-        "sr_mod"
         "virtio_blk"
       ];
       kernelModules = [ ];
     };
-    kernelModules = [ "kvm-amd" ];
-    extraModulePackages = [ ];
   };
 
   fileSystems = {
-
-    "/" = {
-      device = "/dev/disk/by-uuid/365b9945-917a-4097-8331-0b9f884224a7";
-      fsType = "ext4";
-    };
-
     "/boot" = {
       device = "/dev/disk/by-uuid/76D9-2ABA";
       fsType = "vfat";
@@ -58,6 +52,11 @@
         "fmask=0077"
         "dmask=0077"
       ];
+    };
+
+    "/" = {
+      device = "/dev/disk/by-uuid/365b9945-917a-4097-8331-0b9f884224a7";
+      fsType = "ext4";
     };
   };
 
