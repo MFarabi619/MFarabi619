@@ -25,6 +25,7 @@
       # "autoraiseapp"
       "docker-desktop"
       "visual-studio-code"
+      "raspberry-pi-imager"
     ];
 
     brews = [
