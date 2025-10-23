@@ -32,7 +32,8 @@
      ";
 
     settings = {
-      monitor = ",1920x1080@144,auto,1.6";
+      # monitor = ",1920x1080@144,auto,1.6";
+      monitor = ",highres,auto,1.6";
       xwayland.force_zero_scaling = true;
 
       env = [
