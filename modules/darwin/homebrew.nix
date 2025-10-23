@@ -21,6 +21,7 @@
       "huly"
       "vivaldi"
       "leader-key"
+      "arduino-ide"
       # "autoraiseapp"
       "docker-desktop"
       "visual-studio-code"
