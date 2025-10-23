@@ -2,7 +2,7 @@
   programs.opencode = {
     enable = true;
     settings = {
-      theme = "system";
+      # theme = "system";
       autoshare = false;
       autoupdate = false;
       permission = {
