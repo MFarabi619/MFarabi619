@@ -1,7 +1,11 @@
 {
+pkgs,
+...
+}:
+{
   services.open-webui = {
     port = 7777;
-    enable = true;
+    enable = pkgs.stdenv.isx86_64;
     # openFirewall = false; # default
     # host = "127.0.0.1"; # default
     stateDir = "/var/lib/open-webui"; # default
