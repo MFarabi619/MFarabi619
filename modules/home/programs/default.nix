@@ -38,6 +38,7 @@
     ./man.nix
     ./msmtp.nix
     ./mbsync.nix
+    ./mpv.nix
     ./mu.nix
     ./neovim
     ./nh.nix
