@@ -194,6 +194,7 @@
       ++ lib.optionals stdenv.isDarwin [
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
         utm          # virtual machines on macos
+        ninja
       ];
 
     file = {
