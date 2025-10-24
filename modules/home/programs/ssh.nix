@@ -89,7 +89,7 @@
         checkHostIP = true;
         addKeysToAgent = "yes";
 
-        setEnv.TERM = "xterm-kitty";
+        setEnv.TERM = "xterm-256color";
         # sendEnv = {};
 
         # addressFamily = null; # "any" | "inet" | "inet6"

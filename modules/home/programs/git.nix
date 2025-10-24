@@ -8,6 +8,9 @@
     lfs.enable = false;
     maintenance.enable = false;
     settings = {
+      init.defaultBranch = "main";
+      pull.rebase = false;
+
       user = {
         name = "Mumtahin Farabi";
         email = "mfarabi619@gmail.com";
@@ -27,10 +30,5 @@
       "*~"
       "*.swp"
     ];
-
-    extraConfig = {
-      init.defaultBranch = "main";
-      pull.rebase = false;
-    };
   };
 }

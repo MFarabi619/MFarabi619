@@ -22,7 +22,7 @@
       };
     };
 
-    sessionVariables = lib.mkIf pkgs.stdenv.isLinux {
+    sessionVariables = lib.mkIf (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) {
       XDG_BACKEND = "wayland";
       XDG_RUNTIME_DIR = "/run/user/$(id -u)";
 
