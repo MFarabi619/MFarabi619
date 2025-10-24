@@ -20,6 +20,7 @@
     casks = [
       "huly"
       "vivaldi"
+      "unity-hub"
       "leader-key"
       "arduino-ide"
       # "autoraiseapp"
