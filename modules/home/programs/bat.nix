@@ -3,18 +3,18 @@
   home.shellAliases = {
     cat = "bat";
     man = "batman";
-    grep = "batgrep";
+    # grep = "batgrep";
     # TODO: add batpipe
   };
   programs.bat = {
       enable = true;
-      config = {
-        pager = "less -FR";
-      };
+      # config = {
+      #   pager = "less -FR";
+      # };
       extraPackages = with pkgs.bat-extras; [
         batman
         batpipe
-        batgrep
+        # batgrep
       ];
     };
 }
