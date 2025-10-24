@@ -48,7 +48,7 @@
       [
         tree
         pnpm
-        gnutls           # for TLS connectivity
+        gnutls           # TLS connectivity
         # =============
         # kicad
         # logseq
@@ -90,10 +90,10 @@
 
         # lazyhetzner
 
-        gama-tui         # github actions runners
+        gama-tui        # github actions runners
         codeberg-cli
 
-        vi-mongo
+        vi-mongo        # mongodb tui
 
         presenterm
 
@@ -117,7 +117,7 @@
         nix-weather # check binary cache availability
 
         # ============= 🤖 ==================
-        cmake # vterm compilation and more
+        cmake       # vterm compilation and more
         gnumake
         coreutils
         platformio
@@ -151,7 +151,7 @@
         jellyfin-tui
       ]
       ++ lib.optionals stdenv.isLinux [
-        # atopile # circuit diagrams as code
+        # atopile     # circuit diagrams as code
         # ventoy-full # flash multiple isos to usb
         # super-slicer # 3D printing
         freecad
@@ -181,15 +181,15 @@
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
         gparted
 
-        penpot-desktop
-
-        impala # wifi mgmt tui
+        impala        # wifi mgmt tui
         bluetui
 
         blink
         crates-tui
         arduino-ide
         webcord-vencord
+
+        penpot-desktop
       ]
       ++ lib.optionals stdenv.isDarwin [
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
