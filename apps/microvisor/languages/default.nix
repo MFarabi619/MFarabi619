@@ -1,6 +1,7 @@
 {
   imports = [
     ./c.nix
+    ./cplusplus.nix
     ./nix.nix
     # ./python.nix
     # ./ruby.nix
