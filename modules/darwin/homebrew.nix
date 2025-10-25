@@ -27,6 +27,7 @@
       "docker-desktop"
       "visual-studio-code"
       "raspberry-pi-imager"
+      "silicon-labs-vcp-driver"
     ];
 
     brews = [
