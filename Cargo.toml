@@ -1,11 +1,15 @@
-resolver = "2"
-
 [workspace]
+resolver = "3"
 members = [
+    "tasks",
     "apps/web",
     "apps/api",
-    "apps/readme", "learning/rust",
+    "apps/readme",
+    "learning/rust",
 ]
+
+[workspace.package]
+edition = "2024"
 
 [workspace.dependencies.loco-rs]
 version = "0.15"

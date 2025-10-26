@@ -1,0 +1,17 @@
+pub const CTA_ISSUE_TICKET: &str = r#"a.issue"#;
+pub const LICENSE_PLATE: &str = r#"input[name="vehicle"]"#;
+pub const APARTMENT: &str = r#"input[name="tenant"]"#;
+pub const PASSCODE: &str = r#"input[name="token"]"#;
+pub const START_CHANGE: &str = r#"[data-testid="start-change"]"#;
+pub const END_CHANGE: &str = r#"[data-testid="end-change"]"#;
+pub const START_INPUT: &str = r#"[data-testid="start-input"]"#;
+pub const END_INPUT: &str = r#"[data-testid="end-input"]"#;
+pub const VEHICLE_INFO: &str = r#"input[name="notes"]"#;
+pub const DATE_TIME_SAVE: &str = r#"[data-testid="date-time-save"]"#;
+pub const CONFIRMATION_MODE_CHANGE: &str = r#"select"#;
+pub const CONFIRMATION_EMAIL_ONLY: &str = r#"option[value="tel"]"#;
+pub const SUBMIT: &str = r#"[data-testid="register"]"#;
+pub const SUCCESS_MARKER: &str = r#"[data-testid="success"]"#;
+pub const CONTACT_NAME: &str = r#"input[name="name"]"#;
+pub const CONTACT_EMAIL: &str = r#"input[name="email"]"#;
+pub const CONTACT_PHONE: &str = r#"input[name="tel"]"#;
