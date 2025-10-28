@@ -62,7 +62,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 <!-- Embedded C -->
 <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg" alt="Embedded C Logo" width="40" height="40" />
+<img src="./assets/embedded-c-symbol.svg" alt="Embedded C Logo" width="40" height="40" />
 </a>
 <!-- C++ -->
 <a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
@@ -87,10 +87,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- LikeC4 -->
 <a href="https://likec4.dev" target="_blank" rel="noreferrer">
 <img src="https://likec4.dev/_astro/logo-dark.h9QdQ6Li.svg" alt="LikeC4 Logo" width="40" height="40" />
-</a>
-<!-- KDL -->
-<a href="https://kdl.dev" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg" alt="KDL Logo" width="40" height="40" />
 </a>
 </td>
 <td align='center'>
@@ -126,9 +122,9 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://tinygo.org" target="_blank" rel="noreferrer">
 <img src="https://tinygo.org/images/tinygo-logo.png" alt="TinyGo Logo" width="40" height="40" />
 </a>
-<!-- Arduino -->
-<a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
+<!-- ROS 2 -->
+<a href="https://www.ros.org" target="_blank" rel="noreferrer">
+<img src="https://www.ros.org/imgs/jazzy_robot.png" alt="ROS 2 Logo" width="40" height="40" />
 </a>
 <!-- Pulumi -->
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
@@ -191,10 +187,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Zellij -->
 <a href="https://zellij.dev/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
-</a>
-<!-- Nx -->
-<a href="https://nx.dev" target="_blank" rel="noreferrer">
-<img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40" />
 </a>
 <!-- Supabase -->
 <a href="https://supabase.com" target="_blank" rel="noreferrer">
@@ -259,8 +251,16 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40" />
 </a>
+<!-- KDL -->
+<a href="https://kdl.dev" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg" alt="KDL Logo" width="40" height="40" />
+</a>
 </td>
 <td align='center'>
+<!-- Arduino -->
+<a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
+</a>
 <!-- Deno -->
 <a href="https://deno.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
@@ -398,6 +398,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Azure DevOps -->
 <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40" />
+</a>
+<!-- Nx -->
+<a href="https://nx.dev" target="_blank" rel="noreferrer">
+<img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40" />
 </a>
 <!-- Sanity -->
 <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">

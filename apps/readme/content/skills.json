@@ -24,7 +24,7 @@
       {
         "name": "Embedded C",
         "url": "https://en.wikipedia.org/wiki/Embedded_C",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/embeddedc/embeddedc-original-wordmark.svg"
+        "icon": "./assets/embedded-c-symbol.svg"
       },
       {
         "name": "C++",
@@ -55,11 +55,6 @@
         "name": "LikeC4",
         "url": "https://likec4.dev",
         "icon": "https://likec4.dev/_astro/logo-dark.h9QdQ6Li.svg"
-      },
-      {
-        "name": "KDL",
-        "url": "https://kdl.dev",
-        "icon": "https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg"
       }
     ],
     "Frameworks & Libraries": [
@@ -104,9 +99,9 @@
         "icon": "https://tinygo.org/images/tinygo-logo.png"
       },
       {
-        "name": "Arduino",
-        "url": "https://www.arduino.cc/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
+        "name": "ROS 2",
+        "url": "https://www.ros.org",
+        "icon": "https://www.ros.org/imgs/jazzy_robot.png"
       },
       {
         "name": "Pulumi",
@@ -186,11 +181,6 @@
         "icon": "https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png"
       },
       {
-        "name": "Nx",
-        "url": "https://nx.dev",
-        "icon": "https://api.iconify.design/logos:nx.svg"
-      },
-      {
         "name": "Supabase",
         "url": "https://supabase.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
@@ -263,9 +253,19 @@
         "name": "CSS",
         "url": "https://www.w3schools.com/css/",
         "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg"
+      },
+      {
+        "name": "KDL",
+        "url": "https://kdl.dev",
+        "icon": "https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg"
       }
     ],
     "Frameworks & Libraries": [
+      {
+        "name": "Arduino",
+        "url": "https://www.arduino.cc/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg"
+      },
       {
         "name": "Deno",
         "url": "https://deno.com",
@@ -437,6 +437,11 @@
         "name": "Azure DevOps",
         "url": "https://azure.microsoft.com/en-ca/products/devops",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg"
+      },
+      {
+        "name": "Nx",
+        "url": "https://nx.dev",
+        "icon": "https://api.iconify.design/logos:nx.svg"
       },
       {
         "name": "Sanity",
