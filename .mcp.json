@@ -1,0 +1,20 @@
+{
+    "mcpServers": {
+        "atopile": {
+            "command": "/Users/mfarabi/Library/Application Support/Code/User/globalStorage/atopile.atopile/uv-bin/uv",
+            "args": [
+                "tool",
+                "run",
+                "-p",
+                "3.13",
+                "--from",
+                "atopile",
+                "ato",
+                "mcp",
+                "start",
+                "--no-http"
+            ],
+            "env": {}
+        }
+    }
+}
