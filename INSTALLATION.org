@@ -19,7 +19,7 @@
 | mfarabi | arduino-mega | [[https://store.arduino.cc/products/arduino-mega-2560-rev3?srsltid=AfmBOoqN5w-JpdAOqq_jfunfZDrHsNCc2fobKRwK1RUutCvHX9fAFp5r][Arduino Mega R3]]         | N/A               | N/A                  | N/A                      | N/A                 |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
 | mfarabi | rpi          | [[https://www.raspberrypi.com/products/raspberry-pi-3-model-b/][Raspberry Pi 3B]]         |                   |                      | N/A                      | N/A                 |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
 | mfarabi | dlink        | [[https://www.amazon.ca/D-Link-DIR-1750-High-Power-Assistant-Enhanced/dp/B07X3BBWY9][D-LINK DIR 1750]]         |                   |                      | N/A                      | N/A                 | TBD                               |                                       |               |                |           |           |                     |           |           |                    |             |
-|         |              | [[https://www.asus.com/ca-en/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-be88u/][ASUS RT-BE-88U]]          |                   |                      |                          |                     |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
+|         |              | [[https://www.asus.com/ca-en/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-be88u/][ASUS RT-BE-88U]]          | [[https://www.asuswrt-merlin.net][ASUSWRT-MERLIN]]    |  linux-4.19.294      | N/A                      |                  N/A |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
 |         |              |                         |                   |                      |                          |                     |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
 
 * Flash OS Image
@@ -532,3 +532,24 @@ nixos-rebuild switch --flake .#<system> --target-host root@<hostname>
 
 vsxsrv
 PiKVM
+
+** ASUSWRT Merlin
+
+
+#+begin_src bash
+opkg install neovim tmux ttyd htop iftop lsblk netdata fontconfig bottom zsh ca-certificates curl git-http nmap
+#+end_src
+
+RTRMON
+TAILMON
+
+#+begin_src sh
+#!/usr/bin/env sh
+tmux new-session -d -s monitor 'btm'
+tmux split-window -h 'htop'
+tmux split-window -v 'iftop'
+tmux select-pane -t 0
+tmux split-window -v 'amtm'
+tmux select-layout tiled
+tmux attach -t monitor
+#+end_src
