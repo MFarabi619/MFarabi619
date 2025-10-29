@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "tamasfe.even-better-toml",
+   "jnoortheen.nix-ide",
+    "rust-lang.rust-analyzer",
+   "ms-vscode.cpptools-extension-pack",
+    "dioxuslabs.dioxus",
+    "likec4.likec4-vscode"
+  ]
+}
