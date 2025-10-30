@@ -86,6 +86,7 @@ in
     extraGroups = [
       "wheel"
       "video"
+      "docker"
       "networkmanager"
     ];
     shell = pkgs.zsh;
