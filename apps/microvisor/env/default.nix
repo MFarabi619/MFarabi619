@@ -20,6 +20,7 @@ let
   URLS = {
     LOCALHOST = "http://localhost:";
     BASE = "https://mfarabi.sh";
+    EXERCISM = "https://api.exercism.org/v1";
   };
 in
 {
