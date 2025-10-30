@@ -18,6 +18,7 @@
 
       # fuel-nix.forc
       # fuel-nix.fuel-core
+      dioxus-cli
     ]
     ++ lib.optionals (stdenv.isLinux) [
       # netscanner
