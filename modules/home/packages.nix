@@ -102,6 +102,7 @@
         wireshark-cli
 
         stylelint
+        exercism
         # ============= ‍❄🕸 ================
         nil         # nix formatter
         omnix
