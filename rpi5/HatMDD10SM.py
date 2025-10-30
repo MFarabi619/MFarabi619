@@ -22,22 +22,21 @@ def setup():
 
 def set_dir(fb_lr):
     if fb_lr == "forward":
-        GPIO.output(DIG1, GPIO.LOW)
+        GPIO.output(DIG1, GPIO.HIGH)
         GPIO.output(DIG2, GPIO.LOW)
     elif fb_lr == "backward":
-        GPIO.output(DIG1, GPIO.HIGH)
+        GPIO.output(DIG1, GPIO.LOW)
         GPIO.output(DIG2, GPIO.HIGH)
     elif fb_lr == "left":
-        GPIO.output(DIG1, GPIO.HIGH)
+        GPIO.output(DIG1, GPIO.LOW)
         GPIO.output(DIG2, GPIO.LOW)
     elif fb_lr == "right":
-        GPIO.output(DIG1, GPIO.LOW)
+        GPIO.output(DIG1, GPIO.HIGH)
         GPIO.output(DIG2, GPIO.HIGH)
 
 
 def clamp(v, lo=0, hi=100):
     return max(lo, min(hi, v))
-
 
 def run(stdscr):
     curses.curs_set(0)
