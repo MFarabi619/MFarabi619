@@ -101,6 +101,7 @@
           ("e" ,user-emacs-directory         "Emacs user directory"))))
 
 (use-package! kbd-mode)
+(use-package! exercism)
 
 ;; (after! kbd-mode
 ;;   :custom

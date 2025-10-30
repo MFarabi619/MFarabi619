@@ -27,6 +27,7 @@
         keycast
         kdl-mode
         leetcode
+        exercism
         nix-update
         nix-ts-mode
         all-the-icons
