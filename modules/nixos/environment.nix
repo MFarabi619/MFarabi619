@@ -2,26 +2,28 @@
 {
   environment = {
     systemPackages = with pkgs; [
-      wget          # when curl doesn't work
+      # ========== Stylix ===========
+      dconf # configuration storage system
+      dconf-editor # dconf editor
+      # =============================
 
-      brightnessctl # screen brightness control
-      udiskie # manage removable media
+      wget
       ntfs3g # ntfs support
       exfat # exFAT support
+      udiskie # manage removable media
+      brightnessctl # screen brightness control
 
       networkmanager
       networkmanagerapplet
 
-      libinput-gestures # actions touchpad gestures using libinput
-      libinput # libinput library
+      pciutils
+      usbutils
       lm_sensors # system sensors
-      pciutils # pci utils
-      usbutils # usb utils
+      libinput # libinput library
       ffmpeg # terminal video/audio editing
+      libinput-gestures # actions touchpad gestures using libinput
 
-      # ========== Stylix ===========
-      dconf # configuration storage system
-      dconf-editor # dconf editor
+      # cloudflared
 
       # i2c-tools # raspberry pi
     ];
