@@ -24,29 +24,29 @@
       #     };
       #   };
       # };
-      provider = {
-        npm = "@ai-sdk/openai-compatible";
-        name = "Ollama (local)";
-        "options" = {
-          "baseURL" = "http://localhost:11434/v1";
-        };
-        models = {
-          llama3-3 = {
-            name = "Llama 3.3";
-          };
-        };
-      };
+      # provider = {
+      #   npm = "@ai-sdk/openai-compatible";
+      #   name = "Ollama (local)";
+      #   "options" = {
+      #     "baseURL" = "http://localhost:11434/v1";
+      #   };
+      #   models = {
+      #     llama3-3 = {
+      #       name = "Llama 3.3";
+      #     };
+      #   };
+      # };
 
       # disabled_providers= ["openai" "gemini"];
       # instructions = ["CONTRIBUTING.md" "docs/guidelines.md" ".cursor/rules/*.md"];
       #   model = "anthropic/claude-sonnet-4-20250514";
       #   model= "{env:OPENCODE_MODEL}";
       # };
-          rules = ''
-            - I have a strong preference for modular, re-usable code.
-            - I'm a strong advocate for test-driven development, and prefer to develop against a test suite.
-            - When doing feature development, move slow, and correct. Do not rush. Start with small parts and get them working.
-      '';
+      #     rules = ''
+      #       - I have a strong preference for modular, re-usable code.
+      #       - I'm a strong advocate for test-driven development, and prefer to develop against a test suite.
+      #       - When doing feature development, move slow, and correct. Do not rush. Start with small parts and get them working.
+      # '';
       #     rules = ''
       #       # TypeScript Project Rules
 
