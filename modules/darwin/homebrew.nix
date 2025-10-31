@@ -26,6 +26,7 @@
       "unity-hub"
       "leader-key"
       "arduino-ide"
+      "supercollider"
       # "autoraiseapp"
       "docker-desktop"
       "visual-studio-code"
