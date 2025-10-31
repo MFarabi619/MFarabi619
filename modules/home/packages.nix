@@ -200,6 +200,7 @@
         ccache
         avrdude
         dfu-util
+        minikube
         dfu-programmer
       ];
 
