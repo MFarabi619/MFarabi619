@@ -19,6 +19,7 @@
 
     casks = [
       "via"
+      "vial"
       "huly"
       "vivaldi"
       "unity-hub"
