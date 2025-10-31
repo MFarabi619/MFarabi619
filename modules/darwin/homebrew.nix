@@ -36,6 +36,7 @@
     brews = [
       "qemu"
       "avr-gcc"
+      "arm-none-eabi-gcc"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ];
   };
