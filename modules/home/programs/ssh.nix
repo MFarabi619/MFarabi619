@@ -26,7 +26,7 @@
         host = "nixos-server";
         checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "10.0.0.214";
+        hostname = "192.168.50.254";
         setEnv.TERM = "xterm-kitty";
       };
 
@@ -44,9 +44,9 @@
         port = 22;
         host = "macos";
         user = "mfarabi";
-        hostname = "10.0.0.13";
         checkHostIP = true;
         addKeysToAgent = "yes";
+        hostname = "192.168.50.151";
         setEnv.TERM = "xterm-kitty";
       };
 
@@ -54,9 +54,9 @@
         port = 22;
         host = "macos-intel";
         user = "mfarabi";
-        hostname = "10.0.0.90";
         checkHostIP = true;
         addKeysToAgent = "yes";
+        hostname = "10.0.0.90";
         setEnv.TERM = "xterm-kitty";
       };
 
@@ -64,9 +64,9 @@
         port = 22;
         host = "freebsd";
         user = "mfarabi";
-        hostname = "10.0.0.230";
         checkHostIP = true;
         addKeysToAgent = "yes";
+        hostname = "192.168.50.142";
         setEnv.TERM = "xterm-kitty";
       };
 
@@ -74,22 +74,32 @@
         port = 22;
         host = "nixos";
         user = "mfarabi";
-        hostname = "10.0.0.191";
         checkHostIP = true;
         addKeysToAgent = "yes";
+        hostname = "192.168.64.6";
         setEnv.TERM = "xterm-kitty";
       };
+
+      router = {
+        port = 22;
+        user = "admin";
+        host = "router";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        hostname = "192.168.50.254";
+        setEnv.TERM = "xterm-256color";
+      };
+
 
       rpi5 = {
         port = 22;
         host = "rpi5";
         user = "mfarabi";
-        hostname = "10.0.0.28";
-
         checkHostIP = true;
         addKeysToAgent = "yes";
-
+        hostname = "192.168.50.241";
         setEnv.TERM = "xterm-256color";
+
         # sendEnv = {};
 
         # addressFamily = null; # "any" | "inet" | "inet6"
