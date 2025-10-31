@@ -22,6 +22,7 @@
       "vial"
       "huly"
       "vivaldi"
+      "sonic-pi"
       "unity-hub"
       "leader-key"
       "arduino-ide"
