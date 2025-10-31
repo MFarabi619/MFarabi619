@@ -2,7 +2,7 @@
 
 <strong><a href="https://freebsd.org">
   <img src="assets/freebsd-symbol.svg" alt="freebsd-symbol-orb" width="25" height="25">
-</a>DoomBSD</a> Apollyon Linux <a href="https://nixos.org">
+</a>DoomBSD</a> + Apollyon Linux <a href="https://nixos.org">
   <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
 </a> <img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"></strong>
 
