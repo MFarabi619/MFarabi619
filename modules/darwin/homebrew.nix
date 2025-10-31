@@ -18,6 +18,7 @@
     };
 
     casks = [
+      "via"
       "huly"
       "vivaldi"
       "unity-hub"
