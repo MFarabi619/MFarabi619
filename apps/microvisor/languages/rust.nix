@@ -1,8 +1,30 @@
 {
+  # apple.sdk = null;
+  # android = {
+  #   enable = true;
+  #   ndk.enable = true;
+  #   emulator.enable = true;
+  #   android-studio.enable = true;
+  # };
+
   languages.rust = {
-      enable = true;
+      enable = false;
       channel = "stable";
-      targets = [ "wasm32-unknown-unknown" ];
-      components = [ "rustc" "cargo" "clippy" "rustfmt" "rust-analyzer"];
+      targets = [
+        # "i686-linux-android"
+        # "x86_64-linux-android"
+        # "aarch64-linux-android"
+        # "aarch64-apple-ios-sim"
+        "wasm32-unknown-unknown"
+        # "armv7-linux-androideabi"
+      ];
+
+      components = [
+        "rustc"
+        "cargo"
+        "clippy"
+        "rustfmt"
+        "rust-analyzer"
+      ];
     };
 }

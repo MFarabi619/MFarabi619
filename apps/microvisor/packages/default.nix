@@ -18,7 +18,7 @@
 
       # fuel-nix.forc
       # fuel-nix.fuel-core
-      dioxus-cli
+      # dioxus-cli
       sqlite
     ]
     ++ lib.optionals (stdenv.isLinux) [
