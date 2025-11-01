@@ -43,7 +43,7 @@ layout {
                 pane {
                     name "📁 File Browser - Yazi"
                     command "env"
-                    args "YAZI_CONFIG_HOME=./apps/microvisor" "yazi"
+                    args "YAZI_CONFIG_HOME=./config" "yazi"
                 }
 
                 pane {

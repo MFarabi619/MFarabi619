@@ -1,4 +1,9 @@
-{ inputs, pkgs, lib, ... }:
+{
+  inputs,
+  pkgs,
+  lib,
+  ...
+}:
 
 # let
 #   fuel-nix = inputs.fuel-nix.packages.${pkgs.system};
@@ -11,6 +16,19 @@
   packages =
     with pkgs;
     [
+      # espup install
+      # . $HOME/export-esp.sh
+      espup
+      esptool
+      espflash
+      binsider # binary inspector TUI
+      esp-generate
+      cargo-espmonitor
+
+      ninja
+      ccache
+      dfu-util
+
       trunk # rust web app server
 
       pulumi-esc
