@@ -1,0 +1,59 @@
+{
+  "name": "firmware",
+  // Select between image and build properties to pull or build the image.
+  // "image": "docker.io/espressif/idf-rust:esp32s3_latest",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "CONTAINER_USER": "esp",
+      "CONTAINER_GROUP": "esp",
+      "ESP_BOARD": "esp32s3"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveMode": "file",
+        "editor.formatOnType": true,
+        "lldb.executable": "/usr/bin/lldb",
+        "files.watcherExclude": {
+          "**/target/**": true
+        },
+        "rust-analyzer.cargo.allTargets": false,
+        "rust-analyzer.cargo.target": "xtensa-esp32s3-none-elf",
+        "rust-analyzer.server.extraEnv": {
+          "RUSTUP_TOOLCHAIN": "stable"
+        },
+        "rust-analyzer.check.extraEnv": {
+          "RUSTUP_TOOLCHAIN": "esp"
+        },
+        "rust-analyzer.cargo.extraEnv": {
+          "RUSTUP_TOOLCHAIN": "esp"
+        },
+        "[rust]": {
+          "editor.defaultFormatter": "rust-lang.rust-analyzer"
+        }
+      },
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "Wokwi.wokwi-vscode",
+        "fill-labs.dependi"
+      ]
+    }
+  },
+  "forwardPorts": [
+    8000,
+    3333
+  ],
+  // This only works for Linux and requires updating the `device` field
+  "runArgs": [
+    "--privileged",
+    "--device=/dev/ttyACM0",
+    "--group-add=dialout"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/esp/firmware,type=bind,consistency=cached",
+  "workspaceFolder": "/home/esp/firmware"
+}
