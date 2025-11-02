@@ -6,14 +6,14 @@
   };
 
   imports = [
-    ./env
-    ./tasks
+    ./env.nix
+    ./tasks.nix
     ./files
-    ./cachix
-    ./scripts
-    ./packages
+    ./cachix.nix
+    ./scripts.nix
+    ./packages.nix
     ./services
-    ./processes
+    ./processes.nix
     ./languages
     ./git-hooks.nix
     ./containers.nix

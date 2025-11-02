@@ -1,23 +1,15 @@
 {
-  inputs,
-  pkgs,
   lib,
+  pkgs,
+  inputs,
   ...
 }:
 
-# let
-#   fuel-nix = inputs.fuel-nix.packages.${pkgs.system};
-# in
 {
-  imports = [
-    # ./ai.nix
-  ];
-
   packages =
     with pkgs;
     [
-      # espup install
-      # . $HOME/export-esp.sh
+      # espup install # . $HOME/export-esp.sh
       espup
       esptool
       espflash
@@ -34,8 +26,6 @@
       pulumi-esc
       supabase-cli
 
-      # fuel-nix.forc
-      # fuel-nix.fuel-core
       # dioxus-cli
       sqlite
     ]

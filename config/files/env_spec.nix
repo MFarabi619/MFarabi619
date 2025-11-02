@@ -83,8 +83,8 @@ in
           Parameters
             "API_SERVER_PORT" "5150"
             "APP_DEV_SERVER_PORT" "3000"
-            "ADMIN_DEV_SERVER_PORT" "8000"
             "DOCS_DEV_SERVER_PORT" "4000"
+            "ADMIN_DEV_SERVER_PORT" "8000"
             "GRAPH_DEV_SERVER_PORT" "4211"
             "NODE_MODULES_INSPECTOR_PORT" "7000"
             "ARCHITECTURE_DEV_SERVER_PORT" "5173"
