@@ -7,9 +7,9 @@
         fira-code
         font-awesome
         material-icons
-        noto-fonts-emoji
         fira-code-symbols
         noto-fonts-cjk-sans
+        noto-fonts-color-emoji
         nerd-fonts.jetbrains-mono
       ]
       ++ lib.optionals stdenv.isDarwin [
