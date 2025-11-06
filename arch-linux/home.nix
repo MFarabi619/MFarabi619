@@ -30,7 +30,7 @@
     ../modules/home/programs/gcc.nix
     ../modules/home/programs/gh.nix
     ../modules/home/programs/git.nix
-    ../modules/home/programs/go.nix
+    # ../modules/home/programs/go.nix
     ../modules/home/programs/gpg.nix
     ../modules/home/programs/grep.nix
     ../modules/home/programs/home-manager.nix
