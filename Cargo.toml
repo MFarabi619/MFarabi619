@@ -7,7 +7,7 @@ members = [
     "desktop",
     "mobile",
     "ui",
-    "web",
+    "web", "learning/rust/variables",
 ]
 
 exclude = [
