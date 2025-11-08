@@ -1,12 +1,14 @@
 [workspace]
-authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
-channels = ["https://prefix.dev/conda-forge", "https://prefix.dev/robostack-humble"]
 name = "ros2"
-platforms = ["osx-arm64"]
 version = "0.1.0"
+platforms = ["osx-arm64"]
+authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
+channels = ["conda-forge", "robostack-humble"]
 
 [tasks]
+sim = {cmd = "ros2 run turtlesim turtle_teleop_key"}
+start = "ros2 run turtlesim turtlesim_node"
 
 [dependencies]
-ros-humble-desktop = ">=0.10.0,<0.11"
 ros-humble-turtlesim = ">=1.4.2,<2"
+ros-humble-desktop = ">=0.10.0,<0.11"
