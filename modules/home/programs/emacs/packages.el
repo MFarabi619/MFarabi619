@@ -68,3 +68,8 @@
   :recipe (:host github
            :repo "kmonad/kbd-mode")
   :pin "f8951b2efc5c29954b0105a9e57e973515125b0d")
+
+(package! llm-tool-collection
+  :recipe (:host github
+           :repo "skissue/llm-tool-collection")
+  :pin "6d2765a16dc10af2e1d1911bcabf6d7f287e0434")
