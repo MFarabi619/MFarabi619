@@ -352,6 +352,7 @@
         centaur-tabs-enable-key-bindings t
         centaur-tabs-show-navigation-buttons t))
 
+(use-package! fretboard)
 (after! fretboard
   (setq fretboard-fret-count 15)
   (add-hook 'fretboard-mode-hook #'evil-emacs-state))
