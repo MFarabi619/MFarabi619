@@ -16,11 +16,6 @@
       "value" : "/System/Applications/System Settings.app"
     },
     {
-      "key" : "l",
-      "type" : "application",
-      "value" : "/System/Applications/Launchpad.app"
-    },
-    {
       "key" : "d",
       "type" : "folder",
       "value" : "/Users/mfarabi/Downloads"
