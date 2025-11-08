@@ -104,11 +104,6 @@
 
 (use-package! kbd-mode)
 (use-package! exercism)
-;; (use-package! llm-tool-collection)
-;; (after! llm-tool-collection
-;;   (mapcar (apply-partially #'apply #'gptel-make-tool)
-;;           (llm-tool-collection-get-all)))
-
 ;; (after! kbd-mode
 ;;   :custom
 ;;   (kbd-mode-kill-kanata "pkill -9 kanata")
@@ -128,25 +123,60 @@
 ;;         arduino-cli-default-fqbn "esp32:esp32:esp32s3"
 ;;         arduino-cli-default-port "/dev/cu.SLAB_USBtoUART"))
 
-;; (use-package! gptel-integrations)
+(use-package! gptel-integrations)
 (use-package! gptel
   :config
-  (setq  gptel-model 'mistral:latest ;; 'gpt-4.1
-         gptel-backend (gptel-make-ollama "Ollama"
-                         ;; gptel-make-gh-copilot "Copilot"
-                         :stream t
-                         :host "localhost:11434"
-                         :models '(mistral:latest))
+  (setq  gptel-model 'gpt-4.1
+         gptel-backend (gptel-make-gh-copilot "Copilot")
+
+         ;; gptel-model 'llama3.1:8b ;; 'mistral:latest
+         ;; gptel-backend ( gptel-make-ollama "Ollama"
+         ;;                 :stream t
+         ;;                 :host "localhost:11434"
+         ;;                 :models '(mistral:latest llama3.1:8b))
+
+         gptel-use-tools t
          gptel-track-media t
-         gptel-highlight-mode t
          ;; gptel-api-key "your key"
          gptel-default-mode #'org-mode
          gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, and prefer to write code in Rust.")
                             (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
                             (writing     . "You are a large language model and a writing assistant. Respond concisely.")
                             (chat        . "You are a large language model and a conversation partner. Respond concisely.")))
+
+  (gptel-make-preset 'agent
+    :model 'gpt-4.1
+    :backend "Copilot"
+    :description "A preset optimized for file editing tasks"
+    :tools '("read_file"
+             "create_file"
+             "view_buffer"
+             "edit_buffer"
+             "list_directory"
+             "create_directory")
+    :system "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, and prefer to write code in Rust.")
+
   (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll
-            'gptel-post-response-functions 'gptel-end-of-response))
+            'gptel-post-response-functions 'gptel-end-of-response)
+
+  (defun llm-tool-collection-register-with-gptel (tool-spec)
+    "Register a tool defined by TOOL-SPEC with gptel.
+  TOOL-SPEC is a plist that can be passed to `gptel-make-tool'."
+    (let ((tool (apply #'gptel-make-tool tool-spec)))
+      (setq gptel-tools
+            (cons tool (seq-remove
+                        (lambda (existing)
+                          (string= (gptel-tool-name existing)
+                                   (gptel-tool-name tool)))
+                        gptel-tools)))))
+
+  (add-hook 'llm-tool-collection-post-define-functions
+            #'llm-tool-collection-register-with-gptel))
+
+(use-package! llm-tool-collection)
+(after! llm-tool-collection
+  (mapcar (apply-partially #'apply #'gptel-make-tool)
+          (llm-tool-collection-get-all)))
 
 ;; (use-package! jira
 ;;   :config
@@ -162,7 +192,7 @@
 (map! :n "C-'" #'+vterm/toggle
       :n "C-l" nil :n "C-l" #'+lazygit/toggle
       :leader :desc "Open Dirvish" "e" #'dirvish
-      ;; :leader :desc "Open AI Chat buffer" "d" #'gptel
+      :leader :desc "Open AI Chat buffer" "d" #'gptel
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
       :leader :desc "Open Dirvish Side" "[" #'dirvish-side)
 
@@ -198,7 +228,6 @@
   :select t
   :width 0.5
   :height 0.5
-  :modeline t
   :side 'right)
 
 (set-popup-rule! "*doom:vterm-popup:lazygit*"
@@ -209,7 +238,6 @@
   :select t
   :width 0.5
   :height 0.5
-  :modeline t
   :side 'right)
 
 (defun +lazygit/toggle ()
