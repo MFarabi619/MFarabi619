@@ -24,18 +24,23 @@
       #     };
       #   };
       # };
-      # provider = {
-      #   npm = "@ai-sdk/openai-compatible";
-      #   name = "Ollama (local)";
-      #   "options" = {
-      #     "baseURL" = "http://localhost:11434/v1";
-      #   };
-      #   models = {
-      #     llama3-3 = {
-      #       name = "Llama 3.3";
-      #     };
-      #   };
-      # };
+      provider = {
+        ollama = {
+          npm = "@ai-sdk/openai-compatible";
+          name = "Ollama";
+          "options" = {
+            "baseURL" = "http://localhost:11434/v1";
+          };
+          models = {
+            "llama3.1:8b" = {
+              name = "llama3.1:8b";
+            };
+            "codellama:70b" = {
+              name = "codellama:70b";
+            };
+          };
+        };
+      };
 
       # disabled_providers= ["openai" "gemini"];
       # instructions = ["CONTRIBUTING.md" "docs/guidelines.md" ".cursor/rules/*.md"];
