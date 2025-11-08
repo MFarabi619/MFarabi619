@@ -24,6 +24,7 @@
       "vivaldi"
       "sonic-pi"
       "unity-hub"
+      "coderabbit"
       "leader-key"
       "arduino-ide"
       "supercollider"
