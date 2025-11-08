@@ -104,24 +104,6 @@
 
 (use-package! kbd-mode)
 (use-package! exercism)
-;; (after! kbd-mode
-;;   :custom
-;;   (kbd-mode-kill-kanata "pkill -9 kanata")
-;;   (kbd-mode-start-kanata "sudo kanata -dc ~/MFarabi619/modules/home/programs/kanata.kbd"))
-
-;; (use-package! arduino-mode
-;;   :config
-;;   (add-hook 'arduino-mode-hook #'arduino-cli-mode))
-
-;; (use-package! arduino-cli-mode
-;;   :after arduino-mode
-;;   :config
-;;   (setq arduino-cli-verify t
-;;         arduino-cli-warnings 'all
-;;         arduino-cli-verbosity "verbose"
-;;         arduino-cli-monitor-default-baud-rate 115200
-;;         arduino-cli-default-fqbn "esp32:esp32:esp32s3"
-;;         arduino-cli-default-port "/dev/cu.SLAB_USBtoUART"))
 
 (use-package! gptel-integrations)
 (use-package! gptel
@@ -373,15 +355,6 @@
 (after! fretboard
   (setq fretboard-fret-count 15)
   (add-hook 'fretboard-mode-hook #'evil-emacs-state))
-
-;; (after! lsp-mode
-;;   (setq lsp-eslint-run "onSave"
-;;         lsp-format-buffer-on-save t
-;;         ;; lsp-typescript-format-enable t
-;;         lsp-eslint-package-manager "pnpm"
-;;         lsp-typescript-references-code-lens-enabled t
-;;         lsp-typescript-suggest-complete-function-calls t)
-;;   )
 
 (after! which-key
   (pushnew!
