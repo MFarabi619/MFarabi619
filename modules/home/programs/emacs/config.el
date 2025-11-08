@@ -78,11 +78,9 @@
 
 (after! treemacs
   (setq
+   lsp-treemacs-theme "Idea" ;; "Eclipse" "NetBeans"
    treemacs-position 'left
    treemacs-indent-guide-mode t
-   lsp-treemacs-theme "Idea"
-   ;; "Eclipse"
-   ;; "NetBeans"
    treemacs-git-commit-diff-mode t
    ;; treemacs-load-theme "doom-colors"
    lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35))))
@@ -128,7 +126,7 @@
 
 (use-package! gptel
   :config
-  (setq gptel-model 'gpt-4o
+  (setq gptel-model 'gpt-4.1
         ;; gptel-api-key "your key"
         gptel-default-mode #'org-mode
         gptel-backend (gptel-make-gh-copilot "Copilot")
@@ -337,28 +335,14 @@
   (setq fretboard-fret-count 15)
   (add-hook 'fretboard-mode-hook #'evil-emacs-state))
 
-(after! lsp-mode
-  (setq lsp-eslint-run "onSave"
-        lsp-format-buffer-on-save t
-        ;; lsp-typescript-format-enable t
-        lsp-eslint-package-manager "pnpm"
-        lsp-typescript-references-code-lens-enabled t
-        lsp-typescript-suggest-complete-function-calls t)
-
-  ;; (add-to-list 'lsp-language-id-configuration '(".*\\.c4" . "likec4"))
-  ;; (lsp-register-client
-  ;;  (make-lsp-client
-  ;;   :server-id 'likec4-ls)
-  ;;  :activation-fn (lsp-activate-on "likec4")
-  ;;  :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio")))
-  )
-
-;; (define-derived-mode sway-mode rust-ts-mode "sway")
-;; (add-to-list 'auto-mode-alist '("\\.sw\\'" . sway-mode))
-;; (add-to-list
-;;  'eglot-server-programs
-;;  '((sway-mode) .
-;;    ("nix" "shell" "github:fuellabs/fuel.nix#fuel" "--command" "forc-lsp")))
+;; (after! lsp-mode
+;;   (setq lsp-eslint-run "onSave"
+;;         lsp-format-buffer-on-save t
+;;         ;; lsp-typescript-format-enable t
+;;         lsp-eslint-package-manager "pnpm"
+;;         lsp-typescript-references-code-lens-enabled t
+;;         lsp-typescript-suggest-complete-function-calls t)
+;;   )
 
 (after! which-key
   (pushnew!
