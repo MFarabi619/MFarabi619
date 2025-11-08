@@ -57,7 +57,9 @@
         # =============
         vips             # dired image previews
         imagemagick      # for image-dired
-        poppler-utils    # dired pdf previews
+        mediainfo
+        poppler
+        ffmpegthumbnailer
         epub-thumbnailer # dired epub previews
         # =============
         tuntox           # collab
