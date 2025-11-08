@@ -47,6 +47,7 @@
       with pkgs;
       [
         tree
+        pixi # multi-language package manager
         pnpm
         gnutls           # TLS connectivity
         # =============
