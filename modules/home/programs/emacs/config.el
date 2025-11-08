@@ -36,6 +36,9 @@
 ;; ;; (load! "./extra/sway-ts-mode")
 ;; (setq treesit-extra-load-path "./extra")
 
+(
+ nyan-mode t
+ )
 ;; (minimap-mode)
 (display-time-mode 1)
 (global-undo-tree-mode 1)
@@ -44,10 +47,9 @@
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 
-(setq nyan-mode t
+(setq doom-modeline-hud t
       nyan-wavy-trail t
       nyan-animate-nyancat t
-      doom-modeline-hud t
       doom-theme 'doom-gruvbox
       ;; doom-theme 'catppuccin
       which-key-idle-delay 0.25
