@@ -56,12 +56,12 @@
         openscad
         openscad-lsp
         # =============
-        vips             # dired image previews
-        imagemagick      # for image-dired
+        vips # dired image previews
         mediainfo
-        poppler
-        ffmpegthumbnailer
+        poppler # dired pdf previews
+        imagemagick # for image-dired
         epub-thumbnailer # dired epub previews
+        ffmpegthumbnailer
         # =============
         tuntox           # collab
         sqlite           # :tools lookup & :lang org +roam

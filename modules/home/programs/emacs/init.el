@@ -182,20 +182,20 @@
             +tree-sitter)
        ;;ocaml           ; an objective camel
        (org              ; organize your plain life in plain text
-        +brain
         ;; +contacts
-        +dragndrop
-        +gnuplot
         +hugo
+        +roam2
+        +brain
+        +noter
+        +pretty
+        +pandoc
         +journal
         +jupyter
-        +noter
-        +pandoc
-        +passwords
-        +pomodoro
         +present
-        +pretty
-        +roam2)
+        +gnuplot
+        +pomodoro
+        +dragndrop
+        +passwords)
        ;;php              ; perl's insecure younger brother
        plantuml           ; diagrams for confusing people more
        ;;purescript       ; javascript, but functional
