@@ -72,6 +72,10 @@
       doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 32)
       doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14))
 
+(after! treesit
+  (setq treesit-font-lock-level 3
+        treesit-auto-install-grammar 'always))
+
 (after! treemacs
   (setq
    treemacs-position 'left
