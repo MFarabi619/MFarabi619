@@ -2,7 +2,14 @@
   programs.texlive = {
     enable = true;
     extraPackages = tpkgs: {
-      inherit (tpkgs) collection-fontsrecommended algorithms;
+      inherit (tpkgs)
+        latex
+        collection-basic
+        collection-binextra
+        collection-latexextra
+        collection-formatsextra
+        collection-fontsrecommended
+        algorithms;
     };
   };
 }

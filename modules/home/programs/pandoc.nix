@@ -1,3 +1,8 @@
 {
-  programs.pandoc.enable = true;
+  programs.pandoc = {
+    enable = true;
+    defaults =  {
+      pdf-engine = "auctex";
+      };
+    };
 }
