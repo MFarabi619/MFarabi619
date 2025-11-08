@@ -36,11 +36,6 @@
       "value" : "/Applications/Visual Studio Code.app"
     },
     {
-      "key" : "g",
-      "type" : "application",
-      "value" : "/Applications/GarageBand.app"
-    },
-    {
       "key" : "a",
       "type" : "folder",
       "value" : "/Applications"
