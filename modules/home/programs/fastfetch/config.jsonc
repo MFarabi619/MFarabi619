@@ -21,7 +21,9 @@
             "\u001b[46C"
         ],
  "bar": {
-            "charElapsed": "=",
+            "char": {
+            "Elapsed": "=",
+            },
             "charTotal": "-",
             "width": 6
         },
