@@ -36,9 +36,7 @@
 ;; ;; (load! "./extra/sway-ts-mode")
 ;; (setq treesit-extra-load-path "./extra")
 
-(
- nyan-mode t
- )
+;; (nyan-mode t)
 ;; (minimap-mode)
 (display-time-mode 1)
 (global-undo-tree-mode 1)
