@@ -195,6 +195,7 @@
   :vslot -4
   :quit nil
   :select t
+  :modeline f
   :side 'left)
 
 (set-popup-rule! "^\\*Flycheck errors\\*$"
@@ -210,6 +211,7 @@
   :select t
   :width 0.5
   :height 0.5
+  :modeline f
   :side 'right)
 
 (set-popup-rule! "*doom:vterm-popup:lazygit*"
@@ -220,6 +222,7 @@
   :select t
   :width 0.5
   :height 0.5
+  :modeline f
   :side 'right)
 
 (defun +lazygit/toggle ()
