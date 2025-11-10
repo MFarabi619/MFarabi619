@@ -32,11 +32,17 @@
             "baseURL" = "http://localhost:11434/v1";
           };
           models = {
-            "gpt-oss:latest" = {
-              name = "gpt-oss:latest";
+            "gpt-oss:20b" = {
+              name = "gpt-oss:20b";
             };
-            "phind-codellama:latest" = {
-              name = "phind-codellama:latest";
+            "gpt-oss:120b" = {
+              name = "gpt-oss:120b";
+            };
+            "phind-codellama:34b" = {
+              name = "phind-codellama:34b";
+            };
+            "qwen2.5-coder:32b" = {
+              name = "qwen2.5-coder:32b";
             };
             "codellama:70b" = {
               name = "codellama:70b";
