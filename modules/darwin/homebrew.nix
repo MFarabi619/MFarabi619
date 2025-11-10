@@ -28,6 +28,7 @@
       "leader-key"
       "arduino-ide"
       "supercollider"
+      "tailscale-app"
       # "autoraiseapp"
       "docker-desktop"
       "visual-studio-code"
