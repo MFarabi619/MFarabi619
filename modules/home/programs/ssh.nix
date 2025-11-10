@@ -86,7 +86,7 @@
         host = "router";
         checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "192.168.50.254";
+        hostname = "192.168.50.1";
         setEnv.TERM = "xterm-256color";
       };
 
@@ -98,9 +98,9 @@
         checkHostIP = true;
         addKeysToAgent = "yes";
         hostname = "192.168.50.241";
-        setEnv.TERM = "xterm-256color";
-
-        # sendEnv = {};
+        setEnv = {
+          TERM = "xterm-256color";
+          };
 
         # addressFamily = null; # "any" | "inet" | "inet6"
         # certificateFile = [ ./.file ];
