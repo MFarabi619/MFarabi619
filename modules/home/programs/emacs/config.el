@@ -123,22 +123,15 @@
         gptel-track-media t
         ;; gptel-api-key "your key"
         gptel-default-mode #'org-mode
-        gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, and prefer to write code in Rust.")
+        gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, daily drive NixOS and Nix Darwin MacOS from time to time. I prefer to write code in Rust, and Nix. When responding for code snippets, always take best practices, design patterns, and scalability into account while keeping things simple. Always follow up your responses with questions and ideas. Do not be blunt when responding, provide justification and educate me if you notice that I may be misled.")
                            (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-                           (writing     . "You are a large language model and a writing assistant. Respond concisely.")
-                           (chat        . "You are a large language model and a conversation partner. Respond concisely.")))
+                           (writing     . "You are a large language model and a writing assistant.")
+                           (chat        . "You are a large language model and a conversation partner.")))
 
-  (gptel-make-preset 'agent
+  (gptel-make-preset 'gpt-4.1
     :model 'gpt-4.1
     :backend "Copilot"
-    :description "A preset optimized for file editing tasks"
-    :tools '("read_file"
-             "create_file"
-             "view_buffer"
-             "edit_buffer"
-             "list_directory"
-             "create_directory")
-    :system "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, and prefer to write code in Rust.")
+    :description "GPT 4.1 from GitHub")
 
   (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll
             'gptel-post-response-functions 'gptel-end-of-response)
