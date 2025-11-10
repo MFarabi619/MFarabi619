@@ -38,9 +38,6 @@
             "phind-codellama:latest" = {
               name = "phind-codellama:latest";
             };
-            "llama3.1:8b" = {
-              name = "llama3.1:8b";
-            };
             "codellama:70b" = {
               name = "codellama:70b";
             };
