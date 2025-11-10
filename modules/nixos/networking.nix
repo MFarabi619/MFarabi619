@@ -5,8 +5,9 @@
       enable = true;
       allowedTCPPorts = [
         22 # SSH
-        # 80 # caddy
+        80 # nginx/caddy
         # 443
+        5150 # loco
         19999 # netdata
       ];
       allowedUDPPorts = [

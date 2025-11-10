@@ -1,45 +1,20 @@
 {
-  services = {
-    nginx = {
-      enable = true;
-      virtualHosts."_" = {
-        default = true;
-        root = "/var/www/html";
-        locations."/" = {
-          index = "index.html";
-        };
-
-        listen = [
-          {
-            addr = "127.0.0.1";
-            port = 80;
-          }
-
-        ];
+  services.nginx = {
+    enable = true;
+    statusPage = true; # enable http://127.0.0.1:80/nginx_status
+    virtualHosts."_" = {
+      default = true;
+      root = "/var/www/html";
+      locations."/" = {
+        index = "index.html";
       };
-    };
 
-    caddy = {
-      enable = false; # FIXME: getting redirected too many times on cloudflare
-      user = "caddy"; # default
-      group = "caddy"; # default
-      enableReload = true; # default
-      logDir = "/var/log/caddy"; # default
-      dataDir = "/var/lib/caddy"; # default
-      # email = "mfarabi619@gmail.com";
-      virtualHosts = {
-        "localhost" = {
-          # listenAddresses = [
-          #   "127.0.0.1"
-          #   # "::80"
-          # ];
-          extraConfig = ''
-            encode gzip
-            file_server
-            root * /var/www/html
-          '';
-        };
-      };
+      listen = [
+        {
+          addr = "0.0.0.0";
+          port = 80;
+        }
+      ];
     };
   };
 }

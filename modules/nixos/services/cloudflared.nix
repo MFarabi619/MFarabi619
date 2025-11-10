@@ -2,27 +2,31 @@
   # yoinked from: https://www.youtube.com/watch?v=c5Hx4osU5A8
   # nix shell nixpkgs#cloudflared
   # cloudflared tunnel login
-  # cloudflared tunnel create cf-demo
+  # cloudflared tunnel create nixos-server
   # ls ~/.cloudflared
-  # cloudflared tunnel route dns 82210156-ab1e-4171-b117-7936b4b35b57 demo.openws.org
+  # cloudflared tunnel route dns nixos-server api.openws.org
   # sudo mkdir -p /etc/cloudflared
   # sudo chown root:root /etc/cloudflared/
   # sudo chmod 600 /etc/cloudflared/
-  # sudo cp ~/.cloudflared/82210156-ab1e-4171-b117-7936b4b35b57.json /etc/cloudflared/
+  # sudo mv ~/.cloudflared/82210156-ab1e-4171-b117-7936b4b35b57.json /etc/cloudflared/
+  # cloudflared tunnel cleanup nixos-server; cloudflared tunnel delete nixos-server
 
   services.cloudflared = {
     enable = true;
     # certificateFile = /tmp/test;
     tunnels = {
-      "dfab631c-28d8-458d-a4ff-ca9b401e9417" = {
+      "nixos-server" = {
         default = "http_status:404";
-        credentialsFile = "/etc/cloudflared/dfab631c-28d8-458d-a4ff-ca9b401e9417.json";
+        credentialsFile = "/etc/cloudflared/dc81f04d-07df-4704-abac-07ffabdc173c.json";
         # certificateFile = /tmp/test;
         ingress = {
-          "api.openws.org" = "http://localhost:80";
-          # "api.openws.org" = {
-          #   service = "http://localhost:80";
-          # };
+          "openws.org" = "http://0.0.0.0:80";
+          "ai.openws.org" = {
+            service = "http://0.0.0.0:7777";
+          };
+          "tandemrobotics.ca" = {
+            service = "http://0.0.0.0:5150";
+          };
         };
         # originRequest = {
         #   caPool = "";
