@@ -108,14 +108,16 @@
 (use-package! gptel-integrations)
 (use-package! gptel
   :config
-  (setq gptel-model 'gpt-oss:latest
+  (setq gptel-model 'gpt-oss:20b
         gptel-backend (gptel-make-ollama "Ollama"
                         :stream t
                         :host "localhost:11434"
-                        :models '(gpt-oss:latest
-                                  llama3.1:8b
+                        :models '(gpt-oss:20b
+                                  gpt-oss:120b
                                   mistral:latest
-                                  phind-codellama:latest))
+                                  qwen2.5-coder:32b
+                                  phind-codellama:34b
+                                  llava:34b))
         ;; gptel-model 'gpt-4.1
         ;;      gptel-backend (gptel-make-gh-copilot "Copilot")
 
