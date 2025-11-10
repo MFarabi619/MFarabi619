@@ -12,6 +12,7 @@
       "llama3.2"
       # "gpt-oss:120b"
       "codellama:70b"
+      "gpt-oss:latest"
       # "mistral-large"
       # "deepseek-v3.1"
       # "llama4:128x17b"
