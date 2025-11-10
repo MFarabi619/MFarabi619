@@ -2,7 +2,8 @@
   services.ollama = {
     enable = true;
     port = 11434; # default
-    openFirewall = false;
+    openFirewall = true;
+    host = "0.0.0.0";
     # acceleration = "rocm"; # amd
     # acceleration = "cuda"; # nvidia
     home = "/var/lib/ollama"; # default
