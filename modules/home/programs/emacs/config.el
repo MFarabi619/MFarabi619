@@ -108,14 +108,13 @@
 (use-package! gptel-integrations)
 (use-package! gptel
   :config
-  (setq gptel-model 'mistral:latest
-        gptel-backend ( gptel-make-ollama "Ollama"
+  (setq gptel-model 'gpt-oss:latest
+        gptel-backend (gptel-make-ollama "Ollama"
                         :stream t
                         :host "localhost:11434"
-                        :models '(mistral:latest llama3.1:8b))
+                        :models '(gpt-oss:latest mistral:latest llama3.1:8b))
         ;; gptel-model 'gpt-4.1
         ;;      gptel-backend (gptel-make-gh-copilot "Copilot")
-
 
         gptel-use-tools t
         gptel-track-media t
