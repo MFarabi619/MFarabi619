@@ -112,7 +112,10 @@
         gptel-backend (gptel-make-ollama "Ollama"
                         :stream t
                         :host "localhost:11434"
-                        :models '(gpt-oss:latest mistral:latest llama3.1:8b))
+                        :models '(gpt-oss:latest
+                                  llama3.1:8b
+                                  mistral:latest
+                                  phind-codellama:latest))
         ;; gptel-model 'gpt-4.1
         ;;      gptel-backend (gptel-make-gh-copilot "Copilot")
 
