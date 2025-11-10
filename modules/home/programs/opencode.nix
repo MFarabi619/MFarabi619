@@ -32,6 +32,9 @@
             "baseURL" = "http://localhost:11434/v1";
           };
           models = {
+            "gpt-oss:latest" = {
+              name = "gpt-oss:latest";
+            };
             "llama3.1:8b" = {
               name = "llama3.1:8b";
             };
