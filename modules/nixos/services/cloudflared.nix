@@ -24,6 +24,9 @@
           "ai.openws.org" = {
             service = "http://0.0.0.0:7777";
           };
+          # "api.openws.org" = {
+          #   service = "http://0.0.0.0:7681";
+          # };
           "tandemrobotics.ca" = {
             service = "http://0.0.0.0:5150";
           };
@@ -33,16 +36,16 @@
         #   proxyPort = 0;
         #   proxyType = "";
         #   tlsTimeout = "10s";
+        #   noTLSVerify = false;
         #   tcpKeepAlive = "30s";
         #   connectTimeout = "30s";
         #   httpHostHeader = "";
         #   noHappyEyeballs = "false";
         #   keepAliveTimeout = "1m30s";
-        #   noTLSVerify = false;
         #   proxyAddress = "127.0.0.1";
-        #   originServerName = "";
         #   keepAliveConnections = 100;
         #   disableChunkedEncoding = false;
+        #   originServerName = "";
         # };
       };
     };

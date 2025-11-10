@@ -8,6 +8,7 @@
         80 # nginx/caddy
         # 443
         5150 # loco
+        7681 # ttyd
         19999 # netdata
       ];
       allowedUDPPorts = [
