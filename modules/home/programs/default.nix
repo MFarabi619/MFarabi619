@@ -35,6 +35,7 @@
     ./lazygit.nix
     ./lazysql.nix
     ./less.nix
+    ./lutris.nix
     ./man.nix
     ./msmtp.nix
     ./mbsync.nix
