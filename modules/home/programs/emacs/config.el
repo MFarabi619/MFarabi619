@@ -108,23 +108,23 @@
 (use-package! gptel-integrations)
 (use-package! gptel
   :config
-  (setq  gptel-model 'gpt-4.1
-         gptel-backend (gptel-make-gh-copilot "Copilot")
+  (setq gptel-model 'mistral:latest
+        gptel-backend ( gptel-make-ollama "Ollama"
+                        :stream t
+                        :host "localhost:11434"
+                        :models '(mistral:latest llama3.1:8b))
+        ;; gptel-model 'gpt-4.1
+        ;;      gptel-backend (gptel-make-gh-copilot "Copilot")
 
-         ;; gptel-model 'llama3.1:8b ;; 'mistral:latest
-         ;; gptel-backend ( gptel-make-ollama "Ollama"
-         ;;                 :stream t
-         ;;                 :host "localhost:11434"
-         ;;                 :models '(mistral:latest llama3.1:8b))
 
-         gptel-use-tools t
-         gptel-track-media t
-         ;; gptel-api-key "your key"
-         gptel-default-mode #'org-mode
-         gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, and prefer to write code in Rust.")
-                            (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-                            (writing     . "You are a large language model and a writing assistant. Respond concisely.")
-                            (chat        . "You are a large language model and a conversation partner. Respond concisely.")))
+        gptel-use-tools t
+        gptel-track-media t
+        ;; gptel-api-key "your key"
+        gptel-default-mode #'org-mode
+        gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. Respond concisely. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, and prefer to write code in Rust.")
+                           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+                           (writing     . "You are a large language model and a writing assistant. Respond concisely.")
+                           (chat        . "You are a large language model and a conversation partner. Respond concisely.")))
 
   (gptel-make-preset 'agent
     :model 'gpt-4.1
@@ -189,13 +189,22 @@
       "C-<down>"  #'+evil/window-move-down
       "C-<right>" #'+evil/window-move-right)
 
+(set-popup-rule! "*Ollama*"
+  :ttl 0
+  :size 0.5
+  :vslot -4
+  :quit nil
+  :select t
+  :modeline t
+  :side 'left)
+
 (set-popup-rule! "*Copilot*"
   :ttl 0
   :size 0.5
   :vslot -4
   :quit nil
   :select t
-  :modeline f
+  :modeline t
   :side 'left)
 
 (set-popup-rule! "^\\*Flycheck errors\\*$"
@@ -211,7 +220,7 @@
   :select t
   :width 0.5
   :height 0.5
-  :modeline f
+  :modeline t
   :side 'right)
 
 (set-popup-rule! "*doom:vterm-popup:lazygit*"
@@ -222,7 +231,7 @@
   :select t
   :width 0.5
   :height 0.5
-  :modeline f
+  :modeline t
   :side 'right)
 
 (defun +lazygit/toggle ()
