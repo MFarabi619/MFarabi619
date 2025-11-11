@@ -192,7 +192,7 @@
         blink
         crates-tui
         arduino-ide
-        webcord-vencord
+        # webcord-vencord
 
         penpot-desktop
       ]
