@@ -16,7 +16,7 @@
       ];
       experimental = {
        render_docs_indexes = {
-        # nvf= "https://notashelf.github.io/nvf/options.html";
+        nvf= "https://notashelf.github.io/nvf/options.html";
         nix-on-droid = "https://nix-community.github.io/nix-on-droid/nix-on-droid-options.html";
         # nixos-wsl = "https://nix-community.github.io/NixOS-WSL/options.html";
        };
