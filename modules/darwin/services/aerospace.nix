@@ -1,7 +1,10 @@
 {
+  pkgs,
+  ...
+}:
+{
   services.aerospace = {
-    enable = true;
-
+    enable = pkgs.stdenv.isAarch64;
     settings = {
       # yoinked from github.com/ryangchung/ryangchung/blob/main/modules/home/programs/aerospace.nix
       after-startup-command = [
