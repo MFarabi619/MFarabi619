@@ -4,12 +4,16 @@
 }:
 {
   environment = {
-    systemPackages = with pkgs; [
-      macmon        # mac monitoring TUI
-      coreutils
-      alt-tab-macos
-      kanata-with-cmd
-    ];
+    systemPackages =
+      with pkgs;
+      [
+        coreutils
+        alt-tab-macos
+        kanata-with-cmd
+      ]
+      ++ lib.optionals (stdenv.isAarch64) [
+        macmon
+      ];
 
     systemPath = [
       "/usr/local/bin"
