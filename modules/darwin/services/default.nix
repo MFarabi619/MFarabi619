@@ -5,6 +5,7 @@
     ./ipfs.nix
     ./jankyborders.nix
     ./openssh.nix
+    ./skhd.nix
     ./karabiner-elements.nix
     ./netdata.nix
     ./tailscale.nix
