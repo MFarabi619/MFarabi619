@@ -20,16 +20,6 @@
       #   };
       # };
 
-      nixos-server = {
-        port = 22;
-        user = "mfarabi";
-        host = "nixos-server";
-        checkHostIP = true;
-        addKeysToAgent = "yes";
-        hostname = "192.168.50.254";
-        setEnv.TERM = "xterm-kitty";
-      };
-
       archlinux = {
         port = 22;
         user = "mfarabi";
@@ -56,7 +46,7 @@
         user = "mfarabi";
         checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "10.0.0.90";
+        hostname = "192.168.50.141";
         setEnv.TERM = "xterm-kitty";
       };
 
@@ -80,6 +70,16 @@
         setEnv.TERM = "xterm-kitty";
       };
 
+      nixos-server = {
+        port = 22;
+        user = "mfarabi";
+        host = "nixos-server";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        hostname = "192.168.50.254";
+        setEnv.TERM = "xterm-kitty";
+      };
+
       router = {
         port = 22;
         user = "admin";
@@ -90,7 +90,6 @@
         setEnv.TERM = "xterm-256color";
       };
 
-
       rpi5 = {
         port = 22;
         host = "rpi5";
@@ -100,7 +99,7 @@
         hostname = "192.168.50.241";
         setEnv = {
           TERM = "xterm-256color";
-          };
+        };
 
         # addressFamily = null; # "any" | "inet" | "inet6"
         # certificateFile = [ ./.file ];
