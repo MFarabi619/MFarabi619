@@ -44,7 +44,6 @@
         appswitcher-all-displays = false;
 
         persistent-apps = [
-          { app = "/Applications/GarageBand.app"; }
           { app = "/Applications/Visual Studio Code.app"; }
         ];
       };
