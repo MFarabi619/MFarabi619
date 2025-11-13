@@ -1,6 +1,9 @@
 # See /modules/darwin/* for actual settings
 # This file is just *top-level* configuration.
-{ flake, ... }:
+{
+  flake,
+  ...
+}:
 
 let
   inherit (flake) inputs;
@@ -13,12 +16,13 @@ in
     flake.inputs.stylix.darwinModules.stylix
   ];
 
-  nixpkgs.hostPlatform = "aarch64-darwin";
+  nixpkgs.hostPlatform = "x86_64-darwin";
 
   # Automatically move old dotfiles out of the way
-  # NOTE: home-manager isn't very smart, if this backup file already exists
-  # it'll complain "Existing file .. would be clobbered by backing up".
-  # To mitigate this, we try to use as unique a backup file extension as possible.
+  #
+  # Note that home-manager is not very smart, if this backup file already exists it
+  # will complain "Existing file .. would be clobbered by backing up". To mitigate this,
+  # we try to use as unique a backup file extension as possible.
   home-manager.backupFileExtension = "nixos-unified-template-backup";
 
   # Used for backwards compatibility, please read the changelog before changing.

@@ -45,11 +45,17 @@
 
 # Download:
 # github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-6.2.0.pkg
+# if macos < 13.0
+# github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/v6.6.0/dist/Karabiner-DriverKit-VirtualHIDDevice-3.0.0.pkg
 
 # Install:
 # /Applications/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager activate
 
 # sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &
+#
+# Or if macos < 13.0
+# sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient'
+
 # sudo kanata -q &
 
 # or

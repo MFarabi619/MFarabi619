@@ -59,28 +59,35 @@ in
 
     # All users can add Nix caches.
     nix = {
+      gc.automatic = true;
+      channel.enable = true;
+      optimise.automatic = true;
+
       settings = {
         max-jobs = "auto";
+
         trusted-users = [
           "@admin"
         ]
         ++ config.myusers;
+
         experimental-features = [
-          "nix-command"
           "flakes"
+          "nix-command"
         ];
 
         extra-substituters = [
           "https://cache.nixos.org"
-          "https://nix-community.cachix.org"
           "https://cache.lix.systems"
           "https://devenv.cachix.org"
+          "https://nix-community.cachix.org"
         ];
+
         extra-trusted-public-keys = [
           "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-          "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-          "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
           "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
+          "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
+          "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         ];
       };
 
@@ -90,8 +97,9 @@ in
       # sudo ssh linux-builder
       linux-builder = {
         maxJobs = 4;
-        enable = true;
         ephemeral = false;
+        enable = pkgs.stdenv.isAarch64;
+
         config = {
           virtualisation = {
             cores = 6;
@@ -106,24 +114,17 @@ in
             "nix-command"
           ];
         };
+
         systems = [
           "x86_64-linux"
           "aarch64-linux"
         ];
+
         supportedFeatures = [
           "kvm"
           "benchmark"
           "big-parallel"
         ];
-      };
-
-      channel.enable = true;
-      gc = {
-        automatic = true;
-      };
-
-      optimise = {
-        automatic = true;
       };
     };
   };
