@@ -11,6 +11,9 @@
         alt-tab-macos
         kanata-with-cmd
       ]
+      ++ lib.optionals (stdenv.x86_64) [
+        yabai
+      ]
       ++ lib.optionals (stdenv.isAarch64) [
         macmon
       ];

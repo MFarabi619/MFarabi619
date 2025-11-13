@@ -8,5 +8,6 @@
     ./karabiner-elements.nix
     ./netdata.nix
     ./tailscale.nix
+    ./yabai.nix
   ];
 }
