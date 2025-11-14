@@ -10,5 +10,6 @@
     ./netdata.nix
     ./tailscale.nix
     ./yabai.nix
+    ./netbird.nix
   ];
 }
