@@ -85,6 +85,24 @@
    ;; treemacs-load-theme "doom-colors"
    lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35))))
 
+(define-derived-mode likec4-mode prog-mode "LikeC4"
+  "Major mode for editing LikeC4 files.")
+
+(add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
+
+(after! lsp-mode
+  (add-to-list 'lsp-language-id-configuration
+               '(likec4-mode . "likec4"))
+
+  ;; Register the LSP client
+  (lsp-register-client
+   (make-lsp-client
+    ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
+    :new-connection (lsp-stdio-connection '("pnpx" "@likec4/language-server" "--stdio"))
+    :major-modes '(likec4-mode)
+    :priority -1
+    :server-id 'likec4)))
+
 (after! dired
   (setq dirvish-peek-mode t
         dirvish-side-auto-close t
