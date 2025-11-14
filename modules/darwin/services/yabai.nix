@@ -14,7 +14,6 @@
   services.yabai = {
     enable = pkgs.stdenv.isx86_64;
 
-    package = pkgs.yabai;
 
     enableScriptingAddition = true;
 

@@ -6,7 +6,6 @@
   services.skhd = {
     enable = pkgs.stdenv.isx86_64;
 
-    package = pkgs.skhd;
 
     skhdConfig = ''
       cmd - 1 : yabai -m space --focus 1
