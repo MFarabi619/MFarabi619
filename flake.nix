@@ -9,10 +9,8 @@
     nixos-unified.url = "github:srid/nixos-unified";
     flake-parts.url = "github:hercules-ci/flake-parts";
 
-    lix-module = {
-      url = "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    lix-module.url = "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz";
+    lix-module.inputs.nixpkgs.follows = "nixpkgs";
 
     # use fork to allow disabling modules introduced by mkRemovedOptionModule
     # and similar functions
@@ -23,56 +21,31 @@
       # inputs.nixpkgs.follows = "nixpkgs-nvmd-modules-with-keys";
     };
 
-    nixos-hardware = {
-      url = "github:NixOS/nixos-hardware/master";
-    };
-    nix-darwin = {
-      url = "github:nix-darwin/nix-darwin/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nixos-wsl = {
-      url = "github:nix-community/NixOS-WSL/main";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nix-darwin.url = "github:nix-darwin/nix-darwin/master";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
+    nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
 
-    # nixvim = {
-    #   url = "github:nix-community/nixvim";
-    #   inputs = {
-    #     nixpkgs.follows = "nixpkgs";
-    #     flake-parts.follows = "flake-parts";
-    #   };
-    # };
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    stylix = {
-      url = "github:danth/stylix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    stylix.url = "github:danth/stylix";
+    stylix.inputs.nixpkgs.follows = "nixpkgs";
 
-    nix-doom-emacs-unstraightened = {
-      url = "github:marienz/nix-doom-emacs-unstraightened";
-      inputs.nixpkgs.follows = "";
-    };
+    nix-doom-emacs-unstraightened.url = "github:marienz/nix-doom-emacs-unstraightened";
+    nix-doom-emacs-unstraightened.inputs.nixpkgs.follows = "";
 
-    nvf = {
-      url = "github:notashelf/nvf";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nvf.url = "github:notashelf/nvf";
+    # nvf.inputs.nixpkgs.follows = "nixpkgs";
+    lazyvim.url = "github:pfassina/lazyvim-nix";
 
-    nix-index-database = {
-      url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nix-index-database.url = "github:nix-community/nix-index-database";
+    nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
     hyprland.url = "github:hyprwm/Hyprland";
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland";
-    };
+    hyprland-plugins.url = "github:hyprwm/hyprland-plugins";
+    hyprland-plugins.inputs.hyprland.follows = "hyprland";
 
     nix-on-droid = {
       url = "github:nix-community/nix-on-droid/release-24.05";

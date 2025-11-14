@@ -43,7 +43,6 @@
     ./mpv.nix
     ./mu.nix
     ./neovim
-    ./nvf.nix
     ./nh.nix
     ./nix-index.nix
     ./nix-search-tv.nix

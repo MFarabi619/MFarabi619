@@ -53,7 +53,8 @@ in
       imports = [
         (self + /configurations/home/${name}.nix)
         flake.inputs.nix-doom-emacs-unstraightened.homeModule
-        flake.inputs.nvf.homeManagerModules.default
+        # flake.inputs.nvf.homeManagerModules.default
+        flake.inputs.lazyvim.homeManagerModules.default
       ];
     });
 
