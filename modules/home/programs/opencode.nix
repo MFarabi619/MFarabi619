@@ -1,15 +1,20 @@
 {
   programs.opencode = {
     enable = true;
+    enableMcpIntegration = true;
+
     settings = {
-      theme = "stylix";
+      theme = "gruvbox";
+
       autoshare = false;
       autoupdate = false;
+
       permission = {
         edit = "ask";
         bash = "ask";
         webfetch = "ask";
       };
+
       # mcp = {
       #   my-local-mcp-server = {
       #     enabled = true;
@@ -24,6 +29,7 @@
       #     };
       #   };
       # };
+
       provider = {
         ollama = {
           npm = "@ai-sdk/openai-compatible";
@@ -53,14 +59,10 @@
 
       # disabled_providers= ["openai" "gemini"];
       # instructions = ["CONTRIBUTING.md" "docs/guidelines.md" ".cursor/rules/*.md"];
+
       #   model = "anthropic/claude-sonnet-4-20250514";
       #   model= "{env:OPENCODE_MODEL}";
-      # };
-      #     rules = ''
-      #       - I have a strong preference for modular, re-usable code.
-      #       - I'm a strong advocate for test-driven development, and prefer to develop against a test suite.
-      #       - When doing feature development, move slow, and correct. Do not rush. Start with small parts and get them working.
-      # '';
+
       #     rules = ''
       #       # TypeScript Project Rules
 
@@ -86,5 +88,11 @@
       #       Read the following file immediately as it's relevant to all workflows: @rules/general-guidelines.md.
       # '';
     };
+
+    rules = ''
+      - I have a strong preference for modular, re-usable code.
+      - I'm a strong advocate for test-driven development, and prefer to develop against a test suite.
+      - When doing feature development, move slow, and correct. Do not rush. Start with small parts and get them working.
+    '';
   };
 }

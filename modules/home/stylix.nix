@@ -12,6 +12,8 @@
 
     targets = {
       vscode.enable = false;
+      opencode.enable = false;
+
       fontconfig.enable = true;
       font-packages.enable = true;
 
