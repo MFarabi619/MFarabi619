@@ -108,11 +108,12 @@
 (use-package! gptel-integrations)
 (use-package! gptel
   :config
-  (setq gptel-model 'gpt-oss:20b
+  (setq gptel-model 'llama3.2:3b
         gptel-backend (gptel-make-ollama "Ollama"
                         :stream t
                         :host "localhost:11434"
-                        :models '(gpt-oss:20b
+                        :models '(llama3.2:3b
+                                  gpt-oss:20b
                                   gpt-oss:120b
                                   mistral:latest
                                   qwen2.5-coder:32b
