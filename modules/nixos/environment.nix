@@ -2,6 +2,8 @@
 {
   environment = {
     systemPackages = with pkgs; [
+      tree-sitter
+
       # ========== Stylix ===========
       dconf # configuration storage system
       dconf-editor # dconf editor
