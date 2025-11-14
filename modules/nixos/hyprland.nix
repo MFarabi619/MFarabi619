@@ -1,9 +1,14 @@
-{ pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  ...
+}:
 
 {
   programs = {
     xwayland.enable = true;
     hyprlock.enable = true;
+
     uwsm = {
       enable = true;
       # waylandCompositors = {
@@ -12,12 +17,14 @@
       #     binPath = "/run/current-system/sw/bin/hyprland";
       # };
     };
+
     hyprland = {
       enable = true;
       # package = inputs.hyprland.packages."${pkgs.system}".hyprland;
       withUWSM = true;
       xwayland.enable = true;
     };
+
     dconf = {
       enable = true;
       # settings = {
@@ -27,6 +34,7 @@
       #   };
       # };
     };
+
     gnupg.agent = {
       enable = true;
       enableSSHSupport = true;
@@ -37,7 +45,9 @@
     variables.NIXOS_OZONE_WL = "1";
     sessionVariables.NIXOS_OZONE_WL = "1";
 
-    systemPackages = with pkgs; [ kitty ];
+    systemPackages = with pkgs; [
+      kitty
+    ];
 
     pathsToLink = [
       "/share/icons"
@@ -54,45 +64,62 @@
   };
 
   services = {
-    getty.autologinUser = "mfarabi";
+    # getty.autologinUser = "mfarabi";
+
+    kmscon = {
+      enable = true;
+      hwRender = true;
+      # autologinUser = "mfarabi";
+      extraConfig = "font-size=14";
+      extraOptions = "--term xterm-256color";
+    };
+
     displayManager = {
+      defaultSession = "hyprland-uwsm";
+
       sddm = {
         enable = true;
+        enableHidpi = true;
         autoNumlock = false;
         # setupScript = "";
-          # stopScript = "";
+        # stopScript = "";
         # extraPackages = [];
+
         settings = {
           Autologin = {
-            Session = "Hyprland";
             User = "mfarabi";
+            minimumUid = 1000;
+            Session = "hyprland-uwsm";
           };
         };
+
         wayland = {
           enable = true;
-          # compositor = "kwin";
+          compositor = "weston";
         };
-        # theme = "";
-        enableHidpi = true;
+
+        theme = "${
+          pkgs.where-is-my-sddm-theme.override { variants = [ "qt5" ]; }
+        }/share/sddm/themes/where_is_my_sddm_theme_qt5";
       };
     };
   };
 
-  xdg = {
-    portal = {
-      enable = true;
-      wlr.enable = true;
-      xdgOpenUsePortal = true;
-      extraPortals = with pkgs; [
-        xdg-desktop-portal-hyprland
-        xdg-desktop-portal-gtk
-        xdg-desktop-portal
-      ];
-      configPackages = with pkgs; [
-        xdg-desktop-portal-hyprland
-        xdg-desktop-portal-gtk
-        xdg-desktop-portal
-      ];
-    };
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+    xdgOpenUsePortal = true;
+
+    extraPortals = with pkgs; [
+      xdg-desktop-portal
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-hyprland
+    ];
+
+    configPackages = with pkgs; [
+      xdg-desktop-portal
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-hyprland
+    ];
   };
 }
