@@ -11,10 +11,9 @@
     # base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-macchiato.yaml";
 
     targets = {
-      vim.enable = true;
+      vscode.enable = false;
       fontconfig.enable = true;
       font-packages.enable = true;
-      vscode.enable = false;
 
       neovim = {
         enable = false;
@@ -39,15 +38,18 @@
     };
 
     opacity = {
-      popups = 0.8;
-      desktop = 0.8;
-      terminal = 0.8;
-      applications = 0.8;
+      popups = 0.9;
+      desktop = 0.9;
+      terminal = 0.9;
+      applications = 0.9;
     };
 
     fonts = {
       sizes = {
-        # terminal = 12;
+        popups = 12;
+        desktop = 12;
+        terminal = 14;
+        applications = 14;
       };
 
       emoji = {

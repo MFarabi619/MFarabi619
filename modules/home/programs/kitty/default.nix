@@ -10,10 +10,6 @@
 
     # themeFile = "SpaceGray_Eighties";
 
-    font = {
-      size = 12;
-      name = "JetBrainsMono Nerd Font";
-    };
 
     keybindings = {
       "ctrl+shift+v" = "paste_from_selection";

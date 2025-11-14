@@ -75,22 +75,29 @@
         "$mainMod, G, togglegroup" # toggle focus/group
         "Alt, Return, fullscreen" # toggle focus/fullscreen
         "Ctrl+Alt, W, exec, killall waybar || waybar"
-        "$mainMod,Q,killactive,"
+        "$mainMod, Q, killactive,"
+
         # Move focused window around the current workspace
         "$mainMod+Shift+Ctrl, H, movewindow, l"
         "$mainMod+Shift+Ctrl, L, movewindow, r"
         "$mainMod+Shift+Ctrl, K, movewindow, u"
         "$mainMod+Shift+Ctrl, J, movewindow, d"
+
         # Move focused window to relative workspace
         "$mainMod+Alt, L, movetoworkspace, r+1"
         "$mainMod+Alt, H, movetoworkspace, r-1"
+
         # Move/Change window focus
         "$mainMod, Left, movefocus, l"
         "$mainMod, Right, movefocus, r"
         "$mainMod, Up, movefocus, u"
         "$mainMod, Down, movefocus, d"
-        "ALT,Tab,cyclenext"
-        "ALT,Tab,bringactivetotop"
+
+        "Alt,      Tab,cyclenext"
+        "Alt,      Tab,bringactivetotop"
+
+        # "$mainMod, Tab,cyclenext"
+        # "$mainMod, Tab,bringactivetotop"
 
         ",XF86MonBrightnessDown,exec,brightnessctl set 5%-"
         ",XF86MonBrightnessUp,exec,brightnessctl set +5%"
@@ -134,8 +141,8 @@
         rounding = 2;
         rounding_power = 2;
 
-        active_opacity = 0.9;
-        inactive_opacity = 0.7;
+        active_opacity = 1;
+        inactive_opacity = 0.95;
 
         shadow = {
           enabled = true;
@@ -147,7 +154,7 @@
         blur = {
           enabled = true;
           size = 4;
-          passes = 2;
+          passes = 3;
           xray = false;
           vibrancy = 0.1696;
           ignore_opacity = true;
