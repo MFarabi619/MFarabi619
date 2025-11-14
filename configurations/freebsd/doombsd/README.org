@@ -459,3 +459,74 @@ DoomBSD borrows HEAVILY from the following projects:
 - [[https://gitlab.com/Zaney/zaneyos][ZaneyOS - Tyler Kelley]]
   - Incredibly well-structured NixOS modules and a shining example of good codebase architecture that's easily navigable
 - [[https://www.lazyvim.org][LazyVim]]
+
+
+* Virtual Machine Setup (WIP)
+
+** aarch64-darwin
+
+[[https://www.freebsd.org/where/][Download VM Image]]
+
+#+begin_src sh
+unxz FreeBSD-15.0-STABLE-arm64-aarch64-zfs.qcow2.xz
+#+end_src
+
+#+begin_src sh
+qemu-system-aarch64 \
+  -machine virt,highmem=on \
+  -accel hvf \
+  -cpu cortex-a72 \
+  -smp 8 \
+  -m 32G \
+  -drive file=FreeBSD-15.0-STABLE-arm64-aarch64-zfs.qcow2,if=virtio,format=qcow2 \
+  -device virtio-net-pci,netdev=net0 \
+  -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+  -bios /opt/homebrew/share/qemu/edk2-aarch64-code.fd \
+  -nographic
+#+end_src
+
+#+begin_src sh
+qemu-img resize FreeBSD-15.0-STABLE-arm64-aarch64-zfs.qcow2 256G
+qemu-img info FreeBSD-15.0-STABLE-arm64-aarch64-zfs.qcow2
+#+end_src
+
+
+#+begin_src sh
+df -h
+
+# see current layout
+gpart show
+zpool status
+
+# enable autoexpand (so ZFS can use larger underlying device)
+zpool set autoexpand=on zroot
+
+# if ZFS uses the whole disk (no partition):
+zpool online -e zroot /dev/vtbd0
+
+# (use gpart show to find the correct index)
+gpart show
+# if ZFS is on a partition (e.g. vtbd0p2), resize that partition first if needed:
+gpart resize -i 2 vtbd0      # resize partition index 2 to fill the disk
+zpool online -e zroot /dev/vtbd0p2
+
+# 1) recover the GPT backup/header if needed
+gpart recover vtbd0
+
+# verify layout and that GPT is no longer corrupt
+gpart show vtbd0
+
+# 2) resize partition index 3 (freebsd-zfs) to fill the disk
+gpart resize -i 3 vtbd0
+
+# confirm partition grew
+gpart show vtbd0
+
+# 3) ask ZFS to expand the device (use the exact member name shown by zpool status)
+zpool set autoexpand=on zroot
+zpool online -e zroot vtbd0p3
+
+# verify pool and fs sizes
+zpool list
+zfs list
+#+end_src
