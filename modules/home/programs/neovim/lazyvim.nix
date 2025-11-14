@@ -99,7 +99,7 @@
         }
       '';
 
-      dashboard = ''
+      dashboard-nvim = ''
         return {
           "nvimdev/dashboard-nvim",
           lazy = false, -- As https://github.com/nvimdev/dashboard-nvim/pull/450, dashboard-nvim shouldn't be lazy-loaded to properly handle stdin.
@@ -174,6 +174,21 @@
         }
       '';
 
+      nvim-orgmode = ''
+        ---@type LazySpec
+        return {
+            "nvim-orgmode/orgmode",
+            event = "VeryLazy",
+            config = function()
+              -- Setup orgmode
+              require("orgmode").setup({
+                org_agenda_files = "~/Documents/org/**/*",
+                org_default_notes_file = "~/Documents/org/refile.org",
+              })
+            end,
+          }
+      '';
+
       yazi-nvim = ''
         ---@type LazySpec
         return {
@@ -217,11 +232,12 @@
 
     extras = {
       ai = {
-        copilot-chat.enable = true;
+        copilot_chat.enable = true;
       };
 
       dap = {
         core.enable = true;
+        # nlua.enable = true;
       };
 
       test = {
@@ -229,37 +245,61 @@
       };
 
       ui = {
-        mini-animate.enable = true;
-        dashboard-nvim.enable = true;
-        mini-indentscope.enable = true;
+        edgy.enable = true;
+        # treesitter_context = true; # FIXME: supposed to be submodules?
+        mini_animate.enable = true;
+        dashboard_nvim.enable = true;
+        mini_indentscope.enable = true;
       };
 
       editor = {
-        # neo-tree.enable = true;
+        aerial.enable = true;
+        # neo_tree.enable = true;
+        overseer.enable = true;
         telescope.enable = true;
+        refactoring.enable = true;
+      };
+
+      coding = {
+        # luasnip.enable =true;
+        # mini_comment = true;
+        yanky.enable = true;
+        mini_surround.enable = true;
       };
 
       lang = {
+        # go.enable  =true;
+        # git.enable = true;
+        # ruby.enable = true;
+        # docker.enable = true;
+        # svelte.enbale = true;
+        # tailwind.enable = true;
+
         nix.enable = true;
 
         json.enable = true;
         toml.enable = true;
         yaml.enable = true;
+        tex.enable = true;
         markdown.enable = true;
 
-        # sql.enable = true;
+        # sql.enable = true; # FIXME: results in fixed output derivation error resulting from dadbod
         rust.enable = true;
 
-        # clang.enable = true;
-        # cmake.enable = true;
+        clang.enable = true;
+        cmake.enable = true;
         python.enable = true;
         typescript.enable = true;
       };
 
       util = {
+        # dot.enable = true;
+        gh.enable = true;
+        octo.enable = true;
         rest.enable = true;
         project.enable = true;
-        mini-hipatterns.enable = true;
+        startuptime.enable = true;
+        mini_hipatterns.enable = true;
       };
     };
 
