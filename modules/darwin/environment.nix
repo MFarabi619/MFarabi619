@@ -8,6 +8,7 @@
       with pkgs;
       [
         coreutils
+        tree-sitter
         alt-tab-macos
         kanata-with-cmd
       ]
