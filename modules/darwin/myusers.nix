@@ -102,6 +102,10 @@ in
         enable = pkgs.stdenv.isAarch64;
 
         config = {
+          imports = [
+            ../nixos/time.nix
+          ];
+
           virtualisation = {
             cores = 6;
             darwin-builder = {
