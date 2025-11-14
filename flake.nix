@@ -69,7 +69,7 @@
         home-manager-path = inputs.home-manager.outPath;
         extraSpecialArgs = {
           # rootPath = ./.;
-          inputs = inputs;
+          inherit inputs;
         };
 
         pkgs = import inputs.nixpkgs {
