@@ -18,28 +18,26 @@
       ];
     };
 
-    global = {
-      autoUpdate = true;
-    };
+    global.autoUpdate = true;
 
     casks = [
       "via"
       "vial"
-      "huly"
       "vivaldi"
       "coderabbit"
-      "tailscale-app"
-      # "autoraiseapp"
-      "visual-studio-code"
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
-      "sonic-pi"
+      "huly"
+      # "comfyui"
+      # "sonic-pi"
       "unity-hub"
       "leader-key"
-      "arduino-ide"
-      "supercollider"
+      # "arduino-ide"
+      "tailscale-app"
+      # "supercollider"
       "docker-desktop"
-      "raspberry-pi-imager"
+      "visual-studio-code"
+      # "raspberry-pi-imager"
       "silicon-labs-vcp-driver"
     ];
 
@@ -48,6 +46,7 @@
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "qemu"
+      # "podman"
       "avr-gcc"
       "arm-none-eabi-gcc"
     ];
