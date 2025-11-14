@@ -44,7 +44,6 @@ specification {
 }
 
 model {
-
     platform = context "Platform" {
         icon https://raw.githubusercontent.com/MFarabi619/MFarabi619/aabb74c23a1e4525b985d511bbe012606215027d/assets/nix-mfarabi.svg
         style {
@@ -60,6 +59,7 @@ model {
 
             userspaces = container "Userspaces" {
                 style {
+                    shape person
                     color: green
                     opacity: 40%
                 }
@@ -72,7 +72,7 @@ model {
                         color: yellow
                         opacity: 40%
                     }
-                    }
+                }
 
                 nixos = container "NixOS" {
                     link https://nixos.org "Website"
@@ -83,9 +83,9 @@ model {
                     }
 
                     nix-darwin = component "Nix-Darwin" {
-                        description: '''
+                        description: """
                             Declarative NixOS-like modules for MacOS.
-                            '''
+                            """
                         icon https://avatars.githubusercontent.com/u/203339767?s=200&v=4
                         link https://github.com/nix-darwin/nix-darwin "GitHub"
                         style {
@@ -105,7 +105,7 @@ model {
                     }
 
                     nix-on-droid = component "Nix-on-Droid" {
-                    description: "NixOS for Android, based on Termux."
+                        description: "NixOS for Android, based on Termux."
                         link https://github.com/nix-community/nix-on-droid "GitHub"
                         icon tech:android
                         style {
@@ -115,7 +115,7 @@ model {
                     }
 
                     nixos-wsl = component "NixOS WSL" {
-                    description: "Windows Subsystem for Linux distribution via systemd workarounds."
+                        description: "Windows Subsystem for Linux distribution via systemd workarounds."
                         link https://github.com/nix-community/NixOS-WSL "GitHub"
                         icon https://raw.githubusercontent.com/nix-community/NixOS-WSL/refs/heads/main/assets/NixOS-WSL.svg
                         style {
@@ -126,7 +126,7 @@ model {
                 }
 
                 arch-linux = component "Arch Linux" {
-                description: "Lightweight and flexible GNU/Linux distribution that tries to Keep It Simple."
+                    description: "Lightweight and flexible GNU/Linux distribution that tries to Keep It Simple."
                     link https://archlinux.org "Website"
                     icon tech:arch-linux
                     style {
@@ -135,7 +135,7 @@ model {
                 }
 
                 athenaos = component "Athena OS" {
-                description: "Batteries-supercharged multi distro system for cybersecurity power users."
+                    description: "Batteries-supercharged multi distro system for cybersecurity power users."
                     link https://athenaos.org "Website"
                     icon https://athenaos.org/_astro/athena-dark.zw0VuR1C.svg
                     style {
@@ -145,7 +145,7 @@ model {
                 }
 
                 freebsd = component "FreeBSD" {
-                description: "UNIX-like operating system by the Berkeley Software Distribution, one of the only remaining open-source derivatives of AT&T's UNIX."
+                    description: "UNIX-like operating system by the Berkeley Software Distribution, one of the only remaining open-source derivatives of AT&T's UNIX."
                     link https://www.freebsd.org "Website"
                     link https://docs.freebsd.org/en/articles/explaining-bsd/ "Explaining BSD Article"
                     icon https://docs.freebsd.org/favicon.ico
@@ -175,15 +175,15 @@ model {
             }
 
             kernels = container "Kernels" {
-            style {
-            color: yellow
-            opacity: 40%
-}
+                style {
+                    color: yellow
+                    opacity: 40%
+                }
 
                 linux = container "Linux" {
-                    description: '''
+                    description: """
 UNIX-like kernel developed by [Linus Torvalds](https://en.wikipedia.org/wiki/Linus_Torvalds).
-'''
+"""
 
                     icon tech:linux
 
@@ -192,22 +192,55 @@ UNIX-like kernel developed by [Linus Torvalds](https://en.wikipedia.org/wiki/Lin
                         opacity: 40%
                     }
                     filesystem-hierarchy-standard = container "Filesystem Hierarchy Standard (FHS)" {
-                    style{
-                    color: yellow
-                    opacity: 40%
-}
-root = component "/" {
-description: "Root Directory"
-}
-home = component "/home" {
-description: "User home directories"
-}
-lib = component "/lib" {
-description: "Shared libraries"
-}
+                        style {
+                            color: yellow
+                            opacity: 40%
+                        }
+
+                        root = component "/" {
+                            description: "Root Directory"
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        bin = component "/bin" {
+                            description: """Essential command binaries needed in **single-user mode**, including to bring up the system or repair it, for all users (e.g., cat, ls, cp)."""
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        dev = component "/dev" {
+                            description: """Device files (e.g., `/dev/null`, `/dev/disk0`, `/dev/sda1`, `dev/tty`, `dev/random`)"""
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        etc = component "/etc" {
+                            description: "User home directories"
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        home = component "/home" {
+                            description: "User home directories"
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        lib = component "/lib" {
+                            description: "Shared libraries"
+                            style {
+                                color: yellow
+                            }
+                        }
 
 
-}
+                    }
                 }
 
                 bsd-unix = container "BSD UNIX" {
@@ -221,15 +254,15 @@ description: "Shared libraries"
                 }
             }
         }
-        userspaces ->  kernels "run on"
-        userspaces.arch-linux ->  kernels.linux
-        userspaces.athenaos ->  kernels.linux
-        userspaces.guix ->  kernels.linux
-        userspaces.nixos-raspberrypi ->  kernels.linux
-        userspaces.nix-on-droid ->  kernels.linux
-        userspaces.nixos-wsl ->  kernels.linux
-        userspaces.nix-darwin ->  kernels.bsd-unix
-        userspaces.freebsd ->  kernels.bsd-unix
+        userspaces -> kernels "run on"
+        userspaces.arch-linux -> kernels.linux
+        userspaces.athenaos -> kernels.linux
+        userspaces.guix -> kernels.linux
+        userspaces.nixos-raspberrypi -> kernels.linux
+        userspaces.nix-on-droid -> kernels.linux
+        userspaces.nixos-wsl -> kernels.linux
+        userspaces.nix-darwin -> kernels.bsd-unix
+        userspaces.freebsd -> kernels.bsd-unix
     }
 }
 
@@ -237,9 +270,9 @@ views {
 
     view index {
         title: "System Context"
-        description: '''
+        description: """
 **Top Level** overview.
-'''
+"""
         include *
     }
 
