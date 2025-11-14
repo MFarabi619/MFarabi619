@@ -3,6 +3,7 @@
   wayland.windowManager.hyprland = lib.mkIf pkgs.stdenv.isLinux {
     enable = true;
     package = null;
+
     xwayland = {
       enable = true;
     };
@@ -20,9 +21,6 @@
         "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
         "dbus-update-activation-environment --systemd --all"
         "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-        "$term --hold fastfetch"
-        "vivaldi"
-        "emacs -nw"
       ];
     };
 
@@ -55,8 +53,11 @@
       "$browser" = "vivaldi";
       "$menu" = "rofi -show drun";
 
-      # exec-once = [
-      # ];
+      exec-once = [
+        "$term --hold fastfetch"
+        "vivaldi"
+        # "emacs -nw"
+      ];
 
       bind = [
         # Apps
