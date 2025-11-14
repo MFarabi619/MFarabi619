@@ -1,15 +1,15 @@
 {
   imports = [
-    ./aerospace.nix
-    ./github-runners.nix
     ./ipfs.nix
-    ./jankyborders.nix
-    ./openssh.nix
     ./skhd.nix
-    ./karabiner-elements.nix
-    ./netdata.nix
-    ./tailscale.nix
     ./yabai.nix
+    ./openssh.nix
+    ./netdata.nix
     ./netbird.nix
+    ./aerospace.nix
+    ./tailscale.nix
+    ./jankyborders.nix
+    ./github-runners.nix
+    ./karabiner-elements.nix
   ];
 }

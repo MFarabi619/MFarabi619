@@ -1,6 +1,6 @@
 {
   services.ipfs = {
-    enable = true;
+    enable = false;
     enableGarbageCollection = true;
   };
 }

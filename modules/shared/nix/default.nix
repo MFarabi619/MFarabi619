@@ -1,3 +1,0 @@
-{
-  imports = [ ./settings.nix ];
-}

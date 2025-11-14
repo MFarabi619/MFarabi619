@@ -1,6 +1,9 @@
 # This is your nixos configuration.
 # For home configuration, see /modules/home/*
-{ flake, ... }:
+{
+  flake,
+  ...
+}:
 {
   imports = [
     # flake.inputs.self.nixosModules.default
@@ -13,7 +16,6 @@
     ./i18n.nix
     ./myusers.nix
     ./networking.nix
-    ./nix.nix
     ./programs.nix
     ./security.nix
     ./systemd.nix

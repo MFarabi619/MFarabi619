@@ -2,19 +2,22 @@
 # For home configuration, see /modules/home/*
 {
   imports = [
-    ./myusers.nix
-    ./documentation.nix
-    ./environment.nix
-    ./fonts.nix
-    ./homebrew.nix
-    ./launchd.nix
-    ./networking.nix
-    ./nixpkgs.nix
-    ./power.nix
-    ../nixos/fonts.nix
-    ./security.nix
     ./services
+
+    ./power.nix
+    ./fonts.nix
     ./system.nix
     ./stylix.nix
+    ./nixpkgs.nix
+    ./launchd.nix
+    ./security.nix
+    ./homebrew.nix
+    ./networking.nix
+    ./environment.nix
+    ./documentation.nix
+    ./linux-builder.nix
+
+    ../nixos/fonts.nix
+    ../nixos/myusers.nix
   ];
 }
