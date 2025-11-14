@@ -5,10 +5,10 @@
 }:
 {
   services.jellyfin-mpv-shim = lib.mkIf pkgs.stdenv.isLinux {
-   enable = true;
+    enable = false;
     settings = {
-     auto_play = true;
-     fullscreen = true;
+      auto_play = true;
+      fullscreen = true;
     };
     # mpvConfig = {};
     mpvBindings = {
