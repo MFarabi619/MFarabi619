@@ -46,9 +46,7 @@
 
     docs = {
       description = " 📚 RTFM";
-      exec = ''
-        pnpx likec4 start
-      '';
+      exec = "pnpx likec4 start ${config.git.root}/docs";
     };
 
     console = {
