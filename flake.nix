@@ -36,8 +36,6 @@
     nix-doom-emacs-unstraightened.url = "github:marienz/nix-doom-emacs-unstraightened";
     nix-doom-emacs-unstraightened.inputs.nixpkgs.follows = "";
 
-    # nvf.url = "github:notashelf/nvf";
-    # nvf.inputs.nixpkgs.follows = "nixpkgs";
     lazyvim.url = "github:pfassina/lazyvim-nix";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
