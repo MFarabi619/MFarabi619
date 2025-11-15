@@ -26,7 +26,7 @@
       description = " 💊 Run Microdoctor health-check suite with docs output";
       exec = ''
         figlet -cf slant "💊 Microdoctor";
-        shellspec -c "${config.env.DEVENV_ROOT}/tests" --quiet "$@";
+        shellspec -c "${config.git.root}/tests" --quiet "$@";
       '';
     };
 
@@ -50,6 +50,9 @@
     };
 
     console = {
+      packages = with pkgs; [
+        ttyd
+      ];
       description = "🕹  Fire up the Microvisor Console";
       exec = ''
         ttyd --writable --browser --url-arg --once process-compose
@@ -58,17 +61,26 @@
 
     di = {
       description = "      ⌨ Reload devenv";
-      exec = "set -ex; direnv reload";
+      exec = ''
+        set -ex
+        direnv reload
+      '';
     };
 
     dn = {
       description = "     💥 Nuke & reload devenv";
-      exec = "set -ex; git clean -fdX -e '!.env*'";
+      exec = ''
+        set -ex
+        git clean -fdX -e '!.env*'
+      '';
     };
 
     clean = {
       description = "  🧽 Remove all files matched by .gitignore (except any .env*)";
-      exec = "set -ex; git clean -fdX -e '!.env*' -e '!.devenv*' -e '!.direnv*'";
+      exec = ''
+        set -ex;
+        git clean -fdX -e '!.env*' -e '!.devenv*' -e '!.direnv*'
+      '';
     };
 
     nuke = {
