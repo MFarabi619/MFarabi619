@@ -11,7 +11,7 @@
     ../../../modules/nixos/hardware.nix
     ../../../modules/nixos/i18n.nix
     ../../../modules/nixos/networking.nix
-    ../../../modules/nixos/nix.nix
+    # ../../../modules/nixos/nix.nix
     ../../../modules/nixos/programs.nix
     ../../../modules/nixos/security.nix
     ../../../modules/nixos/systemd.nix
