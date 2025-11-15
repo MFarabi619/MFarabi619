@@ -26,7 +26,7 @@
         host = "archlinux";
         checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "10.0.0.145";
+        hostname = "192.168.50.206";
         setEnv.TERM = "xterm-kitty";
       };
 
