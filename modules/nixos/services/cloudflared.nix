@@ -13,36 +13,30 @@
 
   services.cloudflared = {
     enable = true;
-    certificateFile = "/etc/cloudflared/tunnel.cert.pem";
+    # certificateFile = "/etc/cloudflared/tunnel.cert.pem";
 
     tunnels = {
       "nixos-server" = {
-        default = "http_status:404";
-        credentialsFile = "/etc/cloudflared/dc81f04d-07df-4704-abac-07ffabdc173c.json";
+        default = "http://127.0.0.1:80";
         # certificateFile = /tmp/test;
+        credentialsFile = "/etc/cloudflared/dc81f04d-07df-4704-abac-07ffabdc173c.json";
 
-        ingress = {
-          "ai.openws.org" = {
-            service = "http://0.0.0.0:7777";
-          };
+        originRequest = {
+          # caPool = "";
+          # proxyPort = 0;
+          # proxyType = "";
+          tlsTimeout = "10s";
+          # noTLSVerify = false;
+          tcpKeepAlive = "30s";
+          connectTimeout = "15s";
+          # httpHostHeader = "";
+          noHappyEyeballs = false;
+          keepAliveTimeout = "1m30s";
+          # proxyAddress = "127.0.0.1";
+          keepAliveConnections = 100;
+          disableChunkedEncoding = false;
+          # originServerName = "";
         };
-
-        # originRequest = {
-        #   caPool = "";
-        #   proxyPort = 0;
-        #   proxyType = "";
-        #   tlsTimeout = "10s";
-        #   noTLSVerify = false;
-        #   tcpKeepAlive = "30s";
-        #   connectTimeout = "30s";
-        #   httpHostHeader = "";
-        #   noHappyEyeballs = "false";
-        #   keepAliveTimeout = "1m30s";
-        #   proxyAddress = "127.0.0.1";
-        #   keepAliveConnections = 100;
-        #   disableChunkedEncoding = false;
-        #   originServerName = "";
-        # };
       };
     };
   };

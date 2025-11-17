@@ -13,16 +13,18 @@
     # indexFile = "";
     # enableSSL = true;
     # user = "root"; # NOTE necessary for login!
-    writeable = true;
+    writeable = false;
     # username = "";
     # passwordFile = pkgs.writeText "ttydpw" "";
     checkOrigin = false;
-    interface = "0.0.0.0";
-    entrypoint = [
-      "${pkgs.shadow}/bin/login"
-      # (lib.getExe pkgs.btop)
-    ];
+    interface = "127.0.0.1";
     # terminalType = "xterm-kitty";
+
+    entrypoint = [
+      # "${pkgs.shadow}/bin/login"
+      (lib.getExe pkgs.asciiquarium)
+    ];
+
     clientOptions = {
       fontSize = "16";
       enableSixel = "true";

@@ -1,15 +1,11 @@
-{
-  pkgs,
-  config,
-  ...
-}:
 let
   # NOTE: enormous thanks to blog post: aottr.dev/posts/2024/08/homelab-setting-up-caddy-reverse-proxy-with-ssl-on-nixos/
   certloc = "/var/lib/acme/openws.org";
+  # NOTE: TLS disabled as https is handled by cloudflare tunnel
   tlsConfig = ''
-    tls ${certloc}/cert.pem ${certloc}/key.pem {
-      protocols tls1.3
-    }
+    # tls ${certloc}/cert.pem ${certloc}/key.pem {
+    #   protocols tls1.3
+    # }
   '';
 in
 {
@@ -18,7 +14,7 @@ in
     email = "mfarabi619@gmail.com";
 
     virtualHosts = {
-      "openws.org" = {
+      "http://openws.org" = {
         extraConfig = ''
           root * /var/www/html
           file_server
@@ -26,7 +22,7 @@ in
         '';
       };
 
-      "docs.openws.org" = {
+      "http://docs.openws.org" = {
         extraConfig = ''
           root * /var/www/html/dist
           try_files {path} /index.html
@@ -40,37 +36,53 @@ in
         '';
       };
 
-      "ml.openws.org" = {
+      "http://ai.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://0.0.0.0:7777
+          reverse_proxy http://127.0.0.1:7777 {
+            header_down X-Real-IP {http.request.remote}
+            header_down X-Forwarded-For {http.request.remote}
+          }
           ${tlsConfig}
         '';
       };
 
-      "mirror.openws.org" = {
+      "http://demo.openws.org" = {
+        extraConfig = ''
+          reverse_proxy http://127.0.0.1:7681
+           ${tlsConfig}
+        '';
+      };
+
+      "http://mirror.openws.org" = {
         extraConfig = ''
           reverse_proxy http://192.168.50.142
           ${tlsConfig}
         '';
       };
 
-      "api.apidaesystems.ca" = {
+      "http://iot.apidaesystems.ca" = {
+        extraConfig = ''
+          reverse_proxy http://127.0.0.1:8080 {
+            header_down X-Real-IP {http.request.remote}
+            header_down X-Forwarded-For {http.request.remote}
+          }
+          ${tlsConfig}
+        '';
+      };
+
+      "http://demo.apidaesystems.ca" = {
         extraConfig = ''
           reverse_proxy http://192.168.50.16
           ${tlsConfig}
         '';
       };
 
-      "iot.apidaesystems.ca" = {
+      "http://tandemrobotics.ca" = {
         extraConfig = ''
-          reverse_proxy http://192.168.50.16
-          ${tlsConfig}
-        '';
-      };
-
-      "tandemrobotics.ca" = {
-        extraConfig = ''
-          reverse_proxy http://127.0.0.1:5150
+          reverse_proxy http://127.0.0.1:5150 {
+            header_down X-Real-IP {http.request.remote}
+            header_down X-Forwarded-For {http.request.remote}
+          }
           ${tlsConfig}
         '';
       };

@@ -4,26 +4,27 @@
 }:
 {
   services.netdata = {
-   enable = true;
-    package = pkgs.netdata.override {withCloudUi = true;};
-    # user = "netdata"; # default
-    # group = "netadata"; # default
+    enable = true;
     deadlineBeforeStopSec = 120;
     enableAnalyticsReporting = false;
+    package = pkgs.netdata.override { withCloudUi = true; };
+
     config = {
       global = {
-       "memory mode" = "ram";
-       "debug log" = "syslog";
-       "error log" = "syslog";
-       "access log" = "syslog";
+        "memory mode" = "ram";
+        "debug log" = "syslog";
+        "error log" = "syslog";
+        "access log" = "syslog";
       };
     };
+
     # configText = ''
     #   [global]
     #   debug log = syslog
     #   access log = syslog
     #   error log = syslog
     # '';
+
     python = {
       enable = true;
       # recommendedPythonPackages = false;
@@ -33,12 +34,13 @@
       #   dnspython
       # ];
     };
+
     # configDir = {};
-   # claimTokenFile = null;
-   # extraPluginPaths = ["/path/to/plugins.d"];
-   # extraNdsudoPackages = with pkgs; [
-   #   smartmontools
-   #   nvme-cli
-   # ];
+    # claimTokenFile = null;
+    # extraPluginPaths = ["/path/to/plugins.d"];
+    # extraNdsudoPackages = with pkgs; [
+    #   smartmontools
+    #   nvme-cli
+    # ];
   };
 }
