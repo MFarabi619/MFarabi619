@@ -1,6 +1,6 @@
 {
   services.nginx = {
-    enable = true;
+    enable = false;
     statusPage = true; # enable http://127.0.0.1:80/nginx_status
     virtualHosts = {
       "_" = {
@@ -15,7 +15,7 @@
         listen = [
           {
             addr = "0.0.0.0";
-            port = 80;
+            port = 90;
           }
         ];
       };

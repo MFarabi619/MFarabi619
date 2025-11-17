@@ -13,24 +13,20 @@
 
   services.cloudflared = {
     enable = true;
-    # certificateFile = /tmp/test;
+    certificateFile = "/etc/cloudflared/tunnel.cert.pem";
+
     tunnels = {
       "nixos-server" = {
         default = "http_status:404";
         credentialsFile = "/etc/cloudflared/dc81f04d-07df-4704-abac-07ffabdc173c.json";
         # certificateFile = /tmp/test;
+
         ingress = {
-          "openws.org" = "http://0.0.0.0:80";
           "ai.openws.org" = {
             service = "http://0.0.0.0:7777";
           };
-          # "api.openws.org" = {
-          #   service = "http://0.0.0.0:7681";
-          # };
-          "tandemrobotics.ca" = {
-            service = "http://0.0.0.0:5150";
-          };
         };
+
         # originRequest = {
         #   caPool = "";
         #   proxyPort = 0;

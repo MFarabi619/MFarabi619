@@ -18,7 +18,7 @@
         dnsPropagationCheck = true;
         dnsResolver = "1.1.1.1:53";
         extraDomainNames = [ "*.openws.org" ];
-        # group = config.services.caddy.group;
+        group = config.services.caddy.group;
         environmentFile = "/etc/cloudflared/.env";
       };
     };
