@@ -8,6 +8,8 @@
   imports = [
     # flake.inputs.self.nixosModules.default
     ./services
+    ./security
+
     ./console.nix
     ./environment.nix
     ./fonts.nix
@@ -17,7 +19,6 @@
     ./myusers.nix
     ./networking.nix
     ./programs.nix
-    ./security.nix
     ./systemd.nix
     ./time.nix
     ./virtualisation.nix

@@ -13,7 +13,7 @@
     ../../../modules/nixos/networking.nix
     # ../../../modules/nixos/nix.nix
     ../../../modules/nixos/programs.nix
-    ../../../modules/nixos/security.nix
+    ../../../modules/nixos/security
     ../../../modules/nixos/systemd.nix
     ../../../modules/nixos/time.nix
     ../../../modules/nixos/virtualisation.nix
