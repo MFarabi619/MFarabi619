@@ -69,11 +69,11 @@
       };
     };
 
-    treesitterParsers = with pkgs.tree-sitter-grammars; [
-      tree-sitter-nix
-      tree-sitter-kdl
-      tree-sitter-python
-    ];
+    # treesitterParsers = with pkgs.tree-sitter-grammars; [
+    #   tree-sitter-nix
+    #   tree-sitter-kdl
+    #   tree-sitter-python
+    # ];
 
     # extraPackages = with pkgs; [
     #   nixd
