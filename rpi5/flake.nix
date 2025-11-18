@@ -3,10 +3,15 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
     nix-doom-emacs-unstraightened.url = "github:marienz/nix-doom-emacs-unstraightened";
     nix-doom-emacs-unstraightened.inputs.nixpkgs.follows = "";
+
+    lazyvim.url = "github:pfassina/lazyvim-nix";
+
     stylix.url = "github:danth/stylix";
     stylix.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -30,6 +35,7 @@
 
       modules = [
         inputs.stylix.homeModules.stylix
+        inputs.lazyvim.homeManagerModules.default
         inputs.nix-doom-emacs-unstraightened.homeModule
 
         ({
@@ -42,6 +48,9 @@
           };
 
           imports = [
+            ../modules/home/programs/emacs
+            ../modules/home/programs/neovim
+
             ../modules/home/home.nix
             ../modules/home/services
             ../modules/home/fonts.nix
@@ -49,7 +58,6 @@
             ../modules/home/manual.nix
             ../modules/home/editorconfig.nix
 
-            ../modules/home/programs/emacs
             ../modules/home/programs/bat.nix
             ../modules/home/programs/btop.nix
             ../modules/home/programs/command-not-found.nix
