@@ -46,6 +46,7 @@
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "qemu"
+      "ferron"
       # "podman"
       "avr-gcc"
       "arm-none-eabi-gcc"
