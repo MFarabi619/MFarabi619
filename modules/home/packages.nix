@@ -63,9 +63,7 @@
         epub-thumbnailer # dired epub previews
         ffmpegthumbnailer
         # =============
-        tuntox           # collab
-        sqlite           # :tools lookup & :lang org +roam
-        ispell           # spelling
+        sqlite # :tools lookup & :lang org +roam
         gnuplot
         shellcheck       # shell script formatting
         octaveFull       # gnu octave

@@ -4,6 +4,7 @@
 }:
 {
   home.shellAliases.enw = "emacsclient -nw";
+
   programs.doom-emacs = {
     enable = true;
     doomDir = ./.;
@@ -20,6 +21,7 @@
         corfu
         corfu-terminal
         nerd-icons-corfu
+
         wttrin
         devdocs
         devdocs-browser
@@ -31,6 +33,8 @@
         nix-update
         nix-ts-mode
         all-the-icons
+
+        lsp-tailwindcss
         treesit-grammars.with-all-grammars
         # ================
         abc-mode
@@ -52,11 +56,20 @@
         chordpro-mode
         org-super-agenda
         # ================
-        catppuccin-theme
+        # catppuccin-theme
       ];
 
     # provideEmacs = false;
-    # extraBinPackages = with pkgs; [fd git ripgrep];
+    extraBinPackages = with pkgs; [
+      fd
+      git
+      ispell
+      tuntox # collab
+      semgrep
+      ripgrep
+      rustywind
+    ];
+
     # experimentalFetchTree = true;
   };
 
