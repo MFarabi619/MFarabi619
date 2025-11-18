@@ -6,97 +6,109 @@
     # extraOptionOverrides = {};
 
     matchBlocks = {
-      # nixbuild = {
-      #   checkHostIP = false;
-      #   identitiesOnly = true;
-      #   addKeysToAgent = "yes";
-      #   host = "eu.nixbuild.net";
-      #   serverAliveInterval = 60;
-      #   hostname = "eu.nixbuild.net";
-      #   identityFile = [ "~/.ssh/my-nixbuild-key" ];
-      #   extraOptions = {
-      #     PubkeyAcceptedKeyTypes = "ssh-ed25519";
-      #     IPQoS = "throughput";
-      #   };
-      # };
-
-      archlinux = {
-        port = 22;
-        user = "mfarabi";
-        host = "archlinux";
-        checkHostIP = true;
+      RT-BE88U-7A50 = {
+        user = "admin";
+        host = "RT-BE88U-7A50";
         addKeysToAgent = "yes";
-        hostname = "192.168.50.206";
-        setEnv.TERM = "xterm-kitty";
+        hostname = "rt-be88u-7a50.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
       };
 
       macos = {
-        port = 22;
         host = "macos";
         user = "mfarabi";
-        checkHostIP = true;
         addKeysToAgent = "yes";
         hostname = "192.168.50.151";
         setEnv.TERM = "xterm-kitty";
       };
 
-      macos-intel = {
-        port = 22;
-        host = "macos-intel";
+      hp-elitebook-820-g2 = {
+        host = "hp-elitebook-820-g2";
         user = "mfarabi";
-        checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "192.168.50.141";
+        hostname = "hp-elitebook-820-g2.taila4d019.ts.net";
         setEnv.TERM = "xterm-kitty";
       };
 
-      freebsd = {
-        port = 22;
-        host = "freebsd";
+      macbook = {
         user = "mfarabi";
-        checkHostIP = true;
+        host = "guix";
         addKeysToAgent = "yes";
-        hostname = "192.168.50.142";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      nixos = {
-        port = 22;
-        host = "nixos";
-        user = "mfarabi";
-        checkHostIP = true;
-        addKeysToAgent = "yes";
-        hostname = "192.168.64.6";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      nixos-server = {
-        port = 22;
-        user = "mfarabi";
-        host = "nixos-server";
-        checkHostIP = true;
-        addKeysToAgent = "yes";
-        hostname = "192.168.50.254";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      router = {
-        port = 22;
-        user = "admin";
-        host = "router";
-        checkHostIP = true;
-        addKeysToAgent = "yes";
-        hostname = "192.168.50.1";
+        hostname = "macbook.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
       };
 
-      rpi5 = {
+      macbook-11-4 = {
+        host = "macbook-11-4";
+        user = "mfarabi";
+        addKeysToAgent = "yes";
+        hostname = "macbook-11-4.taila4d019.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      msi-gs65 = {
+        host = "msi-gs65";
+        user = "mfarabi";
+        addKeysToAgent = "yes";
+        hostname = "msi-gs65.taila4d019.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      msi-gs76 = {
+        host = "msi-gs76";
+        user = "mfarabi";
+        addKeysToAgent = "yes";
+        hostname = "msi-gs76.taila4d019.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      framework-16 = {
+        user = "mfarabi";
+        host = "framework-16";
+        addKeysToAgent = "yes";
+        hostname = "framework-16.taila4d019.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      framework-desktop = {
+        user = "mfarabi";
+        host = "framework-desktop";
+        addKeysToAgent = "yes";
+        hostname = "nixos-server.taila4d019.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      surface-pro-7 = {
+        user = "mfarabi";
+        host = "surface-pro-7";
+        addKeysToAgent = "yes";
+        hostname = "surface-pro-7.taila4d019.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      rpi5-4 = {
+        host = "rpi5-4";
+        user = "mfarabi";
+        addKeysToAgent = "yes";
+        hostname = "rpi5-4.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
+      rpi5-8 = {
+        host = "rpi5-8";
+        user = "mfarabi";
+        addKeysToAgent = "yes";
+        hostname = "rpi5-8.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
+      rpi5-16 = {
         port = 22;
-        host = "rpi5";
+        host = "rpi5-16";
         user = "mfarabi";
         checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "192.168.50.241";
+        hostname = "rpi5-16.taila4d019.ts.net";
         setEnv = {
           TERM = "xterm-256color";
         };
@@ -161,6 +173,20 @@
         #     };
         #   }
         # ];
+
+        # nixbuild = {
+        #   checkHostIP = false;
+        #   identitiesOnly = true;
+        #   addKeysToAgent = "yes";
+        #   host = "eu.nixbuild.net";
+        #   serverAliveInterval = 60;
+        #   hostname = "eu.nixbuild.net";
+        #   identityFile = [ "~/.ssh/my-nixbuild-key" ];
+        #   extraOptions = {
+        #     PubkeyAcceptedKeyTypes = "ssh-ed25519";
+        #     IPQoS = "throughput";
+        #   };
+        # };
       };
     };
   };
