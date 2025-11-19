@@ -1,10 +1,19 @@
-{ pkgs, lib, ... }:
+{ pkgs,
+  lib,
+  ...
+}:
 {
   programs.zsh = {
     enable = true;
     autocd = false;
     enableCompletion = true;
-    shellAliases.mkdir = "mkdir -p";
+    shellAliases = {
+      n = "nvim";
+      lg = "lazygit";
+      e = "emacs -nw";
+      lsh = "lazyssh";
+      mkdir = "mkdir -p";
+    };
 
     history = {
       size = 10000;

@@ -3,7 +3,6 @@
   ...
 }:
 {
-  home.shellAliases.lg = "lazygit";
   programs.lazygit = {
     enable = true;
     settings = {
@@ -21,9 +20,9 @@
 
       os = {
         editInTerminal = true;
-        edit = "emacsclient -nw {{filename}}";
-        openDirInEditor = "emacsclient -nw {{dir}}";
-        editAtLine = "emacsclient -nw +{{line}} {{filename}}";
+        edit = "emacs -nw {{filename}}";
+        openDirInEditor = "emacs -nw {{dir}}";
+        editAtLine = "emacs -nw +{{line}} {{filename}}";
       };
 
       git = {

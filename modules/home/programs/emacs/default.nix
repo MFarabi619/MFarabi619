@@ -3,7 +3,7 @@
   ...
 }:
 {
-  home.shellAliases.enw = "emacsclient -nw";
+  home.shellAliases.enw = "emacs -nw";
 
   programs.doom-emacs = {
     enable = true;
