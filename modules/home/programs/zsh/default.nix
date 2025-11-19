@@ -1,4 +1,5 @@
-{ pkgs,
+{
+  pkgs,
   lib,
   ...
 }:
@@ -7,12 +8,13 @@
     enable = true;
     autocd = false;
     enableCompletion = true;
+
     shellAliases = {
       n = "nvim";
       lg = "lazygit";
-      e = "emacs -nw";
       lsh = "lazyssh";
       mkdir = "mkdir -p";
+      e = "emacsclient -t";
     };
 
     history = {
@@ -26,7 +28,6 @@
       expireDuplicatesFirst = true;
       # path = "`\${config.programs.zsh.dotDir}/.zsh_history`"; # default
     };
-
 
     autosuggestion = {
       enable = true;

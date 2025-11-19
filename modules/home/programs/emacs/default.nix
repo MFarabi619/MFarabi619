@@ -3,8 +3,6 @@
   ...
 }:
 {
-  home.shellAliases.enw = "emacs -nw";
-
   programs.doom-emacs = {
     enable = true;
     doomDir = ./.;
@@ -75,12 +73,18 @@
 
   services.emacs = {
     enable = true;
+    defaultEditor = false;
+    socketActivation.enable = true;
+
+    # extraOptions = [
+    #   "TERM=xterm-kitty"
+    # ];
+
     client = {
       enable = true;
-      # arguments = [];
+      # arguments = [
+      #   "--tty"
+      # ];
     };
-    defaultEditor = false;
-    # extraOptions = [ "-nw" ];
-    socketActivation.enable = true;
   };
 }
