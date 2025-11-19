@@ -4,8 +4,9 @@
     enable = true;
     icons = "auto";
     colors = "always";
-    enableBashIntegration = true;
     enableZshIntegration = true;
+    enableBashIntegration = true;
+
     extraOptions = [
       "--group-directories-first"
       "--no-quotes"

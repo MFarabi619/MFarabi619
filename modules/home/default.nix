@@ -3,6 +3,7 @@
     ./programs
     ./services
     ./targets
+
     ./editorconfig.nix
     ./fonts.nix
     ./home.nix

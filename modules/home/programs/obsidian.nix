@@ -1,44 +1,44 @@
 {
   programs.obsidian = {
     enable = false;
-    defaultSettings = {
-      communityPlugins = [
+    vaults = { };
 
-      ];
-      corePlugins = [
-        "backlink"
-        "bookmarks"
-        "canvas"
-        "command-palette"
-        "daily-notes"
-        "editor-status"
-        "file-explorer"
-        "file-recovery"
-        "global-search"
-        "graph"
-        "markdown-importer"
-        "note-composer"
-        "outgoing-link"
-        "outline"
-        "page-preview"
-        "properties"
-        "publish"
-        "random-note"
-        "slash-command"
-        "slides"
-        "switcher"
-        "tag-pane"
-        "templates"
-        "word-count"
-        "workspaces"
-      ];
+    defaultSettings = {
       app = { };
       appearance = { };
       hotkeys = { };
       themes = [ ];
       extraFiles = { };
       cssSnippets = [ ];
+      communityPlugins = [ ];
+
+      corePlugins = [
+        "graph"
+        "canvas"
+        "slides"
+        "publish"
+        "outline"
+        "backlink"
+        "switcher"
+        "tag-pane"
+        "bookmarks"
+        "templates"
+        "word-count"
+        "properties"
+        "workspaces"
+        "random-note"
+        "daily-notes"
+        "page-preview"
+        "editor-status"
+        "file-explorer"
+        "file-recovery"
+        "global-search"
+        "slash-command"
+        "note-composer"
+        "outgoing-link"
+        "command-palette"
+        "markdown-importer"
+      ];
     };
-    vaults = { };
   };
 }

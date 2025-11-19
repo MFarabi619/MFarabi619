@@ -10,7 +10,6 @@
 
     # themeFile = "SpaceGray_Eighties";
 
-
     keybindings = {
       "ctrl+shift+v" = "paste_from_selection";
       "ctrl+c" = "copy_and_clear_or_interrupt";

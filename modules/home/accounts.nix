@@ -2,6 +2,7 @@
   accounts = {
     email = {
      maildirBasePath = "Maildir"; # default
+
      accounts = {
        Gmail = {
        enable = true;
@@ -14,6 +15,7 @@
        smtp.host = "smtp.gmail.com";
        address = "mfarabi619@gmail.com";
        userName = "mfarabi619@gmail.com";
+
        signature = {
          text = ''
          Warm regards,
@@ -61,9 +63,11 @@
      accounts = {
       mfarabi = {
         khard.enable = false;
+
         local ={
          type = "filesystem";
         };
+
         remote = {
          userName = "mfarabi";
           url = "";

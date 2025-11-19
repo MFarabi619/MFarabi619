@@ -9,6 +9,7 @@
       highlight = true;
       keybindings = "vi";
       model = "ollama:gpt-oss:20b";
+
       clients = [
         {
           name = "ollama";

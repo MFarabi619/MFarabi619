@@ -32,24 +32,30 @@
 
       provider = {
         ollama = {
-          npm = "@ai-sdk/openai-compatible";
           name = "Ollama";
+          npm = "@ai-sdk/openai-compatible";
+
           "options" = {
             "baseURL" = "http://localhost:11434/v1";
           };
+
           models = {
             "gpt-oss:20b" = {
               name = "gpt-oss:20b";
             };
+
             "gpt-oss:120b" = {
               name = "gpt-oss:120b";
             };
+
             "phind-codellama:34b" = {
               name = "phind-codellama:34b";
             };
+
             "qwen2.5-coder:32b" = {
               name = "qwen2.5-coder:32b";
             };
+
             "codellama:70b" = {
               name = "codellama:70b";
             };
