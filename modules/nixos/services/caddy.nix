@@ -110,7 +110,7 @@ in
 
       "http://iot.apidaesystems.ca" = {
         extraConfig = ''
-          reverse_proxy http://${config.services.anubis.instances.iot.settings.BIND} {
+          reverse_proxy http://127.0.0.1:8080 {
             ${clientIp}
           }
           ${tlsConfig}

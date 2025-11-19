@@ -42,13 +42,13 @@
         };
       };
 
-      iot = {
-        settings = {
-          BIND = ":8079";
-          TARGET = "http://127.0.0.1:8080";
-          METRICS_BIND = "127.0.0.1:8081";
-        };
-      };
+      # iot = {
+      #   settings = {
+      #     BIND = ":8079";
+      #     TARGET = "http://127.0.0.1:8080";
+      #     METRICS_BIND = "127.0.0.1:8081";
+      #   };
+      # };
 
       tandemrobotics = {
         settings = {
