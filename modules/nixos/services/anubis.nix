@@ -17,13 +17,13 @@
         };
       };
 
-      demo = {
-        settings = {
-          BIND = ":7680";
-          TARGET = "http://192.168.50.242:7681";
-          METRICS_BIND = "127.0.0.1:7682";
-        };
-      };
+      # nixos = {
+      #   settings = {
+      #     BIND = ":7680";
+      #     TARGET = "http://127.0.0.1:7681";
+      #     METRICS_BIND = "127.0.0.1:7682";
+      #   };
+      # };
 
       mirror = {
         settings = {

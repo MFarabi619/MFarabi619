@@ -22,6 +22,7 @@
 
     entrypoint = [
       # "${pkgs.shadow}/bin/login"
+      # (lib.getExe pkgs.fastfetch)
       (lib.getExe pkgs.asciiquarium)
     ];
 

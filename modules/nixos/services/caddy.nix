@@ -11,6 +11,7 @@ let
     #   protocols tls1.3
     # }
   '';
+
   clientIp = ''
     header_up X-Forwarded-For {client_ip}
     header_up X-Real-IP {client_ip}
@@ -73,7 +74,16 @@ in
 
       "http://demo.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://127.0.0.1${config.services.anubis.instances.demo.settings.BIND} {
+          reverse_proxy http://127.0.0.1:7681 {
+            ${clientIp}
+          }
+           ${tlsConfig}
+        '';
+      };
+
+      "http://rpi5.openws.org" = {
+        extraConfig = ''
+          reverse_proxy http://192.168.50.122:7681 {
             ${clientIp}
           }
            ${tlsConfig}
