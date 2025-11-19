@@ -1,8 +1,12 @@
 {
   imports = [
+    ./neovim
+    ./emacs
+    ./vivaldi
+    ./zsh
+
     ./atuin.nix
     ./aichat.nix
-    ./emacs
     ./bash.nix
     ./bat.nix
     ./btop.nix
@@ -42,7 +46,7 @@
     ./mcp.nix
     ./mpv.nix
     ./mu.nix
-    ./neovim
+    ./neomutt.nix
     ./nh.nix
     ./nix-index.nix
     ./nix-search-tv.nix
@@ -66,12 +70,10 @@
     ./tmux.nix
     ./uv.nix
     ./vim.nix
-    ./vivaldi
     ./vscode.nix
     ./yazi.nix
     ./zed.nix
     ./zellij.nix
     ./zoxide.nix
-    ./zsh
   ];
 }

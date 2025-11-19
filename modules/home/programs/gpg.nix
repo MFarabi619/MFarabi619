@@ -1,13 +1,16 @@
 {
   programs.gpg = {
     enable = true;
-    # homedir = "${config.home.homeDirectory}/.gnupg"; # default
+    mutableKeys = true;
+    mutableTrust = true;
     # settings = {};
     # scdaemonSettings = { };
-    mutableKeys = true; # default
-    mutableTrust = true; # default
+
     publicKeys = [
-      # { source = ./pubkeys.txt; }
+      {
+        source = ../gpg-public.asc;
+        trust = "ultimate";
+      }
     ];
   };
 }

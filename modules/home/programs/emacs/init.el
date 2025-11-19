@@ -252,7 +252,6 @@
        (mu4e
         +gmail
         +mbsync
-        ;; +offlineimap
         +org)
        ;;notmuch
        ;;(wanderlust +gmail)

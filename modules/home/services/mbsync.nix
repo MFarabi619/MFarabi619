@@ -7,9 +7,8 @@
   services.mbsync = lib.mkIf pkgs.stdenv.isLinux {
    enable = true;
    verbose = true;
-   frequency = "*:0/5";
-   # postkexec = "\${pkgs.mu}/bin/mu index";
-   # configFile = "~/.mbsyncrc";
-   # preExec = "mkdir -p %hmail";
+   frequency = "*:0/15";
+   preExec = "${pkgs.isync}/bin/mbsync -Ha";
+   postExec = "${pkgs.mu}/bin/mu index -m /home/mfarabi/Maildir";
   };
 }

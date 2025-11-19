@@ -4,6 +4,7 @@
     ./services
     ./targets
 
+    ./accounts.nix
     ./editorconfig.nix
     ./fonts.nix
     ./home.nix
