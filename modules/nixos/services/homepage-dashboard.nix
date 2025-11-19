@@ -4,17 +4,17 @@
     listenPort = 8088;
     openFirewall = false;
     # environmentFile = "";
-    allowedHosts = "homepage.openws.org";
+    allowedHosts = "openws.org";
 
     settings = {
       theme = "dark";
       cardBlur = "3xl";
       title = "🕹️ Microvisor Systems 🕹️";
       description = "🤖 Beep boop, from bootloader to browser 🤖";
-      favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/6d07d279751dbb489f26b921b170d646f48422bc/assets/nix-mfarabi.svg";
+      favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
 
       background = {
-        image = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
+        image = "https://github.com/MFarabi619/MFarabi619/blob/main/assets/homepage-background.png?raw=true";
       };
 
       quicklaunch = {

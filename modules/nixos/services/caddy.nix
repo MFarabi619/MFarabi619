@@ -41,11 +41,20 @@ in
     '';
 
     virtualHosts = {
+      # "http://openws.org" = {
+      #   extraConfig = ''
+      #     root * /var/www/html
+      #     file_server
+      #     ${tlsConfig}
+      #   '';
+      # };
+
       "http://openws.org" = {
         extraConfig = ''
-          root * /var/www/html
-          file_server
-          ${tlsConfig}
+          reverse_proxy http://${config.services.anubis.instances.index.settings.BIND} {
+            ${clientIp}
+          }
+           ${tlsConfig}
         '';
       };
 
@@ -96,15 +105,6 @@ in
             ${clientIp}
           }
           ${tlsConfig}
-        '';
-      };
-
-      "http://homepage.openws.org" = {
-        extraConfig = ''
-          reverse_proxy http://${config.services.anubis.instances.homepage.settings.BIND} {
-            ${clientIp}
-          }
-           ${tlsConfig}
         '';
       };
 
