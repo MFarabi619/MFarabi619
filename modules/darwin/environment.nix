@@ -4,6 +4,8 @@
 }:
 {
   environment = {
+    enableAllTerminfo = true;
+
     systemPackages =
       with pkgs;
       [
@@ -12,7 +14,7 @@
         alt-tab-macos
         kanata-with-cmd
       ]
-      ++ lib.optionals (stdenv.isAarch64) [
+      ++ lib.optionals stdenv.isAarch64 [
         macmon
       ];
 
