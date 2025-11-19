@@ -14,41 +14,41 @@
         setEnv.TERM = "xterm-256color";
       };
 
-      macos = {
-        host = "macos";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "192.168.50.151";
-        setEnv.TERM = "xterm-kitty";
-      };
-
       hp-elitebook-820-g2 = {
-        host = "hp-elitebook-820-g2";
         user = "mfarabi";
+        host = "hp-elitebook-820-g2";
         addKeysToAgent = "yes";
         hostname = "hp-elitebook-820-g2.taila4d019.ts.net";
         setEnv.TERM = "xterm-kitty";
       };
 
-      macbook = {
-        user = "mfarabi";
+      macbook-5-5 = {
         host = "guix";
+        user = "mfarabi";
         addKeysToAgent = "yes";
-        hostname = "macbook.taila4d019.ts.net";
+        hostname = "macbook-5-5.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
       };
 
       macbook-11-4 = {
-        host = "macbook-11-4";
         user = "mfarabi";
+        host = "macbook-11-4";
         addKeysToAgent = "yes";
         hostname = "macbook-11-4.taila4d019.ts.net";
         setEnv.TERM = "xterm-kitty";
       };
 
-      msi-gs65 = {
-        host = "msi-gs65";
+      macbook-16-5 = {
+        host = "macos";
         user = "mfarabi";
+        addKeysToAgent = "yes";
+        hostname = "macbook-16-5.taila4d019.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
+      msi-gs65 = {
+        user = "mfarabi";
+        host = "msi-gs65";
         addKeysToAgent = "yes";
         hostname = "msi-gs65.taila4d019.ts.net";
         setEnv.TERM = "xterm-kitty";
