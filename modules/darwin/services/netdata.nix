@@ -4,7 +4,7 @@
 }:
 {
   services.netdata = {
-    enable = true;
+    enable = false;
 
     logDir = "/var/log/netdata"; # default
     workDir = "/var/lib/netdata"; # default
