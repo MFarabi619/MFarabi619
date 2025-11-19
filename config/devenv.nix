@@ -27,7 +27,7 @@
   '';
 
   enterShell = ''
-    devenv info
+    # devenv info
     hello
   '';
 
