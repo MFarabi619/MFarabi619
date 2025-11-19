@@ -9,13 +9,13 @@
     };
 
     instances = {
-      ai = {
-        settings = {
-          BIND = ":7776";
-          TARGET = "http://127.0.0.1:7777";
-          METRICS_BIND = "127.0.0.1:7778";
-        };
-      };
+      # ai = {
+      #   settings = {
+      #     BIND = ":7776";
+      #     TARGET = "http://127.0.0.1:7777";
+      #     METRICS_BIND = "127.0.0.1:7778";
+      #   };
+      # };
 
       # nixos = {
       #   settings = {

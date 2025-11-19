@@ -65,7 +65,7 @@ in
 
       "http://ai.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://127.0.0.1${config.services.anubis.instances.ai.settings.BIND} {
+          reverse_proxy http://127.0.0.1:7777 {
             ${clientIp}
           }
           ${tlsConfig}

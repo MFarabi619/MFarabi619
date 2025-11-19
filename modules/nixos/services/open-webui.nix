@@ -76,7 +76,7 @@
       # ========= 📋 CODE INTERPRETER 📋 ============= #
       # ============================================== #
 
-      ENABLE_CODE_INTERPRETER = "True";
+      ENABLE_CODE_INTERPRETER = "False";
       CODE_INTERPRETER_ENGINE = "pyodide";
 
       # ============================================== #
