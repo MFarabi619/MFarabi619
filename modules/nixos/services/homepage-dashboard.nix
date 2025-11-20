@@ -1,5 +1,24 @@
 {
+  pkgs,
+  ...
+}:
+let
+  background = pkgs.fetchurl {
+    name = "homepage-background.png";
+    url = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
+    hash = "sha256-01vx98qijcsc1nqank2chdiq6zj0gp6zifjncv4368zblys51i65";
+  };
+
+  package = pkgs.homepage-dashboard.overrideAttrs (oldAttrs: {
+    postInstall = ''
+      mkdir -p $out/share/homepage/public/images
+      ln -s ${background} $out/share/homepage/public/images/homepage-background.png
+    '';
+  });
+in
+{
   services.homepage-dashboard = {
+    # inherit package;
     enable = true;
     listenPort = 8088;
     openFirewall = false;
@@ -11,12 +30,10 @@
       cardBlur = "3xl";
       useEqualHeights = true;
       title = "🕹️ Microvisor Systems 🕹️";
+      # background = "/images/homepage-background.png";
+      background = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
       description = "🤖 Beep boop, from bootloader to browser 🤖";
       favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
-
-      background = {
-        image = "https://github.com/MFarabi619/MFarabi619/blob/main/assets/homepage-background.png?raw=true";
-      };
 
       quicklaunch = {
         provider = "google";
@@ -64,6 +81,11 @@
           diskUnits = "bytes";
         };
       }
+      # {
+      #   caddy = {
+      #     url = "https://openws.org";
+      #   };
+      # }
     ];
 
     services = [
@@ -107,20 +129,85 @@
         ];
       }
       {
-        "🤖 AI/ML" = [
+        "Services" = [
           {
-            "Open WebUI" = {
-              href = "https://ai.openws.org";
-              siteMonitor = "https://ai.openws.org";
-              icon = "https://avatars.githubusercontent.com/u/158137808?s=200&v=4";
-            };
+            "🤖 AI/ML" = [
+              {
+                "Open WebUI" = {
+                  href = "https://ai.openws.org";
+                  siteMonitor = "https://ai.openws.org";
+                  icon = "https://avatars.githubusercontent.com/u/158137808?s=200&v=4";
+                };
+              }
+              {
+                "🏗️ LLM Gateway" = {
+                  href = "https://llmgateway.io";
+                  icon = "https://raw.githubusercontent.com/theopenco/llmgateway/refs/heads/main/apps/docs/public/favicon/android-chrome-512x512.png";
+                };
+              }
+              {
+                "🏗️ Burn" = {
+                  href = "https://burn.dev";
+                  icon = "https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png";
+                };
+              }
+            ];
           }
           {
-            "LLM Gateway" = {
-              href = "https://llm-gateway.openws.org";
-              # siteMonitor = "https://llm-gateway.openws.org";
-              icon = "https://raw.githubusercontent.com/theopenco/llmgateway/refs/heads/main/apps/docs/public/favicon/android-chrome-512x512.png";
-            };
+            "🚜 IoT & Robotics" = [
+              {
+                "ThingsBoard" = {
+                  href = "https://iot.apidaesystems.ca";
+                  siteMonitor = "https://iot.apidaesystems.ca";
+                  icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/thingsboard.svg";
+                  server = "github-kafka-1";
+                };
+              }
+            ];
+          }
+          {
+            "🔐 Security" = [
+              {
+                "🏗️ Authentik" = {
+                  href = "https://goauthentik.io";
+                  icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authentik.svg";
+                };
+              }
+            ];
+          }
+          {
+            "🚢 CI/CD" = [
+              {
+                "🔬 Dokploy" = {
+                  href = "https://dokploy.com";
+                  icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/dokploy.svg";
+                };
+              }
+              {
+                "🏗️ Kubernetes" = {
+                  href = "https://kubernetes.io";
+                  icon = "https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg";
+                };
+              }
+            ];
+          }
+          {
+            "🛖 Userspace Environments" = [
+              {
+                "Emacs - Doom" = {
+                  href = "https://emacs.openws.org";
+                  siteMonitor = "https://emacs.openws.org";
+                  icon = "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png";
+                };
+              }
+              {
+                "Neovim - Lazyvim" = {
+                  href = "https://neovim.openws.org";
+                  siteMonitor = "https://neovim.openws.org";
+                  icon = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg";
+                };
+              }
+            ];
           }
         ];
       }
@@ -206,24 +293,49 @@
           }
         ];
       }
+    ];
+
+    bookmarks = [
       {
-        "🛖 Userspace Environments" = [
+        Developer = [
           {
-            "Emacs - Doom" = {
-              href = "https://emacs.openws.org";
-              siteMonitor = "https://emacs.openws.org";
-              icon = "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png";
-            };
+            Github = [
+              {
+                icon = "github.png";
+                href = "https://github.com/MFarabi619";
+              }
+            ];
           }
+        ];
+      }
+      {
+        Social = [
           {
-            "Neovim - Lazyvim" = {
-              href = "https://neovim.openws.org";
-              siteMonitor = "https://neovim.openws.org";
-              icon = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg";
-            };
+            LinkedIn = [
+              {
+                icon = "linkedin.png";
+                href = "https://linkedin.com/company/microvisor-systems";
+              }
+            ];
           }
         ];
       }
     ];
+
+    customCSS = ''
+      .information-widget-greeting span {
+        background: linear-gradient(
+          90deg,
+          #ffd200 0%,
+          #ec8c78 33%,
+          #e779c1 67%,
+          #58c7f3 100%
+        );
+
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+    '';
   };
 }
