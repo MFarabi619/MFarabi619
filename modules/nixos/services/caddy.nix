@@ -54,6 +54,11 @@ in
           reverse_proxy http://${config.services.anubis.instances.index.settings.BIND} {
             ${clientIp}
           }
+
+          handle /grafana* {
+            reverse_proxy http://127.0.0.1:3000
+          }
+
            ${tlsConfig}
         '';
       };

@@ -7,7 +7,10 @@
     enable = true;
     deadlineBeforeStopSec = 120;
     enableAnalyticsReporting = false;
-    package = pkgs.netdata.override { withCloudUi = true; };
+
+    package = pkgs.netdata.override {
+      withCloudUi = true;
+    };
 
     config = {
       global = {
