@@ -114,6 +114,13 @@
               icon = "https://avatars.githubusercontent.com/u/158137808?s=200&v=4";
             };
           }
+          {
+            "LLM Gateway" = {
+              href = "https://llm-gateway.openws.org";
+              # siteMonitor = "https://llm-gateway.openws.org";
+              icon = "https://raw.githubusercontent.com/theopenco/llmgateway/refs/heads/main/apps/docs/public/favicon/android-chrome-512x512.png";
+            };
+          }
         ];
       }
       {
