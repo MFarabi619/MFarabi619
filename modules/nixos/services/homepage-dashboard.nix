@@ -9,6 +9,7 @@
     settings = {
       theme = "dark";
       cardBlur = "3xl";
+      useEqualHeights = true;
       title = "🕹️ Microvisor Systems 🕹️";
       description = "🤖 Beep boop, from bootloader to browser 🤖";
       favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
