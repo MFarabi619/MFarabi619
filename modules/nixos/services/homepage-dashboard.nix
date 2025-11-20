@@ -141,6 +141,13 @@
                   icon = "https://avatars.githubusercontent.com/u/929183?s=200&v=4";
                 };
               }
+              {
+                "🏗️ Darwin" = {
+                  href = "https://darwin.openws.org";
+                  # siteMonitor = "https://darwin.openws.org";
+                  icon = "https://www.svgrepo.com/show/303484/apple1-logo.svg";
+                };
+              }
             ];
           }
           {
