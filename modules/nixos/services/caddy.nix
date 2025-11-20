@@ -136,6 +136,20 @@ in
         '';
       };
 
+      "http://emacs.openws.org" = {
+        extraConfig = ''
+          reverse_proxy http://192.168.50.242:7682
+          ${tlsConfig}
+        '';
+      };
+
+      "http://neovim.openws.org" = {
+        extraConfig = ''
+          reverse_proxy http://192.168.50.242:7683
+          ${tlsConfig}
+        '';
+      };
+
       "http://tandemrobotics.ca" = {
         extraConfig = ''
           reverse_proxy http://127.0.0.1${config.services.anubis.instances.tandemrobotics.settings.BIND} {

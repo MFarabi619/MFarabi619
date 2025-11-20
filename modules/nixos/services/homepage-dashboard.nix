@@ -194,16 +194,16 @@
       {
         "🛖 Userspace Environments" = [
           {
-            "🏗️ Emacs - Doom" = {
+            "Emacs - Doom" = {
               href = "https://emacs.openws.org";
-              # siteMonitor = "https://emacs.openws.org";
+              siteMonitor = "https://emacs.openws.org";
               icon = "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png";
             };
           }
           {
-            "🏗️ Neovim - Lazyvim" = {
+            "Neovim - Lazyvim" = {
               href = "https://neovim.openws.org";
-              # siteMonitor = "https://neovim.openws.org";
+              siteMonitor = "https://neovim.openws.org";
               icon = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg";
             };
           }
