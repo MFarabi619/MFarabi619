@@ -29,6 +29,7 @@ in
       theme = "dark";
       cardBlur = "3xl";
       useEqualHeights = true;
+      headerStyle = "boxedWidgets";
       title = "🕹️ Microvisor Systems 🕹️";
       # background = "/images/homepage-background.png";
       background = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
@@ -71,11 +72,11 @@ in
           cpu = true;
           disk = "/";
           memory = true;
-          cputemp = true;
           tempmin = 0;
           tempmax = 100;
           uptime = true;
-          refresh = 3000;
+          cputemp = true;
+          refresh = 1000;
           network = true;
           units = "metric";
           diskUnits = "bytes";
@@ -86,11 +87,16 @@ in
       #     url = "https://openws.org";
       #   };
       # }
+      # {
+      #   netdata = {
+      #     url = "127.0.0.1:19999";
+      #   };
+      # }
     ];
 
     services = [
       {
-        "📜 Sites" = [
+        "Sites" = [
           {
             "Landing Page" = {
               href = "https://openws.org";
@@ -109,21 +115,21 @@ in
             "Arch Linux Mirror" = {
               href = "https://mirror.openws.org";
               siteMonitor = "https://mirror.openws.org";
-              icon = "https://upload.wikimedia.org/wikipedia/commons/1/13/Arch_Linux_%22Crystal%22_icon.svg";
+              icon = "arch-linux.svg";
             };
           }
           {
             "Grafana" = {
               href = "https://openws.org/grafana";
               siteMonitor = "https://openws.org/grafana";
-              icon = "https://upload.wikimedia.org/wikipedia/commons/3/3b/Grafana_icon.svg";
+              icon = "grafana.svg";
             };
           }
           {
             "🏗️ Netdata" = {
-              href = "https://openws.org/netdata";
-              # siteMonitor = "https://openws.org/netdata";
-              icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/netdata.svg";
+              href = "https://www.netdata.cloud";
+              # siteMonitor = "https://www.netdata.cloud";
+              icon = "netdata.svg";
             };
           }
         ];
@@ -131,12 +137,12 @@ in
       {
         "Services" = [
           {
-            "🤖 AI/ML" = [
+            "AI/ML" = [
               {
                 "Open WebUI" = {
                   href = "https://ai.openws.org";
                   siteMonitor = "https://ai.openws.org";
-                  icon = "https://avatars.githubusercontent.com/u/158137808?s=200&v=4";
+                  icon = "open-webui.svg";
                 };
               }
               {
@@ -154,39 +160,38 @@ in
             ];
           }
           {
-            "🚜 IoT & Robotics" = [
+            "IoT & Robotics" = [
               {
                 "ThingsBoard" = {
                   href = "https://iot.apidaesystems.ca";
                   siteMonitor = "https://iot.apidaesystems.ca";
-                  icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/thingsboard.svg";
-                  server = "github-kafka-1";
+                  icon = "thingsboard.svg";
                 };
               }
             ];
           }
           {
-            "🔐 Security" = [
+            "Security" = [
               {
                 "🏗️ Authentik" = {
                   href = "https://goauthentik.io";
-                  icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/authentik.svg";
+                  icon = "authentik.svg";
                 };
               }
             ];
           }
           {
-            "🚢 CI/CD" = [
+            "CI/CD" = [
               {
                 "🔬 Dokploy" = {
                   href = "https://dokploy.com";
-                  icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/dokploy.svg";
+                  icon = "dokploy.svg";
                 };
               }
               {
                 "🏗️ Kubernetes" = {
                   href = "https://kubernetes.io";
-                  icon = "https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg";
+                  icon = "kubernetes.svg";
                 };
               }
             ];
@@ -207,6 +212,13 @@ in
                   icon = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg";
                 };
               }
+              {
+                "🏗️ Penpot" = {
+                  href = "https://penpot.app";
+                  # siteMonitor = "https://penpot.app";
+                  icon = "penpot.svg";
+                };
+              }
             ];
           }
         ];
@@ -224,16 +236,23 @@ in
               }
               {
                 "🏗️ OpenBSD" = {
-                  href = "https://openbsd.openws.org";
+                  href = "https://openbsd.org";
                   # siteMonitor = "https://openbsd.openws.org";
                   icon = "https://avatars.githubusercontent.com/u/929183?s=200&v=4";
                 };
               }
               {
                 "🏗️ Darwin" = {
-                  href = "https://darwin.openws.org";
+                  href = "https://en.wikipedia.org/wiki/Darwin_(operating_system)";
                   # siteMonitor = "https://darwin.openws.org";
                   icon = "https://www.svgrepo.com/show/303484/apple1-logo.svg";
+                };
+              }
+              {
+                "🏗️ DoomBSD" = {
+                  href = "https://www.linkedin.com/posts/mfarabi_announcing-the-doombsd-project-an-advanced-activity-7341980656043786240-uw9M/";
+                  # siteMonitor = "https://darwin.openws.org";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/doombsd-symbol-orb.svg";
                 };
               }
             ];
@@ -251,42 +270,49 @@ in
                 "NixOS" = {
                   href = "https://demo.openws.org";
                   siteMonitor = "https://demo.openws.org";
-                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fbbc70b0bdba558139e2f62ba06723a8bc678799/assets/nix.svg";
+                  icon = "nixos.svg";
                 };
               }
               {
-                "🏗️ Arch" = {
-                  href = "https://archlinux.openws.org";
+                "🏗️ Arch Linux" = {
+                  href = "https://archlinux.org";
                   # siteMonitor = "https://archlinux.openws.org";
-                  icon = "https://upload.wikimedia.org/wikipedia/commons/1/13/Arch_Linux_%22Crystal%22_icon.svg";
+                  icon = "arch-linux.svg";
+                };
+              }
+              {
+                "🏗️ Apollyon Linux" = {
+                  href = "https://archlinux.org";
+                  # siteMonitor = "https://archlinux.openws.org";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/apollyon-linux-logo.png";
                 };
               }
               {
                 "🏗️ Debian" = {
-                  href = "https://debian.openws.org";
+                  href = "https://www.debian.org";
                   # siteMonitor = "https://debian.openws.org";
-                  icon = "https://upload.wikimedia.org/wikipedia/commons/6/66/Openlogo-debianV2.svg";
+                  icon = "debian-linux.svg";
                 };
               }
               {
                 "🏗️ Ubuntu" = {
-                  href = "https://ubuntu.openws.org";
+                  href = "https://ubuntu.com";
                   # siteMonitor = "https://ubuntu.openws.org";
-                  icon = "https://upload.wikimedia.org/wikipedia/commons/9/9e/UbuntuCoF.svg";
+                  icon = "ubuntu-linux.svg";
                 };
               }
               {
                 "Raspberry Pi 5 (Trixie)" = {
                   href = "https://rpi5.openws.org";
                   siteMonitor = "https://rpi5.openws.org";
-                  icon = "https://www.svgrepo.com/show/303239/raspberry-pi-logo.svg";
+                  icon = "raspberry-pi.svg";
                 };
               }
               {
                 "🏗️ Gentoo" = {
-                  href = "https://gentoo.openws.org";
+                  href = "https://gentoo.org";
                   # siteMonitor = "https://gentoo.openws.org";
-                  icon = "https://www.gentoo.org/assets/img/logo/gentoo-signet.svg";
+                  icon = "gentoo-linux.svg";
                 };
               }
             ];
