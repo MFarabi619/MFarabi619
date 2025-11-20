@@ -72,6 +72,7 @@
             "Landing Page" = {
               href = "https://openws.org";
               siteMonitor = "https://openws.org";
+              icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
             };
           }
           {
@@ -82,9 +83,24 @@
             };
           }
           {
-            "🪞 Mirror" = {
+            "Arch Linux Mirror" = {
               href = "https://mirror.openws.org";
               siteMonitor = "https://mirror.openws.org";
+              icon = "https://upload.wikimedia.org/wikipedia/commons/1/13/Arch_Linux_%22Crystal%22_icon.svg";
+            };
+          }
+          {
+            "Grafana" = {
+              href = "https://openws.org/grafana";
+              siteMonitor = "https://openws.org/grafana";
+              icon = "https://upload.wikimedia.org/wikipedia/commons/3/3b/Grafana_icon.svg";
+            };
+          }
+          {
+            "🏗️ Netdata" = {
+              href = "https://openws.org/netdata";
+              # siteMonitor = "https://openws.org/netdata";
+              icon = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/netdata.svg";
             };
           }
         ];
