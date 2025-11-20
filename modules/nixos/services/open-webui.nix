@@ -22,7 +22,7 @@
       ENABLE_SIGNUP_PASSWORD_CONFIRMATION = "True";
       ENABLE_LOGIN_FORM = "False"; # enable OAuth before setting to "False"
       DEFAULT_LOCALE = "en";
-      DEFAULT_MODELS = "gpt-oss:20b";
+      DEFAULT_MODELS = "llama3.2:3b";
       DEFAULT_USER_ROLE = "user"; # pending | user | admin
       ENABLE_CHANNELS = "False";
       WEBHOOK_URL = "https://ai.openws.org/webhook";
@@ -63,6 +63,8 @@
       # =============== 📋 TASKS 📋 ================== #
       # ============================================== #
 
+      TASK_MODEL = "llama3.2:3b";
+      TASK_MODEL_EXTERNAL = "gpt-oss:20b";
       ENABLE_FOLLOW_UP_GENERATION = "True";
 
       # ============================================== #
