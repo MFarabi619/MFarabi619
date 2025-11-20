@@ -1,4 +1,9 @@
 {
+  config,
+  lib,
+  ...
+}:
+{
   services.ollama = {
     enable = true;
     port = 11434;
@@ -7,24 +12,32 @@
     # acceleration = "rocm"; # amd
     # acceleration = "cuda"; # nvidia
     home = "/var/lib/ollama"; # default
+
     loadModels = [
-      # "mistral"
-      # "mistral-large"
-      "llama3.2:3b"
-      # "llama4:128x17b"
-      # "llama3.2-vision:90b"
-      # "gpt-oss:20b"
-      # "gpt-oss:120b"
-      # "codellama:70b"
-      # "deepseek-r1:8b"
-      # "deepseek-v3.1"
-      # "phind-codellama:34b"
-      # "deepseek-r1:70b"
-      # "deepseek-r1:670b"
-      # "qwen2.5-coder:32b"
-      # "qwen3-coder:480b"
-      # "llava:34b"
-    ];
-    # environmentVariables = { };
+        "llama3.2:3b"
+      ] ++ lib.optionals (
+        config.networking.hostName == "framework-desktop" || config.networking.hostName == "nixos-server"
+      ) [
+        "mistral"
+        # "llava:34b"
+        "gpt-oss:20b"
+        # "gpt-oss:120b"
+        # "deepseek-v3.1"
+        # "codellama:70b"
+        "mistral-large"
+        # "llama4:128x17b"
+        "deepseek-r1:8b"
+        "deepseek-r1:70b"
+        # "deepseek-r1:670b"
+        # "qwen3-coder:480b"
+        "qwen2.5-coder:32b"
+        "phind-codellama:34b"
+        # "llama3.2-vision:90b"
+      ];
+
+    environmentVariables = {
+      # OLLAMA_KEEP_ALIVE = "-1";
+      # OLLAMA_MAX_LOADED_MODELS = "1";
+    };
   };
 }
