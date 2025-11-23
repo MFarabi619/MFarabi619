@@ -180,7 +180,7 @@
       USER_PERMISSIONS_CHAT_CALL = "True";
       USER_PERMISSIONS_CHAT_MULTIPLE_MODELS = "True";
       USER_PERMISSIONS_CHAT_TEMPORARY = "True";
-      USER_PERMISSIONS_CHAT_TEMPORARY_ENFORCED = "True";
+      USER_PERMISSIONS_CHAT_TEMPORARY_ENFORCED = "False";
 
       # ============================================== #
       # ========= ✨ FEATURE PERMISSIONS ✨ ========== #
