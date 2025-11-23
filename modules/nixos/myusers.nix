@@ -45,6 +45,10 @@ in
       // lib.optionalAttrs pkgs.stdenv.isLinux {
         isNormalUser = true;
         shell = pkgs.zsh;
+
+        extraGroups = [
+          "dialout"
+        ];
       }
     );
 
