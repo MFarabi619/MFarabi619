@@ -9,14 +9,6 @@
     autocd = false;
     enableCompletion = true;
 
-    shellAliases = {
-      n = "nvim";
-      lg = "lazygit";
-      lsh = "lazyssh";
-      mkdir = "mkdir -p";
-      e = "emacsclient -t";
-    };
-
     history = {
       size = 10000;
       save = 10000;
@@ -31,6 +23,7 @@
 
     autosuggestion = {
       enable = true;
+
       strategy = [
         "history"
         "completion"
@@ -39,6 +32,7 @@
 
     syntaxHighlighting = {
       enable = true;
+
       highlighters = [
         "line"
         "main"
@@ -64,6 +58,7 @@
 
     oh-my-zsh = {
       enable = true;
+
       plugins = [
         "git"
         "sudo"

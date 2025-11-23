@@ -10,9 +10,24 @@
 
   home = {
     shell = {
-      enableShellIntegration = true;
-      enableBashIntegration = true;
       enableZshIntegration = true;
+      enableBashIntegration = true;
+      enableShellIntegration = true;
+    };
+
+    shellAliases = {
+      n = "nvim";
+      cat = "bat";
+      z = "zoxide";
+      man = "batman";
+      zlj = "zellij";
+      lg = "lazygit";
+      lsh = "lazyssh";
+      mkdir = "mkdir -p";
+      # grep = "batgrep";
+      # TODO: add batpipe
+      da = "direnv allow";
+      e = "emacsclient -t";
     };
 
     file = {

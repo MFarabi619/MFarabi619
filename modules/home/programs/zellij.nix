@@ -1,5 +1,4 @@
 {
-  home.shellAliases.zlj = "zellij";
   programs.zellij = {
     enable = true;
     # themes = { };
@@ -7,6 +6,7 @@
     enableBashIntegration = true;
     enableZshIntegration = false;
     attachExistingSession = true;
+
     settings = {
       mouse_mode = true;
       mirror_session = true;
@@ -20,6 +20,7 @@
           # "https://example.com/my-plugin.wasm"
       # ];
     };
+
     layouts = {
       dev = {
         layout = {
