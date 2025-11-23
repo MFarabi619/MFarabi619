@@ -18,19 +18,19 @@
       ] ++ lib.optionals (
         config.networking.hostName == "framework-desktop" || config.networking.hostName == "nixos-server"
       ) [
-        "mistral"
+        "mistral:7b"
         # "llava:34b"
         "gpt-oss:20b"
         # "gpt-oss:120b"
         # "deepseek-v3.1"
         # "codellama:70b"
-        "mistral-large"
         # "llama4:128x17b"
         "deepseek-r1:8b"
         "deepseek-r1:70b"
+        "qwen2.5-coder:32b"
+        "mistral-large:123b"
         # "deepseek-r1:670b"
         # "qwen3-coder:480b"
-        "qwen2.5-coder:32b"
         "phind-codellama:34b"
         # "llama3.2-vision:90b"
       ];
