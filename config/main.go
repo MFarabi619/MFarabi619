@@ -17,6 +17,12 @@ func main() {
 			return err
 		}
 
+		// FIXME: * POST https://api.github.com/user/gpg_keys: 404 Not Found []
+		//		err = providers.SetupGitHub(ctx)
+		//	if err != nil {
+		//	return err
+		//	}
+
 		return nil
 	})
 }

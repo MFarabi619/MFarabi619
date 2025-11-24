@@ -8,7 +8,7 @@ import (
 
 func SetupDigitalOcean(ctx *pulumi.Context) (*digitalocean.Droplet, error) {
 	invokeFile, err := std.File(ctx, &std.FileArgs{
-		Input: "/home/mfarabi/.ssh/id_ed25519.pub",
+		Input: "../../.ssh/id_ed25519.pub",
 	}, nil)
 
 	if err != nil {
@@ -51,7 +51,7 @@ func SetupDigitalOcean(ctx *pulumi.Context) (*digitalocean.Droplet, error) {
 		Description: pulumi.String("A project to represent development resources."),
 
 		Resources: pulumi.StringArray{
-			vm.DropletUrn,
+		vm.DropletUrn,
 		},
 	})
 
