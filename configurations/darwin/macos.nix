@@ -1,6 +1,9 @@
 # See /modules/darwin/* for actual settings
 # This file is just *top-level* configuration.
-{ flake, ... }:
+{
+  flake,
+  ...
+}:
 
 let
   inherit (flake) inputs;

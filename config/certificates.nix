@@ -1,0 +1,5 @@
+{
+  certificates = [
+    "example.com"
+  ];
+}
