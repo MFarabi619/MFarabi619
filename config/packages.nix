@@ -4,7 +4,6 @@
   inputs,
   ...
 }:
-
 {
   packages =
     with pkgs;
@@ -23,16 +22,19 @@
 
       trunk # rust web app server
 
+      pulumi
       pulumi-esc
+      pulumiPackages.pulumi-go
+
       supabase-cli
 
       # dioxus-cli
       sqlite
     ]
-    ++ lib.optionals (stdenv.isLinux) [
+    ++ lib.optionals stdenv.isLinux [
       # netscanner
     ]
     ++ lib.optionals (stdenv.isDarwin && stdenv.isAarch64) [
-      macmon
+      # macmon
     ];
 }

@@ -10,6 +10,7 @@
   languages.rust = {
     enable = false; # set to false for firmware dev
     channel = "stable";
+
     targets = [
       # "i686-linux-android"
       # "x86_64-linux-android"
