@@ -1,4 +1,4 @@
-name: openws
+name: cloud
 description: Infrastructure-as-code for Open Web Services
 runtime: go
 config:

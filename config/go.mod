@@ -3,7 +3,9 @@ module openws
 go 1.24
 
 require (
+	github.com/pulumi/pulumi-cloudflare/sdk/v6 v6.11.0
 	github.com/pulumi/pulumi-digitalocean/sdk/v4 v4.55.0
+	github.com/pulumi/pulumi-std/sdk v1.7.3
 	github.com/pulumi/pulumi/sdk/v3 v3.208.0
 )
 
@@ -60,7 +62,6 @@ require (
 	github.com/pkg/term v1.1.0 // indirect
 	github.com/pulumi/appdash v0.0.0-20231130102222-75f619a67231 // indirect
 	github.com/pulumi/esc v0.17.0 // indirect
-	github.com/pulumi/pulumi-std/sdk v1.7.3 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0 // indirect
