@@ -55,7 +55,7 @@
 ;; (package! org-gcal)
 ;; (package! consult-gh)
 ;; (package! magit-todos)
-;; (package! gptel :recipe (:nonrecursive t))
+;; (package! gptel :recipe (:nonrecursive t)) ;; on non-nix
 
 ;; (package! eee
 ;;   :recipe (:host github
