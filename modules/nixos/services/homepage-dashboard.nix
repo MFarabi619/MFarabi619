@@ -105,7 +105,7 @@ in
             };
           }
           {
-            "Docs" = {
+            "🏗️ Docs" = {
               href = "https://docs.openws.org";
               siteMonitor = "https://ai.openws.org";
               icon = "https://avatars.githubusercontent.com/u/128791862?s=200&v=4";
