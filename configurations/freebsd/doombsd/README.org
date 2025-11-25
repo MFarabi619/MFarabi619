@@ -407,7 +407,7 @@ sudo pkg install texlive-full
 sudo pkg install
 bandwhich
 bmon
-shfmt mu py311-offlineimap rubygem-neovim
+shfmt mu rubygem-neovim
 hs-ShellCheck gnuplot
 xclip wininfo # for emacs-everywhere
 py311-grp # markdown preview
