@@ -89,6 +89,14 @@ func SetupCloudflare(ctx *pulumi.Context) error {
 			Proxied: true,
 		},
 		{
+			ZoneID:  "9f2ca59c7037b40a1747cebf23ba6254",
+			Name:    "mfarabi.dev",
+			Type:    "A",
+			Content: "66.33.60.130",
+			Ttl:     1,
+			Proxied: true,
+		},
+		{
 			ZoneID:  "2f942a3403acf78759097b7e6979886f",
 			Name:    "tandemrobotics.ca",
 			Type:    "CNAME",

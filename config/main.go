@@ -7,12 +7,8 @@ import (
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		_, err := providers.SetupDigitalOcean(ctx, false)
-		if err != nil {
-			return err
-		}
+		err := providers.SetupCloudflare(ctx)
 
-		err = providers.SetupCloudflare(ctx)
 		if err != nil {
 			return err
 		}
@@ -24,6 +20,12 @@ func main() {
 		//	}
 
 		err = providers.SetupVercel(ctx, true)
+
+		if err != nil {
+			return err
+		}
+
+		_, err = providers.SetupDigitalOcean(ctx, false)
 
 		if err != nil {
 			return err
