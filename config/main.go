@@ -23,6 +23,12 @@ func main() {
 		//	return err
 		//	}
 
+		err = providers.SetupVercel(ctx, true)
+
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 }
