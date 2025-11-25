@@ -6,7 +6,11 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func SetupDigitalOcean(ctx *pulumi.Context) (*digitalocean.Droplet, error) {
+func SetupDigitalOcean(ctx *pulumi.Context, enableDroplet bool) (*digitalocean.Droplet, error) {
+	if !enableDroplet {
+		return nil, nil
+	}
+
 	invokeFile, err := std.File(ctx, &std.FileArgs{
 		Input: "../../.ssh/id_ed25519.pub",
 	}, nil)
@@ -51,7 +55,7 @@ func SetupDigitalOcean(ctx *pulumi.Context) (*digitalocean.Droplet, error) {
 		Description: pulumi.String("A project to represent development resources."),
 
 		Resources: pulumi.StringArray{
-		vm.DropletUrn,
+			vm.DropletUrn,
 		},
 	})
 

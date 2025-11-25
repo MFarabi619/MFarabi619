@@ -7,7 +7,7 @@ import (
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		_, err := providers.SetupDigitalOcean(ctx)
+		_, err := providers.SetupDigitalOcean(ctx, false)
 		if err != nil {
 			return err
 		}
