@@ -23,14 +23,14 @@
     ../modules/home/programs/command-not-found.nix
     ../modules/home/programs/direnv.nix
     ../modules/home/programs/eza.nix
-    ../modules/home/programs/element-desktop.nix
+    # ../modules/home/programs/element-desktop.nix # Temporarily disabled due to CVE
     ../modules/home/programs/fastfetch
     ../modules/home/programs/fd.nix
     ../modules/home/programs/fzf.nix
     ../modules/home/programs/gcc.nix
     ../modules/home/programs/gh.nix
     ../modules/home/programs/git.nix
-    # ../modules/home/programs/go.nix
+    ../modules/home/programs/go.nix
     ../modules/home/programs/gpg.nix
     ../modules/home/programs/grep.nix
     ../modules/home/programs/home-manager.nix
@@ -45,7 +45,7 @@
     ../modules/home/programs/less.nix
     ../modules/home/programs/man.nix
     ../modules/home/programs/mu.nix
-    ../modules/home/programs/neovim
+    # ../modules/home/programs/neovim
     ../modules/home/programs/nh.nix
     ../modules/home/programs/nix-index.nix
     ../modules/home/programs/nix-search-tv.nix
@@ -80,6 +80,7 @@
     homeDirectory = "/home/mfarabi";
 
     packages = with pkgs; [
+      yay
       ttyd
       tscli
       arion
@@ -90,7 +91,6 @@
       # microk8s
       minikube
       jellyfin
-      tailscale
       # fw-fanctrl
       wl-screenrec
       framework-tool
