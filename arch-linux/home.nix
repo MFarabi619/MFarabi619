@@ -7,15 +7,15 @@
 
 {
   imports = [
-    # ../modules/home/accounts.nix
+    ../modules/home/accounts.nix
     ../modules/home/home.nix
     ../modules/home/services
+    ../modules/home/programs/emacs
+
     ../modules/home/fonts.nix
     ../modules/home/manual.nix
     ../modules/home/editorconfig.nix
-
     ../modules/home/programs/aichat.nix
-    ../modules/home/programs/emacs
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix
     ../modules/home/programs/chromium.nix
@@ -44,13 +44,13 @@
     ../modules/home/programs/lazysql.nix
     ../modules/home/programs/less.nix
     ../modules/home/programs/man.nix
+    ../modules/home/programs/mbsync.nix
     ../modules/home/programs/mu.nix
     # ../modules/home/programs/neovim
     ../modules/home/programs/nh.nix
     ../modules/home/programs/nix-index.nix
     ../modules/home/programs/nix-search-tv.nix
     ../modules/home/programs/obs-studio.nix
-    ../modules/home/programs/offlineimap.nix
     # ../modules/home/programs/obsidian.nix
     ../modules/home/programs/opencode.nix
     ../modules/home/programs/openstackclient.nix
