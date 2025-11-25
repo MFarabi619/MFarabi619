@@ -13,11 +13,11 @@ func main() {
 			return err
 		}
 
-		// FIXME: * POST https://api.github.com/user/gpg_keys: 404 Not Found []
-		//		err = providers.SetupGitHub(ctx)
-		//	if err != nil {
-		//	return err
-		//	}
+		err = providers.SetupTailscale(ctx, true)
+
+		if err != nil {
+			return err
+		}
 
 		err = providers.SetupVercel(ctx, true)
 
@@ -30,6 +30,12 @@ func main() {
 		if err != nil {
 			return err
 		}
+
+		// FIXME: * POST https://api.github.com/user/gpg_keys: 404 Not Found []
+		//		err = providers.SetupGitHub(ctx)
+		//	if err != nil {
+		//	return err
+		//	}
 
 		return nil
 	})
