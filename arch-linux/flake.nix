@@ -9,7 +9,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # lazyvim.url = "github:pfassina/lazyvim-nix";
+    lazyvim.url = "github:pfassina/lazyvim-nix";
 
     nix-doom-emacs-unstraightened = {
       url = "github:marienz/nix-doom-emacs-unstraightened";
@@ -37,7 +37,7 @@
         # extraSpecialArgs = {inherit inputs; };
         modules = [
           inputs.nix-doom-emacs-unstraightened.homeModule
-          # inputs.lazyvim.homeManagerModules.default
+          inputs.lazyvim.homeManagerModules.default
           ./home.nix
         ];
       };
