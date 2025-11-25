@@ -94,6 +94,7 @@
       # fw-fanctrl
       wl-screenrec
       framework-tool
+      framework-tool-tui
       # cp210x-program
       argocd-autopilot
       argocd-vault-plugin
