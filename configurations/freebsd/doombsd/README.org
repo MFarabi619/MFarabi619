@@ -172,7 +172,7 @@ sudo webcamd -l
 
 2. Install packages
 #+begin_src bash
-pkg install yt-dlp unzip icu  sniffnet libvirt libvirt-dbus virtboard virt-manager virt-viewer pkg_tree vlc texlive-full diskimage-tools kubectl minikube masscan caddy ezjail  gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc virtualbox-ose qt5-sqldrivers-mysql qt5-sqldrivers-odbc qt5-sqldrivers-pgsql qt5-sqldrivers-sqlite2 qt5-sqldrivers-sqlite3 qt5-sqldrivers-tds netpbm
+pkg install yt-dlp unzip icu  sniffnet libvirt libvirt-dbus virtboard virt-manager virt-viewer pkg_tree vlc texlive-full diskimage-tools kubectl minikube masscan ezjail  gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc virtualbox-ose qt5-sqldrivers-mysql qt5-sqldrivers-odbc qt5-sqldrivers-pgsql qt5-sqldrivers-sqlite2 qt5-sqldrivers-sqlite3 qt5-sqldrivers-tds netpbm
 #+end_src
 
 #+begin_src
@@ -529,4 +529,57 @@ zpool online -e zroot vtbd0p3
 # verify pool and fs sizes
 zpool list
 zfs list
+#+end_src
+
+
+
+* Set up Caddy (WIP)
+
+#+begin_src sh
+Proceed with this action? [y/N]: y
+[1/1] Fetching caddy-2.10.2_4.pkg: 100%   13 MiB  13.7MB/s    00:01
+Checking integrity... done (0 conflicting)
+[1/1] Installing caddy-2.10.2_4...
+===> Creating groups
+Using existing group 'www'
+===> Creating users
+Using existing user 'www'
+[1/1] Extracting caddy-2.10.2_4: 100%
+=====
+Message from caddy-2.10.2_4:
+
+--
+To enable caddy:
+
+- Edit /usr/local/etc/caddy/Caddyfile
+  See https://caddyserver.com/docs/
+- Run 'service caddy enable'
+
+Note while Caddy currently defaults to running as root:wheel, it is strongly
+recommended to run the server as an unprivileged user, such as www:www --
+
+- Use security/portacl-rc to enable privileged port binding:
+
+  # pkg install security/portacl-rc
+  # sysrc portacl_users+=www
+  # sysrc portacl_user_www_tcp="http https"
+  # sysrc portacl_user_www_udp="https"
+  # service portacl enable
+  # service portacl start
+
+- Configure caddy to run as www:www
+
+  # sysrc caddy_user=www caddy_group=www
+
+- Note if Caddy has been started as root previously, files in
+  /var/log/caddy, /var/db/caddy, and /var/run/caddy may require their ownership
+  changing manually.
+
+/usr/local/etc/rc.d/caddy has the following defaults:
+
+- Server log: /var/log/caddy/caddy.log
+  (runtime messages, NOT an access.log)
+- Automatic SSL certificate storage: /var/db/caddy/data/caddy/
+- Administration endpoint: //unix/var/run/caddy/caddy.sock
+- Runs as root:wheel (this will change to www:www in the future)
 #+end_src
