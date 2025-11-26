@@ -86,6 +86,16 @@
         setEnv.TERM = "xterm-kitty";
       };
 
+      rpi5-16 = {
+        port = 22;
+        host = "rpi5-16";
+        user = "mfarabi";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        hostname = "rpi5-16.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+        };
+
       rpi5-4 = {
         host = "rpi5-4";
         user = "mfarabi";
@@ -102,16 +112,12 @@
         setEnv.TERM = "xterm-256color";
       };
 
-      rpi5-16 = {
-        port = 22;
-        host = "rpi5-16";
+      ubuntu-s-1vcpu-512mb-10gb-tor1-01 = {
         user = "mfarabi";
-        checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "rpi5-16.taila4d019.ts.net";
-        setEnv = {
-          TERM = "xterm-256color";
-        };
+        host = "ubuntu-s-1vcpu-512mb-10gb-tor1-01.taila4d019.ts.net";
+        hostname = "ubuntu-s-1vcpu-512mb-10gb-tor1-01";
+        setEnv.TERM = "xterm-256color";
 
         # addressFamily = null; # "any" | "inet" | "inet6"
         # certificateFile = [ ./.file ];
@@ -173,20 +179,6 @@
         #     };
         #   }
         # ];
-
-        # nixbuild = {
-        #   checkHostIP = false;
-        #   identitiesOnly = true;
-        #   addKeysToAgent = "yes";
-        #   host = "eu.nixbuild.net";
-        #   serverAliveInterval = 60;
-        #   hostname = "eu.nixbuild.net";
-        #   identityFile = [ "~/.ssh/my-nixbuild-key" ];
-        #   extraOptions = {
-        #     PubkeyAcceptedKeyTypes = "ssh-ed25519";
-        #     IPQoS = "throughput";
-        #   };
-        # };
       };
     };
   };
