@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" type='text/css' href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+
+    <link rel="icon" type="image/svg+xml"
+        href="https://raw.githubusercontent.com/MFarabi619/MFarabi619/6d07d279751dbb489f26b921b170d646f48422bc/assets/nix-mfarabi.svg" />
+    <title>🕹️ Microvisor Systems 🕹 ️</title>
+
+    <style>
+        @keyframes float {
+            0% {
+                transform: translate(-3%, -2%) scale(0.95);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(3%, 3%) scale(1.05);
+                opacity: 0.8;
+            }
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen overflow-hidden bg-zinc-950 text-gray-200 font-sans">
+    <div class="fixed inset-0 blur-[120px] saturate-[140%] opacity-60 pointer-events-none z-0" aria-hidden="true">
+        <div
+            class="absolute w-[60vmax] h-[60vmax] rounded-full opacity-60 mix-blend-screen will-change-[transform,opacity] animate-[float_25s_ease-in-out_infinite_alternate] [animation-delay:-6s] bg-[radial-gradient(circle,#cc00ff,transparent_70%)] top-[-20%] left-[-15%]">
+        </div>
+        <div
+            class="absolute w-[60vmax] h-[60vmax] rounded-full opacity-60 mix-blend-screen will-change-[transform,opacity] animate-[float_25s_ease-in-out_infinite_alternate] [animation-delay:-12s] bg-[radial-gradient(circle,#ffee00,transparent_70%)] top-[-8%] left-[75%]">
+        </div>
+        <div
+            class="absolute w-[60vmax] h-[60vmax] rounded-full opacity-60 mix-blend-screen will-change-[transform,opacity] animate-[float_25s_ease-in-out_infinite_alternate] [animation-delay:-18s] bg-[radial-gradient(circle,#00ff22,transparent_70%)] top-[75%] left-[40%]">
+        </div>
+    </div>
+
+    <main class="relative z-10 grid place-items-center min-h-screen">
+        <section
+            class="group bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] backdrop-blur-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] rounded-[18px] px-16 py-12 text-center">
+            <img class="drop-shadow-[0_0_20px_rgba(204,0,255,0.4)] drop-shadow-[0_0_12px_rgba(255,238,0,0.3)] transition-transform duration-300 ease-in-out h-auto mx-auto mb-6 w-[min(180px,35vmin)] group-hover:scale-105"
+                src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/6d07d279751dbb489f26b921b170d646f48422bc/assets/nix-mfarabi.svg"
+                alt="Microvisor Systems logo" />
+
+            <h1 class="font-extrabold text-[clamp(28px,4.5vmin,56px)] m-[0.5rem_0_0.25rem]">
+                🕹
+                <span
+                    class="bg-[linear-gradient(90deg,#ffd200_0%,#ec8c78_33%,#e779c1_67%,#58c7f3_100%)] bg-clip-text text-transparent">
+                    ️ Microvisor Systems
+                </span>
+                🕹
+            </h1>
+
+            <p class="mt-3 text-[1.1rem] text-gray-200">
+                🤖 Beep boop, from bootloader to browser 🤖
+            </p>
+
+            <a href="https://ca.linkedin.com/company/microvisor-systems" target="_blank">
+                <i class="devicon-linkedin-plain colored"></i>
+            </a>
+            <a href="https://github.com/microvisor-systems" target="_blank">
+                <i class="devicon-github-original text-green-500" /></i>
+            </a>
+        </section>
+    </main>
+
+    <footer class="fixed bottom-2 w-full text-center opacity-70 text-[#b7b7c2] text-xs">
+        © <span id="year"></span> Microvisor Systems
+    </footer>
+
+    <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+</body>
+
+</html>

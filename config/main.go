@@ -31,6 +31,16 @@ func main() {
 			return err
 		}
 
+		// website, err := providers.NewAwsS3Website(ctx, "my-website", providers.AwsS3WebsiteArgs{
+		//	Files: []string{"index.html"},
+		// })
+
+		// if err != nil {
+		//	return err
+		// }
+
+		// ctx.Export("url", website.Url)
+
 		// FIXME: * POST https://api.github.com/user/gpg_keys: 404 Not Found []
 		//		err = providers.SetupGitHub(ctx)
 		//	if err != nil {

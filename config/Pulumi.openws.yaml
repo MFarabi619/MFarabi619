@@ -1,2 +1,4 @@
 environment:
   - openws/dev
+config:
+  aws:region: us-east-1
