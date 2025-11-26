@@ -106,9 +106,17 @@ in
 
       "http://mirror.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://${config.services.anubis.instances.mirror.settings.BIND} {
+          # reverse_proxy http://${config.services.anubis.instances.mirror.settings.BIND} {
+          reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} {
             ${clientIp}
           }
+          ${tlsConfig}
+        '';
+      };
+
+      "http://apidaesystems.ca" = {
+        extraConfig = ''
+          redir https://www.apidaesystems.ca
           ${tlsConfig}
         '';
       };
