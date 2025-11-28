@@ -1,0 +1,15 @@
+* SQLite
+:PROPERTIES:
+:header-args: :db sqlite.db
+:END:
+
+#+begin_src sqlite :results silent :output buffer
+CREATE TABLE IF NOT EXISTS greeting(one TEXT, two TEXT);
+DELETE FROM greeting;
+INSERT INTO greeting VALUES ('Hello', 'world!');
+INSERT INTO greeting VALUES ('Hello', 'world again!');
+#+end_src
+
+#+begin_src sqlite :results table :column :header :colnames yes
+SELECT * FROM greeting;
+#+end_src
