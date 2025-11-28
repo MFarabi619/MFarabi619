@@ -47,6 +47,12 @@ func main() {
 		//	return err
 		//	}
 
+		err = providers.SetupOracleCloud(ctx, true)
+
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 }
