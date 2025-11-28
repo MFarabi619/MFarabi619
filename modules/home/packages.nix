@@ -183,6 +183,8 @@
         hollywood
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
+        stm32cubemx
+
         gparted
 
         impala        # wifi mgmt tui
