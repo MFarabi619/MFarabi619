@@ -97,6 +97,8 @@ in
         experimental-features = [
           "flakes"
           "nix-command"
+          "pipe-operators"
+          # "pipe-operator" # if using lix
         ];
 
         trusted-users = [
