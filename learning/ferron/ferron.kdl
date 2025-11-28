@@ -1,0 +1,31 @@
+* {
+  location "/" {
+    root "/Users/mfarabi/MFarabi619"
+  }
+
+  location "/api" remove_base=#true {
+    proxy "http://192.168.50.254"
+  }
+
+  location "/ai" remove_base=#true {
+    proxy "http://192.168.50.254:7777"
+  }
+
+  location "/shell" remove_base=#true {
+    proxy "http://192.168.50.254:7681"
+  }
+
+  location "/admin" remove_base=#true {
+    proxy "http://192.168.50.1"
+  }
+
+  cache
+  precompressed
+  lb_health_check
+  directory_listing
+  log "/dev/stdout"
+  listen_ip "127.0.0.1"
+  error_log "/dev/stderr"
+  file_cache_control "max-age=3600"
+  header "Cache-Control" "max-age=3600"
+}
