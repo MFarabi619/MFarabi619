@@ -46,6 +46,7 @@
     packages =
       with pkgs;
       [
+        duckdb
         tree
         pixi # multi-language package manager
         pnpm

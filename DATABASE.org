@@ -1,0 +1,132 @@
+* Refactor
+:PROPERTIES:
+:header-args: :results silent :session refactor :format box :async yes :timer on :output buffer :headers off :db sample.db :echo off :kill-on-completion no
+:END:
+
+#+BEGIN_SRC duckdb
+ATTACH 'leads.db' AS leads;
+
+DESCRIBE;
+DESCRIBE leads.leads;
+
+DETACH leads
+#+END_SRC
+
+#+BEGIN_SRC duckdb
+DESCRIBE;
+DESCRIBE companies;
+DESCRIBE leads;
+#+END_SRC
+
+#+BEGIN_SRC duckdb
+SELECT * from leads LIMIT 10;
+#+END_SRC
+
+#+BEGIN_SRC duckdb
+ATTACH 'leads.db' AS leads;
+SELECT * FROM leads.leads WHERE  LIMIT 10;
+SELECT * FROM leads LIMIT 10;
+DETACH leads
+#+END_SRC
+
+** Migration Process Documentation
+*** Overview
+- Original: leads.db with denormalized leads table (72M rows, 28 columns).
+- Normalized: sample.db with companies (3.3M rows, 15 columns) and leads (31M rows, 14 columns).
+- Process: Deduplication, schema normalization, column renaming, FK setup.
+
+*** Steps
+1. Copy leads.db to sample.db.
+2. Create cleaned schema.
+3. Extract unique companies: CREATE TABLE cleaned.companies AS SELECT DISTINCT ... FROM leads WHERE company_name != ''.
+4. Dedupe leads: CREATE TABLE cleaned.leads AS SELECT DISTINCT * FROM leads.
+5. Drop redundant columns from cleaned.leads (company_name, etc.).
+6. Rename columns in cleaned.companies (company_name → name, etc.).
+7. Move tables to main schema.
+8. Drop original main.leads.
+
+*** Tests
+
+#+BEGIN_SRC duckdb
+ATTACH 'leads.db' AS leads;
+
+-- Test 1: Row counts
+SELECT 'Original leads' as source, COUNT(*) as count FROM leads.leads
+UNION ALL
+SELECT 'Normalized leads', COUNT(*) FROM main.leads
+UNION ALL
+SELECT 'Companies', COUNT(*) FROM main.companies;
+
+-- Test 2: Data integrity (sample lead)
+SELECT id, name, email FROM main.leads WHERE id = '52b8a1cf-0e3f-463b-8c87-9e4455e27ec1';
+-- Should match original
+
+-- Test 3: Company linkage
+SELECT l.name, c.name as company_name, c.location
+FROM main.leads l
+LEFT JOIN main.companies c ON l.company_id = c.id
+WHERE l.id = '52b8a1cf-0e3f-463b-8c87-9e4455e27ec1';
+
+-- Test 4: No duplicates in normalized
+SELECT id, COUNT(*) as occurrences
+FROM main.leads
+GROUP BY id
+HAVING COUNT(*) > 1
+LIMIT 5;
+-- Should return 0 rows
+
+-- Test 5: Query performance (Canada example)
+EXPLAIN ANALYZE
+SELECT l.name, l.email, c.location, c.name as company_name
+FROM main.leads l
+LEFT JOIN main.companies c ON l.company_id = c.id
+WHERE c.location ILIKE '%Canada%'
+LIMIT 10;
+
+DETACH leads;
+#+END_SRC
+
+#+BEGIN_SRC duckdb
+ATTACH 'leads.db' AS leads;
+
+EXPLAIN
+ANALYZE
+SELECT
+        name,
+        email,
+        company_location_text,
+        company_name,
+        company_website,
+        linkedin_url,
+        company_sector
+    FROM leads.leads WHERE 1=1 AND company_location_text ILIKE '%Canada%'
+    LIMIT 1000000;
+
+DETACH leads;
+#+END_SRC
+
+
+#+BEGIN_SRC duckdb
+EXPLAIN
+ANALYZE
+SELECT
+    l.name,
+    l.email,
+    c.location AS company_location_text,
+    c.name AS company_name,
+    c.website AS company_website,
+    l.linkedin_url,
+    c.sector AS company_sector
+FROM main.leads l
+LEFT JOIN main.companies c ON l.company_id = c.id
+WHERE c.location ILIKE '%Canada%'
+LIMIT 1000000;
+#+END_SRC
+
+
+#+begin_src duckdb
+ATTACH 'leads.db' AS leads;
+PRAGMA show_tables_expanded;
+PRAGMA database_size;
+DETACH leads;
+#+end_src

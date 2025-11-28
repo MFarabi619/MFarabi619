@@ -62,6 +62,7 @@
       fd
       git
       ispell
+      duckdb
       tuntox # collab
       semgrep
       ripgrep

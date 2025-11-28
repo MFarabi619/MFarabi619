@@ -8,6 +8,9 @@
   packages =
     with pkgs;
     [
+      duckdb
+      harlequin
+
       # espup install # . $HOME/export-esp.sh
       espup
       esptool

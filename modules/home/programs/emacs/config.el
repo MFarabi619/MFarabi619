@@ -311,6 +311,27 @@
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
 
+(use-package! ob-duckdb
+  :ensure t
+  :after org
+  :custom
+  (org-babel-duckdb-max-rows 200)
+
+  (org-babel-duckdb-show-progress t)
+  (org-babel-duckdb-progress-display 'popup) ; or 'popup
+  (org-babel-duckdb-output-buffer "*DuckDB Results*")
+  (org-babel-duckdb-queue-display 'auto) ; or 'manual
+  (org-babel-duckdb-queue-position 'side) ; or 'side
+
+  ;; :config
+  ;; ;; Optional: MotherDuck token from file
+  ;; (setq org-babel-duckdb-motherduck-token
+  ;;       (lambda ()
+  ;;         (with-temp-buffer
+  ;;           (insert-file-contents "~/.config/duckdb/.motherduck_token")
+  ;;           (string-trim (buffer-string)))))
+  )
+
 (after! org
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
   (setq
@@ -336,6 +357,9 @@
   ;; org-modern-footnote (cons nil (cadr org-script-display))
   ;; (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))
   ;; (after! spell-fu (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
+
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages '((duckdb . t))))
   )
 
 ;; (after! magit
