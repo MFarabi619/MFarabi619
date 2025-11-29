@@ -1,0 +1,78 @@
+// Define deployment node kinds
+specification {
+  deploymentNode node
+  deploymentNode zone
+  deploymentNode environment {
+    style {
+      color gray
+    }
+  }
+}
+
+// Deployment model
+deployment {
+
+  node customerNode {
+    instanceOf person
+  }
+
+  environment prod 'Production' {
+
+    ottawa = zone 'ottawa' {
+    icon https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Flag_of_Ottawa%2C_Ontario.svg/2560px-Flag_of_Ottawa%2C_Ontario.svg.png
+      zone east-1 {
+        instanceOf platform.landing-page
+        instanceOf platform.backend {
+          style {
+            multiple true
+          }
+        }
+      }
+
+      zone central-1 {
+        instanceOf platform.landing-page
+        instanceOf platform.backend
+      }
+      db = instanceOf platform.db
+    }
+
+    cloud = zone 'cloud' {
+      zone oracle {
+      icon tech:oracle
+        instanceOf platform.landing-page
+        instanceOf platform.backend {
+          style {
+            multiple true
+          }
+        }
+      }
+      zone digitalocean {
+      icon tech:digital-ocean
+        instanceOf platform.landing-page
+        instanceOf platform.backend
+      }
+      db = instanceOf platform.db
+    }
+
+    ottawa.db -> cloud.db 'replicates'
+    cloud.db -> ottawa.db 'replicates'
+  }
+}
+
+views {
+  deployment view deployment {
+    title 'Deployments/Production'
+
+    include
+      *,
+      prod.**
+
+    style ottawa._ {
+      color green
+    }
+
+    style cloud._ {
+      color indigo
+    }
+	}
+}
