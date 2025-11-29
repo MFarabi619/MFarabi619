@@ -1,0 +1,103 @@
+model {
+
+person = actor "Person" {
+style {
+shape person
+color green
+}
+}
+    openws = context "OpenWS" {
+        icon @/trident-logo.png
+        summary "Open Web Services"
+        style {
+            color: violet-500
+            opacity: 40%
+        }
+
+caddy = code "Caddy" {
+link https://caddyserver.com "Website"
+icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
+style {
+shape queue
+color green
+opacity 40%
+}
+
+virtual-hosts = code "Virtual Hosts" {
+icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
+style {
+shape storage
+color green
+}
+}
+
+reverse-proxy = code "Reverse Proxy" {
+icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
+style {
+shape queue
+color green
+}
+}
+}
+
+homepage = component "Homepage" {
+icon @/microvisor-systems-logo.png
+link https://openws.org
+
+style {
+shape mobile
+color purple-50
+}
+
+ -> backend "fetches via HTTPS"
+}
+
+backend = component "Back-End" {
+icon tech:linux
+style {
+shape queue
+}
+
+-> db "reads/writes"
+}
+
+open-webui = component "Open-WebUI" {
+link https://docs.openwebui.com "📚 Docs"
+icon https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/open-webui.svg
+
+style {
+color gray
+shape browser
+}
+}
+
+ollama = component "Ollama" {
+link https://ollama.com "Website"
+link https://docs.ollama.com "📚 Docs"
+icon https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/ollama-dark.svg
+
+style {
+color gray
+shape queue
+}
+}
+
+docs = component "Docs" {
+link https://docs.openws.org "📚 Docs"
+icon @/likec4-symbol.svg
+style {
+color slate
+shape browser
+}
+}
+
+db = component "Database" {
+icon tech:postgresql
+style{
+shape storage
+}
+}
+
+      -> vendors "relies on"
+    }
+}

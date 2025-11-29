@@ -1,0 +1,30 @@
+model {
+
+doombsd = component "DoomBSD" {
+  summary "Modernized & Hardened FreeBSD"
+  icon @/doombsd-symbol-orb.svg
+  style {
+    color red
+  }
+}
+
+apollyon-linux = component "Apollyon Linux" {
+  summary "Supercharged Arch Linux"
+  icon @/apollyon-linux-logo.png
+  style {
+    color violet-900
+  }
+}
+
+      microvisor = context "Microvisor" {
+        summary "Multikernel Build System"
+        icon @/microvisor-systems-logo.png
+      link https://www.sigops.org/s/conferences/sosp/2009/papers/baumann-sosp09.pdf "https://www.sigops.org/s/conferences/sosp/2009/papers/baumann-sosp09.pdf"
+
+        style {
+          shape queue
+          color purple-50
+        }
+
+}
+  }

@@ -1,137 +1,162 @@
 views {
     view index {
-        title: "Context/System"
+        title: "System Context"
         description: """
-**Top Level** overview.
-"""
-        include *
-        exclude microcontrollers
-        exclude person
-    }
-
-    view platform of platform {
-        title: "Platform"
-        description: """
-        General System Design.
+        **Top Level** overview.
         """
-
-        include *
-        include os.*
-        include userspaces.**
-        include kernels.**
+        include
+          vendors.microvisor-systems,
+          microvisor,
+          doombsd,
+          apollyon-linux,
+          tech-stack,
+          openws with {
+          navigateTo openws
+},
     }
 
-    view kernels of platform.kernels {
+    view tech-stack of tech-stack {
+        title: "Tech Stack"
+        description: """
+        Languages, frameworks, conventions, etc.
+        """
+        include tech-stack.**
+    }
+
+    view microvisor of microvisor {
+        title: "Microvisor"
+        description "Multikernel Build System"
+        include
+          *,
+          tech-stack.operating-systems.*,
+          tech-stack
+    }
+
+    view userspaces of tech-stack.operating-systems.userspaces {
+        title: "Operating Systems"
+        include
+          *,
+          tech-stack.kernels._
+    }
+
+    view kernels of tech-stack.kernels {
         title: "Kernels"
         description:  """
-        Supported operating system back-ends.
+        Supported operating system back-ends
         """
-        include *
-        include linux.**
+        include
+          *,
+          linux.**
     }
 
-    view microcontrollers of microcontrollers {
+    view microcontrollers of tech-stack.microcontrollers {
         title: "Microcontrollers"
         description:  """
-        Supported embedded devices.
+        Supported embedded devices
         """
-        include *
         include microcontrollers.**
     }
 
-    view external-providers of external-providers {
-        include *
-        include google.*
-        include ui-ux-design.*
-        include software-development.*
-        include marketing-and-communication.*
+    view vendors of vendors {
+    description: "Third-party services"
+        include
+          *,
+          pulumi.*,
+          google.**,
+          cloudflare.*,
+          ui-ux-design.*,
+          software-development.*,
+          marketing-and-communication.*
     }
 
-dynamic view state-chart  {
-title "Context/Statechart"
 
-person -> external-providers.cloudflare "opens in browser" {
+    view screenplay-pattern of screenplay-pattern {
+    description: "Behavior-Driven Development"
+        include *
+    }
+
+dynamic view openws {
+title  "OpenWS"
+
+include
+  openws,
+  vendors
+
+person -> vendors.cloudflare {
+title "visits"
+color blue
+technology "HTTPS"
 notes '''
-- Any navigation to:
-  - [openws.org](https://openws.org)
-  - [*.openws.org](https://openws.org)
-- Via `https`.
+- Anyone wanting to go to `([A-Za-z0-9-]+\.)*openws.org`
 '''
 }
 
- external-providers.cloudflare -> external-providers.cloudflare "resolve domain" {
+ vendors.cloudflare.dns -> vendors.cloudflare.dns "lookup domain records" {
 notes '''
-- Search CNAME Records.
+### Tradeoffs
+| 🔴 | 🟢 |
+|-|-|
+| Single point of failure | DDOS Protection |
+| | High Performance |
+
 - [Source](https://github.com/MFarabi619/MFarabi619/blob/main/config/providers/cloudflare.go)
 '''
 }
 
- external-providers.cloudflare -> caddy "tunnel to" {
+-> vendors.cloudflare.tunnels "resolve to" {
 notes '''
-- Terminate TLS
-  - `https` -> `http`.
-- Points to self-hosted Caddy server.
+- Resolve corresponding domain CNAME record to matching tunnel.
+'''
+}
+
+  -> openws.caddy.virtual-hosts "route request" {
+ technology "HTTP"
+
+notes '''
+### Tradeoffs
+| 🔴 | 🟢 |
+|-|-|
+| Single point of failure | Easy TLS Termination `https` -> `http` |
+
 - [Source](https://github.com/MFarabi619/MFarabi619/blob/main/modules/nixos/services/cloudflared.nix)
+'''
+}
+
+
+ -> openws.caddy.virtual-hosts "lookup domain name" {
+notes '''
+- [Source](https://github.com/MFarabi619/MFarabi619/blob/main/modules/nixos/services/caddy.nix)
 
 | 🔴 | 🟢 |
 |-|-|
-| Single point of failure | Easy `HTTPS` |
+| Single point of attack | Fast resolution |
+|  | Load Balancing |
 '''
+}
+
+ -> openws.caddy.reverse-proxy "handle route" {
 }
 
 parallel  {
-
- caddy -> caddy "lookup virtual hosts" {
-notes '''
-- Forward request to matching server.
-- [Source](https://github.com/MFarabi619/MFarabi619/blob/main/modules/nixos/services/caddy.nix)
-
-| 🔴 | 🟢 |
-|-|-|
-| Single point of attack | Single source of routing truth |
-|  | Load Balancer |
-'''
-
+openws.caddy.reverse-proxy
+-> openws.homepage "openws.org" {
+technology "HTTP"
 }
 
--> platform.landing-page "reverse proxy" {
-notes '''
-- [Source](https://github.com/MFarabi619/MFarabi619/blob/main/modules/nixos/services/caddy.nix)
-'''
+openws.caddy.reverse-proxy -> openws.open-webui "ai.openws.org" {
+technology "HTTP"
 }
 
-caddy -> platform.services.open-webui "reverse proxy" {
-notes '''
-- [Source](https://github.com/MFarabi619/MFarabi619/blob/main/modules/nixos/services/open-webui.nix)
-'''
-}
-
-caddy -> platform.docs "reverse proxy"
-}
-
-platform.services.open-webui -> platform.services.ollama "calls"
-
-include nixos
+openws.caddy.reverse-proxy -> openws.docs "docs.openws.org"{
+technology "HTTP"
 }
 }
 
-model {
+openws.open-webui -> openws.ollama "calls"
 
-nixos = component "NixOS" {
-                    link https://nixos.org "Website"
-                    icon https://raw.githubusercontent.com/NixOS/nixos-artwork/9d2cdedd73d64a068214482902adea3d02783ba8/logo/nix-snowflake-rainbow.svg
-                    style {
-                        color: blue
-                        opacity: 40%
-                    }
-
-caddy = code "Caddy" {
-link https://caddyserver.com "Website"
-icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
-style {
-shape queue
+vendors.cloudflare -> person {
 color green
+technology "HTTPS"
 }
 }
-}
-}
+    }

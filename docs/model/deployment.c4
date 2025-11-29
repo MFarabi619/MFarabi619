@@ -1,0 +1,92 @@
+specification {
+  deploymentNode vm {
+  notation "Virtual Machine"
+}
+
+  deploymentNode vendor
+  deploymentNode node
+  deploymentNode zone
+  deploymentNode environment {
+    style {
+      color gray
+    }
+  }
+}
+
+deployment {
+  node customerNode {
+    instanceOf person
+  }
+
+pulumi-cloud = vendor "Pulumi Cloud" {
+  instanceOf vendors.pulumi
+}
+
+ production =  environment 'Production' {
+    ottawa = zone 'ottawa' {
+    icon https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Flag_of_Ottawa%2C_Ontario.svg/2560px-Flag_of_Ottawa%2C_Ontario.svg.png
+    style {
+   color indigo
+}
+      zone east-1 {
+        instanceOf openws.homepage
+        instanceOf openws.backend {
+          style {
+            multiple true
+          }
+        }
+      }
+
+      zone central-1 {
+        instanceOf openws.homepage
+        instanceOf openws.backend
+      }
+      db = instanceOf openws.db
+    }
+
+    cloud = zone "Global" {
+
+      instanceOf vendors.tailscale
+
+    cloudflare =  zone "Cloudflare" {
+      icon tech:cloudflare
+      instanceOf vendors.cloudflare.dns
+      }
+
+      db = instanceOf openws.db
+    }
+
+    montreal = zone "Montreal" {
+      oracle = zone "Oracle" {
+      icon tech:oracle
+        instanceOf vendors.oci.virtual-machines
+      }
+    }
+
+    toronto = zone "Toronto" {
+      digitalocean =  zone "DigitalOcean" {
+        icon tech:digital-ocean
+          instanceOf vendors.digitalocean.droplets
+        }
+    }
+
+    ottawa.db -> cloud.db 'replicates'
+    cloud.db -> ottawa.db 'replicates'
+  }
+
+ development =  environment 'Development' {
+ }
+
+}
+
+views {
+  deployment view deployment {
+    title 'Deployment'
+
+    include
+      *,
+      development.**,
+      production.**
+
+	}
+}

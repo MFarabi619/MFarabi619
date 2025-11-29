@@ -1,0 +1,657 @@
+model {
+tech-stack = container "Tech Stack" {
+icon tech:gnu-emacs
+style {
+color yellow-800
+}
+
+langugages = container "Languages" {
+                likec4 = component {
+                    title: "LikeC4"
+                    icon @/likec4-symbol.svg
+                    link : https://likec4.dev/ "Website"
+                    style {
+                        color: green
+                    }
+                }
+
+    component nix {
+        title "Nix"
+        link https://nixos.org "Website"
+        icon tech:nix
+        style {
+            color: muted
+        }
+    }
+
+      rust = component {
+                    title: "Rust"
+                    icon: tech:rust
+                    link: https://www.rust-lang.org "Website"
+                    style {
+                        color: amber
+                    }
+                }
+
+ embedded-rust = component "Embedded Rust" {
+        icon @/embedded-rust-symbol.svg
+        link: https://rust-lang.org/what/embedded/ "Website"
+        style {
+            color: amber
+        }
+      }
+
+ embedded-c = component "Embedded C" {
+        icon @/embedded-c-symbol.svg
+        link: https://en.wikipedia.org/wiki/Embedded_C "Wikipedia"
+        style {
+            color: red
+        }
+      }
+
+ cplusplus = component "C++" {
+        icon: tech:cplusplus
+        link: https://cplusplus.com "Website"
+        style {
+            color: gray-800
+            opacity: 50%
+        }
+      }
+
+
+ sql = component "SQL" {
+        icon: tech:azure-sql-database
+        link: https://en.wikipedia.org/wiki/SQL "Wikipedia"
+        style {
+            color: sky
+        }
+      }
+
+      go = component {
+                    title: "Go"
+                    icon: tech:go
+                    link: https://go.dev "Website"
+                    style {
+                        color: sky
+                    }
+                }
+
+org-mode  = component "Org Mode" {
+        icon:@/org-mode-symbol.svg
+        link: https://orgmode.org "Website"
+        style {
+            color: gray-800
+        }
+      }
+
+      }
+
+build-systems = component "Build Systems" {
+        style {
+            color: red
+            opacity: 50%
+        }
+
+    component devenv {
+        link https://devenv.sh "Website"
+        icon https://raw.githubusercontent.com/cachix/devenv/85e78cbe26467a2c23c9d34869235740132d749f/logos/devenv-dark-bg.svg
+        style {
+            color: gray
+        }
+    }
+
+platformio = component "PlatformIO" {
+icon @/platformio-symbol.svg
+link https://platformio.org "Website"
+style {
+color: amber
+}
+}
+        }
+
+frameworks = component "Frameworks" {
+        style {
+            color: amber
+            opacity: 50%
+        }
+
+                home-manager = component "Home Manager" {
+                    link https://github.com/nix-community/home-manager "GitHub"
+                    icon https://repository-images.githubusercontent.com/78938149/bd7773f5-21d0-4653-b380-d3476697dfc4
+                    style {
+                        color: sky
+                    }
+
+                }
+
+freertos = component "FreeRTOS" {
+icon @/freertos-logo.png
+link https://www.freertos.org "Website"
+style {
+color: green
+}
+
+}
+
+
+loco-rs = container "Loco.rs" {
+icon @/loco-rs-symbol.png
+link https://loco.rs "Website"
+style {
+color red
+}
+}
+
+ratatui = container "Ratatui" {
+icon @/ratatui-symbol.png
+link https://ratatui.rs "Website"
+style {
+color purple-800
+}
+}
+
+dioxus = container "Dioxus" {
+icon @/dioxus-symbol.png
+link https://dioxuslabs.com "Website"
+style {
+color amber
+}
+}
+
+embassy = container "Embassy" {
+icon @/embassy-symbol.png
+link https://embassy.dev "Website"
+style {
+color orange-500
+}
+}
+
+bastillebsd = container "BastilleBSD" {
+icon @/bastillebsd-symbol.png
+link https://bastillebsd.org "Website"
+style {
+color red
+}
+}
+
+}
+
+databases = container "Databases" {
+style {
+color teal-500
+opacity 30%
+}
+
+ postgres = component "Postgres" {
+        icon: tech:postgresql
+        link: https://www.postgresql.org "Website"
+        style {
+            color: cyan-800
+            shape: storage
+        }
+      }
+
+
+ sqlite = component "SQLite" {
+        icon: tech:sqlite
+        link: https://sqlite.org "Website"
+        style {
+            color: cyan-800
+            shape: storage
+        }
+      }
+      }
+
+  pr-review = container {
+                    title: "🤖 PR Review Automation"
+                    style {
+                        color: orange-500
+                        opacity: 40%
+                    }
+
+                    coderabbit = component {
+                        title: "CodeRabbit"
+                        icon: https://avatars.githubusercontent.com/u/132028505?s=200&v=4.svg
+                        link : https://www.coderabbit.ai/
+                        style {
+                            color: gray-500
+                        }
+                    }
+
+                    conventional-comments = component {
+                        title: "Conventional Comments"
+                        icon: https://conventionalcomments.org/logo.png
+                        link : https://conventionalcomments.org/
+                        style {
+                            color: purple-600
+                        }
+                    }
+                }
+
+                          gitops = container {
+                    title: "🌵 GitOps"
+                    icon: tech:git
+                    style {
+                        color: gray-500
+                        opacity: 40%
+                    }
+
+                    trunk-based-development = component {
+                        title: "Trunk-Based Development"
+                        icon: https://trunkbaseddevelopment.com/images/logo.png
+                        link : https://trunkbaseddevelopment.com/ "Website"
+                    }
+
+                    conventional-commits = component {
+                        title: "Conventional Commits"
+                        icon: https://avatars.githubusercontent.com/u/42154238?s=200&v=4.svg
+                        link : https://www.conventionalcommits.org/en/v1.0.0/
+                        style {
+                            color: rose-800
+                        }
+                    }
+
+                    conventional-branch = component {
+                        title: "Conventional Branch"
+                        icon: https://avatars.githubusercontent.com/u/179835931?s=200&v=4.svg
+                        link : https://conventional-branch.github.io/
+                        style {
+                            color: sky
+                        }
+                    }
+                    }
+
+                  ci = container "♻ Continuous Integration" {
+                    style {
+                        color: gray-500
+                        opacity: 40%
+                    }
+
+                    semantic-release = component {
+                        title: "Semantic Release"
+                        icon: https://avatars.githubusercontent.com/u/12867925?s=200&v=4.svg
+                        link : https://semantic-release.gitbook.io/semantic-release/
+                        style {
+                            color: gray-500
+                        }
+                    }
+
+                }
+
+                    cd = container {
+                    title: "🚢 Continuous Deployment"
+                    style {
+                        color: gray-500
+                        opacity: 40%
+                    }
+
+                    pulumi = component "Pulumi" {
+                        icon https://avatars.githubusercontent.com/u/21992475?s=48&v=4.svg
+                        link  https://pulumi.com
+                        style {
+                            color: yellow-800
+                        }
+                    }
+
+                    linux-containers = component "Linux Containers" {
+                        icon https://linuxcontainers.org/static/img/containers.png
+                        link https://linuxcontainers.org "Website"
+                        style {
+                            color: orange-800
+                        }
+                    }
+
+                    freebsd-jails = component "FreeBSD Jails" {
+                        icon:  https://www.ottmarklaas.net/2023/02/11/FreeBSD-jails-Another-Option-to-Encapsulate-a-Website-Development-Environment/freeBSDJail.jpeg
+                        link : https://docs.freebsd.org/en/books/handbook/jails/ "Docs"
+                        style {
+                            color: red-800
+                        }
+                    }
+
+
+                    docker = component "Docker" {
+                        icon: tech:docker
+                        link : https://docker.com "Website"
+                        style {
+                            color: blue-800
+                        }
+                    }
+                    }
+
+         documentation = container {
+                title: "Technical Documentation"
+                icon: https://www.svgrepo.com/show/398268/scroll.svg
+                style {
+                    color: blue-500
+                    opacity: 40%
+                }
+
+                diataxis-model = component {
+                    title: "Diátaxis Model"
+                    icon: https://diataxis.fr/_static/favicon.png
+                    link : https://diataxis.fr/
+                    style {
+                        color: amber
+                    }
+                }
+
+                mermaid-js = component {
+                    title: "Mermaid.js"
+                    icon: https://avatars.githubusercontent.com/u/57169982?s=48&v=4
+                    link : https://mermaid.js.org/
+                    style {
+                        color: pink-500
+                    }
+                }
+
+                c4-model = component {
+                    title: "C4 Model"
+                    icon: https://avatars.githubusercontent.com/u/7525795?s=200&v=4.svg
+                    link : https://c4model.com
+                    style {
+                        color: gray-500
+                    }
+                }
+            }
+
+microcontrollers = container "Microcontrollers" {
+  icon @/esp32s3-devkit-c-1-isometric.png
+
+style {
+color: red
+opacity: 40%
+}
+
+
+espressif = component "Espressif" {
+icon https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/espressif.svg
+link https://www.espressif.com "Website"
+style {
+color: red
+}
+
+esp32-s3-devkit-c-1 = component "ESP32-S3-Devkit-C-1" {
+icon @/esp32s3-devkit-c-1-isometric.png
+link https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/index.html "Website"
+style {
+color: red
+}
+}
+
+}
+
+arduino = component "Arduino" {
+icon @/arduino-symbol.svg
+link https://www.arduino.cc "Website"
+style {
+color: sky
+}
+
+uno-rev3 = component "Uno Rev3" {
+icon @/arduino-uno-rev3.jpg
+link https://store-usa.arduino.cc/products/arduino-uno-rev3?srsltid=AfmBOopp22rv2_bJbwQqVCBuK-3hQK0xiDhTMVaEHwqsIiYTXufI6REI "Website"
+style {
+color: sky
+}
+
+}
+
+mega-2560 = component "Mega 2560" {
+icon @/arduino-mega-2560-rev3.png
+link https://store-usa.arduino.cc/products/arduino-mega-2560-rev3?srsltid=AfmBOoqVJBY3RhGwfQzFEV5Q3fMWrLdAriqohhCFlcQPsq_i7IW9Aj9h "Website"
+style {
+color: sky
+}
+
+}
+
+giga-r1-wifi = component "Giga R1 Wifi" {
+icon @/arduino-giga-r1-wifi.png
+link https://store-usa.arduino.cc/products/giga-r1-wifi?srsltid=AfmBOoq5MEIshtbGu5rUpzyP2iBmWr6ot-ajqVWLZmoaGJqgedZk6S8d "Website"
+style {
+color: sky
+}
+}
+}
+
+stmicroelectronics = component "STMicroelectronics" {
+icon @/stmicroelectronics-symbol.png
+link https://www.st.com/content/st_com/en.html "Website"
+style {
+color: yellow
+}
+
+stm32f303vct6 = component "ST STM32F303VCT6" {
+icon @/stm32f303vct6-isometric.jpg
+link  https://www.amazon.ca/dp/B00CWWSE6G?ref_=ppx_hzsearch_conn_dt_b_fed_asin_title_1 "Amazon"
+style {
+color: yellow
+}
+}
+
+stm32cube = component "STM32 Cube" {
+icon @/stm32cube-symbol.svg
+link https://www.st.com/en/embedded-software/stm32cube-mcu-mpu-packages.html "Website"
+style {
+color: yellow
+}
+}
+}
+
+}
+
+        operating-systems = container "Operating Systems" {
+            style {
+                color: purple-500
+                opacity: 40%
+            }
+
+            userspaces = container "Userspaces" {
+                style {
+                    shape person
+                    color: green
+                    opacity: 40%
+                }
+
+                ubuntu = container "Ubuntu" {
+                    link https://ubuntu.com "Website"
+                    icon tech:ubuntu
+                    style {
+                        color: slate-900
+                        opacity: 40%
+                    }
+                }
+
+                guix = container "GNU GUIX" {
+                    link https://guix.gnu.org "Website"
+                    icon https://guix.gnu.org/themes/initial/img/icon.svg
+                    description: "NixOS alternative in Scheme from the GNU project, with a focus on libre software for academics."
+                    style {
+                        color: yellow
+                        opacity: 40%
+                    }
+                }
+
+                nixos = container "NixOS" {
+                    link https://nixos.org "Website"
+                    icon https://raw.githubusercontent.com/NixOS/nixos-artwork/9d2cdedd73d64a068214482902adea3d02783ba8/logo/nix-snowflake-rainbow.svg
+                    style {
+                        color: sky
+                        opacity: 40%
+                    }
+
+                    nix-darwin = component "Nix-Darwin" {
+                        description: """
+                            Declarative NixOS-like modules for MacOS.
+                            """
+                        icon https://avatars.githubusercontent.com/u/203339767?s=200&v=4
+                        link https://github.com/nix-darwin/nix-darwin "GitHub"
+                        style {
+                            color: pink-800
+                        }
+
+                    }
+
+                    nixos-raspberrypi = component "NixOS Raspberry Pi" {
+                        description: "Infrastructure, vendor packages, kernel, and some optimized third-party packages for NixOS running on Raspberry Pi devices."
+                        link https://github.com/nvmd/nixos-raspberrypi?tab=readme-ov-file "GitHub"
+                        icon tech:raspberrypi
+                        style {
+                            color: indigo
+                        }
+
+                    }
+
+                    nix-on-droid = component "Nix-on-Droid" {
+                        description: "NixOS for Android, based on Termux."
+                        link https://github.com/nix-community/nix-on-droid "GitHub"
+                        icon tech:android
+                        style {
+                            color: green
+                        }
+
+                    }
+
+                    nixos-wsl = component "NixOS WSL" {
+                        description: "Windows Subsystem for Linux distribution via systemd workarounds."
+                        link https://github.com/nix-community/NixOS-WSL "GitHub"
+                        icon https://raw.githubusercontent.com/nix-community/NixOS-WSL/refs/heads/main/assets/NixOS-WSL.svg
+                        style {
+                            color: purple-800
+                        }
+                    }
+
+                }
+
+                arch-linux = component "Arch Linux" {
+                    description: "Lightweight and flexible GNU/Linux distribution that tries to Keep It Simple."
+                    link https://archlinux.org "Website"
+                    icon tech:arch-linux
+                    style {
+                        color: red
+                    }
+                }
+
+                athenaos = component "Athena OS" {
+                    description: "Batteries-supercharged multi distro system for cybersecurity power users."
+                    link https://athenaos.org "Website"
+                    icon https://athenaos.org/_astro/athena-dark.zw0VuR1C.svg
+                    style {
+                        color: amber
+                    }
+
+                }
+
+                freebsd = component "FreeBSD" {
+                    description: "UNIX-like operating system by the Berkeley Software Distribution, one of the only remaining open-source derivatives of AT&T's UNIX."
+                    link https://www.freebsd.org "Website"
+                    link https://docs.freebsd.org/en/articles/explaining-bsd/ "Explaining BSD Article"
+                    icon https://docs.freebsd.org/favicon.ico
+                    style {
+                        color: gray
+                    }
+
+                }
+
+
+        -> kernels "run on"
+        ubuntu -> kernels.linux
+        arch-linux -> kernels.linux
+        athenaos -> kernels.linux
+        guix -> kernels.linux
+        nixos -> kernels.linux
+        freebsd -> kernels.unix
+
+            }
+
+            kernels = container "Kernels" {
+                style {
+                    color: yellow
+                    opacity: 40%
+                }
+
+                linux = container "Linux" {
+                    description: """
+UNIX-like kernel developed by [Linus Torvalds](https://en.wikipedia.org/wiki/Linus_Torvalds).
+"""
+
+                    icon tech:linux
+
+                    style {
+                        color: yellow
+                        opacity: 40%
+                    }
+                    filesystem-hierarchy-standard = container "Filesystem Hierarchy Standard (FHS)" {
+                        style {
+                            color: yellow
+                            opacity: 40%
+                        }
+
+                        root = component "/" {
+                            description: "Root Directory"
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        bin = component "/bin" {
+                            description: """Essential command binaries needed in **single-user mode**, including to bring up the system or repair it, for all users (e.g., cat, ls, cp)."""
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        dev = component "/dev" {
+                            description: """Device files (e.g., `/dev/null`, `/dev/disk0`, `/dev/sda1`, `dev/tty`, `dev/random`)"""
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        etc = component "/etc" {
+                            description: "User home directories"
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        home = component "/home" {
+                            description: "User home directories"
+                            style {
+                                color: yellow
+                            }
+                        }
+
+                        lib = component "/lib" {
+                            description: "Shared libraries"
+                            style {
+                                color: yellow
+                            }
+                        }
+                    }
+                }
+
+                unix = container "UNIX" {
+
+                    icon tech:unix
+
+                    style {
+                        color: red
+                        opacity: 40%
+                    }
+                }
+            }
+        }
+
+}
+
+//         nix -> devenv
+// cplusplus -> platformio
+// embedded-rust -> embassy
+//                         go -> pulumi
+//                    likec4 -> c4-model
+//                    sql -> postgres
+//                    sql -> sqlite
+
+}

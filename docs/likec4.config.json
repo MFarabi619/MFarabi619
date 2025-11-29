@@ -1,4 +1,12 @@
 {
   "name": "docs",
-  "title": "🛖 Platform"
+  "title": "Microvisor Systems",
+  "imageAliases": {
+  "@": "../assets",
+  },
+"styles": {
+  "theme": {
+    "colors": { },
+  },
+}
 }
