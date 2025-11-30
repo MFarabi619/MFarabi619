@@ -36,11 +36,13 @@ in
       favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
 
       quicklaunch = {
+        # target = "_blank";
         provider = "google";
-        hideVisitURL = "true";
+        hideVisitURL = "false";
         searchDescriptions = "true";
-        hideInternetSearch = "true";
+        hideInternetSearch = "false";
         showSearchSuggestions = "true";
+        mobileButtonPostion = "bottom-right";
       };
     };
 
@@ -79,6 +81,14 @@ in
           network = true;
           units = "metric";
           diskUnits = "bytes";
+        };
+      }
+      {
+        search = {
+          focus = false;
+          target = "_blank";
+          provider = "duckduckgo";
+          showSearchSuggestions = true;
         };
       }
       # {
