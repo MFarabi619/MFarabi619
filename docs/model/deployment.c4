@@ -13,108 +13,108 @@ specification {
 
 deployment {
   person = node "Person" {
-  instanceOf person
+    instanceOf person
   }
 
   owner = node "Owner" {
-  style {
-  color red
-}
-  instanceOf person
+    style {
+      color red
+    }
+    instanceOf person
   }
 
   github = vendor "GitHub" {
-  style {
-  color slate
-}
-  instanceOf vendors.github
+    style {
+      color slate
+    }
+    instanceOf vendors.github
   }
 
   microvisor = node "Microvisor" {
     instanceOf microvisor
   }
 
-// pulumi-cloud = vendor "Pulumi Cloud" {
-//   instanceOf vendors.pulumi
-// }
+  // pulumi-cloud = vendor "Pulumi Cloud" {
+  //   instanceOf vendors.pulumi
+  // }
 
-      google = zone "Google Cloud Auth Platform" {
-      link: https://cloud.google.com "Website"
-      icon: tech:google-cloud
-      style {
+  google = zone "Google Cloud Auth Platform" {
+    link : https://cloud.google.com "Website"
+    icon: tech:google-cloud
+    style {
       color green
       shape browser
-      }
-      instanceOf vendors.google.cloud.auth-platform
-      }
+    }
+    instanceOf vendors.google.cloud.auth-platform
+  }
 
-      cloudflare = zone "Cloudflare" {
-      icon tech:cloudflare
-      style {
+  cloudflare = zone "Cloudflare" {
+    icon tech:cloudflare
+    style {
       color amber
-      }
-      instanceOf vendors.cloudflare.dns
-      instanceOf vendors.cloudflare.tunnels
-      }
+    }
+    instanceOf vendors.cloudflare.dns
+    instanceOf vendors.cloudflare.tunnels
+  }
 
-      tailscale = zone "Tailscale" {
-      style {
+  tailscale = zone "Tailscale" {
+    style {
       color gray
     }
-        acl = node "ACL" {
-        icon: @/tailscale-symbol.png
-        link: https://tailscale.com "Website"
-        style {
-            color gray-800
-            shape storage
-        }
-         -> coordination-server {
-        style {
-        line solid
-}
-}
-}
-
-        coordination-server = node "Coordination Server" {
-        icon: @/tailscale-symbol.png
-        link: https://tailscale.com "Website"
-        style {
-            color gray-800
-            shape queue
-        }
-}
-
+    acl = node "ACL" {
+      icon: @/tailscale-symbol.png
+      link : https://tailscale.com "Website"
+      style {
+        color gray-800
+        shape storage
       }
+      -> coordination-server {
+        style {
+          line solid
+        }
+      }
+    }
+
+    coordination-server = node "Coordination Server" {
+      icon: @/tailscale-symbol.png
+      link : https://tailscale.com "Website"
+      style {
+        color gray-800
+        shape queue
+      }
+    }
+
+  }
 
 
- production =  environment 'Production' {
- style {
- color red
-}
+  production = environment "Production" {
+    style {
+      color red
+    }
 
     ottawa-east-1 = zone "Ottawa East 1" {
-    icon https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Flag_of_Ottawa%2C_Ontario.svg/2560px-Flag_of_Ottawa%2C_Ontario.svg.png
-    style {
-   color green
-}
-      hardware framework-desktop "Framework Desktop" {
-      icon https://static.cdnlogo.com/logos/f/78/framework-computer.svg
+      icon https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Flag_of_Ottawa%2C_Ontario.svg/2560px-Flag_of_Ottawa%2C_Ontario.svg.png
       style {
-      color yellow
-}
+        color green
+      }
+      hardware framework-desktop "Framework Desktop" {
+        icon https://static.cdnlogo.com/logos/f/78/framework-computer.svg
+        style {
+          color yellow
+        }
 
         instanceOf microvisor.nixos "NixOS"
         instanceOf vendors.tailscale "Tailscale Client"
         cloudflared = instanceOf vendors.cloudflare.tunnels "Cloudflared"
 
         caddy = service "Caddy" {
-            link https://caddyserver.com "Website"
-            icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
-        style {
-        color green
-}
-            instanceOf openws.caddy.virtual-hosts
-            instanceOf openws.caddy.reverse-proxy
+          link https://caddyserver.com "Website"
+          icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
+          style {
+            color green
+          }
+          instanceOf openws.caddy.virtual-hosts
+          instanceOf openws.caddy.reverse-proxy
         }
 
         instanceOf openws.homepage
@@ -132,136 +132,136 @@ deployment {
         reverse-proxy -> docker
 
         open-webui -> ollama {
-        technology "REST API"
-        style {
-        line solid
-}
-}
+          technology "REST API"
+          style {
+            line solid
+          }
+        }
         open-webui -> google {
-        technology "OAuth 2.0"
-        style {
-        head diamond
-        tail diamond
-        line dotted
-        color red
-}
-}
-ollama -> sqlite {
-style {
-color sky
-tail normal
-}
-}
+          technology "OAuth 2.0"
+          style {
+            head diamond
+            tail diamond
+            line dotted
+            color red
+          }
+        }
+        ollama -> sqlite {
+          style {
+            color sky
+            tail normal
+          }
+        }
 
       }
 
       hardware framework-16 "Framework 16" {
-      style {
-      color yellow
-}
-      icon https://static.cdnlogo.com/logos/f/78/framework-computer.svg
+        style {
+          color yellow
+        }
+        icon https://static.cdnlogo.com/logos/f/78/framework-computer.svg
 
-      instanceOf apollyon-linux
-      instanceOf vendors.tailscale "Tailscale Client"
-      instanceOf vendors.netdata
+        instanceOf apollyon-linux
+        instanceOf vendors.tailscale "Tailscale Client"
+        instanceOf vendors.netdata
       }
 
-      hardware hp-elitebook-820-g2  "HP Elitebook 820 G2" {
-      style {
-      color red
-}
-      icon @/doombsd-symbol-orb.svg
+      hardware hp-elitebook-820-g2 "HP Elitebook 820 G2" {
+        style {
+          color red
+        }
+        icon @/doombsd-symbol-orb.svg
 
-      instanceOf doombsd
-      instanceOf vendors.tailscale "Tailscale Client"
+        instanceOf doombsd
+        instanceOf vendors.tailscale "Tailscale Client"
       }
 
-hardware esp32-s3-devkit-c-1 {
+      hardware esp32-s3-devkit-c-1 {
 
-}
+      }
     }
 
     montreal = zone "Montreal" {
       oracle = vendor "Oracle" {
-      style {
-      color red
-}
-      icon tech:oracle
+        style {
+          color red
+        }
+        icon tech:oracle
         node vm {
-        instanceOf vendors.oci.virtual-machines
-        instanceOf vendors.tailscale
-      }
+          instanceOf vendors.oci.virtual-machines
+          instanceOf vendors.tailscale
+        }
       }
     }
 
     toronto = zone "Toronto" {
-      digitalocean =  zone "DigitalOcean" {
+      digitalocean = zone "DigitalOcean" {
         icon tech:digital-ocean
-          instanceOf vendors.digitalocean.droplets
-        }
+        instanceOf vendors.digitalocean.droplets
+      }
     }
 
-   tailscale.coordination-server ->  framework-desktop.tailscale "SSH" {
-   style {
-   line dotted
-}
-}
-  tailscale.coordination-server -> hp-elitebook-820-g2.tailscale "SSH" {
-   style {
-   line dotted
-}
-}
-   tailscale.coordination-server -> framework-16.tailscale "SSH" {
-   style {
-   line dotted
-}
-}
-   // tailscale.coordination-server -> oracle.vm.tailscale "SSH"
-
-      person -> cloudflare "visits" {
+    tailscale.coordination-server -> framework-desktop.tailscale "SSH" {
       style {
-      color blue
+        line dotted
+      }
+    }
+    tailscale.coordination-server -> hp-elitebook-820-g2.tailscale "SSH" {
+      style {
+        line dotted
+      }
+    }
+    tailscale.coordination-server -> framework-16.tailscale "SSH" {
+      style {
+        line dotted
+      }
+    }
+    // tailscale.coordination-server -> oracle.vm.tailscale "SSH"
+
+    person -> cloudflare "visits" {
+      style {
+        color blue
       }
       technology "HTTPS"
-      }
+    }
 
-      owner -> cloudflare "visits" {
+    owner -> cloudflare "visits" {
       style {
-      color blue
+        color blue
       }
       technology "HTTPS"
-      }
+    }
 
-      owner -> github {
+    owner -> github {
       technology "OAuth 2.0"
-      style  {
-      head diamond
-      tail diamond
-      color red
-      line dotted
-}
-}
-      github -> tailscale {
       style {
-      color green
-      line dotted
-}
-}
+        head diamond
+        tail diamond
+        color red
+        line dotted
+      }
+    }
+    github -> tailscale {
+      style {
+        color green
+        line dotted
+      }
+    }
 
-  cloudflare.dns -> cloudflare.tunnels {
-  style {
-  color yellow
-  line solid
-}
-}
-  cloudflare.tunnels -> framework-desktop.cloudflared {
-  style {
-  color yellow
-  line solid
-}
-}
+    cloudflare.dns -> cloudflare.tunnels {
+      style {
+        color yellow
+        line solid
+      }
+    }
+    cloudflare.tunnels -> framework-desktop.cloudflared {
+      style {
+        color yellow
+        line solid
+      }
+    }
 
-microvisor -> nixos
+    microvisor -> nixos
 
   }
 }

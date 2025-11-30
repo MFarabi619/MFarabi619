@@ -37,199 +37,199 @@ model {
                     shape browser
                 }
 
-iac = brand "Pulumi IAC" {
-                icon https://www.pulumi.com/logos/brand/avatar-on-black.png
-                link https://www.pulumi.com/docs/iac/ "Website"
-                style {
-                    color: stone-500
-                    shape: browser
+                iac = brand "Pulumi IAC" {
+                    icon https://www.pulumi.com/logos/brand/avatar-on-black.png
+                    link https://www.pulumi.com/docs/iac/ "Website"
+                    style {
+                        color: stone-500
+                        shape: browser
+                    }
+
+                    -> oci.virtual-machines {
+                        style {
+                            line solid
+                            tail crow
+                        }
+                        link https://www.pulumi.com/registry/packages/oci/
+                    }
+
+                    -> cloudflare.dns {
+                        style {
+                            line solid
+                            tail crow
+                        }
+                        link https://www.pulumi.com/registry/packages/cloudflare/
+                    }
+                    -> tailscale {
+                        style {
+                            line solid
+                            tail crow
+                        }
+                        link https://www.pulumi.com/registry/packages/tailscale/
+                    }
+                    -> digitalocean.droplets {
+                        style {
+                            line solid
+                            tail crow
+                        }
+                        link https://www.pulumi.com/registry/packages/digitalocean/
+                    }
                 }
 
-                -> oci.virtual-machines {
-                style {
-                line solid
-                tail crow
-}
-                link https://www.pulumi.com/registry/packages/oci/
-}
-
-                -> cloudflare.dns {
-                style {
-                line solid
-                tail crow
-}
-                link https://www.pulumi.com/registry/packages/cloudflare/
-}
-                -> tailscale {
-                style {
-                line solid
-                tail crow
-}
-                link https://www.pulumi.com/registry/packages/tailscale/
-}
-                -> digitalocean.droplets {
-                style {
-                line solid
-                tail crow
-}
-                link https://www.pulumi.com/registry/packages/digitalocean/
-}
-}
-
-esc = brand "Pulumi ESC" {
-                icon https://www.pulumi.com/logos/brand/avatar-on-black.png
-                link https://www.pulumi.com/docs/esc/ "Website"
-                style {
-                    color: stone-500
-                    shape: browser
+                esc = brand "Pulumi ESC" {
+                    icon https://www.pulumi.com/logos/brand/avatar-on-black.png
+                    link https://www.pulumi.com/docs/esc/ "Website"
+                    style {
+                        color: stone-500
+                        shape: browser
+                    }
                 }
-}
             }
 
             coderabbit = brand {
                 title: "CodeRabbit"
                 icon: https://avatars.githubusercontent.com/u/132028505?s=200&v=4
                 description: "AI Code Review Agent"
-                link : https://coderabbit.ai
+                link: https://coderabbit.ai
                 style {
                     color: sky
                     shape: browser
                 }
             }
 
-    component github {
-        title: "GitHub"
-        icon: tech:github
-        link : https://github.com "Website"
-        style {
-            color: stone-500
-            shape: browser
-        }
-    }
-
-    netdata = component "Netdata" {
-        icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/netdata.svg
-        link : https://www.netdata.cloud "Website"
-        style {
-            color: stone-500
-            shape: browser
-        }
-    }
-
-    cloudflare = component "Cloudflare" {
-        icon: tech:cloudflare
-        link: https://cloudflare.com "Website"
-        description "DNS + Tunnels"
-        style {
-            color: amber
-            opacity: 50%
-            shape: browser
-        }
-
-dns = component "Cloudflare DNS"{
-        icon: https://www.cloudflare.com/cdn-cgi/image/format=auto/https://cf-assets.www.cloudflare.com/v2/image/uuovcseq994vtceh1408d2sb2t/icon_tile_reliability-dns-resolver.png
-        link: https://www.cloudflare.com/en-ca/application-services/products/dns/ "Website"
-        style {
-            color amber
-            shape storage
-        }
-}
-
-tunnels = component "Cloudflare Tunnels"{
-        icon: https://www.cloudflare.com/cdn-cgi/image/format=auto/https://cf-assets.www.cloudflare.com/v2/image/opv9ib42kh2bretj86cm5tf761/icon_tile_performance-accelerationg-bolt.png
-        link: https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/ "Docs"
-        style {
-            color amber
-            shape queue
-        }
-}
-      }
-
-    tailscale = component "Tailscale" {
-        icon: @/tailscale-symbol.png
-        link: https://tailscale.com "Website"
-        style {
-            color: gray-800
-            shape: browser
-        }
-      }
-
-    oci = component "Oracle Cloud Infrastructure" {
-        icon: tech:oracle
-        link: https://cloud.oracle.com "Website"
-        style {
-            color: amber
-            shape: browser
-            opacity 40%
-        }
-
-        virtual-machines = container "Virtual Machines" {
-        icon: tech:oracle
-        link: https://www.oracle.com/ca-en/cloud/compute/virtual-machines/ "Website"
-        style {
-        shape: browser
-}
-}
-      }
-
-    digitalocean = component "Digitalocean" {
-        icon: tech:digital-ocean
-        link: https://digitalocean.com "Website"
-        style {
-            color: yellow-800
-            shape: browser
-            opacity 40%
-        }
-
-        droplets = container "Droplets" {
-        icon https://docs.digitalocean.com/images/icons/images.2b76d83101f7fbbc4bec6312c3cc7e2ee4c5d1d7032e44f5373bbb5542dd5825.svg
-        style {
-            color: yellow-800
-            shape browser
-        }
-}
-      }
-
+            component github {
+                title: "GitHub"
+                icon: tech:github
+                link: https://github.com "Website"
+                style {
+                    color: stone-500
+                    shape: browser
+                }
             }
 
-            google = brand "Google" {
-                link: https://workspace.google.com
+            netdata = component "Netdata" {
+                icon: https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/netdata.svg
+                link: https://www.netdata.cloud "Website"
                 style {
-                    color: orange-100
-                    icon: https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg
-                    shape: cylinder
-                    multiple: true
-                    opacity: 10%
+                    color: stone-500
+                    shape: browser
+                }
+            }
+
+            cloudflare = component "Cloudflare" {
+                icon: tech:cloudflare
+                link : https://cloudflare.com "Website"
+                description "DNS + Tunnels"
+                style {
+                    color: amber
+                    opacity: 50%
+                    shape: browser
                 }
 
-                gmail = brand "Gmail" {
-                    link: https://mail.google.com
-                    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Gmail_icon_%282020%29.svg/2560px-Gmail_icon_%282020%29.svg.png
+                dns = component "Cloudflare DNS" {
+                    icon: https://www.cloudflare.com/cdn-cgi/image/format=auto/https://cf-assets.www.cloudflare.com/v2/image/uuovcseq994vtceh1408d2sb2t/icon_tile_reliability-dns-resolver.png
+                    link : https://www.cloudflare.com/en-ca/application-services/products/dns/ "Website"
                     style {
-                        color: green
-                        shape: browser
+                        color amber
+                        shape storage
                     }
                 }
 
-                cloud = brand "Cloud" {
-                    link: https://cloud.google.com "Website"
-                    icon: tech:google-cloud
+                tunnels = component "Cloudflare Tunnels" {
+                    icon: https://www.cloudflare.com/cdn-cgi/image/format=auto/https://cf-assets.www.cloudflare.com/v2/image/opv9ib42kh2bretj86cm5tf761/icon_tile_performance-accelerationg-bolt.png
+                    link : https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/ "Docs"
                     style {
-                        color: indigo
+                        color amber
+                        shape queue
+                    }
+                }
+            }
+
+            tailscale = component "Tailscale" {
+                icon: @/tailscale-symbol.png
+                link : https://tailscale.com "Website"
+                style {
+                    color: gray-800
+                    shape: browser
+                }
+            }
+
+            oci = component "Oracle Cloud Infrastructure" {
+                icon: tech:oracle
+                link : https://cloud.oracle.com "Website"
+                style {
+                    color: amber
+                    shape: browser
+                    opacity 40%
+                }
+
+                virtual-machines = container "Virtual Machines" {
+                    icon: tech:oracle
+                    link : https://www.oracle.com/ca-en/cloud/compute/virtual-machines/ "Website"
+                    style {
                         shape: browser
                     }
+                }
+            }
+
+            digitalocean = component "Digitalocean" {
+                icon: tech:digital-ocean
+                link : https://digitalocean.com "Website"
+                style {
+                    color: yellow-800
+                    shape: browser
+                    opacity 40%
+                }
+
+                droplets = container "Droplets" {
+                    icon https://docs.digitalocean.com/images/icons/images.2b76d83101f7fbbc4bec6312c3cc7e2ee4c5d1d7032e44f5373bbb5542dd5825.svg
+                    style {
+                        color: yellow-800
+                        shape browser
+                    }
+                }
+            }
+
+        }
+
+        google = brand "Google" {
+            link : https://workspace.google.com
+            style {
+                color: orange-100
+                icon: https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg
+                shape: cylinder
+                multiple: true
+                opacity: 10%
+            }
+
+            gmail = brand "Gmail" {
+                link : https://mail.google.com
+                icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Gmail_icon_%282020%29.svg/2560px-Gmail_icon_%282020%29.svg.png
+                style {
+                    color: green
+                    shape: browser
+                }
+            }
+
+            cloud = brand "Cloud" {
+                link : https://cloud.google.com "Website"
+                icon: tech:google-cloud
+                style {
+                    color: indigo
+                    shape: browser
+                }
 
                 auth-platform = brand "Auth Platform" {
-                  link https://support.google.com/cloud/answer/15544987?hl=en "Docs"
+                    link https://support.google.com/cloud/answer/15544987?hl=en "Docs"
                     icon: gcp:identity-and-access-management
                     style {
                         color: slate
                         shape: browser
                     }
-}
                 }
-
             }
+
+        }
 
         marketing-and-communication = container {
             title: "Marketing &
@@ -244,15 +244,13 @@ tunnels = component "Cloudflare Tunnels"{
             linkedin = brand {
                 title: "LinkedIn"
                 icon: tech:linkedin
-                link : https://www.linkedin.com/company/108875552
+                link: https://www.linkedin.com/company/108875552
                 style {
                     color: sky-700
                     shape: browser
                 }
             }
-
-
-            }
+        }
 
         ui-ux-design = container {
             title: "UI/UX Design"
@@ -266,7 +264,7 @@ tunnels = component "Cloudflare Tunnels"{
             penpot = brand "Penpot" {
                 icon: https://avatars.githubusercontent.com/u/30179644?s=48&v=4.svg
                 description: "Open Source Design Tool"
-                link : https://penpot.app "Website"
+                link: https://penpot.app "Website"
 
                 style {
                     color: green
@@ -277,6 +275,6 @@ tunnels = component "Cloudflare Tunnels"{
 
     }
     coderabbit -> github {
-    title: "provides reviews on"
-}
+        title: "provides reviews on"
     }
+}

@@ -14,21 +14,21 @@ specification {
     element persona
 
     element brand {
-    notation "Brand"
-}
+        notation "Brand"
+    }
 
     element context {
-    notation "Context"
-}
+        notation "Context"
+    }
     element component {
-    notation "Component"
-}
+        notation "Component"
+    }
     element container {
-    notation "Container"
-}
+        notation "Container"
+    }
     element code {
-    notation "Code"
-}
+        notation "Code"
+    }
 
     //============
     //== COLORS ==

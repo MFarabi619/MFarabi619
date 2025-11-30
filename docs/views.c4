@@ -1,49 +1,50 @@
 views {
-    view index {
-        title: "System Context"
-        description: """
+  view index {
+    title: "System Context"
+    description: """
         **Top Level** overview.
         """
-        include
-          vendors.microvisor-systems with {
-          navigateTo deployment
-},
-          microvisor,
-          openws with {
-          navigateTo openws
-},
-          doombsd,
-          apollyon-linux,
+    include
+      vendors.microvisor-systems with {
+        navigateTo deployment
+      },
+      microvisor,
+      openws with {
+        navigateTo openws
+      },
+      doombsd,
+      apollyon-linux,
 
-    }
+  }
 
   deployment view deployment {
-    title 'Deployment'
+    title "Deployment"
 
     include
       *,
       production.**,
 
-	}
+  }
 
-dynamic view openws {
-title  "OpenWS"
+  dynamic view openws {
+    title "OpenWS"
 
-include
-  openws,
-  openws.caddy,
-  vendors
+    include
+      openws,
+      openws.caddy,
+      vendors
 
-person -> vendors.cloudflare {
-color blue
-technology "HTTPS"
-notes '''
+    person -> vendors.cloudflare {
+      color blue
+      technology "HTTPS"
+      notes """
 - Anyone wanting to go to `([A-Za-z0-9-]+\.)*openws.org`
-'''
-}
+"""
+    }
 
- vendors.cloudflare.dns -> vendors.cloudflare.dns "lookup domain records" {
-notes '''
+    vendors.cloudflare.dns
+      -> vendors.cloudflare.dns "lookup domain records" {
+        notes """
 ### Tradeoffs
 | 🔴 | 🟢 |
 |-|-|
@@ -51,130 +52,129 @@ notes '''
 | | High Performance |
 
 - [Source](https://github.com/MFarabi619/MFarabi619/blob/main/config/providers/cloudflare.go)
-'''
-}
+"""
+      }
 
--> vendors.cloudflare.tunnels "resolve to" {
-notes '''
+      -> vendors.cloudflare.tunnels "resolve to" {
+        notes """
 - Resolve corresponding domain CNAME record to matching tunnel.
-'''
-}
+"""
+      }
 
-  -> openws.caddy.virtual-hosts "route request" {
- technology "HTTP"
+      -> openws.caddy.virtual-hosts "route request" {
+        technology "HTTP"
 
-notes '''
+        notes """
 ### Tradeoffs
 | 🔴 | 🟢 |
 |-|-|
 | Single point of failure | Easy TLS Termination `https` -> `http` |
 
 - [Source](https://github.com/MFarabi619/MFarabi619/blob/main/modules/nixos/services/cloudflared.nix)
-'''
-}
+"""
+      }
 
 
- -> openws.caddy.virtual-hosts "lookup domain name" {
-notes '''
+      -> openws.caddy.virtual-hosts "lookup domain name" {
+        notes """
 - [Source](https://github.com/MFarabi619/MFarabi619/blob/main/modules/nixos/services/caddy.nix)
 
 | 🔴 | 🟢 |
 |-|-|
 | Single point of attack | Fast resolution |
 |  | Load Balancing |
-'''
-}
+"""
+      }
 
- -> openws.caddy.reverse-proxy "handle route" {
-}
+      -> openws.caddy.reverse-proxy "handle route" {
+      }
 
-parallel  {
-openws.caddy.reverse-proxy
--> openws.homepage "openws.org" {
-technology "HTTP"
-}
+    parallel {
+      openws.caddy.reverse-proxy -> openws.homepage "openws.org" {
+        technology "HTTP"
+      }
 
-openws.caddy.reverse-proxy -> openws.open-webui "ai.openws.org" {
-technology "HTTP"
-}
+      openws.caddy.reverse-proxy -> openws.open-webui "ai.openws.org" {
+        technology "HTTP"
+      }
 
-openws.caddy.reverse-proxy -> openws.docs "docs.openws.org"{
-technology "HTTP"
-}
-}
-
-openws.open-webui -> openws.ollama "calls"
-
-vendors.cloudflare -> person {
-color green
-technology "HTTPS"
-}
-}
-
-    view microvisor of microvisor {
-        title: "Microvisor"
-        description "Multikernel Build System"
-        include
-          *,
-          vendors._,
-          microcontrollers.*,
-          operating-systems.*,
-          langugages.*,
-          documentation.*,
-          pr-review.*,
-          gitops.*,
-          frameworks.*,
-          build-systems.*,
-          databases.*,
-          ci.*,
-          cd.*
+      openws.caddy.reverse-proxy -> openws.docs "docs.openws.org" {
+        technology "HTTP"
+      }
     }
 
-    view userspaces of microvisor.operating-systems.userspaces {
-        title: "Operating Systems"
-        include
-          *,
-          microvisor.operating-systems.kernels._
-    }
+    openws.open-webui -> openws.ollama "calls"
 
-    view kernels of microvisor.kernels {
-        title: "Kernels"
-        description:  """
+    vendors.cloudflare -> person {
+      color green
+      technology "HTTPS"
+    }
+  }
+
+  view microvisor of microvisor {
+    title: "Microvisor"
+    description "Multikernel Build System"
+    include
+      *,
+      vendors._,
+      microcontrollers.*,
+      operating-systems.*,
+      langugages.*,
+      documentation.*,
+      pr-review.*,
+      gitops.*,
+      frameworks.*,
+      build-systems.*,
+      databases.*,
+      ci.*,
+      cd.*
+  }
+
+  view userspaces of microvisor.operating-systems.userspaces {
+    title: "Operating Systems"
+    include
+      *,
+      microvisor.operating-systems.kernels._
+  }
+
+  view kernels of microvisor.kernels {
+    title: "Kernels"
+    description: """
         Supported operating system back-ends
         """
-        include
-          *,
-          linux.**
-    }
+    include
+      *,
+      linux.**
+  }
 
-    view microcontrollers of microvisor.microcontrollers {
-        title: "Microcontrollers"
-        description:  """
+  view microcontrollers of microvisor.microcontrollers {
+    title: "Microcontrollers"
+    description: """
         Supported embedded devices
         """
-        include microcontrollers.**
-    }
+    include microcontrollers.**
+  }
 
-    view vendors of vendors {
+  view vendors of vendors {
     description: "Third-party services"
-        include
-          *,
-          pulumi.*,
-          google.**,
-          cloudflare.*,
-          ui-ux-design.*,
-          software-development.*,
-          marketing-and-communication.*
-    }
+    include
+      *,
+      pulumi.*,
+      google.**,
+      cloudflare.*,
+      ui-ux-design.*,
+      software-development.*,
+      marketing-and-communication.*
+  }
 
 
-    view screenplay-pattern of screenplay-pattern {
+  view screenplay-pattern of screenplay-pattern {
     description: "Behavior-Driven Development"
-        include *
-    }
+    include *
+  }
 
-    }
+}
 
-    model {
+model {
 
 }

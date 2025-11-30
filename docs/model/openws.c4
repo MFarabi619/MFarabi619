@@ -1,11 +1,11 @@
 model {
 
-person = actor "Person" {
-style {
-shape person
-color green
-}
-}
+    person = actor "Person" {
+        style {
+            shape person
+            color green
+        }
+    }
     openws = context "OpenWS" {
         icon @/microvisor-systems-logo.png
         summary "Open Web Services"
@@ -14,72 +14,72 @@ color green
             opacity: 40%
         }
 
-caddy = code "Caddy" {
-link https://caddyserver.com "Website"
-icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
-style {
-shape queue
-color green
-opacity 40%
-}
+        caddy = code "Caddy" {
+            link https://caddyserver.com "Website"
+            icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
+            style {
+                shape queue
+                color green
+                opacity 40%
+            }
 
-virtual-hosts = code "Virtual Hosts" {
-icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
-style {
-shape storage
-color green
-}
-}
+            virtual-hosts = code "Virtual Hosts" {
+                icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
+                style {
+                    shape storage
+                    color green
+                }
+            }
 
-reverse-proxy = code "Reverse Proxy" {
-icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
-style {
-shape queue
-color green
-}
-}
-}
+            reverse-proxy = code "Reverse Proxy" {
+                icon https://avatars.githubusercontent.com/u/12955528?s=200&v=4
+                style {
+                    shape queue
+                    color green
+                }
+            }
+        }
 
-homepage = component "Homepage" {
-icon @/microvisor-systems-logo.png
-link https://openws.org
+        homepage = component "Homepage" {
+            icon @/microvisor-systems-logo.png
+            link https://openws.org
 
-style {
-shape mobile
-color purple-50
-}
-}
+            style {
+                shape mobile
+                color purple-50
+            }
+        }
 
 
-open-webui = component "Open-WebUI" {
-link https://docs.openwebui.com "📚 Docs"
-icon https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/open-webui.svg
+        open-webui = component "Open-WebUI" {
+            link https://docs.openwebui.com "📚 Docs"
+            icon https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/open-webui.svg
 
-style {
-color gray
-shape browser
-}
-}
+            style {
+                color gray
+                shape browser
+            }
+        }
 
-ollama = component "Ollama" {
-link https://ollama.com "Website"
-link https://docs.ollama.com "📚 Docs"
-icon https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/ollama-dark.svg
+        ollama = component "Ollama" {
+            link https://ollama.com "Website"
+            link https://docs.ollama.com "📚 Docs"
+            icon https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/ollama-dark.svg
 
-style {
-color gray
-shape queue
-}
-}
+            style {
+                color gray
+                shape queue
+            }
+        }
 
-docs = component "Docs" {
-link https://docs.openws.org "📚 Docs"
-icon @/likec4-symbol.svg
-style {
-color slate
-shape browser
-}
-}
+        docs = component "Docs" {
+            link https://docs.openws.org "📚 Docs"
+            icon @/likec4-symbol.svg
+            style {
+                color slate
+                shape browser
+            }
+        }
 
     }
 }
