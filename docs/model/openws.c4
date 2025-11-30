@@ -7,7 +7,7 @@ color green
 }
 }
     openws = context "OpenWS" {
-        icon @/trident-logo.png
+        icon @/microvisor-systems-logo.png
         summary "Open Web Services"
         style {
             color: violet-500
@@ -48,18 +48,8 @@ style {
 shape mobile
 color purple-50
 }
-
- -> backend "fetches via HTTPS"
 }
 
-backend = component "Back-End" {
-icon tech:linux
-style {
-shape queue
-}
-
--> db "reads/writes"
-}
 
 open-webui = component "Open-WebUI" {
 link https://docs.openwebui.com "📚 Docs"
@@ -91,13 +81,5 @@ shape browser
 }
 }
 
-db = component "Database" {
-icon tech:postgresql
-style{
-shape storage
-}
-}
-
-      -> vendors "relies on"
     }
 }

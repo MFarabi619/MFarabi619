@@ -5,85 +5,36 @@ views {
         **Top Level** overview.
         """
         include
-          vendors.microvisor-systems,
+          vendors.microvisor-systems with {
+          navigateTo deployment
+},
           microvisor,
-          doombsd,
-          apollyon-linux,
-          tech-stack,
           openws with {
           navigateTo openws
 },
+          doombsd,
+          apollyon-linux,
+
     }
 
-    view tech-stack of tech-stack {
-        title: "Tech Stack"
-        description: """
-        Languages, frameworks, conventions, etc.
-        """
-        include tech-stack.**
-    }
+  deployment view deployment {
+    title 'Deployment'
 
-    view microvisor of microvisor {
-        title: "Microvisor"
-        description "Multikernel Build System"
-        include
-          *,
-          tech-stack.operating-systems.*,
-          tech-stack
-    }
+    include
+      *,
+      production.**,
 
-    view userspaces of tech-stack.operating-systems.userspaces {
-        title: "Operating Systems"
-        include
-          *,
-          tech-stack.kernels._
-    }
-
-    view kernels of tech-stack.kernels {
-        title: "Kernels"
-        description:  """
-        Supported operating system back-ends
-        """
-        include
-          *,
-          linux.**
-    }
-
-    view microcontrollers of tech-stack.microcontrollers {
-        title: "Microcontrollers"
-        description:  """
-        Supported embedded devices
-        """
-        include microcontrollers.**
-    }
-
-    view vendors of vendors {
-    description: "Third-party services"
-        include
-          *,
-          pulumi.*,
-          google.**,
-          cloudflare.*,
-          ui-ux-design.*,
-          software-development.*,
-          marketing-and-communication.*
-    }
-
-
-    view screenplay-pattern of screenplay-pattern {
-    description: "Behavior-Driven Development"
-        include *
-    }
+	}
 
 dynamic view openws {
 title  "OpenWS"
 
 include
   openws,
+  openws.caddy,
   vendors
 
 person -> vendors.cloudflare {
-title "visits"
 color blue
 technology "HTTPS"
 notes '''
@@ -159,4 +110,71 @@ color green
 technology "HTTPS"
 }
 }
+
+    view microvisor of microvisor {
+        title: "Microvisor"
+        description "Multikernel Build System"
+        include
+          *,
+          vendors._,
+          microcontrollers.*,
+          operating-systems.*,
+          langugages.*,
+          documentation.*,
+          pr-review.*,
+          gitops.*,
+          frameworks.*,
+          build-systems.*,
+          databases.*,
+          ci.*,
+          cd.*
     }
+
+    view userspaces of microvisor.operating-systems.userspaces {
+        title: "Operating Systems"
+        include
+          *,
+          microvisor.operating-systems.kernels._
+    }
+
+    view kernels of microvisor.kernels {
+        title: "Kernels"
+        description:  """
+        Supported operating system back-ends
+        """
+        include
+          *,
+          linux.**
+    }
+
+    view microcontrollers of microvisor.microcontrollers {
+        title: "Microcontrollers"
+        description:  """
+        Supported embedded devices
+        """
+        include microcontrollers.**
+    }
+
+    view vendors of vendors {
+    description: "Third-party services"
+        include
+          *,
+          pulumi.*,
+          google.**,
+          cloudflare.*,
+          ui-ux-design.*,
+          software-development.*,
+          marketing-and-communication.*
+    }
+
+
+    view screenplay-pattern of screenplay-pattern {
+    description: "Behavior-Driven Development"
+        include *
+    }
+
+    }
+
+    model {
+
+}
