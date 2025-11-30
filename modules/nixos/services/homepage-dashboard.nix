@@ -21,7 +21,6 @@ in
     # inherit package;
     enable = true;
     listenPort = 8088;
-    openFirewall = false;
     # environmentFile = "";
     allowedHosts = "openws.org";
 
@@ -105,10 +104,10 @@ in
             };
           }
           {
-            "🏗️ Docs" = {
-              href = "https://docs.openws.org";
-              siteMonitor = "https://ai.openws.org";
-              icon = "https://avatars.githubusercontent.com/u/128791862?s=200&v=4";
+            "Docs" = {
+              href = "https://docs.openws.org/view/index";
+              siteMonitor = "https://docs.openws.org";
+              icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/likec4-symbol.svg";
             };
           }
           {
