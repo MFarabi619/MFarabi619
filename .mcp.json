@@ -15,6 +15,16 @@
                 "--no-http"
             ],
             "env": {}
-        }
+        },
+      "likec4": {
+      "command": "pnpx",
+      "args": [
+        "-y",
+        "@likec4/mcp"
+      ],
+      "env": {
+        "LIKEC4_WORKSPACE": "${workspaceFolder}"
+      }
+    }
     }
 }
