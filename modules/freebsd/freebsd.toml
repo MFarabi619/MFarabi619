@@ -1,0 +1,51 @@
+[metadata]
+name = "freebsd"
+description = "Fuzzy-find FreeBSD packages, ports, services, and config options"
+requirements = ["pkg", "col", "less", "grep", "awk", "sed"]
+
+[source]
+command = '''
+sh -c '
+pkg query "%n-%v" | sed "s/^/pkg\//"
+pkg rquery "%n-%v" | sed "s/^/remote\//"
+cd /usr/ports && make search key="{}" 2>/dev/null | awk "{print \"ports/\" $1}"
+service -e | sed "s/^/service\//"
+sysctl -a | sed "s/^/sysctl\//"
+'
+'''
+
+[preview]
+command = '''
+sh -c '
+entry="{}"
+case "$entry" in
+  pkg/*) pkg_name=$(echo "$entry" | sed -E "s/^pkg\///;s/-[0-9]+(\.[0-9]+)*(-.*)?$//"); pkg info "$pkg_name" | col -bx ;;
+  remote/*) pkg_name=$(echo "$entry" | sed -E "s/^remote\///;s/-[0-9]+(\.[0-9]+)*(-.*)?$//"); pkg rquery "%n %v %o %d %y" "$pkg_name" | col -bx ;;
+  ports/*) port_name=$(echo "$entry" | sed "s/^ports\///"); cd /usr/ports/$port_name && make showconfig | col -bx ;;
+  service/*) svc_name=$(echo "$entry" | sed "s/^service\///"); service "$svc_name" status ;;
+  sysctl/*) echo "$entry" | cut -d/ -f2- | xargs sysctl -a ;;
+esac
+'
+'''
+
+[keybindings]
+enter = "actions:open"
+
+[actions.open]
+description = "Open in pager"
+command = '''
+sh -c '
+entry="{}"
+case "$entry" in
+  pkg/*) pkg_name=$(echo "$entry" | sed -E "s/^pkg\///;s/-[0-9]+(\.[0-9]+)*(-.*)?$//"); pkg info "$pkg_name" | less -R ;;
+  remote/*) pkg_name=$(echo "$entry" | sed -E "s/^remote\///;s/-[0-9]+(\.[0-9]+)*(-.*)?$//"); pkg rquery "%n %v %o %d %y" "$pkg_name" | less -R ;;
+  ports/*) port_name=$(echo "$entry" | sed "s/^ports\///"); cd /usr/ports/$port_name && make showconfig | less -R ;;
+  service/*) svc_name=$(echo "$entry" | sed "s/^service\///"); service "$svc_name" status | less -R ;;
+  sysctl/*) echo "$entry" | cut -d/ -f2- | xargs sysctl -a | less -R ;;
+esac
+'
+'''
+mode = "execute"
+
+[ui.preview_panel]
+header = "{0}"
