@@ -22,7 +22,6 @@
 # mqtttui
 # taproom
 # tuistash
-# arduino-cli-interactive # github.com/Vaishnav-Sabari-Girish/arduino-cli-interactive?ref=terminaltrove
 # ballast
 # calcure
 # duf
@@ -46,21 +45,21 @@
     packages =
       with pkgs;
       [
-        duckdb
         tree
         pixi # multi-language package manager
         pnpm
         gnutls           # TLS connectivity
+        duckdb
         # =============
         # kicad
         # logseq
         openscad
         openscad-lsp
         # =============
-        vips # dired image previews
+        vips             # dired image previews
         mediainfo
-        poppler # dired pdf previews
-        imagemagick # for image-dired
+        poppler          # dired pdf previews
+        imagemagick      # for image-dired
         epub-thumbnailer # dired epub previews
         ffmpegthumbnailer
         # =============
@@ -70,7 +69,7 @@
         octaveFull       # gnu octave
         mermaid-cli      # mermaid diagram support
         # ============= 🧑‍💻🐞✨‍ ================
-        # tsui # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
+        # tsui           # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         nmap
         tgpt
         pik              # local port tui
@@ -90,14 +89,12 @@
 
         # keymap-drawer # visualize keyboard layout
 
-        lazyssh       # ssh
 
-        # lazyhetzner
 
         gama-tui        # github actions runners
         codeberg-cli
 
-        vi-mongo        # mongodb tui
+        # vi-mongo        # mongodb tui
 
         presenterm
 
@@ -126,14 +123,10 @@
         gnumake
         coreutils
         platformio
-        arduino-cli
-        arduino-language-server
+        # arduino-cli
+        # arduino-language-server
 
         # fritzing
-
-        # Setup Claude Code using Google Vertex AI Platform
-        # https://github.com/juspay/vertex
-        # flake.inputs.vertex.packages.${system}.default
 
         # ============== 🤪 =================
         genact
@@ -167,10 +160,12 @@
         isd           # systemd units
         dysk          # see mounted
         kmon          # kernel monitor
+        lazyssh       # ssh
         termshark     # wireshark-like TUI
         systeroid     # powerful sysctl alternative
         netscanner
         lazyjournal   # journal logs
+        # lazyhetzner
         systemctl-tui # systemctl logs
 
         virt-viewer
@@ -183,15 +178,15 @@
         hollywood
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
-        stm32cubemx
-
-        gparted
 
         impala        # wifi mgmt tui
         bluetui
 
+        gparted
+
         blink
         crates-tui
+        stm32cubemx
         arduino-ide
         # webcord-vencord
 
