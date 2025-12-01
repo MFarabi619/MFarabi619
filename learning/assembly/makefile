@@ -16,5 +16,9 @@ $(BUILD_DIR):
 run: $(OUT)
 	./$(OUT)
 
+show: $(OUT)
+	@file $(OUT)
+	@otool -hv $(OUT)
+
 clean:
 	rm -rf $(BUILD_DIR)
