@@ -1,6 +1,6 @@
 {
   programs.rbw = {
-    enable = true;
+    enable = false;
     settings =  {
       email  = "mfarabi619@gmail.com";
       # base_url = "";
