@@ -9,6 +9,7 @@ debug/
 target/
 **/result
 **/node_modules
+learning/assembly/build/
 
 #====================================================
 #                 Caches & Logs
