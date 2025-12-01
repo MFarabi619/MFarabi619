@@ -20,5 +20,8 @@ show: $(OUT)
 	@file $(OUT)
 	@otool -hv $(OUT)
 
+disassemble: $(OUT)
+	@otool -tV $(OUT)
+
 clean:
 	rm -rf $(BUILD_DIR)
