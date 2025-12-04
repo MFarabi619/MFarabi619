@@ -139,21 +139,21 @@ in
 
       "http://freebsd.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://192.168.50.242:7681
+          reverse_proxy http://192.168.50.142:7681
           ${tlsConfig}
         '';
       };
 
       "http://emacs.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://192.168.50.242:7682
+          reverse_proxy http://192.168.50.142:7682
           ${tlsConfig}
         '';
       };
 
       "http://neovim.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://192.168.50.242:7683
+          reverse_proxy http://192.168.50.142:7683
           ${tlsConfig}
         '';
       };
