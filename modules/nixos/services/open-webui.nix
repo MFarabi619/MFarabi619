@@ -6,8 +6,6 @@
   services.open-webui = {
     enable = pkgs.stdenv.isx86_64;
     port = 7777;
-    host = "127.0.0.1";
-    openFirewall = true;
     stateDir = "/var/lib/open-webui";
     environmentFile = "/var/lib/secrets/open-webui";
     environment = {

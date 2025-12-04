@@ -1,17 +1,12 @@
 {
-  config,
   lib,
+  config,
   ...
 }:
 {
   services.ollama = {
     enable = true;
-    port = 11434;
-    host = "0.0.0.0";
-    openFirewall = true;
-    # acceleration = "rocm"; # amd
-    # acceleration = "cuda"; # nvidia
-    home = "/var/lib/ollama"; # default
+    acceleration = "vulkan"; # "rocm" for amd "cuda" for nvidia
 
     loadModels = [
         "llama3.2:3b"
