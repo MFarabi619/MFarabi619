@@ -1,6 +1,6 @@
 {
-  pkgs,
   lib,
+  pkgs,
   ...
 }:
 {
@@ -8,17 +8,17 @@
   # eval "$(/opt/homebrew/bin/brew shellenv)"
   homebrew = {
     enable = true;
+    global.autoUpdate = true;
 
     onActivation = {
       upgrade = true;
       cleanup = "zap";
       autoUpdate = true;
+
       extraFlags = [
         "--verbose"
       ];
     };
-
-    global.autoUpdate = true;
 
     casks = [
       "via"
@@ -36,6 +36,7 @@
       "tailscale-app"
       # "supercollider"
       "docker-desktop"
+      "gcc-arm-embedded"
       "visual-studio-code"
       # "raspberry-pi-imager"
       "silicon-labs-vcp-driver"
@@ -46,10 +47,11 @@
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "qemu"
-      "ferron"
+      "ferron"                              # rust-based caddy-like web server
       # "podman"
-      "avr-gcc"
-      "arm-none-eabi-gcc"
+      # "avr-gcc"
+      # "arm-none-eabi-gcc"
+      "Vaishnav-Sabari-Girish/taps/comchan" # TUI serial monitor
     ];
   };
 }
