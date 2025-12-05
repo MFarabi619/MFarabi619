@@ -57,6 +57,7 @@
       doom-modeline-persp-name t
       display-time-day-and-date t
       treemacs-git-mode 'extended
+      org-latex-compiler "lualatex"
       ;; doom-lantern-padded-modeline t
       doom-modeline-major-mode-icon t
       org-directory "~/Documents/org/"
