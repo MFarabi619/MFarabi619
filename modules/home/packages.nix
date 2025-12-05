@@ -74,6 +74,7 @@
         tgpt
         pik              # local port tui
         sshs             # ssh tui
+        lazyssh          # ssh
         gpg-tui
         termscp
         caligula         # disk imaging
@@ -160,7 +161,6 @@
         isd           # systemd units
         dysk          # see mounted
         kmon          # kernel monitor
-        lazyssh       # ssh
         termshark     # wireshark-like TUI
         systeroid     # powerful sysctl alternative
         netscanner
@@ -178,7 +178,6 @@
         hollywood
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
-
         impala        # wifi mgmt tui
         bluetui
 
