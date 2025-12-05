@@ -63,6 +63,7 @@
       org-directory "~/Documents/org/"
       user-full-name "Mumtahin Farabi"
       display-line-numbers-type 'relative
+      plantuml-default-exec-mode "executable"
       which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
       user-mail-address "mfarabi619@gmail.com"
       ;; plstore-cache-passphrase-for-symmetric-encryption t
