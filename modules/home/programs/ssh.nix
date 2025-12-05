@@ -87,7 +87,6 @@
       };
 
       rpi5-16 = {
-        port = 22;
         host = "rpi5-16";
         user = "mfarabi";
         checkHostIP = true;
@@ -109,6 +108,14 @@
         user = "mfarabi";
         addKeysToAgent = "yes";
         hostname = "rpi5-8.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
+      ubuntu-s-1vcpu-1gb-50gb-mon1-01 = {
+        user = "ubuntu";
+        addKeysToAgent = "yes";
+        host = "ubuntu-s-1vcpu-1gb-50gb-mon1-01";
+        hostname = "ubuntu-s-1vcpu-1gb-50gb-mon1-01.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
       };
 
