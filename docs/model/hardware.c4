@@ -1,0 +1,177 @@
+model {
+  hardware = context "Hardware" {
+    style {
+      color gray
+    }
+
+    processor = component "Processor Core" "CPU / core and tightly-coupled logic" {
+      style {
+        color indigo
+      }
+    }
+
+    system = component "System" "System logic: controllers and core peripherals" {
+      style {
+        color red
+      }
+
+      gpios = container "GPIOs" "General Purpose Input/Output" {
+        style {
+          color green
+        }
+      }
+
+      dma = container "DMA" "Direct Memory Access controller" {
+        style {
+          color amber
+        }
+      }
+
+      reset-clock = container "Reset & Clock" "Reset logic and clock generation / PLLs" {
+        style {
+          color slate
+        }
+      }
+
+      power = container "Power Control" "Power domains, regulators, brown-out, reset sources" {
+        style {
+          color orange-500
+        }
+      }
+
+      irq = container "Interrupt Controller" "NVIC / interrupt routing and priorities" {
+        style {
+          color blue
+        }
+      }
+
+      analog-interfaces = container "Analog Interfaces" "Analog front-end peripherals" {
+        style {
+          color sky
+        }
+
+        adc = container "ADC" "Analog-to-Digital Converter" {
+          style {
+            color sky
+          }
+        }
+
+        dac = container "DAC" "Digital-to-Analog Converter" {
+          style {
+            color indigo
+          }
+        }
+
+        opamp = container "OPAMP" "On-chip operational amplifiers" {
+          style {
+            color orange-500
+          }
+        }
+
+        comp = container "COMP" "Comparators" {
+          style {
+            color red-500
+          }
+        }
+      }
+    }
+
+    internal-buses = component "Internal Buses" "Bus fabric (APB/AHB/AXI style) connecting system to peripherals" {
+      style {
+        color slate
+      }
+    }
+
+    memory = component "Memory" "On-chip memory blocks" {
+      style {
+        color blue
+      }
+
+      flash = container "Flash" "Non-volatile program / data storage" {
+        style {
+          color orange-500
+          shape storage
+        }
+      }
+
+      sram = container "SRAM" "Data RAM (Tightly-coupled & main SRAM)" {
+        style {
+          color secondary
+          shape storage
+        }
+      }
+    }
+
+    communication-interfaces = component "Communication Interfaces" "Communication peripherals (I²C, SPI, UART, CAN, USB, Ethernet)" {
+      style {
+        color yellow
+      }
+
+      i2c = container "I2C" "Inter-Integrated Circuit" {
+        style {
+          color amber
+        }
+      }
+
+      spi = container "SPI" "Serial Peripheral Interface" {
+        style {
+          color yellow
+        }
+      }
+
+      uart = container "UART" "Universal Asynchronous Receiver-Transmitter" {
+        style {
+          color amber
+        }
+      }
+
+      can = container "CAN" "Controller Area Network" {
+        style {
+          color orange-500
+        }
+      }
+
+      usb = container "USB" "Universal Serial Bus" {
+        style {
+          color green
+        }
+      }
+
+      ethernet = container "Ethernet" "Ethernet MAC/PHY interface" {
+        style {
+          color blue
+        }
+      }
+    }
+
+    timers = component "Timers" "Timing and watchdog peripherals" {
+      style {
+        color indigo
+      }
+
+      gp-timers = container "GP Timers" "General purpose timers / PWM" {
+        style {
+          color amber
+        }
+      }
+
+      rtc = container "RTC" "Real-time clock / calendar" {
+        style {
+          color sky
+        }
+      }
+
+      wdg = container "WDG" "Watchdog timer" {
+        style {
+          color red-500
+        }
+      }
+    }
+
+    other-peripherals = component "Other Peripherals" "Miscellaneous peripherals (crypto, RNG, SDIO, FSMC, etc.)" {
+      style {
+        color secondary
+      }
+    }
+  }
+}

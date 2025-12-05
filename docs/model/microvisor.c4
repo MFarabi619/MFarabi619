@@ -1,5 +1,4 @@
 model {
-
     doombsd = component "DoomBSD" {
         summary "Modernized & Hardened FreeBSD"
         icon @/doombsd-symbol-orb.svg
@@ -390,6 +389,15 @@ model {
                 link https://www.espressif.com "Website"
                 style {
                     color: red
+                }
+
+
+                esp-idf = component "ESP IDF" {
+                    icon https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/espressif.svg
+                    link https://idf.espresssif.com "Website"
+                    style {
+                        color: red
+                    }
                 }
 
                 esp32-s3-devkit-c-1 = component "ESP32-S3-Devkit-C-1" {
