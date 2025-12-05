@@ -46,7 +46,7 @@
 
     docs = {
       description = " 📚 RTFM";
-      exec = "pnpx likec4 start ${config.git.root}/docs";
+      exec = "bunx likec4 start ${config.git.root}/docs";
     };
 
     console = {
