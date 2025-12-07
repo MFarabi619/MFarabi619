@@ -1,8 +1,10 @@
 {
+  pkgs,
+  ...
+}:
+{
   services.ollama = {
-    enable = true;
-    port = 11434; # default
-    host = "0.0.0.0"; # default
+    enable = !pkgs.stdenv.isDarwin;
     # acceleration = "rocm";
     # acceleration = "cuda"; # nvidia
     # environmentVariables = { };
