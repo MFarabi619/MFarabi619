@@ -11,10 +11,9 @@
         pg
         nov
         mu4e
-        # jira
         verb
-        gptel
-        vterm
+        gptel            # ai
+        vterm            # terminal emulation
         circe
         corfu
         corfu-terminal
@@ -31,20 +30,19 @@
         nix-update
         nix-ts-mode
         all-the-icons
+        compiler-explorer
 
         lsp-tailwindcss
         treesit-grammars.with-all-grammars
         # ================
         abc-mode
         scad-mode
-        ob-mermaid # org babel mermaid
+        ob-mermaid
         mermaid-mode # github.com/abrochard/mermaid-mode
         org-table-highlight
         # ================
-        obsidian
         pdf-tools
         org-roam-ui
-        # platformio-mode
         pacmacs
         key-quiz
         nyan-mode
@@ -54,6 +52,9 @@
         chordpro-mode
         org-super-agenda
         # ================
+        # jira
+        # obsidian
+        # platformio-mode
         # catppuccin-theme
       ];
 
@@ -63,6 +64,7 @@
       git
       ispell
       duckdb
+      # pandoc
       tuntox # collab
       semgrep
       ripgrep
