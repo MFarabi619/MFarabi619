@@ -119,6 +119,7 @@
           ("p" "~/Pictures/"                 "Pictures")
           ("w" "~/workspace/"                "Workspace")
           ("d" "~/Downloads/"                "Downloads")
+          ("a" "~/Documents/"                "Documents")
           ("m" "/mnt/"                       "Mounted drives")
           ("e" ,user-emacs-directory         "Emacs user directory"))))
 
