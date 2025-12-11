@@ -3,6 +3,7 @@
 #====================================================
 .shellspec
 tests/env_spec.sh
+**/.pio/
 **/debug/
 **/target/
 debug/
