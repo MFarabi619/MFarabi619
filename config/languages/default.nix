@@ -3,6 +3,7 @@
     ./c.nix
     ./go.nix
     ./nix.nix
+    ./zig.nix
     # ./python.nix
     # ./ruby.nix
     ./rust.nix
