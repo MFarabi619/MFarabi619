@@ -48,6 +48,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="Nix Language Logo" width="40" height="40" />
 </a>
+<!-- Zig -->
+<a href="https://ziglang.org" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/zig/zig-original.svg" alt="Zig Logo" width="40" height="40" />
+</a>
 <!-- Rust -->
 <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
 <img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40" />

@@ -7,6 +7,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
       },
       {
+        "name": "Zig",
+        "url": "https://ziglang.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/zig/zig-original.svg"
+      },
+      {
         "name": "Rust",
         "url": "https://www.rust-lang.org/",
         "icon": "https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png"
