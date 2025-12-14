@@ -128,13 +128,6 @@ in
             };
           }
           {
-            "Grafana" = {
-              href = "https://openws.org/grafana";
-              siteMonitor = "https://openws.org/grafana";
-              icon = "grafana.svg";
-            };
-          }
-          {
             "🏗️ Netdata" = {
               href = "https://www.netdata.cloud";
               # siteMonitor = "https://www.netdata.cloud";
@@ -171,10 +164,10 @@ in
           {
             "IoT & Robotics" = [
               {
-                "ThingsBoard" = {
-                  href = "https://iot.apidaesystems.ca";
-                  siteMonitor = "https://iot.apidaesystems.ca";
-                  icon = "thingsboard.svg";
+                "Grafana" = {
+                  href = "https://openws.org/grafana";
+                  siteMonitor = "https://openws.org/grafana";
+                  icon = "grafana.svg";
                 };
               }
             ];
