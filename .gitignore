@@ -11,6 +11,8 @@ target/
 **/result
 **/node_modules
 learning/assembly/build/
+**/zig-out
+**/.zig-cache
 
 #====================================================
 #                 Caches & Logs
