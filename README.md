@@ -122,6 +122,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://embassy.dev" target="_blank" rel="noreferrer">
 <img src="https://embassy.dev/favicon.png" alt="Embassy Logo" width="40" height="40" />
 </a>
+<!-- Platformio -->
+<a href="https://platformio.org" target="_blank" rel="noreferrer">
+<img src="assets/platformio-symbol.svg" alt="Platformio Logo" width="40" height="40" />
+</a>
 <!-- TinyGo -->
 <a href="https://tinygo.org" target="_blank" rel="noreferrer">
 <img src="https://tinygo.org/images/tinygo-logo.png" alt="TinyGo Logo" width="40" height="40" />

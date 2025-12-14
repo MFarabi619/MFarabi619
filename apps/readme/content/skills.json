@@ -99,6 +99,11 @@
         "icon": "https://embassy.dev/favicon.png"
       },
       {
+        "name": "Platformio",
+        "url": "https://platformio.org",
+        "icon": "assets/platformio-symbol.svg"
+      },
+      {
         "name": "TinyGo",
         "url": "https://tinygo.org",
         "icon": "https://tinygo.org/images/tinygo-logo.png"
