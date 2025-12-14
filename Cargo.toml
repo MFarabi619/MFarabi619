@@ -4,10 +4,12 @@ resolver = "3"
 members = [
     "tui",
     "api",
-    "desktop",
-    "mobile",
     "ui",
-    "web", "learning/rust/variables",
+    "web",
+    "mobile",
+    "desktop",
+    "apps/readme",
+    "learning/rust/variables",
 ]
 
 exclude = [
