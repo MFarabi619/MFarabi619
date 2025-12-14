@@ -109,11 +109,6 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
       },
       {
-        "name": "XState",
-        "url": "https://xstate.js.org",
-        "icon": "https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png"
-      },
-      {
         "name": "SQLite",
         "url": "https://sqlite.org",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg"
@@ -290,6 +285,11 @@
         "name": "Drizzle",
         "url": "https://orm.drizzle.team/",
         "icon": "https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg"
+      },
+      {
+        "name": "XState",
+        "url": "https://xstate.js.org",
+        "icon": "https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png"
       },
       {
         "name": "GraphQL",

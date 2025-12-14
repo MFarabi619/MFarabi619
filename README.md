@@ -130,10 +130,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40" />
 </a>
-<!-- XState -->
-<a href="https://xstate.js.org" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40" />
-</a>
 <!-- SQLite -->
 <a href="https://sqlite.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" alt="SQLite Logo" width="40" height="40" />
@@ -280,6 +276,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Drizzle -->
 <a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40" />
+</a>
+<!-- XState -->
+<a href="https://xstate.js.org" target="_blank" rel="noreferrer">
+<img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40" />
 </a>
 <!-- GraphQL -->
 <a href="https://graphql.org/" target="_blank" rel="noreferrer">
@@ -867,4 +867,4 @@ Got a suggestion? Add it to the list :)
 
 ---
 
-Generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/apps/readme/src/main.rs) parser executed on self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
+Generated dynamically using [Rust](https://github.com/MFarabi619/MFarabi619/blob/main/apps/readme/src/main.rs) parser executed on a self-hosted [GitHub Actions](https://github.com/MFarabi619/MFarabi619/actions) runner 🦀🤖
