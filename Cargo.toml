@@ -9,7 +9,7 @@ members = [
     "mobile",
     "desktop",
     "apps/readme",
-    "learning/rust/variables",
+    "learning/rust/variables", "learning/rust/functions",
 ]
 
 exclude = [
