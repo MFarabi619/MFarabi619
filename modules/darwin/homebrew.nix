@@ -25,6 +25,7 @@
       "vial"
       "vivaldi"
       "coderabbit"
+      "binary-ninja-free"
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "huly"

@@ -194,7 +194,6 @@
       ++ lib.optionals stdenv.isDarwin [
         utm          # virtual machines on macos
         ttyd         # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
-        ninja
         ccache
         avrdude
         dfu-util
