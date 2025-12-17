@@ -11,7 +11,7 @@ members = [
     "apps/readme",
     "learning/rust/3.1-variables",
     "learning/rust/3.3-functions",
-    "learning/rust/3.4-comments", "learning/rust/3.5-control-flow", "learning/rust/4.1-what-is-ownership",
+    "learning/rust/3.4-comments", "learning/rust/3.5-control-flow", "learning/rust/4.1-what-is-ownership", "learning/rust/4.2-references-and-borrowing",
 ]
 
 exclude = [
