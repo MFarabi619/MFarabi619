@@ -1,14 +1,8 @@
 // #include <Arduino.h>
 // #include <calculator.h>
+// #include <blink.h>
 
 // Calculator calc;
-
-// void blink_once(unsigned int delay_ms){
-//   digitalWrite(LED_BUILTIN, HIGH);
-//   delay(delay_ms);
-//   digitalWrite(LED_BUILTIN, LOW);
-//   delay(delay_ms);
-// }
 
 // void calculator_example_loop(){
 //     Serial.print("Addition: ");
