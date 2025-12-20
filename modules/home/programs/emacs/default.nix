@@ -68,6 +68,7 @@
       tuntox # collab
       semgrep
       ripgrep
+      graphviz
       plantuml
       coreutils
       rustywind
