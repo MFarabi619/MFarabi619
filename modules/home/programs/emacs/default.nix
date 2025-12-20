@@ -33,7 +33,7 @@
         compiler-explorer
 
         lsp-tailwindcss
-        treesit-grammars.with-all-grammars
+        # treesit-grammars.with-all-grammars
         # ================
         abc-mode
         scad-mode
