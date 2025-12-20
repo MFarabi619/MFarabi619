@@ -1,10 +1,98 @@
-#include "board.h"
-#include "blink.h"
+#include "setup.h"
 
-void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
+const char *MDNS_HOSTNAME = "microvisor";
+
+AsyncWebServer server(80);
+
+#if CONFIG_FREERTOS_UNICORE
+  static const BaseType_t app_cpu = 0;
+#else
+  static const BaseType_t app_cpu = 1;
+#endif
+
+static void handle_status(AsyncWebServerRequest *request) {
+  digitalWrite(REQUEST_INDICATOR_LED_PIN, HIGH);
+
+  String json = "{";
+  json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
+  json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
+  json += "\"uptime_seconds\":" + String(millis() / 1000) + ",";
+  json += "\"heap\":" + String(ESP.getFreeHeap());
+  json += "}";
+
+  request->send(200, "application/json; charset=utf-8", json);
+
+  digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
 }
 
-void loop() {
-  blink_once(500);
+static void handle_not_found(AsyncWebServerRequest *request){
+  digitalWrite(REQUEST_INDICATOR_LED_PIN, HIGH);
+  request->send(404, "text/plain; charset=utf-8", "404: Not found");
+  digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
 }
+
+void setup(){
+  pinMode(REQUEST_INDICATOR_LED_PIN, OUTPUT);
+  digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
+  Serial.begin(MONITOR_SPEED);
+  delay(200);
+
+  Serial.println(CLR_BLUE_B "\n=== BOOT SEQUENCE ===" CLR_RESET);
+  Serial.println(CLR_YELLOW "[Logger] Initializing..." CLR_RESET);
+
+  Serial.println(CLR_BLUE_B "\n=== HARDWARE BRING-UP SUMMARY ===" CLR_RESET);
+  Serial.println(CLR_GREEN "[Logger] OK" CLR_RESET);
+
+  if (SPIFFS.begin(true)) {
+  Serial.println(CLR_GREEN "[SPIFFS] Mounted" CLR_RESET);
+} else {
+  Serial.println(CLR_RED "[SPIFFS] ERROR: mount failed" CLR_RESET);
+}
+
+  Serial.println(CLR_BLUE_B "\n=== NETWORK BRING-UP ===" CLR_RESET);
+  Serial.print(CLR_YELLOW "[WiFi] Connecting to SSID: " CLR_RESET);
+  Serial.print(NETWORK_SSID);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.setSleep(false);
+  WiFi.setAutoReconnect(true);
+
+  WiFi.begin(NETWORK_SSID, NETWORK_PSK);
+
+  Serial.print(CLR_YELLOW "[WiFi] Connecting" CLR_RESET);
+
+  uint32_t t0 = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
+    Serial.print(".");
+    delay(300);
+  }
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println(CLR_GREEN "[WiFi] Connected" CLR_RESET);
+    Serial.printf(CLR_MAGENTA_B "[WiFi] IP: " CLR_RESET);
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println(CLR_RED "[WiFi] ERROR: connect timeout. Check 2.4GHz/WPA2 and password." CLR_RESET);
+  }
+
+  if (MDNS.begin(MDNS_HOSTNAME)) {
+    Serial.printf(CLR_GREEN "[mDNS] Responder started (%s.local)\n" CLR_RESET, MDNS_HOSTNAME);
+  } else {
+    Serial.println(CLR_RED "[mDNS] ERROR: Failed to start responder" CLR_RESET);
+  }
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    digitalWrite(REQUEST_INDICATOR_LED_PIN, HIGH);
+    request->send(SPIFFS, "/index.html", "text/html; charset=utf-8");
+    digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
+  });
+
+  server.on("/api/status", HTTP_GET, handle_status);
+  server.onNotFound(handle_not_found);
+  server.begin();
+  Serial.println(CLR_GREEN "[HTTP] Async server started on port 80" CLR_RESET);
+
+}
+
+void loop() {}

@@ -8,3 +8,13 @@ void blink_once(unsigned int delay_ms){
   digitalWrite(LED_BUILTIN, LOW);
   delay(delay_ms);
 }
+
+// void setup() {
+//   Serial.begin(UART_BAUD);
+
+//   pinMode(LED_BUILTIN, OUTPUT);
+// }
+
+// void loop() {
+// blink_once(500);
+// }
