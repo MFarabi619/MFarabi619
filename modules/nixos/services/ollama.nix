@@ -6,7 +6,6 @@
 {
   services.ollama = {
     enable = true;
-    acceleration = "vulkan"; # "rocm" for amd "cuda" for nvidia
 
     loadModels = [
         "llama3.2:3b"
