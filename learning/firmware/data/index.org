@@ -1,27 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>🕹️ Microvisor Systems 🕹️</title>
-<meta name="generator" content="Org Mode" />
-<script module src="https://docs.openws.org/likec4-views.js"></script>
-<link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/MFarabi619/MFarabi619/6d07d279751dbb489f26b921b170d646f48422bc/assets/nix-mfarabi.svg" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" />
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-<style>
-@keyframes float {
-0% { transform: translate(-3%, -2%) scale(0.95); opacity: 0.6; }
-100% { transform: translate(3%, 3%) scale(1.05); opacity: 0.8; }
-}
-.title { display: none; }
-</style>
-</head>
-<body>
-<div id="content" class="min-h-screen overflow-x-hidden bg-zinc-950 text-gray-200 font-sans">
-<h1 class="title">🕹️ Microvisor Systems 🕹️</h1>
+#+TITLE: 🕹️ Microvisor Systems 🕹️
+#+OPTIONS: author:nil email:nil date:nil creator:nil f:nil timestamp:nil toc:nil html-style:nil
+
+#+HTML_DOCTYPE: html5
+#+HTML_CONTAINER: main
+#+HTML_HEAD_INCLUDE_SCRIPTS: nil
+#+HTML_HEAD_INCLUDE_DEFAULT_STYLE: nil
+#+HTML_CONTENT_CLASS: min-h-screen overflow-x-hidden bg-zinc-950 text-gray-200 font-sans
+
+#+HTML_HEAD: <script module src="https://docs.openws.org/likec4-views.js"></script>
+#+HTML_HEAD: <link rel="icon" type="image/svg+xml" href="https://raw.githubusercontent.com/MFarabi619/MFarabi619/6d07d279751dbb489f26b921b170d646f48422bc/assets/nix-mfarabi.svg" />
+#+HTML_HEAD_EXTRA: <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5"/>
+#+HTML_HEAD: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" />
+
+#+HTML_HEAD_EXTRA: <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+#+HTML_HEAD_EXTRA: <style>
+#+HTML_HEAD_EXTRA: @keyframes float {
+#+HTML_HEAD_EXTRA:   0% { transform: translate(-3%, -2%) scale(0.95); opacity: 0.6; }
+#+HTML_HEAD_EXTRA:   100% { transform: translate(3%, 3%) scale(1.05); opacity: 0.8; }
+#+HTML_HEAD_EXTRA: }
+#+HTML_HEAD_EXTRA:  .title { display: none; }
+#+HTML_HEAD_EXTRA: </style>
+
+#+BEGIN_EXPORT html
 <header class="navbar fixed top-0 left-0 w-full px-6 py-4
   backdrop-blur-xl shadow-md
   transition-all duration-300 z-50 hover:shadow-[0_0_25px_rgba(255,255,255,0.35)]">
@@ -54,7 +57,9 @@
     </a>
   </nav>
 </header>
+#+END_EXPORT
 
+#+BEGIN_EXPORT html
 <div class="fixed inset-0 blur-[120px] saturate-[140%] opacity-60 pointer-events-none z-0" aria-hidden="true">
   <div
     class="absolute w-[60vmax] h-[60vmax] rounded-full opacity-60 mix-blend-screen
@@ -83,7 +88,9 @@
     top-[75%] left-[40%]">
   </div>
 </div>
+#+END_EXPORT
 
+#+BEGIN_EXPORT html
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-32 gap-10">
   <!-- HERO CARD -->
     <div class="hover-3d w-full max-w-3xl">
@@ -122,7 +129,10 @@
       <div></div>
     </div>
 </main>
+#+END_EXPORT
 
+# STATUS
+#+BEGIN_EXPORT html
   <section
     class="my-8 mx-auto self-center bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)]
     backdrop-blur-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.5)]
@@ -226,7 +236,9 @@ class="min-h-screen w-full">
 </iframe>
 
 </div>
+#+END_EXPORT
 
+#+BEGIN_EXPORT html
   <section
     class="mx-auto self-center bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)]
     backdrop-blur-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.5)]
@@ -238,79 +250,81 @@ class="min-h-screen w-full">
   <pre data-prefix=">" class="text-success"><code>[Logger] OK</code></pre>
   <pre data-prefix=">" class="text-success"><code>Done.</code></pre>
 </section>
+#+END_EXPORT
 
-<footer class="w-full text-center opacity-70 text-muted text-xs">
-  © <span id="year"></span> Microvisor Systems
-</footer>
+#+BEGIN_EXPORT html
+  <footer class="w-full text-center opacity-70 text-muted text-xs">
+    © <span id="year"></span> Microvisor Systems
+  </footer>
+#+END_EXPORT
 
-<script>
-  document.documentElement.dataset.theme="synthwave";
+#+BEGIN_EXPORT html
+  <script>
+    document.documentElement.dataset.theme="synthwave";
 
-  document.getElementById("year").textContent = new Date().getFullYear();
+    document.getElementById("year").textContent = new Date().getFullYear();
 
 
-  const el = (id) => document.getElementById(id);
+    const el = (id) => document.getElementById(id);
 
-  const servedMeta = el("servedMeta");
-  const statusDot = el("statusDot");
-  const statusText = el("statusText");
-  const err = el("err");
+    const servedMeta = el("servedMeta");
+    const statusDot = el("statusDot");
+    const statusText = el("statusText");
+    const err = el("err");
 
-  const ip = el("ip");
-  const rssi = el("rssi");
-  const uptime = el("uptime");
-  const heap = el("heap");
+    const ip = el("ip");
+    const rssi = el("rssi");
+    const uptime = el("uptime");
+    const heap = el("heap");
 
-  const fmtUptime = (s) => {
-    s = Math.max(0, Number(s) || 0);
-    const d = Math.floor(s / 86400); s %= 86400;
-    const h = Math.floor(s / 3600);  s %= 3600;
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    const parts = [];
-    if (d) parts.push(`${d}d`);
-    if (h || d) parts.push(`${h}h`);
-    if (m || h || d) parts.push(`${m}m`);
-    parts.push(`${sec}s`);
-    return parts.join(" ");
-  };
+    const fmtUptime = (s) => {
+      s = Math.max(0, Number(s) || 0);
+      const d = Math.floor(s / 86400); s %= 86400;
+      const h = Math.floor(s / 3600);  s %= 3600;
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      const parts = [];
+      if (d) parts.push(`${d}d`);
+      if (h || d) parts.push(`${h}h`);
+      if (m || h || d) parts.push(`${m}m`);
+      parts.push(`${sec}s`);
+      return parts.join(" ");
+    };
 
-  const setPill = (ok, msg) => {
-    statusDot.className = "inline-block w-2 h-2 rounded-full " + (ok ? "bg-emerald-400" : "bg-red-400");
-    statusText.textContent = msg;
-  };
+    const setPill = (ok, msg) => {
+      statusDot.className = "inline-block w-2 h-2 rounded-full " + (ok ? "bg-emerald-400" : "bg-red-400");
+      statusText.textContent = msg;
+    };
 
-  const loadStatus = async () => {
-    err.classList.add("hidden");
-    setPill(true, "Updating…");
+    const loadStatus = async () => {
+      err.classList.add("hidden");
+      setPill(true, "Updating…");
 
-    try {
-      const res = await fetch("/api/status", { cache: "no-store" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      try {
+        const res = await fetch("/api/status", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const data = await res.json();
+        const data = await res.json();
 
-      ip.textContent = data.ip ?? "—";
-      rssi.textContent = (data.rssi ?? "—") + (typeof data.rssi === "number" ? " dBm" : "");
-      uptime.textContent = data.uptime_seconds != null ? fmtUptime(data.uptime_seconds) : "—";
-      heap.textContent = data.heap != null ? `${data.heap.toLocaleString()} bytes` : "—";
+        ip.textContent = data.ip ?? "—";
+        rssi.textContent = (data.rssi ?? "—") + (typeof data.rssi === "number" ? " dBm" : "");
+        uptime.textContent = data.uptime_seconds != null ? fmtUptime(data.uptime_seconds) : "—";
+        heap.textContent = data.heap != null ? `${data.heap.toLocaleString()} bytes` : "—";
 
-      servedMeta.textContent = `${data.ip ?? "ESP32"} • RSSI ${data.rssi ?? "?"} dBm • up ${fmtUptime(data.uptime_seconds ?? 0)}`;
+        servedMeta.textContent = `${data.ip ?? "ESP32"} • RSSI ${data.rssi ?? "?"} dBm • up ${fmtUptime(data.uptime_seconds ?? 0)}`;
 
-      setPill(true, "Live");
-    } catch (e) {
-      setPill(false, "Offline");
-      servedMeta.textContent = "ESP32 reachable? 👀";
-      err.textContent = `Couldn’t fetch /api/status: ${e.message}`;
-      err.classList.remove("hidden");
-    }
-  };
+        setPill(true, "Live");
+      } catch (e) {
+        setPill(false, "Offline");
+        servedMeta.textContent = "ESP32 reachable? 👀";
+        err.textContent = `Couldn’t fetch /api/status: ${e.message}`;
+        err.classList.remove("hidden");
+      }
+    };
 
-  el("refreshBtn").addEventListener("click", loadStatus);
+    el("refreshBtn").addEventListener("click", loadStatus);
 
-  loadStatus();
-  setInterval(loadStatus, 3000);
-</script>
-</div>
-</body>
-</html>
+    loadStatus();
+    setInterval(loadStatus, 3000);
+  </script>
+#+END_EXPORT
