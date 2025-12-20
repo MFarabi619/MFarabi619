@@ -49,6 +49,16 @@ in
       #   '';
       # };
 
+      "http://microvisor.systems" = {
+        extraConfig = ''
+          reverse_proxy http://192.168.50.50 {
+            ${clientIp}
+          }
+
+           ${tlsConfig}
+        '';
+      };
+
       "http://openws.org" = {
         extraConfig = ''
           reverse_proxy http://${config.services.anubis.instances.index.settings.BIND} {
