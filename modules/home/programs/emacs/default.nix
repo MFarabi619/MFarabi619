@@ -6,8 +6,20 @@
   programs.doom-emacs = {
     enable = true;
     doomDir = ./.;
-    extraPackages =
-      epkgs: with epkgs; [
+    # provideEmacs = false;
+    # experimentalFetchTree = true;
+
+    extraPackages = epkgs:
+      let
+        treesitWithAllExceptRazor =
+          epkgs.treesit-grammars.with-grammars (grammars:
+            builtins.attrValues (builtins.removeAttrs grammars [
+              "tree-sitter-razor"
+              "tree-sitter-razor-grammar"
+            ])
+          );
+      in
+      with epkgs; [
         pg
         nov
         mu4e
@@ -33,12 +45,12 @@
         compiler-explorer
 
         lsp-tailwindcss
-        # treesit-grammars.with-all-grammars
+        treesitWithAllExceptRazor
         # ================
         abc-mode
         scad-mode
         ob-mermaid
-        mermaid-mode # github.com/abrochard/mermaid-mode
+        mermaid-mode     # github.com/abrochard/mermaid-mode
         org-table-highlight
         # ================
         pdf-tools
@@ -58,7 +70,6 @@
         # catppuccin-theme
       ];
 
-    # provideEmacs = false;
     extraBinPackages = with pkgs; [
       fd
       git
@@ -73,8 +84,6 @@
       coreutils
       rustywind
     ];
-
-    # experimentalFetchTree = true;
   };
 
   services.emacs = {
