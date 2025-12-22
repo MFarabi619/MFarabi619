@@ -63,7 +63,7 @@
         epub-thumbnailer # dired epub previews
         ffmpegthumbnailer
         # =============
-        sqlite # :tools lookup & :lang org +roam
+        sqlite           # :tools lookup & :lang org +roam
         gnuplot
         shellcheck       # shell script formatting
         octaveFull       # gnu octave

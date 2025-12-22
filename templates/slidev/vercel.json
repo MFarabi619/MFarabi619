@@ -1,7 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "buildCommand": "pnpm run build",
-  "outputDirectory": "dist"
-}
