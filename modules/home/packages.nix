@@ -50,6 +50,7 @@
         pnpm
         gnutls           # TLS connectivity
         duckdb
+        nodejs_24
         # =============
         # kicad
         # logseq
