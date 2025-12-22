@@ -51,6 +51,7 @@
         gnutls           # TLS connectivity
         duckdb
         nodejs_24
+        kubernetes-helm
         # =============
         # kicad
         # logseq
