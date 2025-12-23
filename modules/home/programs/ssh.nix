@@ -111,6 +111,15 @@
         setEnv.TERM = "xterm-256color";
       };
 
+      rpi02w = {
+        host = "rpi02w";
+        user = "mfarabi";
+        checkHostIP = true;
+        addKeysToAgent = "yes";
+        hostname = "rpi02w.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
       ubuntu-s-1vcpu-1gb-50gb-mon1-01 = {
         user = "ubuntu";
         addKeysToAgent = "yes";
