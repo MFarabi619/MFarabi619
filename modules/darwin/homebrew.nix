@@ -39,7 +39,7 @@
       "docker-desktop"
       "gcc-arm-embedded"
       "visual-studio-code"
-      # "raspberry-pi-imager"
+      "raspberry-pi-imager"
       "silicon-labs-vcp-driver"
     ];
 
