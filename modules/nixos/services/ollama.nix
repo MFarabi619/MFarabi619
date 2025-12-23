@@ -1,11 +1,14 @@
 {
   lib,
+  pkgs,
   config,
   ...
 }:
 {
   services.ollama = {
     enable = true;
+    syncModels = true;
+    package = pkgs.ollama-vulkan;
 
     loadModels = [
         "llama3.2:3b"
