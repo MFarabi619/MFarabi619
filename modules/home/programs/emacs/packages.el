@@ -79,3 +79,11 @@
            :repo "gggion/ob-duckdb"
            :files ("*.el"))
   :pin "d5b6df504e63f635512a57b23afd9a37683fca40")
+
+;; FIXME: Cannot open load file: No such file or directory, hydra
+;; https://github.com/l3kn/org-fc/issues/67
+;; (package! org-fc
+;;   :recipe (:host sourcehut
+;;            :repo "l3kn/org-fc"
+;;            :files (:defaults "awk" "demo.org"))
+;;   :pin "22144b4c0714544e8415585a4eecd1b1b370ce22")
