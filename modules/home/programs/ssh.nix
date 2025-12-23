@@ -14,6 +14,14 @@
         setEnv.TERM = "xterm-256color";
       };
 
+      halowlink1-3c5b = {
+        user = "root";
+        host = "halowlink1-3c5b";
+        addKeysToAgent = "yes";
+        hostname = "192.168.50.250";
+        setEnv.TERM = "xterm-256color";
+      };
+
       hp-elitebook-820-g2 = {
         user = "mfarabi";
         host = "hp-elitebook-820-g2";
