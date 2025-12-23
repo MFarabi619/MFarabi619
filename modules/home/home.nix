@@ -28,6 +28,8 @@
       # TODO: add batpipe
       da = "direnv allow";
       e = "emacsclient -t";
+    } // lib.optionalAttrs (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64) {
+      stmcli = "/Applications/STMicroelectronics/STM32Cube/STM32CubeProgrammer/STM32CubeProgrammer.app/Contents/MacOs/bin/STM32_Programmer_CLI";
     };
 
     file = {
