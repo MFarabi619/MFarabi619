@@ -15,7 +15,7 @@
 
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix
-    ../modules/home/programs/command-not-found.nix
+    # ../modules/home/programs/command-not-found.nix
     ../modules/home/programs/direnv.nix
     ../modules/home/programs/eza.nix
     ../modules/home/programs/fastfetch
@@ -37,7 +37,7 @@
     ../modules/home/programs/man.nix
     ../modules/home/programs/neovim
     ../modules/home/programs/nh.nix
-    ../modules/home/programs/nix-index.nix
+    # ../modules/home/programs/nix-index.nix
     ../modules/home/programs/nix-search-tv.nix
     ../modules/home/programs/ripgrep.nix
     ../modules/home/programs/ssh.nix
@@ -98,4 +98,3 @@
     # settings = { };
   };
 }
-
