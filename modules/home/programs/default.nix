@@ -5,6 +5,7 @@
     ./vivaldi
     ./zsh
 
+    ./anki.nix
     ./atuin.nix
     ./aichat.nix
     ./bash.nix
