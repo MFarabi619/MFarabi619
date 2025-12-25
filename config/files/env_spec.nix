@@ -1,8 +1,8 @@
 let
   VERSIONS = rec {
-    NIX = "nix (Lix, like Nix) 2.94.0";
-    DEVENV = "1.10.0";
-    PNPM = "10.17.0";
+    NIX = "nix (Nix) 2.31.2";
+    DEVENV = "1.11.2";
+    PNPM = "10.26.1";
     NODE_JS = "24.8.0";
   };
 in
@@ -13,7 +13,7 @@ in
       text = ''
         # nix upgrade-nix
         Describe "❄ Nix should be:"
-          It "using Lix implementation"
+          It "using standard or determinate implementation"
             When run nix --version
             The status should be success
             The line 1 should include "${VERSIONS.NIX}"

@@ -59,7 +59,7 @@
         host = "msi-gs65";
         addKeysToAgent = "yes";
         hostname = "msi-gs65.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
+        setEnv.TERM = "xterm-256color";
       };
 
       msi-gs76 = {
