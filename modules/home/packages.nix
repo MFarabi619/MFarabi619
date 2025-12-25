@@ -180,6 +180,9 @@
         hollywood
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
+
+        gparted
+
         impala        # wifi mgmt tui
         bluetui
 
