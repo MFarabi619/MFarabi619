@@ -23,7 +23,7 @@
 
     signing = {
       # format = "ssh";
-      signByDefault = true;
+      # signByDefault = true;
     };
 
     ignores = [
