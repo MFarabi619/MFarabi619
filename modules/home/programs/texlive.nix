@@ -3,7 +3,9 @@
     enable = true;
     extraPackages = tpkgs: {
       inherit (tpkgs)
+        lato
         latex
+        latexmk
         fontspec
         algorithms
         latex-fonts
