@@ -8,7 +8,7 @@
   # };
 
   languages.rust = {
-    enable = false; # set to false for firmware dev
+    enable = true; # set to false for firmware dev
     channel = "stable";
 
     targets = [
