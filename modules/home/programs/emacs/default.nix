@@ -79,10 +79,12 @@
       tuntox # collab
       semgrep
       ripgrep
+      openscad
       graphviz
       plantuml
       coreutils
       rustywind
+      openscad-lsp
     ];
   };
 
