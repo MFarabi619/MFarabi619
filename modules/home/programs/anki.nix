@@ -1,4 +1,8 @@
 {
+  pkgs,
+  ...
+}:
+{
  programs.anki = {
   enable = true;
    uiScale = 1.0;
@@ -14,6 +18,11 @@
    hideBottomBarMode = "fullscreen"; # fullscreen | always
    # videoDriver = "opengl"; # andle | software | metal | vulkan | d3d11
    # answerKeys = {};
+
+    addons = with pkgs.ankiAddons; [
+      anki-connect
+      review-heatmap
+    ];
 
    sync = {
      # keyFile = "";
