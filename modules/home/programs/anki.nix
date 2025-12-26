@@ -10,20 +10,20 @@
    hideBottomBar = false;
    minimalistMode = true;
    # spacebarRatesCard = true;
-   # hideTopBarMode = "fullscreen"; # always
-   # hideBottomBarMode = "fullscreen"; # always
+   hideTopBarMode = "fullscreen"; # fullscreen | always
+   hideBottomBarMode = "fullscreen"; # fullscreen | always
    # videoDriver = "opengl"; # andle | software | metal | vulkan | d3d11
    # answerKeys = {};
 
-   # sync = {
-   #   keyFile = "";
-   #   autoSync = true;
-   #   syncMedia = true;
-   #   # usernameFile = "";
-   #   # networkTimeout = 60;
-   #   # autoSyncMediaMinute = 15;
-   #   username = "mfarabi619@gmail.com";
-   #   url = "https://mfarabi.sh/anki-sync";
-   # };
+   sync = {
+     # keyFile = "";
+     autoSync = true;
+     syncMedia = true;
+     # usernameFile = "";
+     networkTimeout = 60;
+     autoSyncMediaMinutes = 15;
+     username = "mfarabi619@gmail.com";
+     url = "https://anki.microvisor.dev";
+   };
  };
 }
