@@ -54,8 +54,7 @@
        (popup +defaults) ; tame sudden yet inevitable temporary windows
        tabs              ; a tab bar for Emacs
        (treemacs         ; a project drawer, like neotree but cooler
-        +lsp
-        )
+        +lsp)
        unicode           ; extended unicode support for various languages
        (vc-gutter        ; vcs diff in the fringe
         +pretty)
@@ -109,8 +108,7 @@
        biblio            ; Writes a PhD for you (citation needed)
        (collab +tunnel)  ; buffers with friends
        (debugger
-        +lsp
-        )   ; FIXME stepping through code, to help you add bugs
+        +lsp)   ; FIXME stepping through code, to help you add bugs
        direnv
        (docker
         +lsp)
@@ -249,6 +247,7 @@
        (zig               ; C, but simpler
         +lsp
         +tree-sitter)
+
        :email
        (mu4e
         +gmail
