@@ -92,8 +92,6 @@
 
         # keymap-drawer # visualize keyboard layout
 
-
-
         gama-tui        # github actions runners
         codeberg-cli
 
@@ -180,9 +178,6 @@
         hollywood
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
-
-        gparted
-
         impala        # wifi mgmt tui
         bluetui
 
