@@ -28,6 +28,7 @@
         vterm            # terminal emulation
         circe
         corfu
+        org-anki
         corfu-terminal
         nerd-icons-corfu
 

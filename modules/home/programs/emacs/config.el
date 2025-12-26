@@ -335,6 +335,8 @@
   ;;           (string-trim (buffer-string)))))
   )
 
+(use-package! org-anki)
+
 (after! org
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
   (setq
