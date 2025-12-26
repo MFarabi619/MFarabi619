@@ -13,7 +13,10 @@
     loadModels = [
         "llama3.2:3b"
       ] ++ lib.optionals (
-        config.networking.hostName == "framework-desktop" || config.networking.hostName == "nixos-server"
+        builtins.elem config.networking.hostName [
+            "framework-desktop"
+            "nixos-server"
+          ]
       ) [
         "mistral:7b"
         # "llava:34b"
