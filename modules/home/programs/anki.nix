@@ -6,12 +6,9 @@
  programs.anki = {
   enable = true;
    uiScale = 1.0;
-   theme = "dark";
-   style = "native";
-   language = "en_US";
-   hideTopBar = false;
+   hideTopBar = true;
    reduceMotion = true;
-   hideBottomBar = false;
+   hideBottomBar = true;
    minimalistMode = true;
    # spacebarRatesCard = true;
    hideTopBarMode = "fullscreen"; # fullscreen | always
