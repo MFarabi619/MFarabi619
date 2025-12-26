@@ -79,9 +79,19 @@
     extraBinPackages =
       with pkgs;
       [
+        buf # protobuf lsp
+        protobuf
+        protoc-gen-go
+        protoc-gen-go-grpc
+
         jq # :lang rest
         jq-lsp
+        graphql-language-service-cli
 
+        asmfmt
+        asm-lsp
+
+        nix
         nil # nix language server
         nixfmt # nix formatter
 
@@ -95,6 +105,7 @@
 
         go
         gore
+        gopls
         gotests
         gomodifytags
         gocode-gomod
@@ -104,6 +115,7 @@
 
         ruff
         isort
+        pyright
 
         pandoc
         gnuplot
@@ -118,7 +130,7 @@
         gnutar
         ispell
         tuntox # collab
-        semgrep
+        # semgrep
         ripgrep
         openscad
         rustywind
@@ -128,12 +140,16 @@
         shellcheck # shell script formatting
         bash-language-server
 
+        eslint
         proselint
         markdownlint-cli
+        mdx-language-server
 
         taplo # toml lsp
+        emmet-ls
         yaml-language-server
-        vscode-json-languageserver
+        dockerfile-language-server
+        vscode-langservers-extracted
 
         vips # dired image previews
         poppler # dired pdf previews
@@ -143,8 +159,10 @@
         epub-thumbnailer # dired epub previews
         ffmpegthumbnailer
 
-        sqlite # :tools lookup & :lang org +roam
+        sqls
         duckdb
+        sqlite # :tools lookup & :lang org +roam
+        postgres-language-server
 
         gnutls # :app irc
       ]
