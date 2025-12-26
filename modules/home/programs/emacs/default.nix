@@ -140,6 +140,7 @@
         shellcheck # shell script formatting
         bash-language-server
 
+        figlet # needed for artist-mode
         eslint
         proselint
         markdownlint-cli
