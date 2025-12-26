@@ -61,7 +61,7 @@ in
 
       "http://openws.org" = {
         extraConfig = ''
-          reverse_proxy http://${config.services.anubis.instances.index.settings.BIND} {
+          reverse_proxy http://${config.services.anubis.instances.homepage-dashboard.settings.BIND} {
             ${clientIp}
           }
 
