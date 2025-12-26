@@ -96,14 +96,24 @@
   (add-to-list 'lsp-language-id-configuration
                '(likec4-mode . "likec4"))
 
-  ;; Register the LSP client
   (lsp-register-client
    (make-lsp-client
     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
-    :new-connection (lsp-stdio-connection '("pnpx" "@likec4/language-server" "--stdio"))
+    :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio"))
     :major-modes '(likec4-mode)
     :priority -1
     :server-id 'likec4)))
+
+(after! lsp
+  (lsp-inlay-hints-mode)
+  (setq lsp-enable-folding t
+        lsp-eldoc-render-all t
+        lsp-before-save-edits t
+        lsp-inlay-hint-enable t
+        lsp-completion-enable t
+        lsp-auto-execute-action t
+        lsp-enable-tokens-enable t
+        lsp-describe-thing-at-point t))
 
 (after! dired
   (setq dirvish-peek-mode t

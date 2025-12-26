@@ -48,7 +48,6 @@
         tree
         pixi # multi-language package manager
         pnpm
-        gnutls           # TLS connectivity
         duckdb
         nodejs_24
         kubernetes-helm
@@ -193,6 +192,7 @@
       ]
       ++ lib.optionals stdenv.isDarwin [
         utm          # virtual machines on macos
+        llvm         # compiler toolchain
         ttyd         # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
         ccache
         avrdude
