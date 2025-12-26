@@ -364,8 +364,7 @@
   ;; (after! spell-fu (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
 
   (org-babel-do-load-languages 'org-babel-load-languages
-                               (append org-babel-load-languages '((duckdb . t))))
-  )
+                               (append org-babel-load-languages '((duckdb . t)))))
 
 ;; (after! magit
 ;;   (use-package! magit-todos
