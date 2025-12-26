@@ -44,11 +44,12 @@
     ];
 
     brews = [
+      "dirien/dirien/lazy-pulumi"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "qemu"
-      "ferron"                              # rust-based caddy-like web server
+      "ferron" # rust-based caddy-like web server
       # "podman"
       # "avr-gcc"
       # "arm-none-eabi-gcc"
