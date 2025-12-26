@@ -48,6 +48,16 @@ in
       #   '';
       # };
 
+      "http://anki.microvisor.dev" = {
+        extraConfig = ''
+          reverse_proxy http://${config.services.anki-sync-server.address}:${toString config.services.anki-sync-server.port} {
+            ${clientIp}
+          }
+
+           ${tlsConfig}
+        '';
+      };
+
       "http://microvisor.systems" = {
         extraConfig = ''
           reverse_proxy http://192.168.50.50 {
