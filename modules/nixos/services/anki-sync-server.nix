@@ -4,10 +4,11 @@
 }:
 {
   services.anki-sync-server = {
-   enable = config.networking.hostName == "framework-desktop" || config.networking.hostName == "nixos-server";
-   port = 27701;
-   address = "::1";
-   openFirewall = false;
+   enable = builtins.elem config.networking.hostName [
+    "framework-desktop"
+    "nixos-server"
+  ];
+
    baseDirectory = "%S/%N";
 
    users = [{
