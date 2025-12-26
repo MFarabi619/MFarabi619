@@ -101,7 +101,7 @@
         addKeysToAgent = "yes";
         hostname = "rpi5-16.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
-        };
+      };
 
       rpi5-4 = {
         host = "rpi5-4";
@@ -122,7 +122,6 @@
       rpi02w = {
         host = "rpi02w";
         user = "mfarabi";
-        checkHostIP = true;
         addKeysToAgent = "yes";
         hostname = "rpi02w.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
