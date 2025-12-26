@@ -16,7 +16,6 @@ let
     header_up X-Forwarded-For {client_ip}
     header_up X-Real-IP {client_ip}
     header_up X-Http-Version {http.request.proto}
-
   '';
 in
 {
@@ -66,7 +65,7 @@ in
           }
 
           handle /grafana* {
-            reverse_proxy http://127.0.0.1:3000
+            reverse_proxy http://${config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}
           }
 
            ${tlsConfig}
@@ -89,7 +88,7 @@ in
 
       "http://ai.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://127.0.0.1:7777 {
+          reverse_proxy http://${config.services.open-webui.host}:${toString config.services.open-webui.port} {
             ${clientIp}
           }
           ${tlsConfig}
@@ -98,7 +97,7 @@ in
 
       "http://demo.openws.org" = {
         extraConfig = ''
-          reverse_proxy http://127.0.0.1:7681 {
+          reverse_proxy http://${config.services.ttyd.interface}:${toString config.services.ttyd.port} {
             ${clientIp}
           }
            ${tlsConfig}
@@ -116,7 +115,6 @@ in
 
       "http://mirror.openws.org" = {
         extraConfig = ''
-          # reverse_proxy http://${config.services.anubis.instances.mirror.settings.BIND} {
           reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} {
             ${clientIp}
           }
@@ -127,15 +125,27 @@ in
       "http://apidaesystems.ca" = {
         extraConfig = ''
           redir https://www.apidaesystems.ca
+
           ${tlsConfig}
         '';
       };
 
-      "http://iot.apidaesystems.ca" = {
+      "http://${config.services.grafana.settings.server.domain}" = {
         extraConfig = ''
-          reverse_proxy http://127.0.0.1:8080 {
-            ${clientIp}
+          reverse_proxy http://192.168.50.98
+
+          handle /grafana* {
+            reverse_proxy http://${config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}
           }
+
+          ${tlsConfig}
+        '';
+      };
+
+      "http://admin.apidaesystems.ca" = {
+        extraConfig = ''
+          reverse_proxy http://192.168.50.250
+
           ${tlsConfig}
         '';
       };
