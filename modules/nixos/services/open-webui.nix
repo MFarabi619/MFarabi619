@@ -1,8 +1,11 @@
 {
+  config,
   pkgs,
   ...
 }:
-{
+let
+  URL = "https://ai.openws.org";
+in {
   services.open-webui = {
     enable = pkgs.stdenv.isx86_64;
     port = 7777;
@@ -15,7 +18,7 @@
       # =============== 👋 GENERAL 👋 ================ #
       # ============================================== #
 
-      WEBUI_URL = "https://ai.openws.org";
+      WEBUI_URL = URL;
       ENABLE_SIGNUP = "True";
       ENABLE_SIGNUP_PASSWORD_CONFIRMATION = "True";
       ENABLE_LOGIN_FORM = "False"; # enable OAuth before setting to "False"
@@ -23,7 +26,7 @@
       DEFAULT_MODELS = "llama3.2:3b";
       DEFAULT_USER_ROLE = "user"; # pending | user | admin
       ENABLE_CHANNELS = "False";
-      WEBHOOK_URL = "https://ai.openws.org/webhook";
+      WEBHOOK_URL = "${URL}/webhook";
       ENABLE_ADMIN_EXPORT = "False";
       ENABLE_ADMIN_CHAT_ACCESS = "False";
       BYPASS_ADMIN_ACCESS_CONTROL = "True";
@@ -145,12 +148,12 @@
       OAUTH_UPDATE_PICTURE_ON_LOGIN = "True";
       OAUTH_SCOPES = "openid email profile";
       OPENID_PROVIDER_URL = "https://accounts.google.com/.well-known/openid-configuration";
-      OPENID_REDIRECT_URI = "https://ai.openws.org/oauth/oidc/callback";
+      OPENID_REDIRECT_URI = "${URL}/oauth/oidc/callback";
 
       # GOOGLE_CLIENT_ID = "";
       # GOOGLE_CLIENT_SECRET = "";
       GOOGLE_OAUTH_SCOPE = "openid email profile";
-      GOOGLE_REDIRECT_URI = "https://ai.openws.org/oauth/google/callback";
+      GOOGLE_REDIRECT_URI = "${URL}/oauth/google/callback";
 
       DO_NO_TRACK = "True";
       SCARF_NO_ANALYTICS = "True";
