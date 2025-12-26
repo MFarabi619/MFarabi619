@@ -1,18 +1,22 @@
-{
+let
+  # ROOT_DOMAIN = "openws.org";
+  ROOT_DOMAIN = "iot.apidaesystems.ca";
+in
+  {
   services.grafana =  {
     enable = true;
     settings = {
       server = {
         http_port = 3000;
         enable_gzip = true;
-        domain = "openws.org";
+        domain = ROOT_DOMAIN;
         http_addr = "127.0.0.1";
         serve_from_sub_path = true;
-        root_url = "https://openws.org/grafana/"; # Not needed if it is `https://your.domain/`
+        root_url = "https://${ROOT_DOMAIN}/grafana/"; # Not needed if it is `https://your.domain/`
       };
 
       users = {
-        allow_sign_up = false;
+        # allow_sign_up = false;
         default_theme = "dark";
         password_hint = "password";
         verify_email_enabled = true;
@@ -24,7 +28,7 @@
          "auth.google" = [
             "enabled = true"
             "allow_sign_up = true"
-            # "client_id = "
+            "client_id = "
           ];
       };
 
