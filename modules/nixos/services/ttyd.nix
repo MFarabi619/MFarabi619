@@ -6,8 +6,6 @@
 {
   services.ttyd = {
     enable = true;
-    signal = 1;
-    port = 7681;
     logLevel = 7;
     maxClients = 0;
     # indexFile = "";
