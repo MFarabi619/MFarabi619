@@ -2,6 +2,7 @@
   services.cloudflared = {
     enable = true;
     tunnels = {
+      # TODO: change to framework-destop
       "nixos-server" = {
         default = "http://127.0.0.1:80";
         credentialsFile = "/etc/cloudflared/dc81f04d-07df-4704-abac-07ffabdc173c.json";
@@ -23,8 +24,8 @@
 # yoinked from: https://www.youtube.com/watch?v=c5Hx4osU5A8
 # nix shell nixpkgs#cloudflared
 # cloudflared tunnel login
-# cloudflared tunnel create nixos-server; ls ~/.cloudflared
-# cloudflared tunnel route dns nixos-server api.openws.org
+# cloudflared tunnel create framework-desktop; ls ~/.cloudflared
+# cloudflared tunnel route dns framework-desktop api.openws.org
 # sudo mkdir -p /etc/cloudflared; sudo chown root:root /etc/cloudflared/; sudo chmod 600 /etc/cloudflared/
 # sudo mv ~/.cloudflared/*.json /etc/cloudflared/
-# cloudflared tunnel cleanup nixos-server; cloudflared tunnel delete nixos-server
+# cloudflared tunnel cleanup framework-desktop; cloudflared tunnel delete framework-desktop

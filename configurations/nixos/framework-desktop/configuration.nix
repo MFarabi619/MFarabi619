@@ -17,7 +17,7 @@
   ];
 
   system.stateVersion = "25.05";
-  networking.hostName = "nixos-server";
+  networking.hostName = "framework-desktop";
 
   nixpkgs = {
     config.allowUnfree = true;

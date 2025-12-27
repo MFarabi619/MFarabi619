@@ -82,7 +82,7 @@
         user = "mfarabi";
         host = "framework-desktop";
         addKeysToAgent = "yes";
-        hostname = "nixos-server.taila4d019.ts.net";
+        hostname = "framework-desktop.taila4d019.ts.net";
         setEnv.TERM = "xterm-kitty";
       };
 
