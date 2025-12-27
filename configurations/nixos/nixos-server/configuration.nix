@@ -3,45 +3,49 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 {
-  config,
+  lib,
   pkgs,
+  config,
   ...
 }:
 
 {
-  system.stateVersion = "25.05";
 
   imports = [
     # ./hardware-configuration.nix
     ./framework-desktop.nix
   ];
 
-  boot = {
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-    };
-    kernelPackages = pkgs.linuxPackages_latest;
-  };
-
-  networking = {
-    hostName = "nixos-server";
-    networkmanager.enable = true;
-  };
-
-  users.users.mfarabi = {
-    isNormalUser = true;
-    description = "Mumtahin Farabi";
-    extraGroups = [
-      "wheel"
-      "video"
-      "docker"
-      "networkmanager"
-    ];
-  };
+  system.stateVersion = "25.05";
+  networking.hostName = "nixos-server";
 
   nixpkgs = {
     config.allowUnfree = true;
     hostPlatform = "x86_64-linux";
   };
+
+  users.users.mfarabi = {
+    isNormalUser = true;
+    description = "Mumtahin Farabi";
+
+    extraGroups = [
+      "wheel"
+      "video"
+    ]
+    ++ lib.optionals config.virtualisation.docker.enable [
+      "docker"
+    ]
+    ++ lib.optionals config.networking.networkmanager.enable [
+      "networkmanager"
+    ];
+  };
+
+  boot = {
+    kernelPackages = pkgs.linuxPackages_latest;
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
+  };
+
 }
