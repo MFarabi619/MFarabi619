@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   ...
 }:
@@ -13,16 +14,20 @@ let
   '';
 
   clientIp = ''
-    header_up X-Forwarded-For {client_ip}
-    header_up X-Real-IP {client_ip}
-    header_up X-Http-Version {http.request.proto}
+     {
+        header_up X-Forwarded-For {client_ip}
+        header_up X-Real-IP {client_ip}
+        header_up X-Http-Version {http.request.proto}
+    }
   '';
 in
 {
   services.caddy = {
-    enable = true;
-    email = "mfarabi619@gmail.com";
-    # configFile = ./caddyfile
+    enable = builtins.elem config.networking.hostName [
+      "framework-desktop"
+      "nixos-server"
+    ];
+
     email = config.security.acme.defaults.email;
 
     globalConfig = ''
@@ -49,39 +54,20 @@ in
       #   '';
       # };
 
-      "http://anki.microvisor.dev" = {
-        extraConfig = ''
-          reverse_proxy http://${config.services.anki-sync-server.address}:${toString config.services.anki-sync-server.port} {
-            ${clientIp}
-          }
+      "http://microvisor.systems".extraConfig = "reverse_proxy http://192.168.50.50 ${clientIp}";
 
-           ${tlsConfig}
-        '';
-      };
-
-      "http://microvisor.systems" = {
-        extraConfig = ''
-          reverse_proxy http://192.168.50.50 {
-            ${clientIp}
-          }
-
-           ${tlsConfig}
-        '';
-      };
-
-      "http://openws.org" = {
-        extraConfig = ''
-          reverse_proxy http://${config.services.anubis.instances.homepage-dashboard.settings.BIND} {
-            ${clientIp}
-          }
-
+      "http://openws.org".extraConfig =
+        "reverse_proxy http://${config.services.anubis.instances.homepage-dashboard.settings.BIND} ${clientIp}"
+        + lib.optionalString config.services.grafana.enable ''
           handle /grafana* {
             reverse_proxy http://${config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}
           }
-
-           ${tlsConfig}
+        ''
+        + lib.optionalString config.services.plantuml-server.enable ''
+          handle /plantuml* {
+            reverse_proxy http://${config.services.plantuml-server.listenHost}:${toString config.services.plantuml-server.listenPort}
+          }
         '';
-      };
 
       "http://docs.openws.org" = {
         extraConfig = ''
@@ -93,110 +79,43 @@ in
             X-Frame-Options "DENY"
             X-Content-Type-Options "nosniff"
           }
-          ${tlsConfig}
         '';
       };
 
-      "http://ai.openws.org" = {
-        extraConfig = ''
-          reverse_proxy http://${config.services.open-webui.host}:${toString config.services.open-webui.port} {
-            ${clientIp}
-          }
-          ${tlsConfig}
-        '';
-      };
+      "http://rpi5.openws.org".extraConfig = "reverse_proxy http://192.168.50.122:7681";
+      "http://emacs.openws.org".extraConfig = "reverse_proxy http://192.168.50.142:7682";
+      "http://neovim.openws.org".extraConfig = "reverse_proxy http://192.168.50.142:7683";
+      "http://freebsd.openws.org".extraConfig = "reverse_proxy http://192.168.50.142:7681";
 
-      "http://demo.openws.org" = {
-        extraConfig = ''
-          reverse_proxy http://${config.services.ttyd.interface}:${toString config.services.ttyd.port} {
-            ${clientIp}
-          }
-           ${tlsConfig}
-        '';
-      };
+      "http://mirror.openws.org".extraConfig =
+        "reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} ${clientIp}";
 
-      "http://rpi5.openws.org" = {
-        extraConfig = ''
-          reverse_proxy http://192.168.50.122:7681 {
-            ${clientIp}
-          }
-           ${tlsConfig}
-        '';
-      };
+      "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
+      "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://192.168.50.250";
+      "http://demo.apidaesystems.ca".extraConfig = "reverse_proxy http://192.168.50.16";
 
-      "http://mirror.openws.org" = {
-        extraConfig = ''
-          reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} {
-            ${clientIp}
-          }
-          ${tlsConfig}
-        '';
-      };
+      "http://${config.services.grafana.settings.server.domain}".extraConfig = ''
+        reverse_proxy http://192.168.50.98
 
-      "http://apidaesystems.ca" = {
-        extraConfig = ''
-          redir https://www.apidaesystems.ca
+        handle /grafana* {
+          reverse_proxy http://${config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}
+        }
+      '';
 
-          ${tlsConfig}
-        '';
-      };
-
-      "http://${config.services.grafana.settings.server.domain}" = {
-        extraConfig = ''
-          reverse_proxy http://192.168.50.98
-
-          handle /grafana* {
-            reverse_proxy http://${config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}
-          }
-
-          ${tlsConfig}
-        '';
-      };
-
-      "http://admin.apidaesystems.ca" = {
-        extraConfig = ''
-          reverse_proxy http://192.168.50.250
-
-          ${tlsConfig}
-        '';
-      };
-
-      "http://demo.apidaesystems.ca" = {
-        extraConfig = ''
-          reverse_proxy http://192.168.50.16
-          ${tlsConfig}
-        '';
-      };
-
-      "http://freebsd.openws.org" = {
-        extraConfig = ''
-          reverse_proxy http://192.168.50.142:7681
-          ${tlsConfig}
-        '';
-      };
-
-      "http://emacs.openws.org" = {
-        extraConfig = ''
-          reverse_proxy http://192.168.50.142:7682
-          ${tlsConfig}
-        '';
-      };
-
-      "http://neovim.openws.org" = {
-        extraConfig = ''
-          reverse_proxy http://192.168.50.142:7683
-          ${tlsConfig}
-        '';
-      };
-
-      "http://tandemrobotics.ca" = {
-        extraConfig = ''
-          reverse_proxy http://127.0.0.1${config.services.anubis.instances.tandemrobotics.settings.BIND} {
-            ${clientIp}
-          }
-          ${tlsConfig}
-        '';
-      };
+      "http://tandemrobotics.ca".extraConfig =
+        ''reverse_proxy http://127.0.0.1${config.services.anubis.instances.tandemrobotics.settings.BIND} ${clientIp}'';
+    }
+    // lib.optionalAttrs config.services.open-webui.enable {
+      "http://ai.openws.org".extraConfig =
+        ''reverse_proxy http://${config.services.open-webui.host}:${toString config.services.open-webui.port} ${clientIp}'';
+    }
+    // lib.optionalAttrs config.services.ttyd.enable {
+      "http://demo.openws.org".extraConfig =
+        ''reverse_proxy http://${config.services.ttyd.interface}:${toString config.services.ttyd.port} ${clientIp}'';
+    }
+    // lib.optionalAttrs config.services.anki-sync-server.enable {
+      "http://anki.microvisor.dev".extraConfig =
+        "reverse_proxy http://${config.services.anki-sync-server.address}:${toString config.services.anki-sync-server.port}";
     };
   };
 }

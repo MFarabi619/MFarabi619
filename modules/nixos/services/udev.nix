@@ -7,13 +7,13 @@
     enable = true;
 
     packages = with pkgs; [
-      platformio-core.udev
       openocd
+      platformio-core.udev
     ];
 
     extraHwdb = ''
       evdev:atkbd:*
       KEYBOARD_KEY_3a=leftctrl
     '';
-    };
+  };
 }
