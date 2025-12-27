@@ -10,6 +10,7 @@
     ./services
     ./security
     ./hardware
+    ./programs
 
     ./xdg.nix
     ./i18n.nix
@@ -20,7 +21,6 @@
     ./systemd.nix
     ./myusers.nix
     ./hyprland.nix
-    ./programs.nix
     ./networking.nix
     ./environment.nix
     ./virtualisation.nix
