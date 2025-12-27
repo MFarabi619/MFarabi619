@@ -11,6 +11,7 @@
     ./security
     ./hardware
     ./programs
+    ./networking
 
     ./xdg.nix
     ./i18n.nix
@@ -21,7 +22,6 @@
     ./systemd.nix
     ./myusers.nix
     ./hyprland.nix
-    ./networking.nix
     ./environment.nix
     ./virtualisation.nix
   ];

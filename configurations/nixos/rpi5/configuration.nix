@@ -3,13 +3,17 @@
   system.stateVersion = "25.05";
 
   imports = [
+    ./systemd.nix
+    ./services.nix
+
     ../../../modules/nixos/services
+    ../../../modules/nixos/hardware
+    ../../../modules/nixos/networking
+
     ../../../modules/nixos/console.nix
     ../../../modules/nixos/environment.nix
     ../../../modules/nixos/fonts.nix
-    ../../../modules/nixos/hardware
     ../../../modules/nixos/i18n.nix
-    ../../../modules/nixos/networking.nix
     # ../../../modules/nixos/nix.nix
     ../../../modules/nixos/programs
     ../../../modules/nixos/security
@@ -17,8 +21,6 @@
     ../../../modules/nixos/time.nix
     ../../../modules/nixos/virtualisation.nix
     ./hardware-configuration-new.nix
-    ./services.nix
-    ./systemd.nix
   ];
 
   # stylix = {

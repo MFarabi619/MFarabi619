@@ -1,12 +1,23 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 
 {
-  system.stateVersion = "25.05";
 
   imports = [
     ./hardware-configuration.nix
-    ../../../modules/nixos/networking.nix
+    ../../../modules/nixos/networking
   ];
+
+  system.stateVersion = "25.05";
+  networking.hostName = "nixos-vm";
+
+  services = {
+    qemuGuest.enable = true;
+    spice-webdavd.enable = true;
+    spice-vdagentd.enable = true;
+  };
 
   boot = {
     loader = {
@@ -18,40 +29,16 @@
 
   nixpkgs = {
     config.allowUnfree = true;
-   # hostPlatform = "x86_64-linux";
-  };
-
-  networking = {
-    hostName = "nixos-vm";
-    firewall = {
-      enable = true;
-      allowedTCPPorts = [
-        22
-        80
-        443
-        59010
-        59011
-        8080
-      ];
-      allowedUDPPorts = [
-        59010
-        59011
-      ];
-    };
+    # hostPlatform = "x86_64-linux";
   };
 
   users.users.mfarabi = {
     isNormalUser = true;
     description = "Mumtahin Farabi";
+
     extraGroups = [
       "wheel"
       "networkmanager"
     ];
-  };
-
-  services = {
-    qemuGuest.enable = true;
-    spice-vdagentd.enable = true;
-    spice-webdavd.enable = true;
   };
 }
