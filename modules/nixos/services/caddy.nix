@@ -23,6 +23,7 @@ in
     enable = true;
     email = "mfarabi619@gmail.com";
     # configFile = ./caddyfile
+    email = config.security.acme.defaults.email;
 
     globalConfig = ''
       metrics {
