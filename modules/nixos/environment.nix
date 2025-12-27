@@ -12,34 +12,35 @@
     systemPackages =
       with pkgs;
       [
-        tree-sitter
-
-        # ========== Stylix ===========
-        dconf # configuration storage system
-        dconf-editor
-        # =============================
         wget
         exfat # exFAT support
         ntfs3g # ntfs support
+        ffmpeg # terminal video/audio editing
         udiskie # manage removable media
-        brightnessctl # screen brightness control
-
-        networkmanager
-        networkmanagerapplet
-
         pciutils
         usbutils
-        ffmpeg # terminal video/audio editing
-        libinput # libinput library
         lm_sensors # system sensors
-        libinput-gestures # actions touchpad gestures using libinput
+        tree-sitter
+        brightnessctl # screen brightness control
 
         # cloudflared
 
         # i2c-tools # raspberry pi
       ]
+      ++ lib.optionals config.networking.networkmanager.enable [
+        networkmanager
+        networkmanagerapplet
+      ]
       ++ lib.optionals config.programs.hyprland.enable [
         kitty
+      ]
+      ++ lib.optionals config.programs.dconf.enable [
+        dconf # configuration storage system
+        dconf-editor
+      ]
+      ++ lib.optionals config.services.libinput.enable [
+        libinput
+        libinput-gestures # actions touchpad gestures using libinput
       ];
 
     pathsToLink = [
@@ -49,14 +50,16 @@
       "/share/themes"
       "/share/applications"
       "/share/bash-completion"
-      "/share/wayland-sessions"
-      "/share/xdg-desktop-portal"
     ]
     ++ lib.optionals config.programs.zsh.enable [
       "/share/zsh"
     ]
     ++ lib.optionals config.programs.fish.enable [
       "/share/fish"
+    ]
+    ++ lib.optionals config.programs.xwayland.enable [
+      "/share/wayland-sessions"
+      "/share/xdg-desktop-portal"
     ];
   };
 }
