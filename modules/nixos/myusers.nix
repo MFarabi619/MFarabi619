@@ -1,8 +1,8 @@
 # List of users for darwin or nixos system and their top-level configuration.
 {
-  flake,
-  pkgs,
   lib,
+  pkgs,
+  flake,
   config,
   ...
 }:
