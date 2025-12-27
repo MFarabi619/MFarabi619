@@ -1,11 +1,11 @@
 {
-  config,
   pkgs,
   ...
 }:
 let
   URL = "https://ai.openws.org";
-in {
+in
+{
   services.open-webui = {
     enable = pkgs.stdenv.isx86_64;
     port = 7777;
@@ -25,57 +25,64 @@ in {
       DEFAULT_LOCALE = "en";
       DEFAULT_MODELS = "llama3.2:3b";
       DEFAULT_USER_ROLE = "user"; # pending | user | admin
+
       ENABLE_CHANNELS = "False";
       WEBHOOK_URL = "${URL}/webhook";
+
+      ENABLE_API_KEYS = "True";
+      ENABLE_API_KEYS_ENDPOINT_RESTRICTIONS = "False";
+
       ENABLE_ADMIN_EXPORT = "False";
       ENABLE_ADMIN_CHAT_ACCESS = "False";
       BYPASS_ADMIN_ACCESS_CONTROL = "True";
+
       ENABLE_USER_WEBHOOKS = "True";
       THREAD_POOL_SIZE = "80";
       MODELS_CACHE_TTL = "300";
       ENV = "dev";
       ENABLE_PERSISTENT_CONFIG = "False";
+
       WEBUI_NAME = "🤖 Beep Boop 🤖";
       ENABLE_REALTIME_CHAT_SAVE = "False";
 
-      DEFAULT_PROMPT_SUGGESTIONS = ''[
-        {
-          "title": [
-            "Explain the Linux boot process",
-            "Compare kernel architectures: Linux vs Windows vs macOS"
-          ],
-          "content": "Ask me to walk through how a machine boots from firmware to a running kernel, the roles of BIOS/UEFI, the initrd, systemd, and the various boot loaders. I can also explain the high-level differences between the major OS kernels—how Linux’s monolithic design, Windows’ hybrid kernel, and macOS’s Mach-based micro-kernel differ in memory management, scheduling, and driver models."
-        },
-        {
-          "title": [
-            "Describe Kubernetes pod lifecycle",
-            "Outline best practices for a CI/CD pipeline"
-          ],
-          "content": "Choose a topic and I’ll describe the stages, components, and typical patterns. For Kubernetes I’ll detail pod creation, scheduling, readiness/liveness probes, and eviction. For CI/CD I’ll cover source-control hooks, build agents, artifact repositories, promotion gates, and automated testing strategies."
-        },
-        {
-          "title": [
-            "How do transformers learn language patterns?",
-            "What is the math behind back-propagation?"
-          ],
-          "content": "Ask about transformer training and I’ll explain tokenization, self-attention, positional encoding, and the role of residual connections. For back-prop I’ll walk through the chain rule, Jacobian matrices, and gradient descent in a neural network context, with a simple code example in PyTorch or TensorFlow."
-        },
-        {
-          "title": [
-            "Fine-tune a large language model with LoRA",
-            "Explain federated learning and its privacy guarantees"
-          ],
-          "content": "Choose a scenario and I’ll provide the necessary code snippets, hyper-parameter choices, and evaluation metrics. For LoRA I’ll show how to add low-rank adapters, freeze the backbone, and resume training on a downstream task. For federated learning I’ll outline the FedAvg algorithm, communication-efficient techniques, and differential-privacy mechanisms."
-        },
-        {
-          "title": [
-            "Discuss bias mitigation in LLMs",
-            "What are the main safety concerns of generative AI?"
-          ],
-          "content": "Ask me to detail the sources of bias in training data, bias-mitigation techniques (e.g., re-weighting, adversarial training), and evaluation benchmarks. For safety I’ll cover hallucination, harmful content filtering, alignment strategies, and regulatory frameworks, complete with case studies and mitigation roadmaps."
-        }
-      ]'';
-
+      DEFAULT_PROMPT_SUGGESTIONS = ''
+        [
+                {
+                  "title": [
+                    "Explain the Linux boot process",
+                    "Compare kernel architectures: Linux vs Windows vs macOS"
+                  ],
+                  "content": "Ask me to walk through how a machine boots from firmware to a running kernel, the roles of BIOS/UEFI, the initrd, systemd, and the various boot loaders. I can also explain the high-level differences between the major OS kernels—how Linux’s monolithic design, Windows’ hybrid kernel, and macOS’s Mach-based micro-kernel differ in memory management, scheduling, and driver models."
+                },
+                {
+                  "title": [
+                    "Describe Kubernetes pod lifecycle",
+                    "Outline best practices for a CI/CD pipeline"
+                  ],
+                  "content": "Choose a topic and I’ll describe the stages, components, and typical patterns. For Kubernetes I’ll detail pod creation, scheduling, readiness/liveness probes, and eviction. For CI/CD I’ll cover source-control hooks, build agents, artifact repositories, promotion gates, and automated testing strategies."
+                },
+                {
+                  "title": [
+                    "How do transformers learn language patterns?",
+                    "What is the math behind back-propagation?"
+                  ],
+                  "content": "Ask about transformer training and I’ll explain tokenization, self-attention, positional encoding, and the role of residual connections. For back-prop I’ll walk through the chain rule, Jacobian matrices, and gradient descent in a neural network context, with a simple code example in PyTorch or TensorFlow."
+                },
+                {
+                  "title": [
+                    "Fine-tune a large language model with LoRA",
+                    "Explain federated learning and its privacy guarantees"
+                  ],
+                  "content": "Choose a scenario and I’ll provide the necessary code snippets, hyper-parameter choices, and evaluation metrics. For LoRA I’ll show how to add low-rank adapters, freeze the backbone, and resume training on a downstream task. For federated learning I’ll outline the FedAvg algorithm, communication-efficient techniques, and differential-privacy mechanisms."
+                },
+                {
+                  "title": [
+                    "Discuss bias mitigation in LLMs",
+                    "What are the main safety concerns of generative AI?"
+                  ],
+                  "content": "Ask me to detail the sources of bias in training data, bias-mitigation techniques (e.g., re-weighting, adversarial training), and evaluation benchmarks. For safety I’ll cover hallucination, harmful content filtering, alignment strategies, and regulatory frameworks, complete with case studies and mitigation roadmaps."
+                }
+              ]'';
 
       # ============================================== #
       # ============= 📁 DIRECTORIES 📁 ============== #
