@@ -9,12 +9,12 @@
     # flake.inputs.self.nixosModules.default
     ./services
     ./security
+    ./hardware
 
     ./console.nix
     # ./containers.nix
     ./environment.nix
     ./fonts.nix
-    ./hardware.nix
     ./hyprland.nix
     ./i18n.nix
     ./myusers.nix

@@ -8,7 +8,7 @@
     ../../../modules/nixos/console.nix
     ../../../modules/nixos/environment.nix
     ../../../modules/nixos/fonts.nix
-    ../../../modules/nixos/hardware.nix
+    ../../../modules/nixos/hardware
     ../../../modules/nixos/i18n.nix
     ../../../modules/nixos/networking.nix
     # ../../../modules/nixos/nix.nix
