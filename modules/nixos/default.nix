@@ -11,18 +11,18 @@
     ./security
     ./hardware
 
+    ./xdg.nix
+    ./i18n.nix
+    ./time.nix
+    ./fonts.nix
     ./console.nix
     # ./containers.nix
-    ./environment.nix
-    ./fonts.nix
-    ./hyprland.nix
-    ./i18n.nix
-    ./myusers.nix
-    ./networking.nix
-    ./programs.nix
     ./systemd.nix
-    ./time.nix
+    ./myusers.nix
+    ./hyprland.nix
+    ./programs.nix
+    ./networking.nix
+    ./environment.nix
     ./virtualisation.nix
-    ./xdg.nix
   ];
 }
