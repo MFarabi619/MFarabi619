@@ -22,15 +22,7 @@
           59011
         ];
 
-    allowedTCPPorts = [
-    ]
-    ++ lib.optionals config.services.openssh.enable [
-      22
-    ]
-    ++ lib.optionals config.services.netdata.enable [
-      19999
-    ]
-    ++
+    allowedTCPPorts =
       lib.optionals
         (builtins.elem config.networking.hostName [
           "nixos-vm"
