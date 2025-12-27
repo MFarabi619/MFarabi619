@@ -1,12 +1,12 @@
 {
   virtualisation = {
     lxc.enable = false;
+    # graphics = true;
     # lxd.enable = false;
     # useEFIBoot = false;
+    # tpmr.enable = false;
     # useSecureBoot = false;
-    # graphics = true;
     # useDefaultFileSystems = true;
-    # tpmr.enable = false;;
 
     libvirtd = {
       enable = true;
@@ -16,7 +16,7 @@
       parallelShutdown = 0;
       shutdownTimeout = 300;
       allowedBridges = [
-       "virbr0"
+        "virbr0"
       ];
       qemu = {
         runAsRoot = true;
