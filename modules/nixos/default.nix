@@ -12,13 +12,13 @@
     ./hardware
     ./programs
     ./networking
+    # ./containers
 
     ./xdg.nix
     ./i18n.nix
     ./time.nix
     ./fonts.nix
     ./console.nix
-    # ./containers.nix
     ./systemd.nix
     ./myusers.nix
     ./hyprland.nix
