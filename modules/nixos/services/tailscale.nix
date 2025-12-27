@@ -1,12 +1,8 @@
 {
   services.tailscale = {
     enable = true;
-    port = 41641;
-    openFirewall = false;
     permitCertUid = null;
-    disableTaildrop = false;
     useRoutingFeatures = "both"; # one of "none", "client", "server", "both"
-    interfaceName = "tailscale0"; # default
     authKeyFile = "/run/secrets/tailscale_key";
     # extraDaemonFlags = [ ];
 
