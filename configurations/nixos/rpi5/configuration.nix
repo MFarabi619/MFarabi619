@@ -4,7 +4,6 @@
 
   imports = [
     ../../../modules/nixos/services
-    ../../../modules/nixos/hyprland.nix
     ../../../modules/nixos/console.nix
     ../../../modules/nixos/environment.nix
     ../../../modules/nixos/fonts.nix
@@ -12,7 +11,7 @@
     ../../../modules/nixos/i18n.nix
     ../../../modules/nixos/networking.nix
     # ../../../modules/nixos/nix.nix
-    ../../../modules/nixos/programs.nix
+    ../../../modules/nixos/programs
     ../../../modules/nixos/security
     ../../../modules/nixos/systemd.nix
     ../../../modules/nixos/time.nix

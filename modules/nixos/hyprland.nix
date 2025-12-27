@@ -41,28 +41,6 @@
     };
   };
 
-  environment = {
-    variables.NIXOS_OZONE_WL = "1";
-    sessionVariables.NIXOS_OZONE_WL = "1";
-
-    systemPackages = with pkgs; [
-      kitty
-    ];
-
-    pathsToLink = [
-      "/share/icons"
-      "/share/themes"
-      "/share/fonts"
-      "/share/xdg-desktop-portal"
-      "/share/applications"
-      "/share/mime"
-      "/share/wayland-sessions"
-      "/share/zsh"
-      "/share/bash-completion"
-      "/share/fish"
-    ];
-  };
-
   services = {
     # getty.autologinUser = "mfarabi";
 
