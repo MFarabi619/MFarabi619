@@ -25,16 +25,6 @@
       xwayland.enable = true;
     };
 
-    dconf = {
-      enable = true;
-      # settings = {
-      #   "org/virt-manager/virt-manager/connections" = {
-      #     autoconnect = [ "qemu:///system" ];
-      #     uris = [ "qemu:///system" ];
-      #   };
-      # };
-    };
-
     gnupg.agent = {
       enable = true;
       enableSSHSupport = true;
