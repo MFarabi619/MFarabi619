@@ -12,15 +12,15 @@
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
-    ];
+  ];
 
-  nixpkgs={
-    config={
+  nixpkgs = {
+    config = {
       rocmSupport = true; # amd
       # cudaSupport = true; # intel
-      };
-    hostPlatform = lib.mkDefault "x86_64-linux";
     };
+    hostPlatform = lib.mkDefault "x86_64-linux";
+  };
 
   hardware = {
     graphics.enable = true;
@@ -32,49 +32,50 @@
     };
   };
 
-  boot={
+  boot = {
     extraModulePackages = [ ];
     kernelModules = [ "kvm-amd" ];
-    initrd={
+
+    initrd = {
       kernelModules = [ ];
       availableKernelModules = [
         "nvme"
         "usbhid"
         "xhci_pci"
         "thunderbolt"
-        ];
-      };
+      ];
     };
+  };
 
-  fileSystems={
+  fileSystems = {
     "/" = {
       fsType = "ext4";
       device = "/dev/disk/by-uuid/957a3d6d-0d53-4967-896a-1d91f1c1e720";
-      };
+    };
+
     "/boot" = {
       fsType = "vfat";
       device = "/dev/disk/by-uuid/2812-E6A2";
       options = [
         "fmask=0077"
         "dmask=0077"
-        ];
-      };
+      ];
     };
-
+  };
 
   swapDevices = [
     { device = "/dev/disk/by-uuid/bdef91e4-2bbc-4058-8856-53ba5d5b21f8"; }
-    ];
+  ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
-  networking={
+  networking = {
     useDHCP = lib.mkDefault true;
     # interfaces={
     # enp191s0.useDHCP = lib.mkDefault true;
     # wlp192s0.useDHCP = lib.mkDefault true;
     # };
-    };
+  };
 }
