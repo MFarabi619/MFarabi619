@@ -1,17 +1,24 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  ...
+}:
 {
   environment = {
+
+    variables = {
+      NIXOS_OZONE_WL = "1";
+    };
+
     systemPackages = with pkgs; [
       tree-sitter
 
       # ========== Stylix ===========
       dconf # configuration storage system
-      dconf-editor # dconf editor
+      dconf-editor
       # =============================
-
       wget
-      ntfs3g # ntfs support
       exfat # exFAT support
+      ntfs3g # ntfs support
       udiskie # manage removable media
       brightnessctl # screen brightness control
 
@@ -20,9 +27,9 @@
 
       pciutils
       usbutils
-      lm_sensors # system sensors
-      libinput # libinput library
       ffmpeg # terminal video/audio editing
+      libinput # libinput library
+      lm_sensors # system sensors
       libinput-gestures # actions touchpad gestures using libinput
 
       # cloudflared
@@ -30,18 +37,14 @@
       # i2c-tools # raspberry pi
     ];
 
-    variables = {
-      NIXOS_OZONE_WL = "1";
-    };
-
     pathsToLink = [
       "/share/zsh"
-      "/share/bash-completion"
       "/share/icons"
       "/share/themes"
       "/share/fonts"
-      "/share/xdg-desktop-portal"
       "/share/applications"
+      "/share/bash-completion"
+      "/share/xdg-desktop-portal"
     ];
   };
 }
