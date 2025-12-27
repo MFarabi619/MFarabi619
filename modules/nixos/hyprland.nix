@@ -5,15 +5,6 @@
 
 {
   programs = {
-    uwsm = {
-      enable = true;
-      # waylandCompositors = {
-      #     prettyName = "Hyprland";
-      #     comment = "Hyprland compositor managed by UWSM";
-      #     binPath = "/run/current-system/sw/bin/hyprland";
-      # };
-    };
-
     hyprland = {
       enable = true;
       # package = inputs.hyprland.packages."${pkgs.system}".hyprland;
