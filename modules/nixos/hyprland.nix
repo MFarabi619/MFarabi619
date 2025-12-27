@@ -1,12 +1,10 @@
 {
   pkgs,
-  inputs,
   ...
 }:
 
 {
   programs = {
-    xwayland.enable = true;
     hyprlock.enable = true;
 
     uwsm = {
