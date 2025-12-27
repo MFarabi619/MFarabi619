@@ -5,8 +5,6 @@
 
 {
   programs = {
-    hyprlock.enable = true;
-
     uwsm = {
       enable = true;
       # waylandCompositors = {
