@@ -1,3 +1,9 @@
 {
-  networking.networkmanager.enable = true;
+  networking.networkmanager = {
+    enable = true;
+
+    # unmanaged = [
+    #   "interface-name:ve-*"
+    # ];
+  };
 }

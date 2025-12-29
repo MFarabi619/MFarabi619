@@ -9,9 +9,25 @@
     libvirtd = {
       enable = true;
       onBoot = "ignore";
-      qemu = {
-        runAsRoot = true;
-        swtpm.enable = true;
+      qemu.swtpm.enable = true;
+    };
+
+    oci-containers = {
+      backend = "docker";
+
+      containers = {
+        # excalidraw = {
+        #   pull = "missing"; # "always" | "missing" | "never" | "newer"
+        #   autoStart = false;
+        #   hostname = "excalidraw";
+        #   workdir = "/var/lib/excalidraw";
+        #   image = "excalidraw/excalidraw:latest";
+
+        #   # cmd = [ ];
+        #   ports = [
+        #     "5000:80"
+        #   ];
+        # };
       };
     };
 
