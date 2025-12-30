@@ -1,10 +1,6 @@
 {
-  pkgs,
-  ...
-}:
-{
   services.ollama = {
-    enable = !pkgs.stdenv.isDarwin;
+    enable = true;
     # acceleration = "rocm";
     # acceleration = "cuda"; # nvidia
     # environmentVariables = { };
