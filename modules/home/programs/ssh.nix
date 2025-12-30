@@ -6,9 +6,9 @@
     # extraOptionOverrides = {};
 
     matchBlocks = {
-      RT-BE88U-7A50 = {
+      rt-be88u-7a50 = {
         user = "admin";
-        host = "RT-BE88U-7A50";
+        host = "rt-be88u-7a50";
         addKeysToAgent = "yes";
         hostname = "rt-be88u-7a50.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
