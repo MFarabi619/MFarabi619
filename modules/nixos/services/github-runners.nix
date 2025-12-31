@@ -1,4 +1,7 @@
-{pkgs,...}:
+{
+  pkgs,
+  ...
+}:
 {
   services.github-runners = {
     nixos = {
@@ -6,7 +9,7 @@
       replace = false;
       ephemeral = false;
       extraLabels = [ "nixos" ];
-      nodeRuntimes = ["node22"];
+      nodeRuntimes = [ "node22" ];
       extraPackages = with pkgs; [
         pnpm
         devenv
