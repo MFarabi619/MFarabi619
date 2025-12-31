@@ -1,7 +1,7 @@
 {
   config,
   ...
-  }:
+}:
 {
   services.anubis = {
     defaultOptions = {
@@ -32,7 +32,7 @@
       tandemrobotics = {
         settings = {
           BIND = ":5149";
-          TARGET = "http://192.168.50.142:5150";
+          TARGET = "http://127.0.0.1:5150";
           METRICS_BIND = "127.0.0.1:5151";
         };
       };
