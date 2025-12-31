@@ -92,14 +92,6 @@ with lib;
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
         "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://192.168.50.250";
 
-        "http://${config.services.grafana.settings.server.domain}".extraConfig = ''
-          reverse_proxy http://192.168.50.98
-
-          handle /grafana* {
-            reverse_proxy :${toString config.services.grafana.settings.server.http_port}
-          }
-        '';
-
         "http://tandemrobotics.ca".extraConfig =
           ''reverse_proxy ${config.services.anubis.instances.tandemrobotics.settings.BIND} ${clientIp}'';
       }
