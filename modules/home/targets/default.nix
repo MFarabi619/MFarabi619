@@ -8,8 +8,13 @@
     darwin = lib.mkIf pkgs.stdenv.isDarwin {
       search = "Google";
 
-      linkApps = {
+      copyApps = {
         enable = true;
+        directory = "Applications";
+      };
+
+      linkApps = {
+        enable = false;
         directory = "Applications";
       };
 
