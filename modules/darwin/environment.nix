@@ -9,7 +9,7 @@
     systemPackages =
       with pkgs;
       [
-        coreutils
+        ispell
         tree-sitter
         alt-tab-macos
         kanata-with-cmd
