@@ -121,7 +121,7 @@
 
       rpi02w = {
         host = "rpi02w";
-        user = "mfarabi";
+        user = "root";
         addKeysToAgent = "yes";
         hostname = "rpi02w.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
