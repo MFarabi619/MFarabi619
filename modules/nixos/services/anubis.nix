@@ -24,7 +24,7 @@
       mirror = {
         settings = {
           BIND = ":11000";
-          TARGET = "http://192.168.50.142";
+          TARGET = "http://10.0.0.142";
           METRICS_BIND = "127.0.0.1:11001";
         };
       };

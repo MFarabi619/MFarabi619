@@ -53,7 +53,7 @@ with lib;
         #   '';
         # };
 
-        "http://microvisor.systems".extraConfig = "reverse_proxy http://192.168.50.50 ${clientIp}";
+        "http://microvisor.systems".extraConfig = "reverse_proxy http://10.0.0.50 ${clientIp}";
 
         "http://openws.org".extraConfig =
           "reverse_proxy http://${config.services.anubis.instances.homepage-dashboard.settings.BIND} ${clientIp}"
@@ -81,16 +81,16 @@ with lib;
           '';
         };
 
-        "http://rpi5.openws.org".extraConfig = "reverse_proxy http://192.168.50.122:7681";
-        "http://emacs.openws.org".extraConfig = "reverse_proxy http://192.168.50.142:7682";
-        "http://neovim.openws.org".extraConfig = "reverse_proxy http://192.168.50.142:7683";
-        "http://freebsd.openws.org".extraConfig = "reverse_proxy http://192.168.50.142:7681";
+        "http://rpi5.openws.org".extraConfig = "reverse_proxy http://10.0.0.0.122:7681";
+        "http://emacs.openws.org".extraConfig = "reverse_proxy http://10.0.0.0.142:7682";
+        "http://neovim.openws.org".extraConfig = "reverse_proxy http://10.0.0.0.142:7683";
+        "http://freebsd.openws.org".extraConfig = "reverse_proxy http://10.0.0.0.142:7681";
 
         "http://mirror.openws.org".extraConfig =
           "reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} ${clientIp}";
 
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
-        "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://192.168.50.250";
+        "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.0.250";
 
         "http://tandemrobotics.ca".extraConfig =
           ''reverse_proxy ${config.services.anubis.instances.tandemrobotics.settings.BIND} ${clientIp}'';
