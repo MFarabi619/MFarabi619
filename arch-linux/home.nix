@@ -56,6 +56,7 @@
     ../modules/home/programs/openstackclient.nix
     ../modules/home/programs/pandoc.nix
     ../modules/home/programs/ripgrep.nix
+    ../modules/home/programs/ripgrep-all.nix
     ../modules/home/programs/rtorrent.nix
     ../modules/home/programs/ssh.nix
     ../modules/home/programs/sftpman.nix
