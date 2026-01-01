@@ -12,6 +12,7 @@
         ispell
         tree-sitter
         alt-tab-macos
+        coreutils-full
         kanata-with-cmd
       ]
       ++ lib.optionals stdenv.isAarch64 [
