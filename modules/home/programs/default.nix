@@ -59,6 +59,7 @@
     ./pandoc.nix
     ./rbw.nix
     ./ripgrep.nix
+    ./ripgrep-all.nix
     ./rtorrent.nix
     ./ssh.nix
     ./sftpman.nix
