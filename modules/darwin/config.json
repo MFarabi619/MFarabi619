@@ -1,14 +1,16 @@
 {
   "actions" : [
     {
+      "iconPath" : "/Users/mfarabi/Applications/kitty.app",
       "key" : "t",
-      "type" : "application",
-      "value" : "/Users/mfarabi/Applications/Kitty.app"
+      "type" : "command",
+      "value" : "open ~/Applications/Kitty.app"
     },
     {
+      "iconPath" : "/Users/mfarabi/Applications/Emacs.app",
       "key" : "e",
-      "type" : "application",
-      "value" : "/Users/mfarabi/Applications/Emacs.app"
+      "type" : "command",
+      "value" : "open ~/Applications/Emacs.app"
     },
     {
       "key" : "s",
@@ -59,8 +61,8 @@
     },
     {
       "key" : "u",
-      "type" : "application",
-      "value" : "/Users/mfarabi/Applications/UTM.app"
+      "type" : "command",
+      "value" : "open ~/Applications/UTM.app"
     },
     {
       "key" : "o",
