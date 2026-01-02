@@ -34,6 +34,7 @@
         corfu
         org-anki
         pdf-tools
+        org-pdftools
         org-roam-ui
         corfu-terminal
         nerd-icons-corfu
@@ -84,28 +85,12 @@
         protoc-gen-go
         protoc-gen-go-grpc
 
-        jq # :lang rest
         jq-lsp
         graphql-language-service-cli
 
         asmfmt
-        asm-lsp
 
-        nix
-        nil # nix language server
-        nixfmt # nix formatter
-
-        cargo
-        rust-analyzer
-
-        zig
-        zls
-
-        nodejs_25
-
-        go
         gore
-        gopls
         gotests
         gomodifytags
         gocode-gomod
@@ -113,12 +98,6 @@
 
         ruby-lsp
 
-        ruff
-        isort
-        pyright
-
-        pandoc
-        gnuplot
         graphviz
         plantuml
         octaveFull # gnu octave
@@ -126,43 +105,21 @@
 
         fd
         git
-        unzip
-        gnutar
-        ispell
         tuntox # collab
         # semgrep
-        ripgrep
-        openscad
         rustywind
-        openscad-lsp
 
-        shfmt
-        shellcheck # shell script formatting
-        bash-language-server
+        # eslint
+        # proselint
+        # markdownlint-cli
+        # mdx-language-server
 
-        figlet # needed for artist-mode
-        eslint
-        proselint
-        markdownlint-cli
-        mdx-language-server
+        # taplo # toml lsp
+        # emmet-ls
+        # yaml-language-server
+        # dockerfile-language-server
+        # vscode-langservers-extracted
 
-        taplo # toml lsp
-        emmet-ls
-        yaml-language-server
-        dockerfile-language-server
-        vscode-langservers-extracted
-
-        vips # dired image previews
-        poppler # dired pdf previews
-        mediainfo
-        imagemagick # for image-dired
-        coreutils-full
-        epub-thumbnailer # dired epub previews
-        ffmpegthumbnailer
-
-        sqls
-        duckdb
-        sqlite # :tools lookup & :lang org +roam
         postgres-language-server
 
         gnutls # :app irc
@@ -175,17 +132,17 @@
   services.emacs = {
     enable = true;
     defaultEditor = false;
-    socketActivation.enable = true;
+    # socketActivation.enable = true;
 
     # extraOptions = [
     #   "TERM=xterm-kitty"
     # ];
 
-    client = {
-      enable = true;
-      # arguments = [
-      #   "--tty"
-      # ];
-    };
+    # client = {
+    #   enable = true;
+    #   # arguments = [
+    #   #   "--tty"
+    #   # ];
+    # };
   };
 }

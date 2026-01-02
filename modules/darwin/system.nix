@@ -23,6 +23,14 @@
           allowIdentifierForAdvertising = false;
           allowApplePersonalizedAdvertising = false;
         };
+
+        "com.apple.finder" = {
+          NSQuitAlwaysKeepsWindows = false;
+        };
+
+        NSGlobalDomain = {
+          NSQuitAlwaysKeepsWindows = false;
+        };
       };
 
       screencapture = {
@@ -53,7 +61,7 @@
         QuitMenuItem = true;
         ShowStatusBar = true;
         CreateDesktop = true;
-        NewWindowTarget = "Home";
+        # NewWindowTarget = "Home";
 
         _FXSortFoldersFirst = true;
         FXPreferredViewStyle = "icnv";

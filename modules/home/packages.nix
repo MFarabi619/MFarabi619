@@ -15,7 +15,6 @@
 # godap
 # jwt-tui
 # mcp-probe
-# mcp-nixos
 # bagels
 # moneyterm
 # ticker
@@ -56,31 +55,30 @@
         openscad
         openscad-lsp
         # =============
-        vips             # dired image previews
+        vips # dired image previews
         mediainfo
-        poppler          # dired pdf previews
-        imagemagick      # for image-dired
+        imagemagick # for image-dired
+        poppler-utils # dired pdf previews
         epub-thumbnailer # dired epub previews
         ffmpegthumbnailer
         # =============
-        sqlite           # :tools lookup & :lang org +roam
+        sqlite # :tools lookup & :lang org +roam
         gnuplot
-        shellcheck       # shell script formatting
-        octaveFull       # gnu octave
-        mermaid-cli      # mermaid diagram support
+        shellcheck # shell script formatting
+        octaveFull # gnu octave
+        mermaid-cli # mermaid diagram support
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui           # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         nmap
         tgpt
-        pik              # local port tui
-        sshs             # ssh tui
-        lazyssh          # ssh
+        pik # local port tui
+        lazyssh # ssh tui
         gpg-tui
         termscp
-        caligula         # disk imaging
-        keymapviz        # visualize keyboard layout in ascii
+        caligula # disk imaging
+        keymapviz # visualize keyboard layout in ascii
         tcpdump
-        cointop          # crypto price feed
+        cointop # crypto price feed
         wiki-tui
         bandwhich
         cargo-seek
@@ -90,7 +88,7 @@
 
         # keymap-drawer # visualize keyboard layout
 
-        gama-tui        # github actions runners
+        gama-tui # github actions runners
         codeberg-cli
 
         # vi-mongo        # mongodb tui
@@ -102,25 +100,24 @@
         stylelint
         exercism
         # ============= ‍❄🕸 ================
-        nil         # nix formatter
+        nil # nix formatter
         omnix
         devenv
         cachix
-        nix-du      # store visualizer
+        nix-du # store visualizer
         # nix-ld      # run unpatched dynamic binaries
-        nix-btm     # nix process monitor
-        nix-top     # nix process visualizer
-        nix-web     # web gui
+        nix-btm # nix process monitor
+        nix-top # nix process visualizer
+        nix-web # web gui
         nix-info
         # mcp-nixos # mcp server for NixOS
-        nix-health  # health check
+        nix-health # health check
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
 
         # ============= 🤖 ==================
-        cmake       # vterm compilation and more
+        cmake # vterm compilation and more
         gnumake
-        coreutils
         platformio
         # arduino-cli
         # arduino-language-server
@@ -129,12 +126,12 @@
 
         # ============== 🤪 =================
         genact
-        smassh       # TUI monkeytype
-        cowsay       # ascii cow
-        lolcat       # rainbow text output
-        figlet       # fancy ascii text output
-        cmatrix      # matrix animation
-        nyancat      # rainbow flying cat
+        smassh # TUI monkeytype
+        cowsay # ascii cow
+        lolcat # rainbow text output
+        figlet # fancy ascii text output
+        cmatrix # matrix animation
+        nyancat # rainbow flying cat
         asciiquarium # ascii aquarium
 
         #  Fine-tune packages by applying overrides, for example
@@ -152,17 +149,17 @@
         # ventoy-full # flash multiple isos to usb
         # super-slicer # 3D printing
         freecad
-        woeusb-ng     # flash bootable windows iso
+        woeusb-ng # flash bootable windows iso
 
         # ============= 🧑‍💻🐞✨‍ ================
-        ugm           # user group management
-        isd           # systemd units
-        dysk          # see mounted
-        kmon          # kernel monitor
-        termshark     # wireshark-like TUI
-        systeroid     # powerful sysctl alternative
+        ugm # user group management
+        isd # systemd units
+        dysk # see mounted
+        kmon # kernel monitor
+        termshark # wireshark-like TUI
+        systeroid # powerful sysctl alternative
         netscanner
-        lazyjournal   # journal logs
+        lazyjournal # journal logs
         # lazyhetzner
         systemctl-tui # systemctl logs
 
@@ -176,7 +173,7 @@
         hollywood
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
-        impala        # wifi mgmt tui
+        impala # wifi mgmt tui
         bluetui
 
         gparted
@@ -190,9 +187,9 @@
         penpot-desktop
       ]
       ++ lib.optionals stdenv.isDarwin [
-        utm          # virtual machines on macos
-        llvm         # compiler toolchain
-        ttyd         # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
+        utm # virtual machines on macos
+        llvm # compiler toolchain
+        ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
         ccache
         avrdude
         dfu-util
