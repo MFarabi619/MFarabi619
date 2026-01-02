@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   ...
 }:
@@ -7,7 +8,7 @@ let
 in
 {
   services.open-webui = {
-    enable = pkgs.stdenv.isx86_64;
+    enable = config.networking.hostName == "framework-desktop";
     port = 7777;
     stateDir = "/var/lib/open-webui";
     environmentFile = "/var/lib/secrets/open-webui";
