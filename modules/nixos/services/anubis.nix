@@ -16,9 +16,9 @@
     instances = {
       homepage-dashboard = {
         settings = {
-          BIND = ":8087";
+          BIND = ":${toString (config.services.homepage-dashboard.listenPort - 1)}";
           TARGET = "http://127.0.0.1:${toString config.services.homepage-dashboard.listenPort}";
-          METRICS_BIND = "127.0.0.1:8089";
+          METRICS_BIND = "127.0.0.1:${toString (config.services.homepage-dashboard.listenPort + 1)}";
         };
       };
 

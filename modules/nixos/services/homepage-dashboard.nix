@@ -21,7 +21,6 @@ in
   services.homepage-dashboard = {
     # inherit package;
     enable = config.networking.hostName == "framework-desktop";
-    listenPort = 8088;
     # environmentFile = "";
     allowedHosts = "openws.org";
 
@@ -166,8 +165,8 @@ in
             "IoT & Robotics" = [
               {
                 "Grafana" = {
-                  href = "https://openws.org/grafana";
-                  siteMonitor = "https://openws.org/grafana";
+                  href = config.services.grafana.settings.server.root_url;
+                  siteMonitor = config.services.grafana.settings.server.root_url;
                   icon = "grafana.svg";
                 };
               }
