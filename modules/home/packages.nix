@@ -49,7 +49,6 @@
         pixi # multi-language package manager
         pnpm
         duckdb
-        nodejs_24
         kubernetes-helm
         # =============
         # kicad

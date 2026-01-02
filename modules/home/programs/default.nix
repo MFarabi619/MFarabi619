@@ -51,6 +51,7 @@
     ./nh.nix
     ./nix-index.nix
     ./nix-search-tv.nix
+    ./npm.nix
     ./obs-studio.nix
     ./obsidian.nix
     ./opencode.nix
