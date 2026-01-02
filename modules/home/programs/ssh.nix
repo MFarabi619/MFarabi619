@@ -86,6 +86,14 @@
         setEnv.TERM = "xterm-kitty";
       };
 
+      nixos-wsl = {
+        user = "mfarabi";
+        host = "nixos-wsl";
+        addKeysToAgent = "yes";
+        hostname = "nixos-wsl.taila4d019.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
       surface-pro-7 = {
         user = "mfarabi";
         host = "surface-pro-7";
