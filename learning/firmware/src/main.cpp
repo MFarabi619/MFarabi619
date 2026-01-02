@@ -1,104 +1,184 @@
-#include "setup.h"
+#include "async_web_server.h"
+#include "freertos_utils.h"
+#include "serial_logger_utils.h"
 
-const char *MDNS_HOSTNAME = "microvisor";
+#include <ESP32Servo.h>
 
-AsyncWebServer server(80);
+Servo servo;
+const int SERVO_PIN = 5;
 
-#if CONFIG_FREERTOS_UNICORE
-static const BaseType_t app_cpu = 0;
-#else
-static const BaseType_t app_cpu = 1;
-#endif
+enum class ServoMode { Idle, Set, Sweep };
+
+ServoMode servoMode = ServoMode::Idle;
+int currentAngle = 90;
+int targetAngle = 90;
+bool sweepDirUp = true;
+unsigned long lastServoStepMs = 0;
+
+const int PIN_TO_SENSOR = 2;
+int pinStateCurrent = LOW;
+int pinStatePrevious = LOW;
+
+extern AsyncWebServer server;
+
+bool switchOn = false;
+
+// const int gpio_pins[] = {
+//   1, 2, 3, 4, 5, 6, 43,
+//   44, 7, 8, 9
+// };
+
+// const int pin_count = sizeof(gpio_pins) / sizeof(gpio_pins[0]);
 
 void setup() {
-  pinMode(REQUEST_INDICATOR_LED_PIN, OUTPUT);
-  digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
-  Serial.begin(MONITOR_SPEED);
-  delay(200);
+  begin_serial_logger();
+  begin_async_web_server();
 
-  Serial.println(CLR_BLUE_B "\n=== BOOT SEQUENCE ===" CLR_RESET);
-  Serial.println(CLR_YELLOW "[Logger] Initializing..." CLR_RESET);
+  pinMode(PIN_TO_SENSOR, INPUT);
 
-  Serial.println(CLR_BLUE_B "\n=== HARDWARE BRING-UP SUMMARY ===" CLR_RESET);
-  Serial.println(CLR_GREEN "[Logger] OK" CLR_RESET);
+  Serial.print("[Servo] Attaching to pin ");
+  Serial.println(SERVO_PIN);
+  int ch = servo.attach(SERVO_PIN);
+  Serial.print("[Servo] attach() returned channel: ");
+  Serial.println(ch);
+  currentAngle = 90;
+  targetAngle = 90;
+  servo.write(currentAngle);
+  Serial.print("[Servo] Initial angle set to ");
+  Serial.println(currentAngle);
 
-  if (SPIFFS.begin(true)) {
-    Serial.println(CLR_GREEN "[SPIFFS] Mounted" CLR_RESET);
-  } else {
-    Serial.println(CLR_RED "[SPIFFS] ERROR: mount failed" CLR_RESET);
-  }
+  // server.onNotFound([](AsyncWebServerRequest *req) {
+  //   digitalWrite(REQUEST_INDICATOR_LED_PIN, HIGH);
 
-  Serial.println(CLR_BLUE_B "\n=== NETWORK BRING-UP ===" CLR_RESET);
-  Serial.print(CLR_YELLOW "[WiFi] Connecting to SSID: " CLR_RESET);
-  Serial.print(NETWORK_SSID);
+  //   const String url = req->url();
+  //   if (url.length() > 1) {
+  //     bool numeric = true;
+  //     for (size_t i = 1; i < url.length(); i++) {
+  //       if (!isDigit(url[i])) {
+  //         numeric = false;
+  //         break;
+  //       }
+  //     }
 
-  WiFi.mode(WIFI_STA);
-  WiFi.setSleep(false);
-  WiFi.setAutoReconnect(true);
-  WiFi.begin(NETWORK_SSID, NETWORK_PSK);
+  //     if (numeric) {
+  //       int angle = constrain(url.substring(1).toInt(), 0, 180);
+  //       targetAngle = angle;
+  //       servoMode = ServoMode::Set;
+  //       Serial.printf("[HTTP] %s -> targetAngle=%d\n", url.c_str(), angle);
 
-  Serial.print(CLR_YELLOW "[WiFi] Connecting" CLR_RESET);
+  //       req->send(200, "text/plain; charset=utf-8",
+  //                 String("Servo -> ") + angle);
 
-  uint32_t t0 = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
-    Serial.print(".");
-    delay(300);
-  }
-  Serial.println();
+  //       digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
+  //       return;
+  //     }
+  //   }
 
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(CLR_GREEN "[WiFi] Connected" CLR_RESET);
-    Serial.printf(CLR_MAGENTA_B "[WiFi] IP: " CLR_RESET);
-    Serial.println(WiFi.localIP());
-  } else {
-    Serial.println(CLR_RED "[WiFi] ERROR: connect timeout. Check 2.4GHz/WPA2 and password." CLR_RESET);
-  }
+  //   req->send(404, "text/plain; charset=utf-8", "404: Not found");
+  //   digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
+  // });
 
-  if (MDNS.begin(MDNS_HOSTNAME)) {
-    Serial.printf(CLR_GREEN "[mDNS] Responder started (%s.local)\n" CLR_RESET, MDNS_HOSTNAME);
-  } else {
-    Serial.println(CLR_RED "[mDNS] ERROR: Failed to start responder" CLR_RESET);
-  }
-
-  server
-    .serveStatic("/", SPIFFS, "/")
-    .setDefaultFile("index.html");
-
-  server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *request) {
-    digitalWrite(REQUEST_INDICATOR_LED_PIN, HIGH);
-
-    String json = "{";
-    json += "\"ip\":\"" + WiFi.localIP().toString() + "\",";
-    json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
-    json += "\"uptime_seconds\":" + String(millis() / 1000) + ",";
-    json += "\"heap\":" + String(ESP.getFreeHeap());
-    json += "}";
-
-    request->send(200, "application/json; charset=utf-8", json);
-
-    digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
+  server.on("/sweep", HTTP_GET, [](AsyncWebServerRequest *req) {
+    Serial.println("[HTTP] GET /on");
+    digitalWrite(LED_BUILTIN, HIGH);
+    servoMode = ServoMode::Sweep;
+    Serial.println("[Servo] Sweep mode enabled");
+    req->send(200, "text/plain", "Servo SWEEP");
   });
 
-  server.on("/health", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain; charset=utf-8", "ok");
+  server.on("/left", HTTP_GET, [](AsyncWebServerRequest *req) {
+    Serial.println("[HTTP] GET /left");
+    targetAngle = 15;
+    servoMode = ServoMode::Set;
+    Serial.print("[Servo] targetAngle set to ");
+    Serial.println(targetAngle);
+    req->send(200, "text/plain", "Servo LEFT");
   });
 
-  server.on("/ready", HTTP_GET, [](AsyncWebServerRequest *request) {
-    if (WiFi.status() == WL_CONNECTED) {
-      request->send(200, "text/plain; charset=utf-8", "ready");
-    } else {
-      request->send(503, "text/plain; charset=utf-8", "not ready");
-    }
+  server.on("/right", HTTP_GET, [](AsyncWebServerRequest *req) {
+    Serial.println("[HTTP] GET /right");
+    targetAngle = 165;
+    servoMode = ServoMode::Set;
+    Serial.print("[Servo] targetAngle set to ");
+    Serial.println(targetAngle);
+    req->send(200, "text/plain", "Servo RIGHT");
   });
 
-  server.onNotFound([](AsyncWebServerRequest *request) {
-    digitalWrite(REQUEST_INDICATOR_LED_PIN, HIGH);
-    request->send(404, "text/plain; charset=utf-8", "404: Not found");
-    digitalWrite(REQUEST_INDICATOR_LED_PIN, LOW);
+  server.on("/center", HTTP_GET, [](AsyncWebServerRequest *req) {
+    Serial.println("[HTTP] GET /center");
+    targetAngle = 90;
+    servoMode = ServoMode::Set;
+    Serial.print("[Servo] targetAngle set to ");
+    Serial.println(targetAngle);
+    req->send(200, "text/plain", "Servo CENTER");
   });
 
-  server.begin();
-  Serial.println(CLR_GREEN "[HTTP] Async server started on port 80" CLR_RESET);
+  //   for (int i = 0; i < pin_count; i++) {
+  //   pinMode(gpio_pins[i], OUTPUT);
+  //   digitalWrite(gpio_pins[i], LOW);
+  // }
 }
 
-void loop() {}
+void loop() {
+  //  for (int i = 0; i < pin_count; i++) {
+  //   digitalWrite(gpio_pins[i], HIGH);
+  //   delay(300);
+  //   digitalWrite(gpio_pins[i], LOW);
+  //   delay(200);
+  // }
+
+  unsigned long now = millis();
+
+  switch (servoMode) {
+  case ServoMode::Set:
+    Serial.print("[Servo] Applying Set mode, angle = ");
+    Serial.println(targetAngle);
+    servo.write(targetAngle);
+    currentAngle = targetAngle;
+    servoMode = ServoMode::Idle;
+    break;
+
+  case ServoMode::Sweep:
+    if (now - lastServoStepMs >= 1) {
+      lastServoStepMs = now;
+
+      if (sweepDirUp) {
+        currentAngle++;
+        if (currentAngle >= 180) {
+          currentAngle = 180;
+          sweepDirUp = false;
+          Serial.println("[Servo] Sweep reached max, reversing");
+        }
+      } else {
+        currentAngle--;
+        if (currentAngle <= 0) {
+          currentAngle = 0;
+          sweepDirUp = true;
+          Serial.println("[Servo] Sweep reached min, reversing");
+        }
+      }
+
+      servo.write(currentAngle);
+      Serial.print("[Servo] Sweep angle = ");
+      Serial.println(currentAngle);
+    }
+    break;
+
+  case ServoMode::Idle:
+  default:
+    break;
+  }
+
+  pinStatePrevious = pinStateCurrent;
+  pinStateCurrent = digitalRead(PIN_TO_SENSOR);
+
+  if (pinStatePrevious == LOW && pinStateCurrent == HIGH) {
+    switchOn = !switchOn;
+
+    Serial.println("Motion detected → toggle");
+
+    targetAngle = switchOn ? 40 : 150;
+    servoMode = ServoMode::Set;
+    delay(2000);
+  }
+}
