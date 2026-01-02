@@ -1,6 +1,10 @@
 {
+  config,
+  ...
+}:
+{
   services.cloudflared = {
-    enable = true;
+    enable = config.networking.hostName == "framework-desktop";
     tunnels = {
       # TODO: change to framework-destop
       "nixos-server" = {
