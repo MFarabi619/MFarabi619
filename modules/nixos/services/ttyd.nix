@@ -1,11 +1,12 @@
 {
+  config,
   pkgs,
   lib,
   ...
 }:
 {
   services.ttyd = {
-    enable = true;
+    enable = config.networking.hostName == "framework-desktop";
     logLevel = 7;
     maxClients = 0;
     # indexFile = "";
