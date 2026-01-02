@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   ...
 }:
@@ -19,7 +20,7 @@ in
 {
   services.homepage-dashboard = {
     # inherit package;
-    enable = true;
+    enable = config.networking.hostName == "framework-desktop";
     listenPort = 8088;
     # environmentFile = "";
     allowedHosts = "openws.org";
