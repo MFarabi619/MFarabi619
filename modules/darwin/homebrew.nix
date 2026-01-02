@@ -44,6 +44,7 @@
     ];
 
     brews = [
+      "rust"
       "dirien/dirien/lazy-pulumi"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ]
