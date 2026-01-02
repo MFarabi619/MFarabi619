@@ -21,6 +21,7 @@
     ../modules/home/programs/aichat.nix
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix
+    ../modules/home/programs/bun.nix
     ../modules/home/programs/chromium.nix
     ../modules/home/programs/claude-code.nix
     ../modules/home/programs/command-not-found.nix

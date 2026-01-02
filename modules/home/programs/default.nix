@@ -11,6 +11,7 @@
     ./bash.nix
     ./bat.nix
     ./btop.nix
+    ./bun.nix
     ./chromium.nix
     ./claude-code.nix
     ./clock-rs.nix
