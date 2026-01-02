@@ -62,6 +62,7 @@
     ./ripgrep.nix
     ./ripgrep-all.nix
     ./rtorrent.nix
+    ./ruff.nix
     ./ssh.nix
     ./sftpman.nix
     ./sketchybar
