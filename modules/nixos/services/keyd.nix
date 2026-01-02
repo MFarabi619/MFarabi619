@@ -1,19 +1,24 @@
 {
+  config,
+  ...
+}:
+{
   services.keyd = {
-    enable = true;
+    enable = config.networking.hostName != "nixos-wsl";
+
     keyboards = {
       default = {
-        ids = ["*"];
+        ids = [ "*" ];
         settings = {
           main = {
             capslock = "overload(control, esc)";
             rightalt = "layer(rightalt)";
           };
           rightalt = {
-           h = "left";
-           j = "down";
-           k = "up";
-           l = "right";
+            h = "left";
+            j = "down";
+            k = "up";
+            l = "right";
           };
         };
         extraConfig = ''
