@@ -1,9 +1,10 @@
 {
+  lib,
   config,
   ...
 }:
 {
-  services.anubis = {
+  services.anubis = lib.mkIf (config.networking.hostName == "framework-desktop") {
     defaultOptions = {
       settings = {
         DIFFICULTY = 4;
