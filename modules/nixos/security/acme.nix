@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   ...
 }:
@@ -10,7 +11,7 @@
       email = "mfarabi619@gmail.com";
     };
 
-    certs = {
+    certs = lib.mkIf (config.networking.hostName == "framework-desktop") {
       "openws.org" = {
         domain = "openws.org";
         dnsProvider = "cloudflare";
