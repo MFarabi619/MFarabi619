@@ -5,7 +5,6 @@
     ./services
 
     ./power.nix
-    ./fonts.nix
     ./system.nix
     ./stylix.nix
     ./nixpkgs.nix
@@ -13,11 +12,11 @@
     ./security.nix
     ./homebrew.nix
     ./networking.nix
-    ./environment.nix
-    ./documentation.nix
     ./linux-builder.nix
 
     ../nixos/fonts.nix
     ../nixos/myusers.nix
+    ../nixos/environment.nix
+    ../nixos/documentation.nix
   ];
 }

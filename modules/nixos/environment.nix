@@ -6,26 +6,33 @@
 }:
 {
   environment = {
-    variables.NIXOS_OZONE_WL = "1";
-    sessionVariables.NIXOS_OZONE_WL = "1";
-
     systemPackages =
       with pkgs;
       [
+        ispell
+        tree-sitter
+        # cloudflared
+      ]
+      ++ lib.optionals stdenv.isLinux [
         wget
         exfat # exFAT support
         ntfs3g # ntfs support
+
         ffmpeg # terminal video/audio editing
         udiskie # manage removable media
         pciutils
         usbutils
         lm_sensors # system sensors
-        tree-sitter
         brightnessctl # screen brightness control
-
-        # cloudflared
-
         # i2c-tools # raspberry pi
+      ]
+      ++ lib.optionals stdenv.isDarwin [
+        alt-tab-macos
+        coreutils-full
+        kanata-with-cmd
+      ]
+      ++ lib.optionals (stdenv.isDarwin && stdenv.isAarch64) [
+        macmon
       ]
       ++ lib.optionals config.networking.networkmanager.enable [
         networkmanager
@@ -44,15 +51,20 @@
       ];
 
     pathsToLink = [
+      "/share/bash-completion"
+    ]
+    ++ lib.optionals pkgs.stdenv.isDarwin [
+      "/Applications"
+    ]
+    ++ lib.optionals (config.programs.zsh.enable || pkgs.stdenv.isDarwin) [
+      "/share/zsh"
+    ]
+    ++ lib.optionals pkgs.stdenv.isLinux [
       "/share/mime"
       "/share/icons"
       "/share/fonts"
       "/share/themes"
       "/share/applications"
-      "/share/bash-completion"
-    ]
-    ++ lib.optionals config.programs.zsh.enable [
-      "/share/zsh"
     ]
     ++ lib.optionals config.programs.fish.enable [
       "/share/fish"
@@ -61,5 +73,57 @@
       "/share/wayland-sessions"
       "/share/xdg-desktop-portal"
     ];
+  }
+  // lib.optionalAttrs pkgs.stdenv.isLinux {
+    variables.NIXOS_OZONE_WL = "1";
+    sessionVariables.NIXOS_OZONE_WL = "1";
+  }
+  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    enableAllTerminfo = true;
+
+    systemPath = [
+      "/usr/local/bin"
+      "/opt/homebrew/bin"
+      "/Users/mfarabi/go/bin"
+      "/Users/mfarabi/.bun/bin"
+      "/Users/mfarabi/.local/bin"
+      "/Users/mfarabi/.cargo/bin"
+      "/Users/mfarabi/Library/pnpm"
+      # "/Users/mfarabi/.lmstudio/bin"
+    ];
   };
+
 }
+
+# For Darwin, read:
+
+# github.com/jtroo/kanata/releases/tag/v1.9.0
+# github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/tree/main
+# github.com/jtroo/kanata/discussions/1537
+
+# Download:
+# github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/dist/Karabiner-DriverKit-VirtualHIDDevice-6.2.0.pkg
+# if macos < 13.0
+# github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/v6.6.0/dist/Karabiner-DriverKit-VirtualHIDDevice-3.0.0.pkg
+
+# Install:
+# /Applications/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager activate
+
+# sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &
+#
+# Or if macos < 13.0
+# sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient'
+
+# sudo kanata -q &
+
+# or
+
+# sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -q &
+
+# stop with:
+# sudo killall Karabiner-VirtualHIDDevice-Daemon; sudo killall kanata
+
+# Uninstall:
+# bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall/deactivate_driver.sh'
+# sudo bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall/remove_files.sh'
+# sudo killall Karabiner-VirtualHIDDevice-Daemon

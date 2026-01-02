@@ -1,9 +1,20 @@
 {
+  lib,
+  pkgs,
+  ...
+}:
+{
   services.tailscale = {
     enable = true;
+  }
+  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    overrideLocalDns = false;
+  }
+  // lib.optionalAttrs pkgs.stdenv.isLinux {
     permitCertUid = null;
     useRoutingFeatures = "both"; # one of "none", "client", "server", "both"
     authKeyFile = "/run/secrets/tailscale_key";
+
     # extraDaemonFlags = [ ];
 
     extraUpFlags = [

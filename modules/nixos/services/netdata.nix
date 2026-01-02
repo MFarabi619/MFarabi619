@@ -1,16 +1,32 @@
 {
+  lib,
   pkgs,
   ...
 }:
 {
   services.netdata = {
-    enable = true;
-    deadlineBeforeStopSec = 120;
-    enableAnalyticsReporting = false;
+    enable = pkgs.stdenv.isLinux;
 
     package = pkgs.netdata.override {
       withCloudUi = true;
     };
+  }
+  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+    logDir = "/var/log/netdata"; # default
+    workDir = "/var/lib/netdata"; # default
+    cacheDir = "/var/cache/netdata"; # default
+
+    config = ''
+      [global]
+      memory mode = ram
+      debug log = syslog
+      access log = syslog
+      error log = syslog
+    '';
+  }
+  // lib.optionalAttrs pkgs.stdenv.isLinux {
+    deadlineBeforeStopSec = 120;
+    enableAnalyticsReporting = false;
 
     config = {
       global = {
@@ -20,13 +36,6 @@
         "access log" = "syslog";
       };
     };
-
-    # configText = ''
-    #   [global]
-    #   debug log = syslog
-    #   access log = syslog
-    #   error log = syslog
-    # '';
 
     python = {
       enable = true;

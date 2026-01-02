@@ -1,10 +1,6 @@
 {
-  config,
-  ...
-}:
-{
   services.tailscaleAuth = {
-    enable = config.services.tailscale.enable;
+    enable = true;
     user = "tailscale-nginx-auth";
     group = "tailscale-nginx-auth";
     socketPath = "/run/tailscale-nginx-auth/tailscale-nginx-auth.sock";

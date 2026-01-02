@@ -17,6 +17,7 @@
       nerd-fonts.jetbrains-mono
     ]
     ++ lib.optionals stdenv.isDarwin [
+      nerd-fonts.noto
       sketchybar-app-font
     ];
 }
