@@ -7,15 +7,12 @@
 {
   system.stateVersion = "25.05";
   networking.hostName = "nixos-wsl";
+  hardware.uinput.enable = true;
 
   nixpkgs = {
     config.allowUnfree = true;
     hostPlatform = "x86_64-linux";
     # hostPlatform = lib.mkDefault "x86_64-linux";
-  };
-
-  hardware = {
-    uinput.enable = true;
   };
 
   services = {
@@ -32,8 +29,10 @@
   wsl = {
     enable = true;
     defaultUser = "mfarabi";
-    docker-desktop.enable = true;
+    useWindowsDriver = true;
     startMenuLaunchers = true;
+    docker-desktop.enable = true;
+
     interop = {
       includePath = true;
     };
@@ -42,20 +41,23 @@
       enable = true;
       autoAttach = [ ];
     };
-    useWindowsDriver = true;
+
     wslConf = {
       network = {
         generateHosts = true;
         generateResolvConf = true;
       };
+
       automount = {
         enabled = true;
         root = "/mnt";
       };
+
       boot = {
         systemd = true;
         command = "echo 'Hello from NixOS-WSL 👋";
       };
+
       interop = {
         enabled = true;
         appendWindowsPath = true;
