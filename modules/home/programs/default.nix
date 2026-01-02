@@ -65,6 +65,7 @@
     ./ruff.nix
     ./ssh.nix
     ./sftpman.nix
+    ./sqls.nix
     ./sketchybar
     ./starship
     ./television.nix

@@ -9,8 +9,11 @@
   imports = [
     ../modules/home/accounts.nix
     ../modules/home/home.nix
+
     ../modules/home/services
+
     ../modules/home/programs/emacs
+    ../modules/home/programs/zsh
 
     ../modules/home/fonts.nix
     ../modules/home/manual.nix
@@ -62,6 +65,7 @@
     ../modules/home/programs/ruff.nix
     ../modules/home/programs/ssh.nix
     ../modules/home/programs/sftpman.nix
+    ../modules/home/programs/sqls.nix
     ../modules/home/programs/television.nix
     ../modules/home/programs/tex-fmt.nix
     ../modules/home/programs/texlive.nix
@@ -74,7 +78,6 @@
     ../modules/home/programs/zed.nix
     ../modules/home/programs/zellij.nix
     ../modules/home/programs/zoxide.nix
-    ../modules/home/programs/zsh
   ];
 
   home = {
