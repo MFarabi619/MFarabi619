@@ -1,12 +1,13 @@
 {
+  config,
+  ...
+}:
+{
   services.cachix-watch-store = {
-    enable = false;
+    enable = true;
     verbose = true;
-    # host = "";
     cacheName = "mfarabi";
-    # jobs = 12;
     # compressionLevel = 0;
-    # cachixTokenFile = ../../cachixTokenFile;
-    # signingKeyFile = "";
+    cachixTokenFile = "/run/secrets/cachix_token";
   };
 }
