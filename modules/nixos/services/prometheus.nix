@@ -4,7 +4,7 @@
 }:
 {
   services.prometheus = {
-    enable = true;
+    enable = config.services.grafana.enable;
 
     globalConfig = {
       scrape_interval = "5s";
