@@ -7,7 +7,7 @@ let
 in
 {
   services.grafana = {
-    enable = true;
+    enable = config.networking.hostName == "framework-desktop";
     settings = {
       server = {
         enable_gzip = true;
