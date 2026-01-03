@@ -15,21 +15,19 @@
   ];
 
   nixpkgs = {
+    hostPlatform = lib.mkDefault "x86_64-linux";
+
     config = {
       rocmSupport = true; # amd
       # cudaSupport = true; # intel
     };
-    hostPlatform = lib.mkDefault "x86_64-linux";
   };
 
   hardware = {
     graphics.enable = true;
     enableAllFirmware = true;
     enableRedistributableFirmware = true;
-    cpu = {
-      # intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-      amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-    };
+    cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
   };
 
   boot = {
@@ -38,6 +36,7 @@
 
     initrd = {
       kernelModules = [ ];
+
       availableKernelModules = [
         "nvme"
         "usbhid"
@@ -63,9 +62,7 @@
     };
   };
 
-  swapDevices = [
-    { device = "/dev/disk/by-uuid/bdef91e4-2bbc-4058-8856-53ba5d5b21f8"; }
-  ];
+  swapDevices = [ { device = "/dev/disk/by-uuid/bdef91e4-2bbc-4058-8856-53ba5d5b21f8"; } ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's

@@ -12,17 +12,14 @@
 {
 
   imports = [
-    # ./hardware-configuration.nix
     ./framework-desktop.nix
+    # ./hardware-configuration.nix
   ];
 
   system.stateVersion = "25.05";
   networking.hostName = "framework-desktop";
 
-  nixpkgs = {
-    config.allowUnfree = true;
-    hostPlatform = "x86_64-linux";
-  };
+  nixpkgs.config.allowUnfree = true;
 
   users.users.mfarabi = {
     isNormalUser = true;
