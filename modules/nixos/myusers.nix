@@ -57,8 +57,6 @@ in
       users = mapListToAttrs config.myusers (name: {
         imports = [
           (self + /configurations/home/${name}.nix)
-          flake.inputs.lazyvim.homeManagerModules.default
-          flake.inputs.nix-doom-emacs-unstraightened.homeModule
         ]
         ++ lib.optionals pkgs.stdenv.isLinux [
           flake.inputs.stylix.homeModules.stylix

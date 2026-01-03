@@ -13,10 +13,6 @@ in
     ./home.nix
     ../../home/mfarabi.nix
 
-    inputs.stylix.homeModules.stylix
-    inputs.lazyvim.homeManagerModules.default
-    inputs.nix-doom-emacs-unstraightened.homeModule
-
     self.homeModules.me
     self.homeModules.home
     self.homeModules.fonts
@@ -24,5 +20,7 @@ in
     self.homeModules.accounts
     self.homeModules.services
     self.homeModules.editorconfig
+
+    inputs.stylix.homeModules.stylix
   ];
 }

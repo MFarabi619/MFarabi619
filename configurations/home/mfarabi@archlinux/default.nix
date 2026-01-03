@@ -20,8 +20,5 @@ in
     self.homeModules.accounts
     self.homeModules.services
     self.homeModules.editorconfig
-
-    inputs.lazyvim.homeManagerModules.default
-    inputs.nix-doom-emacs-unstraightened.homeModule
   ];
 }

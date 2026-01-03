@@ -13,27 +13,30 @@
     stylix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = {
-    nixpkgs,
-    stylix,
-    home-manager,
-    ...
-  }@inputs:
-  let
-    system = "aarch64-linux";
-    pkgs = import nixpkgs {
-      inherit system;
-      config = { allowUnfree = true; };
-    };
-  in {
-    homeConfigurations."mfarabi" = home-manager.lib.homeManagerConfiguration {
-      inherit pkgs;
+  outputs =
+    {
+      nixpkgs,
+      stylix,
+      home-manager,
+      ...
+    }@inputs:
+    let
+      system = "aarch64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config = {
+          allowUnfree = true;
+        };
+      };
+    in
+    {
+      homeConfigurations."mfarabi" = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
 
-      modules = [
-        inputs.stylix.homeModules.stylix
-        inputs.lazyvim.homeManagerModules.default
-        ./home.nix
-      ];
+        modules = [
+          inputs.stylix.homeModules.stylix
+          ./home.nix
+        ];
+      };
     };
-  };
 }

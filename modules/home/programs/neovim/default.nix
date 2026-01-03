@@ -1,8 +1,15 @@
 {
+  pkgs,
+  flake,
+  ...
+}:
+{
   imports = [
+    flake.inputs.lazyvim.homeManagerModules.default
+
     ./config.nix
-    ./plugins.nix
     ./extras.nix
+    ./plugins.nix
   ];
 
   programs.lazyvim = {
