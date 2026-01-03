@@ -6,14 +6,25 @@
 }:
 {
   environment = {
+    systemPackages = with pkgs; [
+      ispell
+      tree-sitter
+      # cloudflared
+    ];
+
+    pathsToLink = [
+      "/share/bash-completion"
+    ]
+    ++ lib.optionals (config.programs.zsh.enable || pkgs.stdenv.isDarwin) [ "/share/zsh" ]
+    ++ lib.optionals config.programs.fish.enable [ "/share/fish" ];
+  }
+  // lib.optionalAttrs pkgs.stdenv.isLinux {
+    variables.NIXOS_OZONE_WL = "1";
+    sessionVariables.NIXOS_OZONE_WL = "1";
+
     systemPackages =
       with pkgs;
       [
-        ispell
-        tree-sitter
-        # cloudflared
-      ]
-      ++ lib.optionals stdenv.isLinux [
         wget
         exfat # exFAT support
         ntfs3g # ntfs support
@@ -26,21 +37,11 @@
         brightnessctl # screen brightness control
         # i2c-tools # raspberry pi
       ]
-      ++ lib.optionals stdenv.isDarwin [
-        alt-tab-macos
-        coreutils-full
-        kanata-with-cmd
-      ]
-      ++ lib.optionals (stdenv.isDarwin && stdenv.isAarch64) [
-        macmon
-      ]
       ++ lib.optionals config.networking.networkmanager.enable [
         networkmanager
         networkmanagerapplet
       ]
-      ++ lib.optionals config.programs.hyprland.enable [
-        kitty
-      ]
+      ++ lib.optionals config.programs.hyprland.enable [ kitty ]
       ++ lib.optionals config.programs.dconf.enable [
         dconf # configuration storage system
         dconf-editor
@@ -51,35 +52,34 @@
       ];
 
     pathsToLink = [
-      "/share/bash-completion"
-    ]
-    ++ lib.optionals pkgs.stdenv.isDarwin [
-      "/Applications"
-    ]
-    ++ lib.optionals (config.programs.zsh.enable || pkgs.stdenv.isDarwin) [
-      "/share/zsh"
-    ]
-    ++ lib.optionals pkgs.stdenv.isLinux [
       "/share/mime"
       "/share/icons"
       "/share/fonts"
       "/share/themes"
       "/share/applications"
     ]
-    ++ lib.optionals config.programs.fish.enable [
-      "/share/fish"
-    ]
     ++ lib.optionals config.programs.xwayland.enable [
       "/share/wayland-sessions"
       "/share/xdg-desktop-portal"
     ];
   }
-  // lib.optionalAttrs pkgs.stdenv.isLinux {
-    variables.NIXOS_OZONE_WL = "1";
-    sessionVariables.NIXOS_OZONE_WL = "1";
-  }
   // lib.optionalAttrs pkgs.stdenv.isDarwin {
     enableAllTerminfo = true;
+
+    systemPackages =
+      with pkgs;
+      [
+        alt-tab-macos
+        coreutils-full
+        kanata-with-cmd
+      ]
+      ++ lib.optionals stdenv.isAarch64 [
+        macmon
+      ];
+
+    pathsToLink = [
+      "/Applications"
+    ];
 
     systemPath = [
       "/usr/local/bin"
@@ -92,7 +92,6 @@
       # "/Users/mfarabi/.lmstudio/bin"
     ];
   };
-
 }
 
 # For Darwin, read:
