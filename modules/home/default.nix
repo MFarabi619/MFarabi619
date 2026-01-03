@@ -1,18 +1,18 @@
 {
   imports = [
+    ./targets
     ./programs
     ./services
-    ./targets
 
-    ./accounts.nix
-    ./editorconfig.nix
-    ./fonts.nix
-    ./home.nix
-    ./manual.nix
-    ./me.nix
-    ./nix-index.nix
     # ./nix.nix
-    ./stylix.nix
+    ./me.nix
     ./xdg.nix
+    ./home.nix
+    ./fonts.nix
+    ./manual.nix
+    ./stylix.nix
+    ./accounts.nix
+    ./nix-index.nix
+    ./editorconfig.nix
   ];
 }
