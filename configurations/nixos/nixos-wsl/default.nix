@@ -9,8 +9,8 @@ in
 {
   imports = [
     self.nixosModules.default
-    flake.inputs.nixos-wsl.nixosModules.default
     flake.inputs.stylix.nixosModules.stylix
+    flake.inputs.nixos-wsl.nixosModules.default
     ./configuration.nix
   ];
 }

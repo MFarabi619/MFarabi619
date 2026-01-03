@@ -12,6 +12,7 @@
 
   system.stateVersion = "25.05";
   networking.hostName = "nixos-vm";
+  nixpkgs.config.allowUnfree = true;
 
   services = {
     qemuGuest.enable = true;
@@ -25,11 +26,6 @@
       efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_latest;
-  };
-
-  nixpkgs = {
-    config.allowUnfree = true;
-    # hostPlatform = "x86_64-linux";
   };
 
   users.users.mfarabi = {

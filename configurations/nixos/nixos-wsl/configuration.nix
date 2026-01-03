@@ -1,26 +1,21 @@
 {
-  config,
-  pkgs,
   lib,
+  pkgs,
+  config,
   ...
 }:
 {
   system.stateVersion = "25.05";
-  networking.hostName = "nixos-wsl";
   hardware.uinput.enable = true;
+  networking.hostName = "nixos-wsl";
 
   nixpkgs = {
     config.allowUnfree = true;
     hostPlatform = "x86_64-linux";
-    # hostPlatform = lib.mkDefault "x86_64-linux";
   };
 
   services = {
-    seatd = {
-      enable = true;
-      user = "root"; # default
-      group = "seat"; # default
-    };
+    seatd.enable = true;
     qemuGuest.enable = true;
     spice-vdagentd.enable = true;
     spice-webdavd.enable = true;
