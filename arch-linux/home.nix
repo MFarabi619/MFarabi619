@@ -7,17 +7,17 @@
 
 {
   imports = [
-    ../modules/home/accounts.nix
-    ../modules/home/home.nix
-
     ../modules/home/services
+
+    ../modules/home/accounts.nix
+    ../modules/home/editorconfig.nix
+    ../modules/home/fonts.nix
+    ../modules/home/home.nix
+    ../modules/home/manual.nix
 
     ../modules/home/programs/emacs
     ../modules/home/programs/zsh
 
-    ../modules/home/fonts.nix
-    ../modules/home/manual.nix
-    ../modules/home/editorconfig.nix
     ../modules/home/programs/aichat.nix
     ../modules/home/programs/bat.nix
     ../modules/home/programs/btop.nix
@@ -91,7 +91,7 @@
       ttyd
       tscli
       arion
-      hydra
+      # hydra
       nix-ld
       argocd
       kubectl
