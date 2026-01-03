@@ -68,24 +68,12 @@ in
 
     # All users can add Nix caches.
     nix = {
+      gc.automatic = true;
+      optimise.automatic = true;
       channel.enable = pkgs.stdenv.isDarwin;
       # builders-use-substitutes = pkgs.stdenv.isLinux;
 
-      optimise = {
-        automatic = true;
-        # dates = "daily";
-        # persistent = true;
-      };
-
-      gc = {
-        automatic = true;
-        # persistent = true;
-        # dates = "daily";
-        # options = "";
-      };
-
       settings = {
-        max-jobs = "auto";
         show-trace = true;
         trace-verbose = true;
         http-connections = 40;
