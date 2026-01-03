@@ -10,9 +10,11 @@
 
 {
   system.stateVersion = "25.05";
+  networking.hostName = "nixos-intel";
+  nixpkgs.config.allowUnfree = true;
 
   imports = [
-    ./intel-macbook-11-4.nix
+    ./hardware-configuration.nix
   ];
 
   boot = {
@@ -21,11 +23,6 @@
       efi.canTouchEfiVariables = true;
     };
     kernelPackages = pkgs.linuxPackages_latest;
-  };
-
-  networking = {
-    hostName = "nixos-intel";
-    networkmanager.enable = true;
   };
 
   users.users.mfarabi = {
@@ -37,11 +34,6 @@
       "docker"
       "networkmanager"
     ];
-  };
-
-  nixpkgs = {
-    config.allowUnfree = true;
-    hostPlatform = "x86_64-linux";
   };
 
   services = {
