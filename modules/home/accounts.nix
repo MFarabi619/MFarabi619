@@ -1,5 +1,6 @@
 {
   pkgs,
+  config,
   ...
 }:
 {
@@ -13,20 +14,21 @@
           primary = true;
           mu.enable = true;
           msmtp.enable = true;
-          neomutt.enable = true;
           flavor = "gmail.com";
-          realName = "Mumtahin Farabi";
+          neomutt.enable = true;
           smtp.host = "smtp.gmail.com";
-          address = "mfarabi619@gmail.com";
-          userName = "mfarabi619@gmail.com";
+          address = config.me.email;
+          userName = config.me.email;
+          realName = config.me.fullname;
           passwordCommand = "${pkgs.pass}/bin/pass Email/GmailApp";
 
           signature = {
+            showSignature = "append";
+
             text = ''
               Warm regards,
-              Mumtahin Farabi
+              config.me.fullname
             '';
-            showSignature = "append";
           };
 
           mbsync = {
@@ -43,12 +45,6 @@
           #  port = 993;
           #  tls.enable = true;
           #  host = "imap.gmail.com";
-          # };
-
-          # smtp = {
-          #  port = 587;
-          #   tls.useStartTls = true;
-          #   host = "smtp.gmail.com";
           # };
         };
       };

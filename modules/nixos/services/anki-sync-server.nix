@@ -5,7 +5,6 @@
 {
   services.anki-sync-server = {
     enable = config.networking.hostName == "framework-desktop";
-
     baseDirectory = "%S/%N";
 
     users = [

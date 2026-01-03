@@ -1,8 +1,12 @@
 {
+  config,
+  ...
+}:
+{
   programs.rbw = {
     enable = false;
-    settings =  {
-      email  = "mfarabi619@gmail.com";
+    settings = {
+      email = config.me.email;
       # base_url = "";
       # identity_url = "";
     };
