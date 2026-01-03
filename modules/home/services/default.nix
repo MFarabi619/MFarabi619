@@ -1,15 +1,6 @@
+{ ... }:
 {
-  imports = [
-    ./activitywatch.nix
-    ./cachix-agent.nix
-    ./gpg-agent.nix
-    ./home-manager.nix
-    ./jellyfin-mpv-shim.nix
-    ./mbsync.nix
-    ./ssh-agent.nix
-    ./ollama.nix
-    ./podman.nix
-    ./glance.nix
-    ./trayscale.nix
-  ];
+  imports =
+    with builtins;
+    map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
 }
