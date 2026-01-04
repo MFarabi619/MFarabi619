@@ -32,6 +32,7 @@ in
       # microk8s
       minikube
       jellyfin
+      filebrowser
       # fw-fanctrl
       wl-screenrec
       framework-tool
