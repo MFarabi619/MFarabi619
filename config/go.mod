@@ -68,6 +68,7 @@ require (
 	github.com/pulumi/pulumi-aws/sdk/v7 v7.12.0 // indirect
 	github.com/pulumi/pulumi-command/sdk v1.1.3 // indirect
 	github.com/pulumi/pulumi-docker/sdk/v4 v4.11.0 // indirect
+	github.com/pulumi/pulumi-hcloud/sdk v1.29.0 // indirect
 	github.com/pulumi/pulumi-oci/sdk/v3 v3.12.0 // indirect
 	github.com/pulumi/pulumi-tailscale/sdk v0.23.0 // indirect
 	github.com/pulumiverse/pulumi-vercel/sdk/v3 v3.15.1 // indirect

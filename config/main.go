@@ -1,3 +1,6 @@
+// pulumi up -C config -fy -v=3
+// pulumi state delete -C config
+
 package main
 
 import (
@@ -41,11 +44,10 @@ func main() {
 
 		// ctx.Export("url", website.Url)
 
-		// FIXME: * POST https://api.github.com/user/gpg_keys: 404 Not Found []
-		//		err = providers.SetupGitHub(ctx)
-		//	if err != nil {
-		//	return err
-		//	}
+		err = providers.GitHub(ctx, false)
+		if err != nil {
+			return err
+		}
 
 		err = providers.SetupOracleCloud(ctx, true)
 		if err != nil {
