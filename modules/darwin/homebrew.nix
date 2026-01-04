@@ -45,6 +45,8 @@
 
     brews = [
       "rust"
+      "pulumi"
+      "libvirt" # brew services start libvirt
       "dirien/dirien/lazy-pulumi"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ]

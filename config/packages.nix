@@ -25,9 +25,9 @@
 
       trunk # rust web app server
 
-      pulumi
+      # pulumi
       pulumi-esc
-      pulumiPackages.pulumi-go
+      # pulumiPackages.pulumi-go
 
       supabase-cli
 

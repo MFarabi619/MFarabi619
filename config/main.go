@@ -62,6 +62,11 @@ func main() {
 			return err
 		}
 
+		//	err = providers.ProvisionVirtualMachine(ctx, false)
+		//	if err != nil {
+		//		return err
+		//		}
+
 		return nil
 	})
 }
