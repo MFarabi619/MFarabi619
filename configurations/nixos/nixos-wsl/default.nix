@@ -1,6 +1,9 @@
 # See /modules/nixos/* for actual settings
 # This file is just *top-level* configuration.
-{ flake, ... }:
+{
+  flake,
+  ...
+}:
 
 let
   inherit (flake) inputs;
@@ -8,9 +11,17 @@ let
 in
 {
   imports = [
+    self.nixosModules.wsl
     self.nixosModules.default
     flake.inputs.stylix.nixosModules.stylix
-    flake.inputs.nixos-wsl.nixosModules.default
-    ./configuration.nix
   ];
+
+  system.stateVersion = "25.05";
+  networking.hostName = "nixos-wsl";
+  nixos-unified.sshTarget = "nixos-wsl";
+
+  nixpkgs = {
+    config.allowUnfree = true;
+    hostPlatform = "x86_64-linux";
+  };
 }

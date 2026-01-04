@@ -1,24 +1,19 @@
 {
-  lib,
-  pkgs,
-  config,
+  flake,
   ...
 }:
 {
-  system.stateVersion = "25.05";
-  hardware.uinput.enable = true;
-  networking.hostName = "nixos-wsl";
+  imports = [
+    flake.inputs.nixos-wsl.nixosModules.default
+  ];
 
-  nixpkgs = {
-    config.allowUnfree = true;
-    hostPlatform = "x86_64-linux";
-  };
+  hardware.uinput.enable = true;
 
   services = {
     seatd.enable = true;
     qemuGuest.enable = true;
-    spice-vdagentd.enable = true;
     spice-webdavd.enable = true;
+    spice-vdagentd.enable = true;
   };
 
   wsl = {
