@@ -75,7 +75,7 @@
         host = "framework-16";
         addKeysToAgent = "yes";
         hostname = "framework-16.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
+        setEnv.TERM = "xterm-256color";
       };
 
       framework-desktop = {
