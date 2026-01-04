@@ -1,8 +1,14 @@
 {
   pkgs,
+  flake,
   ...
 }:
+
 {
+  imports = [
+    flake.inputs.stylix.homeModules.stylix
+  ];
+
   stylix = {
     enable = true;
     autoEnable = true;

@@ -57,9 +57,9 @@ in
       users = mapListToAttrs config.myusers (name: {
         imports = [
           (self + /configurations/home/${name}.nix)
-        ]
-        ++ lib.optionals pkgs.stdenv.isLinux [
-          flake.inputs.stylix.homeModules.stylix
+          # ]
+          # ++ lib.optionals pkgs.stdenv.isLinux [
+          #   flake.inputs.stylix.homeModules.stylix
         ];
       });
     };
