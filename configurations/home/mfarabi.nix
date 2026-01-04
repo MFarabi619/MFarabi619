@@ -1,4 +1,7 @@
-{ flake, ... }:
+{
+  flake,
+  ...
+}:
 let
   inherit (flake) inputs;
   inherit (inputs) self;
