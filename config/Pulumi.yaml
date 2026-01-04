@@ -2,6 +2,8 @@ name: cloud
 description: Infrastructure-as-code for Open Web Services
 runtime: go
 config:
-  pulumi:tags:
-    value:
-      pulumi:template: digitalocean-go
+    docker:host:
+        value: unix:///var/run/docker.sock
+    pulumi:tags:
+        value:
+            pulumi:template: digitalocean-go

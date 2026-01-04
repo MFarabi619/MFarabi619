@@ -48,7 +48,16 @@ func main() {
 		//	}
 
 		err = providers.SetupOracleCloud(ctx, true)
+		if err != nil {
+			return err
+		}
 
+		err = providers.MaintainFleet(ctx, true)
+		if err != nil {
+			return err
+		}
+
+		err = providers.ProvisionDockerContainers(ctx, false)
 		if err != nil {
 			return err
 		}
