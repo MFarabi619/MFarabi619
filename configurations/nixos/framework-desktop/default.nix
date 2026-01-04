@@ -12,4 +12,6 @@ in
     #   flake.inputs.lix-module.nixosModules.default
     ./configuration.nix
   ];
+
+  nixos-unified.sshTarget = "framework-desktop";
 }
