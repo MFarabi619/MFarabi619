@@ -135,6 +135,14 @@
         setEnv.TERM = "xterm-256color";
       };
 
+      ubuntu = {
+        host = "ubuntu";
+        user = "mfarabi";
+        addKeysToAgent = "yes";
+        hostname = "ubuntu.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
       ubuntu-s-1vcpu-1gb-50gb-mon1-01 = {
         user = "ubuntu";
         addKeysToAgent = "yes";
