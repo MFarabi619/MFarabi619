@@ -68,7 +68,7 @@ in
       "command-not-found.nix"
       "direnv.nix"
       "eza.nix"
-      "element-desktop" # disabled due to CVE
+      # "element-desktop" # disabled due to CVE
       "fastfetch"
       "fd.nix"
       "fzf.nix"
