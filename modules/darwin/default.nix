@@ -6,7 +6,6 @@
 
     ./power.nix
     ./system.nix
-    ./stylix.nix
     ./nixpkgs.nix
     ./launchd.nix
     ./security.nix
