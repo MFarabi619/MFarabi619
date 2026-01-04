@@ -52,6 +52,11 @@ func main() {
 			return err
 		}
 
+		err = providers.Hetzner(ctx, false)
+		if err != nil {
+			return err
+		}
+
 		err = providers.MaintainFleet(ctx, true)
 		if err != nil {
 			return err
