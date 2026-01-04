@@ -10,7 +10,11 @@ in
 {
   programs.docker-cli.enable = true;
   nixpkgs.config.allowUnfree = true;
-  targets.genericLinux.enable = true;
+
+  targets.genericLinux = {
+    enable = true;
+    gpu.enable = true;
+  };
 
   home = {
     stateVersion = "25.05";
