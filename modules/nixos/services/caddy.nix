@@ -53,7 +53,7 @@ with lib;
         #   '';
         # };
 
-        "http://microvisor.systems".extraConfig = "reverse_proxy http://10.0.0.50 ${clientIp}";
+        "http://microvisor.systems".extraConfig = "reverse_proxy http://10.0.0.172 ${clientIp}";
 
         "http://openws.org".extraConfig =
           "reverse_proxy http://${config.services.anubis.instances.homepage-dashboard.settings.BIND} ${clientIp}"
