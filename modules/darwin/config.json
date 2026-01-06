@@ -3,12 +3,14 @@
     {
       "iconPath" : "/Users/mfarabi/Applications/kitty.app",
       "key" : "t",
+      "label" : "Kitty",
       "type" : "command",
       "value" : "open ~/Applications/Kitty.app"
     },
     {
       "iconPath" : "/Users/mfarabi/Applications/Emacs.app",
       "key" : "e",
+      "label" : "Emacs",
       "type" : "command",
       "value" : "open ~/Applications/Emacs.app"
     },
@@ -18,6 +20,7 @@
       "value" : "/System/Applications/System Settings.app"
     },
     {
+      "iconPath" : "/Users/mfarabi/Downloads",
       "key" : "d",
       "type" : "folder",
       "value" : "/Users/mfarabi/Downloads"
@@ -29,11 +32,13 @@
     },
     {
       "key" : "h",
+      "label" : "Huly",
       "type" : "application",
       "value" : "/Applications/Huly.app"
     },
     {
       "key" : "c",
+      "label" : "Code",
       "type" : "application",
       "value" : "/Applications/Visual Studio Code.app"
     },
@@ -49,6 +54,7 @@
     },
     {
       "key" : "v",
+      "label" : "Vivaldi",
       "type" : "application",
       "value" : "/Applications/Vivaldi.app"
     },
@@ -60,12 +66,15 @@
       "value" : "sudo killall Karabiner-VirtualHIDDevice-Daemon; sudo killall kanata; sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -qc ~/MFarabi619/modules/darwin/kanata.kbd &"
     },
     {
+      "iconPath" : "/Users/mfarabi/Applications/UTM.app",
       "key" : "u",
+      "label" : "UTM",
       "type" : "command",
       "value" : "open ~/Applications/UTM.app"
     },
     {
       "key" : "o",
+      "label" : "Elegoo Slicer",
       "type" : "application",
       "value" : "/Applications/ElegooSlicer.app"
     },
