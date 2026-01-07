@@ -90,7 +90,16 @@ with lib;
           "reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} ${clientIp}";
 
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
-        "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.250";
+        "http://demo.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.68";
+        "http://halow.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.109";
+
+        # "http://ota.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.105:80";
+        #     "http://lte.apidaesystems.ca".extraConfig =
+        #       "reverse_proxy https://10.0.0.4:443 {
+        #         transport http {
+        #   tls_insecure_skip_verify
+        # }
+        #       }";
 
         "http://tandemrobotics.ca".extraConfig =
           ''reverse_proxy ${config.services.anubis.instances.tandemrobotics.settings.BIND} ${clientIp}'';

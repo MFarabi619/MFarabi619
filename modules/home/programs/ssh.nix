@@ -18,7 +18,7 @@
         user = "root";
         host = "halowlink1-3c5b";
         addKeysToAgent = "yes";
-        hostname = "10.0.0.250";
+        hostname = "10.0.0.109";
         setEnv.TERM = "xterm-256color";
       };
 
