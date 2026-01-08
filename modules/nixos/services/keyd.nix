@@ -4,7 +4,7 @@
 }:
 {
   services.keyd = {
-    enable = config.networking.hostName != "nixos-wsl";
+    enable = config.networking.hostName == "framework-desktop";
 
     keyboards = {
       default = {
