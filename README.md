@@ -58,7 +58,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 <!-- Embedded Rust -->
 <a href="https://rust-embedded.org" target="_blank" rel="noreferrer">
-<img src="https://camo.githubusercontent.com/c2ef6279b9e015bb4af11062960247e033ed4d59846093f3f32eda472089bb2a/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67" alt="Embedded Rust Logo" width="40" height="40" />
+<img src="https://camo.githubusercontent.com/0ca547d2fde9685f80e1edce21cbf460c555fa075d4f17206724da496a1452d0/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67" alt="Embedded Rust Logo" width="40" height="40" />
 </a>
 <!-- Go -->
 <a href="https://golang.org/" target="_blank" rel="noreferrer">
@@ -440,7 +440,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <td align='center'>
 <!-- SPARK -->
 <a href="https://www.adacore.com/about-spark" target="_blank" rel="noreferrer">
-<img src="https://www.adacore.com/uploads/page_content/about-header.png" alt="SPARK Logo" width="40" height="40" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/About-header.png" alt="SPARK Logo" width="40" height="40" />
 </a>
 <!-- Smalltalk -->
 <a href="https://squeak.org" target="_blank" rel="noreferrer">
