@@ -94,6 +94,14 @@
         setEnv.TERM = "xterm-kitty";
       };
 
+      nixos-utm = {
+        user = "mfarabi";
+        host = "nixos-utm";
+        addKeysToAgent = "yes";
+        hostname = "nixos-utm.tail830437.ts.net";
+        setEnv.TERM = "xterm-kitty";
+      };
+
       surface-pro-7 = {
         user = "mfarabi";
         host = "surface-pro-7";
