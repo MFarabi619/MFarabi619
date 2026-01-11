@@ -20,12 +20,12 @@ in
 
   services = {
     dokploy = {
-      enable = false;
-      port = "127.0.0.1:8000:3000";
+      enable = true;
+      port = "127.0.0.1:3000:3000";
 
       swarm = {
         autoRecreate = true;
-        # advertiseAddress = "private";
+        advertiseAddress = "private";
         # advertiseAddress = {
         #  command = "echo 192.168.1.100";
         #   command = "tailscale ip -4 | head -n1";
