@@ -8,6 +8,6 @@
     verbose = true;
     cacheName = "mfarabi";
     # compressionLevel = 0;
-    cachixTokenFile = "/run/secrets/cachix_token";
+    cachixTokenFile = "/var/lib/secrets/cachix_token";
   };
 }
