@@ -1,0 +1,5 @@
+{
+  programs.cargo = {
+    enable = true;
+  };
+}

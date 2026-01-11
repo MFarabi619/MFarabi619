@@ -12,6 +12,7 @@
     ./bat.nix
     ./btop.nix
     ./bun.nix
+    ./cargo.nix
     ./chromium.nix
     ./claude-code.nix
     ./clock-rs.nix
