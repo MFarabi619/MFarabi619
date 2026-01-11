@@ -1,5 +1,7 @@
 {
+  lib,
   pkgs,
+  config,
   ...
 }:
 
@@ -10,7 +12,7 @@
     ../../../modules/nixos/networking
   ];
 
-  system.stateVersion = "25.05";
+  system.stateVersion = "25.11";
   networking.hostName = "nixos-vm";
   nixpkgs.config.allowUnfree = true;
 
@@ -31,9 +33,14 @@
   users.users.mfarabi = {
     isNormalUser = true;
     description = "Mumtahin Farabi";
-
     extraGroups = [
       "wheel"
+      "video"
+    ]
+    ++ lib.optionals config.virtualisation.docker.enable [
+      "docker"
+    ]
+    ++ lib.optionals config.networking.networkmanager.enable [
       "networkmanager"
     ];
   };
