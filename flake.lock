@@ -810,6 +810,21 @@
         "type": "github"
       }
     },
+    "nix-dokploy": {
+      "locked": {
+        "lastModified": 1765029288,
+        "narHash": "sha256-782lgPQTsjYLgDv6oSUYDpDO79Aeftz0adIbsFcy0ZE=",
+        "owner": "el-kurto",
+        "repo": "nix-dokploy",
+        "rev": "03b9c031a1a2806c2b2bf70ae7bd9275ddef2c03",
+        "type": "github"
+      },
+      "original": {
+        "owner": "el-kurto",
+        "repo": "nix-dokploy",
+        "type": "github"
+      }
+    },
     "nix-doom-emacs-unstraightened": {
       "inputs": {
         "doomemacs": "doomemacs",
@@ -1209,6 +1224,7 @@
         "lazyvim": "lazyvim",
         "lix-module": "lix-module",
         "nix-darwin": "nix-darwin",
+        "nix-dokploy": "nix-dokploy",
         "nix-doom-emacs-unstraightened": "nix-doom-emacs-unstraightened",
         "nix-index-database": "nix-index-database",
         "nix-on-droid": "nix-on-droid",
