@@ -33,7 +33,7 @@
       tandemrobotics = {
         settings = {
           BIND = ":5149";
-          TARGET = "http://127.0.0.1:5150";
+          TARGET = "http://10.0.0.122:5150";
           METRICS_BIND = "127.0.0.1:5151";
         };
       };
