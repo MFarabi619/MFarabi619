@@ -58,7 +58,7 @@
         user = "mfarabi";
         host = "msi-gs65";
         addKeysToAgent = "yes";
-        hostname = "msi-gs65.taila4d019.ts.net";
+        hostname = "msi-gs65.comet-locrian.ts.net";
         setEnv.TERM = "xterm-256color";
       };
 
@@ -98,7 +98,7 @@
         user = "mfarabi";
         host = "nixos-utm";
         addKeysToAgent = "yes";
-        hostname = "nixos-utm.tail830437.ts.net";
+        hostname = "nixos-utm.comet-locrian.ts.net";
         setEnv.TERM = "xterm-kitty";
       };
 
