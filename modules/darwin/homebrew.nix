@@ -44,7 +44,7 @@
     ];
 
     brews = [
-      "rust"
+      # "rust"
       "pulumi"
       "libvirt" # brew services start libvirt
       "dirien/dirien/lazy-pulumi"
