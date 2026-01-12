@@ -16,15 +16,13 @@
     <nixos-wsl/modules> # include NixOS-WSL modules
   ];
 
+  system.stateVersion = "25.05"; # Did you read the comment?
+  networking.hostName = "nixos-wsl";
+  nixpkgs.config.allowUnfree = true;
+
   wsl = {
     enable = true;
     defaultUser = "mfarabi";
-  };
-
-  networking.hostName = "nixos-wsl";
-
-  nixpkgs = {
-    config.allowUnfree = true;
   };
 
   nix = {
@@ -42,12 +40,13 @@
 
   programs = {
     git.enable = true;
+    yazi.enable = true;
     lazygit.enable = true;
+
     neovim = {
       enable = true;
       defaultEditor = true;
     };
-    yazi.enable = true;
   };
 
   # This value determines the NixOS release from which the default
@@ -56,5 +55,4 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "25.05"; # Did you read the comment?
 }
