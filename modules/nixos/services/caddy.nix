@@ -68,6 +68,8 @@ with lib;
             }
           '';
 
+        "http://admin.openws.org".extraConfig = "reverse_proxy :1212";
+
         "http://docs.openws.org" = {
           extraConfig = ''
             root * /var/www/html/dist
@@ -96,7 +98,7 @@ with lib;
         "http://registry.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
 
         "http://demo.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.68";
-        "http://halow.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.109";
+        "http://halow.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.134";
 
         # "http://ota.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.105:80";
         #     "http://lte.apidaesystems.ca".extraConfig =
