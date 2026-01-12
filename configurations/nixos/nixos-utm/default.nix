@@ -13,6 +13,5 @@ in
     self.nixosModules.users
     self.nixosModules.default
     flake.inputs.stylix.nixosModules.stylix
-    flake.inputs.nix-dokploy.nixosModules.default
   ];
 }

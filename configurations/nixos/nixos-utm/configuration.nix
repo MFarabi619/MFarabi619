@@ -22,20 +22,5 @@
     qemuGuest.enable = true;
     spice-webdavd.enable = true;
     spice-vdagentd.enable = true;
-
-    dokploy = {
-      enable = true;
-      port = "127.0.0.1:80:3000";
-
-      swarm = {
-        autoRecreate = true;
-        advertiseAddress = "private";
-        # advertiseAddress = {
-        #  command = "echo 192.168.1.100";
-        #   command = "tailscale ip -4 | head -n1";
-        #   # extraPackages = [ pkgs.tailscale ];
-        # };
-      };
-    };
   };
 }
