@@ -90,6 +90,11 @@ with lib;
           "reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} ${clientIp}";
 
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
+        "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:3000";
+        "http://grafana.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
+        "http://erp.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
+        "http://registry.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
+
         "http://demo.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.68";
         "http://halow.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.109";
 
