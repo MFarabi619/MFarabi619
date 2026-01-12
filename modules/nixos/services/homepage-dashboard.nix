@@ -185,15 +185,16 @@ in
           {
             "CI/CD" = [
               {
-                "🔬 Dokploy" = {
-                  href = "https://dokploy.com";
+                "Dokploy" = {
                   icon = "dokploy.svg";
+                  href = "https://admin.openws.org";
+                  siteMonitor = "https://admin.openws.org";
                 };
               }
               {
                 "🏗️ Kubernetes" = {
-                  href = "https://kubernetes.io";
                   icon = "kubernetes.svg";
+                  href = "https://kubernetes.io";
                 };
               }
             ];
