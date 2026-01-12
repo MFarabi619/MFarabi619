@@ -69,7 +69,9 @@ plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 
 Source =~/.zshrc=:
 #+begin_src bash
-source ~/.zshrc
+rm ~/.zshrc; ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.zshrc ~/.zshrc;
+rm ~/.p10k.zsh; ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.p10k.zsh ~/.p10k.zsh; source ~/.zshrc;
+rm -rf ~/.config/hypr; ln -s /home/mfarabi/MFarabi619/modules/home/programs/hyprland/hypr /home/mfarabi/.config/hypr;
 #+end_src
 
 #+begin_src bash
@@ -90,6 +92,7 @@ git clone https://github.com/LazyVim/starter ~/.config/nvim; rm -rf ~/.config/nv
 [[https://github.com/doomemacs/doomemacs?tab=readme-ov-file#install][Doom Emacs]]
 #+begin_src bash
 git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs; ~/.config/emacs/bin/doom install;
+rm -rf ~/.config/doom/*; ln -s /home/mfarabi/MFarabi619/modules/home/programs/emacs/* /home/mfarabi/.config/doom/
 #+end_src
 
 *** Set up FreeBSD Hyprland
@@ -120,7 +123,7 @@ sudo pkg install xwayland xwaylandvideobridge xwayland-satellite xwayland-run
 #+end_src
 
 #+begin_src bash
-sudo pkg install hyprland hyprland-qt-support hyprland-qtutils nwg-dock-hyprland xdg-desktop-portal-hyprland kitty
+sudo pkg install hyprland hyprland-qt-support hyprland-qtutils nwg-dock-hyprland xdg-desktop-portal-hyprland alacritty
 #+end_src
 
 #+begin_src bash
@@ -200,6 +203,10 @@ to take effect.
 #+end_src
 
 #+begin_src bash
+sudo sysrc libvirtd_enable="YES"
+#+end_src
+
+#+begin_src bash
  sudo cp /usr/local/share/examples/libvirt/networks/default.xml /usr/local/etc/libvirt/qemu/networks
 #+end_src
 
@@ -261,6 +268,7 @@ proc	/proc		procfs		rw	0	0
 #+begin_src bash
 sudo pkg install arduino arduino-avrdude avr-gcc avrdude arduino-bsd-mk arduino-core
 #+end_src
+
 #+begin_src
 To allow serial port locking, add your user to the dialer group:
     pw groupmod dialer -m mfarabi
@@ -284,7 +292,7 @@ https://wiki.freebsd.org/Arduino
 sudo kldload uarduno.ko
 
 #+begin_src bash
-uarduno_load="YES"
+sudo sysrc uarduno_load="YES"
 #+end_src
 
 
@@ -370,6 +378,11 @@ PubkeyAuthentication yes
 kern.vty=vt
 #+end_src
 
+#+begin_src bash
+ln -s /home/mfarabi/configurations/freebsd/.local/share/bin /home/mfarabi/.local/share/
+ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.config/* /home/mfarabi/.config/
+#+end_src
+
 5. Reboot system
 #+begin_src bash
 reboot
@@ -397,6 +410,10 @@ hyprland
 *** Other
 #+begin_src bash
 sudo pkg install systeroid sysctl-tui framework-system television pkg_search podman aichat ollama python ztop desktop-installer htop jtop ntopng nats-top mkdesktop portopscli sntop xdesktopwaves usbtop treetop toppler radeon top ghostscript netpbm redis wl-gammarelay-rs wl-mkbptr wl-screenrec networkmgr firefox gh ttyd sysutils/lazyssh qmk_hid realtek-re-kmod realtek-re-kmod198 linux-steam-utils win-proton libc6-shim tree-sitter tailscale languageclient-neovim firefox linux-bitwarden-cli mixertui audio/moc scrot wf-recorder tree-sitter-graph
+#+end_src
+
+#+begin_src bash
+sudo sysrc tailscaled_enable="YES"
 #+end_src
 
 #+begin_src bash
@@ -468,7 +485,7 @@ DoomBSD borrows HEAVILY from the following projects:
 [[https://www.freebsd.org/where/][Download VM Image]]
 
 #+begin_src sh
-unxz FreeBSD-15.0-STABLE-arm64-aarch64-zfs.qcow2.xz
+unxz FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2.xz
 #+end_src
 
 #+begin_src sh
@@ -478,7 +495,7 @@ qemu-system-aarch64 \
   -cpu cortex-a72 \
   -smp 8 \
   -m 32G \
-  -drive file=FreeBSD-15.0-STABLE-arm64-aarch64-zfs.qcow2,if=virtio,format=qcow2 \
+  -drive file=FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2,if=virtio,format=qcow2 \
   -device virtio-net-pci,netdev=net0 \
   -netdev user,id=net0,hostfwd=tcp::2222-:22 \
   -bios /opt/homebrew/share/qemu/edk2-aarch64-code.fd \
@@ -486,8 +503,8 @@ qemu-system-aarch64 \
 #+end_src
 
 #+begin_src sh
-qemu-img resize FreeBSD-15.0-STABLE-arm64-aarch64-zfs.qcow2 256G
-qemu-img info FreeBSD-15.0-STABLE-arm64-aarch64-zfs.qcow2
+qemu-img resize FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2 256G
+qemu-img info FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2
 #+end_src
 
 
