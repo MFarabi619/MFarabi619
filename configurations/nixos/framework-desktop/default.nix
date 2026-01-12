@@ -1,6 +1,7 @@
-# See /modules/nixos/* for actual settings
-# This file is just *top-level* configuration.
-{ flake, ... }:
+{
+  flake,
+  ...
+}:
 
 let
   inherit (flake) inputs;
@@ -9,7 +10,6 @@ in
 {
   imports = [
     self.nixosModules.default
-    #   flake.inputs.lix-module.nixosModules.default
     ./configuration.nix
   ];
 

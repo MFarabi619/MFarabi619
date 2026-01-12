@@ -12,13 +12,11 @@
 {
 
   imports = [
-    ./framework-desktop.nix
-    # ./hardware-configuration.nix
+    ./hardware-configuration.nix
   ];
 
   system.stateVersion = "25.05";
   networking.hostName = "framework-desktop";
-
   nixpkgs.config.allowUnfree = true;
 
   users.users.mfarabi = {
@@ -44,5 +42,4 @@
       efi.canTouchEfiVariables = true;
     };
   };
-
 }
