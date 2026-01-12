@@ -15,34 +15,27 @@
   system.stateVersion = "25.11";
   networking.hostName = "nixos-utm";
   nixpkgs.config.allowUnfree = true;
-  # hardware.graphics.enable32Bit = false;
+  nixos-unified.sshTarget = config.networking.hostName;
+  virtualisation.docker.daemon.settings.live-restore = false;
 
   services = {
     qemuGuest.enable = true;
     spice-webdavd.enable = true;
     spice-vdagentd.enable = true;
-  };
 
-  boot = {
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
+    dokploy = {
+      enable = true;
+      port = "127.0.0.1:80:3000";
+
+      swarm = {
+        autoRecreate = true;
+        advertiseAddress = "private";
+        # advertiseAddress = {
+        #  command = "echo 192.168.1.100";
+        #   command = "tailscale ip -4 | head -n1";
+        #   # extraPackages = [ pkgs.tailscale ];
+        # };
+      };
     };
-    kernelPackages = pkgs.linuxPackages_latest;
-  };
-
-  users.users.mfarabi = {
-    isNormalUser = true;
-    description = "Mumtahin Farabi";
-    extraGroups = [
-      "wheel"
-      "video"
-    ]
-    ++ lib.optionals config.virtualisation.docker.enable [
-      "docker"
-    ]
-    ++ lib.optionals config.networking.networkmanager.enable [
-      "networkmanager"
-    ];
   };
 }

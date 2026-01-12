@@ -2,6 +2,7 @@
 # This file is just *top-level* configuration.
 {
   flake,
+  config,
   ...
 }:
 
@@ -18,7 +19,7 @@ in
 
   system.stateVersion = "25.05";
   networking.hostName = "msi-ge76";
-  nixos-unified.sshTarget = "msi-ge76";
+  nixos-unified.sshTarget = config.networking.hostName;
 
   nixpkgs = {
     config.allowUnfree = true;

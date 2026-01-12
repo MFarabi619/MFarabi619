@@ -9,9 +9,9 @@ let
 in
 {
   imports = [
-    self.nixosModules.default
     ./configuration.nix
+    self.nixosModules.boot
+    self.nixosModules.users
+    self.nixosModules.default
   ];
-
-  nixos-unified.sshTarget = "framework-desktop";
 }
