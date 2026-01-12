@@ -48,7 +48,7 @@
       # inputs.nixpkgs.follows = "nixpkgs-nvmd-modules-with-keys";
     };
 
-    nix-dokploy.url = "github:el-kurto/nix-dokploy";
+    nix-dokploy.url = ./nix-dokploy;
   };
 
   # nixos-unified.org/autowiring.html

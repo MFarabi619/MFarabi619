@@ -25,6 +25,9 @@
     systemPackages =
       with pkgs;
       [
+        nixpacks
+        buildpack
+
         wget
         exfat # exFAT support
         ntfs3g # ntfs support

@@ -13,5 +13,6 @@ in
     self.nixosModules.boot
     self.nixosModules.users
     self.nixosModules.default
+    self.nixosModules.containers
   ];
 }

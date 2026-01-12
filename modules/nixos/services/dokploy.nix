@@ -1,5 +1,7 @@
+# docker service update --env-add TZ=America/Toronto dokploy_dokploy
 {
   flake,
+  config,
   ...
 }:
 {
@@ -7,11 +9,11 @@
     flake.inputs.nix-dokploy.nixosModules.default
   ];
 
-  # virtualisation.docker.daemon.settings.live-restore = false;
+  virtualisation.docker.daemon.settings.live-restore = false;
 
   services.dokploy = {
-    enable = false;
-    port = "127.0.0.1:1212:3000";
+    enable = config.networking.hostName == "framework-desktop";
+    port = "1212:3000";
 
     swarm = {
       autoRecreate = true;
