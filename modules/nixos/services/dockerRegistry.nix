@@ -4,7 +4,7 @@
 }:
 {
   services.dockerRegistry = {
-    enable = config.networking.hostName == "framework-desktop";
     enableGarbageCollect = true;
+    enable = config.networking.hostName == "framework-desktop";
   };
 }
