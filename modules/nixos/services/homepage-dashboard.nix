@@ -216,10 +216,10 @@ in
                 };
               }
               {
-                "🏗️ Penpot" = {
-                  href = "https://penpot.app";
-                  # siteMonitor = "https://penpot.app";
+                "Penpot" = {
                   icon = "penpot.svg";
+                  href = "https://penpot.openws.org";
+                  siteMonitor = "https://penpot.openws.org";
                 };
               }
             ];
