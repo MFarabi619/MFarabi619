@@ -6,15 +6,16 @@
   };
 
   imports = [
+    ./files
+    ./services
+    ./languages
+
     ./env.nix
     ./tasks.nix
-    ./files
     ./cachix.nix
     ./scripts.nix
     ./packages.nix
-    ./services
     ./processes.nix
-    ./languages
     ./git-hooks.nix
     ./containers.nix
     ./devcontainer.nix
