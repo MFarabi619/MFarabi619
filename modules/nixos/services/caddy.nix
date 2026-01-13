@@ -69,6 +69,11 @@ with lib;
           '';
 
         "http://admin.openws.org".extraConfig = "reverse_proxy :1212";
+        "http://registry.openws.org".extraConfig = "reverse_proxy :5000";
+        "http://rpi5.openws.org".extraConfig = "reverse_proxy http://10.0.0.122:7681";
+        "http://emacs.openws.org".extraConfig = "reverse_proxy http://10.0.0.142:7682";
+        "http://neovim.openws.org".extraConfig = "reverse_proxy http://10.0.0.142:7683";
+        "http://freebsd.openws.org".extraConfig = "reverse_proxy http://10.0.0.142:7681";
 
         "http://docs.openws.org" = {
           extraConfig = ''
@@ -83,30 +88,26 @@ with lib;
           '';
         };
 
-        "http://rpi5.openws.org".extraConfig = "reverse_proxy http://10.0.0.122:7681";
-        "http://emacs.openws.org".extraConfig = "reverse_proxy http://10.0.0.142:7682";
-        "http://neovim.openws.org".extraConfig = "reverse_proxy http://10.0.0.142:7683";
-        "http://freebsd.openws.org".extraConfig = "reverse_proxy http://10.0.0.142:7681";
-
         "http://mirror.openws.org".extraConfig =
           "reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} ${clientIp}";
 
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
-        "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:3000";
-        "http://grafana.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
-        "http://erp.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
-        "http://registry.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
 
         "http://demo.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.68";
         "http://halow.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.134";
-
+        "http://erp.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
         # "http://ota.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.105:80";
-        #     "http://lte.apidaesystems.ca".extraConfig =
-        #       "reverse_proxy https://10.0.0.4:443 {
-        #         transport http {
-        #   tls_insecure_skip_verify
-        # }
-        #       }";
+        "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:3000";
+        "http://grafana.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
+        "http://registry.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
+
+        "http://lte.apidaesystems.ca".extraConfig = ''
+          reverse_proxy https://10.0.0.4:443 {
+              transport http {
+                tls_insecure_skip_verify
+              }
+            }
+        '';
 
         "http://tandemrobotics.ca".extraConfig =
           ''reverse_proxy ${config.services.anubis.instances.tandemrobotics.settings.BIND} ${clientIp}'';
