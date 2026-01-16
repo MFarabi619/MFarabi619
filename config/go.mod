@@ -3,21 +3,26 @@ module openws
 go 1.24.0
 
 require (
+	github.com/pulumi/pulumi-aws/sdk/v7 v7.12.0
 	github.com/pulumi/pulumi-cloudflare/sdk/v6 v6.11.0
+	github.com/pulumi/pulumi-command/sdk v1.1.3
 	github.com/pulumi/pulumi-digitalocean/sdk/v4 v4.55.0
+	github.com/pulumi/pulumi-docker/sdk/v4 v4.11.0
 	github.com/pulumi/pulumi-github/sdk/v6 v6.9.1
+	github.com/pulumi/pulumi-hcloud/sdk v1.29.0
+	github.com/pulumi/pulumi-oci/sdk/v3 v3.12.0
 	github.com/pulumi/pulumi-std/sdk v1.7.3
+	github.com/pulumi/pulumi-tailscale/sdk v0.23.0
 	github.com/pulumi/pulumi/sdk/v3 v3.209.0
+	github.com/pulumiverse/pulumi-vercel/sdk/v3 v3.15.1
 )
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
-	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
@@ -63,15 +68,7 @@ require (
 	github.com/pkg/term v1.1.0 // indirect
 	github.com/pulumi/appdash v0.0.0-20231130102222-75f619a67231 // indirect
 	github.com/pulumi/esc v0.17.0 // indirect
-	github.com/pulumi/pulumi-aws/sdk/v5 v5.43.0 // indirect
-	github.com/pulumi/pulumi-aws/sdk/v6 v6.83.2 // indirect
-	github.com/pulumi/pulumi-aws/sdk/v7 v7.12.0 // indirect
-	github.com/pulumi/pulumi-command/sdk v1.1.3 // indirect
-	github.com/pulumi/pulumi-docker/sdk/v4 v4.11.0 // indirect
-	github.com/pulumi/pulumi-hcloud/sdk v1.29.0 // indirect
-	github.com/pulumi/pulumi-oci/sdk/v3 v3.12.0 // indirect
-	github.com/pulumi/pulumi-tailscale/sdk v0.23.0 // indirect
-	github.com/pulumiverse/pulumi-vercel/sdk/v3 v3.15.1 // indirect
+	github.com/pulumi/pulumi-terraform-provider/sdks/go/netlify v0.0.0-00010101000000-000000000000 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0 // indirect
@@ -102,3 +99,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/frand v1.4.2 // indirect
 )
+
+replace github.com/pulumi/pulumi-terraform-provider/sdks/go/netlify => ./sdks/netlify

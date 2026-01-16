@@ -26,8 +26,12 @@ func main() {
 			return err
 		}
 
-		_, err = providers.DigitalOcean(ctx, false)
+		err = providers.Netlify(ctx, true)
+		if err != nil {
+			return err
+		}
 
+		_, err = providers.DigitalOcean(ctx, false)
 		if err != nil {
 			return err
 		}
