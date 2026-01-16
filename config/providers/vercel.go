@@ -5,7 +5,7 @@ import (
 	"github.com/pulumiverse/pulumi-vercel/sdk/v3/go/vercel"
 )
 
-func SetupVercel(ctx *pulumi.Context, enableVercel bool) error {
+func Vercel(ctx *pulumi.Context, enableVercel bool) error {
 	if !enableVercel {
 		return nil
 	}

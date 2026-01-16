@@ -6,7 +6,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func SetupDigitalOcean(ctx *pulumi.Context, enableDroplet bool) (*digitalocean.Droplet, error) {
+func DigitalOcean(ctx *pulumi.Context, enableDroplet bool) (*digitalocean.Droplet, error) {
 	if !enableDroplet {
 		return nil, nil
 	}

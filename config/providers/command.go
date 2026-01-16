@@ -7,7 +7,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func MaintainFleet(ctx *pulumi.Context, enable bool) error {
+func Command(ctx *pulumi.Context, enable bool) error {
 	if !enable {
 		return nil
 	}
@@ -22,6 +22,26 @@ func MaintainFleet(ctx *pulumi.Context, enable bool) error {
 	}
 
 	ctx.Export("openssl", random.Stdout)
+
+	remoteAsset := pulumi.NewRemoteAsset("https://dietpi.com/downloads/images/DietPi_RPi234-ARMv8-Trixie.img.xz -o DietPi_RPi234-ARMv8-Trixie.img.xz")
+
+	ctx.Export("archive", remoteAsset.ToAssetOrArchiveOutput())
+
+	// example, err := remote.NewCopyToRemote(ctx, "copyToRemoteResource", &remote.CopyToRemoteArgs{
+	// Connection: &remote.ConnectionArgs{
+	// 	Host: pulumi.String("ubuntu"),
+	// 	User: pulumi.String("mfarabi"),
+	// },
+	// RemotePath: pulumi.String("string"),
+	// Source:     archive,
+	// Triggers: pulumi.Array{
+	// 	pulumi.Any("any"),
+	// },
+	//} )
+
+	// if err != nil {
+	// return err
+	//}
 
 	cmd, err := remote.NewCommand(ctx, "install nix on ubuntu", &remote.CommandArgs{
 		Connection: &remote.ConnectionArgs{

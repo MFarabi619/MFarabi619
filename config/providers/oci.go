@@ -6,7 +6,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
-func SetupOracleCloud(ctx *pulumi.Context, enable bool) error {
+func OCI(ctx *pulumi.Context, enable bool) error {
 
 	cfg := config.New(ctx, "")
 	subnetId := cfg.Get("oci:subnetId")

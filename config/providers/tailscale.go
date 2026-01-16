@@ -5,7 +5,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func SetupTailscale(ctx *pulumi.Context, enable bool) error {
+func Tailscale(ctx *pulumi.Context, enable bool) error {
 	if !enable {
 		return nil
 	}
@@ -20,7 +20,7 @@ func SetupTailscale(ctx *pulumi.Context, enable bool) error {
 		Support: &tailscale.ContactsSupportArgs{
 			Email: pulumi.String("mfarabi619@gmail.com"),
 		},
-	}, pulumi.Protect(false))
+	})
 
 	if err != nil {
 		return err
@@ -32,7 +32,7 @@ func SetupTailscale(ctx *pulumi.Context, enable bool) error {
 		UsersApprovalOn:                       pulumi.Bool(true),
 		DevicesAutoUpdatesOn:                  pulumi.Bool(false),
 		UsersRoleAllowedToJoinExternalTailnet: pulumi.String("admin"),
-	}, pulumi.Protect(false))
+	})
 
 	if err != nil {
 		return err

@@ -6,7 +6,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func ProvisionDockerContainers(ctx *pulumi.Context, enable bool) error {
+func Docker(ctx *pulumi.Context, enable bool) error {
 	if !enable {
 		return nil
 	}

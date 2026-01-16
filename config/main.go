@@ -16,19 +16,17 @@ func main() {
 			return err
 		}
 
-		err = providers.SetupTailscale(ctx, true)
-
+		err = providers.Tailscale(ctx, false)
 		if err != nil {
 			return err
 		}
 
-		err = providers.SetupVercel(ctx, true)
-
+		err = providers.Vercel(ctx, true)
 		if err != nil {
 			return err
 		}
 
-		_, err = providers.SetupDigitalOcean(ctx, false)
+		_, err = providers.DigitalOcean(ctx, false)
 
 		if err != nil {
 			return err
@@ -49,7 +47,7 @@ func main() {
 			return err
 		}
 
-		err = providers.SetupOracleCloud(ctx, true)
+		err = providers.OCI(ctx, true)
 		if err != nil {
 			return err
 		}
@@ -59,12 +57,12 @@ func main() {
 			return err
 		}
 
-		err = providers.MaintainFleet(ctx, true)
+		err = providers.Command(ctx, true)
 		if err != nil {
 			return err
 		}
 
-		err = providers.ProvisionDockerContainers(ctx, false)
+		err = providers.Docker(ctx, false)
 		if err != nil {
 			return err
 		}
