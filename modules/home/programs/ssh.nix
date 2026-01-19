@@ -118,12 +118,19 @@
         setEnv.TERM = "xterm-kitty";
       };
 
-      rpi5-16 = {
-        host = "rpi5-16";
+      rpi4 = {
+        host = "rpi4";
         user = "mfarabi";
-        checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "rpi5-16.taila4d019.ts.net";
+        hostname = "rpi4.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
+      rpi5-ubuntu = {
+        host = "rpi5-ubuntu";
+        user = "mfarabi";
+        addKeysToAgent = "yes";
+        hostname = "rpi5-ubuntu.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
       };
 
@@ -157,6 +164,22 @@
         user = "root";
         addKeysToAgent = "yes";
         hostname = "rpi02w.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
+      rpi02w-art = {
+        host = "rpi02w-art";
+        user = "root";
+        addKeysToAgent = "yes";
+        hostname = "rpi02w-art.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
+      rpi02w-ttc-swy = {
+        host = "rpi02w-ttc-swy";
+        user = "root";
+        addKeysToAgent = "yes";
+        hostname = "rpi02w-ttc-swy.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
       };
 
