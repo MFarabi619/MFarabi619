@@ -33,7 +33,6 @@
       # "sonic-pi"
       "unity-hub"
       "leader-key"
-      # "arduino-ide"
       "tailscale-app"
       # "supercollider"
       "docker-desktop"

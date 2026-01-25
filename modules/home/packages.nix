@@ -17,11 +17,9 @@
         gnumake
         stylelint
         platformio
-        # vi-mongo        # mongodb tui
+        # vi-mongo  # mongodb tui
         # fritzing
-        # arduino-cli
         kubernetes-helm
-        # arduino-language-server
         # =============
         # kicad
         # logseq
@@ -138,7 +136,6 @@
         bluetui
         crates-tui
         # stm32cubemx
-        # arduino-ide
         # penpot-desktop
         # webcord-vencord
       ]
