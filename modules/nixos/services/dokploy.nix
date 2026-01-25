@@ -12,8 +12,13 @@
   virtualisation.docker.daemon.settings.live-restore = false;
 
   services.dokploy = {
+    # enable = false;
     enable = config.networking.hostName == "framework-desktop";
+    # lxc = false; # default
     port = "1212:3000";
+    # dataDir = "/etc/dokploy"; # default
+    # traefik = "traefik:v3.6.1"; # default
+    image = "dokploy/dokploy:v0.26.5";
 
     swarm = {
       autoRecreate = true;
