@@ -19,7 +19,7 @@
       {
         "name": "Embedded Rust",
         "url": "https://rust-embedded.org",
-        "icon": "https://camo.githubusercontent.com/0ca547d2fde9685f80e1edce21cbf460c555fa075d4f17206724da496a1452d0/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67"
+        "icon": "assets/embedded-rust-symbol.png"
       },
       {
         "name": "Go",
@@ -131,7 +131,7 @@
       {
         "name": "Slidev",
         "url": "https://sli.dev",
-        "icon": "https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67"
+        "icon": "assets/slidev-symbol.svg"
       }
     ],
     "Tools": [

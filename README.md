@@ -58,7 +58,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 <!-- Embedded Rust -->
 <a href="https://rust-embedded.org" target="_blank" rel="noreferrer">
-<img src="https://camo.githubusercontent.com/0ca547d2fde9685f80e1edce21cbf460c555fa075d4f17206724da496a1452d0/68747470733a2f2f7261776769742e636f6d2f727573742d656d6265646465642f617765736f6d652d656d6265646465642d727573742f6d61737465722f727573742d656d6265646465642d6c6f676f2d323536783235362e706e67" alt="Embedded Rust Logo" width="40" height="40" />
+<img src="assets/embedded-rust-symbol.png" alt="Embedded Rust Logo" width="40" height="40" />
 </a>
 <!-- Go -->
 <a href="https://golang.org/" target="_blank" rel="noreferrer">
@@ -148,7 +148,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 <!-- Slidev -->
 <a href="https://sli.dev" target="_blank" rel="noreferrer">
-<img src="https://camo.githubusercontent.com/afc49f89c6467ea6e85a87c60ad0f19cda3831c4dfc89f114f6a8001555b9fe4/68747470733a2f2f736c692e6465762f6c6f676f2d7469746c652e706e67" alt="Slidev Logo" width="40" height="40" />
+<img src="assets/slidev-symbol.svg" alt="Slidev Logo" width="40" height="40" />
 </a>
 </td>
 <td align='center'>
