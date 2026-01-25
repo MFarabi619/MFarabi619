@@ -548,7 +548,16 @@ zpool list
 zfs list
 #+end_src
 
+** Run NixOS VM Guest
 
+qemu-system-x86_64 \
+-m 8000 \
+-smp 3 \
+-drive file=nixos-25.11-x86_64.qcow2,format=qcow2 \
+-cdrom /home/mfarabi/QEMU/ISO/latest-nixos-graphical-x86_64-linux.iso \
+-boot d \
+-net nic \
+-net user,hostfwd=tcp::2222-:22
 
 * Set up Caddy (WIP)
 
