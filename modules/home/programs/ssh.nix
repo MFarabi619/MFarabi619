@@ -66,7 +66,7 @@
         user = "mfarabi";
         host = "msi-gs65";
         addKeysToAgent = "yes";
-        hostname = "msi-gs65.comet-locrian.ts.net";
+        hostname = "msi-gs65.taila4d019.ts.net";
         setEnv.TERM = "xterm-256color";
       };
 
