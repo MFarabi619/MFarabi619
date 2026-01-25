@@ -22,6 +22,7 @@
       man = "batman";
       zlj = "zellij";
       lsh = "lazyssh";
+      lj = "lazyjournal";
       mkdir = "mkdir -p";
       # grep = "batgrep";
       # TODO: add batpipe
