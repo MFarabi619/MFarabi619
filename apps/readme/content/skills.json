@@ -485,7 +485,7 @@
       {
         "name": "SPARK",
         "url": "https://www.adacore.com/about-spark",
-        "icon": "https://upload.wikimedia.org/wikipedia/commons/3/3a/About-header.png"
+        "icon": "assets/spark-2014-banner.png"
       },
       {
         "name": "Smalltalk",
