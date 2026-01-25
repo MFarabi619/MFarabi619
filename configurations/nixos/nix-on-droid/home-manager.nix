@@ -33,7 +33,6 @@
           gnumake
           coreutils
 
-
           # ============== 🤪 =================
           cowsay
           lolcat # rainbow text output
@@ -43,7 +42,7 @@
           asciiquarium # ascii aquarium
           hollywood
 
-          termscp
+          # termscp
         ];
       };
 

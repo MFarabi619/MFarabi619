@@ -33,12 +33,14 @@
         poppler-utils # dired pdf previews
         epub-thumbnailer # dired epub previews
         ffmpegthumbnailer
+
         # =============
         sqlite # :tools lookup & :lang org +roam
         gnuplot
         shellcheck # shell script formatting
         octaveFull # gnu octave
         mermaid-cli # mermaid diagram support
+
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui           # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         pik # local port tui
@@ -46,7 +48,7 @@
         nmap
         lazyssh # ssh tui
         gpg-tui
-        termscp
+        # termscp
         tcpdump
         cointop # crypto price feed
         caligula # disk imaging
@@ -64,6 +66,7 @@
         exercism
         presenterm
         wireshark-cli
+
         # ============= ‍❄🕸 ================
         nil # nix formatter
         # omnix
@@ -79,6 +82,7 @@
         nix-health # health check
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
+
         # ============== 🤪 =================
         genact # nonsence activity generator
         smassh # TUI monkeytype

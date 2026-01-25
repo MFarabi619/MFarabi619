@@ -13,7 +13,7 @@ in
   imports = [
     self.darwinModules.default
     flake.inputs.stylix.darwinModules.stylix
-    flake.inputs.lix-module.nixosModules.default
+    # flake.inputs.lix-module.nixosModules.default
   ];
 
   nixpkgs.hostPlatform = "x86_64-darwin";
