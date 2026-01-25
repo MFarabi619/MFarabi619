@@ -48,6 +48,7 @@
       # inputs.nixpkgs.follows = "nixpkgs-nvmd-modules-with-keys";
     };
 
+    # nix-dokploy.url = "github:kedom1337/nix-dokploy/kd/feat/compat";
     nix-dokploy.url = ./nix-dokploy;
   };
 

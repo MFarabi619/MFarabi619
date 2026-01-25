@@ -2,7 +2,8 @@
 {
   cfg,
   lib,
-}: {
+}:
+{
   version = "3.8";
 
   services = {
@@ -18,11 +19,11 @@
       ];
       networks = {
         dokploy-network = {
-          aliases = ["dokploy-postgres"];
+          aliases = [ "dokploy-postgres" ];
         };
       };
       deploy = {
-        placement.constraints = ["node.role == manager"];
+        placement.constraints = [ "node.role == manager" ];
         restart_policy.condition = "any";
       };
     };
@@ -34,61 +35,70 @@
       ];
       networks = {
         dokploy-network = {
-          aliases = ["dokploy-redis"];
+          aliases = [ "dokploy-redis" ];
         };
       };
       deploy = {
-        placement.constraints = ["node.role == manager"];
+        placement.constraints = [ "node.role == manager" ];
         restart_policy.condition = "any";
       };
     };
 
-    dokploy =
-      {
-        inherit (cfg) image;
-        environment = {
-          ADVERTISE_ADDR = "\${ADVERTISE_ADDR}";
+    dokploy = {
+      inherit (cfg) image;
+      depends_on = [
+        "postgres"
+        "redis"
+      ];
+
+      environment = {
+        ADVERTISE_ADDR = "\${ADVERTISE_ADDR}";
+      };
+
+      networks = {
+        dokploy-network = {
+          aliases = [ "dokploy-app" ];
         };
-        networks = {
-          dokploy-network = {
-            aliases = ["dokploy-app"];
-          };
+      };
+
+      volumes = [
+        "/var/run/docker.sock:/var/run/docker.sock"
+        "${cfg.dataDir}:/etc/dokploy"
+        "dokploy:/root/.docker"
+      ];
+
+      deploy = {
+        replicas = 1;
+        placement.constraints = [ "node.role == manager" ];
+        update_config = {
+          parallelism = 1;
+          order = "stop-first";
         };
-        volumes = [
-          "/var/run/docker.sock:/var/run/docker.sock"
-          "${cfg.dataDir}:/etc/dokploy"
-          "dokploy:/root/.docker"
-        ];
-        depends_on = ["postgres" "redis"];
-        deploy =
-          {
-            replicas = 1;
-            placement.constraints = ["node.role == manager"];
-            update_config = {
-              parallelism = 1;
-              order = "stop-first";
-            };
-            restart_policy.condition = "any";
-          }
-          // lib.optionalAttrs cfg.lxc {
-            endpoint_mode = "dnsrr";
-          };
+        restart_policy.condition = "any";
       }
-      // lib.optionalAttrs (cfg.port != null) {
-        ports = let
+      // lib.optionalAttrs cfg.lxc {
+        endpoint_mode = "dnsrr";
+      };
+    }
+    // lib.optionalAttrs (cfg.port != null) {
+      ports =
+        let
           parts = lib.splitString ":" cfg.port;
           len = builtins.length parts;
-        in [
-          ({
+        in
+        [
+          (
+            {
               target = lib.strings.toInt (lib.last parts);
               published = lib.strings.toInt (builtins.elemAt parts (len - 2));
               mode = "host";
             }
             // lib.optionalAttrs (len == 3) {
               host_ip = builtins.head parts;
-            })
+            }
+          )
         ];
-      };
+    };
   };
 
   networks = {
@@ -100,8 +110,8 @@
   };
 
   volumes = {
-    dokploy-postgres = {};
-    dokploy-redis = {};
-    dokploy = {};
+    dokploy-postgres = { };
+    dokploy-redis = { };
+    dokploy = { };
   };
 }

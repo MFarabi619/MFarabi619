@@ -191,201 +191,205 @@ in
       }
     ];
 
-    systemd.tmpfiles.rules = [
-      "d ${cfg.dataDir} 0777 root root -"
-      "d ${cfg.dataDir}/traefik 0755 root root -"
-      "d ${cfg.dataDir}/traefik/dynamic 0755 root root -"
-    ]
-    ++ lib.optionals (cfg.dataDir != "/etc/dokploy") [
-      "L /etc/dokploy - - - - ${cfg.dataDir}"
-    ];
+    systemd = {
+      tmpfiles.rules = [
+        "d ${cfg.dataDir} 0777 root root -"
+        "d ${cfg.dataDir}/traefik 0755 root root -"
+        "d ${cfg.dataDir}/traefik/dynamic 0755 root root -"
+      ]
+      ++ lib.optionals (cfg.dataDir != "/etc/dokploy") [
+        "L /etc/dokploy - - - - ${cfg.dataDir}"
+      ];
 
-    systemd.services.dokploy-stack = {
-      description = "Dokploy Docker Swarm Stack";
-      after = [ "docker.service" ];
-      requires = [ "docker.service" ];
+      services = {
+        dokploy-stack = {
+          description = "Dokploy Docker Swarm Stack";
+          after = [ "docker.service" ];
+          requires = [ "docker.service" ];
 
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
 
-        ExecStart =
-          let
-            script = pkgs.writeShellApplication {
-              name = "dokploy-stack-start";
-              excludeShellChecks = [ "SC2034" ];
-              runtimeInputs = [
-                pkgs.curl
-                pkgs.docker
-                pkgs.hostname
-                pkgs.gawk
-              ]
-              ++ (cfg.swarm.advertiseAddress.extraPackages or [ ]);
-              text = ''
-                # Get advertise address based on configuration
-                ${
-                  if cfg.swarm.advertiseAddress == "public" then
-                    ''
-                      echo "Getting public IP address..."
-                      advertise_addr="$(curl -s ifconfig.me)"
-                    ''
-                  else if cfg.swarm.advertiseAddress == "private" then
-                    ''
-                      echo "Getting private IP address..."
-                      advertise_addr="$(hostname -I | awk '{print $1}')"
-                    ''
-                  else
-                    ''
-                      echo "Getting IP address from custom command..."
-                      advertise_addr="$(${cfg.swarm.advertiseAddress.command})"
-                    ''
-                }
-                echo "Advertise address: $advertise_addr"
+            ExecStart =
+              let
+                script = pkgs.writeShellApplication {
+                  name = "dokploy-stack-start";
+                  excludeShellChecks = [ "SC2034" ];
+                  runtimeInputs = [
+                    pkgs.curl
+                    pkgs.docker
+                    pkgs.hostname
+                    pkgs.gawk
+                  ]
+                  ++ (cfg.swarm.advertiseAddress.extraPackages or [ ]);
+                  text = ''
+                    # Get advertise address based on configuration
+                    ${
+                      if cfg.swarm.advertiseAddress == "public" then
+                        ''
+                          echo "Getting public IP address..."
+                          advertise_addr="$(curl -s ifconfig.me)"
+                        ''
+                      else if cfg.swarm.advertiseAddress == "private" then
+                        ''
+                          echo "Getting private IP address..."
+                          advertise_addr="$(hostname -I | awk '{print $1}')"
+                        ''
+                      else
+                        ''
+                          echo "Getting IP address from custom command..."
+                          advertise_addr="$(${cfg.swarm.advertiseAddress.command})"
+                        ''
+                    }
+                    echo "Advertise address: $advertise_addr"
 
-                # Validate IP address format (basic check)
-                if [[ ! "$advertise_addr" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                  echo "Error: '$advertise_addr' is not a valid IPv4 address" >&2
-                  exit 1
-                fi
+                    # Validate IP address format (basic check)
+                    if [[ ! "$advertise_addr" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                      echo "Error: '$advertise_addr' is not a valid IPv4 address" >&2
+                      exit 1
+                    fi
 
-                # Check current swarm state
-                swarm_active=$(docker info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null || echo "inactive")
-                current_addr=$(docker info --format '{{.Swarm.NodeAddr}}' 2>/dev/null || echo "")
+                    # Check current swarm state
+                    swarm_active=$(docker info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null || echo "inactive")
+                    current_addr=$(docker info --format '{{.Swarm.NodeAddr}}' 2>/dev/null || echo "")
 
-                # Leave swarm if auto-recreate is enabled and address changed
-                ${
-                  if cfg.swarm.autoRecreate then
-                    ''
-                      if [[ "$swarm_active" == "active" ]] && [[ "$current_addr" != "$advertise_addr" ]]; then
-                        echo "Advertise address changed ($current_addr -> $advertise_addr), recreating swarm..."
-                        docker swarm leave --force
-                        swarm_active="inactive"
+                    # Leave swarm if auto-recreate is enabled and address changed
+                    ${
+                      if cfg.swarm.autoRecreate then
+                        ''
+                          if [[ "$swarm_active" == "active" ]] && [[ "$current_addr" != "$advertise_addr" ]]; then
+                            echo "Advertise address changed ($current_addr -> $advertise_addr), recreating swarm..."
+                            docker swarm leave --force
+                            swarm_active="inactive"
+                          fi
+                        ''
+                      else
+                        ""
+                    }
+
+                    # Initialize swarm if inactive
+                    if [[ "$swarm_active" != "active" ]]; then
+                      echo "Initializing Docker Swarm with advertise address $advertise_addr..."
+                      docker swarm init --advertise-addr "$advertise_addr"
+                    else
+                      echo "Docker Swarm already active"
+                    fi
+
+                    # Deploy Dokploy stack
+                    if docker stack ls --format '{{.Name}}' | grep -q '^dokploy$'; then
+                      echo "Dokploy stack already deployed, updating stack..."
+                    else
+                      echo "Deploying Dokploy stack..."
+                    fi
+
+                    ${
+                      if cfg.port == null then
+                        ''
+                          echo "Web UI port binding disabled - access via Traefik only"
+                        ''
+                      else
+                        ''
+                          echo "Web UI will be available on port binding: ${cfg.port}"
+                        ''
+                    }
+
+                    ADVERTISE_ADDR="$advertise_addr" \
+                    POSTGRES_PASSWORD="${cfg.database.password}" \
+                    docker stack deploy -c ${stackFile} --detach=false dokploy
+                  '';
+                };
+              in
+              "${script}/bin/dokploy-stack-start";
+
+            ExecStop =
+              let
+                script = pkgs.writeShellScript "dokploy-stack-stop" ''
+                  ${pkgs.docker}/bin/docker stack rm --detach=false dokploy || true
+                '';
+              in
+              "${script}";
+          };
+
+          wantedBy = [ "multi-user.target" ];
+        };
+
+        dokploy-traefik = {
+          description = "Dokploy Traefik container";
+          after = [
+            "docker.service"
+            "dokploy-stack.service"
+          ];
+          requires = [
+            "docker.service"
+            "dokploy-stack.service"
+          ];
+
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+
+            ExecStart =
+              let
+                script = pkgs.writeShellApplication {
+                  name = "dokploy-traefik-start";
+                  runtimeInputs = [ pkgs.docker ];
+                  text = ''
+                    # Wait for Traefik configuration to be generated by Dokploy
+                    echo "Waiting for Dokploy to generate Traefik configuration..."
+                    timeout=60
+                    while [ ! -f "${cfg.dataDir}/traefik/traefik.yml" ]; do
+                      sleep 1
+                      timeout=$((timeout - 1))
+                      if [ "$timeout" -le 0 ]; then
+                        echo "Error: Timed out waiting for traefik.yml"
+                        exit 1
                       fi
-                    ''
-                  else
-                    ""
-                }
+                    done
+                    echo "Traefik configuration found."
 
-                # Initialize swarm if inactive
-                if [[ "$swarm_active" != "active" ]]; then
-                  echo "Initializing Docker Swarm with advertise address $advertise_addr..."
-                  docker swarm init --advertise-addr "$advertise_addr"
-                else
-                  echo "Docker Swarm already active"
-                fi
+                    if docker ps -a --format '{{.Names}}' | grep -q '^dokploy-traefik$'; then
+                      echo "Starting existing Traefik container..."
+                      docker start dokploy-traefik
+                    else
+                      echo "Creating and starting Traefik container..."
+                      docker run -d \
+                        --name dokploy-traefik \
+                        --network dokploy-network \
+                        --restart=always \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -v ${cfg.dataDir}/traefik/traefik.yml:/etc/traefik/traefik.yml \
+                        -v ${cfg.dataDir}/traefik/dynamic:/etc/dokploy/traefik/dynamic \
+                        -p 81:80/tcp \
+                        -p 444:443/tcp \
+                        -p 444:443/udp \
+                        ${lib.concatStringsSep " \\\n" cfg.traefik.extraArgs} \
+                        ${cfg.traefik.image}
+                    fi
+                  '';
+                };
+              in
+              "${script}/bin/dokploy-traefik-start";
 
-                # Deploy Dokploy stack
-                if docker stack ls --format '{{.Name}}' | grep -q '^dokploy$'; then
-                  echo "Dokploy stack already deployed, updating stack..."
-                else
-                  echo "Deploying Dokploy stack..."
-                fi
+            ExecStop =
+              let
+                script = pkgs.writeShellScript "dokploy-traefik-stop" ''
+                  ${pkgs.docker}/bin/docker stop dokploy-traefik || true
+                '';
+              in
+              "${script}";
+            ExecStopPost =
+              let
+                script = pkgs.writeShellScript "dokploy-traefik-rm" ''
+                  ${pkgs.docker}/bin/docker rm dokploy-traefik || true
+                '';
+              in
+              "${script}";
+          };
 
-                ${
-                  if cfg.port == null then
-                    ''
-                      echo "Web UI port binding disabled - access via Traefik only"
-                    ''
-                  else
-                    ''
-                      echo "Web UI will be available on port binding: ${cfg.port}"
-                    ''
-                }
-
-                ADVERTISE_ADDR="$advertise_addr" \
-                POSTGRES_PASSWORD="${cfg.database.password}" \
-                docker stack deploy -c ${stackFile} --detach=false dokploy
-              '';
-            };
-          in
-          "${script}/bin/dokploy-stack-start";
-
-        ExecStop =
-          let
-            script = pkgs.writeShellScript "dokploy-stack-stop" ''
-              ${pkgs.docker}/bin/docker stack rm --detach=false dokploy || true
-            '';
-          in
-          "${script}";
+          wantedBy = [ "multi-user.target" ];
+        };
       };
-
-      wantedBy = [ "multi-user.target" ];
-    };
-
-    systemd.services.dokploy-traefik = {
-      description = "Dokploy Traefik container";
-      after = [
-        "docker.service"
-        "dokploy-stack.service"
-      ];
-      requires = [
-        "docker.service"
-        "dokploy-stack.service"
-      ];
-
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-
-        ExecStart =
-          let
-            script = pkgs.writeShellApplication {
-              name = "dokploy-traefik-start";
-              runtimeInputs = [ pkgs.docker ];
-              text = ''
-                # Wait for Traefik configuration to be generated by Dokploy
-                echo "Waiting for Dokploy to generate Traefik configuration..."
-                timeout=60
-                while [ ! -f "${cfg.dataDir}/traefik/traefik.yml" ]; do
-                  sleep 1
-                  timeout=$((timeout - 1))
-                  if [ "$timeout" -le 0 ]; then
-                    echo "Error: Timed out waiting for traefik.yml"
-                    exit 1
-                  fi
-                done
-                echo "Traefik configuration found."
-
-                if docker ps -a --format '{{.Names}}' | grep -q '^dokploy-traefik$'; then
-                  echo "Starting existing Traefik container..."
-                  docker start dokploy-traefik
-                else
-                  echo "Creating and starting Traefik container..."
-                  docker run -d \
-                    --name dokploy-traefik \
-                    --network dokploy-network \
-                    --restart=always \
-                    -v /var/run/docker.sock:/var/run/docker.sock \
-                    -v ${cfg.dataDir}/traefik/traefik.yml:/etc/traefik/traefik.yml \
-                    -v ${cfg.dataDir}/traefik/dynamic:/etc/dokploy/traefik/dynamic \
-                    -p 81:80/tcp \
-                    -p 444:443/tcp \
-                    -p 444:443/udp \
-                    ${lib.concatStringsSep " \\\n" cfg.traefik.extraArgs} \
-                    ${cfg.traefik.image}
-                fi
-              '';
-            };
-          in
-          "${script}/bin/dokploy-traefik-start";
-
-        ExecStop =
-          let
-            script = pkgs.writeShellScript "dokploy-traefik-stop" ''
-              ${pkgs.docker}/bin/docker stop dokploy-traefik || true
-            '';
-          in
-          "${script}";
-        ExecStopPost =
-          let
-            script = pkgs.writeShellScript "dokploy-traefik-rm" ''
-              ${pkgs.docker}/bin/docker rm dokploy-traefik || true
-            '';
-          in
-          "${script}";
-      };
-
-      wantedBy = [ "multi-user.target" ];
     };
   };
 }
