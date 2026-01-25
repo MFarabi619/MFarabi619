@@ -376,6 +376,7 @@ kern.vty=vt
 #+begin_src bash
 ln -s /home/mfarabi/configurations/freebsd/.local/share/bin /home/mfarabi/.local/share/
 ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.config/* /home/mfarabi/.config/
+ln -s /home/mfarabi/MFarabi619/modules/home/programs/fastfetch/config.jsonc  /home/mfarabi/.config/fastfetch/config.jsonc
 #+end_src
 
 5. Reboot system
