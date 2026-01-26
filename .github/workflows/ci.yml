@@ -1,16 +1,53 @@
-name: CI
+name: 🤖CI
+
 on:
-    push:
-        branches:
-            - master
-            - main
     pull_request:
+    push:
+        branches: ["main"]
+
+    workflow_dispatch:
 
 env:
     RUST_TOOLCHAIN: stable
     TOOLCHAIN_PROFILE: minimal
 
 jobs:
+    nix:
+        strategy:
+            matrix:
+                # os: [ubuntu-latest, macos-latest]
+                os: [ubuntu-latest]
+        runs-on: ${{ matrix.os }}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+              # with:
+              #     ref: ${{ github.head_ref }}
+
+            - name: ❅ Install Nix
+              uses: cachix/install-nix-action@v31
+
+            - name: Setup Cachix
+              uses: cachix/cachix-action@v16
+              with:
+                  name: devenv
+
+            - name: 💻 Install Devenv
+              run: nix profile install nixpkgs#devenv
+
+            # - name: Build the devenv shell and run any pre-commit hooks
+            #   run: devenv test
+
+            # - name: Run a single command in the devenv shell
+            #   run: devenv shell hello
+
+            # - name: Run a multi-line command in the devenv shell
+            #   shell: devenv shell bash -- -e {0}
+            #   run: |
+            #     hello
+            #     say-bye
+
     rustfmt:
         name: Check Style
         runs-on: ubuntu-latest
@@ -101,7 +138,13 @@ jobs:
                   sudo apt-get update
                   sudo apt-get install -y --no-install-recommends \
                     pkg-config \
-                    libglib2.0-dev
+                    libglib2.0-dev \
+                    libgtk-3-dev \
+                    libgdk-pixbuf-2.0-dev \
+                    libcairo2-dev \
+                    libpango1.0-dev \
+                    libatk1.0-dev \
+                    libgirepository1.0-dev
 
             - name: Run cargo test
               uses: actions-rs/cargo@v1
