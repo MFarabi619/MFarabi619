@@ -1,42 +1,28 @@
 name: 🤖 Generate Readme
 
 on:
-  push:
-    branches: ["main"]
+    push:
+        branches: ["main"]
 
-  workflow_dispatch:
+    workflow_dispatch:
 
 jobs:
-  generate_readme:
-    runs-on: self-hosted
+    generate_readme:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+              # with:
+              #     ref: ${{ github.head_ref }}
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+            - name: ❅ Install Nix
+              uses: cachix/install-nix-action@v31
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: "pnpm"
+            - name: Setup Cachix
+              uses: cachix/cachix-action@v16
+              with:
+                  name: devenv
 
-      - name: Install Workspace Dependencies
-        run: pnpm install
-
-      - name: 🦀 Install Rust
-        uses: actions-rs/toolchain@v2
-        with:
-          toolchain: stable
-          override: true
-
-      - name: Generate README
-        run: pnpm nx run readme:run
-
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "feat(ui/readme): auto-update"
+            - name: 💻 Install Devevn
+              run: nix profile install nixpkgs#devenv
