@@ -1,6 +1,6 @@
 use loco_rs::cli;
-use migration::Migrator;
 use microvisor::app::App;
+use migration::Migrator;
 
 #[tokio::main]
 async fn main() -> loco_rs::Result<()> {
