@@ -7,7 +7,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let playwright = Playwright::launch().await?;
 
     println!("Launching browser (headless: false)...");
-    let options = LaunchOptions::default().headless(false);
+    let options = LaunchOptions::default().headless(true);
 
     let browser = playwright.chromium().launch_with_options(options).await?;
     let context = browser.new_context().await?;
