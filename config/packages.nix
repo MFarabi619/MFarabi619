@@ -8,6 +8,9 @@
   packages =
     with pkgs;
     [
+      pkg-config
+      openssl
+
       duckdb
       harlequin
 
