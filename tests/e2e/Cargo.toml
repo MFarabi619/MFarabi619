@@ -1,0 +1,9 @@
+[package]
+name = "e2e"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+playwright-rs = "0.8"
+tokio = { version = "1", features = ["full"] }
+# npx playwright@1.56.1 install
