@@ -22,8 +22,9 @@
     };
 
     signing = {
-      # format = "ssh";
-      # signByDefault = true;
+      format = "ssh";
+      signByDefault = true;
+      key = "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
     };
 
     ignores = [
