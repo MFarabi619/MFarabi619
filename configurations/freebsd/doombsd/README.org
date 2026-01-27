@@ -14,33 +14,8 @@ pkg update && pkg upgrade
 #+end_src
 
 #+begin_src bash
-sudo pkg install yazi git {ba,z}sh bat lazygit lf terminfo-db dunst mpv direnv zellij markdown markdownfmt jetbrains-mono nerd-fonts noto-emoji npm vips docker docker-compose k9s
+sudo pkg install bash zsh git
 #+end_src
-
-#+begin_src bash
-fc-cache -fv
-#+end_src
-
-#+begin_src bash
-sudo ya pkg add yazi-rs/plugins:{git,mime-ext,smart-enter,smart-filter,smart-paste,chmod,mount,toggle-pane,vcs-files,zoom}
-#+end_src
-
-#+begin_src bash
-curl -fsSL https://git.io/shellspec | sh
-#+end_src
-
-#+begin_src bash
-sudo pkg install tree eza fzf ripgrep ripgrep-all
-#+end_src
-
-#+begin_src bash
-sudo pkg install s-tui stress smartmontools gnupg {sy,sys,nif,bat}mon
-#+end_src
-
-#+begin_src bash
-sudo pkg install procs btop fastfetch cmatrix cowsay asciiquarium figlet {lol,nyan}cat rgb-tui
-#+end_src
-
 [[https://ohmyz.sh/][Oh My Zsh]]
 #+begin_src bash
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -49,6 +24,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 [[https://github.com/romkatv/powerlevel10k][PowerLevel10K]]
 #+begin_src bash
 git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
+#+end_src
+
+[[https://github.com/chrissicool/zsh-256color][zsh-256color]]
+#+begin_src bash
+cd $ZSH_CUSTOM/plugins && git clone https://github.com/chrissicool/zsh-256color
 #+end_src
 
 [[https://github.com/zsh-users/zsh-autosuggestions][zsh-autosuggestions]]
@@ -61,25 +41,49 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-m
 git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 #+end_src
 
-Edit =ZSH_THEME= in =~/.zshrc=
-#+begin_src bash
-ZSH_THEME="powerlevel10k/powerlevel10k"
-#+end_src
-
-Add plugins to =~/.zshrc=.
-#+begin_src bash
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-#+end_src
-
 Source =~/.zshrc=:
 #+begin_src bash
+git clone https://github.com/MFarabi619/MFarabi619
 rm ~/.zshrc;
 ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.zshrc ~/.zshrc;
 rm ~/.p10k.zsh;
 ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.p10k.zsh ~/.p10k.zsh;
-source ~/.zshrc;
 rm -rf ~/.config/hypr;
 ln -s /home/mfarabi/MFarabi619/modules/home/programs/hyprland/hypr /home/mfarabi/.config/hypr;
+source ~/.zshrc;
+#+end_src
+
+#+begin_src bash
+sudo pkg install nix yazi curl bat lazygit zellij jetbrains-mono nerd-fonts noto-emoji npm vips lf terminfo-db direnv
+#+end_src
+
+#+begin_src bash
+sudo /usr/local/share/nix/add-nixbld-users 12
+#+end_src
+
+#+begin_src bash
+fc-cache -fv
+#+end_src
+
+#+begin_src bash
+sudo ya pkg add yazi-rs/plugins:{git,mime-ext,smart-enter,smart-filter,smart-paste,chmod,mount,toggle-pane,vcs-files,zoom}
+#+end_src
+
+#+begin_src bash
+sudo pkg install tailscale systeroid gh ttyd sysutils/lazyssh television
+#+end_src
+
+#+begin_src bash
+sudo sysrc tailscaled_enable="YES"
+#+end_src
+
+
+#+begin_src bash
+sudo pkg install btop fastfetch cmatrix cowsay asciiquarium figlet {lol,nyan}cat rgb-tui
+#+end_src
+
+#+begin_src bash
+curl -fsSL https://git.io/shellspec | sh
 #+end_src
 
 #+begin_src bash
@@ -89,7 +93,12 @@ ln -s /home/mfarabi/MFarabi619/modules/home/programs/hyprland/hypr /home/mfarabi
 *** Set up editors
 
 #+begin_src bash
-sudo pkg install go wget tree-{sitter,sitter-{cli,graph,grammars}} vim neovim py311-pynvim emacs-devel ffmpegthumbnailer coreutils cmake poppler {un,7-}zip aspell en-aspell aspell-ispell
+sudo pkg install tree eza fzf ripgrep ripgrep-all cmake markdown markdownfmt zig go python
+ wget tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim neovim py311-pynvim emacs-devel ffmpegthumbnailer coreutils poppler {un,7-}zip aspell en-aspell aspell-ispell
+#+end_src
+
+#+begin_src bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 #+end_src
 
 [[https://www.lazyvim.org/installation][Lazyvim]]
@@ -103,6 +112,7 @@ git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs;
 ~/.config/emacs/bin/doom install;
 rm -rf ~/.config/doom/*;
 ln -s /home/mfarabi/MFarabi619/modules/home/programs/emacs/* /home/mfarabi/.config/doom/
+doom sync
 #+end_src
 
 *** Set up FreeBSD Hyprland
@@ -117,14 +127,14 @@ ln -s /home/mfarabi/MFarabi619/modules/home/programs/emacs/* /home/mfarabi/.conf
 wheel NOPASSWD all
 
 #+begin_src bash
-sudo pkg install dbus kitty vlc texlive-full webcamd gimp-jxl-plugin mousepad \
+sudo pkg install dbus kitty vlc dunst mpv texlive-full firefox webcamd gimp-jxl-plugin mousepad \
     swww sddm sddm-freebsd-black-theme \
     xdg-{terminal-exec,desktop-portal,desktop-portal-hyprland} \
-    rofi wlogout dolphin pavucontrol wl-clipboard swaylock-effects \
-    pwcview fontpreview epdfview glcapsviewer pango cairo pipewire grim slurp \
+    rofi wlogout dolphin swaylock-effects \
+    {fontpre,epdf,pwc}view glcapsviewer cairo pipewire grim slurp \
     hypr{land,land-qt-support,graphics,lang,utils,wayland-scanner,sunset,idle,lock,paper,picker} \
-    way{land,bar} wayland-{logout,protocols,utils} qt6-{wayland,imageformats} xwayland xwayland-{satellite,run} \
-    cava nwg-{look,dock-hyprland} wifimgr byobu nsxiv pamixer pa-applet wmwifi aimage qimageblitz xloadimage terminal-image-viewer
+    way{land,bar} wayland-{logout,protocols,utils} qt6-{wayland,imageformats} xwayland xwayland-{satellite,run} wl-{clipboard,screenrec,gammarelay-rs} \
+    cava nwg-{look,dock-hyprland} {network,wifi}mgr byobu nsxiv pa{ngo,vucontrol,mixer,-applet} wmwifi aimage qimageblitz xloadimage terminal-image-viewer
 #+end_src
 
 #+begin_src bash
@@ -148,6 +158,13 @@ sudo webcamd -l
 
  # imlib2-jxl xwaylandvideobridge hyprland-qtutils kvantum sysctl-tui
 
+Add to =/boot/loader.conf=
+#+begin_src bash
+sysctlinfo_load="YES"
+# hw.nvidiadrm.modeset="1" # if using nvidia-drm-kmod
+sysctlbyname_improved_load="YES"
+#+end_src
+
 #+begin_src bash
 sudo kldload fusefs
 #+end_src
@@ -157,20 +174,40 @@ sudo pkg install bsd{-splash-changer,ebfetch,info,sensors} pwcbsd wmbsdbatt open
 #+end_src
 
 #+begin_src bash
-sudo kldload sysctlinfo
+sudo pkg install ly
 #+end_src
+
+#+begin_src bash
+Add the following entry to /etc/gettytab:
+
+Ly:\
+	:lo=/usr/local/bin/ly:\
+	:al=root:
+
+#+end_src
+
+Modify the command field of the ttyv1 terminal entry in /etc/ttys
+
+#+begin_src bash
+ttyv1   "/usr/libexec/getty Ly"     xterm onifexists secure
+#+end_src
+
+Make sure that "tty" is set appropriately in the /usr/local/etc/ly/config.ini file if
+you decide to configure a different TTY for Ly instead.
+
 
 2. Install packages
+
 #+begin_src bash
-sudo pkg install tailscale systeroid gh ttyd sysutils/lazyssh television
+sudo pkg install procs s-tui stress smartmontools gnupg {sys,nif,bat}mon
 #+end_src
 
 #+begin_src bash
-sudo sysrc tailscaled_enable="YES"
+sudo sysrc smartd_enable="YES"
 #+end_src
 
 #+begin_src bash
-sudo pkg install yt-dlp icu sniffnet libvirt libvirt-dbus virtboard virt-manager virt-viewer pkg_tree diskimage-tools kubectl minikube masscan ezjail gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc virtualbox-ose qt5-sqldrivers-mysql qt5-sqldrivers-odbc qt5-sqldrivers-pgsql qt5-sqldrivers-sqlite2 qt5-sqldrivers-sqlite3 qt5-sqldrivers-tds netpbm
+sudo pkg install docker docker-compose minikube kubectl k9s yt-dlp icu sniffnet libvirt libvirt-dbus virt{ualbox-ose,board,-manager,-viewer} diskimage-tools masscan ezjail gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc qt5-sqldrivers-{mysql,odbc,pgsql,sqlite2,sqlite3,tds} netpbm
 #+end_src
 
 #+begin_src
@@ -302,27 +339,6 @@ Your SDL library has been built with libvgl support, which means that you
 Message from pwcview-1.4.1_9:
 #+end_src
 
-#+begin_src bash
-sudo pkg install ly
-#+end_src
-
-#+begin_src bash
-Add the following entry to /etc/gettytab:
-
-Ly:\
-	:lo=/usr/local/bin/ly:\
-	:al=root:
-
-#+end_src
-
-Modify the command field of the ttyv1 terminal entry in /etc/ttys
-
-#+begin_src bash
-ttyv1   "/usr/libexec/getty Ly"     xterm onifexists secure
-#+end_src
-
-Make sure that "tty" is set appropriately in the /usr/local/etc/ly/config.ini file if
-you decide to configure a different TTY for Ly instead.
 
 **** Set up GPU
 
@@ -343,15 +359,18 @@ you decide to configure a different TTY for Ly instead.
 sudo pkg install drm-kmod # Intel
 #+end_src
 
+#+begin_src bash
+sudo sysrc seatd_enable="YES"    # let non-root graphics car users manage access to shared system devices
+sudo sysrc dbus_enable="YES"     # message bus and hardware abstraction
+#+end_src
+
 3. Add to =/etc/rc.conf=
 #+begin_src
 # ========= SERVICES/DAEMONS ===========
-seatd_enable="YES"    # let non-root graphics car users manage access to shared system devices
-moused_enable="YES"   # mouse
 sshd_enable="YES"     # ssh
-dbus_enable="YES"     # message bus and hardware abstraction
+# sddm_enable="YES"     # login manager
 smartd_enable="YES"   # disk
-sddm_enable="YES"     # login manager
+moused_enable="YES"   # mouse
 libvirtd_enable="YES" # virtualization
 
 # ========== KERNEL MODULES ============
@@ -375,6 +394,7 @@ kern.vty=vt
 #+begin_src bash
 ln -s /home/mfarabi/configurations/freebsd/.local/share/bin /home/mfarabi/.local/share/
 ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.config/* /home/mfarabi/.config/
+mkdir ~/.config/fastfetch
 ln -s /home/mfarabi/MFarabi619/modules/home/programs/fastfetch/config.jsonc  /home/mfarabi/.config/fastfetch/config.jsonc
 #+end_src
 
@@ -401,25 +421,24 @@ Expected:
 hyprland
 #+end_src
 
+#+begin_src bash
+swww ~/MFarabi619/configurations/freebsd/wallpapers/freebsd-gruvbox-rainbow-dark.webp
+#+end_src
+
 
 *** Other
 #+begin_src bash
-sudo pkg install framework-system pkg_search podman aichat ollama python {h,b,z,j,nats-,sn,usb}top desktop-installer ntopng mkdesktop portopscli xdesktopwaves treetop toppler radeon top ghostscript netpbm redis wl-gammarelay-rs wl-mkbptr wl-screenrec networkmgr firefox qmk_hid realtek-re-kmod realtek-re-kmod198 linux-steam-utils win-proton libc6-shim languageclient-neovim firefox linux-bitwarden-cli mixertui audio/moc scrot wf-recorder
-#+end_src
-
-#+begin_src bash
-sudo pkg install texlive-full
+sudo pkg install framework-system pkg_{tree,search} podman aichat ollama top {h,b,z,j,nats-,sn,usb,tree}top desktop-installer ntopng mkdesktop portopscli xdesktopwaves toppler radeon ghostscript netpbm redis qmk_hid realtek-re-{kmod,kmod198} linux-{discord,steam-utils,bitwarden-cli} win-proton libc6-shim languageclient-neovim mixertui audio/moc scrot wf-recorder
 #+end_src
 
 #+begin_src bash
 sudo pkg install
 bandwhich
 bmon
-shfmt mu rubygem-neovim
+mu rubygem-neovim
 hs-ShellCheck gnuplot
 xclip wininfo # for emacs-everywhere
 py311-grp # markdown preview
-linux-discord
 #+end_src
 
 #+begin_src bash
@@ -467,205 +486,204 @@ DoomBSD borrows HEAVILY from the following projects:
 [[https://www.freebsd.org/where/][Download VM Image]]
 
 #+begin_src sh
-unxz FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2.xz
+  unxz FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2.xz
 #+end_src
 
 #+begin_src sh
-qemu-system-aarch64 \
-  -machine virt,highmem=on \
-  -accel hvf \
-  -cpu cortex-a72 \
-  -smp 8 \
-  -m 32G \
-  -drive file=FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2,if=virtio,format=qcow2 \
-  -device virtio-net-pci,netdev=net0 \
-  -netdev user,id=net0,hostfwd=tcp::2222-:22 \
-  -bios /opt/homebrew/share/qemu/edk2-aarch64-code.fd \
-  -nographic
+  qemu-system-aarch64 \
+    -smp 8 \
+    -m 32G \
+    -accel hvf \
+    -cpu cortex-a72 \
+    -machine virt,highmem=on \
+    -device virtio-net-pci,netdev=net0 \
+    -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+    -bios /opt/homebrew/share/qemu/edk2-aarch64-code.fd \
+    -drive file=FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2,if=virtio,format=qcow2 \
+    -nographic
 #+end_src
 
 #+begin_src sh
-qemu-img resize FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2 256G
-qemu-img info FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2
+  qemu-img resize FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2 256G
+  qemu-img info FreeBSD-15.0-RELEASE-arm64-aarch64-zfs.qcow2
 #+end_src
 
 
 #+begin_src sh
-df -h
+  df -h
 
-# see current layout
-gpart show
-zpool status
+  # see current layout
+  gpart show
+  zpool status
 
-# enable autoexpand (so ZFS can use larger underlying device)
-zpool set autoexpand=on zroot
+  # enable autoexpand (so ZFS can use larger underlying device)
+  zpool set autoexpand=on zroot
 
-# if ZFS uses the whole disk (no partition):
-zpool online -e zroot /dev/vtbd0
+  # if ZFS uses the whole disk (no partition):
+  zpool online -e zroot /dev/vtbd0
 
-# (use gpart show to find the correct index)
-gpart show
-# if ZFS is on a partition (e.g. vtbd0p2), resize that partition first if needed:
-gpart resize -i 2 vtbd0      # resize partition index 2 to fill the disk
-zpool online -e zroot /dev/vtbd0p2
+  # (use gpart show to find the correct index)
+  gpart show
+  # if ZFS is on a partition (e.g. vtbd0p2), resize that partition first if needed:
+  gpart resize -i 2 vtbd0      # resize partition index 2 to fill the disk
+  zpool online -e zroot /dev/vtbd0p2
 
-# 1) recover the GPT backup/header if needed
-gpart recover vtbd0
+  # 1) recover the GPT backup/header if needed
+  gpart recover vtbd0
 
-# verify layout and that GPT is no longer corrupt
-gpart show vtbd0
+  # verify layout and that GPT is no longer corrupt
+  gpart show vtbd0
 
-# 2) resize partition index 3 (freebsd-zfs) to fill the disk
-gpart resize -i 3 vtbd0
+  # 2) resize partition index 3 (freebsd-zfs) to fill the disk
+  gpart resize -i 3 vtbd0
 
-# confirm partition grew
-gpart show vtbd0
+  # confirm partition grew
+  gpart show vtbd0
 
-# 3) ask ZFS to expand the device (use the exact member name shown by zpool status)
-zpool set autoexpand=on zroot
-zpool online -e zroot vtbd0p3
+  # 3) ask ZFS to expand the device (use the exact member name shown by zpool status)
+  zpool set autoexpand=on zroot
+  zpool online -e zroot vtbd0p3
 
-# verify pool and fs sizes
-zpool list
-zfs list
+  # verify pool and fs sizes
+  zpool list
+  zfs list
 #+end_src
 
 ** amd64
 
 #+begin_src sh
-virsh -c qemu:///system
+  virsh -c qemu:///system
 #+end_src
 
 #+begin_src sh
-net-start default
-net-autostart default
-net-dumpxml default
+  net-start default
+  net-autostart default
+  net-dumpxml default
 #+end_src
 
 #+begin_src xml
-<network>
-  <name>default</name>
-  <uuid>04503b12-bc89-42db-811b-7ec2c6492c84</uuid>
-  <forward mode='nat'>
-    <nat>
-      <port start='1024' end='65535'/>
-    </nat>
-  </forward>
-  <bridge name='virbr0' stp='on' delay='0'/>
-  <mac address='52:54:00:60:fe:35'/>
-  <ip address='192.168.122.1' netmask='255.255.255.0'>
-    <dhcp>
-      <range start='192.168.122.2' end='192.168.122.254'/>
-    </dhcp>
-  </ip>
-</network>
+  <network>
+    <name>default</name>
+    <uuid>04503b12-bc89-42db-811b-7ec2c6492c84</uuid>
+    <forward mode='nat'>
+      <nat>
+        <port start='1024' end='65535'/>
+      </nat>
+    </forward>
+    <bridge name='virbr0' stp='on' delay='0'/>
+    <mac address='52:54:00:60:fe:35'/>
+    <ip address='192.168.122.1' netmask='255.255.255.0'>
+      <dhcp>
+        <range start='192.168.122.2' end='192.168.122.254'/>
+      </dhcp>
+    </ip>
+  </network>
 #+end_src
 
 #+begin_src sh
-# Make a folder for your vms
-mkdir $HOME/vms
-cd $HOME/vms
+  mkdir $HOME/vms
+  cd $HOME/vms
 
-# Download VM image and unzip it
-# wget https://download.freebsd.org/releases/VM-IMAGES/15.0-RELEASE/amd64/Latest/FreeBSD-15.0-RELEASE-amd64-zfs.qcow2.xz
-wget https://download.freebsd.org/releases/VM-IMAGES/15.0-RELEASE/amd64/Latest/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2.xz
+  # Download VM image and unzip it
+  # wget https://download.freebsd.org/releases/VM-IMAGES/15.0-RELEASE/amd64/Latest/FreeBSD-15.0-RELEASE-amd64-zfs.qcow2.xz
+  wget https://download.freebsd.org/releases/VM-IMAGES/15.0-RELEASE/amd64/Latest/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2.xz
 
-# Decompress but keeps the original
-# xz -dk FreeBSD-15.0-RELEASE-amd64-zfs.qcow2.xz
-xz -dk FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2.xz
+  # Decompress but keeps the original
+  # xz -dk FreeBSD-15.0-RELEASE-amd64-zfs.qcow2.xz
+  xz -dk FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2.xz
 
-# Make the disk slightly bigger
-# qemu-img resize FreeBSD-15.0-RELEASE-amd64-zfs.qcow2 350G
-qemu-img resize FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2 350G
+  # Make the disk slightly bigger
+  # qemu-img resize FreeBSD-15.0-RELEASE-amd64-zfs.qcow2 350G
+  qemu-img resize FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2 350G
 
-sudo mkdir -p /var/lib/libvirt/boot
-sudo chmod 0755 /var/lib/libvirt/boot
+  sudo mkdir -p /var/lib/libvirt/boot
+  sudo chmod 0755 /var/lib/libvirt/boot
 
-sudo virt-install \
-      --import \
-      --vcpus 6 \
-      --boot uefi \
-      --memory 16384 \
-      --graphics none \
-      --os-variant freebsd15.0 \
-      --name FreeBSD-15.0-RELEASE \
-      --console pty,target_type=serial \
-      --network network=default,model=virtio \
-      --disk path=$HOME/vms/seed.iso,device=cdrom \
-      --disk path=$HOME/vms/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2,format=qcow2,bus=virtio
+  sudo virt-install \
+        --import \
+        --vcpus 6 \
+        --boot uefi \
+        --memory 16384 \
+        --graphics none \
+        --os-variant freebsd15.0 \
+        --name FreeBSD-15.0-RELEASE \
+        --console pty,target_type=serial \
+        --network network=default,model=virtio \
+        --disk path=$HOME/vms/seed.iso,device=cdrom \
+        --disk path=$HOME/vms/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2,format=qcow2,bus=virtio
 #+end_src
 
 #+begin_src sh
-sudo virsh list --all
-sudo virsh domifaddr FreeBSD-15.0-RELEASE
-sudo virsh destroy FreeBSD-15.0-RELEASE
-sudo virsh undefine FreeBSD-15.0-RELEASE --nvram
-rm ~/vms/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2
-sudo cloud-localds ~/vms/seed.iso ~/MFarabi619/configurations/freebsd/doombsd/user-data.yaml
-xz -dk ~/vms/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2.xz
-qemu-img resize ~/vms/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2 350G
+  sudo virsh list --all
+  sudo virsh domifaddr FreeBSD-15.0-RELEASE
+  sudo virsh destroy FreeBSD-15.0-RELEASE
+  sudo virsh undefine FreeBSD-15.0-RELEASE --nvram
+  rm ~/vms/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2
+  sudo cloud-localds ~/vms/seed.iso ~/MFarabi619/configurations/freebsd/doombsd/user-data.yaml
+  xz -dk ~/vms/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2.xz
+  qemu-img resize ~/vms/FreeBSD-15.0-RELEASE-amd64-BASIC-CLOUDINIT-zfs.qcow2 350G
 #+end_src
 
 ** Run NixOS VM Guest
 
 #+begin_src sh
-qemu-system-x86_64 \
--smp 3 \
--m 8000 \
--boot d \
--net nic \
--net user,hostfwd=tcp::2222-:22 \
--drive file=nixos-25.11-x86_64.qcow2,format=qcow2 \
--cdrom /home/mfarabi/QEMU/ISO/latest-nixos-graphical-x86_64-linux.iso
+  qemu-system-x86_64 \
+    -smp 3 \
+    -m 8000 \
+    -boot d \
+    -net nic \
+    -net user,hostfwd=tcp::2222-:22 \
+    -drive file=nixos-25.11-x86_64.qcow2,format=qcow2 \
+    -cdrom /home/mfarabi/QEMU/ISO/latest-nixos-graphical-x86_64-linux.iso
 #+end_src
 
 * Set up Caddy (WIP)
 
 #+begin_src sh
-Proceed with this action? [y/N]: y
-[1/1] Fetching caddy-2.10.2_4.pkg: 100%   13 MiB  13.7MB/s    00:01
-Checking integrity... done (0 conflicting)
-[1/1] Installing caddy-2.10.2_4...
-===> Creating groups
-Using existing group 'www'
-===> Creating users
-Using existing user 'www'
-[1/1] Extracting caddy-2.10.2_4: 100%
-=====
-Message from caddy-2.10.2_4:
+  Proceed with this action? [y/N]: y
+  [1/1] Fetching caddy-2.10.2_4.pkg: 100%   13 MiB  13.7MB/s    00:01
+  Checking integrity... done (0 conflicting)
+  [1/1] Installing caddy-2.10.2_4...
+  ===> Creating groups
+  Using existing group 'www'
+  ===> Creating users
+  Using existing user 'www'
+  [1/1] Extracting caddy-2.10.2_4: 100%
+  =====
+  Message from caddy-2.10.2_4:
 
---
-To enable caddy:
+  --
+  To enable caddy:
 
-- Edit /usr/local/etc/caddy/Caddyfile
-  See https://caddyserver.com/docs/
-- Run 'service caddy enable'
+  - Edit /usr/local/etc/caddy/Caddyfile
+    See https://caddyserver.com/docs/
+  - Run 'service caddy enable'
 
-Note while Caddy currently defaults to running as root:wheel, it is strongly
-recommended to run the server as an unprivileged user, such as www:www --
+  Note while Caddy currently defaults to running as root:wheel, it is strongly
+  recommended to run the server as an unprivileged user, such as www:www --
 
-- Use security/portacl-rc to enable privileged port binding:
+  - Use security/portacl-rc to enable privileged port binding:
 
-  # pkg install security/portacl-rc
-  # sysrc portacl_users+=www
-  # sysrc portacl_user_www_tcp="http https"
-  # sysrc portacl_user_www_udp="https"
-  # service portacl enable
-  # service portacl start
+    # pkg install security/portacl-rc
+    # sysrc portacl_users+=www
+    # sysrc portacl_user_www_tcp="http https"
+    # sysrc portacl_user_www_udp="https"
+    # service portacl enable
+    # service portacl start
 
-- Configure caddy to run as www:www
+  - Configure caddy to run as www:www
 
-  # sysrc caddy_user=www caddy_group=www
+    # sysrc caddy_user=www caddy_group=www
 
-- Note if Caddy has been started as root previously, files in
-  /var/log/caddy, /var/db/caddy, and /var/run/caddy may require their ownership
-  changing manually.
+  - Note if Caddy has been started as root previously, files in
+    /var/log/caddy, /var/db/caddy, and /var/run/caddy may require their ownership
+    changing manually.
 
-/usr/local/etc/rc.d/caddy has the following defaults:
+  /usr/local/etc/rc.d/caddy has the following defaults:
 
-- Server log: /var/log/caddy/caddy.log
-  (runtime messages, NOT an access.log)
-- Automatic SSL certificate storage: /var/db/caddy/data/caddy/
-- Administration endpoint: //unix/var/run/caddy/caddy.sock
-- Runs as root:wheel (this will change to www:www in the future)
+  - Server log: /var/log/caddy/caddy.log
+    (runtime messages, NOT an access.log)
+  - Automatic SSL certificate storage: /var/db/caddy/data/caddy/
+  - Administration endpoint: //unix/var/run/caddy/caddy.sock
+  - Runs as root:wheel (this will change to www:www in the future)
 #+end_src

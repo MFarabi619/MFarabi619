@@ -44,6 +44,7 @@ packages:
     - ripgrep-all
     - go
     - wget
+    - fastfetch
 
 runcmd:
     - fc-cache -fv
