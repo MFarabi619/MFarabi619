@@ -130,6 +130,7 @@ alias lsh='lazyssh'
 export EDITOR=nvim
 # export EDITOR="emacs -nw"
 export PATH="$HOME/.config/emacs/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
 
 export PNPM_HOME="/home/mfarabi/.local/share/pnpm"
 case ":$PATH:" in
