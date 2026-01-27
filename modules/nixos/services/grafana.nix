@@ -31,6 +31,12 @@ in
           "allow_sign_up = true"
           "client_id = "
         ];
+
+        "auth.github" = [
+          "enabled = true"
+          "allow_sign_up = true"
+          "client_id = "
+        ];
       };
 
       analytics = {
