@@ -1,15 +1,31 @@
 {
+  pkgs,
+  ...
+}:
+{
   virtualisation = {
     lxc.enable = false;
     # useEFIBoot = false;
     # tpmr.enable = false;
     # useSecureBoot = false;
     # useDefaultFileSystems = true;
+    spiceUSBRedirection.enable = true;
 
     libvirtd = {
       enable = true;
       onBoot = "ignore";
-      qemu.swtpm.enable = true;
+
+      nss = {
+        enable = true;
+        enableGuest = true;
+      };
+
+      qemu = {
+        swtpm.enable = true;
+        vhostUserPackages = with pkgs; [
+          virtiofsd
+        ];
+      };
     };
 
     oci-containers = {

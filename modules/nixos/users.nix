@@ -12,6 +12,11 @@
       "wheel"
       "video"
     ]
+    ++ lib.optionals config.virtualisation.libvirtd.enable [
+      "libvirt"
+      "libvirtd"
+      "qemu-libvirtd"
+    ]
     ++ lib.optionals config.virtualisation.docker.enable [
       "docker"
     ]

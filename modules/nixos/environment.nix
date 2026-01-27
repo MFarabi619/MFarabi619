@@ -19,7 +19,11 @@
     ++ lib.optionals config.programs.fish.enable [ "/share/fish" ];
   }
   // lib.optionalAttrs pkgs.stdenv.isLinux {
-    variables.NIXOS_OZONE_WL = "1";
+    variables = {
+      NIXOS_OZONE_WL = "1";
+      LIBVIRT_DEFAULT_URI = "qemu:///system";
+    };
+
     sessionVariables.NIXOS_OZONE_WL = "1";
 
     systemPackages =
@@ -39,6 +43,11 @@
         lm_sensors # system sensors
         brightnessctl # screen brightness control
         # i2c-tools # raspberry pi
+      ]
+      ++ lib.optionals config.programs.virt-manager.enable [
+        cloud-init
+        cloud-utils
+        virt-viewer
       ]
       ++ lib.optionals config.networking.networkmanager.enable [
         networkmanager
