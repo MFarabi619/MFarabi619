@@ -1,0 +1,75 @@
+#cloud-config
+hostname: freebsd-vm
+
+ssh_pwauth: true
+
+users:
+    - name: mfarabi
+      groups: [wheel]
+      lock_passwd: false
+      shell: /usr/local/bin/zsh
+      sudo: ALL=(ALL) NOPASSWD:ALL
+      # Use mkpasswd -m sha-512 to get this
+      passwd: "$6$HYyZlHtVKw6Jb56h$6TQzUifxa5fWoxYXKHpZ/gDObHUQtSG2V8qXL92eDWLxy1G0C/VpbysJkC9ftoEP8vDFpRe6CZqogsTE5kMSK0"
+      ssh_authorized_keys:
+          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHrC5R2kIGaM6EAkEm2L3aqXZZauCYZNNvlEmQZxnFZ mfarabi@nixos-server
+
+# keyboard:
+#   layout: en
+
+packages:
+    # - py311-cloud-init
+    - vim
+    - git
+    - zsh
+    - sudo
+    - ncdu
+    - neovim
+    - mkpasswd
+    - television
+    - zellij
+    - btop
+    - bat
+    - lazygit
+    - vips
+    - yazi
+    - jetbrains-mono
+    - nerd-fonts
+    - noto-emoji
+    - npm
+    - tree
+    - eza
+    - fzf
+    - ripgrep
+    - ripgrep-all
+    - go
+    - wget
+
+runcmd:
+    - fc-cache -fv
+    - ya pkg add yazi-rs/plugins:{git,mime-ext,smart-enter,smart-filter,smart-paste,chmod,mount,toggle-pane,vcs-files,zoom}
+
+    - sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+    - git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
+
+    - git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+    - git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+    - git clone https://github.com/MFarabi619/MFarabi619
+
+    - sysrc sshd_enable=YES
+    # - sysrc cloudinit_enable="YES"
+    - service sshd start
+
+    # - sysrc keymap="us.ctrl.kbd"
+    # - service syscons restart
+
+    - pw usermod root -s /usr/local/bin/zsh
+    - pw usermod mfarabi -s /usr/local/bin/zsh
+
+    # OPTIONAL: Auto resize main partition
+    - gpart recover vtbd0 || true
+    - gpart resize -i 4 vtbd0 || true
+    - zpool online -e zroot /dev/vtbd0p4 || true
