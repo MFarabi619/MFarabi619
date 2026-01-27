@@ -72,8 +72,8 @@ with lib;
         "http://admin.openws.org".extraConfig = "reverse_proxy :1212";
         "http://registry.openws.org".extraConfig = "reverse_proxy :5000";
         "http://rpi5.openws.org".extraConfig = "reverse_proxy rpi5-8:7681";
-        "http://emacs.openws.org".extraConfig = "reverse_proxy msi-gs65:7682";
-        "http://neovim.openws.org".extraConfig = "reverse_proxy msi-gs65:7683";
+        "http://emacs.openws.org".extraConfig = "reverse_proxy rpi5-8:7682";
+        "http://neovim.openws.org".extraConfig = "reverse_proxy rpi5-8:7683";
         "http://freebsd.openws.org".extraConfig = "reverse_proxy msi-gs65:7681";
 
         "http://docs.openws.org" = {
