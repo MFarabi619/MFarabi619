@@ -24,7 +24,8 @@ in
       };
 
       auth = {
-        # disable_login_form = true;
+        disable_login_form = true;
+
         "auth.google" = [
           "enabled = true"
           "allow_sign_up = true"
