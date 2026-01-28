@@ -117,6 +117,7 @@ in
           "https://nixpkgs.cachix.org"
           "https://nix-darwin.cachix.org"
           "https://nix-community.cachix.org"
+          "https://cache.saumon.network/proxmox-nixos"
         ];
 
         trusted-public-keys = [
@@ -128,6 +129,7 @@ in
           "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
           "nix-darwin.cachix.org-1:LxMyKzQk7Uqkc1Pfq5uhm9GSn07xkERpy+7cpwc006A="
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+          "proxmox-nixos:D9RYSWpQQC/msZUWphOY2I5RLH5Dd6yQcaHIuug7dWM="
         ];
 
         extra-substituters = [
