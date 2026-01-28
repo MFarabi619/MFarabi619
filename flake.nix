@@ -50,6 +50,7 @@
 
     # nix-dokploy.url = "github:kedom1337/nix-dokploy/kd/feat/compat";
     nix-dokploy.url = ./nix-dokploy;
+    proxmox-nixos.url = "github:SaumonNet/proxmox-nixos";
   };
 
   # nixos-unified.org/autowiring.html
