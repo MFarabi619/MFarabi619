@@ -6,130 +6,169 @@ Work in Progress.
 
 =bsdconfig= or =dhclient ue0=
 
+#+begin_src sh
+sudo bsdconfig networking
+#+end_src
+
+#+begin_src sh
+sudo ifconfig wlan0 scan
+#+end_src
+
+Check =/etc/rc.conf= to see if ifconfig_wlan0 = "WPA DHCP"
+
 *** Enable =sudo=
 
-*** Set up shell
-#+begin_src bash
-pkg update && pkg upgrade
+#+begin_src sh
+pkg install sudo; visudo
 #+end_src
 
-#+begin_src bash
+*** Set up shell
+#+begin_src sh
+pkg update && pkg upgrade -y
+#+end_src
+
+#+begin_src sh
 sudo pkg install bash zsh git
 #+end_src
+
+#+begin_src sh
+git config --global user.email "mfarabi619@gmail.com"
+git config --global user.name "Mumtahin Farabi"
+#+end_src
+
 [[https://ohmyz.sh/][Oh My Zsh]]
-#+begin_src bash
+#+begin_src zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 #+end_src
 
 [[https://github.com/romkatv/powerlevel10k][PowerLevel10K]]
-#+begin_src bash
+#+begin_src zsh
 git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
 #+end_src
 
 [[https://github.com/chrissicool/zsh-256color][zsh-256color]]
-#+begin_src bash
-cd $ZSH_CUSTOM/plugins && git clone https://github.com/chrissicool/zsh-256color
+#+begin_src zsh
+git clone https://github.com/chrissicool/zsh-256color ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-256color
 #+end_src
 
 [[https://github.com/zsh-users/zsh-autosuggestions][zsh-autosuggestions]]
-#+begin_src bash
+#+begin_src zsh
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 #+end_src
 
 [[https://github.com/zsh-users/zsh-syntax-highlighting][zsh-syntax-highlighting]]
-#+begin_src bash
+#+begin_src zsh
 git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 #+end_src
 
 Source =~/.zshrc=:
-#+begin_src bash
+#+begin_src zsh
 git clone https://github.com/MFarabi619/MFarabi619
-rm ~/.zshrc;
-ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.zshrc ~/.zshrc;
-rm ~/.p10k.zsh;
-ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.p10k.zsh ~/.p10k.zsh;
-rm -rf ~/.config/hypr;
-ln -s /home/mfarabi/MFarabi619/modules/home/programs/hyprland/hypr /home/mfarabi/.config/hypr;
+echo "source $HOME/MFarabi619/configurations/freebsd/.zshrc" > ~/.zshrc
+ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.zshenv ~/.zshenv;
+ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.p10k.zsh ~/.p10k.zsh;
+ln -nfs /home/mfarabi/MFarabi619/modules/home/programs/hyprland/hypr /home/mfarabi/.config/hypr;
 source ~/.zshrc;
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo pkg install nix yazi curl bat lazygit zellij jetbrains-mono nerd-fonts noto-emoji npm vips lf terminfo-db direnv
 #+end_src
 
-#+begin_src bash
-sudo /usr/local/share/nix/add-nixbld-users 12
-#+end_src
-
-#+begin_src bash
+#+begin_src zsh
 fc-cache -fv
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
+sudo mkdir /etc/nix
+sudo cp ~/MFarabi619/configurations/freebsd/nix.conf /etc/nix/
+sudo sysrc nix_daemon_enable="YES"
+#+end_src
+
+#+begin_src zsh
+sudo /usr/local/share/nix/add-nixbld-users 12
+#+end_src
+
+#+begin_src zsh
+mkdir ~/.config/yazi
 sudo ya pkg add yazi-rs/plugins:{git,mime-ext,smart-enter,smart-filter,smart-paste,chmod,mount,toggle-pane,vcs-files,zoom}
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo pkg install tailscale systeroid gh ttyd sysutils/lazyssh television
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo sysrc tailscaled_enable="YES"
 #+end_src
 
-
-#+begin_src bash
-sudo pkg install btop fastfetch cmatrix cowsay asciiquarium figlet {lol,nyan}cat rgb-tui
+#+begin_src zsh
+sudo pkg install btop fastfetch cmatrix cowsay termshark asciiquarium figlet {lol,nyan}cat rgb-tui
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
+sudo chgrp network /dev/bpf*
+sudo chmod g+r /dev/bpf*
+sudo chmod g+w /dev/bpf*
+#+end_src
+
+Add to =/etc/devfs.conf=
+#+begin_src zsh
+own  bpf* root:network
+perm bpf* 0660
+#+end_src
+
+#+begin_src zsh
 curl -fsSL https://git.io/shellspec | sh
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 /home/mfarabi/.local/lib/shellspec/bin/shellspec . --format documentation
 #+end_src
 
 *** Set up editors
 
-#+begin_src bash
-sudo pkg install tree eza fzf ripgrep ripgrep-all cmake markdown markdownfmt zig go python
- wget tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim neovim py311-pynvim emacs-devel ffmpegthumbnailer coreutils poppler {un,7-}zip aspell en-aspell aspell-ispell
+#+begin_src zsh
+sudo pkg install tree eza fzf fd-find ripgrep ripgrep-all cmake markdown markdownfmt zig go uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim neovim py311-{grip,pynvim,sqlfluff,grep-ast} emacs-devel ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 #+end_src
 
+#+begin_src zsh
+cargo install cargo-binstall
+cargo binstall crates-tui
+#+end_src
+
 [[https://www.lazyvim.org/installation][Lazyvim]]
-#+begin_src bash
-git clone https://github.com/LazyVim/starter ~/.config/nvim; rm -rf ~/.config/nvim/.git;
+#+begin_src zsh
+git clone https://github.com/LazyVim/starter ~/.config/nvim;
+rm -rf ~/.config/nvim/.git;
+ln -nfs /home/mfarabi/MFarabi619/modules/home/programs/neovim/lazyvim.json /home/mfarabi/.config/nvim/
+ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.config/nvim/lua/config/* /home/mfarabi/.config/nvim/lua/config/
+ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.config/nvim/lua/plugins/* /home/mfarabi/.config/nvim/lua/plugins/
 #+end_src
 
 [[https://github.com/doomemacs/doomemacs?tab=readme-ov-file#install][Doom Emacs]]
-#+begin_src bash
+#+begin_src zsh
 git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs;
 ~/.config/emacs/bin/doom install;
 rm -rf ~/.config/doom/*;
-ln -s /home/mfarabi/MFarabi619/modules/home/programs/emacs/* /home/mfarabi/.config/doom/
 doom sync
 #+end_src
 
 *** Set up FreeBSD Hyprland
 
 1. Add user to =video= group
-  #+begin_src bash
+  #+begin_src zsh
   pw groupmod video -m mfarabi; groups mfarabi;
   #+end_src
 
-- Switch to root user then visudo.
-
-wheel NOPASSWD all
-
-#+begin_src bash
-sudo pkg install sensors dbus kitty vlc dunst mpv texlive-full firefox webcamd gimp-jxl-plugin mousepad \
-    swww sddm sddm-freebsd-black-theme \
-    xdg-{terminal-exec,desktop-portal,desktop-portal-hyprland} \
+#+begin_src zsh
+sudo pkg install xclip sensors dbus kitty vlc dunst mpv texlive-full firefox webcamd gimp-jxl-plugin mousepad \
+    Kvantum swww sddm sddm-freebsd-black-theme \
+    xdg-{terminal-exec,desktop-portal,desktop-portal-{hyprland,wlr,gtk}} \
     rofi wlogout dolphin swaylock-effects \
     {fontpre,epdf,pwc}view glcapsviewer cairo pipewire grim slurp \
     hypr{land,land-qt-support,graphics,lang,utils,wayland-scanner,sunset,idle,lock,paper,picker} \
@@ -137,60 +176,52 @@ sudo pkg install sensors dbus kitty vlc dunst mpv texlive-full firefox webcamd g
     cava nwg-{look,dock-hyprland} {network,wifi}mgr byobu nsxiv pa{ngo,vucontrol,mixer,-applet} wmwifi aimage qimageblitz xloadimage terminal-image-viewer
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo sysrc webcamd_enable=YES
-#+end_src
-#+begin_src bash
 sudo service devd restart
-#+end_src
-#+begin_src bash
 sudo pw groupmod webcamd -m mfarabi
-#+end_src
-#+begin_src bash
-sudo kldload cuse
-#+end_src
-#+begin_src bash
+sudo kldload cuse fusefs
 sudo sysrc kld_list+=cuse
 sudo sysrc kld_list+=coretemp
-#+end_src
-#+begin_src bash
 sudo webcamd -l
 #+end_src
 
- # imlib2-jxl xwaylandvideobridge hyprland-qtutils kvantum sysctl-tui
+ # imlib2-jxl xwaylandvideobridge hyprland-qtutils
+
+#+begin_src zsh
+sudo pkg install bsd{-splash-changer,ebfetch,info,sensors} pwcbsd wmbsdbatt openconnect-freebsd-daemon viewglob sysctl{tui,view}
+#+end_src
 
 Add to =/boot/loader.conf=
-#+begin_src bash
-sysctlinfo_load="YES"
+#+begin_src zsh
+sudo sysrc -f /boot/loader.conf sysctlinfo_load="YES"
 # hw.nvidiadrm.modeset="1" # if using nvidia-drm-kmod
-sysctlbyname_improved_load="YES"
+sudo sysrc -f /boot/loader.conf sysctlbyname_improved_load="YES"
 #+end_src
 
-#+begin_src bash
-sudo kldload fusefs
-#+end_src
-
-#+begin_src bash
-sudo pkg install bsd{-splash-changer,ebfetch,info,sensors} pwcbsd wmbsdbatt openconnect-freebsd-daemon viewglob sysctlview
-#+end_src
-
-#+begin_src bash
+#+begin_src zsh
 sudo pkg install ly
 #+end_src
 
-#+begin_src bash
-Add the following entry to /etc/gettytab:
-
-Ly:\
+Add the following entry to =/etc/gettytab=
+#+begin_src zsh
+echo 'Ly:\
 	:lo=/usr/local/bin/ly:\
-	:al=root:
+	:al=root:' | sudo tee -a /etc/gettytab
 
+tail -n 5 /etc/gettytab
 #+end_src
 
-Modify the command field of the ttyv1 terminal entry in /etc/ttys
+Modify the command field of the ttyv1 terminal entry in =/etc/ttys=
 
-#+begin_src bash
+#+begin_src zsh
+sudo sed -i '' '/^ttyv1[[:space:]]/{
+s/^/#/
+a\
 ttyv1   "/usr/libexec/getty Ly"     xterm onifexists secure
+}' /etc/ttys
+
+grep ttyv1 /etc/ttys
 #+end_src
 
 Make sure that "tty" is set appropriately in the /usr/local/etc/ly/config.ini file if
@@ -199,55 +230,48 @@ you decide to configure a different TTY for Ly instead.
 
 2. Install packages
 
-#+begin_src bash
-sudo pkg install procs s-tui stress smartmontools gnupg {sys,nif,bat}mon
+#+begin_src zsh
+sudo pkg install procs ncdu dust duf doggo s-tui stress smartmontools gnupg {sys,nif,bat,b}mon docker docker-{compose,machine} minikube kubectl k9s yt-dlp icu sniffnet libvirt libvirt-dbus virt{ualbox-ose,board,-manager,-viewer} diskimage-tools masscan ezjail gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc qt5-sqldrivers-{mysql,odbc,pgsql,sqlite2,sqlite3,tds} netpbm
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo sysrc smartd_enable="YES"
-#+end_src
-
-#+begin_src bash
-sudo pkg install docker docker-{compose,machine} minikube kubectl k9s yt-dlp icu sniffnet libvirt libvirt-dbus virt{ualbox-ose,board,-manager,-viewer} diskimage-tools masscan ezjail gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc qt5-sqldrivers-{mysql,odbc,pgsql,sqlite2,sqlite3,tds} netpbm
-#+end_src
-
-#+begin_src bash
 sudo sysrc libvirtd_enable="YES"
 sudo sysrc vboxnet_enable="YES"
 #+end_src
 
 Add to =/boot/loader.conf=
-#+begin_src bash
-vboxdrv_load="YES"
+#+begin_src zsh
+sudo sysrc -f /boot/loader.conf vboxdrv_load="YES"
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo pw groupmod vboxusers -m $USER;
 sudo pw groupmod operator -m $USER;
 #+end_src
 
 Reboot machine, then:
-#+begin_src bash
+#+begin_src zsh
 sudo chown root:vboxusers /dev/vboxnetctl
 sudo chmod 0660 /dev/vboxnetctl
 #+end_src
 
 Add to =/etc/devfs.conf=
-#+begin_src bash
+#+begin_src zsh
 own     vboxnetctl root:vboxusers
 perm    vboxnetctl 0660
 #+end_src
 
 
 Add the following to =/etc/devfs.rules= (create if it doesn't exist):
-#+begin_src bash
+#+begin_src zsh
 [system=10]
 add path 'usb/*' mode 0660 group operator
 #+end_src
 
 Add the following lines in =/etc/fstab=:
 
-#+begin_src bash
+#+begin_src zsh
 fdesc	/dev/fd		fdescfs		rw	0	0
 proc	/proc		procfs		rw	0	0
 #+end_src
@@ -261,122 +285,33 @@ Create or edit =/usr/local/etc/vbox/networks.conf= and either make sure it allow
 
 #+begin_src sh
 sudo mkdir /usr/local/etc/vbox
-sudo nvim /usr/local/etc/vbox/networks.conf
+echo "* 192.168.99.1/24" | sudo tee -a /usr/local/etc/vbox/networks.conf >/dev/null
 #+end_src
 
-#+begin_src
- * 192.168.99.1/24
-#+end_src
-
-#+begin_src bash
-  docker-machine create default
-#+end_src
-
-#+begin_src bash
-go install github.com/jesseduffield/lazydocker@latest
-#+end_src
-
-#+begin_src
---
-To enable libvirtd please add libvirtd_enable="YES" to
-/etc/rc.conf.
-
-NOTE ON CONFIGURATION:
-
-The libvirt port does not come with networking configuration enabled.
-The 'default' network definition is available at:
-
-  /usr/local/share/examples/libvirt/networks/default.xml
-
-To enable this network please do the following:
-
-  cp /usr/local/share/examples/libvirt/networks/default.xml /usr/local/etc/libvirt/qemu/networks
-
-To configure this network for autostart, execute the following:
-
-  ln -s ../default.xml /usr/local/etc/libvirt/qemu/networks/autostart/default.xml
-
-If you have libvirtd already running you'll need to restart it for changes
-to take effect.
-#+end_src
-
-#+begin_src bash
+#+begin_src zsh
  sudo cp /usr/local/share/examples/libvirt/networks/default.xml /usr/local/etc/libvirt/qemu/networks
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo ln -s ../default.xml /usr/local/etc/libvirt/qemu/networks/autostart/default.xml
 #+end_src
 
-#+begin_src
-Message from sddm-freebsd-black-theme-1.3:
---
-To enable this theme edit:
-
- /usr/local/etc/sddm.conf
-
- This theme use the x11-fonts/montserrat font by default. However, it
- can be changed to any desired font editing:
-
- /usr/local/share/sddm/themes/sddm-freebsd-black-theme/theme.conf
---
-=====
-Message from sddm-0.21.0.36_1:
-
---
-SDDM lists a "user session" which needs either an .xinitrc in the user's
-home directory, or as a fallback, xterm. In order to use the "user session"
-feature, a ~/.xinitrc is recommended.
+#+begin_src sh
+  docker-machine create default
 #+end_src
 
-
-#+begin_src bash
-sudo pkg install arduino arduino-{core,avrdude,bsd-mk} avr{dude,-gcc}
+#+begin_src sh
+go install github.com/jesseduffield/lazydocker@latest
 #+end_src
 
-#+begin_src
-To allow serial port locking, add your user to the dialer group:
-    pw groupmod dialer -m mfarabi
-    User settings are in ~/.arduino/preferences.txt.  Edit the file
-when the IDE is not running.
-
-Setting the launcher for help files:
-    launcher=firefox
-
-Showing what the IDE is doing for build and upload commands (only
-visible if you started the IDE from a console):
-    build.verbose=true
-    upload.verbose=true
-
-To start the IDE:
-    /usr/local/bin/arduino
+#+begin_src sh
+eval $(docker-machine env)
 #+end_src
-
-https://wiki.freebsd.org/Arduino
-
-sudo kldload uarduno.ko
-
-#+begin_src bash
-sudo sysrc uarduno_load="YES"
-#+end_src
-
-#+begin_src bash
---
-Your SDL library has been built with libvgl support, which means that you
- can run almost any SDL application straight on your console (VESA 2.0
- compatible videocard is required).
-
- To do this you have to load the vesa kernel module or enable it in your
- kernel, and set environment variable "SDL_VIDEODRIVER=vgl".
-=====
-Message from pwcview-1.4.1_9:
-#+end_src
-
 
 **** Set up GPU
 
 1. Verify display device
-  #+begin_src bash
+  #+begin_src zsh
   pciconf -lv | grep -B3 display
   #+end_src
 
@@ -387,14 +322,34 @@ Message from pwcview-1.4.1_9:
   device = 'HD Graphics 620'
   #+end_src
 
-2. Install graphics driver
-#+begin_src bash
-sudo pkg install drm-kmod # Intel
+
+1. Install graphics driver
+
+[[https://docs.freebsd.org/en/books/handbook/x11/#x-graphic-card-drivers][Chapter 5.2. Graphics Drivers - FreeBSD Handbook]]
+| *Type*                       | *License*     | *Module*                               | *Port*                                        |
+|----------------------------+-------------+--------------------------------------+---------------------------------------------|
+| Intel®                     | Open Source | i915kms                              | graphics/drm-kmod                           |
+| AMD®                       | Open Source | amdgpu/radeonkms                     | graphics/drm-kmod                           |
+| NVIDIA®                    | Proprietary | nvidia-drm/nvidia-modeset/nvidia     | graphics/nvidia-drm-kmod, x11/nvidia-driver |
+| System Console Framebuffer | Open Source | scfb                                 | x11-drivers/xf86-video-scfb                 |
+| VESA BIOS Extension        | Open Source | vesa                                 | x11-drivers/xf86-video-vesa                 |
+| VirtualBox®                | Open Source | vboxvideo                            | emulators/virtualbox-ose-additions          |
+| VMware®                    | Open Source | vmwgfx                               | x11-drivers/xf86-video-vmware               |
+
+
+#+begin_src zsh
+sudo pkg install drm-kmod # Intel & AMD
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
+sudo pw groupmod seatd -m mfarabi
+#+end_src
+
+#+begin_src zsh
 sudo sysrc seatd_enable="YES"    # let non-root graphics car users manage access to shared system devices
 sudo sysrc dbus_enable="YES"     # message bus and hardware abstraction
+sudo sysrc kld_list+=amdgpu
+# sudo sysrc kld_list+=i915kms
 #+end_src
 
 3. Add to =/etc/rc.conf=
@@ -414,30 +369,25 @@ kld_list="i915kms"  # kernel loadable modules - graphics
 # net.local.stream.sendspace=65536
 #+end_src
 
-1. Modify in =/etc/ssh/sshd_config=
-#+begin_src bash
-PubkeyAuthentication yes
-#+end_src
-
-4. Add to =/boot/loader.conf=
-#+begin_src bash
+1. Add to =/boot/loader.conf=
+#+begin_src zsh
 kern.vty=vt
 #+end_src
 
-#+begin_src bash
-ln -s /home/mfarabi/configurations/freebsd/.local/share/bin /home/mfarabi/.local/share/
-ln -s /home/mfarabi/MFarabi619/configurations/freebsd/.config/* /home/mfarabi/.config/
-mkdir ~/.config/fastfetch
-ln -s /home/mfarabi/MFarabi619/modules/home/programs/fastfetch/config.jsonc  /home/mfarabi/.config/fastfetch/config.jsonc
+#+begin_src zsh
+mkdir ~/.local/share/bin
+ln -sfn /home/mfarabi/MFarabi619/configurations/freebsd/.local/share/bin/* ~/.local/share/bin/
+
+ln -sfn /home/mfarabi/MFarabi619/configurations/freebsd/.config/!(nvim,go,lazydocker,lazygit,yazi) /home/mfarabi/.config/
 #+end_src
 
 5. Reboot system
-#+begin_src bash
+#+begin_src zsh
 reboot
 #+end_src
 
 6. Verify DRM driver
-#+begin_src bash
+#+begin_src zsh
 dmesg | grep drm; ls /dev/dri;
 #+end_src
 
@@ -449,36 +399,30 @@ Expected:
 #+end_src
 
 7. Start Hyprland
-#+begin_src bash
+#+begin_src zsh
 # seatd-launch hyprland
 hyprland
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 swww ~/MFarabi619/configurations/freebsd/wallpapers/freebsd-gruvbox-rainbow-dark.webp
 #+end_src
 
 
 *** Other
-#+begin_src bash
-sudo pkg install framework-system pkg_{tree,search} podman aichat ollama top {h,b,z,j,nats-,sn,usb,tree}top desktop-installer ntopng mkdesktop portopscli xdesktopwaves toppler radeon ghostscript netpbm redis qmk_hid realtek-re-{kmod,kmod198} linux-{discord,steam-utils,bitwarden-cli} win-proton libc6-shim languageclient-neovim mixertui audio/moc scrot wf-recorder
+#+begin_src zsh
+sudo pkg install framework-{system,tool-tui} pkg_{tree,search} podman aichat tgpt ollama top {h,b,z,j,nats-,sn,usb,tree}top desktop-installer ntopng mkdesktop portopscli xdesktopwaves toppler radeon ghostscript netpbm redis qmk_hid realtek-re-{kmod,kmod198} linux-{discord,steam-utils,bitwarden-cli} win-proton libc6-shim languageclient-neovim mixertui audio/moc scrot wf-recorder
 #+end_src
 
-#+begin_src bash
-sudo pkg install
-bandwhich
-bmon
-mu rubygem-neovim
-hs-ShellCheck gnuplot
-xclip wininfo # for emacs-everywhere
-py311-grp # markdown preview
+#+begin_src zsh
+sudo pkg install bandwhich mu wininfo # for emacs-everywhere
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo kldload snd_driver
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo kldload vmm
 sudo ifconfig tap0 create
 sudo sysctl net.link.tap.up_on_open=1
@@ -489,7 +433,7 @@ sudo truncate -s 100G guest.img
 sudo sh /usr/share/examples/bhyve/vmrun.sh -c 8 -m 48000M -t tap0 -d guest.img -i -I FreeBSD-14.3-RELEASE-amd64-bootonly.iso guestname
 #+end_src
 
-#+begin_src bash
+#+begin_src zsh
 sudo kldload nullfs
 #+end_src
 
@@ -719,4 +663,153 @@ DoomBSD borrows HEAVILY from the following projects:
   - Automatic SSL certificate storage: /var/db/caddy/data/caddy/
   - Administration endpoint: //unix/var/run/caddy/caddy.sock
   - Runs as root:wheel (this will change to www:www in the future)
+#+end_src
+
+* Set up Embedded Systems Development Toolchain (WIP)
+
+#+begin_src
+Message from sddm-freebsd-black-theme-1.3:
+--
+To enable this theme edit:
+
+ /usr/local/etc/sddm.conf
+
+ This theme use the x11-fonts/montserrat font by default. However, it
+ can be changed to any desired font editing:
+
+ /usr/local/share/sddm/themes/sddm-freebsd-black-theme/theme.conf
+--
+=====
+Message from sddm-0.21.0.36_1:
+
+--
+SDDM lists a "user session" which needs either an .xinitrc in the user's
+home directory, or as a fallback, xterm. In order to use the "user session"
+feature, a ~/.xinitrc is recommended.
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+curl -fsSL -o get-platformio.py https://raw.githubusercontent.com/platformio/platformio-core-installer/master/get-platformio.py
+python3 get-platformio.py
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+sudo pkg install portshaker
+sudo nvim /usr/local/etc/portshaker.d/local
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+#!/bin/sh
+. /usr/local/share/portshaker/portshaker.subr
+
+if [ "$1" != "--" ]; then
+  err 1 "Extra arguments"
+fi
+shift
+
+method="rsync"
+rsync_source_path="/usr/local/ports-local"
+
+run_portshaker_command "$@"
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+sudo chmod +x /usr/local/etc/portshaker.d/local
+sudo mkdir -p /usr/local/ports-local
+
+sudo nvim /usr/local/etc/portshaker.d/ports
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+#!/bin/sh
+. /usr/local/share/portshaker/portshaker.subr
+
+if [ "$1" != "--" ]; then
+  err 1 "Extra arguments"
+fi
+shift
+
+method="git"
+git_clone_uri="https://git.FreeBSD.org/ports.git"
+git_branch="main"
+
+run_portshaker_command "$@"
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+sudo chmod +x /usr/local/etc/portshaker.d/ports
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+sudo nvim /usr/local/etc/portshaker.conf
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+mirror_base_dir="/usr/local/portshaker"
+ports_trees="main"
+
+use_zfs="no"
+poudriere_ports_mountpoint="/usr/local/poudriere/ports"
+
+main_ports_tree="/usr/ports"
+main_merge_from="ports local"
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+sudo portshaker -v
+sudo portshaker -s
+sudo portshaker -t
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+cd /usr/local/ports-local
+sudo git clone https://github.com/trombik/xtensa-esp32-elf.git
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+sudo portshaker
+#+end_src
+
+#+begin_src zsh :results drawer :exports code
+sudo pkg install -y arduino arduino-{core,avrdude,bsd-mk} avr{dude,-gcc}
+#+end_src
+
+#+begin_src
+To allow serial port locking, add your user to the dialer group:
+    pw groupmod dialer -m mfarabi
+    User settings are in ~/.arduino/preferences.txt.  Edit the file
+when the IDE is not running.
+
+Setting the launcher for help files:
+    launcher=firefox
+
+Showing what the IDE is doing for build and upload commands (only
+visible if you started the IDE from a console):
+    build.verbose=true
+    upload.verbose=true
+
+To start the IDE:
+    /usr/local/bin/arduino
+#+end_src
+
+https://wiki.freebsd.org/Arduino
+
+#+begin_src sh
+sudo kldload uarduno.ko
+#+end_src
+
+#+begin_src sh
+sudo sysrc uarduno_load="YES"
+#+end_src
+
+#+begin_src zsh
+--
+Your SDL library has been built with libvgl support, which means that you
+ can run almost any SDL application straight on your console (VESA 2.0
+ compatible videocard is required).
+
+ To do this you have to load the vesa kernel module or enable it in your
+ kernel, and set environment variable "SDL_VIDEODRIVER=vgl".
+=====
+Message from pwcview-1.4.1_9:
 #+end_src

@@ -1,0 +1,40 @@
+disableStartupPopups: true
+git:
+  branchPrefix: mfarabi/
+  commit:
+    signOff: true
+  parseEmoji: true
+gui:
+  nerdFontsVersion: '3'
+  scrollOffBehaviour: jump
+  scrollPastBottom: true
+  sidePanelWidth: 0.33
+  switchTabsWithPanelJumpKeys: true
+  theme:
+    activeBorderColor:
+    - '#83a598'
+    - bold
+    cherryPickedCommitBgColor:
+    - '#504945'
+    cherryPickedCommitFgColor:
+    - '#665c54'
+    defaultFgColor:
+    - '#d5c4a1'
+    inactiveBorderColor:
+    - '#665c54'
+    optionsTextColor:
+    - '#ebdbb2'
+    searchingActiveBorderColor:
+    - '#bdae93'
+    - bold
+    selectedLineBgColor:
+    - '#665c54'
+    unstagedChangesColor:
+    - '#fb4934'
+notARepository: skip
+os:
+  edit: emacs -nw {{filename}}
+  editAtLine: emacs -nw +{{line}} {{filename}}
+  editInTerminal: true
+  openDirInEditor: emacs -nw {{dir}}
+promptToReturnFromSubprocess: true

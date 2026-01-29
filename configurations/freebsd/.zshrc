@@ -1,8 +1,7 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
-# Path to your Oh My Zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh" # Path to your Oh My Zsh installation.
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
@@ -33,13 +32,10 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS="true"
-
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
-
 # Uncomment the following line to disable auto-setting terminal title.
 # DISABLE_AUTO_TITLE="true"
-
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
 
@@ -70,7 +66,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git sudo zsh-256color zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(git sudo zsh-256color zsh-autosuggestions zsh-syntax-highlighting colorize command-not-found)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -124,18 +120,10 @@ alias cat='bat'
 alias yy='yazi'
 alias lg='lazygit'
 alias lsh='lazyssh'
+alias nvim="XDG_CONFIG_HOME=$HOME/MFarabi619/configurations/freebsd/.config nvim"
+alias fastfetch='fastfetch --config $HOME/MFarabi619/modules/home/programs/fastfetch/config.jsonc'
 
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-export EDITOR=nvim
-# export EDITOR="emacs -nw"
-export PATH="$HOME/.config/emacs/bin:$PATH"
-export PATH="$HOME/go/bin:$PATH"
-
-export PNPM_HOME="/home/mfarabi/.local/share/pnpm"
-case ":$PATH:" in
-*":$PNPM_HOME:"*) ;;
-*) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-
 eval "$(direnv hook zsh)"
+eval $(docker-machine env)

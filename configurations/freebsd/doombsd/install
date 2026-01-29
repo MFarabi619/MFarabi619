@@ -18,7 +18,7 @@
 #
 # $FreeBSD$
 
-export BSDDIALOG_THEMEFILE="./theme.txt"
+export BSDDIALOG_THEMEFILE="$HOME/MFarabi619/configurations/freebsd/doombsd/theme.txt"
 
 while :; do
   bsddialog --backtitle " DoomBSD Catacombs" \

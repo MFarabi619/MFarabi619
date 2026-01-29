@@ -1,0 +1,19 @@
+. "$HOME/.cargo/env"
+
+export NIX_CONF_DIR="$HOME/MFarabi619/configurations/freebsd"
+export DOOMDIR=MFarabi619/modules/home/programs/emacs
+export LG_CONFIG_FILE="$HOME/MFarabi619/configurations/freebsd/.config/lazygit/config.yml"
+export YAZI_CONFIG_HOME="$HOME/MFarabi619/configurations/freebsd/.config/yazi"
+export GOTELEMETRY=off
+
+export EDITOR=nvim
+# export EDITOR="emacs -nw"
+export PATH="$HOME/.config/emacs/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
+export PATH="$HOME/.platformio/penv/bin:$PATH"
+
+export PNPM_HOME="/home/mfarabi/.local/share/pnpm"
+case ":$PATH:" in
+*":$PNPM_HOME:"*) ;;
+*) export PATH="$PNPM_HOME:$PATH" ;;
+esac

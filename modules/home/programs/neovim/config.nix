@@ -1,5 +1,4 @@
 {
-
   programs.lazyvim.config = {
     options = '''';
 
