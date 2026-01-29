@@ -5,6 +5,7 @@ export DOOMDIR=MFarabi619/modules/home/programs/emacs
 export LG_CONFIG_FILE="$HOME/MFarabi619/configurations/freebsd/.config/lazygit/config.yml"
 export YAZI_CONFIG_HOME="$HOME/MFarabi619/configurations/freebsd/.config/yazi"
 export GOTELEMETRY=off
+export ZELLIJ_CONFIG_DIR="$HOME/MFarabi619/configurations/freebsd/.config/zellij"
 
 export EDITOR=nvim
 # export EDITOR="emacs -nw"
