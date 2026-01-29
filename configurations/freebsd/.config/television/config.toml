@@ -1,0 +1,18 @@
+default_channel = "files"
+tick_rate = 50
+
+[keybindings]
+alt-x = "toggle_help"
+ctrl-g = "quit"
+
+[ui]
+orientation = "landscape"
+scrollbar = true
+theme = "gruvbox dark"
+ui_scale = 120
+use_nerd_font_icons = true
+
+# [shell_integration.channel_triggers]
+# "env" = ["export", "unset"]
+# "dirs" = ["cd", "ls", "rmdir"]
+# "files" = ["mv", "cp", "vim"]

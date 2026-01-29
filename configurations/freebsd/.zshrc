@@ -126,4 +126,5 @@ alias fastfetch='fastfetch --config $HOME/MFarabi619/modules/home/programs/fastf
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 eval "$(direnv hook zsh)"
-eval $(docker-machine env)
+eval "$(docker-machine env)"
+eval "$(tv init zsh)"
