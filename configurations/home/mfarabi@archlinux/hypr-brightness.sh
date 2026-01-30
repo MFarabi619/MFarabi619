@@ -24,16 +24,22 @@ fi
 
 direction=$arg
 
-monitor_data=$(hyprctl monitors -j)
-focused_name=$(echo $monitor_data | jq -r '.[] | select(.focused == true) | .name')
+# NOTE: this block is obsolete now since the bottom one works on all monitors.
+# monitor_data=$(hyprctl monitors -j)
+# focused_name=$(echo $monitor_data | jq -r '.[] | select(.focused == true) | .name')
+# if [ "$focused_name" == "eDP-2" ]; then
+#   if [ "$direction" == "-" ]; then
+#     $HOME/.local/share/bin/brightnesscontrol.sh d
+#   else
+#     $HOME/.local/share/bin/brightnesscontrol.sh i
+#   fi
+# else
+#   focused_id=$(echo $monitor_data | jq -r '.[] | select(.focused == true) | .id')
+#   ddcutil --sleep-multiplier=.2 --display=$focused_id setvcp 10 $direction 15 # FIXME: invalid display, check 'ddcutil detect'
+# fi
 
-if [ "$focused_name" == "eDP-2" ]; then
-  if [ "$direction" == "-" ]; then
-    $HOME/.local/share/bin/brightnesscontrol.sh d
-  else
-    $HOME/.local/share/bin/brightnesscontrol.sh i
-  fi
+if [ "$direction" == "-" ]; then
+  $HOME/.local/share/bin/brightnesscontrol.sh d
 else
-  focused_id=$(echo $monitor_data | jq -r '.[] | select(.focused == true) | .id')
-  ddcutil --sleep-multiplier=.2 --display=$focused_id setvcp 10 $direction 15
+  $HOME/.local/share/bin/brightnesscontrol.sh i
 fi
