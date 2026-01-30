@@ -1,6 +1,6 @@
 # git add .; nix run .#update --show-trace
 # git add .; nix run .#activate --show-trace
-# git add .; nix run .#activate $USER@$HOSTNAME --show-trace
+# git add .; nix run .#activate $USER@$HOST --show-trace
 {
   description = "Mumtahin Farabi's distributed NixOS Configurations.";
 
