@@ -19,7 +19,7 @@
 | mfarabi | arduino-mega | [[https://store.arduino.cc/products/arduino-mega-2560-rev3?srsltid=AfmBOoqN5w-JpdAOqq_jfunfZDrHsNCc2fobKRwK1RUutCvHX9fAFp5r][Arduino Mega R3]]         | N/A               | N/A                  | N/A                      | N/A                 |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
 | mfarabi | rpi          | [[https://www.raspberrypi.com/products/raspberry-pi-3-model-b/][Raspberry Pi 3B]]         |                   |                      | N/A                      | N/A                 |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
 | mfarabi | dlink        | [[https://www.amazon.ca/D-Link-DIR-1750-High-Power-Assistant-Enhanced/dp/B07X3BBWY9][D-LINK DIR 1750]]         |                   |                      | N/A                      | N/A                 | TBD                               |                                       |               |                |           |           |                     |           |           |                    |             |
-|         |              | [[https://www.asus.com/ca-en/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-be88u/][ASUS RT-BE-88U]]          | [[https://www.asuswrt-merlin.net][ASUSWRT-MERLIN]]    |  linux-4.19.294      | N/A                      |                  N/A |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
+|         |              | [[https://www.asus.com/ca-en/networking-iot-servers/wifi-routers/asus-gaming-routers/rt-be88u/][ASUS RT-BE-88U]]          | [[https://www.asuswrt-merlin.net][ASUSWRT-MERLIN]]    | linux-4.19.294       | N/A                      | N/A                 |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
 |         |              |                         |                   |                      |                          |                     |                                   |                                       |               |                |           |           |                     |           |           |                    |             |
 
 * Flash OS Image
@@ -308,6 +308,10 @@ nix --accept-flake-config profile install github:cachix/devenv
 # nix --accept-flake-config run github:juspay/omnix -- \
 #   init -o ~/nix-config github:srid/nixos-unified#home
 # #+end_src
+
+#+begin_src bash
+ln -nfs /home/mfarabi/MFarabi619/configurations/home/mfarabi@archlinux/.bashrc ~/.bashrc;
+#+end_src
 
 #+begin_src bash
 git add .; nix run .#activate $USER@
