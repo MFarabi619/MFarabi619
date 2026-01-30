@@ -49,7 +49,7 @@ in
         config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/modules/home/programs/hyprland/hypr/animations";
 
       ".config/hypr/animations.conf".source =
-        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/configurations/home/mfarabi@archlinux/.config/hypr/animations.conf";
+        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/modules/home/programs/hyprland/hypr/animations.conf";
 
       ".config/hypr/hyprland.conf".source =
         config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/configurations/home/mfarabi@archlinux/.config/hypr/hyprland.conf";
@@ -64,7 +64,7 @@ in
         config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/configurations/home/mfarabi@archlinux/.config/hypr/userprefs.conf";
 
       ".config/hypr/windowrules.conf".source =
-        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/configurations/home/mfarabi@archlinux/.config/hypr/windowrules.conf";
+        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/modules/home/programs/hyprland/hypr/windowrules.conf";
 
       ".config/hypr/devilish_linux_penguin_wide.webp".source =
         config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/assets/devilish_linux_penguin_wide.webp";
