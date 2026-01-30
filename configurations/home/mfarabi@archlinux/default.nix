@@ -118,7 +118,7 @@ in
       "info.nix"
       "jq.nix"
       "jqp.nix"
-      # "kitty"
+      "kitty"
       "k9s.nix"
       "kubecolor.nix"
       "lazydocker.nix"
