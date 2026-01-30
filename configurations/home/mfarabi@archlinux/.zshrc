@@ -54,8 +54,6 @@ alias pa='$aurhelper -Ss' # list available packages
 alias pc='$aurhelper -Sc' # remove unused cache
 alias po='$aurhelper -Qtdq | $aurhelper -Rns -' # remove unused packages, also try > $aurhelper -Qqd | $aurhelper -Rsu --print -
 
-export PATH=$PATH:/home/mfarabi/.pulumi/bin
-
 autoload -Uz compinit
 compinit
 
@@ -63,22 +61,18 @@ compinit
 
 export PATH="$HOME//bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
+export PATH=$PATH:/home/mfarabi/.pulumi/bin
 
-eval "$(direnv hook zsh)"
+# export POWERLEVEL9K_INSTANT_PROMPT=off
 
-# bun completions
-[ -s "/home/mfarabi/.bun/_bun" ] && source "/home/mfarabi/.bun/_bun"
+# export PNPM_HOME="/home/mfarabi/.local/share/pnpm"
+# case ":$PATH:" in
+#   *":$PNPM_HOME:"*) ;;
+#   *) export PATH="$PNPM_HOME:$PATH" ;;
+# esac
 
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-export PATH="$PATH:$(go env GOPATH)/bin"
-
-export POWERLEVEL9K_INSTANT_PROMPT=off
-
-# pnpm
-export PNPM_HOME="/home/mfarabi/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+# export BUN_INSTALL="$HOME/.bun"
+# export PATH="$BUN_INSTALL/bin:$PATH"
+# [ -s "/home/mfarabi/.bun/_bun" ] && source "/home/mfarabi/.bun/_bun"
+# export PATH="$PATH:$(go env GOPATH)/bin"
+# eval "$(direnv hook zsh)"
