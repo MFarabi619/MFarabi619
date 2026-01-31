@@ -2,7 +2,7 @@
 
 # export GOTELEMETRY=off
 export NIX_CONF_DIR="$HOME/MFarabi619/configurations/freebsd"
-export DOOMDIR=MFarabi619/modules/home/programs/emacs
+export DOOMDIR="$HOME/MFarabi619/modules/home/programs/emacs"
 export YAZI_CONFIG_HOME="$HOME/MFarabi619/configurations/freebsd/.config/yazi"
 export ZELLIJ_CONFIG_DIR="$HOME/MFarabi619/configurations/freebsd/.config/zellij"
 export TELEVISION_CONFIG="$HOME/MFarabi619/configurations/freebsd/.config/television"

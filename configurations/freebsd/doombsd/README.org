@@ -2,6 +2,11 @@ Work in Progress.
 
 =man tuning=
 
+#+begin_src sh
+mkdir release-media
+bsdtar -xf FreeBSD-15.0-RELEASE-amd64-dvd1.iso -C release-media
+#+end_src
+
 *** Connect to network
 
 =bsdconfig= or =dhclient ue0=
@@ -28,7 +33,7 @@ pkg update && pkg upgrade -y
 #+end_src
 
 #+begin_src sh
-sudo pkg install bash zsh git
+sudo pkg install bash zsh git lazygit direnv television ripgrep eza yazi fd docker-machine neovim emacs-devel
 #+end_src
 
 #+begin_src sh
@@ -61,22 +66,38 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-m
 git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 #+end_src
 
-Source =~/.zshrc=:
 #+begin_src zsh
 git clone https://github.com/MFarabi619/MFarabi619
+#+end_src
+
+#+begin_src zsh
 echo "source $HOME/MFarabi619/configurations/freebsd/.zshrc" > ~/.zshrc
 ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.zshenv ~/.zshenv;
 ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.p10k.zsh ~/.p10k.zsh;
 ln -nfs /home/mfarabi/MFarabi619/modules/home/programs/hyprland/hypr /home/mfarabi/.config/hypr;
+#+end_src
+
+Source =~/.zshrc=:
+#+begin_src zsh
 source ~/.zshrc;
 #+end_src
 
+[[https://github.com/doomemacs/doomemacs?tab=readme-ov-file#install][Doom Emacs]]
 #+begin_src zsh
-sudo pkg install nix yazi curl bat lazygit zellij jetbrains-mono nerd-fonts noto-emoji npm vips lf terminfo-db direnv
+git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs;
+~/.config/emacs/bin/doom install;
+#+end_src
+
+#+begin_src zsh
+sudo pkg install nix curl bat zellij jetbrains-mono nerd-fonts noto-emoji npm vips lf terminfo-db
 #+end_src
 
 #+begin_src zsh
 fc-cache -fv
+#+end_src
+
+#+begin_src zsh
+sudo /usr/local/share/nix/add-nixbld-users 12
 #+end_src
 
 #+begin_src zsh
@@ -86,16 +107,11 @@ sudo sysrc nix_daemon_enable="YES"
 #+end_src
 
 #+begin_src zsh
-sudo /usr/local/share/nix/add-nixbld-users 12
-#+end_src
-
-#+begin_src zsh
-mkdir ~/.config/yazi
 sudo ya pkg add yazi-rs/plugins:{git,mime-ext,smart-enter,smart-filter,smart-paste,chmod,mount,toggle-pane,vcs-files,zoom}
 #+end_src
 
 #+begin_src zsh
-sudo pkg install tailscale systeroid gh ttyd sysutils/lazyssh television
+sudo pkg install tailscale systeroid gh ttyd sysutils/lazyssh
 #+end_src
 
 #+begin_src zsh
@@ -103,10 +119,11 @@ sudo sysrc tailscaled_enable="YES"
 #+end_src
 
 #+begin_src zsh
-sudo pkg install btop fastfetch cmatrix cowsay termshark asciiquarium figlet {lol,nyan}cat rgb-tui
+sudo pkg install btop fastfetch cmatrix cowsay asciiquarium figlet {lol,nyan}cat rgb-tui
 #+end_src
 
 #+begin_src zsh
+sudo pkg install termshark
 sudo chgrp network /dev/bpf*
 sudo chmod g+r /dev/bpf*
 sudo chmod g+w /dev/bpf*
@@ -114,8 +131,10 @@ sudo chmod g+w /dev/bpf*
 
 Add to =/etc/devfs.conf=
 #+begin_src zsh
+sudo tee -a /etc/devfs.conf <<'EOF'
 own  bpf* root:network
 perm bpf* 0660
+EOF
 #+end_src
 
 #+begin_src zsh
@@ -129,7 +148,7 @@ curl -fsSL https://git.io/shellspec | sh
 *** Set up editors
 
 #+begin_src zsh
-sudo pkg install tree eza fzf fd-find ripgrep ripgrep-all cmake markdown markdownfmt zig go uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim neovim py311-{grip,pynvim,sqlfluff,grep-ast} emacs-devel ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell
+sudo pkg install tree fzf fd-find ripgrep-all cmake markdown markdownfmt zig go uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim py311-{grip,pynvim,sqlfluff,grep-ast} ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell
 #+end_src
 
 #+begin_src zsh
@@ -141,23 +160,6 @@ cargo install cargo-binstall
 cargo binstall crates-tui
 #+end_src
 
-[[https://www.lazyvim.org/installation][Lazyvim]]
-#+begin_src zsh
-git clone https://github.com/LazyVim/starter ~/.config/nvim;
-rm -rf ~/.config/nvim/.git;
-ln -nfs /home/mfarabi/MFarabi619/modules/home/programs/neovim/lazyvim.json /home/mfarabi/.config/nvim/
-ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.config/nvim/lua/config/* /home/mfarabi/.config/nvim/lua/config/
-ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.config/nvim/lua/plugins/* /home/mfarabi/.config/nvim/lua/plugins/
-#+end_src
-
-[[https://github.com/doomemacs/doomemacs?tab=readme-ov-file#install][Doom Emacs]]
-#+begin_src zsh
-git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs;
-~/.config/emacs/bin/doom install;
-rm -rf ~/.config/doom/*;
-doom sync
-#+end_src
-
 *** Set up FreeBSD Hyprland
 
 1. Add user to =video= group
@@ -166,7 +168,7 @@ doom sync
   #+end_src
 
 #+begin_src zsh
-sudo pkg install xclip sensors dbus kitty vlc dunst mpv texlive-full firefox webcamd gimp-jxl-plugin mousepad \
+sudo pkg install xclip sensors dbus kitty vlc dunst mpv firefox webcamd gimp-jxl-plugin mousepad \
     Kvantum swww sddm sddm-freebsd-black-theme \
     xdg-{terminal-exec,desktop-portal,desktop-portal-{hyprland,wlr,gtk}} \
     rofi wlogout dolphin swaylock-effects \
@@ -199,12 +201,9 @@ sudo sysrc -f /boot/loader.conf sysctlinfo_load="YES"
 sudo sysrc -f /boot/loader.conf sysctlbyname_improved_load="YES"
 #+end_src
 
-#+begin_src zsh
-sudo pkg install ly
-#+end_src
-
 Add the following entry to =/etc/gettytab=
 #+begin_src zsh
+sudo pkg install ly
 echo 'Ly:\
 	:lo=/usr/local/bin/ly:\
 	:al=root:' | sudo tee -a /etc/gettytab
@@ -224,11 +223,15 @@ ttyv1   "/usr/libexec/getty Ly"     xterm onifexists secure
 grep ttyv1 /etc/ttys
 #+end_src
 
-Make sure that "tty" is set appropriately in the /usr/local/etc/ly/config.ini file if
+Make sure that "tty" is set appropriately in the =/usr/local/etc/ly/config.ini= file if
 you decide to configure a different TTY for Ly instead.
 
 
 2. Install packages
+
+#+begin_src zsh
+texlive-full
+#+end_src
 
 #+begin_src zsh
 sudo pkg install procs ncdu dust duf doggo s-tui stress smartmontools gnupg {sys,nif,bat,b}mon docker docker-{compose,machine} minikube kubectl k9s yt-dlp icu sniffnet libvirt libvirt-dbus virt{ualbox-ose,board,-manager,-viewer} diskimage-tools masscan ezjail gstreamer1 openscad-devel libudisks wireplumber security/portacl-rc qt5-sqldrivers-{mysql,odbc,pgsql,sqlite2,sqlite3,tds} netpbm
@@ -261,7 +264,6 @@ Add to =/etc/devfs.conf=
 own     vboxnetctl root:vboxusers
 perm    vboxnetctl 0660
 #+end_src
-
 
 Add the following to =/etc/devfs.rules= (create if it doesn't exist):
 #+begin_src zsh

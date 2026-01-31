@@ -1,24 +1,29 @@
-keymap="us.ctrl.kbd"
-hostname="msi-ge76"
-
-DISTRIBUTIONS="kernel.txz base.txz"
+DISTRIBUTIONS="kernel.txz kernel-dbg.txz base.txz base-dbg.txz lib32.txz lib32-dbg.txz ports.txz src.txz tests.txz"
 nonInteractive="NO"
 
+# export nonInteractive="YES"
+# export netDev="auto"
+export keymap="us.ctrl.kbd"
+export hostname="freebsd-framework-16-vm"
+export services="sshd ntpd ntpd_sync_on_start local_unbound powerd moused dumpdev"
+
+export ROOTPASS_PLAIN="root"
+export BSDINSTALL_SKIP_HARDENING="YES"
+
 # Disk/ZFS layout (from your actual machine)
-# ZFSBOOT_DISKS="nda0"
-# ZFSBOOT_POOL_NAME="zroot"
-# ZFSBOOT_SWAP_SIZE="2G"
-
-netDev="auto"
-
+export ZFSBOOT_DISKS="vtbd0"
 export ZFSBOOT_POOL_NAME="zroot"
 export ZFSBOOT_VDEV_TYPE=stripe
-# export ZFSBOOT_DISKS="ada0"
-# export nonInteractive="YES"
 export ZFSBOOT_FORCE_4K_SECTORS=1
 export ZFSBOOT_SWAP_SIZE="2g"
 export ZFSBOOT_CONFIRM_LAYOUT=1
 
-echo "ifconfig_DEFAULT=DHCP" >> /etc/rc.conf
-echo "sshd_enable=YES" >> /etc/rc.conf
-pkg install vim neovim
+#!/bin/sh
+echo 'Running installerconfig...'
+sysrc ifconfig_em0=DHCP
+sysrc sshd_enable=YES
+dhclient em0
+
+env ASSUME_ALWAYS_YES=YES pkg bootstrap -f | cat
+
+pkg install -y vim neovim yazi zsh
