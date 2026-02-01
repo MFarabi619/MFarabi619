@@ -1,8 +1,22 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  flake,
+  config,
+  ...
+}:
 {
   wayland.windowManager.hyprland = lib.mkIf pkgs.stdenv.isLinux {
     enable = true;
-    package = null;
+    package =
+      if config.targets.genericLinux.enable then
+        flake.inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland
+      else
+        null;
+
+    # portalPackage =
+    #   lib.mkIf config.targets.genericLinux.enable
+    #     flake.inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
 
     xwayland = {
       enable = true;
@@ -26,7 +40,7 @@
 
     extraConfig = "
         monitor=Virtual-1,4096x2160@165,auto,3.2
-        windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0
+        # windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0
      ";
 
     settings = {

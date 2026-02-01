@@ -1,7 +1,7 @@
 {
-  # config,
-  pkgs,
   lib,
+  pkgs,
+  config,
   ...
 }:
 {
@@ -13,17 +13,18 @@
     portal = {
       enable = true;
       xdgOpenUsePortal = true;
-      extraPortals = with pkgs; [
-        xdg-desktop-portal
-        xdg-desktop-portal-gtk
-        xdg-desktop-portal-hyprland
-      ];
-      configPackages = with pkgs; [
-        hyprland
-        xdg-desktop-portal
-        xdg-desktop-portal-gtk
-        xdg-desktop-portal-hyprland
-      ];
+      # extraPortals = with pkgs; [
+      #   # xdg-desktop-portal
+      #   xdg-desktop-portal-gtk
+      #   xdg-desktop-portal-hyprland
+      # ];
+
+      # configPackages = with pkgs; [
+      #   hyprland
+      #   xdg-desktop-portal
+      #   xdg-desktop-portal-gtk
+      #   xdg-desktop-portal-hyprland
+      # ];
     };
 
     userDirs = {
@@ -31,20 +32,20 @@
       createDirectories = true;
 
       # Define standard XDG user directories
-      # desktop = "${config.home.homeDirectory}/Desktop";
-      # documents = "${config.home.homeDirectory}/Documents";
-      # download = "${config.home.homeDirectory}/Downloads";
-      # music = "${config.home.homeDirectory}/Music";
-      # pictures = "${config.home.homeDirectory}/Pictures";
-      # publicShare = "${config.home.homeDirectory}/Public";
-      # templates = "${config.home.homeDirectory}/Templates";
-      # videos = "${config.home.homeDirectory}/Videos";
+      music = "${config.home.homeDirectory}/Music";
+      videos = "${config.home.homeDirectory}/Videos";
+      desktop = "${config.home.homeDirectory}/Desktop";
+      pictures = "${config.home.homeDirectory}/Pictures";
+      download = "${config.home.homeDirectory}/Downloads";
+      publicShare = "${config.home.homeDirectory}/Public";
+      documents = "${config.home.homeDirectory}/Documents";
+      templates = "${config.home.homeDirectory}/Templates";
     };
 
     # Define standard XDG base directories
-    # cacheHome = "${config.home.homeDirectory}/.cache";
-    # configHome = "${config.home.homeDirectory}/.config";
-    # dataHome = "${config.home.homeDirectory}/.local/share";
-    # stateHome = "${config.home.homeDirectory}/.local/state";
+    cacheHome = "${config.home.homeDirectory}/.cache";
+    configHome = "${config.home.homeDirectory}/.config";
+    dataHome = "${config.home.homeDirectory}/.local/share";
+    stateHome = "${config.home.homeDirectory}/.local/state";
   };
 }

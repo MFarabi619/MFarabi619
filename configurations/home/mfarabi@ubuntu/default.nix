@@ -1,6 +1,7 @@
 {
   pkgs,
   flake,
+  config,
   ...
 }:
 let
@@ -9,8 +10,19 @@ let
 in
 {
   programs.docker-cli.enable = true;
-  nixpkgs.config.allowUnfree = true;
-  targets.genericLinux.enable = true;
+
+  nixpkgs = {
+    config.allowUnfree = true;
+    overlays = [
+      flake.inputs.nixGL.overlay
+    ];
+  };
+
+  targets.genericLinux = {
+    enable = true;
+    nixGL.packages = flake.inputs.nixGL.packages;
+    # nix profile add github:guibou/nixGL --impure
+  };
 
   home = {
     stateVersion = "25.05";
@@ -25,6 +37,7 @@ in
     with self.homeModules;
     [
       me
+      xdg
       home
       fonts
       stylix
@@ -38,9 +51,11 @@ in
       "home-manager.nix"
     ]
     ++ map (p: programs + "/${p}") [
+      "hyprland"
       "emacs"
       "neovim"
       "zsh"
+      "kitty"
 
       "bat.nix"
       "btop.nix"
