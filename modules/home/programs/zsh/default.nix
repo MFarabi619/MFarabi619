@@ -1,6 +1,7 @@
 {
-  pkgs,
   lib,
+  pkgs,
+  config,
   ...
 }:
 {
@@ -8,6 +9,7 @@
     enable = true;
     autocd = false;
     enableCompletion = true;
+    dotDir = "${config.xdg.configHome}/zsh";
 
     history = {
       size = 10000;
