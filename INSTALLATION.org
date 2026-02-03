@@ -332,6 +332,29 @@ git add .; nix run .#activate $USER@
 sudo apt update && sudo apt upgrade -y
 #+end_src
 
+#+begin_src bash
+sudo apt install greetd tuigreet dconf-service
+#+end_src
+
+#+begin_src bash
+sudo vim /etc/greetd/config.toml
+#+end_src
+
+# command = "tuigreet --time --remember --cmd start-hyprland"
+
+#+begin_src bash
+sudo apt install sddm
+sudo tee /usr/share/wayland-sessions/hyprland.desktop > /dev/null <<'EOF'
+[Desktop Entry]
+Name=start-hyprland
+Comment=Wayland Compositor
+Exec=Hyprland
+Type=Application
+EOF
+sudo systemctl enable sddm
+sudo systemctl restart sddm
+#+end_src
+
 *** Resources
 [[https://tech.aufomm.com/my-nix-journey-use-nix-with-ubuntu][My Nix Journey - Use Nix on Ubuntu]]
 

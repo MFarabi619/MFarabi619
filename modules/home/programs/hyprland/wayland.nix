@@ -1,18 +1,14 @@
 {
   lib,
   pkgs,
-  flake,
+  # flake,
   config,
   ...
 }:
 {
   wayland.windowManager.hyprland = lib.mkIf pkgs.stdenv.isLinux {
     enable = true;
-    package =
-      if config.targets.genericLinux.enable then
-        flake.inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland
-      else
-        null;
+    package = if config.targets.genericLinux.enable then pkgs.hyprland else null;
 
     # portalPackage =
     #   lib.mkIf config.targets.genericLinux.enable
@@ -68,6 +64,7 @@
       "$menu" = "rofi -show drun";
 
       exec-once = [
+        "waybar &"
         "$term --hold fastfetch"
         "vivaldi"
         # "emacs -nw"

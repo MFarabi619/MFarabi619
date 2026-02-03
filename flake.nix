@@ -33,9 +33,10 @@
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
     nixGL.url = "github:guibou/nixGL";
-    hyprland.url = "github:hyprwm/Hyprland";
+    nixGL.inputs.nixpkgs.follows = "nixpkgs";
+
     hyprland-plugins.url = "github:hyprwm/hyprland-plugins";
-    hyprland-plugins.inputs.hyprland.follows = "hyprland";
+    # hyprland-plugins.inputs.hyprland.follows = "nixpkgs";
 
     nix-on-droid.url = "github:nix-community/nix-on-droid/release-24.05";
     nix-on-droid.inputs.nixpkgs.follows = "nixpkgs";

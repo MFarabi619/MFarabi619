@@ -20,8 +20,8 @@ in
 
   targets.genericLinux = {
     enable = true;
-    nixGL.packages = flake.inputs.nixGL.packages;
-    # nix profile add github:guibou/nixGL --impure
+    # defaultWrapper = "mesa";
+    nixGL.packages = flake.inputs.nixGL.packages; # nix profile add github:guibou/nixGL --impure
   };
 
   home = {
@@ -29,7 +29,9 @@ in
 
     packages = with pkgs; [
       ttyd
+      dconf
       nix-ld
+      spice-vdagent
     ];
   };
 

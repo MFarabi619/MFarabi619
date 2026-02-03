@@ -10,21 +10,25 @@
     mime.enable = true;
     mimeApps.enable = true;
 
+    configFile."environment.d/envvars.conf".text = ''
+      PATH="$HOME/.nix-profile/bin:$PATH"
+    '';
+
     portal = {
       enable = true;
       xdgOpenUsePortal = true;
-      # extraPortals = with pkgs; [
-      #   # xdg-desktop-portal
-      #   xdg-desktop-portal-gtk
-      #   xdg-desktop-portal-hyprland
-      # ];
 
-      # configPackages = with pkgs; [
-      #   hyprland
-      #   xdg-desktop-portal
-      #   xdg-desktop-portal-gtk
-      #   xdg-desktop-portal-hyprland
-      # ];
+      extraPortals = with pkgs; [
+        # xdg-desktop-portal
+        xdg-desktop-portal-gtk
+        xdg-desktop-portal-hyprland
+      ];
+
+      configPackages = with pkgs; [
+        xdg-desktop-portal
+        xdg-desktop-portal-gtk
+        xdg-desktop-portal-hyprland
+      ];
     };
 
     userDirs = {
