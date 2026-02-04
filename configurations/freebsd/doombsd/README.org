@@ -412,6 +412,46 @@ swww ~/MFarabi619/configurations/freebsd/wallpapers/freebsd-gruvbox-rainbow-dark
 
 
 *** Other
+
+#+begin_src sh
+sudo sysrc linux_enable="YES"
+#+end_src
+
+#+begin_src sh
+sudo service linux start
+#+end_src
+
+#+begin_src sh
+sudo pkg install debootstrap
+#+end_src
+
+#+begin_src sh
+sudo sysrc kld_list+="linux64 fdescfs linprocfs linsysfs tmpfs"
+sudo kldload linux64 fdescfs linprocfs linsysfs tmpfs
+#+end_src
+
+#+begin_src sh
+sudo debootstrap jammy /compat/ubuntu
+#+end_src
+
+#+begin_src
+devfs           /compat/ubuntu/dev      devfs           rw,late                      0       0
+tmpfs           /compat/ubuntu/dev/shm  tmpfs           rw,late,size=1g,mode=1777    0       0
+fdescfs         /compat/ubuntu/dev/fd   fdescfs         rw,late,linrdlnk             0       0
+linprocfs       /compat/ubuntu/proc     linprocfs       rw,late                      0       0
+linsysfs        /compat/ubuntu/sys      linsysfs        rw,late                      0       0
+/tmp            /compat/ubuntu/tmp      nullfs          rw,late                      0       0
+/home           /compat/ubuntu/home     nullfs          rw,late                      0       0
+#+end_src
+
+#+begin_src sh
+sudo mount -al
+#+end_src
+
+#+begin_src sh
+sudo chroot /compat/ubuntu /bin/bash
+#+end_src
+
 #+begin_src zsh
 sudo pkg install framework-{system,tool-tui} pkg_{tree,search} podman aichat tgpt ollama top {h,b,z,j,nats-,sn,usb,tree}top desktop-installer ntopng mkdesktop portopscli xdesktopwaves toppler radeon ghostscript netpbm redis qmk_hid realtek-re-{kmod,kmod198} linux-{discord,steam-utils,bitwarden-cli} win-proton libc6-shim languageclient-neovim mixertui audio/moc scrot wf-recorder
 #+end_src
