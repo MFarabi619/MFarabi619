@@ -55,7 +55,22 @@
 ;; (package! org-gcal)
 ;; (package! consult-gh)
 ;; (package! magit-todos)
-;; (package! gptel :recipe (:nonrecursive t)) ;; on non-nix
+
+;; ===== ON NON-NIX ======
+
+;; (when (eq system-type 'berkeley-unix)
+;;   (package! verb)
+;;   (package! org-anki)
+;;   (package! fretboard)
+;;   (package! gptel :recipe (:nonrecursive t)))
+
+;; (package! verb)
+;; ;; (package! kdl-mode)
+;; ;; (package! exercism)
+;; (package! org-anki)
+;; (package! fretboard)
+;; (package! gptel :recipe (:nonrecursive t))
+;; =======================
 
 ;; (package! eee
 ;;   :recipe (:host github

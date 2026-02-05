@@ -134,7 +134,7 @@
           ("e" ,user-emacs-directory         "Emacs user directory"))))
 
 (use-package! kbd-mode)
-(use-package! exercism)
+(use-package! exercism) ;; comment out on non-nixos
 
 (use-package! gptel-integrations)
 (use-package! gptel
