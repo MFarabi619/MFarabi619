@@ -1,6 +1,7 @@
 {
   pkgs,
   flake,
+  config,
   ...
 }:
 {
@@ -12,7 +13,7 @@
     enable = true;
     doomDir = ./.;
     # provideEmacs = false;
-    # experimentalFetchTree = true;
+    experimentalFetchTree = config.targets.genericLinux.enable;
 
     extraPackages =
       epkgs:
