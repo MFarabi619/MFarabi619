@@ -5,7 +5,7 @@
       "key" : "t",
       "label" : "Kitty",
       "type" : "command",
-      "value" : "open ~/Applications/Kitty.app"
+      "value" : "kitty -d ~ &"
     },
     {
       "iconPath" : "/Users/mfarabi/Applications/Emacs.app",
