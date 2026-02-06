@@ -1,11 +1,12 @@
 {
+  config,
   pkgs,
   ...
 }:
 {
   services.github-runners = {
     nixos = {
-      enable = true;
+      enable = config.networking.hostName == "framework-desktop";
       # group = null;
       replace = true;
       # name = "nixos"; # defaults to hostname, changing this triggers new registration
@@ -47,7 +48,7 @@
     };
 
     nixos-2 = {
-      enable = true;
+      enable = config.networking.hostName == "framework-desktop";
       replace = true;
       user = "mfarabi";
       ephemeral = false;
@@ -71,7 +72,7 @@
     };
 
     nixos-3 = {
-      enable = true;
+      enable = config.networking.hostName == "framework-desktop";
       replace = true;
       user = "mfarabi";
       ephemeral = false;
