@@ -27,6 +27,7 @@
 
       git = {
         parseEmoji = true;
+        overrideGpg = true;
         commit.signOff = true;
         branchPrefix = "mfarabi/";
         # branchPrefix = "${config.me.username}/";
