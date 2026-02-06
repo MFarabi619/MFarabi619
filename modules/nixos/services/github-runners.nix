@@ -5,20 +5,27 @@
 {
   services.github-runners = {
     nixos = {
-      enable = false;
-      replace = false;
+      enable = true;
+      # group = null;
+      replace = true;
+      # name = "nixos"; # defaults to hostname, changing this triggers new registration
+      # workDir = null; # triggers new registration on change
+      user = "mfarabi";
       ephemeral = false;
-      url = "https://github.com/MFarabi619/MFarabi619";
+      # runnerGroup = "self-hosted";
+      url = "https://github.com/apidae-systems/platform";
+      tokenFile = "/var/lib/secrets/github-actions-runner.token";
 
       extraLabels = [
         "nixos"
       ];
 
       nodeRuntimes = [
-        "node22"
+        "node24"
       ];
 
       extraPackages = with pkgs; [
+        jq
         pnpm
         devenv
         xorg.xvfb
@@ -26,27 +33,65 @@
         playwright-test
       ];
 
-      extraEnvironment = {
-        PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = true;
-        PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_22}/bin/node";
-      };
+      # extraEnvironment = {
+      #   # PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = true;
+      #   PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_24}/bin/node";
+      # };
 
-      # serviceOverrides = {};
-      # user = null;
-      # group = null;
-      # tokenFile = ./.runner.token;
-      # runnerGroup = "self-hosted";
-      # name = "nixos"; # defaults to hostname, changing this triggers new registration
-      # workDir = null; # triggers new registration on change
+      serviceOverrides = {
+        PrivateUsers = false;
+        SystemCallFilter = "";
+        RestrictNamespaces = false;
+        SystemCallArchitectures = "native";
+      };
     };
 
-    macos = {
-      enable = false;
+    nixos-2 = {
+      enable = true;
+      replace = true;
+      user = "mfarabi";
       ephemeral = false;
-      nodeRuntimes = "node22";
-      tokenFile = ./.runner.token;
-      extraLabels = [ "macbook-air" ];
-      url = "https://github.com/mira-amm/mira-amm-web";
+      url = "https://github.com/apidae-systems/platform";
+      tokenFile = "/var/lib/secrets/github-actions-runner.token";
+
+      extraLabels = [
+        "nixos"
+      ];
+
+      extraPackages = with pkgs; [
+        devenv
+      ];
+
+      serviceOverrides = {
+        PrivateUsers = false;
+        SystemCallFilter = "";
+        RestrictNamespaces = false;
+        SystemCallArchitectures = "native";
+      };
+    };
+
+    nixos-3 = {
+      enable = true;
+      replace = true;
+      user = "mfarabi";
+      ephemeral = false;
+      url = "https://github.com/apidae-systems/platform";
+      tokenFile = "/var/lib/secrets/github-actions-runner.token";
+
+      extraLabels = [
+        "nixos"
+      ];
+
+      extraPackages = with pkgs; [
+        devenv
+      ];
+
+      serviceOverrides = {
+        PrivateUsers = false;
+        SystemCallFilter = "";
+        RestrictNamespaces = false;
+        SystemCallArchitectures = "native";
+      };
     };
   };
 }
