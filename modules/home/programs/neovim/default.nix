@@ -1,6 +1,7 @@
 {
   pkgs,
   flake,
+  config,
   ...
 }:
 {
@@ -12,10 +13,14 @@
     ./plugins.nix
   ];
 
-  programs.lazyvim = {
-    enable = true;
-    # pluginSource = "latest";
-    # installCoreDependencies = false;
-    ignoreBuildNotifications = false;
+  programs = {
+    neovim.defaultEditor = !config.services.emacs.defaultEditor;
+
+    lazyvim = {
+      enable = true;
+      # pluginSource = "latest";
+      # installCoreDependencies = false;
+      ignoreBuildNotifications = false;
+    };
   };
 }
