@@ -120,6 +120,7 @@
   (setq dirvish-peek-mode t
         dirvish-side-auto-close t
         dirvish-side-follow-mode t
+        dired-listing-switches "-alhX"
         dirvish-side-display-alist '((side . right) (slot . -1))))
 
 (after! dirvish
