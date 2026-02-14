@@ -145,6 +145,8 @@
           ("a" "~/Documents/"                "Documents")
           ("m" "/mnt/"                       "Mounted drives")
           ("e" ,user-emacs-directory         "Emacs user directory"))))
+(add-load-path! "pio-mode")
+(use-package! pio-mode)
 
 (use-package! kbd-mode)
 (use-package! exercism) ;; comment out on non-nixos
@@ -455,9 +457,6 @@
           (append (cl-subseq +doom-dashboard-functions 0 (1+ pos))
                   (list #'my-custom-dashboard-text)
                   (cl-subseq +doom-dashboard-functions (1+ pos))))))
-
-;; (add-load-path! "pio-mode")
-;; (use-package! pio-mode)
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;; - `doom-font' -- primary font to use

@@ -1,10 +1,10 @@
-#+title:    :lang platformio
+#+title:    :tools platformio
 #+subtitle: Platformio support for Emacs
-#+created:  October 13, 2025
+#+created:  February 14, 2026
 #+since:    2.0.0
 
 * Description :unfold:
-This module...
+This module adds support for embedded systems development with [[https://platformio.org][PlatformIO]].
 
 ** Maintainers
 - [[doom-user:][@mfarabi619]]
