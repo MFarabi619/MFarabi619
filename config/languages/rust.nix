@@ -3,6 +3,7 @@
     enable = true; # set to false for firmware dev
     channel = "stable";
     loco.enable = true;
+    embassy.enable = true;
 
     dioxus = {
       enable = true;

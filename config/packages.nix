@@ -8,16 +8,10 @@
   packages =
     with pkgs;
     [
+      sqlite
       duckdb
       harlequin
-
-      # espup install # . $HOME/export-esp.sh
-      espup
-      esptool
-      espflash
-      binsider # binary inspector TUI
-      esp-generate
-      cargo-espmonitor
+      supabase-cli
 
       ninja
       ccache
@@ -28,10 +22,6 @@
       # pulumi
       pulumi-esc
       # pulumiPackages.pulumi-go
-
-      supabase-cli
-
-      sqlite
     ]
     ++ lib.optionals stdenv.isLinux [
       # netscanner
