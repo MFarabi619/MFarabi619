@@ -56,6 +56,7 @@
       evil-vsplit-window-right t
       doom-modeline-persp-name t
       display-time-day-and-date t
+      compilation-scroll-output t
       treemacs-git-mode 'extended
       find-file-visit-truename nil
       org-latex-compiler "lualatex"
