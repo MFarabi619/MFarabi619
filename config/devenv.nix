@@ -9,6 +9,7 @@
     ./files
     ./services
     ./languages
+    ./frameworks
 
     ./env.nix
     ./tasks.nix

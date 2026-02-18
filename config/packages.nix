@@ -8,9 +8,6 @@
   packages =
     with pkgs;
     [
-      pkg-config
-      openssl
-
       duckdb
       harlequin
 
@@ -34,7 +31,6 @@
 
       supabase-cli
 
-      # dioxus-cli
       sqlite
     ]
     ++ lib.optionals stdenv.isLinux [
