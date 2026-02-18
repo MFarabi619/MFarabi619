@@ -39,12 +39,4 @@
     + lib.optionalString (pkgs.stdenv.isLinux && config.services.caddy.enable) ''
       # sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
     '';
-
-  starship = {
-    enable = false;
-    config = {
-      enable = false;
-      path = ./starship.toml;
-    };
-  };
 }
