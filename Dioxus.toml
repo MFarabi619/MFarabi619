@@ -1,0 +1,35 @@
+[web]
+pre_compress = true
+
+[web.app]
+title = "🕹 Microvisor Systems 🕹"
+
+[web.resource]
+script = []
+style = ["https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"]
+
+[web.resource.dev]
+# Javascript code file
+# serve: [dev-server] only
+script = []
+
+# [[web.proxy]]
+# backend = "http://localhost:8000/api/"
+
+# [[web.https]]
+# enabled = true
+# mkcert = true
+# key_path = "/path/to/key"
+# cert_path = "/path/to/cert"
+
+[bundle]
+category = "Utility"
+publisher = "Mumtahin Farabi"
+icon = [ "assets/symbolmark.png" ]
+identifier = "com.microvisorsystems"
+copyright = "2026 Microvisor Systems"
+short_description = "General web client."
+
+[application]
+tailwind_input = "tailwind.css"
+tailwind_output = "assets/tailwind.css"

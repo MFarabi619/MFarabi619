@@ -36,6 +36,7 @@
         binaryen
         dioxus-cli
         tailwindcss_4
+        wasm-bindgen-cli_0_2_105
       ])
       ++ lib.optionals pkgs.stdenv.isLinux (
         with pkgs;

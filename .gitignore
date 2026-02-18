@@ -1,67 +1,65 @@
 #====================================================
-#               Build/Test Outputs
+#              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
-.shellspec
-tests/env_spec.sh
-**/.pio/
-**/debug/
-**/target/
 debug/
 target/
+**/.pio/
+**/debug/
 **/result
-**/node_modules
-learning/assembly/build/
 **/zig-out
+**/target/
+.shellspec
 **/.zig-cache
+**/node_modules
+tests/env_spec.sh
+learning/assembly/build/
 
 #====================================================
-#                 Caches & Logs
+#                 CACHES/LOGS
 #====================================================
 logs
-.devenv*
-devenv.local.nix
-**/.direnv/
-**.qcow2
-.pre-commit-config.yaml
-**/*.rs.bk
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
 *.sqlite
+.devenv*
+**.qcow2
 *.sqlite-*
+**/.direnv/
+**/*.rs.bk
+.open-webui
+**/.git-hooks
+devenv.local.nix
+local.properties
+.webui_secret_key
+.pre-commit-config.yaml
 
 #====================================================
-#                  Miscellaneous
+#                  MISCELLANEOUS
 #====================================================
-**/config/local.yaml
-**/config/*.local.yaml
-**/config/production.yaml
-.DS_Store
+.c9
 *.pem
 *tmp*
 .idea/
 .project
-.classpath
-.c9
 *.launch
 .vscode/*
+.DS_Store
 .settings
+.classpath
+**/config/local.yaml
+**/config/*.local.yaml
 !.vscode/extensions.json
+**/config/production.yaml
 !.vscode/settings-example.json
-config/services/supabase/.branches
-config/services/supabase/.temp
 
 !Cargo.lock
 **/!Cargo.lock
 
-.open-webui
-**/.git-hooks
-.webui_secret_key
-
 #====================================================
-#                  Dependencies
+#                  DEPENDENCIES
 #====================================================
 /.pnp
 .pnp.js
 
-!/firmware/src/bin
 ml/target
+!/firmware/src/bin
