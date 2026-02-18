@@ -2,6 +2,8 @@
   languages.rust = {
     enable = true; # set to false for firmware dev
     channel = "stable";
+    loco.enable = true;
+
     dioxus = {
       enable = true;
       desktop.linux.enable = false;
