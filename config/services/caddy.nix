@@ -36,7 +36,6 @@
       {
         "web.localhost".extraConfig = ''
           log
-
           file_server
           encode zstd gzip
           root * ${config.git.root}/target/dx/web/release/web/public
@@ -46,7 +45,6 @@
       {
         "tui.localhost".extraConfig = ''
           log
-
           file_server
           encode zstd gzip
           root * ${config.git.root}/tui/dist

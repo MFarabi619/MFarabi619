@@ -28,15 +28,14 @@
     "/devcontainer.nix"
   ];
 
-  # NOTE: uses native nixos test syntax | nixos.org/manual/nixos/stable/#sec-writing-nixos-tests
-  enterTest = ''
-    set -ex
-    # process-compose down
-  '';
-
-  enterShell =
-    ""
+  enterShell =''
+        echo "👋🧩"
+    ''
     + lib.optionalString (pkgs.stdenv.isLinux && config.services.caddy.enable) ''
       # sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
     '';
+
+  enterTest = ''
+    echo "Running tests"
+  '';
 }

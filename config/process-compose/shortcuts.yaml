@@ -1,0 +1,61 @@
+# https://github.com/F1bonacc1/process-compose/blob/50c81a8912fff6dbf0a1e62df8c916f79d680947/src/tui/actions.go#L20
+
+shortcuts:
+    help:
+        shortcut: "?"
+
+    # full_screen:
+    #     shortcut: Ctrl-Enter
+
+    focus_change:
+        shortcut: l
+
+    # term_exit:
+    #     shortcut: Ctrl-Q
+
+    log_follow: # action name - don't edit
+        toggle_description: # optional description for toggle buttons. Will use default if not defined
+            false: Follow Off
+            true: Follow On
+        shortcut: f # shortcut to be used
+
+    log_screen:
+        toggle_description:
+            false: Half Screen
+            true: Full Screen
+        shortcut: F4
+
+    log_wrap:
+        toggle_description:
+            false: Wrap Off
+            true: Wrap On
+        shortcut: F6
+
+    process_restart:
+        description: Restart # optional description for a button. Will use default if not defined
+        shortcut: r
+
+    process_screen:
+        toggle_description:
+            false: Half Screen
+            true: Full Screen
+        shortcut: i
+
+    process_start:
+        description: Start
+        shortcut: Enter
+
+    process_stop:
+        description: Stop
+        shortcut: x
+
+    quit:
+        description: Quit
+        shortcut: q
+
+    dependency_graph:
+        description: Dependency Graph
+        shortcut: Ctrl-P
+
+    theme_selector:
+        shortcut: t

@@ -1,4 +1,9 @@
 {
+  lib,
+  config,
+  ...
+}:
+{
   processes = {
     api = {
       exec = "cargo loco start --binding 0.0.0.0";
@@ -7,145 +12,57 @@
         disabled = true;
         namespace = "⚙ Back-End";
         description = "Back-End Server using Loco.rs";
-        depends_on = {
-          postgres.condition = "process_healthy";
-        };
         readiness_probe = {
           http_get = {
             port = "5150";
-            host = "localhost";
             scheme = "http";
+            host = "localhost";
           };
         };
       };
     };
-
-    web = {
-      exec = "trunk serve";
-      process-compose = {
-        disabled = true;
-        description = "Front-End Server using Dioxus";
-        log_configuration = {
-          fields_order = [
-            "level"
-            "message"
-            "time"
-          ];
+  }
+  //
+    builtins.mapAttrs
+      (_: cfg: {
+        process-compose = {
+          is_tty = true;
+          namespace = "🎡 SERVICES";
+          disabled = cfg.disabled or false;
         };
-        is_tty = true;
-        depends_on = {
-          api.condition = "process_healthy";
-        };
-        readiness_probe = {
-          http_get = {
-            port = "8080";
-            host = "localhost";
-            scheme = "http";
-          };
-        };
-        namespace = "✨ Front-End";
-      };
-    };
-
-    microdoctor = {
-      exec = "doctor";
-      process-compose = {
-        description = "💊 Microdoctor";
-        namespace = "🩺 HEALTH CHECK";
-        disabled = false;
-        is_tty = true;
-      };
-    };
-
-    fastfetch--C-all-jsonc = {
-      exec = "fastfetch -C all.jsonc";
-      process-compose = {
-        namespace = "🩺 HEALTH CHECK";
-        is_tty = true;
-        disabled = false;
-      };
-    };
-
-    open-webui-serve---port-1212 = {
-      exec = "open-webui serve --port 1212";
-      process-compose = {
-        is_tty = true;
-        disabled = true;
-        namespace = "🧮 VIEWS";
-        description = "🤖 Use the GPT LLM of your choice";
-      };
-    };
-
-    supabase-start = {
-      exec = "process-compose process stop postgres; supabase start --workdir microvisor/services";
-      process-compose = {
-        description = "🟩 Supabase | 54323";
-        is_tty = true;
-        depends_on = {
-          postgres.condition = "process_completed";
-        };
-        ready_log_line = "Started supabase local development setup.";
-        namespace = "📀 DATABASES";
-        disabled = true;
-      };
-    };
-
-    hello = {
-      exec = "hello";
-      process-compose = {
-        description = "👋🧩 Show the Devenv logo art and a friendly greeting";
-        namespace = "🩺 HEALTH CHECK";
-        disabled = false;
-      };
-    };
-
+      })
+      {
+        sqld.disabled = true;
+        # caddy.disabled = true;
+        prometheus.disabled = true;
+        "tailscale-funnel".disabled = true;
+      }
+  // lib.optionalAttrs (!config.devenv.isTesting) {
     console = {
       exec = ''
         ttyd --writable --browser --url-arg --once devenv up
       '';
       process-compose = {
-        description = "🕹 Attach the Microvisor Kernel to the Browser";
+        disabled = true;
         namespace = "🧮 VIEWS";
-        disabled = true;
-      };
-    };
-
-    node-modules-inspector---depth-7---port-7000 = {
-      exec = "pnpm node-modules-inspector --depth=7 --port=7000";
-      process-compose = {
-        description = "📦 Node Modules Inspector | 7000";
-        is_tty = true;
-        readiness_probe = {
-          http_get = {
-            port = "7000";
-            host = "localhost";
-            scheme = "http";
-          };
-        };
-        namespace = "📦 DEPS";
-        disabled = true;
-      };
-    };
-
-    devenv-info = {
-      exec = "devenv info";
-      process-compose = {
-        description = "❄ devenv info";
-        is_tty = true;
-        namespace = "🩺 HEALTH CHECK";
-        disabled = false;
+        description = "🕹 Attach the Microvisor Kernel to the Browser";
       };
     };
   };
 
   process = {
     manager.args = {
-      "theme" = "One Dark";
+      "config" = "${config.git.root}/config/process-compose/settings.yaml";
+      "shortcuts" = "${config.git.root}/config/process-compose/shortcuts.yaml";
     };
-    managers.process-compose.settings.availability = {
-      restart = "on_failure";
-      backoff_seconds = 2;
-      max_restarts = 5;
+
+    managers.process-compose.settings = {
+      is_strict = true;
+      #   availability = {
+      #   max_restarts = 5;
+      #   backoff_seconds = 2;
+      #   restart = "on_failure";
+      # };
     };
   };
 }
