@@ -24,6 +24,7 @@ in
     packages = with pkgs; [
       yay
       ttyd
+      lldb
       tscli
       arion
       nix-ld
