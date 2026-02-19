@@ -18,12 +18,11 @@
     extraPackages =
       epkgs:
       let
-        treesitWithAllExceptRazor = epkgs.treesit-grammars.with-grammars (
+        treesitWithAllExceptQuint = epkgs.treesit-grammars.with-grammars (
           grammars:
           builtins.attrValues (
             builtins.removeAttrs grammars [
-              "tree-sitter-razor"
-              "tree-sitter-razor-grammar"
+              "tree-sitter-quint"
             ]
           )
         );
@@ -64,7 +63,8 @@
         all-the-icons
 
         lsp-tailwindcss
-        treesitWithAllExceptRazor
+        treesitWithAllExceptQuint
+        # treesit-grammars.with-all-grammars
         # ================
         abc-mode
         scad-mode
