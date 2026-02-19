@@ -55,6 +55,7 @@
       doom-modeline-time-icon t
       evil-vsplit-window-right t
       doom-modeline-persp-name t
+      doom-symbol-font doom-font
       display-time-day-and-date t
       compilation-scroll-output t
       treemacs-git-mode 'extended
