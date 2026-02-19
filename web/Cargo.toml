@@ -1,20 +1,18 @@
 [package]
 name = "web"
+edition = "2021"
 version = "0.1.0"
 authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 urlencoding = "2.1"
-dioxus-sdk-time = { workspace = true }
-ui = { workspace = true }
-dioxus-primitives = { workspace = true }
-tracing = { workspace = true }
+ui.path = "../libs/ui"
+dioxus.workspace = true
+tracing.workspace = true
+lucide-dioxus.workspace = true
+dioxus-sdk-time.workspace = true
+dioxus-primitives.workspace = true
 serde = { version = "1.0.163", features = ["derive"] }
-lucide-dioxus = { workspace = true }
-dioxus = { workspace = true }
 web-sys = { version = "0.3", features = ["console", "FormData", "File"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 use-mdbook = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa" }
@@ -29,6 +27,6 @@ desktop = ["dioxus/desktop"]
 [build-dependencies]
 syn = "2.0.98"
 prettyplease = "0.2.36"
-dioxus-autofmt = { version = "0.6.0" }
+dioxus-autofmt.version = "0.6.0"
 mdbook-shared = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa" }
 mdbook-gen = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa", features = ["manganis"] }

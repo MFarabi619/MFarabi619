@@ -9,11 +9,8 @@ ESPFLASH_BAUD="115200"
 ESPFLASH_PORT="/dev/cu.usbserial-210"
 
 [build]
-rustflags = [
-  "-C", "link-arg=-nostartfiles",
-]
-
 target = "xtensa-esp32s3-none-elf"
+rustflags = ["-C", "link-arg=-nostartfiles"]
 
 [unstable]
 build-std = ["alloc", "core"]

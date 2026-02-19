@@ -1,6 +1,6 @@
 {
   languages.rust = {
-    enable = true; # set to false for firmware dev
+    enable = true;
     channel = "stable";
     loco.enable = true;
     embassy.enable = true;

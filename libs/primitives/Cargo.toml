@@ -11,12 +11,12 @@ homepage = "https://dioxuslabs.com"
 repository = "https://github.com/DioxusLabs/components"
 
 [dependencies]
-dioxus.workspace = true
-dioxus-attributes = { path = "../dioxus-attributes" }
-dioxus-sdk-time = "0.7.0"
-time = { version = "0.3.44", features = ["std", "macros", "parsing", "local-offset"] }
 num-integer = "0.1.46"
+dioxus.workspace = true
 tracing.workspace = true
+dioxus-sdk-time.workspace = true
+dioxus-attributes.path = "../dioxus-attributes"
+time = { version = "0.3.44", features = ["std", "macros", "parsing", "local-offset"] }
 
 [build-dependencies]
 lazy-js-bundle = "0.6.2"

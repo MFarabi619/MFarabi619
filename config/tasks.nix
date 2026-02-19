@@ -1,4 +1,8 @@
 {
+  # dx serve -p web
+  # dx serve -p web --ssg -r
+  # cargo loco start
+
   tasks = {
     "myapp:mytask" = {
       exec = ''

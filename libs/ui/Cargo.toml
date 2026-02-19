@@ -1,25 +1,25 @@
 [package]
 name = "ui"
-version = "0.3.0-wip"
 edition = "2024"
-description = "Accessible, styled, opinionated components for Dioxus inspired by the shadcn UI and built on Dioxus Primitives"
-keywords = ["gui", "dioxus", "components", "shadcn", "tailwind"]
+version = "0.3.0-wip"
 categories = ["gui", "wasm"]
-authors = ["Daniel D'Aquino <daniel@daquino.me>"]
 homepage = "https://lumenblocks.dev"
+authors = ["Daniel D'Aquino <daniel@daquino.me>"]
+keywords = ["gui", "dioxus", "components", "shadcn", "tailwind"]
 repository = "https://github.com/Leaf-Computer/lumen-blocks"
+description = "Accessible, styled, opinionated components for Dioxus inspired by the shadcn UI and built on Dioxus Primitives"
 
 [dependencies]
-dioxus = { workspace = true }
-dioxus-sdk-time = { workspace = true }
-dioxus-primitives = { workspace = true }
-tracing = { workspace = true }
-lucide-dioxus = { workspace = true, features = ["all-icons"] }
 log = "0.4"
+dioxus.workspace = true
+tracing.workspace = true
+dioxus-sdk-time.workspace = true
+dioxus-primitives.workspace = true
+lucide-dioxus = { workspace = true, features = ["all-icons"] }
 
 [dev-dependencies]
-dioxus = { workspace = true }
 env_logger = "0.10"
+dioxus.workspace = true
 
 [features]
 server = []

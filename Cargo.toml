@@ -1,15 +1,12 @@
 [workspace]
 resolver = "3"
-default-members = ["web"]
+# default-members = ["web"]
 exclude = ["ml", "firmware"]
 members = [
     "web",
     "tui",
     "tests/e2e",
     "apps/readme",
-    "libs/ui",
-    "libs/primitives",
-    "libs/dioxus-attributes",
     "learning/rust/3.1-variables",
     "learning/rust/3.3-functions",
     "learning/rust/3.4-comments",
@@ -21,10 +18,54 @@ members = [
     "learning/rust/5.2-an-example-program-using-structs"
 ]
 
+[package]
+name = "api"
+publish = false
+edition = "2021"
+version = "0.1.0"
+default-run = "api-cli"
+
 [workspace.dependencies]
-dioxus = { version = "0.7.1", features = ["router", "fullstack"] }
+loco-rs = "0.15"
 dioxus-sdk-time = "0.7.0"
-dioxus-primitives = { path = "libs/primitives" }
-ui = { path = "libs/ui" }
+dioxus-primitives.path = "libs/primitives"
 tracing = { version = "0.1", features = ["std"] }
 lucide-dioxus = { version = "2.45.0", features = ["all-icons"] }
+dioxus = { version = "0.7.3", features = ["router", "fullstack"] }
+
+[dependencies]
+chrono = "0.4"
+axum = "0.8.1"
+serde_json = "1"
+regex = "1.11.1"
+tracing = "0.1.40"
+validator = "0.20"
+include_dir = "0.7"
+unic-langid = "0.9.4"
+async-trait = "0.1.74"
+dioxus.workspace = true
+loco-rs.workspace = true
+migration.path = "migration"
+uuid = { version = "1.6.0", features = ["v4"] }
+serde = { version = "1", features = ["derive"] }
+axum-extra = { version = "0.10", features = ["form"] } # /view engine
+fluent-templates = { version = "0.8.0", features = ["tera"] } # view engine i18n
+tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
+tokio = { version = "1.33.0", default-features = false, features = ["rt-multi-thread"] }
+sea-orm = { version = "1.1.0", features = [
+  "sqlx-sqlite",
+  "sqlx-postgres",
+  "runtime-tokio-rustls",
+  "macros",
+] }
+
+[[bin]]
+name = "api-cli"
+path = "src/bin/main.rs"
+required-features = []
+
+[dev-dependencies]
+rstest = "0.21.0"
+serial_test = "3.1.1"
+loco-rs = { workspace = true, features = ["testing"] }
+insta = { version = "1.34.0", features = ["redactions", "yaml", "filters"] }
