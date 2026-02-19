@@ -1,0 +1,13 @@
+[[https://github.com/AntonHakansson/org-nix-shell/tree/main][GitHub - AntonHakansson/org-nix-shell]]
+
+#+name: my-shell
+#+begin_src nix
+  { pkgs ? import <nixpkgs> {} }:
+  pkgs.mkShell {
+    buildInputs = [ pkgs.hello ];
+  }
+#+end_src
+
+#+begin_src sh :nix-shell "my-shell"
+  hello   # use 'hello' from 'my-shell'
+#+end_src
