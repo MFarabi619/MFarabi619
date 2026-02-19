@@ -80,10 +80,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
-name = "an-example-program-using-structs"
-version = "0.1.0"
-
-[[package]]
 name = "android_system_properties"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1199,10 +1195,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "comments"
-version = "0.1.0"
-
-[[package]]
 name = "compact_str"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1345,10 +1337,6 @@ checksum = "ebc14a88e1463ddd193906285abe5c360c7e8564e05ccc5d501755f7fbc9ca9c"
 dependencies = [
  "charset",
 ]
-
-[[package]]
-name = "control-flow"
-version = "0.1.0"
 
 [[package]]
 name = "convert_case"
@@ -1822,10 +1810,6 @@ name = "data-encoding"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7a1e2f27636f116493b8b860f5546edb47c8d8f8ea73e1d2a20be88e28d1fea"
-
-[[package]]
-name = "defining-and-instantiating-structs"
-version = "0.1.0"
 
 [[package]]
 name = "deflate64"
@@ -3211,10 +3195,6 @@ name = "fs_extra"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42703706b716c37f96a77aea830392ad231f44c9e9a67872fa5548707e11b11c"
-
-[[package]]
-name = "functions"
-version = "0.1.0"
 
 [[package]]
 name = "funty"
@@ -6736,10 +6716,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "references-and-borrowing"
-version = "0.1.0"
-
-[[package]]
 name = "regex"
 version = "1.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8603,10 +8579,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "the-slice-type"
-version = "0.1.0"
-
-[[package]]
 name = "thiserror"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9460,10 +9432,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ba6f5989077681266825251a52748b8c1d8a4ad098cc37e440103d0ea717fc0"
 
 [[package]]
-name = "variables"
-version = "0.1.0"
-
-[[package]]
 name = "vcpkg"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9828,10 +9796,6 @@ dependencies = [
  "windows",
  "windows-core",
 ]
-
-[[package]]
-name = "what-is-ownership"
-version = "0.1.0"
 
 [[package]]
 name = "whoami"

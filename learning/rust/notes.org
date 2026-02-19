@@ -1,0 +1,817 @@
+#+title: The Rust Programming Language
+
+/by Steve labnik, carol Nichols, and Chris Krycho, with contributions from the Rust Community/
+
+This version of the text assumes you’re using Rust 1.90.0 (released 2025-09-18) or later with =edition = "2024"= in the /Cargo.toml/ file of all projects to configure them to use Rust 2024 Edition idioms. See the [[*1.1. Installation][“Installation” section of Chapter 1]] for instructions on installing or updating Rust, and see Appendix E for information on editions.
+
+* Getting Started
+**  Installation
+**  Hello, World!
+**  Hello, Cargo!
+
+* Programming a Guessing Game
+* Common Programming Conceps
+** Variables and Mutability
+
+   BEGIN_SRC rust
+   e std::io;
+
+   allow(unused)]
+    main() {
+     let x = 5;
+
+     let x = x + 1;
+
+     {
+         let x = x * 2;
+         println!("The value of x in the inner scope is: {x}");
+     }
+
+     println!("The value of x is: {x}");
+
+     let spaces = "   ";
+     let spaces = spaces.len();
+     println!("Length of spaces is: {spaces}");
+
+     let guess: u32 = "42".parse().expect("Not a number!");
+
+     let x = 2.0; // f64
+     let y: f32 = 3.0; // f32
+
+     // addition
+     let sum = 5 + 10;
+
+     // subtraction
+     let difference = 95.5 - 4.3;
+
+     // multiplication
+     let product = 4 * 30;
+
+     // division
+     let quotient = 56.7 / 32.2;
+     let truncated = -5 / 3; // Results in -1
+
+     // remainder
+     let remainder = 43 % 5;
+
+     let t = true;
+     let f: bool = false; // with explicit type annotation
+
+     let c = 'z';
+     let z: char = 'Z'; // with explicit type annotation
+     let heart_eyed_cat = '😻';
+
+     let tup: (i32, f64, u8) = (500, 6.4, 1);
+     println!("{:?}", tup);
+
+     let tup = (500, 6.4, 1);
+
+     let (x, y, z) = tup;
+
+     println!("The value of y is: {y}");
+
+     let x: (i32, f64, u8) = (500, 6.4, 1);
+
+     let five_hundred = x.0;
+
+     let six_point_four = x.1;
+
+     let one = x.2;
+
+     let a = [1, 2, 3, 4, 5];
+
+     let months = [
+         "January",
+         "February",
+         "March",
+         "April",
+         "May",
+         "June",
+         "July",
+         "August",
+         "September",
+         "October",
+         "November",
+         "December",
+     ];
+
+     let a: [i32; 5] = [1, 2, 3, 4, 5];
+
+     let a = [3; 5]; // 3, 3, 3, 3, 3
+
+     let first = a[0];
+     let second = a[1];
+
+     // invalid array element access
+     let a = [1, 2, 3, 4, 5];
+
+     println!("Please enter an array index.");
+
+     let mut index = String::new();
+
+     io::stdin()
+         .read_line(&mut index)
+         .expect("Failed to read line");
+
+     let index: usize = index
+         .trim()
+         .parse()
+         .expect("Index entered was not a number");
+
+     let element = a[index];
+
+     println!("The value of the element at index {index} is: {element}");
+
+   END_SRC
+
+** Functions
+
+#+BSRC rust
+fn ) {
+   tln!("Hello, world!");
+
+   her_function();
+   t_labeled_measurement(5, 'h');
+   xpression();
+   tatement_to_another_variable_wont_compile();
+   ement_to_expression();
+
+   x = five();
+
+   tln!("The value of x is: {x}");
+
+   x = plus_one(5);
+
+   tln!("The value of x is: {x}");
+}
+
+fn er_function() {
+   tln!("Another function.");
+}
+
+fn _labeled_measurement(value: i32, unit_label: char) {
+   tln!("The measurement is: {value}{unit_label}")
+}
+
+fn pression() {
+   y = 6;
+}
+
+// atement_to_another_variable_wont_compile(){
+//  x = (let y =6);
+//
+
+fn ment_to_expression() {
+   y = {
+   let x = 3;
+   x + 1
+   // expressions don't include ending semicolons
+   // adding a semicolor to the end of an expression turns it into a statement, which will not return a value
+
+
+   tln!("The value of y is: {y}")
+}
+
+fn ) -> i32 {
+
+}
+
+fn one(x: i32) -> i32 {
+   1
+}
+#+EC
+
+** Comments
+
+   BEGIN_SRC rust
+#![(unused)]
+fn ) {
+   ello, world
+
+   o we're doing something complicated here, long enough that we need
+   ultiple lines of comments to do it! Whew! Hopefully, this comment will
+   xplain what's going on.
+
+   lucky_number = 7; // I'm feeling lucky today
+
+   'm feeling lucky today
+   another_lucky_number = 7;
+}
+   END_SRC
+
+** Control Flow
+
+#+BEGIN_SRC rust
+  fn if_expressions() {
+      let number = 3;
+
+      if number < 5 {
+          println!("condition was true");
+      } else {
+          println!("condition was false");
+      }
+
+      let number = 7;
+
+      if number < 5 {
+          println!("condition was true");
+      } else {
+          println!("condition was false");
+      }
+
+      let number = 3;
+      if number != 0 {
+          println!("number was something other than zero");
+      }
+  }
+
+  fn handling_multiple_conditions_with_else_if() {
+      let number = 6;
+
+      if number % 4 == 0 {
+          println!("number is divisible by 4");
+      } else if number % 3 == 0 {
+          println!("number is divisible by 3");
+      } else if number % 2 == 0 {
+          println!("number is divisible by 2");
+      } else {
+          println!("number is not divisible by 4, 3, or 2");
+      }
+  }
+
+  fn using_if_in_a_let_statement() {
+      let condition = true;
+      let number = if condition { 5 } else { 6 };
+
+      println!("The value of number is: {number}");
+  }
+
+  fn repetition_with_loops() {
+      loop {
+          println!("again!");
+      }
+  }
+
+  fn returning_values_from_loops() {
+      let mut counter = 0;
+
+      let result = loop {
+          counter += 1;
+
+          if counter == 10 {
+              break counter * 2;
+          }
+      };
+
+      println!("The result is {result}")
+  }
+
+  fn loop_labels_to_disambiguate_between_multiple_loops() {
+      let mut count = 0;
+
+      'counting_up: loop {
+          println!("count = {count}");
+          let mut remaining = 10;
+
+          loop {
+              println!("remaining = {remaining}");
+              if remaining == 9 {
+                  break;
+              }
+              if count == 2 {
+                  break 'counting_up;
+              }
+              remaining -= 1;
+          }
+          count += 1;
+      }
+      println!("End count = {count}");
+  }
+
+  fn conditional_loops_with_while() {
+      let mut number = 3;
+
+      while number != 0 {
+          println!("{number}!");
+          number -= 1;
+      }
+
+      println!("LIFTOFF!!!");
+  }
+
+  fn looping_through_a_collection_with_for() {
+      let a = [10, 20, 30, 40, 50];
+      let mut index = 0;
+
+      while index < 5 {
+          println!("the value is: {}", a[index]);
+
+          index += 1;
+      }
+
+      // more concise with for loop
+      for element in a {
+          println!("the value is: {element}");
+      }
+  }
+
+  fn convert_temperature_between_fahrenheit_and_celcius() {
+      loop {
+          println!("Enter any number.");
+          let mut number = String::new();
+
+          std::io::stdin()
+              .read_line(&mut number)
+              .expect("Failed to read line");
+
+          let number: u32 = match number.trim().parse() {
+              Ok(num) => num,
+              Err(_) => continue,
+          };
+
+          let celcius = (number - 32) / (9 / 5);
+          let fahrenheit = (celcius * (9 / 5)) + 32;
+
+          println!("{number}°F -> {celcius}°C");
+          println!("{number}°C -> {fahrenheit}°F");
+          break;
+      }
+  }
+
+  fn generate_nth_fibonacci_number() {
+      loop {
+          println!("Enter any number for n.");
+          let mut number = String::new();
+
+          std::io::stdin()
+              .read_line(&mut number)
+              .expect("Failed to read line");
+
+          let number: u32 = match number.trim().parse() {
+              Ok(num) => num,
+              Err(_) => continue,
+          };
+
+          match number.cmp(&1) {
+              std::cmp::Ordering::Less => println!("0"),
+              std::cmp::Ordering::Equal => println!("1"),
+              std::cmp::Ordering::Greater => {
+                  println!("Fn = Fn-1 + Fn+2 for n>1");
+                  println!("Example: 0,1,1,2,3,5,8,13,21");
+              }
+          }
+          break;
+      }
+  }
+
+  fn main() {
+      // if_expressions();
+      // handling_multiple_conditions_with_else_if();
+      // using_if_in_a_let_statement();
+      // repetition_with_loops();
+      // returning_values_from_loops();
+      // loop_labels_to_disambiguate_between_multiple_loops();
+      // conditional_loops_with_while();
+      // looping_through_a_collection_with_for();
+      convert_temperature_between_fahrenheit_and_celcius();
+      generate_nth_fibonacci_number();
+  }
+#+END_SRC
+
+* Understanding Ownership
+** What is Ownership?
+
+      #+BEGIN_SRC rust
+  fn variables_and_data_interacting_with_move() {
+      // let x = 5;
+      // let y = x;
+
+      let s1 = String::from("hello");
+      let s2 = s1.clone();
+
+      println!("s1 = {s1}, s2 = {s2}");
+      println!("{s1}, world!");
+  }
+
+  fn stack_only_data_copy() {
+      let x = 5;
+      let y = x;
+
+      println!("x = {x}, y = {y}");
+  }
+
+  fn ownership_and_functions() {
+      let s = String::from("hello"); // s comes into scope
+      takes_ownership(s); // s's value moves into the function...
+      // ... and so is no longer valid here
+      let x = 5; // x comes into scope
+      makes_copy(x); // Because i32 implements the Copy trait,
+      // x does NOT move into the function,
+      // so it's okay to use x afterward.
+  } // Here, x goes out of scope, then s. However, because s's value was moved,
+  // nothing special happens.
+
+  fn takes_ownership(some_string: String) {
+      // some_string comes into scope
+      println!("{some_string}");
+  } // Here, some_string goes out of scope and `drop` is called. The backing
+  // memory is freed.
+
+  fn makes_copy(some_integer: i32) {
+      // some_integer comes into scope
+      println!("{some_integer}")
+  } // Here, some_integer goes out of scope. Nothing special happens.
+
+  fn return_values_and_scope() {
+      let s1 = gives_ownership(); // gives_ownership moves its return value into s1
+      let s2 = String::from("hello"); // s2 comes into scope
+      let s3 = takes_and_gives_back(s2); // s2 is moved into takes_and_gives_back, which also moves its return value into s3
+  } // Here, s3 goes out of scope and is dropped. s2 ws moved, so nothing happens. s1 goes out of scope and is dropped.
+
+  fn gives_ownership() -> String {
+      // gives_ownership will move its return value into the function that calls it
+      let some_string = String::from("yours"); //some_string comes into scope
+      some_string // some_string is returned and moves out to the calling function
+  }
+
+  // This function takes a String and returns a String.
+  fn takes_and_gives_back(a_string: String) -> String {
+      // a_string comes into scope
+      a_string // a_string is returned and moves out to the calling function
+  }
+
+  fn return_multiple_values_using_a_tuple() {
+      let s1 = String::from("hello");
+      let (s2, len) = calculate_length(s1);
+      println!("The length of '{s2}' is {len}.")
+  }
+
+  fn calculate_length(s: String) -> (String, usize) {
+      let length = s.len(); // len() returns the length of a String
+      (s, length)
+  }
+
+  fn main() {
+      // let s = "hello";
+      // let mut s = String::from("hello");
+      // s.push_str(", world!");
+      // println!("{s}");
+      // variables_and_data_interacting_with_move();
+      return_values_and_scope();
+      return_multiple_values_using_a_tuple();
+  }
+      #+END_SRC
+
+** References and Borrowing
+
+   BEGIN_SRC rust
+    calculate_length(s: &String) -> usize {
+     // s is a reference to a String
+     s.len()
+   // Here, s goes out of scope. But because s does not have ownership of what it refers to, the String is not dropped.
+
+    fn borrowing_without_returning(){
+      let s = String::from("hello");
+      change(&s);
+    }
+
+    fn change(some_string: &String){
+      some_string.push_str(", world");
+    }
+
+    mutable_references() {
+     let mut s = String::from("hello");
+     {
+         let r1 = &mut s;
+     } // r1 goes out of scope here, so we can make a new reference with no problems.
+     let r2 = &mut s;
+
+     let r1 = &s; // no problem
+     let r2 = &s; // no problem
+     // let r3 = &mut s; // BIG PROBLEM
+
+     // println!("{r1}, {r2}, and {r3}");
+
+
+    reference_scope() {
+     let mut s = String::from("hello");
+     let r1 = &s; // no problem
+     let r2 = &s; // no problem
+     println!("{r1} and {r2}");
+     // Variables r1 and r2 will not be used after this point.
+
+     let r3 = &mut s; // no problem
+     println!("{r3}");
+
+
+    dangling_references() {
+     // let reference_to_string = dangle();
+     let reference_to_string = no_dangle();
+
+
+    fn dangle() -> &String { // dangle returns a reference to a String
+      let s = String::from("hello"); // s is a new String
+      &s // we return a reference to the String, s
+    } // Here, s goes out of scope and is dropped, so its memory goes away.
+    // Danger!
+
+    no_dangle() -> String {
+     let s = String::from("hello");
+     s
+
+
+    main() {
+     let s1 = String::from("hello");
+     let len = calculate_length(&s1);
+     println!("The length of '{s1}' is {len}.");
+
+     // borrowing_without_returning();
+     mutable_references();
+     reference_scope();
+
+   END_SRC
+
+** The Slice Type
+
+#+BEGIN_SRC rust
+  fn main() {
+      let mut s = String::from("hello world");
+      let word = first_word(&s);
+      // s.clear(); // error
+      println!("the first word is: {word}");
+
+      let my_string = String::from("hello world");
+
+      // `first_word` works on slices of `String`s, whether partial or whole.
+      let word = first_word(&my_string[0..6]);
+      let word = first_word(&my_string[..]);
+      // `first_word` also works on references to `String`s, which are equivalent
+      // to whole slices of `String`s
+      let word = first_word(&my_string);
+
+      let my_string_literal = "hello world";
+
+      // `first_word` works on slices of string literals, whether partial or whole.
+      let word = first_word(&my_string_literal[0..6]);
+      let word = first_word(&my_string_literal[..]);
+
+      // Because string literals *are* string slices already,
+      // this works too, without the slice syntax!
+      let word = first_word(my_string_literal);
+
+      let a = [1, 2, 3, 4, 5];
+
+      let slice = &a[1..3];
+      assert_eq!(slice, &[2, 3]);
+  }
+
+  fn first_word(s: &str) -> &str {
+      let bytes = s.as_bytes();
+
+      for (i, &item) in bytes.iter().enumerate() {
+          if item == b' ' {
+              return &s[0..i];
+          }
+      }
+
+      &s[..]
+  }
+#+END_SRC
+
+
+* Using Structs to Structure Related Data
+** Defining and Instantiating Structs
+
+#+BSRC rust
+  s User {
+   tive: bool,
+   ername: String,
+   ail: String,
+   gn_in_count: u64,
+  }
+
+  fld_user(email: String, username: String) -> User {
+   er {
+     active: true,
+     username,
+     email,
+     sign_in_count: 1,
+
+  }
+
+  fating_different_types_with_tuple_structs() {
+   ruct Color(i32, i32, i32);
+   ruct Point(i32, i32, i32);
+
+   t black = Color(0, 0, 0);
+   t origin = Point(0, 0, 0);
+  }
+
+  fining_unit_like_structs() {
+   ruct AlwaysEqual;
+
+   t subject = AlwaysEqual;
+  }
+
+  fn() {
+   t mut user1 = User {
+     active: true,
+     username: String::from("someusername123"),
+     email: String::from("someone@example.com"),
+     sign_in_count: 1,
+
+
+   er1.email = String::from("anotheremail@example.com");
+
+    let user2 = User {
+      active: user1.active,
+      username: user1.username,
+      email: String::from("another@example.com"),
+      sign_in_count: user1.sign_in_count,
+    };
+
+   t user2 = User {
+     email: String::from("another@example.com"),
+     ..user1
+
+
+   eating_different_types_with_tuple_structs();
+   fining_unit_like_structs();
+  }
+#+EC
+
+** An Example Program Using Structs
+
+#+BSRC rust
+  fa(width: u32, height: u32) -> u32 {
+   dth * height
+  }
+
+  factoring_with_tuples() {
+    area(dimensions: (u32, u32)) -> u32 {
+     dimensions.0 * dimensions.1
+
+
+   t rect1 = (30, 50);
+
+   intln!(
+     "The area of the rectangle is {} square pixels.",
+     area(rect1)
+
+  }
+
+  factoring_with_structs() {
+   ruct Rectangle {
+     width: u32,
+     height: u32,
+
+
+    area(rectangle: &Rectangle) -> u32 {
+     rectangle.width * rectangle.height
+
+
+   t rect1 = Rectangle {
+     width: 30,
+     height: 50,
+
+
+   intln!(
+     "The area of the rectangle is {} square pixels.",
+     area(&rect1)
+
+  }
+
+  fing_functionality_with_derived_traits() {
+   derive(Debug)]
+   ruct Rectangle {
+     width: u32,
+     height: u32,
+
+
+   t rect1 = Rectangle {
+     width: 30,
+     height: 50,
+
+
+   intln!("rect1 is {rect1:?}");
+   intln!("rect1 is {rect1:#?}");
+
+   t scale = 2;
+   t rect1 = Rectangle {
+     width: dbg!(30 * scale),
+     height: 50,
+
+
+   g!(&rect1);
+  }
+
+  fn() {
+   t width1 = 30;
+   t height1 = 50;
+
+   intln!(
+     "The area of the rectangle is {} square pixels.",
+     area(width1, height1)
+
+
+   factoring_with_tuples();
+   factoring_with_structs();
+   ding_functionality_with_derived_traits();
+  }
+#+EC
+
+** Methods
+
+#+BEGIN_SRC rust
+#+END_SRC
+
+
+* Enums and Pattern Matching
+** Defining an Enum
+** The match Control Flow Construct
+** Concise Control Flow with if let and let...else
+* Packages, Crates, and Modules
+** Packages and Crates
+** Control Scope and Privacy with Modules
+** Paths for Referring to an Item in the Module Tree
+** Bringing Paths Into Scope with the use Keyword
+** Separating Modules into Different Files
+* Common Collections
+** Storing Lists of Values with Vectors
+** Storing UTF-8 Encoded Text with Strings
+** Storing Keys with Associated Values in Hash Maps
+* Error Handling
+** Unrecoverable Errors with panic!
+** Recoverable Errors with Result
+** To panic! or Not to panic!
+* Generic Types, Traits, and Lifetimes
+** Generic Data Types
+** Defining Shared Behavior with Traits
+** Validating References with Lifetimes
+* Writing Automated Tests
+** How to Write Tests
+** Controlling How Tests Are Run
+** Test Organization
+* An I/O Project: Building a Command Line Program
+** Accepting Command Line Arguments
+** Reading a File
+** Refactoring to Improve Modularity and Error Handling
+** Adding Functionality with Test Driven Development
+** Working with Environment Variables
+** Redirecting Errors to Standard Error
+* Functional Language Features: Iterators and Closures
+** Closures
+** Processing a Series of Items with Iterators
+** Improving Our I/O Project
+** Performance in Loops vs. Iterators
+* More about Cargo and Crates.io
+** Customizing Builds with Release Profiles
+** Publishing a Crate to Crates.io
+** Cargo Workspaces
+** Installing Binaries with cargo install
+** Extending Cargo with Custom Commands
+* Smart Pointers
+** Using Box<T> to Point to Data on the Heap
+** Treating Smart Pointers Like Regular References
+** Running Code on Cleanup with the Drop Trait
+** Rc<T>, the Reference Counted Smart Pointer
+** RefCell<T> and the Interior Mutability Pattern
+** Reference Cycles Can Leak Memory
+* Fearless Concurrency
+** Using Threads to Run Code Simultaneously
+** Transfer Data Between Threads with Message Passing
+** Shared-State Concurrency
+** Extensible Concurrency with Send and Sync
+* Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams
+** Futures and the Async Syntax
+** Applying Concurrency with Async
+** Working With Any Number of Futures
+** Streams: Futures in Sequence
+** A Closer Look at the Traits for Async
+** Futures, Tasks, and Threads
+* Object Oriented Programming Features
+** Characteristics of Object-Oriented Languages
+** Using Trait Objects to Abstract over Shared Behavior
+** Implementing an Object-Oriented Design Pattern
+* Patterns and Matching
+** All the Places Patterns Can Be Used
+** Refutability: Whether a Pattern Might Fail to Match
+** Pattern Syntax
+* Advanced Features
+** Unsafe Rust
+** Advanced Traits
+** Advanced Types
+** Advanced Functions and Closures
+** Macros
+* Final Project: Building a Multithreaded Web Server
+** Building a Single-Threaded Web Server
+** From Single-Threaded to Multithreaded Server
+** Graceful Shutdown and Cleanup
+* Appendix
+** A - Keywords
+** B - Operators and Symbols
+** C - Derivable Traits
+** D - Useful Development Tools
+** E - Editions
+** F - Translations of the Book
+** G - How Rust is Made and “Nightly Rust”
