@@ -122,7 +122,7 @@
         # markdownlint-cli
         # mdx-language-server
 
-        # taplo # toml lsp
+        taplo # toml lsp
         # emmet-ls
         # yaml-language-server
         # dockerfile-language-server
