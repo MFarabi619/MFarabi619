@@ -1,12 +1,15 @@
 [workspace]
 resolver = "3"
-# default-members = ["web"]
+default-members = ["web"]
 exclude = ["ml", "firmware"]
 members = [
-    # "web",
+    "web",
     "tui",
     "tests/e2e",
     "apps/readme",
+    "libs/ui",
+    "libs/primitives",
+    "libs/dioxus-attributes",
     "learning/rust/3.1-variables",
     "learning/rust/3.3-functions",
     "learning/rust/3.4-comments",
@@ -18,20 +21,10 @@ members = [
     "learning/rust/5.2-an-example-program-using-structs"
 ]
 
-[package]
-name = "web"
-version = "0.1.0"
-authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[workspace.dependencies]
 dioxus = { version = "0.7.1", features = ["router", "fullstack"] }
-
-[features]
-default = ["web"]
-web = ["dioxus/web"]
-desktop = ["dioxus/desktop"]
-mobile = ["dioxus/mobile"]
-server = ["dioxus/server"]
+dioxus-sdk-time = "0.7.0"
+dioxus-primitives = { path = "libs/primitives" }
+ui = { path = "libs/ui" }
+tracing = { version = "0.1", features = ["std"] }
+lucide-dioxus = { version = "2.45.0", features = ["all-icons"] }

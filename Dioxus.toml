@@ -1,12 +1,12 @@
-[web]
-pre_compress = true
-
 [web.app]
 title = "🕹 Microvisor Systems 🕹"
 
+[web.watcher]
+watch_path = ["web", "web/src", "web/assets"]
+
 [web.resource]
-script = []
-style = ["https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"]
+script = ["https://docs.openws.org/likec4-views.js"]
+# style = ["https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"]
 
 [web.resource.dev]
 # Javascript code file
@@ -22,6 +22,9 @@ script = []
 # key_path = "/path/to/key"
 # cert_path = "/path/to/cert"
 
+[web]
+pre_compress = true
+
 [bundle]
 category = "Utility"
 publisher = "Mumtahin Farabi"
@@ -31,5 +34,7 @@ copyright = "2026 Microvisor Systems"
 short_description = "General web client."
 
 [application]
+# base_path = "web"
+# asset_dir = "assets"
 tailwind_input = "tailwind.css"
 tailwind_output = "assets/tailwind.css"
