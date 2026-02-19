@@ -2,202 +2,378 @@
 
 /by Steve labnik, carol Nichols, and Chris Krycho, with contributions from the Rust Community/
 
-This version of the text assumes you’re using Rust 1.90.0 (released 2025-09-18) or later with =edition = "2024"= in the /Cargo.toml/ file of all projects to configure them to use Rust 2024 Edition idioms. See the [[*1.1. Installation][“Installation” section of Chapter 1]] for instructions on installing or updating Rust, and see Appendix E for information on editions.
+This version of the text assumes you’re using Rust 1.90.0 (released 2025-09-18) or later with =edition = "2024"= in the /Cargo.toml/ file of all projects to configure them to use Rust 2024 Edition idioms. See the [[*Installation][“Installation” section of Chapter 1]] for instructions on installing or updating Rust, and see [[*E - Editions][Appendix E]] for information on editions.
+
+The HTML format is available online at https://doc.rust-lang.org/stable/book/ and offline with installations of Rust made with =rustup=; run =rustup doc --book= to open.
+
+Several community [[*F - Translations of the Book][translations]] are also available.
+
+This text is available in [[https://nostarch.com/rust-programming-language-3e][paperback and ebook format from No Starch Press]].
+
+#+begin_quote
+🚨 Want a more interactive learning experience?
+
+Try the Rust Book with quizzes, highlighting, and more:
+https://rust-book.cs.brown.edu
+#+end_quote
+
+- *Foreward*
+
+  The Rust programming language has come a long way in a few short years, from its creation and incubation by a small and nascent community of enthusiasts, to becoming one of the most loved and in-demand programming languages in the world. Looking back, it was inevitable that the power and promise of Rust would turn heads and gain a foothold in systems programming. What was not inevitable was the global growth in interest and innovation that permeated through open source communities and catalyzed wide-scale adoption across industries.
+
+  At this point in time, it is easy to point to the wonderful features that Rust has to offer to explain this explosion in interest and adoption. Who doesn’t want memory safety, and fast performance, and a friendly compiler, and great tooling, among a host of other wonderful features? The Rust language you see today combines years of research in systems programming with the practical wisdom of a vibrant and passionate community. This language was designed with purpose and crafted with care, offering developers a tool that makes it easier to write safe, fast, and reliable code.
+
+  But what makes Rust truly special is its roots in empowering you, the user, to achieve your goals. This is a language that wants you to succeed, and the principle of empowerment runs through the core of the community that builds, maintains, and advocates for this language. Since the previous edition of this definitive text, Rust has further developed into a truly global and trusted language. The Rust Project is now robustly supported by the Rust Foundation, which also invests in key initiatives to ensure that Rust is secure, stable, and sustainable.
+
+  This edition of The Rust Programming Language is a comprehensive update, reflecting the language’s evolution over the years and providing valuable new information. But it is not just a guide to syntax and libraries—it’s an invitation to join a community that values quality, performance, and thoughtful design. Whether you’re a seasoned developer looking to explore Rust for the first time or an experienced Rustacean looking to refine your skills, this edition offers something for everyone.
+
+  The Rust journey has been one of collaboration, learning, and iteration. The growth of the language and its ecosystem is a direct reflection of the vibrant, diverse community behind it. The contributions of thousands of developers, from core language designers to casual contributors, are what make Rust such a unique and powerful tool. By picking up this book, you’re not just learning a new programming language—you’re joining a movement to make software better, safer, and more enjoyable to work with.
+
+  Welcome to the Rust community!
+
+   * Bec Rumbul, Executive Director of the Rust Foundation
+
+- *Introduction*
+
+#+begin_quote
+Note: This edition of the book is the same as [[https://nostarch.com/rust-programming-language-3e][The Rust Programming Language]] available in print and ebook format from [[https://nostarch.com][No Starch Press]].
+#+end_quote
+
+Welcome to /The Rust Programming Language/, an introductory book about Rust. The Rust programming language helps you write faster, more reliable software. High-level ergonomics and low-level control are often at odds in programming language design; Rust challenges that conflict. Through balancing powerful technical capacity and a great developer experience, Rust gives you the option to control low-level details (such as memory usage) without all the hassle traditionally associated with such control.
+
+*Who Rust Is For*
+
+Rust is ideal for many people for a variety of reasons. Let’s look at a few of the most important groups.
+
+*Teams of Developers*
+
+Rust is proving to be a productive tool for collaborating among large teams of developers with varying levels of systems programming knowledge. Low-level code is prone to various subtle bugs, which in most other languages can only be caught through extensive testing and careful code review by experienced developers. In Rust, the compiler plays a gatekeeper role by refusing to compile code with these elusive bugs, including concurrency bugs. By working alongside the compiler, the team can spend its time focusing on the program’s logic rather than chasing down bugs.
+
+Rust also brings contemporary developer tools to the systems programming world:
+
+ * Cargo, the included dependency manager and build tool, makes adding, compiling, and managing dependencies painless and consistent across the Rust ecosystem.
+ * The =rustfmt= formatting tool ensures a consistent coding style across developers.
+ * The Rust Language Server powers integrated development environment (IDE) integration for code completion and inline error messages.
+
+By using these and other tools in the Rust ecosystem, developers can be productive while writing systems-level code.
+
+*Students*
+
+Rust is for students and those who are interested in learning about systems concepts. Using Rust, many people have learned about topics like operating systems development. The community is very welcoming and happy to answer students’ questions. Through efforts such as this book, the Rust teams want to make systems concepts more accessible to more people, especially those new to programming.
+
+*Companies*
+
+Hundreds of companies, large and small, use Rust in production for a variety of tasks, including command line tools, web services, DevOps tooling, embedded devices, audio and video analysis and transcoding, cryptocurrencies, bioinformatics, search engines, Internet of Things applications, machine learning, and even major parts of the Firefox web browser.
+
+*Open Source Developers*
+
+Rust is for people who want to build the Rust programming language, community, developer tools, and libraries. We’d love to have you contribute to the Rust language.
+
+*People Who Value Speed and Stability*
+
+Rust is for people who crave speed and stability in a language. By speed, we mean both how quickly Rust code can run and the speed at which Rust lets you write programs. The Rust compiler’s checks ensure stability through feature additions and refactoring. This is in contrast to the brittle legacy code in languages without these checks, which developers are often afraid to modify. By striving for zero-cost abstractions—higher-level features that compile to lower-level code as fast as code written manually—Rust endeavors to make safe code be fast code as well.
+
+The Rust language hopes to support many other users as well; those mentioned here are merely some of the biggest stakeholders. Overall, Rust’s greatest ambition is to eliminate the trade-offs that programmers have accepted for decades by providing safety and productivity, speed and ergonomics. Give Rust a try, and see if its choices work for you.
+
+*Who This Book Is For*
+
+This book assumes that you’ve written code in another programming language, but it doesn’t make any assumptions about which one. We’ve tried to make the material broadly accessible to those from a wide variety of programming backgrounds. We don’t spend a lot of time talking about what programming is or how to think about it. If you’re entirely new to programming, you would be better served by reading a book that specifically provides an introduction to programming.
+
+*How to Use This Book*
+
+In general, this book assumes that you’re reading it in sequence from front to back. Later chapters build on concepts in earlier chapters, and earlier chapters might not delve into details on a particular topic but will revisit the topic in a later chapter.
+
+You’ll find two kinds of chapters in this book: concept chapters and project chapters. In concept chapters, you’ll learn about an aspect of Rust. In project chapters, we’ll build small programs together, applying what you’ve learned so far. Chapter 2, Chapter 12, and Chapter 21 are project chapters; the rest are concept chapters.
+
+[[*Getting Started][Chapter 1]] explains how to install Rust, how to write a “Hello, world!” program, and how to use Cargo, Rust’s package manager and build tool. [[*Programming a Guessing Game][Chapter 2]] is a hands-on introduction to writing a program in Rust, having you build up a number-guessing game. Here, we cover concepts at a high level, and later chapters will provide additional detail. If you want to get your hands dirty right away, Chapter 2 is the place for that. If you’re a particularly meticulous learner who prefers to learn every detail before moving on to the next, you might want to skip Chapter 2 and go straight to [[* Common Programming Concepts][Chapter 3]], which covers Rust features that are similar to those of other programming languages; then, you can return to Chapter 2 when you’d like to work on a project applying the details you’ve learned.
+
+In [[* Understanding Ownership][Chapter 4]], you’ll learn about Rust’s ownership system. [[*Using Structs to Structure Related Data][Chapter 5]] discusses structs and methods. [[*Enums and Pattern Matching][Chapter 6]] covers enums, =match= expressions, and the =if let= and =let...else= control flow constructs. You’ll use structs and enums to make custom types.
+
+In [[Packages, Crates, and Modules][Chapter 7]], you’ll learn about Rust’s module system and about privacy rules for organizing your code and its public application programming interface (API). [[*Common Collections][Chapter 8]] discusses some common collection data structures that the standard library provides: vectors, strings, and hash maps. [[*Error Handling][Chapter 9]] explores Rust’s error-handling philosophy and techniques.
+
+[[Generic Types, Traits, and Lifetimes][Chapter 10]] digs into generics, traits, and lifetimes, which give you the power to define code that applies to multiple types. [[*Writing Automated Tests][Chapter 11]] is all about testing, which even with Rust’s safety guarantees is necessary to ensure that your program’s logic is correct. In [[*An I/O Project: Building a Command Line Program][Chapter 12]], we’ll build our own implementation of a subset of functionality from the grep command line tool that searches for text within files. For this, we’ll use many of the concepts we discussed in the previous chapters.
+
+[[*Functional Language Features: Iterators and Closures][Chapter 13]] explores closures and iterators: features of Rust that come from functional programming languages. In [[*More about Cargo and Crates.io][Chapter 14]], we’ll examine Cargo in more depth and talk about best practices for sharing your libraries with others. [[*Smart Pointers][Chapter 15]] discusses smart pointers that the standard library provides and the traits that enable their functionality.
+
+In [[*Fearless Concurrency][Chapter 16]], we’ll walk through different models of concurrent programming and talk about how Rust helps you program in multiple threads fearlessly. In [[*Fundamentals of Asynchronous Programming: Async, Await, Futures, and Streams][Chapter 17]], we build on that by exploring Rust’s async and await syntax, along with tasks, futures, and streams, and the lightweight concurrency model they enable.
+
+[[*Object Oriented Programming Features][Chapter 18]] looks at how Rust idioms compare to object-oriented programming principles you might be familiar with. [[*Patterns and Matching][Chapter 19]] is a reference on patterns and pattern matching, which are powerful ways of expressing ideas throughout Rust programs. [[*Advanced Features][Chapter 20]] contains a smorgasbord of advanced topics of interest, including unsafe Rust, macros, and more about lifetimes, traits, types, functions, and closures.
+
+In [[Final Project: Building a Multithreaded Web Server][Chapter 21]], we’ll complete a project in which we’ll implement a low-level multithreaded web server!
+
+Finally, some appendixes contain useful information about the language in a more reference-like format. [[*A - Keywords][Appendix A]] covers Rust’s keywords, [[*B - Operators and Symbols][Appendix B]] covers Rust’s operators and symbols, [[*C - Derivable Traits][Appendix C]] covers derivable traits provided by the standard library, [[*Useful Development Tools][Appendix D]] covers some useful development tools, and [[*E - Editions][Appendix E]] explains Rust editions. In [[*F - Translations of the Book][Appendix F]], you can find translations of the book, and in [[*G - How Rust is Made and "Nightly Rust"][Appendix G]] we’ll cover how Rust is made and what nightly Rust is.
+
+There is no wrong way to read this book: If you want to skip ahead, go for it! You might have to jump back to earlier chapters if you experience any confusion. But do whatever works for you.
+
+
+An important part of the process of learning Rust is learning how to read the error messages the compiler displays: These will guide you toward working code. As such, we’ll provide many examples that don’t compile along with the error message the compiler will show you in each situation. Know that if you enter and run a random example, it may not compile! Make sure you read the surrounding text to see whether the example you’re trying to run is meant to error. In most situations, we’ll lead you to the correct version of any code that doesn’t compile. Ferris will also help you distinguish code that isn’t meant to work:
+
+| *Ferris* | *Meaning*                                          |
+|--------+--------------------------------------------------|
+|        | This code does not compile!                      |
+|        | This code panics!                                |
+|        | This code does not produce the desired behavior. |
+
+*Source Code*
+
+The source files from which this book is generated can be found on [[https://github.com/rust-lang/book/tree/main/src][GitHub]].
 
 * Getting Started
-**  Installation
-**  Hello, World!
-**  Hello, Cargo!
+
+Let’s start your Rust journey! There’s a lot to learn, but every journey starts somewhere. In this chapter, we’ll discuss:
+
+ * Installing Rust on Linux, macOS, and Windows
+ * Writing a program that prints =Hello, world!=
+ * Using =cargo=, Rust’s package manager and build system
+
+** Installation
+** Hello, World!
+** Hello, Cargo!
 
 * Programming a Guessing Game
-* Common Programming Conceps
+
+#+BEGIN_SRC toml
+[package]
+name = "guessing_game"
+version = "0.1.0"
+edition = "2024"
+# edition.workspace = true
+
+[dependencies]
+rand = "0.9.0"
+
+[workspace]
+#+END_SRC
+
+#+BEGIN_SRC rust
+use std::cmp::Ordering;
+use std::io;
+use rand::Rng;
+
+fn main() {
+  println!("Guess the number!");
+
+  let secret_number =
+    rand::thread_rng().gen_range(1..=100);
+
+  // println!("The secret number is: {secret_number}");
+
+  loop  {
+  println!("Please input your guess.");
+
+  let mut guess = String::new();
+
+  io::stdin()
+    .read_line(&mut guess)
+    .expect("Failed to read line");
+
+  let guess: u32 = match guess
+    .trim()
+    .parse(){
+      Ok(num) => num,
+      Err(_) => continue
+    };
+
+  println!("You guessed: {guess}");
+
+  match guess.cmp(&secret_number){
+    Ordering::Less => println!("Too small!"),
+    Ordering::Greater => println!("Too big!"),
+    Ordering::Equal => {
+      println!("You win!");
+      break;
+  }
+  }
+  }
+}
+#+END_SRC
+* Common Programming Concepts
 ** Variables and Mutability
 
-   BEGIN_SRC rust
-   e std::io;
+#+BEGIN_SRC rust
+use std::io;
 
-   allow(unused)]
-    main() {
-     let x = 5;
+#[allow(unused)]
+fn main() {
+    let x = 5;
 
-     let x = x + 1;
+    let x = x + 1;
 
-     {
-         let x = x * 2;
-         println!("The value of x in the inner scope is: {x}");
-     }
+    {
+        let x = x * 2;
+        println!("The value of x in the inner scope is: {x}");
+    }
 
-     println!("The value of x is: {x}");
+    println!("The value of x is: {x}");
 
-     let spaces = "   ";
-     let spaces = spaces.len();
-     println!("Length of spaces is: {spaces}");
+    let spaces = "   ";
+    let spaces = spaces.len();
+    println!("Length of spaces is: {spaces}");
 
-     let guess: u32 = "42".parse().expect("Not a number!");
+    let guess: u32 = "42".parse().expect("Not a number!");
 
-     let x = 2.0; // f64
-     let y: f32 = 3.0; // f32
+    let x = 2.0; // f64
+    let y: f32 = 3.0; // f32
 
-     // addition
-     let sum = 5 + 10;
+    // addition
+    let sum = 5 + 10;
 
-     // subtraction
-     let difference = 95.5 - 4.3;
+    // subtraction
+    let difference = 95.5 - 4.3;
 
-     // multiplication
-     let product = 4 * 30;
+    // multiplication
+    let product = 4 * 30;
 
-     // division
-     let quotient = 56.7 / 32.2;
-     let truncated = -5 / 3; // Results in -1
+    // division
+    let quotient = 56.7 / 32.2;
+    let truncated = -5 / 3; // Results in -1
 
-     // remainder
-     let remainder = 43 % 5;
+    // remainder
+    let remainder = 43 % 5;
 
-     let t = true;
-     let f: bool = false; // with explicit type annotation
+    let t = true;
+    let f: bool = false; // with explicit type annotation
 
-     let c = 'z';
-     let z: char = 'Z'; // with explicit type annotation
-     let heart_eyed_cat = '😻';
+    let c = 'z';
+    let z: char = 'Z'; // with explicit type annotation
+    let heart_eyed_cat = '😻';
 
-     let tup: (i32, f64, u8) = (500, 6.4, 1);
-     println!("{:?}", tup);
+    let tup: (i32, f64, u8) = (500, 6.4, 1);
+    println!("{:?}", tup);
 
-     let tup = (500, 6.4, 1);
+    let tup = (500, 6.4, 1);
 
-     let (x, y, z) = tup;
+    let (x, y, z) = tup;
 
-     println!("The value of y is: {y}");
+    println!("The value of y is: {y}");
 
-     let x: (i32, f64, u8) = (500, 6.4, 1);
+    let x: (i32, f64, u8) = (500, 6.4, 1);
 
-     let five_hundred = x.0;
+    let five_hundred = x.0;
 
-     let six_point_four = x.1;
+    let six_point_four = x.1;
 
-     let one = x.2;
+    let one = x.2;
 
-     let a = [1, 2, 3, 4, 5];
+    let a = [1, 2, 3, 4, 5];
 
-     let months = [
-         "January",
-         "February",
-         "March",
-         "April",
-         "May",
-         "June",
-         "July",
-         "August",
-         "September",
-         "October",
-         "November",
-         "December",
-     ];
+    let months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ];
 
-     let a: [i32; 5] = [1, 2, 3, 4, 5];
+    let a: [i32; 5] = [1, 2, 3, 4, 5];
 
-     let a = [3; 5]; // 3, 3, 3, 3, 3
+    let a = [3; 5]; // 3, 3, 3, 3, 3
 
-     let first = a[0];
-     let second = a[1];
+    let first = a[0];
+    let second = a[1];
 
-     // invalid array element access
-     let a = [1, 2, 3, 4, 5];
+    // invalid array element access
+    let a = [1, 2, 3, 4, 5];
 
-     println!("Please enter an array index.");
+    println!("Please enter an array index.");
 
-     let mut index = String::new();
+    let mut index = String::new();
 
-     io::stdin()
-         .read_line(&mut index)
-         .expect("Failed to read line");
+    io::stdin()
+        .read_line(&mut index)
+        .expect("Failed to read line");
 
-     let index: usize = index
-         .trim()
-         .parse()
-         .expect("Index entered was not a number");
+    let index: usize = index
+        .trim()
+        .parse()
+        .expect("Index entered was not a number");
 
-     let element = a[index];
+    let element = a[index];
 
-     println!("The value of the element at index {index} is: {element}");
-
-   END_SRC
+    println!("The value of the element at index {index} is: {element}");
+#+END_SRC
 
 ** Functions
 
-#+BSRC rust
-fn ) {
-   tln!("Hello, world!");
+#+BEGIN_SRC rust
+fn main() {
+    println!("Hello, world!");
 
-   her_function();
-   t_labeled_measurement(5, 'h');
-   xpression();
-   tatement_to_another_variable_wont_compile();
-   ement_to_expression();
+    another_function();
+    print_labeled_measurement(5, 'h');
+    an_expression();
+    // statement_to_another_variable_wont_compile();
+    statement_to_expression();
 
-   x = five();
+    let x = five();
 
-   tln!("The value of x is: {x}");
+    println!("The value of x is: {x}");
 
-   x = plus_one(5);
+    let x = plus_one(5);
 
-   tln!("The value of x is: {x}");
+    println!("The value of x is: {x}");
 }
 
-fn er_function() {
-   tln!("Another function.");
+fn another_function() {
+    println!("Another function.");
 }
 
-fn _labeled_measurement(value: i32, unit_label: char) {
-   tln!("The measurement is: {value}{unit_label}")
+fn print_labeled_measurement(value: i32, unit_label: char) {
+    println!("The measurement is: {value}{unit_label}")
 }
 
-fn pression() {
-   y = 6;
+fn an_expression() {
+    let y = 6;
 }
 
-// atement_to_another_variable_wont_compile(){
-//  x = (let y =6);
-//
+// fn statement_to_another_variable_wont_compile(){
+//   let x = (let y =6);
+// }
 
-fn ment_to_expression() {
-   y = {
-   let x = 3;
-   x + 1
-   // expressions don't include ending semicolons
-   // adding a semicolor to the end of an expression turns it into a statement, which will not return a value
+fn statement_to_expression() {
+    let y = {
+        let x = 3;
+        x + 1
+        // expressions don't include ending semicolons
+        // adding a semicolor to the end of an expression turns it into a statement, which will not return a value
+    };
 
-
-   tln!("The value of y is: {y}")
+    println!("The value of y is: {y}")
 }
 
-fn ) -> i32 {
-
+fn five() -> i32 {
+    5
 }
 
-fn one(x: i32) -> i32 {
-   1
+fn plus_one(x: i32) -> i32 {
+    x + 1
 }
-#+EC
+#+END_SRC
 
 ** Comments
 
-   BEGIN_SRC rust
-#![(unused)]
-fn ) {
-   ello, world
+#+BEGIN_SRC rust
+  #![allow(unused)]
+  fn main() {
+      // hello, world
 
-   o we're doing something complicated here, long enough that we need
-   ultiple lines of comments to do it! Whew! Hopefully, this comment will
-   xplain what's going on.
+      // So we're doing something complicated here, long enough that we need
+      // multiple lines of comments to do it! Whew! Hopefully, this comment will
+      // explain what's going on.
 
-   lucky_number = 7; // I'm feeling lucky today
+      let lucky_number = 7; // I'm feeling lucky today
 
-   'm feeling lucky today
-   another_lucky_number = 7;
-}
-   END_SRC
+      // I'm feeling lucky today
+      let another_lucky_number = 7;
+  }
+#+END_SRC
 
 ** Control Flow
 
@@ -578,153 +754,151 @@ fn ) {
   }
 #+END_SRC
 
-
 * Using Structs to Structure Related Data
 ** Defining and Instantiating Structs
 
-#+BSRC rust
-  s User {
-   tive: bool,
-   ername: String,
-   ail: String,
-   gn_in_count: u64,
-  }
+#+BEGIN_SRC rust
+struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
+}
 
-  fld_user(email: String, username: String) -> User {
-   er {
-     active: true,
-     username,
-     email,
-     sign_in_count: 1,
+fn build_user(email: String, username: String) -> User {
+    User {
+        active: true,
+        username,
+        email,
+        sign_in_count: 1,
+    }
+}
 
-  }
+fn creating_different_types_with_tuple_structs() {
+    struct Color(i32, i32, i32);
+    struct Point(i32, i32, i32);
 
-  fating_different_types_with_tuple_structs() {
-   ruct Color(i32, i32, i32);
-   ruct Point(i32, i32, i32);
+    let black = Color(0, 0, 0);
+    let origin = Point(0, 0, 0);
+}
 
-   t black = Color(0, 0, 0);
-   t origin = Point(0, 0, 0);
-  }
+fn defining_unit_like_structs() {
+    struct AlwaysEqual;
 
-  fining_unit_like_structs() {
-   ruct AlwaysEqual;
+    let subject = AlwaysEqual;
+}
 
-   t subject = AlwaysEqual;
-  }
-
-  fn() {
-   t mut user1 = User {
-     active: true,
-     username: String::from("someusername123"),
-     email: String::from("someone@example.com"),
-     sign_in_count: 1,
-
-
-   er1.email = String::from("anotheremail@example.com");
-
-    let user2 = User {
-      active: user1.active,
-      username: user1.username,
-      email: String::from("another@example.com"),
-      sign_in_count: user1.sign_in_count,
+fn main() {
+    let mut user1 = User {
+        active: true,
+        username: String::from("someusername123"),
+        email: String::from("someone@example.com"),
+        sign_in_count: 1,
     };
 
-   t user2 = User {
-     email: String::from("another@example.com"),
-     ..user1
+    user1.email = String::from("anotheremail@example.com");
 
+    // let user2 = User {
+    //   active: user1.active,
+    //   username: user1.username,
+    //   email: String::from("another@example.com"),
+    //   sign_in_count: user1.sign_in_count,
+    // };
 
-   eating_different_types_with_tuple_structs();
-   fining_unit_like_structs();
-  }
-#+EC
+    let user2 = User {
+        email: String::from("another@example.com"),
+        ..user1
+    };
+
+    creating_different_types_with_tuple_structs();
+    defining_unit_like_structs();
+}
+#+END_SRC
 
 ** An Example Program Using Structs
 
-#+BSRC rust
-  fa(width: u32, height: u32) -> u32 {
-   dth * height
-  }
+#+BEGIN_SRC rust
+fn area(width: u32, height: u32) -> u32 {
+    width * height
+}
 
-  factoring_with_tuples() {
-    area(dimensions: (u32, u32)) -> u32 {
-     dimensions.0 * dimensions.1
+fn refactoring_with_tuples() {
+    fn area(dimensions: (u32, u32)) -> u32 {
+        dimensions.0 * dimensions.1
+    }
 
+    let rect1 = (30, 50);
 
-   t rect1 = (30, 50);
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(rect1)
+    )
+}
 
-   intln!(
-     "The area of the rectangle is {} square pixels.",
-     area(rect1)
+fn refactoring_with_structs() {
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
 
-  }
+    fn area(rectangle: &Rectangle) -> u32 {
+        rectangle.width * rectangle.height
+    }
 
-  factoring_with_structs() {
-   ruct Rectangle {
-     width: u32,
-     height: u32,
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
 
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(&rect1)
+    )
+}
 
-    area(rectangle: &Rectangle) -> u32 {
-     rectangle.width * rectangle.height
+fn adding_functionality_with_derived_traits() {
+    #[derive(Debug)]
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
 
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50,
+    };
 
-   t rect1 = Rectangle {
-     width: 30,
-     height: 50,
+    println!("rect1 is {rect1:?}");
+    println!("rect1 is {rect1:#?}");
 
+    let scale = 2;
+    let rect1 = Rectangle {
+        width: dbg!(30 * scale),
+        height: 50,
+    };
 
-   intln!(
-     "The area of the rectangle is {} square pixels.",
-     area(&rect1)
+    dbg!(&rect1);
+}
 
-  }
+fn main() {
+    let width1 = 30;
+    let height1 = 50;
 
-  fing_functionality_with_derived_traits() {
-   derive(Debug)]
-   ruct Rectangle {
-     width: u32,
-     height: u32,
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        area(width1, height1)
+    );
 
-
-   t rect1 = Rectangle {
-     width: 30,
-     height: 50,
-
-
-   intln!("rect1 is {rect1:?}");
-   intln!("rect1 is {rect1:#?}");
-
-   t scale = 2;
-   t rect1 = Rectangle {
-     width: dbg!(30 * scale),
-     height: 50,
-
-
-   g!(&rect1);
-  }
-
-  fn() {
-   t width1 = 30;
-   t height1 = 50;
-
-   intln!(
-     "The area of the rectangle is {} square pixels.",
-     area(width1, height1)
-
-
-   factoring_with_tuples();
-   factoring_with_structs();
-   ding_functionality_with_derived_traits();
-  }
-#+EC
+    refactoring_with_tuples();
+    refactoring_with_structs();
+    adding_functionality_with_derived_traits();
+}
+#+END_SRC
 
 ** Methods
 
 #+BEGIN_SRC rust
 #+END_SRC
-
 
 * Enums and Pattern Matching
 ** Defining an Enum
