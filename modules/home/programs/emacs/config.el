@@ -393,26 +393,27 @@
   (org-babel-do-load-languages 'org-babel-load-languages
                                (append org-babel-load-languages '((duckdb . t)))))
 
-;; (after! magit
-;;   (use-package! magit-todos
-;;     :config (magit-todos-mode 1))
-;;   (setq magit-diff-refine-hunk 'all
-;;         magit-log-margin-show-author t
-;;         magit-revision-insert-related-refs t
-;;         magit-log-margin-show-committer-date t
-;;         magit-section-visibility-indicator '(" " . " ")
-;;         magit-status-margin '(t age magit-log-margin-width t 22)
-;;         magit-format-file-function #'magit-format-file-nerd-icons
-;;         magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256") )
-;;   (add-hook 'magit-mode-hook 'hl-line-mode
-;;             'magit-mode-hook 'display-line-numbers-mode)
-;;   (custom-set-faces
-;;    '(magit-diff-context ((t (:foreground "#b0b0b0"))))
-;;    '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
-;;    '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
-;;    '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
-;;    '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
-;;    '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff"))))))
+(after! magit
+  ;; (use-package! magit-todos
+  ;;   :config (magit-todos-mode 1))
+  (setq magit-diff-refine-hunk 'all
+        magit-log-margin-show-author t
+        magit-revision-insert-related-refs t
+        magit-log-margin-show-committer-date t
+        magit-section-visibility-indicator '(" " . " ")
+        magit-status-margin '(t age magit-log-margin-width t 22)
+        magit-format-file-function #'magit-format-file-nerd-icons
+        magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")
+        magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256"))
+  (add-hook 'magit-mode-hook 'hl-line-mode
+            'magit-mode-hook 'display-line-numbers-mode)
+  (custom-set-faces
+   '(magit-diff-context ((t (:foreground "#b0b0b0"))))
+   '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
+   '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
+   '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
+   '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
+   '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff"))))))
 
 ;; (gfm-mode-hook 'gfm-view-mode)
 
