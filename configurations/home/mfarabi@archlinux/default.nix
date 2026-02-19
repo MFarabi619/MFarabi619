@@ -26,20 +26,24 @@ in
       ttyd
       lldb
       tscli
-      arion
       nix-ld
-      argocd
-      kubectl
-      # microk8s
-      minikube
+      # libvterm
       jellyfin
       filebrowser
       # fw-fanctrl
       wl-screenrec
-      framework-tool
+
+      kubectl
+      minikube
+      # microk8s
+
+      arion
+      argocd
       argocd-autopilot
-      framework-tool-tui
       argocd-vault-plugin
+
+      framework-tool
+      framework-tool-tui
     ];
 
     file = {
