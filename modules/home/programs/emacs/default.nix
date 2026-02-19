@@ -34,20 +34,24 @@
         nov
         mu4e
         verb
-        gptel # ai
-        vterm # terminal emulation
+        gptel
+        vterm
         circe
         corfu
-        org-anki
         pdf-tools
-        org-pdftools
-        org-roam-ui
         corfu-terminal
         nerd-icons-corfu
 
         devdocs
         devdocs-browser
         compiler-explorer
+
+        org-anki
+        org-roam-ui
+        org-pdftools
+        org-nix-shell
+        org-super-agenda
+        org-table-highlight
 
         wttrin
         shrface
@@ -66,7 +70,6 @@
         scad-mode
         ob-mermaid
         mermaid-mode # github.com/abrochard/mermaid-mode
-        org-table-highlight
         # ================
         pacmacs
         key-quiz
@@ -75,7 +78,6 @@
         fretboard
         speed-type
         chordpro-mode
-        org-super-agenda
         # ================
         # jira
         # obsidian
