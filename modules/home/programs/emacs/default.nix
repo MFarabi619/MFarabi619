@@ -45,6 +45,9 @@
         devdocs-browser
         compiler-explorer
 
+        kconfig-ref
+        kconfig-mode
+
         org-anki
         org-roam-ui
         org-pdftools
