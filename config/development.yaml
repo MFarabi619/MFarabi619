@@ -24,13 +24,17 @@ server:
   host: http://localhost
   # Out of the box middleware configuration. to disable middleware you can changed the `enable` field to `false` of comment the middleware block
   middlewares:
+    fallback:
+      enable: false
     static:
       enable: true
       must_exist: true
       precompressed: false
       folder:
-        uri: "/static"
-        path: "assets/static"
+        uri: "/"
+        path: "target/dx/web/release/web/public"
+        # uri: "/static"
+        # path: "/assets/static"
       fallback: "assets/static/404.html"
 
 # Worker Configuration
