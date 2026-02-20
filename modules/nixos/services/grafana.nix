@@ -47,6 +47,7 @@ in
       };
 
       security = {
+        secret_key = "/var/lib/secrets/grafana";
         disable_initial_admin_creation = false;
         disable_brute_force_login_protection = false;
       };
