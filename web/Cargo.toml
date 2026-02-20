@@ -1,6 +1,6 @@
 [package]
 name = "web"
-edition = "2021"
+edition = "2024"
 version = "0.1.0"
 authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
 
@@ -27,6 +27,6 @@ desktop = ["dioxus/desktop"]
 [build-dependencies]
 syn = "2.0.98"
 prettyplease = "0.2.36"
-dioxus-autofmt.version = "0.6.0"
+dioxus-autofmt.version = "0.7.3"
 mdbook-shared = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa" }
 mdbook-gen = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa", features = ["manganis"] }

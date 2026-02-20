@@ -3,6 +3,7 @@ resolver = "3"
 # default-members = ["web"]
 exclude = ["ml", "firmware"]
 members = [
+    ".",
     "web",
     "tui",
     "tests/e2e",
@@ -12,12 +13,12 @@ members = [
 [package]
 name = "api"
 publish = false
-edition = "2021"
+edition = "2024"
 version = "0.1.0"
 default-run = "api-cli"
 
 [workspace.dependencies]
-loco-rs = "0.15"
+loco-rs = "0.16.4"
 dioxus-sdk-time = "0.7.0"
 dioxus-primitives.path = "libs/primitives"
 tracing = { version = "0.1", features = ["std"] }
@@ -39,11 +40,11 @@ loco-rs.workspace = true
 migration.path = "migration"
 uuid = { version = "1.6.0", features = ["v4"] }
 serde = { version = "1", features = ["derive"] }
-axum-extra = { version = "0.10", features = ["form"] } # /view engine
+axum-extra = { version = "0.12", features = ["form"] } # /view engine
 fluent-templates = { version = "0.8.0", features = ["tera"] } # view engine i18n
 tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
 tokio = { version = "1.33.0", default-features = false, features = ["rt-multi-thread"] }
-sea-orm = { version = "1.1.0", features = [
+sea-orm = { version = "1.1.19", features = [
   "sqlx-sqlite",
   "sqlx-postgres",
   "runtime-tokio-rustls",

@@ -1,10 +1,6 @@
 # Loco configuration file documentation
-
-# Application logging configuration
 logger:
-  # Enable or disable logging.
   enable: true
-  # Enable pretty backtrace (sets RUST_BACKTRACE=1)
   pretty_backtrace: true
   # Log level, options: trace, debug, info, warn or error.
   level: debug
@@ -14,7 +10,6 @@ logger:
   # Uncomment the line below to override to see all third party libraries you can enable this config and override the logger filters.
   # override_filter: trace
 
-# Web server configuration
 server:
   # Port on which the server will listen. the server binding is 0.0.0.0:{PORT}
   port: 5150
@@ -37,7 +32,6 @@ server:
         # path: "/assets/static"
       fallback: "assets/static/404.html"
 
-# Worker Configuration
 workers:
   # specifies the worker mode. Options:
   #   - BackgroundQueue - Workers operate asynchronously in the background, processing queued.
@@ -47,44 +41,30 @@ workers:
 
   
 
-# Mailer Configuration.
 mailer:
-  # SMTP mailer configuration.
   smtp:
-    # Enable/Disable smtp mailer.
-    enable: true
-    # SMTP server host. e.x localhost, smtp.gmail.com
-    host: localhost
-    # SMTP server port
     port: 1025
-    # Use secure connection (SSL/TLS).
+    enable: true
     secure: false
+    host: localhost
     # auth:
     #   user:
     #   password:
     # Override the SMTP hello name (default is the machine's hostname)
     # hello_name:
 
-# Initializers Configuration
 # initializers:
 #  oauth2:
 #    authorization_code: # Authorization code grant type
 #      - client_identifier: google # Identifier for the OAuth2 provider. Replace 'google' with your provider's name if different, must be unique within the oauth2 config.
 #        ... other fields
 
-# Database Configuration
 database:
-  # Database connection URI
   uri: {{ get_env(name="DATABASE_URL", default="sqlite://api_development.sqlite?mode=rwc") }}
-  # When enabled, the sql query will be logged.
   enable_logging: false
-  # Set the timeout duration when acquiring a connection.
-  connect_timeout: {{ get_env(name="DB_CONNECT_TIMEOUT", default="500") }}
-  # Set the idle duration before closing a connection.
   idle_timeout: {{ get_env(name="DB_IDLE_TIMEOUT", default="500") }}
-  # Minimum number of connections for a pool.
+  connect_timeout: {{ get_env(name="DB_CONNECT_TIMEOUT", default="500") }}
   min_connections: {{ get_env(name="DB_MIN_CONNECTIONS", default="1") }}
-  # Maximum number of connections for a pool.
   max_connections: {{ get_env(name="DB_MAX_CONNECTIONS", default="1") }}
   # Run migration up when application loaded
   auto_migrate: true
@@ -93,9 +73,7 @@ database:
   # Recreating schema when application loaded.  This is a dangerous operation, make sure that you using this flag only on dev environments or test mode
   dangerously_recreate: false
 
-# Authentication Configuration
 auth:
-  # JWT authentication
   jwt:
     # Secret key for token generation and verification
     secret: EuMvNwuLnnaAgt3Jx7lw
