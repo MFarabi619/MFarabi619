@@ -12,14 +12,11 @@ pub fn build(b: *std.Build) void {
     // means any target is allowed, and the default is native. Other options
     // for restricting supported target set are available.
     const target = b.standardTargetOptions(.{});
+
     // Standard optimization options allow the person running `zig build` to select
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall. Here we do not
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
-    // It's also possible to define more custom flags to toggle optional features
-    // of this build script using `b.option()`. All defined flags (including
-    // target and optimize options) will be listed when running `zig build --help`
-    // in this directory.
 
     // This creates a module, which represents a collection of source files alongside
     // some compilation options, such as optimization mode and linked system libraries.
@@ -36,10 +33,14 @@ pub fn build(b: *std.Build) void {
         // of this module, you will have to make sure to re-export them from
         // the root file.
         .root_source_file = b.path("src/root.zig"),
-        // Later on we'll use this module as the root module of a test executable
-        // which requires us to specify a target.
+
+        // Having a target here is useful because we will also use this module for tests.
         .target = target,
+        .optimize = optimize,
     });
+
+    mod.addIncludePath(b.path("include"));
+    mod.link_libc = true;
 
     // Here we define an executable. An executable needs to have a root module
     // which needs to expose a `main` function. While we could add a main function
@@ -57,31 +58,44 @@ pub fn build(b: *std.Build) void {
     //
     // If neither case applies to you, feel free to delete the declaration you
     // don't need and to put everything under a single module.
+    const exe_root = b.createModule(.{
+        // b.createModule defines a new module just like b.addModule but,
+        // unlike b.addModule, it does not expose the module to consumers of
+        // this package, which is why in this case we don't have to give it a name.
+        .root_source_file = b.path("src/main.zig"),
+
+        // Target and optimization levels must be explicitly wired in when
+        // defining an executable or library (in the root module), and you
+        // can also hardcode a specific target for an executable or library
+        // definition if desireable (e.g. firmware for embedded devices).
+        .target = target,
+        .optimize = optimize,
+
+        // List of modules available for import in source files part of the
+        // root module.
+        .imports = &.{
+            // Here "zitadel" is the name you will use in your source code to
+            // import this module (e.g. `@import("zitadel")`). The name is
+            // repeated because you are allowed to rename your imports, which
+            // can be extremely useful in case of collisions (which can happen
+            // importing modules from different packages).
+            .{ .name = "zitadel", .module = mod },
+        },
+    });
+
     const exe = b.addExecutable(.{
         .name = "zitadel",
-        .root_module = b.createModule(.{
-            // b.createModule defines a new module just like b.addModule but,
-            // unlike b.addModule, it does not expose the module to consumers of
-            // this package, which is why in this case we don't have to give it a name.
-            .root_source_file = b.path("src/main.zig"),
-            // Target and optimization levels must be explicitly wired in when
-            // defining an executable or library (in the root module), and you
-            // can also hardcode a specific target for an executable or library
-            // definition if desireable (e.g. firmware for embedded devices).
-            .target = target,
-            .optimize = optimize,
-            // List of modules available for import in source files part of the
-            // root module.
-            .imports = &.{
-                // Here "zitadel" is the name you will use in your source code to
-                // import this module (e.g. `@import("zitadel")`). The name is
-                // repeated because you are allowed to rename your imports, which
-                // can be extremely useful in case of collisions (which can happen
-                // importing modules from different packages).
-                .{ .name = "zitadel", .module = mod },
-            },
-        }),
+        .root_module = exe_root,
     });
+
+    // Zig 0.16: include paths are configured on modules, not on the compile step.
+    // Use include/ if you have C-style headers there; use src/ only if you truly include from src/.
+    exe.root_module.addIncludePath(b.path("include"));
+    exe_root.addCSourceFiles(.{
+        .files = &.{"modules/arithmetic/arithmetic.c"},
+        .flags = &.{ "-Wall", "-Wextra" },
+    });
+    exe.root_module.link_libc = true;
 
     // This declares intent for the executable to be installed into the
     // install prefix when running `zig build` (i.e. when executing the default
@@ -116,8 +130,6 @@ pub fn build(b: *std.Build) void {
     }
 
     // Creates an executable that will run `test` blocks from the provided module.
-    // Here `mod` needs to define a target, which is why earlier we made sure to
-    // set the releative field.
     const mod_tests = b.addTest(.{
         .root_module = mod,
     });
@@ -131,6 +143,12 @@ pub fn build(b: *std.Build) void {
     const exe_tests = b.addTest(.{
         .root_module = exe.root_module,
     });
+
+    // exe_tests.root_module.addIncludePath(b.path("include"));
+    // exe_tests.root_module.addCSourceFiles(.{
+    //     .files = &.{"modules/arithmetic/arithmetic.c"},
+    //     .flags = &.{},
+    // });
 
     // A run step that will run the second test executable.
     const run_exe_tests = b.addRunArtifact(exe_tests);

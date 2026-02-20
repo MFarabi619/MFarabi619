@@ -1,10 +1,24 @@
 const std = @import("std");
 const zitadel = @import("zitadel");
 
-pub fn main() !void {
+pub fn main(init: std.process.Init) !void {
     // Prints to stderr, ignoring potential errors.
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
-    try zitadel.bufferedPrint();
+    try zitadel.bufferedPrint(init.io);
+
+    const x: i32 = 5;
+    const y: i32 = 16;
+    // const z: i32 = zitadel.add(x, y);
+    const z: i32 = zitadel.add_c(x, y);
+
+    // Zig 0.16+ IO: avoid global std.io helpers.
+    // Use the IO handles provided by std.process.Init, and buffer explicitly.
+    var stdout_buffer: [1024]u8 = undefined;
+    var stdout_writer = std.Io.File.stdout().writer(init.io, &stdout_buffer);
+    const stdout = &stdout_writer.interface;
+
+    try stdout.print("{d} + {d} = {d}\n", .{ x, y, z });
+    try stdout.flush();
 }
 
 test "simple test" {
