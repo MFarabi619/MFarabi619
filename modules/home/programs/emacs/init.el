@@ -250,7 +250,8 @@
         +tree-sitter)     ; JSON, but readable
        (zig               ; C, but simpler
         +lsp
-        +tree-sitter)
+        ;; +tree-sitter
+        )
 
        :email
        (mu4e
