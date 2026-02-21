@@ -105,6 +105,7 @@ in
       "btop.nix"
       "bun.nix"
       "chromium.nix"
+      "discord.nix"
       # "claude-code.nix"
       "command-not-found.nix"
       "direnv.nix"
