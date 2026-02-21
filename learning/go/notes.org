@@ -1,0 +1,56 @@
+#+title: Welcome to a tour of Go
+
+- *Using the tour*
+
+Welcome to a tour of the [[https://go.dev][Go programming language]]. The tour covers the most important features of the language, mainly:
+
+- *Basics*
+
+The starting point, learn all the basics of the language.
+
+Declaring variables, calling functions, and all the things you need to know before moving to the next lessons.
+
+[[https://go.dev/tour/basics][Packages, variables, and functions.]]
+Learn the basic components of any Go program.
+
+#+BEGIN_SRC go
+package main
+
+import (
+	"fmt"
+	"math/rand"
+)
+
+func main() {
+	fmt.Println("My favorite number is", rand.Intn(10))
+}
+#+END_SRC
+
+[[https://go.dev/tour/flowcontrol][Flow control statements: for, if, else, switch and defer]]
+Learn how to control the flow of your code with conditionals, loops, switches and defers.
+
+[[https://go.dev/tour/moretypes][More types: structs, slices, and maps.]]
+Learn how to define types based on existing ones: this lesson covers structs, arrays, slices, and maps.
+
+Methods and interfaces
+
+Learn how to define methods on types, how to declare interfaces, and how to put everything together.
+
+[[https://go.dev/tour/methods][Methods and interfaces]]
+This lesson covers methods and interfaces, the constructs that define objects and their behavior.
+
+Generics
+
+Learn how to use type parameters in Go functions and structs.
+
+[[https://go.dev/tour/generics][Generics]]
+Go supports generic programming using type parameters. This lesson shows some examples for employing generics in your code.
+
+Concurrency
+
+Go provides concurrency features as part of the core language.
+
+This module goes over goroutines and channels, and how they are used to implement different concurrency patterns.
+
+[[https://go.dev/tour/concurrency][Concurrency]]
+Go provides concurrency constructions as part of the core language. This lesson presents them and gives some examples on how they can be used.
