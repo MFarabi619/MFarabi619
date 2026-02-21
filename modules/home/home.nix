@@ -20,6 +20,7 @@
       cat = "bat";
       z = "zoxide";
       man = "batman";
+      lg = "lazygit";
       zlj = "zellij";
       lsh = "lazyssh";
       lj = "lazyjournal";

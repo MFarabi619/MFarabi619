@@ -5,6 +5,7 @@
 {
   programs.lazygit = {
     enable = true;
+    enableZshIntegration = false;
     settings = {
       notARepository = "skip";
       disableStartupPopups = true;
