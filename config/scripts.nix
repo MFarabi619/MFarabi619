@@ -23,7 +23,7 @@
       exec = "bunx likec4 start ${config.git.root}/docs";
     };
 
-    kernel = {
+    up = {
       description = " 🎉 Fire up the Microvisor Kernel";
       exec = ''
         devenv up

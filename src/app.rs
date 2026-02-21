@@ -12,6 +12,7 @@ use loco_rs::{
 };
 use migration::Migrator;
 use std::path::Path;
+use loco_openapi::prelude::*;
 
 #[allow(unused_imports)]
 use crate::{
@@ -44,15 +45,56 @@ impl Hooks for App {
     }
 
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
-        Ok(vec![Box::new(
+      Ok(vec![
+        Box::new(
             initializers::view_engine::ViewEngineInitializer,
-        )])
+        ),
+        Box::new(
+        loco_openapi::OpenapiInitializerWithSetup::new(
+            |ctx| {
+                #[derive(OpenApi)]
+                #[openapi(
+                    modifiers(&SecurityAddon),
+                    info(
+                        title = "🧩 Microvisor Systems OpenAPI Spec 🧩",
+                        description = "Beep Boop 🤖"
+                    )
+                )]
+                struct ApiDoc;
+                ApiDoc::openapi()
+            },
+            None, // When using automatic schema collection only
+            // When using manual schema collection
+            // Manual schema collection can also be used at the same time as automatic schema collection
+            // Some(vec![controllers::album::api_routes()]),
+        ))
+      ])
     }
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
         AppRoutes::with_default_routes() // controller routes below
             .add_route(controllers::auth::routes())
     }
+
+    async fn after_routes(router: axum::Router, _ctx: &AppContext) -> Result<axum::Router> {
+        async fn scalar_ui() -> axum::response::Html<String> {
+            let cfg = serde_json::json!({
+              "isLoading": true,
+              "theme": "deepSpace",
+              "hideClientButton": true,
+              "defaultOpenAllTags": true,
+              "expandAllResponses": true,
+              "favicon": "/nix-mfarabi.svg" ,
+              "expandAllModelSections": true,
+              "url": "/api-docs/openapi.json",
+            });
+
+            axum::response::Html(scalar_api_reference::scalar_html_default(&cfg))
+        }
+
+        Ok(router.route("/scalar", axum::routing::get(scalar_ui)))
+    }
+
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         queue.register(DownloadWorker::build(ctx)).await?;
         Ok(())

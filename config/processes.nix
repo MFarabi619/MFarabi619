@@ -5,20 +5,12 @@
 }:
 {
   processes = {
-    api = {
-      exec = "cargo loco start --binding 0.0.0.0";
+    "cargo:loco:watch" = {
+      exec = "cargo loco watch";
+      ports.http.allocate = config.languages.rust.loco.config.development.server.port;
       process-compose = {
         is_tty = true;
-        disabled = true;
-        namespace = "⚙ Back-End";
-        description = "Back-End Server using Loco.rs";
-        readiness_probe = {
-          http_get = {
-            port = "5150";
-            scheme = "http";
-            host = "localhost";
-          };
-        };
+        namespace = "🧩 API";
       };
     };
   }
@@ -33,7 +25,8 @@
       })
       {
         sqld.disabled = true;
-        # caddy.disabled = true;
+        caddy.disabled = false;
+        mailpit.disabled = false;
         prometheus.disabled = true;
         "tailscale-funnel".disabled = true;
       }

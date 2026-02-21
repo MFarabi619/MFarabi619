@@ -50,6 +50,7 @@ local.properties
 **/config/*.local.yaml
 !.vscode/extensions.json
 **/config/production.yaml
+**/config/development.yaml
 !.vscode/settings-example.json
 
 !Cargo.lock

@@ -8,6 +8,7 @@ use crate::{
 };
 use axum::debug_handler;
 use loco_rs::prelude::*;
+use loco_openapi::prelude::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::sync::OnceLock;
@@ -31,7 +32,7 @@ pub struct ResetParams {
     pub password: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct MagicLinkParams {
     pub email: String,
 }
@@ -166,6 +167,13 @@ async fn current(auth: auth::JWT, State(ctx): State<AppContext>) -> Result<Respo
 ///    If invalid or expired, an unauthorized response is returned.
 ///
 /// This flow enhances security by avoiding traditional passwords and providing a seamless login experience.
+#[utoipa::path(
+    get,
+    path = "/magic-link",
+    responses(
+        (status = 200, body = MagicLinkParams),
+    ),
+)]
 async fn magic_link(
     State(ctx): State<AppContext>,
     Json(params): Json<MagicLinkParams>,
@@ -223,6 +231,6 @@ pub fn routes() -> Routes {
         .add("/forgot", post(forgot))
         .add("/reset", post(reset))
         .add("/current", get(current))
-        .add("/magic-link", post(magic_link))
+        .add("/magic-link", openapi(post(magic_link),routes!(magic_link)))
         .add("/magic-link/{token}", get(magic_link_verify))
 }
