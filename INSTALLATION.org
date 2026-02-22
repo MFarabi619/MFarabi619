@@ -157,6 +157,52 @@ See =hosts/doombsd/README.org=
     hyde-shell reload
     #+end_src
 
+*** Proxmox setup (WIP)
+
+#+begin_src sh
+nano /etc/network/interfaces
+#+end_src
+
+auto lo
+iface lo inet loopback
+
+iface wlo1 inet manual
+
+auto enp3s0
+iface enp3s0 inet manual
+
+auto vmbr0
+iface vmbr0 inet dhcp
+	bridge-ports enp3s0
+	bridge-stp off
+	bridge-fd 0
+
+
+source /etc/network/interfaces.d/*
+
+#+begin_src sh
+ifreload -a
+#+end_src
+
+
+#+begin_src sh
+sudo systemctl stop pvestatd pvedaemon pve-cluster corosync
+
+sudo rm -f /var/lib/pve-cluster/.pmxcfs.lockfile
+sudo rm -rf /var/lib/pve-cluster
+sudo rm /etc/pve/corosync.conf
+sudo rm /etc/corosync/*
+sudo rm /var/lib/corosync/*
+#+end_src
+
+
+sudo systemctl start pvestatd pvedaemon pve-cluster corosync
+
+#+begin_src sh
+sudo pvecm create openws
+sudo pvecm status
+#+end_src
+
 ** [[https://archlinux.org][Arch Linux]]
 
 *** 1. Prepare Environment
