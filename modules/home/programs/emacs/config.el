@@ -367,6 +367,7 @@
 (after! org
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
   (setq
+   org-startup-numerated t
    org-modern-table-vertical 1
    org-modern-table-horizontal 0.2
    org-link-search-must-match-exact-headline nil
