@@ -25,10 +25,12 @@
       lsh = "lazyssh";
       lj = "lazyjournal";
       mkdir = "mkdir -p";
+      mic = "tv microvisor";
       # grep = "batgrep";
       # TODO: add batpipe
     }
     // lib.optionalAttrs (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64) {
+      zig = "~/.zvm/bin/zig";
       stmcli = "/Applications/STMicroelectronics/STM32Cube/STM32CubeProgrammer/STM32CubeProgrammer.app/Contents/MacOs/bin/STM32_Programmer_CLI";
     };
 
@@ -66,10 +68,14 @@
       # SCREENRC = "${config.xdg.configHome}/screen/screenrc";
     };
 
-    sessionPath = lib.mkIf pkgs.stdenv.isDarwin [
-      "/usr/local/bin"
-      "/etc/profiles/per-user/$USER/bin"
-      "/nix/var/nix/profiles/system/sw/bin"
-    ];
+    sessionPath =
+      lib.optionals pkgs.stdenv.isLinux [
+        # "/home/mfarabi/.zvm/bin"
+      ]
+      ++ lib.optionals pkgs.stdenv.isDarwin [
+        "/usr/local/bin"
+        "/etc/profiles/per-user/$USER/bin"
+        "/nix/var/nix/profiles/system/sw/bin"
+      ];
   };
 }
