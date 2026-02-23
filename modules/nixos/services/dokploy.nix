@@ -1,5 +1,6 @@
 # docker service update --env-add TZ=America/Toronto dokploy_dokploy
 {
+  pkgs,
   flake,
   config,
   ...
@@ -12,22 +13,24 @@
   virtualisation.docker.daemon.settings.live-restore = false;
 
   services.dokploy = {
-    # enable = false;
-    enable = config.networking.hostName == "framework-desktop";
-    # lxc = false; # default
     port = "1212:3000";
-    # dataDir = "/etc/dokploy"; # default
-    # traefik = "traefik:v3.6.1"; # default
-    image = "dokploy/dokploy:v0.26.5";
+    image = "dokploy/dokploy:v0.27.1";
+    enable = config.networking.hostName == "framework-desktop";
+
+    environment = {
+      TZ = config.time.timeZone;
+    };
 
     swarm = {
       autoRecreate = true;
-      advertiseAddress = "private";
-      # advertiseAddress = {
-      #  command = "echo 192.168.1.100";
-      #   command = "tailscale ip -4 | head -n1";
-      #   # extraPackages = [ pkgs.tailscale ];
-      # };
+      advertiseAddress =
+        if config.services.tailscale.enable then
+          {
+            command = "tailscale ip -4 | head -n1";
+            extraPackages = [ pkgs.tailscale ];
+          }
+        else
+          "private";
     };
   };
 }
