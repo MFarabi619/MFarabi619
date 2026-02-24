@@ -5,14 +5,22 @@
 
     settings = {
       theme = "gruvbox";
-
       autoshare = false;
       autoupdate = false;
+      #   model= "{env:OPENCODE_MODEL}";
+      model = "openai/gpt-5.3-codex";
 
       permission = {
-        edit = "ask";
         bash = "ask";
-        webfetch = "ask";
+        edit = "allow";
+        grep = "allow";
+        glob = "allow";
+        webfetch = "allow";
+        question = "allow";
+      };
+
+      server = {
+        mdns = true;
       };
 
       # mcp = {
@@ -65,10 +73,6 @@
 
       # disabled_providers= ["openai" "gemini"];
       # instructions = ["CONTRIBUTING.md" "docs/guidelines.md" ".cursor/rules/*.md"];
-
-      #   model = "anthropic/claude-sonnet-4-20250514";
-      #   model= "{env:OPENCODE_MODEL}";
-
       #     rules = ''
       #       # TypeScript Project Rules
 
