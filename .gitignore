@@ -64,3 +64,4 @@ local.properties
 
 ml/target
 !/firmware/src/bin
+/config/development.yaml
