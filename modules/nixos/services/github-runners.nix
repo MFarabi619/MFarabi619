@@ -29,10 +29,11 @@
       extraPackages = with pkgs; [
         jq
         pnpm
+        xvfb
         pulumi
         devenv
         direnv
-        xvfb
+        platformio
         playwright
         playwright-test
       ];

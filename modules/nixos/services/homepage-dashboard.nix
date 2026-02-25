@@ -306,9 +306,9 @@ in
               }
               {
                 "Raspberry Pi 5 (Trixie)" = {
+                  icon = "raspberry-pi.svg";
                   href = "https://rpi5.openws.org";
                   siteMonitor = "https://rpi5.openws.org";
-                  icon = "raspberry-pi.svg";
                 };
               }
               {

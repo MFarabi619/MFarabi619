@@ -74,7 +74,7 @@ with lib;
         "http://rpi5.openws.org".extraConfig = "reverse_proxy rpi5-8:7681";
         "http://emacs.openws.org".extraConfig = "reverse_proxy rpi5-8:7682";
         "http://neovim.openws.org".extraConfig = "reverse_proxy rpi5-8:7683";
-        "http://freebsd.openws.org".extraConfig = "reverse_proxy msi-gs65:7681";
+        "http://freebsd.openws.org".extraConfig = "reverse_proxy msi-ge76:7681";
 
         "http://docs.openws.org" = {
           extraConfig = ''
@@ -93,14 +93,7 @@ with lib;
           "reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} ${clientIp}";
 
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
-
-        "http://demo.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.68";
         "http://halow.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.134";
-        "http://erp.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
-        # "http://ota.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.105:80";
-        "http://admin.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:3000";
-        "http://grafana.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
-        "http://registry.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.122:80";
 
         "http://lte.apidaesystems.ca".extraConfig = ''
           reverse_proxy https://10.0.0.4:443 {
@@ -111,15 +104,15 @@ with lib;
         '';
 
         "http://tandemrobotics.ca".extraConfig =
-          ''reverse_proxy ${config.services.anubis.instances.tandemrobotics.settings.BIND} ${clientIp}'';
+          "reverse_proxy ${config.services.anubis.instances.tandemrobotics.settings.BIND} ${clientIp}";
       }
       (optionalAttrs config.services.open-webui.enable {
         "http://ai.openws.org".extraConfig =
-          ''reverse_proxy :${toString config.services.open-webui.port} ${clientIp}'';
+          "reverse_proxy :${toString config.services.open-webui.port} ${clientIp}";
       })
       (optionalAttrs config.services.ttyd.enable {
         "http://demo.openws.org".extraConfig =
-          ''reverse_proxy :${toString config.services.ttyd.port} ${clientIp}'';
+          "reverse_proxy :${toString config.services.ttyd.port} ${clientIp}";
       })
       (optionalAttrs config.services.anki-sync-server.enable {
         "http://anki.microvisor.dev".extraConfig =
