@@ -14,7 +14,6 @@
     ./bun.nix
     ./cargo.nix
     ./chromium.nix
-    ./claude-code.nix
     ./clock-rs.nix
     ./command-not-found.nix
     ./direnv.nix
