@@ -54,11 +54,11 @@
         setEnv.TERM = "xterm-kitty";
       };
 
-      macbook-16-5 = {
+      macos = {
         host = "macos";
         user = "mfarabi";
         addKeysToAgent = "yes";
-        hostname = "macbook-16-5.taila4d019.ts.net";
+        hostname = "macos.taila4d019.ts.net";
         setEnv.TERM = "xterm-kitty";
       };
 
