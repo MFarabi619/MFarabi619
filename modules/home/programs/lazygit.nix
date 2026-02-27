@@ -1,20 +1,20 @@
 {
-  # config,
+  config,
   ...
 }:
 {
   programs.lazygit = {
     enable = true;
-    enableZshIntegration = false;
+    enableZshIntegration = false; # NOTE: always drops you into root of monorepo otherwise
     settings = {
-      notARepository = "skip";
+      notARepository = "quit";
       disableStartupPopups = true;
       promptToReturnFromSubprocess = true;
 
       gui = {
         sidePanelWidth = 0.33;
         nerdFontsVersion = "3";
-        scrollPastBottom = true;
+        scrollPastBottom = false;
         scrollOffBehaviour = "jump";
         switchTabsWithPanelJumpKeys = true;
       };
@@ -30,8 +30,12 @@
         parseEmoji = true;
         overrideGpg = true;
         commit.signOff = true;
-        branchPrefix = "mfarabi/";
-        # branchPrefix = "${config.me.username}/";
+        branchPrefix = "${config.me.username}/";
+        pagers = [
+          {
+            pager = "delta --paging=never";
+          }
+        ];
       };
     };
   };

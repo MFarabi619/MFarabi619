@@ -38,6 +38,7 @@
         circe
         corfu
         pdf-tools
+        magit-delta
         corfu-terminal
         nerd-icons-corfu
 

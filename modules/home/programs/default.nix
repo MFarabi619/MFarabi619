@@ -17,6 +17,7 @@
     ./clock-rs.nix
     ./command-not-found.nix
     ./direnv.nix
+    ./delta.nix
     ./element-desktop.nix
     ./eza.nix
     ./fastfetch

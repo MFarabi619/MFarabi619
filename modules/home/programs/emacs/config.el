@@ -39,6 +39,7 @@
 ;; (nyan-mode t)
 ;; (minimap-mode)
 (display-time-mode 1)
+(window-divider-mode -1)
 (global-undo-tree-mode 1)
 ;; (keycast-tab-line-mode)
 ;; (+global-word-wrap-mode +1)
@@ -406,8 +407,14 @@
         magit-format-file-function #'magit-format-file-nerd-icons
         magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")
         magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256"))
-  (add-hook 'magit-mode-hook 'hl-line-mode
-            'magit-mode-hook 'display-line-numbers-mode)
+
+  (add-hook
+   'magit-mode-hook
+   (lambda ()
+     (hl-line-mode 1)
+     (magit-delta-mode 1)
+     (display-line-numbers-mode 1)))
+
   (custom-set-faces
    '(magit-diff-context ((t (:foreground "#b0b0b0"))))
    '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
@@ -415,6 +422,14 @@
    '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
    '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
    '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff"))))))
+
+(after! magit-delta
+  (setq magit-delta-hide-plus-minus-markers t
+        ;; magit-delta-default-dark-theme "Gruvbox"
+        magit-delta-delta-args
+        (append magit-delta-delta-args
+                '("--side-by-side"
+                  "--line-numbers"))))
 
 ;; (gfm-mode-hook 'gfm-view-mode)
 
