@@ -45,6 +45,8 @@
 ;; (+global-word-wrap-mode +1)
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
+(add-to-list 'default-frame-alist '(undecorated . t))
+(set-frame-parameter nil 'undecorated t)
 
 (setq doom-modeline-hud t
       nyan-wavy-trail t
