@@ -17,6 +17,7 @@
       #               tall monitor (anything higher than wide) gets vertical orientation
       default-root-container-orientation = "auto";
       automatically-unhide-macos-hidden-apps = false;
+
       # nikitabobko.github.io/AeroSpace/guide#normalization
       enable-normalization-flatten-containers = true;
       enable-normalization-opposite-orientation-for-nested-containers = true;
@@ -28,7 +29,7 @@
         };
 
         outer = {
-          top = 16;
+          top = 0;
           left = 0;
           right = 0;
           bottom = 0;
@@ -53,31 +54,17 @@
       ];
 
       mode.main.binding = {
-        # alt-tab = "workspace-back-and-forth";
-
-        alt-slash = "layout tiles horizontal vertical";
-        alt-comma = "layout accordion horizontal vertical";
-
+        alt-k = "move up";
         alt-h = "move left";
         alt-j = "move down";
-        alt-k = "move up";
         alt-l = "move right";
-
-        # alt-h = "focus left";
-        # alt-j = "focus down";
-        # alt-k = "focus up";
-        # alt-l = "focus right";
-
-        # cmd-ctrl-shift-h = "move left";
-        # cmd-ctrl-shift-j = "move down";
-        # cmd-ctrl-shift-k = "move up";
-        # cmd-ctrl--shift-l = "move right";
-
+        alt-enter = "fullscreen";
         alt-minus = "resize smart -50";
         alt-equal = "resize smart +50";
-
-        alt-enter = "fullscreen";
         cmd-enter = "macos-native-fullscreen";
+        # alt-tab = "workspace-back-and-forth";
+        alt-slash = "layout tiles horizontal vertical";
+        alt-comma = "layout accordion horizontal vertical";
 
         cmd-1 = "workspace 1";
         cmd-2 = "workspace 2";
@@ -89,21 +76,8 @@
         cmd-8 = "workspace 8";
         cmd-9 = "workspace 9";
         cmd-0 = "workspace 10";
-
-        # cmd-alt-1 = "move-node-to-workspace 1";
-        # cmd-alt-2 = "move-node-to-workspace 2";
-        # cmd-alt-3 = "move-node-to-workspace 3";
-        # cmd-alt-4 = "move-node-to-workspace 4";
-        # cmd-alt-5 = "move-node-to-workspace 5";
-        # cmd-alt-6 = "move-node-to-workspace 6";
-        # cmd-alt-7 = "move-node-to-workspace 7";
-        # cmd-alt-8 = "move-node-to-workspace 8";
-        # cmd-alt-9 = "move-node-to-workspace 9";
-        # cmd-alt-0 = "move-node-to-workspace 10";
-
-        cmd-alt-tab = "move-workspace-to-monitor --wrap-around next";
-
         alt-shift-semicolon = "mode service";
+        cmd-alt-tab = "move-workspace-to-monitor --wrap-around next";
 
         # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace
         # --focus-follows-window is used to ensure workspace changes to trigger the callback for sketchybar to update

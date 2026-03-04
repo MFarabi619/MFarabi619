@@ -11,9 +11,7 @@
     # sbarLuaPackage = pkgs.sbarlua;
     service.enable = true;
     includeSystemPath = true;
-    extraPackages = with pkgs; [
-      jq
-    ];
+    extraPackages = with pkgs; [ jq ];
 
     # config = {
     #   source = ./sketchybar;
@@ -114,9 +112,9 @@
 
   home.file = {
     ".config/sketchybar" = {
-        enable = true;
-        source = ./sketchybar;
-        recursive = true;
+      enable = true;
+      recursive = true;
+      source = ./sketchybar;
     };
 
     # "config/sketchybar/.luarc.json" = {
