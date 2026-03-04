@@ -61,6 +61,7 @@
       compilation-scroll-output t
       treemacs-git-mode 'extended
       find-file-visit-truename nil
+      evil-escape-key-sequence "jk"
       org-latex-compiler "lualatex"
       ;; doom-lantern-padded-modeline t
       doom-modeline-major-mode-icon t
@@ -148,6 +149,7 @@
           ("a" "~/Documents/"                "Documents")
           ("m" "/mnt/"                       "Mounted drives")
           ("e" ,user-emacs-directory         "Emacs user directory"))))
+
 (add-load-path! "pio-mode")
 (use-package! pio-mode)
 
@@ -219,10 +221,11 @@
 ;;         jira-token ""))
 
 (map! :n "C-'" #'+vterm/toggle
-      :leader :desc "Open Dirvish" "e" #'dirvish
-      :leader :desc "Open AI Chat buffer" "k" #'gptel
       ;; :n "C-l" nil :n "C-l" #'+lazygit/toggle
       :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
+      ;; :leader :desc "Open Dirvish" "e" #'dirvish
+      :leader :desc "Open Dirvish" "k" #'dirvish
+      ;; :leader :desc "Open AI Chat buffer" "k" #'gptel
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
       :leader :desc "Open Dirvish Side" "[" #'dirvish-side)
 
@@ -312,10 +315,10 @@
            (vterm-send-return)))
        buffer))))
 
-;; (map! :leader ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
-;;       :desc "Switch to last buffer"
-;;       "e" #'evil-switch-to-windows-last-buffer)
-;; "e" #'my/switch-to-last-buffer-in-split)
+(map! :leader ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
+      :desc "Switch to last buffer"
+      "e" #'evil-switch-to-windows-last-buffer)
+"e" #'my/switch-to-last-buffer-in-split)
 
 (defun my/switch-to-last-buffer-in-split ()
   "Show last buffer on split screen."
@@ -338,7 +341,7 @@
 
 (after! evil
   (setq evil-ex-substitute-global t ;; implicit /g flag on evil ex substitution
-        evil-escape-key-sequence "jk")
+        )
   (add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
@@ -348,12 +351,11 @@
   :after org
   :custom
   (org-babel-duckdb-max-rows 200)
-
   (org-babel-duckdb-show-progress t)
-  (org-babel-duckdb-progress-display 'popup) ; or 'popup
-  (org-babel-duckdb-output-buffer "*DuckDB Results*")
   (org-babel-duckdb-queue-display 'auto) ; or 'manual
-  (org-babel-duckdb-queue-position 'side) ; or 'side
+  (org-babel-duckdb-queue-position 'side)
+  (org-babel-duckdb-progress-display 'popup)
+  (org-babel-duckdb-output-buffer "*DuckDB Results*")
 
   ;; :config
   ;; ;; Optional: MotherDuck token from file
