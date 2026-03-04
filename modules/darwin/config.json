@@ -26,33 +26,6 @@
       "value" : "/Users/mfarabi/Downloads"
     },
     {
-      "key" : "m",
-      "type" : "folder",
-      "value" : "/Users/mfarabi"
-    },
-    {
-      "key" : "h",
-      "label" : "Huly",
-      "type" : "application",
-      "value" : "/Applications/Huly.app"
-    },
-    {
-      "key" : "c",
-      "label" : "Code",
-      "type" : "application",
-      "value" : "/Applications/Visual Studio Code.app"
-    },
-    {
-      "key" : "a",
-      "type" : "folder",
-      "value" : "/Applications"
-    },
-    {
-      "key" : "p",
-      "type" : "application",
-      "value" : "/Applications/Penpot Desktop.app"
-    },
-    {
       "key" : "v",
       "label" : "Vivaldi",
       "type" : "application",
@@ -71,12 +44,6 @@
       "label" : "UTM",
       "type" : "command",
       "value" : "open ~/Applications/UTM.app"
-    },
-    {
-      "key" : "o",
-      "label" : "Elegoo Slicer",
-      "type" : "application",
-      "value" : "/Applications/ElegooSlicer.app"
     },
     {
       "key" : "i",
