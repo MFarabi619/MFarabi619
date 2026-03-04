@@ -219,9 +219,10 @@
 ;;         jira-token ""))
 
 (map! :n "C-'" #'+vterm/toggle
-      :n "C-l" nil :n "C-l" #'+lazygit/toggle
       :leader :desc "Open Dirvish" "e" #'dirvish
       :leader :desc "Open AI Chat buffer" "k" #'gptel
+      ;; :n "C-l" nil :n "C-l" #'+lazygit/toggle
+      :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
       :leader :desc "Open Dirvish Side" "[" #'dirvish-side)
 

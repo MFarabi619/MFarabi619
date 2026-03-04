@@ -106,7 +106,7 @@
        :tools
        ;;ansible
        biblio            ; Writes a PhD for you (citation needed)
-       (collab +tunnel)  ; buffers with friends
+       ;; (collab +tunnel)  ; buffers with friends
        (debugger
         +lsp)   ; FIXME stepping through code, to help you add bugs
        direnv
