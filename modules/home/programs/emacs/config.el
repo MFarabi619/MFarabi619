@@ -431,6 +431,11 @@
                 '("--side-by-side"
                   "--line-numbers"))))
 
+(after! verb-mode
+  (setq verb-auto-show-headers-buffer t
+        verb-json-use-mode #'json-ts-mode
+        verb-auto-kill-response-buffers t))
+
 ;; (gfm-mode-hook 'gfm-view-mode)
 
 (after! nerd-icons
