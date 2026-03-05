@@ -181,6 +181,11 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
       },
       {
+        "name": "Grafana",
+        "url": "https://grafana.com",
+        "icon": "./assets/icons/grafana.svg"
+      },
+      {
         "name": "Cloudflare",
         "url": "https://www.cloudflare.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg"
