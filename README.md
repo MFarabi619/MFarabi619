@@ -68,10 +68,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
 <img src="./assets/embedded-c-symbol.svg" alt="Embedded C Logo" width="40" height="40" />
 </a>
-<!-- C++ -->
-<a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
-</a>
 <!-- Bash -->
 <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
 <img src="https://bashlogo.com/img/symbol/png/monochrome_light.png" alt="Bash Logo" width="40" height="40" />
@@ -211,6 +207,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </tr>
 <tr>
 <td align='center'>
+<!-- C++ -->
+<a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
+</a>
 <!-- Sway -->
 <a href="https://docs.fuel.network/docs/sway/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg" alt="Sway Logo" width="40" height="40" />

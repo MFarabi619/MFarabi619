@@ -32,11 +32,6 @@
         "icon": "./assets/embedded-c-symbol.svg"
       },
       {
-        "name": "C++",
-        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
-      },
-      {
         "name": "Bash",
         "url": "https://www.gnu.org/software/bash/",
         "icon": "https://bashlogo.com/img/symbol/png/monochrome_light.png"
@@ -204,6 +199,11 @@
   },
   "Previously Used": {
     "Languages": [
+      {
+        "name": "C++",
+        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
+      },
       {
         "name": "Sway",
         "url": "https://docs.fuel.network/docs/sway/",
