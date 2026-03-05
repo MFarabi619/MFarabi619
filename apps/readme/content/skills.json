@@ -176,6 +176,11 @@
         "icon": "https://trunkbaseddevelopment.com/images/logo.png"
       },
       {
+        "name": "CloudEvents",
+        "url": "https://cloudevents.io",
+        "icon": "./assets/icons/cloudevents.svg"
+      },
+      {
         "name": "Supabase",
         "url": "https://supabase.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"

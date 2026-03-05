@@ -184,9 +184,17 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
 <img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
 </a>
+<!-- CloudEvents -->
+<a href="https://cloudevents.io" target="_blank" rel="noreferrer">
+<img src="./assets/icons/cloudevents.svg" alt="CloudEvents Logo" width="40" height="40" />
+</a>
 <!-- Supabase -->
 <a href="https://supabase.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
+</a>
+<!-- Grafana -->
+<a href="https://grafana.com" target="_blank" rel="noreferrer">
+<img src="./assets/icons/grafana.svg" alt="Grafana Logo" width="40" height="40" />
 </a>
 <!-- Cloudflare -->
 <a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
