@@ -188,10 +188,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
 <img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
 </a>
-<!-- Zellij -->
-<a href="https://zellij.dev/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
-</a>
 <!-- Supabase -->
 <a href="https://supabase.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
@@ -375,6 +371,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40" />
 </a>
+<!-- Zellij -->
+<a href="https://zellij.dev/" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
+</a>
 <!-- NeoVim -->
 <a href="https://neovim.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40" />
@@ -440,7 +440,7 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <td align='center'>
 <!-- SPARK -->
 <a href="https://www.adacore.com/about-spark" target="_blank" rel="noreferrer">
-<img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/About-header.png" alt="SPARK Logo" width="40" height="40" />
+<img src="assets/spark-2014-banner.png" alt="SPARK Logo" width="40" height="40" />
 </a>
 <!-- Smalltalk -->
 <a href="https://squeak.org" target="_blank" rel="noreferrer">

@@ -181,11 +181,6 @@
         "icon": "https://trunkbaseddevelopment.com/images/logo.png"
       },
       {
-        "name": "Zellij",
-        "url": "https://zellij.dev/",
-        "icon": "https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png"
-      },
-      {
         "name": "Supabase",
         "url": "https://supabase.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
@@ -407,6 +402,11 @@
         "name": "Ubuntu",
         "url": "https://ubuntu.com/",
         "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+      },
+      {
+        "name": "Zellij",
+        "url": "https://zellij.dev/",
+        "icon": "https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png"
       },
       {
         "name": "NeoVim",
