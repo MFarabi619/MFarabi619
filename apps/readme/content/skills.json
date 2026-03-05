@@ -59,6 +59,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "NATS",
+        "url": "https://nats.io",
+        "icon": "./assets/icons/nats.svg"
+      },
+      {
         "name": "Kubenix",
         "url": "https://kubenix.org",
         "icon": "https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg"

@@ -90,6 +90,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
+<!-- NATS -->
+<a href="https://nats.io" target="_blank" rel="noreferrer">
+<img src="./assets/icons/nats.svg" alt="NATS Logo" width="40" height="40" />
+</a>
 <!-- Kubenix -->
 <a href="https://kubenix.org" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg" alt="Kubenix Logo" width="40" height="40" />
