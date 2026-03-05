@@ -181,11 +181,6 @@
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
       },
       {
-        "name": "GitHub Actions",
-        "url": "https://github.com/features/actions",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
-      },
-      {
         "name": "Cloudflare",
         "url": "https://www.cloudflare.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg"
@@ -457,6 +452,11 @@
         "name": "Sanity",
         "url": "https://www.sanity.io/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg"
+      },
+      {
+        "name": "GitHub Actions",
+        "url": "https://github.com/features/actions",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg"
       },
       {
         "name": "Netlify",

@@ -188,10 +188,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://supabase.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
 </a>
-<!-- GitHub Actions -->
-<a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40" />
-</a>
 <!-- Cloudflare -->
 <a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" alt="Cloudflare Logo" width="40" height="40" />
@@ -414,6 +410,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Sanity -->
 <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40" />
+</a>
+<!-- GitHub Actions -->
+<a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40" />
 </a>
 <!-- Netlify -->
 <a href="https://netlify.com" target="_blank" rel="noreferrer">
