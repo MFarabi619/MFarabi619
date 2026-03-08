@@ -22,6 +22,22 @@
         setEnv.TERM = "xterm-256color";
       };
 
+      halowlink2-75cf = {
+        user = "root";
+        host = "halowlink1-75cf";
+        addKeysToAgent = "yes";
+        hostname = "halowlink2-75cf.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
+      halowlink2-6c7f = {
+        user = "root";
+        host = "halowlink1-6c7f";
+        addKeysToAgent = "yes";
+        hostname = "halowlink2-6c7f.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
       rut241 = {
         user = "root";
         host = "RUT241";
