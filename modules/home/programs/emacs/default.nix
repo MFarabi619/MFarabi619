@@ -131,6 +131,7 @@
         # yaml-language-server
         # dockerfile-language-server
         # vscode-langservers-extracted
+        vscode-extensions.llvm-vs-code-extensions.lldb-dap
 
         postgres-language-server
 

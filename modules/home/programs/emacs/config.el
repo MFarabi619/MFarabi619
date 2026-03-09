@@ -121,7 +121,6 @@
           "--header-insertion-decorators=0"))
   (set-lsp-priority! 'clangd 2))
 
-
 (after! lsp
   (lsp-inlay-hints-mode)
   (setq lsp-enable-folding t
@@ -132,6 +131,9 @@
         lsp-auto-execute-action t
         lsp-enable-tokens-enable t
         lsp-describe-thing-at-point t))
+
+(require 'dap-gdb)
+(require 'dap-lldb)
 
 (after! dired
   (setq dirvish-peek-mode t
