@@ -92,8 +92,8 @@ with lib;
         "http://mirror.openws.org".extraConfig =
           "reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} ${clientIp}";
 
+        "http://horizon.apidaesystems.ca".extraConfig = "reverse_proxy rpi5-8";
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
-        "http://halow.apidaesystems.ca".extraConfig = "reverse_proxy http://10.0.0.134";
 
         "http://lte.apidaesystems.ca".extraConfig = ''
           reverse_proxy https://10.0.0.4:443 {
