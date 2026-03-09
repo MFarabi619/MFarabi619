@@ -897,12 +897,289 @@ fn main() {
 
 ** Methods
 
+Methods are similar to functions: We declare them with the =fn= keyword and a name, they can have parameters and a return value, and they contain some code that's run whe the method is called from somewhere else. Unlike functions, methods are defined within the context of a struct (or an enum or a trait object, which we cover in Chapter 6 and Chapter 18, respectively), and their first parameter is always =self=, which represents the instance of the struct the method is being called on.
+
+*** Method Syntax
+
+Let's change the =area= function that has a =Rectangle= instance as a parameter and instead make an =area= method defined on the =Rectangle= struct, as shown in Listing 5-13.
+
 #+BEGIN_SRC rust
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32
+}
+
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+
+fn main() {
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50
+    };
+
+    println!(
+        "The area of the rectangle is {} square pixels.",
+        rect1.area()
+    );
+}
+#+END_SRC
+Listing 5-13: Defining an =area= method on the =Rectangle= struct
+
+To define the function within the context of =Rectangle=, we start an =impl= (implementation) block for =Rectangle=. Everything within this =impl= block will be associated with the =Rectangle= type. kthen, we move the =area= function within the =impl= curly brackets and change the first (and in this case, only) parameter to be =self= in the signature and everywhere within the body. In =main=, where we called the =area= function and passed =rect1= as an argument, we can instead use /method syntax/ to call the =area= method on our =Rectangle= instance. The method syntax goes after an instance: We add a dot followed by the method name, parentheses, and any arguments.
+
+In the signature for =area=, we use =&self= instead of =rectangle: &Rectangle=. the =&self= is actually showrt for =self: &Self=. Within an =impl= block, the type =Self= is an alias for the type that the =impl= block is for. Methods must have a parameter named =self= of type =Self= for their first parameter, so Rust lets you abbreviate this with only the name =self= in the first parameter spot. Note that we still need to use the =&= in front of the =self= shorthand to indicate that this method borrows the =Self= instance, just as we did in =rectangle: &Rectangle=. Methods can take ownership of =self=, borrow =self= immutably, as we've done here, or borrow =self= mutably, just as they can any other parameter.
+
+#+BEGIN_SRC rust
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32
+}
+
+impl Rectangle {
+    fn width(&self) -> bool{
+        self.width > 0
+    }
+}
+
+fn main() {
+    let rect1 = Rectangle {
+        width: 30,
+        height: 50
+    };
+
+    if rect1.width() {
+        println!("The rectangle has a nonzero width; it is {}", rect1.width);
+    }
+}
 #+END_SRC
 
+*** Methods with More Parameters
+
+Let's practice using methods by implementing a second method on the =Rectangle= struct. This time we want an instance of =Rectangle= to take another instance of =Rectangle= and return =true= if the second =Rectangle= can fit completely within =self= (the first =Rectangle=); otherwise, it should return =false=. That is, once we've defined the =can_hold= method, we want to be able to write the program shown in Listing 5-14.
+
+#+BEGIN_SRC rust
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32
+}
+
+impl Rectangle {
+    fn area(&self) -> u32{
+        self.width * self.height
+    }
+
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+}
+
+fn main(){
+    let rect1 = Rectangle {
+    width: 30,
+        height: 50
+    };
+
+    let rect2 = Rectangle {
+        width: 10,
+        height: 40
+    };
+
+    let rect3 = Rectangle {
+        width: 60,
+        height: 45
+    };
+
+    println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+    println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
+}
+#+END_SRC
+
+*** Associated Functions
+
+All functions defined within an =impl= block are called /associated functions/ because they're associated with the type named after the =impl=. We can define associated functions that don't have =self= as their first parameter (and thus are not methods) because they don't need an instance of the type to work with. We've already used one function like this: the =String::from= function that's defined on the =String= type.
+
+Associated functions that aren't methods are often used for constructors that will return a new instance of the struct. These are often called =new=, but =new= isn't a special name and isn't built into the language. For example, we could choose to provide an associated function named =square= that would have one dimension parameter and use that as both width and height, thus making it easier to create a square =Rectangle= rather than having to specify the same value twice:
+
+#+BEGIN_SRC rust
+impl Rectangle {
+    fn square(size: u32) -> Self {
+        Self {
+            width: size,
+            height: size
+        }
+    }
+}
+#+END_SRC
+
+The =Self= keywords in the return type and in the body of the function are aliases for the type that appears after the =impl= keyword, which in this case is =Rectangle=.
+
+To call this associated function, we use the =::= syntax with the struct name; =let sq = Rectangle::square(3);= is an example. This function is namespaced by the struct: The =::= syntax is used for both associated functions and namespaces created by modules. We'll discuss modules in Chapter 7.
+
+*** Multiple impl Blocks
+
+Each struct is allowed to have multiple =impl= blocks. For example, Listing 5-15 is equivalent to the code shown in Listing 5-16, which has each method in its own =impl= block.
+
+#+BEGIN_SRC rust
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+
+impl Rectangle {
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+}
+#+END_SRC
+Listing 5-16: Rewriting Listing 5-15 using multiple =impl= blocks
+
+There's no reason to separate these methods into multiple =impl= blocks here, but this is valid syntax. We'll see a case in which multiple =impl= blocks are useful in Chapter 10, where we discuss generic types and traits.
+
+*** Summary
+
+Structs let you create custom types that are meaningful for your domain. By using structs, you can keep associated pieces of data connected to each other and nae each piece to make your code clear. In =impl= blocks, you can define functions that are associated with your type, and methods are a kind of associated function that let you specify the behavior that instances of your structs have.
+
+But structs aren't the only way you can create custom types: Let's turn to Rust's enum feature to add another tool to your toolbox.
+
+
 * Enums and Pattern Matching
+In this chapter, we'll look at enumerations, also referred to as /enums/. Enums allow you to define a type by enumerating its possible variants. First we'll define and use an enum to show how an enum can encode meaning along with data. Next, we'll explore a particularly useful enum, called =Option=, which expresses that a value can be either something or nothing. Then, we'll look at how pattern matching in the =match= expression makes it easy to run different code for different values of an enum. Finally, we'll cover how the =if let= construct is another convenient and concise idiom available to handle enums in your code.
+
 ** Defining an Enum
+
+Where structs give you a way of grouping together related fields and data, like a =Rectangle= with its =width= and =height=, enums give you a way of saying a value is one of a possible set of values. For example, we may want to say that =Rectangle= is one of a set of possible shapes that also includes =Circle= and =Triangle=. To do this, Rust allows us to encode these possibilities as an enum.
+
+Let’s look at a situation we might want to express in code and see why enums are useful and more appropriate than structs in this case. Say we need to work with IP addresses. Currently, two major standards are used for IP addresses: version four and version six. Because these are the only possibilities for an IP address that our program will come across, we can enumerate all possible variants, which is where enumeration gets its name.
+
+Any IP address can be either a version four or a version six address, but not both at the same time. That property of IP addresses makes the enum data structure appropriate because an enum value can only be one of its variants. Both version four and version six addresses are still fundamentally IP addresses, so they should be treated as the same type when the code is handling situations that apply to any kind of IP address.
+
+We can express this concept in code by defining an =IpAddrKind= enumeration and listing the possible kinds an IP address can be, =V4= and =V6=. These are the variants of the enum:
+
+#+BEGIN_SRC rust
+enum IpAddrKind {
+    V4,
+    V6
+}
+#+END_SRC
+
+=IpAddrKind= is now a custom data type that we can use elsewhere in our code.
+
+*** Enum Values
+
+We can create instances of each of the two variants of =IpAddrKind= like this:
+
+#+BEGIN_SRC rust
+let four = IpAddrKind::V4;
+let six = IpAddrKind::V6;
+#+END_SRC
+
+*** The /Option/ Enum
+
+This section explores a case study of =Option=, which is another enum defined by the standard library. The =Option= type encodes the very common scenario in which a value could be something, or it could be nothing.
+
+For example, if you request the first item in a non-empty list, you would get a value. If you request the first item in an empty list, you would get nothing. Expressing this concept in terms of the type system means the compiler can check whether you’ve handled all the cases you should be handling; this functionality can prevent bugs that are extremely common in other programming languages.
+
+Programming language design is often thought of in terms of which features you include, but the features you exclude are important too. Rust doesn’t have the null feature that many other languages have. Null is a value that means there is no value there. In languages with null, variables can always be in one of two states: null or not-null.
+
+In his 2009 presentation “Null References: The Billion Dollar Mistake,” Tony Hoare, the inventor of null, had this to say:
+
+#+begin_quote
+I call it my billion-dollar mistake. At that time, I was designing the first comprehensive type system for references in an object-oriented language. My goal was to ensure that all use of references should be absolutely safe, with checking performed automatically by the compiler. But I couldn’t resist the temptation to put in a null reference, simply because it was so easy to implement. This has led to innumerable errors, vulnerabilities, and system crashes, which have probably caused a billion dollars of pain and damage in the last forty years.
+#+end_quote
+
+The problem with null values is that if you try to use a null value as a not-null value, you’ll get an error of some kind. Because this null or not-null property is pervasive, it’s extremely easy to make this kind of error.
+
+However, the concept that null is trying to express is still a useful one: A null is a value that is currently invalid or absent for some reason.
+
+The problem isn’t really with the concept but with the particular implementation. As such, Rust does not have nulls, but it does have an enum that can encode the concept of a value being present or absent. This enum is =Option<T>=, and it is defined by the standard library as follows:
+
+#+BEGIN_SRC rust
+enum Option<T> {
+    None,
+    Some(T)
+}
+#+END_SRC
+
 ** The match Control Flow Construct
+Rust has an extremely powerful control flow construct called =match= that allows you to compare a value against a series of patterns and then execute code based on which pattern matches. Patterns can be made up of literal values, variable names, wildcards, and many other things; Chapter 19 covers all the different kinds of patterns and what they do. The power of =match= comes from the expressiveness of the patterns and the fact that the compiler confirms that all possible cases are handled.
+
+Think of a =match= expression as being like a coin-sorting machine: Coins slide down a track with variously sized holes along it, and each coin falls through the first hole it encounters that it fits into. In the same way, values go through each pattern in a =match=, and at the first pattern the value “fits,” the value falls into the associated code block to be used during execution.
+
+Speaking of coins, let’s use them as an example using =match=! We can write a function that takes an unknown US coin and, in a similar way as the counting machine, determines which coin it is and returns its value in cents, as shown in Listing 6-3.
+
+#+BEGIN_SRC rust
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter
+}
+
+fn value_in_cents(coin: Coin) -> u8{
+    match coin {
+        Coin::Penny => 1,
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter => 25,
+    }
+}
+#+END_SRC
+Listing 6-3: An enum and a =match= expression that has the variants of the enum as its patterns
+
+Let’s break down the =match= in the =value_in_cents= function. First, we list the =match= keyword followed by an expression, which in this case is the value =coin=. This seems very similar to a conditional expression used with =if=, but there’s a big difference: With =if=, the condition needs to evaluate to a Boolean value, but here it can be any type. The type of =coin= in this example is the =Coin= enum that we defined on the first line.
+
+Next are the =match= arms. An arm has two parts: a pattern and some code. The first arm here has a pattern that is the value =Coin::Penny= and then the ==>= operator that separates the pattern and the code to run. The code in this case is just the value =1=. Each arm is separated from the next with a comma.
+
+When the =match= expression executes, it compares the resultant value against the pattern of each arm, in order. If a pattern matches the value, the code associated with that pattern is executed. If that pattern doesn’t match the value, execution continues to the next arm, much as in a coin-sorting machine. We can have as many arms as we need: In Listing 6-3, our match has four arms.
+
+The code associated with each arm is an expression, and the resultant value of the expression in the matching arm is the value that gets returned for the entire =match= expression.
+
+We don’t typically use curly brackets if the match arm code is short, as it is in Listing 6-3 where each arm just returns a value. If you want to run multiple lines of code in a match arm, you must use curly brackets, and the comma following the arm is then optional. For example, the following code prints “Lucky penny!” every time the method is called with a =Coin::Penny=, but it still returns the last value of the block, =1=:
+
+#+BEGIN_SRC rust
+fn value_in_cents(coin: Coin) -> u8 {
+    match coin {
+        Coin::Penny => {
+            println!("Lucky penny!");
+            1
+        }
+        Coin::Nickel => 5,
+        Coin::Dime => 10,
+        Coin::Quarter => 25
+    }
+}
+#+END_SRC
+
+*** Patterns That Bind to Values
+
+Another useful feature of match arms is that they can bind to the parts of the values that match the pattern. This is how we can extract values out of enum variants.
+
+As an example, let’s change one of our enum variants to hold data inside it. From 1999 through 2008, the United States minted quarters with different designs for each of the 50 states on one side. No other coins got state designs, so only quarters have this extra value. We can add this information to our =enum= by changing the =Quarter= variant to include a =UsState= value stored inside it, which we’ve done in Listing 6-4.
+
+#+BEGIN_SRC rust
+#[derive(Debug)]
+enum UsState {
+    Alabama,
+    Alaska
+}
+
+enum Coin {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter(UsState)
+}
+#+END_SRC
+Listing 6-4: A =Coin= enum in which the =Quarter= variant also holds a =UsState= value
+
 ** Concise Control Flow with if let and let...else
 * Packages, Crates, and Modules
 ** Packages and Crates
