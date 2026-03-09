@@ -17,6 +17,7 @@ in
       (with pkgs; [
         espup
         rustup
+        openocd
         ldproxy
         espflash
         esp-generate

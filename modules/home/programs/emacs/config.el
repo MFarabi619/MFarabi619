@@ -132,8 +132,35 @@
         lsp-enable-tokens-enable t
         lsp-describe-thing-at-point t))
 
+(setq gud-gdb-command-name "arm-none-eabi-gdb -i=mi"
+      gdb-debuginfod-enable-setting t)
 (require 'dap-gdb)
-(require 'dap-lldb)
+(after! dap-gdb
+  (setq dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
+
+(after! dap-mode
+  ;; (dap-register-debug-template
+  ;;  "Embedded::OpenOCD"
+  ;;  (list :type "gdb"
+  ;;        :request "launch"
+  ;;        :name "Embedded::OpenOCD"
+  ;;        :gdbpath "arm-none-eabi-gdb"
+  ;;        :debugger_args ["-q" "-x" "learning/rust/openocd.gdb"]
+  ;;        :target "target/thumbv7em-none-eabihf/debug/led-roulette"))
+
+  (dap-register-debug-template
+   "Embedded::OpenOCD"
+   (list :type "gdbserver"
+         :autorun t
+         :request "attach"
+         :printCalls :json-false
+         :target ":3333"
+         :name "Embedded::OpenOCD"
+         :gdbpath "arm-none-eabi-gdb"
+         :showDevDebugOutput :json-false
+         :debugger_args ["-q" "-ix" "extended-remote" "-x" "learning/rust/openocd.gdb"]
+         :executable "target/thumbv7em-none-eabihf/debug/led-roulette"))
+  )
 
 (after! dired
   (setq dirvish-peek-mode t
