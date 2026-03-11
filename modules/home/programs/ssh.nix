@@ -38,6 +38,14 @@
         setEnv.TERM = "xterm-256color";
       };
 
+      rutx11 = {
+        user = "root";
+        host = "RUTX11";
+        addKeysToAgent = "yes";
+        hostname = "rutx11.taila4d019.ts.net";
+        setEnv.TERM = "xterm-256color";
+      };
+
       rut241 = {
         user = "root";
         host = "RUT241";
