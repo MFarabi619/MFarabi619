@@ -20,15 +20,15 @@
         process-compose = {
           is_tty = true;
           namespace = "🎡 SERVICES";
-          disabled = cfg.disabled or false;
         };
       })
       {
-        sqld.disabled = true;
-        caddy.disabled = false;
-        mailpit.disabled = false;
-        prometheus.disabled = true;
-        "tailscale-funnel".disabled = true;
+
+        sqld.enable = false;
+        caddy.enable = true;
+        mailpit.enable = true;
+        prometheus.enable = false;
+        "tailscale-funnel".enable = false;
       }
   // lib.optionalAttrs (!config.devenv.isTesting) {
     console = {

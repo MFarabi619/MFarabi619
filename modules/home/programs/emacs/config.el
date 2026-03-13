@@ -134,7 +134,7 @@
 
 (setq gud-gdb-command-name "arm-none-eabi-gdb -i=mi"
       gdb-debuginfod-enable-setting t)
-(require 'dap-gdb)
+;; (require 'dap-gdb)
 (after! dap-gdb
   (setq dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
 
@@ -214,9 +214,9 @@
                            (chat        . "You are a large language model and a conversation partner.")))
 
   (gptel-make-preset 'gpt-4.1
-    :model 'gpt-4.1
-    :backend "Copilot"
-    :description "GPT 4.1 from GitHub")
+                     :model 'gpt-4.1
+                     :backend "Copilot"
+                     :description "GPT 4.1 from GitHub")
 
   (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll
             'gptel-post-response-functions 'gptel-end-of-response)

@@ -10,7 +10,6 @@
     [
       sqlite
       duckdb
-      harlequin
       supabase-cli
 
       ninja
@@ -19,7 +18,7 @@
 
       trunk # rust web app server
 
-      # pulumi
+      pulumi
       pulumi-esc
       # pulumiPackages.pulumi-go
     ]

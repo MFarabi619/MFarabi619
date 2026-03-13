@@ -22,15 +22,17 @@
       review-heatmap
     ];
 
-    sync = {
-      # keyFile = "";
-      autoSync = true;
-      syncMedia = true;
-      # usernameFile = "";
-      networkTimeout = 60;
-      autoSyncMediaMinutes = 15;
-      username = config.me.email;
-      url = "https://anki.microvisor.dev";
+    profiles.default = {
+      sync = {
+        # keyFile = "";
+        autoSync = true;
+        syncMedia = true;
+        # usernameFile = "";
+        networkTimeout = 60;
+        autoSyncMediaMinutes = 15;
+        username = config.me.email;
+        url = "https://anki.microvisor.dev";
+      };
     };
   };
 }

@@ -24,7 +24,7 @@
         # kicad
         # logseq
         vips # dired image previews
-        openscad
+        # openscad # FIXME: home-manager update
         mediainfo
         openscad-lsp
         imagemagick # for image-dired
@@ -68,7 +68,7 @@
         # ============= ‍❄🕸 ================
         nil # nix formatter
         # omnix
-        devenv
+        # devenv
         cachix
         nix-du # store visualizer
         # nix-ld      # run unpatched dynamic binaries
