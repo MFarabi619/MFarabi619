@@ -46,6 +46,7 @@ in
       "btop.nix"
       "bun.nix"
       "command-not-found.nix"
+      "delta.nix"
       "direnv.nix"
       "eza.nix"
       "fastfetch"
