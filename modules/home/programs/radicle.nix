@@ -1,0 +1,5 @@
+{
+  programs.radicle = {
+    enable = true;
+  };
+}
