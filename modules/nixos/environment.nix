@@ -81,6 +81,7 @@
     systemPackages =
       with pkgs;
       [
+        termshark
         alt-tab-macos
         coreutils-full
         kanata-with-cmd
