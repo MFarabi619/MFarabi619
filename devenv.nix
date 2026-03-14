@@ -20,6 +20,7 @@
     "/tasks.nix"
     "/frameworks"
     "/cachix.nix"
+    "/embassy.nix"
     "/scripts.nix"
     "/packages.nix"
     "/processes.nix"

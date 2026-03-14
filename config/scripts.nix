@@ -23,11 +23,13 @@
       exec = "bunx likec4 start ${config.git.root}/docs";
     };
 
+    run = {
+      exec = ''devenv tasks run "$@" -m before'';
+    };
+
     up = {
       description = " 🎉 Fire up the Microvisor Kernel";
-      exec = ''
-        devenv up
-      '';
+      exec = ''devenv up "$@"'';
     };
 
     console = {

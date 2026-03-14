@@ -52,6 +52,8 @@ local.properties
 **/config/production.yaml
 **/config/development.yaml
 !.vscode/settings-example.json
+firmware/rust-toolchain.toml
+firmware/.cargo/config.toml
 
 !Cargo.lock
 **/!Cargo.lock

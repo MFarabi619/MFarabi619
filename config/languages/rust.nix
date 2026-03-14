@@ -6,7 +6,6 @@
   languages.rust = {
     enable = true;
     channel = "stable";
-    embassy.enable = true;
 
     loco = {
       enable = true;

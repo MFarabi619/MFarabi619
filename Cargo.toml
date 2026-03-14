@@ -1,8 +1,15 @@
 [workspace]
 resolver = "3"
 # default-members = ["web"]
-exclude = ["ml", "firmware"]
-members = [".", "web", "tui", "tests/e2e", "apps/readme"]
+exclude = ["ml"]
+members = [
+  ".",
+  "firmware",
+  "web",
+  "tui",
+  "tests/e2e",
+  "apps/readme"
+]
 
 [workspace.dependencies]
 serde_json = "1"
