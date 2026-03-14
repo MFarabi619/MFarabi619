@@ -7,63 +7,76 @@
   tasks = {
     "dx:serve:ssg" = {
       showOutput = true;
-      exec = "dx serve --ssg -r";
-      # dx serve -p web --platform web --ssg -r # https://github.com/DioxusLabs/dioxus/issues/5050
+      exec = "dx serve -p web --ssg -r"; # https://github.com/DioxusLabs/dioxus/issues/5050
     };
 
     "build:firmware" = {
       showOutput = true;
-      cwd = "${config.git.root}/firmware";
+      cwd = config.microvisor.embassy.cwd;
       exec = "cargo b --release";
-    };
-
-    "image:firmware" = {
-      showOutput = true;
-      after = [ "build:firmware" ];
-      exec = ''
-        espflash save-image \
-          --chip ${config.languages.rust.embassy.chip} \
-          --merge \
-          target/xtensa-esp32s3-none-elf/release/firmware \
-          target/xtensa-esp32s3-none-elf/release/firmware.bin
-      '';
     };
 
     "upload:firmware" = {
       showOutput = true;
-      after = [
-        "image:firmware"
-        "start:remote:rfc2217"
-      ];
+      exec = "cargo r --release";
+      after = [ "start:remote:probe-rs" ];
+      cwd = config.microvisor.embassy.cwd;
+    };
 
+    # "upload:firmware:rfc2217" = {
+    #   showOutput = true;
+    #   after = [
+    #     "start:remote:rfc2217"
+    #   ];
+
+    #   exec = ''
+    #     espflash save-image \
+    #       --chip ${config.microvisor.embassy.probe-rs.presets.default.chip} \
+    #       --merge \
+    #       target/xtensa-esp32s3-none-elf/release/firmware \
+    #       target/xtensa-esp32s3-none-elf/release/firmware.bin
+    #   ''
+    #   + ''
+    #     esptool \
+    #       --verbose \
+    #       --baud ${toString config.microvisor.embassy.baud} \
+    #       --port ${toString config.microvisor.embassy.port} \
+    #       --after ${config.microvisor.embassy.after} \
+    #       --before ${config.microvisor.embassy.before} \
+    #       write-flash -z 0x0 ${config.git.root}/target/xtensa-esp32s3-none-elf/release/firmware.bin
+    #   '';
+    # };
+
+    "start:remote:probe-rs" = {
+      showOutput = true;
+      status = "nc -z ${config.microvisor.embassy.probe-rs.server.address} ${toString config.microvisor.embassy.probe-rs.server.port}";
       exec = ''
-        esptool \
-          --verbose \
-          --baud ${toString config.languages.rust.embassy.baud} \
-          --port ${toString config.languages.rust.embassy.port} \
-          --after ${config.languages.rust.embassy.after} \
-          --before ${config.languages.rust.embassy.before} \
-          write-flash -z 0x0 ${config.git.root}/target/xtensa-esp32s3-none-elf/release/firmware.bin
+        ssh -n ${config.microvisor.embassy.probe-rs.server.address} '
+        cd ~/MFarabi619 &&
+        setsid devenv shell "probe-rs serve" > /dev/null 2>&1 &'
       '';
     };
 
     "start:remote:rfc2217" = {
       showOutput = true;
-      status = "nc -vz rpi5-16 2217";
+      status = "nc -vz ${config.microvisor.embassy.probe-rs.server.address} 2217";
       exec = ''
-        ssh -n rpi5-16 '
+        ssh -n ${config.microvisor.embassy.probe-rs.server.address} '
           cd ~/MFarabi619 &&
-          nohup devenv shell "esp_rfc2217_server /dev/ttyUSB0 -p 2217 -v" \
-          > /dev/null 2>&1 &'
+          setsid devenv shell "esp_rfc2217_server /dev/ttyACM0 -p 2217 -v" > /dev/null 2>&1 &'
       '';
     };
 
-    "stop:remote" = {
+    "stop:remote:probe-rs" = {
       showOutput = true;
-      status = "! nc -vz rpi5-16 2217 >/dev/null 2>&1";
-      exec = ''
-        ssh -n rpi5-16 "killall .esp_rfc2217_server-wrapped"
-      '';
+      status = "! nc -vz ${config.microvisor.embassy.probe-rs.server.address} ${toString config.microvisor.embassy.probe-rs.server.port} >/dev/null 2>&1";
+      exec = " ssh -n ${config.microvisor.embassy.probe-rs.server.address} 'pkill probe-rs'";
+    };
+
+    "stop:remote:rfc2217" = {
+      showOutput = true;
+      status = "! nc -vz ${config.microvisor.embassy.probe-rs.server.address} 2217 >/dev/null 2>&1";
+      exec = "ssh -n ${config.microvisor.embassy.probe-rs.server.address} 'killall .esp_rfc2217_server-wrapped'";
     };
 
     # "devenv:enterShell".after = [

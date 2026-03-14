@@ -1,12 +1,22 @@
-name: Continuous Integration
+name: Firmware Rust CI
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "firmware/**"
+      - "config/embassy.nix"
+      - "config/microvisor/embassy.nix"
+      - ".github/workflows/firmware_rust_ci.yml"
     paths-ignore:
       - "**/README.md"
   pull_request:
+    paths:
+      - "firmware/**"
+      - "config/embassy.nix"
+      - "config/microvisor/embassy.nix"
+      - ".github/workflows/firmware_rust_ci.yml"
   workflow_dispatch:
 
 env:
@@ -15,8 +25,11 @@ env:
 
 jobs:
   rust-checks:
-    name: Rust Checks
+    name: Firmware Checks
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: firmware
     strategy:
       fail-fast: false
       matrix:
@@ -29,7 +42,7 @@ jobs:
             args: --all-features --workspace -- -D warnings
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Rust
         uses: esp-rs/xtensa-toolchain@v1.5
         with:

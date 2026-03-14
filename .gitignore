@@ -1,8 +1,6 @@
 #====================================================
 #              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
-debug/
-target/
 **/.pio/
 **/debug/
 **/result
@@ -22,7 +20,7 @@ logs
 *.pdb
 *.sqlite
 .devenv*
-**.qcow2
+**/*.qcow2
 *.sqlite-*
 **/.direnv/
 **/*.rs.bk
@@ -46,17 +44,8 @@ local.properties
 .DS_Store
 .settings
 .classpath
-**/config/local.yaml
-**/config/*.local.yaml
 !.vscode/extensions.json
-**/config/production.yaml
-**/config/development.yaml
 !.vscode/settings-example.json
-firmware/rust-toolchain.toml
-firmware/.cargo/config.toml
-
-!Cargo.lock
-**/!Cargo.lock
 
 #====================================================
 #                  DEPENDENCIES
@@ -64,8 +53,6 @@ firmware/.cargo/config.toml
 /.pnp
 .pnp.js
 
-ml/target
-!/firmware/src/bin
-/config/development.yaml
-
 Dioxus.toml
+opencode.json
+/.codex/config.toml

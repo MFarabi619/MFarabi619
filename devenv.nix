@@ -17,6 +17,7 @@
     "/env.nix"
     "/services"
     "/languages"
+    "/microvisor"
     "/tasks.nix"
     "/frameworks"
     "/cachix.nix"

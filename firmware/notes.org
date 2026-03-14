@@ -1,5 +1,79 @@
 #+title: Notes
 
+* PlatformIO
+
+#+begin_src sh
+ssh -fCo "ExitOnForwardFailure yes" -L 54333:localhost:54321 mfarabi@rpi5-16 "nc -l localhost 54321 </dev/ttyUSB0 >/dev/ttyUSB0" && socat pty,link=$DEVENV_ROOT/ttyUSB0,wait-slave tcp:localhost:54333 &
+#+end_src
+
+#+begin_src sh
+pio device monitor -p ttyUSB0
+#+end_src
+
+#+begin_src sh
+killall ssh
+#+end_src
+
+#+begin_src sh
+espflash monitor -p /dev/ttyUSB0 --non-interactive
+#+end_src
+
+#+begin_src sh
+sudo apt install usbip
+sudo modprobe vhci-hcd
+sudo modprobe usbip-core
+sudo modprobe usbip-host
+sudo usbip list -l
+sudo usbip bind -b 3-1
+sudo usbipd
+#+end_src
+
+- [[https://stats.uptimerobot.com/ZWBXVu5NGx][UptimeRobot stats]]
+- [[https://docs.platformio.org/en/latest/projectconf/interpolation.html][PlatformIO interpolation]]
+- [[https://docs.platformio.org/en/latest/projectconf/sections/env/options/advanced/index.html][PlatformIO advanced env options]]
+- [[https://community.platformio.org/t/different-spiffs-images-for-different-build-environments/4845][Different SPIFFS images per env]]
+- [[https://docs.platformio.org/en/latest/advanced/unit-testing/structure/hierarchy.html#unit-testing-test-hierarchy][PlatformIO unit test hierarchy]]
+
+# ssl:host=remote.platformio.org:port=4413
+
+** Registry API :verb:
+template https://api.registry.platformio.org/v3
+Accept: application/json
+
+*** Packages
+get /search?query=ArduinoJson
+
+** Accounts API :verb:
+template https://api.accounts.platformio.org/v1
+Accept: application/json
+Authorization: Bearer {{(getenv "PLATFORMIO_AUTH_TOKEN")}}
+# https://github.com/platformio/platformio-core/blob/73d9f3dbea809f337bdee5be495f4d3b896deef0/platformio/account/client.py#L18
+
+*** Profile
+get /profile
+
+*** Summary
+get /summary
+
+*** Orgs
+:properties:
+:Verb-Store: orgs-response
+:end:
+get /orgs
+
+**** Owners
+get /{{(verb-json-get (oref (verb-stored-response "orgs-response") body) 0 'orgname)}}/owners
+
+**** Teams
+get /{{(verb-json-get (oref (verb-stored-response "orgs-response") body) 0 'orgname)}}/teams
+
+
+* Inline Org Commands
+
+#+begin_src sh :dir /ssh:rpi5-16:
+echo hello
+#+end_src
+
 * Terminology
 
 | *Term*          | *🎨 Color*         | Abbreviation / Signal Name*            | *Bus Type*              | *Direction (ESP32 POV)*    | *Definition / Purpose*                                  |
@@ -136,8 +210,6 @@
           - EU 868, EU 433, US 915, AS 430, ...
 
 
-
-
     - Modbus is built on top of RS 485 and has pauses in messages
     - Maximum amount of messages can be spammed through RS-485
 
@@ -258,12 +330,3 @@ int main() {
     #+RESULTS:
     : Printing from Thread
     : Thread returned
-** Rust
-    Rust is an expression-based language.
-
-*** Data Types
-**** Scalar
-- Integers
-- Floating Point Numbers
-- Booleans
-- Characters

@@ -1,87 +1,86 @@
+[workspace]
 [package]
-edition      = "2021"
-rust-version = "1.86"
+edition      = "2024"
+rust-version = "1.88"
 version      = "0.1.0"
 name         = "firmware"
 
 [[bin]]
+test = false
 name = "firmware"
 path = "./src/bin/main.rs"
 
+[[test]]
+harness = false
+name    = "hello_test"
+
+[lib]
+test = false
+
 [dependencies]
-defmt = "1.0.1"
-heapless = "0.8"
+defmt                  = "1.0.1"
+# for more networking protocol support see https://crates.io/crates/edge-net
+bt-hci = "0.6.0"
+critical-section = "1.2.0"
+static_cell      = "2.1.1"
+esp-alloc = { version = "0.9.0", features = ["defmt"] }
+rtt-target = { version = "0.6.2", features = ["defmt"] }
+trouble-host = { version = "0.5.0", features = ["gatt"] }
+embedded-io = { version = "0.7.1", features = ["defmt"] }
+embassy-time = { version = "0.5.0", features = ["defmt"] }
+embassy-executor = { version = "0.9.1", features = ["defmt"] }
+panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
+embedded-io-async = { version = "0.7.0", features = ["defmt"] }
+esp-hal = { version = "~1.0", features = ["defmt", "esp32s3", "unstable"] }
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
 
-static_cell = "2.1.1"
-esp-alloc = { version = "0.8.0", features = ["defmt"] }
-trouble-host = { version = "0.1.0", features = ["gatt"] }
-esp-bootloader-esp-idf = { version = "0.2.0", features = ["esp32s3"] }
-esp-println = { version = "0.15.0", features = ["defmt-espflash", "esp32s3"] }
-
-esp-hal = { version = "=1.0.0-rc.0", features = [
+esp-rtos = { version = "0.2.0", features = [
   "defmt",
+  "embassy",
   "esp32s3",
-  "unstable",
+  "esp-alloc",
+  "esp-radio",
 ] }
 
 embassy-net = { version = "0.7.1", features = [
   "tcp",
   "udp",
-  "dns",
   "defmt",
   "dhcpv4",
-  "medium-ip",
-  "proto-ipv4",
-  "packet-trace",
-  "dhcpv4-hostname",
   "medium-ethernet",
 ] }
 
-embedded-io = { version = "0.6.1", features = ["defmt-03"] }
-embedded-io-async = { version = "0.6.1", features = ["defmt-03"] }
-
-esp-backtrace = { version = "0.17.0", features = [
-  "defmt",
-  "esp32s3",
-  "exception-handler",
-  "panic-handler",
-] }
-
-# for more networking protocol support see https://crates.io/crates/edge-net
-critical-section = "1.2.0"
-bt-hci = { version = "0.2.1", features = [] }
-
-embassy-executor = { version = "0.7.0", features = [
-  "defmt",
-  "task-arena-size-20480",
-] }
-
-embassy-time = { version = "0.4.0", features = ["defmt"] }
-
-esp-hal-embassy = { version = "0.9.0", features = ["defmt", "esp32s3"] }
-esp-wifi = { version = "0.15.0", features = [
+esp-radio = { version = "0.17.0", features = [
   "ble",
-  "builtin-scheduler",
   "coex",
+  "wifi",
   "defmt",
-  "esp-alloc",
   "esp32s3",
   "smoltcp",
-  "wifi",
+  "unstable",
+  "esp-alloc",
 ] }
 
 smoltcp = { version = "0.12.0", default-features = false, features = [
   "defmt",
-  "medium-ethernet",
   "multicast",
-  "proto-dhcpv4",
   "proto-dns",
   "proto-ipv4",
   "socket-dns",
-  "socket-icmp",
   "socket-raw",
   "socket-tcp",
   "socket-udp",
+  "socket-icmp",
+  "proto-dhcpv4",
+  "medium-ethernet",
+] }
+
+[dev-dependencies]
+embedded-test = { version = "0.7.0", features = [
+  "defmt",
+  "embassy",
+  "external-executor",
+  "xtensa-semihosting",
 ] }
 
 [profile.dev]
@@ -93,7 +92,7 @@ opt-level = "s"
 codegen-units    = 1     # LLVM can perform better optimizations using a single thread
 debug            = 2
 opt-level        = 's'
-lto              = 'fat'
-overflow-checks  = false
 debug-assertions = false
 incremental      = false
+overflow-checks  = false
+lto              = 'fat'
