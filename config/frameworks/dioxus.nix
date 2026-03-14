@@ -1,13 +1,16 @@
 {
   lib,
-  config,
   pkgs,
+  config,
+  inputs,
   ...
 }:
 let
+
   dioxus = config.languages.rust.dioxus;
   default_config_file = "${config.git.root}/Dioxus.toml";
   final_config_file = lib.defaultTo default_config_file dioxus.configFile;
+  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
 
   removeNulls =
     v:
@@ -150,6 +153,7 @@ in
         binaryen
         dioxus-cli
         tailwindcss_4
+        pkgs-unstable.wasm-bindgen-cli_0_2_114
       ])
       ++ lib.optionals pkgs.stdenv.isLinux (
         with pkgs;
