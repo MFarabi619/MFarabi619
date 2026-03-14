@@ -52,6 +52,7 @@
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "qemu"
       "ferron" # rust-based caddy-like web server
+      "netscanner"
       # "podman"
       # "avr-gcc"
       # "arm-none-eabi-gcc"
