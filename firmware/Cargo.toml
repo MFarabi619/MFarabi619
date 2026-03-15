@@ -4,11 +4,12 @@ edition      = "2024"
 rust-version = "1.88"
 version      = "0.1.0"
 name         = "firmware"
+default-run  = "firmware"
 
 [[bin]]
-test = false
-name = "firmware"
-path = "./src/bin/main.rs"
+test         = false
+name         = "firmware"
+path         = "./src/bin/main.rs"
 
 [[test]]
 harness = false
@@ -18,20 +19,20 @@ name    = "hello_test"
 test = false
 
 [dependencies]
-defmt                  = "1.0.1"
 # for more networking protocol support see https://crates.io/crates/edge-net
-bt-hci = "0.6.0"
+bt-hci           = "0.6.0"
 critical-section = "1.2.0"
 static_cell      = "2.1.1"
-esp-alloc = { version = "0.9.0", features = ["defmt"] }
-rtt-target = { version = "0.6.2", features = ["defmt"] }
-trouble-host = { version = "0.5.0", features = ["gatt"] }
-embedded-io = { version = "0.7.1", features = ["defmt"] }
-embassy-time = { version = "0.5.0", features = ["defmt"] }
+defmt            = "1.0.1"
+esp-alloc        = { version = "0.9.0", features = ["defmt"] }
+rtt-target       = { version = "0.6.2", features = ["defmt"] }
+trouble-host     = { version = "0.5.0", features = ["gatt"] }
+embedded-io      = { version = "0.7.1", features = ["defmt"] }
+embassy-time     = { version = "0.5.0", features = ["defmt"] }
 embassy-executor = { version = "0.9.1", features = ["defmt"] }
 panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
 embedded-io-async = { version = "0.7.0", features = ["defmt"] }
-esp-hal = { version = "~1.0", features = ["defmt", "esp32s3", "unstable"] }
+esp-hal          = { version = "~1.0", features = ["defmt", "esp32s3", "unstable"] }
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
 
 esp-rtos = { version = "0.2.0", features = [

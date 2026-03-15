@@ -7,14 +7,12 @@
 )]
 #![deny(clippy::large_stack_frames)]
 
-use esp_hal::clock::CpuClock;
-use esp_hal::timer::timg::TimerGroup;
+use esp_hal::{clock::CpuClock, timer::timg::TimerGroup};
 
-use esp_radio::ble::controller::BleConnector;
-use firmware::networking;
-use trouble_host::prelude::*;
-
+use bt_hci::controller::ExternalController;
 use defmt::info;
+use esp_radio::ble::controller::BleConnector;
+use trouble_host::prelude::*;
 
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
@@ -22,6 +20,9 @@ use embassy_time::{Duration, Timer};
 use panic_rtt_target as _;
 
 extern crate alloc;
+
+const CONNECTIONS_MAX: usize = 1;
+const L2CAP_CHANNELS_MAX: usize = 1;
 
 // This creates a default app-descriptor required by the esp-idf bootloader.
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
@@ -55,8 +56,9 @@ async fn main(spawner: Spawner) -> ! {
             .expect("Failed to initialize Wi-Fi controller");
     // find more examples https://github.com/embassy-rs/trouble/tree/main/examples/esp32
     let transport = BleConnector::new(&radio_init, peripherals.BT, Default::default()).unwrap();
-    let ble_controller = networking::new_ble_controller(transport);
-    let mut resources = networking::new_ble_resources();
+    let ble_controller = ExternalController::<_, 1>::new(transport);
+    let mut resources: HostResources<DefaultPacketPool, CONNECTIONS_MAX, L2CAP_CHANNELS_MAX> =
+        HostResources::new();
     let _stack = trouble_host::new(ble_controller, &mut resources);
 
     // TODO: Spawn some tasks
