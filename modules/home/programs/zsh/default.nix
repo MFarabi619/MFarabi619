@@ -25,7 +25,6 @@
 
     autosuggestion = {
       enable = true;
-
       strategy = [
         "history"
         "completion"
@@ -34,7 +33,6 @@
 
     syntaxHighlighting = {
       enable = true;
-
       highlighters = [
         "line"
         "main"
@@ -60,12 +58,12 @@
 
     oh-my-zsh = {
       enable = true;
-
       plugins = [
         "uv"
         "git"
         "sudo"
         "rust"
+        "emoji"
         "docker"
         "pulumi"
         "kubectl"
