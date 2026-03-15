@@ -1,9 +1,10 @@
 {
+  pkgs,
   lib,
   ...
 }:
 {
-  programs.rofi = {
+  programs.rofi = lib.mkIf pkgs.stdenv.isLinux {
     enable = true;
     location = "center";
     # font = "JetBrainsMono Nerd Font Mono 12";
