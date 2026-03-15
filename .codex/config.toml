@@ -1,0 +1,21 @@
+[mcp_servers.devenv]
+command = "devenv"
+args = [ "mcp" ]
+
+[mcp_servers.likec4]
+command = "likec4"
+args = [ "mcp" ".devenv/state/likec4"]
+
+[mcp_servers.supabase]
+url = "http://localhost:54321/mcp?features=docs%2Cdatabase%2Cdebugging%2Cdevelopment"
+
+[mcp_servers.supabase]
+url = "https://mcp.ai.pulumi.com/mcp"
+
+[mcp_servers.nx]
+command = "nx"
+args = [ "mcp" ]
+
+[features]
+multi_agent = true
+rmcp_client = true
