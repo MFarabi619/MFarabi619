@@ -69,6 +69,7 @@
         "pulumi"
         "kubectl"
         "colorize"
+        "tailscale"
         "docker-compose"
         "colored-man-pages"
       ]
