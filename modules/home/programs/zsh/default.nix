@@ -62,6 +62,7 @@
       enable = true;
 
       plugins = [
+        "uv"
         "git"
         "sudo"
         "rust"
