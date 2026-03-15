@@ -20,6 +20,7 @@ test = false
 
 [dependencies]
 # for more networking protocol support see https://crates.io/crates/edge-net
+volatile         = "0.4.3"
 bt-hci           = "0.6.0"
 critical-section = "1.2.0"
 static_cell      = "2.1.1"

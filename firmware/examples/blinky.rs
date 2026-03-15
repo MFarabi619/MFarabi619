@@ -13,6 +13,7 @@ use esp_hal::{
     time::{Duration, Instant},
     timer::timg::TimerGroup,
 };
+use volatile::Volatile;
 
 use embassy_executor::Spawner;
 use panic_rtt_target as _;
@@ -47,8 +48,11 @@ async fn main(spawner: Spawner) -> ! {
 
     let _ = spawner;
 
+    let mut half_period = 500_u64;
+    let v_half_period = Volatile::new(&mut half_period);
+
     loop {
         led.toggle();
-        blocking_delay(Duration::from_millis(500));
+        blocking_delay(Duration::from_millis(v_half_period.read()));
     }
 }
