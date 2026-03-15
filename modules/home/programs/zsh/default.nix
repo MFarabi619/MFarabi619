@@ -74,6 +74,7 @@
         "colored-man-pages"
       ]
       ++ lib.optionals pkgs.stdenv.isDarwin [
+        "brew"
         "dash"
         "macos"
       ];
