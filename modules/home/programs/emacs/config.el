@@ -45,11 +45,11 @@
 ;; (+global-word-wrap-mode +1)
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
-(add-to-list 'default-frame-alist '(undecorated . t))
 (set-frame-parameter nil 'undecorated t)
+(add-to-list 'default-frame-alist '(undecorated . t))
 
-(setq doom-modeline-hud t
-      nyan-wavy-trail t
+(setq nyan-wavy-trail t
+      doom-modeline-hud t
       nyan-animate-nyancat t
       doom-theme 'doom-gruvbox
       ;; doom-theme 'catppuccin
@@ -92,41 +92,24 @@
         treesit-auto-install-grammar 'always))
 
 (after! treemacs
-  (setq
-   lsp-treemacs-theme "Idea" ;; "Eclipse" "NetBeans"
-   treemacs-position 'left
-   treemacs-indent-guide-mode t
-   treemacs-git-commit-diff-mode t
-   ;; treemacs-load-theme "doom-colors"
-   lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35))))
+  (setq treemacs-position 'left
+        lsp-treemacs-theme "Idea" ;; "Eclipse" "NetBeans"
+        treemacs-indent-guide-mode t
+        treemacs-git-commit-diff-mode t
+        ;; treemacs-load-theme "doom-colors"
+        lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35))))
 
-(define-derived-mode likec4-mode prog-mode "LikeC4"
-  "Major mode for editing LikeC4 files.")
-
+(define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
 (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
-
 (after! lsp-mode
-  (add-to-list 'lsp-language-id-configuration
-               '(likec4-mode . "likec4"))
-
+  (add-to-list 'lsp-language-id-configuration '(likec4-mode . "likec4"))
   (lsp-register-client
    (make-lsp-client
-    ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
-    :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio"))
-    :major-modes '(likec4-mode)
     :priority -1
-    :server-id 'likec4)))
-
-(after! lsp-clangd
-  (setq lsp-clients-clangd-args
-        '("-j=3"
-          "--background-index"
-          "--clang-tidy"
-          "--completion-style=detailed"
-          "--header-insertion=never"
-          "--header-insertion-decorators=0"))
-  (set-lsp-priority! 'clangd 2))
-
+    :server-id 'likec4
+    :major-modes '(likec4-mode)
+    ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
+    :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
 (after! lsp
   (lsp-inlay-hints-mode)
   (setq lsp-enable-folding t
@@ -138,38 +121,187 @@
         lsp-enable-tokens-enable t
         lsp-describe-thing-at-point t))
 
-(setq gud-gdb-command-name "arm-none-eabi-gdb -i=mi"
-      gdb-debuginfod-enable-setting t)
+(after! lsp-clangd
+  (set-lsp-priority! 'clangd 2)
+  (setq lsp-clients-clangd-args '("-j=3"
+                                  "--clang-tidy"
+                                  "--background-index"
+                                  "--header-insertion=never"
+                                  "--completion-style=detailed"
+                                  "--header-insertion-decorators=0")))
+
+(after! dape
+  ;; Forward RTT output into the DAPE REPL.
+  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-data)) body)
+    (when-let ((data (plist-get body :data))) (dape--repl-insert (concat data "\n"))))
+
+  ;; Tell probe-rs that the RTT terminal window is open.
+  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-channel-config)) _body)
+    (dape-request conn "rttWindowOpened" '((channelNumber . 0) (windowIsOpen . t))))
+
+  (setq dape-request-timeout 60
+        dape-buffer-window-arrangement nil
+        dape-info-variable-table-aligned nil
+        dape-info-buffer-window-groups '(((dape-info-scope-mode 3)
+                                          dape-info-watch-mode)
+                                         ((dape-info-scope-mode 2))
+                                         ((dape-info-scope-mode 1))
+                                         (dape-info-stack-mode
+                                          dape-info-modules-mode
+                                          dape-info-sources-mode)
+                                         (dape-info-breakpoints-mode)
+                                         (dape-info-threads-mode)
+                                         ((dape-info-scope-mode 0)))
+
+        ;; Keep source in the selected main window.
+        dape-display-source-buffer-action '((display-buffer-reuse-window display-buffer-same-window))
+        display-buffer-alist
+        (append
+         '(
+           ;; LEFT TOP: Variables / Watch
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-0))
+            (display-buffer-reuse-window display-buffer-in-side-window)
+            (side . left)
+            (slot . 0)
+            (window-width . 0.25))
+
+           ;; LEFT MID: Registers
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-1))
+            (display-buffer-reuse-window
+             (lambda (buffer alist)
+               (let ((window (display-buffer-in-side-window buffer alist)))
+                 (with-current-buffer buffer
+                   (setq-local dape-info-variable-table-aligned t
+                               dape-info-variable-table-row-config '((name . 12) (value . 10) (type . 18))))
+                 window)))
+            (side . left)
+            (slot . 1)
+            (window-width . 0.25))
+
+           ;; LEFT LOWER: Static
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-2))
+            (display-buffer-reuse-window display-buffer-in-side-window)
+            (side . left)
+            (slot . 2)
+            (window-width . 0.25))
+
+           ;; LEFT BOTTOM: Breakpoints
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-4))
+            (display-buffer-reuse-window display-buffer-in-side-window)
+            (side . left)
+            (slot . 3)
+            (window-width . 0.25)
+            (window-height . 0.05))
+
+           ;; LEFT BOTTOM: Threads
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-5))
+            (display-buffer-reuse-window display-buffer-in-side-window)
+            (side . left)
+            (slot . 4)
+            (window-width . 0.25)
+            (window-height . 0.05))
+
+           ;; RIGHT TOP: Stack / Modules / Sources
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-3))
+            (display-buffer-reuse-window display-buffer-in-side-window)
+            (side . right)
+            (slot . 0)
+            (window-width . 0.3))
+
+           ;; RIGHT BOTTOM: Peripherals
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-6))
+            (display-buffer-reuse-window
+             (lambda (buffer alist)
+               (let ((window (display-buffer-in-side-window buffer alist)))
+                 (with-current-buffer buffer
+                   (setq-local dape-info-variable-table-aligned t
+                               dape-info-variable-table-row-config '((name . 14) (value . 26) (type . 12))))
+                 window)))
+            (side . right)
+            (slot . 1)
+            (window-width . 0.3)
+            (window-height . 0.8))
+
+           ;; REPL: top half of the center area only
+           ("^\\*dape-repl\\*$"
+            (display-buffer-reuse-window display-buffer-in-direction)
+            (direction . above)
+            (window-height . 0.3))
+           ("^\\*Welcome to the Dape REPL\\*$"
+            (display-buffer-reuse-window display-buffer-in-direction)
+            (direction . above)
+            (window-height . 0.3)))
+         display-buffer-alist))
+
+  (add-to-list
+   'dape-configs
+   '(probe-rs
+     fn (lambda (config)
+          (if (derived-mode-p 'dape-repl-mode)
+              config
+            (plist-put config 'compile nil)))
+     :chip "esp32s3"
+     :request "launch"
+     :type "probe-rs-debug"
+     :consoleLogLevel "Console"
+     :flashingConfig (:flashingEnabled t)
+
+     port :autoport
+     host "localhost"
+     command "probe-rs"
+     modes (rust-mode rustic-mode)
+     command-args ("dap-server" "--port" :autoport)
+     command-cwd (lambda () (locate-dominating-file default-directory "Cargo.toml"))
+     compile (lambda () (let* ((root (locate-dominating-file default-directory "Cargo.toml"))
+                               (file (and (buffer-file-name) (file-relative-name (buffer-file-name) root))))
+                          (if (and file (string-match "^examples/\\([^/]+\\)\\.rs\\'" file))
+                              (format "cargo build --example %s" (match-string 1 file)) "cargo build")))
+
+     :coreConfigs [(
+                    :coreIndex 0
+                    :rttEnabled t
+                    :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
+                    :svdFile (lambda () (expand-file-name "esp32s3.svd" (locate-dominating-file default-directory "Cargo.toml")))
+                    :programBinary (lambda () (let* ((root (locate-dominating-file default-directory "Cargo.toml"))
+                                                     (file (and (buffer-file-name)
+                                                                (file-relative-name (buffer-file-name) root))))
+                                                (if (and file
+                                                         (string-match "^examples/\\([^/]+\\)\\.rs\\'" file))
+                                                    (expand-file-name
+                                                     (format "target/xtensa-esp32s3-none-elf/debug/examples/%s"
+                                                             (match-string 1 file))
+                                                     root)
+                                                  (expand-file-name
+                                                   "target/xtensa-esp32s3-none-elf/debug/firmware"
+                                                   root))))
+                    )]
+     ))
+
+  (add-hook 'dape-info-parent-mode-hook
+            (defun dape--info-compact ()
+              (face-remap-add-relative 'header-line :height 0.9)
+              (face-remap-add-relative 'default :height 0.9)))
+  )
+
+(setq gdb-debuginfod-enable-setting t
+      gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
 
 (after! dap-gdb
   (setq dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
 
-(after! dape
-  (setq dape-buffer-window-arrangement 'left))
-
 (after! dap-mode
-  ;; (dap-register-debug-template
-  ;;  "Embedded::OpenOCD"
-  ;;  (list :type "gdb"
-  ;;        :request "launch"
-  ;;        :name "Embedded::OpenOCD"
-  ;;        :gdbpath "arm-none-eabi-gdb"
-  ;;        :debugger_args ["-q" "-x" "learning/rust/openocd.gdb"]
-  ;;        :target "target/thumbv7em-none-eabihf/debug/led-roulette"))
-
   (dap-register-debug-template
    "Embedded::OpenOCD"
    (list :autorun t
-         :type "gdbserver"
          :target ":3333"
          :request "attach"
+         :type "gdbserver"
          :printCalls :json-false
          :name "Embedded::OpenOCD"
          :gdbpath "arm-none-eabi-gdb"
          :showDevDebugOutput :json-false
-         :debugger_args ["-q" "-ix" "extended-remote" "-x" "learning/rust/openocd.gdb"]
-         :executable "target/thumbv7em-none-eabihf/debug/led-roulette"))
-  )
+         :executable "target/thumbv7em-none-eabihf/debug/led-roulette"
+         :debugger_args ["-q" "-ix" "extended-remote" "-x" "learning/rust/openocd.gdb"])))
 
 (after! dired
   (setq dirvish-peek-mode t
@@ -199,75 +331,55 @@
 (use-package! gptel-integrations)
 (use-package! gptel
   :config
-  (setq gptel-model 'llama3.2:3b
+  (setq gptel-use-tools t
+        gptel-track-media t
+        gptel-default-mode #'org-mode
+        gptel-directives '((writing     . "You are a large language model and a writing assistant.")
+                           (chat        . "You are a large language model and a conversation partner.")
+                           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+                           (default     . "You are a large language model living in Doom Emacs and a helpful assistant. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, daily drive NixOS and Nix Darwin MacOS from time to time. I prefer to write code in Rust, and Nix. When responding for code snippets, always take best practices, design patterns, and scalability into account while keeping things simple. Always follow up your responses with questions and ideas. Do not be blunt when responding, provide justification and educate me if you notice that I may be misled."))
+        gptel-model 'llama3.2:3b
         gptel-backend (gptel-make-ollama "Ollama"
                         :stream t
                         :host "localhost:11434"
-                        :models '(llama3.2:3b
+                        :models '(llava:34b
+                                  llama3.2:3b
                                   gpt-oss:20b
                                   gpt-oss:120b
                                   mistral:latest
                                   qwen2.5-coder:32b
-                                  phind-codellama:34b
-                                  llava:34b))
-        ;; gptel-model 'gpt-4.1
-        ;;      gptel-backend (gptel-make-gh-copilot "Copilot")
-
-        gptel-use-tools t
-        gptel-track-media t
+                                  phind-codellama:34b))
         ;; gptel-api-key "your key"
-        gptel-default-mode #'org-mode
-        gptel-directives '((default     . "You are a large language model living in Doom Emacs and a helpful assistant. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, daily drive NixOS and Nix Darwin MacOS from time to time. I prefer to write code in Rust, and Nix. When responding for code snippets, always take best practices, design patterns, and scalability into account while keeping things simple. Always follow up your responses with questions and ideas. Do not be blunt when responding, provide justification and educate me if you notice that I may be misled.")
-                           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-                           (writing     . "You are a large language model and a writing assistant.")
-                           (chat        . "You are a large language model and a conversation partner.")))
+        ;; gptel-model 'gpt-4.1
+        ;; gptel-backend (gptel-make-gh-copilot "Copilot")
+        )
 
   (gptel-make-preset 'gpt-4.1
     :model 'gpt-4.1
     :backend "Copilot"
     :description "GPT 4.1 from GitHub")
 
-  (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll
-            'gptel-post-response-functions 'gptel-end-of-response)
-
   (defun llm-tool-collection-register-with-gptel (tool-spec)
     "Register a tool defined by TOOL-SPEC with gptel.
   TOOL-SPEC is a plist that can be passed to `gptel-make-tool'."
     (let ((tool (apply #'gptel-make-tool tool-spec)))
-      (setq gptel-tools
-            (cons tool (seq-remove
-                        (lambda (existing)
-                          (string= (gptel-tool-name existing)
-                                   (gptel-tool-name tool)))
-                        gptel-tools)))))
+      (setq gptel-tools (cons tool (seq-remove (lambda (existing) (string= (gptel-tool-name existing) (gptel-tool-name tool))) gptel-tools)))))
 
-  (add-hook 'llm-tool-collection-post-define-functions
-            #'llm-tool-collection-register-with-gptel))
+  (add-hook 'llm-tool-collection-post-define-functions #'llm-tool-collection-register-with-gptel)
+  (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll 'gptel-post-response-functions 'gptel-end-of-response))
 
 (use-package! llm-tool-collection)
 (after! llm-tool-collection
-  (mapcar (apply-partially #'apply #'gptel-make-tool)
-          (llm-tool-collection-get-all)))
-
-;; (use-package! jira
-;;   :config
-;;   (setq jira-api-version 3 ;; Version 2 is also allowed
-;;         ;; jira-tempo-token "foobar123123") ;; https://apidocs.tempo.io
-;;         jira-username "mfarabi619@gmail.com"
-;;         jira-token-is-personal-access-token nil
-;;         jira-base-url ""
-;;         ;; https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
-;;         ;; put into encrypted token file and look into gpg
-;;         jira-token ""))
+  (mapcar (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
 
 (map! :n "C-'" #'+vterm/toggle
-      ;; :n "C-l" nil :n "C-l" #'+lazygit/toggle
-      :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
-      ;; :leader :desc "Open Dirvish" "e" #'dirvish
       :leader :desc "Open Dirvish" "k" #'dirvish
-      ;; :leader :desc "Open AI Chat buffer" "k" #'gptel
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
-      :leader :desc "Open Dirvish Side" "[" #'dirvish-side)
+      :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
+      :leader :desc "Open Dirvish Side" "[" #'dirvish-side
+      ;; :n "C-l" nil :n "C-l" #'+lazygit/toggle
+      ;; :leader :desc "Open AI Chat buffer" "k" #'gptel
+      )
 
 (map! :map evil-window-map
       "SPC"       #'rotate-layout
@@ -355,11 +467,6 @@
            (vterm-send-return)))
        buffer))))
 
-(map! :leader ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
-      :desc "Switch to last buffer"
-      "e" #'evil-switch-to-windows-last-buffer)
-"e" #'my/switch-to-last-buffer-in-split)
-
 (defun my/switch-to-last-buffer-in-split ()
   "Show last buffer on split screen."
   (interactive)
@@ -369,6 +476,12 @@
           (split-window-right)
           (evil-switch-to-windows-last-buffer)
           (switch-to-buffer current-buffer)))))
+
+(map! ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
+ :desc "Switch to last buffer"
+ :leader "e" #'evil-switch-to-windows-last-buffer
+ ;; "e" #'my/switch-to-last-buffer-in-split
+ )
 
 (defadvice! prompt-for-buffer (&rest _)
   :after '(evil-window-split evil-window-vsplit)
@@ -380,8 +493,7 @@
  'doom-modeline-mode-hook #'nyan-mode)
 
 (after! evil
-  (setq evil-ex-substitute-global t ;; implicit /g flag on evil ex substitution
-        )
+  (setq evil-ex-substitute-global t)
   (add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
   (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
   (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
@@ -451,13 +563,7 @@
         magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")
         magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256"))
 
-  (add-hook
-   'magit-mode-hook
-   (lambda ()
-     (hl-line-mode 1)
-     (magit-delta-mode 1)
-     (display-line-numbers-mode 1)))
-
+  (add-hook 'magit-mode-hook (lambda () (hl-line-mode 1) (magit-delta-mode 1) (display-line-numbers-mode 1)))
   (custom-set-faces
    '(magit-diff-context ((t (:foreground "#b0b0b0"))))
    '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
@@ -469,10 +575,7 @@
 (after! magit-delta
   (setq magit-delta-hide-plus-minus-markers t
         ;; magit-delta-default-dark-theme "Gruvbox"
-        magit-delta-delta-args
-        (append magit-delta-delta-args
-                '("--side-by-side"
-                  "--line-numbers"))))
+        magit-delta-delta-args (append magit-delta-delta-args '("--side-by-side" "--line-numbers"))))
 
 (after! verb-mode
   (setq verb-auto-show-headers-buffer t
