@@ -140,9 +140,12 @@
 
 (setq gud-gdb-command-name "arm-none-eabi-gdb -i=mi"
       gdb-debuginfod-enable-setting t)
-;; (require 'dap-gdb)
+
 (after! dap-gdb
   (setq dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
+
+(after! dape
+  (setq dape-buffer-window-arrangement 'left))
 
 (after! dap-mode
   ;; (dap-register-debug-template
@@ -156,11 +159,11 @@
 
   (dap-register-debug-template
    "Embedded::OpenOCD"
-   (list :type "gdbserver"
-         :autorun t
+   (list :autorun t
+         :type "gdbserver"
+         :target ":3333"
          :request "attach"
          :printCalls :json-false
-         :target ":3333"
          :name "Embedded::OpenOCD"
          :gdbpath "arm-none-eabi-gdb"
          :showDevDebugOutput :json-false
