@@ -66,6 +66,7 @@
         "sudo"
         "rust"
         "docker"
+        "pulumi"
         "kubectl"
         "colorize"
         "docker-compose"
