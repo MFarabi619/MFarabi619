@@ -64,6 +64,7 @@
       plugins = [
         "git"
         "sudo"
+        "rust"
         "docker"
         "kubectl"
         "colorize"
