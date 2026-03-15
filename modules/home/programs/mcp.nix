@@ -1,6 +1,6 @@
 {
   programs.mcp = {
-    enable = true;
+    enable = false; # FIXME: programs in mcp server commands not found
     servers = {
       # likec4 = {
       #   command = "pnpx";
@@ -15,6 +15,10 @@
       #     CONTEXT7_API_KEY = "{env:CONTEXT7_API_KEY}";
       #   };
       # };
+
+      devenv = {
+        command = "devenv mcp";
+      };
     };
   };
 }
