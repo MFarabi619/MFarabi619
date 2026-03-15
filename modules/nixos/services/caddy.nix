@@ -3,30 +3,19 @@
   config,
   ...
 }:
-let
-  # NOTE: enormous thanks to blog post: aottr.dev/posts/2024/08/homelab-setting-up-caddy-reverse-proxy-with-ssl-on-nixos/
-  certloc = "/var/lib/acme/openws.org";
-  # NOTE: TLS disabled as https is handled by cloudflare tunnel
-  tlsConfig = ''
-    # tls ${certloc}/cert.pem ${certloc}/key.pem {
-    #   protocols tls1.3
-    # }
-  '';
-
-  clientIp = ''
-     {
-        header_up X-Forwarded-For {client_ip}
-        header_up X-Real-IP {client_ip}
-        header_up X-Http-Version {http.request.proto}
-    }
-  '';
-in
-with lib;
 {
-  services.caddy = {
-    enable = config.networking.hostName == "framework-desktop";
+  # NOTE: enormous thanks to blog post: aottr.dev/posts/2024/08/homelab-setting-up-caddy-reverse-proxy-with-ssl-on-nixos/
+  # certloc = "/var/lib/acme/openws.org";
+  # # NOTE: TLS disabled as https is handled by cloudflare tunnel
+  # tlsConfig = ''
+  #   # tls ${certloc}/cert.pem ${certloc}/key.pem {
+  #   #   protocols tls1.3
+  #   # }
+  # '';
 
+  services.caddy = {
     email = config.security.acme.defaults.email;
+    enable = config.networking.hostName == "framework-desktop";
 
     globalConfig = ''
       metrics {
@@ -43,38 +32,109 @@ with lib;
       }
     '';
 
-    virtualHosts = mkMerge [
+    virtualHosts = lib.mkMerge [
+      (lib.concatMapAttrs
+        (
+          domain: hosts:
+          lib.mapAttrs' (
+            name: upstream:
+            lib.nameValuePair "http://${name}.${domain}" {
+              extraConfig = ''
+                reverse_proxy ${upstream}
+              '';
+            }
+          ) hosts
+        )
+        {
+          "openws.org" = {
+            penpot = ":81";
+            admin = ":1212";
+            excalidraw = ":81";
+            registry = ":5000";
+            rpi5 = "rpi5-8:7681";
+            emacs = "rpi5-8:7682";
+            neovim = "rpi5-8:7683";
+            freebsd = "msi-ge76:7681";
+            mirror = config.services.anubis.instances.mirror.settings.TARGET;
+          };
+
+          "apidaesystems.ca" = {
+            crm = ":81";
+            portal = ":81";
+            sentry = ":81";
+            supabase = ":81";
+            minio = "rpi5-16";
+            horizon = "rpi5-8";
+            registry = "rpi5-16";
+            admin = "rpi5-16:3000";
+            demo = "http://10.0.0.170";
+            rutx11 = "100.111.144.127";
+            halow = "http://halowlink2-6c7f";
+          };
+        }
+      )
+      # (lib.concatMapAttrs
+      #   (
+      #     domain: hosts:
+      #     lib.mapAttrs' (
+      #       name: upstream:
+      #       lib.nameValuePair "http://${name}.${domain}" {
+      #         extraConfig = ''
+      #           reverse_proxy ${upstream} {
+      #             transport http {
+      #               tls_insecure_skip_verify
+      #             }
+      #           }
+      #         '';
+      #       }
+      #     ) hosts
+      #   )
+      #   {
+      #     "openws.org" = {
+      #       proxmox = ":8006";
+      #     };
+      #   }
+      # )
+      (lib.mapAttrs'
+        (
+          name: upstream:
+          lib.nameValuePair "http://${name}" {
+            extraConfig = ''
+              reverse_proxy ${upstream} {
+                header_up X-Forwarded-For {client_ip}
+                header_up X-Real-IP {client_ip}
+                header_up X-Http-Version {http.request.proto}
+              }
+            '';
+          }
+        )
+        {
+          "microvisor.systems" = "http://10.0.0.236";
+          "tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
+        }
+      )
       {
-        # "http://openws.org" = {
-        #   extraConfig = ''
-        #     root * /var/www/html
-        #     file_server
-        #     ${tlsConfig}
-        #   '';
-        # };
+        "http://manzikert.ca".extraConfig = "reverse_proxy :81";
+        "http://www.manzikert.ca".extraConfig = "reverse_proxy :81";
+        "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
 
-        "http://microvisor.systems".extraConfig = "reverse_proxy http://10.0.0.236 ${clientIp}";
-
-        "http://openws.org".extraConfig =
-          "reverse_proxy http://${config.services.anubis.instances.homepage-dashboard.settings.BIND} ${clientIp}"
-          + lib.optionalString config.services.grafana.enable ''
-            handle /grafana* {
-              reverse_proxy :${toString config.services.grafana.settings.server.http_port}
-            }
-          ''
-          + lib.optionalString config.services.plantuml-server.enable ''
-            handle /plantuml* {
-              reverse_proxy :${toString config.services.plantuml-server.listenPort}
-            }
-          '';
-
-        "http://penpot.openws.org".extraConfig = "reverse_proxy :81";
-        "http://admin.openws.org".extraConfig = "reverse_proxy :1212";
-        "http://registry.openws.org".extraConfig = "reverse_proxy :5000";
-        "http://rpi5.openws.org".extraConfig = "reverse_proxy rpi5-8:7681";
-        "http://emacs.openws.org".extraConfig = "reverse_proxy rpi5-8:7682";
-        "http://neovim.openws.org".extraConfig = "reverse_proxy rpi5-8:7683";
-        "http://freebsd.openws.org".extraConfig = "reverse_proxy msi-ge76:7681";
+        "http://openws.org".extraConfig = ''
+          reverse_proxy http://${config.services.anubis.instances.homepage-dashboard.settings.BIND} {
+            header_up X-Forwarded-For {client_ip}
+            header_up X-Real-IP {client_ip}
+            header_up X-Http-Version {http.request.proto}
+          }
+        ''
+        + lib.optionalString config.services.grafana.enable ''
+          handle /grafana* {
+            reverse_proxy :${toString config.services.grafana.settings.server.http_port}
+          }
+        ''
+        + lib.optionalString config.services.plantuml-server.enable ''
+          handle /plantuml* {
+            reverse_proxy :${toString config.services.plantuml-server.listenPort}
+          }
+        '';
 
         "http://docs.openws.org" = {
           extraConfig = ''
@@ -88,33 +148,26 @@ with lib;
             }
           '';
         };
-
-        "http://mirror.openws.org".extraConfig =
-          "reverse_proxy ${config.services.anubis.instances.mirror.settings.TARGET} ${clientIp}";
-
-        "http://horizon.apidaesystems.ca".extraConfig = "reverse_proxy rpi5-8";
-        "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
-
-        "http://lte.apidaesystems.ca".extraConfig = ''
-          reverse_proxy https://10.0.0.4:443 {
-              transport http {
-                tls_insecure_skip_verify
-              }
-            }
-        '';
-
-        "http://tandemrobotics.ca".extraConfig =
-          "reverse_proxy ${config.services.anubis.instances.tandemrobotics.settings.BIND} ${clientIp}";
       }
-      (optionalAttrs config.services.open-webui.enable {
-        "http://ai.openws.org".extraConfig =
-          "reverse_proxy :${toString config.services.open-webui.port} ${clientIp}";
+      (lib.optionalAttrs config.services.open-webui.enable {
+        "http://ai.openws.org".extraConfig = ''
+          reverse_proxy :${toString config.services.open-webui.port} {
+            header_up X-Forwarded-For {client_ip}
+            header_up X-Real-IP {client_ip}
+            header_up X-Http-Version {http.request.proto}
+          }
+        '';
       })
-      (optionalAttrs config.services.ttyd.enable {
-        "http://demo.openws.org".extraConfig =
-          "reverse_proxy :${toString config.services.ttyd.port} ${clientIp}";
+      (lib.optionalAttrs config.services.ttyd.enable {
+        "http://demo.openws.org".extraConfig = ''
+          reverse_proxy :${toString config.services.ttyd.port} {
+            header_up X-Forwarded-For {client_ip}
+            header_up X-Real-IP {client_ip}
+            header_up X-Http-Version {http.request.proto}
+          }
+        '';
       })
-      (optionalAttrs config.services.anki-sync-server.enable {
+      (lib.optionalAttrs config.services.anki-sync-server.enable {
         "http://anki.microvisor.dev".extraConfig =
           "reverse_proxy :${toString config.services.anki-sync-server.port}";
       })
