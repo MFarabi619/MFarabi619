@@ -81,6 +81,12 @@
       doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 32)
       doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14))
 
+;; https://github.com/cuspymd/tramp-term.el
+(after! tramp
+  (setq tramp-verbose 1
+        tramp-default-method "sshx"
+        tramp-connection-timeout 10))
+
 (after! treesit
   (setq treesit-font-lock-level 3
         treesit-auto-install-grammar 'always))
@@ -214,9 +220,9 @@
                            (chat        . "You are a large language model and a conversation partner.")))
 
   (gptel-make-preset 'gpt-4.1
-                     :model 'gpt-4.1
-                     :backend "Copilot"
-                     :description "GPT 4.1 from GitHub")
+    :model 'gpt-4.1
+    :backend "Copilot"
+    :description "GPT 4.1 from GitHub")
 
   (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll
             'gptel-post-response-functions 'gptel-end-of-response)
