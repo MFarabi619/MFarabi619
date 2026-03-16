@@ -95,6 +95,11 @@
            :files ("*.el"))
   :pin "d5b6df504e63f635512a57b23afd9a37683fca40")
 
+(package! kitty-graphics
+  :recipe (:host github
+           :repo "cashmeredev/kitty-graphics.el")
+  :pin "f18cebbe766a5ccedebf4c07ae9a6f731a926a8d")
+
 ;; FIXME: Cannot open load file: No such file or directory, hydra
 ;; https://github.com/l3kn/org-fc/issues/67
 ;; (package! org-fc

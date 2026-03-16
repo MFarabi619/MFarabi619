@@ -39,6 +39,7 @@
 ;; (nyan-mode t)
 ;; (minimap-mode)
 (display-time-mode 1)
+(kitty-graphics-mode 1)
 (window-divider-mode -1)
 (global-undo-tree-mode 1)
 ;; (keycast-tab-line-mode)
