@@ -140,15 +140,16 @@
     (dape-request conn "rttWindowOpened" '((channelNumber . 0) (windowIsOpen . t))))
 
   (setq dape-request-timeout 60
+        dape-repl-echo-shell-output t
         dape-buffer-window-arrangement nil
         dape-info-variable-table-aligned nil
-        dape-info-buffer-window-groups '(((dape-info-scope-mode 3)
-                                          dape-info-watch-mode)
-                                         ((dape-info-scope-mode 2))
+        dape-info-buffer-window-groups '(((dape-info-scope-mode 3))
                                          ((dape-info-scope-mode 1))
+                                         (dape-info-watch-mode)
                                          (dape-info-stack-mode
                                           dape-info-modules-mode
                                           dape-info-sources-mode)
+                                         ((dape-info-scope-mode 2))
                                          (dape-info-breakpoints-mode)
                                          (dape-info-threads-mode)
                                          ((dape-info-scope-mode 0)))
@@ -158,69 +159,96 @@
         display-buffer-alist
         (append
          '(
-           ;; LEFT TOP: Variables / Watch
+           ;; LEFT TOP: Variables
            ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-0))
             (display-buffer-reuse-window display-buffer-in-side-window)
             (side . left)
             (slot . 0)
             (window-width . 0.25))
 
-           ;; LEFT MID: Registers
+           ;; RIGHT MID: Static
            ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-1))
-            (display-buffer-reuse-window
-             (lambda (buffer alist)
-               (let ((window (display-buffer-in-side-window buffer alist)))
-                 (with-current-buffer buffer
-                   (setq-local dape-info-variable-table-aligned t
-                               dape-info-variable-table-row-config '((name . 12) (value . 10) (type . 18))))
-                 window)))
-            (side . left)
+            (display-buffer-reuse-window display-buffer-in-side-window)
+            (side . right)
             (slot . 1)
-            (window-width . 0.25))
+            (window-width . 0.45)
+            (window-height . 0.38))
 
-           ;; LEFT LOWER: Static
-           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-2))
+           ;; LEFT: Stack / Modules / Sources
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-3))
             (display-buffer-reuse-window display-buffer-in-side-window)
             (side . left)
             (slot . 2)
-            (window-width . 0.25))
+            (window-width . 0.25)
+            (window-height . 0.18))
 
-           ;; LEFT BOTTOM: Breakpoints
-           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-4))
+           ;; LEFT LOWER: Watch
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-2))
             (display-buffer-reuse-window display-buffer-in-side-window)
             (side . left)
             (slot . 3)
             (window-width . 0.25)
             (window-height . 0.05))
 
-           ;; LEFT BOTTOM: Threads
+           ;; LEFT BOTTOM: Breakpoints
            ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-5))
-            (display-buffer-reuse-window display-buffer-in-side-window)
+            (display-buffer-reuse-window
+             (lambda (buffer alist)
+               (let ((window (display-buffer-in-side-window buffer alist)))
+                 (with-current-buffer buffer
+                   (setq-local truncate-lines nil
+                               word-wrap t)
+                   (visual-line-mode 1))
+                 window)))
             (side . left)
             (slot . 4)
             (window-width . 0.25)
-            (window-height . 0.05))
+            (window-height . 0.03))
 
-           ;; RIGHT TOP: Stack / Modules / Sources
-           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-3))
-            (display-buffer-reuse-window display-buffer-in-side-window)
-            (side . right)
-            (slot . 0)
-            (window-width . 0.3))
-
-           ;; RIGHT BOTTOM: Peripherals
+           ;; LEFT BOTTOM: Threads
            ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-6))
             (display-buffer-reuse-window
              (lambda (buffer alist)
                (let ((window (display-buffer-in-side-window buffer alist)))
                  (with-current-buffer buffer
+                   (setq-local truncate-lines nil
+                               word-wrap t)
+                   (visual-line-mode 1))
+                 window)))
+            (side . left)
+            (slot . 5)
+            (window-width . 0.25)
+            (window-height . 0.03))
+
+           ;; LEFT MID: Registers
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-4))
+            (display-buffer-reuse-window
+             (lambda (buffer alist)
+               (let ((window (display-buffer-in-side-window buffer alist)))
+                 (with-current-buffer buffer
+                   (setq-local dape-info-variable-table-aligned t))
+                 window)))
+            (side . left)
+            (slot . 1)
+            (window-width . 0.25)
+            (window-height . 0.24))
+
+           ;; RIGHT TOP: Peripherals
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-7))
+            (display-buffer-reuse-window
+             (lambda (buffer alist)
+               (let ((window (display-buffer-in-side-window buffer alist)))
+                 (with-current-buffer buffer
                    (setq-local dape-info-variable-table-aligned t
-                               dape-info-variable-table-row-config '((name . 14) (value . 26) (type . 12))))
+                               dape-info-variable-table-row-config '((name . 0) (value . 0) (type . 0))
+                               face-remapping-alist
+                               '((default (:height 0.84))
+                                 (header-line (:height 0.84)))))
                  window)))
             (side . right)
-            (slot . 1)
-            (window-width . 0.3)
-            (window-height . 0.8))
+            (slot . 0)
+            (window-width . 0.45)
+            (window-height . 0.62))
 
            ;; REPL: top half of the center area only
            ("^\\*dape-repl\\*$"
@@ -280,8 +308,7 @@
   (add-hook 'dape-info-parent-mode-hook
             (defun dape--info-compact ()
               (face-remap-add-relative 'header-line :height 0.9)
-              (face-remap-add-relative 'default :height 0.9)))
-  )
+              (face-remap-add-relative 'default :height 0.9))))
 
 (setq gdb-debuginfod-enable-setting t
       gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
