@@ -1,6 +1,6 @@
 {
   programs.mcp = {
-    enable = false; # FIXME: programs in mcp server commands not found
+    enable = true;
     servers = {
       # likec4 = {
       #   command = "pnpx";
@@ -16,8 +16,8 @@
       #   };
       # };
 
-      devenv = {
-        command = "devenv mcp";
+      mcp-nixos = {
+        command = "mcp-nixos";
       };
     };
   };
