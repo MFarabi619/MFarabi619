@@ -21,6 +21,7 @@
         # fritzing
         kubernetes-helm
         # =============
+        ispell
         # kicad
         # logseq
         vips # dired image previews

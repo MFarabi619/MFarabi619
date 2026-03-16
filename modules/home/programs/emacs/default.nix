@@ -92,6 +92,7 @@
     extraBinPackages =
       with pkgs;
       [
+        ispell
         buf # protobuf lsp
         protobuf
         protoc-gen-go
