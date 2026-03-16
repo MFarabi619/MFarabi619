@@ -608,6 +608,10 @@
   (setq fretboard-fret-count 15)
   (add-hook 'fretboard-mode-hook #'evil-emacs-state))
 
+(after! osm
+  (setopt osm-copyright t
+          osm-home (list 45.38730243858645 -75.69539479599302 15)))
+
 (after! which-key
   (pushnew!
    which-key-replacement-alist

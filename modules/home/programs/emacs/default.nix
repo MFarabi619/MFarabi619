@@ -49,6 +49,7 @@
         kconfig-ref
         kconfig-mode
 
+        osm
         org-anki
         org-roam-ui
         org-pdftools
@@ -104,14 +105,17 @@
         jq-lsp
         graphql-language-service-cli
 
+        # ===== 🛠️ ASSEMBLY 🛠 ======
         asmfmt
 
+        # ===== 🦫 GO 🦫 ======
         gore
         gotests
         gomodifytags
         gocode-gomod
         golangci-lint
 
+        # ==== 🚂 RUBY 🚂 =====
         ruby-lsp
 
         graphviz
@@ -122,11 +126,12 @@
         fd
         git
         tuntox # collab
+        gnutls # :app irc
         # semgrep
-        rustywind
 
         # eslint
         # proselint
+        rustywind
         # markdownlint-cli
         # mdx-language-server
 
@@ -137,9 +142,8 @@
         # vscode-langservers-extracted
         vscode-extensions.llvm-vs-code-extensions.lldb-dap
 
+        # ==== 💿 SQL 💿 =====
         postgres-language-server
-
-        gnutls # :app irc
       ]
       ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
         bashdb
