@@ -65,6 +65,7 @@
         exercism
         nix-update
         nix-ts-mode
+        nixos-options
         all-the-icons
 
         lsp-tailwindcss
