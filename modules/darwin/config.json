@@ -1,55 +1,44 @@
 {
-  "actions" : [
+  "actions": [
     {
-      "iconPath" : "/Users/mfarabi/Applications/kitty.app",
-      "key" : "t",
-      "label" : "Kitty",
-      "type" : "command",
-      "value" : "kitty -d ~ &"
+      "iconPath": "/Users/mfarabi/Applications/kitty.app",
+      "key": "t",
+      "label": "Kitty",
+      "type": "command",
+      "value": "kitty -d ~ &"
     },
     {
-      "iconPath" : "/Users/mfarabi/Applications/Emacs.app",
-      "key" : "e",
-      "label" : "Emacs",
-      "type" : "command",
-      "value" : "open ~/Applications/Emacs.app"
+      "iconPath": "/Users/mfarabi/Applications/Emacs.app",
+      "key": "e",
+      "label": "Emacs",
+      "type": "command",
+      "value": "open ~/Applications/Emacs.app"
     },
     {
-      "key" : "s",
-      "type" : "application",
-      "value" : "/System/Applications/System Settings.app"
+      "key": "s",
+      "type": "application",
+      "value": "/System/Applications/System Settings.app"
     },
     {
-      "iconPath" : "/Users/mfarabi/Downloads",
-      "key" : "d",
-      "type" : "folder",
-      "value" : "/Users/mfarabi/Downloads"
+      "key": "v",
+      "label": "Vivaldi",
+      "type": "application",
+      "value": "/Applications/Vivaldi.app"
     },
     {
-      "key" : "v",
-      "label" : "Vivaldi",
-      "type" : "application",
-      "value" : "/Applications/Vivaldi.app"
+      "iconPath": "keyboard.fill",
+      "key": "k",
+      "label": "🖮 Start Karabiner Driver + Kanata",
+      "type": "command",
+      "value": "sudo killall Karabiner-VirtualHIDDevice-Daemon; sudo killall kanata; sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -qc ~/MFarabi619/modules/darwin/kanata.kbd &"
     },
     {
-      "iconPath" : "keyboard.fill",
-      "key" : "k",
-      "label" : "🖮 Start Karabiner Driver + Kanata",
-      "type" : "command",
-      "value" : "sudo killall Karabiner-VirtualHIDDevice-Daemon; sudo killall kanata; sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -qc ~/MFarabi619/modules/darwin/kanata.kbd &"
-    },
-    {
-      "iconPath" : "/Users/mfarabi/Applications/UTM.app",
-      "key" : "u",
-      "label" : "UTM",
-      "type" : "command",
-      "value" : "open ~/Applications/UTM.app"
-    },
-    {
-      "key" : "i",
-      "type" : "folder",
-      "value" : "/Users/mfarabi/Pictures"
+      "iconPath": "/Users/mfarabi/Applications/UTM.app",
+      "key": "u",
+      "label": "UTM",
+      "type": "command",
+      "value": "open ~/Applications/UTM.app"
     }
   ],
-  "type" : "group"
+  "type": "group"
 }
