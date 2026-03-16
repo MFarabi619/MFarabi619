@@ -32,6 +32,7 @@
         pg
         nov
         mu4e
+        empv
         verb
         gptel
         vterm
