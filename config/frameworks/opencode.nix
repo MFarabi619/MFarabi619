@@ -28,21 +28,21 @@ let
       ];
     };
 
-    likec4 = {
-      enabled = true;
-      type = "local";
-      command = [
-        "likec4"
-        "mcp"
-        "${config.git.root}/docs"
-      ];
-    };
+    # likec4 = {
+    #   enabled = true;
+    #   type = "local";
+    #   command = [
+    #     "likec4"
+    #     "mcp"
+    #     "${config.git.root}/docs"
+    #   ];
+    # };
 
-    supabase = {
-      enabled = true;
-      type = "remote";
-      url = "http://localhost:54321/mcp?features=docs%2Cdatabase%2Cdebugging%2Cdevelopment";
-    };
+    # supabase = {
+    #   enabled = true;
+    #   type = "remote";
+    #   url = "http://localhost:54321/mcp?features=docs%2Cdatabase%2Cdebugging%2Cdevelopment";
+    # };
 
     pulumi = {
       enabled = true;
@@ -50,14 +50,14 @@ let
       url = "https://mcp.ai.pulumi.com/mcp";
     };
 
-    nx = {
-      enabled = true;
-      type = "local";
-      command = [
-        "nx"
-        "mcp"
-      ];
-    };
+    # nx = {
+    #   enabled = true;
+    #   type = "local";
+    #   command = [
+    #     "nx"
+    #     "mcp"
+    #   ];
+    # };
   };
 
   codexMcpServers = lib.mapAttrs (
