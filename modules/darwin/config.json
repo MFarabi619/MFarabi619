@@ -1,18 +1,18 @@
 {
   "actions": [
     {
-      "iconPath": "/Users/mfarabi/Applications/kitty.app",
       "key": "t",
       "label": "Kitty",
       "type": "command",
-      "value": "kitty -d ~ &"
+      "value": "kitty -d ~ &",
+      "iconPath": "/Users/mfarabi/Applications/kitty.app"
     },
     {
-      "iconPath": "/Users/mfarabi/Applications/Emacs.app",
       "key": "e",
       "label": "Emacs",
       "type": "command",
-      "value": "open ~/Applications/Emacs.app"
+      "value": "open ~/Applications/Emacs.app",
+      "iconPath": "/Users/mfarabi/Applications/Emacs.app"
     },
     {
       "key": "s",
@@ -26,10 +26,10 @@
       "value": "/Applications/Vivaldi.app"
     },
     {
-      "iconPath": "keyboard.fill",
       "key": "k",
-      "label": "🖮 Start Karabiner Driver + Kanata",
       "type": "command",
+      "iconPath": "keyboard.fill",
+      "label": "🖮 Start Karabiner Driver + Kanata",
       "value": "sudo killall Karabiner-VirtualHIDDevice-Daemon; sudo killall kanata; sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon' &; sudo kanata -qc ~/MFarabi619/modules/darwin/kanata.kbd &"
     },
     {
@@ -38,6 +38,13 @@
       "label": "UTM",
       "type": "command",
       "value": "open ~/Applications/UTM.app"
+    },
+    {
+      "key": "o",
+      "type": "command",
+      "label": "OpenCode",
+      "iconPath": "curlybraces",
+      "value": "sudo killall opencode; opencode web &"
     }
   ],
   "type": "group"
