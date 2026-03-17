@@ -691,18 +691,7 @@
 
 ;; You do not need to run 'doom sync' after modifying this file!
 
-(defun my-custom-dashboard-text ()
-  "Insert custom text into the Doom dashboard."
-  (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n"))
-
-;; Find `doom-dashboard-widget-banner` in the list and insert after it
-(let ((pos (cl-position #'doom-dashboard-widget-banner +doom-dashboard-functions)))
-  (when pos
-    (setq +doom-dashboard-functions
-          (append (cl-subseq +doom-dashboard-functions 0 (1+ pos))
-                  (list #'my-custom-dashboard-text)
-                  (cl-subseq +doom-dashboard-functions (1+ pos))))))
-
+(load! "./dashboard.el")
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;; - `doom-font' -- primary font to use
 ;; - `doom-big-font' -- used for `doom-big-font-mode'
