@@ -9,6 +9,7 @@
       with pkgs;
       [
         delve
+        bashdb
         # ============= 🤖 ==================
         tree
         pixi # multi-language package manager
