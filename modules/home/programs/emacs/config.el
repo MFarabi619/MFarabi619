@@ -34,6 +34,7 @@
 ;; ;; (load! "./extra/sway-ts-mode")
 ;; (setq treesit-extra-load-path "./extra")
 
+;; (parrot-mode)
 ;; (nyan-mode t)
 ;; (minimap-mode)
 (display-time-mode 1)
@@ -448,7 +449,6 @@
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
       :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
       :leader :desc "Open Dirvish Side" "[" #'dirvish-side
-      ;; :n "C-l" nil :n "C-l" #'+lazygit/toggle
       ;; :leader :desc "Open AI Chat buffer" "k" #'gptel
       )
 
@@ -497,46 +497,91 @@
   :modeline nil
   :side 'right)
 
-(set-popup-rule! "*doom:vterm-popup:lazygit*"
-  :quit t
-  :slot 0
-  :vslot 0
-  :ttl nil
-  :select t
-  :width 0.5
-  :height 0.5
-  :modeline nil
-  :side 'right)
+(defconst my/lazygit-command "lazygit status -sm normal")
+(defvar my/vterm-warmed-projects (make-hash-table :test #'equal))
+
+(defun my/project-root ()
+  (let ((root (or (doom-project-root default-directory)
+                  (and (fboundp 'projectile-project-root)
+                       (ignore-errors (projectile-project-root)))
+                  default-directory)))
+    (file-name-as-directory (expand-file-name root))))
+
+(defun my/vterm-buffer-name ()
+  (format "*doom:vterm-popup:project-%s*"
+          (if (bound-and-true-p persp-mode)
+              (safe-persp-name (get-current-persp))
+            "main")))
+
+(defun my/vterm-project-buffer ()
+  (let* ((buffer-name (my/vterm-buffer-name))
+         (buffer (get-buffer-create buffer-name))
+         (root (my/project-root)))
+    (with-current-buffer buffer
+      (let ((default-directory root))
+        (unless (derived-mode-p 'vterm-mode)
+          (vterm-mode))
+        (setq-local +vterm--id buffer-name)))
+    buffer))
+
+(defun my/warm-project-vterm ()
+  "Pre-create vterm per project so first use is instant."
+  (let ((root (my/project-root)))
+    (unless (gethash root my/vterm-warmed-projects)
+      (puthash root t my/vterm-warmed-projects)
+      (run-with-idle-timer
+       0.2 nil
+       (lambda (dir)
+         (when (file-directory-p dir)
+           (let ((default-directory dir))
+             (save-window-excursion
+               (my/vterm-project-buffer)))))
+       root))))
+
+(defun +vterm/toggle ()
+  "Toggle the project vterm buffer.
+If lazygit is active there, quit it and leave the shell running."
+  (interactive)
+  (let ((buffer (my/vterm-project-buffer)))
+    (if-let ((win (get-buffer-window buffer t)))
+        (if (one-window-p) (bury-buffer buffer) (delete-window win))
+      (unless (get-buffer-window buffer t)
+        (pop-to-buffer buffer))
+      (when (funcall
+             (lambda ()
+               (with-current-buffer buffer
+                 (when-let* ((proc (get-buffer-process (current-buffer)))
+                             ((process-live-p proc))
+                             ((executable-find "pgrep")))
+                   (ignore-errors
+                     (process-lines "pgrep" "-P" (number-to-string (process-id proc)) "-f" "lazygit")
+                     t)))))
+        (with-current-buffer buffer
+          (vterm-send-key "q"))))))
 
 (defun +lazygit/toggle ()
-  "Bring up or reuse a vterm popup running lazygit."
+  "Run lazygit in the shared project vterm buffer."
   (interactive)
-  (+vterm--configure-project-root-and-display
-   nil
-   (lambda ()
-     (let* ((buffer-name
-             (format "*doom:vterm-popup:lazygit-%s*"
-                     (if (bound-and-true-p persp-mode)
-                         (safe-persp-name (get-current-persp))
-                       "main")))
-            (buffer (or (cl-loop for buf in (doom-buffers-in-mode 'vterm-mode)
-                                 if (equal (buffer-local-value '+vterm--id buf)
-                                           buffer-name)
-                                 return buf)
-                        (get-buffer-create buffer-name)))
-            (proc   (get-buffer-process buffer))
-            (need-launch (not (and proc (process-live-p proc)))))
-       (if-let ((win (get-buffer-window buffer-name)))
-           (delete-window win)
-         (with-current-buffer buffer
-           (unless (eq major-mode 'vterm-mode)
-             (vterm-mode))
-           (setq-local +vterm--id buffer-name))
-         (pop-to-buffer buffer)
-         (when need-launch
-           (vterm-send-string "lazygit status -sm normal; exit")
-           (vterm-send-return)))
-       buffer))))
+  (let ((buffer (my/vterm-project-buffer)))
+    (unless (get-buffer-window buffer t)
+      (pop-to-buffer buffer))
+    (with-current-buffer buffer
+      (vterm-send-C-c)
+      (vterm-send-string my/lazygit-command)
+      (vterm-send-return))))
+
+(after! compile-multi
+  (setopt compile-multi-default-directory #'projectile-project-root))
+
+(after! projectile
+  (add-hook 'projectile-after-switch-project-hook #'my/warm-project-vterm))
+
+(add-hook 'doom-first-buffer-hook #'my/warm-project-vterm)
+
+(add-hook 'find-file-hook #'my/warm-project-vterm)
+
+(after! direnv
+  (direnv-mode -1))
 
 (defun my/switch-to-last-buffer-in-split ()
   "Show last buffer on split screen."
@@ -594,7 +639,9 @@
 (after! org
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
   (setq
-   org-startup-numerated t
+   org-startup-numerated 1
+   org-tag-beautify-mode 1
+   org-link-beautify-mode 1
    org-modern-table-vertical 1
    org-modern-table-horizontal 0.2
    org-link-search-must-match-exact-headline nil
@@ -672,7 +719,8 @@
   (setq centaur-tabs-show-count t
         centaur-tabs-gray-out-icons t
         centaur-tabs-enable-key-bindings t
-        centaur-tabs-show-navigation-buttons t))
+        centaur-tabs-show-new-tab-button nil
+        centaur-tabs-show-navigation-buttons nil))
 
 (use-package! fretboard)
 (after! fretboard
@@ -689,9 +737,10 @@
    '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
    '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
 
+(load! "./dashboard.el")
+
 ;; You do not need to run 'doom sync' after modifying this file!
 
-(load! "./dashboard.el")
 ;; Doom exposes five (optional) variables for controlling fonts in Doom:
 ;; - `doom-font' -- primary font to use
 ;; - `doom-big-font' -- used for `doom-big-font-mode'
