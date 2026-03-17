@@ -67,8 +67,8 @@
             horizon = "rpi5-8";
             registry = "rpi5-16";
             admin = "rpi5-16:3000";
-            demo = "http://10.0.0.170";
             rutx11 = "100.111.144.127";
+            ceratina = "http://rutx11:3000";
             halow = "http://halowlink2-6c7f";
           };
         }
