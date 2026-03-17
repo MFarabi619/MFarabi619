@@ -505,7 +505,7 @@
   :select t
   :width 0.5
   :height 0.5
-  :modeline t
+  :modeline nil
   :side 'right)
 
 (defun +lazygit/toggle ()
