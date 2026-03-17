@@ -143,13 +143,15 @@
       ]
       ++ lib.optionals stdenv.isDarwin [
         utm # virtual machines on macos
-        llvm # compiler toolchain
+        llvm
+        lldb
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
         ccache
         avrdude
         dfu-util
         minikube
         dfu-programmer
+        vscode-extensions.llvm-vs-code-extensions.lldb-dap
       ];
 
     file = {

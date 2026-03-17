@@ -137,6 +137,7 @@
         # markdownlint-cli
         # mdx-language-server
 
+        lldb
         taplo # toml lsp
         # emmet-ls
         # yaml-language-server
