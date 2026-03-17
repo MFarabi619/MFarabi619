@@ -30,8 +30,6 @@
 ;;
 ;; See implementations with 'gd' over symbol (or 'C-c c d').
 
-;; https://tecosaur.github.io/emacs-config
-
 ;; https://git.sr.ht/~morgansmith/sway-ts-mode
 ;; ;; (load! "./extra/sway-ts-mode")
 ;; (setq treesit-extra-load-path "./extra")
@@ -90,7 +88,7 @@
         tramp-connection-timeout 10))
 
 (after! treesit
-  (setq treesit-font-lock-level 3
+  (setq treesit-font-lock-level 4
         treesit-auto-install-grammar 'always))
 
 (after! treemacs
