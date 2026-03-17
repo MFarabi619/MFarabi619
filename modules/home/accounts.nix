@@ -16,15 +16,14 @@
           msmtp.enable = true;
           flavor = "gmail.com";
           neomutt.enable = true;
-          smtp.host = "smtp.gmail.com";
           address = config.me.email;
           userName = config.me.email;
+          smtp.host = "smtp.gmail.com";
           realName = config.me.fullname;
           passwordCommand = "${pkgs.pass}/bin/pass Email/GmailApp";
 
           signature = {
             showSignature = "append";
-
             text = ''
               Warm regards,
               config.me.fullname
@@ -40,12 +39,6 @@
               "[Gmail]*"
             ]; # "[Gmail]/Sent Mail" ];
           };
-
-          # imap={
-          #  port = 993;
-          #  tls.enable = true;
-          #  host = "imap.gmail.com";
-          # };
         };
       };
     };
