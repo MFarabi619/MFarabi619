@@ -8,6 +8,7 @@
     packages =
       with pkgs;
       [
+        delve
         # ============= 🤖 ==================
         tree
         pixi # multi-language package manager
