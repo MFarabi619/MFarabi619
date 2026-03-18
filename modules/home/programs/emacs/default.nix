@@ -57,6 +57,7 @@
         org-nix-shell
         org-super-agenda
         org-tag-beautify
+        org-link-beautify
         org-table-highlight
 
         wttrin
