@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   flake,
   config,
@@ -93,6 +94,9 @@
         # obsidian
         # platformio-mode
         # catppuccin-theme
+      ]
+      ++ lib.optionals (pkgs.stdenv.isDarwin) [
+        consult-spotlight
       ];
 
     extraBinPackages =
