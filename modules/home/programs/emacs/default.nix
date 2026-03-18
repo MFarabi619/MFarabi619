@@ -78,6 +78,7 @@
         ob-mermaid
         mermaid-mode # github.com/abrochard/mermaid-mode
         # ================
+        parrot
         pacmacs
         key-quiz
         nyan-mode
