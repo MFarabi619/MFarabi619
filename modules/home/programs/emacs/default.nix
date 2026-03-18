@@ -56,6 +56,7 @@
         org-pdftools
         org-nix-shell
         org-super-agenda
+        org-tag-beautify
         org-table-highlight
 
         wttrin
