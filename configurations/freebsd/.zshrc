@@ -20,6 +20,7 @@ plugins=(
   eza
   rust
   kitty
+  golang
   direnv
   pulumi
   kubectl
