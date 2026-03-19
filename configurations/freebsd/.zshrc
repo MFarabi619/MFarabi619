@@ -15,6 +15,7 @@ plugins=(
   uv
   git
   sudo
+  ssh
   eza
   rust
   direnv
