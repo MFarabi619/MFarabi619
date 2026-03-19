@@ -25,6 +25,7 @@ plugins=(
   docker
   pulumi
   kubectl
+  minikube
   colorize
   tailscale
   zsh-256color
