@@ -398,7 +398,8 @@
 (use-package! pio-mode)
 
 (use-package! kbd-mode)
-(use-package! exercism) ;; comment out on non-nixos
+(unless (eq system-type 'berkeley-unix) ; *BSD/Solaris
+  (use-package! exercism))
 
 (use-package! gptel-integrations)
 (use-package! gptel
