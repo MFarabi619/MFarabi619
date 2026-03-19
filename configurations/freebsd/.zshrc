@@ -31,6 +31,7 @@ plugins=(
   tailscale
   zsh-256color
   command-not-found
+  zsh-interactive-cd
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
