@@ -17,6 +17,7 @@ plugins=(
   sudo
   eza
   rust
+  direnv
   pulumi
   kubectl
   colorize
@@ -48,5 +49,4 @@ alias nvim="XDG_CONFIG_HOME=$HOME/MFarabi619/configurations/freebsd/.config nvim
 alias fastfetch='fastfetch --config $HOME/MFarabi619/modules/home/programs/fastfetch/config.jsonc'
 
 eval "$(tv init zsh)"
-eval "$(direnv hook zsh)"
 eval "$(docker-machine env)"
