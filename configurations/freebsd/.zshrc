@@ -22,6 +22,7 @@ plugins=(
   kitty
   golang
   direnv
+  docker
   pulumi
   kubectl
   colorize
