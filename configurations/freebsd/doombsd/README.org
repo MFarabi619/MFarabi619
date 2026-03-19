@@ -226,7 +226,6 @@ grep ttyv1 /etc/ttys
 Make sure that "tty" is set appropriately in the =/usr/local/etc/ly/config.ini= file if
 you decide to configure a different TTY for Ly instead.
 
-
 2. Install packages
 
 #+begin_src zsh
@@ -407,7 +406,7 @@ hyprland
 #+end_src
 
 #+begin_src zsh
-swww ~/MFarabi619/configurations/freebsd/wallpapers/freebsd-gruvbox-rainbow-dark.webp
+swww img ~/MFarabi619/configurations/freebsd/wallpapers/freebsd-gruvbox-rainbow-dark.webp
 #+end_src
 
 
