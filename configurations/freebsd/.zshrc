@@ -71,11 +71,9 @@ plugins=(git sudo tailscale pulumi rust uv kubectl zsh-256color zsh-autosuggesti
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-
 # export MANPATH="/usr/local/man:$MANPATH"
 
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
+# export LANG=en_US.UTF-8 # You may need to manually set your language environment
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -99,15 +97,13 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Always mkdir a path (this doesn't inhibit functionality to make a single dir)
-alias mkdir='mkdir -p'
-
-# Handy change dir shortcuts
 alias ..='cd ..'
 alias ...='cd ../..'
 alias .3='cd ../../..'
 alias .4='cd ../../../..'
 alias .5='cd ../../../../..'
+
+alias mkdir='mkdir -p'
 
 alias c='clear'
 alias l='eza -lh --icons=auto'
