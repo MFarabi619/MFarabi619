@@ -27,6 +27,7 @@ plugins=(
   kubectl
   minikube
   colorize
+  ssh-agent
   tailscale
   zsh-256color
   command-not-found
