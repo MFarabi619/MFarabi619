@@ -148,7 +148,7 @@ curl -fsSL https://git.io/shellspec | sh
 *** Set up editors
 
 #+begin_src zsh
-sudo pkg install tree fzf fd-find ripgrep-all cmake markdown markdownfmt zig go uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim py311-{grip,pynvim,sqlfluff,grep-ast} ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell
+sudo pkg install tree fzf fd-find ripgrep-all cmake markdown markdownfmt zig go gopls uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim py311-{grip,pynvim,sqlfluff,grep-ast} ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell
 #+end_src
 
 #+begin_src zsh
