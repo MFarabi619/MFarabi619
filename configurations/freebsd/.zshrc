@@ -5,10 +5,17 @@ fi
 
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
+
+zstyle ':omz:plugins:eza' 'icons' yes
+zstyle ':omz:plugins:eza' 'dirs-first' yes
+zstyle ':omz:plugins:eza' 'header' yes
+zstyle ':omz:plugins:eza' 'show-group' no
+
 plugins=(
   uv
   git
   sudo
+  eza
   rust
   pulumi
   kubectl
@@ -21,7 +28,9 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
+
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 alias ..='cd ..'
 alias ...='cd ../..'
 alias .3='cd ../../..'
@@ -34,11 +43,7 @@ alias yy='yazi'
 alias lg='lazygit'
 alias lsh='lazyssh'
 alias mkdir='mkdir -p'
-alias l='eza -lh   --icons=auto'
-alias ld='eza -lhD --icons=auto'                                       # long list dirs
-alias lt='eza      --icons=auto --tree'                                # list folder as tree
-alias ls='eza      --icons=auto --sort=name --group-directories-first'
-alias ll='eza -lha --icons=auto --sort=name --group-directories-first' # long list all
+alias lt='eza --tree --icons=auto'
 alias nvim="XDG_CONFIG_HOME=$HOME/MFarabi619/configurations/freebsd/.config nvim"
 alias fastfetch='fastfetch --config $HOME/MFarabi619/modules/home/programs/fastfetch/config.jsonc'
 
