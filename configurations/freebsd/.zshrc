@@ -19,6 +19,7 @@ plugins=(
   fzf
   eza
   rust
+  kitty
   direnv
   pulumi
   kubectl
