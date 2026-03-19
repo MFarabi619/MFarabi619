@@ -16,6 +16,7 @@ plugins=(
   git
   sudo
   ssh
+  fzf
   eza
   rust
   direnv
