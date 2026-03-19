@@ -200,7 +200,7 @@
        (org              ; organize your plain life in plain text
         ;; +contacts
         +hugo
-        +roam2
+        +roam
         +brain
         +noter
         +pretty
