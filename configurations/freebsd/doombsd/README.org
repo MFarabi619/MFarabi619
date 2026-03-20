@@ -61,7 +61,7 @@ pkg update && pkg upgrade -y
 #+end_src
 
 #+begin_src sh
-sudo pkg install bash zsh git lazygit delta direnv television ripgrep eza yazi fd docker-machine neovim emacs-devel
+sudo pkg install bash zsh git lazygit git-delta direnv television ripgrep eza yazi fd docker-machine neovim emacs-devel
 #+end_src
 
 #+begin_src sh
@@ -213,6 +213,7 @@ go install github.com/jessfraz/dockfmt@latest
 go install github.com/fatih/gomodifytags@latest
 go install github.com/cweill/gotests/gotests@latest
 go install github.com/x-motemen/gore/cmd/gore@latest
+go install github.com/jorgerojas26/lazysql@latest
 #+end_src
 
 #+begin_src zsh
@@ -1198,5 +1199,13 @@ FreeBSD USB NOTE:
 	devfs_system_ruleset="localrules"
 
 #+begin_src zsh
-sudo pkg install mise
+sudo pkg install mise xdotool gdk-pixbuf2 libappindicator grafana
+#+end_src
+
+#+begin_src zsh
+cargo install espup esp-config --features="tui"
+#+end_src
+
+#+begin_src zsh
+cargo install dioxus-cli
 #+end_src
