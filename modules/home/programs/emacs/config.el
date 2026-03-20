@@ -450,7 +450,6 @@
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
       :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
       :leader :desc "Open Dirvish Side" "[" #'dirvish-side
-      ;; :leader :desc "Open AI Chat buffer" "k" #'gptel
       )
 
 (map! :map evil-window-map
@@ -498,7 +497,7 @@
   :modeline nil
   :side 'right)
 
-(defconst my/lazygit-command "lazygit status -sm normal")
+(defconst my/lazygit-command " lazygit status -sm normal")
 (defvar my/vterm-warmed-projects (make-hash-table :test #'equal))
 
 (defun my/project-root ()

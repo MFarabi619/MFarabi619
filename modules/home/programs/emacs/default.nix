@@ -114,7 +114,7 @@
         jq-lsp
         graphql-language-service-cli
 
-        # ===== 🛠️ ASSEMBLY 🛠 ======
+        # ===== 🛠 ASSEMBLY 🛠 ======
         asmfmt
 
         # ===== 🦫 GO 🦫 ======

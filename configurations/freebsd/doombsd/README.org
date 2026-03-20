@@ -7,7 +7,7 @@ mkdir release-media
 bsdtar -xf FreeBSD-15.0-RELEASE-amd64-dvd1.iso -C release-media
 #+end_src
 
-*** Connect to network
+* Connect to network
 
 =bsdconfig= or =dhclient ue0=
 
@@ -21,19 +21,19 @@ sudo ifconfig wlan0 scan
 
 Check =/etc/rc.conf= to see if ifconfig_wlan0 = "WPA DHCP"
 
-*** Enable =sudo=
+* Enable =sudo=
 
 #+begin_src sh
 pkg install sudo; visudo
 #+end_src
 
-*** Set up shell
+* Set up shell
 #+begin_src sh
 pkg update && pkg upgrade -y
 #+end_src
 
 #+begin_src sh
-sudo pkg install bash zsh git lazygit direnv television ripgrep eza yazi fd docker-machine neovim emacs-devel
+sudo pkg install bash zsh git lazygit delta direnv television ripgrep eza yazi fd docker-machine neovim emacs-devel
 #+end_src
 
 #+begin_src sh
@@ -145,10 +145,17 @@ curl -fsSL https://git.io/shellspec | sh
 /home/mfarabi/.local/lib/shellspec/bin/shellspec . --format documentation
 #+end_src
 
-*** Set up editors
+* Set up editors
 
 #+begin_src zsh
-sudo pkg install tree fzf fd-find ripgrep-all cmake markdown markdownfmt zig go gopls uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim py311-{grip,pynvim,sqlfluff,grep-ast} ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell
+sudo pkg install tree fzf fd-find ripgrep-all cmake markdown markdownfmt tidy-html5 zig zls go gopls uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl socat websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim py311-{grip,pynvim,sqlfluff,grep-ast} plantuml ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell llvm
+#+end_src
+
+#+begin_src zsh
+go install github.com/jessfraz/dockfmt@latest
+go install github.com/fatih/gomodifytags@latest
+go install github.com/cweill/gotests/gotests@latest
+go install github.com/x-motemen/gore/cmd/gore@latest
 #+end_src
 
 #+begin_src zsh
@@ -160,7 +167,7 @@ cargo install cargo-binstall
 cargo binstall crates-tui
 #+end_src
 
-*** Set up FreeBSD Hyprland
+* Set up FreeBSD Hyprland
 
 1. Add user to =video= group
   #+begin_src zsh
@@ -229,7 +236,7 @@ you decide to configure a different TTY for Ly instead.
 2. Install packages
 
 #+begin_src zsh
-texlive-full
+sudo pkg install texlive-full
 #+end_src
 
 #+begin_src zsh
@@ -277,56 +284,55 @@ fdesc	/dev/fd		fdescfs		rw	0	0
 proc	/proc		procfs		rw	0	0
 #+end_src
 
-#+begin_src sh
+#+begin_src zsh
 sudo sysrc devfs_system_ruleset="system"
 #+end_src
 
 https://wiki.freebsd.org/Docker
 Create or edit =/usr/local/etc/vbox/networks.conf= and either make sure it allows the 192.168.99.1/24 network range used by docker-machine:
 
-#+begin_src sh
+#+begin_src zsh
 sudo mkdir /usr/local/etc/vbox
 echo "* 192.168.99.1/24" | sudo tee -a /usr/local/etc/vbox/networks.conf >/dev/null
 #+end_src
 
 #+begin_src zsh
- sudo cp /usr/local/share/examples/libvirt/networks/default.xml /usr/local/etc/libvirt/qemu/networks
-#+end_src
+sudo cp /usr/local/share/examples/libvirt/networks/default.xml /usr/local/etc/libvirt/qemu/networks
+#+END_src
 
 #+begin_src zsh
 sudo ln -s ../default.xml /usr/local/etc/libvirt/qemu/networks/autostart/default.xml
 #+end_src
 
-#+begin_src sh
-  docker-machine create default
+#+begin_src zsh
+docker-machine create default
 #+end_src
 
-#+begin_src sh
+#+begin_src zsh
 go install github.com/jesseduffield/lazydocker@latest
 #+end_src
 
-#+begin_src sh
+#+begin_src zsh
 eval $(docker-machine env)
 #+end_src
 
-**** Set up GPU
-
-1. Verify display device
+** Set up GPU
+***  Verify display device
   #+begin_src zsh
   pciconf -lv | grep -B3 display
   #+end_src
 
-  #+begin_src
+  #+begin_src zsh
   # Example output
   vgapci0@pci0:0:2:0: class=0x030000 card=...
   vendor = 'Intel Corporation'
   device = 'HD Graphics 620'
   #+end_src
 
-
-1. Install graphics driver
+***  Install graphics driver
 
 [[https://docs.freebsd.org/en/books/handbook/x11/#x-graphic-card-drivers][Chapter 5.2. Graphics Drivers - FreeBSD Handbook]]
+
 | *Type*                       | *License*     | *Module*                               | *Port*                                        |
 |----------------------------+-------------+--------------------------------------+---------------------------------------------|
 | Intel®                     | Open Source | i915kms                              | graphics/drm-kmod                           |
@@ -353,7 +359,7 @@ sudo sysrc kld_list+=amdgpu
 # sudo sysrc kld_list+=i915kms
 #+end_src
 
-3. Add to =/etc/rc.conf=
+Add to =/etc/rc.conf=.
 #+begin_src
 # ========= SERVICES/DAEMONS ===========
 sshd_enable="YES"     # ssh
@@ -370,7 +376,7 @@ kld_list="i915kms"  # kernel loadable modules - graphics
 # net.local.stream.sendspace=65536
 #+end_src
 
-1. Add to =/boot/loader.conf=
+Add to =/boot/loader.conf=.
 #+begin_src zsh
 kern.vty=vt
 #+end_src
@@ -382,24 +388,24 @@ ln -sfn /home/mfarabi/MFarabi619/configurations/freebsd/.local/share/bin/* ~/.lo
 ln -sfn /home/mfarabi/MFarabi619/configurations/freebsd/.config/!(nvim,go,lazydocker,lazygit,yazi) /home/mfarabi/.config/
 #+end_src
 
-5. Reboot system
+Reboot system.
 #+begin_src zsh
 reboot
 #+end_src
 
-6. Verify DRM driver
+Verify DRM driver.
 #+begin_src zsh
 dmesg | grep drm; ls /dev/dri;
 #+end_src
 
 Expected:
-#+begin_src
+#+begin_src zsh
 [drm] Initialized i915 ...
 /dev/dri/card0
 /dev/dri/renderD128
 #+end_src
 
-7. Start Hyprland
+Start Hyprland.
 #+begin_src zsh
 # seatd-launch hyprland
 hyprland
@@ -409,8 +415,7 @@ hyprland
 swww img ~/MFarabi619/configurations/freebsd/wallpapers/freebsd-gruvbox-rainbow-dark.webp
 #+end_src
 
-
-*** Other
+* Other
 
 #+begin_src sh
 sudo sysrc linux_enable="YES"
@@ -456,7 +461,7 @@ sudo pkg install framework-{system,tool-tui} pkg_{tree,search} podman aichat tgp
 #+end_src
 
 #+begin_src zsh
-sudo pkg install bandwhich mu wininfo # for emacs-everywhere
+sudo pkg install bandwhich mu xwininfo # for emacs-everywhere
 #+end_src
 
 #+begin_src zsh
@@ -478,13 +483,12 @@ sudo sh /usr/share/examples/bhyve/vmrun.sh -c 8 -m 48000M -t tap0 -d guest.img -
 sudo kldload nullfs
 #+end_src
 
-***** Resources:
+** Resources:
 - [[https://github.com/wisonye/freebsd-handbook/blob/master/chapters/install-hyprland.org][wisonye's Personal FreeBSD Handbook - Install Hyprland]]
 - [[https://lemmy.world/post/1685763][Lenny Mackners - Run Hyprland on FreeBSD]]
 - [[https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=283123][i915kms regression issue]]
 
-
-*** Attributions
+* Attributions
 
 DoomBSD borrows HEAVILY from the following projects:
 

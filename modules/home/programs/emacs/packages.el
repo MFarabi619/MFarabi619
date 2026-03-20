@@ -57,19 +57,45 @@
 ;; (package! magit-todos)
 
 (when (eq system-type 'berkeley-unix)
+  (package! pg)
+  (package! nov)
+  (package! empv)
   (package! verb)
+  (package! gptel :recipe (:nonrecursive t))
+  (package! magit-delta)
+
+  (package! devdocs)
+  (package! devdocs-browser)
+  (package! compiler-explorer)
+
+  (package! kconfig-ref)
+  (package! kconfig-mode)
+
+  (package! osm)
   (package! org-anki)
+  (package! org-roam-ui)
+  (package! org-pdftools)
+  (package! org-nix-shell)
+  (package! org-super-agenda)
+  (package! org-tag-beautify)
+  (package! org-link-beautify)
+  (package! org-table-highlight)
+
+  ;; ================
+  (package! abc-mode)
+  (package! scad-mode)
+  (package! ob-mermaid)
+  (package! mermaid-mode)
+
+  ;; ================
+  (package! parrot)
+  (package! pacmacs)
+  (package! key-quiz)
+  (package! nyan-mode)
+  (package! fireplace)
   (package! fretboard)
-  (package! gptel :recipe (:nonrecursive t)))
-
-;; =======================
-
-;; (package! eee
-;;   :recipe (:host github
-;;            :repo "eval-exec/eee.el"
-;;            :branch "main"
-;;            :files (:defaults "*.el" "*.sh"))
-;;   :pin "91f2c21b7730caa55a6277ae1240328d9b8a0657")
+  (package! speed-type)
+  (package! chordpro-mode))
 
 (package! kbd-mode
   :recipe (:host github
