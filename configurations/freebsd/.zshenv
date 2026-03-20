@@ -2,15 +2,19 @@ typeset -U path PATH
 
 . "$HOME/.cargo/env"
 
-export NIX_CONF_DIR="$HOME/MFarabi619/configurations/freebsd"
-export DOOMDIR="$HOME/MFarabi619/modules/home/programs/emacs"
-export YAZI_CONFIG_HOME="$HOME/MFarabi619/configurations/freebsd/.config/yazi"
-export ZELLIJ_CONFIG_DIR="$HOME/MFarabi619/configurations/freebsd/.config/zellij"
-export TELEVISION_CONFIG="$HOME/MFarabi619/configurations/freebsd/.config/television"
-export LG_CONFIG_FILE="$HOME/MFarabi619/configurations/freebsd/.config/lazygit/config.yml"
+# ZDOTDIR="$HOME/MFarabi619/configurations/freebsd"
+ZSH="$HOME/.oh-my-zsh"
+# ZSH_CACHE_DIR="$HOME/.cache/oh-my-zsh"
 
-export EDITOR="nvim"
-export PNPM_HOME="$HOME/.local/share/pnpm"
+NIX_CONF_DIR="$HOME/MFarabi619/configurations/freebsd"
+DOOMDIR="$HOME/MFarabi619/modules/home/programs/emacs"
+YAZI_CONFIG_HOME="$HOME/MFarabi619/configurations/freebsd/.config/yazi"
+ZELLIJ_CONFIG_DIR="$HOME/MFarabi619/configurations/freebsd/.config/zellij"
+TELEVISION_CONFIG="$HOME/MFarabi619/configurations/freebsd/.config/television"
+LG_CONFIG_FILE="$HOME/MFarabi619/configurations/freebsd/.config/lazygit/config.yml"
+
+EDITOR="nvim"
+PNPM_HOME="$HOME/.local/share/pnpm"
 
 path=(
   "$HOME/.platformio/penv/bin"
@@ -21,3 +25,7 @@ path=(
 )
 
 export PATH
+
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=100000
+SAVEHIST=100000

@@ -9,17 +9,45 @@ bsdtar -xf FreeBSD-15.0-RELEASE-amd64-dvd1.iso -C release-media
 
 * Connect to network
 
-=bsdconfig= or =dhclient ue0=
+Check =/etc/rc.conf= to see if ifconfig_wlan0 = "WPA DHCP"
 
 #+begin_src sh
+# add 127.0.0.1 as first entry for DNS
 sudo bsdconfig networking
+#+end_src
+
+#+begin_src sh
+sudo service netif restart
+#+end_src
+
+#+begin_src sh
+ifconfig wlan0
+#+end_src
+
+#+begin_src sh
+ifconfig wlan0 up
 #+end_src
 
 #+begin_src sh
 sudo ifconfig wlan0 scan
 #+end_src
 
-Check =/etc/rc.conf= to see if ifconfig_wlan0 = "WPA DHCP"
+#+begin_src sh
+sudo dhclient wlan0
+#+end_src
+
+#+begin_src conf :tangle /etc/wpa_supplicant.conf :tangle no
+ctrl_interface=/var/run/wpa_supplicant
+
+ap_scan=1
+fast_reauth=1
+# update_config=1
+
+network={
+  ssid="openws"
+  psk="**"
+}
+#+end_src
 
 * Enable =sudo=
 
@@ -70,16 +98,16 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.
 git clone https://github.com/MFarabi619/MFarabi619
 #+end_src
 
-#+begin_src zsh
-echo "source $HOME/MFarabi619/configurations/freebsd/.zshrc" > ~/.zshrc
-ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.zshenv ~/.zshenv;
-ln -nfs /home/mfarabi/MFarabi619/configurations/freebsd/.p10k.zsh ~/.p10k.zsh;
-ln -nfs /home/mfarabi/MFarabi619/modules/home/programs/hyprland/hypr /home/mfarabi/.config/hypr;
+#+begin_src zsh :tangle ~/.zshenv
+source /home/mfarabi/MFarabi619/configurations/freebsd/.zshenv
 #+end_src
 
-Source =~/.zshrc=:
+#+begin_src zsh :tangle ~/.zshrc
+source /home/mfarabi/MFarabi619/configurations/freebsd/.zshrc
+#+end_src
+
 #+begin_src zsh
-source ~/.zshrc;
+ln -nfs /home/mfarabi/MFarabi619/modules/home/programs/hyprland/hypr /home/mfarabi/.config/hypr;
 #+end_src
 
 [[https://github.com/doomemacs/doomemacs?tab=readme-ov-file#install][Doom Emacs]]
@@ -118,6 +146,43 @@ sudo pkg install tailscale systeroid gh ttyd sysutils/lazyssh
 sudo sysrc tailscaled_enable="YES"
 #+end_src
 
+#+begin_src conf :tangle /var/unbound/conf.d/tailscale.conf :tangle no
+server:
+    private-domain: "taila4d019.ts.net"
+    domain-insecure: "taila4d019.ts.net"
+    local-zone: "taila4d019.ts.net." nodefault
+
+forward-zone:
+    name: "taila4d019.ts.net"
+    forward-addr: 100.100.100.100
+#+end_src
+
+#+begin_src zsh
+sudo service local_unbound restart
+sudo local-unbound-control list_forwards
+drill @127.0.0.1 framework-desktop.taila4d019.ts.net
+drill @100.100.100.100 framework-desktop.taila4d019.ts.net
+#+end_src
+
+#+begin_src conf :tangle ~/.ssh/config
+Host *
+  CheckHostIP yes
+  ControlPersist 10m
+  AddKeysToAgent yes
+  ControlMaster auto
+  ControlPath ~/.ssh/cm-%C
+  ExitOnForwardFailure yes
+  SetEnv TERM=xterm-256color
+
+Host framework-desktop rpi* u*
+  HostName %h.taila4d019.ts.net
+#+end_src
+
+#+begin_src zsh
+sudo tailscale set --operator=$USER
+sudo tailscale up --ssh --accept-routes --accept-dns=false
+#+end_src
+
 #+begin_src zsh
 sudo pkg install btop fastfetch cmatrix cowsay asciiquarium figlet {lol,nyan}cat rgb-tui
 #+end_src
@@ -135,14 +200,6 @@ sudo tee -a /etc/devfs.conf <<'EOF'
 own  bpf* root:network
 perm bpf* 0660
 EOF
-#+end_src
-
-#+begin_src zsh
-curl -fsSL https://git.io/shellspec | sh
-#+end_src
-
-#+begin_src zsh
-/home/mfarabi/.local/lib/shellspec/bin/shellspec . --format documentation
 #+end_src
 
 * Set up editors
@@ -171,7 +228,8 @@ cargo binstall crates-tui
 
 1. Add user to =video= group
   #+begin_src zsh
-  pw groupmod video -m mfarabi; groups mfarabi;
+  pw groupmod video -m mfarabi
+  groups mfarabi
   #+end_src
 
 #+begin_src zsh
@@ -179,7 +237,7 @@ sudo pkg install xclip sensors dbus kitty vlc dunst mpv firefox webcamd gimp-jxl
     Kvantum swww sddm sddm-freebsd-black-theme \
     xdg-{terminal-exec,desktop-portal,desktop-portal-{hyprland,wlr,gtk}} \
     rofi wlogout dolphin swaylock-effects \
-    {fontpre,epdf,pwc}view glcapsviewer cairo pipewire grim slurp \
+    {fontpre,epdf,pwc}view glcapsviewer cairo pipewire grim slurp libnotify \
     hypr{land,land-qt-support,graphics,lang,utils,wayland-scanner,sunset,idle,lock,paper,picker} \
     way{land,bar} wayland-{logout,protocols,utils} qt6-{wayland,imageformats} xwayland xwayland-{satellite,run} wl-{clipboard,screenrec,gammarelay-rs} \
     cava nwg-{look,dock-hyprland} {network,wifi}mgr byobu nsxiv pa{ngo,vucontrol,mixer,-applet} wmwifi aimage qimageblitz xloadimage terminal-image-viewer
@@ -386,6 +444,268 @@ mkdir ~/.local/share/bin
 ln -sfn /home/mfarabi/MFarabi619/configurations/freebsd/.local/share/bin/* ~/.local/share/bin/
 
 ln -sfn /home/mfarabi/MFarabi619/configurations/freebsd/.config/!(nvim,go,lazydocker,lazygit,yazi) /home/mfarabi/.config/
+#+end_src
+
+#+begin_src toml :tangle /home/mfarabi/.config/yazi/yazi.toml
+[mgr]
+ratio = [1, 4, 3]
+show_hidden = true
+show_symlink = true
+sort_dir_first = true
+#+end_src
+
+#+begin_src toml :tangle /home/mfarabi/.config/yazi/theme.toml
+[completion.active]
+bg = "#665c54"
+fg = "#d3869b"
+
+[completion.border]
+fg = "#83a598"
+
+[completion.inactive]
+fg = "#d5c4a1"
+
+[[filetype.rules]]
+fg = "#8ec07c"
+mime = "image/*"
+
+[[filetype.rules]]
+fg = "#fabd2f"
+mime = "video/*"
+
+[[filetype.rules]]
+fg = "#fabd2f"
+mime = "audio/*"
+
+[[filetype.rules]]
+fg = "#d3869b"
+mime = "application/zip"
+
+[[filetype.rules]]
+fg = "#d3869b"
+mime = "application/gzip"
+
+[[filetype.rules]]
+fg = "#d3869b"
+mime = "application/tar"
+
+[[filetype.rules]]
+fg = "#d3869b"
+mime = "application/bzip"
+
+[[filetype.rules]]
+fg = "#d3869b"
+mime = "application/bzip2"
+
+[[filetype.rules]]
+fg = "#d3869b"
+mime = "application/7z-compressed"
+
+[[filetype.rules]]
+fg = "#d3869b"
+mime = "application/rar"
+
+[[filetype.rules]]
+fg = "#d3869b"
+mime = "application/xz"
+
+[[filetype.rules]]
+fg = "#b8bb26"
+mime = "application/doc"
+
+[[filetype.rules]]
+fg = "#b8bb26"
+mime = "application/pdf"
+
+[[filetype.rules]]
+fg = "#b8bb26"
+mime = "application/rtf"
+
+[[filetype.rules]]
+fg = "#b8bb26"
+mime = "application/vnd.*"
+
+[[filetype.rules]]
+bold = true
+fg = "#83a598"
+url = "*/"
+
+[[filetype.rules]]
+fg = "#d5c4a1"
+mime = "*"
+
+[help.desc]
+fg = "#d5c4a1"
+
+[help.footer]
+fg = "#d5c4a1"
+
+[help.hovered]
+bg = "#665c54"
+fg = "#d5c4a1"
+
+[help.on]
+fg = "#d3869b"
+
+[help.run]
+fg = "#8ec07c"
+
+[indicator.current]
+bg = "#504945"
+bold = true
+
+[indicator.preview]
+bg = "#504945"
+bold = true
+
+[input.border]
+fg = "#83a598"
+
+[input.selected]
+bg = "#665c54"
+
+[input.title]
+fg = "#d5c4a1"
+
+[input.value]
+fg = "#d5c4a1"
+
+# [mgr]
+# syntect_theme = "/nix/store/3fwq2aqcfxjwwq9h6fflwh5x7070zs3x-base16-gruvbox-dark-hard.tmTheme"
+
+[mgr.border_style]
+fg = "#bdae93"
+
+[mgr.count_copied]
+bg = "#b8bb26"
+fg = "#1d2021"
+
+[mgr.count_cut]
+bg = "#fb4934"
+fg = "#1d2021"
+
+[mgr.count_selected]
+bg = "#fabd2f"
+fg = "#1d2021"
+
+[mgr.cwd]
+fg = "#8ec07c"
+
+[mgr.find_keyword]
+bold = true
+fg = "#b8bb26"
+
+[mgr.find_position]
+fg = "#d3869b"
+
+[mgr.marker_copied]
+bg = "#b8bb26"
+fg = "#b8bb26"
+
+[mgr.marker_cut]
+bg = "#fb4934"
+fg = "#fb4934"
+
+[mgr.marker_selected]
+bg = "#fabd2f"
+fg = "#fabd2f"
+
+[mode.normal_alt]
+bg = "#1d2021"
+fg = "#83a598"
+
+[mode.normal_main]
+bg = "#83a598"
+bold = true
+fg = "#1d2021"
+
+[mode.select_alt]
+bg = "#1d2021"
+fg = "#b8bb26"
+
+[mode.select_main]
+bg = "#b8bb26"
+bold = true
+fg = "#1d2021"
+
+[mode.unset_alt]
+bg = "#1d2021"
+fg = "#d65d0e"
+
+[mode.unset_main]
+bg = "#d65d0e"
+bold = true
+fg = "#1d2021"
+
+[pick.active]
+fg = "#d3869b"
+
+[pick.border]
+fg = "#83a598"
+
+[pick.inactive]
+fg = "#d5c4a1"
+
+[status.perm_exec]
+fg = "#b8bb26"
+
+[status.perm_read]
+fg = "#fabd2f"
+
+[status.perm_sep]
+fg = "#8ec07c"
+
+[status.perm_type]
+fg = "#83a598"
+
+[status.perm_write]
+fg = "#fb4934"
+
+[status.progress_error]
+bg = "#1d2021"
+fg = "#fb4934"
+
+[status.progress_label]
+bg = "#1d2021"
+fg = "#d5c4a1"
+
+[status.progress_normal]
+bg = "#1d2021"
+fg = "#d5c4a1"
+
+[tabs.active]
+bg = "#83a598"
+bold = true
+fg = "#1d2021"
+
+[tabs.inactive]
+bg = "#3c3836"
+fg = "#83a598"
+
+[tasks.border]
+fg = "#83a598"
+
+[tasks.hovered]
+bg = "#665c54"
+fg = "#d5c4a1"
+
+[tasks.title]
+fg = "#d5c4a1"
+
+[which.cand]
+fg = "#8ec07c"
+
+[which.desc]
+fg = "#d5c4a1"
+
+[which.mask]
+bg = "#504945"
+
+[which.rest]
+fg = "#d65d0e"
+
+[which.separator_style]
+fg = "#bdae93"
 #+end_src
 
 Reboot system.
@@ -857,4 +1177,26 @@ Your SDL library has been built with libvgl support, which means that you
  kernel, and set environment variable "SDL_VIDEODRIVER=vgl".
 =====
 Message from pwcview-1.4.1_9:
+#+end_src
+
+#+begin_src zsh
+sudo pkg install stm32flash stlink openocd xtensa-esp-elf
+#+end_src
+
+FreeBSD USB NOTE:
+ To allow an ordinary user to acces any of the the hotplug USB interface
+ add him/her to the operator group  (pw groupmod operator -m username), then
+ setup the devfs subsystem by adding these lines to the following files:
+
+ ***/etc/devfs.rules:
+ [localrules=10]
+        add path 'ugen*' mode 0660 group operator
+        add path 'usb/*'  mode 0660 group operator
+        add path 'usb' mode 0770 group operator
+
+ ***/etc/rc.conf:
+	devfs_system_ruleset="localrules"
+
+#+begin_src zsh
+sudo pkg install mise
 #+end_src
