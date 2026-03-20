@@ -227,6 +227,8 @@
 
 ![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/ferris-sweep/keymap.svg)
 
+![Ferris Sweep with STM32 in front of Macbook](assets/ferris-sweep-with-stm32-in-front-of-macbook.jpg)
+
 #### Previously on [Piantor](https://github.com/beekeeb/piantor)
 
 <details>
