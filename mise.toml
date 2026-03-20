@@ -1,0 +1,10 @@
+[env]
+PLATFORMIO_AUTH_TOKEN=""
+
+[tools]
+# bun = "0.7.x"
+zig = "latest"
+zls = "latest"
+
+[tasks.build]
+run = "echo hello"

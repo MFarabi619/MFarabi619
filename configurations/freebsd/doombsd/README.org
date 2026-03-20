@@ -205,7 +205,7 @@ EOF
 * Set up editors
 
 #+begin_src zsh
-sudo pkg install tree fzf fd-find ripgrep-all cmake markdown markdownfmt tidy-html5 zig zls go gopls uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl socat websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim py311-{grip,pynvim,sqlfluff,grep-ast} plantuml ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell llvm
+sudo pkg install ncurses tree fzf fd-find ripgrep-all cmake markdown markdownfmt tidy-html5 zig zls go gopls uv python lua51 stylua lua51-luarocks rubygem-neovim hs-ShellCheck gnuplot wget grpcurl socat websocat jq libgraphqlparser tree-{sitter,sitter-{cli,graph,grammars}} shfmt vim py311-{grip,pynvim,sqlfluff,grep-ast} plantuml ffmpeg ffmpegthumbnailer coreutils poppler {un,7-}zip aspell aspell-ispell llvm
 #+end_src
 
 #+begin_src zsh
@@ -214,6 +214,7 @@ go install github.com/fatih/gomodifytags@latest
 go install github.com/cweill/gotests/gotests@latest
 go install github.com/x-motemen/gore/cmd/gore@latest
 go install github.com/jorgerojas26/lazysql@latest
+go install -ldflags "-s -w" github.com/tristanisham/zvm@latest
 #+end_src
 
 #+begin_src zsh
