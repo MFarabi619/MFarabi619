@@ -81,6 +81,8 @@
   (package! org-link-beautify)
   (package! org-table-highlight)
 
+  (package! kdl-mode)
+
   ;; ================
   (package! abc-mode)
   (package! scad-mode)
