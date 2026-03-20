@@ -548,6 +548,8 @@ On occasions I've worked with as many as 8 different languages in a single day.<
   <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
 </a> <img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"></strong>
 
+![Fastfetch + DoomBSD Config + Doom Emacs Dashboard](assets/fastfetch-doombsd-with-doom-emacs.png)
+
 #### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/HyDE-Project/HyDE) configurator
 
 | ![DoomBSD](configurations/freebsd/doombsd/Screenshots/doombsd-6.png) | ![macOS - Nix Darwin](assets/nix-darwin-1.webp) | ![Hydenix Lush Green](assets/hydenix-lush-green.jpeg) |
