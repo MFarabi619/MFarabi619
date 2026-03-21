@@ -1,0 +1,105 @@
+layout {
+    pane_template name="examples_utility" command="sh"
+    pane_template name="examples_library" cwd="examples_library" 
+    default_tab_template {
+        pane {
+            size 1
+            borderless true
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane {
+            size 2
+            borderless true
+            plugin location="zellij:status-bar"
+        }
+    }
+    tab name="🟥 boxes" split_direction="vertical" start_suspended="false" close_on_exit="false" {
+        floating_panes {
+          pane cwd="examples_library" command="./theme"  
+        } 
+
+        pane split_direction="horizontal" {
+        pane split_direction="vertical" {
+        examples_utility {
+            args "examples_utility/infobox.sh"
+            }
+        examples_utility {
+            args "examples_utility/msgbox.sh"
+            }
+            }
+        examples_utility {
+            args "examples_utility/yesno.sh"
+            }
+        examples_utility {
+            args "examples_utility/timebox.sh"
+            }
+        examples_utility {
+            args "examples_utility/datebox.sh"
+            }
+            }
+
+        pane split_direction="horizontal" {
+        examples_utility {
+            args "examples_utility/inputbox.sh"
+            }
+        examples_utility {
+            args "examples_utility/passwordbox.sh"
+            }
+            }
+
+        pane split_direction="horizontal" {
+        examples_utility {
+            args "examples_utility/slider.sh"
+            }
+        examples_utility {
+            args "examples_utility/calendar.sh"
+            }
+            }
+            }
+    tab name="📋 lists & forms" start_suspended="false" close_on_exit="false" {
+        pane split_direction="vertical" {
+        examples_utility {
+            args "examples_utility/menu.sh"
+            }
+        examples_utility {
+            args "examples_utility/checklist.sh"
+            }
+        examples_utility {
+            args "examples_utility/radiolist.sh"
+            }
+
+        examples_library command="./mixedlist"
+            }
+        pane split_direction="vertical" {
+        examples_utility {
+            args "examples_utility/form.sh"
+            }
+        examples_utility {
+            args "examples_utility/passwordform.sh"
+            }
+        examples_utility {
+            args "examples_utility/mixedform.sh"
+            }
+            }
+    }
+    tab name="⌛ gauges" split_direction="vertical" start_suspended="false" close_on_exit="false" {
+        pane split_direction="horizontal" {
+        examples_utility {
+            args "-c" "while true; do ./examples_utility/pause.sh; sleep 0.5; done"
+            }
+        examples_utility {
+            args "./examples_utility/rangebox.sh"
+            }
+        examples_utility {
+            args "-c" "while true; do ./examples_utility/gauge.sh; sleep 0.5; done"
+            }
+            }
+        pane split_direction="horizontal" {
+        examples_utility {
+            args "-c" "while true; do ./examples_utility/mixedgauge.sh; sleep 0.5; done"
+            }
+
+            }
+    }
+    }
