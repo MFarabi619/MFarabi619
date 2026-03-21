@@ -29,8 +29,8 @@
     </tr>
   </table>
 </div>
-Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
-On occasions I've worked with as many as 8 different languages in a single day.<br/><br/>
+👋 Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
+On occasions I've worked with as many as 8 different languages in a single day. This section serves as a reminder to me that fancy tech icons aren't the end all be all in life. They come and go with time, just like we do.<br/><br/>
 <div class="tg-wrap" align="center">
 <table>
 <thead>
@@ -152,9 +152,9 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 </a>
 </td>
 <td align='center'>
-<!-- FreeBSD Unix -->
+<!-- FreeBSD -->
 <a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
-<img src="https://github.com/MFarabi619/MFarabi619/blob/main/assets/freebsd-symbol-orb.png" alt="FreeBSD Unix Logo" width="40" height="40" />
+<img src="https://github.com/MFarabi619/MFarabi619/blob/main/assets/freebsd-symbol-orb.png" alt="FreeBSD Logo" width="40" height="40" />
 </a>
 <!-- NixOS -->
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
@@ -167,6 +167,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Arch Linux -->
 <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40" />
+</a>
+<!-- QEMU -->
+<a href="https://www.qemu.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/qemu.svg" alt="QEMU Logo" width="40" height="40" />
 </a>
 <!-- Doom Emacs -->
 <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
@@ -199,10 +203,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Grafana -->
 <a href="https://grafana.com" target="_blank" rel="noreferrer">
 <img src="./assets/icons/grafana.svg" alt="Grafana Logo" width="40" height="40" />
-</a>
-<!-- Cloudflare -->
-<a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" alt="Cloudflare Logo" width="40" height="40" />
 </a>
 <!-- Penpot -->
 <a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
@@ -443,6 +443,10 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40" />
 </a>
+<!-- Cloudflare -->
+<a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" alt="Cloudflare Logo" width="40" height="40" />
+</a>
 </td>
 </tr>
 <tr>
@@ -484,35 +488,27 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <a href="https://ihp.digitallyinduced.com" target="_blank" rel="noreferrer">
 <img src="https://ihp.digitallyinduced.com/Guide/images/ihp-logo-readme.svg" alt="Integrated Haskell Platform Logo" width="40" height="40" />
 </a>
-<!-- NestJS TRPC -->
-<a href="https://www.nestjs-trpc.io" target="_blank" rel="noreferrer">
-<img src="https://www.nestjs-trpc.io/logo.png" alt="NestJS TRPC Logo" width="40" height="40" />
-</a>
-<!-- Analog.js -->
-<a href="https://analogjs.org/" target="_blank" rel="noreferrer">
-<img src="https://analogjs.org/img/logos/analog-logo.svg" alt="Analog.js Logo" width="40" height="40" />
-</a>
-<!-- Angular -->
-<a href="https://angular.dev/" target="_blank" rel="noreferrer">
-<img src="https://logosandtypes.com/wp-content/uploads/2024/01/angular.svg" alt="Angular Logo" width="40" height="40" />
-</a>
-<!-- Spring Boot -->
-<a href="https://spring.io/projects/spring-boot" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original-wordmark.svg" alt="Spring Boot Logo" width="40" height="40" />
-</a>
-<!-- PyTorch -->
-<a href="https://pytorch.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-plain-wordmark.svg" alt="PyTorch Logo" width="40" height="40" />
-</a>
 </td>
 <td align='center'>
+<!-- OpenBSD -->
+<a href="https://www.openbsd.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/openbsd.png" alt="OpenBSD Logo" width="40" height="40" />
+</a>
+<!-- OmniOS -->
+<a href="https://omnios.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/omnios.svg" alt="OmniOS Logo" width="40" height="40" />
+</a>
+<!-- Illumos -->
+<a href="https://illumos.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/illumos.svg" alt="Illumos Logo" width="40" height="40" />
+</a>
 <!-- seL4 -->
 <a href="https://sel4.systems" target="_blank" rel="noreferrer">
 <img src="https://sel4.systems/images/seL4.svg" alt="seL4 Logo" width="40" height="40" />
 </a>
 <!-- Bazel -->
 <a href="https://bazel.build" target="_blank" rel="noreferrer">
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Bazel_logo.svg/768px-Bazel_logo.svg.png?20170728105517" alt="Bazel Logo" width="40" height="40" />
+<img src="assets/icons/bazel.svg" alt="Bazel Logo" width="40" height="40" />
 </a>
 <!-- Blocktorch -->
 <a href="https://blocktorch.xyz" target="_blank" rel="noreferrer">
@@ -525,10 +521,6 @@ On occasions I've worked with as many as 8 different languages in a single day.<
 <!-- Redis -->
 <a href="https://redis.io" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg" alt="Redis Logo" width="40" height="40" />
-</a>
-<!-- AWS -->
-<a href="https://aws.amazon.com/?nc2=h_lg" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS Logo" width="40" height="40" />
 </a>
 <!-- Pharo -->
 <a href="https://pharo.org/" target="_blank" rel="noreferrer">

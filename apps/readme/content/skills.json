@@ -136,7 +136,7 @@
     ],
     "Tools": [
       {
-        "name": "FreeBSD Unix",
+        "name": "FreeBSD",
         "url": "https://www.freebsd.org",
         "icon": "https://github.com/MFarabi619/MFarabi619/blob/main/assets/freebsd-symbol-orb.png"
       },
@@ -154,6 +154,11 @@
         "name": "Arch Linux",
         "url": "https://archlinux.org/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
+      },
+      {
+        "name": "QEMU",
+        "url": "https://www.qemu.org",
+        "icon": "assets/icons/qemu.svg"
       },
       {
         "name": "Doom Emacs",
@@ -194,11 +199,6 @@
         "name": "Grafana",
         "url": "https://grafana.com",
         "icon": "./assets/icons/grafana.svg"
-      },
-      {
-        "name": "Cloudflare",
-        "url": "https://www.cloudflare.com",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg"
       },
       {
         "name": "Penpot",
@@ -492,6 +492,11 @@
         "name": "Figma",
         "url": "https://www.figma.com/",
         "icon": "https://www.vectorlogo.zone/logos/figma/figma-icon.svg"
+      },
+      {
+        "name": "Cloudflare",
+        "url": "https://www.cloudflare.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg"
       }
     ]
   },
@@ -538,34 +543,24 @@
         "name": "Integrated Haskell Platform",
         "url": "https://ihp.digitallyinduced.com",
         "icon": "https://ihp.digitallyinduced.com/Guide/images/ihp-logo-readme.svg"
-      },
-      {
-        "name": "NestJS TRPC",
-        "url": "https://www.nestjs-trpc.io",
-        "icon": "https://www.nestjs-trpc.io/logo.png"
-      },
-      {
-        "name": "Analog.js",
-        "url": "https://analogjs.org/",
-        "icon": "https://analogjs.org/img/logos/analog-logo.svg"
-      },
-      {
-        "name": "Angular",
-        "url": "https://angular.dev/",
-        "icon": "https://logosandtypes.com/wp-content/uploads/2024/01/angular.svg"
-      },
-      {
-        "name": "Spring Boot",
-        "url": "https://spring.io/projects/spring-boot",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original-wordmark.svg"
-      },
-      {
-        "name": "PyTorch",
-        "url": "https://pytorch.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-plain-wordmark.svg"
       }
     ],
     "Tools": [
+      {
+        "name": "OpenBSD",
+        "url": "https://www.openbsd.org",
+        "icon": "assets/icons/openbsd.png"
+      },
+      {
+        "name": "OmniOS",
+        "url": "https://omnios.org",
+        "icon": "assets/icons/omnios.svg"
+      },
+      {
+        "name": "Illumos",
+        "url": "https://illumos.org",
+        "icon": "assets/icons/illumos.svg"
+      },
       {
         "name": "seL4",
         "url": "https://sel4.systems",
@@ -574,7 +569,7 @@
       {
         "name": "Bazel",
         "url": "https://bazel.build",
-        "icon": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Bazel_logo.svg/768px-Bazel_logo.svg.png?20170728105517"
+        "icon": "assets/icons/bazel.svg"
       },
       {
         "name": "Blocktorch",
@@ -590,11 +585,6 @@
         "name": "Redis",
         "url": "https://redis.io",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg"
-      },
-      {
-        "name": "AWS",
-        "url": "https://aws.amazon.com/?nc2=h_lg",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg"
       },
       {
         "name": "Pharo",

@@ -58,8 +58,8 @@ fn write_to_readme(content: &str, mode: &str) {
 
 fn generate_skills_section(data: &SkillsData) -> String {
     let mut content = String::from(
-        r#"Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
-On occasions I've worked with as many as 8 different languages in a single day.<br/><br/>
+        r#"👋 Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
+On occasions I've worked with as many as 8 different languages in a single day. This section serves as a reminder to me that fancy tech icons aren't the end all be all in life. They come and go with time, just like we do.<br/><br/>
 <div class="tg-wrap" align="center">
 <table>
 <thead>
