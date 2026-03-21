@@ -94,10 +94,6 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://nats.io" target="_blank" rel="noreferrer">
 <img src="./assets/icons/nats.svg" alt="NATS Logo" width="40" height="40" />
 </a>
-<!-- Kubenix -->
-<a href="https://kubenix.org" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg" alt="Kubenix Logo" width="40" height="40" />
-</a>
 <!-- Devenv -->
 <a href="https://devenv.sh" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg" alt="Devenv Logo" width="40" height="40" />
@@ -180,10 +176,6 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40" />
 </a>
-<!-- Kubernetes -->
-<a href="https://kubernetes.io" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
-</a>
 <!-- Docker -->
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40" />
@@ -191,6 +183,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <!-- Trunk-Based Development -->
 <a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
 <img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
+</a>
+<!-- Tailscale -->
+<a href="https://tailscale.com" target="_blank" rel="noreferrer">
+<img src="./assets/icons/tailscale.svg" alt="Tailscale Logo" width="40" height="40" />
 </a>
 <!-- CloudEvents -->
 <a href="https://cloudevents.io" target="_blank" rel="noreferrer">
@@ -476,6 +472,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td>
 <td align='center'>
+<!-- Kubenix -->
+<a href="https://kubenix.org" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg" alt="Kubenix Logo" width="40" height="40" />
+</a>
 <!-- Qiskit -->
 <a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/30696987?s=200&v=4" alt="Qiskit Logo" width="40" height="40" />
@@ -490,6 +490,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td>
 <td align='center'>
+<!-- Kubernetes -->
+<a href="https://kubernetes.io" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
+</a>
 <!-- OpenBSD -->
 <a href="https://www.openbsd.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/openbsd.png" alt="OpenBSD Logo" width="40" height="40" />
@@ -532,15 +536,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </table>
 </div>
 
-## 🛠 Current Setup
+<h1> <a href="https://nixos.org"> <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25"> </a> Current Setup </h1>
 
-<strong><a href="https://freebsd.org">
-  <img src="assets/freebsd-symbol.svg" alt="freebsd-symbol-orb" width="25" height="25">
-</a>DoomBSD</a> + Apollyon Linux <a href="https://nixos.org">
-  <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
-</a> <img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"></strong>
-
-![Fastfetch + DoomBSD Config + Doom Emacs Dashboard](assets/fastfetch-doombsd-with-doom-emacs.png)
+| <strong><a href="https://freebsd.org"> <img src="assets/freebsd-symbol.svg" alt="Freebsd Symbol" width="25" height="25"> </a>DoomBSD</a></strong> |<strong><img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"> Apollyon Linux </strong> | <strong><img src="assets/icons/apple.svg" alt="Apple Symbol" width="25" height="25"> MicroDarwin</strong> |
+|-|-|-|
+| ![Fastfetch + DoomBSD Config + Doom Emacs Dashboard](assets/fastfetch-doombsd-with-doom-emacs.png) | ![Apollyon Linux](assets/apollyon-linux.jpeg) | ![MicroDarwin](assets/microdarwin.png) |
 
 #### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/HyDE-Project/HyDE) configurator
 
@@ -758,24 +758,19 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </details>
 
 ### [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) + Gear Shifting
-
-![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/ferris-sweep/keymap.svg)
-
-![Ferris Sweep with STM32 in front of Macbook](assets/ferris-sweep-with-stm32-in-front-of-macbook.jpg)
-
-#### Previously on [Piantor](https://github.com/beekeeb/piantor)
+| | |
+|-|-|
+| ![Ferris Sweep with STM32 in front of Macbook](assets/ferris-sweep-with-stm32-in-front-of-macbook.jpg) | ![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/ferris-sweep/keymap.svg) |
 
 <details>
 <summary>
   <h3>See More</h3>
 </summary>
 
-![Piantor Split Keyboard Layout](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6)
-
-
+#### Previously on [Piantor](https://github.com/beekeeb/piantor)
 |||
 |-|-|
-| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
+| ![Piantor Split Keyboard with Luna in front of Framework Laptop](templates/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) ![Piantor Split Keyboard disassembled on bed](templates/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg) |  ![Piantor Split Keyboard Layout](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6) |
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 
@@ -785,18 +780,25 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 
 <br/>
 
-![Monkeytype Symbol Practice with Burning Tux Mascot](https://github.com/user-attachments/assets/8d5bbf3f-87b0-45d1-9a17-95fdb6ac1c99)
-
-<br/>
-
-[![TypeRacer.com scorecard for user killshot619](https://data.typeracer.com/misc/badge?user=killshot619)](https://data.typeracer.com/pit/profile?user=killshot619&ref=badge)
+<table>
+  <tr>
+    <td width="70%" align="center">
+      <img src="https://github.com/user-attachments/assets/8d5bbf3f-87b0-45d1-9a17-95fdb6ac1c99" />
+    </td>
+    <td width="30%" align="center">
+      <a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge">
+        <img src="https://data.typeracer.com/misc/badge?user=killshot619" />
+      </a>
+    </td>
+  </tr>
+</table>
 <!-- markdownlint-disable -->
 
 <hr/>
 <b>✨ About Me</b>
 <br/><br/>
 
-- Open-source software advocate, curious process miner, and craftsperson.
+- Open-source software advocate, curious process miner, and craftsperson. Currently exploring compiler design.
 - I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity.
 <hr/>
 <b>📖 Books</b>

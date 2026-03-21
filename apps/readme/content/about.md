@@ -4,7 +4,7 @@
 <b>✨ About Me</b>
 <br/><br/>
 
-- Open-source software advocate, curious process miner, and craftsperson.
+- Open-source software advocate, curious process miner, and craftsperson. Currently exploring compiler design.
 - I believe that a good developer experience is key to a good user experience, and regularly explore paradigms that reduce fatigue and improve productivity.
 <hr/>
 <b>📖 Books</b>

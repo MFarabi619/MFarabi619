@@ -64,11 +64,6 @@
         "icon": "./assets/icons/nats.svg"
       },
       {
-        "name": "Kubenix",
-        "url": "https://kubenix.org",
-        "icon": "https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg"
-      },
-      {
         "name": "Devenv",
         "url": "https://devenv.sh",
         "icon": "https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg"
@@ -171,11 +166,6 @@
         "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
       },
       {
-        "name": "Kubernetes",
-        "url": "https://kubernetes.io",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
-      },
-      {
         "name": "Docker",
         "url": "https://www.docker.com/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
@@ -184,6 +174,11 @@
         "name": "Trunk-Based Development",
         "url": "https://trunkbaseddevelopment.com",
         "icon": "https://trunkbaseddevelopment.com/images/logo.png"
+      },
+      {
+        "name": "Tailscale",
+        "url": "https://tailscale.com",
+        "icon": "./assets/icons/tailscale.svg"
       },
       {
         "name": "CloudEvents",
@@ -530,6 +525,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "Kubenix",
+        "url": "https://kubenix.org",
+        "icon": "https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg"
+      },
+      {
         "name": "Qiskit",
         "url": "https://www.ibm.com/quantum/qiskit",
         "icon": "https://avatars.githubusercontent.com/u/30696987?s=200&v=4"
@@ -546,6 +546,11 @@
       }
     ],
     "Tools": [
+      {
+        "name": "Kubernetes",
+        "url": "https://kubernetes.io",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
+      },
       {
         "name": "OpenBSD",
         "url": "https://www.openbsd.org",

@@ -1,12 +1,8 @@
-## 🛠 Current Setup
+<h1> <a href="https://nixos.org"> <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25"> </a> Current Setup </h1>
 
-<strong><a href="https://freebsd.org">
-  <img src="assets/freebsd-symbol.svg" alt="freebsd-symbol-orb" width="25" height="25">
-</a>DoomBSD</a> + Apollyon Linux <a href="https://nixos.org">
-  <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25">
-</a> <img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"></strong>
-
-![Fastfetch + DoomBSD Config + Doom Emacs Dashboard](assets/fastfetch-doombsd-with-doom-emacs.png)
+| <strong><a href="https://freebsd.org"> <img src="assets/freebsd-symbol.svg" alt="Freebsd Symbol" width="25" height="25"> </a>DoomBSD</a></strong> |<strong><img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"> Apollyon Linux </strong> | <strong><img src="assets/icons/apple.svg" alt="Apple Symbol" width="25" height="25"> MicroDarwin</strong> |
+|-|-|-|
+| ![Fastfetch + DoomBSD Config + Doom Emacs Dashboard](assets/fastfetch-doombsd-with-doom-emacs.png) | ![Apollyon Linux](assets/apollyon-linux.jpeg) | ![MicroDarwin](assets/microdarwin.png) |
 
 #### [Hyprland](https://hyprland.org/) compositor + [HyDE](https://github.com/HyDE-Project/HyDE) configurator
 
@@ -224,24 +220,19 @@
 </details>
 
 ### [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) + Gear Shifting
-
-![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/ferris-sweep/keymap.svg)
-
-![Ferris Sweep with STM32 in front of Macbook](assets/ferris-sweep-with-stm32-in-front-of-macbook.jpg)
-
-#### Previously on [Piantor](https://github.com/beekeeb/piantor)
+| | |
+|-|-|
+| ![Ferris Sweep with STM32 in front of Macbook](assets/ferris-sweep-with-stm32-in-front-of-macbook.jpg) | ![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/ferris-sweep/keymap.svg) |
 
 <details>
 <summary>
   <h3>See More</h3>
 </summary>
 
-![Piantor Split Keyboard Layout](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6)
-
-
+#### Previously on [Piantor](https://github.com/beekeeb/piantor)
 |||
 |-|-|
-| ![Piantor Split Keyboard with Luna in front of Framwork Laptop](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) | ![Piantor Split Keyboard disassembled on bed](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg)  |
+| ![Piantor Split Keyboard with Luna in front of Framework Laptop](templates/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) ![Piantor Split Keyboard disassembled on bed](templates/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg) |  ![Piantor Split Keyboard Layout](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6) |
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 
@@ -251,8 +242,15 @@
 
 <br/>
 
-![Monkeytype Symbol Practice with Burning Tux Mascot](https://github.com/user-attachments/assets/8d5bbf3f-87b0-45d1-9a17-95fdb6ac1c99)
-
-<br/>
-
-[![TypeRacer.com scorecard for user killshot619](https://data.typeracer.com/misc/badge?user=killshot619)](https://data.typeracer.com/pit/profile?user=killshot619&ref=badge)
+<table>
+  <tr>
+    <td width="70%" align="center">
+      <img src="https://github.com/user-attachments/assets/8d5bbf3f-87b0-45d1-9a17-95fdb6ac1c99" />
+    </td>
+    <td width="30%" align="center">
+      <a href="https://data.typeracer.com/pit/profile?user=killshot619&ref=badge">
+        <img src="https://data.typeracer.com/misc/badge?user=killshot619" />
+      </a>
+    </td>
+  </tr>
+</table>
