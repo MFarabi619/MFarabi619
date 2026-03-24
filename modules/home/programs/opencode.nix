@@ -64,6 +64,10 @@
               name = "qwen2.5-coder:32b";
             };
 
+            "mdq100/qwen3.5-coder:35b" = {
+              name = "mdq100/qwen3.5-coder:35b";
+            };
+
             "codellama:70b" = {
               name = "codellama:70b";
             };
