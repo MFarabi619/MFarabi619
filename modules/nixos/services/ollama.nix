@@ -30,6 +30,7 @@
       # "qwen3-coder:480b"
       "phind-codellama:34b"
       # "llama3.2-vision:90b"
+      "mdq100/qwen3.5-coder:35b"
     ];
 
     environmentVariables = {
