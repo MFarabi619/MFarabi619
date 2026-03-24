@@ -263,9 +263,19 @@ sudo pkg install bsd{-splash-changer,ebfetch,info,sensors} pwcbsd wmbsdbatt open
 
 Add to =/boot/loader.conf=
 #+begin_src zsh
+sudo sysrc -f /boot/loader.conf fusefs_load="YES"
 sudo sysrc -f /boot/loader.conf sysctlinfo_load="YES"
 # hw.nvidiadrm.modeset="1" # if using nvidia-drm-kmod
 sudo sysrc -f /boot/loader.conf sysctlbyname_improved_load="YES"
+#+end_src
+
+Add to =/etc/sysctl.conf=
+#+begin_src zsh
+sudo sysctl vfs.usermount=1
+echo 'vfs.usermount=1' | sudo tee -a /etc/sysctl.conf
+# now you can mount directories from a remote machine to local like this
+# sshfs user@remote:path ./ -o reconnect
+# sshfs mfarabi@10.0.0.198:/Users/mfarabi/workspace/HyDE ./HyDE -o reconnect
 #+end_src
 
 Add the following entry to =/etc/gettytab=
@@ -403,7 +413,6 @@ eval $(docker-machine env)
 | VirtualBox®                | Open Source | vboxvideo                            | emulators/virtualbox-ose-additions          |
 | VMware®                    | Open Source | vmwgfx                               | x11-drivers/xf86-video-vmware               |
 
-
 #+begin_src zsh
 sudo pkg install drm-kmod # Intel & AMD
 #+end_src
@@ -436,10 +445,32 @@ kld_list="i915kms"  # kernel loadable modules - graphics
 # net.local.stream.sendspace=65536
 #+end_src
 
+
+sudo sysrc -f /boot/loader.conf virtio_load="YES"
+sudo sysrc -f /boot/loader.conf virtio_pci_load="YES"
+
 Add to =/boot/loader.conf=.
 #+begin_src zsh
 kern.vty=vt
 #+end_src
+
+Support for 7zip and rar archives requires the appropriate executables.
+If ark has been packaged without options 7ZIP or RAR, you can install
+archivers/7-zip (for 7ZIP) or archivers/unrar and archivers/rar (for RAR)
+to allow ark to handle those archives.
+=====
+Message from bluez-firmware-1.2:
+
+--
+NOTICE
+======
+
+You need to have the ubtbcmfw(8) and ng_ubt(8) kernel modules
+in our kernel. This can be accomplished by adding the following
+lines to /boot/loader.conf:
+
+ ubtbcmfw_load=yes
+ ng_ubt_load=yes
 
 #+begin_src zsh
 mkdir ~/.local/share/bin
@@ -824,6 +855,46 @@ DoomBSD borrows HEAVILY from the following projects:
 
 
 * Virtual Machine Setup (WIP)
+** x86-64-freebsd
+*** QEMU
+#+begin_src sh
+sudo pkg install qemu
+#+end_src
+
+#+begin_src sh
+if [ "$(readlink /usr/local/bin/qemu)" != "/usr/local/bin/qemu-system-x86_64" ]; then
+  sudo ln -sf /usr/local/bin/qemu-system-x86_64 /usr/local/bin/qemu
+fi
+#+end_src
+
+#+begin_src sh
+sudo sysctl net.link.tap.user_open=1
+sudo grep -qxF "net.link.tap.user_open=1" /etc/sysctl.conf || \
+echo 'net.link.tap.user_open=1' | sudo tee -a /etc/sysctl.conf
+sudo grep -qxF "add path 'tap*' mode 0660 group operator" /etc/devfs.rules || \
+printf "add path 'tap*' mode 0660 group operator\n" | sudo tee -a /etc/devfs.rules
+#+end_src
+
+*** Bhyve
+
+#+begin_src sh
+sudo kldload vmm
+#+end_src
+
+#+begin_src sh
+sudo ifconfig tap0 create
+sudo  sysctl net.link.tap.up_on_open=1
+sudo grep -qxF "net.link.tap.up_on_open=1" /etc/sysctl.conf || \
+echo 'net.link.tap.up_on_open=1' | sudo tee -a /etc/sysctl.conf
+sudo grep -qxF "add path 'tap*' mode 0660 group operator" /etc/devfs.rules || \
+printf "add path 'tap*' mode 0660 group operator\n" | sudo tee -a /etc/devfs.rules
+#+end_src
+
+#+begin_src sh
+sudo ifconfig bridge0 create
+sudo ifconfig bridge0 addm igb0 addm tap0
+sudo ifconfig bridge0 up
+#+end_src
 
 ** aarch64-darwin
 
