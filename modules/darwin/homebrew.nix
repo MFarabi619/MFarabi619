@@ -46,7 +46,7 @@
       # "rust"
       "pulumi"
       "libvirt" # brew services start libvirt
-      "dirien/dirien/lazy-pulumi"
+      # "dirien/dirien/lazy-pulumi"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
