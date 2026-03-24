@@ -17,6 +17,7 @@
       "mistral:7b"
       # "llava:34b"
       "gpt-oss:20b"
+      "qwen3.5:35b"
       # "gpt-oss:120b"
       # "deepseek-v3.1"
       # "codellama:70b"
