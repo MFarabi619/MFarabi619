@@ -109,6 +109,7 @@ in
       # "claude-code.nix"
       "command-not-found.nix"
       "direnv.nix"
+      "delta.nix"
       "eza.nix"
       # "element-desktop" # disabled due to CVE
       "fastfetch"
