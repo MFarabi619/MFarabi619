@@ -90,6 +90,18 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td>
 <td align='center'>
+<!-- SQLite -->
+<a href="https://sqlite.org" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" alt="SQLite Logo" width="40" height="40" />
+</a>
+<!-- PostgreSQL -->
+<a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40" />
+</a>
+<!-- TimescaleDB -->
+<a href="https://www.tigerdata.com/timescaledb" target="_blank" rel="noreferrer">
+<img src="assets/icons/timescaledb.svg" alt="TimescaleDB Logo" width="40" height="40" />
+</a>
 <!-- NATS -->
 <a href="https://nats.io" target="_blank" rel="noreferrer">
 <img src="./assets/icons/nats.svg" alt="NATS Logo" width="40" height="40" />
@@ -110,10 +122,6 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://dioxuslabs.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/79236386?s=200&v=4" alt="Dioxus Logo" width="40" height="40" />
 </a>
-<!-- Burn -->
-<a href="https://burn.dev" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png" alt="Burn Logo" width="40" height="40" />
-</a>
 <!-- Embassy -->
 <a href="https://embassy.dev" target="_blank" rel="noreferrer">
 <img src="https://embassy.dev/favicon.png" alt="Embassy Logo" width="40" height="40" />
@@ -126,25 +134,9 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://tinygo.org" target="_blank" rel="noreferrer">
 <img src="https://tinygo.org/images/tinygo-logo.png" alt="TinyGo Logo" width="40" height="40" />
 </a>
-<!-- ROS 2 -->
-<a href="https://www.ros.org" target="_blank" rel="noreferrer">
-<img src="https://www.ros.org/imgs/jazzy_robot.png" alt="ROS 2 Logo" width="40" height="40" />
-</a>
 <!-- Pulumi -->
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40" />
-</a>
-<!-- SQLite -->
-<a href="https://sqlite.org" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" alt="SQLite Logo" width="40" height="40" />
-</a>
-<!-- PostgreSQL -->
-<a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40" />
-</a>
-<!-- Slidev -->
-<a href="https://sli.dev" target="_blank" rel="noreferrer">
-<img src="assets/slidev-symbol.svg" alt="Slidev Logo" width="40" height="40" />
 </a>
 </td>
 <td align='center'>
@@ -337,6 +329,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://motion.dev" target="_blank" rel="noreferrer">
 <img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40" />
 </a>
+<!-- Slidev -->
+<a href="https://sli.dev" target="_blank" rel="noreferrer">
+<img src="assets/slidev-symbol.svg" alt="Slidev Logo" width="40" height="40" />
+</a>
 <!-- Serenity.js Screenplay Pattern -->
 <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40" />
@@ -472,6 +468,14 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td>
 <td align='center'>
+<!-- Burn -->
+<a href="https://burn.dev" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png" alt="Burn Logo" width="40" height="40" />
+</a>
+<!-- ROS 2 -->
+<a href="https://www.ros.org" target="_blank" rel="noreferrer">
+<img src="https://www.ros.org/imgs/jazzy_robot.png" alt="ROS 2 Logo" width="40" height="40" />
+</a>
 <!-- Kubenix -->
 <a href="https://kubenix.org" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg" alt="Kubenix Logo" width="40" height="40" />

@@ -59,6 +59,21 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "SQLite",
+        "url": "https://sqlite.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg"
+      },
+      {
+        "name": "PostgreSQL",
+        "url": "https://www.postgresql.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg"
+      },
+      {
+        "name": "TimescaleDB",
+        "url": "https://www.tigerdata.com/timescaledb",
+        "icon": "assets/icons/timescaledb.svg"
+      },
+      {
         "name": "NATS",
         "url": "https://nats.io",
         "icon": "./assets/icons/nats.svg"
@@ -84,11 +99,6 @@
         "icon": "https://avatars.githubusercontent.com/u/79236386?s=200&v=4"
       },
       {
-        "name": "Burn",
-        "url": "https://burn.dev",
-        "icon": "https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png"
-      },
-      {
         "name": "Embassy",
         "url": "https://embassy.dev",
         "icon": "https://embassy.dev/favicon.png"
@@ -104,29 +114,9 @@
         "icon": "https://tinygo.org/images/tinygo-logo.png"
       },
       {
-        "name": "ROS 2",
-        "url": "https://www.ros.org",
-        "icon": "https://www.ros.org/imgs/jazzy_robot.png"
-      },
-      {
         "name": "Pulumi",
         "url": "https://www.pulumi.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
-      },
-      {
-        "name": "SQLite",
-        "url": "https://sqlite.org",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg"
-      },
-      {
-        "name": "PostgreSQL",
-        "url": "https://www.postgresql.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg"
-      },
-      {
-        "name": "Slidev",
-        "url": "https://sli.dev",
-        "icon": "assets/slidev-symbol.svg"
       }
     ],
     "Tools": [
@@ -362,6 +352,11 @@
         "icon": "https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png"
       },
       {
+        "name": "Slidev",
+        "url": "https://sli.dev",
+        "icon": "assets/slidev-symbol.svg"
+      },
+      {
         "name": "Serenity.js Screenplay Pattern",
         "url": "https://playwright.dev/",
         "icon": "https://avatars.githubusercontent.com/u/25189746?s=200&v=4"
@@ -524,6 +519,16 @@
       }
     ],
     "Frameworks & Libraries": [
+      {
+        "name": "Burn",
+        "url": "https://burn.dev",
+        "icon": "https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png"
+      },
+      {
+        "name": "ROS 2",
+        "url": "https://www.ros.org",
+        "icon": "https://www.ros.org/imgs/jazzy_robot.png"
+      },
       {
         "name": "Kubenix",
         "url": "https://kubenix.org",
