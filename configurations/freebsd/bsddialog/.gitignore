@@ -1,4 +1,4 @@
-bsddialog
+/bsddialog
 .depend*
 *.o
 *.so*
