@@ -24,19 +24,19 @@ pub fn apply() !void {
     theme.dialog.linelowercolor = color(c.BSDDIALOG_RED, c.BSDDIALOG_BLACK, 0);
     theme.dialog.arrowcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_RED, 0);
 
-    theme.menu.f_selectorcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_RED, c.BSDDIALOG_BOLD);
+    theme.menu.f_selectorcolor = color(c.BSDDIALOG_RED, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
     theme.menu.selectorcolor = color(c.BSDDIALOG_WHITE, c.BSDDIALOG_BLACK, 0);
 
-    theme.menu.f_prefixcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_BLACK, 0);
+    theme.menu.f_prefixcolor = color(c.BSDDIALOG_RED, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
     theme.menu.prefixcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_BLACK, 0);
 
-    theme.menu.f_namecolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_RED, c.BSDDIALOG_BOLD);
+    theme.menu.f_namecolor = color(c.BSDDIALOG_RED, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
     theme.menu.namecolor = color(c.BSDDIALOG_WHITE, c.BSDDIALOG_BLACK, 0);
 
-    theme.menu.f_desccolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_RED, c.BSDDIALOG_BOLD);
+    theme.menu.f_desccolor = color(c.BSDDIALOG_RED, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
     theme.menu.desccolor = color(c.BSDDIALOG_WHITE, c.BSDDIALOG_BLACK, 0);
 
-    theme.menu.f_shortcutcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_RED, c.BSDDIALOG_BOLD);
+    theme.menu.f_shortcutcolor = color(c.BSDDIALOG_RED, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
     theme.menu.shortcutcolor = color(c.BSDDIALOG_WHITE, c.BSDDIALOG_BLACK, 0);
 
     theme.menu.bottomdesccolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_RED, 0);
@@ -91,20 +91,20 @@ pub fn apply_orangey_black() !void {
     theme.dialog.linelowercolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, 0);
     theme.dialog.arrowcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_YELLOW, 0);
 
-    theme.menu.f_selectorcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_YELLOW, c.BSDDIALOG_BOLD);
+    theme.menu.f_selectorcolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
     theme.menu.selectorcolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, 0);
 
-    theme.menu.f_prefixcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_YELLOW, c.BSDDIALOG_BOLD);
-    theme.menu.prefixcolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, 0);
+    theme.menu.f_prefixcolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
+    theme.menu.prefixcolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_HALFBRIGHT);
 
-    theme.menu.f_namecolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_YELLOW, c.BSDDIALOG_BOLD);
-    theme.menu.namecolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, 0);
+    theme.menu.f_namecolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
+    theme.menu.namecolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_HALFBRIGHT);
 
-    theme.menu.f_desccolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_YELLOW, c.BSDDIALOG_BOLD);
-    theme.menu.desccolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, 0);
+    theme.menu.f_desccolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
+    theme.menu.desccolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_HALFBRIGHT);
 
-    theme.menu.f_shortcutcolor = color(c.BSDDIALOG_BLACK, c.BSDDIALOG_YELLOW, c.BSDDIALOG_BOLD);
-    theme.menu.shortcutcolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, 0);
+    theme.menu.f_shortcutcolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
+    theme.menu.shortcutcolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_HALFBRIGHT);
 
     theme.menu.bottomdesccolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, 0);
     theme.menu.sepnamecolor = color(c.BSDDIALOG_YELLOW, c.BSDDIALOG_BLACK, c.BSDDIALOG_BOLD);
