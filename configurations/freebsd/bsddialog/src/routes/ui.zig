@@ -28,9 +28,9 @@ pub fn run(current_theme: ThemeChoice) !UiResult {
     _ = c.bsddialog_backtitle_rf(&conf, " DoomBSD Catacombs");
 
     var items = [_]c.struct_bsddialog_menuitem{
-        .{ .name = "D", .desc = "Default Doom Theme", .bottomdesc = "The current coral-and-dark DoomBSD style.", .on = current_theme == .doom, .depth = 0, .prefix = "" },
-        .{ .name = "O", .desc = "Orangey-Black Theme", .bottomdesc = "A black background with warm orange accents.", .on = current_theme == .orangey_black, .depth = 0, .prefix = "" },
-        .{ .name = "B", .desc = "BlackWhite Theme", .bottomdesc = "Default BlackWhite theme like examples_library/theme.c.", .on = current_theme == .black_white, .depth = 0, .prefix = "" },
+        .{ .name = "D", .desc = "Red", .bottomdesc = "The default hellfire DoomBSD style.", .on = current_theme == .doom, .depth = 0, .prefix = "" },
+        .{ .name = "O", .desc = "Orange/Black", .bottomdesc = "A black background with warm orange accents.", .on = current_theme == .orangey_black, .depth = 0, .prefix = "" },
+        .{ .name = "B", .desc = "Black & White", .bottomdesc = "Default BlackWhite theme like examples_library/theme.c.", .on = current_theme == .black_white, .depth = 0, .prefix = "" },
     };
 
     const output = c.bsddialog_radiolist(
