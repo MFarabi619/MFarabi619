@@ -37,7 +37,7 @@ pub fn run() !MainMenuResult {
 
     const output = c.bsddialog_menu(
         &conf,
-        "Welcome traveller, you have come not seeking peace... but madness, mayhem, and the cursed power of the Void.\n\nBe warned: this path leads only to insane efficiency, terminal sorcery, exceptional UNIX grokking, and ultimate aesthetic overfunction.\n\nBegin the Rite of Configuration, ONLY IF YOU DARE!",
+        "Welcome traveller, you have come not seeking peace... but madness, mayhem, and the cursed power of the Void.\n\nBe warned: this path leads only to insane efficiency, terminal sorcery, *exceptional* UNIX® grokking, and ultimate aesthetic overfunction.\n\nBegin the Rite of Configuration, ONLY IF YOU DARE!",
         dialog_rows,
         dialog_cols,
         8,
