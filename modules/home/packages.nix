@@ -85,7 +85,7 @@
         nix-weather # check binary cache availability
 
         # ============== 🤪 =================
-        genact # nonsence activity generator
+        genact # nonsense activity generator
         smassh # TUI monkeytype
         cowsay # ascii cow
         lolcat # rainbow text output
