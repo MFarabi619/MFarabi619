@@ -1,89 +1,17 @@
 [workspace]
-[package]
-edition      = "2024"
-rust-version = "1.88"
-version      = "0.1.0"
-name         = "firmware"
-default-run  = "firmware"
-
-[[bin]]
-test         = false
-name         = "firmware"
-path         = "./src/bin/main.rs"
-
-[[test]]
-harness = false
-name    = "hello_test"
-
-[lib]
-test = false
-
-[dependencies]
-# for more networking protocol support see https://crates.io/crates/edge-net
-volatile         = "0.4.3"
-bt-hci           = "0.6.0"
-critical-section = "1.2.0"
-static_cell      = "2.1.1"
-defmt            = "1.0.1"
-esp-alloc        = { version = "0.9.0", features = ["defmt"] }
-rtt-target       = { version = "0.6.2", features = ["defmt"] }
-trouble-host     = { version = "0.5.0", features = ["gatt"] }
-embedded-io      = { version = "0.7.1", features = ["defmt"] }
-embassy-time     = { version = "0.5.0", features = ["defmt"] }
-embassy-executor = { version = "0.9.1", features = ["defmt"] }
-panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
-embedded-io-async = { version = "0.7.0", features = ["defmt"] }
-esp-hal          = { version = "~1.0", features = ["defmt", "esp32s3", "unstable"] }
-esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
-
-esp-rtos = { version = "0.2.0", features = [
-  "defmt",
-  "embassy",
+resolver        = "2"
+default-members = ["stm32h723zg"]
+members         = [
   "esp32s3",
-  "esp-alloc",
-  "esp-radio",
-] }
+  "stm32h723zg",
+]
 
-embassy-net = { version = "0.7.1", features = [
-  "tcp",
-  "udp",
-  "defmt",
-  "dhcpv4",
-  "medium-ethernet",
-] }
-
-esp-radio = { version = "0.17.0", features = [
-  "ble",
-  "coex",
-  "wifi",
-  "defmt",
-  "esp32s3",
-  "smoltcp",
-  "unstable",
-  "esp-alloc",
-] }
-
-smoltcp = { version = "0.12.0", default-features = false, features = [
-  "defmt",
-  "multicast",
-  "proto-dns",
-  "proto-ipv4",
-  "socket-dns",
-  "socket-raw",
-  "socket-tcp",
-  "socket-udp",
-  "socket-icmp",
-  "proto-dhcpv4",
-  "medium-ethernet",
-] }
-
-[dev-dependencies]
-embedded-test = { version = "0.7.0", features = [
-  "defmt",
-  "embassy",
-  "external-executor",
-  "xtensa-semihosting",
-] }
+[workspace.dependencies]
+defmt             = "1.0.1"
+embedded-io       = "0.7.1"
+embassy-time      = "0.5.0"
+embassy-executor  = "0.9.1"
+embedded-io-async = "0.7.0"
 
 [profile.dev]
 # Rust debug is too slow.
@@ -91,10 +19,10 @@ embedded-test = { version = "0.7.0", features = [
 opt-level = "s"
 
 [profile.release]
-codegen-units    = 1     # LLVM can perform better optimizations using a single thread
 debug            = 2
-opt-level        = 's'
-debug-assertions = false
+codegen-units    = 1 # LLVM can perform better optimizations using a single thread
+opt-level        = "s"
+lto              = "fat"
 incremental      = false
 overflow-checks  = false
-lto              = 'fat'
+debug-assertions = false

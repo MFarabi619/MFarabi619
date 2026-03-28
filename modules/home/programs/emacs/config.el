@@ -299,11 +299,9 @@
   (add-to-list
    'dape-configs
    '(probe-rs
-     fn (lambda (config)
-          (if (derived-mode-p 'dape-repl-mode)
-              config
-            (plist-put config 'compile nil)))
-     :chip "esp32s3"
+     fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
+     ;; :chip "esp32s3"
+     :chip "stm32h723zg"
      :request "launch"
      :type "probe-rs-debug"
      :consoleLogLevel "Console"
@@ -314,8 +312,8 @@
      command "probe-rs"
      modes (rust-mode rustic-mode)
      command-args ("dap-server" "--port" :autoport)
-     command-cwd (lambda () (locate-dominating-file default-directory "Cargo.toml"))
-     compile (lambda () (let* ((root (locate-dominating-file default-directory "Cargo.toml"))
+     command-cwd (lambda () (locate-dominating-file default-directory ".probe-rs.toml"))
+     compile (lambda () (let* ((root (locate-dominating-file default-directory ".probe-rs.toml"))
                                (file (and (buffer-file-name) (file-relative-name (buffer-file-name) root))))
                           (if (and file (string-match "^examples/\\([^/]+\\)\\.rs\\'" file))
                               (format "cargo build --example %s" (match-string 1 file)) "cargo build")))
@@ -324,19 +322,12 @@
                     :coreIndex 0
                     :rttEnabled t
                     :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
-                    :svdFile (lambda () (expand-file-name "esp32s3.svd" (locate-dominating-file default-directory "Cargo.toml")))
-                    :programBinary (lambda () (let* ((root (locate-dominating-file default-directory "Cargo.toml"))
-                                                     (file (and (buffer-file-name)
-                                                                (file-relative-name (buffer-file-name) root))))
-                                                (if (and file
-                                                         (string-match "^examples/\\([^/]+\\)\\.rs\\'" file))
-                                                    (expand-file-name
-                                                     (format "target/xtensa-esp32s3-none-elf/debug/examples/%s"
-                                                             (match-string 1 file))
-                                                     root)
-                                                  (expand-file-name
-                                                   "target/xtensa-esp32s3-none-elf/debug/firmware"
-                                                   root))))
+                    :svdFile (lambda () (expand-file-name "boards/STM32H723.svd" (locate-dominating-file default-directory ".probe-rs.toml")))
+                    :programBinary (lambda () (let* ((root (locate-dominating-file default-directory ".probe-rs.toml"))
+                                                     (file (and (buffer-file-name) (file-relative-name (buffer-file-name) root))))
+                                                (if (and file (string-match "^examples/\\([^/]+\\)\\.rs\\'" file))
+                                                    (expand-file-name (format "target/thumbv7em-none-eabihf/debug/examples/%s" (match-string 1 file)) root)
+                                                  (expand-file-name "target/thumbv7em-none-eabihf/debug/stm32h723zg" root))))
                     )]
      ))
   :config

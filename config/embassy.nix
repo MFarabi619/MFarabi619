@@ -1,4 +1,5 @@
 {
+  lib,
   config,
   ...
 }:
@@ -9,7 +10,8 @@
 
     probe-rs = rec {
       presets = rec {
-        default = esp32s3;
+        # default = esp32s3;
+        default = stm32h723zg;
         # default = seeed_xiao_esp32s3;
 
         seeed_xiao_esp32s3 = esp32s3 // {
@@ -27,6 +29,13 @@
           preverify = true;
           "always-print-stacktrace" = true;
         };
+
+        # cargo embassy init --chip stm32h723zg embassy-stm32-scaffold
+        stm32h723zg = {
+          chip = "stm32h723zg";
+          preverify = true;
+          "always-print-stacktrace" = true;
+        };
       };
 
       server = {
@@ -41,29 +50,55 @@
       };
     };
 
-    rust = {
-      toolchain = "esp";
-      clippy.stack-size-threshold = 1024;
+    rust =
+      lib.recursiveUpdate
+        {
+          toolchain = {
+            channel = "stable";
+            components = [ "rustfmt" ];
+            targets = [
+              "thumbv6m-none-eabi"
+              "thumbv7em-none-eabihf"
+              "thumbv8m.main-none-eabihf"
+              "riscv32imac-unknown-none-elf"
+            ];
+          };
 
-      cargo = rec {
-        env.DEFMT_LOG = "info";
-        alias.blinky = "run -r --example=blinky";
-        target."${build.target}".runner = "probe-rs run";
+          cargo = rec {
+            env.DEFMT_LOG = "info";
+            # target."cfg(all(target_arch = \"arm\", target_os = \"none\"))".runner = "probe-rs run";
+            target."${build.target}".runner = "probe-rs run";
+            build = {
+              target = "thumbv7em-none-eabihf";
+            };
+          };
+        }
+        (
+          if probe-rs.presets.default.chip == "esp32s3" then
+            {
+              toolchain.channel = "esp";
+              clippy.stack-size-threshold = 1024;
 
-        build = {
-          target = "xtensa-esp32s3-none-elf";
-          rustflags = [
-            "-C"
-            "link-arg=-nostartfiles"
-          ];
-        };
-
-        unstable."build-std" = [
-          "core"
-          "alloc"
-        ];
-      };
-    };
+              cargo = {
+                alias.blinky = "run -r --example=blinky";
+                build = {
+                  target = "xtensa-esp32s3-none-elf";
+                  rustflags = [
+                    "-C"
+                    "link-arg=-nostartfiles"
+                  ];
+                };
+                unstable = {
+                  "build-std" = [
+                    "core"
+                    "alloc"
+                  ];
+                };
+              };
+            }
+          else
+            { }
+        );
 
     wokwi = rec {
       version = 1;

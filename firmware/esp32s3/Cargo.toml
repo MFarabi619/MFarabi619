@@ -1,0 +1,81 @@
+[package]
+edition      = "2024"
+name         = "esp32s3"
+version      = "0.1.0"
+rust-version = "1.88"
+default-run  = "esp32s3"
+authors      = ["Mumtahin Farabi"]
+
+[[bin]]
+test = false
+name = "esp32s3"
+path = "./src/bin/main.rs"
+
+[[test]]
+harness = false
+name    = "hello_test"
+
+[lib]
+test = false
+
+[dependencies]
+bt-hci                 = "0.6.0"
+volatile               = "0.4.3"
+static_cell            = "2.1.1"
+defmt.workspace        = true
+critical-section       = "1.2.0"
+esp-rtos               = { version = "0.2.0", features = [
+  "defmt",
+  "embassy",
+  "esp32s3",
+  "esp-alloc",
+  "esp-radio",
+] }
+esp-radio              = { version = "0.17.0", features = [
+  "ble",
+  "coex",
+  "wifi",
+  "defmt",
+  "esp32s3",
+  "smoltcp",
+  "unstable",
+  "esp-alloc",
+] }
+embassy-net            = { version = "0.7.1", features = [
+  "tcp",
+  "udp",
+  "defmt",
+  "dhcpv4",
+  "medium-ethernet",
+] }
+esp-alloc              = { version = "0.9.0", features = ["defmt"] }
+embedded-io            = { workspace = true, features = ["defmt"] }
+rtt-target             = { version = "0.6.2", features = ["defmt"] }
+embassy-time           = { workspace = true, features = ["defmt"] }
+trouble-host           = { version = "0.5.0", features = ["gatt"] }
+embassy-executor       = { workspace = true, features = ["defmt"] }
+embedded-io-async      = { workspace = true, features = ["defmt"] }
+panic-rtt-target       = { version = "0.2.0", features = ["defmt"] }
+smoltcp                = { version = "0.12.0", default-features = false, features = [
+  "defmt",
+  "multicast",
+  "proto-dns",
+  "proto-ipv4",
+  "socket-dns",
+  "socket-raw",
+  "socket-tcp",
+  "socket-udp",
+  "socket-icmp",
+  "proto-dhcpv4",
+  "medium-ethernet",
+] }
+esp-hal                = { version = "~1.0", features = ["defmt", "esp32s3", "unstable"] }
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
+
+[dev-dependencies]
+embedded-test = { version = "0.7.0", features = [
+  "defmt",
+  "embassy",
+  "external-executor",
+  "xtensa-semihosting",
+] }

@@ -10,7 +10,7 @@
       # "cyd"
       "walter"
     ];
-    src_dir = "${config.git.root}/firmware";
+    src_dir = "${config.git.root}/esp32s3/firmware";
     boards_dir = "${config.git.root}/firmware/boards";
 
     envs = rec {
@@ -34,6 +34,12 @@
 
       walter = base // {
         board = "walter";
+        # framework = [ "espidf" ];
+        # platform = "espressif32@6.13.0";
+        # board_build = {
+        #   esp-idf.sdkconfig_path = "${config.platformio.src_dir}/sdkconfig.walter";
+        #   cmake_extra_args = [ "-DSDKCONFIG_DEFAULTS=\"${config.platformio.src_dir}/sdkconfig.defaults\"" ];
+        # };
       };
 
       base = {

@@ -1,5 +1,11 @@
 #+title: Notes
 
+[[https://www.youtube.com/watch?v=ReNqPp3EmYk][Books That Made Me A CRACKED Backend Dev - YouTube]]
+
+[[https://www.youtube.com/watch?v=-XPrSScamXc][Optimizing Arduino Code: no setup(), no loop() ⛔ - YouTube]]
+
+[[https://www.youtube.com/watch?v=qOW1KvSEfLs][SQLite is a masterclass in library design - YouTube]]
+
 * PlatformIO
 
 #+begin_src sh

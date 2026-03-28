@@ -1,3 +1,4 @@
+target/
 rust-toolchain.toml
 .cargo/config.toml
 .probe-rs.toml
