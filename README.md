@@ -605,7 +605,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
   </tr>
   <tr>
     <td><img src="https://github.com/user-attachments/assets/63e73123-fd2c-40b6-ab0e-04aa1cfa7172" alt="image"></td>
-    <td><img src="https://github.com/user-attachments/assets/99bf56b4-11d3-4e3a-bcaa-203f5a7fde15" alt="image"></td>
+    <td><img src="assets/emacs-dap-mode.png" alt="image"></td>
   </tr>
   <tr>
     <td width="50%">
