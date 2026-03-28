@@ -74,7 +74,7 @@ in
     files =
       lib.optionalAttrs (lib.attrByPath [ "toolchain" ] null rust != null) {
         "${finalCwd}/rust-toolchain.toml".toml = {
-          toolchain.channel = rust.toolchain;
+          toolchain = rust.toolchain;
         };
       }
       // lib.optionalAttrs (lib.attrByPath [ "cargo" ] { } rust != { }) {
