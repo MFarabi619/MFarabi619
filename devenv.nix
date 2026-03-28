@@ -19,7 +19,6 @@
     "/languages"
     "/microvisor"
     "/tasks.nix"
-    "/frameworks"
     "/cachix.nix"
     "/embassy.nix"
     "/scripts.nix"
