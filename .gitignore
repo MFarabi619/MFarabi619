@@ -56,3 +56,5 @@ local.properties
 Dioxus.toml
 opencode.json
 /.codex/config.toml
+/platformio.ini
+/compile_commands.json

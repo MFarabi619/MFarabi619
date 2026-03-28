@@ -9,8 +9,8 @@
 
     probe-rs = rec {
       presets = rec {
-        # default = esp32s3;
-        default = seeed_xiao_esp32s3;
+        default = esp32s3;
+        # default = seeed_xiao_esp32s3;
 
         seeed_xiao_esp32s3 = esp32s3 // {
           probe = "303a:1001:D8:3B:DA:74:82:E8";
