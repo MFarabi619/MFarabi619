@@ -58,6 +58,7 @@ in
         ldproxy
         espflash
         esp-generate
+        cargo-embassy
         (probe-rs-tools.overrideAttrs (old: {
           cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
         }))
