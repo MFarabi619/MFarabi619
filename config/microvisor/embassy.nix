@@ -59,6 +59,7 @@ in
         espflash
         esp-generate
         cargo-embassy
+        cargo-generate
         (probe-rs-tools.overrideAttrs (old: {
           cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
         }))
