@@ -715,13 +715,6 @@ If lazygit is active there, quit it and leave the shell running."
   (define-key nov-mode-map (kbd "o") 'nov-xwidget-view)
   (add-hook 'nov-mode-hook 'nov-xwidget-inject-all-files))
 
-(after! centaur-tabs-mode
-  (setq centaur-tabs-show-count t
-        centaur-tabs-gray-out-icons t
-        centaur-tabs-enable-key-bindings t
-        centaur-tabs-show-new-tab-button nil
-        centaur-tabs-show-navigation-buttons nil))
-
 (use-package! fretboard)
 (after! fretboard
   (setq fretboard-fret-count 15)
