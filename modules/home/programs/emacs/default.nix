@@ -48,6 +48,9 @@
         devdocs-browser
         compiler-explorer
 
+        compile-multi
+        compile-multi-nerd-icons
+
         kconfig-ref
         kconfig-mode
 
@@ -68,7 +71,6 @@
         leetcode
         exercism
         nix-update
-        nix-ts-mode
         nixos-options
         all-the-icons
 
