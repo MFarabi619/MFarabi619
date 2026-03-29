@@ -6,14 +6,34 @@
   platformio = {
     enable = true;
     name = config.name;
+    src_dir = "${config.git.root}/firmware";
+
     default_envs = [
       # "cyd"
       "walter"
+      # "waveshare-esp32-s3-touch-lcd-1-47"
     ];
-    src_dir = "${config.git.root}/esp32s3/firmware";
-    boards_dir = "${config.git.root}/firmware/boards";
 
     envs = rec {
+      # https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-1.47#Install_Library
+      # waveshare-esp32-s3-touch-lcd-1-47 = base // {
+      #   board = "esp32s3_120_16_8-qio_opi";
+      #   board_build.flash_mode = "qio";
+      #   board_build.flash_size = "16MB";
+
+      #   lib_deps = [
+      #     # "lvgl/lvgl@^9.5.0"
+      #     "lovyan03/LovyanGFX@^1.1.9"
+      #     "moononournation/GFX Library for Arduino@^1.6.5"
+      #   ];
+
+      #   build_flags = [
+      #     "-DBOARD_HAS_PSRAM"
+      #     "-DARDUINO_USB_MODE=1"
+      #     "-DARDUINO_USB_CDC_ON_BOOT=1"
+      #   ];
+      # };
+
       cyd = base // {
         upload_port = "*110";
         board_build.flash_size = "16MB";

@@ -298,6 +298,7 @@ let
         "board_build.filesystem" = env_cfg.board_build.filesystem;
         "board_build.flash_size" = env_cfg.board_build.flash_size;
         "board_upload.flash_size" = env_cfg.board_upload.flash_size;
+        "board_build.arduino.memory_type" = env_cfg.board_build.arduino.memory_type;
         "board_build.esp-idf.sdkconfig_path" = env_cfg.board_build.esp-idf.sdkconfig_path;
         "board_build.cmake_extra_args" =
           render_multiline_indented_or_null env_cfg.board_build.cmake_extra_args;
@@ -320,6 +321,7 @@ let
     board_build.filesystem = mk_nullable_string "board_build.filesystem (e.g. littlefs).";
     board_build.flash_size = mk_nullable_string "board_build.flash_size \"8MB\".";
     board_upload.flash_size = mk_nullable_string "board_upload.flash_size \"8MB\".";
+    board_build.arduino.memory_type = mk_nullable_string "board_build.arduino.memory_type \"qio_opi\".";
     board_build.esp-idf.sdkconfig_path = mk_nullable_string "board_build.esp-idf.sdkconfig_path (custom ESP-IDF sdkconfig file path).";
     board_build.cmake_extra_args = mk_nullable_string_list "board_build.cmake_extra_args list.";
 
@@ -369,6 +371,7 @@ let
     board_build.filesystem = cfg.board_build.filesystem;
     board_build.flash_size = cfg.board_build.flash_size;
     board_upload.flash_size = cfg.board_upload.flash_size;
+    board_build.arduino.memory_type = cfg.board_build.arduino.memory_type;
     board_build.esp-idf.sdkconfig_path = cfg.board_build.esp-idf.sdkconfig_path;
     board_build.cmake_extra_args = cfg.board_build.cmake_extra_args;
     extra_options = cfg.env_extra_options;
@@ -534,6 +537,7 @@ in
     board_build.filesystem = mk_nullable_string "board_build.filesystem (e.g. littlefs).";
     board_build.flash_size = mk_nullable_string "board_build.flash_size \"8MB\".";
     board_upload.flash_size = mk_nullable_string "board_upload.flash_size \"8MB\".";
+    board_build.arduino.memory_type = mk_nullable_string "board_build.arduino.memory_type \"qio_opi\".";
     board_build.esp-idf.sdkconfig_path = mk_nullable_string "board_build.esp-idf.sdkconfig_path (custom ESP-IDF sdkconfig file path).";
     board_build.cmake_extra_args = mk_nullable_string_list "board_build.cmake_extra_args list.";
 
