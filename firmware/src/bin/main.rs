@@ -34,15 +34,12 @@ esp_bootloader_esp_idf::esp_app_desc!();
 )]
 #[esp_rtos::main]
 async fn main(spawner: Spawner) -> ! {
-    // generator version: 1.2.0
-
     rtt_target::rtt_init_defmt!();
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
 
     esp_alloc::heap_allocator!(#[esp_hal::ram(reclaimed)] size: 73744);
-    // COEX needs more RAM - so we've added some more
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
     let timg0 = TimerGroup::new(peripherals.TIMG0);
@@ -54,20 +51,16 @@ async fn main(spawner: Spawner) -> ! {
     let (mut _wifi_controller, _interfaces) =
         esp_radio::wifi::new(&radio_init, peripherals.WIFI, Default::default())
             .expect("Failed to initialize Wi-Fi controller");
-    // find more examples https://github.com/embassy-rs/trouble/tree/main/examples/esp32
     let transport = BleConnector::new(&radio_init, peripherals.BT, Default::default()).unwrap();
     let ble_controller = ExternalController::<_, 1>::new(transport);
     let mut resources: HostResources<DefaultPacketPool, CONNECTIONS_MAX, L2CAP_CHANNELS_MAX> =
         HostResources::new();
     let _stack = trouble_host::new(ble_controller, &mut resources);
 
-    // TODO: Spawn some tasks
     let _ = spawner;
 
     loop {
         info!("Hello world!");
         Timer::after(Duration::from_secs(1)).await;
     }
-
-    // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0/examples
 }

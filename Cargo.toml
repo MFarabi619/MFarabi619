@@ -6,7 +6,6 @@ members  = [
   ".",
   "tui",
   "web",
-  "simulator",
   "tests/e2e",
   "apps/readme",
 ]

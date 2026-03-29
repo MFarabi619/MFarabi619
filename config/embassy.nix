@@ -10,8 +10,8 @@
 
     probe-rs = rec {
       presets = rec {
-        default = esp32;
-        # default = esp32s3;
+        # default = esp32;
+        default = esp32s3;
         # default = stm32h723zg;
         # default = seeed_xiao_esp32s3;
 
@@ -58,111 +58,104 @@
       };
     };
 
-    rust =
-      lib.recursiveUpdate
-        {
-          cargo = {
-            env.DEFMT_LOG = "info";
-          };
-        }
-        (
-          if probe-rs.presets.default.chip == "esp32s3" || probe-rs.presets.default.chip == "esp32" then
-            {
-              toolchain.channel = "esp";
-              clippy.stack-size-threshold =
-                if probe-rs.presets.default.chip == "esp32" then 8192 else 1024;
+    # rust = {
+    #   toolchain = {
+    #     channel = if lib.hasPrefix "stm32" probe-rs.presets.default.chip then "stable" else "esp";
+    #     components = [ "rustfmt" ];
+    #     targets =
+    #       [ ]
+    #       ++ lib.optionals (lib.hasPrefix "stm32" probe-rs.presets.default.chip) [
+    #         "thumbv6m-none-eabi"
+    #         "thumbv7em-none-eabihf"
+    #         "thumbv8m.main-none-eabihf"
+    #         "riscv32imac-unknown-none-elf"
+    #       ];
+    #   };
 
-              cargo = rec {
-                alias.blinky = "run -r --example=blinky";
-                target."${build.target}".runner =
-                  if probe-rs.presets.default.chip == "esp32" then
-                    "espflash flash --monitor --chip esp32"
-                  else
-                    "probe-rs run";
-                build = {
-                  target =
-                    if probe-rs.presets.default.chip == "esp32s3" then
-                      "xtensa-esp32s3-none-elf"
-                    else
-                      "xtensa-esp32-none-elf";
-                  rustflags = [
-                    "-C"
-                    "link-arg=-nostartfiles"
-                  ];
-                };
-                unstable = {
-                  "build-std" = [
-                    "core"
-                    "alloc"
-                  ];
-                };
-              };
-            }
-          else
-            {
-              toolchain = {
-                channel = "stable";
-                components = [ "rustfmt" ];
-                targets = [
-                  "thumbv6m-none-eabi"
-                  "thumbv7em-none-eabihf"
-                  "thumbv8m.main-none-eabihf"
-                  "riscv32imac-unknown-none-elf"
-                ];
-              };
+    #   cargo = rec {
+    #     env.DEFMT_LOG = "info";
+    #     alias.blinky = "+esp run -r --example=blinky";
 
-              cargo = rec {
-                build.target = "thumbv7em-none-eabihf";
-                # target."cfg(all(target_arch = \"arm\", target_os = \"none\"))".runner = "probe-rs run";
-                target."${build.target}".runner = "probe-rs run";
-                unstable = {
-                  "build-std" = [ "core" ];
-                  "build-std-features" = [ "panic_immediate_abort" ];
-                };
-              };
-            }
-        );
+    #     build = {
+    #       target =
+    #         if probe-rs.presets.default.chip == "esp32s3" then
+    #           "xtensa-esp32s3-none-elf"
+    #         else if probe-rs.presets.default.chip == "esp32" then
+    #           "xtensa-esp32-none-elf"
+    #         else
+    #           "thumbv7em-none-eabihf";
+    #       rustflags =
+    #         [ ]
+    #         ++ lib.optionals (!lib.hasPrefix "stm32" probe-rs.presets.default.chip) [
+    #           "-C"
+    #           "link-arg=-nostartfiles"
+    #         ];
+    #     };
 
-    wokwi = rec {
-      version = 1;
-      firmware = elf;
-      gdbServerPort = 3333;
-      elf = "${cwd}/target/${rust.cargo.build.target}/debug/firmware";
+    #     target."${build.target}".runner =
+    #       if probe-rs.presets.default.chip == "esp32" then
+    #         "espflash flash --monitor --chip esp32"
+    #       else
+    #         "probe-rs run";
 
-      diagram = {
-        version = 1;
-        editor = "wokwi";
-        serialMonitor = {
-          convertEol = true;
-          display = "terminal";
-        };
+    #     unstable = {
+    #       "build-std" = [
+    #         "core"
+    #       ]
+    #       ++ lib.optionals (
+    #         probe-rs.presets.default.chip == "esp32" || probe-rs.presets.default.chip == "esp32s3"
+    #       ) [ "alloc" ];
+    #     }
+    #     // lib.optionalAttrs (lib.hasPrefix "stm32" probe-rs.presets.default.chip) {
+    #       "build-std-features" = [ "panic_immediate_abort" ];
+    #     };
+    #   };
 
-        parts = [
-          {
-            id = "esp";
-            top = 0.59;
-            left = 0.67;
-            attrs.flashSize = "16";
-            type = "board-esp32-s3-devkitc-1";
-          }
-        ];
+    #   clippy = lib.optionalAttrs (!lib.hasPrefix "stm32" probe-rs.presets.default.chip) {
+    #     stack-size-threshold = if probe-rs.presets.default.chip == "esp32" then 8192 else 1024;
+    #   };
+    # };
 
-        connections = [
-          [
-            "esp:TX"
-            "$serialMonitor:RX"
-            ""
-            [ ]
-          ]
-          [
-            "esp:RX"
-            "$serialMonitor:TX"
-            ""
-            [ ]
-          ]
-        ];
-      };
-    };
+    # wokwi = rec {
+    #   version = 1;
+    #   firmware = elf;
+    #   gdbServerPort = 3333;
+    #   elf = "${cwd}/target/${rust.cargo.build.target}/debug/firmware";
+
+    #   diagram = {
+    #     version = 1;
+    #     editor = "wokwi";
+    #     serialMonitor = {
+    #       convertEol = true;
+    #       display = "terminal";
+    #     };
+
+    #     parts = [
+    #       {
+    #         id = "esp";
+    #         top = 0.59;
+    #         left = 0.67;
+    #         attrs.flashSize = "16";
+    #         type = "board-esp32-s3-devkitc-1";
+    #       }
+    #     ];
+
+    #     connections = [
+    #       [
+    #         "esp:TX"
+    #         "$serialMonitor:RX"
+    #         ""
+    #         [ ]
+    #       ]
+    #       [
+    #         "esp:RX"
+    #         "$serialMonitor:TX"
+    #         ""
+    #         [ ]
+    #       ]
+    #     ];
+    #   };
+    # };
   };
 
   profiles = {
@@ -174,3 +167,39 @@
     };
   };
 }
+
+# [toolchain]
+# channel = "stable"
+# profile = "minimal"
+# components = [ "rustfmt" ];
+# targets = [
+#   "thumbv6m-none-eabi"
+#   "thumbv7em-none-eabihf"
+#   "thumbv8m.main-none-eabihf"
+#   "riscv32imac-unknown-none-elf"
+# ]
+
+# [alias]
+# blinky = "run --release --example=blinky"
+
+# [build]
+# target = "xtensa-esp32-none-elf"
+# # target = "xtensa-esp32s3-none-elf"
+# # target = "thumbv7em-none-eabihf"
+# rustflags = ["-C", "link-arg=-nostartfiles"]
+
+# [env]
+# DEFMT_LOG = "info"
+
+# [target.thumbv7em-none-eabihf]
+# runner = "probe-rs run"
+
+# [target.xtensa-esp32s3-none-elf]
+# runner = "probe-rs run"
+
+# [target.xtensa-esp32-none-elf]
+# runner = "espflash flash --monitor --chip esp32"
+
+# [unstable]
+# build-std = ["core", "alloc"]
+# # build-std-features = [ "panic_immediate_abort" ]

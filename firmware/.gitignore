@@ -1,7 +1,4 @@
 target/
-rust-toolchain.toml
-.cargo/config.toml
 .probe-rs.toml
-.clippy.toml
 diagram.json
 wokwi.toml

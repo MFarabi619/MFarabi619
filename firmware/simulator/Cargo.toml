@@ -2,7 +2,7 @@
 publish = false
 edition = "2024"
 name = "simulator"
-default-run = "minimal"
+default-run = "simulator-modifiers"
 
 [dependencies]
 embedded-graphics-simulator = "0.8.0"
@@ -10,9 +10,9 @@ mousefood                   = { version = "0.5.0" , features = ["blink"]}
 ratatui                     = { version = "0.30.0", default-features = false }
 
 [[bin]]
-name = "minimal"
+name = "simulator-minimal"
 path = "src/minimal.rs"
 
 [[bin]]
-name = "modifiers"
+name = "simulator-modifiers"
 path = "src/modifiers.rs"

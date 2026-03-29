@@ -21,19 +21,25 @@ mod voltage;
 use alloc::boxed::Box;
 use button::Button;
 use chart::ChartApp;
-use esp_hal::analog::adc::{Adc, AdcConfig, Attenuation};
-use esp_hal::clock::CpuClock;
-use esp_hal::delay::Delay;
-use esp_hal::gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull};
-use esp_hal::main;
-use esp_hal::spi::master::{Config as SpiConfig, Spi};
-use esp_hal::spi::Mode;
-use esp_hal::time::{Duration, Rate};
+use esp_hal::{
+    analog::adc::{Adc, AdcConfig, Attenuation},
+    clock::CpuClock,
+    delay::Delay,
+    gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull},
+    main,
+    spi::{
+        Mode,
+        master::{Config as SpiConfig, Spi},
+    },
+    time::{Duration, Rate},
+};
 use gauge::GaugeApp;
-use mipidsi::interface::SpiInterface;
-use mipidsi::models::ILI9341Rgb565;
-use mipidsi::options::{ColorOrder, Orientation, Rotation};
-use mipidsi::Builder;
+use mipidsi::{
+    Builder,
+    interface::SpiInterface,
+    models::ILI9341Rgb565,
+    options::{ColorOrder, Orientation, Rotation},
+};
 use mousefood::prelude::*;
 use ratatui::Terminal;
 use ratatui_logo::RatatuiLogoApp;

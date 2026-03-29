@@ -1,12 +1,49 @@
 [workspace]
-resolver          = "2"
-default-members   = [ "esp32-no-std-demo" ]
-# default-members = [ "stm32h723zg" ]
-members           = [
-"esp32s3",
-"stm32h723zg",
-"esp32-no-std-demo",
-]
+resolver     = "2"
+members      = [ ".", "simulator" ]
+
+[package]
+rust-version = "1.88"
+edition      = "2024"
+version      = "0.1.0"
+default-run  = "esp32s3"
+# default-run  = "ui"
+# default-run  = "ui-minimal"
+name         = "firmware"
+authors      = ["Mumtahin Farabi"]
+
+[[bin]]
+test         = false
+name         = "esp32s3"
+path         = "src/bin/main.rs"
+
+[[bin]]
+test         = false
+bench        = false
+harness      = false # do not use the built in cargo test harness -> resolve rust-analyzer errors
+name         = "ui"
+path         = "src/ui/main.rs"
+
+[[bin]]
+test         = false
+bench        = false
+harness      = false
+name         = "ui-minimal"
+path         = "src/bin/ui-minimal.rs"
+
+# cargo +stable stm32h723zg
+[[bin]]
+test         = false
+bench        = false
+name         = "h723zg"
+path         = "src/bin/stm32h723zg.rs"
+
+[[test]]
+harness      = false
+name         = "hello_test"
+
+[lib]
+test         = false
 
 [workspace.dependencies]
 defmt             = "1.0.1"
@@ -14,6 +51,76 @@ embedded-io       = "0.7.1"
 embassy-time      = "0.5.0"
 embassy-executor  = "0.9.1"
 embedded-io-async = "0.7.0"
+
+[target.'cfg(target_arch = "xtensa")'.dependencies]
+defmt.workspace  = true
+
+[target.'cfg(target_arch = "xtensa")'.dev-dependencies]
+embedded-test    = { version = "0.7.0", features = ["defmt", "embassy", "external-executor", "xtensa-semihosting"] }
+
+[target.xtensa-esp32-none-elf.dependencies]
+esp-alloc        = "0.9.0"
+tui-big-text     = "0.8.2"
+embedded-hal-bus = "0.3.0"
+critical-section = "1.2.0"
+log              = "0.4.27"
+libm             = "0.2.16"
+mipidsi          = "0.10.0"
+time             = { version = "0.3.45", default-features = false }
+esp-println      = { version = "0.16.1", features = ["esp32", "log-04"] }
+esp-hal          = { version = "~1.0",   features = ["esp32", "log-04", "unstable"] }
+mousefood        = { version = "0.5.0",  default-features = false, features = ["fonts"] }
+ratatui          = { version = "0.30.0", default-features = false, features = ["all-widgets"] }
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32", "log-04"] }
+
+[target.xtensa-esp32s3-none-elf.dependencies]
+bt-hci                 = "0.6.0"
+volatile               = "0.4.3"
+static_cell            = "2.1.1"
+critical-section       = "1.2.0"
+embedded-io            = { workspace = true, features = ["defmt"] }
+embassy-time           = { workspace = true, features = ["defmt"] }
+embassy-executor       = { workspace = true, features = ["defmt"] }
+embedded-io-async      = { workspace = true, features = ["defmt"] }
+trouble-host           = { version = "0.5.0", features = ["gatt"] }
+rtt-target             = { version = "0.6.2", features = ["defmt"] }
+esp-alloc              = { version = "0.9.0", features = ["defmt"] }
+panic-rtt-target       = { version = "0.2.0", features = ["defmt"] }
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
+esp-hal                = { version = "~1.0",  features = ["defmt", "esp32s3", "unstable"] }
+embassy-net            = { version = "0.7.1", features = ["tcp", "udp", "defmt", "dhcpv4", "medium-ethernet"] }
+esp-rtos               = { version = "0.2.0", features = ["defmt", "embassy", "esp32s3", "esp-alloc", "esp-radio"] }
+esp-radio              = { version = "0.17.0", features = ["ble", "coex", "wifi", "defmt", "esp32s3", "smoltcp", "unstable", "esp-alloc"] }
+
+smoltcp                = { version = "0.12.0", default-features = false, features = [
+  "defmt",
+  "multicast",
+  "proto-dns",
+  "proto-ipv4",
+  "socket-dns",
+  "socket-raw",
+  "socket-tcp",
+  "socket-udp",
+  "socket-icmp",
+  "proto-dhcpv4",
+  "medium-ethernet"
+  ]}
+
+[target.thumbv7em-none-eabihf.dependencies]
+defmt.workspace             = true
+embedded-io.workspace       = true
+embedded-io-async.workspace = true
+defmt-rtt                   = "1.1"
+embassy-sync                = "0.7"
+cortex-m-rt                 = "0.7.3"
+embedded-hal                = "1.0.0"
+embedded-storage            = "0.3.1"
+embedded-hal-async          = "1.0.0"
+panic-probe                 = { version = "1.0",   features = ["print-defmt"] }
+cortex-m                    = { version = "0.7.7", features = ["critical-section-single-core"] }
+embassy-time                = { workspace = true,  features = ["defmt", "defmt-timestamp-uptime"] }
+embassy-executor            = { workspace = true,  features = ["arch-cortex-m", "executor-thread", "defmt", "executor-interrupt"] }
+embassy-stm32               = { version = "0.4",   features = ["defmt", "stm32h723zg", "unstable-pac", "memory-x", "time-driver-any"] }
 
 [profile.dev]
 # Rust debug is too slow.

@@ -1,5 +1,51 @@
+use std::{env, fs::File, io::Write, path::PathBuf};
+
 fn main() {
+    let target = std::env::var("TARGET").expect("TARGET not set");
+
+    if target == "thumbv7em-none-eabihf" {
+        stm32();
+    } else if target.starts_with("xtensa-esp32") && target.ends_with("-none-elf") {
+        esp32();
+    }
+}
+
+fn stm32() {
+    //! This build script copies the `memory.stm32.x` file from the crate root into
+    //! a directory where the linker can always find it at build time.
+    //! For many projects this is optional, as the linker always searches the
+    //! project root directory -- wherever `Cargo.toml` is. However, if you
+    //! are using a workspace or have a more complicated build setup, this
+    //! build script becomes required. Additionally, by requesting that
+    //! Cargo re-run the build script whenever `memory.stm32.x` is changed,
+    //! updating `memory.stm32.x` ensures a rebuild of the application with the
+    //! new memory settings.
+
+    // Put `memory.x` in our output directory and ensure it's
+    // on the linker search path.
+    let out = &PathBuf::from(env::var_os("OUT_DIR").unwrap());
+    File::create(out.join("memory.x"))
+        .unwrap()
+        .write_all(include_bytes!("memory.stm32.x"))
+        .unwrap();
+    println!("cargo:rustc-link-search={}", out.display());
+
+    // By default, Cargo will re-run a build script whenever
+    // any file in the project changes. By specifying `memory.stm32.x`
+    // here, we ensure the build script is only re-run when
+    // `memory.stm32.x` is changed.
+    println!("cargo:rerun-if-changed=memory.stm32.x");
+
+    println!("cargo:rustc-link-arg-bins=--nmagic");
+    println!("cargo:rustc-link-arg-bins=-Tlink.x");
+    println!("cargo:rustc-link-arg-bins=-Tdefmt.x");
+}
+
+fn esp32() {
     linker_be_nice();
+    println!("cargo:rustc-link-arg=-nostartfiles");
+    println!("cargo:rustc-link-arg-tests=-Tembedded-test.x");
+    println!("cargo:rustc-link-arg=-Tdefmt.x");
     // make sure linkall.x is the last linker script (otherwise might cause problems with flip-link)
     println!("cargo:rustc-link-arg=-Tlinkall.x");
 }
