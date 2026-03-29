@@ -4,10 +4,11 @@ resolver = "3"
 exclude  = ["ml", "firmware"]
 members  = [
   ".",
-  "web",
   "tui",
+  "web",
+  "simulator",
   "tests/e2e",
-  "apps/readme"
+  "apps/readme",
 ]
 
 [workspace.dependencies]

@@ -8,6 +8,7 @@
   packages =
     with pkgs;
     [
+      SDL2
       sqlite
       duckdb
       supabase-cli
