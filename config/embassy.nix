@@ -10,9 +10,16 @@
 
     probe-rs = rec {
       presets = rec {
-        default = esp32s3;
+        default = esp32;
+        # default = esp32s3;
         # default = stm32h723zg;
         # default = seeed_xiao_esp32s3;
+
+        esp32 = {
+          chip = "esp32";
+          preverify = true;
+          "always-print-stacktrace" = true;
+        };
 
         seeed_xiao_esp32s3 = esp32s3 // {
           probe = "303a:1001:D8:3B:DA:74:82:E8";
@@ -59,16 +66,25 @@
           };
         }
         (
-          if probe-rs.presets.default.chip == "esp32s3" then
+          if probe-rs.presets.default.chip == "esp32s3" || probe-rs.presets.default.chip == "esp32" then
             {
               toolchain.channel = "esp";
-              clippy.stack-size-threshold = 1024;
+              clippy.stack-size-threshold =
+                if probe-rs.presets.default.chip == "esp32" then 8192 else 1024;
 
               cargo = rec {
                 alias.blinky = "run -r --example=blinky";
-                target."${build.target}".runner = "probe-rs run";
+                target."${build.target}".runner =
+                  if probe-rs.presets.default.chip == "esp32" then
+                    "espflash flash --monitor --chip esp32"
+                  else
+                    "probe-rs run";
                 build = {
-                  target = "xtensa-esp32s3-none-elf";
+                  target =
+                    if probe-rs.presets.default.chip == "esp32s3" then
+                      "xtensa-esp32s3-none-elf"
+                    else
+                      "xtensa-esp32-none-elf";
                   rustflags = [
                     "-C"
                     "link-arg=-nostartfiles"

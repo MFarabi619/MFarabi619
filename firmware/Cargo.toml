@@ -1,9 +1,11 @@
 [workspace]
-resolver        = "2"
-default-members = ["stm32h723zg"]
-members         = [
-  "esp32s3",
-  "stm32h723zg",
+resolver          = "2"
+default-members   = [ "esp32-no-std-demo" ]
+# default-members = [ "stm32h723zg" ]
+members           = [
+"esp32s3",
+"stm32h723zg",
+"esp32-no-std-demo",
 ]
 
 [workspace.dependencies]
@@ -16,13 +18,17 @@ embedded-io-async = "0.7.0"
 [profile.dev]
 # Rust debug is too slow.
 # For debug builds always builds with some optimization
-opt-level = "s"
+opt-level         = "s"
+# Symbols are nice and they don't increase the size on Flash
+# debug             = true
+# opt-level         = 3
 
 [profile.release]
-debug            = 2
-codegen-units    = 1 # LLVM can perform better optimizations using a single thread
-opt-level        = "s"
-lto              = "fat"
-incremental      = false
-overflow-checks  = false
-debug-assertions = false
+debug             = 2
+codegen-units     = 1 # LLVM can perform better optimizations using a single thread
+opt-level         = "s"
+# opt-level         = 3
+lto               = "fat"
+incremental       = false
+overflow-checks   = false
+debug-assertions  = false
