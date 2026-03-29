@@ -10,8 +10,8 @@
 
     probe-rs = rec {
       presets = rec {
-        # default = esp32s3;
-        default = stm32h723zg;
+        default = esp32s3;
+        # default = stm32h723zg;
         # default = seeed_xiao_esp32s3;
 
         seeed_xiao_esp32s3 = esp32s3 // {
@@ -31,6 +31,7 @@
         };
 
         # cargo embassy init --chip stm32h723zg embassy-stm32-scaffold
+        # cargo generate --git https://github.com/lulf/embassy-template.git -d chip=stm32h723zg
         stm32h723zg = {
           chip = "stm32h723zg";
           preverify = true;
@@ -53,24 +54,8 @@
     rust =
       lib.recursiveUpdate
         {
-          toolchain = {
-            channel = "stable";
-            components = [ "rustfmt" ];
-            targets = [
-              "thumbv6m-none-eabi"
-              "thumbv7em-none-eabihf"
-              "thumbv8m.main-none-eabihf"
-              "riscv32imac-unknown-none-elf"
-            ];
-          };
-
-          cargo = rec {
+          cargo = {
             env.DEFMT_LOG = "info";
-            # target."cfg(all(target_arch = \"arm\", target_os = \"none\"))".runner = "probe-rs run";
-            target."${build.target}".runner = "probe-rs run";
-            build = {
-              target = "thumbv7em-none-eabihf";
-            };
           };
         }
         (
@@ -79,8 +64,9 @@
               toolchain.channel = "esp";
               clippy.stack-size-threshold = 1024;
 
-              cargo = {
+              cargo = rec {
                 alias.blinky = "run -r --example=blinky";
+                target."${build.target}".runner = "probe-rs run";
                 build = {
                   target = "xtensa-esp32s3-none-elf";
                   rustflags = [
@@ -97,7 +83,28 @@
               };
             }
           else
-            { }
+            {
+              toolchain = {
+                channel = "stable";
+                components = [ "rustfmt" ];
+                targets = [
+                  "thumbv6m-none-eabi"
+                  "thumbv7em-none-eabihf"
+                  "thumbv8m.main-none-eabihf"
+                  "riscv32imac-unknown-none-elf"
+                ];
+              };
+
+              cargo = rec {
+                build.target = "thumbv7em-none-eabihf";
+                # target."cfg(all(target_arch = \"arm\", target_os = \"none\"))".runner = "probe-rs run";
+                target."${build.target}".runner = "probe-rs run";
+                unstable = {
+                  "build-std" = [ "core" ];
+                  "build-std-features" = [ "panic_immediate_abort" ];
+                };
+              };
+            }
         );
 
     wokwi = rec {
