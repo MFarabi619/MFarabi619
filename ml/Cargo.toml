@@ -1,7 +1,8 @@
+[workspace]
 [package]
 name = "ml"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-burn = { version = "0.19.0", features = ["wgpu"] }
+burn = { version = "0.20.1", features = ["wgpu"] }
