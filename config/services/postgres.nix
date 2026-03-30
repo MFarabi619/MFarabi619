@@ -9,6 +9,7 @@
     listen_addresses = "*";
     # hbaConf = "pg_hba.conf";
     package = pkgs.postgresql_17;
+    package = pkgs.postgresql_18;
 
     initialDatabases = [
       {
