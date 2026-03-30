@@ -3,7 +3,7 @@
     enable = true;
     # themes = { };
     exitShellOnExit = false;
-    enableBashIntegration = true;
+    enableBashIntegration = false;
     enableZshIntegration = false;
     attachExistingSession = true;
 
@@ -16,8 +16,8 @@
       show_release_notes = false;
       ui.pane_frames.hide_session_name = true;
       # load_plugins = [
-          # "file:/path/to/my-plugin.wasm"
-          # "https://example.com/my-plugin.wasm"
+      # "file:/path/to/my-plugin.wasm"
+      # "https://example.com/my-plugin.wasm"
       # ];
     };
 
@@ -90,7 +90,7 @@
                       command = "emacs -nw";
                     };
                   }
-                    {
+                  {
                     pane = {
                       command = "btop";
                     };
