@@ -494,9 +494,9 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td>
 <td align='center'>
-<!-- Kubernetes -->
-<a href="https://kubernetes.io" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
+<!-- Plan 9 -->
+<a href="https://9p.io/plan9/" target="_blank" rel="noreferrer">
+<img src="assets/icons/plan-9.svg" alt="Plan 9 Logo" width="40" height="40" />
 </a>
 <!-- OpenBSD -->
 <a href="https://www.openbsd.org" target="_blank" rel="noreferrer">
@@ -513,6 +513,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <!-- seL4 -->
 <a href="https://sel4.systems" target="_blank" rel="noreferrer">
 <img src="https://sel4.systems/images/seL4.svg" alt="seL4 Logo" width="40" height="40" />
+</a>
+<!-- Kubernetes -->
+<a href="https://kubernetes.io" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
 </a>
 <!-- Bazel -->
 <a href="https://bazel.build" target="_blank" rel="noreferrer">

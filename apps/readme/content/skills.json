@@ -552,9 +552,9 @@
     ],
     "Tools": [
       {
-        "name": "Kubernetes",
-        "url": "https://kubernetes.io",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
+        "name": "Plan 9",
+        "url": "https://9p.io/plan9/",
+        "icon": "assets/icons/plan-9.svg"
       },
       {
         "name": "OpenBSD",
@@ -575,6 +575,11 @@
         "name": "seL4",
         "url": "https://sel4.systems",
         "icon": "https://sel4.systems/images/seL4.svg"
+      },
+      {
+        "name": "Kubernetes",
+        "url": "https://kubernetes.io",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg"
       },
       {
         "name": "Bazel",
