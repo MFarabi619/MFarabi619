@@ -45,6 +45,9 @@ in
           // lib.optionalAttrs config.services.prometheus.enable {
             prometheus = ":${toString config.services.prometheus.port}";
           }
+          // lib.optionalAttrs config.services.postgres.enable {
+            postgres = ":${toString config.services.postgres.port}";
+          }
           // lib.optionalAttrs config.services.mailpit.enable {
             mailpit = config.services.mailpit.uiListenAddress;
           }
