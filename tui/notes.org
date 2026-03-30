@@ -1,0 +1,95 @@
+#+STARTUP: inlineimages
+
+* [[https://penpot.app][Penpot]]
+
+#+ATTR_ORG: :align center
+[[../assets/penpot.png]]
+
+
+# https://design.penpot.app/#/workspace?
+# https://design.penpot.app/api/main/doc/openapi
+# page-id=9f31952d-2d54-8169-8006-08f1152ee9a2
+
+** API :verb:
+template https://design.penpot.app/api/main/methods
+Authorization: Token {{(getenv "PENPOT_ACCESS_TOKEN")}}
+Content-Type: application/json
+Accept: application/json
+
+*** Profile
+POST /get-profile
+
+{}
+
+*** get-file-data-for-thumbnail
+POST /get-file-data-for-thumbnail
+
+{
+"fileId": "9f31952d-2d54-8169-8006-08f1152ee9a1"
+}
+
+*** get-all-projects
+POST /get-all-projects
+
+{}
+
+*** get-project
+POST /get-project
+
+{
+"id": "029b7a64-19bf-80ba-8006-de32bdedb1fa"
+}
+
+*** get-projects
+POST /get-projects
+
+{
+"teamId": "5d3c93f2-4b22-803f-8004-da8afafadb02"
+}
+
+*** get-project-files
+POST /get-project-files
+
+{
+"projectId": "029b7a64-19bf-80ba-8006-de32bdedb1fa"
+}
+
+*** get-file-summary
+POST /get-file-summary
+
+{
+"id": "9f31952d-2d54-8169-8006-08f1152ee9a1"
+}
+
+
+*** get-teams
+POST /get-teams
+
+{}
+
+*** get-owned-teams
+POST /get-owned-teams
+
+{}
+
+
+** Accounts API :verb:
+template https://api.accounts.platformio.org/v1
+Accept: application/json
+# https://github.com/platformio/platformio-core/blob/73d9f3dbea809f337bdee5be495f4d3b896deef0/platformio/account/client.py#L18
+
+
+*** Summary
+get /summary
+
+*** Orgs
+:properties:
+:Verb-Store: orgs-response
+:end:
+get /orgs
+
+**** Owners
+get /{{(verb-json-get (oref (verb-stored-response "orgs-response") body) 0 'orgname)}}/owners
+
+**** Teams
+get /{{(verb-json-get (oref (verb-stored-response "orgs-response") body) 0 'orgname)}}/teams
