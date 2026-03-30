@@ -1,0 +1,100 @@
+- Change ~release~ to ~true~ in [[./Trunk.toml][Trunk.toml]] for release builds.
+
+=Trunk.toml=
+#+begin_src toml
+[build]
+release = true
+#+end_src
+
+=rust-toolchain.toml=
+#+begin_src toml
+[toolchain]
+channel = "stable"
+profile = "minimal"
+targets = ["wasm32-unknown-unknown"]
+
+[components]
+cargo-binstall = true
+
+# [env]
+# HOME = "/root"
+#+end_src
+
+* Vercel Observability Features
+
+Sdd snippets to the ~<body>~ of the [[./index.html][index.html]].
+
+** [[https://vercel.com/docs/analytics/speed-insights][Speed Insights]]
+#+begin_src html
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+#+end_src
+
+** [[https://vercel.com/docs/analytics/web-analytics][Web Analytics]]
+#+begin_src html
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+#+end_src
+
+=vercel.json=
+#+begin_src json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "devCommand": null,
+  "installCommand": null,
+  "buildCommand": "./install.sh",
+  "outputDirectory": "dist"
+}
+#+end_src
+
+=install.sh=
+#+begin_src bash
+#!/bin/bash
+set -euo pipefail
+
+# fix home issues
+export HOME=/root
+
+# Install Rustup
+if ! command -v rustup
+then
+  echo "Installing Rustup..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y -t wasm32-unknown-unknown --profile minimal
+  source "$HOME/.cargo/env"
+else
+  echo "Rustup already installed."
+fi
+
+# Install trunk using binstall
+if ! command -v trunk
+then
+  echo "Installing trunk with binstall..."
+  curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+  cargo binstall --targets x86_64-unknown-linux-musl -y trunk
+  echo "Trunk installation complete."
+else
+  echo "trunk already installed."
+fi
+
+# Build project with trunk
+echo "Building project with trunk"
+trunk build
+#+end_src
+
+
+* Netlify
+
+#+begin_src toml
+[build]
+base = "tui/web"
+publish = "dist"
+command = "rustup toolchain install stable; cargo install --locked trunk; trunk build"
+
+[context.production]
+environment = { NETLIFY_EXPERIMENTAL_BUILD_RUST_SOURCE = "true" }
+#+end_src

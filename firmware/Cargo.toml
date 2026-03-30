@@ -1,17 +1,12 @@
-[workspace]
-resolver     = "2"
-members      = [ ".", "simulator" ]
-
 [package]
 rust-version = "1.88"
 edition      = "2024"
 version      = "0.1.0"
 default-run  = "esp32s3"
-# default-run  = "ui"
-# default-run  = "ui-minimal"
 name         = "firmware"
 authors      = ["Mumtahin Farabi"]
 
+# cargo +esp esp32s3
 [[bin]]
 test         = false
 name         = "esp32s3"
@@ -31,7 +26,6 @@ harness      = false
 name         = "ui-minimal"
 path         = "src/bin/ui-minimal.rs"
 
-# cargo +stable stm32h723zg
 [[bin]]
 test         = false
 bench        = false
@@ -44,13 +38,6 @@ name         = "hello_test"
 
 [lib]
 test         = false
-
-[workspace.dependencies]
-defmt             = "1.0.1"
-embedded-io       = "0.7.1"
-embassy-time      = "0.5.0"
-embassy-executor  = "0.9.1"
-embedded-io-async = "0.7.0"
 
 [target.'cfg(target_arch = "xtensa")'.dependencies]
 defmt.workspace  = true
@@ -122,20 +109,20 @@ embassy-time                = { workspace = true,  features = ["defmt", "defmt-t
 embassy-executor            = { workspace = true,  features = ["arch-cortex-m", "executor-thread", "defmt", "executor-interrupt"] }
 embassy-stm32               = { version = "0.4",   features = ["defmt", "stm32h723zg", "unstable-pac", "memory-x", "time-driver-any"] }
 
-[profile.dev]
-# Rust debug is too slow.
-# For debug builds always builds with some optimization
-opt-level         = "s"
-# Symbols are nice and they don't increase the size on Flash
-# debug             = true
-# opt-level         = 3
+# [profile.dev]
+# # Rust debug is too slow.
+# # For debug builds always builds with some optimization
+# opt-level         = "s"
+# # Symbols are nice and they don't increase the size on Flash
+# # debug             = true
+# # opt-level         = 3
 
-[profile.release]
-debug             = 2
-codegen-units     = 1 # LLVM can perform better optimizations using a single thread
-opt-level         = "s"
-# opt-level         = 3
-lto               = "fat"
-incremental       = false
-overflow-checks   = false
-debug-assertions  = false
+# [profile.release]
+# debug             = 2
+# codegen-units     = 1 # LLVM can perform better optimizations using a single thread
+# opt-level         = "s"
+# # opt-level         = 3
+# lto               = "fat"
+# incremental       = false
+# overflow-checks   = false
+# debug-assertions  = false

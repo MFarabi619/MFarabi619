@@ -1,22 +1,30 @@
 [workspace]
 # default-members = ["web"]
 resolver = "3"
-exclude  = ["ml", "firmware"]
+exclude  = ["ml"]
 members  = [
   ".",
   "tui",
   "web",
+  "firmware",
   "tests/e2e",
   "apps/readme",
+  "tui/simulator",
 ]
 
 [workspace.dependencies]
 serde_json             = "1"
+defmt                  = "1.0.1"
+embedded-io            = "0.7.1"
+embassy-time           = "0.5.0"
+embassy-executor       = "0.9.1"
+embedded-io-async      = "0.7.0"
 dioxus-sdk-time        = "0.7.0"
 loco-rs                = "0.16.4"
 dioxus-primitives.path = "libs/primitives"
 serde                  = { version = "1", features = ["derive"] }
 tracing                = { version = "0.1", features = ["std"] }
+ratatui                = { version = "0.30.0", default-features = false }
 lucide-dioxus          = { version = "2.45.0", features = ["all-icons"] }
 dioxus                 = { version = "0.7.3", features = ["router", "fullstack"] }
 
@@ -26,6 +34,7 @@ publish     = false
 edition     = "2024"
 version     = "0.1.0"
 default-run = "api-cli"
+license     = "GNU GPL 3.0"
 
 [[bin]]
 name              = "api-cli"
@@ -60,3 +69,21 @@ fluent-templates     = { version = "0.8.0", features = ["tera"] } # view engine 
 tracing-subscriber   = { version = "0.3.17", features = ["env-filter", "json"] }
 tokio                = { version = "1.33.0", default-features = false, features = ["rt-multi-thread"] }
 sea-orm              = { version = "1.1.19", features = ["macros", "sqlx-sqlite", "sqlx-postgres", "runtime-tokio-rustls"] }
+
+[profile.dev]
+# Rust debug is too slow.
+# For debug builds always builds with some optimization
+opt-level         = "s"
+# Symbols are nice and they don't increase the size on Flash
+# debug             = true
+# opt-level         = 3
+
+[profile.release]
+debug             = 2
+codegen-units     = 1 # LLVM can perform better optimizations using a single thread
+opt-level         = "s"
+# opt-level         = 3
+lto               = "fat"
+incremental       = false
+overflow-checks   = false
+debug-assertions  = false

@@ -1,8 +1,17 @@
-use ratzilla::ratatui::layout::{Constraint, Layout};
-use ratzilla::ratatui::prelude::Color;
-use ratzilla::ratatui::style::Style;
+use ratzilla::ratatui::{
+    layout::{Constraint, Layout},
+    prelude::Color,
+    // style::Style,
+};
 use tachyonfx::{
-    fx::*, CellFilter, ColorSpace, Duration, Effect, EffectTimer, Interpolation::*, Motion,
+    CellFilter,
+    ColorSpace,
+    // Duration,
+    Effect,
+    EffectTimer,
+    Interpolation::*,
+    Motion,
+    fx::*,
 };
 
 pub fn startup() -> Effect {

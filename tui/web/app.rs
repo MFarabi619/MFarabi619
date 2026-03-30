@@ -1,8 +1,8 @@
 use crate::effects;
 use rand::{
-    distributions::{Distribution, Uniform},
-    rngs::SmallRng,
     SeedableRng,
+    distr::{Distribution, Uniform},
+    rngs::SmallRng,
 };
 use ratzilla::ratatui::widgets::ListState;
 use tachyonfx::{Duration, EffectManager};
@@ -78,7 +78,7 @@ pub struct RandomSignal {
 impl RandomSignal {
     pub fn new(lower: u64, upper: u64) -> Self {
         Self {
-            distribution: Uniform::new(lower, upper),
+            distribution: Uniform::new(lower, upper).unwrap(),
             rng: SmallRng::seed_from_u64(0),
         }
     }

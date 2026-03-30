@@ -1,14 +1,14 @@
 use ratatui::widgets::BorderType;
 use ratzilla::ratatui::{
+    Frame,
     layout::{Alignment, Constraint, Layout, Rect},
     style::{Color, Modifier, Style},
     symbols,
     text::{self, Span},
     widgets::{
-        canvas::{self, Canvas, Circle, Map, MapResolution, Rectangle},
         Block, Cell, Paragraph, Row, Table, Tabs, Wrap,
+        canvas::{self, Canvas, Circle, Map, MapResolution, Rectangle},
     },
-    Frame,
 };
 use tachyonfx::Duration;
 // use tui_big_text::{BigText, PixelSize};
@@ -230,7 +230,7 @@ fn draw_second_tab(frame: &mut Frame, app: &mut App, area: Rect) {
     );
     frame.render_widget(table, chunks[0]);
 
-    let map = Canvas::default()
+    let _map = Canvas::default()
         .block(Block::bordered().title("World"))
         .paint(|ctx| {
             ctx.draw(&Map {
