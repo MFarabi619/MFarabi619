@@ -9,7 +9,6 @@ members  = [
   "firmware",
   "tests/e2e",
   "apps/readme",
-  "tui/simulator",
 ]
 
 [workspace.dependencies]
