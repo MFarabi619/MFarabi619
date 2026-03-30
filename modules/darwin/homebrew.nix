@@ -51,6 +51,7 @@
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "qemu"
+      "nemu"
       "stlink"
       "ferron" # rust-based caddy-like web server
       "netscanner"
