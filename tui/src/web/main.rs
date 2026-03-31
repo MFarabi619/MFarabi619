@@ -10,10 +10,11 @@ use std::{cell::RefCell, io::Result, rc::Rc};
 
 use app::App;
 use clap::Parser;
-use ratzilla::event::KeyCode;
-use ratzilla::ratatui::style::Color;
-use ratzilla::ratatui::Terminal;
-use ratzilla::{CanvasBackend, WebRenderer};
+use ratzilla::{
+    CanvasBackend, WebRenderer,
+    event::KeyCode,
+    ratatui::{Terminal, style::Color},
+};
 
 mod app;
 mod effects;

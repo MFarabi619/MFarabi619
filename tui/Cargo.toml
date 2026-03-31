@@ -1,8 +1,8 @@
 [package]
 name        = "tui"
+default-run = "tui"
 edition     = "2024"
 version     = "0.1.0"
-default-run = "tui"
 
 [[bin]]
 name        = "web"
@@ -17,22 +17,22 @@ name        = "simulator-minimal"
 path        = "src/simulator/minimal.rs"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-crossterm            = "0.29.0"
 serde.workspace      = true
 serde_json.workspace = true
+crossterm            = "0.29.0"
+embedded-graphics-simulator = "0.8.0"
 mousefood            = { version = "0.5.0", features = ["blink"] }
 ratatui              = { workspace = true, features = [ "serde", "crossterm" ] }
-embedded-graphics-simulator = "0.8.0"
 reqwest              = { version = "0.12.24", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 
 [target.wasm32-unknown-unknown.dependencies]
 web-time   = "1.1.0"
 ratzilla   = "0.3.0"
 color-eyre = "0.6.5"
+serde.workspace = true
+wasm-bindgen-futures = "0.4.55"
 clap       = { version = "4.6.0", features = ["derive"] }
+gloo-net = { version = "0.6.0", features = ["http", "json"] }
 ratatui    = { workspace = true, features = [ "all-widgets", "layout-cache" ] }
 rand       = { version = "0.9.2", features = ["small_rng"], default-features = false }
 tachyonfx  = { version = "0.23.0", default-features = false, features = ["wasm", "web-time"] }
-serde.workspace = true
-gloo-net = { version = "0.6.0", features = ["http", "json"] }
-wasm-bindgen-futures = "0.4.55"

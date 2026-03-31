@@ -1,5 +1,16 @@
 #+STARTUP: inlineimages
 
+* Proxmox
+** API :verb:
+template https://framework-desktop:8006/api2/json
+# Authorization: Token {{(getenv "PENPOT_ACCESS_TOKEN")}}
+Content-Type: application/json
+Accept: application/json
+
+*** Profile
+GET /access
+
+
 * [[https://penpot.app][Penpot]]
 
 #+ATTR_ORG: :align center
