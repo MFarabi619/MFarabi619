@@ -1,54 +1,46 @@
 [alias]
-loco = "run --"
-loco-tool = "run --"
-playground = "run --example playground"
+loco        = [ "run", "--" ]
+playground  = [ "run", "--example", "playground" ]
 
-firmware = [
-  "run", "--release",
-  "--package", "firmware",
-]
+tui         = [ "run", "--release", "--package", "tui" ]
+simulator   = [ "tui", "--bin",     "simulator" ]
+simulator-minimal = [ "tui", "simulator-mininmal" ]
 
-stm32 = [
-  "firmware",
-  "--target", "thumbv7em-none-eabihf"
-  ]
+microtop    = [ "run", "--package", "microtop" ]
+firmware    = [ "run", "--release", "--package", "firmware" ]
+# ======================================== #
+# ======================================== #
+# ======================================== #
+stm32       = [ "firmware", "--target", "thumbv7em-none-eabihf" ]
+stm32h723zg = [ "stm32",    "--bin",    "h723zg" ]
+# ======================================== #
+# ======= if running from root  ========== #
+# =========== cargo +esp ... ============= #
+# ======================================== #
+esp         = [ "firmware", "--config", "unstable.build-std=[\"core\",\"alloc\"]" ]
+esp32       = [ "esp",      "--target", "xtensa-esp32-none-elf" ]
+esp32s3     = [ "esp",      "--target", "xtensa-esp32s3-none-elf" ]
 
-stm32h723zg = [ "stm32", "--bin", "h723zg" ]
-
-# =========== cargo +esp ============= #
-
-esp   = [
-  "firmware",
-  "--config", "unstable.build-std=[\"core\",\"alloc\"]"
-  ]
-
-esp32   = [
-  "esp",
-  "--target", "xtensa-esp32-none-elf"
-  ]
-
-esp32s3 = [
-  "esp",
-  "--target", "xtensa-esp32s3-none-elf"
-  ]
-
-test-esp = [
+test-esp    = [
   "test",
   "--package", "firmware",
   "--target", "xtensa-esp32s3-none-elf",
   "--config", "unstable.build-std=[\"core\",\"alloc\"]"
 ]
-
+# ======================================== #
+# ======================================== #
+# ======================================== #
 [target.thumbv7em-none-eabihf]
-runner    = "probe-rs run --chip stm32h723zg"
-
+runner      = "probe-rs run --chip stm32h723zg"
 [target.xtensa-esp32s3-none-elf]
-runner    = "probe-rs run --chip esp32s3"
-
+runner      = "probe-rs run --chip esp32s3"
 [target.xtensa-esp32-none-elf]
-runner    = "espflash flash --monitor --chip esp32"
-
+runner      = "espflash flash --monitor --chip esp32"
+# ======================================= #
+# ======================================= #
+# ======================================= #
 [env]
-DEFMT_LOG = "info"
-
+DEFMT_LOG   = "info"
+# ======================================= #
+# ======================================= #
 # ======================================= #
