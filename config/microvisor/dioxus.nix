@@ -154,6 +154,7 @@ in
         dioxus-cli
         tailwindcss_4
         pkgs-unstable.wasm-bindgen-cli_0_2_114
+        cargo-binstall
       ])
       ++ lib.optionals pkgs.stdenv.isLinux (
         with pkgs;
