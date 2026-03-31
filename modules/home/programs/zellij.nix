@@ -5,7 +5,8 @@
     exitShellOnExit = false;
     enableBashIntegration = false;
     enableZshIntegration = false;
-    attachExistingSession = true;
+    # NOTE: trace: warning: mfarabi profile: You have enabled `programs.zellij.attachExistingSession`, but none of the shell integrations are enabled. This option will have no effect.
+    # attachExistingSession = true;
 
     settings = {
       mouse_mode = true;
