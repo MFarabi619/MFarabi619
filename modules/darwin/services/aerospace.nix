@@ -29,7 +29,7 @@
         };
 
         outer = {
-          top = 0;
+          top = -32;
           left = 0;
           right = 0;
           bottom = 0;
