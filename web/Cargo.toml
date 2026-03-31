@@ -5,17 +5,17 @@ version = "0.1.0"
 authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
 
 [dependencies]
-urlencoding                 = "2.1"
 dioxus.workspace            = true
 tracing.workspace           = true
 lucide-dioxus.workspace     = true
 dioxus-sdk-time.workspace   = true
 dioxus-primitives.workspace = true
+urlencoding                 = "2.1"
 ui.path                     = "../libs/ui"
-serde = { version = "1.0.163", features = ["derive"] }
-web-sys = { version = "0.3", features = ["console", "FormData", "File"] }
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-use-mdbook = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa" }
+serde                       = { version = "1.0.163", features = ["derive"] }
+web-sys                     = { version = "0.3", features = ["console", "FormData", "File"] }
+reqwest                     = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+use-mdbook                  = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa" }
 
 [features]
 default = ["web"]
