@@ -46,12 +46,12 @@
       #   "exec-and-forget sketchybar --trigger update_windows"
       # ];
 
-      exec-on-workspace-change = [
-        "/bin/bash"
-        "-c"
-        # "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
-        "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE"
-      ];
+      # exec-on-workspace-change = [
+      #   "/bin/bash"
+      #   "-c"
+      #   # "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE"
+      #   "sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE"
+      # ];
 
       mode.main.binding = {
         alt-k = "move up";
@@ -76,7 +76,7 @@
         cmd-8 = "workspace 8";
         cmd-9 = "workspace 9";
         cmd-0 = "workspace 10";
-        alt-shift-semicolon = "mode service";
+        # alt-shift-semicolon = "mode service";
         cmd-alt-tab = "move-workspace-to-monitor --wrap-around next";
 
         # See: https://nikitabobko.github.io/AeroSpace/commands#move-node-to-workspace

@@ -4,13 +4,49 @@
   ...
 }:
 {
+  home.file = {
+    ".config/sketchybar" = {
+      enable = false;
+      recursive = true;
+      source = ./sketchybar;
+    };
+
+    # "config/sketchybar/.luarc.json" = {
+    #   enable = true;
+    #   text = ''
+    #     {
+    #         "diagnostics.globals": [
+    #             "vim",
+    #             "icons",
+    #             "colors",
+    #             "bar",
+    #             "default",
+    #             "helpers"
+    #         ],
+    #         "runtime.version": "Lua 5.4"
+    #     }
+    #     '';
+    # };
+
+    # ".config/sketchybar/sketchybarrc" = {
+    #     enable = false;
+    #     text = ''
+    #     #!/usr/bin/env lua
+
+    #     -- Load the sketchybar-package and prepare the helper binaries
+    #     require("helpers")
+    #     require("init")
+    #     '';
+    # };
+  };
+
   programs.sketchybar = lib.mkIf pkgs.stdenv.isDarwin {
-    enable = true;
+    enable = false;
     # configType = "lua";
     # luaPackage = pkgs.lua5_4;
     # sbarLuaPackage = pkgs.sbarlua;
-    service.enable = true;
-    includeSystemPath = true;
+    service.enable = false;
+    includeSystemPath = false;
     extraPackages = with pkgs; [ jq ];
 
     # config = {
@@ -108,41 +144,5 @@
 
     # sh("sketchybar --update")
     # '';
-  };
-
-  home.file = {
-    ".config/sketchybar" = {
-      enable = true;
-      recursive = true;
-      source = ./sketchybar;
-    };
-
-    # "config/sketchybar/.luarc.json" = {
-    #   enable = true;
-    #   text = ''
-    #     {
-    #         "diagnostics.globals": [
-    #             "vim",
-    #             "icons",
-    #             "colors",
-    #             "bar",
-    #             "default",
-    #             "helpers"
-    #         ],
-    #         "runtime.version": "Lua 5.4"
-    #     }
-    #     '';
-    # };
-
-    # ".config/sketchybar/sketchybarrc" = {
-    #     enable = false;
-    #     text = ''
-    #     #!/usr/bin/env lua
-
-    #     -- Load the sketchybar-package and prepare the helper binaries
-    #     require("helpers")
-    #     require("init")
-    #     '';
-    # };
   };
 }
