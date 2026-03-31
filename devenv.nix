@@ -5,7 +5,14 @@
   inputs,
   ...
 }:
+# let
+#   api = config.languages.rust.import ./. { };
+# in
 {
+  # packages = [
+  #   api
+  # ];
+
   name = "🧮 Microvisor 🧮";
 
   infoSections = {
