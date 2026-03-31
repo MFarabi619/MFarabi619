@@ -22,11 +22,13 @@ logs
 .devenv*
 **/*.qcow2
 *.sqlite-*
+.direnv
 **/.direnv/
 **/*.rs.bk
 .open-webui
 **/.git-hooks
 devenv.local.nix
+devenv.local.yaml
 local.properties
 .webui_secret_key
 .pre-commit-config.yaml

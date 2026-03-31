@@ -2,7 +2,7 @@
   services.radicle = {
     enable = false;
     checkConfig = true;
-    privateKeyFile = "/run/secrets/radicle/seednode";
+    privateKey = "/run/secrets/radicle/seednode";
 
     httpd = {
       enable = true;
