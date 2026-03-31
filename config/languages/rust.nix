@@ -86,6 +86,7 @@
       "cargo"
       "clippy"
       "rustfmt"
+      "rust-src"
       "rust-analyzer"
     ];
   };
