@@ -8,24 +8,33 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/public/favicon-16x16.png">
     <link rel="manifest" href="public/site.webmanifest">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/fira_code.min.css" />
-    <link data-trunk rel="rust" data-bin="web" />
-    <title>Mumtahin Farabi</title>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/fira_code.min.css" /> -->
+    <link href="https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/css/jetbrains-mono.min.css" rel="stylesheet">
+
+    <!-- <link data-trunk rel="rust" data-bin="web" /> -->
+    <link data-trunk rel="rust" data-bin="tui" />
+    <title>🐝 Ceratina Dashboard</title>
     <style>
         body {
             margin: 0;
-            display: flex;
             width: 100%;
             height: 100%;
-            flex-direction: column;
-            justify-content: center;
+            display: flex;
             align-items: center;
             align-content: center;
+            flex-direction: column;
+            justify-content: center;
             background-color: #000000;
+            font-family: "JetBrains Mono", monospace;
         }
 
-        pre {
+        /* pre {
             font-family: "Fira Code", monospace;
+            font-size: 16px;
+            margin: 0px;
+        } */
+        pre {
+            font-family: "JetBrains Mono", monospace;
             font-size: 16px;
             margin: 0px;
         }
