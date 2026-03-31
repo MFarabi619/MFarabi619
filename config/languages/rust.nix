@@ -6,6 +6,17 @@
   languages.rust = {
     enable = true;
     channel = "stable";
+    # lld.enable = true;
+    mold.enable = true;
+
+    components = [
+      "rustc"
+      "cargo"
+      "clippy"
+      "rustfmt"
+      "rust-src"
+      "rust-analyzer"
+    ];
 
     loco = {
       enable = true;
@@ -80,14 +91,5 @@
         short_description = "General web client.";
       };
     };
-
-    components = [
-      "rustc"
-      "cargo"
-      "clippy"
-      "rustfmt"
-      "rust-src"
-      "rust-analyzer"
-    ];
   };
 }
