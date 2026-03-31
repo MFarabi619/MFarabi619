@@ -1,5 +1,3 @@
 {
-  languages.go = {
-    enable = true;
-  };
+  languages.go.enable = true;
 }
