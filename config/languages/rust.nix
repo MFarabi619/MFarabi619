@@ -6,8 +6,8 @@
   languages.rust = {
     enable = true;
     channel = "stable";
-    # lld.enable = true;
-    mold.enable = true;
+    # lld.enable = true;  # FIXME: breaks dioxus
+    # mold.enable = true; # FIXME: breaks loco
 
     components = [
       "rustc"
