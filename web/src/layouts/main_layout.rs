@@ -1,7 +1,7 @@
-use crate::components::navbar::Navbar;
 use crate::Route;
+use crate::components::navbar::Navbar;
 use dioxus::prelude::*;
-use dioxus_router::{use_route, Outlet};
+use dioxus_router::{Outlet, use_route};
 use ui::components::side_sheet::SideSheet;
 
 #[component]
@@ -45,8 +45,21 @@ pub fn MainLayout() -> Element {
                     a {
                         target: "_blank",
                         rel: "noopener noreferrer",
+                        href: "https://nixos.org",
+                      img {
+                        class: "inline w-5",
+                        src: "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/nix.svg"
+                      }
+                    }
+                      ", "
+                    a {
+                        target: "_blank",
+                        rel: "noopener noreferrer",
                         href: "https://rust-lang.org",
-                      "🦀"
+                      img {
+                        class: "inline w-5",
+                        src: "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/rust-symbol.svg"
+                      }
                     }
                       ","
                     a {

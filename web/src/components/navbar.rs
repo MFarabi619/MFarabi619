@@ -1,11 +1,15 @@
-use crate::content::docs;
-use crate::content::docs::router::{BookRoute, LAZY_BOOK};
-use crate::Route;
 use crate::MICROVISOR_SYSTEMS_SYMBOL_SMALL;
+use crate::Route;
+use crate::content::docs::{
+    self,
+    router::{BookRoute, LAZY_BOOK},
+};
 use dioxus::prelude::*;
 use lucide_dioxus::{Github, Linkedin, Menu};
-use ui::components::button::{Button, ButtonVariant};
-use ui::components::side_sheet::*;
+use ui::components::{
+    button::{Button, ButtonVariant},
+    side_sheet::*,
+};
 use use_mdbook::mdbook_shared::SummaryItem;
 
 #[component]
@@ -32,7 +36,7 @@ pub fn Navbar() -> Element {
                 class: "max-w-7xl mx-auto flex items-center justify-between",
                 Link {
                     to: Route::Home {},
-                    class: "rounded transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_12px_rgba(234,239,44,0.8)]",
+                    class: "py-2 rounded transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_12px_rgba(234,239,44,0.8)]",
                     div {
                         class: "flex items-center gap-2",
                         img { class: "h-8", src: MICROVISOR_SYSTEMS_SYMBOL_SMALL }
