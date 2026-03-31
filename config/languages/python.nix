@@ -1,8 +1,8 @@
 {
   languages.python = {
-   enable = true;
-   uv = {
-    enable = true;
-   };
+    enable = false;
+    uv = {
+      enable = true;
+    };
   };
 }
