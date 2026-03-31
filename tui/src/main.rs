@@ -1,135 +1,93 @@
 use std::io;
 
-use ratatui::{
-    Frame,
-    buffer::Buffer,
-    layout::Rect,
-    style::Stylize,
-    symbols::border,
-    text::{Line, Text},
-    widgets::{Block, Paragraph, Widget},
-};
+mod app;
+mod effects;
+mod ui;
+
+use app::App;
 
 #[cfg(not(target_arch = "wasm32"))]
 use {
-    crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
+    crossterm::event::{self, Event, KeyCode, KeyEventKind},
     ratatui::DefaultTerminal,
+    std::time::Duration,
 };
 
 #[cfg(target_arch = "wasm32")]
-use {
-    ratatui::Terminal,
-    ratzilla::{
-        DomBackend, WebRenderer,
-        event::{KeyCode, KeyEvent},
-    },
-    std::{cell::RefCell, rc::Rc},
+use ratzilla::{
+    CanvasBackend, WebRenderer,
+    event::KeyCode,
+    ratatui::{Terminal, style::Color},
 };
 
-#[derive(Debug, Default)]
-pub struct App {
-    counter: u8,
-    exit: bool,
-}
-
-impl App {
-    #[cfg(not(target_arch = "wasm32"))]
-    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
-        while !self.exit {
-            terminal.draw(|frame| self.draw(frame))?;
-            self.handle_events()?;
-        }
-        Ok(())
-    }
-
-    fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area());
-    }
-
-    fn exit(&mut self) {
-        self.exit = true;
-    }
-
-    fn increment_counter(&mut self) {
-        self.counter = self.counter.saturating_add(1);
-    }
-
-    fn decrement_counter(&mut self) {
-        self.counter = self.counter.saturating_sub(1);
-    }
-
-    fn handle_key_event(&mut self, key_event: KeyEvent) {
-        match key_event.code {
-            KeyCode::Char('q') => self.exit(),
-            KeyCode::Left => self.decrement_counter(),
-            KeyCode::Right => self.increment_counter(),
-            _ => {}
-        }
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    fn handle_events(&mut self) -> io::Result<()> {
-        match event::read()? {
-            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                self.handle_key_event(key_event)
-            }
-            _ => {}
-        }
-        Ok(())
+#[cfg(not(target_arch = "wasm32"))]
+fn handle_key_code(app: &mut App, key_code: KeyCode) {
+    match key_code {
+        KeyCode::Right => app.on_right(),
+        KeyCode::Left => app.on_left(),
+        KeyCode::Up => app.on_up(),
+        KeyCode::Down => app.on_down(),
+        KeyCode::Char(character) => app.on_key(character),
+        _ => {}
     }
 }
 
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        let title = Line::from(" Counter App Tutorial ".bold());
-        let instructions = Line::from(vec![
-            " Decrement ".into(),
-            "<Left>".blue().bold(),
-            " Increment ".into(),
-            "<Right>".blue().bold(),
-            " Quit ".into(),
-            "<Q> ".blue().bold(),
-        ]);
+#[cfg(not(target_arch = "wasm32"))]
+fn run_native(app: &mut App, terminal: &mut DefaultTerminal) -> io::Result<()> {
+    while !app.should_quit {
+        if event::poll(Duration::from_millis(16))?
+            && let Event::Key(key_event) = event::read()?
+            && key_event.kind == KeyEventKind::Press
+        {
+            handle_key_code(app, key_event.code);
+        }
 
-        let block = Block::bordered()
-            .title(title.centered())
-            .title_bottom(instructions.centered())
-            .border_set(border::THICK);
-
-        let counter_text = Text::from(vec![Line::from(vec![
-            "Value: ".into(),
-            self.counter.to_string().yellow(),
-        ])]);
-
-        Paragraph::new(counter_text)
-            .centered()
-            .block(block)
-            .render(area, buf);
+        let elapsed = app.on_tick();
+        terminal.draw(|frame| ui::draw(elapsed, frame, app))?;
     }
+
+    Ok(())
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> io::Result<()> {
     let mut terminal = ratatui::init();
-    let app_result = App::default().run(&mut terminal);
+    let mut app = App::new(" 🔱 Mumtahin Farabi 🔱 ", false);
+    let app_result = run_native(&mut app, &mut terminal);
     ratatui::restore();
     app_result
 }
 
 #[cfg(target_arch = "wasm32")]
 fn main() -> io::Result<()> {
-    let app_state = Rc::new(RefCell::new(App::default()));
-    let terminal = Terminal::new(DomBackend::new()?)?;
+    let app_state = std::rc::Rc::new(std::cell::RefCell::new(App::new(
+        " 🔱 Mumtahin Farabi 🔱 ",
+        false,
+    )));
+
+    let mut backend = CanvasBackend::new()?;
+    backend.set_background_color(Color::Rgb(1, 1, 1));
+    let terminal = Terminal::new(backend)?;
 
     terminal.on_key_event({
         let app_state = app_state.clone();
-        move |key_event| {
-            app_state.borrow_mut().handle_key_event(key_event);
+        move |event| {
+            let mut app = app_state.borrow_mut();
+            match event.code {
+                KeyCode::Right => app.on_right(),
+                KeyCode::Left => app.on_left(),
+                KeyCode::Up => app.on_up(),
+                KeyCode::Down => app.on_down(),
+                KeyCode::Char(character) => app.on_key(character),
+                _ => {}
+            }
         }
     });
 
     terminal.draw_web(move |frame| {
-        app_state.borrow().draw(frame);
+        let mut app = app_state.borrow_mut();
+        let elapsed = app.on_tick();
+        ui::draw(elapsed, frame, &mut app);
     });
 
     Ok(())

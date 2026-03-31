@@ -1,12 +1,11 @@
-use ratatui::widgets::BorderType;
-use ratzilla::ratatui::{
+use ratatui::{
     Frame,
     layout::{Alignment, Constraint, Layout, Rect},
     style::{Color, Modifier, Style},
     symbols,
     text::{self, Span},
     widgets::{
-        Block, Cell, Paragraph, Row, Table, Tabs, Wrap,
+        Block, BorderType, Cell, Paragraph, Row, Table, Tabs, Wrap,
         canvas::{self, Canvas, Circle, Map, MapResolution, Rectangle},
     },
 };
@@ -55,7 +54,7 @@ fn draw_first_tab(frame: &mut Frame, _app: &mut App, area: Rect) {
 }
 
 fn draw_text(frame: &mut Frame, area: Rect) {
-    use ratzilla::ratatui::text::Line;
+    use ratatui::text::Line;
 
     let text = vec![
         Line::from(""),

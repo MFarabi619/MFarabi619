@@ -4,15 +4,18 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/public/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/public/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/public/favicon-16x16.png">
-    <link rel="manifest" href="public/site.webmanifest">
+
+    <title>Mumtahin Farabi</title>
+    <link rel="shortcut icon" href="/public/favicon.ico?v=20260331" />
+    <link rel="manifest" href="/public/site.webmanifest?v=20260331" />
+    <link rel="icon" type="image/svg+xml" href="/public/favicon.svg?v=20260331" />
+    <link rel="icon" type="image/png" href="/public/favicon-96x96.png?v=20260331" sizes="96x96" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/public/apple-touch-icon.png?v=20260331" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jetbrains-mono@1.0.6/css/jetbrains-mono.min.css">
 
-    <!-- <link data-trunk rel="rust" data-bin="web" /> -->
-    <link data-trunk rel="rust" data-bin="tui" />
-    <title>🐝 Ceratina Dashboard</title>
+    <link data-trunk rel="rust" href="./tui/" data-bin="tui" />
+    <link data-trunk rel="copy-dir" href="./assets/static/public/" />
+
     <style>
         body {
             margin: 0;
@@ -34,4 +37,5 @@
         }
     </style>
 </head>
+
 </html>

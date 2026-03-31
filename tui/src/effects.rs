@@ -1,7 +1,6 @@
-use ratzilla::ratatui::{
+use ratatui::{
     layout::{Constraint, Layout},
     prelude::Color,
-    // style::Style,
 };
 use tachyonfx::{
     CellFilter,

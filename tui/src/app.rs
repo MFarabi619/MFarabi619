@@ -4,8 +4,13 @@ use rand::{
     distr::{Distribution, Uniform},
     rngs::SmallRng,
 };
-use ratzilla::ratatui::widgets::ListState;
+use ratatui::widgets::ListState;
 use tachyonfx::{Duration, EffectManager};
+
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::Instant;
+#[cfg(target_arch = "wasm32")]
+use web_time::Instant;
 
 const TASKS: [&str; 24] = [
     "Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7", "Item8", "Item9", "Item10",
@@ -248,7 +253,7 @@ pub struct App<'a> {
     pub servers: Vec<Server<'a>>,
     pub enhanced_graphics: bool,
     pub effects: EffectManager<EffectKey>,
-    pub last_frame: web_time::Instant,
+    pub last_frame: Instant,
 }
 
 #[derive(Clone, Copy, Debug, Default, Ord, PartialOrd, Eq, PartialEq)]
@@ -572,7 +577,7 @@ impl<'a> App<'a> {
             ],
             enhanced_graphics,
             effects,
-            last_frame: web_time::Instant::now(),
+            last_frame: Instant::now(),
         }
     }
 
@@ -623,7 +628,7 @@ impl<'a> App<'a> {
         self.barchart.insert(0, event);
 
         // calculate elapsed time since last frame
-        let now = web_time::Instant::now();
+        let now = Instant::now();
         let elapsed = now.duration_since(self.last_frame).as_millis() as u32;
         self.last_frame = now;
 

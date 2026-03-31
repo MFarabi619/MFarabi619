@@ -6,6 +6,10 @@
 **/result
 **/zig-out
 **/target/
+**/dist
+assets/static/tui.js
+assets/static/index.html
+assets/static/tui_bg.wasm
 .shellspec
 **/.zig-cache
 **/node_modules
