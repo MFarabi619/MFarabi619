@@ -90,6 +90,30 @@ sudo mv /etc/nix/nix.conf /etc/nix/nix.conf.before-nix-darwin
 sudo nix --extra-experimental-features nix-command --extra-experimental-features flakes run nix-darwin/master#darwin-rebuild -- switch --flake .
 #+end_src
 
+** [[https://guix.gnu.org][GNU Guix]]
+
+Obtain [[https://guix.gnu.org/en/download/][ISO]].
+
+#+begin_src bash
+guix pull
+#+end_src
+
+#+begin_src bash
+sudo guix system reconfigure /etc/config.scm
+#+end_src
+
+hint: Consider setting the necessary environment variables by running:
+
+     GUIX_PROFILE="/home/mfarabi/.config/guix/current"
+     . "$GUIX_PROFILE/etc/profile"
+     unset GUIX_PROFILE
+
+Alternately, see `guix package --search-paths -p "/home/mfarabi/.config/guix/current"'.
+
+
+hint: After setting `PATH', run `hash guix' to make sure your shell refers to
+`/home/mfarabi/.config/guix/current/bin/guix'.
+
 ** [[https://www.openbsd.org][OpenBSD]]
 
 [[https://openbsd.app][OpenBSD.app - search packages]]
@@ -106,17 +130,17 @@ doas pkg_add -u
 #+end_src
 
 #+begin_src ksh
-doas pkg_add bash zsh git delta direnv ripgrep eza fd vim-9.1.1706-gtk3 neovim emacs-30.2-gtk3
+doas pkg_add bash zsh git delta direnv ripgrep eza fd vim-9.1.1706-gtk3 neovim emacs-30.2-pgtk xdg-{user-dirs,dbus-proxy,desktop-portal,utils} libqtxdg consolekit2 ruby34-xdg
 #+end_src
 
 Set up zsh.
 
 #+begin_src zsh
-doas pkg_add rust rust-{rustfmt,clippy,gdb,src,bindgen}
+doas pkg_add rust rust-{analyzer,rustfmt,clippy,gdb,src,bindgen}
 #+end_src
 
 #+begin_src zsh
-doas pkg_add nix curl bat jetbrains-mono noto-{emoji,fonts,nerd-fonts} symbolsonly-nerd-fonts libvips lf
+doas pkg_add nix curl bat jetbrains-mono noto-{emoji,fonts,nerd-fonts} symbola-ttf libvips lf
 #+end_src
 
 #+begin_src zsh
@@ -159,13 +183,11 @@ doas pkg_add termshark
 #+end_src
 
 #+begin_src zsh
-doas pkg_add tree fzf cmake pandoc zig go gopls uv stylua luarocks-lua51 wget socat tree-sitter shfmt ffmpeg ffmpegthumbnailer coreutils unzip-6.0p18-iconv p7zip aspell llvm-21.1.2p0
+doas pkg_add tree fzf cmake pandoc zig go gopls uv python-3.12.11 node ruby-3.4.6 gnuplot-5.4.8 graphviz tidy maim scrot clang-tools-extra stylua luarocks-lua51 wget socat tree-sitter shfmt ffmpeg ffmpegthumbnailer coreutils unzip-6.0p18-iconv p7zip aspell llvm-21.1.2p0 mu gnutls
 #+end_src
 
 #+begin_src zsh
-doas pkg_add xclip dbus kitty vlc dunst mpv rofi dolphin cairo pipewire slurp wayland-{utils,protocols} xwayland wlr-randr pango xloadimage libsixel
-
-jq poppler poppler-utils ImageMagick  xsel gcc-11.2.0p19
+doas pkg_add xclip xsel dbus kitty vlc dunst mpv rofi dolphin cairo pipewire slurp wayland-{utils,protocols} xwayland wlr-randr pango xloadimage libsixel jq poppler poppler-utils ImageMagick gcc-11.2.0p19 gcc-libs-11.2.0p19
 #+end_src
 
 #+begin_src zsh
