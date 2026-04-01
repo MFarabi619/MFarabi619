@@ -5,8 +5,8 @@
 {
   services.postgres = {
     enable = true;
-    listen_addresses = "0.0.0.0";
     package = pkgs.postgresql_18;
+    listen_addresses = "127.0.0.1";
 
     initialDatabases = [
       {

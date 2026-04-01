@@ -6,7 +6,6 @@
 
     ./power.nix
     ./system.nix
-    ./nixpkgs.nix
     ./launchd.nix
     ./security.nix
     ./homebrew.nix
@@ -14,6 +13,7 @@
     ./linux-builder.nix
 
     ../nixos/fonts.nix
+    ../nixos/nixpkgs.nix
     ../nixos/myusers.nix
     ../nixos/environment.nix
     ../nixos/documentation.nix
