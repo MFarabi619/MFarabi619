@@ -1,0 +1,23 @@
+services:
+    grafana:
+        image: grafana/grafana
+        container_name: grafana
+        restart: unless-stopped
+        environment:
+            - GF_SERVER_HTTP_PORT=3000
+            - GF_SERVER_ENABLE_GZIP=true
+            # - GF_DATABASE_TYPE=postgres
+            # - GF_DATABASE_HOST="127.0.0.1:5432"
+            # - GF_DATABASE_NAME=grafana
+            # - GF_DATABASE_USER=grafana
+            - GF_DATE_FORMATS_DEFAULT_WEEK_START=monday
+            - GF_DATE_FORMATS_DEFAULT_TIMEZONE=America/Toronto
+            - GF_PLUGINS_PLUGIN_CATALOG_HIDDEN_PLUGINS=grafana-adobeanalytics-datasource,grafana-aurora-datasource
+            - GF_PLUGINS_PREINSTALL=yesoreyeram-infinity-datasource,operato-windrose-panel,grafana-pathfinder-app,orchestracities-iconstat-panel
+
+        ports:
+            - "3000:3000"
+        volumes:
+            - "grafana_storage:/var/lib/grafana"
+volumes:
+    grafana_storage: {}

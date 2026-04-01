@@ -210,7 +210,7 @@
       host    replication     all             127.0.0.1/32            trust
       host    replication     all             ::1/128                 trust
       # FIXME: LAN connections
-      host    postgres       mfarabi          10.0.0.198/32           trust
+      host    postgres        mfarabi         10.0.0.198/32           trust
     '';
   };
 }
