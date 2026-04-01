@@ -32,6 +32,10 @@
 
     # https://pgtune.leopard.in.ua
     settings = {
+      log_statement = "all";
+      log_connections = true;
+      logging_collector = true;
+      log_disconnections = true;
       # work_mem = "32MB";
       # min_wal_size = "2GB";
       # max_wal_size = "16GB";
