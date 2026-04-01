@@ -1,3 +1,13 @@
+| *TERM*      | *DEFINITION*                                                 | *Example*                                  | *WHEN TO USE*                                    |
+|-----------+------------------------------------------------------------+------------------------------------------+------------------------------------------------|
+| data      | General set of recorded values.                            | temp   =23.4,   voltage=3.9              | When the exact kind of record does not matter. |
+| sample    | One measured value at a specific time.                     | accel_x=0.12g @ time   =4312ms           | For raw sensor acquisition.                    |
+| log       | An append-only event record about something that happened. | "gps lock lost", "boot complete"         | For events, faults, and audit trails.          |
+| metric    | A numeric indicator of state, health, or performance.      | uptime =3600,   queue_depth=4            | For dashboards, summaries, and alerts.         |
+| trace     | A connected timing or execution record through steps.      | adc    =1ms -> filter=2ms -> sd=9ms      | For profiling and causality debugging.         |
+| telemetry | Any device data emitted to another system.                 | heartbeat, uploaded metrics, remote logs | For external reporting or observability.       |
+
+
 * DuckDB Refactor
 :PROPERTIES:
 :header-args: :results silent :session refactor :format box :async yes :timer on :output buffer :headers off :db sample.db :echo off :kill-on-completion no
@@ -146,7 +156,71 @@ INSERT INTO greeting VALUES ('Hello', 'world again!');
 SELECT * FROM greeting;
 #+end_src
 
-* PostgreSQL
+* PostgreSQL :verb:
+:PROPERTIES:
+:header-args:sql+: :engine postgresql
+:header-args:sql+: :dbhost (getenv "PGHOST")
+:header-args:sql+: :dbport (string-to-number (or (getenv "PGPORT") "5432"))
+:header-args:sql+: :dbuser (getenv "PGUSER")
+:header-args:sql+: :database (getenv "PGDATABASE")
+:header-args:sql+: :results table
+:END:
+Template http://10.0.0.95/api
+Content-Type: application/json
+Accept: application/json
 
-#+begin_src sqlite :results silent :output buffer
+# ** Cloudevents
+# GET /cloudevents
+
+#+BEGIN_SRC sql
+SELECT version();
+#+END_SRC
+
+#+begin_SRC sql
+SELECT current_database(), current_user;
+#+end_SRC
+
+#+begin_SRC sql
+SELECT current_database(), current_user;
+#+end_SRC
+
+#+begin_SRC sql
+SELECT *
+FROM pg_available_extensions
+ORDER BY name;
+#+end_SRC
+
+#+begin_SRC sql
+SELECT extname
+FROM pg_extension
+ORDER BY extname;
+#+end_SRC
+
+#+begin_SRC sql
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+#+end_SRC
+
+#+begin_SRC sql
+CREATE TABLE device_metrics(
+ time TIMESTAMPZ NOT NULL,
+ device_id INT NOT NULL,
+ temperature FLOAT NOT NULL,
+ humidity FLOAT NOT NULL
+);
+#+end_SRC
+
+#+begin_SRC sql
+SELECT create_hypertable('device_metrics', 'time');
+#+end_SRC
+
+#+begin_SRC sql
+SELECT *
+FROM pg_tables
+WHERE schemaname = 'public'
+ORDER BY tablename;
+#+end_src
+
+#+begin_SRC sql
+SELECT *
+FROM status_events;
 #+end_src

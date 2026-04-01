@@ -1,0 +1,11 @@
+CREATE FUNCTION set_modified_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW IS DISTINCT FROM OLD THEN
+        NEW.modified_at := CURRENT_TIMESTAMP;
+    END IF;
+    RETURN NEW;
+END;
+$$;
