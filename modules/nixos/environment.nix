@@ -96,7 +96,6 @@
 
     systemPath = [
       "/usr/local/bin"
-      "/opt/homebrew/bin"
       "/Users/mfarabi/go/bin"
       "/Users/mfarabi/.bun/bin"
       "/Users/mfarabi/.local/bin"
