@@ -8,6 +8,7 @@
     packages =
       with pkgs;
       [
+        godot
         delve
         bashdb
         # ============= 🤖 ==================
@@ -71,7 +72,7 @@
         # ============= ‍❄🕸 ================
         nil # nix formatter
         # omnix
-        devenv
+        # devenv
         cachix
         nix-du # store visualizer
         # nix-ld      # run unpatched dynamic binaries
