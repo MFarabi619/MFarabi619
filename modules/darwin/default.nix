@@ -12,6 +12,7 @@
     ./networking.nix
     ./linux-builder.nix
 
+    ../nixos/nix.nix
     ../nixos/fonts.nix
     ../nixos/nixpkgs.nix
     ../nixos/myusers.nix

@@ -15,6 +15,7 @@
     ./networking
     # ./containers
 
+    ./nix.nix
     ./xdg.nix
     ./i18n.nix
     ./time.nix
