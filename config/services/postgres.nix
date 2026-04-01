@@ -59,31 +59,37 @@
 
     extensions =
       extensions: with extensions; [
-        # pgmq
-        # ip4r
-        pgtap
+        pgmq # lightweight message queue
+        ip4r # ip address typing, formatting, querying, and indexing
+        pgtap # unit testing
         # pgddl
-        # pg_net
-        # pg_csv
-        # pgaudit
-        # pg_cron
-        postgis
-        pgvector
-        # pgsodium
-        # wal2json
-        # omnigres
+        pg_net # async networking and http outbound calls
+        pg_csv
+        # pgaudit # FIXME: marked as broken # audit logging
+        pg_cron # cron jobs
+        postgis # geospatial types and queries
+        pgrouting # routing/network analysis on top of postgic
+        pgvector # vector embedding
+        pgsodium
+        wal2json # emit row changes as json
+        omnigres
         pg-semver
-        # pg_partman
-        pgsql-http
-        # # pg_graphql # FIXME: pg_graphql-1.5.12-unstable-2025-09-01 marked as broken
-        # sqlite_fdw
-        # pg_relusage
+        pg_uuidv7
+        pg_partman # table partition management
+        pgsql-http # synchronous http request/response client
+        pointcloud # point cloud/LiDAR data
+        # pg_graphql # FIXME: pg_graphql-1.5.12-unstable-2025-09-01 marked as broken
+        # sqlite_fdw # FIXME: sqlite_fdw-2.5.0 marked as broken
+        pg_rational # extract fraction arithmetic
+        pg_relusage # trace relations traversed by statement
         timescaledb
-        # timescaledb_toolkit
         system_stats
+        pg_hint_plan # influence planner choices with SQL hints in comments
+        pg_byteamagic # auto-identify bytea blob file types
         pg_background
-        plpgsql_check
-        # pg_auto_failover
+        plpgsql_check # linter
+        jsonb_deep_sum # sum deeply nested numeric values
+        # pg_auto_failover # FIXME: pg_auto_failover-2.2 marked as broken
         # timescaledb_toolkit # FIXME: timescaledb_toolkit-1.21.0 marked as broken
       ];
 
