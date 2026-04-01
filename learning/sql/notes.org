@@ -1,4 +1,4 @@
-* Refactor
+* DuckDB Refactor
 :PROPERTIES:
 :header-args: :results silent :session refactor :format box :async yes :timer on :output buffer :headers off :db sample.db :echo off :kill-on-completion no
 :END:
@@ -129,4 +129,24 @@ ATTACH 'leads.db' AS leads;
 PRAGMA show_tables_expanded;
 PRAGMA database_size;
 DETACH leads;
+#+end_src
+* SQLite
+:PROPERTIES:
+:header-args: :db sqlite.db
+:END:
+
+#+begin_src sqlite :results silent :output buffer
+CREATE TABLE IF NOT EXISTS greeting(one TEXT, two TEXT);
+DELETE FROM greeting;
+INSERT INTO greeting VALUES ('Hello', 'world!');
+INSERT INTO greeting VALUES ('Hello', 'world again!');
+#+end_src
+
+#+begin_src sqlite :results table :column :header :colnames yes
+SELECT * FROM greeting;
+#+end_src
+
+* PostgreSQL
+
+#+begin_src sqlite :results silent :output buffer
 #+end_src
