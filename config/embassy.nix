@@ -157,15 +157,6 @@
     #   };
     # };
   };
-
-  profiles = {
-    ci.module.microvisor.embassy."probe-rs".server.address = "0.0.0.0";
-
-    hostname = {
-      rpi5-16.extends = [ "ci" ];
-      framework-desktop.extends = [ "ci" ];
-    };
-  };
 }
 
 # [toolchain]
