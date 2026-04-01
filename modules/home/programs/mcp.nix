@@ -19,6 +19,11 @@
       mcp-nixos = {
         command = "mcp-nixos";
       };
+
+      # https://github.com/penpot/penpot/tree/develop/mcp
+      # penpot = {
+      #   command = "npx -y @penpot/mcp@" >= 0 "";
+      # };
     };
   };
 }
