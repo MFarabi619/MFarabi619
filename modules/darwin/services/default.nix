@@ -4,7 +4,6 @@
     ./skhd.nix
     ./yabai.nix
     ./aerospace.nix
-    ./jankyborders.nix
     ./karabiner-elements.nix
 
     ../../nixos/services/netbird.nix
