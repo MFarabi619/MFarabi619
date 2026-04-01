@@ -674,7 +674,11 @@ If lazygit is active there, quit it and leave the shell running."
         magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")
         magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256"))
 
-  (add-hook 'magit-mode-hook (lambda () (hl-line-mode 1) (magit-delta-mode 1) (display-line-numbers-mode 1)))
+  (add-hook 'magit-mode-hook (lambda ()
+                               (hl-line-mode 1)
+                               (magit-delta-mode 1)
+                               ;; (display-line-numbers-mode 1)
+                               ))
   (custom-set-faces
    '(magit-diff-context ((t (:foreground "#b0b0b0"))))
    '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
