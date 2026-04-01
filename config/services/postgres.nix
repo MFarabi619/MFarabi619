@@ -4,39 +4,82 @@
 }:
 {
   services.postgres = {
-    port = 54322;
-    enable = false;
-    listen_addresses = "*";
-    package = pkgs.postgresql_17;
+    enable = true;
+    listen_addresses = "0.0.0.0";
     package = pkgs.postgresql_18;
 
     initialDatabases = [
       {
         name = "postgres";
-        user = "postgres";
-        pass = "postgres";
+        #   schema = ../telemetry_timescale.sql;
+        #   initialSQL = ''
+        #     CREATE EXTENSION IF NOT EXISTS timescaledb;
+        #     CREATE EXTENSION IF NOT EXISTS http;
+        #   '';
       }
     ];
 
+    # initialScript = ''
+    #   DO $$
+    #   BEGIN
+    #     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'telemetry_ingest') THEN
+    #       CREATE ROLE telemetry_ingest LOGIN;
+    #     END IF;
+    #   END
+    #   $$;
+    # '';
+
+    # https://pgtune.leopard.in.ua
     settings = {
-      max_wal_size = "1GB";
-      min_wal_size = "80MB";
-      datestyle = "iso, mdy";
-      lc_time = "en_US.UTF-8";
-      shared_buffers = "128MB";
-      lc_numeric = "en_US.UTF-8";
-      lc_messages = "en_US.UTF-8";
-      lc_monetary = "en_US.UTF-8";
-      dynamic_shared_memory_type = "posix";
-      default_text_search_config = "pg_catalog.english";
+      # work_mem = "32MB";
+      # min_wal_size = "2GB";
+      # max_wal_size = "16GB";
+      # shared_buffers = "16GB";
+      # maintenance_work_mem = "4GB";
+      # effective_cache_size = "64GB";
+      shared_preload_libraries = "timescaledb";
+
+      # random_page_cost = "1.1";
+      # max_parallel_workers = "6";
+      # max_worker_processes = "10";
+      # max_parallel_workers_per_gather = "4";
+
+      # datestyle = "iso, mdy";
+      # lc_time = "en_US.UTF-8";
+      # lc_numeric = "en_US.UTF-8";
+      # lc_messages = "en_US.UTF-8";
+      # lc_monetary = "en_US.UTF-8";
+      # default_text_search_config = "pg_catalog.english";
     };
 
     extensions =
       extensions: with extensions; [
+        # pgmq
+        # ip4r
+        pgtap
+        # pgddl
+        # pg_net
+        # pg_csv
+        # pgaudit
+        # pg_cron
+        postgis
         pgvector
-        pgsodium
+        # pgsodium
+        # wal2json
+        # omnigres
+        pg-semver
+        # pg_partman
+        pgsql-http
+        # # pg_graphql # FIXME: pg_graphql-1.5.12-unstable-2025-09-01 marked as broken
+        # sqlite_fdw
+        # pg_relusage
+        timescaledb
+        # timescaledb_toolkit
+        system_stats
+        pg_background
         plpgsql_check
-        # pgvectorscale
+        # pg_auto_failover
+        # timescaledb_toolkit # FIXME: timescaledb_toolkit-1.21.0 marked as broken
       ];
 
     hbaConf = ''
