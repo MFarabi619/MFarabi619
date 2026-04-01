@@ -1,5 +1,6 @@
 {
   pkgs,
+  config,
   ...
 }:
 {
@@ -9,16 +10,18 @@
     package = pkgs.postgresql_18;
     listen_addresses = "127.0.0.1";
 
-    initialDatabases = [
-      {
-        name = "postgres";
-        #   schema = ../telemetry_timescale.sql;
-        #   initialSQL = ''
-        #     CREATE EXTENSION IF NOT EXISTS timescaledb;
-        #     CREATE EXTENSION IF NOT EXISTS http;
-        #   '';
-      }
-    ];
+    initialScript = ''
+      \x off
+      \timing 1
+      \pset border 2
+      \pset pager off
+      \set ECHO queries
+      \set ECHO_HIDDEN on
+      \pset null '[NULL]'
+      \pset linestyle unicode
+      \set PROMPT2 '%[%033[1;33m%]%R%#%[%033[0m%] '
+      \set PROMPT1 '\n%[%033[1;31m%]➤ %[%033[2;37m%]%`\! date "+%F %I:%M %p %Z"`%[%033[0m%] %[%033[1;36m%]%n%[%033[34m%]@%[%033[1;36m%]%M:%>%[%033[1;33m%]/%/ %[%033[1;31m%]%x %[%033[K%]%[%033[0m%]\n%[%033[1;33m%]%R%#%[%033[0m%] '
+    '';
 
     # initialScript = ''
     #   DO $$
@@ -29,6 +32,16 @@
     #   END
     #   $$;
     # '';
+
+    initialDatabases = [
+      {
+        name = config.name;
+        schema = "${config.git.root}/learning/sql/src/seed.sql";
+        # initialSQL = ''
+        #   CREATE EXTENSION IF NOT EXISTS timescaledb;
+        # '';
+      }
+    ];
 
     # https://pgtune.leopard.in.ua
     settings = {
@@ -206,7 +219,6 @@
       # the database superuser.  If you do not trust all your local users,
       # use another authentication method.
 
-
       # TYPE  DATABASE        USER            ADDRESS                 METHOD
 
       # "local" is for Unix domain socket connections only
@@ -221,7 +233,7 @@
       host    replication     all             127.0.0.1/32            trust
       host    replication     all             ::1/128                 trust
       # FIXME: LAN connections
-      host    postgres        mfarabi         10.0.0.198/32           trust
+      host    ${config.name}  mfarabi         100.86.57.35/32         trust
     '';
   };
 }

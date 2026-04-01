@@ -1,27 +1,26 @@
 {
   lib,
   pkgs,
-  inputs,
+  config,
   ...
 }:
 {
   packages =
     with pkgs;
     [
-      SDL2
+      SDL2 # for embedded TUI simulator
       sqlite
-      duckdb
+      # duckdb
       supabase-cli
-
-      ninja
-      ccache
-      dfu-util
 
       trunk # rust web app server
 
       pulumi
       pulumi-esc
       # pulumiPackages.pulumi-go
+    ]
+    ++ lib.optionals config.services.postgres.enable [
+      # postgresql_18 # for emacs to access `psql`
     ]
     ++ lib.optionals stdenv.isLinux [
       # netscanner

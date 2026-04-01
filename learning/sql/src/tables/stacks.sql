@@ -1,0 +1,8 @@
+CREATE TABLE stacks(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL,
+    organization_id BIGINT NOT NULL REFERENCES organizations(id),
+    UNIQUE (organization_id, name),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

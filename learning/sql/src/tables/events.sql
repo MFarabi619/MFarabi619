@@ -1,0 +1,10 @@
+CREATE TABLE events(
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name TEXT NOT NULL,
+  source TEXT NOT NULL,
+  type TEXT NOT NULL,
+  specversion FLOAT NOT NULL,
+  datacontenttype TEXT NOT NULL,
+  time TIMESTAMPTZ NOT NULL,
+  data jsonb NOT NULL
+);

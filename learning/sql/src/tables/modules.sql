@@ -3,7 +3,7 @@ CREATE TABLE modules (
   title TEXT NOT NULL,
   sku TEXT NOT NULL,
   wiki TEXT NOT NULL,
-  vendor_id BIGINT NOT NULL REFERENCES brands(id),
+  organization_id BIGINT NOT NULL REFERENCES organizations(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modified_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

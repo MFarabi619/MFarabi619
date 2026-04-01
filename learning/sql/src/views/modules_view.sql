@@ -3,8 +3,8 @@ SELECT
     module.id,
     module.title,
     module.sku,
-    brand.name AS vendor,
+    organization.name AS vendor,
     module.wiki
 FROM modules AS module
-JOIN brands AS brand
-    ON brand.id = module.vendor_id;
+JOIN organizations AS organization
+    ON organization.id = module.organization_id;

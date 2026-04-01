@@ -13,7 +13,7 @@
   #   api
   # ];
 
-  name = "🧮 Microvisor 🧮";
+  name = "microvisor";
 
   infoSections = {
     name = [ "Mumtahin Farabi" ];
