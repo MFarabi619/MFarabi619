@@ -30,7 +30,6 @@
       in
       with epkgs;
       [
-        pg
         nov
         mu4e
         empv
