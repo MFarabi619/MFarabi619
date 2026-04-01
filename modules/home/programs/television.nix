@@ -35,21 +35,25 @@
       };
     };
 
-      channels = {
-        platformio = {
-          metadata = {
-            name = "pio";
-            description = "PlatformIO CLI";
-            requirements = [ "pio" "jq" ];
-          };
+    channels = {
+      platformio = {
+        metadata = {
+          name = "pio";
+          description = "PlatformIO CLI";
+          requirements = [
+            "pio"
+            "jq"
+          ];
+        };
 
-          ui.preview_panel = {
-            enabled = true;
-            size = 60;
-          };
+        ui.preview_panel = {
+          enabled = true;
+          size = 60;
+        };
 
-          preview.header = "{split:\t:2}";
-          preview.command = ''
+        preview = {
+          header = "{split:\t:2}";
+          command = ''
             cmd="{split:\t:0}"
             sub="{split:\t:1}"
 
@@ -262,5 +266,6 @@
           };
         };
       };
+    };
   };
 }

@@ -25,7 +25,7 @@
       lsh = "lazyssh";
       lj = "lazyjournal";
       mkdir = "mkdir -p";
-      mic = "tv microvisor";
+      # mic = "tv microvisor";
       # grep = "batgrep";
       # TODO: add batpipe
     }
