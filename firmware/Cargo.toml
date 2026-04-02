@@ -29,7 +29,7 @@ path         = "src/bin/ui-minimal.rs"
 [[bin]]
 test         = false
 bench        = false
-name         = "h723zg"
+name         = "stm32h723zg"
 path         = "src/bin/stm32h723zg.rs"
 
 [[test]]

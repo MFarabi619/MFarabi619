@@ -1,46 +1,65 @@
 [alias]
-loco        = [ "run", "--" ]
-playground  = [ "run", "--example", "playground" ]
+loco = ["run", "--"]
+playground = ["run", "--example", "playground"]
 
-tui         = [ "run", "--release", "--package", "tui" ]
-simulator   = [ "tui", "--bin",     "simulator" ]
-simulator-minimal = [ "tui", "--bin", "simulator-minimal" ]
+tui = ["run", "--release", "--package", "tui"]
+simulator = ["tui", "--bin", "simulator"]
+simulator-minimal = ["tui", "--bin", "simulator-minimal"]
 
-microtop    = [ "run", "--package", "microtop" ]
-firmware    = [ "run", "--release", "--package", "firmware" ]
+microtop = ["run", "--package", "microtop"]
+firmware = ["run", "--release", "--package", "firmware"]
+firmware-debug = ["run", "--package", "firmware"]
 # ======================================== #
 # ======================================== #
 # ======================================== #
-stm32       = [ "firmware", "--target", "thumbv7em-none-eabihf" ]
-stm32h723zg = [ "stm32",    "--bin",    "h723zg" ]
+stm32 = ["firmware", "--target", "thumbv7em-none-eabihf"]
+stm32h723zg = ["stm32", "--bin", "stm32h723zg"]
 # ======================================== #
 # ======= if running from root  ========== #
 # =========== cargo +esp ... ============= #
 # ======================================== #
-esp         = [ "firmware", "--config", "unstable.build-std=[\"core\",\"alloc\"]" ]
-esp32       = [ "esp",      "--target", "xtensa-esp32-none-elf" ]
-esp32s3     = [ "esp",      "--target", "xtensa-esp32s3-none-elf" ]
+esp = ["firmware", "--config", "unstable.build-std=[\"core\",\"alloc\"]"]
+esp32 = ["esp", "--target", "xtensa-esp32-none-elf"]
+esp32s3 = ["esp", "--target", "xtensa-esp32s3-none-elf"]
+probe-rs-debug-esp32s3 = [
+    "firmware-debug",
+    "--config",
+    "unstable.build-std=[\"core\",\"alloc\"]",
+    "--target",
+    "xtensa-esp32s3-none-elf",
+]
 
-test-esp    = [
-  "test",
-  "--package", "firmware",
-  "--target", "xtensa-esp32s3-none-elf",
-  "--config", "unstable.build-std=[\"core\",\"alloc\"]"
+probe-rs-debug-stm32h723zg = [
+    "firmware-debug",
+    "--target",
+    "thumbv7em-none-eabihf",
+    "--bin",
+    "stm32h723zg",
+]
+
+test-esp = [
+    "test",
+    "--package",
+    "firmware",
+    "--target",
+    "xtensa-esp32s3-none-elf",
+    "--config",
+    "unstable.build-std=[\"core\",\"alloc\"]",
 ]
 # ======================================== #
 # ======================================== #
 # ======================================== #
 [target.thumbv7em-none-eabihf]
-runner      = "probe-rs run --chip stm32h723zg"
+runner = "probe-rs run --chip stm32h723zg"
 [target.xtensa-esp32s3-none-elf]
-runner      = "probe-rs run --chip esp32s3"
+runner = "probe-rs run --chip esp32s3"
 [target.xtensa-esp32-none-elf]
-runner      = "espflash flash --monitor --chip esp32"
+runner = "espflash flash --monitor --chip esp32"
 # ======================================= #
 # ======================================= #
 # ======================================= #
 [env]
-DEFMT_LOG   = "info"
+DEFMT_LOG = "info"
 # ======================================= #
 # ======================================= #
 # ======================================= #
