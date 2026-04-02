@@ -1,0 +1,15 @@
+[application]
+TreeWidth            = 20
+DefaultPageSize      = 300
+EnterOpensJSONViewer = true
+DisableSidebar       = false
+SidebarOverlay       = false
+JSONViewerWordWrap   = false
+MaxQueryHistoryPerConnection = 100
+
+[[database]]
+ReadOnly  = false
+Provider  = 'postgres'
+Name      = 'microvisor'
+Schemas   = [ 'public' ]
+URL       = 'postgresql://mfarabi@${env:PGHOST}/microvisor?sslmode=disable'
