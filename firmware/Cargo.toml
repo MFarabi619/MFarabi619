@@ -6,11 +6,17 @@ default-run  = "esp32s3"
 name         = "firmware"
 authors      = ["Mumtahin Farabi"]
 
+[features]
+esp32 = []
+esp32s3 = []
+stm32h723zg = []
+
 # cargo +esp esp32s3
 [[bin]]
 test         = false
 name         = "esp32s3"
 path         = "src/bin/esp32s3.rs"
+required-features = [ "esp32s3" ]
 
 [[bin]]
 test         = false
@@ -18,6 +24,7 @@ bench        = false
 harness      = false # do not use the built in cargo test harness -> resolve rust-analyzer errors
 name         = "ui"
 path         = "src/ui/main.rs"
+required-features = [ "esp32" ]
 
 [[bin]]
 test         = false
@@ -25,12 +32,14 @@ bench        = false
 harness      = false
 name         = "ui-minimal"
 path         = "src/bin/ui-minimal.rs"
+required-features = [ "esp32" ]
 
 [[bin]]
 test         = false
 bench        = false
 name         = "stm32h723zg"
 path         = "src/bin/stm32h723zg.rs"
+required-features = [ "stm32h723zg" ]
 
 [[test]]
 harness      = false
@@ -47,6 +56,18 @@ test         = false
 bench        = false
 name         = "gpio"
 path         = "examples/esp32s3/gpio.rs"
+
+[[example]]
+test         = false
+bench        = false
+name         = "i2c"
+path         = "examples/esp32s3/i2c.rs"
+
+[[example]]
+test         = false
+bench        = false
+name         = "ch832x"
+path         = "examples/esp32s3/ch832x.rs"
 
 [lib]
 test         = false

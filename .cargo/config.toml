@@ -45,6 +45,7 @@ test-esp = [
     "xtensa-esp32s3-none-elf",
     "--config",
     "unstable.build-std=[\"core\",\"alloc\"]",
+    "--features", "esp32s3"
 ]
 # ======================================== #
 # ======================================== #

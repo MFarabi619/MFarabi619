@@ -1,2 +1,2 @@
-# stack-size-threshold = 1024
-stack-size-threshold = 8196 # cyd
+stack-size-threshold = 1024
+# stack-size-threshold = 8196 # cyd
