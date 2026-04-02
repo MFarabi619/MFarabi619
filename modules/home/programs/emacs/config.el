@@ -316,10 +316,9 @@
 
   (add-to-list
    'dape-configs
-   '(probe-rs
+   '(probe-rs-esp32s3
      fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
      :chip "esp32s3"
-     ;; :chip "stm32h723zg"
      :request "launch"
      :type "probe-rs-debug"
      :consoleLogLevel "Console"
@@ -329,34 +328,21 @@
      host "localhost"
      command "probe-rs"
      modes (rust-mode rustic-mode)
-     command-args ("dap-server" "--port" :autoport)
-     command-cwd (lambda () (locate-dominating-file default-directory ".probe-rs.toml"))
-     compile (lambda () (let* ((root (locate-dominating-file default-directory ".probe-rs.toml"))
-                               (file (and (buffer-file-name) (file-relative-name (buffer-file-name) root))))
-                          (if (and file (string-match "^examples/\\([^/]+\\)\\.rs\\'" file))
-                              (format "cargo build --example %s" (match-string 1 file)) "cargo build")))
-
+     command-args ("dap-server" "--port" ":autoport")
+     command-cwd (lambda () (project-root (project-current)))
+     compile "cargo +esp probe-rs-debug-esp32s3"
      :coreConfigs [(
                     :coreIndex 0
                     :rttEnabled t
                     :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
-                    :svdFile (lambda () (expand-file-name "boards/esp32s3.svd" (locate-dominating-file default-directory ".probe-rs.toml")))
-                    ;; :svdFile (lambda () (expand-file-name "boards/STM32H723.svd" (locate-dominating-file default-directory ".probe-rs.toml")))
-                    :programBinary (lambda () (let* ((root (locate-dominating-file default-directory ".probe-rs.toml"))
-                                                     (file (and (buffer-file-name) (file-relative-name (buffer-file-name) root))))
-                                                (if (and file (string-match "^examples/\\([^/]+\\)\\.rs\\'" file))
-                                                    ;; (expand-file-name (format "target/thumbv7em-none-eabihf/debug/examples/%s" (match-string 1 file)) root)
-                                                    (expand-file-name (format "target/xtensa-esp32s3-none-elf/debug/examples/%s" (match-string 1 file)) root)
-                                                  ;; (expand-file-name "target/thumbv7em-none-eabihf/debug/stm32h723zg" root)
-                                                  (expand-file-name "target/xtensa-esp32s3-none-elf/debug/esp32s3" root)
-                                                  ))))]
-     ))
+                    :svdFile (lambda () (expand-file-name "boards/esp32s3.svd" (project-root (project-current))))
+                    :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/esp32s3" (project-root (project-current)))))]))
+
   :config
   (add-hook 'dape-display-source-hook #'pulse-momentary-highlight-one-line)
-  (add-hook 'dape-repl-mode-hook
-            (defun dape--repl-wrap ()
-              (setq-local truncate-lines nil word-wrap t)
-              (visual-line-mode 1)))
+  (add-hook 'dape-repl-mode-hook (defun dape--repl-wrap ()
+                                   (setq-local truncate-lines nil word-wrap t)
+                                   (visual-line-mode 1)))
   (add-hook 'dape-info-parent-mode-hook
             (defun dape--info-compact ()
               (when (string-prefix-p "Registers" (format-mode-line header-line-format))
