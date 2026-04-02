@@ -10,7 +10,7 @@ authors      = ["Mumtahin Farabi"]
 [[bin]]
 test         = false
 name         = "esp32s3"
-path         = "src/bin/main.rs"
+path         = "src/bin/esp32s3.rs"
 
 [[bin]]
 test         = false
@@ -35,6 +35,12 @@ path         = "src/bin/stm32h723zg.rs"
 [[test]]
 harness      = false
 name         = "hello_test"
+
+[[example]]
+test         = false
+bench        = false
+name         = "neopixel"
+path         = "examples/esp32s3/neopixel.rs"
 
 [lib]
 test         = false
@@ -61,6 +67,8 @@ ratatui          = { version = "0.30.0", default-features = false, features = ["
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32", "log-04"] }
 
 [target.xtensa-esp32s3-none-elf.dependencies]
+smart-leds             = "0.4.0"
+esp-hal-smartled       = "0.17.0"
 bt-hci                 = "0.6.0"
 volatile               = "0.4.3"
 static_cell            = "2.1.1"

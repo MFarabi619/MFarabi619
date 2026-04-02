@@ -7,17 +7,14 @@
 )]
 #![deny(clippy::large_stack_frames)]
 
-use esp_hal::{clock::CpuClock, timer::timg::TimerGroup};
-
 use bt_hci::controller::ExternalController;
 use defmt::info;
-use esp_radio::ble::controller::BleConnector;
-use trouble_host::prelude::*;
-
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
-
+use esp_hal::{clock::CpuClock, timer::timg::TimerGroup};
+use esp_radio::ble::controller::BleConnector;
 use panic_rtt_target as _;
+use trouble_host::prelude::*;
 
 extern crate alloc;
 
@@ -33,7 +30,7 @@ esp_bootloader_esp_idf::esp_app_desc!();
     reason = "it's not unusual to allocate larger buffers etc. in main"
 )]
 #[esp_rtos::main]
-async fn main(spawner: Spawner) -> ! {
+async fn main(_spawner: Spawner) -> ! {
     rtt_target::rtt_init_defmt!();
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
@@ -56,8 +53,6 @@ async fn main(spawner: Spawner) -> ! {
     let mut resources: HostResources<DefaultPacketPool, CONNECTIONS_MAX, L2CAP_CHANNELS_MAX> =
         HostResources::new();
     let _stack = trouble_host::new(ble_controller, &mut resources);
-
-    let _ = spawner;
 
     loop {
         info!("Hello world!");

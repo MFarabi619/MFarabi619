@@ -20,10 +20,10 @@
           exec = "cargo b -r";
         };
 
-        "upload:firmware" = {
-          exec = "cargo r -r";
-          after = [ "start:remote:probe-rs" ];
-        };
+        # "upload:firmware" = {
+        #   exec = "cargo r -r";
+        #   after = [ "start:remote:probe-rs" ];
+        # };
       }
     // {
       "dx:serve:ssg" = {
@@ -55,37 +55,37 @@
       #   '';
       # };
 
-      "start:remote:probe-rs" = {
-        showOutput = true;
-        status = "nc -z ${config.microvisor.embassy.probe-rs.server.address} ${toString config.microvisor.embassy.probe-rs.server.port}";
-        exec = ''
-          ssh -n ${config.microvisor.embassy.probe-rs.server.address} '
-          cd ~/MFarabi619 &&
-          setsid devenv shell "probe-rs serve" > /dev/null 2>&1 &'
-        '';
-      };
+      # "start:remote:probe-rs" = {
+      #   showOutput = true;
+      #   status = "nc -z ${config.microvisor.embassy.probe-rs.server.address} ${toString config.microvisor.embassy.probe-rs.server.port}";
+      #   exec = ''
+      #     ssh -n ${config.microvisor.embassy.probe-rs.server.address} '
+      #     cd ~/MFarabi619 &&
+      #     setsid devenv shell "probe-rs serve" > /dev/null 2>&1 &'
+      #   '';
+      # };
 
-      "start:remote:rfc2217" = {
-        showOutput = true;
-        status = "nc -vz ${config.microvisor.embassy.probe-rs.server.address} 2217";
-        exec = ''
-          ssh -n ${config.microvisor.embassy.probe-rs.server.address} '
-            cd ~/MFarabi619 &&
-            setsid devenv shell "esp_rfc2217_server /dev/ttyACM0 -p 2217 -v" > /dev/null 2>&1 &'
-        '';
-      };
+      # "start:remote:rfc2217" = {
+      #   showOutput = true;
+      #   status = "nc -vz ${config.microvisor.embassy.probe-rs.server.address} 2217";
+      #   exec = ''
+      #     ssh -n ${config.microvisor.embassy.probe-rs.server.address} '
+      #       cd ~/MFarabi619 &&
+      #       setsid devenv shell "esp_rfc2217_server /dev/ttyACM0 -p 2217 -v" > /dev/null 2>&1 &'
+      #   '';
+      # };
 
-      "stop:remote:probe-rs" = {
-        showOutput = true;
-        status = "! nc -vz ${config.microvisor.embassy.probe-rs.server.address} ${toString config.microvisor.embassy.probe-rs.server.port} >/dev/null 2>&1";
-        exec = " ssh -n ${config.microvisor.embassy.probe-rs.server.address} 'pkill probe-rs'";
-      };
+      # "stop:remote:probe-rs" = {
+      #   showOutput = true;
+      #   status = "! nc -vz ${config.microvisor.embassy.probe-rs.server.address} ${toString config.microvisor.embassy.probe-rs.server.port} >/dev/null 2>&1";
+      #   exec = " ssh -n ${config.microvisor.embassy.probe-rs.server.address} 'pkill probe-rs'";
+      # };
 
-      "stop:remote:rfc2217" = {
-        showOutput = true;
-        status = "! nc -vz ${config.microvisor.embassy.probe-rs.server.address} 2217 >/dev/null 2>&1";
-        exec = "ssh -n ${config.microvisor.embassy.probe-rs.server.address} 'killall .esp_rfc2217_server-wrapped'";
-      };
+      # "stop:remote:rfc2217" = {
+      #   showOutput = true;
+      #   status = "! nc -vz ${config.microvisor.embassy.probe-rs.server.address} 2217 >/dev/null 2>&1";
+      #   exec = "ssh -n ${config.microvisor.embassy.probe-rs.server.address} 'killall .esp_rfc2217_server-wrapped'";
+      # };
 
       # "devenv:enterShell".after = [
       #   "ports:list"
