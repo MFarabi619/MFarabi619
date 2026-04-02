@@ -1,0 +1,11 @@
+{
+  "schema": "https://raw.githubusercontent.com/sqls-server/sqls/refs/heads/master/schema.json",
+  "sqls": {
+    "connections": [
+      {
+        "driver": "postgresql",
+        "dataSourceName": "host=127.0.0.1 port=5432 user=mfarabi dbname=microvisor sslmode=disable"
+      }
+    ]
+  }
+}
