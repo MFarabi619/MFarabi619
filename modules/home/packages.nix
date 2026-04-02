@@ -13,6 +13,7 @@
         bashdb
         asm-lsp
         crates-lsp
+        postgres-language-server
         # ============= 🤖 ==================
         tree
         pixi # multi-language package manager
