@@ -42,6 +42,12 @@ bench        = false
 name         = "neopixel"
 path         = "examples/esp32s3/neopixel.rs"
 
+[[example]]
+test         = false
+bench        = false
+name         = "gpio"
+path         = "examples/esp32s3/gpio.rs"
+
 [lib]
 test         = false
 
