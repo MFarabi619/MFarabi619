@@ -45,6 +45,10 @@ required-features = [ "stm32h723zg" ]
 harness      = false
 name         = "hello"
 
+[[test]]
+harness      = false
+name         = "i2c"
+required-features = ["esp32s3"]
 [[example]]
 test         = false
 bench        = false
