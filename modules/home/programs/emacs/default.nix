@@ -43,6 +43,8 @@
         corfu-terminal
         nerd-icons-corfu
 
+        sqlup-mode
+
         devdocs
         devdocs-browser
         compiler-explorer
