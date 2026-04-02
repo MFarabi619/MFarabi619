@@ -1,12 +1,12 @@
 trunk-version  = "*" # semver version requirement of trunk for this project
 
-[[hooks]]
-stage = "post_build"
-command = "sh"
-command_arguments = [
-  "-c",
-  "cp ./dist/index.html ./assets/static/ && cp ./dist/*.js ./assets/static/ && cp ./dist/*.wasm ./assets/static/"
-]
+# [[hooks]]
+# stage = "post_build"
+# command = "sh"
+# command_arguments = [
+#   "-c",
+#   "cp ./dist/index.html ./assets/static/ && cp ./dist/*.js ./assets/static/ && cp ./dist/*.wasm ./assets/static/"
+# ]
 
 [build]
 public_url     = "/"       # The public URL from which assets are to be served.
