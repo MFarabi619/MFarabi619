@@ -14,6 +14,7 @@
       "cargo"
       "clippy"
       "rustfmt"
+      "rust-std"
       "rust-src"
       "rust-analyzer"
     ];
