@@ -151,10 +151,12 @@ in
     packages =
       (with pkgs; [
         binaryen
-        dioxus-cli
         tailwindcss_4
-        pkgs-unstable.wasm-bindgen-cli_0_2_114
         cargo-binstall
+        # FIXME: nixpkgs behind on latest, still on dx 0.7.3 and missing wasm-bindgen-cli_0_2_116
+        # use `cargo binstall wasm-bindgen-cli@0.2.116 dioxus-cli@0.7.4`
+        # dioxus-cli
+        # pkgs-unstable.wasm-bindgen-cli_0_2_114
       ])
       ++ lib.optionals pkgs.stdenv.isLinux (
         with pkgs;
