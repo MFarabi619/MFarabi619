@@ -23,9 +23,28 @@ VALUES
 ('Espressif'),
 ('NXP'),
 ('DFRobot'),
-('Texas Instruments')
+('Texas Instruments'),
+('OpenBSD'),
+('QEMU'),
+('Tailscale'),
+('Apple'),
+('NATS')
 ON CONFLICT (name) DO NOTHING;
 
 UPDATE organizations
 SET domain = 'apidae-systems.microvisor.systems'
 WHERE name = 'Apidae Systems';
+
+UPDATE organizations AS organization
+SET symbol_asset_id = asset.id
+FROM (
+    VALUES
+        ('OpenBSD', 'openbsd.png'),
+        ('QEMU', 'qemu.svg'),
+        ('Tailscale', 'tailscale.svg'),
+        ('Apple', 'apple.svg'),
+        ('NATS', 'nats.svg')
+) AS organization_symbol(organization_name, filename)
+JOIN assets AS asset
+    ON asset.filename = organization_symbol.filename
+WHERE organization.name = organization_symbol.organization_name;

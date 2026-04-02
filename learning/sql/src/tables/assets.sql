@@ -1,6 +1,6 @@
 CREATE TABLE assets (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    filename TEXT NOT NULL,
+    id UUID PRIMARY KEY DEFAULT generate_uuid_v7(),
+    filename TEXT NOT NULL UNIQUE,
     content_type TEXT NOT NULL,
     image_data BYTEA NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,

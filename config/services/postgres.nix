@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   config,
   ...
@@ -10,38 +11,13 @@
     package = pkgs.postgresql_18;
     listen_addresses = "127.0.0.1";
 
-    initialScript = ''
-      \x off
-      \timing 1
-      \pset border 2
-      \pset pager off
-      \set ECHO queries
-      \set ECHO_HIDDEN on
-      \pset null '[NULL]'
-      \pset linestyle unicode
-      \set PROMPT2 '%[%033[1;33m%]%R%#%[%033[0m%] '
-      \set PROMPT1 '\n%[%033[1;31m%]➤ %[%033[2;37m%]%`\! date "+%F %I:%M %p %Z"`%[%033[0m%] %[%033[1;36m%]%n%[%033[34m%]@%[%033[1;36m%]%M:%>%[%033[1;33m%]/%/ %[%033[1;31m%]%x %[%033[K%]%[%033[0m%]\n%[%033[1;33m%]%R%#%[%033[0m%] '
-    '';
-
-    # initialScript = ''
-    #   DO $$
-    #   BEGIN
-    #     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'telemetry_ingest') THEN
-    #       CREATE ROLE telemetry_ingest LOGIN;
-    #     END IF;
-    #   END
-    #   $$;
-    # '';
-
     initialDatabases = [
       {
         name = config.name;
-        schema = "${config.git.root}/learning/sql/src/seed.sql";
-        # initialSQL = ''
-        #   CREATE EXTENSION IF NOT EXISTS timescaledb;
-        # '';
+        schema = "${config.git.root}/learning/sql/src/schema.sql";
       }
-    ];
+    ]
+    ++ lib.optionals config.microvisor.pulumi.enable [ { name = "pulumi"; } ];
 
     # https://pgtune.leopard.in.ua
     settings = {
@@ -49,13 +25,14 @@
       log_connections = true;
       logging_collector = true;
       log_disconnections = true;
+      shared_preload_libraries = "timescaledb";
+
       # work_mem = "32MB";
       # min_wal_size = "2GB";
       # max_wal_size = "16GB";
       # shared_buffers = "16GB";
       # maintenance_work_mem = "4GB";
       # effective_cache_size = "64GB";
-      shared_preload_libraries = "timescaledb";
 
       # random_page_cost = "1.1";
       # max_parallel_workers = "6";
