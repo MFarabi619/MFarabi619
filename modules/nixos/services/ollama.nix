@@ -14,6 +14,7 @@
       "llama3.2:3b"
     ]
     ++ lib.optionals (config.networking.hostName == "framework-desktop") [
+      "qwen3:8b"
       "mistral:7b"
       # "llava:34b"
       "gpt-oss:20b"
