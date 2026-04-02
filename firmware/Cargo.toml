@@ -49,6 +49,12 @@ name         = "hello"
 harness      = false
 name         = "i2c"
 required-features = ["esp32s3"]
+
+[[test]]
+harness      = false
+name         = "neopixel"
+required-features = ["esp32s3"]
+
 [[example]]
 test         = false
 bench        = false
