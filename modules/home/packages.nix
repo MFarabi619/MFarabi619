@@ -11,6 +11,7 @@
         godot
         delve
         bashdb
+        asm-lsp
         # ============= 🤖 ==================
         tree
         pixi # multi-language package manager
