@@ -1,7 +1,7 @@
 CREATE TABLE resources(
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT generate_uuid_v7(),
     name TEXT NOT NULL,
-    stack_id BIGINT NOT NULL REFERENCES stacks(id),
+    stack_id UUID NOT NULL REFERENCES stacks(id),
     urn TEXT NOT NULL UNIQUE,
     type TEXT NOT NULL,
     package TEXT NOT NULL,

@@ -1,16 +1,16 @@
-\ir drop_schema.sql
+\getenv devenv_root DEVENV_ROOT
+\if :{?devenv_root}
+  \cd :devenv_root/learning/sql/src
+\else
+  \echo 'DEVENV_ROOT is not set'
+  \quit 1
+\endif
 
-\ir tables/assets.sql
+SET TIME ZONE 'UTC';
 
-\ir tables/organizations.sql
+\ir psqlrc.sql
 
-\ir tables/stacks.sql
-
-\ir tables/resources.sql
-
-\ir tables/modules.sql
-
-\ir tables/events.sql
+\ir seeds/assets.sql
 
 \ir seeds/organizations.sql
 
@@ -18,6 +18,10 @@
 
 \ir seeds/resources.sql
 
-\ir seeds/modules.sql
+\ir seeds/ipv4_addresses.sql
+
+\ir seeds/metrics.sql
 
 \ir seeds/events.sql
+
+\ir seeds/samples.sql
