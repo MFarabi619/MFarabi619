@@ -100,26 +100,43 @@
         ;; treemacs-load-theme "doom-colors"
         lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35))))
 
-(define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
-(add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
-(after! lsp-mode
-  (add-to-list 'lsp-language-id-configuration '(likec4-mode . "likec4"))
-  (lsp-register-client
-   (make-lsp-client
-    :priority -1
-    :server-id 'likec4
-    :major-modes '(likec4-mode)
-    ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
-    :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
+;; (define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
+;; (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
+;; (after! lsp-mode
+;;   (add-to-list 'lsp-language-id-configuration '(likec4-mode . "likec4"))
+;;   (lsp-register-client
+;;    (make-lsp-client
+;;     :priority -1
+;;     :server-id 'likec4
+;;     :major-modes '(likec4-mode)
+;;     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
+;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
+
+(add-hook! 'sql-mode-hook #'lsp!)
+(add-hook! 'sql-mode-hook #'sqlup-mode)
+
+(add-hook! 'conf-toml-mode-hook #'lsp!)
+;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
+
+(after! sql
+  (setq sql-port 5432
+        sql-password ""
+        sql-user "mfarabi"
+        sql-server "127.0.0.1"
+        sql-database "microvisor"))
+
+(setopt lsp-postgres-server-path "postgrestools")
+(add-hook! '(sql-mode-hook sql-interactive-mode-hook)
+  (setq-local sql-default-directory (projectile-project-root))
+  (sql-highlight-postgres-keywords))
+
 (after! lsp
-  (lsp-inlay-hints-mode)
   (setq lsp-enable-folding t
         lsp-eldoc-render-all t
         lsp-before-save-edits t
         lsp-inlay-hint-enable t
         lsp-completion-enable t
         lsp-auto-execute-action t
-        lsp-enable-tokens-enable t
         lsp-describe-thing-at-point t))
 
 (after! lsp-clangd
