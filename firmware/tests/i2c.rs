@@ -21,10 +21,56 @@ const I2C1_SCL_PIN: u32 = 18;
 const I2C_BUS_FREQUENCY_KHZ: u32 = 100;
 const I2C_SCAN_ADDRESS_MIN: u8 = 0x03;
 const I2C_SCAN_ADDRESS_MAX: u8 = 0x77;
+const I2C_SCAN_ADDRESS_COUNT: usize =
+    (I2C_SCAN_ADDRESS_MAX - I2C_SCAN_ADDRESS_MIN + 1) as usize;
+
+struct I2cBusDefinition {
+    channel_name: &'static str,
+    sda_pin: u32,
+    scl_pin: u32,
+}
+
+struct BusScanResult {
+    channel_name: &'static str,
+    found_addresses: [u8; I2C_SCAN_ADDRESS_COUNT],
+    found_count: usize,
+}
+
+const I2C0_BUS: I2cBusDefinition = I2cBusDefinition {
+    channel_name: "I2C0",
+    sda_pin: I2C0_SDA_PIN,
+    scl_pin: I2C0_SCL_PIN,
+};
+
+const I2C1_BUS: I2cBusDefinition = I2cBusDefinition {
+    channel_name: "I2C1",
+    sda_pin: I2C1_SDA_PIN,
+    scl_pin: I2C1_SCL_PIN,
+};
 
 struct Context {
     i2c0: I2c<'static, esp_hal::Blocking>,
     i2c1: I2c<'static, esp_hal::Blocking>,
+}
+
+fn log_scan_start(bus_definition: &I2cBusDefinition) {
+    info!(
+        "scanning {} (SDA=GPIO{}, SCL=GPIO{}) addresses {:#04x}..={:#04x}",
+        bus_definition.channel_name,
+        bus_definition.sda_pin,
+        bus_definition.scl_pin,
+        I2C_SCAN_ADDRESS_MIN,
+        I2C_SCAN_ADDRESS_MAX
+    );
+}
+
+fn log_scan_summary(scan_result: &BusScanResult) {
+    info!(
+        "{} summary: {} device(s) {=[u8]:#04x}",
+        scan_result.channel_name,
+        scan_result.found_count,
+        &scan_result.found_addresses[..scan_result.found_count]
+    );
 }
 
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -71,33 +117,34 @@ mod tests {
     }
 
     async fn scan_bus(
-        channel_name: &str,
-        sda_pin: u32,
-        scl_pin: u32,
+        bus_definition: &I2cBusDefinition,
         i2c: I2c<'_, esp_hal::Blocking>,
-    ) -> usize {
+    ) -> BusScanResult {
         let mut i2c_async = i2c.into_async();
 
-        info!(
-            "scanning {} (SDA=GPIO{}, SCL=GPIO{}) addresses {:#04x}..={:#04x}",
-            channel_name,
-            sda_pin,
-            scl_pin,
-            I2C_SCAN_ADDRESS_MIN,
-            I2C_SCAN_ADDRESS_MAX
-        );
+        log_scan_start(bus_definition);
 
-        let mut found_count: usize = 0;
+        let mut scan_result = BusScanResult {
+            channel_name: bus_definition.channel_name,
+            found_addresses: [0; I2C_SCAN_ADDRESS_COUNT],
+            found_count: 0,
+        };
 
         for address in I2C_SCAN_ADDRESS_MIN..=I2C_SCAN_ADDRESS_MAX {
             if i2c_async.write_async(address, &[]).await.is_ok() {
-                found_count += 1;
+                scan_result.found_addresses[scan_result.found_count] = address;
+                scan_result.found_count += 1;
                 info!("found device at {:#04x}", address);
             }
         }
 
-        info!("{} scan complete: {} device(s)", channel_name, found_count);
-        found_count
+        info!(
+            "{} scan complete: {} device(s)",
+            scan_result.channel_name,
+            scan_result.found_count
+        );
+        log_scan_summary(&scan_result);
+        scan_result
     }
 
     #[test]
@@ -105,14 +152,14 @@ mod tests {
         let i2c0 = ctx.i2c0;
         let i2c1 = ctx.i2c1;
 
-        let i2c0_count = scan_bus("I2C0", I2C0_SDA_PIN, I2C0_SCL_PIN, i2c0).await;
-        let i2c1_count = scan_bus("I2C1", I2C1_SDA_PIN, I2C1_SCL_PIN, i2c1).await;
+        let i2c0_result = scan_bus(&I2C0_BUS, i2c0).await;
+        let i2c1_result = scan_bus(&I2C1_BUS, i2c1).await;
 
         info!(
             "total: I2C0={}, I2C1={}, combined={}",
-            i2c0_count,
-            i2c1_count,
-            i2c0_count + i2c1_count
+            i2c0_result.found_count,
+            i2c1_result.found_count,
+            i2c0_result.found_count + i2c1_result.found_count
         );
     }
 }
