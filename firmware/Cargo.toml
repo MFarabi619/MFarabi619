@@ -43,7 +43,7 @@ required-features = [ "stm32h723zg" ]
 
 [[test]]
 harness      = false
-name         = "hello_test"
+name         = "hello"
 
 [[example]]
 test         = false
