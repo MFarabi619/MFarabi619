@@ -1,5 +1,3 @@
 {
-  programs.sqls = {
-    enable = true;
-  };
+  programs.sqls.enable = true;
 }
