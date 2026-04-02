@@ -1,0 +1,5 @@
+[wokwi]
+elf = "/Users/mfarabi/MFarabi619/debug/firmware"
+firmware = "/Users/mfarabi/MFarabi619/debug/firmware"
+gdbServerPort = 3333
+version = 1

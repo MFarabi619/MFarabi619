@@ -1,0 +1,41 @@
+[presets.default]
+always-print-stacktrace = true
+chip = "esp32s3"
+preverify = true
+
+[presets.esp32]
+always-print-stacktrace = true
+chip = "esp32"
+preverify = true
+
+[presets.esp32-s3-devkitc-1]
+always-print-stacktrace = true
+chip = "esp32s3"
+host = "ws://rpi5-16:8443"
+preverify = true
+probe = "303a:1001:1C:DB:D4:40:4E:38"
+token = "rpi5-16"
+
+[presets.esp32s3]
+always-print-stacktrace = true
+chip = "esp32s3"
+preverify = true
+
+[presets.seeed_xiao_esp32s3]
+always-print-stacktrace = true
+chip = "esp32s3"
+preverify = true
+probe = "303a:1001:D8:3B:DA:74:82:E8"
+
+[presets.stm32h723zg]
+always-print-stacktrace = true
+chip = "stm32h723zg"
+preverify = true
+
+[server]
+address = "rpi5-16"
+port = 8443
+
+[[server.users]]
+name = "mfarabi"
+token = "rpi5-16"

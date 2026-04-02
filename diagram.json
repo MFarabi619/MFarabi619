@@ -1,0 +1,33 @@
+{
+  "connections": [
+    [
+      "esp:TX",
+      "$serialMonitor:RX",
+      "",
+      []
+    ],
+    [
+      "esp:RX",
+      "$serialMonitor:TX",
+      "",
+      []
+    ]
+  ],
+  "editor": "wokwi",
+  "parts": [
+    {
+      "attrs": {
+        "flashSize": "16"
+      },
+      "id": "esp",
+      "left": 0.67,
+      "top": 0.59,
+      "type": "board-esp32-s3-devkitc-1"
+    }
+  ],
+  "serialMonitor": {
+    "convertEol": true,
+    "display": "terminal"
+  },
+  "version": 1
+}

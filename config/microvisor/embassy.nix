@@ -12,9 +12,8 @@ let
     let
       gitRoot = lib.attrByPath [ "git" "root" ] null config;
     in
-    if gitRoot == null then "./firmware" else "${gitRoot}/firmware";
+    if gitRoot == null then "./" else "${gitRoot}";
   finalCwd = lib.defaultTo defaultCwd cfg.cwd;
-  rust = cfg.rust;
   wokwi = cfg.wokwi;
   wokwiToml = builtins.removeAttrs wokwi [ "diagram" ];
   wokwiDiagram = lib.attrByPath [ "diagram" ] null wokwi;
@@ -27,12 +26,6 @@ in
       type = lib.types.nullOr lib.types.str;
       default = null;
       description = "Working directory where firmware config files are generated. Defaults to `${defaultCwd}`.";
-    };
-
-    rust = lib.mkOption {
-      type = lib.types.attrs;
-      default = { };
-      description = "Rust config map. Supports toolchain, cargo, and clippy keys.";
     };
 
     wokwi = lib.mkOption {
@@ -73,18 +66,7 @@ in
       );
 
     files =
-      lib.optionalAttrs (lib.attrByPath [ "toolchain" ] null rust != null) {
-        "${finalCwd}/rust-toolchain.toml".toml = {
-          toolchain = rust.toolchain;
-        };
-      }
-      // lib.optionalAttrs (lib.attrByPath [ "cargo" ] { } rust != { }) {
-        "${finalCwd}/.cargo/config.toml".toml = rust.cargo;
-      }
-      // lib.optionalAttrs (lib.attrByPath [ "clippy" ] { } rust != { }) {
-        "${finalCwd}/.clippy.toml".toml = rust.clippy;
-      }
-      // lib.optionalAttrs (wokwiToml != { }) {
+      lib.optionalAttrs (wokwiToml != { }) {
         "${finalCwd}/wokwi.toml".toml = {
           wokwi = wokwiToml;
         };
