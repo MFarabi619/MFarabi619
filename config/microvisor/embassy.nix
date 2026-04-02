@@ -51,6 +51,7 @@ in
   config = lib.mkIf cfg.enable {
     packages =
       (with pkgs-unstable; [
+        SDL2 # for embedded TUI simulator
         espup
         rustup
         openocd

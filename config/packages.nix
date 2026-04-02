@@ -8,7 +8,6 @@
   packages =
     with pkgs;
     [
-      SDL2 # for embedded TUI simulator
       sqlite
       # duckdb
       supabase-cli
