@@ -12,6 +12,7 @@
         delve
         bashdb
         asm-lsp
+        crates-lsp
         # ============= 🤖 ==================
         tree
         pixi # multi-language package manager
