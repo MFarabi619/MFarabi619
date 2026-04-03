@@ -102,6 +102,7 @@ impl Hooks for App {
         tasks.register(tasks::build::Build);
         tasks.register(tasks::flash::Flash);
         tasks.register(tasks::lcd147b::Lcd147b);
+        tasks.register(tasks::lcd147b_minimal::Lcd147bMinimal);
         tasks.register(tasks::upload::Upload);
         // tasks-inject (do not remove)
     }
