@@ -94,8 +94,8 @@
 
 (after! treemacs
   (setq treemacs-position 'left
-        lsp-treemacs-theme "Idea" ;; "Eclipse" "NetBeans"
         treemacs-indent-guide-mode t
+        lsp-treemacs-theme "Default" ;; "Idea" "Eclipse" "NetBeans"
         treemacs-git-commit-diff-mode t
         ;; treemacs-load-theme "doom-colors"
         lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35))))
