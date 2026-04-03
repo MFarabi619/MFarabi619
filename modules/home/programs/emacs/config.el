@@ -446,8 +446,8 @@
       :leader :desc "Open Dirvish" "k" #'dirvish
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
       :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
-      :leader :desc "Open Dirvish Side" "[" #'dirvish-side
-      )
+      ;; :leader :desc "Open Dirvish Side" "[" #'dirvish-side
+      :leader :desc "Open Dirvish Side" "[" #'+treemacs/toggle)
 
 (map! :map evil-window-map
       "SPC"       #'rotate-layout
