@@ -104,6 +104,7 @@ impl Hooks for App {
         tasks.register(tasks::lcd147b::Lcd147b);
         tasks.register(tasks::lcd147b_minimal::Lcd147bMinimal);
         tasks.register(tasks::upload::Upload);
+        tasks.register(tasks::test::Test);
         // tasks-inject (do not remove)
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {

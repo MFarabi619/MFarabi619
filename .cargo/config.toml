@@ -48,17 +48,6 @@ probe-rs-debug-stm32h723zg = [
     "stm32h723zg",
 ]
 
-test-esp = [
-    "test",
-    "--package",
-    "firmware",
-    "--target",
-    "xtensa-esp32s3-none-elf",
-    "--config",
-    "unstable.build-std=[\"core\",\"alloc\"]",
-    "--features", "esp32s3"
-]
-
 build-ota = [
     "build",
     "--release",
