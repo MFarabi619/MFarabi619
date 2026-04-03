@@ -27,6 +27,11 @@
       exec = ''devenv tasks run "$@" -m before'';
     };
 
+    mic = {
+      description = " 🕹️ Launch Microvisor CLI";
+      exec = ''cargo loco'';
+    };
+
     up = {
       description = " 🎉 Fire up the Microvisor Kernel";
       exec = ''devenv up "$@"'';
