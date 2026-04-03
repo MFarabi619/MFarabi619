@@ -29,7 +29,7 @@
 
     mic = {
       description = " 🕹️ Launch Microvisor CLI";
-      exec = ''cargo loco'';
+      exec = ''cargo loco "$@"'';
     };
 
     up = {
