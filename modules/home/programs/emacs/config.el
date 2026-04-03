@@ -99,7 +99,7 @@
         treemacs-git-commit-diff-mode t
         treemacs-display-in-side-window t
         ;; treemacs-load-theme "doom-colors"
-        lsp-treemacs-symbols-position-params '((side . left) (slot . 1) (window-width . 35))))
+        lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
 
 ;; (define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
 ;; (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
