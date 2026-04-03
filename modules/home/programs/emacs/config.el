@@ -94,6 +94,7 @@
 
 (after! treemacs
   (setq treemacs-width 70
+        treemacs-peek-mode t
         treemacs-follow-mode t
         treemacs-position 'right
         lsp-treemacs-theme "Default" ;; "Idea" "Eclipse" "NetBeans"
