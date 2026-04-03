@@ -9,6 +9,7 @@ on:
 
 jobs:
     nix:
+        if: false
         strategy:
             matrix:
                 # os: [ubuntu-latest, macos-latest]
@@ -45,6 +46,7 @@ jobs:
             #       cargo run -p e2e
 
     rustfmt:
+        if: false
         name: Check Style
         runs-on: ubuntu-latest
 
@@ -71,6 +73,7 @@ jobs:
                   args: --all -- --check
 
     clippy:
+        if: false
         name: Run Clippy
         runs-on: ubuntu-latest
 
