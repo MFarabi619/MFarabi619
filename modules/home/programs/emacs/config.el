@@ -93,8 +93,9 @@
         treesit-auto-install-grammar 'always))
 
 (after! treemacs
-  (setq treemacs-position 'left
+  (setq treemacs-width 70
         treemacs-follow-mode t
+        treemacs-position 'right
         lsp-treemacs-theme "Default" ;; "Idea" "Eclipse" "NetBeans"
         ;; treemacs-indent-guide-mode t
         treemacs-git-commit-diff-mode t
