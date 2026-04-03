@@ -94,6 +94,7 @@
 
 (after! treemacs
   (setq treemacs-position 'left
+        treemacs-follow-mode t
         lsp-treemacs-theme "Default" ;; "Idea" "Eclipse" "NetBeans"
         ;; treemacs-indent-guide-mode t
         treemacs-git-commit-diff-mode t
