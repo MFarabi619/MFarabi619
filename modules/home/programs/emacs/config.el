@@ -113,8 +113,8 @@
 ;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
 
 (add-hook! 'sql-mode-hook #'lsp!)
-(add-hook! 'sql-mode-hook #'sqlup-mode!)
-(add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
+;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
+;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
 
 (add-hook! 'conf-toml-mode-hook #'lsp!)
 ;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
