@@ -19,6 +19,7 @@
         glob = "allow";
         webfetch = "allow";
         question = "allow";
+        todowrite = "allow";
       };
 
       server = {
