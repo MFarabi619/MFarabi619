@@ -1,18 +1,18 @@
 use async_trait::async_trait;
+use loco_openapi::prelude::*;
 use loco_rs::{
+    Result,
     app::{AppContext, Hooks, Initializer},
     bgworker::{BackgroundWorker, Queue},
-    boot::{create_app, BootResult, StartMode},
+    boot::{BootResult, StartMode, create_app},
     config::Config,
     controller::AppRoutes,
     db::{self, truncate_table},
     environment::Environment,
     task::Tasks,
-    Result,
 };
 use migration::Migrator;
 use std::path::Path;
-use loco_openapi::prelude::*;
 
 #[allow(unused_imports)]
 use crate::{
@@ -45,30 +45,27 @@ impl Hooks for App {
     }
 
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
-      Ok(vec![
-        Box::new(
-            initializers::view_engine::ViewEngineInitializer,
-        ),
-        Box::new(
-        loco_openapi::OpenapiInitializerWithSetup::new(
-            |ctx| {
-                #[derive(OpenApi)]
-                #[openapi(
+        Ok(vec![
+            Box::new(initializers::view_engine::ViewEngineInitializer),
+            Box::new(loco_openapi::OpenapiInitializerWithSetup::new(
+                |_ctx| {
+                    #[derive(OpenApi)]
+                    #[openapi(
                     modifiers(&SecurityAddon),
                     info(
                         title = "🧩 Microvisor Systems OpenAPI Spec 🧩",
                         description = "Beep Boop 🤖"
                     )
                 )]
-                struct ApiDoc;
-                ApiDoc::openapi()
-            },
-            None, // When using automatic schema collection only
-            // When using manual schema collection
-            // Manual schema collection can also be used at the same time as automatic schema collection
-            // Some(vec![controllers::album::api_routes()]),
-        ))
-      ])
+                    struct ApiDoc;
+                    ApiDoc::openapi()
+                },
+                None, // When using automatic schema collection only
+                      // When using manual schema collection
+                      // Manual schema collection can also be used at the same time as automatic schema collection
+                      // Some(vec![controllers::album::api_routes()]),
+            )),
+        ])
     }
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
@@ -102,6 +99,9 @@ impl Hooks for App {
 
     #[allow(unused_variables)]
     fn register_tasks(tasks: &mut Tasks) {
+        tasks.register(tasks::build::Build);
+        tasks.register(tasks::flash::Flash);
+        tasks.register(tasks::upload::Upload);
         // tasks-inject (do not remove)
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {

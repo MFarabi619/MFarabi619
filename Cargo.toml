@@ -68,6 +68,7 @@ fluent-templates     = { version = "0.8.0",  features = ["tera"] } # view engine
 tracing-subscriber   = { version = "0.3.17", features = ["env-filter", "json"] }
 tokio                = { version = "1.33.0", default-features = false, features = ["rt-multi-thread"] }
 sea-orm              = { version = "1.1.19", features = ["macros", "sqlx-sqlite", "sqlx-postgres", "runtime-tokio-rustls"] }
+crc32fast            = "1.4"
 
 [profile.dev]
 # Rust debug is too slow.
