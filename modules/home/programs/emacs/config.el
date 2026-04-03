@@ -53,34 +53,45 @@
       doom-modeline-hud t
       nyan-animate-nyancat t
       doom-theme 'doom-gruvbox
+(setq doom-theme 'doom-gruvbox
       ;; doom-theme 'catppuccin
-      which-key-idle-delay 0.25
-      evil-split-window-below t
+      fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
+
+      doom-modeline-hud t
       doom-modeline-time-icon t
-      evil-vsplit-window-right t
+      doom-modeline-battery nil
       doom-modeline-persp-name t
-      doom-symbol-font doom-font
+      doom-modeline-major-mode-icon t
+      ;; doom-lantern-padded-modeline t
+
       display-time-day-and-date t
+      display-line-numbers-type 'relative
+
+      doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
+      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 32)
+      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
+      doom-symbol-font doom-font
+
+      evil-split-window-below t
+      evil-vsplit-window-right t
+      evil-escape-key-sequence "jk"
+      which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
+
+      which-key-idle-delay 0.25
+
+      org-latex-compiler "lualatex"
+      plantuml-default-exec-mode "executable"
+
+      org-directory "~/Documents/org/"
+      user-full-name "Mumtahin Farabi"
+      user-mail-address "mfarabi619@gmail.com"
+      ;; plstore-cache-passphrase-for-symmetric-encryption t
+
+      browse-url-browser-function 'browse-url-default-browser
       compilation-scroll-output t
       treemacs-git-mode 'extended
       find-file-visit-truename nil
-      evil-escape-key-sequence "jk"
-      org-latex-compiler "lualatex"
-      ;; doom-lantern-padded-modeline t
-      doom-modeline-major-mode-icon t
-      org-directory "~/Documents/org/"
-      user-full-name "Mumtahin Farabi"
-      display-line-numbers-type 'relative
-      plantuml-default-exec-mode "executable"
-      which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
-      user-mail-address "mfarabi619@gmail.com"
-      ;; plstore-cache-passphrase-for-symmetric-encryption t
-      browse-url-browser-function 'browse-url-default-browser
-      fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
-      projectile-project-search-path '("~/workspace/" "~/Documents/")
-      doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
-      doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 32)
-      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14))
+      projectile-project-search-path '("~/workspace/" "~/Documents/"))
 
 ;; https://github.com/cuspymd/tramp-term.el
 (after! tramp
