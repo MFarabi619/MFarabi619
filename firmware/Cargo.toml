@@ -94,6 +94,11 @@ required-features = ["esp32s3"]
 
 [[test]]
 harness      = false
+name         = "http_api"
+required-features = ["esp32s3"]
+
+[[test]]
+harness      = false
 name         = "ntc_formula"
 required-features = ["esp32s3"]
 
@@ -205,6 +210,7 @@ esp-radio              = { version = "0.17.0", features = ["ble", "coex", "wifi"
 picoserve              = { version = "0.16.0", features = ["embassy"] }
 heapless               = { version = "0.8.0", default-features = false }
 embedded-storage       = "0.3.1"
+libm                   = "0.2.16"
 
 smoltcp                = { version = "0.12.0", default-features = false, features = [
   "defmt",
