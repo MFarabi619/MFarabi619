@@ -391,8 +391,8 @@
           ("m" "/mnt/"                       "Mounted drives")
           ("e" ,user-emacs-directory         "Emacs user directory"))))
 
-(add-load-path! "pio-mode")
-(use-package! pio-mode)
+;; (add-load-path! "pio-mode")
+;; (use-package! pio-mode)
 
 (use-package! kbd-mode)
 (unless (eq system-type 'berkeley-unix) ; *BSD/Solaris
