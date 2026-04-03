@@ -1,6 +1,8 @@
 {
   programs.opencode = {
     enable = true;
+    web.enable = true;
+    web.extraArgs = [ "--mdns" ];
     enableMcpIntegration = true;
 
     settings = {
