@@ -99,16 +99,16 @@
   (package! speed-type)
   (package! chordpro-mode))
 
-(package! pg
-  :recipe (:host github
-           :repo "emarsden/pg-el")
-  :pin "67f50311947a54913d91852ebd6880dbe68930bc")
+;; (package! pg
+;;   :recipe (:host github
+;;            :repo "emarsden/pg-el")
+;;   :pin "67f50311947a54913d91852ebd6880dbe68930bc")
 
 ;; https://emarsden.github.io/pgmacs/
-(package! pgmacs
-  :recipe (:host github
-           :repo "emarsden/pgmacs")
-  :pin "04df50eb6cb1cc997deae9c5120ba66353601d3a")
+;; (package! pgmacs
+;;   :recipe (:host github
+;;            :repo "emarsden/pgmacs")
+;;   :pin "04df50eb6cb1cc997deae9c5120ba66353601d3a")
 
 (package! kbd-mode
   :recipe (:host github
