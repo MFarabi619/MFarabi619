@@ -82,10 +82,13 @@
         };
       };
 
-      # disabled_providers= ["openai" "gemini"];
       # instructions = ["CONTRIBUTING.md" "docs/guidelines.md" ".cursor/rules/*.md"];
       #     rules = ''
       #       # TypeScript Project Rules
+      disabled_providers = [
+        # "openai"
+        "gemini"
+      ];
 
       #       ## External File Loading
 
