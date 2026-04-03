@@ -97,6 +97,7 @@
         lsp-treemacs-theme "Default" ;; "Idea" "Eclipse" "NetBeans"
         ;; treemacs-indent-guide-mode t
         treemacs-git-commit-diff-mode t
+        treemacs-nerd-icons-icon-size 2.0
         treemacs-display-in-side-window t
         ;; treemacs-load-theme "doom-colors"
         lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
