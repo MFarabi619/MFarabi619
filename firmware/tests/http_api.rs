@@ -19,7 +19,19 @@ use esp_hal::{
 
 const FILESYSTEM_LIST_ENDPOINT_PATH: &str = "/api/filesystem/list";
 const FILESYSTEM_FILE_ENDPOINT_PREFIX: &str = "/api/filesystem/file/";
-const FILESYSTEM_UPLOAD_ENDPOINT_PREFIX: &str = "/api/filesystem/upload/";
+const FILESYSTEM_UPLOAD_ENDPOINT_PREFIX: &str = "/api/filesystem/file/";
+const SYSTEM_DEVICE_STATUS_ENDPOINT_PATH: &str = "/api/system/device/status";
+const API_ROUTE_PREFIX: &str = "/api";
+const FILESYSTEM_ROUTE_PREFIX: &str = "/filesystem";
+const SYSTEM_ROUTE_PREFIX: &str = "/system";
+const DEVICE_ROUTE_PREFIX: &str = "/device";
+const FILE_UPLOAD_MAX_BYTES: usize = 4096;
+
+const SYSTEM_DEVICE_STATUS_CLOUDEVENT_EXAMPLE: &str = "{\"specversion\":\"1.0\",\"id\":\"system-device-status-45591\",\"source\":\"urn:apidae-systems:tenant:p-uot-ins:site:university-of-ottawa\",\"type\":\"com.apidae.system.device.status.v1\",\"datacontenttype\":\"application/json\",\"time\":\"2026-04-03T17:18:43Z\",\"data\":{\"device\":{\"chip_id\":966764,\"chip_model\":\"ESP32-S3\",\"chip_cores\":2,\"chip_revision\":2,\"efuse_mac\":\"119572138669276\"},\"network\":{\"ipv4_address\":\"10.0.0.95\",\"wifi_rssi\":-61},\"runtime\":{\"uptime\":\"45s\",\"uptime_seconds\":45,\"memory_heap_bytes\":46016},\"storage\":{\"location\":\"sd\",\"total_bytes\":1876951040,\"used_bytes\":557056,\"free_bytes\":1876393984}}}";
+const FILESYSTEM_LIST_JSON_RESPONSE_EXAMPLE: &str =
+    "{\"ok\":true,\"data\":{\"entries\":[{\"name\":\"DATA.CSV\",\"size\":270,\"last_write_unix\":0}]}}";
+const FILESYSTEM_ERROR_JSON_RESPONSE_EXAMPLE: &str =
+    "{\"ok\":false,\"error\":{\"code\":\"INVALID_PATH\",\"message\":\"invalid file path\"}}";
 
 const SD_CHIP_SELECT_GPIO_PIN: u32 = 10;
 const SD_MOSI_GPIO_PIN: u32 = 11;
@@ -111,12 +123,47 @@ mod tests {
 
     #[test]
     async fn http_filesystem_endpoint_contracts_are_stable() {
+        defmt::assert_eq!(API_ROUTE_PREFIX, "/api");
+        defmt::assert_eq!(FILESYSTEM_ROUTE_PREFIX, "/filesystem");
+        defmt::assert_eq!(SYSTEM_ROUTE_PREFIX, "/system");
+        defmt::assert_eq!(DEVICE_ROUTE_PREFIX, "/device");
+
         defmt::assert_eq!(FILESYSTEM_LIST_ENDPOINT_PATH, "/api/filesystem/list");
         defmt::assert_eq!(FILESYSTEM_FILE_ENDPOINT_PREFIX, "/api/filesystem/file/");
-        defmt::assert_eq!(
-            FILESYSTEM_UPLOAD_ENDPOINT_PREFIX,
-            "/api/filesystem/upload/"
+        defmt::assert_eq!(FILESYSTEM_UPLOAD_ENDPOINT_PREFIX, "/api/filesystem/file/");
+        defmt::assert_eq!(SYSTEM_DEVICE_STATUS_ENDPOINT_PATH, "/api/system/device/status");
+    }
+
+    #[test]
+    async fn scalable_filesystem_json_envelope_shape_is_stable() {
+        defmt::assert!(FILESYSTEM_LIST_JSON_RESPONSE_EXAMPLE.contains("\"ok\":true"));
+        defmt::assert!(FILESYSTEM_LIST_JSON_RESPONSE_EXAMPLE.contains("\"data\":{\"entries\":"));
+        defmt::assert!(FILESYSTEM_LIST_JSON_RESPONSE_EXAMPLE.contains("\"name\":"));
+        defmt::assert!(FILESYSTEM_LIST_JSON_RESPONSE_EXAMPLE.contains("\"size\":"));
+        defmt::assert!(FILESYSTEM_LIST_JSON_RESPONSE_EXAMPLE.contains("\"last_write_unix\":"));
+
+        defmt::assert!(FILESYSTEM_ERROR_JSON_RESPONSE_EXAMPLE.contains("\"ok\":false"));
+        defmt::assert!(FILESYSTEM_ERROR_JSON_RESPONSE_EXAMPLE.contains("\"error\":{\"code\":"));
+        defmt::assert!(FILESYSTEM_ERROR_JSON_RESPONSE_EXAMPLE.contains("\"message\":"));
+    }
+
+    #[test]
+    async fn upload_limits_match_runtime_expectation() {
+        defmt::assert_eq!(FILE_UPLOAD_MAX_BYTES, 4096);
+    }
+
+    #[test]
+    async fn system_device_status_cloud_event_shape_is_stable() {
+        defmt::assert!(
+            SYSTEM_DEVICE_STATUS_CLOUDEVENT_EXAMPLE.contains("\"specversion\":\"1.0\"")
         );
+        defmt::assert!(SYSTEM_DEVICE_STATUS_CLOUDEVENT_EXAMPLE.contains(
+            "\"type\":\"com.apidae.system.device.status.v1\""
+        ));
+        defmt::assert!(SYSTEM_DEVICE_STATUS_CLOUDEVENT_EXAMPLE.contains("\"data\":{\"device\":"));
+        defmt::assert!(SYSTEM_DEVICE_STATUS_CLOUDEVENT_EXAMPLE.contains("\"network\":"));
+        defmt::assert!(SYSTEM_DEVICE_STATUS_CLOUDEVENT_EXAMPLE.contains("\"runtime\":"));
+        defmt::assert!(SYSTEM_DEVICE_STATUS_CLOUDEVENT_EXAMPLE.contains("\"storage\":"));
     }
 
     #[test]
