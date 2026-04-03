@@ -19,6 +19,7 @@
         glob = "allow";
         list = "allow";
         write = "allow";
+        skill = "allow";
         webfetch = "allow";
         question = "allow";
         todowrite = "allow";
