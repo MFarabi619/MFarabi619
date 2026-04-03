@@ -1,0 +1,28 @@
+[package]
+name    = "mdbook-macro"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc-macro = true
+
+[dependencies]
+quote           = "1.0"
+syntect         = "5.0"
+dioxus-rsx      = "0.7.1" # dioxus-rsx = { workspace = true }
+macro_state     = "0.2.0"
+convert_case    = "0.6.0"
+pulldown-cmark  = "0.9.3"
+serde_json      = "1.0.96"
+anyhow          = "1.0.71"
+syn             = "2.0.98" # syn = { workspace = true }
+mdbook-gen.path = "../mdbook-gen"
+proc-macro2     = { version = "1.0" }
+mdbook-shared   = { path = "../mdbook-shared" }
+serde           = { version = "1.0.163", features = ["derive"] }
+postcard        = { version = "1.0.4", features = ["use-std"] }
+
+[features]
+manganis = []

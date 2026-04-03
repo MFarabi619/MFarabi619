@@ -12,10 +12,10 @@ dioxus-sdk-time.workspace   = true
 dioxus-primitives.workspace = true
 urlencoding                 = "2.1"
 ui.path                     = "../libs/ui"
+use-mdbook.path             = "../libs/use-mdbook"
 serde                       = { version = "1.0.163", features = ["derive"] }
 web-sys                     = { version = "0.3", features = ["console", "FormData", "File"] }
 reqwest                     = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-use-mdbook                  = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa" }
 
 [features]
 default = ["web"]
@@ -25,8 +25,8 @@ server  = ["dioxus/server"]
 desktop = ["dioxus/desktop"]
 
 [build-dependencies]
+dioxus-autofmt.version = "0.7.3"
 syn                    = "2.0.98"
 prettyplease           = "0.2.36"
-dioxus-autofmt.version = "0.7.3"
-mdbook-shared          = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa" }
-mdbook-gen             = { git = "https://github.com/DioxusLabs/docsite.git", rev = "029a529a02f3fe3d0b24c143bc7722850986dbfa", features = ["manganis"] }
+mdbook-shared.path     = "../libs/mdbook-shared"
+mdbook-gen             = { path ="../libs/mdbook-gen", features = ["manganis"] }
