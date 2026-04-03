@@ -21,11 +21,16 @@
 
     loco = {
       enable = true;
-      config = {
+      config = rec {
         development = {
-          logger.format = "pretty";
           mailer.smtp.host = "mailpit.localhost";
-          database.uri = "sqlite://api_development.sqlite?mode=rwc";
+          database.uri = "sqlite://microvisor_development.sqlite?mode=rwc";
+
+          logger = {
+            level = "info";
+            format = "pretty";
+          };
+
           server.middlewares = {
             fallback.enable = false;
             static = {
