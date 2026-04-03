@@ -1,5 +1,16 @@
+# ======================================= #
+# ======================================= #
+# ======================================= #
+[env]
+DEFMT_LOG         = "info,embedded_test=warn"
+NETWORK_WIFI_SSID = ""
+NETWORK_WIFI_PSK  = ""
+OTA_DEVICE_IP     = "10.0.0.95"
+# ======================================= #
+# ======================================= #
+# ======================================= #
 [alias]
-loco = ["run", "--"]
+loco       = ["run", "--"]
 playground = ["run", "--example", "playground"]
 
 tui = ["run", "--release", "--package", "tui"]
@@ -7,7 +18,7 @@ simulator = ["tui", "--bin", "simulator"]
 simulator-minimal = ["tui", "--bin", "simulator-minimal"]
 
 microtop = ["run", "--package", "microtop"]
-firmware = ["run", "--release", "--package", "firmware"]
+firmware = ["run", "--release", "--package", "firmware" ]
 firmware-debug = ["run", "--package", "firmware"]
 # ======================================== #
 # ======================================== #
@@ -18,7 +29,7 @@ stm32h723zg = ["stm32", "--bin", "stm32h723zg"]
 # ======= if running from root  ========== #
 # =========== cargo +esp ... ============= #
 # ======================================== #
-esp = ["firmware", "--config", "unstable.build-std=[\"core\",\"alloc\"]"]
+esp = ["firmware", "--config", "unstable.build-std=[\"core\",\"alloc\"]", "--features", "esp32s3"]
 esp32 = ["esp", "--target", "xtensa-esp32-none-elf"]
 esp32s3 = ["esp", "--target", "xtensa-esp32s3-none-elf"]
 probe-rs-debug-esp32s3 = [
@@ -47,6 +58,22 @@ test-esp = [
     "unstable.build-std=[\"core\",\"alloc\"]",
     "--features", "esp32s3"
 ]
+
+build-ota = [
+    "build",
+    "--release",
+    "--package",
+    "firmware",
+    "--config",
+    "unstable.build-std=[\"core\",\"alloc\"]",
+    "--target",
+    "xtensa-esp32s3-none-elf",
+    "--features", "esp32s3",
+    "--bin",
+    "esp32s3"
+]
+
+flash-ota = ["build-ota"]
 # ======================================== #
 # ======================================== #
 # ======================================== #
@@ -63,11 +90,3 @@ runner = [
 ]
 [target.xtensa-esp32-none-elf]
 runner = "espflash flash --monitor --chip esp32"
-# ======================================= #
-# ======================================= #
-# ======================================= #
-[env]
-DEFMT_LOG = "info,embedded_test=warn"
-# ======================================= #
-# ======================================= #
-# ======================================= #

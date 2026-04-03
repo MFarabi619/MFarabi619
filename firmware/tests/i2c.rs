@@ -135,6 +135,13 @@ mod tests {
                 scan_result.found_addresses[scan_result.found_count] = address;
                 scan_result.found_count += 1;
                 info!("found device at {:#04x}", address);
+
+                let mut read_buffer = [0u8; 8];
+                if i2c_async.read_async(address, &mut read_buffer).await.is_ok() {
+                    info!("  read {=[u8]:x} from {:#04x}", &read_buffer[..], address);
+                } else {
+                    info!("  device at {:#04x} responded to write but refused read", address);
+                }
             }
         }
 

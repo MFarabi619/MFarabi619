@@ -55,6 +55,31 @@ harness      = false
 name         = "neopixel"
 required-features = ["esp32s3"]
 
+[[test]]
+harness      = false
+name         = "spi"
+required-features = ["esp32s3"]
+
+[[test]]
+harness      = false
+name         = "sdhost"
+required-features = ["esp32s3"]
+
+[[test]]
+harness      = false
+name         = "wifi_scan"
+required-features = ["esp32s3"]
+
+[[test]]
+harness      = false
+name         = "wifi_dhcp"
+required-features = ["esp32s3"]
+
+[[test]]
+harness      = false
+name         = "ota_probe"
+required-features = ["esp32s3"]
+
 [[example]]
 test         = false
 bench        = false
@@ -78,6 +103,34 @@ test         = false
 bench        = false
 name         = "ch832x"
 path         = "examples/esp32s3/ch832x.rs"
+
+[[example]]
+test         = false
+bench        = false
+name         = "wifi_tcp"
+path         = "examples/esp32s3/wifi_tcp.rs"
+required-features = ["esp32s3"]
+
+[[example]]
+test         = false
+bench        = false
+name         = "access_point"
+path         = "examples/esp32s3/access_point.rs"
+required-features = ["esp32s3"]
+
+[[example]]
+test         = false
+bench        = false
+name         = "sdcard_read"
+path         = "examples/sdcard_read.rs"
+required-features = ["esp32s3"]
+
+[[example]]
+test         = false
+bench        = false
+name         = "espota_server"
+path         = "examples/esp32s3/espota_server.rs"
+required-features = ["esp32s3"]
 
 [lib]
 test         = false
@@ -106,6 +159,9 @@ esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32", "log-04"] }
 [target.xtensa-esp32s3-none-elf.dependencies]
 smart-leds             = "0.4.0"
 esp-hal-smartled       = "0.17.0"
+embedded-hal           = "1.0.0"
+embedded-hal-bus       = "0.3.0"
+embedded-sdmmc         = { version = "0.9.0", default-features = false, features = ["defmt-log"] }
 bt-hci                 = "0.6.0"
 volatile               = "0.4.3"
 static_cell            = "2.1.1"
@@ -116,13 +172,19 @@ embassy-executor       = { workspace = true, features = ["defmt"] }
 embedded-io-async      = { workspace = true, features = ["defmt"] }
 trouble-host           = { version = "0.5.0", features = ["gatt"] }
 rtt-target             = { version = "0.6.2", features = ["defmt"] }
+
 esp-alloc              = { version = "0.9.0", features = ["defmt"] }
 panic-rtt-target       = { version = "0.2.0", features = ["defmt"] }
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
+esp-storage            = { version = "0.5.0", features = ["esp32s3", "nor-flash"] }
+esp-hal-ota            = { version = "0.4.6", features = ["esp32s3", "defmt"] }
 esp-hal                = { version = "~1.0",  features = ["defmt", "esp32s3", "unstable"] }
 embassy-net            = { version = "0.7.1", features = ["tcp", "udp", "defmt", "dhcpv4", "medium-ethernet"] }
 esp-rtos               = { version = "0.2.0", features = ["defmt", "embassy", "esp32s3", "esp-alloc", "esp-radio"] }
 esp-radio              = { version = "0.17.0", features = ["ble", "coex", "wifi", "defmt", "esp32s3", "smoltcp", "unstable", "esp-alloc"] }
+picoserve              = { version = "0.16.0", features = ["embassy"] }
+heapless               = { version = "0.8.0", default-features = false }
+embedded-storage       = "0.3.1"
 
 smoltcp                = { version = "0.12.0", default-features = false, features = [
   "defmt",
