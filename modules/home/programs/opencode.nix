@@ -17,6 +17,7 @@
         edit = "allow";
         grep = "allow";
         glob = "allow";
+        list = "allow";
         webfetch = "allow";
         question = "allow";
         todowrite = "allow";
