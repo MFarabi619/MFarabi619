@@ -1,4 +1,4 @@
-use api::app::App;
+use microvisor::app::App;
 use loco_rs::{task, testing::prelude::*};
 
 use loco_rs::boot::run_task;

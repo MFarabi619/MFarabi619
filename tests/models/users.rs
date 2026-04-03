@@ -1,4 +1,4 @@
-use api::{
+use microvisor::{
     app::App,
     models::users::{self, Model, RegisterParams},
 };

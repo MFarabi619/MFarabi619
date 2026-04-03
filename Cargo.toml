@@ -29,15 +29,15 @@ lucide-dioxus          = { version = "2.45.0", features = ["all-icons"] }
 dioxus                 = { version = "0.7.3", features = ["router", "fullstack"] }
 
 [package]
-name        = "api"
+name        = "microvisor"
 publish     = false
 edition     = "2024"
 version     = "0.1.0"
-default-run = "api-cli"
+default-run = "microvisor"
 license     = "GNU GPL 3.0"
 
 [[bin]]
-name              = "api-cli"
+name              = "microvisor"
 path              = "src/bin/main.rs"
 required-features = []
 

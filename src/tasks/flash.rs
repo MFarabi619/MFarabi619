@@ -48,7 +48,14 @@ impl Task for Flash {
         step(3, 4, "flash main firmware with partition table");
         run_command(
             "espflash",
-            &["flash", "--partition-table", PARTITION_TABLE, FIRMWARE_BIN_PATH],
+            &[
+                "flash",
+                "--partition-table",
+                PARTITION_TABLE,
+                "--erase-parts",
+                "otadata",
+                FIRMWARE_BIN_PATH,
+            ],
         )?;
 
         success("Main firmware flashed");

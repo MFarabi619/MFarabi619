@@ -1,4 +1,4 @@
-use api::{app::App, models::users};
+use microvisor::{app::App, models::users};
 use insta::{assert_debug_snapshot, with_settings};
 use loco_rs::testing::prelude::*;
 use rstest::rstest;

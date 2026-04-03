@@ -1,4 +1,4 @@
-use api::{models::users, views::auth::LoginResponse};
+use microvisor::{models::users, views::auth::LoginResponse};
 use axum::http::{HeaderName, HeaderValue};
 use loco_rs::{app::AppContext, TestServer};
 

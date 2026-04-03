@@ -1,4 +1,4 @@
-use api::app::App;
+use microvisor::app::App;
 #[allow(unused_imports)]
 use loco_rs::{cli::playground, prelude::*};
 

@@ -101,6 +101,7 @@ impl Hooks for App {
     fn register_tasks(tasks: &mut Tasks) {
         tasks.register(tasks::build::Build);
         tasks.register(tasks::flash::Flash);
+        tasks.register(tasks::lcd147b::Lcd147b);
         tasks.register(tasks::upload::Upload);
         // tasks-inject (do not remove)
     }

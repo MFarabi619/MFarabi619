@@ -175,36 +175,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
-name = "api"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "axum",
- "axum-extra 0.12.5",
- "chrono",
- "crc32fast",
- "fluent-templates",
- "include_dir",
- "insta",
- "loco-openapi",
- "loco-rs",
- "migration",
- "regex",
- "rstest",
- "scalar_api_reference",
- "sea-orm",
- "serde",
- "serde_json",
- "serial_test",
- "tokio",
- "tracing",
- "tracing-subscriber",
- "unic-langid",
- "uuid",
- "validator",
-]
-
-[[package]]
 name = "ar_archive_writer"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6765,6 +6735,36 @@ dependencies = [
  "tui-tree-widget",
  "wasm-bindgen-futures",
  "web-time",
+]
+
+[[package]]
+name = "microvisor"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "axum",
+ "axum-extra 0.12.5",
+ "chrono",
+ "crc32fast",
+ "fluent-templates",
+ "include_dir",
+ "insta",
+ "loco-openapi",
+ "loco-rs",
+ "migration",
+ "regex",
+ "rstest",
+ "scalar_api_reference",
+ "sea-orm",
+ "serde",
+ "serde_json",
+ "serial_test",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "unic-langid",
+ "uuid",
+ "validator",
 ]
 
 [[package]]
