@@ -14,6 +14,7 @@
 
       permission = {
         bash = "ask";
+        read = "allow";
         edit = "allow";
         grep = "allow";
         glob = "allow";
