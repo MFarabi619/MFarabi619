@@ -50,7 +50,10 @@
         compiler-explorer
 
         compile-multi
+        compile-multi-embark
+        consult-compile-multi
         compile-multi-nerd-icons
+        compile-multi-all-the-icons
 
         kconfig-ref
         kconfig-mode

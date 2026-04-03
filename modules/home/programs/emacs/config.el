@@ -128,6 +128,50 @@
 ;;     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
 ;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
 
+(after! compile-multi
+  (setq compile-multi-config '())
+  (push '((file-exists-p "devenv.nix")
+          ("devenv tasks list" . "devenv tasks list")
+          ("devenv up postgres --no-tui --detach" . "devenv up postgres --no-tui --detach")
+          ("devenv info" . "devenv info"))
+        compile-multi-config)
+
+  (push '((let ((root (ignore-errors (projectile-project-root))))
+            (and root (string= (file-name-nondirectory (directory-file-name root)) "MFarabi619")))
+          ("test i2c" . "cargo loco task test firmware:i2c")
+          ("test ntc_formula" . "cargo loco task test firmware:ntc_formula")
+          ("test filesystem" . "cargo loco task test firmware:filesystem")
+          ("test sleep" . "cargo loco task test firmware:sleep")
+          ("nix run .#activate" . "nix run .#activate")
+          ("cargo loco task" . "cargo loco task")
+          ("cargo loco routes" . "cargo loco routes")
+          ("cargo loco doctor" . "cargo loco doctor"))
+        compile-multi-config))
+
+(use-package! nerd-icons-completion
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode 1)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package! consult-compile-multi
+  :after compile-multi
+  :config
+  (consult-compile-multi-mode 1))
+
+(use-package! compile-multi-nerd-icons
+  :after (compile-multi nerd-icons-completion)
+  :demand t)
+
+(use-package! compile-multi-all-the-icons
+  :after (all-the-icons-completion compile-multi)
+  :demand t)
+
+(use-package! compile-multi-embark
+  :after (compile-multi embark)
+  :config
+  (compile-multi-embark-mode 1))
+
 (add-hook! 'sql-mode-hook #'lsp!)
 ;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
 ;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
@@ -461,6 +505,9 @@
 (map! :n "C-'" #'+vterm/toggle
       :leader :desc "Open Dirvish" "k" #'dirvish
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
+      :leader (:prefix ("c" . "compile")
+               :desc "Compile multi" "c" #'compile-multi
+               :desc "Compile command" "C" #'compile)
       :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
       ;; :leader :desc "Open Dirvish Side" "[" #'dirvish-side
       :leader :desc "Open Dirvish Side" "[" #'+treemacs/toggle)
@@ -584,7 +631,28 @@ If lazygit is active there, quit it and leave the shell running."
       (vterm-send-return))))
 
 (after! compile-multi
-  (setopt compile-multi-default-directory #'projectile-project-root))
+  (setopt compile-multi-default-directory #'projectile-project-root)
+  (set-popup-rule! "^\\*compilation\\*.*$"
+    :quit t
+    :slot 0
+    :ttl nil
+    :vslot 0
+    :width 0.5
+    :height 0.5
+    :select nil
+    :modeline nil
+    :side 'right))
+
+(set-popup-rule! "^\\*compilation\\*.*$"
+  :quit t
+  :slot 0
+  :ttl nil
+  :vslot 0
+  :width 0.5
+  :height 0.5
+  :select nil
+  :modeline nil
+  :side 'right)
 
 (after! projectile
   (add-hook 'projectile-after-switch-project-hook #'my/warm-project-vterm))
