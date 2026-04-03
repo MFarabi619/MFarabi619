@@ -41,6 +41,18 @@ name         = "stm32h723zg"
 path         = "src/bin/stm32h723zg.rs"
 required-features = [ "stm32h723zg" ]
 
+[[bin]]
+test         = false
+name         = "esp32s3_lcd147b"
+path         = "src/bin/esp32s3_lcd147b.rs"
+required-features = [ "esp32s3" ]
+
+[[bin]]
+test         = false
+name         = "esp32s3_lcd147b_minimal"
+path         = "src/bin/esp32s3_lcd147b_minimal.rs"
+required-features = [ "esp32s3" ]
+
 [[test]]
 harness      = false
 name         = "hello"
@@ -161,6 +173,9 @@ smart-leds             = "0.4.0"
 esp-hal-smartled       = "0.17.0"
 embedded-hal           = "1.0.0"
 embedded-hal-bus       = "0.3.0"
+mipidsi                = "0.10.0"
+mousefood              = { version = "0.5.0", default-features = false, features = ["fonts"] }
+ratatui                = { version = "0.30.0", default-features = false, features = ["all-widgets"] }
 embedded-sdmmc         = { version = "0.9.0", default-features = false, features = ["defmt-log"] }
 bt-hci                 = "0.6.0"
 volatile               = "0.4.3"
