@@ -50,6 +50,7 @@ local.properties
 .DS_Store
 .settings
 .classpath
+!.vscode/settings.json
 !.vscode/extensions.json
 !.vscode/settings-example.json
 
