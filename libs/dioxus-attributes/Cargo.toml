@@ -1,15 +1,15 @@
 [package]
-edition = "2021"
-version = "0.1.0"
-name = "dioxus-attributes"
-license = "MIT OR Apache-2.0"
+edition     = "2021"
+version     = "0.1.0"
+name        = "dioxus-attributes"
+license     = "MIT OR Apache-2.0"
 description = "Proc macro for creating dynamic attribute lists for Dioxus elements"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-quote = "1.0"
-dioxus-rsx = "0.7.1"
+quote       = "1.0"
+dioxus-rsx  = "0.7.1"
 proc-macro2 = "1.0"
-syn = { version = "2.0", features = ["full", "extra-traits"] }
+syn         = { version = "2.0", features = ["full", "extra-traits"] }
