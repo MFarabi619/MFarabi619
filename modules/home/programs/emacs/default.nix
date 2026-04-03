@@ -34,7 +34,7 @@
         mu4e
         empv
         verb
-        gptel
+        # gptel
         vterm
         circe
         corfu

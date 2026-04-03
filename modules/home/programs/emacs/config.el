@@ -34,13 +34,26 @@
 ;; ;; (load! "./extra/sway-ts-mode")
 ;; (setq treesit-extra-load-path "./extra")
 
+;; (after! nyan-mode
+;;   :config
+;;   (setopt nyan-animate-nyancat t
+;;           ;; nyan-wavy-trail t
+;;           ))
+;; (nyan-mode)
+
+;; (after! parrot-mode
+;;   :config
+;;   (parrot-type "science"))
 ;; (parrot-mode)
-;; (nyan-mode t)
+
 ;; (minimap-mode)
 (display-time-mode 1)
+(line-number-mode nil)
+(column-number-mode nil)
 (kitty-graphics-mode 1)
-(window-divider-mode -1)
+(window-divider-mode nil)
 (global-undo-tree-mode 1)
+(size-indication-mode nil)
 ;; (keycast-tab-line-mode)
 ;; (+global-word-wrap-mode +1)
 (dape-breakpoint-global-mode 1)
@@ -49,10 +62,10 @@
 (set-frame-parameter nil 'undecorated t)
 (add-to-list 'default-frame-alist '(undecorated . t))
 
-(setq nyan-wavy-trail t
-      doom-modeline-hud t
-      nyan-animate-nyancat t
-      doom-theme 'doom-gruvbox
+;; (after! doom-modeline
+;;   (setopt doom-modeline-percent-position nil
+;;           doom-modeline-buffer-position nil))
+
 (setq doom-theme 'doom-gruvbox
       ;; doom-theme 'catppuccin
       fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
@@ -172,24 +185,6 @@
   :config
   (compile-multi-embark-mode 1))
 
-(add-hook! 'sql-mode-hook #'lsp!)
-;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
-;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
-
-(add-hook! 'conf-toml-mode-hook #'lsp!)
-;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
-
-(after! sql
-  (setq sql-port 5432
-        sql-password ""
-        sql-user "mfarabi"
-        sql-server "127.0.0.1"
-        sql-database "microvisor"))
-
-(setopt lsp-postgres-server-path "postgrestools")
-(add-hook! '(sql-mode-hook sql-interactive-mode-hook)
-  (setq-local sql-default-directory (projectile-project-root))
-  (sql-highlight-postgres-keywords))
 
 (after! lsp
   (setq lsp-enable-folding t
@@ -199,6 +194,36 @@
         lsp-completion-enable t
         lsp-auto-execute-action t
         lsp-describe-thing-at-point t))
+
+(after! rustic-mode
+  (setopt lsp-rust-features "all"
+          lsp-rust-unstable-features t
+          lsp-rust-analyzer-implicit-drops t
+          lsp-rust-analyzer-lens-references-adt-enable t
+          lsp-rust-analyzer-lens-references-trait-enable t
+          lsp-rust-analyzer-lens-references-method-enable t
+          lsp-rust-analyzer-lens-references-enum-variant-enable t
+          lsp-rust-analyzer-display-lifetime-elision-hints-enable t
+          lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
+
+(add-hook! 'sql-mode-hook #'lsp!)
+;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
+;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
+
+(add-hook! 'conf-toml-mode-hook #'lsp!)
+;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
+
+(setopt lsp-postgres-server-path "postgrestools")
+(add-hook! '(sql-mode-hook sql-interactive-mode-hook)
+  (setq-local sql-default-directory (projectile-project-root))
+  (sql-highlight-postgres-keywords))
+
+(after! sql
+  (setq sql-port 5432
+        sql-password ""
+        sql-user "mfarabi"
+        sql-server "127.0.0.1"
+        sql-database "microvisor"))
 
 (after! lsp-clangd
   (set-lsp-priority! 'clangd 2)
@@ -458,49 +483,49 @@
 (unless (eq system-type 'berkeley-unix) ; *BSD/Solaris
   (use-package! exercism))
 
-(use-package! gptel-integrations)
-(use-package! gptel
-  :config
-  (setq gptel-use-tools t
-        gptel-track-media t
-        gptel-default-mode #'org-mode
-        gptel-directives '((writing     . "You are a large language model and a writing assistant.")
-                           (chat        . "You are a large language model and a conversation partner.")
-                           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-                           (default     . "You are a large language model living in Doom Emacs and a helpful assistant. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, daily drive NixOS and Nix Darwin MacOS from time to time. I prefer to write code in Rust, and Nix. When responding for code snippets, always take best practices, design patterns, and scalability into account while keeping things simple. Always follow up your responses with questions and ideas. Do not be blunt when responding, provide justification and educate me if you notice that I may be misled."))
-        gptel-model 'llama3.2:3b
-        gptel-backend (gptel-make-ollama "Ollama"
-                        :stream t
-                        :host "localhost:11434"
-                        :models '(llava:34b
-                                  llama3.2:3b
-                                  gpt-oss:20b
-                                  gpt-oss:120b
-                                  mistral:latest
-                                  qwen2.5-coder:32b
-                                  phind-codellama:34b))
-        ;; gptel-api-key "your key"
-        ;; gptel-model 'gpt-4.1
-        ;; gptel-backend (gptel-make-gh-copilot "Copilot")
-        )
+;; (use-package! gptel-integrations)
+;; (use-package! gptel
+;;   :config
+;;   (setq gptel-use-tools t
+;;         gptel-track-media t
+;;         gptel-default-mode #'org-mode
+;;         gptel-directives '((writing     . "You are a large language model and a writing assistant.")
+;;                            (chat        . "You are a large language model and a conversation partner.")
+;;                            (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+;;                            (default     . "You are a large language model living in Doom Emacs and a helpful assistant. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, daily drive NixOS and Nix Darwin MacOS from time to time. I prefer to write code in Rust, and Nix. When responding for code snippets, always take best practices, design patterns, and scalability into account while keeping things simple. Always follow up your responses with questions and ideas. Do not be blunt when responding, provide justification and educate me if you notice that I may be misled."))
+;;         gptel-model 'llama3.2:3b
+;;         gptel-backend (gptel-make-ollama "Ollama"
+;;                         :stream t
+;;                         :host "localhost:11434"
+;;                         :models '(llava:34b
+;;                                   llama3.2:3b
+;;                                   gpt-oss:20b
+;;                                   gpt-oss:120b
+;;                                   mistral:latest
+;;                                   qwen2.5-coder:32b
+;;                                   phind-codellama:34b))
+;;         ;; gptel-api-key "your key"
+;;         ;; gptel-model 'gpt-4.1
+;;         ;; gptel-backend (gptel-make-gh-copilot "Copilot")
+;;         )
 
-  (gptel-make-preset 'gpt-4.1
-    :model 'gpt-4.1
-    :backend "Copilot"
-    :description "GPT 4.1 from GitHub")
+;;   (gptel-make-preset 'gpt-4.1
+;;     :model 'gpt-4.1
+;;     :backend "Copilot"
+;;     :description "GPT 4.1 from GitHub")
 
-  (defun llm-tool-collection-register-with-gptel (tool-spec)
-    "Register a tool defined by TOOL-SPEC with gptel.
-  TOOL-SPEC is a plist that can be passed to `gptel-make-tool'."
-    (let ((tool (apply #'gptel-make-tool tool-spec)))
-      (setq gptel-tools (cons tool (seq-remove (lambda (existing) (string= (gptel-tool-name existing) (gptel-tool-name tool))) gptel-tools)))))
+;;   (defun llm-tool-collection-register-with-gptel (tool-spec)
+;;     "Register a tool defined by TOOL-SPEC with gptel.
+;;   TOOL-SPEC is a plist that can be passed to `gptel-make-tool'."
+;;     (let ((tool (apply #'gptel-make-tool tool-spec)))
+;;       (setq gptel-tools (cons tool (seq-remove (lambda (existing) (string= (gptel-tool-name existing) (gptel-tool-name tool))) gptel-tools)))))
 
-  (add-hook 'llm-tool-collection-post-define-functions #'llm-tool-collection-register-with-gptel)
-  (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll 'gptel-post-response-functions 'gptel-end-of-response))
+;;   (add-hook 'llm-tool-collection-post-define-functions #'llm-tool-collection-register-with-gptel)
+;;   (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll 'gptel-post-response-functions 'gptel-end-of-response))
 
-(use-package! llm-tool-collection)
-(after! llm-tool-collection
-  (mapcar (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
+;; (use-package! llm-tool-collection)
+;; (after! llm-tool-collection
+;;   (mapcar (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
 
 (map! :n "C-'" #'+vterm/toggle
       :leader :desc "Open Dirvish" "k" #'dirvish
@@ -523,23 +548,23 @@
       "C-<down>"  #'+evil/window-move-down
       "C-<right>" #'+evil/window-move-right)
 
-(set-popup-rule! "*Ollama*"
-  :ttl 0
-  :size 0.5
-  :vslot -4
-  :quit nil
-  :select t
-  :modeline t
-  :side 'left)
+;; (set-popup-rule! "*Ollama*"
+;;   :ttl 0
+;;   :size 0.5
+;;   :vslot -4
+;;   :quit nil
+;;   :select t
+;;   :modeline nil
+;;   :side 'left)
 
-(set-popup-rule! "*Copilot*"
-  :ttl 0
-  :size 0.5
-  :vslot -4
-  :quit nil
-  :select t
-  :modeline t
-  :side 'left)
+;; (set-popup-rule! "*Copilot*"
+;;   :ttl 0
+;;   :size 0.5
+;;   :vslot -4
+;;   :quit nil
+;;   :select t
+;;   :modeline nil
+;;   :side 'left)
 
 (set-popup-rule! "^\\*Flycheck errors\\*$"
   :size 0.4
