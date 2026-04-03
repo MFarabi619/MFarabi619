@@ -92,6 +92,11 @@ harness      = false
 name         = "ota_probe"
 required-features = ["esp32s3"]
 
+[[test]]
+harness      = false
+name         = "ntc_formula"
+required-features = ["esp32s3"]
+
 [[example]]
 test         = false
 bench        = false
