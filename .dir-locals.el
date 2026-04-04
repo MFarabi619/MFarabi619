@@ -1,127 +1,169 @@
 ((nil .
-      (
-       (compile-multi-annotate-cmds . t)
+      ((compile-multi-annotate-cmds . t)
        (compile-multi-annotate-limit . 10)
-       (compile-multi-annotate-string-cmds . t)
        (compile-multi-annotate-string-cmds . nil)
        (compile-multi-group-cmds . group-and-replace)
-       (compile-multi-dir-local-config
-        . ((t
-            ("󱄅 microvisor :󰔡 activate"           :command "nix run .#activate"                      :annotation "   nix ")
-            ("󱄅 microvisor :󰍉 info"               :command "devenv info"                             :annotation "devenv 󱄅")
-            ("󱄅 microvisor : tasks"              :command "devenv tasks list"                       :annotation "devenv 󱄅")
-            ("󱄅 microvisor : down"               :command "devenv processes down"                   :annotation "devenv 󱄅")
-            ("󱄅 microvisor : sqld"               :command "devenv up sqld -d"                       :annotation "devenv 󱄅")
-            ("󱄅 microvisor : caddy"              :command "devenv up caddy -d"                      :annotation "devenv 󱄅")
-            ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit -d"                    :annotation "devenv 󱄅")
-            ("󱄅 microvisor : postgres"           :command "devenv up postgres -d"                   :annotation "devenv 󱄅")
-            ("󱄅 microvisor :󰖟 tailscale"          :command "devenv up tailscale -d"                  :annotation "devenv 󱄅")
-            ("󱄅 microvisor : prometheus"         :command "devenv up prometheus -d"                 :annotation "devenv 󱄅")
-            ;; ("󱄅 microvisor :󰏓 build"              :command "darwin-rebuild build --flake ."          :annotation "nix-darwin ")
-            ;; (when (eq system-type 'freebsd)
-            ;;   ("󱄅 microvisor : update:upgrade"   :command "pkg update && pkg upgrade -y"            :annotation "pkg    󰣠"))
-            ;; (when (eq system-type 'openbsd)
-            ;;   ("󱄅 microvisor : update:upgrade"   :command "pkg-update && pkg upgrade -y"            :annotation "pkg_add "))
-            ;; (when (eq system-type 'darwin)
-            ;;   ("󱄅 microvisor : rebuild:switch"   :command "darwin rebuild switch --flake ."         :annotation "nix    "))
-            ;; (when (eq system-type 'debian)
-            ;;   ("󱄅 microvisor : update:upgrade"   :command "pkg update && pkg upgrade -y"            :annotation "apt    "))
-            ;; (when (eq system-type 'arch-linux)
-            ;;   ("󱄅 microvisor : update:upgrade"   :command "pkg update && pkg upgrade -y"            :annotation "pacman "))
+       (eval . (progn
+                 (require 'compile-multi)
+                 (require 'nerd-icons nil t)
+                 (require 'subr-x)
 
-            ("󰕮 microtop 󰕮:󰐊 run"                  :command "cargo r -rp microtop"                    :annotation " cargo ")
-            ("󰦉 web 󰦉:󰐊 run"                       :command "cargo r -rp microtop"                    :annotation " cargo ")
-            (" tui :󰐊 run"                       :command "cargo r -rp tui"                         :annotation " cargo ")
-            (" tui :󰇉 simulate"                  :command "cargo r -rp tui --bin simulator"         :annotation " cargo ")
-            (" tui :󰍹 simulate(min)"             :command "cargo r -rp tui --bin simulator-minimal" :annotation " cargo ")
+                 (defvar my/compile-multi-annotation-icon-files
+                   '(("cargo" . "Cargo.toml")
+                     ("nix" . "flake.nix")
+                     ("devenv" . "flake.nix")))
 
-            (" ESP32 :󰐊 run"                     :command "cargo +esp r -rp firmware -F esp32s3                      --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32-none-elf"   :annotation "cargo +esp ")
+                 (defun my/compile-multi-annotation-prefix (annotation_text)
+                   (car (split-string (string-trim-left annotation_text) "[[:space:]]+" t)))
 
-            (" ESP32S3 :󰡢 build"                 :command "cargo +esp b -rp firmware -F esp32s3                      --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 : debug"                 :command "cargo +esp r -p  firmware                                 --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰔰 flash"                 :command "cargo +esp r -rp firmware -F esp32s3                      --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 : upload"                :command "cargo +esp b -rp firmware -F esp32s3                      --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 : partition"             :command "cargo +esp b -rp firmware -F esp32s3                      --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:i2c "           :command "cargo +esp t -p  firmware -F esp32s3 --test i2c           --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:ds3231 "        :command "cargo +esp t -p  firmware -F esp32s3 --test ds3231        --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:filesystem "    :command "cargo +esp t -p  firmware -F esp32s3 --test filesystem    --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:ntc_formula "   :command "cargo +esp t -p  firmware -F esp32s3 --test ntc_formula   --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󱉟 example:deep_sleep 󰒲" :command "cargo +esp r -p  firmware -F esp32s3 --example deep_sleep --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+                 (defun my/compile-multi-strip-trailing-annotation-icon (annotation_text)
+                   (replace-regexp-in-string "\\s-*\\(\\|\\|󱄅\\)\\s-*$" ""
+                                             (string-trim-right annotation_text)))
 
-            ("󰚗 STM32H723ZG 󰚗:󰐊 run"               :command "cargo      r -rp firmware            --bin stm32h723zg                                                       --target thumbv7em-none-eabihf"   :annotation "cargo ")
-            ("󰚗 STM32H723ZG 󰚗: debug"             :command "cargo      r -p  firmware            --bin stm32h723zg                                                       --target thumbv7em-none-eabihf"   :annotation "cargo ")
-            ))))
-      ))
+                 (defun my/compile-multi-truncate-annotation (annotation_text)
+                   (if (and compile-multi-annotate-limit
+                            (> (length annotation_text) compile-multi-annotate-limit))
+                       (concat
+                        (string-trim-right
+                         (substring annotation_text 0 compile-multi-annotate-limit))
+                        "…")
+                     annotation_text))
 
-;; ((nil . ((compile-multi-group-cmds . group-and-replace)
-;;          (compile-multi-annotate-cmds . t)
-;;          (compile-multi-annotate-string-cmds . t)
-;;          (compile-multi-annotate-limit . 80)
-;;          (eval . (progn
-;;                    (require 'nerd-icons)
-;;                    (setq-local
-;;                     compile-multi-dir-local-config
-;;                     `((t
-;;                        (,(format "devenv:%s tasks list"
-;;                                  (nerd-icons-mdicon "nf-md-format_list_bulleted"))
-;;                         . "devenv tasks list")
-;;                        (,(format "devenv:%s up postgres"
-;;                                  (nerd-icons-mdicon "nf-md-database_arrow_up"))
-;;                         . "devenv up postgres -d")
-;;                        (,(format "devenv:%s info"
-;;                                  (nerd-icons-mdicon "nf-md-information_outline"))
-;;                         . "devenv info")
+                 (defun my/compile-multi-render-right-annotation (annotation_text icon_text)
+                   (let* ((annotation_rendered
+                           (concat
+                            (propertize annotation_text 'face 'completions-annotations)
+                            " "
+                            icon_text))
+                          (annotation_width
+                           (string-width (substring-no-properties annotation_rendered))))
+                     (concat
+                      " "
+                      (propertize
+                       " "
+                       'display `(space :align-to (- right ,(+ 1 annotation_width))))
+                      annotation_rendered)))
 
-;;                        (,(format "firmware:%s test i2c"
-;;                                  (nerd-icons-mdicon "nf-md-connection"))
-;;                         . "cargo loco task test firmware:i2c")
-;;                        (,(format "firmware:%s test ntc_formula"
-;;                                  (nerd-icons-mdicon "nf-md-function"))
-;;                         . "cargo loco task test firmware:ntc_formula")
-;;                        (,(format "firmware:%s test filesystem"
-;;                                  (nerd-icons-mdicon "nf-md-database"))
-;;                         . "cargo loco task test firmware:filesystem")
-;;                        (,(format "firmware:%s test deep_sleep"
-;;                                  (nerd-icons-mdicon "nf-md-sleep"))
-;;                         . "cargo loco task test firmware:deep_sleep")
+                 (defun my/compile-multi-local-annotation-with-colored-icons (original-function task)
+                   "Render compile-multi annotations with colored cargo/nix icons."
+                   (let ((annotation_text (plist-get (cdr task) :annotation)))
+                     (if (not (stringp annotation_text))
+                         (funcall original-function task)
+                       (let* ((annotation_prefix (my/compile-multi-annotation-prefix annotation_text))
+                              (icon_file_name
+                               (and annotation_prefix
+                                    (cdr (assoc annotation_prefix my/compile-multi-annotation-icon-files)))))
+                         (if (not (and icon_file_name
+                                       (fboundp 'nerd-icons-icon-for-file)))
+                             (funcall original-function task)
+                           (let* ((annotation_base
+                                   (my/compile-multi-strip-trailing-annotation-icon annotation_text))
+                                  (annotation_text_truncated
+                                   (my/compile-multi-truncate-annotation annotation_base))
+                                  (annotation_icon
+                                   (nerd-icons-icon-for-file icon_file_name)))
+                             (my/compile-multi-render-right-annotation
+                              annotation_text_truncated
+                              annotation_icon)))))))
 
-;;                        (,(format "loco:%s task"
-;;                                  (nerd-icons-mdicon "nf-md-hammer_wrench"))
-;;                         . "cargo loco task")
-;;                        (,(format "loco:%s routes"
-;;                                  (nerd-icons-mdicon "nf-md-routes"))
-;;                         . "cargo loco routes")
-;;                        (,(format "loco:%s doctor"
-;;                                  (nerd-icons-mdicon "nf-md-stethoscope"))
-;;                         . "cargo loco doctor")
+                 (when (advice-member-p
+                        #'my/compile-multi-local-annotation-with-colored-icons
+                        #'compile-multi--annotation-function)
+                   (advice-remove
+                    'compile-multi--annotation-function
+                    #'my/compile-multi-local-annotation-with-colored-icons))
 
-;;                        (,(format "nix:%s activate"
-;;                                  (nerd-icons-mdicon "nf-md-snowflake"))
-;;                         . "nix run .#activate")))))))))
+                 (advice-add
+                  'compile-multi--annotation-function
+                  :around
+                  #'my/compile-multi-local-annotation-with-colored-icons)
 
-;; ((nil . ((compile-multi-group-cmds . group-and-replace)
-;;          (compile-multi-annotate-cmds . t)
-;;          (compile-multi-annotate-string-cmds . t)
-;;          (compile-multi-annotate-limit . 80)
-;;          (compile-multi-nerd-icons-alist
-;;           . ((devenv   nerd-icons-mdicon  "nf-md-package_variant" :face nerd-icons-blue)
-;;              (firmware nerd-icons-mdicon  "nf-md-chip"            :face nerd-icons-lblue)
-;;              (loco     nerd-icons-mdicon  "nf-md-tools"           :face nerd-icons-orange)
-;;              (nix      nerd-icons-mdicon  "nf-md-snowflake"       :face nerd-icons-cyan)
-;;              (t        nerd-icons-mdicon  "nf-md-console"         :face nerd-icons-dsilver)))
-;;          (compile-multi-dir-local-config
-;;           . ((t
-;;               ("devenv:tasks list" . "devenv tasks list")
-;;               ("devenv:up postgres" . "devenv up postgres -d")
-;;               ("devenv:info" . "devenv info")
+                 (let* ((cargo-command-prefix "cargo")
+                        (cargo-esp-command-prefix "cargo +esp")
+                        (firmware-package-name "firmware")
+                        (esp-feature-flag "-F esp32s3")
+                        (esp-build-std-flag "--config 'unstable.build-std=[\"core\",\"alloc\"]'")
+                        (esp32-target-flag "--target xtensa-esp32-none-elf")
+                        (esp32s3-target-flag "--target xtensa-esp32s3-none-elf")
+                        (stm32-target-flag "--target thumbv7em-none-eabihf")
+                        (cargo-run-command
+                         (lambda (package-name &optional binary-name release-enabled extra-flags)
+                           (string-join
+                            (delq nil
+                                  (list cargo-command-prefix
+                                        "r"
+                                        (if release-enabled "-rp" "-p")
+                                        package-name
+                                        (when binary-name (format "--bin %s" binary-name))
+                                        extra-flags))
+                            " ")))
+                        (cargo-esp-firmware-command
+                         (lambda (subcommand release-enabled target-flag include-features extra-flags)
+                           (string-join
+                            (delq nil
+                                  (list cargo-esp-command-prefix
+                                        subcommand
+                                        (if release-enabled "-rp" "-p")
+                                        firmware-package-name
+                                        (when include-features esp-feature-flag)
+                                        extra-flags
+                                        esp-build-std-flag
+                                        target-flag))
+                            " ")))
+                        (devenv-service-commands
+                         '(("󱄅 microvisor : sqld" . "sqld")
+                           ("󱄅 microvisor : caddy" . "caddy")
+                           ("󱄅 microvisor :󰇮 mailpit" . "mailpit")
+                           ("󱄅 microvisor : postgres" . "postgres")
+                           ("󱄅 microvisor :󰖟 tailscale" . "tailscale")
+                           ("󱄅 microvisor : prometheus" . "prometheus")))
+                        (esp32s3-test-targets
+                         '((" ESP32S3 :󰙨 test:i2c " . "i2c")
+                           (" ESP32S3 :󰙨 test:ds3231 " . "ds3231")
+                           (" ESP32S3 :󰙨 test:filesystem " . "filesystem")
+                           (" ESP32S3 :󰙨 test:ntc_formula " . "ntc_formula"))))
+                   (setq-local
+                    compile-multi-dir-local-config
+                    `((t
+                       ("󱄅 microvisor :󰔡 activate" :command "nix run .#activate"    :annotation "   nix ")
+                       ("󱄅 microvisor :󰍉 info"     :command "devenv info"           :annotation "devenv 󱄅")
+                       ("󱄅 microvisor : tasks"    :command "devenv tasks list"     :annotation "devenv 󱄅")
+                       ("󱄅 microvisor : down"     :command "devenv processes down" :annotation "devenv 󱄅")
+                       ,@(mapcar (lambda (service_entry)
+                                   `(,(car service_entry)
+                                     :command ,(format "devenv up %s -d" (cdr service_entry))
+                                     :annotation "devenv 󱄅"))
+                                 devenv-service-commands)
+                       ;; ("󱄅 microvisor :󰏓 build"              :command "darwin-rebuild build --flake ."          :annotation "nix-darwin ")
+                       ;; (when (eq system-type 'freebsd)
+                       ;;   ("󱄅 microvisor : update:upgrade"   :command "pkg update && pkg upgrade -y"            :annotation "pkg    󰣠"))
+                       ;; (when (eq system-type 'openbsd)
+                       ;;   ("󱄅 microvisor : update:upgrade"   :command "pkg-update && pkg upgrade -y"            :annotation "pkg_add "))
+                       ;; (when (eq system-type 'darwin)
+                       ;;   ("󱄅 microvisor : rebuild:switch"   :command "darwin rebuild switch --flake ."         :annotation "nix    "))
+                       ;; (when (eq system-type 'debian)
+                       ;;   ("󱄅 microvisor : update:upgrade"   :command "pkg update && pkg upgrade -y"            :annotation "apt    "))
+                       ;; (when (eq system-type 'arch-linux)
+                       ;;   ("󱄅 microvisor : update:upgrade"   :command "pkg update && pkg upgrade -y"            :annotation "pacman "))
 
-;;               ("firmware:test i2c" . "cargo loco task test firmware:i2c")
-;;               ("firmware:test ntc_formula" . "cargo loco task test firmware:ntc_formula")
-;;               ("firmware:test filesystem" . "cargo loco task test firmware:filesystem")
-;;               ("firmware:test deep_sleep" . "cargo loco task test firmware:deep_sleep")
+                       ("󰕮 microtop 󰕮:󰐊 run"      :command ,(funcall cargo-run-command "microtop" nil t nil)                         :annotation "     cargo ")
+                       ("󱄅 microvisor :󰙨 test"   :command "cargo loco test"                                                        :annotation "cargo +esp ")
+                       ("󰦉 web 󰦉:󰐊 run"           :command ,(funcall cargo-run-command "web" nil t nil)                              :annotation "     cargo ")
+                       (" tui :󰐊 run"           :command ,(funcall cargo-run-command "tui" nil t nil)                              :annotation "     cargo ")
+                       (" tui :󰇉 simulate"      :command ,(funcall cargo-run-command "tui" "simulator" t nil)                      :annotation "     cargo ")
+                       (" tui :󰍹 simulate(min)" :command ,(funcall cargo-run-command "tui" "simulator-minimal" t nil)              :annotation "     cargo ")
 
-;;               ("loco:task" . "cargo loco task")
-;;               ("loco:routes" . "cargo loco routes")
-;;               ("loco:doctor" . "cargo loco doctor")
+                       (" ESP32 :󰐊 run"         :command ,(funcall cargo-esp-firmware-command "r" t esp32-target-flag t nil)       :annotation "cargo +esp ")
+                        (" ESP32S3 : debug"     :command ,(funcall cargo-esp-firmware-command "r" nil esp32s3-target-flag nil nil) :annotation "cargo +esp ")
+                        (" ESP32S3 :󰔰 flash"     :command ,(format "cargo +esp build --release -rp firmware -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf && espflash partition-table firmware/partitions.csv && espflash flash --partition-table firmware/partitions.csv --erase-parts otadata target/xtensa-esp32s3-none-elf/release/esp32s3") :annotation "cargo +esp ")
+                        (" ESP32S3 : monitor"   :command "probe-rs run --chip esp32s3 --idf-partition-table firmware/partitions.csv --log-format '{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}' target/xtensa-esp32s3-none-elf/release/esp32s3" :annotation "cargo +esp ")
+                        (" ESP32S3 : upload"    :command "cargo loco t upload"    :annotation "cargo +esp ")
+                       ,@(mapcar (lambda (test_entry) `(,(car test_entry)
+                                                        :command ,(funcall cargo-esp-firmware-command "t" nil esp32s3-target-flag t (format "--test %s" (cdr test_entry)))
+                                                        :annotation "cargo +esp "))
+                                 esp32s3-test-targets)
+                        (" ESP32S3 :󱉟 example:deep_sleep 󰒲" :command ,(funcall cargo-esp-firmware-command "r" nil esp32s3-target-flag t "--example deep_sleep") :annotation "cargo +esp ")
+                        (" ESP32S3 :󰙨 test:ota_probe"        :command ,(funcall cargo-esp-firmware-command "t" nil esp32s3-target-flag t "--test ota_probe")    :annotation "cargo +esp ")
 
-;;               ("nix:activate" . "nix run .#activate"))))))))
+                       ("󰚗 STM32H723ZG 󰚗:󰐊 run"               :command ,(funcall cargo-run-command firmware-package-name "stm32h723zg" t stm32-target-flag)       :annotation "     cargo ")
+                       ("󰚗 STM32H723ZG 󰚗: debug"             :command ,(funcall cargo-run-command firmware-package-name "stm32h723zg" nil stm32-target-flag)     :annotation "     cargo "))))))))))
