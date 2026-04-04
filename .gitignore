@@ -15,6 +15,7 @@ assets/static/tui_bg.wasm
 **/node_modules
 tests/env_spec.sh
 learning/assembly/build/
+config/data.sqld
 
 #====================================================
 #                 CACHES/LOGS
