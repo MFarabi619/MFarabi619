@@ -16,7 +16,7 @@ use std::path::Path;
 
 #[allow(unused_imports)]
 use crate::{
-    controllers, initializers, models::_entities::users, tasks, workers::downloader::DownloadWorker,
+    controllers, initializers, models::_entities::users, workers::downloader::DownloadWorker,
 };
 
 pub struct App;
@@ -98,13 +98,7 @@ impl Hooks for App {
     }
 
     #[allow(unused_variables)]
-    fn register_tasks(tasks: &mut Tasks) {
-        tasks.register(tasks::build::Build);
-        tasks.register(tasks::flash::Flash);
-        tasks.register(tasks::lcd147b::Lcd147b);
-        tasks.register(tasks::lcd147b_minimal::Lcd147bMinimal);
-        tasks.register(tasks::upload::Upload);
-        tasks.register(tasks::test::Test);
+    fn register_tasks(_tasks: &mut Tasks) {
         // tasks-inject (do not remove)
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {
