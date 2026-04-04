@@ -190,7 +190,6 @@
                     (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
 
 (after! prodigy
-
   (custom-set-faces!
     '(prodigy-red-face    :foreground "#fb4934" :weight bold)
     '(prodigy-green-face  :foreground "#b8bb26" :weight bold)
@@ -207,19 +206,31 @@
   (defun my/prodigy-list-entries ()
     (mapcar
      (lambda (service)
-       (list (prodigy-service-id service)
-             (vector (prodigy-marked-col service)
-                     (propertize (prodigy-name-col service)
-                                 'face (or (prodigy-status-face service) 'default))
-                     (my/prodigy-right-align (prodigy-tags-col service)))))
+       (list
+        (prodigy-service-id service)
+        (vector
+         (prodigy-marked-col service)
+         (propertize
+          (prodigy-name-col service)
+          'face (or (prodigy-status-face service) 'default))
+         (or (when-let ((port (plist-get service :port)))
+               (number-to-string port))
+             "")
+         (my/prodigy-right-align (prodigy-tags-col service)))))
      (prodigy-services)))
 
   (add-hook! 'prodigy-mode-hook
     (setq-local mode-line-format nil
                 header-line-format
-                (list " " (propertize "Service" 'face 'bold) (propertize " " 'display '(space :align-to (- right 16))) (propertize "Tags" 'face 'bold))
+                (list
+                 " "
+                 (propertize "Service" 'face 'bold)
+                 (propertize " " 'display '(space :align-to 38))
+                 (propertize "Port" 'face 'bold)
+                 (propertize " " 'display '(space :align-to (- right 16)))
+                 (propertize "Tags" 'face 'bold))
                 tabulated-list-padding 0
-                tabulated-list-format [(" " 1 nil) ("Service" 32 t) ("Tags" 1 nil)]
+                tabulated-list-format [(" " 1 nil) ("Service" 28 t) ("Port" 8 t) ("Tags" 1 nil)]
                 tabulated-list-sort-key '("Service" . nil)
                 tabulated-list-entries #'my/prodigy-list-entries)
     (tabulated-list-print t)))
@@ -235,10 +246,12 @@
 (add-hook! 'pdf-view-mode-hook 'pdf-view-midnight-minor-mode 'doom-modeline-mode-hook #'nyan-mode)
 (add-hook! '(sql-mode-hook sql-interactive-mode-hook) (setq-local sql-default-directory (projectile-project-root)) (sql-highlight-postgres-keywords))
 
-(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                    :size 0.40    :select t   :modeline nil)
-(set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot 0 :ttl nil :vslot 0  :size 0.50    :select t   :modeline nil)
-(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot 0 :ttl nil :vslot 0  :size 0.40    :select nil :modeline nil)
-(set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot 0 :ttl nil :vslot 0  :size 0.50    :select nil :modeline nil)
+(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                   :size 0.40 :select t   :modeline nil)
+(set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :size 0.50 :select t   :modeline nil)
+(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :size 0.40 :select nil :modeline nil)
+(set-popup-rule! "^\\*prodigy\\*$"         :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :size 0.40 :select nil :modeline nil)
+(set-popup-rule! "^\\*prodigy-.*\\*$"      :side 'bottom :quit t :slot 1 :ttl nil :vslot 0 :size 0.35 :select nil :modeline nil)
+(set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :size 0.50 :select nil :modeline nil)
 ;; (set-popup-rule! "*Ollama*"                :side 'left   :quit t         :ttl 0   :vslot -4 :size 0.5     :select t   :modeline nil)
 
 (defadvice!   prompt-for-buffer (&rest _)  :after '(evil-window-split evil-window-vsplit) (consult-buffer))
