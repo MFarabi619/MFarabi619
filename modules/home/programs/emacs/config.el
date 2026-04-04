@@ -107,9 +107,6 @@
       gdb-debuginfod-enable-setting t
       gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
 
-(setopt proced-auto-update-flag t
-        proced-auto-update-interval 1)
-
 ;; (define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
 ;; (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
 ;; (after! lsp-mode
@@ -157,6 +154,28 @@
 (after!       lsp-clangd  (setopt lsp-clients-clangd-args '("-j=3" "--clang-tidy" "--background-index" "--header-insertion=never" "--completion-style=detailed" "--header-insertion-decorators=0")) (set-lsp-priority! 'clangd 2) )
 (after!       rustic-mode (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
 (after!       treemacs    (setopt treemacs-width 70 treemacs-peek-mode t treemacs-follow-mode t treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
+(after! proced
+  (setq-default proced-auto-update-flag t)
+  (setopt proced-auto-update-interval 1
+          proced-goal-attribute nil
+          proced-enable-color-flag t
+          proced-format 'medium)
+
+  (add-hook
+   'proced-mode-hook
+   (lambda ()
+     (setq-local mode-line-format nil
+                 line-spacing 0.10)
+
+     (face-remap-add-relative 'default :foreground "#ebdbb2" :background "#1d2021")
+     (face-remap-add-relative 'header-line :foreground "#fabd2f" :background "#282828" :weight 'bold)
+     (face-remap-add-relative 'font-lock-keyword-face :foreground "#fb4934")
+     (face-remap-add-relative 'font-lock-function-name-face :foreground "#b8bb26")
+     (face-remap-add-relative 'font-lock-variable-name-face :foreground "#83a598")
+     (face-remap-add-relative 'font-lock-type-face :foreground "#d3869b")
+     (face-remap-add-relative 'success :foreground "#b8bb26" :weight 'bold)
+     (face-remap-add-relative 'warning :foreground "#fabd2f" :weight 'bold)
+     (face-remap-add-relative 'error :foreground "#fb4934" :weight 'bold))))
 
 (after! vertico (vertico-multiform-mode 1)
   (add-to-list 'vertico-multiform-commands
