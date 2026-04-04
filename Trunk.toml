@@ -38,7 +38,7 @@ open           = false     # Open a browser tab once the initial build is comple
 no_spa         = false     # Whether to disable fallback to index.html for missing files.
 no_autoreload  = false     # Disable auto-reload of the web app.
 addresses      = [ "127.0.0.1" ]
-no_error_reporting = false # Disable error reporting
+no_error_reporting = false     # Disable error reporting
 disable_address_lookup = false # Disable the reverse DNS lookup during startup
 # aliases        = ["http://localhost.mywebsite.com"] # Aliases to serve, typically found in an /etc/hosts file.
 # headers        = { "test-header" = "header value", "test-header2" = "header value 2" } # Additional headers set for responses.
