@@ -100,31 +100,12 @@
       compilation-scroll-output t
       treemacs-git-mode 'extended
       find-file-visit-truename nil
-      projectile-project-search-path '("~/workspace/" "~/Documents/"))
+      projectile-project-search-path '("~/workspace/" "~/Documents/")
 
-;; https://github.com/cuspymd/tramp-term.el
-(after! tramp
-  (setq tramp-verbose 1
-        tramp-default-method "sshx"
-        tramp-connection-timeout 10))
+      lsp-postgres-server-path "postgrestools"
 
-(after! treesit
-  (setq treesit-font-lock-level 4
-        treesit-auto-install-grammar 'always))
-
-(map! :leader :desc "Open Treemacs" "[" #'+treemacs/toggle)
-(after! treemacs
-  (setq treemacs-width 70
-        treemacs-peek-mode t
-        treemacs-follow-mode t
-        treemacs-position 'right
-        lsp-treemacs-theme "Default" ;; "Idea" "Eclipse" "NetBeans"
-        ;; treemacs-indent-guide-mode t
-        treemacs-git-commit-diff-mode t
-        treemacs-nerd-icons-icon-size 2.0
-        treemacs-display-in-side-window t
-        ;; treemacs-load-theme "doom-colors"
-        lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
+      gdb-debuginfod-enable-setting t
+      gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
 
 ;; (define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
 ;; (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
@@ -138,105 +119,89 @@
 ;;     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
 ;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
 
+(load!        "./dashboard.el")
 
-(use-package! consult-compile-multi
-  :after compile-multi
-  :config
-  (consult-compile-multi-mode 1))
+;; (add-load-path! "pio-mode")
+;; (use-package! pio-mode)
+(use-package! kbd-mode)
+(use-package! org-anki)
+(use-package! fretboard)
+;; (use-package! gptel-integrations)
+(use-package! exercism              :if (not (eq system-type 'berkeley-unix)))                  ;; FIXME: fails on FreeBSD
+(use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
+(use-package! nov-xwidget           :after nov :demand t :config (define-key nov-mode-map (kbd "o") #'nov-xwidget-view) (add-hook 'nov-mode-hook #'nov-xwidget-inject-all-files))
+(use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
 
-(after! files
-  (add-to-list 'safe-local-variable-directories "~/MFarabi619/"))
+(after!       direnv      (direnv-mode -1))
+(after!       nerd-icons  (nerd-icons-completion-mode 1))
+(after!       pdf-tools   (setopt pdf-view-continuous t))
+(after!       files       (add-to-list 'safe-local-variable-directories "~/MFarabi619/"))
+(after!       dap-gdb     (setopt dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
+(after!       treesit     (setopt treesit-font-lock-level 4 treesit-auto-install-grammar 'always))
+(after!       projectile  (add-hook 'projectile-after-switch-project-hook #'my/warm-project-vterm))
+(after!       fretboard   (setopt fretboard-fret-count 15) (add-hook 'fretboard-mode-hook  #'evil-emacs-state))
+(after!       tramp       (setopt tramp-verbose 1           tramp-default-method "sshx" tramp-connection-timeout 10))
+(after!       osm         (setopt osm-copyright t           osm-home (list 45.38730243858645 -75.69539479599302 15)))
+(after!       evil        (setopt evil-ex-substitute-global t) (add-hook 'evil-local-mode-hook #'turn-on-undo-tree-mode))
+(after!       sql         (setopt sql-database "microvisor" sql-server "127.0.0.1" sql-port 5432 sql-user "mfarabi" sql-password ""))
+(after!       verb-mode   (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
+(after!       magit-delta (setopt magit-delta-hide-plus-minus-markers t magit-delta-delta-args (append magit-delta-delta-args '("--side-by-side" "--line-numbers"))))
+(after!       which-key   (pushnew! which-key-replacement-alist '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1")) '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
+(after!       dirvish     (setopt dirvish-peek-mode t dirvish-side-auto-close t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
+(after!       lsp         (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t lsp-describe-thing-at-point t))
+(after!       lsp-clangd  (setopt lsp-clients-clangd-args '("-j=3" "--clang-tidy" "--background-index" "--header-insertion=never" "--completion-style=detailed" "--header-insertion-decorators=0")) (set-lsp-priority! 'clangd 2) )
+(after!       rustic-mode (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
+(after!       treemacs    (setopt treemacs-width 70 treemacs-peek-mode t treemacs-follow-mode t treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
 
-(after! vertico
-  (vertico-multiform-mode 1)
+(after! vertico (vertico-multiform-mode 1)
   (add-to-list 'vertico-multiform-commands
-               '(compile-multi
-                 buffer
-                 (vertico-buffer-display-action
-                  . ((display-buffer-reuse-window display-buffer-in-side-window)
-                     (side . right)
-                     (window-width . 0.20)
-                     (window-parameters
-                      . ((no-delete-other-windows . t)
-                         (mode-line-format . none))))))))
+               '(compile-multi buffer (vertico-buffer-display-action
+                                       . ((display-buffer-reuse-window display-buffer-in-side-window) (side . right) (window-width . 0.20) (window-parameters . ((no-delete-other-windows . t) (mode-line-format . none))))))))
 
 (after! compile-multi
-  (setopt compile-multi-default-directory
-          (lambda () (ignore-errors (projectile-project-root))))
-  (advice-add
-   'compile-multi :around
-   (lambda (fn &rest args)
-     (if (bound-and-true-p vertico-posframe-mode)
-         (unwind-protect
-             (progn
-               (vertico-posframe-mode -1)
-               (apply fn args))
-           (vertico-posframe-mode 1))
-       (apply fn args)))))
+  (setopt compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root))))
+  (advice-add 'compile-multi :around
+              (lambda (fn &rest args)
+                (if (bound-and-true-p vertico-posframe-mode)
+                    (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
 
-(map! :leader
-      (:prefix ("c" . "compile")
-       :desc "Compile multi" "c" #'compile-multi
-       :desc "Compile command" "C" #'compile))
-
-(set-popup-rule! "^\\*compilation\\*.*$"
-  :quit t
-  :slot 0
-  :ttl nil
-  :vslot 0
-  :width 0.50
-  :height 0.5
-  :select nil
-  :modeline nil
-  :side 'right)
-
-(after! lsp
-  (setq lsp-enable-folding t
-        lsp-eldoc-render-all t
-        lsp-before-save-edits t
-        lsp-inlay-hint-enable t
-        lsp-completion-enable t
-        lsp-auto-execute-action t
-        lsp-describe-thing-at-point t))
-
-(after! rustic-mode
-  (setopt lsp-rust-features "all"
-          lsp-rust-unstable-features t
-          lsp-rust-analyzer-implicit-drops t
-          lsp-rust-analyzer-lens-references-adt-enable t
-          lsp-rust-analyzer-lens-references-trait-enable t
-          lsp-rust-analyzer-lens-references-method-enable t
-          lsp-rust-analyzer-lens-references-enum-variant-enable t
-          lsp-rust-analyzer-display-lifetime-elision-hints-enable t
-          lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
+(after! prodigy
+  (add-hook 'prodigy-mode-hook (lambda ()
+                                 (setq-local mode-line-format nil
+                                             tabulated-list-padding 0
+                                             tabulated-list-format [(" " 1 nil) ("Service" 24 t) ("State" 10 t) ("Tags" 16 nil)]
+                                             tabulated-list-sort-key '("Service" . nil))
+                                 (tabulated-list-init-header)
+                                 (tabulated-list-print t))))
 
 (add-hook! 'sql-mode-hook #'lsp!)
-;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
-;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
-
 (add-hook! 'conf-toml-mode-hook #'lsp!)
+(add-hook! 'gfm-mode-hook #'gfm-view-mode)
+;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
 ;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
+(add-hook 'find-file-hook #'my/warm-project-vterm)
+;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
+(add-hook 'doom-first-buffer-hook #'my/warm-project-vterm)
+(add-hook! 'pdf-view-mode-hook 'pdf-view-midnight-minor-mode 'doom-modeline-mode-hook #'nyan-mode)
+(add-hook! '(sql-mode-hook sql-interactive-mode-hook) (setq-local sql-default-directory (projectile-project-root)) (sql-highlight-postgres-keywords))
 
-(setopt lsp-postgres-server-path "postgrestools")
-(add-hook! '(sql-mode-hook sql-interactive-mode-hook)
-  (setq-local sql-default-directory (projectile-project-root))
-  (sql-highlight-postgres-keywords))
+(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                    :size 0.40    :select t   :modeline nil)
+(set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot 0 :ttl nil :vslot 0  :size 0.50    :select t   :modeline nil)
+(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot 0 :ttl nil :vslot 0  :size 0.40    :select nil :modeline nil)
+(set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot 0 :ttl nil :vslot 0  :size 0.50    :select nil :modeline nil)
+;; (set-popup-rule! "*Ollama*"                :side 'left   :quit t         :ttl 0   :vslot -4 :size 0.5     :select t   :modeline nil)
 
-(after! sql
-  (setq sql-port 5432
-        sql-password ""
-        sql-user "mfarabi"
-        sql-server "127.0.0.1"
-        sql-database "microvisor"))
+(defadvice!   prompt-for-buffer (&rest _)  :after '(evil-window-split evil-window-vsplit) (consult-buffer))
 
-(after! lsp-clangd
-  (set-lsp-priority! 'clangd 2)
-  (setq lsp-clients-clangd-args '("-j=3"
-                                  "--clang-tidy"
-                                  "--background-index"
-                                  "--header-insertion=never"
-                                  "--completion-style=detailed"
-                                  "--header-insertion-decorators=0")))
+(map! :n                                      "j" #'evil-next-visual-line
+      :n                                      "k" #'evil-previous-visual-line
+      :leader             :desc "Dirvish"     "k" #'dirvish
+      :leader             :desc "vterm"       "j" #'+vterm/toggle
+      :leader             :desc "Lazygit"     "l" #'+lazygit/toggle
+      :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
+      :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
+      :leader :prefix "o" :desc "Prodigy"     "c" #'prodigy
+      :leader :prefix "c" :desc "Compile"     "c" #'compile-multi)
 
 (after! dape
   (setopt dape-adapter-dir "~/.local/share/nix-doom/debug-adapters/")
@@ -260,33 +225,31 @@
                                          ((dape-info-scope-mode 3) dape-info-breakpoints-mode dape-info-threads-mode)
                                          ((dape-info-scope-mode 0) dape-info-watch-mode)
                                          ((dape-info-scope-mode 2))
-                                         (dape-info-stack-mode (dape-info-scope-mode 1) dape-info-modules-mode dape-info-sources-mode)
-                                         ))
+                                         (dape-info-stack-mode (dape-info-scope-mode 1) dape-info-modules-mode dape-info-sources-mode))
 
-  (setq display-buffer-alist
-        (append
-         '(((lambda (_buffer alist)
-              (and (eq dape-buffer-window-arrangement 'gud)
-                   (eq (alist-get 'category alist) 'dape-info-1)))
-            (display-buffer-reuse-window display-buffer-in-side-window)
-            (side . bottom)
-            (slot . -1)
-            (window-width . 0.70))
-           ((lambda (_buffer alist)
-              (and (eq dape-buffer-window-arrangement 'gud)
-                   (eq (alist-get 'category alist) 'dape-info-2)))
-            (display-buffer-reuse-window display-buffer-in-side-window)
-            (side . bottom)
-            (slot . 0)
-            (window-width . 0.15))
-           ((lambda (_buffer alist)
-              (and (eq dape-buffer-window-arrangement 'gud)
-                   (eq (alist-get 'category alist) 'dape-info-4)))
-            (display-buffer-reuse-window display-buffer-in-side-window)
-            (side . bottom)
-            (slot . 1)
-            (window-width . 0.15)))
-         display-buffer-alist))
+        display-buffer-alist (append
+                              '(((lambda (_buffer alist)
+                                   (and (eq dape-buffer-window-arrangement 'gud)
+                                        (eq (alist-get 'category alist) 'dape-info-1)))
+                                 (display-buffer-reuse-window display-buffer-in-side-window)
+                                 (side . bottom)
+                                 (slot . -1)
+                                 (window-width . 0.70))
+                                ((lambda (_buffer alist)
+                                   (and (eq dape-buffer-window-arrangement 'gud)
+                                        (eq (alist-get 'category alist) 'dape-info-2)))
+                                 (display-buffer-reuse-window display-buffer-in-side-window)
+                                 (side . bottom)
+                                 (slot . 0)
+                                 (window-width . 0.15))
+                                ((lambda (_buffer alist)
+                                   (and (eq dape-buffer-window-arrangement 'gud)
+                                        (eq (alist-get 'category alist) 'dape-info-4)))
+                                 (display-buffer-reuse-window display-buffer-in-side-window)
+                                 (side . bottom)
+                                 (slot . 1)
+                                 (window-width . 0.15)))
+                              display-buffer-alist))
 
   (when my/dape-use-custom-layout
     (setq dape-buffer-window-arrangement nil
@@ -406,7 +369,6 @@
   (add-to-list
    'dape-configs
    '(probe-rs-esp32s3
-     fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
      :chip "esp32s3"
      :request "launch"
      :type "probe-rs-debug"
@@ -417,9 +379,10 @@
      host "localhost"
      command "probe-rs"
      modes (rust-mode rustic-mode)
+     compile "cargo +esp probe-rs-debug-esp32s3"
      command-args ("dap-server" "--port" ":autoport")
      command-cwd (lambda () (project-root (project-current)))
-     compile "cargo +esp probe-rs-debug-esp32s3"
+     fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
      :coreConfigs [(
                     :coreIndex 0
                     :rttEnabled t
@@ -429,9 +392,7 @@
 
   :config
   (add-hook 'dape-display-source-hook #'pulse-momentary-highlight-one-line)
-  (add-hook 'dape-repl-mode-hook (defun dape--repl-wrap ()
-                                   (setq-local truncate-lines nil word-wrap t)
-                                   (visual-line-mode 1)))
+  (add-hook 'dape-repl-mode-hook (defun dape--repl-wrap () (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1)))
   (add-hook 'dape-info-parent-mode-hook
             (defun dape--info-compact ()
               (when (string-prefix-p "Registers" (format-mode-line header-line-format))
@@ -440,12 +401,6 @@
                             '((name . 8) (value . 10) (type . 14))))
               (face-remap-add-relative 'header-line :height 0.9)
               (face-remap-add-relative 'default :height 0.9))))
-
-(setq gdb-debuginfod-enable-setting t
-      gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
-
-(after! dap-gdb
-  (setq dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
 
 (after! dap-mode
   (dap-register-debug-template
@@ -461,14 +416,6 @@
          :executable "target/thumbv7em-none-eabihf/debug/led-roulette"
          :debugger_args ["-q" "-ix" "extended-remote" "-x" "learning/rust/openocd.gdb"])))
 
-(after! dired
-  (setq dirvish-peek-mode t
-        dirvish-side-auto-close t
-        dirvish-side-follow-mode t
-        dired-listing-switches "-alhX"
-        dirvish-side-display-alist '((side . right) (slot . -1))))
-
-(map! :leader :desc "Open Dirvish" "k" #'dirvish)
 (after! dirvish
   (setq dirvish-default-layout '(1 0.11 0.70)
         dirvish-quick-access-entries
@@ -480,15 +427,6 @@
           ("a" "~/Documents/"                "Documents")
           ("m" "/mnt/"                       "Mounted drives")
           ("e" ,user-emacs-directory         "Emacs user directory"))))
-
-;; (add-load-path! "pio-mode")
-;; (use-package! pio-mode)
-
-(use-package! kbd-mode)
-(unless (eq system-type 'berkeley-unix) ; *BSD/Solaris
-  (use-package! exercism))
-
-;; (use-package! gptel-integrations)
 ;; (use-package! gptel
 ;;   :config
 ;;   (setq gptel-use-tools t
@@ -532,63 +470,11 @@
 ;; (after! llm-tool-collection
 ;;   (mapcar (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
 
-(map! :n "C-'" #'+vterm/toggle
-      :leader :desc "Toggle vterm" "j" #'+vterm/toggle
-      :leader :desc "Open Lazygit" "l" #'+lazygit/toggle)
-
-(map! :map evil-window-map
-      "SPC"       #'rotate-layout
-      "<up>"      #'evil-window-up
-      "<left>"    #'evil-window-left
-      "<down>"    #'evil-window-down
-      "<right>"   #'evil-window-right
-      "C-<up>"    #'+evil/window-move-up
-      "C-<left>"  #'+evil/window-move-left
-      "C-<down>"  #'+evil/window-move-down
-      "C-<right>" #'+evil/window-move-right)
-
-;; (set-popup-rule! "*Ollama*"
-;;   :ttl 0
-;;   :size 0.5
-;;   :vslot -4
-;;   :quit nil
-;;   :select t
-;;   :modeline nil
-;;   :side 'left)
-
-;; (set-popup-rule! "*Copilot*"
-;;   :ttl 0
-;;   :size 0.5
-;;   :vslot -4
-;;   :quit nil
-;;   :select t
-;;   :modeline nil
-;;   :side 'left)
-
-(set-popup-rule! "^\\*Flycheck errors\\*$"
-  :size 0.4
-  :select t
-  :side 'bottom)
-
-(set-popup-rule! "*doom:vterm-popup:*"
-  :quit t
-  :slot 0
-  :ttl nil
-  :vslot 0
-  :select t
-  :width 0.5
-  :height 0.5
-  :modeline nil
-  :side 'right)
-
 (defconst my/lazygit-command " lazygit status -sm normal")
 (defvar my/vterm-warmed-projects (make-hash-table :test #'equal))
 
 (defun my/project-root ()
-  (let ((root (or (doom-project-root default-directory)
-                  (and (fboundp 'projectile-project-root)
-                       (ignore-errors (projectile-project-root)))
-                  default-directory)))
+  (let ((root (or (doom-project-root default-directory) (and (fboundp 'projectile-project-root) (ignore-errors (projectile-project-root))) default-directory)))
     (file-name-as-directory (expand-file-name root))))
 
 (defun my/vterm-buffer-name ()
@@ -654,63 +540,11 @@ If lazygit is active there, quit it and leave the shell running."
       (vterm-send-string my/lazygit-command)
       (vterm-send-return))))
 
-(after! direnv (direnv-mode -1))
-(after! projectile (add-hook 'projectile-after-switch-project-hook #'my/warm-project-vterm))
-(add-hook 'doom-first-buffer-hook #'my/warm-project-vterm)
-(add-hook 'find-file-hook #'my/warm-project-vterm)
-
 (defun my/switch-to-last-buffer-in-split ()
   "Show last buffer on split screen."
   (interactive)
   (let ((current-buffer (current-buffer)))
-    (if (one-window-p)
-        (progn
-          (split-window-right)
-          (evil-switch-to-windows-last-buffer)
-          (switch-to-buffer current-buffer)))))
-
-(map! ;; Remap switching to last buffer from 'SPC+`' to 'SPC+e'
- :desc "Switch to last buffer"
- :leader "e" #'evil-switch-to-windows-last-buffer
- ;; "e" #'my/switch-to-last-buffer-in-split
- )
-
-(defadvice! prompt-for-buffer (&rest _)
-  :after '(evil-window-split evil-window-vsplit)
-  (consult-buffer))
-
-(add-hook
- 'pdf-view-mode-hook
- 'pdf-view-midnight-minor-mode
- 'doom-modeline-mode-hook #'nyan-mode)
-
-(after! evil
-  (setq evil-ex-substitute-global t)
-  (add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
-  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
-  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line))
-
-(use-package! ob-duckdb
-  :ensure t
-  :after org
-  :custom
-  (org-babel-duckdb-max-rows 200)
-  (org-babel-duckdb-show-progress t)
-  (org-babel-duckdb-queue-display 'auto) ; or 'manual
-  (org-babel-duckdb-queue-position 'side)
-  (org-babel-duckdb-progress-display 'popup)
-  (org-babel-duckdb-output-buffer "*DuckDB Results*")
-
-  ;; :config
-  ;; ;; Optional: MotherDuck token from file
-  ;; (setq org-babel-duckdb-motherduck-token
-  ;;       (lambda ()
-  ;;         (with-temp-buffer
-  ;;           (insert-file-contents "~/.config/duckdb/.motherduck_token")
-  ;;           (string-trim (buffer-string)))))
-  )
-
-(use-package! org-anki)
+    (if (one-window-p) (progn (split-window-right) (evil-switch-to-windows-last-buffer) (switch-to-buffer current-buffer)))))
 
 (after! org
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
@@ -769,48 +603,6 @@ If lazygit is active there, quit it and leave the shell running."
    '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
    '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
    '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff"))))))
-
-(after! magit-delta
-  (setq magit-delta-hide-plus-minus-markers t
-        ;; magit-delta-default-dark-theme "Gruvbox"
-        magit-delta-delta-args (append magit-delta-delta-args '("--side-by-side" "--line-numbers"))))
-
-(after! verb-mode
-  (setq verb-auto-show-headers-buffer t
-        verb-json-use-mode #'json-ts-mode
-        verb-auto-kill-response-buffers t))
-
-;; (gfm-mode-hook 'gfm-view-mode)
-
-(after! nerd-icons
-  (setq nerd-icons-completion-mode t))
-
-(after! pdf-tools
-  (setq pdf-view-continuous t))
-
-(after! nov-xwidget
-  :demand t
-  :after nov
-  :config
-  (define-key nov-mode-map (kbd "o") 'nov-xwidget-view)
-  (add-hook 'nov-mode-hook 'nov-xwidget-inject-all-files))
-
-(use-package! fretboard)
-(after! fretboard
-  (setq fretboard-fret-count 15)
-  (add-hook 'fretboard-mode-hook #'evil-emacs-state))
-
-(after! osm
-  (setopt osm-copyright t
-          osm-home (list 45.38730243858645 -75.69539479599302 15)))
-
-(after! which-key
-  (pushnew!
-   which-key-replacement-alist
-   '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))
-   '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
-
-(load! "./dashboard.el")
 
 ;; https://git.sr.ht/~morgansmith/sway-ts-mode
 ;; ;; (load! "./extra/sway-ts-mode")
