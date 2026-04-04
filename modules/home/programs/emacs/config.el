@@ -138,11 +138,6 @@
 ;;     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
 ;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
 
-(use-package! nerd-icons-completion
-  :after marginalia
-  :config
-  (nerd-icons-completion-mode 1)
-  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 (use-package! consult-compile-multi
   :after compile-multi
@@ -161,7 +156,9 @@
                   . ((display-buffer-reuse-window display-buffer-in-side-window)
                      (side . right)
                      (window-width . 0.20)
-                     (window-parameters . ((no-delete-other-windows . t))))))))
+                     (window-parameters
+                      . ((no-delete-other-windows . t)
+                         (mode-line-format . none))))))))
 
 (after! compile-multi
   (setopt compile-multi-default-directory
