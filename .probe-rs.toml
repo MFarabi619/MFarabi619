@@ -1,7 +1,7 @@
-[presets.default]
-always-print-stacktrace = true
-chip = "esp32s3"
-preverify = true
+# [presets.default]
+# always-print-stacktrace = true
+# chip = "esp32s3"
+# preverify = true
 
 [presets.esp32]
 always-print-stacktrace = true

@@ -29,12 +29,12 @@
             ("󱄅 microvisor :󰍉 info"               :command "devenv info"                                                                        :annotation "    devenv 󱄅")
             ("󱄅 microvisor : tasks"              :command "devenv tasks list"                                                                  :annotation "    devenv 󱄅")
             ("󱄅 microvisor : down"               :command "devenv processes down"                                                              :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : sqld"               :command "devenv up sqld -d"                                                                  :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : caddy"              :command "devenv up caddy -d"                                                                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit -d"                                                               :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : postgres"           :command "devenv up postgres -d"                                                              :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : tailscale"          :command "devenv up tailscale -d"                                                             :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : prometheus"         :command "devenv up prometheus -d"                                                            :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : sqld"               :command "devenv up sqld"          :port 8080                                                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : caddy"              :command "devenv up caddy"         :port 80                                                   :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit"       :port 8025                                                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : postgres"           :command "devenv up postgres"      :port 5432                                                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : tailscale"          :command "devenv up tailscale"     :port 8080                                                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : prometheus"         :command "devenv up prometheus"    :port 9090                                                 :annotation "    devenv 󱄅")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             (" loco : start"                    :command "cargo loco start"                                                                   :annotation "     cargo ")
             (" loco :󰑪 routes"                   :command "cargo loco routes"                                                                  :annotation "     cargo ")
@@ -74,8 +74,8 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
-            (" ESP32S3 :󰔰 flash"                 :command "cargo flash -rp  firmware -F esp32s3 --preset esp32s3     --config 'unstable.build-std=[\"core\",\"alloc\"]' --binary-format idf --idf-partition-table firmware/partitions.csv --target xtensa-esp32s3-none-elf"       :annotation "cargo +esp ")
-            (" ESP32S3 :󰭎 monitor"               :command "probe-rs run --preset esp32s3 --idf-partition-table firmware/partitions.csv --log-format '{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}' target/xtensa-esp32s3-none-elf/release/esp32s3" :annotation "cargo +esp ")
+            (" ESP32S3 :󰔰 flash"                 :command "espflash partition-table firmware/partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table firmware/partitions.csv -- -rp firmware --bin esp32s3 --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'"       :annotation "cargo +esp ")
+            (" ESP32S3 :󰭎 monitor"               :command "probe-rs run --preset esp32s3 --idf-partition-table firmware/partitions.csv --log-format '{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}' target/xtensa-esp32s3-none-elf/release/esp32s3"           :annotation "cargo +esp ")
             (" ESP32S3 : debug"                 :command "cargo +esp r -p  firmware                                 --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
             (" ESP32S3 :󰙨 test:i2c "           :command "cargo +esp t -p  firmware -F esp32s3 --test i2c           --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
             (" ESP32S3 :󰙨 test:ds3231 "        :command "cargo +esp t -p  firmware -F esp32s3 --test ds3231        --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
@@ -119,15 +119,20 @@
                                   (when-let ((command (plist-get (cdr task) :command)))
                                     (string-prefix-p "devenv up " command)))
                                 (cdr (assq t compile-multi-dir-local-config))))
-                   (prodigy-define-service
-                     :name                        (string-trim (cadr (split-string (car task) ":")))
-                     :command                     shell-file-name
-                     :cwd                         (projectile-project-root)
-                     :args                        (list shell-command-switch (plist-get (cdr task) :command))
-                     :stop-signal                 'kill
-                     :kill-process-buffer-on-stop t
-                     :tags                        (list (intern (string-trim (car (split-string (car task) ":")))))))
-
+                   (let ((port (plist-get (cdr task) :port)))
+                     (apply
+                      #'prodigy-define-service
+                      (append
+                       (list
+                        :name                        (string-trim (cadr (split-string (car task) ":")))
+                        :stop-signal                 'kill
+                        :kill-process-buffer-on-stop 'unless-visible
+                        :command                     shell-file-name
+                        :cwd                         (projectile-project-root)
+                        :args                        (list shell-command-switch (plist-get (cdr task) :command))
+                        :tags                        (list (intern (string-trim (car (split-string (car task) ":"))))))
+                       (when port
+                         (list :port port))))))
                  ;; ========================================================================================================================================================= ;;
                  )) ;; end eval
        )))
