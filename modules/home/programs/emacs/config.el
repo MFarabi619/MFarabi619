@@ -107,6 +107,9 @@
       gdb-debuginfod-enable-setting t
       gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
 
+(setopt proced-auto-update-flag t
+        proced-auto-update-interval 1)
+
 ;; (define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
 ;; (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
 ;; (after! lsp-mode
