@@ -30,10 +30,6 @@
 ;;
 ;; See implementations with 'gd' over symbol (or 'C-c c d').
 
-;; https://git.sr.ht/~morgansmith/sway-ts-mode
-;; ;; (load! "./extra/sway-ts-mode")
-;; (setq treesit-extra-load-path "./extra")
-
 ;; (after! nyan-mode
 ;;   :config
 ;;   (setopt nyan-animate-nyancat t
@@ -116,6 +112,7 @@
   (setq treesit-font-lock-level 4
         treesit-auto-install-grammar 'always))
 
+(map! :leader :desc "Open Treemacs" "[" #'+treemacs/toggle)
 (after! treemacs
   (setq treemacs-width 70
         treemacs-peek-mode t
@@ -141,50 +138,6 @@
 ;;     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
 ;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
 
-(after! compile-multi
-  (setq compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root)))))
-
-;; (after! compile-multi
-;;   (require 'nerd-icons)
-
-;;   (defun my/compile-multi-annotation-function (task)
-;;     "Custom right annotation; color Rust icon for cargo entries."
-;;     (when-let ((annotation_text (plist-get (cdr task) :annotation)))
-;;       (let* ((text annotation_text)
-;;              (is-cargo (string-match-p "^\\s-*cargo\\b" text))
-;;              (icon (when is-cargo
-;;                      (nerd-icons-devicon "nf-dev-rust" :face 'nerd-icons-orange)))
-;;              (right-text
-;;               (if is-cargo
-;;                   (concat
-;;                    (propertize (string-trim-right (replace-regexp-in-string "\\s-*$" "" text))
-;;                                'face 'completions-annotations)
-;;                    " "
-;;                    icon)
-;;                 (propertize text 'face 'completions-annotations))))
-;;         (when (and compile-multi-annotate-limit
-;;                    (>= (length (substring-no-properties (if is-cargo
-;;                                                             (replace-regexp-in-string "\\s-*$" "" text)
-;;                                                           text)))
-;;                        compile-multi-annotate-limit))
-;;           (setq right-text
-;;                 (concat
-;;                  (propertize
-;;                   (concat (string-trim-right
-;;                            (substring (if is-cargo
-;;                                           (replace-regexp-in-string "\\s-*$" "" text)
-;;                                         text)
-;;                                       0 compile-multi-annotate-limit))
-;;                           "…")
-;;                   'face 'completions-annotations)
-;;                  (if is-cargo (concat " " icon) ""))))
-;;         (concat
-;;          " "
-;;          (propertize " " 'display `(space :align-to (- right ,(+ 1 (length (substring-no-properties right-text))))))
-;;          right-text))))
-
-;;   (advice-add 'compile-multi--annotation-function :override #'my/compile-multi-annotation-function))
-
 (use-package! nerd-icons-completion
   :after marginalia
   :config
@@ -196,11 +149,49 @@
   :config
   (consult-compile-multi-mode 1))
 
-(use-package! compile-multi-embark
-  :after (compile-multi embark)
-  :config
-  (compile-multi-embark-mode 1))
+(after! files
+  (add-to-list 'safe-local-variable-directories "~/MFarabi619/"))
 
+(after! vertico
+  (vertico-multiform-mode 1)
+  (add-to-list 'vertico-multiform-commands
+               '(compile-multi
+                 buffer
+                 (vertico-buffer-display-action
+                  . ((display-buffer-reuse-window display-buffer-in-side-window)
+                     (side . right)
+                     (window-width . 0.20)
+                     (window-parameters . ((no-delete-other-windows . t))))))))
+
+(after! compile-multi
+  (setopt compile-multi-default-directory
+          (lambda () (ignore-errors (projectile-project-root))))
+  (advice-add
+   'compile-multi :around
+   (lambda (fn &rest args)
+     (if (bound-and-true-p vertico-posframe-mode)
+         (unwind-protect
+             (progn
+               (vertico-posframe-mode -1)
+               (apply fn args))
+           (vertico-posframe-mode 1))
+       (apply fn args)))))
+
+(map! :leader
+      (:prefix ("c" . "compile")
+       :desc "Compile multi" "c" #'compile-multi
+       :desc "Compile command" "C" #'compile))
+
+(set-popup-rule! "^\\*compilation\\*.*$"
+  :quit t
+  :slot 0
+  :ttl nil
+  :vslot 0
+  :width 0.50
+  :height 0.5
+  :select nil
+  :modeline nil
+  :side 'right)
 
 (after! lsp
   (setq lsp-enable-folding t
@@ -480,6 +471,7 @@
         dired-listing-switches "-alhX"
         dirvish-side-display-alist '((side . right) (slot . -1))))
 
+(map! :leader :desc "Open Dirvish" "k" #'dirvish)
 (after! dirvish
   (setq dirvish-default-layout '(1 0.11 0.70)
         dirvish-quick-access-entries
@@ -544,14 +536,8 @@
 ;;   (mapcar (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
 
 (map! :n "C-'" #'+vterm/toggle
-      :leader :desc "Open Dirvish" "k" #'dirvish
       :leader :desc "Toggle vterm" "j" #'+vterm/toggle
-      :leader (:prefix ("c" . "compile")
-               :desc "Compile multi" "c" #'compile-multi
-               :desc "Compile command" "C" #'compile)
-      :leader :desc "Open Lazygit" "l" #'+lazygit/toggle
-      ;; :leader :desc "Open Dirvish Side" "[" #'dirvish-side
-      :leader :desc "Open Dirvish Side" "[" #'+treemacs/toggle)
+      :leader :desc "Open Lazygit" "l" #'+lazygit/toggle)
 
 (map! :map evil-window-map
       "SPC"       #'rotate-layout
@@ -671,39 +657,10 @@ If lazygit is active there, quit it and leave the shell running."
       (vterm-send-string my/lazygit-command)
       (vterm-send-return))))
 
-(after! compile-multi
-  (setopt compile-multi-default-directory #'projectile-project-root)
-  (set-popup-rule! "^\\*compilation\\*.*$"
-    :quit t
-    :slot 0
-    :ttl nil
-    :vslot 0
-    :width 0.5
-    :height 0.5
-    :select nil
-    :modeline nil
-    :side 'right))
-
-(set-popup-rule! "^\\*compilation\\*.*$"
-  :quit t
-  :slot 0
-  :ttl nil
-  :vslot 0
-  :width 0.5
-  :height 0.5
-  :select nil
-  :modeline nil
-  :side 'right)
-
-(after! projectile
-  (add-hook 'projectile-after-switch-project-hook #'my/warm-project-vterm))
-
+(after! direnv (direnv-mode -1))
+(after! projectile (add-hook 'projectile-after-switch-project-hook #'my/warm-project-vterm))
 (add-hook 'doom-first-buffer-hook #'my/warm-project-vterm)
-
 (add-hook 'find-file-hook #'my/warm-project-vterm)
-
-(after! direnv
-  (direnv-mode -1))
 
 (defun my/switch-to-last-buffer-in-split ()
   "Show last buffer on split screen."
@@ -857,6 +814,10 @@ If lazygit is active there, quit it and leave the shell running."
    '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
 
 (load! "./dashboard.el")
+
+;; https://git.sr.ht/~morgansmith/sway-ts-mode
+;; ;; (load! "./extra/sway-ts-mode")
+;; (setq treesit-extra-load-path "./extra")
 
 ;; You do not need to run 'doom sync' after modifying this file!
 
