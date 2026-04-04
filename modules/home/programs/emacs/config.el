@@ -142,24 +142,7 @@
 ;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
 
 (after! compile-multi
-  (setq compile-multi-config '())
-  (push '((file-exists-p "devenv.nix")
-          ("devenv tasks list" . "devenv tasks list")
-          ("devenv up postgres --no-tui --detach" . "devenv up postgres --no-tui --detach")
-          ("devenv info" . "devenv info"))
-        compile-multi-config)
-
-  (push '((let ((root (ignore-errors (projectile-project-root))))
-            (and root (string= (file-name-nondirectory (directory-file-name root)) "MFarabi619")))
-          ("test i2c" . "cargo loco task test firmware:i2c")
-          ("test ntc_formula" . "cargo loco task test firmware:ntc_formula")
-          ("test filesystem" . "cargo loco task test firmware:filesystem")
-          ("test sleep" . "cargo loco task test firmware:sleep")
-          ("nix run .#activate" . "nix run .#activate")
-          ("cargo loco task" . "cargo loco task")
-          ("cargo loco routes" . "cargo loco routes")
-          ("cargo loco doctor" . "cargo loco doctor"))
-        compile-multi-config))
+  (setq compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root)))))
 
 (use-package! nerd-icons-completion
   :after marginalia
@@ -172,13 +155,13 @@
   :config
   (consult-compile-multi-mode 1))
 
-(use-package! compile-multi-nerd-icons
-  :after (compile-multi nerd-icons-completion)
-  :demand t)
+;; (use-package! compile-multi-nerd-icons
+;;   :after (compile-multi nerd-icons-completion)
+;;   :demand t)
 
-(use-package! compile-multi-all-the-icons
-  :after (all-the-icons-completion compile-multi)
-  :demand t)
+;; (use-package! compile-multi-all-the-icons
+;;   :after (all-the-icons-completion compile-multi)
+;;   :demand t)
 
 (use-package! compile-multi-embark
   :after (compile-multi embark)
