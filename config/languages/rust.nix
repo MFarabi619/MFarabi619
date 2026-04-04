@@ -32,12 +32,10 @@
 
           server.middlewares = {
             fallback.enable = false;
-            static = {
-              fallback = "${config.git.root}/assets/static/404.html";
-              folder = {
-                uri = "/";
-                path = "${config.git.root}/assets/static";
-              };
+            static = rec {
+              folder.uri = "/";
+              fallback = "${folder.path}/404.html";
+              folder.path = "${config.git.root}/dist";
             };
           };
         };
