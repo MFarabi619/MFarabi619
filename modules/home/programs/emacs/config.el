@@ -126,14 +126,15 @@
 
 ;; (add-load-path! "pio-mode")
 ;; (use-package! pio-mode)
-(use-package! kbd-mode)
 (use-package! org-anki)
+(use-package! kbd-mode)
 (use-package! fretboard)
 ;; (use-package! gptel-integrations)
 (use-package! exercism              :if (not (eq system-type 'berkeley-unix)))                  ;; FIXME: fails on FreeBSD
 (use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
 (use-package! nov-xwidget           :after nov :demand t :config (define-key nov-mode-map (kbd "o") #'nov-xwidget-view) (add-hook 'nov-mode-hook #'nov-xwidget-inject-all-files))
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
+(use-package! prodigy                                    :config (setopt prodigy-kill-process-buffer-on-stop 'unless-visible))
 
 (after!       direnv      (direnv-mode -1))
 (after!       nerd-icons  (nerd-icons-completion-mode 1))
@@ -169,13 +170,39 @@
                     (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
 
 (after! prodigy
-  (add-hook 'prodigy-mode-hook (lambda ()
-                                 (setq-local mode-line-format nil
-                                             tabulated-list-padding 0
-                                             tabulated-list-format [(" " 1 nil) ("Service" 24 t) ("State" 10 t) ("Tags" 16 nil)]
-                                             tabulated-list-sort-key '("Service" . nil))
-                                 (tabulated-list-init-header)
-                                 (tabulated-list-print t))))
+
+  (custom-set-faces!
+    '(prodigy-red-face    :foreground "#fb4934" :weight bold)
+    '(prodigy-green-face  :foreground "#b8bb26" :weight bold)
+    '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
+
+  (defun my/prodigy-right-align (text)
+    (if (or (null text) (string-empty-p text))
+        ""
+      (let ((w (string-width (substring-no-properties text))))
+        (concat
+         (propertize " " 'display `(space :align-to (- right 3 ,w)))
+         text))))
+
+  (defun my/prodigy-list-entries ()
+    (mapcar
+     (lambda (service)
+       (list (prodigy-service-id service)
+             (vector (prodigy-marked-col service)
+                     (propertize (prodigy-name-col service)
+                                 'face (or (prodigy-status-face service) 'default))
+                     (my/prodigy-right-align (prodigy-tags-col service)))))
+     (prodigy-services)))
+
+  (add-hook! 'prodigy-mode-hook
+    (setq-local mode-line-format nil
+                header-line-format
+                (list " " (propertize "Service" 'face 'bold) (propertize " " 'display '(space :align-to (- right 16))) (propertize "Tags" 'face 'bold))
+                tabulated-list-padding 0
+                tabulated-list-format [(" " 1 nil) ("Service" 32 t) ("Tags" 1 nil)]
+                tabulated-list-sort-key '("Service" . nil)
+                tabulated-list-entries #'my/prodigy-list-entries)
+    (tabulated-list-print t)))
 
 (add-hook! 'sql-mode-hook #'lsp!)
 (add-hook! 'conf-toml-mode-hook #'lsp!)
@@ -204,6 +231,7 @@
       :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
       :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
       :leader :prefix "o" :desc "Prodigy"     "c" #'prodigy
+      ;; :leader :prefix "p" :desc "Prodigy"     "c" #'prodigy
       :leader :prefix "c" :desc "Compile"     "c" #'compile-multi)
 
 (after! dape
