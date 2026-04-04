@@ -35,8 +35,9 @@ in
 {
   options.languages.rust.dioxus = {
     enable = lib.mkEnableOption "Dioxus (Rust) development stack";
-    desktop.linux.enable = lib.mkEnableOption "Dioxus desktop stack for GNU/Linux (glib, atk, gtk, webkitgtk, openssl, etc.)";
-    mobile.android.enable = lib.mkEnableOption "Dioxus mobile stack for Android (SDK+NDK+Emulator+Studio + Rust targets)";
+    desktop.linux.enable = lib.mkEnableOption "Dioxus desktop stack for GNU/Linux (glib, atk, gtk, webkitgtk, openssl, etc.).";
+    mobile.android.enable = lib.mkEnableOption "Dioxus mobile stack for Android (SDK+NDK+Emulator+Studio + Rust targets).";
+    # mobile.ios.enable = lib.mkEnableOption "Dioxus mobile stack for IOS.";
 
     writeConfig = lib.mkOption {
       type = lib.types.bool;
@@ -189,6 +190,10 @@ in
     languages.rust.targets = [
       "wasm32-unknown-unknown"
     ]
+    # FIXME: error: failed to run custom build command for `objc2-exception-helper v0.1.1`
+    # ++ lib.optionals dioxus.mobile.ios.enable [
+    #   "aarch64-apple-ios"
+    # ]
     ++ lib.optionals dioxus.mobile.android.enable [
       "i686-linux-android"
       "x86_64-linux-android"
