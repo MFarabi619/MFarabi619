@@ -38,6 +38,7 @@
         vterm
         circe
         corfu
+        prodigy
         pdf-tools
         magit-delta
         corfu-terminal
