@@ -52,6 +52,7 @@
 
         multi-vterm
         compile-multi
+        fancy-compilation
         compile-multi-embark
         consult-compile-multi
 

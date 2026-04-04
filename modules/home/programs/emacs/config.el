@@ -135,6 +135,7 @@
 (use-package! nov-xwidget           :after nov :demand t :config (define-key nov-mode-map (kbd "o") #'nov-xwidget-view) (add-hook 'nov-mode-hook #'nov-xwidget-inject-all-files))
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
 (use-package! prodigy                                    :config (setopt prodigy-kill-process-buffer-on-stop 'unless-visible))
+(use-package! fancy-compilation     :after compile       :config (setopt fancy-compilation-term "xterm-256color" fancy-compilation-quiet-prelude t fancy-compilation-quiet-prolog t fancy-compilation-override-colors nil) (fancy-compilation-mode 1))
 
 (after!       direnv      (direnv-mode -1))
 (after!       nerd-icons  (nerd-icons-completion-mode 1))
