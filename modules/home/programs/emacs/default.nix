@@ -49,6 +49,7 @@
         devdocs-browser
         compiler-explorer
 
+        multi-vterm
         compile-multi
         compile-multi-embark
         consult-compile-multi
