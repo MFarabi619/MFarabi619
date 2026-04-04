@@ -1,2 +1,0 @@
-[idf_format_args]
-partition_table = "firmware/partitions.csv"
