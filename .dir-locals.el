@@ -33,7 +33,7 @@
             ("󱄅 microvisor : caddy"              :command "devenv up caddy -d"                                                                 :annotation "    devenv 󱄅")
             ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit -d"                                                               :annotation "    devenv 󱄅")
             ("󱄅 microvisor : postgres"           :command "devenv up postgres -d"                                                              :annotation "    devenv 󱄅")
-            ("󱄅 microvisor :󰖟 tailscale"          :command "devenv up tailscale -d"                                                             :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : tailscale"          :command "devenv up tailscale -d"                                                             :annotation "    devenv 󱄅")
             ("󱄅 microvisor : prometheus"         :command "devenv up prometheus -d"                                                            :annotation "    devenv 󱄅")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             (" loco : start"                    :command "cargo loco start"                                                                   :annotation "     cargo ")
@@ -90,6 +90,7 @@
             ("󰚗 STM32H723ZG 󰚗: debug"             :command "cargo      r -p  firmware            --bin stm32h723zg                                                       --target thumbv7em-none-eabihf"   :annotation "     cargo "))))
        ;; ===========================================|=======|============================================================================================================== ;;
        (eval . (progn
+                 (require 'seq)
                  (require 'subr-x)
                  (require 'prodigy)
                  (require 'compile-multi)
@@ -107,13 +108,24 @@
                               (annotation_rendered (concat (propertize annotation_text_truncated 'face 'completions-annotations) " " (nerd-icons-icon-for-file icon_file_name)))
                               (annotation_width (string-width (substring-no-properties annotation_rendered))))
                          (concat " " (propertize " " 'display `(space :align-to (- right ,(+ 1 annotation_width)))) annotation_rendered))
-                     (funcall original-function task)))
+                     (funcall original-function task))) ;; end defun my/compile-multi-local-annotation
                  ;; ========================================================================================================================================================= ;;
                  (unless (advice-member-p #'my/compile-multi-local-annotation #'compile-multi--annotation-function)
-                   (advice-add 'compile-multi--annotation-function :around #'my/compile-multi-local-annotation))
+                   (advice-add 'compile-multi--annotation-function :around #'my/compile-multi-local-annotation)) ;; end unless
                  ;; ========================================================================================================================================================= ;;
-                 (prodigy-define-service :name " start" :command "cargo" :port 5150 :stop-signal 'kill :cwd default-directory :args '("loco" "start")     :kill-process-buffer-on-stop t :tags (list (intern "󱄅 microvisor ")))
-                 (prodigy-define-service :name "󰐊 run"   :command "dx"    :port 8080 :stop-signal 'kill :cwd default-directory :args '("serve" "-p" "web") :kill-process-buffer-on-stop t :tags (list (intern "󰦉 web 󰦉")))
+                 (dolist (task (seq-filter
+                                (lambda (task)
+                                  (when-let ((command (plist-get (cdr task) :command)))
+                                    (string-prefix-p "devenv" command)))
+                                (cdr (assq t compile-multi-dir-local-config))))
+                   (prodigy-define-service
+                     :name                        (string-trim (cadr (split-string (car task) ":")))
+                     :command                     shell-file-name
+                     :args                        (list shell-command-switch (plist-get (cdr task) :command))
+                     :cwd                         default-directory
+                     :stop-signal                 'kill
+                     :kill-process-buffer-on-stop t
+                     :tags                        (list (intern (string-trim (car (split-string (car task) ":")))))))
                  ;; ========================================================================================================================================================= ;;
-                 ))
+                 )) ;; end eval
        )))
