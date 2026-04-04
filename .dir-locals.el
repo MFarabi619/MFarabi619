@@ -45,10 +45,10 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ("󱄅 microvisor : openbsd:upgrade"    :command "doas pkg_add -u                  "                                                  :annotation "   pkg_add ")
             ("󱄅 microvisor : freebsd:upgrade"    :command "sudo pkg update && pkg upgrade -y"                                                  :annotation "       pkg 󰣠")
-            ("󱄅 microvisor : darwin:switch"      :command "darwin-rebuild switch --flake .  "                                                  :annotation "nix-darwin ")
-            ("󱄅 microvisor :󰡢 darwin:rebuild"     :command "darwin-rebuild build  --flake .  "                                                  :annotation "nix-darwin ")
+            ("󱄅 microvisor : darwin:switch"      :command "darwin-rebuild switch --flake .  "                                                  :annotation "       nix ")
+            ("󱄅 microvisor :󰡢 darwin:rebuild"     :command "darwin-rebuild build  --flake .  "                                                  :annotation "       nix ")
             ("󱄅 microvisor : guix:update"        :command "guix pull                        "                                                  :annotation "      guix ")
-            ("󱄅 microvisor :󰡢 nixos:rebuild"      :command "nixos-rebuild  build  --flake .  "                                                  :annotation "nixos      ")
+            ("󱄅 microvisor :󰡢 nixos:rebuild"      :command "nixos-rebuild  build  --flake .  "                                                  :annotation "       nix ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ("󱄅 microvisor : arch:upgrade"       :command "sudo pacman -Syu                 "                                                  :annotation "    pacman ")
@@ -91,6 +91,7 @@
        ;; ===========================================|=======|============================================================================================================== ;;
        (eval . (progn
                  (require 'subr-x)
+                 (require 'prodigy)
                  (require 'compile-multi)
                  (require 'nerd-icons nil t)
                  ;; ========================================================================================================================================================= ;;
@@ -109,4 +110,10 @@
                      (funcall original-function task)))
                  ;; ========================================================================================================================================================= ;;
                  (unless (advice-member-p #'my/compile-multi-local-annotation #'compile-multi--annotation-function)
-                   (advice-add 'compile-multi--annotation-function :around #'my/compile-multi-local-annotation)))))))
+                   (advice-add 'compile-multi--annotation-function :around #'my/compile-multi-local-annotation))
+                 ;; ========================================================================================================================================================= ;;
+                 (prodigy-define-service :name " start" :command "cargo" :port 5150 :stop-signal 'kill :cwd default-directory :args '("loco" "start")     :kill-process-buffer-on-stop t :tags (list (intern "󱄅 microvisor ")))
+                 (prodigy-define-service :name "󰐊 run"   :command "dx"    :port 8080 :stop-signal 'kill :cwd default-directory :args '("serve" "-p" "web") :kill-process-buffer-on-stop t :tags (list (intern "󰦉 web 󰦉")))
+                 ;; ========================================================================================================================================================= ;;
+                 ))
+       )))
