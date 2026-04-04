@@ -144,6 +144,47 @@
 (after! compile-multi
   (setq compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root)))))
 
+;; (after! compile-multi
+;;   (require 'nerd-icons)
+
+;;   (defun my/compile-multi-annotation-function (task)
+;;     "Custom right annotation; color Rust icon for cargo entries."
+;;     (when-let ((annotation_text (plist-get (cdr task) :annotation)))
+;;       (let* ((text annotation_text)
+;;              (is-cargo (string-match-p "^\\s-*cargo\\b" text))
+;;              (icon (when is-cargo
+;;                      (nerd-icons-devicon "nf-dev-rust" :face 'nerd-icons-orange)))
+;;              (right-text
+;;               (if is-cargo
+;;                   (concat
+;;                    (propertize (string-trim-right (replace-regexp-in-string "\\s-*$" "" text))
+;;                                'face 'completions-annotations)
+;;                    " "
+;;                    icon)
+;;                 (propertize text 'face 'completions-annotations))))
+;;         (when (and compile-multi-annotate-limit
+;;                    (>= (length (substring-no-properties (if is-cargo
+;;                                                             (replace-regexp-in-string "\\s-*$" "" text)
+;;                                                           text)))
+;;                        compile-multi-annotate-limit))
+;;           (setq right-text
+;;                 (concat
+;;                  (propertize
+;;                   (concat (string-trim-right
+;;                            (substring (if is-cargo
+;;                                           (replace-regexp-in-string "\\s-*$" "" text)
+;;                                         text)
+;;                                       0 compile-multi-annotate-limit))
+;;                           "…")
+;;                   'face 'completions-annotations)
+;;                  (if is-cargo (concat " " icon) ""))))
+;;         (concat
+;;          " "
+;;          (propertize " " 'display `(space :align-to (- right ,(+ 1 (length (substring-no-properties right-text))))))
+;;          right-text))))
+
+;;   (advice-add 'compile-multi--annotation-function :override #'my/compile-multi-annotation-function))
+
 (use-package! nerd-icons-completion
   :after marginalia
   :config
@@ -154,14 +195,6 @@
   :after compile-multi
   :config
   (consult-compile-multi-mode 1))
-
-;; (use-package! compile-multi-nerd-icons
-;;   :after (compile-multi nerd-icons-completion)
-;;   :demand t)
-
-;; (use-package! compile-multi-all-the-icons
-;;   :after (all-the-icons-completion compile-multi)
-;;   :demand t)
 
 (use-package! compile-multi-embark
   :after (compile-multi embark)
