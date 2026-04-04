@@ -21,16 +21,14 @@
 
     loco = {
       enable = true;
-      config = rec {
       writeConfig = false;
+
+      config = {
         development = {
+          logger.level = "info";
+          logger.format = "pretty";
           mailer.smtp.host = "mailpit.localhost";
           database.uri = "sqlite://microvisor_development.sqlite?mode=rwc";
-
-          logger = {
-            level = "info";
-            format = "pretty";
-          };
 
           server.middlewares = {
             fallback.enable = false;
@@ -44,31 +42,28 @@
           };
         };
 
-        extra_config.initializers.openapi.redoc = {
-          url = "/redoc";
-          spec_json_url = "/api-docs/openapi.json";
-          spec_yaml_url = "/api-docs/openapi.yaml";
-        };
+        extra_config.initializers.openapi.redoc.url = "/redoc";
+        extra_config.initializers.openapi.redoc.spec_json_url = "/api-docs/openapi.json";
+        extra_config.initializers.openapi.redoc.spec_yaml_url = "/api-docs/openapi.yaml";
       };
     };
 
     dioxus = {
       enable = true;
+      # mobile.ios.enable = true;
       desktop.linux.enable = false;
       mobile.android.enable = false;
-      application = {
+      application = rec {
         # base_path = "web";
         # asset_dir = "assets";
         tailwind_input = "tailwind.css";
-        tailwind_output = "assets/tailwind.css";
+        tailwind_output = "assets/${tailwind_input}";
       };
 
       web = {
         # pre_compress = true;
         # proxy.backend = "http://localhost:8000/api/"
-        app = {
-          title = "🕹 Microvisor Systems 🕹";
-        };
+        app.title = "🕹 Microvisor Systems 🕹";
 
         # watcher.watch_path = ["web" "web/src" "web/assets"];
         # resource = {
