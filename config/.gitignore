@@ -1,4 +1,4 @@
 local.yaml
 *.local.yaml
 production.yaml
-development.yaml
+# development.yaml

@@ -1,0 +1,57 @@
+database:
+  idle_timeout: 500
+  auto_migrate: true
+  max_connections: 1
+  min_connections: 1
+  connect_timeout: 500
+  enable_logging: false
+  dangerously_recreate: false
+  dangerously_truncate: false
+  uri: sqlite://microvisor_development.sqlite?mode=rwc
+
+logger:
+  level: info
+  enable: true
+  format: pretty
+  pretty_backtrace: true
+
+auth:
+  jwt:
+    expiration: 604800
+    secret: EuMvNwuLnnaAgt3Jx7lw
+
+initializers:
+  openapi:
+    redoc:
+      url: /redoc
+      spec_json_url: /api-docs/openapi.json
+      spec_yaml_url: /api-docs/openapi.yaml
+
+mailer:
+  smtp:
+    enable: true
+    port: 1025
+    secure: false
+    host: mailpit.localhost
+
+server:
+  port: 5150
+  binding: localhost
+  host: http://localhost
+
+  middlewares:
+    fallback:
+      enable: false
+
+    static:
+      enable: true
+      must_exist: true
+      precompressed: false
+      fallback: assets/static/404.html
+
+      folder:
+        uri: /
+        path: dist
+
+workers:
+  mode: BackgroundAsync

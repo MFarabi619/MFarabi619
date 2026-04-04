@@ -22,6 +22,7 @@
     loco = {
       enable = true;
       config = rec {
+      writeConfig = false;
         development = {
           mailer.smtp.host = "mailpit.localhost";
           database.uri = "sqlite://microvisor_development.sqlite?mode=rwc";
