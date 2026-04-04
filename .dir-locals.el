@@ -122,8 +122,8 @@
                    (prodigy-define-service
                      :name                        (string-trim (cadr (split-string (car task) ":")))
                      :command                     shell-file-name
+                     :cwd                         (projectile-project-root)
                      :args                        (list shell-command-switch (plist-get (cdr task) :command))
-                     :cwd                         default-directory
                      :stop-signal                 'kill
                      :kill-process-buffer-on-stop t
                      :tags                        (list (intern (string-trim (car (split-string (car task) ":")))))))
