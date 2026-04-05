@@ -3,42 +3,62 @@
   config,
   ...
 }:
+let
+  gmailCommon = {
+    enable = true;
+    mu.enable = true;
+    msmtp.enable = true;
+    flavor = "gmail.com";
+    neomutt.enable = true;
+    realName = config.me.fullname;
+
+    signature = {
+      showSignature = "append";
+      text = ''
+        Warm regards,
+        ${config.me.fullname}
+      '';
+    };
+
+    mbsync = {
+      enable = true;
+      create = "both";
+      expunge = "both";
+      patterns = [
+        "*"
+        "[Gmail]*"
+      ]; # "[Gmail]/Sent Mail" ];
+    };
+  };
+
+  mkGmailAccount =
+    {
+      address,
+      passwordCommand,
+      primary ? false,
+    }:
+    gmailCommon
+    // {
+      inherit address passwordCommand primary;
+      userName = address;
+      smtp.host = "smtp.${gmailCommon.flavor}";
+    };
+in
 {
   accounts = {
     email = {
       maildirBasePath = "Maildir";
 
       accounts = {
-        Gmail = {
-          enable = true;
-          primary = true;
-          mu.enable = true;
-          msmtp.enable = true;
-          flavor = "gmail.com";
-          neomutt.enable = true;
+        Gmail = mkGmailAccount {
           address = config.me.email;
-          userName = config.me.email;
-          smtp.host = "smtp.gmail.com";
-          realName = config.me.fullname;
           passwordCommand = "${pkgs.pass}/bin/pass Email/GmailApp";
+          primary = true;
+        };
 
-          signature = {
-            showSignature = "append";
-            text = ''
-              Warm regards,
-              config.me.fullname
-            '';
-          };
-
-          mbsync = {
-            enable = true;
-            create = "both";
-            expunge = "both";
-            patterns = [
-              "*"
-              "[Gmail]*"
-            ]; # "[Gmail]/Sent Mail" ];
-          };
+        "apidaesystems" = mkGmailAccount {
+          address = "farabi@apidaesystems.ca";
+          passwordCommand = "${pkgs.pass}/bin/pass Email/apidaesystems";
         };
       };
     };
@@ -73,6 +93,5 @@
     #   };
     #  };
     # };
-
   };
 }
