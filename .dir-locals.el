@@ -30,7 +30,7 @@
             ("󱄅 microvisor :󰇺 tasks"              :command "devenv tasks list"                            :prodigy t                            :annotation "    devenv 󱄅")
             ("󱄅 microvisor :󰚦 down"               :command "devenv processes down"                        :prodigy t                            :annotation "    devenv 󱄅")
             ("󱄅 microvisor : sqld"               :command "devenv up sqld"                               :prodigy t :port 8080                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : caddy"              :command "devenv up caddy"                              :prodigy t :port 80                   :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : caddy"              :command "devenv up caddy"                              :prodigy t :port   80                 :annotation "    devenv 󱄅")
             ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit"                            :prodigy t :port 8025                 :annotation "    devenv 󱄅")
             ("󱄅 microvisor : postgres"           :command "devenv up postgres"                           :prodigy t :port 5432                 :annotation "    devenv 󱄅")
             ("󱄅 microvisor : tailscale"          :command "devenv up tailscale"                          :prodigy t :port 8080                 :annotation "    devenv 󱄅")
@@ -101,16 +101,10 @@
             ("󰚗 STM32H723ZG 󰚗: debug"             :command "cargo      r -p  firmware            --bin stm32h723zg                                                       --target thumbv7em-none-eabihf"   :annotation "     cargo "))))
        ;; ===========================================|=======|============================================================================================================== ;;
        (eval . (progn
-                 (require 'seq)
-                 (require 'cl-lib)
-                 (require 'subr-x)
-                 (require 'prodigy)
-                 (require 'compile-multi)
-                 (require 'nerd-icons nil t)
+                 (require 'seq) (require 'cl-lib) (require 'subr-x) (require 'prodigy) (require 'compile-multi) (require 'nerd-icons nil t)
                  ;; ========================================================================================================================================================= ;;
                  (defun my/compile-multi-local-annotation (original-function task)
-                   (if-let* ((annotation_text (plist-get (cdr task) :annotation))
-                             ((stringp annotation_text)) ((fboundp 'nerd-icons-icon-for-file))
+                   (if-let* ((annotation_text (plist-get (cdr task) :annotation)) ((stringp annotation_text)) ((fboundp 'nerd-icons-icon-for-file))
                              (annotation_words (split-string (string-trim-right annotation_text) "[[:space:]]+" t))
                              (icon_file_name (alist-get (car annotation_words) '(("cargo" . "Cargo.toml") ("nix" . "flake.nix") ("devenv" . "flake.nix")) nil nil #'string=)))
                        (let* ((annotation_base (string-join (if (> (length annotation_words) 1) (butlast annotation_words) annotation_words) " "))
@@ -124,38 +118,28 @@
                  (unless (advice-member-p #'my/compile-multi-local-annotation #'compile-multi--annotation-function)
                    (advice-add 'compile-multi--annotation-function :around #'my/compile-multi-local-annotation)) ;; end unless
                  ;; ========================================================================================================================================================= ;;
-                 (dolist (task (seq-filter
-                                (lambda (task) (plist-get (cdr task) :prodigy))
-                                (thread-first
-                                  (compile-multi--config-tasks)
-                                  (compile-multi--fill-tasks)
-                                  (compile-multi--add-properties))))
+                 (dolist (task (seq-filter (lambda (task) (plist-get (cdr task) :prodigy)) (thread-first (compile-multi--config-tasks) (compile-multi--fill-tasks) (compile-multi--add-properties))))
+
                    (let* ((title        (car task))
-                          (plain-title  (substring-no-properties title))
                           (plist        (cdr task))
                           (port         (plist-get plist :port))
-                          (group-label  (or (get-text-property 0 'consult--type title)
-                                            (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title)
-                                                (string-trim (match-string 1 plain-title)) plain-title)))
-                          (display-name (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title)
-                                            (string-trim (match-string 2 plain-title))
-                                          plain-title))
-                          (command      (or (get-text-property 0 'compile-multi--task title)
-                                            (plist-get plist :command))))
-                     (apply
-                      #'prodigy-define-service
-                      (append
-                       (list
-                        :stop-signal                 'kill
-                        :name                        plain-title
-                        :display-name                display-name
-                        :group-label                 (format "%s" group-label)
-                        :kill-process-buffer-on-stop 'unless-visible
-                        :command                     shell-file-name
-                        :cwd                         (projectile-project-root)
-                        :args                        (list shell-command-switch command))
-                       (when port
-                         (list :port port))))))
+                          (plain-title  (substring-no-properties title))
+                          (command      (or (get-text-property 0 'compile-multi--task title) (plist-get plist :command)))
+                          (group-label  (or (get-text-property 0 'consult--type title) (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title) (string-trim (match-string 1 plain-title)) plain-title)))
+                          (display-name (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title) (string-trim (match-string 2 plain-title)) plain-title)))
+
+                     (apply #'prodigy-define-service
+                            (append
+                             (list
+                              :stop-signal                 'kill
+                              :name                        plain-title
+                              :display-name                display-name
+                              :group-label                 (format "%s" group-label)
+                              :kill-process-buffer-on-stop 'unless-visible
+                              :command                     shell-file-name
+                              :cwd                         (projectile-project-root)
+                              :args                        (list shell-command-switch command))
+                             (when port                    (list :port port))))))
                  ;; ========================================================================================================================================================= ;;
                  )) ;; end eval
        )))
