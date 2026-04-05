@@ -117,6 +117,7 @@
 ;; (use-package! gptel-integrations)
 (use-package! exercism              :if (not (eq system-type 'berkeley-unix)))                  ;; FIXME: fails on FreeBSD
 (use-package! mu4e-column-faces     :after mu4e          :config (mu4e-column-faces-mode 1))
+(use-package! mu4e-marker-icons     :after mu4e          :config (mu4e-marker-icons-mode 1))
 (use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
 (use-package! prodigy                                    :config (setopt prodigy-kill-process-buffer-on-stop t))
 (use-package! nov-xwidget           :after nov :demand t :config (define-key nov-mode-map (kbd "o") #'nov-xwidget-view) (add-hook 'nov-mode-hook #'nov-xwidget-inject-all-files))
@@ -142,10 +143,11 @@
 (after!       dirvish       (setopt dirvish-peek-mode t dirvish-side-auto-close t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
 (after!       lsp           (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t lsp-describe-thing-at-point t))
 (after!       lsp-clangd    (setopt lsp-clients-clangd-args '("-j=3" "--clang-tidy" "--background-index" "--header-insertion=never" "--completion-style=detailed" "--header-insertion-decorators=0")) (set-lsp-priority! 'clangd 2) )
-(after!       rustic-mode   (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
-(after!       treemacs      (setopt treemacs-width 40 treemacs-peek-mode t treemacs-follow-mode t treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
 (after!       vertico       (vertico-multiform-mode 1) (add-to-list 'vertico-multiform-commands '(compile-multi buffer (vertico-buffer-display-action . ((display-buffer-reuse-window display-buffer-in-side-window) (side . right) (window-width . 0.20) (window-parameters . ((no-delete-other-windows . t) (mode-line-format . none))))))))
+(after!       treemacs      (setopt treemacs-width 40 treemacs-peek-mode t treemacs-follow-mode t treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
 (after!       compile-multi (setopt compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root)))) (advice-add 'compile-multi :around (lambda (fn &rest args) (if (bound-and-true-p vertico-posframe-mode) (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
+(after!       gnus          (setopt sendmail-program "msmtp" message-sendmail-f-is-evil t gnus-secondary-select-methods nil mm-text-html-renderer 'shr mm-inline-large-images t mm-discouraged-alternatives '("text/plain" "text/richtext") shr-use-colors nil shr-max-width 100 shr-max-image-proportion 0.6 shr-use-fonts nil message-sendmail-envelope-from 'header message-send-mail-function 'message-send-mail-with-sendmail message-sendmail-extra-arguments '("--read-envelope-from") gnus-select-method '(nnmaildir "local" (directory "~/Maildir/Gmail"))))
+(after!       rustic-mode   (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
 
 (after!       proced        (setq-default proced-auto-update-flag t) (setopt proced-auto-update-interval 1 proced-goal-attribute nil proced-enable-color-flag t proced-format 'medium)
   (add-hook
@@ -207,17 +209,29 @@
                 tabulated-list-sort-key nil
                 tabulated-list-entries #'my/prodigy-list-entries
                 tabulated-list-format [(" " 1 nil) ("Service" 35 t) ("Port" 1 t)])
-    (tabulated-list-print t)))
+    (tabulated-list-print t))) ;; end prodigy
+
+(with-eval-after-load 'mu4e
+  (setopt
+   mu4e-index-cleanup nil
+   mu4e-index-lazy-check t
+   message-sendmail-f-is-evil t
+   mu4e-context-policy 'ask-if-none
+   send-mail-function #'smtpmail-send-it
+   mu4e-compose-context-policy 'always-ask
+   sendmail-program (executable-find "msmtp")
+   message-sendmail-extra-arguments '("--read-envelope-from")
+   message-send-mail-function #'message-send-mail-with-sendmail))
 
 (add-hook! 'sql-mode-hook #'lsp!)
 (add-hook! 'conf-toml-mode-hook #'lsp!)
 (add-hook! 'gfm-mode-hook #'gfm-view-mode)
 ;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
 ;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
-(add-hook 'find-file-hook #'my/warm-project-vterm)
+(add-hook  'find-file-hook #'my/warm-project-vterm)
 (add-hook! 'prodigy-view-mode-hook (text-scale-set -2))
 ;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
-(add-hook 'doom-first-buffer-hook #'my/warm-project-vterm)
+(add-hook  'doom-first-buffer-hook #'my/warm-project-vterm)
 (add-hook! 'pdf-view-mode-hook 'pdf-view-midnight-minor-mode 'doom-modeline-mode-hook #'nyan-mode)
 (add-hook! '(sql-mode-hook sql-interactive-mode-hook) (setq-local sql-default-directory (projectile-project-root)) (sql-highlight-postgres-keywords))
 
@@ -242,30 +256,15 @@
          (plist       (cdr task)))
     (if (plist-get plist :prodigy)
         (if-let ((service (prodigy-find-service plain-title)))
-            (progn
-              (save-selected-window
-                (prodigy))
-              (if (prodigy-service-started-p service)
-                  (prodigy-restart-service
-                      service
-                    (lambda ()
-                      (save-selected-window
-                        (prodigy)
-                        (when-let ((buffer (get-buffer (prodigy-buffer-name service))))
-                          (with-current-buffer buffer
-                            (unless (eq major-mode 'prodigy-view-mode)
-                              (prodigy-view-mode)))
-                          (display-buffer buffer)))))
-                (prodigy-start-service
-                    service
-                  (lambda ()
-                    (save-selected-window
-                      (prodigy)
-                      (when-let ((buffer (get-buffer (prodigy-buffer-name service))))
-                        (with-current-buffer buffer
-                          (unless (eq major-mode 'prodigy-view-mode)
-                            (prodigy-view-mode)))
-                        (display-buffer buffer)))))))
+            (progn (save-selected-window (prodigy))
+                   (if (prodigy-service-started-p service)
+                       (prodigy-restart-service service
+                         (lambda () (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))
+
+                     (prodigy-start-service service
+                       (lambda ()
+                         (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))))
+
           (message "No Prodigy service found for %s" plain-title))
       (compile-multi nil (plist-get plist :command)))))
 
@@ -277,9 +276,8 @@
       :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
       :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
       :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
-      ;; :leader :prefix "c" :desc "Prodigy"     "c" #'compile-multi
       :leader :prefix "c" :desc "Compile"     "c" #'my/compile-multi-prodigy
-      )
+      :leader :prefix "c" :desc "In-Progress" "p" #'compilation-goto-in-progress-buffer)
 
 (after! dape
   (setopt dape-adapter-dir "~/.local/share/nix-doom/debug-adapters/")

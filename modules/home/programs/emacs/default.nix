@@ -34,6 +34,8 @@
         mu4e
         mu4e-views
         mu4e-column-faces
+        mu4e-marker-icons
+
         empv
         verb
         # gptel
