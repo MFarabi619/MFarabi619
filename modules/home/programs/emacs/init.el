@@ -228,6 +228,7 @@
        (ruby              ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
         +lsp
         +rvm
+        +rbenv
         +rails
         +tree-sitter)
        (rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
