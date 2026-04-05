@@ -74,7 +74,7 @@
             (" tui :󰐊 run"                       :command "cargo r -rp tui"                               :prodigy t                           :annotation "     cargo ")
             (" tui :󰐊 run:simulate 󰇉"           :command "cargo r -rp tui --bin simulator"               :prodigy t                           :annotation "     cargo ")
             (" tui :󰐊 run:simulate(min) 󰍹"      :command "cargo r -rp tui --bin simulator-minimal"       :prodigy t                           :annotation "     cargo ")
-            (" tui :󰳽 serve"                     :command "cargo r -rp tui"                               :prodigy t :port 8080                :annotation "     cargo ")
+            (" tui :󰳽 serve"                     :command "trunk serve"                                   :prodigy t :port 8080                :annotation "     cargo ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
@@ -117,6 +117,23 @@
                  ;; ========================================================================================================================================================= ;;
                  (unless (advice-member-p #'my/compile-multi-local-annotation #'compile-multi--annotation-function)
                    (advice-add 'compile-multi--annotation-function :around #'my/compile-multi-local-annotation)) ;; end unless
+                 (defun my/compile-multi-running-prodigy-face (original-function tasks)
+                   (mapcar
+                    (lambda (task)
+                      (let* ((title (car task))
+                             (plist (cdr task))
+                             (plain-title (substring-no-properties title))
+                             (service (and (plist-get plist :prodigy)
+                                           (prodigy-find-service plain-title))))
+                        (if (and service (prodigy-service-started-p service))
+                            (let ((title* (copy-sequence title)))
+                              (add-face-text-property 0 (length title*) 'prodigy-green-face t title*)
+                              (cons title* plist))
+                          task)))
+                    (funcall original-function tasks)))
+
+                 (unless (advice-member-p #'my/compile-multi-running-prodigy-face #'compile-multi--add-properties)
+                   (advice-add 'compile-multi--add-properties :around #'my/compile-multi-running-prodigy-face))
                  ;; ========================================================================================================================================================= ;;
                  (dolist (task (seq-filter (lambda (task) (plist-get (cdr task) :prodigy)) (thread-first (compile-multi--config-tasks) (compile-multi--fill-tasks) (compile-multi--add-properties))))
 

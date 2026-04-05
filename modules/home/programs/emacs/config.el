@@ -117,7 +117,7 @@
 ;; (use-package! gptel-integrations)
 (use-package! exercism              :if (not (eq system-type 'berkeley-unix)))                  ;; FIXME: fails on FreeBSD
 (use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
-(use-package! prodigy                                    :config (setopt prodigy-kill-process-buffer-on-stop 'unless-visible))
+(use-package! prodigy                                    :config (setopt prodigy-kill-process-buffer-on-stop t))
 (use-package! nov-xwidget           :after nov :demand t :config (define-key nov-mode-map (kbd "o") #'nov-xwidget-view) (add-hook 'nov-mode-hook #'nov-xwidget-inject-all-files))
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
 (use-package! fancy-compilation     :after compile       :config (setopt fancy-compilation-term "xterm-256color" fancy-compilation-quiet-prelude t fancy-compilation-quiet-prolog t fancy-compilation-override-colors nil) (fancy-compilation-mode 1))
@@ -141,9 +141,10 @@
 (after!       lsp           (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t lsp-describe-thing-at-point t))
 (after!       lsp-clangd    (setopt lsp-clients-clangd-args '("-j=3" "--clang-tidy" "--background-index" "--header-insertion=never" "--completion-style=detailed" "--header-insertion-decorators=0")) (set-lsp-priority! 'clangd 2) )
 (after!       rustic-mode   (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
-(after!       treemacs      (setopt treemacs-width 70 treemacs-peek-mode t treemacs-follow-mode t treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
+(after!       treemacs      (setopt treemacs-width 40 treemacs-peek-mode t treemacs-follow-mode t treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
 (after!       vertico       (vertico-multiform-mode 1) (add-to-list 'vertico-multiform-commands '(compile-multi buffer (vertico-buffer-display-action . ((display-buffer-reuse-window display-buffer-in-side-window) (side . right) (window-width . 0.20) (window-parameters . ((no-delete-other-windows . t) (mode-line-format . none))))))))
 (after!       compile-multi (setopt compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root)))) (advice-add 'compile-multi :around (lambda (fn &rest args) (if (bound-and-true-p vertico-posframe-mode) (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
+
 (after!       proced        (setq-default proced-auto-update-flag t) (setopt proced-auto-update-interval 1 proced-goal-attribute nil proced-enable-color-flag t proced-format 'medium)
   (add-hook
    'proced-mode-hook
@@ -156,7 +157,6 @@
      (face-remap-add-relative 'error                        :weight 'bold :foreground "#fb4934"                      )
      (face-remap-add-relative 'success                      :weight 'bold :foreground "#b8bb26"                      )
      (face-remap-add-relative 'warning                      :weight 'bold :foreground "#fabd2f"                      ))))
-
 
 (after! prodigy (require 'seq)
   (custom-set-faces! '(prodigy-red-face    :foreground "#fb4934" :weight bold) '(prodigy-green-face  :foreground "#b8bb26" :weight bold) '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
@@ -178,7 +178,7 @@
                                                (propertize (my/prodigy-display-name service) 'face (or (prodigy-status-face service) 'default)) (if-let ((port (plist-get service :port))) (number-to-string port) ""))))
 
   (defun my/prodigy-group-entry (label)
-    (let* ((width 40)
+    (let* ((width 35)
            (text  (format "  %s  " label))
            (text-width (string-width text))
            (left-width  (max 0 (/ (- width text-width) 2)))
@@ -204,7 +204,7 @@
                 tabulated-list-groups nil
                 tabulated-list-sort-key nil
                 tabulated-list-entries #'my/prodigy-list-entries
-                tabulated-list-format [(" " 1 nil) ("Service" 40 t) ("Port" 1 t)])
+                tabulated-list-format [(" " 1 nil) ("Service" 35 t) ("Port" 1 t)])
     (tabulated-list-print t)))
 
 (add-hook! 'sql-mode-hook #'lsp!)
@@ -213,6 +213,7 @@
 ;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
 ;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
 (add-hook 'find-file-hook #'my/warm-project-vterm)
+(add-hook! 'prodigy-view-mode-hook (text-scale-set -2))
 ;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
 (add-hook 'doom-first-buffer-hook #'my/warm-project-vterm)
 (add-hook! 'pdf-view-mode-hook 'pdf-view-midnight-minor-mode 'doom-modeline-mode-hook #'nyan-mode)
@@ -220,11 +221,51 @@
 
 (set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                    :height 0.40 :width 0.40 :select t   :modeline nil)
 (set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot  0 :ttl nil :vslot 0 :height 0.50 :width 0.50 :select t   :modeline nil)
-(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot  1 :ttl nil :vslot 0 :height 0.50 :width 0.22 :select t   :modeline nil)
-(set-popup-rule! "^*prodigy-.*$"           :side 'bottom :quit t :slot -1 :ttl nil :vslot 1 :height 0.30 :width 0.50 :select nil :modeline nil)
+(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot  1 :ttl nil :vslot 0 :height 0.50 :width 0.20 :select t   :modeline nil)
+(set-popup-rule! "^*prodigy-.*$"           :side 'right  :quit t :slot  2 :ttl nil :vslot 0 :height 0.45 :width 0.40 :select nil :modeline nil)
 (set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot  1 :ttl nil :vslot 0 :height 0.30 :width 0.50 :select nil :modeline nil)
 
 (defadvice!   prompt-for-buffer (&rest _)  :after '(evil-window-split evil-window-vsplit) (consult-buffer))
+
+(defun my/compile-multi-read-task ()
+  (let ((this-command 'compile-multi) (real-this-command 'compile-multi))
+    (if (bound-and-true-p vertico-posframe-mode) (unwind-protect (progn (vertico-posframe-mode -1) (compile-multi--get-task)) (vertico-posframe-mode 1))
+      (compile-multi--get-task))))
+
+(defun my/compile-multi-prodigy ()
+  (interactive)
+  (let* ((task        (my/compile-multi-read-task))
+         (title       (car task))
+         (plain-title (substring-no-properties title))
+         (plist       (cdr task)))
+    (if (plist-get plist :prodigy)
+        (if-let ((service (prodigy-find-service plain-title)))
+            (progn
+              (save-selected-window
+                (prodigy))
+              (if (prodigy-service-started-p service)
+                  (prodigy-restart-service
+                      service
+                    (lambda ()
+                      (save-selected-window
+                        (prodigy)
+                        (when-let ((buffer (get-buffer (prodigy-buffer-name service))))
+                          (with-current-buffer buffer
+                            (unless (eq major-mode 'prodigy-view-mode)
+                              (prodigy-view-mode)))
+                          (display-buffer buffer)))))
+                (prodigy-start-service
+                    service
+                  (lambda ()
+                    (save-selected-window
+                      (prodigy)
+                      (when-let ((buffer (get-buffer (prodigy-buffer-name service))))
+                        (with-current-buffer buffer
+                          (unless (eq major-mode 'prodigy-view-mode)
+                            (prodigy-view-mode)))
+                        (display-buffer buffer)))))))
+          (message "No Prodigy service found for %s" plain-title))
+      (compile-multi nil (plist-get plist :command)))))
 
 (map! :n                                      "j" #'evil-next-visual-line
       :n                                      "k" #'evil-previous-visual-line
@@ -234,7 +275,9 @@
       :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
       :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
       :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
-      :leader :prefix "c" :desc "Compile"     "c" #'compile-multi)
+      ;; :leader :prefix "c" :desc "Prodigy"     "c" #'compile-multi
+      :leader :prefix "c" :desc "Compile"     "c" #'my/compile-multi-prodigy
+      )
 
 (after! dape
   (setopt dape-adapter-dir "~/.local/share/nix-doom/debug-adapters/")
