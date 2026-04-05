@@ -14,7 +14,7 @@ const ESP_FEATURES: &str = "esp32s3";
 const PACKAGE: &str = "firmware";
 const APP_ELF_PATH: &str = "target/xtensa-esp32s3-none-elf/release/esp32s3";
 const APP_OTA_IMAGE_PATH: &str = "target/xtensa-esp32s3-none-elf/release/esp32s3-ota.bin";
-const PARTITION_TABLE: &str = "firmware/partitions.csv";
+const PARTITION_TABLE: &str = "boards/esp32s3.partitions.csv";
 const OTA_DEVICE_PORT: u16 = 3232;
 const OTA_STATUS_READY: u8 = 0xA5;
 const OTA_STATUS_BEGIN_FAILED: u8 = 0xE1;
@@ -121,7 +121,10 @@ impl Task for Upload {
                 break stream;
             }
 
-            info(&format!("Still waiting for OTA receiver at {}...", endpoint));
+            info(&format!(
+                "Still waiting for OTA receiver at {}...",
+                endpoint
+            ));
             thread::sleep(Duration::from_secs(2));
         };
 
