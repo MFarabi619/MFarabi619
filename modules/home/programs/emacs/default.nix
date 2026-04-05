@@ -44,6 +44,7 @@
         corfu
         prodigy
         pdf-tools
+        magit-todos
         magit-delta
         corfu-terminal
         nerd-icons-corfu
