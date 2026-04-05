@@ -230,6 +230,7 @@
         +rvm
         +rbenv
         +rails
+        +chruby
         +tree-sitter)
        (rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
         +lsp
