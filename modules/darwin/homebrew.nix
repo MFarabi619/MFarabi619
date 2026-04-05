@@ -30,7 +30,7 @@
       "huly"
       # "comfyui"
       # "sonic-pi"
-      "unity-hub"
+      # "unity-hub"
       "leader-key"
       "tailscale-app"
       # "supercollider"
