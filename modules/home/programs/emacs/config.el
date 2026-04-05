@@ -116,6 +116,7 @@
 (use-package! fretboard)
 ;; (use-package! gptel-integrations)
 (use-package! exercism              :if (not (eq system-type 'berkeley-unix)))                  ;; FIXME: fails on FreeBSD
+(use-package! mu4e-column-faces     :after mu4e          :config (mu4e-column-faces-mode 1))
 (use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
 (use-package! prodigy                                    :config (setopt prodigy-kill-process-buffer-on-stop t))
 (use-package! nov-xwidget           :after nov :demand t :config (define-key nov-mode-map (kbd "o") #'nov-xwidget-view) (add-hook 'nov-mode-hook #'nov-xwidget-inject-all-files))

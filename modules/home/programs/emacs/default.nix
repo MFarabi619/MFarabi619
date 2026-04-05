@@ -32,6 +32,7 @@
       [
         nov
         mu4e
+        mu4e-column-faces
         empv
         verb
         # gptel
