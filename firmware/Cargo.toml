@@ -113,6 +113,11 @@ harness      = false
 name         = "scd4x"
 required-features = ["esp32s3"]
 
+[[test]]
+harness      = false
+name         = "scd30"
+required-features = ["esp32s3"]
+
 [[example]]
 test         = false
 bench        = false
@@ -239,6 +244,7 @@ embedded-storage       = "0.3.1"
 async-modbus           = { version = "0.7.0", default-features = false, features = ["embedded-io"] }
 ds323x                 = { version = "0.7.0", features = ["defmt"] }
 scd4x                  = { version = "0.5.0", default-features = false, features = ["embedded-hal-async"] }
+scd30-interface        = { version = "2.0.0", default-features = false, features = ["async", "defmt"] }
 libm                   = "0.2.16"
 serde                  = { version = "1", default-features = false, features = ["derive"] }
 
