@@ -359,6 +359,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-modbus"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee6021fc6126db0c60cc22d725c54588a433705fdce14f2c4fb1a89882162fd7"
+dependencies = [
+ "crc 3.4.0",
+ "defmt-or-log",
+ "embedded-io-async 0.7.0",
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+ "thiserror 2.0.18",
+ "zerocopy",
+ "zerocopy-derive",
+]
+
+[[package]]
 name = "async-std"
 version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1795,12 +1813,27 @@ dependencies = [
 
 [[package]]
 name = "crc"
-version = "3.3.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9710d3b3739c2e349eb44fe848ad0b7c8cb1e42bd87ee49371df2f7acaf3e675"
+checksum = "49fc9a695bca7f35f5f4c15cddc84415f66a74ea78eef08e90c5024f2b540e23"
 dependencies = [
- "crc-catalog",
+ "crc-catalog 1.1.1",
 ]
+
+[[package]]
+name = "crc"
+version = "3.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5eb8a2a1cd12ab0d987a5d5e825195d372001a4094a0376319d5a0ad71c1ba0d"
+dependencies = [
+ "crc-catalog 2.4.0",
+]
+
+[[package]]
+name = "crc-catalog"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccaeedb56da03b09f598226e25e80088cb4cd25f316e6e4df7d695f0feeb1403"
 
 [[package]]
 name = "crc-catalog"
@@ -2165,6 +2198,26 @@ checksum = "3d4fc12a85bcf441cfe44344c4b72d58493178ce635338a3f3b78943aceb258e"
 dependencies = [
  "defmt-parser",
  "proc-macro-error2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
+name = "defmt-or-log"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be59789d306cc1a082f53bb7c24c270d7e6078c00b7550a718219a7090156d97"
+dependencies = [
+ "defmt-or-log-macros",
+]
+
+[[package]]
+name = "defmt-or-log-macros"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d675dd299edbb7c8e01d4e9f520a0d8f22a8fe4af812c211c3fad5e9dcf41763"
+dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
@@ -3133,6 +3186,17 @@ name = "dpi"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8b14ccef22fc6f5a8f4d7d768562a182c04ce9a3b3157b91390b52ddfdf1a76"
+
+[[package]]
+name = "ds323x"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e44a8956eeecab3afcbab217b63fad8122cf0a4a8fe34ebd862e9d6802c2633"
+dependencies = [
+ "defmt 1.0.1",
+ "embedded-hal 1.0.0",
+ "rtcc",
+]
 
 [[package]]
 name = "dtoa"
@@ -4295,12 +4359,14 @@ checksum = "9844ddc3a6e533d62bba727eb6c28b5d360921d5175e9ff0f1e621a5c590a4d5"
 name = "firmware"
 version = "0.1.0"
 dependencies = [
+ "async-modbus",
  "bt-hci",
  "cortex-m",
  "cortex-m-rt",
  "critical-section",
  "defmt 1.0.1",
  "defmt-rtt",
+ "ds323x",
  "embassy-executor",
  "embassy-net",
  "embassy-stm32",
@@ -4333,6 +4399,8 @@ dependencies = [
  "picoserve",
  "ratatui",
  "rtt-target",
+ "scd4x",
+ "serde",
  "smart-leds",
  "smoltcp",
  "static_cell",
@@ -6464,11 +6532,11 @@ dependencies = [
 
 [[package]]
 name = "lzma-rust2"
-version = "0.15.7"
+version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1670343e58806300d87950e3401e820b519b9384281bbabfb15e3636689ffd69"
+checksum = "7fa48f5024824ecd3e8282cc948bd46fbd095aed5a98939de0594601a59b4e2b"
 dependencies = [
- "crc",
+ "crc 2.1.0",
  "sha2",
 ]
 
@@ -9022,6 +9090,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rtcc"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34cdafab440283cfef25f6b08e6dde7339c80efa920865c96a4e1923caae0ee7"
+dependencies = [
+ "chrono",
+ "defmt 1.0.1",
+]
+
+[[package]]
 name = "rtt-target"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9278,6 +9356,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "46e6f046b7fef48e2660c57ed794263155d713de679057f2d0c169bfc6e756cc"
 dependencies = [
  "sdd",
+]
+
+[[package]]
+name = "scd4x"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4125b72e0ab23dac0d2068c74020b05e53d16b72e78fb17c7565912fff0d8ce9"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "sensirion-i2c",
 ]
 
 [[package]]
@@ -9627,6 +9716,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd0b0ec5f1c1ca621c432a25813d8d60c88abe6d3e08a3eb9cf37d97a0fe3d73"
 dependencies = [
  "futures-core",
+]
+
+[[package]]
+name = "sensirion-i2c"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "640a03c95c176226cf159ae2727f7fe3245546022639d61459af46d2878aec06"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
 ]
 
 [[package]]
@@ -10226,7 +10325,7 @@ dependencies = [
  "bigdecimal",
  "bytes",
  "chrono",
- "crc",
+ "crc 3.4.0",
  "crossbeam-queue",
  "either",
  "event-listener 5.4.1",
@@ -10308,7 +10407,7 @@ dependencies = [
  "byteorder",
  "bytes",
  "chrono",
- "crc",
+ "crc 3.4.0",
  "digest",
  "dotenvy",
  "either",
@@ -10354,7 +10453,7 @@ dependencies = [
  "bitflags 2.11.0",
  "byteorder",
  "chrono",
- "crc",
+ "crc 3.4.0",
  "dotenvy",
  "etcetera",
  "futures-channel",

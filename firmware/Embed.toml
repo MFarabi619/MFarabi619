@@ -1,4 +1,18 @@
-# This file was automatically generated.
+# STM32H723ZG (commented out — not currently active)
+# [default.general]
+# chip = "STM32H723ZG"
 
-[default.general]
-chip = "STM32H723ZG"
+[esp32s3.general]
+chip = "esp32s3"
+
+[esp32s3.flashing]
+enabled = true
+
+[esp32s3.rtt]
+enabled = true
+up_channels = [
+    { channel = 0, mode = "BlockIfFull", format = "Defmt" },
+]
+down_channels = [
+    { channel = 0, mode = "BlockIfFull" },
+]

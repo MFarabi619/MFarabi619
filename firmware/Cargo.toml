@@ -94,12 +94,23 @@ required-features = ["esp32s3"]
 
 [[test]]
 harness      = false
-name         = "http_api"
+name         = "filesystem"
+path         = "tests/http_api.rs"
 required-features = ["esp32s3"]
 
 [[test]]
 harness      = false
 name         = "ntc_formula"
+required-features = ["esp32s3"]
+
+[[test]]
+harness      = false
+name         = "ds3231"
+required-features = ["esp32s3"]
+
+[[test]]
+harness      = false
+name         = "scd4x"
 required-features = ["esp32s3"]
 
 [[example]]
@@ -154,6 +165,20 @@ name         = "espota_server"
 path         = "examples/esp32s3/espota_server.rs"
 required-features = ["esp32s3"]
 
+[[example]]
+test         = false
+bench        = false
+name         = "modbus_sensors"
+path         = "examples/esp32s3/modbus_sensors.rs"
+required-features = ["esp32s3"]
+
+[[example]]
+test         = false
+bench        = false
+name         = "deep_sleep"
+path         = "examples/esp32s3/deep_sleep.rs"
+required-features = ["esp32s3"]
+
 [lib]
 test         = false
 
@@ -204,13 +229,18 @@ esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
 esp-storage            = { version = "0.5.0", features = ["esp32s3", "nor-flash"] }
 esp-hal-ota            = { version = "0.4.6", features = ["esp32s3", "defmt"] }
 esp-hal                = { version = "~1.0",  features = ["defmt", "esp32s3", "unstable"] }
+embassy-sync           = { version = "0.7", features = ["defmt"] }
 embassy-net            = { version = "0.7.1", features = ["tcp", "udp", "defmt", "dhcpv4", "medium-ethernet"] }
 esp-rtos               = { version = "0.2.0", features = ["defmt", "embassy", "esp32s3", "esp-alloc", "esp-radio"] }
 esp-radio              = { version = "0.17.0", features = ["ble", "coex", "wifi", "defmt", "esp32s3", "smoltcp", "unstable", "esp-alloc"] }
 picoserve              = { version = "0.16.0", features = ["embassy"] }
-heapless               = { version = "0.8.0", default-features = false }
+heapless               = { version = "0.8.0", default-features = false, features = ["serde"] }
 embedded-storage       = "0.3.1"
+async-modbus           = { version = "0.7.0", default-features = false, features = ["embedded-io"] }
+ds323x                 = { version = "0.7.0", features = ["defmt"] }
+scd4x                  = { version = "0.5.0", default-features = false, features = ["embedded-hal-async"] }
 libm                   = "0.2.16"
+serde                  = { version = "1", default-features = false, features = ["derive"] }
 
 smoltcp                = { version = "0.12.0", default-features = false, features = [
   "defmt",
