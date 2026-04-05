@@ -1,3 +1,4 @@
+// NOTE: copied from ~/.platformio/packages/framework-arduinoespressif32/variants/esp32s3
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
 
