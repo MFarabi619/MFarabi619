@@ -16,10 +16,7 @@
       upgrade = true;
       cleanup = "zap";
       autoUpdate = true;
-
-      extraFlags = [
-        "--verbose"
-      ];
+      # extraFlags = [ "--verbose" ];
     };
 
     casks = [
