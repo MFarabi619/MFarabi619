@@ -188,68 +188,38 @@
               (lambda (fn &rest args)
                 (if (bound-and-true-p vertico-posframe-mode)
                     (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
+
 (after! prodigy
   (require 'seq)
 
   (custom-set-faces! '(prodigy-red-face    :foreground "#fb4934" :weight bold) '(prodigy-green-face  :foreground "#b8bb26" :weight bold) '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
+
   (defun my/prodigy-group-row-p (&optional pos) (let ((id (tabulated-list-get-id pos))) (and (consp id) (eq (car id) :group))))
 
   (defun my/prodigy-next-service (&optional n)
     (interactive "p")
     (let ((n (or n 1)))
-      (dotimes (_ n)
-        (forward-line 1)
-        (while (and (not (eobp))
-                    (or (my/prodigy-group-row-p)
-                        (null (tabulated-list-get-id))))
-          (forward-line 1)))
-      (when (eobp)
-        (forward-line -1)
-        (while (and (not (bobp))
-                    (or (my/prodigy-group-row-p)
-                        (null (tabulated-list-get-id))))
-          (forward-line -1)))))
+      (dotimes (_ n) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))
+      (when (eobp) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))))
 
   (defun my/prodigy-previous-service (&optional n)
     (interactive "p")
     (let ((n (or n 1)))
-      (dotimes (_ n)
-        (forward-line -1)
-        (while (and (not (bobp))
-                    (or (my/prodigy-group-row-p)
-                        (null (tabulated-list-get-id))))
-          (forward-line -1)))
-      (when (my/prodigy-group-row-p)
-        (forward-line 1)
-        (while (and (not (eobp))
-                    (or (my/prodigy-group-row-p)
-                        (null (tabulated-list-get-id))))
-          (forward-line 1)))))
+      (dotimes (_ n) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))
 
-  (map! :map prodigy-mode-map
-        :n "j" #'my/prodigy-next-service
-        :n "k" #'my/prodigy-previous-service)
+      (when (my/prodigy-group-row-p) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))))
 
-  (defun my/prodigy-display-name (service)
-    (or (plist-get service :display-name)
-        (plist-get service :name)
-        ""))
+  (map! :map prodigy-mode-map :n "j" #'my/prodigy-next-service :n "k" #'my/prodigy-previous-service)
 
-  (defun my/prodigy-group-label (service)
-    (or (plist-get service :group-label)
-        "other"))
+  (defun my/prodigy-display-name (service) (or (plist-get service :display-name) (plist-get service :name) ""))
+  (defun my/prodigy-group-label (service) (or (plist-get service :group-label) "other"))
 
   (defun my/prodigy-service-entry (service)
-    (list
-     (prodigy-service-id service)
-     (vector
-      (prodigy-marked-col service)
-      (propertize
-       (my/prodigy-display-name service)
-       'face (or (prodigy-status-face service) 'default))
-      (if-let ((port (plist-get service :port)))
-          (number-to-string port)
-        ""))))
+    (list (prodigy-service-id service)
+          (vector (prodigy-marked-col service)
+                  (propertize (my/prodigy-display-name service)
+                              'face (or (prodigy-status-face service) 'default))
+                  (if-let ((port (plist-get service :port))) (number-to-string port) ""))))
 
   (defun my/prodigy-group-entry (label)
     (let* ((width 40)
@@ -260,38 +230,25 @@
            (left  (propertize (make-string left-width ?─) 'face 'shadow))
            (right (propertize (make-string right-width ?─) 'face 'shadow))
            (mid   (propertize text 'face 'shadow)))
-      (list
-       `(:group ,label)
-       (vector
-        ""
-        (concat left mid right)
-        ""))))
+      (list `(:group ,label) (vector "" (concat left mid right) ""))))
 
   (defun my/prodigy-list-entries ()
-    (apply
-     #'append
-     (mapcar
-      (lambda (group)
-        (let ((label (car group))
-              (services (sort (copy-sequence (cdr group))
-                              (lambda (a b)
-                                (string-lessp (my/prodigy-display-name a)
-                                              (my/prodigy-display-name b))))))
-          (cons
-           (my/prodigy-group-entry label)
-           (mapcar #'my/prodigy-service-entry services))))
-      (seq-group-by #'my/prodigy-group-label (prodigy-services)))))
+    (apply #'append (mapcar (lambda (group)
+                              (let ((label (car group))
+                                    (services (sort (copy-sequence (cdr group))
+                                                    (lambda (a b) (string-lessp (my/prodigy-display-name a)
+                                                                                (my/prodigy-display-name b))))))
+                                (cons (my/prodigy-group-entry label) (mapcar #'my/prodigy-service-entry services))))
+                            (seq-group-by #'my/prodigy-group-label (prodigy-services)))))
 
   (add-hook! 'prodigy-mode-hook
     (setq-local mode-line-format nil
+                header-line-format nil
                 tabulated-list-padding 0
-                tabulated-list-format [(" " 1 nil)
-                                       ("Service" 40 t)
-                                       ("Port" 8 t)]
-                tabulated-list-sort-key nil
                 tabulated-list-groups nil
-                tabulated-list-entries #'my/prodigy-list-entries)
-    (tabulated-list-init-header)
+                tabulated-list-sort-key nil
+                tabulated-list-entries #'my/prodigy-list-entries
+                tabulated-list-format [(" " 1 nil) ("Service" 40 t) ("Port" 8 t)])
     (tabulated-list-print t)))
 
 (add-hook! 'sql-mode-hook #'lsp!)
@@ -307,8 +264,8 @@
 
 (set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                    :size 0.40               :select t     :modeline nil)
 (set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot 0  :ttl nil :vslot 0 :size 0.50               :select t     :modeline nil)
-(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot 2  :ttl nil :vslot 0 :height 0.50 :width 0.22 :select t     :modeline nil)
-(set-popup-rule! "^*prodigy-.*$"           :side 'right  :quit t :slot 3  :ttl nil :vslot 0 :height 0.75 :width 0.50 :select nil   :modeline nil)
+(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot 0  :ttl nil :vslot 0 :height 0.50 :width 0.22 :select t     :modeline nil)
+(set-popup-rule! "^*prodigy-.*$"           :side 'bottom :quit t :slot -1  :ttl nil :vslot 0 :height 0.30 :width 0.50 :select nil   :modeline nil)
 (set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot 1  :ttl nil :vslot 0 :size 0.40               :select nil   :modeline nil)
 ;; (set-popup-rule! "*Ollama*"                :side 'left   :quit t         :ttl 0   :vslot -4 :size 0.5     :select t   :modeline nil)
 

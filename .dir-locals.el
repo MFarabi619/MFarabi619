@@ -26,55 +26,55 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ("󱄅 microvisor :󰔡 activate"           :command "nix run .#activate"                                                                 :annotation "       nix ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ("󱄅 microvisor :󰋽 info"               :command "devenv info"                                   :prodigy t                           :annotation "    devenv 󱄅")
-            ("󱄅 microvisor :󰇺 tasks"              :command "devenv tasks list"                             :prodigy t                           :annotation "    devenv 󱄅")
-            ("󱄅 microvisor :󰚦 down"               :command "devenv processes down"                         :prodigy t                           :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : sqld"               :command "devenv up sqld"          :port 8080            :prodigy t                           :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : caddy"              :command "devenv up caddy"         :port 80              :prodigy t                           :annotation "    devenv 󱄅")
-            ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit"       :port 8025            :prodigy t                           :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : postgres"           :command "devenv up postgres"      :port 5432            :prodigy t                           :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : tailscale"          :command "devenv up tailscale"     :port 8080            :prodigy t                           :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : prometheus"         :command "devenv up prometheus"    :port 9090            :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰋽 info"               :command "devenv info"                                  :prodigy t                            :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰇺 tasks"              :command "devenv tasks list"                            :prodigy t                            :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰚦 down"               :command "devenv processes down"                        :prodigy t                            :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : sqld"               :command "devenv up sqld"                               :prodigy t :port 8080                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : caddy"              :command "devenv up caddy"                              :prodigy t :port 80                   :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit"                            :prodigy t :port 8025                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : postgres"           :command "devenv up postgres"                           :prodigy t :port 5432                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : tailscale"          :command "devenv up tailscale"                          :prodigy t :port 8080                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : prometheus"         :command "devenv up prometheus"                         :prodigy t :port 9090                 :annotation "    devenv 󱄅")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            (" loco : start"                    :command "cargo loco start"        :port 5150            :prodigy t                           :annotation "     cargo ")
-            (" loco : db"                       :command "cargo loco db"                                 :prodigy t                           :annotation "     cargo ")
-            (" loco :󱤟 db:status"                :command "cargo loco db status"                          :prodigy t                           :annotation "     cargo ")
-            (" loco :󱘽 db:migrate:up"            :command "cargo loco db migrate up"                      :prodigy t                           :annotation "     cargo ")
-            (" loco :󱘼 db:migrate:down"          :command "cargo loco db migrate up"                      :prodigy t                           :annotation "     cargo ")
-            (" loco :󰆺 db:seed"                  :command "cargo loco db seed"                            :prodigy t                           :annotation "     cargo ")
-            (" loco :󰑪 routes"                   :command "cargo loco routes"                             :prodigy t                           :annotation "     cargo ")
-            (" loco :󰣖 jobs"                     :command "cargo loco jobs"                               :prodigy t                           :annotation "     cargo ")
-            (" loco : doctor"                   :command "cargo loco doctor"                             :prodigy t                           :annotation "     cargo ")
-            ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ("󱄅 microvisor : openbsd:upgrade"    :command "doas pkg_add -u                  "                                                  :annotation "   pkg_add ")
-            ("󱄅 microvisor : freebsd:upgrade"    :command "sudo pkg update && pkg upgrade -y"                                                  :annotation "       pkg 󰣠")
-            ("󱄅 microvisor : darwin:switch"      :command "darwin-rebuild switch --flake .  "                                                  :annotation "       nix ")
-            ("󱄅 microvisor :󰡢 darwin:rebuild"     :command "darwin-rebuild build  --flake .  "                                                  :annotation "       nix ")
-            ("󱄅 microvisor : guix:update"        :command "guix pull                        "                                                  :annotation "      guix ")
-            ("󱄅 microvisor :󰡢 nixos:rebuild"      :command "nixos-rebuild  build  --flake .  "                                                  :annotation "       nix ")
-            ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ("󱄅 microvisor : arch:upgrade"       :command "sudo pacman -Syu                 "                                                  :annotation "    pacman ")
-            ("󱄅 microvisor : debian:upgrade"     :command "sudo apt update && apt upgrade -y"                                                  :annotation "       apt ")
+            (" loco : start"                    :command "cargo loco start"                             :prodigy t :port 5150                 :annotation "     cargo ")
+            (" loco : db"                       :command "cargo loco db"                                :prodigy t                            :annotation "     cargo ")
+            (" loco :󱤟 db:status"                :command "cargo loco db status"                         :prodigy t                            :annotation "     cargo ")
+            (" loco :󱘽 db:migrate:up"            :command "cargo loco db migrate up"                     :prodigy t                            :annotation "     cargo ")
+            (" loco :󱘼 db:migrate:down"          :command "cargo loco db migrate up"                     :prodigy t                            :annotation "     cargo ")
+            (" loco :󰆺 db:seed"                  :command "cargo loco db seed"                           :prodigy t                            :annotation "     cargo ")
+            (" loco :󰑪 routes"                   :command "cargo loco routes"                            :prodigy t                            :annotation "     cargo ")
+            (" loco :󰣖 jobs"                     :command "cargo loco jobs"                              :prodigy t                            :annotation "     cargo ")
+            (" loco : doctor"                   :command "cargo loco doctor"                            :prodigy t                            :annotation "     cargo ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ("󰕮 microtop 󰕮:󰐊 run"                  :command "cargo r -rp microtop"                           :prodigy t                          :annotation "     cargo ")
-            ("󰕮 microtop 󰕮:󰳽 serve"                :command "cargo r -rp microtop"     :port 8080            :prodigy t                          :annotation "     cargo ")
+            ("󱄅 microvisor : openbsd:upgrade"    :command "doas pkg_add -u                  "                                                  :annotation "   pkg_add ")
+            ("󱄅 microvisor :󰣠 freebsd:upgrade"    :command "sudo pkg update && pkg upgrade -y"                                                  :annotation "       pkg 󰣠")
+            ("󱄅 microvisor : darwin:switch"      :command "darwin-rebuild switch --flake .  "                                                  :annotation "       nix ")
+            ("󱄅 microvisor :󰘳 darwin:rebuild"     :command "darwin-rebuild build  --flake .  "                                                  :annotation "       nix ")
+            ("󱄅 microvisor : guix:pull"          :command "guix pull                        "                                                  :annotation "      guix ")
+            ("󱄅 microvisor : nixos:rebuild"      :command "nixos-rebuild  build  --flake .  "                                                  :annotation "       nix ")
+            ;; ======================================|=======|=====================================================================================|===========|============ ;;
+            ;; ======================================|=======|=====================================================================================|===========|============ ;;
+            ("󱄅 microvisor : arch:upgrade"       :command "sudo pacman -Syu                 "                                                  :annotation "    pacman ")
+            ("󱄅 microvisor : debian:upgrade"     :command "sudo apt update && sudo apt upgrade -y"                                             :annotation "       apt ")
+            ;; ======================================|=======|=====================================================================================|===========|============ ;;
+            ;; ======================================|=======|=====================================================================================|===========|============ ;;
+            ;; ======================================|=======|=====================================================================================|===========|============ ;;
+            ("󰕮 microtop 󰕮:󰐊 run"                  :command "cargo r -rp microtop"                          :prodigy t                           :annotation "     cargo ")
+            ("󰕮 microtop 󰕮:󰳽 serve"                :command "trunk serve --config apps/microtop/Trunk.toml" :prodigy t :port 8080                :annotation "     cargo ")
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
-            ("󰦉 web 󰦉:󰳽 serve"                     :command "dx serve  -p web"                               :prodigy t                          :annotation "    dioxus ")
-            ("󰦉 web 󰦉:󰟀 serve:desktop"             :command "dx serve  -p web"                               :prodigy t                          :annotation "    dioxus ")
-            ("󰦉 web 󰦉:󰳽 serve:ssg "              :command "dx serve -rp web --ssg"   :port 8080            :prodigy t                          :annotation "    dioxus ")
-            ("󰦉 web 󰦉:󰡢 build"                     :command "dx build  -p web"                               :prodigy t                          :annotation "    dioxus ")
+            ("󰦉 web 󰦉:󰳽 serve"                     :command "dx serve  -p web"                              :prodigy t                           :annotation "    dioxus ")
+            ("󰦉 web 󰦉:󰟀 serve:desktop"             :command "dx serve  -p web"                              :prodigy t                           :annotation "    dioxus ")
+            ("󰦉 web 󰦉: serve:ssg"                 :command "dx serve -rp web --ssg"                        :prodigy t :port 8080                :annotation "    dioxus ")
+            ("󰦉 web 󰦉:󰡢 build"                     :command "dx build  -p web"                              :prodigy t                           :annotation "    dioxus ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            (" tui :󰐊 run"                       :command "cargo r -rp tui"                                :prodigy t                          :annotation "     cargo ")
-            (" tui :󰐊 run:simulate 󰇉"           :command "cargo r -rp tui --bin simulator"                :prodigy t                          :annotation "     cargo ")
-            (" tui :󰐊 run:simulate(min) 󰍹 "     :command "cargo r -rp tui --bin simulator-minimal"        :prodigy t                          :annotation "     cargo ")
-            (" tui :󰳽 serve"                     :command "cargo r -rp tui"          :port 8080            :prodigy t                          :annotation "     cargo ")
+            (" tui :󰐊 run"                       :command "cargo r -rp tui"                               :prodigy t                           :annotation "     cargo ")
+            (" tui :󰐊 run:simulate 󰇉"           :command "cargo r -rp tui --bin simulator"               :prodigy t                           :annotation "     cargo ")
+            (" tui :󰐊 run:simulate(min) 󰍹"      :command "cargo r -rp tui --bin simulator-minimal"       :prodigy t                           :annotation "     cargo ")
+            (" tui :󰳽 serve"                     :command "cargo r -rp tui"                               :prodigy t :port 8080                :annotation "     cargo ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
@@ -86,14 +86,14 @@
             (" ESP32S3 :󰔰 flash"                 :command "espflash partition-table firmware/partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table firmware/partitions.csv -- -rp firmware --bin esp32s3 --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'"       :annotation "cargo +esp ")
             (" ESP32S3 : debug"                 :command "cargo +esp r -p  firmware                                 --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
             (" ESP32S3 :󰭎 monitor"               :command "probe-rs run --preset esp32s3 --idf-partition-table firmware/partitions.csv --log-format '{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}' target/xtensa-esp32s3-none-elf/release/esp32s3"           :annotation "cargo +esp ")
-            (" ESP32S3 :󱈝 partition"             :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                                                                                              :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:i2c "           :command "cargo +esp t -p  firmware -F esp32s3 --test i2c           --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:ds3231 "        :command "cargo +esp t -p  firmware -F esp32s3 --test ds3231        --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:scd4x 󰜤"         :command "cargo +esp t -p  firmware -F esp32s3 --test scd4x         --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:ota_probe 󱤭"     :command "cargo +esp t -p  firmware -F esp32s3 --test ota_probe     --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:filesystem "    :command "cargo +esp t -p  firmware -F esp32s3 --test filesystem    --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰙨 test:ntc_formula "   :command "cargo +esp t -p  firmware -F esp32s3 --test ntc_formula   --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󱉟 example:deep_sleep 󰒲" :command "cargo +esp r -p  firmware -F esp32s3 --example deep_sleep --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󱈝 partition"             :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                                                                                  :annotation "cargo +esp ")
+            (" ESP32S3 : test:I2C"              :command "cargo +esp t -p  firmware -F esp32s3 --test i2c           --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : test:DS3231"           :command "cargo +esp t -p  firmware -F esp32s3 --test ds3231        --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󰟤 test:SCD4x"            :command "cargo +esp t -p  firmware -F esp32s3 --test scd4x         --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󱤭 test:OTA"              :command "cargo +esp t -p  firmware -F esp32s3 --test ota_probe     --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : test:filesystem"       :command "cargo +esp t -p  firmware -F esp32s3 --test filesystem    --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : test:ntc_formula"      :command "cargo +esp t -p  firmware -F esp32s3 --test ntc_formula   --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󰒲 example:deep_sleep"    :command "cargo +esp r -p  firmware -F esp32s3 --example deep_sleep --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
@@ -110,8 +110,7 @@
                  ;; ========================================================================================================================================================= ;;
                  (defun my/compile-multi-local-annotation (original-function task)
                    (if-let* ((annotation_text (plist-get (cdr task) :annotation))
-                             ((stringp annotation_text))
-                             ((fboundp 'nerd-icons-icon-for-file))
+                             ((stringp annotation_text)) ((fboundp 'nerd-icons-icon-for-file))
                              (annotation_words (split-string (string-trim-right annotation_text) "[[:space:]]+" t))
                              (icon_file_name (alist-get (car annotation_words) '(("cargo" . "Cargo.toml") ("nix" . "flake.nix") ("devenv" . "flake.nix")) nil nil #'string=)))
                        (let* ((annotation_base (string-join (if (> (length annotation_words) 1) (butlast annotation_words) annotation_words) " "))
@@ -137,8 +136,7 @@
                           (port         (plist-get plist :port))
                           (group-label  (or (get-text-property 0 'consult--type title)
                                             (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title)
-                                                (string-trim (match-string 1 plain-title))
-                                              plain-title)))
+                                                (string-trim (match-string 1 plain-title)) plain-title)))
                           (display-name (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title)
                                             (string-trim (match-string 2 plain-title))
                                           plain-title))
