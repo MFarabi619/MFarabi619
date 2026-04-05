@@ -129,9 +129,9 @@
 ;; (use-package! gptel-integrations)
 (use-package! exercism              :if (not (eq system-type 'berkeley-unix)))                  ;; FIXME: fails on FreeBSD
 (use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
+(use-package! prodigy                                    :config (setopt prodigy-kill-process-buffer-on-stop 'unless-visible))
 (use-package! nov-xwidget           :after nov :demand t :config (define-key nov-mode-map (kbd "o") #'nov-xwidget-view) (add-hook 'nov-mode-hook #'nov-xwidget-inject-all-files))
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
-(use-package! prodigy                                    :config (setopt prodigy-kill-process-buffer-on-stop 'unless-visible))
 (use-package! fancy-compilation     :after compile       :config (setopt fancy-compilation-term "xterm-256color" fancy-compilation-quiet-prelude t fancy-compilation-quiet-prolog t fancy-compilation-override-colors nil) (fancy-compilation-mode 1))
 
 (after!       direnv      (direnv-mode -1))
@@ -189,13 +189,55 @@
                 (if (bound-and-true-p vertico-posframe-mode)
                     (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
 (after! prodigy
-  (custom-set-faces!
-    '(prodigy-red-face    :foreground "#fb4934" :weight bold)
-    '(prodigy-green-face  :foreground "#b8bb26" :weight bold)
-    '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
+  (require 'seq)
 
-  (defun my/prodigy-primary-tag (service)
-    (or (car (plist-get service :tags)) 'other))
+  (custom-set-faces! '(prodigy-red-face    :foreground "#fb4934" :weight bold) '(prodigy-green-face  :foreground "#b8bb26" :weight bold) '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
+  (defun my/prodigy-group-row-p (&optional pos) (let ((id (tabulated-list-get-id pos))) (and (consp id) (eq (car id) :group))))
+
+  (defun my/prodigy-next-service (&optional n)
+    (interactive "p")
+    (let ((n (or n 1)))
+      (dotimes (_ n)
+        (forward-line 1)
+        (while (and (not (eobp))
+                    (or (my/prodigy-group-row-p)
+                        (null (tabulated-list-get-id))))
+          (forward-line 1)))
+      (when (eobp)
+        (forward-line -1)
+        (while (and (not (bobp))
+                    (or (my/prodigy-group-row-p)
+                        (null (tabulated-list-get-id))))
+          (forward-line -1)))))
+
+  (defun my/prodigy-previous-service (&optional n)
+    (interactive "p")
+    (let ((n (or n 1)))
+      (dotimes (_ n)
+        (forward-line -1)
+        (while (and (not (bobp))
+                    (or (my/prodigy-group-row-p)
+                        (null (tabulated-list-get-id))))
+          (forward-line -1)))
+      (when (my/prodigy-group-row-p)
+        (forward-line 1)
+        (while (and (not (eobp))
+                    (or (my/prodigy-group-row-p)
+                        (null (tabulated-list-get-id))))
+          (forward-line 1)))))
+
+  (map! :map prodigy-mode-map
+        :n "j" #'my/prodigy-next-service
+        :n "k" #'my/prodigy-previous-service)
+
+  (defun my/prodigy-display-name (service)
+    (or (plist-get service :display-name)
+        (plist-get service :name)
+        ""))
+
+  (defun my/prodigy-group-label (service)
+    (or (plist-get service :group-label)
+        "other"))
 
   (defun my/prodigy-service-entry (service)
     (list
@@ -203,31 +245,52 @@
      (vector
       (prodigy-marked-col service)
       (propertize
-       (prodigy-name-col service)
+       (my/prodigy-display-name service)
        'face (or (prodigy-status-face service) 'default))
       (if-let ((port (plist-get service :port)))
           (number-to-string port)
         ""))))
 
-  (defun my/prodigy-list-entries ()
-    (mapcar #'my/prodigy-service-entry (prodigy-services)))
+  (defun my/prodigy-group-entry (label)
+    (let* ((width 40)
+           (text  (format "  %s  " label))
+           (text-width (string-width text))
+           (left-width  (max 0 (/ (- width text-width) 2)))
+           (right-width (max 0 (- width text-width left-width)))
+           (left  (propertize (make-string left-width ?─) 'face 'shadow))
+           (right (propertize (make-string right-width ?─) 'face 'shadow))
+           (mid   (propertize text 'face 'shadow)))
+      (list
+       `(:group ,label)
+       (vector
+        ""
+        (concat left mid right)
+        ""))))
 
-  (defun my/prodigy-list-groups ()
-    (mapcar
-     (lambda (group)
-       (cons (symbol-name (car group))
-             (mapcar #'my/prodigy-service-entry (cdr group))))
-     (seq-group-by #'my/prodigy-primary-tag (prodigy-services))))
+  (defun my/prodigy-list-entries ()
+    (apply
+     #'append
+     (mapcar
+      (lambda (group)
+        (let ((label (car group))
+              (services (sort (copy-sequence (cdr group))
+                              (lambda (a b)
+                                (string-lessp (my/prodigy-display-name a)
+                                              (my/prodigy-display-name b))))))
+          (cons
+           (my/prodigy-group-entry label)
+           (mapcar #'my/prodigy-service-entry services))))
+      (seq-group-by #'my/prodigy-group-label (prodigy-services)))))
 
   (add-hook! 'prodigy-mode-hook
     (setq-local mode-line-format nil
                 tabulated-list-padding 0
                 tabulated-list-format [(" " 1 nil)
-                                       ("Service" 32 t)
+                                       ("Service" 40 t)
                                        ("Port" 8 t)]
-                tabulated-list-sort-key '("Service" . nil)
-                tabulated-list-entries #'my/prodigy-list-entries
-                tabulated-list-groups #'my/prodigy-list-groups)
+                tabulated-list-sort-key nil
+                tabulated-list-groups nil
+                tabulated-list-entries #'my/prodigy-list-entries)
     (tabulated-list-init-header)
     (tabulated-list-print t)))
 
@@ -242,12 +305,11 @@
 (add-hook! 'pdf-view-mode-hook 'pdf-view-midnight-minor-mode 'doom-modeline-mode-hook #'nyan-mode)
 (add-hook! '(sql-mode-hook sql-interactive-mode-hook) (setq-local sql-default-directory (projectile-project-root)) (sql-highlight-postgres-keywords))
 
-(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                   :size 0.40 :select t   :modeline nil)
-(set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :size 0.50 :select t   :modeline nil)
-(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :size 0.40 :select nil :modeline nil)
-(set-popup-rule! "^\\*prodigy\\*$"         :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :size 0.40 :select nil :modeline nil)
-(set-popup-rule! "^\\*prodigy-.*\\*$"      :side 'bottom :quit t :slot 1 :ttl nil :vslot 0 :size 0.35 :select nil :modeline nil)
-(set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :size 0.50 :select nil :modeline nil)
+(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                    :size 0.40               :select t     :modeline nil)
+(set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot 0  :ttl nil :vslot 0 :size 0.50               :select t     :modeline nil)
+(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot 2  :ttl nil :vslot 0 :height 0.50 :width 0.22 :select t     :modeline nil)
+(set-popup-rule! "^*prodigy-.*$"           :side 'right  :quit t :slot 3  :ttl nil :vslot 0 :height 0.75 :width 0.50 :select nil   :modeline nil)
+(set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot 1  :ttl nil :vslot 0 :size 0.40               :select nil   :modeline nil)
 ;; (set-popup-rule! "*Ollama*"                :side 'left   :quit t         :ttl 0   :vslot -4 :size 0.5     :select t   :modeline nil)
 
 (defadvice!   prompt-for-buffer (&rest _)  :after '(evil-window-split evil-window-vsplit) (consult-buffer))
@@ -259,8 +321,8 @@
       :leader             :desc "Lazygit"     "l" #'+lazygit/toggle
       :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
       :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
-      :leader :prefix "o" :desc "Prodigy"     "c" #'prodigy
-      ;; :leader :prefix "p" :desc "Prodigy"     "c" #'prodigy
+      ;; :leader :prefix "o" :desc "Prodigy"     "c" #'prodigy
+      :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
       :leader :prefix "c" :desc "Compile"     "c" #'compile-multi)
 
 (after! dape

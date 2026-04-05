@@ -26,20 +26,25 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ("󱄅 microvisor :󰔡 activate"           :command "nix run .#activate"                                                                 :annotation "       nix ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ("󱄅 microvisor :󰍉 info"               :command "devenv info"                                                                        :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : tasks"              :command "devenv tasks list"                                                                  :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : down"               :command "devenv processes down"                                                              :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : sqld"               :command "devenv up sqld"          :port 8080                                                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : caddy"              :command "devenv up caddy"         :port 80                                                   :annotation "    devenv 󱄅")
-            ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit"       :port 8025                                                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : postgres"           :command "devenv up postgres"      :port 5432                                                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : tailscale"          :command "devenv up tailscale"     :port 8080                                                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor : prometheus"         :command "devenv up prometheus"    :port 9090                                                 :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰋽 info"               :command "devenv info"                                   :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰇺 tasks"              :command "devenv tasks list"                             :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰚦 down"               :command "devenv processes down"                         :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : sqld"               :command "devenv up sqld"          :port 8080            :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : caddy"              :command "devenv up caddy"         :port 80              :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor :󰇮 mailpit"            :command "devenv up mailpit"       :port 8025            :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : postgres"           :command "devenv up postgres"      :port 5432            :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : tailscale"          :command "devenv up tailscale"     :port 8080            :prodigy t                           :annotation "    devenv 󱄅")
+            ("󱄅 microvisor : prometheus"         :command "devenv up prometheus"    :port 9090            :prodigy t                           :annotation "    devenv 󱄅")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            (" loco : start"                    :command "cargo loco start"                                                                   :annotation "     cargo ")
-            (" loco :󰑪 routes"                   :command "cargo loco routes"                                                                  :annotation "     cargo ")
-            (" loco :󰣖 jobs"                     :command "cargo loco jobs"                                                                    :annotation "     cargo ")
-            (" loco : doctor"                   :command "cargo loco doctor"                                                                  :annotation "     cargo ")
+            (" loco : start"                    :command "cargo loco start"        :port 5150            :prodigy t                           :annotation "     cargo ")
+            (" loco : db"                       :command "cargo loco db"                                 :prodigy t                           :annotation "     cargo ")
+            (" loco :󱤟 db:status"                :command "cargo loco db status"                          :prodigy t                           :annotation "     cargo ")
+            (" loco :󱘽 db:migrate:up"            :command "cargo loco db migrate up"                      :prodigy t                           :annotation "     cargo ")
+            (" loco :󱘼 db:migrate:down"          :command "cargo loco db migrate up"                      :prodigy t                           :annotation "     cargo ")
+            (" loco :󰆺 db:seed"                  :command "cargo loco db seed"                            :prodigy t                           :annotation "     cargo ")
+            (" loco :󰑪 routes"                   :command "cargo loco routes"                             :prodigy t                           :annotation "     cargo ")
+            (" loco :󰣖 jobs"                     :command "cargo loco jobs"                               :prodigy t                           :annotation "     cargo ")
+            (" loco : doctor"                   :command "cargo loco doctor"                             :prodigy t                           :annotation "     cargo ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
@@ -56,17 +61,20 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            ("󰕮 microtop 󰕮:󰐊 run"                  :command "cargo r -rp microtop"                                                               :annotation "     cargo ")
+            ("󰕮 microtop 󰕮:󰐊 run"                  :command "cargo r -rp microtop"                           :prodigy t                          :annotation "     cargo ")
+            ("󰕮 microtop 󰕮:󰳽 serve"                :command "cargo r -rp microtop"     :port 8080            :prodigy t                          :annotation "     cargo ")
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
-            ("󰦉 web 󰦉:󰐊 run"                       :command "dx serve  -p web"                                                                   :annotation "     cargo ")
-            ("󰦉 web 󰦉:󰐊 run:ssg"                   :command "dx serve -rp web --ssg"                                                             :annotation "     cargo ")
-            ("󰦉 web 󰦉:󰡢 build"                     :command "dx build  -p web"                                                                   :annotation "     cargo ")
+            ("󰦉 web 󰦉:󰳽 serve"                     :command "dx serve  -p web"                               :prodigy t                          :annotation "    dioxus ")
+            ("󰦉 web 󰦉:󰟀 serve:desktop"             :command "dx serve  -p web"                               :prodigy t                          :annotation "    dioxus ")
+            ("󰦉 web 󰦉:󰳽 serve:ssg "              :command "dx serve -rp web --ssg"   :port 8080            :prodigy t                          :annotation "    dioxus ")
+            ("󰦉 web 󰦉:󰡢 build"                     :command "dx build  -p web"                               :prodigy t                          :annotation "    dioxus ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            (" tui :󰐊 run"                       :command "cargo r -rp tui"                                                                    :annotation "     cargo ")
-            (" tui :󰇉 simulate"                  :command "cargo r -rp tui --bin simulator"                                                    :annotation "     cargo ")
-            (" tui :󰍹 simulate(min)"             :command "cargo r -rp tui --bin simulator-minimal"                                            :annotation "     cargo ")
+            (" tui :󰐊 run"                       :command "cargo r -rp tui"                                :prodigy t                          :annotation "     cargo ")
+            (" tui :󰐊 run:simulate 󰇉"           :command "cargo r -rp tui --bin simulator"                :prodigy t                          :annotation "     cargo ")
+            (" tui :󰐊 run:simulate(min) 󰍹 "     :command "cargo r -rp tui --bin simulator-minimal"        :prodigy t                          :annotation "     cargo ")
+            (" tui :󰳽 serve"                     :command "cargo r -rp tui"          :port 8080            :prodigy t                          :annotation "     cargo ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
@@ -74,9 +82,10 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
+            (" ESP32S3 :󰐊 run"                   :command "probe-rs run --preset esp32s3 --idf-partition-table firmware/partitions.csv --log-format '{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}' target/xtensa-esp32s3-none-elf/release/esp32s3"           :annotation "cargo +esp ")
             (" ESP32S3 :󰔰 flash"                 :command "espflash partition-table firmware/partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table firmware/partitions.csv -- -rp firmware --bin esp32s3 --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'"       :annotation "cargo +esp ")
-            (" ESP32S3 :󰭎 monitor"               :command "probe-rs run --preset esp32s3 --idf-partition-table firmware/partitions.csv --log-format '{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}' target/xtensa-esp32s3-none-elf/release/esp32s3"           :annotation "cargo +esp ")
             (" ESP32S3 : debug"                 :command "cargo +esp r -p  firmware                                 --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󰭎 monitor"               :command "probe-rs run --preset esp32s3 --idf-partition-table firmware/partitions.csv --log-format '{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}' target/xtensa-esp32s3-none-elf/release/esp32s3"           :annotation "cargo +esp ")
             (" ESP32S3 :󱈝 partition"             :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                                                                                              :annotation "cargo +esp ")
             (" ESP32S3 :󰙨 test:i2c "           :command "cargo +esp t -p  firmware -F esp32s3 --test i2c           --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
             (" ESP32S3 :󰙨 test:ds3231 "        :command "cargo +esp t -p  firmware -F esp32s3 --test ds3231        --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
@@ -116,22 +125,37 @@
                  (unless (advice-member-p #'my/compile-multi-local-annotation #'compile-multi--annotation-function)
                    (advice-add 'compile-multi--annotation-function :around #'my/compile-multi-local-annotation)) ;; end unless
                  ;; ========================================================================================================================================================= ;;
-                 (dolist (task (cdr (assq t compile-multi-dir-local-config)))
-                   (let ((title (car task))
-                         (plist (cdr task))
-                         (port  (plist-get (cdr task) :port)))
+                 (dolist (task (seq-filter
+                                (lambda (task) (plist-get (cdr task) :prodigy))
+                                (thread-first
+                                  (compile-multi--config-tasks)
+                                  (compile-multi--fill-tasks)
+                                  (compile-multi--add-properties))))
+                   (let* ((title        (car task))
+                          (plain-title  (substring-no-properties title))
+                          (plist        (cdr task))
+                          (port         (plist-get plist :port))
+                          (group-label  (or (get-text-property 0 'consult--type title)
+                                            (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title)
+                                                (string-trim (match-string 1 plain-title))
+                                              plain-title)))
+                          (display-name (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title)
+                                            (string-trim (match-string 2 plain-title))
+                                          plain-title))
+                          (command      (or (get-text-property 0 'compile-multi--task title)
+                                            (plist-get plist :command))))
                      (apply
                       #'prodigy-define-service
                       (append
                        (list
-                        :name                        title
-                        :display-name                (string-trim (cadr (split-string title ":")))
-                        :group-label                 (string-trim (car  (split-string title ":")))
                         :stop-signal                 'kill
+                        :name                        plain-title
+                        :display-name                display-name
+                        :group-label                 (format "%s" group-label)
                         :kill-process-buffer-on-stop 'unless-visible
                         :command                     shell-file-name
                         :cwd                         (projectile-project-root)
-                        :args                        (list shell-command-switch (plist-get plist :command)))
+                        :args                        (list shell-command-switch command))
                        (when port
                          (list :port port))))))
                  ;; ========================================================================================================================================================= ;;
