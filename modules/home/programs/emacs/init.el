@@ -226,6 +226,7 @@
        (rest +jq)         ; Emacs as a REST client
        ;;rst              ; ReST in peace
        (ruby              ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
+        +lsp
         +rvm
         +rails
         +tree-sitter)
