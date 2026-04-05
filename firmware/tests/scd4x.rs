@@ -1,3 +1,4 @@
+// https://sensirion.com/products/catalog/SCD41
 #![no_std]
 #![no_main]
 
@@ -28,6 +29,28 @@ struct Context {
     i2c1: I2c<'static, esp_hal::Blocking>,
 }
 
+fn select_scd4x_bus(context: Context) -> I2c<'static, esp_hal::Blocking> {
+    let Context { i2c0, i2c1 } = context;
+    let mut i2c0_bus = i2c0;
+    let mut i2c1_bus = i2c1;
+
+    if i2c1_bus.write(0x62, &[]).is_ok() {
+        info!(
+            "SCD4x detected on I2C1 (SDA=GPIO{}, SCL=GPIO{})",
+            I2C1_SDA_PIN, I2C1_SCL_PIN
+        );
+        i2c1_bus
+    } else if i2c0_bus.write(0x62, &[]).is_ok() {
+        info!(
+            "SCD4x detected on I2C0 (SDA=GPIO{}, SCL=GPIO{})",
+            I2C0_SDA_PIN, I2C0_SCL_PIN
+        );
+        i2c0_bus
+    } else {
+        panic!("SCD4x did not ACK on I2C0 or I2C1 at address 0x62");
+    }
+}
+
 fn assert_measurement_is_sane(co2_ppm: u16, temperature_celsius: f32, humidity_percent: f32) {
     defmt::assert!(co2_ppm > 0);
     defmt::assert!(co2_ppm <= 40_000);
@@ -53,11 +76,8 @@ mod tests {
 
         rtt_target::rtt_init_defmt!();
 
-        let sensor_power_enable = Output::new(
-            peripherals.GPIO5,
-            Level::High,
-            OutputConfig::default(),
-        );
+        let sensor_power_enable =
+            Output::new(peripherals.GPIO5, Level::High, OutputConfig::default());
         core::mem::forget(sensor_power_enable);
 
         let delay = esp_hal::delay::Delay::new();
@@ -81,41 +101,16 @@ mod tests {
 
         info!(
             "SCD4x test initialized (I2C0 SDA=GPIO{} SCL=GPIO{}, I2C1 SDA=GPIO{} SCL=GPIO{}, power=GPIO{})",
-            I2C0_SDA_PIN,
-            I2C0_SCL_PIN,
-            I2C1_SDA_PIN,
-            I2C1_SCL_PIN,
-            SENSOR_POWER_ENABLE_PIN
+            I2C0_SDA_PIN, I2C0_SCL_PIN, I2C1_SDA_PIN, I2C1_SCL_PIN, SENSOR_POWER_ENABLE_PIN
         );
 
         Context { i2c0, i2c1 }
     }
 
     #[test]
-    #[timeout(120)]
-    async fn scd4x_async_api_smoke_test(ctx: Context) {
-        let Context { i2c0, i2c1 } = ctx;
-        let mut i2c0_bus = i2c0;
-        let mut i2c1_bus = i2c1;
-
-        let selected_i2c_bus = if i2c1_bus.write(0x62, &[]).is_ok() {
-            info!(
-                "SCD4x detected on I2C1 (SDA=GPIO{}, SCL=GPIO{})",
-                I2C1_SDA_PIN,
-                I2C1_SCL_PIN
-            );
-            i2c1_bus
-        } else if i2c0_bus.write(0x62, &[]).is_ok() {
-            info!(
-                "SCD4x detected on I2C0 (SDA=GPIO{}, SCL=GPIO{})",
-                I2C0_SDA_PIN,
-                I2C0_SCL_PIN
-            );
-            i2c0_bus
-        } else {
-            panic!("SCD4x did not ACK on I2C0 or I2C1 at address 0x62");
-        };
-
+    #[timeout(45)]
+    async fn scd4x_async_smoke_test(ctx: Context) {
+        let selected_i2c_bus = select_scd4x_bus(ctx);
         let i2c_bus_async = selected_i2c_bus.into_async();
         let mut scd4x_sensor = Scd4xAsync::new(i2c_bus_async, embassy_time::Delay);
 
@@ -171,12 +166,6 @@ mod tests {
             automatic_self_calibration_enabled
         );
 
-        let self_test_is_ok = scd4x_sensor
-            .self_test_is_ok()
-            .await
-            .expect("failed to run SCD4x self-test");
-        defmt::assert!(self_test_is_ok);
-
         scd4x_sensor
             .start_periodic_measurement()
             .await
@@ -215,7 +204,7 @@ mod tests {
         );
 
         info!(
-            "periodic: co2={}ppm temp={=f32}C rh={=f32}%",
+            "smoke periodic: co2={}ppm temp={=f32}C rh={=f32}%",
             periodic_measurement.co2,
             periodic_measurement.temperature,
             periodic_measurement.humidity
@@ -225,6 +214,42 @@ mod tests {
             .stop_periodic_measurement()
             .await
             .expect("failed to stop periodic SCD4x measurement");
+    }
+
+    #[test]
+    #[timeout(120)]
+    async fn scd4x_async_extended_diagnostic_test(ctx: Context) {
+        let selected_i2c_bus = select_scd4x_bus(ctx);
+        let i2c_bus_async = selected_i2c_bus.into_async();
+        let mut scd4x_sensor = Scd4xAsync::new(i2c_bus_async, embassy_time::Delay);
+
+        let _ = scd4x_sensor.stop_periodic_measurement().await;
+        Timer::after(Duration::from_millis(500)).await;
+
+        let mut reinit_succeeded = false;
+        for _attempt_index in 0..3 {
+            if scd4x_sensor.reinit().await.is_ok() {
+                reinit_succeeded = true;
+                break;
+            }
+
+            Timer::after(Duration::from_millis(100)).await;
+        }
+        defmt::assert!(reinit_succeeded);
+
+        let serial_number = scd4x_sensor
+            .serial_number()
+            .await
+            .expect("failed to read SCD4x serial number");
+        defmt::assert!(serial_number != 0);
+
+        let self_test_is_ok = scd4x_sensor
+            .self_test_is_ok()
+            .await
+            .expect("failed to run SCD4x self-test");
+        defmt::assert!(self_test_is_ok);
+
+        info!("extended self-test ok, serial={}", serial_number);
 
         scd4x_sensor
             .start_low_power_periodic_measurements()
@@ -259,7 +284,7 @@ mod tests {
         );
 
         info!(
-            "low-power: co2={}ppm temp={=f32}C rh={=f32}%",
+            "extended low-power: co2={}ppm temp={=f32}C rh={=f32}%",
             low_power_measurement.co2,
             low_power_measurement.temperature,
             low_power_measurement.humidity
