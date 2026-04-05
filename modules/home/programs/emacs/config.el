@@ -107,18 +107,6 @@
       gdb-debuginfod-enable-setting t
       gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
 
-;; (define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
-;; (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
-;; (after! lsp-mode
-;;   (add-to-list 'lsp-language-id-configuration '(likec4-mode . "likec4"))
-;;   (lsp-register-client
-;;    (make-lsp-client
-;;     :priority -1
-;;     :server-id 'likec4
-;;     :major-modes '(likec4-mode)
-;;     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
-;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
-
 (load!        "./dashboard.el")
 
 ;; (add-load-path! "pio-mode")
@@ -134,92 +122,60 @@
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
 (use-package! fancy-compilation     :after compile       :config (setopt fancy-compilation-term "xterm-256color" fancy-compilation-quiet-prelude t fancy-compilation-quiet-prolog t fancy-compilation-override-colors nil) (fancy-compilation-mode 1))
 
-(after!       direnv      (direnv-mode -1))
-(after!       nerd-icons  (nerd-icons-completion-mode 1))
-(after!       pdf-tools   (setopt pdf-view-continuous t))
-(after!       files       (add-to-list 'safe-local-variable-directories "~/MFarabi619/"))
-(after!       dap-gdb     (setopt dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
-(after!       treesit     (setopt treesit-font-lock-level 4 treesit-auto-install-grammar 'always))
-(after!       projectile  (add-hook 'projectile-after-switch-project-hook #'my/warm-project-vterm))
-(after!       fretboard   (setopt fretboard-fret-count 15) (add-hook 'fretboard-mode-hook  #'evil-emacs-state))
-(after!       tramp       (setopt tramp-verbose 1           tramp-default-method "sshx" tramp-connection-timeout 10))
-(after!       osm         (setopt osm-copyright t           osm-home (list 45.38730243858645 -75.69539479599302 15)))
-(after!       evil        (setopt evil-ex-substitute-global t) (add-hook 'evil-local-mode-hook #'turn-on-undo-tree-mode))
-(after!       sql         (setopt sql-database "microvisor" sql-server "127.0.0.1" sql-port 5432 sql-user "mfarabi" sql-password ""))
-(after!       verb-mode   (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
-(after!       magit-delta (setopt magit-delta-hide-plus-minus-markers t magit-delta-delta-args (append magit-delta-delta-args '("--side-by-side" "--line-numbers"))))
-(after!       which-key   (pushnew! which-key-replacement-alist '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1")) '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
-(after!       dirvish     (setopt dirvish-peek-mode t dirvish-side-auto-close t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
-(after!       lsp         (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t lsp-describe-thing-at-point t))
-(after!       lsp-clangd  (setopt lsp-clients-clangd-args '("-j=3" "--clang-tidy" "--background-index" "--header-insertion=never" "--completion-style=detailed" "--header-insertion-decorators=0")) (set-lsp-priority! 'clangd 2) )
-(after!       rustic-mode (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
-(after!       treemacs    (setopt treemacs-width 70 treemacs-peek-mode t treemacs-follow-mode t treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
-(after! proced
-  (setq-default proced-auto-update-flag t)
-  (setopt proced-auto-update-interval 1
-          proced-goal-attribute nil
-          proced-enable-color-flag t
-          proced-format 'medium)
-
+(after!       direnv        (direnv-mode -1))
+(after!       nerd-icons    (nerd-icons-completion-mode 1))
+(after!       pdf-tools     (setopt pdf-view-continuous t))
+(after!       files         (add-to-list 'safe-local-variable-directories "~/MFarabi619/"))
+(after!       dap-gdb       (setopt dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
+(after!       treesit       (setopt treesit-font-lock-level 4 treesit-auto-install-grammar 'always))
+(after!       projectile    (add-hook 'projectile-after-switch-project-hook #'my/warm-project-vterm))
+(after!       fretboard     (setopt fretboard-fret-count 15) (add-hook 'fretboard-mode-hook  #'evil-emacs-state))
+(after!       tramp         (setopt tramp-verbose 1           tramp-default-method "sshx" tramp-connection-timeout 10))
+(after!       osm           (setopt osm-copyright t           osm-home (list 45.38730243858645 -75.69539479599302 15)))
+(after!       evil          (setopt evil-ex-substitute-global t) (add-hook 'evil-local-mode-hook #'turn-on-undo-tree-mode))
+(after!       sql           (setopt sql-database "microvisor" sql-server "127.0.0.1" sql-port 5432 sql-user "mfarabi" sql-password ""))
+(after!       verb-mode     (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
+(after!       magit-delta   (setopt magit-delta-hide-plus-minus-markers t magit-delta-delta-args (append magit-delta-delta-args '("--side-by-side" "--line-numbers"))))
+(after!       which-key     (pushnew! which-key-replacement-alist '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1")) '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
+(after!       dirvish       (setopt dirvish-peek-mode t dirvish-side-auto-close t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
+(after!       lsp           (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t lsp-describe-thing-at-point t))
+(after!       lsp-clangd    (setopt lsp-clients-clangd-args '("-j=3" "--clang-tidy" "--background-index" "--header-insertion=never" "--completion-style=detailed" "--header-insertion-decorators=0")) (set-lsp-priority! 'clangd 2) )
+(after!       rustic-mode   (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
+(after!       treemacs      (setopt treemacs-width 70 treemacs-peek-mode t treemacs-follow-mode t treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
+(after!       vertico       (vertico-multiform-mode 1) (add-to-list 'vertico-multiform-commands '(compile-multi buffer (vertico-buffer-display-action . ((display-buffer-reuse-window display-buffer-in-side-window) (side . right) (window-width . 0.20) (window-parameters . ((no-delete-other-windows . t) (mode-line-format . none))))))))
+(after!       compile-multi (setopt compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root)))) (advice-add 'compile-multi :around (lambda (fn &rest args) (if (bound-and-true-p vertico-posframe-mode) (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
+(after!       proced        (setq-default proced-auto-update-flag t) (setopt proced-auto-update-interval 1 proced-goal-attribute nil proced-enable-color-flag t proced-format 'medium)
   (add-hook
    'proced-mode-hook
-   (lambda ()
-     (setq-local mode-line-format nil
-                 line-spacing 0.10)
+   (lambda () (setq-local      mode-line-format nil line-spacing 0.10)
+     (face-remap-add-relative 'font-lock-keyword-face                     :foreground "#fb4934")
+     (face-remap-add-relative 'font-lock-function-name-face               :foreground "#b8bb26")
+     (face-remap-add-relative 'font-lock-variable-name-face               :foreground "#83a598")
+     (face-remap-add-relative 'font-lock-type-face                        :foreground "#d3869b")
+     (face-remap-add-relative 'default                                    :foreground "#ebdbb2" :background "#1d2021")
+     (face-remap-add-relative 'error                        :weight 'bold :foreground "#fb4934"                      )
+     (face-remap-add-relative 'success                      :weight 'bold :foreground "#b8bb26"                      )
+     (face-remap-add-relative 'warning                      :weight 'bold :foreground "#fabd2f"                      ))))
 
-     (face-remap-add-relative 'default :foreground "#ebdbb2" :background "#1d2021")
-     (face-remap-add-relative 'header-line :foreground "#fabd2f" :background "#282828" :weight 'bold)
-     (face-remap-add-relative 'font-lock-keyword-face :foreground "#fb4934")
-     (face-remap-add-relative 'font-lock-function-name-face :foreground "#b8bb26")
-     (face-remap-add-relative 'font-lock-variable-name-face :foreground "#83a598")
-     (face-remap-add-relative 'font-lock-type-face :foreground "#d3869b")
-     (face-remap-add-relative 'success :foreground "#b8bb26" :weight 'bold)
-     (face-remap-add-relative 'warning :foreground "#fabd2f" :weight 'bold)
-     (face-remap-add-relative 'error :foreground "#fb4934" :weight 'bold))))
 
-(after! vertico (vertico-multiform-mode 1)
-  (add-to-list 'vertico-multiform-commands
-               '(compile-multi buffer (vertico-buffer-display-action
-                                       . ((display-buffer-reuse-window display-buffer-in-side-window) (side . right) (window-width . 0.20) (window-parameters . ((no-delete-other-windows . t) (mode-line-format . none))))))))
-
-(after! compile-multi
-  (setopt compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root))))
-  (advice-add 'compile-multi :around
-              (lambda (fn &rest args)
-                (if (bound-and-true-p vertico-posframe-mode)
-                    (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
-
-(after! prodigy
-  (require 'seq)
-
+(after! prodigy (require 'seq)
   (custom-set-faces! '(prodigy-red-face    :foreground "#fb4934" :weight bold) '(prodigy-green-face  :foreground "#b8bb26" :weight bold) '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
-
   (defun my/prodigy-group-row-p (&optional pos) (let ((id (tabulated-list-get-id pos))) (and (consp id) (eq (car id) :group))))
-
   (defun my/prodigy-next-service (&optional n)
-    (interactive "p")
-    (let ((n (or n 1)))
-      (dotimes (_ n) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))
-      (when (eobp) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))))
+    (interactive "p") (let ((n (or n 1))) (dotimes (_ n) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))
+                           (when (eobp) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))))
 
   (defun my/prodigy-previous-service (&optional n)
-    (interactive "p")
-    (let ((n (or n 1)))
-      (dotimes (_ n) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))
-
-      (when (my/prodigy-group-row-p) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))))
+    (interactive "p") (let ((n (or n 1))) (dotimes (_ n) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))
+                           (when (my/prodigy-group-row-p) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))))
 
   (map! :map prodigy-mode-map :n "j" #'my/prodigy-next-service :n "k" #'my/prodigy-previous-service)
-
   (defun my/prodigy-display-name (service) (or (plist-get service :display-name) (plist-get service :name) ""))
   (defun my/prodigy-group-label (service) (or (plist-get service :group-label) "other"))
 
   (defun my/prodigy-service-entry (service)
-    (list (prodigy-service-id service)
-          (vector (prodigy-marked-col service)
-                  (propertize (my/prodigy-display-name service)
-                              'face (or (prodigy-status-face service) 'default))
-                  (if-let ((port (plist-get service :port))) (number-to-string port) ""))))
+    (list (prodigy-service-id service) (vector (prodigy-marked-col service)
+                                               (propertize (my/prodigy-display-name service) 'face (or (prodigy-status-face service) 'default)) (if-let ((port (plist-get service :port))) (number-to-string port) ""))))
 
   (defun my/prodigy-group-entry (label)
     (let* ((width 40)
@@ -248,7 +204,7 @@
                 tabulated-list-groups nil
                 tabulated-list-sort-key nil
                 tabulated-list-entries #'my/prodigy-list-entries
-                tabulated-list-format [(" " 1 nil) ("Service" 40 t) ("Port" 8 t)])
+                tabulated-list-format [(" " 1 nil) ("Service" 40 t) ("Port" 1 t)])
     (tabulated-list-print t)))
 
 (add-hook! 'sql-mode-hook #'lsp!)
@@ -262,12 +218,11 @@
 (add-hook! 'pdf-view-mode-hook 'pdf-view-midnight-minor-mode 'doom-modeline-mode-hook #'nyan-mode)
 (add-hook! '(sql-mode-hook sql-interactive-mode-hook) (setq-local sql-default-directory (projectile-project-root)) (sql-highlight-postgres-keywords))
 
-(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                    :size 0.40               :select t     :modeline nil)
-(set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot 0  :ttl nil :vslot 0 :size 0.50               :select t     :modeline nil)
-(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot 0  :ttl nil :vslot 0 :height 0.50 :width 0.22 :select t     :modeline nil)
-(set-popup-rule! "^*prodigy-.*$"           :side 'bottom :quit t :slot -1  :ttl nil :vslot 0 :height 0.30 :width 0.50 :select nil   :modeline nil)
-(set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot 1  :ttl nil :vslot 0 :size 0.40               :select nil   :modeline nil)
-;; (set-popup-rule! "*Ollama*"                :side 'left   :quit t         :ttl 0   :vslot -4 :size 0.5     :select t   :modeline nil)
+(set-popup-rule! "^\\*Flycheck errors\\*$" :side 'bottom                                    :height 0.40 :width 0.40 :select t   :modeline nil)
+(set-popup-rule! "*doom:vterm-popup:*"     :side 'right  :quit t :slot  0 :ttl nil :vslot 0 :height 0.50 :width 0.50 :select t   :modeline nil)
+(set-popup-rule! "*prodigy*"               :side 'right  :quit t :slot  1 :ttl nil :vslot 0 :height 0.50 :width 0.22 :select t   :modeline nil)
+(set-popup-rule! "^*prodigy-.*$"           :side 'bottom :quit t :slot -1 :ttl nil :vslot 1 :height 0.30 :width 0.50 :select nil :modeline nil)
+(set-popup-rule! "^\\*compilation\\*.*$"   :side 'right  :quit t :slot  1 :ttl nil :vslot 0 :height 0.30 :width 0.50 :select nil :modeline nil)
 
 (defadvice!   prompt-for-buffer (&rest _)  :after '(evil-window-split evil-window-vsplit) (consult-buffer))
 
@@ -278,7 +233,6 @@
       :leader             :desc "Lazygit"     "l" #'+lazygit/toggle
       :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
       :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
-      ;; :leader :prefix "o" :desc "Prodigy"     "c" #'prodigy
       :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
       :leader :prefix "c" :desc "Compile"     "c" #'compile-multi)
 
@@ -287,185 +241,100 @@
   (defvar my/dape-use-custom-layout nil)
 
   ;; Forward RTT output into the DAPE REPL.
-  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-data)) body)
-    (when-let ((data (plist-get body :data))) (dape--repl-insert (concat data "\n"))))
+  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-data)) body) (when-let ((data (plist-get body :data))) (dape--repl-insert (concat data "\n"))))
 
   ;; Tell probe-rs that the RTT terminal window is open.
-  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-channel-config)) _body)
-    (dape-request conn "rttWindowOpened" '((channelNumber . 0) (windowIsOpen . t))))
+  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-channel-config)) _body) (dape-request conn "rttWindowOpened" '((channelNumber . 0) (windowIsOpen . t))))
 
-  (setq dape-request-timeout 60
-        dape-repl-echo-shell-output t
-        dape-info-variable-table-aligned t
-        dape-buffer-window-arrangement 'gud
-        ;; Keep source in the selected main window.
-        dape-display-source-buffer-action '((display-buffer-reuse-window display-buffer-same-window))
-        dape-info-buffer-window-groups '(
-                                         ((dape-info-scope-mode 3) dape-info-breakpoints-mode dape-info-threads-mode)
-                                         ((dape-info-scope-mode 0) dape-info-watch-mode)
-                                         ((dape-info-scope-mode 2))
+  (setq dape-request-timeout 60 dape-repl-echo-shell-output t dape-info-variable-table-aligned t dape-buffer-window-arrangement 'gud dape-display-source-buffer-action '((display-buffer-reuse-window display-buffer-same-window)) ;; Keep source in the selected main window.
+        dape-info-buffer-window-groups '(((dape-info-scope-mode 3) dape-info-breakpoints-mode dape-info-threads-mode)
+                                         ((dape-info-scope-mode 0) dape-info-watch-mode) ((dape-info-scope-mode 2))
                                          (dape-info-stack-mode (dape-info-scope-mode 1) dape-info-modules-mode dape-info-sources-mode))
 
-        display-buffer-alist (append
-                              '(((lambda (_buffer alist)
-                                   (and (eq dape-buffer-window-arrangement 'gud)
-                                        (eq (alist-get 'category alist) 'dape-info-1)))
-                                 (display-buffer-reuse-window display-buffer-in-side-window)
-                                 (side . bottom)
-                                 (slot . -1)
-                                 (window-width . 0.70))
-                                ((lambda (_buffer alist)
-                                   (and (eq dape-buffer-window-arrangement 'gud)
-                                        (eq (alist-get 'category alist) 'dape-info-2)))
-                                 (display-buffer-reuse-window display-buffer-in-side-window)
-                                 (side . bottom)
-                                 (slot . 0)
-                                 (window-width . 0.15))
-                                ((lambda (_buffer alist)
-                                   (and (eq dape-buffer-window-arrangement 'gud)
-                                        (eq (alist-get 'category alist) 'dape-info-4)))
-                                 (display-buffer-reuse-window display-buffer-in-side-window)
-                                 (side . bottom)
-                                 (slot . 1)
-                                 (window-width . 0.15)))
-                              display-buffer-alist))
+        display-buffer-alist (append '(((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-1)))
+                                        (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . -1) (window-width . 0.70))
+                                       ((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-2)))
+                                        (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . 0) (window-width . 0.15))
+                                       ((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-4)))
+                                        (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . 1) (window-width . 0.15)))
+                                     display-buffer-alist))
 
   (when my/dape-use-custom-layout
-    (setq dape-buffer-window-arrangement nil
-          dape-info-buffer-window-groups '(((dape-info-scope-mode 3))
-                                           ((dape-info-scope-mode 1))
-                                           (dape-info-watch-mode)
-                                           ((dape-info-scope-mode 0))
-                                           ((dape-info-scope-mode 2))
-                                           (dape-info-breakpoints-mode)
-                                           (dape-info-threads-mode)
-                                           (dape-info-stack-mode dape-info-modules-mode dape-info-sources-mode))
+    (setq dape-buffer-window-arrangement nil dape-info-buffer-window-groups '(((dape-info-scope-mode 3)) ((dape-info-scope-mode 1)) (dape-info-watch-mode) ((dape-info-scope-mode 0)) ((dape-info-scope-mode 2))
+                                                                              (dape-info-breakpoints-mode) (dape-info-threads-mode) (dape-info-stack-mode dape-info-modules-mode dape-info-sources-mode))
           display-buffer-alist
           (append
            '(
              ;; LEFT TOP: Variables
              ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-0))
               (display-buffer-reuse-window display-buffer-in-side-window)
-              (side . left)
-              (slot . 0)
-              (window-width . 0.25))
+              (side . left) (slot . 0) (window-width . 0.25))
 
              ;; RIGHT MID: Static
              ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-1))
               (display-buffer-reuse-window display-buffer-in-side-window)
-              (side . right)
-              (slot . 1)
-              (window-width . 0.45)
-              (window-height . 0.38))
+              (side . right) (slot . 1) (window-width . 0.45) (window-height . 0.38))
 
              ;; LEFT: Stack / Modules / Sources
              ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-3))
               (display-buffer-reuse-window display-buffer-in-side-window)
-              (side . left)
-              (slot . 2)
-              (window-width . 0.25)
-              (window-height . 0.18))
+              (side . left) (slot . 2) (window-width . 0.25) (window-height . 0.18))
 
              ;; LEFT LOWER: Watch
              ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-2))
               (display-buffer-reuse-window display-buffer-in-side-window)
-              (side . left)
-              (slot . 3)
-              (window-width . 0.25)
-              (window-height . 0.05))
+              (side . left) (slot . 3) (window-width . 0.25) (window-height . 0.05))
 
              ;; LEFT BOTTOM: Breakpoints
              ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-5))
               (display-buffer-reuse-window
                (lambda (buffer alist)
                  (let ((window (display-buffer-in-side-window buffer alist)))
-                   (with-current-buffer buffer
-                     (setq-local truncate-lines nil
-                                 word-wrap t)
-                     (visual-line-mode 1))
-                   window)))
-              (side . left)
-              (slot . 4)
-              (window-width . 0.25)
-              (window-height . 0.03))
+                   (with-current-buffer buffer (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1)) window)))
+              (side . left) (slot . 4) (window-width . 0.25) (window-height . 0.03))
 
              ;; LEFT BOTTOM: Threads
              ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-6))
               (display-buffer-reuse-window
                (lambda (buffer alist)
                  (let ((window (display-buffer-in-side-window buffer alist)))
-                   (with-current-buffer buffer
-                     (setq-local truncate-lines nil
-                                 word-wrap t)
-                     (visual-line-mode 1))
-                   window)))
-              (side . left)
-              (slot . 5)
-              (window-width . 0.25)
-              (window-height . 0.03))
+                   (with-current-buffer buffer (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1)) window)))
+              (side . left) (slot . 5) (window-width . 0.25) (window-height . 0.03))
 
              ;; LEFT MID: Registers
              ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-4))
               (display-buffer-reuse-window
                (lambda (buffer alist)
                  (let ((window (display-buffer-in-side-window buffer alist)))
-                   (with-current-buffer buffer
-                     (setq-local dape-info-variable-table-aligned t))
-                   window)))
-              (side . left)
-              (slot . 1)
-              (window-width . 0.25)
-              (window-height . 0.24))
+                   (with-current-buffer buffer (setq-local dape-info-variable-table-aligned t)) window)))
+              (side . left) (slot . 1) (window-width . 0.25) (window-height . 0.24))
 
              ;; RIGHT TOP: Peripherals
              ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-7))
               (display-buffer-reuse-window
                (lambda (buffer alist)
                  (let ((window (display-buffer-in-side-window buffer alist)))
-                   (with-current-buffer buffer
-                     (setq-local dape-info-variable-table-aligned t
-                                 dape-info-variable-table-row-config '((name . 0) (value . 0) (type . 0))
-                                 face-remapping-alist
-                                 '((default (:height 0.84))
-                                   (header-line (:height 0.84)))))
-                   window)))
-              (side . right)
-              (slot . 0)
-              (window-width . 0.45)
-              (window-height . 0.62))
+                   (with-current-buffer buffer (setq-local dape-info-variable-table-aligned t dape-info-variable-table-row-config '((name . 0) (value . 0) (type . 0)) face-remapping-alist '((default (:height 0.84)) (header-line (:height 0.84))))) window)))
+              (side . right) (slot . 0) (window-width . 0.45) (window-height . 0.62))
 
              ;; REPL: top half of the center area only
-             ("^\\*dape-repl\\*$"
-              (display-buffer-reuse-window display-buffer-in-direction)
-              (direction . above)
-              (window-height . 0.3))
-             ("^\\*Welcome to the Dape REPL\\*$"
-              (display-buffer-reuse-window display-buffer-in-direction)
-              (direction . above)
-              (window-height . 0.3)))
+             ("^\\*dape-repl\\*$" (display-buffer-reuse-window display-buffer-in-direction) (direction . above) (window-height . 0.3))
+             ("^\\*Welcome to the Dape REPL\\*$" (display-buffer-reuse-window display-buffer-in-direction) (direction . above) (window-height . 0.3)))
            display-buffer-alist)))
 
   (add-to-list
    'dape-configs
    '(probe-rs-esp32s3
-     :chip "esp32s3"
-     :request "launch"
-     :type "probe-rs-debug"
-     :consoleLogLevel "Console"
-     :flashingConfig (:flashingEnabled t)
+     :chip "esp32s3" :request "launch" :type "probe-rs-debug" :consoleLogLevel "Console" :flashingConfig (:flashingEnabled t)
 
-     port :autoport
-     host "localhost"
-     command "probe-rs"
+     port :autoport host "localhost" command "probe-rs"
      modes (rust-mode rustic-mode)
      compile "cargo +esp probe-rs-debug-esp32s3"
      command-args ("dap-server" "--port" ":autoport")
      command-cwd (lambda () (project-root (project-current)))
      fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
      :coreConfigs [(
-                    :coreIndex 0
-                    :rttEnabled t
-                    :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
+                    :coreIndex 0 :rttEnabled t :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
                     :svdFile (lambda () (expand-file-name "boards/esp32s3.svd" (project-root (project-current))))
                     :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/esp32s3" (project-root (project-current)))))]))
 
@@ -473,13 +342,8 @@
   (add-hook 'dape-display-source-hook #'pulse-momentary-highlight-one-line)
   (add-hook 'dape-repl-mode-hook (defun dape--repl-wrap () (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1)))
   (add-hook 'dape-info-parent-mode-hook
-            (defun dape--info-compact ()
-              (when (string-prefix-p "Registers" (format-mode-line header-line-format))
-                (setq-local dape-info-variable-table-aligned t
-                            dape-info-variable-table-row-config
-                            '((name . 8) (value . 10) (type . 14))))
-              (face-remap-add-relative 'header-line :height 0.9)
-              (face-remap-add-relative 'default :height 0.9))))
+            (defun dape--info-compact () (when (string-prefix-p "Registers" (format-mode-line header-line-format)) (setq-local dape-info-variable-table-aligned t dape-info-variable-table-row-config '((name . 8) (value . 10) (type . 14))))
+                   (face-remap-add-relative 'header-line :height 0.9) (face-remap-add-relative 'default :height 0.9))))
 
 (after! dap-mode
   (dap-register-debug-template
@@ -506,6 +370,7 @@
           ("a" "~/Documents/"                "Documents")
           ("m" "/mnt/"                       "Mounted drives")
           ("e" ,user-emacs-directory         "Emacs user directory"))))
+
 ;; (use-package! gptel
 ;;   :config
 ;;   (setq gptel-use-tools t
@@ -549,29 +414,27 @@
 ;; (after! llm-tool-collection
 ;;   (mapcar (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
 
+;; (define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
+;; (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))
+;; (after! lsp-mode
+;;   (add-to-list 'lsp-language-id-configuration '(likec4-mode . "likec4"))
+;;   (lsp-register-client
+;;    (make-lsp-client
+;;     :priority -1
+;;     :server-id 'likec4
+;;     :major-modes '(likec4-mode)
+;;     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
+;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
+
 (defconst my/lazygit-command " lazygit status -sm normal")
 (defvar my/vterm-warmed-projects (make-hash-table :test #'equal))
 
-(defun my/project-root ()
-  (let ((root (or (doom-project-root default-directory) (and (fboundp 'projectile-project-root) (ignore-errors (projectile-project-root))) default-directory)))
-    (file-name-as-directory (expand-file-name root))))
+(defun my/project-root () (let ((root (or (doom-project-root default-directory) (and (fboundp 'projectile-project-root) (ignore-errors (projectile-project-root))) default-directory))) (file-name-as-directory (expand-file-name root))))
 
-(defun my/vterm-buffer-name ()
-  (format "*doom:vterm-popup:project-%s*"
-          (if (bound-and-true-p persp-mode)
-              (safe-persp-name (get-current-persp))
-            "main")))
+(defun my/vterm-buffer-name () (format "*doom:vterm-popup:project-%s*" (if (bound-and-true-p persp-mode) (safe-persp-name (get-current-persp)) "main")))
 
-(defun my/vterm-project-buffer ()
-  (let* ((buffer-name (my/vterm-buffer-name))
-         (buffer (get-buffer-create buffer-name))
-         (root (my/project-root)))
-    (with-current-buffer buffer
-      (let ((default-directory root))
-        (unless (derived-mode-p 'vterm-mode)
-          (vterm-mode))
-        (setq-local +vterm--id buffer-name)))
-    buffer))
+(defun my/vterm-project-buffer () (let* ((buffer-name (my/vterm-buffer-name)) (buffer (get-buffer-create buffer-name)) (root (my/project-root)))
+                                    (with-current-buffer buffer (let ((default-directory root)) (unless (derived-mode-p 'vterm-mode) (vterm-mode)) (setq-local +vterm--id buffer-name))) buffer))
 
 (defun my/warm-project-vterm ()
   "Pre-create vterm per project so first use is instant."
