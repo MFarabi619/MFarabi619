@@ -1,15 +1,12 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 (nyan-mode 1)
-(parrot-mode 1)
-;; (minimap-mode)
+(parrot-mode -1)
 (display-time-mode 1)
 (line-number-mode -1)
 (kitty-graphics-mode 1)
-(column-number-mode -1)
 (window-divider-mode -1)
 (global-undo-tree-mode 1)
-(size-indication-mode -1)
 ;; (keycast-tab-line-mode)
 (dape-breakpoint-global-mode 1)
 (set-language-environment "UTF-8")
@@ -24,6 +21,10 @@
 (setopt doom-theme 'doom-gruvbox
         ;; doom-theme 'catppuccin
         fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
+
+        column-number-mode nil
+        size-indication-mode nil
+        doom-modeline-percent-position nil
 
         doom-modeline-hud t
         doom-modeline-time-icon t
@@ -64,7 +65,6 @@
         gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
 
 (load!        "./dashboard.el")
-
 ;; (add-load-path! "pio-mode")
 ;; (use-package! pio-mode)
 (use-package! org-anki)
@@ -79,7 +79,6 @@
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
 
 (after!       direnv        (direnv-mode -1))
-(after!       parrot-mode   (parrot-type "science"))
 (after!       nerd-icons    (nerd-icons-completion-mode 1))
 (after!       pdf-tools     (setopt pdf-view-continuous t))
 (after!       evil          (setopt evil-ex-substitute-global t))
@@ -94,6 +93,7 @@
 (after!       sql           (setopt sql-database "microvisor" sql-server "127.0.0.1" sql-port 5432 sql-user "mfarabi" sql-password ""))
 (after!       verb-mode     (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
 (after!       which-key     (pushnew! which-key-replacement-alist '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1")) '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
+(after!       parrot-mode   (setopt parrot-animate-parrot t parrot-num-rotations 1000 parrot-animation-frame-interval 0.045 parrot-spaces-before 1 parrot-spaces-after 1) (parrot-type "confused"))
 (after!       dirvish       (setopt dirvish-peek-mode t dirvish-side-auto-close t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
 (after!       lsp           (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t lsp-describe-thing-at-point t))
 (after!       lsp-clangd    (setopt lsp-clients-clangd-args '("-j=3" "--clang-tidy" "--background-index" "--header-insertion=never" "--completion-style=detailed" "--header-insertion-decorators=0")) (set-lsp-priority! 'clangd 2) )
@@ -103,6 +103,7 @@
 (after!       gnus          (setopt sendmail-program "msmtp" message-sendmail-f-is-evil t gnus-secondary-select-methods nil mm-text-html-renderer 'shr mm-inline-large-images t mm-discouraged-alternatives '("text/plain" "text/richtext") shr-use-colors nil shr-max-width 100 shr-max-image-proportion 0.6 shr-use-fonts nil message-sendmail-envelope-from 'header message-send-mail-function 'message-send-mail-with-sendmail message-sendmail-extra-arguments '("--read-envelope-from") gnus-select-method '(nnmaildir "local" (directory "~/Maildir/Gmail"))))
 (after!       rustic-mode   (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
 (after!       proced        (setopt proced-auto-update-interval 1 proced-goal-attribute nil proced-enable-color-flag t proced-format 'medium) (setq-default proced-auto-update-flag t)
+
   (add-hook! 'proced-mode-hook
     (lambda () (setq-local      mode-line-format nil line-spacing 0.10)
       (face-remap-add-relative 'font-lock-keyword-face                     :foreground "#fb4934")
