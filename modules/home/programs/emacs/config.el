@@ -188,51 +188,47 @@
               (lambda (fn &rest args)
                 (if (bound-and-true-p vertico-posframe-mode)
                     (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
-
 (after! prodigy
   (custom-set-faces!
     '(prodigy-red-face    :foreground "#fb4934" :weight bold)
     '(prodigy-green-face  :foreground "#b8bb26" :weight bold)
     '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
 
-  (defun my/prodigy-right-align (text)
-    (if (or (null text) (string-empty-p text))
-        ""
-      (let ((w (string-width (substring-no-properties text))))
-        (concat
-         (propertize " " 'display `(space :align-to (- right 3 ,w)))
-         text))))
+  (defun my/prodigy-primary-tag (service)
+    (or (car (plist-get service :tags)) 'other))
+
+  (defun my/prodigy-service-entry (service)
+    (list
+     (prodigy-service-id service)
+     (vector
+      (prodigy-marked-col service)
+      (propertize
+       (prodigy-name-col service)
+       'face (or (prodigy-status-face service) 'default))
+      (if-let ((port (plist-get service :port)))
+          (number-to-string port)
+        ""))))
 
   (defun my/prodigy-list-entries ()
+    (mapcar #'my/prodigy-service-entry (prodigy-services)))
+
+  (defun my/prodigy-list-groups ()
     (mapcar
-     (lambda (service)
-       (list
-        (prodigy-service-id service)
-        (vector
-         (prodigy-marked-col service)
-         (propertize
-          (prodigy-name-col service)
-          'face (or (prodigy-status-face service) 'default))
-         (or (when-let ((port (plist-get service :port)))
-               (number-to-string port))
-             "")
-         (my/prodigy-right-align (prodigy-tags-col service)))))
-     (prodigy-services)))
+     (lambda (group)
+       (cons (symbol-name (car group))
+             (mapcar #'my/prodigy-service-entry (cdr group))))
+     (seq-group-by #'my/prodigy-primary-tag (prodigy-services))))
 
   (add-hook! 'prodigy-mode-hook
     (setq-local mode-line-format nil
-                header-line-format
-                (list
-                 " "
-                 (propertize "Service" 'face 'bold)
-                 (propertize " " 'display '(space :align-to 38))
-                 (propertize "Port" 'face 'bold)
-                 (propertize " " 'display '(space :align-to (- right 16)))
-                 (propertize "Tags" 'face 'bold))
                 tabulated-list-padding 0
-                tabulated-list-format [(" " 1 nil) ("Service" 28 t) ("Port" 8 t) ("Tags" 1 nil)]
+                tabulated-list-format [(" " 1 nil)
+                                       ("Service" 32 t)
+                                       ("Port" 8 t)]
                 tabulated-list-sort-key '("Service" . nil)
-                tabulated-list-entries #'my/prodigy-list-entries)
+                tabulated-list-entries #'my/prodigy-list-entries
+                tabulated-list-groups #'my/prodigy-list-groups)
+    (tabulated-list-init-header)
     (tabulated-list-print t)))
 
 (add-hook! 'sql-mode-hook #'lsp!)
