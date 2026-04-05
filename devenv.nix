@@ -20,7 +20,6 @@
   };
 
   imports = map (path: ./config + path) [
-    "/files"
     "/env.nix"
     "/services"
     "/languages"
