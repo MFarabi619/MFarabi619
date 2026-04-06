@@ -48,6 +48,7 @@
 
     dioxus = {
       enable = true;
+      writeConfig = false;
       # mobile.ios.enable = true;
       desktop.linux.enable = false;
       mobile.android.enable = false;
