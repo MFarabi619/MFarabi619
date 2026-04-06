@@ -30,3 +30,7 @@ runner = [
     "--chip", "esp32s3",
     "--log-format", "{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}",
 ]
+
+
+[unstable]
+build-std = ["core", "alloc"]
