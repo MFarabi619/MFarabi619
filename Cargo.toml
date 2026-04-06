@@ -13,77 +13,84 @@ members  = [
 ]
 
 [workspace.dependencies]
-serde_json             = "1"
-defmt                  = "1.0.1"
-embedded-io            = "0.7.1"
-embassy-time           = "0.5.0"
-embassy-executor       = "0.9.1"
-embedded-io-async      = "0.7.0"
-dioxus-sdk-time        = "0.7.0"
-loco-rs                = "0.16.4"
+serde_json = "1"
+defmt = "1.0.1"
+embedded-io = "0.7.1"
+embassy-time = "0.5.0"
+embassy-executor = "0.9.1"
+embedded-io-async = "0.7.0"
+dioxus-sdk-time = "0.7.0"
+loco-rs = "0.16.4"
 dioxus-primitives.path = "libs/primitives"
-serde                  = { version = "1", features = ["derive"] }
-tracing                = { version = "0.1", features = ["std"] }
-ratatui                = { version = "0.30.0", default-features = false }
-lucide-dioxus          = { version = "2.45.0", features = ["all-icons"] }
-dioxus                 = { version = "0.7.3", features = ["router", "fullstack"] }
+serde = { version = "1", features = ["derive"] }
+tracing = { version = "0.1", features = ["std"] }
+ratatui = { version = "0.30.0", default-features = false }
+lucide-dioxus = { version = "2.45.0", features = ["all-icons"] }
+dioxus = { version = "0.7.3", features = ["router", "fullstack"] }
 
 [package]
-name        = "microvisor"
-publish     = false
-edition     = "2024"
-version     = "0.1.0"
+name = "microvisor"
+publish = false
+edition = "2024"
+version = "0.1.0"
 default-run = "microvisor"
-license     = "GNU GPL 3.0"
+license = "GNU GPL 3.0"
 
 [[bin]]
-name              = "microvisor"
-path              = "src/bin/main.rs"
+name = "microvisor"
+path = "src/bin/main.rs"
 required-features = []
 
 [dev-dependencies]
-serial_test       = "3.1.1"
-rstest            = "0.21.0"
-loco-rs           = { workspace = true,   features = ["testing"] }
-insta             = { version = "1.34.0", features = ["redactions", "yaml", "filters"] }
+serial_test = "3.1.1"
+rstest = "0.21.0"
+loco-rs = { workspace = true, features = ["testing"] }
+insta = { version = "1.34.0", features = ["redactions", "yaml", "filters"] }
 
 [dependencies]
-serde.workspace      = true
-loco-rs.workspace    = true
+serde.workspace = true
+loco-rs.workspace = true
 serde_json.workspace = true
-chrono               = "0.4"
-include_dir          = "0.7"
+chrono = "0.4"
+include_dir = "0.7"
 scalar_api_reference = "0.1"
-validator            = "0.20"
-axum                 = "0.8.1"
-unic-langid          = "0.9.4"
-regex                = "1.11.1"
-tracing              = "0.1.40"
-async-trait          = "0.1.74"
-migration.path       = "migration"
-loco-openapi         = { version = "0.1",    features = ["full"] }
-uuid                 = { version = "1.6.0",  features = ["v4"] }
-axum-extra           = { version = "0.12",   features = ["form"] } # /view engine
-fluent-templates     = { version = "0.8.0",  features = ["tera"] } # view engine i18n
-tracing-subscriber   = { version = "0.3.17", features = ["env-filter", "json"] }
-tokio                = { version = "1.33.0", default-features = false, features = ["rt-multi-thread"] }
-sea-orm              = { version = "1.1.19", features = ["macros", "sqlx-sqlite", "sqlx-postgres", "runtime-tokio-rustls"] }
-crc32fast            = "1.4"
+validator = "0.20"
+axum = "0.8.1"
+unic-langid = "0.9.4"
+regex = "1.11.1"
+tracing = "0.1.40"
+async-trait = "0.1.74"
+migration.path = "migration"
+loco-openapi = { version = "0.1", features = ["full"] }
+uuid = { version = "1.6.0", features = ["v4"] }
+axum-extra = { version = "0.12", features = ["form"] } # /view engine
+fluent-templates = { version = "0.8.0", features = ["tera"] } # view engine i18n
+tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
+tokio = { version = "1.33.0", default-features = false, features = [
+    "rt-multi-thread",
+] }
+sea-orm = { version = "1.1.19", features = [
+    "macros",
+    "sqlx-sqlite",
+    "sqlx-postgres",
+    "runtime-tokio-rustls",
+] }
+crc32fast = "1.4"
 
 [profile.dev]
 # Rust debug is too slow.
 # For debug builds always builds with some optimization
-opt-level         = "s"
+# opt-level = "s"
 # Symbols are nice and they don't increase the size on Flash
-# debug             = true
-# opt-level         = 3
+debug = true
+opt-level = 3
 
 [profile.release]
-debug             = 2
-codegen-units     = 1 # LLVM can perform better optimizations using a single thread
-opt-level         = "s"
-# opt-level         = 3
-lto               = "fat"
-incremental       = false
-overflow-checks   = false
-debug-assertions  = false
+debug = 2
+codegen-units = 1 # LLVM can perform better optimizations using a single thread
+# opt-level = "s"
+opt-level = 3
+lto = "fat"
+incremental = false
+overflow-checks = false
+debug-assertions = false
