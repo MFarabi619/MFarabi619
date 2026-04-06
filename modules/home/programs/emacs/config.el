@@ -173,7 +173,7 @@
 
 (add-hook! 'sql-mode-hook #'lsp!)
 (add-hook! 'conf-toml-mode-hook #'lsp!)
-(add-hook! 'gfm-mode-hook #'gfm-view-mode)
+(add-hook! 'gfm-mode-hook #'markdown-view-mode)
 ;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
 ;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
 (add-hook! 'prodigy-view-mode-hook (text-scale-set -2))
