@@ -1,8 +1,14 @@
-trunk-version  = "*" # semver version requirement of trunk for this project
+trunk-version = "*" # semver version requirement of trunk for this project
 
 [build]
 inject_scripts = true
-release        = true
-dist           = "dist"
-minify         = "always"
-target         = "index.html"
+release = true
+filehash = false
+offline = false       # Run without network access
+frozen = false        # Require Cargo.lock and cache are up to date
+locked = false        # Require Cargo.lock is up to date
+create_nonce = false  # Allow injecting a nonce attribute
+no_sri = false        # Allow disabling sub-resource integrity (SRI)
+dist = "dist"
+minify = "always"
+target = "index.html"
