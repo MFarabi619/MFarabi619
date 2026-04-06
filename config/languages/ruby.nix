@@ -1,6 +1,6 @@
 {
   languages.ruby = {
-    enable = false;
+    enable = true;
     bundler.enable = true;
     documentation.enable = true;
   };
