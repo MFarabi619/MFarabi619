@@ -6,15 +6,27 @@
   programs.opencode = {
     enable = true;
     web.enable = true;
+    tui.theme = "gruvbox";
     web.extraArgs = [ "--mdns" ];
     enableMcpIntegration = true;
 
     settings = {
-      theme = "gruvbox";
       autoshare = false;
       autoupdate = false;
       server.mdns = true;
-      model = "openai/gpt-5.3-codex";
+      model = "ollama/qwen3.5:35b-a3b-coding-nvfp4";
+      disabled_providers = [
+        "gemini"
+        "openai"
+      ];
+
+      provider.ollama = {
+        name = "Ollama (local)";
+        npm = "@ai-sdk/openai-compatible";
+        models."qwen3.5:35b-a3b-coding-nvfp4".name = "qwen3.5:35b-a3b-coding-nvfp4";
+        "options"."baseURL" =
+          "http://${config.services.ollama.host}:${builtins.toString config.services.ollama.port}/v1";
+      };
 
       permission = {
         read = "allow";
@@ -29,28 +41,6 @@
         question = "allow";
         todowrite = "allow";
       };
-
-      provider.ollama = {
-        name = "Ollama";
-        npm = "@ai-sdk/openai-compatible";
-
-        "options"."baseURL" =
-          "http://${config.services.ollama.host}:${builtins.toString config.services.ollama.port}/v1";
-
-        models = {
-          "gpt-oss:20b".name = "gpt-oss:20b";
-          "gpt-oss:120b".name = "gpt-oss:120b";
-          "codellama:70b".name = "codellama:70b";
-          "qwen2.5-coder:32b".name = "qwen2.5-coder:32b";
-          "phind-codellama:34b".name = "phind-codellama:34b";
-          "mdq100/qwen3.5-coder:35b".name = "mdq100/qwen3.5-coder:35b";
-        };
-      };
-
-      disabled_providers = [
-        # "openai"
-        "gemini"
-      ];
     };
 
     rules = ''
