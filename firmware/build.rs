@@ -42,12 +42,26 @@ fn stm32() {
 }
 
 fn esp32() {
+    // Compile-time device configuration. These are read by
+    // firmware/src/config.rs via env!() / option_env!().
+    // Override any of these by setting the env var before cargo:
+    //   NETWORK_WIFI_SSID=mynet cargo b
+    set_env_default("NETWORK_WIFI_SSID", "");
+    set_env_default("NETWORK_WIFI_PSK", "");
+    set_env_default("SHELL_USER", "");
+    set_env_default("HOSTNAME", "");
+
     linker_be_nice();
     println!("cargo:rustc-link-arg=-nostartfiles");
     println!("cargo:rustc-link-arg-tests=-Tembedded-test.x");
     println!("cargo:rustc-link-arg=-Tdefmt.x");
-    // make sure linkall.x is the last linker script (otherwise might cause problems with flip-link)
     println!("cargo:rustc-link-arg=-Tlinkall.x");
+}
+
+fn set_env_default(key: &str, default_value: &str) {
+    let value = env::var(key).unwrap_or_else(|_| default_value.to_string());
+    println!("cargo:rustc-env={key}={value}");
+    println!("cargo:rerun-if-env-changed={key}");
 }
 
 fn linker_be_nice() {

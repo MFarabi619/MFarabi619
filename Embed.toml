@@ -1,0 +1,27 @@
+[default.general]
+chip = "esp32s3"
+
+[default.probe]
+protocol = "Jtag"
+
+[default.rtt]
+enabled = true
+timeout = 3000
+log_enabled = false
+up_channels = [
+    { channel = 0, mode = "BlockIfFull", format = "Defmt", show_location = true },
+]
+down_channels = [
+    { channel = 0, mode = "BlockIfFull" },
+]
+
+[default.flashing]
+enabled = true
+restore_unwritten_bytes = true
+
+[default.reset]
+enabled = true
+halt_afterwards = false
+
+[default.gdb]
+enabled = false

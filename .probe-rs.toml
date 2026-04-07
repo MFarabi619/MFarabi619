@@ -1,5 +1,8 @@
 [presets.default]
 chip = "esp32s3"
+always-print-stacktrace = true
+idf-partition-table = "boards/esp32s3.partitions.csv"
+log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
 
 [presets.esp32-s3-devkitc-1]
 chip = "esp32s3"

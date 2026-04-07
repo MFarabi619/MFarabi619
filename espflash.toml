@@ -1,0 +1,3 @@
+[idf_format_args]
+partition_table = "boards/esp32s3.partitions.csv"
+target_app_partition = "ota_0"

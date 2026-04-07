@@ -139,7 +139,6 @@ pub fn build_firmware(firmware: &FirmwareSettings) -> Result<()> {
         &[
             "+esp", "build", "--release",
             "-p", firmware.package_name(),
-            "-F", &firmware.chip,
             "--bin", firmware.bin_name(),
             "--config", r#"unstable.build-std=["core","alloc"]"#,
             "--target", firmware.target(),

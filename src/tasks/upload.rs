@@ -33,14 +33,11 @@ impl Task for Upload {
         step(2, 4, "convert ELF to OTA image");
         let elf_path = firmware.elf_path();
         let ota_image_path = format!("{}-ota.bin", elf_path);
-        let partition_table = firmware.partition_table();
         run_command(
             "espflash",
             &[
                 "save-image",
                 "--chip", &firmware.chip,
-                "--target-app-partition", "ota_0",
-                "--partition-table", &partition_table,
                 &elf_path,
                 &ota_image_path,
             ],

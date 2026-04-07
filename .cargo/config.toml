@@ -1,46 +1,20 @@
-# ======================================= #
-# ======================================= #
-# ======================================= #
-[env]
-NETWORK_WIFI_SSID = ""
-NETWORK_WIFI_PSK  = ""
-OTA_DEVICE_IP     = "10.0.0.95"
-DEFMT_LOG         = "info,embedded_test=warn"
-DEFMT_LOG = "info,embedded_test=warn"
-ESP_HAL_CONFIG_PSRAM_MODE = "octal"
-SHELL_USER = { value = "", force = false }
-SHELL_PASSWORD = { value = "", force = false }
-HOSTNAME = { value = "", force = false }
-# ======================================= #
-# ======================================= #
-# ======================================= #
 [alias]
-loco = ["run", "--"]
+loco = ["run", "-p", "microvisor", "--"]
 playground = ["run", "--example", "playground"]
 
-# ======================================== #
-# ======================================== #
-# ======================================== #
-[target.thumbv7em-none-eabihf]
-runner = "probe-rs run --chip stm32h723zg"
+[unstable]
+build-std = ["core", "alloc"]
+
+[env]
+OTA_DEVICE_IP = "10.0.0.68"
+ESP_HAL_CONFIG_PSRAM_MODE = "octal"
+DEFMT_LOG = "info,embedded_test=warn"
+
+[target.xtensa-esp32s3-none-elf]
+runner = "probe-rs run"
 
 [target.xtensa-esp32-none-elf]
 runner = "espflash flash --monitor --chip esp32"
 
-[target.xtensa-esp32s3-none-elf]
-runner = [
-    "probe-rs",
-    "run",
-    "--chip",
-    "esp32s3",
-    "--always-print-stacktrace",
-    "true",
-    "--preverify",
-    "true",
-    "--log-format",
-    "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}",
-]
-
-
-[unstable]
-build-std = ["core", "alloc"]
+[target.thumbv7em-none-eabihf]
+runner = "probe-rs run --chip stm32h723zg"

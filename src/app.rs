@@ -100,8 +100,6 @@ impl Hooks for App {
 
     #[allow(unused_variables)]
     fn register_tasks(tasks: &mut Tasks) {
-        tasks.register(tasks::build::Build);
-        tasks.register(tasks::flash::Flash);
         tasks.register(tasks::upload::Upload);
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {

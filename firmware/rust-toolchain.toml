@@ -1,11 +1,21 @@
 [toolchain]
-# channel = "stable"
 channel = "esp"
 profile = "minimal"
-components = [ "rustfmt" ]
+# channel = "stable"
+
+components = [
+    "rustc",
+    "cargo",
+    "clippy",
+    "rustfmt",
+    "rust-src",
+    "rust-analyzer",
+    "rustfmt",
+]
+
 targets = [
-  "thumbv6m-none-eabi",
-  "thumbv7em-none-eabihf",
-  "thumbv8m.main-none-eabihf",
-  "riscv32imac-unknown-none-elf"
+    "thumbv6m-none-eabi",
+    "thumbv7em-none-eabihf",
+    "thumbv8m.main-none-eabihf",
+    "riscv32imac-unknown-none-elf",
 ]
