@@ -76,17 +76,17 @@ in
 {
   # env.OPENCODE_CONFIG = "${config.git.root}/.devenv/state/opencode/opencode.json";
 
-  files."${config.git.root}/opencode.json".json = {
-    "$schema" = "https://opencode.ai/config.json";
+  # files."${config.git.root}/opencode.json".json = {
+  #   "$schema" = "https://opencode.ai/config.json";
+  #
+  #   inherit tools mcp;
+  # };
 
-    inherit tools mcp;
-  };
-
-  files."${config.git.root}/.codex/config.toml".toml = {
-    mcp_servers = codexMcpServers;
-    features = {
-      multi_agent = true;
-      rmcp_client = true;
-    };
-  };
+  # files."${config.git.root}/.codex/config.toml".toml = {
+  #   mcp_servers = codexMcpServers;
+  #   features = {
+  #     multi_agent = true;
+  #     rmcp_client = true;
+  #   };
+  # };
 }
