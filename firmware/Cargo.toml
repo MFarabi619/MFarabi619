@@ -40,17 +40,7 @@ name         = "stm32h723zg"
 path         = "src/bin/stm32h723zg.rs"
 required-features = [ "stm32h723zg" ]
 
-[[bin]]
-test         = false
-name         = "esp32s3_lcd147b"
-path         = "src/bin/esp32s3_lcd147b.rs"
-required-features = [ "esp32s3" ]
 
-[[bin]]
-test         = false
-name         = "esp32s3_lcd147b_minimal"
-path         = "src/bin/esp32s3_lcd147b_minimal.rs"
-required-features = [ "esp32s3" ]
 
 [[test]]
 harness      = false
