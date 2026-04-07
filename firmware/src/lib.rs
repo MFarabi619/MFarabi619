@@ -3,6 +3,7 @@
 
 extern crate alloc;
 
+pub mod config;
 pub mod drivers;
 pub mod modules;
 pub mod filesystems;
