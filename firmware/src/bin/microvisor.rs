@@ -34,13 +34,12 @@ use picoserve::AppBuilder;
 use static_cell::StaticCell;
 use trouble_host::prelude::*;
 
-const CONNECTIONS_MAX: usize = configuration::ble::CONNECTIONS_MAX;
-const L2CAP_CHANNELS_MAX: usize = configuration::ble::L2CAP_CHANNELS_MAX;
+const CONNECTIONS_MAX: usize = config::ble::CONNECTIONS_MAX;
+const L2CAP_CHANNELS_MAX: usize = config::ble::L2CAP_CHANNELS_MAX;
 
-use config_runtime::WifiCredentials;
 use firmware::{
-    config_hardware_topology::{CURRENT_TOPOLOGY, SensorKind},
-    config_runtime, configuration, console,
+    config::{self, runtime::WifiCredentials, topology::{CURRENT_TOPOLOGY, SensorKind}},
+    console,
     filesystems::sd,
     state::{self, AppState},
     networking, programs, services,
@@ -81,14 +80,14 @@ async fn main(spawner: Spawner) -> ! {
     esp_rtos::start(timg0.timer0, sw_ints.software_interrupt0);
 
     info!("Embassy initialized!");
-    info!("host_platform={}", configuration::PLATFORM);
-    info!("active_user_key={}", configuration::ACTIVE_USER_KEY);
-    info!("time_zone={}", configuration::time::ZONE);
+    info!("host_platform={}", config::PLATFORM);
+    info!("active_user_key={}", config::ACTIVE_USER_KEY);
+    info!("time_zone={}", config::time::ZONE);
     info!(
         "filesystem.sd_card: device={} fs_type={} data_log_path={}",
-        configuration::sd_card::DEVICE,
-        configuration::sd_card::FS_TYPE,
-        configuration::sd_card::DATA_LOG_PATH
+        config::sd_card::DEVICE,
+        config::sd_card::FS_TYPE,
+        config::sd_card::DATA_LOG_PATH
     );
     info!(
         "networking.ap_fallback={} ap_ssid={} ap_channel={} ap_max_connections={} ap_auth_mode={}",
@@ -111,7 +110,7 @@ async fn main(spawner: Spawner) -> ! {
         }
     }
 
-    let _sensor_power_relay = match configuration::SENSOR_POWER_GPIO {
+    let _sensor_power_relay = match config::SENSOR_POWER_GPIO {
         5 => Output::new(peripherals.GPIO5, Level::High, OutputConfig::default()),
         unsupported_gpio => {
             panic!("unsupported sensor_power_enable_gpio={}", unsupported_gpio)
@@ -144,7 +143,7 @@ async fn main(spawner: Spawner) -> ! {
                 (8, 9) => I2c::new(
                     peripherals.I2C0,
                     I2cConfig::default()
-                        .with_frequency(Rate::from_khz(configuration::I2C_FREQUENCY_KHZ)),
+                        .with_frequency(Rate::from_khz(config::I2C_FREQUENCY_KHZ)),
                 )
                 .unwrap()
                 .with_sda(peripherals.GPIO8)
@@ -153,7 +152,7 @@ async fn main(spawner: Spawner) -> ! {
                 (15, 16) => I2c::new(
                     peripherals.I2C0,
                     I2cConfig::default()
-                        .with_frequency(Rate::from_khz(configuration::I2C_FREQUENCY_KHZ)),
+                        .with_frequency(Rate::from_khz(config::I2C_FREQUENCY_KHZ)),
                 )
                 .unwrap()
                 .with_sda(peripherals.GPIO15)
@@ -174,7 +173,7 @@ async fn main(spawner: Spawner) -> ! {
                 (17, 18) => I2c::new(
                     peripherals.I2C1,
                     I2cConfig::default()
-                        .with_frequency(Rate::from_khz(configuration::I2C_FREQUENCY_KHZ)),
+                        .with_frequency(Rate::from_khz(config::I2C_FREQUENCY_KHZ)),
                 )
                 .unwrap()
                 .with_sda(peripherals.GPIO17)
@@ -186,17 +185,17 @@ async fn main(spawner: Spawner) -> ! {
         });
 
     state::set_app_state(AppState {
-        cloud_event_source: configuration::CLOUD_EVENTS_SOURCE,
-        cloud_event_type: configuration::CLOUD_EVENT_TYPE,
+        cloud_event_source: config::CLOUD_EVENTS_SOURCE,
+        cloud_event_type: config::CLOUD_EVENT_TYPE,
         boot_timestamp_seconds: Instant::now().as_secs(),
     });
 
     let mut flash = FlashStorage::new();
-    let credentials = config_runtime::read_credentials(&mut flash).unwrap_or_else(|| {
+    let credentials = config::runtime::read_credentials(&mut flash).unwrap_or_else(|| {
         info!("no credentials in flash, using defaults");
         WifiCredentials {
-            ssid: HeaplessString::try_from(config_runtime::DEFAULT_SSID).unwrap(),
-            password: HeaplessString::try_from(config_runtime::DEFAULT_PASSWORD).unwrap(),
+            ssid: HeaplessString::try_from(config::runtime::DEFAULT_SSID).unwrap(),
+            password: HeaplessString::try_from(config::runtime::DEFAULT_PASSWORD).unwrap(),
         }
     });
 
