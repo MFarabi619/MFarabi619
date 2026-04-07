@@ -1,0 +1,347 @@
+use alloc::string::String as AllocString;
+use core::fmt::Write;
+use embassy_time::Instant;
+use esp_hal::{clock, efuse, system, system::Cpu};
+
+use crate::{
+    config::{self, topology::CURRENT_TOPOLOGY},
+    console::icons,
+    programs::shell,
+    state,
+};
+
+unsafe extern "C" {
+    #[link_name = "esp_app_desc"]
+    static ESP_APP_DESC: esp_bootloader_esp_idf::EspAppDesc;
+}
+
+macro_rules! row {
+    ($out:expr, $color:expr, $icon:expr, $label:expr, $($val:tt)*) => {{
+        let _ = write!($out, "  \x1b[1;{}m{} {:<14}\x1b[0m ", $color, $icon, $label);
+        let _ = write!($out, $($val)*);
+        let _ = write!($out, "\r\n");
+    }};
+}
+
+pub fn run() -> AllocString {
+    let mut out = AllocString::new();
+    let secs = Instant::now().as_secs();
+    let info = state::device_info();
+    let co2 = state::co2_reading();
+    let chip_rev = efuse::chip_revision();
+    let mac = efuse::base_mac_address();
+    let cpu_freq_mhz = clock::cpu_clock().as_mhz();
+
+    let heap_used = esp_alloc::HEAP.used();
+    let heap_free = esp_alloc::HEAP.free();
+    let heap_total = heap_used + heap_free;
+    let heap_pct = (heap_used * 100) / heap_total;
+
+    let _ = write!(out, "\r\n");
+
+    let _ = write!(
+        out,
+        "  \x1b[1;32m{}\x1b[0m\x1b[2m@\x1b[0m\x1b[1;36m{}\x1b[0m\r\n",
+        shell::SSH_USER,
+        config::HOSTNAME
+    );
+    let sep_len = shell::SSH_USER.len() + 1 + config::HOSTNAME.len();
+    let _ = write!(out, "  \x1b[2m");
+    for _ in 0..sep_len {
+        out.push(icons::BOX_HORIZONTAL);
+    }
+    let _ = write!(out, "\x1b[0m\r\n");
+
+    let app_desc = unsafe { &ESP_APP_DESC };
+    row!(
+        out,
+        "33",
+        "",
+        "OS",
+        "\x1b[1m{}\x1b[0m {} ({})",
+        app_desc.project_name(),
+        app_desc.version(),
+        config::PLATFORM
+    );
+    row!(
+        out,
+        "35",
+        "",
+        "Host",
+        "\x1b[1mESP32-S3\x1b[0m (rev {}.{})",
+        chip_rev.major,
+        chip_rev.minor
+    );
+    row!(
+        out,
+        "35",
+        "",
+        "Chassis",
+        "\x1b[1mesp32s3-devkitc1-N8R8\x1b[0m"
+    );
+    row!(
+        out,
+        "36",
+        "",
+        "Kernel",
+        "\x1b[1membassy 0.7\x1b[0m / esp-hal 1.0"
+    );
+    row!(
+        out,
+        "33",
+        icons::NF_FA_DATABASE,
+        "Built",
+        "\x1b[1m{}\x1b[0m {}",
+        app_desc.date(),
+        app_desc.time()
+    );
+    {
+        let mut buf = [0u8; esp_bootloader_esp_idf::partitions::PARTITION_TABLE_MAX_LEN];
+        let mut flash = esp_storage::FlashStorage::new();
+        if let Ok(pt) =
+            esp_bootloader_esp_idf::partitions::read_partition_table(&mut flash, &mut buf)
+        {
+            if let Ok(Some(entry)) = pt.booted_partition() {
+                row!(
+                    out,
+                    "34",
+                    icons::NF_FA_HDD,
+                    "Partition",
+                    "\x1b[1m{}\x1b[0m",
+                    entry.label_as_str()
+                );
+            }
+        }
+    }
+
+    let (d, h, m, s) = (
+        secs / 86400,
+        (secs % 86400) / 3600,
+        (secs % 3600) / 60,
+        secs % 60,
+    );
+    match (d, h) {
+        (1.., _) => row!(
+            out,
+            "34",
+            "",
+            "Uptime",
+            "\x1b[1m{}\x1b[0m days, \x1b[1m{}\x1b[0m hours, \x1b[1m{}\x1b[0m mins, \x1b[1m{}\x1b[0m secs",
+            d,
+            h,
+            m,
+            s
+        ),
+        (_, 1..) => row!(
+            out,
+            "34",
+            "",
+            "Uptime",
+            "\x1b[1m{}\x1b[0m hours, \x1b[1m{}\x1b[0m mins, \x1b[1m{}\x1b[0m secs",
+            h,
+            m,
+            s
+        ),
+        _ => row!(
+            out,
+            "34",
+            "",
+            "Uptime",
+            "\x1b[1m{}\x1b[0m mins, \x1b[1m{}\x1b[0m secs",
+            m,
+            s
+        ),
+    }
+
+    if let Some(reason) = system::reset_reason() {
+        row!(out, "31", icons::NF_FA_BOLT, "Reset", "\x1b[1m{:?}\x1b[0m", reason);
+    }
+
+    row!(out, "32", "", "Shell", "\x1b[1mMicroshell\x1b[0m (SSH)");
+    row!(
+        out,
+        "31",
+        "",
+        "CPU",
+        "\x1b[1mXtensa LX7\x1b[0m ({}) @ \x1b[1m{} MHz\x1b[0m",
+        Cpu::COUNT,
+        cpu_freq_mhz
+    );
+    row!(
+        out,
+        "36",
+        "",
+        "RAM",
+        "\x1b[1m{:.2} KiB\x1b[0m / \x1b[1m{:.2} KiB\x1b[0m (\x1b[1;32m{}%\x1b[0m)",
+        heap_used as f32 / 1024.0,
+        heap_total as f32 / 1024.0,
+        heap_pct
+    );
+
+    if info.sd_card_size_mb > 0 {
+        row!(
+            out,
+            "32",
+            "",
+            "Disk",
+            "\x1b[1m{} MiB\x1b[0m / \x1b[1m{} MiB\x1b[0m - {} [\x1b[1m{}\x1b[0m]",
+            0,
+            info.sd_card_size_mb,
+            config::sd_card::FS_TYPE,
+            config::sd_card::DEVICE
+        );
+    } else {
+        row!(out, "32", icons::NF_FA_HDD, "Disk", "\x1b[2mnot detected\x1b[0m");
+    }
+
+    row!(
+        out,
+        "33",
+        "",
+        "Local IP",
+        "\x1b[1m{}.{}.{}.{}\x1b[0m/24",
+        info.ip_address[0],
+        info.ip_address[1],
+        info.ip_address[2],
+        info.ip_address[3]
+    );
+    row!(
+        out,
+        "35",
+        "",
+        "MAC",
+        "\x1b[1m{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}\x1b[0m",
+        mac.as_bytes()[0],
+        mac.as_bytes()[1],
+        mac.as_bytes()[2],
+        mac.as_bytes()[3],
+        mac.as_bytes()[4],
+        mac.as_bytes()[5]
+    );
+
+    let _ = write!(out, "\r\n");
+
+    row!(
+        out,
+        "36",
+        icons::NF_FA_SERVER,
+        "Hostname",
+        "\x1b[1m{}\x1b[0m",
+        config::HOSTNAME
+    );
+    row!(
+        out,
+        "34",
+        icons::NF_FA_GLOBE,
+        "NTP",
+        "\x1b[1m{}\x1b[0m",
+        config::NTP_SERVER
+    );
+    row!(
+        out,
+        "33",
+        icons::NF_FA_PLUG,
+        "Ports",
+        "SSH:\x1b[1m{}\x1b[0m  HTTP:\x1b[1m{}\x1b[0m  OTA:\x1b[1m{}\x1b[0m  Log:\x1b[1m{}\x1b[0m",
+        config::ssh::PORT,
+        config::http::PORT,
+        config::ota::PORT,
+        config::tcp_log::PORT
+    );
+    row!(
+        out,
+        "35",
+        icons::NF_FA_WIFI,
+        "WiFi AP",
+        "\x1b[1m{}\x1b[0m (ch\x1b[1m{}\x1b[0m, {})",
+        config::wifi::ap::SSID,
+        config::wifi::ap::CHANNEL,
+        config::wifi::ap::AUTH_MODE
+    );
+
+    let _ = write!(out, "\r\n");
+
+    row!(
+        out,
+        "36",
+        icons::NF_FA_COG,
+        "I2C Freq",
+        "\x1b[1m{}\x1b[0m kHz",
+        config::I2C_FREQUENCY_KHZ
+    );
+    row!(
+        out,
+        "31",
+        icons::NF_FA_BOLT,
+        "Power GPIO",
+        "\x1b[1mGPIO{}\x1b[0m",
+        config::SENSOR_POWER_GPIO
+    );
+    row!(
+        out,
+        "34",
+        icons::NF_FA_COG,
+        "SPI (SD)",
+        "CS:\x1b[1mGPIO{}\x1b[0m  MOSI:\x1b[1mGPIO{}\x1b[0m  SCK:\x1b[1mGPIO{}\x1b[0m  MISO:\x1b[1mGPIO{}\x1b[0m",
+        config::sd_card::CS_GPIO,
+        config::sd_card::MOSI_GPIO,
+        config::sd_card::SCK_GPIO,
+        config::sd_card::MISO_GPIO
+    );
+
+    for bus in CURRENT_TOPOLOGY.buses {
+        if let Some((sda, scl)) = bus.i2c_pins() {
+            row!(
+                out,
+                "36",
+                icons::NF_FA_SITEMAP,
+                bus.label,
+                "SDA:\x1b[1mGPIO{}\x1b[0m  SCL:\x1b[1mGPIO{}\x1b[0m",
+                sda,
+                scl
+            );
+        }
+    }
+
+    let _ = write!(out, "\r\n");
+
+    for sensor in CURRENT_TOPOLOGY.enabled_sensors() {
+        let mut val = AllocString::new();
+        let _ = write!(val, "\x1b[1m{}\x1b[0m @ {}", sensor.model, sensor.bus_label);
+        if let Some(addr) = sensor.i2c_address {
+            let _ = write!(val, " (\x1b[1m0x{:02X}\x1b[0m)", addr);
+        }
+        row!(out, "35", icons::NF_FA_SIGNAL, sensor.name, "{}", val);
+    }
+
+    if co2.ok {
+        let _ = write!(out, "\r\n");
+        row!(
+            out,
+            "32",
+            icons::NF_FA_LEAF,
+            "CO2",
+            "\x1b[1;32m{:.1}\x1b[0m ppm",
+            co2.co2_ppm
+        );
+        row!(
+            out,
+            "31",
+            icons::NF_FA_THERMOMETER,
+            "Temperature",
+            "\x1b[1;33m{:.1}\x1b[0m\u{00b0}C",
+            co2.temperature
+        );
+        row!(
+            out,
+            "34",
+            icons::NF_FA_TINT,
+            "Humidity",
+            "\x1b[1;36m{:.1}\x1b[0m%%",
+            co2.humidity
+        );
+    }
+
+    let _ = write!(out, "\r\n");
+    out
+}
