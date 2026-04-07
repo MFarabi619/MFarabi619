@@ -33,6 +33,10 @@ runner = [
     "run",
     "--chip",
     "esp32s3",
+    "--always-print-stacktrace",
+    "true",
+    "--preverify",
+    "true",
     "--log-format",
     "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}",
 ]
