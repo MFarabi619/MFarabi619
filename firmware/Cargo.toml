@@ -208,15 +208,15 @@ ratatui          = { version = "0.30.0", default-features = false, features = ["
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32", "log-04"] }
 
 [target.xtensa-esp32s3-none-elf.dependencies]
-smart-leds             = "0.4.0"
-esp-hal-smartled       = "0.17.0"
+# smart-leds             = "0.4.0"   # TODO: update esp-hal-smartled for new esp-hal API
+# esp-hal-smartled       = "0.17.0"
 embedded-hal           = "1.0.0"
 embedded-hal-bus       = "0.3.0"
 mipidsi                = "0.10.0"
 mousefood              = { version = "0.5.0", default-features = false, features = ["fonts"] }
 ratatui                = { version = "0.30.0", default-features = false, features = ["all-widgets"] }
-embedded-sdmmc         = { version = "0.9.0", default-features = false, features = ["defmt-log"] }
-bt-hci                 = "0.6.0"
+embedded-sdmmc         = { git = "https://github.com/rust-embedded-community/embedded-sdmmc-rs", rev = "c7231ddb3dfe9a67c76f15d150d4b42a0d0c9f70", default-features = false, features = ["defmt-log"] }
+bt-hci                 = "0.8.0"
 volatile               = "0.4.3"
 static_cell            = "2.1.1"
 critical-section       = "1.2.0"
@@ -224,7 +224,7 @@ embedded-io            = { workspace = true, features = ["defmt"] }
 embassy-time           = { workspace = true, features = ["defmt"] }
 embassy-executor       = { workspace = true, features = ["defmt"] }
 embedded-io-async      = { workspace = true, features = ["defmt"] }
-trouble-host           = { version = "0.5.0", features = ["gatt"] }
+trouble-host           = { version = "0.6.0", features = ["gatt"] }
 rtt-target             = { version = "0.6.2", features = ["defmt"] }
 
 esp-alloc              = { version = "0.9.0", features = ["defmt"] }
@@ -232,22 +232,33 @@ panic-rtt-target       = { version = "0.2.0", features = ["defmt"] }
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
 esp-storage            = { version = "0.5.0", features = ["esp32s3", "nor-flash"] }
 esp-hal-ota            = { version = "0.4.6", features = ["esp32s3", "defmt"] }
-esp-hal                = { version = "~1.0",  features = ["defmt", "esp32s3", "unstable"] }
+esp-hal                = { version = "~1.0",  features = ["defmt", "esp32s3", "unstable", "psram"] }
+embassy-futures        = "0.1"
 embassy-sync           = { version = "0.7", features = ["defmt"] }
-embassy-net            = { version = "0.7.1", features = ["tcp", "udp", "defmt", "dhcpv4", "medium-ethernet"] }
+chacha20                   = { version = "0.9", default-features = false }
+constant_time_eq           = { version = "0.3", default-features = false }
+poly1305                   = { version = "0.8", default-features = false }
+sha2                       = { version = "0.10", default-features = false }
+x25519-dalek               = { version = "2.0", default-features = false }
+ed25519-dalek              = { version = "2.1", default-features = false }
+rand                       = { version = "0.8", default-features = false }
+embassy-net            = { version = "0.9.0", features = ["tcp", "udp", "defmt", "dhcpv4", "dns", "medium-ethernet", "icmp", "auto-icmp-echo-reply"] }
 esp-rtos               = { version = "0.2.0", features = ["defmt", "embassy", "esp32s3", "esp-alloc", "esp-radio"] }
-esp-radio              = { version = "0.17.0", features = ["ble", "coex", "wifi", "defmt", "esp32s3", "smoltcp", "unstable", "esp-alloc"] }
-picoserve              = { version = "0.16.0", features = ["embassy"] }
+esp-radio              = { version = "0.17.0", features = ["ble", "coex", "wifi", "defmt", "esp32s3", "unstable", "esp-alloc"] }
+picoserve              = { git = "https://github.com/sammhicks/picoserve", rev = "815ca5b", features = ["embassy", "json"] }
 heapless               = { version = "0.8.0", default-features = false, features = ["serde"] }
 embedded-storage       = "0.3.1"
 async-modbus           = { version = "0.7.0", default-features = false, features = ["embedded-io"] }
 ds323x                 = { version = "0.7.0", features = ["defmt"] }
 scd4x                  = { version = "0.5.0", default-features = false, features = ["embedded-hal-async"] }
 scd30-interface        = { version = "2.0.0", default-features = false, features = ["async", "defmt"] }
+sntpc                  = { version = "0.8", default-features = false }
 libm                   = "0.2.16"
 serde                  = { version = "1", default-features = false, features = ["derive"] }
+statig                 = { version = "0.4.1", default-features = false, features = ["macro"] }
 
-smoltcp                = { version = "0.12.0", default-features = false, features = [
+# Not imported directly — enables features for embassy-net's transitive smoltcp dep.
+smoltcp                = { version = "0.13.0", default-features = false, features = [
   "defmt",
   "multicast",
   "proto-dns",
@@ -274,7 +285,7 @@ embedded-hal-async          = "1.0.0"
 panic-probe                 = { version = "1.0",   features = ["print-defmt"] }
 cortex-m                    = { version = "0.7.7", features = ["critical-section-single-core"] }
 embassy-time                = { workspace = true,  features = ["defmt", "defmt-timestamp-uptime"] }
-embassy-executor            = { workspace = true,  features = ["arch-cortex-m", "executor-thread", "defmt", "executor-interrupt"] }
+embassy-executor            = { workspace = true,  features = ["platform-cortex-m", "executor-thread", "defmt", "executor-interrupt"] }
 embassy-stm32               = { version = "0.4",   features = ["defmt", "stm32h723zg", "unstable-pac", "memory-x", "time-driver-any"] }
 
 # [profile.dev]
