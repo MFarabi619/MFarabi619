@@ -1,6 +1,5 @@
 #![no_std]
 #![no_main]
-#![feature(impl_trait_in_assoc_type)]
 
 extern crate alloc;
 
@@ -8,13 +7,10 @@ use defmt::info;
 use embassy_executor::Spawner;
 use embassy_net::{Runner, StackResources};
 use embassy_time::{Duration, Timer, with_timeout};
-use esp_hal::{clock::CpuClock, rng::Rng, timer::timg::TimerGroup};
+use esp_hal::{clock::CpuClock, delay::Delay, rng::Rng, timer::timg::TimerGroup};
 use esp_radio::wifi::{ClientConfig, ModeConfig, WifiController, WifiDevice, WifiEvent};
 use panic_rtt_target as _;
-use picoserve::AppBuilder;
 use static_cell::StaticCell;
-
-use firmware::services::http::{HttpAppProps, HTTP_SERVER_PORT};
 
 const WIFI_SSID: &str = env!("NETWORK_WIFI_SSID");
 const WIFI_PASSWORD: &str = env!("NETWORK_WIFI_PSK");
@@ -67,6 +63,16 @@ async fn main(spawner: Spawner) -> ! {
     let timg0 = TimerGroup::new(peripherals.TIMG0);
     esp_rtos::start(timg0.timer0);
 
+    // SD card
+    Delay::new().delay_millis(500);
+    firmware::filesystems::sd::initialize(
+        peripherals.SPI2,
+        peripherals.GPIO10,
+        peripherals.GPIO11,
+        peripherals.GPIO12,
+        peripherals.GPIO13,
+    );
+
     let radio = mk_static!(
         esp_radio::Controller<'static>,
         esp_radio::init().unwrap()
@@ -87,7 +93,7 @@ async fn main(spawner: Spawner) -> ! {
     let (stack, runner) = embassy_net::new(
         interfaces.sta,
         embassy_net::Config::dhcpv4(Default::default()),
-        mk_static!(StackResources<3>, StackResources::<3>::new()),
+        mk_static!(StackResources<5>, StackResources::<5>::new()),
         random_seed(&mut rng),
     );
 
@@ -100,17 +106,10 @@ async fn main(spawner: Spawner) -> ! {
 
     info!("DHCP: {}", stack.config_v4().unwrap().address);
 
-    // Reuse the HTTP server from the lib
-    let app = mk_static!(
-        picoserve::AppRouter<HttpAppProps>,
-        HttpAppProps { stack }.build_app()
-    );
-
+    // All shell logic lives in the lib — just spawn it
     spawner
-        .spawn(firmware::services::http::task(0, stack, app))
+        .spawn(firmware::programs::shell::task(stack))
         .unwrap();
-
-    info!("HTTP server on port {}", HTTP_SERVER_PORT);
 
     loop {
         Timer::after(Duration::from_secs(60)).await;
