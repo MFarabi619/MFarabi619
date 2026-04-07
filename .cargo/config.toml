@@ -6,6 +6,7 @@ NETWORK_WIFI_SSID = ""
 NETWORK_WIFI_PSK  = ""
 OTA_DEVICE_IP     = "10.0.0.95"
 DEFMT_LOG         = "info,embedded_test=warn"
+DEFMT_LOG = "info,embedded_test=warn"
 SHELL_USER = { value = "", force = false }
 SHELL_PASSWORD = { value = "", force = false }
 # ======================================= #
