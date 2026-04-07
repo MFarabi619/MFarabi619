@@ -72,34 +72,41 @@
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             (" tui :󰐊 run"                       :command "cargo r -rp tui"                               :prodigy t                           :annotation "     cargo ")
-            (" tui :󰐊 run:simulate 󰇉"           :command "cargo r -rp tui --bin simulator"               :prodigy t                           :annotation "     cargo ")
-            (" tui :󰐊 run:simulate(min) 󰍹"      :command "cargo r -rp tui --bin simulator-minimal"       :prodigy t                           :annotation "     cargo ")
+            (" tui :󰍹 run:simulate"              :command "cargo r -rp tui --bin simulator"               :prodigy t                           :annotation "     cargo ")
+            (" tui :󰇉 run:simulate(min) "        :command "cargo r -rp tui --bin simulator-minimal"       :prodigy t                           :annotation "     cargo ")
             (" tui :󰳽 serve"                     :command "trunk serve"                                   :prodigy t :port 8080                :annotation "     cargo ")
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
-            (" ESP32 :󰐊 run"                     :command "cargo +esp r -rp firmware -F esp32s3                     --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32-none-elf"   :annotation "cargo +esp ")
+            (" ESP32 :󰐊 run"                     :command "cargo +esp r -rp firmware -F esp32s3              --target xtensa-esp32-none-elf"   :annotation "cargo +esp ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
+
+            (" ESP32S3 :󰐊 build"                 :command "cargo +esp b -rp firmware -F esp32s3 --target xtensa-esp32s3-none-elf"              :annotation "cargo +esp ")
+            (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
+
+            (" ESP32S3 :󰔰 flash"                 :command "espflash partition-table boards/esp32s3.partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table boards/esp32s3.partitions.csv -- -rp firmware --bin microvisor --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'" :annotation "cargo +esp ")
             (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
-             (" ESP32S3 :󰐊 run"                   :command "probe-rs run --preset esp32s3 --idf-partition-table boards/esp32s3.partitions.csv target/xtensa-esp32s3-none-elf/release/esp32s3"           :annotation "cargo +esp ")
-            (" ESP32S3 :󰔰 flash"                 :command "espflash partition-table boards/esp32s3.partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table boards/esp32s3.partitions.csv -- -rp firmware --bin esp32s3 --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'"       :annotation "cargo +esp ")
-            (" ESP32S3 : debug"                 :command "cargo +esp r -p  firmware                                 --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-             (" ESP32S3 :󰭎 monitor"               :command "probe-rs run --preset esp32s3 --idf-partition-table boards/esp32s3.partitions.csv target/xtensa-esp32s3-none-elf/release/esp32s3" :prodigy t :annotation "cargo +esp ")
-            (" ESP32S3 :󱈝 partition"             :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                                                                                  :annotation "cargo +esp ")
-            (" ESP32S3 : test:I2C"              :command "cargo +esp t -p  firmware -F esp32s3 --test i2c           --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 : test:DS3231"           :command "cargo +esp t -p  firmware -F esp32s3 --test ds3231        --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰜤 test:SCD30"            :command "cargo +esp t -p  firmware -F esp32s3 --test scd30         --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰟤 test:SCD4x"            :command "cargo +esp t -p  firmware -F esp32s3 --test scd4x         --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󱤭 test:OTA"              :command "cargo +esp t -p  firmware -F esp32s3 --test ota_probe     --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 : test:filesystem"       :command "cargo +esp t -p  firmware -F esp32s3 --test filesystem    --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 : test:ntc_formula"      :command "cargo +esp t -p  firmware -F esp32s3 --test ntc_formula   --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
-            (" ESP32S3 :󰒲 example:deep_sleep"    :command "cargo +esp r -p  firmware -F esp32s3 --example deep_sleep --config 'unstable.build-std=[\"core\",\"alloc\"]' --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : debug"                 :command "cargo +esp r -p firmware --target xtensa-esp32s3-none-elf"                          :annotation "cargo +esp ")
+            (" ESP32S3 :󰭎 monitor"               :command "probe-rs run --idf-partition-table boards/esp32s3.partitions.csv target/xtensa-esp32s3-none-elf/release/microvisor" :prodigy nil :annotation "cargo +esp ")
+
+            (" ESP32S3 :󰹤 test:OTA"              :command "cargo +esp t -p firmware -F esp32s3 --test ota_probe     --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : test:I2C"              :command "cargo +esp t -p firmware -F esp32s3 --test i2c           --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󰒪 test:SNTP"             :command "cargo +esp t -p firmware -F esp32s3 --test sntp          --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󰜤 test:SCD30"            :command "cargo +esp t -p firmware -F esp32s3 --test scd30         --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󰟤 test:SCD4x"            :command "cargo +esp t -p firmware -F esp32s3 --test scd4x         --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : test:DS3231"           :command "cargo +esp t -p firmware -F esp32s3 --test ds3231        --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : test:filesystem"       :command "cargo +esp t -p firmware -F esp32s3 --test filesystem    --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : test:ntc_formula"      :command "cargo +esp t -p firmware -F esp32s3 --test ntc_formula   --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 : e2e:microvisor"        :command "cargo +esp t -p firmware -F esp32s3 --test microvisor    --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󱡬 example:gpio"          :command "cargo +esp r -p firmware -F esp32s3 --example gpio       --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󰒲 example:deep_sleep"    :command "cargo +esp r -p firmware -F esp32s3 --example deep_sleep --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
+            (" ESP32S3 :󰒲 example:defmt-tcp"     :command "cargo +esp r -p firmware -F esp32s3 --example defmt-tcp  --target xtensa-esp32s3-none-elf" :annotation "cargo +esp ")
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
-            ("󰚗 STM32H723ZG 󰚗:󰐊 run"               :command "cargo      r -rp firmware            --bin stm32h723zg                                                       --target thumbv7em-none-eabihf"   :annotation "     cargo ")
-            ("󰚗 STM32H723ZG 󰚗: debug"             :command "cargo      r -p  firmware            --bin stm32h723zg                                                       --target thumbv7em-none-eabihf"   :annotation "     cargo "))))
+            ("󰚗 STM32H723ZG 󰚗:󰔰 flash"             :command "cargo      r -rp firmware            --bin stm32h723zg   --target thumbv7em-none-eabihf"   :annotation "     cargo ")
+            ("󰚗 STM32H723ZG 󰚗: debug"             :command "cargo      r -p  firmware            --bin stm32h723zg   --target thumbv7em-none-eabihf"   :annotation "     cargo "))))
        ;; ===========================================|=======|============================================================================================================== ;;
        (eval . (progn
                  (require 'seq) (require 'cl-lib) (require 'subr-x) (require 'prodigy) (require 'compile-multi) (require 'nerd-icons nil t)
@@ -124,12 +131,9 @@
                       (let* ((title (car task))
                              (plist (cdr task))
                              (plain-title (substring-no-properties title))
-                             (service (and (plist-get plist :prodigy)
-                                           (prodigy-find-service plain-title))))
+                             (service (and (plist-get plist :prodigy) (prodigy-find-service plain-title))))
                         (if (and service (prodigy-service-started-p service))
-                            (let ((title* (copy-sequence title)))
-                              (add-face-text-property 0 (length title*) 'prodigy-green-face t title*)
-                              (cons title* plist))
+                            (let ((title* (copy-sequence title))) (add-face-text-property 0 (length title*) 'prodigy-green-face t title*) (cons title* plist))
                           task)))
                     (funcall original-function tasks)))
 

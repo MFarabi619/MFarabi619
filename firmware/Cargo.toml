@@ -2,7 +2,7 @@
 rust-version = "1.88"
 edition      = "2024"
 version      = "0.1.0"
-default-run  = "esp32s3"
+default-run  = "microvisor"
 name         = "firmware"
 authors      = ["Mumtahin Farabi"]
 
@@ -11,11 +11,10 @@ esp32 = []
 esp32s3 = []
 stm32h723zg = []
 
-# cargo +esp esp32s3
 [[bin]]
 test         = false
-name         = "esp32s3"
-path         = "src/bin/esp32s3.rs"
+name         = "microvisor"
+path         = "src/bin/microvisor.rs"
 required-features = [ "esp32s3" ]
 
 [[bin]]
