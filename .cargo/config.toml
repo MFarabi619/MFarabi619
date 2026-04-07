@@ -1,4 +1,8 @@
 [alias]
+rr = ["run", "--target", "xtensa-esp32s3-none-elf"]
+tt = ["test", "--target", "xtensa-esp32s3-none-elf"]
+bb = ["build", "--target", "xtensa-esp32s3-none-elf"]
+
 loco = ["run", "-p", "microvisor", "--"]
 playground = ["run", "--example", "playground"]
 
@@ -9,6 +13,7 @@ build-std = ["core", "alloc"]
 OTA_DEVICE_IP = "10.0.0.68"
 ESP_HAL_CONFIG_PSRAM_MODE = "octal"
 DEFMT_LOG = "info,embedded_test=warn"
+# IDF_PARTITION_TABLE = ""
 
 [target.xtensa-esp32s3-none-elf]
 runner = "probe-rs run"
