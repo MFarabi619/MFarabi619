@@ -12,6 +12,7 @@
       # duckdb
       supabase-cli
 
+      libyaml
       trunk # rust web app server
     ]
     ++ lib.optionals config.services.postgres.enable [
