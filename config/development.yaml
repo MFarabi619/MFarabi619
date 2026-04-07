@@ -55,3 +55,8 @@ server:
 
 workers:
   mode: BackgroundAsync
+
+settings:
+  firmware:
+    chip: esp32s3
+    ipv4_address: 10.0.0.68
