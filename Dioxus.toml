@@ -1,0 +1,14 @@
+[web.app]
+title = "🕹 Microvisor Systems 🕹"
+
+[application]
+tailwind_input = "tailwind.css"
+tailwind_output = "assets/tailwind.css"
+
+[bundle]
+category = "Utility"
+publisher = "Mumtahin Farabi"
+icon = ["assets/symbolmark.png"]
+identifier = "com.microvisorsystems"
+copyright = "2026 Microvisor Systems"
+short_description = "General web client."

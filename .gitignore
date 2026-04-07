@@ -1,6 +1,7 @@
 #====================================================
 #              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
+# .dir-locals.el
 **/.pio/
 **/debug/
 **/result
@@ -61,7 +62,6 @@ local.properties
 /.pnp
 .pnp.js
 
-Dioxus.toml
 opencode.json
 /.codex/config.toml
 /platformio.ini
