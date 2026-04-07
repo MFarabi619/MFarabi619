@@ -41,7 +41,6 @@ pub const NETWORKING: NetworkingConfig = NetworkingConfig {
     fallback_to_access_point: crate::config::wifi::FALLBACK_TO_AP,
 };
 
-#[cfg(feature = "esp32s3")]
 pub fn build_sta_config(credentials: &crate::config::runtime::WifiCredentials) -> esp_radio::wifi::Config {
     esp_radio::wifi::Config::Station(
         esp_radio::wifi::sta::StationConfig::default()

@@ -75,6 +75,7 @@ type SdChipSelectOutput = Output<'static>;
 type SdSpiDevice = embedded_hal_bus::spi::ExclusiveDevice<SdSpiBus, SdChipSelectOutput, Delay>;
 type SdCardDevice = SdCard<SdSpiDevice, Delay>;
 type SdVm = VolumeManager<SdCardDevice, SntpTimeSource>;
+type SdDir<'a> = embedded_sdmmc::Directory<'a, SdCardDevice, SntpTimeSource, 4, 4, 1>;
 
 struct SdStorageCell(
     embassy_sync::blocking_mutex::Mutex<NoopRawMutex, core::cell::RefCell<Option<SdVm>>>,
@@ -170,29 +171,45 @@ pub fn initialize(
     size_mb
 }
 
-/// Run an operation with the SD card volume manager. RAII wrappers auto-close on drop.
+// ─── Internal helpers ──────────────────────────────────────────────────────────
+
+/// Run an operation with the SD card volume manager.
 fn with_sd<T>(
     operation: impl FnOnce(&SdVm) -> Result<T, SdError>,
 ) -> Result<T, SdError> {
     SD_STORAGE.0.lock(|cell| {
         let borrow = cell.borrow();
-        let vm = borrow.as_ref().ok_or(SdError::NotInitialized)?;
-        operation(vm)
+        let volume_manager = borrow.as_ref().ok_or(SdError::NotInitialized)?;
+        operation(volume_manager)
     })
 }
 
-/// Navigate a directory handle to a path. Uses `change_dir` to mutate in place.
-fn navigate_dir<'a, const MD: usize, const MF: usize, const MV: usize>(
-    dir: &mut embedded_sdmmc::Directory<'a, SdCardDevice, SntpTimeSource, MD, MF, MV>,
-    path: &str,
-) -> Result<(), SdError> {
-    for segment in path.split('/').filter(|s| !s.is_empty() && *s != ".") {
-        if segment == ".." {
-            dir.change_dir("..").map_err(|_| SdError::NavigationFailed)?;
-        } else {
-            dir.change_dir(segment)
-                .map_err(|_| SdError::NavigationFailed)?;
+/// Open volume 0, open root dir, navigate to `dir_path` (if non-empty),
+/// then hand the positioned directory handle to `operation`.
+fn with_dir_at<T>(
+    dir_path: &str,
+    operation: impl FnOnce(&SdDir<'_>) -> Result<T, SdError>,
+) -> Result<T, SdError> {
+    with_sd(|volume_manager| {
+        let volume = volume_manager
+            .open_volume(VolumeIdx(0))
+            .map_err(|_| SdError::VolumeFailed)?;
+        let mut directory = volume
+            .open_root_dir()
+            .map_err(|_| SdError::RootDirFailed)?;
+        if !dir_path.is_empty() {
+            navigate_to(&mut directory, dir_path)?;
         }
+        operation(&directory)
+    })
+}
+
+/// Navigate a directory handle to a path by walking each segment.
+fn navigate_to(directory: &mut SdDir<'_>, path: &str) -> Result<(), SdError> {
+    for segment in path.split('/').filter(|s| !s.is_empty() && *s != ".") {
+        directory
+            .change_dir(segment)
+            .map_err(|_| SdError::NavigationFailed)?;
     }
     Ok(())
 }
@@ -200,9 +217,7 @@ fn navigate_dir<'a, const MD: usize, const MF: usize, const MV: usize>(
 // ─── Public API ────────────────────────────────────────────────────────────────
 
 pub fn ensure_data_csv_exists() -> Result<(), SdError> {
-    with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
+    with_dir_at("", |root| {
         if root.directory_entry_exists(sd_card::DATA_CSV_FILE_NAME) {
             return Ok(());
         }
@@ -219,64 +234,52 @@ pub fn ensure_data_csv_exists() -> Result<(), SdError> {
 }
 
 pub fn append_data_csv_line(line: &str) -> Result<(), SdError> {
-    with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
+    with_dir_at("", |root| {
         let file = root
             .open_file_in_dir(sd_card::DATA_CSV_FILE_NAME, Mode::ReadWriteCreateOrAppend)
             .map_err(|_| SdError::FileNotFound)?;
-        file.write(line.as_bytes()).map_err(|_| SdError::WriteFailed)?;
+        file.write(line.as_bytes())
+            .map_err(|_| SdError::WriteFailed)?;
         file.flush().map_err(|_| SdError::FlushFailed)?;
         Ok(())
     })
 }
 
-/// Check if a directory path exists on the SD card.
 pub fn directory_exists(path: &str) -> bool {
-    with_sd(|volume_manager| {
-        let volume = volume_manager.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !path.is_empty() {
-            navigate_dir(&mut root, path)?;
-        }
-        Ok(())
-    })
-    .is_ok()
+    with_dir_at(path, |_directory| Ok(())).is_ok()
 }
 
-pub fn list_filesystem_entries() -> Result<HeaplessVec<FilesystemEntryPayload, MAX_FS_ENTRIES>, SdError> {
+pub fn list_filesystem_entries()
+    -> Result<HeaplessVec<FilesystemEntryPayload, MAX_FS_ENTRIES>, SdError>
+{
     list_directory_at("")
 }
 
 pub fn list_directory_at(
     path: &str,
 ) -> Result<HeaplessVec<FilesystemEntryPayload, MAX_FS_ENTRIES>, SdError> {
-    with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !path.is_empty() {
-            navigate_dir(&mut root, path)?;
-        }
+    with_dir_at(path, |directory| {
         let mut entries = HeaplessVec::<FilesystemEntryPayload, 64>::new();
-        root.iterate_dir(|entry| {
-            let mut name = HeaplessString::<32>::new();
-            if write!(name, "{}", entry.name).is_err() {
-                return core::ops::ControlFlow::Continue(());
-            }
-            if name == "." || name == ".." {
-                return core::ops::ControlFlow::Continue(());
-            }
-            let is_directory = entry.attributes.is_directory();
-            let size = if is_directory { 0 } else { entry.size };
-            let _ = entries.push(FilesystemEntryPayload {
-                name,
-                size,
-                last_write_unix: 0,
-                is_directory,
-            });
-            core::ops::ControlFlow::Continue(())
-        })
-        .map_err(|_| SdError::ReadFailed)?;
+        directory
+            .iterate_dir(|entry| {
+                let mut name = HeaplessString::<32>::new();
+                if write!(name, "{}", entry.name).is_err() {
+                    return core::ops::ControlFlow::Continue(());
+                }
+                if name == "." || name == ".." {
+                    return core::ops::ControlFlow::Continue(());
+                }
+                let is_directory = entry.attributes.is_directory();
+                let size = if is_directory { 0 } else { entry.size };
+                let _ = entries.push(FilesystemEntryPayload {
+                    name,
+                    size,
+                    last_write_unix: 0,
+                    is_directory,
+                });
+                core::ops::ControlFlow::Continue(())
+            })
+            .map_err(|_| SdError::ReadFailed)?;
         Ok(entries)
     })
 }
@@ -292,24 +295,21 @@ pub fn read_file_at<const BUF: usize>(
     dir_path: &str,
     file_name: &str,
 ) -> Result<HeaplessVec<u8, BUF>, SdError> {
-        with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !dir_path.is_empty() {
-            navigate_dir(&mut root, dir_path)?;
-        }
-        let file = root
+    with_dir_at(dir_path, |directory| {
+        let file = directory
             .open_file_in_dir(file_name, Mode::ReadOnly)
             .map_err(|_| SdError::FileNotFound)?;
         let mut contents = HeaplessVec::<u8, BUF>::new();
-        let mut buf = [0u8; 256];
+        let mut read_buffer = [0u8; 256];
         while !file.is_eof() {
-            let n = file.read(&mut buf).map_err(|_| SdError::ReadFailed)?;
-            if n == 0 {
+            let bytes_read = file
+                .read(&mut read_buffer)
+                .map_err(|_| SdError::ReadFailed)?;
+            if bytes_read == 0 {
                 break;
             }
-            for &b in &buf[..n] {
-                let _ = contents.push(b);
+            for &byte in &read_buffer[..bytes_read] {
+                let _ = contents.push(byte);
             }
         }
         Ok(contents)
@@ -323,41 +323,27 @@ pub fn read_file_contents<const BUF: usize>(
 }
 
 pub fn delete_at(dir_path: &str, name: &str) -> Result<(), SdError> {
-        with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !dir_path.is_empty() {
-            navigate_dir(&mut root, dir_path)?;
-        }
-        root.delete_entry_in_dir(name)
+    with_dir_at(dir_path, |directory| {
+        directory
+            .delete_entry_in_dir(name)
             .map_err(|_| SdError::DeleteFailed)
     })
 }
 
 pub fn mkdir_at(dir_path: &str, name: &str) -> Result<(), SdError> {
-        with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !dir_path.is_empty() {
-            navigate_dir(&mut root, dir_path)?;
-        }
-        root.make_dir_in_dir(name)
+    with_dir_at(dir_path, |directory| {
+        directory
+            .make_dir_in_dir(name)
             .map_err(|_| SdError::DirectoryFailed)?;
         Ok(())
     })
 }
 
 pub fn touch_at(dir_path: &str, name: &str) -> Result<(), SdError> {
-        with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !dir_path.is_empty() {
-            navigate_dir(&mut root, dir_path)?;
-        }
-        let _file = root
+    with_dir_at(dir_path, |directory| {
+        let _file = directory
             .open_file_in_dir(name, Mode::ReadWriteCreateOrTruncate)
             .map_err(|_| SdError::CreateFailed)?;
-        // file auto-closes on drop
         Ok(())
     })
 }
@@ -367,13 +353,8 @@ pub fn file_size(file_name: &str) -> Result<u32, SdError> {
 }
 
 pub fn file_size_at(dir_path: &str, file_name: &str) -> Result<u32, SdError> {
-        with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !dir_path.is_empty() {
-            navigate_dir(&mut root, dir_path)?;
-        }
-        let entry = root
+    with_dir_at(dir_path, |directory| {
+        let entry = directory
             .find_directory_entry(file_name)
             .map_err(|_| SdError::FileNotFound)?;
         Ok(entry.size)
@@ -386,16 +367,12 @@ pub fn read_file_chunk_at(
     offset: u32,
     buf: &mut [u8],
 ) -> Result<usize, SdError> {
-        with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !dir_path.is_empty() {
-            navigate_dir(&mut root, dir_path)?;
-        }
-        let file = root
+    with_dir_at(dir_path, |directory| {
+        let file = directory
             .open_file_in_dir(file_name, Mode::ReadOnly)
             .map_err(|_| SdError::FileNotFound)?;
-        file.seek_from_start(offset).map_err(|_| SdError::SeekFailed)?;
+        file.seek_from_start(offset)
+            .map_err(|_| SdError::SeekFailed)?;
         file.read(buf).map_err(|_| SdError::ReadFailed)
     })
 }
@@ -405,13 +382,8 @@ pub fn read_file_chunk(file_name: &str, offset: u32, buf: &mut [u8]) -> Result<u
 }
 
 pub fn write_file_at(dir_path: &str, file_name: &str, data: &[u8]) -> Result<(), SdError> {
-        with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let mut root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        if !dir_path.is_empty() {
-            navigate_dir(&mut root, dir_path)?;
-        }
-        let file = root
+    with_dir_at(dir_path, |directory| {
+        let file = directory
             .open_file_in_dir(file_name, Mode::ReadWriteCreateOrTruncate)
             .map_err(|_| SdError::FileNotFound)?;
         file.write(data).map_err(|_| SdError::WriteFailed)?;
@@ -426,14 +398,13 @@ pub fn write_file_chunk(file_name: &str, offset: u32, data: &[u8]) -> Result<(),
     } else {
         Mode::ReadWriteCreateOrAppend
     };
-    with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        let file = root
+    with_dir_at("", |directory| {
+        let file = directory
             .open_file_in_dir(file_name, mode)
             .map_err(|_| SdError::FileNotFound)?;
         if offset > 0 {
-            file.seek_from_start(offset).map_err(|_| SdError::SeekFailed)?;
+            file.seek_from_start(offset)
+                .map_err(|_| SdError::SeekFailed)?;
         }
         file.write(data).map_err(|_| SdError::WriteFailed)?;
         file.flush().map_err(|_| SdError::FlushFailed)?;
@@ -442,10 +413,8 @@ pub fn write_file_chunk(file_name: &str, offset: u32, data: &[u8]) -> Result<(),
 }
 
 pub fn write_file_all(file_name: &str, chunks: &[&[u8]]) -> Result<u32, SdError> {
-    with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        let file = root
+    with_dir_at("", |directory| {
+        let file = directory
             .open_file_in_dir(file_name, Mode::ReadWriteCreateOrTruncate)
             .map_err(|_| SdError::FileNotFound)?;
         let mut total = 0u32;
@@ -463,38 +432,36 @@ pub fn overwrite_file_contents(file_name: &str, contents: &[u8]) -> Result<(), S
 }
 
 pub fn create_directory(name: &str) -> Result<(), SdError> {
-    with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        root.make_dir_in_dir(name)
+    with_dir_at("", |directory| {
+        directory
+            .make_dir_in_dir(name)
             .map_err(|_| SdError::DirectoryFailed)?;
         Ok(())
     })
 }
 
 pub fn delete_file(name: &str) -> Result<(), SdError> {
-    with_sd(|vm| {
-        let volume = vm.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        root.delete_entry_in_dir(name)
+    with_dir_at("", |directory| {
+        directory
+            .delete_entry_in_dir(name)
             .map_err(|_| SdError::DeleteFailed)
     })
 }
 
 pub fn copy_file(source: &str, destination: &str) -> Result<u32, SdError> {
-    with_sd(|volume_manager| {
-        let volume = volume_manager.open_volume(VolumeIdx(0)).map_err(|_| SdError::VolumeFailed)?;
-        let root = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
-        let source_file = root
+    with_dir_at("", |directory| {
+        let source_file = directory
             .open_file_in_dir(source, Mode::ReadOnly)
             .map_err(|_| SdError::FileNotFound)?;
-        let destination_file = root
+        let destination_file = directory
             .open_file_in_dir(destination, Mode::ReadWriteCreateOrTruncate)
             .map_err(|_| SdError::CreateFailed)?;
         let mut buffer = [0u8; 4096];
         let mut total = 0u32;
         while !source_file.is_eof() {
-            let bytes_read = source_file.read(&mut buffer).map_err(|_| SdError::ReadFailed)?;
+            let bytes_read = source_file
+                .read(&mut buffer)
+                .map_err(|_| SdError::ReadFailed)?;
             if bytes_read == 0 {
                 break;
             }
@@ -503,7 +470,9 @@ pub fn copy_file(source: &str, destination: &str) -> Result<u32, SdError> {
                 .map_err(|_| SdError::WriteFailed)?;
             total += bytes_read as u32;
         }
-        destination_file.flush().map_err(|_| SdError::FlushFailed)?;
+        destination_file
+            .flush()
+            .map_err(|_| SdError::FlushFailed)?;
         Ok(total)
     })
 }

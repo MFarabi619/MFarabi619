@@ -46,6 +46,12 @@ pub const CLOUD_EVENT_TYPE: &str = "com.apidae.system.device.status.v1";
 
 pub const NTP_SERVER: &str = "pool.ntp.org";
 
+pub mod sntp {
+    pub const MAX_ATTEMPTS: usize = 3;
+    pub const RETRY_INTERVAL_SECS: u64 = 60;
+    pub const ATTEMPT_INTERVAL_SECS: u64 = 5;
+}
+
 pub mod time {
     /// IANA timezone name and UTC offset. Keep these in sync.
     pub const ZONE: &str = "America/Toronto";
@@ -125,6 +131,13 @@ pub mod data_logger {
     pub const SAMPLING_INTERVAL_SECS: u64 = 5;
     pub const POLL_RETRIES: usize = 40;
     pub const POLL_INTERVAL_MS: u64 = 250;
+}
+
+pub mod carbon_dioxide {
+    pub const SCD4X_POLL_RETRIES: usize = 20;
+    pub const SCD4X_POLL_INTERVAL_MS: u64 = 500;
+    pub const PROBE_RETRY_SECS: u64 = 5;
+    pub const MAX_CONSECUTIVE_FAILURES: usize = 5;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -431,6 +444,18 @@ pub mod topology {
         pub fn first_enabled_sensor_of_kind(&self, kind: SensorKind) -> Option<&SensorConfig> {
             self.enabled_sensors_of_kind(kind).next()
         }
+
+        /// Find the first sensor of a specific kind, regardless of whether
+        /// it is currently enabled. Use this when you need the sensor's
+        /// declared address or bus label (e.g. in tests that probe the
+        /// physical device) without requiring the production sensor task
+        /// to be spawned at boot.
+        pub fn find_sensor_of_kind(&self, kind: SensorKind) -> Option<&SensorConfig> {
+            self.sensors.iter().find(move |sensor_configuration| {
+                core::mem::discriminant(&sensor_configuration.kind)
+                    == core::mem::discriminant(&kind)
+            })
+        }
     }
 
     /// Hardware topology for the current ESP32-S3 board.
@@ -487,6 +512,33 @@ pub mod topology {
                 mux_channel: None,
                 is_enabled: true,
                 metric_names: &["co2", "temperature", "humidity"],
+            },
+            // Declared for test discovery only — `is_enabled: false` keeps
+            // the production sensor loop from touching them until the
+            // I2C scanner confirms their physical wiring. Flip to `true`
+            // (and correct `bus_label` if needed) once the board wiring
+            // is final.
+            SensorConfig {
+                name: "scd4x_0",
+                kind: SensorKind::Scd4x,
+                model: "SCD4x",
+                bus_label: "i2c.1",
+                i2c_address: Some(0x62),
+                modbus_slave_id: None,
+                mux_channel: None,
+                is_enabled: false,
+                metric_names: &["co2", "temperature", "humidity"],
+            },
+            SensorConfig {
+                name: "ds3231_0",
+                kind: SensorKind::Ds3231,
+                model: "DS3231",
+                bus_label: "i2c.1",
+                i2c_address: Some(0x68),
+                modbus_slave_id: None,
+                mux_channel: None,
+                is_enabled: false,
+                metric_names: &[],
             },
         ],
     };

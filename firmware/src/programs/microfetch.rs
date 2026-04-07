@@ -15,6 +15,14 @@ unsafe extern "C" {
     static ESP_APP_DESC: esp_bootloader_esp_idf::EspAppDesc;
 }
 
+// TODO(perf): The 30+ row!() invocations below are repetitive but each
+// has different format arguments, so a data-driven array of tuples would
+// require pre-formatting each value into an AllocString (one heap
+// allocation per row). On PSRAM that's tolerable but wasteful. The
+// current approach writes directly to a single output buffer with zero
+// intermediate allocations. Refactor only if readability becomes a
+// maintenance burden — the format arguments are type-checked at compile
+// time, which a data-driven approach would lose.
 macro_rules! row {
     ($out:expr, $color:expr, $icon:expr, $label:expr, $($val:tt)*) => {{
         let _ = write!($out, "  \x1b[1;{}m{} {:<14}\x1b[0m ", $color, $icon, $label);

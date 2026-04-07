@@ -39,7 +39,6 @@ const L2CAP_CHANNELS_MAX: usize = config::ble::L2CAP_CHANNELS_MAX;
 
 use firmware::{
     config::{self, runtime::WifiCredentials, topology::{CURRENT_TOPOLOGY, SensorKind}},
-    console,
     filesystems::sd,
     state::{self, AppState},
     networking, programs, services,
@@ -324,7 +323,6 @@ async fn main(spawner: Spawner) -> ! {
         spawner.spawn(http::task(task_id, stack, app).unwrap());
     }
     spawner.spawn(services::ota::task(stack).unwrap());
-    spawner.spawn(console::log::task(stack).unwrap());
     spawner.spawn(programs::shell::task(stack).unwrap());
 
     info!("HTTP server listening on port {}", HTTP_SERVER_PORT);
