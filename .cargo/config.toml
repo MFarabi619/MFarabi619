@@ -10,6 +10,7 @@ DEFMT_LOG = "info,embedded_test=warn"
 ESP_HAL_CONFIG_PSRAM_MODE = "octal"
 SHELL_USER = { value = "", force = false }
 SHELL_PASSWORD = { value = "", force = false }
+HOSTNAME = { value = "", force = false }
 # ======================================= #
 # ======================================= #
 # ======================================= #
