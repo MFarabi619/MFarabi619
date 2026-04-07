@@ -15,8 +15,8 @@ HOSTNAME = { value = "", force = false }
 # ======================================= #
 # ======================================= #
 [alias]
-loco              = ["run", "--"]
-playground        = ["run", "--example", "playground"]
+loco = ["run", "--"]
+playground = ["run", "--example", "playground"]
 
 # ======================================== #
 # ======================================== #
@@ -29,9 +29,12 @@ runner = "espflash flash --monitor --chip esp32"
 
 [target.xtensa-esp32s3-none-elf]
 runner = [
-    "probe-rs", "run",
-    "--chip", "esp32s3",
-    "--log-format", "{[{L:bold:green:4}]%bold} {ff:bold:magenta}:{l:bold:cyan} :: {s:bold:white}",
+    "probe-rs",
+    "run",
+    "--chip",
+    "esp32s3",
+    "--log-format",
+    "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}",
 ]
 
 
