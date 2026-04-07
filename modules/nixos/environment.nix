@@ -77,6 +77,7 @@
   }
   // lib.optionalAttrs pkgs.stdenv.isDarwin {
     enableAllTerminfo = true;
+    pathsToLink = [ "/Applications" ];
 
     systemPackages =
       with pkgs;
@@ -86,13 +87,7 @@
         coreutils-full
         kanata-with-cmd
       ]
-      ++ lib.optionals stdenv.isAarch64 [
-        macmon
-      ];
-
-    pathsToLink = [
-      "/Applications"
-    ];
+      ++ lib.optionals stdenv.isAarch64 [ macmon ];
 
     systemPath = [
       "/usr/local/bin"
