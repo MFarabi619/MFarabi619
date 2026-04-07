@@ -14,6 +14,7 @@
 
       libyaml
       trunk # rust web app server
+      rustywind
     ]
     ++ lib.optionals config.services.postgres.enable [
       # postgresql_18 # for emacs to access `psql`
