@@ -498,8 +498,8 @@ pub mod topology {
                 bus_label: "i2c.0",
                 i2c_address: Some(0x44),
                 modbus_slave_id: None,
-                mux_channel: None, // I2C multiplexer disabled — direct connection
-                is_enabled: true,
+                mux_channel: None,
+                is_enabled: false,
                 metric_names: &["temperature", "humidity"],
             },
             SensorConfig {

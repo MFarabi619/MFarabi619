@@ -61,7 +61,8 @@ impl picoserve::AppBuilder for HttpAppProps {
             .route("/api/status", get(status_handler))
             .route(
                 parse_path_segment::<AllocString>(),
-                get_service(StaticFileService).post_service(FileUploadService),
+                get_service(StaticFileService)
+                    .post_service(FileUploadService),
             )
             .route("/", get_service(IndexService))
     }
@@ -90,6 +91,8 @@ async fn cloudevents_handler() -> impl IntoResponse {
             ok: co2.ok,
         },
     })
+    .into_response()
+    .with_header("Access-Control-Allow-Origin", "*")
 }
 
 async fn status_handler() -> impl IntoResponse {
@@ -118,6 +121,8 @@ async fn status_handler() -> impl IntoResponse {
             sd_card_mb: info.sd_card_size_mb,
         },
     })
+    .into_response()
+    .with_header("Access-Control-Allow-Origin", "*")
 }
 
 // ─── Content type detection ────────────────────────────────────────────────────
@@ -140,14 +145,6 @@ fn content_type_for(name: &str) -> &'static str {
 // Index — serves index.htm from SD card at /
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Web root directory — serves static files from `~/public`.
-fn web_root() -> AllocString {
-    let mut path = AllocString::from("/home/");
-    path.push_str(crate::config::SSH_USER);
-    path.push_str("/public");
-    path
-}
-
 struct IndexService;
 
 impl picoserve::routing::RequestHandlerService<()> for IndexService {
@@ -161,18 +158,16 @@ impl picoserve::routing::RequestHandlerService<()> for IndexService {
         request: picoserve::request::Request<'_, R>,
         response_writer: W,
     ) -> Result<picoserve::ResponseSent, W::Error> {
-        let root = web_root();
-        let size = match crate::filesystems::sd::file_size_at(&root, "index.htm") {
+        let size = match crate::filesystems::sd::file_size_at("", "index.htm") {
             Ok(s) => s,
             Err(_) => {
-                return (StatusCode::NOT_FOUND, "index.htm not found in ~/public\n")
+                return (StatusCode::NOT_FOUND, "index.htm not found on SD card\n")
                     .write_to(request.body_connection.finalize().await?, response_writer)
                     .await;
             }
         };
 
         picoserve::response::chunked::ChunkedResponse::new(SdCardChunks {
-            dir_path: root,
             file_name: AllocString::from("index.htm"),
             size,
             content_type: "text/html; charset=utf-8",
@@ -205,8 +200,7 @@ impl picoserve::routing::RequestHandlerService<(), (AllocString,)> for StaticFil
                 .await;
         }
 
-        let root = web_root();
-        let size = match crate::filesystems::sd::file_size_at(&root, &file_name) {
+        let size = match crate::filesystems::sd::file_size_at("", &file_name) {
             Ok(s) => s,
             Err(_) => {
                 return (StatusCode::NOT_FOUND, "not found\n")
@@ -218,7 +212,6 @@ impl picoserve::routing::RequestHandlerService<(), (AllocString,)> for StaticFil
         let mime = content_type_for(&file_name);
 
         picoserve::response::chunked::ChunkedResponse::new(SdCardChunks {
-            dir_path: root,
             file_name,
             size,
             content_type: mime,
@@ -229,7 +222,6 @@ impl picoserve::routing::RequestHandlerService<(), (AllocString,)> for StaticFil
 }
 
 struct SdCardChunks {
-    dir_path: AllocString,
     file_name: AllocString,
     size: u32,
     content_type: &'static str,
@@ -248,7 +240,7 @@ impl picoserve::response::chunked::Chunks for SdCardChunks {
         let mut buf = [0u8; CHUNK_SIZE];
 
         while offset < self.size {
-            let n = match crate::filesystems::sd::read_file_chunk_at(&self.dir_path, &self.file_name, offset, &mut buf) {
+            let n = match crate::filesystems::sd::read_file_chunk(&self.file_name, offset, &mut buf) {
                 Ok(n) if n > 0 => n,
                 _ => break,
             };

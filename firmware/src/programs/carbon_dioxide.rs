@@ -6,7 +6,6 @@ use scd4x::Scd4xAsync;
 
 use crate::config::{self, topology::{CURRENT_TOPOLOGY, SensorKind}};
 use crate::state::{Co2Reading, set_co2_reading};
-use crate::programs;
 
 pub type AsyncI2cBus = I2c<'static, esp_hal::Async>;
 pub type Scd30Sensor = Scd30<AsyncI2cBus>;
@@ -109,7 +108,7 @@ pub async fn probe_scd4x(i2c_bus: AsyncI2cBus) -> Result<Scd4xSensor, AsyncI2cBu
 pub async fn read_scd30(sensor: &mut Scd30Sensor) -> Result<Co2Reading, ()> {
     let mut data_ready = false;
 
-    for _attempt in 0..programs::PROGRAMS.data_logger.poll_retries {
+    for _attempt in 0..crate::config::data_logger::POLL_RETRIES {
         match sensor.is_data_ready().await {
             Ok(status) if status == DataStatus::Ready => {
                 data_ready = true;
@@ -121,7 +120,7 @@ pub async fn read_scd30(sensor: &mut Scd30Sensor) -> Result<Co2Reading, ()> {
                 return Err(());
             }
         }
-        Timer::after(Duration::from_millis(programs::PROGRAMS.data_logger.poll_interval_ms)).await;
+        Timer::after(Duration::from_millis(crate::config::data_logger::POLL_INTERVAL_MS)).await;
     }
 
     if !data_ready {
@@ -286,7 +285,7 @@ pub async fn sensor_loop(i2c_bus: AsyncI2cBus) -> ! {
         }
 
         Timer::after(Duration::from_secs(
-            programs::PROGRAMS.data_logger.sampling_interval_secs,
+            crate::config::data_logger::SAMPLING_INTERVAL_SECS,
         ))
         .await;
     }

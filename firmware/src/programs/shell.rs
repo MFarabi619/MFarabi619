@@ -376,18 +376,21 @@ pub fn build_prompt(cwd: &str) -> AllocString {
     );
     let _ = write!(right, "\x1b[2m{}\x1b[0m", prompt::FRAME_TOP_RIGHT);
 
-    // Fill line between left and right
-    // Left visible: "╭─"(2) + " icon "(3) + sep(1) + " glyph cwd "(2+1+display+1) + sep(1)
-    let left_vis = 2 + 3 + 1 + 2 + 1 + display.len();
-    // Right visible chars — Nerd Font icons count as 2 cells in kitty
-    let right_vis = (1 + 1 + context_str.len() + 1)       // sep + sp + context + sp
-        + (1 + 1)                                          // sep + sp
-        + (1 + ram_pct_str.len() + 1 + 1 + 1 + ram_str.len() + 1 + 1 + 1 + prompt::ARCH_LABEL.len() + 1 + 2 + 1) // pct subsep ram subsep arch icon sp
-        + (1 + 1 + time_str.len())            // sep + sp + time + sp + icon + sp
-        + 1; // frame ─╮
+    // Fill line between left and right.
+    // Nerd Font glyphs occupy 2 terminal cells each. The exact count
+    // depends on which terminal emulator is in use; this estimate is
+    // tuned for Kitty / WezTerm. Count 2 for every NF icon/separator.
+    let nf_icons_left = 3;  // OS_ICON, glyph, 1 separator
+    let nf_icons_right = 6; // 2 separators, RAM_ICON, ARCH_ICON, CLOCK_ICON, subsep
+    let left_vis = 2 + 1 + display.len() + nf_icons_left * 2 + 4; // frame + spaces + text + icons
+    let right_vis = context_str.len() + 2
+        + ram_pct_str.len() + 1 + ram_str.len() + 1 + prompt::ARCH_LABEL.len()
+        + time_str.len() + 2
+        + nf_icons_right * 2
+        + 8; // spaces + frame
     let fill = (terminal_width() as usize)
         .saturating_sub(left_vis + right_vis)
-        .max(2);
+        .max(1);
 
     let _ = write!(p, "{}", left);
     let _ = write!(p, "\x1b[2m");

@@ -220,7 +220,6 @@ ratatui = { version = "0.30.0", default-features = false, features = [
 embedded-sdmmc = { git = "https://github.com/rust-embedded-community/embedded-sdmmc-rs", rev = "c7231ddb3dfe9a67c76f15d150d4b42a0d0c9f70", default-features = false, features = [
     "defmt-log",
 ] }
-bt-hci = "0.8.0"
 volatile = "0.4.3"
 static_cell = "2.1.1"
 critical-section = "1.2.0"
@@ -228,7 +227,6 @@ embedded-io = { workspace = true, features = ["defmt"] }
 embassy-time = { workspace = true, features = ["defmt"] }
 embassy-executor = { workspace = true, features = ["defmt"] }
 embedded-io-async = { workspace = true, features = ["defmt"] }
-trouble-host = { version = "0.6.0", features = ["gatt"] }
 rtt-target = { version = "0.6.2", features = ["defmt"] }
 
 esp-alloc = { version = "0.9.0", features = ["defmt"] }
@@ -244,6 +242,8 @@ esp-hal = { version = "~1.0", features = [
 ] }
 embassy-futures = "0.1"
 embassy-sync = { version = "0.7", features = ["defmt"] }
+trouble-host = { version = "0.6.0", features = ["gatt"] }
+bt-hci = "0.8.0"
 chacha20 = { version = "0.9", default-features = false }
 constant_time_eq = { version = "0.3", default-features = false }
 poly1305 = { version = "0.8", default-features = false }
@@ -259,6 +259,7 @@ embassy-net = { version = "0.9.0", features = [
     "dns",
     "medium-ethernet",
     "icmp",
+    "multicast",
     "auto-icmp-echo-reply",
 ] }
 esp-rtos = { version = "0.2.0", features = [
@@ -281,7 +282,7 @@ picoserve = { git = "https://github.com/sammhicks/picoserve", rev = "815ca5b", f
     "embassy",
     "json",
 ] }
-heapless = { version = "0.8.0", default-features = false, features = ["serde"] }
+heapless = { version = "0.8", default-features = false, features = ["serde"] }
 embedded-storage = "0.3.1"
 async-modbus = { version = "0.7.0", default-features = false, features = [
     "embedded-io",

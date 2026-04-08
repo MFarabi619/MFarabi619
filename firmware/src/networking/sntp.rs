@@ -152,5 +152,5 @@ pub async fn sntp_sync_loop(stack: Stack<'static>, ntp_server: &str) -> ! {
 
 #[embassy_executor::task]
 pub async fn task(stack: Stack<'static>) {
-    sntp_sync_loop(stack, crate::networking::NETWORKING.ntp_server).await
+    sntp_sync_loop(stack, crate::config::NTP_SERVER).await
 }

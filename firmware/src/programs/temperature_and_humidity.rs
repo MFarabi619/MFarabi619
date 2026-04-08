@@ -11,7 +11,6 @@ use heapless::String as HeaplessString;
 
 use crate::drivers::i2c::{SENSOR_MEASUREMENT_COMMAND, calculate_crc8};
 use crate::filesystems::sd;
-use crate::programs;
 
 // ─── Sensor reading ────────────────────────────────────────────────────────────
 
@@ -65,7 +64,7 @@ pub async fn task(
     sensor_name: &'static str,
 ) {
     let mut sampling_interval = Ticker::every(Duration::from_secs(
-        programs::PROGRAMS.data_logger.sampling_interval_secs,
+        crate::config::data_logger::SAMPLING_INTERVAL_SECS,
     ));
 
     loop {

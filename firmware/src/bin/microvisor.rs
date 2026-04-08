@@ -34,9 +34,6 @@ use picoserve::AppBuilder;
 use static_cell::StaticCell;
 use trouble_host::prelude::*;
 
-const CONNECTIONS_MAX: usize = config::ble::CONNECTIONS_MAX;
-const L2CAP_CHANNELS_MAX: usize = config::ble::L2CAP_CHANNELS_MAX;
-
 use firmware::{
     config::{self, runtime::WifiCredentials, topology::{CURRENT_TOPOLOGY, SensorKind}},
     filesystems::sd,
@@ -90,11 +87,11 @@ async fn main(spawner: Spawner) -> ! {
     );
     info!(
         "networking.ap_fallback={} ap_ssid={} ap_channel={} ap_max_connections={} ap_auth_mode={}",
-        networking::NETWORKING.fallback_to_access_point,
-        networking::NETWORKING.access_point.ssid,
-        networking::NETWORKING.access_point.channel,
-        networking::NETWORKING.access_point.max_connections,
-        networking::NETWORKING.access_point.auth_mode,
+        config::wifi::FALLBACK_TO_AP,
+        config::wifi::ap::SSID,
+        config::wifi::ap::CHANNEL,
+        config::wifi::ap::MAX_CONNECTIONS,
+        config::wifi::ap::AUTH_MODE,
     );
 
     {
@@ -329,9 +326,8 @@ async fn main(spawner: Spawner) -> ! {
 
     let transport = BleConnector::new(peripherals.BT, Default::default()).unwrap();
     let ble_controller = ExternalController::<_, 1>::new(transport);
-    let mut resources: HostResources<DefaultPacketPool, CONNECTIONS_MAX, L2CAP_CHANNELS_MAX> =
-        HostResources::new();
-    let _stack = trouble_host::new(ble_controller, &mut resources);
+    let mut resources: HostResources<DefaultPacketPool, 1, 1> = HostResources::new();
+    let _ble_stack = trouble_host::new(ble_controller, &mut resources);
 
     loop {
         Timer::after(Duration::from_secs(60)).await;

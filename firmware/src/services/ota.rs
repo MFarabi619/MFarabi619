@@ -7,7 +7,6 @@ use esp_storage::FlashStorage;
 
 use crate::networking::tcp::read_exact;
 use crate::state;
-use crate::services;
 
 /// Status byte sent back to the OTA host once `ota_begin` succeeds and the
 /// device is ready to receive firmware chunks. The host blocks on this byte
@@ -22,11 +21,11 @@ const OTA_STATUS_BEGIN_FAILED: u8 = 0xE1;
 
 #[embassy_executor::task]
 pub async fn task(stack: Stack<'static>) {
-    info!("OTA receiver listening on TCP port {}", services::SERVICES.ota.device_port);
+    info!("OTA receiver listening on TCP port {}", crate::config::ota::PORT);
 
     loop {
-        static mut RX_BUFFER: [u8; services::SERVICES.ota.rx_buf_size] = [0; services::SERVICES.ota.rx_buf_size];
-        static mut TX_BUFFER: [u8; services::SERVICES.ota.tx_buf_size] = [0; services::SERVICES.ota.tx_buf_size];
+        static mut RX_BUFFER: [u8; crate::config::ota::RX_BUF_SIZE] = [0; crate::config::ota::RX_BUF_SIZE];
+        static mut TX_BUFFER: [u8; crate::config::ota::TX_BUF_SIZE] = [0; crate::config::ota::TX_BUF_SIZE];
 
         let mut socket = unsafe {
             TcpSocket::new(
@@ -38,7 +37,7 @@ pub async fn task(stack: Stack<'static>) {
 
         socket.set_timeout(Some(Duration::from_secs(10)));
 
-        match socket.accept(services::SERVICES.ota.device_port).await {
+        match socket.accept(crate::config::ota::PORT).await {
             Ok(()) => {
                 if let Some(remote) = socket.remote_endpoint() {
                     info!("OTA host connected from {}", remote);
@@ -105,7 +104,7 @@ pub async fn task(stack: Stack<'static>) {
                     continue;
                 }
 
-                let mut chunk_buffer = [0u8; services::SERVICES.ota.chunk_size];
+                let mut chunk_buffer = [0u8; crate::config::ota::CHUNK_SIZE];
                 let mut bytes_received_total = 0usize;
                 let mut last_reported_percent = 0u32;
 
@@ -116,7 +115,7 @@ pub async fn task(stack: Stack<'static>) {
                         break Ok(());
                     }
 
-                    let bytes_to_read = bytes_remaining.min(services::SERVICES.ota.chunk_size);
+                    let bytes_to_read = bytes_remaining.min(crate::config::ota::CHUNK_SIZE);
                     if let Err(error) =
                         read_exact(&mut socket, &mut chunk_buffer[..bytes_to_read]).await
                     {
