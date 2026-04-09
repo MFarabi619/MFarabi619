@@ -14,6 +14,8 @@ assets/static/index.html
 assets/static/tui_bg.wasm
 .shellspec
 **/node_modules
+tests/test_unit
+tests/__pycache__
 tests/env_spec.sh
 learning/assembly/build/
 config/data.sqld
