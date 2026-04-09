@@ -6,8 +6,7 @@
 #include <unity.h>
 #include <string.h>
 
-// Screenplay-style test runner: replaces spaces with underscores so
-// PlatformIO's regex can parse the test name.
+// Spaces → underscores so PlatformIO's test regex can parse the name
 static char _it_buf[256];
 static inline void _it_run(void (*func)(void), const char *desc, int line) {
   strncpy(_it_buf, desc, sizeof(_it_buf) - 1);
