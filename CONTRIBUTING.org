@@ -212,6 +212,40 @@
 
 * Files
 ** Firmware
+*** [[https://github.com/probe-rs/probe-rs][probe-rs]]
+
+#+begin_src toml :tangle .probe-rs.toml
+[presets.default]
+speed = 40000
+chip = "esp32s3"
+always-print-stacktrace = true
+# idf-partition-table = "boards/esp32s3.partitions.csv"
+log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
+
+[presets.esp32-s3-devkitc-1]
+chip = "esp32s3"
+host = "ws://rpi5-16:8443"
+probe = "303a:1001:1C:DB:D4:40:4E:38"
+token = "rpi5-16"
+
+[presets.seeed_xiao_esp32s3]
+chip = "esp32s3"
+probe = "303a:1001:D8:3B:DA:74:82:E8"
+
+[presets.stm32h723zg]
+always-print-stacktrace = true
+chip = "stm32h723zg"
+preverify = true
+
+[server]
+address = "rpi5-16"
+port = 8443
+
+[[server.users]]
+name = "mfarabi"
+token = "rpi5-16"
+#+end_src
+
 *** [[https://github.com/probe-rs/cargo-embed][cargo-embed]]
 
 #+begin_src toml :tangle Embed.toml

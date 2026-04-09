@@ -1,7 +1,9 @@
+# [[file:CONTRIBUTING.org::*\[\[https:/github.com/probe-rs/probe-rs\]\[probe-rs\]\]][[[https://github.com/probe-rs/probe-rs][probe-rs]]:1]]
 [presets.default]
+speed = 40000
 chip = "esp32s3"
 always-print-stacktrace = true
-idf-partition-table = "boards/esp32s3.partitions.csv"
+# idf-partition-table = "boards/esp32s3.partitions.csv"
 log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
 
 [presets.esp32-s3-devkitc-1]
@@ -26,3 +28,4 @@ port = 8443
 [[server.users]]
 name = "mfarabi"
 token = "rpi5-16"
+# [[https://github.com/probe-rs/probe-rs][probe-rs]]:1 ends here
