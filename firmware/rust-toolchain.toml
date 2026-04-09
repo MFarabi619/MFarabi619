@@ -1,3 +1,4 @@
+# [[file:../CONTRIBUTING.org::*\[\[https:/doc.rust-lang.org/cargo/reference/manifest.html#the-rust-toolchain-file\]\[rust-toolchain.toml\]\]][[[https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-toolchain-file][rust-toolchain.toml]]:1]]
 [toolchain]
 channel = "esp"
 profile = "minimal"
@@ -19,3 +20,4 @@ targets = [
     "thumbv8m.main-none-eabihf",
     "riscv32imac-unknown-none-elf",
 ]
+# [[https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-toolchain-file][rust-toolchain.toml]]:1 ends here

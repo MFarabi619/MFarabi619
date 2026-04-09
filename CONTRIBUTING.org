@@ -287,6 +287,30 @@ target_app_partition = "ota_0"
 partition_table = "boards/esp32s3.partitions.csv"
 #+end_src
 
+*** [[https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-toolchain-file][rust-toolchain.toml]]
+#+begin_src toml :tangle firmware/rust-toolchain.toml
+[toolchain]
+channel = "esp"
+profile = "minimal"
+# channel = "stable"
+
+components = [
+    "rustc",
+    "cargo",
+    "clippy",
+    "rustfmt",
+    "rust-src",
+    "rust-analyzer",
+    "rustfmt",
+]
+
+targets = [
+    "thumbv6m-none-eabi",
+    "thumbv7em-none-eabihf",
+    "thumbv8m.main-none-eabihf",
+    "riscv32imac-unknown-none-elf",
+]
+#+end_src
 *** platformio
 
 #+begin_src conf :tangle platformio.ini
