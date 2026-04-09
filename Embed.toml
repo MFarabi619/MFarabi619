@@ -1,27 +1,30 @@
+# [[file:CONTRIBUTING.org::*\[\[https:/github.com/probe-rs/cargo-embed\]\[cargo-embed\]\]][[[https://github.com/probe-rs/cargo-embed][cargo-embed]]:1]]
 [default.general]
-chip = "esp32s3"
+chip        = "esp32s3"
 
 [default.probe]
-protocol = "Jtag"
+protocol    = "Jtag"
 
 [default.rtt]
-enabled = true
-timeout = 3000
+enabled     = true
+timeout     = 3000
 log_enabled = false
 up_channels = [
     { channel = 0, mode = "BlockIfFull", format = "Defmt", show_location = true },
 ]
+
 down_channels = [
     { channel = 0, mode = "BlockIfFull" },
 ]
 
 [default.flashing]
-enabled = true
+enabled                 = true
 restore_unwritten_bytes = true
 
 [default.reset]
-enabled = true
-halt_afterwards = false
+enabled                 = true
+halt_afterwards         = false
 
 [default.gdb]
-enabled = false
+enabled                 = false
+# [[https://github.com/probe-rs/cargo-embed][cargo-embed]]:1 ends here
