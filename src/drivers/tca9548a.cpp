@@ -147,7 +147,16 @@ static void tca9548a_test_scan_finds_devices(void) {
   TEST_ASSERT_GREATER_THAN_MESSAGE(0, len,
     "device: scan returned empty output");
 
-  TEST_MESSAGE(buf);
+  // Print one channel per TEST_MESSAGE line (scan uses \r\n separators)
+  char *line = buf;
+  for (char *cursor = buf; *cursor; cursor++) {
+    if (*cursor == '\r' || *cursor == '\n') {
+      *cursor = '\0';
+      if (line[0] != '\0') TEST_MESSAGE(line);
+      line = cursor + 1;
+    }
+  }
+  if (line[0] != '\0') TEST_MESSAGE(line);
 }
 
 static void tca9548a_test_disable_all_clears_mask(void) {
