@@ -1,3 +1,4 @@
+# [[file:CONTRIBUTING.org::*\[\[https:/github.com/DioxusLabs/dioxus\]\[Dioxus\]\]][[[https://github.com/DioxusLabs/dioxus][Dioxus]]:1]]
 [web.app]
 title = "🕹 Microvisor Systems 🕹"
 
@@ -12,3 +13,4 @@ icon = ["assets/symbolmark.png"]
 identifier = "com.microvisorsystems"
 copyright = "2026 Microvisor Systems"
 short_description = "General web client."
+# [[https://github.com/DioxusLabs/dioxus][Dioxus]]:1 ends here

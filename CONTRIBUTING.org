@@ -474,6 +474,23 @@ RAM   : ORIGIN = 0x20000000, LENGTH = 128K
 }
 #+end_src
 #+begin_SRC .gitignore :tangle .gitignore
+** [[https://github.com/DioxusLabs/dioxus][Dioxus]]
+#+begin_src toml :tangle Dioxus.toml
+[web.app]
+title = "🕹 Microvisor Systems 🕹"
+
+[application]
+tailwind_input = "tailwind.css"
+tailwind_output = "assets/tailwind.css"
+
+[bundle]
+category = "Utility"
+publisher = "Mumtahin Farabi"
+icon = ["assets/symbolmark.png"]
+identifier = "com.microvisorsystems"
+copyright = "2026 Microvisor Systems"
+short_description = "General web client."
+#+end_src
 #====================================================
 #              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
