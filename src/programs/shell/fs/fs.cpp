@@ -6,6 +6,7 @@ void etc_mount(struct ush_object *ush);
 void dev_mount(struct ush_object *ush);
 void dev_bus_mount(struct ush_object *ush);
 void dev_mem_mount(struct ush_object *ush);
+void dev_ssh_mount(struct ush_object *ush);
 void bin_mount(struct ush_object *ush);
 
 void fs_mount(struct ush_object *ush) {
@@ -14,5 +15,6 @@ void fs_mount(struct ush_object *ush) {
   dev_mount(ush);       // /dev
   dev_bus_mount(ush);   // /dev/bus
   dev_mem_mount(ush);   // /dev/mem
+  dev_ssh_mount(ush);   // /dev/ssh
   bin_mount(ush);       // /bin
 }

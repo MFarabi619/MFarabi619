@@ -1,6 +1,7 @@
 #include "shell.h"
 #include "commands.h"
 #include "fs/fs.h"
+#include "../ssh/ssh_client.h"
 
 #include <Arduino.h>
 #include <microshell.h>
@@ -66,6 +67,7 @@ void shell_init_instance(struct ush_object *ush,
                          const struct ush_descriptor *desc) {
   ush_init(ush, desc);
   commands_register(ush);
+  ssh_client_commands_register(ush);
   fs_mount(ush);
 }
 
@@ -83,19 +85,7 @@ void shell_service(void) {
 //------------------------------------------
 #ifdef PIO_UNIT_TESTING
 
-#include <unity.h>
-
-static char _it_buf[256];
-static void _it_run(void (*func)(void), const char *desc, int line) {
-  strncpy(_it_buf, desc, sizeof(_it_buf) - 1);
-  _it_buf[sizeof(_it_buf) - 1] = '\0';
-  for (char *p = _it_buf; *p; p++) {
-    if (*p == ' ') *p = '_';
-  }
-  UnityDefaultTestRun(func, _it_buf, line);
-}
-#define it(description, test_func) \
-  _it_run(test_func, description, __LINE__)
+#include "../../testing/it.h"
 
 /// it("user observes that microshell initializes")
 static void shell_test_initializes(void) {

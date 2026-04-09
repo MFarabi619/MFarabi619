@@ -67,9 +67,10 @@ static char ssh_write_buf[SSH_WRITE_BUF_SIZE];
 static int ssh_write_buf_pos = 0;
 
 static void ssh_write_flush(void) {
-  if (ssh_write_buf_pos > 0 && active_chan) {
-    ssh_channel_write(active_chan, ssh_write_buf, ssh_write_buf_pos);
-    ssh_write_buf_pos = 0;
+  if (ssh_write_buf_pos > 0) {
+    if (active_chan)
+      ssh_channel_write(active_chan, ssh_write_buf, ssh_write_buf_pos);
+    ssh_write_buf_pos = 0;  // always reset, even if channel is gone
   }
 }
 
@@ -223,26 +224,25 @@ static void ssh_server_task(void *pvParameters) {
     return;
   }
 
+  // Bind once, accept in loop
+  ssh_bind sshbind = ssh_bind_new();
+  ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDPORT, &ssh_port);
+  ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_HOSTKEY, ssh_hostkey);
+
+  if (ssh_bind_listen(sshbind) < 0) {
+    Serial.printf("[ssh] bind error: %s\n", ssh_get_error(sshbind));
+    ssh_bind_free(sshbind);
+    vTaskDelete(NULL);
+    return;
+  }
+
+  Serial.printf("[ssh] listening on port %d\n", ssh_port);
+
   while (1) {
-    ssh_bind sshbind = ssh_bind_new();
     ssh_session session = ssh_new();
-
-    ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDPORT, &ssh_port);
-    ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_HOSTKEY, ssh_hostkey);
-
-    if (ssh_bind_listen(sshbind) < 0) {
-      Serial.printf("[ssh] bind error: %s\n", ssh_get_error(sshbind));
-      ssh_bind_free(sshbind);
-      ssh_free(session);
-      vTaskDelay(pdMS_TO_TICKS(5000));
-      continue;
-    }
-
-    Serial.printf("[ssh] listening on port %d\n", ssh_port);
 
     if (ssh_bind_accept(sshbind, session) != SSH_OK) {
       Serial.printf("[ssh] accept error: %s\n", ssh_get_error(sshbind));
-      ssh_bind_free(sshbind);
       ssh_free(session);
       vTaskDelay(pdMS_TO_TICKS(1000));
       continue;
@@ -253,7 +253,6 @@ static void ssh_server_task(void *pvParameters) {
     if (ssh_handle_key_exchange(session) != SSH_OK) {
       Serial.printf("[ssh] key exchange error: %s\n", ssh_get_error(session));
       ssh_disconnect(session);
-      ssh_bind_free(sshbind);
       ssh_free(session);
       continue;
     }
@@ -308,7 +307,6 @@ static void ssh_server_task(void *pvParameters) {
       ssh_event_free(event);
       if (active_chan) { ssh_channel_free(active_chan); active_chan = NULL; }
       ssh_disconnect(session);
-      ssh_bind_free(sshbind);
       ssh_free(session);
       continue;
     }
@@ -337,7 +335,6 @@ static void ssh_server_task(void *pvParameters) {
       active_chan = NULL;
     }
     ssh_disconnect(session);
-    ssh_bind_free(sshbind);
     ssh_free(session);
 
     Serial.println("[ssh] ready for next connection");
@@ -358,19 +355,7 @@ void ssh_server_start(void) {
 //------------------------------------------
 #ifdef PIO_UNIT_TESTING
 
-#include <unity.h>
-
-static char _it_buf[256];
-static void _it_run(void (*func)(void), const char *desc, int line) {
-  strncpy(_it_buf, desc, sizeof(_it_buf) - 1);
-  _it_buf[sizeof(_it_buf) - 1] = '\0';
-  for (char *p = _it_buf; *p; p++) {
-    if (*p == ' ') *p = '_';
-  }
-  UnityDefaultTestRun(func, _it_buf, line);
-}
-#define it(description, test_func) \
-  _it_run(test_func, description, __LINE__)
+#include "../../testing/it.h"
 
 /// it("user observes that libssh initializes without crashing")
 static void ssh_server_test_libssh_initializes(void) {
