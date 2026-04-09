@@ -8,37 +8,10 @@
 let
   cfg = config.microvisor.embassy;
   pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
-  defaultCwd =
-    let
-      gitRoot = lib.attrByPath [ "git" "root" ] null config;
-    in
-    if gitRoot == null then "./" else "${gitRoot}";
-  finalCwd = lib.defaultTo defaultCwd cfg.cwd;
-  wokwi = cfg.wokwi;
-  wokwiToml = builtins.removeAttrs wokwi [ "diagram" ];
-  wokwiDiagram = lib.attrByPath [ "diagram" ] null wokwi;
 in
 {
   options.microvisor.embassy = {
     enable = lib.mkEnableOption "Embassy (Rust embedded async) development tooling";
-
-    cwd = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = "Working directory where firmware config files are generated. Defaults to `${defaultCwd}`.";
-    };
-
-    wokwi = lib.mkOption {
-      type = lib.types.attrs;
-      default = { };
-      description = "Wokwi config map. Supports TOML keys and an optional diagram key for JSON output.";
-    };
-
-    "probe-rs" = lib.mkOption {
-      type = lib.types.attrs;
-      default = { };
-      description = "Raw TOML attrset rendered directly to .probe-rs.toml when non-empty.";
-    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -64,19 +37,6 @@ in
           binsider
         ]
       );
-
-    files =
-      lib.optionalAttrs (wokwiToml != { }) {
-        "${finalCwd}/wokwi.toml".toml = {
-          wokwi = wokwiToml;
-        };
-      }
-      // lib.optionalAttrs (wokwiDiagram != null) {
-        "${finalCwd}/diagram.json".json = wokwiDiagram;
-      }
-      // lib.optionalAttrs (cfg."probe-rs" != { }) {
-        "${finalCwd}/.probe-rs.toml".toml = cfg."probe-rs";
-      };
 
     enterShell = lib.mkAfter ''
       if [ -f "\$\{ESPUP_EXPORT_FILE:-}" ]; then
