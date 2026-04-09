@@ -14,7 +14,7 @@ urlencoding                 = "2.1"
 ui.path                     = "../libs/ui"
 use-mdbook.path             = "../libs/use-mdbook"
 serde                       = { version = "1.0.163", features = ["derive"] }
-web-sys                     = { version = "0.3", features = ["console", "FormData", "File"] }
+web-sys                     = { version = "0.3", features = ["console", "FormData", "File", "Navigator", "Clipboard", "Storage"] }
 reqwest                     = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
 [features]
