@@ -62,6 +62,7 @@
 (use-package! kbd-mode              :defer t)
 ;; (use-package! gptel-integrations)
 (use-package! org-auto-tangle       :after org)
+(use-package! exercism              :unless (eq system-type 'berkeley-unix) :defer t) ;; NOTE: fails on FreeBSD otherwise
 (use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
 (use-package! fretboard                                  :config (setopt fretboard-fret-count 15) (add-hook 'fretboard-mode-hook #'evil-emacs-state) :defer t)
 ;; (use-package! nov-xwidget           :after (nov)         :config (add-hook! 'nov-mode-hook #'nov-xwidget-inject-all-files) (define-key nov-mode-map (kbd "o") #'nov-xwidget-view))
