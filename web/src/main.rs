@@ -1,10 +1,19 @@
 use dioxus::document;
 use dioxus::prelude::*;
 
+pub mod api;
 mod components;
 mod content;
 mod layouts;
 mod pages;
+
+// Global signals for dialog state (shared between navbar and home page)
+pub static SHOW_API_DIALOG: GlobalSignal<bool> = Signal::global(|| false);
+pub static SHOW_COMMAND_PALETTE: GlobalSignal<bool> = Signal::global(|| false);
+pub static API_DIALOG_CONTENT: GlobalSignal<String> = Signal::global(|| "Loading...".to_string());
+pub static DEVICE_CHIP_MODEL: GlobalSignal<String> = Signal::global(String::new);
+pub static DEVICE_UPTIME: GlobalSignal<String> = Signal::global(String::new);
+pub static DEVICE_HEAP_FREE: GlobalSignal<String> = Signal::global(String::new);
 
 use crate::content::docs;
 use crate::layouts::{DocsLayout, MainLayout};
@@ -12,8 +21,8 @@ use crate::pages::{Err404, Home};
 
 const BANNER_IMAGE: Asset = asset!("/assets/header.svg");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
-const FAVICON: Asset = asset!("/assets/nix-mfarabi.svg");
-const MICROVISOR_SYSTEMS_SYMBOL_SMALL: Asset = asset!("/assets/nix-mfarabi.svg");
+const FAVICON: Asset = asset!("/assets/symbol.svg");
+const APIDAE_SYMBOL: Asset = asset!("/assets/symbol.svg");
 
 #[derive(Clone, Routable, PartialEq, Eq, Debug)]
 enum Route {
@@ -61,11 +70,15 @@ fn main() {
 fn App() -> Element {
     rsx! {
         document::Link { rel: "icon", href: FAVICON }
+        document::Link { rel: "manifest", href: "/assets/manifest.json" }
+        document::Meta { name: "theme-color", content: "#f5b72b" }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
+        // Register service worker for PWA
+        script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.register('/assets/sw.js')"# }
         document::Meta { property: "og:type", content: "website" }
         document::Meta { property: "og:image", content: BANNER_IMAGE }
         document::Meta { property: "og:url", content: "https://microvisor.systems" }
-        document::Meta { property: "og:title", content: "🕹 Microvisor Systems 🕹" }
+        document::Meta { property: "og:title", content: "Apidae Systems" }
         document::Meta { name: "twitter:card", content: "summary_large_image" }
         document::Meta {
             property: "og:description",

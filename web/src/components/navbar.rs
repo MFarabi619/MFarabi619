@@ -1,242 +1,54 @@
-use crate::MICROVISOR_SYSTEMS_SYMBOL_SMALL;
+use crate::APIDAE_SYMBOL;
 use crate::Route;
-use crate::content::docs::{
-    self,
-    router::{BookRoute, LAZY_BOOK},
-};
 use dioxus::prelude::*;
-use lucide_dioxus::{Github, Linkedin, Menu};
-use ui::components::{
-    button::{Button, ButtonVariant},
-    side_sheet::*,
-};
-use use_mdbook::mdbook_shared::SummaryItem;
+use lucide_dioxus::{Clock3, Cpu, Search};
 
 #[component]
-pub fn Navbar() -> Element {
-    let route = use_route::<Route>();
-
-    let current_book_route = match route {
-        Route::Docs { child } => Some(child),
-        _ => None,
-    };
-
-    let book = &*LAZY_BOOK;
-    let chapters = vec![
-        &book.summary.prefix_chapters,
-        &book.summary.numbered_chapters,
-        &book.summary.suffix_chapters,
-    ];
-
+pub fn Navbar(
+    on_search: EventHandler<()>,
+    chip_model: String,
+    uptime: String,
+    heap_free: String,
+) -> Element {
     rsx! {
-        nav {
-            class: "backdrop-blur-xl shadow-md fixed top-0 left-0 w-full  px-6 py-4
-    transition-all duration-300 z-50 hover:shadow-[0_0_25px_rgba(255,255,255,0.35)]",
+        header {
+            class: "sticky top-0 z-20 border-b border-border bg-background/60 backdrop-blur-md",
             div {
-                class: "max-w-7xl mx-auto flex items-center justify-between",
+                class: "mx-auto w-[min(100%-24px,980px)] grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 min-h-[62px]",
+
+                // Left: logo
                 Link {
                     to: Route::Home {},
-                    class: "py-2 rounded transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0_12px_rgba(234,239,44,0.8)]",
-                    div {
-                        class: "flex items-center gap-2",
-                        img { class: "h-8", src: MICROVISOR_SYSTEMS_SYMBOL_SMALL }
-                        span { class: "text-xl font-bold bg-[linear-gradient(90deg,#ffd200_0%,#ec8c78_33%,#e779c1_67%,#58c7f3_100%)] bg-clip-text text-transparent", "Microvisor Systems" }
-                    }
+                    class: "inline-flex items-center gap-2 text-foreground no-underline font-semibold",
+                    img { class: "w-7 h-7", src: APIDAE_SYMBOL }
+                    span { "Apidae Systems" }
                 }
 
-                div {
-                    class: "hidden md:flex items-center gap-6",
-                    // Link {
-                    //     to: Route::Docs { child: docs::router::BookRoute::Index { section: Default::default() } },
-                    //     class: "text-foreground hover:text-primary transition-colors",
-                    //     "Docs"
-                    // }
-                    a {
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        class: "text-foreground hover:text-primary transition-colors",
-                        href: "https://openws.org",
-                      "OpenWS"
-                    }
-                    a {
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        class: "text-foreground hover:text-primary transition-colors",
-                        href: "https://www.linkedin.com/company/microvisor-systems/",
-                        Linkedin { class: "h-5 w-5" },
-                    }
-                    a {
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        class: "text-foreground hover:text-primary transition-colors",
-                        href: "https://github.com/microvisor-systems",
-                        Github { class: "h-5 w-5" }
-                    }
+                // Center: search
+                button {
+                    r#type: "button",
+                    class: "px-3 py-1.5 rounded-lg border border-border bg-background/50 text-foreground text-sm flex items-center gap-2 transition-colors duration-200 ease-in-out hover:bg-muted/70 hover:border-accent",
+                    onclick: move |_| on_search.call(()),
+                    Search { class: "w-4 h-4 text-muted-foreground" }
+                    span { class: "text-muted-foreground", "Search..." }
+                    span { class: "text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded", "Ctrl+K" }
                 }
 
-                div { class: "md:hidden",
-                    SideSheetTrigger {
-                        Button {
-                            variant: ButtonVariant::Ghost,
-                            Menu { class: "h-6 w-6" }
+                // Right: device status badges
+                div { class: "justify-self-end inline-flex items-center gap-2",
+                    if !chip_model.is_empty() {
+                        span { class: "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-mono text-foreground",
+                            Cpu { class: "w-3.5 h-3.5" }
+                            "{chip_model}"
                         }
-                    }
-                }
-            }
-        }
-
-        nav {
-            class: "md:hidden",
-            SideSheetContent {
-                class: "p-6 w-64 h-full flex flex-col space-y-8 overflow-none",
-                SideSheetCloseButton {},
-                nav {
-                    class: "flex flex-col space-y-3",
-                    div { class: "text-muted-foreground text-xs", "Menu" }
-                    // Link {
-                    //     to: Route::Docs { child: docs::router::BookRoute::Index { section: Default::default() } },
-                    //     class: "text-foreground hover:text-primary transition-colors",
-                    //     "Docs"
-                    // }
-                    a {
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        class: "text-foreground hover:text-primary transition-colors",
-                        href: "https://openws.org",
-                      "OpenWS"
-                    }
-                    a {
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        class: "text-foreground hover:text-primary transition-colors",
-                        href: "https://www.linkedin.com/company/microvisor-systems/",
-                        "LinkedIn"
-                    }
-                    a {
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        href: "https://github.com/MFarabi619/MFarabi619",
-                        class: "text-foreground hover:text-primary transition-colors",
-                        "GitHub"
-                    }
-                }
-                // nav {
-                //     class: "flex flex-col space-y-3",
-                //     div { class: "text-muted-foreground text-xs", "Docs" }
-                //     for chapter_list in chapters.into_iter().flatten() {
-                //         if let Some(_link) = chapter_list.maybe_link() {
-                //             SidebarSection {
-                //                 chapter: chapter_list,
-                //                 current_route: current_book_route
-                //             }
-                //         }
-                //     }
-                // }
-            }
-        }
-    }
-}
-
-#[component]
-fn SidebarSection(
-    chapter: &'static SummaryItem<BookRoute>,
-    current_route: Option<BookRoute>,
-) -> Element {
-    let link = chapter.maybe_link().context("Could not get link")?;
-
-    let is_active = current_route
-        .map(|route| {
-            link.location
-                .as_ref()
-                .map(|loc| *loc == route)
-                .unwrap_or(false)
-        })
-        .unwrap_or(false);
-
-    let has_children = !link.nested_items.is_empty();
-    let mut expanded = use_signal(|| is_active);
-
-    rsx! {
-        div { class: "full-chapter",
-            if let Some(url) = &link.location {
-                Link {
-                    to: Route::Docs { child: *url },
-                    class: "font-semibold text-foreground hover:text-primary transition-colors",
-                    active_class: "text-primary",
-                    div { class: "flex items-center justify-between pb-2",
-                        h3 { "{link.name}" }
-
-                        if has_children {
-                            button {
-                                onclick: move |e| {
-                                    e.stop_propagation();
-                                    expanded.toggle();
-                                },
-                                class: "px-2 text-muted-foreground",
-                                if expanded() { "▼" } else { "▶" }
-                            }
+                        span { class: "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-mono text-foreground",
+                            Clock3 { class: "w-3.5 h-3.5" }
+                            "{uptime}"
                         }
-                    }
-                }
-            }
-
-            if has_children && expanded() {
-                ul { class: "ml-1 space-y-1 border-l border-border pl-4",
-                    for chapter in link.nested_items.iter() {
-                        SidebarChapter {
-                            chapter,
-                            current_route
+                        span { class: "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-mono text-foreground",
+                            Cpu { class: "w-3.5 h-3.5" }
+                            "{heap_free}"
                         }
-                    }
-                }
-            }
-        }
-    }
-}
-
-#[component]
-fn SidebarChapter(
-    chapter: &'static SummaryItem<BookRoute>,
-    current_route: Option<BookRoute>,
-) -> Element {
-    let link = chapter.maybe_link().context("Could not get link")?;
-
-    let is_active = current_route
-        .map(|route| {
-            link.location
-                .as_ref()
-                .map(|loc| *loc == route)
-                .unwrap_or(false)
-        })
-        .unwrap_or(false);
-
-    let has_children = !link.nested_items.is_empty();
-    let mut expanded = use_signal(|| is_active);
-
-    rsx! {
-        li { class: "rounded-md",
-            if let Some(url) = &link.location {
-                Link {
-                    to: Route::Docs { child: *url },
-                    onclick: move |_| {
-                        if has_children {
-                            expanded.toggle();
-                        }
-                    },
-                    class: "flex items-center justify-between py-1 text-foreground hover:text-primary transition-colors",
-                    active_class: "text-primary",
-                    span { "{link.name}" }
-
-                    if has_children {
-                        span { class: "ml-2 text-muted-foreground", if expanded() { "▼" } else { "▶" } }
-                    }
-                }
-            }
-
-            if has_children && expanded() {
-                ul { class: "ml-2 mt-1 space-y-1 border-l border-border pl-4",
-                    for child in link.nested_items.iter() {
-                        SidebarChapter { chapter: child, current_route }
                     }
                 }
             }

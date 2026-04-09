@@ -1,149 +1,236 @@
-use crate::MICROVISOR_SYSTEMS_SYMBOL_SMALL;
+use crate::api::{self, DEFAULT_DEVICE_URL};
+use crate::components::command_palette::CommandPalette;
+use crate::pages::panels::{
+    fetch_and_add_co2_reading, sleep_ms, Co2Row, FilesystemPanel, LiveIndicator,
+    MeasurementPanel, MeasurementTab, NetworkPanel,
+};
 use dioxus::prelude::*;
-use ui::components::button::{Button, ButtonVariant};
+use ui::components::toast::Toasts;
 
 #[component]
 pub fn Home() -> Element {
-    rsx! {
-        main {
-            class: "flex w-full justify-center items-center min-h-screen px-6 py-32",
-            section {
-              class: "group w-fit \
-                        bg-[rgba(255,255,255,0.06)] \
-                        border border-[rgba(255,255,255,0.1)] \
-                        backdrop-blur-[16px] \
-                        shadow-[0_20px_60px_rgba(0,0,0,0.5)] \
-                        rounded-[18px] \
-                        px-16 py-6 text-center",
+    let mut device_url = use_signal(|| {
+        #[cfg(target_arch = "wasm32")]
+        {
+            // Load from localStorage, fall back to mDNS default
+            web_sys::window()
+                .and_then(|window| window.local_storage().ok().flatten())
+                .and_then(|storage| storage.get_item("device_url").ok().flatten())
+                .unwrap_or_else(|| DEFAULT_DEVICE_URL.to_string())
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            DEFAULT_DEVICE_URL.to_string()
+        }
+    });
 
-                img {
-                    class: "drop-shadow-[0_0_20px_rgba(204,0,255,0.4)] \
-                            drop-shadow-[0_0_12px_rgba(255,238,0,0.3)] \
-                            transition-transform duration-300 ease-in-out \
-                            h-auto mx-auto mb-6 w-[min(180px,35vmin)] \
-                            group-hover:scale-105",
-                  src: MICROVISOR_SYSTEMS_SYMBOL_SMALL,
-                    alt: "Microvisor Systems logo",
+    // Connection state
+    let mut is_connected = use_signal(|| false);
+    let mut error_message = use_signal(|| None::<String>);
+
+    // Device data
+    let mut status = use_signal(|| None::<api::DeviceStatusData>);
+    let mut wireless = use_signal(|| None::<api::WirelessStatusData>);
+    let mut networks = use_signal(Vec::<api::WifiNetwork>::new);
+    let mut files = use_signal(Vec::<api::FileEntry>::new);
+    let mut littlefs_files = use_signal(Vec::<api::FileEntry>::new);
+    let mut littlefs_total_bytes = use_signal(|| 0u64);
+    let mut littlefs_used_bytes = use_signal(|| 0u64);
+
+    // Measurements
+    let mut active_tab = use_signal(|| MeasurementTab::CarbonDioxide);
+    let mut co2_readings = use_signal(Vec::<Co2Row>::new);
+    let mut co2_config = use_signal(|| None::<api::Co2ConfigData>);
+    let mut co2_settings_open = use_signal(|| false);
+    let mut sampling = use_signal(|| false);
+
+    // Network UI state
+    let mut scanning = use_signal(|| false);
+    let mut connecting = use_signal(|| false);
+    let mut ssid_input = use_signal(String::new);
+    let mut password_input = use_signal(String::new);
+
+    // Storage progress
+    let storage_percent = use_memo(move || {
+        status
+            .read()
+            .as_ref()
+            .map(|status_data| status_data.storage.percent_used())
+            .unwrap_or(0.0)
+    });
+
+    // ── Polling coroutine ──
+    use_coroutine(move |_: UnboundedReceiver<()>| async move {
+        let mut tick: u32 = 0;
+        loop {
+            let url = device_url.read().clone();
+
+            // CO2 config on first tick
+            if tick == 0 {
+                if let Ok(response) = api::fetch_co2_config(&url).await {
+                    co2_config.set(Some(response.data));
                 }
+            }
 
-                h1 {
-                  class: "font-extrabold text-[clamp(28px,4.5vmin,56px)] m-[0.5rem_0_0.25rem]",
-    "🕹"
-                    span {
-                        class: "bg-[linear-gradient(90deg,#ffd200_0%,#ec8c78_33%,#e779c1_67%,#58c7f3_100%)] bg-clip-text text-transparent",
-                        " Microvisor Systems "
+            // Device status every 10s
+            if tick % 2 == 0 {
+                match api::fetch_device_status(&url).await {
+                    Ok(envelope) => {
+                        *crate::DEVICE_CHIP_MODEL.write() =
+                            envelope.data.device.chip_model.clone();
+                        *crate::DEVICE_UPTIME.write() = envelope.data.runtime.uptime.clone();
+                        *crate::DEVICE_HEAP_FREE.write() =
+                            format!("{} B free", envelope.data.runtime.memory_heap_bytes);
+
+                        status.set(Some(envelope.data));
+                        is_connected.set(true);
+                        error_message.set(None);
                     }
-                  "🕹"
+                    Err(error) => {
+                        is_connected.set(false);
+                        error_message.set(Some(format!("{error}")));
+                    }
+                }
+            }
+
+            // Wireless status every 10s
+            if tick % 2 == 0 {
+                if let Ok(response) = api::fetch_wireless_status(&url).await {
+                    wireless.set(Some(response.data));
+                }
+            }
+
+            // CO2 from cloudevents every 5s
+            fetch_and_add_co2_reading(&url, co2_readings).await;
+
+            // Filesystem every 30s
+            if tick % 6 == 0 {
+                if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
+                    files.set(entries);
+                }
+                if let Ok(entries) = api::fetch_filesystem(&url, "littlefs").await {
+                    littlefs_files.set(entries);
+                }
+                if let Ok(envelope) =
+                    api::fetch_device_status_for_location(&url, "littlefs").await
+                {
+                    littlefs_total_bytes.set(envelope.data.storage.total_bytes);
+                    littlefs_used_bytes.set(envelope.data.storage.used_bytes);
+                }
+            }
+
+            tick = tick.wrapping_add(1);
+            sleep_ms(5_000).await;
+        }
+    });
+
+    rsx! {
+        div {
+            class: "space-y-3.5",
+            tabindex: "0",
+            onkeydown: move |keyboard_event: KeyboardEvent| {
+                if keyboard_event.modifiers().ctrl()
+                    && keyboard_event.key() == Key::Character("k".into())
+                {
+                    keyboard_event.prevent_default();
+                    *crate::SHOW_COMMAND_PALETTE.write() = true;
+                }
+                if keyboard_event.modifiers().ctrl() && keyboard_event.key() == Key::Enter {
+                    keyboard_event.prevent_default();
+                    if !*sampling.read() {
+                        sampling.set(true);
+                        let url = device_url.read().clone();
+                        spawn(async move {
+                            fetch_and_add_co2_reading(&url, co2_readings).await;
+                            sampling.set(false);
+                        });
+                    }
+                }
+            },
+
+            // Device URL bar
+            div { class: "flex items-center gap-3",
+                label { class: "text-sm text-muted-foreground shrink-0", "Device" }
+                input {
+                    class: "gold-input flex-1 px-4 py-2 text-sm font-mono",
+                    r#type: "text",
+                    value: "{device_url}",
+                    oninput: move |event| {
+                        let new_url = event.value();
+                        device_url.set(new_url.clone());
+                        #[cfg(target_arch = "wasm32")]
+                        if let Some(storage) = web_sys::window()
+                            .and_then(|window| window.local_storage().ok().flatten())
+                        {
+                            let _ = storage.set_item("device_url", &new_url);
+                        }
+                    },
+                }
+                LiveIndicator { connected: *is_connected.read() }
+            }
+
+            // Measurements
+            MeasurementPanel {
+                device_url,
+                co2_readings,
+                co2_config,
+                co2_settings_open,
+                sampling,
+                active_tab,
+            }
+
+            // Bottom row: Network + Filesystem
+            div { class: "grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-3.5",
+                NetworkPanel {
+                    device_url,
+                    wireless,
+                    networks,
+                    scanning,
+                    connecting,
+                    ssid_input,
+                    password_input,
                 }
 
-                p {
-                    class: "mt-3 text-[1.1rem] text-gray-200",
-                    "🤖 Beep boop, from bootloader to browser 🤖"
+                FilesystemPanel {
+                    device_url,
+                    files,
+                    littlefs_files,
+                    littlefs_total_bytes,
+                    littlefs_used_bytes,
+                    status,
+                    storage_percent,
+                }
+            }
+
+            // Error
+            if let Some(ref error) = *error_message.read() {
+                div { class: "rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive",
+                    "{error}"
                 }
             }
         }
 
-            section {
-                class: "mx-auto min-h-[50vh] w-full max-w-3xl",
-            div {
-                class: "bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] backdrop-blur-[16px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] rounded-[18px] px-6 sm:px-10 py-8",
-
-                div { class: "flex justify-center mb-4",
-                    span { class: "inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(0,0,0,0.25)] text-xs tracking-wide text-gray-200/90",
-                        span { class: "relative flex",
-                            span { class: "absolute inline-flex w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.8)] animate-ping" }
-                            span { class: "relative w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(16,185,129,0.8)]" }
-                        }
-                        "Served from ESP32S3"
-                        span { class: "opacity-70", "•" }
-                        span { class: "opacity-80",
-                            "10.0.0.236 • RSSI -19 dBm • up 5d 23h 16m 21s"
-                        }
+        // Command Palette
+        CommandPalette {
+            on_open_api: move |_| {},
+            on_scan_networks: move |_| {
+                scanning.set(true);
+                let url = device_url.read().clone();
+                spawn(async move {
+                    if let Ok(response) = api::fetch_wifi_scan(&url).await {
+                        networks.set(response.data.networks);
                     }
-                }
-
-                div { class: "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3",
-                    div { class: "mt-6 flex gap-3",
-
-                        a {
-                            href: "/health",
-                            target: "_blank",
-                            class: "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm",
-                            span { class: "inline-block w-2 h-2 rounded-full bg-emerald-400" }
-                            "/health"
-                        }
-
-                        a {
-                            href: "/ready",
-                            target: "_blank",
-                            class: "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm",
-                            span { class: "inline-block w-2 h-2 rounded-full bg-sky-400" }
-                            "/ready"
-                        }
-
-                        a {
-                            href: "/api/status",
-                            target: "_blank",
-                            class: "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm",
-                            span { class: "inline-block w-2 h-2 rounded-full bg-fuchsia-400" }
-                            "/api/status"
-                        }
+                    scanning.set(false);
+                });
+            },
+            on_refresh_files: move |_| {
+                let url = device_url.read().clone();
+                spawn(async move {
+                    if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
+                        files.set(entries);
                     }
-
-                    div { class: "flex items-center gap-2",
-                        Button {
-                            class: "inline-flex items-center justify-center rounded-full px-4 py-2 text-sm border border-[rgba(255,255,255,0.14)] bg-[rgba(0,0,0,0.25)] hover:bg-[rgba(255,255,255,0.08)] transition",
-                            variant: ButtonVariant::Outline,
-                            on_click: |_| {},
-                            "Refresh"
-                        }
-
-                        span { class: "inline-flex items-center gap-2 px-3 py-2 rounded-full text-xs border border-[rgba(255,255,255,0.12)] bg-[rgba(0,0,0,0.25)] opacity-90",
-                            span { class: "inline-block w-2 h-2 rounded-full bg-emerald-400" }
-                            span { "Live" }
-                        }
-                    }
-                }
-
-                div { class: "mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4",
-                    div { class: "rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.22)] p-4",
-                        div { class: "text-xs uppercase tracking-wider opacity-70", "IP" }
-                        div { class: "mt-1 text-lg font-semibold", "10.0.0.236" }
-                    }
-
-                    div { class: "rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.22)] p-4",
-                        div { class: "text-xs uppercase tracking-wider opacity-70", "RSSI" }
-                        div { class: "mt-1 text-lg font-semibold", "-19 dBm" }
-                    }
-
-                    div { class: "rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.22)] p-4",
-                        div { class: "text-xs uppercase tracking-wider opacity-70", "Uptime" }
-                        div { class: "mt-1 text-lg font-semibold", "5d 23h 16m 21s" }
-                    }
-
-                    div { class: "rounded-xl border border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.22)] p-4",
-                        div { class: "text-xs uppercase tracking-wider opacity-70", "Free heap" }
-                        div { class: "mt-1 text-lg font-semibold", "244,680 bytes" }
-                    }
-                }
-            }
-            }
-      section {
-        class: "w-full mb-40",
-                likec4-view {
-                    "browser": "true",
-                    "dynamic-variant": "diagram",
-                    "view-id": "index",
-                }
-      }
-      section {
-        class: "w-full",
-                    iframe {
-                        allowfullscreen: "true",
-                        class: "min-h-screen w-full",
-                        src: "https://openws.org",
-                        title: "OpenWS Homepage",
-                    }
-      }
+                });
+            },
+        }
     }
 }

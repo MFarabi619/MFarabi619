@@ -90,7 +90,8 @@ crc32fast = "1.4"
 # Rust debug is too slow.
 # For debug builds always builds with some optimization
 debug = true
-opt-level = 3
+# opt-level = 3
+opt-level = "s"
 
 [profile.release]
 debug = 2

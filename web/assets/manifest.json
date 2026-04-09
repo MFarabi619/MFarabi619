@@ -1,0 +1,18 @@
+{
+  "name": "Ceratina Dashboard",
+  "short_name": "Ceratina",
+  "description": "CO2 sensor dashboard for Apidae Systems Ceratina data logger",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0c",
+  "theme_color": "#f5b72b",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/symbol.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

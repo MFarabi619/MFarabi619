@@ -14,8 +14,14 @@ urlencoding                 = "2.1"
 ui.path                     = "../libs/ui"
 use-mdbook.path             = "../libs/use-mdbook"
 serde                       = { version = "1.0.163", features = ["derive"] }
+serde_json                  = "1"
 web-sys                     = { version = "0.3", features = ["console", "FormData", "File", "Navigator", "Clipboard", "Storage"] }
+wasm-bindgen-futures        = "0.4"
 reqwest                     = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+gloo-timers                 = { version = "0.3", features = ["futures"] }
+gloo-net                    = { version = "0.6", features = ["websocket"] }
+futures-util                = { version = "0.3", default-features = false, features = ["sink"] }
+js-sys                      = "0.3"
 
 [features]
 default = ["web"]
