@@ -88,4 +88,26 @@
 #define CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH  32
 #define CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH  64
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  Time / NTP
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_NTP_SERVER
+#define CONFIG_NTP_SERVER           "pool.ntp.org"
+#endif
+
+#ifndef CONFIG_NTP_SERVER_2
+#define CONFIG_NTP_SERVER_2         "time.nist.gov"
+#endif
+
+// POSIX TZ string — handles DST automatically
+// https://github.com/esp8266/Arduino/blob/master/cores/esp8266/TZ.h
+#ifndef CONFIG_TIME_ZONE
+#define CONFIG_TIME_ZONE            "EST5EDT,M3.2.0/2,M11.1.0/2"
+#endif
+
+#ifndef CONFIG_NTP_SYNC_TIMEOUT_MS
+#define CONFIG_NTP_SYNC_TIMEOUT_MS  10000
+#endif
+
 #endif // CONFIG_H
