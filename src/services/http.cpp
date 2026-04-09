@@ -3,142 +3,155 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncJson.h>
+#include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <SD.h>
 
 static AsyncWebServer server(CONFIG_HTTP_PORT);
+AsyncEventSource http_events("/events");
 
-// CORS headers for API access from web frontends
-static void add_cors_headers(AsyncWebServerResponse *response) {
-  response->addHeader("Access-Control-Allow-Origin", "*");
-  response->addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  response->addHeader("Access-Control-Allow-Headers", "Content-Type");
+// ─────────────────────────────────────────────────────────────────────────────
+//  Middleware
+// ─────────────────────────────────────────────────────────────────────────────
+
+static AsyncCorsMiddleware cors;
+static AsyncLoggingMiddleware logging;
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Routes
+// ─────────────────────────────────────────────────────────────────────────────
+
+static void api_status(AsyncWebServerRequest *request) {
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+
+  root["hostname"]       = WiFi.getHostname();
+  root["platform"]       = CONFIG_PLATFORM;
+  root["uptime_seconds"] = millis() / 1000;
+  root["heap_free"]      = ESP.getFreeHeap();
+  root["heap_total"]     = ESP.getHeapSize();
+  root["ip"]             = WiFi.localIP().toString();
+  root["rssi"]           = WiFi.RSSI();
+  root["sdk"]            = ESP.getSdkVersion();
+
+  response->setLength();
+  request->send(response);
 }
 
+static void api_heap(AsyncWebServerRequest *request) {
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+
+  root["heap_total"]     = ESP.getHeapSize();
+  root["heap_free"]      = ESP.getFreeHeap();
+  root["heap_min_free"]  = ESP.getMinFreeHeap();
+  root["heap_max_alloc"] = ESP.getMaxAllocHeap();
+  root["psram_total"]    = ESP.getPsramSize();
+  root["psram_free"]     = ESP.getFreePsram();
+
+  response->setLength();
+  request->send(response);
+}
+
+static void api_wifi(AsyncWebServerRequest *request) {
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+
+  root["connected"] = WiFi.isConnected();
+  root["ssid"]      = WiFi.SSID();
+  root["ip"]        = WiFi.localIP().toString();
+  root["rssi"]      = WiFi.RSSI();
+  root["mac"]       = WiFi.macAddress();
+
+  response->setLength();
+  request->send(response);
+}
+
+static void api_files(AsyncWebServerRequest *request) {
+  if (!SD.begin(CONFIG_SD_CS_GPIO)) {
+    request->send(503, "application/json", "{\"error\":\"no SD card\"}");
+    return;
+  }
+
+  AsyncJsonResponse *response = new AsyncJsonResponse(true);
+  JsonArray root = response->getRoot().to<JsonArray>();
+
+  File dir = SD.open("/");
+  File entry = dir.openNextFile();
+  while (entry) {
+    JsonObject file = root.add<JsonObject>();
+    file["name"] = String(entry.name());
+    file["size"] = (unsigned long)entry.size();
+    file["dir"]  = entry.isDirectory();
+    entry = dir.openNextFile();
+  }
+  dir.close();
+
+  response->setLength();
+  request->send(response);
+}
+
+static void api_upload_handler(AsyncWebServerRequest *request, String filename,
+                               size_t index, uint8_t *data, size_t len, bool final) {
+  if (!index) {
+    String path = "/" + filename;
+    request->_tempFile = SD.open(path.c_str(), FILE_WRITE, true);
+    if (!request->_tempFile) return;
+    Serial.printf("[http] upload: %s\n", filename.c_str());
+  }
+
+  if (request->_tempFile && len)
+    request->_tempFile.write(data, len);
+
+  if (final && request->_tempFile) {
+    request->_tempFile.close();
+    Serial.printf("[http] upload complete: %s (%u bytes)\n",
+                  filename.c_str(), (unsigned)(index + len));
+  }
+}
+
+static void api_upload_complete(AsyncWebServerRequest *request) {
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["status"] = "ok";
+  response->setLength();
+  request->send(response);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Server Init
+// ─────────────────────────────────────────────────────────────────────────────
+
 void http_server_start(void) {
-  // OPTIONS preflight for CORS
-  server.on("/*", HTTP_OPTIONS, [](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(204);
-    add_cors_headers(response);
-    request->send(response);
+  cors.setOrigin("*");
+  cors.setMethods("GET, POST, OPTIONS");
+  cors.setHeaders("Content-Type");
+  server.addMiddleware(&cors);
+
+  logging.setOutput(Serial);
+  logging.setEnabled(true);
+  server.addMiddleware(&logging);
+
+  http_events.onConnect([](AsyncEventSourceClient *client) {
+    client->send("connected", "status", millis(), 5000);
   });
+  server.addHandler(&http_events);
 
-  // GET /api/status — device status
-  server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *request) {
-    char buf[512];
-    unsigned long secs = millis() / 1000;
-    snprintf(buf, sizeof(buf),
-      "{"
-        "\"hostname\":\"%s\","
-        "\"platform\":\"esp32s3\","
-        "\"uptime_seconds\":%lu,"
-        "\"heap_free\":%u,"
-        "\"heap_total\":%u,"
-        "\"ip\":\"%s\","
-        "\"rssi\":%d,"
-        "\"sdk\":\"%s\""
-      "}",
-      WiFi.getHostname(),
-      secs,
-      ESP.getFreeHeap(),
-      ESP.getHeapSize(),
-      WiFi.localIP().toString().c_str(),
-      WiFi.RSSI(),
-      ESP.getSdkVersion());
+  server.on("/api/status", HTTP_GET, api_status);
+  server.on("/api/heap",   HTTP_GET, api_heap);
+  server.on("/api/wifi",   HTTP_GET, api_wifi);
+  server.on("/api/files",  HTTP_GET, api_files);
+  server.on("/api/upload", HTTP_POST, api_upload_complete, api_upload_handler);
 
-    AsyncWebServerResponse *response = request->beginResponse(200, "application/json", buf);
-    add_cors_headers(response);
-    request->send(response);
-  });
+  server.serveStatic("/", LittleFS, "/www/")
+    .setDefaultFile("index.html")
+    .setCacheControl("max-age=3600");
 
-  // GET /api/heap — memory details
-  server.on("/api/heap", HTTP_GET, [](AsyncWebServerRequest *request) {
-    char buf[256];
-    snprintf(buf, sizeof(buf),
-      "{"
-        "\"heap_total\":%u,"
-        "\"heap_free\":%u,"
-        "\"heap_min_free\":%u,"
-        "\"heap_max_alloc\":%u,"
-        "\"psram_total\":%u,"
-        "\"psram_free\":%u"
-      "}",
-      ESP.getHeapSize(), ESP.getFreeHeap(),
-      ESP.getMinFreeHeap(), ESP.getMaxAllocHeap(),
-      ESP.getPsramSize(), ESP.getFreePsram());
-
-    AsyncWebServerResponse *response = request->beginResponse(200, "application/json", buf);
-    add_cors_headers(response);
-    request->send(response);
-  });
-
-  // GET /api/wifi — wifi info
-  server.on("/api/wifi", HTTP_GET, [](AsyncWebServerRequest *request) {
-    char buf[256];
-    snprintf(buf, sizeof(buf),
-      "{"
-        "\"connected\":%s,"
-        "\"ssid\":\"%s\","
-        "\"ip\":\"%s\","
-        "\"rssi\":%d,"
-        "\"mac\":\"%s\""
-      "}",
-      WiFi.isConnected() ? "true" : "false",
-      WiFi.SSID().c_str(),
-      WiFi.localIP().toString().c_str(),
-      WiFi.RSSI(),
-      WiFi.macAddress().c_str());
-
-    AsyncWebServerResponse *response = request->beginResponse(200, "application/json", buf);
-    add_cors_headers(response);
-    request->send(response);
-  });
-
-  // GET /api/files — SD card root directory listing
-  server.on("/api/files", HTTP_GET, [](AsyncWebServerRequest *request) {
-    if (!SD.begin(CONFIG_SD_CS_GPIO)) {
-      AsyncWebServerResponse *response = request->beginResponse(503, "application/json",
-        "{\"error\":\"no SD card\"}");
-      add_cors_headers(response);
-      request->send(response);
-      return;
-    }
-
-    String json = "[";
-    File root = SD.open("/");
-    File entry = root.openNextFile();
-    bool first = true;
-    while (entry) {
-      if (!first) json += ",";
-      json += "{\"name\":\"";
-      json += entry.name();
-      json += "\",\"size\":";
-      json += String((unsigned long)entry.size());
-      json += ",\"dir\":";
-      json += entry.isDirectory() ? "true" : "false";
-      json += "}";
-      first = false;
-      entry = root.openNextFile();
-    }
-    root.close();
-    json += "]";
-
-    AsyncWebServerResponse *response = request->beginResponse(200, "application/json", json);
-    add_cors_headers(response);
-    request->send(response);
-  });
-
-  // Serve static files from LittleFS at /
-  server.serveStatic("/", LittleFS, "/www/").setDefaultFile("index.html");
-
-  // 404
   server.onNotFound([](AsyncWebServerRequest *request) {
-    AsyncWebServerResponse *response = request->beginResponse(404, "application/json",
-      "{\"error\":\"not found\"}");
-    add_cors_headers(response);
-    request->send(response);
+    request->send(404, "application/json", "{\"error\":\"not found\"}");
   });
 
   server.begin();
-  Serial.printf("[http] server started on port %d\n", CONFIG_HTTP_PORT);
+  Serial.printf("[http] listening on port %d\n", CONFIG_HTTP_PORT);
 }
