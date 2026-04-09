@@ -1,5 +1,5 @@
 #include "../shell.h"
-#include "../../ssh/ssh_server.h"
+#include "../../../networking/wifi.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -20,8 +20,14 @@ static size_t hostname_get_data(struct ush_object *self,
 static void hostname_set_data(struct ush_object *self,
                               struct ush_file_descriptor const *file,
                               uint8_t *data, size_t size) {
-  (void)self; (void)file; (void)size;
-  shell_set_hostname((const char *)data);
+  (void)self; (void)file;
+  char buf[CONFIG_SHELL_HOSTNAME_SIZE + 1];
+  size_t len = (size < CONFIG_SHELL_HOSTNAME_SIZE) ? size : CONFIG_SHELL_HOSTNAME_SIZE;
+  memcpy(buf, data, len);
+  buf[len] = '\0';
+  while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
+    buf[--len] = '\0';
+  shell_set_hostname(buf);
 }
 
 //------------------------------------------
@@ -88,10 +94,26 @@ static const struct ush_file_descriptor etc_files[] = {
   },
   {
     .name = "wifi",
-    .description = "wifi status",
-    .help = NULL,
+    .description = "wifi status / credentials (write ssid:password)",
+    .help = "read: show wifi status\r\nwrite: echo ssid:password > /etc/wifi\r\n",
     .exec = NULL,
     .get_data = wifi_get_data,
+    .set_data = [](struct ush_object *self, struct ush_file_descriptor const *file,
+                   uint8_t *data, size_t size) {
+      (void)self; (void)file;
+      // Parse "ssid:password" format
+      char buf[128];
+      size_t len = (size < sizeof(buf) - 1) ? size : sizeof(buf) - 1;
+      memcpy(buf, data, len);
+      buf[len] = '\0';
+      // Strip trailing whitespace/newlines
+      while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
+        buf[--len] = '\0';
+      char *colon = strchr(buf, ':');
+      if (!colon) return;
+      *colon = '\0';
+      wifi_set_credentials(buf, colon + 1);
+    },
   },
   {
     .name = "user",
@@ -102,7 +124,7 @@ static const struct ush_file_descriptor etc_files[] = {
                    struct ush_file_descriptor const *file,
                    uint8_t **data) -> size_t {
       (void)self; (void)file;
-      static const char *user = SSH_DEFAULT_USER;
+      static const char *user = CONFIG_SSH_USER;
       *data = (uint8_t *)user;
       return strlen(user);
     },

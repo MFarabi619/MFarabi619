@@ -1,3 +1,6 @@
+#include "../../../networking/sntp.h"
+#include "../../../helpers.h"
+
 #include <Arduino.h>
 #include <microshell.h>
 #include <string.h>
@@ -39,9 +42,7 @@ static size_t uptime_get_data(struct ush_object *self,
                               uint8_t **data) {
   (void)self; (void)file;
   static char buf[32];
-  unsigned long secs = millis() / 1000;
-  snprintf(buf, sizeof(buf), "%luh %lum %lus\r\n",
-           secs / 3600, (secs / 60) % 60, secs % 60);
+  format_uptime(buf, sizeof(buf));
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -54,23 +55,24 @@ static size_t heap_get_data(struct ush_object *self,
                             uint8_t **data) {
   (void)self; (void)file;
   static char buf[128];
-  snprintf(buf, sizeof(buf),
-           "total: %u\r\nfree:  %u\r\nused:  %u\r\n",
-           ESP.getHeapSize(), ESP.getFreeHeap(),
-           ESP.getHeapSize() - ESP.getFreeHeap());
+  format_heap(buf, sizeof(buf));
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
 
 //------------------------------------------
-//  /dev/time — millis() raw value
+//  /dev/time — local time (NTP-synced) or millis if no sync
 //------------------------------------------
 static size_t time_get_data(struct ush_object *self,
                             struct ush_file_descriptor const *file,
                             uint8_t **data) {
   (void)self; (void)file;
-  static char buf[16];
-  snprintf(buf, sizeof(buf), "%lu\r\n", millis());
+  static char buf[48];
+  if (sntp_is_synced()) {
+    snprintf(buf, sizeof(buf), "%s\r\n", sntp_local_time_string());
+  } else {
+    snprintf(buf, sizeof(buf), "%lu ms (no NTP sync)\r\n", millis());
+  }
   *data = (uint8_t *)buf;
   return strlen(buf);
 }

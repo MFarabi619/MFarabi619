@@ -4,21 +4,31 @@
 #include "../ssh/ssh_client.h"
 
 #include <Arduino.h>
+#include <WiFi.h>
+#include <ESPmDNS.h>
 #include <microshell.h>
 #include <string.h>
 
 //------------------------------------------
 //  Shared hostname (mutable at runtime)
 //------------------------------------------
-static char hostname_data[SHELL_HOSTNAME_SIZE + 1] = SHELL_HOSTNAME;
+static char hostname_data[CONFIG_SHELL_HOSTNAME_SIZE + 1] = CONFIG_HOSTNAME;
 
 char *shell_get_hostname(void) {
   return hostname_data;
 }
 
 void shell_set_hostname(const char *hostname) {
-  strncpy(hostname_data, hostname, SHELL_HOSTNAME_SIZE);
-  hostname_data[SHELL_HOSTNAME_SIZE] = '\0';
+  strncpy(hostname_data, hostname, CONFIG_SHELL_HOSTNAME_SIZE);
+  hostname_data[CONFIG_SHELL_HOSTNAME_SIZE] = '\0';
+
+  // Propagate to network layer
+  WiFi.setHostname(hostname_data);
+  MDNS.end();
+  if (MDNS.begin(hostname_data)) {
+    MDNS.addService("ssh", "tcp", CONFIG_SSH_PORT);
+    MDNS.addService("http", "tcp", CONFIG_HTTP_PORT);
+  }
 }
 
 //------------------------------------------
@@ -46,8 +56,8 @@ static const struct ush_io_interface serial_io = {
 //------------------------------------------
 //  Serial shell instance
 //------------------------------------------
-static char serial_in_buf[SHELL_BUF_IN_SIZE];
-static char serial_out_buf[SHELL_BUF_OUT_SIZE];
+static char serial_in_buf[CONFIG_SHELL_BUF_IN];
+static char serial_out_buf[CONFIG_SHELL_BUF_OUT];
 static struct ush_object serial_ush;
 
 static const struct ush_descriptor serial_desc = {
@@ -56,7 +66,7 @@ static const struct ush_descriptor serial_desc = {
   .input_buffer_size = sizeof(serial_in_buf),
   .output_buffer = serial_out_buf,
   .output_buffer_size = sizeof(serial_out_buf),
-  .path_max_length = SHELL_PATH_MAX_SIZE,
+  .path_max_length = CONFIG_SHELL_PATH_MAX,
   .hostname = hostname_data,
 };
 
@@ -87,7 +97,6 @@ void shell_service(void) {
 
 #include "../../testing/it.h"
 
-/// it("user observes that microshell initializes")
 static void shell_test_initializes(void) {
   TEST_MESSAGE("user asks the device to initialize microshell");
 
@@ -96,7 +105,6 @@ static void shell_test_initializes(void) {
   TEST_MESSAGE("microshell initialized with serial I/O");
 }
 
-/// it("user observes that the hostname is mutable")
 static void shell_test_hostname_mutable(void) {
   TEST_MESSAGE("user sets hostname to 'ceratina'");
 
@@ -104,14 +112,13 @@ static void shell_test_hostname_mutable(void) {
   TEST_ASSERT_EQUAL_STRING_MESSAGE("ceratina", shell_get_hostname(),
     "device: hostname should be 'ceratina' after set");
 
-  shell_set_hostname(SHELL_HOSTNAME);
-  TEST_ASSERT_EQUAL_STRING_MESSAGE(SHELL_HOSTNAME, shell_get_hostname(),
+  shell_set_hostname(CONFIG_HOSTNAME);
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(CONFIG_HOSTNAME, shell_get_hostname(),
     "device: hostname should be restored to default");
 
   TEST_MESSAGE("hostname is mutable at runtime");
 }
 
-/// it("user observes that a custom shell instance can be initialized")
 static void shell_test_custom_instance(void) {
   TEST_MESSAGE("user creates a second shell instance");
 
@@ -138,6 +145,30 @@ static void shell_test_custom_instance(void) {
   TEST_MESSAGE("custom shell instance initialized with shared filesystem");
 }
 
+static void shell_test_hostname_default(void) {
+  TEST_MESSAGE("user checks boot-time hostname without calling set first");
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(CONFIG_HOSTNAME, shell_get_hostname(),
+    "device: boot-time hostname should match CONFIG_HOSTNAME");
+  TEST_MESSAGE("default hostname verified");
+}
+
+static void shell_test_hostname_truncation(void) {
+  TEST_MESSAGE("user sets a hostname longer than CONFIG_SHELL_HOSTNAME_SIZE");
+
+  char long_name[CONFIG_SHELL_HOSTNAME_SIZE + 20];
+  memset(long_name, 'A', sizeof(long_name) - 1);
+  long_name[sizeof(long_name) - 1] = '\0';
+
+  shell_set_hostname(long_name);
+
+  size_t result_len = strlen(shell_get_hostname());
+  TEST_ASSERT_LESS_OR_EQUAL_UINT32_MESSAGE(CONFIG_SHELL_HOSTNAME_SIZE, result_len,
+    "device: hostname exceeds CONFIG_SHELL_HOSTNAME_SIZE after truncation");
+
+  shell_set_hostname(CONFIG_HOSTNAME);
+  TEST_MESSAGE("hostname truncation verified");
+}
+
 void shell_run_tests(void) {
   it("user observes that microshell initializes",
      shell_test_initializes);
@@ -145,6 +176,10 @@ void shell_run_tests(void) {
      shell_test_hostname_mutable);
   it("user observes that a custom shell instance can be initialized",
      shell_test_custom_instance);
+  it("user observes that the default hostname matches CONFIG_HOSTNAME",
+     shell_test_hostname_default);
+  it("user observes that long hostnames are truncated",
+     shell_test_hostname_truncation);
 }
 
 #endif

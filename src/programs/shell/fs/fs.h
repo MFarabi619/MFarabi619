@@ -3,7 +3,6 @@
 
 #include <microshell.h>
 
-// Mount the full virtual filesystem onto a shell instance.
 void fs_mount(struct ush_object *ush);
 
 #endif // SHELL_FS_H

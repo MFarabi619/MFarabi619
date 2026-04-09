@@ -1,11 +1,12 @@
-#include "../../ssh/ssh_server.h"
+#include "../../../config.h"
+#include "../../../helpers.h"
 
 #include <Arduino.h>
 #include <microshell.h>
 #include <string.h>
 
 //------------------------------------------
-//  /bin/uptime — formatted uptime (exec command)
+//  /bin/uptime
 //------------------------------------------
 static void uptime_exec(struct ush_object *self,
                         struct ush_file_descriptor const *file,
@@ -15,15 +16,13 @@ static void uptime_exec(struct ush_object *self,
     ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
     return;
   }
-  unsigned long secs = millis() / 1000;
   char buf[32];
-  snprintf(buf, sizeof(buf), "%luh %lum %lus\r\n",
-           secs / 3600, (secs / 60) % 60, secs % 60);
+  format_uptime(buf, sizeof(buf));
   ush_print(self, buf);
 }
 
 //------------------------------------------
-//  /bin/print — print argument to shell
+//  /bin/print
 //------------------------------------------
 static void print_exec(struct ush_object *self,
                        struct ush_file_descriptor const *file,
@@ -37,7 +36,7 @@ static void print_exec(struct ush_object *self,
 }
 
 //------------------------------------------
-//  /bin/whoami — print current user
+//  /bin/whoami
 //------------------------------------------
 static void whoami_exec(struct ush_object *self,
                         struct ush_file_descriptor const *file,
@@ -48,12 +47,12 @@ static void whoami_exec(struct ush_object *self,
     return;
   }
   char buf[64];
-  snprintf(buf, sizeof(buf), "%s\r\n", SSH_DEFAULT_USER);
+  snprintf(buf, sizeof(buf), "%s\r\n", CONFIG_SSH_USER);
   ush_print(self, buf);
 }
 
 //------------------------------------------
-//  /bin/free — formatted memory (exec command)
+//  /bin/free
 //------------------------------------------
 static void free_exec(struct ush_object *self,
                       struct ush_file_descriptor const *file,
@@ -64,10 +63,7 @@ static void free_exec(struct ush_object *self,
     return;
   }
   char buf[128];
-  snprintf(buf, sizeof(buf),
-           "heap total: %u\r\nheap free:  %u\r\nheap used:  %u\r\n",
-           ESP.getHeapSize(), ESP.getFreeHeap(),
-           ESP.getHeapSize() - ESP.getFreeHeap());
+  format_heap(buf, sizeof(buf));
   ush_print(self, buf);
 }
 
