@@ -169,6 +169,21 @@
 #define CONFIG_I2C_ADDR_MIN         1
 #define CONFIG_I2C_ADDR_MAX         127
 
+//  EEPROM (AT24C32 on I2C bus 1)
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_EEPROM_I2C_ADDR
+#define CONFIG_EEPROM_I2C_ADDR      0x50
+#endif
+
+#ifndef CONFIG_EEPROM_PAGE_SIZE
+#define CONFIG_EEPROM_PAGE_SIZE     32
+#endif
+
+#ifndef CONFIG_EEPROM_TOTAL_SIZE
+#define CONFIG_EEPROM_TOTAL_SIZE    4096
+#endif
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  SD Card
 // ─────────────────────────────────────────────────────────────────────────────
