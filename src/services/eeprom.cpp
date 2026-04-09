@@ -81,7 +81,7 @@ static void eeprom_test_buffer_roundtrip(void) {
   for (int i = 0; i < 16; i++) write_buf[i] = i + 0x10;
 
   eeprom.writeBuffer(TEST_BASE + 20, write_buf, 16);
-  TEST_ASSERT_EQUAL_MESSAGE(0, eeprom.getLastError(),
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, eeprom.getLastError(),
     "device: error on writeBuffer");
 
   uint8_t read_buf[16] = {0};
@@ -101,7 +101,7 @@ static void eeprom_test_update_skips_same(void) {
 
   eeprom.write(TEST_BASE + 40, 0x42);
   eeprom.update(TEST_BASE + 40, 0x42);
-  TEST_ASSERT_EQUAL_MESSAGE(0, eeprom.getLastError(),
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, eeprom.getLastError(),
     "device: error on update with same value");
   TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x42, eeprom.read(TEST_BASE + 40),
     "device: value changed after no-op update");
@@ -112,6 +112,41 @@ static void eeprom_test_update_skips_same(void) {
 
   eeprom.write(TEST_BASE + 40, 0x00);
   TEST_MESSAGE("update wear-reduction verified");
+}
+
+static void eeprom_test_last_byte(void) {
+  TEST_MESSAGE("user writes and reads the last byte of EEPROM");
+  eeprom_init();
+
+  uint16_t last = CONFIG_EEPROM_TOTAL_SIZE - 1;
+  eeprom.write(last, 0x77);
+  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x77, eeprom.read(last),
+    "device: last byte mismatch");
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, eeprom.getLastError(),
+    "device: error on last byte access");
+  eeprom.write(last, 0x00);
+  TEST_MESSAGE("last byte roundtrip verified");
+}
+
+static void eeprom_test_page_boundary_buffer(void) {
+  TEST_MESSAGE("user writes a buffer that crosses a page boundary");
+  eeprom_init();
+
+  // Write 8 bytes starting 4 bytes before a page boundary
+  uint16_t addr = CONFIG_EEPROM_PAGE_SIZE - 4;
+  uint8_t write_buf[8] = {0xA0, 0xA1, 0xA2, 0xA3, 0xB0, 0xB1, 0xB2, 0xB3};
+  eeprom.writeBuffer(addr, write_buf, 8);
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, eeprom.getLastError(),
+    "device: error on cross-page write");
+
+  uint8_t read_buf[8] = {0};
+  eeprom.readBuffer(addr, read_buf, 8);
+  TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE(write_buf, read_buf, 8,
+    "device: cross-page buffer mismatch");
+
+  uint8_t zeros[8] = {0};
+  eeprom.writeBuffer(addr, zeros, 8);
+  TEST_MESSAGE("page boundary buffer verified");
 }
 
 void eeprom_run_tests(void) {
@@ -125,6 +160,10 @@ void eeprom_run_tests(void) {
      eeprom_test_buffer_roundtrip);
   it("user observes that update skips writes when value unchanged",
      eeprom_test_update_skips_same);
+  it("user observes that the last EEPROM byte is accessible",
+     eeprom_test_last_byte);
+  it("user observes that buffers crossing page boundaries work",
+     eeprom_test_page_boundary_buffer);
 }
 
 #endif

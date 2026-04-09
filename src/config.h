@@ -41,12 +41,14 @@
 #define CONFIG_SSH_USER             "root"
 #endif
 
+// LittleFS-native path (for LittleFS.exists / LittleFS.mkdir)
 #ifndef CONFIG_SSH_HOSTKEY_PATH
-#define CONFIG_SSH_HOSTKEY_PATH     "/littlefs/.ssh/id_ed25519"
+#define CONFIG_SSH_HOSTKEY_PATH     "/.ssh/id_ed25519"
 #endif
 
-#ifndef CONFIG_SSH_BUF_SIZE
-#define CONFIG_SSH_BUF_SIZE         2048
+// VFS path (for libssh POSIX fopen via ssh_pki_export_privkey_file)
+#ifndef CONFIG_SSH_HOSTKEY_VFS_PATH
+#define CONFIG_SSH_HOSTKEY_VFS_PATH "/littlefs/.ssh/id_ed25519"
 #endif
 
 #ifndef CONFIG_SSH_TASK_STACK
@@ -75,14 +77,6 @@
 
 #ifndef CONFIG_WIFI_NVS_NAMESPACE
 #define CONFIG_WIFI_NVS_NAMESPACE   "wifi"
-#endif
-
-#ifndef CONFIG_WIFI_AP_SSID
-#define CONFIG_WIFI_AP_SSID         "ceratina-setup"
-#endif
-
-#ifndef CONFIG_WIFI_AP_PASSWORD
-#define CONFIG_WIFI_AP_PASSWORD     "changeme123"
 #endif
 
 #define CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH  32

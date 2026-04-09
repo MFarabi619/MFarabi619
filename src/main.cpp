@@ -1,64 +1,30 @@
 //------------------------------------------
 //  Includes
 //------------------------------------------
+#include "config.h"
+
 #include <Arduino.h>
 #include <LittleFS.h>
-#include <WiFi.h>
+#include <Wire.h>
 
-#include "esp_netif.h"
+#include "networking/wifi.h"
+#include "networking/sntp.h"
+#include "services/http.h"
+#include "services/network.h"
 #include "programs/ssh/ssh_server.h"
 #include "programs/shell/shell.h"
 
 //------------------------------------------
-//  Configuration
+//  Network Services (idempotent — safe to call multiple times)
 //------------------------------------------
-static const char *WIFI_SSID = "YOUR_SSID";
-static const char *WIFI_PASSWORD = "YOUR_PASSWORD";
+void network_services_start(void) {
+  static bool sntp_done = false;
+  static bool ssh_done = false;
+  static bool http_done = false;
 
-static const uint32_t SYSTEM_TASK_STACK_SIZE = 8192;
-static const uint32_t WIFI_TIMEOUT_MS = 15000;
-static const uint32_t WIFI_POLL_INTERVAL_MS = 100;
-
-//------------------------------------------
-//  Globals
-//------------------------------------------
-static volatile bool wifi_connected = false;
-
-//------------------------------------------
-//  WiFi
-//------------------------------------------
-static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id,
-                               void *event_data) {
-  switch (id) {
-  case WIFI_EVENT_STA_CONNECTED:
-    Serial.println("[wifi] connected");
-    break;
-  case WIFI_EVENT_STA_DISCONNECTED:
-    Serial.println("[wifi] disconnected, reconnecting...");
-    wifi_connected = false;
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    break;
-  case IP_EVENT_STA_GOT_IP: {
-    ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-    Serial.printf("[wifi] got ip: %s\n",
-                  IPAddress(event->ip_info.ip.addr).toString().c_str());
-    wifi_connected = true;
-  } break;
-  default:
-    break;
-  }
-}
-
-static bool wifi_init(void) {
-  WiFi.disconnect(true);
-  WiFi.mode(WIFI_MODE_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  uint32_t start = millis();
-  while (!wifi_connected && (millis() - start) < WIFI_TIMEOUT_MS) {
-    vTaskDelay(pdMS_TO_TICKS(WIFI_POLL_INTERVAL_MS));
-  }
-  return wifi_connected;
+  if (!sntp_done) sntp_done = sntp_sync();
+  if (!ssh_done) { ssh_server_start(); ssh_done = true; }
+  if (!http_done) { http_server_start(); http_done = true; }
 }
 
 //------------------------------------------
@@ -67,39 +33,46 @@ static bool wifi_init(void) {
 static void system_task(void *pvParameters) {
   (void)pvParameters;
 
-  Serial.println("[system] booting...");
+  Serial.println(F("[system] booting..."));
 
-  // Initialize shell (Serial console available immediately)
+  // Power on I2C sensor relay and init buses
+  pinMode(CONFIG_I2C_RELAY_POWER_GPIO, OUTPUT);
+  digitalWrite(CONFIG_I2C_RELAY_POWER_GPIO, HIGH);
+  delay(100);
+  Wire.begin(CONFIG_I2C_0_SDA_GPIO, CONFIG_I2C_0_SCL_GPIO, CONFIG_I2C_FREQUENCY_KHZ * 1000);
+  Wire.setTimeOut(100);
+  Wire1.begin(CONFIG_I2C_1_SDA_GPIO, CONFIG_I2C_1_SCL_GPIO, CONFIG_I2C_FREQUENCY_KHZ * 1000);
+  Wire1.setTimeOut(100);
+
   shell_init();
 
-  // Mount LittleFS for SSH host key storage
-  if (!LittleFS.begin(true)) {
-    Serial.println("[fs] LittleFS mount failed");
+  if (!LittleFS.begin(false)) {
+    Serial.println(F("[fs] LittleFS mount failed — NOT formatting to preserve data"));
   } else {
-    Serial.printf("[fs] LittleFS mounted, used=%d total=%d\n",
-                  LittleFS.usedBytes(), LittleFS.totalBytes());
-
-    // Ensure .ssh directory exists
-    if (!LittleFS.exists("/.ssh")) {
-      LittleFS.mkdir("/.ssh");
-      Serial.println("[fs] created /.ssh directory");
-    }
+    Serial.printf("[fs] LittleFS: %d/%d KB used\n",
+                  LittleFS.usedBytes() / 1024, LittleFS.totalBytes() / 1024);
   }
 
-  // Connect WiFi
-  if (!wifi_init()) {
-    Serial.println("[wifi] connection failed, rebooting in 10s...");
-    vTaskDelay(pdMS_TO_TICKS(10000));
-    esp_restart();
+  if (wifi_connect()) {
+    network_services_start();
+  } else {
+    Serial.println(F("[wifi] not connected — use wifi-set then reboot"));
   }
 
-  // Start services
-  ssh_server_start();
-
-  // Shell service loop (non-blocking)
+  // Shell service loop (non-blocking) + SSE heartbeat
+  uint32_t last_heartbeat = 0;
   for (;;) {
     shell_service();
-    vTaskDelay(pdMS_TO_TICKS(10));
+
+    if (millis() - last_heartbeat > 5000) {
+      last_heartbeat = millis();
+      char buf[64];
+      snprintf(buf, sizeof(buf), "{\"uptime\":%lu,\"heap\":%u}",
+               millis() / 1000, ESP.getFreeHeap());
+      http_events.send(buf, "heartbeat", millis());
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(CONFIG_SHELL_SERVICE_INTERVAL_MS));
   }
 }
 
@@ -109,17 +82,12 @@ static void system_task(void *pvParameters) {
 #ifndef PIO_UNIT_TESTING
 
 void setup(void) {
-  Serial.begin(115200);
+  Serial.begin(CONFIG_SERIAL_BAUD);
   delay(100);
 
-  esp_netif_init();
-  esp_event_loop_create_default();
-  esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
-                                      wifi_event_handler, NULL, NULL);
-  esp_event_handler_instance_register(IP_EVENT, ESP_EVENT_ANY_ID,
-                                      wifi_event_handler, NULL, NULL);
+  wifi_setup();
 
-  xTaskCreatePinnedToCore(system_task, "system", SYSTEM_TASK_STACK_SIZE, NULL,
+  xTaskCreatePinnedToCore(system_task, "system", CONFIG_SYSTEM_TASK_STACK, NULL,
                           1, NULL, 1);
 }
 

@@ -18,10 +18,11 @@
 //------------------------------------------
 static struct _reent reent_data_esp32;
 
-static const char *ssh_user    = SSH_DEFAULT_USER;
-static const char *ssh_password = SSH_DEFAULT_USER;
-static const char *ssh_hostkey = SSH_DEFAULT_HOSTKEY;
-static const int   ssh_port    = SSH_DEFAULT_PORT;
+static const char *ssh_user       = CONFIG_SSH_USER;
+static const char *ssh_password   = CONFIG_SSH_USER;
+static const char *ssh_hostkey    = CONFIG_SSH_HOSTKEY_PATH;
+static const char *ssh_hostkey_vfs = CONFIG_SSH_HOSTKEY_VFS_PATH;
+static const int   ssh_port       = CONFIG_SSH_PORT;
 
 //------------------------------------------
 //  Per-connection state
@@ -33,8 +34,8 @@ static volatile bool session_alive = true;
 //------------------------------------------
 //  Ring buffer (SSH channel → MicroShell)
 //------------------------------------------
-#define SSH_RING_SIZE 512
-static char ssh_ring[SSH_RING_SIZE];
+
+static char ssh_ring[CONFIG_SSH_RING_SIZE];
 static volatile int ssh_ring_head = 0;
 static volatile int ssh_ring_tail = 0;
 
@@ -44,7 +45,7 @@ static void ssh_ring_reset(void) {
 }
 
 static void ssh_ring_push(char c) {
-  int next = (ssh_ring_head + 1) % SSH_RING_SIZE;
+  int next = (ssh_ring_head + 1) % CONFIG_SSH_RING_SIZE;
   if (next != ssh_ring_tail) {
     ssh_ring[ssh_ring_head] = c;
     ssh_ring_head = next;
@@ -54,16 +55,14 @@ static void ssh_ring_push(char c) {
 static int ssh_ring_pop(char *c) {
   if (ssh_ring_tail == ssh_ring_head) return 0;
   *c = ssh_ring[ssh_ring_tail];
-  ssh_ring_tail = (ssh_ring_tail + 1) % SSH_RING_SIZE;
+  ssh_ring_tail = (ssh_ring_tail + 1) % CONFIG_SSH_RING_SIZE;
   return 1;
 }
 
 //------------------------------------------
 //  MicroShell instance for SSH
 //------------------------------------------
-// Write buffer — accumulate output, flush in one SSH packet
-#define SSH_WRITE_BUF_SIZE 1024
-static char ssh_write_buf[SSH_WRITE_BUF_SIZE];
+static char ssh_write_buf[CONFIG_SSH_WRITE_BUF_SIZE];
 static int ssh_write_buf_pos = 0;
 
 static void ssh_write_flush(void) {
@@ -83,7 +82,7 @@ static int ssh_shell_write(struct ush_object *self, char ch) {
   (void)self;
   if (!active_chan) return 0;
   ssh_write_buf[ssh_write_buf_pos++] = ch;
-  if (ssh_write_buf_pos >= SSH_WRITE_BUF_SIZE)
+  if (ssh_write_buf_pos >= CONFIG_SSH_WRITE_BUF_SIZE)
     ssh_write_flush();
   return 1;
 }
@@ -93,8 +92,8 @@ static const struct ush_io_interface ssh_shell_io = {
   .write = ssh_shell_write,
 };
 
-static char ssh_shell_in_buf[SHELL_BUF_IN_SIZE];
-static char ssh_shell_out_buf[SHELL_BUF_OUT_SIZE];
+static char ssh_shell_in_buf[CONFIG_SHELL_BUF_IN];
+static char ssh_shell_out_buf[CONFIG_SHELL_BUF_OUT];
 static struct ush_object ssh_ush;
 
 static const struct ush_descriptor ssh_shell_desc = {
@@ -103,7 +102,7 @@ static const struct ush_descriptor ssh_shell_desc = {
   .input_buffer_size = sizeof(ssh_shell_in_buf),
   .output_buffer = ssh_shell_out_buf,
   .output_buffer_size = sizeof(ssh_shell_out_buf),
-  .path_max_length = SHELL_PATH_MAX_SIZE,
+  .path_max_length = CONFIG_SHELL_PATH_MAX,
   .hostname = shell_get_hostname(),
 };
 
@@ -129,7 +128,7 @@ static int on_auth_password(ssh_session session, const char *user,
 static ssh_channel on_channel_open(ssh_session session, void *userdata) {
   (void)userdata;
   active_chan = ssh_channel_new(session);
-  Serial.println("[ssh] channel opened");
+  Serial.println(F("[ssh] channel opened"));
   return active_chan;
 }
 
@@ -163,7 +162,7 @@ static int on_pty_request(ssh_session session, ssh_channel channel,
 static int on_shell_request(ssh_session session, ssh_channel channel,
                             void *userdata) {
   (void)session; (void)channel; (void)userdata;
-  Serial.println("[ssh] shell requested");
+  Serial.println(F("[ssh] shell requested"));
   shell_requested = true;
   return 0;  // accept
 }
@@ -185,27 +184,28 @@ static void on_channel_close(ssh_session session, ssh_channel channel,
 //------------------------------------------
 static bool ssh_ensure_hostkey(void) {
   if (LittleFS.exists(ssh_hostkey)) {
-    Serial.println("[ssh] host key found");
+    Serial.println(F("[ssh] host key found"));
     return true;
   }
 
-  Serial.println("[ssh] generating ed25519 host key...");
+  Serial.println(F("[ssh] generating ed25519 host key..."));
+  LittleFS.mkdir("/.ssh");
   ssh_key key = NULL;
   int rc = ssh_pki_generate(SSH_KEYTYPE_ED25519, 0, &key);
   if (rc != SSH_OK || key == NULL) {
-    Serial.println("[ssh] key generation failed");
+    Serial.println(F("[ssh] key generation failed"));
     return false;
   }
 
-  rc = ssh_pki_export_privkey_file(key, NULL, NULL, NULL, ssh_hostkey);
+  rc = ssh_pki_export_privkey_file(key, NULL, NULL, NULL, ssh_hostkey_vfs);
   ssh_key_free(key);
 
   if (rc != SSH_OK) {
-    Serial.printf("[ssh] failed to write key to %s\n", ssh_hostkey);
+    Serial.printf("[ssh] failed to write key to %s\n", ssh_hostkey_vfs);
     return false;
   }
 
-  Serial.printf("[ssh] host key saved to %s\n", ssh_hostkey);
+  Serial.printf("[ssh] host key saved to %s\n", ssh_hostkey_vfs);
   return true;
 }
 
@@ -219,15 +219,16 @@ static void ssh_server_task(void *pvParameters) {
   libssh_begin();
 
   if (!ssh_ensure_hostkey()) {
-    Serial.println("[ssh] cannot start without host key");
+    Serial.println(F("[ssh] cannot start without host key"));
     vTaskDelete(NULL);
     return;
   }
 
   // Bind once, accept in loop
   ssh_bind sshbind = ssh_bind_new();
+  ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDADDR, "0.0.0.0");
   ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDPORT, &ssh_port);
-  ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_HOSTKEY, ssh_hostkey);
+  ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_HOSTKEY, ssh_hostkey_vfs);
 
   if (ssh_bind_listen(sshbind) < 0) {
     Serial.printf("[ssh] bind error: %s\n", ssh_get_error(sshbind));
@@ -248,7 +249,7 @@ static void ssh_server_task(void *pvParameters) {
       continue;
     }
 
-    Serial.println("[ssh] client connected");
+    Serial.println(F("[ssh] client connected"));
 
     if (ssh_handle_key_exchange(session) != SSH_OK) {
       Serial.printf("[ssh] key exchange error: %s\n", ssh_get_error(session));
@@ -302,7 +303,7 @@ static void ssh_server_task(void *pvParameters) {
     }
 
     if (!session_alive || !active_chan || !shell_requested) {
-      Serial.println("[ssh] session setup failed");
+      Serial.println(F("[ssh] session setup failed"));
       ssh_event_remove_session(event, session);
       ssh_event_free(event);
       if (active_chan) { ssh_channel_free(active_chan); active_chan = NULL; }
@@ -312,7 +313,7 @@ static void ssh_server_task(void *pvParameters) {
     }
 
     // Phase 2: Shell session — MicroShell over SSH
-    Serial.println("[ssh] shell session started");
+    Serial.println(F("[ssh] shell session started"));
     ssh_shell_setup();
 
     while (session_alive) {
@@ -324,7 +325,7 @@ static void ssh_server_task(void *pvParameters) {
         break;
     }
 
-    Serial.println("[ssh] shell session ended");
+    Serial.println(F("[ssh] shell session ended"));
 
     ssh_event_remove_session(event, session);
     ssh_event_free(event);
@@ -337,7 +338,7 @@ static void ssh_server_task(void *pvParameters) {
     ssh_disconnect(session);
     ssh_free(session);
 
-    Serial.println("[ssh] ready for next connection");
+    Serial.println(F("[ssh] ready for next connection"));
   }
 }
 
@@ -345,7 +346,7 @@ static void ssh_server_task(void *pvParameters) {
 //  Public API
 //------------------------------------------
 void ssh_server_start(void) {
-  xTaskCreatePinnedToCore(ssh_server_task, "ssh", SSH_TASK_STACK_SIZE,
+  xTaskCreatePinnedToCore(ssh_server_task, "ssh", CONFIG_SSH_TASK_STACK,
                           NULL, 2, NULL, 1);
 }
 
@@ -357,7 +358,6 @@ void ssh_server_start(void) {
 
 #include "../../testing/it.h"
 
-/// it("user observes that libssh initializes without crashing")
 static void ssh_server_test_libssh_initializes(void) {
   TEST_MESSAGE("user asks the device to initialize libssh");
 
@@ -371,7 +371,6 @@ static void ssh_server_test_libssh_initializes(void) {
   ssh_free(session);
 }
 
-/// it("user observes that an ed25519 host key can be generated in memory")
 static void ssh_server_test_generates_ed25519_key(void) {
   TEST_MESSAGE("user asks the device to generate an ed25519 keypair");
 
@@ -395,7 +394,6 @@ static void ssh_server_test_generates_ed25519_key(void) {
   ssh_key_free(key);
 }
 
-/// it("user observes that ssh_bind can be created and bound to a port")
 static void ssh_server_test_bind_configures(void) {
   TEST_MESSAGE("user asks the device to create an SSH bind on port 2222");
 
@@ -416,24 +414,21 @@ static void ssh_server_test_bind_configures(void) {
   ssh_bind_free(sshbind);
 }
 
-/// it("user observes that the default configuration constants are sane")
 static void ssh_server_test_config_defaults(void) {
   TEST_MESSAGE("user verifies SSH server configuration defaults");
 
-  TEST_ASSERT_EQUAL_INT_MESSAGE(22, SSH_DEFAULT_PORT,
+  TEST_ASSERT_EQUAL_INT_MESSAGE(22, CONFIG_SSH_PORT,
     "device: default SSH port should be 22");
-  TEST_ASSERT_NOT_NULL_MESSAGE(SSH_DEFAULT_USER,
+  TEST_ASSERT_NOT_NULL_MESSAGE(CONFIG_SSH_USER,
     "device: default SSH user must not be NULL");
-  TEST_ASSERT_NOT_EMPTY_MESSAGE(SSH_DEFAULT_USER,
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(CONFIG_SSH_USER,
     "device: default SSH user must not be empty");
-  TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(0, SSH_BUF_SIZE,
-    "device: SSH buffer size must be > 0");
-  TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE(10240, SSH_TASK_STACK_SIZE,
+  TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE(10240, CONFIG_SSH_TASK_STACK,
     "device: SSH task stack must be >= 10240 for libssh key exchange");
 
-  TEST_ASSERT_NOT_NULL_MESSAGE(SSH_DEFAULT_HOSTKEY,
+  TEST_ASSERT_NOT_NULL_MESSAGE(CONFIG_SSH_HOSTKEY_PATH,
     "device: host key path must not be NULL");
-  TEST_ASSERT_NOT_EMPTY_MESSAGE(SSH_DEFAULT_HOSTKEY,
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(CONFIG_SSH_HOSTKEY_PATH,
     "device: host key path must not be empty");
 
   TEST_MESSAGE("configuration defaults are sane");

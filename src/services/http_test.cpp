@@ -22,7 +22,7 @@ static void http_test_port_default(void) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 static void json_test_create_and_serialize(void) {
-  TEST_MESSAGE("user creates a JSON document and serializes it");
+  TEST_MESSAGE("user creates a JSON document, serializes, and deserializes to verify");
 
   JsonDocument doc;
   doc["hostname"] = "microvisor";
@@ -31,15 +31,19 @@ static void json_test_create_and_serialize(void) {
 
   char buf[128];
   size_t len = serializeJson(doc, buf, sizeof(buf));
-
   TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)len,
     "device: serializeJson returned 0");
-  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "\"hostname\":\"microvisor\""),
-    "device: hostname not found in serialized JSON");
-  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "\"port\":22"),
-    "device: port not found in serialized JSON");
-  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "\"active\":true"),
-    "device: active not found in serialized JSON");
+
+  // Deserialize and assert typed fields — stronger than strstr
+  JsonDocument readback;
+  DeserializationError err = deserializeJson(readback, buf);
+  TEST_ASSERT_FALSE_MESSAGE((bool)err, "device: failed to deserialize own output");
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("microvisor", readback["hostname"].as<const char *>(),
+    "device: hostname mismatch after roundtrip");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(22, readback["port"].as<int>(),
+    "device: port mismatch after roundtrip");
+  TEST_ASSERT_TRUE_MESSAGE(readback["active"].as<bool>(),
+    "device: active should be true after roundtrip");
 
   TEST_MESSAGE(buf);
 }
@@ -140,7 +144,7 @@ static void json_test_nested_objects_and_arrays(void) {
 static void json_test_file_roundtrip(void) {
   TEST_MESSAGE("user writes JSON to LittleFS and reads it back");
 
-  LittleFS.begin(true);
+  LittleFS.begin(false);
   const char *path = "/.test_json.tmp";
 
   // Write
@@ -170,7 +174,8 @@ static void json_test_file_roundtrip(void) {
   TEST_MESSAGE("JSON file roundtrip verified");
 }
 
-void http_run_tests(void) {
+// HTTP route tests require a real TCP client — belong in test_e2e/
+void json_run_tests(void) {
   it("user observes that HTTP port is configured to 80",
      http_test_port_default);
   it("user observes that ArduinoJson creates and serializes a document",

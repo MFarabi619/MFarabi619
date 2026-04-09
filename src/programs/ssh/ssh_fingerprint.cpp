@@ -1,6 +1,3 @@
-// SSH host key fingerprint — mountable as /dev/ssh/fingerprint
-// Based on keygen2 example: ssh_pki_import_privkey_file + ssh_get_publickey_hash
-
 #include "ssh_server.h"
 
 #include <Arduino.h>
@@ -18,7 +15,7 @@ static size_t fingerprint_get_data(struct ush_object *self,
   buf[0] = '\0';
 
   ssh_key key = NULL;
-  int rc = ssh_pki_import_privkey_file(SSH_DEFAULT_HOSTKEY, NULL, NULL, NULL, &key);
+  int rc = ssh_pki_import_privkey_file(CONFIG_SSH_HOSTKEY_VFS_PATH, NULL, NULL, NULL, &key);
   if (rc != SSH_OK) {
     snprintf(buf, sizeof(buf), "(no host key)\r\n");
     *data = (uint8_t *)buf;
@@ -36,7 +33,6 @@ static size_t fingerprint_get_data(struct ush_object *self,
     return strlen(buf);
   }
 
-  // Format as SSH fingerprint string: SHA256:base64...
   char *hex = ssh_get_fingerprint_hash(SSH_PUBLICKEY_HASH_SHA256, hash, hlen);
   ssh_clean_pubkey_hash(&hash);
 

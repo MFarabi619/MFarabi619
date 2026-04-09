@@ -92,29 +92,38 @@ static void api_files(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+static bool upload_ok = false;
+
 static void api_upload_handler(AsyncWebServerRequest *request, String filename,
                                size_t index, uint8_t *data, size_t len, bool final) {
   if (!index) {
+    upload_ok = false;
+    if (!SD.begin(CONFIG_SD_CS_GPIO)) return;
     String path = "/" + filename;
     request->_tempFile = SD.open(path.c_str(), FILE_WRITE, true);
     if (!request->_tempFile) return;
+    upload_ok = true;
     Serial.printf("[http] upload: %s\n", filename.c_str());
   }
 
-  if (request->_tempFile && len)
-    request->_tempFile.write(data, len);
+  if (upload_ok && request->_tempFile && len) {
+    if (request->_tempFile.write(data, len) != len)
+      upload_ok = false;
+  }
 
-  if (final && request->_tempFile) {
-    request->_tempFile.close();
-    Serial.printf("[http] upload complete: %s (%u bytes)\n",
-                  filename.c_str(), (unsigned)(index + len));
+  if (final) {
+    if (request->_tempFile) request->_tempFile.close();
+    if (upload_ok)
+      Serial.printf("[http] upload complete: %s (%u bytes)\n",
+                    filename.c_str(), (unsigned)(index + len));
   }
 }
 
 static void api_upload_complete(AsyncWebServerRequest *request) {
   AsyncJsonResponse *response = new AsyncJsonResponse();
+  response->setCode(upload_ok ? 200 : 500);
   JsonObject root = response->getRoot().to<JsonObject>();
-  root["status"] = "ok";
+  root["status"] = upload_ok ? "ok" : "error";
   response->setLength();
   request->send(response);
 }

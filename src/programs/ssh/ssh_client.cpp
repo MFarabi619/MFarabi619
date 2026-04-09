@@ -1,5 +1,7 @@
-// SSH client commands: ssh-exec, scp-get, scp-put, ota
-// Based on exec.cpp, libssh_scp.ino, and FirmwareOTAClientSCP.ino examples
+// HACK: SCP API is deprecated in libssh 0.11+ (replaced by SFTP).
+// LibSSH-ESP32 5.8.0 only provides SCP — suppress until SFTP is ported.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 #include "ssh_client.h"
 #include "ssh_server.h"
@@ -16,9 +18,8 @@
 //------------------------------------------
 //  Helpers
 //------------------------------------------
-#define SCP_BUF_SIZE 4096
 
-// Connect to a remote SSH server with password auth.
+// Caller must ssh_disconnect + ssh_free when done.
 // Caller must ssh_disconnect + ssh_free when done.
 static ssh_session ssh_client_connect(const char *host, const char *user,
                                       const char *password) {
@@ -46,7 +47,7 @@ static ssh_session ssh_client_connect(const char *host, const char *user,
 }
 
 //------------------------------------------
-//  ssh-exec user@host password command
+//  ssh-exec
 //------------------------------------------
 static void cmd_ssh_exec(struct ush_object *self,
                          struct ush_file_descriptor const *file,
@@ -61,7 +62,17 @@ static void cmd_ssh_exec(struct ush_object *self,
   const char *host = argv[1];
   const char *user = argv[2];
   const char *pass = argv[3];
-  const char *cmd  = argv[4];
+
+  // Join argv[4..argc-1] into a single command string
+  static char cmd_buf[256];
+  int pos = 0;
+  for (int i = 4; i < argc && pos < (int)sizeof(cmd_buf) - 1; i++) {
+    if (i > 4) cmd_buf[pos++] = ' ';
+    int n = snprintf(cmd_buf + pos, sizeof(cmd_buf) - pos, "%s", argv[i]);
+    pos += n;
+  }
+  cmd_buf[pos] = '\0';
+  const char *cmd = cmd_buf;
 
   ush_print(self, (char *)"connecting...\r\n");
   ssh_session session = ssh_client_connect(host, user, pass);
@@ -104,7 +115,7 @@ static void cmd_ssh_exec(struct ush_object *self,
 }
 
 //------------------------------------------
-//  scp-get host user password remote local
+//  scp-get
 //------------------------------------------
 static void cmd_scp_get(struct ush_object *self,
                         struct ush_file_descriptor const *file,
@@ -159,18 +170,23 @@ static void cmd_scp_get(struct ush_object *self,
     return;
   }
 
-  char buf[SCP_BUF_SIZE];
+  char buf[CONFIG_SCP_BUF_SIZE];
   size_t total = 0;
+  bool failed = false;
   while (total < file_size) {
     r = ssh_scp_read(scp, buf, sizeof(buf));
-    if (r == SSH_ERROR || r == 0) break;
+    if (r == SSH_ERROR || r == 0) { failed = true; break; }
     fwrite(buf, 1, r, fp);
     total += r;
   }
   fclose(fp);
 
-  char msg[64];
-  snprintf(msg, sizeof(msg), "downloaded %u bytes\r\n", (unsigned)total);
+  char msg[80];
+  if (failed || total < file_size)
+    snprintf(msg, sizeof(msg), "transfer incomplete: %u/%u bytes\r\n",
+             (unsigned)total, (unsigned)file_size);
+  else
+    snprintf(msg, sizeof(msg), "downloaded %u bytes\r\n", (unsigned)total);
   ush_print(self, msg);
 
   ssh_scp_free(scp);
@@ -179,7 +195,7 @@ static void cmd_scp_get(struct ush_object *self,
 }
 
 //------------------------------------------
-//  scp-put host user password local remote
+//  scp-put
 //------------------------------------------
 static void cmd_scp_put(struct ush_object *self,
                         struct ush_file_descriptor const *file,
@@ -237,17 +253,22 @@ static void cmd_scp_put(struct ush_object *self,
     return;
   }
 
-  char buf[SCP_BUF_SIZE];
+  char buf[CONFIG_SCP_BUF_SIZE];
   size_t total = 0;
+  bool failed = false;
   size_t n;
   while ((n = fread(buf, 1, sizeof(buf), fp)) > 0) {
-    if (ssh_scp_write(scp, buf, n) != SSH_OK) break;
+    if (ssh_scp_write(scp, buf, n) != SSH_OK) { failed = true; break; }
     total += n;
   }
   fclose(fp);
 
-  char msg[64];
-  snprintf(msg, sizeof(msg), "uploaded %u bytes\r\n", (unsigned)total);
+  char msg[80];
+  if (failed || total < file_size)
+    snprintf(msg, sizeof(msg), "transfer incomplete: %u/%u bytes\r\n",
+             (unsigned)total, (unsigned)file_size);
+  else
+    snprintf(msg, sizeof(msg), "uploaded %u bytes\r\n", (unsigned)total);
   ush_print(self, msg);
 
   ssh_scp_close(scp);
@@ -257,8 +278,7 @@ static void cmd_scp_put(struct ush_object *self,
 }
 
 //------------------------------------------
-//  ota host user password remote-path
-//  Pull firmware via SCP, flash to OTA partition, reboot
+//  ota
 //------------------------------------------
 static void cmd_ota(struct ush_object *self,
                     struct ush_file_descriptor const *file,
@@ -331,7 +351,7 @@ static void cmd_ota(struct ush_object *self,
   }
 
   // Read + write loop
-  char buf[SCP_BUF_SIZE];
+  char buf[CONFIG_SCP_BUF_SIZE];
   size_t total = 0;
   bool failed = false;
 
@@ -413,3 +433,5 @@ void ssh_client_commands_register(struct ush_object *ush) {
   ush_commands_add(ush, &ssh_client_cmd_node, ssh_client_cmd_files,
                    sizeof(ssh_client_cmd_files) / sizeof(ssh_client_cmd_files[0]));
 }
+
+#pragma GCC diagnostic pop
