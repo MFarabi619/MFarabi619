@@ -169,6 +169,11 @@
 #define CONFIG_I2C_ADDR_MIN         1
 #define CONFIG_I2C_ADDR_MAX         127
 
+#ifndef CONFIG_I2C_MUX_ADDR
+#define CONFIG_I2C_MUX_ADDR         0x70
+#endif
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  EEPROM (AT24C32 on I2C bus 1)
 // ─────────────────────────────────────────────────────────────────────────────
 
