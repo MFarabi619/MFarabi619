@@ -169,4 +169,12 @@
 #define CONFIG_I2C_ADDR_MIN         1
 #define CONFIG_I2C_ADDR_MAX         127
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  SCP
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_SCP_BUF_SIZE
+#define CONFIG_SCP_BUF_SIZE         4096
+#endif
+
 #endif // CONFIG_H
