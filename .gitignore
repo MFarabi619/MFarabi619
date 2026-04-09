@@ -1,3 +1,4 @@
+# [[file:CONTRIBUTING.org::*Misc][Misc:2]]
 #====================================================
 #              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
@@ -12,7 +13,6 @@ assets/static/tui.js
 assets/static/index.html
 assets/static/tui_bg.wasm
 .shellspec
-**/.zig-cache
 **/node_modules
 tests/env_spec.sh
 learning/assembly/build/
@@ -21,18 +21,19 @@ config/data.sqld
 #====================================================
 #                 CACHES/LOGS
 #====================================================
-logs
-# MSVC Windows builds of rustc generate these, which store debugging information
+logs # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
-*.sqlite
+.cache
 .devenv*
-**/*.qcow2
-*.sqlite-*
 .direnv
+*.sqlite
+*.sqlite-*
+**/*.qcow2
 **/.direnv/
 **/*.rs.bk
 .open-webui
 **/.git-hooks
+**/.zig-cache
 devenv.local.nix
 devenv.local.yaml
 local.properties
@@ -65,3 +66,4 @@ local.properties
 opencode.json
 /.codex/config.toml
 /compile_commands.json
+# Misc:2 ends here

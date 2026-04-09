@@ -473,3 +473,73 @@ FLASH : ORIGIN = 0x08000000, LENGTH = 1024K
 RAM   : ORIGIN = 0x20000000, LENGTH = 128K
 }
 #+end_src
+#+begin_SRC .gitignore :tangle .gitignore
+#====================================================
+#              🏗 BUILD/TEST OUTPUTS 🏗
+#====================================================
+# .dir-locals.el
+**/.pio/
+**/debug/
+**/result
+**/zig-out
+**/target/
+**/dist
+assets/static/tui.js
+assets/static/index.html
+assets/static/tui_bg.wasm
+.shellspec
+**/node_modules
+tests/env_spec.sh
+learning/assembly/build/
+config/data.sqld
+
+#====================================================
+#                 CACHES/LOGS
+#====================================================
+logs # MSVC Windows builds of rustc generate these, which store debugging information
+*.pdb
+.cache
+.devenv*
+.direnv
+*.sqlite
+*.sqlite-*
+**/*.qcow2
+**/.direnv/
+**/*.rs.bk
+.open-webui
+**/.git-hooks
+**/.zig-cache
+devenv.local.nix
+devenv.local.yaml
+local.properties
+.webui_secret_key
+.pre-commit-config.yaml
+
+#====================================================
+#                  MISCELLANEOUS
+#====================================================
+.c9
+*.pem
+*tmp*
+.idea/
+.project
+*.launch
+.vscode/*
+.DS_Store
+.settings
+.classpath
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/settings-example.json
+
+#====================================================
+#                  DEPENDENCIES
+#====================================================
+/.pnp
+.pnp.js
+
+opencode.json
+/.codex/config.toml
+/compile_commands.json
+#+END_SRC
+
