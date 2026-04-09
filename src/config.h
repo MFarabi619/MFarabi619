@@ -110,4 +110,12 @@
 #define CONFIG_NTP_SYNC_TIMEOUT_MS  10000
 #endif
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  HTTP
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_HTTP_PORT
+#define CONFIG_HTTP_PORT            80
+#endif
+
 #endif // CONFIG_H
