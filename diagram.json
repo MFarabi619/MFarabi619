@@ -1,3 +1,4 @@
+// [[file:CONTRIBUTING.org::*\[\[https:/docs.wokwi.com/diagram-format\]\[Wiring Diagram\]\]][[[https://docs.wokwi.com/diagram-format][Wiring Diagram]]:1]]
 {
   "connections": [
     [
@@ -31,3 +32,4 @@
   },
   "version": 1
 }
+// [[https://docs.wokwi.com/diagram-format][Wiring Diagram]]:1 ends here
