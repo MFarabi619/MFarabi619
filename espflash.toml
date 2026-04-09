@@ -1,3 +1,5 @@
+# [[file:CONTRIBUTING.org::*\[\[https:/github.com/esp-rs/espflash\]\[espflash\]\]][[[https://github.com/esp-rs/espflash][espflash]]:1]]
 [idf_format_args]
-partition_table = "boards/esp32s3.partitions.csv"
 target_app_partition = "ota_0"
+partition_table = "boards/esp32s3.partitions.csv"
+# [[https://github.com/esp-rs/espflash][espflash]]:1 ends here

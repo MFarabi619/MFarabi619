@@ -5,6 +5,14 @@
 #+PROPERTY: header-args :comments link :noweb yes :mkdirp yes :padline no
 * Files
 ** Firmware
+*** [[https://github.com/esp-rs/espflash][espflash]]
+
+#+begin_src toml :tangle espflash.toml
+[idf_format_args]
+target_app_partition = "ota_0"
+partition_table = "boards/esp32s3.partitions.csv"
+#+end_src
+
 *** platformio
 
 #+begin_src conf :tangle platformio.ini
