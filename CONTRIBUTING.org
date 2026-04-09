@@ -3,6 +3,8 @@
 #+auto_tangle: nil
 
 #+PROPERTY: header-args :comments link :noweb yes :mkdirp yes :padline no
+* Files
+** Firmware
 *** platformio
 
 #+begin_src conf :tangle platformio.ini
@@ -123,4 +125,30 @@ board_build.filesystem  =  littlefs
 #   -DCONFIG_TEMPERATURE_AND_HUMIDITY_1_I2C_ADDRESS=68
 #   -DCONFIG_TEMPERATURE_AND_HUMIDITY_RESET_GPIO_PIN=4
 #+end_src
+
+**** Other
+ESP32-S3 flash is 8MB, divided into a dual-OTA layout for safe over-the-air updates.
+The bootloader checks =otadata= to decide whether to boot from =ota_0= or =ota_1=.
+A new firmware image is written to the *inactive* slot, then =otadata= is flipped.
+If the new image fails to boot, the bootloader rolls back automatically.
+
+| Partition | Offset   | Size  | Purpose                                           |
+|-----------+----------+-------+---------------------------------------------------|
+| =nvs=       | =0x9000=   | 16 KB | Non-volatile storage (WiFi credentials, settings) |
+| =otadata=   | =0xD000=   | 8 KB  | Tracks which OTA slot is active                   |
+| =phy_init=  | =0xF000=   | 4 KB  | RF calibration data for WiFi/BLE                  |
+| =ota_0=     | =0x10000=  | ~4 MB | Primary firmware slot                             |
+| =ota_1=     | =0x400000= | 4 MB  | Secondary firmware slot (OTA target)              |
+
+#+begin_src csv :tangle boards/esp32s3.partitions.csv
+# https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-guides/partition-tables.html
+
+# Name,   Type, SubType, Offset,   Size,     Flags
+nvs,      data, nvs,     0x9000,   0x4000,
+otadata,  data, ota,     0xd000,   0x2000,
+phy_init, data, phy,     0xf000,   0x1000,
+ota_0,    app,  ota_0,   0x10000,  0x3F0000,
+ota_1,    app,  ota_1,   0x400000, 0x400000,
+#+end_src
+
 
