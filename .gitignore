@@ -64,5 +64,4 @@ local.properties
 
 opencode.json
 /.codex/config.toml
-/platformio.ini
 /compile_commands.json
