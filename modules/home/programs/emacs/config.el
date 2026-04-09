@@ -14,10 +14,6 @@
 (set-frame-parameter nil 'undecorated t)
 (add-to-list 'default-frame-alist '(undecorated . t))
 
-;; (after! doom-modeline
-;;   (setopt doom-modeline-percent-position nil
-;;           doom-modeline-buffer-position nil))
-
 (setopt doom-theme 'doom-gruvbox
         ;; doom-theme 'catppuccin
         fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
@@ -36,8 +32,8 @@
         display-time-day-and-date t
         display-line-numbers-type 'relative
 
-        doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
-        doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 32)
+        doom-font                (font-spec :family "JetBrainsMono Nerd Font" :size 14)
+        doom-big-font            (font-spec :family "JetBrainsMono Nerd Font" :size 32)
         doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
         doom-symbol-font doom-font
 
