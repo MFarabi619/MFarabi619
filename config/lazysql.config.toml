@@ -1,3 +1,4 @@
+# [[file:../CONTRIBUTING.org::*\[\[https:/github.com/jorgerojas26/lazysql\]\[lazysql\]\]][[[https://github.com/jorgerojas26/lazysql][lazysql]]:1]]
 [application]
 TreeWidth            = 20
 DefaultPageSize      = 300
@@ -13,3 +14,4 @@ Provider  = 'postgres'
 Name      = 'microvisor'
 Schemas   = [ 'public' ]
 URL       = 'postgresql://mfarabi@${env:PGHOST}/microvisor?sslmode=disable'
+# [[https://github.com/jorgerojas26/lazysql][lazysql]]:1 ends here
