@@ -54,7 +54,6 @@
 
 ;; (package! org-gcal)
 ;; (package! consult-gh)
-;; (package! magit-todos)
 
 (when (eq system-type 'berkeley-unix)
   (package! pg)
@@ -99,42 +98,12 @@
   (package! speed-type)
   (package! chordpro-mode))
 
-;; (package! pg
-;;   :recipe (:host github
-;;            :repo "emarsden/pg-el")
-;;   :pin "67f50311947a54913d91852ebd6880dbe68930bc")
+;; (package! pg     :recipe (:host github :repo "emarsden/pg-el")  :pin "67f50311947a54913d91852ebd6880dbe68930bc")
+;; (package! pgmacs :recipe (:host github :repo "emarsden/pgmacs") :pin "04df50eb6cb1cc997deae9c5120ba66353601d3a")
 
-;; https://emarsden.github.io/pgmacs/
-;; (package! pgmacs
-;;   :recipe (:host github
-;;            :repo "emarsden/pgmacs")
-;;   :pin "04df50eb6cb1cc997deae9c5120ba66353601d3a")
-
-(package! kbd-mode
-  :recipe (:host github
-           :repo "kmonad/kbd-mode")
-  :pin "f8951b2efc5c29954b0105a9e57e973515125b0d")
-
-;; (package! llm-tool-collection
-;;   :recipe (:host github
-;;            :repo "skissue/llm-tool-collection")
-;;   :pin "6d2765a16dc10af2e1d1911bcabf6d7f287e0434")
-
-(package! ob-duckdb
-  :recipe (:host github
-           :repo "gggion/ob-duckdb"
-           :files ("*.el"))
-  :pin "d5b6df504e63f635512a57b23afd9a37683fca40")
-
-(package! kitty-graphics
-  :recipe (:host github
-           :repo "cashmeredev/kitty-graphics.el")
-  :pin "f18cebbe766a5ccedebf4c07ae9a6f731a926a8d")
-
-;; FIXME: Cannot open load file: No such file or directory, hydra
-;; https://github.com/l3kn/org-fc/issues/67
-;; (package! org-fc
-;;   :recipe (:host sourcehut
-;;            :repo "l3kn/org-fc"
-;;            :files (:defaults "awk" "demo.org"))
-;;   :pin "22144b4c0714544e8415585a4eecd1b1b370ce22")
+(package! kbd-mode       :recipe (:host github :repo "kmonad/kbd-mode")                  :pin "f8951b2efc5c29954b0105a9e57e973515125b0d")
+(package! ob-duckdb      :recipe (:host github :repo "gggion/ob-duckdb" :files ("*.el")) :pin "d5b6df504e63f635512a57b23afd9a37683fca40")
+(package! kitty-graphics :recipe (:host github :repo "cashmeredev/kitty-graphics.el")    :pin "f18cebbe766a5ccedebf4c07ae9a6f731a926a8d")
+;; (package! llm-tool-collection :recipe (:host github :repo "skissue/llm-tool-collection") :pin "6d2765a16dc10af2e1d1911bcabf6d7f287e0434")
+;; FIXME: Cannot open load file: No such file or directory, hydra | https://github.com/l3kn/org-fc/issues/67
+;; (package! org-fc         :recipe (:host sourcehut :repo "l3kn/org-fc" :files (:defaults "awk" "demo.org")) :pin "22144b4c0714544e8415585a4eecd1b1b370ce22")
