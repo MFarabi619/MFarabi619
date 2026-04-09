@@ -100,6 +100,89 @@ static void wifi_test_connect_fails_without_ssid(void) {
   TEST_MESSAGE("wifi_connect correctly fails without SSID");
 }
 
+static void wifi_test_ap_config_roundtrip(void) {
+  TEST_MESSAGE("user saves AP config to NVS and reads it back");
+
+  wifi_set_ap_config("my-custom-ap", "secret123");
+
+  char ssid[33] = {0};
+  char pass[65] = {0};
+  wifi_get_ap_ssid(ssid, sizeof(ssid));
+  wifi_get_ap_password(pass, sizeof(pass));
+
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("my-custom-ap", ssid,
+    "device: AP SSID mismatch after roundtrip");
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("secret123", pass,
+    "device: AP password mismatch after roundtrip");
+
+  // Clean up
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.remove("ap_ssid");
+  preferences.remove("ap_pass");
+  preferences.end();
+
+  TEST_MESSAGE("AP config roundtrip verified");
+}
+
+static void wifi_test_ap_default_ssid(void) {
+  TEST_MESSAGE("user reads AP SSID from empty NVS, expects default");
+
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.remove("ap_ssid");
+  preferences.end();
+
+  char ssid[33] = {0};
+  wifi_get_ap_ssid(ssid, sizeof(ssid));
+
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(CONFIG_AP_SSID, ssid,
+    "device: AP SSID should default to CONFIG_AP_SSID");
+
+  TEST_MESSAGE("AP default SSID verified");
+}
+
+static void wifi_test_ap_enabled_default_true(void) {
+  TEST_MESSAGE("user reads AP enabled from empty NVS, expects true");
+
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.remove("ap_on");
+  preferences.end();
+
+  TEST_ASSERT_TRUE_MESSAGE(wifi_get_ap_enabled(),
+    "device: AP should be enabled by default");
+
+  TEST_MESSAGE("AP default enabled=true verified");
+}
+
+static void wifi_test_ap_enabled_toggle(void) {
+  TEST_MESSAGE("user toggles AP enabled flag in NVS");
+
+  // Directly write to NVS to avoid wifi_set_ap_enabled side effects
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.putBool("ap_on", false);
+  preferences.end();
+
+  TEST_ASSERT_FALSE_MESSAGE(wifi_get_ap_enabled(),
+    "device: AP should be disabled after setting false");
+
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.putBool("ap_on", true);
+  preferences.end();
+
+  TEST_ASSERT_TRUE_MESSAGE(wifi_get_ap_enabled(),
+    "device: AP should be enabled after setting true");
+
+  // Clean up
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.remove("ap_on");
+  preferences.end();
+
+  TEST_MESSAGE("AP enabled toggle verified");
+}
+
 void wifi_run_tests(void) {
   it("user observes that wifi credentials can be saved and read from NVS",
      wifi_test_credentials_roundtrip);
@@ -109,6 +192,14 @@ void wifi_run_tests(void) {
      wifi_test_overwrite_keeps_latest);
   it("user observes that wifi_connect fails without stored SSID",
      wifi_test_connect_fails_without_ssid);
+  it("user observes that AP config can be saved and read from NVS",
+     wifi_test_ap_config_roundtrip);
+  it("user observes that AP SSID defaults to CONFIG_AP_SSID",
+     wifi_test_ap_default_ssid);
+  it("user observes that AP is enabled by default",
+     wifi_test_ap_enabled_default_true);
+  it("user observes that AP enabled flag can be toggled",
+     wifi_test_ap_enabled_toggle);
 }
 
 #endif

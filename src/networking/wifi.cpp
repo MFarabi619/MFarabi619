@@ -1,13 +1,17 @@
 #include "wifi.h"
+#include "../drivers/neopixel.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <DNSServer.h>
 #include <Preferences.h>
 #include <ESPmDNS.h>
 #include "esp_netif.h"
 
 static volatile bool connected = false;
 static bool mdns_started = false;
+static bool ap_active = false;
+static DNSServer dns_server;
 
 static bool nvs_get_string(const char *key, char *buf, size_t len) {
   Preferences preferences;
@@ -26,6 +30,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id,
     Serial.println(F("[wifi] connected"));
   } else if (id == WIFI_EVENT_STA_DISCONNECTED) {
     Serial.println(F("[wifi] disconnected, reconnecting..."));
+    neopixel_yellow();
     connected = false;
     char ssid[CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH + 1] = {0};
     char pass[CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH + 1] = {0};
@@ -38,6 +43,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id,
     Serial.printf("[wifi] got ip: %s\n",
                   IPAddress(event->ip_info.ip.addr).toString().c_str());
     connected = true;
+    neopixel_green();
 
     if (!mdns_started && MDNS.begin(CONFIG_HOSTNAME)) {
       MDNS.addService("ssh", "tcp", CONFIG_SSH_PORT);
@@ -104,4 +110,108 @@ void wifi_set_credentials(const char *ssid, const char *password) {
 
 bool wifi_is_connected(void) {
   return connected;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Access Point + Captive Portal DNS
+// ─────────────────────────────────────────────────────────────────────────────
+
+void wifi_get_ap_ssid(char *buf, size_t len) {
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
+  String val = preferences.getString("ap_ssid", CONFIG_AP_SSID);
+  preferences.end();
+  strncpy(buf, val.c_str(), len - 1);
+  buf[len - 1] = '\0';
+}
+
+void wifi_get_ap_password(char *buf, size_t len) {
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
+  String val = preferences.getString("ap_pass", CONFIG_AP_PASSWORD);
+  preferences.end();
+  strncpy(buf, val.c_str(), len - 1);
+  buf[len - 1] = '\0';
+}
+
+void wifi_set_ap_config(const char *ssid, const char *password) {
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.putString("ap_ssid", ssid);
+  preferences.putString("ap_pass", password);
+  preferences.end();
+  Serial.printf("[wifi] AP config saved: ssid=%s\n", ssid);
+}
+
+bool wifi_get_ap_enabled(void) {
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
+  bool enabled = preferences.getBool("ap_on", true);
+  preferences.end();
+  return enabled;
+}
+
+void wifi_set_ap_enabled(bool enabled) {
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.putBool("ap_on", enabled);
+  preferences.end();
+
+  if (enabled && !ap_active) {
+    wifi_start_ap();
+  } else if (!enabled && ap_active) {
+    wifi_stop_ap();
+  }
+}
+
+void wifi_start_ap(void) {
+  if (ap_active) return;
+
+  char ap_ssid[33] = {0};
+  char ap_pass[65] = {0};
+  wifi_get_ap_ssid(ap_ssid, sizeof(ap_ssid));
+  wifi_get_ap_password(ap_pass, sizeof(ap_pass));
+
+  WiFi.mode(WIFI_AP_STA);
+
+  IPAddress ap_ip(192, 168, 4, 1);
+  IPAddress gateway(192, 168, 4, 1);
+  IPAddress subnet(255, 255, 255, 0);
+  WiFi.softAPConfig(ap_ip, gateway, subnet);
+  WiFi.softAP(ap_ssid, ap_pass, CONFIG_AP_CHANNEL);
+
+  dns_server.setErrorReplyCode(DNSReplyCode::NoError);
+  if (dns_server.start(53, "*", ap_ip)) {
+    Serial.printf("[wifi] captive DNS started on %s\n",
+                  ap_ip.toString().c_str());
+  }
+
+  ap_active = true;
+  Serial.printf("[wifi] AP started: %s (%s)\n",
+                ap_ssid, ap_ip.toString().c_str());
+}
+
+void wifi_stop_ap(void) {
+  if (!ap_active) return;
+
+  dns_server.stop();
+  WiFi.softAPdisconnect(true);
+
+  // Stay in STA mode if connected, otherwise pure STA still
+  if (connected) {
+    WiFi.mode(WIFI_MODE_STA);
+  }
+
+  ap_active = false;
+  Serial.println(F("[wifi] AP stopped"));
+}
+
+bool wifi_is_ap_active(void) {
+  return ap_active;
+}
+
+void wifi_dns_service(void) {
+  if (ap_active) {
+    dns_server.processNextRequest();
+  }
 }
