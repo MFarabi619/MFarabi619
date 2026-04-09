@@ -60,4 +60,32 @@
 #ifndef CONFIG_SSH_RING_SIZE
 #define CONFIG_SSH_RING_SIZE        512
 #endif
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  WiFi
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_WIFI_TIMEOUT_MS
+#define CONFIG_WIFI_TIMEOUT_MS      15000
+#endif
+
+#ifndef CONFIG_WIFI_POLL_MS
+#define CONFIG_WIFI_POLL_MS         100
+#endif
+
+#ifndef CONFIG_WIFI_NVS_NAMESPACE
+#define CONFIG_WIFI_NVS_NAMESPACE   "wifi"
+#endif
+
+#ifndef CONFIG_WIFI_AP_SSID
+#define CONFIG_WIFI_AP_SSID         "ceratina-setup"
+#endif
+
+#ifndef CONFIG_WIFI_AP_PASSWORD
+#define CONFIG_WIFI_AP_PASSWORD     "changeme123"
+#endif
+
+#define CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH  32
+#define CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH  64
+
 #endif // CONFIG_H
