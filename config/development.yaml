@@ -1,3 +1,4 @@
+# [[file:../CONTRIBUTING.org::*\[\[https:/github.com/loco-rs/loco\]\[Loco\]\]][[[https://github.com/loco-rs/loco][Loco]]:1]]
 database:
   idle_timeout: 500
   auto_migrate: true
@@ -60,3 +61,4 @@ settings:
   firmware:
     chip: esp32s3
     ipv4_address: 10.0.0.68
+# [[https://github.com/loco-rs/loco][Loco]]:1 ends here
