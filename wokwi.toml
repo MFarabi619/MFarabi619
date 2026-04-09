@@ -1,5 +1,7 @@
+# [[file:CONTRIBUTING.org::*\[\[https:/wokwi.com\]\[Wokwi\]\] \[\[https:/wokwi.com/esp32\]\[Simulator\]\]][[[https://wokwi.com][Wokwi]] [[https://wokwi.com/esp32][Simulator]]:1]]
 [wokwi]
 elf = "/Users/mfarabi/MFarabi619/debug/firmware"
 firmware = "/Users/mfarabi/MFarabi619/debug/firmware"
 gdbServerPort = 3333
 version = 1
+# [[https://wokwi.com][Wokwi]] [[https://wokwi.com/esp32][Simulator]]:1 ends here
