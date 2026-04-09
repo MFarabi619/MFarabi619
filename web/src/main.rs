@@ -14,6 +14,9 @@ pub static API_DIALOG_CONTENT: GlobalSignal<String> = Signal::global(|| "Loading
 pub static DEVICE_CHIP_MODEL: GlobalSignal<String> = Signal::global(String::new);
 pub static DEVICE_UPTIME: GlobalSignal<String> = Signal::global(String::new);
 pub static DEVICE_HEAP_FREE: GlobalSignal<String> = Signal::global(String::new);
+pub static WIFI_SSID: GlobalSignal<String> = Signal::global(String::new);
+pub static WIFI_RSSI: GlobalSignal<i32> = Signal::global(|| 0);
+pub static WIFI_IP: GlobalSignal<String> = Signal::global(String::new);
 
 use crate::content::docs;
 use crate::layouts::{DocsLayout, MainLayout};
@@ -73,8 +76,10 @@ fn App() -> Element {
         document::Link { rel: "manifest", href: "/assets/manifest.json" }
         document::Meta { name: "theme-color", content: "#f5b72b" }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
-        // Register service worker for PWA
-        script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.register('/assets/sw.js')"# }
+        // Service worker disabled for now — causes stale cache issues on redeploy
+        // script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.register('/assets/sw.js')"# }
+        // Unregister any existing service worker
+        script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(w=>w.unregister()))"# }
         document::Meta { property: "og:type", content: "website" }
         document::Meta { property: "og:image", content: BANNER_IMAGE }
         document::Meta { property: "og:url", content: "https://microvisor.systems" }

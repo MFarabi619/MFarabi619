@@ -16,6 +16,7 @@ pub enum MeasurementTab {
     Voltage,
     Current,
     CarbonDioxide,
+    TemperatureHumidity,
 }
 
 #[derive(Clone)]
@@ -27,11 +28,35 @@ pub struct Co2Row {
     pub time: String,
 }
 
+#[derive(Clone)]
+pub struct TemperatureHumidityReading {
+    pub index: usize,
+    pub read_ok: bool,
+    pub temperature_celsius: f64,
+    pub relative_humidity_percent: f64,
+}
+
+#[derive(Clone)]
+pub struct TemperatureHumidityRow {
+    pub row: usize,
+    pub sensors: Vec<TemperatureHumidityReading>,
+    pub time: String,
+}
+
+#[derive(Clone)]
+pub struct VoltageRow {
+    pub row: usize,
+    pub gain: String,
+    pub channels: Vec<f64>,
+    pub time: String,
+}
+
 // ─── Feature flags ──────────────────────────────────────────────────────────
 
-pub const ENABLE_VOLTAGE: bool = false;
+pub const ENABLE_VOLTAGE: bool = true;
 pub const ENABLE_CURRENT: bool = false;
 pub const ENABLE_CO2: bool = true;
+pub const ENABLE_TEMPERATURE_HUMIDITY: bool = true;
 
 // ─── Shared helpers ─────────────────────────────────────────────────────────
 
@@ -89,30 +114,126 @@ pub fn format_uptime(seconds: u64) -> String {
     }
 }
 
-/// Fetch CO2 data from the cloudevents endpoint and append a row.
-/// Returns true if a reading was added.
-pub async fn fetch_and_add_co2_reading(
+/// Fetch all sensor data from the CloudEvents endpoint and append rows.
+/// Extracts CO2, temperature/humidity, and voltage events by type.
+/// Returns true if any reading was added.
+pub async fn fetch_and_add_sensor_readings(
     url: &str,
     mut co2_readings: Signal<Vec<Co2Row>>,
+    mut temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
+    mut voltage_readings: Signal<Vec<VoltageRow>>,
 ) -> bool {
-    if let Ok(events) = crate::api::fetch_cloudevents(url).await {
-        for event in &events {
-            if let Some(data) = event.data.as_object() {
-                if data.contains_key("co2_ppm") {
-                    let row = Co2Row {
-                        row: co2_readings.read().len() + 1,
-                        co2_ppm: data.get("co2_ppm").and_then(|value| value.as_f64()).unwrap_or(0.0),
-                        temperature: data.get("temperature").and_then(|value| value.as_f64()).unwrap_or(0.0),
-                        humidity: data.get("humidity").and_then(|value| value.as_f64()).unwrap_or(0.0),
-                        time: now_time_string(),
+    let Ok(events) = crate::api::fetch_cloudevents(url).await else {
+        return false;
+    };
+
+    let mut added = false;
+    let time = now_time_string();
+
+    for event in &events {
+        let Some(data) = event.data.as_object() else { continue };
+
+        match event.event_type.as_str() {
+            // CO2 sensor (SCD30/SCD4x)
+            t if t == "sensors.carbon_dioxide.v1" || data.contains_key("co2_ppm") => {
+                let row = Co2Row {
+                    row: co2_readings.read().len() + 1,
+                    co2_ppm: data.get("co2_ppm").and_then(|value| value.as_f64()).unwrap_or(0.0),
+                    temperature: data.get("temperature").and_then(|value| value.as_f64()).unwrap_or(0.0),
+                    humidity: data.get("humidity").and_then(|value| value.as_f64()).unwrap_or(0.0),
+                    time: time.clone(),
+                };
+                co2_readings.write().push(row);
+                added = true;
+            }
+
+            // Temperature & humidity (CHT832X behind mux)
+            "sensors.temperature_and_humidity.v1" => {
+                if let Some(sensors) = data.get("sensors").and_then(|value| value.as_array()) {
+                    let readings: Vec<TemperatureHumidityReading> = sensors.iter().map(|sensor| {
+                        TemperatureHumidityReading {
+                            index: sensor.get("index").and_then(|value| value.as_u64()).unwrap_or(0) as usize,
+                            read_ok: sensor.get("read_ok").and_then(|value| value.as_bool()).unwrap_or(false),
+                            temperature_celsius: sensor.get("temperature_celsius").and_then(|value| value.as_f64()).unwrap_or(0.0),
+                            relative_humidity_percent: sensor.get("relative_humidity_percent").and_then(|value| value.as_f64()).unwrap_or(0.0),
+                        }
+                    }).collect();
+                    let row = TemperatureHumidityRow {
+                        row: temperature_humidity_readings.read().len() + 1,
+                        sensors: readings,
+                        time: time.clone(),
                     };
-                    co2_readings.write().push(row);
-                    return true;
+                    temperature_humidity_readings.write().push(row);
+                    added = true;
                 }
             }
+
+            // Voltage monitor (ADS1115)
+            "sensors.power.v1" => {
+                if data.get("read_ok").and_then(|value| value.as_bool()) == Some(true) {
+                    let channels = data.get("voltage")
+                        .and_then(|value| value.as_array())
+                        .map(|array| array.iter().filter_map(|value| value.as_f64()).collect())
+                        .unwrap_or_default();
+                    let gain = data.get("gain")
+                        .and_then(|value| value.as_str())
+                        .unwrap_or("")
+                        .to_string();
+                    let row = VoltageRow {
+                        row: voltage_readings.read().len() + 1,
+                        gain,
+                        channels,
+                        time: time.clone(),
+                    };
+                    voltage_readings.write().push(row);
+                    added = true;
+                }
+            }
+
+            _ => {}
         }
     }
-    false
+
+    added
+}
+
+pub fn build_temperature_humidity_csv(readings: &[TemperatureHumidityRow]) -> String {
+    if readings.is_empty() {
+        return String::from("#,TIME\n");
+    }
+    let sensor_count = readings.first().map(|row| row.sensors.len()).unwrap_or(0);
+    let mut csv = String::from("#,");
+    for index in 0..sensor_count {
+        csv.push_str(&format!("TEMP_{index}_C,RH_{index}_PCT,"));
+    }
+    csv.push_str("TIME\n");
+    for row in readings {
+        csv.push_str(&format!("{},", row.row));
+        for sensor in &row.sensors {
+            if sensor.read_ok {
+                csv.push_str(&format!("{},{},", sensor.temperature_celsius, sensor.relative_humidity_percent));
+            } else {
+                csv.push_str(",,");
+            }
+        }
+        csv.push_str(&format!("{}\n", row.time));
+    }
+    csv
+}
+
+pub fn build_voltage_csv(readings: &[VoltageRow]) -> String {
+    let mut csv = String::from("#,CH0_V,CH1_V,CH2_V,CH3_V,TIME\n");
+    for row in readings {
+        csv.push_str(&format!("{},", row.row));
+        for (index, voltage) in row.channels.iter().enumerate() {
+            csv.push_str(&format!("{voltage:.4}"));
+            if index < row.channels.len() - 1 {
+                csv.push(',');
+            }
+        }
+        csv.push_str(&format!(",{}\n", row.time));
+    }
+    csv
 }
 
 // ─── Shared UI components ───────────────────────────────────────────────────

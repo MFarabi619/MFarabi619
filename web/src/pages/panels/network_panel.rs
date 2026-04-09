@@ -31,13 +31,13 @@ pub fn NetworkPanel(
                 div {
                     h2 { class: "text-xl font-semibold", "Network" }
                     if let Some(ref wireless_info) = *wireless_data {
-                        if !wireless_info.ap_ssid.is_empty() {
+                        if wireless_info.ap_active {
                             div { class: "mt-1 text-sm text-muted-foreground",
-                                "AP: {wireless_info.ap_ssid} ({wireless_info.ap_ipv4})"
-                            }
-                        } else {
-                            div { class: "mt-1 text-sm text-muted-foreground",
-                                "AP IP: {wireless_info.ap_ipv4}"
+                                if !wireless_info.ap_ssid.is_empty() {
+                                    "AP: {wireless_info.ap_ssid} ({wireless_info.ap_ipv4})"
+                                } else {
+                                    "AP: {wireless_info.ap_ipv4}"
+                                }
                             }
                         }
                     }
@@ -51,7 +51,11 @@ pub fn NetworkPanel(
                         let url = device_url.read().clone();
                         spawn(async move {
                             match api::fetch_wifi_scan(&url).await {
-                                Ok(response) => networks.set(response.data.networks),
+                                Ok(response) => {
+                                    let count = response.data.networks.len();
+                                    networks.set(response.data.networks);
+                                    show_toast(format!("Found {count} network(s)"), "ok");
+                                }
                                 Err(error) => show_toast(format!("Scan failed: {error}"), "err"),
                             }
                             scanning.set(false);
@@ -91,28 +95,25 @@ pub fn NetworkPanel(
                         connecting.set(false);
                     });
                 },
-                div { class: "min-w-0 flex-1 flex flex-col gap-1",
-                    label { class: "text-muted-foreground text-sm", "SSID" }
+                div { class: "min-w-0 flex-1",
                     input {
                         class: "gold-input w-full px-3 py-2 text-sm",
                         r#type: "text",
-                        placeholder: "Select or type",
+                        placeholder: "SSID",
                         value: "{ssid_input}",
                         oninput: move |event| ssid_input.set(event.value()),
                     }
                 }
-                div { class: "min-w-0 flex-1 flex flex-col gap-1",
-                    label { class: "text-muted-foreground text-sm", "Password" }
+                div { class: "min-w-0 flex-1",
                     input {
                         class: "gold-input w-full px-3 py-2 text-sm",
                         r#type: "password",
-                        placeholder: "Leave blank for open network",
+                        placeholder: "Password (blank for open)",
                         value: "{password_input}",
                         oninput: move |event| password_input.set(event.value()),
                     }
                 }
-                div { class: "flex flex-col gap-1 lg:w-auto lg:flex-none",
-                    label { class: "invisible text-sm", "." }
+                div { class: "lg:w-auto lg:flex-none",
                     button {
                         class: "gold-button-outline text-sm whitespace-nowrap",
                         r#type: "submit",
@@ -125,15 +126,6 @@ pub fn NetworkPanel(
                             "Connect"
                         }
                     }
-                }
-            }
-
-            // WiFi badges
-            if let Some(ref wireless_info) = *wireless_data {
-                div { class: "flex gap-2 mb-3 flex-wrap",
-                    StatusBadge { icon: rsx! { Wifi { class: "w-3.5 h-3.5" } }, value: wireless_info.sta_ssid.clone() }
-                    StatusBadge { icon: rsx! { Wifi { class: "w-3.5 h-3.5" } }, value: format!("{} dBm", wireless_info.wifi_rssi) }
-                    StatusBadge { icon: rsx! { Wifi { class: "w-3.5 h-3.5" } }, value: wireless_info.sta_ipv4.clone() }
                 }
             }
 
