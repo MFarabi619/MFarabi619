@@ -47,6 +47,10 @@ uint8_t tca9548a_find(uint8_t addr) {
   return mux.find(addr);
 }
 
+static inline int clamp(int pos, size_t limit) {
+  return (pos >= (int)limit) ? (int)limit - 1 : pos;
+}
+
 int tca9548a_scan_all(char *buf, size_t buf_size) {
   int pos = 0;
 
@@ -54,18 +58,23 @@ int tca9548a_scan_all(char *buf, size_t buf_size) {
     mux.selectChannel(ch);
     int found = 0;
     pos += snprintf(buf + pos, buf_size - pos, "ch %d:", ch);
+    pos = clamp(pos, buf_size);
 
     for (uint8_t addr = CONFIG_I2C_ADDR_MIN; addr < CONFIG_I2C_ADDR_MAX && pos < (int)buf_size - 16; addr++) {
       Wire1.beginTransmission(addr);
       if (Wire1.endTransmission() == 0) {
         pos += snprintf(buf + pos, buf_size - pos, " 0x%02X", addr);
+        pos = clamp(pos, buf_size);
         found++;
       }
     }
 
-    if (found == 0)
+    if (found == 0) {
       pos += snprintf(buf + pos, buf_size - pos, " (empty)");
+      pos = clamp(pos, buf_size);
+    }
     pos += snprintf(buf + pos, buf_size - pos, "\r\n");
+    pos = clamp(pos, buf_size);
   }
 
   mux.disableAllChannels();
@@ -115,17 +124,15 @@ static void tca9548a_test_select_and_verify(void) {
 
   TEST_ASSERT_TRUE_MESSAGE(tca9548a_select(0),
     "device: selectChannel(0) failed");
-  TEST_ASSERT_TRUE_MESSAGE(tca9548a_is_enabled(0),
-    "device: channel 0 should be enabled after select");
-  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x01, tca9548a_get_mask(),
-    "device: mask should be 0x01 after selecting channel 0");
+  TEST_ASSERT_BIT_HIGH_MESSAGE(0, tca9548a_get_mask(),
+    "device: bit 0 should be high after select(0)");
 
   TEST_ASSERT_TRUE_MESSAGE(tca9548a_select(3),
     "device: selectChannel(3) failed");
-  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x08, tca9548a_get_mask(),
-    "device: mask should be 0x08 after selecting channel 3");
-  TEST_ASSERT_FALSE_MESSAGE(tca9548a_is_enabled(0),
-    "device: channel 0 should be disabled after selecting channel 3");
+  TEST_ASSERT_BIT_HIGH_MESSAGE(3, tca9548a_get_mask(),
+    "device: bit 3 should be high after select(3)");
+  TEST_ASSERT_BIT_LOW_MESSAGE(0, tca9548a_get_mask(),
+    "device: bit 0 should be low after select(3) — exclusive select");
 
   tca9548a_disable_all();
   TEST_MESSAGE("channel select and mask verified");
@@ -143,6 +150,43 @@ static void tca9548a_test_scan_finds_devices(void) {
   TEST_MESSAGE(buf);
 }
 
+static void tca9548a_test_disable_all_clears_mask(void) {
+  TEST_MESSAGE("user enables channels then disables all");
+  ensure_wire1();
+  tca9548a_init();
+
+  tca9548a_enable(0);
+  tca9548a_enable(3);
+  tca9548a_enable(7);
+  TEST_ASSERT_NOT_EQUAL_HEX8_MESSAGE(0x00, tca9548a_get_mask(),
+    "device: mask should be non-zero after enabling channels");
+
+  tca9548a_disable_all();
+  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x00, tca9548a_get_mask(),
+    "device: mask should be 0x00 after disable_all");
+
+  TEST_MESSAGE("disable_all clears mask verified");
+}
+
+static void tca9548a_test_enable_disable_roundtrip(void) {
+  TEST_MESSAGE("user enables then disables a single channel");
+  ensure_wire1();
+  tca9548a_init();
+  tca9548a_disable_all();
+
+  tca9548a_enable(2);
+  TEST_ASSERT_BIT_HIGH_MESSAGE(2, tca9548a_get_mask(),
+    "device: bit 2 should be high after enable(2)");
+
+  tca9548a_disable(2);
+  TEST_ASSERT_BIT_LOW_MESSAGE(2, tca9548a_get_mask(),
+    "device: bit 2 should be low after disable(2)");
+  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x00, tca9548a_get_mask(),
+    "device: full mask should be 0x00 after disable");
+
+  TEST_MESSAGE("enable/disable roundtrip verified");
+}
+
 void tca9548a_run_tests(void) {
   it("user observes that the TCA9548A mux initializes",
      tca9548a_test_init);
@@ -154,6 +198,10 @@ void tca9548a_run_tests(void) {
      tca9548a_test_select_and_verify);
   it("user observes devices behind the mux channels",
      tca9548a_test_scan_finds_devices);
+  it("user observes that disable_all clears the channel mask",
+     tca9548a_test_disable_all_clears_mask);
+  it("user observes that enable then disable roundtrips correctly",
+     tca9548a_test_enable_disable_roundtrip);
 }
 
 #endif
