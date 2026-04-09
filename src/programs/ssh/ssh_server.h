@@ -3,7 +3,10 @@
 
 #include "../../config.h"
 
-void ssh_server_start(void);
+bool ssh_server_start(void);
+
+struct ush_object;
+bool ssh_server_request_exit(struct ush_object *self);
 
 #ifdef PIO_UNIT_TESTING
 void ssh_server_run_tests(void);

@@ -1,5 +1,6 @@
 #include "ssh_server.h"
 #include "../shell/shell.h"
+#include "../../drivers/neopixel.h"
 
 #include <Arduino.h>
 #include <LittleFS.h>
@@ -210,6 +211,15 @@ static bool ssh_ensure_hostkey(void) {
 }
 
 //------------------------------------------
+//  Exit
+//------------------------------------------
+bool ssh_server_request_exit(struct ush_object *self) {
+  if (self != &ssh_ush) return false;
+  session_alive = false;
+  return true;
+}
+
+//------------------------------------------
 //  SSH Server Task
 //------------------------------------------
 static void ssh_server_task(void *pvParameters) {
@@ -250,6 +260,7 @@ static void ssh_server_task(void *pvParameters) {
     }
 
     Serial.println(F("[ssh] client connected"));
+    neopixel_white();
 
     if (ssh_handle_key_exchange(session) != SSH_OK) {
       Serial.printf("[ssh] key exchange error: %s\n", ssh_get_error(session));
@@ -339,15 +350,21 @@ static void ssh_server_task(void *pvParameters) {
     ssh_free(session);
 
     Serial.println(F("[ssh] ready for next connection"));
+    neopixel_green();
   }
 }
 
 //------------------------------------------
 //  Public API
 //------------------------------------------
-void ssh_server_start(void) {
+bool ssh_server_start(void) {
+  if (LittleFS.totalBytes() == 0) {
+    Serial.println(F("[ssh] LittleFS not mounted — cannot start"));
+    return false;
+  }
   xTaskCreatePinnedToCore(ssh_server_task, "ssh", CONFIG_SSH_TASK_STACK,
                           NULL, 2, NULL, 1);
+  return true;
 }
 
 //------------------------------------------
