@@ -80,6 +80,7 @@
         org-roam-ui
         org-pdftools
         org-nix-shell
+        org-auto-tangle
         org-super-agenda
         org-tag-beautify
         org-link-beautify
