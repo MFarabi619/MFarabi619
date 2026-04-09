@@ -118,4 +118,24 @@
 #define CONFIG_HTTP_PORT            80
 #endif
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  Shell
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_SHELL_BUF_IN
+#define CONFIG_SHELL_BUF_IN         256
+#endif
+
+#ifndef CONFIG_SHELL_BUF_OUT
+#define CONFIG_SHELL_BUF_OUT        256
+#endif
+
+#ifndef CONFIG_SHELL_PATH_MAX
+#define CONFIG_SHELL_PATH_MAX       128
+#endif
+
+#ifndef CONFIG_SHELL_HOSTNAME_SIZE
+#define CONFIG_SHELL_HOSTNAME_SIZE  32
+#endif
+
 #endif // CONFIG_H
