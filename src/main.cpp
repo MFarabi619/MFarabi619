@@ -11,6 +11,10 @@
 #include "networking/sntp.h"
 #include "services/http.h"
 #include "services/network.h"
+#include "services/temperature_and_humidity.h"
+#include "drivers/neopixel.h"
+#include "drivers/tca9548a.h"
+#include "drivers/ads1115.h"
 #include "programs/ssh/ssh_server.h"
 #include "programs/shell/shell.h"
 
@@ -23,7 +27,7 @@ void network_services_start(void) {
   static bool http_done = false;
 
   if (!sntp_done) sntp_done = sntp_sync();
-  if (!ssh_done) { ssh_server_start(); ssh_done = true; }
+  if (!ssh_done) ssh_done = ssh_server_start();
   if (!http_done) { http_server_start(); http_done = true; }
 }
 
@@ -35,6 +39,9 @@ static void system_task(void *pvParameters) {
 
   Serial.println(F("[system] booting..."));
 
+  neopixel_init();
+  neopixel_blue();
+
   // Power on I2C sensor relay and init buses
   pinMode(CONFIG_I2C_RELAY_POWER_GPIO, OUTPUT);
   digitalWrite(CONFIG_I2C_RELAY_POWER_GPIO, HIGH);
@@ -44,25 +51,47 @@ static void system_task(void *pvParameters) {
   Wire1.begin(CONFIG_I2C_1_SDA_GPIO, CONFIG_I2C_1_SCL_GPIO, CONFIG_I2C_FREQUENCY_KHZ * 1000);
   Wire1.setTimeOut(100);
 
+  // Discover sensors behind TCA9548A mux
+  tca9548a_init();
+  temperature_and_humidity_discover();
+  ads1115_init();
+  ads1115_begin();
+
   shell_init();
 
   if (!LittleFS.begin(false)) {
-    Serial.println(F("[fs] LittleFS mount failed — NOT formatting to preserve data"));
-  } else {
-    Serial.printf("[fs] LittleFS: %d/%d KB used\n",
-                  LittleFS.usedBytes() / 1024, LittleFS.totalBytes() / 1024);
+    Serial.println(F("[fs] mount failed, formatting..."));
+    neopixel_red();
+    if (!LittleFS.begin(true)) {
+      Serial.println(F("[fs] format failed — filesystem unavailable"));
+    }
+  }
+  if (LittleFS.totalBytes() > 0) {
+    Serial.printf("[fs] LittleFS: %u/%u KB used\n",
+                  (unsigned)(LittleFS.usedBytes() / 1024),
+                  (unsigned)(LittleFS.totalBytes() / 1024));
+    neopixel_blue();
+  }
+
+  // AP always on by default (configurable via UI)
+  if (wifi_get_ap_enabled()) {
+    wifi_start_ap();
   }
 
   if (wifi_connect()) {
-    network_services_start();
+    neopixel_green();
   } else {
-    Serial.println(F("[wifi] not connected — use wifi-set then reboot"));
+    Serial.println(F("[wifi] STA not connected — AP available for provisioning"));
+    neopixel_yellow();
   }
 
-  // Shell service loop (non-blocking) + SSE heartbeat
+  network_services_start();
+
+  // Shell service loop (non-blocking) + SSE heartbeat + DNS
   uint32_t last_heartbeat = 0;
   for (;;) {
     shell_service();
+    wifi_dns_service();
 
     if (millis() - last_heartbeat > 5000) {
       last_heartbeat = millis();
