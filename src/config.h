@@ -138,4 +138,35 @@
 #define CONFIG_SHELL_HOSTNAME_SIZE  32
 #endif
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  I2C
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_I2C_0_SDA_GPIO
+#define CONFIG_I2C_0_SDA_GPIO       15
+#endif
+
+#ifndef CONFIG_I2C_0_SCL_GPIO
+#define CONFIG_I2C_0_SCL_GPIO       16
+#endif
+
+#ifndef CONFIG_I2C_1_SDA_GPIO
+#define CONFIG_I2C_1_SDA_GPIO       17
+#endif
+
+#ifndef CONFIG_I2C_1_SCL_GPIO
+#define CONFIG_I2C_1_SCL_GPIO       18
+#endif
+
+#ifndef CONFIG_I2C_FREQUENCY_KHZ
+#define CONFIG_I2C_FREQUENCY_KHZ    100
+#endif
+
+#ifndef CONFIG_I2C_RELAY_POWER_GPIO
+#define CONFIG_I2C_RELAY_POWER_GPIO 5
+#endif
+
+#define CONFIG_I2C_ADDR_MIN         1
+#define CONFIG_I2C_ADDR_MAX         127
+
 #endif // CONFIG_H
