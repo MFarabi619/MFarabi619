@@ -311,6 +311,13 @@ targets = [
     "riscv32imac-unknown-none-elf",
 ]
 #+end_src
+
+*** [[https://doc.rust-lang.org/clippy/configuration.html][clippy.toml]]
+#+begin_src toml :tangle firmware/clippy.toml
+stack-size-threshold = 1024
+# stack-size-threshold = 8196 # cyd
+#+end_src
+
 *** platformio
 
 #+begin_src conf :tangle platformio.ini

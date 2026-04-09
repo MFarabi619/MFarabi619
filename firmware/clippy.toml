@@ -1,2 +1,4 @@
+# [[file:../CONTRIBUTING.org::*\[\[https:/doc.rust-lang.org/clippy/configuration.html\]\[clippy.toml\]\]][[[https://doc.rust-lang.org/clippy/configuration.html][clippy.toml]]:1]]
 stack-size-threshold = 1024
 # stack-size-threshold = 8196 # cyd
+# [[https://doc.rust-lang.org/clippy/configuration.html][clippy.toml]]:1 ends here
