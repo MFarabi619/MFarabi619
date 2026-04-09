@@ -82,11 +82,4 @@ in
   #   inherit tools mcp;
   # };
 
-  # files."${config.git.root}/.codex/config.toml".toml = {
-  #   mcp_servers = codexMcpServers;
-  #   features = {
-  #     multi_agent = true;
-  #     rmcp_client = true;
-  #   };
-  # };
 }
