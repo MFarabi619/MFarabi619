@@ -1,5 +1,6 @@
 #include "ssh_server.h"
 #include "../shell/shell.h"
+#include "../shell/microfetch.h"
 #include "../../drivers/neopixel.h"
 
 #include <Arduino.h>
@@ -323,9 +324,11 @@ static void ssh_server_task(void *pvParameters) {
       continue;
     }
 
-    // Phase 2: Shell session — MicroShell over SSH
     Serial.println(F("[ssh] shell session started"));
     ssh_shell_setup();
+
+    const char *motd = microfetch_generate();
+    ssh_channel_write(active_chan, motd, strlen(motd));
 
     while (session_alive) {
       ssh_event_dopoll(event, 50);
