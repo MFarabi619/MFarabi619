@@ -1,5 +1,6 @@
 #include "http.h"
 #include "cloudevents.h"
+#include "ws_shell.h"
 #include "../networking/wifi.h"
 
 #include <Arduino.h>
@@ -565,6 +566,7 @@ void http_server_start(void) {
   server.on("/ncsi.txt",           HTTP_GET, cp_redirect);
 
   cloudevents_register_routes(&server);
+  ws_shell_register(&server);
 
   server.serveStatic("/", LittleFS, "/www/")
     .setDefaultFile("index.html")

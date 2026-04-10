@@ -12,6 +12,7 @@
 #include "services/http.h"
 #include "services/network.h"
 #include "services/temperature_and_humidity.h"
+#include "services/ws_shell.h"
 #include "drivers/neopixel.h"
 #include "drivers/tca9548a.h"
 #include "drivers/ads1115.h"
@@ -92,6 +93,7 @@ static void system_task(void *pvParameters) {
   for (;;) {
     shell_service();
     wifi_dns_service();
+    ws_shell_service();
 
     if (millis() - last_heartbeat > 5000) {
       last_heartbeat = millis();
