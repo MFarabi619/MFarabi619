@@ -54,9 +54,9 @@ in
           // lib.optionalAttrs config.services.sqld.enable {
             sqld = ":${toString config.services.sqld.port}";
           }
-          // lib.optionalAttrs config.languages.rust.loco.enable {
-            api = "${toString config.languages.rust.loco.config.development.server.binding}:${toString config.languages.rust.loco.config.development.server.port}";
-          }
+          # // lib.optionalAttrs config.languages.rust.loco.enable {
+          #   api = "${toString config.languages.rust.loco.config.development.server.binding}:${toString config.languages.rust.loco.config.development.server.port}";
+          # }
         )
       )
       {

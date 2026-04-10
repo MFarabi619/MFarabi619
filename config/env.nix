@@ -15,11 +15,11 @@
         # PGPORT = config.services.postgres.port;
         # PGHOST = config.services.postgres.listen_addresses;
       };
-    }
-    // lib.optionalAttrs config.microvisor.embassy.enable {
-      ci.module.microvisor.embassy."probe-rs".server.address = "0.0.0.0";
-      hostname.rpi5-16.extends = [ "ci" ];
-      hostname.framework-desktop.extends = [ "ci" ];
+      # }
+      # // lib.optionalAttrs config.microvisor.embassy.enable {
+      #   ci.module.microvisor.embassy."probe-rs".server.address = "0.0.0.0";
+      #   hostname.rpi5-16.extends = [ "ci" ];
+      #   hostname.framework-desktop.extends = [ "ci" ];
     };
 
   env = {

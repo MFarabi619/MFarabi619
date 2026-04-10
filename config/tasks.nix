@@ -11,14 +11,14 @@
         _name: task:
         {
           showOutput = true;
-          cwd = config.microvisor.embassy.cwd;
+          # cwd = config.microvisor.embassy.cwd;
         }
         // task
       )
       {
-        "build:firmware" = {
-          exec = "cargo b -r";
-        };
+        # "build:firmware" = {
+        #   exec = "cargo b -r";
+        # };
 
         # "upload:firmware" = {
         #   exec = "cargo r -r";

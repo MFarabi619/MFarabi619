@@ -5,14 +5,14 @@
 }:
 {
   processes = {
-    "cargo:loco:watch" = {
-      exec = "cargo loco watch";
-      ports.http.allocate = config.languages.rust.loco.config.development.server.port;
-      process-compose = {
-        is_tty = true;
-        namespace = "🧩 API";
-      };
-    };
+    # "cargo:loco:watch" = {
+    #   exec = "cargo loco watch";
+    #   ports.http.allocate = config.languages.rust.loco.config.development.server.port;
+    #   process-compose = {
+    #     is_tty = true;
+    #     namespace = "🧩 API";
+    #   };
+    # };
   }
   //
     builtins.mapAttrs
@@ -43,19 +43,19 @@
     };
   };
 
-  process = {
-    manager.args = {
-      "config" = "${config.git.root}/config/process-compose/settings.yaml";
-      "shortcuts" = "${config.git.root}/config/process-compose/shortcuts.yaml";
-    };
+  # process = {
+  #   manager.args = {
+  #     "config" = "${config.git.root}/config/process-compose/settings.yaml";
+  #     "shortcuts" = "${config.git.root}/config/process-compose/shortcuts.yaml";
+  #   };
 
-    managers.process-compose.settings = {
-      is_strict = true;
-      #   availability = {
-      #   max_restarts = 5;
-      #   backoff_seconds = 2;
-      #   restart = "on_failure";
-      # };
-    };
-  };
+  #   managers.process-compose.settings = {
+  #     is_strict = true;
+  #     #   availability = {
+  #     #   max_restarts = 5;
+  #     #   backoff_seconds = 2;
+  #     #   restart = "on_failure";
+  #     # };
+  #   };
+  # };
 }
