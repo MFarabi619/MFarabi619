@@ -1,7 +1,8 @@
+# [[file:../CONTRIBUTING.org::*\[\[https:/doc.rust-lang.org/cargo/reference/config.html\]\[Cargo Config\]\]][[[https://doc.rust-lang.org/cargo/reference/config.html][Cargo Config]]:1]]
 [alias]
-rr = ["run", "--target", "xtensa-esp32s3-none-elf"]
-tt = ["test", "--target", "xtensa-esp32s3-none-elf"]
-bb = ["build", "--target", "xtensa-esp32s3-none-elf"]
+rr = ["run", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
+tt = ["test", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
+bb = ["build", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
 
 loco = ["run", "-p", "microvisor", "--"]
 playground = ["run", "--example", "playground"]
@@ -13,13 +14,15 @@ build-std = ["core", "alloc"]
 OTA_DEVICE_IP = "10.0.0.68"
 ESP_HAL_CONFIG_PSRAM_MODE = "octal"
 DEFMT_LOG = "info,embedded_test=warn"
-# IDF_PARTITION_TABLE = ""
+# IDF_PARTITION_TABLE = "boards/esp32s3.partitions.csv"
 
 [target.xtensa-esp32s3-none-elf]
-runner = "probe-rs run"
+# runner = "probe-rs run --idf-partition-table ../boards/esp32s3.partitions.csv"
+runner = "probe-rs run --idf-partition-table boards/esp32s3.partitions.csv"
 
 [target.xtensa-esp32-none-elf]
 runner = "espflash flash --monitor --chip esp32"
 
 [target.thumbv7em-none-eabihf]
 runner = "probe-rs run --chip stm32h723zg"
+# [[https://doc.rust-lang.org/cargo/reference/config.html][Cargo Config]]:1 ends here
