@@ -13,6 +13,14 @@ static bool mdns_started = false;
 static bool ap_active = false;
 static DNSServer dns_server;
 
+// Sentinel slots for pre-flash credential embedding.
+// The web app's flash panel finds these byte patterns in the .bin
+// and overwrites them with user-provided SSID/password before flashing.
+static const char wifi_ssid_slot[33] __attribute__((used, aligned(4))) =
+  "@@WIFI_SSID@@";
+static const char wifi_pass_slot[65] __attribute__((used, aligned(4))) =
+  "@@WIFI_PASS@@";
+
 static bool nvs_get_string(const char *key, char *buf, size_t len) {
   Preferences preferences;
   preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
@@ -74,13 +82,15 @@ bool wifi_connect(void) {
   char pass[CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH + 1] = {0};
 
 #if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
-  if (!wifi_get_ssid(ssid, sizeof(ssid)) || ssid[0] == '\0') {
-    if (strlen(CONFIG_WIFI_SSID) > 0) {
-      wifi_set_credentials(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
-      Serial.printf("[wifi] seeded NVS from build flags: %s\n", CONFIG_WIFI_SSID);
-    }
-  }
+  if (strlen(CONFIG_WIFI_SSID) > 0) {
+    wifi_set_credentials(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
+    Serial.printf("[wifi] credentials from build flags: %s\n", CONFIG_WIFI_SSID);
+  } else
 #endif
+  if (wifi_ssid_slot[0] != '@' && wifi_ssid_slot[0] != '\0') {
+    wifi_set_credentials(wifi_ssid_slot, wifi_pass_slot);
+    Serial.printf("[wifi] credentials from embedded: %s\n", wifi_ssid_slot);
+  }
 
   if (!wifi_get_ssid(ssid, sizeof(ssid)) || ssid[0] == '\0') {
     Serial.println(F("[wifi] no SSID configured"));
@@ -109,6 +119,13 @@ bool wifi_get_password(char *buf, size_t len) {
 }
 
 void wifi_set_credentials(const char *ssid, const char *password) {
+  char current_ssid[CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH + 1] = {0};
+  char current_pass[CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH + 1] = {0};
+  if (wifi_get_ssid(current_ssid, sizeof(current_ssid)) &&
+      wifi_get_password(current_pass, sizeof(current_pass)) &&
+      strcmp(current_ssid, ssid) == 0 && strcmp(current_pass, password) == 0) {
+    return;
+  }
   Preferences preferences;
   preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
   preferences.putString("ssid", ssid);
