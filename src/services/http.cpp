@@ -1,5 +1,6 @@
 #include "http.h"
 #include "cloudevents.h"
+#include "co2.h"
 #include "ws_shell.h"
 #include "../networking/wifi.h"
 
@@ -189,6 +190,7 @@ static void api_device_status(AsyncWebServerRequest *request) {
   runtime["uptime"] = format_uptime_string(uptime_seconds);
   runtime["uptime_seconds"] = uptime_seconds;
   runtime["memory_heap_bytes"] = ESP.getFreeHeap();
+  runtime["memory_heap_total"] = ESP.getHeapSize();
 
   // storage
   JsonObject storage = data["storage"].to<JsonObject>();
@@ -283,38 +285,188 @@ static void api_filesystem_delete(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+static void api_filesystem_mkdir(AsyncWebServerRequest *request) {
+  if (!request->hasParam("path") || !request->hasParam("location")) {
+    request->send(400, "application/json", "{\"ok\":false,\"error\":\"missing path or location\"}");
+    return;
+  }
+  String path = request->getParam("path")->value();
+  String location = request->getParam("location")->value();
+  bool created = false;
+
+  if (location == "littlefs") {
+    created = LittleFS.mkdir(path);
+  } else if (SD.begin(CONFIG_SD_CS_GPIO)) {
+    created = SD.mkdir(path);
+  }
+
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  response->setCode(created ? 200 : 500);
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = created;
+  response->setLength();
+  request->send(response);
+}
+
+static void api_filesystem_format(AsyncWebServerRequest *request) {
+  String location = "sd";
+  if (request->hasParam("location"))
+    location = request->getParam("location")->value();
+
+  bool formatted = false;
+  if (location == "littlefs") {
+    LittleFS.end();
+    formatted = LittleFS.begin(true);
+  } else if (SD.begin(CONFIG_SD_CS_GPIO)) {
+    // SD format not directly supported by Arduino SD lib
+    request->send(501, "application/json", "{\"ok\":false,\"error\":\"SD format not supported\"}");
+    return;
+  }
+
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  response->setCode(formatted ? 200 : 500);
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = formatted;
+  response->setLength();
+  request->send(response);
+}
+
+static void api_filesystem_list_path(AsyncWebServerRequest *request) {
+  String url = request->url();
+  String path = url.substring(strlen("/api/filesystem/list"));
+  if (path.isEmpty()) path = "/";
+
+  String location = "sd";
+  if (request->hasParam("location"))
+    location = request->getParam("location")->value();
+
+  AsyncJsonResponse *response = new AsyncJsonResponse(true);
+  JsonArray root = response->getRoot().to<JsonArray>();
+
+  fs::FS *fs = nullptr;
+  if (location == "littlefs") {
+    fs = &LittleFS;
+  } else if (SD.begin(CONFIG_SD_CS_GPIO)) {
+    fs = &SD;
+  }
+
+  if (fs) {
+    File dir = fs->open(path);
+    if (dir && dir.isDirectory()) {
+      File entry = dir.openNextFile();
+      while (entry) {
+        JsonObject file = root.add<JsonObject>();
+        file["name"] = String(entry.name());
+        file["size"] = (unsigned long)entry.size();
+        file["dir"] = entry.isDirectory();
+        entry = dir.openNextFile();
+      }
+      dir.close();
+    }
+  }
+
+  response->setLength();
+  request->send(response);
+}
+
+static void api_filesystem_file_get(AsyncWebServerRequest *request) {
+  String url = request->url();
+  String path = url.substring(strlen("/api/filesystem/file"));
+  if (path.isEmpty()) {
+    request->send(400, "application/json", "{\"ok\":false,\"error\":\"missing path\"}");
+    return;
+  }
+
+  String location = "sd";
+  if (request->hasParam("location"))
+    location = request->getParam("location")->value();
+
+  if (location == "littlefs") {
+    if (LittleFS.exists(path)) {
+      request->send(LittleFS, path, "application/octet-stream");
+      return;
+    }
+  } else if (SD.begin(CONFIG_SD_CS_GPIO)) {
+    if (SD.exists(path)) {
+      request->send(SD, path, "application/octet-stream");
+      return;
+    }
+  }
+
+  request->send(404, "application/json", "{\"ok\":false,\"error\":\"file not found\"}");
+}
+
+static void api_filesystem_file_delete(AsyncWebServerRequest *request) {
+  String url = request->url();
+  String path = url.substring(strlen("/api/filesystem/file"));
+  if (path.isEmpty()) {
+    request->send(400, "application/json", "{\"ok\":false,\"error\":\"missing path\"}");
+    return;
+  }
+
+  String location = "sd";
+  if (request->hasParam("location"))
+    location = request->getParam("location")->value();
+
+  bool removed = false;
+  if (location == "littlefs") {
+    removed = LittleFS.remove(path);
+  } else if (SD.begin(CONFIG_SD_CS_GPIO)) {
+    removed = SD.remove(path);
+  }
+
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  response->setCode(removed ? 200 : 404);
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = removed;
+  response->setLength();
+  request->send(response);
+}
+
+static void api_device_reset(AsyncWebServerRequest *request) {
+  request->send(200, "application/json", "{\"ok\":true,\"message\":\"rebooting\"}");
+  delay(100);
+  ESP.restart();
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  CO2 Sensor API (stub — returns "no sensor" when SCD30/SCD4x not present)
 // ─────────────────────────────────────────────────────────────────────────────
 
 static void api_co2_config_get(AsyncWebServerRequest *request) {
+  Co2Config config = {};
+  co2_get_config(&config);
+
   AsyncJsonResponse *response = new AsyncJsonResponse();
   JsonObject root = response->getRoot().to<JsonObject>();
-  root["ok"] = false;
+  root["ok"] = co2_is_available();
   JsonObject data = root["data"].to<JsonObject>();
-  data["model"] = "none";
-  data["measuring"] = false;
-  data["measurement_interval_seconds"] = 0;
-  data["auto_calibration_enabled"] = false;
-  data["temperature_offset_celsius"] = 0.0;
-  data["altitude_meters"] = 0;
+  data["model"] = config.model;
+  data["measuring"] = config.measuring;
+  data["measurement_interval_seconds"] = config.measurement_interval_seconds;
+  data["auto_calibration_enabled"] = config.auto_calibration_enabled;
+  data["temperature_offset_celsius"] = config.temperature_offset_celsius;
+  data["altitude_meters"] = config.altitude_meters;
   response->setLength();
   request->send(response);
 }
 
-static void api_co2_config_set(AsyncWebServerRequest *request) {
-  request->send(200, "application/json",
-                "{\"ok\":false,\"error\":\"no CO2 sensor connected\"}");
-}
-
 static void api_co2_start(AsyncWebServerRequest *request) {
-  request->send(200, "application/json",
-                "{\"ok\":false,\"error\":\"no CO2 sensor connected\"}");
+  bool ok = co2_start();
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = ok;
+  response->setLength();
+  request->send(response);
 }
 
 static void api_co2_stop(AsyncWebServerRequest *request) {
-  request->send(200, "application/json",
-                "{\"ok\":false,\"error\":\"no CO2 sensor connected\"}");
+  bool ok = co2_stop();
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = ok;
+  response->setLength();
+  request->send(response);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -416,11 +568,16 @@ static bool is_captive_portal_request(AsyncWebServerRequest *request) {
   String host = request->host();
   if (host.isEmpty()) return true;
   if (host == WiFi.softAPIP().toString()) return false;
+  if (host == WiFi.localIP().toString()) return false;
   if (host == CONFIG_HOSTNAME || host == String(CONFIG_HOSTNAME) + ".local") return false;
   return true;
 }
 
 static void captive_portal_redirect(AsyncWebServerRequest *request) {
+  if (SD.begin(CONFIG_SD_CS_GPIO) && SD.exists("/index.html")) {
+    request->send(SD, "/index.html", "text/html");
+    return;
+  }
   String location = "http://" + WiFi.softAPIP().toString() + "/";
   request->redirect(location);
 }
@@ -431,7 +588,7 @@ static void captive_portal_redirect(AsyncWebServerRequest *request) {
 
 void http_server_start(void) {
   cors.setOrigin("*");
-  cors.setMethods("GET, POST, OPTIONS");
+  cors.setMethods("GET, POST, PUT, DELETE, OPTIONS");
   cors.setHeaders("Content-Type");
   server.addMiddleware(&cors);
 
@@ -456,12 +613,46 @@ void http_server_start(void) {
   // Filesystem (location-aware)
   server.on("/api/filesystem/list",   HTTP_GET,    api_filesystem_list);
   server.on("/api/filesystem/delete", HTTP_DELETE, api_filesystem_delete);
+  server.on("/api/filesystem/mkdir",  HTTP_POST,   api_filesystem_mkdir);
+  server.on("/api/filesystem/format", HTTP_POST,   api_filesystem_format);
 
-  // CO2 sensor (stub — returns "no sensor" until SCD30/SCD4x is connected)
-  server.on("/api/co2/config", HTTP_GET,  api_co2_config_get);
-  server.on("/api/co2/config", HTTP_POST, api_co2_config_set);
+  server.on("/api/system/device/actions/reset", HTTP_POST, api_device_reset);
+
+  server.on("/api/co2/config", HTTP_GET, api_co2_config_get);
   server.on("/api/co2/start",  HTTP_POST, api_co2_start);
   server.on("/api/co2/stop",   HTTP_POST, api_co2_stop);
+
+  static AsyncCallbackJsonWebHandler *co2_config_handler =
+      new AsyncCallbackJsonWebHandler("/api/co2/config",
+          [](AsyncWebServerRequest *request, JsonVariant &json) {
+    JsonObject body = json.as<JsonObject>();
+    if (!body["measurement_interval_seconds"].isNull())
+      co2_set_measurement_interval(body["measurement_interval_seconds"]);
+    if (!body["auto_calibration_enabled"].isNull())
+      co2_set_auto_calibration(body["auto_calibration_enabled"]);
+    if (!body["temperature_offset_celsius"].isNull())
+      co2_set_temperature_offset(body["temperature_offset_celsius"]);
+    if (!body["altitude_meters"].isNull())
+      co2_set_altitude(body["altitude_meters"]);
+    if (!body["forced_recalibration_ppm"].isNull())
+      co2_force_recalibration(body["forced_recalibration_ppm"]);
+
+    Co2Config config = {};
+    co2_get_config(&config);
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = co2_is_available();
+    JsonObject data = root["data"].to<JsonObject>();
+    data["model"] = config.model;
+    data["measuring"] = config.measuring;
+    data["measurement_interval_seconds"] = config.measurement_interval_seconds;
+    data["auto_calibration_enabled"] = config.auto_calibration_enabled;
+    data["temperature_offset_celsius"] = config.temperature_offset_celsius;
+    data["altitude_meters"] = config.altitude_meters;
+    response->setLength();
+    request->send(response);
+  });
+  server.addHandler(co2_config_handler);
 
   // WiFi provisioning API (matches web app's network_panel.rs)
   server.on("/api/wireless/status",          HTTP_GET,  api_wireless_status);
@@ -476,7 +667,7 @@ void http_server_start(void) {
           [](AsyncWebServerRequest *request, JsonVariant &json) {
     JsonObject body = json.as<JsonObject>();
 
-    if (body.containsKey("ssid") && body.containsKey("password")) {
+    if (!body["ssid"].isNull() && !body["password"].isNull()) {
       const char *ssid = body["ssid"] | "";
       const char *password = body["password"] | "";
       wifi_set_ap_config(ssid, password);
@@ -488,7 +679,7 @@ void http_server_start(void) {
       }
     }
 
-    if (body.containsKey("enabled")) {
+    if (!body["enabled"].isNull()) {
       bool enabled = body["enabled"] | true;
       wifi_set_ap_enabled(enabled);
     }
@@ -577,6 +768,24 @@ void http_server_start(void) {
       captive_portal_redirect(request);
       return;
     }
+
+    String url = request->url();
+
+    if (url.startsWith("/api/filesystem/file/")) {
+      if (request->method() == HTTP_GET) { api_filesystem_file_get(request); return; }
+      if (request->method() == HTTP_DELETE) { api_filesystem_file_delete(request); return; }
+    }
+
+    if (url.startsWith("/api/filesystem/list/") && request->method() == HTTP_GET) {
+      api_filesystem_list_path(request);
+      return;
+    }
+
+    if (url == "/" && SD.begin(CONFIG_SD_CS_GPIO) && SD.exists("/index.html")) {
+      request->send(SD, "/index.html", "text/html");
+      return;
+    }
+
     request->send(404, "application/json", "{\"error\":\"not found\"}");
   });
 

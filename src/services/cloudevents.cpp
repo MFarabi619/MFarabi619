@@ -2,6 +2,7 @@
 #include "../config.h"
 #include "../drivers/ads1115.h"
 #include "temperature_and_humidity.h"
+#include "co2.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -90,11 +91,13 @@ static void append_temperature_humidity_event(JsonArray events,
                                               uint16_t sequence,
                                               const String &source,
                                               const String &time_iso) {
+  uint8_t count = temperature_and_humidity_sensor_count();
+  if (count == 0) return;
+
   JsonObject event = cloudevents_add_event(events, sequence, source,
       "sensors.temperature_and_humidity.v1", time_iso);
   JsonObject data = event["data"].to<JsonObject>();
 
-  uint8_t count = temperature_and_humidity_sensor_count();
   JsonArray sensors = data["sensors"].to<JsonArray>();
   uint16_t successful_reads = 0;
 
@@ -145,6 +148,20 @@ static void append_voltage_event(JsonArray events, uint16_t sequence,
 }
 #endif
 
+static void append_co2_event(JsonArray events, uint16_t sequence,
+                             const String &source, const String &time_iso) {
+  Co2Reading reading = {};
+  if (!co2_read(&reading) || !reading.ok) return;
+
+  JsonObject event = cloudevents_add_event(events, sequence, source,
+                                           "sensors.carbon_dioxide.v1", time_iso);
+  JsonObject data = event["data"].to<JsonObject>();
+  data["model"] = reading.model;
+  data["co2_ppm"] = reading.co2_ppm;
+  data["temperature"] = reading.temperature_celsius;
+  data["humidity"] = reading.relative_humidity_percent;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Route handler
 // ─────────────────────────────────────────────────────────────────────────────
@@ -166,6 +183,8 @@ static void handle_cloudevents_get(AsyncWebServerRequest *request) {
 #if CONFIG_SENSOR_VOLTAGE_MONITOR_ENABLED == 1
   append_voltage_event(events, sequence++, source, time_iso);
 #endif
+
+  append_co2_event(events, sequence++, source, time_iso);
 
   AsyncResponseStream *response =
       request->beginResponseStream(MIME_CLOUDEVENTS_BATCH);

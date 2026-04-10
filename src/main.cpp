@@ -13,6 +13,8 @@
 #include "services/network.h"
 #include "services/temperature_and_humidity.h"
 #include "services/ws_shell.h"
+#include "services/co2.h"
+#include "networking/ble.h"
 #include "drivers/neopixel.h"
 #include "drivers/tca9548a.h"
 #include "drivers/ads1115.h"
@@ -57,6 +59,13 @@ static void system_task(void *pvParameters) {
   temperature_and_humidity_discover();
   ads1115_init();
   ads1115_begin();
+  co2_init();
+  // co2_begin() is deferred — called lazily on first read via co2_read()
+  // Saves ~2.5s boot time and RAM when no CO2 sensor is connected
+
+#if CONFIG_BLE_ENABLED
+  ble_init();
+#endif
 
   shell_init();
 
@@ -74,15 +83,12 @@ static void system_task(void *pvParameters) {
     neopixel_blue();
   }
 
-  // AP always on by default (configurable via UI)
-  if (wifi_get_ap_enabled()) {
-    wifi_start_ap();
-  }
-
   if (wifi_connect()) {
     neopixel_green();
+    Serial.printf("[wifi] connected, heap: %u bytes free\n", ESP.getFreeHeap());
   } else {
-    Serial.println(F("[wifi] STA not connected — AP available for provisioning"));
+    Serial.println(F("[wifi] STA not connected — starting AP for provisioning"));
+    wifi_start_ap();
     neopixel_yellow();
   }
 
@@ -95,12 +101,22 @@ static void system_task(void *pvParameters) {
     wifi_dns_service();
     ws_shell_service();
 
+#if CONFIG_BLE_ENABLED
+    ble_service();
+#endif
+
     if (millis() - last_heartbeat > 5000) {
       last_heartbeat = millis();
+      uint32_t heap = ESP.getFreeHeap();
       char buf[64];
       snprintf(buf, sizeof(buf), "{\"uptime\":%lu,\"heap\":%u}",
-               millis() / 1000, ESP.getFreeHeap());
+               millis() / 1000, heap);
       http_events.send(buf, "heartbeat", millis());
+
+      if (heap < 20000) {
+        Serial.printf("[WARN] low heap: %u bytes free (min: %u)\n",
+                      heap, ESP.getMinFreeHeap());
+      }
     }
 
     vTaskDelay(pdMS_TO_TICKS(CONFIG_SHELL_SERVICE_INTERVAL_MS));
