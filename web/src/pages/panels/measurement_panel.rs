@@ -66,7 +66,7 @@ pub fn MeasurementPanel(
     active_tab: Signal<MeasurementTab>,
 ) -> Element {
     rsx! {
-        section { id: "cloudevents-section", class: "border border-border rounded-2xl bg-card p-4",
+        section { id: "cloudevents-section", class: "panel-shell-strong p-4",
             nav { class: "flex w-full border border-border rounded-full p-1 mb-4",
                 if ENABLE_TEMPERATURE_HUMIDITY {
                     {tab_button(active_tab, MeasurementTab::TemperatureHumidity, "Temp/Humidity")}
@@ -132,71 +132,73 @@ fn co2_panel(
                         }
                     }
 
-                    div { class: "hidden sm:flex items-center gap-2",
-                        input {
-                            class: "w-14 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
-                            r#type: "number", min: "2", max: "1800",
-                            title: "Measurement interval (seconds)",
-                            value: "{config.measurement_interval_seconds}",
-                            onchange: move |e| {
-                                if let Ok(s) = e.value().parse::<u16>() {
-                                    let url = device_url.read().clone();
-                                    spawn(async move {
-                                        let _ = api::set_co2_config(&url, &serde_json::json!({"measurement_interval_seconds": s})).await;
-                                        if let Ok(r) = api::fetch_co2_config(&url).await { co2_config.set(Some(r.data)); }
-                                    });
-                                }
-                            },
-                        }
-                        span { class: "text-xs text-muted-foreground", "s" }
-                        label { class: "flex items-center gap-1 text-xs text-muted-foreground cursor-pointer",
-                            title: "Auto-calibration (ASC)",
+                    if config.model == "SCD30" {
+                        div { class: "hidden sm:flex items-center gap-2",
                             input {
-                                r#type: "checkbox", class: "accent-primary",
-                                checked: config.auto_calibration_enabled,
+                                class: "w-14 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
+                                r#type: "number", min: "2", max: "1800",
+                                title: "Measurement interval (seconds)",
+                                value: "{config.measurement_interval_seconds}",
                                 onchange: move |e| {
-                                    let enabled = e.checked();
-                                    let url = device_url.read().clone();
-                                    spawn(async move {
-                                        let _ = api::set_co2_config(&url, &serde_json::json!({"auto_calibration_enabled": enabled})).await;
-                                        if let Ok(r) = api::fetch_co2_config(&url).await { co2_config.set(Some(r.data)); }
-                                    });
+                                    if let Ok(s) = e.value().parse::<u16>() {
+                                        let url = device_url.read().clone();
+                                        spawn(async move {
+                                            let _ = api::set_co2_config(&url, &serde_json::json!({"measurement_interval_seconds": s})).await;
+                                            if let Ok(r) = api::fetch_co2_config(&url).await { co2_config.set(Some(r.data)); }
+                                        });
+                                    }
                                 },
                             }
-                            "ASC"
-                        }
-                        input {
-                            class: "w-12 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
-                            r#type: "number", step: "0.1", min: "0", max: "50",
-                            title: "Temperature offset (\u{00b0}C)",
-                            value: "{config.temperature_offset_celsius}",
-                            onchange: move |e| {
-                                if let Ok(offset) = e.value().parse::<f64>() {
-                                    let url = device_url.read().clone();
-                                    spawn(async move {
-                                        let _ = api::set_co2_config(&url, &serde_json::json!({"temperature_offset_celsius": offset})).await;
-                                        if let Ok(r) = api::fetch_co2_config(&url).await { co2_config.set(Some(r.data)); }
-                                    });
+                            span { class: "text-xs text-muted-foreground", "s" }
+                            label { class: "flex items-center gap-1 text-xs text-muted-foreground cursor-pointer",
+                                title: "Auto-calibration (ASC)",
+                                input {
+                                    r#type: "checkbox", class: "accent-primary",
+                                    checked: config.auto_calibration_enabled,
+                                    onchange: move |e| {
+                                        let enabled = e.checked();
+                                        let url = device_url.read().clone();
+                                        spawn(async move {
+                                            let _ = api::set_co2_config(&url, &serde_json::json!({"auto_calibration_enabled": enabled})).await;
+                                            if let Ok(r) = api::fetch_co2_config(&url).await { co2_config.set(Some(r.data)); }
+                                        });
+                                    },
                                 }
-                            },
+                                "ASC"
+                            }
+                            input {
+                                class: "w-12 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
+                                r#type: "number", step: "0.1", min: "0", max: "50",
+                                title: "Temperature offset (\u{00b0}C)",
+                                value: "{config.temperature_offset_celsius}",
+                                onchange: move |e| {
+                                    if let Ok(offset) = e.value().parse::<f64>() {
+                                        let url = device_url.read().clone();
+                                        spawn(async move {
+                                            let _ = api::set_co2_config(&url, &serde_json::json!({"temperature_offset_celsius": offset})).await;
+                                            if let Ok(r) = api::fetch_co2_config(&url).await { co2_config.set(Some(r.data)); }
+                                        });
+                                    }
+                                },
+                            }
+                            span { class: "text-xs text-muted-foreground", "\u{00b0}C" }
+                            input {
+                                class: "w-14 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
+                                r#type: "number", min: "0", max: "10000",
+                                title: "Altitude compensation (m)",
+                                value: "{config.altitude_meters}",
+                                onchange: move |e| {
+                                    if let Ok(alt) = e.value().parse::<u16>() {
+                                        let url = device_url.read().clone();
+                                        spawn(async move {
+                                            let _ = api::set_co2_config(&url, &serde_json::json!({"altitude_meters": alt})).await;
+                                            if let Ok(r) = api::fetch_co2_config(&url).await { co2_config.set(Some(r.data)); }
+                                        });
+                                    }
+                                },
+                            }
+                            span { class: "text-xs text-muted-foreground", "m" }
                         }
-                        span { class: "text-xs text-muted-foreground", "\u{00b0}C" }
-                        input {
-                            class: "w-14 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
-                            r#type: "number", min: "0", max: "10000",
-                            title: "Altitude compensation (m)",
-                            value: "{config.altitude_meters}",
-                            onchange: move |e| {
-                                if let Ok(alt) = e.value().parse::<u16>() {
-                                    let url = device_url.read().clone();
-                                    spawn(async move {
-                                        let _ = api::set_co2_config(&url, &serde_json::json!({"altitude_meters": alt})).await;
-                                        if let Ok(r) = api::fetch_co2_config(&url).await { co2_config.set(Some(r.data)); }
-                                    });
-                                }
-                            },
-                        }
-                        span { class: "text-xs text-muted-foreground", "m" }
                     }
                 } else {
                     span { class: "text-xs text-muted-foreground", "(polling every 5s)" }
@@ -215,7 +217,7 @@ fn co2_panel(
             }
 
             div { class: "border border-border rounded-lg overflow-hidden",
-                div { class: "w-full overflow-x-auto max-h-[300px]",
+                div { class: "w-full overflow-auto h-[400px]",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
                             tr {
@@ -280,7 +282,7 @@ fn thm_panel(
             }
 
             div { class: "border border-border rounded-lg overflow-hidden",
-                div { class: "w-full overflow-x-auto max-h-[300px]",
+                div { class: "w-full overflow-auto h-[400px]",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
                             tr {
@@ -359,7 +361,7 @@ fn voltage_panel(
             }
 
             div { class: "border border-border rounded-lg overflow-hidden",
-                div { class: "w-full overflow-x-auto max-h-[300px]",
+                div { class: "w-full overflow-auto h-[400px]",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
                             tr {

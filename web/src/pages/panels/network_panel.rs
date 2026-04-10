@@ -19,25 +19,22 @@ pub fn NetworkPanel(
     let wireless_data = wireless.read();
 
     rsx! {
-        section { id: "network-section", class: "panel-shell-strong p-4",
-            div { class: "flex items-start gap-2.5 flex-wrap mb-3",
-                div {
-                    h2 { class: "text-xl font-semibold", "Network" }
-                    if let Some(ref wireless_info) = *wireless_data {
-                        if wireless_info.ap_active {
-                            div { class: "mt-1 text-sm text-muted-foreground",
-                                if !wireless_info.ap_ssid.is_empty() {
-                                    "AP: {wireless_info.ap_ssid} ({wireless_info.ap_ipv4})"
-                                } else {
-                                    "AP: {wireless_info.ap_ipv4}"
-                                }
-                            }
+        section { id: "network-section", class: "flex flex-col h-full",
+            if let Some(ref wireless_info) = *wireless_data {
+                if wireless_info.ap_active {
+                    div { class: "text-sm text-muted-foreground mb-3",
+                        if !wireless_info.ap_ssid.is_empty() {
+                            "AP: {wireless_info.ap_ssid} ({wireless_info.ap_ipv4})"
+                        } else {
+                            "AP: {wireless_info.ap_ipv4}"
                         }
                     }
                 }
-                div { class: "flex-1" }
+            }
+
+            div { class: "mb-3",
                 button {
-                    class: "gold-button-outline text-sm",
+                    class: "gold-button-outline text-sm w-full justify-center",
                     disabled: *scanning.read(),
                     onclick: move |_| {
                         scanning.set(true);
@@ -123,7 +120,7 @@ pub fn NetworkPanel(
             }
 
             // Scan results table
-            div { class: "overflow-x-auto border border-border rounded-lg",
+            div { class: "overflow-auto flex-1 border border-border rounded-lg",
                 table { class: "w-full border-collapse min-w-[420px]",
                     thead {
                         tr {

@@ -36,6 +36,12 @@ pub async fn fetch_and_add_sensor_readings(
                 let temperature = data.get("temperature").and_then(|v| v.as_f64()).unwrap_or(0.0);
                 let humidity = data.get("humidity").and_then(|v| v.as_f64()).unwrap_or(0.0);
 
+                // HACK: firmware sends zeroed readings when sensor data isn't ready,
+                // remove once cloudevents.cpp skips not-ready CO2 events
+                if co2_ppm == 0.0 && temperature == 0.0 && humidity == 0.0 {
+                    continue;
+                }
+
                 let is_duplicate = co2_readings.read().last().is_some_and(|last|
                     last.co2_ppm == co2_ppm && last.temperature == temperature && last.humidity == humidity
                 );
@@ -52,6 +58,7 @@ pub async fn fetch_and_add_sensor_readings(
 
             "sensors.temperature_and_humidity.v1" => {
                 if let Some(sensors) = data.get("sensors").and_then(|v| v.as_array()) {
+                    if sensors.is_empty() { continue; }
                     let readings: Vec<TemperatureHumidityReading> = sensors.iter().map(|s| {
                         TemperatureHumidityReading {
                             index: s.get("index").and_then(|v| v.as_u64()).unwrap_or(0) as usize,

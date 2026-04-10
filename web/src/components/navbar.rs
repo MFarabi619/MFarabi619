@@ -1,13 +1,13 @@
 use crate::APIDAE_SYMBOL;
 use crate::Route;
 use dioxus::prelude::*;
-use lucide_dioxus::{Clock3, Cpu, Search};
+use lucide_dioxus::{Cpu, MemoryStick, Search, Wifi};
 
 #[component]
 pub fn Navbar(
     on_search: EventHandler<()>,
+    on_network: EventHandler<()>,
     chip_model: String,
-    uptime: String,
     heap_free: String,
 ) -> Element {
     rsx! {
@@ -42,13 +42,23 @@ pub fn Navbar(
                             "{chip_model}"
                         }
                         span { class: "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-mono text-foreground",
-                            Clock3 { class: "w-3.5 h-3.5" }
-                            "{uptime}"
-                        }
-                        span { class: "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-mono text-foreground",
-                            Cpu { class: "w-3.5 h-3.5" }
+                            MemoryStick { class: "w-3.5 h-3.5" }
                             "{heap_free}"
                         }
+                    } else {
+                        span { class: "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1",
+                            div { class: "w-3.5 h-3.5 bg-muted rounded animate-pulse" }
+                            div { class: "w-16 h-3.5 bg-muted rounded animate-pulse" }
+                        }
+                        span { class: "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1",
+                            div { class: "w-3.5 h-3.5 bg-muted rounded animate-pulse" }
+                            div { class: "w-20 h-3.5 bg-muted rounded animate-pulse" }
+                        }
+                    }
+                    button {
+                        class: "inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-mono text-foreground hover:bg-muted/50 transition-colors cursor-pointer",
+                        onmouseenter: move |_| on_network.call(()),
+                        Wifi { class: "w-3.5 h-3.5" }
                     }
                 }
             }

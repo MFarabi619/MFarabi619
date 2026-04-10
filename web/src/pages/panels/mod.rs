@@ -1,15 +1,21 @@
+pub mod bluetooth_panel;
 pub mod csv;
 pub mod filesystem_panel;
+pub mod flash_panel;
 pub mod measurement_panel;
 pub mod network_panel;
 pub mod sensor_feed;
 pub mod sensor_types;
 pub mod shared_ui;
+pub mod terminal_panel;
 
+pub use bluetooth_panel::BluetoothPanel;
 pub use csv::*;
 pub use filesystem_panel::FilesystemPanel;
+pub use flash_panel::FlashPanel;
 pub use measurement_panel::MeasurementPanel;
 pub use network_panel::NetworkPanel;
+pub use terminal_panel::TerminalPanel;
 pub use sensor_feed::*;
 pub use sensor_types::*;
 pub use shared_ui::*;

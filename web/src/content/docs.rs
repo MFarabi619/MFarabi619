@@ -30,7 +30,7 @@ fn DemoFrame(children: Element) -> Element {
 }
 
 #[component]
-fn CodeBlock(contents: String, name: Option<String>) -> Element {
+fn CodeBlock(contents: String, #[props(default)] light_contents: Option<String>, name: Option<String>) -> Element {
     let mut copied = use_signal(|| false);
     let code_id = use_hook(|| format!("code-{:x}", {
         let mut hash: u64 = 5381;

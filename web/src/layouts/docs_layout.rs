@@ -59,7 +59,7 @@ pub fn DocsLayout() -> Element {
         document::Title { "{title}" }
 
         div { class: "py-16 w-full text-sm border-b border-border relative",
-            div { class: "flex flex-row justify-center text-foreground font-light lg:gap-12",
+            div { class: "flex flex-row justify-center text-foreground font-light lg:gap-8 max-w-[1400px] mx-auto px-4",
                 DocsLeftNav {}
                 DocsContent {}
                 DocsRightNav {}
@@ -223,7 +223,7 @@ fn DocsContent() -> Element {
     rsx! {
         div {
             class: "
-                flex-1 max-w-[80ch] w-full pt-12 pb-16 px-6
+                flex-1 max-w-[100ch] w-full pt-12 pb-16 px-6
                 text-foreground
 
                 [&_h1]:mt-12 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-foreground [&_h1]:scroll-mt-20

@@ -9,6 +9,7 @@ mod pages;
 
 // Global signals for dialog state (shared between navbar and home page)
 pub static SHOW_COMMAND_PALETTE: GlobalSignal<bool> = Signal::global(|| false);
+pub static SHOW_NETWORK_SHEET: GlobalSignal<bool> = Signal::global(|| false);
 pub static DEVICE_CHIP_MODEL: GlobalSignal<String> = Signal::global(String::new);
 pub static DEVICE_UPTIME: GlobalSignal<String> = Signal::global(String::new);
 pub static DEVICE_HEAP_FREE: GlobalSignal<String> = Signal::global(String::new);
@@ -18,7 +19,7 @@ pub static WIFI_IP: GlobalSignal<String> = Signal::global(String::new);
 
 use crate::content::docs;
 use crate::layouts::{DocsLayout, MainLayout};
-use crate::pages::{Err404, Home};
+use crate::pages::{Err404, Home, Shell};
 
 const BANNER_IMAGE: Asset = asset!("/assets/header.svg");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
@@ -27,24 +28,27 @@ const APIDAE_SYMBOL: Asset = asset!("/assets/symbol.svg");
 
 #[derive(Clone, Routable, PartialEq, Eq, Debug)]
 enum Route {
-    #[layout(MainLayout)]
-    #[route("/")]
-    Home {},
+    #[route("/shell")]
+    Shell {},
 
-    // ===== Docs =====
-    #[layout(DocsLayout)]
-    #[nest("/docs")]
-    #[redirect("/", || Route::Docs {
-        child: docs::router::BookRoute::Index { section: Default::default() }
-    })]
-    #[child("/")]
-    Docs { child: docs::router::BookRoute },
-    #[end_nest]
-    #[end_layout]
-    // ================
     #[layout(MainLayout)]
-    #[route("/:..segments")]
-    Err404 { segments: Vec<String> },
+        #[route("/")]
+        Home {},
+
+        // ===== Docs =====
+        #[layout(DocsLayout)]
+        #[nest("/docs")]
+        #[redirect("/", || Route::Docs {
+            child: docs::router::BookRoute::Index { section: Default::default() }
+        })]
+        #[child("/")]
+        Docs { child: docs::router::BookRoute },
+        #[end_nest]
+        #[end_layout]
+        // ================
+
+        #[route("/:..segments")]
+        Err404 { segments: Vec<String> },
 }
 
 fn main() {
@@ -74,10 +78,14 @@ fn App() -> Element {
         document::Link { rel: "manifest", href: "/assets/manifest.json" }
         document::Meta { name: "theme-color", content: "#f5b72b" }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
-        // Service worker disabled for now — causes stale cache issues on redeploy
-        // script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.register('/assets/sw.js')"# }
-        // Unregister any existing service worker
-        script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(w=>w.unregister()))"# }
+        document::Link { rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/@xterm/xterm@5/css/xterm.min.css" }
+        script { src: "https://cdn.jsdelivr.net/npm/@xterm/xterm@5/lib/xterm.min.js" }
+        script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10/lib/addon-fit.min.js" }
+        script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-webgl@0.18/lib/addon-webgl.min.js" }
+        script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11/lib/addon-web-links.min.js" }
+        script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-attach@0.11/lib/addon-attach.min.js" }
+        script { "window.CERATINA_THEME={{background:'#0a0a0c',foreground:'#d4a84b',cursor:'#f5b72b',selectionBackground:'rgba(245,183,43,0.3)',black:'#0a0a0c',red:'#e06c6c',green:'#6cc070',yellow:'#f5b72b',blue:'#6c9ee0',magenta:'#c06cc0',cyan:'#6cc0c0',white:'#d4a84b'}};" }
+        script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.register('/assets/sw.js')"# }
         document::Meta { property: "og:type", content: "website" }
         document::Meta { property: "og:image", content: BANNER_IMAGE }
         document::Meta { property: "og:url", content: "https://microvisor.systems" }

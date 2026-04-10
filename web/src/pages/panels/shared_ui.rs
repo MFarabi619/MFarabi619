@@ -25,7 +25,7 @@ pub fn tab_button(mut active_tab: Signal<MeasurementTab>, tab: MeasurementTab, l
     rsx! {
         button {
             class: class,
-            onclick: move |_| active_tab.set(tab),
+            onmouseenter: move |_| active_tab.set(tab),
             "{label}"
         }
     }

@@ -75,7 +75,7 @@ pub fn ToastProvider(props: ToastProviderProps) -> Element {
 
         // Toast container - fixed position overlay
         div {
-            class: "fixed top-4 right-0 z-50 flex flex-col space-y-2 w-full max-w-sm px-4 items-end pointer-events-none",
+            class: "fixed bottom-4 right-0 z-50 flex flex-col-reverse space-y-2 space-y-reverse w-full max-w-sm px-4 items-end pointer-events-none",
             aria_live: "polite",
             aria_atomic: true,
 

@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use lucide_dioxus::{Braces, HardDrive, Radar, RefreshCw, Search, Wifi, Zap};
+use lucide_dioxus::{Braces, HardDrive, Radar, RefreshCw, Search, Trash2, Upload, Wifi, Zap};
 
 fn scroll_to_element(id: &str) {
     if let Some(el) = web_sys::window()
@@ -15,13 +15,14 @@ fn scroll_to_element(id: &str) {
 #[component]
 pub fn CommandPalette(
     on_open_api: EventHandler<()>,
+    on_sample: EventHandler<()>,
     on_scan_networks: EventHandler<()>,
     on_refresh_files: EventHandler<()>,
+    on_upload: EventHandler<()>,
 ) -> Element {
     let mut open = use_signal(|| false);
     let mut filter_text = use_signal(String::new);
 
-    // Sync with global signal via effect (not during render)
     use_effect(move || {
         if *crate::SHOW_COMMAND_PALETTE.read() {
             open.set(true);
@@ -48,10 +49,9 @@ pub fn CommandPalette(
             class: "fixed inset-0 z-50 flex items-start justify-center pt-[20vh] bg-black/60 backdrop-blur-sm",
             onclick: move |_| close(),
             div {
-                class: "w-full max-w-lg mx-4 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden",
+                class: "w-full max-w-lg mx-4 rounded-lg border border-border bg-card shadow-2xl overflow-hidden",
                 onclick: move |e| e.stop_propagation(),
 
-                // Search input
                 div { class: "flex items-center gap-3 border-b border-border px-4 py-3",
                     Search { class: "w-5 h-5 text-muted-foreground shrink-0" }
                     input {
@@ -60,14 +60,8 @@ pub fn CommandPalette(
                         placeholder: "Type a command or search...",
                         value: "{filter_text}",
                         oninput: move |e| filter_text.set(e.value()),
-                        onmounted: move |e| async move {
-                            let _ = e.set_focus(true).await;
-                        },
-                        onkeydown: move |e| {
-                            if e.key() == Key::Escape {
-                                close();
-                            }
-                        },
+                        onmounted: move |e| async move { let _ = e.set_focus(true).await; },
+                        onkeydown: move |e| { if e.key() == Key::Escape { close(); } },
                     }
                     button {
                         class: "p-1 rounded hover:bg-muted transition-colors text-muted-foreground",
@@ -76,20 +70,33 @@ pub fn CommandPalette(
                     }
                 }
 
-                // Results
-                div { class: "max-h-[300px] overflow-y-auto p-2",
+                div { class: "max-h-[400px] overflow-y-auto p-2",
 
-                    // Actions group
-                    if matches("api cloudevents json") || matches("scan networks wifi") || matches("refresh filesystem files") {
+                    if matches("sample voltage current temperature sensor") || matches("api cloudevents json") || matches("upload file sd") || matches("scan networks") || matches("refresh filesystem") || matches("clear cache") {
                         div { class: "px-2 py-1.5 text-xs text-muted-foreground uppercase tracking-wider", "Actions" }
                     }
 
-                    if matches("api cloudevents json ctrl slash") {
+                    if matches("sample voltage current temperature sensor") {
+                        CmdItem {
+                            icon: rsx! { lucide_dioxus::FlaskConical { class: "w-4 h-4" } },
+                            label: "Sample Sensors",
+                            shortcut: "Ctrl+Enter",
+                            on_click: move |_| { on_sample.call(()); close(); },
+                        }
+                    }
+                    if matches("api cloudevents json response") {
                         CmdItem {
                             icon: rsx! { Braces { class: "w-4 h-4" } },
                             label: "Open API",
                             shortcut: "Ctrl+/",
                             on_click: move |_| { on_open_api.call(()); close(); },
+                        }
+                    }
+                    if matches("upload file sd card") {
+                        CmdItem {
+                            icon: rsx! { Upload { class: "w-4 h-4" } },
+                            label: "Upload File to SD",
+                            on_click: move |_| { on_upload.call(()); close(); },
                         }
                     }
                     if matches("scan networks wifi") {
@@ -99,48 +106,66 @@ pub fn CommandPalette(
                             on_click: move |_| { on_scan_networks.call(()); close(); },
                         }
                     }
-                    if matches("refresh filesystem files sd") {
+                    if matches("refresh filesystem files sd littlefs") {
                         CmdItem {
                             icon: rsx! { RefreshCw { class: "w-4 h-4" } },
                             label: "Refresh Filesystems",
                             on_click: move |_| { on_refresh_files.call(()); close(); },
                         }
                     }
+                    if matches("clear cache reset storage reload") {
+                        CmdItem {
+                            icon: rsx! { Trash2 { class: "w-4 h-4" } },
+                            label: "Clear Cache & Reload",
+                            on_click: move |_| {
+                                #[cfg(target_arch = "wasm32")]
+                                if let Some(storage) = web_sys::window()
+                                    .and_then(|w| w.local_storage().ok().flatten())
+                                { storage.clear().ok(); }
+                                document::eval("location.reload()");
+                                close();
+                            },
+                        }
+                    }
 
-                    // Navigate group
-                    if matches("cloudevents measurements sensor") || matches("networking wifi") || matches("filesystem sd card") {
+                    if matches("measurements sensor terminal network filesystem flash") {
                         hr { class: "my-1 border-border" }
                         div { class: "px-2 py-1.5 text-xs text-muted-foreground uppercase tracking-wider", "Navigate" }
                     }
 
-                    if matches("cloudevents measurements sensor") {
+                    if matches("measurements sensor cloudevents voltage temperature co2") {
                         CmdItem {
                             icon: rsx! { Zap { class: "w-4 h-4" } },
-                            label: "CloudEvents",
-                            on_click: move |_| {
-                                scroll_to_element("cloudevents-section");
-                                close();
-                            },
+                            label: "Measurements",
+                            on_click: move |_| { scroll_to_element("cloudevents-section"); close(); },
                         }
                     }
-                    if matches("networking wifi ssid connect") {
+                    if matches("terminal shell console") {
+                        CmdItem {
+                            icon: rsx! { lucide_dioxus::Terminal { class: "w-4 h-4" } },
+                            label: "Terminal",
+                            on_click: move |_| { scroll_to_element("terminal-container"); close(); },
+                        }
+                    }
+                    if matches("network wifi ssid connect") {
                         CmdItem {
                             icon: rsx! { Wifi { class: "w-4 h-4" } },
                             label: "Network",
-                            on_click: move |_| {
-                                scroll_to_element("network-section");
-                                close();
-                            },
+                            on_click: move |_| { scroll_to_element("network-section"); close(); },
                         }
                     }
-                    if matches("filesystem sd card files") {
+                    if matches("filesystem sd card files littlefs") {
                         CmdItem {
                             icon: rsx! { HardDrive { class: "w-4 h-4" } },
                             label: "Filesystem",
-                            on_click: move |_| {
-                                scroll_to_element("filesystem-section");
-                                close();
-                            },
+                            on_click: move |_| { scroll_to_element("filesystem-section"); close(); },
+                        }
+                    }
+                    if matches("flash firmware serial esptool") {
+                        CmdItem {
+                            icon: rsx! { lucide_dioxus::Cpu { class: "w-4 h-4" } },
+                            label: "Firmware Flash",
+                            on_click: move |_| { scroll_to_element("flash-panel"); close(); },
                         }
                     }
                 }
@@ -163,7 +188,7 @@ fn CmdItem(
             span { class: "text-primary", {icon} }
             span { "{label}" }
             if let Some(kbd) = shortcut {
-                span { class: "ml-auto text-xs text-muted-foreground bg-transparent tracking-widest", "{kbd}" }
+                span { class: "ml-auto text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded", "{kbd}" }
             }
         }
     }

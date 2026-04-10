@@ -36,6 +36,8 @@ pub struct DeviceRuntime {
     pub uptime: String,
     pub uptime_seconds: u64,
     pub memory_heap_bytes: u64,
+    #[serde(default)]
+    pub memory_heap_total: u64,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -179,7 +181,7 @@ pub async fn delete_file(base_url: &str, location: &str, path: &str) -> Result<r
     let location = urlencoding::encode(location);
     let path = urlencoding::encode(path);
     reqwest::Client::new()
-        .delete(format!("{base_url}/api/filesystem/delete?location={location}&path={path}"))
+        .delete(format!("{base_url}/api/filesystem/file/{path}?location={location}"))
         .send()
         .await
 }
@@ -247,4 +249,15 @@ pub fn format_file_size(bytes: u64) -> String {
     } else {
         format!("{:.1} MB", bytes as f64 / (1024.0 * 1024.0))
     }
+}
+
+pub fn format_storage_pair(used: u64, total: u64) -> String {
+    let (used_val, total_val, unit) = if total < 1024 {
+        (used as f64, total as f64, "B")
+    } else if total < 1024 * 1024 {
+        (used as f64 / 1024.0, total as f64 / 1024.0, "KB")
+    } else {
+        (used as f64 / (1024.0 * 1024.0), total as f64 / (1024.0 * 1024.0), "MB")
+    };
+    format!("{used_val:.1} / {total_val:.1} {unit}")
 }
