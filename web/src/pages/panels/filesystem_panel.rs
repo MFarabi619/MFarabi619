@@ -3,7 +3,7 @@ use super::file_icon;
 use dioxus::prelude::*;
 use lucide_dioxus::{Download, HardDrive, Plus, Trash2};
 use ui::components::progress::{Progress, ProgressVariant};
-use ui::components::toast::Toasts;
+use ui::components::toast::use_toast;
 
 #[component]
 pub fn FilesystemPanel(
@@ -15,17 +15,18 @@ pub fn FilesystemPanel(
     status: Signal<Option<DeviceStatusData>>,
     storage_percent: Memo<f64>,
 ) -> Element {
-    let toasts = Toasts;
-    let mut show_toast = move |message: String, kind: &'static str| {
-        match kind {
-            "ok" => toasts.success(message, None),
-            "err" => toasts.error(message, None),
-            "warn" => toasts.warning(message, None),
-            _ => toasts.info(message, None),
-        }
-    };
+    let toasts = use_toast();
 
     let status_data = status.read();
+
+    let littlefs_percent = use_memo(move || {
+        let total = *littlefs_total_bytes.read();
+        if total > 0 {
+            (*littlefs_used_bytes.read() as f64 / total as f64 * 100.0).clamp(0.0, 100.0)
+        } else {
+            0.0
+        }
+    });
 
     rsx! {
         section { id: "filesystem-section", class: "panel-shell-strong p-4",
@@ -61,7 +62,7 @@ pub fn FilesystemPanel(
                         let filename_for_download = filename.clone();
                         let device = device_url.read().clone();
                         rsx! {
-                            div { class: "flex items-center gap-2 py-2 group",
+                            div { key: "{filename}", class: "flex items-center gap-2 py-2 group",
                                 {file_icon(&filename)}
                                 span { class: "text-sm font-mono text-foreground truncate", "{filename}" }
                                 span { class: "text-xs text-muted-foreground shrink-0 ml-auto", "{api::format_file_size(file_size)}" }
@@ -79,12 +80,12 @@ pub fn FilesystemPanel(
                                         spawn(async move {
                                             match api::delete_file(&url, "sd", &name).await {
                                                 Ok(response) if response.status().is_success() => {
-                                                    show_toast(format!("Deleted {name}"), "ok");
+                                                    toasts.success(format!("Deleted {name}"), None);
                                                     if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
                                                         files.set(entries);
                                                     }
                                                 }
-                                                _ => show_toast(format!("Failed to delete {name}"), "err"),
+                                                _ => toasts.error(format!("Failed to delete {name}"), None),
                                             }
                                         });
                                     },
@@ -95,11 +96,9 @@ pub fn FilesystemPanel(
                     }
                 }
 
-                button {
-                    class: "mt-2 w-full py-2 rounded-2xl border border-dashed border-border text-sm text-muted-foreground hover:bg-muted/30 transition-colors flex items-center justify-center gap-1",
-                    onclick: move |_| {
-                        document::eval("document.getElementById('sd-upload-input')?.click()");
-                    },
+                label {
+                    r#for: "sd-upload-input",
+                    class: "mt-2 w-full py-2 rounded-2xl border border-dashed border-border text-sm text-muted-foreground hover:bg-muted/30 transition-colors flex items-center justify-center gap-1 cursor-pointer",
                     Plus { class: "w-3.5 h-3.5" }
                     "Add file..."
                 }
@@ -119,14 +118,14 @@ pub fn FilesystemPanel(
 
                 if *littlefs_total_bytes.read() > 0 {
                     {
-                        let littlefs_percent = (*littlefs_used_bytes.read() as f64 / *littlefs_total_bytes.read() as f64 * 100.0).clamp(0.0, 100.0);
-                        let littlefs_percent_signal = use_signal(move || littlefs_percent);
+                        let pct = *littlefs_percent.read();
+                        let variant = if pct > 90.0 { ProgressVariant::Destructive } else if pct > 70.0 { ProgressVariant::Warning } else { ProgressVariant::Success };
                         rsx! {
                             div { class: "mb-3",
                                 Progress {
-                                    value: littlefs_percent_signal,
+                                    value: littlefs_percent,
                                     max: 100.0,
-                                    variant: if littlefs_percent > 90.0 { ProgressVariant::Destructive } else if littlefs_percent > 70.0 { ProgressVariant::Warning } else { ProgressVariant::Success },
+                                    variant: variant,
                                 }
                             }
                         }
@@ -143,7 +142,7 @@ pub fn FilesystemPanel(
                         let file_size = file.size;
                         let filename_for_delete = filename.clone();
                         rsx! {
-                            div { class: "flex items-center gap-2 py-2 group",
+                            div { key: "{filename}", class: "flex items-center gap-2 py-2 group",
                                 {file_icon(&filename)}
                                 span { class: "text-sm font-mono text-foreground truncate", "{filename}" }
                                 span { class: "text-xs text-muted-foreground shrink-0 ml-auto", "{api::format_file_size(file_size)}" }
@@ -155,12 +154,12 @@ pub fn FilesystemPanel(
                                         spawn(async move {
                                             match api::delete_file(&url, "littlefs", &name).await {
                                                 Ok(response) if response.status().is_success() => {
-                                                    show_toast(format!("Deleted {name}"), "ok");
+                                                    toasts.success(format!("Deleted {name}"), None);
                                                     if let Ok(entries) = api::fetch_filesystem(&url, "littlefs").await {
                                                         littlefs_files.set(entries);
                                                     }
                                                 }
-                                                _ => show_toast(format!("Failed to delete {name}"), "err"),
+                                                _ => toasts.error(format!("Failed to delete {name}"), None),
                                             }
                                         });
                                     },
@@ -184,7 +183,7 @@ pub fn FilesystemPanel(
                 r#type: "file",
                 class: "hidden",
                 onchange: move |_| {
-                    show_toast("File upload — use curl for now".into(), "warn");
+                    toasts.warning("File upload \u{2014} use curl for now".into(), None);
                 },
             }
         }

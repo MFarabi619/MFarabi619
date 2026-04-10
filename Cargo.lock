@@ -12331,8 +12331,6 @@ dependencies = [
  "dioxus-autofmt",
  "dioxus-primitives",
  "dioxus-sdk-time",
- "futures-util",
- "gloo-net",
  "gloo-timers",
  "js-sys",
  "lucide-dioxus",
@@ -12348,7 +12346,6 @@ dependencies = [
  "urlencoding",
  "use-mdbook",
  "wasm-bindgen",
- "wasm-bindgen-futures",
  "web-sys",
 ]
 

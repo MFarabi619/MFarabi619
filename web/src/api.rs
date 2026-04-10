@@ -117,14 +117,6 @@ pub struct FileEntry {
     pub size: u64,
 }
 
-// ─── Voltage/Current sampling ───────────────────────────────────────────────
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct SampleResponse {
-    pub ok: bool,
-    pub data: serde_json::Value,
-}
-
 // ─── Fetch helpers ──────────────────────────────────────────────────────────
 
 pub async fn fetch_device_status(base_url: &str) -> Result<DeviceStatusEnvelope, reqwest::Error> {
@@ -135,6 +127,7 @@ pub async fn fetch_device_status(base_url: &str) -> Result<DeviceStatusEnvelope,
 }
 
 pub async fn fetch_device_status_for_location(base_url: &str, location: &str) -> Result<DeviceStatusEnvelope, reqwest::Error> {
+    let location = urlencoding::encode(location);
     reqwest::get(format!("{base_url}/api/system/device/status?location={location}"))
         .await?
         .json()
@@ -165,6 +158,7 @@ pub async fn fetch_wifi_scan(base_url: &str) -> Result<WifiScanResponse, reqwest
 }
 
 pub async fn fetch_filesystem(base_url: &str, location: &str) -> Result<Vec<FileEntry>, reqwest::Error> {
+    let location = urlencoding::encode(location);
     reqwest::get(format!("{base_url}/api/filesystem/list?location={location}"))
         .await?
         .json()
@@ -182,27 +176,11 @@ pub async fn connect_wifi(base_url: &str, ssid: &str, password: &str) -> Result<
 }
 
 pub async fn delete_file(base_url: &str, location: &str, path: &str) -> Result<reqwest::Response, reqwest::Error> {
+    let location = urlencoding::encode(location);
+    let path = urlencoding::encode(path);
     reqwest::Client::new()
         .delete(format!("{base_url}/api/filesystem/delete?location={location}&path={path}"))
         .send()
-        .await
-}
-
-pub async fn sample_voltage(base_url: &str) -> Result<SampleResponse, reqwest::Error> {
-    reqwest::Client::new()
-        .post(format!("{base_url}/api/system/device/actions/log/voltage"))
-        .send()
-        .await?
-        .json()
-        .await
-}
-
-pub async fn sample_current(base_url: &str) -> Result<SampleResponse, reqwest::Error> {
-    reqwest::Client::new()
-        .post(format!("{base_url}/api/system/device/actions/log/current"))
-        .send()
-        .await?
-        .json()
         .await
 }
 

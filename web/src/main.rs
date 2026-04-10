@@ -8,9 +8,7 @@ mod layouts;
 mod pages;
 
 // Global signals for dialog state (shared between navbar and home page)
-pub static SHOW_API_DIALOG: GlobalSignal<bool> = Signal::global(|| false);
 pub static SHOW_COMMAND_PALETTE: GlobalSignal<bool> = Signal::global(|| false);
-pub static API_DIALOG_CONTENT: GlobalSignal<String> = Signal::global(|| "Loading...".to_string());
 pub static DEVICE_CHIP_MODEL: GlobalSignal<String> = Signal::global(String::new);
 pub static DEVICE_UPTIME: GlobalSignal<String> = Signal::global(String::new);
 pub static DEVICE_HEAP_FREE: GlobalSignal<String> = Signal::global(String::new);

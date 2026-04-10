@@ -1,8 +1,8 @@
 use crate::api::{self, WifiNetwork, WirelessStatusData};
-use super::{sleep_ms, StatusBadge, Th, Td};
+use super::{sleep_ms, Th, Td};
 use dioxus::prelude::*;
 use lucide_dioxus::{LoaderCircle, Radar, Wifi};
-use ui::components::toast::Toasts;
+use ui::components::toast::use_toast;
 
 #[component]
 pub fn NetworkPanel(
@@ -14,14 +14,7 @@ pub fn NetworkPanel(
     ssid_input: Signal<String>,
     password_input: Signal<String>,
 ) -> Element {
-    let toasts = Toasts;
-    let mut show_toast = move |message: String, kind: &'static str| {
-        match kind {
-            "ok" => toasts.success(message, None),
-            "err" => toasts.error(message, None),
-            _ => toasts.info(message, None),
-        }
-    };
+    let toasts = use_toast();
 
     let wireless_data = wireless.read();
 
@@ -54,9 +47,9 @@ pub fn NetworkPanel(
                                 Ok(response) => {
                                     let count = response.data.networks.len();
                                     networks.set(response.data.networks);
-                                    show_toast(format!("Found {count} network(s)"), "ok");
+                                    toasts.success(format!("Found {count} network(s)"), None);
                                 }
-                                Err(error) => show_toast(format!("Scan failed: {error}"), "err"),
+                                Err(error) => toasts.error(format!("Scan failed: {error}"), None),
                             }
                             scanning.set(false);
                         });
@@ -84,13 +77,13 @@ pub fn NetworkPanel(
                     spawn(async move {
                         match api::connect_wifi(&url, &ssid, &password).await {
                             Ok(_) => {
-                                show_toast(format!("Connecting to {ssid}..."), "ok");
+                                toasts.success(format!("Connecting to {ssid}..."), None);
                                 sleep_ms(3000).await;
                                 if let Ok(response) = api::fetch_wireless_status(&url).await {
                                     wireless.set(Some(response.data));
                                 }
                             }
-                            Err(error) => show_toast(format!("Connect failed: {error}"), "err"),
+                            Err(error) => toasts.error(format!("Connect failed: {error}"), None),
                         }
                         connecting.set(false);
                     });
@@ -148,7 +141,7 @@ pub fn NetworkPanel(
                                 }
                             }
                         }
-                        for network in networks.read().iter() {
+                        for (network_index, network) in networks.read().iter().enumerate() {
                             {
                                 let is_connected_network = wireless_data.as_ref()
                                     .is_some_and(|wireless_info| wireless_info.sta_ssid == network.ssid && !network.ssid.is_empty());
@@ -168,7 +161,7 @@ pub fn NetworkPanel(
                                 };
 
                                 rsx! {
-                                    tr { class: "{row_class}",
+                                    tr { key: "{network_index}-{ssid_display}", class: "{row_class}",
                                         td { class: "px-3 py-2 text-sm",
                                             button {
                                                 class: "{ssid_class}",

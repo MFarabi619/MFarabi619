@@ -1,6 +1,17 @@
 use dioxus::prelude::*;
 use lucide_dioxus::{Braces, HardDrive, Radar, RefreshCw, Search, Wifi, Zap};
 
+fn scroll_to_element(id: &str) {
+    if let Some(el) = web_sys::window()
+        .and_then(|w| w.document())
+        .and_then(|d| d.get_element_by_id(id))
+    {
+        let mut opts = web_sys::ScrollIntoViewOptions::new();
+        opts.behavior(web_sys::ScrollBehavior::Smooth);
+        el.scroll_into_view_with_scroll_into_view_options(&opts);
+    }
+}
+
 #[component]
 pub fn CommandPalette(
     on_open_api: EventHandler<()>,
@@ -10,12 +21,13 @@ pub fn CommandPalette(
     let mut open = use_signal(|| false);
     let mut filter_text = use_signal(String::new);
 
-    // Sync with global signal
-    let global_open = *crate::SHOW_COMMAND_PALETTE.read();
-    if global_open && !*open.read() {
-        open.set(true);
-        *crate::SHOW_COMMAND_PALETTE.write() = false;
-    }
+    // Sync with global signal via effect (not during render)
+    use_effect(move || {
+        if *crate::SHOW_COMMAND_PALETTE.read() {
+            open.set(true);
+            *crate::SHOW_COMMAND_PALETTE.write() = false;
+        }
+    });
 
     if !*open.read() {
         return rsx! {};
@@ -106,7 +118,7 @@ pub fn CommandPalette(
                             icon: rsx! { Zap { class: "w-4 h-4" } },
                             label: "CloudEvents",
                             on_click: move |_| {
-                                document::eval("document.getElementById('cloudevents-section')?.scrollIntoView({behavior:'smooth'})");
+                                scroll_to_element("cloudevents-section");
                                 close();
                             },
                         }
@@ -116,7 +128,7 @@ pub fn CommandPalette(
                             icon: rsx! { Wifi { class: "w-4 h-4" } },
                             label: "Network",
                             on_click: move |_| {
-                                document::eval("document.getElementById('network-section')?.scrollIntoView({behavior:'smooth'})");
+                                scroll_to_element("network-section");
                                 close();
                             },
                         }
@@ -126,7 +138,7 @@ pub fn CommandPalette(
                             icon: rsx! { HardDrive { class: "w-4 h-4" } },
                             label: "Filesystem",
                             on_click: move |_| {
-                                document::eval("document.getElementById('filesystem-section')?.scrollIntoView({behavior:'smooth'})");
+                                scroll_to_element("filesystem-section");
                                 close();
                             },
                         }

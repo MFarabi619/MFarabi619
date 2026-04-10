@@ -126,6 +126,7 @@ fn SidebarSection(
 
     let has_children = !link.nested_items.is_empty();
     let mut expanded = use_signal(|| is_active);
+    use_effect(move || { if is_active { expanded.set(true); } });
 
     rsx! {
         div { class: "full-chapter",
@@ -183,6 +184,7 @@ fn SidebarChapter(
 
     let has_children = !link.nested_items.is_empty();
     let mut expanded = use_signal(|| is_active);
+    use_effect(move || { if is_active { expanded.set(true); } });
 
     rsx! {
         li { class: "rounded-md",

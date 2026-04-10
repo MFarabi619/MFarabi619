@@ -50,6 +50,7 @@ pub fn Home() -> Element {
     let mut co2_readings = use_signal(Vec::<Co2Row>::new);
     let mut temperature_humidity_readings = use_signal(Vec::<TemperatureHumidityRow>::new);
     let mut voltage_readings = use_signal(Vec::<VoltageRow>::new);
+    let last_event_time = use_signal(String::new);
     let mut co2_config = use_signal(|| None::<api::Co2ConfigData>);
     let mut sampling = use_signal(|| false);
 
@@ -127,10 +128,11 @@ pub fn Home() -> Element {
                 }
             }
 
-            // All sensors from CloudEvents every 5s
-            fetch_and_add_sensor_readings(
-                &url, co2_readings, temperature_humidity_readings, voltage_readings,
-            ).await;
+            if !*sampling.peek() {
+                fetch_and_add_sensor_readings(
+                    &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
+                ).await;
+            }
 
             // Filesystem every 30s
             if tick % 6 == 0 {
@@ -171,7 +173,7 @@ pub fn Home() -> Element {
                         let url = device_url.read().clone();
                         spawn(async move {
                             fetch_and_add_sensor_readings(
-                                &url, co2_readings, temperature_humidity_readings, voltage_readings,
+                                &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
                             ).await;
                             sampling.set(false);
                         });
@@ -253,6 +255,7 @@ pub fn Home() -> Element {
             // Measurements
             MeasurementPanel {
                 device_url,
+                last_event_time,
                 co2_readings,
                 temperature_humidity_readings,
                 voltage_readings,
