@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "commands.h"
+#include "microfetch.h"
 #include "fs/fs.h"
 #include "../ssh/ssh_client.h"
 
@@ -86,6 +87,7 @@ void shell_init_instance(struct ush_object *ush,
 
   ush_init(ush, desc);
   commands_register(ush);
+  microfetch_register(ush);
   ssh_client_commands_register(ush);
   fs_mount(ush);
 }
