@@ -269,6 +269,26 @@
 #define CONFIG_SCP_BUF_SIZE 4096
 #endif
 
+#ifndef CONFIG_BLE_ENABLED
+#define CONFIG_BLE_ENABLED 0
+#endif
+
+#ifndef CONFIG_BLE_PASSKEY
+#define CONFIG_BLE_PASSKEY 123456
+#endif
+
+#ifndef CONFIG_BLE_MAX_CLIENTS
+#define CONFIG_BLE_MAX_CLIENTS 2
+#endif
+
+#ifndef CONFIG_BLE_RING_SIZE
+#define CONFIG_BLE_RING_SIZE 512
+#endif
+
+#ifndef CONFIG_BLE_WRITE_BUF
+#define CONFIG_BLE_WRITE_BUF 512
+#endif
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  CloudEvents
 // ─────────────────────────────────────────────────────────────────────────────
