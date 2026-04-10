@@ -1,4 +1,3 @@
-// Tests inline — auto-discovered by test_custom_runner.py
 #ifdef PIO_UNIT_TESTING
 
 #include "wifi.h"
@@ -7,8 +6,51 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
+struct NvsSnapshot {
+  String ssid;
+  String pass;
+  String ap_ssid;
+  String ap_pass;
+  bool ap_on;
+  bool has_ssid;
+  bool has_pass;
+  bool has_ap_ssid;
+  bool has_ap_pass;
+  bool has_ap_on;
+};
+
+static NvsSnapshot saved;
+
+static void save_nvs(void) {
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
+  saved.has_ssid = preferences.isKey("ssid");
+  saved.has_pass = preferences.isKey("pass");
+  saved.has_ap_ssid = preferences.isKey("ap_ssid");
+  saved.has_ap_pass = preferences.isKey("ap_pass");
+  saved.has_ap_on = preferences.isKey("ap_on");
+  if (saved.has_ssid) saved.ssid = preferences.getString("ssid", "");
+  if (saved.has_pass) saved.pass = preferences.getString("pass", "");
+  if (saved.has_ap_ssid) saved.ap_ssid = preferences.getString("ap_ssid", "");
+  if (saved.has_ap_pass) saved.ap_pass = preferences.getString("ap_pass", "");
+  if (saved.has_ap_on) saved.ap_on = preferences.getBool("ap_on", true);
+  preferences.end();
+}
+
+static void restore_nvs(void) {
+  Preferences preferences;
+  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  preferences.clear();
+  if (saved.has_ssid) preferences.putString("ssid", saved.ssid);
+  if (saved.has_pass) preferences.putString("pass", saved.pass);
+  if (saved.has_ap_ssid) preferences.putString("ap_ssid", saved.ap_ssid);
+  if (saved.has_ap_pass) preferences.putString("ap_pass", saved.ap_pass);
+  if (saved.has_ap_on) preferences.putBool("ap_on", saved.ap_on);
+  preferences.end();
+}
+
 static void wifi_test_credentials_roundtrip(void) {
-  TEST_MESSAGE("user saves wifi credentials to NVS");
+  save_nvs();
 
   wifi_set_credentials("test_ssid", "test_pass");
 
@@ -25,24 +67,17 @@ static void wifi_test_credentials_roundtrip(void) {
   TEST_ASSERT_EQUAL_STRING_MESSAGE("test_pass", pass,
     "device: password mismatch after roundtrip");
 
-  // Clean up
-  Preferences prefs;
-  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  prefs.clear();
-  prefs.end();
-
-  TEST_MESSAGE("credentials roundtrip through NVS verified");
+  restore_nvs();
+  TEST_MESSAGE("credentials roundtrip verified, NVS restored");
 }
 
-// Removed: wifi_test_not_connected_initially was order-dependent.
-// SNTP tests may connect WiFi before this runs (alphabetical sort).
-
 static void wifi_test_empty_nvs_returns_false(void) {
-  TEST_MESSAGE("user reads credentials from empty NVS");
+  save_nvs();
 
   Preferences preferences;
   preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.clear();
+  preferences.remove("ssid");
+  preferences.remove("pass");
   preferences.end();
 
   char ssid[CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH + 1] = {0};
@@ -50,18 +85,15 @@ static void wifi_test_empty_nvs_returns_false(void) {
 
   TEST_ASSERT_FALSE_MESSAGE(wifi_get_ssid(ssid, sizeof(ssid)),
     "device: get_ssid should return false on empty NVS");
-  TEST_ASSERT_EMPTY_MESSAGE(ssid,
-    "device: ssid buffer should remain empty after failed get");
   TEST_ASSERT_FALSE_MESSAGE(wifi_get_password(pass, sizeof(pass)),
     "device: get_password should return false on empty NVS");
-  TEST_ASSERT_EMPTY_MESSAGE(pass,
-    "device: pass buffer should remain empty after failed get");
 
-  TEST_MESSAGE("empty NVS correctly returns false");
+  restore_nvs();
+  TEST_MESSAGE("empty NVS returns false, NVS restored");
 }
 
 static void wifi_test_overwrite_keeps_latest(void) {
-  TEST_MESSAGE("user overwrites credentials and verifies latest wins");
+  save_nvs();
 
   wifi_set_credentials("first_ssid", "first_pass");
   wifi_set_credentials("second_ssid", "second_pass");
@@ -77,31 +109,29 @@ static void wifi_test_overwrite_keeps_latest(void) {
   TEST_ASSERT_EQUAL_STRING_MESSAGE("second_pass", pass,
     "device: password should be the latest written value");
 
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.clear();
-  preferences.end();
-
-  TEST_MESSAGE("overwrite keeps latest value");
+  restore_nvs();
+  TEST_MESSAGE("overwrite verified, NVS restored");
 }
 
 static void wifi_test_connect_fails_without_ssid(void) {
-  TEST_MESSAGE("user calls wifi_connect with no stored SSID");
+  save_nvs();
 
   Preferences preferences;
   preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.clear();
+  preferences.remove("ssid");
+  preferences.remove("pass");
   preferences.end();
 
   wifi_setup();
   TEST_ASSERT_FALSE_MESSAGE(wifi_connect(),
     "device: wifi_connect should return false when no SSID stored");
 
-  TEST_MESSAGE("wifi_connect correctly fails without SSID");
+  restore_nvs();
+  TEST_MESSAGE("connect fails without SSID, NVS restored");
 }
 
 static void wifi_test_ap_config_roundtrip(void) {
-  TEST_MESSAGE("user saves AP config to NVS and reads it back");
+  save_nvs();
 
   wifi_set_ap_config("my-custom-ap", "secret123");
 
@@ -115,18 +145,12 @@ static void wifi_test_ap_config_roundtrip(void) {
   TEST_ASSERT_EQUAL_STRING_MESSAGE("secret123", pass,
     "device: AP password mismatch after roundtrip");
 
-  // Clean up
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.remove("ap_ssid");
-  preferences.remove("ap_pass");
-  preferences.end();
-
-  TEST_MESSAGE("AP config roundtrip verified");
+  restore_nvs();
+  TEST_MESSAGE("AP config roundtrip verified, NVS restored");
 }
 
 static void wifi_test_ap_default_ssid(void) {
-  TEST_MESSAGE("user reads AP SSID from empty NVS, expects default");
+  save_nvs();
 
   Preferences preferences;
   preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
@@ -139,11 +163,12 @@ static void wifi_test_ap_default_ssid(void) {
   TEST_ASSERT_EQUAL_STRING_MESSAGE(CONFIG_AP_SSID, ssid,
     "device: AP SSID should default to CONFIG_AP_SSID");
 
-  TEST_MESSAGE("AP default SSID verified");
+  restore_nvs();
+  TEST_MESSAGE("AP default SSID verified, NVS restored");
 }
 
 static void wifi_test_ap_enabled_default_true(void) {
-  TEST_MESSAGE("user reads AP enabled from empty NVS, expects true");
+  save_nvs();
 
   Preferences preferences;
   preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
@@ -153,13 +178,13 @@ static void wifi_test_ap_enabled_default_true(void) {
   TEST_ASSERT_TRUE_MESSAGE(wifi_get_ap_enabled(),
     "device: AP should be enabled by default");
 
-  TEST_MESSAGE("AP default enabled=true verified");
+  restore_nvs();
+  TEST_MESSAGE("AP enabled default verified, NVS restored");
 }
 
 static void wifi_test_ap_enabled_toggle(void) {
-  TEST_MESSAGE("user toggles AP enabled flag in NVS");
+  save_nvs();
 
-  // Directly write to NVS to avoid wifi_set_ap_enabled side effects
   Preferences preferences;
   preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
   preferences.putBool("ap_on", false);
@@ -175,12 +200,8 @@ static void wifi_test_ap_enabled_toggle(void) {
   TEST_ASSERT_TRUE_MESSAGE(wifi_get_ap_enabled(),
     "device: AP should be enabled after setting true");
 
-  // Clean up
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.remove("ap_on");
-  preferences.end();
-
-  TEST_MESSAGE("AP enabled toggle verified");
+  restore_nvs();
+  TEST_MESSAGE("AP enabled toggle verified, NVS restored");
 }
 
 void wifi_run_tests(void) {

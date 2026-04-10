@@ -73,6 +73,15 @@ bool wifi_connect(void) {
   char ssid[CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH + 1] = {0};
   char pass[CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH + 1] = {0};
 
+#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
+  if (!wifi_get_ssid(ssid, sizeof(ssid)) || ssid[0] == '\0') {
+    if (strlen(CONFIG_WIFI_SSID) > 0) {
+      wifi_set_credentials(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
+      Serial.printf("[wifi] seeded NVS from build flags: %s\n", CONFIG_WIFI_SSID);
+    }
+  }
+#endif
+
   if (!wifi_get_ssid(ssid, sizeof(ssid)) || ssid[0] == '\0') {
     Serial.println(F("[wifi] no SSID configured"));
     return false;
