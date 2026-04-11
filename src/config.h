@@ -1,3 +1,4 @@
+// clang-format off
 #ifndef CONFIG_H
 #define CONFIG_H
 
