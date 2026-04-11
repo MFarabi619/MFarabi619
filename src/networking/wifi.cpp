@@ -6,60 +6,23 @@
 #include <DNSServer.h>
 #include <Preferences.h>
 #include <ESPmDNS.h>
-#include "esp_netif.h"
 
 static volatile bool connected = false;
 static bool mdns_started = false;
 static bool ap_active = false;
 static DNSServer dns_server;
 
-// Sentinel slots for pre-flash credential embedding.
-// The web app's flash panel finds these byte patterns in the .bin
-// and overwrites them with user-provided SSID/password before flashing.
 static const char wifi_ssid_slot[33] __attribute__((used, aligned(4))) =
   "@@WIFI_SSID@@";
 static const char wifi_pass_slot[65] __attribute__((used, aligned(4))) =
   "@@WIFI_PASS@@";
 
 static bool nvs_get_string(const char *key, char *buf, size_t len) {
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  String val = preferences.getString(key, "");
-  preferences.end();
-  if (val.length() == 0) return false;
-  strncpy(buf, val.c_str(), len - 1);
-  buf[len - 1] = '\0';
-  return true;
-}
-
-static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id,
-                               void *event_data) {
-  if (id == WIFI_EVENT_STA_CONNECTED) {
-    Serial.println(F("[wifi] connected"));
-  } else if (id == WIFI_EVENT_STA_DISCONNECTED) {
-    Serial.println(F("[wifi] disconnected, reconnecting..."));
-    neopixel_yellow();
-    connected = false;
-    char ssid[CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH + 1] = {0};
-    char pass[CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH + 1] = {0};
-    if (nvs_get_string("ssid", ssid, sizeof(ssid))) {
-      nvs_get_string("pass", pass, sizeof(pass));
-      WiFi.begin(ssid, pass);
-    }
-  } else if (id == IP_EVENT_STA_GOT_IP) {
-    ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-    Serial.printf("[wifi] got ip: %s\n",
-                  IPAddress(event->ip_info.ip.addr).toString().c_str());
-    connected = true;
-    neopixel_green();
-
-    if (!mdns_started && MDNS.begin(CONFIG_HOSTNAME)) {
-      MDNS.addService("ssh", "tcp", CONFIG_SSH_PORT);
-      MDNS.addService("http", "tcp", CONFIG_HTTP_PORT);
-      Serial.printf("[mdns] %s.local\n", CONFIG_HOSTNAME);
-      mdns_started = true;
-    }
-  }
+  Preferences prefs;
+  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
+  size_t n = prefs.getString(key, buf, len);
+  prefs.end();
+  return n > 0;
 }
 
 void wifi_setup(void) {
@@ -67,16 +30,51 @@ void wifi_setup(void) {
   if (setup_done) return;
   setup_done = true;
 
-  esp_netif_init();
-  esp_event_loop_create_default();
-  esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID,
-                                      wifi_event_handler, NULL, NULL);
-  esp_event_handler_instance_register(IP_EVENT, ESP_EVENT_ANY_ID,
-                                      wifi_event_handler, NULL, NULL);
+  WiFi.persistent(false);
+  WiFi.setAutoReconnect(true);
+
+  WiFi.onEvent([](arduino_event_id_t event, arduino_event_info_t info) {
+    switch (event) {
+      case ARDUINO_EVENT_WIFI_STA_CONNECTED:
+        Serial.printf("[wifi] %s\n", WiFi.eventName(event));
+        break;
+
+      case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+        Serial.printf("[wifi] %s reason: %s\n",
+                      WiFi.eventName(event),
+                      WiFi.disconnectReasonName(
+                          (wifi_err_reason_t)info.wifi_sta_disconnected.reason));
+        neopixel_yellow();
+        connected = false;
+        break;
+
+      case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+        Serial.printf("[wifi] %s %s\n", WiFi.eventName(event),
+                      WiFi.localIP().toString().c_str());
+        connected = true;
+        neopixel_green();
+        if (!mdns_started && MDNS.begin(CONFIG_HOSTNAME)) {
+          MDNS.setInstanceName(CONFIG_HOSTNAME);
+          MDNS.addService("ssh", "tcp", CONFIG_SSH_PORT);
+          MDNS.addService("http", "tcp", CONFIG_HTTP_PORT);
+          MDNS.addServiceTxt("http", "tcp", "path", "/");
+          MDNS.addServiceTxt("http", "tcp", "fw", ESP.getSdkVersion());
+          Serial.printf("[mdns] %s.local\n", CONFIG_HOSTNAME);
+          mdns_started = true;
+        }
+        break;
+
+      default:
+        break;
+    }
+  });
 }
 
 bool wifi_connect(void) {
   connected = false;
+
+  WiFi.persistent(false);
+  WiFi.setAutoReconnect(true);
 
   char ssid[CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH + 1] = {0};
   char pass[CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH + 1] = {0};
@@ -103,10 +101,8 @@ bool wifi_connect(void) {
   WiFi.setHostname(CONFIG_HOSTNAME);
   WiFi.begin(ssid, pass);
 
-  uint32_t start = millis();
-  while (!connected && (millis() - start) < CONFIG_WIFI_TIMEOUT_MS) {
-    vTaskDelay(pdMS_TO_TICKS(CONFIG_WIFI_POLL_MS));
-  }
+  int result = WiFi.waitForConnectResult(CONFIG_WIFI_TIMEOUT_MS);
+  connected = (result == WL_CONNECTED);
   return connected;
 }
 
@@ -126,11 +122,11 @@ void wifi_set_credentials(const char *ssid, const char *password) {
       strcmp(current_ssid, ssid) == 0 && strcmp(current_pass, password) == 0) {
     return;
   }
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.putString("ssid", ssid);
-  preferences.putString("pass", password);
-  preferences.end();
+  Preferences prefs;
+  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  prefs.putString("ssid", ssid);
+  prefs.putString("pass", password);
+  prefs.end();
   Serial.printf("[wifi] credentials saved: ssid=%s\n", ssid);
 }
 
@@ -139,49 +135,53 @@ bool wifi_is_connected(void) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Access Point + Captive Portal DNS
+//  Access Point + Captive Portal
 // ─────────────────────────────────────────────────────────────────────────────
 
 void wifi_get_ap_ssid(char *buf, size_t len) {
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  String val = preferences.getString("ap_ssid", CONFIG_AP_SSID);
-  preferences.end();
-  strncpy(buf, val.c_str(), len - 1);
-  buf[len - 1] = '\0';
+  Preferences prefs;
+  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
+  size_t n = prefs.getString("ap_ssid", buf, len);
+  prefs.end();
+  if (n == 0) {
+    strncpy(buf, CONFIG_AP_SSID, len - 1);
+    buf[len - 1] = '\0';
+  }
 }
 
 void wifi_get_ap_password(char *buf, size_t len) {
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  String val = preferences.getString("ap_pass", CONFIG_AP_PASSWORD);
-  preferences.end();
-  strncpy(buf, val.c_str(), len - 1);
-  buf[len - 1] = '\0';
+  Preferences prefs;
+  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
+  size_t n = prefs.getString("ap_pass", buf, len);
+  prefs.end();
+  if (n == 0) {
+    strncpy(buf, CONFIG_AP_PASSWORD, len - 1);
+    buf[len - 1] = '\0';
+  }
 }
 
 void wifi_set_ap_config(const char *ssid, const char *password) {
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.putString("ap_ssid", ssid);
-  preferences.putString("ap_pass", password);
-  preferences.end();
+  Preferences prefs;
+  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  prefs.putString("ap_ssid", ssid);
+  prefs.putString("ap_pass", password);
+  prefs.end();
   Serial.printf("[wifi] AP config saved: ssid=%s\n", ssid);
 }
 
 bool wifi_get_ap_enabled(void) {
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  bool enabled = preferences.getBool("ap_on", true);
-  preferences.end();
+  Preferences prefs;
+  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
+  bool enabled = prefs.getBool("ap_on", true);
+  prefs.end();
   return enabled;
 }
 
 void wifi_set_ap_enabled(bool enabled) {
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.putBool("ap_on", enabled);
-  preferences.end();
+  Preferences prefs;
+  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
+  prefs.putBool("ap_on", enabled);
+  prefs.end();
 
   if (enabled && !ap_active) {
     wifi_start_ap();
@@ -207,10 +207,7 @@ void wifi_start_ap(void) {
   WiFi.softAP(ap_ssid, ap_pass, CONFIG_AP_CHANNEL);
 
   dns_server.setErrorReplyCode(DNSReplyCode::NoError);
-  if (dns_server.start(53, "*", ap_ip)) {
-    Serial.printf("[wifi] captive DNS started on %s\n",
-                  ap_ip.toString().c_str());
-  }
+  dns_server.start(53, "*", ap_ip);
 
   ap_active = true;
   Serial.printf("[wifi] AP started: %s (%s)\n",
@@ -223,7 +220,6 @@ void wifi_stop_ap(void) {
   dns_server.stop();
   WiFi.softAPdisconnect(true);
 
-  // Stay in STA mode if connected, otherwise pure STA still
   if (connected) {
     WiFi.mode(WIFI_MODE_STA);
   }
@@ -234,10 +230,4 @@ void wifi_stop_ap(void) {
 
 bool wifi_is_ap_active(void) {
   return ap_active;
-}
-
-void wifi_dns_service(void) {
-  if (ap_active) {
-    dns_server.processNextRequest();
-  }
 }

@@ -6,7 +6,8 @@
 #include <Arduino.h>
 #include <microshell.h>
 
-static AsyncWebSocket ws("/ws/shell");
+static AsyncWebSocketMessageHandler ws_handler;
+static AsyncWebSocket ws("/ws/shell", ws_handler.eventHandler());
 static AsyncWebSocketClient *active_client = nullptr;
 
 static volatile uint16_t ring_head = 0;
@@ -72,43 +73,56 @@ static const struct ush_descriptor ws_shell_desc = {
   .hostname = shell_get_hostname(),
 };
 
-static void on_ws_event(AsyncWebSocket *server, AsyncWebSocketClient *client,
-                        AwsEventType type, void *arg, uint8_t *data, size_t len) {
+static void on_ws_connect(AsyncWebSocket *server, AsyncWebSocketClient *client) {
   (void)server;
+  active_client = client;
+  ring_reset();
+  write_buf_pos = 0;
+  shell_init_instance(&ws_ush, &ws_shell_desc);
+  const char *motd = microfetch_generate();
+  client->text(motd, strlen(motd));
+  Serial.printf("[ws_shell] client connected (id %u)\n", client->id());
+}
 
-  if (type == WS_EVT_CONNECT) {
-    if (active_client) {
-      client->text("[busy: another session is active]\r\n");
-      client->close();
-      return;
-    }
-    active_client = client;
-    ring_reset();
-    write_buf_pos = 0;
-    shell_init_instance(&ws_ush, &ws_shell_desc);
-    const char *motd = microfetch_generate();
-    client->text(motd, strlen(motd));
-    Serial.printf("[ws_shell] client connected (id %u)\n", client->id());
+static void on_ws_disconnect(AsyncWebSocket *server, uint32_t client_id) {
+  (void)server;
+  if (active_client && active_client->id() == client_id) {
+    active_client = nullptr;
+    Serial.println(F("[ws_shell] client disconnected"));
+  }
+}
 
-  } else if (type == WS_EVT_DISCONNECT) {
-    if (active_client && active_client->id() == client->id()) {
-      active_client = nullptr;
-      Serial.println(F("[ws_shell] client disconnected"));
-    }
+static void on_ws_error(AsyncWebSocket *server, AsyncWebSocketClient *client,
+                        uint16_t error_code, const char *reason, size_t len) {
+  (void)server;
+  (void)len;
+  Serial.printf("[ws_shell] client %u error %u: %s\n", client->id(),
+                error_code, reason ? reason : "");
+}
 
-  } else if (type == WS_EVT_DATA) {
-    AwsFrameInfo *info = (AwsFrameInfo *)arg;
-    if (info->message_opcode == WS_TEXT && info->final && info->index == 0 && info->len == len) {
-      for (size_t i = 0; i < len; i++) {
-        ring_push((char)data[i]);
-      }
-    }
+static void on_ws_message(AsyncWebSocket *server, AsyncWebSocketClient *client,
+                          const uint8_t *data, size_t len) {
+  (void)server;
+  if (!active_client || active_client->id() != client->id()) return;
+
+  for (size_t i = 0; i < len; i++) {
+    ring_push((char)data[i]);
   }
 }
 
 void ws_shell_register(AsyncWebServer *server) {
-  ws.onEvent(on_ws_event);
-  server->addHandler(&ws);
+  ws_handler.onConnect(on_ws_connect);
+  ws_handler.onDisconnect(on_ws_disconnect);
+  ws_handler.onError(on_ws_error);
+  ws_handler.onMessage(on_ws_message);
+  server->addHandler(&ws).addMiddleware([](AsyncWebServerRequest *request,
+                                           ArMiddlewareNext next) {
+    if (ws.count() > 0) {
+      request->send(503, "text/plain", "Server is busy");
+      return;
+    }
+    next();
+  });
 }
 
 void ws_shell_service(void) {

@@ -2,6 +2,7 @@
 #include "../../config.h"
 #include "../../console/icons.h"
 #include "../../drivers/tca9548a.h"
+#include "../../networking/wifi.h"
 #include "../../services/temperature_and_humidity.h"
 
 #include <Arduino.h>
@@ -47,14 +48,17 @@ const char *microfetch_generate(void) {
   n = snprintf(fetch_buf + fetch_pos, fetch_remaining, "\r\n");
   fetch_pos += n; fetch_remaining -= n;
 
+  const char *hostname = WiFi.getHostname();
+  if (!hostname || hostname[0] == '\0') hostname = CONFIG_HOSTNAME;
+
   n = snprintf(fetch_buf + fetch_pos, fetch_remaining,
     "  \x1b[1;32m%s\x1b[0m\x1b[2m@\x1b[0m\x1b[1;36m%s\x1b[0m\r\n",
-    CONFIG_SSH_USER, CONFIG_HOSTNAME);
+    CONFIG_SSH_USER, hostname);
   fetch_pos += n; fetch_remaining -= n;
 
   n = snprintf(fetch_buf + fetch_pos, fetch_remaining, "  \x1b[2m");
   fetch_pos += n; fetch_remaining -= n;
-  size_t sep_len = strlen(CONFIG_SSH_USER) + 1 + strlen(CONFIG_HOSTNAME);
+  size_t sep_len = strlen(CONFIG_SSH_USER) + 1 + strlen(hostname);
   for (size_t i = 0; i < sep_len && fetch_remaining > 1; i++) {
     fetch_buf[fetch_pos++] = '-';
     fetch_remaining--;
@@ -93,11 +97,14 @@ const char *microfetch_generate(void) {
   if (WiFi.isConnected()) {
     row("33", NF_FA_WIFI, "WiFi", "\x1b[1m%s\x1b[0m (%ld dBm)", WiFi.SSID().c_str(), WiFi.RSSI());
     row("33", NF_FA_GLOBE, "Local IP", "\x1b[1m%s\x1b[0m", WiFi.localIP().toString().c_str());
+  } else if (wifi_is_ap_active()) {
+    row("33", NF_FA_WIFI, "WiFi", "\x1b[1mAP mode\x1b[0m (%u clients)", WiFi.softAPgetStationNum());
+    row("33", NF_FA_GLOBE, "AP IP", "\x1b[1m%s\x1b[0m", WiFi.softAPIP().toString().c_str());
   } else {
     row("33", NF_FA_WIFI, "WiFi", "\x1b[2mnot connected\x1b[0m");
   }
 
-  row("35", NF_FA_SERVER, "Hostname", "\x1b[1m%s\x1b[0m.local", CONFIG_HOSTNAME);
+  row("35", NF_FA_SERVER, "Hostname", "\x1b[1m%s\x1b[0m.local", hostname);
   row("34", NF_FA_GLOBE, "NTP", "\x1b[1m%s\x1b[0m", CONFIG_NTP_SERVER);
   row("36", NF_FA_PLUG, "Ports", "SSH:\x1b[1m%d\x1b[0m  HTTP:\x1b[1m%d\x1b[0m", CONFIG_SSH_PORT, CONFIG_HTTP_PORT);
 

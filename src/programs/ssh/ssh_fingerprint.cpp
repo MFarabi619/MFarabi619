@@ -1,6 +1,7 @@
 #include "ssh_server.h"
 
 #include <Arduino.h>
+#include <LittleFS.h>
 #include <microshell.h>
 #include <string.h>
 
@@ -14,8 +15,9 @@ static size_t fingerprint_get_data(struct ush_object *self,
   static char buf[128];
   buf[0] = '\0';
 
+  String vfs_path = String(LittleFS.mountpoint()) + CONFIG_SSH_HOSTKEY_PATH;
   ssh_key key = NULL;
-  int rc = ssh_pki_import_privkey_file(CONFIG_SSH_HOSTKEY_VFS_PATH, NULL, NULL, NULL, &key);
+  int rc = ssh_pki_import_privkey_file(vfs_path.c_str(), NULL, NULL, NULL, &key);
   if (rc != SSH_OK) {
     snprintf(buf, sizeof(buf), "(no host key)\r\n");
     *data = (uint8_t *)buf;

@@ -174,7 +174,63 @@ static void json_test_file_roundtrip(void) {
   TEST_MESSAGE("JSON file roundtrip verified");
 }
 
-// HTTP route tests require a real TCP client — belong in test_e2e/
+// ─────────────────────────────────────────────────────────────────────────────
+//  HTTP server policy: rate limits, auth, CORS
+//  These tests document intended behaviour — actual enforcement requires e2e.
+// ─────────────────────────────────────────────────────────────────────────────
+
+static void http_test_cors_allows_patch(void) {
+  TEST_MESSAGE("user verifies CORS allows PATCH for rename endpoint");
+  // CORS is configured in http_server_start():
+  //   cors.setMethods("GET, POST, PUT, PATCH, DELETE, OPTIONS")
+  // This cannot be unit-tested without a real HTTP client, but we document it.
+  TEST_IGNORE_MESSAGE("CORS config verified by code review — test with browser");
+}
+
+static void http_test_public_endpoints_no_auth(void) {
+  TEST_MESSAGE("user documents which endpoints are public (no auth required)");
+  // These endpoints must remain accessible without authentication:
+  //   GET /api/status
+  //   GET /api/heap
+  //   GET /api/wifi
+  //   GET /api/system/device/status
+  //   GET /api/cloudevents
+  //   GET /api/wireless/status
+  // Verified by requires_admin_auth() in http.cpp
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, CONFIG_HTTP_AUTH_ENABLED,
+    "device: auth is disabled by default — enable to test auth enforcement");
+  TEST_MESSAGE("public endpoints documented");
+}
+
+static void http_test_auth_config(void) {
+  TEST_MESSAGE("user verifies auth configuration defaults");
+  TEST_ASSERT_NOT_NULL(CONFIG_HTTP_AUTH_USER);
+  TEST_ASSERT_NOT_NULL(CONFIG_HTTP_AUTH_PASSWORD);
+  TEST_ASSERT_NOT_NULL(CONFIG_HTTP_AUTH_REALM);
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("ceratina", CONFIG_HTTP_AUTH_REALM,
+    "device: auth realm should be 'ceratina'");
+
+  char msg[80];
+  snprintf(msg, sizeof(msg), "auth user=%s realm=%s enabled=%d",
+           CONFIG_HTTP_AUTH_USER, CONFIG_HTTP_AUTH_REALM, CONFIG_HTTP_AUTH_ENABLED);
+  TEST_MESSAGE(msg);
+}
+
+static void http_test_rate_limit_policy(void) {
+  TEST_MESSAGE("user documents rate limit policy for expensive endpoints");
+  // Rate limits applied in http_server_start():
+  //   POST /api/wireless/actions/scan     — 3 requests per 30 seconds
+  //   POST /api/system/device/actions/reset — 1 request per 10 seconds
+  //   POST /api/system/ota/*              — 1 request per 60 seconds
+  //   POST /api/filesystem/littlefs/format — 1 request per 30 seconds
+  // Cannot be unit-tested — requires rapid HTTP requests.
+  TEST_IGNORE_MESSAGE("rate limit policy documented — test with curl");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Runners
+// ─────────────────────────────────────────────────────────────────────────────
+
 void json_run_tests(void) {
   it("user observes that HTTP port is configured to 80",
      http_test_port_default);
@@ -190,6 +246,14 @@ void json_run_tests(void) {
      json_test_nested_objects_and_arrays);
   it("user observes that JSON roundtrips through LittleFS",
      json_test_file_roundtrip);
+  it("user observes that CORS allows PATCH method",
+     http_test_cors_allows_patch);
+  it("user observes which endpoints are public",
+     http_test_public_endpoints_no_auth);
+  it("user observes auth configuration defaults",
+     http_test_auth_config);
+  it("user observes rate limit policy for expensive endpoints",
+     http_test_rate_limit_policy);
 }
 
 #endif

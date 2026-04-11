@@ -31,18 +31,21 @@ static size_t sd_info_get_data(struct ush_object *self,
     default: break;
   }
 
-  uint64_t total = SD.totalBytes();
-  uint64_t used  = SD.usedBytes();
+  uint64_t card_size = SD.cardSize();
+  uint64_t fs_total  = SD.totalBytes();
+  uint64_t fs_used   = SD.usedBytes();
 
   snprintf(buf, sizeof(buf),
-           "type:  %s\r\n"
-           "total: %llu MB\r\n"
-           "used:  %llu MB\r\n"
-           "free:  %llu MB\r\n",
+           "type:      %s\r\n"
+           "card_size: %llu MB\r\n"
+           "fs_total:  %llu MB\r\n"
+           "fs_used:   %llu MB\r\n"
+           "fs_free:   %llu MB\r\n",
            type,
-           total / (1024 * 1024),
-           used / (1024 * 1024),
-           (total - used) / (1024 * 1024));
+           card_size / (1024 * 1024),
+           fs_total / (1024 * 1024),
+           fs_used / (1024 * 1024),
+           (fs_total - fs_used) / (1024 * 1024));
 
   *data = (uint8_t *)buf;
   return strlen(buf);

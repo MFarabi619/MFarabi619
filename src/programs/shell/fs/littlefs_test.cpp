@@ -108,9 +108,10 @@ static void littlefs_test_hostkey_path(void) {
     "device: hostkey file missing via LittleFS API");
 
   // Verify the VFS path (what libssh uses) resolves to the same file
-  FILE *vfs_fp = fopen(CONFIG_SSH_HOSTKEY_VFS_PATH, "r");
+  String vfs_path = String(LittleFS.mountpoint()) + CONFIG_SSH_HOSTKEY_PATH;
+  FILE *vfs_fp = fopen(vfs_path.c_str(), "r");
   TEST_ASSERT_NOT_NULL_MESSAGE(vfs_fp,
-    "device: fopen(CONFIG_SSH_HOSTKEY_VFS_PATH) failed — paths may be inconsistent");
+    "device: fopen via VFS mountpoint failed — paths may be inconsistent");
   char vfs_buf[32] = {0};
   fread(vfs_buf, 1, sizeof(vfs_buf) - 1, vfs_fp);
   fclose(vfs_fp);
@@ -129,6 +130,81 @@ static void littlefs_test_hostkey_path(void) {
   TEST_MESSAGE("both LittleFS and VFS paths verified");
 }
 
+static void littlefs_test_rmdir_non_empty(void) {
+  TEST_MESSAGE("user tests whether rmdir fails on a non-empty directory");
+  LittleFS.begin(false);
+
+  LittleFS.mkdir("/.test_rmdir");
+  File f = LittleFS.open("/.test_rmdir/child.txt", FILE_WRITE);
+  TEST_ASSERT_TRUE_MESSAGE((bool)f, "device: failed to create file in dir");
+  f.print("content");
+  f.close();
+
+  bool result = LittleFS.rmdir("/.test_rmdir");
+  char msg[64];
+  snprintf(msg, sizeof(msg), "rmdir on non-empty dir returned: %s",
+           result ? "true (recursive!)" : "false (non-recursive)");
+  TEST_MESSAGE(msg);
+  TEST_ASSERT_FALSE_MESSAGE(result,
+    "device: rmdir removed a non-empty directory — it IS recursive");
+
+  LittleFS.remove("/.test_rmdir/child.txt");
+  LittleFS.rmdir("/.test_rmdir");
+}
+
+static void littlefs_test_remove_on_directory(void) {
+  TEST_MESSAGE("user tests whether remove() works on a directory");
+  LittleFS.begin(false);
+
+  LittleFS.mkdir("/.test_rm_dir");
+  TEST_ASSERT_TRUE_MESSAGE(LittleFS.exists("/.test_rm_dir"),
+    "device: mkdir failed");
+
+  bool result = LittleFS.remove("/.test_rm_dir");
+  char msg[64];
+  snprintf(msg, sizeof(msg), "remove() on directory returned: %s",
+           result ? "true (handles dirs)" : "false (files only)");
+  TEST_MESSAGE(msg);
+
+  if (LittleFS.exists("/.test_rm_dir"))
+    LittleFS.rmdir("/.test_rm_dir");
+}
+
+static void littlefs_test_rename(void) {
+  TEST_MESSAGE("user tests FS::rename on LittleFS");
+  LittleFS.begin(false);
+
+  const char *src = "/.test_rename_src.tmp";
+  const char *dst = "/.test_rename_dst.tmp";
+  const char *payload = "rename-test-payload";
+
+  if (LittleFS.exists(dst)) LittleFS.remove(dst);
+
+  File f = LittleFS.open(src, FILE_WRITE);
+  TEST_ASSERT_TRUE_MESSAGE((bool)f, "device: open src for write failed");
+  f.print(payload);
+  f.close();
+
+  bool renamed = LittleFS.rename(src, dst);
+  TEST_ASSERT_TRUE_MESSAGE(renamed, "device: rename returned false");
+  TEST_ASSERT_FALSE_MESSAGE(LittleFS.exists(src),
+    "device: source still exists after rename");
+  TEST_ASSERT_TRUE_MESSAGE(LittleFS.exists(dst),
+    "device: destination missing after rename");
+
+  File reader = LittleFS.open(dst, FILE_READ);
+  TEST_ASSERT_TRUE_MESSAGE((bool)reader, "device: open dst for read failed");
+  char buf[64] = {0};
+  reader.readBytes(buf, sizeof(buf) - 1);
+  reader.close();
+
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(payload, buf,
+    "device: renamed file content doesn't match");
+
+  LittleFS.remove(dst);
+  TEST_MESSAGE("rename verified: src gone, dst exists with correct content");
+}
+
 void littlefs_run_tests(void) {
   it("user observes that LittleFS mounts and reports size",
      littlefs_test_mounts);
@@ -140,6 +216,12 @@ void littlefs_run_tests(void) {
      littlefs_test_mkdir_nested);
   it("user observes that SSH host key path survives remount",
      littlefs_test_hostkey_path);
+  it("user observes that rmdir fails on non-empty directory",
+     littlefs_test_rmdir_non_empty);
+  it("user observes whether remove() works on a directory",
+     littlefs_test_remove_on_directory);
+  it("user observes that rename works on LittleFS",
+     littlefs_test_rename);
 }
 
 #endif

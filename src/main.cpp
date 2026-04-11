@@ -9,12 +9,16 @@
 
 #include "networking/wifi.h"
 #include "networking/sntp.h"
+#include "networking/telnet.h"
+#include "networking/ota.h"
+#include "networking/update.h"
 #include "services/http.h"
 #include "services/network.h"
 #include "services/temperature_and_humidity.h"
 #include "services/ws_shell.h"
 #include "services/co2.h"
 #include "networking/ble.h"
+#include "networking/provisioning.h"
 #include "programs/buttons.h"
 #include "drivers/neopixel.h"
 #include "drivers/tca9548a.h"
@@ -29,10 +33,14 @@ void network_services_start(void) {
   static bool sntp_done = false;
   static bool ssh_done = false;
   static bool http_done = false;
+  static bool telnet_done = false;
+  static bool ota_done = false;
 
   if (!sntp_done) sntp_done = sntp_sync();
   if (!ssh_done) ssh_done = ssh_server_start();
   if (!http_done) { http_server_start(); http_done = true; }
+  if (!telnet_done) { telnet_start(); telnet_done = true; }
+  if (!ota_done) { ota_start(); ota_done = true; }
 }
 
 //------------------------------------------
@@ -85,6 +93,17 @@ static void system_task(void *pvParameters) {
     neopixel_blue();
   }
 
+  // Check for firmware update on SD card before WiFi
+  update_check_sd_on_boot();
+
+#if CONFIG_PROV_ENABLED
+  if (!provisioning_is_provisioned()) {
+    Serial.println(F("[prov] not provisioned — starting BLE provisioning"));
+    neopixel_magenta();
+    provisioning_start();
+  }
+#endif
+
   if (wifi_connect()) {
     neopixel_green();
     Serial.printf("[wifi] connected, heap: %u bytes free\n", ESP.getFreeHeap());
@@ -99,9 +118,11 @@ static void system_task(void *pvParameters) {
   // Shell service loop (non-blocking) + SSE heartbeat + DNS
   uint32_t last_heartbeat = 0;
   for (;;) {
+    http_server_service();
     shell_service();
-    wifi_dns_service();
     ws_shell_service();
+    telnet_service();
+    ota_service();
     buttons_service();
 
 #if CONFIG_BLE_ENABLED

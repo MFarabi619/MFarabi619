@@ -17,7 +17,6 @@ void wifi_set_credentials(const char *ssid, const char *password);
 void wifi_start_ap(void);
 void wifi_stop_ap(void);
 bool wifi_is_ap_active(void);
-void wifi_dns_service(void);
 
 // AP configuration (persisted to NVS)
 void wifi_get_ap_ssid(char *buf, size_t len);

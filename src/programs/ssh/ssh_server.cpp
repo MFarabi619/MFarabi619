@@ -20,11 +20,14 @@
 //------------------------------------------
 static struct _reent reent_data_esp32;
 
-static const char *ssh_user       = CONFIG_SSH_USER;
-static const char *ssh_password   = CONFIG_SSH_USER;
-static const char *ssh_hostkey    = CONFIG_SSH_HOSTKEY_PATH;
-static const char *ssh_hostkey_vfs = CONFIG_SSH_HOSTKEY_VFS_PATH;
-static const int   ssh_port       = CONFIG_SSH_PORT;
+static const char *ssh_user     = CONFIG_SSH_USER;
+static const char *ssh_password = CONFIG_SSH_USER;
+static const char *ssh_hostkey  = CONFIG_SSH_HOSTKEY_PATH;
+static const int   ssh_port    = CONFIG_SSH_PORT;
+
+static String ssh_hostkey_vfs(void) {
+  return String(LittleFS.mountpoint()) + CONFIG_SSH_HOSTKEY_PATH;
+}
 
 //------------------------------------------
 //  Per-connection state
@@ -199,15 +202,18 @@ static bool ssh_ensure_hostkey(void) {
     return false;
   }
 
-  rc = ssh_pki_export_privkey_file(key, NULL, NULL, NULL, ssh_hostkey_vfs);
+  String tmp_path = ssh_hostkey_vfs() + ".tmp";
+  rc = ssh_pki_export_privkey_file(key, NULL, NULL, NULL, tmp_path.c_str());
   ssh_key_free(key);
 
   if (rc != SSH_OK) {
-    Serial.printf("[ssh] failed to write key to %s\n", ssh_hostkey_vfs);
+    Serial.printf("[ssh] failed to write key to %s\n", tmp_path.c_str());
+    LittleFS.remove("/.ssh/id_ed25519.tmp");
     return false;
   }
 
-  Serial.printf("[ssh] host key saved to %s\n", ssh_hostkey_vfs);
+  LittleFS.rename("/.ssh/id_ed25519.tmp", ssh_hostkey);
+  Serial.printf("[ssh] host key saved to %s\n", ssh_hostkey_vfs().c_str());
   return true;
 }
 
@@ -239,7 +245,7 @@ static void ssh_server_task(void *pvParameters) {
   ssh_bind sshbind = ssh_bind_new();
   ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDADDR, "0.0.0.0");
   ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDPORT, &ssh_port);
-  ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_HOSTKEY, ssh_hostkey_vfs);
+  ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_HOSTKEY, ssh_hostkey_vfs().c_str());
 
   if (ssh_bind_listen(sshbind) < 0) {
     Serial.printf("[ssh] bind error: %s\n", ssh_get_error(sshbind));

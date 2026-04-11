@@ -7,7 +7,6 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
-#include <BLE2902.h>
 #include <BLESecurity.h>
 #include <microshell.h>
 
@@ -26,7 +25,6 @@ static BLECharacteristic *nus_tx = nullptr;
 static BLECharacteristic *nus_rx = nullptr;
 static BLECharacteristic *sensor_status = nullptr;
 static BLECharacteristic *sensor_voltage = nullptr;
-static int connected_clients = 0;
 
 static volatile uint16_t ring_head = 0;
 static volatile uint16_t ring_tail = 0;
@@ -52,7 +50,7 @@ static int ring_pop(char *ch) {
 }
 
 static void write_flush(void) {
-  if (write_buf_pos == 0 || !nus_tx || connected_clients == 0) return;
+  if (write_buf_pos == 0 || !nus_tx || ble_client_count() == 0) return;
   nus_tx->setValue((uint8_t *)write_buf, write_buf_pos);
   nus_tx->notify();
   write_buf_pos = 0;
@@ -65,7 +63,7 @@ static int ble_shell_read(struct ush_object *self, char *ch) {
 
 static int ble_shell_write(struct ush_object *self, char ch) {
   (void)self;
-  if (connected_clients == 0) return 0;
+  if (ble_client_count() == 0) return 0;
   write_buf[write_buf_pos++] = ch;
   if (write_buf_pos >= CONFIG_BLE_WRITE_BUF)
     write_flush();
@@ -93,8 +91,8 @@ static const struct ush_descriptor ble_shell_desc = {
 
 class ServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *server) override {
-    connected_clients++;
-    Serial.printf("[ble] client connected (%d total)\n", connected_clients);
+    uint32_t connected_clients = server->getConnectedCount();
+    Serial.printf("[ble] client connected (%u total)\n", connected_clients);
 
     if (connected_clients == 1) {
       ring_reset();
@@ -104,13 +102,14 @@ class ServerCallbacks : public BLEServerCallbacks {
 
     if (connected_clients < CONFIG_BLE_MAX_CLIENTS) {
       BLEDevice::startAdvertising();
+    } else {
+      BLEDevice::stopAdvertising();
     }
   }
 
   void onDisconnect(BLEServer *server) override {
-    connected_clients--;
+    uint32_t connected_clients = server->getConnectedCount();
     Serial.printf("[ble] client disconnected (%d remaining)\n", connected_clients);
-    BLEDevice::startAdvertising();
   }
 };
 
@@ -127,13 +126,14 @@ void ble_init(void) {
   BLEDevice::init(CONFIG_HOSTNAME);
   BLEDevice::setMTU(517);
 
-  BLESecurity *security = new BLESecurity();
-  security->setStaticPIN(CONFIG_BLE_PASSKEY);
-  security->setCapability(ESP_IO_CAP_OUT);
-  security->setAuthenticationMode(ESP_LE_AUTH_REQ_SC_MITM_BOND);
+  BLESecurity *pSecurity = new BLESecurity();
+  pSecurity->setPassKey(true, CONFIG_BLE_PASSKEY);
+  pSecurity->setCapability(ESP_IO_CAP_OUT);
+  pSecurity->setAuthenticationMode(true, true, true);
 
   ble_server = BLEDevice::createServer();
   ble_server->setCallbacks(new ServerCallbacks());
+  ble_server->advertiseOnDisconnect(true);
 
   // Nordic UART Service
   BLEService *nus = ble_server->createService(NUS_SERVICE_UUID);
@@ -142,12 +142,13 @@ void ble_init(void) {
     NUS_TX_UUID,
     BLECharacteristic::PROPERTY_NOTIFY
   );
-  nus_tx->addDescriptor(new BLE2902());
 
   nus_rx = nus->createCharacteristic(
     NUS_RX_UUID,
     BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_WRITE_NR
+    | BLECharacteristic::PROPERTY_WRITE_AUTHEN
   );
+  nus_rx->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
   nus_rx->setCallbacks(new RxCallbacks());
 
   nus->start();
@@ -158,14 +159,16 @@ void ble_init(void) {
   sensor_status = sensors->createCharacteristic(
     SENSOR_STATUS_UUID,
     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
+    | BLECharacteristic::PROPERTY_READ_AUTHEN
   );
-  sensor_status->addDescriptor(new BLE2902());
+  sensor_status->setAccessPermissions(ESP_GATT_PERM_READ_ENC_MITM);
 
   sensor_voltage = sensors->createCharacteristic(
     SENSOR_VOLTAGE_UUID,
     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
+    | BLECharacteristic::PROPERTY_READ_AUTHEN
   );
-  sensor_voltage->addDescriptor(new BLE2902());
+  sensor_voltage->setAccessPermissions(ESP_GATT_PERM_READ_ENC_MITM);
 
   sensors->start();
 
@@ -183,7 +186,7 @@ void ble_init(void) {
 static uint32_t last_sensor_notify = 0;
 
 void ble_service(void) {
-  if (connected_clients == 0) return;
+  if (ble_client_count() == 0) return;
 
   while (ush_service(&ble_ush)) {}
   write_flush();
@@ -208,11 +211,11 @@ void ble_service(void) {
 }
 
 bool ble_is_connected(void) {
-  return connected_clients > 0;
+  return ble_client_count() > 0;
 }
 
 int ble_client_count(void) {
-  return connected_clients;
+  return ble_server ? (int)ble_server->getConnectedCount() : 0;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

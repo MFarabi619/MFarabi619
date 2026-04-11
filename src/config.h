@@ -63,11 +63,6 @@
 #define CONFIG_SSH_HOSTKEY_PATH "/.ssh/id_ed25519"
 #endif
 
-// VFS path (for libssh POSIX fopen via ssh_pki_export_privkey_file)
-#ifndef CONFIG_SSH_HOSTKEY_VFS_PATH
-#define CONFIG_SSH_HOSTKEY_VFS_PATH "/littlefs/.ssh/id_ed25519"
-#endif
-
 #ifndef CONFIG_SSH_TASK_STACK
 #define CONFIG_SSH_TASK_STACK 32768
 #endif
@@ -128,6 +123,15 @@
 #define CONFIG_TELNET_KEEPALIVE_MS   3000
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  ArduinoOTA
+// ─────────────────────────────────────────────────────────────────────────────
+
+#define CONFIG_OTA_ENABLED           0
+#define CONFIG_OTA_PORT              3232
+#define CONFIG_OTA_PASSWORD          ""
+#define CONFIG_OTA_SD_PATH           "/update.bin"
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  Time / NTP
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -155,6 +159,22 @@
 
 #ifndef CONFIG_HTTP_PORT
 #define CONFIG_HTTP_PORT 80
+#endif
+
+#ifndef CONFIG_HTTP_AUTH_ENABLED
+#define CONFIG_HTTP_AUTH_ENABLED 0
+#endif
+
+#ifndef CONFIG_HTTP_AUTH_USER
+#define CONFIG_HTTP_AUTH_USER CONFIG_SSH_USER
+#endif
+
+#ifndef CONFIG_HTTP_AUTH_PASSWORD
+#define CONFIG_HTTP_AUTH_PASSWORD CONFIG_SSH_USER
+#endif
+
+#ifndef CONFIG_HTTP_AUTH_REALM
+#define CONFIG_HTTP_AUTH_REALM "ceratina"
 #endif
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -289,6 +309,30 @@
 #endif
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  BLE Provisioning
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_PROV_ENABLED
+#define CONFIG_PROV_ENABLED 0
+#endif
+
+#ifndef CONFIG_PROV_POP
+#define CONFIG_PROV_POP "ceratina"
+#endif
+
+#ifndef CONFIG_PROV_SERVICE_UUID
+#define CONFIG_PROV_SERVICE_UUID "ceaa0001-b5a3-f393-e0a9-e50e24dcca9e"
+#endif
+
+#ifndef CONFIG_PROV_CONFIG_UUID
+#define CONFIG_PROV_CONFIG_UUID "ceaa0002-b5a3-f393-e0a9-e50e24dcca9e"
+#endif
+
+#ifndef CONFIG_PROV_NVS_NAMESPACE
+#define CONFIG_PROV_NVS_NAMESPACE "prov"
+#endif
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  Physical Buttons (Connector Shield)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -316,6 +360,10 @@
 #define CONFIG_BUTTON_LONG_PRESS_MS 1000
 #endif
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  BLE Runtime (NUS shell, sensor characteristics)
+// ─────────────────────────────────────────────────────────────────────────────
+
 #ifndef CONFIG_BLE_ENABLED
 #define CONFIG_BLE_ENABLED 0
 #endif
@@ -335,6 +383,28 @@
 #ifndef CONFIG_BLE_WRITE_BUF
 #define CONFIG_BLE_WRITE_BUF 512
 #endif
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SMTP Email
+//
+//  Edit these values directly. Password is stored in NVS (key below).
+//  Set CONFIG_SMTP_ENABLED to 1 and fill in your SMTP server details.
+// ─────────────────────────────────────────────────────────────────────────────
+
+#define CONFIG_SMTP_ENABLED          0
+#define CONFIG_SMTP_HOST             ""
+#define CONFIG_SMTP_PORT             587
+#define CONFIG_SMTP_DOMAIN           ""
+#define CONFIG_SMTP_FROM_EMAIL       ""
+#define CONFIG_SMTP_FROM_NAME        ""
+#define CONFIG_SMTP_TO_EMAIL         ""
+#define CONFIG_SMTP_LOGIN_EMAIL      ""
+#define CONFIG_SMTP_SUBJECT_PREFIX   "[ceratina]"
+#define CONFIG_SMTP_AUTH_ENABLED     0
+#define CONFIG_SMTP_SSL_ENABLED      0
+#define CONFIG_SMTP_STARTTLS_ENABLED 0
+#define CONFIG_SMTP_TEST_ENABLED     0
+#define CONFIG_SMTP_NVS_KEY          "SMTP_PASSWORD"
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  CloudEvents
