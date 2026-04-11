@@ -118,6 +118,16 @@
 #define CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH 64
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  Telnet Shell
+// ─────────────────────────────────────────────────────────────────────────────
+
+#define CONFIG_TELNET_ENABLED        1
+#define CONFIG_TELNET_PORT           23
+#define CONFIG_TELNET_RING_SIZE      512
+#define CONFIG_TELNET_WRITE_BUF      1024
+#define CONFIG_TELNET_KEEPALIVE_MS   3000
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  Time / NTP
 // ─────────────────────────────────────────────────────────────────────────────
 
