@@ -111,21 +111,13 @@ bool ads1115_read(float *channel_volts, size_t channel_count) {
 #ifdef PIO_UNIT_TESTING
 
 #include "../testing/it.h"
+#include "../testing/i2c_helpers.h"
 #include "tca9548a.h"
 #include <math.h>
 
-static void ensure_i2c_power_and_wire1(void) {
-  pinMode(CONFIG_I2C_RELAY_POWER_GPIO, OUTPUT);
-  digitalWrite(CONFIG_I2C_RELAY_POWER_GPIO, HIGH);
-  delay(100);
-  Wire1.begin(CONFIG_I2C_1_SDA_GPIO, CONFIG_I2C_1_SCL_GPIO,
-              CONFIG_I2C_FREQUENCY_KHZ * 1000);
-  Wire1.setTimeOut(100);
-}
-
 static void ads1115_test_initializes(void) {
   TEST_MESSAGE("user initializes the ADS1115 voltage monitor");
-  ensure_i2c_power_and_wire1();
+  test_ensure_wire1_with_power();
   tca9548a_init();
 
   // The ADS1115 is behind the TCA9548A mux — scan for it

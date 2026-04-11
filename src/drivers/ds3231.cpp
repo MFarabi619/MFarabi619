@@ -138,15 +138,10 @@ bool ds3231_alarm2_fired(void) {
 #ifdef PIO_UNIT_TESTING
 
 #include "../testing/it.h"
-
-static void ensure_wire(void) {
-  Wire.begin(CONFIG_I2C_0_SDA_GPIO, CONFIG_I2C_0_SCL_GPIO,
-             CONFIG_I2C_FREQUENCY_KHZ * 1000);
-  Wire.setTimeOut(100);
-}
+#include "../testing/i2c_helpers.h"
 
 static void ds3231_test_init(void) {
-  ensure_wire();
+  test_ensure_wire0();
   TEST_MESSAGE("user asks the device to initialize the DS3231");
   TEST_ASSERT_TRUE_MESSAGE(ds3231_init(),
     "device: ds3231_init() failed");
@@ -225,7 +220,7 @@ static void ds3231_test_alarm1(void) {
 
 static void ds3231_test_set_from_compile_time(void) {
   TEST_MESSAGE("user seeds RTC from compile time and verifies plausible result");
-  ensure_wire();
+  test_ensure_wire0();
 
   uint32_t original = ds3231_unixtime();
   ds3231_set_from_compile_time();
@@ -248,7 +243,7 @@ static void ds3231_test_set_from_compile_time(void) {
 
 static void ds3231_test_alarm_disable_clears(void) {
   TEST_MESSAGE("user enables alarm 1, disables it, and verifies it stops firing");
-  ensure_wire();
+  test_ensure_wire0();
   ds3231_init();
 
   ds3231_alarm1_every_second();

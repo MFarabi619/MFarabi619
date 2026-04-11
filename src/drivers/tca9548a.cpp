@@ -87,15 +87,10 @@ int tca9548a_scan_all(char *buf, size_t buf_size) {
 #ifdef PIO_UNIT_TESTING
 
 #include "../testing/it.h"
-
-static void ensure_wire1(void) {
-  Wire1.begin(CONFIG_I2C_1_SDA_GPIO, CONFIG_I2C_1_SCL_GPIO,
-              CONFIG_I2C_FREQUENCY_KHZ * 1000);
-  Wire1.setTimeOut(100);
-}
+#include "../testing/i2c_helpers.h"
 
 static void tca9548a_test_init(void) {
-  ensure_wire1();
+  test_ensure_wire1();
   TEST_MESSAGE("user asks the device to initialize the TCA9548A mux");
   TEST_ASSERT_TRUE_MESSAGE(tca9548a_init(),
     "device: tca9548a_init() failed — mux not responding at 0x70 on bus 1");
@@ -161,7 +156,7 @@ static void tca9548a_test_scan_finds_devices(void) {
 
 static void tca9548a_test_disable_all_clears_mask(void) {
   TEST_MESSAGE("user enables channels then disables all");
-  ensure_wire1();
+  test_ensure_wire1();
   tca9548a_init();
 
   tca9548a_enable(0);
@@ -179,7 +174,7 @@ static void tca9548a_test_disable_all_clears_mask(void) {
 
 static void tca9548a_test_enable_disable_roundtrip(void) {
   TEST_MESSAGE("user enables then disables a single channel");
-  ensure_wire1();
+  test_ensure_wire1();
   tca9548a_init();
   tca9548a_disable_all();
 

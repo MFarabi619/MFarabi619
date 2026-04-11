@@ -2,52 +2,13 @@
 
 #include "wifi.h"
 #include "../testing/it.h"
+#include "../testing/nvs_helpers.h"
 
 #include <Arduino.h>
-#include <Preferences.h>
 
-struct NvsSnapshot {
-  String ssid;
-  String pass;
-  String ap_ssid;
-  String ap_pass;
-  bool ap_on;
-  bool has_ssid;
-  bool has_pass;
-  bool has_ap_ssid;
-  bool has_ap_pass;
-  bool has_ap_on;
-};
-
-static NvsSnapshot saved;
-
-static void save_nvs(void) {
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  saved.has_ssid = preferences.isKey("ssid");
-  saved.has_pass = preferences.isKey("pass");
-  saved.has_ap_ssid = preferences.isKey("ap_ssid");
-  saved.has_ap_pass = preferences.isKey("ap_pass");
-  saved.has_ap_on = preferences.isKey("ap_on");
-  if (saved.has_ssid) saved.ssid = preferences.getString("ssid", "");
-  if (saved.has_pass) saved.pass = preferences.getString("pass", "");
-  if (saved.has_ap_ssid) saved.ap_ssid = preferences.getString("ap_ssid", "");
-  if (saved.has_ap_pass) saved.ap_pass = preferences.getString("ap_pass", "");
-  if (saved.has_ap_on) saved.ap_on = preferences.getBool("ap_on", true);
-  preferences.end();
-}
-
-static void restore_nvs(void) {
-  Preferences preferences;
-  preferences.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  preferences.clear();
-  if (saved.has_ssid) preferences.putString("ssid", saved.ssid);
-  if (saved.has_pass) preferences.putString("pass", saved.pass);
-  if (saved.has_ap_ssid) preferences.putString("ap_ssid", saved.ap_ssid);
-  if (saved.has_ap_pass) preferences.putString("ap_pass", saved.ap_pass);
-  if (saved.has_ap_on) preferences.putBool("ap_on", saved.ap_on);
-  preferences.end();
-}
+static WifiNvsSnapshot saved;
+static void save_nvs(void) { wifi_nvs_save(&saved); }
+static void restore_nvs(void) { wifi_nvs_restore(&saved); }
 
 static void wifi_test_credentials_roundtrip(void) {
   save_nvs();
