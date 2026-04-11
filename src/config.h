@@ -277,6 +277,34 @@
 #define CONFIG_WS_SHELL_WRITE_BUF 1024
 #endif
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  Physical Buttons (Connector Shield)
+// ─────────────────────────────────────────────────────────────────────────────
+
+#ifndef CONFIG_BUTTON_1_GPIO
+#define CONFIG_BUTTON_1_GPIO 35
+#endif
+
+#ifndef CONFIG_BUTTON_2_GPIO
+#define CONFIG_BUTTON_2_GPIO 4
+#endif
+
+#ifndef CONFIG_BUTTON_3_GPIO
+#define CONFIG_BUTTON_3_GPIO 42
+#endif
+
+#ifndef CONFIG_BUTTON_COUNT
+#define CONFIG_BUTTON_COUNT 3
+#endif
+
+#ifndef CONFIG_BUTTON_DEBOUNCE_MS
+#define CONFIG_BUTTON_DEBOUNCE_MS 50
+#endif
+
+#ifndef CONFIG_BUTTON_LONG_PRESS_MS
+#define CONFIG_BUTTON_LONG_PRESS_MS 1000
+#endif
+
 #ifndef CONFIG_BLE_ENABLED
 #define CONFIG_BLE_ENABLED 0
 #endif

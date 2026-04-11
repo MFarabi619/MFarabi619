@@ -15,6 +15,7 @@
 #include "services/ws_shell.h"
 #include "services/co2.h"
 #include "networking/ble.h"
+#include "programs/buttons.h"
 #include "drivers/neopixel.h"
 #include "drivers/tca9548a.h"
 #include "drivers/ads1115.h"
@@ -68,6 +69,7 @@ static void system_task(void *pvParameters) {
 #endif
 
   shell_init();
+  buttons_init();
 
   if (!LittleFS.begin(false)) {
     Serial.println(F("[fs] mount failed, formatting..."));
@@ -100,6 +102,7 @@ static void system_task(void *pvParameters) {
     shell_service();
     wifi_dns_service();
     ws_shell_service();
+    buttons_service();
 
 #if CONFIG_BLE_ENABLED
     ble_service();

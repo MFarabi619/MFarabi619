@@ -1,6 +1,7 @@
 #include "../../../networking/sntp.h"
 #include "../../../helpers.h"
 #include "../../../drivers/neopixel.h"
+#include "../../buttons.h"
 
 #include <Arduino.h>
 #include <microshell.h>
@@ -114,6 +115,19 @@ static void led_set_data(struct ush_object *self,
   else if (strcmp(buf, "white") == 0)                      neopixel_white();
 }
 
+static size_t buttons_get_data(struct ush_object *self,
+                               struct ush_file_descriptor const *file,
+                               uint8_t **data) {
+  (void)self; (void)file;
+  static char buf[32];
+  snprintf(buf, sizeof(buf), "%d %d %d\r\n",
+           buttons_is_pressed(0) ? 1 : 0,
+           buttons_is_pressed(1) ? 1 : 0,
+           buttons_is_pressed(2) ? 1 : 0);
+  *data = (uint8_t *)buf;
+  return strlen(buf);
+}
+
 static const struct ush_file_descriptor dev_files[] = {
   { .name = "null",    .description = "discard sink",
     .get_data = null_get_data, .set_data = null_set_data },
@@ -127,6 +141,8 @@ static const struct ush_file_descriptor dev_files[] = {
     .get_data = time_get_data },
   { .name = "led",     .description = "status LED",
     .get_data = led_get_data, .set_data = led_set_data },
+  { .name = "buttons", .description = "physical button states",
+    .get_data = buttons_get_data },
 };
 
 static struct ush_node_object dev;
