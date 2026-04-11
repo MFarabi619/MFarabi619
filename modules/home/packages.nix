@@ -22,7 +22,6 @@
         duckdb
         gnumake
         stylelint
-        platformio
         # vi-mongo  # mongodb tui
         # fritzing
         kubernetes-helm
@@ -75,7 +74,7 @@
         # ============= ‍❄🕸 ================
         nil # nix formatter
         # omnix
-        # devenv
+        devenv
         cachix
         nix-du # store visualizer
         # nix-ld      # run unpatched dynamic binaries
@@ -109,6 +108,7 @@
         jellyfin-tui
       ]
       ++ lib.optionals stdenv.isLinux [
+        platformio
         # ============== 🤪 =================
         hollywood # movie hacker screen animation
 
