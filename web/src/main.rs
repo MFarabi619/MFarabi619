@@ -7,15 +7,14 @@ mod content;
 mod layouts;
 mod pages;
 
-// Global signals for dialog state (shared between navbar and home page)
 pub static SHOW_COMMAND_PALETTE: GlobalSignal<bool> = Signal::global(|| false);
 pub static SHOW_NETWORK_SHEET: GlobalSignal<bool> = Signal::global(|| false);
-pub static DEVICE_CHIP_MODEL: GlobalSignal<String> = Signal::global(String::new);
-pub static DEVICE_UPTIME: GlobalSignal<String> = Signal::global(String::new);
-pub static DEVICE_HEAP_FREE: GlobalSignal<String> = Signal::global(String::new);
-pub static WIFI_SSID: GlobalSignal<String> = Signal::global(String::new);
-pub static WIFI_RSSI: GlobalSignal<i32> = Signal::global(|| 0);
-pub static WIFI_IP: GlobalSignal<String> = Signal::global(String::new);
+
+#[derive(Clone, Copy)]
+pub struct DeviceContext {
+    pub chip_model: Signal<String>,
+    pub heap_free: Signal<String>,
+}
 
 use crate::content::docs;
 use crate::layouts::{DocsLayout, MainLayout};
@@ -84,6 +83,7 @@ fn App() -> Element {
         script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-webgl@0.18/lib/addon-webgl.min.js" }
         script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11/lib/addon-web-links.min.js" }
         script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-attach@0.11/lib/addon-attach.min.js" }
+        script { src: "https://cdn.jsdelivr.net/npm/spark-md5@3.0.2/spark-md5.min.js" }
         script { "window.CERATINA_THEME={{background:'#0a0a0c',foreground:'#d4a84b',cursor:'#f5b72b',selectionBackground:'rgba(245,183,43,0.3)',black:'#0a0a0c',red:'#e06c6c',green:'#6cc070',yellow:'#f5b72b',blue:'#6c9ee0',magenta:'#c06cc0',cyan:'#6cc0c0',white:'#d4a84b'}};" }
         script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.register('/assets/sw.js')"# }
         document::Meta { property: "og:type", content: "website" }

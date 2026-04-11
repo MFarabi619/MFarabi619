@@ -1,6 +1,7 @@
 use crate::api::{self, DeviceStatusData, FileEntry};
 use super::file_icon;
 use dioxus::prelude::*;
+use dioxus::html::HasFileData;
 use lucide_dioxus::{Download, HardDrive, Plus, Trash2};
 use ui::components::progress::{Progress, ProgressVariant};
 use ui::components::toast::use_toast;
@@ -33,7 +34,30 @@ pub fn FilesystemPanel(
             h2 { class: "mb-3 text-xl font-semibold", "Filesystem" }
 
             // SD Card
-            div { class: "border border-border rounded-lg overflow-hidden p-3",
+            div {
+                class: "border border-border rounded-lg overflow-hidden p-3 transition-colors",
+                ondragover: move |e| { e.prevent_default(); },
+                ondrop: move |e| async move {
+                    e.prevent_default();
+                    for file in e.files() {
+                        let name = file.name();
+                        match file.read_bytes().await {
+                            Ok(bytes) => {
+                                let url = device_url.read().clone();
+                                match api::upload_file(&url, "sd", &name, &bytes).await {
+                                    Ok(resp) if resp.status().is_success() => {
+                                        toasts.success(format!("Uploaded {}", name), None);
+                                        if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
+                                            files.set(entries);
+                                        }
+                                    }
+                                    _ => toasts.error(format!("Upload failed: {}", name), None),
+                                }
+                            }
+                            Err(_) => toasts.error(format!("Failed to read {}", name), None),
+                        }
+                    }
+                },
                 div { class: "flex items-center gap-2 mb-1",
                     HardDrive { class: "w-5 h-5 text-primary" }
                     span { class: "font-semibold", "SD" }
@@ -79,7 +103,7 @@ pub fn FilesystemPanel(
                                 div { class: "flex items-center gap-0.5 shrink-0 ml-auto absolute right-0 transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100",
                                     a {
                                         class: "p-1 rounded hover:bg-accent/40 text-muted-foreground",
-                                        href: "{device}/api/filesystem/file/{filename_for_download}?location=sd",
+                                        href: "{device}/api/filesystem/sd/{filename_for_download}",
                                         target: "_blank",
                                         Download { class: "w-3.5 h-3.5" }
                                     }
@@ -197,13 +221,29 @@ pub fn FilesystemPanel(
                 }
             }
 
-            // Hidden file input
             input {
                 id: "sd-upload-input",
                 r#type: "file",
                 class: "hidden",
-                onchange: move |_| {
-                    toasts.warning("File upload \u{2014} use curl for now".into(), None);
+                onchange: move |evt| async move {
+                    for file in evt.files() {
+                        let name = file.name();
+                        match file.read_bytes().await {
+                            Ok(bytes) => {
+                                let url = device_url.read().clone();
+                                match api::upload_file(&url, "sd", &name, &bytes).await {
+                                    Ok(resp) if resp.status().is_success() => {
+                                        toasts.success(format!("Uploaded {}", name), None);
+                                        if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
+                                            files.set(entries);
+                                        }
+                                    }
+                                    _ => toasts.error(format!("Upload failed: {}", name), None),
+                                }
+                            }
+                            Err(_) => toasts.error(format!("Failed to read {}", name), None),
+                        }
+                    }
                 },
             }
         }

@@ -1,40 +1,26 @@
 use dioxus::prelude::*;
-use wasm_bindgen::JsCast;
+use dioxus::hooks::UseResourceState;
 
 #[component]
 pub fn ApiModal(
     open: Signal<bool>,
     device_url: Signal<String>,
 ) -> Element {
-    let mut content = use_signal(|| "Loading...".to_string());
-    let mut loading = use_signal(|| false);
-
-    let mut fetch_api = move || {
-        loading.set(true);
+    let mut api_data = use_resource(move || {
+        let is_open = *open.read();
         let url = device_url.read().clone();
-        spawn(async move {
+        async move {
+            if !is_open { return String::new(); }
             match reqwest::get(format!("{url}/api/cloudevents")).await {
-                Ok(response) => {
-                    match response.text().await {
-                        Ok(text) => {
-                            let formatted = match serde_json::from_str::<serde_json::Value>(&text) {
-                                Ok(json) => serde_json::to_string_pretty(&json).unwrap_or(text),
-                                Err(_) => text,
-                            };
-                            content.set(formatted);
-                        }
-                        Err(err) => content.set(format!("Error: {err}")),
-                    }
-                }
-                Err(err) => content.set(format!("Error: {err}")),
+                Ok(response) => match response.text().await {
+                    Ok(text) => match serde_json::from_str::<serde_json::Value>(&text) {
+                        Ok(json) => serde_json::to_string_pretty(&json).unwrap_or(text),
+                        Err(_) => text,
+                    },
+                    Err(err) => format!("Error: {err}"),
+                },
+                Err(err) => format!("Error: {err}"),
             }
-            loading.set(false);
-        });
-    };
-
-    use_effect(move || {
-        if *open.read() {
-            fetch_api();
         }
     });
 
@@ -43,6 +29,8 @@ pub fn ApiModal(
     }
 
     let mut close = move || open.set(false);
+    let content = api_data.value().read().clone().unwrap_or_default();
+    let is_loading = matches!(*api_data.state().read(), UseResourceState::Pending);
 
     rsx! {
         div {
@@ -65,7 +53,7 @@ pub fn ApiModal(
                 }
 
                 div { class: "flex-1 overflow-auto p-4",
-                    if *loading.read() {
+                    if is_loading {
                         div { class: "flex items-center justify-center py-12",
                             lucide_dioxus::LoaderCircle { class: "w-6 h-6 animate-spin text-muted-foreground" }
                         }
@@ -80,7 +68,8 @@ pub fn ApiModal(
                     button {
                         class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors",
                         onclick: move |_| {
-                            let text = content.read().clone();
+                            let text = api_data.value().read().clone().unwrap_or_default();
+                            #[cfg(target_arch = "wasm32")]
                             if let Some(window) = web_sys::window() {
                                 let _ = window.navigator().clipboard().write_text(&text);
                             }
@@ -89,7 +78,7 @@ pub fn ApiModal(
                     }
                     button {
                         class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors",
-                        onclick: move |_| fetch_api(),
+                        onclick: move |_| api_data.restart(),
                         "Refresh"
                     }
                     div { class: "flex-1" }

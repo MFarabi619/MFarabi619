@@ -25,5 +25,11 @@ pub fn now_time_string() -> String {
 }
 
 pub async fn sleep_ms(milliseconds: u32) {
+    #[cfg(target_arch = "wasm32")]
     gloo_timers::future::TimeoutFuture::new(milliseconds).await;
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let _ = milliseconds;
+        std::future::pending::<()>().await;
+    }
 }

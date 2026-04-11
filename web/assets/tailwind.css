@@ -496,9 +496,6 @@
   .h-\[1rem\] {
     height: 1rem;
   }
-  .h-\[120px\] {
-    height: 120px;
-  }
   .h-\[250px\] {
     height: 250px;
   }
@@ -535,9 +532,6 @@
   .w-1\/2 {
     width: calc(1/2 * 100%);
   }
-  .w-1\/3 {
-    width: calc(1/3 * 100%);
-  }
   .w-2 {
     width: calc(var(--spacing) * 2);
   }
@@ -564,6 +558,9 @@
   }
   .w-7 {
     width: calc(var(--spacing) * 7);
+  }
+  .w-8 {
+    width: calc(var(--spacing) * 8);
   }
   .w-9 {
     width: calc(var(--spacing) * 9);
@@ -788,6 +785,13 @@
   }
   .gap-4 {
     gap: calc(var(--spacing) * 4);
+  }
+  .space-y-0\.5 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 0.5) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 0.5) * calc(1 - var(--tw-space-y-reverse)));
+    }
   }
   .space-y-1 {
     :where(& > :not(:last-child)) {
@@ -1116,6 +1120,12 @@
   .bg-primary {
     background-color: var(--primary);
   }
+  .bg-primary\/10 {
+    background-color: var(--primary);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+    }
+  }
   .bg-red-400 {
     background-color: var(--color-red-400);
   }
@@ -1357,21 +1367,6 @@
   .whitespace-pre-wrap {
     white-space: pre-wrap;
   }
-  .text-\[\#6cc070\] {
-    color: #6cc070;
-  }
-  .text-\[\#a67b2f\] {
-    color: #a67b2f;
-  }
-  .text-\[\#d4a84b\] {
-    color: #d4a84b;
-  }
-  .text-\[\#e06c6c\] {
-    color: #e06c6c;
-  }
-  .text-\[\#f5b72b\] {
-    color: #f5b72b;
-  }
   .text-accent-foreground {
     color: var(--accent-foreground);
   }
@@ -1427,6 +1422,18 @@
     color: var(--muted-foreground);
     @supports (color: color-mix(in lab, red, red)) {
       color: color-mix(in oklab, var(--muted-foreground) 50%, transparent);
+    }
+  }
+  .text-muted-foreground\/60 {
+    color: var(--muted-foreground);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+    }
+  }
+  .text-muted-foreground\/70 {
+    color: var(--muted-foreground);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
     }
   }
   .text-popover-foreground {
@@ -2022,11 +2029,6 @@
       max-width: var(--container-sm);
     }
   }
-  .sm\:grid-cols-4 {
-    @media (width >= 40rem) {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
   .sm\:flex-row {
     @media (width >= 40rem) {
       flex-direction: row;
@@ -2055,6 +2057,11 @@
   .lg\:flex-none {
     @media (width >= 64rem) {
       flex: none;
+    }
+  }
+  .lg\:grid-cols-2 {
+    @media (width >= 64rem) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   .lg\:flex-row {

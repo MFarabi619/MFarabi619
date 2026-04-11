@@ -16,6 +16,10 @@ pub fn MainLayout() -> Element {
         _ => "Apidae Systems",
     };
 
+    let chip_model = use_signal(String::new);
+    let heap_free = use_signal(String::new);
+    let device_ctx = use_context_provider(|| crate::DeviceContext { chip_model, heap_free });
+
     rsx! {
         document::Title { "{title}" }
         ToastProvider {
@@ -25,8 +29,8 @@ pub fn MainLayout() -> Element {
                 on_network: move |_| {
                     *crate::SHOW_NETWORK_SHEET.write() = true;
                 },
-                chip_model: crate::DEVICE_CHIP_MODEL.read().clone(),
-                heap_free: crate::DEVICE_HEAP_FREE.read().clone(),
+                chip_model: device_ctx.chip_model.read().clone(),
+                heap_free: device_ctx.heap_free.read().clone(),
             }
 
             main { class: "mx-auto w-[min(100%-24px,980px)] py-4 flex-1",

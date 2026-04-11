@@ -8,6 +8,7 @@ use crate::pages::panels::{
     ENABLE_TEMPERATURE_HUMIDITY,
 };
 use dioxus::prelude::*;
+use dioxus::hooks::UseFutureState;
 use lucide_dioxus::Timer;
 use ui::components::toast::Toasts;
 
@@ -27,6 +28,8 @@ pub fn Home() -> Element {
             DEFAULT_DEVICE_URL.to_string()
         }
     });
+
+    let mut device_ctx = use_context::<crate::DeviceContext>();
 
     // Connection state
     let mut is_connected = use_signal(|| false);
@@ -57,7 +60,6 @@ pub fn Home() -> Element {
     let mut sampling = use_signal(|| false);
     let mut api_modal_open = use_signal(|| false);
 
-    let mut polling_enabled = use_signal(|| true);
     let mut poll_interval_ms = use_signal(|| {
         #[cfg(target_arch = "wasm32")]
         {
@@ -77,6 +79,17 @@ pub fn Home() -> Element {
     let mut ssid_input = use_signal(String::new);
     let mut password_input = use_signal(String::new);
 
+    // Derived WiFi state from wireless signal — avoids duplicating data in separate signals
+    let wifi_ssid = use_memo(move || {
+        wireless.read().as_ref().map(|w| w.sta_ssid.clone()).unwrap_or_default()
+    });
+    let wifi_rssi = use_memo(move || {
+        wireless.read().as_ref().map(|w| w.wifi_rssi).unwrap_or(0)
+    });
+    let wifi_ip = use_memo(move || {
+        wireless.read().as_ref().map(|w| w.sta_ipv4.clone()).unwrap_or_default()
+    });
+
     // Storage progress
     let storage_percent = use_memo(move || {
         status
@@ -86,15 +99,11 @@ pub fn Home() -> Element {
             .unwrap_or(0.0)
     });
 
-    // ── Polling coroutine ──
+    // ── Polling loop ──
     let toasts = Toasts;
-    use_coroutine(move |_: UnboundedReceiver<()>| async move {
+    let mut poller = use_future(move || async move {
         let mut tick: u32 = 0;
         loop {
-            if !*polling_enabled.peek() {
-                sleep_ms(1_000).await;
-                continue;
-            }
             let url = device_url.read().clone();
 
             // CO2 config on first tick
@@ -109,13 +118,11 @@ pub fn Home() -> Element {
                 let was_connected = *is_connected.peek();
                 match api::fetch_device_status(&url).await {
                     Ok(envelope) => {
-                        *crate::DEVICE_CHIP_MODEL.write() =
-                            envelope.data.device.chip_model.clone();
-                        *crate::DEVICE_UPTIME.write() = envelope.data.runtime.uptime.clone();
+                        device_ctx.chip_model.set(envelope.data.device.chip_model.clone());
                         {
                             let used_kb = (envelope.data.runtime.memory_heap_total.saturating_sub(envelope.data.runtime.memory_heap_bytes)) / 1024;
                             let total_kb = envelope.data.runtime.memory_heap_total / 1024;
-                            *crate::DEVICE_HEAP_FREE.write() = format!("{used_kb}/{total_kb} KB");
+                            device_ctx.heap_free.set(format!("{used_kb}/{total_kb} KB"));
                         }
 
                         status.set(Some(envelope.data));
@@ -123,8 +130,8 @@ pub fn Home() -> Element {
                         error_message.set(None);
 
                         if !was_connected {
-                            let ssid = crate::WIFI_SSID.read().clone();
-                            let ip = crate::WIFI_IP.read().clone();
+                            let ssid = wifi_ssid.read().clone();
+                            let ip = wifi_ip.read().clone();
                             if !ssid.is_empty() {
                                 toasts.success(format!("Connected to {ssid} ({ip})"), None);
                             } else {
@@ -145,9 +152,6 @@ pub fn Home() -> Element {
             // Wireless status every 10s
             if tick % 2 == 0 {
                 if let Ok(response) = api::fetch_wireless_status(&url).await {
-                    *crate::WIFI_SSID.write() = response.data.sta_ssid.clone();
-                    *crate::WIFI_RSSI.write() = response.data.wifi_rssi;
-                    *crate::WIFI_IP.write() = response.data.sta_ipv4.clone();
                     wireless.set(Some(response.data));
                 }
             }
@@ -274,8 +278,8 @@ pub fn Home() -> Element {
                     Timer { class: "w-3.5 h-3.5 text-muted-foreground" }
                     select {
                         class: "bg-transparent border border-border rounded px-1.5 py-1 text-xs font-mono text-foreground cursor-pointer outline-none",
-                        onchange: move |event| {
-                            if let Ok(ms) = event.value().parse::<u32>() {
+                        onchange: move |event: FormEvent| {
+                            if let Ok(ms) = event.parsed::<u32>() {
                                 poll_interval_ms.set(ms);
                                 #[cfg(target_arch = "wasm32")]
                                 if let Some(s) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {
@@ -293,12 +297,12 @@ pub fn Home() -> Element {
                 }
                 {
                     let connected = *is_connected.read();
-                    let polling = *polling_enabled.read();
-                    let ip = crate::WIFI_IP.read().clone();
-                    let ssid = crate::WIFI_SSID.read().clone();
-                    let rssi = *crate::WIFI_RSSI.read();
+                    let is_paused = matches!(*poller.state().read(), UseFutureState::Paused);
+                    let ip = wifi_ip.read().clone();
+                    let ssid = wifi_ssid.read().clone();
+                    let rssi = *wifi_rssi.read();
 
-                    let (dot_class, ping_class) = if !polling {
+                    let (dot_class, ping_class) = if is_paused {
                         ("bg-gray-500", "")
                     } else if connected {
                         ("bg-emerald-400", "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70 animate-ping")
@@ -306,7 +310,7 @@ pub fn Home() -> Element {
                         ("bg-amber-500", "absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-70 animate-pulse")
                     };
 
-                    let label = if !polling {
+                    let label = if is_paused {
                         "PAUSED".to_string()
                     } else if connected && !ip.is_empty() {
                         ip.clone()
@@ -316,7 +320,7 @@ pub fn Home() -> Element {
                         "POLLING".to_string()
                     };
 
-                    let tooltip = if !polling {
+                    let tooltip = if is_paused {
                         "Click to resume polling".to_string()
                     } else if !ssid.is_empty() {
                         format!("{ssid} ({rssi} dBm) \u{2014} click to pause")
@@ -329,11 +333,10 @@ pub fn Home() -> Element {
                             class: "flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs font-mono text-foreground shrink-0 cursor-pointer hover:bg-muted/50 transition-colors",
                             title: "{tooltip}",
                             onclick: move |_| {
-                                let new_val = !*polling_enabled.peek();
-                                polling_enabled.set(new_val);
-                                #[cfg(target_arch = "wasm32")]
-                                if let Some(s) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {
-                                    let _ = s.set_item("polling_enabled", if new_val { "true" } else { "false" });
+                                if is_paused {
+                                    poller.resume();
+                                } else {
+                                    poller.pause();
                                 }
                             },
                             span { class: "relative flex h-2 w-2",
@@ -429,7 +432,16 @@ pub fn Home() -> Element {
                 });
             },
             on_upload: move |_| {
-                document::eval("document.getElementById('sd-upload-input')?.click()");
+                #[cfg(target_arch = "wasm32")]
+                if let Some(el) = web_sys::window()
+                    .and_then(|w| w.document())
+                    .and_then(|d| d.get_element_by_id("sd-upload-input"))
+                {
+                    use wasm_bindgen::JsCast;
+                    if let Ok(input) = el.dyn_into::<web_sys::HtmlElement>() {
+                        input.click();
+                    }
+                }
             },
         }
 

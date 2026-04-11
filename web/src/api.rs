@@ -160,8 +160,7 @@ pub async fn fetch_wifi_scan(base_url: &str) -> Result<WifiScanResponse, reqwest
 }
 
 pub async fn fetch_filesystem(base_url: &str, location: &str) -> Result<Vec<FileEntry>, reqwest::Error> {
-    let location = urlencoding::encode(location);
-    reqwest::get(format!("{base_url}/api/filesystem/list?location={location}"))
+    reqwest::get(format!("{base_url}/api/filesystem/{location}"))
         .await?
         .json()
         .await
@@ -178,10 +177,20 @@ pub async fn connect_wifi(base_url: &str, ssid: &str, password: &str) -> Result<
 }
 
 pub async fn delete_file(base_url: &str, location: &str, path: &str) -> Result<reqwest::Response, reqwest::Error> {
-    let location = urlencoding::encode(location);
-    let path = urlencoding::encode(path);
     reqwest::Client::new()
-        .delete(format!("{base_url}/api/filesystem/file/{path}?location={location}"))
+        .delete(format!("{base_url}/api/filesystem/{location}/{path}"))
+        .send()
+        .await
+}
+
+pub async fn upload_file(base_url: &str, location: &str, filename: &str, data: &[u8]) -> Result<reqwest::Response, reqwest::Error> {
+    let part = reqwest::multipart::Part::bytes(data.to_vec())
+        .file_name(filename.to_string());
+    let form = reqwest::multipart::Form::new()
+        .part("file", part);
+    reqwest::Client::new()
+        .put(format!("{base_url}/api/filesystem/{location}/{filename}"))
+        .multipart(form)
         .send()
         .await
 }

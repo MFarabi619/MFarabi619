@@ -2,13 +2,15 @@ use dioxus::prelude::*;
 use lucide_dioxus::{Braces, HardDrive, Radar, RefreshCw, Search, Trash2, Upload, Wifi, Zap};
 
 fn scroll_to_element(id: &str) {
+    #[cfg(target_arch = "wasm32")]
     if let Some(el) = web_sys::window()
         .and_then(|w| w.document())
         .and_then(|d| d.get_element_by_id(id))
     {
-        let mut opts = web_sys::ScrollIntoViewOptions::new();
-        opts.behavior(web_sys::ScrollBehavior::Smooth);
-        el.scroll_into_view_with_scroll_into_view_options(&opts);
+        use wasm_bindgen::JsCast;
+        if let Ok(html_el) = el.dyn_into::<web_sys::HtmlElement>() {
+            html_el.scroll_into_view();
+        }
     }
 }
 

@@ -15,6 +15,7 @@ pub fn NetworkPanel(
     password_input: Signal<String>,
 ) -> Element {
     let toasts = use_toast();
+    let mut selected_index = use_signal(|| None::<usize>);
 
     let wireless_data = wireless.read();
 
@@ -120,7 +121,42 @@ pub fn NetworkPanel(
             }
 
             // Scan results table
-            div { class: "overflow-auto flex-1 border border-border rounded-lg",
+            div {
+                class: "overflow-auto flex-1 border border-border rounded-lg outline-none",
+                tabindex: "0",
+                onkeydown: move |e: KeyboardEvent| {
+                    let count = networks.read().len();
+                    if count == 0 { return; }
+                    match e.key() {
+                        Key::ArrowDown => {
+                            e.prevent_default();
+                            let next = match *selected_index.read() {
+                                Some(i) => (i + 1) % count,
+                                None => 0,
+                            };
+                            selected_index.set(Some(next));
+                        }
+                        Key::ArrowUp => {
+                            e.prevent_default();
+                            let next = match *selected_index.read() {
+                                Some(0) | None => count - 1,
+                                Some(i) => i - 1,
+                            };
+                            selected_index.set(Some(next));
+                        }
+                        Key::Enter => {
+                            if let Some(i) = *selected_index.read() {
+                                if let Some(network) = networks.read().get(i) {
+                                    ssid_input.set(network.ssid.clone());
+                                }
+                            }
+                        }
+                        Key::Escape => {
+                            selected_index.set(None);
+                        }
+                        _ => {}
+                    }
+                },
                 table { class: "w-full border-collapse min-w-[420px]",
                     thead {
                         tr {
@@ -142,8 +178,11 @@ pub fn NetworkPanel(
                             {
                                 let is_connected_network = wireless_data.as_ref()
                                     .is_some_and(|wireless_info| wireless_info.sta_ssid == network.ssid && !network.ssid.is_empty());
+                                let is_selected = *selected_index.read() == Some(network_index);
                                 let row_class = if is_connected_network {
                                     "border-b border-border bg-emerald-500/10"
+                                } else if is_selected {
+                                    "border-b border-border bg-primary/10"
                                 } else {
                                     "border-b border-border hover:bg-muted/30 transition-colors"
                                 };
