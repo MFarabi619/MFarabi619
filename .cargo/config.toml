@@ -1,11 +1,19 @@
 # [[file:../CONTRIBUTING.org::*\[\[https:/doc.rust-lang.org/cargo/reference/config.html\]\[Cargo Config\]\]][[[https://doc.rust-lang.org/cargo/reference/config.html][Cargo Config]]:1]]
 [alias]
-rr = ["run", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
-tt = ["test", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
-bb = ["build", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
-
 loco = ["run", "-p", "microvisor", "--"]
 playground = ["run", "--example", "playground"]
+
+rr = ["run", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
+bb = ["build", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
+tt = [
+    "test",
+    "-p",
+    "firmware",
+    "--target",
+    "xtensa-esp32s3-none-elf",
+    "--config",
+    "target.xtensa-esp32s3-none-elf.runner = 'probe-rs run --idf-partition-table ../boards/esp32s3.partitions.csv'",
+]
 
 [unstable]
 build-std = ["core", "alloc"]
@@ -14,10 +22,11 @@ build-std = ["core", "alloc"]
 OTA_DEVICE_IP = "10.0.0.68"
 ESP_HAL_CONFIG_PSRAM_MODE = "octal"
 DEFMT_LOG = "info,embedded_test=warn"
-# IDF_PARTITION_TABLE = "boards/esp32s3.partitions.csv"
+
+PROBE_RS_REMOTE_TOKEN = "rpi5-16"
+PROBE_RS_REMOTE_HOST = "ws://rpi5-16:8443"
 
 [target.xtensa-esp32s3-none-elf]
-# runner = "probe-rs run --idf-partition-table ../boards/esp32s3.partitions.csv"
 runner = "probe-rs run --idf-partition-table boards/esp32s3.partitions.csv"
 
 [target.xtensa-esp32-none-elf]
