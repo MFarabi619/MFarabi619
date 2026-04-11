@@ -113,6 +113,7 @@
             (" ESP32S3 :󰒲 example:deep_sleep"    :command "cargo +esp rr --example deep_sleep"                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󰒲 example:defmt-tcp"     :command "cargo +esp rr --example defmt-tcp "                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󰐊 pio run"               :command "pio run                                                                          "  :annotation "platformio ")
+            (" ESP32S3 : pio test"              :command "pio test                          "                                                 :annotation "platformio ")
             (" ESP32S3 :󰔰 pio run -t upload"     :command "pio run -t upload                                                                "  :annotation "platformio ")
             (" ESP32S3 :󰭎 pio device monitor"    :command "pio device monitor                                                               "  :annotation "platformio ")
             ;; ======================================|=======|============================================================================================================== ;;
