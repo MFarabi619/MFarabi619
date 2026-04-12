@@ -1,5 +1,6 @@
 # [[file:../CONTRIBUTING.org::*\[\[https:/doc.rust-lang.org/cargo/reference/config.html\]\[Cargo Config\]\]][[[https://doc.rust-lang.org/cargo/reference/config.html][Cargo Config]]:1]]
 [alias]
+ee = ["run", "-p", "e2e"]
 loco = ["run", "-p", "microvisor", "--"]
 playground = ["run", "--example", "playground"]
 
