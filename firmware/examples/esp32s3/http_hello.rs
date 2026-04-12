@@ -14,7 +14,7 @@ use panic_rtt_target as _;
 use picoserve::AppBuilder;
 use static_cell::StaticCell;
 
-use firmware::services::http::{HttpAppProps, HTTP_SERVER_PORT};
+use firmware::{config, services::http::HttpAppProps};
 
 const WIFI_SSID: &str = env!("NETWORK_WIFI_SSID");
 const WIFI_PASSWORD: &str = env!("NETWORK_WIFI_PSK");
@@ -110,7 +110,7 @@ async fn main(spawner: Spawner) -> ! {
         .spawn(firmware::services::http::task(0, stack, app))
         .unwrap();
 
-    info!("HTTP server on port {}", HTTP_SERVER_PORT);
+    info!("HTTP server on port {}", config::http::PORT);
 
     loop {
         Timer::after(Duration::from_secs(60)).await;
