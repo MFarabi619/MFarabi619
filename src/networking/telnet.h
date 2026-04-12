@@ -3,10 +3,14 @@
 
 #include "../config.h"
 
-void telnet_start(void);
-void telnet_service(void);
-bool telnet_is_connected(void);
-const char *telnet_client_ip(void);
-void telnet_disconnect(void);
+namespace networking::telnet {
+
+void initialize() noexcept;
+void service() noexcept;
+[[nodiscard]] bool isConnected() noexcept;
+[[nodiscard]] const char *clientIP() noexcept;
+void disconnect() noexcept;
+
+} // namespace networking::telnet
 
 #endif

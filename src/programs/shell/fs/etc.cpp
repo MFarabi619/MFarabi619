@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <microshell.h>
-#include <Preferences.h>
+#include "../../../util/preferences_guard.h"
 #include <ESPmDNS.h>
 #include <string.h>
 
@@ -16,7 +16,7 @@ static size_t hostname_get_data(struct ush_object *self,
                                 struct ush_file_descriptor const *file,
                                 uint8_t **data) {
   (void)self; (void)file;
-  *data = (uint8_t *)shell_get_hostname();
+  *data = (uint8_t *)programs::shell::accessHostname();
   return strlen((char *)*data);
 }
 
@@ -24,13 +24,13 @@ static void hostname_set_data(struct ush_object *self,
                               struct ush_file_descriptor const *file,
                               uint8_t *data, size_t size) {
   (void)self; (void)file;
-  char buf[CONFIG_SHELL_HOSTNAME_SIZE + 1];
-  size_t len = (size < CONFIG_SHELL_HOSTNAME_SIZE) ? size : CONFIG_SHELL_HOSTNAME_SIZE;
+  char buf[config::shell::HOSTNAME_SIZE + 1];
+  size_t len = (size < config::shell::HOSTNAME_SIZE) ? size : config::shell::HOSTNAME_SIZE;
   memcpy(buf, data, len);
   buf[len] = '\0';
   while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
     buf[--len] = '\0';
-  shell_set_hostname(buf);
+  programs::shell::configureHostname(buf);
   WiFi.setHostname(buf);
 }
 
@@ -41,21 +41,64 @@ static size_t config_get_data(struct ush_object *self,
                               struct ush_file_descriptor const *file,
                               uint8_t **data) {
   (void)self; (void)file;
-  static char buf[512];
+  static char buf[640];
   snprintf(buf, sizeof(buf),
-           "platform = esp32s3\r\n"
+           "chip = %s\r\n"
+           "cores = %u\r\n"
+           "revision = %u\r\n"
            "cpu_freq = %luMHz\r\n"
-           "flash_size = %luKB\r\n"
+           "flash_size = %luMB\r\n"
+           "flash_speed = %luMHz\r\n"
            "sketch_size = %luKB\r\n"
            "sketch_free = %luKB\r\n"
            "sdk = %s\r\n"
+           "idf = %s\r\n"
+           "arduino = %s\r\n"
            "mac = %012llX\r\n",
+           ESP.getChipModel(),
+           ESP.getChipCores(),
+           (unsigned)ESP.getChipRevision(),
            (unsigned long)(ESP.getCpuFreqMHz()),
-           (unsigned long)(ESP.getFlashChipSize() / 1024),
+           (unsigned long)(ESP.getFlashChipSize() / (1024 * 1024)),
+           (unsigned long)(ESP.getFlashChipSpeed() / 1000000),
            (unsigned long)(ESP.getSketchSize() / 1024),
            (unsigned long)(ESP.getFreeSketchSpace() / 1024),
            ESP.getSdkVersion(),
+           esp_get_idf_version(),
+           ESP_ARDUINO_VERSION_STR,
            ESP.getEfuseMac());
+  *data = (uint8_t *)buf;
+  return strlen(buf);
+}
+
+//------------------------------------------
+//  /etc/temperature — chip temperature
+//------------------------------------------
+static size_t temperature_get_data(struct ush_object *self,
+                                   struct ush_file_descriptor const *file,
+                                   uint8_t **data) {
+  (void)self; (void)file;
+  static char buf[16];
+  snprintf(buf, sizeof(buf), "%.1f\r\n", temperatureRead());
+  *data = (uint8_t *)buf;
+  return strlen(buf);
+}
+
+//------------------------------------------
+//  /etc/firmware — sketch MD5 + version
+//------------------------------------------
+static size_t firmware_get_data(struct ush_object *self,
+                                struct ush_file_descriptor const *file,
+                                uint8_t **data) {
+  (void)self; (void)file;
+  static char buf[128];
+  snprintf(buf, sizeof(buf),
+           "md5 = %s\r\n"
+           "size = %luKB\r\n"
+           "free = %luKB\r\n",
+           ESP.getSketchMD5().c_str(),
+           (unsigned long)(ESP.getSketchSize() / 1024),
+           (unsigned long)(ESP.getFreeSketchSpace() / 1024));
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -90,7 +133,7 @@ static size_t wifi_get_data(struct ush_object *self,
              WiFi.dnsIP().toString().c_str(),
               WiFi.macAddress().c_str(),
               WiFi.getHostname());
-  } else if (wifi_is_ap_active()) {
+  } else if (networking::wifi::ap::isActive()) {
     snprintf(buf, sizeof(buf),
              "status = access_point\r\n"
              "ap_ssid = %s\r\n"
@@ -116,7 +159,7 @@ static size_t provisioned_get_data(struct ush_object *self,
   (void)self; (void)file;
   static const char *yes = "true";
   static const char *no = "false";
-  bool p = provisioning_is_provisioned();
+  bool p = networking::provisioning::isProvisioned();
   *data = (uint8_t *)(p ? yes : no);
   return p ? 4 : 5;
 }
@@ -126,7 +169,7 @@ static size_t username_get_data(struct ush_object *self,
                                 uint8_t **data) {
   (void)self; (void)file;
   static char buf[64];
-  if (provisioning_get_username(buf, sizeof(buf))) {
+  if (networking::provisioning::accessUsername(buf, sizeof(buf))) {
     *data = (uint8_t *)buf;
     return strlen(buf);
   }
@@ -144,10 +187,8 @@ static void username_set_data(struct ush_object *self,
   buf[len] = '\0';
   while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
     buf[--len] = '\0';
-  Preferences prefs;
-  prefs.begin(CONFIG_PROV_NVS_NAMESPACE, false);
-  prefs.putString("username", buf);
-  prefs.end();
+  PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
+  prefs->putString("username", buf);
 }
 
 static size_t device_name_get_data(struct ush_object *self,
@@ -155,12 +196,12 @@ static size_t device_name_get_data(struct ush_object *self,
                                    uint8_t **data) {
   (void)self; (void)file;
   static char buf[64];
-  if (provisioning_get_device_name(buf, sizeof(buf))) {
+  if (networking::provisioning::accessDeviceName(buf, sizeof(buf))) {
     *data = (uint8_t *)buf;
     return strlen(buf);
   }
-  *data = (uint8_t *)CONFIG_HOSTNAME;
-  return strlen(CONFIG_HOSTNAME);
+  *data = (uint8_t *)config::HOSTNAME;
+  return strlen(config::HOSTNAME);
 }
 
 static void device_name_set_data(struct ush_object *self,
@@ -173,10 +214,8 @@ static void device_name_set_data(struct ush_object *self,
   buf[len] = '\0';
   while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
     buf[--len] = '\0';
-  Preferences prefs;
-  prefs.begin(CONFIG_PROV_NVS_NAMESPACE, false);
-  prefs.putString("device_name", buf);
-  prefs.end();
+  PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
+  prefs->putString("device_name", buf);
 }
 
 static const struct ush_file_descriptor etc_files[] = {
@@ -215,7 +254,7 @@ static const struct ush_file_descriptor etc_files[] = {
       char *colon = strchr(buf, ':');
       if (!colon) return;
       *colon = '\0';
-      wifi_set_credentials(buf, colon + 1);
+      WiFi.begin(buf, colon + 1);
     },
   },
   {
@@ -254,6 +293,20 @@ static const struct ush_file_descriptor etc_files[] = {
     .exec = NULL,
     .get_data = device_name_get_data,
     .set_data = device_name_set_data,
+  },
+  {
+    .name = "temperature",
+    .description = "chip temperature (celsius)",
+    .help = NULL,
+    .exec = NULL,
+    .get_data = temperature_get_data,
+  },
+  {
+    .name = "firmware",
+    .description = "firmware MD5, size, free OTA space",
+    .help = NULL,
+    .exec = NULL,
+    .get_data = firmware_get_data,
   },
 };
 

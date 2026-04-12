@@ -3,6 +3,8 @@
 #include "../../../config.h"
 #include "../../../testing/it.h"
 
+namespace filesystems::littlefs { void test(void); }
+
 #include <Arduino.h>
 #include <LittleFS.h>
 #include <stdio.h>
@@ -99,16 +101,16 @@ static void littlefs_test_hostkey_path(void) {
   LittleFS.begin(false);
 
   LittleFS.mkdir("/.ssh");
-  File writer = LittleFS.open(CONFIG_SSH_HOSTKEY_PATH, FILE_WRITE);
+  File writer = LittleFS.open(config::ssh::HOSTKEY_PATH, FILE_WRITE);
   TEST_ASSERT_TRUE_MESSAGE((bool)writer, "device: cannot open hostkey path for writing");
   writer.print("fake-key-data");
   writer.close();
 
-  TEST_ASSERT_TRUE_MESSAGE(LittleFS.exists(CONFIG_SSH_HOSTKEY_PATH),
+  TEST_ASSERT_TRUE_MESSAGE(LittleFS.exists(config::ssh::HOSTKEY_PATH),
     "device: hostkey file missing via LittleFS API");
 
   // Verify the VFS path (what libssh uses) resolves to the same file
-  String vfs_path = String(LittleFS.mountpoint()) + CONFIG_SSH_HOSTKEY_PATH;
+  String vfs_path = String(LittleFS.mountpoint()) + config::ssh::HOSTKEY_PATH;
   FILE *vfs_fp = fopen(vfs_path.c_str(), "r");
   TEST_ASSERT_NOT_NULL_MESSAGE(vfs_fp,
     "device: fopen via VFS mountpoint failed — paths may be inconsistent");
@@ -123,10 +125,10 @@ static void littlefs_test_hostkey_path(void) {
   LittleFS.end();
   LittleFS.begin(false);
 
-  TEST_ASSERT_TRUE_MESSAGE(LittleFS.exists(CONFIG_SSH_HOSTKEY_PATH),
+  TEST_ASSERT_TRUE_MESSAGE(LittleFS.exists(config::ssh::HOSTKEY_PATH),
     "device: hostkey file missing after remount");
 
-  LittleFS.remove(CONFIG_SSH_HOSTKEY_PATH);
+  LittleFS.remove(config::ssh::HOSTKEY_PATH);
   TEST_MESSAGE("both LittleFS and VFS paths verified");
 }
 
@@ -205,7 +207,7 @@ static void littlefs_test_rename(void) {
   TEST_MESSAGE("rename verified: src gone, dst exists with correct content");
 }
 
-void littlefs_run_tests(void) {
+void filesystems::littlefs::test(void) {
   it("user observes that LittleFS mounts and reports size",
      littlefs_test_mounts);
   it("user observes that LittleFS write/read roundtrip works",

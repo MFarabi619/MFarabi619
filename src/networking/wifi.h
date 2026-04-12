@@ -2,27 +2,28 @@
 #define NETWORKING_WIFI_H
 
 #include "../config.h"
-#include <stdbool.h>
 #include <stddef.h>
 
-void wifi_setup(void);
-bool wifi_connect(void);
-bool wifi_is_connected(void);
+struct APConfig {
+    char ssid[33];
+    char password[65];
+};
 
-bool wifi_get_ssid(char *buf, size_t len);
-bool wifi_get_password(char *buf, size_t len);
-void wifi_set_credentials(const char *ssid, const char *password);
+namespace networking::wifi::sta {
 
-// Access point
-void wifi_start_ap(void);
-void wifi_stop_ap(void);
-bool wifi_is_ap_active(void);
+void initialize() noexcept;
+[[nodiscard]] bool connect() noexcept;
 
-// AP configuration (persisted to NVS)
-void wifi_get_ap_ssid(char *buf, size_t len);
-void wifi_get_ap_password(char *buf, size_t len);
-void wifi_set_ap_config(const char *ssid, const char *password);
-bool wifi_get_ap_enabled(void);
-void wifi_set_ap_enabled(bool enabled);
+} // namespace networking::wifi::sta
+
+namespace networking::wifi::ap {
+
+void enable() noexcept;
+void disable() noexcept;
+[[nodiscard]] bool isActive() noexcept;
+void accessConfig(APConfig *config) noexcept;
+void configure(const char *ssid, const char *password) noexcept;
+
+} // namespace networking::wifi::ap
 
 #endif // NETWORKING_WIFI_H

@@ -3,13 +3,17 @@
 
 #include "../../config.h"
 
-bool ssh_server_start(void);
-
 struct ush_object;
-bool ssh_server_request_exit(struct ush_object *self);
+
+namespace services::sshd {
+
+bool initialize() noexcept;
+[[nodiscard]] bool requestExit(struct ush_object *self) noexcept;
 
 #ifdef PIO_UNIT_TESTING
-void ssh_server_run_tests(void);
+void test() noexcept;
 #endif
+
+}
 
 #endif // SSH_SERVER_H

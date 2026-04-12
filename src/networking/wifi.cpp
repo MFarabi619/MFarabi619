@@ -1,37 +1,27 @@
 #include "wifi.h"
-#include "../drivers/neopixel.h"
+#include "../programs/led.h"
+#include <ColorFormat.h>
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <DNSServer.h>
-#include <Preferences.h>
 #include <ESPmDNS.h>
+#include "../util/preferences_guard.h"
 
-static volatile bool connected = false;
 static bool mdns_started = false;
 static bool ap_active = false;
-static DNSServer dns_server;
 
 static const char wifi_ssid_slot[33] __attribute__((used, aligned(4))) =
   "@@WIFI_SSID@@";
 static const char wifi_pass_slot[65] __attribute__((used, aligned(4))) =
   "@@WIFI_PASS@@";
 
-static bool nvs_get_string(const char *key, char *buf, size_t len) {
-  Preferences prefs;
-  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  size_t n = prefs.getString(key, buf, len);
-  prefs.end();
-  return n > 0;
-}
-
-void wifi_setup(void) {
+void networking::wifi::sta::initialize() noexcept {
   static bool setup_done = false;
   if (setup_done) return;
   setup_done = true;
 
-  WiFi.persistent(false);
   WiFi.setAutoReconnect(true);
+  WiFi.mode(WIFI_MODE_STA);
 
   WiFi.onEvent([](arduino_event_id_t event, arduino_event_info_t info) {
     switch (event) {
@@ -44,22 +34,20 @@ void wifi_setup(void) {
                       WiFi.eventName(event),
                       WiFi.disconnectReasonName(
                           (wifi_err_reason_t)info.wifi_sta_disconnected.reason));
-        neopixel_yellow();
-        connected = false;
+        LED.set(RGB_YELLOW);
         break;
 
       case ARDUINO_EVENT_WIFI_STA_GOT_IP:
         Serial.printf("[wifi] %s %s\n", WiFi.eventName(event),
                       WiFi.localIP().toString().c_str());
-        connected = true;
-        neopixel_green();
-        if (!mdns_started && MDNS.begin(CONFIG_HOSTNAME)) {
-          MDNS.setInstanceName(CONFIG_HOSTNAME);
-          MDNS.addService("ssh", "tcp", CONFIG_SSH_PORT);
-          MDNS.addService("http", "tcp", CONFIG_HTTP_PORT);
+        LED.set(RGB_GREEN);
+        if (!mdns_started && MDNS.begin(config::HOSTNAME)) {
+          MDNS.setInstanceName(config::HOSTNAME);
+          MDNS.addService("ssh", "tcp", config::ssh::PORT);
+          MDNS.addService("http", "tcp", config::http::PORT);
           MDNS.addServiceTxt("http", "tcp", "path", "/");
           MDNS.addServiceTxt("http", "tcp", "fw", ESP.getSdkVersion());
-          Serial.printf("[mdns] %s.local\n", CONFIG_HOSTNAME);
+          Serial.printf("[mdns] %s.local\n", config::HOSTNAME);
           mdns_started = true;
         }
         break;
@@ -70,133 +58,59 @@ void wifi_setup(void) {
   });
 }
 
-bool wifi_connect(void) {
-  connected = false;
-
-  WiFi.persistent(false);
+bool networking::wifi::sta::connect() noexcept {
   WiFi.setAutoReconnect(true);
-
-  char ssid[CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH + 1] = {0};
-  char pass[CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH + 1] = {0};
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_MODE_STA);
+  WiFi.setHostname(config::HOSTNAME);
 
 #if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
   if (strlen(CONFIG_WIFI_SSID) > 0) {
-    wifi_set_credentials(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
     Serial.printf("[wifi] credentials from build flags: %s\n", CONFIG_WIFI_SSID);
+    WiFi.begin(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
   } else
 #endif
   if (wifi_ssid_slot[0] != '@' && wifi_ssid_slot[0] != '\0') {
-    wifi_set_credentials(wifi_ssid_slot, wifi_pass_slot);
     Serial.printf("[wifi] credentials from embedded: %s\n", wifi_ssid_slot);
+    WiFi.begin(wifi_ssid_slot, wifi_pass_slot);
+  } else {
+    WiFi.begin();
   }
 
-  if (!wifi_get_ssid(ssid, sizeof(ssid)) || ssid[0] == '\0') {
-    Serial.println(F("[wifi] no SSID configured"));
-    return false;
-  }
-  wifi_get_password(pass, sizeof(pass));
-
-  WiFi.disconnect(true);
-  WiFi.mode(WIFI_MODE_STA);
-  WiFi.setHostname(CONFIG_HOSTNAME);
-  WiFi.begin(ssid, pass);
-
-  int result = WiFi.waitForConnectResult(CONFIG_WIFI_TIMEOUT_MS);
-  connected = (result == WL_CONNECTED);
-  return connected;
-}
-
-bool wifi_get_ssid(char *buf, size_t len) {
-  return nvs_get_string("ssid", buf, len);
-}
-
-bool wifi_get_password(char *buf, size_t len) {
-  return nvs_get_string("pass", buf, len);
-}
-
-void wifi_set_credentials(const char *ssid, const char *password) {
-  char current_ssid[CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH + 1] = {0};
-  char current_pass[CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH + 1] = {0};
-  if (wifi_get_ssid(current_ssid, sizeof(current_ssid)) &&
-      wifi_get_password(current_pass, sizeof(current_pass)) &&
-      strcmp(current_ssid, ssid) == 0 && strcmp(current_pass, password) == 0) {
-    return;
-  }
-  Preferences prefs;
-  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  prefs.putString("ssid", ssid);
-  prefs.putString("pass", password);
-  prefs.end();
-  Serial.printf("[wifi] credentials saved: ssid=%s\n", ssid);
-}
-
-bool wifi_is_connected(void) {
-  return connected;
+  return WiFi.waitForConnectResult(config::wifi::CONNECT_TIMEOUT_MS) == WL_CONNECTED;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Access Point + Captive Portal
 // ─────────────────────────────────────────────────────────────────────────────
 
-void wifi_get_ap_ssid(char *buf, size_t len) {
-  Preferences prefs;
-  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  size_t n = prefs.getString("ap_ssid", buf, len);
-  prefs.end();
-  if (n == 0) {
-    strncpy(buf, CONFIG_AP_SSID, len - 1);
-    buf[len - 1] = '\0';
+void networking::wifi::ap::accessConfig(APConfig *config) noexcept {
+  PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
+  if (!prefs.ok() || prefs->getString("ap_ssid", config->ssid, sizeof(config->ssid)) == 0) {
+    strncpy(config->ssid, config::wifi::ap::SSID, sizeof(config->ssid) - 1);
+    config->ssid[sizeof(config->ssid) - 1] = '\0';
+  }
+  if (!prefs.ok() || prefs->getString("ap_pass", config->password, sizeof(config->password)) == 0) {
+    strncpy(config->password, config::wifi::ap::PASSWORD, sizeof(config->password) - 1);
+    config->password[sizeof(config->password) - 1] = '\0';
   }
 }
 
-void wifi_get_ap_password(char *buf, size_t len) {
-  Preferences prefs;
-  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  size_t n = prefs.getString("ap_pass", buf, len);
-  prefs.end();
-  if (n == 0) {
-    strncpy(buf, CONFIG_AP_PASSWORD, len - 1);
-    buf[len - 1] = '\0';
-  }
-}
-
-void wifi_set_ap_config(const char *ssid, const char *password) {
-  Preferences prefs;
-  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  prefs.putString("ap_ssid", ssid);
-  prefs.putString("ap_pass", password);
-  prefs.end();
+void networking::wifi::ap::configure(const char *ssid, const char *password) noexcept {
+  PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
+  prefs->putString("ap_ssid", ssid);
+  prefs->putString("ap_pass", password);
   Serial.printf("[wifi] AP config saved: ssid=%s\n", ssid);
 }
 
-bool wifi_get_ap_enabled(void) {
-  Preferences prefs;
-  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, true);
-  bool enabled = prefs.getBool("ap_on", true);
-  prefs.end();
-  return enabled;
-}
+void networking::wifi::ap::enable() noexcept {
+  { PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
+    prefs->putBool("ap_on", true); }
 
-void wifi_set_ap_enabled(bool enabled) {
-  Preferences prefs;
-  prefs.begin(CONFIG_WIFI_NVS_NAMESPACE, false);
-  prefs.putBool("ap_on", enabled);
-  prefs.end();
-
-  if (enabled && !ap_active) {
-    wifi_start_ap();
-  } else if (!enabled && ap_active) {
-    wifi_stop_ap();
-  }
-}
-
-void wifi_start_ap(void) {
   if (ap_active) return;
 
-  char ap_ssid[33] = {0};
-  char ap_pass[65] = {0};
-  wifi_get_ap_ssid(ap_ssid, sizeof(ap_ssid));
-  wifi_get_ap_password(ap_pass, sizeof(ap_pass));
+  APConfig cfg = {};
+  networking::wifi::ap::accessConfig(&cfg);
 
   WiFi.mode(WIFI_AP_STA);
 
@@ -204,23 +118,26 @@ void wifi_start_ap(void) {
   IPAddress gateway(192, 168, 4, 1);
   IPAddress subnet(255, 255, 255, 0);
   WiFi.softAPConfig(ap_ip, gateway, subnet);
-  WiFi.softAP(ap_ssid, ap_pass, CONFIG_AP_CHANNEL);
+  WiFi.softAP(cfg.ssid, cfg.password, config::wifi::ap::CHANNEL);
 
-  dns_server.setErrorReplyCode(DNSReplyCode::NoError);
-  dns_server.start(53, "*", ap_ip);
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 2)
+  WiFi.AP.enableDhcpCaptivePortal();
+#endif
 
   ap_active = true;
   Serial.printf("[wifi] AP started: %s (%s)\n",
-                ap_ssid, ap_ip.toString().c_str());
+                cfg.ssid, ap_ip.toString().c_str());
 }
 
-void wifi_stop_ap(void) {
+void networking::wifi::ap::disable() noexcept {
+  { PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
+    prefs->putBool("ap_on", false); }
+
   if (!ap_active) return;
 
-  dns_server.stop();
   WiFi.softAPdisconnect(true);
 
-  if (connected) {
+  if (WiFi.isConnected()) {
     WiFi.mode(WIFI_MODE_STA);
   }
 
@@ -228,6 +145,153 @@ void wifi_stop_ap(void) {
   Serial.println(F("[wifi] AP stopped"));
 }
 
-bool wifi_is_ap_active(void) {
+bool networking::wifi::ap::isActive() noexcept {
   return ap_active;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Tests
+// ─────────────────────────────────────────────────────────────────────────────
+#ifdef PIO_UNIT_TESTING
+
+
+#include "wifi.h"
+#include "../testing/it.h"
+#include "../testing/nvs_helpers.h"
+
+namespace networking::wifi { void test(void); }
+
+#include <Arduino.h>
+#include <WiFi.h>
+#include <esp_wifi.h>
+
+static WifiNvsSnapshot saved;
+static void save_nvs(void) { wifi_nvs_save(&saved); }
+static void restore_nvs(void) { wifi_nvs_restore(&saved); }
+
+static void wifi_test_persistent_credentials(void) {
+  TEST_MESSAGE("user verifies that WiFi.begin(ssid, pass) persists credentials");
+
+  WiFi.begin("test_ssid_persist", "test_pass_persist");
+  delay(100);
+  WiFi.disconnect(true);
+
+  wifi_config_t conf;
+  esp_err_t err = esp_wifi_get_config(WIFI_IF_STA, &conf);
+  TEST_ASSERT_EQUAL_MESSAGE(ESP_OK, err,
+    "device: esp_wifi_get_config failed");
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("test_ssid_persist", (const char *)conf.sta.ssid,
+    "device: SSID not persisted by WiFi.begin()");
+
+  TEST_MESSAGE("credentials persisted via built-in WiFi persistence");
+}
+
+static void wifi_test_connect_fails_without_ssid(void) {
+  TEST_MESSAGE("user verifies wifi_connect fails when no credentials stored");
+
+  WiFi.eraseAP();
+  delay(100);
+
+  networking::wifi::sta::initialize();
+  TEST_ASSERT_FALSE_MESSAGE(networking::wifi::sta::connect(),
+    "device: wifi_connect should return false when no SSID stored");
+
+  TEST_MESSAGE("connect fails without SSID");
+}
+
+static void wifi_test_ap_config_roundtrip(void) {
+  save_nvs();
+
+  networking::wifi::ap::configure("my-custom-ap", "secret123");
+
+  APConfig cfg = {};
+  networking::wifi::ap::accessConfig(&cfg);
+
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("my-custom-ap", cfg.ssid,
+    "device: AP SSID mismatch after roundtrip");
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("secret123", cfg.password,
+    "device: AP password mismatch after roundtrip");
+
+  restore_nvs();
+  TEST_MESSAGE("AP config roundtrip verified, NVS restored");
+}
+
+static void wifi_test_ap_default_ssid(void) {
+  save_nvs();
+
+  Preferences preferences;
+  preferences.begin(config::wifi::NVS_NAMESPACE, false);
+  preferences.remove("ap_ssid");
+  preferences.end();
+
+  APConfig cfg = {};
+  networking::wifi::ap::accessConfig(&cfg);
+
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(config::wifi::ap::SSID, cfg.ssid,
+    "device: AP SSID should default to config::wifi::ap::SSID");
+
+  restore_nvs();
+  TEST_MESSAGE("AP default SSID verified, NVS restored");
+}
+
+static void wifi_test_ap_enabled_default_true(void) {
+  save_nvs();
+
+  Preferences preferences;
+  preferences.begin(config::wifi::NVS_NAMESPACE, false);
+  preferences.remove("ap_on");
+  preferences.end();
+
+  PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
+  bool enabled = prefs.ok() ? prefs->getBool("ap_on", true) : true;
+  TEST_ASSERT_TRUE_MESSAGE(enabled,
+    "device: AP should be enabled by default");
+
+  restore_nvs();
+  TEST_MESSAGE("AP enabled default verified, NVS restored");
+}
+
+static void wifi_test_ap_enabled_toggle(void) {
+  save_nvs();
+
+  Preferences preferences;
+  preferences.begin(config::wifi::NVS_NAMESPACE, false);
+  preferences.putBool("ap_on", false);
+  preferences.end();
+
+  {
+    PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
+    TEST_ASSERT_FALSE_MESSAGE(prefs->getBool("ap_on", true),
+      "device: AP should be disabled after setting false");
+  }
+
+  preferences.begin(config::wifi::NVS_NAMESPACE, false);
+  preferences.putBool("ap_on", true);
+  preferences.end();
+
+  {
+    PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
+    TEST_ASSERT_TRUE_MESSAGE(prefs->getBool("ap_on", true),
+      "device: AP should be enabled after setting true");
+  }
+
+  restore_nvs();
+  TEST_MESSAGE("AP enabled toggle verified, NVS restored");
+}
+
+void networking::wifi::test(void) {
+  it("user observes that WiFi.begin persists credentials via ESP-IDF",
+     wifi_test_persistent_credentials);
+  it("user observes that wifi_connect fails without stored SSID",
+     wifi_test_connect_fails_without_ssid);
+  it("user observes that AP config can be saved and read from NVS",
+     wifi_test_ap_config_roundtrip);
+  it("user observes that AP SSID defaults to config::wifi::ap::SSID",
+     wifi_test_ap_default_ssid);
+  it("user observes that AP is enabled by default",
+     wifi_test_ap_enabled_default_true);
+  it("user observes that AP enabled flag can be toggled",
+     wifi_test_ap_enabled_toggle);
+}
+
+#endif

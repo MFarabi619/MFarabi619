@@ -3,10 +3,14 @@
 
 #include <ESPAsyncWebServer.h>
 
-void cloudevents_register_routes(AsyncWebServer *server);
+namespace services::cloudevents {
+
+void registerRoutes(AsyncWebServer *server);
 
 #ifdef PIO_UNIT_TESTING
-void cloudevents_run_tests(void);
+void test(void);
 #endif
+
+}
 
 #endif // SERVICES_CLOUDEVENTS_H

@@ -2,420 +2,263 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Deployment
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_HOSTNAME
-#define CONFIG_HOSTNAME "ceratina"
-#endif
-
-#ifndef CONFIG_PLATFORM
-#define CONFIG_PLATFORM "esp32s3"
-#endif
+#include <cstdint>
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Neopixel
+//  Build flags from platformio.ini (stay as #define — preprocessor injection)
 // ─────────────────────────────────────────────────────────────────────────────
 
-#ifndef CONFIG_NEOPIXEL_GPIO
-#define CONFIG_NEOPIXEL_GPIO 38
+// CONFIG_WIFI_SSID  — from '-DCONFIG_WIFI_SSID="${sysenv.WIFI_SSID}"'
+// CONFIG_WIFI_PASS  — from '-DCONFIG_WIFI_PASS="${sysenv.WIFI_PASSWORD}"'
+// CONFIG_SSH_USER   — from '-DCONFIG_SSH_USER="root"' (optional override)
+
+#ifndef CONFIG_WIFI_SSID
+#define CONFIG_WIFI_SSID ""
 #endif
 
-#ifndef CONFIG_NEOPIXEL_COUNT
-#define CONFIG_NEOPIXEL_COUNT 1
-#endif
-
-#ifndef CONFIG_NEOPIXEL_BRIGHTNESS
-#define CONFIG_NEOPIXEL_BRIGHTNESS 255
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  System
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_SYSTEM_TASK_STACK
-#define CONFIG_SYSTEM_TASK_STACK 8192
-#endif
-
-#ifndef CONFIG_SERIAL_BAUD
-#define CONFIG_SERIAL_BAUD 115200
-#endif
-
-#ifndef CONFIG_SHELL_SERVICE_INTERVAL_MS
-#define CONFIG_SHELL_SERVICE_INTERVAL_MS 10
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  SSH
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_SSH_PORT
-#define CONFIG_SSH_PORT 22
+#ifndef CONFIG_WIFI_PASS
+#define CONFIG_WIFI_PASS ""
 #endif
 
 #ifndef CONFIG_SSH_USER
 #define CONFIG_SSH_USER "root"
 #endif
 
-// LittleFS-native path (for LittleFS.exists / LittleFS.mkdir)
-#ifndef CONFIG_SSH_HOSTKEY_PATH
-#define CONFIG_SSH_HOSTKEY_PATH "/.ssh/id_ed25519"
-#endif
-
-#ifndef CONFIG_SSH_TASK_STACK
-#define CONFIG_SSH_TASK_STACK 32768
-#endif
-
-#ifndef CONFIG_SSH_WRITE_BUF_SIZE
-#define CONFIG_SSH_WRITE_BUF_SIZE 1024
-#endif
-
-#ifndef CONFIG_SSH_RING_SIZE
-#define CONFIG_SSH_RING_SIZE 512
-#endif
-
 // ─────────────────────────────────────────────────────────────────────────────
-//  WiFi
+//  Typed configuration — mirrors firmware/src/config.rs
 // ─────────────────────────────────────────────────────────────────────────────
 
-#ifndef CONFIG_WIFI_TIMEOUT_MS
-#define CONFIG_WIFI_TIMEOUT_MS 15000
-#endif
-
-#ifndef CONFIG_WIFI_POLL_MS
-#define CONFIG_WIFI_POLL_MS 100
-#endif
-
-#ifndef CONFIG_WIFI_NVS_NAMESPACE
-#define CONFIG_WIFI_NVS_NAMESPACE "wifi"
-#endif
-
-// ── Access Point (fallback when STA fails) ──
-
-#ifndef CONFIG_AP_SSID
-#define CONFIG_AP_SSID "ceratina-access-point"
-#endif
-
-#ifndef CONFIG_AP_PASSWORD
-#define CONFIG_AP_PASSWORD "apidaesystems"
-#endif
-
-#ifndef CONFIG_AP_CHANNEL
-#define CONFIG_AP_CHANNEL 1
-#endif
-
-#ifndef CONFIG_WIFI_STA_RETRY_MS
-#define CONFIG_WIFI_STA_RETRY_MS 10000
-#endif
-
-#define CONFIG_WIFI_SSID_IEEE_802_11_MAX_LENGTH 32
-#define CONFIG_WIFI_PASS_IEEE_802_11_MAX_LENGTH 64
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Telnet Shell
-// ─────────────────────────────────────────────────────────────────────────────
-
-#define CONFIG_TELNET_ENABLED        1
-#define CONFIG_TELNET_PORT           23
-#define CONFIG_TELNET_RING_SIZE      512
-#define CONFIG_TELNET_WRITE_BUF      1024
-#define CONFIG_TELNET_KEEPALIVE_MS   3000
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  ArduinoOTA
-// ─────────────────────────────────────────────────────────────────────────────
-
-#define CONFIG_OTA_ENABLED           0
-#define CONFIG_OTA_PORT              3232
-#define CONFIG_OTA_PASSWORD          ""
-#define CONFIG_OTA_SD_PATH           "/update.bin"
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Time / NTP
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_NTP_SERVER
-#define CONFIG_NTP_SERVER "pool.ntp.org"
-#endif
-
-#ifndef CONFIG_NTP_SERVER_2
-#define CONFIG_NTP_SERVER_2 "time.nist.gov"
-#endif
-
-// POSIX TZ string — handles DST automatically
-// https://github.com/esp8266/Arduino/blob/master/cores/esp8266/TZ.h
-#ifndef CONFIG_TIME_ZONE
-#define CONFIG_TIME_ZONE "EST5EDT,M3.2.0/2,M11.1.0/2"
-#endif
-
-#ifndef CONFIG_NTP_SYNC_TIMEOUT_MS
-#define CONFIG_NTP_SYNC_TIMEOUT_MS 10000
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  HTTP
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_HTTP_PORT
-#define CONFIG_HTTP_PORT 80
-#endif
-
-#ifndef CONFIG_HTTP_AUTH_ENABLED
-#define CONFIG_HTTP_AUTH_ENABLED 0
-#endif
-
-#ifndef CONFIG_HTTP_AUTH_USER
-#define CONFIG_HTTP_AUTH_USER CONFIG_SSH_USER
-#endif
-
-#ifndef CONFIG_HTTP_AUTH_PASSWORD
-#define CONFIG_HTTP_AUTH_PASSWORD CONFIG_SSH_USER
-#endif
-
-#ifndef CONFIG_HTTP_AUTH_REALM
-#define CONFIG_HTTP_AUTH_REALM "ceratina"
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Shell
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_SHELL_BUF_IN
-#define CONFIG_SHELL_BUF_IN 256
-#endif
-
-#ifndef CONFIG_SHELL_BUF_OUT
-#define CONFIG_SHELL_BUF_OUT 256
-#endif
-
-#ifndef CONFIG_SHELL_PATH_MAX
-#define CONFIG_SHELL_PATH_MAX 128
-#endif
-
-#ifndef CONFIG_SHELL_HOSTNAME_SIZE
-#define CONFIG_SHELL_HOSTNAME_SIZE 32
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  I2C
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_I2C_0_SDA_GPIO
-#define CONFIG_I2C_0_SDA_GPIO 15
-#endif
-
-#ifndef CONFIG_I2C_0_SCL_GPIO
-#define CONFIG_I2C_0_SCL_GPIO 16
-#endif
-
-#ifndef CONFIG_I2C_1_SDA_GPIO
-#define CONFIG_I2C_1_SDA_GPIO 17
-#endif
-
-#ifndef CONFIG_I2C_1_SCL_GPIO
-#define CONFIG_I2C_1_SCL_GPIO 18
-#endif
-
-#ifndef CONFIG_I2C_FREQUENCY_KHZ
-#define CONFIG_I2C_FREQUENCY_KHZ 100
-#endif
-
-#ifndef CONFIG_I2C_RELAY_POWER_GPIO
-#define CONFIG_I2C_RELAY_POWER_GPIO 5
-#endif
-
-#define CONFIG_I2C_ADDR_MIN 1
-#define CONFIG_I2C_ADDR_MAX 127
-
-#ifndef CONFIG_I2C_MUX_ADDR
-#define CONFIG_I2C_MUX_ADDR 0x70
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  EEPROM (AT24C32 on I2C bus 1)
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_EEPROM_I2C_ADDR
-#define CONFIG_EEPROM_I2C_ADDR 0x50
-#endif
-
-#ifndef CONFIG_EEPROM_PAGE_SIZE
-#define CONFIG_EEPROM_PAGE_SIZE 32
-#endif
-
-#ifndef CONFIG_EEPROM_TOTAL_SIZE
-#define CONFIG_EEPROM_TOTAL_SIZE 4096
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Temperature / Humidity (SEN0546 / CHT832X behind TCA9548A mux)
-//
-//  SHT31-compatible wire protocol: write [0x24, 0x00], wait 60ms, read 6 bytes.
-//  Sensors discovered dynamically by probing each mux channel for the I2C addr.
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_TEMPERATURE_HUMIDITY_I2C_ADDR
-#define CONFIG_TEMPERATURE_HUMIDITY_I2C_ADDR 0x44
-#endif
-
-#ifndef CONFIG_TEMPERATURE_HUMIDITY_MAX_SENSORS
-#define CONFIG_TEMPERATURE_HUMIDITY_MAX_SENSORS 8
-#endif
-
-#ifndef CONFIG_TEMPERATURE_HUMIDITY_READ_DELAY_MS
-#define CONFIG_TEMPERATURE_HUMIDITY_READ_DELAY_MS 100
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Voltage Monitor (ADS1115 on Wire1)
-//
-//  Adafruit ADS1X15 library. 4-channel single-ended reads via I2C.
-//  Mux channel is auto-discovered via tca9548a_find() in ads1115_begin().
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_VOLTAGE_MONITOR_I2C_ADDR
-#define CONFIG_VOLTAGE_MONITOR_I2C_ADDR 0x48
-#endif
-
-#ifndef CONFIG_VOLTAGE_MONITOR_CHANNEL_COUNT
-#define CONFIG_VOLTAGE_MONITOR_CHANNEL_COUNT 4
-#endif
-
-// Mux channel is auto-discovered via tca9548a_find() in ads1115_begin()
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  SD Card
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_SD_CS_GPIO
-#define CONFIG_SD_CS_GPIO 10
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  SCP
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_SCP_BUF_SIZE
-#define CONFIG_SCP_BUF_SIZE 4096
-#endif
-
-#ifndef CONFIG_WS_SHELL_RING_SIZE
-#define CONFIG_WS_SHELL_RING_SIZE 512
-#endif
-
-#ifndef CONFIG_WS_SHELL_WRITE_BUF
-#define CONFIG_WS_SHELL_WRITE_BUF 1024
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  BLE Provisioning
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_PROV_ENABLED
-#define CONFIG_PROV_ENABLED 0
-#endif
-
-#ifndef CONFIG_PROV_POP
-#define CONFIG_PROV_POP "ceratina"
-#endif
-
-#ifndef CONFIG_PROV_SERVICE_UUID
-#define CONFIG_PROV_SERVICE_UUID "ceaa0001-b5a3-f393-e0a9-e50e24dcca9e"
-#endif
-
-#ifndef CONFIG_PROV_CONFIG_UUID
-#define CONFIG_PROV_CONFIG_UUID "ceaa0002-b5a3-f393-e0a9-e50e24dcca9e"
-#endif
-
-#ifndef CONFIG_PROV_NVS_NAMESPACE
-#define CONFIG_PROV_NVS_NAMESPACE "prov"
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Physical Buttons (Connector Shield)
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_BUTTON_1_GPIO
-#define CONFIG_BUTTON_1_GPIO 35
-#endif
-
-#ifndef CONFIG_BUTTON_2_GPIO
-#define CONFIG_BUTTON_2_GPIO 4
-#endif
-
-#ifndef CONFIG_BUTTON_3_GPIO
-#define CONFIG_BUTTON_3_GPIO 42
-#endif
-
-#ifndef CONFIG_BUTTON_COUNT
-#define CONFIG_BUTTON_COUNT 3
-#endif
-
-#ifndef CONFIG_BUTTON_DEBOUNCE_MS
-#define CONFIG_BUTTON_DEBOUNCE_MS 50
-#endif
-
-#ifndef CONFIG_BUTTON_LONG_PRESS_MS
-#define CONFIG_BUTTON_LONG_PRESS_MS 1000
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  BLE Runtime (NUS shell, sensor characteristics)
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_BLE_ENABLED
-#define CONFIG_BLE_ENABLED 0
-#endif
-
-#ifndef CONFIG_BLE_PASSKEY
-#define CONFIG_BLE_PASSKEY 123456
-#endif
-
-#ifndef CONFIG_BLE_MAX_CLIENTS
-#define CONFIG_BLE_MAX_CLIENTS 2
-#endif
-
-#ifndef CONFIG_BLE_RING_SIZE
-#define CONFIG_BLE_RING_SIZE 512
-#endif
-
-#ifndef CONFIG_BLE_WRITE_BUF
-#define CONFIG_BLE_WRITE_BUF 512
-#endif
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  SMTP Email
-//
+namespace config {
+
+inline constexpr const char* HOSTNAME = "ceratina";
+inline constexpr const char* PLATFORM = "esp32s3";
+
+// ── Neopixel ─────────────────────────────────────────────────────────────────
+
+namespace led {
+    inline constexpr uint8_t  GPIO       = 38;
+    inline constexpr uint8_t  COUNT      = 1;
+    inline constexpr uint8_t  BRIGHTNESS = 255;
+}
+
+// ── System ───────────────────────────────────────────────────────────────────
+
+namespace system {
+    inline constexpr uint32_t TASK_STACK          = 8192;
+    inline constexpr uint32_t SERIAL_BAUD         = 115200;
+    inline constexpr uint16_t SHELL_SERVICE_MS    = 10;
+}
+
+// ── SSH ──────────────────────────────────────────────────────────────────────
+
+namespace ssh {
+    inline constexpr uint16_t PORT           = 22;
+    inline constexpr const char* HOSTKEY_PATH = "/.ssh/id_ed25519";
+    inline constexpr uint32_t TASK_STACK     = 32768;
+    inline constexpr uint16_t WRITE_BUF_SIZE = 1024;
+    inline constexpr uint16_t RING_SIZE      = 512;
+}
+
+// ── WiFi ─────────────────────────────────────────────────────────────────────
+
+namespace wifi {
+    inline constexpr uint16_t CONNECT_TIMEOUT_MS = 15000;
+    inline constexpr uint16_t POLL_MS            = 100;
+    inline constexpr uint16_t STA_RETRY_MS       = 10000;
+    inline constexpr const char* NVS_NAMESPACE   = "wifi";
+    inline constexpr uint8_t  SSID_MAX_LEN       = 32;
+    inline constexpr uint8_t  PASS_MAX_LEN       = 64;
+
+    namespace ap {
+        inline constexpr const char* SSID     = "ceratina-access-point";
+        inline constexpr const char* PASSWORD  = "apidaesystems";
+        inline constexpr uint8_t     CHANNEL   = 1;
+    }
+}
+
+// ── Telnet ────────────────────────────────────────────────────────────────────
+
+namespace telnet {
+    inline constexpr bool     ENABLED      = true;
+    inline constexpr uint16_t PORT         = 23;
+    inline constexpr uint16_t RING_SIZE    = 512;
+    inline constexpr uint16_t WRITE_BUF    = 1024;
+    inline constexpr uint16_t KEEPALIVE_MS = 3000;
+}
+
+// ── OTA / Update ─────────────────────────────────────────────────────────────
+
+namespace ota {
+    inline constexpr bool     ENABLED  = false;
+    inline constexpr uint16_t PORT     = 3232;
+    inline constexpr const char* PASSWORD = "";
+    inline constexpr const char* SD_PATH  = "/update.bin";
+}
+
+// ── Time / NTP ───────────────────────────────────────────────────────────────
+
+namespace sntp {
+    inline constexpr const char* SERVER_1       = "pool.ntp.org";
+    inline constexpr const char* SERVER_2       = "time.nist.gov";
+    inline constexpr const char* TIME_ZONE      = "EST5EDT,M3.2.0/2,M11.1.0/2";
+    inline constexpr uint16_t    SYNC_TIMEOUT_MS = 10000;
+}
+
+// ── HTTP ─────────────────────────────────────────────────────────────────────
+
+namespace http {
+    inline constexpr uint16_t PORT         = 80;
+    inline constexpr bool     AUTH_ENABLED = false;
+    inline constexpr const char* AUTH_USER     = CONFIG_SSH_USER;
+    inline constexpr const char* AUTH_PASSWORD = CONFIG_SSH_USER;
+    inline constexpr const char* AUTH_REALM    = "ceratina";
+}
+
+// ── Shell ────────────────────────────────────────────────────────────────────
+
+namespace shell {
+    inline constexpr uint16_t BUF_IN        = 256;
+    inline constexpr uint16_t BUF_OUT       = 256;
+    inline constexpr uint16_t MAX_PATH_LEN  = 128;
+    inline constexpr uint16_t HOSTNAME_SIZE = 32;
+}
+
+// ── I2C ──────────────────────────────────────────────────────────────────────
+
+namespace i2c {
+    struct BusConfig { uint8_t sda_gpio; uint8_t scl_gpio; };
+
+    inline constexpr BusConfig BUS_0           = {15, 16};
+    inline constexpr BusConfig BUS_1           = {17, 18};
+    inline constexpr uint32_t FREQUENCY_KHZ   = 100;
+    inline constexpr uint8_t  RELAY_POWER_GPIO = 5;
+    inline constexpr uint8_t  ADDR_MIN        = 1;
+    inline constexpr uint8_t  ADDR_MAX        = 127;
+    inline constexpr uint8_t  MUX_ADDR        = 0x70;
+}
+
+// ── EEPROM (AT24C32 on I2C bus 1) ────────────────────────────────────────────
+
+namespace eeprom {
+    inline constexpr uint8_t  I2C_ADDR   = 0x50;
+    inline constexpr uint16_t PAGE_SIZE  = 32;
+    inline constexpr uint16_t TOTAL_SIZE = 4096;
+}
+
+// ── Temperature / Humidity (CHT832X behind TCA9548A mux) ─────────────────────
+
+namespace temperature_humidity {
+    inline constexpr uint8_t  I2C_ADDR       = 0x44;
+    inline constexpr uint8_t  MAX_SENSORS    = 8;
+    inline constexpr uint16_t READ_DELAY_MS  = 100;
+}
+
+// ── Voltage Monitor (ADS1115 on Wire1) ───────────────────────────────────────
+
+namespace voltage {
+    inline constexpr uint8_t I2C_ADDR      = 0x48;
+    inline constexpr uint8_t CHANNEL_COUNT = 4;
+}
+
+// ── SCP / WebSocket Shell ────────────────────────────────────────────────────
+
+namespace scp {
+    inline constexpr uint16_t BUF_SIZE = 4096;
+}
+
+namespace ws_shell {
+    inline constexpr uint16_t RING_SIZE = 512;
+    inline constexpr uint16_t WRITE_BUF = 1024;
+}
+
+// ── BLE Provisioning ─────────────────────────────────────────────────────────
+
+namespace provisioning {
+    inline constexpr bool     ENABLED       = false;
+    inline constexpr const char* POP        = "ceratina";
+    inline constexpr const char* SERVICE_UUID = "ceaa0001-b5a3-f393-e0a9-e50e24dcca9e";
+    inline constexpr const char* CONFIG_UUID  = "ceaa0002-b5a3-f393-e0a9-e50e24dcca9e";
+    inline constexpr const char* NVS_NAMESPACE = "prov";
+}
+
+// ── Physical Buttons ─────────────────────────────────────────────────────────
+
+namespace buttons {
+    inline constexpr int8_t   GPIO_1         = -1;  // Reserved for PSRAM SPI
+    inline constexpr int8_t   GPIO_2         = 4;
+    inline constexpr int8_t   GPIO_3         = 42;
+    inline constexpr uint8_t  COUNT          = 3;
+    inline constexpr uint16_t DEBOUNCE_MS    = 50;
+    inline constexpr uint16_t LONG_PRESS_MS  = 1000;
+}
+
+// ── BLE Runtime ──────────────────────────────────────────────────────────────
+
+namespace ble {
+    inline constexpr bool     ENABLED     = false;
+    inline constexpr uint32_t PASSKEY     = 123456;
+    inline constexpr uint8_t  MAX_CLIENTS = 2;
+    inline constexpr uint16_t RING_SIZE   = 512;
+    inline constexpr uint16_t WRITE_BUF   = 512;
+}
+
+// ── SMTP Email ───────────────────────────────────────────────────────────────
 //  Edit these values directly. Password is stored in NVS (key below).
-//  Set CONFIG_SMTP_ENABLED to 1 and fill in your SMTP server details.
+
+namespace smtp {
+    inline constexpr bool     ENABLED          = false;
+    inline constexpr const char* HOST           = "";
+    inline constexpr uint16_t PORT             = 587;
+    inline constexpr const char* DOMAIN         = "";
+    inline constexpr const char* FROM_EMAIL     = "";
+    inline constexpr const char* FROM_NAME      = "";
+    inline constexpr const char* TO_EMAIL       = "";
+    inline constexpr const char* LOGIN_EMAIL    = "";
+    inline constexpr const char* SUBJECT_PREFIX = "[ceratina]";
+    inline constexpr bool     AUTH_ENABLED     = false;
+    inline constexpr bool     SSL_ENABLED      = false;
+    inline constexpr bool     STARTTLS_ENABLED = false;
+    inline constexpr bool     TEST_ENABLED     = false;
+    inline constexpr const char* NVS_KEY       = "SMTP_PASSWORD";
+}
+
+// ── CloudEvents ──────────────────────────────────────────────────────────────
+
+namespace cloudevents {
+    inline constexpr const char* TENANT = "default-tenant";
+    inline constexpr const char* SITE   = "default-site";
+}
+
+} // namespace config
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Compile-time config validation
 // ─────────────────────────────────────────────────────────────────────────────
 
-#define CONFIG_SMTP_ENABLED          0
-#define CONFIG_SMTP_HOST             ""
-#define CONFIG_SMTP_PORT             587
-#define CONFIG_SMTP_DOMAIN           ""
-#define CONFIG_SMTP_FROM_EMAIL       ""
-#define CONFIG_SMTP_FROM_NAME        ""
-#define CONFIG_SMTP_TO_EMAIL         ""
-#define CONFIG_SMTP_LOGIN_EMAIL      ""
-#define CONFIG_SMTP_SUBJECT_PREFIX   "[ceratina]"
-#define CONFIG_SMTP_AUTH_ENABLED     0
-#define CONFIG_SMTP_SSL_ENABLED      0
-#define CONFIG_SMTP_STARTTLS_ENABLED 0
-#define CONFIG_SMTP_TEST_ENABLED     0
-#define CONFIG_SMTP_NVS_KEY          "SMTP_PASSWORD"
+static_assert(config::led::GPIO < 48, "Invalid neopixel GPIO");
+static_assert(config::ssh::PORT > 0, "Invalid SSH port");
+static_assert(config::http::PORT > 0, "Invalid HTTP port");
+static_assert(config::telnet::PORT > 0, "Invalid telnet port");
+static_assert(config::i2c::BUS_0.sda_gpio != config::i2c::BUS_0.scl_gpio,
+              "I2C bus 0: SDA and SCL must differ");
+static_assert(config::i2c::BUS_1.sda_gpio != config::i2c::BUS_1.scl_gpio,
+              "I2C bus 1: SDA and SCL must differ");
+static_assert(config::wifi::SSID_MAX_LEN == 32, "IEEE 802.11 SSID max is 32");
+static_assert(config::wifi::PASS_MAX_LEN == 64, "IEEE 802.11 pass max is 64");
+static_assert(config::shell::BUF_IN >= 64, "Shell input buffer too small");
+static_assert(config::shell::BUF_OUT >= 64, "Shell output buffer too small");
+static_assert(config::buttons::COUNT <= 8, "Too many buttons");
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  CloudEvents
+//  Preprocessor guards (booleans can't be used in #if)
 // ─────────────────────────────────────────────────────────────────────────────
 
-#ifndef CONFIG_CLOUDEVENTS_TENANT
-#define CONFIG_CLOUDEVENTS_TENANT "default-tenant"
-#endif
-
-#ifndef CONFIG_CLOUDEVENTS_SITE
-#define CONFIG_CLOUDEVENTS_SITE "default-site"
-#endif
+#define CERATINA_TELNET_ENABLED    1
+#define CERATINA_OTA_ENABLED       0
+#define CERATINA_PROV_ENABLED      0
+#define CERATINA_BLE_ENABLED       0
+#define CERATINA_SMTP_ENABLED      0
+#define CERATINA_SMTP_TEST_ENABLED 0
+#define CERATINA_HTTP_AUTH_ENABLED  0
 
 #endif // CONFIG_H

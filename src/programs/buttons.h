@@ -2,12 +2,16 @@
 
 #include <stdint.h>
 
-typedef void (*button_callback_t)(uint8_t button_index);
+typedef void (*ButtonCallback)(uint8_t button_index);
 
-void buttons_init(void);
-void buttons_service(void);
+namespace programs::buttons {
 
-void buttons_on_press(button_callback_t cb);
-void buttons_on_long_press(button_callback_t cb);
+void initialize() noexcept;
+void service() noexcept;
 
-bool buttons_is_pressed(uint8_t index);
+void onPress(ButtonCallback cb) noexcept;
+void onLongPress(ButtonCallback cb) noexcept;
+
+[[nodiscard]] bool isPressed(uint8_t index) noexcept;
+
+}

@@ -1,4 +1,4 @@
-#include "co2.h"
+#include "carbon_dioxide.h"
 #include "../config.h"
 
 #include <Arduino.h>
@@ -24,16 +24,11 @@ static bool measuring = false;
 #define CO2_MAX_PROBE_ATTEMPTS 3
 static uint8_t probe_attempts = 0;
 
-bool co2_init(void) {
+bool sensors::carbon_dioxide::initialize() noexcept {
   scd30.begin(Wire1, CONFIG_CO2_SCD30_ADDR);
   scd4x.begin(Wire1, CONFIG_CO2_SCD4X_ADDR);
   initialized = true;
   backend = CO2_NONE;
-  return true;
-}
-
-bool co2_begin(void) {
-  if (!initialized) return false;
 
   uint8_t major, minor;
   if (scd30.readFirmwareVersion(major, minor) == 0) {
@@ -68,67 +63,67 @@ bool co2_begin(void) {
   return false;
 }
 
-bool co2_read(Co2Reading *reading) {
-  if (!reading) return false;
+bool sensors::carbon_dioxide::accessReading(CO2SensorData *sensor_data) noexcept {
+  if (!sensor_data) return false;
 
   if (backend == CO2_NONE) {
     if (probe_attempts >= CO2_MAX_PROBE_ATTEMPTS) {
-      reading->ok = false;
-      reading->model = "none";
+      sensor_data->ok = false;
+      sensor_data->model = "none";
       return false;
     }
     probe_attempts++;
-    if (!co2_begin()) {
-      reading->ok = false;
-      reading->model = "none";
+    if (!sensors::carbon_dioxide::initialize()) {
+      sensor_data->ok = false;
+      sensor_data->model = "none";
       return false;
     }
     probe_attempts = 0;
   }
 
   if (backend == CO2_SCD30) {
-    reading->model = "SCD30";
+    sensor_data->model = "SCD30";
     uint16_t ready = 0;
     scd30.getDataReady(ready);
-    if (!ready) { reading->ok = false; return false; }
+    if (!ready) { sensor_data->ok = false; return false; }
 
     float co2, temp, hum;
     if (scd30.readMeasurementData(co2, temp, hum) == 0) {
-      reading->co2_ppm = co2;
-      reading->temperature_celsius = temp;
-      reading->relative_humidity_percent = hum;
-      reading->ok = true;
+      sensor_data->co2_ppm = co2;
+      sensor_data->temperature_celsius = temp;
+      sensor_data->relative_humidity_percent = hum;
+      sensor_data->ok = true;
       return true;
     }
-    reading->ok = false;
+    sensor_data->ok = false;
     return false;
   }
 
   if (backend == CO2_SCD4X) {
-    reading->model = "SCD4x";
+    sensor_data->model = "SCD4x";
     bool ready = false;
     scd4x.getDataReadyStatus(ready);
-    if (!ready) { reading->ok = false; return false; }
+    if (!ready) { sensor_data->ok = false; return false; }
 
     uint16_t co2;
     float temp, hum;
     if (scd4x.readMeasurement(co2, temp, hum) == 0) {
-      reading->co2_ppm = (float)co2;
-      reading->temperature_celsius = temp;
-      reading->relative_humidity_percent = hum;
-      reading->ok = true;
+      sensor_data->co2_ppm = (float)co2;
+      sensor_data->temperature_celsius = temp;
+      sensor_data->relative_humidity_percent = hum;
+      sensor_data->ok = true;
       return true;
     }
-    reading->ok = false;
+    sensor_data->ok = false;
     return false;
   }
 
-  reading->ok = false;
-  reading->model = "none";
+  sensor_data->ok = false;
+  sensor_data->model = "none";
   return false;
 }
 
-bool co2_start(void) {
+bool sensors::carbon_dioxide::enable() noexcept {
   if (backend == CO2_SCD30) {
     if (scd30.startPeriodicMeasurement(0) == 0) { measuring = true; return true; }
   } else if (backend == CO2_SCD4X) {
@@ -137,7 +132,7 @@ bool co2_start(void) {
   return false;
 }
 
-bool co2_stop(void) {
+bool sensors::carbon_dioxide::disable() noexcept {
   if (backend == CO2_SCD30) {
     if (scd30.stopPeriodicMeasurement() == 0) { measuring = false; return true; }
   } else if (backend == CO2_SCD4X) {
@@ -146,7 +141,7 @@ bool co2_stop(void) {
   return false;
 }
 
-bool co2_get_config(Co2Config *config) {
+bool sensors::carbon_dioxide::accessConfig(Co2Config *config) noexcept {
   if (!config) return false;
 
   config->measuring = measuring;
@@ -182,32 +177,32 @@ bool co2_get_config(Co2Config *config) {
   return false;
 }
 
-bool co2_set_measurement_interval(uint16_t seconds) {
+bool sensors::carbon_dioxide::configureInterval(uint16_t seconds) noexcept {
   if (backend == CO2_SCD30) return scd30.setMeasurementInterval(seconds) == 0;
   return false;
 }
 
-bool co2_set_auto_calibration(bool enabled) {
+bool sensors::carbon_dioxide::configureAutoCalibration(bool enabled) noexcept {
   if (backend == CO2_SCD30) return scd30.activateAutoCalibration(enabled ? 1 : 0) == 0;
   return false;
 }
 
-bool co2_set_temperature_offset(float celsius) {
+bool sensors::carbon_dioxide::configureTemperatureOffset(float celsius) noexcept {
   if (backend == CO2_SCD30) return scd30.setTemperatureOffset((uint16_t)(celsius * 100)) == 0;
   return false;
 }
 
-bool co2_set_altitude(uint16_t meters) {
+bool sensors::carbon_dioxide::configureAltitude(uint16_t meters) noexcept {
   if (backend == CO2_SCD30) return scd30.setAltitudeCompensation(meters) == 0;
   return false;
 }
 
-bool co2_force_recalibration(uint16_t co2_reference_ppm) {
+bool sensors::carbon_dioxide::configureRecalibration(uint16_t co2_reference_ppm) noexcept {
   if (backend == CO2_SCD30) return scd30.forceRecalibration(co2_reference_ppm) == 0;
   return false;
 }
 
-bool co2_is_available(void) {
+bool sensors::carbon_dioxide::isAvailable() noexcept {
   return backend != CO2_NONE;
 }
 
@@ -217,44 +212,44 @@ bool co2_is_available(void) {
 
 static void co2_test_init(void) {
   TEST_MESSAGE("initializing CO2 module");
-  Wire1.begin(CONFIG_I2C_1_SDA_GPIO, CONFIG_I2C_1_SCL_GPIO, CONFIG_I2C_FREQUENCY_KHZ * 1000);
-  TEST_ASSERT_TRUE(co2_init());
+  Wire1.begin(config::i2c::BUS_1.sda_gpio, config::i2c::BUS_1.scl_gpio, config::i2c::FREQUENCY_KHZ * 1000);
+  TEST_ASSERT_TRUE(sensors::carbon_dioxide::initialize());
   TEST_MESSAGE("CO2 module initialized");
 }
 
 static void co2_test_detect(void) {
-  if (!co2_begin()) {
+  if (!sensors::carbon_dioxide::isAvailable()) {
     TEST_IGNORE_MESSAGE("no CO2 sensor connected");
     return;
   }
   Co2Config config;
-  co2_get_config(&config);
+  sensors::carbon_dioxide::accessConfig(&config);
   char msg[64];
   snprintf(msg, sizeof(msg), "detected: %s", config.model);
   TEST_MESSAGE(msg);
 }
 
 static void co2_test_read(void) {
-  if (!co2_is_available()) {
+  if (!sensors::carbon_dioxide::isAvailable()) {
     TEST_IGNORE_MESSAGE("no CO2 sensor available");
     return;
   }
   delay(6000);
-  Co2Reading reading = {};
-  bool ok = co2_read(&reading);
+  CO2SensorData sensor_data = {};
+  bool ok = sensors::carbon_dioxide::accessReading(&sensor_data);
   if (!ok) {
     TEST_IGNORE_MESSAGE("read not ready yet");
     return;
   }
   char msg[128];
   snprintf(msg, sizeof(msg), "%s: %.1f ppm, %.1f C, %.1f %%",
-           reading.model, reading.co2_ppm, reading.temperature_celsius,
-           reading.relative_humidity_percent);
+           sensor_data.model, sensor_data.co2_ppm, sensor_data.temperature_celsius,
+           sensor_data.relative_humidity_percent);
   TEST_MESSAGE(msg);
-  TEST_ASSERT_GREATER_THAN(0.0f, reading.co2_ppm);
+  TEST_ASSERT_GREATER_THAN(0.0f, sensor_data.co2_ppm);
 }
 
-void co2_run_tests(void) {
+void sensors::carbon_dioxide::test() noexcept {
   it("user initializes the CO2 module", co2_test_init);
   it("user detects a CO2 sensor", co2_test_detect);
   it("user reads CO2 data", co2_test_read);

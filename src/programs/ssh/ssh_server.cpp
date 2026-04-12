@@ -1,7 +1,8 @@
 #include "ssh_server.h"
 #include "../shell/shell.h"
 #include "../shell/microfetch.h"
-#include "../../drivers/neopixel.h"
+#include "../led.h"
+#include <ColorFormat.h>
 
 #include <Arduino.h>
 #include <LittleFS.h>
@@ -22,11 +23,11 @@ static struct _reent reent_data_esp32;
 
 static const char *ssh_user     = CONFIG_SSH_USER;
 static const char *ssh_password = CONFIG_SSH_USER;
-static const char *ssh_hostkey  = CONFIG_SSH_HOSTKEY_PATH;
-static const int   ssh_port    = CONFIG_SSH_PORT;
+static const char *ssh_hostkey  = config::ssh::HOSTKEY_PATH;
+static const int   ssh_port    = config::ssh::PORT;
 
 static String ssh_hostkey_vfs(void) {
-  return String(LittleFS.mountpoint()) + CONFIG_SSH_HOSTKEY_PATH;
+  return String(LittleFS.mountpoint()) + config::ssh::HOSTKEY_PATH;
 }
 
 //------------------------------------------
@@ -40,7 +41,7 @@ static volatile bool session_alive = true;
 //  Ring buffer (SSH channel → MicroShell)
 //------------------------------------------
 
-static char ssh_ring[CONFIG_SSH_RING_SIZE];
+static char ssh_ring[config::ssh::RING_SIZE];
 static volatile int ssh_ring_head = 0;
 static volatile int ssh_ring_tail = 0;
 
@@ -50,7 +51,7 @@ static void ssh_ring_reset(void) {
 }
 
 static void ssh_ring_push(char c) {
-  int next = (ssh_ring_head + 1) % CONFIG_SSH_RING_SIZE;
+  int next = (ssh_ring_head + 1) % config::ssh::RING_SIZE;
   if (next != ssh_ring_tail) {
     ssh_ring[ssh_ring_head] = c;
     ssh_ring_head = next;
@@ -60,14 +61,14 @@ static void ssh_ring_push(char c) {
 static int ssh_ring_pop(char *c) {
   if (ssh_ring_tail == ssh_ring_head) return 0;
   *c = ssh_ring[ssh_ring_tail];
-  ssh_ring_tail = (ssh_ring_tail + 1) % CONFIG_SSH_RING_SIZE;
+  ssh_ring_tail = (ssh_ring_tail + 1) % config::ssh::RING_SIZE;
   return 1;
 }
 
 //------------------------------------------
 //  MicroShell instance for SSH
 //------------------------------------------
-static char ssh_write_buf[CONFIG_SSH_WRITE_BUF_SIZE];
+static char ssh_write_buf[config::ssh::WRITE_BUF_SIZE];
 static int ssh_write_buf_pos = 0;
 
 static void ssh_write_flush(void) {
@@ -87,7 +88,7 @@ static int ssh_shell_write(struct ush_object *self, char ch) {
   (void)self;
   if (!active_chan) return 0;
   ssh_write_buf[ssh_write_buf_pos++] = ch;
-  if (ssh_write_buf_pos >= CONFIG_SSH_WRITE_BUF_SIZE)
+  if (ssh_write_buf_pos >= config::ssh::WRITE_BUF_SIZE)
     ssh_write_flush();
   return 1;
 }
@@ -97,8 +98,8 @@ static const struct ush_io_interface ssh_shell_io = {
   .write = ssh_shell_write,
 };
 
-static char ssh_shell_in_buf[CONFIG_SHELL_BUF_IN];
-static char ssh_shell_out_buf[CONFIG_SHELL_BUF_OUT];
+static char ssh_shell_in_buf[config::shell::BUF_IN];
+static char ssh_shell_out_buf[config::shell::BUF_OUT];
 static struct ush_object ssh_ush;
 
 static const struct ush_descriptor ssh_shell_desc = {
@@ -107,14 +108,14 @@ static const struct ush_descriptor ssh_shell_desc = {
   .input_buffer_size = sizeof(ssh_shell_in_buf),
   .output_buffer = ssh_shell_out_buf,
   .output_buffer_size = sizeof(ssh_shell_out_buf),
-  .path_max_length = CONFIG_SHELL_PATH_MAX,
-  .hostname = shell_get_hostname(),
+  .path_max_length = config::shell::MAX_PATH_LEN,
+  .hostname = programs::shell::accessHostname(),
 };
 
 static void ssh_shell_setup(void) {
   ssh_ring_reset();
   ssh_write_buf_pos = 0;
-  shell_init_instance(&ssh_ush, &ssh_shell_desc);
+  programs::shell::initInstance(&ssh_ush, &ssh_shell_desc);
 }
 
 //------------------------------------------
@@ -220,7 +221,7 @@ static bool ssh_ensure_hostkey(void) {
 //------------------------------------------
 //  Exit
 //------------------------------------------
-bool ssh_server_request_exit(struct ush_object *self) {
+bool services::sshd::requestExit(struct ush_object *self) noexcept {
   if (self != &ssh_ush) return false;
   session_alive = false;
   return true;
@@ -267,7 +268,7 @@ static void ssh_server_task(void *pvParameters) {
     }
 
     Serial.println(F("[ssh] client connected"));
-    neopixel_white();
+    LED.set(RGB_WHITE);
 
     if (ssh_handle_key_exchange(session) != SSH_OK) {
       Serial.printf("[ssh] key exchange error: %s\n", ssh_get_error(session));
@@ -333,7 +334,7 @@ static void ssh_server_task(void *pvParameters) {
     Serial.println(F("[ssh] shell session started"));
     ssh_shell_setup();
 
-    const char *motd = microfetch_generate();
+    const char *motd = programs::shell::microfetch::generate();
     ssh_channel_write(active_chan, motd, strlen(motd));
 
     while (session_alive) {
@@ -359,19 +360,19 @@ static void ssh_server_task(void *pvParameters) {
     ssh_free(session);
 
     Serial.println(F("[ssh] ready for next connection"));
-    neopixel_green();
+    LED.set(RGB_GREEN);
   }
 }
 
 //------------------------------------------
 //  Public API
 //------------------------------------------
-bool ssh_server_start(void) {
+bool services::sshd::initialize() noexcept {
   if (LittleFS.totalBytes() == 0) {
     Serial.println(F("[ssh] LittleFS not mounted — cannot start"));
     return false;
   }
-  xTaskCreatePinnedToCore(ssh_server_task, "ssh", CONFIG_SSH_TASK_STACK,
+  xTaskCreatePinnedToCore(ssh_server_task, "ssh", config::ssh::TASK_STACK,
                           NULL, 2, NULL, 1);
   return true;
 }
@@ -443,24 +444,24 @@ static void ssh_server_test_bind_configures(void) {
 static void ssh_server_test_config_defaults(void) {
   TEST_MESSAGE("user verifies SSH server configuration defaults");
 
-  TEST_ASSERT_EQUAL_INT_MESSAGE(22, CONFIG_SSH_PORT,
+  TEST_ASSERT_EQUAL_INT_MESSAGE(22, config::ssh::PORT,
     "device: default SSH port should be 22");
   TEST_ASSERT_NOT_NULL_MESSAGE(CONFIG_SSH_USER,
     "device: default SSH user must not be NULL");
   TEST_ASSERT_NOT_EMPTY_MESSAGE(CONFIG_SSH_USER,
     "device: default SSH user must not be empty");
-  TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE(10240, CONFIG_SSH_TASK_STACK,
+  TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE(10240, config::ssh::TASK_STACK,
     "device: SSH task stack must be >= 10240 for libssh key exchange");
 
-  TEST_ASSERT_NOT_NULL_MESSAGE(CONFIG_SSH_HOSTKEY_PATH,
+  TEST_ASSERT_NOT_NULL_MESSAGE(config::ssh::HOSTKEY_PATH,
     "device: host key path must not be NULL");
-  TEST_ASSERT_NOT_EMPTY_MESSAGE(CONFIG_SSH_HOSTKEY_PATH,
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(config::ssh::HOSTKEY_PATH,
     "device: host key path must not be empty");
 
   TEST_MESSAGE("configuration defaults are sane");
 }
 
-void ssh_server_run_tests(void) {
+void services::sshd::test() noexcept {
   it("user observes that libssh initializes without crashing",
      ssh_server_test_libssh_initializes);
   it("user observes that an ed25519 host key can be generated in memory",

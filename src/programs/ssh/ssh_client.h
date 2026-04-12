@@ -3,6 +3,10 @@
 
 #include <microshell.h>
 
-void ssh_client_commands_register(struct ush_object *ush);
+namespace programs::ssh_client {
+
+void registerCommands(struct ush_object *ush);
+
+}
 
 #endif // SSH_CLIENT_H

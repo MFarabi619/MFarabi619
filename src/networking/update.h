@@ -4,11 +4,15 @@
 #include "../config.h"
 #include <stddef.h>
 
-bool update_from_sd(const char *path = CONFIG_OTA_SD_PATH);
-bool update_from_url(const char *url, const char *cert_pem = nullptr);
-bool update_can_rollback(void);
-bool update_rollback(void);
+namespace networking::update {
 
-void update_check_sd_on_boot(void);
+bool applyFromSD(const char *path = config::ota::SD_PATH) noexcept;
+bool applyFromURL(const char *url, const char *cert_pem = nullptr) noexcept;
+[[nodiscard]] bool canRollback() noexcept;
+bool rollback() noexcept;
+
+void checkSDOnBoot() noexcept;
+
+} // namespace networking::update
 
 #endif

@@ -60,7 +60,7 @@ static struct ush_node_object sd_node;
 
 void dev_sd_mount(struct ush_object *ush) {
   // Try to initialize SD card
-  if (SD.begin(CONFIG_SD_CS_GPIO)) {
+  if (SD.begin()) {
     sd_initialized = true;
     Serial.printf("[sd] mounted: %s, %llu MB\n",
                   SD.cardType() == CARD_SDHC ? "SDHC" : "SD",
@@ -80,9 +80,11 @@ void dev_sd_mount(struct ush_object *ush) {
 
 #include "../../../testing/it.h"
 
+namespace filesystems::sd { void test(void); }
+
 static void sd_test_mounts(void) {
   TEST_MESSAGE("user asks the device to mount the SD card");
-  bool ok = SD.begin(CONFIG_SD_CS_GPIO);
+  bool ok = SD.begin();
   if (!ok) {
     TEST_IGNORE_MESSAGE("skipped — no SD card inserted");
     return;
@@ -94,7 +96,7 @@ static void sd_test_mounts(void) {
 
 static void sd_test_reports_size(void) {
   TEST_MESSAGE("user checks SD card capacity");
-  if (!SD.begin(CONFIG_SD_CS_GPIO)) {
+  if (!SD.begin()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -108,7 +110,7 @@ static void sd_test_reports_size(void) {
 
 static void sd_test_write_read_roundtrip(void) {
   TEST_MESSAGE("user writes a test file and reads it back");
-  if (!SD.begin(CONFIG_SD_CS_GPIO)) {
+  if (!SD.begin()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -141,7 +143,7 @@ static void sd_test_write_read_roundtrip(void) {
 
 static void sd_test_append_mode(void) {
   TEST_MESSAGE("user verifies FILE_APPEND adds to file without truncating");
-  if (!SD.begin(CONFIG_SD_CS_GPIO)) {
+  if (!SD.begin()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -171,7 +173,7 @@ static void sd_test_append_mode(void) {
 
 static void sd_test_auto_create_parents(void) {
   TEST_MESSAGE("user verifies open with create=true auto-creates parent dirs");
-  if (!SD.begin(CONFIG_SD_CS_GPIO)) {
+  if (!SD.begin()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -195,7 +197,7 @@ static void sd_test_auto_create_parents(void) {
 
 static void sd_test_directory_listing(void) {
   TEST_MESSAGE("user lists files in a directory");
-  if (!SD.begin(CONFIG_SD_CS_GPIO)) {
+  if (!SD.begin()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -234,7 +236,7 @@ static void sd_test_directory_listing(void) {
 
 static void sd_test_buffered_write(void) {
   TEST_MESSAGE("user writes with custom buffer size for performance");
-  if (!SD.begin(CONFIG_SD_CS_GPIO)) {
+  if (!SD.begin()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -267,7 +269,7 @@ static void sd_test_buffered_write(void) {
   TEST_MESSAGE(msg);
 }
 
-void sd_run_tests(void) {
+void filesystems::sd::test(void) {
   it("user observes that the SD card mounts",
      sd_test_mounts);
   it("user observes that the SD card reports its size",

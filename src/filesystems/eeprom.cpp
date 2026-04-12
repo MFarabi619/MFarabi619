@@ -1,67 +1,57 @@
 #include "eeprom.h"
+#include "../config.h"
 
 #include <Arduino.h>
 #include <Wire.h>
 
-AT24C32 eeprom(CONFIG_EEPROM_I2C_ADDR, Wire1);
+AT24C32 filesystems::eeprom::IC(config::eeprom::I2C_ADDR, Wire1);
 
-bool eeprom_init(void) {
-  eeprom.read(0);
-  return eeprom.getLastError() == 0;
-}
+using filesystems::eeprom::IC;
 
-uint8_t eeprom_last_error(void) {
-  return eeprom.getLastError();
-}
-
-uint16_t eeprom_size(void) {
-  return eeprom.length();
+bool filesystems::eeprom::initialize() noexcept {
+  IC.read(0);
+  return IC.getLastError() == 0;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Tests — describe("EEPROM (AT24C32)")
+//  Tests
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
 #include "../testing/it.h"
+#include "../testing/i2c_helpers.h"
 
 #define TEST_BASE 3900
 
-static void ensure_wire1(void) {
-  Wire1.begin(CONFIG_I2C_1_SDA_GPIO, CONFIG_I2C_1_SCL_GPIO,
-              CONFIG_I2C_FREQUENCY_KHZ * 1000);
-  Wire1.setTimeOut(100);
-}
-
 static void eeprom_test_init(void) {
-  ensure_wire1();
+  test_ensure_wire1();
   TEST_MESSAGE("user asks the device to detect the EEPROM");
-  TEST_ASSERT_TRUE_MESSAGE(eeprom_init(),
+  TEST_ASSERT_TRUE_MESSAGE(filesystems::eeprom::initialize(),
     "device: EEPROM not detected on bus 1");
   char msg[48];
-  snprintf(msg, sizeof(msg), "EEPROM detected, size=%u bytes", eeprom_size());
+  snprintf(msg, sizeof(msg), "EEPROM detected, size=%u bytes", IC.length());
   TEST_MESSAGE(msg);
 }
 
 static void eeprom_test_write_read_byte(void) {
   TEST_MESSAGE("user writes and reads a byte");
-  eeprom_init();
-  eeprom.write(TEST_BASE, 0xAB);
-  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0xAB, eeprom.read(TEST_BASE),
+  filesystems::eeprom::initialize();
+  IC.write(TEST_BASE, 0xAB);
+  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0xAB, IC.read(TEST_BASE),
     "device: byte mismatch");
-  eeprom.write(TEST_BASE, 0x00);
+  IC.write(TEST_BASE, 0x00);
   TEST_MESSAGE("byte roundtrip verified");
 }
 
 static void eeprom_test_put_get_struct(void) {
   TEST_MESSAGE("user writes and reads a struct via put/get");
-  eeprom_init();
+  filesystems::eeprom::initialize();
 
   struct { uint16_t co2; float temp; } reading = { 415, 23.5f };
-  eeprom.put(TEST_BASE, reading);
+  IC.put(TEST_BASE, reading);
 
   struct { uint16_t co2; float temp; } readback = {0, 0.0f};
-  eeprom.get(TEST_BASE, readback);
+  IC.get(TEST_BASE, readback);
 
   TEST_ASSERT_EQUAL_UINT16_MESSAGE(415, readback.co2,
     "device: co2 mismatch in struct");
@@ -69,87 +59,86 @@ static void eeprom_test_put_get_struct(void) {
     "device: temp mismatch in struct");
 
   struct { uint16_t co2; float temp; } zeros = {0, 0.0f};
-  eeprom.put(TEST_BASE, zeros);
+  IC.put(TEST_BASE, zeros);
   TEST_MESSAGE("struct roundtrip verified");
 }
 
 static void eeprom_test_buffer_roundtrip(void) {
   TEST_MESSAGE("user writes and reads a buffer");
-  eeprom_init();
+  filesystems::eeprom::initialize();
 
   uint8_t write_buf[16];
   for (int i = 0; i < 16; i++) write_buf[i] = i + 0x10;
 
-  eeprom.writeBuffer(TEST_BASE + 20, write_buf, 16);
-  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, eeprom.getLastError(),
+  IC.writeBuffer(TEST_BASE + 20, write_buf, 16);
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, IC.getLastError(),
     "device: error on writeBuffer");
 
   uint8_t read_buf[16] = {0};
-  eeprom.readBuffer(TEST_BASE + 20, read_buf, 16);
+  IC.readBuffer(TEST_BASE + 20, read_buf, 16);
 
   TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE(write_buf, read_buf, 16,
     "device: buffer mismatch");
 
   uint8_t zeros[16] = {0};
-  eeprom.writeBuffer(TEST_BASE + 20, zeros, 16);
+  IC.writeBuffer(TEST_BASE + 20, zeros, 16);
   TEST_MESSAGE("buffer roundtrip verified");
 }
 
 static void eeprom_test_update_skips_same(void) {
   TEST_MESSAGE("user verifies update only writes if value differs");
-  eeprom_init();
+  filesystems::eeprom::initialize();
 
-  eeprom.write(TEST_BASE + 40, 0x42);
-  eeprom.update(TEST_BASE + 40, 0x42);
-  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, eeprom.getLastError(),
+  IC.write(TEST_BASE + 40, 0x42);
+  IC.update(TEST_BASE + 40, 0x42);
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, IC.getLastError(),
     "device: error on update with same value");
-  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x42, eeprom.read(TEST_BASE + 40),
+  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x42, IC.read(TEST_BASE + 40),
     "device: value changed after no-op update");
 
-  eeprom.update(TEST_BASE + 40, 0x99);
-  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x99, eeprom.read(TEST_BASE + 40),
+  IC.update(TEST_BASE + 40, 0x99);
+  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x99, IC.read(TEST_BASE + 40),
     "device: value not changed after real update");
 
-  eeprom.write(TEST_BASE + 40, 0x00);
+  IC.write(TEST_BASE + 40, 0x00);
   TEST_MESSAGE("update wear-reduction verified");
 }
 
 static void eeprom_test_last_byte(void) {
   TEST_MESSAGE("user writes and reads the last byte of EEPROM");
-  eeprom_init();
+  filesystems::eeprom::initialize();
 
-  uint16_t last = CONFIG_EEPROM_TOTAL_SIZE - 1;
-  eeprom.write(last, 0x77);
-  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x77, eeprom.read(last),
+  uint16_t last = config::eeprom::TOTAL_SIZE - 1;
+  IC.write(last, 0x77);
+  TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x77, IC.read(last),
     "device: last byte mismatch");
-  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, eeprom.getLastError(),
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, IC.getLastError(),
     "device: error on last byte access");
-  eeprom.write(last, 0x00);
+  IC.write(last, 0x00);
   TEST_MESSAGE("last byte roundtrip verified");
 }
 
 static void eeprom_test_page_boundary_buffer(void) {
   TEST_MESSAGE("user writes a buffer that crosses a page boundary");
-  eeprom_init();
+  filesystems::eeprom::initialize();
 
-  // Write 8 bytes starting 4 bytes before a page boundary
-  uint16_t addr = CONFIG_EEPROM_PAGE_SIZE - 4;
+  uint16_t addr = config::eeprom::PAGE_SIZE - 4;
   uint8_t write_buf[8] = {0xA0, 0xA1, 0xA2, 0xA3, 0xB0, 0xB1, 0xB2, 0xB3};
-  eeprom.writeBuffer(addr, write_buf, 8);
-  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, eeprom.getLastError(),
+  IC.writeBuffer(addr, write_buf, 8);
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, IC.getLastError(),
     "device: error on cross-page write");
 
   uint8_t read_buf[8] = {0};
-  eeprom.readBuffer(addr, read_buf, 8);
+  IC.readBuffer(addr, read_buf, 8);
   TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE(write_buf, read_buf, 8,
     "device: cross-page buffer mismatch");
 
   uint8_t zeros[8] = {0};
-  eeprom.writeBuffer(addr, zeros, 8);
+  IC.writeBuffer(addr, zeros, 8);
   TEST_MESSAGE("page boundary buffer verified");
 }
 
-void eeprom_run_tests(void) {
+void filesystems::eeprom::test() noexcept {
   it("user observes that the EEPROM is detected",
      eeprom_test_init);
   it("user observes that byte write/read roundtrips correctly",

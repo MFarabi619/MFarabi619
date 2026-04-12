@@ -1,7 +1,7 @@
 #include "ble.h"
 #include "../config.h"
 #include "../programs/shell/shell.h"
-#include "../drivers/ads1115.h"
+#include "../sensors/voltage.h"
 
 #include <Arduino.h>
 #include <BLEDevice.h>
@@ -28,14 +28,14 @@ static BLECharacteristic *sensor_voltage = nullptr;
 
 static volatile uint16_t ring_head = 0;
 static volatile uint16_t ring_tail = 0;
-static char ring_buf[CONFIG_BLE_RING_SIZE];
-static char write_buf[CONFIG_BLE_WRITE_BUF];
+static char ring_buf[config::ble::RING_SIZE];
+static char write_buf[config::ble::WRITE_BUF];
 static size_t write_buf_pos = 0;
 
 static void ring_reset(void) { ring_head = 0; ring_tail = 0; }
 
 static bool ring_push(char ch) {
-  uint16_t next = (ring_head + 1) % CONFIG_BLE_RING_SIZE;
+  uint16_t next = (ring_head + 1) % config::ble::RING_SIZE;
   if (next == ring_tail) return false;
   ring_buf[ring_head] = ch;
   ring_head = next;
@@ -45,12 +45,12 @@ static bool ring_push(char ch) {
 static int ring_pop(char *ch) {
   if (ring_head == ring_tail) return 0;
   *ch = ring_buf[ring_tail];
-  ring_tail = (ring_tail + 1) % CONFIG_BLE_RING_SIZE;
+  ring_tail = (ring_tail + 1) % config::ble::RING_SIZE;
   return 1;
 }
 
 static void write_flush(void) {
-  if (write_buf_pos == 0 || !nus_tx || ble_client_count() == 0) return;
+  if (write_buf_pos == 0 || !nus_tx || networking::ble::clientCount() == 0) return;
   nus_tx->setValue((uint8_t *)write_buf, write_buf_pos);
   nus_tx->notify();
   write_buf_pos = 0;
@@ -63,9 +63,9 @@ static int ble_shell_read(struct ush_object *self, char *ch) {
 
 static int ble_shell_write(struct ush_object *self, char ch) {
   (void)self;
-  if (ble_client_count() == 0) return 0;
+  if (networking::ble::clientCount() == 0) return 0;
   write_buf[write_buf_pos++] = ch;
-  if (write_buf_pos >= CONFIG_BLE_WRITE_BUF)
+  if (write_buf_pos >= config::ble::WRITE_BUF)
     write_flush();
   return 1;
 }
@@ -75,8 +75,8 @@ static const struct ush_io_interface ble_shell_io = {
   .write = ble_shell_write,
 };
 
-static char ble_in_buf[CONFIG_SHELL_BUF_IN];
-static char ble_out_buf[CONFIG_SHELL_BUF_OUT];
+static char ble_in_buf[config::shell::BUF_IN];
+static char ble_out_buf[config::shell::BUF_OUT];
 static struct ush_object ble_ush;
 
 static const struct ush_descriptor ble_shell_desc = {
@@ -85,11 +85,11 @@ static const struct ush_descriptor ble_shell_desc = {
   .input_buffer_size = sizeof(ble_in_buf),
   .output_buffer = ble_out_buf,
   .output_buffer_size = sizeof(ble_out_buf),
-  .path_max_length = CONFIG_SHELL_PATH_MAX,
-  .hostname = shell_get_hostname(),
+  .path_max_length = config::shell::MAX_PATH_LEN,
+  .hostname = programs::shell::accessHostname(),
 };
 
-class ServerCallbacks : public BLEServerCallbacks {
+class BleServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *server) override {
     uint32_t connected_clients = server->getConnectedCount();
     Serial.printf("[ble] client connected (%u total)\n", connected_clients);
@@ -97,10 +97,10 @@ class ServerCallbacks : public BLEServerCallbacks {
     if (connected_clients == 1) {
       ring_reset();
       write_buf_pos = 0;
-      shell_init_instance(&ble_ush, &ble_shell_desc);
+      programs::shell::initInstance(&ble_ush, &ble_shell_desc);
     }
 
-    if (connected_clients < CONFIG_BLE_MAX_CLIENTS) {
+    if (connected_clients < config::ble::MAX_CLIENTS) {
       BLEDevice::startAdvertising();
     } else {
       BLEDevice::stopAdvertising();
@@ -113,7 +113,7 @@ class ServerCallbacks : public BLEServerCallbacks {
   }
 };
 
-class RxCallbacks : public BLECharacteristicCallbacks {
+class BleRxCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *characteristic) override {
     String value = characteristic->getValue();
     for (size_t i = 0; i < value.length(); i++) {
@@ -122,17 +122,17 @@ class RxCallbacks : public BLECharacteristicCallbacks {
   }
 };
 
-void ble_init(void) {
-  BLEDevice::init(CONFIG_HOSTNAME);
+void networking::ble::initialize(void) {
+  BLEDevice::init(config::HOSTNAME);
   BLEDevice::setMTU(517);
 
   BLESecurity *pSecurity = new BLESecurity();
-  pSecurity->setPassKey(true, CONFIG_BLE_PASSKEY);
+  pSecurity->setPassKey(true, config::ble::PASSKEY);
   pSecurity->setCapability(ESP_IO_CAP_OUT);
   pSecurity->setAuthenticationMode(true, true, true);
 
   ble_server = BLEDevice::createServer();
-  ble_server->setCallbacks(new ServerCallbacks());
+  ble_server->setCallbacks(new BleServerCallbacks());
   ble_server->advertiseOnDisconnect(true);
 
   // Nordic UART Service
@@ -149,7 +149,7 @@ void ble_init(void) {
     | BLECharacteristic::PROPERTY_WRITE_AUTHEN
   );
   nus_rx->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
-  nus_rx->setCallbacks(new RxCallbacks());
+  nus_rx->setCallbacks(new BleRxCallbacks());
 
   nus->start();
 
@@ -180,13 +180,13 @@ void ble_init(void) {
   BLEDevice::startAdvertising();
 
   Serial.printf("[ble] advertising as %s (passkey: %u)\n",
-                CONFIG_HOSTNAME, CONFIG_BLE_PASSKEY);
+                config::HOSTNAME, config::ble::PASSKEY);
 }
 
 static uint32_t last_sensor_notify = 0;
 
-void ble_service(void) {
-  if (ble_client_count() == 0) return;
+void networking::ble::service(void) {
+  if (networking::ble::clientCount() == 0) return;
 
   while (ush_service(&ble_ush)) {}
   write_flush();
@@ -200,21 +200,22 @@ void ble_service(void) {
     sensor_status->setValue((uint8_t *)buf, strlen(buf));
     sensor_status->notify();
 
-    float volts[CONFIG_VOLTAGE_MONITOR_CHANNEL_COUNT];
-    if (ads1115_read(volts, CONFIG_VOLTAGE_MONITOR_CHANNEL_COUNT)) {
+    VoltageSensorData sensor_data = {};
+    if (sensors::voltage::access(&sensor_data)) {
       snprintf(buf, sizeof(buf), "[%.4f,%.4f,%.4f,%.4f]",
-               volts[0], volts[1], volts[2], volts[3]);
+               sensor_data.channel_volts[0], sensor_data.channel_volts[1],
+               sensor_data.channel_volts[2], sensor_data.channel_volts[3]);
       sensor_voltage->setValue((uint8_t *)buf, strlen(buf));
       sensor_voltage->notify();
     }
   }
 }
 
-bool ble_is_connected(void) {
-  return ble_client_count() > 0;
+bool networking::ble::isConnected(void) {
+  return networking::ble::clientCount() > 0;
 }
 
-int ble_client_count(void) {
+int networking::ble::clientCount(void) {
   return ble_server ? (int)ble_server->getConnectedCount() : 0;
 }
 
@@ -245,7 +246,7 @@ int ble_client_count(void) {
 //   TEST_MESSAGE("ble_service returned without error");
 // }
 
-void ble_run_tests(void) {
+void networking::ble::test(void) {
   // BLE tests are skipped by default.
   // The NimBLE stack consumes ~50KB heap on init, which risks
   // exhausting memory when running alongside 70+ other tests.

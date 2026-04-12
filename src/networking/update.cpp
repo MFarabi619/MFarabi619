@@ -1,4 +1,6 @@
 #include "update.h"
+#include "../programs/led.h"
+#include <ColorFormat.h>
 
 #include <Arduino.h>
 #include <Update.h>
@@ -12,8 +14,8 @@ static void log_progress(size_t current, size_t total) {
   Serial.printf("[update] %u%%\r", (unsigned)(current * 100 / total));
 }
 
-bool update_from_sd(const char *path) {
-  if (!SD.begin(CONFIG_SD_CS_GPIO)) {
+bool networking::update::applyFromSD(const char *path) noexcept {
+  if (!SD.begin()) {
     Serial.println(F("[update] SD card not available"));
     return false;
   }
@@ -35,6 +37,7 @@ bool update_from_sd(const char *path) {
   }
 
   Serial.printf("[update] found %s (%u bytes)\n", path, (unsigned)size);
+  LED.set(RGB_MAGENTA);
 
   // Check for companion .md5 file
   String md5_path = String(path) + ".md5";
@@ -79,13 +82,14 @@ bool update_from_sd(const char *path) {
   return true;
 }
 
-bool update_from_url(const char *url, const char *cert_pem) {
+bool networking::update::applyFromURL(const char *url, const char *cert_pem) noexcept {
   if (!url || url[0] == '\0') {
     Serial.println(F("[update] no URL provided"));
     return false;
   }
 
   Serial.printf("[update] fetching %s\n", url);
+  LED.set(RGB_MAGENTA);
 
   WiFiClientSecure client;
   if (cert_pem) {
@@ -128,11 +132,11 @@ bool update_from_url(const char *url, const char *cert_pem) {
   }
 }
 
-bool update_can_rollback(void) {
+bool networking::update::canRollback() noexcept {
   return Update.canRollBack();
 }
 
-bool update_rollback(void) {
+bool networking::update::rollback() noexcept {
   if (!Update.canRollBack()) {
     Serial.println(F("[update] no rollback partition available"));
     return false;
@@ -141,10 +145,73 @@ bool update_rollback(void) {
   return Update.rollBack();
 }
 
-void update_check_sd_on_boot(void) {
-  if (update_from_sd()) {
+void networking::update::checkSDOnBoot() noexcept {
+  if (networking::update::applyFromSD()) {
     Serial.println(F("[update] rebooting into new firmware..."));
     delay(500);
     ESP.restart();
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Tests
+// ─────────────────────────────────────────────────────────────────────────────
+#ifdef PIO_UNIT_TESTING
+
+
+#include "update.h"
+#include "../testing/it.h"
+
+namespace networking::update { void test(void); }
+
+#include <Arduino.h>
+#include <SD.h>
+
+static void update_test_sd_path_config(void) {
+  TEST_MESSAGE("user verifies SD update path is configured");
+  TEST_ASSERT_NOT_NULL(config::ota::SD_PATH);
+  TEST_ASSERT_TRUE_MESSAGE(strlen(config::ota::SD_PATH) > 0,
+    "device: config::ota::SD_PATH must not be empty");
+
+  char msg[80];
+  snprintf(msg, sizeof(msg), "SD update file: %s", config::ota::SD_PATH);
+  TEST_MESSAGE(msg);
+}
+
+static void update_test_no_update_file(void) {
+  TEST_MESSAGE("user verifies update_from_sd returns false when no file");
+
+  if (!SD.begin()) {
+    TEST_IGNORE_MESSAGE("skipped — no SD card");
+    return;
+  }
+
+  if (SD.exists(config::ota::SD_PATH)) {
+    TEST_IGNORE_MESSAGE("skipped — update.bin exists on SD (would flash!)");
+    return;
+  }
+
+  TEST_ASSERT_FALSE_MESSAGE(networking::update::applyFromSD(),
+    "device: should return false when no update file");
+  TEST_MESSAGE("correctly returns false with no update file");
+}
+
+static void update_test_rollback_status(void) {
+  TEST_MESSAGE("user checks rollback availability");
+
+  bool can = networking::update::canRollback();
+  char msg[64];
+  snprintf(msg, sizeof(msg), "rollback available: %s", can ? "yes" : "no");
+  TEST_MESSAGE(msg);
+}
+
+void networking::update::test(void) {
+  it("user observes that SD update path is configured",
+     update_test_sd_path_config);
+  it("user observes that update_from_sd handles missing file",
+     update_test_no_update_file);
+  it("user observes rollback availability",
+     update_test_rollback_status);
+}
+
+#endif

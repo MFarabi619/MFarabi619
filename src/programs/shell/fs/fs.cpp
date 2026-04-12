@@ -10,7 +10,7 @@ void dev_sensors_mount(struct ush_object *ush);
 void dev_sd_mount(struct ush_object *ush);
 void bin_mount(struct ush_object *ush);
 
-void fs_mount(struct ush_object *ush) {
+void programs::shell::fs::mount(struct ush_object *ush) {
   root_mount(ush);          // /
   etc_mount(ush);           // /etc
   dev_mount(ush);           // /dev

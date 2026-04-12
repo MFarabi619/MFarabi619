@@ -2,12 +2,18 @@
 
 #include <stddef.h>
 
-void provisioning_start(void);
-bool provisioning_is_provisioned(void);
-void provisioning_reset(void);
+namespace networking::provisioning {
 
-bool provisioning_get_username(char *buf, size_t len);
-bool provisioning_get_api_key(char *buf, size_t len);
-bool provisioning_get_device_name(char *buf, size_t len);
+void start(void);
+[[nodiscard]] bool isProvisioned(void);
+void reset(void);
 
-void provisioning_run_tests(void);
+[[nodiscard]] bool accessUsername(char *buf, size_t len);
+[[nodiscard]] bool accessAPIKey(char *buf, size_t len);
+[[nodiscard]] bool accessDeviceName(char *buf, size_t len);
+
+#ifdef PIO_UNIT_TESTING
+void test(void);
+#endif
+
+} // namespace networking::provisioning

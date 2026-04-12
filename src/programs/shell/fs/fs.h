@@ -3,6 +3,10 @@
 
 #include <microshell.h>
 
-void fs_mount(struct ush_object *ush);
+namespace programs::shell::fs {
+
+void mount(struct ush_object *ush);
+
+}
 
 #endif // SHELL_FS_H

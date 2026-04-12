@@ -1,6 +1,6 @@
 #include "../../../networking/sntp.h"
-#include "../../../helpers.h"
-#include "../../../drivers/neopixel.h"
+#include "../../led.h"
+#include <ColorFormat.h>
 #include "../../buttons.h"
 
 #include <Arduino.h>
@@ -44,7 +44,9 @@ static size_t uptime_get_data(struct ush_object *self,
                               uint8_t **data) {
   (void)self; (void)file;
   static char buf[32];
-  format_uptime(buf, sizeof(buf));
+  unsigned long secs = millis() / 1000;
+  snprintf(buf, sizeof(buf), "%luh %lum %lus\r\n",
+           secs / 3600, (secs / 60) % 60, secs % 60);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -57,7 +59,10 @@ static size_t heap_get_data(struct ush_object *self,
                             uint8_t **data) {
   (void)self; (void)file;
   static char buf[128];
-  format_heap(buf, sizeof(buf));
+  snprintf(buf, sizeof(buf),
+           "heap total: %u\r\nheap free:  %u\r\nheap used:  %u\r\n",
+           ESP.getHeapSize(), ESP.getFreeHeap(),
+           ESP.getHeapSize() - ESP.getFreeHeap());
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -70,8 +75,8 @@ static size_t time_get_data(struct ush_object *self,
                             uint8_t **data) {
   (void)self; (void)file;
   static char buf[48];
-  if (sntp_is_synced()) {
-    snprintf(buf, sizeof(buf), "%s\r\n", sntp_local_time_string());
+  if (networking::sntp::isSynced()) {
+    snprintf(buf, sizeof(buf), "%s\r\n", networking::sntp::accessLocalTimeString());
   } else {
     snprintf(buf, sizeof(buf), "%lu ms (no NTP sync)\r\n", millis());
   }
@@ -87,7 +92,7 @@ static size_t led_get_data(struct ush_object *self,
                            uint8_t **data) {
   (void)self; (void)file;
   static char buf[16];
-  uint32_t color = neopixel_get_color();
+  uint32_t color = LED.getPixelColor(0);
   snprintf(buf, sizeof(buf), "%06lX\r\n", (unsigned long)color);
   *data = (uint8_t *)buf;
   return strlen(buf);
@@ -105,14 +110,23 @@ static void led_set_data(struct ush_object *self,
   while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
     buf[--len] = '\0';
 
-  if (strcmp(buf, "off") == 0 || strcmp(buf, "0") == 0)   neopixel_off();
-  else if (strcmp(buf, "red") == 0)                        neopixel_red();
-  else if (strcmp(buf, "green") == 0 || strcmp(buf, "1") == 0) neopixel_green();
-  else if (strcmp(buf, "blue") == 0)                       neopixel_blue();
-  else if (strcmp(buf, "yellow") == 0)                     neopixel_yellow();
-  else if (strcmp(buf, "magenta") == 0)                    neopixel_magenta();
-  else if (strcmp(buf, "cyan") == 0)                       neopixel_cyan();
-  else if (strcmp(buf, "white") == 0)                      neopixel_white();
+  if (strcmp(buf, "off") == 0 || strcmp(buf, "0") == 0) {
+    LED.clear(); LED.show();
+  } else if (strcmp(buf, "red") == 0) {
+    LED.set(RGB_RED);
+  } else if (strcmp(buf, "green") == 0 || strcmp(buf, "1") == 0) {
+    LED.set(RGB_GREEN);
+  } else if (strcmp(buf, "blue") == 0) {
+    LED.set(RGB_BLUE);
+  } else if (strcmp(buf, "yellow") == 0) {
+    LED.set(RGB_YELLOW);
+  } else if (strcmp(buf, "magenta") == 0) {
+    LED.set(RGB_MAGENTA);
+  } else if (strcmp(buf, "cyan") == 0) {
+    LED.set(RGB_CYAN);
+  } else if (strcmp(buf, "white") == 0) {
+    LED.set(RGB_WHITE);
+  }
 }
 
 static size_t buttons_get_data(struct ush_object *self,
@@ -121,9 +135,9 @@ static size_t buttons_get_data(struct ush_object *self,
   (void)self; (void)file;
   static char buf[32];
   snprintf(buf, sizeof(buf), "%d %d %d\r\n",
-           buttons_is_pressed(0) ? 1 : 0,
-           buttons_is_pressed(1) ? 1 : 0,
-           buttons_is_pressed(2) ? 1 : 0);
+           programs::buttons::isPressed(0) ? 1 : 0,
+           programs::buttons::isPressed(1) ? 1 : 0,
+           programs::buttons::isPressed(2) ? 1 : 0);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }

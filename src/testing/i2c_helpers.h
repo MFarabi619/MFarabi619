@@ -4,25 +4,24 @@
 #ifdef PIO_UNIT_TESTING
 
 #include "../config.h"
+#include "../hardware/i2c.h"
 #include <Arduino.h>
 #include <Wire.h>
 
 static inline void test_ensure_wire0(void) {
-  Wire.begin(CONFIG_I2C_0_SDA_GPIO, CONFIG_I2C_0_SCL_GPIO,
-             CONFIG_I2C_FREQUENCY_KHZ * 1000);
+  Wire.begin(config::i2c::BUS_0.sda_gpio, config::i2c::BUS_0.scl_gpio,
+             config::i2c::FREQUENCY_KHZ * 1000);
   Wire.setTimeOut(100);
 }
 
 static inline void test_ensure_wire1(void) {
-  Wire1.begin(CONFIG_I2C_1_SDA_GPIO, CONFIG_I2C_1_SCL_GPIO,
-              CONFIG_I2C_FREQUENCY_KHZ * 1000);
+  Wire1.begin(config::i2c::BUS_1.sda_gpio, config::i2c::BUS_1.scl_gpio,
+              config::i2c::FREQUENCY_KHZ * 1000);
   Wire1.setTimeOut(100);
 }
 
 static inline void test_ensure_wire1_with_power(void) {
-  pinMode(CONFIG_I2C_RELAY_POWER_GPIO, OUTPUT);
-  digitalWrite(CONFIG_I2C_RELAY_POWER_GPIO, HIGH);
-  delay(100);
+  hardware::i2c::enable();
   test_ensure_wire1();
 }
 

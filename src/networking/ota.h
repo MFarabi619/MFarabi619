@@ -3,7 +3,11 @@
 
 #include "../config.h"
 
-void ota_start(void);
-void ota_service(void);
+namespace networking::ota {
+
+void initialize(void);
+void service(void);
+
+} // namespace networking::ota
 
 #endif

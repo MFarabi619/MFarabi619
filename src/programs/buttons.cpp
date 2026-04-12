@@ -3,31 +3,32 @@
 
 #include <Arduino.h>
 
-static const uint8_t button_gpios[CONFIG_BUTTON_COUNT] = {
-  CONFIG_BUTTON_1_GPIO,
-  CONFIG_BUTTON_2_GPIO,
-  CONFIG_BUTTON_3_GPIO,
+static const int8_t button_gpios[config::buttons::COUNT] = {
+  config::buttons::GPIO_1,
+  config::buttons::GPIO_2,
+  config::buttons::GPIO_3,
 };
 
-static volatile uint32_t last_press_ms[CONFIG_BUTTON_COUNT] = {0};
-static volatile bool pending_press[CONFIG_BUTTON_COUNT] = {false};
-static uint32_t press_start_ms[CONFIG_BUTTON_COUNT] = {0};
-static bool was_pressed[CONFIG_BUTTON_COUNT] = {false};
+static volatile uint32_t last_press_ms[config::buttons::COUNT] = {0};
+static volatile bool pending_press[config::buttons::COUNT] = {false};
+static uint32_t press_start_ms[config::buttons::COUNT] = {0};
+static bool was_pressed[config::buttons::COUNT] = {false};
 
-static button_callback_t on_press_cb = nullptr;
-static button_callback_t on_long_press_cb = nullptr;
+static ButtonCallback on_press_cb = nullptr;
+static ButtonCallback on_long_press_cb = nullptr;
 
 static void IRAM_ATTR button_isr(void *arg) {
   uint8_t index = (uint8_t)(uintptr_t)arg;
   uint32_t now = millis();
-  if (now - last_press_ms[index] > CONFIG_BUTTON_DEBOUNCE_MS) {
+  if (now - last_press_ms[index] > config::buttons::DEBOUNCE_MS) {
     last_press_ms[index] = now;
     pending_press[index] = true;
   }
 }
 
-void buttons_init(void) {
-  for (uint8_t i = 0; i < CONFIG_BUTTON_COUNT; i++) {
+void programs::buttons::initialize() noexcept {
+  for (uint8_t i = 0; i < config::buttons::COUNT; i++) {
+    if ((int8_t)button_gpios[i] < 0) continue;
     pinMode(button_gpios[i], INPUT);
     attachInterruptArg(
         digitalPinToInterrupt(button_gpios[i]),
@@ -36,12 +37,13 @@ void buttons_init(void) {
         FALLING);
   }
   Serial.printf("[buttons] initialized %d buttons (GPIO %d, %d, %d)\n",
-                CONFIG_BUTTON_COUNT,
-                CONFIG_BUTTON_1_GPIO, CONFIG_BUTTON_2_GPIO, CONFIG_BUTTON_3_GPIO);
+                config::buttons::COUNT,
+                config::buttons::GPIO_1, config::buttons::GPIO_2, config::buttons::GPIO_3);
 }
 
-void buttons_service(void) {
-  for (uint8_t i = 0; i < CONFIG_BUTTON_COUNT; i++) {
+void programs::buttons::service() noexcept {
+  for (uint8_t i = 0; i < config::buttons::COUNT; i++) {
+    if ((int8_t)button_gpios[i] < 0) continue;
     bool pressed = !digitalRead(button_gpios[i]);
 
     if (pending_press[i]) {
@@ -56,7 +58,7 @@ void buttons_service(void) {
       uint32_t held = millis() - press_start_ms[i];
       was_pressed[i] = false;
 
-      if (held >= CONFIG_BUTTON_LONG_PRESS_MS) {
+      if (held >= config::buttons::LONG_PRESS_MS) {
         if (on_long_press_cb) on_long_press_cb(i);
       } else {
         if (on_press_cb) on_press_cb(i);
@@ -65,10 +67,10 @@ void buttons_service(void) {
   }
 }
 
-void buttons_on_press(button_callback_t cb) { on_press_cb = cb; }
-void buttons_on_long_press(button_callback_t cb) { on_long_press_cb = cb; }
+void programs::buttons::onPress(ButtonCallback cb) noexcept { on_press_cb = cb; }
+void programs::buttons::onLongPress(ButtonCallback cb) noexcept { on_long_press_cb = cb; }
 
-bool buttons_is_pressed(uint8_t index) {
-  if (index >= CONFIG_BUTTON_COUNT) return false;
+bool programs::buttons::isPressed(uint8_t index) noexcept {
+  if (index >= config::buttons::COUNT) return false;
   return !digitalRead(button_gpios[index]);
 }

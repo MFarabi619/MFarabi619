@@ -3,7 +3,11 @@
 
 #include <ESPAsyncWebServer.h>
 
-void ws_shell_register(AsyncWebServer *server);
-void ws_shell_service(void);
+namespace services::ws_shell {
+
+void registerRoutes(AsyncWebServer *server);
+void service(void);
+
+}
 
 #endif

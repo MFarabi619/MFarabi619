@@ -1,6 +1,6 @@
 #include "ota.h"
 
-#if CONFIG_OTA_ENABLED
+#if CERATINA_OTA_ENABLED
 
 #include <Arduino.h>
 #include <ArduinoOTA.h>
@@ -8,15 +8,14 @@
 
 static bool started = false;
 
-void ota_start(void) {
+void networking::ota::initialize(void) {
   if (started) return;
 
-  ArduinoOTA.setHostname(CONFIG_HOSTNAME);
-  ArduinoOTA.setPort(CONFIG_OTA_PORT);
+  ArduinoOTA.setHostname(config::HOSTNAME);
+  ArduinoOTA.setPort(config::ota::PORT);
 
-#if defined(CONFIG_OTA_PASSWORD) && CONFIG_OTA_PASSWORD[0] != '\0'
-  ArduinoOTA.setPassword(CONFIG_OTA_PASSWORD);
-#endif
+  if (config::ota::PASSWORD[0] != '\0')
+    ArduinoOTA.setPassword(config::ota::PASSWORD);
 
   ArduinoOTA
     .onStart([]() {
@@ -44,17 +43,66 @@ void ota_start(void) {
 
   ArduinoOTA.begin();
   started = true;
-  Serial.printf("[ota] listening on port %d\n", CONFIG_OTA_PORT);
+  Serial.printf("[ota] listening on port %d\n", config::ota::PORT);
 }
 
-void ota_service(void) {
+void networking::ota::service(void) {
   if (!started) return;
   ArduinoOTA.handle();
 }
 
 #else
 
-void ota_start(void) {}
-void ota_service(void) {}
+void networking::ota::initialize(void) {}
+void networking::ota::service(void) {}
+
+#endif
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Tests
+// ─────────────────────────────────────────────────────────────────────────────
+#ifdef PIO_UNIT_TESTING
+
+
+#include "ota.h"
+#include "../testing/it.h"
+
+namespace networking::ota { void test(void); }
+
+#include <Arduino.h>
+
+static void ota_test_config(void) {
+  TEST_MESSAGE("user verifies OTA configuration");
+
+  TEST_ASSERT_GREATER_THAN_UINT16_MESSAGE(0, config::ota::PORT,
+    "device: OTA port must be > 0");
+
+#if CERATINA_OTA_ENABLED
+  char msg[64];
+  snprintf(msg, sizeof(msg), "OTA enabled on port %d", config::ota::PORT);
+  TEST_MESSAGE(msg);
+#else
+  TEST_MESSAGE("OTA is disabled (CERATINA_OTA_ENABLED=0)");
+
+#endif
+}
+
+static void ota_test_noop_when_disabled(void) {
+  TEST_MESSAGE("user calls OTA functions when disabled");
+#if !CERATINA_OTA_ENABLED
+  networking::ota::initialize();
+  networking::ota::service();
+  TEST_MESSAGE("no-ops completed without error");
+#else
+  TEST_IGNORE_MESSAGE("OTA is enabled — test not applicable");
+#endif
+}
+
+void networking::ota::test(void) {
+  it("user verifies OTA configuration",
+     ota_test_config);
+  it("user verifies OTA no-ops when disabled",
+     ota_test_noop_when_disabled);
+}
 
 #endif

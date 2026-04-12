@@ -170,7 +170,7 @@ static void cmd_scp_get(struct ush_object *self,
     return;
   }
 
-  char buf[CONFIG_SCP_BUF_SIZE];
+  char buf[config::scp::BUF_SIZE];
   size_t total = 0;
   bool failed = false;
   while (total < file_size) {
@@ -253,7 +253,7 @@ static void cmd_scp_put(struct ush_object *self,
     return;
   }
 
-  char buf[CONFIG_SCP_BUF_SIZE];
+  char buf[config::scp::BUF_SIZE];
   size_t total = 0;
   bool failed = false;
   size_t n;
@@ -351,7 +351,7 @@ static void cmd_ota(struct ush_object *self,
   }
 
   // Read + write loop
-  char buf[CONFIG_SCP_BUF_SIZE];
+  char buf[config::scp::BUF_SIZE];
   size_t total = 0;
   bool failed = false;
 
@@ -429,7 +429,7 @@ static const struct ush_file_descriptor ssh_client_cmd_files[] = {
 
 static struct ush_node_object ssh_client_cmd_node;
 
-void ssh_client_commands_register(struct ush_object *ush) {
+void programs::ssh_client::registerCommands(struct ush_object *ush) {
   ush_commands_add(ush, &ssh_client_cmd_node, ssh_client_cmd_files,
                    sizeof(ssh_client_cmd_files) / sizeof(ssh_client_cmd_files[0]));
 }

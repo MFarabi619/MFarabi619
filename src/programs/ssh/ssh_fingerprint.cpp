@@ -15,7 +15,7 @@ static size_t fingerprint_get_data(struct ush_object *self,
   static char buf[128];
   buf[0] = '\0';
 
-  String vfs_path = String(LittleFS.mountpoint()) + CONFIG_SSH_HOSTKEY_PATH;
+  String vfs_path = String(LittleFS.mountpoint()) + config::ssh::HOSTKEY_PATH;
   ssh_key key = NULL;
   int rc = ssh_pki_import_privkey_file(vfs_path.c_str(), NULL, NULL, NULL, &key);
   if (rc != SSH_OK) {

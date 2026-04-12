@@ -12,15 +12,15 @@ static AsyncWebSocketClient *active_client = nullptr;
 
 static volatile uint16_t ring_head = 0;
 static volatile uint16_t ring_tail = 0;
-static char ring_buf[CONFIG_WS_SHELL_RING_SIZE];
+static char ring_buf[config::ws_shell::RING_SIZE];
 
-static char write_buf[CONFIG_WS_SHELL_WRITE_BUF];
+static char write_buf[config::ws_shell::WRITE_BUF];
 static size_t write_buf_pos = 0;
 
 static void ring_reset(void) { ring_head = 0; ring_tail = 0; }
 
 static bool ring_push(char ch) {
-  uint16_t next = (ring_head + 1) % CONFIG_WS_SHELL_RING_SIZE;
+  uint16_t next = (ring_head + 1) % config::ws_shell::RING_SIZE;
   if (next == ring_tail) return false;
   ring_buf[ring_head] = ch;
   ring_head = next;
@@ -30,7 +30,7 @@ static bool ring_push(char ch) {
 static int ring_pop(char *ch) {
   if (ring_head == ring_tail) return 0;
   *ch = ring_buf[ring_tail];
-  ring_tail = (ring_tail + 1) % CONFIG_WS_SHELL_RING_SIZE;
+  ring_tail = (ring_tail + 1) % config::ws_shell::RING_SIZE;
   return 1;
 }
 
@@ -49,7 +49,7 @@ static int ws_shell_write(struct ush_object *self, char ch) {
   (void)self;
   if (!active_client) return 0;
   write_buf[write_buf_pos++] = ch;
-  if (write_buf_pos >= CONFIG_WS_SHELL_WRITE_BUF)
+  if (write_buf_pos >= config::ws_shell::WRITE_BUF)
     write_flush();
   return 1;
 }
@@ -59,8 +59,8 @@ static const struct ush_io_interface ws_shell_io = {
   .write = ws_shell_write,
 };
 
-static char ws_in_buf[CONFIG_SHELL_BUF_IN];
-static char ws_out_buf[CONFIG_SHELL_BUF_OUT];
+static char ws_in_buf[config::shell::BUF_IN];
+static char ws_out_buf[config::shell::BUF_OUT];
 static struct ush_object ws_ush;
 
 static const struct ush_descriptor ws_shell_desc = {
@@ -69,8 +69,8 @@ static const struct ush_descriptor ws_shell_desc = {
   .input_buffer_size = sizeof(ws_in_buf),
   .output_buffer = ws_out_buf,
   .output_buffer_size = sizeof(ws_out_buf),
-  .path_max_length = CONFIG_SHELL_PATH_MAX,
-  .hostname = shell_get_hostname(),
+  .path_max_length = config::shell::MAX_PATH_LEN,
+  .hostname = programs::shell::accessHostname(),
 };
 
 static void on_ws_connect(AsyncWebSocket *server, AsyncWebSocketClient *client) {
@@ -78,8 +78,8 @@ static void on_ws_connect(AsyncWebSocket *server, AsyncWebSocketClient *client) 
   active_client = client;
   ring_reset();
   write_buf_pos = 0;
-  shell_init_instance(&ws_ush, &ws_shell_desc);
-  const char *motd = microfetch_generate();
+  programs::shell::initInstance(&ws_ush, &ws_shell_desc);
+  const char *motd = programs::shell::microfetch::generate();
   client->text(motd, strlen(motd));
   Serial.printf("[ws_shell] client connected (id %u)\n", client->id());
 }
@@ -110,7 +110,7 @@ static void on_ws_message(AsyncWebSocket *server, AsyncWebSocketClient *client,
   }
 }
 
-void ws_shell_register(AsyncWebServer *server) {
+void services::ws_shell::registerRoutes(AsyncWebServer *server) {
   ws_handler.onConnect(on_ws_connect);
   ws_handler.onDisconnect(on_ws_disconnect);
   ws_handler.onError(on_ws_error);
@@ -125,7 +125,7 @@ void ws_shell_register(AsyncWebServer *server) {
   });
 }
 
-void ws_shell_service(void) {
+void services::ws_shell::service(void) {
   if (!active_client) return;
   while (ush_service(&ws_ush)) {}
   write_flush();

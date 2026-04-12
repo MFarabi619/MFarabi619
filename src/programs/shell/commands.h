@@ -3,6 +3,10 @@
 
 #include <microshell.h>
 
-void commands_register(struct ush_object *ush);
+namespace programs::shell::commands {
+
+void registerAll(struct ush_object *ush);
+
+}
 
 #endif // SHELL_COMMANDS_H
