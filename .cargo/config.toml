@@ -12,7 +12,7 @@ tt = [
     "--target",
     "xtensa-esp32s3-none-elf",
     "--config",
-    "target.xtensa-esp32s3-none-elf.runner = 'probe-rs run --idf-partition-table ../boards/esp32s3.partitions.csv'",
+    "target.xtensa-esp32s3-none-elf.runner = 'probe-rs run --idf-partition-table ../firmware/machine/esp32s3.partitions.csv'",
 ]
 
 [unstable]
@@ -27,7 +27,7 @@ PROBE_RS_REMOTE_TOKEN = "rpi5-16"
 PROBE_RS_REMOTE_HOST = "ws://rpi5-16:8443"
 
 [target.xtensa-esp32s3-none-elf]
-runner = "probe-rs run --idf-partition-table boards/esp32s3.partitions.csv"
+runner = "probe-rs run --idf-partition-table firmware/machine/esp32s3.partitions.csv"
 
 [target.xtensa-esp32-none-elf]
 runner = "espflash flash --monitor --chip esp32"
