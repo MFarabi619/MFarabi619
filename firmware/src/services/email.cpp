@@ -220,6 +220,47 @@ static void test_endpoint_matches_flags(void) {
 #endif
 }
 
+static void test_flags_are_valid(void) {
+#if CERATINA_SMTP_ENABLED
+  TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)strlen(config::smtp::HOST),
+    "SMTP host must not be empty when enabled");
+  TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)strlen(config::smtp::DOMAIN),
+    "SMTP domain must not be empty when enabled");
+  TEST_ASSERT_GREATER_THAN_UINT16_MESSAGE(0, config::smtp::PORT,
+    "SMTP port must be > 0 when enabled");
+#else
+  TEST_IGNORE_MESSAGE("SMTP not enabled");
+#endif
+}
+
+static void test_connects_with_flags(void) {
+#if CERATINA_SMTP_ENABLED
+  if (!WiFi.isConnected()) {
+    TEST_IGNORE_MESSAGE("WiFi not connected — skipping SMTP connect test");
+    return;
+  }
+
+  bool ok = services::email::connect();
+  TEST_ASSERT_TRUE_MESSAGE(ok, "SMTP connect should succeed with configured flags");
+#else
+  TEST_IGNORE_MESSAGE("SMTP not enabled");
+#endif
+}
+
+static void test_sends_test_email(void) {
+#if CERATINA_SMTP_ENABLED
+  if (!WiFi.isConnected()) {
+    TEST_IGNORE_MESSAGE("WiFi not connected — skipping SMTP send test");
+    return;
+  }
+
+  bool ok = services::email::sendTest();
+  TEST_ASSERT_TRUE_MESSAGE(ok, "SMTP test email should send successfully");
+#else
+  TEST_IGNORE_MESSAGE("SMTP not enabled");
+#endif
+}
+
 void services::email::test() noexcept {
   it("email endpoint matches build flags", test_endpoint_matches_flags);
   it("email build flags are valid",        test_flags_are_valid);

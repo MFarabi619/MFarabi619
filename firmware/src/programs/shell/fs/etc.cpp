@@ -1,6 +1,6 @@
 #include "../shell.h"
 #include "../../../networking/wifi.h"
-#include "../../../networking/provisioning.h"
+#include "../../../boot/provisioning.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -159,7 +159,7 @@ static size_t provisioned_get_data(struct ush_object *self,
   (void)self; (void)file;
   static const char *yes = "true";
   static const char *no = "false";
-  bool p = networking::provisioning::isProvisioned();
+  bool p = boot::provisioning::isProvisioned();
   *data = (uint8_t *)(p ? yes : no);
   return p ? 4 : 5;
 }
@@ -169,7 +169,7 @@ static size_t username_get_data(struct ush_object *self,
                                 uint8_t **data) {
   (void)self; (void)file;
   static char buf[64];
-  if (networking::provisioning::accessUsername(buf, sizeof(buf))) {
+  if (boot::provisioning::accessUsername(buf, sizeof(buf))) {
     *data = (uint8_t *)buf;
     return strlen(buf);
   }
@@ -196,7 +196,7 @@ static size_t device_name_get_data(struct ush_object *self,
                                    uint8_t **data) {
   (void)self; (void)file;
   static char buf[64];
-  if (networking::provisioning::accessDeviceName(buf, sizeof(buf))) {
+  if (boot::provisioning::accessDeviceName(buf, sizeof(buf))) {
     *data = (uint8_t *)buf;
     return strlen(buf);
   }

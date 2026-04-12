@@ -6,6 +6,49 @@
 #include <esp_wifi.h>
 #include "../util/preferences_guard.h"
 
+bool boot::provisioning::isEnabled(void) {
+  return CERATINA_PROV_ENABLED;
+}
+
+static bool get_prov_string(const char *key, char *buf, size_t len) {
+  PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, true);
+  if (!prefs.ok()) return false;
+  return prefs->getString(key, buf, len) > 0;
+}
+
+bool boot::provisioning::isProvisioned(void) {
+  wifi_config_t conf;
+  if (esp_wifi_get_config(WIFI_IF_STA, &conf) == ESP_OK && conf.sta.ssid[0] != '\0')
+    return true;
+
+#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
+  if (strlen(CONFIG_WIFI_SSID) > 0) return true;
+#endif
+
+  return false;
+}
+
+void boot::provisioning::reset(void) {
+  { PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
+    if (prefs.ok()) prefs->clear(); }
+  { PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
+    if (prefs.ok()) prefs->clear(); }
+  WiFi.disconnect(true, true);  // erases ESP-IDF stored STA credentials
+  Serial.println(F("[prov] reset — credentials cleared"));
+}
+
+bool boot::provisioning::accessUsername(char *buf, size_t len) {
+  return get_prov_string("username", buf, len);
+}
+
+bool boot::provisioning::accessAPIKey(char *buf, size_t len) {
+  return get_prov_string("api_key", buf, len);
+}
+
+bool boot::provisioning::accessDeviceName(char *buf, size_t len) {
+  return get_prov_string("device_name", buf, len);
+}
+
 #if CERATINA_PROV_ENABLED
 
 #include <ArduinoJson.h>
@@ -98,7 +141,7 @@ class ProvisioningServerCallbacks : public BLEServerCallbacks {
   }
 };
 
-void networking::provisioning::start(void) {
+void boot::provisioning::start(void) {
   Serial.println(F("[prov] starting BLE provisioning"));
   Serial.printf("[prov] passkey: %d\n", config::ble::PASSKEY);
 
@@ -183,53 +226,9 @@ void networking::provisioning::start(void) {
   Serial.printf("[prov] BLE freed, heap: %u bytes free\n", ESP.getFreeHeap());
 }
 
-bool networking::provisioning::isProvisioned(void) {
-  wifi_config_t conf;
-  if (esp_wifi_get_config(WIFI_IF_STA, &conf) == ESP_OK && conf.sta.ssid[0] != '\0')
-    return true;
-
-#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
-  if (strlen(CONFIG_WIFI_SSID) > 0) return true;
-#endif
-
-  return false;
-}
-
-void networking::provisioning::reset(void) {
-  { PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
-    prefs->clear(); }
-  { PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
-    prefs->clear(); }
-  WiFi.disconnect(true, true);  // erases ESP-IDF stored STA credentials
-  Serial.println(F("[prov] reset — credentials cleared"));
-}
-
-static bool get_prov_string(const char *key, char *buf, size_t len) {
-  PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, true);
-  if (!prefs.ok()) return false;
-  return prefs->getString(key, buf, len) > 0;
-}
-
-bool networking::provisioning::accessUsername(char *buf, size_t len) {
-  return get_prov_string("username", buf, len);
-}
-
-bool networking::provisioning::accessAPIKey(char *buf, size_t len) {
-  return get_prov_string("api_key", buf, len);
-}
-
-bool networking::provisioning::accessDeviceName(char *buf, size_t len) {
-  return get_prov_string("device_name", buf, len);
-}
-
 #else
 
-void networking::provisioning::start(void) {}
-bool networking::provisioning::isProvisioned(void) { return true; }
-void networking::provisioning::reset(void) {}
-bool networking::provisioning::accessUsername(char *buf, size_t len) { (void)buf; (void)len; return false; }
-bool networking::provisioning::accessAPIKey(char *buf, size_t len) { (void)buf; (void)len; return false; }
-bool networking::provisioning::accessDeviceName(char *buf, size_t len) { (void)buf; (void)len; return false; }
+void boot::provisioning::start(void) {}
 
 #endif
 
@@ -253,7 +252,7 @@ static void provisioning_test_detects_provisioned_with_credentials(void) {
 
 #if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
   if (strlen(CONFIG_WIFI_SSID) > 0) {
-    TEST_ASSERT_TRUE_MESSAGE(networking::provisioning::isProvisioned(),
+    TEST_ASSERT_TRUE_MESSAGE(boot::provisioning::isProvisioned(),
       "device: should be provisioned when build flags have SSID");
     TEST_MESSAGE("provisioned via build flags");
     return;
@@ -277,11 +276,11 @@ static void provisioning_test_custom_config_roundtrip(void) {
   prefs->putString("api_key", "secret-key");
   prefs->putString("device_name", "ceratina-lab");
 
-  TEST_ASSERT_TRUE_MESSAGE(networking::provisioning::accessUsername(username, sizeof(username)),
+  TEST_ASSERT_TRUE_MESSAGE(boot::provisioning::accessUsername(username, sizeof(username)),
     "device: username should be readable after write");
-  TEST_ASSERT_TRUE_MESSAGE(networking::provisioning::accessAPIKey(api_key, sizeof(api_key)),
+  TEST_ASSERT_TRUE_MESSAGE(boot::provisioning::accessAPIKey(api_key, sizeof(api_key)),
     "device: api key should be readable after write");
-  TEST_ASSERT_TRUE_MESSAGE(networking::provisioning::accessDeviceName(device_name, sizeof(device_name)),
+  TEST_ASSERT_TRUE_MESSAGE(boot::provisioning::accessDeviceName(device_name, sizeof(device_name)),
     "device: device name should be readable after write");
 
   TEST_ASSERT_EQUAL_STRING_MESSAGE("alice", username,
@@ -316,7 +315,7 @@ static void provisioning_test_reset_clears_all(void) {
     wifi_prefs->putBool("ap_on", true);
   }
 
-  networking::provisioning::reset();
+  boot::provisioning::reset();
 
   {
     PreferencesGuard prov_prefs(config::provisioning::NVS_NAMESPACE, true);
@@ -356,11 +355,11 @@ static void provisioning_test_empty_config_returns_false(void) {
   }
 
   char value[64] = {0};
-  TEST_ASSERT_FALSE_MESSAGE(networking::provisioning::accessUsername(value, sizeof(value)),
+  TEST_ASSERT_FALSE_MESSAGE(boot::provisioning::accessUsername(value, sizeof(value)),
     "device: missing username should return false");
-  TEST_ASSERT_FALSE_MESSAGE(networking::provisioning::accessAPIKey(value, sizeof(value)),
+  TEST_ASSERT_FALSE_MESSAGE(boot::provisioning::accessAPIKey(value, sizeof(value)),
     "device: missing api key should return false");
-  TEST_ASSERT_FALSE_MESSAGE(networking::provisioning::accessDeviceName(value, sizeof(value)),
+  TEST_ASSERT_FALSE_MESSAGE(boot::provisioning::accessDeviceName(value, sizeof(value)),
     "device: missing device name should return false");
 }
 
@@ -377,7 +376,7 @@ static void provisioning_test_service_uuids_configured(void) {
     "device: provisioning config UUID must not be empty");
 }
 
-void networking::provisioning::test(void) {
+void boot::provisioning::test(void) {
   it("user observes provisioning state detection works",
      provisioning_test_detects_provisioned_with_credentials);
   it("user stores and retrieves custom config via NVS",

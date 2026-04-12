@@ -2,7 +2,9 @@
 
 #include <stddef.h>
 
-namespace networking::provisioning {
+namespace boot::provisioning {
+
+[[nodiscard]] bool isEnabled(void);
 
 void start(void);
 [[nodiscard]] bool isProvisioned(void);
@@ -16,4 +18,4 @@ void reset(void);
 void test(void);
 #endif
 
-} // namespace networking::provisioning
+} // namespace boot::provisioning

@@ -18,7 +18,7 @@
 #include "services/ws_shell.h"
 #include "sensors/carbon_dioxide.h"
 #include "networking/ble.h"
-#include "networking/provisioning.h"
+#include "boot/provisioning.h"
 #include "programs/buttons.h"
 #include "programs/led.h"
 #include <ColorFormat.h>
@@ -92,13 +92,11 @@ static void system_task(void *pvParameters) {
   // Check for firmware update on SD card before WiFi
   networking::update::checkSDOnBoot();
 
-#if CERATINA_PROV_ENABLED
-  if (!networking::provisioning::isProvisioned()) {
+  if (boot::provisioning::isEnabled() && !boot::provisioning::isProvisioned()) {
     Serial.println(F("[prov] not provisioned — starting BLE provisioning"));
     LED.set(RGB_MAGENTA);
-    networking::provisioning::start();
+    boot::provisioning::start();
   }
-#endif
 
   if (networking::wifi::sta::connect()) {
     LED.set(RGB_GREEN);
