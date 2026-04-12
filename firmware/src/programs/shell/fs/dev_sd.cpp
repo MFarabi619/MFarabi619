@@ -1,12 +1,11 @@
 #include "../../../config.h"
+#include "../../../hardware/storage.h"
 
 #include <Arduino.h>
 #include <SD.h>
 #include <SPI.h>
 #include <microshell.h>
 #include <string.h>
-
-static bool sd_initialized = false;
 
 //------------------------------------------
 //  /dev/sd/info — card type, size, usage
@@ -16,8 +15,12 @@ static size_t sd_info_get_data(struct ush_object *self,
                                uint8_t **data) {
   (void)self; (void)file;
   static char buf[256];
+  StorageQuery query = {
+    .kind = StorageKind::SD,
+    .snapshot = {},
+  };
 
-  if (!sd_initialized) {
+  if (!hardware::storage::accessSnapshot(&query)) {
     snprintf(buf, sizeof(buf), "SD card not mounted\r\n");
     *data = (uint8_t *)buf;
     return strlen(buf);
@@ -32,9 +35,6 @@ static size_t sd_info_get_data(struct ush_object *self,
   }
 
   uint64_t card_size = SD.cardSize();
-  uint64_t fs_total  = SD.totalBytes();
-  uint64_t fs_used   = SD.usedBytes();
-
   snprintf(buf, sizeof(buf),
            "type:      %s\r\n"
            "card_size: %llu MB\r\n"
@@ -43,9 +43,9 @@ static size_t sd_info_get_data(struct ush_object *self,
            "fs_free:   %llu MB\r\n",
            type,
            card_size / (1024 * 1024),
-           fs_total / (1024 * 1024),
-           fs_used / (1024 * 1024),
-           (fs_total - fs_used) / (1024 * 1024));
+           query.snapshot.total_bytes / (1024 * 1024),
+           query.snapshot.used_bytes / (1024 * 1024),
+           query.snapshot.free_bytes / (1024 * 1024));
 
   *data = (uint8_t *)buf;
   return strlen(buf);
@@ -59,14 +59,16 @@ static const struct ush_file_descriptor sd_files[] = {
 static struct ush_node_object sd_node;
 
 void dev_sd_mount(struct ush_object *ush) {
-  // Try to initialize SD card
-  if (SD.begin()) {
-    sd_initialized = true;
-    Serial.printf("[sd] mounted: %s, %llu MB\n",
-                  SD.cardType() == CARD_SDHC ? "SDHC" : "SD",
-                  SD.totalBytes() / (1024 * 1024));
-  } else {
-    Serial.println(F("[sd] no card detected"));
+  if (hardware::storage::ensureSD()) {
+    StorageQuery query = {
+      .kind = StorageKind::SD,
+      .snapshot = {},
+    };
+    if (hardware::storage::accessSnapshot(&query)) {
+      Serial.printf("[sd] mounted: %s, %llu MB\n",
+                    SD.cardType() == CARD_SDHC ? "SDHC" : "SD",
+                    query.snapshot.total_bytes / (1024 * 1024));
+    }
   }
 
   ush_node_mount(ush, "/dev/sd", &sd_node, sd_files,
@@ -84,7 +86,7 @@ namespace filesystems::sd { void test(void); }
 
 static void sd_test_mounts(void) {
   TEST_MESSAGE("user asks the device to mount the SD card");
-  bool ok = SD.begin();
+  bool ok = hardware::storage::ensureSD();
   if (!ok) {
     TEST_IGNORE_MESSAGE("skipped — no SD card inserted");
     return;
@@ -96,7 +98,7 @@ static void sd_test_mounts(void) {
 
 static void sd_test_reports_size(void) {
   TEST_MESSAGE("user checks SD card capacity");
-  if (!SD.begin()) {
+  if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -110,7 +112,7 @@ static void sd_test_reports_size(void) {
 
 static void sd_test_write_read_roundtrip(void) {
   TEST_MESSAGE("user writes a test file and reads it back");
-  if (!SD.begin()) {
+  if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -143,7 +145,7 @@ static void sd_test_write_read_roundtrip(void) {
 
 static void sd_test_append_mode(void) {
   TEST_MESSAGE("user verifies FILE_APPEND adds to file without truncating");
-  if (!SD.begin()) {
+  if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -173,7 +175,7 @@ static void sd_test_append_mode(void) {
 
 static void sd_test_auto_create_parents(void) {
   TEST_MESSAGE("user verifies open with create=true auto-creates parent dirs");
-  if (!SD.begin()) {
+  if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -197,7 +199,7 @@ static void sd_test_auto_create_parents(void) {
 
 static void sd_test_directory_listing(void) {
   TEST_MESSAGE("user lists files in a directory");
-  if (!SD.begin()) {
+  if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
@@ -236,7 +238,7 @@ static void sd_test_directory_listing(void) {
 
 static void sd_test_buffered_write(void) {
   TEST_MESSAGE("user writes with custom buffer size for performance");
-  if (!SD.begin()) {
+  if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }

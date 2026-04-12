@@ -1,4 +1,5 @@
 #include "../../../config.h"
+#include "../../../services/system.h"
 
 #include <Arduino.h>
 #include <microshell.h>
@@ -16,9 +17,13 @@ static void uptime_exec(struct ush_object *self,
     return;
   }
   char buf[32];
-  unsigned long secs = millis() / 1000;
-  snprintf(buf, sizeof(buf), "%luh %lum %lus\r\n",
-           secs / 3600, (secs / 60) % 60, secs % 60);
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
+  services::system::formatUptime(buf, sizeof(buf), query.snapshot.uptime_seconds);
+  strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
   ush_print(self, buf);
 }
 
@@ -62,10 +67,15 @@ static void free_exec(struct ush_object *self,
     return;
   }
   char buf[128];
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
   snprintf(buf, sizeof(buf),
            "heap total: %u\r\nheap free:  %u\r\nheap used:  %u\r\n",
-           ESP.getHeapSize(), ESP.getFreeHeap(),
-           ESP.getHeapSize() - ESP.getFreeHeap());
+           query.snapshot.heap_total, query.snapshot.heap_free,
+           query.snapshot.heap_total - query.snapshot.heap_free);
   ush_print(self, buf);
 }
 

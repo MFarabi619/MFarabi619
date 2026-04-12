@@ -2,44 +2,11 @@
 #include "commands.h"
 #include "microfetch.h"
 #include "fs/fs.h"
+#include "../../services/identity.h"
 #include "../ssh/ssh_client.h"
 
 #include <Arduino.h>
-#include <WiFi.h>
-#include <ESPmDNS.h>
 #include <microshell.h>
-#include <string.h>
-
-//------------------------------------------
-//  Shared hostname (mutable at runtime)
-//------------------------------------------
-static char hostname_data[config::shell::HOSTNAME_SIZE + 1] = {};
-
-static bool hostname_initialized = false;
-static void ensure_hostname(void) {
-  if (!hostname_initialized) {
-    strncpy(hostname_data, config::HOSTNAME, config::shell::HOSTNAME_SIZE);
-    hostname_initialized = true;
-  }
-}
-
-char *programs::shell::accessHostname(void) {
-  ensure_hostname();
-  return hostname_data;
-}
-
-void programs::shell::configureHostname(const char *hostname) {
-  strncpy(hostname_data, hostname, config::shell::HOSTNAME_SIZE);
-  hostname_data[config::shell::HOSTNAME_SIZE] = '\0';
-
-  // Propagate to network layer
-  WiFi.setHostname(hostname_data);
-  MDNS.end();
-  if (MDNS.begin(hostname_data)) {
-    MDNS.addService("ssh", "tcp", config::ssh::PORT);
-    MDNS.addService("http", "tcp", config::http::PORT);
-  }
-}
 
 //------------------------------------------
 //  Serial I/O interface
@@ -77,7 +44,7 @@ static const struct ush_descriptor serial_desc = {
   .output_buffer = serial_out_buf,
   .output_buffer_size = sizeof(serial_out_buf),
   .path_max_length = config::shell::MAX_PATH_LEN,
-  .hostname = hostname_data,
+  .hostname = const_cast<char *>(services::identity::accessHostname()),
 };
 
 //------------------------------------------
@@ -102,6 +69,7 @@ void programs::shell::initInstance(struct ush_object *ush,
 }
 
 void programs::shell::initialize() {
+  services::identity::initialize();
   programs::shell::initInstance(&serial_ush, &serial_desc);
 }
 
@@ -125,20 +93,6 @@ static void shell_test_initializes(void) {
   TEST_MESSAGE("microshell initialized with serial I/O");
 }
 
-static void shell_test_hostname_mutable(void) {
-  TEST_MESSAGE("user sets hostname to 'ceratina'");
-
-  programs::shell::configureHostname("ceratina");
-  TEST_ASSERT_EQUAL_STRING_MESSAGE("ceratina", programs::shell::accessHostname(),
-    "device: hostname should be 'ceratina' after set");
-
-  programs::shell::configureHostname(config::HOSTNAME);
-  TEST_ASSERT_EQUAL_STRING_MESSAGE(config::HOSTNAME, programs::shell::accessHostname(),
-    "device: hostname should be restored to default");
-
-  TEST_MESSAGE("hostname is mutable at runtime");
-}
-
 static void shell_test_custom_instance(void) {
   TEST_MESSAGE("user creates a second shell instance");
 
@@ -148,14 +102,14 @@ static void shell_test_custom_instance(void) {
     .read = [](struct ush_object *, char *) -> int { return 0; },
     .write = [](struct ush_object *, char) -> int { return 1; },
   };
-  static const struct ush_descriptor desc2 = {
+static const struct ush_descriptor desc2 = {
     .io = &null_io,
     .input_buffer = in2,
     .input_buffer_size = sizeof(in2),
     .output_buffer = out2,
     .output_buffer_size = sizeof(out2),
     .path_max_length = 64,
-    .hostname = "test",
+    .hostname = const_cast<char *>(services::identity::accessHostname()),
   };
 
   programs::shell::initInstance(&ush2, &desc2);
@@ -174,14 +128,14 @@ static void shell_test_reinit_no_cycle(void) {
     .read = [](struct ush_object *, char *) -> int { return 0; },
     .write = [](struct ush_object *, char) -> int { return 1; },
   };
-  static const struct ush_descriptor desc3 = {
+static const struct ush_descriptor desc3 = {
     .io = &null_io,
     .input_buffer = in3,
     .input_buffer_size = sizeof(in3),
     .output_buffer = out3,
     .output_buffer_size = sizeof(out3),
     .path_max_length = 64,
-    .hostname = "test",
+    .hostname = const_cast<char *>(services::identity::accessHostname()),
   };
 
   // Initialize twice — this is what ssh_shell_setup() does on reconnect.
@@ -215,43 +169,13 @@ static void shell_test_reinit_no_cycle(void) {
   TEST_MESSAGE("reinit produces clean non-cyclic command list");
 }
 
-static void shell_test_hostname_default(void) {
-  TEST_MESSAGE("user checks boot-time hostname without calling set first");
-  TEST_ASSERT_EQUAL_STRING_MESSAGE(config::HOSTNAME, programs::shell::accessHostname(),
-    "device: boot-time hostname should match config::HOSTNAME");
-  TEST_MESSAGE("default hostname verified");
-}
-
-static void shell_test_hostname_truncation(void) {
-  TEST_MESSAGE("user sets a hostname longer than config::shell::HOSTNAME_SIZE");
-
-  char long_name[config::shell::HOSTNAME_SIZE + 20];
-  memset(long_name, 'A', sizeof(long_name) - 1);
-  long_name[sizeof(long_name) - 1] = '\0';
-
-  programs::shell::configureHostname(long_name);
-
-  size_t result_len = strlen(programs::shell::accessHostname());
-  TEST_ASSERT_LESS_OR_EQUAL_UINT32_MESSAGE(config::shell::HOSTNAME_SIZE, result_len,
-    "device: hostname exceeds config::shell::HOSTNAME_SIZE after truncation");
-
-  programs::shell::configureHostname(config::HOSTNAME);
-  TEST_MESSAGE("hostname truncation verified");
-}
-
 void programs::shell::test(void) {
   it("user observes that microshell initializes",
      shell_test_initializes);
-  it("user observes that the hostname is mutable",
-     shell_test_hostname_mutable);
   it("user observes that a custom shell instance can be initialized",
      shell_test_custom_instance);
   it("user observes that reinitializing a shell instance does not create cycles",
      shell_test_reinit_no_cycle);
-  it("user observes that the default hostname matches config::HOSTNAME",
-     shell_test_hostname_default);
-  it("user observes that long hostnames are truncated",
-     shell_test_hostname_truncation);
 }
 
 #endif

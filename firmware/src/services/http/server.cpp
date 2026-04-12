@@ -1,6 +1,8 @@
 #include "../http.h"
 #include "../cloudevents.h"
 #include "../ws_shell.h"
+#include "../../hardware/storage.h"
+#include "../../networking/wifi.h"
 #include "api/email.h"
 #include "api/filesystem.h"
 #include "api/networking.h"
@@ -26,14 +28,6 @@ AsyncRateLimitMiddleware reset_limit;
 AsyncRateLimitMiddleware ota_limit;
 AsyncRateLimitMiddleware format_limit;
 
-bool sd_ready = false;
-
-bool ensure_sd(void) {
-  if (sd_ready) return true;
-  sd_ready = SD.begin();
-  return sd_ready;
-}
-
 bool requires_admin_auth(AsyncWebServerRequest *request) {
   if (!request || request->method() == HTTP_OPTIONS) return false;
 
@@ -54,11 +48,14 @@ public:
   }
 
   void handleRequest(AsyncWebServerRequest *request) override {
-    if (ensure_sd() && SD.exists("/index.html")) {
+    ::NetworkStatusSnapshot snapshot = {};
+    ::networking::wifi::accessSnapshot(&snapshot);
+
+    if (hardware::storage::ensureSD() && SD.exists("/index.html")) {
       request->send(SD, "/index.html", "text/html");
       return;
     }
-    request->redirect("http://" + WiFi.softAPIP().toString() + "/");
+    request->redirect("http://" + String(snapshot.ap.ip) + "/");
   }
 };
 
@@ -128,7 +125,7 @@ void services::http::initialize() {
   server.onNotFound([](AsyncWebServerRequest *request) {
     String url = request->url();
 
-    if (url == "/" && ensure_sd() && SD.exists("/index.html")) {
+    if (url == "/" && hardware::storage::ensureSD() && SD.exists("/index.html")) {
       request->send(SD, "/index.html", "text/html");
       return;
     }

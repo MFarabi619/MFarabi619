@@ -2,6 +2,8 @@
 #include <microshell.h>
 #include <string.h>
 
+#include "../../../services/system.h"
+
 //------------------------------------------
 //  /dev/mem/heap — detailed heap stats
 //------------------------------------------
@@ -10,16 +12,21 @@ static size_t heap_get_data(struct ush_object *self,
                             uint8_t **data) {
   (void)self; (void)file;
   static char buf[256];
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
   snprintf(buf, sizeof(buf),
            "internal:\r\n"
            "  total:     %u\r\n"
            "  free:      %u\r\n"
            "  min_free:  %u\r\n"
            "  max_alloc: %u\r\n",
-           ESP.getHeapSize(),
-           ESP.getFreeHeap(),
-           ESP.getMinFreeHeap(),
-           ESP.getMaxAllocHeap());
+           query.snapshot.heap_total,
+           query.snapshot.heap_free,
+           query.snapshot.heap_min_free,
+           query.snapshot.heap_max_alloc);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -32,12 +39,17 @@ static size_t psram_get_data(struct ush_object *self,
                              uint8_t **data) {
   (void)self; (void)file;
   static char buf[128];
-  if (ESP.getPsramSize() > 0) {
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
+  if (query.snapshot.psram_total > 0) {
     snprintf(buf, sizeof(buf),
              "total: %u\r\nfree:  %u\r\nused:  %u\r\n",
-             ESP.getPsramSize(),
-             ESP.getFreePsram(),
-             ESP.getPsramSize() - ESP.getFreePsram());
+             query.snapshot.psram_total,
+             query.snapshot.psram_free,
+             query.snapshot.psram_total - query.snapshot.psram_free);
   } else {
     snprintf(buf, sizeof(buf), "PSRAM not available\r\n");
   }

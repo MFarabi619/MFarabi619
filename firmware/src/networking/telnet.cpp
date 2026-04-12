@@ -3,6 +3,8 @@
 #if CERATINA_TELNET_ENABLED
 
 #include "../programs/shell/shell.h"
+#include "../programs/shell/session.h"
+#include "../services/identity.h"
 #include "../programs/shell/microfetch.h"
 #include "../programs/led.h"
 #include <ColorFormat.h>
@@ -17,50 +19,40 @@ static EscapeCodes ansi;
 static bool started = false;
 static String client_ip_str;
 
-static volatile uint16_t ring_head = 0;
-static volatile uint16_t ring_tail = 0;
 static char ring_buf[config::telnet::RING_SIZE];
-
 static char write_buf[config::telnet::WRITE_BUF];
-static size_t write_buf_pos = 0;
+static programs::shell::session::RingBuffer ring = {
+  .data = ring_buf,
+  .capacity = config::telnet::RING_SIZE,
+  .head = 0,
+  .tail = 0,
+};
+static programs::shell::session::WriteBuffer write_state = {
+  .data = write_buf,
+  .capacity = config::telnet::WRITE_BUF,
+  .position = 0,
+};
 
 static struct ush_object telnet_ush;
 static char telnet_in_buf[config::shell::BUF_IN];
 static char telnet_out_buf[config::shell::BUF_OUT];
 
-static void ring_reset(void) { ring_head = 0; ring_tail = 0; }
-
-static bool ring_push(char ch) {
-  uint16_t next = (ring_head + 1) % config::telnet::RING_SIZE;
-  if (next == ring_tail) return false;
-  ring_buf[ring_head] = ch;
-  ring_head = next;
-  return true;
-}
-
-static int ring_pop(char *ch) {
-  if (ring_head == ring_tail) return 0;
-  *ch = ring_buf[ring_tail];
-  ring_tail = (ring_tail + 1) % config::telnet::RING_SIZE;
-  return 1;
-}
-
 static void write_flush(void) {
-  if (write_buf_pos == 0) return;
-  telnet_inst.write((const uint8_t *)write_buf, write_buf_pos);
-  write_buf_pos = 0;
+  if (write_state.position == 0) return;
+  telnet_inst.write((const uint8_t *)write_buf, write_state.position);
+  programs::shell::session::reset(&write_state);
 }
 
 static int telnet_shell_read(struct ush_object *self, char *ch) {
   (void)self;
-  return ring_pop(ch);
+  return programs::shell::session::pop(&ring, ch);
 }
 
 static int telnet_shell_write(struct ush_object *self, char ch) {
   (void)self;
   if (!telnet_inst.isConnected()) return 0;
-  write_buf[write_buf_pos++] = ch;
-  if (write_buf_pos >= config::telnet::WRITE_BUF)
+  if (!programs::shell::session::push(&write_state, ch)) return 0;
+  if (write_state.position >= config::telnet::WRITE_BUF)
     write_flush();
   return 1;
 }
@@ -77,15 +69,15 @@ static const struct ush_descriptor telnet_shell_desc = {
   .output_buffer = telnet_out_buf,
   .output_buffer_size = sizeof(telnet_out_buf),
   .path_max_length = config::shell::MAX_PATH_LEN,
-  .hostname = programs::shell::accessHostname(),
+  .hostname = const_cast<char *>(services::identity::accessHostname()),
 };
 
 static void on_connect(String ip) {
   client_ip_str = ip;
   Serial.printf("[telnet] client connected from %s\n", ip.c_str());
   LED.set(RGB_CYAN);
-  ring_reset();
-  write_buf_pos = 0;
+  programs::shell::session::reset(&ring);
+  programs::shell::session::reset(&write_state);
   programs::shell::initInstance(&telnet_ush, &telnet_shell_desc);
 
   telnet_inst.print(ansi.cls());
@@ -112,7 +104,7 @@ static void on_input(String input) {
   for (size_t i = 0; i < input.length(); i++) {
     char ch = input[i];
     if (ch == '\r') continue;
-    ring_push(ch);
+    programs::shell::session::push(&ring, ch);
   }
 }
 

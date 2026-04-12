@@ -29,206 +29,167 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 namespace config {
+  inline constexpr const char* HOSTNAME = "ceratina";
+  inline constexpr const char* PLATFORM = "esp32s3";
 
-inline constexpr const char* HOSTNAME = "ceratina";
-inline constexpr const char* PLATFORM = "esp32s3";
+  namespace led {
+      inline constexpr uint8_t  GPIO       = 38;
+      inline constexpr uint8_t  COUNT      = 1;
+      inline constexpr uint8_t  BRIGHTNESS = 255;
+  }
 
-// ── Neopixel ─────────────────────────────────────────────────────────────────
+  namespace system {
+      inline constexpr uint32_t TASK_STACK          = 8192;
+      inline constexpr uint32_t SERIAL_BAUD         = 115200;
+      inline constexpr uint16_t SHELL_SERVICE_MS    = 10;
+  }
 
-namespace led {
-    inline constexpr uint8_t  GPIO       = 38;
-    inline constexpr uint8_t  COUNT      = 1;
-    inline constexpr uint8_t  BRIGHTNESS = 255;
-}
+  namespace ssh {
+      inline constexpr uint16_t    PORT            = 22;
+      inline constexpr uint16_t    RING_SIZE       = 512;
+      inline constexpr uint16_t    WRITE_BUF_SIZE  = 1024;
+      inline constexpr uint32_t    TASK_STACK      = 32768;
+      inline constexpr const char* HOSTKEY_PATH    = "/.ssh/id_ed25519";
+  }
 
-// ── System ───────────────────────────────────────────────────────────────────
+  namespace wifi {
+      inline constexpr uint16_t CONNECT_TIMEOUT_MS = 15000;
+      inline constexpr uint16_t POLL_MS            = 100;
+      inline constexpr uint16_t STA_RETRY_MS       = 10000;
+      inline constexpr const char* NVS_NAMESPACE   = "wifi";
+      inline constexpr uint8_t  SSID_MAX_LEN       = 32;
+      inline constexpr uint8_t  PASS_MAX_LEN       = 64;
+      namespace ap {
+          inline constexpr const char* SSID      = "ceratina-access-point";
+          inline constexpr const char* PASSWORD  = "apidaesystems";
+          inline constexpr uint8_t     CHANNEL   = 1;
+      }
+  }
 
-namespace system {
-    inline constexpr uint32_t TASK_STACK          = 8192;
-    inline constexpr uint32_t SERIAL_BAUD         = 115200;
-    inline constexpr uint16_t SHELL_SERVICE_MS    = 10;
-}
+  namespace telnet {
+      inline constexpr bool     ENABLED      = true;
+      inline constexpr uint16_t PORT         = 23;
+      inline constexpr uint16_t RING_SIZE    = 512;
+      inline constexpr uint16_t WRITE_BUF    = 1024;
+      inline constexpr uint16_t KEEPALIVE_MS = 3000;
+  }
 
-// ── SSH ──────────────────────────────────────────────────────────────────────
+  namespace ota {
+      inline constexpr bool     ENABLED     = false;
+      inline constexpr uint16_t PORT        = 3232;
+      inline constexpr const char* PASSWORD = "";
+      inline constexpr const char* SD_PATH  = "/update.bin";
+  }
 
-namespace ssh {
-    inline constexpr uint16_t PORT           = 22;
-    inline constexpr const char* HOSTKEY_PATH = "/.ssh/id_ed25519";
-    inline constexpr uint32_t TASK_STACK     = 32768;
-    inline constexpr uint16_t WRITE_BUF_SIZE = 1024;
-    inline constexpr uint16_t RING_SIZE      = 512;
-}
+  namespace sntp {
+      inline constexpr const char* SERVER_1        = "pool.ntp.org";
+      inline constexpr const char* SERVER_2        = "time.nist.gov";
+      inline constexpr const char* TIME_ZONE       = "EST5EDT,M3.2.0/2,M11.1.0/2";
+      inline constexpr uint16_t    SYNC_TIMEOUT_MS = 10000;
+  }
 
-// ── WiFi ─────────────────────────────────────────────────────────────────────
+  namespace http {
+      inline constexpr uint16_t PORT             = 80;
+      inline constexpr bool     AUTH_ENABLED     = false;
+      inline constexpr const char* AUTH_USER     = CONFIG_SSH_USER;
+      inline constexpr const char* AUTH_PASSWORD = CONFIG_SSH_USER;
+      inline constexpr const char* AUTH_REALM    = "ceratina";
+  }
 
-namespace wifi {
-    inline constexpr uint16_t CONNECT_TIMEOUT_MS = 15000;
-    inline constexpr uint16_t POLL_MS            = 100;
-    inline constexpr uint16_t STA_RETRY_MS       = 10000;
-    inline constexpr const char* NVS_NAMESPACE   = "wifi";
-    inline constexpr uint8_t  SSID_MAX_LEN       = 32;
-    inline constexpr uint8_t  PASS_MAX_LEN       = 64;
+  namespace shell {
+      inline constexpr uint16_t BUF_IN        = 256;
+      inline constexpr uint16_t BUF_OUT       = 256;
+      inline constexpr uint16_t MAX_PATH_LEN  = 128;
+      inline constexpr uint16_t HOSTNAME_SIZE = 32;
+  }
 
-    namespace ap {
-        inline constexpr const char* SSID     = "ceratina-access-point";
-        inline constexpr const char* PASSWORD  = "apidaesystems";
-        inline constexpr uint8_t     CHANNEL   = 1;
-    }
-}
+  namespace i2c {
+      struct BusConfig { uint8_t sda_gpio; uint8_t scl_gpio; };
 
-// ── Telnet ────────────────────────────────────────────────────────────────────
+      inline constexpr BusConfig BUS_0            = {15, 16};
+      inline constexpr BusConfig BUS_1            = {17, 18};
+      inline constexpr uint32_t  FREQUENCY_KHZ    = 100;
+      inline constexpr uint8_t   RELAY_POWER_GPIO = 5;
+      inline constexpr uint8_t   ADDR_MIN         = 1;
+      inline constexpr uint8_t   ADDR_MAX         = 127;
+      inline constexpr uint8_t   MUX_ADDR         = 0x70;
+  }
 
-namespace telnet {
-    inline constexpr bool     ENABLED      = true;
-    inline constexpr uint16_t PORT         = 23;
-    inline constexpr uint16_t RING_SIZE    = 512;
-    inline constexpr uint16_t WRITE_BUF    = 1024;
-    inline constexpr uint16_t KEEPALIVE_MS = 3000;
-}
+  namespace eeprom { // ──(AT24C32 on I2C bus 1)──
+      inline constexpr uint8_t  I2C_ADDR   = 0x50;
+      inline constexpr uint16_t PAGE_SIZE  = 32;
+      inline constexpr uint16_t TOTAL_SIZE = 4096;
+  }
 
-// ── OTA / Update ─────────────────────────────────────────────────────────────
 
-namespace ota {
-    inline constexpr bool     ENABLED  = false;
-    inline constexpr uint16_t PORT     = 3232;
-    inline constexpr const char* PASSWORD = "";
-    inline constexpr const char* SD_PATH  = "/update.bin";
-}
+  namespace temperature_humidity { // ──(CHT832X behind TCA9548A mux)──
+      inline constexpr uint8_t  I2C_ADDR       = 0x44;
+      inline constexpr uint8_t  MAX_SENSORS    = 8;
+      inline constexpr uint16_t READ_DELAY_MS  = 100;
+  }
 
-// ── Time / NTP ───────────────────────────────────────────────────────────────
+    namespace voltage {// ──(ADS1115 on Wire1) ──
+      inline constexpr uint8_t I2C_ADDR      = 0x48;
+      inline constexpr uint8_t CHANNEL_COUNT = 4;
+  }
 
-namespace sntp {
-    inline constexpr const char* SERVER_1       = "pool.ntp.org";
-    inline constexpr const char* SERVER_2       = "time.nist.gov";
-    inline constexpr const char* TIME_ZONE      = "EST5EDT,M3.2.0/2,M11.1.0/2";
-    inline constexpr uint16_t    SYNC_TIMEOUT_MS = 10000;
-}
+  namespace scp {
+      inline constexpr uint16_t BUF_SIZE = 4096;
+  }
 
-// ── HTTP ─────────────────────────────────────────────────────────────────────
+  namespace ws_shell {
+      inline constexpr uint16_t RING_SIZE = 512;
+      inline constexpr uint16_t WRITE_BUF = 1024;
+  }
 
-namespace http {
-    inline constexpr uint16_t PORT         = 80;
-    inline constexpr bool     AUTH_ENABLED = false;
-    inline constexpr const char* AUTH_USER     = CONFIG_SSH_USER;
-    inline constexpr const char* AUTH_PASSWORD = CONFIG_SSH_USER;
-    inline constexpr const char* AUTH_REALM    = "ceratina";
-}
+  namespace provisioning {
+      inline constexpr bool        ENABLED       = false;
+      inline constexpr const char* POP           = "ceratina";
+      inline constexpr const char* SERVICE_UUID  = "ceaa0001-b5a3-f393-e0a9-e50e24dcca9e";
+      inline constexpr const char* CONFIG_UUID   = "ceaa0002-b5a3-f393-e0a9-e50e24dcca9e";
+      inline constexpr const char* NVS_NAMESPACE = "prov";
+  }
 
-// ── Shell ────────────────────────────────────────────────────────────────────
+  namespace buttons {
+      inline constexpr int8_t   GPIO_1         = -1;  // BUG: Reserved for PSRAM SPI, fix in next board rev
+      inline constexpr int8_t   GPIO_2         = 4;
+      inline constexpr int8_t   GPIO_3         = 42;
+      inline constexpr uint8_t  COUNT          = 3;
+      inline constexpr uint16_t DEBOUNCE_MS    = 50;
+      inline constexpr uint16_t LONG_PRESS_MS  = 1000;
+  }
 
-namespace shell {
-    inline constexpr uint16_t BUF_IN        = 256;
-    inline constexpr uint16_t BUF_OUT       = 256;
-    inline constexpr uint16_t MAX_PATH_LEN  = 128;
-    inline constexpr uint16_t HOSTNAME_SIZE = 32;
-}
+  namespace ble {
+      inline constexpr bool     ENABLED     = false;
+      inline constexpr uint32_t PASSKEY     = 123456;
+      inline constexpr uint8_t  MAX_CLIENTS = 2;
+      inline constexpr uint16_t RING_SIZE   = 512;
+      inline constexpr uint16_t WRITE_BUF   = 512;
+  }
 
-// ── I2C ──────────────────────────────────────────────────────────────────────
+  namespace smtp { // ──(Email)──
+      // Edit these values directly.
+      // Password is stored in NVS (key below).
+      inline constexpr bool        ENABLED          = false;
+      inline constexpr uint16_t    PORT             = 587;
+      inline constexpr const char* HOST             = "";
+      inline constexpr const char* DOMAIN           = "";
+      inline constexpr const char* FROM_EMAIL       = "";
+      inline constexpr const char* FROM_NAME        = "";
+      inline constexpr const char* TO_EMAIL         = "";
+      inline constexpr const char* LOGIN_EMAIL      = "";
+      inline constexpr bool        AUTH_ENABLED     = false;
+      inline constexpr bool        SSL_ENABLED      = false;
+      inline constexpr bool        STARTTLS_ENABLED = false;
+      inline constexpr bool        TEST_ENABLED     = false;
+      inline constexpr const char* SUBJECT_PREFIX   = "[ceratina]";
+      inline constexpr const char* NVS_KEY          = "SMTP_PASSWORD";
+  }
 
-namespace i2c {
-    struct BusConfig { uint8_t sda_gpio; uint8_t scl_gpio; };
-
-    inline constexpr BusConfig BUS_0           = {15, 16};
-    inline constexpr BusConfig BUS_1           = {17, 18};
-    inline constexpr uint32_t FREQUENCY_KHZ   = 100;
-    inline constexpr uint8_t  RELAY_POWER_GPIO = 5;
-    inline constexpr uint8_t  ADDR_MIN        = 1;
-    inline constexpr uint8_t  ADDR_MAX        = 127;
-    inline constexpr uint8_t  MUX_ADDR        = 0x70;
-}
-
-// ── EEPROM (AT24C32 on I2C bus 1) ────────────────────────────────────────────
-
-namespace eeprom {
-    inline constexpr uint8_t  I2C_ADDR   = 0x50;
-    inline constexpr uint16_t PAGE_SIZE  = 32;
-    inline constexpr uint16_t TOTAL_SIZE = 4096;
-}
-
-// ── Temperature / Humidity (CHT832X behind TCA9548A mux) ─────────────────────
-
-namespace temperature_humidity {
-    inline constexpr uint8_t  I2C_ADDR       = 0x44;
-    inline constexpr uint8_t  MAX_SENSORS    = 8;
-    inline constexpr uint16_t READ_DELAY_MS  = 100;
-}
-
-// ── Voltage Monitor (ADS1115 on Wire1) ───────────────────────────────────────
-
-namespace voltage {
-    inline constexpr uint8_t I2C_ADDR      = 0x48;
-    inline constexpr uint8_t CHANNEL_COUNT = 4;
-}
-
-// ── SCP / WebSocket Shell ────────────────────────────────────────────────────
-
-namespace scp {
-    inline constexpr uint16_t BUF_SIZE = 4096;
-}
-
-namespace ws_shell {
-    inline constexpr uint16_t RING_SIZE = 512;
-    inline constexpr uint16_t WRITE_BUF = 1024;
-}
-
-// ── BLE Provisioning ─────────────────────────────────────────────────────────
-
-namespace provisioning {
-    inline constexpr bool     ENABLED       = false;
-    inline constexpr const char* POP        = "ceratina";
-    inline constexpr const char* SERVICE_UUID = "ceaa0001-b5a3-f393-e0a9-e50e24dcca9e";
-    inline constexpr const char* CONFIG_UUID  = "ceaa0002-b5a3-f393-e0a9-e50e24dcca9e";
-    inline constexpr const char* NVS_NAMESPACE = "prov";
-}
-
-// ── Physical Buttons ─────────────────────────────────────────────────────────
-
-namespace buttons {
-    inline constexpr int8_t   GPIO_1         = -1;  // Reserved for PSRAM SPI
-    inline constexpr int8_t   GPIO_2         = 4;
-    inline constexpr int8_t   GPIO_3         = 42;
-    inline constexpr uint8_t  COUNT          = 3;
-    inline constexpr uint16_t DEBOUNCE_MS    = 50;
-    inline constexpr uint16_t LONG_PRESS_MS  = 1000;
-}
-
-// ── BLE Runtime ──────────────────────────────────────────────────────────────
-
-namespace ble {
-    inline constexpr bool     ENABLED     = false;
-    inline constexpr uint32_t PASSKEY     = 123456;
-    inline constexpr uint8_t  MAX_CLIENTS = 2;
-    inline constexpr uint16_t RING_SIZE   = 512;
-    inline constexpr uint16_t WRITE_BUF   = 512;
-}
-
-// ── SMTP Email ───────────────────────────────────────────────────────────────
-//  Edit these values directly. Password is stored in NVS (key below).
-
-namespace smtp {
-    inline constexpr bool     ENABLED          = false;
-    inline constexpr const char* HOST           = "";
-    inline constexpr uint16_t PORT             = 587;
-    inline constexpr const char* DOMAIN         = "";
-    inline constexpr const char* FROM_EMAIL     = "";
-    inline constexpr const char* FROM_NAME      = "";
-    inline constexpr const char* TO_EMAIL       = "";
-    inline constexpr const char* LOGIN_EMAIL    = "";
-    inline constexpr const char* SUBJECT_PREFIX = "[ceratina]";
-    inline constexpr bool     AUTH_ENABLED     = false;
-    inline constexpr bool     SSL_ENABLED      = false;
-    inline constexpr bool     STARTTLS_ENABLED = false;
-    inline constexpr bool     TEST_ENABLED     = false;
-    inline constexpr const char* NVS_KEY       = "SMTP_PASSWORD";
-}
-
-// ── CloudEvents ──────────────────────────────────────────────────────────────
-
-namespace cloudevents {
-    inline constexpr const char* TENANT = "default-tenant";
-    inline constexpr const char* SITE   = "default-site";
-}
-
+  namespace cloudevents {
+      inline constexpr const char* TENANT = "default-tenant";
+      inline constexpr const char* SITE   = "default-site";
+  }
 } // namespace config
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -253,12 +214,12 @@ static_assert(config::buttons::COUNT <= 8, "Too many buttons");
 //  Preprocessor guards (booleans can't be used in #if)
 // ─────────────────────────────────────────────────────────────────────────────
 
-#define CERATINA_TELNET_ENABLED    1
-#define CERATINA_OTA_ENABLED       0
-#define CERATINA_PROV_ENABLED      0
-#define CERATINA_BLE_ENABLED       0
-#define CERATINA_SMTP_ENABLED      0
-#define CERATINA_SMTP_TEST_ENABLED 0
+#define CERATINA_TELNET_ENABLED     1
+#define CERATINA_OTA_ENABLED        0
+#define CERATINA_PROV_ENABLED       0
+#define CERATINA_BLE_ENABLED        0
+#define CERATINA_SMTP_ENABLED       0
+#define CERATINA_SMTP_TEST_ENABLED  0
 #define CERATINA_HTTP_AUTH_ENABLED  0
 
 #endif // CONFIG_H

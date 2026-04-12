@@ -1,5 +1,7 @@
 #include "filesystem.h"
 #include "../../../config.h"
+#include "../../../filesystems/api.h"
+#include "../../../hardware/storage.h"
 
 #include <Arduino.h>
 #include <AsyncJson.h>
@@ -15,112 +17,15 @@ struct FileUploadState {
   bool ok = false;
 };
 
-struct FilesystemTarget {
-  fs::FS *fs;
-  String path;
-  bool ok;
-};
-
-bool sd_ready = false;
-
-bool is_sensitive_path(const String &path) {
-  return path == "/.ssh" || path.startsWith("/.ssh/")
-      || path == config::ssh::HOSTKEY_PATH;
-}
-
-bool ensure_sd(void) {
-  if (sd_ready) return true;
-  sd_ready = SD.begin();
-  return sd_ready;
-}
-
-FilesystemTarget resolve_filesystem_target(const String &url) {
-  const char *prefix = "/api/filesystem/";
-  String remainder = url.substring(strlen(prefix));
-
-  if (remainder.startsWith("sd")) {
-    String path = remainder.substring(2);
-    if (path.isEmpty()) path = "/";
-    if (ensure_sd()) return {&SD, path, true};
-    return {nullptr, path, false};
-  }
-
-  if (remainder.startsWith("littlefs")) {
-    String path = remainder.substring(8);
-    if (path.isEmpty()) path = "/";
-    return {&LittleFS, path, true};
-  }
-
-  return {nullptr, "", false};
-}
-
-void list_directory(fs::FS &filesystem, const String &path, JsonArray &out) {
-  File dir = filesystem.open(path);
-  if (!dir || !dir.isDirectory()) return;
-
-  File entry = dir.openNextFile();
-  while (entry) {
-    String name = String(entry.name());
-    if (!is_sensitive_path(name)) {
-      JsonObject object = out.add<JsonObject>();
-      object["name"] = name;
-      object["size"] = (unsigned long long)entry.size();
-      object["dir"] = entry.isDirectory();
-      object["last_write_unix"] = (unsigned long long)entry.getLastWrite();
-    }
-    entry = dir.openNextFile();
-  }
-
-  dir.close();
-}
-
-bool recursive_delete(fs::FS &filesystem, const String &path) {
-  File entry = filesystem.open(path);
-  if (!entry) return false;
-
-  if (!entry.isDirectory()) {
-    entry.close();
-    return filesystem.remove(path);
-  }
-
-  entry.close();
-  File dir = filesystem.open(path);
-  File child = dir.openNextFile();
-  while (child) {
-    String child_name = String(child.name());
-    bool is_directory = child.isDirectory();
-    child.close();
-
-    String child_path = (path == "/") ? "/" + child_name : path + "/" + child_name;
-
-    if (is_directory) {
-      if (!recursive_delete(filesystem, child_path)) {
-        dir.close();
-        return false;
-      }
-    } else {
-      if (!filesystem.remove(child_path)) {
-        dir.close();
-        return false;
-      }
-    }
-
-    child = dir.openNextFile();
-  }
-
-  dir.close();
-  return filesystem.rmdir(path);
-}
-
 void handle_legacy_files(AsyncWebServerRequest *request) {
-  if (!ensure_sd()) {
+  if (!hardware::storage::ensureSD()) {
     request->send(503, "application/json", "{\"error\":\"no SD card\"}");
     return;
   }
 
   AsyncJsonResponse *response = new AsyncJsonResponse(true);
   JsonArray root = response->getRoot().to<JsonArray>();
-  list_directory(SD, "/", root);
+  filesystems::api::listDirectory(SD, "/", root);
 
   response->setLength();
   request->send(response);
@@ -132,22 +37,27 @@ void handle_root(AsyncWebServerRequest *request) {
   root["ok"] = true;
 
   JsonArray sd_entries = root["sd"].to<JsonArray>();
-  if (ensure_sd()) list_directory(SD, "/", sd_entries);
+  if (hardware::storage::ensureSD()) filesystems::api::listDirectory(SD, "/", sd_entries);
 
   JsonArray littlefs_entries = root["littlefs"].to<JsonArray>();
-  list_directory(LittleFS, "/", littlefs_entries);
+  if (hardware::storage::ensureLittleFS()) filesystems::api::listDirectory(LittleFS, "/", littlefs_entries);
 
   response->setLength();
   request->send(response);
 }
 
 void handle_get(AsyncWebServerRequest *request) {
-  FilesystemTarget target = resolve_filesystem_target(request->url());
+  FilesystemResolveCommand command = {
+    .url = request->url(),
+    .target = {},
+  };
+  filesystems::api::resolveTarget(&command);
+  FilesystemTarget &target = command.target;
   if (!target.ok) {
     request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
     return;
   }
-  if (is_sensitive_path(target.path)) {
+  if (filesystems::api::isSensitivePath(target.path)) {
     request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
     return;
   }
@@ -162,7 +72,7 @@ void handle_get(AsyncWebServerRequest *request) {
     entry.close();
     AsyncJsonResponse *response = new AsyncJsonResponse(true);
     JsonArray root = response->getRoot().to<JsonArray>();
-    list_directory(*target.fs, target.path, root);
+    filesystems::api::listDirectory(*target.fs, target.path, root);
     response->setLength();
     request->send(response);
     return;
@@ -173,12 +83,17 @@ void handle_get(AsyncWebServerRequest *request) {
 }
 
 void handle_mkdir(AsyncWebServerRequest *request) {
-  FilesystemTarget target = resolve_filesystem_target(request->url());
+  FilesystemResolveCommand command = {
+    .url = request->url(),
+    .target = {},
+  };
+  filesystems::api::resolveTarget(&command);
+  FilesystemTarget &target = command.target;
   if (!target.ok) {
     request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
     return;
   }
-  if (is_sensitive_path(target.path)) {
+  if (filesystems::api::isSensitivePath(target.path)) {
     request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
     return;
   }
@@ -193,7 +108,7 @@ void handle_mkdir(AsyncWebServerRequest *request) {
 }
 
 void handle_format(AsyncWebServerRequest *request) {
-  bool formatted = LittleFS.format();
+  bool formatted = hardware::storage::ensureLittleFS() && LittleFS.format();
   AsyncJsonResponse *response = new AsyncJsonResponse();
   response->setCode(formatted ? 200 : 500);
   JsonObject root = response->getRoot().to<JsonObject>();
@@ -212,12 +127,17 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
     state = new FileUploadState();
     request->_tempObject = state;
 
-    FilesystemTarget target = resolve_filesystem_target(request->url());
+    FilesystemResolveCommand command = {
+      .url = request->url(),
+      .target = {},
+    };
+    filesystems::api::resolveTarget(&command);
+    FilesystemTarget &target = command.target;
     if (!target.ok) {
       request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
       return;
     }
-    if (is_sensitive_path(target.path)) {
+    if (filesystems::api::isSensitivePath(target.path)) {
       request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
       return;
     }
@@ -265,17 +185,22 @@ void handle_upload_complete(AsyncWebServerRequest *request) {
 }
 
 void handle_delete(AsyncWebServerRequest *request) {
-  FilesystemTarget target = resolve_filesystem_target(request->url());
+  FilesystemResolveCommand command = {
+    .url = request->url(),
+    .target = {},
+  };
+  filesystems::api::resolveTarget(&command);
+  FilesystemTarget &target = command.target;
   if (!target.ok) {
     request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
     return;
   }
-  if (is_sensitive_path(target.path)) {
+  if (filesystems::api::isSensitivePath(target.path)) {
     request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
     return;
   }
 
-  bool removed = recursive_delete(*target.fs, target.path);
+  bool removed = filesystems::api::removeRecursive(*target.fs, target.path);
   AsyncJsonResponse *response = new AsyncJsonResponse();
   response->setCode(removed ? 200 : 404);
   JsonObject root = response->getRoot().to<JsonObject>();
@@ -302,12 +227,17 @@ void services::http::api::filesystem::registerRoutes(AsyncWebServer &server,
   AsyncCallbackJsonWebHandler &rename_handler =
       server.on(AsyncURIMatcher::dir("/api/filesystem"), HTTP_PATCH,
           [](AsyncWebServerRequest *request, JsonVariant &json) {
-    FilesystemTarget target = resolve_filesystem_target(request->url());
+    FilesystemResolveCommand command = {
+      .url = request->url(),
+      .target = {},
+    };
+    filesystems::api::resolveTarget(&command);
+    FilesystemTarget &target = command.target;
     if (!target.ok) {
       request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
       return;
     }
-    if (is_sensitive_path(target.path)) {
+    if (filesystems::api::isSensitivePath(target.path)) {
       request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
       return;
     }
@@ -323,7 +253,7 @@ void services::http::api::filesystem::registerRoutes(AsyncWebServer &server,
     String dir = (last_slash > 0) ? target.path.substring(0, last_slash) : "";
     String new_path = dir + "/" + new_name;
 
-    if (is_sensitive_path(new_path)) {
+    if (filesystems::api::isSensitivePath(new_path)) {
       request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
       return;
     }

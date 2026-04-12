@@ -33,7 +33,7 @@ bool networking::sntp::sync() noexcept {
   }
 
   if (synced && synced_epoch > 0) {
-    RTC.adjust(DateTime(synced_epoch));
+    services::rtc::setEpoch(synced_epoch);
     Serial.printf("[ntp] local time: %s\n", networking::sntp::accessLocalTimeString());
   } else {
     Serial.println(F("[ntp] sync timeout — using RTC time"));
@@ -120,8 +120,8 @@ static void sntp_test_syncs_and_updates_rtc(void) {
   }
 
   TEST_MESSAGE("WiFi connected, starting NTP sync...");
-  rtcInitialize();
-  uint32_t rtc_before = RTC.now().unixtime();
+  services::rtc::initialize();
+  uint32_t rtc_before = services::rtc::accessEpoch();
 
   bool synced = networking::sntp::sync();
   if (!synced) {
@@ -132,7 +132,7 @@ static void sntp_test_syncs_and_updates_rtc(void) {
 
   TEST_MESSAGE(networking::sntp::accessLocalTimeString());
 
-  uint32_t rtc_after = RTC.now().unixtime();
+  uint32_t rtc_after = services::rtc::accessEpoch();
   uint32_t ntp_epoch = networking::sntp::accessUTCEpoch();
 
   TEST_ASSERT_UINT32_WITHIN_MESSAGE(2, ntp_epoch, rtc_after,

@@ -4,7 +4,7 @@
 #ifdef PIO_UNIT_TESTING
 
 #include "../config.h"
-#include "../util/preferences_guard.h"
+#include <Preferences.h>
 
 struct NvsStringSnapshot {
   char value[128];
@@ -49,20 +49,22 @@ struct WifiNvsSnapshot {
 };
 
 static inline void wifi_nvs_save(WifiNvsSnapshot *snap) {
-  PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
-  if (!prefs.ok()) return;
-  nvs_snapshot_string(prefs.ref(), "ap_ssid", &snap->ap_ssid);
-  nvs_snapshot_string(prefs.ref(), "ap_pass", &snap->ap_pass);
-  nvs_snapshot_bool(prefs.ref(), "ap_on", &snap->ap_on, true);
+  Preferences prefs;
+  if (!prefs.begin(config::wifi::NVS_NAMESPACE, true)) return;
+  nvs_snapshot_string(prefs, "ap_ssid", &snap->ap_ssid);
+  nvs_snapshot_string(prefs, "ap_pass", &snap->ap_pass);
+  nvs_snapshot_bool(prefs, "ap_on", &snap->ap_on, true);
+  prefs.end();
 }
 
 static inline void wifi_nvs_restore(const WifiNvsSnapshot *snap) {
-  PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
-  if (!prefs.ok()) return;
-  prefs->clear();
-  nvs_restore_string(prefs.ref(), "ap_ssid", &snap->ap_ssid);
-  nvs_restore_string(prefs.ref(), "ap_pass", &snap->ap_pass);
-  nvs_restore_bool(prefs.ref(), "ap_on", &snap->ap_on);
+  Preferences prefs;
+  if (!prefs.begin(config::wifi::NVS_NAMESPACE, false)) return;
+  prefs.clear();
+  nvs_restore_string(prefs, "ap_ssid", &snap->ap_ssid);
+  nvs_restore_string(prefs, "ap_pass", &snap->ap_pass);
+  nvs_restore_bool(prefs, "ap_on", &snap->ap_on);
+  prefs.end();
 }
 
 #endif

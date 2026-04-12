@@ -1,8 +1,9 @@
 #include "../../../config.h"
+#include "../../../hardware/i2c.h"
+#include "../../../sensors/manager.h"
 #include "../../../services/rtc.h"
 
 #include <Arduino.h>
-#include <Wire.h>
 #include <microshell.h>
 #include <string.h>
 
@@ -14,32 +15,12 @@ static size_t i2c_scan_get_data(struct ush_object *self,
                                 uint8_t **data) {
   (void)self; (void)file;
   static char buf[512];
-  int pos = 0;
-  int found = 0;
-
-  pos += snprintf(buf + pos, sizeof(buf) - pos, "bus 0:\r\n");
-  for (uint8_t addr = config::i2c::ADDR_MIN; addr < config::i2c::ADDR_MAX && pos < (int)sizeof(buf) - 16; addr++) {
-    Wire.beginTransmission(addr);
-    if (Wire.endTransmission() == 0) {
-      pos += snprintf(buf + pos, sizeof(buf) - pos, "  0x%02X\r\n", addr);
-      found++;
-    }
-  }
-
-  int remaining = sizeof(buf) - pos;
-  if (remaining > 16) {
-    pos += snprintf(buf + pos, remaining, "bus 1:\r\n");
-    for (uint8_t addr = config::i2c::ADDR_MIN; addr < config::i2c::ADDR_MAX && pos < (int)sizeof(buf) - 16; addr++) {
-      Wire1.beginTransmission(addr);
-      if (Wire1.endTransmission() == 0) {
-        pos += snprintf(buf + pos, sizeof(buf) - pos, "  0x%02X\r\n", addr);
-        found++;
-      }
-    }
-  }
-
-  if (pos < (int)sizeof(buf) - 32)
-    pos += snprintf(buf + pos, sizeof(buf) - pos, "%d device(s) total\r\n", found);
+  hardware::i2c::ScanCommand command = {
+    .buffer = buf,
+    .capacity = sizeof(buf),
+    .length = 0,
+  };
+  hardware::i2c::scan(&command);
 
   *data = (uint8_t *)buf;
   return strlen(buf);
@@ -53,10 +34,11 @@ static size_t rtc_get_data(struct ush_object *self,
                            uint8_t **data) {
   (void)self; (void)file;
   static char buf[64];
-  if (!!RTC.lostPower()) {
+  RTCSnapshot snapshot = {};
+  if (!services::rtc::accessSnapshot(&snapshot) || !snapshot.valid) {
     snprintf(buf, sizeof(buf), "(oscillator stopped — time invalid)\r\n");
   } else {
-    snprintf(buf, sizeof(buf), "%s\r\n", RTC.now().timestamp().c_str());
+    snprintf(buf, sizeof(buf), "%s\r\n", snapshot.iso8601);
   }
   *data = (uint8_t *)buf;
   return strlen(buf);
@@ -70,15 +52,16 @@ static size_t temperature_get_data(struct ush_object *self,
                                    uint8_t **data) {
   (void)self; (void)file;
   static char buf[32];
-  float temp = RTC.getTemperature();
-  snprintf(buf, sizeof(buf), "%.2f C\r\n", temp);
+  RTCSnapshot snapshot = {};
+  services::rtc::accessSnapshot(&snapshot);
+  snprintf(buf, sizeof(buf), "%.2f C\r\n", snapshot.temperature_celsius);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
 
 static const struct ush_file_descriptor sensors_files[] = {
   { .name = "i2c_scan",    .description = "scan all I2C buses",
-    .get_data = i2c_scan_get_data },
+     .get_data = i2c_scan_get_data },
   { .name = "rtc",         .description = "DS3231 date/time",
     .get_data = rtc_get_data },
   { .name = "temperature", .description = "DS3231 temperature",
@@ -88,7 +71,8 @@ static const struct ush_file_descriptor sensors_files[] = {
 static struct ush_node_object sensors_node;
 
 void dev_sensors_mount(struct ush_object *ush) {
-  rtcInitialize();
+  services::rtc::initialize();
+  sensors::manager::initialize();
   ush_node_mount(ush, "/dev/sensors", &sensors_node, sensors_files,
                  sizeof(sensors_files) / sizeof(sensors_files[0]));
 }

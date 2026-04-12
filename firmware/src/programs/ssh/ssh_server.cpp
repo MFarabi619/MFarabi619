@@ -1,5 +1,7 @@
 #include "ssh_server.h"
 #include "../shell/shell.h"
+#include "../shell/session.h"
+#include "../../services/identity.h"
 #include "../shell/microfetch.h"
 #include "../led.h"
 #include <ColorFormat.h>
@@ -42,53 +44,41 @@ static volatile bool session_alive = true;
 //------------------------------------------
 
 static char ssh_ring[config::ssh::RING_SIZE];
-static volatile int ssh_ring_head = 0;
-static volatile int ssh_ring_tail = 0;
-
-static void ssh_ring_reset(void) {
-  ssh_ring_head = 0;
-  ssh_ring_tail = 0;
-}
-
-static void ssh_ring_push(char c) {
-  int next = (ssh_ring_head + 1) % config::ssh::RING_SIZE;
-  if (next != ssh_ring_tail) {
-    ssh_ring[ssh_ring_head] = c;
-    ssh_ring_head = next;
-  }
-}
-
-static int ssh_ring_pop(char *c) {
-  if (ssh_ring_tail == ssh_ring_head) return 0;
-  *c = ssh_ring[ssh_ring_tail];
-  ssh_ring_tail = (ssh_ring_tail + 1) % config::ssh::RING_SIZE;
-  return 1;
-}
+static programs::shell::session::RingBuffer ssh_ring_state = {
+  .data = ssh_ring,
+  .capacity = config::ssh::RING_SIZE,
+  .head = 0,
+  .tail = 0,
+};
 
 //------------------------------------------
 //  MicroShell instance for SSH
 //------------------------------------------
 static char ssh_write_buf[config::ssh::WRITE_BUF_SIZE];
-static int ssh_write_buf_pos = 0;
+static programs::shell::session::WriteBuffer ssh_write_state = {
+  .data = ssh_write_buf,
+  .capacity = config::ssh::WRITE_BUF_SIZE,
+  .position = 0,
+};
 
 static void ssh_write_flush(void) {
-  if (ssh_write_buf_pos > 0) {
+  if (ssh_write_state.position > 0) {
     if (active_chan)
-      ssh_channel_write(active_chan, ssh_write_buf, ssh_write_buf_pos);
-    ssh_write_buf_pos = 0;  // always reset, even if channel is gone
+      ssh_channel_write(active_chan, ssh_write_buf, ssh_write_state.position);
+    programs::shell::session::reset(&ssh_write_state);
   }
 }
 
 static int ssh_shell_read(struct ush_object *self, char *ch) {
   (void)self;
-  return ssh_ring_pop(ch);
+  return programs::shell::session::pop(&ssh_ring_state, ch);
 }
 
 static int ssh_shell_write(struct ush_object *self, char ch) {
   (void)self;
   if (!active_chan) return 0;
-  ssh_write_buf[ssh_write_buf_pos++] = ch;
-  if (ssh_write_buf_pos >= config::ssh::WRITE_BUF_SIZE)
+  if (!programs::shell::session::push(&ssh_write_state, ch)) return 0;
+  if (ssh_write_state.position >= config::ssh::WRITE_BUF_SIZE)
     ssh_write_flush();
   return 1;
 }
@@ -109,12 +99,12 @@ static const struct ush_descriptor ssh_shell_desc = {
   .output_buffer = ssh_shell_out_buf,
   .output_buffer_size = sizeof(ssh_shell_out_buf),
   .path_max_length = config::shell::MAX_PATH_LEN,
-  .hostname = programs::shell::accessHostname(),
+  .hostname = const_cast<char *>(services::identity::accessHostname()),
 };
 
 static void ssh_shell_setup(void) {
-  ssh_ring_reset();
-  ssh_write_buf_pos = 0;
+  programs::shell::session::reset(&ssh_ring_state);
+  programs::shell::session::reset(&ssh_write_state);
   programs::shell::initInstance(&ssh_ush, &ssh_shell_desc);
 }
 
@@ -151,7 +141,7 @@ static int on_channel_data(ssh_session session, ssh_channel channel,
       session_alive = false;
       return len;
     }
-    ssh_ring_push(bytes[i]);
+    programs::shell::session::push(&ssh_ring_state, bytes[i]);
   }
   return len;
 }

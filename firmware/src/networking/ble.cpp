@@ -1,7 +1,10 @@
 #include "ble.h"
 #include "../config.h"
 #include "../programs/shell/shell.h"
-#include "../sensors/voltage.h"
+#include "../programs/shell/session.h"
+#include "../services/identity.h"
+#include "../services/system.h"
+#include "../sensors/manager.h"
 
 #include <Arduino.h>
 #include <BLEDevice.h>
@@ -26,46 +29,37 @@ static BLECharacteristic *nus_rx = nullptr;
 static BLECharacteristic *sensor_status = nullptr;
 static BLECharacteristic *sensor_voltage = nullptr;
 
-static volatile uint16_t ring_head = 0;
-static volatile uint16_t ring_tail = 0;
 static char ring_buf[config::ble::RING_SIZE];
 static char write_buf[config::ble::WRITE_BUF];
-static size_t write_buf_pos = 0;
-
-static void ring_reset(void) { ring_head = 0; ring_tail = 0; }
-
-static bool ring_push(char ch) {
-  uint16_t next = (ring_head + 1) % config::ble::RING_SIZE;
-  if (next == ring_tail) return false;
-  ring_buf[ring_head] = ch;
-  ring_head = next;
-  return true;
-}
-
-static int ring_pop(char *ch) {
-  if (ring_head == ring_tail) return 0;
-  *ch = ring_buf[ring_tail];
-  ring_tail = (ring_tail + 1) % config::ble::RING_SIZE;
-  return 1;
-}
+static programs::shell::session::RingBuffer ring = {
+  .data = ring_buf,
+  .capacity = config::ble::RING_SIZE,
+  .head = 0,
+  .tail = 0,
+};
+static programs::shell::session::WriteBuffer write_state = {
+  .data = write_buf,
+  .capacity = config::ble::WRITE_BUF,
+  .position = 0,
+};
 
 static void write_flush(void) {
-  if (write_buf_pos == 0 || !nus_tx || networking::ble::clientCount() == 0) return;
-  nus_tx->setValue((uint8_t *)write_buf, write_buf_pos);
+  if (write_state.position == 0 || !nus_tx || networking::ble::clientCount() == 0) return;
+  nus_tx->setValue((uint8_t *)write_buf, write_state.position);
   nus_tx->notify();
-  write_buf_pos = 0;
+  programs::shell::session::reset(&write_state);
 }
 
 static int ble_shell_read(struct ush_object *self, char *ch) {
   (void)self;
-  return ring_pop(ch);
+  return programs::shell::session::pop(&ring, ch);
 }
 
 static int ble_shell_write(struct ush_object *self, char ch) {
   (void)self;
   if (networking::ble::clientCount() == 0) return 0;
-  write_buf[write_buf_pos++] = ch;
-  if (write_buf_pos >= config::ble::WRITE_BUF)
+  if (!programs::shell::session::push(&write_state, ch)) return 0;
+  if (write_state.position >= config::ble::WRITE_BUF)
     write_flush();
   return 1;
 }
@@ -86,7 +80,7 @@ static const struct ush_descriptor ble_shell_desc = {
   .output_buffer = ble_out_buf,
   .output_buffer_size = sizeof(ble_out_buf),
   .path_max_length = config::shell::MAX_PATH_LEN,
-  .hostname = programs::shell::accessHostname(),
+  .hostname = const_cast<char *>(services::identity::accessHostname()),
 };
 
 class BleServerCallbacks : public BLEServerCallbacks {
@@ -95,8 +89,8 @@ class BleServerCallbacks : public BLEServerCallbacks {
     Serial.printf("[ble] client connected (%u total)\n", connected_clients);
 
     if (connected_clients == 1) {
-      ring_reset();
-      write_buf_pos = 0;
+      programs::shell::session::reset(&ring);
+      programs::shell::session::reset(&write_state);
       programs::shell::initInstance(&ble_ush, &ble_shell_desc);
     }
 
@@ -117,7 +111,7 @@ class BleRxCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *characteristic) override {
     String value = characteristic->getValue();
     for (size_t i = 0; i < value.length(); i++) {
-      ring_push(value[i]);
+      programs::shell::session::push(&ring, value[i]);
     }
   }
 };
@@ -194,14 +188,19 @@ void networking::ble::service(void) {
   if (millis() - last_sensor_notify > 5000) {
     last_sensor_notify = millis();
 
+    SystemQuery query = {
+      .preferred_storage = StorageKind::LittleFS,
+      .snapshot = {},
+    };
+    services::system::accessSnapshot(&query);
     char buf[64];
     snprintf(buf, sizeof(buf), "{\"heap\":%u,\"uptime\":%lu}",
-             ESP.getFreeHeap(), millis() / 1000);
+             query.snapshot.heap_free, query.snapshot.uptime_seconds);
     sensor_status->setValue((uint8_t *)buf, strlen(buf));
     sensor_status->notify();
 
     VoltageSensorData sensor_data = {};
-    if (sensors::voltage::access(&sensor_data)) {
+    if (sensors::manager::accessVoltage(&sensor_data)) {
       snprintf(buf, sizeof(buf), "[%.4f,%.4f,%.4f,%.4f]",
                sensor_data.channel_volts[0], sensor_data.channel_volts[1],
                sensor_data.channel_volts[2], sensor_data.channel_volts[3]);

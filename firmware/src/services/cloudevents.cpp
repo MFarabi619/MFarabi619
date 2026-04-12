@@ -1,8 +1,7 @@
 #include "cloudevents.h"
 #include "../config.h"
-#include "../sensors/voltage.h"
-#include "../sensors/temperature_and_humidity.h"
-#include "../sensors/carbon_dioxide.h"
+#include "system.h"
+#include "../sensors/manager.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -77,12 +76,17 @@ static void append_status_event(JsonArray events, uint16_t sequence,
   JsonObject event = cloudevents_add_event(events, sequence, source,
                                            "status.v1", time_iso);
   JsonObject data = event["data"].to<JsonObject>();
-  data["memory_heap"] = ESP.getFreeHeap();
-  data["chip_model"] = ESP.getChipModel();
-  data["chip_cores"] = ESP.getChipCores();
-  data["chip_revision"] = ESP.getChipRevision();
-  data["ipv4_address"] = WiFi.localIP().toString();
-  data["wifi_rssi"] = WiFi.RSSI();
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
+  data["memory_heap"] = query.snapshot.heap_free;
+  data["chip_model"] = query.snapshot.chip_model;
+  data["chip_cores"] = query.snapshot.chip_cores;
+  data["chip_revision"] = query.snapshot.chip_revision;
+  data["ipv4_address"] = query.snapshot.network.ip;
+  data["wifi_rssi"] = query.snapshot.network.rssi;
   data["uptime_seconds"] = millis() / 1000UL;
 }
 
@@ -91,22 +95,24 @@ static void append_temperature_humidity_event(JsonArray events,
                                               uint16_t sequence,
                                               const String &source,
                                               const String &time_iso) {
-  uint8_t count = sensors::temperature_and_humidity::sensorCount();
+  SensorInventorySnapshot inventory = {};
+  sensors::manager::accessInventory(&inventory);
+  uint8_t count = inventory.temperature_humidity_count;
   if (count == 0) return;
 
   JsonObject event = cloudevents_add_event(events, sequence, source,
       "sensors.temperature_and_humidity.v1", time_iso);
   JsonObject data = event["data"].to<JsonObject>();
 
-  JsonArray sensors = data["sensors"].to<JsonArray>();
+  JsonArray sensor_entries = data["sensors"].to<JsonArray>();
   uint16_t successful_reads = 0;
 
   for (uint8_t index = 0; index < count; index++) {
-    JsonObject sensor = sensors.add<JsonObject>();
+    JsonObject sensor = sensor_entries.add<JsonObject>();
     sensor["index"] = index;
 
     TemperatureHumiditySensorData sensor_data = {};
-    bool read_ok = sensors::temperature_and_humidity::access(index, &sensor_data);
+    bool read_ok = sensors::manager::accessTemperatureHumidity(index, &sensor_data);
 
     sensor["read_ok"] = read_ok;
     if (read_ok) {
@@ -131,8 +137,8 @@ static void append_voltage_event(JsonArray events, uint16_t sequence,
   JsonObject data = event["data"].to<JsonObject>();
 
   VoltageSensorData sensor_data = {};
-  bool read_ok = sensors::voltage::access(&sensor_data);
-
+  bool read_ok = sensors::manager::accessVoltage(&sensor_data);
+  
   data["read_ok"] = read_ok;
   data["gain"] = sensors::voltage::accessGainLabel();
 
@@ -149,7 +155,7 @@ static void append_voltage_event(JsonArray events, uint16_t sequence,
 static void append_co2_event(JsonArray events, uint16_t sequence,
                              const String &source, const String &time_iso) {
   CO2SensorData sensor_data = {};
-  if (!sensors::carbon_dioxide::accessReading(&sensor_data) || !sensor_data.ok) return;
+  if (!sensors::manager::accessCO2(&sensor_data) || !sensor_data.ok) return;
 
   JsonObject event = cloudevents_add_event(events, sequence, source,
                                            "sensors.carbon_dioxide.v1", time_iso);

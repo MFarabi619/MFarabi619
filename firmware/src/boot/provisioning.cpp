@@ -1,19 +1,30 @@
 #include "provisioning.h"
 #include "../config.h"
+#include "../services/identity.h"
 
 #include <Arduino.h>
+#include <Preferences.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
-#include "../util/preferences_guard.h"
+
+namespace {
+
+bool clear_namespace(const char *name_space) {
+  Preferences prefs;
+  if (!prefs.begin(name_space, false)) return false;
+  prefs.clear();
+  prefs.end();
+  return true;
+}
+
+bool open_namespace(const char *name_space, bool readonly, Preferences *prefs) {
+  return prefs && prefs->begin(name_space, readonly);
+}
+
+}
 
 bool boot::provisioning::isEnabled(void) {
   return CERATINA_PROV_ENABLED;
-}
-
-static bool get_prov_string(const char *key, char *buf, size_t len) {
-  PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, true);
-  if (!prefs.ok()) return false;
-  return prefs->getString(key, buf, len) > 0;
 }
 
 bool boot::provisioning::isProvisioned(void) {
@@ -29,24 +40,10 @@ bool boot::provisioning::isProvisioned(void) {
 }
 
 void boot::provisioning::reset(void) {
-  { PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
-    if (prefs.ok()) prefs->clear(); }
-  { PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
-    if (prefs.ok()) prefs->clear(); }
+  clear_namespace(config::provisioning::NVS_NAMESPACE);
+  clear_namespace(config::wifi::NVS_NAMESPACE);
   WiFi.disconnect(true, true);  // erases ESP-IDF stored STA credentials
   Serial.println(F("[prov] reset — credentials cleared"));
-}
-
-bool boot::provisioning::accessUsername(char *buf, size_t len) {
-  return get_prov_string("username", buf, len);
-}
-
-bool boot::provisioning::accessAPIKey(char *buf, size_t len) {
-  return get_prov_string("api_key", buf, len);
-}
-
-bool boot::provisioning::accessDeviceName(char *buf, size_t len) {
-  return get_prov_string("device_name", buf, len);
 }
 
 #if CERATINA_PROV_ENABLED
@@ -117,14 +114,16 @@ class ProvisioningConfigCallbacks : public BLECharacteristicCallbacks {
     JsonDocument doc;
     if (deserializeJson(doc, data, len) != DeserializationError::Ok) return;
 
-    PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
+    Preferences prefs;
+    if (!open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs)) return;
     for (JsonPair kv : doc.as<JsonObject>()) {
       const char *val = kv.value().as<const char *>();
       if (val) {
-        prefs->putString(kv.key().c_str(), val);
+        prefs.putString(kv.key().c_str(), val);
         Serial.printf("[prov] config: %s=%s\n", kv.key().c_str(), val);
       }
     }
+    prefs.end();
   }
 };
 
@@ -203,12 +202,16 @@ void boot::provisioning::start(void) {
 
   set_status("connecting");
 
-  WiFi.disconnect(true);
-  WiFi.mode(WIFI_MODE_STA);
-  WiFi.setHostname(config::HOSTNAME);
-  WiFi.begin(prov_ssid, prov_pass);
+  WifiConnectCommand command = {
+    .request = {
+      .ssid = prov_ssid,
+      .password = prov_pass,
+      .enable_ap_fallback = false,
+    },
+    .result = {},
+  };
 
-  if (WiFi.waitForConnectResult(config::wifi::CONNECT_TIMEOUT_MS) == WL_CONNECTED) {
+  if (networking::wifi::connect(&command)) {
     set_status("connected_wifi");
     Serial.printf("[prov] WiFi connected, heap: %u bytes free\n", ESP.getFreeHeap());
   } else {
@@ -247,6 +250,10 @@ void boot::provisioning::start(void) {}
 #include <WiFi.h>
 #include <esp_wifi.h>
 
+static bool test_open_namespace(const char *name_space, bool readonly, Preferences *prefs) {
+  return prefs && prefs->begin(name_space, readonly);
+}
+
 static void provisioning_test_detects_provisioned_with_credentials(void) {
   TEST_MESSAGE("user verifies provisioning detection");
 
@@ -268,19 +275,35 @@ static void provisioning_test_custom_config_roundtrip(void) {
   char api_key[64] = {0};
   char device_name[64] = {0};
 
-  PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
-  TEST_ASSERT_TRUE_MESSAGE(prefs.ok(),
+  Preferences prefs;
+  TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs),
     "device: provisioning NVS namespace must be writable");
 
-  prefs->putString("username", "alice");
-  prefs->putString("api_key", "secret-key");
-  prefs->putString("device_name", "ceratina-lab");
+  prefs.putString("username", "alice");
+  prefs.putString("api_key", "secret-key");
+  prefs.putString("device_name", "ceratina-lab");
+  prefs.end();
 
-  TEST_ASSERT_TRUE_MESSAGE(boot::provisioning::accessUsername(username, sizeof(username)),
+  IdentityStringQuery username_query = {
+    .buffer = username,
+    .capacity = sizeof(username),
+    .ok = false,
+  };
+  TEST_ASSERT_TRUE_MESSAGE(services::identity::accessUsername(&username_query),
     "device: username should be readable after write");
-  TEST_ASSERT_TRUE_MESSAGE(boot::provisioning::accessAPIKey(api_key, sizeof(api_key)),
+  IdentityStringQuery api_key_query = {
+    .buffer = api_key,
+    .capacity = sizeof(api_key),
+    .ok = false,
+  };
+  TEST_ASSERT_TRUE_MESSAGE(services::identity::accessAPIKey(&api_key_query),
     "device: api key should be readable after write");
-  TEST_ASSERT_TRUE_MESSAGE(boot::provisioning::accessDeviceName(device_name, sizeof(device_name)),
+  IdentityStringQuery device_name_query = {
+    .buffer = device_name,
+    .capacity = sizeof(device_name),
+    .ok = false,
+  };
+  TEST_ASSERT_TRUE_MESSAGE(services::identity::accessDeviceName(&device_name_query),
     "device: device name should be readable after write");
 
   TEST_ASSERT_EQUAL_STRING_MESSAGE("alice", username,
@@ -298,47 +321,51 @@ static void provisioning_test_reset_clears_all(void) {
   wifi_nvs_save(&wifi_snapshot);
 
   {
-    PreferencesGuard prov_prefs(config::provisioning::NVS_NAMESPACE, false);
-    TEST_ASSERT_TRUE_MESSAGE(prov_prefs.ok(),
+    Preferences prov_prefs;
+    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::provisioning::NVS_NAMESPACE, false, &prov_prefs),
       "device: provisioning NVS namespace must be writable");
-    prov_prefs->putString("username", "bob");
-    prov_prefs->putString("api_key", "temp-key");
-    prov_prefs->putString("device_name", "temporary-device");
+    prov_prefs.putString("username", "bob");
+    prov_prefs.putString("api_key", "temp-key");
+    prov_prefs.putString("device_name", "temporary-device");
+    prov_prefs.end();
   }
 
   {
-    PreferencesGuard wifi_prefs(config::wifi::NVS_NAMESPACE, false);
-    TEST_ASSERT_TRUE_MESSAGE(wifi_prefs.ok(),
+    Preferences wifi_prefs;
+    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::wifi::NVS_NAMESPACE, false, &wifi_prefs),
       "device: wifi NVS namespace must be writable");
-    wifi_prefs->putString("ap_ssid", "test-ap");
-    wifi_prefs->putString("ap_pass", "test-pass");
-    wifi_prefs->putBool("ap_on", true);
+    wifi_prefs.putString("ap_ssid", "test-ap");
+    wifi_prefs.putString("ap_pass", "test-pass");
+    wifi_prefs.putBool("ap_on", true);
+    wifi_prefs.end();
   }
 
   boot::provisioning::reset();
 
   {
-    PreferencesGuard prov_prefs(config::provisioning::NVS_NAMESPACE, true);
-    TEST_ASSERT_TRUE_MESSAGE(prov_prefs.ok(),
+    Preferences prov_prefs;
+    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::provisioning::NVS_NAMESPACE, true, &prov_prefs),
       "device: provisioning NVS namespace must remain readable");
-    TEST_ASSERT_FALSE_MESSAGE(prov_prefs->isKey("username"),
+    TEST_ASSERT_FALSE_MESSAGE(prov_prefs.isKey("username"),
       "device: username should be cleared by reset");
-    TEST_ASSERT_FALSE_MESSAGE(prov_prefs->isKey("api_key"),
+    TEST_ASSERT_FALSE_MESSAGE(prov_prefs.isKey("api_key"),
       "device: api_key should be cleared by reset");
-    TEST_ASSERT_FALSE_MESSAGE(prov_prefs->isKey("device_name"),
+    TEST_ASSERT_FALSE_MESSAGE(prov_prefs.isKey("device_name"),
       "device: device_name should be cleared by reset");
+    prov_prefs.end();
   }
 
   {
-    PreferencesGuard wifi_prefs(config::wifi::NVS_NAMESPACE, true);
-    TEST_ASSERT_TRUE_MESSAGE(wifi_prefs.ok(),
+    Preferences wifi_prefs;
+    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::wifi::NVS_NAMESPACE, true, &wifi_prefs),
       "device: wifi NVS namespace must remain readable");
-    TEST_ASSERT_FALSE_MESSAGE(wifi_prefs->isKey("ap_ssid"),
+    TEST_ASSERT_FALSE_MESSAGE(wifi_prefs.isKey("ap_ssid"),
       "device: AP SSID should be cleared by reset");
-    TEST_ASSERT_FALSE_MESSAGE(wifi_prefs->isKey("ap_pass"),
+    TEST_ASSERT_FALSE_MESSAGE(wifi_prefs.isKey("ap_pass"),
       "device: AP password should be cleared by reset");
-    TEST_ASSERT_FALSE_MESSAGE(wifi_prefs->isKey("ap_on"),
+    TEST_ASSERT_FALSE_MESSAGE(wifi_prefs.isKey("ap_on"),
       "device: AP enabled flag should be cleared by reset");
+    wifi_prefs.end();
   }
 
   wifi_nvs_restore(&wifi_snapshot);
@@ -348,18 +375,24 @@ static void provisioning_test_empty_config_returns_false(void) {
   TEST_MESSAGE("user reads config from empty NVS and gets false");
 
   {
-    PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
-    TEST_ASSERT_TRUE_MESSAGE(prefs.ok(),
+    Preferences prefs;
+    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs),
       "device: provisioning NVS namespace must be writable");
-    prefs->clear();
+    prefs.clear();
+    prefs.end();
   }
 
   char value[64] = {0};
-  TEST_ASSERT_FALSE_MESSAGE(boot::provisioning::accessUsername(value, sizeof(value)),
+  IdentityStringQuery query = {
+    .buffer = value,
+    .capacity = sizeof(value),
+    .ok = false,
+  };
+  TEST_ASSERT_FALSE_MESSAGE(services::identity::accessUsername(&query),
     "device: missing username should return false");
-  TEST_ASSERT_FALSE_MESSAGE(boot::provisioning::accessAPIKey(value, sizeof(value)),
+  TEST_ASSERT_FALSE_MESSAGE(services::identity::accessAPIKey(&query),
     "device: missing api key should return false");
-  TEST_ASSERT_FALSE_MESSAGE(boot::provisioning::accessDeviceName(value, sizeof(value)),
+  TEST_ASSERT_FALSE_MESSAGE(services::identity::accessDeviceName(&query),
     "device: missing device name should return false");
 }
 

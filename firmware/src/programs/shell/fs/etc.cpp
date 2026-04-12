@@ -1,12 +1,12 @@
 #include "../shell.h"
 #include "../../../networking/wifi.h"
 #include "../../../boot/provisioning.h"
+#include "../../../services/identity.h"
+#include "../../../services/system.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
 #include <microshell.h>
-#include "../../../util/preferences_guard.h"
-#include <ESPmDNS.h>
 #include <string.h>
 
 //------------------------------------------
@@ -16,7 +16,7 @@ static size_t hostname_get_data(struct ush_object *self,
                                 struct ush_file_descriptor const *file,
                                 uint8_t **data) {
   (void)self; (void)file;
-  *data = (uint8_t *)programs::shell::accessHostname();
+  *data = (uint8_t *)services::identity::accessHostname();
   return strlen((char *)*data);
 }
 
@@ -30,8 +30,7 @@ static void hostname_set_data(struct ush_object *self,
   buf[len] = '\0';
   while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
     buf[--len] = '\0';
-  programs::shell::configureHostname(buf);
-  WiFi.setHostname(buf);
+  services::identity::configureHostname(buf);
 }
 
 //------------------------------------------
@@ -42,6 +41,11 @@ static size_t config_get_data(struct ush_object *self,
                               uint8_t **data) {
   (void)self; (void)file;
   static char buf[640];
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
   snprintf(buf, sizeof(buf),
            "chip = %s\r\n"
            "cores = %u\r\n"
@@ -55,17 +59,17 @@ static size_t config_get_data(struct ush_object *self,
            "idf = %s\r\n"
            "arduino = %s\r\n"
            "mac = %012llX\r\n",
-           ESP.getChipModel(),
-           ESP.getChipCores(),
-           (unsigned)ESP.getChipRevision(),
-           (unsigned long)(ESP.getCpuFreqMHz()),
-           (unsigned long)(ESP.getFlashChipSize() / (1024 * 1024)),
-           (unsigned long)(ESP.getFlashChipSpeed() / 1000000),
-           (unsigned long)(ESP.getSketchSize() / 1024),
-           (unsigned long)(ESP.getFreeSketchSpace() / 1024),
-           ESP.getSdkVersion(),
-           esp_get_idf_version(),
-           ESP_ARDUINO_VERSION_STR,
+           query.snapshot.chip_model,
+           query.snapshot.chip_cores,
+           (unsigned)query.snapshot.chip_revision,
+           (unsigned long)query.snapshot.cpu_mhz,
+           (unsigned long)(query.snapshot.flash_size / (1024 * 1024)),
+           (unsigned long)query.snapshot.flash_speed_mhz,
+           (unsigned long)(query.snapshot.sketch_size / 1024),
+           (unsigned long)(query.snapshot.sketch_free / 1024),
+           query.snapshot.sdk_version,
+           query.snapshot.idf_version,
+           query.snapshot.arduino_version,
            ESP.getEfuseMac());
   *data = (uint8_t *)buf;
   return strlen(buf);
@@ -79,7 +83,12 @@ static size_t temperature_get_data(struct ush_object *self,
                                    uint8_t **data) {
   (void)self; (void)file;
   static char buf[16];
-  snprintf(buf, sizeof(buf), "%.1f\r\n", temperatureRead());
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
+  snprintf(buf, sizeof(buf), "%.1f\r\n", query.snapshot.chip_temperature_celsius);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -92,13 +101,18 @@ static size_t firmware_get_data(struct ush_object *self,
                                 uint8_t **data) {
   (void)self; (void)file;
   static char buf[128];
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
   snprintf(buf, sizeof(buf),
            "md5 = %s\r\n"
            "size = %luKB\r\n"
            "free = %luKB\r\n",
-           ESP.getSketchMD5().c_str(),
-           (unsigned long)(ESP.getSketchSize() / 1024),
-           (unsigned long)(ESP.getFreeSketchSpace() / 1024));
+           query.snapshot.sketch_md5,
+           (unsigned long)(query.snapshot.sketch_size / 1024),
+           (unsigned long)(query.snapshot.sketch_free / 1024));
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -111,7 +125,11 @@ static size_t wifi_get_data(struct ush_object *self,
                             uint8_t **data) {
   (void)self; (void)file;
   static char buf[512];
-  if (WiFi.isConnected()) {
+  NetworkStatusSnapshot snapshot = {};
+  networking::wifi::accessSnapshot(&snapshot);
+  WifiSavedConfig saved = {};
+  networking::wifi::accessConfig(&saved);
+  if (snapshot.connected) {
     snprintf(buf, sizeof(buf),
              "ssid = %s\r\n"
              "bssid = %s\r\n"
@@ -123,17 +141,17 @@ static size_t wifi_get_data(struct ush_object *self,
              "dns = %s\r\n"
              "mac = %s\r\n"
              "hostname = %s\r\n",
-             WiFi.SSID().c_str(),
-             WiFi.BSSIDstr().c_str(),
-             WiFi.channel(),
-             WiFi.RSSI(),
-             WiFi.localIP().toString().c_str(),
-             WiFi.gatewayIP().toString().c_str(),
-             WiFi.subnetMask().toString().c_str(),
-             WiFi.dnsIP().toString().c_str(),
-              WiFi.macAddress().c_str(),
-              WiFi.getHostname());
-  } else if (networking::wifi::ap::isActive()) {
+             snapshot.ssid,
+             snapshot.bssid,
+             snapshot.channel,
+             snapshot.rssi,
+             snapshot.ip,
+             snapshot.gateway,
+             snapshot.subnet,
+             snapshot.dns,
+             snapshot.mac,
+             snapshot.hostname);
+  } else if (snapshot.ap.active) {
     snprintf(buf, sizeof(buf),
              "status = access_point\r\n"
              "ap_ssid = %s\r\n"
@@ -141,11 +159,18 @@ static size_t wifi_get_data(struct ush_object *self,
              "ap_clients = %u\r\n"
              "ap_mac = %s\r\n"
              "ap_hostname = %s\r\n",
-             WiFi.softAPSSID().c_str(),
-             WiFi.softAPIP().toString().c_str(),
-             WiFi.softAPgetStationNum(),
-             WiFi.softAPmacAddress().c_str(),
-             WiFi.softAPgetHostname());
+             snapshot.ap.ssid,
+             snapshot.ap.ip,
+             snapshot.ap.clients,
+             snapshot.ap.mac,
+             snapshot.ap.hostname);
+  } else if (saved.valid) {
+    snprintf(buf, sizeof(buf),
+             "status = disconnected\r\n"
+             "saved_ssid = %s\r\n"
+             "saved_password = %s\r\n",
+             saved.ssid,
+             saved.password);
   } else {
     snprintf(buf, sizeof(buf), "status = disconnected\r\n");
   }
@@ -169,7 +194,12 @@ static size_t username_get_data(struct ush_object *self,
                                 uint8_t **data) {
   (void)self; (void)file;
   static char buf[64];
-  if (boot::provisioning::accessUsername(buf, sizeof(buf))) {
+  IdentityStringQuery query = {
+    .buffer = buf,
+    .capacity = sizeof(buf),
+    .ok = false,
+  };
+  if (services::identity::accessUsername(&query)) {
     *data = (uint8_t *)buf;
     return strlen(buf);
   }
@@ -187,8 +217,7 @@ static void username_set_data(struct ush_object *self,
   buf[len] = '\0';
   while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
     buf[--len] = '\0';
-  PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
-  prefs->putString("username", buf);
+  services::identity::configureUsername(buf);
 }
 
 static size_t device_name_get_data(struct ush_object *self,
@@ -196,7 +225,12 @@ static size_t device_name_get_data(struct ush_object *self,
                                    uint8_t **data) {
   (void)self; (void)file;
   static char buf[64];
-  if (boot::provisioning::accessDeviceName(buf, sizeof(buf))) {
+  IdentityStringQuery query = {
+    .buffer = buf,
+    .capacity = sizeof(buf),
+    .ok = false,
+  };
+  if (services::identity::accessDeviceName(&query)) {
     *data = (uint8_t *)buf;
     return strlen(buf);
   }
@@ -214,8 +248,7 @@ static void device_name_set_data(struct ush_object *self,
   buf[len] = '\0';
   while (len > 0 && (buf[len-1] == '\r' || buf[len-1] == '\n' || buf[len-1] == ' '))
     buf[--len] = '\0';
-  PreferencesGuard prefs(config::provisioning::NVS_NAMESPACE, false);
-  prefs->putString("device_name", buf);
+  services::identity::configureDeviceName(buf);
 }
 
 static const struct ush_file_descriptor etc_files[] = {
@@ -236,8 +269,8 @@ static const struct ush_file_descriptor etc_files[] = {
   },
   {
     .name = "wifi",
-    .description = "wifi status / credentials (write ssid:password)",
-    .help = "read: show wifi status\r\nwrite: echo ssid:password > /etc/wifi\r\n",
+     .description = "wifi status / saved credentials",
+     .help = "read: show wifi status and saved config\r\nwrite: echo ssid:password > /etc/wifi (save only)\r\n",
     .exec = NULL,
     .get_data = wifi_get_data,
     .set_data = [](struct ush_object *self, struct ush_file_descriptor const *file,
@@ -254,7 +287,10 @@ static const struct ush_file_descriptor etc_files[] = {
       char *colon = strchr(buf, ':');
       if (!colon) return;
       *colon = '\0';
-      WiFi.begin(buf, colon + 1);
+      WifiSavedConfig config = {};
+      strlcpy(config.ssid, buf, sizeof(config.ssid));
+      strlcpy(config.password, colon + 1, sizeof(config.password));
+      networking::wifi::storeConfig(&config);
     },
   },
   {

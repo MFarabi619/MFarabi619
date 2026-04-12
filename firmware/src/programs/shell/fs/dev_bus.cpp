@@ -15,7 +15,12 @@ static size_t scan_get_data(struct ush_object *self,
   (void)self; (void)file;
   static char buf[1536];
 
-  hardware::i2c::scan(buf, sizeof(buf));
+  hardware::i2c::ScanCommand command = {
+    .buffer = buf,
+    .capacity = sizeof(buf),
+    .length = 0,
+  };
+  hardware::i2c::scan(&command);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }

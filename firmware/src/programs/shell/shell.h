@@ -11,9 +11,6 @@ void service();
 void initInstance(struct ush_object *ush,
                   const struct ush_descriptor *desc);
 
-char *accessHostname();
-void configureHostname(const char *hostname);
-
 #ifdef PIO_UNIT_TESTING
 void test();
 #endif

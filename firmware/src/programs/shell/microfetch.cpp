@@ -1,14 +1,14 @@
 #include "microfetch.h"
 #include "../../config.h"
 #include "../../console/icons.h"
+#include "../../hardware/storage.h"
 #include "../../hardware/i2c.h"
 #include "../../networking/wifi.h"
-#include "../../sensors/temperature_and_humidity.h"
+#include "../../sensors/manager.h"
+#include "../../services/identity.h"
+#include "../../services/system.h"
 
 #include <Arduino.h>
-#include <WiFi.h>
-#include <LittleFS.h>
-#include <SD.h>
 #include <microshell.h>
 
 static char fetch_buf[2048];
@@ -38,18 +38,24 @@ const char *programs::shell::microfetch::generate(void) {
   fetch_pos = 0;
   fetch_remaining = sizeof(fetch_buf) - 1;
 
-  uint32_t uptime = millis() / 1000;
-  uint32_t heap_free = ESP.getFreeHeap();
-  uint32_t heap_total = ESP.getHeapSize();
-  uint32_t heap_pct = heap_total > 0 ? ((heap_total - heap_free) * 100) / heap_total : 0;
+  SystemQuery system_query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&system_query);
+  const SystemSnapshot &snapshot = system_query.snapshot;
+  SensorInventorySnapshot inventory = {};
+  sensors::manager::accessInventory(&inventory);
+  uint32_t heap_pct = snapshot.heap_total > 0
+      ? ((snapshot.heap_total - snapshot.heap_free) * 100) / snapshot.heap_total
+      : 0;
 
   int n;
 
   n = snprintf(fetch_buf + fetch_pos, fetch_remaining, "\r\n");
   fetch_pos += n; fetch_remaining -= n;
 
-  const char *hostname = WiFi.getHostname();
-  if (!hostname || hostname[0] == '\0') hostname = config::HOSTNAME;
+  const char *hostname = services::identity::accessHostname();
 
   n = snprintf(fetch_buf + fetch_pos, fetch_remaining,
     "  \x1b[1;32m%s\x1b[0m\x1b[2m@\x1b[0m\x1b[1;36m%s\x1b[0m\r\n",
@@ -67,39 +73,43 @@ const char *programs::shell::microfetch::generate(void) {
   fetch_pos += n; fetch_remaining -= n;
 
   row("33", NF_FA_MICROCHIP, "OS", "\x1b[1mceratina\x1b[0m (%s)", config::PLATFORM);
-  row("35", NF_FA_DESKTOP, "Host", "\x1b[1m%s\x1b[0m (rev %d)", ESP.getChipModel(), ESP.getChipRevision());
-  row("36", NF_FA_COG, "Kernel", "\x1b[1mArduino\x1b[0m / ESP-IDF %s", ESP.getSdkVersion());
+  row("35", NF_FA_DESKTOP, "Host", "\x1b[1m%s\x1b[0m (rev %d)", snapshot.chip_model, snapshot.chip_revision);
+  row("36", NF_FA_COG, "Kernel", "\x1b[1mArduino\x1b[0m / ESP-IDF %s", snapshot.sdk_version);
 
-  uint32_t d = uptime / 86400, h = (uptime % 86400) / 3600;
-  uint32_t m = (uptime % 3600) / 60, s = uptime % 60;
+  uint32_t d = snapshot.uptime_seconds / 86400, h = (snapshot.uptime_seconds % 86400) / 3600;
+  uint32_t m = (snapshot.uptime_seconds % 3600) / 60, s = snapshot.uptime_seconds % 60;
   if (d > 0) row("34", NF_FA_CLOCK, "Uptime", "\x1b[1m%u\x1b[0md %uh %um %us", d, h, m, s);
   else if (h > 0) row("34", NF_FA_CLOCK, "Uptime", "\x1b[1m%u\x1b[0mh %um %us", h, m, s);
   else row("34", NF_FA_CLOCK, "Uptime", "\x1b[1m%u\x1b[0mm %us", m, s);
 
   row("32", NF_FA_TERMINAL, "Shell", "\x1b[1mMicroShell\x1b[0m (SSH + WS)");
   row("31", NF_FA_MICROCHIP, "CPU", "\x1b[1mXtensa LX7\x1b[0m (%d) @ \x1b[1m%u MHz\x1b[0m",
-      ESP.getChipCores(), (unsigned)ESP.getCpuFreqMHz());
+      snapshot.chip_cores, (unsigned)snapshot.cpu_mhz);
   row("36", NF_FA_MEMORY, "RAM", "\x1b[1m%u/%u KiB\x1b[0m (\x1b[1;32m%u%%\x1b[0m)",
-      (heap_total - heap_free) / 1024, heap_total / 1024, heap_pct);
+      (snapshot.heap_total - snapshot.heap_free) / 1024, snapshot.heap_total / 1024, heap_pct);
 
-  if (SD.begin())
-    row("32", NF_FA_HDD, "Disk (SD)", "\x1b[1m%llu MiB\x1b[0m", SD.totalBytes() / (1024*1024));
+  StorageQuery sd_query = {
+    .kind = StorageKind::SD,
+    .snapshot = {},
+  };
+  if (hardware::storage::accessSnapshot(&sd_query))
+    row("32", NF_FA_HDD, "Disk (SD)", "\x1b[1m%llu MiB\x1b[0m", sd_query.snapshot.total_bytes / (1024*1024));
   else
     row("32", NF_FA_HDD, "Disk (SD)", "\x1b[2mnot detected\x1b[0m");
 
-  if (LittleFS.totalBytes() > 0)
+  if (snapshot.storage.mounted)
     row("32", NF_FA_DATABASE, "Disk (LFS)", "\x1b[1m%u/%u KiB\x1b[0m",
-        (unsigned)(LittleFS.usedBytes()/1024), (unsigned)(LittleFS.totalBytes()/1024));
+        (unsigned)(snapshot.storage.used_bytes/1024), (unsigned)(snapshot.storage.total_bytes/1024));
 
   n = snprintf(fetch_buf + fetch_pos, fetch_remaining, "\r\n");
   fetch_pos += n; fetch_remaining -= n;
 
-  if (WiFi.isConnected()) {
-    row("33", NF_FA_WIFI, "WiFi", "\x1b[1m%s\x1b[0m (%ld dBm)", WiFi.SSID().c_str(), WiFi.RSSI());
-    row("33", NF_FA_GLOBE, "Local IP", "\x1b[1m%s\x1b[0m", WiFi.localIP().toString().c_str());
-  } else if (networking::wifi::ap::isActive()) {
-    row("33", NF_FA_WIFI, "WiFi", "\x1b[1mAP mode\x1b[0m (%u clients)", WiFi.softAPgetStationNum());
-    row("33", NF_FA_GLOBE, "AP IP", "\x1b[1m%s\x1b[0m", WiFi.softAPIP().toString().c_str());
+  if (snapshot.network.connected) {
+    row("33", NF_FA_WIFI, "WiFi", "\x1b[1m%s\x1b[0m (%ld dBm)", snapshot.network.ssid, snapshot.network.rssi);
+    row("33", NF_FA_GLOBE, "Local IP", "\x1b[1m%s\x1b[0m", snapshot.network.ip);
+  } else if (snapshot.network.ap.active) {
+    row("33", NF_FA_WIFI, "WiFi", "\x1b[1mAP mode\x1b[0m (%u clients)", snapshot.network.ap.clients);
+    row("33", NF_FA_GLOBE, "AP IP", "\x1b[1m%s\x1b[0m", snapshot.network.ap.ip);
   } else {
     row("33", NF_FA_WIFI, "WiFi", "\x1b[2mnot connected\x1b[0m");
   }
@@ -113,9 +123,10 @@ const char *programs::shell::microfetch::generate(void) {
 
   row("36", NF_FA_SITEMAP, "I2C Mux", "\x1b[1mTCA9548A\x1b[0m @ 0x%02X", config::i2c::MUX_ADDR);
 
-  uint8_t thm_count = sensors::temperature_and_humidity::sensorCount();
-  if (thm_count > 0)
-    row("35", NF_FA_THERMOMETER, "Temp/Hum", "\x1b[1mCHT832X\x1b[0m x%d", thm_count);
+  if (inventory.temperature_humidity_count > 0)
+    row("35", NF_FA_THERMOMETER, "Temp/Hum", "\x1b[1mCHT832X\x1b[0m x%d",
+        inventory.temperature_humidity_count);
+  
 
   row("35", NF_FA_SIGNAL, "Voltage", "\x1b[1mADS1115\x1b[0m @ 0x%02X", config::voltage::I2C_ADDR);
 

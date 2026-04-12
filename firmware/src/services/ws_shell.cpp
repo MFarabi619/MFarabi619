@@ -1,6 +1,8 @@
 #include "ws_shell.h"
 #include "../config.h"
 #include "../programs/shell/shell.h"
+#include "../programs/shell/session.h"
+#include "../services/identity.h"
 #include "../programs/shell/microfetch.h"
 
 #include <Arduino.h>
@@ -10,46 +12,36 @@ static AsyncWebSocketMessageHandler ws_handler;
 static AsyncWebSocket ws("/ws/shell", ws_handler.eventHandler());
 static AsyncWebSocketClient *active_client = nullptr;
 
-static volatile uint16_t ring_head = 0;
-static volatile uint16_t ring_tail = 0;
 static char ring_buf[config::ws_shell::RING_SIZE];
-
 static char write_buf[config::ws_shell::WRITE_BUF];
-static size_t write_buf_pos = 0;
-
-static void ring_reset(void) { ring_head = 0; ring_tail = 0; }
-
-static bool ring_push(char ch) {
-  uint16_t next = (ring_head + 1) % config::ws_shell::RING_SIZE;
-  if (next == ring_tail) return false;
-  ring_buf[ring_head] = ch;
-  ring_head = next;
-  return true;
-}
-
-static int ring_pop(char *ch) {
-  if (ring_head == ring_tail) return 0;
-  *ch = ring_buf[ring_tail];
-  ring_tail = (ring_tail + 1) % config::ws_shell::RING_SIZE;
-  return 1;
-}
+static programs::shell::session::RingBuffer ring = {
+  .data = ring_buf,
+  .capacity = config::ws_shell::RING_SIZE,
+  .head = 0,
+  .tail = 0,
+};
+static programs::shell::session::WriteBuffer write_state = {
+  .data = write_buf,
+  .capacity = config::ws_shell::WRITE_BUF,
+  .position = 0,
+};
 
 static void write_flush(void) {
-  if (write_buf_pos == 0 || !active_client) return;
-  active_client->text(write_buf, write_buf_pos);
-  write_buf_pos = 0;
+  if (write_state.position == 0 || !active_client) return;
+  active_client->text(write_buf, write_state.position);
+  programs::shell::session::reset(&write_state);
 }
 
 static int ws_shell_read(struct ush_object *self, char *ch) {
   (void)self;
-  return ring_pop(ch);
+  return programs::shell::session::pop(&ring, ch);
 }
 
 static int ws_shell_write(struct ush_object *self, char ch) {
   (void)self;
   if (!active_client) return 0;
-  write_buf[write_buf_pos++] = ch;
-  if (write_buf_pos >= config::ws_shell::WRITE_BUF)
+  if (!programs::shell::session::push(&write_state, ch)) return 0;
+  if (write_state.position >= config::ws_shell::WRITE_BUF)
     write_flush();
   return 1;
 }
@@ -70,14 +62,14 @@ static const struct ush_descriptor ws_shell_desc = {
   .output_buffer = ws_out_buf,
   .output_buffer_size = sizeof(ws_out_buf),
   .path_max_length = config::shell::MAX_PATH_LEN,
-  .hostname = programs::shell::accessHostname(),
+  .hostname = const_cast<char *>(services::identity::accessHostname()),
 };
 
 static void on_ws_connect(AsyncWebSocket *server, AsyncWebSocketClient *client) {
   (void)server;
   active_client = client;
-  ring_reset();
-  write_buf_pos = 0;
+  programs::shell::session::reset(&ring);
+  programs::shell::session::reset(&write_state);
   programs::shell::initInstance(&ws_ush, &ws_shell_desc);
   const char *motd = programs::shell::microfetch::generate();
   client->text(motd, strlen(motd));
@@ -106,7 +98,7 @@ static void on_ws_message(AsyncWebSocket *server, AsyncWebSocketClient *client,
   if (!active_client || active_client->id() != client->id()) return;
 
   for (size_t i = 0; i < len; i++) {
-    ring_push((char)data[i]);
+    programs::shell::session::push(&ring, (char)data[i]);
   }
 }
 

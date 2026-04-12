@@ -1,6 +1,6 @@
 #include "commands.h"
+#include "../../boot/system.h"
 #include "../../networking/wifi.h"
-extern void network_services_start(void);
 #include "../ssh/ssh_server.h"
 
 #include <Arduino.h>
@@ -34,8 +34,14 @@ static void cmd_wifi_set(struct ush_object *self,
     ush_print(self, (char *)"usage: wifi-set <ssid> <password>\r\n");
     return;
   }
-  WiFi.begin(argv[1], argv[2]);
-  ush_print(self, (char *)"saved. reboot to connect.\r\n");
+  WifiSavedConfig config = {};
+  strlcpy(config.ssid, argv[1], sizeof(config.ssid));
+  strlcpy(config.password, argv[2], sizeof(config.password));
+  if (networking::wifi::storeConfig(&config)) {
+    ush_print(self, (char *)"saved. use wifi-connect to connect.\r\n");
+  } else {
+    ush_print(self, (char *)"failed to save config.\r\n");
+  }
 }
 
 static void cmd_wifi_connect(struct ush_object *self,
@@ -45,7 +51,7 @@ static void cmd_wifi_connect(struct ush_object *self,
   ush_print(self, (char *)"connecting...\r\n");
   if (networking::wifi::sta::connect()) {
     ush_print(self, (char *)"connected, starting services...\r\n");
-    network_services_start();
+    boot::system::startServices();
   } else {
     ush_print(self, (char *)"failed\r\n");
   }

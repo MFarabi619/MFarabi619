@@ -1,4 +1,5 @@
 #include "../../../networking/sntp.h"
+#include "../../../services/system.h"
 #include "../../led.h"
 #include <ColorFormat.h>
 #include "../../buttons.h"
@@ -44,9 +45,13 @@ static size_t uptime_get_data(struct ush_object *self,
                               uint8_t **data) {
   (void)self; (void)file;
   static char buf[32];
-  unsigned long secs = millis() / 1000;
-  snprintf(buf, sizeof(buf), "%luh %lum %lus\r\n",
-           secs / 3600, (secs / 60) % 60, secs % 60);
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
+  services::system::formatUptime(buf, sizeof(buf), query.snapshot.uptime_seconds);
+  strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -59,10 +64,15 @@ static size_t heap_get_data(struct ush_object *self,
                             uint8_t **data) {
   (void)self; (void)file;
   static char buf[128];
+  SystemQuery query = {
+    .preferred_storage = StorageKind::LittleFS,
+    .snapshot = {},
+  };
+  services::system::accessSnapshot(&query);
   snprintf(buf, sizeof(buf),
            "heap total: %u\r\nheap free:  %u\r\nheap used:  %u\r\n",
-           ESP.getHeapSize(), ESP.getFreeHeap(),
-           ESP.getHeapSize() - ESP.getFreeHeap());
+           query.snapshot.heap_total, query.snapshot.heap_free,
+           query.snapshot.heap_total - query.snapshot.heap_free);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }

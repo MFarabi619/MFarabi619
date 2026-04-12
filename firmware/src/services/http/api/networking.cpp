@@ -1,6 +1,7 @@
 #include "networking.h"
 #include "../../../config.h"
 #include "../../../networking/wifi.h"
+#include "../../../services/identity.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -9,46 +10,35 @@
 
 namespace {
 
-const char *wifi_encryption_string(wifi_auth_mode_t auth) {
-  switch (auth) {
-    case WIFI_AUTH_OPEN:            return "open";
-    case WIFI_AUTH_WEP:             return "wep";
-    case WIFI_AUTH_WPA_PSK:         return "wpa";
-    case WIFI_AUTH_WPA2_PSK:        return "wpa2";
-    case WIFI_AUTH_WPA_WPA2_PSK:    return "wpa_wpa2";
-    case WIFI_AUTH_WPA2_ENTERPRISE: return "wpa2_enterprise";
-    case WIFI_AUTH_WPA3_PSK:        return "wpa3";
-    case WIFI_AUTH_WPA2_WPA3_PSK:   return "wpa2_wpa3";
-    default:                        return "unknown";
-  }
-}
-
 void fill_wireless_status(JsonObject &data) {
-  bool station_connected = WiFi.isConnected();
-  data["connected"] = station_connected;
-  data["mode"] = ::networking::wifi::ap::isActive() ? "ap_sta" : "sta";
+  NetworkStatusSnapshot snapshot = {};
+  ::networking::wifi::accessSnapshot(&snapshot);
+  data["connected"] = snapshot.connected;
+  data["mode"] = snapshot.ap.active ? "ap_sta" : "sta";
   data["tenant"] = config::cloudevents::TENANT;
-  data["sta_ssid"] = station_connected ? WiFi.SSID() : "";
-  data["sta_bssid"] = station_connected ? WiFi.BSSIDstr() : "";
-  data["sta_ipv4"] = station_connected ? WiFi.localIP().toString() : "0.0.0.0";
-  data["wifi_rssi"] = station_connected ? WiFi.RSSI() : 0;
-  data["ap_active"] = ::networking::wifi::ap::isActive();
-  data["ap_ssid"] = ::networking::wifi::ap::isActive() ? WiFi.softAPSSID() : "";
-  data["ap_ipv4"] = ::networking::wifi::ap::isActive() ? WiFi.softAPIP().toString() : "0.0.0.0";
-  data["ap_clients"] = ::networking::wifi::ap::isActive() ? WiFi.softAPgetStationNum() : 0;
-  data["ap_hostname"] = ::networking::wifi::ap::isActive() ? WiFi.softAPgetHostname() : "";
-  data["ap_mac"] = ::networking::wifi::ap::isActive() ? WiFi.softAPmacAddress() : "";
+  data["sta_ssid"] = snapshot.ssid;
+  data["sta_bssid"] = snapshot.bssid;
+  data["sta_ipv4"] = snapshot.ip;
+  data["wifi_rssi"] = snapshot.rssi;
+  data["ap_active"] = snapshot.ap.active;
+  data["ap_ssid"] = snapshot.ap.ssid;
+  data["ap_ipv4"] = snapshot.ap.ip;
+  data["ap_clients"] = snapshot.ap.clients;
+  data["ap_hostname"] = snapshot.ap.hostname;
+  data["ap_mac"] = snapshot.ap.mac;
 }
 
 void handle_wifi(AsyncWebServerRequest *request) {
   AsyncJsonResponse *response = new AsyncJsonResponse();
   JsonObject root = response->getRoot().to<JsonObject>();
 
-  root["connected"] = WiFi.isConnected();
-  root["ssid"] = WiFi.SSID();
-  root["ip"] = WiFi.localIP().toString();
-  root["rssi"] = WiFi.RSSI();
-  root["mac"] = WiFi.macAddress();
+  NetworkStatusSnapshot snapshot = {};
+  ::networking::wifi::accessSnapshot(&snapshot);
+  root["connected"] = snapshot.connected;
+  root["ssid"] = snapshot.ssid;
+  root["ip"] = snapshot.ip;
+  root["rssi"] = snapshot.rssi;
+  root["mac"] = snapshot.mac;
 
   response->setLength();
   request->send(response);
@@ -65,8 +55,14 @@ void handle_wireless_status(AsyncWebServerRequest *request) {
 }
 
 void handle_wireless_scan(AsyncWebServerRequest *request) {
-  WiFi.scanDelete();
-  int16_t count = WiFi.scanNetworks();
+    WifiScanResult results[16] = {};
+    WifiScanCommand command = {
+      .results = results,
+      .max_results = 16,
+      .result_count = -1,
+    };
+    ::networking::wifi::scan(&command);
+    int16_t count = command.result_count;
 
   AsyncJsonResponse *response = new AsyncJsonResponse();
   JsonObject root = response->getRoot().to<JsonObject>();
@@ -75,36 +71,35 @@ void handle_wireless_scan(AsyncWebServerRequest *request) {
   data["scan_count"] = (count >= 0) ? count : 0;
 
   JsonArray networks = data["networks"].to<JsonArray>();
-  for (int16_t index = 0; index < count; index++) {
+  int16_t limit = (count < 16) ? count : 16;
+  for (int16_t index = 0; index < limit; index++) {
     JsonObject network = networks.add<JsonObject>();
-    network["ssid"] = WiFi.SSID(index);
-    network["bssid"] = WiFi.BSSIDstr(index);
-    network["rssi"] = WiFi.RSSI(index);
-    network["channel"] = WiFi.channel(index);
-    network["encryption"] = wifi_encryption_string(WiFi.encryptionType(index));
-    network["open"] = (WiFi.encryptionType(index) == WIFI_AUTH_OPEN);
+    network["ssid"] = results[index].ssid;
+    network["bssid"] = results[index].bssid;
+    network["rssi"] = results[index].rssi;
+    network["channel"] = results[index].channel;
+    network["encryption"] = results[index].encryption;
+    network["open"] = results[index].open;
   }
-
-  WiFi.scanDelete();
   response->setLength();
   request->send(response);
 }
 
 void handle_ap_config_get(AsyncWebServerRequest *request) {
-  APConfig ap_config = {};
-  networking::wifi::ap::accessConfig(&ap_config);
+  APSnapshot snapshot = {};
+  ::networking::wifi::ap::accessSnapshot(&snapshot);
 
   AsyncJsonResponse *response = new AsyncJsonResponse();
   JsonObject root = response->getRoot().to<JsonObject>();
   root["ok"] = true;
   JsonObject data = root["data"].to<JsonObject>();
-  data["ssid"] = ap_config.ssid;
-  data["enabled"] = networking::wifi::ap::isActive();
-  data["active"] = networking::wifi::ap::isActive();
-  data["ip"] = networking::wifi::ap::isActive() ? WiFi.softAPIP().toString() : "0.0.0.0";
-  data["clients"] = networking::wifi::ap::isActive() ? WiFi.softAPgetStationNum() : 0;
-  data["hostname"] = networking::wifi::ap::isActive() ? WiFi.softAPgetHostname() : "";
-  data["mac"] = networking::wifi::ap::isActive() ? WiFi.softAPmacAddress() : "";
+  data["ssid"] = snapshot.ssid;
+  data["enabled"] = snapshot.active;
+  data["active"] = snapshot.active;
+  data["ip"] = snapshot.ip;
+  data["clients"] = snapshot.clients;
+  data["hostname"] = snapshot.hostname;
+  data["mac"] = snapshot.mac;
   response->setLength();
   request->send(response);
 }
@@ -125,34 +120,35 @@ void services::http::api::networking::registerRoutes(AsyncWebServer &server,
     JsonObject body = json.as<JsonObject>();
 
     if (!body["ssid"].isNull() && !body["password"].isNull()) {
-      const char *ssid = body["ssid"] | "";
-      const char *password = body["password"] | "";
-      ::networking::wifi::ap::configure(ssid, password);
-
-      if (::networking::wifi::ap::isActive()) {
-        ::networking::wifi::ap::disable();
-        ::networking::wifi::ap::enable();
-      }
+      APConfigureCommand command = {
+        .config = {},
+        .snapshot = {},
+      };
+      strlcpy(command.config.ssid, body["ssid"] | "", sizeof(command.config.ssid));
+      strlcpy(command.config.password, body["password"] | "", sizeof(command.config.password));
+      ::networking::wifi::ap::applyConfig(&command);
     }
 
     if (!body["enabled"].isNull()) {
-      bool enabled = body["enabled"] | true;
-      if (enabled) ::networking::wifi::ap::enable();
-      else ::networking::wifi::ap::disable();
+      APEnabledCommand command = {
+        .enabled = body["enabled"] | true,
+        .snapshot = {},
+      };
+      ::networking::wifi::ap::setEnabled(&command);
     }
 
-    APConfig ap_config = {};
-    ::networking::wifi::ap::accessConfig(&ap_config);
+    APSnapshot snapshot = {};
+    ::networking::wifi::ap::accessSnapshot(&snapshot);
 
     AsyncJsonResponse *response = new AsyncJsonResponse();
     JsonObject root = response->getRoot().to<JsonObject>();
     root["ok"] = true;
     JsonObject data = root["data"].to<JsonObject>();
-    data["ssid"] = ap_config.ssid;
-    data["enabled"] = ::networking::wifi::ap::isActive();
-    data["active"] = ::networking::wifi::ap::isActive();
-    data["ip"] = ::networking::wifi::ap::isActive() ? WiFi.softAPIP().toString() : "0.0.0.0";
-    data["clients"] = ::networking::wifi::ap::isActive() ? WiFi.softAPgetStationNum() : 0;
+    data["ssid"] = snapshot.ssid;
+    data["enabled"] = snapshot.active;
+    data["active"] = snapshot.active;
+    data["ip"] = snapshot.ip;
+    data["clients"] = snapshot.clients;
     response->setLength();
     request->send(response);
   });
@@ -173,24 +169,23 @@ void services::http::api::networking::registerRoutes(AsyncWebServer &server,
       return;
     }
 
-    WiFi.disconnect(false, false);
-    WiFi.mode(WIFI_MODE_STA);
-    WiFi.setHostname(config::HOSTNAME);
-    WiFi.begin(ssid.c_str(), password.c_str());
-
-    int result = WiFi.waitForConnectResult(config::wifi::CONNECT_TIMEOUT_MS);
+    WifiConnectCommand command = {
+      .request = {
+        .ssid = ssid.c_str(),
+        .password = password.c_str(),
+        .enable_ap_fallback = true,
+      },
+      .result = {},
+    };
+    ::networking::wifi::connect(&command);
 
     AsyncJsonResponse *response = new AsyncJsonResponse();
     JsonObject root = response->getRoot().to<JsonObject>();
-    root["ok"] = (result == WL_CONNECTED);
+    root["ok"] = command.result.connected;
     JsonObject data = root["data"].to<JsonObject>();
     data["attempted_ssid"] = ssid;
-    data["status_code"] = result;
+    data["status_code"] = command.result.status_code;
     fill_wireless_status(data);
-
-    if (result != WL_CONNECTED) {
-      ::networking::wifi::ap::enable();
-    }
 
     response->setLength();
     request->send(response);

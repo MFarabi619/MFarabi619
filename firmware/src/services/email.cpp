@@ -1,7 +1,7 @@
 #include "email.h"
 
 #include <Arduino.h>
-#include "../util/preferences_guard.h"
+#include <Preferences.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <time.h>
@@ -19,11 +19,12 @@ static bool secure_initialized = false;
 static bool connected = false;
 
 static bool load_password(String &out) {
-  PreferencesGuard prefs("smtp", true);
-  if (!prefs.ok()) return false;
-  out = prefs->isKey(config::smtp::NVS_KEY)
-      ? prefs->getString(config::smtp::NVS_KEY, "")
+  Preferences prefs;
+  if (!prefs.begin("smtp", true)) return false;
+  out = prefs.isKey(config::smtp::NVS_KEY)
+      ? prefs.getString(config::smtp::NVS_KEY, "")
       : "";
+  prefs.end();
   return true;
 }
 

@@ -1,153 +1,160 @@
 #include "wifi.h"
-#include "../programs/led.h"
-#include <ColorFormat.h>
+#include "wifi_internal.h"
+#include "../services/identity.h"
 
 #include <Arduino.h>
+#include <Preferences.h>
 #include <WiFi.h>
-#include <ESPmDNS.h>
-#include "../util/preferences_guard.h"
+bool networking::wifi::internal::mdns_started = false;
+bool networking::wifi::internal::ap_active = false;
 
-static bool mdns_started = false;
-static bool ap_active = false;
-
-static const char wifi_ssid_slot[33] __attribute__((used, aligned(4))) =
+const char networking::wifi::internal::wifi_ssid_slot[33] __attribute__((used, aligned(4))) =
   "@@WIFI_SSID@@";
-static const char wifi_pass_slot[65] __attribute__((used, aligned(4))) =
+const char networking::wifi::internal::wifi_pass_slot[65] __attribute__((used, aligned(4))) =
   "@@WIFI_PASS@@";
 
-void networking::wifi::sta::initialize() noexcept {
-  static bool setup_done = false;
-  if (setup_done) return;
-  setup_done = true;
-
-  WiFi.setAutoReconnect(true);
-  WiFi.mode(WIFI_MODE_STA);
-
-  WiFi.onEvent([](arduino_event_id_t event, arduino_event_info_t info) {
-    switch (event) {
-      case ARDUINO_EVENT_WIFI_STA_CONNECTED:
-        Serial.printf("[wifi] %s\n", WiFi.eventName(event));
-        break;
-
-      case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-        Serial.printf("[wifi] %s reason: %s\n",
-                      WiFi.eventName(event),
-                      WiFi.disconnectReasonName(
-                          (wifi_err_reason_t)info.wifi_sta_disconnected.reason));
-        LED.set(RGB_YELLOW);
-        break;
-
-      case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-        Serial.printf("[wifi] %s %s\n", WiFi.eventName(event),
-                      WiFi.localIP().toString().c_str());
-        LED.set(RGB_GREEN);
-        if (!mdns_started && MDNS.begin(config::HOSTNAME)) {
-          MDNS.setInstanceName(config::HOSTNAME);
-          MDNS.addService("ssh", "tcp", config::ssh::PORT);
-          MDNS.addService("http", "tcp", config::http::PORT);
-          MDNS.addServiceTxt("http", "tcp", "path", "/");
-          MDNS.addServiceTxt("http", "tcp", "fw", ESP.getSdkVersion());
-          Serial.printf("[mdns] %s.local\n", config::HOSTNAME);
-          mdns_started = true;
-        }
-        break;
-
-      default:
-        break;
-    }
-  });
+bool networking::wifi::internal::openPreferences(bool readonly, Preferences *prefs) {
+  return prefs && prefs->begin(config::wifi::NVS_NAMESPACE, readonly);
 }
 
-bool networking::wifi::sta::connect() noexcept {
+bool networking::wifi::accessSnapshot(NetworkStatusSnapshot *snapshot) noexcept {
+  if (!snapshot) return false;
+  memset(snapshot, 0, sizeof(*snapshot));
+
+  snapshot->connected = WiFi.isConnected();
+  snapshot->rssi = snapshot->connected ? WiFi.RSSI() : 0;
+  snapshot->channel = snapshot->connected ? WiFi.channel() : 0;
+
+  strncpy(snapshot->ssid, WiFi.SSID().c_str(), sizeof(snapshot->ssid) - 1);
+  strncpy(snapshot->bssid, WiFi.BSSIDstr().c_str(), sizeof(snapshot->bssid) - 1);
+  strncpy(snapshot->ip, WiFi.localIP().toString().c_str(), sizeof(snapshot->ip) - 1);
+  strncpy(snapshot->gateway, WiFi.gatewayIP().toString().c_str(), sizeof(snapshot->gateway) - 1);
+  strncpy(snapshot->subnet, WiFi.subnetMask().toString().c_str(), sizeof(snapshot->subnet) - 1);
+  strncpy(snapshot->dns, WiFi.dnsIP().toString().c_str(), sizeof(snapshot->dns) - 1);
+  strncpy(snapshot->mac, WiFi.macAddress().c_str(), sizeof(snapshot->mac) - 1);
+  strncpy(snapshot->hostname, services::identity::accessHostname(), sizeof(snapshot->hostname) - 1);
+
+  snapshot->ap.active = networking::wifi::ap::isActive();
+  APConfig ap_config = {};
+  networking::wifi::ap::accessConfig(&ap_config);
+  strncpy(snapshot->ap.ssid, ap_config.ssid, sizeof(snapshot->ap.ssid) - 1);
+  strncpy(snapshot->ap.password, ap_config.password, sizeof(snapshot->ap.password) - 1);
+  strncpy(snapshot->ap.ip, WiFi.softAPIP().toString().c_str(), sizeof(snapshot->ap.ip) - 1);
+  snapshot->ap.clients = WiFi.softAPgetStationNum();
+  strncpy(snapshot->ap.hostname, services::identity::accessHostname(), sizeof(snapshot->ap.hostname) - 1);
+  strncpy(snapshot->ap.mac, WiFi.softAPmacAddress().c_str(), sizeof(snapshot->ap.mac) - 1);
+  return true;
+}
+
+bool networking::wifi::accessConfig(WifiSavedConfig *config) noexcept {
+  if (!config) return false;
+  memset(config, 0, sizeof(*config));
+
+  Preferences prefs;
+  if (!networking::wifi::internal::openPreferences(true, &prefs)) return false;
+
+  bool has_ssid = prefs.getString("sta_ssid", config->ssid, sizeof(config->ssid)) > 0;
+  bool has_password = prefs.getString("sta_pass", config->password, sizeof(config->password)) >= 0;
+  prefs.end();
+  config->valid = has_ssid;
+  return has_ssid && has_password;
+}
+
+bool networking::wifi::storeConfig(WifiSavedConfig *config) noexcept {
+  if (!config) return false;
+  Preferences prefs;
+  if (!networking::wifi::internal::openPreferences(false, &prefs)) return false;
+
+  prefs.putString("sta_ssid", config->ssid);
+  prefs.putString("sta_pass", config->password);
+  prefs.end();
+  config->valid = config->ssid[0] != '\0';
+  return config->valid;
+}
+
+bool networking::wifi::connect(WifiConnectCommand *command) noexcept {
+  if (!command) return false;
+  command->result = {};
+  command->result.connected = false;
+  command->result.status_code = WL_DISCONNECTED;
+  command->result.ap_enabled_for_fallback = false;
+
   WiFi.setAutoReconnect(true);
   WiFi.disconnect(true);
   WiFi.mode(WIFI_MODE_STA);
-  WiFi.setHostname(config::HOSTNAME);
+  networking::wifi::configureHostname(services::identity::accessHostname());
 
-#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
-  if (strlen(CONFIG_WIFI_SSID) > 0) {
-    Serial.printf("[wifi] credentials from build flags: %s\n", CONFIG_WIFI_SSID);
-    WiFi.begin(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
-  } else
-#endif
-  if (wifi_ssid_slot[0] != '@' && wifi_ssid_slot[0] != '\0') {
-    Serial.printf("[wifi] credentials from embedded: %s\n", wifi_ssid_slot);
-    WiFi.begin(wifi_ssid_slot, wifi_pass_slot);
+  if (command->request.ssid && command->request.ssid[0] != '\0') {
+    WiFi.begin(command->request.ssid,
+               command->request.password ? command->request.password : "");
   } else {
-    WiFi.begin();
-  }
-
-  return WiFi.waitForConnectResult(config::wifi::CONNECT_TIMEOUT_MS) == WL_CONNECTED;
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  Access Point + Captive Portal
-// ─────────────────────────────────────────────────────────────────────────────
-
-void networking::wifi::ap::accessConfig(APConfig *config) noexcept {
-  PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
-  if (!prefs.ok() || prefs->getString("ap_ssid", config->ssid, sizeof(config->ssid)) == 0) {
-    strncpy(config->ssid, config::wifi::ap::SSID, sizeof(config->ssid) - 1);
-    config->ssid[sizeof(config->ssid) - 1] = '\0';
-  }
-  if (!prefs.ok() || prefs->getString("ap_pass", config->password, sizeof(config->password)) == 0) {
-    strncpy(config->password, config::wifi::ap::PASSWORD, sizeof(config->password) - 1);
-    config->password[sizeof(config->password) - 1] = '\0';
-  }
-}
-
-void networking::wifi::ap::configure(const char *ssid, const char *password) noexcept {
-  PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
-  prefs->putString("ap_ssid", ssid);
-  prefs->putString("ap_pass", password);
-  Serial.printf("[wifi] AP config saved: ssid=%s\n", ssid);
-}
-
-void networking::wifi::ap::enable() noexcept {
-  { PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
-    prefs->putBool("ap_on", true); }
-
-  if (ap_active) return;
-
-  APConfig cfg = {};
-  networking::wifi::ap::accessConfig(&cfg);
-
-  WiFi.mode(WIFI_AP_STA);
-
-  IPAddress ap_ip(192, 168, 4, 1);
-  IPAddress gateway(192, 168, 4, 1);
-  IPAddress subnet(255, 255, 255, 0);
-  WiFi.softAPConfig(ap_ip, gateway, subnet);
-  WiFi.softAP(cfg.ssid, cfg.password, config::wifi::ap::CHANNEL);
-
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 4, 2)
-  WiFi.AP.enableDhcpCaptivePortal();
+    WifiSavedConfig saved_config = {};
+    if (networking::wifi::accessConfig(&saved_config) && saved_config.valid) {
+      Serial.printf("[wifi] credentials from NVS: %s\n", saved_config.ssid);
+      WiFi.begin(saved_config.ssid, saved_config.password);
+    } else
+#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
+    if (strlen(CONFIG_WIFI_SSID) > 0) {
+      Serial.printf("[wifi] credentials from build flags: %s\n", CONFIG_WIFI_SSID);
+      WiFi.begin(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
+    } else
 #endif
-
-  ap_active = true;
-  Serial.printf("[wifi] AP started: %s (%s)\n",
-                cfg.ssid, ap_ip.toString().c_str());
-}
-
-void networking::wifi::ap::disable() noexcept {
-  { PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, false);
-    prefs->putBool("ap_on", false); }
-
-  if (!ap_active) return;
-
-  WiFi.softAPdisconnect(true);
-
-  if (WiFi.isConnected()) {
-    WiFi.mode(WIFI_MODE_STA);
+    if (networking::wifi::internal::wifi_ssid_slot[0] != '@' && networking::wifi::internal::wifi_ssid_slot[0] != '\0') {
+      Serial.printf("[wifi] credentials from embedded: %s\n", networking::wifi::internal::wifi_ssid_slot);
+      WiFi.begin(networking::wifi::internal::wifi_ssid_slot, networking::wifi::internal::wifi_pass_slot);
+    } else {
+      WiFi.begin();
+    }
   }
 
-  ap_active = false;
-  Serial.println(F("[wifi] AP stopped"));
+  command->result.status_code = WiFi.waitForConnectResult(config::wifi::CONNECT_TIMEOUT_MS);
+  command->result.connected = (command->result.status_code == WL_CONNECTED);
+
+  if (!command->result.connected && command->request.enable_ap_fallback) {
+    networking::wifi::ap::enable();
+    command->result.ap_enabled_for_fallback = true;
+  }
+
+  return command->result.connected;
 }
 
-bool networking::wifi::ap::isActive() noexcept {
-  return ap_active;
+bool networking::wifi::scan(WifiScanCommand *command) noexcept {
+  if (!command || !command->results || command->max_results == 0) return false;
+  command->result_count = -1;
+
+  WiFi.scanDelete();
+  int16_t count = WiFi.scanNetworks();
+  if (count < 0) return false;
+
+  int16_t limit = (count < (int16_t)command->max_results) ? count : (int16_t)command->max_results;
+  for (int16_t index = 0; index < limit; index++) {
+    memset(&command->results[index], 0, sizeof(command->results[index]));
+    strlcpy(command->results[index].ssid, WiFi.SSID(index).c_str(), sizeof(command->results[index].ssid));
+    strlcpy(command->results[index].bssid, WiFi.BSSIDstr(index).c_str(), sizeof(command->results[index].bssid));
+    command->results[index].rssi = WiFi.RSSI(index);
+    command->results[index].channel = WiFi.channel(index);
+
+    const char *encryption = "unknown";
+    switch (WiFi.encryptionType(index)) {
+      case WIFI_AUTH_OPEN:            encryption = "open"; break;
+      case WIFI_AUTH_WEP:             encryption = "wep"; break;
+      case WIFI_AUTH_WPA_PSK:         encryption = "wpa"; break;
+      case WIFI_AUTH_WPA2_PSK:        encryption = "wpa2"; break;
+      case WIFI_AUTH_WPA_WPA2_PSK:    encryption = "wpa_wpa2"; break;
+      case WIFI_AUTH_WPA2_ENTERPRISE: encryption = "wpa2_enterprise"; break;
+      case WIFI_AUTH_WPA3_PSK:        encryption = "wpa3"; break;
+      case WIFI_AUTH_WPA2_WPA3_PSK:   encryption = "wpa2_wpa3"; break;
+      default:                        break;
+    }
+    strlcpy(command->results[index].encryption, encryption, sizeof(command->results[index].encryption));
+    command->results[index].open = (WiFi.encryptionType(index) == WIFI_AUTH_OPEN);
+  }
+
+  WiFi.scanDelete();
+  command->result_count = count;
+  return true;
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Tests
@@ -202,7 +209,13 @@ static void wifi_test_connect_fails_without_ssid(void) {
 static void wifi_test_ap_config_roundtrip(void) {
   save_nvs();
 
-  networking::wifi::ap::configure("my-custom-ap", "secret123");
+  APConfigureCommand command = {
+    .config = {},
+    .snapshot = {},
+  };
+  strlcpy(command.config.ssid, "my-custom-ap", sizeof(command.config.ssid));
+  strlcpy(command.config.password, "secret123", sizeof(command.config.password));
+  networking::wifi::ap::applyConfig(&command);
 
   APConfig cfg = {};
   networking::wifi::ap::accessConfig(&cfg);
@@ -242,10 +255,12 @@ static void wifi_test_ap_enabled_default_true(void) {
   preferences.remove("ap_on");
   preferences.end();
 
-  PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
-  bool enabled = prefs.ok() ? prefs->getBool("ap_on", true) : true;
-  TEST_ASSERT_TRUE_MESSAGE(enabled,
-    "device: AP should be enabled by default");
+    Preferences prefs;
+    bool opened = networking::wifi::internal::openPreferences(true, &prefs);
+    bool enabled = opened ? prefs.getBool("ap_on", true) : true;
+    if (opened) prefs.end();
+    TEST_ASSERT_TRUE_MESSAGE(enabled,
+      "device: AP should be enabled by default");
 
   restore_nvs();
   TEST_MESSAGE("AP enabled default verified, NVS restored");
@@ -259,21 +274,27 @@ static void wifi_test_ap_enabled_toggle(void) {
   preferences.putBool("ap_on", false);
   preferences.end();
 
-  {
-    PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
-    TEST_ASSERT_FALSE_MESSAGE(prefs->getBool("ap_on", true),
-      "device: AP should be disabled after setting false");
-  }
+    {
+      Preferences prefs;
+      TEST_ASSERT_TRUE_MESSAGE(networking::wifi::internal::openPreferences(true, &prefs),
+        "device: wifi NVS namespace must be readable");
+      TEST_ASSERT_FALSE_MESSAGE(prefs.getBool("ap_on", true),
+        "device: AP should be disabled after setting false");
+      prefs.end();
+    }
 
   preferences.begin(config::wifi::NVS_NAMESPACE, false);
   preferences.putBool("ap_on", true);
   preferences.end();
 
-  {
-    PreferencesGuard prefs(config::wifi::NVS_NAMESPACE, true);
-    TEST_ASSERT_TRUE_MESSAGE(prefs->getBool("ap_on", true),
-      "device: AP should be enabled after setting true");
-  }
+    {
+      Preferences prefs;
+      TEST_ASSERT_TRUE_MESSAGE(networking::wifi::internal::openPreferences(true, &prefs),
+        "device: wifi NVS namespace must be readable");
+      TEST_ASSERT_TRUE_MESSAGE(prefs.getBool("ap_on", true),
+        "device: AP should be enabled after setting true");
+      prefs.end();
+    }
 
   restore_nvs();
   TEST_MESSAGE("AP enabled toggle verified, NVS restored");

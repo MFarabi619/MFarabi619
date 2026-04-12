@@ -42,7 +42,10 @@ static inline int clamp(int pos, size_t limit) {
   return (pos >= (int)limit) ? (int)limit - 1 : pos;
 }
 
-int hardware::i2c::scan(char *buf, size_t buf_size) noexcept {
+bool hardware::i2c::scan(ScanCommand *command) noexcept {
+  if (!command || !command->buffer || command->capacity == 0) return false;
+  char *buf = command->buffer;
+  size_t buf_size = command->capacity;
   int pos = 0;
 
   // Scan raw buses
@@ -95,7 +98,8 @@ int hardware::i2c::scan(char *buf, size_t buf_size) noexcept {
     mux.disableAllChannels();
   }
 
-  return pos;
+  command->length = pos;
+  return true;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -155,8 +159,14 @@ static void i2c_mux_test_scan(void) {
   hardware::i2c::mux.begin();
 
   char buf[1024];
-  int len = hardware::i2c::scan(buf, sizeof(buf));
-  TEST_ASSERT_GREATER_THAN_MESSAGE(0, len,
+  hardware::i2c::ScanCommand command = {
+    .buffer = buf,
+    .capacity = sizeof(buf),
+    .length = 0,
+  };
+  TEST_ASSERT_TRUE_MESSAGE(hardware::i2c::scan(&command),
+    "device: scan failed");
+  TEST_ASSERT_GREATER_THAN_MESSAGE(0, command.length,
     "device: scan returned empty output");
 
   char *line = buf;

@@ -15,8 +15,8 @@ assets/static/tui_bg.wasm
 .shellspec
 **/node_modules
 tests/env_spec.sh
-tests/test_unit/
-tests/__pycache__
+firmware/tests/test_unit
+firmware/tests/__pycache__
 learning/assembly/build/
 config/data.sqld
 
@@ -69,3 +69,4 @@ opencode.json
 /.codex/config.toml
 /compile_commands.json
 # Misc:2 ends here
+/tests/__pycache__

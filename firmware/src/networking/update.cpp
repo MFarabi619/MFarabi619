@@ -1,4 +1,5 @@
 #include "update.h"
+#include "../hardware/storage.h"
 #include "../programs/led.h"
 #include <ColorFormat.h>
 
@@ -15,7 +16,7 @@ static void log_progress(size_t current, size_t total) {
 }
 
 bool networking::update::applyFromSD(const char *path) noexcept {
-  if (!SD.begin()) {
+  if (!hardware::storage::ensureSD()) {
     Serial.println(F("[update] SD card not available"));
     return false;
   }
@@ -181,7 +182,7 @@ static void update_test_sd_path_config(void) {
 static void update_test_no_update_file(void) {
   TEST_MESSAGE("user verifies update_from_sd returns false when no file");
 
-  if (!SD.begin()) {
+  if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
