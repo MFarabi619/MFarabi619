@@ -24,7 +24,7 @@
 static ssh_session ssh_client_connect(const char *host, const char *user,
                                       const char *password) {
   ssh_session session = ssh_new();
-  if (!session) return NULL;
+  if (!session) return nullptr;
 
   ssh_options_set(session, SSH_OPTIONS_HOST, host);
   ssh_options_set(session, SSH_OPTIONS_USER, user);
@@ -33,14 +33,14 @@ static ssh_session ssh_client_connect(const char *host, const char *user,
 
   if (ssh_connect(session) != SSH_OK) {
     ssh_free(session);
-    return NULL;
+    return nullptr;
   }
 
   int rc = ssh_userauth_password(session, NULL, password);
   if (rc != SSH_AUTH_SUCCESS) {
     ssh_disconnect(session);
     ssh_free(session);
-    return NULL;
+    return nullptr;
   }
 
   return session;

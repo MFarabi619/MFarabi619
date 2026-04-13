@@ -36,7 +36,7 @@ static String ssh_hostkey_vfs(void) {
 //------------------------------------------
 //  Per-connection state
 //------------------------------------------
-static ssh_channel active_chan = NULL;
+static ssh_channel active_chan = nullptr;
 static std::atomic<bool> shell_requested = false;
 static std::atomic<bool> session_alive = true;
 
@@ -187,9 +187,9 @@ static bool ssh_ensure_hostkey(void) {
 
   Serial.println(F("[ssh] generating ed25519 host key..."));
   LittleFS.mkdir("/.ssh");
-  ssh_key key = NULL;
+  ssh_key key = nullptr;
   int rc = ssh_pki_generate(SSH_KEYTYPE_ED25519, 0, &key);
-  if (rc != SSH_OK || key == NULL) {
+  if (rc != SSH_OK || key == nullptr) {
     Serial.println(F("[ssh] key generation failed"));
     return false;
   }
@@ -229,7 +229,7 @@ static void ssh_server_task(void *pvParameters) {
 
   if (!ssh_ensure_hostkey()) {
     Serial.println(F("[ssh] cannot start without host key"));
-    vTaskDelete(NULL);
+    vTaskDelete(nullptr);
     return;
   }
 
@@ -242,7 +242,7 @@ static void ssh_server_task(void *pvParameters) {
   if (ssh_bind_listen(sshbind) < 0) {
     Serial.printf("[ssh] bind error: %s\n", ssh_get_error(sshbind));
     ssh_bind_free(sshbind);
-    vTaskDelete(NULL);
+    vTaskDelete(nullptr);
     return;
   }
 
@@ -270,7 +270,7 @@ static void ssh_server_task(void *pvParameters) {
 
     // Register server callbacks (auth + channel open)
     struct ssh_server_callbacks_struct server_cb = {};
-    server_cb.userdata = NULL;
+    server_cb.userdata = nullptr;
     server_cb.auth_password_function = on_auth_password;
     server_cb.channel_open_request_session_function = on_channel_open;
     ssh_callbacks_init(&server_cb);
@@ -281,13 +281,13 @@ static void ssh_server_task(void *pvParameters) {
     ssh_event event = ssh_event_new();
     ssh_event_add_session(event, session);
 
-    active_chan = NULL;
+    active_chan = nullptr;
     shell_requested.store(false, std::memory_order_relaxed);
     session_alive.store(true, std::memory_order_relaxed);
 
     // Channel callbacks — registered once when channel opens
     struct ssh_channel_callbacks_struct channel_cb = {};
-    channel_cb.userdata = NULL;
+    channel_cb.userdata = nullptr;
     channel_cb.channel_data_function = on_channel_data;
     channel_cb.channel_pty_request_function = on_pty_request;
     channel_cb.channel_shell_request_function = on_shell_request;
@@ -319,7 +319,7 @@ static void ssh_server_task(void *pvParameters) {
       Serial.println(F("[ssh] session setup failed"));
       ssh_event_remove_session(event, session);
       ssh_event_free(event);
-      if (active_chan) { ssh_channel_free(active_chan); active_chan = NULL; }
+      if (active_chan) { ssh_channel_free(active_chan); active_chan = nullptr; }
       ssh_disconnect(session);
       ssh_free(session);
       continue;
@@ -348,7 +348,7 @@ static void ssh_server_task(void *pvParameters) {
       ssh_channel_send_eof(active_chan);
       ssh_channel_close(active_chan);
       ssh_channel_free(active_chan);
-      active_chan = NULL;
+      active_chan = nullptr;
     }
     ssh_disconnect(session);
     ssh_free(session);
@@ -395,7 +395,7 @@ static void ssh_server_test_libssh_initializes(void) {
 static void ssh_server_test_generates_ed25519_key(void) {
   TEST_MESSAGE("user asks the device to generate an ed25519 keypair");
 
-  ssh_key key = NULL;
+  ssh_key key = nullptr;
   int rc = ssh_pki_generate(SSH_KEYTYPE_ED25519, 0, &key);
 
   TEST_ASSERT_EQUAL_INT_MESSAGE(SSH_OK, rc,
