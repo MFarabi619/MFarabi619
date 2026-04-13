@@ -97,10 +97,11 @@ debug = true
 opt-level = "s"
 
 [profile.release]
-debug = 2
+# debug = 2             # full debug symbols — adds to binary size, enable for profiling
 codegen-units = 1        # LLVM can perform better optimizations using a single thread
-opt-level = 3
+# opt-level = 3          # max speed — produces 30MB WASM, bad for firmware flash too
+opt-level = "z"          # min size — halves WASM (~15MB), better for ESP32 flash. all targets are IO-bound.
 lto = "fat"
 incremental = false
-overflow-checks = false
-debug-assertions = false
+overflow-checks = true   # was false — silent integer wrapping is dangerous for sensor math
+# debug-assertions = false  # already the default for release

@@ -3366,6 +3366,7 @@ name = "e2e"
 version = "0.1.0"
 dependencies = [
  "playwright-rs",
+ "regex",
  "tokio",
 ]
 

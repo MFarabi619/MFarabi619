@@ -35,13 +35,14 @@ pub fn Terminal(
 
         document::eval(&format!(
             r#"
-            (function tryInit() {{
+            (function tryInit(attempt) {{
+                if (attempt > 50) return;
                 if (typeof Terminal === 'undefined' || typeof FitAddon === 'undefined') {{
-                    setTimeout(tryInit, 200);
+                    setTimeout(() => tryInit(attempt + 1), 200);
                     return;
                 }}
                 const container = document.getElementById('{id}');
-                if (!container) {{ setTimeout(tryInit, 200); return; }}
+                if (!container) {{ setTimeout(() => tryInit(attempt + 1), 200); return; }}
                 if (container.dataset.initialized) return;
                 container.dataset.initialized = 'true';
                 container.__destroyed = false;
@@ -110,7 +111,7 @@ pub fn Terminal(
                 }});
 
                 connect();
-            }})();
+            }})(0);
         "#
         ));
     });

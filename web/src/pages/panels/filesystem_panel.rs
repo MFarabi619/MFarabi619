@@ -34,6 +34,40 @@ pub fn FilesystemPanel(
     let mut preview_name: Signal<Option<String>> = use_signal(|| None);
     let mut preview_rows: Signal<Vec<Vec<String>>> = use_signal(Vec::new);
 
+    let upload_to_sd = move |name: String, bytes: Vec<u8>| {
+        let url = device_url.read().clone();
+        toasts.info(format!("Uploading {name}..."), None);
+        spawn(async move {
+            match FileService::upload(&url, "sd", &name, &bytes).await {
+                Ok(resp) if resp.status().is_success() => {
+                    toasts.success(format!("Uploaded {name}"), None);
+                    if let Ok(entries) = FileService::list(&url, "sd").await {
+                        files.set(entries);
+                    }
+                }
+                _ => toasts.error(format!("Upload failed: {name}"), None),
+            }
+        });
+    };
+
+    let open_preview = move |location: &'static str, name: String| {
+        let url = device_url.read().clone();
+        spawn(async move {
+            match FileService::read_text(&url, location, &name).await {
+                Ok(text) => {
+                    let rows: Vec<Vec<String>> = text
+                        .lines()
+                        .take(200)
+                        .map(|line| line.split(',').map(|c| c.trim().to_string()).collect())
+                        .collect();
+                    preview_rows.set(rows);
+                    preview_name.set(Some(name));
+                }
+                Err(_) => toasts.error("Failed to fetch file".to_string(), None),
+            }
+        });
+    };
+
     let status_data = status.read();
 
     let littlefs_percent = use_memo(move || {
@@ -58,20 +92,8 @@ pub fn FilesystemPanel(
                     for file in e.files() {
                         let name = file.name();
                         match file.read_bytes().await {
-                            Ok(bytes) => {
-                                let url = device_url.read().clone();
-                                toasts.info(format!("Uploading {}...", name), None);
-                                match FileService::upload(&url, "sd", &name, &bytes).await {
-                                    Ok(resp) if resp.status().is_success() => {
-                                        toasts.success(format!("Uploaded {}", name), None);
-                                        if let Ok(entries) = FileService::list(&url, "sd").await {
-                                            files.set(entries);
-                                        }
-                                    }
-                                    _ => toasts.error(format!("Upload failed: {}", name), None),
-                                }
-                            }
-                            Err(_) => toasts.error(format!("Failed to read {}", name), None),
+                            Ok(bytes) => upload_to_sd(name, bytes.to_vec()),
+                            Err(_) => toasts.error(format!("Failed to read {}", file.name()), None),
                         }
                     }
                 },
@@ -106,79 +128,7 @@ pub fn FilesystemPanel(
                 }
 
                 for file in files.read().iter() {
-                    {
-                        let filename = file.name.clone();
-                        let file_size = file.size;
-                        let filename_for_preview = filename.clone();
-                        let filename_for_rename = filename.clone();
-                        let filename_for_delete = filename.clone();
-                        let filename_for_download = filename.clone();
-                        let device = device_url.read().clone();
-                        let is_previewable = filename.ends_with(".csv") || filename.ends_with(".tsv");
-                        rsx! {
-                            div { key: "{filename}", class: "flex items-center gap-2 py-2 group relative",
-                                {file_icon(&filename)}
-                                if is_previewable {
-                                    span {
-                                        class: "text-sm font-mono text-foreground truncate flex-1 cursor-pointer hover:underline",
-                                        onclick: move |_| {
-                                            let name = filename_for_preview.clone();
-                                            let url = device_url.read().clone();
-                                            spawn(async move {
-                                                match FileService::read_text(&url, "sd", &name).await {
-                                                    Ok(text) => {
-                                                        let rows: Vec<Vec<String>> = text.lines()
-                                                            .take(200)
-                                                            .map(|line| line.split(',').map(|c| c.trim().to_string()).collect())
-                                                            .collect();
-                                                        preview_rows.set(rows);
-                                                        preview_name.set(Some(name));
-                                                    }
-                                                    Err(_) => toasts.error("Failed to fetch file".to_string(), None),
-                                                }
-                                            });
-                                        },
-                                        "{filename}"
-                                    }
-                                } else {
-                                    span { class: "text-sm font-mono text-foreground truncate flex-1", "{filename}" }
-                                }
-                                span { class: "text-xs text-muted-foreground shrink-0 ml-auto tabular-nums transition-opacity duration-200 ease-in-out opacity-100 group-hover:opacity-0", "{api::format_file_size(file_size)}" }
-                                div { class: "flex items-center gap-0.5 shrink-0 ml-auto absolute right-0 transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100",
-                                    a {
-                                        class: "p-1 rounded hover:bg-accent/40 text-muted-foreground",
-                                        aria_label: "Download {filename}",
-                                        href: "{device}/api/filesystem/sd/{filename_for_download}",
-                                        target: "_blank",
-                                        Download { class: "w-3.5 h-3.5" }
-                                    }
-                                    Button {
-                                        variant: ButtonVariant::Ghost,
-                                        size: ButtonSize::Small,
-                                        is_icon_button: true,
-                                        class: "p-1".to_string(),
-                                        aria_label: format!("Rename {filename}"),
-                                        on_click: move |_| {
-                                            rename_input.set(filename_for_rename.clone());
-                                            pending_rename.set(Some(("sd".into(), filename_for_rename.clone())));
-                                        },
-                                        Pencil { class: "w-3.5 h-3.5" }
-                                    }
-                                    Button {
-                                        variant: ButtonVariant::Destructive,
-                                        size: ButtonSize::Small,
-                                        is_icon_button: true,
-                                        class: "p-1".to_string(),
-                                        aria_label: format!("Delete {filename}"),
-                                        on_click: move |_| {
-                                            pending_delete.set(Some(("sd".into(), filename_for_delete.clone())));
-                                        },
-                                        Trash2 { class: "w-3.5 h-3.5" }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    { file_row(file, "sd", &device_url, open_preview, &mut pending_rename, &mut rename_input, &mut pending_delete) }
                 }
 
                 Label {
@@ -228,44 +178,7 @@ pub fn FilesystemPanel(
                 }
 
                 for file in littlefs_files.read().iter() {
-                    {
-                        let filename = file.name.clone();
-                        let file_size = file.size;
-                        let filename_for_rename = filename.clone();
-                        let filename_for_delete = filename.clone();
-                        rsx! {
-                            div { key: "{filename}", class: "flex items-center gap-2 py-2 group relative",
-                                {file_icon(&filename)}
-                                span { class: "text-sm font-mono text-foreground truncate flex-1", "{filename}" }
-                                span { class: "text-xs text-muted-foreground shrink-0 ml-auto tabular-nums transition-opacity duration-200 ease-in-out opacity-100 group-hover:opacity-0", "{api::format_file_size(file_size)}" }
-                                div { class: "flex items-center gap-0.5 shrink-0 ml-auto absolute right-0 transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100",
-                                    Button {
-                                        variant: ButtonVariant::Ghost,
-                                        size: ButtonSize::Small,
-                                        is_icon_button: true,
-                                        class: "p-1".to_string(),
-                                        aria_label: format!("Rename {filename}"),
-                                        on_click: move |_| {
-                                            rename_input.set(filename_for_rename.clone());
-                                            pending_rename.set(Some(("littlefs".into(), filename_for_rename.clone())));
-                                        },
-                                        Pencil { class: "w-3.5 h-3.5" }
-                                    }
-                                    Button {
-                                        variant: ButtonVariant::Destructive,
-                                        size: ButtonSize::Small,
-                                        is_icon_button: true,
-                                        class: "p-1".to_string(),
-                                        aria_label: format!("Delete {filename}"),
-                                        on_click: move |_| {
-                                            pending_delete.set(Some(("littlefs".into(), filename_for_delete.clone())));
-                                        },
-                                        Trash2 { class: "w-3.5 h-3.5" }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    { file_row(file, "littlefs", &device_url, open_preview, &mut pending_rename, &mut rename_input, &mut pending_delete) }
                 }
 
                 Button {
@@ -285,20 +198,8 @@ pub fn FilesystemPanel(
                     for file in evt.files() {
                         let name = file.name();
                         match file.read_bytes().await {
-                            Ok(bytes) => {
-                                let url = device_url.read().clone();
-                                toasts.info(format!("Uploading {}...", name), None);
-                                match FileService::upload(&url, "sd", &name, &bytes).await {
-                                    Ok(resp) if resp.status().is_success() => {
-                                        toasts.success(format!("Uploaded {}", name), None);
-                                        if let Ok(entries) = FileService::list(&url, "sd").await {
-                                            files.set(entries);
-                                        }
-                                    }
-                                    _ => toasts.error(format!("Upload failed: {}", name), None),
-                                }
-                            }
-                            Err(_) => toasts.error(format!("Failed to read {}", name), None),
+                            Ok(bytes) => upload_to_sd(name, bytes.to_vec()),
+                            Err(_) => toasts.error(format!("Failed to read {}", file.name()), None),
                         }
                     }
                 },
@@ -437,6 +338,7 @@ pub fn FilesystemPanel(
                     }
                 }
             }
+
             // CSV preview modal
             {
                 let is_preview_open = preview_name.read().is_some();
@@ -501,6 +403,78 @@ pub fn FilesystemPanel(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+fn file_row(
+    file: &FileEntry,
+    location: &'static str,
+    device_url: &Signal<String>,
+    open_preview: impl Fn(&'static str, String) + Copy + 'static,
+    pending_rename: &mut Signal<Option<(String, String)>>,
+    rename_input: &mut Signal<String>,
+    pending_delete: &mut Signal<Option<(String, String)>>,
+) -> Element {
+    let filename = file.name.clone();
+    let file_size = file.size;
+    let filename_for_preview = filename.clone();
+    let filename_for_rename = filename.clone();
+    let filename_for_delete = filename.clone();
+    let filename_for_download = filename.clone();
+    let device = device_url.read().clone();
+    let is_previewable = filename.ends_with(".csv") || filename.ends_with(".tsv");
+    let mut pending_rename = *pending_rename;
+    let mut rename_input = *rename_input;
+    let mut pending_delete = *pending_delete;
+
+    rsx! {
+        div { key: "{filename}", class: "flex items-center gap-2 py-2 group relative",
+            {file_icon(&filename)}
+            if is_previewable {
+                span {
+                    class: "text-sm font-mono text-foreground truncate flex-1 cursor-pointer hover:underline",
+                    onclick: move |_| open_preview(location, filename_for_preview.clone()),
+                    "{filename}"
+                }
+            } else {
+                span { class: "text-sm font-mono text-foreground truncate flex-1", "{filename}" }
+            }
+            span { class: "text-xs text-muted-foreground shrink-0 ml-auto tabular-nums transition-opacity duration-200 ease-in-out opacity-100 group-hover:opacity-0", "{api::format_file_size(file_size)}" }
+            div { class: "flex items-center gap-0.5 shrink-0 ml-auto absolute right-0 transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100",
+                if location == "sd" {
+                    a {
+                        class: "p-1 rounded hover:bg-accent/40 text-muted-foreground",
+                        aria_label: "Download {filename}",
+                        href: "{device}/api/filesystem/sd/{filename_for_download}",
+                        target: "_blank",
+                        Download { class: "w-3.5 h-3.5" }
+                    }
+                }
+                Button {
+                    variant: ButtonVariant::Ghost,
+                    size: ButtonSize::Small,
+                    is_icon_button: true,
+                    class: "p-1".to_string(),
+                    aria_label: format!("Rename {filename}"),
+                    on_click: move |_| {
+                        rename_input.set(filename_for_rename.clone());
+                        pending_rename.set(Some((location.into(), filename_for_rename.clone())));
+                    },
+                    Pencil { class: "w-3.5 h-3.5" }
+                }
+                Button {
+                    variant: ButtonVariant::Destructive,
+                    size: ButtonSize::Small,
+                    is_icon_button: true,
+                    class: "p-1".to_string(),
+                    aria_label: format!("Delete {filename}"),
+                    on_click: move |_| {
+                        pending_delete.set(Some((location.into(), filename_for_delete.clone())));
+                    },
+                    Trash2 { class: "w-3.5 h-3.5" }
                 }
             }
         }

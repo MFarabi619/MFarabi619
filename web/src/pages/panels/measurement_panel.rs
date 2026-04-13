@@ -1,5 +1,5 @@
 use super::{
-    build_co2_csv, build_temperature_humidity_csv, build_voltage_csv, download_csv,
+    build_csv, download_csv,
     fetch_and_add_sensor_readings, Co2Row, MeasurementTab, SensorAvailability, Td,
     TemperatureHumidityRow, Th, VoltageRow,
 };
@@ -371,7 +371,7 @@ fn co2_panel(
 
                 if !co2_readings.read().is_empty() {
                     {csv_button(move |_| {
-                        download_csv("co2_readings.csv", &build_co2_csv(&co2_readings.read()));
+                        download_csv("co2_readings.csv", &build_csv(&co2_readings.read()));
                     })}
                 }
 
@@ -437,7 +437,7 @@ fn thm_panel(
 
                 if !temperature_humidity_readings.read().is_empty() {
                     {csv_button(move |_| {
-                        download_csv("temperature_humidity.csv", &build_temperature_humidity_csv(&temperature_humidity_readings.read()));
+                        download_csv("temperature_humidity.csv", &build_csv(&temperature_humidity_readings.read()));
                     })}
                 }
 
@@ -517,7 +517,7 @@ fn voltage_panel(
 
                 if !voltage_readings.read().is_empty() {
                     {csv_button(move |_| {
-                        download_csv("voltage.csv", &build_voltage_csv(&voltage_readings.read()));
+                        download_csv("voltage.csv", &build_csv(&voltage_readings.read()));
                     })}
                 }
 
