@@ -2,6 +2,7 @@
 #include "../config.h"
 #include "../services/identity.h"
 
+#include <atomic>
 #include <Arduino.h>
 #include <Preferences.h>
 #include <WiFi.h>
@@ -48,6 +49,7 @@ void boot::provisioning::reset(void) {
 
 #if CERATINA_PROV_ENABLED
 
+#include <atomic>
 #include <ArduinoJson.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
@@ -60,8 +62,8 @@ void boot::provisioning::reset(void) {
 
 static BLEServer *prov_server = nullptr;
 static BLECharacteristic *status_char = nullptr;
-static volatile bool prov_credentials_received = false;
-static volatile bool prov_done = false;
+static std::atomic<bool> prov_credentials_received = false;
+static std::atomic<bool> prov_done = false;
 
 static char prov_ssid[33] = {0};
 static char prov_pass[65] = {0};
@@ -100,7 +102,7 @@ class ProvisioningPasswordCallbacks : public BLECharacteristicCallbacks {
     Serial.println(F("[prov] password received"));
 
     if (prov_ssid[0] != '\0') {
-      prov_credentials_received = true;
+      prov_credentials_received.store(true, std::memory_order_release);
     }
   }
 };
@@ -134,7 +136,7 @@ class ProvisioningServerCallbacks : public BLEServerCallbacks {
   }
   void onDisconnect(BLEServer *server) override {
     Serial.println(F("[prov] client disconnected"));
-    if (!prov_done) {
+    if (!prov_done.load(std::memory_order_acquire)) {
       server->startAdvertising();
     }
   }
@@ -144,8 +146,8 @@ void boot::provisioning::start(void) {
   Serial.println(F("[prov] starting BLE provisioning"));
   Serial.printf("[prov] passkey: %d\n", config::ble::PASSKEY);
 
-  prov_credentials_received = false;
-  prov_done = false;
+  prov_credentials_received.store(false, std::memory_order_relaxed);
+  prov_done.store(false, std::memory_order_relaxed);
   prov_ssid[0] = '\0';
   prov_pass[0] = '\0';
 
@@ -196,7 +198,7 @@ void boot::provisioning::start(void) {
 
   Serial.printf("[prov] advertising as '%s', waiting for credentials...\n", config::HOSTNAME);
 
-  while (!prov_credentials_received) {
+  while (!prov_credentials_received.load(std::memory_order_acquire)) {
     delay(100);
   }
 
@@ -220,7 +222,7 @@ void boot::provisioning::start(void) {
   }
 
   delay(2000);
-  prov_done = true;
+  prov_done.store(true, std::memory_order_release);
 
   BLEDevice::deinit(true);
   status_char = nullptr;

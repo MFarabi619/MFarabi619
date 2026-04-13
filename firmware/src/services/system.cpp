@@ -31,6 +31,8 @@ bool services::system::accessSnapshot(SystemQuery *query) {
 
   services::identity::accessSnapshot(&query->snapshot.identity);
   networking::wifi::accessSnapshot(&query->snapshot.network);
+  power::sleep::accessStatus(&query->snapshot.sleep);
+  services::data_logger::accessStatus(&query->snapshot.data_logger);
   StorageQuery storage_query = {
     .kind = query->preferred_storage,
     .snapshot = {},

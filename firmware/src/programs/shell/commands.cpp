@@ -2,6 +2,7 @@
 #include "../../boot/system.h"
 #include "../../networking/wifi.h"
 #include "../../power/sleep.h"
+#include "../../services/data_logger.h"
 #include "../ssh/ssh_server.h"
 
 #include <Arduino.h>
@@ -155,6 +156,56 @@ static void cmd_wakecause(struct ush_object *self,
   ush_printf(self, "%s\r\n", power::sleep::accessWakeCause());
 }
 
+static void cmd_sleep_status(struct ush_object *self,
+                             struct ush_file_descriptor const *file,
+                             int argc, char *argv[]) {
+  (void)file; (void)argv;
+  if (argc != 1) {
+    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
+    return;
+  }
+
+  SleepStatusSnapshot snapshot = {};
+  power::sleep::accessStatus(&snapshot);
+  ush_printf(self,
+             "pending=%s\r\n"
+             "requested_duration_seconds=%lu\r\n"
+             "wake_cause=%s\r\n"
+             "timer_wakeup_enabled=%s\r\n"
+             "timer_wakeup_us=%llu\r\n",
+             snapshot.pending ? "true" : "false",
+             (unsigned long)snapshot.requested_duration_seconds,
+             snapshot.wake_cause,
+             snapshot.timer_wakeup_enabled ? "true" : "false",
+             (unsigned long long)snapshot.timer_wakeup_us);
+}
+
+static void cmd_log_status(struct ush_object *self,
+                           struct ush_file_descriptor const *file,
+                           int argc, char *argv[]) {
+  (void)file; (void)argv;
+  if (argc != 1) {
+    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
+    return;
+  }
+
+  DataLoggerStatusSnapshot snapshot = {};
+  services::data_logger::accessStatus(&snapshot);
+  ush_printf(self,
+             "initialized=%s\r\n"
+             "sd_ready=%s\r\n"
+             "header_written=%s\r\n"
+             "interval_ms=%lu\r\n"
+             "last_log_ms=%lu\r\n"
+             "path=%s\r\n",
+             snapshot.initialized ? "true" : "false",
+             snapshot.sd_ready ? "true" : "false",
+             snapshot.header_written ? "true" : "false",
+             (unsigned long)snapshot.interval_ms,
+             (unsigned long)snapshot.last_log_ms,
+             snapshot.path);
+}
+
 static const struct ush_file_descriptor cmd_files[] = {
   { .name = "reboot",       .description = "reboot the device",
     .help = "usage: reboot\r\n",           .exec = cmd_reboot },
@@ -174,6 +225,10 @@ static const struct ush_file_descriptor cmd_files[] = {
     .help = "usage: sleep <seconds>\r\n", .exec = cmd_sleep },
   { .name = "wakecause",    .description = "show the last wake cause",
     .help = "usage: wakecause\r\n",      .exec = cmd_wakecause },
+  { .name = "sleep-status", .description = "show deep sleep status",
+    .help = "usage: sleep-status\r\n",   .exec = cmd_sleep_status },
+  { .name = "log-status",   .description = "show CSV logger status",
+    .help = "usage: log-status\r\n",     .exec = cmd_log_status },
 };
 
 static struct ush_node_object cmd;

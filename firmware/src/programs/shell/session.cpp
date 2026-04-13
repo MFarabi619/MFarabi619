@@ -2,23 +2,28 @@
 
 void programs::shell::session::reset(RingBuffer *ring) {
   if (!ring) return;
-  ring->head = 0;
-  ring->tail = 0;
+  ring->head.store(0, std::memory_order_relaxed);
+  ring->tail.store(0, std::memory_order_relaxed);
 }
 
 bool programs::shell::session::push(RingBuffer *ring, char ch) {
   if (!ring || !ring->data || ring->capacity == 0) return false;
-  uint16_t next = (ring->head + 1) % ring->capacity;
-  if (next == ring->tail) return false;
-  ring->data[ring->head] = ch;
-  ring->head = next;
+  uint16_t head = ring->head.load(std::memory_order_relaxed);
+  uint16_t tail = ring->tail.load(std::memory_order_acquire);
+  uint16_t next = (head + 1) % ring->capacity;
+  if (next == tail) return false;
+  ring->data[head] = ch;
+  ring->head.store(next, std::memory_order_release);
   return true;
 }
 
 int programs::shell::session::pop(RingBuffer *ring, char *ch) {
-  if (!ring || !ch || !ring->data || ring->head == ring->tail) return 0;
-  *ch = ring->data[ring->tail];
-  ring->tail = (ring->tail + 1) % ring->capacity;
+  if (!ring || !ch || !ring->data) return 0;
+  uint16_t tail = ring->tail.load(std::memory_order_relaxed);
+  uint16_t head = ring->head.load(std::memory_order_acquire);
+  if (head == tail) return 0;
+  *ch = ring->data[tail];
+  ring->tail.store((tail + 1) % ring->capacity, std::memory_order_release);
   return 1;
 }
 

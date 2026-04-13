@@ -1,9 +1,11 @@
 #ifndef SERVICES_SYSTEM_H
 #define SERVICES_SYSTEM_H
 
+#include "data_logger.h"
 #include "identity.h"
 #include "../hardware/storage.h"
 #include "../networking/wifi.h"
+#include "../power/sleep.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -32,6 +34,8 @@ struct SystemSnapshot {
   char idf_version[32];
   char arduino_version[32];
   char sketch_md5[40];
+  SleepStatusSnapshot sleep;
+  DataLoggerStatusSnapshot data_logger;
 };
 
 struct SystemQuery {

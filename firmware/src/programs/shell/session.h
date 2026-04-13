@@ -2,6 +2,7 @@
 #define PROGRAMS_SHELL_SESSION_H
 
 #include <stddef.h>
+#include <atomic>
 #include <stdint.h>
 
 namespace programs::shell::session {
@@ -9,8 +10,8 @@ namespace programs::shell::session {
 struct RingBuffer {
   char *data;
   uint16_t capacity;
-  volatile uint16_t head;
-  volatile uint16_t tail;
+  std::atomic<uint16_t> head;
+  std::atomic<uint16_t> tail;
 };
 
 struct WriteBuffer {

@@ -12,6 +12,8 @@ struct SleepStatusSnapshot {
   bool pending;
   uint32_t requested_duration_seconds;
   const char *wake_cause;
+  bool timer_wakeup_enabled;
+  uint64_t timer_wakeup_us;
 };
 
 namespace power::sleep {
@@ -21,6 +23,7 @@ bool request(SleepCommand *command);
 void service();
 const char *accessWakeCause();
 bool accessStatus(SleepStatusSnapshot *snapshot);
+void abortPending();
 
 }
 

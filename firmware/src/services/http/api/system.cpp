@@ -77,6 +77,21 @@ void handle_device_status(AsyncWebServerRequest *request) {
   runtime["memory_psram_total"] = query.snapshot.psram_total;
   runtime["memory_psram_free"] = query.snapshot.psram_free;
 
+  JsonObject sleep = data["sleep"].to<JsonObject>();
+  sleep["pending"] = query.snapshot.sleep.pending;
+  sleep["requested_duration_seconds"] = query.snapshot.sleep.requested_duration_seconds;
+  sleep["wake_cause"] = query.snapshot.sleep.wake_cause;
+  sleep["timer_wakeup_enabled"] = query.snapshot.sleep.timer_wakeup_enabled;
+  sleep["timer_wakeup_us"] = (unsigned long long)query.snapshot.sleep.timer_wakeup_us;
+
+  JsonObject logger = data["data_logger"].to<JsonObject>();
+  logger["initialized"] = query.snapshot.data_logger.initialized;
+  logger["sd_ready"] = query.snapshot.data_logger.sd_ready;
+  logger["header_written"] = query.snapshot.data_logger.header_written;
+  logger["interval_ms"] = query.snapshot.data_logger.interval_ms;
+  logger["last_log_ms"] = query.snapshot.data_logger.last_log_ms;
+  logger["path"] = query.snapshot.data_logger.path;
+
   JsonObject storage = data["storage"].to<JsonObject>();
   storage["location"] = (query.snapshot.storage.kind == StorageKind::LittleFS) ? "littlefs" : "sd";
   storage["mounted"] = query.snapshot.storage.mounted;

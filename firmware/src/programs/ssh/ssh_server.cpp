@@ -14,6 +14,7 @@
 #include <libssh/libssh.h>
 #include <libssh/server.h>
 
+#include <atomic>
 #include <microshell.h>
 #include <sys/reent.h>
 #include <string.h>
@@ -36,8 +37,8 @@ static String ssh_hostkey_vfs(void) {
 //  Per-connection state
 //------------------------------------------
 static ssh_channel active_chan = NULL;
-static volatile bool shell_requested = false;
-static volatile bool session_alive = true;
+static std::atomic<bool> shell_requested = false;
+static std::atomic<bool> session_alive = true;
 
 //------------------------------------------
 //  Ring buffer (SSH channel → MicroShell)
@@ -138,7 +139,7 @@ static int on_channel_data(ssh_session session, ssh_channel channel,
   char *bytes = (char *)data;
   for (uint32_t i = 0; i < len; i++) {
     if (bytes[i] == '\x04') {  // Ctrl+D
-      session_alive = false;
+      session_alive.store(false, std::memory_order_release);
       return len;
     }
     programs::shell::session::push(&ssh_ring_state, bytes[i]);
@@ -159,20 +160,20 @@ static int on_shell_request(ssh_session session, ssh_channel channel,
                             void *userdata) {
   (void)session; (void)channel; (void)userdata;
   Serial.println(F("[ssh] shell requested"));
-  shell_requested = true;
+  shell_requested.store(true, std::memory_order_release);
   return 0;  // accept
 }
 
 static void on_channel_eof(ssh_session session, ssh_channel channel,
                            void *userdata) {
   (void)session; (void)channel; (void)userdata;
-  session_alive = false;
+  session_alive.store(false, std::memory_order_release);
 }
 
 static void on_channel_close(ssh_session session, ssh_channel channel,
                              void *userdata) {
   (void)session; (void)channel; (void)userdata;
-  session_alive = false;
+  session_alive.store(false, std::memory_order_release);
 }
 
 //------------------------------------------
@@ -213,7 +214,7 @@ static bool ssh_ensure_hostkey(void) {
 //------------------------------------------
 bool services::sshd::requestExit(struct ush_object *self) {
   if (self != &ssh_ush) return false;
-  session_alive = false;
+  session_alive.store(false, std::memory_order_release);
   return true;
 }
 
@@ -281,8 +282,8 @@ static void ssh_server_task(void *pvParameters) {
     ssh_event_add_session(event, session);
 
     active_chan = NULL;
-    shell_requested = false;
-    session_alive = true;
+    shell_requested.store(false, std::memory_order_relaxed);
+    session_alive.store(true, std::memory_order_relaxed);
 
     // Channel callbacks — registered once when channel opens
     struct ssh_channel_callbacks_struct channel_cb = {};
@@ -296,10 +297,11 @@ static void ssh_server_task(void *pvParameters) {
     bool channel_cb_registered = false;
 
     // Phase 1: Wait for auth + channel + shell request (tight poll)
-    while (session_alive && (!active_chan || !shell_requested)) {
+    while (session_alive.load(std::memory_order_acquire) &&
+           (!active_chan || !shell_requested.load(std::memory_order_acquire))) {
       ssh_event_dopoll(event, 0);
       if (ssh_get_status(session) & (SSH_CLOSED | SSH_CLOSED_ERROR)) {
-        session_alive = false;
+        session_alive.store(false, std::memory_order_release);
         break;
       }
 
@@ -311,7 +313,9 @@ static void ssh_server_task(void *pvParameters) {
       vTaskDelay(pdMS_TO_TICKS(1));
     }
 
-    if (!session_alive || !active_chan || !shell_requested) {
+    if (!session_alive.load(std::memory_order_acquire) ||
+        !active_chan ||
+        !shell_requested.load(std::memory_order_acquire)) {
       Serial.println(F("[ssh] session setup failed"));
       ssh_event_remove_session(event, session);
       ssh_event_free(event);
@@ -327,7 +331,7 @@ static void ssh_server_task(void *pvParameters) {
     const char *motd = programs::shell::microfetch::generate();
     ssh_channel_write(active_chan, motd, strlen(motd));
 
-    while (session_alive) {
+    while (session_alive.load(std::memory_order_acquire)) {
       ssh_event_dopoll(event, 50);
       while (ush_service(&ssh_ush)) {}  // drain all pending output
       ssh_write_flush();

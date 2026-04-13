@@ -1,6 +1,7 @@
 #include "buttons.h"
 #include "../config.h"
 
+#include <atomic>
 #include <Arduino.h>
 
 static const int8_t button_gpios[config::buttons::COUNT] = {
@@ -9,8 +10,8 @@ static const int8_t button_gpios[config::buttons::COUNT] = {
   config::buttons::GPIO_3,
 };
 
-static volatile uint32_t last_press_ms[config::buttons::COUNT] = {0};
-static volatile bool pending_press[config::buttons::COUNT] = {false};
+static std::atomic<uint32_t> last_press_ms[config::buttons::COUNT];
+static std::atomic<bool> pending_press[config::buttons::COUNT];
 static uint32_t press_start_ms[config::buttons::COUNT] = {0};
 static bool was_pressed[config::buttons::COUNT] = {false};
 
@@ -20,9 +21,10 @@ static ButtonCallback on_long_press_cb = nullptr;
 static void IRAM_ATTR button_isr(void *arg) {
   uint8_t index = (uint8_t)(uintptr_t)arg;
   uint32_t now = millis();
-  if (now - last_press_ms[index] > config::buttons::DEBOUNCE_MS) {
-    last_press_ms[index] = now;
-    pending_press[index] = true;
+  uint32_t previous = last_press_ms[index].load(std::memory_order_relaxed);
+  if (now - previous > config::buttons::DEBOUNCE_MS) {
+    last_press_ms[index].store(now, std::memory_order_relaxed);
+    pending_press[index].store(true, std::memory_order_release);
   }
 }
 
@@ -46,8 +48,7 @@ void programs::buttons::service() {
     if ((int8_t)button_gpios[i] < 0) continue;
     bool pressed = !digitalRead(button_gpios[i]);
 
-    if (pending_press[i]) {
-      pending_press[i] = false;
+    if (pending_press[i].exchange(false, std::memory_order_acq_rel)) {
       if (!was_pressed[i]) {
         press_start_ms[i] = millis();
         was_pressed[i] = true;

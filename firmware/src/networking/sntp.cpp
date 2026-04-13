@@ -1,25 +1,26 @@
 #include "sntp.h"
 #include "../services/rtc.h"
 
+#include <atomic>
 #include <Arduino.h>
 #include <time.h>
 #include "esp_sntp.h"
 
-static volatile bool synced = false;
-static volatile uint32_t synced_epoch = 0;
+static std::atomic<bool> synced = false;
+static std::atomic<uint32_t> synced_epoch = 0;
 
 static void on_time_sync(struct timeval *tv) {
   (void)tv;
   time_t now_utc;
   time(&now_utc);
-  synced_epoch = (uint32_t)now_utc;
-  synced = true;
+  synced_epoch.store((uint32_t)now_utc, std::memory_order_release);
+  synced.store(true, std::memory_order_release);
   Serial.printf("[ntp] synced, epoch=%lu\n", (unsigned long)now_utc);
 }
 
 bool networking::sntp::sync() {
-  synced = false;
-  synced_epoch = 0;
+  synced.store(false, std::memory_order_relaxed);
+  synced_epoch.store(0, std::memory_order_relaxed);
 
   setenv("TZ", config::sntp::TIME_ZONE, 1);
   tzset();
@@ -28,12 +29,13 @@ bool networking::sntp::sync() {
   configTzTime(config::sntp::TIME_ZONE, config::sntp::SERVER_1, config::sntp::SERVER_2);
 
   uint32_t start = millis();
-  while (!synced && (millis() - start) < config::sntp::SYNC_TIMEOUT_MS) {
+  while (!synced.load(std::memory_order_acquire) && (millis() - start) < config::sntp::SYNC_TIMEOUT_MS) {
     vTaskDelay(pdMS_TO_TICKS(100));
   }
 
-  if (synced && synced_epoch > 0) {
-    services::rtc::setEpoch(synced_epoch);
+  uint32_t synced_epoch_value = synced_epoch.load(std::memory_order_acquire);
+  if (synced.load(std::memory_order_acquire) && synced_epoch_value > 0) {
+    services::rtc::setEpoch(synced_epoch_value);
     Serial.printf("[ntp] local time: %s\n", networking::sntp::accessLocalTimeString());
   } else {
     Serial.println(F("[ntp] sync timeout — using RTC time"));
@@ -43,7 +45,7 @@ bool networking::sntp::sync() {
 }
 
 bool networking::sntp::isSynced() {
-  return synced;
+  return synced.load(std::memory_order_acquire);
 }
 
 const char *networking::sntp::accessLocalTimeString() {
