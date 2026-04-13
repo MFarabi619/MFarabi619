@@ -38,8 +38,8 @@ pub fn boot_device() -> Device {
     let hardware_config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(hardware_config);
 
-    esp_alloc::heap_allocator!(#[esp_hal::ram(reclaimed)] size: 73744);
-    esp_alloc::heap_allocator!(size: 64 * 1024);
+    esp_alloc::heap_allocator!(#[esp_hal::ram(reclaimed)] size: 48 * 1024);
+    esp_alloc::heap_allocator!(size: 48 * 1024);
     esp_alloc::psram_allocator!(peripherals.PSRAM, esp_hal::psram);
 
     let timer_group_zero = TimerGroup::new(peripherals.TIMG0);
@@ -66,26 +66,26 @@ pub fn boot_device() -> Device {
     // picks up the change automatically.
     let i2c_bus_0 = I2c::new(
         peripherals.I2C0,
-        I2cConfig::default().with_frequency(Rate::from_khz(config::I2C_FREQUENCY_KHZ)),
+        I2cConfig::default().with_frequency(Rate::from_khz(config::i2c::FREQUENCY_KHZ)),
     )
     .expect("device: failed to create I2C0 driver")
     .with_sda(peripherals.GPIO8)
     .with_scl(peripherals.GPIO9);
     info!(
         "device boot: I2C0 wired sda=GPIO{=u8} scl=GPIO{=u8} freq_khz={=u32}",
-        8u8, 9u8, config::I2C_FREQUENCY_KHZ
+        8u8, 9u8, config::i2c::FREQUENCY_KHZ
     );
 
     let i2c_bus_1 = I2c::new(
         peripherals.I2C1,
-        I2cConfig::default().with_frequency(Rate::from_khz(config::I2C_FREQUENCY_KHZ)),
+        I2cConfig::default().with_frequency(Rate::from_khz(config::i2c::FREQUENCY_KHZ)),
     )
     .expect("device: failed to create I2C1 driver")
     .with_sda(peripherals.GPIO17)
     .with_scl(peripherals.GPIO18);
     info!(
         "device boot: I2C1 wired sda=GPIO{=u8} scl=GPIO{=u8} freq_khz={=u32}",
-        17u8, 18u8, config::I2C_FREQUENCY_KHZ
+        17u8, 18u8, config::i2c::FREQUENCY_KHZ
     );
 
     let random_number_generator = Rng::new();
@@ -95,7 +95,10 @@ pub fn boot_device() -> Device {
 
     let (wifi_controller, wifi_interfaces) = esp_radio::wifi::new(
         peripherals.WIFI,
-        esp_radio::wifi::ControllerConfig::default(),
+        esp_radio::wifi::ControllerConfig::default()
+            .with_static_rx_buf_num(4)
+            .with_dynamic_rx_buf_num(16)
+            .with_dynamic_tx_buf_num(16),
     )
     .expect("device: failed to initialise WiFi controller");
 

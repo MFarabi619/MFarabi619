@@ -9,7 +9,7 @@ use embassy_time::{Duration, Instant, Ticker, Timer};
 use esp_hal::i2c::master::I2c;
 use heapless::String as HeaplessString;
 
-use crate::drivers::i2c::{SENSOR_MEASUREMENT_COMMAND, calculate_crc8};
+use crate::hardware::i2c::{SENSOR_MEASUREMENT_COMMAND, calculate_crc8};
 use crate::filesystems::sd;
 
 // ─── Sensor reading ────────────────────────────────────────────────────────────

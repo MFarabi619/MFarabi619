@@ -3,11 +3,17 @@
 
 use defmt::info;
 use embassy_executor::Spawner;
-use embassy_net::{Runner, Stack, StackResources, tcp::TcpSocket};
+use embassy_net::{Runner, StackResources, tcp::TcpSocket};
 use embassy_time::{Duration, Timer, with_timeout};
-use esp_hal::{clock::CpuClock, rng::Rng, system::software_reset, timer::timg::TimerGroup};
+use esp_hal::{
+    clock::CpuClock,
+    interrupt::software::SoftwareInterruptControl,
+    rng::Rng,
+    system::software_reset,
+    timer::timg::TimerGroup,
+};
 use esp_hal_ota::Ota;
-use esp_radio::wifi::{ClientConfig, ModeConfig, WifiController, WifiDevice, WifiEvent};
+use esp_radio::wifi::{Config, ControllerConfig, Interface, WifiController, sta::StationConfig};
 use esp_storage::FlashStorage;
 use panic_rtt_target as _;
 use static_cell::StaticCell;
@@ -34,23 +40,15 @@ fn random_seed(random_number_generator: &mut Rng) -> u64 {
         | u64::from(random_number_generator.random())
 }
 
-fn build_sta_config() -> ModeConfig {
-    ModeConfig::Client(
-        ClientConfig::default()
-            .with_ssid(WIFI_SSID.into())
-            .with_password(WIFI_PASSWORD.into()),
-    )
-}
-
 #[embassy_executor::task]
 async fn wifi_connection_task(mut wifi_controller: WifiController<'static>) {
     loop {
         info!("attempting Wi-Fi STA connection");
 
         match wifi_controller.connect_async().await {
-            Ok(()) => {
+            Ok(_connected_info) => {
                 info!("Wi-Fi STA connected");
-                let _ = wifi_controller.wait_for_event(WifiEvent::StaDisconnected).await;
+                let _ = wifi_controller.wait_for_disconnect_async().await;
                 info!("Wi-Fi STA disconnected");
             }
             Err(error) => {
@@ -62,7 +60,7 @@ async fn wifi_connection_task(mut wifi_controller: WifiController<'static>) {
 }
 
 #[embassy_executor::task]
-async fn wifi_net_task(mut runner: Runner<'static, WifiDevice<'static>>) {
+async fn wifi_net_task(mut runner: Runner<'static, Interface<'static>>) {
     runner.run().await;
 }
 
@@ -95,7 +93,8 @@ async fn main(spawner: Spawner) -> ! {
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timg0.timer0);
+    let sw_ints = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timg0.timer0, sw_ints.software_interrupt0);
 
     info!("Embassy initialized!");
 
@@ -108,20 +107,18 @@ async fn main(spawner: Spawner) -> ! {
         }
     }
 
-    let radio_init = mk_static!(esp_radio::Controller<'static>, esp_radio::init().expect("Failed to initialize Wi-Fi/BLE controller"));
-
-    let mode_config = build_sta_config();
+    let station_config = Config::Station(
+        StationConfig::default()
+            .with_ssid(WIFI_SSID)
+            .with_password(WIFI_PASSWORD.into()),
+    );
 
     info!("starting Wi-Fi in STA mode");
-    let (mut wifi_controller, interfaces) = esp_radio::wifi::new(
-        radio_init,
+    let (wifi_controller, interfaces) = esp_radio::wifi::new(
         peripherals.WIFI,
-        esp_radio::wifi::Config::default(),
+        ControllerConfig::default().with_initial_config(station_config),
     )
     .expect("Failed to initialize Wi-Fi controller");
-
-    wifi_controller.set_config(&mode_config).unwrap();
-    wifi_controller.start_async().await.expect("Failed to start Wi-Fi");
 
     info!("attempting STA connection to '{}'", WIFI_SSID);
 
@@ -130,14 +127,14 @@ async fn main(spawner: Spawner) -> ! {
 
     let network_config = embassy_net::Config::dhcpv4(Default::default());
     let (stack, runner) = embassy_net::new(
-        interfaces.sta,
+        interfaces.station,
         network_config,
         mk_static!(StackResources<3>, StackResources::<3>::new()),
         seed,
     );
 
-    spawner.spawn(wifi_connection_task(wifi_controller)).unwrap();
-    spawner.spawn(wifi_net_task(runner)).unwrap();
+    spawner.spawn(wifi_connection_task(wifi_controller).unwrap());
+    spawner.spawn(wifi_net_task(runner).unwrap());
 
     info!("waiting for STA DHCP configuration...");
 

@@ -10,6 +10,7 @@
 use esp_hal::{
     clock::CpuClock,
     gpio::{Level, Output, OutputConfig},
+    interrupt::software::SoftwareInterruptControl,
     time::{Duration, Instant},
     timer::timg::TimerGroup,
 };
@@ -42,7 +43,8 @@ async fn main(spawner: Spawner) -> ! {
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timg0.timer0);
+    let sw_ints = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timg0.timer0, sw_ints.software_interrupt0);
 
     let mut led = Output::new(peripherals.GPIO21, Level::High, OutputConfig::default());
 

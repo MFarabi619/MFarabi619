@@ -9,8 +9,13 @@ use defmt::info;
 use embassy_executor::Spawner;
 use embassy_net::{Runner, StackResources, tcp::TcpSocket};
 use embassy_time::{Duration, Timer, with_timeout};
-use esp_hal::{clock::CpuClock, rng::Rng, timer::timg::TimerGroup};
-use esp_radio::wifi::{ClientConfig, ModeConfig, WifiController, WifiDevice, WifiEvent};
+use esp_hal::{
+    clock::CpuClock,
+    interrupt::software::SoftwareInterruptControl,
+    rng::Rng,
+    timer::timg::TimerGroup,
+};
+use esp_radio::wifi::{Config, ControllerConfig, Interface, WifiController, sta::StationConfig};
 use panic_rtt_target as _;
 use static_cell::StaticCell;
 
@@ -25,14 +30,6 @@ macro_rules! mk_static {
         static STATIC_CELL: StaticCell<$type> = StaticCell::new();
         STATIC_CELL.uninit().write($value)
     }};
-}
-
-fn client_mode_config() -> ModeConfig {
-    ModeConfig::Client(
-        ClientConfig::default()
-            .with_ssid(WIFI_SSID.into())
-            .with_password(WIFI_PASSWORD.into()),
-    )
 }
 
 fn random_seed(random_number_generator: &mut Rng) -> u64 {
@@ -57,11 +54,9 @@ async fn connection_task(mut wifi_controller: WifiController<'static>) {
         info!("attempting Wi-Fi connection");
 
         match wifi_controller.connect_async().await {
-            Ok(()) => {
+            Ok(_connected_info) => {
                 info!("Wi-Fi connected");
-                wifi_controller
-                    .wait_for_event(WifiEvent::StaDisconnected)
-                    .await;
+                let _ = wifi_controller.wait_for_disconnect_async().await;
                 info!("Wi-Fi disconnected");
             }
             Err(error) => {
@@ -73,7 +68,7 @@ async fn connection_task(mut wifi_controller: WifiController<'static>) {
 }
 
 #[embassy_executor::task]
-async fn net_task(mut runner: Runner<'static, WifiDevice<'static>>) {
+async fn net_task(mut runner: Runner<'static, Interface<'static>>) {
     runner.run().await;
 }
 
@@ -88,27 +83,33 @@ async fn main(spawner: Spawner) -> ! {
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
     let timer_group0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timer_group0.timer0);
+    let sw_ints = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timer_group0.timer0, sw_ints.software_interrupt0);
 
-    let radio_controller = mk_static!(esp_radio::Controller<'static>, esp_radio::init().unwrap());
-    let (mut wifi_controller, interfaces) =
-        esp_radio::wifi::new(radio_controller, peripherals.WIFI, Default::default()).unwrap();
+    let station_config = Config::Station(
+        StationConfig::default()
+            .with_ssid(WIFI_SSID)
+            .with_password(WIFI_PASSWORD.into()),
+    );
 
-    wifi_controller.set_config(&client_mode_config()).unwrap();
-    wifi_controller.start_async().await.unwrap();
+    let (wifi_controller, interfaces) = esp_radio::wifi::new(
+        peripherals.WIFI,
+        ControllerConfig::default().with_initial_config(station_config),
+    )
+    .unwrap();
 
     let mut random_number_generator = Rng::new();
     let seed = random_seed(&mut random_number_generator);
     let network_config = embassy_net::Config::dhcpv4(Default::default());
     let (stack, runner) = embassy_net::new(
-        interfaces.sta,
+        interfaces.station,
         network_config,
         mk_static!(StackResources<3>, StackResources::<3>::new()),
         seed,
     );
 
-    spawner.spawn(connection_task(wifi_controller)).unwrap();
-    spawner.spawn(net_task(runner)).unwrap();
+    spawner.spawn(connection_task(wifi_controller).unwrap());
+    spawner.spawn(net_task(runner).unwrap());
 
     with_timeout(Duration::from_secs(25), stack.wait_config_up())
         .await

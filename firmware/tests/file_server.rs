@@ -56,10 +56,10 @@ mod tests {
         defmt::assert!(!firmware::config::PLATFORM.is_empty());
         defmt::assert!(!firmware::config::SSH_USER.is_empty());
         defmt::assert!(!firmware::config::NTP_SERVER.is_empty());
-        defmt::assert!(!firmware::config::CLOUD_EVENTS_TENANT.is_empty());
-        defmt::assert!(!firmware::config::CLOUD_EVENTS_SITE.is_empty());
-        defmt::assert!(!firmware::config::CLOUD_EVENTS_SOURCE.is_empty());
-        defmt::assert!(!firmware::config::CLOUD_EVENT_TYPE.is_empty());
+        defmt::assert!(!firmware::config::cloudevents::TENANT.is_empty());
+        defmt::assert!(!firmware::config::cloudevents::SITE.is_empty());
+        defmt::assert!(!firmware::config::cloudevents::SOURCE.is_empty());
+        defmt::assert!(!firmware::config::cloudevents::EVENT_TYPE.is_empty());
         Ok(())
     }
 

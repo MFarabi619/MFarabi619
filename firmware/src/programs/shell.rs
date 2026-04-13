@@ -13,7 +13,7 @@ use embassy_time::{Duration, Instant};
 use esp_hal::rng::Rng;
 
 use crate::config;
-use crate::drivers::crypto::CryptoRng;
+use crate::hardware::crypto::CryptoRng;
 use crate::programs::coreutils;
 use crate::services::ssh::{AuthMethod, Behavior, Request, SecretKey, Transport};
 
@@ -192,12 +192,12 @@ fn generate_loader_conf() {
     let _ = write!(
         lc,
         "i2c_frequency=\"{}\"\r\n",
-        config::I2C_FREQUENCY_KHZ
+        config::i2c::FREQUENCY_KHZ
     );
     let _ = write!(
         lc,
         "sensor_power_gpio=\"{}\"\r\n",
-        config::SENSOR_POWER_GPIO
+        config::i2c::LEGACY_POWER_GPIO
     );
     let heap = esp_alloc::HEAP.used() + esp_alloc::HEAP.free();
     let _ = write!(lc, "heap_size=\"{}\"\r\n", heap);

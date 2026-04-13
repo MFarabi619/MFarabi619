@@ -7,6 +7,7 @@ use defmt::info;
 use embassy_executor::Spawner;
 use esp_hal::{
     delay::Delay,
+    interrupt::software::SoftwareInterruptControl,
     rtc_cntl::{Rtc, SocResetReason, reset_reason, sleep::TimerWakeupSource, wakeup_cause},
     system::Cpu,
     timer::timg::TimerGroup,
@@ -24,7 +25,8 @@ async fn main(_spawner: Spawner) -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
 
     let timer_group0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timer_group0.timer0);
+    let sw_ints = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timer_group0.timer0, sw_ints.software_interrupt0);
 
     let delay = Delay::new();
     let mut rtc = Rtc::new(peripherals.LPWR);

@@ -8,8 +8,13 @@ use defmt::info;
 use embassy_executor::Spawner;
 use embassy_net::{Runner, StackResources};
 use embassy_time::{Duration, Timer, with_timeout};
-use esp_hal::{clock::CpuClock, rng::Rng, timer::timg::TimerGroup};
-use esp_radio::wifi::{ClientConfig, ModeConfig, WifiController, WifiDevice, WifiEvent};
+use esp_hal::{
+    clock::CpuClock,
+    interrupt::software::SoftwareInterruptControl,
+    rng::Rng,
+    timer::timg::TimerGroup,
+};
+use esp_radio::wifi::{Config, ControllerConfig, Interface, WifiController, sta::StationConfig};
 use panic_rtt_target as _;
 use picoserve::AppBuilder;
 use static_cell::StaticCell;
@@ -37,9 +42,9 @@ async fn wifi_connection_task(mut ctrl: WifiController<'static>) {
     loop {
         info!("attempting Wi-Fi connection");
         match ctrl.connect_async().await {
-            Ok(()) => {
+            Ok(_connected_info) => {
                 info!("Wi-Fi connected");
-                ctrl.wait_for_event(WifiEvent::StaDisconnected).await;
+                let _ = ctrl.wait_for_disconnect_async().await;
             }
             Err(e) => {
                 info!("Wi-Fi connect failed: {:?}", e);
@@ -50,7 +55,7 @@ async fn wifi_connection_task(mut ctrl: WifiController<'static>) {
 }
 
 #[embassy_executor::task]
-async fn network_task(mut runner: Runner<'static, WifiDevice<'static>>) {
+async fn network_task(mut runner: Runner<'static, Interface<'static>>) {
     runner.run().await;
 }
 
@@ -65,34 +70,31 @@ async fn main(spawner: Spawner) -> ! {
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timg0.timer0);
+    let sw_ints = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timg0.timer0, sw_ints.software_interrupt0);
 
-    let radio = mk_static!(
-        esp_radio::Controller<'static>,
-        esp_radio::init().unwrap()
-    );
-
-    let mode = ModeConfig::Client(
-        ClientConfig::default()
-            .with_ssid(WIFI_SSID.into())
+    let station_config = Config::Station(
+        StationConfig::default()
+            .with_ssid(WIFI_SSID)
             .with_password(WIFI_PASSWORD.into()),
     );
 
-    let (mut wifi_ctrl, interfaces) =
-        esp_radio::wifi::new(radio, peripherals.WIFI, Default::default()).unwrap();
-    wifi_ctrl.set_config(&mode).unwrap();
-    wifi_ctrl.start_async().await.unwrap();
+    let (wifi_ctrl, interfaces) = esp_radio::wifi::new(
+        peripherals.WIFI,
+        ControllerConfig::default().with_initial_config(station_config),
+    )
+    .unwrap();
 
     let mut rng = Rng::new();
     let (stack, runner) = embassy_net::new(
-        interfaces.sta,
+        interfaces.station,
         embassy_net::Config::dhcpv4(Default::default()),
         mk_static!(StackResources<3>, StackResources::<3>::new()),
         random_seed(&mut rng),
     );
 
-    spawner.spawn(wifi_connection_task(wifi_ctrl)).unwrap();
-    spawner.spawn(network_task(runner)).unwrap();
+    spawner.spawn(wifi_connection_task(wifi_ctrl).unwrap());
+    spawner.spawn(network_task(runner).unwrap());
 
     with_timeout(Duration::from_secs(30), stack.wait_config_up())
         .await
@@ -100,15 +102,12 @@ async fn main(spawner: Spawner) -> ! {
 
     info!("DHCP: {}", stack.config_v4().unwrap().address);
 
-    // Reuse the HTTP server from the lib
     let app = mk_static!(
         picoserve::AppRouter<HttpAppProps>,
         HttpAppProps { stack }.build_app()
     );
 
-    spawner
-        .spawn(firmware::services::http::task(0, stack, app))
-        .unwrap();
+    spawner.spawn(firmware::services::http::task(0, stack, app).unwrap());
 
     info!("HTTP server on port {}", config::http::PORT);
 

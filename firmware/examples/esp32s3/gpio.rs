@@ -7,6 +7,7 @@ use embassy_time::{Duration, Ticker};
 use esp_hal::{
     clock::CpuClock,
     gpio::{Input, InputConfig, Pull},
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
 };
 use panic_rtt_target as _;
@@ -36,7 +37,8 @@ async fn main(_spawner: Spawner) -> ! {
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
     let timg0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timg0.timer0);
+    let sw_ints = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timg0.timer0, sw_ints.software_interrupt0);
 
     // External pull-ups exist on board; keep internal pull disabled.
     let button_4 = Input::new(

@@ -3,9 +3,10 @@
 
 extern crate alloc;
 
+pub mod boot;
 pub mod config;
 pub mod console;
-pub mod drivers;
+pub mod hardware;
 pub mod filesystems;
 pub mod networking;
 pub mod programs;

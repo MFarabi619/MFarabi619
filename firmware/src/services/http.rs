@@ -324,9 +324,9 @@ pub async fn task(
     stack: Stack<'static>,
     app: &'static picoserve::AppRouter<HttpAppProps>,
 ) -> ! {
-    let mut tcp_rx_buffer = [0u8; 2048];
-    let mut tcp_tx_buffer = [0u8; 2048];
-    let mut http_buffer = [0u8; 4096];
+    let mut tcp_rx_buffer = alloc::vec![0u8; 2048];
+    let mut tcp_tx_buffer = alloc::vec![0u8; 2048];
+    let mut http_buffer = alloc::vec![0u8; 4096];
 
     picoserve::Server::new(app, &CONFIG, &mut http_buffer)
         .listen_and_serve(task_id, stack, HTTP_SERVER_PORT, &mut tcp_rx_buffer, &mut tcp_tx_buffer)

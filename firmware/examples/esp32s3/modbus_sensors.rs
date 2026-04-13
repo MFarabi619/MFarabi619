@@ -21,6 +21,7 @@ use embedded_io_async::{ErrorType, Read, Write};
 use esp_hal::{
     clock::CpuClock,
     gpio::{Level, Output, OutputConfig},
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
     uart::{Config as UartConfig, Uart},
 };
@@ -170,7 +171,8 @@ async fn main(_spawner: Spawner) -> ! {
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
     let timer_group0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timer_group0.timer0);
+    let sw_ints = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timer_group0.timer0, sw_ints.software_interrupt0);
 
     let _sensor_power_relay =
         Output::new(peripherals.GPIO5, Level::High, OutputConfig::default());

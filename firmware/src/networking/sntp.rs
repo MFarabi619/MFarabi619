@@ -91,9 +91,9 @@ pub async fn sntp_sync_loop(stack: Stack<'static>, ntp_server: &str) -> ! {
             info!("SNTP: sync attempt {}/{}", attempt + 1, config::sntp::MAX_ATTEMPTS);
 
             let mut rx_meta = [embassy_net::udp::PacketMetadata::EMPTY; 16];
-            let mut rx_buffer = [0u8; 4096];
+            let mut rx_buffer = alloc::vec![0u8; 4096];
             let mut tx_meta = [embassy_net::udp::PacketMetadata::EMPTY; 16];
-            let mut tx_buffer = [0u8; 4096];
+            let mut tx_buffer = alloc::vec![0u8; 4096];
 
             let mut udp_socket = embassy_net::udp::UdpSocket::new(
                 stack,

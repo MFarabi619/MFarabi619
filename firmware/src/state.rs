@@ -39,8 +39,8 @@ pub struct AppState {
 impl Default for AppState {
     fn default() -> Self {
         Self {
-            cloud_event_source: crate::config::CLOUD_EVENTS_SOURCE,
-            cloud_event_type: crate::config::CLOUD_EVENT_TYPE,
+            cloud_event_source: crate::config::cloudevents::SOURCE,
+            cloud_event_type: crate::config::cloudevents::EVENT_TYPE,
             boot_timestamp_seconds: 0,
         }
     }

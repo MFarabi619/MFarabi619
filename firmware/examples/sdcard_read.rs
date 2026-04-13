@@ -7,10 +7,12 @@ use embassy_time::{Duration, Timer};
 use embedded_hal_bus::spi::ExclusiveDevice;
 use embedded_io::Read;
 use embedded_sdmmc::{Mode, SdCard, TimeSource, Timestamp, VolumeIdx, VolumeManager};
+use core::ops::ControlFlow;
 use esp_hal::{
     clock::CpuClock,
     delay::Delay,
     gpio::{Level, Output, OutputConfig},
+    interrupt::software::SoftwareInterruptControl,
     spi::master::{Config as SpiConfig, Spi},
     time::Rate,
     timer::timg::TimerGroup,
@@ -48,7 +50,8 @@ async fn main(_spawner: Spawner) -> ! {
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
     let timer_group0 = TimerGroup::new(peripherals.TIMG0);
-    esp_rtos::start(timer_group0.timer0);
+    let sw_ints = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timer_group0.timer0, sw_ints.software_interrupt0);
 
     info!("SD card read example initialized");
 
@@ -89,6 +92,7 @@ async fn main(_spawner: Spawner) -> ! {
                 directory_entry.name,
                 directory_entry.size
             );
+            ControlFlow::Continue(())
         })
         .unwrap();
 

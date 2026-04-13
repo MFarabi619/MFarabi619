@@ -116,11 +116,12 @@ path = "tests/websocket.rs"
 
 # ─── examples ────────────────────────────────────────────────────────────────
 
-[[example]]
-test = false
-bench = false
-name = "neopixel"
-path = "examples/esp32s3/neopixel.rs"
+# esp_hal_smartled + smart_leds deps commented out — re-enable when crates are updated for new esp-hal
+# [[example]]
+# test = false
+# bench = false
+# name = "neopixel"
+# path = "examples/esp32s3/neopixel.rs"
 
 [[example]]
 test = false
@@ -274,8 +275,8 @@ esp-rtos = { version = "0.2.0", features = [
     "esp-radio",
 ] }
 esp-radio = { version = "0.17.0", features = [
-    # "ble",   # BLE coex disabled: exhausts internal SRAM with full firmware
-    # "coex",  # Re-enable with "ble" when SRAM budget allows (release mode, smaller StackResources)
+    "ble",
+    "coex",
     "wifi",
     "defmt",
     "esp32s3",

@@ -38,11 +38,6 @@ pub const SSH_USER: &str = {
 /// This path is relative to the user's home directory.
 pub const SSH_HOST_KEY_FILE: &str = ".SSH/HOST_KEY";
 
-pub const CLOUD_EVENTS_TENANT: &str = "apidae-systems";
-pub const CLOUD_EVENTS_SITE: &str = "ottawa";
-pub const CLOUD_EVENTS_SOURCE: &str = "urn:apidae-systems:tenant:apidae-systems:site:ottawa";
-pub const CLOUD_EVENT_TYPE: &str = "com.apidae.system.device.status.v1";
-
 pub const NTP_SERVER: &str = "pool.ntp.org";
 
 pub mod sntp {
@@ -58,7 +53,7 @@ pub mod time {
     pub const UTC_OFFSET_HOURS: i64 = -4;
 }
 
-pub const ACTIVE_USER_KEY: &str = CLOUD_EVENTS_TENANT;
+pub const ACTIVE_USER_KEY: &str = cloudevents::TENANT;
 
 pub mod wifi {
     pub const CONNECT_TIMEOUT_SECS: u64 = 15;
@@ -104,8 +99,30 @@ pub mod tcp_log {
     pub const WELCOME: &[u8] = b"ceratina tcp log mirror connected\n";
 }
 
-pub const SENSOR_POWER_GPIO: u8 = 5;
-pub const I2C_FREQUENCY_KHZ: u32 = 100;
+pub mod i2c {
+    pub struct BusConfig {
+        pub sda_gpio: u8,
+        pub scl_gpio: u8,
+    }
+    pub const FREQUENCY_KHZ: u32 = 100;
+    pub const LEGACY_POWER_GPIO: u8 = 5;
+    pub const BUS_0: BusConfig = BusConfig { sda_gpio: 8, scl_gpio: 9 };
+    pub const BUS_1: BusConfig = BusConfig { sda_gpio: 17, scl_gpio: 18 };
+    pub const MUX_ADDR: u8 = 0x70;
+    pub const DIRECT_CHANNEL: i8 = -1;
+    pub const ANY_MUX_CHANNEL: i8 = -2;
+}
+
+pub mod rs485 {
+    pub struct BusConfig {
+        pub tx_gpio: i8,
+        pub rx_gpio: i8,
+        pub de_re_gpio: i8,
+        pub baud_rate: u32,
+    }
+    pub const BUS_0: BusConfig = BusConfig { tx_gpio: 45, rx_gpio: 48, de_re_gpio: 47, baud_rate: 9600 };
+    pub const BUS_1: BusConfig = BusConfig { tx_gpio: 40, rx_gpio: 39, de_re_gpio: 41, baud_rate: 4800 };
+}
 
 pub mod sd_card {
     pub const DEVICE: &str = "spi2";
@@ -138,6 +155,84 @@ pub mod carbon_dioxide {
     pub const PROBE_RETRY_SECS: u64 = 5;
     pub const MAX_CONSECUTIVE_FAILURES: usize = 5;
 }
+
+pub mod temperature_humidity {
+    pub const I2C_ADDR: u8 = 0x44;
+    pub const MAX_SENSORS: u8 = 8;
+    pub const READ_DELAY_MS: u16 = 100;
+}
+
+pub mod voltage {
+    pub const I2C_ADDR: u8 = 0x48;
+    pub const CHANNEL_COUNT: u8 = 4;
+}
+
+pub mod eeprom {
+    pub const I2C_ADDR: u8 = 0x50;
+    pub const PAGE_SIZE: u16 = 32;
+    pub const TOTAL_SIZE: u16 = 4096;
+}
+
+pub mod led {
+    pub const GPIO: u8 = 38;
+    pub const COUNT: u8 = 1;
+    pub const BRIGHTNESS: u8 = 255;
+}
+
+pub mod shell {
+    pub const BUF_IN: usize = 256;
+    pub const BUF_OUT: usize = 256;
+    pub const MAX_PATH_LEN: usize = 128;
+}
+
+pub mod telnet {
+    pub const ENABLED: bool = false;
+    pub const PORT: u16 = 23;
+}
+
+pub mod buttons {
+    pub const GPIO_1: i8 = -1;
+    pub const GPIO_2: i8 = 4;
+    pub const GPIO_3: i8 = 42;
+    pub const COUNT: u8 = 3;
+    pub const DEBOUNCE_MS: u16 = 50;
+    pub const LONG_PRESS_MS: u16 = 1000;
+}
+
+pub mod provisioning {
+    pub const ENABLED: bool = false;
+}
+
+pub mod cloudevents {
+    pub const TENANT: &str = "apidae-systems";
+    pub const SITE: &str = "ottawa";
+    pub const SOURCE: &str = "urn:apidae-systems:tenant:apidae-systems:site:ottawa";
+    pub const EVENT_TYPE: &str = "com.apidae.system.device.status.v1";
+}
+
+pub mod smtp {
+    pub const ENABLED: bool = false;
+    pub const PORT: u16 = 587;
+}
+
+pub mod ws_shell {
+    pub const RING_SIZE: u16 = 512;
+    pub const WRITE_BUF: u16 = 1024;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Compile-time config validation
+// ─────────────────────────────────────────────────────────────────────────────
+
+const _: () = {
+    assert!(i2c::BUS_0.sda_gpio != i2c::BUS_0.scl_gpio, "I2C bus 0: SDA and SCL must differ");
+    assert!(i2c::BUS_1.sda_gpio != i2c::BUS_1.scl_gpio, "I2C bus 1: SDA and SCL must differ");
+    assert!(ssh::PORT > 0, "Invalid SSH port");
+    assert!(http::PORT > 0, "Invalid HTTP port");
+    assert!(shell::BUF_IN >= 64, "Shell input buffer too small");
+    assert!(shell::BUF_OUT >= 64, "Shell output buffer too small");
+    assert!(buttons::COUNT <= 8, "Too many buttons");
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Runtime configuration (flash-persisted WiFi credentials)

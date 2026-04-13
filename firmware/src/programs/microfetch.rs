@@ -275,7 +275,7 @@ pub fn run() -> AllocString {
         icons::NF_FA_COG,
         "I2C Freq",
         "\x1b[1m{}\x1b[0m kHz",
-        config::I2C_FREQUENCY_KHZ
+        config::i2c::FREQUENCY_KHZ
     );
     row!(
         out,
@@ -283,7 +283,7 @@ pub fn run() -> AllocString {
         icons::NF_FA_BOLT,
         "Power GPIO",
         "\x1b[1mGPIO{}\x1b[0m",
-        config::SENSOR_POWER_GPIO
+        config::i2c::LEGACY_POWER_GPIO
     );
     row!(
         out,
