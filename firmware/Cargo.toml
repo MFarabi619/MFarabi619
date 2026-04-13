@@ -109,6 +109,11 @@ harness = false
 name = "sntp"
 path = "tests/sntp.rs"
 
+[[test]]
+harness = false
+name = "websocket"
+path = "tests/websocket.rs"
+
 # ─── examples ────────────────────────────────────────────────────────────────
 
 [[example]]
@@ -238,7 +243,6 @@ esp-hal = { version = "~1.0", features = [
     "defmt",
     "esp32s3",
     "unstable",
-    "psram",
 ] }
 embassy-futures = "0.1"
 embassy-sync = { version = "0.7", features = ["defmt"] }
@@ -270,8 +274,8 @@ esp-rtos = { version = "0.2.0", features = [
     "esp-radio",
 ] }
 esp-radio = { version = "0.17.0", features = [
-    "ble",
-    "coex",
+    # "ble",   # BLE coex disabled: exhausts internal SRAM with full firmware
+    # "coex",  # Re-enable with "ble" when SRAM budget allows (release mode, smaller StackResources)
     "wifi",
     "defmt",
     "esp32s3",
@@ -282,6 +286,7 @@ picoserve = { git = "https://github.com/sammhicks/picoserve", rev = "815ca5b", f
     "embassy",
     "json",
 ] }
+serde-json-core = { version = "0.6.0", default-features = false }
 heapless = { version = "0.8", default-features = false, features = ["serde"] }
 embedded-storage = "0.3.1"
 async-modbus = { version = "0.7.0", default-features = false, features = [

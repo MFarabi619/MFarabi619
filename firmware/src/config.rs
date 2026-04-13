@@ -40,8 +40,7 @@ pub const SSH_HOST_KEY_FILE: &str = ".SSH/HOST_KEY";
 
 pub const CLOUD_EVENTS_TENANT: &str = "apidae-systems";
 pub const CLOUD_EVENTS_SITE: &str = "ottawa";
-pub const CLOUD_EVENTS_SOURCE: &str =
-    "urn:apidae-systems:tenant:apidae-systems:site:ottawa";
+pub const CLOUD_EVENTS_SOURCE: &str = "urn:apidae-systems:tenant:apidae-systems:site:ottawa";
 pub const CLOUD_EVENT_TYPE: &str = "com.apidae.system.device.status.v1";
 
 pub const NTP_SERVER: &str = "pool.ntp.org";
@@ -434,7 +433,10 @@ pub mod topology {
         }
 
         /// Iterate over enabled sensors of a specific kind.
-        pub fn enabled_sensors_of_kind(&self, kind: SensorKind) -> impl Iterator<Item = &SensorConfig> {
+        pub fn enabled_sensors_of_kind(
+            &self,
+            kind: SensorKind,
+        ) -> impl Iterator<Item = &SensorConfig> {
             self.sensors
                 .iter()
                 .filter(move |s| s.is_enabled && matches!((&s.kind, &kind), (a, b) if core::mem::discriminant(a) == core::mem::discriminant(b)))
@@ -499,7 +501,7 @@ pub mod topology {
                 i2c_address: Some(0x44),
                 modbus_slave_id: None,
                 mux_channel: None,
-                is_enabled: false,
+                is_enabled: true,
                 metric_names: &["temperature", "humidity"],
             },
             SensorConfig {
@@ -510,7 +512,7 @@ pub mod topology {
                 i2c_address: Some(0x61),
                 modbus_slave_id: None,
                 mux_channel: None,
-                is_enabled: true,
+                is_enabled: false,
                 metric_names: &["co2", "temperature", "humidity"],
             },
             // Declared for test discovery only — `is_enabled: false` keeps
@@ -537,7 +539,7 @@ pub mod topology {
                 i2c_address: Some(0x68),
                 modbus_slave_id: None,
                 mux_channel: None,
-                is_enabled: false,
+                is_enabled: true,
                 metric_names: &[],
             },
         ],

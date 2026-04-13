@@ -10,7 +10,9 @@
 
 extern crate alloc;
 
-use bt_hci::controller::ExternalController;
+// BLE coex disabled: WiFi+BLE coex exhausts internal SRAM on ESP32-S3 with full firmware.
+// To re-enable, also uncomment BLE init below and add "ble"+"coex" features to esp-radio in Cargo.toml.
+// use bt_hci::controller::ExternalController;
 use defmt::info;
 use embassy_executor::Spawner;
 use embassy_net::StackResources;
@@ -26,20 +28,19 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 use esp_hal_ota::Ota;
-use esp_radio::ble::controller::BleConnector;
+// use esp_radio::ble::controller::BleConnector;
 use esp_storage::FlashStorage;
 use heapless::String as HeaplessString;
 use panic_rtt_target as _;
 use picoserve::AppBuilder;
 use static_cell::StaticCell;
-use trouble_host::prelude::*;
 
 use firmware::{
     config::{self, runtime::WifiCredentials, topology::{CURRENT_TOPOLOGY, SensorKind}},
     filesystems::sd,
     state::{self, AppState},
     networking, programs, services,
-    services::http::{self, HTTP_SERVER_PORT, HttpAppProps},
+    services::http::{self, HttpAppProps},
 };
 
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -201,6 +202,11 @@ async fn main(spawner: Spawner) -> ! {
         "starting Wi-Fi in STA mode with ssid='{}'",
         credentials.ssid.as_str()
     );
+    // BLE coex disabled: requires "ble"+"coex" features in esp-radio and more internal SRAM.
+    // Init BLE before WiFi so the coex arbitrator is ready before connect_async().
+    // let ble_connector = BleConnector::new(peripherals.BT, Default::default()).unwrap();
+    // let ble_controller = ExternalController::<_, 1>::new(ble_connector);
+
     let (wifi_controller, interfaces) = esp_radio::wifi::new(
         peripherals.WIFI,
         esp_radio::wifi::ControllerConfig::default().with_initial_config(mode_config),
@@ -322,13 +328,9 @@ async fn main(spawner: Spawner) -> ! {
     spawner.spawn(services::ota::task(stack).unwrap());
     spawner.spawn(programs::shell::task(stack).unwrap());
 
-    info!("HTTP server listening on port {}", HTTP_SERVER_PORT);
+    info!("HTTP server listening on port {}", config::http::PORT);
 
-    let transport = BleConnector::new(peripherals.BT, Default::default()).unwrap();
-    let ble_controller = ExternalController::<_, 1>::new(transport);
-    let mut resources: HostResources<DefaultPacketPool, 1, 1> = HostResources::new();
-    let _ble_stack = trouble_host::new(ble_controller, &mut resources);
-
+    // let _ble_controller = ble_controller;
     loop {
         Timer::after(Duration::from_secs(60)).await;
     }

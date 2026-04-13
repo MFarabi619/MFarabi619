@@ -14,6 +14,7 @@ use esp_hal::{
         master::{Config as SpiConfig, Spi},
     },
     time::Rate,
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
 };
 
@@ -25,7 +26,6 @@ const API_ROUTE_PREFIX: &str = "/api";
 const FILESYSTEM_ROUTE_PREFIX: &str = "/filesystem";
 const SYSTEM_ROUTE_PREFIX: &str = "/system";
 const DEVICE_ROUTE_PREFIX: &str = "/device";
-const FILE_UPLOAD_MAX_BYTES: usize = 4096;
 
 const SYSTEM_DEVICE_STATUS_CLOUDEVENT_EXAMPLE: &str = "{\"specversion\":\"1.0\",\"id\":\"system-device-status-45591\",\"source\":\"urn:apidae-systems:tenant:p-uot-ins:site:university-of-ottawa\",\"type\":\"com.apidae.system.device.status.v1\",\"datacontenttype\":\"application/json\",\"time\":\"2026-04-03T17:18:43Z\",\"data\":{\"device\":{\"chip_id\":966764,\"chip_model\":\"ESP32-S3\",\"chip_cores\":2,\"chip_revision\":2,\"efuse_mac\":\"119572138669276\"},\"network\":{\"ipv4_address\":\"10.0.0.95\",\"wifi_rssi\":-61},\"runtime\":{\"uptime\":\"45s\",\"uptime_seconds\":45,\"memory_heap_bytes\":46016},\"storage\":{\"location\":\"sd\",\"total_bytes\":1876951040,\"used_bytes\":557056,\"free_bytes\":1876393984}}}";
 const FILESYSTEM_LIST_JSON_RESPONSE_EXAMPLE: &str =
@@ -42,7 +42,7 @@ const SD_SPI_INIT_FREQUENCY_KHZ: u32 = 400;
 const SD_CARD_STARTUP_CLOCK_BYTES: [u8; 10] = [0xFF; 10];
 
 const DATA_CSV_FILE_NAME: &str = "data.csv";
-const DATA_CSV_HEADER_LINE: &str = "timestamp,temperature_celcius_0,humidity_percent_0,temperature_celcius_1,humidity_percent_1,temperature_celcius_2,humidity_percent_2,voltage_channel_0,voltage_channel_1,voltage_channel_2,voltage_channel_3";
+const DATA_CSV_HEADER_LINE: &str = "timestamp,temperature_celsius_0,humidity_percent_0,temperature_celsius_1,humidity_percent_1,temperature_celsius_2,humidity_percent_2,voltage_channel_0,voltage_channel_1,voltage_channel_2,voltage_channel_3";
 const DATA_CSV_SAMPLE_LINE: &str =
     "1710000000,24.6,47.1,24.9,46.8,25.1,46.4,1.650,1.654,1.648,1.651";
 const EXPECTED_DATA_CSV_COLUMN_COUNT: usize = 11;
@@ -100,7 +100,8 @@ mod tests {
         let peripherals = esp_hal::init(esp_hal::Config::default());
 
         let timer_group0 = TimerGroup::new(peripherals.TIMG0);
-        esp_rtos::start(timer_group0.timer0);
+        let software_interrupts = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+        esp_rtos::start(timer_group0.timer0, software_interrupts.software_interrupt0);
 
         rtt_target::rtt_init_defmt!();
 
@@ -149,7 +150,7 @@ mod tests {
 
     #[test]
     async fn upload_limits_match_runtime_expectation() {
-        defmt::assert_eq!(FILE_UPLOAD_MAX_BYTES, 4096);
+        defmt::assert_eq!(firmware::config::sd_card::FILE_UPLOAD_MAX_BYTES, 4096);
     }
 
     #[test]

@@ -1,115 +1,61 @@
-//! SDHOST wiring probe for the ESP32-S3 board.
+//! `describe("SD Card Round-Trip")`
 //!
-//! `esp-hal` currently exposes the ESP32-S3 SDHOST peripheral in metadata/PAC,
-//! but it does not provide a high-level SDHOST storage driver like it does for
-//! SPI. This test therefore focuses on probing the most common ESP32-S3 SDMMC
-//! pin candidates to see whether they look wired to an SD socket.
+//! Writes a test payload to a file on the SD card and reads it back
+//! through the same `firmware::filesystems::sd` infrastructure the
+//! microvisor uses in production. Replaces the older SDMMC pin-probe
+//! test, which became unreliable once octal PSRAM claimed GPIO 33–38.
 
 #![no_std]
 #![no_main]
 
+extern crate alloc;
+
+#[path = "common/mod.rs"]
+mod common;
+
 use defmt::info;
-use esp_hal::{
-    gpio::{Input, InputConfig, Pull},
-    timer::timg::TimerGroup,
-};
 
-const SDHOST_COMMON_CLK_PIN: u32 = 36;
-const SDHOST_COMMON_CMD_PIN: u32 = 35;
-const SDHOST_COMMON_DATA0_PIN: u32 = 37;
-const SDHOST_COMMON_DATA1_PIN: u32 = 38;
-const SDHOST_COMMON_DATA2_PIN: u32 = 33;
-const SDHOST_COMMON_DATA3_PIN: u32 = 34;
-
-struct SdHostProbeResult {
-    profile_name: &'static str,
-    clk_is_high_with_pulldown: bool,
-    cmd_is_high_with_pulldown: bool,
-    data0_is_high_with_pulldown: bool,
-    data1_is_high_with_pulldown: bool,
-    data2_is_high_with_pulldown: bool,
-    data3_is_high_with_pulldown: bool,
-}
-
-fn log_probe_result(probe_result: &SdHostProbeResult) {
-    info!("SDHOST probe profile: {}", probe_result.profile_name);
-    info!(
-        "CLK GPIO{} pulled high externally: {}",
-        SDHOST_COMMON_CLK_PIN,
-        probe_result.clk_is_high_with_pulldown
-    );
-    info!(
-        "CMD GPIO{} pulled high externally: {}",
-        SDHOST_COMMON_CMD_PIN,
-        probe_result.cmd_is_high_with_pulldown
-    );
-    info!(
-        "D0  GPIO{} pulled high externally: {}",
-        SDHOST_COMMON_DATA0_PIN,
-        probe_result.data0_is_high_with_pulldown
-    );
-    info!(
-        "D1  GPIO{} pulled high externally: {}",
-        SDHOST_COMMON_DATA1_PIN,
-        probe_result.data1_is_high_with_pulldown
-    );
-    info!(
-        "D2  GPIO{} pulled high externally: {}",
-        SDHOST_COMMON_DATA2_PIN,
-        probe_result.data2_is_high_with_pulldown
-    );
-    info!(
-        "D3  GPIO{} pulled high externally: {}",
-        SDHOST_COMMON_DATA3_PIN,
-        probe_result.data3_is_high_with_pulldown
-    );
-}
+use common::{Device, tasks};
 
 esp_bootloader_esp_idf::esp_app_desc!();
 
+const ROUND_TRIP_FILE_NAME: &str = "RT_TEST.BIN";
+const ROUND_TRIP_PAYLOAD: &[u8] =
+    b"sd-card round-trip test payload \xde\xad\xbe\xef\nline two\n";
+
 #[cfg(test)]
-#[embedded_test::tests(executor = esp_rtos::embassy::Executor::new())]
+#[embedded_test::setup]
+fn setup() {
+    rtt_target::rtt_init_defmt!();
+}
+
+#[cfg(test)]
+#[embedded_test::tests(default_timeout = 15, executor = esp_rtos::embassy::Executor::new())]
 mod tests {
     use super::*;
 
     #[init]
-    fn init() -> SdHostProbeResult {
-        let peripherals = esp_hal::init(esp_hal::Config::default());
-
-        let timer_group0 = TimerGroup::new(peripherals.TIMG0);
-        esp_rtos::start(timer_group0.timer0);
-
-        rtt_target::rtt_init_defmt!();
-
-        let probe_input_config = InputConfig::default().with_pull(Pull::Down);
-
-        let clock_input = Input::new(peripherals.GPIO36, probe_input_config);
-        let command_input = Input::new(peripherals.GPIO35, probe_input_config);
-        let data0_input = Input::new(peripherals.GPIO37, probe_input_config);
-        let data1_input = Input::new(peripherals.GPIO38, probe_input_config);
-        let data2_input = Input::new(peripherals.GPIO33, probe_input_config);
-        let data3_input = Input::new(peripherals.GPIO34, probe_input_config);
-
-        SdHostProbeResult {
-            profile_name: "common ESP32-S3 SDMMC mapping",
-            clk_is_high_with_pulldown: clock_input.is_high(),
-            cmd_is_high_with_pulldown: command_input.is_high(),
-            data0_is_high_with_pulldown: data0_input.is_high(),
-            data1_is_high_with_pulldown: data1_input.is_high(),
-            data2_is_high_with_pulldown: data2_input.is_high(),
-            data3_is_high_with_pulldown: data3_input.is_high(),
-        }
+    fn init() -> Device {
+        info!("=== SD Card Round-Trip — describe block ===");
+        common::setup::boot_device()
     }
 
+    /// `it("user writes a payload to the SD card and reads it back identically")`
     #[test]
-    async fn probe_sdhost_candidate_pins(probe_result: SdHostProbeResult) {
-        log_probe_result(&probe_result);
-
+    async fn user_writes_a_payload_and_reads_it_back_identically(
+        mut device: Device,
+    ) -> Result<(), &'static str> {
+        tasks::sd_card::mount(&mut device)?;
+        tasks::sd_card::write_then_read_back(
+            &mut device,
+            ROUND_TRIP_FILE_NAME,
+            ROUND_TRIP_PAYLOAD,
+        )?;
         info!(
-            "Interpretation: CMD/D0-D3 reading high even with an internal pulldown suggests external SD pullups on those lines"
+            "SD card round-trip succeeded file={=str} size={=usize}",
+            ROUND_TRIP_FILE_NAME,
+            ROUND_TRIP_PAYLOAD.len()
         );
-        info!(
-            "Interpretation: if these lines stay low, the socket is likely not wired to this common SDHOST pin set"
-        );
+        Ok(())
     }
 }

@@ -21,6 +21,7 @@ use esp_hal::{
         master::{Config as SpiConfig, Spi},
     },
     time::Rate,
+    interrupt::software::SoftwareInterruptControl,
     timer::timg::TimerGroup,
 };
 
@@ -71,7 +72,7 @@ fn create_spi_bus(context: Context) -> (Spi<'static, esp_hal::Blocking>, Output<
 }
 
 fn clock_idle_spi_cycles(spi: &mut Spi<'static, esp_hal::Blocking>) {
-    spi.write(&SPI_STARTUP_CLOCK_BYTES).unwrap();
+    defmt::unwrap!(spi.write(&SPI_STARTUP_CLOCK_BYTES), "SPI startup clock write failed");
 }
 
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -86,7 +87,8 @@ mod tests {
         let peripherals = esp_hal::init(esp_hal::Config::default());
 
         let timer_group0 = TimerGroup::new(peripherals.TIMG0);
-        esp_rtos::start(timer_group0.timer0);
+        let software_interrupts = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+        esp_rtos::start(timer_group0.timer0, software_interrupts.software_interrupt0);
 
         rtt_target::rtt_init_defmt!();
 
@@ -123,8 +125,8 @@ mod tests {
         let card_size_bytes = sd_card.num_bytes().unwrap();
         let card_size_megabytes = card_size_bytes / (1024 * 1024);
 
-        info!("SPI SD card detected: {} MiB", card_size_megabytes);
-        info!("SPI SD card type: {:?}", sd_card.get_card_type());
+        info!("SPI SD card detected: {=u64} MiB", card_size_megabytes);
+        info!("SPI SD card type: {=?}", sd_card.get_card_type());
 
         let volume_manager = VolumeManager::new(sd_card, FixedTimeSource);
         let volume0 = volume_manager.open_volume(VolumeIdx(0)).unwrap();
@@ -136,16 +138,17 @@ mod tests {
                 root_entry_count += 1;
                 if root_entry_count <= 8 {
                     info!(
-                        "root entry {}: {:?} ({} bytes)",
+                        "root entry {=usize}: {=?} ({=u32} bytes)",
                         root_entry_count,
                         directory_entry.name,
                         directory_entry.size
                     );
                 }
+                core::ops::ControlFlow::Continue(())
             })
             .unwrap();
 
-        info!("root directory entries observed: {}", root_entry_count);
+        info!("root directory entries observed: {=usize}", root_entry_count);
 
         let test_file = root_directory
             .open_file_in_dir(TEST_FILE_NAME, Mode::ReadWriteCreateOrTruncate)
@@ -153,7 +156,7 @@ mod tests {
 
         test_file.write(TEST_FILE_CONTENTS).unwrap();
         test_file.flush().unwrap();
-        info!("wrote {} bytes to {}", TEST_FILE_CONTENTS.len(), TEST_FILE_NAME);
+        info!("wrote {=usize} bytes to {=str}", TEST_FILE_CONTENTS.len(), TEST_FILE_NAME);
 
         test_file.seek_from_start(0).unwrap();
 

@@ -1,32 +1,47 @@
-//! Demo test suite using embedded-test
+//! `describe("Hello (smoke)")`
 //!
-//! You can run this using `cargo test` as usual.
+//! Trivial smoke test that proves the embedded-test runner is wired up
+//! and embassy is alive.
 
 #![no_std]
 #![no_main]
 
+#[path = "common/mod.rs"]
+mod common;
+
+use defmt::info;
+
+use common::Device;
+
 esp_bootloader_esp_idf::esp_app_desc!();
 
 #[cfg(test)]
-#[embedded_test::tests(executor = esp_rtos::embassy::Executor::new())]
+#[embedded_test::setup]
+fn setup() {
+    rtt_target::rtt_init_defmt!();
+}
+
+#[cfg(test)]
+#[embedded_test::tests(default_timeout = 5, executor = esp_rtos::embassy::Executor::new())]
 mod tests {
-    use defmt::assert_eq;
+    use super::*;
 
     #[init]
-    fn init() {
-        let peripherals = esp_hal::init(esp_hal::Config::default());
-
-        let timg1 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1);
-        esp_rtos::start(timg1.timer0);
-
-        rtt_target::rtt_init_defmt!();
+    fn init() -> Device {
+        info!("=== Hello (smoke) — describe block ===");
+        common::setup::boot_device()
     }
 
+    /// `it("user observes that arithmetic still works")`
     #[test]
-    async fn hello_test() {
-        defmt::info!("Running test!");
+    async fn user_observes_that_arithmetic_still_works(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        embassy_time::Timer::after(embassy_time::Duration::from_millis(10)).await;
 
-        embassy_time::Timer::after(embassy_time::Duration::from_millis(100)).await;
-        assert_eq!(1 + 1, 2);
+        if 1 + 1 != 2 {
+            return Err("device: arithmetic broke; nothing else can be trusted");
+        }
+        Ok(())
     }
 }
