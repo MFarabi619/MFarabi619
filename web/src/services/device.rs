@@ -36,4 +36,13 @@ impl DeviceService {
             .json()
             .await
     }
+
+    pub async fn trigger_sleep(base_url: &str) -> Result<SleepConfigResponse, Error> {
+        reqwest::Client::new()
+            .post(format!("{base_url}/api/system/sleep/actions/trigger"))
+            .send()
+            .await?
+            .json()
+            .await
+    }
 }

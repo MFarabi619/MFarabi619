@@ -42,17 +42,33 @@ bool requires_admin_auth(AsyncWebServerRequest *request) {
       || url == "/api/wireless/status");
 }
 
+bool sd_has_index() {
+  if (!hardware::storage::ensureSD()) return false;
+  return SD.exists("/index.html") || SD.exists("/index.html.gz");
+}
+
+void send_index_from_sd(AsyncWebServerRequest *request) {
+  if (SD.exists("/index.html.gz")) {
+    AsyncWebServerResponse *response = request->beginResponse(SD, "/index.html.gz", "text/html; charset=utf-8");
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+  } else {
+    request->send(SD, "/index.html", "text/html; charset=utf-8");
+  }
+}
+
 void captive_portal_redirect(AsyncWebServerRequest *request) {
+  String location = "http://" + WiFi.softAPIP().toString() + "/";
   AsyncWebServerResponse *response = request->beginResponse(302);
-  response->addHeader("Location", "http://192.168.4.1/");
+  response->addHeader("Location", location);
   response->addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
   response->addHeader("Pragma", "no-cache");
   request->send(response);
 }
 
 void send_portal_page(AsyncWebServerRequest *request) {
-  if (hardware::storage::ensureSD() && SD.exists("/index.html")) {
-    request->send(SD, "/index.html", "text/html; charset=utf-8");
+  if (sd_has_index()) {
+    send_index_from_sd(request);
     return;
   }
   request->send(200, "text/html; charset=utf-8",
@@ -69,7 +85,8 @@ public:
     if (!host) return true;
     String h = host->value();
     h.toLowerCase();
-    if (h == "192.168.4.1" || h.startsWith("192.168.4.1:")) return false;
+    String ap_ip = WiFi.softAPIP().toString();
+    if (h == ap_ip || h.startsWith(ap_ip + ":")) return false;
     if (h.startsWith("ceratina")) return false;
     return true;
   }
@@ -137,16 +154,11 @@ void services::http::initialize() {
   services::cloudevents::registerRoutes(&server);
   services::ws_shell::registerRoutes(&server);
 
-  server.serveStatic("/", LittleFS, "/")
+  hardware::storage::ensureSD();
+  server.serveStatic("/", SD, "/")
     .setDefaultFile("index.html")
-    .setCacheControl("max-age=3600");
-
-  if (hardware::storage::ensureSD()) {
-    server.serveStatic("/admin", SD, "/")
-      .setDefaultFile("index.html")
-      .setCacheControl("public, max-age=86400")
-      .setTryGzipFirst(true);
-  }
+    .setCacheControl("public, max-age=86400")
+    .setTryGzipFirst(true);
 
   server.on("/portal", HTTP_GET, send_portal_page);
   server.on(AsyncURIMatcher::exact("/generate_204"), HTTP_GET, captive_portal_redirect);
@@ -163,15 +175,8 @@ void services::http::initialize() {
   server.addHandler(new CaptivePortalRedirectHandler()).setFilter(ON_AP_FILTER);
 
   server.onNotFound([](AsyncWebServerRequest *request) {
-    String url = request->url();
-
-    if (url == "/" && hardware::storage::ensureSD() && SD.exists("/index.html")) {
-      request->send(SD, "/index.html", "text/html");
-      return;
-    }
-
-    if (url.startsWith("/admin") && hardware::storage::ensureSD() && SD.exists("/index.html")) {
-      request->send(SD, "/index.html", "text/html");
+    if (sd_has_index()) {
+      send_index_from_sd(request);
       return;
     }
 

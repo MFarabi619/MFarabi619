@@ -176,6 +176,25 @@ void services::http::api::system::registerRoutes(AsyncWebServer &server,
   });
   sleep_config_handler.setMaxContentLength(256);
 
+  server.on("/api/system/sleep/actions/trigger", HTTP_POST,
+            [](AsyncWebServerRequest *request) {
+    SleepConfig config = {};
+    if (!power::sleep::accessConfig(&config) || config.duration_seconds == 0) {
+      request->send(400, "application/json", "{\"ok\":false,\"error\":\"no sleep duration configured\"}");
+      return;
+    }
+
+    SleepCommand command = { .duration_seconds = config.duration_seconds, .ok = false };
+    power::sleep::request(&command);
+
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = command.ok;
+    root["duration_seconds"] = config.duration_seconds;
+    response->setLength();
+    request->send(response);
+  });
+
   server.on("/api/system/ota/rollback", HTTP_GET,
             [](AsyncWebServerRequest *request) {
     AsyncJsonResponse *response = new AsyncJsonResponse();

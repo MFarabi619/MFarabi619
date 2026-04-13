@@ -1,6 +1,8 @@
 use crate::api::DeviceStatusData;
 use crate::services::DeviceService;
 use dioxus::prelude::*;
+use lucide_dioxus::Moon;
+use ui::components::button::{Button, ButtonVariant};
 use ui::components::switch::Switch;
 use ui::components::toast::use_toast;
 use super::shared_ui::StatusBadge;
@@ -181,6 +183,31 @@ pub fn SleepPanel(
                                 saving.set(false);
                             });
                         }
+                    }
+                    Button {
+                        class: "px-3 py-1.5 rounded-lg text-foreground flex items-center gap-2 transition-colors hover:bg-muted/70 text-xs".to_string(),
+                        variant: ButtonVariant::Outline,
+                        on_click: move |_| {
+                            let dur = *duration.read();
+                            if dur == 0 {
+                                toasts.error("Set a duration first".to_string(), None);
+                                return;
+                            }
+                            let url = device_url.read().clone();
+                            saving.set(true);
+                            spawn(async move {
+                                match DeviceService::trigger_sleep(&url).await {
+                                    Ok(response) if response.ok => {
+                                        toasts.success("Device entering deep sleep".to_string(), None);
+                                    }
+                                    Ok(_) => toasts.error("Sleep trigger failed".to_string(), None),
+                                    Err(error) => toasts.error(format!("Sleep trigger failed: {error}"), None),
+                                }
+                                saving.set(false);
+                            });
+                        },
+                        Moon { class: "w-3.5 h-3.5" }
+                        "Sleep"
                     }
                 }
             }
