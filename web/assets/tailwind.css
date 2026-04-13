@@ -944,6 +944,14 @@
     border-top-left-radius: var(--radius);
     border-top-right-radius: var(--radius);
   }
+  .rounded-l {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+  }
+  .rounded-r {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+  }
   .border {
     border-style: var(--tw-border-style);
     border-width: 1px;
@@ -1136,6 +1144,12 @@
   .p-6 {
     padding: calc(var(--spacing) * 6);
   }
+  .px-0 {
+    padding-inline: calc(var(--spacing) * 0);
+  }
+  .px-0\.5 {
+    padding-inline: calc(var(--spacing) * 0.5);
+  }
   .px-1 {
     padding-inline: calc(var(--spacing) * 1);
   }
@@ -1220,6 +1234,9 @@
   .pb-4 {
     padding-bottom: calc(var(--spacing) * 4);
   }
+  .pl-0\.5 {
+    padding-left: calc(var(--spacing) * 0.5);
+  }
   .pl-2 {
     padding-left: calc(var(--spacing) * 2);
   }
@@ -1237,9 +1254,6 @@
   }
   .text-left {
     text-align: left;
-  }
-  .text-right {
-    text-align: right;
   }
   .font-mono {
     font-family: var(--font-mono);
@@ -1679,16 +1693,6 @@
         background-color: var(--destructive);
         @supports (color: color-mix(in lab, red, red)) {
           background-color: color-mix(in oklab, var(--destructive) 10%, transparent);
-        }
-      }
-    }
-  }
-  .hover\:bg-destructive\/20 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--destructive);
-        @supports (color: color-mix(in lab, red, red)) {
-          background-color: color-mix(in oklab, var(--destructive) 20%, transparent);
         }
       }
     }

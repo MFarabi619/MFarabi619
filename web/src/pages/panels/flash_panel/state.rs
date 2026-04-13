@@ -58,7 +58,6 @@ impl FlashChipInfo {
 pub struct FlashFirmwareState {
     pub firmware_name: Signal<String>,
     pub firmware_size: Signal<usize>,
-    pub bundled_selection: Signal<String>,
     pub flashing: Signal<bool>,
     pub progress: Signal<u8>,
 }
@@ -68,7 +67,6 @@ impl FlashFirmwareState {
         Self {
             firmware_name: use_signal(String::new),
             firmware_size: use_signal(|| 0usize),
-            bundled_selection: use_signal(String::new),
             flashing: use_signal(|| false),
             progress: use_signal(|| 0u8),
         }
@@ -77,7 +75,6 @@ impl FlashFirmwareState {
     pub fn clear(&mut self) {
         self.firmware_name.set(String::new());
         self.firmware_size.set(0);
-        self.bundled_selection.set(String::new());
         self.flashing.set(false);
         self.progress.set(0);
     }

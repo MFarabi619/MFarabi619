@@ -227,14 +227,17 @@ pub fn WiFiSection(config: FlashConfig) -> Element {
 
 #[component]
 pub fn FirmwareSection(
-    firmware: FlashFirmwareState,
+    controller: FlashController,
     config: FlashConfig,
     chip: FlashChipInfo,
 ) -> Element {
+    let firmware = controller.firmware;
     let has_firmware = *firmware.firmware_size.read() > 0;
 
     rsx! {
-        div { class: "border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center hover:border-primary transition-colors cursor-pointer",
+        div {
+            class: "border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center justify-center hover:border-primary transition-colors cursor-pointer",
+            onclick: move |_| controller.select_firmware(),
             lucide_dioxus::Upload { class: "w-8 h-8 text-muted-foreground mb-2" }
             if has_firmware {
                 p { class: "text-sm font-medium text-foreground mb-1", "{firmware.firmware_name}" }
@@ -251,10 +254,11 @@ pub fn FirmwareSection(
                         p { "Compression enabled" }
                     }
                 }
+                p { class: "text-[10px] text-muted-foreground/50 mt-3", "Click to replace" }
             } else {
-                p { class: "text-sm text-muted-foreground mb-1", "Loading firmware..." }
+                p { class: "text-sm text-muted-foreground mb-1", "Select a firmware .bin file" }
+                p { class: "text-[10px] text-muted-foreground/50 mt-1", "Click to browse" }
             }
-            p { class: "text-[10px] text-muted-foreground/50 mt-3", "or drop a custom .bin to replace" }
         }
     }
 }

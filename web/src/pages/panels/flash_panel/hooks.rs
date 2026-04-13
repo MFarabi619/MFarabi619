@@ -25,7 +25,6 @@ impl FlashController {
             device.connecting.set(false);
 
             if *device.is_connected.read() {
-                firmware.bundled_selection.set("all".to_string());
                 restart_monitor(device, chip, firmware).await;
             }
         });
@@ -95,6 +94,16 @@ impl FlashController {
         spawn(async move {
             eval_send_and_process(JS_RESET, baud_val, device, chip, firmware).await;
             restart_monitor(device, chip, firmware).await;
+        });
+    }
+
+    pub fn select_firmware(&self) {
+        let device = self.device;
+        let chip = self.chip;
+        let firmware = self.firmware;
+
+        spawn(async move {
+            eval_and_process(JS_SELECT_FIRMWARE, device, chip, firmware).await;
         });
     }
 
@@ -203,19 +212,6 @@ pub fn use_flash_controller() -> FlashController {
             toasts.error("Device disconnected unexpectedly".to_string(), None);
             device.device_lost.set(false);
         }
-    });
-
-    use_effect(move || {
-        let sel = firmware.bundled_selection.read().clone();
-        if sel.is_empty() {
-            return;
-        }
-        let device = device;
-        let chip = chip;
-        let firmware = firmware;
-        spawn(async move {
-            eval_send_and_process(JS_FETCH_FIRMWARE, sel, device, chip, firmware).await;
-        });
     });
 
     use_drop(|| {

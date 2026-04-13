@@ -38,4 +38,28 @@ impl FileService {
             .send()
             .await
     }
+
+    pub async fn read_text(
+        base_url: &str,
+        location: &str,
+        path: &str,
+    ) -> Result<String, Error> {
+        reqwest::get(format!("{base_url}/api/filesystem/{location}/{path}"))
+            .await?
+            .text()
+            .await
+    }
+
+    pub async fn rename(
+        base_url: &str,
+        location: &str,
+        old_name: &str,
+        new_name: &str,
+    ) -> Result<reqwest::Response, Error> {
+        reqwest::Client::new()
+            .patch(format!("{base_url}/api/filesystem/{location}/{old_name}"))
+            .json(&serde_json::json!({ "name": new_name }))
+            .send()
+            .await
+    }
 }

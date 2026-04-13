@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use lucide_dioxus::{Database, File, FileCode, FileText, Image};
+use lucide_dioxus::{Database, File, FileCode, FileSpreadsheet, FileText, Image};
 
 pub fn file_icon(name: &str) -> Element {
     let extension = name.rsplit('.').next().unwrap_or("").to_ascii_lowercase();
@@ -7,7 +7,8 @@ pub fn file_icon(name: &str) -> Element {
         "js" | "rs" | "css" | "toml" => rsx! { FileCode { class: "w-4 h-4 text-primary" } },
         "html" | "htm" => rsx! { FileCode { class: "w-4 h-4 text-chart-3" } },
         "svg" | "png" | "jpg" => rsx! { Image { class: "w-4 h-4 text-chart-2" } },
-        "db" | "csv" => rsx! { Database { class: "w-4 h-4 text-chart-4" } },
+        "csv" | "tsv" => rsx! { FileSpreadsheet { class: "w-4 h-4 text-chart-4" } },
+        "db" | "sqlite" => rsx! { Database { class: "w-4 h-4 text-chart-4" } },
         "txt" | "log" | "md" => rsx! { FileText { class: "w-4 h-4 text-muted-foreground" } },
         "wasm" | "was" => rsx! { FileCode { class: "w-4 h-4 text-chart-5" } },
         _ => rsx! { File { class: "w-4 h-4 text-muted-foreground" } },

@@ -454,46 +454,26 @@ pub(crate) const JS_FLASH: &str = r#"
 })()
 "#;
 
-pub(crate) const JS_FETCH_FIRMWARE: &str = r#"
+pub(crate) const JS_SELECT_FIRMWARE: &str = r#"
 (async function() {
-    const val = await dioxus.recv();
-    if (!val) return;
     const f = window.__flash;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.bin';
 
-    if (val === 'all') {
-        try {
-            dioxus.send(JSON.stringify({type:'log', msg:'Fetching all firmware files...', level:'warn'}));
-            const [bl, pt, fw] = await Promise.all([
-                fetch('/assets/bootloader.bin').then(r => r.arrayBuffer()),
-                fetch('/assets/partitions.bin').then(r => r.arrayBuffer()),
-                fetch('/assets/firmware.bin').then(r => r.arrayBuffer())
-            ]);
-            f.firmware.multiFiles = [
-                { data: new Uint8Array(bl), address: 0x0 },
-                { data: new Uint8Array(pt), address: 0x8000 },
-                { data: new Uint8Array(fw), address: 0x10000 }
-            ];
-            f.firmware.data = f.firmware.multiFiles[2].data;
-            dioxus.send(JSON.stringify({type:'firmware_loaded', name:'all', size: bl.byteLength + pt.byteLength + fw.byteLength}));
-            dioxus.send(JSON.stringify({type:'log', msg:'Loaded: bootloader (' + (bl.byteLength/1024).toFixed(1) + ' KB) + partitions (' + (pt.byteLength/1024).toFixed(1) + ' KB) + firmware (' + (fw.byteLength/1024).toFixed(1) + ' KB)', level:'ok'}));
-        } catch(err) {
-            dioxus.send(JSON.stringify({type:'log', msg:'Failed to fetch: ' + err.message, level:'err'}));
-        }
-        return;
-    }
+    const file = await new Promise((resolve) => {
+        input.onchange = () => resolve(input.files[0] || null);
+        input.addEventListener('cancel', () => resolve(null));
+        input.click();
+    });
 
-    try {
-        dioxus.send(JSON.stringify({type:'log', msg:'Fetching ' + val + '...', level:'warn'}));
-        const resp = await fetch(val);
-        const buf = await resp.arrayBuffer();
-        f.firmware.data = new Uint8Array(buf);
-        f.firmware.multiFiles = null;
-        const name = val.split('/').pop();
-        dioxus.send(JSON.stringify({type:'firmware_loaded', name: name, size: buf.byteLength}));
-        dioxus.send(JSON.stringify({type:'log', msg:'Loaded: ' + name + ' (' + (buf.byteLength/1024).toFixed(1) + ' KB)', level:'ok'}));
-    } catch(err) {
-        dioxus.send(JSON.stringify({type:'log', msg:'Failed to fetch: ' + err.message, level:'err'}));
-    }
+    if (!file) return;
+
+    const buf = await file.arrayBuffer();
+    f.firmware.data = new Uint8Array(buf);
+    f.firmware.multiFiles = null;
+    dioxus.send(JSON.stringify({type:'firmware_loaded', name: file.name, size: buf.byteLength}));
+    dioxus.send(JSON.stringify({type:'log', msg:'Loaded: ' + file.name + ' (' + (buf.byteLength/1024).toFixed(1) + ' KB)', level:'ok'}));
 })()
 "#;
 

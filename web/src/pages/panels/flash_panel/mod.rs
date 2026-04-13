@@ -55,7 +55,7 @@ pub fn FlashPanel() -> Element {
                         ConfigSection { config: ctrl.config, chip: ctrl.chip }
                         WiFiSection { config: ctrl.config }
                     }
-                    FirmwareSection { firmware: ctrl.firmware, config: ctrl.config, chip: ctrl.chip }
+                    FirmwareSection { controller: ctrl, config: ctrl.config, chip: ctrl.chip }
                 }
 
                 ActionRow { controller: ctrl }
