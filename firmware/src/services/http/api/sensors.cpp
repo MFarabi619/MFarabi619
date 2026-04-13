@@ -106,6 +106,74 @@ void handle_temperature_humidity_get(AsyncWebServerRequest *request) {
   request->send(response);
 }
 
+void handle_solar_radiation_get(AsyncWebServerRequest *request) {
+  SolarRadiationSensorData sensor_data = {};
+  bool ok = sensors::manager::accessSolarRadiation(&sensor_data);
+
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = ok && sensor_data.ok;
+  JsonObject data = root["data"].to<JsonObject>();
+  if (ok && sensor_data.ok) {
+    data["watts_per_square_meter"] = sensor_data.watts_per_square_meter;
+  }
+  response->setLength();
+  request->send(response);
+}
+
+void handle_current_get(AsyncWebServerRequest *request) {
+  CurrentSensorData sensor_data = {};
+  bool ok = sensors::manager::accessCurrent(&sensor_data);
+
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = ok && sensor_data.ok;
+  JsonObject data = root["data"].to<JsonObject>();
+  if (ok && sensor_data.ok) {
+    data["current_mA"] = sensor_data.current_mA;
+    data["bus_voltage_V"] = sensor_data.bus_voltage_V;
+    data["shunt_voltage_mV"] = sensor_data.shunt_voltage_mV;
+    data["power_mW"] = sensor_data.power_mW;
+    data["energy_J"] = sensor_data.energy_J;
+    data["charge_C"] = sensor_data.charge_C;
+    data["die_temperature_C"] = sensor_data.die_temperature_C;
+  }
+  response->setLength();
+  request->send(response);
+}
+
+void handle_soil_get(AsyncWebServerRequest *request) {
+  SensorInventorySnapshot inventory = {};
+  sensors::manager::accessInventory(&inventory);
+
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = inventory.soil_probe_count > 0;
+  JsonObject data = root["data"].to<JsonObject>();
+  data["probe_count"] = inventory.soil_probe_count;
+
+  JsonArray probes = data["probes"].to<JsonArray>();
+  for (uint8_t index = 0; index < inventory.soil_probe_count; index++) {
+    SoilSensorData sensor_data = {};
+    bool ok = sensors::manager::accessSoil(index, &sensor_data);
+
+    JsonObject probe = probes.add<JsonObject>();
+    probe["index"] = index;
+    probe["slave_id"] = sensor_data.slave_id;
+    probe["read_ok"] = ok;
+    if (ok) {
+      probe["temperature_celsius"] = sensor_data.temperature_celsius;
+      probe["moisture_percent"] = sensor_data.moisture_percent;
+      probe["conductivity"] = sensor_data.conductivity;
+      probe["salinity"] = sensor_data.salinity;
+      probe["tds"] = sensor_data.tds;
+    }
+  }
+
+  response->setLength();
+  request->send(response);
+}
+
 }
 
 void services::http::api::sensors::registerRoutes(AsyncWebServer &server) {
@@ -115,6 +183,9 @@ void services::http::api::sensors::registerRoutes(AsyncWebServer &server) {
   server.on("/api/sensors/temperature-humidity", HTTP_GET, handle_temperature_humidity_get);
   server.on("/api/sensors/wind/speed", HTTP_GET, handle_wind_speed_get);
   server.on("/api/sensors/wind/direction", HTTP_GET, handle_wind_direction_get);
+  server.on("/api/sensors/solar-radiation", HTTP_GET, handle_solar_radiation_get);
+  server.on("/api/sensors/current", HTTP_GET, handle_current_get);
+  server.on("/api/sensors/soil", HTTP_GET, handle_soil_get);
 
   AsyncCallbackJsonWebHandler &co2_config_handler =
       server.on("/api/co2/config", HTTP_POST,

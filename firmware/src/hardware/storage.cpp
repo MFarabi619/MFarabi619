@@ -38,9 +38,14 @@ bool hardware::storage::ensureLittleFS() {
 bool hardware::storage::ensureSD() {
   if (sd_attempted) return sd_ready;
   sd_attempted = true;
-  sd_ready = SD.begin();
+
+  sd_ready = SD.begin(SS, SPI, 4000000, "/sd", 5, false);
   if (!sd_ready) {
-    Serial.println(F("[sd] no card detected"));
+    Serial.println(F("[sd] no FAT volume — formatting..."));
+    sd_ready = SD.begin(SS, SPI, 4000000, "/sd", 5, true);
+    if (!sd_ready) {
+      Serial.println(F("[sd] format failed — SD unavailable"));
+    }
   }
   return sd_ready;
 }

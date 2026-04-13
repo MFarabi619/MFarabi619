@@ -76,7 +76,7 @@ void dev_sd_mount(struct ush_object *ush) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Tests — describe("SD Card")
+//  Tests — restored SD.h path
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
@@ -130,7 +130,7 @@ static void sd_test_write_read_roundtrip(void) {
   TEST_ASSERT_TRUE_MESSAGE((bool)reader,
     "device: failed to open file for reading");
   char buf[64] = {0};
-  size_t len = reader.readBytes(buf, sizeof(buf) - 1);
+  reader.readBytes(buf, sizeof(buf) - 1);
   reader.close();
 
   TEST_ASSERT_EQUAL_STRING_MESSAGE(payload, buf,

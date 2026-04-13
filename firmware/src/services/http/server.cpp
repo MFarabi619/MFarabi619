@@ -3,6 +3,7 @@
 #include "../ws_shell.h"
 #include "../../hardware/storage.h"
 #include "../../networking/wifi.h"
+#include "api/database.h"
 #include "api/email.h"
 #include "api/filesystem.h"
 #include "api/networking.h"
@@ -111,12 +112,13 @@ void services::http::initialize() {
   services::http::api::filesystem::registerRoutes(server, format_limit);
   services::http::api::networking::registerRoutes(server, scan_limit);
   services::http::api::sensors::registerRoutes(server);
+  services::http::api::database::registerRoutes(server);
   services::http::api::email::registerRoutes(server);
 
   services::cloudevents::registerRoutes(&server);
   services::ws_shell::registerRoutes(&server);
 
-  server.serveStatic("/", LittleFS, "/www/")
+  server.serveStatic("/", LittleFS, "/")
     .setDefaultFile("index.html")
     .setCacheControl("max-age=3600");
 

@@ -10,6 +10,9 @@ struct DataLoggerStatusSnapshot {
   uint32_t interval_ms;
   uint32_t last_log_ms;
   const char *path;
+  uint32_t ring_buf_used;
+  uint32_t ring_buf_capacity;
+  bool ring_buf_overrun;
 };
 
 namespace services::data_logger {

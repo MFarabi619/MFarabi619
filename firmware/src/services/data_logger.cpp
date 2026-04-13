@@ -30,12 +30,16 @@ bool ensure_header() {
 
   File file = SD.open(config::data_logger::CSV_PATH, FILE_WRITE);
   if (!file) return false;
-  file.print("timestamp,epoch,uptime_seconds,temp_humidity_count");
-  for (uint8_t index = 0; index < config::temperature_humidity::MAX_SENSORS; index++) {
-    file.printf(",temp%u_model,temp%u_temperature_celsius,temp%u_relative_humidity_percent",
-                index, index, index);
-  }
-  file.println(",co2_model,co2_ppm,co2_temperature_celsius,co2_relative_humidity_percent,voltage_0,voltage_1,voltage_2,voltage_3,wind_speed_kilometers_per_hour,wind_direction_degrees,wind_direction_angle_slice");
+  file.print("time");
+  for (uint8_t i = 0; i < config::data_logger::TEMP_HUMIDITY_SENSOR_COUNT; i++)
+    file.printf(",temperature_celsius_%u", i);
+  for (uint8_t i = 0; i < config::data_logger::TEMP_HUMIDITY_SENSOR_COUNT; i++)
+    file.printf(",relative_humidity_percent_%u", i);
+  for (uint8_t i = 0; i < config::voltage::CHANNEL_COUNT; i++)
+    file.printf(",voltage_channel_%u", i);
+  file.print(",co2_ppm_0,co2_temperature_celsius_0,co2_relative_humidity_percent_0");
+  file.print(",wind_speed_kmh_0,wind_direction_degrees_0");
+  file.println();
   file.close();
   header_written = true;
   return true;
@@ -55,39 +59,48 @@ void append_row() {
   File file = SD.open(config::data_logger::CSV_PATH, FILE_APPEND);
   if (!file) return;
 
-  RTCSnapshot rtc_snapshot = {};
-  services::rtc::accessSnapshot(&rtc_snapshot);
-  uint32_t epoch = services::rtc::accessEpoch();
-  if (networking::sntp::isSynced()) {
-    write_field(file, networking::sntp::accessLocalTimeString());
-  } else if (rtc_snapshot.valid) {
-    write_field(file, rtc_snapshot.iso8601);
-  }
-  file.print(',');
-  if (epoch > 0) file.print(epoch);
-  file.print(',');
-  file.print(millis() / 1000UL);
+  constexpr uint8_t n_th = config::data_logger::TEMP_HUMIDITY_SENSOR_COUNT;
 
-  SensorInventorySnapshot inventory = {};
-  sensors::manager::accessInventory(&inventory);
-  file.print(',');
-  file.print(inventory.temperature_humidity_count);
+  TemperatureHumiditySensorData th[n_th] = {};
+  bool th_ok[n_th] = {};
+  for (uint8_t i = 0; i < n_th; i++)
+    th_ok[i] = sensors::manager::accessTemperatureHumidity(i, &th[i]);
 
-  for (uint8_t index = 0; index < config::temperature_humidity::MAX_SENSORS; index++) {
-    TemperatureHumiditySensorData temp_humidity = {};
-    bool temp_ok = sensors::manager::accessTemperatureHumidity(index, &temp_humidity);
-    file.print(',');
-    if (temp_ok) write_field(file, temp_humidity.model);
-    file.print(',');
-    if (temp_ok) write_float_field(file, temp_humidity.temperature_celsius);
-    file.print(',');
-    if (temp_ok) write_float_field(file, temp_humidity.relative_humidity_percent);
-  }
+  VoltageSensorData voltage = {};
+  bool voltage_ok = sensors::manager::accessVoltage(&voltage);
 
   CO2SensorData co2 = {};
   bool co2_ok = sensors::manager::accessCO2(&co2);
-  file.print(',');
-  if (co2_ok) write_field(file, co2.model);
+
+  WindSpeedSensorData wind_speed = {};
+  bool wind_speed_ok = sensors::manager::accessWindSpeed(&wind_speed);
+
+  WindDirectionSensorData wind_direction = {};
+  bool wind_direction_ok = sensors::manager::accessWindDirection(&wind_direction);
+
+  if (networking::sntp::isSynced()) {
+    write_field(file, networking::sntp::accessLocalTimeString());
+  } else {
+    RTCSnapshot rtc = {};
+    services::rtc::accessSnapshot(&rtc);
+    if (rtc.valid) write_field(file, rtc.iso8601);
+  }
+
+  for (uint8_t i = 0; i < n_th; i++) {
+    file.print(',');
+    if (th_ok[i]) write_float_field(file, th[i].temperature_celsius);
+  }
+
+  for (uint8_t i = 0; i < n_th; i++) {
+    file.print(',');
+    if (th_ok[i]) write_float_field(file, th[i].relative_humidity_percent);
+  }
+
+  for (uint8_t i = 0; i < config::voltage::CHANNEL_COUNT; i++) {
+    file.print(',');
+    if (voltage_ok) write_float_field(file, voltage.channel_volts[i], 4);
+  }
+
   file.print(',');
   if (co2_ok) write_float_field(file, co2.co2_ppm, 1);
   file.print(',');
@@ -95,24 +108,10 @@ void append_row() {
   file.print(',');
   if (co2_ok) write_float_field(file, co2.relative_humidity_percent);
 
-  VoltageSensorData voltage = {};
-  bool voltage_ok = sensors::manager::accessVoltage(&voltage);
-  for (size_t channel = 0; channel < config::voltage::CHANNEL_COUNT; channel++) {
-    file.print(',');
-    if (voltage_ok) write_float_field(file, voltage.channel_volts[channel], 4);
-  }
-
-  WindSpeedSensorData wind_speed = {};
-  bool wind_speed_ok = sensors::manager::accessWindSpeed(&wind_speed);
   file.print(',');
   if (wind_speed_ok) write_float_field(file, wind_speed.kilometers_per_hour);
-
-  WindDirectionSensorData wind_direction = {};
-  bool wind_direction_ok = sensors::manager::accessWindDirection(&wind_direction);
   file.print(',');
   if (wind_direction_ok) write_float_field(file, wind_direction.degrees, 1);
-  file.print(',');
-  if (wind_direction_ok) file.print(wind_direction.slice);
 
   file.println();
   file.close();
@@ -152,5 +151,8 @@ bool services::data_logger::accessStatus(DataLoggerStatusSnapshot *snapshot) {
   snapshot->interval_ms = config::data_logger::LOG_INTERVAL_MS;
   snapshot->last_log_ms = last_log_ms;
   snapshot->path = config::data_logger::CSV_PATH;
+  snapshot->ring_buf_used = 0;
+  snapshot->ring_buf_capacity = 0;
+  snapshot->ring_buf_overrun = false;
   return true;
 }

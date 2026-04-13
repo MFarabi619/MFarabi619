@@ -1,0 +1,9 @@
+{
+  "name": "sqlite",
+  "build": {
+    "extraScript": "extra_scripts.py"
+  },
+  "dependencies": {
+    "siara-cc/Sqlite3Esp32": "^2.5"
+  }
+}

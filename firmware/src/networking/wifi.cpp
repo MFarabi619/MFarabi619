@@ -80,8 +80,8 @@ bool networking::wifi::connect(WifiConnectCommand *command) {
   command->result.ap_enabled_for_fallback = false;
 
   WiFi.setAutoReconnect(true);
-  WiFi.disconnect(true);
-  WiFi.mode(WIFI_MODE_STA);
+  WiFi.disconnect(false);
+  WiFi.mode(networking::wifi::ap::isActive() ? WIFI_AP_STA : WIFI_MODE_STA);
   networking::wifi::configureHostname(services::identity::accessHostname());
 
   if (command->request.ssid && command->request.ssid[0] != '\0') {
@@ -110,7 +110,8 @@ bool networking::wifi::connect(WifiConnectCommand *command) {
   command->result.status_code = WiFi.waitForConnectResult(config::wifi::CONNECT_TIMEOUT_MS);
   command->result.connected = (command->result.status_code == WL_CONNECTED);
 
-  if (!command->result.connected && command->request.enable_ap_fallback) {
+  if (!command->result.connected && command->request.enable_ap_fallback
+      && !networking::wifi::ap::isActive()) {
     networking::wifi::ap::enable();
     command->result.ap_enabled_for_fallback = true;
   }

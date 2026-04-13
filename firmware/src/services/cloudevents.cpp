@@ -190,6 +190,63 @@ static void append_wind_direction_event(JsonArray events, uint16_t sequence,
   data["wind_direction_angle_slice"] = sensor_data.slice;
 }
 
+static void append_solar_radiation_event(JsonArray events, uint16_t sequence,
+                                         const String &source, const String &time_iso) {
+  SolarRadiationSensorData sensor_data = {};
+  if (!sensors::manager::accessSolarRadiation(&sensor_data) || !sensor_data.ok) return;
+
+  JsonObject event = cloudevents_add_event(events, sequence, source,
+                                           "sensors.solar_radiation.v1", time_iso);
+  JsonObject data = event["data"].to<JsonObject>();
+  data["watts_per_square_meter"] = sensor_data.watts_per_square_meter;
+}
+
+static void append_current_event(JsonArray events, uint16_t sequence,
+                                 const String &source, const String &time_iso) {
+  CurrentSensorData sensor_data = {};
+  if (!sensors::manager::accessCurrent(&sensor_data) || !sensor_data.ok) return;
+
+  JsonObject event = cloudevents_add_event(events, sequence, source,
+                                           "sensors.current.v1", time_iso);
+  JsonObject data = event["data"].to<JsonObject>();
+  data["current_mA"] = sensor_data.current_mA;
+  data["bus_voltage_V"] = sensor_data.bus_voltage_V;
+  data["shunt_voltage_mV"] = sensor_data.shunt_voltage_mV;
+  data["power_mW"] = sensor_data.power_mW;
+  data["energy_J"] = sensor_data.energy_J;
+  data["charge_C"] = sensor_data.charge_C;
+  data["die_temperature_C"] = sensor_data.die_temperature_C;
+}
+
+static void append_soil_event(JsonArray events, uint16_t sequence,
+                              const String &source, const String &time_iso) {
+  SensorInventorySnapshot inventory = {};
+  sensors::manager::accessInventory(&inventory);
+  if (inventory.soil_probe_count == 0) return;
+
+  JsonObject event = cloudevents_add_event(events, sequence, source,
+                                           "sensors.soil.v1", time_iso);
+  JsonObject data = event["data"].to<JsonObject>();
+  data["probe_count"] = inventory.soil_probe_count;
+
+  JsonArray probes = data["probes"].to<JsonArray>();
+  for (uint8_t index = 0; index < inventory.soil_probe_count; index++) {
+    SoilSensorData sensor_data = {};
+    bool read_ok = sensors::manager::accessSoil(index, &sensor_data);
+
+    JsonObject probe = probes.add<JsonObject>();
+    probe["slave_id"] = sensor_data.slave_id;
+    probe["read_ok"] = read_ok;
+    if (read_ok) {
+      probe["temperature_celsius"] = sensor_data.temperature_celsius;
+      probe["moisture_percent"] = sensor_data.moisture_percent;
+      probe["conductivity"] = sensor_data.conductivity;
+      probe["salinity"] = sensor_data.salinity;
+      probe["tds"] = sensor_data.tds;
+    }
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Route handler
 // ─────────────────────────────────────────────────────────────────────────────
@@ -215,6 +272,9 @@ static void handle_cloudevents_get(AsyncWebServerRequest *request) {
   append_co2_event(events, sequence++, source, time_iso);
   append_wind_speed_event(events, sequence++, source, time_iso);
   append_wind_direction_event(events, sequence++, source, time_iso);
+  append_solar_radiation_event(events, sequence++, source, time_iso);
+  append_current_event(events, sequence++, source, time_iso);
+  append_soil_event(events, sequence++, source, time_iso);
 
   AsyncResponseStream *response =
       request->beginResponseStream(MIME_CLOUDEVENTS_BATCH);

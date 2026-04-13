@@ -7,6 +7,7 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
+#include <sqlite.h>
 #include <Esp.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -128,20 +129,25 @@ static void cmd_sleep(struct ush_object *self,
                       struct ush_file_descriptor const *file,
                       int argc, char *argv[]) {
   (void)file;
-  if (argc != 2) {
-    ush_print(self, (char *)"usage: sleep <seconds>\r\n");
+  if (argc != 1 && argc != 2) {
+    ush_print(self, (char *)"usage: sleep [seconds]\r\n");
     return;
   }
 
-  SleepCommand command = {
-    .duration_seconds = static_cast<uint32_t>(atoi(argv[1])),
-    .ok = false,
-  };
-  if (power::sleep::request(&command)) {
+  SleepCommand command = {};
+  bool ok = false;
+  if (argc == 2) {
+    command.duration_seconds = static_cast<uint32_t>(atoi(argv[1]));
+    ok = power::sleep::request(&command);
+  } else {
+    ok = power::sleep::requestConfigured(&command);
+  }
+
+  if (ok) {
     ush_printf(self, "sleeping in %lu second(s)...\r\n",
                (unsigned long)command.duration_seconds);
   } else {
-    ush_print(self, (char *)"invalid sleep duration\r\n");
+    ush_print(self, (char *)"invalid or disabled sleep configuration\r\n");
   }
 }
 
@@ -172,12 +178,109 @@ static void cmd_sleep_status(struct ush_object *self,
              "requested_duration_seconds=%lu\r\n"
              "wake_cause=%s\r\n"
              "timer_wakeup_enabled=%s\r\n"
-             "timer_wakeup_us=%llu\r\n",
+             "timer_wakeup_us=%llu\r\n"
+             "config_enabled=%s\r\n"
+             "default_duration_seconds=%lu\r\n",
              snapshot.pending ? "true" : "false",
              (unsigned long)snapshot.requested_duration_seconds,
              snapshot.wake_cause,
              snapshot.timer_wakeup_enabled ? "true" : "false",
-             (unsigned long long)snapshot.timer_wakeup_us);
+             (unsigned long long)snapshot.timer_wakeup_us,
+             snapshot.config_enabled ? "true" : "false",
+             (unsigned long)snapshot.default_duration_seconds);
+}
+
+static void cmd_sleep_config(struct ush_object *self,
+                             struct ush_file_descriptor const *file,
+                             int argc, char *argv[]) {
+  (void)file; (void)argv;
+  if (argc != 1) {
+    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
+    return;
+  }
+
+  SleepConfig config = {};
+  if (!power::sleep::accessConfig(&config)) {
+    ush_print(self, (char *)"sleep config unavailable\r\n");
+    return;
+  }
+
+  ush_printf(self,
+             "enabled=%s\r\n"
+             "duration_seconds=%lu\r\n",
+             config.enabled ? "true" : "false",
+             (unsigned long)config.duration_seconds);
+}
+
+static void cmd_sleep_enable(struct ush_object *self,
+                             struct ush_file_descriptor const *file,
+                             int argc, char *argv[]) {
+  (void)file; (void)argv;
+  if (argc != 1) {
+    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
+    return;
+  }
+
+  SleepConfig config = {};
+  if (!power::sleep::accessConfig(&config)) {
+    ush_print(self, (char *)"sleep config unavailable\r\n");
+    return;
+  }
+
+  config.enabled = true;
+  if (power::sleep::storeConfig(&config)) {
+    ush_print(self, (char *)"sleep config enabled\r\n");
+  } else {
+    ush_print(self, (char *)"failed to save sleep config\r\n");
+  }
+}
+
+static void cmd_sleep_disable(struct ush_object *self,
+                              struct ush_file_descriptor const *file,
+                              int argc, char *argv[]) {
+  (void)file; (void)argv;
+  if (argc != 1) {
+    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
+    return;
+  }
+
+  SleepConfig config = {};
+  if (!power::sleep::accessConfig(&config)) {
+    ush_print(self, (char *)"sleep config unavailable\r\n");
+    return;
+  }
+
+  config.enabled = false;
+  power::sleep::abortPending();
+  if (power::sleep::storeConfig(&config)) {
+    ush_print(self, (char *)"sleep config disabled\r\n");
+  } else {
+    ush_print(self, (char *)"failed to save sleep config\r\n");
+  }
+}
+
+static void cmd_sleep_duration(struct ush_object *self,
+                               struct ush_file_descriptor const *file,
+                               int argc, char *argv[]) {
+  (void)file;
+  if (argc != 2) {
+    ush_print(self, (char *)"usage: sleep-duration <seconds>\r\n");
+    return;
+  }
+
+  SleepConfig config = {};
+  if (!power::sleep::accessConfig(&config)) {
+    ush_print(self, (char *)"sleep config unavailable\r\n");
+    return;
+  }
+
+  config.duration_seconds = static_cast<uint32_t>(atoi(argv[1]));
+  if (power::sleep::storeConfig(&config)) {
+    ush_printf(self, "default sleep duration set to %lu second(s)\r\n",
+               (unsigned long)config.duration_seconds);
+  } else {
+    ush_print(self, (char *)"invalid sleep duration\r\n");
+  }
 }
 
 static void cmd_log_status(struct ush_object *self,
@@ -222,7 +325,15 @@ static const struct ush_file_descriptor cmd_files[] = {
   { .name = "cpu",          .description = "read or set CPU frequency",
     .help = "usage: cpu [80|160|240]\r\n", .exec = cmd_cpu },
   { .name = "sleep",        .description = "enter deep sleep for N seconds",
-    .help = "usage: sleep <seconds>\r\n", .exec = cmd_sleep },
+    .help = "usage: sleep [seconds]\r\n", .exec = cmd_sleep },
+  { .name = "sleep-config", .description = "show persisted deep sleep config",
+    .help = "usage: sleep-config\r\n", .exec = cmd_sleep_config },
+  { .name = "sleep-enable", .description = "enable persisted deep sleep config",
+    .help = "usage: sleep-enable\r\n", .exec = cmd_sleep_enable },
+  { .name = "sleep-disable", .description = "disable persisted deep sleep config",
+    .help = "usage: sleep-disable\r\n", .exec = cmd_sleep_disable },
+  { .name = "sleep-duration", .description = "set persisted deep sleep duration",
+    .help = "usage: sleep-duration <seconds>\r\n", .exec = cmd_sleep_duration },
   { .name = "wakecause",    .description = "show the last wake cause",
     .help = "usage: wakecause\r\n",      .exec = cmd_wakecause },
   { .name = "sleep-status", .description = "show deep sleep status",
@@ -232,8 +343,10 @@ static const struct ush_file_descriptor cmd_files[] = {
 };
 
 static struct ush_node_object cmd;
+static struct ush_node_object sqlite_cmd;
 
 void programs::shell::commands::registerAll(struct ush_object *ush) {
   ush_commands_add(ush, &cmd, cmd_files,
                    sizeof(cmd_files) / sizeof(cmd_files[0]));
+  ush_commands_add(ush, &sqlite_cmd, &programs::sqlite::descriptor, 1);
 }

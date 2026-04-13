@@ -83,6 +83,8 @@ void handle_device_status(AsyncWebServerRequest *request) {
   sleep["wake_cause"] = query.snapshot.sleep.wake_cause;
   sleep["timer_wakeup_enabled"] = query.snapshot.sleep.timer_wakeup_enabled;
   sleep["timer_wakeup_us"] = (unsigned long long)query.snapshot.sleep.timer_wakeup_us;
+  sleep["enabled"] = query.snapshot.sleep.config_enabled;
+  sleep["default_duration_seconds"] = query.snapshot.sleep.default_duration_seconds;
 
   JsonObject logger = data["data_logger"].to<JsonObject>();
   logger["initialized"] = query.snapshot.data_logger.initialized;
@@ -114,6 +116,23 @@ void handle_device_reset(AsyncWebServerRequest *request) {
       "http-reset", 2048, nullptr, 1, nullptr);
 }
 
+void handle_sleep_config_get(AsyncWebServerRequest *request) {
+  SleepConfig config = {};
+  if (!power::sleep::accessConfig(&config)) {
+    request->send(500, "application/json", "{\"ok\":false,\"error\":\"sleep config unavailable\"}");
+    return;
+  }
+
+  AsyncJsonResponse *response = new AsyncJsonResponse();
+  JsonObject root = response->getRoot().to<JsonObject>();
+  root["ok"] = true;
+  JsonObject data = root["data"].to<JsonObject>();
+  data["enabled"] = config.enabled;
+  data["duration_seconds"] = config.duration_seconds;
+  response->setLength();
+  request->send(response);
+}
+
 }
 
 void services::http::api::system::registerRoutes(AsyncWebServer &server,
@@ -122,6 +141,42 @@ void services::http::api::system::registerRoutes(AsyncWebServer &server,
   server.on("/api/system/device/status", HTTP_GET, handle_device_status);
   server.on("/api/system/device/actions/reset", HTTP_POST, handle_device_reset)
     .addMiddleware(&reset_limit);
+  server.on("/api/system/sleep/config", HTTP_GET, handle_sleep_config_get);
+
+  AsyncCallbackJsonWebHandler &sleep_config_handler =
+      server.on("/api/system/sleep/config", HTTP_POST,
+          [](AsyncWebServerRequest *request, JsonVariant &json) {
+    SleepConfig config = {};
+    if (!power::sleep::accessConfig(&config)) {
+      request->send(500, "application/json", "{\"ok\":false,\"error\":\"sleep config unavailable\"}");
+      return;
+    }
+
+    JsonObject body = json.as<JsonObject>();
+    if (!body["enabled"].isNull())
+      config.enabled = body["enabled"].as<bool>();
+    if (!body["duration_seconds"].isNull())
+      config.duration_seconds = body["duration_seconds"].as<uint32_t>();
+
+    if (!power::sleep::storeConfig(&config)) {
+      request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid sleep config\"}");
+      return;
+    }
+
+    if (!config.enabled) {
+      power::sleep::abortPending();
+    }
+
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = true;
+    JsonObject data = root["data"].to<JsonObject>();
+    data["enabled"] = config.enabled;
+    data["duration_seconds"] = config.duration_seconds;
+    response->setLength();
+    request->send(response);
+  });
+  sleep_config_handler.setMaxContentLength(256);
 
   server.on("/api/system/ota/rollback", HTTP_GET,
             [](AsyncWebServerRequest *request) {

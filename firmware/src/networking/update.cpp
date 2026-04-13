@@ -40,7 +40,6 @@ bool networking::update::applyFromSD(const char *path) {
   Serial.printf("[update] found %s (%u bytes)\n", path, (unsigned)size);
   LED.set(RGB_MAGENTA);
 
-  // Check for companion .md5 file
   String md5_path = String(path) + ".md5";
   if (SD.exists(md5_path)) {
     File md5_file = SD.open(md5_path, FILE_READ);
@@ -159,14 +158,10 @@ void networking::update::checkSDOnBoot() {
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
-
 #include "update.h"
 #include "../testing/it.h"
 
 namespace networking::update { void test(void); }
-
-#include <Arduino.h>
-#include <SD.h>
 
 static void update_test_sd_path_config(void) {
   TEST_MESSAGE("user verifies SD update path is configured");

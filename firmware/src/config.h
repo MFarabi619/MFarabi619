@@ -134,6 +134,7 @@ namespace config {
       TemperatureHumidityCHT832X,
       TemperatureHumiditySHT3X,
       VoltageADS1115,
+      CurrentINA228,
       CarbonDioxideSCD30,
       CarbonDioxideSCD4X,
       RTC_DS3231,
@@ -222,6 +223,12 @@ namespace config {
       inline constexpr uint8_t CHANNEL_COUNT = 4;
   }
 
+  namespace current { // ──(INA228 on Wire1)──
+      inline constexpr uint8_t  I2C_ADDR                = 0x40;
+      inline constexpr float    SHUNT_RESISTANCE_OHMS    = 0.015f;
+      inline constexpr float    MAX_EXPECTED_CURRENT_A   = 10.0f;
+  }
+
   namespace scp {
       inline constexpr uint16_t BUF_SIZE = 4096;
   }
@@ -234,6 +241,15 @@ namespace config {
   namespace data_logger {
       inline constexpr const char *CSV_PATH = "/data.csv";
       inline constexpr uint32_t LOG_INTERVAL_MS = 5000;
+      inline constexpr uint8_t TEMP_HUMIDITY_SENSOR_COUNT = 3;
+  }
+
+  namespace sleep {
+      inline constexpr bool        DEFAULT_ENABLED          = false;
+      inline constexpr uint32_t    DEFAULT_DURATION_SECONDS = 300;
+      inline constexpr const char* NVS_NAMESPACE            = "sleep";
+      inline constexpr const char* ENABLED_KEY             = "enabled";
+      inline constexpr const char* DURATION_KEY            = "duration_s";
   }
 
   namespace provisioning {
@@ -303,6 +319,8 @@ static_assert(config::wifi::PASS_MAX_LEN == 64, "IEEE 802.11 pass max is 64");
 static_assert(config::shell::BUF_IN >= 64, "Shell input buffer too small");
 static_assert(config::shell::BUF_OUT >= 64, "Shell output buffer too small");
 static_assert(config::buttons::COUNT <= 8, "Too many buttons");
+static_assert(config::sleep::DEFAULT_DURATION_SECONDS > 0,
+              "Default sleep duration must be greater than 0");
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Preprocessor guards (booleans can't be used in #if)
