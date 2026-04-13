@@ -6,6 +6,7 @@ mod state;
 use dioxus::prelude::*;
 use components::*;
 use hooks::use_flash_controller;
+use ui::components::button::{Button, ButtonVariant};
 
 #[component]
 pub fn FlashPanel() -> Element {
@@ -41,10 +42,11 @@ pub fn FlashPanel() -> Element {
 
             // ── Connected controls ──
             if *device.is_connected.read() {
-                button {
-                    class: "w-full py-2 rounded-lg border border-destructive/50 text-destructive text-sm font-semibold hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1.5 mb-3",
-                    onclick: move |_| ctrl.disconnect(),
-                    lucide_dioxus::Plug { class: "w-3.5 h-3.5" }
+                Button {
+                    class: "w-full py-2 border-destructive/50 text-destructive font-semibold hover:bg-destructive/10 mb-3".to_string(),
+                    variant: ButtonVariant::Destructive,
+                    on_click: move |_| ctrl.disconnect(),
+                    icon_left: rsx! { lucide_dioxus::Plug { class: "w-3.5 h-3.5" } },
                     "Disconnect"
                 }
 
@@ -62,11 +64,17 @@ pub fn FlashPanel() -> Element {
 
             // ── Connect button ──
             if !*device.is_connected.read() {
-                button {
-                    class: "w-full py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted/50 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed",
+                Button {
+                    class: "gold-button-outline text-sm w-full justify-center py-3".to_string(),
+                    variant: ButtonVariant::Outline,
                     disabled: *device.connecting.read(),
-                    onclick: move |_| ctrl.connect(),
-                    lucide_dioxus::Plug { class: "w-4 h-4" }
+                    loading: *device.connecting.read(),
+                    on_click: move |_| ctrl.connect(),
+                    icon_left: if !*device.connecting.read() {
+                        Some(rsx! { lucide_dioxus::Plug { class: "w-4 h-4" } })
+                    } else {
+                        None
+                    },
                     if *device.connecting.read() { "Connecting..." } else { "Connect" }
                 }
             }

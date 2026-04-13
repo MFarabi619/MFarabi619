@@ -1,7 +1,7 @@
 use super::{
     build_co2_csv, build_temperature_humidity_csv, build_voltage_csv, download_csv,
-    fetch_and_add_sensor_readings, Co2Row, MeasurementTab, Td, TemperatureHumidityRow,
-    Th, VoltageRow, ENABLE_CO2, ENABLE_CURRENT, ENABLE_TEMPERATURE_HUMIDITY, ENABLE_VOLTAGE,
+    fetch_and_add_sensor_readings, Co2Row, MeasurementTab, SensorAvailability, Td,
+    TemperatureHumidityRow, Th, VoltageRow,
 };
 use crate::api::Co2ConfigData;
 use crate::services::Co2Service;
@@ -10,7 +10,10 @@ use dioxus::signals::ReadSignal;
 use dioxus_primitives::tabs::{TabContent, TabList, TabTrigger, Tabs};
 use dioxus_primitives::tooltip::{Tooltip, TooltipContent, TooltipTrigger};
 use lucide_dioxus::{Download, LoaderCircle};
+use ui::components::button::{Button, ButtonVariant};
 use ui::components::checkbox::{Checkbox, CheckboxSize};
+use ui::components::input::Input;
+use ui::components::label::Label;
 
 fn sample_button(
     mut sampling: Signal<bool>,
@@ -19,18 +22,20 @@ fn sample_button(
     co2_readings: Signal<Vec<Co2Row>>,
     temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     voltage_readings: Signal<Vec<VoltageRow>>,
+    availability: Signal<SensorAvailability>,
     icon: Element,
 ) -> Element {
     rsx! {
-        button {
-            class: "px-4 py-2 rounded-lg bg-accent text-accent-foreground flex items-center gap-2 transition-colors hover:bg-accent/85",
+        Button {
+            class: "px-3 py-2 rounded-lg text-foreground flex items-center gap-2 transition-colors hover:bg-muted/70 text-sm".to_string(),
+            variant: ButtonVariant::Outline,
             disabled: *sampling.read(),
-            onclick: move |_| {
+            on_click: move |_| {
                 sampling.set(true);
                 let url = device_url.read().clone();
                 spawn(async move {
                     fetch_and_add_sensor_readings(
-                        &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
+                        &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
                     ).await;
                     sampling.set(false);
                 });
@@ -49,10 +54,11 @@ fn sample_button(
 
 fn csv_button(on_click: impl FnMut(dioxus::events::MouseEvent) + 'static) -> Element {
     rsx! {
-        button {
-            class: "px-3 py-2 rounded-lg border border-border text-foreground flex items-center gap-2 transition-colors hover:bg-muted/70 text-sm",
-            onclick: on_click,
-            Download { class: "w-4 h-4" }
+        Button {
+            class: "px-3 py-2 rounded-lg text-foreground flex items-center gap-2 transition-colors hover:bg-muted/70 text-sm".to_string(),
+            variant: ButtonVariant::Outline,
+            on_click: on_click,
+            icon_left: rsx! { Download { class: "w-4 h-4" } },
             "CSV"
         }
     }
@@ -68,7 +74,9 @@ pub fn MeasurementPanel(
     co2_config: Signal<Option<Co2ConfigData>>,
     sampling: Signal<bool>,
     active_tab: Signal<MeasurementTab>,
+    availability: Signal<SensorAvailability>,
 ) -> Element {
+    let avail = *availability.read();
     let default_tab = active_tab.read().to_value();
     let mut tab_value: Signal<Option<String>> = use_signal(|| None);
 
@@ -88,7 +96,7 @@ pub fn MeasurementPanel(
                     {
                         let mut idx = 0usize;
                         let triggers = rsx! {
-                            if ENABLE_TEMPERATURE_HUMIDITY {
+                            if avail.temperature_humidity {
                                 div {
                                     class: "flex-1",
                                     onmouseenter: move |_| { active_tab.set(MeasurementTab::TemperatureHumidity); tab_value.set(Some("temp_humidity".into())); },
@@ -100,12 +108,12 @@ pub fn MeasurementPanel(
                                         } else {
                                             "w-full py-2 text-center rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
                                         },
-                                        "Temp/Humidity"
+                                        "Temperature & Humidity"
                                     }
                                 }
                                 { idx += 1; rsx! {} }
                             }
-                            if ENABLE_VOLTAGE {
+                            if avail.voltage {
                                 div {
                                     class: "flex-1",
                                     onmouseenter: move |_| { active_tab.set(MeasurementTab::Voltage); tab_value.set(Some("voltage".into())); },
@@ -122,7 +130,7 @@ pub fn MeasurementPanel(
                                 }
                                 { idx += 1; rsx! {} }
                             }
-                            if ENABLE_CURRENT {
+                            if avail.current {
                                 div {
                                     class: "flex-1",
                                     onmouseenter: move |_| { active_tab.set(MeasurementTab::Current); tab_value.set(Some("current".into())); },
@@ -139,7 +147,7 @@ pub fn MeasurementPanel(
                                 }
                                 { idx += 1; rsx! {} }
                             }
-                            if ENABLE_CO2 {
+                            if avail.co2 {
                                 div {
                                     class: "flex-1",
                                     onmouseenter: move |_| { active_tab.set(MeasurementTab::CarbonDioxide); tab_value.set(Some("co2".into())); },
@@ -164,34 +172,34 @@ pub fn MeasurementPanel(
                 {
                     let mut content_idx = 0usize;
                     rsx! {
-                        if ENABLE_TEMPERATURE_HUMIDITY {
+                        if avail.temperature_humidity {
                             TabContent {
                                 value: "temp_humidity".to_string(),
                                 index: content_idx,
-                                {thm_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, sampling)}
+                                {thm_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, sampling, availability)}
                             }
                             { content_idx += 1; rsx! {} }
                         }
-                        if ENABLE_VOLTAGE {
+                        if avail.voltage {
                             TabContent {
                                 value: "voltage".to_string(),
                                 index: content_idx,
-                                {voltage_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, sampling)}
+                                {voltage_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, sampling, availability)}
                             }
                             { content_idx += 1; rsx! {} }
                         }
-                        if ENABLE_CURRENT {
+                        if avail.current {
                             TabContent {
                                 value: "current".to_string(),
                                 index: content_idx,
                             }
                             { content_idx += 1; rsx! {} }
                         }
-                        if ENABLE_CO2 {
+                        if avail.co2 {
                             TabContent {
                                 value: "co2".to_string(),
                                 index: content_idx,
-                                {co2_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, co2_config, sampling)}
+                                {co2_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, co2_config, sampling, availability)}
                             }
                         }
                     }
@@ -209,16 +217,20 @@ fn co2_panel(
     voltage_readings: Signal<Vec<VoltageRow>>,
     mut co2_config: Signal<Option<Co2ConfigData>>,
     sampling: Signal<bool>,
+    availability: Signal<SensorAvailability>,
 ) -> Element {
+    let asc_checkbox_label = use_signal(|| Some("co2-asc-checkbox".to_string()));
+
     rsx! {
         div {
             div { class: "flex items-center gap-2 flex-wrap mb-3",
                 if let Some(ref config) = *co2_config.read() {
                     span { class: "text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5", "{config.model}" }
 
-                    button {
-                        class: "text-xs border border-border rounded px-1.5 py-0.5 flex items-center gap-1 transition-colors hover:bg-muted/50",
-                        onclick: move |_| {
+                    Button {
+                        variant: ButtonVariant::Outline,
+                        class: "text-xs px-1.5 py-0.5 flex items-center gap-1 hover:bg-muted/50".to_string(),
+                        on_click: move |_| {
                             let url = device_url.read().clone();
                             let is_measuring = co2_config.read().as_ref().map(|c| c.measuring).unwrap_or(false);
                             spawn(async move {
@@ -240,12 +252,14 @@ fn co2_panel(
                         div { class: "hidden sm:flex items-center gap-2",
                             Tooltip {
                                 TooltipTrigger {
-                                    input {
-                                        class: "w-14 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
-                                        r#type: "number", min: "2", max: "1800",
-                                        aria_label: "Measurement interval (seconds)",
-                                        value: "{config.measurement_interval_seconds}",
-                                        onchange: move |e| {
+                                    Input {
+                                        class: Some("w-14 h-auto px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center focus:ring-0 focus:ring-offset-0".to_string()),
+                                        input_type: "number".to_string(),
+                                        min: "2",
+                                        max: "1800",
+                                        aria_label: Some("Measurement interval (seconds)".to_string()),
+                                        value: config.measurement_interval_seconds.to_string(),
+                                        on_change: Some(Callback::new(move |e: FormEvent| {
                                             if let Ok(s) = e.value().parse::<u16>() {
                                                 let url = device_url.read().clone();
                                                 spawn(async move {
@@ -253,7 +267,7 @@ fn co2_panel(
                                                     if let Ok(r) = Co2Service::get_config(&url).await { co2_config.set(Some(r.data)); }
                                                 });
                                             }
-                                        },
+                                        })),
                                     }
                                 }
                                 TooltipContent {
@@ -264,11 +278,14 @@ fn co2_panel(
                             span { class: "text-xs text-muted-foreground", "s" }
                             Tooltip {
                                 TooltipTrigger {
-                                    label { class: "flex items-center gap-1 text-xs text-muted-foreground cursor-pointer",
+                                    Label {
+                                        for_id: asc_checkbox_label,
+                                        class: Some("mb-0 inline-flex items-center gap-1 text-xs text-muted-foreground cursor-pointer font-normal".to_string()),
                                         {
                                             let mut asc_signal = use_signal(|| config.auto_calibration_enabled);
                                             rsx! {
                                                 Checkbox {
+                                                    id: Some("co2-asc-checkbox".to_string()),
                                                     checked: asc_signal,
                                                     size: CheckboxSize::Small,
                                                     aria_label: "Auto-calibration (ASC)",
@@ -293,12 +310,15 @@ fn co2_panel(
                             }
                             Tooltip {
                                 TooltipTrigger {
-                                    input {
-                                        class: "w-12 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
-                                        r#type: "number", step: "0.1", min: "0", max: "50",
-                                        aria_label: "Temperature offset (\u{00b0}C)",
-                                        value: "{config.temperature_offset_celsius}",
-                                        onchange: move |e| {
+                                    Input {
+                                        class: Some("w-12 h-auto px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center focus:ring-0 focus:ring-offset-0".to_string()),
+                                        input_type: "number".to_string(),
+                                        step: "0.1",
+                                        min: "0",
+                                        max: "50",
+                                        aria_label: Some("Temperature offset (°C)".to_string()),
+                                        value: config.temperature_offset_celsius.to_string(),
+                                        on_change: Some(Callback::new(move |e: FormEvent| {
                                             if let Ok(offset) = e.value().parse::<f64>() {
                                                 let url = device_url.read().clone();
                                                 spawn(async move {
@@ -306,7 +326,7 @@ fn co2_panel(
                                                     if let Ok(r) = Co2Service::get_config(&url).await { co2_config.set(Some(r.data)); }
                                                 });
                                             }
-                                        },
+                                        })),
                                     }
                                 }
                                 TooltipContent {
@@ -317,12 +337,14 @@ fn co2_panel(
                             span { class: "text-xs text-muted-foreground", "\u{00b0}C" }
                             Tooltip {
                                 TooltipTrigger {
-                                    input {
-                                        class: "w-14 px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center",
-                                        r#type: "number", min: "0", max: "10000",
-                                        aria_label: "Altitude compensation (m)",
-                                        value: "{config.altitude_meters}",
-                                        onchange: move |e| {
+                                    Input {
+                                        class: Some("w-14 h-auto px-1.5 py-0.5 rounded border border-border bg-background text-foreground text-xs text-center focus:ring-0 focus:ring-offset-0".to_string()),
+                                        input_type: "number".to_string(),
+                                        min: "0",
+                                        max: "10000",
+                                        aria_label: Some("Altitude compensation (m)".to_string()),
+                                        value: config.altitude_meters.to_string(),
+                                        on_change: Some(Callback::new(move |e: FormEvent| {
                                             if let Ok(alt) = e.value().parse::<u16>() {
                                                 let url = device_url.read().clone();
                                                 spawn(async move {
@@ -330,7 +352,7 @@ fn co2_panel(
                                                     if let Ok(r) = Co2Service::get_config(&url).await { co2_config.set(Some(r.data)); }
                                                 });
                                             }
-                                        },
+                                        })),
                                     }
                                 }
                                 TooltipContent {
@@ -353,7 +375,7 @@ fn co2_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
+                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
                     rsx! { lucide_dioxus::FlaskConical { class: "w-4 h-4" } })}
             }
 
@@ -405,6 +427,7 @@ fn thm_panel(
     temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     voltage_readings: Signal<Vec<VoltageRow>>,
     sampling: Signal<bool>,
+    availability: Signal<SensorAvailability>,
 ) -> Element {
     rsx! {
         div {
@@ -418,7 +441,7 @@ fn thm_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
+                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
                     rsx! { lucide_dioxus::Thermometer { class: "w-4 h-4" } })}
             }
 
@@ -481,6 +504,7 @@ fn voltage_panel(
     temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     voltage_readings: Signal<Vec<VoltageRow>>,
     sampling: Signal<bool>,
+    availability: Signal<SensorAvailability>,
 ) -> Element {
     rsx! {
         div {
@@ -497,7 +521,7 @@ fn voltage_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
+                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
                     rsx! { lucide_dioxus::Zap { class: "w-4 h-4" } })}
             }
 

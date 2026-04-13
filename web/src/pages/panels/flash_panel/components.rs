@@ -3,6 +3,9 @@ use dioxus_primitives::alert_dialog::{
     AlertDialogAction, AlertDialogActions, AlertDialogCancel, AlertDialogContent,
     AlertDialogDescription, AlertDialogRoot, AlertDialogTitle,
 };
+use ui::components::button::{Button, ButtonVariant};
+use ui::components::input::Input;
+use ui::components::label::Label;
 use ui::components::switch::Switch;
 
 use super::hooks::FlashController;
@@ -18,28 +21,52 @@ pub fn ToggleGroup(
     options: Vec<(String, String)>,
     selected: Signal<String>,
 ) -> Element {
+    let label_slug = label
+        .chars()
+        .map(|character| {
+            if character.is_ascii_alphanumeric() {
+                character.to_ascii_lowercase()
+            } else {
+                '-'
+            }
+        })
+        .collect::<String>();
+    let label_element_id = format!("flash-toggle-group-{label_slug}-label");
+    let label_element_signal = use_signal({
+        let label_element_id = label_element_id.clone();
+        move || Some(label_element_id.clone())
+    });
+
     rsx! {
         div {
-            label { class: "text-muted-foreground block mb-1.5 text-xs", "{label}" }
+            Label {
+                id: label_element_signal,
+                class: Some("text-muted-foreground text-xs".to_string()),
+                "{label}"
+            }
             div {
                 class: "flex rounded-lg overflow-hidden border border-border",
                 role: "radiogroup",
-                aria_label: "{label}",
+                aria_labelledby: label_element_id.clone(),
                 for (value, display) in options {
                     {
                         let is_selected = *selected.read() == value;
                         let val = value.clone();
                         rsx! {
-                            button {
+                            Button {
                                 key: "{value}",
+                                variant: ButtonVariant::Ghost,
+                                class: {
+                                    if is_selected {
+                                    "flex-1 px-1 py-1.5 text-xs bg-primary text-primary-foreground rounded-none border-0 hover:bg-primary/90"
+                                    } else {
+                                    "flex-1 px-1 py-1.5 text-xs bg-background text-foreground/70 rounded-none border-0 hover:bg-muted/30"
+                                    }.to_string()
+                                },
                                 role: "radio",
                                 aria_checked: is_selected,
-                                class: if is_selected {
-                                    "flex-1 px-1 py-1.5 text-xs transition-colors bg-primary text-primary-foreground"
-                                } else {
-                                    "flex-1 px-1 py-1.5 text-xs transition-colors bg-background text-foreground/70 hover:bg-muted/30"
-                                },
-                                onclick: move |_| selected.set(val.clone()),
+                                aria_pressed: Some(is_selected),
+                                on_click: move |_| selected.set(val.clone()),
                                 "{display}"
                             }
                         }
@@ -56,6 +83,7 @@ pub fn ToggleGroup(
 
 #[component]
 pub fn ConfigSection(config: FlashConfig, chip: FlashChipInfo) -> Element {
+    let address_input_label = use_signal(|| Some("flash-address-input".to_string()));
     let size_options = {
         let chip_sizes = chip.chip_flash_sizes.read();
         let mut opts = vec![
@@ -115,13 +143,18 @@ pub fn ConfigSection(config: FlashConfig, chip: FlashChipInfo) -> Element {
 
             div { class: "flex items-center gap-4 flex-wrap text-xs",
                 div {
-                    label { class: "text-muted-foreground block mb-1", "Address" }
-                    input {
-                        class: "bg-background border border-border rounded px-2 py-1 text-foreground font-mono w-24",
-                        r#type: "text",
-                        aria_label: "Flash address",
-                        value: "{config.address}",
-                        oninput: move |e| config.address.set(e.value()),
+                    Label {
+                        for_id: address_input_label,
+                        class: Some("text-muted-foreground block mb-1 text-xs".to_string()),
+                        "Address"
+                    }
+                    Input {
+                        id: Some("flash-address-input".to_string()),
+                        class: Some("bg-background border border-border rounded px-2 py-1 h-auto text-foreground font-mono w-24 focus:ring-0 focus:ring-offset-0".to_string()),
+                        input_type: "text".to_string(),
+                        aria_label: Some("Flash address".to_string()),
+                        value: config.address.read().clone(),
+                        on_input: Some(Callback::new(move |e: FormEvent| config.address.set(e.value()))),
                     }
                 }
                 div { class: "flex items-center gap-2 pt-4",
@@ -143,30 +176,43 @@ pub fn ConfigSection(config: FlashConfig, chip: FlashChipInfo) -> Element {
 
 #[component]
 pub fn WiFiSection(config: FlashConfig) -> Element {
+    let wifi_ssid_input_label = use_signal(|| Some("flash-wifi-ssid-input".to_string()));
+    let wifi_password_input_label = use_signal(|| Some("flash-wifi-password-input".to_string()));
+
     rsx! {
         div { class: "border border-border rounded-lg p-4",
             p { class: "text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider", "WiFi Credentials" }
             div { class: "flex flex-col gap-2 text-xs",
                 div {
-                    label { class: "text-muted-foreground block mb-1", "SSID" }
-                    input {
-                        class: "w-full bg-background border border-border rounded px-2 py-1 text-foreground",
-                        r#type: "text",
-                        aria_label: "WiFi SSID",
-                        placeholder: "Leave blank for AP provisioning",
-                        value: "{config.wifi_ssid}",
-                        oninput: move |e| config.wifi_ssid.set(e.value()),
+                    Label {
+                        for_id: wifi_ssid_input_label,
+                        class: Some("text-muted-foreground block mb-1 text-xs".to_string()),
+                        "SSID"
+                    }
+                    Input {
+                        id: Some("flash-wifi-ssid-input".to_string()),
+                        class: Some("w-full bg-background border border-border rounded px-2 py-1 h-auto text-foreground focus:ring-0 focus:ring-offset-0".to_string()),
+                        input_type: "text".to_string(),
+                        aria_label: Some("WiFi SSID".to_string()),
+                        placeholder: "Leave blank for AP provisioning".to_string(),
+                        value: config.wifi_ssid.read().clone(),
+                        on_input: Some(Callback::new(move |e: FormEvent| config.wifi_ssid.set(e.value()))),
                     }
                 }
                 div {
-                    label { class: "text-muted-foreground block mb-1", "Password" }
-                    input {
-                        class: "w-full bg-background border border-border rounded px-2 py-1 text-foreground",
-                        r#type: "password",
-                        aria_label: "WiFi password",
-                        placeholder: "WiFi password",
-                        value: "{config.wifi_pass}",
-                        oninput: move |e| config.wifi_pass.set(e.value()),
+                    Label {
+                        for_id: wifi_password_input_label,
+                        class: Some("text-muted-foreground block mb-1 text-xs".to_string()),
+                        "Password"
+                    }
+                    Input {
+                        id: Some("flash-wifi-password-input".to_string()),
+                        class: Some("w-full bg-background border border-border rounded px-2 py-1 h-auto text-foreground focus:ring-0 focus:ring-offset-0".to_string()),
+                        input_type: "password".to_string(),
+                        aria_label: Some("WiFi password".to_string()),
+                        placeholder: "WiFi password".to_string(),
+                        value: config.wifi_pass.read().clone(),
+                        on_input: Some(Callback::new(move |e: FormEvent| config.wifi_pass.set(e.value()))),
                     }
                 }
             }
@@ -226,29 +272,36 @@ pub fn ActionRow(controller: FlashController) -> Element {
 
     rsx! {
         div { class: "flex gap-2 mb-3",
-            button {
-                class: "flex-1 py-2.5 rounded-lg border border-border text-sm font-semibold hover:bg-muted/50 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed",
+            Button {
+                class: "flex-1 py-2.5 font-semibold hover:bg-muted/50".to_string(),
+                variant: ButtonVariant::Outline,
                 disabled: !has_firmware || flashing,
-                onclick: move |_| controller.flash(),
-                lucide_dioxus::Zap { class: "w-4 h-4" }
+                loading: flashing,
+                on_click: move |_| controller.flash(),
+                if !flashing {
+                    lucide_dioxus::Zap { class: "w-4 h-4" }
+                }
                 if flashing { "Flashing..." } else { "Flash Firmware" }
             }
-            button {
-                class: "flex-1 py-2.5 rounded-lg border border-yellow-500/50 text-yellow-400 text-sm hover:bg-yellow-500/10 transition-colors flex items-center justify-center gap-1.5",
-                onclick: move |_| controller.toggle_monitor(),
-                lucide_dioxus::Terminal { class: "w-3.5 h-3.5" }
+            Button {
+                class: "flex-1 py-2.5 border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10".to_string(),
+                variant: ButtonVariant::Outline,
+                on_click: move |_| controller.toggle_monitor(),
+                icon_left: rsx! { lucide_dioxus::Terminal { class: "w-3.5 h-3.5" } },
                 if monitoring { "Stop" } else { "Monitor" }
             }
-            button {
-                class: "flex-1 py-2.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors flex items-center justify-center gap-1.5",
-                onclick: move |_| controller.reset(),
-                lucide_dioxus::RotateCcw { class: "w-3.5 h-3.5" }
+            Button {
+                class: "flex-1 py-2.5 hover:bg-muted/50".to_string(),
+                variant: ButtonVariant::Outline,
+                on_click: move |_| controller.reset(),
+                icon_left: rsx! { lucide_dioxus::RotateCcw { class: "w-3.5 h-3.5" } },
                 "Reset"
             }
-            button {
-                class: "flex-1 py-2.5 rounded-lg border border-destructive/50 text-destructive text-sm hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1.5",
-                onclick: move |_| confirm_erase.set(true),
-                lucide_dioxus::Trash2 { class: "w-3.5 h-3.5" }
+            Button {
+                class: "flex-1 py-2.5 border-destructive/50 text-destructive hover:bg-destructive/10".to_string(),
+                variant: ButtonVariant::Destructive,
+                on_click: move |_| confirm_erase.set(true),
+                icon_left: rsx! { lucide_dioxus::Trash2 { class: "w-3.5 h-3.5" } },
                 "Erase All"
             }
         }

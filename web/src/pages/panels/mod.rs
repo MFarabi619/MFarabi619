@@ -7,6 +7,7 @@ pub mod network_panel;
 pub mod sensor_feed;
 pub mod sensor_types;
 pub mod shared_ui;
+pub mod sleep_panel;
 pub mod terminal_panel;
 
 pub use bluetooth_panel::BluetoothPanel;
@@ -15,6 +16,7 @@ pub use filesystem_panel::FilesystemPanel;
 pub use flash_panel::FlashPanel;
 pub use measurement_panel::MeasurementPanel;
 pub use network_panel::NetworkPanel;
+pub use sleep_panel::SleepPanel;
 pub use terminal_panel::TerminalPanel;
 pub use sensor_feed::*;
 pub use sensor_types::*;

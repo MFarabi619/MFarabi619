@@ -15,6 +15,7 @@ pub struct DeviceStatusData {
     pub device: DeviceIdentity,
     pub network: DeviceNetwork,
     pub runtime: DeviceRuntime,
+    pub sleep: DeviceSleep,
     pub storage: DeviceStorage,
 }
 
@@ -66,6 +67,36 @@ impl DeviceStorage {
             (self.used_bytes as f64 / self.total_bytes as f64) * 100.0
         }
     }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct DeviceSleep {
+    #[serde(default)]
+    pub pending: bool,
+    #[serde(default)]
+    pub requested_duration_seconds: u64,
+    #[serde(default)]
+    pub wake_cause: String,
+    #[serde(default)]
+    pub timer_wakeup_enabled: bool,
+    #[serde(default)]
+    pub timer_wakeup_us: u64,
+    #[serde(default)]
+    pub enabled: bool,
+    #[serde(default)]
+    pub default_duration_seconds: u64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct SleepConfigResponse {
+    pub ok: bool,
+    pub data: SleepConfigData,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SleepConfigData {
+    pub enabled: bool,
+    pub duration_seconds: u64,
 }
 
 // ─── /api/cloudevents ───────────────────────────────────────────────────────

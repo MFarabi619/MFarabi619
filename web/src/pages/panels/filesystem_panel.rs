@@ -9,6 +9,8 @@ use dioxus_primitives::alert_dialog::{
     AlertDialogDescription, AlertDialogRoot, AlertDialogTitle,
 };
 use lucide_dioxus::{Download, HardDrive, Plus, Trash2};
+use ui::components::button::{Button, ButtonSize, ButtonVariant};
+use ui::components::label::Label;
 use ui::components::progress::{Progress, ProgressVariant};
 use ui::components::toast::use_toast;
 
@@ -23,6 +25,7 @@ pub fn FilesystemPanel(
     storage_percent: Memo<f64>,
 ) -> Element {
     let toasts = use_toast();
+    let sd_upload_input_label = use_signal(|| Some("sd-upload-input".to_string()));
     let mut pending_delete: Signal<Option<(String, String)>> = use_signal(|| None);
 
     let status_data = status.read();
@@ -115,10 +118,13 @@ pub fn FilesystemPanel(
                                         target: "_blank",
                                         Download { class: "w-3.5 h-3.5" }
                                     }
-                                    button {
-                                        class: "p-1 rounded hover:bg-destructive/20 text-destructive",
-                                        aria_label: "Delete {filename}",
-                                        onclick: move |_| {
+                                    Button {
+                                        variant: ButtonVariant::Ghost,
+                                        size: ButtonSize::Small,
+                                        is_icon_button: true,
+                                        class: "p-1 text-destructive hover:bg-destructive/20".to_string(),
+                                        aria_label: format!("Delete {filename}"),
+                                        on_click: move |_| {
                                             pending_delete.set(Some(("sd".into(), filename_for_delete.clone())));
                                         },
                                         Trash2 { class: "w-3.5 h-3.5" }
@@ -129,9 +135,9 @@ pub fn FilesystemPanel(
                     }
                 }
 
-                label {
-                    r#for: "sd-upload-input",
-                    class: "mt-2 w-full py-2 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:bg-muted/30 transition-colors flex items-center justify-center gap-1 cursor-pointer",
+                Label {
+                    for_id: sd_upload_input_label,
+                    class: Some("mt-2 mb-0 w-full py-2 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:bg-muted/30 transition-colors flex items-center justify-center gap-1 cursor-pointer".to_string()),
                     Plus { class: "w-3.5 h-3.5" }
                     "Add file..."
                 }
@@ -186,10 +192,13 @@ pub fn FilesystemPanel(
                                 span { class: "text-sm font-mono text-foreground truncate flex-1", "{filename}" }
                                 span { class: "text-xs text-muted-foreground shrink-0 ml-auto tabular-nums transition-opacity duration-200 ease-in-out opacity-100 group-hover:opacity-0", "{api::format_file_size(file_size)}" }
                                 div { class: "flex items-center gap-0.5 shrink-0 ml-auto absolute right-0 transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100",
-                                    button {
-                                        class: "p-1 rounded hover:bg-destructive/20 text-destructive",
-                                        aria_label: "Delete {filename}",
-                                        onclick: move |_| {
+                                    Button {
+                                        variant: ButtonVariant::Ghost,
+                                        size: ButtonSize::Small,
+                                        is_icon_button: true,
+                                        class: "p-1 text-destructive hover:bg-destructive/20".to_string(),
+                                        aria_label: format!("Delete {filename}"),
+                                        on_click: move |_| {
                                             pending_delete.set(Some(("littlefs".into(), filename_for_delete.clone())));
                                         },
                                         Trash2 { class: "w-3.5 h-3.5" }
@@ -200,8 +209,10 @@ pub fn FilesystemPanel(
                     }
                 }
 
-                button {
-                    class: "mt-2 w-full py-2 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:bg-muted/30 transition-colors flex items-center justify-center gap-1",
+                Button {
+                    class: "mt-2 w-full py-2 border-dashed text-sm text-muted-foreground hover:bg-muted/30".to_string(),
+                    variant: ButtonVariant::Outline,
+                    disabled: true,
                     Plus { class: "w-3.5 h-3.5" }
                     "Add file..."
                 }

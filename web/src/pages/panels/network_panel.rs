@@ -4,6 +4,9 @@ use crate::hooks::sleep_ms;
 use crate::services::{DeviceService, WifiService};
 use dioxus::prelude::*;
 use lucide_dioxus::{LoaderCircle, Radar, Wifi};
+use ui::components::button::{Button, ButtonVariant};
+use ui::components::input::Input;
+use ui::components::label::Label;
 use ui::components::toast::use_toast;
 
 #[component]
@@ -18,28 +21,20 @@ pub fn NetworkPanel(
 ) -> Element {
     let toasts = use_toast();
     let mut selected_index = use_signal(|| None::<usize>);
+    let ssid_input_label = use_signal(|| Some("network-ssid-input".to_string()));
+    let password_input_label = use_signal(|| Some("network-password-input".to_string()));
 
     let wireless_data = wireless.read();
 
     rsx! {
         section { id: "network-section", class: "flex flex-col h-full",
-            if let Some(ref wireless_info) = *wireless_data {
-                if wireless_info.ap_active {
-                    div { class: "text-sm text-muted-foreground mb-3",
-                        if !wireless_info.ap_ssid.is_empty() {
-                            "AP: {wireless_info.ap_ssid} ({wireless_info.ap_ipv4})"
-                        } else {
-                            "AP: {wireless_info.ap_ipv4}"
-                        }
-                    }
-                }
-            }
-
             div { class: "mb-3",
-                button {
-                    class: "gold-button-outline text-sm w-full justify-center",
+                Button {
+                    class: "gold-button-outline text-sm w-full justify-center".to_string(),
+                    variant: ButtonVariant::Outline,
                     disabled: *scanning.read(),
-                    onclick: move |_| {
+                    loading: *scanning.read(),
+                    on_click: move |_| {
                         scanning.set(true);
                         let url = device_url.read().clone();
                         spawn(async move {
@@ -54,13 +49,10 @@ pub fn NetworkPanel(
                             scanning.set(false);
                         });
                     },
-                    if *scanning.read() {
-                        LoaderCircle { class: "w-4 h-4 animate-spin" }
-                        "Scanning..."
-                    } else {
+                    if !*scanning.read() {
                         Radar { class: "w-4 h-4" }
-                        "Scan"
                     }
+                    if *scanning.read() { "Scanning..." } else { "Scan" }
                 }
             }
 
@@ -89,37 +81,48 @@ pub fn NetworkPanel(
                     });
                 },
                 div { class: "min-w-0 flex-1",
-                    input {
-                        class: "gold-input w-full px-3 py-2 text-sm",
-                        r#type: "text",
-                        aria_label: "SSID",
-                        placeholder: "SSID",
-                        value: "{ssid_input}",
-                        oninput: move |event| ssid_input.set(event.value()),
+                    Label {
+                        for_id: ssid_input_label,
+                        class: Some("text-xs uppercase tracking-wider text-muted-foreground mb-2".to_string()),
+                        "SSID"
+                    }
+                    Input {
+                        id: Some("network-ssid-input".to_string()),
+                        class: Some("gold-input w-full px-3 py-2 text-sm".to_string()),
+                        input_type: "text".to_string(),
+                        aria_label: Some("SSID".to_string()),
+                        placeholder: "SSID".to_string(),
+                        value: ssid_input.read().clone(),
+                        on_input: Some(Callback::new(move |event: FormEvent| ssid_input.set(event.value()))),
                     }
                 }
                 div { class: "min-w-0 flex-1",
-                    input {
-                        class: "gold-input w-full px-3 py-2 text-sm",
-                        r#type: "password",
-                        aria_label: "Password",
-                        placeholder: "Password (blank for open)",
-                        value: "{password_input}",
-                        oninput: move |event| password_input.set(event.value()),
+                    Label {
+                        for_id: password_input_label,
+                        class: Some("text-xs uppercase tracking-wider text-muted-foreground mb-2".to_string()),
+                        "Password"
+                    }
+                    Input {
+                        id: Some("network-password-input".to_string()),
+                        class: Some("gold-input w-full px-3 py-2 text-sm".to_string()),
+                        input_type: "password".to_string(),
+                        aria_label: Some("Password".to_string()),
+                        placeholder: "Password (blank for open)".to_string(),
+                        value: password_input.read().clone(),
+                        on_input: Some(Callback::new(move |event: FormEvent| password_input.set(event.value()))),
                     }
                 }
                 div { class: "lg:w-auto lg:flex-none",
-                    button {
-                        class: "gold-button-outline text-sm whitespace-nowrap",
-                        r#type: "submit",
+                    Button {
+                        class: "gold-button-outline text-sm whitespace-nowrap".to_string(),
+                        variant: ButtonVariant::Outline,
+                        button_type: "submit".to_string(),
                         disabled: ssid_input.read().is_empty() || *connecting.read(),
-                        if *connecting.read() {
-                            LoaderCircle { class: "w-4 h-4 animate-spin" }
-                            "Connecting..."
-                        } else {
+                        loading: *connecting.read(),
+                        if !*connecting.read() {
                             Wifi { class: "w-4 h-4" }
-                            "Connect"
                         }
+                        if *connecting.read() { "Connecting..." } else { "Connect" }
                     }
                 }
             }
@@ -203,9 +206,10 @@ pub fn NetworkPanel(
                                 rsx! {
                                     tr { key: "{network_index}-{ssid_display}", class: "{row_class}",
                                         td { class: "px-3 py-2 text-sm",
-                                            button {
-                                                class: "{ssid_class}",
-                                                onclick: move |_| ssid_input.set(ssid_for_click.clone()),
+                                            Button {
+                                                class: ssid_class.to_string(),
+                                                variant: ButtonVariant::Ghost,
+                                                on_click: move |_| ssid_input.set(ssid_for_click.clone()),
                                                 "{ssid_display}"
                                             }
                                             if is_connected_network {

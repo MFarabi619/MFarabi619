@@ -1,14 +1,18 @@
 use dioxus::prelude::*;
+use ui::components::button::{Button, ButtonVariant};
 
 #[component]
 pub fn BluetoothPanel() -> Element {
     let mut initialized = use_signal(|| false);
 
     use_effect(move || {
-        if *initialized.peek() { return; }
+        if *initialized.peek() {
+            return;
+        }
         initialized.set(true);
 
-        document::eval(r#"
+        document::eval(
+            r#"
             setTimeout(function() {
                 const panel = document.getElementById('bluetooth-panel');
                 if (!panel || panel.dataset.initialized) return;
@@ -127,7 +131,8 @@ pub fn BluetoothPanel() -> Element {
                 showDisconnected();
                 setStatus('Ready to pair');
             }, 100);
-        "#);
+        "#,
+        );
     });
 
     rsx! {
@@ -138,12 +143,14 @@ pub fn BluetoothPanel() -> Element {
             }
 
             div { class: "flex gap-2 mb-3",
-                button { id: "bt-pair-btn", class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors flex items-center gap-2",
+                Button { id: "bt-pair-btn", variant: ButtonVariant::Outline,
+                    class: "px-3 py-1.5 text-sm hover:bg-muted/50".to_string(),
                     aria_label: "Pair via Bluetooth",
                     lucide_dioxus::Bluetooth { class: "w-4 h-4" }
                     "Pair via Bluetooth"
                 }
-                button { id: "bt-disconnect-btn", class: "px-3 py-1.5 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted/50 transition-colors", style: "display:none",
+                Button { id: "bt-disconnect-btn", variant: ButtonVariant::Outline,
+                    class: "px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted/50".to_string(), style: "display:none",
                     aria_label: "Disconnect Bluetooth",
                     "Disconnect"
                 }

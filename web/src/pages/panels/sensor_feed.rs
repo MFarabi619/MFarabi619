@@ -3,10 +3,13 @@ use crate::services::CloudEventsService;
 use super::sensor_types::*;
 use super::now_time_string;
 
-pub const ENABLE_VOLTAGE: bool = true;
-pub const ENABLE_CURRENT: bool = false;
-pub const ENABLE_CO2: bool = true;
-pub const ENABLE_TEMPERATURE_HUMIDITY: bool = true;
+#[derive(Clone, Copy, Default)]
+pub struct SensorAvailability {
+    pub temperature_humidity: bool,
+    pub voltage: bool,
+    pub current: bool,
+    pub co2: bool,
+}
 
 pub async fn fetch_and_add_sensor_readings(
     url: &str,
@@ -14,6 +17,7 @@ pub async fn fetch_and_add_sensor_readings(
     mut co2_readings: Signal<Vec<Co2Row>>,
     mut temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     mut voltage_readings: Signal<Vec<VoltageRow>>,
+    mut availability: Signal<SensorAvailability>,
 ) -> bool {
     let Ok(events) = CloudEventsService::fetch(url).await else {
         return false;
@@ -37,10 +41,12 @@ pub async fn fetch_and_add_sensor_readings(
                 let temperature = data.get("temperature").and_then(|v| v.as_f64()).unwrap_or(0.0);
                 let humidity = data.get("humidity").and_then(|v| v.as_f64()).unwrap_or(0.0);
 
-                // HACK: firmware sends zeroed readings when sensor data isn't ready,
-                // remove once cloudevents.cpp skips not-ready CO2 events
                 if co2_ppm == 0.0 && temperature == 0.0 && humidity == 0.0 {
                     continue;
+                }
+
+                if !availability.read().co2 {
+                    availability.write().co2 = true;
                 }
 
                 let is_duplicate = co2_readings.read().last().is_some_and(|last|
@@ -60,6 +66,9 @@ pub async fn fetch_and_add_sensor_readings(
             "sensors.temperature_and_humidity.v1" => {
                 if let Some(sensors) = data.get("sensors").and_then(|v| v.as_array()) {
                     if sensors.is_empty() { continue; }
+                    if !availability.read().temperature_humidity {
+                        availability.write().temperature_humidity = true;
+                    }
                     let readings: Vec<TemperatureHumidityReading> = sensors.iter().map(|s| {
                         TemperatureHumidityReading {
                             index: s.get("index").and_then(|v| v.as_u64()).unwrap_or(0) as usize,
@@ -80,6 +89,9 @@ pub async fn fetch_and_add_sensor_readings(
 
             "sensors.power.v1" => {
                 if data.get("read_ok").and_then(|v| v.as_bool()) == Some(true) {
+                    if !availability.read().voltage {
+                        availability.write().voltage = true;
+                    }
                     let channels: Vec<f64> = data.get("voltage")
                         .and_then(|v| v.as_array())
                         .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect())

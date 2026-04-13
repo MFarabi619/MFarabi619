@@ -5,12 +5,13 @@ use crate::hooks::sleep_ms;
 use crate::services::{Co2Service, DeviceService, FileService, WifiService};
 use crate::pages::panels::{
     fetch_and_add_sensor_readings,
-    Co2Row, TemperatureHumidityRow, VoltageRow,
-    BluetoothPanel, FilesystemPanel, FlashPanel, MeasurementPanel, MeasurementTab, NetworkPanel, TerminalPanel,
-    ENABLE_TEMPERATURE_HUMIDITY,
+    Co2Row, SensorAvailability, TemperatureHumidityRow, VoltageRow,
+    BluetoothPanel, FilesystemPanel, FlashPanel, MeasurementPanel, MeasurementTab, NetworkPanel, SleepPanel, TerminalPanel,
 };
 use dioxus::prelude::*;
-use lucide_dioxus::Timer;
+use lucide_dioxus::{Timer, X};
+use ui::components::button::{Button, ButtonSize, ButtonVariant};
+use ui::components::input::Input;
 use ui::components::toast::Toasts;
 
 #[component]
@@ -46,13 +47,8 @@ pub fn Home() -> Element {
     let mut littlefs_used_bytes = use_signal(|| 0u64);
 
     // Measurements
-    let mut active_tab = use_signal(|| {
-        if ENABLE_TEMPERATURE_HUMIDITY {
-            MeasurementTab::TemperatureHumidity
-        } else {
-            MeasurementTab::CarbonDioxide
-        }
-    });
+    let mut availability = use_signal(SensorAvailability::default);
+    let mut active_tab = use_signal(|| MeasurementTab::TemperatureHumidity);
     let mut co2_readings = use_signal(Vec::<Co2Row>::new);
     let mut temperature_humidity_readings = use_signal(Vec::<TemperatureHumidityRow>::new);
     let mut voltage_readings = use_signal(Vec::<VoltageRow>::new);
@@ -176,7 +172,7 @@ pub fn Home() -> Element {
 
             if !*sampling.peek() {
                 fetch_and_add_sensor_readings(
-                    &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
+                    &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
                 ).await;
             }
 
@@ -226,7 +222,7 @@ pub fn Home() -> Element {
                         let url = device_url.read().clone();
                         spawn(async move {
                             fetch_and_add_sensor_readings(
-                                &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
+                                &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
                             ).await;
                             sampling.set(false);
                         });
@@ -236,60 +232,22 @@ pub fn Home() -> Element {
 
             // Device URL bar
             div { class: "flex items-center gap-3",
-                {
-                    let full_url = device_url.read().clone();
-                    let (protocol, display_host) = if full_url.starts_with("https://") {
-                        ("https://", full_url.strip_prefix("https://").unwrap_or(&full_url).to_string())
-                    } else {
-                        ("http://", full_url.strip_prefix("http://").unwrap_or(&full_url).to_string())
-                    };
-                    let protocol_owned = protocol.to_string();
-                    rsx! {
-                        div { class: "flex flex-1 rounded-lg border border-border bg-background overflow-hidden",
-                            button {
-                                class: "px-3 py-2 text-sm font-mono text-muted-foreground bg-muted/30 border-r border-border select-none shrink-0 hover:text-foreground transition-colors cursor-pointer",
-                                title: "Click to toggle http/https",
-                                onclick: move |_| {
-                                    let current = device_url.read().clone();
-                                    let toggled = if current.starts_with("https://") {
-                                        current.replacen("https://", "http://", 1)
-                                    } else {
-                                        current.replacen("http://", "https://", 1)
-                                    };
-                                    device_url.set(toggled.clone());
-                                    #[cfg(target_arch = "wasm32")]
-                                    if let Some(storage) = web_sys::window()
-                                        .and_then(|w| w.local_storage().ok().flatten())
-                                    {
-                                        let _ = storage.set_item("device_url", &toggled);
-                                    }
-                                },
-                                "{protocol_owned}"
+                div { class: "flex-1 rounded-lg border border-border bg-background overflow-hidden",
+                    Input {
+                        class: Some("w-full border-0 h-auto px-3 py-2 text-sm font-mono bg-transparent text-foreground focus:ring-0 focus:ring-offset-0".to_string()),
+                        input_type: "text".to_string(),
+                        aria_label: Some("Device URL".to_string()),
+                        value: device_url.read().clone(),
+                        on_input: Some(Callback::new(move |event: FormEvent| {
+                            let new_url = event.value();
+                            device_url.set(new_url.clone());
+                            #[cfg(target_arch = "wasm32")]
+                            if let Some(storage) = web_sys::window()
+                                .and_then(|w| w.local_storage().ok().flatten())
+                            {
+                                let _ = storage.set_item("device_url", &new_url);
                             }
-                            input {
-                                class: "flex-1 px-3 py-2 text-sm font-mono bg-transparent text-foreground outline-none",
-                                r#type: "text",
-                                aria_label: "Device URL",
-                                value: "{display_host}",
-                                oninput: move |event| {
-                                    let hostname = event.value();
-                                    let new_url = if hostname.starts_with("http://") || hostname.starts_with("https://") {
-                                        hostname.clone()
-                                    } else {
-                                        let current = device_url.read().clone();
-                                        let prefix = if current.starts_with("https://") { "https://" } else { "http://" };
-                                        format!("{prefix}{hostname}")
-                                    };
-                                    device_url.set(new_url.clone());
-                                    #[cfg(target_arch = "wasm32")]
-                                    if let Some(storage) = web_sys::window()
-                                        .and_then(|w| w.local_storage().ok().flatten())
-                                    {
-                                        let _ = storage.set_item("device_url", &new_url);
-                                    }
-                                },
-                            }
-                        }
+                        })),
                     }
                 }
                 // Interval selector — flagged off for now
@@ -342,18 +300,41 @@ pub fn Home() -> Element {
                         "Polling for device...".to_string()
                     };
 
+                    let href = if connected && !ip.is_empty() {
+                        Some(format!("http://{ip}"))
+                    } else {
+                        None
+                    };
+
                     rsx! {
-                        button {
-                            class: "flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs font-mono text-foreground shrink-0 cursor-pointer hover:bg-muted/50 transition-colors",
-                            title: "{tooltip}",
-                            aria_label: "{label}",
-                            span { class: "relative flex h-2 w-2",
-                                if !ping_class.is_empty() {
-                                    span { class: "{ping_class}" }
+                        if let Some(ref url) = href {
+                            a {
+                                class: "flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs font-mono text-foreground shrink-0 hover:border-primary/50 transition-colors cursor-pointer",
+                                title: "{tooltip}",
+                                aria_label: "{label}",
+                                href: "{url}",
+                                target: "_blank",
+                                span { class: "relative flex h-2 w-2",
+                                    if !ping_class.is_empty() {
+                                        span { class: "{ping_class}" }
+                                    }
+                                    span { class: "relative inline-flex h-2 w-2 rounded-full {dot_class}" }
                                 }
-                                span { class: "relative inline-flex h-2 w-2 rounded-full {dot_class}" }
+                                span { class: "font-medium", "{label}" }
                             }
-                            span { class: "font-medium", "{label}" }
+                        } else {
+                            div {
+                                class: "flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs font-mono text-foreground shrink-0",
+                                title: "{tooltip}",
+                                aria_label: "{label}",
+                                span { class: "relative flex h-2 w-2",
+                                    if !ping_class.is_empty() {
+                                        span { class: "{ping_class}" }
+                                    }
+                                    span { class: "relative inline-flex h-2 w-2 rounded-full {dot_class}" }
+                                }
+                                span { class: "font-medium", "{label}" }
+                            }
                         }
                     }
                 }
@@ -370,6 +351,7 @@ pub fn Home() -> Element {
                     co2_config,
                     sampling,
                     active_tab,
+                    availability,
                 }
 
                 FilesystemPanel {
@@ -382,6 +364,8 @@ pub fn Home() -> Element {
                     storage_percent,
                 }
             }
+
+            SleepPanel { device_url, status }
 
             TerminalPanel { device_url }
 
@@ -399,7 +383,7 @@ pub fn Home() -> Element {
                     let url = device_url.read().clone();
                     spawn(async move {
                         fetch_and_add_sensor_readings(
-                            &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings,
+                            &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
                         ).await;
                         sampling.set(false);
                     });
@@ -489,12 +473,30 @@ pub fn Home() -> Element {
                     onclick: move |e| e.stop_propagation(),
                     div { class: "p-4 h-full flex flex-col",
                         div { class: "flex items-center justify-between mb-4 shrink-0",
-                            h2 { class: "text-lg font-semibold", "Network" }
-                            button {
-                                class: "p-1 rounded hover:bg-muted/50 transition-colors text-muted-foreground",
-                                aria_label: "Close",
-                                onclick: move |_| *crate::SHOW_NETWORK_SHEET.write() = false,
-                                lucide_dioxus::X { class: "w-5 h-5" }
+                            div { class: "flex items-center gap-3 min-w-0",
+                                h2 { class: "text-lg font-semibold shrink-0", "Network" }
+                                if let Some(wireless_info) = wireless.read().as_ref() {
+                                    if wireless_info.ap_active {
+                                        if !wireless_info.ap_ssid.is_empty() {
+                                            span { class: "inline-flex items-center rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-mono text-foreground",
+                                                "{wireless_info.ap_ssid}"
+                                            }
+                                        }
+                                        if !wireless_info.ap_ipv4.is_empty() {
+                                            span { class: "inline-flex items-center rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-mono text-foreground",
+                                                "{wireless_info.ap_ipv4}"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Button {
+                                variant: ButtonVariant::Ghost,
+                                size: ButtonSize::Small,
+                                is_icon_button: true,
+                                aria_label: "Close".to_string(),
+                                on_click: move |_| *crate::SHOW_NETWORK_SHEET.write() = false,
+                                X { class: "w-5 h-5" }
                             }
                         }
                         NetworkPanel {

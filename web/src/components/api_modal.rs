@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 use dioxus::hooks::UseResourceState;
 use dioxus_primitives::dialog::{DialogContent, DialogRoot, DialogTitle};
+use ui::components::button::{Button, ButtonSize, ButtonVariant};
 
 #[component]
 pub fn ApiModal(
@@ -42,10 +43,12 @@ pub fn ApiModal(
                         DialogTitle { "CloudEvents API" }
                         p { class: "text-sm text-muted-foreground", "Response from /api/cloudevents" }
                     }
-                    button {
-                        class: "p-1 rounded hover:bg-muted transition-colors text-muted-foreground",
-                        aria_label: "Close",
-                        onclick: move |_| open.set(false),
+                    Button {
+                        variant: ButtonVariant::Ghost,
+                        size: ButtonSize::Small,
+                        is_icon_button: true,
+                        aria_label: "Close".to_string(),
+                        on_click: move |_| open.set(false),
                         lucide_dioxus::X { class: "w-5 h-5" }
                     }
                 }
@@ -63,9 +66,9 @@ pub fn ApiModal(
                 }
 
                 div { class: "flex items-center gap-2 px-5 py-3 border-t border-border",
-                    button {
-                        class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors",
-                        onclick: move |_| {
+                    Button {
+                        variant: ButtonVariant::Outline,
+                        on_click: move |_| {
                             let text = api_data.value().read().clone().unwrap_or_default();
                             #[cfg(target_arch = "wasm32")]
                             if let Some(window) = web_sys::window() {
@@ -74,15 +77,15 @@ pub fn ApiModal(
                         },
                         "Copy"
                     }
-                    button {
-                        class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors",
-                        onclick: move |_| api_data.restart(),
+                    Button {
+                        variant: ButtonVariant::Outline,
+                        on_click: move |_| api_data.restart(),
                         "Refresh"
                     }
                     div { class: "flex-1" }
-                    button {
-                        class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors",
-                        onclick: move |_| open.set(false),
+                    Button {
+                        variant: ButtonVariant::Outline,
+                        on_click: move |_| open.set(false),
                         "Close"
                     }
                 }

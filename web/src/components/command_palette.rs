@@ -1,6 +1,8 @@
 use dioxus::prelude::*;
 use dioxus_primitives::dialog::{DialogContent, DialogRoot, DialogTitle};
 use lucide_dioxus::{Braces, HardDrive, Radar, RefreshCw, Search, Trash2, Upload, Wifi, Zap};
+use ui::components::button::{Button, ButtonSize, ButtonVariant};
+use ui::components::input::Input;
 
 fn scroll_to_element(id: &str) {
     #[cfg(target_arch = "wasm32")]
@@ -56,19 +58,23 @@ pub fn CommandPalette(
 
                 div { class: "flex items-center gap-3 border-b border-border px-4 py-3",
                     Search { class: "w-5 h-5 text-muted-foreground shrink-0" }
-                    input {
-                        class: "flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-sm",
-                        r#type: "text",
-                        aria_label: "Search commands",
-                        placeholder: "Type a command or search...",
-                        value: "{filter_text}",
-                        oninput: move |e| filter_text.set(e.value()),
-                        onmounted: move |e| async move { let _ = e.set_focus(true).await; },
+                    div { class: "flex-1",
+                        Input {
+                            class: Some("w-full border-0 bg-transparent text-foreground placeholder:text-muted-foreground text-sm focus:ring-0 focus:ring-offset-0".to_string()),
+                            autofocus: true,
+                            input_type: "text".to_string(),
+                            aria_label: Some("Search commands".to_string()),
+                            placeholder: "Type a command or search...".to_string(),
+                            value: filter_text.read().clone(),
+                            on_input: Some(Callback::new(move |e: FormEvent| filter_text.set(e.value()))),
+                        }
                     }
-                    button {
-                        class: "p-1 rounded hover:bg-muted transition-colors text-muted-foreground",
-                        aria_label: "Close",
-                        onclick: move |_| close(),
+                    Button {
+                        variant: ButtonVariant::Ghost,
+                        size: ButtonSize::Small,
+                        is_icon_button: true,
+                        aria_label: "Close".to_string(),
+                        on_click: move |_| close(),
                         lucide_dioxus::X { class: "w-4 h-4" }
                     }
                 }
@@ -187,9 +193,10 @@ fn CmdItem(
     on_click: EventHandler<()>,
 ) -> Element {
     rsx! {
-        button {
-            class: "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted/50 transition-colors",
-            onclick: move |_| on_click.call(()),
+        Button {
+            variant: ButtonVariant::Ghost,
+            class: "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-muted/50 justify-start font-normal".to_string(),
+            on_click: move |_| on_click.call(()),
             span { class: "text-primary", {icon} }
             span { "{label}" }
             if let Some(kbd) = shortcut {
