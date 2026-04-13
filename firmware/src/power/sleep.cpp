@@ -2,11 +2,15 @@
 
 #include "../config.h"
 #include "../hardware/i2c.h"
+#include "../programs/led.h"
+#include "../networking/ota.h"
+#include "../sensors/carbon_dioxide.h"
 #include "../services/data_logger.h"
 
 #include <Arduino.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#include <Wire.h>
 #include <esp_sleep.h>
 
 namespace {
@@ -73,12 +77,17 @@ void enter_sleep_now() {
 
   Serial.printf("[sleep] entering deep sleep for %lu second(s)\n",
                 static_cast<unsigned long>(requested_duration_seconds));
+
   services::data_logger::flushNow();
-  Serial.flush();
+  sensors::carbon_dioxide::disable();
 
   WiFi.mode(WIFI_OFF);
   hardware::i2c::disable();
-  delay(50);
+  Wire.end();
+  Wire1.end();
+
+  Serial.flush();
+  LED.fadeOut(255, 200, 0, 800);
 
   esp_deep_sleep_start();
 }
@@ -124,6 +133,7 @@ bool power::sleep::requestConfigured(SleepCommand *command) {
 
 void power::sleep::service() {
   if (!sleep_pending) return;
+  if (networking::ota::isInProgress()) return;
   if (millis() - request_time_ms < 100) return;
   sleep_pending = false;
   enter_sleep_now();

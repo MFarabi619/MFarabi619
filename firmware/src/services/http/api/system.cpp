@@ -153,10 +153,8 @@ void services::http::api::system::registerRoutes(AsyncWebServer &server,
     }
 
     JsonObject body = json.as<JsonObject>();
-    if (!body["enabled"].isNull())
-      config.enabled = body["enabled"].as<bool>();
-    if (!body["duration_seconds"].isNull())
-      config.duration_seconds = body["duration_seconds"].as<uint32_t>();
+    config.enabled = body["enabled"] | config.enabled;
+    config.duration_seconds = body["duration_seconds"] | config.duration_seconds;
 
     if (!power::sleep::storeConfig(&config)) {
       request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid sleep config\"}");

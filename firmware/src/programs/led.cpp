@@ -27,3 +27,33 @@ void Led::glow(uint32_t duration_ms) {
     }
     setBrightness(saved);
 }
+
+void Led::fadeIn(uint8_t r, uint8_t g, uint8_t b, uint32_t duration_ms) {
+    uint8_t target = getBrightness();
+    uint32_t start = millis();
+    while (millis() - start < duration_ms) {
+        float t = (float)(millis() - start) / (float)duration_ms;
+        setBrightness((uint8_t)(t * target));
+        setPixelColor(0, Color(r, g, b));
+        show();
+        delay(20);
+    }
+    setBrightness(target);
+    setPixelColor(0, Color(r, g, b));
+    show();
+}
+
+void Led::fadeOut(uint8_t r, uint8_t g, uint8_t b, uint32_t duration_ms) {
+    uint8_t saved = getBrightness();
+    uint32_t start = millis();
+    while (millis() - start < duration_ms) {
+        float t = 1.0f - (float)(millis() - start) / (float)duration_ms;
+        setBrightness((uint8_t)(t * saved));
+        setPixelColor(0, Color(r, g, b));
+        show();
+        delay(20);
+    }
+    clear();
+    show();
+    setBrightness(saved);
+}

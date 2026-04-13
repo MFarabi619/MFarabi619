@@ -2,6 +2,7 @@
 #include "../../../config.h"
 #include "../../../filesystems/api.h"
 #include "../../../hardware/storage.h"
+#include "../../../programs/led.h"
 
 #include <Arduino.h>
 #include <AsyncJson.h>
@@ -16,6 +17,32 @@ namespace {
 struct FileUploadState {
   bool ok = false;
 };
+
+bool ensure_parent_dirs(fs::FS &fs, const String &path) {
+  int idx = 1;
+  while ((idx = path.indexOf('/', idx)) > 0) {
+    String dir = path.substring(0, idx);
+    if (!fs.exists(dir)) fs.mkdir(dir);
+    idx++;
+  }
+  return true;
+}
+
+bool write_with_retry(File &file, const uint8_t *data, size_t length) {
+  size_t written = 0;
+  uint32_t start = millis();
+  while (written < length) {
+    size_t n = file.write(data + written, length - written);
+    if (n > 0) {
+      written += n;
+      start = millis();
+      continue;
+    }
+    delay(1);
+    if (millis() - start > 5000) return false;
+  }
+  return true;
+}
 
 void handle_legacy_files(AsyncWebServerRequest *request) {
   if (!hardware::storage::ensureSD()) {
@@ -142,6 +169,10 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
       return;
     }
 
+    ensure_parent_dirs(*target.fs, target.path);
+
+    if (target.fs->exists(target.path)) target.fs->remove(target.path);
+
     request->_tempFile = target.fs->open(target.path, FILE_WRITE, true);
     if (!request->_tempFile) {
       request->send(500, "application/json", "{\"ok\":false,\"error\":\"open failed\"}");
@@ -154,10 +185,19 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
 
   if (request->getResponse()) return;
 
+  if (state && state->ok) {
+    float t = (float)(millis() % 1000) / 1000.0f;
+    uint8_t b = (uint8_t)((sinf(t * 6.2832f) + 1.0f) * 0.5f * 200.0f) + 10;
+    LED.setBrightness(b);
+    LED.setPixelColor(0, LED.Color(255, 255, 255));
+    LED.show();
+  }
+
   if (state && state->ok && request->_tempFile && len) {
-    if (request->_tempFile.write(data, len) != len) {
+    if (!write_with_retry(request->_tempFile, data, len)) {
       state->ok = false;
-      request->send(500, "application/json", "{\"ok\":false,\"error\":\"write failed\"}");
+      request->_tempFile.close();
+      request->abort();
     }
   }
 
@@ -166,6 +206,8 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
     if (state && state->ok) {
       Serial.printf("[http] upload complete (%u bytes)\n", (unsigned)(index + len));
     }
+    LED.setBrightness(config::led::BRIGHTNESS);
+    LED.set(RGB_GREEN);
   }
 }
 

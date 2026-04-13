@@ -31,7 +31,7 @@ void initialize_hardware(void) {
   Serial.println(F("[system] booting..."));
 
   LED.init();
-  LED.set(RGB_YELLOW);
+  LED.fadeIn(255, 200, 0, 600);
 
   hardware::i2c::initialize();
   hardware::storage::initialize();
@@ -77,12 +77,13 @@ void run_provisioning_policy(void) {
 }
 
 void connect_networking(void) {
+  networking::wifi::ap::enable();
+
   if (networking::wifi::sta::connect()) {
     LED.set(RGB_GREEN);
     Serial.printf("[wifi] connected, heap: %u bytes free\n", ESP.getFreeHeap());
   } else {
-    Serial.println(F("[wifi] STA not connected — starting AP for provisioning"));
-    networking::wifi::ap::enable();
+    Serial.println(F("[wifi] STA not connected — AP remains active for provisioning"));
     LED.set(255, 100, 0);
   }
 }

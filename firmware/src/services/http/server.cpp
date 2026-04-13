@@ -42,21 +42,40 @@ bool requires_admin_auth(AsyncWebServerRequest *request) {
       || url == "/api/wireless/status");
 }
 
+void captive_portal_redirect(AsyncWebServerRequest *request) {
+  AsyncWebServerResponse *response = request->beginResponse(302);
+  response->addHeader("Location", "http://192.168.4.1/");
+  response->addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  response->addHeader("Pragma", "no-cache");
+  request->send(response);
+}
+
+void send_portal_page(AsyncWebServerRequest *request) {
+  if (hardware::storage::ensureSD() && SD.exists("/index.html")) {
+    request->send(SD, "/index.html", "text/html; charset=utf-8");
+    return;
+  }
+  request->send(200, "text/html; charset=utf-8",
+    "<!DOCTYPE html><html><head><title>Ceratina</title></head><body>"
+    "<h1>Ceratina</h1><p>Portal UI unavailable (index.html missing on SD).</p>"
+    "</body></html>");
+}
+
 class CaptivePortalRedirectHandler : public AsyncWebHandler {
 public:
   bool canHandle(AsyncWebServerRequest *request) const override {
-    return request != nullptr;
+    if (!request || !request->hasHeader("Host")) return true;
+    const AsyncWebHeader *host = request->getHeader("Host");
+    if (!host) return true;
+    String h = host->value();
+    h.toLowerCase();
+    if (h == "192.168.4.1" || h.startsWith("192.168.4.1:")) return false;
+    if (h.startsWith("ceratina")) return false;
+    return true;
   }
 
   void handleRequest(AsyncWebServerRequest *request) override {
-    ::NetworkStatusSnapshot snapshot = {};
-    ::networking::wifi::accessSnapshot(&snapshot);
-
-    if (hardware::storage::ensureSD() && SD.exists("/index.html")) {
-      request->send(SD, "/index.html", "text/html");
-      return;
-    }
-    request->redirect("http://" + String(snapshot.ap.ip) + "/");
+    captive_portal_redirect(request);
   }
 };
 
@@ -122,12 +141,36 @@ void services::http::initialize() {
     .setDefaultFile("index.html")
     .setCacheControl("max-age=3600");
 
+  if (hardware::storage::ensureSD()) {
+    server.serveStatic("/admin", SD, "/")
+      .setDefaultFile("index.html")
+      .setCacheControl("public, max-age=86400")
+      .setTryGzipFirst(true);
+  }
+
+  server.on("/portal", HTTP_GET, send_portal_page);
+  server.on(AsyncURIMatcher::exact("/generate_204"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/gen_204"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/fwlink"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/redirect"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/hotspot-detect.html"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/canonical.html"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/mobile/status.php"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/connecttest.txt"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/ncsi.txt"), HTTP_GET, captive_portal_redirect);
+  server.on(AsyncURIMatcher::exact("/success.txt"), HTTP_GET, captive_portal_redirect);
+
   server.addHandler(new CaptivePortalRedirectHandler()).setFilter(ON_AP_FILTER);
 
   server.onNotFound([](AsyncWebServerRequest *request) {
     String url = request->url();
 
     if (url == "/" && hardware::storage::ensureSD() && SD.exists("/index.html")) {
+      request->send(SD, "/index.html", "text/html");
+      return;
+    }
+
+    if (url.startsWith("/admin") && hardware::storage::ensureSD() && SD.exists("/index.html")) {
       request->send(SD, "/index.html", "text/html");
       return;
     }

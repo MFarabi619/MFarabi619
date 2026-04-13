@@ -7,6 +7,7 @@
 #include <WiFi.h>
 
 static bool started = false;
+static bool updating = false;
 
 void networking::ota::initialize(void) {
   if (started) return;
@@ -19,11 +20,13 @@ void networking::ota::initialize(void) {
 
   ArduinoOTA
     .onStart([]() {
+      updating = true;
       const char *type = (ArduinoOTA.getCommand() == U_FLASH)
           ? "firmware" : "filesystem";
       Serial.printf("[ota] start updating %s\n", type);
     })
     .onEnd([]() {
+      updating = false;
       Serial.println(F("\n[ota] update complete"));
     })
     .onProgress([](unsigned int progress, unsigned int total) {
@@ -51,10 +54,15 @@ void networking::ota::service(void) {
   ArduinoOTA.handle();
 }
 
+bool networking::ota::isInProgress(void) {
+  return updating;
+}
+
 #else
 
 void networking::ota::initialize(void) {}
 void networking::ota::service(void) {}
+bool networking::ota::isInProgress(void) { return false; }
 
 #endif
 

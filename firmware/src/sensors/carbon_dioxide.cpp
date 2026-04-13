@@ -101,7 +101,9 @@ bool sensors::carbon_dioxide::initialize() {
     hardware::i2c::clearSelection();
   }
 
-  Serial.println(F("[co2] no sensor found"));
+  if (probe_attempts == 0) {
+    Serial.println(F("[co2] no sensor found"));
+  }
   backend = CO2_NONE;
   return false;
 }

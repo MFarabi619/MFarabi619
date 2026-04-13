@@ -19,6 +19,8 @@ public:
     }
 
     void glow(uint32_t duration_ms);
+    void fadeIn(uint8_t r, uint8_t g, uint8_t b, uint32_t duration_ms);
+    void fadeOut(uint8_t r, uint8_t g, uint8_t b, uint32_t duration_ms);
 };
 
 extern Led LED;
