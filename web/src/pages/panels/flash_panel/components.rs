@@ -1,4 +1,8 @@
 use dioxus::prelude::*;
+use dioxus_primitives::alert_dialog::{
+    AlertDialogAction, AlertDialogActions, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogRoot, AlertDialogTitle,
+};
 use ui::components::switch::Switch;
 
 use super::hooks::FlashController;
@@ -17,21 +21,25 @@ pub fn ToggleGroup(
     rsx! {
         div {
             label { class: "text-muted-foreground block mb-1.5 text-xs", "{label}" }
-            div { class: "flex rounded-lg overflow-hidden border border-border",
+            div {
+                class: "flex rounded-lg overflow-hidden border border-border",
+                role: "radiogroup",
+                aria_label: "{label}",
                 for (value, display) in options {
                     {
-                        let key = value.clone();
+                        let is_selected = *selected.read() == value;
                         let val = value.clone();
-                        let val2 = value.clone();
                         rsx! {
                             button {
-                                key: "{key}",
-                                class: if *selected.read() == val {
+                                key: "{value}",
+                                role: "radio",
+                                aria_checked: is_selected,
+                                class: if is_selected {
                                     "flex-1 px-1 py-1.5 text-xs transition-colors bg-primary text-primary-foreground"
                                 } else {
                                     "flex-1 px-1 py-1.5 text-xs transition-colors bg-background text-foreground/70 hover:bg-muted/30"
                                 },
-                                onclick: move |_| selected.set(val2.clone()),
+                                onclick: move |_| selected.set(val.clone()),
                                 "{display}"
                             }
                         }
@@ -111,6 +119,7 @@ pub fn ConfigSection(config: FlashConfig, chip: FlashChipInfo) -> Element {
                     input {
                         class: "bg-background border border-border rounded px-2 py-1 text-foreground font-mono w-24",
                         r#type: "text",
+                        aria_label: "Flash address",
                         value: "{config.address}",
                         oninput: move |e| config.address.set(e.value()),
                     }
@@ -143,6 +152,7 @@ pub fn WiFiSection(config: FlashConfig) -> Element {
                     input {
                         class: "w-full bg-background border border-border rounded px-2 py-1 text-foreground",
                         r#type: "text",
+                        aria_label: "WiFi SSID",
                         placeholder: "Leave blank for AP provisioning",
                         value: "{config.wifi_ssid}",
                         oninput: move |e| config.wifi_ssid.set(e.value()),
@@ -153,6 +163,7 @@ pub fn WiFiSection(config: FlashConfig) -> Element {
                     input {
                         class: "w-full bg-background border border-border rounded px-2 py-1 text-foreground",
                         r#type: "password",
+                        aria_label: "WiFi password",
                         placeholder: "WiFi password",
                         value: "{config.wifi_pass}",
                         oninput: move |e| config.wifi_pass.set(e.value()),
@@ -211,6 +222,7 @@ pub fn ActionRow(controller: FlashController) -> Element {
     let has_firmware = *controller.firmware.firmware_size.read() > 0;
     let flashing = *controller.firmware.flashing.read();
     let monitoring = *controller.device.monitor_active.read();
+    let mut confirm_erase = use_signal(|| false);
 
     rsx! {
         div { class: "flex gap-2 mb-3",
@@ -235,9 +247,37 @@ pub fn ActionRow(controller: FlashController) -> Element {
             }
             button {
                 class: "flex-1 py-2.5 rounded-lg border border-destructive/50 text-destructive text-sm hover:bg-destructive/10 transition-colors flex items-center justify-center gap-1.5",
-                onclick: move |_| controller.erase(),
+                onclick: move |_| confirm_erase.set(true),
                 lucide_dioxus::Trash2 { class: "w-3.5 h-3.5" }
                 "Erase All"
+            }
+        }
+
+        AlertDialogRoot {
+            open: *confirm_erase.read(),
+            on_open_change: move |v: bool| confirm_erase.set(v),
+            class: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm",
+
+            AlertDialogContent {
+                class: "bg-card border border-border rounded-lg shadow-2xl p-6 max-w-sm mx-4",
+
+                AlertDialogTitle { class: "text-lg font-semibold mb-2", "Erase flash memory" }
+                AlertDialogDescription {
+                    class: "text-sm text-muted-foreground mb-4",
+                    "This will erase the entire flash memory on the device. All firmware and data will be lost. This cannot be undone."
+                }
+                AlertDialogActions {
+                    class: "flex justify-end gap-2",
+                    AlertDialogCancel {
+                        class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors",
+                        "Cancel"
+                    }
+                    AlertDialogAction {
+                        class: "px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm hover:bg-destructive/90 transition-colors",
+                        on_click: move |_| controller.erase(),
+                        "Erase All"
+                    }
+                }
             }
         }
     }

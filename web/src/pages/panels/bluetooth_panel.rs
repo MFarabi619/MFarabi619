@@ -134,15 +134,17 @@ pub fn BluetoothPanel() -> Element {
         section { id: "bluetooth-panel", class: "border border-border rounded-lg bg-card p-4",
             div { class: "flex items-center gap-2 mb-3",
                 h2 { class: "text-xl font-semibold", "Bluetooth" }
-                span { id: "bt-status", class: "text-sm text-muted-foreground" }
+                span { id: "bt-status", class: "text-sm text-muted-foreground", role: "status", aria_live: "polite" }
             }
 
             div { class: "flex gap-2 mb-3",
                 button { id: "bt-pair-btn", class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors flex items-center gap-2",
+                    aria_label: "Pair via Bluetooth",
                     lucide_dioxus::Bluetooth { class: "w-4 h-4" }
                     "Pair via Bluetooth"
                 }
                 button { id: "bt-disconnect-btn", class: "px-3 py-1.5 rounded-lg border border-border text-sm text-muted-foreground hover:bg-muted/50 transition-colors", style: "display:none",
+                    aria_label: "Disconnect Bluetooth",
                     "Disconnect"
                 }
             }

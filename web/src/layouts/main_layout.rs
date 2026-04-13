@@ -1,8 +1,8 @@
+use crate::components::navbar::Navbar;
 use crate::Route;
 use crate::APIDAE_SYMBOL;
-use crate::components::navbar::Navbar;
 use dioxus::prelude::*;
-use dioxus_router::{Outlet, use_route};
+use dioxus_router::{use_route, Outlet};
 use lucide_dioxus::{Github, Globe, Linkedin};
 use ui::components::toast::ToastProvider;
 
@@ -17,8 +17,11 @@ pub fn MainLayout() -> Element {
     };
 
     let chip_model = use_signal(String::new);
-    let heap_free = use_signal(String::new);
-    let device_ctx = use_context_provider(|| crate::DeviceContext { chip_model, heap_free });
+    let heap_memory = use_signal(String::new);
+    let device_ctx = use_context_provider(|| crate::DeviceContext {
+        chip_model,
+        heap_memory,
+    });
 
     rsx! {
         document::Title { "{title}" }
@@ -30,7 +33,7 @@ pub fn MainLayout() -> Element {
                     *crate::SHOW_NETWORK_SHEET.write() = true;
                 },
                 chip_model: device_ctx.chip_model.read().clone(),
-                heap_free: device_ctx.heap_free.read().clone(),
+                heap_memory: device_ctx.heap_memory.read().clone(),
             }
 
             main { class: "mx-auto w-[min(100%-24px,980px)] py-4 flex-1",

@@ -15,6 +15,8 @@ pub fn Terminal(
         document::eval(&format!(
             r#"
             const el = document.getElementById('{id_for_cleanup}');
+            if (el) {{ el.__destroyed = true; }}
+            if (el && el.__reconnectTimer) {{ try {{ clearTimeout(el.__reconnectTimer); }} catch(e) {{}} }}
             if (el && el.__ws) {{ try {{ el.__ws.close(); }} catch(e) {{}} }}
             if (el && el.__term) {{ try {{ el.__term.dispose(); }} catch(e) {{}} }}
             "#
@@ -22,14 +24,17 @@ pub fn Terminal(
     });
 
     use_effect(move || {
-        if *initialized.peek() { return; }
+        if *initialized.peek() {
+            return;
+        }
         initialized.set(true);
 
         let id = id_clone.clone();
         let ws_url = ws_url.clone();
         let font_size = font_size;
 
-        document::eval(&format!(r#"
+        document::eval(&format!(
+            r#"
             (function tryInit() {{
                 if (typeof Terminal === 'undefined' || typeof FitAddon === 'undefined') {{
                     setTimeout(tryInit, 200);
@@ -39,6 +44,8 @@ pub fn Terminal(
                 if (!container) {{ setTimeout(tryInit, 200); return; }}
                 if (container.dataset.initialized) return;
                 container.dataset.initialized = 'true';
+                container.__destroyed = false;
+                container.__reconnectTimer = null;
                 container.innerHTML = '';
 
                 const term = new Terminal({{
@@ -71,6 +78,7 @@ pub fn Terminal(
                 let ws = null;
 
                 function connect() {{
+                    if (container.__destroyed) return;
                     if (ws && ws.readyState <= 1) return;
                     ws = new WebSocket('{ws_url}');
                     container.__ws = ws;
@@ -85,7 +93,11 @@ pub fn Terminal(
 
                     ws.onclose = () => {{
                         term.write('\r\n\x1b[31m[disconnected]\x1b[0m\r\n');
-                        setTimeout(connect, 3000);
+                        if (container.__destroyed) return;
+                        container.__reconnectTimer = setTimeout(() => {{
+                            container.__reconnectTimer = null;
+                            connect();
+                        }}, 3000);
                     }};
 
                     ws.onerror = () => {{}};
@@ -99,7 +111,8 @@ pub fn Terminal(
 
                 connect();
             }})();
-        "#));
+        "#
+        ));
     });
 
     rsx! {

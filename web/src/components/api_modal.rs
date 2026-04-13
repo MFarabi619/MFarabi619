@@ -1,5 +1,6 @@
 use dioxus::prelude::*;
 use dioxus::hooks::UseResourceState;
+use dioxus_primitives::dialog::{DialogContent, DialogRoot, DialogTitle};
 
 #[component]
 pub fn ApiModal(
@@ -24,30 +25,27 @@ pub fn ApiModal(
         }
     });
 
-    if !*open.read() {
-        return rsx! {};
-    }
-
-    let mut close = move || open.set(false);
     let content = api_data.value().read().clone().unwrap_or_default();
     let is_loading = matches!(*api_data.state().read(), UseResourceState::Pending);
 
     rsx! {
-        div {
+        DialogRoot {
+            open: open(),
+            on_open_change: move |v: bool| open.set(v),
             class: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4",
-            onclick: move |_| close(),
-            div {
+
+            DialogContent {
                 class: "w-full max-w-3xl bg-card border border-border rounded-lg shadow-2xl flex flex-col max-h-[80vh]",
-                onclick: move |e| e.stop_propagation(),
 
                 div { class: "flex items-center justify-between px-5 py-4 border-b border-border",
                     div {
-                        h2 { class: "text-lg font-semibold", "CloudEvents API" }
+                        DialogTitle { "CloudEvents API" }
                         p { class: "text-sm text-muted-foreground", "Response from /api/cloudevents" }
                     }
                     button {
                         class: "p-1 rounded hover:bg-muted transition-colors text-muted-foreground",
-                        onclick: move |_| close(),
+                        aria_label: "Close",
+                        onclick: move |_| open.set(false),
                         lucide_dioxus::X { class: "w-5 h-5" }
                     }
                 }
@@ -84,7 +82,7 @@ pub fn ApiModal(
                     div { class: "flex-1" }
                     button {
                         class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors",
-                        onclick: move |_| close(),
+                        onclick: move |_| open.set(false),
                         "Close"
                     }
                 }

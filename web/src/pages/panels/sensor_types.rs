@@ -6,6 +6,28 @@ pub enum MeasurementTab {
     TemperatureHumidity,
 }
 
+impl MeasurementTab {
+    pub fn to_value(self) -> String {
+        match self {
+            Self::TemperatureHumidity => "temp_humidity",
+            Self::Voltage => "voltage",
+            Self::Current => "current",
+            Self::CarbonDioxide => "co2",
+        }
+        .to_string()
+    }
+
+    pub fn from_value(s: &str) -> Self {
+        match s {
+            "temp_humidity" => Self::TemperatureHumidity,
+            "voltage" => Self::Voltage,
+            "current" => Self::Current,
+            "co2" => Self::CarbonDioxide,
+            _ => Self::CarbonDioxide,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Co2Row {
     pub row: usize,

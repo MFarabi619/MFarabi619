@@ -61,6 +61,7 @@ serde.workspace = true
 loco-rs.workspace = true
 serde_json.workspace = true
 chrono = "0.4"
+circular-buffer = "1"
 include_dir = "0.7"
 scalar_api_reference = "0.1"
 validator = "0.20"
@@ -71,6 +72,7 @@ tracing = "0.1.40"
 async-trait = "0.1.74"
 migration.path = "migration"
 loco-openapi = { version = "0.1", features = ["full"] }
+serial = "0.4"
 uuid = { version = "1.6.0", features = ["v4"] }
 axum-extra = { version = "0.12", features = ["form"] } # /view engine
 fluent-templates = { version = "0.8.0", features = ["tera"] } # view engine i18n
@@ -85,6 +87,7 @@ sea-orm = { version = "1.1.19", features = [
     "runtime-tokio-rustls",
 ] }
 crc32fast = "1.4"
+vedirect_rs = "0.2.2"
 
 [profile.dev]
 # Rust debug is too slow.

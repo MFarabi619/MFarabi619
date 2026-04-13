@@ -14,7 +14,7 @@ pub fn FlashPanel() -> Element {
     let chip = ctrl.chip;
 
     rsx! {
-        section { class: "panel-shell-strong p-4",
+        section { id: "flash-panel", class: "panel-shell-strong p-4",
 
             // ── Title ──
             div { class: "flex items-center gap-2 flex-wrap mb-3",

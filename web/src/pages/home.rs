@@ -1,14 +1,15 @@
 use crate::api::{self, DEFAULT_DEVICE_URL};
 use crate::components::api_modal::ApiModal;
 use crate::components::command_palette::CommandPalette;
+use crate::hooks::sleep_ms;
+use crate::services::{Co2Service, DeviceService, FileService, WifiService};
 use crate::pages::panels::{
-    fetch_and_add_sensor_readings, sleep_ms,
+    fetch_and_add_sensor_readings,
     Co2Row, TemperatureHumidityRow, VoltageRow,
     BluetoothPanel, FilesystemPanel, FlashPanel, MeasurementPanel, MeasurementTab, NetworkPanel, TerminalPanel,
     ENABLE_TEMPERATURE_HUMIDITY,
 };
 use dioxus::prelude::*;
-use dioxus::hooks::UseFutureState;
 use lucide_dioxus::Timer;
 use ui::components::toast::Toasts;
 
@@ -33,7 +34,7 @@ pub fn Home() -> Element {
 
     // Connection state
     let mut is_connected = use_signal(|| false);
-    let mut error_message = use_signal(|| None::<String>);
+    let mut resolved_url = use_signal(String::new);
 
     // Device data
     let mut status = use_signal(|| None::<api::DeviceStatusData>);
@@ -90,6 +91,7 @@ pub fn Home() -> Element {
         wireless.read().as_ref().map(|w| w.sta_ipv4.clone()).unwrap_or_default()
     });
 
+
     // Storage progress
     let storage_percent = use_memo(move || {
         status
@@ -99,16 +101,26 @@ pub fn Home() -> Element {
             .unwrap_or(0.0)
     });
 
+    use_effect(move || {
+        let _ = device_url.read();
+        resolved_url.set(String::new());
+    });
+
     // ── Polling loop ──
     let toasts = Toasts;
     let mut poller = use_future(move || async move {
         let mut tick: u32 = 0;
         loop {
-            let url = device_url.read().clone();
+            let resolved = resolved_url.peek().clone();
+            let url = if resolved.is_empty() {
+                device_url.read().clone()
+            } else {
+                resolved
+            };
 
             // CO2 config on first tick
             if tick == 0 {
-                if let Ok(response) = api::fetch_co2_config(&url).await {
+                if let Ok(response) = Co2Service::get_config(&url).await {
                     co2_config.set(Some(response.data));
                 }
             }
@@ -116,19 +128,25 @@ pub fn Home() -> Element {
             // Device status every 10s
             if tick % 2 == 0 {
                 let was_connected = *is_connected.peek();
-                match api::fetch_device_status(&url).await {
+                match DeviceService::get_status(&url).await {
                     Ok(envelope) => {
                         device_ctx.chip_model.set(envelope.data.device.chip_model.clone());
                         {
-                            let used_kb = (envelope.data.runtime.memory_heap_total.saturating_sub(envelope.data.runtime.memory_heap_bytes)) / 1024;
+                            let free_kb = envelope.data.runtime.memory_heap_free / 1024;
                             let total_kb = envelope.data.runtime.memory_heap_total / 1024;
-                            device_ctx.heap_free.set(format!("{used_kb}/{total_kb} KB"));
+                            device_ctx.heap_memory.set(format!("{free_kb}/{total_kb} KB"));
+                        }
+
+                        if resolved_url.peek().is_empty() {
+                            let ip = &envelope.data.network.ipv4_address;
+                            if !ip.is_empty() {
+                                let protocol = if url.starts_with("https://") { "https://" } else { "http://" };
+                                resolved_url.set(format!("{protocol}{ip}"));
+                            }
                         }
 
                         status.set(Some(envelope.data));
                         is_connected.set(true);
-                        error_message.set(None);
-
                         if !was_connected {
                             let ssid = wifi_ssid.read().clone();
                             let ip = wifi_ip.read().clone();
@@ -144,14 +162,14 @@ pub fn Home() -> Element {
                             toasts.error(format!("Disconnected: {error}"), None);
                         }
                         is_connected.set(false);
-                        error_message.set(Some(format!("{error}")));
+                        resolved_url.set(String::new());
                     }
                 }
             }
 
             // Wireless status every 10s
             if tick % 2 == 0 {
-                if let Ok(response) = api::fetch_wireless_status(&url).await {
+                if let Ok(response) = WifiService::get_status(&url).await {
                     wireless.set(Some(response.data));
                 }
             }
@@ -164,14 +182,14 @@ pub fn Home() -> Element {
 
             // Filesystem every 30s
             if tick % 6 == 0 {
-                if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
+                if let Ok(entries) = FileService::list(&url, "sd").await {
                     files.set(entries);
                 }
-                if let Ok(entries) = api::fetch_filesystem(&url, "littlefs").await {
+                if let Ok(entries) = FileService::list(&url, "littlefs").await {
                     littlefs_files.set(entries);
                 }
                 if let Ok(envelope) =
-                    api::fetch_device_status_for_location(&url, "littlefs").await
+                    DeviceService::get_status_for_location(&url, "littlefs").await
                 {
                     littlefs_total_bytes.set(envelope.data.storage.total_bytes);
                     littlefs_used_bytes.set(envelope.data.storage.used_bytes);
@@ -251,6 +269,7 @@ pub fn Home() -> Element {
                             input {
                                 class: "flex-1 px-3 py-2 text-sm font-mono bg-transparent text-foreground outline-none",
                                 r#type: "text",
+                                aria_label: "Device URL",
                                 value: "{display_host}",
                                 oninput: move |event| {
                                     let hostname = event.value();
@@ -297,22 +316,17 @@ pub fn Home() -> Element {
                 }
                 {
                     let connected = *is_connected.read();
-                    let is_paused = matches!(*poller.state().read(), UseFutureState::Paused);
                     let ip = wifi_ip.read().clone();
                     let ssid = wifi_ssid.read().clone();
                     let rssi = *wifi_rssi.read();
 
-                    let (dot_class, ping_class) = if is_paused {
-                        ("bg-gray-500", "")
-                    } else if connected {
+                    let (dot_class, ping_class) = if connected {
                         ("bg-emerald-400", "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70 animate-ping")
                     } else {
                         ("bg-amber-500", "absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-70 animate-pulse")
                     };
 
-                    let label = if is_paused {
-                        "PAUSED".to_string()
-                    } else if connected && !ip.is_empty() {
+                    let label = if connected && !ip.is_empty() {
                         ip.clone()
                     } else if connected {
                         "LIVE".to_string()
@@ -320,25 +334,19 @@ pub fn Home() -> Element {
                         "POLLING".to_string()
                     };
 
-                    let tooltip = if is_paused {
-                        "Click to resume polling".to_string()
-                    } else if !ssid.is_empty() {
-                        format!("{ssid} ({rssi} dBm) \u{2014} click to pause")
+                    let tooltip = if !ssid.is_empty() {
+                        format!("{ssid} ({rssi} dBm)")
+                    } else if connected {
+                        "Connected".to_string()
                     } else {
-                        "Click to pause polling".to_string()
+                        "Polling for device...".to_string()
                     };
 
                     rsx! {
                         button {
                             class: "flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs font-mono text-foreground shrink-0 cursor-pointer hover:bg-muted/50 transition-colors",
                             title: "{tooltip}",
-                            onclick: move |_| {
-                                if is_paused {
-                                    poller.resume();
-                                } else {
-                                    poller.pause();
-                                }
-                            },
+                            aria_label: "{label}",
                             span { class: "relative flex h-2 w-2",
                                 if !ping_class.is_empty() {
                                     span { class: "{ping_class}" }
@@ -381,22 +389,6 @@ pub fn Home() -> Element {
 
             // BluetoothPanel {}
 
-            if let Some(ref error) = *error_message.read() {
-                div { class: "rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive flex items-center justify-between gap-3",
-                    span { "{error}" }
-                    button {
-                        class: "shrink-0 px-3 py-1 rounded border border-destructive/50 text-xs hover:bg-destructive/20 transition-colors",
-                        onclick: move |_| {
-                            #[cfg(target_arch = "wasm32")]
-                            if let Some(s) = web_sys::window().and_then(|w| w.local_storage().ok().flatten()) {
-                                s.clear().ok();
-                            }
-                            document::eval("location.reload()");
-                        },
-                        "Clear Cache & Reload"
-                    }
-                }
-            }
         }
 
         CommandPalette {
@@ -417,7 +409,7 @@ pub fn Home() -> Element {
                 scanning.set(true);
                 let url = device_url.read().clone();
                 spawn(async move {
-                    if let Ok(response) = api::fetch_wifi_scan(&url).await {
+                    if let Ok(response) = WifiService::scan(&url).await {
                         networks.set(response.data.networks);
                     }
                     scanning.set(false);
@@ -426,7 +418,7 @@ pub fn Home() -> Element {
             on_refresh_files: move |_| {
                 let url = device_url.read().clone();
                 spawn(async move {
-                    if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
+                    if let Ok(entries) = FileService::list(&url, "sd").await {
                         files.set(entries);
                     }
                 });
@@ -457,7 +449,7 @@ pub fn Home() -> Element {
                     scanning.set(true);
                     let url = device_url.peek().clone();
                     spawn(async move {
-                        if let Ok(response) = api::fetch_wifi_scan(&url).await {
+                        if let Ok(response) = WifiService::scan(&url).await {
                             networks.set(response.data.networks);
                         }
                         scanning.set(false);
@@ -485,10 +477,14 @@ pub fn Home() -> Element {
             rsx! {
                 div {
                     class: overlay_class,
+                    aria_hidden: "true",
                     onclick: move |_| *crate::SHOW_NETWORK_SHEET.write() = false,
                 }
                 div {
                     class: panel_class,
+                    role: "dialog",
+                    aria_modal: "true",
+                    aria_label: "Network settings",
                     onmouseleave: move |_| *crate::SHOW_NETWORK_SHEET.write() = false,
                     onclick: move |e| e.stop_propagation(),
                     div { class: "p-4 h-full flex flex-col",
@@ -496,6 +492,7 @@ pub fn Home() -> Element {
                             h2 { class: "text-lg font-semibold", "Network" }
                             button {
                                 class: "p-1 rounded hover:bg-muted/50 transition-colors text-muted-foreground",
+                                aria_label: "Close",
                                 onclick: move |_| *crate::SHOW_NETWORK_SHEET.write() = false,
                                 lucide_dioxus::X { class: "w-5 h-5" }
                             }

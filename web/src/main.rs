@@ -4,8 +4,10 @@ use dioxus::prelude::*;
 pub mod api;
 mod components;
 mod content;
+mod hooks;
 mod layouts;
 mod pages;
+pub mod services;
 
 pub static SHOW_COMMAND_PALETTE: GlobalSignal<bool> = Signal::global(|| false);
 pub static SHOW_NETWORK_SHEET: GlobalSignal<bool> = Signal::global(|| false);
@@ -13,7 +15,7 @@ pub static SHOW_NETWORK_SHEET: GlobalSignal<bool> = Signal::global(|| false);
 #[derive(Clone, Copy)]
 pub struct DeviceContext {
     pub chip_model: Signal<String>,
-    pub heap_free: Signal<String>,
+    pub heap_memory: Signal<String>,
 }
 
 use crate::content::docs;

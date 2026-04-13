@@ -1,7 +1,13 @@
-use crate::api::{self, DeviceStatusData, FileEntry};
 use super::file_icon;
-use dioxus::prelude::*;
+use crate::api;
+use crate::api::{DeviceStatusData, FileEntry};
+use crate::services::FileService;
 use dioxus::html::HasFileData;
+use dioxus::prelude::*;
+use dioxus_primitives::alert_dialog::{
+    AlertDialogAction, AlertDialogActions, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogRoot, AlertDialogTitle,
+};
 use lucide_dioxus::{Download, HardDrive, Plus, Trash2};
 use ui::components::progress::{Progress, ProgressVariant};
 use ui::components::toast::use_toast;
@@ -17,6 +23,7 @@ pub fn FilesystemPanel(
     storage_percent: Memo<f64>,
 ) -> Element {
     let toasts = use_toast();
+    let mut pending_delete: Signal<Option<(String, String)>> = use_signal(|| None);
 
     let status_data = status.read();
 
@@ -44,10 +51,10 @@ pub fn FilesystemPanel(
                         match file.read_bytes().await {
                             Ok(bytes) => {
                                 let url = device_url.read().clone();
-                                match api::upload_file(&url, "sd", &name, &bytes).await {
+                                match FileService::upload(&url, "sd", &name, &bytes).await {
                                     Ok(resp) if resp.status().is_success() => {
                                         toasts.success(format!("Uploaded {}", name), None);
-                                        if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
+                                        if let Ok(entries) = FileService::list(&url, "sd").await {
                                             files.set(entries);
                                         }
                                     }
@@ -103,26 +110,16 @@ pub fn FilesystemPanel(
                                 div { class: "flex items-center gap-0.5 shrink-0 ml-auto absolute right-0 transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100",
                                     a {
                                         class: "p-1 rounded hover:bg-accent/40 text-muted-foreground",
+                                        aria_label: "Download {filename}",
                                         href: "{device}/api/filesystem/sd/{filename_for_download}",
                                         target: "_blank",
                                         Download { class: "w-3.5 h-3.5" }
                                     }
                                     button {
                                         class: "p-1 rounded hover:bg-destructive/20 text-destructive",
+                                        aria_label: "Delete {filename}",
                                         onclick: move |_| {
-                                            let url = device_url.read().clone();
-                                            let name = filename_for_delete.clone();
-                                            spawn(async move {
-                                                match api::delete_file(&url, "sd", &name).await {
-                                                    Ok(response) if response.status().is_success() => {
-                                                        toasts.success(format!("Deleted {name}"), None);
-                                                        if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
-                                                            files.set(entries);
-                                                        }
-                                                    }
-                                                    _ => toasts.error(format!("Failed to delete {name}"), None),
-                                                }
-                                            });
+                                            pending_delete.set(Some(("sd".into(), filename_for_delete.clone())));
                                         },
                                         Trash2 { class: "w-3.5 h-3.5" }
                                     }
@@ -191,20 +188,9 @@ pub fn FilesystemPanel(
                                 div { class: "flex items-center gap-0.5 shrink-0 ml-auto absolute right-0 transition-opacity duration-200 ease-in-out opacity-0 group-hover:opacity-100",
                                     button {
                                         class: "p-1 rounded hover:bg-destructive/20 text-destructive",
+                                        aria_label: "Delete {filename}",
                                         onclick: move |_| {
-                                            let url = device_url.read().clone();
-                                            let name = filename_for_delete.clone();
-                                            spawn(async move {
-                                                match api::delete_file(&url, "littlefs", &name).await {
-                                                    Ok(response) if response.status().is_success() => {
-                                                        toasts.success(format!("Deleted {name}"), None);
-                                                        if let Ok(entries) = api::fetch_filesystem(&url, "littlefs").await {
-                                                            littlefs_files.set(entries);
-                                                        }
-                                                    }
-                                                    _ => toasts.error(format!("Failed to delete {name}"), None),
-                                                }
-                                            });
+                                            pending_delete.set(Some(("littlefs".into(), filename_for_delete.clone())));
                                         },
                                         Trash2 { class: "w-3.5 h-3.5" }
                                     }
@@ -231,10 +217,10 @@ pub fn FilesystemPanel(
                         match file.read_bytes().await {
                             Ok(bytes) => {
                                 let url = device_url.read().clone();
-                                match api::upload_file(&url, "sd", &name, &bytes).await {
+                                match FileService::upload(&url, "sd", &name, &bytes).await {
                                     Ok(resp) if resp.status().is_success() => {
                                         toasts.success(format!("Uploaded {}", name), None);
-                                        if let Ok(entries) = api::fetch_filesystem(&url, "sd").await {
+                                        if let Ok(entries) = FileService::list(&url, "sd").await {
                                             files.set(entries);
                                         }
                                     }
@@ -245,6 +231,63 @@ pub fn FilesystemPanel(
                         }
                     }
                 },
+            }
+
+            {
+                let is_open = pending_delete.read().is_some();
+                let display_name = pending_delete.read().as_ref().map(|(_, n)| n.clone()).unwrap_or_default();
+                rsx! {
+                    AlertDialogRoot {
+                        open: is_open,
+                        on_open_change: move |v: bool| { if !v { pending_delete.set(None); } },
+                        class: "fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm",
+
+                        AlertDialogContent {
+                            class: "bg-card border border-border rounded-lg shadow-2xl p-6 max-w-sm mx-4",
+
+                            AlertDialogTitle { class: "text-lg font-semibold mb-2", "Delete file" }
+                            AlertDialogDescription {
+                                class: "text-sm text-muted-foreground mb-4",
+                                "Are you sure you want to delete "
+                                span { class: "font-mono text-foreground", "{display_name}" }
+                                "? This cannot be undone."
+                            }
+                            AlertDialogActions {
+                                class: "flex justify-end gap-2",
+                                AlertDialogCancel {
+                                    class: "px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors",
+                                    "Cancel"
+                                }
+                                AlertDialogAction {
+                                    class: "px-3 py-1.5 rounded-lg bg-destructive text-destructive-foreground text-sm hover:bg-destructive/90 transition-colors",
+                                    on_click: move |_| {
+                                        if let Some((fs_type, name)) = pending_delete.read().clone() {
+                                            let url = device_url.read().clone();
+                                            spawn(async move {
+                                                match FileService::delete(&url, &fs_type, &name).await {
+                                                    Ok(response) if response.status().is_success() => {
+                                                        toasts.success(format!("Deleted {name}"), None);
+                                                        if fs_type == "sd" {
+                                                            if let Ok(entries) = FileService::list(&url, "sd").await {
+                                                                files.set(entries);
+                                                            }
+                                                        } else {
+                                                            if let Ok(entries) = FileService::list(&url, "littlefs").await {
+                                                                littlefs_files.set(entries);
+                                                            }
+                                                        }
+                                                    }
+                                                    _ => toasts.error(format!("Failed to delete {name}"), None),
+                                                }
+                                            });
+                                        }
+                                    },
+                                    "Delete"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

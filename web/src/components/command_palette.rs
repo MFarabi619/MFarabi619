@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use dioxus_primitives::dialog::{DialogContent, DialogRoot, DialogTitle};
 use lucide_dioxus::{Braces, HardDrive, Radar, RefreshCw, Search, Trash2, Upload, Wifi, Zap};
 
 fn scroll_to_element(id: &str) {
@@ -32,10 +33,6 @@ pub fn CommandPalette(
         }
     });
 
-    if !*open.read() {
-        return rsx! {};
-    }
-
     let mut close = move || {
         open.set(false);
         filter_text.set(String::new());
@@ -47,35 +44,41 @@ pub fn CommandPalette(
     };
 
     rsx! {
-        div {
+        DialogRoot {
+            open: open(),
+            on_open_change: move |v: bool| {
+                if !v { close(); } else { open.set(true); }
+            },
             class: "fixed inset-0 z-50 flex items-start justify-center pt-[20vh] bg-black/60 backdrop-blur-sm",
-            onclick: move |_| close(),
-            div {
+
+            DialogContent {
                 class: "w-full max-w-lg mx-4 rounded-lg border border-border bg-card shadow-2xl overflow-hidden",
-                onclick: move |e| e.stop_propagation(),
 
                 div { class: "flex items-center gap-3 border-b border-border px-4 py-3",
                     Search { class: "w-5 h-5 text-muted-foreground shrink-0" }
                     input {
                         class: "flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-sm",
                         r#type: "text",
+                        aria_label: "Search commands",
                         placeholder: "Type a command or search...",
                         value: "{filter_text}",
                         oninput: move |e| filter_text.set(e.value()),
                         onmounted: move |e| async move { let _ = e.set_focus(true).await; },
-                        onkeydown: move |e| { if e.key() == Key::Escape { close(); } },
                     }
                     button {
                         class: "p-1 rounded hover:bg-muted transition-colors text-muted-foreground",
+                        aria_label: "Close",
                         onclick: move |_| close(),
                         lucide_dioxus::X { class: "w-4 h-4" }
                     }
                 }
 
+                DialogTitle { class: "sr-only", "Command Palette" }
+
                 div { class: "max-h-[400px] overflow-y-auto p-2",
 
                     if matches("sample voltage current temperature sensor") || matches("api cloudevents json") || matches("upload file sd") || matches("scan networks") || matches("refresh filesystem") || matches("clear cache") {
-                        div { class: "px-2 py-1.5 text-xs text-muted-foreground uppercase tracking-wider", "Actions" }
+                        h3 { class: "px-2 py-1.5 text-xs text-muted-foreground uppercase tracking-wider", "Actions" }
                     }
 
                     if matches("sample voltage current temperature sensor") {
@@ -132,7 +135,7 @@ pub fn CommandPalette(
 
                     if matches("measurements sensor terminal network filesystem flash") {
                         hr { class: "my-1 border-border" }
-                        div { class: "px-2 py-1.5 text-xs text-muted-foreground uppercase tracking-wider", "Navigate" }
+                        h3 { class: "px-2 py-1.5 text-xs text-muted-foreground uppercase tracking-wider", "Navigate" }
                     }
 
                     if matches("measurements sensor cloudevents voltage temperature co2") {

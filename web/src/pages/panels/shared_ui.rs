@@ -1,6 +1,5 @@
 use dioxus::prelude::*;
 use lucide_dioxus::{Database, File, FileCode, FileText, Image};
-use super::sensor_types::MeasurementTab;
 
 pub fn file_icon(name: &str) -> Element {
     let extension = name.rsplit('.').next().unwrap_or("").to_ascii_lowercase();
@@ -12,22 +11,6 @@ pub fn file_icon(name: &str) -> Element {
         "txt" | "log" | "md" => rsx! { FileText { class: "w-4 h-4 text-muted-foreground" } },
         "wasm" | "was" => rsx! { FileCode { class: "w-4 h-4 text-chart-5" } },
         _ => rsx! { File { class: "w-4 h-4 text-muted-foreground" } },
-    }
-}
-
-pub fn tab_button(mut active_tab: Signal<MeasurementTab>, tab: MeasurementTab, label: &'static str) -> Element {
-    let is_active = *active_tab.read() == tab;
-    let class = if is_active {
-        "flex-1 py-2 text-center rounded-full border border-border bg-background text-foreground font-medium transition-all duration-200"
-    } else {
-        "flex-1 py-2 text-center rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
-    };
-    rsx! {
-        button {
-            class: class,
-            onmouseenter: move |_| active_tab.set(tab),
-            "{label}"
-        }
     }
 }
 
@@ -62,7 +45,7 @@ pub fn StatusBadge(icon: Element, value: String) -> Element {
 #[component]
 pub fn Th(children: Element) -> Element {
     rsx! {
-        th { class: "text-left px-3 py-2 border-b border-border text-muted-foreground text-xs uppercase tracking-wider sticky top-0 bg-muted whitespace-nowrap",
+        th { scope: "col", class: "text-left px-3 py-2 border-b border-border text-muted-foreground text-xs uppercase tracking-wider sticky top-0 bg-muted whitespace-nowrap",
             {children}
         }
     }

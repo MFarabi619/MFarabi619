@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use crate::services::CloudEventsService;
 use super::sensor_types::*;
 use super::now_time_string;
 
@@ -14,7 +15,7 @@ pub async fn fetch_and_add_sensor_readings(
     mut temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     mut voltage_readings: Signal<Vec<VoltageRow>>,
 ) -> bool {
-    let Ok(events) = crate::api::fetch_cloudevents(url).await else {
+    let Ok(events) = CloudEventsService::fetch(url).await else {
         return false;
     };
 

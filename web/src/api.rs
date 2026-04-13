@@ -35,9 +35,19 @@ pub struct DeviceNetwork {
 pub struct DeviceRuntime {
     pub uptime: String,
     pub uptime_seconds: u64,
-    pub memory_heap_bytes: u64,
+    #[serde(default)]
+    pub temperature_celsius: f64,
+    pub memory_heap_free: u64,
     #[serde(default)]
     pub memory_heap_total: u64,
+    #[serde(default)]
+    pub memory_heap_min_free: u64,
+    #[serde(default)]
+    pub memory_heap_max_alloc: u64,
+    #[serde(default)]
+    pub memory_psram_total: u64,
+    #[serde(default)]
+    pub memory_psram_free: u64,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -119,82 +129,6 @@ pub struct FileEntry {
     pub size: u64,
 }
 
-// ─── Fetch helpers ──────────────────────────────────────────────────────────
-
-pub async fn fetch_device_status(base_url: &str) -> Result<DeviceStatusEnvelope, reqwest::Error> {
-    reqwest::get(format!("{base_url}/api/system/device/status"))
-        .await?
-        .json()
-        .await
-}
-
-pub async fn fetch_device_status_for_location(base_url: &str, location: &str) -> Result<DeviceStatusEnvelope, reqwest::Error> {
-    let location = urlencoding::encode(location);
-    reqwest::get(format!("{base_url}/api/system/device/status?location={location}"))
-        .await?
-        .json()
-        .await
-}
-
-pub async fn fetch_cloudevents(base_url: &str) -> Result<Vec<CloudEvent>, reqwest::Error> {
-    reqwest::get(format!("{base_url}/api/cloudevents"))
-        .await?
-        .json()
-        .await
-}
-
-pub async fn fetch_wireless_status(base_url: &str) -> Result<WirelessStatusResponse, reqwest::Error> {
-    reqwest::get(format!("{base_url}/api/wireless/status"))
-        .await?
-        .json()
-        .await
-}
-
-pub async fn fetch_wifi_scan(base_url: &str) -> Result<WifiScanResponse, reqwest::Error> {
-    reqwest::Client::new()
-        .post(format!("{base_url}/api/wireless/actions/scan"))
-        .send()
-        .await?
-        .json()
-        .await
-}
-
-pub async fn fetch_filesystem(base_url: &str, location: &str) -> Result<Vec<FileEntry>, reqwest::Error> {
-    reqwest::get(format!("{base_url}/api/filesystem/{location}"))
-        .await?
-        .json()
-        .await
-}
-
-pub async fn connect_wifi(base_url: &str, ssid: &str, password: &str) -> Result<serde_json::Value, reqwest::Error> {
-    reqwest::Client::new()
-        .post(format!("{base_url}/api/wireless/actions/connect"))
-        .json(&serde_json::json!({ "ssid": ssid, "password": password }))
-        .send()
-        .await?
-        .json()
-        .await
-}
-
-pub async fn delete_file(base_url: &str, location: &str, path: &str) -> Result<reqwest::Response, reqwest::Error> {
-    reqwest::Client::new()
-        .delete(format!("{base_url}/api/filesystem/{location}/{path}"))
-        .send()
-        .await
-}
-
-pub async fn upload_file(base_url: &str, location: &str, filename: &str, data: &[u8]) -> Result<reqwest::Response, reqwest::Error> {
-    let part = reqwest::multipart::Part::bytes(data.to_vec())
-        .file_name(filename.to_string());
-    let form = reqwest::multipart::Form::new()
-        .part("file", part);
-    reqwest::Client::new()
-        .put(format!("{base_url}/api/filesystem/{location}/{filename}"))
-        .multipart(form)
-        .send()
-        .await
-}
-
 // ─── CO2 control ────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Deserialize)]
@@ -211,41 +145,6 @@ pub struct Co2ConfigData {
     pub auto_calibration_enabled: bool,
     pub temperature_offset_celsius: f64,
     pub altitude_meters: u16,
-}
-
-pub async fn fetch_co2_config(base_url: &str) -> Result<Co2ConfigResponse, reqwest::Error> {
-    reqwest::get(format!("{base_url}/api/co2/config"))
-        .await?
-        .json()
-        .await
-}
-
-pub async fn set_co2_config(base_url: &str, config: &serde_json::Value) -> Result<serde_json::Value, reqwest::Error> {
-    reqwest::Client::new()
-        .post(format!("{base_url}/api/co2/config"))
-        .json(config)
-        .send()
-        .await?
-        .json()
-        .await
-}
-
-pub async fn start_co2(base_url: &str) -> Result<serde_json::Value, reqwest::Error> {
-    reqwest::Client::new()
-        .post(format!("{base_url}/api/co2/start"))
-        .send()
-        .await?
-        .json()
-        .await
-}
-
-pub async fn stop_co2(base_url: &str) -> Result<serde_json::Value, reqwest::Error> {
-    reqwest::Client::new()
-        .post(format!("{base_url}/api/co2/stop"))
-        .send()
-        .await?
-        .json()
-        .await
 }
 
 // ─── Utilities ──────────────────────────────────────────────────────────────
@@ -266,7 +165,11 @@ pub fn format_storage_pair(used: u64, total: u64) -> String {
     } else if total < 1024 * 1024 {
         (used as f64 / 1024.0, total as f64 / 1024.0, "KB")
     } else {
-        (used as f64 / (1024.0 * 1024.0), total as f64 / (1024.0 * 1024.0), "MB")
+        (
+            used as f64 / (1024.0 * 1024.0),
+            total as f64 / (1024.0 * 1024.0),
+            "MB",
+        )
     };
     format!("{used_val:.1} / {total_val:.1} {unit}")
 }

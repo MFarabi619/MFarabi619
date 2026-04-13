@@ -1,5 +1,7 @@
-use crate::api::{self, WifiNetwork, WirelessStatusData};
-use super::{sleep_ms, Th, Td};
+use super::{Td, Th};
+use crate::api::{WifiNetwork, WirelessStatusData};
+use crate::hooks::sleep_ms;
+use crate::services::{DeviceService, WifiService};
 use dioxus::prelude::*;
 use lucide_dioxus::{LoaderCircle, Radar, Wifi};
 use ui::components::toast::use_toast;
@@ -41,7 +43,7 @@ pub fn NetworkPanel(
                         scanning.set(true);
                         let url = device_url.read().clone();
                         spawn(async move {
-                            match api::fetch_wifi_scan(&url).await {
+                            match WifiService::scan(&url).await {
                                 Ok(response) => {
                                     let count = response.data.networks.len();
                                     networks.set(response.data.networks);
@@ -73,11 +75,11 @@ pub fn NetworkPanel(
                     connecting.set(true);
                     let url = device_url.read().clone();
                     spawn(async move {
-                        match api::connect_wifi(&url, &ssid, &password).await {
+                        match WifiService::connect(&url, &ssid, &password).await {
                             Ok(_) => {
                                 toasts.success(format!("Connecting to {ssid}..."), None);
                                 sleep_ms(3000).await;
-                                if let Ok(response) = api::fetch_wireless_status(&url).await {
+                                if let Ok(response) = WifiService::get_status(&url).await {
                                     wireless.set(Some(response.data));
                                 }
                             }
@@ -90,6 +92,7 @@ pub fn NetworkPanel(
                     input {
                         class: "gold-input w-full px-3 py-2 text-sm",
                         r#type: "text",
+                        aria_label: "SSID",
                         placeholder: "SSID",
                         value: "{ssid_input}",
                         oninput: move |event| ssid_input.set(event.value()),
@@ -99,6 +102,7 @@ pub fn NetworkPanel(
                     input {
                         class: "gold-input w-full px-3 py-2 text-sm",
                         r#type: "password",
+                        aria_label: "Password",
                         placeholder: "Password (blank for open)",
                         value: "{password_input}",
                         oninput: move |event| password_input.set(event.value()),
