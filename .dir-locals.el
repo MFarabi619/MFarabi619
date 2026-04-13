@@ -83,14 +83,11 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
 
-            (" ESP32S3 :󰐊 build"                 :command "pio run"                                                                            :annotation "cargo +esp ")
-            ;; (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
+            (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
             (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
 
-            (" ESP32S3 :󰔰 flash"                 :command "pio run -t upload --upload-port '/dev/cu.usbmodem2101'"                             :annotation "cargo +esp ")
-            (" ESP32S3 : upload"                :command "pio run -t uploadfs"                                                                :annotation "cargo +esp ")
-            ;; (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
-            ;; (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
+            (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
+            (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
             (" ESP32S3 : debug"                 :command "cargo +esp rr"                                                                      :annotation "cargo +esp ")
             (" ESP32S3 :󰭎 monitor"               :command "probe-rs run"                                  :prodigy nil                         :annotation "cargo +esp ")
 
@@ -115,6 +112,7 @@
             (" ESP32S3 :󰐊 pio run"               :command "pio run                                                                          "  :annotation "platformio ")
             (" ESP32S3 : pio test"              :command "pio test                          "                                                 :annotation "platformio ")
             (" ESP32S3 :󰔰 pio run -t upload"     :command "pio run -t upload                                                                "  :annotation "platformio ")
+            (" ESP32S3 : pio run -t uploadfs"   :command "pio run -t uploadfs"                                                                :annotation "platformio ")
             (" ESP32S3 :󰭎 pio device monitor"    :command "pio device monitor                                                               "  :annotation "platformio ")
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
