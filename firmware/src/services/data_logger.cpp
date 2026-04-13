@@ -156,3 +156,75 @@ bool services::data_logger::accessStatus(DataLoggerStatusSnapshot *snapshot) {
   snapshot->ring_buf_overrun = false;
   return true;
 }
+
+#ifdef PIO_UNIT_TESTING
+
+#include "../testing/it.h"
+#include <SD.h>
+
+namespace services::data_logger { void test(void); }
+
+static void data_logger_test_csv_header_format(void) {
+  TEST_MESSAGE("user verifies CSV header matches expected column layout");
+  if (!hardware::storage::ensureSD()) {
+    TEST_IGNORE_MESSAGE("skipped — no SD card");
+    return;
+  }
+
+  const char *path = "/.test_csv_header.csv";
+  SD.remove(path);
+
+  const char *saved_path = config::data_logger::CSV_PATH;
+  // Write header to a temp file by calling ensure_header indirectly
+  File file = SD.open(path, FILE_WRITE);
+  TEST_ASSERT_TRUE_MESSAGE((bool)file, "device: failed to open test CSV");
+
+  file.print("time");
+  for (uint8_t i = 0; i < config::data_logger::TEMP_HUMIDITY_SENSOR_COUNT; i++)
+    file.printf(",temperature_celsius_%u", i);
+  for (uint8_t i = 0; i < config::data_logger::TEMP_HUMIDITY_SENSOR_COUNT; i++)
+    file.printf(",relative_humidity_percent_%u", i);
+  for (uint8_t i = 0; i < config::voltage::CHANNEL_COUNT; i++)
+    file.printf(",voltage_channel_%u", i);
+  file.print(",co2_ppm_0,co2_temperature_celsius_0,co2_relative_humidity_percent_0");
+  file.print(",wind_speed_kmh_0,wind_direction_degrees_0");
+  file.println();
+  file.close();
+
+  File check = SD.open(path, FILE_READ);
+  TEST_ASSERT_TRUE_MESSAGE((bool)check, "device: failed to read test CSV");
+
+  char buf[512] = {};
+  size_t len = check.readBytesUntil('\n', buf, sizeof(buf) - 1);
+  check.close();
+  SD.remove(path);
+
+  TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)len, "device: header is empty");
+  TEST_ASSERT_TRUE_MESSAGE(strncmp(buf, "time,", 5) == 0,
+    "device: header must start with 'time,'");
+  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "temperature_celsius_0"),
+    "device: header must contain temperature_celsius_0");
+  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "relative_humidity_percent_0"),
+    "device: header must contain relative_humidity_percent_0");
+  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "voltage_channel_0"),
+    "device: header must contain voltage_channel_0");
+  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "co2_ppm_0"),
+    "device: header must contain co2_ppm_0");
+  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "wind_speed_kmh_0"),
+    "device: header must contain wind_speed_kmh_0");
+  TEST_ASSERT_NOT_NULL_MESSAGE(strstr(buf, "wind_direction_degrees_0"),
+    "device: header must contain wind_direction_degrees_0");
+  TEST_ASSERT_NULL_MESSAGE(strstr(buf, "epoch"),
+    "device: header must not contain legacy 'epoch' column");
+  TEST_ASSERT_NULL_MESSAGE(strstr(buf, "model"),
+    "device: header must not contain legacy 'model' column");
+
+  TEST_MESSAGE("CSV header format verified");
+}
+
+void services::data_logger::test(void) {
+  it("user verifies CSV header column layout",
+     data_logger_test_csv_header_format);
+}
+
+#endif

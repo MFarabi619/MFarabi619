@@ -22,6 +22,10 @@ void service();
 void flushNow();
 bool accessStatus(DataLoggerStatusSnapshot *snapshot);
 
+#ifdef PIO_UNIT_TESTING
+void test();
+#endif
+
 }
 
 #endif
