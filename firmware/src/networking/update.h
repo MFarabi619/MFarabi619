@@ -6,12 +6,12 @@
 
 namespace networking::update {
 
-bool applyFromSD(const char *path = config::ota::SD_PATH) noexcept;
-bool applyFromURL(const char *url, const char *cert_pem = nullptr) noexcept;
-[[nodiscard]] bool canRollback() noexcept;
-bool rollback() noexcept;
+bool applyFromSD(const char *path = config::ota::SD_PATH);
+bool applyFromURL(const char *url, const char *cert_pem = nullptr);
+[[nodiscard]] bool canRollback();
+bool rollback();
 
-void checkSDOnBoot() noexcept;
+void checkSDOnBoot();
 
 } // namespace networking::update
 

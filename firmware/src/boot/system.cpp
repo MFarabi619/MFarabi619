@@ -12,9 +12,11 @@
 #include "../networking/ble.h"
 #include "../programs/buttons.h"
 #include "../programs/led.h"
+#include "../power/sleep.h"
 #include "../programs/shell/shell.h"
 #include "../programs/ssh/ssh_server.h"
 #include "../services/http.h"
+#include "../services/data_logger.h"
 #include "../services/ws_shell.h"
 #include "../services/identity.h"
 #include "../sensors/manager.h"
@@ -31,10 +33,9 @@ void initialize_hardware(void) {
   LED.init();
   LED.set(RGB_YELLOW);
 
-  hardware::i2c::enable();
-  delay(100);
   hardware::i2c::initialize();
   hardware::storage::initialize();
+  power::sleep::initialize();
   services::identity::initialize();
 }
 
@@ -47,6 +48,7 @@ void initialize_services_and_programs(void) {
 
   programs::shell::initialize();
   programs::buttons::initialize();
+  services::data_logger::initialize();
 }
 
 void initialize_storage(void) {
@@ -103,7 +105,9 @@ void system_task(void *pvParameters) {
     networking::telnet::service();
     networking::ota::service();
     programs::buttons::service();
+    power::sleep::service();
     sensors::manager::service();
+    services::data_logger::service();
 
 #if CERATINA_BLE_ENABLED
     networking::ble::service();
@@ -129,7 +133,7 @@ void system_task(void *pvParameters) {
 
 }
 
-void boot::system::startServices() noexcept {
+void boot::system::startServices() {
   static bool sntp_done = false;
   static bool ssh_done = false;
   static bool http_done = false;
@@ -143,7 +147,7 @@ void boot::system::startServices() noexcept {
   if (!ota_done) { networking::ota::initialize(); ota_done = true; }
 }
 
-void boot::system::startTask() noexcept {
+void boot::system::startTask() {
   xTaskCreatePinnedToCore(system_task, "system", config::system::TASK_STACK,
                           nullptr, 1, nullptr, 1);
 }

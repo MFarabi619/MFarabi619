@@ -26,7 +26,7 @@ static void IRAM_ATTR button_isr(void *arg) {
   }
 }
 
-void programs::buttons::initialize() noexcept {
+void programs::buttons::initialize() {
   for (uint8_t i = 0; i < config::buttons::COUNT; i++) {
     if ((int8_t)button_gpios[i] < 0) continue;
     pinMode(button_gpios[i], INPUT);
@@ -41,7 +41,7 @@ void programs::buttons::initialize() noexcept {
                 config::buttons::GPIO_1, config::buttons::GPIO_2, config::buttons::GPIO_3);
 }
 
-void programs::buttons::service() noexcept {
+void programs::buttons::service() {
   for (uint8_t i = 0; i < config::buttons::COUNT; i++) {
     if ((int8_t)button_gpios[i] < 0) continue;
     bool pressed = !digitalRead(button_gpios[i]);
@@ -67,10 +67,10 @@ void programs::buttons::service() noexcept {
   }
 }
 
-void programs::buttons::onPress(ButtonCallback cb) noexcept { on_press_cb = cb; }
-void programs::buttons::onLongPress(ButtonCallback cb) noexcept { on_long_press_cb = cb; }
+void programs::buttons::onPress(ButtonCallback cb) { on_press_cb = cb; }
+void programs::buttons::onLongPress(ButtonCallback cb) { on_long_press_cb = cb; }
 
-bool programs::buttons::isPressed(uint8_t index) noexcept {
+bool programs::buttons::isPressed(uint8_t index) {
   if (index >= config::buttons::COUNT) return false;
   return !digitalRead(button_gpios[index]);
 }

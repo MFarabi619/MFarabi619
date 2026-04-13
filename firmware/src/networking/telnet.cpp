@@ -108,7 +108,7 @@ static void on_input(String input) {
   }
 }
 
-void networking::telnet::initialize() noexcept {
+void networking::telnet::initialize() {
   if (started) return;
 
   telnet_inst.onConnect(on_connect);
@@ -128,7 +128,7 @@ void networking::telnet::initialize() noexcept {
   Serial.printf("[telnet] listening on port %d\n", config::telnet::PORT);
 }
 
-void networking::telnet::service() noexcept {
+void networking::telnet::service() {
   if (!started) return;
   telnet_inst.loop();
   if (!telnet_inst.isConnected()) return;
@@ -136,26 +136,26 @@ void networking::telnet::service() noexcept {
   write_flush();
 }
 
-bool networking::telnet::isConnected() noexcept {
+bool networking::telnet::isConnected() {
   return started && telnet_inst.isConnected();
 }
 
-const char *networking::telnet::clientIP() noexcept {
+const char *networking::telnet::clientIP() {
   return client_ip_str.c_str();
 }
 
-void networking::telnet::disconnect() noexcept {
+void networking::telnet::disconnect() {
   if (started && telnet_inst.isConnected())
     telnet_inst.disconnectClient();
 }
 
 #else
 
-void networking::telnet::initialize() noexcept {}
-void networking::telnet::service() noexcept {}
-bool networking::telnet::isConnected() noexcept { return false; }
-const char *networking::telnet::clientIP() noexcept { return ""; }
-void networking::telnet::disconnect() noexcept {}
+void networking::telnet::initialize() {}
+void networking::telnet::service() {}
+bool networking::telnet::isConnected() { return false; }
+const char *networking::telnet::clientIP() { return ""; }
+void networking::telnet::disconnect() {}
 
 #endif
 

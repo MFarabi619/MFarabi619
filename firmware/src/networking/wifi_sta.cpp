@@ -16,7 +16,7 @@ void networking::wifi::internal::configureMdnsServices(const char *hostname) {
   MDNS.addServiceTxt("http", "tcp", "fw", ESP.getSdkVersion());
 }
 
-void networking::wifi::sta::initialize() noexcept {
+void networking::wifi::sta::initialize() {
   static bool setup_done = false;
   if (setup_done) return;
   setup_done = true;
@@ -55,7 +55,7 @@ void networking::wifi::sta::initialize() noexcept {
   });
 }
 
-void networking::wifi::configureHostname(const char *hostname) noexcept {
+void networking::wifi::configureHostname(const char *hostname) {
   if (!hostname || hostname[0] == '\0') return;
 
   WiFi.setHostname(hostname);
@@ -71,7 +71,7 @@ void networking::wifi::configureHostname(const char *hostname) noexcept {
   }
 }
 
-bool networking::wifi::sta::connect() noexcept {
+bool networking::wifi::sta::connect() {
   WifiConnectCommand command = {
     .request = {
       .ssid = nullptr,

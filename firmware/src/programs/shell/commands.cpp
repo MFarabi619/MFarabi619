@@ -1,6 +1,7 @@
 #include "commands.h"
 #include "../../boot/system.h"
 #include "../../networking/wifi.h"
+#include "../../power/sleep.h"
 #include "../ssh/ssh_server.h"
 
 #include <Arduino.h>
@@ -122,6 +123,38 @@ static void cmd_cpu(struct ush_object *self,
   ush_printf(self, "%lu MHz\r\n", (unsigned long)ESP.getCpuFreqMHz());
 }
 
+static void cmd_sleep(struct ush_object *self,
+                      struct ush_file_descriptor const *file,
+                      int argc, char *argv[]) {
+  (void)file;
+  if (argc != 2) {
+    ush_print(self, (char *)"usage: sleep <seconds>\r\n");
+    return;
+  }
+
+  SleepCommand command = {
+    .duration_seconds = static_cast<uint32_t>(atoi(argv[1])),
+    .ok = false,
+  };
+  if (power::sleep::request(&command)) {
+    ush_printf(self, "sleeping in %lu second(s)...\r\n",
+               (unsigned long)command.duration_seconds);
+  } else {
+    ush_print(self, (char *)"invalid sleep duration\r\n");
+  }
+}
+
+static void cmd_wakecause(struct ush_object *self,
+                          struct ush_file_descriptor const *file,
+                          int argc, char *argv[]) {
+  (void)file; (void)argv;
+  if (argc != 1) {
+    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
+    return;
+  }
+  ush_printf(self, "%s\r\n", power::sleep::accessWakeCause());
+}
+
 static const struct ush_file_descriptor cmd_files[] = {
   { .name = "reboot",       .description = "reboot the device",
     .help = "usage: reboot\r\n",           .exec = cmd_reboot },
@@ -137,6 +170,10 @@ static const struct ush_file_descriptor cmd_files[] = {
     .help = "usage: ps\r\n",              .exec = cmd_ps },
   { .name = "cpu",          .description = "read or set CPU frequency",
     .help = "usage: cpu [80|160|240]\r\n", .exec = cmd_cpu },
+  { .name = "sleep",        .description = "enter deep sleep for N seconds",
+    .help = "usage: sleep <seconds>\r\n", .exec = cmd_sleep },
+  { .name = "wakecause",    .description = "show the last wake cause",
+    .help = "usage: wakecause\r\n",      .exec = cmd_wakecause },
 };
 
 static struct ush_node_object cmd;

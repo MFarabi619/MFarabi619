@@ -7,11 +7,11 @@ struct ush_object;
 
 namespace services::sshd {
 
-bool initialize() noexcept;
-[[nodiscard]] bool requestExit(struct ush_object *self) noexcept;
+bool initialize();
+[[nodiscard]] bool requestExit(struct ush_object *self);
 
 #ifdef PIO_UNIT_TESTING
-void test() noexcept;
+void test();
 #endif
 
 }

@@ -8,23 +8,24 @@
 struct TemperatureHumiditySensorData {
   float temperature_celsius;
   float relative_humidity_percent;
+  const char *model;
   bool ok;
 };
 
 namespace sensors::temperature_and_humidity {
 
-uint8_t discover() noexcept;
-[[nodiscard]] uint8_t sensorCount() noexcept;
+uint8_t discover();
+[[nodiscard]] uint8_t sensorCount();
 
 [[nodiscard]] bool access(uint8_t index,
-                          TemperatureHumiditySensorData *sensor_data) noexcept;
+                          TemperatureHumiditySensorData *sensor_data);
 
 [[nodiscard]] uint8_t accessAll(TemperatureHumiditySensorData *sensor_data,
                                 bool *read_ok,
-                                uint8_t max_count) noexcept;
+                                uint8_t max_count);
 
 #ifdef PIO_UNIT_TESTING
-void test() noexcept;
+void test();
 #endif
 
 }

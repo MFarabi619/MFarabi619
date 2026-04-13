@@ -20,12 +20,12 @@ struct StorageQuery {
 
 namespace hardware::storage {
 
-void initialize() noexcept;
-bool ensureLittleFS() noexcept;
-bool ensureSD() noexcept;
-bool isLittleFSReady() noexcept;
-bool isSDReady() noexcept;
-bool accessSnapshot(StorageQuery *query) noexcept;
+void initialize();
+bool ensureLittleFS();
+bool ensureSD();
+bool isLittleFSReady();
+bool isSDReady();
+bool accessSnapshot(StorageQuery *query);
 
 }
 

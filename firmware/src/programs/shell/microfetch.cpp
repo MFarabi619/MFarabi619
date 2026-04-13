@@ -124,7 +124,7 @@ const char *programs::shell::microfetch::generate(void) {
   row("36", NF_FA_SITEMAP, "I2C Mux", "\x1b[1mTCA9548A\x1b[0m @ 0x%02X", config::i2c::MUX_ADDR);
 
   if (inventory.temperature_humidity_count > 0)
-    row("35", NF_FA_THERMOMETER, "Temp/Hum", "\x1b[1mCHT832X\x1b[0m x%d",
+    row("35", NF_FA_THERMOMETER, "Temp/Hum", "\x1b[1mI2C sensors\x1b[0m x%d",
         inventory.temperature_humidity_count);
   
 

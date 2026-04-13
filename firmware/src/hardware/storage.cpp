@@ -13,14 +13,14 @@ bool sd_ready = false;
 
 }
 
-void hardware::storage::initialize() noexcept {
+void hardware::storage::initialize() {
   littlefs_attempted = false;
   littlefs_ready = false;
   sd_attempted = false;
   sd_ready = false;
 }
 
-bool hardware::storage::ensureLittleFS() noexcept {
+bool hardware::storage::ensureLittleFS() {
   if (littlefs_attempted) return littlefs_ready;
   littlefs_attempted = true;
 
@@ -35,7 +35,7 @@ bool hardware::storage::ensureLittleFS() noexcept {
   return littlefs_ready;
 }
 
-bool hardware::storage::ensureSD() noexcept {
+bool hardware::storage::ensureSD() {
   if (sd_attempted) return sd_ready;
   sd_attempted = true;
   sd_ready = SD.begin();
@@ -45,15 +45,15 @@ bool hardware::storage::ensureSD() noexcept {
   return sd_ready;
 }
 
-bool hardware::storage::isLittleFSReady() noexcept {
+bool hardware::storage::isLittleFSReady() {
   return littlefs_ready;
 }
 
-bool hardware::storage::isSDReady() noexcept {
+bool hardware::storage::isSDReady() {
   return sd_ready;
 }
 
-bool hardware::storage::accessSnapshot(StorageQuery *query) noexcept {
+bool hardware::storage::accessSnapshot(StorageQuery *query) {
   if (!query) return false;
   query->snapshot.kind = query->kind;
   query->snapshot.mounted = false;

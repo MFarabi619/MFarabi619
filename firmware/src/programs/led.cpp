@@ -5,7 +5,7 @@
 
 Led LED(config::led::COUNT, config::led::GPIO, NEO_GRB + NEO_KHZ800);
 
-bool Led::init() noexcept {
+bool Led::init() {
     bool ok = begin();
     setBrightness(config::led::BRIGHTNESS);
     clear();
@@ -13,7 +13,7 @@ bool Led::init() noexcept {
     return ok;
 }
 
-void Led::glow(uint32_t duration_ms) noexcept {
+void Led::glow(uint32_t duration_ms) {
     uint32_t start = millis();
     uint8_t saved = getBrightness();
     while (millis() - start < duration_ms) {

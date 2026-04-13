@@ -85,12 +85,12 @@ struct APEnabledCommand {
 
 namespace networking::wifi {
 
-void configureHostname(const char *hostname) noexcept;
-bool accessSnapshot(NetworkStatusSnapshot *snapshot) noexcept;
-bool accessConfig(WifiSavedConfig *config) noexcept;
-bool storeConfig(WifiSavedConfig *config) noexcept;
-bool connect(WifiConnectCommand *command) noexcept;
-bool scan(WifiScanCommand *command) noexcept;
+void configureHostname(const char *hostname);
+bool accessSnapshot(NetworkStatusSnapshot *snapshot);
+bool accessConfig(WifiSavedConfig *config);
+bool storeConfig(WifiSavedConfig *config);
+bool connect(WifiConnectCommand *command);
+bool scan(WifiScanCommand *command);
 
 #ifdef PIO_UNIT_TESTING
 void test(void);
@@ -100,20 +100,20 @@ void test(void);
 
 namespace networking::wifi::sta {
 
-void initialize() noexcept;
-[[nodiscard]] bool connect() noexcept;
+void initialize();
+[[nodiscard]] bool connect();
 
 } // namespace networking::wifi::sta
 
 namespace networking::wifi::ap {
 
-void enable() noexcept;
-void disable() noexcept;
-[[nodiscard]] bool isActive() noexcept;
-void accessConfig(APConfig *config) noexcept;
-bool accessSnapshot(APSnapshot *snapshot) noexcept;
-bool applyConfig(APConfigureCommand *command) noexcept;
-bool setEnabled(APEnabledCommand *command) noexcept;
+void enable();
+void disable();
+[[nodiscard]] bool isActive();
+void accessConfig(APConfig *config);
+bool accessSnapshot(APSnapshot *snapshot);
+bool applyConfig(APConfigureCommand *command);
+bool setEnabled(APEnabledCommand *command);
 
 } // namespace networking::wifi::ap
 

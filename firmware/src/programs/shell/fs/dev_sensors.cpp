@@ -59,6 +59,37 @@ static size_t temperature_get_data(struct ush_object *self,
   return strlen(buf);
 }
 
+static size_t wind_speed_get_data(struct ush_object *self,
+                                  struct ush_file_descriptor const *file,
+                                  uint8_t **data) {
+  (void)self; (void)file;
+  static char buf[32];
+  WindSpeedSensorData sensor_data = {};
+  if (sensors::manager::accessWindSpeed(&sensor_data)) {
+    snprintf(buf, sizeof(buf), "%.2f km/h\r\n", sensor_data.kilometers_per_hour);
+  } else {
+    snprintf(buf, sizeof(buf), "(unavailable)\r\n");
+  }
+  *data = (uint8_t *)buf;
+  return strlen(buf);
+}
+
+static size_t wind_direction_get_data(struct ush_object *self,
+                                      struct ush_file_descriptor const *file,
+                                      uint8_t **data) {
+  (void)self; (void)file;
+  static char buf[48];
+  WindDirectionSensorData sensor_data = {};
+  if (sensors::manager::accessWindDirection(&sensor_data)) {
+    snprintf(buf, sizeof(buf), "%.1f deg (slice %u)\r\n",
+             sensor_data.degrees, sensor_data.slice);
+  } else {
+    snprintf(buf, sizeof(buf), "(unavailable)\r\n");
+  }
+  *data = (uint8_t *)buf;
+  return strlen(buf);
+}
+
 static const struct ush_file_descriptor sensors_files[] = {
   { .name = "i2c_scan",    .description = "scan all I2C buses",
      .get_data = i2c_scan_get_data },
@@ -66,6 +97,10 @@ static const struct ush_file_descriptor sensors_files[] = {
     .get_data = rtc_get_data },
   { .name = "temperature", .description = "DS3231 temperature",
     .get_data = temperature_get_data },
+  { .name = "wind_speed", .description = "wind speed sensor",
+    .get_data = wind_speed_get_data },
+  { .name = "wind_direction", .description = "wind direction sensor",
+    .get_data = wind_direction_get_data },
 };
 
 static struct ush_node_object sensors_node;

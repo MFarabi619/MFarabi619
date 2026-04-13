@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <string.h>
 
-size_t services::system::formatUptime(char *buf, size_t len, uint32_t uptime_seconds) noexcept {
+size_t services::system::formatUptime(char *buf, size_t len, uint32_t uptime_seconds) {
   if (!buf || len == 0) return 0;
 
   uint32_t days = uptime_seconds / 86400;
@@ -25,7 +25,7 @@ size_t services::system::formatUptime(char *buf, size_t len, uint32_t uptime_sec
                   (unsigned long)minutes, (unsigned long)seconds);
 }
 
-bool services::system::accessSnapshot(SystemQuery *query) noexcept {
+bool services::system::accessSnapshot(SystemQuery *query) {
   if (!query) return false;
   memset(&query->snapshot, 0, sizeof(query->snapshot));
 

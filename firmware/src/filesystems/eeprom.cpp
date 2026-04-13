@@ -1,15 +1,37 @@
 #include "eeprom.h"
 #include "../config.h"
+#include "../hardware/i2c.h"
 
 #include <Arduino.h>
-#include <Wire.h>
 
 AT24C32 filesystems::eeprom::IC(config::eeprom::I2C_ADDR, Wire1);
 
 using filesystems::eeprom::IC;
 
-bool filesystems::eeprom::initialize() noexcept {
+bool filesystems::eeprom::initialize() {
+  config::I2CSensorConfig sensor_config = {config::I2CSensorKind::EEPROM_AT24C32, 1, config::eeprom::I2C_ADDR, config::i2c::DIRECT_CHANNEL};
+  bool found = false;
+  for (size_t index = 0; index < config::i2c_topology::DEVICE_COUNT; index++) {
+    const config::I2CSensorConfig &candidate = config::i2c_topology::DEVICES[index];
+    if (candidate.kind == config::I2CSensorKind::EEPROM_AT24C32) {
+      sensor_config = candidate;
+      found = true;
+      break;
+    }
+  }
+  if (!found) return false;
+
+  hardware::i2c::DeviceAccessCommand command = {
+    .bus = sensor_config.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
+    .mux_channel = sensor_config.mux_channel,
+    .wire = nullptr,
+    .ok = false,
+  };
+  if (!hardware::i2c::accessDevice(&command)) return false;
+
+  filesystems::eeprom::IC = AT24C32(sensor_config.address, *command.wire);
   IC.read(0);
+  hardware::i2c::clearSelection();
   return IC.getLastError() == 0;
 }
 
@@ -25,6 +47,7 @@ bool filesystems::eeprom::initialize() noexcept {
 
 static void eeprom_test_init(void) {
   test_ensure_wire1();
+  hardware::i2c::initialize();
   TEST_MESSAGE("user asks the device to detect the EEPROM");
   TEST_ASSERT_TRUE_MESSAGE(filesystems::eeprom::initialize(),
     "device: EEPROM not detected on bus 1");
@@ -138,7 +161,7 @@ static void eeprom_test_page_boundary_buffer(void) {
   TEST_MESSAGE("page boundary buffer verified");
 }
 
-void filesystems::eeprom::test() noexcept {
+void filesystems::eeprom::test() {
   it("user observes that the EEPROM is detected",
      eeprom_test_init);
   it("user observes that byte write/read roundtrips correctly",

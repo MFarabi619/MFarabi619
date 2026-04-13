@@ -17,7 +17,7 @@ bool networking::wifi::internal::openPreferences(bool readonly, Preferences *pre
   return prefs && prefs->begin(config::wifi::NVS_NAMESPACE, readonly);
 }
 
-bool networking::wifi::accessSnapshot(NetworkStatusSnapshot *snapshot) noexcept {
+bool networking::wifi::accessSnapshot(NetworkStatusSnapshot *snapshot) {
   if (!snapshot) return false;
   memset(snapshot, 0, sizeof(*snapshot));
 
@@ -46,7 +46,7 @@ bool networking::wifi::accessSnapshot(NetworkStatusSnapshot *snapshot) noexcept 
   return true;
 }
 
-bool networking::wifi::accessConfig(WifiSavedConfig *config) noexcept {
+bool networking::wifi::accessConfig(WifiSavedConfig *config) {
   if (!config) return false;
   memset(config, 0, sizeof(*config));
 
@@ -60,7 +60,7 @@ bool networking::wifi::accessConfig(WifiSavedConfig *config) noexcept {
   return has_ssid && has_password;
 }
 
-bool networking::wifi::storeConfig(WifiSavedConfig *config) noexcept {
+bool networking::wifi::storeConfig(WifiSavedConfig *config) {
   if (!config) return false;
   Preferences prefs;
   if (!networking::wifi::internal::openPreferences(false, &prefs)) return false;
@@ -72,7 +72,7 @@ bool networking::wifi::storeConfig(WifiSavedConfig *config) noexcept {
   return config->valid;
 }
 
-bool networking::wifi::connect(WifiConnectCommand *command) noexcept {
+bool networking::wifi::connect(WifiConnectCommand *command) {
   if (!command) return false;
   command->result = {};
   command->result.connected = false;
@@ -118,7 +118,7 @@ bool networking::wifi::connect(WifiConnectCommand *command) noexcept {
   return command->result.connected;
 }
 
-bool networking::wifi::scan(WifiScanCommand *command) noexcept {
+bool networking::wifi::scan(WifiScanCommand *command) {
   if (!command || !command->results || command->max_results == 0) return false;
   command->result_count = -1;
 

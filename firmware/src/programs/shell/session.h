@@ -19,12 +19,12 @@ struct WriteBuffer {
   size_t position;
 };
 
-void reset(RingBuffer *ring) noexcept;
-bool push(RingBuffer *ring, char ch) noexcept;
-int pop(RingBuffer *ring, char *ch) noexcept;
+void reset(RingBuffer *ring);
+bool push(RingBuffer *ring, char ch);
+int pop(RingBuffer *ring, char *ch);
 
-void reset(WriteBuffer *buffer) noexcept;
-bool push(WriteBuffer *buffer, char ch) noexcept;
+void reset(WriteBuffer *buffer);
+bool push(WriteBuffer *buffer, char ch);
 
 }
 

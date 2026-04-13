@@ -2,6 +2,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <cstddef>
 #include <cstdint>
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -109,11 +110,70 @@ namespace config {
       inline constexpr BusConfig BUS_0            = {15, 16};
       inline constexpr BusConfig BUS_1            = {17, 18};
       inline constexpr uint32_t  FREQUENCY_KHZ    = 100;
-      inline constexpr uint8_t   RELAY_POWER_GPIO = 5;
+
+      // Legacy board: a single relay on GPIO 5 powers all downstream I2C devices
+      // when no mux is present.
+      inline constexpr uint8_t   LEGACY_POWER_GPIO = 5;
+
+      // New board: muxed sensor power is split across two rails.
+      // The relationship is fixed by board wiring and is intentionally documented here
+      // instead of hidden in arithmetic:
+      //   mux channels 0, 2, 4, 6 -> GPIO 6
+      //   mux channels 1, 3, 5, 7 -> GPIO 1
+      inline constexpr uint8_t   MUX_POWER_GPIO_ODD  = 1;
+      inline constexpr uint8_t   MUX_POWER_GPIO_EVEN = 6;
+
       inline constexpr uint8_t   ADDR_MIN         = 1;
       inline constexpr uint8_t   ADDR_MAX         = 127;
       inline constexpr uint8_t   MUX_ADDR         = 0x70;
+      inline constexpr int8_t    DIRECT_CHANNEL   = -1;
+      inline constexpr int8_t    ANY_MUX_CHANNEL  = -2;
   }
+
+  enum class I2CSensorKind : uint8_t {
+      TemperatureHumidityCHT832X,
+      TemperatureHumiditySHT3X,
+      VoltageADS1115,
+      CarbonDioxideSCD30,
+      CarbonDioxideSCD4X,
+      RTC_DS3231,
+      EEPROM_AT24C32,
+  };
+
+  struct I2CSensorConfig {
+      I2CSensorKind kind;
+      uint8_t bus;
+      uint8_t address;
+      int8_t mux_channel;
+  };
+
+  namespace rs485 {
+      inline constexpr uint8_t CHANNEL_COUNT = 2;
+
+      struct BusConfig {
+          int8_t tx_gpio;
+          int8_t rx_gpio;
+          int8_t de_re_gpio;
+          uint32_t baud_rate;
+      };
+
+      inline constexpr BusConfig BUS_0 = {45, 48, 47, 9600};
+      inline constexpr BusConfig BUS_1 = {40, 39, 41, 4800};
+  }
+
+  enum class ModbusSensorKind : uint8_t {
+      WindSpeed,
+      WindDirection,
+      SolarRadiation,
+      SoilProbe,
+  };
+
+  struct ModbusSensorConfig {
+      ModbusSensorKind kind;
+      uint8_t channel;
+      uint8_t slave_id;
+      uint16_t register_address;
+  };
 
   namespace eeprom { // ──(AT24C32 on I2C bus 1)──
       inline constexpr uint8_t  I2C_ADDR   = 0x50;
@@ -126,6 +186,35 @@ namespace config {
       inline constexpr uint8_t  I2C_ADDR       = 0x44;
       inline constexpr uint8_t  MAX_SENSORS    = 8;
       inline constexpr uint16_t READ_DELAY_MS  = 100;
+      inline constexpr uint8_t  SHT3X_RESET_GPIO_PIN = 4;
+  }
+
+  namespace wind {
+      inline constexpr uint16_t SENSOR_DELAY_MS = 100;
+  }
+
+  namespace modbus {
+      inline constexpr ModbusSensorConfig DEVICES[] = {
+          {ModbusSensorKind::WindSpeed, 0, 20, 0},
+          {ModbusSensorKind::WindDirection, 0, 30, 0},
+      };
+
+      inline constexpr size_t DEVICE_COUNT = sizeof(DEVICES) / sizeof(DEVICES[0]);
+  }
+
+  namespace i2c_topology {
+      inline constexpr I2CSensorConfig DEVICES[] = {
+          {I2CSensorKind::RTC_DS3231,                 0, 0x68, i2c::DIRECT_CHANNEL},
+          {I2CSensorKind::EEPROM_AT24C32,             1, 0x50, i2c::DIRECT_CHANNEL},
+          {I2CSensorKind::VoltageADS1115,             1, 0x48, i2c::ANY_MUX_CHANNEL},
+          {I2CSensorKind::CarbonDioxideSCD30,         1, 0x61, i2c::DIRECT_CHANNEL},
+          {I2CSensorKind::CarbonDioxideSCD4X,         1, 0x62, i2c::DIRECT_CHANNEL},
+          {I2CSensorKind::TemperatureHumidityCHT832X, 1, 0x44, i2c::ANY_MUX_CHANNEL},
+          {I2CSensorKind::TemperatureHumiditySHT3X,   0, 0x44, i2c::DIRECT_CHANNEL},
+          {I2CSensorKind::TemperatureHumiditySHT3X,   1, 0x44, i2c::DIRECT_CHANNEL},
+      };
+
+      inline constexpr size_t DEVICE_COUNT = sizeof(DEVICES) / sizeof(DEVICES[0]);
   }
 
     namespace voltage {// ──(ADS1115 on Wire1) ──
@@ -140,6 +229,11 @@ namespace config {
   namespace ws_shell {
       inline constexpr uint16_t RING_SIZE = 512;
       inline constexpr uint16_t WRITE_BUF = 1024;
+  }
+
+  namespace data_logger {
+      inline constexpr const char *CSV_PATH = "/data.csv";
+      inline constexpr uint32_t LOG_INTERVAL_MS = 5000;
   }
 
   namespace provisioning {

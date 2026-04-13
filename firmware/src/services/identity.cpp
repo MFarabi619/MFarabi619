@@ -39,16 +39,16 @@ static void ensure_hostname(void) {
 
 }
 
-void services::identity::initialize() noexcept {
+void services::identity::initialize() {
   ensure_hostname();
 }
 
-const char *services::identity::accessHostname() noexcept {
+const char *services::identity::accessHostname() {
   ensure_hostname();
   return hostname_data;
 }
 
-bool services::identity::configureHostname(const char *hostname) noexcept {
+bool services::identity::configureHostname(const char *hostname) {
   ensure_hostname();
   if (!hostname) return false;
 
@@ -58,31 +58,31 @@ bool services::identity::configureHostname(const char *hostname) noexcept {
   return true;
 }
 
-bool services::identity::accessUsername(IdentityStringQuery *query) noexcept {
+bool services::identity::accessUsername(IdentityStringQuery *query) {
   return get_provisioning_string("username", query);
 }
 
-bool services::identity::configureUsername(const char *value) noexcept {
+bool services::identity::configureUsername(const char *value) {
   return set_provisioning_string("username", value);
 }
 
-bool services::identity::accessDeviceName(IdentityStringQuery *query) noexcept {
+bool services::identity::accessDeviceName(IdentityStringQuery *query) {
   return get_provisioning_string("device_name", query);
 }
 
-bool services::identity::configureDeviceName(const char *value) noexcept {
+bool services::identity::configureDeviceName(const char *value) {
   return set_provisioning_string("device_name", value);
 }
 
-bool services::identity::accessAPIKey(IdentityStringQuery *query) noexcept {
+bool services::identity::accessAPIKey(IdentityStringQuery *query) {
   return get_provisioning_string("api_key", query);
 }
 
-bool services::identity::configureAPIKey(const char *value) noexcept {
+bool services::identity::configureAPIKey(const char *value) {
   return set_provisioning_string("api_key", value);
 }
 
-bool services::identity::accessSnapshot(DeviceIdentitySnapshot *snapshot) noexcept {
+bool services::identity::accessSnapshot(DeviceIdentitySnapshot *snapshot) {
   if (!snapshot) return false;
   memset(snapshot, 0, sizeof(*snapshot));
 
@@ -187,7 +187,7 @@ static void identity_test_api_key_roundtrip(void) {
     "device: api_key mismatch after roundtrip");
 }
 
-void services::identity::test() noexcept {
+void services::identity::test() {
   it("user observes that the default hostname matches config::HOSTNAME",
      identity_test_hostname_default);
   it("user observes that long hostnames are truncated",

@@ -5,12 +5,12 @@
 #include <LittleFS.h>
 #include <SD.h>
 
-bool filesystems::api::isSensitivePath(const String &path) noexcept {
+bool filesystems::api::isSensitivePath(const String &path) {
   return path == "/.ssh" || path.startsWith("/.ssh/")
       || path == config::ssh::HOSTKEY_PATH;
 }
 
-bool filesystems::api::resolveTarget(FilesystemResolveCommand *command) noexcept {
+bool filesystems::api::resolveTarget(FilesystemResolveCommand *command) {
   if (!command) return false;
   command->target = {nullptr, "", false};
 
@@ -42,7 +42,7 @@ bool filesystems::api::resolveTarget(FilesystemResolveCommand *command) noexcept
   return false;
 }
 
-void filesystems::api::listDirectory(fs::FS &filesystem, const String &path, JsonArray &out) noexcept {
+void filesystems::api::listDirectory(fs::FS &filesystem, const String &path, JsonArray &out) {
   File dir = filesystem.open(path);
   if (!dir || !dir.isDirectory()) return;
 
@@ -62,7 +62,7 @@ void filesystems::api::listDirectory(fs::FS &filesystem, const String &path, Jso
   dir.close();
 }
 
-bool filesystems::api::removeRecursive(fs::FS &filesystem, const String &path) noexcept {
+bool filesystems::api::removeRecursive(fs::FS &filesystem, const String &path) {
   File entry = filesystem.open(path);
   if (!entry) return false;
 

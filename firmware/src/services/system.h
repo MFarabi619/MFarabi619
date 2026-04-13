@@ -41,8 +41,8 @@ struct SystemQuery {
 
 namespace services::system {
 
-bool accessSnapshot(SystemQuery *query) noexcept;
-size_t formatUptime(char *buf, size_t len, uint32_t uptime_seconds) noexcept;
+bool accessSnapshot(SystemQuery *query);
+size_t formatUptime(char *buf, size_t len, uint32_t uptime_seconds);
 
 }
 

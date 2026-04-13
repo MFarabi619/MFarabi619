@@ -110,7 +110,7 @@ static bool do_connect(const String &password) {
   return true;
 }
 
-bool services::email::accessEndpoint(char *host, size_t host_len, uint16_t *port) noexcept {
+bool services::email::accessEndpoint(char *host, size_t host_len, uint16_t *port) {
   if (!host || host_len == 0 || !port) return false;
 
   String password;
@@ -123,7 +123,7 @@ bool services::email::accessEndpoint(char *host, size_t host_len, uint16_t *port
   return host[0] != '\0';
 }
 
-bool services::email::connect() noexcept {
+bool services::email::connect() {
   String password;
   load_password(password);
   if (!config_is_valid(password)) {
@@ -149,7 +149,7 @@ bool services::email::connect() noexcept {
   return true;
 }
 
-bool services::email::sendTest() noexcept {
+bool services::email::sendTest() {
   if (strlen(config::smtp::HOST) == 0 || strlen(config::smtp::DOMAIN) == 0) {
     Serial.println("[email] invalid config for test email");
     return false;
@@ -262,7 +262,7 @@ static void test_sends_test_email(void) {
 #endif
 }
 
-void services::email::test() noexcept {
+void services::email::test() {
   it("email endpoint matches build flags", test_endpoint_matches_flags);
   it("email build flags are valid",        test_flags_are_valid);
   it("email connects with build flags",    test_connects_with_flags);

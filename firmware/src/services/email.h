@@ -7,12 +7,12 @@
 
 namespace services::email {
 
-bool connect() noexcept;
-bool sendTest() noexcept;
-[[nodiscard]] bool accessEndpoint(char *host, size_t host_len, uint16_t *port) noexcept;
+bool connect();
+bool sendTest();
+[[nodiscard]] bool accessEndpoint(char *host, size_t host_len, uint16_t *port);
 
 #ifdef PIO_UNIT_TESTING
-void test() noexcept;
+void test();
 #endif
 
 }

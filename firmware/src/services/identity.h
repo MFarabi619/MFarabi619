@@ -20,23 +20,23 @@ struct IdentityStringQuery {
 
 namespace services::identity {
 
-void initialize() noexcept;
-const char *accessHostname() noexcept;
-bool configureHostname(const char *hostname) noexcept;
+void initialize();
+const char *accessHostname();
+bool configureHostname(const char *hostname);
 
-bool accessUsername(IdentityStringQuery *query) noexcept;
-bool configureUsername(const char *value) noexcept;
+bool accessUsername(IdentityStringQuery *query);
+bool configureUsername(const char *value);
 
-bool accessDeviceName(IdentityStringQuery *query) noexcept;
-bool configureDeviceName(const char *value) noexcept;
+bool accessDeviceName(IdentityStringQuery *query);
+bool configureDeviceName(const char *value);
 
-bool accessAPIKey(IdentityStringQuery *query) noexcept;
-bool configureAPIKey(const char *value) noexcept;
+bool accessAPIKey(IdentityStringQuery *query);
+bool configureAPIKey(const char *value);
 
-bool accessSnapshot(DeviceIdentitySnapshot *snapshot) noexcept;
+bool accessSnapshot(DeviceIdentitySnapshot *snapshot);
 
 #ifdef PIO_UNIT_TESTING
-void test() noexcept;
+void test();
 #endif
 
 }

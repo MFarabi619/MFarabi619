@@ -17,7 +17,7 @@ static void on_time_sync(struct timeval *tv) {
   Serial.printf("[ntp] synced, epoch=%lu\n", (unsigned long)now_utc);
 }
 
-bool networking::sntp::sync() noexcept {
+bool networking::sntp::sync() {
   synced = false;
   synced_epoch = 0;
 
@@ -42,11 +42,11 @@ bool networking::sntp::sync() noexcept {
   return synced;
 }
 
-bool networking::sntp::isSynced() noexcept {
+bool networking::sntp::isSynced() {
   return synced;
 }
 
-const char *networking::sntp::accessLocalTimeString() noexcept {
+const char *networking::sntp::accessLocalTimeString() {
   static char buf[32];
   struct tm timeinfo;
   if (!getLocalTime(&timeinfo, 0)) {
@@ -57,7 +57,7 @@ const char *networking::sntp::accessLocalTimeString() noexcept {
   return buf;
 }
 
-uint32_t networking::sntp::accessUTCEpoch() noexcept {
+uint32_t networking::sntp::accessUTCEpoch() {
   time_t now_utc;
   time(&now_utc);
   return (uint32_t)now_utc;

@@ -23,20 +23,20 @@ struct Co2Config {
 
 namespace sensors::carbon_dioxide {
 
-bool initialize() noexcept;
-[[nodiscard]] bool accessReading(CO2SensorData *sensor_data) noexcept;
-bool accessConfig(Co2Config *config) noexcept;
-[[nodiscard]] bool isAvailable() noexcept;
-bool enable() noexcept;
-bool disable() noexcept;
-bool configureInterval(uint16_t seconds) noexcept;
-bool configureAutoCalibration(bool enabled) noexcept;
-bool configureTemperatureOffset(float celsius) noexcept;
-bool configureAltitude(uint16_t meters) noexcept;
-bool configureRecalibration(uint16_t co2_reference_ppm) noexcept;
+bool initialize();
+[[nodiscard]] bool accessReading(CO2SensorData *sensor_data);
+bool accessConfig(Co2Config *config);
+[[nodiscard]] bool isAvailable();
+bool enable();
+bool disable();
+bool configureInterval(uint16_t seconds);
+bool configureAutoCalibration(bool enabled);
+bool configureTemperatureOffset(float celsius);
+bool configureAltitude(uint16_t meters);
+bool configureRecalibration(uint16_t co2_reference_ppm);
 
 #ifdef PIO_UNIT_TESTING
-void test() noexcept;
+void test();
 #endif
 
 }

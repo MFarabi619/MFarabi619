@@ -9,11 +9,11 @@ struct RTCSnapshot {
 };
 
 namespace services::rtc {
-bool initialize() noexcept;
-bool isValid() noexcept;
-bool setEpoch(uint32_t epoch) noexcept;
-uint32_t accessEpoch() noexcept;
-bool accessSnapshot(RTCSnapshot *snapshot) noexcept;
+bool initialize();
+bool isValid();
+bool setEpoch(uint32_t epoch);
+uint32_t accessEpoch();
+bool accessSnapshot(RTCSnapshot *snapshot);
 #ifdef PIO_UNIT_TESTING
 void test();
 #endif

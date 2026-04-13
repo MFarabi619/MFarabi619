@@ -9,7 +9,7 @@ RTC_DS3231 rtc_device;
 
 }
 
-bool services::rtc::initialize() noexcept {
+bool services::rtc::initialize() {
     if (!rtc_device.begin()) return false;
     if (rtc_device.lostPower()) {
         rtc_device.adjust(DateTime(F(__DATE__), F(__TIME__)));
@@ -19,22 +19,22 @@ bool services::rtc::initialize() noexcept {
     return now.isValid() && now.year() >= 2020 && now.year() <= 2099;
 }
 
-bool services::rtc::isValid() noexcept {
+bool services::rtc::isValid() {
     DateTime now = rtc_device.now();
     return !rtc_device.lostPower() && now.isValid() && now.year() >= 2020 && now.year() <= 2099;
 }
 
-bool services::rtc::setEpoch(uint32_t epoch) noexcept {
+bool services::rtc::setEpoch(uint32_t epoch) {
     rtc_device.adjust(DateTime(epoch));
     delay(10);
     return true;
 }
 
-uint32_t services::rtc::accessEpoch() noexcept {
+uint32_t services::rtc::accessEpoch() {
     return rtc_device.now().unixtime();
 }
 
-bool services::rtc::accessSnapshot(RTCSnapshot *snapshot) noexcept {
+bool services::rtc::accessSnapshot(RTCSnapshot *snapshot) {
     if (!snapshot) return false;
     memset(snapshot, 0, sizeof(*snapshot));
 

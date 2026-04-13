@@ -5,11 +5,11 @@
 
 namespace networking::telnet {
 
-void initialize() noexcept;
-void service() noexcept;
-[[nodiscard]] bool isConnected() noexcept;
-[[nodiscard]] const char *clientIP() noexcept;
-void disconnect() noexcept;
+void initialize();
+void service();
+[[nodiscard]] bool isConnected();
+[[nodiscard]] const char *clientIP();
+void disconnect();
 
 } // namespace networking::telnet
 

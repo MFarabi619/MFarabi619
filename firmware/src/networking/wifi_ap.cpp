@@ -19,7 +19,7 @@ void configure_ap(const char *ssid, const char *password) {
 
 }
 
-void networking::wifi::ap::accessConfig(APConfig *config) noexcept {
+void networking::wifi::ap::accessConfig(APConfig *config) {
   Preferences prefs;
   bool prefs_ok = networking::wifi::internal::openPreferences(true, &prefs);
   if (!prefs_ok || prefs.getString("ap_ssid", config->ssid, sizeof(config->ssid)) == 0) {
@@ -33,7 +33,7 @@ void networking::wifi::ap::accessConfig(APConfig *config) noexcept {
   if (prefs_ok) prefs.end();
 }
 
-bool networking::wifi::ap::accessSnapshot(APSnapshot *snapshot) noexcept {
+bool networking::wifi::ap::accessSnapshot(APSnapshot *snapshot) {
   if (!snapshot) return false;
   memset(snapshot, 0, sizeof(*snapshot));
   snapshot->active = networking::wifi::internal::ap_active;
@@ -48,7 +48,7 @@ bool networking::wifi::ap::accessSnapshot(APSnapshot *snapshot) noexcept {
   return true;
 }
 
-bool networking::wifi::ap::applyConfig(APConfigureCommand *command) noexcept {
+bool networking::wifi::ap::applyConfig(APConfigureCommand *command) {
   if (!command) return false;
   configure_ap(command->config.ssid, command->config.password);
   if (networking::wifi::ap::isActive()) {
@@ -59,7 +59,7 @@ bool networking::wifi::ap::applyConfig(APConfigureCommand *command) noexcept {
   return true;
 }
 
-void networking::wifi::ap::enable() noexcept {
+void networking::wifi::ap::enable() {
   {
     Preferences prefs;
     if (networking::wifi::internal::openPreferences(false, &prefs)) {
@@ -90,7 +90,7 @@ void networking::wifi::ap::enable() noexcept {
                 cfg.ssid, ap_ip.toString().c_str());
 }
 
-bool networking::wifi::ap::setEnabled(APEnabledCommand *command) noexcept {
+bool networking::wifi::ap::setEnabled(APEnabledCommand *command) {
   if (!command) return false;
   if (command->enabled) networking::wifi::ap::enable();
   else networking::wifi::ap::disable();
@@ -98,7 +98,7 @@ bool networking::wifi::ap::setEnabled(APEnabledCommand *command) noexcept {
   return true;
 }
 
-void networking::wifi::ap::disable() noexcept {
+void networking::wifi::ap::disable() {
   {
     Preferences prefs;
     if (networking::wifi::internal::openPreferences(false, &prefs)) {
@@ -119,6 +119,6 @@ void networking::wifi::ap::disable() noexcept {
   Serial.println(F("[wifi] AP stopped"));
 }
 
-bool networking::wifi::ap::isActive() noexcept {
+bool networking::wifi::ap::isActive() {
   return networking::wifi::internal::ap_active;
 }

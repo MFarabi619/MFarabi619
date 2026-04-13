@@ -1,18 +1,10 @@
 #include "carbon_dioxide.h"
 #include "../config.h"
+#include "../hardware/i2c.h"
 
 #include <Arduino.h>
-#include <Wire.h>
 #include <SensirionI2cScd30.h>
 #include <SensirionI2cScd4x.h>
-
-#ifndef CONFIG_CO2_SCD30_ADDR
-#define CONFIG_CO2_SCD30_ADDR 0x61
-#endif
-
-#ifndef CONFIG_CO2_SCD4X_ADDR
-#define CONFIG_CO2_SCD4X_ADDR 0x62
-#endif
 
 enum Co2Backend { CO2_NONE, CO2_SCD30, CO2_SCD4X };
 
@@ -23,39 +15,90 @@ static bool initialized = false;
 static bool measuring = false;
 #define CO2_MAX_PROBE_ATTEMPTS 3
 static uint8_t probe_attempts = 0;
+static config::I2CSensorConfig scd30_config = {config::I2CSensorKind::CarbonDioxideSCD30, 1, 0x61, config::i2c::DIRECT_CHANNEL};
+static config::I2CSensorConfig scd4x_config = {config::I2CSensorKind::CarbonDioxideSCD4X, 1, 0x62, config::i2c::DIRECT_CHANNEL};
 
-bool sensors::carbon_dioxide::initialize() noexcept {
-  scd30.begin(Wire1, CONFIG_CO2_SCD30_ADDR);
-  scd4x.begin(Wire1, CONFIG_CO2_SCD4X_ADDR);
-  initialized = true;
-  backend = CO2_NONE;
+namespace {
 
-  uint8_t major, minor;
-  if (scd30.readFirmwareVersion(major, minor) == 0) {
-    scd30.softReset();
-    delay(2000);
-    if (scd30.startPeriodicMeasurement(0) == 0) {
-      backend = CO2_SCD30;
-      measuring = true;
-      Serial.printf("[co2] SCD30 detected (fw %d.%d)\n", major, minor);
-      return true;
+bool load_configs(void) {
+  bool found_scd30 = false;
+  bool found_scd4x = false;
+
+  for (size_t index = 0; index < config::i2c_topology::DEVICE_COUNT; index++) {
+    const config::I2CSensorConfig &sensor_config = config::i2c_topology::DEVICES[index];
+    if (sensor_config.kind == config::I2CSensorKind::CarbonDioxideSCD30) {
+      scd30_config = sensor_config;
+      found_scd30 = true;
+    } else if (sensor_config.kind == config::I2CSensorKind::CarbonDioxideSCD4X) {
+      scd4x_config = sensor_config;
+      found_scd4x = true;
     }
   }
 
-  scd4x.wakeUp();
-  scd4x.stopPeriodicMeasurement();
-  delay(500);
-  scd4x.reinit();
-  delay(30);
-  uint64_t serialNumber = 0;
-  if (scd4x.getSerialNumber(serialNumber) == 0) {
-    if (scd4x.startPeriodicMeasurement() == 0) {
-      backend = CO2_SCD4X;
-      measuring = true;
-      Serial.printf("[co2] SCD4x detected (serial 0x%08lX%08lX)\n",
-                    (uint32_t)(serialNumber >> 32), (uint32_t)(serialNumber & 0xFFFFFFFF));
-      return true;
+  return found_scd30 || found_scd4x;
+}
+
+bool access_i2c_device(const config::I2CSensorConfig &sensor_config,
+                       hardware::i2c::DeviceAccessCommand *command) {
+  if (!command) return false;
+  command->bus = sensor_config.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1;
+  command->mux_channel = sensor_config.mux_channel;
+  command->wire = nullptr;
+  command->ok = false;
+  return hardware::i2c::accessDevice(command);
+}
+
+}
+
+bool sensors::carbon_dioxide::initialize() {
+  if (!load_configs()) {
+    backend = CO2_NONE;
+    return false;
+  }
+
+  initialized = true;
+  backend = CO2_NONE;
+
+  hardware::i2c::DeviceAccessCommand scd30_device = {};
+  if (access_i2c_device(scd30_config, &scd30_device)) {
+    scd30.begin(*scd30_device.wire, scd30_config.address);
+
+    uint8_t major, minor;
+    if (scd30.readFirmwareVersion(major, minor) == 0) {
+      scd30.softReset();
+      delay(2000);
+      if (scd30.startPeriodicMeasurement(0) == 0) {
+        backend = CO2_SCD30;
+        measuring = true;
+        hardware::i2c::clearSelection();
+        Serial.printf("[co2] SCD30 detected (fw %d.%d)\n", major, minor);
+        return true;
+      }
     }
+    hardware::i2c::clearSelection();
+  }
+
+  hardware::i2c::DeviceAccessCommand scd4x_device = {};
+  if (access_i2c_device(scd4x_config, &scd4x_device)) {
+    scd4x.begin(*scd4x_device.wire, scd4x_config.address);
+
+    scd4x.wakeUp();
+    scd4x.stopPeriodicMeasurement();
+    delay(500);
+    scd4x.reinit();
+    delay(30);
+    uint64_t serialNumber = 0;
+    if (scd4x.getSerialNumber(serialNumber) == 0) {
+      if (scd4x.startPeriodicMeasurement() == 0) {
+        backend = CO2_SCD4X;
+        measuring = true;
+        hardware::i2c::clearSelection();
+        Serial.printf("[co2] SCD4x detected (serial 0x%08lX%08lX)\n",
+                      (uint32_t)(serialNumber >> 32), (uint32_t)(serialNumber & 0xFFFFFFFF));
+        return true;
+      }
+    }
+    hardware::i2c::clearSelection();
   }
 
   Serial.println(F("[co2] no sensor found"));
@@ -63,7 +106,7 @@ bool sensors::carbon_dioxide::initialize() noexcept {
   return false;
 }
 
-bool sensors::carbon_dioxide::accessReading(CO2SensorData *sensor_data) noexcept {
+bool sensors::carbon_dioxide::accessReading(CO2SensorData *sensor_data) {
   if (!sensor_data) return false;
 
   if (backend == CO2_NONE) {
@@ -123,7 +166,7 @@ bool sensors::carbon_dioxide::accessReading(CO2SensorData *sensor_data) noexcept
   return false;
 }
 
-bool sensors::carbon_dioxide::enable() noexcept {
+bool sensors::carbon_dioxide::enable() {
   if (backend == CO2_SCD30) {
     if (scd30.startPeriodicMeasurement(0) == 0) { measuring = true; return true; }
   } else if (backend == CO2_SCD4X) {
@@ -132,7 +175,7 @@ bool sensors::carbon_dioxide::enable() noexcept {
   return false;
 }
 
-bool sensors::carbon_dioxide::disable() noexcept {
+bool sensors::carbon_dioxide::disable() {
   if (backend == CO2_SCD30) {
     if (scd30.stopPeriodicMeasurement() == 0) { measuring = false; return true; }
   } else if (backend == CO2_SCD4X) {
@@ -141,7 +184,7 @@ bool sensors::carbon_dioxide::disable() noexcept {
   return false;
 }
 
-bool sensors::carbon_dioxide::accessConfig(Co2Config *config) noexcept {
+bool sensors::carbon_dioxide::accessConfig(Co2Config *config) {
   if (!config) return false;
 
   config->measuring = measuring;
@@ -177,32 +220,32 @@ bool sensors::carbon_dioxide::accessConfig(Co2Config *config) noexcept {
   return false;
 }
 
-bool sensors::carbon_dioxide::configureInterval(uint16_t seconds) noexcept {
+bool sensors::carbon_dioxide::configureInterval(uint16_t seconds) {
   if (backend == CO2_SCD30) return scd30.setMeasurementInterval(seconds) == 0;
   return false;
 }
 
-bool sensors::carbon_dioxide::configureAutoCalibration(bool enabled) noexcept {
+bool sensors::carbon_dioxide::configureAutoCalibration(bool enabled) {
   if (backend == CO2_SCD30) return scd30.activateAutoCalibration(enabled ? 1 : 0) == 0;
   return false;
 }
 
-bool sensors::carbon_dioxide::configureTemperatureOffset(float celsius) noexcept {
+bool sensors::carbon_dioxide::configureTemperatureOffset(float celsius) {
   if (backend == CO2_SCD30) return scd30.setTemperatureOffset((uint16_t)(celsius * 100)) == 0;
   return false;
 }
 
-bool sensors::carbon_dioxide::configureAltitude(uint16_t meters) noexcept {
+bool sensors::carbon_dioxide::configureAltitude(uint16_t meters) {
   if (backend == CO2_SCD30) return scd30.setAltitudeCompensation(meters) == 0;
   return false;
 }
 
-bool sensors::carbon_dioxide::configureRecalibration(uint16_t co2_reference_ppm) noexcept {
+bool sensors::carbon_dioxide::configureRecalibration(uint16_t co2_reference_ppm) {
   if (backend == CO2_SCD30) return scd30.forceRecalibration(co2_reference_ppm) == 0;
   return false;
 }
 
-bool sensors::carbon_dioxide::isAvailable() noexcept {
+bool sensors::carbon_dioxide::isAvailable() {
   return backend != CO2_NONE;
 }
 
@@ -212,7 +255,7 @@ bool sensors::carbon_dioxide::isAvailable() noexcept {
 
 static void co2_test_init(void) {
   TEST_MESSAGE("initializing CO2 module");
-  Wire1.begin(config::i2c::BUS_1.sda_gpio, config::i2c::BUS_1.scl_gpio, config::i2c::FREQUENCY_KHZ * 1000);
+  hardware::i2c::initialize();
   TEST_ASSERT_TRUE(sensors::carbon_dioxide::initialize());
   TEST_MESSAGE("CO2 module initialized");
 }
@@ -249,7 +292,7 @@ static void co2_test_read(void) {
   TEST_ASSERT_GREATER_THAN(0.0f, sensor_data.co2_ppm);
 }
 
-void sensors::carbon_dioxide::test() noexcept {
+void sensors::carbon_dioxide::test() {
   it("user initializes the CO2 module", co2_test_init);
   it("user detects a CO2 sensor", co2_test_detect);
   it("user reads CO2 data", co2_test_read);

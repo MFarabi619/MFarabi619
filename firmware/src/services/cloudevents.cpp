@@ -116,6 +116,7 @@ static void append_temperature_humidity_event(JsonArray events,
 
     sensor["read_ok"] = read_ok;
     if (read_ok) {
+      sensor["model"] = sensor_data.model ? sensor_data.model : "unknown";
       sensor["temperature_celsius"] = sensor_data.temperature_celsius;
       sensor["relative_humidity_percent"] = sensor_data.relative_humidity_percent;
       successful_reads++;
@@ -166,6 +167,29 @@ static void append_co2_event(JsonArray events, uint16_t sequence,
   data["humidity"] = sensor_data.relative_humidity_percent;
 }
 
+static void append_wind_speed_event(JsonArray events, uint16_t sequence,
+                                    const String &source, const String &time_iso) {
+  WindSpeedSensorData sensor_data = {};
+  if (!sensors::manager::accessWindSpeed(&sensor_data) || !sensor_data.ok) return;
+
+  JsonObject event = cloudevents_add_event(events, sequence, source,
+                                           "sensors.wind_speed.v1", time_iso);
+  JsonObject data = event["data"].to<JsonObject>();
+  data["wind_speed_kilometers_per_hour"] = sensor_data.kilometers_per_hour;
+}
+
+static void append_wind_direction_event(JsonArray events, uint16_t sequence,
+                                        const String &source, const String &time_iso) {
+  WindDirectionSensorData sensor_data = {};
+  if (!sensors::manager::accessWindDirection(&sensor_data) || !sensor_data.ok) return;
+
+  JsonObject event = cloudevents_add_event(events, sequence, source,
+                                           "sensors.wind_direction.v1", time_iso);
+  JsonObject data = event["data"].to<JsonObject>();
+  data["wind_direction_degrees"] = sensor_data.degrees;
+  data["wind_direction_angle_slice"] = sensor_data.slice;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Route handler
 // ─────────────────────────────────────────────────────────────────────────────
@@ -189,6 +213,8 @@ static void handle_cloudevents_get(AsyncWebServerRequest *request) {
 #endif
 
   append_co2_event(events, sequence++, source, time_iso);
+  append_wind_speed_event(events, sequence++, source, time_iso);
+  append_wind_direction_event(events, sequence++, source, time_iso);
 
   AsyncResponseStream *response =
       request->beginResponseStream(MIME_CLOUDEVENTS_BATCH);

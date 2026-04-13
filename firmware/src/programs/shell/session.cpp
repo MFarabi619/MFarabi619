@@ -1,12 +1,12 @@
 #include "session.h"
 
-void programs::shell::session::reset(RingBuffer *ring) noexcept {
+void programs::shell::session::reset(RingBuffer *ring) {
   if (!ring) return;
   ring->head = 0;
   ring->tail = 0;
 }
 
-bool programs::shell::session::push(RingBuffer *ring, char ch) noexcept {
+bool programs::shell::session::push(RingBuffer *ring, char ch) {
   if (!ring || !ring->data || ring->capacity == 0) return false;
   uint16_t next = (ring->head + 1) % ring->capacity;
   if (next == ring->tail) return false;
@@ -15,19 +15,19 @@ bool programs::shell::session::push(RingBuffer *ring, char ch) noexcept {
   return true;
 }
 
-int programs::shell::session::pop(RingBuffer *ring, char *ch) noexcept {
+int programs::shell::session::pop(RingBuffer *ring, char *ch) {
   if (!ring || !ch || !ring->data || ring->head == ring->tail) return 0;
   *ch = ring->data[ring->tail];
   ring->tail = (ring->tail + 1) % ring->capacity;
   return 1;
 }
 
-void programs::shell::session::reset(WriteBuffer *buffer) noexcept {
+void programs::shell::session::reset(WriteBuffer *buffer) {
   if (!buffer) return;
   buffer->position = 0;
 }
 
-bool programs::shell::session::push(WriteBuffer *buffer, char ch) noexcept {
+bool programs::shell::session::push(WriteBuffer *buffer, char ch) {
   if (!buffer || !buffer->data || buffer->capacity == 0) return false;
   if (buffer->position >= buffer->capacity) return false;
   buffer->data[buffer->position++] = ch;

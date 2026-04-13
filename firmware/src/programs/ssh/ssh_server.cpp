@@ -211,7 +211,7 @@ static bool ssh_ensure_hostkey(void) {
 //------------------------------------------
 //  Exit
 //------------------------------------------
-bool services::sshd::requestExit(struct ush_object *self) noexcept {
+bool services::sshd::requestExit(struct ush_object *self) {
   if (self != &ssh_ush) return false;
   session_alive = false;
   return true;
@@ -357,7 +357,7 @@ static void ssh_server_task(void *pvParameters) {
 //------------------------------------------
 //  Public API
 //------------------------------------------
-bool services::sshd::initialize() noexcept {
+bool services::sshd::initialize() {
   if (LittleFS.totalBytes() == 0) {
     Serial.println(F("[ssh] LittleFS not mounted — cannot start"));
     return false;
@@ -451,7 +451,7 @@ static void ssh_server_test_config_defaults(void) {
   TEST_MESSAGE("configuration defaults are sane");
 }
 
-void services::sshd::test() noexcept {
+void services::sshd::test() {
   it("user observes that libssh initializes without crashing",
      ssh_server_test_libssh_initializes);
   it("user observes that an ed25519 host key can be generated in memory",

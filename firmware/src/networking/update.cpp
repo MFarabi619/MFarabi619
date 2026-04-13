@@ -15,7 +15,7 @@ static void log_progress(size_t current, size_t total) {
   Serial.printf("[update] %u%%\r", (unsigned)(current * 100 / total));
 }
 
-bool networking::update::applyFromSD(const char *path) noexcept {
+bool networking::update::applyFromSD(const char *path) {
   if (!hardware::storage::ensureSD()) {
     Serial.println(F("[update] SD card not available"));
     return false;
@@ -83,7 +83,7 @@ bool networking::update::applyFromSD(const char *path) noexcept {
   return true;
 }
 
-bool networking::update::applyFromURL(const char *url, const char *cert_pem) noexcept {
+bool networking::update::applyFromURL(const char *url, const char *cert_pem) {
   if (!url || url[0] == '\0') {
     Serial.println(F("[update] no URL provided"));
     return false;
@@ -133,11 +133,11 @@ bool networking::update::applyFromURL(const char *url, const char *cert_pem) noe
   }
 }
 
-bool networking::update::canRollback() noexcept {
+bool networking::update::canRollback() {
   return Update.canRollBack();
 }
 
-bool networking::update::rollback() noexcept {
+bool networking::update::rollback() {
   if (!Update.canRollBack()) {
     Serial.println(F("[update] no rollback partition available"));
     return false;
@@ -146,7 +146,7 @@ bool networking::update::rollback() noexcept {
   return Update.rollBack();
 }
 
-void networking::update::checkSDOnBoot() noexcept {
+void networking::update::checkSDOnBoot() {
   if (networking::update::applyFromSD()) {
     Serial.println(F("[update] rebooting into new firmware..."));
     delay(500);

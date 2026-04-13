@@ -6,10 +6,10 @@
 
 namespace networking::sntp {
 
-bool sync() noexcept;
-[[nodiscard]] bool isSynced() noexcept;
-[[nodiscard]] const char *accessLocalTimeString() noexcept;
-[[nodiscard]] uint32_t accessUTCEpoch() noexcept;
+bool sync();
+[[nodiscard]] bool isSynced();
+[[nodiscard]] const char *accessLocalTimeString();
+[[nodiscard]] uint32_t accessUTCEpoch();
 
 } // namespace networking::sntp
 

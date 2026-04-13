@@ -3,8 +3,8 @@
 
 namespace boot::system {
 
-void startTask() noexcept;
-void startServices() noexcept;
+void startTask();
+void startServices();
 
 }
 

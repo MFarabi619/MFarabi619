@@ -20,10 +20,10 @@ struct FilesystemResolveCommand {
 
 namespace filesystems::api {
 
-bool isSensitivePath(const String &path) noexcept;
-bool resolveTarget(FilesystemResolveCommand *command) noexcept;
-void listDirectory(fs::FS &filesystem, const String &path, JsonArray &out) noexcept;
-bool removeRecursive(fs::FS &filesystem, const String &path) noexcept;
+bool isSensitivePath(const String &path);
+bool resolveTarget(FilesystemResolveCommand *command);
+void listDirectory(fs::FS &filesystem, const String &path, JsonArray &out);
+bool removeRecursive(fs::FS &filesystem, const String &path);
 
 }
 
