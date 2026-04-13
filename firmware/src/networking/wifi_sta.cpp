@@ -21,7 +21,7 @@ void networking::wifi::sta::initialize() {
   if (setup_done) return;
   setup_done = true;
 
-  WiFi.setAutoReconnect(true);
+  WiFi.setAutoReconnect(false);
   WiFi.mode(WIFI_MODE_STA);
 
   WiFi.onEvent([](arduino_event_id_t event, arduino_event_info_t info) {

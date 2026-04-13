@@ -3,6 +3,7 @@
 #include "../services/identity.h"
 
 #include <Arduino.h>
+#include <ESPmDNS.h>
 #include <Preferences.h>
 #include <WiFi.h>
 
@@ -86,6 +87,13 @@ void networking::wifi::ap::enable() {
 #endif
 
   networking::wifi::internal::ap_active = true;
+
+  if (!networking::wifi::internal::mdns_started && MDNS.begin(services::identity::accessHostname())) {
+    networking::wifi::internal::configureMdnsServices(services::identity::accessHostname());
+    networking::wifi::internal::mdns_started = true;
+    Serial.printf("[mdns] %s.local\n", services::identity::accessHostname());
+  }
+
   Serial.printf("[wifi] AP started: %s (%s)\n",
                 cfg.ssid, ap_ip.toString().c_str());
 }
