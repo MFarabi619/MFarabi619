@@ -12,7 +12,7 @@ use firmware::filesystems::sd;
 
 use crate::common::setup::Device;
 
-pub const HTTP_LISTEN_PORT: u16 = firmware::config::http::PORT;
+pub const HTTP_LISTEN_PORT: u16 = firmware::config::app::http::PORT;
 
 static FIRST_REQUEST_RECEIVED_SIGNAL: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 

@@ -1,7 +1,7 @@
 #include "wifi_internal.h"
 
-#include "../programs/led.h"
-#include "../services/identity.h"
+#include <led.h>
+#include <identity.h>
 
 #include <Arduino.h>
 #include <ESPmDNS.h>

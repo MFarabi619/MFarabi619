@@ -167,10 +167,10 @@ impl Default for TemperatureHumidityReading {
 static TEMPERATURE_HUMIDITY_READINGS: critical_section::Mutex<
     core::cell::RefCell<
         [Option<TemperatureHumidityReading>;
-            crate::config::temperature_humidity::MAX_SENSORS as usize],
+            crate::config::app::temperature_humidity::MAX_SENSORS as usize],
     >,
 > = critical_section::Mutex::new(core::cell::RefCell::new(
-    [None; crate::config::temperature_humidity::MAX_SENSORS as usize],
+    [None; crate::config::app::temperature_humidity::MAX_SENSORS as usize],
 ));
 
 pub fn publish_temperature_humidity_reading(index: usize, reading: TemperatureHumidityReading) {
@@ -208,7 +208,7 @@ pub fn temperature_humidity_reading(index: usize) -> TemperatureHumidityReading 
 fn build_inventory_snapshot(
     carbon_dioxide: Co2Reading,
 ) -> heapless::Vec<SensorSnapshot, MAX_SENSOR_COUNT> {
-    use crate::{config, hardware::i2c};
+    use crate::hardware::i2c;
 
     let mut sensors = heapless::Vec::new();
     let mut temperature_humidity_index = 0usize;
@@ -232,7 +232,7 @@ fn build_inventory_snapshot(
             transport: TransportSnapshot::I2c {
                 bus_index: device.bus,
                 address: device.address,
-                mux_channel: config::i2c::DIRECT_CHANNEL,
+                mux_channel: crate::config::board::i2c::DIRECT_CHANNEL,
             },
             live,
         });

@@ -1,12 +1,13 @@
 # [[file:CONTRIBUTING.org::*\[\[https:/github.com/rust-lang/rustfmt\]\[rustfmt\]\]][[[https://github.com/rust-lang/rustfmt][rustfmt]]:1]]
 edition = "2024"
 imports_granularity = "Crate"
-group_imports       = "StdExternalCrate"
-imports_layout      = "HorizontalVertical"
+group_imports = "StdExternalCrate"
+imports_layout = "HorizontalVertical"
 enum_discrim_align_threshold = 35
-comment_width                = 100
+comment_width = 100
 doc_comment_code_block_width = 100
-wrap_comments               = true
-normalize_comments          = true
+wrap_comments = true
+normalize_comments = true
 format_code_in_doc_comments = true
+ignore = ["firmware/src/console/icons.rs"]
 # [[https://github.com/rust-lang/rustfmt][rustfmt]]:1 ends here

@@ -3,14 +3,11 @@
 use defmt::info;
 use ds323x::{DateTimeAccess, Datelike, Ds323x, NaiveDateTime, Timelike};
 use esp_hal::i2c::master::I2c;
-use firmware::config::{I2CSensorKind, i2c_topology};
 
 use crate::common::setup::Device;
 
 fn ds3231_i2c_address() -> u8 {
-    i2c_topology::first_device_of_kind(I2CSensorKind::RtcDs3231)
-        .map(|sensor_configuration| sensor_configuration.address)
-        .unwrap_or(0x68)
+    0x68
 }
 
 fn ds3231_is_present_on_bus(i2c_bus: &mut I2c<'_, esp_hal::Blocking>) -> bool {

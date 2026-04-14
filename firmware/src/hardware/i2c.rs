@@ -1,7 +1,7 @@
 use esp_hal::i2c::master::{Config as I2cConfig, I2c};
 use esp_hal::time::Rate;
 
-use crate::config;
+use crate::config::board;
 
 pub const MAX_DISCOVERED_DEVICES: usize = 16;
 pub const SENSOR_CANDIDATE_ADDRESSES: [u8; 4] = [0x44, 0x45, 0x46, 0x47];
@@ -58,7 +58,7 @@ pub fn initialize_bus_0(
 ) -> I2c<'static, esp_hal::Async> {
     I2c::new(
         peripheral,
-        I2cConfig::default().with_frequency(Rate::from_khz(config::i2c::FREQUENCY_KHZ)),
+        I2cConfig::default().with_frequency(Rate::from_khz(board::i2c::FREQUENCY_KHZ)),
     )
     .unwrap()
     .with_sda(sda)
@@ -73,7 +73,7 @@ pub fn initialize_bus_1(
 ) -> I2c<'static, esp_hal::Async> {
     I2c::new(
         peripheral,
-        I2cConfig::default().with_frequency(Rate::from_khz(config::i2c::FREQUENCY_KHZ)),
+        I2cConfig::default().with_frequency(Rate::from_khz(board::i2c::FREQUENCY_KHZ)),
     )
     .unwrap()
     .with_sda(sda)
@@ -153,7 +153,7 @@ pub fn device_name_at(address: u8) -> &'static str {
         0x40 => "Texas Instruments INA228 Current Monitor",
         0x44 => "Sensirion SHT3x Temperature & Humidity Sensor",
         0x48 => "Texas Instruments ADS1115 16-Bit ADC",
-        0x50 => "Atmel AT24C32 EEPROM",
+        0x50 => "Microchip Technology AT24C32 EEPROM",
         0x5C | 0x5D => "Adafruit LPS25 Pressure Sensor",
         0x61 => "Sensirion SCD30 CO2 Infrared Gas Sensor",
         0x62 => "Sensirion SCD41 CO2 Optical Gas Sensor",
@@ -177,20 +177,20 @@ pub fn snapshot() -> I2cSnapshot {
     });
 
     I2cSnapshot {
-        frequency_khz: config::i2c::FREQUENCY_KHZ,
-        power_gpio: config::i2c::LEGACY_POWER_GPIO,
+        frequency_khz: board::i2c::FREQUENCY_KHZ,
+        power_gpio: board::i2c::LEGACY_POWER_GPIO,
         buses: [
             BusStatusSnapshot {
                 name: "i2c.0",
                 bus_index: 0,
-                sda_gpio: config::i2c::BUS_0.sda_gpio,
-                scl_gpio: config::i2c::BUS_0.scl_gpio,
+                sda_gpio: board::i2c::BUS_0.sda_gpio,
+                scl_gpio: board::i2c::BUS_0.scl_gpio,
             },
             BusStatusSnapshot {
                 name: "i2c.1",
                 bus_index: 1,
-                sda_gpio: config::i2c::BUS_1.sda_gpio,
-                scl_gpio: config::i2c::BUS_1.scl_gpio,
+                sda_gpio: board::i2c::BUS_1.sda_gpio,
+                scl_gpio: board::i2c::BUS_1.scl_gpio,
             },
         ],
         discovered_devices,
@@ -211,7 +211,7 @@ pub async fn select_mux_channel(
 
     let mux_channel_mask = 1_u8 << mux_channel;
     i2c_bus
-        .write_async(config::i2c::MUX_ADDR, &[mux_channel_mask])
+        .write_async(board::i2c::MUX_ADDR, &[mux_channel_mask])
         .await
         .map_err(|_| "failed to select I2C mux channel")?;
     Ok(())
@@ -221,7 +221,7 @@ pub async fn clear_selection(
     i2c_bus: &mut I2c<'static, esp_hal::Async>,
 ) -> Result<(), &'static str> {
     i2c_bus
-        .write_async(config::i2c::MUX_ADDR, &[0x00])
+        .write_async(board::i2c::MUX_ADDR, &[0x00])
         .await
         .map_err(|_| "failed to clear I2C mux selection")?;
     Ok(())
@@ -258,7 +258,7 @@ async fn discover_bus_devices(
     devices: &mut heapless::Vec<DiscoveredDevice, MAX_DISCOVERED_DEVICES>,
 ) {
     for address in I2C_SCAN_ADDRESS_MIN..=I2C_SCAN_ADDRESS_MAX {
-        if address == config::i2c::MUX_ADDR {
+        if address == board::i2c::MUX_ADDR {
             continue;
         }
 

@@ -25,7 +25,7 @@ use panic_rtt_target as _;
 
 use firmware::{
     boot,
-    config,
+    config::{app, board},
     networking::wifi,
 };
 
@@ -51,27 +51,27 @@ async fn main(spawner: Spawner) -> ! {
     esp_rtos::start(timg0.timer0, sw_ints.software_interrupt0);
 
     info!("Embassy initialized!");
-    info!("host_platform={}", config::PLATFORM);
-    info!("active_user_key={}", config::ACTIVE_USER_KEY);
-    info!("time_zone={}", config::time::ZONE);
+    info!("host_platform={}", board::PLATFORM);
+    info!("active_user_key={}", app::ACTIVE_USER_KEY);
+    info!("time_zone={}", app::time::ZONE);
     info!(
         "filesystem.sd_card: device={} fs_type={} data_log_path={}",
-        config::sd_card::DEVICE,
-        config::sd_card::FS_TYPE,
-        config::sd_card::DATA_LOG_PATH
+        app::sd_card::DEVICE,
+        app::sd_card::FS_TYPE,
+        app::sd_card::DATA_LOG_PATH
     );
     info!(
         "networking.ap_fallback={} ap_ssid={} ap_channel={} ap_max_connections={} ap_auth_mode={}",
-        config::wifi::FALLBACK_TO_AP,
-        config::wifi::ap::SSID,
-        config::wifi::ap::CHANNEL,
-        config::wifi::ap::MAX_CONNECTIONS,
-        config::wifi::ap::AUTH_MODE,
+        app::wifi::FALLBACK_TO_AP,
+        app::wifi::ap::SSID,
+        app::wifi::ap::CHANNEL,
+        app::wifi::ap::MAX_CONNECTIONS,
+        app::wifi::ap::AUTH_MODE,
     );
 
     boot::validate_ota_slot();
 
-    let _sensor_power_relay = match config::i2c::LEGACY_POWER_GPIO {
+    let _sensor_power_relay = match board::i2c::LEGACY_POWER_GPIO {
         5 => Output::new(peripherals.GPIO5, Level::High, OutputConfig::default()),
         unsupported_gpio => {
             panic!("unsupported sensor_power_enable_gpio={}", unsupported_gpio)

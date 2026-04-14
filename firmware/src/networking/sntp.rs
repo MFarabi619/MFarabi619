@@ -3,7 +3,7 @@ use embassy_executor::Spawner;
 use embassy_net::Stack;
 use embassy_time::{Duration, Timer};
 
-use crate::config;
+use crate::config::app;
 
 #[derive(Clone, Copy)]
 pub struct TimestampGenerator;
@@ -73,12 +73,12 @@ pub async fn sntp_sync_loop(stack: Stack<'static>, ntp_server: &str) -> ! {
             Ok(addrs) if !addrs.is_empty() => addrs,
             Ok(_) => {
                 info!("SNTP: DNS resolution for {} returned empty", ntp_server);
-                Timer::after(Duration::from_secs(config::sntp::RETRY_INTERVAL_SECS)).await;
+                Timer::after(Duration::from_secs(app::sntp::RETRY_INTERVAL_SECS)).await;
                 continue;
             }
             Err(error) => {
                 info!("SNTP: DNS resolution failed: {:?}", error);
-                Timer::after(Duration::from_secs(config::sntp::RETRY_INTERVAL_SECS)).await;
+                Timer::after(Duration::from_secs(app::sntp::RETRY_INTERVAL_SECS)).await;
                 continue;
             }
         };
@@ -88,8 +88,8 @@ pub async fn sntp_sync_loop(stack: Stack<'static>, ntp_server: &str) -> ! {
 
         let mut sync_succeeded = false;
 
-        for attempt in 0..config::sntp::MAX_ATTEMPTS {
-            info!("SNTP: sync attempt {}/{}", attempt + 1, config::sntp::MAX_ATTEMPTS);
+        for attempt in 0..app::sntp::MAX_ATTEMPTS {
+            info!("SNTP: sync attempt {}/{}", attempt + 1, app::sntp::MAX_ATTEMPTS);
 
             let mut rx_meta = [embassy_net::udp::PacketMetadata::EMPTY; 16];
             let mut rx_buffer = alloc::vec![0u8; 4096];
@@ -106,7 +106,7 @@ pub async fn sntp_sync_loop(stack: Stack<'static>, ntp_server: &str) -> ! {
 
             if let Err(error) = udp_socket.bind(123) {
                 info!("SNTP: failed to bind UDP socket: {:?}", error);
-                Timer::after(Duration::from_secs(config::sntp::ATTEMPT_INTERVAL_SECS)).await;
+                Timer::after(Duration::from_secs(app::sntp::ATTEMPT_INTERVAL_SECS)).await;
                 continue;
             }
 
@@ -135,7 +135,7 @@ pub async fn sntp_sync_loop(stack: Stack<'static>, ntp_server: &str) -> ! {
                 }
                 Err(_error) => {
                     info!("SNTP: sync attempt {} failed", attempt + 1);
-                    Timer::after(Duration::from_secs(config::sntp::ATTEMPT_INTERVAL_SECS)).await;
+                    Timer::after(Duration::from_secs(app::sntp::ATTEMPT_INTERVAL_SECS)).await;
                 }
             }
         }
@@ -143,17 +143,17 @@ pub async fn sntp_sync_loop(stack: Stack<'static>, ntp_server: &str) -> ! {
         if !sync_succeeded {
             info!(
                 "SNTP: all {} attempts failed, retrying in {}s",
-                config::sntp::MAX_ATTEMPTS, config::sntp::RETRY_INTERVAL_SECS
+                app::sntp::MAX_ATTEMPTS, app::sntp::RETRY_INTERVAL_SECS
             );
         }
 
-        Timer::after(Duration::from_secs(config::sntp::RETRY_INTERVAL_SECS)).await;
+        Timer::after(Duration::from_secs(app::sntp::RETRY_INTERVAL_SECS)).await;
     }
 }
 
 #[embassy_executor::task]
 pub async fn task(stack: Stack<'static>) {
-    sntp_sync_loop(stack, crate::config::NTP_SERVER).await
+    sntp_sync_loop(stack, app::NTP_SERVER).await
 }
 
 pub fn spawn(spawner: &Spawner, stack: Stack<'static>) {

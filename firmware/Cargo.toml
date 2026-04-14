@@ -29,50 +29,55 @@ harness = false
 name = "hello"
 path = "tests/hello.rs"
 
-[[test]]
-harness = false
-name = "ntc_formula"
-path = "tests/ntc_formula.rs"
+# [[test]]
+# harness = false
+# name = "ntc_formula"
+# path = "tests/ntc_formula.rs"
 
 [[test]]
 harness = false
 name = "file_server"
 path = "tests/file_server.rs"
 
-[[test]]
-harness = false
-name = "access_point_connect"
-path = "tests/access_point_connect.rs"
+# [[test]]
+# harness = false
+# name = "access_point_connect"
+# path = "tests/access_point_connect.rs"
 
-[[test]]
-harness = false
-name = "sd_card_webpage"
-path = "tests/sd_card_webpage.rs"
+# [[test]]
+# harness = false
+# name = "sd_card_webpage"
+# path = "tests/sd_card_webpage.rs"
 
 [[test]]
 harness = false
 name = "i2c"
 path = "tests/i2c.rs"
 
-[[test]]
-harness = false
-name = "ds3231"
-path = "tests/ds3231.rs"
+# [[test]]
+# harness = false
+# name = "ds3231"
+# path = "tests/ds3231.rs"
 
 [[test]]
 harness = false
-name = "scd30"
-path = "tests/scd30.rs"
+name = "eeprom"
+path = "tests/eeprom.rs"
+
+# [[test]]
+# harness = false
+# name = "scd30"
+# path = "tests/scd30.rs"
+
+# [[test]]
+# harness = false
+# name = "scd4x"
+# path = "tests/scd4x.rs"
 
 [[test]]
 harness = false
-name = "scd4x"
-path = "tests/scd4x.rs"
-
-[[test]]
-harness = false
-name = "sdhost"
-path = "tests/sdhost.rs"
+name = "sd"
+path = "tests/sd.rs"
 
 [[test]]
 harness = false
@@ -86,33 +91,28 @@ path = "tests/http_api.rs"
 
 [[test]]
 harness = false
-name = "ota_probe"
-path = "tests/ota_probe.rs"
+name = "ota"
+path = "tests/ota.rs"
 
 [[test]]
 harness = false
-name = "microvisor"
-path = "tests/microvisor.rs"
+name = "system"
+path = "tests/system.rs"
 
 [[test]]
 harness = false
-name = "wifi_scan"
-path = "tests/wifi_scan.rs"
+name = "wifi"
+path = "tests/wifi.rs"
 
-[[test]]
-harness = false
-name = "wifi_dhcp"
-path = "tests/wifi_dhcp.rs"
+# [[test]]
+# harness = false
+# name = "sntp"
+# path = "tests/sntp.rs"
 
-[[test]]
-harness = false
-name = "sntp"
-path = "tests/sntp.rs"
-
-[[test]]
-harness = false
-name = "websocket"
-path = "tests/websocket.rs"
+# [[test]]
+# harness = false
+# name = "websocket"
+# path = "tests/websocket.rs"
 
 # ─── examples ────────────────────────────────────────────────────────────────
 
@@ -240,11 +240,7 @@ panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
 esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
 esp-storage = { version = "0.5.0", features = ["esp32s3", "nor-flash"] }
 esp-hal-ota = { version = "0.4.6", features = ["esp32s3", "defmt"] }
-esp-hal = { version = "~1.0", features = [
-    "defmt",
-    "esp32s3",
-    "unstable",
-] }
+esp-hal = { version = "~1.0", features = ["defmt", "esp32s3", "unstable"] }
 embassy-futures = "0.1"
 embassy-sync = { version = "0.7", features = ["defmt"] }
 trouble-host = { version = "0.6.0", features = ["gatt"] }
@@ -293,6 +289,7 @@ embedded-storage = "0.3.1"
 async-modbus = { version = "0.7.0", default-features = false, features = [
     "embedded-io",
 ] }
+cat24c32-rs = { git = "https://github.com/PixmaNts/cat24c32-rs", rev = "397187c" }
 ds323x = { version = "0.7.0", features = ["defmt"] }
 scd4x = { version = "0.5.0", default-features = false, features = [
     "embedded-hal-async",

@@ -115,7 +115,7 @@ mod tests {
             model: "SCD30",
             ok: true,
         };
-        let mut buffer = [0u8; 256];
+        let buffer = [0u8; 256];
         let json = serde_json_core::to_string::<_, 256>(&event).unwrap();
         info!("co2 event: {}", json.as_str());
         defmt::assert!(json.contains("\"type\":\"co2\""));
@@ -156,16 +156,14 @@ mod tests {
 
     #[test]
     async fn serialize_file_list_event_contains_entries() {
-        let files = [
-            FileEntryPayload {
-                name: {
-                    let mut name = HeaplessString::<32>::new();
-                    let _ = core::fmt::Write::write_str(&mut name, "DATA.CSV");
-                    name
-                },
-                size: 205,
+        let files = [FileEntryPayload {
+            name: {
+                let mut name = HeaplessString::<32>::new();
+                let _ = core::fmt::Write::write_str(&mut name, "DATA.CSV");
+                name
             },
-        ];
+            size: 205,
+        }];
         let event = DeviceEvent::FileList {
             location: "sd",
             files: &files,

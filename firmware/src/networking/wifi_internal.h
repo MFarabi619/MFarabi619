@@ -1,7 +1,5 @@
-#ifndef NETWORKING_WIFI_INTERNAL_H
-#define NETWORKING_WIFI_INTERNAL_H
-
-#include "wifi.h"
+#pragma once
+#include <networking/wifi.h>
 
 #include <Preferences.h>
 
@@ -17,4 +15,3 @@ void configureMdnsServices(const char *hostname);
 
 }
 
-#endif

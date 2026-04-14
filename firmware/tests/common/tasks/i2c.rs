@@ -1,32 +1,14 @@
-//! I2C tasks — bus scan + human-friendly address labeling.
+//! I2C tasks — bus scan, mux helpers, device labeling.
 
 use defmt::info;
 use esp_hal::i2c::master::I2c;
+use firmware::hardware::i2c;
 
 use crate::common::setup::Device;
 
 pub const SCAN_ADDRESS_MIN: u8 = 0x03;
 pub const SCAN_ADDRESS_MAX: u8 = 0x77;
-
-/// Best-guess human label for a known 7-bit I2C address. Returns a
-/// generic "unknown" for unmapped addresses so scan output still reads
-/// as a labeled list.
-pub fn label_for_address(address: u8) -> &'static str {
-    match address {
-        0x44 => "SHT31 temperature/humidity",
-        0x45 => "SHT31 temperature/humidity (alt)",
-        0x50..=0x57 => "AT24C32 EEPROM (DS3231 breakout piggyback)",
-        0x58 => "SGP30 VOC",
-        0x5a => "CCS811 VOC",
-        0x61 => "SCD30 CO2",
-        0x62 => "SCD4x CO2",
-        0x68 => "DS3231 / DS1307 RTC (or MPU-6050)",
-        0x70 => "TCA9548A I2C mux",
-        0x76 => "BME280/BMP280 pressure (alt)",
-        0x77 => "BME280/BMP280 pressure",
-        _ => "unknown",
-    }
-}
+pub const MUX_ADDR: u8 = 0x70;
 
 pub struct BusScanOutcome {
     pub bus_label: &'static str,
@@ -53,7 +35,7 @@ pub fn scan_blocking_bus(
                 "  bus={=str} address=0x{=u8:02x} label={=str}",
                 bus_label,
                 candidate_address,
-                label_for_address(candidate_address)
+                i2c::device_name_at(candidate_address)
             );
             let _ = found_addresses.push(candidate_address);
         }
@@ -89,4 +71,40 @@ pub fn scan_both_buses(
     let i2c_bus_1_outcome = scan_blocking_bus("i2c.1", i2c_bus_1);
 
     Ok((i2c_bus_0_outcome, i2c_bus_1_outcome))
+}
+
+pub fn is_mux_present(device: &mut Device) -> bool {
+    let bus = match device.i2c_bus_1.as_mut() {
+        Some(bus) => bus,
+        None => return false,
+    };
+    bus.write(MUX_ADDR, &[]).is_ok()
+}
+
+pub fn select_mux_channel(
+    i2c_bus: &mut I2c<'_, esp_hal::Blocking>,
+    channel: u8,
+) -> Result<(), &'static str> {
+    let mask = 1u8 << channel;
+    i2c_bus
+        .write(MUX_ADDR, &[mask])
+        .map_err(|_| "device: failed to select mux channel")
+}
+
+pub fn access_channel_mask(
+    i2c_bus: &mut I2c<'_, esp_hal::Blocking>,
+) -> Result<u8, &'static str> {
+    let mut buf = [0u8; 1];
+    i2c_bus
+        .read(MUX_ADDR, &mut buf)
+        .map_err(|_| "device: failed to read mux channel mask")?;
+    Ok(buf[0])
+}
+
+pub fn disable_all_channels(
+    i2c_bus: &mut I2c<'_, esp_hal::Blocking>,
+) -> Result<(), &'static str> {
+    i2c_bus
+        .write(MUX_ADDR, &[0x00])
+        .map_err(|_| "device: failed to disable all mux channels")
 }

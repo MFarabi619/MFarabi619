@@ -2,7 +2,7 @@ use alloc::string::String as AllocString;
 use core::fmt::Write;
 
 use crate::{
-    config,
+    config::{app, board},
     filesystems::sd,
     services::{identity, system},
 };
@@ -24,18 +24,18 @@ pub fn generate_rc_conf() {
         rc,
         "# Do not edit. Configuration is compiled into firmware.\r\n\r\n"
     );
-    let _ = write!(rc, "hostname=\"{}\"\r\n", config::HOSTNAME);
+    let _ = write!(rc, "hostname=\"{}\"\r\n", app::HOSTNAME);
     let _ = write!(rc, "sshd_enable=\"YES\"\r\n");
-    let _ = write!(rc, "sshd_port=\"{}\"\r\n", config::ssh::PORT);
+    let _ = write!(rc, "sshd_port=\"{}\"\r\n", app::ssh::PORT);
     let _ = write!(rc, "sntpd_enable=\"YES\"\r\n");
-    let _ = write!(rc, "sntpd_server=\"{}\"\r\n", config::NTP_SERVER);
+    let _ = write!(rc, "sntpd_server=\"{}\"\r\n", app::NTP_SERVER);
     let _ = write!(rc, "httpd_enable=\"YES\"\r\n");
-    let _ = write!(rc, "httpd_port=\"{}\"\r\n", config::http::PORT);
+    let _ = write!(rc, "httpd_port=\"{}\"\r\n", app::http::PORT);
     let _ = write!(rc, "otad_enable=\"YES\"\r\n");
-    let _ = write!(rc, "otad_port=\"{}\"\r\n", config::ota::PORT);
-    let _ = write!(rc, "wifi_ap_ssid=\"{}\"\r\n", config::wifi::ap::SSID);
-    let _ = write!(rc, "wifi_ap_auth=\"{}\"\r\n", config::wifi::ap::AUTH_MODE);
-    let _ = write!(rc, "timezone=\"{}\"\r\n", config::time::ZONE);
+    let _ = write!(rc, "otad_port=\"{}\"\r\n", app::ota::PORT);
+    let _ = write!(rc, "wifi_ap_ssid=\"{}\"\r\n", app::wifi::ap::SSID);
+    let _ = write!(rc, "wifi_ap_auth=\"{}\"\r\n", app::wifi::ap::AUTH_MODE);
+    let _ = write!(rc, "timezone=\"{}\"\r\n", app::time::ZONE);
     let _ = sd::write_file_at("/etc", "RC.CONF", rc.as_bytes());
 }
 
@@ -47,16 +47,16 @@ pub fn generate_loader_conf() {
         "# Do not edit. Hardware config is compiled into firmware.\r\n\r\n"
     );
     let _ = write!(loader, "fatfs_load=\"YES\"\r\n");
-    let _ = write!(loader, "sd_spi_bus=\"{}\"\r\n", config::sd_card::DEVICE);
+    let _ = write!(loader, "sd_spi_bus=\"{}\"\r\n", app::sd_card::DEVICE);
     let _ = write!(
         loader,
         "i2c_frequency=\"{}\"\r\n",
-        config::i2c::FREQUENCY_KHZ
+        board::i2c::FREQUENCY_KHZ
     );
     let _ = write!(
         loader,
         "sensor_power_gpio=\"{}\"\r\n",
-        config::i2c::LEGACY_POWER_GPIO
+        board::i2c::LEGACY_POWER_GPIO
     );
     let snapshot = system::snapshot();
     let _ = write!(loader, "heap_size=\"{}\"\r\n", snapshot.heap_total);

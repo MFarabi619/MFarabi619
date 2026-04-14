@@ -1,7 +1,7 @@
 use defmt::info;
 use esp_storage::FlashStorage;
 
-use crate::config;
+use crate::config::app;
 
 pub mod credentials;
 pub mod sta;
@@ -23,11 +23,11 @@ pub fn snapshot() -> WifiSnapshot {
     WifiSnapshot {
         station: sta::snapshot(),
         access_point: AccessPointSnapshot {
-            fallback_enabled: config::wifi::FALLBACK_TO_AP,
-            ssid: config::wifi::ap::SSID,
-            channel: config::wifi::ap::CHANNEL,
-            max_connections: config::wifi::ap::MAX_CONNECTIONS,
-            auth_mode: config::wifi::ap::AUTH_MODE,
+            fallback_enabled: app::wifi::FALLBACK_TO_AP,
+            ssid: app::wifi::ap::SSID,
+            channel: app::wifi::ap::CHANNEL,
+            max_connections: app::wifi::ap::MAX_CONNECTIONS,
+            auth_mode: app::wifi::ap::AUTH_MODE,
         },
     }
 }

@@ -4,7 +4,7 @@ use esp_hal::i2c::master::I2c;
 use scd30_interface::{asynch::Scd30, data::{AmbientPressureCompensation, DataStatus}};
 use scd4x::Scd4xAsync;
 
-use crate::config;
+use crate::config::app;
 use crate::sensors::manager::{self, Co2Reading};
 
 pub type AsyncI2cBus = I2c<'static, esp_hal::Async>;
@@ -92,7 +92,7 @@ pub async fn probe_scd4x(i2c_bus: AsyncI2cBus) -> Result<Scd4xSensor, AsyncI2cBu
 pub async fn read_scd30(sensor: &mut Scd30Sensor) -> Result<Co2Reading, ()> {
     let mut data_ready = false;
 
-    for _attempt in 0..crate::config::data_logger::POLL_RETRIES {
+    for _attempt in 0..app::data_logger::POLL_RETRIES {
         match sensor.is_data_ready().await {
             Ok(status) if status == DataStatus::Ready => {
                 data_ready = true;
@@ -104,7 +104,7 @@ pub async fn read_scd30(sensor: &mut Scd30Sensor) -> Result<Co2Reading, ()> {
                 return Err(());
             }
         }
-        Timer::after(Duration::from_millis(crate::config::data_logger::POLL_INTERVAL_MS)).await;
+        Timer::after(Duration::from_millis(app::data_logger::POLL_INTERVAL_MS)).await;
     }
 
     if !data_ready {
@@ -131,7 +131,7 @@ pub async fn read_scd30(sensor: &mut Scd30Sensor) -> Result<Co2Reading, ()> {
 pub async fn read_scd4x(sensor: &mut Scd4xSensor) -> Result<Co2Reading, ()> {
     let mut data_ready = false;
 
-    for _attempt in 0..config::carbon_dioxide::SCD4X_POLL_RETRIES {
+    for _attempt in 0..app::carbon_dioxide::SCD4X_POLL_RETRIES {
         match sensor.data_ready_status().await {
             Ok(true) => {
                 data_ready = true;
@@ -143,7 +143,7 @@ pub async fn read_scd4x(sensor: &mut Scd4xSensor) -> Result<Co2Reading, ()> {
                 return Err(());
             }
         }
-        Timer::after(Duration::from_millis(config::carbon_dioxide::SCD4X_POLL_INTERVAL_MS)).await;
+        Timer::after(Duration::from_millis(app::carbon_dioxide::SCD4X_POLL_INTERVAL_MS)).await;
     }
 
     if !data_ready {
@@ -189,7 +189,7 @@ pub async fn sensor_loop(i2c_bus: AsyncI2cBus) -> ! {
         if current_backend.is_none() {
             let Some(bus) = bus_for_probing.take() else {
                 info!("co2 probing skipped: I2C bus unavailable");
-                Timer::after(Duration::from_secs(config::carbon_dioxide::PROBE_RETRY_SECS)).await;
+                Timer::after(Duration::from_secs(app::carbon_dioxide::PROBE_RETRY_SECS)).await;
                 continue;
             };
 
@@ -212,10 +212,10 @@ pub async fn sensor_loop(i2c_bus: AsyncI2cBus) -> ! {
                             bus_for_probing = Some(bus);
                             info!(
                                 "co2 probe failed; retry in {=u64}s",
-                                config::carbon_dioxide::PROBE_RETRY_SECS
+                                app::carbon_dioxide::PROBE_RETRY_SECS
                             );
                             Timer::after(Duration::from_secs(
-                                config::carbon_dioxide::PROBE_RETRY_SECS,
+                                app::carbon_dioxide::PROBE_RETRY_SECS,
                             ))
                             .await;
                             continue;
@@ -249,7 +249,7 @@ pub async fn sensor_loop(i2c_bus: AsyncI2cBus) -> ! {
                 manager::publish_carbon_dioxide_reading(failed_reading(model));
                 consecutive_failures += 1;
 
-                if consecutive_failures >= config::carbon_dioxide::MAX_CONSECUTIVE_FAILURES {
+                if consecutive_failures >= app::carbon_dioxide::MAX_CONSECUTIVE_FAILURES {
                     info!(
                         "co2: {=usize} consecutive failures; resetting",
                         consecutive_failures
@@ -269,7 +269,7 @@ pub async fn sensor_loop(i2c_bus: AsyncI2cBus) -> ! {
         }
 
         Timer::after(Duration::from_secs(
-            crate::config::data_logger::SAMPLING_INTERVAL_SECS,
+            app::data_logger::SAMPLING_INTERVAL_SECS,
         ))
         .await;
     }

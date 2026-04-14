@@ -15,7 +15,7 @@ use ratatui::Terminal;
 
 use esp_hal::clock;
 
-use crate::config;
+use crate::config::app;
 use crate::services::{identity, system};
 
 use embassy_time::Instant;
@@ -306,9 +306,9 @@ pub fn render_frame(width: u16, height: u16) -> AllocString {
     let _ = write!(
         ports_str,
         "SSH:{} HTTP:{} OTA:{}",
-        config::ssh::PORT,
-        config::http::PORT,
-        config::ota::PORT
+        app::ssh::PORT,
+        app::http::PORT,
+        app::ota::PORT
     );
 
     let heap_free = esp_alloc::HEAP.free();
@@ -318,7 +318,7 @@ pub fn render_frame(width: u16, height: u16) -> AllocString {
     let mut disk_str = AllocString::new();
     if system_snapshot.storage.sd_card_size_mb > 0 {
         let gb = system_snapshot.storage.sd_card_size_mb as f32 / 1024.0;
-        let _ = write!(disk_str, "{:.1} GiB ({})", gb, config::sd_card::FS_TYPE);
+        let _ = write!(disk_str, "{:.1} GiB ({})", gb, app::sd_card::FS_TYPE);
     } else {
         let _ = write!(disk_str, "not detected");
     }

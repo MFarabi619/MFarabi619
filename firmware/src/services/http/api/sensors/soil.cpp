@@ -1,5 +1,5 @@
 #include "routes.h"
-#include "../../../../sensors/manager.h"
+#include <manager.h>
 
 #include <ESPAsyncWebServer.h>
 #include <AsyncJson.h>

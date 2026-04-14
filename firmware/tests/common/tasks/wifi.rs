@@ -12,8 +12,6 @@ use esp_radio::wifi::{
 };
 use static_cell::StaticCell;
 
-use firmware::config;
-
 use crate::common::setup::{Device, build_access_point_stack, run_embassy_network};
 
 pub const DEFAULT_STATION_SSID: &str = env!("WIFI_SSID");

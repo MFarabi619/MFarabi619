@@ -19,8 +19,8 @@ use esp_radio::wifi::{Config, ControllerConfig, Interface, WifiController, sta::
 use panic_rtt_target as _;
 use static_cell::StaticCell;
 
-const WIFI_SSID: &str = env!("NETWORK_WIFI_SSID");
-const WIFI_PASSWORD: &str = env!("NETWORK_WIFI_PSK");
+const WIFI_SSID: &str = env!("WIFI_SSID");
+const WIFI_PASSWORD: &str = env!("WIFI_PSK");
 const HTTP_HOST_ADDRESS: Ipv4Addr = Ipv4Addr::new(216, 239, 32, 21);
 const HTTP_HOST_PORT: u16 = 80;
 const HTTP_REQUEST: &[u8] = b"GET / HTTP/1.0\r\nHost: www.mobile-j.de\r\n\r\n";

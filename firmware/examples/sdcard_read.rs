@@ -1,13 +1,12 @@
 #![no_std]
 #![no_main]
 
+use core::ops::ControlFlow;
 use defmt::info;
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use embedded_hal_bus::spi::ExclusiveDevice;
-use embedded_io::Read;
 use embedded_sdmmc::{Mode, SdCard, TimeSource, Timestamp, VolumeIdx, VolumeManager};
-use core::ops::ControlFlow;
 use esp_hal::{
     clock::CpuClock,
     delay::Delay,
@@ -67,11 +66,7 @@ async fn main(_spawner: Spawner) -> ! {
     .with_miso(peripherals.GPIO13)
     .into_async();
 
-    let chip_select = Output::new(
-        peripherals.GPIO10,
-        Level::High,
-        OutputConfig::default(),
-    );
+    let chip_select = Output::new(peripherals.GPIO10, Level::High, OutputConfig::default());
 
     let spi_device = ExclusiveDevice::new(spi_bus, chip_select, Delay::new()).unwrap();
     let sd_card = SdCard::new(spi_device, Delay::new());
@@ -89,18 +84,16 @@ async fn main(_spawner: Spawner) -> ! {
         .iterate_dir(|directory_entry| {
             info!(
                 "  {:?} ({} bytes)",
-                directory_entry.name,
-                directory_entry.size
+                directory_entry.name, directory_entry.size
             );
             ControlFlow::Continue(())
         })
         .unwrap();
 
-    let test_file_result = root_directory
-        .open_file_in_dir("FERRIS.TXT", Mode::ReadOnly);
+    let test_file_result = root_directory.open_file_in_dir("FERRIS.TXT", Mode::ReadOnly);
 
     match test_file_result {
-        Ok(mut file) => {
+        Ok(file) => {
             info!("reading FERRIS.TXT:");
             let mut buffer = [0u8; 64];
 
@@ -123,7 +116,7 @@ async fn main(_spawner: Spawner) -> ! {
 
             info!("created FERRIS.TXT with: Hello, World!");
 
-            let mut read_file = root_directory
+            let read_file = root_directory
                 .open_file_in_dir("FERRIS.TXT", Mode::ReadOnly)
                 .unwrap();
 

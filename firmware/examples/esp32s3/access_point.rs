@@ -16,10 +16,10 @@ use panic_rtt_target as _;
 use picoserve::routing::get;
 use static_cell::StaticCell;
 
-use firmware::config;
+use firmware::config::app;
 
-const AP_SSID: &str = env!("NETWORK_WIFI_SSID");
-const AP_PASSWORD: &str = env!("NETWORK_WIFI_PSK");
+const AP_SSID: &str = env!("WIFI_SSID");
+const AP_PASSWORD: &str = env!("WIFI_PSK");
 const AP_CHANNEL: u8 = 6;
 
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -83,7 +83,7 @@ async fn http_server_task(stack: Stack<'static>) {
 
     loop {
         picoserve::Server::new(&app, config, &mut http_buffer)
-            .listen_and_serve(0usize, stack, config::http::PORT, &mut tcp_rx_buffer, &mut tcp_tx_buffer)
+            .listen_and_serve(0usize, stack, app::http::PORT, &mut tcp_rx_buffer, &mut tcp_tx_buffer)
             .await;
     }
 }
@@ -147,7 +147,7 @@ async fn main(spawner: Spawner) -> ! {
 
     spawner.spawn(http_server_task(stack).unwrap());
 
-    info!("HTTP server listening on port {}", config::http::PORT);
+    info!("HTTP server listening on port {}", app::http::PORT);
 
     loop {
         Timer::after(Duration::from_secs(60)).await;

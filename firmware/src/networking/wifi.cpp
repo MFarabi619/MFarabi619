@@ -1,6 +1,6 @@
-#include "wifi.h"
+#include <networking/wifi.h>
 #include "wifi_internal.h"
-#include "../services/identity.h"
+#include <identity.h>
 #include "../services/preferences.h"
 
 #include <Arduino.h>
@@ -164,9 +164,9 @@ bool networking::wifi::scan(WifiScanCommand *command) {
 #ifdef PIO_UNIT_TESTING
 
 
-#include "wifi.h"
-#include "../testing/it.h"
-#include "../testing/nvs_helpers.h"
+#include <networking/wifi.h>
+#include <testing/utils.h>
+
 
 namespace networking::wifi { void test(void); }
 

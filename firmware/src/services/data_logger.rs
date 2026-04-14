@@ -1,7 +1,7 @@
 use alloc::string::String as AllocString;
 use core::fmt::Write;
 
-use crate::{config, filesystems::sd};
+use crate::{config::app, filesystems::sd};
 
 pub struct DataLoggerSnapshot {
     pub interval_seconds: u64,
@@ -10,8 +10,8 @@ pub struct DataLoggerSnapshot {
 
 pub fn snapshot() -> DataLoggerSnapshot {
     DataLoggerSnapshot {
-        interval_seconds: config::data_logger::SAMPLING_INTERVAL_SECS,
-        path: config::sd_card::DATA_LOG_PATH,
+        interval_seconds: app::data_logger::SAMPLING_INTERVAL_SECS,
+        path: app::sd_card::DATA_LOG_PATH,
     }
 }
 

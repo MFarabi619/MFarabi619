@@ -127,6 +127,7 @@ mod tests {
 
         info!("SPI SD card detected: {=u64} MiB", card_size_megabytes);
         info!("SPI SD card type: {=?}", sd_card.get_card_type());
+        defmt::assert!(card_size_megabytes > 0, "card reports zero size");
 
         let volume_manager = VolumeManager::new(sd_card, FixedTimeSource);
         let volume0 = volume_manager.open_volume(VolumeIdx(0)).unwrap();
@@ -149,7 +150,9 @@ mod tests {
             .unwrap();
 
         info!("root directory entries observed: {=usize}", root_entry_count);
+        defmt::assert!(root_entry_count > 0, "root directory is empty");
 
+        // Write test file
         let test_file = root_directory
             .open_file_in_dir(TEST_FILE_NAME, Mode::ReadWriteCreateOrTruncate)
             .unwrap();
@@ -158,6 +161,7 @@ mod tests {
         test_file.flush().unwrap();
         info!("wrote {=usize} bytes to {=str}", TEST_FILE_CONTENTS.len(), TEST_FILE_NAME);
 
+        // Read back and verify
         test_file.seek_from_start(0).unwrap();
 
         let mut read_buffer = [0u8; TEST_FILE_CONTENTS.len()];
@@ -167,7 +171,11 @@ mod tests {
 
         info!("SPI SD card roundtrip read verified");
 
+        // Clean up
         test_file.close().unwrap();
+        root_directory.delete_entry_in_dir(TEST_FILE_NAME).unwrap();
+        info!("deleted {=str}", TEST_FILE_NAME);
+
         root_directory.close().unwrap();
         volume0.close().unwrap();
     }

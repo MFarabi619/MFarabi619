@@ -4,7 +4,7 @@ use embassy_time::Instant;
 use esp_hal::{clock, efuse, system, system::Cpu};
 
 use crate::{
-    config,
+    config::{app, board},
     console::icons,
     hardware,
     services::{identity, system as system_service},
@@ -71,7 +71,7 @@ pub fn run() -> AllocString {
         "\x1b[1m{}\x1b[0m {} ({})",
         app_desc.project_name(),
         app_desc.version(),
-        config::PLATFORM
+        board::PLATFORM
     );
     row!(
         out,
@@ -204,8 +204,8 @@ pub fn run() -> AllocString {
             "\x1b[1m{} MiB\x1b[0m / \x1b[1m{} MiB\x1b[0m - {} [\x1b[1m{}\x1b[0m]",
             0,
             system_snapshot.storage.sd_card_size_mb,
-            config::sd_card::FS_TYPE,
-            config::sd_card::DEVICE
+            app::sd_card::FS_TYPE,
+            app::sd_card::DEVICE
         );
     } else {
         row!(
@@ -270,7 +270,7 @@ pub fn run() -> AllocString {
         icons::NF_FA_GLOBE,
         "NTP",
         "\x1b[1m{}\x1b[0m",
-        config::NTP_SERVER
+        app::NTP_SERVER
     );
     row!(
         out,
@@ -278,10 +278,10 @@ pub fn run() -> AllocString {
         icons::NF_FA_PLUG,
         "Ports",
         "SSH:\x1b[1m{}\x1b[0m  HTTP:\x1b[1m{}\x1b[0m  OTA:\x1b[1m{}\x1b[0m  Log:\x1b[1m{}\x1b[0m",
-        config::ssh::PORT,
-        config::http::PORT,
-        config::ota::PORT,
-        config::tcp_log::PORT
+        app::ssh::PORT,
+        app::http::PORT,
+        app::ota::PORT,
+        app::tcp_log::PORT
     );
     row!(
         out,
@@ -318,10 +318,10 @@ pub fn run() -> AllocString {
         icons::NF_FA_COG,
         "SPI (SD)",
         "CS:\x1b[1mGPIO{}\x1b[0m  MOSI:\x1b[1mGPIO{}\x1b[0m  SCK:\x1b[1mGPIO{}\x1b[0m  MISO:\x1b[1mGPIO{}\x1b[0m",
-        config::sd_card::CS_GPIO,
-        config::sd_card::MOSI_GPIO,
-        config::sd_card::SCK_GPIO,
-        config::sd_card::MISO_GPIO
+        board::sd_card::CS_GPIO,
+        board::sd_card::MOSI_GPIO,
+        board::sd_card::SCK_GPIO,
+        board::sd_card::MISO_GPIO
     );
 
     for bus in i2c_status.buses.iter() {

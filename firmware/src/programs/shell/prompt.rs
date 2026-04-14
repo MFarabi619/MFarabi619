@@ -77,7 +77,7 @@ pub fn build_prompt(cwd: &str) -> AllocString {
 
     let time_str = if is_time_synced() {
         let epoch = get_current_epoch_secs();
-        let local_epoch = (epoch as i64 + crate::config::time::UTC_OFFSET_HOURS * 3600) as u64;
+        let local_epoch = (epoch as i64 + crate::config::app::time::UTC_OFFSET_HOURS * 3600) as u64;
         let secs_of_day = local_epoch % 86400;
         let hour24 = secs_of_day / 3600;
         let minute = (secs_of_day % 3600) / 60;

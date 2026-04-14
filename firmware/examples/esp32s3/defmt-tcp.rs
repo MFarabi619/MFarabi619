@@ -20,8 +20,8 @@ use esp_radio::wifi::{
 use panic_rtt_target as _;
 use static_cell::StaticCell;
 
-const WIFI_SSID: &str = env!("NETWORK_WIFI_SSID");
-const WIFI_PASSWORD: &str = env!("NETWORK_WIFI_PSK");
+const WIFI_SSID: &str = env!("WIFI_SSID");
+const WIFI_PASSWORD: &str = env!("WIFI_PSK");
 const TCP_LISTEN_PORT: u16 = 4040;
 
 const RECEIVE_BUFFER_SIZE: usize = 4096;

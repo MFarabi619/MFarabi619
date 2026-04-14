@@ -1,7 +1,7 @@
 use embassy_time::Instant;
 
 use crate::{
-    config,
+    config::board,
     filesystems::sd,
     networking, power,
     sensors::manager,
@@ -46,7 +46,7 @@ pub fn snapshot() -> SystemSnapshot {
 
     SystemSnapshot {
         hostname: identity::hostname(),
-        platform: config::PLATFORM,
+        platform: board::PLATFORM,
         ssh_user: identity::ssh_user(),
         uptime_seconds: Instant::now().as_secs(),
         heap_free,

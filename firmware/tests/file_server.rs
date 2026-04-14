@@ -52,14 +52,14 @@ mod tests {
     async fn user_reads_non_empty_configuration_constants(
         _device: Device,
     ) -> Result<(), &'static str> {
-        defmt::assert!(!firmware::config::HOSTNAME.is_empty());
-        defmt::assert!(!firmware::config::PLATFORM.is_empty());
-        defmt::assert!(!firmware::config::SSH_USER.is_empty());
-        defmt::assert!(!firmware::config::NTP_SERVER.is_empty());
-        defmt::assert!(!firmware::config::cloudevents::TENANT.is_empty());
-        defmt::assert!(!firmware::config::cloudevents::SITE.is_empty());
-        defmt::assert!(!firmware::config::cloudevents::SOURCE.is_empty());
-        defmt::assert!(!firmware::config::cloudevents::EVENT_TYPE.is_empty());
+        defmt::assert!(!firmware::config::app::HOSTNAME.is_empty());
+        defmt::assert!(!firmware::config::board::PLATFORM.is_empty());
+        defmt::assert!(!firmware::config::app::SSH_USER.is_empty());
+        defmt::assert!(!firmware::config::app::NTP_SERVER.is_empty());
+        defmt::assert!(!firmware::config::app::cloudevents::TENANT.is_empty());
+        defmt::assert!(!firmware::config::app::cloudevents::SITE.is_empty());
+        defmt::assert!(!firmware::config::app::cloudevents::SOURCE.is_empty());
+        defmt::assert!(!firmware::config::app::cloudevents::EVENT_TYPE.is_empty());
         Ok(())
     }
 
@@ -68,10 +68,10 @@ mod tests {
     async fn user_finds_every_service_port_above_zero(
         _device: Device,
     ) -> Result<(), &'static str> {
-        defmt::assert!(firmware::config::ssh::PORT > 0);
-        defmt::assert!(firmware::config::http::PORT > 0);
-        defmt::assert!(firmware::config::ota::PORT > 0);
-        defmt::assert!(firmware::config::tcp_log::PORT > 0);
+        defmt::assert!(firmware::config::app::ssh::PORT > 0);
+        defmt::assert!(firmware::config::app::http::PORT > 0);
+        defmt::assert!(firmware::config::app::ota::PORT > 0);
+        defmt::assert!(firmware::config::app::tcp_log::PORT > 0);
         Ok(())
     }
 
@@ -80,10 +80,10 @@ mod tests {
     async fn user_finds_buffer_sizes_above_sane_minimums(
         _device: Device,
     ) -> Result<(), &'static str> {
-        defmt::assert!(firmware::config::ssh::RX_BUF_SIZE >= 1024);
-        defmt::assert!(firmware::config::ssh::TX_BUF_SIZE >= 1024);
-        defmt::assert!(firmware::config::ota::RX_BUF_SIZE >= 4096);
-        defmt::assert!(firmware::config::ota::CHUNK_SIZE >= 1024);
+        defmt::assert!(firmware::config::app::ssh::RX_BUF_SIZE >= 1024);
+        defmt::assert!(firmware::config::app::ssh::TX_BUF_SIZE >= 1024);
+        defmt::assert!(firmware::config::app::ota::RX_BUF_SIZE >= 4096);
+        defmt::assert!(firmware::config::app::ota::CHUNK_SIZE >= 1024);
         Ok(())
     }
 
@@ -92,7 +92,7 @@ mod tests {
     async fn user_finds_a_plausible_utc_offset(
         _device: Device,
     ) -> Result<(), &'static str> {
-        let configured_utc_offset_hours = firmware::config::time::UTC_OFFSET_HOURS;
+        let configured_utc_offset_hours = firmware::config::app::time::UTC_OFFSET_HOURS;
         defmt::assert!((-12..=14).contains(&configured_utc_offset_hours));
         Ok(())
     }
@@ -222,7 +222,7 @@ mod tests {
     async fn user_reaches_http_server_on_port_80(
         _device: Device,
     ) -> Result<(), &'static str> {
-        defmt::assert_eq!(firmware::config::http::PORT, 80);
+        defmt::assert_eq!(firmware::config::app::http::PORT, 80);
         Ok(())
     }
 
@@ -233,8 +233,8 @@ mod tests {
     async fn user_sees_device_declares_at_least_one_bus(
         _device: Device,
     ) -> Result<(), &'static str> {
-        defmt::assert!(firmware::config::i2c::BUS_0.sda_gpio < 49);
-        defmt::assert!(firmware::config::i2c::BUS_1.sda_gpio < 49);
+        defmt::assert!(firmware::config::board::i2c::BUS_0.sda_gpio < 49);
+        defmt::assert!(firmware::config::board::i2c::BUS_1.sda_gpio < 49);
         Ok(())
     }
 
@@ -244,8 +244,8 @@ mod tests {
         _device: Device,
     ) -> Result<(), &'static str> {
         for (label, sda_gpio_number, scl_gpio_number) in [
-            ("i2c.0", firmware::config::i2c::BUS_0.sda_gpio, firmware::config::i2c::BUS_0.scl_gpio),
-            ("i2c.1", firmware::config::i2c::BUS_1.sda_gpio, firmware::config::i2c::BUS_1.scl_gpio),
+            ("i2c.0", firmware::config::board::i2c::BUS_0.sda_gpio, firmware::config::board::i2c::BUS_0.scl_gpio),
+            ("i2c.1", firmware::config::board::i2c::BUS_1.sda_gpio, firmware::config::board::i2c::BUS_1.scl_gpio),
         ] {
             defmt::assert!(sda_gpio_number < 49, "SDA pin out of range for ESP32-S3");
             defmt::assert!(scl_gpio_number < 49, "SCL pin out of range for ESP32-S3");
@@ -837,7 +837,7 @@ mod tests {
         let mut cwd = String::from("/");
         let (output, _) = firmware::programs::shell::dispatch("microfetch", &mut cwd);
         defmt::assert!(!output.is_empty());
-        defmt::assert!(output.contains(firmware::config::HOSTNAME));
+        defmt::assert!(output.contains(firmware::config::app::HOSTNAME));
         Ok(())
     }
 

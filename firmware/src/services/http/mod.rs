@@ -8,7 +8,7 @@ use picoserve::AppBuilder;
 use picoserve::routing::{get, get_service, parse_path_segment};
 use static_cell::StaticCell;
 
-pub use crate::config::http::PORT as HTTP_SERVER_PORT;
+use crate::config::app;
 
 mod api;
 mod files;
@@ -59,7 +59,7 @@ pub fn spawn(spawner: &Spawner, stack: Stack<'static>) {
         spawner.spawn(task(task_id, stack, app).unwrap());
     }
 
-    info!("HTTP server listening on port {}", HTTP_SERVER_PORT);
+    info!("HTTP server listening on port {}", app::http::PORT);
 }
 
 #[embassy_executor::task]
@@ -76,7 +76,7 @@ pub async fn task(
         .listen_and_serve(
             task_id,
             stack,
-            HTTP_SERVER_PORT,
+            app::http::PORT,
             &mut tcp_rx_buffer,
             &mut tcp_tx_buffer,
         )

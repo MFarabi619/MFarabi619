@@ -16,7 +16,7 @@ use esp_hal::{
 };
 use heapless::{String as HeaplessString, Vec as HeaplessVec};
 
-use crate::config::sd_card;
+use crate::config::{app::sd_card as sd_app, board::sd_card as sd_hw};
 
 const STARTUP_CLOCK_BYTES: [u8; 10] = [0xFF; 10];
 const MAX_FILENAME_LEN: usize = 32;
@@ -132,7 +132,7 @@ pub fn initialize(
     let mut sd_spi_bus = Spi::new(
         sd_spi_peripheral,
         SpiConfig::default()
-            .with_frequency(Rate::from_khz(sd_card::SPI_INIT_FREQUENCY_KHZ))
+            .with_frequency(Rate::from_khz(sd_hw::SPI_INIT_FREQUENCY_KHZ))
             .with_mode(SpiMode::_0),
     )
     .unwrap()
@@ -161,10 +161,10 @@ pub fn initialize(
     if size_mb > 0 {
         info!(
             "SD card detected (CS=GPIO{}, MOSI=GPIO{}, SCK=GPIO{}, MISO=GPIO{}, size={} MiB)",
-            sd_card::CS_GPIO,
-            sd_card::MOSI_GPIO,
-            sd_card::SCK_GPIO,
-            sd_card::MISO_GPIO,
+            sd_hw::CS_GPIO,
+            sd_hw::MOSI_GPIO,
+            sd_hw::SCK_GPIO,
+            sd_hw::MISO_GPIO,
             size_mb
         );
     }
@@ -227,17 +227,17 @@ fn navigate_to(directory: &mut SdDir<'_>, path: &str) -> Result<(), SdError> {
 
 pub fn ensure_data_csv_exists() -> Result<(), SdError> {
     with_dir_at("", |root| {
-        if root.directory_entry_exists(sd_card::DATA_CSV_FILE_NAME) {
+        if root.directory_entry_exists(sd_app::DATA_CSV_FILE_NAME) {
             return Ok(());
         }
         let file = root
-            .open_file_in_dir(sd_card::DATA_CSV_FILE_NAME, Mode::ReadWriteCreateOrTruncate)
+            .open_file_in_dir(sd_app::DATA_CSV_FILE_NAME, Mode::ReadWriteCreateOrTruncate)
             .map_err(|_| SdError::CreateFailed)?;
-        file.write(sd_card::DATA_CSV_HEADER.as_bytes())
+        file.write(sd_app::DATA_CSV_HEADER.as_bytes())
             .map_err(|_| SdError::WriteFailed)?;
         file.write(b"\n").map_err(|_| SdError::WriteFailed)?;
         file.flush().map_err(|_| SdError::FlushFailed)?;
-        info!("created {} with CSV header", sd_card::DATA_CSV_FILE_NAME);
+        info!("created {} with CSV header", sd_app::DATA_CSV_FILE_NAME);
         Ok(())
     })
 }
@@ -245,7 +245,7 @@ pub fn ensure_data_csv_exists() -> Result<(), SdError> {
 pub fn append_data_csv_line(line: &str) -> Result<(), SdError> {
     with_dir_at("", |root| {
         let file = root
-            .open_file_in_dir(sd_card::DATA_CSV_FILE_NAME, Mode::ReadWriteCreateOrAppend)
+            .open_file_in_dir(sd_app::DATA_CSV_FILE_NAME, Mode::ReadWriteCreateOrAppend)
             .map_err(|_| SdError::FileNotFound)?;
         file.write(line.as_bytes())
             .map_err(|_| SdError::WriteFailed)?;

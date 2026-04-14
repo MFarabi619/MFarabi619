@@ -63,7 +63,7 @@ pub async fn task(
     sensor_name: &'static str,
 ) {
     let mut sampling_interval = Ticker::every(Duration::from_secs(
-        crate::config::data_logger::SAMPLING_INTERVAL_SECS,
+        crate::config::app::data_logger::SAMPLING_INTERVAL_SECS,
     ));
 
     loop {

@@ -1,6 +1,6 @@
 #include "routes.h"
-#include "../../../../sensors/carbon_dioxide.h"
-#include "../../../../sensors/manager.h"
+#include "sensors/carbon_dioxide.h"
+#include <manager.h>
 
 #include <ESPAsyncWebServer.h>
 #include <AsyncJson.h>

@@ -18,8 +18,8 @@ use esp_radio::wifi::{Config, ControllerConfig, Interface, WifiController, sta::
 use panic_rtt_target as _;
 use static_cell::StaticCell;
 
-const WIFI_SSID: &str = env!("NETWORK_WIFI_SSID");
-const WIFI_PASSWORD: &str = env!("NETWORK_WIFI_PSK");
+const WIFI_SSID: &str = env!("WIFI_SSID");
+const WIFI_PASSWORD: &str = env!("WIFI_PSK");
 
 macro_rules! mk_static {
     ($type:ty, $value:expr) => {{

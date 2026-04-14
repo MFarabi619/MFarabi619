@@ -1,8 +1,8 @@
 #include "api.h"
-#include "../../../config.h"
-#include "../../../services/system.h"
-#include "../../../services/http.h"
-#include "../../../networking/update.h"
+#include <config.h>
+#include <services/system.h>
+#include "services/http.h"
+#include "networking/update.h"
 
 #include <Arduino.h>
 #include <AsyncJson.h>

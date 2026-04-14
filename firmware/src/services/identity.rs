@@ -2,14 +2,14 @@ use alloc::string::String as AllocString;
 use ed25519_dalek::SigningKey;
 use esp_hal::rng::Rng;
 
-use crate::{config, filesystems::sd};
+use crate::{config::app, filesystems::sd};
 
 pub fn ssh_user() -> &'static str {
-    config::SSH_USER
+    app::SSH_USER
 }
 
 pub fn hostname() -> &'static str {
-    config::HOSTNAME
+    app::HOSTNAME
 }
 
 pub fn home_dir() -> AllocString {
@@ -61,7 +61,7 @@ pub fn load_or_generate_host_key() -> [u8; 32] {
     let home = home_dir();
     let ssh_dir = join_path(home.as_str(), ".ssh");
 
-    if let Ok(contents) = sd::read_file_at::<32>(ssh_dir.as_str(), config::SSH_HOST_KEY_FILE) {
+    if let Ok(contents) = sd::read_file_at::<32>(ssh_dir.as_str(), app::SSH_HOST_KEY_FILE) {
         if contents.len() == 32 {
             let mut key = [0u8; 32];
             key.copy_from_slice(contents.as_slice());
@@ -77,7 +77,7 @@ pub fn load_or_generate_host_key() -> [u8; 32] {
         chunk.copy_from_slice(&bytes[..chunk.len()]);
     }
 
-    let _ = sd::write_file_at(ssh_dir.as_str(), config::SSH_HOST_KEY_FILE, &key);
+    let _ = sd::write_file_at(ssh_dir.as_str(), app::SSH_HOST_KEY_FILE, &key);
     defmt::info!("generated new SSH host key");
     key
 }

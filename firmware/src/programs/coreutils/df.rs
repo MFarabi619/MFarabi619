@@ -1,7 +1,7 @@
 use alloc::string::String as AllocString;
 use core::fmt::Write;
 
-use crate::{config, services::system};
+use crate::{config::app, services::system};
 
 pub fn run() -> AllocString {
     let mut out = AllocString::new();
@@ -28,9 +28,9 @@ pub fn run() -> AllocString {
         let _ = write!(
             out,
             "  \x1b[33m{:<16}\x1b[0m {:<12} {:<12} {:<8}\r\n",
-            config::sd_card::DEVICE,
+            app::sd_card::DEVICE,
             size,
-            config::sd_card::FS_TYPE,
+            app::sd_card::FS_TYPE,
             "/"
         );
     } else {

@@ -15,9 +15,9 @@ use super::{
     CTRL_L, CTRL_N, CTRL_P, CTRL_U, CTRL_W,
 };
 
-const SSH_PORT: u16 = crate::config::ssh::PORT;
-const RX_BUF_SIZE: usize = crate::config::ssh::RX_BUF_SIZE;
-const TX_BUF_SIZE: usize = crate::config::ssh::TX_BUF_SIZE;
+const SSH_PORT: u16 = crate::config::app::ssh::PORT;
+const RX_BUF_SIZE: usize = crate::config::app::ssh::RX_BUF_SIZE;
+const TX_BUF_SIZE: usize = crate::config::app::ssh::TX_BUF_SIZE;
 
 #[derive(Clone, Copy)]
 pub struct TermSize {

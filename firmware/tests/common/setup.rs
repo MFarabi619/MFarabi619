@@ -14,7 +14,7 @@ use esp_hal::{
 use esp_radio::wifi::{Interface, Interfaces, WifiController};
 use static_cell::StaticCell;
 
-use firmware::config;
+use firmware::config::board;
 use firmware::filesystems::sd;
 
 /// The system under test.
@@ -27,9 +27,6 @@ pub struct Device {
     pub wifi_interfaces: Option<Interfaces<'static>>,
     pub embassy_network_stack: Option<Stack<'static>>,
     pub embassy_network_seed: u64,
-    /// I2C bus 0, pre-wired to the pins declared in `config::i2c`.
-    /// Tests that exercise the bus `take()` it, optionally `into_async()` it,
-    /// and return it when done (we don't enforce that; the test just owns it).
     pub i2c_bus_0: Option<I2c<'static, esp_hal::Blocking>>,
     pub i2c_bus_1: Option<I2c<'static, esp_hal::Blocking>>,
 }
@@ -65,26 +62,26 @@ pub fn boot_device() -> Device {
     // screenplay test picks up the change automatically.
     let i2c_bus_0 = I2c::new(
         peripherals.I2C0,
-        I2cConfig::default().with_frequency(Rate::from_khz(config::i2c::FREQUENCY_KHZ)),
+        I2cConfig::default().with_frequency(Rate::from_khz(board::i2c::FREQUENCY_KHZ)),
     )
     .expect("device: failed to create I2C0 driver")
     .with_sda(peripherals.GPIO8)
     .with_scl(peripherals.GPIO9);
     info!(
         "device boot: I2C0 wired sda=GPIO{=u8} scl=GPIO{=u8} freq_khz={=u32}",
-        8u8, 9u8, config::i2c::FREQUENCY_KHZ
+        8u8, 9u8, board::i2c::FREQUENCY_KHZ
     );
 
     let i2c_bus_1 = I2c::new(
         peripherals.I2C1,
-        I2cConfig::default().with_frequency(Rate::from_khz(config::i2c::FREQUENCY_KHZ)),
+        I2cConfig::default().with_frequency(Rate::from_khz(board::i2c::FREQUENCY_KHZ)),
     )
     .expect("device: failed to create I2C1 driver")
     .with_sda(peripherals.GPIO17)
     .with_scl(peripherals.GPIO18);
     info!(
         "device boot: I2C1 wired sda=GPIO{=u8} scl=GPIO{=u8} freq_khz={=u32}",
-        17u8, 18u8, config::i2c::FREQUENCY_KHZ
+        17u8, 18u8, board::i2c::FREQUENCY_KHZ
     );
 
     let random_number_generator = Rng::new();

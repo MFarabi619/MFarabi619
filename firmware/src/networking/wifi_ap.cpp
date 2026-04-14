@@ -1,6 +1,6 @@
 #include "wifi_internal.h"
 
-#include "../services/identity.h"
+#include <identity.h>
 
 #include <Arduino.h>
 #include <ESPmDNS.h>
