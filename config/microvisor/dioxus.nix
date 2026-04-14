@@ -6,6 +6,7 @@
   ...
 }:
 let
+  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
   dioxus = config.languages.rust.dioxus;
 in
 {
@@ -36,21 +37,22 @@ in
     ];
 
     packages =
-      (with pkgs; [
+      (with pkgs-unstable; [
         binaryen
+        dioxus-cli
         tailwindcss_4
         cargo-binstall
-        # FIXME: nixpkgs behind on latest, still on dx 0.7.3 and missing wasm-bindgen-cli_0_2_116
-        # use `cargo binstall wasm-bindgen-cli@0.2.116 dioxus-cli@0.7.4`
+        # FIXME: nixpkgs behind on latest
+        # use `cargo binstall wasm-bindgen-cli@0.2.116`
       ])
       ++ lib.optionals pkgs.stdenv.isLinux (
-        with pkgs;
+        with pkgs-unstable;
         [
           openssl
         ]
       )
       ++ lib.optionals (dioxus.desktop.linux.enable && pkgs.stdenv.isLinux) (
-        with pkgs;
+        with pkgs-unstable;
         [
           atk
           glib
