@@ -2,8 +2,8 @@ use embedded_storage::nor_flash::NorFlash;
 use embedded_storage::ReadStorage;
 use esp_storage::FlashStorage;
 
-pub const DEFAULT_SSID: &str = env!("NETWORK_WIFI_SSID");
-pub const DEFAULT_PASSWORD: &str = env!("NETWORK_WIFI_PSK");
+pub const DEFAULT_SSID: &str = env!("WIFI_SSID");
+pub const DEFAULT_PASSWORD: &str = env!("WIFI_PSK");
 
 const CREDENTIALS_MAGIC: u32 = 0xCE6A0001;
 const CREDENTIALS_OFFSET: usize = 0x1000;

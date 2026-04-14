@@ -1,10 +1,9 @@
 use embassy_executor::Spawner;
 use esp_hal::i2c::master::I2c;
 
-use crate::config::I2CSensorKind;
+use crate::hardware::i2c as i2c_hw;
 
-pub const MAX_SENSOR_COUNT: usize =
-    crate::config::i2c_topology::DEVICES.len() + crate::config::modbus_topology::DEVICES.len();
+pub const MAX_SENSOR_COUNT: usize = 8;
 
 #[derive(Clone, Copy)]
 pub enum TransportSnapshot {
@@ -209,44 +208,33 @@ pub fn temperature_humidity_reading(index: usize) -> TemperatureHumidityReading 
 fn build_inventory_snapshot(
     carbon_dioxide: Co2Reading,
 ) -> heapless::Vec<SensorSnapshot, MAX_SENSOR_COUNT> {
+    use crate::{config, hardware::i2c};
+
     let mut sensors = heapless::Vec::new();
     let mut temperature_humidity_index = 0usize;
 
-    for sensor in crate::config::i2c_topology::DEVICES {
-        let live = match sensor.kind {
-            I2CSensorKind::TemperatureHumidity => {
+    let i2c_snapshot = i2c::snapshot();
+    for device in i2c_snapshot.discovered_devices.iter() {
+        let name = i2c::device_name_at(device.address);
+        let live = match device.address {
+            0x44 => {
                 let reading = temperature_humidity_reading(temperature_humidity_index);
                 temperature_humidity_index += 1;
                 LiveReading::TemperatureHumidity(reading)
             }
-            I2CSensorKind::CarbonDioxideScd30 | I2CSensorKind::CarbonDioxideScd4x => {
-                LiveReading::Co2(carbon_dioxide)
-            }
+            0x61 | 0x62 => LiveReading::Co2(carbon_dioxide),
             _ => LiveReading::None,
         };
 
         let _ = sensors.push(SensorSnapshot {
-            name: sensor.name,
-            model: sensor.model,
+            name,
+            model: name,
             transport: TransportSnapshot::I2c {
-                bus_index: sensor.bus_index,
-                address: sensor.address,
-                mux_channel: sensor.mux_channel,
+                bus_index: device.bus,
+                address: device.address,
+                mux_channel: config::i2c::DIRECT_CHANNEL,
             },
             live,
-        });
-    }
-
-    for sensor in crate::config::modbus_topology::DEVICES {
-        let _ = sensors.push(SensorSnapshot {
-            name: sensor.name,
-            model: sensor.model,
-            transport: TransportSnapshot::Modbus {
-                channel: sensor.channel,
-                slave_id: sensor.slave_id,
-                register_address: sensor.register_address,
-            },
-            live: LiveReading::None,
         });
     }
 
@@ -262,35 +250,30 @@ pub fn snapshot() -> StatusSnapshot {
     }
 }
 
-pub fn first_i2c_sensor_of_kind(kind: I2CSensorKind) -> Option<crate::config::I2CSensorConfig> {
-    crate::config::i2c_topology::first_device_of_kind(kind).copied()
+pub fn carbon_dioxide_address_scd30() -> u8 {
+    0x61
 }
 
-pub fn carbon_dioxide_address(kind: I2CSensorKind) -> u8 {
-    first_i2c_sensor_of_kind(kind)
-        .map(|sensor| sensor.address)
-        .unwrap_or(match kind {
-            I2CSensorKind::CarbonDioxideScd30 => 0x61,
-            I2CSensorKind::CarbonDioxideScd4x => 0x62,
-            _ => 0x00,
-        })
+pub fn carbon_dioxide_address_scd4x() -> u8 {
+    0x62
 }
 
 pub fn carbon_dioxide_name() -> &'static str {
-    first_i2c_sensor_of_kind(I2CSensorKind::CarbonDioxideScd30)
-        .or_else(|| first_i2c_sensor_of_kind(I2CSensorKind::CarbonDioxideScd4x))
-        .map(|sensor| sensor.name)
-        .unwrap_or("carbon_dioxide_0")
+    if i2c_hw::find_device(0x61).is_some() {
+        i2c_hw::device_name_at(0x61)
+    } else if i2c_hw::find_device(0x62).is_some() {
+        i2c_hw::device_name_at(0x62)
+    } else {
+        "carbon_dioxide_0"
+    }
 }
 
-pub fn carbon_dioxide_model(kind: I2CSensorKind) -> &'static str {
-    first_i2c_sensor_of_kind(kind)
-        .map(|sensor| sensor.model)
-        .unwrap_or(match kind {
-            I2CSensorKind::CarbonDioxideScd30 => "SCD30",
-            I2CSensorKind::CarbonDioxideScd4x => "SCD4x",
-            _ => "unknown",
-        })
+pub fn carbon_dioxide_model_scd30() -> &'static str {
+    "SCD30"
+}
+
+pub fn carbon_dioxide_model_scd4x() -> &'static str {
+    "SCD4x"
 }
 
 pub fn co2_reading() -> Co2Reading {
@@ -308,43 +291,61 @@ pub fn spawn_tasks(
     i2c0_bus: &mut Option<I2c<'static, esp_hal::Async>>,
     i2c1_bus: &mut Option<I2c<'static, esp_hal::Async>>,
 ) {
+    use crate::hardware::i2c;
+
     let mut temperature_humidity_index = 0usize;
 
-    for sensor in crate::config::i2c_topology::DEVICES {
-        let i2c_bus = match sensor.bus_index {
+    // SHT31 temperature/humidity at 0x44
+    if let Some(dev) = i2c::find_device(0x44) {
+        let bus = match dev.bus {
             0 => i2c0_bus.take(),
             1 => i2c1_bus.take(),
             _ => None,
         };
-
-        let Some(i2c_bus) = i2c_bus else {
-            defmt::info!(
-                "sensor {}: I2C bus {} not available",
-                sensor.name,
-                sensor.bus_index
+        if let Some(bus) = bus {
+            spawner.spawn(
+                crate::programs::temperature_and_humidity::task(
+                    bus,
+                    dev.address,
+                    temperature_humidity_index,
+                    "temperature_and_humidity_0",
+                )
+                .unwrap(),
             );
-            continue;
-        };
+            temperature_humidity_index += 1;
+        }
+    }
 
-        match sensor.kind {
-            I2CSensorKind::TemperatureHumidity => {
-                spawner.spawn(
-                    crate::programs::temperature_and_humidity::task(
-                        i2c_bus,
-                        sensor.address,
-                        temperature_humidity_index,
-                        sensor.name,
-                    )
-                    .unwrap(),
-                );
-                temperature_humidity_index += 1;
-            }
-            I2CSensorKind::CarbonDioxideScd30 | I2CSensorKind::CarbonDioxideScd4x => {
-                spawner.spawn(crate::programs::carbon_dioxide::task(i2c_bus).unwrap());
-            }
-            _ => {
-                defmt::info!("sensor {}: kind not yet implemented", sensor.name);
+    // SCD30 CO2 sensor at 0x61
+    if let Some(dev) = i2c::find_device(0x61) {
+        let bus = match dev.bus {
+            0 => i2c0_bus.take(),
+            1 => i2c1_bus.take(),
+            _ => None,
+        };
+        if let Some(bus) = bus {
+            spawner.spawn(crate::programs::carbon_dioxide::task(bus).unwrap());
+        }
+    }
+
+    // SCD4x CO2 sensor at 0x62 (only if SCD30 wasn't found — they share the task)
+    if i2c::find_device(0x61).is_none() {
+        if let Some(dev) = i2c::find_device(0x62) {
+            let bus = match dev.bus {
+                0 => i2c0_bus.take(),
+                1 => i2c1_bus.take(),
+                _ => None,
+            };
+            if let Some(bus) = bus {
+                spawner.spawn(crate::programs::carbon_dioxide::task(bus).unwrap());
             }
         }
     }
+
+    let _ = temperature_humidity_index;
+
+    defmt::info!(
+        "[sensors] spawned tasks for {=usize} discovered device(s)",
+        i2c::device_count()
+    );
 }

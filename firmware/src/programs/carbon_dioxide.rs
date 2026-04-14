@@ -4,7 +4,7 @@ use esp_hal::i2c::master::I2c;
 use scd30_interface::{asynch::Scd30, data::{AmbientPressureCompensation, DataStatus}};
 use scd4x::Scd4xAsync;
 
-use crate::config::{self, I2CSensorKind};
+use crate::config;
 use crate::sensors::manager::{self, Co2Reading};
 
 pub type AsyncI2cBus = I2c<'static, esp_hal::Async>;
@@ -23,11 +23,11 @@ pub enum BackendKind {
 }
 
 fn scd30_address() -> u8 {
-    manager::carbon_dioxide_address(I2CSensorKind::CarbonDioxideScd30)
+    manager::carbon_dioxide_address_scd30()
 }
 
 fn scd4x_address() -> u8 {
-    manager::carbon_dioxide_address(I2CSensorKind::CarbonDioxideScd4x)
+    manager::carbon_dioxide_address_scd4x()
 }
 
 fn sensor_name() -> &'static str {
@@ -36,8 +36,8 @@ fn sensor_name() -> &'static str {
 
 fn model_label(backend_kind: BackendKind) -> &'static str {
     match backend_kind {
-        BackendKind::Scd30 => manager::carbon_dioxide_model(I2CSensorKind::CarbonDioxideScd30),
-        BackendKind::Scd4x => manager::carbon_dioxide_model(I2CSensorKind::CarbonDioxideScd4x),
+        BackendKind::Scd30 => manager::carbon_dioxide_model_scd30(),
+        BackendKind::Scd4x => manager::carbon_dioxide_model_scd4x(),
     }
 }
 

@@ -1,4 +1,3 @@
-#![rustfmt::skip]
 
 
 // Centralized Nerd Font glyph registry.

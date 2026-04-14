@@ -1,0 +1,1 @@
+ignore = ["src/console/icons.rs"]

@@ -16,8 +16,8 @@ use firmware::config;
 
 use crate::common::setup::{Device, build_access_point_stack, run_embassy_network};
 
-pub const DEFAULT_STATION_SSID: &str = config::runtime::DEFAULT_SSID;
-pub const DEFAULT_STATION_PASSWORD: &str = config::runtime::DEFAULT_PASSWORD;
+pub const DEFAULT_STATION_SSID: &str = env!("WIFI_SSID");
+pub const DEFAULT_STATION_PASSWORD: &str = env!("WIFI_PSK");
 
 pub const DEFAULT_ACCESS_POINT_SSID: &str = "ceratina-test-ap";
 pub const DEFAULT_ACCESS_POINT_PASSWORD: &str = "ceratina123";

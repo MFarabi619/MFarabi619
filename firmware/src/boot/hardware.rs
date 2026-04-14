@@ -30,5 +30,5 @@ pub async fn discover_i2c_devices(
     i2c0_bus: &mut Option<I2c<'static, esp_hal::Async>>,
     i2c1_bus: &mut Option<I2c<'static, esp_hal::Async>>,
 ) -> usize {
-    crate::hardware::i2c::refresh_discovery(i2c0_bus, i2c1_bus).await
+    crate::hardware::i2c::run_discovery(i2c0_bus, i2c1_bus).await
 }

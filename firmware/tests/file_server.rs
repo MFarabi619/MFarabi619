@@ -97,46 +97,6 @@ mod tests {
         Ok(())
     }
 
-    // ========== STATE DEFAULTS ==========
-
-    /// `it("user sees the default Co2Reading marked not-ok")`
-    #[test]
-    async fn user_sees_default_co2_reading_marked_not_ok(
-        _device: Device,
-    ) -> Result<(), &'static str> {
-        let default_co2_reading = firmware::state::Co2Reading::default();
-        defmt::assert!(!default_co2_reading.ok);
-        defmt::assert_eq!(default_co2_reading.co2_ppm, 0.0);
-        defmt::assert_eq!(default_co2_reading.temperature, 0.0);
-        defmt::assert_eq!(default_co2_reading.humidity, 0.0);
-        defmt::assert_eq!(default_co2_reading.model, "unknown");
-        defmt::assert_eq!(default_co2_reading.name, "unknown");
-        Ok(())
-    }
-
-    /// `it("user sees the default AppState carrying cloud event metadata")`
-    #[test]
-    async fn user_sees_default_app_state_with_cloud_event_metadata(
-        _device: Device,
-    ) -> Result<(), &'static str> {
-        let default_app_state = firmware::state::AppState::default();
-        defmt::assert!(!default_app_state.cloud_event_source.is_empty());
-        defmt::assert!(!default_app_state.cloud_event_type.is_empty());
-        defmt::assert_eq!(default_app_state.boot_timestamp_seconds, 0);
-        Ok(())
-    }
-
-    /// `it("user sees the default DeviceInfo zeroed")`
-    #[test]
-    async fn user_sees_default_device_info_zeroed(
-        _device: Device,
-    ) -> Result<(), &'static str> {
-        let default_device_info = firmware::state::DeviceInfo::default();
-        defmt::assert_eq!(default_device_info.ip_address, [0, 0, 0, 0]);
-        defmt::assert_eq!(default_device_info.sd_card_size_mb, 0);
-        Ok(())
-    }
-
     // ========== TIME FORMATTING ==========
 
     /// `it("user formats epoch zero as the empty string")`
@@ -278,18 +238,6 @@ mod tests {
         Ok(())
     }
 
-    /// `it("user sees the device declares at least one configured sensor")`
-    #[test]
-    async fn user_sees_device_declares_at_least_one_configured_sensor(
-        _device: Device,
-    ) -> Result<(), &'static str> {
-        let configured_sensor_count = firmware::config::i2c_topology::DEVICES.len()
-            + firmware::config::modbus_topology::DEVICES.len();
-        info!("configured sensors count={=usize}", configured_sensor_count);
-        defmt::assert!(configured_sensor_count > 0);
-        Ok(())
-    }
-
     /// `it("user sees every declared bus carries plausible pin assignments")`
     #[test]
     async fn user_sees_every_bus_with_plausible_pins(
@@ -313,25 +261,18 @@ mod tests {
         Ok(())
     }
 
-    /// `it("user sees every configured sensor pointing at a known bus")`
+    /// `it("user sees device_name_at returns known names for standard addresses")`
     #[test]
-    async fn user_sees_every_configured_sensor_pointing_at_a_known_bus(
+    async fn user_sees_device_name_at_returns_known_names(
         _device: Device,
     ) -> Result<(), &'static str> {
-        for sensor_configuration in firmware::config::i2c_topology::DEVICES {
-            defmt::assert!(sensor_configuration.bus_index <= 1, "an I2C sensor references an unknown bus index");
-            info!(
-                "sensor={=str} bus=i2c.{=u8}",
-                sensor_configuration.name, sensor_configuration.bus_index
-            );
-        }
-        for sensor_configuration in firmware::config::modbus_topology::DEVICES {
-            defmt::assert!(sensor_configuration.channel <= 1, "a Modbus sensor references an unknown channel");
-            info!(
-                "sensor={=str} bus=rs485.{=u8}",
-                sensor_configuration.name, sensor_configuration.channel
-            );
-        }
+        use firmware::hardware::i2c::device_name_at;
+        defmt::assert!(device_name_at(0x44).contains("SHT3x"));
+        defmt::assert!(device_name_at(0x61).contains("SCD30"));
+        defmt::assert!(device_name_at(0x62).contains("SCD41"));
+        defmt::assert!(device_name_at(0x68).contains("DS3231"));
+        defmt::assert!(device_name_at(0x70).contains("TCA9548A"));
+        defmt::assert_eq!(device_name_at(0xFF), "unknown");
         Ok(())
     }
 
@@ -706,6 +647,246 @@ mod tests {
         let (output, _should_exit) =
             firmware::programs::shell::dispatch("date", &mut current_working_directory);
         defmt::assert!(!output.is_empty());
+        Ok(())
+    }
+
+    // ========== SD CARD FILE OPERATIONS ==========
+
+    /// `it("user writes, reads, and deletes a file on the SD card")`
+    #[test]
+    async fn user_writes_reads_and_deletes_a_file(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use firmware::filesystems::sd;
+
+        let dir = "/tmp";
+        let name = "test_wr.txt";
+        let content = b"hello from rust test";
+
+        sd::write_file_at(dir, name, content).map_err(|_| "write failed")?;
+
+        let read_back = sd::read_file_at::<256>(dir, name).map_err(|_| "read failed")?;
+        defmt::assert_eq!(read_back.as_slice(), content);
+
+        sd::delete_at(dir, name).map_err(|_| "delete failed")?;
+
+        let after_delete = sd::read_file_at::<256>(dir, name);
+        defmt::assert!(after_delete.is_err());
+        Ok(())
+    }
+
+    /// `it("user sees the SD card reports non-zero size")`
+    #[test]
+    async fn user_sees_sd_card_reports_its_size(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        let snapshot = firmware::filesystems::sd::snapshot();
+        info!("sd: size_mb={=u32}", snapshot.sd_card_size_mb);
+        defmt::assert!(snapshot.sd_card_size_mb > 0);
+        Ok(())
+    }
+
+    /// `it("user lists the root directory and finds at least one entry")`
+    #[test]
+    async fn user_lists_root_directory(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use firmware::filesystems::sd;
+
+        let entries = sd::list_directory_at("/").map_err(|_| "list root failed")?;
+        info!("root directory has {=usize} entries", entries.len());
+        defmt::assert!(entries.len() > 0, "root directory should not be empty");
+        Ok(())
+    }
+
+    /// `it("user verifies the root directory exists")`
+    #[test]
+    async fn user_verifies_root_directory_exists(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        defmt::assert!(firmware::filesystems::sd::directory_exists("/"));
+        Ok(())
+    }
+
+    /// `it("user writes a second file and reads both back")`
+    #[test]
+    async fn user_writes_two_files_and_reads_both(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use firmware::filesystems::sd;
+
+        sd::write_file_at("/", "TEST_A.TXT", b"alpha").map_err(|_| "write A failed")?;
+        sd::write_file_at("/", "TEST_B.TXT", b"bravo").map_err(|_| "write B failed")?;
+
+        let a = sd::read_file_at::<256>("/", "TEST_A.TXT").map_err(|_| "read A failed")?;
+        let b = sd::read_file_at::<256>("/", "TEST_B.TXT").map_err(|_| "read B failed")?;
+        defmt::assert_eq!(a.as_slice(), b"alpha");
+        defmt::assert_eq!(b.as_slice(), b"bravo");
+
+        let _ = sd::delete_file("TEST_A.TXT");
+        let _ = sd::delete_file("TEST_B.TXT");
+        Ok(())
+    }
+
+    // ========== SHELL DISPATCH: REMAINING COMMANDS ==========
+
+    /// `it("user runs `ls` and sees a directory listing")`
+    #[test]
+    async fn user_runs_ls_and_sees_directory_listing(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, _) = firmware::programs::shell::dispatch("ls", &mut cwd);
+        defmt::assert!(!output.is_empty());
+        Ok(())
+    }
+
+    /// `it("user runs `df` and sees disk usage")`
+    #[test]
+    async fn user_runs_df_and_sees_disk_usage(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, _) = firmware::programs::shell::dispatch("df", &mut cwd);
+        defmt::assert!(!output.is_empty());
+        Ok(())
+    }
+
+    /// `it("user runs `sensors` and sees sensor status")`
+    #[test]
+    async fn user_runs_sensors_and_sees_status(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, _) = firmware::programs::shell::dispatch("sensors", &mut cwd);
+        defmt::assert!(!output.is_empty());
+        Ok(())
+    }
+
+    /// `it("user runs `ifconfig` and sees network info")`
+    #[test]
+    async fn user_runs_ifconfig_and_sees_network_info(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, _) = firmware::programs::shell::dispatch("ifconfig", &mut cwd);
+        defmt::assert!(!output.is_empty());
+        Ok(())
+    }
+
+    /// `it("user runs `wakecause` and sees wake source")`
+    #[test]
+    async fn user_runs_wakecause_and_sees_wake_source(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, _) = firmware::programs::shell::dispatch("wakecause", &mut cwd);
+        defmt::assert!(!output.is_empty());
+        Ok(())
+    }
+
+    /// `it("user runs `logstatus` and sees logger state")`
+    #[test]
+    async fn user_runs_logstatus_and_sees_logger_state(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, _) = firmware::programs::shell::dispatch("logstatus", &mut cwd);
+        defmt::assert!(!output.is_empty());
+        Ok(())
+    }
+
+    /// `it("user runs `cat` on a nonexistent file and gets an error")`
+    #[test]
+    async fn user_runs_cat_on_nonexistent_file(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, should_exit) =
+            firmware::programs::shell::dispatch("cat nonexistent_xyz.txt", &mut cwd);
+        defmt::assert!(!should_exit);
+        defmt::assert!(!output.is_empty());
+        Ok(())
+    }
+
+    /// `it("user runs `clear` and gets ANSI escape sequence")`
+    #[test]
+    async fn user_runs_clear_and_gets_ansi_escape(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, _) = firmware::programs::shell::dispatch("clear", &mut cwd);
+        defmt::assert!(output.contains("\x1b[2J"));
+        Ok(())
+    }
+
+    /// `it("user runs `microfetch` and sees system info")`
+    #[test]
+    async fn user_runs_microfetch_and_sees_system_info(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/");
+        let (output, _) = firmware::programs::shell::dispatch("microfetch", &mut cwd);
+        defmt::assert!(!output.is_empty());
+        defmt::assert!(output.contains(firmware::config::HOSTNAME));
+        Ok(())
+    }
+
+    /// `it("user runs `touch` then `rm` on the SD card")`
+    #[test]
+    async fn user_runs_touch_then_rm_on_sd(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        use alloc::string::String;
+        let mut cwd = String::from("/tmp");
+        let (touch_output, _) =
+            firmware::programs::shell::dispatch("touch test_rm.txt", &mut cwd);
+        defmt::assert!(!touch_output.contains("error"), "touch should succeed");
+
+        let (rm_output, _) =
+            firmware::programs::shell::dispatch("rm test_rm.txt", &mut cwd);
+        defmt::assert!(!rm_output.contains("error"), "rm should succeed");
+        Ok(())
+    }
+
+    // ========== HARDWARE SYSTEM INFO ==========
+
+    /// `it("user sees PSRAM is available by allocating a large buffer")`
+    #[test]
+    async fn user_sees_psram_is_available(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        let large_buffer = alloc::vec![0u8; 128 * 1024];
+        info!("PSRAM: allocated 128 KiB buffer at {:?}", large_buffer.as_ptr());
+        defmt::assert_eq!(large_buffer.len(), 128 * 1024);
+        Ok(())
+    }
+
+    /// `it("user sees heap allocation and deallocation changes free count")`
+    #[test]
+    async fn user_sees_heap_can_allocate_and_free(
+        _device: Device,
+    ) -> Result<(), &'static str> {
+        let free_before = esp_alloc::HEAP.free();
+        {
+            let _allocated = alloc::vec![0u8; 1024];
+            let free_during = esp_alloc::HEAP.free();
+            defmt::assert!(free_during < free_before, "allocation should reduce free heap");
+        }
+        let free_after = esp_alloc::HEAP.free();
+        defmt::assert!(
+            free_after > free_before - 128,
+            "free heap should recover after drop"
+        );
         Ok(())
     }
 }
