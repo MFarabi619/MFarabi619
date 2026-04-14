@@ -4,23 +4,21 @@
 
 use defmt::info;
 use esp_hal::i2c::master::I2c;
-use firmware::config::topology::{CURRENT_TOPOLOGY, SensorKind};
+use firmware::config::{I2CSensorKind, i2c_topology};
 use firmware::programs::carbon_dioxide::{probe_scd30, probe_scd4x, read_scd30, read_scd4x};
-use firmware::state::Co2Reading;
+use firmware::sensors::manager::Co2Reading;
 
 use crate::common::setup::Device;
 
 fn scd30_i2c_address() -> u8 {
-    CURRENT_TOPOLOGY
-        .find_sensor_of_kind(SensorKind::Scd30)
-        .and_then(|sensor_configuration| sensor_configuration.i2c_address)
+    i2c_topology::first_device_of_kind(I2CSensorKind::CarbonDioxideScd30)
+        .map(|sensor_configuration| sensor_configuration.address)
         .unwrap_or(0x61)
 }
 
 fn scd4x_i2c_address() -> u8 {
-    CURRENT_TOPOLOGY
-        .find_sensor_of_kind(SensorKind::Scd4x)
-        .and_then(|sensor_configuration| sensor_configuration.i2c_address)
+    i2c_topology::first_device_of_kind(I2CSensorKind::CarbonDioxideScd4x)
+        .map(|sensor_configuration| sensor_configuration.address)
         .unwrap_or(0x62)
 }
 

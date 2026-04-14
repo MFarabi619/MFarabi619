@@ -4,8 +4,8 @@ use esp_hal::i2c::master::I2c;
 use scd30_interface::{asynch::Scd30, data::{AmbientPressureCompensation, DataStatus}};
 use scd4x::Scd4xAsync;
 
-use crate::config::{self, topology::{CURRENT_TOPOLOGY, SensorKind}};
-use crate::state::{Co2Reading, set_co2_reading};
+use crate::config::{self, I2CSensorKind};
+use crate::sensors::manager::{self, Co2Reading};
 
 pub type AsyncI2cBus = I2c<'static, esp_hal::Async>;
 pub type Scd30Sensor = Scd30<AsyncI2cBus>;
@@ -23,37 +23,21 @@ pub enum BackendKind {
 }
 
 fn scd30_address() -> u8 {
-    CURRENT_TOPOLOGY
-        .find_sensor_of_kind(SensorKind::Scd30)
-        .and_then(|sensor_configuration| sensor_configuration.i2c_address)
-        .unwrap_or(0x61)
+    manager::carbon_dioxide_address(I2CSensorKind::CarbonDioxideScd30)
 }
 
 fn scd4x_address() -> u8 {
-    CURRENT_TOPOLOGY
-        .find_sensor_of_kind(SensorKind::Scd4x)
-        .and_then(|sensor_configuration| sensor_configuration.i2c_address)
-        .unwrap_or(0x62)
+    manager::carbon_dioxide_address(I2CSensorKind::CarbonDioxideScd4x)
 }
 
 fn sensor_name() -> &'static str {
-    CURRENT_TOPOLOGY
-        .find_sensor_of_kind(SensorKind::Scd30)
-        .or_else(|| CURRENT_TOPOLOGY.find_sensor_of_kind(SensorKind::Scd4x))
-        .map(|sensor_configuration| sensor_configuration.name)
-        .unwrap_or("carbon_dioxide_0")
+    manager::carbon_dioxide_name()
 }
 
 fn model_label(backend_kind: BackendKind) -> &'static str {
     match backend_kind {
-        BackendKind::Scd30 => CURRENT_TOPOLOGY
-            .find_sensor_of_kind(SensorKind::Scd30)
-            .map(|sensor_configuration| sensor_configuration.model)
-            .unwrap_or("SCD30"),
-        BackendKind::Scd4x => CURRENT_TOPOLOGY
-            .find_sensor_of_kind(SensorKind::Scd4x)
-            .map(|sensor_configuration| sensor_configuration.model)
-            .unwrap_or("SCD4x"),
+        BackendKind::Scd30 => manager::carbon_dioxide_model(I2CSensorKind::CarbonDioxideScd30),
+        BackendKind::Scd4x => manager::carbon_dioxide_model(I2CSensorKind::CarbonDioxideScd4x),
     }
 }
 
@@ -248,7 +232,7 @@ pub async fn sensor_loop(i2c_bus: AsyncI2cBus) -> ! {
 
         match result {
             Ok(reading) => {
-                set_co2_reading(reading);
+                manager::publish_carbon_dioxide_reading(reading);
                 consecutive_failures = 0;
 
                 info!(
@@ -262,7 +246,7 @@ pub async fn sensor_loop(i2c_bus: AsyncI2cBus) -> ! {
                     Backend::Scd4x(_) => model_label(BackendKind::Scd4x),
                 };
 
-                set_co2_reading(failed_reading(model));
+                manager::publish_carbon_dioxide_reading(failed_reading(model));
                 consecutive_failures += 1;
 
                 if consecutive_failures >= config::carbon_dioxide::MAX_CONSECUTIVE_FAILURES {

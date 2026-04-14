@@ -12,7 +12,7 @@ extern crate alloc;
 
 use defmt::info;
 use embassy_executor::Spawner;
-use embassy_time::{Duration, Instant, Timer};
+use embassy_time::{Duration, Timer};
 use esp_hal::{
     clock::CpuClock,
     delay::Delay,
@@ -21,13 +21,12 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 use esp_storage::FlashStorage;
-use heapless::String as HeaplessString;
 use panic_rtt_target as _;
 
 use firmware::{
     boot,
-    config::{self, runtime::WifiCredentials},
-    state::{self, AppState},
+    config,
+    networking::wifi,
 };
 
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -80,7 +79,7 @@ async fn main(spawner: Spawner) -> ! {
     };
     Delay::new().delay_millis(1_000);
 
-    let sd_size_mb = boot::initialize_sd_and_filesystem(
+    boot::initialize_sd_and_filesystem(
         peripherals.SPI2,
         peripherals.GPIO10,
         peripherals.GPIO11,
@@ -96,23 +95,12 @@ async fn main(spawner: Spawner) -> ! {
         peripherals.GPIO17,
         peripherals.GPIO18,
     );
-
-    state::set_app_state(AppState {
-        cloud_event_source: config::cloudevents::SOURCE,
-        cloud_event_type: config::cloudevents::EVENT_TYPE,
-        boot_timestamp_seconds: Instant::now().as_secs(),
-    });
+    boot::discover_i2c_devices(&mut i2c0_bus, &mut i2c1_bus).await;
 
     let mut flash = FlashStorage::new();
-    let credentials = config::runtime::read_credentials(&mut flash).unwrap_or_else(|| {
-        info!("no credentials in flash, using defaults");
-        WifiCredentials {
-            ssid: HeaplessString::try_from(config::runtime::DEFAULT_SSID).unwrap(),
-            password: HeaplessString::try_from(config::runtime::DEFAULT_PASSWORD).unwrap(),
-        }
-    });
+    let credentials = wifi::load_credentials_or_default(&mut flash);
 
-    let network = boot::connect_networking(
+    let network = boot::initialize_networking(
         spawner,
         peripherals.WIFI,
         peripherals.BT,
@@ -121,9 +109,6 @@ async fn main(spawner: Spawner) -> ! {
     .await;
 
     boot::spawn_sensor_tasks(&spawner, &mut i2c0_bus, &mut i2c1_bus);
-
-    boot::wait_for_dhcp(network.stack, sd_size_mb).await;
-
     boot::start_services(&spawner, network.stack);
 
     let _ble_controller = network.ble_controller;

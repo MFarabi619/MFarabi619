@@ -1,4 +1,5 @@
 use defmt::info;
+use core::sync::atomic::{AtomicBool, Ordering};
 use embassy_net::{Stack, tcp::TcpSocket};
 use embassy_time::{Duration, Timer};
 use esp_hal::system::software_reset;
@@ -6,7 +7,8 @@ use esp_hal_ota::Ota;
 use esp_storage::FlashStorage;
 
 use crate::networking::tcp::read_exact;
-use crate::state;
+
+static FIRMWARE_UPGRADE_IN_PROGRESS: AtomicBool = AtomicBool::new(false);
 
 /// Status byte sent back to the OTA host once `ota_begin` succeeds and the
 /// device is ready to receive firmware chunks. The host blocks on this byte
@@ -84,22 +86,19 @@ pub async fn task(stack: Stack<'static>) {
                     ota.get_ota_image_state()
                 );
 
-                state::FIRMWARE_UPGRADE_IN_PROGRESS
-                    .store(true, core::sync::atomic::Ordering::Release);
+                FIRMWARE_UPGRADE_IN_PROGRESS.store(true, Ordering::Release);
 
                 if let Err(error) = ota.ota_begin(firmware_size, target_crc) {
                     info!("ota_begin failed: {:?}", error);
                     let _ = socket.write(&[OTA_STATUS_BEGIN_FAILED]).await;
-                    state::FIRMWARE_UPGRADE_IN_PROGRESS
-                        .store(false, core::sync::atomic::Ordering::Release);
+                    FIRMWARE_UPGRADE_IN_PROGRESS.store(false, Ordering::Release);
                     Timer::after(Duration::from_secs(2)).await;
                     continue;
                 }
 
                 if socket.write(&[OTA_STATUS_READY]).await.is_err() {
                     info!("failed to send OTA ready status");
-                    state::FIRMWARE_UPGRADE_IN_PROGRESS
-                        .store(false, core::sync::atomic::Ordering::Release);
+                    FIRMWARE_UPGRADE_IN_PROGRESS.store(false, Ordering::Release);
                     Timer::after(Duration::from_secs(2)).await;
                     continue;
                 }
@@ -153,8 +152,7 @@ pub async fn task(stack: Stack<'static>) {
                     }
                 };
 
-                state::FIRMWARE_UPGRADE_IN_PROGRESS
-                    .store(false, core::sync::atomic::Ordering::Release);
+                FIRMWARE_UPGRADE_IN_PROGRESS.store(false, Ordering::Release);
 
                 if ota_write_result.is_err() {
                     Timer::after(Duration::from_secs(2)).await;
@@ -185,4 +183,8 @@ pub async fn task(stack: Stack<'static>) {
             }
         }
     }
+}
+
+pub fn spawn(spawner: &embassy_executor::Spawner, stack: Stack<'static>) {
+    spawner.spawn(task(stack).unwrap());
 }

@@ -1,5 +1,5 @@
-use core::fmt::Write;
 use alloc::string::String as AllocString;
+use core::fmt::Write;
 
 pub fn run() -> AllocString {
     let mut out = AllocString::new();
@@ -22,6 +22,8 @@ pub fn run() -> AllocString {
         ("hostname", "Device hostname"),
         ("ifconfig", "Network interface info"),
         ("sensors", "Hardware sensors"),
+        ("wakecause", "Last wake cause"),
+        ("logstatus", "CSV logger status"),
         ("microfetch", "System info"),
         ("reboot", "Restart device"),
         ("clear", "Clear screen"),

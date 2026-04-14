@@ -28,4 +28,6 @@ pub mod rm;
 pub mod sensors;
 pub mod touch;
 pub mod uptime;
+pub mod wakecause;
+pub mod logstatus;
 pub mod whoami;

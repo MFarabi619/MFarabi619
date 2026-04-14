@@ -1,6 +1,6 @@
 //! `describe("I2C Bus Scanner")`
 //!
-//! Scans both I2C buses (wired per `config::topology::CURRENT_TOPOLOGY`)
+//! Scans both I2C buses (wired per `config::i2c`)
 //! for devices in the 7-bit 0x03..=0x77 range and prints each ACKing
 //! address with a best-guess label via defmt. Flash this test when you
 //! want to find out which bus a physical sensor is wired to.
@@ -17,10 +17,8 @@
 
 #[path = "common/mod.rs"]
 mod common;
-
-use defmt::info;
-
 use common::{Device, tasks};
+use defmt::info;
 
 esp_bootloader_esp_idf::esp_app_desc!();
 
@@ -53,15 +51,13 @@ mod tests {
         // relay is on.
         common::setup::delay_seconds(1).await;
 
-        let (i2c_bus_0_outcome, i2c_bus_1_outcome) =
-            tasks::i2c::scan_both_buses(&mut device)?;
+        let (i2c_bus_0_outcome, i2c_bus_1_outcome) = tasks::i2c::scan_both_buses(&mut device)?;
 
         info!(
             "scan summary bus0_count={=usize} bus1_count={=usize} total={=usize}",
             i2c_bus_0_outcome.found_addresses.len(),
             i2c_bus_1_outcome.found_addresses.len(),
-            i2c_bus_0_outcome.found_addresses.len()
-                + i2c_bus_1_outcome.found_addresses.len(),
+            i2c_bus_0_outcome.found_addresses.len() + i2c_bus_1_outcome.found_addresses.len(),
         );
 
         // We deliberately don't assert that either bus found anything —

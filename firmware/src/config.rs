@@ -106,11 +106,86 @@ pub mod i2c {
     }
     pub const FREQUENCY_KHZ: u32 = 100;
     pub const LEGACY_POWER_GPIO: u8 = 5;
-    pub const BUS_0: BusConfig = BusConfig { sda_gpio: 8, scl_gpio: 9 };
-    pub const BUS_1: BusConfig = BusConfig { sda_gpio: 17, scl_gpio: 18 };
+    pub const BUS_0: BusConfig = BusConfig {
+        sda_gpio: 8,
+        scl_gpio: 9,
+    };
+    pub const BUS_1: BusConfig = BusConfig {
+        sda_gpio: 17,
+        scl_gpio: 18,
+    };
     pub const MUX_ADDR: u8 = 0x70;
     pub const DIRECT_CHANNEL: i8 = -1;
     pub const ANY_MUX_CHANNEL: i8 = -2;
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum I2CSensorKind {
+    TemperatureHumidity,
+    CarbonDioxideScd30,
+    CarbonDioxideScd4x,
+    RtcDs3231,
+}
+
+#[derive(Clone, Copy)]
+pub struct I2CSensorConfig {
+    pub name: &'static str,
+    pub model: &'static str,
+    pub kind: I2CSensorKind,
+    pub bus_index: u8,
+    pub address: u8,
+    pub mux_channel: i8,
+}
+
+pub mod i2c_topology {
+    use super::{I2CSensorConfig, I2CSensorKind};
+
+    // Sensors are intentionally disabled for now while the Rust transport and
+    // ownership model catches up with the cleaner C++ architecture. Keep the
+    // prior topology entries here as commented reference so they can be
+    // reintroduced deliberately instead of rediscovered from git history.
+    pub const DEVICES: &[I2CSensorConfig] = &[
+        // I2CSensorConfig {
+        //     name: "temperature_and_humidity_0",
+        //     model: "SHT31",
+        //     kind: I2CSensorKind::TemperatureHumidity,
+        //     bus_index: 0,
+        //     address: 0x44,
+        //     mux_channel: super::i2c::DIRECT_CHANNEL,
+        // },
+        // I2CSensorConfig {
+        //     name: "scd30_0",
+        //     model: "SCD30",
+        //     kind: I2CSensorKind::CarbonDioxideScd30,
+        //     bus_index: 1,
+        //     address: 0x61,
+        //     mux_channel: super::i2c::DIRECT_CHANNEL,
+        // },
+        // I2CSensorConfig {
+        //     name: "scd4x_0",
+        //     model: "SCD4x",
+        //     kind: I2CSensorKind::CarbonDioxideScd4x,
+        //     bus_index: 1,
+        //     address: 0x62,
+        //     mux_channel: super::i2c::DIRECT_CHANNEL,
+        // },
+        // I2CSensorConfig {
+        //     name: "ds3231_0",
+        //     model: "DS3231",
+        //     kind: I2CSensorKind::RtcDs3231,
+        //     bus_index: 1,
+        //     address: 0x68,
+        //     mux_channel: super::i2c::DIRECT_CHANNEL,
+        // },
+    ];
+
+    pub fn devices_of_kind(kind: I2CSensorKind) -> impl Iterator<Item = &'static I2CSensorConfig> {
+        DEVICES.iter().filter(move |device| device.kind == kind)
+    }
+
+    pub fn first_device_of_kind(kind: I2CSensorKind) -> Option<&'static I2CSensorConfig> {
+        devices_of_kind(kind).next()
+    }
 }
 
 pub mod rs485 {
@@ -120,8 +195,77 @@ pub mod rs485 {
         pub de_re_gpio: i8,
         pub baud_rate: u32,
     }
-    pub const BUS_0: BusConfig = BusConfig { tx_gpio: 45, rx_gpio: 48, de_re_gpio: 47, baud_rate: 9600 };
-    pub const BUS_1: BusConfig = BusConfig { tx_gpio: 40, rx_gpio: 39, de_re_gpio: 41, baud_rate: 4800 };
+    pub const BUS_0: BusConfig = BusConfig {
+        tx_gpio: 45,
+        rx_gpio: 48,
+        de_re_gpio: 47,
+        baud_rate: 9600,
+    };
+    pub const BUS_1: BusConfig = BusConfig {
+        tx_gpio: 40,
+        rx_gpio: 39,
+        de_re_gpio: 41,
+        baud_rate: 4800,
+    };
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum ModbusSensorKind {
+    WindSpeed,
+    WindDirection,
+    SolarRadiation,
+    Soil,
+}
+
+#[derive(Clone, Copy)]
+pub struct ModbusSensorConfig {
+    pub name: &'static str,
+    pub model: &'static str,
+    pub kind: ModbusSensorKind,
+    pub channel: u8,
+    pub slave_id: u8,
+    pub register_address: u16,
+}
+
+pub mod modbus_topology {
+    use super::{ModbusSensorConfig, ModbusSensorKind};
+
+    pub const DEVICES: &[ModbusSensorConfig] = &[
+        // ModbusSensorConfig {
+        //     name: "wind_speed_0",
+        //     model: "DFRobot SEN0483",
+        //     kind: ModbusSensorKind::WindSpeed,
+        //     channel: 0,
+        //     slave_id: 20,
+        //     register_address: 0,
+        // },
+        // ModbusSensorConfig {
+        //     name: "wind_direction_0",
+        //     model: "DFRobot SEN0482",
+        //     kind: ModbusSensorKind::WindDirection,
+        //     channel: 0,
+        //     slave_id: 30,
+        //     register_address: 0,
+        // },
+        // ModbusSensorConfig {
+        //     name: "solar_radiation_0",
+        //     model: "DFRobot SEN0640",
+        //     kind: ModbusSensorKind::SolarRadiation,
+        //     channel: 0,
+        //     slave_id: 40,
+        //     register_address: 0,
+        // },
+    ];
+
+    pub fn devices_of_kind(
+        kind: ModbusSensorKind,
+    ) -> impl Iterator<Item = &'static ModbusSensorConfig> {
+        DEVICES.iter().filter(move |device| device.kind == kind)
+    }
+
+    pub fn first_device_of_kind(kind: ModbusSensorKind) -> Option<&'static ModbusSensorConfig> {
+        devices_of_kind(kind).next()
+    }
 }
 
 pub mod sd_card {
@@ -225,8 +369,14 @@ pub mod ws_shell {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const _: () = {
-    assert!(i2c::BUS_0.sda_gpio != i2c::BUS_0.scl_gpio, "I2C bus 0: SDA and SCL must differ");
-    assert!(i2c::BUS_1.sda_gpio != i2c::BUS_1.scl_gpio, "I2C bus 1: SDA and SCL must differ");
+    assert!(
+        i2c::BUS_0.sda_gpio != i2c::BUS_0.scl_gpio,
+        "I2C bus 0: SDA and SCL must differ"
+    );
+    assert!(
+        i2c::BUS_1.sda_gpio != i2c::BUS_1.scl_gpio,
+        "I2C bus 1: SDA and SCL must differ"
+    );
     assert!(ssh::PORT > 0, "Invalid SSH port");
     assert!(http::PORT > 0, "Invalid HTTP port");
     assert!(shell::BUF_IN >= 64, "Shell input buffer too small");
@@ -237,406 +387,3 @@ const _: () = {
 // ─────────────────────────────────────────────────────────────────────────────
 // Runtime configuration (flash-persisted WiFi credentials)
 // ─────────────────────────────────────────────────────────────────────────────
-
-pub mod runtime {
-    //! Runtime configuration that may change after deployment.
-    //!
-    //! WiFi credentials are stored in a dedicated flash sector and survive
-    //! firmware updates. The on-flash record is little-endian and uses a
-    //! magic number to distinguish a written sector from an erased one.
-
-    use embedded_storage::ReadStorage;
-    use embedded_storage::nor_flash::NorFlash;
-    use esp_storage::FlashStorage;
-
-    pub const DEFAULT_SSID: &str = env!("NETWORK_WIFI_SSID");
-    pub const DEFAULT_PASSWORD: &str = env!("NETWORK_WIFI_PSK");
-
-    const CREDENTIALS_MAGIC: u32 = 0xCE6A0001;
-    const CREDENTIALS_OFFSET: usize = 0x1000;
-    #[allow(dead_code, reason = "used by credential update API endpoint")]
-    const CREDENTIALS_SECTOR_SIZE: usize = 4096;
-    const SSID_MAX_LEN: usize = 32;
-    const PASSWORD_MAX_LEN: usize = 64;
-
-    #[repr(C)]
-    struct CredentialsRecord {
-        magic: u32,
-        ssid_len: u8,
-        password_len: u8,
-        ssid: [u8; SSID_MAX_LEN],
-        password: [u8; PASSWORD_MAX_LEN],
-    }
-
-    pub struct WifiCredentials {
-        pub ssid: heapless::String<SSID_MAX_LEN>,
-        pub password: heapless::String<PASSWORD_MAX_LEN>,
-    }
-
-    pub fn read_credentials(flash: &mut FlashStorage) -> Option<WifiCredentials> {
-        let mut buffer = [0u8; size_of::<CredentialsRecord>()];
-
-        if flash.read(CREDENTIALS_OFFSET as u32, &mut buffer).is_err() {
-            return None;
-        }
-
-        // SAFETY: `buffer` is exactly `size_of::<CredentialsRecord>()` bytes,
-        // fully initialised by `flash.read`, and `CredentialsRecord` is
-        // `#[repr(C)]` with a trivial bit pattern (no padding-sensitive
-        // types). `read_unaligned` is used because the byte buffer is not
-        // guaranteed to satisfy the struct's alignment.
-        let record: CredentialsRecord =
-            unsafe { core::ptr::read_unaligned(buffer.as_ptr() as *const _) };
-
-        if record.magic != CREDENTIALS_MAGIC {
-            return None;
-        }
-
-        let ssid_len = record.ssid_len as usize;
-        let password_len = record.password_len as usize;
-
-        if ssid_len > SSID_MAX_LEN || password_len > PASSWORD_MAX_LEN || ssid_len == 0 {
-            return None;
-        }
-
-        let mut ssid = heapless::String::new();
-        for &b in &record.ssid[..ssid_len] {
-            if ssid.push(b as char).is_err() {
-                break;
-            }
-        }
-
-        let mut password = heapless::String::new();
-        for &b in &record.password[..password_len] {
-            if password.push(b as char).is_err() {
-                break;
-            }
-        }
-
-        Some(WifiCredentials { ssid, password })
-    }
-
-    pub fn write_credentials(flash: &mut FlashStorage, ssid: &str, password: &str) -> bool {
-        if ssid.len() > SSID_MAX_LEN || password.len() > PASSWORD_MAX_LEN || ssid.is_empty() {
-            return false;
-        }
-
-        let mut record = CredentialsRecord {
-            magic: CREDENTIALS_MAGIC,
-            ssid_len: ssid.len() as u8,
-            password_len: password.len() as u8,
-            ssid: [0u8; SSID_MAX_LEN],
-            password: [0u8; PASSWORD_MAX_LEN],
-        };
-
-        record.ssid[..ssid.len()].copy_from_slice(ssid.as_bytes());
-        record.password[..password.len()].copy_from_slice(password.as_bytes());
-
-        let mut buffer = [0xFFu8; CREDENTIALS_SECTOR_SIZE];
-        // SAFETY: `record` is a fully-initialised `#[repr(C)]` struct on the
-        // stack, and we borrow it as a byte slice for the duration of the
-        // copy below. The pointer is non-null, the length matches the struct
-        // size exactly, and no mutation aliases this borrow.
-        let record_bytes = unsafe {
-            core::slice::from_raw_parts(
-                &record as *const CredentialsRecord as *const u8,
-                size_of::<CredentialsRecord>(),
-            )
-        };
-        buffer[..record_bytes.len()].copy_from_slice(record_bytes);
-
-        if NorFlash::erase(
-            flash,
-            CREDENTIALS_OFFSET as u32,
-            (CREDENTIALS_OFFSET + CREDENTIALS_SECTOR_SIZE) as u32,
-        )
-        .is_err()
-        {
-            return false;
-        }
-
-        if flash.write(CREDENTIALS_OFFSET as u32, &buffer).is_err() {
-            return false;
-        }
-
-        if let Some(verified) = read_credentials(flash) {
-            verified.ssid.as_str() == ssid && verified.password.as_str() == password
-        } else {
-            false
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Hardware topology
-// ─────────────────────────────────────────────────────────────────────────────
-
-pub mod topology {
-    //! Hardware topology configuration.
-    //!
-    //! Migration path: load from NVS/flash JSON at runtime instead of static
-    //! const.
-
-    /// A metric that sensors can produce.
-    pub struct MetricDef {
-        pub name: &'static str,
-        pub unit: &'static str,
-    }
-
-    /// Canonical metric registry.
-    pub const METRICS: &[MetricDef] = &[
-        MetricDef {
-            name: "temperature",
-            unit: "celsius",
-        },
-        MetricDef {
-            name: "humidity",
-            unit: "percent_relative_humidity",
-        },
-        MetricDef {
-            name: "co2",
-            unit: "ppm",
-        },
-        MetricDef {
-            name: "wind_speed",
-            unit: "metres_per_second",
-        },
-        MetricDef {
-            name: "wind_direction",
-            unit: "degrees",
-        },
-        MetricDef {
-            name: "solar_radiation",
-            unit: "watt_per_metre_squared",
-        },
-        MetricDef {
-            name: "soil_moisture",
-            unit: "percent",
-        },
-        MetricDef {
-            name: "soil_temperature",
-            unit: "celsius",
-        },
-        MetricDef {
-            name: "soil_electrical_conductivity",
-            unit: "microsiemens_per_cm",
-        },
-        MetricDef {
-            name: "soil_salinity_raw",
-            unit: "raw",
-        },
-        MetricDef {
-            name: "soil_total_dissolved_solids",
-            unit: "milligrams_per_litre",
-        },
-    ];
-
-    /// Communication bus type.
-    pub enum BusType {
-        I2c,
-        Rs485Modbus,
-    }
-
-    /// Configuration for a single communication bus.
-    pub struct BusConfig {
-        pub bus_type: BusType,
-        pub bus_index: u8,
-        pub label: &'static str,
-        pub baud_rate: Option<u32>,
-        pub sda_gpio: Option<u8>,
-        pub scl_gpio: Option<u8>,
-        pub tx_gpio: Option<u8>,
-        pub rx_gpio: Option<u8>,
-        pub de_re_gpio: Option<u8>,
-    }
-
-    impl BusConfig {
-        pub fn is_i2c(&self) -> bool {
-            matches!(self.bus_type, BusType::I2c)
-        }
-
-        pub fn is_rs485(&self) -> bool {
-            matches!(self.bus_type, BusType::Rs485Modbus)
-        }
-
-        pub fn i2c_pins(&self) -> Option<(u8, u8)> {
-            if self.is_i2c() {
-                Some((self.sda_gpio?, self.scl_gpio?))
-            } else {
-                None
-            }
-        }
-    }
-
-    /// Sensor type discriminator.
-    pub enum SensorKind {
-        TemperatureAndHumidity,
-        Scd30,
-        Scd4x,
-        Ds3231,
-        WindSpeed,
-        WindDirection,
-        SolarRadiation,
-        Soil,
-        Ntc,
-    }
-
-    /// Configuration for a single sensor endpoint.
-    pub struct SensorConfig {
-        pub name: &'static str,
-        pub kind: SensorKind,
-        pub model: &'static str,
-        pub bus_label: &'static str,
-        pub i2c_address: Option<u8>,
-        pub modbus_slave_id: Option<u8>,
-        /// I2C multiplexer channel. `None` means no multiplexer (direct connection).
-        pub mux_channel: Option<u8>,
-        pub is_enabled: bool,
-        /// Metric names this sensor produces (references `METRICS` by name).
-        pub metric_names: &'static [&'static str],
-    }
-
-    impl SensorConfig {
-        pub fn is_i2c(&self) -> bool {
-            self.i2c_address.is_some()
-        }
-
-        pub fn is_modbus(&self) -> bool {
-            self.modbus_slave_id.is_some()
-        }
-
-        pub fn uses_mux(&self) -> bool {
-            self.mux_channel.is_some()
-        }
-    }
-
-    /// Complete hardware topology for the current board.
-    pub struct HardwareTopology {
-        pub buses: &'static [BusConfig],
-        pub sensors: &'static [SensorConfig],
-    }
-
-    impl HardwareTopology {
-        /// Find a bus by its label.
-        pub fn find_bus(&self, label: &str) -> Option<&BusConfig> {
-            self.buses.iter().find(|b| b.label == label)
-        }
-
-        /// Iterate over enabled sensors.
-        pub fn enabled_sensors(&self) -> impl Iterator<Item = &SensorConfig> {
-            self.sensors.iter().filter(|s| s.is_enabled)
-        }
-
-        /// Iterate over enabled sensors of a specific kind.
-        pub fn enabled_sensors_of_kind(
-            &self,
-            kind: SensorKind,
-        ) -> impl Iterator<Item = &SensorConfig> {
-            self.sensors
-                .iter()
-                .filter(move |s| s.is_enabled && matches!((&s.kind, &kind), (a, b) if core::mem::discriminant(a) == core::mem::discriminant(b)))
-        }
-
-        /// Find the first enabled sensor of a specific kind.
-        pub fn first_enabled_sensor_of_kind(&self, kind: SensorKind) -> Option<&SensorConfig> {
-            self.enabled_sensors_of_kind(kind).next()
-        }
-
-        /// Find the first sensor of a specific kind, regardless of whether
-        /// it is currently enabled. Use this when you need the sensor's
-        /// declared address or bus label (e.g. in tests that probe the
-        /// physical device) without requiring the production sensor task
-        /// to be spawned at boot.
-        pub fn find_sensor_of_kind(&self, kind: SensorKind) -> Option<&SensorConfig> {
-            self.sensors.iter().find(move |sensor_configuration| {
-                core::mem::discriminant(&sensor_configuration.kind)
-                    == core::mem::discriminant(&kind)
-            })
-        }
-    }
-
-    /// Hardware topology for the current ESP32-S3 board.
-    ///
-    /// To change hardware configuration:
-    /// 1. Add/remove buses in `buses`
-    /// 2. Add/remove sensors in `sensors`
-    /// 3. Set `enabled: false` to temporarily disable a sensor
-    /// 4. Set `mux_channel: None` to skip I2C multiplexer selection
-    pub const CURRENT_TOPOLOGY: HardwareTopology = HardwareTopology {
-        buses: &[
-            BusConfig {
-                bus_type: BusType::I2c,
-                bus_index: 0,
-                label: "i2c.0",
-                baud_rate: None,
-                sda_gpio: Some(8),
-                scl_gpio: Some(9),
-                tx_gpio: None,
-                rx_gpio: None,
-                de_re_gpio: None,
-            },
-            BusConfig {
-                bus_type: BusType::I2c,
-                bus_index: 1,
-                label: "i2c.1",
-                baud_rate: None,
-                sda_gpio: Some(17),
-                scl_gpio: Some(18),
-                tx_gpio: None,
-                rx_gpio: None,
-                de_re_gpio: None,
-            },
-        ],
-        sensors: &[
-            SensorConfig {
-                name: "temperature_and_humidity_0",
-                kind: SensorKind::TemperatureAndHumidity,
-                model: "SHT31",
-                bus_label: "i2c.0",
-                i2c_address: Some(0x44),
-                modbus_slave_id: None,
-                mux_channel: None,
-                is_enabled: true,
-                metric_names: &["temperature", "humidity"],
-            },
-            SensorConfig {
-                name: "scd30_0",
-                kind: SensorKind::Scd30,
-                model: "SCD30",
-                bus_label: "i2c.1",
-                i2c_address: Some(0x61),
-                modbus_slave_id: None,
-                mux_channel: None,
-                is_enabled: false,
-                metric_names: &["co2", "temperature", "humidity"],
-            },
-            // Declared for test discovery only — `is_enabled: false` keeps
-            // the production sensor loop from touching them until the
-            // I2C scanner confirms their physical wiring. Flip to `true`
-            // (and correct `bus_label` if needed) once the board wiring
-            // is final.
-            SensorConfig {
-                name: "scd4x_0",
-                kind: SensorKind::Scd4x,
-                model: "SCD4x",
-                bus_label: "i2c.1",
-                i2c_address: Some(0x62),
-                modbus_slave_id: None,
-                mux_channel: None,
-                is_enabled: false,
-                metric_names: &["co2", "temperature", "humidity"],
-            },
-            SensorConfig {
-                name: "ds3231_0",
-                kind: SensorKind::Ds3231,
-                model: "DS3231",
-                bus_label: "i2c.1",
-                i2c_address: Some(0x68),
-                modbus_slave_id: None,
-                mux_channel: None,
-                is_enabled: true,
-                metric_names: &[],
-            },
-        ],
-    };
-}

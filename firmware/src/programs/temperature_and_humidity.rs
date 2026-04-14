@@ -2,15 +2,13 @@
 //!
 //! Reads from an SHT31-compatible I2C sensor and logs to the SD card CSV.
 
-use core::fmt::Write;
-
 use defmt::info;
 use embassy_time::{Duration, Instant, Ticker, Timer};
 use esp_hal::i2c::master::I2c;
-use heapless::String as HeaplessString;
 
 use crate::hardware::i2c::{SENSOR_MEASUREMENT_COMMAND, calculate_crc8};
-use crate::filesystems::sd;
+use crate::services::data_logger;
+use crate::sensors::manager::{self, TemperatureHumidityReading};
 
 // ─── Sensor reading ────────────────────────────────────────────────────────────
 
@@ -61,6 +59,7 @@ async fn read_once(
 pub async fn task(
     mut i2c_bus: I2c<'static, esp_hal::Async>,
     sensor_address: u8,
+    sensor_index: usize,
     sensor_name: &'static str,
 ) {
     let mut sampling_interval = Ticker::every(Duration::from_secs(
@@ -72,21 +71,22 @@ pub async fn task(
 
         match read_once(&mut i2c_bus, sensor_address).await {
             Ok((temperature_celsius, relative_humidity_percent)) => {
+                manager::publish_temperature_humidity_reading(
+                    sensor_index,
+                    TemperatureHumidityReading {
+                        ok: true,
+                        temperature_celsius,
+                        relative_humidity_percent,
+                        model: "SHT31",
+                        name: sensor_name,
+                    },
+                );
                 let timestamp_millis = Instant::now().as_millis();
-                let mut data_csv_line = HeaplessString::<192>::new();
-
-                if write!(
-                    data_csv_line,
-                    "{},{:.2},{:.2},,,,,,,,\n",
-                    timestamp_millis, temperature_celsius, relative_humidity_percent
-                )
-                .is_err()
-                {
-                    info!("failed to format data.csv row");
-                    continue;
-                }
-
-                if let Err(msg) = sd::append_data_csv_line(data_csv_line.as_str()) {
+                if let Err(msg) = data_logger::append_temperature_humidity_sample(
+                    timestamp_millis,
+                    temperature_celsius,
+                    relative_humidity_percent,
+                ) {
                     info!("failed to append data.csv row: {}", msg);
                 } else {
                     info!(
@@ -96,6 +96,7 @@ pub async fn task(
                 }
             }
             Err(msg) => {
+                manager::mark_temperature_humidity_unavailable(sensor_index);
                 info!("failed to read {} sensor: {}", sensor_name, msg);
             }
         }

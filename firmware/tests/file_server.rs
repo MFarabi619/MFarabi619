@@ -273,20 +273,20 @@ mod tests {
     async fn user_sees_device_declares_at_least_one_bus(
         _device: Device,
     ) -> Result<(), &'static str> {
-        let hardware_topology = &firmware::config::topology::CURRENT_TOPOLOGY;
-        defmt::assert!(!hardware_topology.buses.is_empty());
+        defmt::assert!(firmware::config::i2c::BUS_0.sda_gpio < 49);
+        defmt::assert!(firmware::config::i2c::BUS_1.sda_gpio < 49);
         Ok(())
     }
 
-    /// `it("user sees the device declares at least one enabled sensor")`
+    /// `it("user sees the device declares at least one configured sensor")`
     #[test]
-    async fn user_sees_device_declares_at_least_one_enabled_sensor(
+    async fn user_sees_device_declares_at_least_one_configured_sensor(
         _device: Device,
     ) -> Result<(), &'static str> {
-        let hardware_topology = &firmware::config::topology::CURRENT_TOPOLOGY;
-        let enabled_sensor_count = hardware_topology.enabled_sensors().count();
-        info!("enabled sensors count={=usize}", enabled_sensor_count);
-        defmt::assert!(enabled_sensor_count > 0);
+        let configured_sensor_count = firmware::config::i2c_topology::DEVICES.len()
+            + firmware::config::modbus_topology::DEVICES.len();
+        info!("configured sensors count={=usize}", configured_sensor_count);
+        defmt::assert!(configured_sensor_count > 0);
         Ok(())
     }
 
@@ -295,39 +295,41 @@ mod tests {
     async fn user_sees_every_bus_with_plausible_pins(
         _device: Device,
     ) -> Result<(), &'static str> {
-        let hardware_topology = &firmware::config::topology::CURRENT_TOPOLOGY;
-        for bus_configuration in hardware_topology.buses {
-            if let Some((sda_gpio_number, scl_gpio_number)) = bus_configuration.i2c_pins() {
-                defmt::assert!(sda_gpio_number < 49, "SDA pin out of range for ESP32-S3");
-                defmt::assert!(scl_gpio_number < 49, "SCL pin out of range for ESP32-S3");
-                defmt::assert!(
-                    sda_gpio_number != scl_gpio_number,
-                    "SDA and SCL cannot share a GPIO pin"
-                );
-                info!(
-                    "bus={=str} SDA=GPIO{=u8} SCL=GPIO{=u8}",
-                    bus_configuration.label, sda_gpio_number, scl_gpio_number
-                );
-            }
+        for (label, sda_gpio_number, scl_gpio_number) in [
+            ("i2c.0", firmware::config::i2c::BUS_0.sda_gpio, firmware::config::i2c::BUS_0.scl_gpio),
+            ("i2c.1", firmware::config::i2c::BUS_1.sda_gpio, firmware::config::i2c::BUS_1.scl_gpio),
+        ] {
+            defmt::assert!(sda_gpio_number < 49, "SDA pin out of range for ESP32-S3");
+            defmt::assert!(scl_gpio_number < 49, "SCL pin out of range for ESP32-S3");
+            defmt::assert!(
+                sda_gpio_number != scl_gpio_number,
+                "SDA and SCL cannot share a GPIO pin"
+            );
+            info!(
+                "bus={=str} SDA=GPIO{=u8} SCL=GPIO{=u8}",
+                label, sda_gpio_number, scl_gpio_number
+            );
         }
         Ok(())
     }
 
-    /// `it("user sees every enabled sensor pointing at a known bus")`
+    /// `it("user sees every configured sensor pointing at a known bus")`
     #[test]
-    async fn user_sees_every_sensor_pointing_at_a_known_bus(
+    async fn user_sees_every_configured_sensor_pointing_at_a_known_bus(
         _device: Device,
     ) -> Result<(), &'static str> {
-        let hardware_topology = &firmware::config::topology::CURRENT_TOPOLOGY;
-        for sensor_configuration in hardware_topology.enabled_sensors() {
-            let resolved_bus = hardware_topology.find_bus(sensor_configuration.bus_label);
-            defmt::assert!(
-                resolved_bus.is_some(),
-                "an enabled sensor references an unknown bus label"
-            );
+        for sensor_configuration in firmware::config::i2c_topology::DEVICES {
+            defmt::assert!(sensor_configuration.bus_index <= 1, "an I2C sensor references an unknown bus index");
             info!(
-                "sensor={=str} bus={=str}",
-                sensor_configuration.name, sensor_configuration.bus_label
+                "sensor={=str} bus=i2c.{=u8}",
+                sensor_configuration.name, sensor_configuration.bus_index
+            );
+        }
+        for sensor_configuration in firmware::config::modbus_topology::DEVICES {
+            defmt::assert!(sensor_configuration.channel <= 1, "a Modbus sensor references an unknown channel");
+            info!(
+                "sensor={=str} bus=rs485.{=u8}",
+                sensor_configuration.name, sensor_configuration.channel
             );
         }
         Ok(())

@@ -27,7 +27,7 @@ pub struct Device {
     pub wifi_interfaces: Option<Interfaces<'static>>,
     pub embassy_network_stack: Option<Stack<'static>>,
     pub embassy_network_seed: u64,
-    /// I2C bus 0, pre-wired to the pins declared in `config::topology::CURRENT_TOPOLOGY`.
+    /// I2C bus 0, pre-wired to the pins declared in `config::i2c`.
     /// Tests that exercise the bus `take()` it, optionally `into_async()` it,
     /// and return it when done (we don't enforce that; the test just owns it).
     pub i2c_bus_0: Option<I2c<'static, esp_hal::Blocking>>,
@@ -60,10 +60,9 @@ pub fn boot_device() -> Device {
         sd_card_size_megabytes
     );
 
-    // I2C buses are wired from the canonical topology in
-    // `config::topology::CURRENT_TOPOLOGY`. If you re-wire the board,
-    // update the topology — NOT the tests — and every screenplay test
-    // picks up the change automatically.
+    // I2C buses are wired from the canonical transport config in `config::i2c`.
+    // If you re-wire the board, update config — NOT the tests — and every
+    // screenplay test picks up the change automatically.
     let i2c_bus_0 = I2c::new(
         peripherals.I2C0,
         I2cConfig::default().with_frequency(Rate::from_khz(config::i2c::FREQUENCY_KHZ)),

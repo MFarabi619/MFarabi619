@@ -1,4 +1,5 @@
 use core::fmt::Write;
+use core::sync::atomic::{AtomicU32, Ordering};
 
 use defmt::info;
 use embassy_sync::blocking_mutex::raw::NoopRawMutex;
@@ -111,9 +112,14 @@ impl TimeSource for SntpTimeSource {
     }
 }
 
-static SD_STORAGE: SdStorageCell = SdStorageCell(
-    embassy_sync::blocking_mutex::Mutex::new(core::cell::RefCell::new(None)),
-);
+static SD_STORAGE: SdStorageCell = SdStorageCell(embassy_sync::blocking_mutex::Mutex::new(
+    core::cell::RefCell::new(None),
+));
+static SD_CARD_SIZE_MB: AtomicU32 = AtomicU32::new(0);
+
+pub struct StorageSnapshot {
+    pub sd_card_size_mb: u32,
+}
 
 /// Returns the SD card capacity in MiB, or 0 if detection failed.
 pub fn initialize(
@@ -167,16 +173,21 @@ pub fn initialize(
         cell.borrow_mut()
             .replace(VolumeManager::new(sd_card, SntpTimeSource));
     });
+    SD_CARD_SIZE_MB.store(size_mb, Ordering::Release);
 
     size_mb
+}
+
+pub fn snapshot() -> StorageSnapshot {
+    StorageSnapshot {
+        sd_card_size_mb: SD_CARD_SIZE_MB.load(Ordering::Acquire),
+    }
 }
 
 // ─── Internal helpers ──────────────────────────────────────────────────────────
 
 /// Run an operation with the SD card volume manager.
-fn with_sd<T>(
-    operation: impl FnOnce(&SdVm) -> Result<T, SdError>,
-) -> Result<T, SdError> {
+fn with_sd<T>(operation: impl FnOnce(&SdVm) -> Result<T, SdError>) -> Result<T, SdError> {
     SD_STORAGE.0.lock(|cell| {
         let borrow = cell.borrow();
         let volume_manager = borrow.as_ref().ok_or(SdError::NotInitialized)?;
@@ -194,9 +205,7 @@ fn with_dir_at<T>(
         let volume = volume_manager
             .open_volume(VolumeIdx(0))
             .map_err(|_| SdError::VolumeFailed)?;
-        let mut directory = volume
-            .open_root_dir()
-            .map_err(|_| SdError::RootDirFailed)?;
+        let mut directory = volume.open_root_dir().map_err(|_| SdError::RootDirFailed)?;
         if !dir_path.is_empty() {
             navigate_to(&mut directory, dir_path)?;
         }
@@ -249,9 +258,8 @@ pub fn directory_exists(path: &str) -> bool {
     with_dir_at(path, |_directory| Ok(())).is_ok()
 }
 
-pub fn list_filesystem_entries()
-    -> Result<HeaplessVec<FilesystemEntryPayload, MAX_FS_ENTRIES>, SdError>
-{
+pub fn list_filesystem_entries(
+) -> Result<HeaplessVec<FilesystemEntryPayload, MAX_FS_ENTRIES>, SdError> {
     list_directory_at("")
 }
 
@@ -470,9 +478,7 @@ pub fn copy_file(source: &str, destination: &str) -> Result<u32, SdError> {
                 .map_err(|_| SdError::WriteFailed)?;
             total += bytes_read as u32;
         }
-        destination_file
-            .flush()
-            .map_err(|_| SdError::FlushFailed)?;
+        destination_file.flush().map_err(|_| SdError::FlushFailed)?;
         Ok(total)
     })
 }

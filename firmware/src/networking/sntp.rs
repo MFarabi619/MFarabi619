@@ -1,4 +1,5 @@
 use defmt::info;
+use embassy_executor::Spawner;
 use embassy_net::Stack;
 use embassy_time::{Duration, Timer};
 
@@ -153,4 +154,8 @@ pub async fn sntp_sync_loop(stack: Stack<'static>, ntp_server: &str) -> ! {
 #[embassy_executor::task]
 pub async fn task(stack: Stack<'static>) {
     sntp_sync_loop(stack, crate::config::NTP_SERVER).await
+}
+
+pub fn spawn(spawner: &Spawner, stack: Stack<'static>) {
+    spawner.spawn(task(stack).unwrap());
 }

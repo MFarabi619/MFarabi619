@@ -4,10 +4,10 @@ use embassy_time::Instant;
 use esp_hal::{clock, efuse, system, system::Cpu};
 
 use crate::{
-    config::{self, topology::CURRENT_TOPOLOGY},
+    config,
     console::icons,
-    programs::shell,
-    state,
+    hardware,
+    services::{identity, system as system_service},
 };
 
 unsafe extern "C" {
@@ -34,8 +34,10 @@ macro_rules! row {
 pub fn run() -> AllocString {
     let mut out = AllocString::new();
     let secs = Instant::now().as_secs();
-    let info = state::device_info();
-    let co2 = state::co2_reading();
+    let system_snapshot = system_service::snapshot();
+    let sensor_inventory = &system_snapshot.sensors.inventory;
+    let carbon_dioxide = system_snapshot.sensors.carbon_dioxide;
+    let i2c_status = hardware::i2c::snapshot();
     let chip_rev = efuse::chip_revision();
     let mac = efuse::base_mac_address();
     let cpu_freq_mhz = clock::cpu_clock().as_mhz();
@@ -50,10 +52,10 @@ pub fn run() -> AllocString {
     let _ = write!(
         out,
         "  \x1b[1;32m{}\x1b[0m\x1b[2m@\x1b[0m\x1b[1;36m{}\x1b[0m\r\n",
-        shell::SSH_USER,
-        config::HOSTNAME
+        identity::ssh_user(),
+        identity::hostname()
     );
-    let sep_len = shell::SSH_USER.len() + 1 + config::HOSTNAME.len();
+    let sep_len = identity::ssh_user().len() + 1 + identity::hostname().len();
     let _ = write!(out, "  \x1b[2m");
     for _ in 0..sep_len {
         out.push(icons::BOX_HORIZONTAL);
@@ -162,7 +164,14 @@ pub fn run() -> AllocString {
     }
 
     if let Some(reason) = system::reset_reason() {
-        row!(out, "31", icons::NF_FA_BOLT, "Reset", "\x1b[1m{:?}\x1b[0m", reason);
+        row!(
+            out,
+            "31",
+            icons::NF_FA_BOLT,
+            "Reset",
+            "\x1b[1m{:?}\x1b[0m",
+            reason
+        );
     }
 
     row!(out, "32", "", "Shell", "\x1b[1mMicroshell\x1b[0m (SSH)");
@@ -186,7 +195,7 @@ pub fn run() -> AllocString {
         heap_pct
     );
 
-    if info.sd_card_size_mb > 0 {
+    if system_snapshot.storage.sd_card_size_mb > 0 {
         row!(
             out,
             "32",
@@ -194,12 +203,18 @@ pub fn run() -> AllocString {
             "Disk",
             "\x1b[1m{} MiB\x1b[0m / \x1b[1m{} MiB\x1b[0m - {} [\x1b[1m{}\x1b[0m]",
             0,
-            info.sd_card_size_mb,
+            system_snapshot.storage.sd_card_size_mb,
             config::sd_card::FS_TYPE,
             config::sd_card::DEVICE
         );
     } else {
-        row!(out, "32", icons::NF_FA_HDD, "Disk", "\x1b[2mnot detected\x1b[0m");
+        row!(
+            out,
+            "32",
+            icons::NF_FA_HDD,
+            "Disk",
+            "\x1b[2mnot detected\x1b[0m"
+        );
     }
 
     row!(
@@ -208,10 +223,22 @@ pub fn run() -> AllocString {
         "",
         "Local IP",
         "\x1b[1m{}.{}.{}.{}\x1b[0m/24",
-        info.ip_address[0],
-        info.ip_address[1],
-        info.ip_address[2],
-        info.ip_address[3]
+        system_snapshot.network.station.ipv4_address[0],
+        system_snapshot.network.station.ipv4_address[1],
+        system_snapshot.network.station.ipv4_address[2],
+        system_snapshot.network.station.ipv4_address[3]
+    );
+    row!(
+        out,
+        "32",
+        icons::NF_FA_WIFI,
+        "WiFi STA",
+        "{}",
+        if system_snapshot.network.station.is_connected {
+            "\x1b[32mconnected\x1b[0m"
+        } else {
+            "\x1b[31mdisconnected\x1b[0m"
+        }
     );
     row!(
         out,
@@ -235,7 +262,7 @@ pub fn run() -> AllocString {
         icons::NF_FA_SERVER,
         "Hostname",
         "\x1b[1m{}\x1b[0m",
-        config::HOSTNAME
+        identity::hostname()
     );
     row!(
         out,
@@ -262,9 +289,9 @@ pub fn run() -> AllocString {
         icons::NF_FA_WIFI,
         "WiFi AP",
         "\x1b[1m{}\x1b[0m (ch\x1b[1m{}\x1b[0m, {})",
-        config::wifi::ap::SSID,
-        config::wifi::ap::CHANNEL,
-        config::wifi::ap::AUTH_MODE
+        system_snapshot.network.access_point.ssid,
+        system_snapshot.network.access_point.channel,
+        system_snapshot.network.access_point.auth_mode
     );
 
     let _ = write!(out, "\r\n");
@@ -275,7 +302,7 @@ pub fn run() -> AllocString {
         icons::NF_FA_COG,
         "I2C Freq",
         "\x1b[1m{}\x1b[0m kHz",
-        config::i2c::FREQUENCY_KHZ
+        i2c_status.frequency_khz
     );
     row!(
         out,
@@ -283,7 +310,7 @@ pub fn run() -> AllocString {
         icons::NF_FA_BOLT,
         "Power GPIO",
         "\x1b[1mGPIO{}\x1b[0m",
-        config::i2c::LEGACY_POWER_GPIO
+        i2c_status.power_gpio
     );
     row!(
         out,
@@ -297,32 +324,43 @@ pub fn run() -> AllocString {
         config::sd_card::MISO_GPIO
     );
 
-    for bus in CURRENT_TOPOLOGY.buses {
-        if let Some((sda, scl)) = bus.i2c_pins() {
-            row!(
-                out,
-                "36",
-                icons::NF_FA_SITEMAP,
-                bus.label,
-                "SDA:\x1b[1mGPIO{}\x1b[0m  SCL:\x1b[1mGPIO{}\x1b[0m",
-                sda,
-                scl
-            );
-        }
+    for bus in i2c_status.buses.iter() {
+        row!(
+            out,
+            "36",
+            icons::NF_FA_SITEMAP,
+            bus.name,
+            "SDA:\x1b[1mGPIO{}\x1b[0m  SCL:\x1b[1mGPIO{}\x1b[0m",
+            bus.sda_gpio,
+            bus.scl_gpio
+        );
     }
 
     let _ = write!(out, "\r\n");
 
-    for sensor in CURRENT_TOPOLOGY.enabled_sensors() {
+    for sensor in sensor_inventory.iter() {
         let mut val = AllocString::new();
-        let _ = write!(val, "\x1b[1m{}\x1b[0m @ {}", sensor.model, sensor.bus_label);
-        if let Some(addr) = sensor.i2c_address {
-            let _ = write!(val, " (\x1b[1m0x{:02X}\x1b[0m)", addr);
+        let transport = sensor.transport_summary();
+        if let Some(address) = transport.address {
+            let _ = write!(
+                val,
+                "\x1b[1m{}\x1b[0m @ {} (\x1b[1m0x{:02X}\x1b[0m)",
+                sensor.model, transport.bus_name, address
+            );
+        } else {
+            let _ = write!(
+                val,
+                "\x1b[1m{}\x1b[0m @ {} (slave \x1b[1m{}\x1b[0m reg \x1b[1m{}\x1b[0m)",
+                sensor.model,
+                transport.bus_name,
+                transport.slave_id.unwrap_or_default(),
+                transport.register_address.unwrap_or_default()
+            );
         }
         row!(out, "35", icons::NF_FA_SIGNAL, sensor.name, "{}", val);
     }
 
-    if co2.ok {
+    if carbon_dioxide.ok {
         let _ = write!(out, "\r\n");
         row!(
             out,
@@ -330,7 +368,7 @@ pub fn run() -> AllocString {
             icons::NF_FA_LEAF,
             "CO2",
             "\x1b[1;32m{:.1}\x1b[0m ppm",
-            co2.co2_ppm
+            carbon_dioxide.co2_ppm
         );
         row!(
             out,
@@ -338,7 +376,7 @@ pub fn run() -> AllocString {
             icons::NF_FA_THERMOMETER,
             "Temperature",
             "\x1b[1;33m{:.1}\x1b[0m\u{00b0}C",
-            co2.temperature
+            carbon_dioxide.temperature
         );
         row!(
             out,
@@ -346,7 +384,7 @@ pub fn run() -> AllocString {
             icons::NF_FA_TINT,
             "Humidity",
             "\x1b[1;36m{:.1}\x1b[0m%%",
-            co2.humidity
+            carbon_dioxide.humidity
         );
     }
 
