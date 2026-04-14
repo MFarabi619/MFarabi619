@@ -137,11 +137,17 @@ pub fn build_firmware(firmware: &FirmwareSettings) -> Result<()> {
     run_command(
         "cargo",
         &[
-            "+esp", "build", "--release",
-            "-p", firmware.package_name(),
-            "--bin", firmware.bin_name(),
-            "--config", r#"unstable.build-std=["core","alloc"]"#,
-            "--target", firmware.target(),
+            "+esp",
+            "build",
+            "--release",
+            "-p",
+            firmware.package_name(),
+            "--bin",
+            firmware.bin_name(),
+            "--config",
+            r#"unstable.build-std=["core","alloc"]"#,
+            "--target",
+            firmware.target(),
         ],
     )
 }
