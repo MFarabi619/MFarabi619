@@ -76,10 +76,9 @@ in
 {
   # env.OPENCODE_CONFIG = "${config.git.root}/.devenv/state/opencode/opencode.json";
 
-  # files."${config.git.root}/opencode.json".json = {
-  #   "$schema" = "https://opencode.ai/config.json";
-  #
-  #   inherit tools mcp;
-  # };
+  files."${config.git.root}/opencode.json".json = {
+    "$schema" = "https://opencode.ai/config.json";
 
+    inherit tools mcp;
+  };
 }
