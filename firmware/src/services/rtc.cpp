@@ -6,11 +6,13 @@
 namespace {
 
 RTC_DS3231 rtc_device;
+bool is_initialized = false;
 
 }
 
 bool services::rtc::initialize() {
-    if (!rtc_device.begin()) return false;
+    is_initialized = rtc_device.begin();
+    if (!is_initialized) return false;
     if (rtc_device.lostPower()) {
         rtc_device.adjust(DateTime(F(__DATE__), F(__TIME__)));
         delay(10);
@@ -20,22 +22,26 @@ bool services::rtc::initialize() {
 }
 
 bool services::rtc::isValid() {
+    if (!is_initialized) return false;
     DateTime now = rtc_device.now();
     return !rtc_device.lostPower() && now.isValid() && now.year() >= 2020 && now.year() <= 2099;
 }
 
 bool services::rtc::setEpoch(uint32_t epoch) {
+    if (!is_initialized) return false;
     rtc_device.adjust(DateTime(epoch));
     delay(10);
     return true;
 }
 
 uint32_t services::rtc::accessEpoch() {
+    if (!is_initialized) return 0;
     return rtc_device.now().unixtime();
 }
 
 bool services::rtc::accessSnapshot(RTCSnapshot *snapshot) {
     if (!snapshot) return false;
+    if (!is_initialized) return false;
     memset(snapshot, 0, sizeof(*snapshot));
 
     snapshot->valid = services::rtc::isValid();

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <microshell.h>
 #include <sqlite3.h>
 
 namespace programs::sqlite {
@@ -17,7 +16,7 @@ sqlite3_int64 lastInsertRowid();
 sqlite3_int64 memoryUsed();
 sqlite3_int64 memoryHighwater(bool reset = false);
 
-extern const struct ush_file_descriptor descriptor;
+void registerCmd();
 
 #ifdef PIO_UNIT_TESTING
 void test();

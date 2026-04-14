@@ -1,12 +1,7 @@
-#ifndef SSH_CLIENT_H
-#define SSH_CLIENT_H
-
-#include <microshell.h>
+#pragma once
 
 namespace programs::ssh_client {
 
-void registerCommands(struct ush_object *ush);
+void registerCommands();
 
 }
-
-#endif // SSH_CLIENT_H

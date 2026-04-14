@@ -2,86 +2,48 @@
 
 #if CERATINA_TELNET_ENABLED
 
-#include "../programs/shell/shell.h"
-#include "../programs/shell/session.h"
-#include "../services/identity.h"
-#include "../programs/shell/microfetch.h"
+#include "../console/remote.h"
 #include "../programs/led.h"
 
 #include <Arduino.h>
 #include <ESPTelnet.h>
 #include <EscapeCodes.h>
-#include <microshell.h>
 
+//------------------------------------------
+//  Telnet transport
+//------------------------------------------
 static ESPTelnet telnet_inst;
 static EscapeCodes ansi;
-static bool started = false;
+static bool is_started = false;
 static String client_ip_str;
 
 static char ring_buf[config::telnet::RING_SIZE];
-static char write_buf[config::telnet::WRITE_BUF];
-static programs::shell::session::RingBuffer ring = {
-  .data = ring_buf,
-  .capacity = config::telnet::RING_SIZE,
-  .head = 0,
-  .tail = 0,
-};
-static programs::shell::session::WriteBuffer write_state = {
-  .data = write_buf,
-  .capacity = config::telnet::WRITE_BUF,
-  .position = 0,
-};
+static char wbuf[config::telnet::WRITE_BUF];
+static char line[config::shell::BUF_IN];
 
-static struct ush_object telnet_ush;
-static char telnet_in_buf[config::shell::BUF_IN];
-static char telnet_out_buf[config::shell::BUF_OUT];
-
-static void write_flush(void) {
-  if (write_state.position == 0) return;
-  telnet_inst.write((const uint8_t *)write_buf, write_state.position);
-  programs::shell::session::reset(&write_state);
+static void telnet_flush(const char *data, size_t len, void *ctx) {
+  (void)ctx;
+  telnet_inst.write((const uint8_t *)data, len);
 }
 
-static int telnet_shell_read(struct ush_object *self, char *ch) {
-  (void)self;
-  return programs::shell::session::pop(&ring, ch);
-}
+static console::remote::Shell shell(
+  ring_buf, config::telnet::RING_SIZE,
+  wbuf, config::telnet::WRITE_BUF,
+  line, config::shell::BUF_IN,
+  telnet_flush, nullptr
+);
 
-static int telnet_shell_write(struct ush_object *self, char ch) {
-  (void)self;
-  if (!telnet_inst.isConnected()) return 0;
-  if (!programs::shell::session::push(&write_state, ch)) return 0;
-  if (write_state.position >= config::telnet::WRITE_BUF)
-    write_flush();
-  return 1;
-}
-
-static const struct ush_io_interface telnet_shell_io = {
-  .read = telnet_shell_read,
-  .write = telnet_shell_write,
-};
-
-static const struct ush_descriptor telnet_shell_desc = {
-  .io = &telnet_shell_io,
-  .input_buffer = telnet_in_buf,
-  .input_buffer_size = sizeof(telnet_in_buf),
-  .output_buffer = telnet_out_buf,
-  .output_buffer_size = sizeof(telnet_out_buf),
-  .path_max_length = config::shell::MAX_PATH_LEN,
-  .hostname = const_cast<char *>(services::identity::accessHostname()),
-};
-
+//------------------------------------------
+//  Connection callbacks
+//------------------------------------------
 static void on_connect(String ip) {
   client_ip_str = ip;
   Serial.printf("[telnet] client connected from %s\n", ip.c_str());
   LED.set(colors::Cyan);
-  programs::shell::session::reset(&ring);
-  programs::shell::session::reset(&write_state);
-  programs::shell::initInstance(&telnet_ush, &telnet_shell_desc);
-
+  shell.reset();
   telnet_inst.print(ansi.cls());
-  const char *motd = programs::shell::microfetch::generate();
-  telnet_inst.write((const uint8_t *)motd, strlen(motd));
+  shell.send_motd("Telnet");
+  shell.send_prompt();
 }
 
 static void on_disconnect(String ip) {
@@ -103,13 +65,16 @@ static void on_input(String input) {
   for (size_t i = 0; i < input.length(); i++) {
     char ch = input[i];
     if (ch == '\r') continue;
-    programs::shell::session::push(&ring, ch);
+    shell.push_input(ch);
   }
 }
 
 void networking::telnet::initialize() {
-  if (started) return;
+  if (is_started) return;
 
+//------------------------------------------
+//  Public API
+//------------------------------------------
   telnet_inst.onConnect(on_connect);
   telnet_inst.onDisconnect(on_disconnect);
   telnet_inst.onReconnect(on_reconnect);
@@ -123,20 +88,19 @@ void networking::telnet::initialize() {
     return;
   }
 
-  started = true;
+  is_started = true;
   Serial.printf("[telnet] listening on port %d\n", config::telnet::PORT);
 }
 
 void networking::telnet::service() {
-  if (!started) return;
+  if (!is_started) return;
   telnet_inst.loop();
   if (!telnet_inst.isConnected()) return;
-  while (ush_service(&telnet_ush)) {}
-  write_flush();
+  shell.service();
 }
 
 bool networking::telnet::isConnected() {
-  return started && telnet_inst.isConnected();
+  return is_started && telnet_inst.isConnected();
 }
 
 const char *networking::telnet::clientIP() {
@@ -144,7 +108,7 @@ const char *networking::telnet::clientIP() {
 }
 
 void networking::telnet::disconnect() {
-  if (started && telnet_inst.isConnected())
+  if (is_started && telnet_inst.isConnected())
     telnet_inst.disconnectClient();
 }
 
@@ -158,20 +122,12 @@ void networking::telnet::disconnect() {}
 
 #endif
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Tests
-// ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
-
 #include "telnet.h"
-#include "wifi.h"
 #include "../testing/it.h"
 
-namespace networking::telnet { void test(void); }
-
 #include <Arduino.h>
-#include <WiFi.h>
 
 static void telnet_test_config(void) {
   TEST_MESSAGE("user verifies telnet configuration");
@@ -189,7 +145,6 @@ static void telnet_test_config(void) {
   TEST_MESSAGE(msg);
 #else
   TEST_IGNORE_MESSAGE("telnet not enabled");
-
 #endif
 }
 

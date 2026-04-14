@@ -43,6 +43,8 @@ static inline void nvs_restore_bool(Preferences &prefs, const char *key,
 }
 
 struct WifiNvsSnapshot {
+  NvsStringSnapshot sta_ssid;
+  NvsStringSnapshot sta_pass;
   NvsStringSnapshot ap_ssid;
   NvsStringSnapshot ap_pass;
   NvsBoolSnapshot ap_on;
@@ -51,6 +53,8 @@ struct WifiNvsSnapshot {
 static inline void wifi_nvs_save(WifiNvsSnapshot *snap) {
   Preferences prefs;
   if (!prefs.begin(config::wifi::NVS_NAMESPACE, true)) return;
+  nvs_snapshot_string(prefs, "sta_ssid", &snap->sta_ssid);
+  nvs_snapshot_string(prefs, "sta_pass", &snap->sta_pass);
   nvs_snapshot_string(prefs, "ap_ssid", &snap->ap_ssid);
   nvs_snapshot_string(prefs, "ap_pass", &snap->ap_pass);
   nvs_snapshot_bool(prefs, "ap_on", &snap->ap_on, true);
@@ -61,6 +65,8 @@ static inline void wifi_nvs_restore(const WifiNvsSnapshot *snap) {
   Preferences prefs;
   if (!prefs.begin(config::wifi::NVS_NAMESPACE, false)) return;
   prefs.clear();
+  nvs_restore_string(prefs, "sta_ssid", &snap->sta_ssid);
+  nvs_restore_string(prefs, "sta_pass", &snap->sta_pass);
   nvs_restore_string(prefs, "ap_ssid", &snap->ap_ssid);
   nvs_restore_string(prefs, "ap_pass", &snap->ap_pass);
   nvs_restore_bool(prefs, "ap_on", &snap->ap_on);

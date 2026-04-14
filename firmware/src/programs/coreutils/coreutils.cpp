@@ -1,21 +1,14 @@
 #include "coreutils.h"
 
-namespace {
+#include <Console.h>
 
-const struct ush_file_descriptor files[] = {
-  programs::coreutils::date::descriptor,
-  programs::coreutils::uptime::descriptor,
-  programs::coreutils::print::descriptor,
-  programs::coreutils::whoami::descriptor,
-  programs::coreutils::free::descriptor,
-  programs::coreutils::hostname::descriptor,
-  programs::coreutils::ifconfig::descriptor,
-  programs::coreutils::sensors::descriptor,
-};
-
-}
-
-const struct ush_file_descriptor *programs::coreutils::descriptors(size_t *count) {
-  if (count) *count = sizeof(files) / sizeof(files[0]);
-  return files;
+void programs::coreutils::registerAll() {
+  Console.addCmd("date",     "show local date and time",       cmd_date);
+  Console.addCmd("uptime",   "show system uptime",             cmd_uptime);
+  Console.addCmd("free",     "show memory usage",              cmd_free);
+  Console.addCmd("hostname", "read or set hostname",           "<new-name>", cmd_hostname);
+  Console.addCmd("ifconfig", "show network interface status",  cmd_ifconfig);
+  Console.addCmd("print",    "print argument to shell",        "<text>", cmd_print);
+  Console.addCmd("sensors",  "show sensor inventory summary",  cmd_sensors);
+  Console.addCmd("whoami",   "print current user",             cmd_whoami);
 }

@@ -1,8 +1,6 @@
 #include "ssh_server.h"
-#include "../shell/shell.h"
-#include "../shell/session.h"
-#include "../../services/identity.h"
-#include "../shell/microfetch.h"
+#include "../../console/prompt.h"
+#include "../../console/remote.h"
 #include "../led.h"
 
 #include <Arduino.h>
@@ -15,13 +13,9 @@
 
 #include <atomic>
 #include <freertos/event_groups.h>
-#include <microshell.h>
 #include <sys/reent.h>
 #include <string.h>
 
-//------------------------------------------
-//  Internal State
-//------------------------------------------
 static struct _reent reent_data_esp32;
 
 static const char *ssh_user     = CONFIG_SSH_USER;
@@ -33,9 +27,6 @@ static String ssh_hostkey_vfs(void) {
   return String(LittleFS.mountpoint()) + config::ssh::HOSTKEY_PATH;
 }
 
-//------------------------------------------
-//  Per-connection state
-//------------------------------------------
 static ssh_channel active_chan = nullptr;
 static std::atomic<bool> shell_requested = false;
 static std::atomic<bool> session_alive = true;
@@ -46,76 +37,27 @@ constexpr EventBits_t SSH_BIT_SHELL_REQUEST = (1 << 1);
 constexpr EventBits_t SSH_BIT_SESSION_DEAD  = (1 << 2);
 
 //------------------------------------------
-//  Ring buffer (SSH channel → MicroShell)
+//  Remote shell instance
 //------------------------------------------
-
 static char ssh_ring[config::ssh::RING_SIZE];
-static programs::shell::session::RingBuffer ssh_ring_state = {
-  .data = ssh_ring,
-  .capacity = config::ssh::RING_SIZE,
-  .head = 0,
-  .tail = 0,
-};
+static char ssh_wbuf[config::ssh::WRITE_BUF_SIZE];
+static char ssh_line[config::shell::BUF_IN];
+
+static void ssh_flush(const char *data, size_t len, void *ctx) {
+  (void)ctx;
+  if (active_chan)
+    ssh_channel_write(active_chan, data, len);
+}
+
+static console::remote::Shell shell(
+  ssh_ring, config::ssh::RING_SIZE,
+  ssh_wbuf, config::ssh::WRITE_BUF_SIZE,
+  ssh_line, config::shell::BUF_IN,
+  ssh_flush, nullptr
+);
 
 //------------------------------------------
-//  MicroShell instance for SSH
-//------------------------------------------
-static char ssh_write_buf[config::ssh::WRITE_BUF_SIZE];
-static programs::shell::session::WriteBuffer ssh_write_state = {
-  .data = ssh_write_buf,
-  .capacity = config::ssh::WRITE_BUF_SIZE,
-  .position = 0,
-};
-
-static void ssh_write_flush(void) {
-  if (ssh_write_state.position > 0) {
-    if (active_chan)
-      ssh_channel_write(active_chan, ssh_write_buf, ssh_write_state.position);
-    programs::shell::session::reset(&ssh_write_state);
-  }
-}
-
-static int ssh_shell_read(struct ush_object *self, char *ch) {
-  (void)self;
-  return programs::shell::session::pop(&ssh_ring_state, ch);
-}
-
-static int ssh_shell_write(struct ush_object *self, char ch) {
-  (void)self;
-  if (!active_chan) return 0;
-  if (!programs::shell::session::push(&ssh_write_state, ch)) return 0;
-  if (ssh_write_state.position >= config::ssh::WRITE_BUF_SIZE)
-    ssh_write_flush();
-  return 1;
-}
-
-static const struct ush_io_interface ssh_shell_io = {
-  .read = ssh_shell_read,
-  .write = ssh_shell_write,
-};
-
-static char ssh_shell_in_buf[config::shell::BUF_IN];
-static char ssh_shell_out_buf[config::shell::BUF_OUT];
-static struct ush_object ssh_ush;
-
-static const struct ush_descriptor ssh_shell_desc = {
-  .io = &ssh_shell_io,
-  .input_buffer = ssh_shell_in_buf,
-  .input_buffer_size = sizeof(ssh_shell_in_buf),
-  .output_buffer = ssh_shell_out_buf,
-  .output_buffer_size = sizeof(ssh_shell_out_buf),
-  .path_max_length = config::shell::MAX_PATH_LEN,
-  .hostname = const_cast<char *>(services::identity::accessHostname()),
-};
-
-static void ssh_shell_setup(void) {
-  programs::shell::session::reset(&ssh_ring_state);
-  programs::shell::session::reset(&ssh_write_state);
-  programs::shell::initInstance(&ssh_ush, &ssh_shell_desc);
-}
-
-//------------------------------------------
-//  LibSSH Server Callbacks
+//  LibSSH Callbacks
 //------------------------------------------
 static int on_auth_password(ssh_session session, const char *user,
                             const char *password, void *userdata) {
@@ -135,22 +77,19 @@ static ssh_channel on_channel_open(ssh_session session, void *userdata) {
   return active_chan;
 }
 
-//------------------------------------------
-//  LibSSH Channel Callbacks
-//------------------------------------------
 static int on_channel_data(ssh_session session, ssh_channel channel,
                            void *data, uint32_t len, int is_stderr,
                            void *userdata) {
   (void)session; (void)channel; (void)is_stderr; (void)userdata;
   char *bytes = (char *)data;
   for (uint32_t i = 0; i < len; i++) {
-    if (bytes[i] == '\x04') {  // Ctrl+D
+    if (bytes[i] == '\x04') {
       session_alive.store(false, std::memory_order_release);
       if (ssh_events) xEventGroupSetBits(ssh_events, SSH_BIT_SESSION_DEAD);
       return len;
     }
-    programs::shell::session::push(&ssh_ring_state, bytes[i]);
   }
+  shell.push_input(bytes, len);
   return len;
 }
 
@@ -160,7 +99,9 @@ static int on_pty_request(ssh_session session, ssh_channel channel,
   (void)session; (void)channel; (void)term;
   (void)pxwidth; (void)pxheight; (void)userdata;
   Serial.printf("[ssh] pty request: %dx%d\n", width, height);
-  return 0;  // accept
+  if (width > 0)
+    console::prompt::set_terminal_width((uint16_t)width);
+  return 0;
 }
 
 static int on_shell_request(ssh_session session, ssh_channel channel,
@@ -169,7 +110,7 @@ static int on_shell_request(ssh_session session, ssh_channel channel,
   Serial.println(F("[ssh] shell requested"));
   shell_requested.store(true, std::memory_order_release);
   if (ssh_events) xEventGroupSetBits(ssh_events, SSH_BIT_SHELL_REQUEST);
-  return 0;  // accept
+  return 0;
 }
 
 static void on_channel_eof(ssh_session session, ssh_channel channel,
@@ -187,7 +128,7 @@ static void on_channel_close(ssh_session session, ssh_channel channel,
 }
 
 //------------------------------------------
-//  SSH Host Key Generation
+//  Host Key
 //------------------------------------------
 static bool ssh_ensure_hostkey(void) {
   if (LittleFS.exists(ssh_hostkey)) {
@@ -222,8 +163,7 @@ static bool ssh_ensure_hostkey(void) {
 //------------------------------------------
 //  Exit
 //------------------------------------------
-bool services::sshd::requestExit(struct ush_object *self) {
-  if (self != &ssh_ush) return false;
+bool services::sshd::requestExit(void) {
   session_alive.store(false, std::memory_order_release);
   return true;
 }
@@ -243,7 +183,6 @@ static void ssh_server_task(void *pvParameters) {
     return;
   }
 
-  // Bind once, accept in loop
   ssh_bind sshbind = ssh_bind_new();
   ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDADDR, "0.0.0.0");
   ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDPORT, &ssh_port);
@@ -278,7 +217,6 @@ static void ssh_server_task(void *pvParameters) {
       continue;
     }
 
-    // Register server callbacks (auth + channel open)
     struct ssh_server_callbacks_struct server_cb = {};
     server_cb.userdata = nullptr;
     server_cb.auth_password_function = on_auth_password;
@@ -287,7 +225,6 @@ static void ssh_server_task(void *pvParameters) {
     ssh_set_server_callbacks(session, &server_cb);
     ssh_set_auth_methods(session, SSH_AUTH_METHOD_PASSWORD);
 
-    // Event loop for auth + channel open
     ssh_event event = ssh_event_new();
     ssh_event_add_session(event, session);
 
@@ -298,7 +235,6 @@ static void ssh_server_task(void *pvParameters) {
     if (!ssh_events) ssh_events = xEventGroupCreate();
     xEventGroupClearBits(ssh_events, 0xFF);
 
-    // Channel callbacks — registered once when channel opens
     struct ssh_channel_callbacks_struct channel_cb = {};
     channel_cb.userdata = nullptr;
     channel_cb.channel_data_function = on_channel_data;
@@ -307,11 +243,10 @@ static void ssh_server_task(void *pvParameters) {
     channel_cb.channel_eof_function = on_channel_eof;
     channel_cb.channel_close_function = on_channel_close;
     ssh_callbacks_init(&channel_cb);
-    bool channel_cb_registered = false;
+    bool is_channel_cb_registered = false;
 
     constexpr EventBits_t SSH_WAKE = SSH_BIT_CHANNEL_OPEN | SSH_BIT_SHELL_REQUEST | SSH_BIT_SESSION_DEAD;
 
-    // Phase 1: Wait for auth + channel + shell request
     while (session_alive.load(std::memory_order_acquire) &&
            (!active_chan || !shell_requested.load(std::memory_order_acquire))) {
       ssh_event_dopoll(event, 0);
@@ -320,9 +255,9 @@ static void ssh_server_task(void *pvParameters) {
         break;
       }
 
-      if (active_chan && !channel_cb_registered) {
+      if (active_chan && !is_channel_cb_registered) {
         ssh_set_channel_callbacks(active_chan, &channel_cb);
-        channel_cb_registered = true;
+        is_channel_cb_registered = true;
       }
 
       xEventGroupWaitBits(ssh_events, SSH_WAKE, pdFALSE, pdFALSE, pdMS_TO_TICKS(50));
@@ -341,15 +276,13 @@ static void ssh_server_task(void *pvParameters) {
     }
 
     Serial.println(F("[ssh] shell session started"));
-    ssh_shell_setup();
-
-    const char *motd = programs::shell::microfetch::generate();
-    ssh_channel_write(active_chan, motd, strlen(motd));
+    shell.reset();
+    shell.send_motd("SSH");
+    shell.send_prompt();
 
     while (session_alive.load(std::memory_order_acquire)) {
-      ssh_event_dopoll(event, 50);
-      while (ush_service(&ssh_ush)) {}  // drain all pending output
-      ssh_write_flush();
+      ssh_event_dopoll(event, 100);
+      shell.service();
 
       if (ssh_get_status(session) & (SSH_CLOSED | SSH_CLOSED_ERROR))
         break;
@@ -373,9 +306,6 @@ static void ssh_server_task(void *pvParameters) {
   }
 }
 
-//------------------------------------------
-//  Public API
-//------------------------------------------
 bool services::sshd::initialize() {
   if (LittleFS.totalBytes() == 0) {
     Serial.println(F("[ssh] LittleFS not mounted — cannot start"));
@@ -386,73 +316,56 @@ bool services::sshd::initialize() {
   return true;
 }
 
-//------------------------------------------
-//  Tests
-//  describe("SSH Server (smoke)")
-//------------------------------------------
 #ifdef PIO_UNIT_TESTING
 
 #include "../../testing/it.h"
 
 static void ssh_server_test_libssh_initializes(void) {
   TEST_MESSAGE("user asks the device to initialize libssh");
-
   libssh_begin();
-
   ssh_session session = ssh_new();
   TEST_ASSERT_NOT_NULL_MESSAGE(session,
     "device: ssh_new() returned NULL after libssh_begin()");
-
   TEST_MESSAGE("libssh initialized and session allocated");
   ssh_free(session);
 }
 
 static void ssh_server_test_generates_ed25519_key(void) {
   TEST_MESSAGE("user asks the device to generate an ed25519 keypair");
-
   ssh_key key = nullptr;
   int rc = ssh_pki_generate(SSH_KEYTYPE_ED25519, 0, &key);
-
   TEST_ASSERT_EQUAL_INT_MESSAGE(SSH_OK, rc,
     "device: ssh_pki_generate(ED25519) returned error");
   TEST_ASSERT_NOT_NULL_MESSAGE(key,
     "device: generated key pointer is NULL");
-
   enum ssh_keytypes_e key_type = ssh_key_type(key);
   TEST_ASSERT_EQUAL_INT_MESSAGE(SSH_KEYTYPE_ED25519, key_type,
     "device: key type is not ED25519");
-
   const char *key_type_name = ssh_key_type_to_char(key_type);
   TEST_ASSERT_EQUAL_STRING_MESSAGE("ssh-ed25519", key_type_name,
     "device: key type string does not match expected");
-
   TEST_MESSAGE("ed25519 keypair generated successfully");
   ssh_key_free(key);
 }
 
 static void ssh_server_test_bind_configures(void) {
   TEST_MESSAGE("user asks the device to create an SSH bind on port 2222");
-
   ssh_bind sshbind = ssh_bind_new();
   TEST_ASSERT_NOT_NULL_MESSAGE(sshbind,
     "device: ssh_bind_new() returned NULL");
-
   int test_port = 2222;
   int rc = ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDPORT, &test_port);
   TEST_ASSERT_EQUAL_INT_MESSAGE(SSH_OK, rc,
     "device: failed to set SSH_BIND_OPTIONS_BINDPORT");
-
   rc = ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDADDR, "0.0.0.0");
   TEST_ASSERT_EQUAL_INT_MESSAGE(SSH_OK, rc,
     "device: failed to set SSH_BIND_OPTIONS_BINDADDR");
-
   TEST_MESSAGE("ssh_bind created and configured");
   ssh_bind_free(sshbind);
 }
 
 static void ssh_server_test_config_defaults(void) {
   TEST_MESSAGE("user verifies SSH server configuration defaults");
-
   TEST_ASSERT_EQUAL_INT_MESSAGE(22, config::ssh::PORT,
     "device: default SSH port should be 22");
   TEST_ASSERT_NOT_NULL_MESSAGE(CONFIG_SSH_USER,
@@ -461,12 +374,10 @@ static void ssh_server_test_config_defaults(void) {
     "device: default SSH user must not be empty");
   TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE(10240, config::ssh::TASK_STACK,
     "device: SSH task stack must be >= 10240 for libssh key exchange");
-
   TEST_ASSERT_NOT_NULL_MESSAGE(config::ssh::HOSTKEY_PATH,
     "device: host key path must not be NULL");
   TEST_ASSERT_NOT_EMPTY_MESSAGE(config::ssh::HOSTKEY_PATH,
     "device: host key path must not be empty");
-
   TEST_MESSAGE("configuration defaults are sane");
 }
 

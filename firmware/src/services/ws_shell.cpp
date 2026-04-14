@@ -1,79 +1,43 @@
 #include "ws_shell.h"
 #include "../config.h"
-#include "../programs/shell/shell.h"
-#include "../programs/shell/session.h"
-#include "../services/identity.h"
-#include "../programs/shell/microfetch.h"
+#include "../console/remote.h"
 
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
-#include <microshell.h>
 
+//------------------------------------------
+//  WebSocket transport
+//------------------------------------------
 static AsyncWebSocketMessageHandler ws_handler;
 static AsyncWebSocket ws("/ws/shell", ws_handler.eventHandler());
 static AsyncWebSocketClient *active_client = nullptr;
 
 static char ring_buf[config::ws_shell::RING_SIZE];
-static char write_buf[config::ws_shell::WRITE_BUF];
-static programs::shell::session::RingBuffer ring = {
-  .data = ring_buf,
-  .capacity = config::ws_shell::RING_SIZE,
-  .head = 0,
-  .tail = 0,
-};
-static programs::shell::session::WriteBuffer write_state = {
-  .data = write_buf,
-  .capacity = config::ws_shell::WRITE_BUF,
-  .position = 0,
-};
+static char wbuf[config::ws_shell::WRITE_BUF];
+static char line[config::shell::BUF_IN];
 
-static void write_flush(void) {
-  if (write_state.position == 0 || !active_client) return;
-  active_client->text(write_buf, write_state.position);
-  programs::shell::session::reset(&write_state);
+static void ws_flush(const char *data, size_t len, void *ctx) {
+  (void)ctx;
+  if (active_client)
+    active_client->text(data, len);
 }
 
-static int ws_shell_read(struct ush_object *self, char *ch) {
-  (void)self;
-  return programs::shell::session::pop(&ring, ch);
-}
+static console::remote::Shell shell(
+  ring_buf, config::ws_shell::RING_SIZE,
+  wbuf, config::ws_shell::WRITE_BUF,
+  line, config::shell::BUF_IN,
+  ws_flush, nullptr
+);
 
-static int ws_shell_write(struct ush_object *self, char ch) {
-  (void)self;
-  if (!active_client) return 0;
-  if (!programs::shell::session::push(&write_state, ch)) return 0;
-  if (write_state.position >= config::ws_shell::WRITE_BUF)
-    write_flush();
-  return 1;
-}
-
-static const struct ush_io_interface ws_shell_io = {
-  .read = ws_shell_read,
-  .write = ws_shell_write,
-};
-
-static char ws_in_buf[config::shell::BUF_IN];
-static char ws_out_buf[config::shell::BUF_OUT];
-static struct ush_object ws_ush;
-
-static const struct ush_descriptor ws_shell_desc = {
-  .io = &ws_shell_io,
-  .input_buffer = ws_in_buf,
-  .input_buffer_size = sizeof(ws_in_buf),
-  .output_buffer = ws_out_buf,
-  .output_buffer_size = sizeof(ws_out_buf),
-  .path_max_length = config::shell::MAX_PATH_LEN,
-  .hostname = const_cast<char *>(services::identity::accessHostname()),
-};
-
+//------------------------------------------
+//  WebSocket callbacks
+//------------------------------------------
 static void on_ws_connect(AsyncWebSocket *server, AsyncWebSocketClient *client) {
   (void)server;
   active_client = client;
-  programs::shell::session::reset(&ring);
-  programs::shell::session::reset(&write_state);
-  programs::shell::initInstance(&ws_ush, &ws_shell_desc);
-  const char *motd = programs::shell::microfetch::generate();
-  client->text(motd, strlen(motd));
+  shell.reset();
+  shell.send_motd("WebSocket");
+  shell.send_prompt();
   Serial.printf("[ws_shell] client connected (id %u)\n", client->id());
 }
 
@@ -97,12 +61,12 @@ static void on_ws_message(AsyncWebSocket *server, AsyncWebSocketClient *client,
                           const uint8_t *data, size_t len) {
   (void)server;
   if (!active_client || active_client->id() != client->id()) return;
-
-  for (size_t i = 0; i < len; i++) {
-    programs::shell::session::push(&ring, (char)data[i]);
-  }
+  shell.push_input((const char *)data, len);
 }
 
+//------------------------------------------
+//  Public API
+//------------------------------------------
 void services::ws_shell::registerRoutes(AsyncWebServer *server) {
   ws_handler.onConnect(on_ws_connect);
   ws_handler.onDisconnect(on_ws_disconnect);
@@ -120,7 +84,6 @@ void services::ws_shell::registerRoutes(AsyncWebServer *server) {
 
 void services::ws_shell::service(void) {
   if (!active_client) return;
-  while (ush_service(&ws_ush)) {}
-  write_flush();
+  shell.service();
   ws.cleanupClients(1);
 }

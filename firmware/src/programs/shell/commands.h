@@ -1,12 +1,7 @@
-#ifndef SHELL_COMMANDS_H
-#define SHELL_COMMANDS_H
-
-#include <microshell.h>
+#pragma once
 
 namespace programs::shell::commands {
 
-void registerAll(struct ush_object *ush);
+void registerAll();
 
 }
-
-#endif // SHELL_COMMANDS_H

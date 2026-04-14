@@ -1,37 +1,19 @@
 #include "coreutils.h"
-
 #include "../../services/system.h"
 
-namespace {
+#include <stdio.h>
 
-void exec(struct ush_object *self,
-          struct ush_file_descriptor const *file,
-          int argc, char *argv[]) {
-  (void)file;
+int programs::coreutils::cmd_free(int argc, char **argv) {
   (void)argv;
-  if (argc != 1) {
-    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
-    return;
-  }
+  if (argc != 1) { printf("usage: free\n"); return 1; }
 
-  char buf[128];
   SystemQuery query = {
     .preferred_storage = StorageKind::LittleFS,
     .snapshot = {},
   };
   services::system::accessSnapshot(&query);
-  snprintf(buf, sizeof(buf),
-           "heap total: %u\r\nheap free:  %u\r\nheap used:  %u\r\n",
-           query.snapshot.heap_total, query.snapshot.heap_free,
-           query.snapshot.heap_total - query.snapshot.heap_free);
-  ush_print(self, buf);
+  printf("heap total: %u\nheap free:  %u\nheap used:  %u\n",
+         query.snapshot.heap_total, query.snapshot.heap_free,
+         query.snapshot.heap_total - query.snapshot.heap_free);
+  return 0;
 }
-
-}
-
-const struct ush_file_descriptor programs::coreutils::free::descriptor = {
-  .name = "free",
-  .description = "show memory usage",
-  .help = "usage: free\r\n",
-  .exec = exec,
-};

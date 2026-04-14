@@ -1,22 +1,16 @@
-#ifndef PROGRAMS_COREUTILS_COREUTILS_H
-#define PROGRAMS_COREUTILS_COREUTILS_H
-
-#include <microshell.h>
-#include <stddef.h>
+#pragma once
 
 namespace programs::coreutils {
 
-const struct ush_file_descriptor *descriptors(size_t *count);
+void registerAll();
 
-namespace date { extern const struct ush_file_descriptor descriptor; }
-namespace free { extern const struct ush_file_descriptor descriptor; }
-namespace hostname { extern const struct ush_file_descriptor descriptor; }
-namespace ifconfig { extern const struct ush_file_descriptor descriptor; }
-namespace print { extern const struct ush_file_descriptor descriptor; }
-namespace sensors { extern const struct ush_file_descriptor descriptor; }
-namespace uptime { extern const struct ush_file_descriptor descriptor; }
-namespace whoami { extern const struct ush_file_descriptor descriptor; }
+int cmd_date(int argc, char **argv);
+int cmd_uptime(int argc, char **argv);
+int cmd_free(int argc, char **argv);
+int cmd_hostname(int argc, char **argv);
+int cmd_ifconfig(int argc, char **argv);
+int cmd_print(int argc, char **argv);
+int cmd_sensors(int argc, char **argv);
+int cmd_whoami(int argc, char **argv);
 
 }
-
-#endif

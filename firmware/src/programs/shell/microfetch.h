@@ -1,13 +1,8 @@
-#ifndef SHELL_MICROFETCH_H
-#define SHELL_MICROFETCH_H
-
-#include <microshell.h>
+#pragma once
 
 namespace programs::shell::microfetch {
 
-void registerNode(struct ush_object *ush);
-const char *generate(void);
+void registerCmd();
+const char *generate(const char *transport = "Serial");
 
 }
-
-#endif

@@ -1,19 +1,18 @@
-#ifndef SSH_SERVER_H
-#define SSH_SERVER_H
+#pragma once
 
 #include "../../config.h"
 
-struct ush_object;
+namespace programs::ssh_fingerprint {
+void registerCmd();
+}
 
 namespace services::sshd {
 
 bool initialize();
-bool requestExit(struct ush_object *self);
+bool requestExit();
 
 #ifdef PIO_UNIT_TESTING
 void test();
 #endif
 
 }
-
-#endif // SSH_SERVER_H

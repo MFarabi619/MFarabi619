@@ -1,27 +1,23 @@
 #include "ssh_server.h"
 
 #include <Arduino.h>
+#include <Console.h>
 #include <LittleFS.h>
-#include <microshell.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "libssh_esp32.h"
 #include <libssh/libssh.h>
 
-static size_t fingerprint_get_data(struct ush_object *self,
-                                   struct ush_file_descriptor const *file,
-                                   uint8_t **data) {
-  (void)self; (void)file;
-  static char buf[128];
-  buf[0] = '\0';
+static int cmd_fingerprint(int argc, char **argv) {
+  (void)argc; (void)argv;
 
   String vfs_path = String(LittleFS.mountpoint()) + config::ssh::HOSTKEY_PATH;
   ssh_key key = nullptr;
   int rc = ssh_pki_import_privkey_file(vfs_path.c_str(), NULL, NULL, NULL, &key);
   if (rc != SSH_OK) {
-    snprintf(buf, sizeof(buf), "(no host key)\r\n");
-    *data = (uint8_t *)buf;
-    return strlen(buf);
+    printf("(no host key)\n");
+    return 1;
   }
 
   unsigned char *hash = nullptr;
@@ -30,33 +26,24 @@ static size_t fingerprint_get_data(struct ush_object *self,
   ssh_key_free(key);
 
   if (rc != SSH_OK || hash == nullptr) {
-    snprintf(buf, sizeof(buf), "(hash failed)\r\n");
-    *data = (uint8_t *)buf;
-    return strlen(buf);
+    printf("(hash failed)\n");
+    return 1;
   }
 
   char *hex = ssh_get_fingerprint_hash(SSH_PUBLICKEY_HASH_SHA256, hash, hlen);
   ssh_clean_pubkey_hash(&hash);
 
   if (hex) {
-    snprintf(buf, sizeof(buf), "%s\r\n", hex);
+    printf("%s\n", hex);
     ssh_string_free_char(hex);
   } else {
-    snprintf(buf, sizeof(buf), "(format failed)\r\n");
+    printf("(format failed)\n");
+    return 1;
   }
 
-  *data = (uint8_t *)buf;
-  return strlen(buf);
+  return 0;
 }
 
-static const struct ush_file_descriptor ssh_dev_files[] = {
-  { .name = "fingerprint", .description = "host key SHA256 fingerprint",
-    .get_data = fingerprint_get_data },
-};
-
-static struct ush_node_object ssh_dev_node;
-
-void dev_ssh_mount(struct ush_object *ush) {
-  ush_node_mount(ush, "/dev/ssh", &ssh_dev_node, ssh_dev_files,
-                 sizeof(ssh_dev_files) / sizeof(ssh_dev_files[0]));
+void programs::ssh_fingerprint::registerCmd() {
+  Console.addCmd("fingerprint", "show SSH host key fingerprint", cmd_fingerprint);
 }

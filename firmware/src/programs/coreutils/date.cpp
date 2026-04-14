@@ -1,39 +1,24 @@
 #include "coreutils.h"
-
 #include "../../networking/sntp.h"
 #include "../../services/rtc.h"
 
-namespace {
+#include <stdio.h>
 
-void exec(struct ush_object *self,
-          struct ush_file_descriptor const *file,
-          int argc, char *argv[]) {
-  (void)file;
+int programs::coreutils::cmd_date(int argc, char **argv) {
   (void)argv;
-  if (argc != 1) {
-    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
-    return;
-  }
+  if (argc != 1) { printf("usage: date\n"); return 1; }
 
   if (networking::sntp::isSynced()) {
-    ush_printf(self, "%s\r\n", networking::sntp::accessLocalTimeString());
-    return;
+    printf("%s\n", networking::sntp::accessLocalTimeString());
+    return 0;
   }
 
   RTCSnapshot snapshot = {};
   if (services::rtc::accessSnapshot(&snapshot) && snapshot.valid) {
-    ush_printf(self, "%s\r\n", snapshot.iso8601);
-    return;
+    printf("%s\n", snapshot.iso8601);
+    return 0;
   }
 
-  ush_print(self, (char *)"(no time)\r\n");
+  printf("(no time)\n");
+  return 0;
 }
-
-}
-
-const struct ush_file_descriptor programs::coreutils::date::descriptor = {
-  .name = "date",
-  .description = "show local date and time",
-  .help = "usage: date\r\n",
-  .exec = exec,
-};

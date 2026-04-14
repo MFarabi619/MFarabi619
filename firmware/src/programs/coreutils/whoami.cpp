@@ -1,26 +1,11 @@
 #include "coreutils.h"
-
 #include "../../config.h"
 
-namespace {
+#include <stdio.h>
 
-void exec(struct ush_object *self,
-          struct ush_file_descriptor const *file,
-          int argc, char *argv[]) {
-  (void)file;
+int programs::coreutils::cmd_whoami(int argc, char **argv) {
   (void)argv;
-  if (argc != 1) {
-    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
-    return;
-  }
-  ush_printf(self, "%s\r\n", CONFIG_SSH_USER);
+  if (argc != 1) { printf("usage: whoami\n"); return 1; }
+  printf("%s\n", CONFIG_SSH_USER);
+  return 0;
 }
-
-}
-
-const struct ush_file_descriptor programs::coreutils::whoami::descriptor = {
-  .name = "whoami",
-  .description = "print current user",
-  .help = "usage: whoami\r\n",
-  .exec = exec,
-};

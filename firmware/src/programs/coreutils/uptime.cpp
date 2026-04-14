@@ -1,20 +1,12 @@
 #include "coreutils.h"
-
 #include "../../services/system.h"
 
+#include <stdio.h>
 #include <string.h>
 
-namespace {
-
-void exec(struct ush_object *self,
-          struct ush_file_descriptor const *file,
-          int argc, char *argv[]) {
-  (void)file;
+int programs::coreutils::cmd_uptime(int argc, char **argv) {
   (void)argv;
-  if (argc != 1) {
-    ush_print_status(self, USH_STATUS_ERROR_COMMAND_WRONG_ARGUMENTS);
-    return;
-  }
+  if (argc != 1) { printf("usage: uptime\n"); return 1; }
 
   char buf[32];
   SystemQuery query = {
@@ -23,15 +15,6 @@ void exec(struct ush_object *self,
   };
   services::system::accessSnapshot(&query);
   services::system::formatUptime(buf, sizeof(buf), query.snapshot.uptime_seconds);
-  strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-  ush_print(self, buf);
+  printf("%s\n", buf);
+  return 0;
 }
-
-}
-
-const struct ush_file_descriptor programs::coreutils::uptime::descriptor = {
-  .name = "uptime",
-  .description = "show system uptime",
-  .help = "usage: uptime\r\n",
-  .exec = exec,
-};

@@ -9,7 +9,7 @@
 #include "../../services/system.h"
 
 #include <Arduino.h>
-#include <microshell.h>
+#include <Console.h>
 
 static char fetch_buf[2048];
 
@@ -34,7 +34,7 @@ static void row(const char *color, const char *icon, const char *label, const ch
   if (n > 0 && n < fetch_remaining) { fetch_pos += n; fetch_remaining -= n; }
 }
 
-const char *programs::shell::microfetch::generate(void) {
+const char *programs::shell::microfetch::generate(const char *transport) {
   fetch_pos = 0;
   fetch_remaining = sizeof(fetch_buf) - 1;
 
@@ -82,7 +82,7 @@ const char *programs::shell::microfetch::generate(void) {
   else if (h > 0) row("34", NF_FA_CLOCK, "Uptime", "\x1b[1m%u\x1b[0mh %um %us", h, m, s);
   else row("34", NF_FA_CLOCK, "Uptime", "\x1b[1m%u\x1b[0mm %us", m, s);
 
-  row("32", NF_FA_TERMINAL, "Shell", "\x1b[1mMicroShell\x1b[0m (SSH + WS)");
+  row("32", NF_FA_TERMINAL, "Shell", "\x1b[1mMicroshell\x1b[0m (%s)", transport);
   row("31", NF_FA_MICROCHIP, "CPU", "\x1b[1mXtensa LX7\x1b[0m (%d) @ \x1b[1m%u MHz\x1b[0m",
       snapshot.chip_cores, (unsigned)snapshot.cpu_mhz);
   row("36", NF_FA_MEMORY, "RAM", "\x1b[1m%u/%u KiB\x1b[0m (\x1b[1;32m%u%%\x1b[0m)",
@@ -137,21 +137,12 @@ const char *programs::shell::microfetch::generate(void) {
   return fetch_buf;
 }
 
-static void cmd_microfetch(struct ush_object *self,
-                           struct ush_file_descriptor const *file,
-                           int argc, char *argv[]) {
-  (void)file; (void)argc; (void)argv;
-  ush_print(self, (char *)programs::shell::microfetch::generate());
+static int cmd_microfetch(int argc, char **argv) {
+  (void)argc; (void)argv;
+  printf("%s", programs::shell::microfetch::generate());
+  return 0;
 }
 
-static const struct ush_file_descriptor microfetch_files[] = {
-  { .name = "microfetch", .description = "system info summary",
-    .help = "usage: microfetch\r\n", .exec = cmd_microfetch },
-};
-
-static struct ush_node_object microfetch_node;
-
-void programs::shell::microfetch::registerNode(struct ush_object *ush) {
-  ush_commands_add(ush, &microfetch_node, microfetch_files,
-                   sizeof(microfetch_files) / sizeof(microfetch_files[0]));
+void programs::shell::microfetch::registerCmd() {
+  Console.addCmd("microfetch", "system info summary", cmd_microfetch);
 }
