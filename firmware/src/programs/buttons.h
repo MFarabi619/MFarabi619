@@ -26,11 +26,11 @@ void setIdleMs(unsigned int ms);
 void setLongPressIntervalMs(unsigned int ms);
 
 // State queries
-[[nodiscard]] bool isPressed(uint8_t index);
-[[nodiscard]] bool isIdle(uint8_t index);
-[[nodiscard]] bool isLongPressed(uint8_t index);
-[[nodiscard]] unsigned long getPressedMs(uint8_t index);
-[[nodiscard]] int getNumberClicks(uint8_t index);
+bool isPressed(uint8_t index);
+bool isIdle(uint8_t index);
+bool isLongPressed(uint8_t index);
+unsigned long getPressedMs(uint8_t index);
+int getNumberClicks(uint8_t index);
 void reset(uint8_t index);
 
 #ifdef PIO_UNIT_TESTING

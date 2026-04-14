@@ -7,9 +7,9 @@
 namespace networking::sntp {
 
 bool sync();
-[[nodiscard]] bool isSynced();
-[[nodiscard]] const char *accessLocalTimeString();
-[[nodiscard]] uint32_t accessUTCEpoch();
+bool isSynced();
+const char *accessLocalTimeString();
+uint32_t accessUTCEpoch();
 
 } // namespace networking::sntp
 

@@ -14,13 +14,13 @@ struct TemperatureHumiditySensorData {
 
 namespace sensors::temperature_and_humidity {
 
-uint8_t discover();
-[[nodiscard]] uint8_t sensorCount();
+bool initialize();
+uint8_t sensorCount();
 
-[[nodiscard]] bool access(uint8_t index,
+bool access(uint8_t index,
                           TemperatureHumiditySensorData *sensor_data);
 
-[[nodiscard]] uint8_t accessAll(TemperatureHumiditySensorData *sensor_data,
+uint8_t accessAll(TemperatureHumiditySensorData *sensor_data,
                                 bool *read_ok,
                                 uint8_t max_count);
 

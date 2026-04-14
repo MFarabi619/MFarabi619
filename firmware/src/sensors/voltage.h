@@ -14,9 +14,9 @@ namespace sensors::voltage {
 extern Adafruit_ADS1115 ADC;
 
 bool initialize();
-[[nodiscard]] bool isReady();
-[[nodiscard]] bool access(VoltageSensorData *sensor_data);
-[[nodiscard]] const char *accessGainLabel();
+bool isAvailable();
+bool access(VoltageSensorData *sensor_data);
+const char *accessGainLabel();
 
 #ifdef PIO_UNIT_TESTING
 void test();

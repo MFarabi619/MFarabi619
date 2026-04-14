@@ -95,7 +95,7 @@ bool sensors::current::initialize() {
   return ready;
 }
 
-bool sensors::current::isReady() {
+bool sensors::current::isAvailable() {
   return ready;
 }
 
@@ -139,7 +139,7 @@ static void current_test_initializes(void) {
 static void current_test_reads(void) {
   TEST_MESSAGE("user reads current monitor values");
 
-  if (!sensors::current::isReady()) {
+  if (!sensors::current::isAvailable()) {
     TEST_IGNORE_MESSAGE("INA228 not available — skipping");
     return;
   }

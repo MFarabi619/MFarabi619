@@ -144,7 +144,7 @@ void append_slot(TemperatureHumidityBackend backend,
 
 }
 
-uint8_t sensors::temperature_and_humidity::discover() {
+bool sensors::temperature_and_humidity::initialize() {
   sensor_count = 0;
 
   hardware::i2c::TopologySnapshot topology = {};
@@ -200,7 +200,7 @@ uint8_t sensors::temperature_and_humidity::discover() {
   hardware::i2c::clearSelection();
   Serial.printf("[temperature_and_humidity] discovered %d sensor(s)\n",
                 sensor_count);
-  return sensor_count;
+  return sensor_count > 0;
 }
 
 uint8_t sensors::temperature_and_humidity::sensorCount() {
@@ -252,7 +252,7 @@ static void temperature_and_humidity_test_discovers_sensors(void) {
   test_ensure_wire1_with_power();
   hardware::i2c::initialize();
 
-  uint8_t count = sensors::temperature_and_humidity::discover();
+  uint8_t count = sensors::temperature_and_humidity::initialize();
   char message[64];
   snprintf(message, sizeof(message), "discovered %d sensor(s)", count);
   TEST_MESSAGE(message);
@@ -343,7 +343,7 @@ static void temperature_and_humidity_test_cht832x_manufacturer_id(void) {
   if (sensors::temperature_and_humidity::sensorCount() == 0) {
     test_ensure_wire1_with_power();
     hardware::i2c::initialize();
-    sensors::temperature_and_humidity::discover();
+    sensors::temperature_and_humidity::initialize();
   }
 
   size_t cht_index = SIZE_MAX;

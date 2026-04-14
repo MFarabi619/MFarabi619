@@ -1,6 +1,7 @@
 #ifndef SENSORS_MANAGER_H
 #define SENSORS_MANAGER_H
 
+#include "barometric_pressure.h"
 #include "carbon_dioxide.h"
 #include "current.h"
 #include "soil.h"
@@ -19,6 +20,7 @@ struct SensorInventorySnapshot {
   bool wind_speed_available;
   bool wind_direction_available;
   bool solar_radiation_available;
+  bool barometric_pressure_available;
 };
 
 namespace sensors::manager {
@@ -35,6 +37,7 @@ bool accessSolarRadiation(SolarRadiationSensorData *sensor_data);
 bool accessSoil(uint8_t index, SoilSensorData *sensor_data);
 bool accessTemperatureHumidity(uint8_t index,
                                TemperatureHumiditySensorData *sensor_data);
+bool accessBarometricPressure(BarometricPressureSensorData *sensor_data);
 
 }
 

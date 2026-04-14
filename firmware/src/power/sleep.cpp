@@ -6,6 +6,7 @@
 #include "../networking/ota.h"
 #include "../sensors/carbon_dioxide.h"
 #include "../services/data_logger.h"
+#include "../services/preferences.h"
 
 #include <Arduino.h>
 #include <Preferences.h>
@@ -27,7 +28,7 @@ SleepConfig persisted_config = {
 };
 
 bool open_preferences(bool readonly, Preferences *prefs) {
-  return prefs && prefs->begin(config::sleep::NVS_NAMESPACE, readonly);
+  return services::preferences::open(config::sleep::NVS_NAMESPACE, readonly, prefs);
 }
 
 const char *translate_wake_cause(esp_sleep_wakeup_cause_t cause) {
@@ -87,7 +88,7 @@ void enter_sleep_now() {
   Wire1.end();
 
   Serial.flush();
-  LED.fadeOut(255, 200, 0, 800);
+  LED.fadeOut(CRGB::Gold, 800);
 
   esp_deep_sleep_start();
 }

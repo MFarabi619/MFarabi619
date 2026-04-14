@@ -52,9 +52,15 @@ bool services::rtc::accessSnapshot(RTCSnapshot *snapshot) {
 
 #include "../testing/it.h"
 #include "../testing/i2c_helpers.h"
+#include "../hardware/i2c.h"
 
 static void rtc_test_init() {
-    test_ensure_wire0();
+    hardware::i2c::initialize();
+    hardware::i2c::DiscoveredDevice dev = {};
+    if (!hardware::i2c::findDevice(0x68, &dev)) {
+        TEST_IGNORE_MESSAGE("no DS3231 found on I2C");
+        return;
+    }
     TEST_MESSAGE("user initializes the RTC");
     TEST_ASSERT_TRUE_MESSAGE(services::rtc::initialize(), "device: rtcInitialize() failed");
     TEST_MESSAGE("RTC initialized");

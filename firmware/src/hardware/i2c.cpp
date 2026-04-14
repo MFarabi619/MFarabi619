@@ -67,7 +67,7 @@ void enable_mux_power_for_channel(int8_t mux_channel) {
       disable_mux_power_rails();
       break;
   }
-  delay(100);
+  delay(config::i2c::POWER_SETTLE_MS);
 }
 
 }
@@ -244,6 +244,90 @@ bool hardware::i2c::scan(ScanCommand *command) {
   return true;
 }
 
+const char *hardware::i2c::deviceNameAt(uint8_t address) {
+  switch (address) {
+    case 0x44: return "Sensirion SHT3x Temperature & Humidity Sensor";
+    case 0x48: return "ADS1115 16-Bit ADC - 4 Channel with Programmable Gain Amplifier";
+    case 0x50: return "Atmel AT24C32 EEPROM";
+    case 0x5C: case 0x5D: return "Adafruit LPS25 Pressure Sensor";
+    case 0x61: return "Sensirion SCD30 CO2 Infrared Gas Sensor";
+    case 0x62: return "Sensirion SCD41 CO2 Optical Gas Sensor";
+    case 0x68: return "Analog Devices DS3231";
+    case 0x70: return "Adafruit TCA9548A 1-to-8 I2C Multiplexer Breakout";
+    default:   return "unknown";
+  }
+}
+
+size_t hardware::i2c::discoverAll(DiscoveredDevice *devices, size_t capacity) {
+  if (!devices || capacity == 0) return 0;
+  size_t count = 0;
+
+  enable_legacy_power_rail();
+  pinMode(config::i2c::MUX_POWER_GPIO_EVEN, OUTPUT);
+  digitalWrite(config::i2c::MUX_POWER_GPIO_EVEN, HIGH);
+  pinMode(config::i2c::MUX_POWER_GPIO_ODD, OUTPUT);
+  digitalWrite(config::i2c::MUX_POWER_GPIO_ODD, HIGH);
+  delay(config::i2c::DISCOVERY_SETTLE_MS);
+
+  TwoWire *buses[] = { &Wire, &Wire1 };
+  for (uint8_t bus = 0; bus < 2 && count < capacity; bus++) {
+    for (uint8_t addr = config::i2c::ADDR_MIN; addr <= config::i2c::ADDR_MAX && count < capacity; addr++) {
+      if (addr == config::i2c::MUX_ADDR) continue;
+      buses[bus]->beginTransmission(addr);
+      if (buses[bus]->endTransmission() == 0) {
+        devices[count++] = { bus, addr, -1 };
+      }
+    }
+  }
+
+  if (mux_present) {
+    for (uint8_t ch = 0; ch < mux.channelCount() && count < capacity; ch++) {
+      enable_mux_power_for_channel(ch);
+      mux.selectChannel(ch);
+      for (uint8_t addr = config::i2c::ADDR_MIN; addr <= config::i2c::ADDR_MAX && count < capacity; addr++) {
+        if (addr == config::i2c::MUX_ADDR) continue;
+        Wire1.beginTransmission(addr);
+        if (Wire1.endTransmission() == 0) {
+          devices[count++] = { 1, addr, (int8_t)ch };
+        }
+      }
+      mux.disableAllChannels();
+    }
+    disable_mux_power_rails();
+  }
+
+  return count;
+}
+
+static hardware::i2c::DiscoveredDevice discovery_cache[hardware::i2c::MAX_DISCOVERED_DEVICES];
+static size_t discovery_count = 0;
+static bool discovery_done = false;
+
+bool hardware::i2c::runDiscovery() {
+  discovery_count = discoverAll(discovery_cache, MAX_DISCOVERED_DEVICES);
+  discovery_done = true;
+  for (size_t i = 0; i < discovery_count; i++) {
+    Serial.printf("[i2c] found 0x%02X on bus %d%s\n",
+                  discovery_cache[i].address, discovery_cache[i].bus,
+                  discovery_cache[i].mux_channel >= 0 ? " (mux)" : "");
+  }
+  return discovery_count > 0;
+}
+
+// Searches the cached discovery results. Call runDiscovery() first
+// during boot. Falls back to a full bus scan if the cache is empty.
+bool hardware::i2c::findDevice(uint8_t address, DiscoveredDevice *result) {
+  if (!result) return false;
+  if (!discovery_done) runDiscovery();
+  for (size_t i = 0; i < discovery_count; i++) {
+    if (discovery_cache[i].address == address) {
+      *result = discovery_cache[i];
+      return true;
+    }
+  }
+  return false;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Tests
 // ─────────────────────────────────────────────────────────────────────────────
@@ -370,27 +454,24 @@ static void i2c_mux_test_channel_power_mapping(void) {
 static void i2c_mux_test_scan(void) {
   TEST_MESSAGE("user scans all I2C buses and mux channels");
   hardware::i2c::initialize();
+  hardware::i2c::runDiscovery();
 
-  char buf[1024];
-  hardware::i2c::ScanCommand command = {
-    .buffer = buf,
-    .capacity = sizeof(buf),
-    .length = 0,
-  };
-  TEST_ASSERT_TRUE_MESSAGE(hardware::i2c::scan(&command),
-    "device: scan failed");
-  TEST_ASSERT_GREATER_THAN_MESSAGE(0, command.length,
-    "device: scan returned empty output");
+  hardware::i2c::DiscoveredDevice devices[hardware::i2c::MAX_DISCOVERED_DEVICES];
+  size_t count = hardware::i2c::discoverAll(devices, hardware::i2c::MAX_DISCOVERED_DEVICES);
 
-  char *line = buf;
-  for (char *cursor = buf; *cursor; cursor++) {
-    if (*cursor == '\r' || *cursor == '\n') {
-      *cursor = '\0';
-      if (line[0] != '\0') TEST_MESSAGE(line);
-      line = cursor + 1;
-    }
+  TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)count, "device: no I2C devices found");
+
+  char line[80];
+  snprintf(line, sizeof(line), "%-6s  %-6s  %-4s  %s", "BUS", "ADDR", "MUX", "DEVICE");
+  TEST_MESSAGE(line);
+
+  for (size_t i = 0; i < count; i++) {
+    const char *mux = devices[i].mux_channel >= 0 ? "yes" : "-";
+    snprintf(line, sizeof(line), "%-6d  0x%02X    %-4s  %s",
+             devices[i].bus, devices[i].address, mux,
+             hardware::i2c::deviceNameAt(devices[i].address));
+    TEST_MESSAGE(line);
   }
-  if (line[0] != '\0') TEST_MESSAGE(line);
 }
 
 static void i2c_mux_test_disable_all_clears_mask(void) {

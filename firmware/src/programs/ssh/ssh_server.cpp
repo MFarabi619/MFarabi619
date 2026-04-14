@@ -4,7 +4,6 @@
 #include "../../services/identity.h"
 #include "../shell/microfetch.h"
 #include "../led.h"
-#include <ColorFormat.h>
 
 #include <Arduino.h>
 #include <LittleFS.h>
@@ -259,7 +258,7 @@ static void ssh_server_task(void *pvParameters) {
     }
 
     Serial.println(F("[ssh] client connected"));
-    LED.set(RGB_WHITE);
+    LED.set(CRGB::White);
 
     if (ssh_handle_key_exchange(session) != SSH_OK) {
       Serial.printf("[ssh] key exchange error: %s\n", ssh_get_error(session));
@@ -354,7 +353,7 @@ static void ssh_server_task(void *pvParameters) {
     ssh_free(session);
 
     Serial.println(F("[ssh] ready for next connection"));
-    LED.set(RGB_GREEN);
+    LED.set(CRGB::Green);
   }
 }
 

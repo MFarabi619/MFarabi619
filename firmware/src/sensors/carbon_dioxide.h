@@ -24,9 +24,9 @@ struct Co2Config {
 namespace sensors::carbon_dioxide {
 
 bool initialize();
-[[nodiscard]] bool accessReading(CO2SensorData *sensor_data);
+bool access(CO2SensorData *sensor_data);
 bool accessConfig(Co2Config *config);
-[[nodiscard]] bool isAvailable();
+bool isAvailable();
 bool enable();
 bool disable();
 bool configureInterval(uint16_t seconds);

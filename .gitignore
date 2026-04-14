@@ -15,7 +15,6 @@ assets/static/tui_bg.wasm
 .shellspec
 **/node_modules
 tests/env_spec.sh
-firmware/tests/test_unit
 firmware/tests/__pycache__
 learning/assembly/build/
 config/data.sqld

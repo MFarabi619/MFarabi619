@@ -189,8 +189,7 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
     float t = (float)(millis() % 1000) / 1000.0f;
     uint8_t b = (uint8_t)((sinf(t * 6.2832f) + 1.0f) * 0.5f * 200.0f) + 10;
     LED.setBrightness(b);
-    LED.setPixelColor(0, LED.Color(255, 255, 255));
-    LED.show();
+    LED.set(CRGB::White);
   }
 
   if (state && state->ok && request->_tempFile && len) {
@@ -207,7 +206,7 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
       Serial.printf("[http] upload complete (%u bytes)\n", (unsigned)(index + len));
     }
     LED.setBrightness(config::led::BRIGHTNESS);
-    LED.set(RGB_GREEN);
+    LED.set(CRGB::Green);
   }
 }
 

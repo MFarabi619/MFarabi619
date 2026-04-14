@@ -1,7 +1,6 @@
 #include "../../../networking/sntp.h"
 #include "../../../services/system.h"
 #include "../../led.h"
-#include <ColorFormat.h>
 #include "../../buttons.h"
 
 #include <Arduino.h>
@@ -102,8 +101,8 @@ static size_t led_get_data(struct ush_object *self,
                            uint8_t **data) {
   (void)self; (void)file;
   static char buf[16];
-  uint32_t color = LED.getPixelColor(0);
-  snprintf(buf, sizeof(buf), "%06lX\r\n", (unsigned long)color);
+  CRGB color = LED.getColor();
+  snprintf(buf, sizeof(buf), "%02X%02X%02X\r\n", color.r, color.g, color.b);
   *data = (uint8_t *)buf;
   return strlen(buf);
 }
@@ -121,21 +120,21 @@ static void led_set_data(struct ush_object *self,
     buf[--len] = '\0';
 
   if (strcmp(buf, "off") == 0 || strcmp(buf, "0") == 0) {
-    LED.clear(); LED.show();
+    LED.off();
   } else if (strcmp(buf, "red") == 0) {
-    LED.set(RGB_RED);
+    LED.set(CRGB::Red);
   } else if (strcmp(buf, "green") == 0 || strcmp(buf, "1") == 0) {
-    LED.set(RGB_GREEN);
+    LED.set(CRGB::Green);
   } else if (strcmp(buf, "blue") == 0) {
-    LED.set(RGB_BLUE);
+    LED.set(CRGB::Blue);
   } else if (strcmp(buf, "yellow") == 0) {
-    LED.set(RGB_YELLOW);
+    LED.set(CRGB::Yellow);
   } else if (strcmp(buf, "magenta") == 0) {
-    LED.set(RGB_MAGENTA);
+    LED.set(CRGB::Magenta);
   } else if (strcmp(buf, "cyan") == 0) {
-    LED.set(RGB_CYAN);
+    LED.set(CRGB::Cyan);
   } else if (strcmp(buf, "white") == 0) {
-    LED.set(RGB_WHITE);
+    LED.set(CRGB::White);
   }
 }
 

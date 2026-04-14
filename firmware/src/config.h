@@ -37,6 +37,7 @@ namespace config {
       inline constexpr uint8_t  GPIO       = 38;
       inline constexpr uint8_t  COUNT      = 1;
       inline constexpr uint8_t  BRIGHTNESS = 255;
+      inline constexpr uint8_t  FRAME_MS   = 20;
   }
 
   namespace system {
@@ -68,7 +69,6 @@ namespace config {
   }
 
   namespace telnet {
-      inline constexpr bool     ENABLED      = true;
       inline constexpr uint16_t PORT         = 23;
       inline constexpr uint16_t RING_SIZE    = 512;
       inline constexpr uint16_t WRITE_BUF    = 1024;
@@ -76,7 +76,6 @@ namespace config {
   }
 
   namespace ota {
-      inline constexpr bool     ENABLED     = false;
       inline constexpr uint16_t PORT        = 3232;
       inline constexpr const char* PASSWORD = "";
       inline constexpr const char* SD_PATH  = "/update.bin";
@@ -110,9 +109,9 @@ namespace config {
       inline constexpr BusConfig BUS_0            = {15, 16};
       inline constexpr BusConfig BUS_1            = {17, 18};
       inline constexpr uint32_t  FREQUENCY_KHZ    = 100;
+      inline constexpr uint16_t  POWER_SETTLE_MS  = 100;
+      inline constexpr uint16_t  DISCOVERY_SETTLE_MS = 500;
 
-      // Legacy board: a single relay on GPIO 5 powers all downstream I2C devices
-      // when no mux is present.
       inline constexpr uint8_t   LEGACY_POWER_GPIO = 5;
 
       // New board: muxed sensor power is split across two rails.
@@ -253,7 +252,6 @@ namespace config {
   }
 
   namespace provisioning {
-      inline constexpr bool        ENABLED       = false;
       inline constexpr const char* POP           = "ceratina";
       inline constexpr const char* SERVICE_UUID  = "ceaa0001-b5a3-f393-e0a9-e50e24dcca9e";
       inline constexpr const char* CONFIG_UUID   = "ceaa0002-b5a3-f393-e0a9-e50e24dcca9e";
@@ -270,17 +268,13 @@ namespace config {
   }
 
   namespace ble {
-      inline constexpr bool     ENABLED     = false;
       inline constexpr uint32_t PASSKEY     = 123456;
       inline constexpr uint8_t  MAX_CLIENTS = 2;
       inline constexpr uint16_t RING_SIZE   = 512;
       inline constexpr uint16_t WRITE_BUF   = 512;
   }
 
-  namespace smtp { // ──(Email)──
-      // Edit these values directly.
-      // Password is stored in NVS (key below).
-      inline constexpr bool        ENABLED          = false;
+  namespace smtp {
       inline constexpr uint16_t    PORT             = 587;
       inline constexpr const char* HOST             = "";
       inline constexpr const char* DOMAIN           = "";
@@ -306,7 +300,7 @@ namespace config {
 //  Compile-time config validation
 // ─────────────────────────────────────────────────────────────────────────────
 
-static_assert(config::led::GPIO < 48, "Invalid neopixel GPIO");
+static_assert(config::led::GPIO < 48, "Invalid LED GPIO");
 static_assert(config::ssh::PORT > 0, "Invalid SSH port");
 static_assert(config::http::PORT > 0, "Invalid HTTP port");
 static_assert(config::telnet::PORT > 0, "Invalid telnet port");

@@ -4,10 +4,10 @@
 
 namespace boot::provisioning {
 
-[[nodiscard]] bool isEnabled(void);
+bool isEnabled(void);
 
 void start(void);
-[[nodiscard]] bool isProvisioned(void);
+bool isProvisioned(void);
 void reset(void);
 
 #ifdef PIO_UNIT_TESTING

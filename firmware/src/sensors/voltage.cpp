@@ -113,7 +113,7 @@ bool sensors::voltage::initialize() {
   return ready;
 }
 
-bool sensors::voltage::isReady() {
+bool sensors::voltage::isAvailable() {
   return ready;
 }
 
@@ -177,7 +177,7 @@ static void voltage_test_initializes(void) {
 static void voltage_test_reads_channels(void) {
   TEST_MESSAGE("user reads all 4 voltage channels");
 
-  if (!sensors::voltage::isReady()) {
+  if (!sensors::voltage::isAvailable()) {
     TEST_IGNORE_MESSAGE("ADS1115 not available — skipping");
     return;
   }
@@ -201,7 +201,7 @@ static void voltage_test_reads_channels(void) {
 static void voltage_test_gain_label(void) {
   TEST_MESSAGE("user checks the configured gain label");
 
-  if (!sensors::voltage::isReady()) {
+  if (!sensors::voltage::isAvailable()) {
     TEST_IGNORE_MESSAGE("ADS1115 not available — skipping");
     return;
   }

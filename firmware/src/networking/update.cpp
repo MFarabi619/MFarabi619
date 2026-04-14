@@ -1,7 +1,6 @@
 #include "update.h"
 #include "../hardware/storage.h"
 #include "../programs/led.h"
-#include <ColorFormat.h>
 
 #include <Arduino.h>
 #include <Update.h>
@@ -38,7 +37,7 @@ bool networking::update::applyFromSD(const char *path) {
   }
 
   Serial.printf("[update] found %s (%u bytes)\n", path, (unsigned)size);
-  LED.set(RGB_MAGENTA);
+  LED.set(CRGB::Magenta);
 
   String md5_path = String(path) + ".md5";
   if (SD.exists(md5_path)) {
@@ -89,7 +88,7 @@ bool networking::update::applyFromURL(const char *url, const char *cert_pem) {
   }
 
   Serial.printf("[update] fetching %s\n", url);
-  LED.set(RGB_MAGENTA);
+  LED.set(CRGB::Magenta);
 
   WiFiClientSecure client;
   if (cert_pem) {

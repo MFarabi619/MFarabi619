@@ -1,26 +1,26 @@
 #pragma once
 
-#include <Adafruit_NeoPixel.h>
-#include <ColorFormat.h>
+#include <FastLED.h>
 
-class Led : public Adafruit_NeoPixel {
-    using Adafruit_NeoPixel::Adafruit_NeoPixel;
+class Led {
+    CRGB pixel[1];
 public:
     bool init();
-
-    void set(const espRgbColor_t& c) {
-        setPixelColor(0, Color(c.r, c.g, c.b));
-        show();
-    }
-
-    void set(uint8_t r, uint8_t g, uint8_t b) {
-        setPixelColor(0, Color(r, g, b));
-        show();
-    }
-
+    void set(const CRGB &color);
+    void set(uint8_t r, uint8_t g, uint8_t b);
+    void setHSV(uint8_t hue, uint8_t saturation, uint8_t value);
+    void off();
+    void fadeIn(const CRGB &color, uint32_t duration_ms);
+    void fadeOut(const CRGB &color, uint32_t duration_ms);
     void glow(uint32_t duration_ms);
-    void fadeIn(uint8_t r, uint8_t g, uint8_t b, uint32_t duration_ms);
-    void fadeOut(uint8_t r, uint8_t g, uint8_t b, uint32_t duration_ms);
+
+    void setBrightness(uint8_t b);
+    uint8_t getBrightness();
+    CRGB getColor();
 };
 
 extern Led LED;
+
+#ifdef PIO_UNIT_TESTING
+namespace programs::led { void test(); }
+#endif

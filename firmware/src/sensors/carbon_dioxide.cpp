@@ -13,92 +13,82 @@ static SensirionI2cScd4x scd4x;
 static Co2Backend backend = CO2_NONE;
 static bool initialized = false;
 static bool measuring = false;
-#define CO2_MAX_PROBE_ATTEMPTS 3
+
+constexpr uint8_t MAX_PROBE_ATTEMPTS = 3;
+constexpr uint16_t SCD30_RESET_MS = 2000;
+constexpr uint16_t SCD4X_STOP_MEASUREMENT_MS = 500;
+constexpr uint8_t SCD4X_COMMAND_MS = 30;
+
 static uint8_t probe_attempts = 0;
-static config::I2CSensorConfig scd30_config = {config::I2CSensorKind::CarbonDioxideSCD30, 1, 0x61, config::i2c::DIRECT_CHANNEL};
-static config::I2CSensorConfig scd4x_config = {config::I2CSensorKind::CarbonDioxideSCD4X, 1, 0x62, config::i2c::DIRECT_CHANNEL};
 
-namespace {
+static bool try_scd30_on(uint8_t bus, uint8_t address) {
+  hardware::i2c::DeviceAccessCommand cmd = {};
+  cmd.bus = bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1;
+  cmd.mux_channel = config::i2c::DIRECT_CHANNEL;
+  if (!hardware::i2c::accessDevice(&cmd)) return false;
 
-bool load_configs(void) {
-  bool found_scd30 = false;
-  bool found_scd4x = false;
-
-  for (size_t index = 0; index < config::i2c_topology::DEVICE_COUNT; index++) {
-    const config::I2CSensorConfig &sensor_config = config::i2c_topology::DEVICES[index];
-    if (sensor_config.kind == config::I2CSensorKind::CarbonDioxideSCD30) {
-      scd30_config = sensor_config;
-      found_scd30 = true;
-    } else if (sensor_config.kind == config::I2CSensorKind::CarbonDioxideSCD4X) {
-      scd4x_config = sensor_config;
-      found_scd4x = true;
-    }
+  scd30.begin(*cmd.wire, address);
+  uint8_t major, minor;
+  if (scd30.readFirmwareVersion(major, minor) != 0) {
+    hardware::i2c::clearSelection();
+    return false;
   }
-
-  return found_scd30 || found_scd4x;
+  scd30.softReset();
+  delay(SCD30_RESET_MS);
+  if (scd30.startPeriodicMeasurement(0) != 0) {
+    hardware::i2c::clearSelection();
+    return false;
+  }
+  hardware::i2c::clearSelection();
+  Serial.printf("[co2] SCD30 detected on bus %d (fw %d.%d)\n", bus, major, minor);
+  return true;
 }
 
-bool access_i2c_device(const config::I2CSensorConfig &sensor_config,
-                       hardware::i2c::DeviceAccessCommand *command) {
-  if (!command) return false;
-  command->bus = sensor_config.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1;
-  command->mux_channel = sensor_config.mux_channel;
-  command->wire = nullptr;
-  command->ok = false;
-  return hardware::i2c::accessDevice(command);
-}
+static bool try_scd4x_on(uint8_t bus, uint8_t address) {
+  hardware::i2c::DeviceAccessCommand cmd = {};
+  cmd.bus = bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1;
+  cmd.mux_channel = config::i2c::DIRECT_CHANNEL;
+  if (!hardware::i2c::accessDevice(&cmd)) return false;
 
+  scd4x.begin(*cmd.wire, address);
+  scd4x.wakeUp();
+  delay(SCD4X_COMMAND_MS);
+  scd4x.stopPeriodicMeasurement();
+  delay(SCD4X_STOP_MEASUREMENT_MS);
+  scd4x.reinit();
+  delay(SCD4X_COMMAND_MS);
+
+  uint64_t serialNumber = 0;
+  if (scd4x.getSerialNumber(serialNumber) != 0) {
+    hardware::i2c::clearSelection();
+    return false;
+  }
+  if (scd4x.startPeriodicMeasurement() != 0) {
+    hardware::i2c::clearSelection();
+    return false;
+  }
+  hardware::i2c::clearSelection();
+  Serial.printf("[co2] SCD4x detected on bus %d (serial 0x%08lX%08lX)\n",
+                bus, (uint32_t)(serialNumber >> 32), (uint32_t)(serialNumber & 0xFFFFFFFF));
+  return true;
 }
 
 bool sensors::carbon_dioxide::initialize() {
-  if (!load_configs()) {
-    backend = CO2_NONE;
-    return false;
-  }
-
   initialized = true;
   backend = CO2_NONE;
 
-  hardware::i2c::DeviceAccessCommand scd30_device = {};
-  if (access_i2c_device(scd30_config, &scd30_device)) {
-    scd30.begin(*scd30_device.wire, scd30_config.address);
+  hardware::i2c::DiscoveredDevice dev = {};
 
-    uint8_t major, minor;
-    if (scd30.readFirmwareVersion(major, minor) == 0) {
-      scd30.softReset();
-      delay(2000);
-      if (scd30.startPeriodicMeasurement(0) == 0) {
-        backend = CO2_SCD30;
-        measuring = true;
-        hardware::i2c::clearSelection();
-        Serial.printf("[co2] SCD30 detected (fw %d.%d)\n", major, minor);
-        return true;
-      }
-    }
-    hardware::i2c::clearSelection();
+  if (hardware::i2c::findDevice(0x61, &dev) && try_scd30_on(dev.bus, dev.address)) {
+    backend = CO2_SCD30;
+    measuring = true;
+    return true;
   }
 
-  hardware::i2c::DeviceAccessCommand scd4x_device = {};
-  if (access_i2c_device(scd4x_config, &scd4x_device)) {
-    scd4x.begin(*scd4x_device.wire, scd4x_config.address);
-
-    scd4x.wakeUp();
-    scd4x.stopPeriodicMeasurement();
-    delay(500);
-    scd4x.reinit();
-    delay(30);
-    uint64_t serialNumber = 0;
-    if (scd4x.getSerialNumber(serialNumber) == 0) {
-      if (scd4x.startPeriodicMeasurement() == 0) {
-        backend = CO2_SCD4X;
-        measuring = true;
-        hardware::i2c::clearSelection();
-        Serial.printf("[co2] SCD4x detected (serial 0x%08lX%08lX)\n",
-                      (uint32_t)(serialNumber >> 32), (uint32_t)(serialNumber & 0xFFFFFFFF));
-        return true;
-      }
-    }
-    hardware::i2c::clearSelection();
+  if (hardware::i2c::findDevice(0x62, &dev) && try_scd4x_on(dev.bus, dev.address)) {
+    backend = CO2_SCD4X;
+    measuring = true;
+    return true;
   }
 
   if (probe_attempts == 0) {
@@ -108,11 +98,11 @@ bool sensors::carbon_dioxide::initialize() {
   return false;
 }
 
-bool sensors::carbon_dioxide::accessReading(CO2SensorData *sensor_data) {
+bool sensors::carbon_dioxide::access(CO2SensorData *sensor_data) {
   if (!sensor_data) return false;
 
   if (backend == CO2_NONE) {
-    if (probe_attempts >= CO2_MAX_PROBE_ATTEMPTS) {
+    if (probe_attempts >= MAX_PROBE_ATTEMPTS) {
       sensor_data->ok = false;
       sensor_data->model = "none";
       return false;
@@ -281,7 +271,7 @@ static void co2_test_read(void) {
   }
   delay(6000);
   CO2SensorData sensor_data = {};
-  bool ok = sensors::carbon_dioxide::accessReading(&sensor_data);
+  bool ok = sensors::carbon_dioxide::access(&sensor_data);
   if (!ok) {
     TEST_IGNORE_MESSAGE("read not ready yet");
     return;

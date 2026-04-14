@@ -38,6 +38,7 @@ bool ensure_header() {
   for (uint8_t i = 0; i < config::voltage::CHANNEL_COUNT; i++)
     file.printf(",voltage_channel_%u", i);
   file.print(",co2_ppm_0,co2_temperature_celsius_0,co2_relative_humidity_percent_0");
+  file.print(",pressure_hpa_0,pressure_temperature_celsius_0");
   file.print(",wind_speed_kmh_0,wind_direction_degrees_0");
   file.println();
   file.close();
@@ -107,6 +108,13 @@ void append_row() {
   if (co2_ok) write_float_field(file, co2.temperature_celsius);
   file.print(',');
   if (co2_ok) write_float_field(file, co2.relative_humidity_percent);
+
+  BarometricPressureSensorData pressure = {};
+  bool pressure_ok = sensors::manager::accessBarometricPressure(&pressure);
+  file.print(',');
+  if (pressure_ok) write_float_field(file, pressure.pressure_hpa);
+  file.print(',');
+  if (pressure_ok) write_float_field(file, pressure.temperature_celsius);
 
   file.print(',');
   if (wind_speed_ok) write_float_field(file, wind_speed.kilometers_per_hour);

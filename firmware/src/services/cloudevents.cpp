@@ -201,6 +201,19 @@ static void append_solar_radiation_event(JsonArray events, uint16_t sequence,
   data["watts_per_square_meter"] = sensor_data.watts_per_square_meter;
 }
 
+static void append_barometric_pressure_event(JsonArray events, uint16_t sequence,
+                                              const String &source, const String &time_iso) {
+  BarometricPressureSensorData sensor_data = {};
+  if (!sensors::manager::accessBarometricPressure(&sensor_data) || !sensor_data.ok) return;
+
+  JsonObject event = cloudevents_add_event(events, sequence, source,
+                                           "sensors.barometric_pressure.v1", time_iso);
+  JsonObject data = event["data"].to<JsonObject>();
+  data["model"] = sensor_data.model;
+  data["pressure_hpa"] = sensor_data.pressure_hpa;
+  data["temperature_celsius"] = sensor_data.temperature_celsius;
+}
+
 static void append_current_event(JsonArray events, uint16_t sequence,
                                  const String &source, const String &time_iso) {
   CurrentSensorData sensor_data = {};
@@ -273,6 +286,7 @@ static void handle_cloudevents_get(AsyncWebServerRequest *request) {
   append_wind_speed_event(events, sequence++, source, time_iso);
   append_wind_direction_event(events, sequence++, source, time_iso);
   append_solar_radiation_event(events, sequence++, source, time_iso);
+  append_barometric_pressure_event(events, sequence++, source, time_iso);
   append_current_event(events, sequence++, source, time_iso);
   append_soil_event(events, sequence++, source, time_iso);
 

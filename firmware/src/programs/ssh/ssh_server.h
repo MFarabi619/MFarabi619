@@ -8,7 +8,7 @@ struct ush_object;
 namespace services::sshd {
 
 bool initialize();
-[[nodiscard]] bool requestExit(struct ush_object *self);
+bool requestExit(struct ush_object *self);
 
 #ifdef PIO_UNIT_TESTING
 void test();

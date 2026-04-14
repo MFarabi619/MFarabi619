@@ -7,8 +7,8 @@ namespace networking::telnet {
 
 void initialize();
 void service();
-[[nodiscard]] bool isConnected();
-[[nodiscard]] const char *clientIP();
+bool isConnected();
+const char *clientIP();
 void disconnect();
 
 } // namespace networking::telnet

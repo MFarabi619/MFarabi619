@@ -17,7 +17,7 @@ struct CurrentSensorData {
 namespace sensors::current {
 
 bool initialize();
-bool isReady();
+bool isAvailable();
 bool access(CurrentSensorData *sensor_data);
 
 #ifdef PIO_UNIT_TESTING
