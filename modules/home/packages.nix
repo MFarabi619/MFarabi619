@@ -8,6 +8,7 @@
     packages =
       with pkgs;
       [
+        socat
         godot
         delve
         bashdb
