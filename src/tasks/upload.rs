@@ -37,7 +37,8 @@ impl Task for Upload {
             "espflash",
             &[
                 "save-image",
-                "--chip", &firmware.chip,
+                "--chip",
+                &firmware.chip,
                 &elf_path,
                 &ota_image_path,
             ],
@@ -46,7 +47,10 @@ impl Task for Upload {
         let ota_image = Path::new(&ota_image_path);
         if !ota_image.exists() {
             error(&format!("OTA image not found at {}", ota_image_path));
-            return Err(Error::Message(format!("OTA image not found at {}", ota_image_path)));
+            return Err(Error::Message(format!(
+                "OTA image not found at {}",
+                ota_image_path
+            )));
         }
 
         let binary = std::fs::read(ota_image).expect("Failed to read firmware file");
@@ -81,10 +85,16 @@ impl Task for Upload {
         };
 
         step(4, 4, "send OTA image");
-        stream.set_read_timeout(Some(Duration::from_secs(10))).expect("set timeout");
+        stream
+            .set_read_timeout(Some(Duration::from_secs(10)))
+            .expect("set timeout");
 
-        stream.write_all(&(binary.len() as u32).to_le_bytes()).expect("send size");
-        stream.write_all(&binary_crc.to_le_bytes()).expect("send CRC");
+        stream
+            .write_all(&(binary.len() as u32).to_le_bytes())
+            .expect("send size");
+        stream
+            .write_all(&binary_crc.to_le_bytes())
+            .expect("send CRC");
 
         let mut preflight = [0u8; 1];
         stream.read_exact(&mut preflight).expect("read preflight");
@@ -92,10 +102,14 @@ impl Task for Upload {
         match preflight[0] {
             OTA_STATUS_READY => info("device preflight OK, streaming payload..."),
             OTA_STATUS_BEGIN_FAILED => {
-                return Err(Error::Message("device rejected OTA (ota_begin failed)".into()));
+                return Err(Error::Message(
+                    "device rejected OTA (ota_begin failed)".into(),
+                ));
             }
             code => {
-                return Err(Error::Message(format!("unexpected preflight status: 0x{code:02x}")));
+                return Err(Error::Message(format!(
+                    "unexpected preflight status: 0x{code:02x}"
+                )));
             }
         }
 
@@ -109,7 +123,13 @@ impl Task for Upload {
             sent_bytes += chunk.len();
             let percent = (sent_bytes * 100) / binary.len();
             if percent >= last_percent + 5 || percent == 100 {
-                print!("\r  {:>3}% ({}/{} bytes) chunk {}", percent, sent_bytes, binary.len(), index + 1);
+                print!(
+                    "\r  {:>3}% ({}/{} bytes) chunk {}",
+                    percent,
+                    sent_bytes,
+                    binary.len(),
+                    index + 1
+                );
                 std::io::stdout().flush().unwrap();
                 last_percent = percent;
             }

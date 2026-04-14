@@ -16,8 +16,7 @@ use std::path::Path;
 
 #[allow(unused_imports)]
 use crate::{
-    controllers, initializers, models::_entities::users, tasks,
-    workers::downloader::DownloadWorker,
+    controllers, initializers, models::_entities::users, tasks, workers::downloader::DownloadWorker,
 };
 
 pub struct App;
@@ -101,6 +100,7 @@ impl Hooks for App {
     #[allow(unused_variables)]
     fn register_tasks(tasks: &mut Tasks) {
         tasks.register(tasks::upload::Upload);
+        tasks.register(tasks::ve_direct::VeDirect);
     }
     async fn truncate(ctx: &AppContext) -> Result<()> {
         truncate_table(&ctx.db, users::Entity).await?;
