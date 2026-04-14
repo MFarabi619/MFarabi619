@@ -14,6 +14,7 @@
 #include <libssh/server.h>
 
 #include <atomic>
+#include <freertos/event_groups.h>
 #include <microshell.h>
 #include <sys/reent.h>
 #include <string.h>
@@ -38,6 +39,11 @@ static String ssh_hostkey_vfs(void) {
 static ssh_channel active_chan = nullptr;
 static std::atomic<bool> shell_requested = false;
 static std::atomic<bool> session_alive = true;
+
+static EventGroupHandle_t ssh_events = nullptr;
+constexpr EventBits_t SSH_BIT_CHANNEL_OPEN  = (1 << 0);
+constexpr EventBits_t SSH_BIT_SHELL_REQUEST = (1 << 1);
+constexpr EventBits_t SSH_BIT_SESSION_DEAD  = (1 << 2);
 
 //------------------------------------------
 //  Ring buffer (SSH channel → MicroShell)
@@ -125,6 +131,7 @@ static ssh_channel on_channel_open(ssh_session session, void *userdata) {
   (void)userdata;
   active_chan = ssh_channel_new(session);
   Serial.println(F("[ssh] channel opened"));
+  if (ssh_events) xEventGroupSetBits(ssh_events, SSH_BIT_CHANNEL_OPEN);
   return active_chan;
 }
 
@@ -139,6 +146,7 @@ static int on_channel_data(ssh_session session, ssh_channel channel,
   for (uint32_t i = 0; i < len; i++) {
     if (bytes[i] == '\x04') {  // Ctrl+D
       session_alive.store(false, std::memory_order_release);
+      if (ssh_events) xEventGroupSetBits(ssh_events, SSH_BIT_SESSION_DEAD);
       return len;
     }
     programs::shell::session::push(&ssh_ring_state, bytes[i]);
@@ -160,6 +168,7 @@ static int on_shell_request(ssh_session session, ssh_channel channel,
   (void)session; (void)channel; (void)userdata;
   Serial.println(F("[ssh] shell requested"));
   shell_requested.store(true, std::memory_order_release);
+  if (ssh_events) xEventGroupSetBits(ssh_events, SSH_BIT_SHELL_REQUEST);
   return 0;  // accept
 }
 
@@ -167,12 +176,14 @@ static void on_channel_eof(ssh_session session, ssh_channel channel,
                            void *userdata) {
   (void)session; (void)channel; (void)userdata;
   session_alive.store(false, std::memory_order_release);
+  if (ssh_events) xEventGroupSetBits(ssh_events, SSH_BIT_SESSION_DEAD);
 }
 
 static void on_channel_close(ssh_session session, ssh_channel channel,
                              void *userdata) {
   (void)session; (void)channel; (void)userdata;
   session_alive.store(false, std::memory_order_release);
+  if (ssh_events) xEventGroupSetBits(ssh_events, SSH_BIT_SESSION_DEAD);
 }
 
 //------------------------------------------
@@ -258,7 +269,7 @@ static void ssh_server_task(void *pvParameters) {
     }
 
     Serial.println(F("[ssh] client connected"));
-    LED.set(CRGB::White);
+    LED.set(colors::White);
 
     if (ssh_handle_key_exchange(session) != SSH_OK) {
       Serial.printf("[ssh] key exchange error: %s\n", ssh_get_error(session));
@@ -284,6 +295,9 @@ static void ssh_server_task(void *pvParameters) {
     shell_requested.store(false, std::memory_order_relaxed);
     session_alive.store(true, std::memory_order_relaxed);
 
+    if (!ssh_events) ssh_events = xEventGroupCreate();
+    xEventGroupClearBits(ssh_events, 0xFF);
+
     // Channel callbacks — registered once when channel opens
     struct ssh_channel_callbacks_struct channel_cb = {};
     channel_cb.userdata = nullptr;
@@ -295,7 +309,9 @@ static void ssh_server_task(void *pvParameters) {
     ssh_callbacks_init(&channel_cb);
     bool channel_cb_registered = false;
 
-    // Phase 1: Wait for auth + channel + shell request (tight poll)
+    constexpr EventBits_t SSH_WAKE = SSH_BIT_CHANNEL_OPEN | SSH_BIT_SHELL_REQUEST | SSH_BIT_SESSION_DEAD;
+
+    // Phase 1: Wait for auth + channel + shell request
     while (session_alive.load(std::memory_order_acquire) &&
            (!active_chan || !shell_requested.load(std::memory_order_acquire))) {
       ssh_event_dopoll(event, 0);
@@ -309,7 +325,7 @@ static void ssh_server_task(void *pvParameters) {
         channel_cb_registered = true;
       }
 
-      vTaskDelay(pdMS_TO_TICKS(1));
+      xEventGroupWaitBits(ssh_events, SSH_WAKE, pdFALSE, pdFALSE, pdMS_TO_TICKS(50));
     }
 
     if (!session_alive.load(std::memory_order_acquire) ||
@@ -353,7 +369,7 @@ static void ssh_server_task(void *pvParameters) {
     ssh_free(session);
 
     Serial.println(F("[ssh] ready for next connection"));
-    LED.set(CRGB::Green);
+    LED.set(colors::Green);
   }
 }
 

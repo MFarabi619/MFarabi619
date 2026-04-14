@@ -1,4 +1,5 @@
 #include "current.h"
+#include "registry.h"
 
 #include "../config.h"
 #include "../hardware/i2c.h"
@@ -89,6 +90,18 @@ bool sensors::current::initialize() {
                     config::current::MAX_EXPECTED_CURRENT_A);
     Serial.printf("[current] INA228 at 0x%02X on bus %d\n",
                   sensor_config.address, sensor_config.bus);
+
+    sensors::registry::add({
+        .kind = SensorKind::Current,
+        .name = "Current",
+        .isAvailable = sensors::current::isAvailable,
+        .instanceCount = []() -> uint8_t { return 1; },
+        .poll = [](uint8_t, void *out, size_t cap) -> bool {
+            if (cap < sizeof(CurrentSensorData)) return false;
+            return sensors::current::access(static_cast<CurrentSensorData *>(out));
+        },
+        .data_size = sizeof(CurrentSensorData),
+    });
   }
 
   hardware::i2c::clearSelection();

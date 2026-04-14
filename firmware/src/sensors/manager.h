@@ -26,7 +26,6 @@ struct SensorInventorySnapshot {
 namespace sensors::manager {
 
 void initialize();
-void service();
 bool accessInventory(SensorInventorySnapshot *snapshot);
 bool accessCO2(CO2SensorData *sensor_data);
 bool accessVoltage(VoltageSensorData *sensor_data);

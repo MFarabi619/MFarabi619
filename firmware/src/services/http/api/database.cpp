@@ -1,4 +1,4 @@
-#include "database.h"
+#include "api.h"
 
 #include <sqlite.h>
 #include <AsyncJson.h>
@@ -44,7 +44,7 @@ void handle_status(AsyncWebServerRequest *request) {
 
 void handle_tables(AsyncWebServerRequest *request) {
   if (!programs::sqlite::isOpen()) {
-    request->send(400, "application/json", "{\"ok\":false,\"error\":\"not open\"}");
+    request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"not open\"}");
     return;
   }
 
@@ -82,7 +82,7 @@ void services::http::api::database::registerRoutes(AsyncWebServer &server) {
   server.on("/api/database/close", HTTP_POST,
       [](AsyncWebServerRequest *request) {
     programs::sqlite::close();
-    request->send(200, "application/json", "{\"ok\":true}");
+    request->send(200, asyncsrv::T_application_json, "{\"ok\":true}");
   });
 
   AsyncCallbackJsonWebHandler &open_handler =
@@ -109,14 +109,14 @@ void services::http::api::database::registerRoutes(AsyncWebServer &server) {
       server.on("/api/database/exec", HTTP_POST,
           [](AsyncWebServerRequest *request, JsonVariant &json) {
     if (!programs::sqlite::isOpen()) {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"not open\"}");
+      request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"not open\"}");
       return;
     }
 
     JsonObject body = json.as<JsonObject>();
     const char *sql = body["sql"] | (const char *)nullptr;
     if (!sql || sql[0] == '\0') {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"missing sql\"}");
+      request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"missing sql\"}");
       return;
     }
 

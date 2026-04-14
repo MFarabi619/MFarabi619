@@ -6,7 +6,6 @@
 #include <Arduino.h>
 #include <ESPmDNS.h>
 #include <WiFi.h>
-#include <ColorFormat.h>
 
 void networking::wifi::internal::configureMdnsServices(const char *hostname) {
   MDNS.setInstanceName(hostname);
@@ -35,13 +34,13 @@ void networking::wifi::sta::initialize() {
                       WiFi.eventName(event),
                       WiFi.disconnectReasonName(
                           (wifi_err_reason_t)info.wifi_sta_disconnected.reason));
-        LED.set(RGB_YELLOW);
+        LED.set(colors::Yellow);
         break;
 
       case ARDUINO_EVENT_WIFI_STA_GOT_IP:
         Serial.printf("[wifi] %s %s\n", WiFi.eventName(event),
                       WiFi.localIP().toString().c_str());
-        LED.set(RGB_GREEN);
+        LED.set(colors::Green);
         if (!networking::wifi::internal::mdns_started && MDNS.begin(services::identity::accessHostname())) {
           networking::wifi::internal::configureMdnsServices(services::identity::accessHostname());
           Serial.printf("[mdns] %s.local\n", services::identity::accessHostname());

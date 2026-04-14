@@ -1,6 +1,7 @@
-#include "system.h"
+#include "api.h"
 #include "../../../config.h"
 #include "../../../services/system.h"
+#include "../../../services/http.h"
 #include "../../../networking/update.h"
 
 #include <Arduino.h>
@@ -101,12 +102,16 @@ void handle_device_status(AsyncWebServerRequest *request) {
   storage["used_bytes"] = query.snapshot.storage.used_bytes;
   storage["free_bytes"] = query.snapshot.storage.free_bytes;
 
+  JsonObject sse = data["sse"].to<JsonObject>();
+  sse["clients"] = services::http::sseClientCount();
+  sse["avg_packets_waiting"] = services::http::sseAvgPacketsWaiting();
+
   response->setLength();
   request->send(response);
 }
 
 void handle_device_reset(AsyncWebServerRequest *request) {
-  request->send(200, "application/json", "{\"ok\":true,\"message\":\"rebooting\"}");
+  request->send(200, asyncsrv::T_application_json, "{\"ok\":true,\"message\":\"rebooting\"}");
   xTaskCreate(
       [](void *arg) {
         (void)arg;
@@ -119,7 +124,7 @@ void handle_device_reset(AsyncWebServerRequest *request) {
 void handle_sleep_config_get(AsyncWebServerRequest *request) {
   SleepConfig config = {};
   if (!power::sleep::accessConfig(&config)) {
-    request->send(500, "application/json", "{\"ok\":false,\"error\":\"sleep config unavailable\"}");
+    request->send(500, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"sleep config unavailable\"}");
     return;
   }
 
@@ -138,7 +143,7 @@ void handle_sleep_config_get(AsyncWebServerRequest *request) {
 void services::http::api::system::registerRoutes(AsyncWebServer &server,
                                                  AsyncRateLimitMiddleware &reset_limit,
                                                  AsyncRateLimitMiddleware &ota_limit) {
-  server.on("/api/system/device/status", HTTP_GET, handle_device_status);
+  server.on("/api/system/device/status", HTTP_GET, handle_device_status).skipServerMiddlewares();
   server.on("/api/system/device/actions/reset", HTTP_POST, handle_device_reset)
     .addMiddleware(&reset_limit);
   server.on("/api/system/sleep/config", HTTP_GET, handle_sleep_config_get);
@@ -148,7 +153,7 @@ void services::http::api::system::registerRoutes(AsyncWebServer &server,
           [](AsyncWebServerRequest *request, JsonVariant &json) {
     SleepConfig config = {};
     if (!power::sleep::accessConfig(&config)) {
-      request->send(500, "application/json", "{\"ok\":false,\"error\":\"sleep config unavailable\"}");
+      request->send(500, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"sleep config unavailable\"}");
       return;
     }
 
@@ -157,7 +162,7 @@ void services::http::api::system::registerRoutes(AsyncWebServer &server,
     config.duration_seconds = body["duration_seconds"] | config.duration_seconds;
 
     if (!power::sleep::storeConfig(&config)) {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid sleep config\"}");
+      request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"invalid sleep config\"}");
       return;
     }
 
@@ -180,7 +185,7 @@ void services::http::api::system::registerRoutes(AsyncWebServer &server,
             [](AsyncWebServerRequest *request) {
     SleepConfig config = {};
     if (!power::sleep::accessConfig(&config) || config.duration_seconds == 0) {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"no sleep duration configured\"}");
+      request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"no sleep duration configured\"}");
       return;
     }
 
@@ -222,11 +227,11 @@ void services::http::api::system::registerRoutes(AsyncWebServer &server,
     JsonObject body = json.as<JsonObject>();
     String url = body["url"] | "";
     if (url.isEmpty()) {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"missing url\"}");
+      request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"missing url\"}");
       return;
     }
 
-    request->send(200, "application/json", "{\"ok\":true,\"message\":\"update started\"}");
+    request->send(200, asyncsrv::T_application_json, "{\"ok\":true,\"message\":\"update started\"}");
 
     String url_copy = url;
     xTaskCreate([](void *arg) {
@@ -246,13 +251,28 @@ void services::http::api::system::registerRoutes(AsyncWebServer &server,
 
   server.on("/api/system/ota/sd", HTTP_POST,
             [](AsyncWebServerRequest *request) {
-    bool ok = ::networking::update::applyFromSD();
-    if (ok) {
-      request->send(200, "application/json", "{\"ok\":true,\"message\":\"rebooting\"}");
-      delay(500);
-      ESP.restart();
-    } else {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"no update.bin on SD\"}");
-    }
+    AsyncWebServerRequestPtr weak = request->pause();
+
+    xTaskCreate([](void *arg) {
+      AsyncWebServerRequestPtr *wp = (AsyncWebServerRequestPtr *)arg;
+      bool ok = ::networking::update::applyFromSD();
+
+      auto request = wp->lock();
+      delete wp;
+      if (request) {
+        if (ok) {
+          request->send(200, asyncsrv::T_application_json,
+                        "{\"ok\":true,\"message\":\"rebooting\"}");
+        } else {
+          request->send(400, asyncsrv::T_application_json,
+                        "{\"ok\":false,\"error\":\"no update.bin on SD\"}");
+        }
+      }
+      if (ok) {
+        delay(500);
+        ESP.restart();
+      }
+      vTaskDelete(nullptr);
+    }, "ota-sd", 8192, new AsyncWebServerRequestPtr(weak), 1, nullptr);
   }).addMiddleware(&ota_limit);
 }

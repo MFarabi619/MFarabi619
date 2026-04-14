@@ -8,6 +8,7 @@
 
 #include <Arduino.h>
 #include <SD.h>
+#include <freertos/timers.h>
 
 namespace {
 
@@ -127,9 +128,26 @@ void append_row() {
 
 }
 
+namespace {
+
+TimerHandle_t log_timer = nullptr;
+
+void log_timer_callback(TimerHandle_t) {
+  if (!initialized) {
+    initialized = ensure_header();
+    if (!initialized) return;
+  }
+  append_row();
+}
+
+}
+
 void services::data_logger::initialize() {
   initialized = ensure_header();
-  last_log_ms = millis();
+
+  log_timer = xTimerCreate("data-log", pdMS_TO_TICKS(config::data_logger::LOG_INTERVAL_MS),
+                            pdTRUE, nullptr, log_timer_callback);
+  xTimerStart(log_timer, 0);
 }
 
 void services::data_logger::flushNow() {
@@ -137,17 +155,6 @@ void services::data_logger::flushNow() {
     initialized = ensure_header();
     if (!initialized) return;
   }
-  last_log_ms = millis();
-  append_row();
-}
-
-void services::data_logger::service() {
-  if (!initialized) {
-    initialized = ensure_header();
-    if (!initialized) return;
-  }
-  if (millis() - last_log_ms < config::data_logger::LOG_INTERVAL_MS) return;
-  last_log_ms = millis();
   append_row();
 }
 

@@ -1,7 +1,7 @@
 #ifndef SERVICES_CLOUDEVENTS_H
 #define SERVICES_CLOUDEVENTS_H
 
-#include <ESPAsyncWebServer.h>
+class AsyncWebServer;
 
 namespace services::cloudevents {
 
@@ -13,4 +13,4 @@ void test(void);
 
 }
 
-#endif // SERVICES_CLOUDEVENTS_H
+#endif

@@ -1,7 +1,9 @@
 #include "voltage.h"
+#include "registry.h"
 #include "../config.h"
 #include "../hardware/i2c.h"
 
+#include <Adafruit_ADS1X15.h>
 #include <Arduino.h>
 
 static bool ready = false;
@@ -13,7 +15,7 @@ static config::I2CSensorConfig resolved_config = {
 };
 static int8_t resolved_mux_channel = config::i2c::DIRECT_CHANNEL;
 
-Adafruit_ADS1115 sensors::voltage::ADC;
+static Adafruit_ADS1115 adc;
 
 namespace {
 
@@ -38,7 +40,7 @@ bool probe_device(const config::I2CSensorConfig &sensor_config, int8_t mux_chann
   };
   if (!hardware::i2c::accessDevice(&command)) return false;
 
-  bool ok = sensors::voltage::ADC.begin(sensor_config.address, command.wire);
+  bool ok = adc.begin(sensor_config.address, command.wire);
   hardware::i2c::clearSelection();
   return ok;
 }
@@ -106,7 +108,19 @@ bool sensors::voltage::initialize() {
     resolved_config.bus = sensor_config.bus;
     resolved_config.address = sensor_config.address;
     resolved_config.mux_channel = sensor_config.mux_channel;
-    ADC.setGain(GAIN_TWO);
+    adc.setGain(GAIN_TWO);
+
+    sensors::registry::add({
+        .kind = SensorKind::Voltage,
+        .name = "Voltage",
+        .isAvailable = sensors::voltage::isAvailable,
+        .instanceCount = []() -> uint8_t { return 1; },
+        .poll = [](uint8_t, void *out, size_t cap) -> bool {
+            if (cap < sizeof(VoltageSensorData)) return false;
+            return sensors::voltage::access(static_cast<VoltageSensorData *>(out));
+        },
+        .data_size = sizeof(VoltageSensorData),
+    });
   }
 
   hardware::i2c::clearSelection();
@@ -120,7 +134,7 @@ bool sensors::voltage::isAvailable() {
 const char *sensors::voltage::accessGainLabel() {
   if (!ready) return "NOT_READY";
 
-  switch (ADC.getGain()) {
+  switch (adc.getGain()) {
     case GAIN_TWOTHIRDS: return "GAIN_TWOTHIRDS";
     case GAIN_ONE:       return "GAIN_ONE";
     case GAIN_TWO:       return "GAIN_TWO";
@@ -139,8 +153,8 @@ bool sensors::voltage::access(VoltageSensorData *sensor_data) {
 
   for (size_t channel = 0; channel < config::voltage::CHANNEL_COUNT;
        channel++) {
-    int16_t raw_counts = ADC.readADC_SingleEnded(channel);
-    float voltage = ADC.computeVolts(raw_counts);
+    int16_t raw_counts = adc.readADC_SingleEnded(channel);
+    float voltage = adc.computeVolts(raw_counts);
 
     bool is_unipolar = (channel == 0) ||
                        (channel == config::voltage::CHANNEL_COUNT - 1);

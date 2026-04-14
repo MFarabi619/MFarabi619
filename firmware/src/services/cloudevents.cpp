@@ -1,6 +1,7 @@
 #include "cloudevents.h"
 #include "../config.h"
 #include "system.h"
+#include "../sensors/registry.h"
 #include "../sensors/manager.h"
 
 #include <Arduino.h>
@@ -9,18 +10,6 @@
 #include <ArduinoJson.h>
 
 #include <time.h>
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  CloudEvents configuration
-// ─────────────────────────────────────────────────────────────────────────────
-
-#ifndef CONFIG_SENSOR_TEMPERATURE_HUMIDITY_ENABLED
-#define CONFIG_SENSOR_TEMPERATURE_HUMIDITY_ENABLED 1
-#endif
-
-#ifndef CONFIG_SENSOR_VOLTAGE_MONITOR_ENABLED
-#define CONFIG_SENSOR_VOLTAGE_MONITOR_ENABLED 1
-#endif
 
 static const char *MIME_CLOUDEVENTS_BATCH = "application/cloudevents-batch+json";
 static const char *SPECVERSION = "1.0";
@@ -60,7 +49,7 @@ static JsonObject cloudevents_add_event(JsonArray events, uint16_t sequence,
   event["id"] = cloudevents_event_id(type_name, sequence);
   event["source"] = source;
   event["type"] = type_name;
-  event["datacontenttype"] = "application/json";
+  event["datacontenttype"] = asyncsrv::T_application_json;
   if (time_iso.length() > 0) {
     event["time"] = time_iso;
   }
@@ -68,7 +57,7 @@ static JsonObject cloudevents_add_event(JsonArray events, uint16_t sequence,
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Event appenders
+//  Status event (system info, not a sensor)
 // ─────────────────────────────────────────────────────────────────────────────
 
 static void append_status_event(JsonArray events, uint16_t sequence,
@@ -90,172 +79,145 @@ static void append_status_event(JsonArray events, uint16_t sequence,
   data["uptime_seconds"] = millis() / 1000UL;
 }
 
-#if CONFIG_SENSOR_TEMPERATURE_HUMIDITY_ENABLED == 1
-static void append_temperature_humidity_event(JsonArray events,
-                                              uint16_t sequence,
-                                              const String &source,
-                                              const String &time_iso) {
-  SensorInventorySnapshot inventory = {};
-  sensors::manager::accessInventory(&inventory);
-  uint8_t count = inventory.temperature_humidity_count;
-  if (count == 0) return;
+// ─────────────────────────────────────────────────────────────────────────────
+//  Sensor serializers (SensorKind → JSON fields)
+// ─────────────────────────────────────────────────────────────────────────────
 
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-      "sensors.temperature_and_humidity.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
+static void serialize_temperature_humidity(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const TemperatureHumiditySensorData *>(raw);
+  out["model"] = d->model ? d->model : "unknown";
+  out["temperature_celsius"] = d->temperature_celsius;
+  out["relative_humidity_percent"] = d->relative_humidity_percent;
+}
 
-  JsonArray sensor_entries = data["sensors"].to<JsonArray>();
-  uint16_t successful_reads = 0;
+static void serialize_voltage(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const VoltageSensorData *>(raw);
+  out["gain"] = sensors::voltage::accessGainLabel();
+  JsonArray voltage = out["voltage"].to<JsonArray>();
+  for (size_t ch = 0; ch < config::voltage::CHANNEL_COUNT; ch++)
+    voltage.add(d->channel_volts[ch]);
+}
 
-  for (uint8_t index = 0; index < count; index++) {
-    JsonObject sensor = sensor_entries.add<JsonObject>();
-    sensor["index"] = index;
+static void serialize_current(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const CurrentSensorData *>(raw);
+  out["current_mA"] = d->current_mA;
+  out["bus_voltage_V"] = d->bus_voltage_V;
+  out["shunt_voltage_mV"] = d->shunt_voltage_mV;
+  out["power_mW"] = d->power_mW;
+  out["energy_J"] = d->energy_J;
+  out["charge_C"] = d->charge_C;
+  out["die_temperature_C"] = d->die_temperature_C;
+}
 
-    TemperatureHumiditySensorData sensor_data = {};
-    bool read_ok = sensors::manager::accessTemperatureHumidity(index, &sensor_data);
+static void serialize_co2(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const CO2SensorData *>(raw);
+  out["model"] = d->model;
+  out["co2_ppm"] = d->co2_ppm;
+  out["temperature"] = d->temperature_celsius;
+  out["humidity"] = d->relative_humidity_percent;
+}
 
-    sensor["read_ok"] = read_ok;
-    if (read_ok) {
-      sensor["model"] = sensor_data.model ? sensor_data.model : "unknown";
-      sensor["temperature_celsius"] = sensor_data.temperature_celsius;
-      sensor["relative_humidity_percent"] = sensor_data.relative_humidity_percent;
-      successful_reads++;
-    }
+static void serialize_barometric_pressure(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const BarometricPressureSensorData *>(raw);
+  out["model"] = d->model;
+  out["pressure_hpa"] = d->pressure_hpa;
+  out["temperature_celsius"] = d->temperature_celsius;
+}
+
+static void serialize_wind_speed(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const WindSpeedSensorData *>(raw);
+  out["wind_speed_kilometers_per_hour"] = d->kilometers_per_hour;
+}
+
+static void serialize_wind_direction(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const WindDirectionSensorData *>(raw);
+  out["wind_direction_degrees"] = d->degrees;
+  out["wind_direction_angle_slice"] = d->slice;
+}
+
+static void serialize_solar_radiation(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const SolarRadiationSensorData *>(raw);
+  out["watts_per_square_meter"] = d->watts_per_square_meter;
+}
+
+static void serialize_soil(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const SoilSensorData *>(raw);
+  out["slave_id"] = d->slave_id;
+  out["temperature_celsius"] = d->temperature_celsius;
+  out["moisture_percent"] = d->moisture_percent;
+  out["conductivity"] = d->conductivity;
+  out["salinity"] = d->salinity;
+  out["tds"] = d->tds;
+}
+
+struct SensorSerializer {
+  SensorKind kind;
+  const char *event_type;
+  void (*serialize)(const void *data, JsonObject &out);
+};
+
+static const SensorSerializer SERIALIZERS[] = {
+  {SensorKind::TemperatureHumidity, "sensors.temperature_and_humidity.v1", serialize_temperature_humidity},
+  {SensorKind::Voltage,             "sensors.power.v1",                   serialize_voltage},
+  {SensorKind::Current,             "sensors.current.v1",                 serialize_current},
+  {SensorKind::CarbonDioxide,       "sensors.carbon_dioxide.v1",          serialize_co2},
+  {SensorKind::BarometricPressure,   "sensors.barometric_pressure.v1",    serialize_barometric_pressure},
+  {SensorKind::WindSpeed,           "sensors.wind_speed.v1",              serialize_wind_speed},
+  {SensorKind::WindDirection,       "sensors.wind_direction.v1",          serialize_wind_direction},
+  {SensorKind::SolarRadiation,      "sensors.solar_radiation.v1",         serialize_solar_radiation},
+  {SensorKind::Soil,                "sensors.soil.v1",                    serialize_soil},
+};
+
+static const SensorSerializer *find_serializer(SensorKind kind) {
+  for (const auto &s : SERIALIZERS) {
+    if (s.kind == kind) return &s;
   }
-
-  data["sensor_count"] = count;
-  data["successful_reads"] = successful_reads;
-  data["read_ok"] = successful_reads > 0;
-}
-#endif
-
-#if CONFIG_SENSOR_VOLTAGE_MONITOR_ENABLED == 1
-static void append_voltage_event(JsonArray events, uint16_t sequence,
-                                 const String &source,
-                                 const String &time_iso) {
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-                                           "sensors.power.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
-
-  VoltageSensorData sensor_data = {};
-  bool read_ok = sensors::manager::accessVoltage(&sensor_data);
-  
-  data["read_ok"] = read_ok;
-  data["gain"] = sensors::voltage::accessGainLabel();
-
-  if (read_ok) {
-    JsonArray voltage = data["voltage"].to<JsonArray>();
-    for (size_t channel = 0; channel < config::voltage::CHANNEL_COUNT;
-         channel++) {
-      voltage.add(sensor_data.channel_volts[channel]);
-    }
-  }
-}
-#endif
-
-static void append_co2_event(JsonArray events, uint16_t sequence,
-                             const String &source, const String &time_iso) {
-  CO2SensorData sensor_data = {};
-  if (!sensors::manager::accessCO2(&sensor_data) || !sensor_data.ok) return;
-
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-                                           "sensors.carbon_dioxide.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
-  data["model"] = sensor_data.model;
-  data["co2_ppm"] = sensor_data.co2_ppm;
-  data["temperature"] = sensor_data.temperature_celsius;
-  data["humidity"] = sensor_data.relative_humidity_percent;
+  return nullptr;
 }
 
-static void append_wind_speed_event(JsonArray events, uint16_t sequence,
-                                    const String &source, const String &time_iso) {
-  WindSpeedSensorData sensor_data = {};
-  if (!sensors::manager::accessWindSpeed(&sensor_data) || !sensor_data.ok) return;
+// ─────────────────────────────────────────────────────────────────────────────
+//  Registry-driven sensor event appender
+// ─────────────────────────────────────────────────────────────────────────────
 
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-                                           "sensors.wind_speed.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
-  data["wind_speed_kilometers_per_hour"] = sensor_data.kilometers_per_hour;
-}
-
-static void append_wind_direction_event(JsonArray events, uint16_t sequence,
-                                        const String &source, const String &time_iso) {
-  WindDirectionSensorData sensor_data = {};
-  if (!sensors::manager::accessWindDirection(&sensor_data) || !sensor_data.ok) return;
-
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-                                           "sensors.wind_direction.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
-  data["wind_direction_degrees"] = sensor_data.degrees;
-  data["wind_direction_angle_slice"] = sensor_data.slice;
-}
-
-static void append_solar_radiation_event(JsonArray events, uint16_t sequence,
-                                         const String &source, const String &time_iso) {
-  SolarRadiationSensorData sensor_data = {};
-  if (!sensors::manager::accessSolarRadiation(&sensor_data) || !sensor_data.ok) return;
-
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-                                           "sensors.solar_radiation.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
-  data["watts_per_square_meter"] = sensor_data.watts_per_square_meter;
-}
-
-static void append_barometric_pressure_event(JsonArray events, uint16_t sequence,
-                                              const String &source, const String &time_iso) {
-  BarometricPressureSensorData sensor_data = {};
-  if (!sensors::manager::accessBarometricPressure(&sensor_data) || !sensor_data.ok) return;
-
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-                                           "sensors.barometric_pressure.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
-  data["model"] = sensor_data.model;
-  data["pressure_hpa"] = sensor_data.pressure_hpa;
-  data["temperature_celsius"] = sensor_data.temperature_celsius;
-}
-
-static void append_current_event(JsonArray events, uint16_t sequence,
+static void append_sensor_events(JsonArray events, uint16_t &sequence,
                                  const String &source, const String &time_iso) {
-  CurrentSensorData sensor_data = {};
-  if (!sensors::manager::accessCurrent(&sensor_data) || !sensor_data.ok) return;
+  for (uint8_t i = 0; i < sensors::registry::entryCount(); i++) {
+    const SensorEntry *entry = sensors::registry::entry(i);
+    if (!entry || !entry->isAvailable()) continue;
 
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-                                           "sensors.current.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
-  data["current_mA"] = sensor_data.current_mA;
-  data["bus_voltage_V"] = sensor_data.bus_voltage_V;
-  data["shunt_voltage_mV"] = sensor_data.shunt_voltage_mV;
-  data["power_mW"] = sensor_data.power_mW;
-  data["energy_J"] = sensor_data.energy_J;
-  data["charge_C"] = sensor_data.charge_C;
-  data["die_temperature_C"] = sensor_data.die_temperature_C;
-}
+    const SensorSerializer *ser = find_serializer(entry->kind);
+    if (!ser) continue;
 
-static void append_soil_event(JsonArray events, uint16_t sequence,
-                              const String &source, const String &time_iso) {
-  SensorInventorySnapshot inventory = {};
-  sensors::manager::accessInventory(&inventory);
-  if (inventory.soil_probe_count == 0) return;
+    uint8_t count = entry->instanceCount();
+    if (count == 0) continue;
 
-  JsonObject event = cloudevents_add_event(events, sequence, source,
-                                           "sensors.soil.v1", time_iso);
-  JsonObject data = event["data"].to<JsonObject>();
-  data["probe_count"] = inventory.soil_probe_count;
+    JsonObject event = cloudevents_add_event(events, sequence++, source,
+                                             ser->event_type, time_iso);
+    JsonObject data = event["data"].to<JsonObject>();
 
-  JsonArray probes = data["probes"].to<JsonArray>();
-  for (uint8_t index = 0; index < inventory.soil_probe_count; index++) {
-    SoilSensorData sensor_data = {};
-    bool read_ok = sensors::manager::accessSoil(index, &sensor_data);
-
-    JsonObject probe = probes.add<JsonObject>();
-    probe["slave_id"] = sensor_data.slave_id;
-    probe["read_ok"] = read_ok;
-    if (read_ok) {
-      probe["temperature_celsius"] = sensor_data.temperature_celsius;
-      probe["moisture_percent"] = sensor_data.moisture_percent;
-      probe["conductivity"] = sensor_data.conductivity;
-      probe["salinity"] = sensor_data.salinity;
-      probe["tds"] = sensor_data.tds;
+    if (count == 1) {
+      const void *snapshot = sensors::registry::latest(entry->kind, 0);
+      bool ok = sensors::registry::valid(entry->kind, 0);
+      data["read_ok"] = ok;
+      if (ok && snapshot) {
+        ser->serialize(snapshot, data);
+      }
+    } else {
+      data["sensor_count"] = count;
+      JsonArray instances = data["sensors"].to<JsonArray>();
+      uint16_t successful = 0;
+      for (uint8_t j = 0; j < count; j++) {
+        const void *snapshot = sensors::registry::latest(entry->kind, j);
+        bool ok = sensors::registry::valid(entry->kind, j);
+        JsonObject inst = instances.add<JsonObject>();
+        inst["index"] = j;
+        inst["read_ok"] = ok;
+        if (ok && snapshot) {
+          ser->serialize(snapshot, inst);
+          successful++;
+        }
+      }
+      data["successful_reads"] = successful;
     }
   }
 }
@@ -273,22 +235,7 @@ static void handle_cloudevents_get(AsyncWebServerRequest *request) {
 
   uint16_t sequence = 0;
   append_status_event(events, sequence++, source, time_iso);
-
-#if CONFIG_SENSOR_TEMPERATURE_HUMIDITY_ENABLED == 1
-  append_temperature_humidity_event(events, sequence++, source, time_iso);
-#endif
-
-#if CONFIG_SENSOR_VOLTAGE_MONITOR_ENABLED == 1
-  append_voltage_event(events, sequence++, source, time_iso);
-#endif
-
-  append_co2_event(events, sequence++, source, time_iso);
-  append_wind_speed_event(events, sequence++, source, time_iso);
-  append_wind_direction_event(events, sequence++, source, time_iso);
-  append_solar_radiation_event(events, sequence++, source, time_iso);
-  append_barometric_pressure_event(events, sequence++, source, time_iso);
-  append_current_event(events, sequence++, source, time_iso);
-  append_soil_event(events, sequence++, source, time_iso);
+  append_sensor_events(events, sequence, source, time_iso);
 
   AsyncResponseStream *response =
       request->beginResponseStream(MIME_CLOUDEVENTS_BATCH);
@@ -298,7 +245,7 @@ static void handle_cloudevents_get(AsyncWebServerRequest *request) {
 
 void services::cloudevents::registerRoutes(AsyncWebServer *server) {
   if (!server) return;
-  server->on("/api/cloudevents", HTTP_GET, handle_cloudevents_get);
+  server->on("/api/cloudevents", HTTP_GET, handle_cloudevents_get).skipServerMiddlewares();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

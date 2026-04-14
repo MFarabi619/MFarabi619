@@ -1,4 +1,5 @@
 #include "temperature_and_humidity.h"
+#include "registry.h"
 #include "../config.h"
 #include "../hardware/i2c.h"
 
@@ -200,6 +201,23 @@ bool sensors::temperature_and_humidity::initialize() {
   hardware::i2c::clearSelection();
   Serial.printf("[temperature_and_humidity] discovered %d sensor(s)\n",
                 sensor_count);
+
+  if (sensor_count > 0) {
+    sensors::registry::add({
+        .kind = SensorKind::TemperatureHumidity,
+        .name = "Temperature & Humidity",
+        .isAvailable = []() -> bool {
+            return sensors::temperature_and_humidity::sensorCount() > 0;
+        },
+        .instanceCount = sensors::temperature_and_humidity::sensorCount,
+        .poll = [](uint8_t index, void *out, size_t cap) -> bool {
+            if (cap < sizeof(TemperatureHumiditySensorData)) return false;
+            return sensors::temperature_and_humidity::access(
+                index, static_cast<TemperatureHumiditySensorData *>(out));
+        },
+        .data_size = sizeof(TemperatureHumiditySensorData),
+    });
+  }
   return sensor_count > 0;
 }
 

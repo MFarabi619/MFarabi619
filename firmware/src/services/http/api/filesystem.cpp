@@ -1,4 +1,4 @@
-#include "filesystem.h"
+#include "api.h"
 #include "../../../config.h"
 #include "../../../filesystems/api.h"
 #include "../../../hardware/storage.h"
@@ -46,7 +46,7 @@ bool write_with_retry(File &file, const uint8_t *data, size_t length) {
 
 void handle_legacy_files(AsyncWebServerRequest *request) {
   if (!hardware::storage::ensureSD()) {
-    request->send(503, "application/json", "{\"error\":\"no SD card\"}");
+    request->send(503, asyncsrv::T_application_json, "{\"error\":\"no SD card\"}");
     return;
   }
 
@@ -81,17 +81,17 @@ void handle_get(AsyncWebServerRequest *request) {
   filesystems::api::resolveTarget(&command);
   FilesystemTarget &target = command.target;
   if (!target.ok) {
-    request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
+    request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
     return;
   }
   if (filesystems::api::isSensitivePath(target.path)) {
-    request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
+    request->send(403, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"forbidden path\"}");
     return;
   }
 
   File entry = target.fs->open(target.path);
   if (!entry) {
-    request->send(404, "application/json", "{\"ok\":false,\"error\":\"not found\"}");
+    request->send(404, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"not found\"}");
     return;
   }
 
@@ -117,11 +117,11 @@ void handle_mkdir(AsyncWebServerRequest *request) {
   filesystems::api::resolveTarget(&command);
   FilesystemTarget &target = command.target;
   if (!target.ok) {
-    request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
+    request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
     return;
   }
   if (filesystems::api::isSensitivePath(target.path)) {
-    request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
+    request->send(403, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"forbidden path\"}");
     return;
   }
 
@@ -135,13 +135,24 @@ void handle_mkdir(AsyncWebServerRequest *request) {
 }
 
 void handle_format(AsyncWebServerRequest *request) {
-  bool formatted = hardware::storage::ensureLittleFS() && LittleFS.format();
-  AsyncJsonResponse *response = new AsyncJsonResponse();
-  response->setCode(formatted ? 200 : 500);
-  JsonObject root = response->getRoot().to<JsonObject>();
-  root["ok"] = formatted;
-  response->setLength();
-  request->send(response);
+  AsyncWebServerRequestPtr weak = request->pause();
+
+  xTaskCreate([](void *arg) {
+    AsyncWebServerRequestPtr *wp = (AsyncWebServerRequestPtr *)arg;
+    bool formatted = hardware::storage::ensureLittleFS() && LittleFS.format();
+
+    auto request = wp->lock();
+    delete wp;
+    if (request) {
+      AsyncJsonResponse *response = new AsyncJsonResponse();
+      response->setCode(formatted ? 200 : 500);
+      JsonObject root = response->getRoot().to<JsonObject>();
+      root["ok"] = formatted;
+      response->setLength();
+      request->send(response);
+    }
+    vTaskDelete(nullptr);
+  }, "fs-format", 4096, new AsyncWebServerRequestPtr(weak), 1, nullptr);
 }
 
 void handle_upload(AsyncWebServerRequest *request, String filename,
@@ -161,11 +172,11 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
     filesystems::api::resolveTarget(&command);
     FilesystemTarget &target = command.target;
     if (!target.ok) {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
+      request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
       return;
     }
     if (filesystems::api::isSensitivePath(target.path)) {
-      request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
+      request->send(403, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"forbidden path\"}");
       return;
     }
 
@@ -175,7 +186,7 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
 
     request->_tempFile = target.fs->open(target.path, FILE_WRITE, true);
     if (!request->_tempFile) {
-      request->send(500, "application/json", "{\"ok\":false,\"error\":\"open failed\"}");
+      request->send(500, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"open failed\"}");
       return;
     }
 
@@ -189,7 +200,7 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
     float t = (float)(millis() % 1000) / 1000.0f;
     uint8_t b = (uint8_t)((sinf(t * 6.2832f) + 1.0f) * 0.5f * 200.0f) + 10;
     LED.setBrightness(b);
-    LED.set(CRGB::White);
+    LED.set(colors::White);
   }
 
   if (state && state->ok && request->_tempFile && len) {
@@ -206,7 +217,7 @@ void handle_upload(AsyncWebServerRequest *request, String filename,
       Serial.printf("[http] upload complete (%u bytes)\n", (unsigned)(index + len));
     }
     LED.setBrightness(config::led::BRIGHTNESS);
-    LED.set(CRGB::Green);
+    LED.set(colors::Green);
   }
 }
 
@@ -233,11 +244,11 @@ void handle_delete(AsyncWebServerRequest *request) {
   filesystems::api::resolveTarget(&command);
   FilesystemTarget &target = command.target;
   if (!target.ok) {
-    request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
+    request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
     return;
   }
   if (filesystems::api::isSensitivePath(target.path)) {
-    request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
+    request->send(403, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"forbidden path\"}");
     return;
   }
 
@@ -275,18 +286,18 @@ void services::http::api::filesystem::registerRoutes(AsyncWebServer &server,
     filesystems::api::resolveTarget(&command);
     FilesystemTarget &target = command.target;
     if (!target.ok) {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
+      request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"invalid filesystem prefix\"}");
       return;
     }
     if (filesystems::api::isSensitivePath(target.path)) {
-      request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
+      request->send(403, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"forbidden path\"}");
       return;
     }
 
     JsonObject body = json.as<JsonObject>();
     String new_name = body["name"] | "";
     if (new_name.isEmpty()) {
-      request->send(400, "application/json", "{\"ok\":false,\"error\":\"missing name in body\"}");
+      request->send(400, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"missing name in body\"}");
       return;
     }
 
@@ -295,7 +306,7 @@ void services::http::api::filesystem::registerRoutes(AsyncWebServer &server,
     String new_path = dir + "/" + new_name;
 
     if (filesystems::api::isSensitivePath(new_path)) {
-      request->send(403, "application/json", "{\"ok\":false,\"error\":\"forbidden path\"}");
+      request->send(403, asyncsrv::T_application_json, "{\"ok\":false,\"error\":\"forbidden path\"}");
       return;
     }
 

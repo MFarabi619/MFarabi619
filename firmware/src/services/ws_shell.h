@@ -1,7 +1,7 @@
 #ifndef SERVICES_WS_SHELL_H
 #define SERVICES_WS_SHELL_H
 
-#include <ESPAsyncWebServer.h>
+class AsyncWebServer;
 
 namespace services::ws_shell {
 

@@ -1,4 +1,4 @@
-#include "sensors.h"
+#include "coreutils.h"
 
 #include "../../sensors/manager.h"
 

@@ -6,6 +6,7 @@
 #include "../programs/shell/microfetch.h"
 
 #include <Arduino.h>
+#include <ESPAsyncWebServer.h>
 #include <microshell.h>
 
 static AsyncWebSocketMessageHandler ws_handler;
@@ -110,7 +111,7 @@ void services::ws_shell::registerRoutes(AsyncWebServer *server) {
   server->addHandler(&ws).addMiddleware([](AsyncWebServerRequest *request,
                                            ArMiddlewareNext next) {
     if (ws.count() > 0) {
-      request->send(503, "text/plain", "Server is busy");
+      request->send(503, asyncsrv::T_text_plain, "Server is busy");
       return;
     }
     next();

@@ -1,4 +1,5 @@
 #include "wind_direction.h"
+#include "registry.h"
 
 #include "../config.h"
 #include "../hardware/rs485.h"
@@ -62,6 +63,20 @@ bool sensors::wind_direction::initialize() {
   }
   WindDirectionSensorData sensor_data = {};
   available = sensors::wind_direction::access(&sensor_data);
+  if (available) {
+    sensors::registry::add({
+        .kind = SensorKind::WindDirection,
+        .name = "Wind Direction",
+        .isAvailable = sensors::wind_direction::isAvailable,
+        .instanceCount = []() -> uint8_t { return 1; },
+        .poll = [](uint8_t, void *out, size_t cap) -> bool {
+            if (cap < sizeof(WindDirectionSensorData)) return false;
+            return sensors::wind_direction::access(
+                static_cast<WindDirectionSensorData *>(out));
+        },
+        .data_size = sizeof(WindDirectionSensorData),
+    });
+  }
   return available;
 }
 

@@ -3,12 +3,7 @@
 #include "../ws_shell.h"
 #include "../../hardware/storage.h"
 #include "../../networking/wifi.h"
-#include "api/database.h"
-#include "api/email.h"
-#include "api/filesystem.h"
-#include "api/networking.h"
-#include "api/sensors.h"
-#include "api/system.h"
+#include "api/api.h"
 #include "../../config.h"
 
 #include <Arduino.h>
@@ -29,19 +24,6 @@ AsyncRateLimitMiddleware reset_limit;
 AsyncRateLimitMiddleware ota_limit;
 AsyncRateLimitMiddleware format_limit;
 
-bool requires_admin_auth(AsyncWebServerRequest *request) {
-  if (!request || request->method() == HTTP_OPTIONS) return false;
-
-  String url = request->url();
-  if (url == "/ws/shell") return true;
-  if (!url.startsWith("/api/")) return false;
-
-  return !(url == "/api/wifi"
-      || url == "/api/system/device/status"
-      || url == "/api/cloudevents"
-      || url == "/api/wireless/status");
-}
-
 bool sd_has_index() {
   if (!hardware::storage::ensureSD()) return false;
   return SD.exists("/index.html") || SD.exists("/index.html.gz");
@@ -50,7 +32,7 @@ bool sd_has_index() {
 void send_index_from_sd(AsyncWebServerRequest *request) {
   if (SD.exists("/index.html.gz")) {
     AsyncWebServerResponse *response = request->beginResponse(SD, "/index.html.gz", "text/html; charset=utf-8");
-    response->addHeader("Content-Encoding", "gzip");
+    response->addHeader(asyncsrv::T_Content_Encoding, "gzip");
     request->send(response);
   } else {
     request->send(SD, "/index.html", "text/html; charset=utf-8");
@@ -59,11 +41,7 @@ void send_index_from_sd(AsyncWebServerRequest *request) {
 
 void captive_portal_redirect(AsyncWebServerRequest *request) {
   String location = "http://" + WiFi.softAPIP().toString() + "/";
-  AsyncWebServerResponse *response = request->beginResponse(302);
-  response->addHeader("Location", location);
-  response->addHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-  response->addHeader("Pragma", "no-cache");
-  request->send(response);
+  request->redirect(location);
 }
 
 void send_portal_page(AsyncWebServerRequest *request) {
@@ -98,13 +76,27 @@ public:
 
 }
 
-AsyncEventSource http_events("/events");
+static AsyncEventSource http_events("/events");
 
 void services::http::service() {
-  // no-op: async handlers removed
+}
+
+void services::http::emitEvent(const char *data, const char *event, unsigned long id) {
+  http_events.send(data, event, id);
+}
+
+size_t services::http::sseClientCount() {
+  return http_events.count();
+}
+
+size_t services::http::sseAvgPacketsWaiting() {
+  return http_events.avgPacketsWaiting();
 }
 
 void services::http::initialize() {
+  DefaultHeaders::Instance().addHeader("X-Firmware", "ceratina");
+  DefaultHeaders::Instance().addHeader("X-Platform", config::PLATFORM);
+
   cors.setOrigin("*");
   cors.setMethods("GET, POST, PUT, PATCH, DELETE, OPTIONS");
   cors.setHeaders("Content-Type, Authorization");
@@ -116,12 +108,7 @@ void services::http::initialize() {
   auth.setRealm(config::http::AUTH_REALM);
   auth.setAuthType(AsyncAuthType::AUTH_DIGEST);
   auth.generateHash();
-  server.addMiddleware([](AsyncWebServerRequest *request, ArMiddlewareNext next) {
-    if (!requires_admin_auth(request)) { next(); return; }
-    if (auth.allowed(request)) { next(); return; }
-    request->requestAuthentication(AsyncAuthType::AUTH_DIGEST,
-                                   config::http::AUTH_REALM);
-  });
+  server.addMiddleware(&auth);
 #endif
 
   scan_limit.setMaxRequests(3);
@@ -142,6 +129,11 @@ void services::http::initialize() {
   http_events.onConnect([](AsyncEventSourceClient *client) {
     client->send("connected", "status", millis(), 5000);
   });
+#if CERATINA_HTTP_AUTH_ENABLED
+  http_events.authorizeConnect([](AsyncWebServerRequest *request) {
+    return request->authenticate(config::http::AUTH_USER, config::http::AUTH_PASSWORD);
+  });
+#endif
   server.addHandler(&http_events);
 
   services::http::api::system::registerRoutes(server, reset_limit, ota_limit);
@@ -158,6 +150,7 @@ void services::http::initialize() {
   server.serveStatic("/", SD, "/")
     .setDefaultFile("index.html")
     .setCacheControl("public, max-age=86400")
+    .setLastModified()
     .setTryGzipFirst(true);
 
   server.on("/portal", HTTP_GET, send_portal_page);
@@ -180,7 +173,7 @@ void services::http::initialize() {
       return;
     }
 
-    request->send(404, "application/json", "{\"error\":\"not found\"}");
+    request->send(404, asyncsrv::T_application_json, "{\"error\":\"not found\"}");
   });
 
   server.begin();

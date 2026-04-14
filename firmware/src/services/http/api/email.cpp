@@ -1,4 +1,4 @@
-#include "email.h"
+#include "api.h"
 #include "../../email.h"
 #include "../../../config.h"
 
@@ -24,7 +24,7 @@ void services::http::api::email::registerRoutes(AsyncWebServer &server) {
 
     String json;
     serializeJson(doc, json);
-    request->send(200, "application/json", json);
+    request->send(200, asyncsrv::T_application_json, json);
   });
 
   server.on("/api/smtp/send", HTTP_POST,
@@ -32,7 +32,7 @@ void services::http::api::email::registerRoutes(AsyncWebServer &server) {
     char host[128] = {0};
     uint16_t port = 0;
     if (!::services::email::accessEndpoint(host, sizeof(host), &port)) {
-      request->send(400, "application/json",
+      request->send(400, asyncsrv::T_application_json,
                     "{\"ok\":false,\"error\":\"SMTP not configured\"}");
       return;
     }
@@ -47,7 +47,7 @@ void services::http::api::email::registerRoutes(AsyncWebServer &server) {
 
     String json;
     serializeJson(doc, json);
-    request->send(sent ? 200 : 500, "application/json", json);
+    request->send(sent ? 200 : 500, asyncsrv::T_application_json, json);
   });
 #else
   (void)server;

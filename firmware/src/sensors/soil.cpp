@@ -1,4 +1,5 @@
 #include "soil.h"
+#include "registry.h"
 
 #include "../config.h"
 #include "../hardware/rs485.h"
@@ -106,6 +107,20 @@ bool sensors::soil::initialize() {
       available = true;
       break;
     }
+  }
+  if (available) {
+    sensors::registry::add({
+        .kind = SensorKind::Soil,
+        .name = "Soil",
+        .isAvailable = sensors::soil::isAvailable,
+        .instanceCount = sensors::soil::probeCount,
+        .poll = [](uint8_t index, void *out, size_t cap) -> bool {
+            if (cap < sizeof(SoilSensorData)) return false;
+            return sensors::soil::access(
+                index, static_cast<SoilSensorData *>(out));
+        },
+        .data_size = sizeof(SoilSensorData),
+    });
   }
   return available;
 }

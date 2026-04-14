@@ -1,4 +1,4 @@
-#include "uptime.h"
+#include "coreutils.h"
 
 #include "../../services/system.h"
 

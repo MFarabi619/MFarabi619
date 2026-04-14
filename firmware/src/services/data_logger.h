@@ -18,7 +18,6 @@ struct DataLoggerStatusSnapshot {
 namespace services::data_logger {
 
 void initialize();
-void service();
 void flushNow();
 bool accessStatus(DataLoggerStatusSnapshot *snapshot);
 

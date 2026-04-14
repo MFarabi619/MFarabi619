@@ -22,7 +22,7 @@
 #include "../sensors/manager.h"
 
 #include <Arduino.h>
-#include <ColorFormat.h>
+#include <freertos/timers.h>
 #include <Wire.h>
 
 namespace {
@@ -31,7 +31,7 @@ void initialize_hardware(void) {
   Serial.println(F("[system] booting..."));
 
   LED.init();
-  LED.fadeIn(255, 200, 0, 600);
+  LED.fadeIn(colors::Gold, 600);
 
   hardware::i2c::initialize();
   hardware::storage::initialize();
@@ -48,6 +48,11 @@ void initialize_services_and_programs(void) {
 
   programs::shell::initialize();
   programs::buttons::initialize();
+  programs::buttons::onLongPressStart([](uint8_t index) {
+    Serial.printf("[buttons] long press on GPIO %d — requesting sleep\n", index);
+    SleepCommand command = {};
+    power::sleep::requestConfigured(&command);
+  });
   services::data_logger::initialize();
 }
 
@@ -61,7 +66,7 @@ void initialize_storage(void) {
       Serial.printf("[fs] LittleFS: %u/%u KB used\n",
                     (unsigned)(query.snapshot.used_bytes / 1024),
                     (unsigned)(query.snapshot.total_bytes / 1024));
-      LED.set(RGB_YELLOW);
+      LED.set(colors::Yellow);
     }
   }
 }
@@ -71,7 +76,7 @@ void run_provisioning_policy(void) {
 
   if (boot::provisioning::isEnabled() && !boot::provisioning::isProvisioned()) {
     Serial.println(F("[prov] not provisioned — starting BLE provisioning"));
-    LED.set(RGB_MAGENTA);
+    LED.set(colors::Magenta);
     boot::provisioning::start();
   }
 }
@@ -80,11 +85,24 @@ void connect_networking(void) {
   networking::wifi::ap::enable();
 
   if (networking::wifi::sta::connect()) {
-    LED.set(RGB_GREEN);
+    LED.set(colors::Green);
     Serial.printf("[wifi] connected, heap: %u bytes free\n", ESP.getFreeHeap());
   } else {
     Serial.println(F("[wifi] STA not connected — AP remains active for provisioning"));
-    LED.set(255, 100, 0);
+    LED.set(colors::DarkOrange);
+  }
+}
+
+void heartbeat_callback(TimerHandle_t) {
+  uint32_t heap = ESP.getFreeHeap();
+  char buf[64];
+  snprintf(buf, sizeof(buf), "{\"uptime\":%lu,\"heap\":%u}",
+           millis() / 1000, heap);
+  services::http::emitEvent(buf, "heartbeat", millis());
+
+  if (heap < 20000) {
+    Serial.printf("[WARN] low heap: %u bytes free (min: %u)\n",
+                  heap, ESP.getMinFreeHeap());
   }
 }
 
@@ -98,7 +116,10 @@ void system_task(void *pvParameters) {
   connect_networking();
   boot::system::startServices();
 
-  uint32_t last_heartbeat = 0;
+  TimerHandle_t heartbeat = xTimerCreate("heartbeat", pdMS_TO_TICKS(5000),
+                                          pdTRUE, nullptr, heartbeat_callback);
+  xTimerStart(heartbeat, 0);
+
   for (;;) {
     services::http::service();
     programs::shell::service();
@@ -107,26 +128,10 @@ void system_task(void *pvParameters) {
     networking::ota::service();
     programs::buttons::service();
     power::sleep::service();
-    sensors::manager::service();
-    services::data_logger::service();
 
 #if CERATINA_BLE_ENABLED
     networking::ble::service();
 #endif
-
-    if (millis() - last_heartbeat > 5000) {
-      last_heartbeat = millis();
-      uint32_t heap = ESP.getFreeHeap();
-      char buf[64];
-      snprintf(buf, sizeof(buf), "{\"uptime\":%lu,\"heap\":%u}",
-               millis() / 1000, heap);
-      http_events.send(buf, "heartbeat", millis());
-
-      if (heap < 20000) {
-        Serial.printf("[WARN] low heap: %u bytes free (min: %u)\n",
-                      heap, ESP.getMinFreeHeap());
-      }
-    }
 
     vTaskDelay(pdMS_TO_TICKS(config::system::SHELL_SERVICE_MS));
   }

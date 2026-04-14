@@ -88,7 +88,7 @@ void enter_sleep_now() {
   Wire1.end();
 
   Serial.flush();
-  LED.fadeOut(CRGB::Gold, 800);
+  LED.fadeOut(colors::Gold, 800);
 
   esp_deep_sleep_start();
 }

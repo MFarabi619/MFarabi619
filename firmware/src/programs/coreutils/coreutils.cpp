@@ -1,14 +1,5 @@
 #include "coreutils.h"
 
-#include "date.h"
-#include "free.h"
-#include "hostname.h"
-#include "ifconfig.h"
-#include "print.h"
-#include "sensors.h"
-#include "uptime.h"
-#include "whoami.h"
-
 namespace {
 
 const struct ush_file_descriptor files[] = {

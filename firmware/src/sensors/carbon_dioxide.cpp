@@ -1,4 +1,5 @@
 #include "carbon_dioxide.h"
+#include "registry.h"
 #include "../config.h"
 #include "../hardware/i2c.h"
 
@@ -82,20 +83,30 @@ bool sensors::carbon_dioxide::initialize() {
   if (hardware::i2c::findDevice(0x61, &dev) && try_scd30_on(dev.bus, dev.address)) {
     backend = CO2_SCD30;
     measuring = true;
-    return true;
-  }
-
-  if (hardware::i2c::findDevice(0x62, &dev) && try_scd4x_on(dev.bus, dev.address)) {
+  } else if (hardware::i2c::findDevice(0x62, &dev) && try_scd4x_on(dev.bus, dev.address)) {
     backend = CO2_SCD4X;
     measuring = true;
-    return true;
   }
 
-  if (probe_attempts == 0) {
-    Serial.println(F("[co2] no sensor found"));
+  if (backend == CO2_NONE) {
+    if (probe_attempts == 0) {
+      Serial.println(F("[co2] no sensor found"));
+    }
+    return false;
   }
-  backend = CO2_NONE;
-  return false;
+
+  sensors::registry::add({
+      .kind = SensorKind::CarbonDioxide,
+      .name = "Carbon Dioxide",
+      .isAvailable = sensors::carbon_dioxide::isAvailable,
+      .instanceCount = []() -> uint8_t { return 1; },
+      .poll = [](uint8_t, void *out, size_t cap) -> bool {
+          if (cap < sizeof(CO2SensorData)) return false;
+          return sensors::carbon_dioxide::access(static_cast<CO2SensorData *>(out));
+      },
+      .data_size = sizeof(CO2SensorData),
+  });
+  return true;
 }
 
 bool sensors::carbon_dioxide::access(CO2SensorData *sensor_data) {

@@ -101,7 +101,7 @@ void test(void);
 namespace networking::wifi::sta {
 
 void initialize();
-[[nodiscard]] bool connect();
+bool connect();
 
 } // namespace networking::wifi::sta
 
@@ -109,7 +109,7 @@ namespace networking::wifi::ap {
 
 void enable();
 void disable();
-[[nodiscard]] bool isActive();
+bool isActive();
 void accessConfig(APConfig *config);
 bool accessSnapshot(APSnapshot *snapshot);
 bool applyConfig(APConfigureCommand *command);

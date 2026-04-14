@@ -1,4 +1,5 @@
 #include "wind_speed.h"
+#include "registry.h"
 
 #include "../config.h"
 #include "../hardware/rs485.h"
@@ -59,6 +60,20 @@ bool sensors::wind_speed::initialize() {
   }
   WindSpeedSensorData sensor_data = {};
   available = sensors::wind_speed::access(&sensor_data);
+  if (available) {
+    sensors::registry::add({
+        .kind = SensorKind::WindSpeed,
+        .name = "Wind Speed",
+        .isAvailable = sensors::wind_speed::isAvailable,
+        .instanceCount = []() -> uint8_t { return 1; },
+        .poll = [](uint8_t, void *out, size_t cap) -> bool {
+            if (cap < sizeof(WindSpeedSensorData)) return false;
+            return sensors::wind_speed::access(
+                static_cast<WindSpeedSensorData *>(out));
+        },
+        .data_size = sizeof(WindSpeedSensorData),
+    });
+  }
   return available;
 }
 

@@ -74,7 +74,7 @@ static const struct ush_descriptor telnet_shell_desc = {
 static void on_connect(String ip) {
   client_ip_str = ip;
   Serial.printf("[telnet] client connected from %s\n", ip.c_str());
-  LED.set(CRGB::Cyan);
+  LED.set(colors::Cyan);
   programs::shell::session::reset(&ring);
   programs::shell::session::reset(&write_state);
   programs::shell::initInstance(&telnet_ush, &telnet_shell_desc);
@@ -87,7 +87,7 @@ static void on_connect(String ip) {
 static void on_disconnect(String ip) {
   Serial.printf("[telnet] client disconnected (%s)\n", ip.c_str());
   client_ip_str = "";
-  LED.set(CRGB::Green);
+  LED.set(colors::Green);
 }
 
 static void on_reconnect(String ip) {

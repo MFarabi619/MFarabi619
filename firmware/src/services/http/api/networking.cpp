@@ -1,4 +1,4 @@
-#include "networking.h"
+#include "api.h"
 #include "../../../config.h"
 #include "../../../networking/wifi.h"
 #include "../../../services/identity.h"
@@ -108,8 +108,8 @@ void handle_ap_config_get(AsyncWebServerRequest *request) {
 
 void services::http::api::networking::registerRoutes(AsyncWebServer &server,
                                                      AsyncRateLimitMiddleware &scan_limit) {
-  server.on("/api/wifi", HTTP_GET, handle_wifi);
-  server.on("/api/wireless/status", HTTP_GET, handle_wireless_status);
+  server.on("/api/wifi", HTTP_GET, handle_wifi).skipServerMiddlewares();
+  server.on("/api/wireless/status", HTTP_GET, handle_wireless_status).skipServerMiddlewares();
   server.on("/api/wireless/actions/scan", HTTP_POST, handle_wireless_scan)
     .addMiddleware(&scan_limit);
   server.on("/api/ap/config", HTTP_GET, handle_ap_config_get);
@@ -163,7 +163,7 @@ void services::http::api::networking::registerRoutes(AsyncWebServer &server,
     ssid.trim();
 
     if (ssid.isEmpty()) {
-      request->send(400, "application/json",
+      request->send(400, asyncsrv::T_application_json,
                     "{\"ok\":false,\"error\":{\"code\":\"SSID_REQUIRED\","
                     "\"message\":\"Missing ssid parameter\"}}");
       return;

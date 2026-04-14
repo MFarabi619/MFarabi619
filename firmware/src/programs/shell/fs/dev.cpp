@@ -101,7 +101,7 @@ static size_t led_get_data(struct ush_object *self,
                            uint8_t **data) {
   (void)self; (void)file;
   static char buf[16];
-  CRGB color = LED.getColor();
+  Color color = LED.getColor();
   snprintf(buf, sizeof(buf), "%02X%02X%02X\r\n", color.r, color.g, color.b);
   *data = (uint8_t *)buf;
   return strlen(buf);
@@ -122,19 +122,19 @@ static void led_set_data(struct ush_object *self,
   if (strcmp(buf, "off") == 0 || strcmp(buf, "0") == 0) {
     LED.off();
   } else if (strcmp(buf, "red") == 0) {
-    LED.set(CRGB::Red);
+    LED.set(colors::Red);
   } else if (strcmp(buf, "green") == 0 || strcmp(buf, "1") == 0) {
-    LED.set(CRGB::Green);
+    LED.set(colors::Green);
   } else if (strcmp(buf, "blue") == 0) {
-    LED.set(CRGB::Blue);
+    LED.set(colors::Blue);
   } else if (strcmp(buf, "yellow") == 0) {
-    LED.set(CRGB::Yellow);
+    LED.set(colors::Yellow);
   } else if (strcmp(buf, "magenta") == 0) {
-    LED.set(CRGB::Magenta);
+    LED.set(colors::Magenta);
   } else if (strcmp(buf, "cyan") == 0) {
-    LED.set(CRGB::Cyan);
+    LED.set(colors::Cyan);
   } else if (strcmp(buf, "white") == 0) {
-    LED.set(CRGB::White);
+    LED.set(colors::White);
   }
 }
 

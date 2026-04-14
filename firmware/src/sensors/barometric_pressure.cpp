@@ -1,4 +1,5 @@
 #include "barometric_pressure.h"
+#include "registry.h"
 #include "../hardware/i2c.h"
 
 #include <Arduino.h>
@@ -38,6 +39,19 @@ bool sensors::barometric_pressure::initialize() {
   detected_bus = dev.bus;
   available = true;
   Serial.printf("[pressure] LPS25 detected on bus %d at 0x%02X\n", dev.bus, dev.address);
+
+  sensors::registry::add({
+      .kind = SensorKind::BarometricPressure,
+      .name = "Barometric Pressure",
+      .isAvailable = sensors::barometric_pressure::isAvailable,
+      .instanceCount = []() -> uint8_t { return 1; },
+      .poll = [](uint8_t, void *out, size_t cap) -> bool {
+          if (cap < sizeof(BarometricPressureSensorData)) return false;
+          return sensors::barometric_pressure::access(
+              static_cast<BarometricPressureSensorData *>(out));
+      },
+      .data_size = sizeof(BarometricPressureSensorData),
+  });
   return true;
 }
 

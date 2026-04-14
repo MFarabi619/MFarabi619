@@ -1,4 +1,5 @@
 #include "solar_radiation.h"
+#include "registry.h"
 
 #include "../config.h"
 #include "../hardware/rs485.h"
@@ -57,6 +58,20 @@ bool sensors::solar_radiation::initialize() {
   }
   SolarRadiationSensorData sensor_data = {};
   available = sensors::solar_radiation::access(&sensor_data);
+  if (available) {
+    sensors::registry::add({
+        .kind = SensorKind::SolarRadiation,
+        .name = "Solar Radiation",
+        .isAvailable = sensors::solar_radiation::isAvailable,
+        .instanceCount = []() -> uint8_t { return 1; },
+        .poll = [](uint8_t, void *out, size_t cap) -> bool {
+            if (cap < sizeof(SolarRadiationSensorData)) return false;
+            return sensors::solar_radiation::access(
+                static_cast<SolarRadiationSensorData *>(out));
+        },
+        .data_size = sizeof(SolarRadiationSensorData),
+    });
+  }
   return available;
 }
 

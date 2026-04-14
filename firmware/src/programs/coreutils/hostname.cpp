@@ -1,4 +1,4 @@
-#include "hostname.h"
+#include "coreutils.h"
 
 #include "../../services/identity.h"
 

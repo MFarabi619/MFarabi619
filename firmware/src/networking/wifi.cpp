@@ -1,6 +1,7 @@
 #include "wifi.h"
 #include "wifi_internal.h"
 #include "../services/identity.h"
+#include "../services/preferences.h"
 
 #include <Arduino.h>
 #include <Preferences.h>
@@ -14,7 +15,7 @@ const char networking::wifi::internal::wifi_pass_slot[65] __attribute__((used, a
   "@@WIFI_PASS@@";
 
 bool networking::wifi::internal::openPreferences(bool readonly, Preferences *prefs) {
-  return prefs && prefs->begin(config::wifi::NVS_NAMESPACE, readonly);
+  return services::preferences::open(config::wifi::NVS_NAMESPACE, readonly, prefs);
 }
 
 bool networking::wifi::accessSnapshot(NetworkStatusSnapshot *snapshot) {
@@ -302,8 +303,6 @@ static void wifi_test_ap_enabled_toggle(void) {
 }
 
 void networking::wifi::test(void) {
-  // it("user observes that WiFi.begin persists credentials via ESP-IDF",
-  //    wifi_test_persistent_credentials);
   it("user observes that wifi_connect fails without stored SSID",
      wifi_test_connect_fails_without_ssid);
   it("user observes that AP config can be saved and read from NVS",
