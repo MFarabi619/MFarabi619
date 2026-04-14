@@ -1,8 +1,8 @@
 #include "shell.h"
 #include "commands.h"
 #include "microfetch.h"
-#include "../../console/prompt.h"
-#include "../../services/identity.h"
+#include "console/prompt.h"
+#include <identity.h>
 #include "../coreutils/coreutils.h"
 #include "../ssh/ssh_client.h"
 #include "../ssh/ssh_server.h"
@@ -22,7 +22,10 @@ void programs::shell::initialize() {
   services::identity::initialize();
 
   Console.setMaxHistory(32);
-  Console.begin();
+  if (!Console.begin()) {
+    Serial.println(F("[console] init failed"));
+    return;
+  }
 
   programs::shell::commands::registerAll();
   programs::coreutils::registerAll();
@@ -48,7 +51,7 @@ void programs::shell::service() {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../../testing/it.h"
+#include <testing/utils.h>
 
 static void shell_test_initializes(void) {
   TEST_MESSAGE("user asks the device to initialize the console");

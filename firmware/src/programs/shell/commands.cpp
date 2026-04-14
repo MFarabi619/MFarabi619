@@ -1,8 +1,8 @@
 #include "commands.h"
-#include "../../boot/system.h"
-#include "../../networking/wifi.h"
-#include "../../power/sleep.h"
-#include "../../services/data_logger.h"
+#include <boot/system.h>
+#include <networking/wifi.h>
+#include "power/sleep.h"
+#include "services/data_logger.h"
 #include "../ssh/ssh_server.h"
 
 #include <Arduino.h>

@@ -1,7 +1,7 @@
 #include "voltage.h"
 #include "registry.h"
-#include "../config.h"
-#include "../hardware/i2c.h"
+#include <config.h>
+#include <i2c.h>
 
 #include <Adafruit_ADS1X15.h>
 #include <Arduino.h>
@@ -171,8 +171,8 @@ bool sensors::voltage::access(VoltageSensorData *sensor_data) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
-#include "../testing/i2c_helpers.h"
+#include <testing/utils.h>
+
 #include <math.h>
 
 static void voltage_test_initializes(void) {

@@ -1,8 +1,8 @@
 #include "ble.h"
-#include "../config.h"
+#include <config.h>
 #include "../console/remote.h"
-#include "../services/system.h"
-#include "../sensors/manager.h"
+#include <services/system.h>
+#include <manager.h>
 
 #include <Arduino.h>
 #include <BLEDevice.h>
@@ -85,13 +85,14 @@ void networking::ble::initialize(void) {
   BLEDevice::init(config::HOSTNAME);
   BLEDevice::setMTU(517);
 
+  // Intentionally leaked — BLE stack owns these for device lifetime.
   BLESecurity *pSecurity = new BLESecurity();
   pSecurity->setPassKey(true, config::ble::PASSKEY);
   pSecurity->setCapability(ESP_IO_CAP_OUT);
   pSecurity->setAuthenticationMode(true, true, true);
 
   ble_server = BLEDevice::createServer();
-  ble_server->setCallbacks(new BleServerCallbacks());
+  ble_server->setCallbacks(new BleServerCallbacks());  // BLE stack owns
   ble_server->advertiseOnDisconnect(true);
 
   BLEService *nus = ble_server->createService(NUS_SERVICE_UUID);
@@ -107,7 +108,7 @@ void networking::ble::initialize(void) {
     | BLECharacteristic::PROPERTY_WRITE_AUTHEN
   );
   nus_rx->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
-  nus_rx->setCallbacks(new BleRxCallbacks());
+  nus_rx->setCallbacks(new BleRxCallbacks());  // BLE stack owns
 
   nus->start();
 
@@ -182,7 +183,7 @@ int networking::ble::clientCount(void) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 void networking::ble::test(void) {
 }

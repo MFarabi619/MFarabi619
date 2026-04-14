@@ -1,6 +1,4 @@
-#ifndef SENSORS_TEMPERATURE_AND_HUMIDITY_H
-#define SENSORS_TEMPERATURE_AND_HUMIDITY_H
-
+#pragma once
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -30,4 +28,3 @@ void test();
 
 }
 
-#endif

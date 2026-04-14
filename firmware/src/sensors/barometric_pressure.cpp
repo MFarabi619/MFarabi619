@@ -1,6 +1,6 @@
 #include "barometric_pressure.h"
 #include "registry.h"
-#include "../hardware/i2c.h"
+#include <i2c.h>
 
 #include <Arduino.h>
 #include <Adafruit_LPS2X.h>
@@ -83,7 +83,7 @@ bool sensors::barometric_pressure::isAvailable() {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 namespace sensors::barometric_pressure { void test(void); }
 

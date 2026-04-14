@@ -1,6 +1,4 @@
-#ifndef POWER_SLEEP_H
-#define POWER_SLEEP_H
-
+#pragma once
 #include <stdint.h>
 
 struct SleepCommand {
@@ -37,4 +35,3 @@ void abortPending();
 
 }
 
-#endif

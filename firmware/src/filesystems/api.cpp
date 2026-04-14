@@ -1,6 +1,6 @@
 #include "api.h"
 
-#include "../hardware/storage.h"
+#include <storage.h>
 
 #include <LittleFS.h>
 #include <SD.h>
@@ -102,7 +102,7 @@ bool filesystems::api::removeRecursive(fs::FS &filesystem, const String &path) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 namespace filesystems::api { void test(void); }
 

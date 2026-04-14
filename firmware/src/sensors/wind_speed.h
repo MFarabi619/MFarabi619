@@ -1,6 +1,4 @@
-#ifndef SENSORS_WIND_SPEED_H
-#define SENSORS_WIND_SPEED_H
-
+#pragma once
 #include <stdbool.h>
 
 struct WindSpeedSensorData {
@@ -16,4 +14,3 @@ bool access(WindSpeedSensorData *sensor_data);
 
 }
 
-#endif

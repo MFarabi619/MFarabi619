@@ -1,6 +1,4 @@
-#ifndef SERVICES_HTTP_H
-#define SERVICES_HTTP_H
-
+#pragma once
 #include <stddef.h>
 
 namespace services::http {
@@ -17,4 +15,3 @@ void test();
 
 }
 
-#endif

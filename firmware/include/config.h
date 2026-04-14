@@ -1,6 +1,5 @@
 // clang-format off
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include "config/features.h"
 #include "config/board.h"
@@ -26,4 +25,3 @@ static_assert(config::buttons::COUNT <= 8, "Too many buttons");
 static_assert(config::sleep::DEFAULT_DURATION_SECONDS > 0,
               "Default sleep duration must be greater than 0");
 
-#endif // CONFIG_H

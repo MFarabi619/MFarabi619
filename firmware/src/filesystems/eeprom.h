@@ -1,6 +1,4 @@
-#ifndef FILESYSTEMS_EEPROM_H
-#define FILESYSTEMS_EEPROM_H
-
+#pragma once
 #include <at24c32.h>
 
 namespace filesystems::eeprom {
@@ -15,4 +13,3 @@ void test();
 
 }
 
-#endif

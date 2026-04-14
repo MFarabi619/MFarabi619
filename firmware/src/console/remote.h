@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../programs/shell/session.h"
+#include "session.h"
 #include <stddef.h>
 
 namespace console::remote {

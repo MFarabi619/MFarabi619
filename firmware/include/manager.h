@@ -1,15 +1,14 @@
-#ifndef SENSORS_MANAGER_H
-#define SENSORS_MANAGER_H
+#pragma once
 
-#include "barometric_pressure.h"
-#include "carbon_dioxide.h"
-#include "current.h"
-#include "soil.h"
-#include "solar_radiation.h"
-#include "temperature_and_humidity.h"
-#include "voltage.h"
-#include "wind_direction.h"
-#include "wind_speed.h"
+#include "sensors/barometric_pressure.h"
+#include "sensors/carbon_dioxide.h"
+#include "sensors/current.h"
+#include "sensors/soil.h"
+#include "sensors/solar_radiation.h"
+#include "sensors/temperature_and_humidity.h"
+#include "sensors/voltage.h"
+#include "sensors/wind_direction.h"
+#include "sensors/wind_speed.h"
 
 struct SensorInventorySnapshot {
   uint8_t temperature_humidity_count;
@@ -40,4 +39,3 @@ bool accessBarometricPressure(BarometricPressureSensorData *sensor_data);
 
 }
 
-#endif

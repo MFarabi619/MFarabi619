@@ -1,6 +1,6 @@
 #include "api.h"
-#include "../../email.h"
-#include "../../../config.h"
+#include "services/email.h"
+#include <config.h>
 
 #include <ArduinoJson.h>
 

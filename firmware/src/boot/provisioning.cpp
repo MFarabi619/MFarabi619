@@ -1,6 +1,6 @@
 #include "provisioning.h"
-#include "../config.h"
-#include "../services/identity.h"
+#include <config.h>
+#include <identity.h>
 
 #include <atomic>
 #include <Arduino.h>
@@ -153,13 +153,14 @@ void boot::provisioning::start(void) {
 
   BLEDevice::init(config::HOSTNAME);
 
+  // Intentionally leaked — BLE stack owns these for device lifetime.
   BLESecurity *pSecurity = new BLESecurity();
   pSecurity->setPassKey(true, config::ble::PASSKEY);
   pSecurity->setCapability(ESP_IO_CAP_OUT);
   pSecurity->setAuthenticationMode(true, true, true);
 
   prov_server = BLEDevice::createServer();
-  prov_server->setCallbacks(new ProvisioningServerCallbacks());
+  prov_server->setCallbacks(new ProvisioningServerCallbacks());  // BLE stack owns
   prov_server->advertiseOnDisconnect(true);
 
   BLEService *svc = prov_server->createService(config::provisioning::SERVICE_UUID);
@@ -168,19 +169,19 @@ void boot::provisioning::start(void) {
       PROV_CHAR_SSID_UUID,
       BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_WRITE_AUTHEN);
   ssid_char->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
-  ssid_char->setCallbacks(new ProvisioningSsidCallbacks());
+  ssid_char->setCallbacks(new ProvisioningSsidCallbacks());  // BLE stack owns
 
   BLECharacteristic *pass_char = svc->createCharacteristic(
       PROV_CHAR_PASSWORD_UUID,
       BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_WRITE_AUTHEN);
   pass_char->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
-  pass_char->setCallbacks(new ProvisioningPasswordCallbacks());
+  pass_char->setCallbacks(new ProvisioningPasswordCallbacks());  // BLE stack owns
 
   BLECharacteristic *config_char = svc->createCharacteristic(
       config::provisioning::CONFIG_UUID,
       BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_WRITE_AUTHEN);
   config_char->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
-  config_char->setCallbacks(new ProvisioningConfigCallbacks());
+  config_char->setCallbacks(new ProvisioningConfigCallbacks());  // BLE stack owns
 
   status_char = svc->createCharacteristic(
       PROV_CHAR_STATUS_UUID,
@@ -244,9 +245,9 @@ void boot::provisioning::start(void) {}
 
 
 #include "provisioning.h"
-#include "../testing/it.h"
-#include "../testing/nvs_helpers.h"
-#include "../config.h"
+#include <testing/utils.h>
+
+#include <config.h>
 
 #include <Preferences.h>
 #include <WiFi.h>

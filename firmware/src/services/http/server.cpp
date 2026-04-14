@@ -1,10 +1,10 @@
 #include "../http.h"
 #include "../cloudevents.h"
 #include "../ws_shell.h"
-#include "../../hardware/storage.h"
-#include "../../networking/wifi.h"
+#include <storage.h>
+#include <networking/wifi.h>
 #include "api/api.h"
-#include "../../config.h"
+#include <config.h>
 
 #include <Arduino.h>
 #include <WiFi.h>

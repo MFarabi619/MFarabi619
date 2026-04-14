@@ -1,7 +1,7 @@
 #include "manager.h"
 #include "registry.h"
 
-#include "../hardware/i2c.h"
+#include <i2c.h>
 #include "../networking/modbus.h"
 
 #include <Arduino.h>

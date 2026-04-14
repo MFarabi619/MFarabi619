@@ -1,5 +1,5 @@
-#include "led.h"
-#include "../config.h"
+#include <led.h>
+#include <config.h>
 
 #include <FastLED.h>
 
@@ -100,7 +100,7 @@ void Led::fadeOut(const Color &color, uint32_t duration_ms) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 static void led_test_init(void) {
     TEST_MESSAGE("user initializes the LED");

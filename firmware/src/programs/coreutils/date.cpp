@@ -1,6 +1,6 @@
 #include "coreutils.h"
-#include "../../networking/sntp.h"
-#include "../../services/rtc.h"
+#include "networking/sntp.h"
+#include "services/rtc.h"
 
 #include <stdio.h>
 

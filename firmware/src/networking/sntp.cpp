@@ -72,10 +72,10 @@ uint32_t networking::sntp::accessUTCEpoch() {
 
 
 #include "sntp.h"
-#include "wifi.h"
-#include "../services/rtc.h"
-#include "../testing/it.h"
-#include "../testing/nvs_helpers.h"
+#include <networking/wifi.h>
+#include "services/rtc.h"
+#include <testing/utils.h>
+
 
 namespace networking::sntp { void test(void); }
 

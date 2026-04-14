@@ -1,11 +1,10 @@
-#ifndef SERVICES_SYSTEM_H
-#define SERVICES_SYSTEM_H
+#pragma once
 
-#include "data_logger.h"
-#include "identity.h"
-#include "../hardware/storage.h"
-#include "../networking/wifi.h"
-#include "../power/sleep.h"
+#include "services/data_logger.h"
+#include <identity.h>
+#include <storage.h>
+#include <networking/wifi.h>
+#include "power/sleep.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -50,4 +49,3 @@ size_t formatUptime(char *buf, size_t len, uint32_t uptime_seconds);
 
 }
 
-#endif

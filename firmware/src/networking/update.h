@@ -1,7 +1,5 @@
-#ifndef NETWORKING_UPDATE_H
-#define NETWORKING_UPDATE_H
-
-#include "../config.h"
+#pragma once
+#include <config.h>
 #include <stddef.h>
 
 namespace networking::update {
@@ -15,4 +13,3 @@ void checkSDOnBoot();
 
 } // namespace networking::update
 
-#endif

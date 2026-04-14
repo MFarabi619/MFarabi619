@@ -1,6 +1,4 @@
-#ifndef SERVICES_DATA_LOGGER_H
-#define SERVICES_DATA_LOGGER_H
-
+#pragma once
 #include <stdint.h>
 
 struct DataLoggerStatusSnapshot {
@@ -27,4 +25,3 @@ void test();
 
 }
 
-#endif

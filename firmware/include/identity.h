@@ -1,7 +1,6 @@
-#ifndef SERVICES_IDENTITY_H
-#define SERVICES_IDENTITY_H
+#pragma once
 
-#include "../config.h"
+#include <config.h>
 #include <stddef.h>
 
 struct DeviceIdentitySnapshot {
@@ -41,4 +40,3 @@ void test();
 
 }
 
-#endif

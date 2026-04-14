@@ -1,6 +1,6 @@
 #include "coreutils.h"
-#include "../../sensors/manager.h"
-#include "../../config.h"
+#include <manager.h>
+#include <config.h>
 
 #include <stdio.h>
 

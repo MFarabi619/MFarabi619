@@ -1,6 +1,4 @@
-#ifndef SENSORS_SOIL_H
-#define SENSORS_SOIL_H
-
+#pragma once
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -27,4 +25,3 @@ void test();
 
 }
 
-#endif

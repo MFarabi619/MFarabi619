@@ -1,7 +1,7 @@
 #include "ssh_server.h"
-#include "../../console/prompt.h"
-#include "../../console/remote.h"
-#include "../led.h"
+#include "console/prompt.h"
+#include "console/remote.h"
+#include <led.h>
 
 #include <Arduino.h>
 #include <LittleFS.h>
@@ -318,7 +318,7 @@ bool services::sshd::initialize() {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../../testing/it.h"
+#include <testing/utils.h>
 
 static void ssh_server_test_libssh_initializes(void) {
   TEST_MESSAGE("user asks the device to initialize libssh");

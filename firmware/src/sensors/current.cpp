@@ -1,8 +1,8 @@
 #include "current.h"
 #include "registry.h"
 
-#include "../config.h"
-#include "../hardware/i2c.h"
+#include <config.h>
+#include <i2c.h>
 
 #include <Arduino.h>
 #include <Adafruit_INA228.h>
@@ -133,8 +133,8 @@ bool sensors::current::access(CurrentSensorData *sensor_data) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
-#include "../testing/i2c_helpers.h"
+#include <testing/utils.h>
+
 
 static void current_test_initializes(void) {
   TEST_MESSAGE("user initializes the INA228 current monitor");

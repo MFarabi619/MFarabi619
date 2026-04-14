@@ -1,5 +1,5 @@
 #include "i2c.h"
-#include "../config.h"
+#include <config.h>
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -248,11 +248,11 @@ const char *hardware::i2c::deviceNameAt(uint8_t address) {
   switch (address) {
     case 0x44: return "Sensirion SHT3x Temperature & Humidity Sensor";
     case 0x48: return "ADS1115 16-Bit ADC - 4 Channel with Programmable Gain Amplifier";
-    case 0x50: return "Atmel AT24C32 EEPROM";
+    case 0x50: return "Microchip Technology AT24C32 EEPROM";
     case 0x5C: case 0x5D: return "Adafruit LPS25 Pressure Sensor";
     case 0x61: return "Sensirion SCD30 CO2 Infrared Gas Sensor";
     case 0x62: return "Sensirion SCD41 CO2 Optical Gas Sensor";
-    case 0x68: return "Analog Devices DS3231";
+    case 0x68: return "Analog Devices DS3231 RTC";
     case 0x70: return "Adafruit TCA9548A 1-to-8 I2C Multiplexer Breakout";
     default:   return "unknown";
   }
@@ -333,8 +333,8 @@ bool hardware::i2c::findDevice(uint8_t address, DiscoveredDevice *result) {
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
-#include "../testing/i2c_helpers.h"
+#include <testing/utils.h>
+
 
 static void i2c_mux_test_init(void) {
   test_ensure_wire1();

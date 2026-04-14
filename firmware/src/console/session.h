@@ -1,6 +1,4 @@
-#ifndef PROGRAMS_SHELL_SESSION_H
-#define PROGRAMS_SHELL_SESSION_H
-
+#pragma once
 #include <stddef.h>
 #include <atomic>
 #include <stdint.h>
@@ -29,4 +27,3 @@ bool push(WriteBuffer *buffer, char ch);
 
 }
 
-#endif

@@ -2,8 +2,8 @@
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../networking/wifi.h"
-#include "../testing/it.h"
+#include <networking/wifi.h>
+#include <testing/utils.h>
 
 #include <ArduinoJson.h>
 #include <LittleFS.h>

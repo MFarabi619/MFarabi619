@@ -1,5 +1,5 @@
 #include "buttons.h"
-#include "../config.h"
+#include <config.h>
 
 #include <OneButton.h>
 #include <Arduino.h>
@@ -154,7 +154,7 @@ void programs::buttons::reset(uint8_t index) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 static void buttons_test_config_valid(void) {
   TEST_MESSAGE("user verifies button GPIO configuration");

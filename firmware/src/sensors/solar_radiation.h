@@ -1,6 +1,4 @@
-#ifndef SENSORS_SOLAR_RADIATION_H
-#define SENSORS_SOLAR_RADIATION_H
-
+#pragma once
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -21,4 +19,3 @@ void test();
 
 }
 
-#endif

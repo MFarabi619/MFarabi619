@@ -1,6 +1,4 @@
-#ifndef CONSOLE_ICONS_H
-#define CONSOLE_ICONS_H
-
+#pragma once
 // Centralized Nerd Font glyph registry.
 // Names match the Nerd Font cheat sheet: https://www.nerdfonts.com/cheat-sheet
 // Format: NF_{source}_{name} in SCREAMING_SNAKE_CASE.
@@ -72,4 +70,3 @@
 
 #define DEGREE_SIGN          "\xc2\xb0"  // °
 
-#endif // CONSOLE_ICONS_H

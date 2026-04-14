@@ -1,5 +1,4 @@
-#ifndef HARDWARE_I2C_H
-#define HARDWARE_I2C_H
+#pragma once
 
 #include <TCA9548.h>
 #include <stddef.h>
@@ -72,4 +71,3 @@ void test();
 
 }
 
-#endif

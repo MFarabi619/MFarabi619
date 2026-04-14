@@ -1,7 +1,7 @@
 #include "soil.h"
 #include "registry.h"
 
-#include "../config.h"
+#include <config.h>
 #include "../hardware/rs485.h"
 #include "../networking/modbus.h"
 
@@ -135,7 +135,7 @@ uint8_t sensors::soil::probeCount() {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 static void soil_test_config_lookup(void) {
   TEST_MESSAGE("user checks if soil probes are in the modbus topology");

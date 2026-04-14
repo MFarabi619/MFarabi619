@@ -85,7 +85,7 @@ bool hardware::storage::accessSnapshot(StorageQuery *query) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 static void sd_test_mounts(void) {
   TEST_MESSAGE("user asks the device to mount the SD card");

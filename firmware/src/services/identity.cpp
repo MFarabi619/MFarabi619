@@ -1,7 +1,7 @@
-#include "identity.h"
+#include <identity.h>
 
 #include "../boot/provisioning.h"
-#include "../networking/wifi.h"
+#include <networking/wifi.h>
 
 #include <Arduino.h>
 #include <Preferences.h>
@@ -113,7 +113,7 @@ bool services::identity::accessSnapshot(DeviceIdentitySnapshot *snapshot) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 static void identity_test_hostname_default(void) {
   TEST_MESSAGE("user checks boot-time hostname");

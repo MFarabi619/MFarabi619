@@ -1,7 +1,5 @@
-#ifndef SERVICES_EMAIL_H
-#define SERVICES_EMAIL_H
-
-#include "../config.h"
+#pragma once
+#include <config.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -17,4 +15,3 @@ void test();
 
 }
 
-#endif

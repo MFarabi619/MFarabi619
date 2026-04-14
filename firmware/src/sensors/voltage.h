@@ -1,7 +1,5 @@
-#ifndef SENSORS_VOLTAGE_H
-#define SENSORS_VOLTAGE_H
-
-#include "../config.h"
+#pragma once
+#include <config.h>
 
 struct VoltageSensorData {
   float channel_volts[config::voltage::CHANNEL_COUNT];
@@ -20,4 +18,3 @@ void test();
 
 }
 
-#endif

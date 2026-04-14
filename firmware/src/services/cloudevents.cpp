@@ -1,8 +1,8 @@
 #include "cloudevents.h"
-#include "../config.h"
-#include "system.h"
+#include <config.h>
+#include <services/system.h>
 #include "../sensors/registry.h"
-#include "../sensors/manager.h"
+#include <manager.h>
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -253,7 +253,7 @@ void services::cloudevents::registerRoutes(AsyncWebServer *server) {
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 static void cloudevents_test_source_format(void) {
   TEST_MESSAGE("user verifies CloudEvents source string format");

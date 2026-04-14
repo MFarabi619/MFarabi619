@@ -1,7 +1,5 @@
-#ifndef NETWORKING_TELNET_H
-#define NETWORKING_TELNET_H
-
-#include "../config.h"
+#pragma once
+#include <config.h>
 
 namespace networking::telnet {
 
@@ -11,6 +9,9 @@ bool isConnected();
 const char *clientIP();
 void disconnect();
 
+#ifdef PIO_UNIT_TESTING
+void test();
+#endif
+
 } // namespace networking::telnet
 
-#endif

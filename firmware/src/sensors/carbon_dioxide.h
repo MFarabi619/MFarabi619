@@ -1,6 +1,4 @@
-#ifndef SENSORS_CARBON_DIOXIDE_H
-#define SENSORS_CARBON_DIOXIDE_H
-
+#pragma once
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -41,4 +39,3 @@ void test();
 
 }
 
-#endif

@@ -1,5 +1,5 @@
 #include "coreutils.h"
-#include "../../networking/wifi.h"
+#include <networking/wifi.h>
 
 #include <stdio.h>
 

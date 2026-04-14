@@ -1,6 +1,4 @@
-#ifndef SERVICES_WS_SHELL_H
-#define SERVICES_WS_SHELL_H
-
+#pragma once
 class AsyncWebServer;
 
 namespace services::ws_shell {
@@ -10,4 +8,3 @@ void service(void);
 
 }
 
-#endif

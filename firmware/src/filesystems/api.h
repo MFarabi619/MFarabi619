@@ -1,7 +1,5 @@
-#ifndef FILESYSTEMS_API_H
-#define FILESYSTEMS_API_H
-
-#include "../config.h"
+#pragma once
+#include <config.h>
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <FS.h>
@@ -30,4 +28,3 @@ void test();
 
 }
 
-#endif

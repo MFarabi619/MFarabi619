@@ -1,7 +1,7 @@
 #include "carbon_dioxide.h"
 #include "registry.h"
-#include "../config.h"
-#include "../hardware/i2c.h"
+#include <config.h>
+#include <i2c.h>
 
 #include <Arduino.h>
 #include <SensirionI2cScd30.h>
@@ -254,7 +254,7 @@ bool sensors::carbon_dioxide::isAvailable() {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 static void co2_test_init(void) {
   TEST_MESSAGE("initializing CO2 module");

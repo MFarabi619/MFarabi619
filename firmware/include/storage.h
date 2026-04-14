@@ -1,5 +1,4 @@
-#ifndef HARDWARE_STORAGE_H
-#define HARDWARE_STORAGE_H
+#pragma once
 
 #include <stdint.h>
 
@@ -29,4 +28,3 @@ bool accessSnapshot(StorageQuery *query);
 
 }
 
-#endif

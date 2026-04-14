@@ -3,7 +3,7 @@
 #if CERATINA_TELNET_ENABLED
 
 #include "../console/remote.h"
-#include "../programs/led.h"
+#include <led.h>
 
 #include <Arduino.h>
 #include <ESPTelnet.h>
@@ -125,7 +125,7 @@ void networking::telnet::disconnect() {}
 #ifdef PIO_UNIT_TESTING
 
 #include "telnet.h"
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 #include <Arduino.h>
 

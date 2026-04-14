@@ -1,12 +1,12 @@
 #include "microfetch.h"
-#include "../../config.h"
-#include "../../console/icons.h"
-#include "../../hardware/storage.h"
-#include "../../hardware/i2c.h"
-#include "../../networking/wifi.h"
-#include "../../sensors/manager.h"
-#include "../../services/identity.h"
-#include "../../services/system.h"
+#include <config.h>
+#include "console/icons.h"
+#include <storage.h>
+#include <i2c.h>
+#include <networking/wifi.h>
+#include <manager.h>
+#include <identity.h>
+#include <services/system.h>
 
 #include <Arduino.h>
 #include <Console.h>

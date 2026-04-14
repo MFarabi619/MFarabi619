@@ -1,7 +1,7 @@
 #include "api.h"
-#include "../../../config.h"
-#include "../../../networking/wifi.h"
-#include "../../../services/identity.h"
+#include <config.h>
+#include <networking/wifi.h>
+#include <identity.h>
 
 #include <Arduino.h>
 #include <WiFi.h>

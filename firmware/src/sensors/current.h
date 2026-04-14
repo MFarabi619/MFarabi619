@@ -1,6 +1,4 @@
-#ifndef SENSORS_CURRENT_H
-#define SENSORS_CURRENT_H
-
+#pragma once
 #include <stdbool.h>
 
 struct CurrentSensorData {
@@ -26,4 +24,3 @@ void test();
 
 }
 
-#endif

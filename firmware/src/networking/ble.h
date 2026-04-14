@@ -1,6 +1,4 @@
-#ifndef NETWORKING_BLE_H
-#define NETWORKING_BLE_H
-
+#pragma once
 namespace networking::ble {
 
 void initialize(void);
@@ -14,4 +12,3 @@ void test(void);
 
 } // namespace networking::ble
 
-#endif

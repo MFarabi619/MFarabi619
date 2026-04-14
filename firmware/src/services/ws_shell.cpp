@@ -1,5 +1,5 @@
 #include "ws_shell.h"
-#include "../config.h"
+#include <config.h>
 #include "../console/remote.h"
 
 #include <Arduino.h>

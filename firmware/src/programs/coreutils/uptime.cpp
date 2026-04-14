@@ -1,5 +1,5 @@
 #include "coreutils.h"
-#include "../../services/system.h"
+#include <services/system.h>
 
 #include <stdio.h>
 #include <string.h>

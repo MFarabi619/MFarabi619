@@ -1,7 +1,7 @@
 #include "solar_radiation.h"
 #include "registry.h"
 
-#include "../config.h"
+#include <config.h>
 #include "../hardware/rs485.h"
 #include "../networking/modbus.h"
 
@@ -81,7 +81,7 @@ bool sensors::solar_radiation::isAvailable() {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 static void solar_radiation_test_config_lookup(void) {
   TEST_MESSAGE("user checks if solar radiation is in the modbus topology");

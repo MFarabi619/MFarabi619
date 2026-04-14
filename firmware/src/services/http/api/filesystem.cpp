@@ -1,8 +1,8 @@
 #include "api.h"
-#include "../../../config.h"
-#include "../../../filesystems/api.h"
-#include "../../../hardware/storage.h"
-#include "../../../programs/led.h"
+#include <config.h>
+#include "filesystems/api.h"
+#include <storage.h>
+#include <led.h>
 
 #include <Arduino.h>
 #include <AsyncJson.h>

@@ -1,9 +1,9 @@
 #include "prompt.h"
 #include "ansi.h"
 #include "icons.h"
-#include "../services/identity.h"
+#include <identity.h>
 #include "../networking/sntp.h"
-#include "../config.h"
+#include <config.h>
 
 #include <Arduino.h>
 #include <stdio.h>

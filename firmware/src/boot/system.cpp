@@ -1,25 +1,25 @@
-#include "system.h"
+#include <boot/system.h>
 
-#include "../config.h"
+#include <config.h>
 #include "provisioning.h"
-#include "../hardware/i2c.h"
-#include "../hardware/storage.h"
-#include "../networking/wifi.h"
+#include <i2c.h>
+#include <storage.h>
+#include <networking/wifi.h>
 #include "../networking/sntp.h"
 #include "../networking/telnet.h"
 #include "../networking/ota.h"
 #include "../networking/update.h"
 #include "../networking/ble.h"
 #include "../programs/buttons.h"
-#include "../programs/led.h"
+#include <led.h>
 #include "../power/sleep.h"
 #include "../programs/shell/shell.h"
 #include "../programs/ssh/ssh_server.h"
 #include "../services/http.h"
 #include "../services/data_logger.h"
 #include "../services/ws_shell.h"
-#include "../services/identity.h"
-#include "../sensors/manager.h"
+#include <identity.h>
+#include <manager.h>
 
 #include <Arduino.h>
 #include <freertos/timers.h>

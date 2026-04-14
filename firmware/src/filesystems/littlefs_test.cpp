@@ -1,7 +1,7 @@
 #ifdef PIO_UNIT_TESTING
 
-#include "../../../config.h"
-#include "../../../testing/it.h"
+#include <config.h>
+#include <testing/utils.h>
 
 namespace filesystems::littlefs { void test(void); }
 

@@ -1,6 +1,4 @@
-#ifndef SENSORS_WIND_DIRECTION_H
-#define SENSORS_WIND_DIRECTION_H
-
+#pragma once
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -18,4 +16,3 @@ bool access(WindDirectionSensorData *sensor_data);
 
 }
 
-#endif

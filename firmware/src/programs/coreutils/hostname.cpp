@@ -1,5 +1,5 @@
 #include "coreutils.h"
-#include "../../services/identity.h"
+#include <identity.h>
 
 #include <stdio.h>
 

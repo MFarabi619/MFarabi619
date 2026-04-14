@@ -1,6 +1,4 @@
-#ifndef CONSOLE_ANSI_H
-#define CONSOLE_ANSI_H
-
+#pragma once
 // ANSI escape codes for terminal output.
 // Mirrors firmware/src/programs/shell.rs prompt color scheme.
 
@@ -65,4 +63,3 @@
 #define PROMPT_ERROR       ANSI_FG_RED
 #define PROMPT_WARN        ANSI_FG_YELLOW
 
-#endif // CONSOLE_ANSI_H

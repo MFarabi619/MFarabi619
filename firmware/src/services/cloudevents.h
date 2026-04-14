@@ -1,6 +1,4 @@
-#ifndef SERVICES_CLOUDEVENTS_H
-#define SERVICES_CLOUDEVENTS_H
-
+#pragma once
 class AsyncWebServer;
 
 namespace services::cloudevents {
@@ -13,4 +11,3 @@ void test(void);
 
 }
 
-#endif

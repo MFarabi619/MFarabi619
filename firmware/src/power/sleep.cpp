@@ -1,8 +1,8 @@
 #include "sleep.h"
 
-#include "../config.h"
-#include "../hardware/i2c.h"
-#include "../programs/led.h"
+#include <config.h>
+#include <i2c.h>
+#include <led.h>
 #include "../networking/ota.h"
 #include "../sensors/carbon_dioxide.h"
 #include "../services/data_logger.h"
@@ -188,7 +188,7 @@ bool power::sleep::storeConfig(const SleepConfig *sleep_config) {
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 namespace power::sleep { void test(void); }
 

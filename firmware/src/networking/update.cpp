@@ -1,6 +1,6 @@
 #include "update.h"
-#include "../hardware/storage.h"
-#include "../programs/led.h"
+#include <storage.h>
+#include <led.h>
 
 #include <Arduino.h>
 #include <Update.h>
@@ -158,7 +158,7 @@ void networking::update::checkSDOnBoot() {
 #ifdef PIO_UNIT_TESTING
 
 #include "update.h"
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 namespace networking::update { void test(void); }
 

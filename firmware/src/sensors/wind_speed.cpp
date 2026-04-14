@@ -1,7 +1,7 @@
 #include "wind_speed.h"
 #include "registry.h"
 
-#include "../config.h"
+#include <config.h>
 #include "../hardware/rs485.h"
 #include "../networking/modbus.h"
 

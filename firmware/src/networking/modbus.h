@@ -1,6 +1,4 @@
-#ifndef NETWORKING_MODBUS_H
-#define NETWORKING_MODBUS_H
-
+#pragma once
 #include "../hardware/rs485.h"
 
 #include <stdint.h>
@@ -59,4 +57,3 @@ bool scan(ModbusScanCommand *command);
 
 }
 
-#endif

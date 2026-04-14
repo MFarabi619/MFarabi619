@@ -73,7 +73,7 @@ bool networking::ota::isInProgress(void) { return false; }
 
 
 #include "ota.h"
-#include "../testing/it.h"
+#include <testing/utils.h>
 
 namespace networking::ota { void test(void); }
 

@@ -1,6 +1,6 @@
 #include "eeprom.h"
-#include "../config.h"
-#include "../hardware/i2c.h"
+#include <config.h>
+#include <i2c.h>
 
 #include <Arduino.h>
 
@@ -40,8 +40,8 @@ bool filesystems::eeprom::initialize() {
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
-#include "../testing/i2c_helpers.h"
+#include <testing/utils.h>
+
 
 #define TEST_BASE 3900
 

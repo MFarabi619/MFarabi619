@@ -1,10 +1,10 @@
 #include "data_logger.h"
 
-#include "../config.h"
-#include "../hardware/storage.h"
+#include <config.h>
+#include <storage.h>
 #include "../networking/sntp.h"
 #include "rtc.h"
-#include "../sensors/manager.h"
+#include <manager.h>
 
 #include <Arduino.h>
 #include <SD.h>
@@ -174,7 +174,7 @@ bool services::data_logger::accessStatus(DataLoggerStatusSnapshot *snapshot) {
 
 #ifdef PIO_UNIT_TESTING
 
-#include "../testing/it.h"
+#include <testing/utils.h>
 #include <SD.h>
 
 namespace services::data_logger { void test(void); }

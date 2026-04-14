@@ -1,7 +1,5 @@
-#ifndef NETWORKING_OTA_H
-#define NETWORKING_OTA_H
-
-#include "../config.h"
+#pragma once
+#include <config.h>
 
 namespace networking::ota {
 
@@ -11,4 +9,3 @@ bool isInProgress(void);
 
 } // namespace networking::ota
 
-#endif

@@ -1,7 +1,5 @@
-#ifndef HARDWARE_RS485_H
-#define HARDWARE_RS485_H
-
-#include "../config.h"
+#pragma once
+#include <config.h>
 
 #include <Arduino.h>
 
@@ -25,4 +23,3 @@ bool accessDescriptor(BusDescriptor *descriptor);
 
 }
 
-#endif
