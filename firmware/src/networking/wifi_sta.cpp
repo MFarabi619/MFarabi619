@@ -41,9 +41,9 @@ void networking::wifi::sta::initialize() {
         Serial.printf("[wifi] %s %s\n", WiFi.eventName(event),
                       WiFi.localIP().toString().c_str());
         LED.set(colors::Green);
-        if (!networking::wifi::internal::mdns_started && MDNS.begin(services::identity::accessHostname())) {
-          networking::wifi::internal::configureMdnsServices(services::identity::accessHostname());
-          Serial.printf("[mdns] %s.local\n", services::identity::accessHostname());
+        if (!networking::wifi::internal::mdns_started && MDNS.begin(services::identity::access_hostname())) {
+          networking::wifi::internal::configureMdnsServices(services::identity::access_hostname());
+          Serial.printf("[mdns] %s.local\n", services::identity::access_hostname());
           networking::wifi::internal::mdns_started = true;
         }
         break;
@@ -54,7 +54,7 @@ void networking::wifi::sta::initialize() {
   });
 }
 
-void networking::wifi::configureHostname(const char *hostname) {
+void networking::wifi::configure_hostname(const char *hostname) {
   if (!hostname || hostname[0] == '\0') return;
 
   WiFi.setHostname(hostname);

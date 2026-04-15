@@ -20,13 +20,13 @@ struct IdentityStringQuery {
 namespace services::identity {
 
 void initialize();
-const char *accessHostname();
-bool configureHostname(const char *hostname);
+const char *access_hostname();
+bool configure_hostname(const char *hostname);
 
-bool accessUsername(IdentityStringQuery *query);
-bool configureUsername(const char *value);
+bool access_username(IdentityStringQuery *query);
+bool configure_username(const char *value);
 
-bool accessDeviceName(IdentityStringQuery *query);
+bool access_device_name(IdentityStringQuery *query);
 bool configureDeviceName(const char *value);
 
 bool accessAPIKey(IdentityStringQuery *query);
@@ -38,5 +38,4 @@ bool accessSnapshot(DeviceIdentitySnapshot *snapshot);
 void test();
 #endif
 
-}
-
+} // namespace services::identity

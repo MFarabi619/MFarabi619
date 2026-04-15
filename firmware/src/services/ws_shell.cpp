@@ -87,3 +87,48 @@ void services::ws_shell::service(void) {
   shell.service();
   ws.cleanupClients(1);
 }
+
+//------------------------------------------
+//  Tests
+//------------------------------------------
+#ifdef PIO_UNIT_TESTING
+
+#include <testing/utils.h>
+
+// TODO: WebSocket shell tests require a connected AsyncWebSocketClient,
+// which needs the HTTP server running and a WebSocket client on the network.
+// Test via the e2e test suite or browser dev tools.
+//
+// static void ws_shell_test_service_without_client(void) {
+//   TEST_MESSAGE("user calls ws_shell service with no connected client");
+//   services::ws_shell::service();
+//   TEST_MESSAGE("service returned without error");
+// }
+//
+// static void ws_shell_test_command_dispatch(void) {
+//   TEST_MESSAGE("user sends a command via WebSocket and receives output");
+//   // Requires: WebSocket client connected to ws://device/ws/shell
+//   // Send "help\n", verify response contains command list
+// }
+//
+// static void ws_shell_test_prompt_rendered(void) {
+//   TEST_MESSAGE("user connects via WebSocket and receives powerline prompt");
+//   // Requires: WebSocket client connected
+//   // Verify MOTD + prompt sent on connect
+// }
+//
+// static void ws_shell_test_max_one_client(void) {
+//   TEST_MESSAGE("user verifies second WebSocket client gets 503");
+//   // Requires: two WebSocket clients
+//   // First connects OK, second gets 503 from middleware
+// }
+
+void services::ws_shell::test() {
+  // TODO: Uncomment when WebSocket test client is available
+  // it("user calls ws_shell service without client", ws_shell_test_service_without_client);
+  // it("user sends command via WebSocket", ws_shell_test_command_dispatch);
+  // it("user receives prompt on WebSocket connect", ws_shell_test_prompt_rendered);
+  // it("user verifies max one WebSocket client", ws_shell_test_max_one_client);
+}
+
+#endif

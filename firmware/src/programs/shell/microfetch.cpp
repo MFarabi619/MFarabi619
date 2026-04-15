@@ -55,7 +55,7 @@ const char *programs::shell::microfetch::generate(const char *transport) {
   n = snprintf(fetch_buf + fetch_pos, fetch_remaining, "\r\n");
   fetch_pos += n; fetch_remaining -= n;
 
-  const char *hostname = services::identity::accessHostname();
+  const char *hostname = services::identity::access_hostname();
 
   n = snprintf(fetch_buf + fetch_pos, fetch_remaining,
     "  \x1b[1;32m%s\x1b[0m\x1b[2m@\x1b[0m\x1b[1;36m%s\x1b[0m\r\n",

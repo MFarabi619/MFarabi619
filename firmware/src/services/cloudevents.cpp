@@ -245,7 +245,7 @@ static void handle_cloudevents_get(AsyncWebServerRequest *request) {
 
 void services::cloudevents::registerRoutes(AsyncWebServer *server) {
   if (!server) return;
-  server->on("/api/cloudevents", HTTP_GET, handle_cloudevents_get).skipServerMiddlewares();
+  server->on("/api/cloudevents", HTTP_GET, handle_cloudevents_get);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

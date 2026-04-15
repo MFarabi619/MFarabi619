@@ -179,3 +179,65 @@ void services::http::initialize() {
   server.begin();
   Serial.printf("[http] listening on port %d\n", config::http::PORT);
 }
+
+//------------------------------------------
+//  Tests
+//------------------------------------------
+#ifdef PIO_UNIT_TESTING
+
+#include <testing/utils.h>
+
+// TODO: HTTP server tests require the server running and a WiFiClient
+// on the same network. The e2e tests in http.cpp already cover endpoint
+// responses. These stubs test server-level behavior.
+//
+// static void http_server_test_serves_index_from_sd(void) {
+//   TEST_MESSAGE("user verifies GET / serves index.html from SD card");
+//   // Requires: SD mounted with /index.html, server initialized
+//   // GET / should return 200 with HTML content
+// }
+//
+// static void http_server_test_captive_portal_redirect(void) {
+//   TEST_MESSAGE("user verifies captive portal redirects unknown hosts");
+//   // Requires: AP mode active, client sending Host header != AP IP
+//   // GET / with Host: captive.apple.com should 302 → http://192.168.4.1/
+// }
+//
+// static void http_server_test_404_returns_json(void) {
+//   TEST_MESSAGE("user verifies unknown routes return JSON 404");
+//   // GET /nonexistent → 404 {"error":"not found"}
+// }
+//
+// static void http_server_test_cors_headers_present(void) {
+//   TEST_MESSAGE("user verifies CORS headers on OPTIONS preflight");
+//   // OPTIONS /api/system/device/status
+//   // Should have Access-Control-Allow-Origin: *
+//   // Should have Access-Control-Allow-Methods: GET, POST, ...
+// }
+//
+// static void http_server_test_rate_limit_enforced(void) {
+//   TEST_MESSAGE("user verifies rate limit rejects excess requests");
+//   // POST /api/system/reset 3 times in 10s → third should get 429
+// }
+//
+// static void http_server_test_sse_connect(void) {
+//   TEST_MESSAGE("user connects to /events SSE stream");
+//   // GET /events → 200, receives "connected" event
+// }
+//
+// static void http_server_test_x_firmware_header(void) {
+//   TEST_MESSAGE("user verifies X-Firmware header on all responses");
+//   // Any GET → response should have X-Firmware: ceratina
+// }
+
+// void services::http::server_test() {
+//   it("user verifies index.html served from SD", http_server_test_serves_index_from_sd);
+//   it("user verifies captive portal redirect", http_server_test_captive_portal_redirect);
+//   it("user verifies 404 returns JSON", http_server_test_404_returns_json);
+//   it("user verifies CORS headers on preflight", http_server_test_cors_headers_present);
+//   it("user verifies rate limit enforcement", http_server_test_rate_limit_enforced);
+//   it("user verifies SSE connect event", http_server_test_sse_connect);
+//   it("user verifies X-Firmware header", http_server_test_x_firmware_header);
+// }
+
+#endif

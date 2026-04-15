@@ -30,11 +30,12 @@ void programs::shell::initialize() {
   programs::shell::commands::registerAll();
   programs::coreutils::registerAll();
   programs::shell::microfetch::registerCmd();
-  Console.addHelpCmd();
   Console.addCmd("resize", "detect terminal width", cmd_resize);
   programs::ssh_client::registerCommands();
   programs::ssh_fingerprint::registerCmd();
   programs::sqlite::registerCmd();
+  Console.addHelpCmd();
+  Console.setHelpVerboseLevel(0);
 
   printf("%s", console::prompt::build_motd());
   printf("%s", programs::shell::microfetch::generate());

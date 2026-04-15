@@ -2,17 +2,18 @@
 #include <config.h>
 #include <identity.h>
 
-#include <atomic>
 #include <Arduino.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#include <atomic>
 #include <esp_wifi.h>
 
 namespace {
 
 bool clear_namespace(const char *name_space) {
   Preferences prefs;
-  if (!prefs.begin(name_space, false)) return false;
+  if (!prefs.begin(name_space, false))
+    return false;
   prefs.clear();
   prefs.end();
   return true;
@@ -22,19 +23,19 @@ bool open_namespace(const char *name_space, bool readonly, Preferences *prefs) {
   return prefs && prefs->begin(name_space, readonly);
 }
 
-}
+} // namespace
 
-bool boot::provisioning::isEnabled(void) {
-  return CERATINA_PROV_ENABLED;
-}
+bool boot::provisioning::isEnabled(void) { return CERATINA_PROV_ENABLED; }
 
 bool boot::provisioning::isProvisioned(void) {
   wifi_config_t conf;
-  if (esp_wifi_get_config(WIFI_IF_STA, &conf) == ESP_OK && conf.sta.ssid[0] != '\0')
+  if (esp_wifi_get_config(WIFI_IF_STA, &conf) == ESP_OK &&
+      conf.sta.ssid[0] != '\0')
     return true;
 
 #if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
-  if (strlen(CONFIG_WIFI_SSID) > 0) return true;
+  if (strlen(CONFIG_WIFI_SSID) > 0)
+    return true;
 #endif
 
   return false;
@@ -43,22 +44,22 @@ bool boot::provisioning::isProvisioned(void) {
 void boot::provisioning::reset(void) {
   clear_namespace(config::provisioning::NVS_NAMESPACE);
   clear_namespace(config::wifi::NVS_NAMESPACE);
-  WiFi.disconnect(true, true);  // erases ESP-IDF stored STA credentials
+  WiFi.disconnect(true, true); // erases ESP-IDF stored STA credentials
   Serial.println(F("[prov] reset — credentials cleared"));
 }
 
 #if CERATINA_PROV_ENABLED
 
-#include <atomic>
 #include <ArduinoJson.h>
 #include <BLEDevice.h>
+#include <BLESecurity.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
-#include <BLESecurity.h>
+#include <atomic>
 
-#define PROV_CHAR_SSID_UUID     "ceaa0002-b5a3-f393-e0a9-e50e24dcca9e"
+#define PROV_CHAR_SSID_UUID "ceaa0002-b5a3-f393-e0a9-e50e24dcca9e"
 #define PROV_CHAR_PASSWORD_UUID "ceaa0003-b5a3-f393-e0a9-e50e24dcca9e"
-#define PROV_CHAR_STATUS_UUID   "ceaa0004-b5a3-f393-e0a9-e50e24dcca9e"
+#define PROV_CHAR_STATUS_UUID "ceaa0004-b5a3-f393-e0a9-e50e24dcca9e"
 
 static BLEServer *prov_server = nullptr;
 static BLECharacteristic *status_char = nullptr;
@@ -77,14 +78,16 @@ static void set_status(const char *status) {
 }
 
 static void strip_trailing(char *buf, size_t *len) {
-  while (*len > 0 && (buf[*len - 1] == '\r' || buf[*len - 1] == '\n' || buf[*len - 1] == ' '))
+  while (*len > 0 && (buf[*len - 1] == '\r' || buf[*len - 1] == '\n' ||
+                      buf[*len - 1] == ' '))
     buf[--(*len)] = '\0';
 }
 
 class ProvisioningSsidCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *c) override {
     size_t len = c->getLength();
-    if (len == 0 || len > 32) return;
+    if (len == 0 || len > 32)
+      return;
     memcpy(prov_ssid, c->getData(), len);
     prov_ssid[len] = '\0';
     strip_trailing(prov_ssid, &len);
@@ -95,7 +98,8 @@ class ProvisioningSsidCallbacks : public BLECharacteristicCallbacks {
 class ProvisioningPasswordCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *c) override {
     size_t len = c->getLength();
-    if (len > 64) return;
+    if (len > 64)
+      return;
     memcpy(prov_pass, c->getData(), len);
     prov_pass[len] = '\0';
     strip_trailing(prov_pass, &len);
@@ -111,13 +115,16 @@ class ProvisioningConfigCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *c) override {
     uint8_t *data = c->getData();
     size_t len = c->getLength();
-    if (!data || len == 0) return;
+    if (!data || len == 0)
+      return;
 
     JsonDocument doc;
-    if (deserializeJson(doc, data, len) != DeserializationError::Ok) return;
+    if (deserializeJson(doc, data, len) != DeserializationError::Ok)
+      return;
 
     Preferences prefs;
-    if (!open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs)) return;
+    if (!open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs))
+      return;
     for (JsonPair kv : doc.as<JsonObject>()) {
       const char *val = kv.value().as<const char *>();
       if (val) {
@@ -160,33 +167,38 @@ void boot::provisioning::start(void) {
   pSecurity->setAuthenticationMode(true, true, true);
 
   prov_server = BLEDevice::createServer();
-  prov_server->setCallbacks(new ProvisioningServerCallbacks());  // BLE stack owns
+  prov_server->setCallbacks(
+      new ProvisioningServerCallbacks()); // BLE stack owns
   prov_server->advertiseOnDisconnect(true);
 
-  BLEService *svc = prov_server->createService(config::provisioning::SERVICE_UUID);
+  BLEService *svc =
+      prov_server->createService(config::provisioning::SERVICE_UUID);
 
   BLECharacteristic *ssid_char = svc->createCharacteristic(
-      PROV_CHAR_SSID_UUID,
-      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_WRITE_AUTHEN);
+      PROV_CHAR_SSID_UUID, BLECharacteristic::PROPERTY_WRITE |
+                               BLECharacteristic::PROPERTY_WRITE_AUTHEN);
   ssid_char->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
-  ssid_char->setCallbacks(new ProvisioningSsidCallbacks());  // BLE stack owns
+  ssid_char->setCallbacks(new ProvisioningSsidCallbacks()); // BLE stack owns
 
   BLECharacteristic *pass_char = svc->createCharacteristic(
-      PROV_CHAR_PASSWORD_UUID,
-      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_WRITE_AUTHEN);
+      PROV_CHAR_PASSWORD_UUID, BLECharacteristic::PROPERTY_WRITE |
+                                   BLECharacteristic::PROPERTY_WRITE_AUTHEN);
   pass_char->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
-  pass_char->setCallbacks(new ProvisioningPasswordCallbacks());  // BLE stack owns
+  pass_char->setCallbacks(
+      new ProvisioningPasswordCallbacks()); // BLE stack owns
 
-  BLECharacteristic *config_char = svc->createCharacteristic(
-      config::provisioning::CONFIG_UUID,
-      BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_WRITE_AUTHEN);
+  BLECharacteristic *config_char =
+      svc->createCharacteristic(config::provisioning::CONFIG_UUID,
+                                BLECharacteristic::PROPERTY_WRITE |
+                                    BLECharacteristic::PROPERTY_WRITE_AUTHEN);
   config_char->setAccessPermissions(ESP_GATT_PERM_WRITE_ENC_MITM);
-  config_char->setCallbacks(new ProvisioningConfigCallbacks());  // BLE stack owns
+  config_char->setCallbacks(
+      new ProvisioningConfigCallbacks()); // BLE stack owns
 
   status_char = svc->createCharacteristic(
-      PROV_CHAR_STATUS_UUID,
-      BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
-      | BLECharacteristic::PROPERTY_READ_AUTHEN);
+      PROV_CHAR_STATUS_UUID, BLECharacteristic::PROPERTY_READ |
+                                 BLECharacteristic::PROPERTY_NOTIFY |
+                                 BLECharacteristic::PROPERTY_READ_AUTHEN);
   status_char->setAccessPermissions(ESP_GATT_PERM_READ_ENC_MITM);
 
   svc->start();
@@ -197,7 +209,8 @@ void boot::provisioning::start(void) {
   adv->setScanResponse(true);
   BLEDevice::startAdvertising();
 
-  Serial.printf("[prov] advertising as '%s', waiting for credentials...\n", config::HOSTNAME);
+  Serial.printf("[prov] advertising as '%s', waiting for credentials...\n",
+                config::HOSTNAME);
 
   while (!prov_credentials_received.load(std::memory_order_acquire)) {
     delay(100);
@@ -206,17 +219,19 @@ void boot::provisioning::start(void) {
   set_status("connecting");
 
   WifiConnectCommand command = {
-    .request = {
-      .ssid = prov_ssid,
-      .password = prov_pass,
-      .enable_ap_fallback = false,
-    },
-    .result = {},
+      .request =
+          {
+              .ssid = prov_ssid,
+              .password = prov_pass,
+              .enable_ap_fallback = false,
+          },
+      .result = {},
   };
 
   if (networking::wifi::connect(&command)) {
     set_status("connected_wifi");
-    Serial.printf("[prov] WiFi connected, heap: %u bytes free\n", ESP.getFreeHeap());
+    Serial.printf("[prov] WiFi connected, heap: %u bytes free\n",
+                  ESP.getFreeHeap());
   } else {
     set_status("failed");
     Serial.println(F("[prov] WiFi connection failed"));
@@ -243,7 +258,6 @@ void boot::provisioning::start(void) {}
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING
 
-
 #include "provisioning.h"
 #include <testing/utils.h>
 
@@ -253,7 +267,8 @@ void boot::provisioning::start(void) {}
 #include <WiFi.h>
 #include <esp_wifi.h>
 
-static bool test_open_namespace(const char *name_space, bool readonly, Preferences *prefs) {
+static bool test_open_namespace(const char *name_space, bool readonly,
+                                Preferences *prefs) {
   return prefs && prefs->begin(name_space, readonly);
 }
 
@@ -262,8 +277,9 @@ static void provisioning_test_detects_provisioned_with_credentials(void) {
 
 #if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
   if (strlen(CONFIG_WIFI_SSID) > 0) {
-    TEST_ASSERT_TRUE_MESSAGE(boot::provisioning::isProvisioned(),
-      "device: should be provisioned when build flags have SSID");
+    TEST_ASSERT_TRUE_MESSAGE(
+        boot::provisioning::isProvisioned(),
+        "device: should be provisioned when build flags have SSID");
     TEST_MESSAGE("provisioned via build flags");
     return;
   }
@@ -279,8 +295,9 @@ static void provisioning_test_custom_config_roundtrip(void) {
   char device_name[64] = {0};
 
   Preferences prefs;
-  TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs),
-    "device: provisioning NVS namespace must be writable");
+  TEST_ASSERT_TRUE_MESSAGE(
+      test_open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs),
+      "device: provisioning NVS namespace must be writable");
 
   prefs.putString("username", "alice");
   prefs.putString("api_key", "secret-key");
@@ -288,33 +305,35 @@ static void provisioning_test_custom_config_roundtrip(void) {
   prefs.end();
 
   IdentityStringQuery username_query = {
-    .buffer = username,
-    .capacity = sizeof(username),
-    .ok = false,
+      .buffer = username,
+      .capacity = sizeof(username),
+      .ok = false,
   };
-  TEST_ASSERT_TRUE_MESSAGE(services::identity::accessUsername(&username_query),
-    "device: username should be readable after write");
+  TEST_ASSERT_TRUE_MESSAGE(services::identity::access_username(&username_query),
+                           "device: username should be readable after write");
   IdentityStringQuery api_key_query = {
-    .buffer = api_key,
-    .capacity = sizeof(api_key),
-    .ok = false,
+      .buffer = api_key,
+      .capacity = sizeof(api_key),
+      .ok = false,
   };
   TEST_ASSERT_TRUE_MESSAGE(services::identity::accessAPIKey(&api_key_query),
-    "device: api key should be readable after write");
+                           "device: api key should be readable after write");
   IdentityStringQuery device_name_query = {
-    .buffer = device_name,
-    .capacity = sizeof(device_name),
-    .ok = false,
+      .buffer = device_name,
+      .capacity = sizeof(device_name),
+      .ok = false,
   };
-  TEST_ASSERT_TRUE_MESSAGE(services::identity::accessDeviceName(&device_name_query),
-    "device: device name should be readable after write");
+  TEST_ASSERT_TRUE_MESSAGE(
+      services::identity::access_device_name(&device_name_query),
+      "device: device name should be readable after write");
 
   TEST_ASSERT_EQUAL_STRING_MESSAGE("alice", username,
-    "device: username mismatch after roundtrip");
+                                   "device: username mismatch after roundtrip");
   TEST_ASSERT_EQUAL_STRING_MESSAGE("secret-key", api_key,
-    "device: api key mismatch after roundtrip");
-  TEST_ASSERT_EQUAL_STRING_MESSAGE("ceratina-lab", device_name,
-    "device: device name mismatch after roundtrip");
+                                   "device: api key mismatch after roundtrip");
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(
+      "ceratina-lab", device_name,
+      "device: device name mismatch after roundtrip");
 }
 
 static void provisioning_test_reset_clears_all(void) {
@@ -325,8 +344,10 @@ static void provisioning_test_reset_clears_all(void) {
 
   {
     Preferences prov_prefs;
-    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::provisioning::NVS_NAMESPACE, false, &prov_prefs),
-      "device: provisioning NVS namespace must be writable");
+    TEST_ASSERT_TRUE_MESSAGE(
+        test_open_namespace(config::provisioning::NVS_NAMESPACE, false,
+                            &prov_prefs),
+        "device: provisioning NVS namespace must be writable");
     prov_prefs.putString("username", "bob");
     prov_prefs.putString("api_key", "temp-key");
     prov_prefs.putString("device_name", "temporary-device");
@@ -335,8 +356,9 @@ static void provisioning_test_reset_clears_all(void) {
 
   {
     Preferences wifi_prefs;
-    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::wifi::NVS_NAMESPACE, false, &wifi_prefs),
-      "device: wifi NVS namespace must be writable");
+    TEST_ASSERT_TRUE_MESSAGE(
+        test_open_namespace(config::wifi::NVS_NAMESPACE, false, &wifi_prefs),
+        "device: wifi NVS namespace must be writable");
     wifi_prefs.putString("ap_ssid", "test-ap");
     wifi_prefs.putString("ap_pass", "test-pass");
     wifi_prefs.putBool("ap_on", true);
@@ -347,27 +369,31 @@ static void provisioning_test_reset_clears_all(void) {
 
   {
     Preferences prov_prefs;
-    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::provisioning::NVS_NAMESPACE, true, &prov_prefs),
-      "device: provisioning NVS namespace must remain readable");
+    TEST_ASSERT_TRUE_MESSAGE(
+        test_open_namespace(config::provisioning::NVS_NAMESPACE, true,
+                            &prov_prefs),
+        "device: provisioning NVS namespace must remain readable");
     TEST_ASSERT_FALSE_MESSAGE(prov_prefs.isKey("username"),
-      "device: username should be cleared by reset");
+                              "device: username should be cleared by reset");
     TEST_ASSERT_FALSE_MESSAGE(prov_prefs.isKey("api_key"),
-      "device: api_key should be cleared by reset");
+                              "device: api_key should be cleared by reset");
     TEST_ASSERT_FALSE_MESSAGE(prov_prefs.isKey("device_name"),
-      "device: device_name should be cleared by reset");
+                              "device: device_name should be cleared by reset");
     prov_prefs.end();
   }
 
   {
     Preferences wifi_prefs;
-    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::wifi::NVS_NAMESPACE, true, &wifi_prefs),
-      "device: wifi NVS namespace must remain readable");
+    TEST_ASSERT_TRUE_MESSAGE(
+        test_open_namespace(config::wifi::NVS_NAMESPACE, true, &wifi_prefs),
+        "device: wifi NVS namespace must remain readable");
     TEST_ASSERT_FALSE_MESSAGE(wifi_prefs.isKey("ap_ssid"),
-      "device: AP SSID should be cleared by reset");
+                              "device: AP SSID should be cleared by reset");
     TEST_ASSERT_FALSE_MESSAGE(wifi_prefs.isKey("ap_pass"),
-      "device: AP password should be cleared by reset");
-    TEST_ASSERT_FALSE_MESSAGE(wifi_prefs.isKey("ap_on"),
-      "device: AP enabled flag should be cleared by reset");
+                              "device: AP password should be cleared by reset");
+    TEST_ASSERT_FALSE_MESSAGE(
+        wifi_prefs.isKey("ap_on"),
+        "device: AP enabled flag should be cleared by reset");
     wifi_prefs.end();
   }
 
@@ -379,37 +405,42 @@ static void provisioning_test_empty_config_returns_false(void) {
 
   {
     Preferences prefs;
-    TEST_ASSERT_TRUE_MESSAGE(test_open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs),
-      "device: provisioning NVS namespace must be writable");
+    TEST_ASSERT_TRUE_MESSAGE(
+        test_open_namespace(config::provisioning::NVS_NAMESPACE, false, &prefs),
+        "device: provisioning NVS namespace must be writable");
     prefs.clear();
     prefs.end();
   }
 
   char value[64] = {0};
   IdentityStringQuery query = {
-    .buffer = value,
-    .capacity = sizeof(value),
-    .ok = false,
+      .buffer = value,
+      .capacity = sizeof(value),
+      .ok = false,
   };
-  TEST_ASSERT_FALSE_MESSAGE(services::identity::accessUsername(&query),
-    "device: missing username should return false");
+  TEST_ASSERT_FALSE_MESSAGE(services::identity::access_username(&query),
+                            "device: missing username should return false");
   TEST_ASSERT_FALSE_MESSAGE(services::identity::accessAPIKey(&query),
-    "device: missing api key should return false");
-  TEST_ASSERT_FALSE_MESSAGE(services::identity::accessDeviceName(&query),
-    "device: missing device name should return false");
+                            "device: missing api key should return false");
+  TEST_ASSERT_FALSE_MESSAGE(services::identity::access_device_name(&query),
+                            "device: missing device name should return false");
 }
 
 static void provisioning_test_service_uuids_configured(void) {
   TEST_MESSAGE("user verifies BLE provisioning UUIDs are configured");
 
-  TEST_ASSERT_NOT_NULL_MESSAGE(config::provisioning::SERVICE_UUID,
-    "device: provisioning service UUID must be configured");
-  TEST_ASSERT_NOT_NULL_MESSAGE(config::provisioning::CONFIG_UUID,
-    "device: provisioning config UUID must be configured");
-  TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)strlen(config::provisioning::SERVICE_UUID),
-    "device: provisioning service UUID must not be empty");
-  TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)strlen(config::provisioning::CONFIG_UUID),
-    "device: provisioning config UUID must not be empty");
+  TEST_ASSERT_NOT_NULL_MESSAGE(
+      config::provisioning::SERVICE_UUID,
+      "device: provisioning service UUID must be configured");
+  TEST_ASSERT_NOT_NULL_MESSAGE(
+      config::provisioning::CONFIG_UUID,
+      "device: provisioning config UUID must be configured");
+  TEST_ASSERT_GREATER_THAN_MESSAGE(
+      0, (int)strlen(config::provisioning::SERVICE_UUID),
+      "device: provisioning service UUID must not be empty");
+  TEST_ASSERT_GREATER_THAN_MESSAGE(
+      0, (int)strlen(config::provisioning::CONFIG_UUID),
+      "device: provisioning config UUID must not be empty");
 }
 
 void boot::provisioning::test(void) {

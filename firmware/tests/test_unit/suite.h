@@ -27,6 +27,7 @@ namespace services::http_e2e { void test(); }
 namespace services::identity { void test(); }
 namespace services::rtc { void test(); }
 namespace services::sshd { void test(); }
+namespace services::ws_shell { void test(); }
 
 namespace sensors::barometric_pressure { void test(); }
 namespace sensors::carbon_dioxide { void test(); }
@@ -37,6 +38,8 @@ namespace sensors::temperature_and_humidity { void test(); }
 namespace sensors::voltage { void test(); }
 
 namespace programs::buttons { void test(); }
+namespace programs::coreutils { void test(); }
 namespace programs::led { void test(); }
 namespace programs::shell { void test(); }
+namespace programs::ssh_client { void test(); }
 namespace power::sleep { void test(); }

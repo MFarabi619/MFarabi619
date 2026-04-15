@@ -13,4 +13,8 @@ int cmd_print(int argc, char **argv);
 int cmd_sensors(int argc, char **argv);
 int cmd_whoami(int argc, char **argv);
 
+#ifdef PIO_UNIT_TESTING
+void test();
+#endif
+
 }

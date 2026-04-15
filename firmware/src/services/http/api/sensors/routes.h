@@ -10,4 +10,5 @@ namespace services::http::api::sensors {
   namespace current { void registerRoutes(AsyncWebServer &server); }
   namespace solar_radiation { void registerRoutes(AsyncWebServer &server); }
   namespace soil { void registerRoutes(AsyncWebServer &server); }
+  namespace inventory { void registerRoutes(AsyncWebServer &server); }
 }

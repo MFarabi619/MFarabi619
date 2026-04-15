@@ -220,17 +220,17 @@ static int cmd_log_status(int argc, char **argv) {
 }
 
 void programs::shell::commands::registerAll() {
-  Console.addCmd("reboot",         "reboot the device",                    cmd_reboot);
-  Console.addCmd("wifi-set",       "save WiFi credentials to NVS",        "<ssid> <password>", cmd_wifi_set);
-  Console.addCmd("wifi-connect",   "connect to saved WiFi network",       cmd_wifi_connect);
-  Console.addCmd("ps",             "list running tasks",                   cmd_ps);
-  Console.addCmd("cpu",            "read or set CPU frequency",            "[80|160|240]", cmd_cpu);
-  Console.addCmd("sleep",          "enter deep sleep for N seconds",       "[seconds]", cmd_sleep);
-  Console.addCmd("sleep-config",   "show persisted deep sleep config",     cmd_sleep_config);
-  Console.addCmd("sleep-enable",   "enable persisted deep sleep config",   cmd_sleep_enable);
-  Console.addCmd("sleep-disable",  "disable persisted deep sleep config",  cmd_sleep_disable);
-  Console.addCmd("sleep-duration", "set persisted deep sleep duration",    "<seconds>", cmd_sleep_duration);
-  Console.addCmd("wakecause",      "show the last wake cause",             cmd_wakecause);
-  Console.addCmd("sleep-status",   "show deep sleep status",               cmd_sleep_status);
-  Console.addCmd("log-status",     "show CSV logger status",               cmd_log_status);
+  Console.addCmd("reboot",            "reboot the device",                    cmd_reboot);
+  Console.addCmd("wifi-set",          "save WiFi credentials to NVS",        "<ssid> <password>", cmd_wifi_set);
+  Console.addCmd("wifi-connect",      "connect to saved WiFi network",       cmd_wifi_connect);
+  Console.addCmd("ps",                "list running tasks",                   cmd_ps);
+  Console.addCmd("cpufreq",           "read or set CPU frequency",           "[80|160|240]", cmd_cpu);
+  Console.addCmd("deepsleep",         "enter deep sleep for N seconds",      "[seconds]", cmd_sleep);
+  Console.addCmd("deepsleep-config",  "show persisted deep sleep config",    cmd_sleep_config);
+  Console.addCmd("deepsleep-enable",  "enable persisted deep sleep config",  cmd_sleep_enable);
+  Console.addCmd("deepsleep-disable", "disable persisted deep sleep config", cmd_sleep_disable);
+  Console.addCmd("deepsleep-duration","set persisted deep sleep duration",   "<seconds>", cmd_sleep_duration);
+  Console.addCmd("wakecause",         "show the last wake cause",            cmd_wakecause);
+  Console.addCmd("sleep-status",      "show deep sleep status",              cmd_sleep_status);
+  Console.addCmd("log-status",        "show CSV logger status",              cmd_log_status);
 }

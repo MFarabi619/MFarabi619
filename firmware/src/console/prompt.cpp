@@ -123,7 +123,7 @@ uint16_t console::prompt::terminal_width() {
 const char *console::prompt::build(const char *cwd) {
   const char *display = last_path_component(cwd);
   const char *glyph = cwd_glyph(cwd);
-  const char *hostname = services::identity::accessHostname();
+  const char *hostname = services::identity::access_hostname();
 
   // Time string
   char time_str[24];
@@ -207,7 +207,7 @@ const char *console::prompt::build(const char *cwd) {
 
 const char *console::prompt::build_motd() {
   static char motd[512];
-  const char *hostname = services::identity::accessHostname();
+  const char *hostname = services::identity::access_hostname();
 
   snprintf(motd, sizeof(motd),
     "\r\n"
@@ -215,7 +215,7 @@ const char *console::prompt::build_motd() {
     "\r\n"
     "System information:     microfetch\r\n"
     "Hardware sensors:       sensors\r\n"
-    "Network interfaces:     ifconfig\r\n"
+    "Network interfaces:     ip\r\n"
     "Memory usage:           free\r\n"
     "Show all commands:      help\r\n"
     "\r\n",

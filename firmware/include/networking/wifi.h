@@ -84,7 +84,7 @@ struct APEnabledCommand {
 
 namespace networking::wifi {
 
-void configureHostname(const char *hostname);
+void configure_hostname(const char *hostname);
 bool accessSnapshot(NetworkStatusSnapshot *snapshot);
 bool accessConfig(WifiSavedConfig *config);
 bool storeConfig(WifiSavedConfig *config);

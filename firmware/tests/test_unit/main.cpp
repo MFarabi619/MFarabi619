@@ -35,6 +35,7 @@ void setup(void) {
   services::identity::test();
   services::rtc::test();
   services::sshd::test();
+  services::ws_shell::test();
 
   sensors::barometric_pressure::test();
   sensors::carbon_dioxide::test();
@@ -45,8 +46,10 @@ void setup(void) {
   sensors::voltage::test();
 
   programs::buttons::test();
+  programs::coreutils::test();
   programs::led::test();
   programs::shell::test();
+  programs::ssh_client::test();
 
   power::sleep::test();
 

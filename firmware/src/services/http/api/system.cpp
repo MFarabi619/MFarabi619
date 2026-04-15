@@ -143,7 +143,7 @@ void handle_sleep_config_get(AsyncWebServerRequest *request) {
 void services::http::api::system::registerRoutes(AsyncWebServer &server,
                                                  AsyncRateLimitMiddleware &reset_limit,
                                                  AsyncRateLimitMiddleware &ota_limit) {
-  server.on("/api/system/device/status", HTTP_GET, handle_device_status).skipServerMiddlewares();
+  server.on("/api/system/device/status", HTTP_GET, handle_device_status);
   server.on("/api/system/device/actions/reset", HTTP_POST, handle_device_reset)
     .addMiddleware(&reset_limit);
   server.on("/api/system/sleep/config", HTTP_GET, handle_sleep_config_get);

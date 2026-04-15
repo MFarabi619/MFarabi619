@@ -44,7 +44,7 @@ bool networking::wifi::ap::accessSnapshot(APSnapshot *snapshot) {
   strncpy(snapshot->password, config.password, sizeof(snapshot->password) - 1);
   strncpy(snapshot->ip, WiFi.softAPIP().toString().c_str(), sizeof(snapshot->ip) - 1);
   snapshot->clients = WiFi.softAPgetStationNum();
-  strncpy(snapshot->hostname, services::identity::accessHostname(), sizeof(snapshot->hostname) - 1);
+  strncpy(snapshot->hostname, services::identity::access_hostname(), sizeof(snapshot->hostname) - 1);
   strncpy(snapshot->mac, WiFi.softAPmacAddress().c_str(), sizeof(snapshot->mac) - 1);
   return true;
 }
@@ -88,10 +88,10 @@ void networking::wifi::ap::enable() {
 
   networking::wifi::internal::ap_active = true;
 
-  if (!networking::wifi::internal::mdns_started && MDNS.begin(services::identity::accessHostname())) {
-    networking::wifi::internal::configureMdnsServices(services::identity::accessHostname());
+  if (!networking::wifi::internal::mdns_started && MDNS.begin(services::identity::access_hostname())) {
+    networking::wifi::internal::configureMdnsServices(services::identity::access_hostname());
     networking::wifi::internal::mdns_started = true;
-    Serial.printf("[mdns] %s.local\n", services::identity::accessHostname());
+    Serial.printf("[mdns] %s.local\n", services::identity::access_hostname());
   }
 
   Serial.printf("[wifi] AP started: %s (%s)\n",

@@ -33,7 +33,7 @@ bool networking::wifi::accessSnapshot(NetworkStatusSnapshot *snapshot) {
   strncpy(snapshot->subnet, WiFi.subnetMask().toString().c_str(), sizeof(snapshot->subnet) - 1);
   strncpy(snapshot->dns, WiFi.dnsIP().toString().c_str(), sizeof(snapshot->dns) - 1);
   strncpy(snapshot->mac, WiFi.macAddress().c_str(), sizeof(snapshot->mac) - 1);
-  strncpy(snapshot->hostname, services::identity::accessHostname(), sizeof(snapshot->hostname) - 1);
+  strncpy(snapshot->hostname, services::identity::access_hostname(), sizeof(snapshot->hostname) - 1);
 
   snapshot->ap.active = networking::wifi::ap::isActive();
   APConfig ap_config = {};
@@ -42,7 +42,7 @@ bool networking::wifi::accessSnapshot(NetworkStatusSnapshot *snapshot) {
   strncpy(snapshot->ap.password, ap_config.password, sizeof(snapshot->ap.password) - 1);
   strncpy(snapshot->ap.ip, WiFi.softAPIP().toString().c_str(), sizeof(snapshot->ap.ip) - 1);
   snapshot->ap.clients = WiFi.softAPgetStationNum();
-  strncpy(snapshot->ap.hostname, services::identity::accessHostname(), sizeof(snapshot->ap.hostname) - 1);
+  strncpy(snapshot->ap.hostname, services::identity::access_hostname(), sizeof(snapshot->ap.hostname) - 1);
   strncpy(snapshot->ap.mac, WiFi.softAPmacAddress().c_str(), sizeof(snapshot->ap.mac) - 1);
   return true;
 }
@@ -83,7 +83,7 @@ bool networking::wifi::connect(WifiConnectCommand *command) {
   WiFi.setAutoReconnect(false);
   WiFi.disconnect(false);
   WiFi.mode(networking::wifi::ap::isActive() ? WIFI_AP_STA : WIFI_MODE_STA);
-  networking::wifi::configureHostname(services::identity::accessHostname());
+  networking::wifi::configure_hostname(services::identity::access_hostname());
 
   if (command->request.ssid && command->request.ssid[0] != '\0') {
     WiFi.begin(command->request.ssid,
@@ -417,9 +417,9 @@ static void wifi_test_snapshot_reports_ap_fallback_state_consistently(void) {
     "device: station snapshot should report disconnected after failed connect");
   TEST_ASSERT_TRUE_MESSAGE(snapshot.ap.active,
     "device: AP snapshot should report active after fallback activation");
-  TEST_ASSERT_EQUAL_STRING_MESSAGE(services::identity::accessHostname(), snapshot.hostname,
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(services::identity::access_hostname(), snapshot.hostname,
     "device: station snapshot hostname should match identity hostname");
-  TEST_ASSERT_EQUAL_STRING_MESSAGE(services::identity::accessHostname(), snapshot.ap.hostname,
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(services::identity::access_hostname(), snapshot.ap.hostname,
     "device: AP snapshot hostname should match identity hostname");
 
   APConfig ap_config = {};

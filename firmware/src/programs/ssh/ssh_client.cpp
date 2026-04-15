@@ -344,4 +344,130 @@ void programs::ssh_client::registerCommands() {
                  "<host> <user> <password> <remote-firmware-path>", cmd_ota);
 }
 
+//------------------------------------------
+//  Tests
+//------------------------------------------
+#ifdef PIO_UNIT_TESTING
+
+#include <testing/utils.h>
+#include <WiFi.h>
+#include "esp_ota_ops.h"
+
+static void ssh_client_test_ssh_exec_rejects_missing_args(void) {
+  TEST_MESSAGE("user runs ssh-exec without enough arguments");
+  int rc = Console.run("ssh-exec");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+  rc = Console.run("ssh-exec host");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+  rc = Console.run("ssh-exec host user");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+  rc = Console.run("ssh-exec host user pass");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+}
+
+static void ssh_client_test_scp_get_rejects_missing_args(void) {
+  TEST_MESSAGE("user runs scp-get without enough arguments");
+  int rc = Console.run("scp-get");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+  rc = Console.run("scp-get host user pass remote");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+}
+
+static void ssh_client_test_scp_put_rejects_missing_args(void) {
+  TEST_MESSAGE("user runs scp-put without enough arguments");
+  int rc = Console.run("scp-put");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+  rc = Console.run("scp-put host user pass local");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+}
+
+static void ssh_client_test_ota_rejects_missing_args(void) {
+  TEST_MESSAGE("user runs ota without enough arguments");
+  int rc = Console.run("ota");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+  rc = Console.run("ota host user");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+}
+
+static void ssh_client_test_ota_partition_available(void) {
+  TEST_MESSAGE("user verifies OTA update partition exists");
+  const esp_partition_t *target = esp_ota_get_next_update_partition(NULL);
+  TEST_ASSERT_NOT_NULL_MESSAGE(target,
+    "device: no OTA update partition — partition table may lack ota_0/ota_1");
+  char msg[64];
+  snprintf(msg, sizeof(msg), "OTA target: %s", target->label);
+  TEST_MESSAGE(msg);
+}
+
+static void ssh_client_test_ssh_exec_fails_on_unreachable_host(void) {
+  TEST_MESSAGE("user runs ssh-exec against unreachable host");
+  if (!WiFi.isConnected()) {
+    TEST_IGNORE_MESSAGE("skipped — WiFi not connected");
+    return;
+  }
+  int rc = Console.run("ssh-exec 192.0.2.1 user pass echo hi");
+  TEST_ASSERT_EQUAL_INT(1, rc);
+}
+
+// TODO: End-to-end tests — require a reachable SSH server.
+// Set TEST_SSH_HOST, TEST_SSH_USER, TEST_SSH_PASS environment variables
+// and uncomment to enable.
+//
+// static void ssh_client_test_ssh_exec_runs_remote_command(void) {
+//   TEST_MESSAGE("user executes a command on a remote host via ssh-exec");
+//   int rc = Console.run("ssh-exec " TEST_SSH_HOST " " TEST_SSH_USER " " TEST_SSH_PASS " echo hello");
+//   TEST_ASSERT_EQUAL_INT(0, rc);
+// }
+//
+// static void ssh_client_test_scp_get_downloads_file(void) {
+//   TEST_MESSAGE("user downloads a file from a remote host via scp-get");
+//   int rc = Console.run("scp-get " TEST_SSH_HOST " " TEST_SSH_USER " " TEST_SSH_PASS " /tmp/test.txt /sd/test_scp.txt");
+//   TEST_ASSERT_EQUAL_INT(0, rc);
+//   TEST_ASSERT_TRUE(SD.exists("/sd/test_scp.txt"));
+//   SD.remove("/sd/test_scp.txt");
+// }
+//
+// static void ssh_client_test_scp_put_uploads_file(void) {
+//   TEST_MESSAGE("user uploads a file to a remote host via scp-put");
+//   File f = SD.open("/sd/test_upload.txt", FILE_WRITE);
+//   f.print("upload test");
+//   f.close();
+//   int rc = Console.run("scp-put " TEST_SSH_HOST " " TEST_SSH_USER " " TEST_SSH_PASS " /sd/test_upload.txt /tmp/test_upload.txt");
+//   TEST_ASSERT_EQUAL_INT(0, rc);
+//   SD.remove("/sd/test_upload.txt");
+// }
+//
+// static void ssh_client_test_ota_fails_with_nonexistent_firmware(void) {
+//   TEST_MESSAGE("user runs OTA with a nonexistent remote firmware path");
+//   int rc = Console.run("ota " TEST_SSH_HOST " " TEST_SSH_USER " " TEST_SSH_PASS " /tmp/nonexistent.bin");
+//   TEST_ASSERT_NOT_EQUAL_INT(0, rc);
+// }
+
+void programs::ssh_client::test() {
+  it("user observes ssh-exec rejects missing arguments",
+     ssh_client_test_ssh_exec_rejects_missing_args);
+  it("user observes scp-get rejects missing arguments",
+     ssh_client_test_scp_get_rejects_missing_args);
+  it("user observes scp-put rejects missing arguments",
+     ssh_client_test_scp_put_rejects_missing_args);
+  it("user observes ota rejects missing arguments",
+     ssh_client_test_ota_rejects_missing_args);
+  it("user observes OTA update partition is available",
+     ssh_client_test_ota_partition_available);
+  it("user observes ssh-exec fails on unreachable host",
+     ssh_client_test_ssh_exec_fails_on_unreachable_host);
+
+  // TODO: Uncomment when test SSH server is available
+  // it("user executes remote command via ssh-exec",
+  //    ssh_client_test_ssh_exec_runs_remote_command);
+  // it("user downloads file via scp-get",
+  //    ssh_client_test_scp_get_downloads_file);
+  // it("user uploads file via scp-put",
+  //    ssh_client_test_scp_put_uploads_file);
+  // it("user observes ota fails with nonexistent firmware",
+  //    ssh_client_test_ota_fails_with_nonexistent_firmware);
+}
+
+#endif
+
 #pragma GCC diagnostic pop

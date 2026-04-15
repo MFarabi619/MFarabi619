@@ -45,5 +45,5 @@ static int cmd_fingerprint(int argc, char **argv) {
 }
 
 void programs::ssh_fingerprint::registerCmd() {
-  Console.addCmd("fingerprint", "show SSH host key fingerprint", cmd_fingerprint);
+  Console.addCmd("ssh-keygen", "show SSH host key fingerprint", cmd_fingerprint);
 }

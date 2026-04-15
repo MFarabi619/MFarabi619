@@ -404,9 +404,63 @@ static void test_404_not_found(void) {
   assert_get("/api/nonexistent", 404);
 }
 
+// TODO: Additional API endpoint tests to add when self-connect is resolved.
+//
+// static void test_get_sensors_temperature(void) {
+//   TEST_MESSAGE("user fetches /api/sensors/temperature");
+//   assert_get("/api/sensors/temperature", 200);
+// }
+//
+// static void test_get_sensors_co2(void) {
+//   TEST_MESSAGE("user fetches /api/sensors/co2");
+//   assert_get("/api/sensors/co2", 200);
+// }
+//
+// static void test_get_sensors_current(void) {
+//   TEST_MESSAGE("user fetches /api/sensors/current");
+//   assert_get("/api/sensors/current", 200);
+// }
+//
+// static void test_get_sensors_pressure(void) {
+//   TEST_MESSAGE("user fetches /api/sensors/pressure");
+//   assert_get("/api/sensors/pressure", 200);
+// }
+//
+// static void test_get_sensors_wind(void) {
+//   TEST_MESSAGE("user fetches /api/sensors/wind");
+//   assert_get("/api/sensors/wind", 200);
+// }
+//
+// static void test_get_sensors_soil(void) {
+//   TEST_MESSAGE("user fetches /api/sensors/soil");
+//   assert_get("/api/sensors/soil", 200);
+// }
+//
+// static void test_get_sensors_solar(void) {
+//   TEST_MESSAGE("user fetches /api/sensors/solar");
+//   assert_get("/api/sensors/solar", 200);
+// }
+//
+// static void test_get_email_config(void) {
+//   TEST_MESSAGE("user fetches /api/email/config");
+//   assert_get("/api/email/config", 200);
+// }
+//
+// static void test_get_database_status(void) {
+//   TEST_MESSAGE("user fetches /api/database/status");
+//   assert_get("/api/database/status", 200);
+// }
+//
+// static void test_post_database_query(void) {
+//   TEST_MESSAGE("user posts SQL query to /api/database/query");
+//   assert_post("/api/database/query", "{\"sql\":\"SELECT 1\"}", 200);
+// }
+
 void services::http_e2e::test(void) {
-  // Skipped — self-connect via WiFiClient needs further investigation
-  // (AsyncTCP task scheduling vs test task on same core)
+  // TODO: Blocked by AsyncTCP self-connect issue.
+  // WiFiClient on the same device can't connect to AsyncWebServer
+  // because AsyncTCP task and test task compete for the same core.
+  // Workaround: run these from an external test runner (e2e suite).
   //
   // it("user observes /api/wifi responds 200",              test_get_wifi);
   // it("user observes /api/wireless/status responds 200",   test_get_wireless_status);
@@ -420,6 +474,16 @@ void services::http_e2e::test(void) {
   // it("user observes POST /api/co2/start responds",        test_post_co2_start);
   // it("user observes POST /api/co2/stop responds",         test_post_co2_stop);
   // it("user observes 404 for unknown routes",              test_404_not_found);
+  // it("user observes /api/sensors/temperature responds",   test_get_sensors_temperature);
+  // it("user observes /api/sensors/co2 responds",           test_get_sensors_co2);
+  // it("user observes /api/sensors/current responds",       test_get_sensors_current);
+  // it("user observes /api/sensors/pressure responds",      test_get_sensors_pressure);
+  // it("user observes /api/sensors/wind responds",          test_get_sensors_wind);
+  // it("user observes /api/sensors/soil responds",          test_get_sensors_soil);
+  // it("user observes /api/sensors/solar responds",         test_get_sensors_solar);
+  // it("user observes /api/email/config responds",          test_get_email_config);
+  // it("user observes /api/database/status responds",       test_get_database_status);
+  // it("user observes POST /api/database/query responds",   test_post_database_query);
 }
 
 #endif
