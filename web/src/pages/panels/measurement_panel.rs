@@ -1,6 +1,6 @@
 use super::{
-    build_csv, download_csv, fetch_and_add_sensor_readings, Co2Row, MeasurementTab, PressureRow,
-    SensorAvailability, Td, TemperatureHumidityRow, Th, VoltageRow,
+    build_csv, download_csv, fetch_and_add_sensor_readings, Co2Row, MeasurementState,
+    MeasurementTab, PressureRow, SensorAvailability, Td, TemperatureHumidityRow, Th, VoltageRow,
 };
 use crate::api::Co2ConfigData;
 use crate::services::Co2Service;
@@ -17,12 +17,7 @@ use ui::components::label::Label;
 fn sample_button(
     mut sampling: Signal<bool>,
     device_url: Signal<String>,
-    last_event_time: Signal<String>,
-    co2_readings: Signal<Vec<Co2Row>>,
-    temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
-    voltage_readings: Signal<Vec<VoltageRow>>,
-    pressure_readings: Signal<Vec<PressureRow>>,
-    availability: Signal<SensorAvailability>,
+    measurement: Signal<MeasurementState>,
     icon: Element,
 ) -> Element {
     rsx! {
@@ -33,10 +28,9 @@ fn sample_button(
             on_click: move |_| {
                 sampling.set(true);
                 let url = device_url.read().clone();
+                let measurement = measurement.clone();
                 spawn(async move {
-                    fetch_and_add_sensor_readings(
-                        &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
-                    ).await;
+                    fetch_and_add_sensor_readings(&url, measurement).await;
                     sampling.set(false);
                 });
             },
@@ -67,17 +61,12 @@ fn csv_button(on_click: impl FnMut(dioxus::events::MouseEvent) + 'static) -> Ele
 #[component]
 pub fn MeasurementPanel(
     device_url: Signal<String>,
-    last_event_time: Signal<String>,
-    co2_readings: Signal<Vec<Co2Row>>,
-    temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
-    voltage_readings: Signal<Vec<VoltageRow>>,
-    pressure_readings: Signal<Vec<PressureRow>>,
+    measurement: Signal<MeasurementState>,
     co2_config: Signal<Option<Co2ConfigData>>,
     sampling: Signal<bool>,
     active_tab: Signal<MeasurementTab>,
-    availability: Signal<SensorAvailability>,
 ) -> Element {
-    let avail = *availability.read();
+    let avail = *measurement.read().availability.read();
 
     let has_any_sensor = avail.temperature_humidity || avail.voltage || avail.pressure || avail.co2;
 
@@ -148,28 +137,28 @@ pub fn MeasurementPanel(
                             TabContent {
                                 value: "temp_humidity".to_string(),
                                 index: use_signal(|| 0usize),
-                                {thm_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, sampling, availability)}
+                                {thm_panel(device_url, measurement, sampling)}
                             }
                         }
                         if avail.voltage {
                             TabContent {
                                 value: "voltage".to_string(),
                                 index: use_signal(|| 1usize),
-                                {voltage_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, sampling, availability)}
+                                {voltage_panel(device_url, measurement, sampling)}
                             }
                         }
                         if avail.pressure {
                             TabContent {
                                 value: "pressure".to_string(),
                                 index: use_signal(|| 2usize),
-                                {pressure_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, sampling, availability)}
+                                {pressure_panel(device_url, measurement, sampling)}
                             }
                         }
                         if avail.co2 {
                             TabContent {
                                 value: "co2".to_string(),
                                 index: use_signal(|| 3usize),
-                                {co2_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, co2_config, sampling, availability)}
+                                {co2_panel(device_url, measurement, co2_config, sampling)}
                             }
                         }
                     }
@@ -181,15 +170,11 @@ pub fn MeasurementPanel(
 
 fn co2_panel(
     device_url: Signal<String>,
-    last_event_time: Signal<String>,
-    co2_readings: Signal<Vec<Co2Row>>,
-    temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
-    voltage_readings: Signal<Vec<VoltageRow>>,
-    pressure_readings: Signal<Vec<PressureRow>>,
+    measurement: Signal<MeasurementState>,
     mut co2_config: Signal<Option<Co2ConfigData>>,
     sampling: Signal<bool>,
-    availability: Signal<SensorAvailability>,
 ) -> Element {
+    let co2_readings = measurement.read().co2_readings;
     let asc_checkbox_label = use_signal(|| Some("co2-asc-checkbox".to_string()));
 
     rsx! {
@@ -346,7 +331,7 @@ fn co2_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
+                {sample_button(sampling, device_url, measurement,
                     rsx! { lucide_dioxus::FlaskConical { class: "w-4 h-4" } })}
             }
 
@@ -393,14 +378,10 @@ fn co2_panel(
 
 fn thm_panel(
     device_url: Signal<String>,
-    last_event_time: Signal<String>,
-    co2_readings: Signal<Vec<Co2Row>>,
-    temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
-    voltage_readings: Signal<Vec<VoltageRow>>,
-    pressure_readings: Signal<Vec<PressureRow>>,
+    measurement: Signal<MeasurementState>,
     sampling: Signal<bool>,
-    availability: Signal<SensorAvailability>,
 ) -> Element {
+    let temperature_humidity_readings = measurement.read().temperature_humidity_readings;
     rsx! {
         div {
             div { class: "flex items-center gap-2 flex-wrap mb-3",
@@ -417,7 +398,7 @@ fn thm_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
+                {sample_button(sampling, device_url, measurement,
                     rsx! { lucide_dioxus::Thermometer { class: "w-4 h-4" } })}
             }
 
@@ -475,14 +456,10 @@ fn thm_panel(
 
 fn pressure_panel(
     device_url: Signal<String>,
-    last_event_time: Signal<String>,
-    co2_readings: Signal<Vec<Co2Row>>,
-    temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
-    voltage_readings: Signal<Vec<VoltageRow>>,
-    pressure_readings: Signal<Vec<PressureRow>>,
+    measurement: Signal<MeasurementState>,
     sampling: Signal<bool>,
-    availability: Signal<SensorAvailability>,
 ) -> Element {
+    let pressure_readings = measurement.read().pressure_readings;
     rsx! {
         div {
             div { class: "flex items-center gap-2 flex-wrap mb-3",
@@ -497,7 +474,7 @@ fn pressure_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
+                {sample_button(sampling, device_url, measurement,
                     rsx! { lucide_dioxus::Gauge { class: "w-4 h-4" } })}
             }
 
@@ -542,14 +519,10 @@ fn pressure_panel(
 
 fn voltage_panel(
     device_url: Signal<String>,
-    last_event_time: Signal<String>,
-    co2_readings: Signal<Vec<Co2Row>>,
-    temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
-    voltage_readings: Signal<Vec<VoltageRow>>,
-    pressure_readings: Signal<Vec<PressureRow>>,
+    measurement: Signal<MeasurementState>,
     sampling: Signal<bool>,
-    availability: Signal<SensorAvailability>,
 ) -> Element {
+    let voltage_readings = measurement.read().voltage_readings;
     rsx! {
         div {
             div { class: "flex items-center gap-2 flex-wrap mb-3",
@@ -566,7 +539,7 @@ fn voltage_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
+                {sample_button(sampling, device_url, measurement,
                     rsx! { lucide_dioxus::Zap { class: "w-4 h-4" } })}
             }
 

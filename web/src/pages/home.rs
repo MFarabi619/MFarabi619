@@ -5,7 +5,7 @@ use crate::hooks::sleep_ms;
 use crate::services::{Co2Service, DeviceService, FileService, WifiService};
 use crate::pages::panels::{
     fetch_and_add_sensor_readings, load_inventory,
-    Co2Row, PressureRow, SensorAvailability, TemperatureHumidityRow, VoltageRow,
+    MeasurementState, SensorAvailability,
     BluetoothPanel, FilesystemPanel, FlashPanel, MeasurementPanel, MeasurementTab, NetworkPanel, SleepPanel, TerminalPanel,
 };
 use dioxus::prelude::*;
@@ -47,13 +47,15 @@ pub fn Home() -> Element {
     let mut littlefs_used_bytes = use_signal(|| 0u64);
 
     // Measurements
-    let mut availability = use_signal(SensorAvailability::default);
+    let mut measurement = use_signal(|| MeasurementState {
+        last_event_time: Signal::new(String::new()),
+        availability: Signal::new(SensorAvailability::default()),
+        co2_readings: Signal::new(Vec::new()),
+        temperature_humidity_readings: Signal::new(Vec::new()),
+        voltage_readings: Signal::new(Vec::new()),
+        pressure_readings: Signal::new(Vec::new()),
+    });
     let mut active_tab = use_signal(|| MeasurementTab::TemperatureHumidity);
-    let mut co2_readings = use_signal(Vec::<Co2Row>::new);
-    let mut temperature_humidity_readings = use_signal(Vec::<TemperatureHumidityRow>::new);
-    let mut voltage_readings = use_signal(Vec::<VoltageRow>::new);
-    let mut pressure_readings = use_signal(Vec::<PressureRow>::new);
-    let last_event_time = use_signal(String::new);
     let mut co2_config = use_signal(|| None::<api::Co2ConfigData>);
     let mut sampling = use_signal(|| false);
     let mut api_modal_open = use_signal(|| false);
@@ -173,16 +175,14 @@ pub fn Home() -> Element {
 
             // Load sensor inventory at startup
             if tick == 0 {
-                let mut avail = *availability.read();
+                let mut avail = *measurement.read().availability.read();
                 if load_inventory(&url, &mut avail).await {
-                    availability.set(avail);
+                    measurement.write().availability.set(avail);
                 }
             }
 
             if !*sampling.peek() {
-                fetch_and_add_sensor_readings(
-                    &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
-                ).await;
+                fetch_and_add_sensor_readings(&url, measurement).await;
             }
 
             // Filesystem every 30s
@@ -230,9 +230,7 @@ pub fn Home() -> Element {
                         sampling.set(true);
                         let url = device_url.read().clone();
                         spawn(async move {
-                            fetch_and_add_sensor_readings(
-                                &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
-                            ).await;
+                            fetch_and_add_sensor_readings(&url, measurement).await;
                             sampling.set(false);
                         });
                     }
@@ -353,15 +351,10 @@ pub fn Home() -> Element {
             div { class: "grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-3.5",
                 MeasurementPanel {
                     device_url,
-                    last_event_time,
-                    co2_readings,
-                    temperature_humidity_readings,
-                    voltage_readings,
-                    pressure_readings,
+                    measurement,
                     co2_config,
                     sampling,
                     active_tab,
-                    availability,
                 }
 
                 FilesystemPanel {
@@ -392,9 +385,7 @@ pub fn Home() -> Element {
                     sampling.set(true);
                     let url = device_url.read().clone();
                     spawn(async move {
-                        fetch_and_add_sensor_readings(
-                            &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
-                        ).await;
+                        fetch_and_add_sensor_readings(&url, measurement).await;
                         sampling.set(false);
                     });
                 }

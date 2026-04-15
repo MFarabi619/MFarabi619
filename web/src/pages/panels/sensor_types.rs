@@ -36,15 +36,6 @@ impl MeasurementTab {
         }
     }
 
-    pub fn icon_name(&self) -> &'static str {
-        match self {
-            Self::TemperatureHumidity => "Thermometer",
-            Self::Voltage => "Zap",
-            Self::CarbonDioxide => "FlaskConical",
-            Self::Pressure => "Gauge",
-        }
-    }
-
     pub fn is_available(&self, avail: &super::sensor_feed::SensorAvailability) -> bool {
         match self {
             Self::TemperatureHumidity => avail.temperature_humidity,
@@ -66,9 +57,7 @@ pub struct Co2Row {
 
 #[derive(Clone)]
 pub struct TemperatureHumidityReading {
-    pub index: usize,
     pub read_ok: bool,
-    pub model: String,
     pub temperature_celsius: f64,
     pub relative_humidity_percent: f64,
 }
