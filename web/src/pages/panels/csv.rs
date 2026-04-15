@@ -1,5 +1,5 @@
-use wasm_bindgen::JsCast;
 use super::sensor_types::*;
+use wasm_bindgen::JsCast;
 
 pub fn download_csv(filename: &str, csv_content: &str) {
     let array = js_sys::Array::new();
@@ -7,8 +7,12 @@ pub fn download_csv(filename: &str, csv_content: &str) {
     let mut options = web_sys::BlobPropertyBag::new();
     options.type_("text/csv");
 
-    let Ok(blob) = web_sys::Blob::new_with_str_sequence_and_options(&array, &options) else { return };
-    let Ok(url) = web_sys::Url::create_object_url_with_blob(&blob) else { return };
+    let Ok(blob) = web_sys::Blob::new_with_str_sequence_and_options(&array, &options) else {
+        return;
+    };
+    let Ok(url) = web_sys::Url::create_object_url_with_blob(&blob) else {
+        return;
+    };
 
     if let Some(document) = web_sys::window().and_then(|w| w.document()) {
         if let Ok(anchor) = document.create_element("a") {
@@ -23,7 +27,9 @@ pub fn download_csv(filename: &str, csv_content: &str) {
 }
 
 pub trait CsvRow {
-    fn header(sample: &[Self]) -> String where Self: Sized;
+    fn header(sample: &[Self]) -> String
+    where
+        Self: Sized;
     fn to_row(&self) -> String;
 }
 
@@ -33,7 +39,10 @@ impl CsvRow for Co2Row {
     }
 
     fn to_row(&self) -> String {
-        format!("{},{},{},{},{}", self.row, self.co2_ppm, self.temperature, self.humidity, self.time)
+        format!(
+            "{},{},{},{},{}",
+            self.row, self.co2_ppm, self.temperature, self.humidity, self.time
+        )
     }
 }
 
@@ -52,7 +61,10 @@ impl CsvRow for TemperatureHumidityRow {
         let mut row = format!("{},", self.row);
         for sensor in &self.sensors {
             if sensor.read_ok {
-                row.push_str(&format!("{},{},", sensor.temperature_celsius, sensor.relative_humidity_percent));
+                row.push_str(&format!(
+                    "{},{},",
+                    sensor.temperature_celsius, sensor.relative_humidity_percent
+                ));
             } else {
                 row.push_str(",,");
             }
@@ -77,6 +89,19 @@ impl CsvRow for VoltageRow {
         }
         row.push_str(&format!(",{}", self.time));
         row
+    }
+}
+
+impl CsvRow for PressureRow {
+    fn header(_: &[Self]) -> String {
+        "#,MODEL,PRESSURE_HPA,TEMP_C,TIME".to_string()
+    }
+
+    fn to_row(&self) -> String {
+        format!(
+            "{},{},{:.2},{:.1},{}",
+            self.row, self.model, self.pressure_hpa, self.temperature_celsius, self.time
+        )
     }
 }
 

@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use crate::services::CloudEventsService;
+use crate::services::{CloudEventsService, SensorsService};
 use super::sensor_types::*;
 use super::now_time_string;
 
@@ -7,8 +7,23 @@ use super::now_time_string;
 pub struct SensorAvailability {
     pub temperature_humidity: bool,
     pub voltage: bool,
-    pub current: bool,
     pub co2: bool,
+    pub pressure: bool,
+}
+
+pub async fn load_inventory(url: &str, availability: &mut SensorAvailability) -> bool {
+    let Ok(response) = SensorsService::inventory(url).await else {
+        return false;
+    };
+    if !response.ok {
+        return false;
+    }
+    let inv = response.data;
+    availability.temperature_humidity = inv.temperature_humidity_count > 0;
+    availability.voltage = inv.voltage_available;
+    availability.co2 = inv.co2_available;
+    availability.pressure = inv.barometric_pressure_available;
+    true
 }
 
 pub async fn fetch_and_add_sensor_readings(
@@ -17,6 +32,7 @@ pub async fn fetch_and_add_sensor_readings(
     mut co2_readings: Signal<Vec<Co2Row>>,
     mut temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     mut voltage_readings: Signal<Vec<VoltageRow>>,
+    mut pressure_readings: Signal<Vec<PressureRow>>,
     mut availability: Signal<SensorAvailability>,
 ) -> bool {
     let Ok(events) = CloudEventsService::fetch(url).await else {
@@ -69,10 +85,16 @@ pub async fn fetch_and_add_sensor_readings(
                     if !availability.read().temperature_humidity {
                         availability.write().temperature_humidity = true;
                     }
+                    let mut model_from_first = String::new();
                     let readings: Vec<TemperatureHumidityReading> = sensors.iter().map(|s| {
+                        let model = s.get("model").and_then(|v| v.as_str()).unwrap_or("").to_string();
+                        if model_from_first.is_empty() && !model.is_empty() {
+                            model_from_first = model.clone();
+                        }
                         TemperatureHumidityReading {
                             index: s.get("index").and_then(|v| v.as_u64()).unwrap_or(0) as usize,
                             read_ok: s.get("read_ok").and_then(|v| v.as_bool()).unwrap_or(false),
+                            model,
                             temperature_celsius: s.get("temperature_celsius").and_then(|v| v.as_f64()).unwrap_or(0.0),
                             relative_humidity_percent: s.get("relative_humidity_percent").and_then(|v| v.as_f64()).unwrap_or(0.0),
                         }
@@ -81,6 +103,7 @@ pub async fn fetch_and_add_sensor_readings(
                     temperature_humidity_readings.write().push(TemperatureHumidityRow {
                         row: next_row,
                         sensors: readings,
+                        default_model: model_from_first,
                         time: time.clone(),
                     });
                     added = true;
@@ -110,6 +133,35 @@ pub async fn fetch_and_add_sensor_readings(
                         });
                         added = true;
                     }
+                }
+            }
+
+            "sensors.barometric_pressure.v1" => {
+                let pressure_hpa = data.get("pressure_hpa").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                let temperature = data.get("temperature_celsius").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                let model = data.get("model").and_then(|v| v.as_str()).unwrap_or("").to_string();
+
+                if pressure_hpa == 0.0 && temperature == 0.0 {
+                    continue;
+                }
+
+                if !availability.read().pressure {
+                    availability.write().pressure = true;
+                }
+
+                let is_duplicate = pressure_readings.read().last().is_some_and(|last|
+                    last.pressure_hpa == pressure_hpa && last.temperature_celsius == temperature
+                );
+                if !is_duplicate {
+                    let next_row = pressure_readings.read().len() + 1;
+                    pressure_readings.write().push(PressureRow {
+                        row: next_row,
+                        model,
+                        pressure_hpa,
+                        temperature_celsius: temperature,
+                        time: time.clone(),
+                    });
+                    added = true;
                 }
             }
 

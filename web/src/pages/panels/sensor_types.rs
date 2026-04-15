@@ -1,9 +1,9 @@
 #[derive(Clone, Copy, PartialEq)]
 pub enum MeasurementTab {
     Voltage,
-    Current,
     CarbonDioxide,
     TemperatureHumidity,
+    Pressure,
 }
 
 impl MeasurementTab {
@@ -11,8 +11,8 @@ impl MeasurementTab {
         match self {
             Self::TemperatureHumidity => "temp_humidity",
             Self::Voltage => "voltage",
-            Self::Current => "current",
             Self::CarbonDioxide => "co2",
+            Self::Pressure => "pressure",
         }
         .to_string()
     }
@@ -21,9 +21,36 @@ impl MeasurementTab {
         match s {
             "temp_humidity" => Self::TemperatureHumidity,
             "voltage" => Self::Voltage,
-            "current" => Self::Current,
             "co2" => Self::CarbonDioxide,
-            _ => Self::CarbonDioxide,
+            "pressure" => Self::Pressure,
+            _ => Self::TemperatureHumidity,
+        }
+    }
+
+    pub fn label(&self) -> &'static str {
+        match self {
+            Self::TemperatureHumidity => "Temperature & Humidity",
+            Self::Voltage => "Voltage",
+            Self::CarbonDioxide => "CO\u{2082}",
+            Self::Pressure => "Pressure",
+        }
+    }
+
+    pub fn icon_name(&self) -> &'static str {
+        match self {
+            Self::TemperatureHumidity => "Thermometer",
+            Self::Voltage => "Zap",
+            Self::CarbonDioxide => "FlaskConical",
+            Self::Pressure => "Gauge",
+        }
+    }
+
+    pub fn is_available(&self, avail: &super::sensor_feed::SensorAvailability) -> bool {
+        match self {
+            Self::TemperatureHumidity => avail.temperature_humidity,
+            Self::Voltage => avail.voltage,
+            Self::CarbonDioxide => avail.co2,
+            Self::Pressure => avail.pressure,
         }
     }
 }
@@ -41,6 +68,7 @@ pub struct Co2Row {
 pub struct TemperatureHumidityReading {
     pub index: usize,
     pub read_ok: bool,
+    pub model: String,
     pub temperature_celsius: f64,
     pub relative_humidity_percent: f64,
 }
@@ -49,6 +77,7 @@ pub struct TemperatureHumidityReading {
 pub struct TemperatureHumidityRow {
     pub row: usize,
     pub sensors: Vec<TemperatureHumidityReading>,
+    pub default_model: String,
     pub time: String,
 }
 
@@ -57,5 +86,14 @@ pub struct VoltageRow {
     pub row: usize,
     pub gain: String,
     pub channels: Vec<f64>,
+    pub time: String,
+}
+
+#[derive(Clone)]
+pub struct PressureRow {
+    pub row: usize,
+    pub model: String,
+    pub pressure_hpa: f64,
+    pub temperature_celsius: f64,
     pub time: String,
 }

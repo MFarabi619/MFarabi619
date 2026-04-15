@@ -1,7 +1,6 @@
 use super::{
-    build_csv, download_csv,
-    fetch_and_add_sensor_readings, Co2Row, MeasurementTab, SensorAvailability, Td,
-    TemperatureHumidityRow, Th, VoltageRow,
+    build_csv, download_csv, fetch_and_add_sensor_readings, Co2Row, MeasurementTab, PressureRow,
+    SensorAvailability, Td, TemperatureHumidityRow, Th, VoltageRow,
 };
 use crate::api::Co2ConfigData;
 use crate::services::Co2Service;
@@ -22,6 +21,7 @@ fn sample_button(
     co2_readings: Signal<Vec<Co2Row>>,
     temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     voltage_readings: Signal<Vec<VoltageRow>>,
+    pressure_readings: Signal<Vec<PressureRow>>,
     availability: Signal<SensorAvailability>,
     icon: Element,
 ) -> Element {
@@ -35,7 +35,7 @@ fn sample_button(
                 let url = device_url.read().clone();
                 spawn(async move {
                     fetch_and_add_sensor_readings(
-                        &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
+                        &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
                     ).await;
                     sampling.set(false);
                 });
@@ -71,135 +71,105 @@ pub fn MeasurementPanel(
     co2_readings: Signal<Vec<Co2Row>>,
     temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     voltage_readings: Signal<Vec<VoltageRow>>,
+    pressure_readings: Signal<Vec<PressureRow>>,
     co2_config: Signal<Option<Co2ConfigData>>,
     sampling: Signal<bool>,
     active_tab: Signal<MeasurementTab>,
     availability: Signal<SensorAvailability>,
 ) -> Element {
     let avail = *availability.read();
-    let default_tab = active_tab.read().to_value();
+
+    let has_any_sensor = avail.temperature_humidity || avail.voltage || avail.pressure || avail.co2;
+
+    let default_tab_value = if has_any_sensor {
+        if avail.temperature_humidity {
+            "temp_humidity"
+        } else if avail.voltage {
+            "voltage"
+        } else if avail.pressure {
+            "pressure"
+        } else {
+            "co2"
+        }
+    } else {
+        "temp_humidity"
+    };
+
     let mut tab_value: Signal<Option<String>> = use_signal(|| None);
 
-    let mut tab_index = 0usize;
+    const TABS: [MeasurementTab; 4] = [
+        MeasurementTab::TemperatureHumidity,
+        MeasurementTab::Voltage,
+        MeasurementTab::Pressure,
+        MeasurementTab::CarbonDioxide,
+    ];
 
     rsx! {
         section { id: "cloudevents-section", class: "panel-shell-strong p-4",
             Tabs {
                 value: ReadSignal::from(tab_value),
-                default_value: default_tab,
+                default_value: default_tab_value,
                 horizontal: true,
                 on_value_change: move |val: String| {
                     active_tab.set(MeasurementTab::from_value(&val));
                 },
                 TabList {
                     class: "flex w-full border border-border rounded-full p-1 mb-4",
-                    {
-                        let mut idx = 0usize;
-                        let triggers = rsx! {
-                            if avail.temperature_humidity {
+                    if !has_any_sensor {
+                        div { class: "w-full py-2 text-center text-muted-foreground", "No sensors connected" }
+                    } else {
+                        for (idx, tab) in TABS.iter().enumerate() {
+                            if tab.is_available(&avail) {
                                 div {
                                     class: "flex-1",
-                                    onmouseenter: move |_| { active_tab.set(MeasurementTab::TemperatureHumidity); tab_value.set(Some("temp_humidity".into())); },
+                                    onmouseenter: move |_| {
+                                        active_tab.set(*tab);
+                                        tab_value.set(Some(tab.to_value()));
+                                    },
                                     TabTrigger {
-                                        value: "temp_humidity".to_string(),
+                                        value: tab.to_value(),
                                         index: idx,
-                                        class: if *active_tab.read() == MeasurementTab::TemperatureHumidity {
+                                        class: if *active_tab.read() == *tab {
                                             "w-full py-2 text-center rounded-full border border-border bg-background text-foreground font-medium transition-all duration-200"
                                         } else {
                                             "w-full py-2 text-center rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
                                         },
-                                        "Temperature & Humidity"
-                                    }
-                                }
-                                { idx += 1; rsx! {} }
-                            }
-                            if avail.voltage {
-                                div {
-                                    class: "flex-1",
-                                    onmouseenter: move |_| { active_tab.set(MeasurementTab::Voltage); tab_value.set(Some("voltage".into())); },
-                                    TabTrigger {
-                                        value: "voltage".to_string(),
-                                        index: idx,
-                                        class: if *active_tab.read() == MeasurementTab::Voltage {
-                                            "w-full py-2 text-center rounded-full border border-border bg-background text-foreground font-medium transition-all duration-200"
-                                        } else {
-                                            "w-full py-2 text-center rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
-                                        },
-                                        "Voltage"
-                                    }
-                                }
-                                { idx += 1; rsx! {} }
-                            }
-                            if avail.current {
-                                div {
-                                    class: "flex-1",
-                                    onmouseenter: move |_| { active_tab.set(MeasurementTab::Current); tab_value.set(Some("current".into())); },
-                                    TabTrigger {
-                                        value: "current".to_string(),
-                                        index: idx,
-                                        class: if *active_tab.read() == MeasurementTab::Current {
-                                            "w-full py-2 text-center rounded-full border border-border bg-background text-foreground font-medium transition-all duration-200"
-                                        } else {
-                                            "w-full py-2 text-center rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
-                                        },
-                                        "Current"
-                                    }
-                                }
-                                { idx += 1; rsx! {} }
-                            }
-                            if avail.co2 {
-                                div {
-                                    class: "flex-1",
-                                    onmouseenter: move |_| { active_tab.set(MeasurementTab::CarbonDioxide); tab_value.set(Some("co2".into())); },
-                                    TabTrigger {
-                                        value: "co2".to_string(),
-                                        index: idx,
-                                        class: if *active_tab.read() == MeasurementTab::CarbonDioxide {
-                                            "w-full py-2 text-center rounded-full border border-border bg-background text-foreground font-medium transition-all duration-200"
-                                        } else {
-                                            "w-full py-2 text-center rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
-                                        },
-                                        "CO\u{2082}"
+                                        "{tab.label()}"
                                     }
                                 }
                             }
-                        };
-                        tab_index = idx;
-                        triggers
+                        }
                     }
                 }
 
                 {
-                    let mut content_idx = 0usize;
                     rsx! {
                         if avail.temperature_humidity {
                             TabContent {
                                 value: "temp_humidity".to_string(),
-                                index: content_idx,
-                                {thm_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, sampling, availability)}
+                                index: use_signal(|| 0usize),
+                                {thm_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, sampling, availability)}
                             }
-                            { content_idx += 1; rsx! {} }
                         }
                         if avail.voltage {
                             TabContent {
                                 value: "voltage".to_string(),
-                                index: content_idx,
-                                {voltage_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, sampling, availability)}
+                                index: use_signal(|| 1usize),
+                                {voltage_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, sampling, availability)}
                             }
-                            { content_idx += 1; rsx! {} }
                         }
-                        if avail.current {
+                        if avail.pressure {
                             TabContent {
-                                value: "current".to_string(),
-                                index: content_idx,
+                                value: "pressure".to_string(),
+                                index: use_signal(|| 2usize),
+                                {pressure_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, sampling, availability)}
                             }
-                            { content_idx += 1; rsx! {} }
                         }
                         if avail.co2 {
                             TabContent {
                                 value: "co2".to_string(),
-                                index: content_idx,
-                                {co2_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, co2_config, sampling, availability)}
+                                index: use_signal(|| 3usize),
+                                {co2_panel(device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, co2_config, sampling, availability)}
                             }
                         }
                     }
@@ -215,6 +185,7 @@ fn co2_panel(
     co2_readings: Signal<Vec<Co2Row>>,
     temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     voltage_readings: Signal<Vec<VoltageRow>>,
+    pressure_readings: Signal<Vec<PressureRow>>,
     mut co2_config: Signal<Option<Co2ConfigData>>,
     sampling: Signal<bool>,
     availability: Signal<SensorAvailability>,
@@ -375,7 +346,7 @@ fn co2_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
+                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
                     rsx! { lucide_dioxus::FlaskConical { class: "w-4 h-4" } })}
             }
 
@@ -426,13 +397,18 @@ fn thm_panel(
     co2_readings: Signal<Vec<Co2Row>>,
     temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     voltage_readings: Signal<Vec<VoltageRow>>,
+    pressure_readings: Signal<Vec<PressureRow>>,
     sampling: Signal<bool>,
     availability: Signal<SensorAvailability>,
 ) -> Element {
     rsx! {
         div {
             div { class: "flex items-center gap-2 flex-wrap mb-3",
-                span { class: "text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5", "CHT832X" }
+                if let Some(ref row) = temperature_humidity_readings.read().last() {
+                    if !row.default_model.is_empty() {
+                        span { class: "text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5", "{row.default_model}" }
+                    }
+                }
                 div { class: "flex-1" }
 
                 if !temperature_humidity_readings.read().is_empty() {
@@ -441,7 +417,7 @@ fn thm_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
+                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
                     rsx! { lucide_dioxus::Thermometer { class: "w-4 h-4" } })}
             }
 
@@ -497,21 +473,90 @@ fn thm_panel(
     }
 }
 
-fn voltage_panel(
+fn pressure_panel(
     device_url: Signal<String>,
     last_event_time: Signal<String>,
     co2_readings: Signal<Vec<Co2Row>>,
     temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     voltage_readings: Signal<Vec<VoltageRow>>,
+    pressure_readings: Signal<Vec<PressureRow>>,
     sampling: Signal<bool>,
     availability: Signal<SensorAvailability>,
 ) -> Element {
     rsx! {
         div {
             div { class: "flex items-center gap-2 flex-wrap mb-3",
-                span { class: "text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5", "ADS1115" }
+                if let Some(ref row) = pressure_readings.read().last() {
+                    span { class: "text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5", "{row.model}" }
+                }
+                div { class: "flex-1" }
+
+                if !pressure_readings.read().is_empty() {
+                    {csv_button(move |_| {
+                        download_csv("pressure.csv", &build_csv(&pressure_readings.read()));
+                    })}
+                }
+
+                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
+                    rsx! { lucide_dioxus::Gauge { class: "w-4 h-4" } })}
+            }
+
+            div { class: "border border-border rounded-lg overflow-hidden",
+                div { class: "w-full overflow-auto h-[400px]",
+                    table { class: "min-w-full border-collapse",
+                        thead { class: "bg-muted",
+                            tr {
+                                Th { "#" }
+                                Th { "Pressure (hPa)" }
+                                Th { "Temp (\u{00b0}C)" }
+                                Th { "TIME" }
+                            }
+                        }
+                        tbody {
+                            if pressure_readings.read().is_empty() {
+                                tr {
+                                    td { colspan: "4", class: "px-4 py-10 text-center",
+                                        div { class: "flex flex-col items-center gap-2",
+                                            lucide_dioxus::Gauge { class: "w-9 h-9 text-muted-foreground" }
+                                            h3 { class: "text-sm font-medium text-foreground", "No readings yet" }
+                                            p { class: "text-sm text-muted-foreground", "Data streams automatically every 5 seconds" }
+                                        }
+                                    }
+                                }
+                            }
+                            for row in pressure_readings.read().iter().rev() {
+                                tr { key: "{row.row}", class: "border-b border-border hover:bg-muted/40 transition-colors",
+                                    Td { "{row.row}" }
+                                    Td { class: "tabular-nums", "{row.pressure_hpa:.2}" }
+                                    Td { class: "tabular-nums", "{row.temperature_celsius:.1}" }
+                                    Td { class: "text-muted-foreground whitespace-nowrap", "{row.time}" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn voltage_panel(
+    device_url: Signal<String>,
+    last_event_time: Signal<String>,
+    co2_readings: Signal<Vec<Co2Row>>,
+    temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
+    voltage_readings: Signal<Vec<VoltageRow>>,
+    pressure_readings: Signal<Vec<PressureRow>>,
+    sampling: Signal<bool>,
+    availability: Signal<SensorAvailability>,
+) -> Element {
+    rsx! {
+        div {
+            div { class: "flex items-center gap-2 flex-wrap mb-3",
                 if let Some(ref row) = voltage_readings.read().last() {
-                    span { class: "text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5", "{row.gain}" }
+                    if !row.gain.is_empty() {
+                        span { class: "text-xs font-mono text-muted-foreground border border-border rounded px-1.5 py-0.5", "{row.gain}" }
+                    }
                 }
                 div { class: "flex-1" }
 
@@ -521,7 +566,7 @@ fn voltage_panel(
                     })}
                 }
 
-                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
+                {sample_button(sampling, device_url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
                     rsx! { lucide_dioxus::Zap { class: "w-4 h-4" } })}
             }
 

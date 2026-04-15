@@ -4,8 +4,8 @@ use crate::components::command_palette::CommandPalette;
 use crate::hooks::sleep_ms;
 use crate::services::{Co2Service, DeviceService, FileService, WifiService};
 use crate::pages::panels::{
-    fetch_and_add_sensor_readings,
-    Co2Row, SensorAvailability, TemperatureHumidityRow, VoltageRow,
+    fetch_and_add_sensor_readings, load_inventory,
+    Co2Row, PressureRow, SensorAvailability, TemperatureHumidityRow, VoltageRow,
     BluetoothPanel, FilesystemPanel, FlashPanel, MeasurementPanel, MeasurementTab, NetworkPanel, SleepPanel, TerminalPanel,
 };
 use dioxus::prelude::*;
@@ -52,6 +52,7 @@ pub fn Home() -> Element {
     let mut co2_readings = use_signal(Vec::<Co2Row>::new);
     let mut temperature_humidity_readings = use_signal(Vec::<TemperatureHumidityRow>::new);
     let mut voltage_readings = use_signal(Vec::<VoltageRow>::new);
+    let mut pressure_readings = use_signal(Vec::<PressureRow>::new);
     let last_event_time = use_signal(String::new);
     let mut co2_config = use_signal(|| None::<api::Co2ConfigData>);
     let mut sampling = use_signal(|| false);
@@ -170,9 +171,17 @@ pub fn Home() -> Element {
                 }
             }
 
+            // Load sensor inventory at startup
+            if tick == 0 {
+                let mut avail = *availability.read();
+                if load_inventory(&url, &mut avail).await {
+                    availability.set(avail);
+                }
+            }
+
             if !*sampling.peek() {
                 fetch_and_add_sensor_readings(
-                    &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
+                    &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
                 ).await;
             }
 
@@ -222,7 +231,7 @@ pub fn Home() -> Element {
                         let url = device_url.read().clone();
                         spawn(async move {
                             fetch_and_add_sensor_readings(
-                                &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
+                                &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
                             ).await;
                             sampling.set(false);
                         });
@@ -348,6 +357,7 @@ pub fn Home() -> Element {
                     co2_readings,
                     temperature_humidity_readings,
                     voltage_readings,
+                    pressure_readings,
                     co2_config,
                     sampling,
                     active_tab,
@@ -383,7 +393,7 @@ pub fn Home() -> Element {
                     let url = device_url.read().clone();
                     spawn(async move {
                         fetch_and_add_sensor_readings(
-                            &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, availability,
+                            &url, last_event_time, co2_readings, temperature_humidity_readings, voltage_readings, pressure_readings, availability,
                         ).await;
                         sampling.set(false);
                     });

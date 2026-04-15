@@ -31,6 +31,6 @@ pub async fn sleep_ms(milliseconds: u32) {
     gloo_timers::future::TimeoutFuture::new(milliseconds).await;
     #[cfg(not(target_arch = "wasm32"))]
     {
-        std::future::pending::<()>();
+        let _ = std::future::pending::<()>();
     }
 }
