@@ -1,12 +1,17 @@
 #pragma once
 
 #include "session.h"
+#include "terminal.h"
+#include "history.h"
 #include <stddef.h>
 
 namespace console::remote {
 
 typedef void (*flush_fn)(const char *data, size_t len, void *ctx);
 
+//------------------------------------------
+//  Shell — remote terminal with editing
+//------------------------------------------
 class Shell {
 public:
   Shell(char *ring_buf, uint16_t ring_cap,
@@ -24,13 +29,13 @@ public:
 private:
   void write(const char *data, size_t len);
   void flush();
-  void echo(char ch);
+  void redraw_line();
 
   programs::shell::session::RingBuffer ring_;
   programs::shell::session::WriteBuffer write_;
-  char *line_buf_;
-  size_t line_cap_;
-  size_t line_pos_;
+
+  console::Terminal terminal_;
+  console::History history_;
 
   flush_fn flush_fn_;
   void *flush_ctx_;

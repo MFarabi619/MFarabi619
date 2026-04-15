@@ -35,7 +35,6 @@ void programs::shell::initialize() {
   programs::ssh_fingerprint::registerCmd();
   programs::sqlite::registerCmd();
   Console.addHelpCmd();
-  Console.setHelpVerboseLevel(0);
 
   printf("%s", console::prompt::build_motd());
   printf("%s", programs::shell::microfetch::generate());

@@ -204,7 +204,7 @@ sqlite3_int64 programs::sqlite::memoryHighwater(bool reset) {
 }
 
 void programs::sqlite::registerCmd() {
-  Console.addCmd("sqlite", "SQLite3 database shell",
+  Console.addCmd("sqlite3", "SQLite3 database shell",
                  "<open|close|exec|tables|status> [...]", cmd_sqlite);
 }
 
