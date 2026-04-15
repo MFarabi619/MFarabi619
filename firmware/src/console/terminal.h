@@ -19,13 +19,22 @@ enum class KeyCode {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
-  CtrlC,
-  CtrlD,
-  CtrlL,
-  CtrlW,
-  CtrlU,
-  CtrlP,
-  CtrlN,
+  Home,
+  End,
+  CtrlA,       // home
+  CtrlB,       // left
+  CtrlC,       // interrupt
+  CtrlD,       // delete / EOF
+  CtrlE,       // end
+  CtrlF,       // right
+  CtrlK,       // kill to end of line
+  CtrlL,       // clear screen
+  CtrlN,       // history next
+  CtrlP,       // history previous
+  CtrlR,       // redraw line
+  CtrlT,       // swap chars
+  CtrlU,       // kill line
+  CtrlW,       // delete word
   Char,
 };
 
@@ -36,6 +45,8 @@ enum class TerminalEvent {
   None,
   BufferChanged,
   CursorMoved,
+  CursorHome,
+  CursorEnd,
   CommandReady,
   EmptyCommand,
   Interrupt,
@@ -44,7 +55,10 @@ enum class TerminalEvent {
   HistoryNext,
   ClearScreen,
   DeleteWord,
+  KillToEnd,
   ClearLine,
+  SwapChars,
+  Redraw,
 };
 
 //------------------------------------------

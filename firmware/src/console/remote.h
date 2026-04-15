@@ -34,8 +34,12 @@ private:
   programs::shell::session::RingBuffer ring_;
   programs::shell::session::WriteBuffer write_;
 
+  bool handle_builtin(const char *cmd);
+
   console::Terminal terminal_;
   console::History history_;
+
+  char cwd_[128];
 
   flush_fn flush_fn_;
   void *flush_ctx_;

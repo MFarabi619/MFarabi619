@@ -1,8 +1,10 @@
 #include "remote.h"
+#include "path.h"
 #include "prompt.h"
 #include "../programs/shell/microfetch.h"
 
 #include <Console.h>
+#include <SD.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -38,7 +40,7 @@ console::remote::Shell::Shell(char *ring_buf, uint16_t ring_cap,
                               char *write_buf, size_t write_cap,
                               char *line_buf, size_t line_cap,
                               flush_fn flush, void *flush_ctx)
-    : terminal_(line_buf, line_cap), history_(),
+    : terminal_(line_buf, line_cap), history_(), cwd_{"/"},
       flush_fn_(flush), flush_ctx_(flush_ctx) {
   ring_.data = ring_buf;
   ring_.capacity = ring_cap;
@@ -54,6 +56,7 @@ void console::remote::Shell::reset() {
   programs::shell::session::reset(&write_);
   terminal_.clear_buffer();
   history_.reset_position();
+  strlcpy(cwd_, console::path::home_dir(), sizeof(cwd_));
 }
 
 //------------------------------------------
@@ -114,9 +117,47 @@ void console::remote::Shell::send_motd(const char *transport) {
 }
 
 void console::remote::Shell::send_prompt() {
-  const char *p = console::prompt::build("/");
+  const char *p = console::prompt::build(cwd_);
   write(p, strlen(p));
   flush();
+}
+
+//------------------------------------------
+//  Built-in commands (cd, pwd, clear)
+//------------------------------------------
+bool console::remote::Shell::handle_builtin(const char *cmd) {
+  if (strcmp(cmd, "pwd") == 0) {
+    write(cwd_, strlen(cwd_));
+    write("\r\n", 2);
+    return true;
+  }
+
+  if (strcmp(cmd, "clear") == 0) {
+    write("\x1b[2J\x1b[H", 7);
+    return true;
+  }
+
+  if (strcmp(cmd, "cd") == 0) {
+    strlcpy(cwd_, console::path::home_dir(), sizeof(cwd_));
+    return true;
+  }
+
+  if (strncmp(cmd, "cd ", 3) == 0) {
+    const char *arg = cmd + 3;
+    while (*arg == ' ') arg++;
+
+    char prev[128];
+    strlcpy(prev, cwd_, sizeof(prev));
+    console::path::apply_cd(cwd_, sizeof(cwd_), arg);
+
+    if (!SD.exists(cwd_)) {
+      strlcpy(cwd_, prev, sizeof(cwd_));
+      write("no such directory\r\n", 19);
+    }
+    return true;
+  }
+
+  return false;
 }
 
 //------------------------------------------
@@ -136,11 +177,16 @@ void console::remote::Shell::service() {
       break;
 
     case console::TerminalEvent::CursorMoved:
-      if (key == console::KeyCode::ArrowLeft)
+      if (key == console::KeyCode::ArrowLeft || key == console::KeyCode::CtrlB)
         write("\x1b[D", 3);
       else
         write("\x1b[C", 3);
       flush();
+      break;
+
+    case console::TerminalEvent::CursorHome:
+    case console::TerminalEvent::CursorEnd:
+      redraw_line();
       break;
 
     case console::TerminalEvent::CommandReady: {
@@ -148,14 +194,17 @@ void console::remote::Shell::service() {
       const char *cmd = terminal_.take_command();
 
       if (strcmp(cmd, "exit") == 0 || strcmp(cmd, "quit") == 0) {
-        write("logout\r\n", 8);
+        write("\x1b[33mgoodbye!\x1b[0m\r\n", 22);
         flush();
         return;
       }
 
       history_.add(cmd);
       history_.reset_position();
-      run_command(cmd, flush_fn_, flush_ctx_);
+
+      if (!handle_builtin(cmd))
+        run_command(cmd, flush_fn_, flush_ctx_);
+
       send_prompt();
       break;
     }
@@ -202,6 +251,18 @@ void console::remote::Shell::service() {
 
     case console::TerminalEvent::ClearLine:
       terminal_.clear_buffer();
+      redraw_line();
+      break;
+
+    case console::TerminalEvent::KillToEnd:
+      redraw_line();
+      break;
+
+    case console::TerminalEvent::SwapChars:
+      redraw_line();
+      break;
+
+    case console::TerminalEvent::Redraw:
       redraw_line();
       break;
 

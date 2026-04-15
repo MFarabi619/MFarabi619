@@ -16,18 +16,26 @@ console::KeyCode console::Terminal::process_byte(uint8_t byte) {
   case Normal:
     switch (byte) {
     case '\r': case '\n':     return KeyCode::Enter;
-    case 0x08: case 0x7F:    return KeyCode::Backspace;
+    case 0x01:               return KeyCode::CtrlA;
+    case 0x02:               return KeyCode::CtrlB;
     case 0x03:               return KeyCode::CtrlC;
     case 0x04:               return KeyCode::CtrlD;
+    case 0x05:               return KeyCode::CtrlE;
+    case 0x06:               return KeyCode::CtrlF;
+    case 0x08:               return KeyCode::Backspace;
     case 0x09:               return KeyCode::Tab;
+    case 0x0B:               return KeyCode::CtrlK;
     case 0x0C:               return KeyCode::CtrlL;
-    case 0x10:               return KeyCode::CtrlP;
     case 0x0E:               return KeyCode::CtrlN;
+    case 0x10:               return KeyCode::CtrlP;
+    case 0x12:               return KeyCode::CtrlR;
+    case 0x14:               return KeyCode::CtrlT;
     case 0x15:               return KeyCode::CtrlU;
     case 0x17:               return KeyCode::CtrlW;
     case 0x1B:
       escape_state_ = Escape;
       return KeyCode::None;
+    case 0x7F:               return KeyCode::Backspace;
     default:
       if (byte >= 0x20 && byte < 0x7F) {
         last_char_ = byte;
@@ -51,7 +59,11 @@ console::KeyCode console::Terminal::process_byte(uint8_t byte) {
     case 'B': return KeyCode::ArrowDown;
     case 'C': return KeyCode::ArrowRight;
     case 'D': return KeyCode::ArrowLeft;
-    case '3': return KeyCode::Delete;
+    case 'H': return KeyCode::Home;
+    case 'F': return KeyCode::End;
+    case '1': return KeyCode::Home;   // ESC[1~ (some terminals)
+    case '3': return KeyCode::Delete; // ESC[3~
+    case '4': return KeyCode::End;    // ESC[4~ (some terminals)
     default:  return KeyCode::None;
     }
   }
@@ -84,6 +96,7 @@ console::TerminalEvent console::Terminal::handle_key(KeyCode key, uint8_t ch) {
     return TerminalEvent::None;
 
   case KeyCode::ArrowLeft:
+  case KeyCode::CtrlB:
     if (cursor_ > 0) {
       cursor_--;
       return TerminalEvent::CursorMoved;
@@ -91,9 +104,26 @@ console::TerminalEvent console::Terminal::handle_key(KeyCode key, uint8_t ch) {
     return TerminalEvent::None;
 
   case KeyCode::ArrowRight:
+  case KeyCode::CtrlF:
     if (cursor_ < len_) {
       cursor_++;
       return TerminalEvent::CursorMoved;
+    }
+    return TerminalEvent::None;
+
+  case KeyCode::Home:
+  case KeyCode::CtrlA:
+    if (cursor_ > 0) {
+      cursor_ = 0;
+      return TerminalEvent::CursorHome;
+    }
+    return TerminalEvent::None;
+
+  case KeyCode::End:
+  case KeyCode::CtrlE:
+    if (cursor_ < len_) {
+      cursor_ = len_;
+      return TerminalEvent::CursorEnd;
     }
     return TerminalEvent::None;
 
@@ -109,10 +139,38 @@ console::TerminalEvent console::Terminal::handle_key(KeyCode key, uint8_t ch) {
     return TerminalEvent::Interrupt;
 
   case KeyCode::CtrlD:
-    return TerminalEvent::EndOfFile;
+    if (len_ == 0) return TerminalEvent::EndOfFile;
+    if (cursor_ < len_) {
+      memmove(buf_ + cursor_, buf_ + cursor_ + 1, len_ - cursor_ - 1);
+      len_--;
+      buf_[len_] = '\0';
+      return TerminalEvent::BufferChanged;
+    }
+    return TerminalEvent::None;
+
+  case KeyCode::CtrlK:
+    if (cursor_ < len_) {
+      len_ = cursor_;
+      buf_[len_] = '\0';
+      return TerminalEvent::KillToEnd;
+    }
+    return TerminalEvent::None;
 
   case KeyCode::CtrlL:
     return TerminalEvent::ClearScreen;
+
+  case KeyCode::CtrlR:
+    return TerminalEvent::Redraw;
+
+  case KeyCode::CtrlT:
+    if (cursor_ > 0 && cursor_ < len_) {
+      char tmp = buf_[cursor_ - 1];
+      buf_[cursor_ - 1] = buf_[cursor_];
+      buf_[cursor_] = tmp;
+      if (cursor_ < len_) cursor_++;
+      return TerminalEvent::SwapChars;
+    }
+    return TerminalEvent::None;
 
   case KeyCode::CtrlW:
     return TerminalEvent::DeleteWord;
