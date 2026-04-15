@@ -43,7 +43,7 @@ async fn main(spawner: Spawner) -> ! {
     let peripherals = esp_hal::init(config);
 
     esp_alloc::heap_allocator!(#[esp_hal::ram(reclaimed)] size: 73744);
-    esp_alloc::heap_allocator!(size: 64 * 1024);
+    esp_alloc::heap_allocator!(size: 32 * 1024);
     esp_alloc::psram_allocator!(peripherals.PSRAM, esp_hal::psram);
 
     let timg0 = TimerGroup::new(peripherals.TIMG0);
@@ -69,7 +69,8 @@ async fn main(spawner: Spawner) -> ! {
         app::wifi::ap::AUTH_MODE,
     );
 
-    boot::validate_ota_slot();
+    let mut flash = FlashStorage::new(peripherals.FLASH).multicore_auto_park();
+    boot::validate_ota_slot(&mut flash);
 
     let _sensor_power_relay = match board::i2c::LEGACY_POWER_GPIO {
         5 => Output::new(peripherals.GPIO5, Level::High, OutputConfig::default()),
@@ -97,7 +98,6 @@ async fn main(spawner: Spawner) -> ! {
     );
     boot::discover_i2c_devices(&mut i2c0_bus, &mut i2c1_bus).await;
 
-    let mut flash = FlashStorage::new();
     let credentials = wifi::load_credentials_or_default(&mut flash);
 
     let network = boot::initialize_networking(
@@ -109,7 +109,7 @@ async fn main(spawner: Spawner) -> ! {
     .await;
 
     boot::spawn_sensor_tasks(&spawner, &mut i2c0_bus, &mut i2c1_bus);
-    boot::start_services(&spawner, network.stack);
+    boot::start_services(&spawner, network.stack, flash);
 
     let _ble_controller = network.ble_controller;
     loop {

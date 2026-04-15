@@ -139,11 +139,12 @@ mod tests {
     /// `it("user writes and reads WiFi credentials from flash")`
     #[test]
     async fn user_writes_and_reads_wifi_credentials_from_flash(
-        _device: Device,
+        mut device: Device,
     ) -> Result<(), &'static str> {
         use firmware::networking::wifi::credentials;
 
-        let mut flash = esp_storage::FlashStorage::new();
+        let flash_peripheral = device.flash.take().ok_or("FLASH peripheral consumed")?;
+        let mut flash = esp_storage::FlashStorage::new(flash_peripheral).multicore_auto_park();
 
         // Save whatever is currently in flash so we can restore it
         let original = credentials::read_from_flash(&mut flash);
@@ -172,12 +173,13 @@ mod tests {
     /// `it("user observes read_from_flash returns None when no credentials stored")`
     #[test]
     async fn user_observes_read_returns_none_without_credentials(
-        _device: Device,
+        mut device: Device,
     ) -> Result<(), &'static str> {
         use embedded_storage::nor_flash::NorFlash;
         use firmware::networking::wifi::credentials;
 
-        let mut flash = esp_storage::FlashStorage::new();
+        let flash_peripheral = device.flash.take().ok_or("FLASH peripheral consumed")?;
+        let mut flash = esp_storage::FlashStorage::new(flash_peripheral).multicore_auto_park();
 
         // Save original
         let original = credentials::read_from_flash(&mut flash);

@@ -105,24 +105,9 @@ pub fn run() -> AllocString {
         app_desc.date(),
         app_desc.time()
     );
-    {
-        let mut buf = [0u8; esp_bootloader_esp_idf::partitions::PARTITION_TABLE_MAX_LEN];
-        let mut flash = esp_storage::FlashStorage::new();
-        if let Ok(pt) =
-            esp_bootloader_esp_idf::partitions::read_partition_table(&mut flash, &mut buf)
-        {
-            if let Ok(Some(entry)) = pt.booted_partition() {
-                row!(
-                    out,
-                    "34",
-                    icons::NF_FA_HDD,
-                    "Partition",
-                    "\x1b[1m{}\x1b[0m",
-                    entry.label_as_str()
-                );
-            }
-        }
-    }
+    // Partition info removed — FlashStorage can only be created once and is
+    // owned by the boot code. Display booted partition via a different mechanism
+    // when available.
 
     let (d, h, m, s) = (
         secs / 86400,

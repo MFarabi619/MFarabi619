@@ -107,7 +107,7 @@ mod tests {
 
         info!("OTA probe test initialized");
 
-        let mut flash = FlashStorage::new();
+        let mut flash = FlashStorage::new(peripherals.FLASH).multicore_auto_park();
         let mut partition_buffer = [0u8; PARTITION_TABLE_MAX_LEN];
 
         let partition_table =

@@ -1,28 +1,24 @@
-use defmt::info;
+use alloc::boxed::Box;
 use core::sync::atomic::{AtomicBool, Ordering};
+use defmt::info;
 use embassy_net::{Stack, tcp::TcpSocket};
 use embassy_time::{Duration, Timer};
+use embedded_storage::Storage;
+use esp_bootloader_esp_idf::ota::OtaImageState;
+use esp_bootloader_esp_idf::ota_updater::OtaUpdater;
+use esp_bootloader_esp_idf::partitions::PARTITION_TABLE_MAX_LEN;
 use esp_hal::system::software_reset;
-use esp_hal_ota::Ota;
 use esp_storage::FlashStorage;
 
 use crate::networking::tcp::read_exact;
 
 static FIRMWARE_UPGRADE_IN_PROGRESS: AtomicBool = AtomicBool::new(false);
 
-/// Status byte sent back to the OTA host once `ota_begin` succeeds and the
-/// device is ready to receive firmware chunks. The host blocks on this byte
-/// before streaming the payload, so changing it requires a matching change
-/// in the host-side uploader.
 const OTA_STATUS_READY: u8 = 0xA5;
-
-/// Status byte sent back to the OTA host when `ota_begin` rejects the
-/// requested firmware size or CRC. The host treats this as a fatal error
-/// for the current upload attempt.
 const OTA_STATUS_BEGIN_FAILED: u8 = 0xE1;
 
 #[embassy_executor::task]
-pub async fn task(stack: Stack<'static>) {
+pub async fn task(stack: Stack<'static>, mut flash: FlashStorage<'static>) {
     info!("OTA receiver listening on TCP port {}", crate::config::app::ota::PORT);
 
     loop {
@@ -59,42 +55,38 @@ pub async fn task(stack: Stack<'static>) {
                         .try_into()
                         .expect("header_buffer[..4] is statically 4 bytes"),
                 );
-                let target_crc = u32::from_le_bytes(
+                let _target_crc = u32::from_le_bytes(
                     header_buffer[4..8]
                         .try_into()
                         .expect("header_buffer[4..8] is statically 4 bytes"),
                 );
 
-                info!(
-                    "OTA header received: size={} bytes crc={:#010x}",
-                    firmware_size, target_crc
-                );
+                info!("OTA header received: size={} bytes", firmware_size);
 
-                let mut ota = match Ota::new(FlashStorage::new()) {
+                let mut pt_buffer = Box::new([0u8; PARTITION_TABLE_MAX_LEN]);
+                let mut ota = match OtaUpdater::new(&mut flash, &mut pt_buffer) {
                     Ok(ota) => ota,
                     Err(error) => {
-                        info!("failed to create OTA instance: {:?}", error);
+                        info!("failed to create OTA updater: {:?}", error);
+                        let _ = socket.write(&[OTA_STATUS_BEGIN_FAILED]).await;
                         Timer::after(Duration::from_secs(2)).await;
                         continue;
                     }
                 };
 
-                info!(
-                    "OTA booted partition: {:?}, next target partition: {:?}, image state: {:?}",
-                    ota.get_currently_booted_partition(),
-                    ota.get_next_ota_partition(),
-                    ota.get_ota_image_state()
-                );
+                let (mut target_partition, target_slot) = match ota.next_partition() {
+                    Ok(result) => result,
+                    Err(error) => {
+                        info!("failed to get next OTA partition: {:?}", error);
+                        let _ = socket.write(&[OTA_STATUS_BEGIN_FAILED]).await;
+                        Timer::after(Duration::from_secs(2)).await;
+                        continue;
+                    }
+                };
+
+                info!("OTA target partition: {:?}", target_slot);
 
                 FIRMWARE_UPGRADE_IN_PROGRESS.store(true, Ordering::Release);
-
-                if let Err(error) = ota.ota_begin(firmware_size, target_crc) {
-                    info!("ota_begin failed: {:?}", error);
-                    let _ = socket.write(&[OTA_STATUS_BEGIN_FAILED]).await;
-                    FIRMWARE_UPGRADE_IN_PROGRESS.store(false, Ordering::Release);
-                    Timer::after(Duration::from_secs(2)).await;
-                    continue;
-                }
 
                 if socket.write(&[OTA_STATUS_READY]).await.is_err() {
                     info!("failed to send OTA ready status");
@@ -104,17 +96,16 @@ pub async fn task(stack: Stack<'static>) {
                 }
 
                 let mut chunk_buffer = [0u8; crate::config::app::ota::CHUNK_SIZE];
-                let mut bytes_received_total = 0usize;
-                let mut last_reported_percent = 0u32;
+                let mut bytes_written: u32 = 0;
+                let mut last_reported_percent: u32 = 0;
 
-                let ota_write_result: Result<(), ()> = loop {
-                    let bytes_remaining =
-                        (firmware_size as usize).saturating_sub(bytes_received_total);
+                let write_result: Result<(), ()> = loop {
+                    let bytes_remaining = (firmware_size).saturating_sub(bytes_written);
                     if bytes_remaining == 0 {
                         break Ok(());
                     }
 
-                    let bytes_to_read = bytes_remaining.min(crate::config::app::ota::CHUNK_SIZE);
+                    let bytes_to_read = (bytes_remaining as usize).min(crate::config::app::ota::CHUNK_SIZE);
                     if let Err(error) =
                         read_exact(&mut socket, &mut chunk_buffer[..bytes_to_read]).await
                     {
@@ -122,22 +113,22 @@ pub async fn task(stack: Stack<'static>) {
                         break Err(());
                     }
 
-                    let write_complete =
-                        match ota.ota_write_chunk(&chunk_buffer[..bytes_to_read]) {
-                            Ok(is_done) => is_done,
-                            Err(error) => {
-                                info!("ota_write_chunk failed: {:?}", error);
-                                break Err(());
-                            }
-                        };
+                    if let Err(error) = target_partition.write(bytes_written, &chunk_buffer[..bytes_to_read]) {
+                        info!("failed to write OTA chunk at offset {}: {:?}", bytes_written, error);
+                        break Err(());
+                    }
 
-                    bytes_received_total += bytes_to_read;
+                    bytes_written += bytes_to_read as u32;
 
-                    let progress = (ota.get_ota_progress() * 100.0) as u32;
+                    let progress = if firmware_size > 0 {
+                        (bytes_written as u64 * 100 / firmware_size as u64) as u32
+                    } else {
+                        0
+                    };
                     if progress >= last_reported_percent + 5 || progress == 100 {
                         info!(
                             "OTA progress: {}% ({}/{} bytes)",
-                            progress, bytes_received_total, firmware_size
+                            progress, bytes_written, firmware_size
                         );
                         last_reported_percent = progress;
                     }
@@ -146,36 +137,30 @@ pub async fn task(stack: Stack<'static>) {
                         info!("failed to ACK OTA chunk");
                         break Err(());
                     }
-
-                    if write_complete {
-                        break Ok(());
-                    }
                 };
 
                 FIRMWARE_UPGRADE_IN_PROGRESS.store(false, Ordering::Release);
 
-                if ota_write_result.is_err() {
+                if write_result.is_err() {
                     Timer::after(Duration::from_secs(2)).await;
                     continue;
                 }
 
-                info!("OTA payload received, flushing update");
-                info!(
-                    "OTA progress details: {:?}",
-                    ota.get_progress_details()
-                        .map(|details| (details.remaining, details.last_crc))
-                );
-                match ota.ota_flush(true, true) {
-                    Ok(()) => {
-                        info!("OTA complete, rebooting into new firmware");
-                        Timer::after(Duration::from_millis(1000)).await;
-                        software_reset();
-                    }
-                    Err(error) => {
-                        info!("ota_flush failed: {:?}", error);
-                        Timer::after(Duration::from_secs(2)).await;
-                    }
+                info!("OTA payload received ({} bytes), activating partition", bytes_written);
+
+                if let Err(error) = ota.activate_next_partition() {
+                    info!("failed to activate next partition: {:?}", error);
+                    Timer::after(Duration::from_secs(2)).await;
+                    continue;
                 }
+
+                if let Err(error) = ota.set_current_ota_state(OtaImageState::New) {
+                    info!("failed to set OTA state to New: {:?}", error);
+                }
+
+                info!("OTA complete, rebooting into new firmware");
+                Timer::after(Duration::from_millis(1000)).await;
+                software_reset();
             }
             Err(error) => {
                 info!("OTA accept failed: {:?}", error);
@@ -185,6 +170,6 @@ pub async fn task(stack: Stack<'static>) {
     }
 }
 
-pub fn spawn(spawner: &embassy_executor::Spawner, stack: Stack<'static>) {
-    spawner.spawn(task(stack).unwrap());
+pub fn spawn(spawner: &embassy_executor::Spawner, stack: Stack<'static>, flash: FlashStorage<'static>) {
+    spawner.spawn(task(stack, flash).unwrap());
 }

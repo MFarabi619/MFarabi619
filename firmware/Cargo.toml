@@ -159,11 +159,11 @@ bench = false
 name = "sdcard_read"
 path = "examples/sdcard_read.rs"
 
-[[example]]
-test = false
-bench = false
-name = "espota_server"
-path = "examples/esp32s3/espota_server.rs"
+# [[example]]
+# test = false
+# bench = false
+# name = "espota_server"
+# path = "examples/esp32s3/espota_server.rs"
 
 [[example]]
 test = false
@@ -235,12 +235,11 @@ embassy-executor = { workspace = true, features = ["defmt"] }
 embedded-io-async = { workspace = true, features = ["defmt"] }
 rtt-target = { version = "0.6.2", features = ["defmt"] }
 
-esp-alloc = { version = "0.9.0", features = ["defmt"] }
+esp-alloc = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = ["defmt"] }
 panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
-esp-bootloader-esp-idf = { version = "0.4.0", features = ["defmt", "esp32s3"] }
-esp-storage = { version = "0.5.0", features = ["esp32s3", "nor-flash"] }
-esp-hal-ota = { version = "0.4.6", features = ["esp32s3", "defmt"] }
-esp-hal = { version = "~1.0", features = ["defmt", "esp32s3", "unstable"] }
+esp-bootloader-esp-idf = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = ["defmt", "esp32s3"] }
+esp-storage = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = ["esp32s3"] }
+esp-hal = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = ["defmt", "esp32s3", "unstable"] }
 embassy-futures = "0.1"
 embassy-sync = { version = "0.7", features = ["defmt"] }
 trouble-host = { version = "0.6.0", features = ["gatt"] }
@@ -263,14 +262,14 @@ embassy-net = { version = "0.9.0", features = [
     "multicast",
     "auto-icmp-echo-reply",
 ] }
-esp-rtos = { version = "0.2.0", features = [
+esp-rtos = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
     "defmt",
     "embassy",
     "esp32s3",
     "esp-alloc",
     "esp-radio",
 ] }
-esp-radio = { version = "0.17.0", features = [
+esp-radio = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
     "ble",
     "coex",
     "wifi",

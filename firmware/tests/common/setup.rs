@@ -29,6 +29,7 @@ pub struct Device {
     pub embassy_network_seed: u64,
     pub i2c_bus_0: Option<I2c<'static, esp_hal::Blocking>>,
     pub i2c_bus_1: Option<I2c<'static, esp_hal::Blocking>>,
+    pub flash: Option<esp_hal::peripherals::FLASH<'static>>,
 }
 
 pub fn boot_device() -> Device {
@@ -105,6 +106,7 @@ pub fn boot_device() -> Device {
         embassy_network_seed,
         i2c_bus_0: Some(i2c_bus_0),
         i2c_bus_1: Some(i2c_bus_1),
+        flash: Some(peripherals.FLASH),
     }
 }
 

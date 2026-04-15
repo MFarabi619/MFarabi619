@@ -21,7 +21,7 @@ build-std = ["core", "alloc"]
 
 [env]
 OTA_DEVICE_IP = "10.0.0.68"
-ESP_HAL_CONFIG_PSRAM_MODE = "octal"
+# ESP_HAL_CONFIG_PSRAM_MODE removed — PSRAM mode is now set via PsramConfig at runtime
 DEFMT_LOG = "info,embedded_test=warn"
 
 PROBE_RS_REMOTE_TOKEN = "rpi5-16"
