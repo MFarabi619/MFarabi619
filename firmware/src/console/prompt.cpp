@@ -205,11 +205,18 @@ const char *console::prompt::build(const char *cwd) {
   return g_prompt;
 }
 
-const char *console::prompt::build_motd() {
-  static char motd[512];
+const char *console::prompt::build_motd(const char *remote_ip) {
+  static char motd[640];
   const char *hostname = services::identity::access_hostname();
+  int pos = 0;
 
-  snprintf(motd, sizeof(motd),
+  if (remote_ip && networking::sntp::isSynced()) {
+    pos += snprintf(motd + pos, sizeof(motd) - pos,
+      "Last login: %s from %s\r\n",
+      networking::sntp::accessLocalTimeString(), remote_ip);
+  }
+
+  pos += snprintf(motd + pos, sizeof(motd) - pos,
     "\r\n"
     "Welcome to %s!\r\n"
     "\r\n"
@@ -217,6 +224,7 @@ const char *console::prompt::build_motd() {
     "Hardware sensors:       sensors\r\n"
     "Network interfaces:     ip\r\n"
     "Memory usage:           free\r\n"
+    "Disk usage:             df\r\n"
     "Show all commands:      help\r\n"
     "\r\n",
     hostname);

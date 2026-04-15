@@ -19,6 +19,9 @@ public:
   size_t length() const;
   bool is_empty() const;
 
+  void load(const char *path);
+  void save(const char *path) const;
+
 private:
   static constexpr size_t MAX_ENTRIES = 16;
   static constexpr size_t ENTRY_SIZE = 256;

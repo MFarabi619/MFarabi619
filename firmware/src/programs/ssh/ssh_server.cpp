@@ -14,6 +14,8 @@
 #include <atomic>
 #include <freertos/event_groups.h>
 #include <sys/reent.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <string.h>
 
 static struct _reent reent_data_esp32;
@@ -277,7 +279,18 @@ static void ssh_server_task(void *pvParameters) {
 
     Serial.println(F("[ssh] shell session started"));
     shell.reset();
-    shell.send_motd("SSH");
+
+    // Capture remote IP from SSH socket
+    char remote_ip[32] = "";
+    socket_t fd = ssh_get_fd(session);
+    if (fd >= 0) {
+      struct sockaddr_in addr;
+      socklen_t addr_len = sizeof(addr);
+      if (getpeername(fd, (struct sockaddr *)&addr, &addr_len) == 0)
+        inet_ntoa_r(addr.sin_addr, remote_ip, sizeof(remote_ip));
+    }
+
+    shell.send_motd("SSH", remote_ip[0] ? remote_ip : nullptr);
     shell.send_prompt();
 
     while (session_alive.load(std::memory_order_acquire)) {
@@ -288,6 +301,7 @@ static void ssh_server_task(void *pvParameters) {
         break;
     }
 
+    shell.save_history();
     Serial.println(F("[ssh] shell session ended"));
 
     ssh_event_remove_session(event, session);

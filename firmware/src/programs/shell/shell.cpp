@@ -17,7 +17,7 @@
 //------------------------------------------
 //  Serial shell state
 //------------------------------------------
-static char g_cwd[128] = "/";
+char g_cwd[128] = "/";
 
 static void update_prompt() {
   Console.setPrompt(console::prompt::build(g_cwd));

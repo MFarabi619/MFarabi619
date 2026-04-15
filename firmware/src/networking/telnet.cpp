@@ -47,6 +47,7 @@ static void on_connect(String ip) {
 }
 
 static void on_disconnect(String ip) {
+  shell.save_history();
   Serial.printf("[telnet] client disconnected (%s)\n", ip.c_str());
   client_ip_str = "";
   LED.set(colors::Green);

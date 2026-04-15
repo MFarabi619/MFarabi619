@@ -23,8 +23,9 @@ public:
   void push_input(char ch);
   void push_input(const char *data, size_t len);
   void service();
-  void send_motd(const char *transport);
+  void send_motd(const char *transport, const char *remote_ip = nullptr);
   void send_prompt();
+  void save_history();
 
 private:
   void write(const char *data, size_t len);

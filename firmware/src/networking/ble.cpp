@@ -66,6 +66,7 @@ class BleServerCallbacks : public BLEServerCallbacks {
   }
 
   void onDisconnect(BLEServer *server) override {
+    shell.save_history();
     uint32_t connected_clients = server->getConnectedCount();
     Serial.printf("[ble] client disconnected (%d remaining)\n", connected_clients);
   }

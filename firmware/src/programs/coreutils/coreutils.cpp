@@ -11,6 +11,14 @@ void programs::coreutils::registerAll() {
   Console.addCmd("echo",     "print argument to shell",        "<text>", cmd_print);
   Console.addCmd("sensors",  "show sensor inventory summary",  cmd_sensors);
   Console.addCmd("whoami",   "print current user",             cmd_whoami);
+  Console.addCmd("ls",       "list directory contents",         "[path]", cmd_ls);
+  Console.addCmd("cat",      "print file contents",             "<file>", cmd_cat);
+  Console.addCmd("mkdir",    "create directory",                "<name>", cmd_mkdir);
+  Console.addCmd("rm",       "remove file",                     "<name>", cmd_rm);
+  Console.addCmd("touch",    "create empty file",               "<name>", cmd_touch);
+  Console.addCmd("cp",       "copy file",                       "<src> <dst>", cmd_cp);
+  Console.addCmd("mv",       "move or rename file",             "<src> <dst>", cmd_mv);
+  Console.addCmd("df",       "show disk usage",                 cmd_df);
 }
 
 //------------------------------------------

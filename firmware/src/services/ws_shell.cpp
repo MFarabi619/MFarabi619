@@ -44,6 +44,7 @@ static void on_ws_connect(AsyncWebSocket *server, AsyncWebSocketClient *client) 
 static void on_ws_disconnect(AsyncWebSocket *server, uint32_t client_id) {
   (void)server;
   if (active_client && active_client->id() == client_id) {
+    shell.save_history();
     active_client = nullptr;
     Serial.println(F("[ws_shell] client disconnected"));
   }

@@ -46,10 +46,17 @@
 #define NF_SETI_TOML         "\xee\x9a\xb2"  // U+E6B2
 #define NF_SETI_JSON         "\xee\x98\x8b"  // U+E60B
 #define NF_SETI_MARKDOWN     "\xee\x9c\xbe"  // U+E73E
+#define NF_SETI_ORG          "\xee\x98\xb3"  // U+E633
+#define NF_SETI_WASM         "\xee\x9a\xa1"  // U+E6A1
+
+// ─── Custom / Linux (nf-linux-*) ────────────────────────────────────────────
+
+#define NF_LINUX_NIX         "\xef\x8c\x93"  // U+F313
 
 // ─── Material Design (nf-md-*) ──────────────────────────────────────────────
 
 #define NF_MD_ARCH           "\xee\x89\xa6"  // U+E266
+#define NF_MD_BINARY         "\xef\x91\xb1"  // U+F471
 #define NF_MD_SSH            "\xef\x8b\x80"  // U+F2C0 (approx)
 #define NF_MD_RAM            "\xef\x83\xa4"  // U+F0E4
 

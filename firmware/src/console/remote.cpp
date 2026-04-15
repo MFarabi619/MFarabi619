@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 
+extern char g_cwd[];
+
 namespace {
 
 struct RedirectCtx {
@@ -55,8 +57,13 @@ void console::remote::Shell::reset() {
   programs::shell::session::reset(&ring_);
   programs::shell::session::reset(&write_);
   terminal_.clear_buffer();
-  history_.reset_position();
+  history_.clear();
+  history_.load("/.MSH_HIST");
   strlcpy(cwd_, console::path::home_dir(), sizeof(cwd_));
+}
+
+void console::remote::Shell::save_history() {
+  history_.save("/.MSH_HIST");
 }
 
 //------------------------------------------
@@ -111,7 +118,9 @@ void console::remote::Shell::redraw_line() {
 //------------------------------------------
 //  MOTD / Prompt
 //------------------------------------------
-void console::remote::Shell::send_motd(const char *transport) {
+void console::remote::Shell::send_motd(const char *transport, const char *remote_ip) {
+  const char *banner = console::prompt::build_motd(remote_ip);
+  write(banner, strlen(banner));
   const char *motd = programs::shell::microfetch::generate(transport);
   write(motd, strlen(motd));
 }
@@ -202,8 +211,14 @@ void console::remote::Shell::service() {
       history_.add(cmd);
       history_.reset_position();
 
-      if (!handle_builtin(cmd))
+      if (!handle_builtin(cmd)) {
+        char saved_cwd[128];
+        strlcpy(saved_cwd, g_cwd, sizeof(saved_cwd));
+        strlcpy(g_cwd, cwd_, sizeof(saved_cwd));
         run_command(cmd, flush_fn_, flush_ctx_);
+        strlcpy(cwd_, g_cwd, sizeof(cwd_)); // cd may have changed it
+        strlcpy(g_cwd, saved_cwd, sizeof(saved_cwd));
+      }
 
       send_prompt();
       break;

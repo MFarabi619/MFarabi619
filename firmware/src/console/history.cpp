@@ -1,5 +1,6 @@
 #include "history.h"
 
+#include <SD.h>
 #include <string.h>
 
 //------------------------------------------
@@ -64,4 +65,48 @@ size_t console::History::length() const {
 
 bool console::History::is_empty() const {
   return count_ == 0;
+}
+
+//------------------------------------------
+//  Persistent storage
+//------------------------------------------
+void console::History::load(const char *path) {
+  File f = SD.open(path, FILE_READ);
+  if (!f) return;
+
+  char line[ENTRY_SIZE];
+  size_t pos = 0;
+
+  while (f.available()) {
+    char ch = f.read();
+    if (ch == '\n' || ch == '\r') {
+      if (pos > 0) {
+        line[pos] = '\0';
+        add(line);
+        pos = 0;
+      }
+      continue;
+    }
+    if (pos < ENTRY_SIZE - 1)
+      line[pos++] = ch;
+  }
+
+  if (pos > 0) {
+    line[pos] = '\0';
+    add(line);
+  }
+
+  f.close();
+  current_index_ = -1;
+}
+
+void console::History::save(const char *path) const {
+  File f = SD.open(path, FILE_WRITE);
+  if (!f) return;
+
+  for (size_t i = 0; i < count_; i++) {
+    f.println(entries_[i]);
+  }
+
+  f.close();
 }
