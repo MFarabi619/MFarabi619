@@ -68,6 +68,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <img src="./assets/embedded-c-symbol.svg" alt="Embedded C Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
+<a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
 <img src="https://bashlogo.com/img/symbol/png/monochrome_light.png" alt="Bash Logo" width="40" height="40" />
 </a>
@@ -75,11 +79,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://orgmode.org" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org mode Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40" />
 </a>
@@ -89,6 +93,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
+<a href="https://www.freertos.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/freertos.svg" alt="FreeRTOS Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
 <a href="https://sqlite.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" alt="SQLite Logo" width="40" height="40" />
 </a>
@@ -96,23 +104,23 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.tigerdata.com/timescaledb" target="_blank" rel="noreferrer">
 <img src="assets/icons/timescaledb.svg" alt="TimescaleDB Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://nats.io" target="_blank" rel="noreferrer">
-<img src="./assets/icons/nats.svg" alt="NATS Logo" width="40" height="40" />
+<img src="assets/icons/nats.svg" alt="NATS Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://devenv.sh" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg" alt="Devenv Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://loco.rs" target="_blank" rel="noreferrer">
 <img src="https://loco.rs/icon.svg" alt="Loco.rs Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://ratatui.rs" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/125200832?s=48&v=4" alt="Ratatui Logo" width="40" height="40" />
 </a>
@@ -120,17 +128,13 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://dioxuslabs.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/79236386?s=200&v=4" alt="Dioxus Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://embassy.dev" target="_blank" rel="noreferrer">
 <img src="https://embassy.dev/favicon.png" alt="Embassy Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://platformio.org" target="_blank" rel="noreferrer">
 <img src="assets/platformio-symbol.svg" alt="Platformio Logo" width="40" height="40" />
-</a>
-</td><td align="center" style="padding: 8px;">
-<a href="https://tinygo.org" target="_blank" rel="noreferrer">
-<img src="https://tinygo.org/images/tinygo-logo.png" alt="TinyGo Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
@@ -138,6 +142,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
+<a href="https://www.openbsd.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/openbsd.png" alt="OpenBSD Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
 <img src="https://github.com/MFarabi619/MFarabi619/blob/main/assets/freebsd-symbol-orb.png" alt="FreeBSD Logo" width="40" height="40" />
 </a>
@@ -145,15 +153,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
 <img src="https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg" alt="NixOS Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
-<a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="GNU/Linux Logo" width="40" height="40" />
-</a>
 </td></tr><tr><td align="center" style="padding: 8px;">
-<a href="https://archlinux.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40" />
-</a>
-</td><td align="center" style="padding: 8px;">
 <a href="https://www.qemu.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/qemu.svg" alt="QEMU Logo" width="40" height="40" />
 </a>
@@ -161,11 +161,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
 <img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40" />
 </a>
@@ -173,19 +173,15 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
 <img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://tailscale.com" target="_blank" rel="noreferrer">
 <img src="./assets/icons/tailscale.svg" alt="Tailscale Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://cloudevents.io" target="_blank" rel="noreferrer">
 <img src="./assets/icons/cloudevents.svg" alt="CloudEvents Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
-<a href="https://supabase.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
-</a>
-</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://grafana.com" target="_blank" rel="noreferrer">
 <img src="./assets/icons/grafana.svg" alt="Grafana Logo" width="40" height="40" />
 </a>
@@ -200,10 +196,6 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </tr>
 <tr>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
-<a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
-</a>
-</td><td align="center" style="padding: 8px;">
 <a href="https://docs.fuel.network/docs/sway/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg" alt="Sway Logo" width="40" height="40" />
 </a>
@@ -211,11 +203,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://www.java.com" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="Java Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.python.org" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40" />
 </a>
@@ -223,11 +215,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="JavaScript Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://svelte.dev/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original-wordmark.svg" alt="Svelte Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40" />
 </a>
@@ -235,11 +227,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40" />
 </a>
@@ -358,12 +350,24 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
+<a href="https://www.linux.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="GNU/Linux Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
+<a href="https://archlinux.org/" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.oracle.com/ca-en/linux/" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg" alt="Oracle Enterprise Linux Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
+<a href="https://supabase.com" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://zellij.dev/" target="_blank" rel="noreferrer">
@@ -448,19 +452,27 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg" alt="Smalltalk Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
-<a href="https://soliditylang.org" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg" alt="Solidity Logo" width="40" height="40" />
-</a>
-</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.ruby-lang.org/en/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/ruby/ruby-original.svg" alt="Ruby Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.haskell.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg" alt="Haskell Logo" width="40" height="40" />
 </a>
+</td><td align="center" style="padding: 8px;">
+<a href="https://www.swift.org/get-started/embedded/" target="_blank" rel="noreferrer">
+<img src="assets/icons/swift.svg" alt="Embedded Swift Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
+<a href="https://soliditylang.org" target="_blank" rel="noreferrer">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg" alt="Solidity Logo" width="40" height="40" />
+</a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
+<a href="https://tinygo.org" target="_blank" rel="noreferrer">
+<img src="https://tinygo.org/images/tinygo-logo.png" alt="TinyGo Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
 <a href="https://burn.dev" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png" alt="Burn Logo" width="40" height="40" />
 </a>
@@ -468,11 +480,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://www.ros.org" target="_blank" rel="noreferrer">
 <img src="https://www.ros.org/imgs/jazzy_robot.png" alt="ROS 2 Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://kubenix.org" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg" alt="Kubenix Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/30696987?s=200&v=4" alt="Qiskit Logo" width="40" height="40" />
 </a>
@@ -480,7 +492,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://rubyonrails.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rails/rails-plain-wordmark.svg" alt="Ruby on Rails Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://ihp.digitallyinduced.com" target="_blank" rel="noreferrer">
 <img src="https://ihp.digitallyinduced.com/Guide/images/ihp-logo-readme.svg" alt="Integrated Haskell Platform Logo" width="40" height="40" />
 </a>
@@ -490,18 +502,14 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <img src="assets/icons/plan-9.svg" alt="Plan 9 Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
-<a href="https://www.openbsd.org" target="_blank" rel="noreferrer">
-<img src="assets/icons/openbsd.png" alt="OpenBSD Logo" width="40" height="40" />
-</a>
-</td><td align="center" style="padding: 8px;">
 <a href="https://omnios.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/omnios.svg" alt="OmniOS Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://illumos.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/illumos.svg" alt="Illumos Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://sel4.systems" target="_blank" rel="noreferrer">
 <img src="https://sel4.systems/images/seL4.svg" alt="seL4 Logo" width="40" height="40" />
 </a>
@@ -509,11 +517,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://kubernetes.io" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://bazel.build" target="_blank" rel="noreferrer">
 <img src="assets/icons/bazel.svg" alt="Bazel Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://blocktorch.xyz" target="_blank" rel="noreferrer">
 <img src="https://cdn.prod.website-files.com/645a274bb89991808d214c54/645a274bb899913b91214c66_Torch_mini.png" alt="Blocktorch Logo" width="40" height="40" />
 </a>
@@ -521,11 +529,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://kafka.apache.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apachekafka/apachekafka-original.svg" alt="Kafka Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://redis.io" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg" alt="Redis Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://pharo.org/" target="_blank" rel="noreferrer">
 <img src="https://pharo.org/web/files/pharo.png" alt="Pharo Logo" width="40" height="40" />
 </a>

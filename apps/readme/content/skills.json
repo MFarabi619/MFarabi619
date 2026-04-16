@@ -32,6 +32,11 @@
         "icon": "./assets/embedded-c-symbol.svg"
       },
       {
+        "name": "C++",
+        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
+        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
+      },
+      {
         "name": "Bash",
         "url": "https://www.gnu.org/software/bash/",
         "icon": "https://bashlogo.com/img/symbol/png/monochrome_light.png"
@@ -59,6 +64,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "FreeRTOS",
+        "url": "https://www.freertos.org",
+        "icon": "assets/icons/freertos.svg"
+      },
+      {
         "name": "SQLite",
         "url": "https://sqlite.org",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg"
@@ -76,7 +86,7 @@
       {
         "name": "NATS",
         "url": "https://nats.io",
-        "icon": "./assets/icons/nats.svg"
+        "icon": "assets/icons/nats.svg"
       },
       {
         "name": "Devenv",
@@ -109,17 +119,17 @@
         "icon": "assets/platformio-symbol.svg"
       },
       {
-        "name": "TinyGo",
-        "url": "https://tinygo.org",
-        "icon": "https://tinygo.org/images/tinygo-logo.png"
-      },
-      {
         "name": "Pulumi",
         "url": "https://www.pulumi.com",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg"
       }
     ],
     "Tools": [
+      {
+        "name": "OpenBSD",
+        "url": "https://www.openbsd.org",
+        "icon": "assets/icons/openbsd.png"
+      },
       {
         "name": "FreeBSD",
         "url": "https://www.freebsd.org",
@@ -129,16 +139,6 @@
         "name": "NixOS",
         "url": "https://nixos.org/",
         "icon": "https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg"
-      },
-      {
-        "name": "GNU/Linux",
-        "url": "https://www.linux.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg"
-      },
-      {
-        "name": "Arch Linux",
-        "url": "https://archlinux.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
       },
       {
         "name": "QEMU",
@@ -176,11 +176,6 @@
         "icon": "./assets/icons/cloudevents.svg"
       },
       {
-        "name": "Supabase",
-        "url": "https://supabase.com",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
-      },
-      {
         "name": "Grafana",
         "url": "https://grafana.com",
         "icon": "./assets/icons/grafana.svg"
@@ -194,11 +189,6 @@
   },
   "Previously Used": {
     "Languages": [
-      {
-        "name": "C++",
-        "url": "https://en.wikipedia.org/wiki/C%2B%2B",
-        "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg"
-      },
       {
         "name": "Sway",
         "url": "https://docs.fuel.network/docs/sway/",
@@ -394,6 +384,16 @@
     ],
     "Tools": [
       {
+        "name": "GNU/Linux",
+        "url": "https://www.linux.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg"
+      },
+      {
+        "name": "Arch Linux",
+        "url": "https://archlinux.org/",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg"
+      },
+      {
         "name": "Oracle Enterprise Linux",
         "url": "https://www.oracle.com/ca-en/linux/",
         "icon": "https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg"
@@ -402,6 +402,11 @@
         "name": "Ubuntu",
         "url": "https://ubuntu.com/",
         "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+      },
+      {
+        "name": "Supabase",
+        "url": "https://supabase.com",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg"
       },
       {
         "name": "Zellij",
@@ -503,11 +508,6 @@
         "icon": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg"
       },
       {
-        "name": "Solidity",
-        "url": "https://soliditylang.org",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg"
-      },
-      {
         "name": "Ruby",
         "url": "https://www.ruby-lang.org/en/",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/ruby/ruby-original.svg"
@@ -516,9 +516,24 @@
         "name": "Haskell",
         "url": "https://www.haskell.org",
         "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg"
+      },
+      {
+        "name": "Embedded Swift",
+        "url": "https://www.swift.org/get-started/embedded/",
+        "icon": "assets/icons/swift.svg"
+      },
+      {
+        "name": "Solidity",
+        "url": "https://soliditylang.org",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg"
       }
     ],
     "Frameworks & Libraries": [
+      {
+        "name": "TinyGo",
+        "url": "https://tinygo.org",
+        "icon": "https://tinygo.org/images/tinygo-logo.png"
+      },
       {
         "name": "Burn",
         "url": "https://burn.dev",
@@ -555,11 +570,6 @@
         "name": "Plan 9",
         "url": "https://9p.io/plan9/",
         "icon": "assets/icons/plan-9.svg"
-      },
-      {
-        "name": "OpenBSD",
-        "url": "https://www.openbsd.org",
-        "icon": "assets/icons/openbsd.png"
       },
       {
         "name": "OmniOS",
