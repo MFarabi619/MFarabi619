@@ -1,5 +1,6 @@
 #include "i2c.h"
 #include <config.h>
+#include "console/icons.h"
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -244,14 +245,36 @@ bool hardware::i2c::scan(ScanCommand *command) {
   return true;
 }
 
-const char *hardware::i2c::deviceNameAt(uint8_t address) {
+static const char *device_icon_at(uint8_t address) {
   switch (address) {
+    case 0x39: return NF_FA_SIGNAL;            // AS7343 spectral (placeholder)
+    case 0x40: return NF_FA_BOLT;              // INA228 current
+    case 0x44: return NF_FA_THERMOMETER;       // SHT3x temperature
+    case 0x48: return NF_FA_SIGNAL;            // ADS1115 ADC
+    case 0x50: return NF_FA_DATABASE;          // EEPROM
+    case 0x5C: case 0x5D: return NF_FA_TINT;  // LPS25 pressure
+    case 0x61: case 0x62: return NF_FA_LEAF;   // SCD30/SCD41 CO2
+    case 0x67: return NF_FA_THERMOMETER;       // MCP9600 thermocouple
+    case 0x68: return NF_FA_CLOCK;             // DS3231 RTC
+    case 0x70: return NF_FA_SITEMAP;           // TCA9548A mux
+    default:   return NF_FA_COG;               // unknown
+  }
+}
+
+const char *hardware::i2c::deviceNameAt(uint8_t address, int8_t mux_channel) {
+  bool is_muxed = (mux_channel >= 0);
+
+  switch (address) {
+    case 0x39: return "Sparkfun AS7343 Spectral Sensor";
+    case 0x40: return "Adafruit INA228 Current Monitor";
     case 0x44: return "Sensirion SHT3x Temperature & Humidity Sensor";
     case 0x48: return "ADS1115 16-Bit ADC - 4 Channel with Programmable Gain Amplifier";
-    case 0x50: return "Microchip Technology AT24C32 EEPROM";
+    case 0x50: return is_muxed ? "sensor module EEPROM (on-board)"
+                               : "Microchip Technology AT24C32 EEPROM";
     case 0x5C: case 0x5D: return "Adafruit LPS25 Pressure Sensor";
     case 0x61: return "Sensirion SCD30 CO2 Infrared Gas Sensor";
     case 0x62: return "Sensirion SCD41 CO2 Optical Gas Sensor";
+    case 0x67: return "Adafruit MCP9600 Thermocouple Amplifier";
     case 0x68: return "Analog Devices DS3231 RTC";
     case 0x70: return "Adafruit TCA9548A 1-to-8 I2C Multiplexer Breakout";
     default:   return "unknown";
@@ -336,9 +359,11 @@ bool hardware::i2c::findDevice(uint8_t address, DiscoveredDevice *result) {
 #include <testing/utils.h>
 
 
-static void i2c_mux_test_init(void) {
+static void test_i2c_mux_init(void) {
+  GIVEN("Wire1 is available");
   test_ensure_wire1();
-  TEST_MESSAGE("user asks the device to initialize the TCA9548A mux");
+
+  WHEN("the mux is initialized");
   hardware::i2c::initialize();
   hardware::i2c::TopologySnapshot snapshot = {};
   hardware::i2c::accessTopology(&snapshot);
@@ -346,11 +371,10 @@ static void i2c_mux_test_init(void) {
     TEST_IGNORE_MESSAGE("mux not present on this board");
     return;
   }
-  TEST_MESSAGE("TCA9548A initialized on Wire1");
 }
 
-static void i2c_mux_test_is_connected(void) {
-  TEST_MESSAGE("user checks if the mux is on the I2C bus");
+static void test_i2c_mux_is_connected(void) {
+  WHEN("the mux connection is checked");
   hardware::i2c::TopologySnapshot snapshot = {};
   hardware::i2c::accessTopology(&snapshot);
   if (!snapshot.mux_present) {
@@ -359,11 +383,10 @@ static void i2c_mux_test_is_connected(void) {
   }
   TEST_ASSERT_TRUE_MESSAGE(snapshot.mux_present,
     "device: mux not found at 0x70");
-  TEST_MESSAGE("mux is connected");
 }
 
-static void i2c_mux_test_channel_count(void) {
-  TEST_MESSAGE("user verifies mux has 8 channels");
+static void test_i2c_mux_channel_count(void) {
+  THEN("the mux has 8 channels");
   hardware::i2c::TopologySnapshot snapshot = {};
   hardware::i2c::accessTopology(&snapshot);
   if (!snapshot.mux_present) {
@@ -372,11 +395,10 @@ static void i2c_mux_test_channel_count(void) {
   }
   TEST_ASSERT_EQUAL_UINT8_MESSAGE(8, hardware::i2c::mux.channelCount(),
     "device: TCA9548A should have 8 channels");
-  TEST_MESSAGE("8 channels confirmed");
 }
 
-static void i2c_mux_test_select_and_verify(void) {
-  TEST_MESSAGE("user selects channel 0 and verifies mask");
+static void test_i2c_mux_select_and_verify(void) {
+  WHEN("channels are selected");
   hardware::i2c::TopologySnapshot snapshot = {};
   hardware::i2c::accessTopology(&snapshot);
   if (!snapshot.mux_present) {
@@ -402,11 +424,10 @@ static void i2c_mux_test_select_and_verify(void) {
     "device: bit 0 should be low after select(3) — exclusive select");
 
   hardware::i2c::mux.disableAllChannels();
-  TEST_MESSAGE("channel select and mask verified");
 }
 
-static void i2c_mux_test_channel_power_mapping(void) {
-  TEST_MESSAGE("user verifies documented mux channel power rail mapping");
+static void test_i2c_mux_channel_power_mapping(void) {
+  WHEN("even and odd mux channels are accessed");
   hardware::i2c::TopologySnapshot snapshot = {};
   hardware::i2c::accessTopology(&snapshot);
   if (!snapshot.mux_present) {
@@ -451,8 +472,8 @@ static void i2c_mux_test_channel_power_mapping(void) {
     "device: odd mux rail should be off after clearSelection");
 }
 
-static void i2c_mux_test_scan(void) {
-  TEST_MESSAGE("user scans all I2C buses and mux channels");
+static void test_i2c_mux_scan(void) {
+  WHEN("all I2C buses and mux channels are scanned");
   hardware::i2c::initialize();
   hardware::i2c::runDiscovery();
 
@@ -461,21 +482,109 @@ static void i2c_mux_test_scan(void) {
 
   TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)count, "device: no I2C devices found");
 
-  char line[80];
-  snprintf(line, sizeof(line), "%-6s  %-6s  %-4s  %s", "BUS", "ADDR", "MUX", "DEVICE");
+  char line[120];
+  // TEST_MESSAGE escapes non-ASCII, so ASCII-only tree characters
+  TEST_MESSAGE("");
+  snprintf(line, sizeof(line), "ESP32-S3");
   TEST_MESSAGE(line);
 
+  bool has_bus1 = false;
   for (size_t i = 0; i < count; i++) {
-    const char *mux = devices[i].mux_channel >= 0 ? "yes" : "-";
-    snprintf(line, sizeof(line), "%-6d  0x%02X    %-4s  %s",
-             devices[i].bus, devices[i].address, mux,
-             hardware::i2c::deviceNameAt(devices[i].address));
+    if (devices[i].bus == 1) { has_bus1 = true; break; }
+  }
+
+  //------------------------------------------
+  //  Bus 0
+  //------------------------------------------
+  const char *bus0_branch = has_bus1 ? "+" : "\\";
+  snprintf(line, sizeof(line), "%s-- I2C Bus 0 (GPIO %d/%d)",
+           bus0_branch, config::i2c::BUS_0.sda_gpio, config::i2c::BUS_0.scl_gpio);
+  TEST_MESSAGE(line);
+
+  const char *bus0_cont = has_bus1 ? "|" : " ";
+  for (size_t i = 0; i < count; i++) {
+    if (devices[i].bus != 0 || devices[i].mux_channel >= 0) continue;
+    snprintf(line, sizeof(line), "%s   \\-- 0x%02X %s",
+             bus0_cont, devices[i].address,
+             hardware::i2c::deviceNameAt(devices[i].address, devices[i].mux_channel));
     TEST_MESSAGE(line);
+  }
+
+  if (!has_bus1) return;
+
+  TEST_MESSAGE(bus0_cont);
+
+  //------------------------------------------
+  //  Bus 1
+  //------------------------------------------
+  snprintf(line, sizeof(line), "\\-- I2C Bus 1 (GPIO %d/%d)",
+           config::i2c::BUS_1.sda_gpio, config::i2c::BUS_1.scl_gpio);
+  TEST_MESSAGE(line);
+
+  // Bus 1 unmuxed devices
+  for (size_t i = 0; i < count; i++) {
+    if (devices[i].bus != 1 || devices[i].mux_channel >= 0) continue;
+    if (devices[i].address == config::i2c::MUX_ADDR) continue;
+    snprintf(line, sizeof(line), "    +-- 0x%02X %s",
+             devices[i].address,
+             hardware::i2c::deviceNameAt(devices[i].address, devices[i].mux_channel));
+    TEST_MESSAGE(line);
+  }
+
+  // Mux header
+  TEST_MESSAGE("    |");
+  snprintf(line, sizeof(line), "    \\-- 0x%02X %s",
+           config::i2c::MUX_ADDR,
+           hardware::i2c::deviceNameAt(config::i2c::MUX_ADDR, -1));
+  TEST_MESSAGE(line);
+
+  //------------------------------------------
+  //  Mux channels
+  //------------------------------------------
+  for (int channel = 0; channel < 8; channel++) {
+    struct { uint8_t addr; const char *name; } channel_devices[8];
+    int channel_count = 0;
+
+    for (size_t i = 0; i < count && channel_count < 8; i++) {
+      if (devices[i].bus != 1 || devices[i].mux_channel != channel) continue;
+      if (devices[i].address == 0x50) continue;
+      channel_devices[channel_count].addr = devices[i].address;
+      channel_devices[channel_count].name = hardware::i2c::deviceNameAt(devices[i].address, devices[i].mux_channel);
+      channel_count++;
+    }
+
+    if (channel_count == 0) continue;
+
+    bool is_last_channel = true;
+    for (int future = channel + 1; future < 8; future++) {
+      for (size_t i = 0; i < count; i++) {
+        if (devices[i].bus == 1 && devices[i].mux_channel == future && devices[i].address != 0x50) {
+          is_last_channel = false;
+          break;
+        }
+      }
+      if (!is_last_channel) break;
+    }
+
+    const char *branch = is_last_channel ? "\\" : "+";
+    const char *cont   = is_last_channel ? " " : "|";
+
+    snprintf(line, sizeof(line), "        %s-- %d: 0x%02X %s",
+             branch, channel,
+             channel_devices[0].addr, channel_devices[0].name);
+    TEST_MESSAGE(line);
+
+    for (int d = 1; d < channel_count; d++) {
+      snprintf(line, sizeof(line), "        %s       0x%02X %s",
+               cont,
+               channel_devices[d].addr, channel_devices[d].name);
+      TEST_MESSAGE(line);
+    }
   }
 }
 
-static void i2c_mux_test_disable_all_clears_mask(void) {
-  TEST_MESSAGE("user enables channels then disables all");
+static void test_i2c_mux_disable_all_clears_mask(void) {
+  GIVEN("Wire1 is available");
   test_ensure_wire1();
   hardware::i2c::TopologySnapshot snapshot = {};
   hardware::i2c::accessTopology(&snapshot);
@@ -487,18 +596,18 @@ static void i2c_mux_test_disable_all_clears_mask(void) {
   hardware::i2c::mux.enableChannel(0);
   hardware::i2c::mux.enableChannel(3);
   hardware::i2c::mux.enableChannel(7);
-  TEST_ASSERT_NOT_EQUAL_HEX8_MESSAGE(0x00, hardware::i2c::mux.getChannelMask(),
-    "device: mask should be non-zero after enabling channels");
+  WHEN("all channels are disabled");
+  TEST_ASSERT_BITS_HIGH_MESSAGE(0x89, hardware::i2c::mux.getChannelMask(),
+    "device: channels 0, 3, 7 should all be enabled");
 
   hardware::i2c::mux.disableAllChannels();
   TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x00, hardware::i2c::mux.getChannelMask(),
     "device: mask should be 0x00 after disableAllChannels");
 
-  TEST_MESSAGE("disable_all clears mask verified");
 }
 
-static void i2c_mux_test_enable_disable_roundtrip(void) {
-  TEST_MESSAGE("user enables then disables a single channel");
+static void test_i2c_mux_enable_disable_roundtrip(void) {
+  GIVEN("Wire1 is available");
   test_ensure_wire1();
   hardware::i2c::TopologySnapshot snapshot = {};
   hardware::i2c::accessTopology(&snapshot);
@@ -508,6 +617,7 @@ static void i2c_mux_test_enable_disable_roundtrip(void) {
   }
   hardware::i2c::mux.disableAllChannels();
 
+  WHEN("a channel is enabled then disabled");
   hardware::i2c::mux.enableChannel(2);
   TEST_ASSERT_BIT_HIGH_MESSAGE(2, hardware::i2c::mux.getChannelMask(),
     "device: bit 2 should be high after enableChannel(2)");
@@ -518,26 +628,17 @@ static void i2c_mux_test_enable_disable_roundtrip(void) {
   TEST_ASSERT_EQUAL_HEX8_MESSAGE(0x00, hardware::i2c::mux.getChannelMask(),
     "device: full mask should be 0x00 after disable");
 
-  TEST_MESSAGE("enable/disable roundtrip verified");
 }
 
 void hardware::i2c::test() {
-  it("user observes that the TCA9548A mux initializes",
-     i2c_mux_test_init);
-  it("user observes that the mux is connected at 0x70",
-     i2c_mux_test_is_connected);
-  it("user observes that the mux has 8 channels",
-     i2c_mux_test_channel_count);
-  it("user observes that channel selection updates the mask",
-     i2c_mux_test_select_and_verify);
-  it("user observes all I2C buses and mux devices via scan",
-     i2c_mux_test_scan);
-  it("user observes that mux channel power rails follow the documented mapping",
-     i2c_mux_test_channel_power_mapping);
-  it("user observes that disableAllChannels clears the mask",
-     i2c_mux_test_disable_all_clears_mask);
-  it("user observes that enable then disable roundtrips correctly",
-     i2c_mux_test_enable_disable_roundtrip);
+  RUN_TEST(test_i2c_mux_init);
+  RUN_TEST(test_i2c_mux_is_connected);
+  RUN_TEST(test_i2c_mux_channel_count);
+  RUN_TEST(test_i2c_mux_select_and_verify);
+  RUN_TEST(test_i2c_mux_scan);
+  RUN_TEST(test_i2c_mux_channel_power_mapping);
+  RUN_TEST(test_i2c_mux_disable_all_clears_mask);
+  RUN_TEST(test_i2c_mux_enable_disable_roundtrip);
 }
 
 #endif

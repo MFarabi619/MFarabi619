@@ -162,8 +162,8 @@ void networking::update::checkSDOnBoot() {
 
 namespace networking::update { void test(void); }
 
-static void update_test_sd_path_config(void) {
-  TEST_MESSAGE("user verifies SD update path is configured");
+static void test_update_sd_path_config(void) {
+  THEN("the SD update path is configured");
   TEST_ASSERT_NOT_NULL(config::ota::SD_PATH);
   TEST_ASSERT_TRUE_MESSAGE(strlen(config::ota::SD_PATH) > 0,
     "device: config::ota::SD_PATH must not be empty");
@@ -173,8 +173,9 @@ static void update_test_sd_path_config(void) {
   TEST_MESSAGE(msg);
 }
 
-static void update_test_no_update_file(void) {
-  TEST_MESSAGE("user verifies update_from_sd returns false when no file");
+static void test_update_no_update_file(void) {
+  WHEN("applyFromSD is called with no update file");
+  THEN("it returns false");
 
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
@@ -188,11 +189,10 @@ static void update_test_no_update_file(void) {
 
   TEST_ASSERT_FALSE_MESSAGE(networking::update::applyFromSD(),
     "device: should return false when no update file");
-  TEST_MESSAGE("correctly returns false with no update file");
 }
 
-static void update_test_rollback_status(void) {
-  TEST_MESSAGE("user checks rollback availability");
+static void test_update_rollback_status(void) {
+  WHEN("rollback availability is checked");
 
   bool can = networking::update::canRollback();
   char msg[64];
@@ -201,12 +201,9 @@ static void update_test_rollback_status(void) {
 }
 
 void networking::update::test(void) {
-  it("user observes that SD update path is configured",
-     update_test_sd_path_config);
-  it("user observes that update_from_sd handles missing file",
-     update_test_no_update_file);
-  it("user observes rollback availability",
-     update_test_rollback_status);
+  RUN_TEST(test_update_sd_path_config);
+  RUN_TEST(test_update_no_update_file);
+  RUN_TEST(test_update_rollback_status);
 }
 
 #endif

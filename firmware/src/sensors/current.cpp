@@ -136,8 +136,8 @@ bool sensors::current::access(CurrentSensorData *sensor_data) {
 #include <testing/utils.h>
 
 
-static void current_test_initializes(void) {
-  TEST_MESSAGE("user initializes the INA228 current monitor");
+static void test_current_initializes(void) {
+  WHEN("the INA228 current monitor is initialized");
   test_ensure_wire1_with_power();
   hardware::i2c::initialize();
 
@@ -146,11 +146,11 @@ static void current_test_initializes(void) {
     return;
   }
 
-  TEST_MESSAGE("INA228 initialized");
 }
 
-static void current_test_reads(void) {
-  TEST_MESSAGE("user reads current monitor values");
+static void test_current_reads(void) {
+  GIVEN("the INA228 is available");
+  WHEN("current monitor values are read");
 
   if (!sensors::current::isAvailable()) {
     TEST_IGNORE_MESSAGE("INA228 not available — skipping");
@@ -167,16 +167,17 @@ static void current_test_reads(void) {
   TEST_MESSAGE(msg);
 }
 
-static void current_test_rejects_null(void) {
-  TEST_MESSAGE("user passes null buffer to access");
+static void test_current_rejects_null(void) {
+  WHEN("a null buffer is passed to access");
+  THEN("it returns false");
   TEST_ASSERT_FALSE_MESSAGE(sensors::current::access(nullptr),
       "device: access should fail with null pointer");
 }
 
 void sensors::current::test() {
-  it("user observes that the INA228 initializes", current_test_initializes);
-  it("user reads current voltage and power", current_test_reads);
-  it("user observes that null buffer is rejected", current_test_rejects_null);
+  RUN_TEST(test_current_initializes);
+  RUN_TEST(test_current_reads);
+  RUN_TEST(test_current_rejects_null);
 }
 
 #endif

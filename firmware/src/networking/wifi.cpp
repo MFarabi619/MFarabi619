@@ -178,8 +178,8 @@ static WifiNvsSnapshot saved;
 static void save_nvs(void) { wifi_nvs_save(&saved); }
 static void restore_nvs(void) { wifi_nvs_restore(&saved); }
 
-static void wifi_test_persistent_credentials(void) {
-  TEST_MESSAGE("user verifies that WiFi.begin(ssid, pass) persists credentials");
+static void test_wifi_persistent_credentials(void) {
+  WHEN("WiFi.begin(ssid, pass) is called");
 
   WiFi.begin("test_ssid_persist", "test_pass_persist");
   delay(100);
@@ -192,11 +192,10 @@ static void wifi_test_persistent_credentials(void) {
   TEST_ASSERT_EQUAL_STRING_MESSAGE("test_ssid_persist", (const char *)conf.sta.ssid,
     "device: SSID not persisted by WiFi.begin()");
 
-  TEST_MESSAGE("credentials persisted via built-in WiFi persistence");
 }
 
-static void wifi_test_connect_fails_without_ssid(void) {
-  TEST_MESSAGE("user verifies wifi_connect fails when no credentials stored");
+static void test_wifi_connect_fails_without_ssid(void) {
+  GIVEN("no WiFi credentials are stored");
 
   save_nvs();
 
@@ -223,15 +222,16 @@ static void wifi_test_connect_fails_without_ssid(void) {
     TEST_IGNORE_MESSAGE("embedded WiFi credentials configured — skipping no-SSID failure assertion");
   }
 
+  WHEN("wifi_connect is called");
   networking::wifi::sta::initialize();
   TEST_ASSERT_FALSE_MESSAGE(networking::wifi::sta::connect(),
     "device: wifi_connect should return false when no SSID stored");
 
   restore_nvs();
-  TEST_MESSAGE("connect fails without SSID");
 }
 
-static void wifi_test_saved_sta_config_roundtrip(void) {
+static void test_wifi_saved_sta_config_roundtrip(void) {
+  WHEN("STA config is stored and read back");
   save_nvs();
 
   WifiSavedConfig written = {};
@@ -254,10 +254,10 @@ static void wifi_test_saved_sta_config_roundtrip(void) {
     "device: STA password mismatch after config roundtrip");
 
   restore_nvs();
-  TEST_MESSAGE("STA config roundtrip verified, NVS restored");
 }
 
-static void wifi_test_connect_prefers_explicit_request_credentials(void) {
+static void test_wifi_connect_prefers_explicit_credentials(void) {
+  GIVEN("a saved STA config exists");
   save_nvs();
 
   WifiSavedConfig saved_config = {};
@@ -266,6 +266,7 @@ static void wifi_test_connect_prefers_explicit_request_credentials(void) {
   TEST_ASSERT_TRUE_MESSAGE(networking::wifi::storeConfig(&saved_config),
     "device: storing saved STA config should succeed");
 
+  WHEN("connect is called with explicit credentials");
   WifiConnectCommand command = {
     .request = {
       .ssid = "request-ssid",
@@ -278,6 +279,7 @@ static void wifi_test_connect_prefers_explicit_request_credentials(void) {
   networking::wifi::connect(&command);
   delay(100);
 
+  THEN("the explicit credentials override saved config");
   wifi_config_t station_config = {};
   esp_err_t err = esp_wifi_get_config(WIFI_IF_STA, &station_config);
   TEST_ASSERT_EQUAL_MESSAGE(ESP_OK, err,
@@ -289,10 +291,10 @@ static void wifi_test_connect_prefers_explicit_request_credentials(void) {
 
   WiFi.disconnect(true);
   restore_nvs();
-  TEST_MESSAGE("explicit request credentials take precedence over saved config");
 }
 
-static void wifi_test_connect_uses_saved_config_when_request_ssid_missing(void) {
+static void test_wifi_connect_uses_saved_config(void) {
+  GIVEN("a saved STA config exists and no request SSID is provided");
   save_nvs();
 
   WifiSavedConfig saved_config = {};
@@ -301,6 +303,7 @@ static void wifi_test_connect_uses_saved_config_when_request_ssid_missing(void) 
   TEST_ASSERT_TRUE_MESSAGE(networking::wifi::storeConfig(&saved_config),
     "device: storing fallback STA config should succeed");
 
+  WHEN("connect is called with empty request SSID");
   WifiConnectCommand command = {
     .request = {
       .ssid = "",
@@ -313,6 +316,7 @@ static void wifi_test_connect_uses_saved_config_when_request_ssid_missing(void) 
   networking::wifi::connect(&command);
   delay(100);
 
+  THEN("the saved config is used");
   wifi_config_t station_config = {};
   esp_err_t err = esp_wifi_get_config(WIFI_IF_STA, &station_config);
   TEST_ASSERT_EQUAL_MESSAGE(ESP_OK, err,
@@ -324,10 +328,10 @@ static void wifi_test_connect_uses_saved_config_when_request_ssid_missing(void) 
 
   WiFi.disconnect(true);
   restore_nvs();
-  TEST_MESSAGE("saved config is used when explicit request SSID is empty");
 }
 
-static void wifi_test_connect_enables_ap_fallback_on_failed_connect(void) {
+static void test_wifi_ap_fallback_on_failed_connect(void) {
+  GIVEN("AP is disabled and WiFi is disconnected");
   save_nvs();
 
   networking::wifi::ap::disable();
@@ -343,10 +347,13 @@ static void wifi_test_connect_enables_ap_fallback_on_failed_connect(void) {
     .result = {},
   };
 
+  WHEN("connect fails with fallback enabled");
   TEST_ASSERT_FALSE_MESSAGE(networking::wifi::connect(&command),
     "device: WiFi connect should fail with intentionally invalid credentials");
   TEST_ASSERT_FALSE_MESSAGE(command.result.connected,
     "device: connect result should report disconnected after failed connect");
+
+  THEN("AP fallback is activated");
   TEST_ASSERT_TRUE_MESSAGE(command.result.ap_enabled_for_fallback,
     "device: AP fallback should be enabled after failed connect when requested");
   TEST_ASSERT_TRUE_MESSAGE(networking::wifi::ap::isActive(),
@@ -355,10 +362,10 @@ static void wifi_test_connect_enables_ap_fallback_on_failed_connect(void) {
   networking::wifi::ap::disable();
   WiFi.disconnect(true, true);
   restore_nvs();
-  TEST_MESSAGE("AP fallback enabled on failed connect when requested");
 }
 
-static void wifi_test_connect_does_not_enable_ap_without_fallback_request(void) {
+static void test_wifi_no_ap_fallback_without_request(void) {
+  GIVEN("AP is disabled and WiFi is disconnected");
   save_nvs();
 
   networking::wifi::ap::disable();
@@ -374,10 +381,13 @@ static void wifi_test_connect_does_not_enable_ap_without_fallback_request(void) 
     .result = {},
   };
 
+  WHEN("connect fails without fallback requested");
   TEST_ASSERT_FALSE_MESSAGE(networking::wifi::connect(&command),
     "device: WiFi connect should fail with intentionally invalid credentials");
   TEST_ASSERT_FALSE_MESSAGE(command.result.connected,
     "device: connect result should report disconnected after failed connect");
+
+  THEN("AP remains inactive");
   TEST_ASSERT_FALSE_MESSAGE(command.result.ap_enabled_for_fallback,
     "device: AP fallback should stay disabled when not requested");
   TEST_ASSERT_FALSE_MESSAGE(networking::wifi::ap::isActive(),
@@ -385,10 +395,10 @@ static void wifi_test_connect_does_not_enable_ap_without_fallback_request(void) 
 
   WiFi.disconnect(true, true);
   restore_nvs();
-  TEST_MESSAGE("AP fallback remains disabled on failed connect when not requested");
 }
 
-static void wifi_test_snapshot_reports_ap_fallback_state_consistently(void) {
+static void test_wifi_snapshot_ap_fallback_state(void) {
+  GIVEN("a failed connect with AP fallback enabled");
   save_nvs();
 
   networking::wifi::ap::disable();
@@ -409,6 +419,7 @@ static void wifi_test_snapshot_reports_ap_fallback_state_consistently(void) {
   TEST_ASSERT_TRUE_MESSAGE(command.result.ap_enabled_for_fallback,
     "device: AP fallback should be active before snapshot verification");
 
+  THEN("the snapshot reflects AP fallback state");
   NetworkStatusSnapshot snapshot = {};
   TEST_ASSERT_TRUE_MESSAGE(networking::wifi::accessSnapshot(&snapshot),
     "device: accessSnapshot should succeed after AP fallback activation");
@@ -436,40 +447,41 @@ static void wifi_test_snapshot_reports_ap_fallback_state_consistently(void) {
   networking::wifi::ap::disable();
   WiFi.disconnect(true, true);
   restore_nvs();
-  TEST_MESSAGE("snapshot reports AP fallback state consistently");
 }
 
-static void wifi_test_access_snapshot_rejects_null_buffer(void) {
+static void test_wifi_snapshot_rejects_null(void) {
+  THEN("null snapshot buffer is rejected");
   TEST_ASSERT_FALSE_MESSAGE(networking::wifi::accessSnapshot(nullptr),
     "device: accessSnapshot should reject null output buffer");
-  TEST_MESSAGE("null snapshot buffer is rejected");
 }
 
-static void wifi_test_access_config_rejects_null_buffer(void) {
+static void test_wifi_config_rejects_null(void) {
+  THEN("null config buffer is rejected");
   TEST_ASSERT_FALSE_MESSAGE(networking::wifi::accessConfig(nullptr),
     "device: accessConfig should reject null output buffer");
-  TEST_MESSAGE("null config buffer is rejected");
 }
 
-static void wifi_test_store_config_rejects_null_buffer(void) {
+static void test_wifi_store_config_rejects_null(void) {
+  THEN("null config input is rejected");
   TEST_ASSERT_FALSE_MESSAGE(networking::wifi::storeConfig(nullptr),
     "device: storeConfig should reject null config buffer");
-  TEST_MESSAGE("null config input is rejected");
 }
 
-static void wifi_test_connect_rejects_null_command(void) {
+static void test_wifi_connect_rejects_null(void) {
+  THEN("null connect command is rejected");
   TEST_ASSERT_FALSE_MESSAGE(networking::wifi::connect(nullptr),
     "device: connect should reject null command buffer");
-  TEST_MESSAGE("null connect command is rejected");
 }
 
-static void wifi_test_snapshot_reports_ap_inactive_when_disabled(void) {
+static void test_wifi_snapshot_ap_inactive(void) {
+  GIVEN("the AP is disabled");
   save_nvs();
 
   networking::wifi::ap::disable();
   WiFi.disconnect(true, true);
   delay(100);
 
+  THEN("the snapshot reports AP inactive");
   NetworkStatusSnapshot snapshot = {};
   TEST_ASSERT_TRUE_MESSAGE(networking::wifi::accessSnapshot(&snapshot),
     "device: accessSnapshot should succeed when AP is disabled");
@@ -479,10 +491,10 @@ static void wifi_test_snapshot_reports_ap_inactive_when_disabled(void) {
     "device: AP snapshot should report zero clients when AP is disabled");
 
   restore_nvs();
-  TEST_MESSAGE("snapshot reports AP inactive state consistently");
 }
 
-static void wifi_test_ap_config_roundtrip(void) {
+static void test_wifi_ap_config_roundtrip(void) {
+  WHEN("AP config is stored and read back");
   save_nvs();
 
   APConfigureCommand command = {
@@ -502,10 +514,10 @@ static void wifi_test_ap_config_roundtrip(void) {
     "device: AP password mismatch after roundtrip");
 
   restore_nvs();
-  TEST_MESSAGE("AP config roundtrip verified, NVS restored");
 }
 
-static void wifi_test_ap_default_ssid(void) {
+static void test_wifi_ap_default_ssid(void) {
+  GIVEN("the AP SSID key is removed from NVS");
   save_nvs();
 
   Preferences preferences;
@@ -513,6 +525,7 @@ static void wifi_test_ap_default_ssid(void) {
   preferences.remove("ap_ssid");
   preferences.end();
 
+  THEN("the AP SSID defaults to the configured value");
   APConfig cfg = {};
   networking::wifi::ap::accessConfig(&cfg);
 
@@ -520,10 +533,10 @@ static void wifi_test_ap_default_ssid(void) {
     "device: AP SSID should default to config::wifi::ap::SSID");
 
   restore_nvs();
-  TEST_MESSAGE("AP default SSID verified, NVS restored");
 }
 
-static void wifi_test_ap_enabled_default_true(void) {
+static void test_wifi_ap_enabled_default_true(void) {
+  GIVEN("the ap_on key is removed from NVS");
   save_nvs();
 
   Preferences preferences;
@@ -531,6 +544,7 @@ static void wifi_test_ap_enabled_default_true(void) {
   preferences.remove("ap_on");
   preferences.end();
 
+    THEN("AP is enabled by default");
     Preferences prefs;
     bool opened = networking::wifi::internal::openPreferences(true, &prefs);
     bool enabled = opened ? prefs.getBool("ap_on", true) : true;
@@ -539,10 +553,10 @@ static void wifi_test_ap_enabled_default_true(void) {
       "device: AP should be enabled by default");
 
   restore_nvs();
-  TEST_MESSAGE("AP enabled default verified, NVS restored");
 }
 
-static void wifi_test_ap_enabled_toggle(void) {
+static void test_wifi_ap_enabled_toggle(void) {
+  WHEN("the AP enabled flag is toggled");
   save_nvs();
 
   Preferences preferences;
@@ -573,42 +587,25 @@ static void wifi_test_ap_enabled_toggle(void) {
     }
 
   restore_nvs();
-  TEST_MESSAGE("AP enabled toggle verified, NVS restored");
 }
 
 void networking::wifi::test(void) {
-  it("user observes that null wifi snapshot buffer is rejected",
-     wifi_test_access_snapshot_rejects_null_buffer);
-  it("user observes that null wifi config buffer is rejected",
-     wifi_test_access_config_rejects_null_buffer);
-  it("user observes that null wifi config store input is rejected",
-     wifi_test_store_config_rejects_null_buffer);
-  it("user observes that null wifi connect command is rejected",
-     wifi_test_connect_rejects_null_command);
-  it("user observes that WiFi STA config can be saved and read from NVS",
-     wifi_test_saved_sta_config_roundtrip);
-  it("user observes that explicit WiFi credentials override saved config",
-     wifi_test_connect_prefers_explicit_request_credentials);
-  it("user observes that saved WiFi config is used when request SSID is empty",
-     wifi_test_connect_uses_saved_config_when_request_ssid_missing);
-  it("user observes that failed WiFi connect enables AP fallback when requested",
-     wifi_test_connect_enables_ap_fallback_on_failed_connect);
-  it("user observes that failed WiFi connect does not enable AP without fallback",
-     wifi_test_connect_does_not_enable_ap_without_fallback_request);
-  it("user observes that WiFi snapshot reflects AP fallback state coherently",
-     wifi_test_snapshot_reports_ap_fallback_state_consistently);
-  it("user observes that WiFi snapshot reflects AP disabled state coherently",
-     wifi_test_snapshot_reports_ap_inactive_when_disabled);
-  it("user observes that wifi_connect fails without stored SSID",
-     wifi_test_connect_fails_without_ssid);
-  it("user observes that AP config can be saved and read from NVS",
-     wifi_test_ap_config_roundtrip);
-  it("user observes that AP SSID defaults to config::wifi::ap::SSID",
-     wifi_test_ap_default_ssid);
-  it("user observes that AP is enabled by default",
-     wifi_test_ap_enabled_default_true);
-  it("user observes that AP enabled flag can be toggled",
-     wifi_test_ap_enabled_toggle);
+  RUN_TEST(test_wifi_snapshot_rejects_null);
+  RUN_TEST(test_wifi_config_rejects_null);
+  RUN_TEST(test_wifi_store_config_rejects_null);
+  RUN_TEST(test_wifi_connect_rejects_null);
+  RUN_TEST(test_wifi_saved_sta_config_roundtrip);
+  RUN_TEST(test_wifi_connect_prefers_explicit_credentials);
+  RUN_TEST(test_wifi_connect_uses_saved_config);
+  RUN_TEST(test_wifi_ap_fallback_on_failed_connect);
+  RUN_TEST(test_wifi_no_ap_fallback_without_request);
+  RUN_TEST(test_wifi_snapshot_ap_fallback_state);
+  RUN_TEST(test_wifi_snapshot_ap_inactive);
+  RUN_TEST(test_wifi_connect_fails_without_ssid);
+  RUN_TEST(test_wifi_ap_config_roundtrip);
+  RUN_TEST(test_wifi_ap_default_ssid);
+  RUN_TEST(test_wifi_ap_enabled_default_true);
+  RUN_TEST(test_wifi_ap_enabled_toggle);
 }
 
 #endif

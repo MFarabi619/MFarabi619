@@ -106,38 +106,45 @@ bool filesystems::api::removeRecursive(fs::FS &filesystem, const String &path) {
 
 namespace filesystems::api { void test(void); }
 
-static void api_test_sensitive_path_with_slash(void) {
-  TEST_MESSAGE("user verifies /.ssh is detected as sensitive");
-  TEST_ASSERT_TRUE(filesystems::api::isSensitivePath("/.ssh"));
+static void test_api_sensitive_path_with_slash(void) {
+  GIVEN("a path starting with /.ssh");
+  THEN("it is detected as sensitive");
+  TEST_ASSERT_TRUE_MESSAGE(filesystems::api::isSensitivePath("/.ssh"),
+    "device: /.ssh must be detected as sensitive");
 }
 
-static void api_test_sensitive_path_without_slash(void) {
-  TEST_MESSAGE("user verifies .ssh is detected as sensitive (no leading slash)");
-  TEST_ASSERT_TRUE(filesystems::api::isSensitivePath(".ssh"));
+static void test_api_sensitive_path_without_slash(void) {
+  GIVEN("a path .ssh without leading slash");
+  THEN("it is detected as sensitive");
+  TEST_ASSERT_TRUE_MESSAGE(filesystems::api::isSensitivePath(".ssh"),
+    "device: .ssh without leading slash must be sensitive");
 }
 
-static void api_test_sensitive_path_nested(void) {
-  TEST_MESSAGE("user verifies /.ssh/host_key is detected as sensitive");
-  TEST_ASSERT_TRUE(filesystems::api::isSensitivePath("/.ssh/host_key"));
-  TEST_ASSERT_TRUE(filesystems::api::isSensitivePath(".ssh/authorized_keys"));
+static void test_api_sensitive_path_nested(void) {
+  GIVEN("nested paths under .ssh");
+  THEN("they are detected as sensitive");
+  TEST_ASSERT_TRUE_MESSAGE(filesystems::api::isSensitivePath("/.ssh/host_key"),
+    "device: /.ssh/host_key must be sensitive");
+  TEST_ASSERT_TRUE_MESSAGE(filesystems::api::isSensitivePath(".ssh/authorized_keys"),
+    "device: .ssh/authorized_keys must be sensitive");
 }
 
-static void api_test_normal_path_not_sensitive(void) {
-  TEST_MESSAGE("user verifies normal paths are not flagged");
-  TEST_ASSERT_FALSE(filesystems::api::isSensitivePath("/data.csv"));
-  TEST_ASSERT_FALSE(filesystems::api::isSensitivePath("/public/index.html"));
-  TEST_ASSERT_FALSE(filesystems::api::isSensitivePath("data.csv"));
+static void test_api_normal_path_not_sensitive(void) {
+  GIVEN("normal file paths");
+  THEN("they are not flagged as sensitive");
+  TEST_ASSERT_FALSE_MESSAGE(filesystems::api::isSensitivePath("/data.csv"),
+    "device: /data.csv must not be sensitive");
+  TEST_ASSERT_FALSE_MESSAGE(filesystems::api::isSensitivePath("/public/index.html"),
+    "device: /public/index.html must not be sensitive");
+  TEST_ASSERT_FALSE_MESSAGE(filesystems::api::isSensitivePath("data.csv"),
+    "device: data.csv must not be sensitive");
 }
 
 void filesystems::api::test(void) {
-  it("user verifies /.ssh is sensitive",
-     api_test_sensitive_path_with_slash);
-  it("user verifies .ssh without leading slash is sensitive",
-     api_test_sensitive_path_without_slash);
-  it("user verifies nested .ssh paths are sensitive",
-     api_test_sensitive_path_nested);
-  it("user verifies normal paths are not sensitive",
-     api_test_normal_path_not_sensitive);
+  RUN_TEST(test_api_sensitive_path_with_slash);
+  RUN_TEST(test_api_sensitive_path_without_slash);
+  RUN_TEST(test_api_sensitive_path_nested);
+  RUN_TEST(test_api_normal_path_not_sensitive);
 }
 
 #endif

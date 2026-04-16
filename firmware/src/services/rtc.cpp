@@ -60,53 +60,61 @@ bool services::rtc::accessSnapshot(RTCSnapshot *snapshot) {
 
 #include <i2c.h>
 
-static void rtc_test_init() {
+static void test_rtc_init() {
     hardware::i2c::initialize();
     hardware::i2c::DiscoveredDevice dev = {};
     if (!hardware::i2c::findDevice(0x68, &dev)) {
         TEST_IGNORE_MESSAGE("no DS3231 found on I2C");
         return;
     }
-    TEST_MESSAGE("user initializes the RTC");
+    WHEN("the RTC is initialized");
     TEST_ASSERT_TRUE_MESSAGE(services::rtc::initialize(), "device: rtcInitialize() failed");
-    TEST_MESSAGE("RTC initialized");
 }
 
-static void rtc_test_oscillator() {
-    TEST_MESSAGE("user checks if the RTC oscillator is running");
+static void test_rtc_oscillator() {
+    GIVEN("the RTC is initialized");
     services::rtc::initialize();
+
+    THEN("the oscillator is running");
     TEST_ASSERT_FALSE_MESSAGE(rtc_device.lostPower(),
         "device: oscillator stopped — battery may be dead");
-    TEST_MESSAGE("oscillator is running");
 }
 
-static void rtc_test_reads_time() {
-    TEST_MESSAGE("user reads the current time from the RTC");
+static void test_rtc_reads_time() {
+    GIVEN("the RTC is initialized");
     services::rtc::initialize();
+
+    WHEN("the current time is read");
     DateTime now = rtc_device.now();
     TEST_ASSERT_TRUE_MESSAGE(now.isValid(), "device: DateTime is invalid");
     uint32_t epoch = now.unixtime();
     TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(1577836800, epoch,
         "device: epoch is before 2020 — RTC may not be set");
     String ts = now.timestamp();
-    TEST_ASSERT_TRUE_MESSAGE(ts.length() > 0, "device: timestamp is empty");
+    TEST_ASSERT_NOT_EMPTY_MESSAGE(ts.c_str(), "device: timestamp is empty");
     TEST_MESSAGE(ts.c_str());
 }
 
-static void rtc_test_reads_temperature() {
-    TEST_MESSAGE("user reads temperature from the RTC");
+static void test_rtc_reads_temperature() {
+    GIVEN("the RTC is initialized");
     services::rtc::initialize();
+
+    WHEN("the temperature is read");
     float temp = rtc_device.getTemperature();
-    TEST_ASSERT_FLOAT_WITHIN_MESSAGE(60.0f, 22.5f, temp,
-        "device: temperature outside plausible range");
+    TEST_ASSERT_GREATER_OR_EQUAL_FLOAT_MESSAGE(-37.5f, temp,
+        "device: RTC temperature below DS3231 minimum");
+    TEST_ASSERT_LESS_OR_EQUAL_FLOAT_MESSAGE(82.5f, temp,
+        "device: RTC temperature above DS3231 maximum");
     char msg[32];
     snprintf(msg, sizeof(msg), "%.2f C", temp);
     TEST_MESSAGE(msg);
 }
 
-static void rtc_test_set_and_restore_epoch() {
-    TEST_MESSAGE("user sets epoch, verifies, then restores");
+static void test_rtc_set_and_restore_epoch() {
+    GIVEN("the RTC is initialized");
     services::rtc::initialize();
+
+    WHEN("the epoch is set and read back");
 
     uint32_t original = rtc_device.now().unixtime();
     uint32_t test_epoch = 1712318400; // 2024-04-05 12:00:00 UTC
@@ -119,12 +127,13 @@ static void rtc_test_set_and_restore_epoch() {
 
     rtc_device.adjust(DateTime(original));
     delay(100);
-    TEST_MESSAGE("epoch set/read verified and original time restored");
 }
 
-static void rtc_test_alarm1() {
-    TEST_MESSAGE("user enables alarm 1 (every second) and checks if it fires");
+static void test_rtc_alarm1() {
+    GIVEN("the RTC is initialized");
     services::rtc::initialize();
+
+    WHEN("alarm 1 is set to fire every second");
 
     rtc_device.clearAlarm(1);
     rtc_device.setAlarm1(DateTime((uint32_t)0), DS3231_A1_PerSecond);
@@ -134,12 +143,13 @@ static void rtc_test_alarm1() {
 
     rtc_device.disableAlarm(1);
     rtc_device.clearAlarm(1);
-    TEST_MESSAGE("alarm 1 fired and was disabled");
 }
 
-static void rtc_test_set_from_compile_time() {
-    TEST_MESSAGE("user seeds RTC from compile time");
+static void test_rtc_set_from_compile_time() {
+    GIVEN("Wire0 is available");
     test_ensure_wire0();
+
+    WHEN("the RTC is seeded from compile time");
 
     uint32_t original = rtc_device.now().unixtime();
     rtc_device.adjust(DateTime(F(__DATE__), F(__TIME__)));
@@ -150,21 +160,22 @@ static void rtc_test_set_from_compile_time() {
         "device: epoch after compile-time seed is before 2020");
 
     String ts = now.timestamp();
-    TEST_ASSERT_TRUE_MESSAGE(ts.length() > 0, "device: timestamp empty");
+    TEST_ASSERT_NOT_EMPTY_MESSAGE(ts.c_str(), "device: timestamp empty");
     TEST_MESSAGE(ts.c_str());
 
     rtc_device.adjust(DateTime(original));
     delay(10);
 }
 
-static void rtc_test_alarm_disable_clears() {
-    TEST_MESSAGE("user enables alarm 1, disables it, verifies it stops");
+static void test_rtc_alarm_disable_clears() {
+    GIVEN("Wire0 is available");
     test_ensure_wire0();
     if (!services::rtc::initialize()) {
         TEST_IGNORE_MESSAGE("skipped — RTC not responding");
         return;
     }
 
+    WHEN("alarm 1 is enabled then disabled");
     rtc_device.clearAlarm(1);
     rtc_device.setAlarm1(DateTime((uint32_t)0), DS3231_A1_PerSecond);
     delay(1100);
@@ -179,26 +190,17 @@ static void rtc_test_alarm_disable_clears() {
         return;
     }
 
-    TEST_MESSAGE("alarm disable verified");
 }
 
 void services::rtc::test() {
-    it("user observes that the RTC initializes",
-       rtc_test_init);
-    it("user observes that the oscillator is running",
-       rtc_test_oscillator);
-    it("user observes that the RTC reads a valid time",
-       rtc_test_reads_time);
-    it("user observes that the RTC reads a plausible temperature",
-       rtc_test_reads_temperature);
-    it("user observes that epoch can be set and restored",
-       rtc_test_set_and_restore_epoch);
-    it("user observes that alarm 1 fires within 1 second",
-       rtc_test_alarm1);
-    it("user observes that compile-time seed produces valid time",
-       rtc_test_set_from_compile_time);
-    it("user observes that disabling alarm 1 stops it",
-       rtc_test_alarm_disable_clears);
+    RUN_TEST(test_rtc_init);
+    RUN_TEST(test_rtc_oscillator);
+    RUN_TEST(test_rtc_reads_time);
+    RUN_TEST(test_rtc_reads_temperature);
+    RUN_TEST(test_rtc_set_and_restore_epoch);
+    RUN_TEST(test_rtc_alarm1);
+    RUN_TEST(test_rtc_set_from_compile_time);
+    RUN_TEST(test_rtc_alarm_disable_clears);
 }
 
 #endif

@@ -11,21 +11,13 @@
 #include <i2c.h>
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  it() — BDD-style test runner macro
+//  BDD narration macros
 // ─────────────────────────────────────────────────────────────────────────────
 
-static char _it_buf[256];
-static inline void _it_run(void (*func)(void), const char *desc, int line) {
-  strncpy(_it_buf, desc, sizeof(_it_buf) - 1);
-  _it_buf[sizeof(_it_buf) - 1] = '\0';
-  for (char *p = _it_buf; *p; p++) {
-    if (*p == ' ') *p = '_';
-  }
-  UnityDefaultTestRun(func, _it_buf, line);
-}
-
-#define it(description, test_func) \
-  _it_run(test_func, description, __LINE__)
+#define GIVEN(desc) TEST_MESSAGE("Given: " desc)
+#define WHEN(desc)  TEST_MESSAGE("When: " desc)
+#define THEN(desc)  TEST_MESSAGE("Then: " desc)
+#define AND(desc)   TEST_MESSAGE("And: " desc)
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  I2C helpers

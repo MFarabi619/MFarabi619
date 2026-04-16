@@ -9,8 +9,8 @@ namespace filesystems::littlefs { void test(void); }
 #include <LittleFS.h>
 #include <stdio.h>
 
-static void littlefs_test_mounts(void) {
-  TEST_MESSAGE("user asks the device to mount LittleFS");
+static void test_littlefs_mounts(void) {
+  WHEN("LittleFS is mounted");
   TEST_ASSERT_TRUE_MESSAGE(LittleFS.begin(true),
     "device: LittleFS.begin() failed");
 
@@ -24,9 +24,11 @@ static void littlefs_test_mounts(void) {
   TEST_MESSAGE(msg);
 }
 
-static void littlefs_test_write_read_roundtrip(void) {
-  TEST_MESSAGE("user writes and reads a file on LittleFS");
+static void test_littlefs_write_read_roundtrip(void) {
+  GIVEN("LittleFS is mounted");
   LittleFS.begin(false);
+
+  WHEN("a file is written and read back");
 
   const char *path = "/.test_lfs.tmp";
   const char *payload = "littlefs roundtrip test";
@@ -46,12 +48,13 @@ static void littlefs_test_write_read_roundtrip(void) {
     "device: LittleFS read doesn't match write");
 
   LittleFS.remove(path);
-  TEST_MESSAGE("LittleFS write/read/delete verified");
 }
 
-static void littlefs_test_ssh_dir_persists(void) {
-  TEST_MESSAGE("user verifies .ssh directory persists across mounts");
+static void test_littlefs_ssh_dir_persists(void) {
+  GIVEN("LittleFS is mounted");
   LittleFS.begin(false);
+
+  WHEN("a file is written to .ssh and LittleFS is remounted");
 
   if (!LittleFS.exists("/.ssh")) {
     LittleFS.mkdir("/.ssh");
@@ -72,12 +75,13 @@ static void littlefs_test_ssh_dir_persists(void) {
     "device: file in /.ssh did not survive remount");
 
   LittleFS.remove("/.ssh/.test_persist");
-  TEST_MESSAGE(".ssh directory and contents persist across remount");
 }
 
-static void littlefs_test_mkdir_nested(void) {
-  TEST_MESSAGE("user creates nested directories on LittleFS");
+static void test_littlefs_mkdir_nested(void) {
+  GIVEN("LittleFS is mounted");
   LittleFS.begin(false);
+
+  WHEN("nested directories are created");
 
   LittleFS.mkdir("/.test_nest");
   LittleFS.mkdir("/.test_nest/deep");
@@ -93,12 +97,13 @@ static void littlefs_test_mkdir_nested(void) {
   LittleFS.remove("/.test_nest/deep/file.txt");
   LittleFS.rmdir("/.test_nest/deep");
   LittleFS.rmdir("/.test_nest");
-  TEST_MESSAGE("nested directory creation and cleanup verified");
 }
 
-static void littlefs_test_hostkey_path(void) {
-  TEST_MESSAGE("user verifies SSH host key via both LittleFS and VFS paths");
+static void test_littlefs_hostkey_path(void) {
+  GIVEN("LittleFS is mounted");
   LittleFS.begin(false);
+
+  WHEN("a host key is written and read via both APIs");
 
   LittleFS.mkdir("/.ssh");
   File writer = LittleFS.open(config::ssh::HOSTKEY_PATH, FILE_WRITE);
@@ -129,12 +134,13 @@ static void littlefs_test_hostkey_path(void) {
     "device: hostkey file missing after remount");
 
   LittleFS.remove(config::ssh::HOSTKEY_PATH);
-  TEST_MESSAGE("both LittleFS and VFS paths verified");
 }
 
-static void littlefs_test_rmdir_non_empty(void) {
-  TEST_MESSAGE("user tests whether rmdir fails on a non-empty directory");
+static void test_littlefs_rmdir_non_empty(void) {
+  GIVEN("LittleFS is mounted");
   LittleFS.begin(false);
+
+  WHEN("rmdir is called on a non-empty directory");
 
   LittleFS.mkdir("/.test_rmdir");
   File f = LittleFS.open("/.test_rmdir/child.txt", FILE_WRITE);
@@ -154,9 +160,11 @@ static void littlefs_test_rmdir_non_empty(void) {
   LittleFS.rmdir("/.test_rmdir");
 }
 
-static void littlefs_test_remove_on_directory(void) {
-  TEST_MESSAGE("user tests whether remove() works on a directory");
+static void test_littlefs_remove_on_directory(void) {
+  GIVEN("LittleFS is mounted");
   LittleFS.begin(false);
+
+  WHEN("remove() is called on a directory");
 
   LittleFS.mkdir("/.test_rm_dir");
   TEST_ASSERT_TRUE_MESSAGE(LittleFS.exists("/.test_rm_dir"),
@@ -172,9 +180,11 @@ static void littlefs_test_remove_on_directory(void) {
     LittleFS.rmdir("/.test_rm_dir");
 }
 
-static void littlefs_test_rename(void) {
-  TEST_MESSAGE("user tests FS::rename on LittleFS");
+static void test_littlefs_rename(void) {
+  GIVEN("LittleFS is mounted");
   LittleFS.begin(false);
+
+  WHEN("a file is renamed");
 
   const char *src = "/.test_rename_src.tmp";
   const char *dst = "/.test_rename_dst.tmp";
@@ -204,26 +214,17 @@ static void littlefs_test_rename(void) {
     "device: renamed file content doesn't match");
 
   LittleFS.remove(dst);
-  TEST_MESSAGE("rename verified: src gone, dst exists with correct content");
 }
 
 void filesystems::littlefs::test(void) {
-  it("user observes that LittleFS mounts and reports size",
-     littlefs_test_mounts);
-  it("user observes that LittleFS write/read roundtrip works",
-     littlefs_test_write_read_roundtrip);
-  it("user observes that .ssh directory persists across remount",
-     littlefs_test_ssh_dir_persists);
-  it("user observes that nested directories work on LittleFS",
-     littlefs_test_mkdir_nested);
-  it("user observes that SSH host key path survives remount",
-     littlefs_test_hostkey_path);
-  it("user observes that rmdir fails on non-empty directory",
-     littlefs_test_rmdir_non_empty);
-  it("user observes whether remove() works on a directory",
-     littlefs_test_remove_on_directory);
-  it("user observes that rename works on LittleFS",
-     littlefs_test_rename);
+  RUN_TEST(test_littlefs_mounts);
+  RUN_TEST(test_littlefs_write_read_roundtrip);
+  RUN_TEST(test_littlefs_ssh_dir_persists);
+  RUN_TEST(test_littlefs_mkdir_nested);
+  RUN_TEST(test_littlefs_hostkey_path);
+  RUN_TEST(test_littlefs_rmdir_non_empty);
+  RUN_TEST(test_littlefs_remove_on_directory);
+  RUN_TEST(test_littlefs_rename);
 }
 
 #endif

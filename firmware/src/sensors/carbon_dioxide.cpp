@@ -256,14 +256,16 @@ bool sensors::carbon_dioxide::isAvailable() {
 
 #include <testing/utils.h>
 
-static void co2_test_init(void) {
-  TEST_MESSAGE("initializing CO2 module");
+static void test_co2_init(void) {
+  WHEN("the CO2 module is initialized");
   hardware::i2c::initialize();
-  TEST_ASSERT_TRUE(sensors::carbon_dioxide::initialize());
-  TEST_MESSAGE("CO2 module initialized");
+  TEST_ASSERT_TRUE_MESSAGE(sensors::carbon_dioxide::initialize(),
+    "device: CO2 module initialization failed");
 }
 
-static void co2_test_detect(void) {
+static void test_co2_detect(void) {
+  GIVEN("the CO2 module is initialized");
+  THEN("a sensor backend is detected");
   if (!sensors::carbon_dioxide::isAvailable()) {
     TEST_IGNORE_MESSAGE("no CO2 sensor connected");
     return;
@@ -275,7 +277,9 @@ static void co2_test_detect(void) {
   TEST_MESSAGE(msg);
 }
 
-static void co2_test_read(void) {
+static void test_co2_read(void) {
+  GIVEN("a CO2 sensor is available");
+  WHEN("a measurement is read");
   if (!sensors::carbon_dioxide::isAvailable()) {
     TEST_IGNORE_MESSAGE("no CO2 sensor available");
     return;
@@ -292,13 +296,14 @@ static void co2_test_read(void) {
            sensor_data.model, sensor_data.co2_ppm, sensor_data.temperature_celsius,
            sensor_data.relative_humidity_percent);
   TEST_MESSAGE(msg);
-  TEST_ASSERT_GREATER_THAN(0.0f, sensor_data.co2_ppm);
+  TEST_ASSERT_GREATER_THAN_FLOAT_MESSAGE(0.0f, sensor_data.co2_ppm,
+    "device: CO2 reading must be > 0 ppm");
 }
 
 void sensors::carbon_dioxide::test() {
-  it("user initializes the CO2 module", co2_test_init);
-  it("user detects a CO2 sensor", co2_test_detect);
-  it("user reads CO2 data", co2_test_read);
+  RUN_TEST(test_co2_init);
+  RUN_TEST(test_co2_detect);
+  RUN_TEST(test_co2_read);
 }
 
 #endif

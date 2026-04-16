@@ -157,8 +157,9 @@ void services::http::api::database::registerRoutes(AsyncWebServer &server) {
 #include <storage.h>
 #include <SD.h>
 
-static void db_api_test_collect_row_populates_columns_once(void) {
-  TEST_MESSAGE("user verifies collect_row captures column names on first row only");
+static void test_db_collect_row_populates_columns_once(void) {
+  GIVEN("two rows are passed to collect_row");
+  THEN("column names are captured only on the first row");
 
   JsonDocument doc;
   JsonArray columns = doc["columns"].to<JsonArray>();
@@ -184,8 +185,9 @@ static void db_api_test_collect_row_populates_columns_once(void) {
   TEST_ASSERT_EQUAL_STRING("bob", rows[1][1].as<const char *>());
 }
 
-static void db_api_test_collect_row_handles_null_values(void) {
-  TEST_MESSAGE("user verifies collect_row represents SQL NULL as JSON null");
+static void test_db_collect_row_handles_null_values(void) {
+  WHEN("a SQL NULL value is passed to collect_row");
+  THEN("it serializes as JSON null");
 
   JsonDocument doc;
   JsonArray columns = doc["columns"].to<JsonArray>();
@@ -202,8 +204,10 @@ static void db_api_test_collect_row_handles_null_values(void) {
       "device: NULL value should serialize as JSON null");
 }
 
-static void db_api_test_exec_roundtrip(void) {
-  TEST_MESSAGE("user opens a database, creates a table, inserts, and queries via collect_row");
+static void test_db_exec_roundtrip(void) {
+  GIVEN("a test database on SD");
+  WHEN("a table is created, a row inserted, and queried");
+  THEN("the results match");
 
   if (!programs::sqlite::open("/sd/test_db_api.db")) {
     TEST_IGNORE_MESSAGE("skipped — could not open test database on SD");
@@ -236,9 +240,9 @@ static void db_api_test_exec_roundtrip(void) {
 }
 
 void services::http::api::database::test(void) {
-  it("user verifies collect_row populates columns once", db_api_test_collect_row_populates_columns_once);
-  it("user verifies collect_row handles NULL values", db_api_test_collect_row_handles_null_values);
-  it("user verifies exec roundtrip through collect_row", db_api_test_exec_roundtrip);
+  RUN_TEST(test_db_collect_row_populates_columns_once);
+  RUN_TEST(test_db_collect_row_handles_null_values);
+  RUN_TEST(test_db_exec_roundtrip);
 }
 
 #endif

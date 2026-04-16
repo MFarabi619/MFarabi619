@@ -79,8 +79,9 @@ namespace networking::ota { void test(void); }
 
 #include <Arduino.h>
 
-static void ota_test_config(void) {
-  TEST_MESSAGE("user verifies OTA configuration");
+static void test_ota_config(void) {
+  GIVEN("OTA is configured");
+  THEN("the configuration is valid");
 
   TEST_ASSERT_GREATER_THAN_UINT16_MESSAGE(0, config::ota::PORT,
     "device: OTA port must be > 0");
@@ -95,22 +96,20 @@ static void ota_test_config(void) {
 #endif
 }
 
-static void ota_test_noop_when_disabled(void) {
-  TEST_MESSAGE("user calls OTA functions when disabled");
+static void test_ota_noop_when_disabled(void) {
+  WHEN("OTA functions are called while disabled");
+  THEN("they complete as no-ops");
 #if !CERATINA_OTA_ENABLED
   networking::ota::initialize();
   networking::ota::service();
-  TEST_MESSAGE("no-ops completed without error");
 #else
   TEST_IGNORE_MESSAGE("OTA is enabled — test not applicable");
 #endif
 }
 
 void networking::ota::test(void) {
-  it("user verifies OTA configuration",
-     ota_test_config);
-  it("user verifies OTA no-ops when disabled",
-     ota_test_noop_when_disabled);
+  RUN_TEST(test_ota_config);
+  RUN_TEST(test_ota_noop_when_disabled);
 }
 
 #endif

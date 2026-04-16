@@ -237,8 +237,9 @@ static SleepNvsSnapshot saved_sleep_nvs = {};
 void save_sleep_nvs() { sleep_nvs_save(&saved_sleep_nvs); }
 void restore_sleep_nvs() { sleep_nvs_restore(&saved_sleep_nvs); }
 
-static void sleep_test_default_config(void) {
-  TEST_MESSAGE("user reads sleep config from empty NVS and gets defaults");
+static void test_sleep_default_config(void) {
+  GIVEN("an empty NVS namespace");
+  WHEN("sleep config is read");
 
   save_sleep_nvs();
   Preferences prefs;
@@ -252,18 +253,18 @@ static void sleep_test_default_config(void) {
   SleepConfig sleep_config = {};
   TEST_ASSERT_TRUE_MESSAGE(power::sleep::accessConfig(&sleep_config),
     "device: sleep config must be readable");
-  TEST_ASSERT_EQUAL_MESSAGE(config::sleep::DEFAULT_ENABLED, sleep_config.enabled,
+  TEST_ASSERT_EQUAL_INT_MESSAGE(config::sleep::DEFAULT_ENABLED, sleep_config.enabled,
     "device: sleep enabled default mismatch");
   TEST_ASSERT_EQUAL_UINT32_MESSAGE(config::sleep::DEFAULT_DURATION_SECONDS,
     sleep_config.duration_seconds,
     "device: sleep duration default mismatch");
 
   restore_sleep_nvs();
-  TEST_MESSAGE("default sleep config verified, NVS restored");
 }
 
-static void sleep_test_persist_config(void) {
-  TEST_MESSAGE("user stores and retrieves deep sleep config via NVS");
+static void test_sleep_persist_config(void) {
+  GIVEN("a valid sleep config");
+  WHEN("it is stored and retrieved via NVS");
 
   save_sleep_nvs();
 
@@ -293,11 +294,10 @@ static void sleep_test_persist_config(void) {
   prefs.end();
 
   restore_sleep_nvs();
-  TEST_MESSAGE("sleep config roundtrip verified, NVS restored");
 }
 
-static void sleep_test_rejects_invalid_duration(void) {
-  TEST_MESSAGE("user tries to save an invalid sleep duration");
+static void test_sleep_rejects_invalid_duration(void) {
+  WHEN("a zero-second duration is stored");
 
   SleepConfig sleep_config = {
     .enabled = true,
@@ -312,11 +312,11 @@ static void sleep_test_rejects_invalid_duration(void) {
   };
   TEST_ASSERT_FALSE_MESSAGE(power::sleep::request(&command),
     "device: zero-second one-shot sleep request must be rejected");
-  TEST_MESSAGE("invalid sleep duration rejected");
 }
 
-static void sleep_test_status_reports_config(void) {
-  TEST_MESSAGE("user reads sleep status and sees persisted config");
+static void test_sleep_status_reports_config(void) {
+  GIVEN("a persisted sleep config");
+  WHEN("the sleep status is read");
 
   save_sleep_nvs();
 
@@ -324,7 +324,8 @@ static void sleep_test_status_reports_config(void) {
     .enabled = true,
     .duration_seconds = 15,
   };
-  TEST_ASSERT_TRUE(power::sleep::storeConfig(&sleep_config));
+  TEST_ASSERT_TRUE_MESSAGE(power::sleep::storeConfig(&sleep_config),
+    "device: storeConfig should succeed for valid duration");
 
   SleepStatusSnapshot snapshot = {};
   TEST_ASSERT_TRUE_MESSAGE(power::sleep::accessStatus(&snapshot),
@@ -342,20 +343,15 @@ static void sleep_test_status_reports_config(void) {
 
   power::sleep::abortPending();
   restore_sleep_nvs();
-  TEST_MESSAGE("sleep status config snapshot verified, NVS restored");
 }
 
 }
 
 void power::sleep::test(void) {
-  it("user reads sleep config defaults from empty NVS",
-     sleep_test_default_config);
-  it("user stores and retrieves deep sleep config via NVS",
-     sleep_test_persist_config);
-  it("user observes invalid sleep duration is rejected",
-     sleep_test_rejects_invalid_duration);
-  it("user observes sleep status includes persisted config",
-     sleep_test_status_reports_config);
+  RUN_TEST(test_sleep_default_config);
+  RUN_TEST(test_sleep_persist_config);
+  RUN_TEST(test_sleep_rejects_invalid_duration);
+  RUN_TEST(test_sleep_status_reports_config);
 }
 
 #endif

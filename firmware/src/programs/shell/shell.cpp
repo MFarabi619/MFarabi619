@@ -100,15 +100,14 @@ void programs::shell::service() {
 
 #include <testing/utils.h>
 
-static void shell_test_initializes(void) {
-  TEST_MESSAGE("user asks the device to initialize the console");
+static void test_shell_initializes(void) {
+  WHEN("the console is initialized");
   programs::shell::initialize();
-  TEST_MESSAGE("console initialized with serial I/O");
+  THEN("it completes without error");
 }
 
 void programs::shell::test(void) {
-  it("user observes that the console initializes",
-     shell_test_initializes);
+  RUN_TEST(test_shell_initializes);
 }
 
 #endif

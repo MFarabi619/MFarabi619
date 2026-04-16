@@ -87,8 +87,8 @@ bool hardware::storage::accessSnapshot(StorageQuery *query) {
 
 #include <testing/utils.h>
 
-static void sd_test_mounts(void) {
-  TEST_MESSAGE("user asks the device to mount the SD card");
+static void test_sd_mounts(void) {
+  WHEN("the SD card is mounted");
   bool ok = hardware::storage::ensureSD();
   if (!ok) {
     TEST_IGNORE_MESSAGE("skipped — no SD card inserted");
@@ -96,11 +96,10 @@ static void sd_test_mounts(void) {
   }
   TEST_ASSERT_NOT_EQUAL_MESSAGE(CARD_NONE, SD.cardType(),
     "device: SD card type is CARD_NONE after begin");
-  TEST_MESSAGE("SD card mounted");
 }
 
-static void sd_test_reports_size(void) {
-  TEST_MESSAGE("user checks SD card capacity");
+static void test_sd_reports_size(void) {
+  WHEN("the SD card capacity is queried");
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
@@ -113,8 +112,8 @@ static void sd_test_reports_size(void) {
   TEST_MESSAGE(msg);
 }
 
-static void sd_test_write_read_roundtrip(void) {
-  TEST_MESSAGE("user writes a test file and reads it back");
+static void test_sd_write_read_roundtrip(void) {
+  WHEN("a file is written, read, and deleted");
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
@@ -143,11 +142,10 @@ static void sd_test_write_read_roundtrip(void) {
   TEST_ASSERT_FALSE_MESSAGE(SD.exists(path),
     "device: test file still exists after remove");
 
-  TEST_MESSAGE("write/read/delete roundtrip verified");
 }
 
-static void sd_test_append_mode(void) {
-  TEST_MESSAGE("user verifies FILE_APPEND adds to file without truncating");
+static void test_sd_append_mode(void) {
+  WHEN("a file is appended to");
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
@@ -173,11 +171,10 @@ static void sd_test_append_mode(void) {
     "device: append did not preserve original content");
 
   SD.remove(path);
-  TEST_MESSAGE("append mode verified");
 }
 
-static void sd_test_auto_create_parents(void) {
-  TEST_MESSAGE("user verifies open with create=true auto-creates parent dirs");
+static void test_sd_auto_create_parents(void) {
+  WHEN("a file is opened with create=true in a nested path");
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
@@ -197,11 +194,10 @@ static void sd_test_auto_create_parents(void) {
   SD.remove(path);
   SD.rmdir("/.test_nested/sub");
   SD.rmdir("/.test_nested");
-  TEST_MESSAGE("auto parent directory creation verified");
 }
 
-static void sd_test_directory_listing(void) {
-  TEST_MESSAGE("user lists files in a directory");
+static void test_sd_directory_listing(void) {
+  WHEN("files are created and the directory is listed");
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
@@ -239,8 +235,8 @@ static void sd_test_directory_listing(void) {
   TEST_MESSAGE(msg);
 }
 
-static void sd_test_buffered_write(void) {
-  TEST_MESSAGE("user writes with custom buffer size for performance");
+static void test_sd_buffered_write(void) {
+  WHEN("data is written with a custom buffer size");
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
@@ -277,20 +273,13 @@ static void sd_test_buffered_write(void) {
 namespace filesystems::sd { void test(void); }
 
 void filesystems::sd::test(void) {
-  it("user observes that the SD card mounts",
-     sd_test_mounts);
-  it("user observes that the SD card reports its size",
-     sd_test_reports_size);
-  it("user observes that a file can be written, read, and deleted",
-     sd_test_write_read_roundtrip);
-  it("user observes that append mode preserves existing content",
-     sd_test_append_mode);
-  it("user observes that open with create auto-creates parent dirs",
-     sd_test_auto_create_parents);
-  it("user observes that directory listing finds created files",
-     sd_test_directory_listing);
-  it("user observes that buffered writes complete quickly",
-     sd_test_buffered_write);
+  RUN_TEST(test_sd_mounts);
+  RUN_TEST(test_sd_reports_size);
+  RUN_TEST(test_sd_write_read_roundtrip);
+  RUN_TEST(test_sd_append_mode);
+  RUN_TEST(test_sd_auto_create_parents);
+  RUN_TEST(test_sd_directory_listing);
+  RUN_TEST(test_sd_buffered_write);
 }
 
 #endif

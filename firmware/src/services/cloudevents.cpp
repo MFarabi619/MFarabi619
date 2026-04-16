@@ -255,8 +255,9 @@ void services::cloudevents::registerRoutes(AsyncWebServer *server) {
 
 #include <testing/utils.h>
 
-static void cloudevents_test_source_format(void) {
-  TEST_MESSAGE("user verifies CloudEvents source string format");
+static void test_cloudevents_source_format(void) {
+  WHEN("the CloudEvents source string is generated");
+  THEN("it contains tenant and site config");
 
   String source = cloudevents_source();
   String expected = String("urn:apidae-systems:tenant:") +
@@ -270,8 +271,9 @@ static void cloudevents_test_source_format(void) {
   TEST_MESSAGE(source.c_str());
 }
 
-static void cloudevents_test_event_id_includes_type(void) {
-  TEST_MESSAGE("user verifies event ID includes type prefix");
+static void test_cloudevents_event_id_includes_type(void) {
+  WHEN("an event ID is generated");
+  THEN("it starts with the type prefix");
 
   String event_id = cloudevents_event_id("status.v1", 0);
   TEST_ASSERT_TRUE_MESSAGE(event_id.startsWith("status.v1-"),
@@ -281,10 +283,8 @@ static void cloudevents_test_event_id_includes_type(void) {
 }
 
 void services::cloudevents::test(void) {
-  it("user verifies CloudEvents source string format",
-     cloudevents_test_source_format);
-  it("user verifies event ID includes type prefix",
-     cloudevents_test_event_id_includes_type);
+  RUN_TEST(test_cloudevents_source_format);
+  RUN_TEST(test_cloudevents_event_id_includes_type);
 }
 
 #endif

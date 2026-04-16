@@ -173,10 +173,9 @@ bool sensors::voltage::access(VoltageSensorData *sensor_data) {
 
 #include <testing/utils.h>
 
-#include <math.h>
-
-static void voltage_test_initializes(void) {
-  TEST_MESSAGE("user initializes the ADS1115 voltage monitor");
+static void test_voltage_initializes(void) {
+  GIVEN("Wire1 with power enabled");
+  WHEN("the ADS1115 is initialized");
   test_ensure_wire1_with_power();
   hardware::i2c::initialize();
 
@@ -184,12 +183,11 @@ static void voltage_test_initializes(void) {
     TEST_IGNORE_MESSAGE("voltage::initialize() failed — skipping");
     return;
   }
-
-  TEST_MESSAGE("ADS1115 initialized behind TCA9548A mux");
 }
 
-static void voltage_test_reads_channels(void) {
-  TEST_MESSAGE("user reads all 4 voltage channels");
+static void test_voltage_reads_channels(void) {
+  GIVEN("an initialized ADS1115");
+  WHEN("all 4 channels are read");
 
   if (!sensors::voltage::isAvailable()) {
     TEST_IGNORE_MESSAGE("ADS1115 not available — skipping");
@@ -207,13 +205,14 @@ static void voltage_test_reads_channels(void) {
              sensor_data.channel_volts[channel]);
     TEST_MESSAGE(message);
 
-    TEST_ASSERT_FALSE_MESSAGE(isnan(sensor_data.channel_volts[channel]),
-      "device: channel voltage should not be NaN");
+    TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(sensor_data.channel_volts[channel],
+      "device: channel voltage must be a finite number (not NaN or infinity)");
   }
 }
 
-static void voltage_test_gain_label(void) {
-  TEST_MESSAGE("user checks the configured gain label");
+static void test_voltage_gain_label(void) {
+  GIVEN("an initialized ADS1115");
+  WHEN("the gain label is queried");
 
   if (!sensors::voltage::isAvailable()) {
     TEST_IGNORE_MESSAGE("ADS1115 not available — skipping");
@@ -223,14 +222,14 @@ static void voltage_test_gain_label(void) {
   const char *label = sensors::voltage::accessGainLabel();
   TEST_MESSAGE(label);
 
-  TEST_ASSERT_NOT_EQUAL_MESSAGE(0, strlen(label),
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(label,
     "device: gain label should not be empty");
   TEST_ASSERT_EQUAL_STRING_MESSAGE("GAIN_TWO", label,
     "device: default gain should be GAIN_TWO");
 }
 
-static void voltage_test_rejects_null_buffer(void) {
-  TEST_MESSAGE("user passes null buffer to read");
+static void test_voltage_rejects_null_buffer(void) {
+  WHEN("a null buffer is passed to access");
 
   bool success = sensors::voltage::access(nullptr);
   TEST_ASSERT_FALSE_MESSAGE(success,
@@ -238,14 +237,10 @@ static void voltage_test_rejects_null_buffer(void) {
 }
 
 void sensors::voltage::test() {
-  it("user observes that the ADS1115 initializes on Wire1",
-     voltage_test_initializes);
-  it("user reads voltage from all 4 channels",
-     voltage_test_reads_channels);
-  it("user verifies the gain label is GAIN_TWO",
-     voltage_test_gain_label);
-  it("user observes that null buffer is rejected",
-     voltage_test_rejects_null_buffer);
+  RUN_TEST(test_voltage_initializes);
+  RUN_TEST(test_voltage_reads_channels);
+  RUN_TEST(test_voltage_gain_label);
+  RUN_TEST(test_voltage_rejects_null_buffer);
 }
 
 #endif

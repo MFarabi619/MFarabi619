@@ -353,44 +353,44 @@ void programs::ssh_client::registerCommands() {
 #include <WiFi.h>
 #include "esp_ota_ops.h"
 
-static void ssh_client_test_ssh_exec_rejects_missing_args(void) {
-  TEST_MESSAGE("user runs ssh-exec without enough arguments");
+static void test_ssh_exec_rejects_missing_args(void) {
+  WHEN("ssh-exec is run without enough arguments");
   int rc = Console.run("ssh-exec");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: ssh-exec with no args should fail");
   rc = Console.run("ssh-exec host");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: ssh-exec with 1 arg should fail");
   rc = Console.run("ssh-exec host user");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: ssh-exec with 2 args should fail");
   rc = Console.run("ssh-exec host user pass");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: ssh-exec with 3 args should fail");
 }
 
-static void ssh_client_test_scp_get_rejects_missing_args(void) {
-  TEST_MESSAGE("user runs scp-get without enough arguments");
+static void test_scp_get_rejects_missing_args(void) {
+  WHEN("scp-get is run without enough arguments");
   int rc = Console.run("scp-get");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: scp-get with no args should fail");
   rc = Console.run("scp-get host user pass remote");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: scp-get with 4 args should fail");
 }
 
-static void ssh_client_test_scp_put_rejects_missing_args(void) {
-  TEST_MESSAGE("user runs scp-put without enough arguments");
+static void test_scp_put_rejects_missing_args(void) {
+  WHEN("scp-put is run without enough arguments");
   int rc = Console.run("scp-put");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: scp-put with no args should fail");
   rc = Console.run("scp-put host user pass local");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: scp-put with 4 args should fail");
 }
 
-static void ssh_client_test_ota_rejects_missing_args(void) {
-  TEST_MESSAGE("user runs ota without enough arguments");
+static void test_ota_rejects_missing_args(void) {
+  WHEN("ota is run without enough arguments");
   int rc = Console.run("ota");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: ota with no args should fail");
   rc = Console.run("ota host user");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc, "device: ota with 2 args should fail");
 }
 
-static void ssh_client_test_ota_partition_available(void) {
-  TEST_MESSAGE("user verifies OTA update partition exists");
+static void test_ota_partition_available(void) {
+  WHEN("the OTA update partition is queried");
   const esp_partition_t *target = esp_ota_get_next_update_partition(NULL);
   TEST_ASSERT_NOT_NULL_MESSAGE(target,
     "device: no OTA update partition — partition table may lack ota_0/ota_1");
@@ -399,14 +399,15 @@ static void ssh_client_test_ota_partition_available(void) {
   TEST_MESSAGE(msg);
 }
 
-static void ssh_client_test_ssh_exec_fails_on_unreachable_host(void) {
-  TEST_MESSAGE("user runs ssh-exec against unreachable host");
+static void test_ssh_exec_fails_on_unreachable_host(void) {
+  WHEN("ssh-exec targets an unreachable host");
   if (!WiFi.isConnected()) {
     TEST_IGNORE_MESSAGE("skipped — WiFi not connected");
     return;
   }
   int rc = Console.run("ssh-exec 192.0.2.1 user pass echo hi");
-  TEST_ASSERT_EQUAL_INT(1, rc);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, rc,
+    "device: ssh-exec to unreachable host should fail");
 }
 
 // TODO: End-to-end tests — require a reachable SSH server.
@@ -444,18 +445,12 @@ static void ssh_client_test_ssh_exec_fails_on_unreachable_host(void) {
 // }
 
 void programs::ssh_client::test() {
-  it("user observes ssh-exec rejects missing arguments",
-     ssh_client_test_ssh_exec_rejects_missing_args);
-  it("user observes scp-get rejects missing arguments",
-     ssh_client_test_scp_get_rejects_missing_args);
-  it("user observes scp-put rejects missing arguments",
-     ssh_client_test_scp_put_rejects_missing_args);
-  it("user observes ota rejects missing arguments",
-     ssh_client_test_ota_rejects_missing_args);
-  it("user observes OTA update partition is available",
-     ssh_client_test_ota_partition_available);
-  it("user observes ssh-exec fails on unreachable host",
-     ssh_client_test_ssh_exec_fails_on_unreachable_host);
+  RUN_TEST(test_ssh_exec_rejects_missing_args);
+  RUN_TEST(test_scp_get_rejects_missing_args);
+  RUN_TEST(test_scp_put_rejects_missing_args);
+  RUN_TEST(test_ota_rejects_missing_args);
+  RUN_TEST(test_ota_partition_available);
+  RUN_TEST(test_ssh_exec_fails_on_unreachable_host);
 
   // TODO: Uncomment when test SSH server is available
   // it("user executes remote command via ssh-exec",

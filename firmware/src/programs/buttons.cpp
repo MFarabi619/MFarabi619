@@ -156,8 +156,9 @@ void programs::buttons::reset(uint8_t index) {
 
 #include <testing/utils.h>
 
-static void buttons_test_config_valid(void) {
-  TEST_MESSAGE("user verifies button GPIO configuration");
+static void test_buttons_config_valid(void) {
+  GIVEN("the button GPIO configuration");
+  THEN("it matches the expected layout");
 
   TEST_ASSERT_EQUAL_INT_MESSAGE(3, config::buttons::COUNT,
       "device: should have 3 button slots");
@@ -174,22 +175,24 @@ static void buttons_test_config_valid(void) {
   TEST_MESSAGE(msg);
 }
 
-static void buttons_test_disabled_gpio_rejected(void) {
-  TEST_MESSAGE("user checks that disabled GPIO returns false for isPressed");
+static void test_buttons_disabled_gpio_rejected(void) {
+  WHEN("isPressed is called on a disabled GPIO");
+  THEN("it returns false");
   TEST_ASSERT_FALSE_MESSAGE(programs::buttons::isPressed(0),
       "device: button 0 (GPIO -1) should always return false");
 }
 
-static void buttons_test_out_of_range_rejected(void) {
-  TEST_MESSAGE("user checks that out-of-range index returns false");
+static void test_buttons_out_of_range_rejected(void) {
+  WHEN("isPressed is called with an out-of-range index");
+  THEN("it returns false");
   TEST_ASSERT_FALSE_MESSAGE(programs::buttons::isPressed(255),
       "device: index 255 should return false");
 }
 
 void programs::buttons::test() {
-  it("user verifies button GPIO configuration", buttons_test_config_valid);
-  it("user checks that disabled GPIO returns false", buttons_test_disabled_gpio_rejected);
-  it("user checks that out-of-range index is rejected", buttons_test_out_of_range_rejected);
+  RUN_TEST(test_buttons_config_valid);
+  RUN_TEST(test_buttons_disabled_gpio_rejected);
+  RUN_TEST(test_buttons_out_of_range_rejected);
 }
 
 #endif

@@ -137,8 +137,8 @@ uint8_t sensors::soil::probeCount() {
 
 #include <testing/utils.h>
 
-static void soil_test_config_lookup(void) {
-  TEST_MESSAGE("user checks if soil probes are in the modbus topology");
+static void test_soil_config_lookup(void) {
+  WHEN("the modbus topology is checked for soil probes");
 
   uint8_t count = 0;
   for (size_t i = 0; i < config::modbus::DEVICE_COUNT; i++) {
@@ -156,23 +156,25 @@ static void soil_test_config_lookup(void) {
   TEST_MESSAGE(msg);
 }
 
-static void soil_test_rejects_null(void) {
-  TEST_MESSAGE("user passes null buffer to access");
+static void test_soil_rejects_null(void) {
+  WHEN("a null buffer is passed to access");
+  THEN("it returns false");
   TEST_ASSERT_FALSE_MESSAGE(sensors::soil::access(0, nullptr),
       "device: access should fail with null pointer");
 }
 
-static void soil_test_rejects_out_of_range(void) {
-  TEST_MESSAGE("user requests probe index beyond count");
+static void test_soil_rejects_out_of_range(void) {
+  WHEN("an out-of-range probe index is requested");
+  THEN("it returns false");
   SoilSensorData data = {};
   TEST_ASSERT_FALSE_MESSAGE(sensors::soil::access(255, &data),
       "device: access should fail for invalid index");
 }
 
 void sensors::soil::test() {
-  it("user checks soil probe config lookup", soil_test_config_lookup);
-  it("user observes that null buffer is rejected", soil_test_rejects_null);
-  it("user observes that out-of-range index is rejected", soil_test_rejects_out_of_range);
+  RUN_TEST(test_soil_config_lookup);
+  RUN_TEST(test_soil_rejects_null);
+  RUN_TEST(test_soil_rejects_out_of_range);
 }
 
 #endif

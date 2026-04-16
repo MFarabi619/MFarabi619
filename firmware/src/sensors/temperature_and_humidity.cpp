@@ -265,8 +265,9 @@ uint8_t sensors::temperature_and_humidity::accessAll(TemperatureHumiditySensorDa
 #include <testing/utils.h>
 
 
-static void temperature_and_humidity_test_discovers_sensors(void) {
-  TEST_MESSAGE("user discovers temperature and humidity sensors from the I2C topology");
+static void test_temp_humidity_discovers_sensors(void) {
+  GIVEN("Wire1 with power enabled");
+  WHEN("sensors are discovered from the I2C topology");
   test_ensure_wire1_with_power();
   hardware::i2c::initialize();
 
@@ -280,8 +281,9 @@ static void temperature_and_humidity_test_discovers_sensors(void) {
   }
 }
 
-static void temperature_and_humidity_test_reads_plausible_values(void) {
-  TEST_MESSAGE("user reads temperature and humidity from sensor 0");
+static void test_temp_humidity_reads_plausible_values(void) {
+  GIVEN("at least one discovered sensor");
+  WHEN("sensor 0 is read");
 
   if (sensors::temperature_and_humidity::sensorCount() == 0) {
     TEST_IGNORE_MESSAGE("no sensors discovered, skipping");
@@ -303,14 +305,18 @@ static void temperature_and_humidity_test_reads_plausible_values(void) {
            sensor_data.relative_humidity_percent);
   TEST_MESSAGE(message);
 
-  TEST_ASSERT_FLOAT_WITHIN_MESSAGE(62.5f, 22.5f, sensor_data.temperature_celsius,
-    "device: temperature out of plausible range (-40 to 85 C)");
-  TEST_ASSERT_FLOAT_WITHIN_MESSAGE(50.0f, 50.0f, sensor_data.relative_humidity_percent,
-    "device: humidity out of plausible range (0 to 100 %)");
+  TEST_ASSERT_GREATER_OR_EQUAL_FLOAT_MESSAGE(-40.0f, sensor_data.temperature_celsius,
+    "device: temperature below SHT3x minimum (-40 C)");
+  TEST_ASSERT_LESS_OR_EQUAL_FLOAT_MESSAGE(85.0f, sensor_data.temperature_celsius,
+    "device: temperature above SHT3x maximum (85 C)");
+  TEST_ASSERT_GREATER_OR_EQUAL_FLOAT_MESSAGE(0.0f, sensor_data.relative_humidity_percent,
+    "device: humidity below 0 %");
+  TEST_ASSERT_LESS_OR_EQUAL_FLOAT_MESSAGE(100.0f, sensor_data.relative_humidity_percent,
+    "device: humidity above 100 %");
 }
 
-static void temperature_and_humidity_test_rejects_out_of_range_index(void) {
-  TEST_MESSAGE("user reads with an index beyond discovered count");
+static void test_temp_humidity_rejects_out_of_range_index(void) {
+  WHEN("an out-of-range sensor index is read");
 
   TemperatureHumiditySensorData sensor_data = {};
   bool success = sensors::temperature_and_humidity::access(
@@ -320,8 +326,9 @@ static void temperature_and_humidity_test_rejects_out_of_range_index(void) {
     "device: read should fail for index >= sensor_count");
 }
 
-static void temperature_and_humidity_test_reads_all_sensors(void) {
-  TEST_MESSAGE("user reads all discovered sensors");
+static void test_temp_humidity_reads_all_sensors(void) {
+  GIVEN("discovered sensors");
+  WHEN("all sensors are read");
 
   if (sensors::temperature_and_humidity::sensorCount() == 0) {
     TEST_IGNORE_MESSAGE("no temperature/humidity sensors discovered");
@@ -357,8 +364,9 @@ static void temperature_and_humidity_test_reads_all_sensors(void) {
   }
 }
 
-static void temperature_and_humidity_test_cht832x_manufacturer_id(void) {
-  TEST_MESSAGE("user reads manufacturer ID from the first discovered CHT832X sensor");
+static void test_temp_humidity_cht832x_manufacturer_id(void) {
+  GIVEN("a discovered CHT832X sensor");
+  WHEN("the manufacturer ID is read");
 
   if (sensors::temperature_and_humidity::sensorCount() == 0) {
     test_ensure_wire1_with_power();
@@ -399,16 +407,11 @@ static void temperature_and_humidity_test_cht832x_manufacturer_id(void) {
 }
 
 void sensors::temperature_and_humidity::test() {
-  it("user discovers temperature and humidity sensors from the topology table",
-     temperature_and_humidity_test_discovers_sensors);
-  it("user reads plausible temperature and humidity from sensor 0",
-     temperature_and_humidity_test_reads_plausible_values);
-  it("user observes that out of range index is rejected",
-     temperature_and_humidity_test_rejects_out_of_range_index);
-  it("user reads all discovered sensors",
-     temperature_and_humidity_test_reads_all_sensors);
-  it("user verifies a discovered CHT832X reports manufacturer ID 0x5959",
-     temperature_and_humidity_test_cht832x_manufacturer_id);
+  RUN_TEST(test_temp_humidity_discovers_sensors);
+  RUN_TEST(test_temp_humidity_reads_plausible_values);
+  RUN_TEST(test_temp_humidity_rejects_out_of_range_index);
+  RUN_TEST(test_temp_humidity_reads_all_sensors);
+  RUN_TEST(test_temp_humidity_cht832x_manufacturer_id);
 }
 
 #endif

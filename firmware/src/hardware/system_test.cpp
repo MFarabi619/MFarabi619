@@ -14,24 +14,26 @@ namespace hardware::system { void test(void); }
 //  Chip temperature
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void system_test_temperature_read(void) {
-  TEST_MESSAGE("user reads internal chip temperature");
+static void test_system_temperature_read(void) {
+  WHEN("the chip temperature is read");
 
   float temp = temperatureRead();
   char msg[64];
   snprintf(msg, sizeof(msg), "chip temperature: %.1f C", temp);
   TEST_MESSAGE(msg);
 
-  TEST_ASSERT_FLOAT_WITHIN_MESSAGE(50.0f, 50.0f, temp,
-    "device: chip temperature outside 0-100 C range");
+  TEST_ASSERT_GREATER_OR_EQUAL_FLOAT_MESSAGE(0.0f, temp,
+    "device: chip temperature below 0 C");
+  TEST_ASSERT_LESS_OR_EQUAL_FLOAT_MESSAGE(100.0f, temp,
+    "device: chip temperature above 100 C");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  FreeRTOS task list
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void system_test_task_list(void) {
-  TEST_MESSAGE("user lists all FreeRTOS tasks");
+static void test_system_task_list(void) {
+  WHEN("the FreeRTOS task list is queried");
 
   uint32_t count = uxTaskGetNumberOfTasks();
   TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(0, count,
@@ -72,8 +74,8 @@ static void system_test_task_list(void) {
 //  Firmware integrity (sketch MD5, size, free space)
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void system_test_sketch_md5(void) {
-  TEST_MESSAGE("user verifies firmware integrity hash");
+static void test_system_sketch_md5(void) {
+  WHEN("the firmware integrity hash is read");
 
   String md5 = ESP.getSketchMD5();
   TEST_ASSERT_EQUAL_UINT32_MESSAGE(32, md5.length(),
@@ -84,8 +86,8 @@ static void system_test_sketch_md5(void) {
   TEST_MESSAGE(msg);
 }
 
-static void system_test_sketch_size(void) {
-  TEST_MESSAGE("user verifies firmware size and free OTA space");
+static void test_system_sketch_size(void) {
+  WHEN("the firmware size and free OTA space are queried");
 
   uint32_t sketch_size = ESP.getSketchSize();
   uint32_t free_space = ESP.getFreeSketchSpace();
@@ -106,8 +108,8 @@ static void system_test_sketch_size(void) {
 //  Watchdog timer
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void system_test_watchdog(void) {
-  TEST_MESSAGE("user verifies watchdog can be enabled and fed");
+static void test_system_watchdog(void) {
+  WHEN("the watchdog is enabled and fed");
 
   // These should not crash
   enableLoopWDT();
@@ -115,15 +117,14 @@ static void system_test_watchdog(void) {
   feedLoopWDT();
   disableLoopWDT();
 
-  TEST_MESSAGE("enableLoopWDT / feedLoopWDT / disableLoopWDT all safe");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Heap fragmentation
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void system_test_heap_fragmentation(void) {
-  TEST_MESSAGE("user checks heap fragmentation");
+static void test_system_heap_fragmentation(void) {
+  WHEN("heap fragmentation is measured");
 
   uint32_t free_heap = ESP.getFreeHeap();
   uint32_t max_alloc = ESP.getMaxAllocHeap();
@@ -154,8 +155,8 @@ static void system_test_heap_fragmentation(void) {
 //  Flash chip info
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void system_test_flash_chip_info(void) {
-  TEST_MESSAGE("user reads flash chip configuration");
+static void test_system_flash_chip_info(void) {
+  WHEN("the flash chip configuration is read");
 
   uint32_t flash_size = ESP.getFlashChipSize();
   uint32_t flash_speed = ESP.getFlashChipSpeed();
@@ -187,8 +188,8 @@ static void system_test_flash_chip_info(void) {
 //  CPU frequency
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void system_test_cpu_frequency(void) {
-  TEST_MESSAGE("user reads CPU frequency");
+static void test_system_cpu_frequency(void) {
+  WHEN("the CPU frequency is read");
 
   uint32_t freq = ESP.getCpuFreqMHz();
   TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(0, freq,
@@ -207,16 +208,16 @@ static void system_test_cpu_frequency(void) {
 //  Version strings
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void system_test_version_strings(void) {
-  TEST_MESSAGE("user reads firmware and SDK version strings");
+static void test_system_version_strings(void) {
+  WHEN("the firmware and SDK version strings are read");
 
   const char *sdk = ESP.getSdkVersion();
   const char *idf = esp_get_idf_version();
   const char *chip = ESP.getChipModel();
 
-  TEST_ASSERT_NOT_NULL(sdk);
-  TEST_ASSERT_NOT_NULL(idf);
-  TEST_ASSERT_NOT_NULL(chip);
+  TEST_ASSERT_NOT_NULL_MESSAGE(sdk, "device: ESP SDK version string is null");
+  TEST_ASSERT_NOT_NULL_MESSAGE(idf, "device: ESP-IDF version string is null");
+  TEST_ASSERT_NOT_NULL_MESSAGE(chip, "device: chip model string is null");
 
   char msg[128];
   snprintf(msg, sizeof(msg), "chip=%s cores=%u rev=%u arduino=%s idf=%s",
@@ -230,24 +231,15 @@ static void system_test_version_strings(void) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 void hardware::system::test(void) {
-  it("user observes chip temperature is readable",
-     system_test_temperature_read);
-  it("user observes FreeRTOS task list",
-     system_test_task_list);
-  it("user observes firmware MD5 integrity hash",
-     system_test_sketch_md5);
-  it("user observes firmware size and OTA free space",
-     system_test_sketch_size);
-  it("user observes watchdog timer is safe to enable and feed",
-     system_test_watchdog);
-  it("user observes heap fragmentation metrics",
-     system_test_heap_fragmentation);
-  it("user observes flash chip configuration",
-     system_test_flash_chip_info);
-  it("user observes CPU frequency is 240 MHz",
-     system_test_cpu_frequency);
-  it("user observes firmware and SDK version strings",
-     system_test_version_strings);
+  RUN_TEST(test_system_temperature_read);
+  RUN_TEST(test_system_task_list);
+  RUN_TEST(test_system_sketch_md5);
+  RUN_TEST(test_system_sketch_size);
+  RUN_TEST(test_system_watchdog);
+  RUN_TEST(test_system_heap_fragmentation);
+  RUN_TEST(test_system_flash_chip_info);
+  RUN_TEST(test_system_cpu_frequency);
+  RUN_TEST(test_system_version_strings);
 }
 
 #endif

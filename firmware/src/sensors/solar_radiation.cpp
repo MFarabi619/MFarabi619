@@ -83,8 +83,8 @@ bool sensors::solar_radiation::isAvailable() {
 
 #include <testing/utils.h>
 
-static void solar_radiation_test_config_lookup(void) {
-  TEST_MESSAGE("user checks if solar radiation is in the modbus topology");
+static void test_solar_radiation_config_lookup(void) {
+  WHEN("the modbus topology is checked for solar radiation");
 
   const config::ModbusSensorConfig *cfg = nullptr;
   for (size_t i = 0; i < config::modbus::DEVICE_COUNT; i++) {
@@ -105,15 +105,16 @@ static void solar_radiation_test_config_lookup(void) {
   TEST_MESSAGE(msg);
 }
 
-static void solar_radiation_test_rejects_null(void) {
-  TEST_MESSAGE("user passes null buffer to access");
+static void test_solar_radiation_rejects_null(void) {
+  WHEN("a null buffer is passed to access");
+  THEN("it returns false");
   TEST_ASSERT_FALSE_MESSAGE(sensors::solar_radiation::access(nullptr),
       "device: access should fail with null pointer");
 }
 
 void sensors::solar_radiation::test() {
-  it("user checks solar radiation config lookup", solar_radiation_test_config_lookup);
-  it("user observes that null buffer is rejected", solar_radiation_test_rejects_null);
+  RUN_TEST(test_solar_radiation_config_lookup);
+  RUN_TEST(test_solar_radiation_rejects_null);
 }
 
 #endif

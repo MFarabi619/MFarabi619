@@ -272,23 +272,24 @@ static bool test_open_namespace(const char *name_space, bool readonly,
   return prefs && prefs->begin(name_space, readonly);
 }
 
-static void provisioning_test_detects_provisioned_with_credentials(void) {
-  TEST_MESSAGE("user verifies provisioning detection");
+static void test_provisioning_detects_credentials(void) {
+  GIVEN("build flags with WiFi credentials");
+  THEN("provisioning state is detected");
 
 #if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
   if (strlen(CONFIG_WIFI_SSID) > 0) {
     TEST_ASSERT_TRUE_MESSAGE(
         boot::provisioning::isProvisioned(),
         "device: should be provisioned when build flags have SSID");
-    TEST_MESSAGE("provisioned via build flags");
     return;
   }
 
 #endif
 }
 
-static void provisioning_test_custom_config_roundtrip(void) {
-  TEST_MESSAGE("user stores and retrieves custom config via NVS");
+static void test_provisioning_config_roundtrip(void) {
+  GIVEN("custom provisioning values written to NVS");
+  WHEN("they are read back");
 
   char username[64] = {0};
   char api_key[64] = {0};
@@ -336,8 +337,9 @@ static void provisioning_test_custom_config_roundtrip(void) {
       "device: device name mismatch after roundtrip");
 }
 
-static void provisioning_test_reset_clears_all(void) {
-  TEST_MESSAGE("user resets provisioning and verifies cleanup");
+static void test_provisioning_reset_clears_all(void) {
+  GIVEN("provisioning and WiFi NVS entries");
+  WHEN("reset is called");
 
   WifiNvsSnapshot wifi_snapshot = {};
   wifi_nvs_save(&wifi_snapshot);
@@ -400,8 +402,9 @@ static void provisioning_test_reset_clears_all(void) {
   wifi_nvs_restore(&wifi_snapshot);
 }
 
-static void provisioning_test_empty_config_returns_false(void) {
-  TEST_MESSAGE("user reads config from empty NVS and gets false");
+static void test_provisioning_empty_returns_false(void) {
+  GIVEN("a cleared NVS namespace");
+  WHEN("identity fields are read");
 
   {
     Preferences prefs;
@@ -426,8 +429,9 @@ static void provisioning_test_empty_config_returns_false(void) {
                             "device: missing device name should return false");
 }
 
-static void provisioning_test_service_uuids_configured(void) {
-  TEST_MESSAGE("user verifies BLE provisioning UUIDs are configured");
+static void test_provisioning_uuids_configured(void) {
+  GIVEN("BLE provisioning constants");
+  THEN("UUIDs are configured and non-empty");
 
   TEST_ASSERT_NOT_NULL_MESSAGE(
       config::provisioning::SERVICE_UUID,
@@ -435,25 +439,18 @@ static void provisioning_test_service_uuids_configured(void) {
   TEST_ASSERT_NOT_NULL_MESSAGE(
       config::provisioning::CONFIG_UUID,
       "device: provisioning config UUID must be configured");
-  TEST_ASSERT_GREATER_THAN_MESSAGE(
-      0, (int)strlen(config::provisioning::SERVICE_UUID),
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(config::provisioning::SERVICE_UUID,
       "device: provisioning service UUID must not be empty");
-  TEST_ASSERT_GREATER_THAN_MESSAGE(
-      0, (int)strlen(config::provisioning::CONFIG_UUID),
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(config::provisioning::CONFIG_UUID,
       "device: provisioning config UUID must not be empty");
 }
 
 void boot::provisioning::test(void) {
-  it("user observes provisioning state detection works",
-     provisioning_test_detects_provisioned_with_credentials);
-  it("user stores and retrieves custom config via NVS",
-     provisioning_test_custom_config_roundtrip);
-  it("user resets provisioning and verifies cleanup",
-     provisioning_test_reset_clears_all);
-  it("user reads config from empty NVS and gets false",
-     provisioning_test_empty_config_returns_false);
-  it("user verifies BLE provisioning UUIDs are configured",
-     provisioning_test_service_uuids_configured);
+  RUN_TEST(test_provisioning_detects_credentials);
+  RUN_TEST(test_provisioning_config_roundtrip);
+  RUN_TEST(test_provisioning_reset_clears_all);
+  RUN_TEST(test_provisioning_empty_returns_false);
+  RUN_TEST(test_provisioning_uuids_configured);
 }
 
 #endif

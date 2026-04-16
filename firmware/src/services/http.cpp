@@ -14,15 +14,14 @@
 //  Unit Tests
 // ─────────────────────────────────────────────────────────────────────────────
 
-static void http_test_port_default(void) {
-  TEST_MESSAGE("user verifies HTTP server configuration");
+static void test_http_port_default(void) {
+  THEN("the HTTP port is 80");
   TEST_ASSERT_EQUAL_INT_MESSAGE(80, config::http::PORT,
     "device: HTTP port should be 80");
-  TEST_MESSAGE("HTTP port is 80");
 }
 
-static void json_test_create_and_serialize(void) {
-  TEST_MESSAGE("user creates a JSON document, serializes, and deserializes to verify");
+static void test_json_create_and_serialize(void) {
+  WHEN("a JSON document is created and serialized");
 
   JsonDocument doc;
   doc["hostname"] = "microvisor";
@@ -47,8 +46,8 @@ static void json_test_create_and_serialize(void) {
   TEST_MESSAGE(buf);
 }
 
-static void json_test_measure_length(void) {
-  TEST_MESSAGE("user measures JSON length before serializing");
+static void test_json_measure_length(void) {
+  WHEN("measureJson is compared to serializeJson length");
 
   JsonDocument doc;
   doc["key"] = "value";
@@ -65,8 +64,8 @@ static void json_test_measure_length(void) {
   TEST_MESSAGE(msg);
 }
 
-static void json_test_deserialize(void) {
-  TEST_MESSAGE("user deserializes a JSON string and reads values");
+static void test_json_deserialize(void) {
+  WHEN("a JSON string is deserialized");
 
   const char *input = "{\"sensor\":\"scd4x\",\"co2\":412,\"temp\":23.5,\"ok\":true}";
   JsonDocument doc;
@@ -78,16 +77,15 @@ static void json_test_deserialize(void) {
     "device: sensor value mismatch");
   TEST_ASSERT_EQUAL_INT_MESSAGE(412, doc["co2"].as<int>(),
     "device: co2 value mismatch");
-  TEST_ASSERT_FLOAT_WITHIN_MESSAGE(0.01f, 23.5f, doc["temp"].as<float>(),
+  TEST_ASSERT_EQUAL_FLOAT_MESSAGE(23.5f, doc["temp"].as<float>(),
     "device: temp value mismatch");
   TEST_ASSERT_TRUE_MESSAGE(doc["ok"].as<bool>(),
     "device: ok should be true");
 
-  TEST_MESSAGE("deserialization verified");
 }
 
-static void json_test_default_values(void) {
-  TEST_MESSAGE("user reads missing keys with defaults using | operator");
+static void test_json_default_values(void) {
+  WHEN("missing keys are read with the | operator");
 
   JsonDocument doc;
   deserializeJson(doc, "{\"port\":8080}");
@@ -100,11 +98,10 @@ static void json_test_default_values(void) {
   TEST_ASSERT_EQUAL_INT_MESSAGE(5000, missing,
     "device: missing key should return default");
 
-  TEST_MESSAGE("default value operator | verified");
 }
 
-static void json_test_nested_objects_and_arrays(void) {
-  TEST_MESSAGE("user creates nested objects and arrays");
+static void test_json_nested_objects_and_arrays(void) {
+  WHEN("nested objects and arrays are created");
 
   JsonDocument doc;
   doc["device"] = "microvisor";
@@ -132,8 +129,8 @@ static void json_test_nested_objects_and_arrays(void) {
   TEST_MESSAGE(buf);
 }
 
-static void json_test_file_roundtrip(void) {
-  TEST_MESSAGE("user writes JSON to LittleFS and reads it back");
+static void test_json_file_roundtrip(void) {
+  WHEN("JSON is written to LittleFS and read back");
 
   TEST_ASSERT_TRUE_MESSAGE(LittleFS.begin(false),
     "device: LittleFS mount failed before JSON file roundtrip");
@@ -161,16 +158,15 @@ static void json_test_file_roundtrip(void) {
     "device: port mismatch after file roundtrip");
 
   LittleFS.remove(path);
-  TEST_MESSAGE("JSON file roundtrip verified");
 }
 
-static void http_test_cors_allows_patch(void) {
-  TEST_MESSAGE("user verifies CORS allows PATCH for rename endpoint");
+static void test_http_cors_allows_patch(void) {
+  THEN("CORS allows PATCH method");
   TEST_IGNORE_MESSAGE("CORS config verified by code review — test with browser");
 }
 
-static void http_test_public_endpoints_no_auth(void) {
-  TEST_MESSAGE("user documents which endpoints are public (no auth required)");
+static void test_http_public_endpoints_no_auth(void) {
+  THEN("public endpoints require no auth");
   // These endpoints must remain accessible without authentication:
   //   GET /api/wifi
   //   GET /api/system/device/status
@@ -178,14 +174,16 @@ static void http_test_public_endpoints_no_auth(void) {
   //   GET /api/wireless/status
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, CERATINA_HTTP_AUTH_ENABLED,
     "device: auth is disabled by default — enable to test auth enforcement");
-  TEST_MESSAGE("public endpoints documented");
 }
 
-static void http_test_auth_config(void) {
-  TEST_MESSAGE("user verifies auth configuration defaults");
-  TEST_ASSERT_NOT_NULL(config::http::AUTH_USER);
-  TEST_ASSERT_NOT_NULL(config::http::AUTH_PASSWORD);
-  TEST_ASSERT_NOT_NULL(config::http::AUTH_REALM);
+static void test_http_auth_config(void) {
+  THEN("auth configuration defaults are valid");
+  TEST_ASSERT_NOT_NULL_MESSAGE(config::http::AUTH_USER,
+    "device: HTTP auth user must not be null");
+  TEST_ASSERT_NOT_NULL_MESSAGE(config::http::AUTH_PASSWORD,
+    "device: HTTP auth password must not be null");
+  TEST_ASSERT_NOT_NULL_MESSAGE(config::http::AUTH_REALM,
+    "device: HTTP auth realm must not be null");
   TEST_ASSERT_EQUAL_STRING_MESSAGE("ceratina", config::http::AUTH_REALM,
     "device: auth realm should be 'ceratina'");
 
@@ -195,23 +193,23 @@ static void http_test_auth_config(void) {
   TEST_MESSAGE(msg);
 }
 
-static void http_test_rate_limit_policy(void) {
-  TEST_MESSAGE("user documents rate limit policy for expensive endpoints");
+static void test_http_rate_limit_policy(void) {
+  THEN("rate limit policy is documented");
   TEST_IGNORE_MESSAGE("rate limit policy documented — test with curl");
 }
 
 void services::http::test(void) {
-  it("user observes that HTTP port is configured to 80", http_test_port_default);
-  it("user observes that ArduinoJson creates and serializes a document", json_test_create_and_serialize);
-  it("user observes that measureJson matches actual serialized length", json_test_measure_length);
-  it("user observes that ArduinoJson deserializes and reads values correctly", json_test_deserialize);
-  it("user observes that missing keys return defaults via | operator", json_test_default_values);
-  it("user observes that nested objects and arrays work", json_test_nested_objects_and_arrays);
-  it("user observes that JSON roundtrips through LittleFS", json_test_file_roundtrip);
-  it("user observes that CORS allows PATCH method", http_test_cors_allows_patch);
-  it("user observes which endpoints are public", http_test_public_endpoints_no_auth);
-  it("user observes auth configuration defaults", http_test_auth_config);
-  it("user observes rate limit policy for expensive endpoints", http_test_rate_limit_policy);
+  RUN_TEST(test_http_port_default);
+  RUN_TEST(test_json_create_and_serialize);
+  RUN_TEST(test_json_measure_length);
+  RUN_TEST(test_json_deserialize);
+  RUN_TEST(test_json_default_values);
+  RUN_TEST(test_json_nested_objects_and_arrays);
+  RUN_TEST(test_json_file_roundtrip);
+  RUN_TEST(test_http_cors_allows_patch);
+  RUN_TEST(test_http_public_endpoints_no_auth);
+  RUN_TEST(test_http_auth_config);
+  RUN_TEST(test_http_rate_limit_policy);
 }
 
 namespace services::http_e2e { void test(void); }

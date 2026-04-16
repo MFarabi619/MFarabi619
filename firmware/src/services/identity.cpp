@@ -122,15 +122,16 @@ bool services::identity::accessSnapshot(DeviceIdentitySnapshot *snapshot) {
 
 #include <testing/utils.h>
 
-static void identity_test_hostname_default(void) {
-  TEST_MESSAGE("user checks boot-time hostname");
+static void test_identity_hostname_default(void) {
+  GIVEN("a freshly booted device");
+  THEN("hostname matches config::HOSTNAME");
   TEST_ASSERT_EQUAL_STRING_MESSAGE(
       config::HOSTNAME, services::identity::access_hostname(),
       "device: boot-time hostname should match config::HOSTNAME");
 }
 
-static void identity_test_hostname_truncation(void) {
-  TEST_MESSAGE("user sets a hostname longer than config::shell::HOSTNAME_SIZE");
+static void test_identity_hostname_truncation(void) {
+  WHEN("a hostname longer than HOSTNAME_SIZE is set");
 
   char long_name[config::shell::HOSTNAME_SIZE + 20];
   memset(long_name, 'A', sizeof(long_name) - 1);
@@ -145,8 +146,8 @@ static void identity_test_hostname_truncation(void) {
   services::identity::configure_hostname(config::HOSTNAME);
 }
 
-static void identity_test_username_roundtrip(void) {
-  TEST_MESSAGE("user stores and reads username metadata");
+static void test_identity_username_roundtrip(void) {
+  WHEN("a username is stored and read back");
   TEST_ASSERT_TRUE_MESSAGE(services::identity::configure_username("alice"),
                            "device: username should be writable");
 
@@ -162,8 +163,8 @@ static void identity_test_username_roundtrip(void) {
                                    "device: username mismatch after roundtrip");
 }
 
-static void identity_test_device_name_roundtrip(void) {
-  TEST_MESSAGE("user stores and reads device name metadata");
+static void test_identity_device_name_roundtrip(void) {
+  WHEN("a device name is stored and read back");
   TEST_ASSERT_TRUE_MESSAGE(
       services::identity::configureDeviceName("ceratina-lab"),
       "device: device_name should be writable");
@@ -181,8 +182,8 @@ static void identity_test_device_name_roundtrip(void) {
       "device: device_name mismatch after roundtrip");
 }
 
-static void identity_test_api_key_roundtrip(void) {
-  TEST_MESSAGE("user stores and reads api key metadata");
+static void test_identity_api_key_roundtrip(void) {
+  WHEN("an API key is stored and read back");
   TEST_ASSERT_TRUE_MESSAGE(services::identity::configureAPIKey("secret-key"),
                            "device: api_key should be writable");
 
@@ -199,16 +200,11 @@ static void identity_test_api_key_roundtrip(void) {
 }
 
 void services::identity::test() {
-  it("user observes that the default hostname matches config::HOSTNAME",
-     identity_test_hostname_default);
-  it("user observes that long hostnames are truncated",
-     identity_test_hostname_truncation);
-  it("user stores and retrieves username metadata",
-     identity_test_username_roundtrip);
-  it("user stores and retrieves device name metadata",
-     identity_test_device_name_roundtrip);
-  it("user stores and retrieves api key metadata",
-     identity_test_api_key_roundtrip);
+  RUN_TEST(test_identity_hostname_default);
+  RUN_TEST(test_identity_hostname_truncation);
+  RUN_TEST(test_identity_username_roundtrip);
+  RUN_TEST(test_identity_device_name_roundtrip);
+  RUN_TEST(test_identity_api_key_roundtrip);
 }
 
 #endif

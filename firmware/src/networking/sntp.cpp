@@ -83,8 +83,9 @@ static WifiNvsSnapshot saved;
 static void save_nvs(void) { wifi_nvs_save(&saved); }
 static void restore_nvs(void) { wifi_nvs_restore(&saved); }
 
-static void sntp_test_config_defaults(void) {
-  TEST_MESSAGE("user verifies NTP configuration");
+static void test_sntp_config_defaults(void) {
+  GIVEN("the NTP configuration");
+  THEN("all required fields are set");
 
   TEST_ASSERT_NOT_NULL_MESSAGE(config::sntp::SERVER_1,
     "device: NTP server must not be NULL");
@@ -97,20 +98,21 @@ static void sntp_test_config_defaults(void) {
   TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(0, config::sntp::SYNC_TIMEOUT_MS,
     "device: sync timeout must be > 0");
 
-  TEST_MESSAGE("NTP configuration is valid");
 }
 
-static void sntp_test_not_synced_before_connect(void) {
-  TEST_MESSAGE("user checks NTP status before WiFi");
+static void test_sntp_not_synced_before_connect(void) {
+  GIVEN("WiFi has not connected yet");
+  THEN("NTP reports not synced");
 
   TEST_ASSERT_FALSE_MESSAGE(networking::sntp::isSynced(),
     "device: NTP should not be synced before wifi_connect");
 
-  TEST_MESSAGE("NTP is not synced before WiFi");
 }
 
-static void sntp_test_syncs_and_updates_rtc(void) {
-  TEST_MESSAGE("user connects WiFi, syncs NTP, and verifies RTC is updated");
+static void test_sntp_syncs_and_updates_rtc(void) {
+  GIVEN("WiFi is connected");
+  WHEN("NTP sync completes");
+  THEN("the RTC is updated to match");
 
   save_nvs();
 
@@ -121,7 +123,6 @@ static void sntp_test_syncs_and_updates_rtc(void) {
     return;
   }
 
-  TEST_MESSAGE("WiFi connected, starting NTP sync...");
   services::rtc::initialize();
   uint32_t rtc_before = services::rtc::accessEpoch();
 
@@ -148,18 +149,13 @@ static void sntp_test_syncs_and_updates_rtc(void) {
   TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(1735689600, ntp_epoch,
     "device: NTP epoch is before 2025 — sync may have failed");
 
-  TEST_MESSAGE("NTP synced and RTC updated to UTC");
-
   restore_nvs();
 }
 
 void networking::sntp::test(void) {
-  it("user observes that NTP configuration is valid",
-     sntp_test_config_defaults);
-  it("user observes that NTP is not synced before WiFi",
-     sntp_test_not_synced_before_connect);
-  it("user observes that NTP syncs and updates the RTC",
-     sntp_test_syncs_and_updates_rtc);
+  RUN_TEST(test_sntp_config_defaults);
+  RUN_TEST(test_sntp_not_synced_before_connect);
+  RUN_TEST(test_sntp_syncs_and_updates_rtc);
 }
 
 #endif

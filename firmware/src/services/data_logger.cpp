@@ -179,8 +179,10 @@ bool services::data_logger::accessStatus(DataLoggerStatusSnapshot *snapshot) {
 
 namespace services::data_logger { void test(void); }
 
-static void data_logger_test_csv_header_format(void) {
-  TEST_MESSAGE("user verifies CSV header matches expected column layout");
+static void test_csv_header_format(void) {
+  GIVEN("a fresh CSV file on SD");
+  WHEN("the header is written");
+  THEN("it matches the expected column layout");
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
@@ -234,12 +236,10 @@ static void data_logger_test_csv_header_format(void) {
   TEST_ASSERT_NULL_MESSAGE(strstr(buf, "model"),
     "device: header must not contain legacy 'model' column");
 
-  TEST_MESSAGE("CSV header format verified");
 }
 
 void services::data_logger::test(void) {
-  it("user verifies CSV header column layout",
-     data_logger_test_csv_header_format);
+  RUN_TEST(test_csv_header_format);
 }
 
 #endif

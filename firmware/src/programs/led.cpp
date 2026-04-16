@@ -102,54 +102,54 @@ void Led::fadeOut(const Color &color, uint32_t duration_ms) {
 
 #include <testing/utils.h>
 
-static void led_test_init(void) {
-    TEST_MESSAGE("user initializes the LED");
+static void test_led_init(void) {
+    WHEN("the LED is initialized");
     TEST_ASSERT_TRUE_MESSAGE(LED.init(), "device: LED init must succeed");
     Color color = LED.getColor();
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.r, "device: LED must start black (r)");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.g, "device: LED must start black (g)");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.b, "device: LED must start black (b)");
+    TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, &color.r, 3,
+        "device: LED must start black");
 }
 
-static void led_test_set_named(void) {
-    TEST_MESSAGE("user sets LED to a named color");
+static void test_led_set_named(void) {
+    WHEN("the LED is set to a named color");
     LED.set(colors::Red);
     Color color = LED.getColor();
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(255, color.r, "device: red channel");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.g, "device: green channel");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.b, "device: blue channel");
+    Color expected = colors::Red;
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(&expected.r, &color.r, 3,
+        "device: color should match Red");
 }
 
-static void led_test_set_rgb(void) {
-    TEST_MESSAGE("user sets LED with explicit r, g, b values");
+static void test_led_set_rgb(void) {
+    WHEN("the LED is set with explicit RGB values");
     LED.set(100, 200, 50);
     Color color = LED.getColor();
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(100, color.r, "device: red channel");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(200, color.g, "device: green channel");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(50, color.b, "device: blue channel");
+    Color expected = {100, 200, 50};
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(&expected.r, &color.r, 3,
+        "device: color should match {100, 200, 50}");
 }
 
-static void led_test_set_hsv(void) {
-    TEST_MESSAGE("user sets LED via HSV");
+static void test_led_set_hsv(void) {
+    WHEN("the LED is set via HSV");
     LED.setHSV(0, 255, 255);
     Color color = LED.getColor();
     TEST_ASSERT_EQUAL_UINT8_MESSAGE(255, color.r, "device: hue 0 should be red");
-    TEST_ASSERT_TRUE_MESSAGE(color.g < 10, "device: green should be near zero for red hue");
-    TEST_ASSERT_TRUE_MESSAGE(color.b < 10, "device: blue should be near zero for red hue");
+    TEST_ASSERT_LESS_THAN_UINT8_MESSAGE(10, color.g, "device: green should be near zero for red hue");
+    TEST_ASSERT_LESS_THAN_UINT8_MESSAGE(10, color.b, "device: blue should be near zero for red hue");
 }
 
-static void led_test_off(void) {
-    TEST_MESSAGE("user turns the LED off");
+static void test_led_off(void) {
+    GIVEN("the LED is set to white");
     LED.set(colors::White);
+
+    WHEN("the LED is turned off");
     LED.off();
     Color color = LED.getColor();
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.r, "device: red must be 0 after off");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.g, "device: green must be 0 after off");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.b, "device: blue must be 0 after off");
+    TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, &color.r, 3,
+        "device: LED must be black after off");
 }
 
-static void led_test_brightness(void) {
-    TEST_MESSAGE("user adjusts LED brightness");
+static void test_led_brightness(void) {
+    WHEN("brightness is adjusted");
     LED.setBrightness(128);
     TEST_ASSERT_EQUAL_UINT8_MESSAGE(128, LED.getBrightness(),
         "device: brightness must match after set");
@@ -158,38 +158,39 @@ static void led_test_brightness(void) {
         "device: brightness must restore to max");
 }
 
-static void led_test_fade_in_reaches_target(void) {
-    TEST_MESSAGE("user verifies fadeIn ends at the target color");
+static void test_led_fade_in(void) {
+    WHEN("fadeIn is called with Gold");
     LED.setBrightness(config::led::BRIGHTNESS);
     LED.fadeIn(colors::Gold, 100);
     Color color = LED.getColor();
-    TEST_ASSERT_TRUE_MESSAGE(color.r > 200, "device: red after fadeIn");
-    TEST_ASSERT_TRUE_MESSAGE(color.g > 150, "device: green after fadeIn");
+    TEST_ASSERT_GREATER_THAN_UINT8_MESSAGE(200, color.r, "device: red after fadeIn");
+    TEST_ASSERT_GREATER_THAN_UINT8_MESSAGE(150, color.g, "device: green after fadeIn");
     TEST_ASSERT_EQUAL_UINT8_MESSAGE(config::led::BRIGHTNESS, LED.getBrightness(),
         "device: brightness must restore after fadeIn");
 }
 
-static void led_test_fade_out_goes_black(void) {
-    TEST_MESSAGE("user verifies fadeOut ends at black");
+static void test_led_fade_out(void) {
+    GIVEN("the LED is set to white");
     LED.set(colors::White);
+
+    WHEN("fadeOut is called");
     LED.fadeOut(colors::White, 100);
     Color color = LED.getColor();
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.r, "device: red after fadeOut");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.g, "device: green after fadeOut");
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, color.b, "device: blue after fadeOut");
+    TEST_ASSERT_EACH_EQUAL_UINT8_MESSAGE(0, &color.r, 3,
+        "device: LED must be black after fadeOut");
     TEST_ASSERT_EQUAL_UINT8_MESSAGE(config::led::BRIGHTNESS, LED.getBrightness(),
         "device: brightness must restore after fadeOut");
 }
 
 void programs::led::test(void) {
-    it("user initializes the LED", led_test_init);
-    it("user sets LED to a named color", led_test_set_named);
-    it("user sets LED with explicit RGB values", led_test_set_rgb);
-    it("user sets LED via HSV", led_test_set_hsv);
-    it("user turns the LED off", led_test_off);
-    it("user adjusts LED brightness", led_test_brightness);
-    it("user verifies fadeIn reaches target color", led_test_fade_in_reaches_target);
-    it("user verifies fadeOut ends at black", led_test_fade_out_goes_black);
+    RUN_TEST(test_led_init);
+    RUN_TEST(test_led_set_named);
+    RUN_TEST(test_led_set_rgb);
+    RUN_TEST(test_led_set_hsv);
+    RUN_TEST(test_led_off);
+    RUN_TEST(test_led_brightness);
+    RUN_TEST(test_led_fade_in);
+    RUN_TEST(test_led_fade_out);
 }
 
 #endif

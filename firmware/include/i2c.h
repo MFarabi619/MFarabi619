@@ -47,7 +47,7 @@ struct DiscoveredDevice {
 
 constexpr size_t MAX_DISCOVERED_DEVICES = 32;
 
-const char *deviceNameAt(uint8_t address);
+const char *deviceNameAt(uint8_t address, int8_t mux_channel = -1);
 
 extern TCA9548 mux;
 

@@ -334,18 +334,17 @@ bool services::sshd::initialize() {
 
 #include <testing/utils.h>
 
-static void ssh_server_test_libssh_initializes(void) {
-  TEST_MESSAGE("user asks the device to initialize libssh");
+static void test_sshd_libssh_initializes(void) {
+  WHEN("libssh is initialized");
   libssh_begin();
   ssh_session session = ssh_new();
   TEST_ASSERT_NOT_NULL_MESSAGE(session,
     "device: ssh_new() returned NULL after libssh_begin()");
-  TEST_MESSAGE("libssh initialized and session allocated");
   ssh_free(session);
 }
 
-static void ssh_server_test_generates_ed25519_key(void) {
-  TEST_MESSAGE("user asks the device to generate an ed25519 keypair");
+static void test_sshd_generates_ed25519_key(void) {
+  WHEN("an ed25519 keypair is generated");
   ssh_key key = nullptr;
   int rc = ssh_pki_generate(SSH_KEYTYPE_ED25519, 0, &key);
   TEST_ASSERT_EQUAL_INT_MESSAGE(SSH_OK, rc,
@@ -358,12 +357,11 @@ static void ssh_server_test_generates_ed25519_key(void) {
   const char *key_type_name = ssh_key_type_to_char(key_type);
   TEST_ASSERT_EQUAL_STRING_MESSAGE("ssh-ed25519", key_type_name,
     "device: key type string does not match expected");
-  TEST_MESSAGE("ed25519 keypair generated successfully");
   ssh_key_free(key);
 }
 
-static void ssh_server_test_bind_configures(void) {
-  TEST_MESSAGE("user asks the device to create an SSH bind on port 2222");
+static void test_sshd_bind_configures(void) {
+  WHEN("an ssh_bind is created on port 2222");
   ssh_bind sshbind = ssh_bind_new();
   TEST_ASSERT_NOT_NULL_MESSAGE(sshbind,
     "device: ssh_bind_new() returned NULL");
@@ -374,12 +372,12 @@ static void ssh_server_test_bind_configures(void) {
   rc = ssh_bind_options_set(sshbind, SSH_BIND_OPTIONS_BINDADDR, "0.0.0.0");
   TEST_ASSERT_EQUAL_INT_MESSAGE(SSH_OK, rc,
     "device: failed to set SSH_BIND_OPTIONS_BINDADDR");
-  TEST_MESSAGE("ssh_bind created and configured");
   ssh_bind_free(sshbind);
 }
 
-static void ssh_server_test_config_defaults(void) {
-  TEST_MESSAGE("user verifies SSH server configuration defaults");
+static void test_sshd_config_defaults(void) {
+  GIVEN("SSH server configuration constants");
+  THEN("all defaults are sane");
   TEST_ASSERT_EQUAL_INT_MESSAGE(22, config::ssh::PORT,
     "device: default SSH port should be 22");
   TEST_ASSERT_NOT_NULL_MESSAGE(CONFIG_SSH_USER,
@@ -392,18 +390,13 @@ static void ssh_server_test_config_defaults(void) {
     "device: host key path must not be NULL");
   TEST_ASSERT_NOT_EMPTY_MESSAGE(config::ssh::HOSTKEY_PATH,
     "device: host key path must not be empty");
-  TEST_MESSAGE("configuration defaults are sane");
 }
 
 void services::sshd::test() {
-  it("user observes that libssh initializes without crashing",
-     ssh_server_test_libssh_initializes);
-  it("user observes that an ed25519 host key can be generated in memory",
-     ssh_server_test_generates_ed25519_key);
-  it("user observes that ssh_bind can be created and bound to a port",
-     ssh_server_test_bind_configures);
-  it("user observes that the default configuration constants are sane",
-     ssh_server_test_config_defaults);
+  RUN_TEST(test_sshd_libssh_initializes);
+  RUN_TEST(test_sshd_generates_ed25519_key);
+  RUN_TEST(test_sshd_bind_configures);
+  RUN_TEST(test_sshd_config_defaults);
 }
 
 #endif

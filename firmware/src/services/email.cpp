@@ -205,15 +205,19 @@ bool services::email::sendTest() {
 #include <Arduino.h>
 #include <string.h>
 
-static void test_endpoint_matches_flags(void) {
+static void test_email_endpoint_matches_flags(void) {
+  GIVEN("SMTP build flags");
+  WHEN("the endpoint is queried");
   char host[128] = {0};
   uint16_t port = 0;
 
 #if CERATINA_SMTP_ENABLED
   bool ok = services::email::accessEndpoint(host, sizeof(host), &port);
   TEST_ASSERT_TRUE_MESSAGE(ok, "get_endpoint returned false");
-  TEST_ASSERT_EQUAL_STRING(config::smtp::HOST, host);
-  TEST_ASSERT_EQUAL_UINT16(config::smtp::PORT, port);
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(config::smtp::HOST, host,
+    "device: SMTP host mismatch");
+  TEST_ASSERT_EQUAL_UINT16_MESSAGE(config::smtp::PORT, port,
+    "device: SMTP port mismatch");
 #else
   bool ok = services::email::accessEndpoint(host, sizeof(host), &port);
   TEST_ASSERT_FALSE_MESSAGE(ok, "should fail when SMTP not configured");
@@ -221,12 +225,13 @@ static void test_endpoint_matches_flags(void) {
 #endif
 }
 
-static void test_flags_are_valid(void) {
+static void test_email_flags_valid(void) {
+  GIVEN("SMTP is enabled");
 #if CERATINA_SMTP_ENABLED
-  TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)strlen(config::smtp::HOST),
-    "SMTP host must not be empty when enabled");
-  TEST_ASSERT_GREATER_THAN_MESSAGE(0, (int)strlen(config::smtp::DOMAIN),
-    "SMTP domain must not be empty when enabled");
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(config::smtp::HOST,
+    "device: SMTP host must not be empty when enabled");
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(config::smtp::DOMAIN,
+    "device: SMTP domain must not be empty when enabled");
   TEST_ASSERT_GREATER_THAN_UINT16_MESSAGE(0, config::smtp::PORT,
     "SMTP port must be > 0 when enabled");
 #else
@@ -234,7 +239,9 @@ static void test_flags_are_valid(void) {
 #endif
 }
 
-static void test_connects_with_flags(void) {
+static void test_email_connects(void) {
+  GIVEN("valid SMTP build flags");
+  WHEN("a connection is attempted");
 #if CERATINA_SMTP_ENABLED
   if (!WiFi.isConnected()) {
     TEST_IGNORE_MESSAGE("WiFi not connected — skipping SMTP connect test");
@@ -248,7 +255,9 @@ static void test_connects_with_flags(void) {
 #endif
 }
 
-static void test_sends_test_email(void) {
+static void test_email_sends(void) {
+  GIVEN("an active SMTP connection");
+  WHEN("a test email is sent");
 #if CERATINA_SMTP_ENABLED
   if (!WiFi.isConnected()) {
     TEST_IGNORE_MESSAGE("WiFi not connected — skipping SMTP send test");
@@ -263,10 +272,10 @@ static void test_sends_test_email(void) {
 }
 
 void services::email::test() {
-  it("email endpoint matches build flags", test_endpoint_matches_flags);
-  it("email build flags are valid",        test_flags_are_valid);
-  it("email connects with build flags",    test_connects_with_flags);
-  it("email sends test email",             test_sends_test_email);
+  RUN_TEST(test_email_endpoint_matches_flags);
+  RUN_TEST(test_email_flags_valid);
+  RUN_TEST(test_email_connects);
+  RUN_TEST(test_email_sends);
 }
 
 #endif

@@ -87,17 +87,20 @@ bool sensors::barometric_pressure::isAvailable() {
 
 namespace sensors::barometric_pressure { void test(void); }
 
-static void pressure_test_init(void) {
-  TEST_MESSAGE("user initializes the barometric pressure module");
+static void test_pressure_init(void) {
+  WHEN("the barometric pressure module is initialized");
   hardware::i2c::initialize();
   if (!sensors::barometric_pressure::initialize()) {
     TEST_IGNORE_MESSAGE("no LPS25 sensor connected");
     return;
   }
-  TEST_ASSERT_TRUE(sensors::barometric_pressure::isAvailable());
+  TEST_ASSERT_TRUE_MESSAGE(sensors::barometric_pressure::isAvailable(),
+    "device: LPS25 not available after initialization");
 }
 
-static void pressure_test_read(void) {
+static void test_pressure_read(void) {
+  GIVEN("the LPS25 sensor is available");
+  WHEN("a reading is taken");
   if (!sensors::barometric_pressure::isAvailable()) {
     TEST_IGNORE_MESSAGE("no LPS25 sensor available");
     return;
@@ -112,13 +115,15 @@ static void pressure_test_read(void) {
   char msg[128];
   snprintf(msg, sizeof(msg), "LPS25: %.2f hPa, %.2f C", data.pressure_hpa, data.temperature_celsius);
   TEST_MESSAGE(msg);
-  TEST_ASSERT_GREATER_THAN(900.0f, data.pressure_hpa);
-  TEST_ASSERT_LESS_THAN(1100.0f, data.pressure_hpa);
+  TEST_ASSERT_GREATER_THAN_FLOAT_MESSAGE(900.0f, data.pressure_hpa,
+    "device: pressure below 900 hPa — sensor may be faulty");
+  TEST_ASSERT_LESS_THAN_FLOAT_MESSAGE(1100.0f, data.pressure_hpa,
+    "device: pressure above 1100 hPa — sensor may be faulty");
 }
 
 void sensors::barometric_pressure::test(void) {
-  it("user initializes the barometric pressure module", pressure_test_init);
-  it("user reads barometric pressure data", pressure_test_read);
+  RUN_TEST(test_pressure_init);
+  RUN_TEST(test_pressure_read);
 }
 
 #endif

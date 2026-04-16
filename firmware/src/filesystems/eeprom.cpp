@@ -45,10 +45,12 @@ bool filesystems::eeprom::initialize() {
 
 #define TEST_BASE 3900
 
-static void eeprom_test_init(void) {
+static void test_eeprom_init(void) {
+  GIVEN("Wire1 is available");
   test_ensure_wire1();
   hardware::i2c::initialize();
-  TEST_MESSAGE("user asks the device to detect the EEPROM");
+
+  WHEN("the EEPROM is detected");
   TEST_ASSERT_TRUE_MESSAGE(filesystems::eeprom::initialize(),
     "device: EEPROM not detected on bus 1");
   char msg[48];
@@ -56,19 +58,22 @@ static void eeprom_test_init(void) {
   TEST_MESSAGE(msg);
 }
 
-static void eeprom_test_write_read_byte(void) {
-  TEST_MESSAGE("user writes and reads a byte");
+static void test_eeprom_write_read_byte(void) {
+  GIVEN("the EEPROM is initialized");
   filesystems::eeprom::initialize();
+
+  WHEN("a byte is written and read back");
   IC.write(TEST_BASE, 0xAB);
   TEST_ASSERT_EQUAL_HEX8_MESSAGE(0xAB, IC.read(TEST_BASE),
     "device: byte mismatch");
   IC.write(TEST_BASE, 0x00);
-  TEST_MESSAGE("byte roundtrip verified");
 }
 
-static void eeprom_test_put_get_struct(void) {
-  TEST_MESSAGE("user writes and reads a struct via put/get");
+static void test_eeprom_put_get_struct(void) {
+  GIVEN("the EEPROM is initialized");
   filesystems::eeprom::initialize();
+
+  WHEN("a struct is written and read back via put/get");
 
   struct { uint16_t co2; float temp; } reading = { 415, 23.5f };
   IC.put(TEST_BASE, reading);
@@ -83,12 +88,13 @@ static void eeprom_test_put_get_struct(void) {
 
   struct { uint16_t co2; float temp; } zeros = {0, 0.0f};
   IC.put(TEST_BASE, zeros);
-  TEST_MESSAGE("struct roundtrip verified");
 }
 
-static void eeprom_test_buffer_roundtrip(void) {
-  TEST_MESSAGE("user writes and reads a buffer");
+static void test_eeprom_buffer_roundtrip(void) {
+  GIVEN("the EEPROM is initialized");
   filesystems::eeprom::initialize();
+
+  WHEN("a buffer is written and read back");
 
   uint8_t write_buf[16];
   for (int i = 0; i < 16; i++) write_buf[i] = i + 0x10;
@@ -105,12 +111,13 @@ static void eeprom_test_buffer_roundtrip(void) {
 
   uint8_t zeros[16] = {0};
   IC.writeBuffer(TEST_BASE + 20, zeros, 16);
-  TEST_MESSAGE("buffer roundtrip verified");
 }
 
-static void eeprom_test_update_skips_same(void) {
-  TEST_MESSAGE("user verifies update only writes if value differs");
+static void test_eeprom_update_skips_same(void) {
+  GIVEN("the EEPROM is initialized");
   filesystems::eeprom::initialize();
+
+  WHEN("update is called with the same value");
 
   IC.write(TEST_BASE + 40, 0x42);
   IC.update(TEST_BASE + 40, 0x42);
@@ -124,12 +131,13 @@ static void eeprom_test_update_skips_same(void) {
     "device: value not changed after real update");
 
   IC.write(TEST_BASE + 40, 0x00);
-  TEST_MESSAGE("update wear-reduction verified");
 }
 
-static void eeprom_test_last_byte(void) {
-  TEST_MESSAGE("user writes and reads the last byte of EEPROM");
+static void test_eeprom_last_byte(void) {
+  GIVEN("the EEPROM is initialized");
   filesystems::eeprom::initialize();
+
+  WHEN("the last byte is written and read back");
 
   uint16_t last = config::eeprom::TOTAL_SIZE - 1;
   IC.write(last, 0x77);
@@ -138,12 +146,13 @@ static void eeprom_test_last_byte(void) {
   TEST_ASSERT_EQUAL_UINT8_MESSAGE(0, IC.getLastError(),
     "device: error on last byte access");
   IC.write(last, 0x00);
-  TEST_MESSAGE("last byte roundtrip verified");
 }
 
-static void eeprom_test_page_boundary_buffer(void) {
-  TEST_MESSAGE("user writes a buffer that crosses a page boundary");
+static void test_eeprom_page_boundary_buffer(void) {
+  GIVEN("the EEPROM is initialized");
   filesystems::eeprom::initialize();
+
+  WHEN("a buffer crossing a page boundary is written and read back");
 
   uint16_t addr = config::eeprom::PAGE_SIZE - 4;
   uint8_t write_buf[8] = {0xA0, 0xA1, 0xA2, 0xA3, 0xB0, 0xB1, 0xB2, 0xB3};
@@ -158,24 +167,16 @@ static void eeprom_test_page_boundary_buffer(void) {
 
   uint8_t zeros[8] = {0};
   IC.writeBuffer(addr, zeros, 8);
-  TEST_MESSAGE("page boundary buffer verified");
 }
 
 void filesystems::eeprom::test() {
-  it("user observes that the EEPROM is detected",
-     eeprom_test_init);
-  it("user observes that byte write/read roundtrips correctly",
-     eeprom_test_write_read_byte);
-  it("user observes that struct put/get roundtrips correctly",
-     eeprom_test_put_get_struct);
-  it("user observes that buffer write/read roundtrips correctly",
-     eeprom_test_buffer_roundtrip);
-  it("user observes that update skips writes when value unchanged",
-     eeprom_test_update_skips_same);
-  it("user observes that the last EEPROM byte is accessible",
-     eeprom_test_last_byte);
-  it("user observes that buffers crossing page boundaries work",
-     eeprom_test_page_boundary_buffer);
+  RUN_TEST(test_eeprom_init);
+  RUN_TEST(test_eeprom_write_read_byte);
+  RUN_TEST(test_eeprom_put_get_struct);
+  RUN_TEST(test_eeprom_buffer_roundtrip);
+  RUN_TEST(test_eeprom_update_skips_same);
+  RUN_TEST(test_eeprom_last_byte);
+  RUN_TEST(test_eeprom_page_boundary_buffer);
 }
 
 #endif

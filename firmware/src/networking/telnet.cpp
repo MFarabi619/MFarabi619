@@ -130,8 +130,9 @@ void networking::telnet::disconnect() {}
 
 #include <Arduino.h>
 
-static void telnet_test_config(void) {
-  TEST_MESSAGE("user verifies telnet configuration");
+static void test_telnet_config(void) {
+  GIVEN("telnet is enabled");
+  THEN("the configuration is valid");
 
 #if CERATINA_TELNET_ENABLED
   TEST_ASSERT_GREATER_THAN_UINT16_MESSAGE(0, config::telnet::PORT,
@@ -150,8 +151,7 @@ static void telnet_test_config(void) {
 }
 
 void networking::telnet::test(void) {
-  it("user verifies telnet configuration",
-     telnet_test_config);
+  RUN_TEST(test_telnet_config);
 }
 
 #endif
