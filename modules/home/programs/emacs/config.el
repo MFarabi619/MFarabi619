@@ -55,6 +55,14 @@
         gdb-debuginfod-enable-setting t
         gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
 
+;; message-mode globals — shared by gnus, mu4e, and any compose-mail buffer.
+(setopt send-mail-function               #'sendmail-send-it
+        sendmail-program                 (executable-find "msmtp")
+        message-sendmail-f-is-evil       t
+        message-sendmail-envelope-from   'header
+        message-send-mail-function       #'message-send-mail-with-sendmail
+        message-sendmail-extra-arguments '("--read-envelope-from"))
+
 (load!        "./dashboard.el")
 ;; (add-load-path! "pio-mode")
 ;; (use-package! pio-mode)
@@ -68,6 +76,7 @@
 ;; (use-package! nov-xwidget           :after (nov)         :config (add-hook! 'nov-mode-hook #'nov-xwidget-inject-all-files) (define-key nov-mode-map (kbd "o") #'nov-xwidget-view))
 (use-package! fancy-compilation     :after compile       :config (setopt fancy-compilation-term "xterm-256color" fancy-compilation-quiet-prelude t fancy-compilation-quiet-prolog t fancy-compilation-override-colors nil) (fancy-compilation-mode 1))
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
+
 (after!       direnv        (direnv-mode -1))
 (after!       undo-tree     (global-undo-tree-mode 1))
 (after!       nerd-icons    (nerd-icons-completion-mode 1))
@@ -93,12 +102,28 @@
 (after!       vertico       (vertico-multiform-mode 1) (add-to-list 'vertico-multiform-commands '(compile-multi buffer (vertico-buffer-display-action . ((display-buffer-reuse-window display-buffer-in-side-window) (side . right) (window-width . 0.20) (window-parameters . ((no-delete-other-windows . t) (mode-line-format . none))))))))
 (after!       treemacs      (setopt treemacs-width 40 treemacs-peek-mode t treemacs-follow-mode t treemacs-git-mode 'extended treemacs-position 'right lsp-treemacs-theme "Default" treemacs-git-commit-diff-mode t treemacs-nerd-icons-icon-size 2.0 treemacs-display-in-side-window t lsp-treemacs-symbols-position-params '((side . right) (slot . 2) (window-width . 100))))
 (after!       compile-multi (setopt compile-multi-default-directory (lambda () (ignore-errors (projectile-project-root)))) (advice-add 'compile-multi :around (lambda (fn &rest args) (if (bound-and-true-p vertico-posframe-mode) (unwind-protect (progn (vertico-posframe-mode -1) (apply fn args)) (vertico-posframe-mode 1)) (apply fn args)))))
-(after!       gnus          (setopt sendmail-program "msmtp" message-sendmail-f-is-evil t gnus-secondary-select-methods nil mm-text-html-renderer 'shr mm-inline-large-images t mm-discouraged-alternatives '("text/plain" "text/richtext") shr-use-colors nil shr-max-width 100 shr-max-image-proportion 0.6 shr-use-fonts nil message-sendmail-envelope-from 'header message-send-mail-function 'message-send-mail-with-sendmail message-sendmail-extra-arguments '("--read-envelope-from") gnus-select-method '(nnmaildir "local" (directory "~/Maildir/Gmail"))))
+(after!       gnus          (setopt gnus-secondary-select-methods nil mm-text-html-renderer 'shr mm-inline-large-images t mm-discouraged-alternatives '("text/plain" "text/richtext") shr-use-colors nil shr-max-width 100 shr-max-image-proportion 0.6 shr-use-fonts nil gnus-select-method '(nnmaildir "local" (directory "~/Maildir/personal"))))
 (after!       rustic-mode   (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
+(after!       which-key     (add-to-list 'which-key-replacement-alist '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))) (add-to-list 'which-key-replacement-alist '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
 
-(after!       which-key
-  (add-to-list 'which-key-replacement-alist '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1")))
-  (add-to-list 'which-key-replacement-alist '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
+(after! xwidget
+  (setopt browse-url-browser-function #'xwidget-webkit-browse-url)
+
+  (add-hook! 'xwidget-webkit-mode-hook
+    (hide-mode-line-mode 1)
+    (setq-local mode-line-format nil)
+    (setq-local header-line-format nil)
+    ;; (when (bound-and-true-p doom-modeline-mode) (doom-modeline-mode -1))
+    )
+
+  (map! :map xwidget-webkit-edit-mode-map
+        "DEL" #'xwidget-webkit-pass-command-event
+        "<backspace>" #'xwidget-webkit-pass-command-event
+        "M-DEL" #'xwidget-webkit-pass-command-event
+        "M-<backspace>" #'xwidget-webkit-pass-command-event
+        "<delete>" #'xwidget-webkit-pass-command-event
+        "M-<delete>" #'xwidget-webkit-pass-command-event
+        "C-h" #'xwidget-webkit-pass-command-event))
 
 (after!       proced        (setopt proced-auto-update-interval 1 proced-goal-attribute nil proced-enable-color-flag t proced-format 'medium) (setq-default proced-auto-update-flag t)
   (add-hook! 'proced-mode-hook
@@ -116,7 +141,6 @@
   (require 'seq)
 
   (setopt prodigy-kill-process-buffer-on-stop t)
-
   (custom-set-faces! '(prodigy-red-face    :foreground "#fb4934" :weight bold) '(prodigy-green-face  :foreground "#b8bb26" :weight bold) '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
 
   (defun my/prodigy-group-row-p (&optional pos) (let ((id (tabulated-list-get-id pos))) (and (consp id) (eq (car id) :group))))
@@ -154,15 +178,35 @@
 
 (with-eval-after-load 'mu4e
   (setopt
+   mu4e-maildir (expand-file-name "~/Maildir")
    mu4e-index-cleanup nil
    mu4e-index-lazy-check t
-   message-sendmail-f-is-evil t
    mu4e-context-policy 'ask-if-none
-   send-mail-function #'smtpmail-send-it
-   mu4e-compose-context-policy 'always-ask
-   sendmail-program (executable-find "msmtp")
-   message-sendmail-extra-arguments '("--read-envelope-from")
-   message-send-mail-function #'message-send-mail-with-sendmail)
+   mu4e-compose-context-policy 'always-ask)
+  (setq mu4e-contexts
+        (list
+         (make-mu4e-context
+          :name "Gmail"
+          :match-func (lambda (msg)
+                        (when msg
+                          (string-prefix-p "/personal" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address     . "mfarabi619@gmail.com")
+                  (mu4e-sent-folder      . "/personal/[Gmail]/Sent Mail")
+                  (mu4e-drafts-folder    . "/personal/[Gmail]/Drafts")
+                  (mu4e-trash-folder     . "/personal/[Gmail]/Trash")
+                  (mu4e-refile-folder    . "/personal/[Gmail]/All Mail")
+                  (smtpmail-smtp-user    . "mfarabi619@gmail.com")))
+         (make-mu4e-context
+          :name "apidaesystems"
+          :match-func (lambda (msg)
+                        (when msg
+                          (string-prefix-p "/apidaesystems" (mu4e-message-field msg :maildir))))
+          :vars '((user-mail-address     . "farabi@apidaesystems.ca")
+                  (mu4e-sent-folder      . "/apidaesystems/[Gmail]/Sent Mail")
+                  (mu4e-drafts-folder    . "/apidaesystems/[Gmail]/Drafts")
+                  (mu4e-trash-folder     . "/apidaesystems/[Gmail]/Trash")
+                  (mu4e-refile-folder    . "/apidaesystems/[Gmail]/All Mail")
+                  (smtpmail-smtp-user    . "farabi@apidaesystems.ca")))))
   ;; (use-package! mu4e-views        :config (setopt mu4e-views-completion-method 'default mu4e-views-default-view-method "html" mu4e-views-auto-view-selected-message t mu4e-views-next-previous-message-behaviour 'stick-to-current-window) (mu4e-views-mu4e-use-view-msg-method "html"))
   (use-package! mu4e-column-faces :config (mu4e-column-faces-mode 1))
   (use-package! mu4e-marker-icons :config (mu4e-marker-icons-mode 1)))
@@ -188,9 +232,21 @@
 (set-popup-rule! "^\\*doom:vterm-popup:.*\\*$"  :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :height 0.50 :width 0.50 :select t   :modeline nil)
 
 (defadvice!   prompt-for-buffer (&rest _)  :after '(evil-window-split evil-window-vsplit) (consult-buffer))
-(defun my/compile-multi-read-task () (let ((this-command 'compile-multi) (real-this-command 'compile-multi))
-                                       (if (bound-and-true-p vertico-posframe-mode) (unwind-protect (progn (vertico-posframe-mode -1) (compile-multi--get-task)) (vertico-posframe-mode 1))
-                                         (compile-multi--get-task))))
+(defun my/compile-multi-read-task ()
+  "Prompt for a compile-multi task.
+Pre-apply `.dir-locals.el' from the project root when called from a
+non-file buffer (vterm, dashboard, *scratch*, etc.) so the task list
+is populated. File-visiting buffers already had dir-locals applied
+when they were opened, so they skip the re-application."
+  (unless buffer-file-name
+    (when-let ((root (ignore-errors (projectile-project-root))))
+      (let ((default-directory root))
+        (hack-dir-local-variables-non-file-buffer))))
+  (let ((this-command 'compile-multi) (real-this-command 'compile-multi))
+    (if (bound-and-true-p vertico-posframe-mode)
+        (unwind-protect (progn (vertico-posframe-mode -1) (compile-multi--get-task))
+          (vertico-posframe-mode 1))
+      (compile-multi--get-task))))
 
 (defun my/compile-multi-prodigy ()
   (interactive)
@@ -208,7 +264,6 @@
                      (prodigy-start-service service
                        (lambda ()
                          (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))))
-
           (message "No Prodigy service found for %s" plain-title))
       (compile-multi nil (plist-get plist :command)))))
 
@@ -236,11 +291,8 @@
 
 (after! dape
   (defvar my/dape-use-custom-layout nil)
-
-  ;; Forward RTT output into the DAPE REPL.
-  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-data)) body) (when-let ((data (plist-get body :data))) (dape--repl-insert (concat data "\n"))))
-  ;; Tell probe-rs that the RTT terminal window is open.
-  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-channel-config)) _body) (dape-request conn "rttWindowOpened" '((channelNumber . 0) (windowIsOpen . t))))
+  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-data)) body) (when-let ((data (plist-get body :data))) (dape--repl-insert (concat data "\n")))) ;; Forward RTT output into the DAPE REPL.
+  (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-channel-config)) _body) (dape-request conn "rttWindowOpened" '((channelNumber . 0) (windowIsOpen . t)))) ;; Tell probe-rs that the RTT terminal window is open.
 
   (setopt
    dape-request-timeout 60
@@ -328,19 +380,21 @@
 
   (add-to-list
    'dape-configs
-   '(probe-rs-esp32s3
+   '(probe-rs
      :chip "esp32s3" :request "launch" :type "probe-rs-debug" :consoleLogLevel "Console" :flashingConfig (:flashingEnabled t)
 
      port :autoport host "localhost" command "probe-rs"
      modes (rust-mode rustic-mode)
-     compile "cargo +esp probe-rs-debug-esp32s3"
+     compile "espflash partition-table boards/esp32s3.partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table boards/esp32s3.partitions.csv -- -rp firmware --bin p-uog-gre --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'"
      command-args ("dap-server" "--port" ":autoport")
      command-cwd (lambda () (project-root (project-current)))
-     fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
+     :fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
      :coreConfigs [(
-                    :coreIndex 0 :rttEnabled t :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
-                    :svdFile (lambda () (expand-file-name "boards/esp32s3.svd" (project-root (project-current))))
-                    :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/esp32s3" (project-root (project-current)))))]))
+                    :coreIndex 0
+                    :rttEnabled t
+                    :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
+                    :svdFile (lambda () (let ((f (expand-file-name "boards/esp32s3.svd" (project-root (project-current))))) (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
+                    :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/microvisor" (project-root (project-current)))))]))
 
   (add-hook!
    'dape-display-source-hook #'pulse-momentary-highlight-one-line
@@ -383,9 +437,7 @@
 (defvar my/vterm-warmed-projects (make-hash-table :test #'equal))
 
 (defun my/project-root () (let ((root (or (doom-project-root default-directory) (and (fboundp 'projectile-project-root) (ignore-errors (projectile-project-root))) default-directory))) (file-name-as-directory (expand-file-name root))))
-
 (defun my/vterm-buffer-name () (format "*doom:vterm-popup:project-%s*" (if (bound-and-true-p persp-mode) (safe-persp-name (get-current-persp)) "main")))
-
 (defun my/vterm-project-buffer () (let* ((buffer-name (my/vterm-buffer-name)) (buffer (get-buffer-create buffer-name)) (root (my/project-root)))
                                     (with-current-buffer buffer (let ((default-directory root)) (unless (derived-mode-p 'vterm-mode) (vterm-mode)) (setq-local +vterm--id buffer-name))) buffer))
 
@@ -394,55 +446,34 @@
   (let ((root (my/project-root)))
     (unless (gethash root my/vterm-warmed-projects)
       (puthash root t my/vterm-warmed-projects)
-      (run-with-idle-timer
-       0.2 nil
-       (lambda (dir)
-         (when (file-directory-p dir)
-           (let ((default-directory dir))
-             (save-window-excursion
-               (my/vterm-project-buffer)))))
-       root))))
+      (run-with-idle-timer 0.2 nil (lambda (dir) (when (file-directory-p dir) (let ((default-directory dir)) (save-window-excursion (my/vterm-project-buffer))))) root))))
 
 (defun +vterm/toggle ()
   "Toggle the project vterm buffer.
 If lazygit is active there, quit it and leave the shell running."
   (interactive)
   (let ((buffer (my/vterm-project-buffer)))
-    (if-let ((win (get-buffer-window buffer t)))
-        (if (one-window-p) (bury-buffer buffer) (delete-window win))
-      (unless (get-buffer-window buffer t)
-        (pop-to-buffer buffer))
-      (when (funcall
-             (lambda ()
-               (with-current-buffer buffer
-                 (when-let* ((proc (get-buffer-process (current-buffer)))
-                             ((process-live-p proc))
-                             ((executable-find "pgrep")))
-                   (ignore-errors
-                     (process-lines "pgrep" "-P" (number-to-string (process-id proc)) "-f" "lazygit")
-                     t)))))
-        (with-current-buffer buffer
-          (vterm-send-key "q"))))))
+    (if-let ((win (get-buffer-window buffer t))) (if (one-window-p) (bury-buffer buffer) (delete-window win))
+      (unless (get-buffer-window buffer t) (pop-to-buffer buffer))
+      (when (funcall (lambda ()
+                       (with-current-buffer buffer
+                         (when-let* ((proc (get-buffer-process (current-buffer))) ((process-live-p proc)) ((executable-find "pgrep")))
+                           (ignore-errors (process-lines "pgrep" "-P" (number-to-string (process-id proc)) "-f" "lazygit") t)))))
+        (with-current-buffer buffer (vterm-send-key "q"))
+        ))))
 
 (defun +lazygit/toggle ()
   "Run lazygit in the shared project vterm buffer."
-  (interactive)
-  (let ((buffer (my/vterm-project-buffer)))
-    (unless (get-buffer-window buffer t)
-      (pop-to-buffer buffer))
-    (with-current-buffer buffer
-      (vterm-send-C-c)
-      (vterm-send-string my/lazygit-command)
-      (vterm-send-return))))
+  (interactive) (let ((buffer (my/vterm-project-buffer))) (unless (get-buffer-window buffer t) (pop-to-buffer buffer)) (with-current-buffer buffer (vterm-send-C-c) (vterm-send-string my/lazygit-command) (vterm-send-return))))
 
 (defun my/switch-to-last-buffer-in-split ()
   "Show last buffer on split screen."
-  (interactive)
-  (let ((current-buffer (current-buffer)))
-    (if (one-window-p) (progn (split-window-right) (evil-switch-to-windows-last-buffer) (switch-to-buffer current-buffer)))))
+  (interactive) (let ((current-buffer (current-buffer))) (if (one-window-p) (progn (split-window-right) (evil-switch-to-windows-last-buffer) (switch-to-buffer current-buffer)))))
 
 (after! org
+  (add-hook! 'org-mode-hook #'org-auto-tangle-mode)
   (define-key org-mode-map (kbd "C-c C-r") verb-command-map)
+  (org-babel-do-load-languages 'org-babel-load-languages (append org-babel-load-languages '((duckdb . t))))
 
   (setopt
    org-startup-numerated t
@@ -452,26 +483,17 @@ If lazygit is active there, quit it and leave the shell running."
    org-modern-table-vertical 1
    org-modern-table-horizontal 0.2
    org-link-search-must-match-exact-headline nil
-   ;; org-modern-priority-faces
-   org-priority-faces '((?A :foreground "#e45649")
-                        (?B :foreground "#da8548")
-                        (?C :foreground "#0098dd"))
-   org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
-   ;; org-modern-todo-faces
+   org-modern-list    '((43 . "➤") (45 . "–") (42 . "•"))
+   ;; org-modern-footnote (cons nil (cadr org-script-display))
+   ;; (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))
+   ;; (after! spell-fu (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
+   org-todo-keywords  '((sequence "TODO(t)" "INPROGRESS(i)" "BLOCKED(b)" "|" "DONE(d)" "CANCELLED(c)"))
+   org-priority-faces '((?A :foreground "#e45649") (?B :foreground "#da8548") (?C :foreground "#0098dd"))
    org-todo-keyword-faces '(("DONE" :foreground "#50a14f" :weight normal :underline t)
                             ("TODO" :foreground "#7c7c75" :weight normal :underline t)
                             ("BLOCKED" :foreground "#ff9800" :weight normal :underline t)
                             ("CANCELLED" :foreground "#ff6480" :weight normal :underline t)
-                            ("INPROGRESS" :foreground "#0098dd" :weight normal :underline t))
-   ;; org-modern-todo
-   org-todo-keywords  '((sequence "TODO(t)" "INPROGRESS(i)" "BLOCKED(b)" "|" "DONE(d)" "CANCELLED(c)")))
-  ;; org-modern-todo nil
-  ;; org-modern-priority nil
-  ;; org-modern-footnote (cons nil (cadr org-script-display))
-  ;; (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))
-  ;; (after! spell-fu (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
-
-  (org-babel-do-load-languages 'org-babel-load-languages (append org-babel-load-languages '((duckdb . t)))))
+                            ("INPROGRESS" :foreground "#0098dd" :weight normal :underline t))))
 
 (after! magit
   (add-hook! 'magit-mode-hook #'hl-line-mode #'magit-delta-mode #'magit-todos-mode)
@@ -497,32 +519,32 @@ If lazygit is active there, quit it and leave the shell running."
 ;; (use-package! gptel
 ;;   :config
 ;;   (setopt gptel-use-tools t
-;;         gptel-track-media t
-;;         gptel-default-mode #'org-mode
-;;         gptel-directives '((writing     . "You are a large language model and a writing assistant.")
-;;                            (chat        . "You are a large language model and a conversation partner.")
-;;                            (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
-;;                            (default     . "You are a large language model living in Doom Emacs and a helpful assistant. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, daily drive NixOS and Nix Darwin MacOS from time to time. I prefer to write code in Rust, and Nix. When responding for code snippets, always take best practices, design patterns, and scalability into account while keeping things simple. Always follow up your responses with questions and ideas. Do not be blunt when responding, provide justification and educate me if you notice that I may be misled."))
-;;         gptel-model 'llama3.2:3b
-;;         gptel-backend (gptel-make-ollama "Ollama"
-;;                         :stream t
-;;                         :host "localhost:11434"
-;;                         :models '(llava:34b
-;;                                   llama3.2:3b
-;;                                   gpt-oss:20b
-;;                                   gpt-oss:120b
-;;                                   mistral:latest
-;;                                   qwen2.5-coder:32b
-;;                                   phind-codellama:34b))
-;;         ;; gptel-api-key "your key"
-;;         ;; gptel-model 'gpt-4.1
-;;         ;; gptel-backend (gptel-make-gh-copilot "Copilot")
-;;         )
+;;           gptel-track-media t
+;;           gptel-default-mode #'org-mode
+;;           gptel-directives '((writing     . "You are a large language model and a writing assistant.")
+;;                              (chat        . "You are a large language model and a conversation partner.")
+;;                              (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
+;;                              (default     . "You are a large language model living in Doom Emacs and a helpful assistant. I'm using Doom Emacs with Evil Mode inside Arch Linux with Hyprland. I browse the web with Vivaldi and Surfingkeys. I also use Nix with home manager for configuration management, daily drive NixOS and Nix Darwin MacOS from time to time. I prefer to write code in Rust, and Nix. When responding for code snippets, always take best practices, design patterns, and scalability into account while keeping things simple. Always follow up your responses with questions and ideas. Do not be blunt when responding, provide justification and educate me if you notice that I may be misled."))
+;;           gptel-model 'llama3.2:3b
+;;           gptel-backend (gptel-make-ollama "Ollama"
+;;                                            :stream t
+;;                                            :host "localhost:11434"
+;;                                            :models '(llava:34b
+;;                                                      llama3.2:3b
+;;                                                      gpt-oss:20b
+;;                                                      gpt-oss:120b
+;;                                                      mistral:latest
+;;                                                      qwen2.5-coder:32b
+;;                                                      phind-codellama:34b))
+;;           ;; gptel-api-key "your key"
+;;           ;; gptel-model 'gpt-4.1
+;;           ;; gptel-backend (gptel-make-gh-copilot "Copilot")
+;;           )
 
 ;;   (gptel-make-preset 'gpt-4.1
-;;     :model 'gpt-4.1
-;;     :backend "Copilot"
-;;     :description "GPT 4.1 from GitHub")
+;;                      :model 'gpt-4.1
+;;                      :backend "Copilot"
+;;                      :description "GPT 4.1 from GitHub")
 
 ;;   (defun llm-tool-collection-register-with-gptel (tool-spec)
 ;;     "Register a tool defined by TOOL-SPEC with gptel.
@@ -531,11 +553,8 @@ If lazygit is active there, quit it and leave the shell running."
 ;;       (setopt gptel-tools (cons tool (seq-remove (lambda (existing) (string= (gptel-tool-name existing) (gptel-tool-name tool))) gptel-tools)))))
 
 ;;   (add-hook 'llm-tool-collection-post-define-functions #'llm-tool-collection-register-with-gptel)
-;;   (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll 'gptel-post-response-functions 'gptel-end-of-response))
-
-;; (use-package! llm-tool-collection)
-;; (after! llm-tool-collection
-;;   (mapcar (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
+;;   (add-hook 'gptel-post-stream-hook #'gptel-auto-scroll)
+;;   (add-hook 'gptel-post-response-functions #'gptel-end-of-response))
 
 ;; (define-derived-mode likec4-mode prog-mode "LikeC4" "Major mode for editing LikeC4 files.")
 ;; (add-to-list 'auto-mode-alist '("\\.c4\\'" . likec4-mode))

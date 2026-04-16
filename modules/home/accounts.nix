@@ -3,62 +3,77 @@
   config,
   ...
 }:
-let
-  gmailCommon = {
-    enable = true;
-    mu.enable = true;
-    msmtp.enable = true;
-    flavor = "gmail.com";
-    neomutt.enable = true;
-    realName = config.me.fullname;
-
-    signature = {
-      showSignature = "append";
-      text = ''
-        Warm regards,
-        ${config.me.fullname}
-      '';
-    };
-
-    mbsync = {
-      enable = true;
-      create = "both";
-      expunge = "both";
-      patterns = [
-        "*"
-        "[Gmail]*"
-      ]; # "[Gmail]/Sent Mail" ];
-    };
-  };
-
-  mkGmailAccount =
-    {
-      address,
-      passwordCommand,
-      primary ? false,
-    }:
-    gmailCommon
-    // {
-      inherit address passwordCommand primary;
-      userName = address;
-      smtp.host = "smtp.${gmailCommon.flavor}";
-    };
-in
 {
   accounts = {
     email = {
       maildirBasePath = "Maildir";
 
       accounts = {
-        Gmail = mkGmailAccount {
-          address = config.me.email;
-          passwordCommand = "${pkgs.pass}/bin/pass Email/GmailApp";
+        personal = {
           primary = true;
+          address = config.me.email;
+          userName = config.me.email;
+          realName = config.me.fullname;
+          flavor = "gmail.com";
+          passwordCommand = "${pkgs.pass}/bin/pass Email/GmailApp";
+
+          signature = {
+            showSignature = "append";
+            text = ''
+              Warm regards,
+              ${config.me.fullname}
+            '';
+          };
+
+          mu.enable = true;
+          msmtp.enable = true;
+          neomutt.enable = true;
+
+          mbsync = {
+            enable = true;
+            create = "both";
+            remove = "none";
+            expunge = "both";
+            patterns = [
+              "*"
+              "![Gmail]/All Mail"
+              "![Gmail]/Important"
+              "![Gmail]/Starred"
+            ];
+          };
         };
 
-        "apidaesystems" = mkGmailAccount {
+        apidaesystems = {
           address = "farabi@apidaesystems.ca";
+          userName = "farabi@apidaesystems.ca";
+          realName = config.me.fullname;
+          flavor = "gmail.com";
           passwordCommand = "${pkgs.pass}/bin/pass Email/apidaesystems";
+
+          signature = {
+            showSignature = "append";
+            text = ''
+              Warm regards,
+              ${config.me.fullname}
+            '';
+          };
+
+          mu.enable = true;
+          msmtp.enable = true;
+          neomutt.enable = true;
+
+          mbsync = {
+            enable = true;
+            create = "both";
+            remove = "none";
+            expunge = "both";
+            patterns = [
+              "*"
+              "![Gmail]/All Mail"
+              "![Gmail]/Important"
+              "![Gmail]/Starred"
+            ];
+          };
         };
       };
     };
