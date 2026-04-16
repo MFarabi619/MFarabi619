@@ -72,8 +72,10 @@
 (use-package! org-auto-tangle       :after org)
 (use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
 (use-package! exercism              :defer t             :unless (eq system-type 'berkeley-unix))
+;; (use-package! llm-tool-collection                        :config (mapc (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
 (use-package! fretboard             :defer t             :config (setopt fretboard-fret-count 15) (add-hook 'fretboard-mode-hook #'evil-emacs-state))
 ;; (use-package! nov-xwidget           :after (nov)         :config (add-hook! 'nov-mode-hook #'nov-xwidget-inject-all-files) (define-key nov-mode-map (kbd "o") #'nov-xwidget-view))
+(use-package! claude-code           :after (vterm)       :config (setopt claude-code-terminal-backend 'vterm) (after! monet (add-hook 'claude-code-process-environment-functions #'monet-start-server-function) (monet-mode 1)))
 (use-package! fancy-compilation     :after compile       :config (setopt fancy-compilation-term "xterm-256color" fancy-compilation-quiet-prelude t fancy-compilation-quiet-prolog t fancy-compilation-override-colors nil) (fancy-compilation-mode 1))
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
 
@@ -84,6 +86,7 @@
 (after!       dape          (dape-breakpoint-global-mode 1))
 (after!       evil          (setopt evil-ex-substitute-global t))
 (after!       files         (add-to-list 'safe-local-variable-directories "~/MFarabi619/"))
+;; (after!       claude-code   (map! :leader :desc "Claude Code run" "C-c" #'claude-code-run))
 ;; (after!       nyan-mode     (setopt nyan-animate-nyancat t nyan-wavy-trail t) (nyan-mode -1))
 (after!       dap-gdb       (setopt dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
 (after!       treesit       (setopt treesit-font-lock-level 4 treesit-auto-install-grammar 'always))
@@ -94,7 +97,6 @@
 (after!       kitty-graphics (when (and (not (display-graphic-p)) (getenv "KITTY_WINDOW_ID")) (kitty-graphics-mode 1)))
 (after!       sql           (setopt sql-database "microvisor" sql-server "127.0.0.1" sql-port 5432 sql-user "mfarabi" sql-password ""))
 (after!       verb-mode     (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
-(after!       xwidget       (setopt browse-url-browser-function #'xwidget-webkit-browse-url) (add-hook! 'xwidget-webkit-mode-hook #'hide-mode-line-mode))
 (after!       dirvish       (setopt dirvish-peek-mode t dirvish-side-auto-close t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
 (after!       parrot        (setopt parrot-animate-parrot t parrot-num-rotations 1000 parrot-animation-frame-interval 0.045 parrot-spaces-before 1 parrot-spaces-after 1) (parrot-type "confused")(parrot-mode -1))
 (after!       lsp           (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t lsp-describe-thing-at-point t))
@@ -267,8 +269,7 @@ when they were opened, so they skip the re-application."
           (message "No Prodigy service found for %s" plain-title))
       (compile-multi nil (plist-get plist :command)))))
 
-
-
+(defvar-keymap my-claude-code-map :repeat t "M" #'claude-code-cycle-mode)
 
 (map! :n                                      "j" #'evil-next-visual-line
       :n                                      "k" #'evil-previous-visual-line
