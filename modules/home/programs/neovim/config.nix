@@ -1,6 +1,6 @@
 {
   programs.lazyvim.config = {
-    options = '''';
+    options = "";
 
     keymaps = ''
       -- Keymaps are automatically loaded on the VeryLazy event
@@ -10,7 +10,7 @@
       vim.keymap.set("i", "jk", "<Esc>", { noremap = true })
       vim.keymap.set("i", "<C-g>", "<Esc>", { noremap = true })
       vim.keymap.set("n", "<C-g>", "<Esc>", { noremap = true })
-      -- vim.keymap.set("n", "<leader>fs", "<cmd>w<cr>", { desc = "Save" })
+      vim.keymap.set("n", "<leader>fs", "<cmd>w<cr>", { desc = "Save" })
       vim.keymap.set("n", "<leader>k", "<cmd>Yazi<cr>", { noremap = true, desc = "Open yazi at the current file" })
       vim.keymap.set("n", "<leader>j", "<cmd>Terminal (Root Dir)<cr>", { noremap = true })
     '';
