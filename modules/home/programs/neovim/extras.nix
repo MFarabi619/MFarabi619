@@ -39,7 +39,7 @@
         yaml.enable = true;
         markdown.enable = true;
 
-        go.enable = false;
+        go.enable = true;
         # git.enable = true; # FIXME: results in fixed output derivation error resulting from tree-sitter-gitattributes
         nix.enable = true;
         sql.enable = false; # FIXME: results in fixed output derivation error resulting from dadbod
