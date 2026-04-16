@@ -45,8 +45,8 @@
         sql.enable = true;
         rust.enable = true;
         ruby.enable = true;
-        clang.enable = true;
         cmake.enable = true;
+        clangd.enable = true;
         python.enable = true;
         docker.enable = false;
         svelte.enable = false;
