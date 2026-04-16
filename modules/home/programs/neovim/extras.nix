@@ -42,7 +42,7 @@
         go.enable = true;
         git.enable = true;
         nix.enable = true;
-        sql.enable = false; # FIXME: results in fixed output derivation error resulting from dadbod
+        sql.enable = true;
         rust.enable = true;
         ruby.enable = false;
         clang.enable = true;
