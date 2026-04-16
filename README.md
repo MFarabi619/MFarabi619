@@ -31,8 +31,8 @@
 </div>
 👋 Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
 On occasions I've worked with as many as 8 different languages in a single day. This section serves as a reminder to me that fancy tech icons aren't the end all be all in life. They come and go with time, just like we do.<br/><br/>
-<div class="tg-wrap" align="center">
-<table>
+<div align="center">
+<table width="100%">
 <thead>
 <tr>
 <th>Languages</th><th>Frameworks & Libraries</th><th>Tools</th>
@@ -43,502 +43,493 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <td colspan="3" align="center"><b>Actively Using</b></td>
 </tr>
 <tr>
-<td align='center'>
-<!-- Nix Language -->
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="Nix Language Logo" width="40" height="40" />
 </a>
-<!-- Zig -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://ziglang.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/zig/zig-original.svg" alt="Zig Logo" width="40" height="40" />
 </a>
-<!-- Rust -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
 <img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40" />
 </a>
-<!-- Embedded Rust -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://rust-embedded.org" target="_blank" rel="noreferrer">
 <img src="assets/embedded-rust-symbol.png" alt="Embedded Rust Logo" width="40" height="40" />
 </a>
-<!-- Go -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://golang.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg" alt="Go Logo" width="40" height="40" />
 </a>
-<!-- Embedded C -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
 <img src="./assets/embedded-c-symbol.svg" alt="Embedded C Logo" width="40" height="40" />
 </a>
-<!-- Bash -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
 <img src="https://bashlogo.com/img/symbol/png/monochrome_light.png" alt="Bash Logo" width="40" height="40" />
 </a>
-<!-- Emacs Lisp -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40" />
 </a>
-<!-- Org mode -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://orgmode.org" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org mode Logo" width="40" height="40" />
 </a>
-<!-- LaTeX -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40" />
 </a>
-<!-- LikeC4 -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://likec4.dev" target="_blank" rel="noreferrer">
 <img src="https://likec4.dev/_astro/logo-dark.h9QdQ6Li.svg" alt="LikeC4 Logo" width="40" height="40" />
 </a>
-</td>
-<td align='center'>
-<!-- SQLite -->
+</td></tr></table></td>
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://sqlite.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" alt="SQLite Logo" width="40" height="40" />
 </a>
-<!-- PostgreSQL -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40" />
 </a>
-<!-- TimescaleDB -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.tigerdata.com/timescaledb" target="_blank" rel="noreferrer">
 <img src="assets/icons/timescaledb.svg" alt="TimescaleDB Logo" width="40" height="40" />
 </a>
-<!-- NATS -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://nats.io" target="_blank" rel="noreferrer">
 <img src="./assets/icons/nats.svg" alt="NATS Logo" width="40" height="40" />
 </a>
-<!-- Devenv -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://devenv.sh" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg" alt="Devenv Logo" width="40" height="40" />
 </a>
-<!-- Loco.rs -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://loco.rs" target="_blank" rel="noreferrer">
 <img src="https://loco.rs/icon.svg" alt="Loco.rs Logo" width="40" height="40" />
 </a>
-<!-- Ratatui -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://ratatui.rs" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/125200832?s=48&v=4" alt="Ratatui Logo" width="40" height="40" />
 </a>
-<!-- Dioxus -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://dioxuslabs.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/79236386?s=200&v=4" alt="Dioxus Logo" width="40" height="40" />
 </a>
-<!-- Embassy -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://embassy.dev" target="_blank" rel="noreferrer">
 <img src="https://embassy.dev/favicon.png" alt="Embassy Logo" width="40" height="40" />
 </a>
-<!-- Platformio -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://platformio.org" target="_blank" rel="noreferrer">
 <img src="assets/platformio-symbol.svg" alt="Platformio Logo" width="40" height="40" />
 </a>
-<!-- TinyGo -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://tinygo.org" target="_blank" rel="noreferrer">
 <img src="https://tinygo.org/images/tinygo-logo.png" alt="TinyGo Logo" width="40" height="40" />
 </a>
-<!-- Pulumi -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40" />
 </a>
-</td>
-<td align='center'>
-<!-- FreeBSD -->
+</td></tr></table></td>
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
 <img src="https://github.com/MFarabi619/MFarabi619/blob/main/assets/freebsd-symbol-orb.png" alt="FreeBSD Logo" width="40" height="40" />
 </a>
-<!-- NixOS -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
 <img src="https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg" alt="NixOS Logo" width="40" height="40" />
 </a>
-<!-- GNU/Linux -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="GNU/Linux Logo" width="40" height="40" />
 </a>
-<!-- Arch Linux -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40" />
 </a>
-<!-- QEMU -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.qemu.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/qemu.svg" alt="QEMU Logo" width="40" height="40" />
 </a>
-<!-- Doom Emacs -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
 <img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40" />
 </a>
-<!-- Git -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40" />
 </a>
-<!-- Docker -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40" />
 </a>
-<!-- Trunk-Based Development -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
 <img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
 </a>
-<!-- Tailscale -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://tailscale.com" target="_blank" rel="noreferrer">
 <img src="./assets/icons/tailscale.svg" alt="Tailscale Logo" width="40" height="40" />
 </a>
-<!-- CloudEvents -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://cloudevents.io" target="_blank" rel="noreferrer">
 <img src="./assets/icons/cloudevents.svg" alt="CloudEvents Logo" width="40" height="40" />
 </a>
-<!-- Supabase -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://supabase.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
 </a>
-<!-- Grafana -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://grafana.com" target="_blank" rel="noreferrer">
 <img src="./assets/icons/grafana.svg" alt="Grafana Logo" width="40" height="40" />
 </a>
-<!-- Penpot -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
 <img src="https://logowik.com/content/uploads/images/penpot-design-tool-icon1721166198.logowik.com.webp" alt="Penpot Logo" width="40" height="40" />
 </a>
-</td>
+</td></tr></table></td>
 </tr>
 <tr>
 <td colspan="3" align="center"><b>Previously Used</b></td>
 </tr>
 <tr>
-<td align='center'>
-<!-- C++ -->
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
 </a>
-<!-- Sway -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://docs.fuel.network/docs/sway/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg" alt="Sway Logo" width="40" height="40" />
 </a>
-<!-- Java -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.java.com" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="Java Logo" width="40" height="40" />
 </a>
-<!-- Python -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.python.org" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="40" height="40" />
 </a>
-<!-- TypeScript -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40" />
 </a>
-<!-- JavaScript -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="JavaScript Logo" width="40" height="40" />
 </a>
-<!-- Svelte -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://svelte.dev/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original-wordmark.svg" alt="Svelte Logo" width="40" height="40" />
 </a>
-<!-- Lua -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40" />
 </a>
-<!-- Tailwind CSS -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40" />
 </a>
-<!-- HTML -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40" />
 </a>
-<!-- CSS -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40" />
 </a>
-<!-- KDL -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://kdl.dev" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg" alt="KDL Logo" width="40" height="40" />
 </a>
-</td>
-<td align='center'>
-<!-- Arduino -->
+</td></tr></table></td>
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
 </a>
-<!-- Deno -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://deno.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
 </a>
-<!-- Node.js -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40" />
 </a>
-<!-- Express -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40" />
 </a>
-<!-- Nest.js -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://nestjs.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
 </a>
-<!-- Drizzle -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40" />
 </a>
-<!-- XState -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://xstate.js.org" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40" />
 </a>
-<!-- GraphQL -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://graphql.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40" />
 </a>
-<!-- Payload CMS -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40" />
 </a>
-<!-- React Router 7 -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://reactrouter.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router 7 Logo" width="40" height="40" />
 </a>
-<!-- Next.js -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40" />
 </a>
-<!-- Remix.js -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://remix.run/" target="_blank" rel="noreferrer">
 <img src="https://github.com/user-attachments/assets/5ac0e523-a337-42a2-ba56-c13d314fdaac" alt="Remix.js Logo" width="40" height="40" />
 </a>
-<!-- Astro -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://astro.build/" target="_blank" rel="noreferrer">
 <img src="https://www.svgrepo.com/show/373446/astro.svg" alt="Astro Logo" width="40" height="40" />
 </a>
-<!-- SvelteKit -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://kit.svelte.dev/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" alt="SvelteKit Logo" width="40" height="40" />
 </a>
-<!-- Ember.js -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40" />
 </a>
-<!-- React -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40" />
 </a>
-<!-- WXT -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://wxt.dev" target="_blank" rel="noreferrer">
 <img src="https://wxt.dev/hero-logo.svg" alt="WXT Logo" width="40" height="40" />
 </a>
-<!-- Storybook -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40" />
 </a>
-<!-- Framer Motion -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://motion.dev" target="_blank" rel="noreferrer">
 <img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40" />
 </a>
-<!-- Slidev -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://sli.dev" target="_blank" rel="noreferrer">
 <img src="assets/slidev-symbol.svg" alt="Slidev Logo" width="40" height="40" />
 </a>
-<!-- Serenity.js Screenplay Pattern -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40" />
 </a>
-<!-- Playwright -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
 <img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40" />
 </a>
-<!-- Vitest -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://vitest.dev/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40" />
 </a>
-<!-- Jest -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40" />
 </a>
-<!-- Chai -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40" />
 </a>
-<!-- Mocha -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://mochajs.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40" />
 </a>
-<!-- PyTest -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg" alt="PyTest Logo" width="40" height="40" />
 </a>
-</td>
-<td align='center'>
-<!-- Oracle Enterprise Linux -->
+</td></tr></table></td>
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://www.oracle.com/ca-en/linux/" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg" alt="Oracle Enterprise Linux Logo" width="40" height="40" />
 </a>
-<!-- Ubuntu -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40" />
 </a>
-<!-- Zellij -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://zellij.dev/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
 </a>
-<!-- NeoVim -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://neovim.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40" />
 </a>
-<!-- Vim -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Logo" width="40" height="40" />
 </a>
-<!-- VS Code -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" alt="VS Code Logo" width="40" height="40" />
 </a>
-<!-- Tmux -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40" />
 </a>
-<!-- Jira -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
 <img src="https://cdn.worldvectorlogo.com/logos/jira-1.svg" alt="Jira Logo" width="40" height="40" />
 </a>
-<!-- BitBucket -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg" alt="BitBucket Logo" width="40" height="40" />
 </a>
-<!-- Confluence -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
 <img src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg" alt="Confluence Logo" width="40" height="40" />
 </a>
-<!-- Azure DevOps -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40" />
 </a>
-<!-- Nx -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://nx.dev" target="_blank" rel="noreferrer">
 <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40" />
 </a>
-<!-- Sanity -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40" />
 </a>
-<!-- GitHub Actions -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40" />
 </a>
-<!-- Netlify -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://netlify.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
 </a>
-<!-- Vercel -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://vercel.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/14985020?s=48&v=4" alt="Vercel Logo" width="40" height="40" />
 </a>
-<!-- Fuel SDKs -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://fuel.network" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg" alt="Fuel SDKs Logo" width="40" height="40" />
 </a>
-<!-- Figma -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40" />
 </a>
-<!-- Cloudflare -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" alt="Cloudflare Logo" width="40" height="40" />
 </a>
-</td>
+</td></tr></table></td>
 </tr>
 <tr>
 <td colspan="3" align="center"><b>Intend to Use in Future</b></td>
 </tr>
 <tr>
-<td align='center'>
-<!-- SPARK -->
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://www.adacore.com/about-spark" target="_blank" rel="noreferrer">
 <img src="assets/spark-2014-banner.png" alt="SPARK Logo" width="40" height="40" />
 </a>
-<!-- Smalltalk -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://squeak.org" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg" alt="Smalltalk Logo" width="40" height="40" />
 </a>
-<!-- Solidity -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://soliditylang.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg" alt="Solidity Logo" width="40" height="40" />
 </a>
-<!-- Ruby -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.ruby-lang.org/en/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/ruby/ruby-original.svg" alt="Ruby Logo" width="40" height="40" />
 </a>
-<!-- Haskell -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.haskell.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg" alt="Haskell Logo" width="40" height="40" />
 </a>
-</td>
-<td align='center'>
-<!-- Burn -->
+</td></tr></table></td>
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://burn.dev" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png" alt="Burn Logo" width="40" height="40" />
 </a>
-<!-- ROS 2 -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.ros.org" target="_blank" rel="noreferrer">
 <img src="https://www.ros.org/imgs/jazzy_robot.png" alt="ROS 2 Logo" width="40" height="40" />
 </a>
-<!-- Kubenix -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://kubenix.org" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg" alt="Kubenix Logo" width="40" height="40" />
 </a>
-<!-- Qiskit -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/30696987?s=200&v=4" alt="Qiskit Logo" width="40" height="40" />
 </a>
-<!-- Ruby on Rails -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://rubyonrails.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rails/rails-plain-wordmark.svg" alt="Ruby on Rails Logo" width="40" height="40" />
 </a>
-<!-- Integrated Haskell Platform -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://ihp.digitallyinduced.com" target="_blank" rel="noreferrer">
 <img src="https://ihp.digitallyinduced.com/Guide/images/ihp-logo-readme.svg" alt="Integrated Haskell Platform Logo" width="40" height="40" />
 </a>
-</td>
-<td align='center'>
-<!-- Plan 9 -->
+</td></tr></table></td>
+<td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://9p.io/plan9/" target="_blank" rel="noreferrer">
 <img src="assets/icons/plan-9.svg" alt="Plan 9 Logo" width="40" height="40" />
 </a>
-<!-- OpenBSD -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.openbsd.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/openbsd.png" alt="OpenBSD Logo" width="40" height="40" />
 </a>
-<!-- OmniOS -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://omnios.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/omnios.svg" alt="OmniOS Logo" width="40" height="40" />
 </a>
-<!-- Illumos -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://illumos.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/illumos.svg" alt="Illumos Logo" width="40" height="40" />
 </a>
-<!-- seL4 -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://sel4.systems" target="_blank" rel="noreferrer">
 <img src="https://sel4.systems/images/seL4.svg" alt="seL4 Logo" width="40" height="40" />
 </a>
-<!-- Kubernetes -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://kubernetes.io" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
 </a>
-<!-- Bazel -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://bazel.build" target="_blank" rel="noreferrer">
 <img src="assets/icons/bazel.svg" alt="Bazel Logo" width="40" height="40" />
 </a>
-<!-- Blocktorch -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://blocktorch.xyz" target="_blank" rel="noreferrer">
 <img src="https://cdn.prod.website-files.com/645a274bb89991808d214c54/645a274bb899913b91214c66_Torch_mini.png" alt="Blocktorch Logo" width="40" height="40" />
 </a>
-<!-- Kafka -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://kafka.apache.org" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apachekafka/apachekafka-original.svg" alt="Kafka Logo" width="40" height="40" />
 </a>
-<!-- Redis -->
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://redis.io" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg" alt="Redis Logo" width="40" height="40" />
 </a>
-<!-- Pharo -->
+</td><td align="center" style="padding: 8px;">
 <a href="https://pharo.org/" target="_blank" rel="noreferrer">
 <img src="https://pharo.org/web/files/pharo.png" alt="Pharo Logo" width="40" height="40" />
 </a>
-</td>
+</td></tr></table></td>
 </tr>
 </tbody>
 </table>

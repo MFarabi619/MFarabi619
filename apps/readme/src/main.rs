@@ -1,6 +1,8 @@
 use serde::Deserialize;
-use std::fs::{self, File, OpenOptions};
-use std::io::Write;
+use std::{
+    fs::{self, File, OpenOptions},
+    io::Write,
+};
 
 #[derive(Debug, Deserialize)]
 struct Item {
@@ -60,8 +62,8 @@ fn generate_skills_section(data: &SkillsData) -> String {
     let mut content = String::from(
         r#"👋 Please note that my technical competency fluctuates based on my active projects. I learn (and often forget) things as I go, and regularly rotate between different problem areas.<br/><br/>
 On occasions I've worked with as many as 8 different languages in a single day. This section serves as a reminder to me that fancy tech icons aren't the end all be all in life. They come and go with time, just like we do.<br/><br/>
-<div class="tg-wrap" align="center">
-<table>
+<div align="center">
+<table width="100%">
 <thead>
 <tr>
 <th>Languages</th><th>Frameworks & Libraries</th><th>Tools</th>
@@ -88,25 +90,34 @@ On occasions I've worked with as many as 8 different languages in a single day. 
         ];
 
         for items in sections {
-            rows.push_str("<td align='center'>\n");
-            for item in items {
+            rows.push_str("<td align='center' width='33%' valign='top'>");
+            rows.push_str("<table width='100%'><tr>");
+
+            for (i, item) in items.iter().enumerate() {
+                if i > 0 && i % 3 == 0 {
+                    rows.push_str("</tr><tr>");
+                }
+
                 let width = item.width.clone().unwrap_or_else(|| "40".to_string());
                 let height = item.height.clone().unwrap_or_else(|| "40".to_string());
                 let alt = item
                     .alt
                     .clone()
                     .unwrap_or_else(|| format!("{} Logo", item.name));
+
                 rows.push_str(&format!(
-                    r#"<!-- {} -->
+                    r#"<td align="center" style="padding: 8px;">
 <a href="{}" target="_blank" rel="noreferrer">
 <img src="{}" alt="{}" width="{}" height="{}" />
 </a>
-"#,
-                    item.name, item.url, item.icon, alt, width, height
+</td>"#,
+                    item.url, item.icon, alt, width, height
                 ));
             }
-            rows.push_str("</td>\n");
+
+            rows.push_str("</tr></table></td>\n");
         }
+
         rows.push_str("</tr>\n");
         rows
     }
