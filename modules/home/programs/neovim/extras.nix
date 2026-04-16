@@ -1,8 +1,4 @@
 {
-  pkgs,
-  ...
-}:
-{
   programs.lazyvim = {
     extras = {
       test.core.enable = true;
@@ -38,7 +34,7 @@
 
       lang = {
         tex.enable = true;
-        # json.enable = true; # FIXME: results in fixed output derivation error resulting from tree-sitter jsonc
+        json.enable = true;
         toml.enable = true;
         yaml.enable = true;
         markdown.enable = true;
