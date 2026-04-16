@@ -44,7 +44,7 @@
         nix.enable = true;
         sql.enable = true;
         rust.enable = true;
-        ruby.enable = false;
+        ruby.enable = true;
         clang.enable = true;
         cmake.enable = true;
         python.enable = true;
