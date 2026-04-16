@@ -50,6 +50,7 @@
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
+      "mlx"
       "qemu"
       "nemu"
       "stlink"
