@@ -196,19 +196,21 @@
       }
     '';
 
-    lsp-config = ''
-      return {
-        "neovim/nvim-lspconfig",
-        opts = function(_, opts)
-          opts.servers = opts.servers or {}
+    # TODO:complete setup
 
-          opts.servers.likec4 = {
-            cmd = {"pnpx", "@likec4/language-server", "--stdio" },
-          }
-
-          return opts
-        end,
-      }
-    '';
+    # lsp-config = ''
+    #   return {
+    #     "neovim/nvim-lspconfig",
+    #     opts = function(_, opts)
+    #       opts.servers = opts.servers or {}
+    #
+    #       opts.servers.likec4 = {
+    #         cmd = {"pnpx", "@likec4/language-server", "--stdio" },
+    #       }
+    #
+    #       return opts
+    #     end,
+    #   }
+    # '';
   };
 }
