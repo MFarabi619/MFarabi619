@@ -32,6 +32,7 @@
       # "sonic-pi"
       # "unity-hub"
       "leader-key"
+      "claude-code"
       "tailscale-app"
       # "supercollider"
       "docker-desktop"
