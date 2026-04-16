@@ -25,6 +25,10 @@ pub enum ButtonSize {
 
 #[derive(Props, Clone, PartialEq)]
 pub struct ButtonProps {
+    /// Optional extra classes appended to the component defaults
+    #[props(default)]
+    class: String,
+
     /// The button type (submit, reset, button)
     #[props(default = String::from("button"))]
     button_type: String,
@@ -198,6 +202,7 @@ pub fn Button(props: ButtonProps) -> Element {
         },
         // State class (disabled/loading)
         state_class,
+        props.class.as_str(),
     ]
     .into_iter()
     .filter(|s| !s.is_empty())
