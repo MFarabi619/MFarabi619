@@ -59,6 +59,7 @@
         pdf-tools
         magit-todos
         magit-delta
+        claude-code
         corfu-terminal
         nerd-icons-corfu
       ]
