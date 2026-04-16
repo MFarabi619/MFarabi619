@@ -12,6 +12,7 @@
       vim.keymap.set("n", "<C-g>", "<Esc>", { noremap = true })
       -- vim.keymap.set("n", "<leader>fs", "<cmd>w<cr>", { desc = "Save" })
       vim.keymap.set("n", "<leader>k", "<cmd>Yazi<cr>", { noremap = true, desc = "Open yazi at the current file" })
+      vim.keymap.set("n", "<leader>j", "<cmd>Terminal (Root Dir)<cr>", { noremap = true })
     '';
 
     autocmds = ''
