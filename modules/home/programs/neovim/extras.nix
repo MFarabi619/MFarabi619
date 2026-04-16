@@ -50,7 +50,7 @@
         python.enable = true;
         docker.enable = false;
         svelte.enable = false;
-        tailwind.enable = false;
+        tailwind.enable = true;
         typescript.enable = true;
       };
 
