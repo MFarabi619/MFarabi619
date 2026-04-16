@@ -1,4 +1,12 @@
 //! `Device` — the system under test, and the helpers that build it.
+//!
+//! ESP32-S3 dual-core notes:
+//! - Any `FlashStorage::new()` must chain `.multicore_auto_park()` to avoid
+//!   Watchpoint crashes. Core 1 is parked automatically during flash I/O.
+//! - The regular DRAM heap (48 KB below) shares the same SRAM region as the
+//!   main thread stack. microvisor.rs uses 32 KB to leave room for
+//!   smoltcp::Interface::new(); tests can afford 48 KB because they don't
+//!   init the full network stack in boot_device().
 
 use defmt::info;
 use embassy_net::{Ipv4Cidr, Runner, Stack, StackResources, StaticConfigV4};

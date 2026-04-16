@@ -43,6 +43,9 @@ async fn main(spawner: Spawner) -> ! {
     let peripherals = esp_hal::init(config);
 
     esp_alloc::heap_allocator!(#[esp_hal::ram(reclaimed)] size: 73744);
+    // 32 KB — shares SRAM with main thread stack. Was 64 KB but
+    // smoltcp::Interface::new() overflows the stack during embassy_net init.
+    // PSRAM handles bulk allocations; keep this small.
     esp_alloc::heap_allocator!(size: 32 * 1024);
     esp_alloc::psram_allocator!(peripherals.PSRAM, esp_hal::psram);
 

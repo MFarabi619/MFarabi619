@@ -45,9 +45,9 @@ fn esp32() {
     // Compile-time device configuration. These are read by
     // firmware/src/config.rs via env!() / option_env!().
     // Override any of these by setting the env var before cargo:
-    //   NETWORK_WIFI_SSID=mynet cargo b
-    set_env_default("NETWORK_WIFI_SSID", "");
-    set_env_default("NETWORK_WIFI_PSK", "");
+    //   WIFI_SSID=mynet cargo b
+    set_env_default("WIFI_SSID", "");
+    set_env_default("WIFI_PSK", "");
     set_env_default("SHELL_USER", "");
     set_env_default("HOSTNAME", "");
 

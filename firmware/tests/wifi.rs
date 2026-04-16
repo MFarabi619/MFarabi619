@@ -3,6 +3,13 @@
 //! WiFi station-mode tests: scan for access points and join the
 //! configured home network via DHCP. Merged from wifi_scan.rs and
 //! wifi_dhcp.rs.
+//!
+//! NOTE: Running all 5 tests in one `cargo +esp tt --test wifi` invocation
+//! will crash after the 2nd test. The WiFi radio coprocessor holds state in
+//! RTC memory that survives the soft-reset probe-rs issues between tests,
+//! so `esp_radio::wifi::new()` fails on the 3rd boot. Every test passes
+//! individually — run them with a name filter:
+//!     cargo +esp tt --test wifi -- user_joins
 
 #![no_std]
 #![no_main]

@@ -99,10 +99,10 @@ harness = false
 name = "system"
 path = "tests/system.rs"
 
-[[test]]
-harness = false
-name = "wifi"
-path = "tests/wifi.rs"
+# [[test]]
+# harness = false
+# name = "wifi"
+# path = "tests/wifi.rs"
 
 # [[test]]
 # harness = false
@@ -235,11 +235,22 @@ embassy-executor = { workspace = true, features = ["defmt"] }
 embedded-io-async = { workspace = true, features = ["defmt"] }
 rtt-target = { version = "0.6.2", features = ["defmt"] }
 
-esp-alloc = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = ["defmt"] }
+esp-alloc = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+    "defmt",
+] }
 panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
-esp-bootloader-esp-idf = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = ["defmt", "esp32s3"] }
-esp-storage = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = ["esp32s3"] }
-esp-hal = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = ["defmt", "esp32s3", "unstable"] }
+esp-bootloader-esp-idf = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+    "defmt",
+    "esp32s3",
+] }
+esp-storage = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+    "esp32s3",
+] }
+esp-hal = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+    "defmt",
+    "esp32s3",
+    "unstable",
+] }
 embassy-futures = "0.1"
 embassy-sync = { version = "0.7", features = ["defmt"] }
 trouble-host = { version = "0.6.0", features = ["gatt"] }
