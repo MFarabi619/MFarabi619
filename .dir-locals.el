@@ -88,7 +88,7 @@
 
             (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
             (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
-            (" ESP32S3 : debug"                 :command "cargo +esp rr"                                                                      :annotation "cargo +esp ")
+            (" ESP32S3 : debug"                 :command "espflash partition-table firmware/machine/esp32s3.partitions.csv; cargo +esp rr"     :annotation "cargo +esp ")
             (" ESP32S3 :󰭎 monitor"               :command "probe-rs run"                                  :prodigy nil                         :annotation "cargo +esp ")
 
             (" ESP32S3 :󱈫 test"                  :command "cargo +esp tt                     "                                                 :annotation "cargo +esp ")
@@ -112,6 +112,7 @@
             (" ESP32S3 :󰒲 example:defmt-tcp"     :command "cargo +esp rr --example defmt-tcp "                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󰐊 pio run"               :command "pio run                           "                                                 :annotation "platformio ")
             (" ESP32S3 : pio test"              :command "pio test                          "                                                 :annotation "platformio ")
+            (" ESP32S3 :󰞏 pio test --without"    :command "pio test --without-building --without-uploading"                                    :annotation "platformio ")
             (" ESP32S3 :󰔰 pio run -t upload"     :command "pio run -t upload                 "                                                 :annotation "platformio ")
             (" ESP32S3 : pio run -t compiledb"  :command "pio run -t compiledb              "                                                 :annotation "platformio ")
             (" ESP32S3 : pio run -t uploadfs"   :command "pio run -t uploadfs               "                                                 :annotation "platformio ")
