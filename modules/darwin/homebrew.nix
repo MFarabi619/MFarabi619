@@ -53,6 +53,7 @@
       "qemu"
       "nemu"
       "stlink"
+      "ollama"
       "ferron" # rust-based caddy-like web server
       "netscanner"
       # "podman"
