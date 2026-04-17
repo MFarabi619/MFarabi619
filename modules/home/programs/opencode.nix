@@ -14,10 +14,12 @@
       autoshare = false;
       autoupdate = false;
       server.mdns = true;
-      model = "ollama/qwen3.5:35b-a3b-coding-nvfp4";
+      # model = "ollama/qwen3.5:35b-a3b-coding-nvfp4";
+      model = "openai/gpt5.4";
       disabled_providers = [
+        "github"
         "gemini"
-        "openai"
+        # "openai"
       ];
 
       provider.ollama = {
