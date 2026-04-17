@@ -528,8 +528,14 @@
   .max-h-\[400px\] {
     max-height: 400px;
   }
+  .max-h-\[460px\] {
+    max-height: 460px;
+  }
   .min-h-\[62px\] {
     min-height: 62px;
+  }
+  .min-h-\[320px\] {
+    min-height: 320px;
   }
   .min-h-screen {
     min-height: 100vh;

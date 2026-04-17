@@ -1,6 +1,6 @@
 use super::{
-    build_csv, download_csv, fetch_and_add_sensor_readings, Co2Row, MeasurementState,
-    MeasurementTab, PressureRow, SensorAvailability, Td, TemperatureHumidityRow, Th, VoltageRow,
+    Co2Row, MeasurementState, MeasurementTab, PressureRow, SensorAvailability, Td,
+    TemperatureHumidityRow, Th, VoltageRow, build_csv, download_csv, fetch_and_add_sensor_readings,
 };
 use crate::api::Co2ConfigData;
 use crate::services::Co2Service;
@@ -103,7 +103,7 @@ pub fn MeasurementPanel(
                     active_tab.set(MeasurementTab::from_value(&val));
                 },
                 TabList {
-                    class: "flex w-full border border-border rounded-full p-1 mb-4",
+                    class: "flex w-full border border-border rounded-full p-1 mb-3",
                     if !has_any_sensor {
                         div { class: "w-full py-2 text-center text-muted-foreground", "No sensors connected" }
                     } else {
@@ -335,8 +335,8 @@ fn co2_panel(
                     rsx! { lucide_dioxus::FlaskConical { class: "w-4 h-4" } })}
             }
 
-            div { class: "border border-border rounded-lg overflow-hidden",
-                div { class: "w-full overflow-auto h-[400px]",
+            div { class: "border border-border rounded-lg overflow-hidden min-h-[320px] max-h-[460px]",
+                div { class: "w-full overflow-auto h-full",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
                             tr {
@@ -402,8 +402,8 @@ fn thm_panel(
                     rsx! { lucide_dioxus::Thermometer { class: "w-4 h-4" } })}
             }
 
-            div { class: "border border-border rounded-lg overflow-hidden",
-                div { class: "w-full overflow-auto h-[400px]",
+            div { class: "border border-border rounded-lg overflow-hidden min-h-[320px] max-h-[460px]",
+                div { class: "w-full overflow-auto h-full",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
                             tr {
@@ -478,8 +478,8 @@ fn pressure_panel(
                     rsx! { lucide_dioxus::Gauge { class: "w-4 h-4" } })}
             }
 
-            div { class: "border border-border rounded-lg overflow-hidden",
-                div { class: "w-full overflow-auto h-[400px]",
+            div { class: "border border-border rounded-lg overflow-hidden min-h-[320px] max-h-[460px]",
+                div { class: "w-full overflow-auto h-full",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
                             tr {
@@ -543,8 +543,8 @@ fn voltage_panel(
                     rsx! { lucide_dioxus::Zap { class: "w-4 h-4" } })}
             }
 
-            div { class: "border border-border rounded-lg overflow-hidden",
-                div { class: "w-full overflow-auto h-[400px]",
+            div { class: "border border-border rounded-lg overflow-hidden min-h-[320px] max-h-[460px]",
+                div { class: "w-full overflow-auto h-full",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
                             tr {
