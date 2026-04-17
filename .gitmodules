@@ -1,0 +1,3 @@
+[submodule "esp32_arduino_sqlite3_lib"]
+	path = libs/esp32_arduino_sqlite3_lib
+	url = https://github.com/MFarabi619/esp32_arduino_sqlite3_lib
