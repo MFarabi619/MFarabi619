@@ -19,6 +19,10 @@
       # extraFlags = [ "--verbose" ];
     };
 
+    taps = [
+      "espressif/eim"
+    ];
+
     casks = [
       "via"
       "vial"
@@ -28,6 +32,7 @@
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "huly"
+      "eim-gui"
       # "comfyui"
       # "sonic-pi"
       # "unity-hub"
@@ -51,6 +56,7 @@
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
+      "eim"
       "mlx"
       "qemu"
       "nemu"
