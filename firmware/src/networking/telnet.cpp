@@ -142,15 +142,14 @@ static void test_telnet_config(void) {
   TEST_ASSERT_GREATER_THAN_UINT16_MESSAGE(0, config::telnet::WRITE_BUF,
     "device: write buffer must be > 0");
 
-  char msg[64];
-  snprintf(msg, sizeof(msg), "telnet enabled on port %d", config::telnet::PORT);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("telnet enabled on port %d", config::telnet::PORT);
 #else
   TEST_IGNORE_MESSAGE("telnet not enabled");
 #endif
 }
 
 void networking::telnet::test(void) {
+  MODULE("Telnet");
   RUN_TEST(test_telnet_config);
 }
 

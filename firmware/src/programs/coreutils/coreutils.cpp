@@ -107,6 +107,7 @@ static void test_coreutils_whoami(void) {
 }
 
 void programs::coreutils::test() {
+  MODULE("Coreutils");
   RUN_TEST(test_coreutils_date);
   RUN_TEST(test_coreutils_date_rejects_extra_args);
   RUN_TEST(test_coreutils_uptime);

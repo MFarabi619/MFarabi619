@@ -107,6 +107,7 @@ static void test_shell_initializes(void) {
 }
 
 void programs::shell::test(void) {
+  MODULE("Shell");
   RUN_TEST(test_shell_initializes);
 }
 

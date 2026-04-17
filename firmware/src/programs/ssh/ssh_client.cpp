@@ -394,9 +394,7 @@ static void test_ota_partition_available(void) {
   const esp_partition_t *target = esp_ota_get_next_update_partition(NULL);
   TEST_ASSERT_NOT_NULL_MESSAGE(target,
     "device: no OTA update partition — partition table may lack ota_0/ota_1");
-  char msg[64];
-  snprintf(msg, sizeof(msg), "OTA target: %s", target->label);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("OTA target: %s", target->label);
 }
 
 static void test_ssh_exec_fails_on_unreachable_host(void) {
@@ -445,22 +443,13 @@ static void test_ssh_exec_fails_on_unreachable_host(void) {
 // }
 
 void programs::ssh_client::test() {
+  MODULE("SSH Client");
   RUN_TEST(test_ssh_exec_rejects_missing_args);
   RUN_TEST(test_scp_get_rejects_missing_args);
   RUN_TEST(test_scp_put_rejects_missing_args);
   RUN_TEST(test_ota_rejects_missing_args);
   RUN_TEST(test_ota_partition_available);
   RUN_TEST(test_ssh_exec_fails_on_unreachable_host);
-
-  // TODO: Uncomment when test SSH server is available
-  // it("user executes remote command via ssh-exec",
-  //    ssh_client_test_ssh_exec_runs_remote_command);
-  // it("user downloads file via scp-get",
-  //    ssh_client_test_scp_get_downloads_file);
-  // it("user uploads file via scp-put",
-  //    ssh_client_test_scp_put_uploads_file);
-  // it("user observes ota fails with nonexistent firmware",
-  //    ssh_client_test_ota_fails_with_nonexistent_firmware);
 }
 
 #endif

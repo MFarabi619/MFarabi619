@@ -101,11 +101,13 @@ static void test_rtc_reads_temperature() {
 
     WHEN("the temperature is read");
     float temp = rtc_device.getTemperature();
+    TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(temp,
+        "device: RTC temperature is NaN or Inf");
     TEST_ASSERT_GREATER_OR_EQUAL_FLOAT_MESSAGE(-37.5f, temp,
         "device: RTC temperature below DS3231 minimum");
     TEST_ASSERT_LESS_OR_EQUAL_FLOAT_MESSAGE(82.5f, temp,
         "device: RTC temperature above DS3231 maximum");
-    char msg[32];
+    char msg[16];
     snprintf(msg, sizeof(msg), "%.2f C", temp);
     TEST_MESSAGE(msg);
 }
@@ -193,6 +195,7 @@ static void test_rtc_alarm_disable_clears() {
 }
 
 void services::rtc::test() {
+    MODULE("RTC");
     RUN_TEST(test_rtc_init);
     RUN_TEST(test_rtc_oscillator);
     RUN_TEST(test_rtc_reads_time);

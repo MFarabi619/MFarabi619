@@ -153,6 +153,7 @@ static void test_sntp_syncs_and_updates_rtc(void) {
 }
 
 void networking::sntp::test(void) {
+  MODULE("NTP");
   RUN_TEST(test_sntp_config_defaults);
   RUN_TEST(test_sntp_not_synced_before_connect);
   RUN_TEST(test_sntp_syncs_and_updates_rtc);

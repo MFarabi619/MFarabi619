@@ -393,6 +393,7 @@ static void test_sshd_config_defaults(void) {
 }
 
 void services::sshd::test() {
+  MODULE("SSH Server");
   RUN_TEST(test_sshd_libssh_initializes);
   RUN_TEST(test_sshd_generates_ed25519_key);
   RUN_TEST(test_sshd_bind_configures);

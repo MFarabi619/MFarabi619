@@ -12,12 +12,51 @@
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  BDD narration macros
+//
+//  These are thin wrappers over Unity's TEST_MESSAGE. The Python test runner
+//  (tests/test_custom_runner.py) parses the [KEYWORD] prefix to produce
+//  Ward-inspired BDD output with semantic colors and progressive indentation.
+//
+//  What we use from Unity:
+//    TEST_MESSAGE / TEST_PRINTF    — narrative output (TEST_PRINTF for formatted)
+//      CAVEAT: TEST_PRINTF does NOT support width/precision (%-16s, %.2f).
+//      Those cause va_arg misalignment → ESP32 LoadProhibited crash.
+//      Use snprintf + TEST_MESSAGE for format strings with modifiers.
+//    TEST_ASSERT_EQUAL_STRING      — prefer over strcmp-based assertions
+//    TEST_ASSERT_EQUAL_MEMORY      — prefer over memcmp for struct roundtrips
+//    TEST_ASSERT_FLOAT_WITHIN      — prefer for sensor range checks
+//    TEST_ASSERT_FLOAT_IS_DETERMINATE — add to sensor reads to catch NaN/Inf
+//    TEST_ASSERT_NOT_EMPTY         — prefer for "is this string set?" checks
+//    UNITY_INCLUDE_EXEC_TIME       — per-test timing (enabled in unity_config.h)
+//    UNITY_INCLUDE_PRINT_FORMATTED — enables TEST_PRINTF (enabled in unity_config.h)
+//
+//  What we DON'T use, and why:
+//    Unity Fixture (extras/fixture/)
+//      TEST_GROUP / TEST / RUN_TEST_CASE — provides grouping + CLI filtering,
+//      but (a) Fixture's name format "TEST(Group, Name)" breaks PlatformIO's
+//      parse_test_case regex ([^\s]+ can't handle the space), (b) Fixture's
+//      CLI filtering (-g, -n) requires argv which doesn't exist on ESP32
+//      (Arduino's setup() has no argc/argv), (c) Fixture auto-includes
+//      unity_memory.h which wraps stdlib malloc/free — wrong on ESP32 with
+//      FreeRTOS (needs pvPortMalloc/vPortFree). Our MODULE() macro serves the
+//      rendering purpose without any of these compatibility issues.
+//
+//    Unity auto/ scripts (generate_test_runner.rb, stylize_as_junit.py)
+//      PlatformIO handles test wiring and already provides --junit-output-path
+//      and --json-output-path built-in. Manual test() functions give us MODULE
+//      grouping control that auto-generation would lose.
+//
+//    Unity BDD (extras/bdd/unity_bdd.h)
+//      The upstream GIVEN/WHEN/THEN are if(0){printf}else — pure documentation
+//      scaffolding that emits NO output. We need actual output for the Python
+//      runner to parse, so our macros use TEST_MESSAGE instead.
 // ─────────────────────────────────────────────────────────────────────────────
 
-#define GIVEN(desc) TEST_MESSAGE("Given: " desc)
-#define WHEN(desc)  TEST_MESSAGE("When: " desc)
-#define THEN(desc)  TEST_MESSAGE("Then: " desc)
-#define AND(desc)   TEST_MESSAGE("And: " desc)
+#define GIVEN(desc)  TEST_MESSAGE("[GIVEN] "  desc)
+#define WHEN(desc)   TEST_MESSAGE("[WHEN] "   desc)
+#define THEN(desc)   TEST_MESSAGE("[THEN] "   desc)
+#define AND(desc)    TEST_MESSAGE("[AND] "    desc)
+#define MODULE(name) TEST_MESSAGE("[MODULE] " name)
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  I2C helpers

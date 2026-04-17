@@ -59,9 +59,7 @@ static void test_json_measure_length(void) {
   TEST_ASSERT_EQUAL_UINT32_MESSAGE(measured, actual,
     "device: measureJson doesn't match serializeJson length");
 
-  char msg[48];
-  snprintf(msg, sizeof(msg), "measured=%u actual=%u", (unsigned)measured, (unsigned)actual);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("measured=%u actual=%u", (unsigned)measured, (unsigned)actual);
 }
 
 static void test_json_deserialize(void) {
@@ -187,10 +185,8 @@ static void test_http_auth_config(void) {
   TEST_ASSERT_EQUAL_STRING_MESSAGE("ceratina", config::http::AUTH_REALM,
     "device: auth realm should be 'ceratina'");
 
-  char msg[80];
-  snprintf(msg, sizeof(msg), "auth user=%s realm=%s enabled=%d",
+  TEST_PRINTF("auth user=%s realm=%s enabled=%d",
            config::http::AUTH_USER, config::http::AUTH_REALM, CERATINA_HTTP_AUTH_ENABLED);
-  TEST_MESSAGE(msg);
 }
 
 static void test_http_rate_limit_policy(void) {
@@ -199,17 +195,20 @@ static void test_http_rate_limit_policy(void) {
 }
 
 void services::http::test(void) {
+  MODULE("HTTP");
   RUN_TEST(test_http_port_default);
+  RUN_TEST(test_http_cors_allows_patch);
+  RUN_TEST(test_http_public_endpoints_no_auth);
+  RUN_TEST(test_http_auth_config);
+  RUN_TEST(test_http_rate_limit_policy);
+
+  MODULE("JSON");
   RUN_TEST(test_json_create_and_serialize);
   RUN_TEST(test_json_measure_length);
   RUN_TEST(test_json_deserialize);
   RUN_TEST(test_json_default_values);
   RUN_TEST(test_json_nested_objects_and_arrays);
   RUN_TEST(test_json_file_roundtrip);
-  RUN_TEST(test_http_cors_allows_patch);
-  RUN_TEST(test_http_public_endpoints_no_auth);
-  RUN_TEST(test_http_auth_config);
-  RUN_TEST(test_http_rate_limit_policy);
 }
 
 namespace services::http_e2e { void test(void); }

@@ -446,6 +446,7 @@ static void test_provisioning_uuids_configured(void) {
 }
 
 void boot::provisioning::test(void) {
+  MODULE("Provisioning");
   RUN_TEST(test_provisioning_detects_credentials);
   RUN_TEST(test_provisioning_config_roundtrip);
   RUN_TEST(test_provisioning_reset_clears_all);

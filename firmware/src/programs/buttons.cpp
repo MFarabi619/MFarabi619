@@ -169,10 +169,8 @@ static void test_buttons_config_valid(void) {
   TEST_ASSERT_GREATER_OR_EQUAL_INT_MESSAGE(0, config::buttons::GPIO_3,
       "device: GPIO_3 should be a valid pin");
 
-  char msg[64];
-  snprintf(msg, sizeof(msg), "debounce=%dms long_press=%dms",
+  TEST_PRINTF("debounce=%dms long_press=%dms",
            config::buttons::DEBOUNCE_MS, config::buttons::LONG_PRESS_MS);
-  TEST_MESSAGE(msg);
 }
 
 static void test_buttons_disabled_gpio_rejected(void) {
@@ -190,6 +188,7 @@ static void test_buttons_out_of_range_rejected(void) {
 }
 
 void programs::buttons::test() {
+  MODULE("Buttons");
   RUN_TEST(test_buttons_config_valid);
   RUN_TEST(test_buttons_disabled_gpio_rejected);
   RUN_TEST(test_buttons_out_of_range_rejected);

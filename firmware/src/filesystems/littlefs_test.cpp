@@ -19,9 +19,7 @@ static void test_littlefs_mounts(void) {
   TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(0, total,
     "device: LittleFS total is 0");
 
-  char msg[48];
-  snprintf(msg, sizeof(msg), "%u KB total, %u KB used", total / 1024, used / 1024);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("%u KB total, %u KB used", total / 1024, used / 1024);
 }
 
 static void test_littlefs_write_read_roundtrip(void) {
@@ -149,10 +147,8 @@ static void test_littlefs_rmdir_non_empty(void) {
   f.close();
 
   bool result = LittleFS.rmdir("/.test_rmdir");
-  char msg[64];
-  snprintf(msg, sizeof(msg), "rmdir on non-empty dir returned: %s",
+  TEST_PRINTF("rmdir on non-empty dir returned: %s",
            result ? "true (recursive!)" : "false (non-recursive)");
-  TEST_MESSAGE(msg);
   TEST_ASSERT_FALSE_MESSAGE(result,
     "device: rmdir removed a non-empty directory — it IS recursive");
 
@@ -171,10 +167,8 @@ static void test_littlefs_remove_on_directory(void) {
     "device: mkdir failed");
 
   bool result = LittleFS.remove("/.test_rm_dir");
-  char msg[64];
-  snprintf(msg, sizeof(msg), "remove() on directory returned: %s",
+  TEST_PRINTF("remove() on directory returned: %s",
            result ? "true (handles dirs)" : "false (files only)");
-  TEST_MESSAGE(msg);
 
   if (LittleFS.exists("/.test_rm_dir"))
     LittleFS.rmdir("/.test_rm_dir");
@@ -217,6 +211,7 @@ static void test_littlefs_rename(void) {
 }
 
 void filesystems::littlefs::test(void) {
+  MODULE("LittleFS");
   RUN_TEST(test_littlefs_mounts);
   RUN_TEST(test_littlefs_write_read_roundtrip);
   RUN_TEST(test_littlefs_ssh_dir_persists);

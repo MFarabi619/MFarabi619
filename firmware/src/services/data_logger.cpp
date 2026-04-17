@@ -239,6 +239,7 @@ static void test_csv_header_format(void) {
 }
 
 void services::data_logger::test(void) {
+  MODULE("CSV");
   RUN_TEST(test_csv_header_format);
 }
 

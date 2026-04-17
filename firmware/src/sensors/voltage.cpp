@@ -237,6 +237,7 @@ static void test_voltage_rejects_null_buffer(void) {
 }
 
 void sensors::voltage::test() {
+  MODULE("Voltage");
   RUN_TEST(test_voltage_initializes);
   RUN_TEST(test_voltage_reads_channels);
   RUN_TEST(test_voltage_gain_label);

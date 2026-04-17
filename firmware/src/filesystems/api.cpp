@@ -141,6 +141,7 @@ static void test_api_normal_path_not_sensitive(void) {
 }
 
 void filesystems::api::test(void) {
+  MODULE("Filesystem API");
   RUN_TEST(test_api_sensitive_path_with_slash);
   RUN_TEST(test_api_sensitive_path_without_slash);
   RUN_TEST(test_api_sensitive_path_nested);

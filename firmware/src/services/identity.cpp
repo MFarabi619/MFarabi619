@@ -200,6 +200,7 @@ static void test_identity_api_key_roundtrip(void) {
 }
 
 void services::identity::test() {
+  MODULE("Identity");
   RUN_TEST(test_identity_hostname_default);
   RUN_TEST(test_identity_hostname_truncation);
   RUN_TEST(test_identity_username_roundtrip);

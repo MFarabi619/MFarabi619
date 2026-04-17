@@ -294,30 +294,32 @@ bool sensors::carbon_dioxide::isAvailable() {
 
 #include <testing/utils.h>
 
-static void test_co2_init(void) {
-  WHEN("the CO2 module is initialized");
+static void co2_module_initializes(void) {
+  GIVEN("the I2C bus and TCA9548A mux are initialized");
+  WHEN("initialize() probes 0x61 (SCD30) and 0x62 (SCD41) via findDevice");
+  THEN("a supported CO2 sensor is detected and registered");
   hardware::i2c::initialize();
   TEST_ASSERT_TRUE_MESSAGE(sensors::carbon_dioxide::initialize(),
     "device: CO2 module initialization failed");
 }
 
-static void test_co2_detect(void) {
-  GIVEN("the CO2 module is initialized");
-  THEN("a sensor backend is detected");
+static void sensor_backend_is_detected(void) {
+  GIVEN("initialize() has detected a CO2 sensor (backend != CO2_NONE)");
+  WHEN("accessConfig() is called");
+  THEN("config.model reports the detected backend (SCD30 or SCD41)");
   if (!sensors::carbon_dioxide::isAvailable()) {
     TEST_IGNORE_MESSAGE("no CO2 sensor connected");
     return;
   }
   Co2Config config;
   sensors::carbon_dioxide::accessConfig(&config);
-  char msg[64];
-  snprintf(msg, sizeof(msg), "detected: %s", config.model);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("detected: %s", config.model);
 }
 
-static void test_co2_read(void) {
-  GIVEN("a CO2 sensor is available");
-  WHEN("a measurement is read");
+static void co2_reading_is_non_zero_ppm(void) {
+  GIVEN("an SCD41 is registered in the sensor registry");
+  WHEN("access() triggers a single-shot measurement (~5s blocking)");
+  THEN("sensor_data.co2_ppm > 0 and model is \"SCD41\"");
   if (!sensors::carbon_dioxide::isAvailable()) {
     TEST_IGNORE_MESSAGE("no CO2 sensor available");
     return;
@@ -333,14 +335,17 @@ static void test_co2_read(void) {
            sensor_data.model, sensor_data.co2_ppm, sensor_data.temperature_celsius,
            sensor_data.relative_humidity_percent);
   TEST_MESSAGE(msg);
+  TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(sensor_data.co2_ppm,
+    "device: CO2 reading is NaN or Inf");
   TEST_ASSERT_GREATER_THAN_FLOAT_MESSAGE(0.0f, sensor_data.co2_ppm,
     "device: CO2 reading must be > 0 ppm");
 }
 
 void sensors::carbon_dioxide::test() {
-  RUN_TEST(test_co2_init);
-  RUN_TEST(test_co2_detect);
-  RUN_TEST(test_co2_read);
+  MODULE("CO2");
+  RUN_TEST(co2_module_initializes);
+  RUN_TEST(sensor_backend_is_detected);
+  RUN_TEST(co2_reading_is_non_zero_ppm);
 }
 
 #endif

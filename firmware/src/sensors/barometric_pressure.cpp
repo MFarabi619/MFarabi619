@@ -112,9 +112,13 @@ static void test_pressure_read(void) {
     TEST_IGNORE_MESSAGE("reading not ready yet");
     return;
   }
-  char msg[128];
+  char msg[64];
   snprintf(msg, sizeof(msg), "LPS25: %.2f hPa, %.2f C", data.pressure_hpa, data.temperature_celsius);
   TEST_MESSAGE(msg);
+  TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(data.pressure_hpa,
+    "device: pressure reading is NaN or Inf");
+  TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(data.temperature_celsius,
+    "device: temperature reading is NaN or Inf");
   TEST_ASSERT_GREATER_THAN_FLOAT_MESSAGE(900.0f, data.pressure_hpa,
     "device: pressure below 900 hPa — sensor may be faulty");
   TEST_ASSERT_LESS_THAN_FLOAT_MESSAGE(1100.0f, data.pressure_hpa,
@@ -122,6 +126,7 @@ static void test_pressure_read(void) {
 }
 
 void sensors::barometric_pressure::test(void) {
+  MODULE("Barometric Pressure");
   RUN_TEST(test_pressure_init);
   RUN_TEST(test_pressure_read);
 }

@@ -18,10 +18,12 @@ static void test_system_temperature_read(void) {
   WHEN("the chip temperature is read");
 
   float temp = temperatureRead();
-  char msg[64];
+  char msg[32];
   snprintf(msg, sizeof(msg), "chip temperature: %.1f C", temp);
   TEST_MESSAGE(msg);
 
+  TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(temp,
+    "device: chip temperature is NaN or Inf");
   TEST_ASSERT_GREATER_OR_EQUAL_FLOAT_MESSAGE(0.0f, temp,
     "device: chip temperature below 0 C");
   TEST_ASSERT_LESS_OR_EQUAL_FLOAT_MESSAGE(100.0f, temp,
@@ -56,7 +58,7 @@ static void test_system_task_list(void) {
     else snprintf(core_str, sizeof(core_str), "%d", core);
 
     char line[80];
-    snprintf(line, sizeof(line), "  %-16s %8s prio=%lu stack=%lu core=%s",
+    snprintf(line, sizeof(line), "%-16s %8s prio=%lu stack=%lu core=%s",
              tasks[i].pcTaskName, states[state],
              (unsigned long)tasks[i].uxCurrentPriority,
              (unsigned long)tasks[i].usStackHighWaterMark, core_str);
@@ -65,9 +67,7 @@ static void test_system_task_list(void) {
 
   free(tasks);
 
-  char msg[32];
-  snprintf(msg, sizeof(msg), "%lu tasks total", (unsigned long)filled);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("%lu tasks total", (unsigned long)filled);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -81,9 +81,7 @@ static void test_system_sketch_md5(void) {
   TEST_ASSERT_EQUAL_UINT32_MESSAGE(32, md5.length(),
     "device: sketch MD5 should be 32-char hex string");
 
-  char msg[64];
-  snprintf(msg, sizeof(msg), "sketch MD5: %s", md5.c_str());
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("sketch MD5: %s", md5.c_str());
 }
 
 static void test_system_sketch_size(void) {
@@ -97,11 +95,9 @@ static void test_system_sketch_size(void) {
   TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(0, free_space,
     "device: free sketch space should be > 0");
 
-  char msg[80];
-  snprintf(msg, sizeof(msg), "sketch: %lu KB, free OTA: %lu KB",
+  TEST_PRINTF("sketch: %lu KB, free OTA: %lu KB",
            (unsigned long)(sketch_size / 1024),
            (unsigned long)(free_space / 1024));
-  TEST_MESSAGE(msg);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -140,9 +136,8 @@ static void test_system_heap_fragmentation(void) {
     ? 100 - (max_alloc * 100 / free_heap)
     : 0;
 
-  char msg[96];
-  snprintf(msg, sizeof(msg),
-           "heap: %lu/%lu KB free, max_alloc=%lu KB, min_free=%lu KB, frag=%lu%%",
+  char msg[128];
+  snprintf(msg, sizeof(msg), "heap: %lu/%lu KB free, max_alloc=%lu KB, min_free=%lu KB, frag=%lu%%",
            (unsigned long)(free_heap / 1024),
            (unsigned long)(total / 1024),
            (unsigned long)(max_alloc / 1024),
@@ -176,12 +171,10 @@ static void test_system_flash_chip_info(void) {
     default: break;
   }
 
-  char msg[80];
-  snprintf(msg, sizeof(msg), "flash: %lu MB, %lu MHz, mode=%s",
+  TEST_PRINTF("flash: %lu MB, %lu MHz, mode=%s",
            (unsigned long)(flash_size / (1024 * 1024)),
            (unsigned long)(flash_speed / 1000000),
            mode_str);
-  TEST_MESSAGE(msg);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -195,9 +188,7 @@ static void test_system_cpu_frequency(void) {
   TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(0, freq,
     "device: CPU frequency should be > 0");
 
-  char msg[48];
-  snprintf(msg, sizeof(msg), "CPU: %lu MHz", (unsigned long)freq);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("CPU: %lu MHz", (unsigned long)freq);
 
   // ESP32-S3 default is 240 MHz
   TEST_ASSERT_EQUAL_UINT32_MESSAGE(240, freq,
@@ -219,11 +210,9 @@ static void test_system_version_strings(void) {
   TEST_ASSERT_NOT_NULL_MESSAGE(idf, "device: ESP-IDF version string is null");
   TEST_ASSERT_NOT_NULL_MESSAGE(chip, "device: chip model string is null");
 
-  char msg[128];
-  snprintf(msg, sizeof(msg), "chip=%s cores=%u rev=%u arduino=%s idf=%s",
+  TEST_PRINTF("chip=%s cores=%u rev=%u arduino=%s idf=%s",
            chip, ESP.getChipCores(), ESP.getChipRevision(),
            ESP_ARDUINO_VERSION_STR, idf);
-  TEST_MESSAGE(msg);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -231,6 +220,7 @@ static void test_system_version_strings(void) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 void hardware::system::test(void) {
+  MODULE("System");
   RUN_TEST(test_system_temperature_read);
   RUN_TEST(test_system_task_list);
   RUN_TEST(test_system_sketch_md5);

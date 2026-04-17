@@ -240,6 +240,7 @@ static void test_db_exec_roundtrip(void) {
 }
 
 void services::http::api::database::test(void) {
+  MODULE("DB");
   RUN_TEST(test_db_collect_row_populates_columns_once);
   RUN_TEST(test_db_collect_row_handles_null_values);
   RUN_TEST(test_db_exec_roundtrip);

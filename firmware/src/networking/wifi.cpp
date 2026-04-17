@@ -590,6 +590,7 @@ static void test_wifi_ap_enabled_toggle(void) {
 }
 
 void networking::wifi::test(void) {
+  MODULE("WiFi");
   RUN_TEST(test_wifi_snapshot_rejects_null);
   RUN_TEST(test_wifi_config_rejects_null);
   RUN_TEST(test_wifi_store_config_rejects_null);

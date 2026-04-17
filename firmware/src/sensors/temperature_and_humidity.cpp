@@ -305,6 +305,10 @@ static void test_temp_humidity_reads_plausible_values(void) {
            sensor_data.relative_humidity_percent);
   TEST_MESSAGE(message);
 
+  TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(sensor_data.temperature_celsius,
+    "device: temperature reading is NaN or Inf");
+  TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(sensor_data.relative_humidity_percent,
+    "device: humidity reading is NaN or Inf");
   TEST_ASSERT_GREATER_OR_EQUAL_FLOAT_MESSAGE(-40.0f, sensor_data.temperature_celsius,
     "device: temperature below SHT3x minimum (-40 C)");
   TEST_ASSERT_LESS_OR_EQUAL_FLOAT_MESSAGE(85.0f, sensor_data.temperature_celsius,
@@ -407,6 +411,7 @@ static void test_temp_humidity_cht832x_manufacturer_id(void) {
 }
 
 void sensors::temperature_and_humidity::test() {
+  MODULE("Temperature & Humidity");
   RUN_TEST(test_temp_humidity_discovers_sensors);
   RUN_TEST(test_temp_humidity_reads_plausible_values);
   RUN_TEST(test_temp_humidity_rejects_out_of_range_index);

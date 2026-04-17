@@ -637,6 +637,7 @@ static void test_i2c_mux_enable_disable_roundtrip(void) {
 }
 
 void hardware::i2c::test() {
+  MODULE("I2C");
   RUN_TEST(test_i2c_mux_init);
   RUN_TEST(test_i2c_mux_is_connected);
   RUN_TEST(test_i2c_mux_channel_count);

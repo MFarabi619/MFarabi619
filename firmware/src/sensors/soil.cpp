@@ -151,9 +151,7 @@ static void test_soil_config_lookup(void) {
     return;
   }
 
-  char msg[32];
-  snprintf(msg, sizeof(msg), "%d soil probe(s) in topology", count);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("%d soil probe(s) in topology", count);
 }
 
 static void test_soil_rejects_null(void) {
@@ -172,6 +170,7 @@ static void test_soil_rejects_out_of_range(void) {
 }
 
 void sensors::soil::test() {
+  MODULE("Soil");
   RUN_TEST(test_soil_config_lookup);
   RUN_TEST(test_soil_rejects_null);
   RUN_TEST(test_soil_rejects_out_of_range);

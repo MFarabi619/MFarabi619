@@ -183,6 +183,7 @@ static void test_led_fade_out(void) {
 }
 
 void programs::led::test(void) {
+    MODULE("LED");
     RUN_TEST(test_led_init);
     RUN_TEST(test_led_set_named);
     RUN_TEST(test_led_set_rgb);

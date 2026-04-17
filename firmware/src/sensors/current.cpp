@@ -175,6 +175,7 @@ static void test_current_rejects_null(void) {
 }
 
 void sensors::current::test() {
+  MODULE("Current");
   RUN_TEST(test_current_initializes);
   RUN_TEST(test_current_reads);
   RUN_TEST(test_current_rejects_null);

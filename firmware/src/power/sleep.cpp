@@ -238,8 +238,9 @@ void save_sleep_nvs() { sleep_nvs_save(&saved_sleep_nvs); }
 void restore_sleep_nvs() { sleep_nvs_restore(&saved_sleep_nvs); }
 
 static void test_sleep_default_config(void) {
-  GIVEN("an empty NVS namespace");
-  WHEN("sleep config is read");
+  GIVEN("the sleep NVS namespace is cleared");
+  WHEN("initialize() runs and accessConfig() reads the config");
+  THEN("the defaults (enabled=DEFAULT_ENABLED, duration=DEFAULT_DURATION_SECONDS) are returned");
 
   save_sleep_nvs();
   Preferences prefs;
@@ -263,8 +264,10 @@ static void test_sleep_default_config(void) {
 }
 
 static void test_sleep_persist_config(void) {
-  GIVEN("a valid sleep config");
-  WHEN("it is stored and retrieved via NVS");
+  GIVEN("a SleepConfig with enabled=true, duration=42s");
+  WHEN("storeConfig() writes to NVS and accessConfig() reads it back");
+  THEN("the same values are returned (enabled=true, duration=42s)");
+  AND("the NVS keys ENABLED_KEY and DURATION_KEY hold the written values");
 
   save_sleep_nvs();
 
@@ -297,7 +300,9 @@ static void test_sleep_persist_config(void) {
 }
 
 static void test_sleep_rejects_invalid_duration(void) {
-  WHEN("a zero-second duration is stored");
+  WHEN("storeConfig() is called with duration_seconds=0");
+  THEN("it returns false");
+  AND("request() with duration_seconds=0 also returns false");
 
   SleepConfig sleep_config = {
     .enabled = true,
@@ -315,8 +320,10 @@ static void test_sleep_rejects_invalid_duration(void) {
 }
 
 static void test_sleep_status_reports_config(void) {
-  GIVEN("a persisted sleep config");
-  WHEN("the sleep status is read");
+  GIVEN("a persisted SleepConfig with enabled=true, duration=15s");
+  WHEN("accessStatus() and requestConfigured() are called");
+  THEN("the status reports config_enabled=true and default_duration=15s");
+  AND("the configured sleep request uses the persisted duration");
 
   save_sleep_nvs();
 
@@ -348,6 +355,7 @@ static void test_sleep_status_reports_config(void) {
 }
 
 void power::sleep::test(void) {
+  MODULE("Sleep");
   RUN_TEST(test_sleep_default_config);
   RUN_TEST(test_sleep_persist_config);
   RUN_TEST(test_sleep_rejects_invalid_duration);

@@ -272,6 +272,7 @@ static void test_email_sends(void) {
 }
 
 void services::email::test() {
+  MODULE("Email");
   RUN_TEST(test_email_endpoint_matches_flags);
   RUN_TEST(test_email_flags_valid);
   RUN_TEST(test_email_connects);

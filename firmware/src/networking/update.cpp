@@ -165,12 +165,10 @@ namespace networking::update { void test(void); }
 static void test_update_sd_path_config(void) {
   THEN("the SD update path is configured");
   TEST_ASSERT_NOT_NULL(config::ota::SD_PATH);
-  TEST_ASSERT_TRUE_MESSAGE(strlen(config::ota::SD_PATH) > 0,
+  TEST_ASSERT_NOT_EMPTY_MESSAGE(config::ota::SD_PATH,
     "device: config::ota::SD_PATH must not be empty");
 
-  char msg[80];
-  snprintf(msg, sizeof(msg), "SD update file: %s", config::ota::SD_PATH);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("SD update file: %s", config::ota::SD_PATH);
 }
 
 static void test_update_no_update_file(void) {
@@ -195,12 +193,11 @@ static void test_update_rollback_status(void) {
   WHEN("rollback availability is checked");
 
   bool can = networking::update::canRollback();
-  char msg[64];
-  snprintf(msg, sizeof(msg), "rollback available: %s", can ? "yes" : "no");
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("rollback available: %s", can ? "yes" : "no");
 }
 
 void networking::update::test(void) {
+  MODULE("Update");
   RUN_TEST(test_update_sd_path_config);
   RUN_TEST(test_update_no_update_file);
   RUN_TEST(test_update_rollback_status);

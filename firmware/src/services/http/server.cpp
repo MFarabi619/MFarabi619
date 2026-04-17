@@ -230,14 +230,4 @@ void services::http::initialize() {
 //   // Any GET → response should have X-Firmware: ceratina
 // }
 
-// void services::http::server_test() {
-//   it("user verifies index.html served from SD", http_server_test_serves_index_from_sd);
-//   it("user verifies captive portal redirect", http_server_test_captive_portal_redirect);
-//   it("user verifies 404 returns JSON", http_server_test_404_returns_json);
-//   it("user verifies CORS headers on preflight", http_server_test_cors_headers_present);
-//   it("user verifies rate limit enforcement", http_server_test_rate_limit_enforced);
-//   it("user verifies SSE connect event", http_server_test_sse_connect);
-//   it("user verifies X-Firmware header", http_server_test_x_firmware_header);
-// }
-
 #endif

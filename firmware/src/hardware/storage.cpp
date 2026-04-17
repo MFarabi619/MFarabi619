@@ -107,9 +107,7 @@ static void test_sd_reports_size(void) {
   uint64_t total = SD.totalBytes();
   TEST_ASSERT_GREATER_THAN_UINT32_MESSAGE(0, (uint32_t)(total / 1024),
     "device: SD total bytes is 0");
-  char msg[48];
-  snprintf(msg, sizeof(msg), "%llu MB total", total / (1024 * 1024));
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("%llu MB total", total / (1024 * 1024));
 }
 
 static void test_sd_write_read_roundtrip(void) {
@@ -230,9 +228,7 @@ static void test_sd_directory_listing(void) {
   SD.remove("/.test_dir/b.txt");
   SD.rmdir("/.test_dir");
 
-  char msg[32];
-  snprintf(msg, sizeof(msg), "found %d entries", count);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("found %d entries", count);
 }
 
 static void test_sd_buffered_write(void) {
@@ -265,14 +261,13 @@ static void test_sd_buffered_write(void) {
 
   SD.remove(path);
 
-  char msg[48];
-  snprintf(msg, sizeof(msg), "100 lines in %lu ms", elapsed);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("100 lines in %lu ms", elapsed);
 }
 
 namespace filesystems::sd { void test(void); }
 
 void filesystems::sd::test(void) {
+  MODULE("SD");
   RUN_TEST(test_sd_mounts);
   RUN_TEST(test_sd_reports_size);
   RUN_TEST(test_sd_write_read_roundtrip);

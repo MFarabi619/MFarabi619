@@ -53,9 +53,7 @@ static void test_eeprom_init(void) {
   WHEN("the EEPROM is detected");
   TEST_ASSERT_TRUE_MESSAGE(filesystems::eeprom::initialize(),
     "device: EEPROM not detected on bus 1");
-  char msg[48];
-  snprintf(msg, sizeof(msg), "EEPROM detected, size=%u bytes", IC.length());
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("EEPROM detected, size=%u bytes", IC.length());
 }
 
 static void test_eeprom_write_read_byte(void) {
@@ -170,6 +168,7 @@ static void test_eeprom_page_boundary_buffer(void) {
 }
 
 void filesystems::eeprom::test() {
+  MODULE("EEPROM");
   RUN_TEST(test_eeprom_init);
   RUN_TEST(test_eeprom_write_read_byte);
   RUN_TEST(test_eeprom_put_get_struct);

@@ -87,9 +87,7 @@ static void test_ota_config(void) {
     "device: OTA port must be > 0");
 
 #if CERATINA_OTA_ENABLED
-  char msg[64];
-  snprintf(msg, sizeof(msg), "OTA enabled on port %d", config::ota::PORT);
-  TEST_MESSAGE(msg);
+  TEST_PRINTF("OTA enabled on port %d", config::ota::PORT);
 #else
   TEST_MESSAGE("OTA is disabled (CERATINA_OTA_ENABLED=0)");
 
@@ -108,6 +106,7 @@ static void test_ota_noop_when_disabled(void) {
 }
 
 void networking::ota::test(void) {
+  MODULE("OTA");
   RUN_TEST(test_ota_config);
   RUN_TEST(test_ota_noop_when_disabled);
 }

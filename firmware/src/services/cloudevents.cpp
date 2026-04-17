@@ -283,6 +283,7 @@ static void test_cloudevents_event_id_includes_type(void) {
 }
 
 void services::cloudevents::test(void) {
+  MODULE("CloudEvents");
   RUN_TEST(test_cloudevents_source_format);
   RUN_TEST(test_cloudevents_event_id_includes_type);
 }

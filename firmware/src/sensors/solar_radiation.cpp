@@ -113,6 +113,7 @@ static void test_solar_radiation_rejects_null(void) {
 }
 
 void sensors::solar_radiation::test() {
+  MODULE("Solar Radiation");
   RUN_TEST(test_solar_radiation_config_lookup);
   RUN_TEST(test_solar_radiation_rejects_null);
 }
