@@ -171,6 +171,12 @@ bool hardware::i2c::accessDevice(DeviceAccessCommand *command) {
   return true;
 }
 
+// clearSelection() not only deselects mux channels, it also drops both
+// ODD/EVEN MUX_POWER_GPIO rails. This is intentional power saving, but it
+// means any sensor that relies on internal state across reads (e.g., SCD30
+// periodic measurement) cannot work on this board — the rail is cut between
+// polls. Stateless sensors and SCD41 single-shot mode are compatible; see
+// sensors/carbon_dioxide.cpp for the working pattern.
 void hardware::i2c::clearSelection() {
   if (mux_present) {
     mux.disableAllChannels();
