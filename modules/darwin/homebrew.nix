@@ -58,6 +58,7 @@
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "eim"
       "mlx"
+      "west"
       "qemu"
       "nemu"
       "stlink"
