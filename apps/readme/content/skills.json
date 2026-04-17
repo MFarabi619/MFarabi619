@@ -64,9 +64,9 @@
     ],
     "Frameworks & Libraries": [
       {
-        "name": "FreeRTOS",
-        "url": "https://www.freertos.org",
-        "icon": "assets/icons/freertos.svg"
+        "name": "Zephyr",
+        "url": "https://www.zephyrproject.org",
+        "icon": "assets/icons/zephyr.png"
       },
       {
         "name": "SQLite",
@@ -112,11 +112,6 @@
         "name": "Embassy",
         "url": "https://embassy.dev",
         "icon": "https://embassy.dev/favicon.png"
-      },
-      {
-        "name": "Platformio",
-        "url": "https://platformio.org",
-        "icon": "assets/platformio-symbol.svg"
       },
       {
         "name": "Pulumi",
@@ -246,6 +241,16 @@
       }
     ],
     "Frameworks & Libraries": [
+      {
+        "name": "FreeRTOS",
+        "url": "https://www.freertos.org",
+        "icon": "assets/icons/freertos.svg"
+      },
+      {
+        "name": "Platformio",
+        "url": "https://platformio.org",
+        "icon": "assets/platformio-symbol.svg"
+      },
       {
         "name": "Arduino",
         "url": "https://www.arduino.cc/",

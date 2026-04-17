@@ -93,8 +93,8 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
-<a href="https://www.freertos.org" target="_blank" rel="noreferrer">
-<img src="assets/icons/freertos.svg" alt="FreeRTOS Logo" width="40" height="40" />
+<a href="https://www.zephyrproject.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/zephyr.png" alt="Zephyr Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://sqlite.org" target="_blank" rel="noreferrer">
@@ -131,10 +131,6 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://embassy.dev" target="_blank" rel="noreferrer">
 <img src="https://embassy.dev/favicon.png" alt="Embassy Logo" width="40" height="40" />
-</a>
-</td><td align="center" style="padding: 8px;">
-<a href="https://platformio.org" target="_blank" rel="noreferrer">
-<img src="assets/platformio-symbol.svg" alt="Platformio Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
@@ -241,10 +237,18 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
+<a href="https://www.freertos.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/freertos.svg" alt="FreeRTOS Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
+<a href="https://platformio.org" target="_blank" rel="noreferrer">
+<img src="assets/platformio-symbol.svg" alt="Platformio Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://deno.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
 </a>
@@ -252,11 +256,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://nestjs.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
 </a>
@@ -264,11 +268,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://xstate.js.org" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://graphql.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40" />
 </a>
@@ -276,11 +280,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://reactrouter.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router 7 Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40" />
 </a>
@@ -288,11 +292,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://remix.run/" target="_blank" rel="noreferrer">
 <img src="https://github.com/user-attachments/assets/5ac0e523-a337-42a2-ba56-c13d314fdaac" alt="Remix.js Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://astro.build/" target="_blank" rel="noreferrer">
 <img src="https://www.svgrepo.com/show/373446/astro.svg" alt="Astro Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://kit.svelte.dev/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" alt="SvelteKit Logo" width="40" height="40" />
 </a>
@@ -300,11 +304,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://wxt.dev" target="_blank" rel="noreferrer">
 <img src="https://wxt.dev/hero-logo.svg" alt="WXT Logo" width="40" height="40" />
 </a>
@@ -312,11 +316,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://motion.dev" target="_blank" rel="noreferrer">
 <img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://sli.dev" target="_blank" rel="noreferrer">
 <img src="assets/slidev-symbol.svg" alt="Slidev Logo" width="40" height="40" />
 </a>
@@ -324,11 +328,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
 <img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://vitest.dev/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40" />
 </a>
@@ -336,11 +340,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://mochajs.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40" />
 </a>
