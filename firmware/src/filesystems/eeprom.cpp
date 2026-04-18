@@ -9,27 +9,18 @@ AT24C32 filesystems::eeprom::IC(config::eeprom::I2C_ADDR, Wire1);
 using filesystems::eeprom::IC;
 
 bool filesystems::eeprom::initialize() {
-  config::I2CSensorConfig sensor_config = {config::I2CSensorKind::EEPROM_AT24C32, 1, config::eeprom::I2C_ADDR, config::i2c::DIRECT_CHANNEL};
-  bool found = false;
-  for (size_t index = 0; index < config::i2c_topology::DEVICE_COUNT; index++) {
-    const config::I2CSensorConfig &candidate = config::i2c_topology::DEVICES[index];
-    if (candidate.kind == config::I2CSensorKind::EEPROM_AT24C32) {
-      sensor_config = candidate;
-      found = true;
-      break;
-    }
-  }
-  if (!found) return false;
+  hardware::i2c::DiscoveredDevice dev = {};
+  if (!hardware::i2c::findDevice(config::eeprom::I2C_ADDR, &dev)) return false;
 
   hardware::i2c::DeviceAccessCommand command = {
-    .bus = sensor_config.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
-    .mux_channel = sensor_config.mux_channel,
+    .bus = dev.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
+    .mux_channel = dev.mux_channel,
     .wire = nullptr,
     .ok = false,
   };
   if (!hardware::i2c::accessDevice(&command)) return false;
 
-  filesystems::eeprom::IC = AT24C32(sensor_config.address, *command.wire);
+  filesystems::eeprom::IC = AT24C32(dev.address, *command.wire);
   IC.read(0);
   hardware::i2c::clearSelection();
   return IC.getLastError() == 0;

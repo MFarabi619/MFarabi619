@@ -11,22 +11,20 @@ constexpr uint16_t LPS25_INIT_SETTLE_MS = 200;
 
 Adafruit_LPS25 lps;
 bool available = false;
-uint8_t detected_bus = 0;
+uint8_t resolved_bus = 0;
+int8_t resolved_mux_channel = -1;
 
-}
+bool probe_lps25_discovered(const hardware::i2c::DiscoveredDevice &dev) {
+  hardware::i2c::DeviceAccessCommand command = {
+    .bus = dev.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
+    .mux_channel = dev.mux_channel,
+    .wire = nullptr,
+    .ok = false,
+  };
+  if (!hardware::i2c::accessDevice(&command)) return false;
 
-bool sensors::barometric_pressure::initialize() {
-  available = false;
-
-  hardware::i2c::DiscoveredDevice dev = {};
-  if (!hardware::i2c::findDevice(0x5D, &dev)) {
-    if (!hardware::i2c::findDevice(0x5C, &dev)) {
-      return false;
-    }
-  }
-
-  TwoWire *wire = (dev.bus == 0) ? &Wire : &Wire1;
-  if (!lps.begin_I2C(dev.address, wire)) {
+  if (!lps.begin_I2C(dev.address, command.wire)) {
+    hardware::i2c::clearSelection();
     return false;
   }
 
@@ -36,7 +34,10 @@ bool sensors::barometric_pressure::initialize() {
   sensors_event_t discard_p, discard_t;
   lps.getEvent(&discard_p, &discard_t);
 
-  detected_bus = dev.bus;
+  hardware::i2c::clearSelection();
+
+  resolved_bus = dev.bus;
+  resolved_mux_channel = dev.mux_channel;
   available = true;
   Serial.printf("[pressure] LPS25 detected on bus %d at 0x%02X\n", dev.bus, dev.address);
 
@@ -53,6 +54,14 @@ bool sensors::barometric_pressure::initialize() {
       .data_size = sizeof(BarometricPressureSensorData),
   });
   return true;
+}
+
+}
+
+void sensors::barometric_pressure::registerProbes() {
+  available = false;
+  hardware::i2c::registerProbe({0x5C, probe_lps25_discovered, "LPS25", 10});
+  hardware::i2c::registerProbe({0x5D, probe_lps25_discovered, "LPS25", 10});
 }
 
 bool sensors::barometric_pressure::access(BarometricPressureSensorData *data) {
@@ -90,7 +99,10 @@ namespace sensors::barometric_pressure { void test(void); }
 static void test_pressure_init(void) {
   WHEN("the barometric pressure module is initialized");
   hardware::i2c::initialize();
-  if (!sensors::barometric_pressure::initialize()) {
+  sensors::barometric_pressure::registerProbes();
+  hardware::i2c::runDiscovery();
+  hardware::i2c::probeAll();
+  if (!sensors::barometric_pressure::isAvailable()) {
     TEST_IGNORE_MESSAGE("no LPS25 sensor connected");
     return;
   }

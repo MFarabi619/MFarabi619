@@ -7,7 +7,7 @@ struct VoltageSensorData {
 
 namespace sensors::voltage {
 
-bool initialize();
+void registerProbes();
 bool isAvailable();
 bool access(VoltageSensorData *sensor_data);
 const char *accessGainLabel();

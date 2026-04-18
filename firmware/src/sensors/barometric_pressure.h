@@ -11,7 +11,7 @@ struct BarometricPressureSensorData {
 
 namespace sensors::barometric_pressure {
 
-bool initialize();
+void registerProbes();
 bool access(BarometricPressureSensorData *data);
 bool isAvailable();
 

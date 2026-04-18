@@ -12,7 +12,7 @@ struct TemperatureHumiditySensorData {
 
 namespace sensors::temperature_and_humidity {
 
-bool initialize();
+void registerProbes();
 uint8_t sensorCount();
 
 bool access(uint8_t index,

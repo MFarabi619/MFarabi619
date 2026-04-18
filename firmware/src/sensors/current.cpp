@@ -12,27 +12,13 @@ namespace {
 Adafruit_INA228 ina228;
 bool ready = false;
 
-config::I2CSensorConfig resolved_config = {};
+uint8_t resolved_bus = 0;
 int8_t resolved_mux_channel = config::i2c::DIRECT_CHANNEL;
-
-bool probe_device(const config::I2CSensorConfig &sensor_config, int8_t mux_channel) {
-  hardware::i2c::DeviceAccessCommand command = {
-    .bus = sensor_config.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
-    .mux_channel = mux_channel,
-    .wire = nullptr,
-    .ok = false,
-  };
-  if (!hardware::i2c::accessDevice(&command)) return false;
-
-  bool ok = ina228.begin(sensor_config.address, command.wire);
-  hardware::i2c::clearSelection();
-  return ok;
-}
 
 void apply_selection(void) {
   if (resolved_mux_channel >= 0) {
     hardware::i2c::DeviceAccessCommand command = {
-      .bus = resolved_config.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
+      .bus = resolved_bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
       .mux_channel = resolved_mux_channel,
       .wire = nullptr,
       .ok = false,
@@ -41,71 +27,47 @@ void apply_selection(void) {
   }
 }
 
+bool probe_ina228_discovered(const hardware::i2c::DiscoveredDevice &dev) {
+  hardware::i2c::DeviceAccessCommand command = {
+    .bus = dev.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
+    .mux_channel = dev.mux_channel,
+    .wire = nullptr,
+    .ok = false,
+  };
+  if (!hardware::i2c::accessDevice(&command)) return false;
+
+  bool ok = ina228.begin(dev.address, command.wire);
+  hardware::i2c::clearSelection();
+  if (!ok) return false;
+
+  resolved_bus = dev.bus;
+  resolved_mux_channel = dev.mux_channel;
+  ready = true;
+
+  ina228.setShunt(config::current::SHUNT_RESISTANCE_OHMS,
+                  config::current::MAX_EXPECTED_CURRENT_A);
+  Serial.printf("[current] INA228 at 0x%02X on bus %d\n", dev.address, dev.bus);
+
+  sensors::registry::add({
+      .kind = SensorKind::Current,
+      .name = "Current",
+      .isAvailable = sensors::current::isAvailable,
+      .instanceCount = []() -> uint8_t { return 1; },
+      .poll = [](uint8_t, void *out, size_t cap) -> bool {
+          if (cap < sizeof(CurrentSensorData)) return false;
+          return sensors::current::access(static_cast<CurrentSensorData *>(out));
+      },
+      .data_size = sizeof(CurrentSensorData),
+  });
+  return true;
 }
 
-bool sensors::current::initialize() {
+}
+
+void sensors::current::registerProbes() {
   ready = false;
   resolved_mux_channel = config::i2c::DIRECT_CHANNEL;
-
-  config::I2CSensorConfig sensor_config = {};
-  bool found = false;
-  for (size_t index = 0; index < config::i2c_topology::DEVICE_COUNT; index++) {
-    const config::I2CSensorConfig &candidate = config::i2c_topology::DEVICES[index];
-    if (candidate.kind == config::I2CSensorKind::CurrentINA228) {
-      sensor_config = candidate;
-      found = true;
-      break;
-    }
-  }
-  if (!found) return false;
-
-  hardware::i2c::TopologySnapshot topology = {};
-  hardware::i2c::accessTopology(&topology);
-
-  if (sensor_config.mux_channel == config::i2c::DIRECT_CHANNEL) {
-    ready = probe_device(sensor_config, config::i2c::DIRECT_CHANNEL);
-  } else if (sensor_config.mux_channel == config::i2c::ANY_MUX_CHANNEL) {
-    if (topology.mux_present && sensor_config.bus == 1) {
-      uint8_t channel_mask = hardware::i2c::mux.find(sensor_config.address);
-      if (channel_mask != 0) {
-        for (uint8_t channel = 0; channel < hardware::i2c::mux.channelCount(); channel++) {
-          if (channel_mask & (1 << channel)) {
-            resolved_mux_channel = (int8_t)channel;
-            ready = probe_device(sensor_config, resolved_mux_channel);
-            if (ready) break;
-          }
-        }
-      }
-    }
-  } else {
-    if (topology.mux_present && sensor_config.bus == 1) {
-      resolved_mux_channel = sensor_config.mux_channel;
-      ready = probe_device(sensor_config, resolved_mux_channel);
-    }
-  }
-
-  if (ready) {
-    resolved_config = sensor_config;
-    ina228.setShunt(config::current::SHUNT_RESISTANCE_OHMS,
-                    config::current::MAX_EXPECTED_CURRENT_A);
-    Serial.printf("[current] INA228 at 0x%02X on bus %d\n",
-                  sensor_config.address, sensor_config.bus);
-
-    sensors::registry::add({
-        .kind = SensorKind::Current,
-        .name = "Current",
-        .isAvailable = sensors::current::isAvailable,
-        .instanceCount = []() -> uint8_t { return 1; },
-        .poll = [](uint8_t, void *out, size_t cap) -> bool {
-            if (cap < sizeof(CurrentSensorData)) return false;
-            return sensors::current::access(static_cast<CurrentSensorData *>(out));
-        },
-        .data_size = sizeof(CurrentSensorData),
-    });
-  }
-
-  hardware::i2c::clearSelection();
-  return ready;
+  hardware::i2c::registerProbe({0x40, probe_ina228_discovered, "INA228", 10});
 }
 
 bool sensors::current::isAvailable() {
@@ -141,8 +103,11 @@ static void test_current_initializes(void) {
   test_ensure_wire1_with_power();
   hardware::i2c::initialize();
 
-  if (!sensors::current::initialize()) {
-    TEST_IGNORE_MESSAGE("current::initialize() failed — skipping");
+  sensors::current::registerProbes();
+  hardware::i2c::runDiscovery();
+  hardware::i2c::probeAll();
+  if (!sensors::current::isAvailable()) {
+    TEST_IGNORE_MESSAGE("INA228 not found — skipping");
     return;
   }
 

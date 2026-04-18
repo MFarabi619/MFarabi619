@@ -19,18 +19,20 @@ void poll_timer_callback(TimerHandle_t) {
 }
 
 void sensors::manager::initialize() {
-  hardware::i2c::runDiscovery();
+  sensors::temperature_and_humidity::registerProbes();
+  sensors::voltage::registerProbes();
+  sensors::current::registerProbes();
+  sensors::carbon_dioxide::registerProbes();
+  sensors::barometric_pressure::registerProbes();
 
-  sensors::temperature_and_humidity::initialize();
-  sensors::voltage::initialize();
-  sensors::current::initialize();
-  sensors::carbon_dioxide::initialize();
+  hardware::i2c::runDiscovery();
+  hardware::i2c::probeAll();
+
   networking::modbus::initialize();
   sensors::wind_speed::initialize();
   if (sensors::wind_speed::isAvailable()) delay(config::wind::SENSOR_DELAY_MS);
   sensors::wind_direction::initialize();
   sensors::solar_radiation::initialize();
-  sensors::barometric_pressure::initialize();
   sensors::soil::initialize();
 
   sensors::registry::pollAll();

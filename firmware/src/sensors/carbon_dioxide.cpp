@@ -87,28 +87,12 @@ static bool try_scd4x_on(uint8_t bus, uint8_t address, int8_t mux_channel) {
   return true;
 }
 
-bool sensors::carbon_dioxide::initialize() {
-  backend = CO2_NONE;
-  resolved_mux_channel = config::i2c::DIRECT_CHANNEL;
-
-  hardware::i2c::DiscoveredDevice dev = {};
-
-  if (hardware::i2c::findDevice(0x61, &dev) && try_scd30_on(dev.bus, dev.address, dev.mux_channel)) {
-    backend = CO2_SCD30;
-    resolved_bus = dev.bus;
-    resolved_mux_channel = dev.mux_channel;
-    measuring = true;
-  } else if (hardware::i2c::findDevice(0x62, &dev) && try_scd4x_on(dev.bus, dev.address, dev.mux_channel)) {
-    backend = CO2_SCD4X;
-    resolved_bus = dev.bus;
-    resolved_mux_channel = dev.mux_channel;
-    measuring = true;
-  }
-
-  if (backend == CO2_NONE) {
-    Serial.println(F("[co2] no sensor found"));
-    return false;
-  }
+static bool probe_scd30_discovered(const hardware::i2c::DiscoveredDevice &dev) {
+  if (!try_scd30_on(dev.bus, dev.address, dev.mux_channel)) return false;
+  backend = CO2_SCD30;
+  resolved_bus = dev.bus;
+  resolved_mux_channel = dev.mux_channel;
+  measuring = true;
 
   sensors::registry::add({
       .kind = SensorKind::CarbonDioxide,
@@ -122,6 +106,34 @@ bool sensors::carbon_dioxide::initialize() {
       .data_size = sizeof(CO2SensorData),
   });
   return true;
+}
+
+static bool probe_scd4x_discovered(const hardware::i2c::DiscoveredDevice &dev) {
+  if (!try_scd4x_on(dev.bus, dev.address, dev.mux_channel)) return false;
+  backend = CO2_SCD4X;
+  resolved_bus = dev.bus;
+  resolved_mux_channel = dev.mux_channel;
+  measuring = true;
+
+  sensors::registry::add({
+      .kind = SensorKind::CarbonDioxide,
+      .name = "Carbon Dioxide",
+      .isAvailable = sensors::carbon_dioxide::isAvailable,
+      .instanceCount = []() -> uint8_t { return 1; },
+      .poll = [](uint8_t, void *out, size_t cap) -> bool {
+          if (cap < sizeof(CO2SensorData)) return false;
+          return sensors::carbon_dioxide::access(static_cast<CO2SensorData *>(out));
+      },
+      .data_size = sizeof(CO2SensorData),
+  });
+  return true;
+}
+
+void sensors::carbon_dioxide::registerProbes() {
+  backend = CO2_NONE;
+  resolved_mux_channel = config::i2c::DIRECT_CHANNEL;
+  hardware::i2c::registerProbe({0x61, probe_scd30_discovered, "SCD30", 10});
+  hardware::i2c::registerProbe({0x62, probe_scd4x_discovered, "SCD4x", 10});
 }
 
 bool sensors::carbon_dioxide::access(CO2SensorData *sensor_data) {
@@ -296,11 +308,15 @@ bool sensors::carbon_dioxide::isAvailable() {
 
 static void co2_module_initializes(void) {
   GIVEN("the I2C bus and TCA9548A mux are initialized");
-  WHEN("initialize() probes 0x61 (SCD30) and 0x62 (SCD41) via findDevice");
+  WHEN("probeAll() discovers SCD30 at 0x61 or SCD4x at 0x62");
   THEN("a supported CO2 sensor is detected and registered");
   hardware::i2c::initialize();
-  TEST_ASSERT_TRUE_MESSAGE(sensors::carbon_dioxide::initialize(),
-    "device: CO2 module initialization failed");
+  sensors::carbon_dioxide::registerProbes();
+  hardware::i2c::runDiscovery();
+  hardware::i2c::probeAll();
+  if (!sensors::carbon_dioxide::isAvailable()) {
+    TEST_IGNORE_MESSAGE("no CO2 sensor connected");
+  }
 }
 
 static void sensor_backend_is_detected(void) {

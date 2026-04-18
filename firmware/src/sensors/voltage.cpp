@@ -7,48 +7,18 @@
 #include <Arduino.h>
 
 static bool ready = false;
-static config::I2CSensorConfig resolved_config = {
-  config::I2CSensorKind::VoltageADS1115,
-  0,
-  0,
-  config::i2c::DIRECT_CHANNEL,
-};
+static uint8_t resolved_bus = 0;
+static uint8_t resolved_address = 0;
 static int8_t resolved_mux_channel = config::i2c::DIRECT_CHANNEL;
 
 static Adafruit_ADS1115 adc;
 
 namespace {
 
-bool access_voltage_descriptor(config::I2CSensorConfig *sensor_config) {
-  if (!sensor_config) return false;
-  for (size_t index = 0; index < config::i2c_topology::DEVICE_COUNT; index++) {
-    const config::I2CSensorConfig &candidate = config::i2c_topology::DEVICES[index];
-    if (candidate.kind == config::I2CSensorKind::VoltageADS1115) {
-      *sensor_config = candidate;
-      return true;
-    }
-  }
-  return false;
-}
-
-bool probe_device(const config::I2CSensorConfig &sensor_config, int8_t mux_channel) {
-  hardware::i2c::DeviceAccessCommand command = {
-    .bus = sensor_config.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
-    .mux_channel = mux_channel,
-    .wire = nullptr,
-    .ok = false,
-  };
-  if (!hardware::i2c::accessDevice(&command)) return false;
-
-  bool ok = adc.begin(sensor_config.address, command.wire);
-  hardware::i2c::clearSelection();
-  return ok;
-}
-
 void apply_selection(void) {
   if (resolved_mux_channel >= 0) {
     hardware::i2c::DeviceAccessCommand command = {
-      .bus = resolved_config.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
+      .bus = resolved_bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
       .mux_channel = resolved_mux_channel,
       .wire = nullptr,
       .ok = false,
@@ -57,74 +27,45 @@ void apply_selection(void) {
   }
 }
 
+bool probe_ads1115_discovered(const hardware::i2c::DiscoveredDevice &dev) {
+  hardware::i2c::DeviceAccessCommand command = {
+    .bus = dev.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
+    .mux_channel = dev.mux_channel,
+    .wire = nullptr,
+    .ok = false,
+  };
+  if (!hardware::i2c::accessDevice(&command)) return false;
+
+  bool ok = adc.begin(dev.address, command.wire);
+  hardware::i2c::clearSelection();
+  if (!ok) return false;
+
+  resolved_bus = dev.bus;
+  resolved_address = dev.address;
+  resolved_mux_channel = dev.mux_channel;
+  ready = true;
+  adc.setGain(GAIN_TWO);
+
+  sensors::registry::add({
+      .kind = SensorKind::Voltage,
+      .name = "Voltage",
+      .isAvailable = sensors::voltage::isAvailable,
+      .instanceCount = []() -> uint8_t { return 1; },
+      .poll = [](uint8_t, void *out, size_t cap) -> bool {
+          if (cap < sizeof(VoltageSensorData)) return false;
+          return sensors::voltage::access(static_cast<VoltageSensorData *>(out));
+      },
+      .data_size = sizeof(VoltageSensorData),
+  });
+  return true;
 }
 
-bool sensors::voltage::initialize() {
+}
+
+void sensors::voltage::registerProbes() {
   ready = false;
-  resolved_config = {
-    config::I2CSensorKind::VoltageADS1115,
-    0,
-    0,
-    config::i2c::DIRECT_CHANNEL,
-  };
   resolved_mux_channel = config::i2c::DIRECT_CHANNEL;
-
-  config::I2CSensorConfig sensor_config = {};
-  if (!access_voltage_descriptor(&sensor_config)) {
-    return false;
-  }
-
-  hardware::i2c::TopologySnapshot topology = {};
-  hardware::i2c::accessTopology(&topology);
-
-  if (sensor_config.mux_channel == config::i2c::DIRECT_CHANNEL) {
-    ready = probe_device(sensor_config, config::i2c::DIRECT_CHANNEL);
-  } else if (sensor_config.mux_channel == config::i2c::ANY_MUX_CHANNEL) {
-    if (topology.mux_present && sensor_config.bus == 1) {
-      uint8_t channel_mask = hardware::i2c::mux.find(sensor_config.address);
-      if (channel_mask != 0) {
-        for (uint8_t channel = 0; channel < hardware::i2c::mux.channelCount(); channel++) {
-          if (channel_mask & (1 << channel)) {
-            resolved_mux_channel = (int8_t)channel;
-            ready = probe_device(sensor_config, resolved_mux_channel);
-            if (ready) {
-              Serial.printf("[voltage] found at 0x%02X on mux channel %d\n",
-                            sensor_config.address, channel);
-              break;
-            }
-          }
-        }
-      }
-    }
-  } else {
-    if (topology.mux_present && sensor_config.bus == 1) {
-      resolved_mux_channel = sensor_config.mux_channel;
-      ready = probe_device(sensor_config, resolved_mux_channel);
-    }
-  }
-
-  if (ready) {
-    resolved_config.kind = sensor_config.kind;
-    resolved_config.bus = sensor_config.bus;
-    resolved_config.address = sensor_config.address;
-    resolved_config.mux_channel = sensor_config.mux_channel;
-    adc.setGain(GAIN_TWO);
-
-    sensors::registry::add({
-        .kind = SensorKind::Voltage,
-        .name = "Voltage",
-        .isAvailable = sensors::voltage::isAvailable,
-        .instanceCount = []() -> uint8_t { return 1; },
-        .poll = [](uint8_t, void *out, size_t cap) -> bool {
-            if (cap < sizeof(VoltageSensorData)) return false;
-            return sensors::voltage::access(static_cast<VoltageSensorData *>(out));
-        },
-        .data_size = sizeof(VoltageSensorData),
-    });
-  }
-
-  hardware::i2c::clearSelection();
-  return ready;
+  hardware::i2c::registerProbe({0x48, probe_ads1115_discovered, "ADS1115", 10});
 }
 
 bool sensors::voltage::isAvailable() {
@@ -179,8 +120,11 @@ static void test_voltage_initializes(void) {
   test_ensure_wire1_with_power();
   hardware::i2c::initialize();
 
-  if (!sensors::voltage::initialize()) {
-    TEST_IGNORE_MESSAGE("voltage::initialize() failed — skipping");
+  sensors::voltage::registerProbes();
+  hardware::i2c::runDiscovery();
+  hardware::i2c::probeAll();
+  if (!sensors::voltage::isAvailable()) {
+    TEST_IGNORE_MESSAGE("ADS1115 not found — skipping");
     return;
   }
 }

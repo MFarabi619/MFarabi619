@@ -65,6 +65,18 @@ size_t discoverAll(DiscoveredDevice *devices, size_t capacity);
 bool runDiscovery();
 bool findDevice(uint8_t address, DiscoveredDevice *result);
 
+using ProbeFn = bool (*)(const DiscoveredDevice &dev);
+
+struct ProbeEntry {
+  uint8_t address;
+  ProbeFn probe;
+  const char *name;
+  uint8_t priority;
+};
+
+void registerProbe(const ProbeEntry &entry);
+void probeAll();
+
 #ifdef PIO_UNIT_TESTING
 void test();
 #endif

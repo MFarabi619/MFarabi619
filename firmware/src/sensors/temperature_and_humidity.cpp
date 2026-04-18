@@ -17,75 +17,104 @@ enum class TemperatureHumidityBackend : uint8_t {
 
 struct TemperatureHumiditySlot {
   TemperatureHumidityBackend backend;
-  config::I2CSensorConfig config;
-  int8_t resolved_mux_channel;
+  uint8_t bus;
+  uint8_t address;
+  int8_t mux_channel;
   bool available;
 };
 
 TemperatureHumiditySlot slots[config::temperature_humidity::MAX_SENSORS] = {};
 uint8_t sensor_count = 0;
+bool registered = false;
 
 hardware::i2c::Bus to_bus(uint8_t bus) {
   return bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1;
 }
 
-bool access_i2c_device(const config::I2CSensorConfig &config,
-                       int8_t resolved_mux_channel,
-                       hardware::i2c::DeviceAccessCommand *command) {
+bool access_slot(const TemperatureHumiditySlot &slot,
+                 hardware::i2c::DeviceAccessCommand *command) {
   if (!command) return false;
-  command->bus = to_bus(config.bus);
-  command->mux_channel = resolved_mux_channel;
+  command->bus = to_bus(slot.bus);
+  command->mux_channel = slot.mux_channel;
   command->wire = nullptr;
   command->ok = false;
   return hardware::i2c::accessDevice(command);
 }
 
-bool probe_cht832x(const config::I2CSensorConfig &config,
-                   int8_t resolved_mux_channel) {
-  hardware::i2c::DeviceAccessCommand command = {};
-  if (!access_i2c_device(config, resolved_mux_channel, &command)) return false;
+void append_slot(TemperatureHumidityBackend backend,
+                 const hardware::i2c::DiscoveredDevice &dev) {
+  if (sensor_count >= config::temperature_humidity::MAX_SENSORS) return;
+  slots[sensor_count++] = {
+    .backend = backend,
+    .bus = dev.bus,
+    .address = dev.address,
+    .mux_channel = dev.mux_channel,
+    .available = true,
+  };
+}
 
-  CHT832X sensor(config.address, command.wire);
-  int result = sensor.begin();
-  if (result != CHT832X_OK) {
+void ensure_registered() {
+  if (registered || sensor_count == 0) return;
+  sensors::registry::add({
+      .kind = SensorKind::TemperatureHumidity,
+      .name = "Temperature & Humidity",
+      .isAvailable = []() -> bool {
+          return sensors::temperature_and_humidity::sensorCount() > 0;
+      },
+      .instanceCount = sensors::temperature_and_humidity::sensorCount,
+      .poll = [](uint8_t index, void *out, size_t cap) -> bool {
+          if (cap < sizeof(TemperatureHumiditySensorData)) return false;
+          return sensors::temperature_and_humidity::access(
+              index, static_cast<TemperatureHumiditySensorData *>(out));
+      },
+      .data_size = sizeof(TemperatureHumiditySensorData),
+  });
+  registered = true;
+}
+
+bool probe_cht832x_discovered(const hardware::i2c::DiscoveredDevice &dev) {
+  hardware::i2c::DeviceAccessCommand command = {};
+  command.bus = to_bus(dev.bus);
+  command.mux_channel = dev.mux_channel;
+  if (!hardware::i2c::accessDevice(&command)) return false;
+
+  CHT832X sensor(dev.address, command.wire);
+  if (sensor.begin() != CHT832X_OK) {
     hardware::i2c::clearSelection();
     return false;
   }
 
   uint16_t manufacturer = sensor.getManufacturer();
   hardware::i2c::clearSelection();
-  return manufacturer == 0x5959;
+  if (manufacturer != 0x5959) return false;
+
+  append_slot(TemperatureHumidityBackend::CHT832X, dev);
+  ensure_registered();
+  return true;
 }
 
-bool probe_sht31(const config::I2CSensorConfig &config,
-                 int8_t resolved_mux_channel) {
+bool probe_sht31_discovered(const hardware::i2c::DiscoveredDevice &dev) {
   hardware::i2c::DeviceAccessCommand command = {};
-  if (!access_i2c_device(config, resolved_mux_channel, &command)) return false;
+  command.bus = to_bus(dev.bus);
+  command.mux_channel = dev.mux_channel;
+  if (!hardware::i2c::accessDevice(&command)) return false;
 
-  SHT31 sensor(config.address, command.wire);
+  SHT31 sensor(dev.address, command.wire);
   bool ok = sensor.begin() && sensor.isConnected();
   hardware::i2c::clearSelection();
-  return ok;
-}
+  if (!ok) return false;
 
-bool probe_descriptor(const config::I2CSensorConfig &config,
-                      int8_t resolved_mux_channel) {
-  switch (config.kind) {
-    case config::I2CSensorKind::TemperatureHumidityCHT832X:
-      return probe_cht832x(config, resolved_mux_channel);
-    case config::I2CSensorKind::TemperatureHumiditySHT3X:
-      return probe_sht31(config, resolved_mux_channel);
-    default:
-      return false;
-  }
+  append_slot(TemperatureHumidityBackend::SHT31, dev);
+  ensure_registered();
+  return true;
 }
 
 bool read_cht832x(const TemperatureHumiditySlot &slot,
                   TemperatureHumiditySensorData *sensor_data) {
   hardware::i2c::DeviceAccessCommand command = {};
-  if (!access_i2c_device(slot.config, slot.resolved_mux_channel, &command)) return false;
+  if (!access_slot(slot, &command)) return false;
 
-  CHT832X sensor(slot.config.address, command.wire);
+  CHT832X sensor(slot.address, command.wire);
   int begin_result = sensor.begin();
   if (begin_result != CHT832X_OK) {
     hardware::i2c::clearSelection();
@@ -113,9 +142,9 @@ bool read_cht832x(const TemperatureHumiditySlot &slot,
 bool read_sht31(const TemperatureHumiditySlot &slot,
                 TemperatureHumiditySensorData *sensor_data) {
   hardware::i2c::DeviceAccessCommand command = {};
-  if (!access_i2c_device(slot.config, slot.resolved_mux_channel, &command)) return false;
+  if (!access_slot(slot, &command)) return false;
 
-  SHT31 sensor(slot.config.address, command.wire);
+  SHT31 sensor(slot.address, command.wire);
   bool success = sensor.begin() && sensor.read(true);
   if (success) {
     sensor_data->temperature_celsius = sensor.getTemperature();
@@ -131,94 +160,13 @@ bool read_sht31(const TemperatureHumiditySlot &slot,
   return success;
 }
 
-void append_slot(TemperatureHumidityBackend backend,
-                 const config::I2CSensorConfig &config,
-                 int8_t resolved_mux_channel) {
-  if (sensor_count >= config::temperature_humidity::MAX_SENSORS) return;
-  slots[sensor_count++] = {
-    .backend = backend,
-    .config = config,
-    .resolved_mux_channel = resolved_mux_channel,
-    .available = true,
-  };
 }
 
-}
-
-bool sensors::temperature_and_humidity::initialize() {
+void sensors::temperature_and_humidity::registerProbes() {
   sensor_count = 0;
-
-  hardware::i2c::TopologySnapshot topology = {};
-  hardware::i2c::accessTopology(&topology);
-
-  for (size_t index = 0; index < config::i2c_topology::DEVICE_COUNT; index++) {
-    const config::I2CSensorConfig &device = config::i2c_topology::DEVICES[index];
-    TemperatureHumidityBackend backend;
-
-    switch (device.kind) {
-      case config::I2CSensorKind::TemperatureHumidityCHT832X:
-        backend = TemperatureHumidityBackend::CHT832X;
-        break;
-      case config::I2CSensorKind::TemperatureHumiditySHT3X:
-        backend = TemperatureHumidityBackend::SHT31;
-        break;
-      default:
-        continue;
-    }
-
-    if (device.mux_channel == config::i2c::DIRECT_CHANNEL) {
-      if (probe_descriptor(device, config::i2c::DIRECT_CHANNEL)) {
-        append_slot(backend, device, config::i2c::DIRECT_CHANNEL);
-        Serial.printf("[temperature_and_humidity] found %s on bus %u addr 0x%02X\n",
-                      backend == TemperatureHumidityBackend::CHT832X ? "CHT832X" : "SHT31",
-                      device.bus, device.address);
-      }
-      continue;
-    }
-
-    if (device.mux_channel == config::i2c::ANY_MUX_CHANNEL) {
-      if (!topology.mux_present || device.bus != 1) continue;
-      for (uint8_t channel = 0; channel < hardware::i2c::mux.channelCount(); channel++) {
-        if (probe_descriptor(device, channel)) {
-          append_slot(backend, device, channel);
-          Serial.printf("[temperature_and_humidity] found %s on mux channel %u addr 0x%02X\n",
-                        backend == TemperatureHumidityBackend::CHT832X ? "CHT832X" : "SHT31",
-                        channel, device.address);
-        }
-      }
-      continue;
-    }
-
-    if (!topology.mux_present || device.bus != 1) continue;
-    if (probe_descriptor(device, device.mux_channel)) {
-      append_slot(backend, device, device.mux_channel);
-      Serial.printf("[temperature_and_humidity] found %s on mux channel %d addr 0x%02X\n",
-                    backend == TemperatureHumidityBackend::CHT832X ? "CHT832X" : "SHT31",
-                    device.mux_channel, device.address);
-    }
-  }
-
-  hardware::i2c::clearSelection();
-  Serial.printf("[temperature_and_humidity] discovered %d sensor(s)\n",
-                sensor_count);
-
-  if (sensor_count > 0) {
-    sensors::registry::add({
-        .kind = SensorKind::TemperatureHumidity,
-        .name = "Temperature & Humidity",
-        .isAvailable = []() -> bool {
-            return sensors::temperature_and_humidity::sensorCount() > 0;
-        },
-        .instanceCount = sensors::temperature_and_humidity::sensorCount,
-        .poll = [](uint8_t index, void *out, size_t cap) -> bool {
-            if (cap < sizeof(TemperatureHumiditySensorData)) return false;
-            return sensors::temperature_and_humidity::access(
-                index, static_cast<TemperatureHumiditySensorData *>(out));
-        },
-        .data_size = sizeof(TemperatureHumiditySensorData),
-    });
-  }
-  return sensor_count > 0;
+  registered = false;
+  hardware::i2c::registerProbe({0x44, probe_cht832x_discovered, "CHT832X", 10});
+  hardware::i2c::registerProbe({0x44, probe_sht31_discovered, "SHT3x", 20});
 }
 
 uint8_t sensors::temperature_and_humidity::sensorCount() {
@@ -267,11 +215,14 @@ uint8_t sensors::temperature_and_humidity::accessAll(TemperatureHumiditySensorDa
 
 static void test_temp_humidity_discovers_sensors(void) {
   GIVEN("Wire1 with power enabled");
-  WHEN("sensors are discovered from the I2C topology");
+  WHEN("sensors are discovered via probe-based I2C scan");
   test_ensure_wire1_with_power();
   hardware::i2c::initialize();
+  sensors::temperature_and_humidity::registerProbes();
+  hardware::i2c::runDiscovery();
+  hardware::i2c::probeAll();
 
-  uint8_t count = sensors::temperature_and_humidity::initialize();
+  uint8_t count = sensors::temperature_and_humidity::sensorCount();
   char message[64];
   snprintf(message, sizeof(message), "discovered %d sensor(s)", count);
   TEST_MESSAGE(message);
@@ -375,7 +326,9 @@ static void test_temp_humidity_cht832x_manufacturer_id(void) {
   if (sensors::temperature_and_humidity::sensorCount() == 0) {
     test_ensure_wire1_with_power();
     hardware::i2c::initialize();
-    sensors::temperature_and_humidity::initialize();
+    sensors::temperature_and_humidity::registerProbes();
+    hardware::i2c::runDiscovery();
+    hardware::i2c::probeAll();
   }
 
   size_t cht_index = SIZE_MAX;
@@ -392,11 +345,9 @@ static void test_temp_humidity_cht832x_manufacturer_id(void) {
   }
 
   hardware::i2c::DeviceAccessCommand command = {};
-  TEST_ASSERT_TRUE_MESSAGE(access_i2c_device(slots[cht_index].config,
-                                             slots[cht_index].resolved_mux_channel,
-                                             &command),
+  TEST_ASSERT_TRUE_MESSAGE(access_slot(slots[cht_index], &command),
     "device: failed to access resolved CHT832X device");
-  CHT832X sensor(slots[cht_index].config.address, command.wire);
+  CHT832X sensor(slots[cht_index].address, command.wire);
   TEST_ASSERT_EQUAL_INT_MESSAGE(CHT832X_OK, sensor.begin(),
     "device: CHT832X begin failed during manufacturer check");
   uint16_t manufacturer = sensor.getManufacturer();

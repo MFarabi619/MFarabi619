@@ -14,7 +14,7 @@ struct CurrentSensorData {
 
 namespace sensors::current {
 
-bool initialize();
+void registerProbes();
 bool isAvailable();
 bool access(CurrentSensorData *sensor_data);
 

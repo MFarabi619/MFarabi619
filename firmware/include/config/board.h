@@ -32,40 +32,6 @@ namespace config {
       inline constexpr uint8_t   ADDR_MAX         = 127;
       inline constexpr uint8_t   MUX_ADDR         = 0x70;
       inline constexpr int8_t    DIRECT_CHANNEL   = -1;
-      inline constexpr int8_t    ANY_MUX_CHANNEL  = -2;
-  }
-
-  enum class I2CSensorKind : uint8_t {
-      TemperatureHumidityCHT832X,
-      TemperatureHumiditySHT3X,
-      VoltageADS1115,
-      CurrentINA228,
-      CarbonDioxideSCD30,
-      CarbonDioxideSCD4X,
-      RTC_DS3231,
-      EEPROM_AT24C32,
-  };
-
-  struct I2CSensorConfig {
-      I2CSensorKind kind;
-      uint8_t bus;
-      uint8_t address;
-      int8_t mux_channel;
-  };
-
-  namespace i2c_topology {
-      inline constexpr I2CSensorConfig DEVICES[] = {
-          {I2CSensorKind::RTC_DS3231,                 0, 0x68, i2c::DIRECT_CHANNEL},
-          {I2CSensorKind::EEPROM_AT24C32,             1, 0x50, i2c::DIRECT_CHANNEL},
-          {I2CSensorKind::VoltageADS1115,             1, 0x48, i2c::ANY_MUX_CHANNEL},
-          {I2CSensorKind::CarbonDioxideSCD30,         1, 0x61, i2c::DIRECT_CHANNEL},
-          {I2CSensorKind::CarbonDioxideSCD4X,         1, 0x62, i2c::DIRECT_CHANNEL},
-          {I2CSensorKind::TemperatureHumidityCHT832X, 1, 0x44, i2c::ANY_MUX_CHANNEL},
-          {I2CSensorKind::TemperatureHumiditySHT3X,   0, 0x44, i2c::DIRECT_CHANNEL},
-          {I2CSensorKind::TemperatureHumiditySHT3X,   1, 0x44, i2c::DIRECT_CHANNEL},
-      };
-
-      inline constexpr size_t DEVICE_COUNT = sizeof(DEVICES) / sizeof(DEVICES[0]);
   }
 
   namespace rs485 {

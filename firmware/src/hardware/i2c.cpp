@@ -358,6 +358,56 @@ bool hardware::i2c::findDevice(uint8_t address, DiscoveredDevice *result) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  Probe-based discovery
+// ─────────────────────────────────────────────────────────────────────────────
+
+static constexpr size_t MAX_PROBES = 16;
+static hardware::i2c::ProbeEntry probe_table[MAX_PROBES];
+static size_t probe_count = 0;
+
+static constexpr uint8_t SKIP_ADDRESSES[] = {0x50, 0x68, 0x70};
+
+static bool is_infrastructure(uint8_t address) {
+  for (uint8_t addr : SKIP_ADDRESSES)
+    if (addr == address) return true;
+  return false;
+}
+
+void hardware::i2c::registerProbe(const ProbeEntry &entry) {
+  if (probe_count >= MAX_PROBES) return;
+  size_t i = probe_count;
+  while (i > 0 && probe_table[i - 1].priority > entry.priority) {
+    probe_table[i] = probe_table[i - 1];
+    i--;
+  }
+  probe_table[i] = entry;
+  probe_count++;
+}
+
+void hardware::i2c::probeAll() {
+  if (!discovery_done) runDiscovery();
+
+  for (size_t d = 0; d < discovery_count; d++) {
+    const DiscoveredDevice &dev = discovery_cache[d];
+    if (is_infrastructure(dev.address)) continue;
+
+    for (size_t p = 0; p < probe_count; p++) {
+      if (probe_table[p].address != dev.address) continue;
+
+      Serial.printf("[i2c] probing %s at 0x%02X bus %d ch %d\n",
+                    probe_table[p].name, dev.address, dev.bus, dev.mux_channel);
+
+      if (probe_table[p].probe(dev)) {
+        Serial.printf("[i2c] matched %s\n", probe_table[p].name);
+        break;
+      }
+      clearSelection();
+    }
+  }
+  clearSelection();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  Tests
 // ─────────────────────────────────────────────────────────────────────────────
 #ifdef PIO_UNIT_TESTING

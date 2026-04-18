@@ -21,7 +21,7 @@ struct Co2Config {
 
 namespace sensors::carbon_dioxide {
 
-bool initialize();
+void registerProbes();
 bool access(CO2SensorData *sensor_data);
 bool accessConfig(Co2Config *config);
 bool isAvailable();
