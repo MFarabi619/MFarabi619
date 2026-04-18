@@ -96,7 +96,6 @@ namespace config {
   }
 
   namespace data_logger {
-      inline constexpr const char *CSV_PATH = "/data.csv";
       inline constexpr uint32_t LOG_INTERVAL_MS = 5000;
   }
 

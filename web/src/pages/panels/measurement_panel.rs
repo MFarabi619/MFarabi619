@@ -2,17 +2,19 @@ use super::{
     Co2Row, MeasurementState, MeasurementTab, PressureRow, SensorAvailability, Td,
     TemperatureHumidityRow, Th, VoltageRow, build_csv, download_csv, fetch_and_add_sensor_readings,
 };
-use crate::api::Co2ConfigData;
-use crate::services::Co2Service;
-use dioxus::prelude::*;
-use dioxus::signals::ReadSignal;
-use dioxus_primitives::tabs::{TabContent, TabList, TabTrigger, Tabs};
-use dioxus_primitives::tooltip::{Tooltip, TooltipContent, TooltipTrigger};
+use crate::{api::Co2ConfigData, services::Co2Service};
+use dioxus::{prelude::*, signals::ReadSignal};
+use dioxus_primitives::{
+    tabs::{TabContent, TabList, TabTrigger, Tabs},
+    tooltip::{Tooltip, TooltipContent, TooltipTrigger},
+};
 use lucide_dioxus::{Download, LoaderCircle};
-use ui::components::button::{Button, ButtonVariant};
-use ui::components::checkbox::{Checkbox, CheckboxSize};
-use ui::components::input::Input;
-use ui::components::label::Label;
+use ui::components::{
+    button::{Button, ButtonVariant},
+    checkbox::{Checkbox, CheckboxSize},
+    input::Input,
+    label::Label,
+};
 
 fn sample_button(
     mut sampling: Signal<bool>,
@@ -335,7 +337,7 @@ fn co2_panel(
                     rsx! { lucide_dioxus::FlaskConical { class: "w-4 h-4" } })}
             }
 
-            div { class: "border border-border rounded-lg overflow-hidden min-h-[320px] max-h-[460px]",
+            div { class: "border border-border rounded-lg overflow-scroll min-h-[320px] max-h-[460px]",
                 div { class: "w-full overflow-auto h-full",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
@@ -402,7 +404,7 @@ fn thm_panel(
                     rsx! { lucide_dioxus::Thermometer { class: "w-4 h-4" } })}
             }
 
-            div { class: "border border-border rounded-lg overflow-hidden min-h-[320px] max-h-[460px]",
+            div { class: "border border-border rounded-lg overflow-scroll min-h-[320px] max-h-[460px]",
                 div { class: "w-full overflow-auto h-full",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
@@ -478,7 +480,7 @@ fn pressure_panel(
                     rsx! { lucide_dioxus::Gauge { class: "w-4 h-4" } })}
             }
 
-            div { class: "border border-border rounded-lg overflow-hidden min-h-[320px] max-h-[460px]",
+            div { class: "border border-border rounded-lg overflow-scroll min-h-[320px] max-h-[460px]",
                 div { class: "w-full overflow-auto h-full",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",
@@ -543,7 +545,7 @@ fn voltage_panel(
                     rsx! { lucide_dioxus::Zap { class: "w-4 h-4" } })}
             }
 
-            div { class: "border border-border rounded-lg overflow-hidden min-h-[320px] max-h-[460px]",
+            div { class: "border border-border rounded-lg overflow-scroll min-h-[320px] max-h-[460px]",
                 div { class: "w-full overflow-auto h-full",
                     table { class: "min-w-full border-collapse",
                         thead { class: "bg-muted",

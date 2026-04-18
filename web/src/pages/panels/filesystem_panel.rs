@@ -204,8 +204,9 @@ pub fn FilesystemPanel(
                     }
                 },
             }
+        }
 
-            // Delete confirmation modal
+        // Delete confirmation modal
             {
                 let is_open = pending_delete.read().is_some();
                 let delete_fs = pending_delete.read().as_ref().map(|(f, _)| f.clone()).unwrap_or_default();
@@ -405,7 +406,6 @@ pub fn FilesystemPanel(
                     }
                 }
             }
-        }
     }
 }
 

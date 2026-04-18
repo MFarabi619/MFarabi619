@@ -130,34 +130,24 @@ pub async fn fetch_and_add_sensor_readings(
         let mut state = state.write();
         state.last_event_time.set(parsed.event_time.clone());
 
-        let prev_co2 = state.co2_readings.read().last().map(|r| (r.co2_ppm, r.temperature, r.humidity));
-
-        let prev_voltage = state.voltage_readings.read().last().map(|r| r.channels.clone());
-        let prev_pressure = state.pressure_readings.read().last().map(|r| (r.pressure_hpa, r.temperature_celsius));
         let prev_time = parsed.time.clone();
-
-        let mut co2_added = false;
-        let mut th_added = false;
-        let mut voltage_added = false;
-        let mut pressure_added = false;
+        let mut added = false;
 
         for reading in &parsed.readings {
             match reading {
                 SensorReading::Co2 { ppm, temp, humidity } => {
-                    if Some((*ppm, *temp, *humidity)) != prev_co2 {
-                        if !state.availability.read().co2 {
-                            state.availability.write().co2 = true;
-                        }
-                        let next_row = state.co2_readings.read().len() + 1;
-                        state.co2_readings.write().push(Co2Row {
-                            row: next_row,
-                            co2_ppm: *ppm,
-                            temperature: *temp,
-                            humidity: *humidity,
-                            time: prev_time.clone(),
-                        });
-                        co2_added = true;
+                    if !state.availability.read().co2 {
+                        state.availability.write().co2 = true;
                     }
+                    let next_row = state.co2_readings.read().len() + 1;
+                    state.co2_readings.write().push(Co2Row {
+                        row: next_row,
+                        co2_ppm: *ppm,
+                        temperature: *temp,
+                        humidity: *humidity,
+                        time: prev_time.clone(),
+                    });
+                    added = true;
                 }
                 SensorReading::TemperatureHumidity { sensors, model } => {
                     if !state.availability.read().temperature_humidity {
@@ -170,42 +160,38 @@ pub async fn fetch_and_add_sensor_readings(
                         default_model: model.clone(),
                         time: prev_time.clone(),
                     });
-                    th_added = true;
+                    added = true;
                 }
                 SensorReading::Voltage { gain, channels } => {
-                    if Some(channels.clone()) != prev_voltage {
-                        if !state.availability.read().voltage {
-                            state.availability.write().voltage = true;
-                        }
-                        let next_row = state.voltage_readings.read().len() + 1;
-                        state.voltage_readings.write().push(VoltageRow {
-                            row: next_row,
-                            gain: gain.clone(),
-                            channels: channels.clone(),
-                            time: prev_time.clone(),
-                        });
-                        voltage_added = true;
+                    if !state.availability.read().voltage {
+                        state.availability.write().voltage = true;
                     }
+                    let next_row = state.voltage_readings.read().len() + 1;
+                    state.voltage_readings.write().push(VoltageRow {
+                        row: next_row,
+                        gain: gain.clone(),
+                        channels: channels.clone(),
+                        time: prev_time.clone(),
+                    });
+                    added = true;
                 }
                 SensorReading::Pressure { model, pressure_hpa, temp } => {
-                    if Some((*pressure_hpa, *temp)) != prev_pressure {
-                        if !state.availability.read().pressure {
-                            state.availability.write().pressure = true;
-                        }
-                        let next_row = state.pressure_readings.read().len() + 1;
-                        state.pressure_readings.write().push(PressureRow {
-                            row: next_row,
-                            model: model.clone(),
-                            pressure_hpa: *pressure_hpa,
-                            temperature_celsius: *temp,
-                            time: prev_time.clone(),
-                        });
-                        pressure_added = true;
+                    if !state.availability.read().pressure {
+                        state.availability.write().pressure = true;
                     }
+                    let next_row = state.pressure_readings.read().len() + 1;
+                    state.pressure_readings.write().push(PressureRow {
+                        row: next_row,
+                        model: model.clone(),
+                        pressure_hpa: *pressure_hpa,
+                        temperature_celsius: *temp,
+                        time: prev_time.clone(),
+                    });
+                    added = true;
                 }
             }
         }
 
-        co2_added || th_added || voltage_added || pressure_added
+        added
     }
 }

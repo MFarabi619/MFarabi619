@@ -26,16 +26,16 @@ AsyncRateLimitMiddleware format_limit;
 
 bool sd_has_index() {
   if (!hardware::storage::ensureSD()) return false;
-  return SD.exists("/index.html") || SD.exists("/index.html.gz");
+  return SD.exists("/public/index.html") || SD.exists("/public/index.html.gz");
 }
 
 void send_index_from_sd(AsyncWebServerRequest *request) {
-  if (SD.exists("/index.html.gz")) {
-    AsyncWebServerResponse *response = request->beginResponse(SD, "/index.html.gz", "text/html; charset=utf-8");
+  if (SD.exists("/public/index.html.gz")) {
+    AsyncWebServerResponse *response = request->beginResponse(SD, "/public/index.html.gz", "text/html; charset=utf-8");
     response->addHeader(asyncsrv::T_Content_Encoding, "gzip");
     request->send(response);
   } else {
-    request->send(SD, "/index.html", "text/html; charset=utf-8");
+    request->send(SD, "/public/index.html", "text/html; charset=utf-8");
   }
 }
 
@@ -147,7 +147,7 @@ void services::http::initialize() {
   services::ws_shell::registerRoutes(&server);
 
   hardware::storage::ensureSD();
-  server.serveStatic("/", SD, "/")
+  server.serveStatic("/", SD, "/public/")
     .setDefaultFile("index.html")
     .setCacheControl("public, max-age=86400")
     .setLastModified()

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="target/dx/web/release/web/public"
-BASE_URL="http://ceratina.local/api/filesystem/sd"
+BASE_URL="http://ceratina.local/api/filesystem/sd/public"
 
 c_reset=$'\033[0m'
 c_dim=$'\033[2m'
