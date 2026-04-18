@@ -368,7 +368,7 @@ pub fn Home() -> Element {
                 }
             }
 
-            SleepPanel { device_url, status }
+            // SleepPanel { device_url, status }
 
             TerminalPanel { device_url }
 
