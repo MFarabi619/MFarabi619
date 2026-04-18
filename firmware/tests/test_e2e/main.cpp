@@ -48,6 +48,7 @@ void setup(void) {
   programs::shell::test();
   programs::buttons::test();
   programs::coreutils::test();
+  programs::sqlite::test();
   programs::ssh_client::test();
 
   power::sleep::test();

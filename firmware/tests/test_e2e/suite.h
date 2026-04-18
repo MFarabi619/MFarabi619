@@ -41,5 +41,6 @@ namespace programs::buttons { void test(); }
 namespace programs::coreutils { void test(); }
 namespace programs::led { void test(); }
 namespace programs::shell { void test(); }
+namespace programs::sqlite { void test(); }
 namespace programs::ssh_client { void test(); }
 namespace power::sleep { void test(); }
