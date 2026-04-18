@@ -4,7 +4,7 @@
 
 <div align="center">
 
-[![Radicle](https://img.shields.io/badge/Radicle-Repository-7B4CDB?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K)](https://app.radicle.xyz/nodes/seed.radicle.garden/rad:z2EHT1VHYdjQfftzpYrmrAVEwL3Lp)
+[![Radicle](https://img.shields.io/badge/Radicle-Repository-7B4CDB?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K)](https://app.radicle.xyz/nodes/iris.radicle.xyz/rad%3Az2VXjpUYKv3CN6DzjZS983Bo3qo7d)
 
 [![Built with Nix](https://img.shields.io/static/v1?logo=nixos&logoColor=white&label=&message=Built%20with%20Nix&color=41439a)](https://builtwithnix.org)
 [![Built with devenv](https://devenv.sh/assets/devenv-badge.svg)](https://devenv.sh)

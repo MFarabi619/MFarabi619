@@ -1,10 +1,10 @@
 <!-- markdownlint-disable -->
 <div align="center">
-  <img src="https://github.com/MFarabi619/MFarabi619/blob/main/assets/cover.png" style="width:100%"/>
+  <img src="assets/cover.png" style="width:100%"/>
 </div>
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
-  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+  <img src="assets/progress-bar.gif">
 </a>
 
 <div align="center">
@@ -45,7 +45,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <tr>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg" alt="Nix Language Logo" width="40" height="40" />
+<img src="assets/nix.svg" alt="Nix Language Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://ziglang.org" target="_blank" rel="noreferrer">
@@ -143,11 +143,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
-<img src="https://github.com/MFarabi619/MFarabi619/blob/main/assets/freebsd-symbol-orb.png" alt="FreeBSD Logo" width="40" height="40" />
+<img src="assets/freebsd-symbol-orb.png" alt="FreeBSD Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
-<img src="https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg" alt="NixOS Logo" width="40" height="40" />
+<img src="assets/nix-snowflake-rainbow.svg" alt="NixOS Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.qemu.org" target="_blank" rel="noreferrer">
@@ -171,15 +171,15 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://tailscale.com" target="_blank" rel="noreferrer">
-<img src="./assets/icons/tailscale.svg" alt="Tailscale Logo" width="40" height="40" />
+<img src="assets/icons/tailscale.svg" alt="Tailscale Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://cloudevents.io" target="_blank" rel="noreferrer">
-<img src="./assets/icons/cloudevents.svg" alt="CloudEvents Logo" width="40" height="40" />
+<img src="assets/icons/cloudevents.svg" alt="CloudEvents Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://grafana.com" target="_blank" rel="noreferrer">
-<img src="./assets/icons/grafana.svg" alt="Grafana Logo" width="40" height="40" />
+<img src="assets/icons/grafana.svg" alt="Grafana Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
@@ -478,7 +478,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://burn.dev" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png" alt="Burn Logo" width="40" height="40" />
+<img src="assets/icons/burn.png" alt="Burn Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.ros.org" target="_blank" rel="noreferrer">
@@ -874,7 +874,7 @@ Got a suggestion? Add it to the list :)
 
 <div align="center">
 
-[![Radicle](https://img.shields.io/badge/Radicle-Repository-7B4CDB?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K)](https://app.radicle.xyz/nodes/seed.radicle.garden/rad:z2EHT1VHYdjQfftzpYrmrAVEwL3Lp)
+[![Radicle](https://img.shields.io/badge/Radicle-Repository-7B4CDB?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K)](https://app.radicle.xyz/nodes/iris.radicle.xyz/rad%3Az2VXjpUYKv3CN6DzjZS983Bo3qo7d)
 
 [![Built with Nix](https://img.shields.io/static/v1?logo=nixos&logoColor=white&label=&message=Built%20with%20Nix&color=41439a)](https://builtwithnix.org)
 [![Built with devenv](https://devenv.sh/assets/devenv-badge.svg)](https://devenv.sh)

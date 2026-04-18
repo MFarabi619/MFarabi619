@@ -6,4 +6,6 @@
 
     # };
   };
+
+  services.radicle-web.enable = true;
 }

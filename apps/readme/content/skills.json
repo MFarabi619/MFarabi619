@@ -4,7 +4,7 @@
       {
         "name": "Nix Language",
         "url": "https://nixos.org/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nixos/nixos-original.svg"
+        "icon": "assets/nix.svg"
       },
       {
         "name": "Zig",
@@ -128,12 +128,12 @@
       {
         "name": "FreeBSD",
         "url": "https://www.freebsd.org",
-        "icon": "https://github.com/MFarabi619/MFarabi619/blob/main/assets/freebsd-symbol-orb.png"
+        "icon": "assets/freebsd-symbol-orb.png"
       },
       {
         "name": "NixOS",
         "url": "https://nixos.org/",
-        "icon": "https://github.com/NixOS/nixos-artwork/blob/master/logo/nix-snowflake-rainbow.svg"
+        "icon": "assets/nix-snowflake-rainbow.svg"
       },
       {
         "name": "QEMU",
@@ -163,17 +163,17 @@
       {
         "name": "Tailscale",
         "url": "https://tailscale.com",
-        "icon": "./assets/icons/tailscale.svg"
+        "icon": "assets/icons/tailscale.svg"
       },
       {
         "name": "CloudEvents",
         "url": "https://cloudevents.io",
-        "icon": "./assets/icons/cloudevents.svg"
+        "icon": "assets/icons/cloudevents.svg"
       },
       {
         "name": "Grafana",
         "url": "https://grafana.com",
-        "icon": "./assets/icons/grafana.svg"
+        "icon": "assets/icons/grafana.svg"
       },
       {
         "name": "Penpot",
@@ -542,7 +542,7 @@
       {
         "name": "Burn",
         "url": "https://burn.dev",
-        "icon": "https://raw.githubusercontent.com/tracel-ai/burn/main/assets/backend-chip.png"
+        "icon": "assets/icons/burn.png"
       },
       {
         "name": "ROS 2",
