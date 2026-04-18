@@ -131,7 +131,7 @@ pub async fn fetch_and_add_sensor_readings(
         state.last_event_time.set(parsed.event_time.clone());
 
         let prev_co2 = state.co2_readings.read().last().map(|r| (r.co2_ppm, r.temperature, r.humidity));
-        let prev_th = state.temperature_humidity_readings.read().last().map(|r| r.sensors.len());
+
         let prev_voltage = state.voltage_readings.read().last().map(|r| r.channels.clone());
         let prev_pressure = state.pressure_readings.read().last().map(|r| (r.pressure_hpa, r.temperature_celsius));
         let prev_time = parsed.time.clone();
@@ -160,19 +160,17 @@ pub async fn fetch_and_add_sensor_readings(
                     }
                 }
                 SensorReading::TemperatureHumidity { sensors, model } => {
-                    if Some(sensors.len()) != prev_th {
-                        if !state.availability.read().temperature_humidity {
-                            state.availability.write().temperature_humidity = true;
-                        }
-                        let next_row = state.temperature_humidity_readings.read().len() + 1;
-                        state.temperature_humidity_readings.write().push(TemperatureHumidityRow {
-                            row: next_row,
-                            sensors: sensors.clone(),
-                            default_model: model.clone(),
-                            time: prev_time.clone(),
-                        });
-                        th_added = true;
+                    if !state.availability.read().temperature_humidity {
+                        state.availability.write().temperature_humidity = true;
                     }
+                    let next_row = state.temperature_humidity_readings.read().len() + 1;
+                    state.temperature_humidity_readings.write().push(TemperatureHumidityRow {
+                        row: next_row,
+                        sensors: sensors.clone(),
+                        default_model: model.clone(),
+                        time: prev_time.clone(),
+                    });
+                    th_added = true;
                 }
                 SensorReading::Voltage { gain, channels } => {
                     if Some(channels.clone()) != prev_voltage {

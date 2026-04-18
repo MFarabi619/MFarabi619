@@ -55,7 +55,7 @@ pub struct Co2Row {
     pub time: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct TemperatureHumidityReading {
     pub read_ok: bool,
     pub temperature_celsius: f64,
