@@ -8,6 +8,17 @@
     packages =
       with pkgs;
       [
+        lighttpd
+        radicle-tui
+        radicle-httpd
+        radicle-desktop
+        radicle-explorer
+        # TODO: are these already provided by services.radicle or programs.radicle?
+        # radicle-job
+        # radicle-ci-broker
+        # radicle-native-ci
+      ]
+      ++ [
         socat
         godot
         delve
@@ -156,6 +167,7 @@
         avrdude
         dfu-util
         minikube
+        jsonschema
         dfu-programmer
         vscode-extensions.llvm-vs-code-extensions.lldb-dap
       ];

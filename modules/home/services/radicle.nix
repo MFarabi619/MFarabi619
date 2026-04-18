@@ -7,5 +7,5 @@
     # };
   };
 
-  services.radicle-web.enable = true;
+  services.radicle-web.enable = false;
 }

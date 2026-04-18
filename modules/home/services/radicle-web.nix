@@ -7,6 +7,24 @@
 
 let
   cfg = config.services.radicle-web;
+
+  lighttpdConfig = pkgs.writeText "radicle-explorer-lighttpd.conf" ''
+    server.document-root = "${pkgs.radicle-explorer}"
+    server.port = ${toString cfg.explorer.port}
+    server.bind = "127.0.0.1"
+    server.error-handler-404 = "/index.html"
+    mimetype.assign = (
+      ".html" => "text/html",
+      ".css" => "text/css",
+      ".js" => "application/javascript",
+      ".json" => "application/json",
+      ".svg" => "image/svg+xml",
+      ".png" => "image/png",
+      ".woff2" => "font/woff2",
+      ".wasm" => "application/wasm",
+      ".webmanifest" => "application/manifest+json"
+    )
+  '';
 in
 {
   options.services.radicle-web = {
@@ -34,8 +52,7 @@ in
         echo "radicle-httpd started on :${toString cfg.httpd.port} (PID $HTTPD_PID)"
         echo "Serving explorer on :${toString cfg.explorer.port}..."
         echo "Open http://localhost:${toString cfg.explorer.port}/nodes/127.0.0.1:${toString cfg.httpd.port}"
-        cd ${pkgs.radicle-explorer}
-        ${pkgs.python3}/bin/python3 -m http.server ${toString cfg.explorer.port}
+        ${pkgs.lighttpd}/bin/lighttpd -D -f ${lighttpdConfig}
       '')
     ];
   };
