@@ -1,0 +1,8 @@
+menu "Microvisor Test Suites"
+	depends on ZTEST
+
+config TEST_LED
+	bool "LED strip tests"
+	default y
+
+endmenu

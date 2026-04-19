@@ -1,0 +1,39 @@
+manifest:
+    remotes:
+        - name: zephyrproject
+          url-base: https://github.com/zephyrproject-rtos
+
+    projects:
+        - name: zephyr
+          remote: zephyrproject
+          revision: v4.4.0
+          import:
+              path-prefix: vendor
+              name-allowlist:
+                  # ESP32
+                  - hal_espressif
+                  - hal_xtensa
+                  # STM32
+                  - hal_stm32
+                  - hal_st
+                  # Core
+                  - cmsis
+                  - cmsis_6
+                  - mbedtls
+                  - mbedtls-3.6
+                  - mcuboot
+                  - tf-psa-crypto
+                  # Filesystems
+                  - fatfs
+                  - littlefs
+                  # Libraries
+                  - libmetal
+                  - segger
+                  - mipi-sys-t
+                  - picolibc
+                  # Debug
+                  - percepio
+                  - net-tools
+
+    self:
+        path: .

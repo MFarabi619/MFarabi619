@@ -1,0 +1,11 @@
+[manifest]
+path = .
+file = west.yml
+
+[zephyr]
+base = vendor/zephyr
+
+[build]
+board = esp32s3_devkitc/esp32s3/procpu
+pristine = always
+source-dir = firmware

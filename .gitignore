@@ -1,4 +1,3 @@
-# [[file:CONTRIBUTING.org::*Misc][Misc:2]]
 #====================================================
 #              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
@@ -63,9 +62,11 @@ local.properties
 #====================================================
 /.pnp
 .pnp.js
+zephyr/
+vendor/
+build/
 
 opencode.json
 /.codex/config.toml
 /compile_commands.json
-# Misc:2 ends here
 /tests/__pycache__
