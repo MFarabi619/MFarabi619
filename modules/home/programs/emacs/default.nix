@@ -30,8 +30,8 @@
       in
       with epkgs;
       [
-        dts-mode
-        # devicetree-ts-mode
+        # dts-mode
+        devicetree-ts-mode
         abc-mode
         kdl-mode
         scad-mode

@@ -23,6 +23,7 @@
         godot
         delve
         bashdb
+        dts-lsp
         asm-lsp
         crates-lsp
         postgres-language-server
