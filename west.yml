@@ -4,6 +4,11 @@ manifest:
           url-base: https://github.com/zephyrproject-rtos
 
     projects:
+        - name: zephyr-lang-rust
+          remote: zephyrproject
+          revision: main
+          path: vendor/modules/lang/rust
+
         - name: zephyr
           remote: zephyrproject
           revision: v4.4.0
