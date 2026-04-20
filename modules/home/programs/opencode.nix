@@ -45,7 +45,7 @@
       };
     };
 
-    rules = ''
+    context = ''
       General Project Rules
       ## External File Loading
 
