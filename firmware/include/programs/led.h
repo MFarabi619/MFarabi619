@@ -23,6 +23,8 @@ static const struct color color_blue_violet = {138, 43, 226};
 bool led_init(void);
 int  led_set(struct color c);
 int  led_set_rgb(uint8_t r, uint8_t g, uint8_t b);
+void led_set_brightness(uint8_t brightness);
+uint8_t led_get_brightness(void);
 int  led_off(void);
 struct color led_get_color(void);
 

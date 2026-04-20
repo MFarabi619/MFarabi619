@@ -13,6 +13,7 @@ LOG_MODULE_REGISTER(led);
 static struct led_rgb pixels[STRIP_NUM_PIXELS];
 static const struct device *const strip = DEVICE_DT_GET(STRIP_NODE);
 static struct color current_color;
+static uint8_t brightness = 20;
 
 bool led_init(void)
 {
@@ -36,11 +37,22 @@ int led_set(struct color c)
 
 int led_set_rgb(uint8_t r, uint8_t g, uint8_t b)
 {
-	pixels[0].r = r;
-	pixels[0].g = g;
-	pixels[0].b = b;
+	pixels[0].r = (uint8_t)((r * brightness) / 255);
+	pixels[0].g = (uint8_t)((g * brightness) / 255);
+	pixels[0].b = (uint8_t)((b * brightness) / 255);
 	current_color = (struct color){r, g, b};
 	return led_strip_update_rgb(strip, pixels, STRIP_NUM_PIXELS);
+}
+
+void led_set_brightness(uint8_t value)
+{
+	brightness = value;
+	led_set(current_color);
+}
+
+uint8_t led_get_brightness(void)
+{
+	return brightness;
 }
 
 int led_off(void)

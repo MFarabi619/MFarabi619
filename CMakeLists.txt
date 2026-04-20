@@ -7,8 +7,9 @@ project(firmware)
 target_sources(app PRIVATE
   firmware/src/main.c
   firmware/src/programs/led.c
+  firmware/src/networking/wifi.c
   firmware/src/console/prompt.c
   firmware/src/console/fs_aliases.c
 )
 
-target_include_directories(app PRIVATE firmware/include)
+target_include_directories(app PRIVATE include firmware/include)
