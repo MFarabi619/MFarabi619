@@ -170,6 +170,13 @@ in
                   icon = "grafana.svg";
                 };
               }
+              {
+                "Velxio" = {
+                  href = "https://velxio.openws.org";
+                  siteMonitor = "https://velxio.openws.org";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/velxio.svg";
+                };
+              }
             ];
           }
           {
