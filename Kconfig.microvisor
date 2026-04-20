@@ -5,4 +5,8 @@ config TEST_LED
 	bool "LED strip tests"
 	default y
 
+config TEST_PROMPT
+	bool "Console prompt tests"
+	default y
+
 endmenu

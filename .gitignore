@@ -62,7 +62,6 @@ local.properties
 #====================================================
 /.pnp
 .pnp.js
-zephyr/
 vendor/
 build/
 

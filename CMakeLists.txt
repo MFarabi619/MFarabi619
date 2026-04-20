@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+
+cmake_minimum_required(VERSION 3.20.0)
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(firmware)
+
+target_sources(app PRIVATE
+  firmware/src/main.c
+  firmware/src/programs/led.c
+  firmware/src/console/prompt.c
+)
+
+target_include_directories(app PRIVATE firmware/include)

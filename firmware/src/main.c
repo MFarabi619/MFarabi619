@@ -1,24 +1,20 @@
 #include <programs/led.h>
+#include <console/prompt.h>
 
 #include <zephyr/kernel.h>
+#include <zephyr/shell/shell.h>
+#include <zephyr/shell/shell_uart.h>
 #include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(main);
 
 int main(void)
 {
-	if (!led_init()) {
-		return 0;
-	}
+	led_init();
 
-	while (1) {
-		led_set(color_red);
-		k_sleep(K_MSEC(500));
-		led_set(color_green);
-		k_sleep(K_MSEC(500));
-		led_set(color_blue);
-		k_sleep(K_MSEC(500));
-	}
+	const struct shell *sh = shell_backend_uart_get_ptr();
+	prompt_init(sh);
+	prompt_print_motd(sh, NULL);
 
 	return 0;
 }

@@ -1,2 +1,0 @@
-source "$(ZEPHYR_BASE)/Kconfig"
-source "$(APPLICATION_SOURCE_DIR)/../../src/Kconfig"

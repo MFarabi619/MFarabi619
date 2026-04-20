@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-exclude = ["ml"]
+exclude = ["ml", "firmware/zephyr"]
 default-members = ["firmware"]
 members = [
     ".",

@@ -1,0 +1,60 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 75ece41..6e35e57 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -53,6 +53,16 @@ function(_rust_map_target)
+     set(RUST_TARGET "x86_64-unknown-none" PARENT_SCOPE)
+   elseif(CONFIG_ARCH_POSIX AND CONFIG_64BIT AND (${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "aarch64"))
+     set(RUST_TARGET "aarch64-unknown-none" PARENT_SCOPE)
++  elseif(CONFIG_XTENSA)
++    if(CONFIG_SOC STREQUAL "esp32s3")
++      set(RUST_TARGET "xtensa-esp32s3-none-elf" PARENT_SCOPE)
++    elseif(CONFIG_SOC STREQUAL "esp32")
++      set(RUST_TARGET "xtensa-esp32-none-elf" PARENT_SCOPE)
++    elseif(CONFIG_SOC STREQUAL "esp32s2")
++      set(RUST_TARGET "xtensa-esp32s2-none-elf" PARENT_SCOPE)
++    else()
++      message(FATAL_ERROR "Rust: Unsupported Xtensa SOC")
++    endif()
+   else()
+     message(FATAL_ERROR "Rust: Add support for other target")
+   endif()
+@@ -173,7 +183,7 @@ ${config_paths}
+       WRAPPER_FILE="${WRAPPER_FILE}"
+       DT_AUGMENTS="${DT_AUGMENTS}"
+       BINARY_DIR_INCLUDE_GENERATED="${BINARY_DIR_INCLUDE_GENERATED}"
+-      cargo build
++      cargo $<$<BOOL:${CONFIG_XTENSA}>:+esp> build
+       ${rust_build_type_arg}
+ 
+       # Override the features according to the shield given. For a general case,
+diff --git a/Kconfig b/Kconfig
+index 0b2d057..6bebb7c 100644
+--- a/Kconfig
++++ b/Kconfig
+@@ -8,6 +8,7 @@ menu "Rust Language Support"
+ config RUST_SUPPORTED
+ 	bool
+ 	default y if ((CPU_CORTEX_M || \
++				XTENSA || \
+ 				(RISCV && !RISCV_ISA_RV32E && !RISCV_ISA_RV128I) || \
+ 				(ARCH_POSIX && 64BIT)) && \
+ 				!TIMER_READS_ITS_FREQUENCY_AT_RUNTIME)
+diff --git a/zephyr-build/src/lib.rs b/zephyr-build/src/lib.rs
+index 85ba339..9e7029f 100644
+--- a/zephyr-build/src/lib.rs
++++ b/zephyr-build/src/lib.rs
+@@ -66,7 +66,12 @@ pub fn build_kconfig_mod() {
+         let line = line.expect("reading line from dotconfig");
+         if let Some(caps) = config_hex.captures(&line) {
+             writeln!(&mut f, "#[allow(dead_code)]").unwrap();
+-            writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
++            let val = u64::from_str_radix(caps[2].trim_start_matches("0x").trim_start_matches("0X"), 16).unwrap_or(0);
++            if val > u32::MAX as u64 {
++                writeln!(&mut f, "pub const {}: u64 = {};", &caps[1], &caps[2]).unwrap();
++            } else {
++                writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
++            }
+         } else if let Some(caps) = config_int.captures(&line) {
+             writeln!(&mut f, "#[allow(dead_code)]").unwrap();
+             writeln!(&mut f, "pub const {}: isize = {};", &caps[1], &caps[2]).unwrap();
