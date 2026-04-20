@@ -10,6 +10,20 @@ use panic_rtt_target as _;
 #[cfg(feature = "zephyr")]
 mod zephyr_main;
 
+#[cfg(feature = "zephyr")]
+mod defmt_stubs {
+    #[unsafe(no_mangle)]
+    unsafe extern "C" fn _defmt_acquire() {}
+    #[unsafe(no_mangle)]
+    unsafe extern "C" fn _defmt_release() {}
+    #[unsafe(no_mangle)]
+    unsafe extern "C" fn _defmt_write(_: *const u8, _: usize) {}
+    #[unsafe(no_mangle)]
+    unsafe extern "C" fn _defmt_timestamp() -> u64 { 0 }
+    #[unsafe(no_mangle)]
+    unsafe extern "C" fn _defmt_panic() -> ! { loop {} }
+}
+
 #[cfg(not(feature = "zephyr"))]
 pub mod boot;
 #[cfg(not(feature = "zephyr"))]

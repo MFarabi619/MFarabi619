@@ -202,11 +202,12 @@ test = false
 [features]
 default = []
 zephyr = ["dep:zephyr", "dep:zephyr-build", "dep:log-04", "zephyr/executor-zephyr", "zephyr/time-driver"]
+esp = ["dep:defmt"]
 
 # ─── dependencies ────────────────────────────────────────────────────────────
 
 [target.'cfg(target_arch = "xtensa")'.dependencies]
-defmt.workspace = true
+defmt = { workspace = true, optional = true }
 
 [target.'cfg(target_arch = "xtensa")'.dev-dependencies]
 embedded-test = { version = "0.7.1", features = [

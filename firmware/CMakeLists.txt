@@ -7,3 +7,5 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(microvisor_rust)
 
 rust_cargo_application(CRATE_NAME firmware FEATURES zephyr)
+
+zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_SOURCE_DIR}/linker/discard_defmt.ld)
