@@ -24,7 +24,7 @@ index 75ece41..6e35e57 100644
        DT_AUGMENTS="${DT_AUGMENTS}"
        BINARY_DIR_INCLUDE_GENERATED="${BINARY_DIR_INCLUDE_GENERATED}"
 -      cargo build
-+      cargo $<$<BOOL:${CONFIG_XTENSA}>:+esp> build
++      cargo $<$<BOOL:${CONFIG_XTENSA}>:+esp> build --lib
        ${rust_build_type_arg}
  
        # Override the features according to the shield given. For a general case,

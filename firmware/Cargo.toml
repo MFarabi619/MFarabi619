@@ -196,7 +196,12 @@ name = "playground"
 path = "examples/esp32s3/playground.rs"
 
 [lib]
+crate-type = ["lib", "staticlib"]
 test = false
+
+[features]
+default = []
+zephyr = ["dep:zephyr", "dep:zephyr-build", "dep:log-04", "zephyr/executor-zephyr", "zephyr/time-driver"]
 
 # ─── dependencies ────────────────────────────────────────────────────────────
 
@@ -326,3 +331,18 @@ smoltcp = { version = "0.13.0", default-features = false, features = [
     "proto-dhcpv4",
     "medium-ethernet",
 ] }
+
+# ─── zephyr (optional, activated by `zephyr` feature) ───────────────────────
+
+[dependencies.zephyr]
+version = "0.1.0"
+optional = true
+
+[dependencies.log-04]
+package = "log"
+version = "0.4"
+optional = true
+
+[build-dependencies.zephyr-build]
+version = "0.1.0"
+optional = true

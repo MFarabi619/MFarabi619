@@ -1,8 +1,8 @@
 - id: esp32s3
-  platform: esp32s3_devkitc/esp32s3/procpu
-  product: ESP32-S3-DevKitC-1-N8R8
-  runner: esp32
-  serial: /dev/cu.usbserial-10
   baud: 115200
+  runner: esp32
   connected: true
   flash_before: true
+  serial: /dev/cu.usbserial-10
+  product: ESP32-S3-DevKitC-1-N8R8
+  platform: esp32s3_devkitc/esp32s3/procpu

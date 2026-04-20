@@ -1,6 +1,12 @@
 use std::{env, fs::File, io::Write, path::PathBuf};
 
 fn main() {
+    #[cfg(feature = "zephyr")]
+    {
+        zephyr_build::dt_cfgs();
+        return;
+    }
+
     let target = std::env::var("TARGET").expect("TARGET not set");
 
     if target == "thumbv7em-none-eabihf" {

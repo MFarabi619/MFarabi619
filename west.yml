@@ -11,7 +11,7 @@ manifest:
 
         - name: zephyr
           remote: zephyrproject
-          revision: v4.4.0
+          revision: f1ff557f96f74a6d82d8b290bc4488ee5f93c483 # main~2: before HAL CS timing regression
           import:
               path-prefix: vendor
               name-allowlist:

@@ -4,6 +4,11 @@
 	aliases {
 		led-strip = &led_strip;
 	};
+
+	chosen {
+		zephyr,console = &usb_serial;
+		zephyr,shell-uart = &usb_serial;
+	};
 };
 
 &psram0 {
@@ -32,6 +37,10 @@ i2s_led: &i2s0 {
 				 LED_COLOR_ID_BLUE>;
 		reset-delay = <500>;
 	};
+};
+
+&usb_serial {
+	status = "okay";
 };
 
 &dma {

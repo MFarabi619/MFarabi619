@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-exclude = ["ml", "firmware/zephyr"]
+exclude = ["ml"]
 default-members = ["firmware"]
 members = [
     ".",
@@ -97,3 +97,8 @@ lto = "fat"
 incremental = false
 overflow-checks = true # was false — silent integer wrapping is dangerous for sensor math
 # debug-assertions = false  # already the default for release
+
+[patch.crates-io]
+zephyr = { path = "vendor/modules/lang/rust/zephyr" }
+zephyr-build = { path = "vendor/modules/lang/rust/zephyr-build" }
+zephyr-sys = { path = "vendor/modules/lang/rust/zephyr-sys" }

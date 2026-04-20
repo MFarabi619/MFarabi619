@@ -7,6 +7,6 @@ project-filter = +zephyr-lang-rust
 base = vendor/zephyr
 
 [build]
+pristine = always
 board = esp32s3_devkitc/esp32s3/procpu
-pristine = auto
-
+runner = probe-rs
