@@ -1,21 +1,27 @@
+#[cfg(not(feature = "zephyr"))]
 use std::{env, fs::File, io::Write, path::PathBuf};
 
 fn main() {
     #[cfg(feature = "zephyr")]
+    return zephyr();
+
+    #[cfg(not(feature = "zephyr"))]
     {
-        zephyr_build::dt_cfgs();
-        return;
-    }
-
-    let target = std::env::var("TARGET").expect("TARGET not set");
-
-    if target == "thumbv7em-none-eabihf" {
-        stm32();
-    } else if target.starts_with("xtensa-esp32") && target.ends_with("-none-elf") {
-        esp32();
+        let target = std::env::var("TARGET").expect("TARGET not set");
+        if target == "thumbv7em-none-eabihf" {
+            stm32();
+        } else if target.starts_with("xtensa-esp32") && target.ends_with("-none-elf") {
+            esp32();
+        }
     }
 }
 
+#[cfg(feature = "zephyr")]
+fn zephyr() {
+    zephyr_build::dt_cfgs();
+}
+
+#[cfg(not(feature = "zephyr"))]
 fn stm32() {
     //! This build script copies the `memory.stm32.x` file from the crate root into
     //! a directory where the linker can always find it at build time.
@@ -47,6 +53,7 @@ fn stm32() {
     println!("cargo:rustc-link-arg-bins=-Tdefmt.x");
 }
 
+#[cfg(not(feature = "zephyr"))]
 fn esp32() {
     // Compile-time device configuration. These are read by
     // firmware/src/config.rs via env!() / option_env!().
@@ -64,12 +71,14 @@ fn esp32() {
     println!("cargo:rustc-link-arg=-Tlinkall.x");
 }
 
+#[cfg(not(feature = "zephyr"))]
 fn set_env_default(key: &str, default_value: &str) {
     let value = env::var(key).unwrap_or_else(|_| default_value.to_string());
     println!("cargo:rustc-env={key}={value}");
     println!("cargo:rerun-if-env-changed={key}");
 }
 
+#[cfg(not(feature = "zephyr"))]
 fn linker_be_nice() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() > 1 {

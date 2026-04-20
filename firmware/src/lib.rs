@@ -13,15 +13,15 @@ mod zephyr_main;
 #[cfg(feature = "zephyr")]
 mod defmt_stubs {
     #[unsafe(no_mangle)]
-    unsafe extern "C" fn _defmt_acquire() {}
+    extern "C" fn _defmt_acquire() {}
     #[unsafe(no_mangle)]
-    unsafe extern "C" fn _defmt_release() {}
+    extern "C" fn _defmt_release() {}
     #[unsafe(no_mangle)]
-    unsafe extern "C" fn _defmt_write(_: *const u8, _: usize) {}
+    extern "C" fn _defmt_write(_: *const u8, _: usize) {}
     #[unsafe(no_mangle)]
-    unsafe extern "C" fn _defmt_timestamp() -> u64 { 0 }
+    extern "C" fn _defmt_timestamp() -> u64 { 0 }
     #[unsafe(no_mangle)]
-    unsafe extern "C" fn _defmt_panic() -> ! { loop {} }
+    extern "C" fn _defmt_panic() -> ! { panic!("defmt panic") }
 }
 
 #[cfg(not(feature = "zephyr"))]
