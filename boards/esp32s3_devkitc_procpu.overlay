@@ -9,6 +9,11 @@
 		zephyr,console = &usb_serial;
 		zephyr,shell-uart = &usb_serial;
 	};
+
+	wifi_ap: wifi_ap {
+		compatible = "espressif,esp32-wifi";
+		status = "okay";
+	};
 };
 
 &psram0 {
