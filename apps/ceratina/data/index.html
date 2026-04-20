@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/symbol.svg" />
+    <title>Ceratina Captive Portal</title>
+    <style>
+        :root {
+            --background: oklch(0.14 0.01 40);
+            --foreground: oklch(0.84 0.12 82);
+            --card: oklch(0.18 0.02 40);
+            --primary: oklch(0.76 0.15 80);
+            --primary-foreground: oklch(0.18 0.02 40);
+            --secondary: oklch(0.16 0.012 36);
+            --muted-foreground: oklch(0.66 0.07 78);
+            --accent: oklch(0.3 0.06 72);
+            --destructive: oklch(0.62 0.22 27);
+            --border: oklch(0.36 0.05 70 / 0.6);
+            --radius: 14px;
+            --success: oklch(0.65 0.17 145);
+            --shell-glow: 0 0 0 1px oklch(0.42 0.06 72 / 0.2), 0 18px 60px oklch(0.28 0.07 74 / 0.18);
+            --row-highlight: oklch(0.22 0.04 145 / 0.35);
+        }
+
+        * { box-sizing: border-box; border-color: var(--border); }
+        html { color-scheme: dark; }
+
+        body {
+            margin: 0;
+            font: 15px/1.4 system-ui, sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            background-image:
+                radial-gradient(circle at top, color-mix(in oklab, var(--primary) 14%, transparent) 0%, transparent 28%),
+                radial-gradient(circle at left 20%, color-mix(in oklab, var(--accent) 10%, transparent) 0%, transparent 22%);
+        }
+
+        ::selection {
+            background: color-mix(in oklab, var(--primary) 32%, transparent);
+            color: var(--foreground);
+        }
+
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .panel {
+            background: oklch(0.18 0.02 40 / 0.92);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            box-shadow: var(--shell-glow);
+            overflow: hidden;
+        }
+
+        /* ── Header ── */
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--secondary);
+            font-size: 13px;
+            color: var(--muted-foreground);
+            white-space: nowrap;
+        }
+
+        .badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            flex-shrink: 0;
+        }
+
+        .badge.ip { color: var(--success); }
+
+        /* ── Status bar ── */
+
+        .status-bar {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--muted-foreground);
+            text-align: center;
+        }
+
+        .status-bar.ok { color: oklch(0.78 0.12 150); }
+        .status-bar.err { color: oklch(0.75 0.14 25); }
+
+        /* ── Connect form ── */
+
+        .connect-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .connect-row input {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: oklch(0.14 0.01 40 / 0.7);
+            color: var(--foreground);
+            font: inherit;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .connect-row input::placeholder { color: var(--muted-foreground); }
+        .connect-row input:hover { border-color: oklch(0.76 0.15 80 / 0.45); }
+        .connect-row input:focus {
+            border-color: oklch(0.76 0.15 80 / 0.6);
+            box-shadow: 0 0 0 2px oklch(0.76 0.15 80 / 0.2);
+        }
+
+        .btn-connect {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: oklch(0.14 0.01 40 / 0.7);
+            color: var(--foreground);
+            font: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .btn-connect:hover {
+            border-color: oklch(0.76 0.15 80 / 0.5);
+            background: oklch(0.3 0.06 72 / 0.45);
+        }
+
+        .btn-connect:disabled { opacity: 0.6; cursor: default; }
+
+        /* ── Network table ── */
+
+        .net-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .net-table thead th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted-foreground);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .net-table tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid oklch(0.36 0.05 70 / 0.25);
+            vertical-align: middle;
+        }
+
+        .net-table tbody tr:last-child td { border-bottom: none; }
+
+        .net-table tbody tr:hover {
+            background: oklch(0.3 0.06 72 / 0.15);
+        }
+
+        .net-table tbody tr.connected {
+            background: var(--row-highlight);
+        }
+
+        .ssid-link {
+            color: var(--primary);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .ssid-link:hover { color: oklch(0.82 0.13 82); }
+
+        .ssid-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .empty-row td {
+            text-align: center;
+            color: var(--muted-foreground);
+            padding: 20px 16px;
+        }
+
+        /* ── Responsive ── */
+
+        @media (max-width: 560px) {
+            .connect-row {
+                grid-template-columns: 1fr;
+            }
+
+            .net-table { font-size: 13px; }
+            .net-table thead th, .net-table tbody td { padding: 10px 12px; }
+            .header { gap: 8px; }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="panel">
+            <div class="header">
+                <h1>Network</h1>
+                <div style="flex:1"></div>
+                <span class="badge" id="apBadge">--</span>
+                <span class="badge" id="apIpBadge">--</span>
+                <span class="badge" id="uptimeBadge">--</span>
+            </div>
+
+            <form id="connectForm" class="connect-row">
+                <input id="ssidInput" name="ssid" type="text" placeholder="SSID" autocomplete="username" />
+                <input id="passwordInput" name="password" type="password"
+                    placeholder="Password (blank for open)" autocomplete="current-password" />
+                <button id="connectButton" class="btn-connect" type="submit">&#x1F4F6; Connect</button>
+            </form>
+
+            <div class="status-bar" id="statusBar"></div>
+
+            <table class="net-table">
+                <thead>
+                    <tr>
+                        <th id="ssidHeader">SSID</th>
+                        <th>RSSI</th>
+                        <th>Channel</th>
+                        <th>Security</th>
+                    </tr>
+                </thead>
+                <tbody id="networkBody">
+                    <tr class="empty-row"><td colspan="4">No scan results yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const ssidInput = document.getElementById("ssidInput");
+        const passwordInput = document.getElementById("passwordInput");
+        const connectButton = document.getElementById("connectButton");
+        const connectForm = document.getElementById("connectForm");
+        const statusBar = document.getElementById("statusBar");
+        const networkBody = document.getElementById("networkBody");
+        const apBadge = document.getElementById("apBadge");
+        const apIpBadge = document.getElementById("apIpBadge");
+        const uptimeBadge = document.getElementById("uptimeBadge");
+        const ssidHeader = document.getElementById("ssidHeader");
+
+        let connectedSsid = "";
+        let connectedIp = "";
+
+        const text = (v, fb = "--") => {
+            if (v === null || v === undefined) return fb;
+            const s = String(v).trim();
+            return s || fb;
+        };
+
+        const uptime = (sec) => {
+            const t = Math.max(0, Number(sec) || 0);
+            const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = Math.floor(t % 60);
+            if (h > 0) return `${h}h ${m}m`;
+            if (m > 0) return `${m}m ${s}s`;
+            return `${s}s`;
+        };
+
+        const setStatus = (msg, type = "") => {
+            statusBar.textContent = msg;
+            statusBar.className = "status-bar" + (type === "ok" ? " ok" : type === "err" ? " err" : "");
+            statusBar.style.display = msg ? "" : "none";
+        };
+
+        const renderNetworks = (networks) => {
+            networkBody.innerHTML = "";
+
+            if (!Array.isArray(networks) || networks.length === 0) {
+                networkBody.innerHTML = '<tr class="empty-row"><td colspan="4">No networks found.</td></tr>';
+                return;
+            }
+
+            networks.forEach((net) => {
+                const tr = document.createElement("tr");
+                const name = text(net.ssid, "(hidden)");
+                const isConnected = connectedSsid && net.ssid === connectedSsid;
+
+                if (isConnected) tr.classList.add("connected");
+
+                const security = net.open ? "open" : text(net.encryption, "secured");
+                const ipBadge = isConnected && connectedIp
+                    ? `<span class="badge ip"><span class="dot"></span>${connectedIp}</span>`
+                    : "";
+
+                tr.innerHTML = `
+                    <td><div class="ssid-cell"><span class="ssid-link">${name}</span>${ipBadge}</div></td>
+                    <td>${typeof net.rssi === "number" ? net.rssi : "--"}</td>
+                    <td>${text(net.channel, "--")}</td>
+                    <td>${security}</td>
+                `;
+
+                tr.querySelector(".ssid-link").addEventListener("click", () => {
+                    ssidInput.value = net.ssid || "";
+                    if (net.open) passwordInput.value = "";
+                    ssidInput.focus();
+                });
+
+                networkBody.appendChild(tr);
+            });
+        };
+
+        const refreshDeviceStatus = async () => {
+            try {
+                const [wRes, dRes] = await Promise.all([
+                    fetch("/api/wireless/status", { cache: "no-store" }),
+                    fetch("/api/system/device/status", { cache: "no-store" })
+                ]);
+
+                if (!wRes.ok || !dRes.ok) throw new Error();
+
+                const w = (await wRes.json()).data || {};
+                const d = (await dRes.json()).data || {};
+                const device = d.device || {};
+                const runtime = d.runtime || {};
+
+                apBadge.textContent = w.ap_active ? text(w.ap_ssid, "AP") : "AP inactive";
+                apIpBadge.textContent = text(w.ap_ipv4, "192.168.4.1");
+                uptimeBadge.textContent = "\u23F1 " + uptime(runtime.uptime_seconds);
+
+                connectedSsid = w.connected ? (w.sta_ssid || "") : "";
+                connectedIp = w.connected ? (w.sta_ipv4 || "") : "";
+            } catch {
+                apBadge.textContent = "--";
+                apIpBadge.textContent = "--";
+            }
+        };
+
+        const scanNetworks = async () => {
+            connectButton.disabled = true;
+            setStatus("Scanning\u2026");
+
+            try {
+                const res = await fetch("/api/wireless/actions/scan", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: "{}"
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const networks = (await res.json()).data?.networks || [];
+                renderNetworks(networks);
+                ssidHeader.textContent = networks.length ? `SSID (${networks.length})` : "SSID";
+                setStatus("");
+            } catch {
+                renderNetworks([]);
+                setStatus("Scan failed.", "err");
+            } finally {
+                connectButton.disabled = false;
+            }
+        };
+
+        connectForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const ssid = ssidInput.value.trim();
+            if (!ssid) { setStatus("Enter an SSID first.", "err"); ssidInput.focus(); return; }
+
+            connectButton.disabled = true;
+            setStatus(`Connecting to ${ssid}\u2026`);
+
+            try {
+                const res = await fetch("/api/wireless/actions/connect", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ssid, password: passwordInput.value })
+                });
+
+                const payload = await res.json();
+                if (!res.ok) throw new Error(payload.error?.message || `HTTP ${res.status}`);
+
+                await refreshDeviceStatus();
+
+                if (payload.ok) {
+                    const ip = payload.data?.sta_ipv4 ? ` \u2014 ${payload.data.sta_ipv4}` : "";
+                    setStatus(`Connected to ${ssid}${ip}`, "ok");
+                    scanNetworks();
+                } else {
+                    setStatus("Connection failed. Check password.", "err");
+                }
+            } catch (err) {
+                setStatus(`Failed: ${err.message}`, "err");
+            } finally {
+                connectButton.disabled = false;
+            }
+        });
+
+        refreshDeviceStatus();
+        scanNetworks();
+        setInterval(refreshDeviceStatus, 5000);
+    </script>
+</body>
+
+</html>

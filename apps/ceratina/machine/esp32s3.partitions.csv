@@ -1,0 +1,10 @@
+# [[file:../CONTRIBUTING.org::*Other][Other:1]]
+# https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-guides/partition-tables.html
+
+# Name,   Type, SubType, Offset,   Size,     Flags
+nvs,      data, nvs,     0x9000,   0x4000,
+otadata,  data, ota,     0xd000,   0x2000,
+phy_init, data, phy,     0xf000,   0x1000,
+ota_0,    app,  ota_0,   0x10000,  0x3F0000,
+ota_1,    app,  ota_1,   0x400000, 0x400000,
+# Other:1 ends here
