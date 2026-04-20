@@ -49,6 +49,7 @@
           "openws.org" = {
             penpot = ":81";
             admin = ":1212";
+            velxio = ":3080";
             excalidraw = ":81";
             registry = ":5000";
             rpi5 = "rpi5-8:7681";
