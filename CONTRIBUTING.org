@@ -320,7 +320,7 @@ stack-size-threshold = 1024
 
 *** platformio
 
-#+begin_src conf :tangle platformio.ini
+#+begin_src conf :tangle platformio.ini :tangle no
 [platformio]
 name         = microvisor
 default_envs = ceratina
@@ -403,13 +403,18 @@ FLASH : ORIGIN = 0x08000000, LENGTH = 1024K
 RAM   : ORIGIN = 0x20000000, LENGTH = 128K
 }
 #+end_src
-#+begin_SRC .gitignore :tangle .gitignore
 ** [[https://github.com/DioxusLabs/dioxus][Dioxus]]
-#+begin_src toml :tangle Dioxus.toml
+#+begin_SRC toml :tangle Dioxus.toml
 [web.app]
 title = "🕹 Microvisor Systems 🕹"
 
+[web]
+# pre_compress = true;
+# proxy.backend = "http://localhost:8000/api/"
+
 [application]
+# base_path = "web";
+# asset_dir = "assets";
 tailwind_input = "tailwind.css"
 tailwind_output = "assets/tailwind.css"
 
@@ -420,7 +425,9 @@ icon = ["assets/symbolmark.png"]
 identifier = "com.microvisorsystems"
 copyright = "2026 Microvisor Systems"
 short_description = "General web client."
-#+end_src
+#+END_SRC
+
+#+begin_SRC .gitignore :tangle .gitignore
 #====================================================
 #              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
@@ -488,4 +495,19 @@ local.properties
 opencode.json
 /.codex/config.toml
 /compile_commands.json
+#+END_SRC
+
+#+begin_SRC bash
+sudo socat -v TCP-LISTEN:987,reuseaddr,fork /dev/serial/by-id/usb-VictronEnergy_BV_VE_Direct_cable_VE9YKH5O-if00-port0,rawer,b19200,echo=0
+#+END_SRC
+
+#+begin_SRC bash
+west init
+west update
+west blobs fetch hal_espressif
+
+/opt/homebrew/Cellar/west/1.5.0/libexec/bin/python -m pip install requests patool semver tqdm pyelftools esptool jsonschema
+
+/opt/homebrew/Cellar/west/1.5.0/libexec/bin/python -m pip install -r zephyr/scripts/requirements.txt
+west build -p always -b esp32s3_devkitc/esp32s3/procpu samples/basic/blinky
 #+END_SRC
