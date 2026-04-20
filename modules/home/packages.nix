@@ -8,6 +8,9 @@
     packages =
       with pkgs;
       [
+        renode-dts2repl
+      ]
+      ++ [
         lighttpd
         radicle-tui
         radicle-httpd
