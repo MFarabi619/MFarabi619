@@ -151,9 +151,9 @@
         "icon": "https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg"
       },
       {
-        "name": "Docker",
-        "url": "https://www.docker.com/",
-        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg"
+        "name": "Devicetree",
+        "url": "https://www.devicetree.org",
+        "icon": "assets/icons/devicetree.svg"
       },
       {
         "name": "Trunk-Based Development",
@@ -407,6 +407,11 @@
         "name": "Ubuntu",
         "url": "https://ubuntu.com/",
         "icon": "https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg"
+      },
+      {
+        "name": "Docker",
+        "url": "https://www.docker.com/",
+        "icon": "assets/icons/docker.svg"
       },
       {
         "name": "Supabase",

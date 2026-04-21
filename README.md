@@ -162,8 +162,8 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
-<a href="https://www.docker.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-plain-wordmark.svg" alt="Docker Logo" width="40" height="40" />
+<a href="https://www.devicetree.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/devicetree.svg" alt="Devicetree Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
@@ -370,14 +370,18 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
+<a href="https://www.docker.com/" target="_blank" rel="noreferrer">
+<img src="assets/icons/docker.svg" alt="Docker Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
 <a href="https://supabase.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://zellij.dev/" target="_blank" rel="noreferrer">
 <img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://neovim.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40" />
 </a>
@@ -385,11 +389,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
 <img src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" alt="VS Code Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
 <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40" />
 </a>
@@ -397,11 +401,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
 <img src="https://cdn.worldvectorlogo.com/logos/jira-1.svg" alt="Jira Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg" alt="BitBucket Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
 <img src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg" alt="Confluence Logo" width="40" height="40" />
 </a>
@@ -409,11 +413,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://nx.dev" target="_blank" rel="noreferrer">
 <img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40" />
 </a>
@@ -421,11 +425,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://netlify.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://vercel.com" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/14985020?s=48&v=4" alt="Vercel Logo" width="40" height="40" />
 </a>
@@ -433,11 +437,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://fuel.network" target="_blank" rel="noreferrer">
 <img src="https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg" alt="Fuel SDKs Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
 <img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" alt="Cloudflare Logo" width="40" height="40" />
 </a>
