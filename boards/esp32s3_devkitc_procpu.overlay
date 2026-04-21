@@ -1,4 +1,5 @@
 #include <zephyr/dt-bindings/led/led.h>
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
 
 / {
 	aliases {
@@ -13,6 +14,80 @@
 	wifi_ap: wifi_ap {
 		compatible = "espressif,esp32-wifi";
 		status = "okay";
+	};
+};
+
+&pinctrl {
+	i2c0_default: i2c0_default {
+		group1 {
+			pinmux = <I2C0_SDA_GPIO15>, <I2C0_SCL_GPIO16>;
+			bias-pull-up;
+			drive-open-drain;
+			output-high;
+		};
+	};
+	i2c1_default: i2c1_default {
+		group1 {
+			pinmux = <I2C1_SDA_GPIO17>, <I2C1_SCL_GPIO18>;
+			bias-pull-up;
+			drive-open-drain;
+			output-high;
+		};
+	};
+};
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
+
+	sht3xd@44 {
+		compatible = "sensirion,sht3xd";
+		reg = <0x44>;
+	};
+
+	scd41@62 {
+		compatible = "sensirion,scd41";
+		reg = <0x62>;
+		mode = <2>;
+	};
+
+	lps25hb@5c {
+		compatible = "st,lps25hb-press";
+		reg = <0x5c>;
+	};
+
+	ads1115@48 {
+		compatible = "ti,ads1115";
+		reg = <0x48>;
+		#io-channel-cells = <1>;
+	};
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+	pinctrl-0 = <&i2c1_default>;
+	pinctrl-names = "default";
+
+	i2c_mux: tca9548a@70 {
+		compatible = "ti,tca9548a";
+		reg = <0x70>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		mux_ch0: i2c@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			ina228@40 {
+				compatible = "ti,ina228";
+				reg = <0x40>;
+				rshunt-micro-ohms = <15000>;
+				current-lsb-microamps = <20>;
+			};
+		};
 	};
 };
 

@@ -1,22 +1,7 @@
-#include <programs/led.h>
-#include <networking/wifi.h>
-#include <console/prompt.h>
-
-#include <zephyr/kernel.h>
-#include <zephyr/shell/shell.h>
-#include <zephyr/shell/shell_uart.h>
-#include <zephyr/logging/log.h>
-
-LOG_MODULE_REGISTER(main);
+extern void rust_main(void);
 
 int main(void)
 {
-	led_init();
-	wifi_init();
-
-	const struct shell *sh = shell_backend_uart_get_ptr();
-	prompt_init(sh);
-	prompt_print_motd(sh, NULL);
-
+	rust_main();
 	return 0;
 }

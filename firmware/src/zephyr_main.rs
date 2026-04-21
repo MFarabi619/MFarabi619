@@ -1,31 +1,30 @@
-use embassy_executor::Spawner;
-use embassy_time::{Duration, Timer};
 use log_04::info;
 use static_cell::StaticCell;
 use zephyr::embassy::Executor;
+
+unsafe extern "C" {
+    fn prompt_init(shell: *const core::ffi::c_void) -> bool;
+    fn prompt_print_motd(shell: *const core::ffi::c_void, ip: *const u8);
+}
 
 static EXECUTOR: StaticCell<Executor> = StaticCell::new();
 
 #[unsafe(no_mangle)]
 extern "C" fn rust_main() {
-    unsafe {
-        zephyr::set_logger().unwrap();
-    }
+    unsafe { zephyr::set_logger().unwrap(); }
+    info!("Microvisor starting");
 
-    info!("Microvisor Rust starting on Zephyr");
+    crate::led::init();
+    crate::wifi::init();
+
+    unsafe {
+        let sh = zephyr::raw::zr_shell_backend_uart_get_ptr() as *const core::ffi::c_void;
+        prompt_init(sh);
+        prompt_print_motd(sh, core::ptr::null());
+    }
 
     let executor = EXECUTOR.init(Executor::new());
     executor.run(|spawner| {
-        spawner.spawn(main_task(spawner).unwrap());
+        spawner.spawn(crate::wifi::task().unwrap());
     })
-}
-
-#[embassy_executor::task]
-async fn main_task(_spawner: Spawner) {
-    info!("Embassy executor running");
-
-    loop {
-        info!("heartbeat");
-        Timer::after(Duration::from_secs(1)).await;
-    }
 }

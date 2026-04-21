@@ -8,6 +8,10 @@ extern crate alloc;
 use panic_rtt_target as _;
 
 #[cfg(feature = "zephyr")]
+mod led;
+#[cfg(feature = "zephyr")]
+mod wifi;
+#[cfg(feature = "zephyr")]
 mod zephyr_main;
 
 #[cfg(feature = "zephyr")]
