@@ -8,6 +8,7 @@
     package = pkgs.pass.withExtensions (
       exts: with exts; [
         pass-otp
+        pass-file
       ]
     );
     settings = {
