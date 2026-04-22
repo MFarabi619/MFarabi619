@@ -12,10 +12,9 @@
     grabKeyboardAndMouse = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
-    pinentry = {
-      program = "pinentry-tty";
-      package = pkgs.pinentry-tty;
-    };
+    pinentry.program = "pinentry-tty";
+    pinentry.package = pkgs.pinentry-tty;
+
     # extraConfig = ''
     # '';
   };
