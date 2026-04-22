@@ -7,24 +7,17 @@
     enable = true;
 
     settings = {
+      alias.gama = "";
       pull.rebase = false;
       init.defaultBranch = "main";
-
-      user = {
-        name = config.me.fullname;
-        email = config.me.email;
-      };
-
-      alias = {
-        gama = "";
-        ga = "git add .";
-      };
+      user.email = config.me.email;
+      user.name = config.me.fullname;
     };
 
     signing = {
-      format = "ssh";
+      format = "openpgp";
       signByDefault = true;
-      key = "${config.home.homeDirectory}/.ssh/id_ed25519.pub";
+      key = config.accounts.email.accounts.personal.gpg.key;
     };
 
     ignores = [
