@@ -1,0 +1,3 @@
+{
+  services.imapnotify.enable = true;
+}
