@@ -9,6 +9,7 @@
       exts: with exts; [
         pass-otp
         pass-file
+        pass-update
       ]
     );
     settings = {
