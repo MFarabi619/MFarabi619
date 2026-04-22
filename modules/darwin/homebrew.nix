@@ -68,6 +68,7 @@
       # "podman"
       # "avr-gcc"
       # "arm-none-eabi-gcc"
+      "renode/tap/renode"
       "Vaishnav-Sabari-Girish/taps/comchan" # TUI serial monitor
     ];
   };
