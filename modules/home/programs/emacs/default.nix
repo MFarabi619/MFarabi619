@@ -46,6 +46,7 @@
         nov
         mu4e
         mu4e-views
+        org-web-tools
         mu4e-column-faces
         mu4e-marker-icons
       ]
