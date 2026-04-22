@@ -10,6 +10,7 @@
         pass-otp
         pass-file
         pass-update
+        pass-checkup
       ]
     );
     settings = {
