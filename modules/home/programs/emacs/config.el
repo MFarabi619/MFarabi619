@@ -178,6 +178,15 @@
                                             tabulated-list-format [(" " 1 nil) ("Service" 35 t) ("Port" 1 t)])
     (tabulated-list-print t))) ;; end prodigy
 
+(with-eval-after-load 'circe
+  (set-irc-server! "irc.libera.chat"
+    '(:tls t
+      :port 6697
+      :nick "mfarabi"
+      :channels ("#emacs")
+      :sasl-username (+pass-get-user "irc/libera.chat")
+      :sasl-password (+pass-get-secret "irc/libera.chat"))))
+
 (with-eval-after-load 'mu4e
   (setopt
    mu4e-maildir (expand-file-name "~/Maildir")
