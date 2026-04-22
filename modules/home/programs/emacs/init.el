@@ -201,6 +201,7 @@
         ;; +contacts
         +hugo
         +roam
+        +crypt
         +brain
         +noter
         +pretty
