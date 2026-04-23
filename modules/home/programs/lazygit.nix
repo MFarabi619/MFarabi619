@@ -28,7 +28,7 @@
 
       git = {
         parseEmoji = true;
-        overrideGpg = true;
+        overrideGpg = false;
         commit.signOff = true;
         branchPrefix = "${config.me.username}/";
         pagers = [
