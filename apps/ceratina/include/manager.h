@@ -9,6 +9,7 @@
 #include "sensors/voltage.h"
 #include "sensors/wind_direction.h"
 #include "sensors/wind_speed.h"
+#include "sensors/rainfall.h"
 
 struct SensorInventorySnapshot {
   uint8_t temperature_humidity_count;
@@ -20,6 +21,7 @@ struct SensorInventorySnapshot {
   bool wind_direction_available;
   bool solar_radiation_available;
   bool barometric_pressure_available;
+  bool rainfall_available;
 };
 
 namespace sensors::manager {
@@ -36,6 +38,7 @@ bool accessSoil(uint8_t index, SoilSensorData *sensor_data);
 bool accessTemperatureHumidity(uint8_t index,
                                TemperatureHumiditySensorData *sensor_data);
 bool accessBarometricPressure(BarometricPressureSensorData *sensor_data);
+bool accessRainfall(RainfallSensorData *sensor_data);
 
 }
 

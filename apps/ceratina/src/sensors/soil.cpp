@@ -13,6 +13,7 @@ namespace {
 struct SoilProbeSlot {
   uint8_t slave_id;
   hardware::rs485::Channel channel;
+  bool has_ph;
   bool responsive;
 };
 
@@ -26,19 +27,22 @@ void discover_probes() {
 
   for (size_t index = 0; index < config::modbus::DEVICE_COUNT; index++) {
     const config::ModbusSensorConfig &sensor_config = config::modbus::DEVICES[index];
-    if (sensor_config.kind != config::ModbusSensorKind::SoilProbe) continue;
+    bool is_soil = sensor_config.kind == config::ModbusSensorKind::SoilProbe;
+    bool is_soil_with_ph = sensor_config.kind == config::ModbusSensorKind::SoilProbeWithPH;
+    if (!is_soil && !is_soil_with_ph) continue;
     if (probe_count >= sizeof(slots) / sizeof(slots[0])) break;
 
     hardware::rs485::Channel channel = sensor_config.channel == 0
         ? hardware::rs485::Channel::Bus0
         : hardware::rs485::Channel::Bus1;
 
-    uint16_t output_words[5] = {};
+    uint8_t register_count = is_soil_with_ph ? 6 : 5;
+    uint16_t output_words[6] = {};
     ReadHoldingRegistersCommand command = {
       .channel = channel,
       .slave_id = sensor_config.slave_id,
       .start_register = sensor_config.register_address,
-      .register_count = 5,
+      .register_count = register_count,
       .output_words = output_words,
       .error = ModbusError::NotInitialized,
     };
@@ -47,6 +51,7 @@ void discover_probes() {
     slots[probe_count] = {
       .slave_id = sensor_config.slave_id,
       .channel = channel,
+      .has_ph = is_soil_with_ph,
       .responsive = ok,
     };
 
@@ -69,7 +74,9 @@ bool sensors::soil::access(uint8_t index, SoilSensorData *sensor_data) {
 
   const config::ModbusSensorConfig *sensor_config = nullptr;
   for (size_t i = 0; i < config::modbus::DEVICE_COUNT; i++) {
-    if (config::modbus::DEVICES[i].kind == config::ModbusSensorKind::SoilProbe &&
+    auto kind = config::modbus::DEVICES[i].kind;
+    if ((kind == config::ModbusSensorKind::SoilProbe ||
+         kind == config::ModbusSensorKind::SoilProbeWithPH) &&
         config::modbus::DEVICES[i].slave_id == slot.slave_id) {
       sensor_config = &config::modbus::DEVICES[i];
       break;
@@ -77,12 +84,13 @@ bool sensors::soil::access(uint8_t index, SoilSensorData *sensor_data) {
   }
   if (!sensor_config) return false;
 
-  uint16_t output_words[5] = {};
+  uint8_t register_count = slot.has_ph ? 6 : 5;
+  uint16_t output_words[6] = {};
   ReadHoldingRegistersCommand command = {
     .channel = slot.channel,
     .slave_id = slot.slave_id,
     .start_register = sensor_config->register_address,
-    .register_count = 5,
+    .register_count = register_count,
     .output_words = output_words,
     .error = ModbusError::NotInitialized,
   };
@@ -92,8 +100,18 @@ bool sensors::soil::access(uint8_t index, SoilSensorData *sensor_data) {
   sensor_data->moisture_percent = output_words[0] / 10.0f;
   sensor_data->temperature_celsius = static_cast<int16_t>(output_words[1]) / 10.0f;
   sensor_data->conductivity = output_words[2];
-  sensor_data->salinity = output_words[3];
-  sensor_data->tds = output_words[4];
+  sensor_data->has_ph = slot.has_ph;
+
+  if (slot.has_ph) {
+    sensor_data->ph = output_words[3] / 10.0f;
+    sensor_data->salinity = output_words[4];
+    sensor_data->tds = output_words[5];
+  } else {
+    sensor_data->ph = 0.0f;
+    sensor_data->salinity = output_words[3];
+    sensor_data->tds = output_words[4];
+  }
+
   sensor_data->slave_id = slot.slave_id;
   sensor_data->ok = true;
   return true;
@@ -142,7 +160,9 @@ static void test_soil_config_lookup(void) {
 
   uint8_t count = 0;
   for (size_t i = 0; i < config::modbus::DEVICE_COUNT; i++) {
-    if (config::modbus::DEVICES[i].kind == config::ModbusSensorKind::SoilProbe)
+    auto kind = config::modbus::DEVICES[i].kind;
+    if (kind == config::ModbusSensorKind::SoilProbe ||
+        kind == config::ModbusSensorKind::SoilProbeWithPH)
       count++;
   }
 

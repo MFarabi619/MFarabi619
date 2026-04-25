@@ -1,5 +1,5 @@
 use super::sensor_feed::SensorAvailability;
-use super::sensor_types::{Co2Row, PressureRow, TemperatureHumidityRow, VoltageRow};
+use super::sensor_types::{Co2Row, PressureRow, RainfallRow, SoilRow, TemperatureHumidityRow, VoltageRow};
 use dioxus::prelude::*;
 
 #[derive(Clone)]
@@ -10,4 +10,6 @@ pub struct MeasurementState {
     pub temperature_humidity_readings: Signal<Vec<TemperatureHumidityRow>>,
     pub voltage_readings: Signal<Vec<VoltageRow>>,
     pub pressure_readings: Signal<Vec<PressureRow>>,
+    pub rainfall_readings: Signal<Vec<RainfallRow>>,
+    pub soil_readings: Signal<Vec<SoilRow>>,
 }

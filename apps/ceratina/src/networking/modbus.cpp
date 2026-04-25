@@ -99,6 +99,25 @@ bool networking::modbus::readHoldingRegisters(ReadHoldingRegistersCommand *comma
   return command->error == ModbusError::Success;
 }
 
+bool networking::modbus::writeSingleRegister(WriteSingleRegisterCommand *command) {
+  if (!command) return false;
+  if (!networking::modbus::initialize()) {
+    command->error = ModbusError::NotInitialized;
+    return false;
+  }
+
+  size_t index = channel_index(command->channel);
+  if (index >= MAX_CHANNELS || !channels[index].ready) {
+    command->error = ModbusError::InvalidChannel;
+    return false;
+  }
+
+  ModbusRTUMasterError error = channels[index].master->writeSingleHoldingRegister(
+      command->slave_id, command->register_address, command->value);
+  command->error = translate_error(error);
+  return command->error == ModbusError::Success;
+}
+
 bool networking::modbus::scan(ModbusScanCommand *command) {
   if (!command || !command->results || command->max_results == 0) return false;
   if (!networking::modbus::initialize()) return false;

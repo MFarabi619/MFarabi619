@@ -8,6 +8,8 @@ struct SoilSensorData {
   uint16_t conductivity;
   uint16_t salinity;
   uint16_t tds;
+  float ph;
+  bool has_ph;
   uint8_t slave_id;
   bool ok;
 };

@@ -4,6 +4,8 @@ pub enum MeasurementTab {
     CarbonDioxide,
     TemperatureHumidity,
     Pressure,
+    Rainfall,
+    Soil,
 }
 
 impl MeasurementTab {
@@ -13,6 +15,8 @@ impl MeasurementTab {
             Self::Voltage => "voltage",
             Self::CarbonDioxide => "co2",
             Self::Pressure => "pressure",
+            Self::Rainfall => "rainfall",
+            Self::Soil => "soil",
         }
         .to_string()
     }
@@ -23,6 +27,8 @@ impl MeasurementTab {
             "voltage" => Self::Voltage,
             "co2" => Self::CarbonDioxide,
             "pressure" => Self::Pressure,
+            "rainfall" => Self::Rainfall,
+            "soil" => Self::Soil,
             _ => Self::TemperatureHumidity,
         }
     }
@@ -33,6 +39,8 @@ impl MeasurementTab {
             Self::Voltage => "Voltage",
             Self::CarbonDioxide => "CO\u{2082}",
             Self::Pressure => "Pressure",
+            Self::Rainfall => "Rainfall",
+            Self::Soil => "Soil",
         }
     }
 
@@ -42,6 +50,8 @@ impl MeasurementTab {
             Self::Voltage => avail.voltage,
             Self::CarbonDioxide => avail.co2,
             Self::Pressure => avail.pressure,
+            Self::Rainfall => avail.rainfall,
+            Self::Soil => avail.soil,
         }
     }
 }
@@ -85,5 +95,26 @@ pub struct PressureRow {
     pub model: String,
     pub pressure_hpa: f64,
     pub temperature_celsius: f64,
+    pub time: String,
+}
+
+#[derive(Clone)]
+pub struct RainfallRow {
+    pub row: usize,
+    pub rainfall_millimeters: f64,
+    pub time: String,
+}
+
+#[derive(Clone)]
+pub struct SoilRow {
+    pub row: usize,
+    pub slave_id: u8,
+    pub moisture_percent: f64,
+    pub temperature_celsius: f64,
+    pub conductivity: u16,
+    pub salinity: u16,
+    pub tds: u16,
+    pub has_ph: bool,
+    pub ph: f64,
     pub time: String,
 }

@@ -25,6 +25,7 @@ void handle_get(AsyncWebServerRequest *request) {
   data["wind_direction_available"] = snapshot.wind_direction_available;
   data["solar_radiation_available"] = snapshot.solar_radiation_available;
   data["barometric_pressure_available"] = snapshot.barometric_pressure_available;
+  data["rainfall_available"] = snapshot.rainfall_available;
 
   response->setLength();
   request->send(response);

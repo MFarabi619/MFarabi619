@@ -12,6 +12,7 @@ pub struct SensorInventory {
     pub wind_direction_available: bool,
     pub solar_radiation_available: bool,
     pub barometric_pressure_available: bool,
+    pub rainfall_available: bool,
 }
 
 #[derive(Clone, Debug, Deserialize)]

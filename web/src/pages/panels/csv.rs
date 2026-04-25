@@ -102,6 +102,31 @@ impl CsvRow for PressureRow {
     }
 }
 
+impl CsvRow for RainfallRow {
+    fn header(_: &[Self]) -> String {
+        "#,RAINFALL_MM,TIME".to_string()
+    }
+
+    fn to_row(&self) -> String {
+        format!("{},{:.1},{}", self.row, self.rainfall_millimeters, self.time)
+    }
+}
+
+impl CsvRow for SoilRow {
+    fn header(_: &[Self]) -> String {
+        "#,SLAVE_ID,MOISTURE_PCT,TEMP_C,EC,SALINITY,TDS,PH,TIME".to_string()
+    }
+
+    fn to_row(&self) -> String {
+        let ph = if self.has_ph { format!("{:.1}", self.ph) } else { String::new() };
+        format!(
+            "{},{},{:.1},{:.1},{},{},{},{},{}",
+            self.row, self.slave_id, self.moisture_percent, self.temperature_celsius,
+            self.conductivity, self.salinity, self.tds, ph, self.time
+        )
+    }
+}
+
 pub fn build_csv<T: CsvRow>(readings: &[T]) -> String {
     let mut csv = T::header(readings);
     csv.push('\n');

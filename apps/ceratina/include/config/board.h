@@ -53,6 +53,8 @@ namespace config {
       WindDirection,
       SolarRadiation,
       SoilProbe,
+      SoilProbeWithPH,
+      Rain,
   };
 
   struct ModbusSensorConfig {
@@ -66,6 +68,8 @@ namespace config {
       inline constexpr ModbusSensorConfig DEVICES[] = {
           {ModbusSensorKind::WindSpeed, 0, 20, 0},
           {ModbusSensorKind::WindDirection, 0, 30, 0},
+          {ModbusSensorKind::SoilProbeWithPH, 0, 120, 0},
+          {ModbusSensorKind::Rain, 0, 140, 0},
       };
 
       inline constexpr size_t DEVICE_COUNT = sizeof(DEVICES) / sizeof(DEVICES[0]);

@@ -151,6 +151,8 @@ static void serialize_soil(const void *raw, JsonObject &out) {
   out["conductivity"] = d->conductivity;
   out["salinity"] = d->salinity;
   out["tds"] = d->tds;
+  out["has_ph"] = d->has_ph;
+  if (d->has_ph) out["ph"] = d->ph;
 }
 
 struct SensorSerializer {
@@ -158,6 +160,11 @@ struct SensorSerializer {
   const char *event_type;
   void (*serialize)(const void *data, JsonObject &out);
 };
+
+static void serialize_rainfall(const void *raw, JsonObject &out) {
+  auto *d = static_cast<const RainfallSensorData *>(raw);
+  out["rainfall_millimeters"] = d->millimeters;
+}
 
 static const SensorSerializer SERIALIZERS[] = {
   {SensorKind::TemperatureHumidity, "sensors.temperature_and_humidity.v1", serialize_temperature_humidity},
@@ -169,6 +176,7 @@ static const SensorSerializer SERIALIZERS[] = {
   {SensorKind::WindDirection,       "sensors.wind_direction.v1",          serialize_wind_direction},
   {SensorKind::SolarRadiation,      "sensors.solar_radiation.v1",         serialize_solar_radiation},
   {SensorKind::Soil,                "sensors.soil.v1",                    serialize_soil},
+  {SensorKind::Rain,                "sensors.rainfall.v1",                serialize_rainfall},
 };
 
 static const SensorSerializer *find_serializer(SensorKind kind) {

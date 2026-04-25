@@ -54,6 +54,8 @@ pub fn Home() -> Element {
         temperature_humidity_readings: Signal::new(Vec::new()),
         voltage_readings: Signal::new(Vec::new()),
         pressure_readings: Signal::new(Vec::new()),
+        rainfall_readings: Signal::new(Vec::new()),
+        soil_readings: Signal::new(Vec::new()),
     });
     let mut active_tab = use_signal(|| MeasurementTab::TemperatureHumidity);
     let mut co2_config = use_signal(|| None::<api::Co2ConfigData>);

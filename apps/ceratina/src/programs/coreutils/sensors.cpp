@@ -78,10 +78,12 @@ int programs::coreutils::cmd_sensors(int argc, char **argv) {
   for (uint8_t index = 0; index < inventory.soil_probe_count; index++) {
     SoilSensorData soil = {};
     if (sensors::manager::accessSoil(index, &soil) && soil.ok) {
-      printf("soil[%u] slave=%u %.1f C %.1f%% EC=%u TDS=%u\n",
+      printf("soil[%u] slave=%u %.1f C %.1f%% EC=%u TDS=%u",
              index, soil.slave_id,
              soil.temperature_celsius, soil.moisture_percent,
              soil.conductivity, soil.tds);
+      if (soil.has_ph) printf(" pH=%.1f", soil.ph);
+      printf("\n");
     }
   }
 

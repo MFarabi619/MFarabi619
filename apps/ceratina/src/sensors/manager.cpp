@@ -3,6 +3,7 @@
 
 #include <i2c.h>
 #include "../networking/modbus.h"
+#include "rainfall.h"
 
 #include <Arduino.h>
 #include <freertos/timers.h>
@@ -34,6 +35,7 @@ void sensors::manager::initialize() {
   sensors::wind_direction::initialize();
   sensors::solar_radiation::initialize();
   sensors::soil::initialize();
+  sensors::rainfall::initialize();
 
   sensors::registry::pollAll();
 
@@ -62,6 +64,8 @@ bool sensors::manager::accessInventory(SensorInventorySnapshot *snapshot) {
       sensors::registry::isAvailable(SensorKind::SolarRadiation);
   snapshot->barometric_pressure_available =
       sensors::registry::isAvailable(SensorKind::BarometricPressure);
+  snapshot->rainfall_available =
+      sensors::registry::isAvailable(SensorKind::Rain);
   return true;
 }
 
@@ -136,6 +140,15 @@ bool sensors::manager::accessTemperatureHumidity(uint8_t index,
   if (!src) return false;
   *out = *src;
   return sensors::registry::valid(SensorKind::TemperatureHumidity, index);
+}
+
+bool sensors::manager::accessRainfall(RainfallSensorData *out) {
+  if (!out) return false;
+  auto *src = static_cast<const RainfallSensorData *>(
+      sensors::registry::latest(SensorKind::Rain));
+  if (!src) return false;
+  *out = *src;
+  return sensors::registry::valid(SensorKind::Rain);
 }
 
 bool sensors::manager::accessSoil(uint8_t index, SoilSensorData *out) {

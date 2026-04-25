@@ -33,6 +33,14 @@ struct ReadHoldingRegistersCommand {
   ModbusError error;
 };
 
+struct WriteSingleRegisterCommand {
+  hardware::rs485::Channel channel;
+  uint8_t slave_id;
+  uint16_t register_address;
+  uint16_t value;
+  ModbusError error;
+};
+
 struct ModbusScanResult {
   hardware::rs485::Channel channel;
   uint8_t slave_id;
@@ -53,6 +61,7 @@ namespace networking::modbus {
 
 bool initialize();
 bool readHoldingRegisters(ReadHoldingRegistersCommand *command);
+bool writeSingleRegister(WriteSingleRegisterCommand *command);
 bool scan(ModbusScanCommand *command);
 
 }

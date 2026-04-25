@@ -11,5 +11,6 @@ void services::http::api::sensors::registerRoutes(AsyncWebServer &server) {
   current::registerRoutes(server);
   solar_radiation::registerRoutes(server);
   soil::registerRoutes(server);
+  rainfall::registerRoutes(server);
   inventory::registerRoutes(server);
 }

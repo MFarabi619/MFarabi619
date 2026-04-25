@@ -12,6 +12,7 @@ enum class SensorKind : uint8_t {
     WindDirection,
     SolarRadiation,
     Soil,
+    Rain,
 };
 
 struct SensorEntry {
