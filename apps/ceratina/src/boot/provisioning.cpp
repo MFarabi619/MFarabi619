@@ -223,6 +223,9 @@ void boot::provisioning::start(void) {
           {
               .ssid = prov_ssid,
               .password = prov_pass,
+              .identity = nullptr,
+              .username = nullptr,
+              .is_enterprise = false,
               .enable_ap_fallback = false,
           },
       .result = {},

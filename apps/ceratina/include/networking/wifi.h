@@ -37,6 +37,9 @@ struct NetworkStatusSnapshot {
 struct WifiConnectRequest {
     const char *ssid;
     const char *password;
+    const char *identity;
+    const char *username;
+    bool is_enterprise;
     bool enable_ap_fallback;
 };
 
@@ -58,6 +61,9 @@ struct WifiScanResult {
 struct WifiSavedConfig {
     char ssid[33];
     char password[65];
+    char identity[65];
+    char username[65];
+    bool is_enterprise;
     bool valid;
 };
 

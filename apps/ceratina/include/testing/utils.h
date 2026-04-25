@@ -122,6 +122,9 @@ static inline void nvs_restore_bool(Preferences &prefs, const char *key,
 struct WifiNvsSnapshot {
   NvsStringSnapshot sta_ssid;
   NvsStringSnapshot sta_pass;
+  NvsStringSnapshot sta_identity;
+  NvsStringSnapshot sta_username;
+  NvsBoolSnapshot sta_enterprise;
   NvsStringSnapshot ap_ssid;
   NvsStringSnapshot ap_pass;
   NvsBoolSnapshot ap_on;
@@ -132,6 +135,9 @@ static inline void wifi_nvs_save(WifiNvsSnapshot *snap) {
   if (!prefs.begin(config::wifi::NVS_NAMESPACE, true)) return;
   nvs_snapshot_string(prefs, "sta_ssid", &snap->sta_ssid);
   nvs_snapshot_string(prefs, "sta_pass", &snap->sta_pass);
+  nvs_snapshot_string(prefs, "sta_identity", &snap->sta_identity);
+  nvs_snapshot_string(prefs, "sta_username", &snap->sta_username);
+  nvs_snapshot_bool(prefs, "sta_enterprise", &snap->sta_enterprise, false);
   nvs_snapshot_string(prefs, "ap_ssid", &snap->ap_ssid);
   nvs_snapshot_string(prefs, "ap_pass", &snap->ap_pass);
   nvs_snapshot_bool(prefs, "ap_on", &snap->ap_on, true);
@@ -144,6 +150,9 @@ static inline void wifi_nvs_restore(const WifiNvsSnapshot *snap) {
   prefs.clear();
   nvs_restore_string(prefs, "sta_ssid", &snap->sta_ssid);
   nvs_restore_string(prefs, "sta_pass", &snap->sta_pass);
+  nvs_restore_string(prefs, "sta_identity", &snap->sta_identity);
+  nvs_restore_string(prefs, "sta_username", &snap->sta_username);
+  nvs_restore_bool(prefs, "sta_enterprise", &snap->sta_enterprise);
   nvs_restore_string(prefs, "ap_ssid", &snap->ap_ssid);
   nvs_restore_string(prefs, "ap_pass", &snap->ap_pass);
   nvs_restore_bool(prefs, "ap_on", &snap->ap_on);

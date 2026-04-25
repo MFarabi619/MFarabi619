@@ -18,10 +18,11 @@ namespace {
 void apply_selection(void) {
   if (resolved_mux_channel >= 0) {
     hardware::i2c::DeviceAccessCommand command = {
-      .bus = resolved_bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
-      .mux_channel = resolved_mux_channel,
-      .wire = nullptr,
-      .ok = false,
+        .bus = resolved_bus == 0 ? hardware::i2c::Bus::Bus0
+                                 : hardware::i2c::Bus::Bus1,
+        .mux_channel = resolved_mux_channel,
+        .wire = nullptr,
+        .ok = false,
     };
     hardware::i2c::accessDevice(&command);
   }
@@ -29,22 +30,24 @@ void apply_selection(void) {
 
 bool probe_ads1115_discovered(const hardware::i2c::DiscoveredDevice &dev) {
   hardware::i2c::DeviceAccessCommand command = {
-    .bus = dev.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
-    .mux_channel = dev.mux_channel,
-    .wire = nullptr,
-    .ok = false,
+      .bus = dev.bus == 0 ? hardware::i2c::Bus::Bus0 : hardware::i2c::Bus::Bus1,
+      .mux_channel = dev.mux_channel,
+      .wire = nullptr,
+      .ok = false,
   };
-  if (!hardware::i2c::accessDevice(&command)) return false;
+  if (!hardware::i2c::accessDevice(&command))
+    return false;
 
   bool ok = adc.begin(dev.address, command.wire);
   hardware::i2c::clearSelection();
-  if (!ok) return false;
+  if (!ok)
+    return false;
 
   resolved_bus = dev.bus;
   resolved_address = dev.address;
   resolved_mux_channel = dev.mux_channel;
   ready = true;
-  adc.setGain(GAIN_TWO);
+  adc.setGain(GAIN_ONE);
 
   sensors::registry::add({
       .kind = SensorKind::Voltage,
@@ -52,15 +55,16 @@ bool probe_ads1115_discovered(const hardware::i2c::DiscoveredDevice &dev) {
       .isAvailable = sensors::voltage::isAvailable,
       .instanceCount = []() -> uint8_t { return 1; },
       .poll = [](uint8_t, void *out, size_t cap) -> bool {
-          if (cap < sizeof(VoltageSensorData)) return false;
-          return sensors::voltage::access(static_cast<VoltageSensorData *>(out));
+        if (cap < sizeof(VoltageSensorData))
+          return false;
+        return sensors::voltage::access(static_cast<VoltageSensorData *>(out));
       },
       .data_size = sizeof(VoltageSensorData),
   });
   return true;
 }
 
-}
+} // namespace
 
 void sensors::voltage::registerProbes() {
   ready = false;
@@ -68,27 +72,35 @@ void sensors::voltage::registerProbes() {
   hardware::i2c::registerProbe({0x48, probe_ads1115_discovered, "ADS1115", 10});
 }
 
-bool sensors::voltage::isAvailable() {
-  return ready;
-}
+bool sensors::voltage::isAvailable() { return ready; }
 
 const char *sensors::voltage::accessGainLabel() {
-  if (!ready) return "NOT_READY";
+  if (!ready)
+    return "NOT_READY";
 
   switch (adc.getGain()) {
-    case GAIN_TWOTHIRDS: return "GAIN_TWOTHIRDS";
-    case GAIN_ONE:       return "GAIN_ONE";
-    case GAIN_TWO:       return "GAIN_TWO";
-    case GAIN_FOUR:      return "GAIN_FOUR";
-    case GAIN_EIGHT:     return "GAIN_EIGHT";
-    case GAIN_SIXTEEN:   return "GAIN_SIXTEEN";
-    default:             return "GAIN_UNKNOWN";
+  case GAIN_TWOTHIRDS:
+    return "GAIN_TWOTHIRDS";
+  case GAIN_ONE:
+    return "GAIN_ONE";
+  case GAIN_TWO:
+    return "GAIN_TWO";
+  case GAIN_FOUR:
+    return "GAIN_FOUR";
+  case GAIN_EIGHT:
+    return "GAIN_EIGHT";
+  case GAIN_SIXTEEN:
+    return "GAIN_SIXTEEN";
+  default:
+    return "GAIN_UNKNOWN";
   }
 }
 
 bool sensors::voltage::access(VoltageSensorData *sensor_data) {
-  if (!ready) return false;
-  if (!sensor_data) return false;
+  if (!ready)
+    return false;
+  if (!sensor_data)
+    return false;
 
   apply_selection();
 
@@ -97,8 +109,8 @@ bool sensors::voltage::access(VoltageSensorData *sensor_data) {
     int16_t raw_counts = adc.readADC_SingleEnded(channel);
     float voltage = adc.computeVolts(raw_counts);
 
-    bool is_unipolar = (channel == 0) ||
-                       (channel == config::voltage::CHANNEL_COUNT - 1);
+    bool is_unipolar =
+        (channel == 0) || (channel == config::voltage::CHANNEL_COUNT - 1);
     if (is_unipolar && voltage < 0.0f) {
       voltage = 0.0f;
     }
@@ -149,8 +161,10 @@ static void test_voltage_reads_channels(void) {
              sensor_data.channel_volts[channel]);
     TEST_MESSAGE(message);
 
-    TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(sensor_data.channel_volts[channel],
-      "device: channel voltage must be a finite number (not NaN or infinity)");
+    TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(
+        sensor_data.channel_volts[channel],
+        "device: channel voltage must be a finite number (not NaN or "
+        "infinity)");
   }
 }
 
@@ -167,17 +181,17 @@ static void test_voltage_gain_label(void) {
   TEST_MESSAGE(label);
 
   TEST_ASSERT_NOT_EMPTY_MESSAGE(label,
-    "device: gain label should not be empty");
-  TEST_ASSERT_EQUAL_STRING_MESSAGE("GAIN_TWO", label,
-    "device: default gain should be GAIN_TWO");
+                                "device: gain label should not be empty");
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("GAIN_ONE", label,
+                                   "device: default gain should be GAIN_ONE");
 }
 
 static void test_voltage_rejects_null_buffer(void) {
   WHEN("a null buffer is passed to access");
 
   bool success = sensors::voltage::access(nullptr);
-  TEST_ASSERT_FALSE_MESSAGE(success,
-    "device: read should fail when sensor_data is null");
+  TEST_ASSERT_FALSE_MESSAGE(
+      success, "device: read should fail when sensor_data is null");
 }
 
 void sensors::voltage::test() {

@@ -160,6 +160,9 @@ void services::http::api::networking::registerRoutes(AsyncWebServer &server,
     JsonObject body = json.as<JsonObject>();
     String ssid = body["ssid"] | "";
     String password = body["password"] | "";
+    String identity = body["identity"] | "";
+    String username = body["username"] | "";
+    bool is_enterprise = body["is_enterprise"] | false;
     ssid.trim();
 
     if (ssid.isEmpty()) {
@@ -173,17 +176,33 @@ void services::http::api::networking::registerRoutes(AsyncWebServer &server,
       .request = {
         .ssid = ssid.c_str(),
         .password = password.c_str(),
+        .identity = is_enterprise ? identity.c_str() : nullptr,
+        .username = is_enterprise ? username.c_str() : nullptr,
+        .is_enterprise = is_enterprise,
         .enable_ap_fallback = true,
       },
       .result = {},
     };
     ::networking::wifi::connect(&command);
 
+    if (command.result.connected) {
+      WifiSavedConfig saved = {};
+      strlcpy(saved.ssid, ssid.c_str(), sizeof(saved.ssid));
+      strlcpy(saved.password, password.c_str(), sizeof(saved.password));
+      if (is_enterprise) {
+        strlcpy(saved.identity, identity.c_str(), sizeof(saved.identity));
+        strlcpy(saved.username, username.c_str(), sizeof(saved.username));
+        saved.is_enterprise = true;
+      }
+      ::networking::wifi::storeConfig(&saved);
+    }
+
     AsyncJsonResponse *response = new AsyncJsonResponse();
     JsonObject root = response->getRoot().to<JsonObject>();
     root["ok"] = command.result.connected;
     JsonObject data = root["data"].to<JsonObject>();
     data["attempted_ssid"] = ssid;
+    data["is_enterprise"] = is_enterprise;
     data["status_code"] = command.result.status_code;
     fill_wireless_status(data);
 

@@ -35,6 +35,24 @@ static int cmd_wifi_set(int argc, char **argv) {
   return 0;
 }
 
+static int cmd_wifi_set_enterprise(int argc, char **argv) {
+  if (argc != 5) {
+    printf("usage: wifi-set-enterprise <ssid> <identity> <username> <password>\n");
+    return 1;
+  }
+  WifiSavedConfig config = {};
+  strlcpy(config.ssid, argv[1], sizeof(config.ssid));
+  strlcpy(config.identity, argv[2], sizeof(config.identity));
+  strlcpy(config.username, argv[3], sizeof(config.username));
+  strlcpy(config.password, argv[4], sizeof(config.password));
+  config.is_enterprise = true;
+  if (networking::wifi::storeConfig(&config))
+    printf("saved. use wifi-connect to connect.\n");
+  else
+    printf("failed to save config.\n");
+  return 0;
+}
+
 static int cmd_wifi_connect(int argc, char **argv) {
   (void)argc; (void)argv;
   printf("connecting...\n");
@@ -222,6 +240,7 @@ static int cmd_log_status(int argc, char **argv) {
 void programs::shell::commands::registerAll() {
   Console.addCmd("reboot",            "reboot the device",                    cmd_reboot);
   Console.addCmd("wifi-set",          "save WiFi credentials to NVS",        "<ssid> <password>", cmd_wifi_set);
+  Console.addCmd("wifi-set-enterprise", "save WPA2-Enterprise credentials to NVS", "<ssid> <identity> <username> <password>", cmd_wifi_set_enterprise);
   Console.addCmd("wifi-connect",      "connect to saved WiFi network",       cmd_wifi_connect);
   Console.addCmd("ps",                "list running tasks",                   cmd_ps);
   Console.addCmd("cpufreq",           "read or set CPU frequency",           "[80|160|240]", cmd_cpu);

@@ -56,6 +56,9 @@ bool networking::wifi::accessConfig(WifiSavedConfig *config) {
 
   bool has_ssid = prefs.getString("sta_ssid", config->ssid, sizeof(config->ssid)) > 0;
   bool has_password = prefs.getString("sta_pass", config->password, sizeof(config->password)) >= 0;
+  prefs.getString("sta_identity", config->identity, sizeof(config->identity));
+  prefs.getString("sta_username", config->username, sizeof(config->username));
+  config->is_enterprise = prefs.getBool("sta_enterprise", false);
   prefs.end();
   config->valid = has_ssid;
   return has_ssid && has_password;
@@ -68,6 +71,9 @@ bool networking::wifi::storeConfig(WifiSavedConfig *config) {
 
   prefs.putString("sta_ssid", config->ssid);
   prefs.putString("sta_pass", config->password);
+  prefs.putString("sta_identity", config->identity);
+  prefs.putString("sta_username", config->username);
+  prefs.putBool("sta_enterprise", config->is_enterprise);
   prefs.end();
   config->valid = config->ssid[0] != '\0';
   return config->valid;
@@ -86,18 +92,36 @@ bool networking::wifi::connect(WifiConnectCommand *command) {
   networking::wifi::configure_hostname(services::identity::access_hostname());
 
   if (command->request.ssid && command->request.ssid[0] != '\0') {
-    WiFi.begin(command->request.ssid,
-               command->request.password ? command->request.password : "");
+    if (command->request.is_enterprise) {
+      Serial.printf("[wifi] enterprise connect: %s\n", command->request.ssid);
+      WiFi.begin(command->request.ssid, WPA2_AUTH_PEAP,
+                 command->request.identity ? command->request.identity : "",
+                 command->request.username ? command->request.username : "",
+                 command->request.password ? command->request.password : "");
+    } else {
+      WiFi.begin(command->request.ssid,
+                 command->request.password ? command->request.password : "");
+    }
   } else {
     WifiSavedConfig saved_config = {};
     if (networking::wifi::accessConfig(&saved_config) && saved_config.valid) {
       Serial.printf("[wifi] credentials from NVS: %s\n", saved_config.ssid);
-      WiFi.begin(saved_config.ssid, saved_config.password);
+      if (saved_config.is_enterprise) {
+        WiFi.begin(saved_config.ssid, WPA2_AUTH_PEAP,
+                   saved_config.identity, saved_config.username, saved_config.password);
+      } else {
+        WiFi.begin(saved_config.ssid, saved_config.password);
+      }
     } else
 #if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
     if (strlen(CONFIG_WIFI_SSID) > 0) {
       Serial.printf("[wifi] credentials from build flags: %s\n", CONFIG_WIFI_SSID);
+#if CONFIG_WIFI_ENTERPRISE
+      WiFi.begin(CONFIG_WIFI_SSID, WPA2_AUTH_PEAP,
+                 CONFIG_WIFI_IDENTITY, CONFIG_WIFI_USERNAME, CONFIG_WIFI_PASS);
+#else
       WiFi.begin(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
+#endif
     } else
 #endif
     if (networking::wifi::internal::wifi_ssid_slot[0] != '@' && networking::wifi::internal::wifi_ssid_slot[0] != '\0') {

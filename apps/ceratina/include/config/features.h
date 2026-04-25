@@ -13,6 +13,18 @@
 #define CONFIG_WIFI_PASS ""
 #endif
 
+#ifndef CONFIG_WIFI_IDENTITY
+#define CONFIG_WIFI_IDENTITY ""
+#endif
+
+#ifndef CONFIG_WIFI_USERNAME
+#define CONFIG_WIFI_USERNAME ""
+#endif
+
+#ifndef CONFIG_WIFI_ENTERPRISE
+#define CONFIG_WIFI_ENTERPRISE 0
+#endif
+
 #ifndef CONFIG_SSH_USER
 #define CONFIG_SSH_USER "root"
 #endif
