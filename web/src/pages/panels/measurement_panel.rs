@@ -552,16 +552,20 @@ fn voltage_panel(
                             tr {
                                 Th { "#" }
                                 Th { "CH0 (V)" }
+                                Th { "CH0 (\u{00B0}C)" }
                                 Th { "CH1 (V)" }
+                                Th { "CH1 (\u{00B0}C)" }
                                 Th { "CH2 (V)" }
+                                Th { "CH2 (\u{00B0}C)" }
                                 Th { "CH3 (V)" }
+                                Th { "CH3 (\u{00B0}C)" }
                                 Th { "TIME" }
                             }
                         }
                         tbody {
                             if voltage_readings.read().is_empty() {
                                 tr {
-                                    td { colspan: "6", class: "px-4 py-10 text-center",
+                                    td { colspan: "10", class: "px-4 py-10 text-center",
                                         div { class: "flex flex-col items-center gap-2",
                                             lucide_dioxus::Zap { class: "w-9 h-9 text-muted-foreground" }
                                             h3 { class: "text-sm font-medium text-foreground", "No readings yet" }
@@ -573,8 +577,9 @@ fn voltage_panel(
                             for row in voltage_readings.read().iter().rev() {
                                 tr { key: "{row.row}", class: "border-b border-border hover:bg-muted/40 transition-colors",
                                     Td { "{row.row}" }
-                                    for voltage in row.channels.iter() {
+                                    for (voltage, temperature) in row.channels.iter().zip(row.temperatures.iter()) {
                                         Td { class: "tabular-nums", "{voltage:.4}" }
+                                        Td { class: "tabular-nums", "{temperature:.6}" }
                                     }
                                     Td { class: "text-muted-foreground whitespace-nowrap", "{row.time}" }
                                 }

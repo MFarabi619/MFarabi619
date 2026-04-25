@@ -75,6 +75,7 @@ pub struct VoltageRow {
     pub row: usize,
     pub gain: String,
     pub channels: Vec<f64>,
+    pub temperatures: Vec<f64>,
     pub time: String,
 }
 

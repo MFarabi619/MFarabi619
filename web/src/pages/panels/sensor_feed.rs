@@ -31,7 +31,7 @@ use super::state::MeasurementState;
 enum SensorReading {
     Co2 { ppm: f64, temp: f64, humidity: f64 },
     TemperatureHumidity { sensors: Vec<TemperatureHumidityReading>, model: String },
-    Voltage { gain: String, channels: Vec<f64> },
+    Voltage { gain: String, channels: Vec<f64>, temperatures: Vec<f64> },
     Pressure { model: String, pressure_hpa: f64, temp: f64 },
 }
 
@@ -89,8 +89,12 @@ fn parse_events(events: &[crate::api::CloudEvent]) -> Option<ParsedEvents> {
                         .and_then(|v| v.as_array())
                         .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect())
                         .unwrap_or_default();
+                    let temperatures: Vec<f64> = data.get("temperature_celsius")
+                        .and_then(|v| v.as_array())
+                        .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect())
+                        .unwrap_or_default();
                     let gain = data.get("gain").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                    readings.push(SensorReading::Voltage { gain, channels });
+                    readings.push(SensorReading::Voltage { gain, channels, temperatures });
                 }
             }
 
@@ -162,7 +166,7 @@ pub async fn fetch_and_add_sensor_readings(
                     });
                     added = true;
                 }
-                SensorReading::Voltage { gain, channels } => {
+                SensorReading::Voltage { gain, channels, temperatures } => {
                     if !state.availability.read().voltage {
                         state.availability.write().voltage = true;
                     }
@@ -171,6 +175,7 @@ pub async fn fetch_and_add_sensor_readings(
                         row: next_row,
                         gain: gain.clone(),
                         channels: channels.clone(),
+                        temperatures: temperatures.clone(),
                         time: prev_time.clone(),
                     });
                     added = true;

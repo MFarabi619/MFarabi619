@@ -76,16 +76,13 @@ impl CsvRow for TemperatureHumidityRow {
 
 impl CsvRow for VoltageRow {
     fn header(_: &[Self]) -> String {
-        "#,CH0_V,CH1_V,CH2_V,CH3_V,TIME".to_string()
+        "#,CH0_V,CH0_C,CH1_V,CH1_C,CH2_V,CH2_C,CH3_V,CH3_C,TIME".to_string()
     }
 
     fn to_row(&self) -> String {
-        let mut row = format!("{},", self.row);
-        for (i, voltage) in self.channels.iter().enumerate() {
-            row.push_str(&format!("{voltage:.4}"));
-            if i < self.channels.len() - 1 {
-                row.push(',');
-            }
+        let mut row = format!("{}", self.row);
+        for (voltage, temperature) in self.channels.iter().zip(self.temperatures.iter()) {
+            row.push_str(&format!(",{voltage:.4},{temperature:.6}"));
         }
         row.push_str(&format!(",{}", self.time));
         row
