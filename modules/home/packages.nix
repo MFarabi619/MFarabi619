@@ -8,6 +8,23 @@
     packages =
       with pkgs;
       [
+        (python314.withPackages (
+          ps: with ps; [
+            west
+            tqdm
+            cbor
+            cbor2
+            click
+            semver
+            patool
+            esptool
+            intelhex
+            requests
+            pyelftools
+            jsonschema
+            cryptography
+          ]
+        ))
         renode-dts2repl
       ]
       ++ [
