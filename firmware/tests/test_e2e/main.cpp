@@ -18,6 +18,7 @@ void setup(void) {
   sensors::current::test();
   sensors::carbon_dioxide::test();
   sensors::solar_radiation::test();
+  sensors::rainfall::test();
   sensors::barometric_pressure::test();
   sensors::temperature_and_humidity::test();
 
@@ -31,6 +32,7 @@ void setup(void) {
   networking::sntp::test();
   networking::wifi::test();
   networking::telnet::test();
+  networking::tunnel::test();
   networking::update::test();
 
   services::rtc::test();

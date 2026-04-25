@@ -17,11 +17,14 @@ pub fn init() {
 
 pub fn set(c: Color) {
     unsafe {
+        let strip = zr_device_get_led_strip();
+        if strip.is_null() {
+            return;
+        }
         let px = addr_of_mut!(PIXELS) as *mut led_rgb;
         (*px).r = (c.0 as u16 * BRIGHTNESS as u16 / 255) as u8;
         (*px).g = (c.1 as u16 * BRIGHTNESS as u16 / 255) as u8;
         (*px).b = (c.2 as u16 * BRIGHTNESS as u16 / 255) as u8;
-        let strip = zr_device_get_led_strip();
         led_strip_update_rgb(strip, px, 1);
     }
 }

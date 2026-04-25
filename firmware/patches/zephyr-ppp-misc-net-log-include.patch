@@ -1,0 +1,16 @@
+Fix missing net_log.h include in PPP misc.c (upstream bug).
+
+misc.c uses NET_DBG (defined in <zephyr/net/net_log.h>) but only includes
+<zephyr/logging/log.h> (which defines LOG_DBG). Every other PPP source file
+(fsm.c, lcp.c, ipcp.c, link.c, ppp_l2.c, etc.) includes net_log.h.
+
+Without this fix, enabling CONFIG_NET_L2_PPP_LOG_LEVEL_DBG causes
+"implicit declaration of function NET_DBG" because the #if guards
+around NET_DBG calls activate at debug level.
+
+--- a/subsys/net/l2/ppp/misc.c
++++ b/subsys/net/l2/ppp/misc.c
+@@ after logging/log.h include
+ #include <zephyr/logging/log.h>
++#include <zephyr/net/net_log.h>
+ LOG_MODULE_DECLARE(net_l2_ppp, CONFIG_NET_L2_PPP_LOG_LEVEL);

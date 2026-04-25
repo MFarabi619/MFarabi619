@@ -1,0 +1,77 @@
+Expose Zephyr subsystem APIs to Rust via bindgen FFI wrappers.
+
+Adds headers and inline C wrappers for macros that bindgen cannot handle
+(net_mgmt, DEVICE_DT_GET, shell_backend_uart_get_ptr, wifi events).
+Extends bindgen allowlist to generate bindings for LED strip, sensor,
+networking, and shell APIs.
+
+The led_strip device getter is guarded with DT_NODE_EXISTS so it compiles
+on boards without an led-strip alias (e.g. Walter).
+
+--- a/zephyr-sys/wrapper.h
++++ b/zephyr-sys/wrapper.h
+@@ includes
++#include <zephyr/drivers/led_strip.h>
++#include <zephyr/drivers/sensor.h>
++#include <zephyr/net/net_mgmt.h>
++#include <zephyr/net/net_if.h>
++#include <zephyr/net/wifi_mgmt.h>
++#include <zephyr/shell/shell.h>
++#include <zephyr/shell/shell_uart.h>
++#include <zephyr/net/hostname.h>
+
+@@ after zr_irq_unlock
++static inline struct net_if *zr_net_if_get_default(void) {
++	return net_if_get_default();
++}
++
++static inline int zr_wifi_connect_stored(void) {
++	return net_mgmt(NET_REQUEST_WIFI_CONNECT_STORED,
++			net_if_get_default(), NULL, 0);
++}
++
++static inline const struct shell *zr_shell_backend_uart_get_ptr(void) {
++	return shell_backend_uart_get_ptr();
++}
++
++static inline const struct device *zr_device_get_led_strip(void) {
++#if DT_NODE_EXISTS(DT_ALIAS(led_strip))
++	return DEVICE_DT_GET(DT_ALIAS(led_strip));
++#else
++	return NULL;
++#endif
++}
++
++const uint64_t ZR_NET_EVENT_WIFI_CONNECT_RESULT = NET_EVENT_WIFI_CONNECT_RESULT;
++const uint64_t ZR_NET_EVENT_WIFI_DISCONNECT_RESULT = NET_EVENT_WIFI_DISCONNECT_RESULT;
+
+--- a/zephyr-sys/build.rs
++++ b/zephyr-sys/build.rs
+@@ allowlist_function
++        .allowlist_function("led_strip_.*")
++        .allowlist_function("net_mgmt_.*")
++        .allowlist_function("net_if_.*")
++        .allowlist_function("shell_.*")
++        .allowlist_function("net_hostname_.*")
++        .allowlist_function("sensor_.*")
+
+@@ allowlist_item
++        .allowlist_item("NET_EVENT_WIFI_.*")
++        .allowlist_item("NET_REQUEST_WIFI_.*")
++        .allowlist_item("SENSOR_.*")
+
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ cmake_parse_arguments (extends embassy-bump CRATE_NAME patch)
+-  cmake_parse_arguments(RUST_APP "" "CRATE_NAME" "" ${ARGN})
++  cmake_parse_arguments(RUST_APP "" "CRATE_NAME;FEATURES" "" ${ARGN})
+
+@@ after CRATE_NAME default
++  if(RUST_APP_FEATURES)
++    set(rust_features_arg "--features" "${RUST_APP_FEATURES}")
++  else()
++    set(rust_features_arg "")
++  endif()
+
+@@ cargo build args
++      ${rust_features_arg}

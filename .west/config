@@ -1,12 +1,13 @@
 [manifest]
-path = .
-file = west.yml
+path     = .
+file     = west.yml
 project-filter = +zephyr-lang-rust
 
 [zephyr]
-base = vendor/zephyr
+base     = vendor/zephyr
 
 [build]
 pristine = always
-board = esp32s3_devkitc/esp32s3/procpu
-runner = probe-rs
+runner   = probe-rs
+# board    = walter/esp32s3/procpu
+board    = esp32s3_devkitc/esp32s3/procpu

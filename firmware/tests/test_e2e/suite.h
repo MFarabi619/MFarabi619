@@ -16,6 +16,7 @@ namespace networking::ota { void test(); }
 namespace networking::sntp { void test(); }
 namespace networking::telnet { void test(); }
 namespace networking::update { void test(); }
+namespace networking::tunnel { void test(); }
 namespace networking::wifi { void test(); }
 
 namespace services::cloudevents { void test(); }
@@ -35,6 +36,7 @@ namespace sensors::current { void test(); }
 namespace sensors::soil { void test(); }
 namespace sensors::solar_radiation { void test(); }
 namespace sensors::temperature_and_humidity { void test(); }
+namespace sensors::rainfall { void test(); }
 namespace sensors::voltage { void test(); }
 
 namespace programs::buttons { void test(); }
