@@ -94,6 +94,7 @@ void configure_hostname(const char *hostname);
 bool accessSnapshot(NetworkStatusSnapshot *snapshot);
 bool accessConfig(WifiSavedConfig *config);
 bool storeConfig(WifiSavedConfig *config);
+bool clearConfig();
 bool connect(WifiConnectCommand *command);
 bool scan(WifiScanCommand *command);
 

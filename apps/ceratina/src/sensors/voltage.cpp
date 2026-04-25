@@ -5,6 +5,7 @@
 
 #include <Adafruit_ADS1X15.h>
 #include <Arduino.h>
+#include <math.h>
 
 static bool ready = false;
 static uint8_t resolved_bus = 0;
@@ -12,6 +13,16 @@ static uint8_t resolved_address = 0;
 static int8_t resolved_mux_channel = config::i2c::DIRECT_CHANNEL;
 
 static Adafruit_ADS1115 adc;
+
+static float ntc_temperature_celsius(float voltage) {
+  if (voltage <= 0.0f || voltage >= config::voltage::ADC_REFERENCE_VOLTAGE)
+    return NAN;
+
+  float resistance_ratio = voltage / (config::voltage::ADC_REFERENCE_VOLTAGE - voltage);
+  float inverse_temperature = (1.0f / config::voltage::REFERENCE_TEMPERATURE_KELVIN)
+      + (1.0f / config::voltage::BETA_COEFFICIENT) * logf(resistance_ratio);
+  return (1.0f / inverse_temperature) - 273.15f;
+}
 
 namespace {
 
@@ -116,6 +127,7 @@ bool sensors::voltage::access(VoltageSensorData *sensor_data) {
     }
 
     sensor_data->channel_volts[channel] = voltage;
+    sensor_data->temperature_celsius[channel] = ntc_temperature_celsius(voltage);
   }
 
   hardware::i2c::clearSelection();
@@ -156,15 +168,18 @@ static void test_voltage_reads_channels(void) {
 
   for (size_t channel = 0; channel < config::voltage::CHANNEL_COUNT;
        channel++) {
-    char message[64];
-    snprintf(message, sizeof(message), "channel %zu: %.4f V", channel,
-             sensor_data.channel_volts[channel]);
+    char message[80];
+    snprintf(message, sizeof(message), "channel %zu: %.4f V  %.2f C",
+             channel, sensor_data.channel_volts[channel],
+             sensor_data.temperature_celsius[channel]);
     TEST_MESSAGE(message);
 
     TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(
         sensor_data.channel_volts[channel],
-        "device: channel voltage must be a finite number (not NaN or "
-        "infinity)");
+        "device: channel voltage must be a finite number");
+    TEST_ASSERT_FLOAT_IS_DETERMINATE_MESSAGE(
+        sensor_data.temperature_celsius[channel],
+        "device: channel temperature must be a finite number");
   }
 }
 

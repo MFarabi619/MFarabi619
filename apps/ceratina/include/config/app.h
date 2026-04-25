@@ -89,6 +89,10 @@ namespace config {
 
   namespace voltage {
       inline constexpr uint8_t CHANNEL_COUNT = 4;
+      inline constexpr float REFERENCE_TEMPERATURE_KELVIN = 298.15f;
+      inline constexpr float BETA_COEFFICIENT = 3988.0f;
+      inline constexpr float NOMINAL_RESISTANCE_OHMS = 10000.0f;
+      inline constexpr float ADC_REFERENCE_VOLTAGE = 3.3f;
   }
 
   namespace wind {

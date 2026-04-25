@@ -96,6 +96,9 @@ static void serialize_voltage(const void *raw, JsonObject &out) {
   JsonArray voltage = out["voltage"].to<JsonArray>();
   for (size_t ch = 0; ch < config::voltage::CHANNEL_COUNT; ch++)
     voltage.add(d->channel_volts[ch]);
+  JsonArray temperature = out["temperature_celsius"].to<JsonArray>();
+  for (size_t ch = 0; ch < config::voltage::CHANNEL_COUNT; ch++)
+    temperature.add(d->temperature_celsius[ch]);
 }
 
 static void serialize_current(const void *raw, JsonObject &out) {

@@ -3,6 +3,7 @@
 
 struct VoltageSensorData {
   float channel_volts[config::voltage::CHANNEL_COUNT];
+  float temperature_celsius[config::voltage::CHANNEL_COUNT];
 };
 
 namespace sensors::voltage {

@@ -58,25 +58,32 @@ bool ensure_headers() {
 
   uint8_t n_th = sensors::temperature_and_humidity::sensorCount();
   if (n_th > 0) {
-    char header[256] = "time";
-    size_t pos = 4;
-    for (uint8_t i = 0; i < n_th; i++)
+    char header[256] = {0};
+    size_t pos = 0;
+    for (uint8_t i = 0; i < n_th; i++) {
+      if (i > 0) header[pos++] = ',';
       pos += snprintf(header + pos, sizeof(header) - pos,
-                      ",temperature_celsius_%u,relative_humidity_percent_%u", i, i);
+                      "temperature_celsius_%u,relative_humidity_percent_%u", i, i);
+    }
+    pos += snprintf(header + pos, sizeof(header) - pos, ",time");
     ensure_csv("/temperature_humidity.csv", header);
   }
 
   if (sensors::voltage::isAvailable())
-    ensure_csv("/voltage.csv", "time,channel_0,channel_1,channel_2,channel_3");
+    ensure_csv("/voltage.csv",
+               "channel_0,temperature_celsius_0,"
+               "channel_1,temperature_celsius_1,"
+               "channel_2,temperature_celsius_2,"
+               "channel_3,temperature_celsius_3,time");
 
   if (sensors::carbon_dioxide::isAvailable())
-    ensure_csv("/co2.csv", "time,co2_ppm,temperature_celsius,relative_humidity_percent");
+    ensure_csv("/co2.csv", "co2_ppm,temperature_celsius,relative_humidity_percent,time");
 
   if (sensors::barometric_pressure::isAvailable())
-    ensure_csv("/pressure.csv", "time,pressure_hpa,temperature_celsius");
+    ensure_csv("/pressure.csv", "pressure_hpa,temperature_celsius,time");
 
   if (sensors::wind_speed::isAvailable() || sensors::wind_direction::isAvailable())
-    ensure_csv("/wind.csv", "time,wind_speed_kmh,wind_direction_degrees");
+    ensure_csv("/wind.csv", "wind_speed_kmh,wind_direction_degrees,time");
 
   header_written = true;
   return true;
@@ -89,15 +96,16 @@ void log_temperature_humidity() {
   File file = SD.open("/temperature_humidity.csv", FILE_APPEND);
   if (!file) return;
 
-  write_timestamp(file);
   for (uint8_t i = 0; i < n_th; i++) {
     TemperatureHumiditySensorData th = {};
     bool ok = sensors::manager::accessTemperatureHumidity(i, &th);
-    file.print(',');
+    if (i > 0) file.print(',');
     if (ok) write_float(file, th.temperature_celsius);
     file.print(',');
     if (ok) write_float(file, th.relative_humidity_percent);
   }
+  file.print(',');
+  write_timestamp(file);
   file.println();
   file.close();
 }
@@ -109,11 +117,14 @@ void log_voltage() {
   File file = SD.open("/voltage.csv", FILE_APPEND);
   if (!file) return;
 
-  write_timestamp(file);
   for (size_t i = 0; i < config::voltage::CHANNEL_COUNT; i++) {
-    file.print(',');
+    if (i > 0) file.print(',');
     write_float(file, voltage.channel_volts[i], 4);
+    file.print(',');
+    write_float(file, voltage.temperature_celsius[i], 2);
   }
+  file.print(',');
+  write_timestamp(file);
   file.println();
   file.close();
 }
@@ -125,10 +136,10 @@ void log_co2() {
   File file = SD.open("/co2.csv", FILE_APPEND);
   if (!file) return;
 
-  write_timestamp(file);
-  file.print(','); write_float(file, co2.co2_ppm, 1);
+  write_float(file, co2.co2_ppm, 1);
   file.print(','); write_float(file, co2.temperature_celsius);
   file.print(','); write_float(file, co2.relative_humidity_percent);
+  file.print(','); write_timestamp(file);
   file.println();
   file.close();
 }
@@ -140,9 +151,9 @@ void log_pressure() {
   File file = SD.open("/pressure.csv", FILE_APPEND);
   if (!file) return;
 
-  write_timestamp(file);
-  file.print(','); write_float(file, pressure.pressure_hpa);
+  write_float(file, pressure.pressure_hpa);
   file.print(','); write_float(file, pressure.temperature_celsius);
+  file.print(','); write_timestamp(file);
   file.println();
   file.close();
 }
@@ -157,11 +168,11 @@ void log_wind() {
   File file = SD.open("/wind.csv", FILE_APPEND);
   if (!file) return;
 
-  write_timestamp(file);
-  file.print(',');
   if (has_speed) write_float(file, wind_speed.kilometers_per_hour);
   file.print(',');
   if (has_dir) write_float(file, wind_direction.degrees, 1);
+  file.print(',');
+  write_timestamp(file);
   file.println();
   file.close();
 }
@@ -252,17 +263,17 @@ static void check_csv_header(const char *path, const char *expected_prefix) {
 static void test_csv_headers_created(void) {
   GIVEN("SD card is available");
   WHEN("ensure_headers() creates per-sensor CSV files");
-  THEN("each file has a valid header starting with 'time'");
+  THEN("each file has a valid header with the expected prefix");
   if (!hardware::storage::ensureSD()) {
     TEST_IGNORE_MESSAGE("skipped — no SD card");
     return;
   }
 
-  check_csv_header("/co2.csv", "time,");
-  check_csv_header("/voltage.csv", "time,");
-  check_csv_header("/pressure.csv", "time,");
-  check_csv_header("/wind.csv", "time,");
-  check_csv_header("/temperature_humidity.csv", "time,");
+  check_csv_header("/co2.csv", "co2_ppm,");
+  check_csv_header("/voltage.csv", "channel_0,");
+  check_csv_header("/pressure.csv", "pressure_hpa,");
+  check_csv_header("/wind.csv", "wind_speed_kmh,");
+  check_csv_header("/temperature_humidity.csv", "temperature_celsius_0,");
 }
 
 void services::data_logger::test(void) {

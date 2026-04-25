@@ -109,6 +109,14 @@ void handle_ap_config_get(AsyncWebServerRequest *request) {
 void services::http::api::networking::registerRoutes(AsyncWebServer &server,
                                                      AsyncRateLimitMiddleware &scan_limit) {
   server.on("/api/wifi", HTTP_GET, handle_wifi);
+  server.on("/api/wireless/config", HTTP_DELETE, [](AsyncWebServerRequest *request) {
+    bool ok = ::networking::wifi::clearConfig();
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = ok;
+    response->setLength();
+    request->send(response);
+  });
   server.on("/api/wireless/status", HTTP_GET, handle_wireless_status);
   server.on("/api/wireless/actions/scan", HTTP_POST, handle_wireless_scan)
     .addMiddleware(&scan_limit);

@@ -79,6 +79,19 @@ bool networking::wifi::storeConfig(WifiSavedConfig *config) {
   return config->valid;
 }
 
+bool networking::wifi::clearConfig() {
+  Preferences prefs;
+  if (!networking::wifi::internal::openPreferences(false, &prefs)) return false;
+  prefs.remove("sta_ssid");
+  prefs.remove("sta_pass");
+  prefs.remove("sta_identity");
+  prefs.remove("sta_username");
+  prefs.remove("sta_enterprise");
+  prefs.end();
+  WiFi.disconnect(true, true);
+  return true;
+}
+
 bool networking::wifi::connect(WifiConnectCommand *command) {
   if (!command) return false;
   command->result = {};
