@@ -26,6 +26,7 @@
           ]
         ))
         bore-cli
+        mcumgr-client
         renode-dts2repl
       ]
       ++ [
