@@ -25,6 +25,7 @@
             cryptography
           ]
         ))
+        bore-cli
         renode-dts2repl
       ]
       ++ [
