@@ -32,7 +32,6 @@
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "huly"
-      "eim-gui"
       # "comfyui"
       # "sonic-pi"
       # "unity-hub"
