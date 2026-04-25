@@ -10,6 +10,7 @@
 #include "../networking/ota.h"
 #include "../networking/update.h"
 #include "../networking/ble.h"
+#include "../networking/tunnel.h"
 #include "../programs/buttons.h"
 #include <led.h>
 #include "../power/sleep.h"
@@ -133,6 +134,10 @@ void system_task(void *pvParameters) {
     networking::ble::service();
 #endif
 
+#if CERATINA_TUNNEL_ENABLED
+    networking::tunnel::service();
+#endif
+
     vTaskDelay(pdMS_TO_TICKS(config::system::SHELL_SERVICE_MS));
   }
 }
@@ -151,6 +156,9 @@ void boot::system::startServices() {
   if (!http_done) { services::http::initialize(); http_done = true; }
   if (!telnet_done) { networking::telnet::initialize(); telnet_done = true; }
   if (!ota_done) { networking::ota::initialize(); ota_done = true; }
+
+  static bool tunnel_done = false;
+  if (!tunnel_done) { networking::tunnel::initialize(); tunnel_done = true; }
 }
 
 void boot::system::startTask() {

@@ -2,6 +2,7 @@
 #include <config.h>
 #include <networking/wifi.h>
 #include <identity.h>
+#include "networking/tunnel.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -114,6 +115,16 @@ void services::http::api::networking::registerRoutes(AsyncWebServer &server,
     AsyncJsonResponse *response = new AsyncJsonResponse();
     JsonObject root = response->getRoot().to<JsonObject>();
     root["ok"] = ok;
+    response->setLength();
+    request->send(response);
+  });
+  server.on("/api/tunnel/status", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = true;
+    root["enabled"] = (bool)CERATINA_TUNNEL_ENABLED;
+    root["ready"] = ::networking::tunnel::isReady();
+    root["url"] = ::networking::tunnel::accessURL();
     response->setLength();
     request->send(response);
   });
