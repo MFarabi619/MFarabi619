@@ -25,7 +25,8 @@
       log_connections = true;
       logging_collector = true;
       log_disconnections = true;
-      shared_preload_libraries = "timescaledb";
+      shared_preload_libraries = "timescaledb,pg_cron";
+      "cron.database_name" = "microvisor";
 
       # work_mem = "32MB";
       # min_wal_size = "2GB";
