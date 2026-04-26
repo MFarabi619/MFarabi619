@@ -16,6 +16,11 @@ in
       pulumi-esc
     ]
     ++ [
+      grafana
+      grafanactl
+      mcp-grafana # https://github.com/grafana/mcp-grafana
+    ]
+    ++ [
       sqlite
       # duckdb
       supabase-cli
