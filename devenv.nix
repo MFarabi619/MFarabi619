@@ -27,7 +27,6 @@
     "/scripts.nix"
     "/packages.nix"
     "/processes.nix"
-    "/containers.nix"
     "/devcontainer.nix"
   ];
 
