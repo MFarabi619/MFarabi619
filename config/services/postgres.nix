@@ -16,8 +16,10 @@
         name = config.name;
         schema = "${config.git.root}/learning/sql/src/schema.sql";
       }
-    ]
-    ++ lib.optionals config.microvisor.pulumi.enable [ { name = "pulumi"; } ];
+      {
+        name = "pulumi";
+      }
+    ];
 
     # https://pgtune.leopard.in.ua
     settings = {

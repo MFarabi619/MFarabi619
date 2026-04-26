@@ -1,5 +1,0 @@
-{
-  microvisor.pulumi = {
-    enable = true;
-  };
-}

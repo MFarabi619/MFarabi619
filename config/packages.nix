@@ -8,6 +8,10 @@
   packages =
     with pkgs;
     [
+      pulumi
+      pulumi-esc
+    ]
+    ++ [
       sqlite
       # duckdb
       supabase-cli

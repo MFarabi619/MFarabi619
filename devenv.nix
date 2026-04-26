@@ -25,7 +25,6 @@
     "/languages"
     "/tasks.nix"
     "/microvisor"
-    "/pulumi.nix"
     "/cachix.nix"
     "/embassy.nix"
     "/scripts.nix"
