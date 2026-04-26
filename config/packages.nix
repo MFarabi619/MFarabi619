@@ -29,17 +29,13 @@ in
       rustywind
     ]
     ++ [
-      ninja
-      ccache
-      openocd
-      esptool
-    ]
-    ++ [
       SDL2 # for embedded TUI simulator
       espup
+      ninja
+      ccache
       rustup
-      openocd
       esptool
+      openocd
       ldproxy
       espflash
       esp-generate
