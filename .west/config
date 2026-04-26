@@ -11,3 +11,7 @@ pristine = always
 runner   = probe-rs
 # board    = walter/esp32s3/procpu
 board    = esp32s3_devkitc/esp32s3/procpu
+
+[flash]
+rebuild = true
+
