@@ -25,7 +25,6 @@
     "/languages"
     "/tasks.nix"
     "/microvisor"
-    "/cachix.nix"
     "/embassy.nix"
     "/scripts.nix"
     "/packages.nix"
@@ -40,6 +39,25 @@
   + lib.optionalString (pkgs.stdenv.isLinux && config.services.caddy.enable) ''
     # sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
   '';
+
+
+
+  cachix = {
+    enable = true;
+    push = "mfarabi";
+    pull = [
+      "cachix"
+      "oxalica"
+      "devenv"
+      "nixpkgs"
+      "mfarabi"
+      "emacs-ci"
+      "nix-darwin"
+      "nix-community"
+      "pre-commit-hooks"
+    ];
+  };
+
 
   enterTest = ''
     echo "Running tests"
