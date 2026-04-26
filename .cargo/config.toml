@@ -4,16 +4,16 @@ ee = ["run", "-p", "e2e"]
 loco = ["run", "-p", "microvisor", "--"]
 playground = ["run", "--example", "playground"]
 
-rr = ["run", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
-bb = ["build", "-p", "firmware", "--target", "xtensa-esp32s3-none-elf"]
+rr = ["run", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
+bb = ["build", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
 tt = [
     "test",
     "-p",
-    "firmware",
+    "ceratina",
     "--target",
     "xtensa-esp32s3-none-elf",
     "--config",
-    "target.xtensa-esp32s3-none-elf.runner = 'probe-rs run --idf-partition-table ../firmware/machine/esp32s3.partitions.csv'",
+    "target.xtensa-esp32s3-none-elf.runner = 'probe-rs run --idf-partition-table ../../apps/ceratina/machine/esp32s3.partitions.csv'",
 ]
 
 [unstable]
@@ -28,7 +28,7 @@ DEFMT_LOG = "info,embedded_test=warn"
 # PROBE_RS_REMOTE_HOST = "ws://rpi5-16:8443"
 
 [target.xtensa-esp32s3-none-elf]
-runner = "probe-rs run --idf-partition-table firmware/machine/esp32s3.partitions.csv"
+runner = "probe-rs run --idf-partition-table apps/ceratina/machine/esp32s3.partitions.csv"
 
 [target.xtensa-esp32-none-elf]
 runner = "espflash flash --monitor --chip esp32"

@@ -103,6 +103,16 @@ static void test_littlefs_hostkey_path(void) {
 
   WHEN("a host key is written and read via both APIs");
 
+  bool hostkey_existed = LittleFS.exists(config::ssh::HOSTKEY_PATH);
+  char original_hostkey[256] = {0};
+  if (hostkey_existed) {
+    File original = LittleFS.open(config::ssh::HOSTKEY_PATH, FILE_READ);
+    TEST_ASSERT_TRUE_MESSAGE((bool)original,
+      "device: existing hostkey should be readable before test mutation");
+    original.readBytes(original_hostkey, sizeof(original_hostkey) - 1);
+    original.close();
+  }
+
   LittleFS.mkdir("/.ssh");
   File writer = LittleFS.open(config::ssh::HOSTKEY_PATH, FILE_WRITE);
   TEST_ASSERT_TRUE_MESSAGE((bool)writer, "device: cannot open hostkey path for writing");
@@ -131,7 +141,15 @@ static void test_littlefs_hostkey_path(void) {
   TEST_ASSERT_TRUE_MESSAGE(LittleFS.exists(config::ssh::HOSTKEY_PATH),
     "device: hostkey file missing after remount");
 
-  LittleFS.remove(config::ssh::HOSTKEY_PATH);
+  if (hostkey_existed) {
+    File restore = LittleFS.open(config::ssh::HOSTKEY_PATH, FILE_WRITE);
+    TEST_ASSERT_TRUE_MESSAGE((bool)restore,
+      "device: hostkey path should be writable when restoring original contents");
+    restore.print(original_hostkey);
+    restore.close();
+  } else {
+    LittleFS.remove(config::ssh::HOSTKEY_PATH);
+  }
 }
 
 static void test_littlefs_rmdir_non_empty(void) {

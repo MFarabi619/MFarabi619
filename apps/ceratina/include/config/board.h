@@ -72,7 +72,7 @@ namespace config {
           {ModbusSensorKind::Rain, 0, 140, 0},
       };
 
-      inline constexpr size_t DEVICE_COUNT = sizeof(DEVICES) / sizeof(DEVICES[0]);
+      inline constexpr uint32_t DEVICE_COUNT = sizeof(DEVICES) / sizeof(DEVICES[0]);
   }
 
   namespace eeprom {

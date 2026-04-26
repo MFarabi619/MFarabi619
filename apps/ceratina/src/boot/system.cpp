@@ -22,7 +22,7 @@
 #include <identity.h>
 #include <manager.h>
 
-#include <Arduino.h>
+#include <hal.h>
 #include <freertos/timers.h>
 #include <Wire.h>
 
@@ -48,12 +48,12 @@ void initialize_services_and_programs(void) {
 #endif
 
   programs::shell::initialize();
-  programs::buttons::initialize();
-  programs::buttons::onLongPressStart([](uint8_t index) {
-    Serial.printf("[buttons] long press on GPIO %d — requesting sleep\n", index);
-    SleepCommand command = {};
-    power::sleep::requestConfigured(&command);
-  });
+  // programs::buttons::initialize();
+  // programs::buttons::onLongPressStart([](uint8_t index) {
+  //   Serial.printf("[buttons] long press on GPIO %d — requesting sleep\n", index);
+  //   SleepCommand command = {};
+  //   power::sleep::requestConfigured(&command);
+  // });
   services::data_logger::initialize();
 }
 
@@ -87,7 +87,7 @@ void connect_networking(void) {
 
   if (networking::wifi::sta::connect()) {
     LED.set(colors::Green);
-    Serial.printf("[wifi] connected, heap: %u bytes free\n", ESP.getFreeHeap());
+    Serial.printf("[wifi] connected, heap: %u bytes free\n", hal::system::freeHeap());
   } else {
     Serial.println(F("[wifi] STA not connected — AP remains active for provisioning"));
     LED.set(colors::DarkOrange);
@@ -95,15 +95,15 @@ void connect_networking(void) {
 }
 
 void heartbeat_callback(TimerHandle_t) {
-  uint32_t heap = ESP.getFreeHeap();
+  uint32_t heap = hal::system::freeHeap();
   char buf[64];
   snprintf(buf, sizeof(buf), "{\"uptime\":%lu,\"heap\":%u}",
-           millis() / 1000, heap);
-  services::http::emitEvent(buf, "heartbeat", millis());
+           hal::system::uptimeSeconds(), heap);
+  services::http::emitEvent(buf, "heartbeat", hal::system::uptimeMilliseconds());
 
   if (heap < 20000) {
     Serial.printf("[WARN] low heap: %u bytes free (min: %u)\n",
-                  heap, ESP.getMinFreeHeap());
+                  heap, hal::system::minFreeHeap());
   }
 }
 
@@ -127,7 +127,7 @@ void system_task(void *pvParameters) {
     services::ws_shell::service();
     networking::telnet::service();
     networking::ota::service();
-    programs::buttons::service();
+    // programs::buttons::service();
     power::sleep::service();
 
 #if CERATINA_BLE_ENABLED

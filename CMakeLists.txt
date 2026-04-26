@@ -10,8 +10,12 @@ target_sources(app PRIVATE
   firmware/src/main.c
   firmware/src/console/prompt.c
   firmware/src/console/fs_aliases.c
+  firmware/src/services/provisioning_http.c
 )
 
 target_include_directories(app PRIVATE include firmware/include)
 
-zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_SOURCE_DIR}/firmware/linker/discard_defmt.ld)
+zephyr_linker_sources(SECTIONS
+  ${CMAKE_CURRENT_SOURCE_DIR}/firmware/linker/discard_defmt.ld
+  ${CMAKE_CURRENT_SOURCE_DIR}/firmware/linker/http-resources.ld
+)

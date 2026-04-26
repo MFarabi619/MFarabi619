@@ -14,7 +14,7 @@ assets/static/tui_bg.wasm
 .shellspec
 **/node_modules
 tests/env_spec.sh
-firmware/tests/__pycache__
+apps/ceratina/tests/__pycache__
 learning/assembly/build/
 config/data.sqld
 

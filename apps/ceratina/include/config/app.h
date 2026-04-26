@@ -3,7 +3,6 @@
 
 #include "features.h"
 
-#include <cstddef>
 #include <cstdint>
 
 namespace config {
@@ -68,6 +67,16 @@ namespace config {
       inline constexpr const char* AUTH_USER     = CONFIG_SSH_USER;
       inline constexpr const char* AUTH_PASSWORD = CONFIG_SSH_USER;
       inline constexpr const char* AUTH_REALM    = "ceratina";
+  }
+
+  namespace tunnel {
+      inline constexpr const char* NVS_NAMESPACE  = "tunnel";
+      inline constexpr uint16_t    LOCAL_PORT     = 80;
+      inline constexpr uint16_t    CONNECT_MS     = 10000;
+      inline constexpr uint16_t    LOCAL_TIMEOUT_MS = 5000;
+      inline constexpr uint32_t    PROXY_IDLE_MS  = 30000;
+      inline constexpr const char* BORE_HOST      = "bore.pub";
+      inline constexpr const char* WS_PATH        = "/api/tunnel/ws";
   }
 
   namespace shell {

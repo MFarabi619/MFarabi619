@@ -16,6 +16,9 @@ on boards without an led-strip alias (e.g. Walter).
 +#include <zephyr/net/net_mgmt.h>
 +#include <zephyr/net/net_if.h>
 +#include <zephyr/net/wifi_mgmt.h>
++#include <zephyr/net/wifi_credentials.h>
++#include <zephyr/net/http/server.h>
++#include <zephyr/net/http/service.h>
 +#include <zephyr/shell/shell.h>
 +#include <zephyr/shell/shell_uart.h>
 +#include <zephyr/net/hostname.h>
@@ -28,6 +31,68 @@ on boards without an led-strip alias (e.g. Walter).
 +static inline int zr_wifi_connect_stored(void) {
 +	return net_mgmt(NET_REQUEST_WIFI_CONNECT_STORED,
 +			net_if_get_default(), NULL, 0);
++}
++
++static inline int zr_wifi_scan(void) {
++	return net_mgmt(NET_REQUEST_WIFI_SCAN,
++			net_if_get_default(), NULL, 0);
++}
++
++static inline int zr_wifi_connect(const char *ssid, uint8_t ssid_len,
++				   const char *psk, uint8_t psk_len,
++				   uint8_t security, uint8_t channel) {
++	struct wifi_connect_req_params params = {
++		.ssid = (const uint8_t *)ssid,
++		.ssid_length = ssid_len,
++		.psk = (const uint8_t *)psk,
++		.psk_length = psk_len,
++		.security = security,
++		.channel = channel,
++	};
++	return net_mgmt(NET_REQUEST_WIFI_CONNECT,
++			net_if_get_default(), &params, sizeof(params));
++}
++
++static inline int zr_wifi_disconnect(void) {
++	return net_mgmt(NET_REQUEST_WIFI_DISCONNECT,
++			net_if_get_default(), NULL, 0);
++}
++
++static inline int zr_wifi_ap_enable(const char *ssid, uint8_t ssid_len,
++				     const char *psk, uint8_t psk_len,
++				     uint8_t channel) {
++	struct wifi_connect_req_params params = {
++		.ssid = (const uint8_t *)ssid,
++		.ssid_length = ssid_len,
++		.psk = (const uint8_t *)psk,
++		.psk_length = psk_len,
++		.security = WIFI_SECURITY_TYPE_PSK,
++		.channel = channel,
++	};
++	return net_mgmt(NET_REQUEST_WIFI_AP_ENABLE,
++			net_if_get_default(), &params, sizeof(params));
++}
++
++static inline int zr_wifi_ap_disable(void) {
++	return net_mgmt(NET_REQUEST_WIFI_AP_DISABLE,
++			net_if_get_default(), NULL, 0);
++}
++
++static inline int zr_wifi_credentials_set(const char *ssid, size_t ssid_len,
++					   const char *password, size_t password_len) {
++	return wifi_credentials_set_personal(ssid, ssid_len,
++					     WIFI_SECURITY_TYPE_PSK,
++					     NULL, 0,
++					     password, password_len,
++					     0, 0, 0);
++}
++
++static inline int zr_wifi_credentials_delete_all(void) {
++	return wifi_credentials_delete_all();
++}
++
++static inline bool zr_wifi_credentials_is_empty(void) {
++	return wifi_credentials_is_empty();
 +}
 +
 +static inline const struct shell *zr_shell_backend_uart_get_ptr(void) {
@@ -44,6 +109,10 @@ on boards without an led-strip alias (e.g. Walter).
 +
 +const uint64_t ZR_NET_EVENT_WIFI_CONNECT_RESULT = NET_EVENT_WIFI_CONNECT_RESULT;
 +const uint64_t ZR_NET_EVENT_WIFI_DISCONNECT_RESULT = NET_EVENT_WIFI_DISCONNECT_RESULT;
++const uint64_t ZR_NET_EVENT_WIFI_SCAN_RESULT = NET_EVENT_WIFI_SCAN_RESULT;
++const uint64_t ZR_NET_EVENT_WIFI_SCAN_DONE = NET_EVENT_WIFI_SCAN_DONE;
++const uint64_t ZR_NET_EVENT_WIFI_AP_ENABLE_RESULT = NET_EVENT_WIFI_AP_ENABLE_RESULT;
++const uint64_t ZR_NET_EVENT_WIFI_AP_STA_CONNECTED = NET_EVENT_WIFI_AP_STA_CONNECTED;
 
 --- a/zephyr-sys/build.rs
 +++ b/zephyr-sys/build.rs
@@ -54,11 +123,25 @@ on boards without an led-strip alias (e.g. Walter).
 +        .allowlist_function("shell_.*")
 +        .allowlist_function("net_hostname_.*")
 +        .allowlist_function("sensor_.*")
++        .allowlist_function("wifi_credentials_.*")
++        .allowlist_function("http_server_start")
++        .allowlist_function("http_server_stop")
++        .allowlist_function("k_msleep")
 
 @@ allowlist_item
 +        .allowlist_item("NET_EVENT_WIFI_.*")
 +        .allowlist_item("NET_REQUEST_WIFI_.*")
 +        .allowlist_item("SENSOR_.*")
++        .allowlist_item("WIFI_SECURITY_TYPE_.*")
++        .allowlist_item("wifi_scan_result")
++        .allowlist_item("wifi_connect_req_params")
++        .allowlist_item("http_client_ctx")
++        .allowlist_item("http_transaction_status.*")
++        .allowlist_item("http_request_ctx")
++        .allowlist_item("http_response_ctx")
++        .allowlist_item("http_status.*")
++        .allowlist_item("http_method.*")
++        .allowlist_item("HTTP_RESOURCE_TYPE_.*")
 
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt

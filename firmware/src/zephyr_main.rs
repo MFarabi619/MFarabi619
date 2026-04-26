@@ -21,6 +21,13 @@ extern "C" fn rust_main() {
     crate::wifi::init();
 
     unsafe {
+        let ret = http_server_start();
+        if ret == 0 {
+            info!("HTTP server started");
+        } else {
+            info!("HTTP server start failed: {}", ret);
+        }
+
         let ppp_iface = get_ppp_iface();
         if !ppp_iface.is_null() {
             let ret = net_if_up(ppp_iface);
@@ -37,7 +44,7 @@ extern "C" fn rust_main() {
     // }
 
     let executor = EXECUTOR.init(Executor::new());
-    executor.run(|spawner| {
+    executor.run(|spawner: embassy_executor::Spawner| {
         spawner.spawn(crate::wifi::task().unwrap());
     })
 }

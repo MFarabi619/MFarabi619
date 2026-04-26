@@ -11,6 +11,73 @@
 
 namespace {
 
+const char *tunnel_provider_label(::networking::tunnel::Provider provider) {
+  switch (provider) {
+    case ::networking::tunnel::ProviderBore:
+      return "bore";
+    case ::networking::tunnel::ProviderSelfHosted:
+      return "self-hosted";
+    case ::networking::tunnel::ProviderLocaltunnel:
+      return "localtunnel";
+    default:
+      return "disabled";
+  }
+}
+
+bool parse_tunnel_provider(const String &provider, ::networking::tunnel::Provider *parsed_provider) {
+  if (!parsed_provider) return false;
+  if (provider == "bore") {
+    *parsed_provider = ::networking::tunnel::ProviderBore;
+    return true;
+  }
+  if (provider == "self-hosted") {
+    *parsed_provider = ::networking::tunnel::ProviderSelfHosted;
+    return true;
+  }
+  if (provider == "localtunnel") {
+    *parsed_provider = ::networking::tunnel::ProviderLocaltunnel;
+    return true;
+  }
+  if (provider == "disabled") {
+    *parsed_provider = ::networking::tunnel::ProviderDisabled;
+    return true;
+  }
+  return false;
+}
+
+void fill_tunnel_config(JsonObject &data, const ::networking::tunnel::Config &config) {
+  data["enabled"] = config.enabled;
+  data["provider"] = tunnel_provider_label(config.provider);
+  data["host"] = config.host;
+  data["path"] = config.path;
+  data["local_port"] = config.local_port;
+  data["reconnect"] = config.reconnect;
+}
+
+void fill_tunnel_status(JsonObject &data) {
+  ::networking::tunnel::Config config = {};
+  ::networking::tunnel::Snapshot snapshot = {};
+  ::networking::tunnel::accessConfig(config);
+  ::networking::tunnel::accessSnapshot(snapshot);
+
+  JsonObject config_data = data["config"].to<JsonObject>();
+  fill_tunnel_config(config_data, config);
+  JsonObject runtime = data["runtime"].to<JsonObject>();
+  runtime["enabled"] = snapshot.enabled;
+  runtime["started"] = snapshot.started;
+  runtime["stopped"] = snapshot.stopped;
+  runtime["ready"] = snapshot.ready;
+  runtime["provider"] = ::networking::tunnel::accessProviderName();
+  runtime["phase"] = (int)snapshot.phase;
+  runtime["url"] = snapshot.url;
+  runtime["remote_port"] = snapshot.remote_port;
+  runtime["last_client_ip"] = ::networking::tunnel::accessLastClientIP();
+  runtime["connect_attempts"] = snapshot.connect_attempts;
+  runtime["backoff_ms"] = snapshot.backoff_ms;
+  runtime["last_error_at"] = snapshot.last_error_at;
+  runtime["last_error"] = snapshot.last_error;
+}
+
 void fill_wireless_status(JsonObject &data) {
   NetworkStatusSnapshot snapshot = {};
   ::networking::wifi::accessSnapshot(&snapshot);
@@ -122,9 +189,114 @@ void services::http::api::networking::registerRoutes(AsyncWebServer &server,
     AsyncJsonResponse *response = new AsyncJsonResponse();
     JsonObject root = response->getRoot().to<JsonObject>();
     root["ok"] = true;
-    root["enabled"] = (bool)CERATINA_TUNNEL_ENABLED;
-    root["ready"] = ::networking::tunnel::isReady();
-    root["url"] = ::networking::tunnel::accessURL();
+    JsonObject data = root["data"].to<JsonObject>();
+    fill_tunnel_status(data);
+    response->setLength();
+    request->send(response);
+  });
+  server.on("/api/tunnel/config", HTTP_GET, [](AsyncWebServerRequest *request) {
+    ::networking::tunnel::Config config = {};
+    ::networking::tunnel::accessConfig(config);
+
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = true;
+    JsonObject data = root["data"].to<JsonObject>();
+    fill_tunnel_config(data, config);
+    response->setLength();
+    request->send(response);
+  });
+  AsyncCallbackJsonWebHandler &tunnel_config_handler =
+      server.on("/api/tunnel/config", HTTP_POST,
+          [](AsyncWebServerRequest *request, JsonVariant &json) {
+    ::networking::tunnel::Config config = {};
+    ::networking::tunnel::accessConfig(config);
+
+    JsonObject body = json.as<JsonObject>();
+    if (!body["enabled"].isNull()) {
+      config.enabled = body["enabled"] | config.enabled;
+    }
+    if (!body["provider"].isNull()) {
+      String provider = body["provider"] | "";
+      ::networking::tunnel::Provider parsed_provider = config.provider;
+      if (parse_tunnel_provider(provider, &parsed_provider)) {
+        config.provider = parsed_provider;
+      }
+    }
+    if (!body["host"].isNull()) {
+      strlcpy(config.host, body["host"] | "", sizeof(config.host));
+    }
+    if (!body["path"].isNull()) {
+      strlcpy(config.path, body["path"] | "", sizeof(config.path));
+    }
+    if (!body["local_port"].isNull()) {
+      config.local_port = body["local_port"] | config.local_port;
+    }
+    if (!body["reconnect"].isNull()) {
+      config.reconnect = body["reconnect"] | config.reconnect;
+    }
+
+    bool stored = ::networking::tunnel::storeConfig(&config);
+    if (stored) {
+      ::networking::tunnel::configure(config);
+    }
+
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = stored;
+    JsonObject data = root["data"].to<JsonObject>();
+    fill_tunnel_status(data);
+    response->setLength();
+    request->send(response);
+  });
+  tunnel_config_handler.setMaxContentLength(512);
+  server.on("/api/tunnel/actions/enable", HTTP_POST, [](AsyncWebServerRequest *request) {
+    ::networking::tunnel::Config config = {};
+    ::networking::tunnel::accessConfig(config);
+    config.enabled = true;
+    bool stored = ::networking::tunnel::storeConfig(&config);
+    if (stored) {
+      ::networking::tunnel::enable();
+    }
+
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = stored;
+    JsonObject data = root["data"].to<JsonObject>();
+    fill_tunnel_status(data);
+    response->setLength();
+    request->send(response);
+  });
+  server.on("/api/tunnel/actions/disable", HTTP_POST, [](AsyncWebServerRequest *request) {
+    ::networking::tunnel::Config config = {};
+    ::networking::tunnel::accessConfig(config);
+    config.enabled = false;
+    bool stored = ::networking::tunnel::storeConfig(&config);
+    if (stored) {
+      ::networking::tunnel::disable();
+    }
+
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = stored;
+    JsonObject data = root["data"].to<JsonObject>();
+    fill_tunnel_status(data);
+    response->setLength();
+    request->send(response);
+  });
+  server.on("/api/tunnel/actions/restart", HTTP_POST, [](AsyncWebServerRequest *request) {
+    ::networking::tunnel::Config config = {};
+    ::networking::tunnel::accessConfig(config);
+    ::networking::tunnel::stop();
+    if (config.enabled) {
+      ::networking::tunnel::initialize();
+    }
+
+    AsyncJsonResponse *response = new AsyncJsonResponse();
+    JsonObject root = response->getRoot().to<JsonObject>();
+    root["ok"] = true;
+    JsonObject data = root["data"].to<JsonObject>();
+    fill_tunnel_status(data);
     response->setLength();
     request->send(response);
   });

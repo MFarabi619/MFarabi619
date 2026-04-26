@@ -93,6 +93,21 @@ struct NvsBoolSnapshot {
   bool exists;
 };
 
+struct NvsUCharSnapshot {
+  uint8_t value;
+  bool exists;
+};
+
+struct NvsUShortSnapshot {
+  uint16_t value;
+  bool exists;
+};
+
+struct NvsUIntSnapshot {
+  uint32_t value;
+  bool exists;
+};
+
 static inline void nvs_snapshot_string(Preferences &prefs, const char *key,
                                        NvsStringSnapshot *snap) {
   snap->exists = prefs.isKey(key);
@@ -117,6 +132,42 @@ static inline void nvs_restore_string(Preferences &prefs, const char *key,
 static inline void nvs_restore_bool(Preferences &prefs, const char *key,
                                     const NvsBoolSnapshot *snap) {
   if (snap->exists) prefs.putBool(key, snap->value);
+}
+
+static inline void nvs_snapshot_uchar(Preferences &prefs, const char *key,
+                                      NvsUCharSnapshot *snap,
+                                      uint8_t default_value) {
+  snap->exists = prefs.isKey(key);
+  snap->value = prefs.getUChar(key, default_value);
+}
+
+static inline void nvs_restore_uchar(Preferences &prefs, const char *key,
+                                     const NvsUCharSnapshot *snap) {
+  if (snap->exists) prefs.putUChar(key, snap->value);
+}
+
+static inline void nvs_snapshot_ushort(Preferences &prefs, const char *key,
+                                       NvsUShortSnapshot *snap,
+                                       uint16_t default_value) {
+  snap->exists = prefs.isKey(key);
+  snap->value = prefs.getUShort(key, default_value);
+}
+
+static inline void nvs_restore_ushort(Preferences &prefs, const char *key,
+                                      const NvsUShortSnapshot *snap) {
+  if (snap->exists) prefs.putUShort(key, snap->value);
+}
+
+static inline void nvs_snapshot_uint(Preferences &prefs, const char *key,
+                                     NvsUIntSnapshot *snap,
+                                     uint32_t default_value) {
+  snap->exists = prefs.isKey(key);
+  snap->value = prefs.getUInt(key, default_value);
+}
+
+static inline void nvs_restore_uint(Preferences &prefs, const char *key,
+                                    const NvsUIntSnapshot *snap) {
+  if (snap->exists) prefs.putUInt(key, snap->value);
 }
 
 struct WifiNvsSnapshot {
@@ -156,6 +207,90 @@ static inline void wifi_nvs_restore(const WifiNvsSnapshot *snap) {
   nvs_restore_string(prefs, "ap_ssid", &snap->ap_ssid);
   nvs_restore_string(prefs, "ap_pass", &snap->ap_pass);
   nvs_restore_bool(prefs, "ap_on", &snap->ap_on);
+  prefs.end();
+}
+
+struct ProvisioningNvsSnapshot {
+  NvsStringSnapshot username;
+  NvsStringSnapshot api_key;
+  NvsStringSnapshot device_name;
+};
+
+static inline void provisioning_nvs_save(ProvisioningNvsSnapshot *snap) {
+  Preferences prefs;
+  if (!prefs.begin(config::provisioning::NVS_NAMESPACE, true)) return;
+  nvs_snapshot_string(prefs, "username", &snap->username);
+  nvs_snapshot_string(prefs, "api_key", &snap->api_key);
+  nvs_snapshot_string(prefs, "device_name", &snap->device_name);
+  prefs.end();
+}
+
+static inline void provisioning_nvs_restore(const ProvisioningNvsSnapshot *snap) {
+  Preferences prefs;
+  if (!prefs.begin(config::provisioning::NVS_NAMESPACE, false)) return;
+  prefs.clear();
+  nvs_restore_string(prefs, "username", &snap->username);
+  nvs_restore_string(prefs, "api_key", &snap->api_key);
+  nvs_restore_string(prefs, "device_name", &snap->device_name);
+  prefs.end();
+}
+
+struct TunnelNvsSnapshot {
+  NvsBoolSnapshot enabled;
+  NvsUCharSnapshot provider;
+  NvsStringSnapshot host;
+  NvsUShortSnapshot local_port;
+  NvsStringSnapshot path;
+  NvsBoolSnapshot reconnect;
+};
+
+static inline void tunnel_nvs_save(TunnelNvsSnapshot *snap) {
+  Preferences prefs;
+  if (!prefs.begin(config::tunnel::NVS_NAMESPACE, true)) return;
+  nvs_snapshot_bool(prefs, "enabled", &snap->enabled, true);
+  nvs_snapshot_uchar(prefs, "provider", &snap->provider, 0);
+  nvs_snapshot_string(prefs, "host", &snap->host);
+  nvs_snapshot_ushort(prefs, "local_port", &snap->local_port,
+                      config::tunnel::LOCAL_PORT);
+  nvs_snapshot_string(prefs, "path", &snap->path);
+  nvs_snapshot_bool(prefs, "reconnect", &snap->reconnect, true);
+  prefs.end();
+}
+
+static inline void tunnel_nvs_restore(const TunnelNvsSnapshot *snap) {
+  Preferences prefs;
+  if (!prefs.begin(config::tunnel::NVS_NAMESPACE, false)) return;
+  prefs.clear();
+  nvs_restore_bool(prefs, "enabled", &snap->enabled);
+  nvs_restore_uchar(prefs, "provider", &snap->provider);
+  nvs_restore_string(prefs, "host", &snap->host);
+  nvs_restore_ushort(prefs, "local_port", &snap->local_port);
+  nvs_restore_string(prefs, "path", &snap->path);
+  nvs_restore_bool(prefs, "reconnect", &snap->reconnect);
+  prefs.end();
+}
+
+struct SleepNvsSnapshot {
+  NvsBoolSnapshot enabled;
+  NvsUIntSnapshot duration_seconds;
+};
+
+static inline void sleep_nvs_save(SleepNvsSnapshot *snap) {
+  Preferences prefs;
+  if (!prefs.begin(config::sleep::NVS_NAMESPACE, true)) return;
+  nvs_snapshot_bool(prefs, config::sleep::ENABLED_KEY, &snap->enabled,
+                    config::sleep::DEFAULT_ENABLED);
+  nvs_snapshot_uint(prefs, config::sleep::DURATION_KEY, &snap->duration_seconds,
+                    config::sleep::DEFAULT_DURATION_SECONDS);
+  prefs.end();
+}
+
+static inline void sleep_nvs_restore(const SleepNvsSnapshot *snap) {
+  Preferences prefs;
+  if (!prefs.begin(config::sleep::NVS_NAMESPACE, false)) return;
+  prefs.clear();
+  nvs_restore_bool(prefs, config::sleep::ENABLED_KEY, &snap->enabled);
+  nvs_restore_uint(prefs, config::sleep::DURATION_KEY, &snap->duration_seconds);
   prefs.end();
 }
 
