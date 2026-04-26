@@ -1,3 +1,12 @@
+\getenv devenv_root DEVENV_ROOT
+\if :{?devenv_root}
+  \cd :devenv_root/learning/sql/src
+\else
+  \echo 'DEVENV_ROOT is not set'
+  \quit 1
+\endif
+
+
 \x off
 \timing 1
 \pset border 2

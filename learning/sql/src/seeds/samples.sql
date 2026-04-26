@@ -71,6 +71,20 @@ CROSS JOIN LATERAL (
 
     SELECT
         0 AS instance_index,
+        co2_metric.metric_name,
+        co2_metric.metric_value
+    FROM (
+        VALUES
+            ('co2_ppm', (events.data ->> 'co2_ppm')::double precision),
+            ('temperature', (events.data ->> 'temperature')::double precision),
+            ('humidity', (events.data ->> 'humidity')::double precision)
+    ) AS co2_metric(metric_name, metric_value)
+    WHERE events.type = 'sensors.carbon_dioxide.v1'
+
+    UNION ALL
+
+    SELECT
+        0 AS instance_index,
         status_metric.metric_name,
         status_metric.metric_value
     FROM (
@@ -85,4 +99,5 @@ CROSS JOIN LATERAL (
 ) AS metric_extraction(instance_index, metric_name, metric_value)
 JOIN metrics
     ON metrics.type = events.type
-   AND metrics.name = metric_extraction.metric_name;
+   AND metrics.name = metric_extraction.metric_name
+ON CONFLICT DO NOTHING;

@@ -11,3 +11,5 @@ CREATE TABLE events(
 );
 
 SELECT create_hypertable('events', 'time', if_not_exists => TRUE);
+
+CREATE UNIQUE INDEX events_time_name_index ON events (time, name);
