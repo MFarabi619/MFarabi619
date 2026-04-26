@@ -5,19 +5,6 @@
 }:
 {
   scripts = {
-    # doctor = {
-    #   packages = with pkgs; [
-    #     figlet
-    #     shellspec
-    #   ];
-
-    #   description = " 💊 Run Microdoctor health-check suite with docs output";
-    #   exec = ''
-    #     figlet -cf slant "💊 Microdoctor";
-    #     shellspec -c "${config.git.root}/tests" --quiet "$@";
-    #   '';
-    # };
-
     docs = {
       description = " 📚 RTFM";
       exec = "bunx likec4 start ${config.git.root}/docs";
