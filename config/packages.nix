@@ -1,12 +1,16 @@
 {
   lib,
   pkgs,
+  inputs,
   config,
   ...
 }:
+let
+  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+in
 {
   packages =
-    with pkgs;
+    with pkgs-unstable;
     [
       pulumi
       pulumi-esc
@@ -20,12 +24,21 @@
       trunk # rust web app server
       rustywind
     ]
+    ++ [
+      ninja
+      ccache
+      openocd
+      esptool
+    ]
     ++ lib.optionals config.languages.ruby.enable [
       # rails new --help
       rubyPackages_3_4.rails # rails new store -Gc tailwind --skip-ci
     ]
-    ++ lib.optionals config.services.postgres.enable [
-      # postgresql_18 # for emacs to access `psql`
+    ++ lib.optionals stdenv.isDarwin [
+      binsider
+      dfu-util
+      kconfig-frontends
+      python314Packages.kconfiglib
     ]
     ++ lib.optionals stdenv.isLinux [
       # netscanner

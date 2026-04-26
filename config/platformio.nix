@@ -1,8 +1,0 @@
-{
-  ...
-}:
-{
-  platformio = {
-    enable = true;
-  };
-}

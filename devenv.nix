@@ -31,7 +31,6 @@
     "/packages.nix"
     "/processes.nix"
     "/containers.nix"
-    "/platformio.nix"
     "/devcontainer.nix"
   ];
 
