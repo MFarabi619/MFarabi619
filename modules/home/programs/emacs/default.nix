@@ -30,6 +30,7 @@
       in
       with epkgs;
       [
+        disaster
         # dts-mode
         devicetree-ts-mode
         abc-mode
