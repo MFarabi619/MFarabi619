@@ -18,10 +18,7 @@
       "rust-analyzer"
     ];
 
-    # development.yaml is now tangled from CONTRIBUTING.org
     loco.enable = true;
-
-    # Dioxus.toml is now tangled from CONTRIBUTING.org
     dioxus = {
       enable = true;
       desktop.linux.enable = false;
