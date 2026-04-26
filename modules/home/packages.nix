@@ -8,16 +8,18 @@
     packages =
       with pkgs;
       [
+        esptool
         (python314.withPackages (
           ps: with ps; [
             west
             tqdm
             cbor
+            pyusb
             cbor2
             click
             semver
             patool
-            esptool
+            pyserial
             intelhex
             requests
             pyelftools
