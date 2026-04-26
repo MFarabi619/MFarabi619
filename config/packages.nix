@@ -22,10 +22,9 @@ in
     ]
     ++ [
       sqlite
-      # duckdb
       supabase-cli
-
-      libyaml
+    ]
+    ++ [
       trunk # rust web app server
       rustywind
     ]
@@ -35,8 +34,24 @@ in
       openocd
       esptool
     ]
+    ++ [
+      SDL2 # for embedded TUI simulator
+      espup
+      rustup
+      openocd
+      esptool
+      ldproxy
+      espflash
+      esp-generate
+      cargo-embassy
+      cargo-generate
+      (probe-rs-tools.overrideAttrs (old: {
+        cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
+      }))
+    ]
     ++ lib.optionals config.languages.ruby.enable [
       # rails new --help
+      libyaml
       rubyPackages_3_4.rails # rails new store -Gc tailwind --skip-ci
     ]
     ++ lib.optionals stdenv.isDarwin [

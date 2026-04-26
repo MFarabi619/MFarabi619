@@ -1,3 +1,0 @@
-{
-  microvisor.embassy.enable = true;
-}
