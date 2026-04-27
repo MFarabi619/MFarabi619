@@ -35,8 +35,6 @@ pub fn Home() -> Element {
 
     // Connection state
     let mut is_connected = use_signal(|| false);
-    let mut resolved_url = use_signal(String::new);
-
     // Device data
     let mut status = use_signal(|| None::<api::DeviceStatusData>);
     let mut wireless = use_signal(|| None::<api::WirelessStatusData>);
@@ -102,22 +100,12 @@ pub fn Home() -> Element {
             .unwrap_or(0.0)
     });
 
-    use_effect(move || {
-        let _ = device_url.read();
-        resolved_url.set(String::new());
-    });
-
     // ── Polling loop ──
     let toasts = Toasts;
     let mut poller = use_future(move || async move {
         let mut tick: u32 = 0;
         loop {
-            let resolved = resolved_url.peek().clone();
-            let url = if resolved.is_empty() {
-                device_url.read().clone()
-            } else {
-                resolved
-            };
+            let url = device_url.read().clone();
 
             // CO2 config on first tick
             if tick == 0 {
@@ -138,14 +126,6 @@ pub fn Home() -> Element {
                             device_ctx.heap_memory.set(format!("{free_kb}/{total_kb} KB"));
                         }
 
-                        if resolved_url.peek().is_empty() {
-                            let ip = &envelope.data.network.ipv4_address;
-                            if !ip.is_empty() {
-                                let protocol = if url.starts_with("https://") { "https://" } else { "http://" };
-                                resolved_url.set(format!("{protocol}{ip}"));
-                            }
-                        }
-
                         status.set(Some(envelope.data));
                         is_connected.set(true);
                         if !was_connected {
@@ -163,7 +143,6 @@ pub fn Home() -> Element {
                             toasts.error(format!("Disconnected: {error}"), None);
                         }
                         is_connected.set(false);
-                        resolved_url.set(String::new());
                     }
                 }
             }
@@ -309,8 +288,8 @@ pub fn Home() -> Element {
                         "Polling for device...".to_string()
                     };
 
-                    let href = if connected && !ip.is_empty() {
-                        Some(format!("http://{ip}"))
+                    let href = if connected {
+                        Some(device_url.read().clone())
                     } else {
                         None
                     };

@@ -1,6 +1,7 @@
 #include "cloudevents.h"
 #include <config.h>
 #include <services/system.h>
+#include <networking/tunnel.h>
 #include "../sensors/registry.h"
 #include <manager.h>
 
@@ -40,6 +41,19 @@ static String cloudevents_now_iso8601(void) {
   return String(buffer);
 }
 
+static const char *cloudevents_tunnel_provider_name(networking::tunnel::Provider provider) {
+  switch (provider) {
+    case networking::tunnel::ProviderBore:
+      return "bore";
+    case networking::tunnel::ProviderSelfHosted:
+      return "self-hosted";
+    case networking::tunnel::ProviderLocaltunnel:
+      return "localtunnel";
+    default:
+      return "disabled";
+  }
+}
+
 static JsonObject cloudevents_add_event(JsonArray events, uint16_t sequence,
                                         const String &source,
                                         const char *type_name,
@@ -70,6 +84,11 @@ static void append_status_event(JsonArray events, uint16_t sequence,
     .snapshot = {},
   };
   services::system::accessSnapshot(&query);
+  networking::tunnel::Config tunnel_config = {};
+  networking::tunnel::Snapshot tunnel_snapshot = {};
+  networking::tunnel::accessConfig(tunnel_config);
+  networking::tunnel::accessSnapshot(tunnel_snapshot);
+
   data["memory_heap"] = query.snapshot.heap_free;
   data["chip_model"] = query.snapshot.chip_model;
   data["chip_cores"] = query.snapshot.chip_cores;
@@ -77,6 +96,17 @@ static void append_status_event(JsonArray events, uint16_t sequence,
   data["ipv4_address"] = query.snapshot.network.ip;
   data["wifi_rssi"] = query.snapshot.network.rssi;
   data["uptime_seconds"] = millis() / 1000UL;
+
+  JsonObject tunnel = data["tunnel"].to<JsonObject>();
+  tunnel["enabled"] = tunnel_config.enabled;
+  tunnel["requested_provider"] = cloudevents_tunnel_provider_name(tunnel_config.provider);
+  tunnel["requested_remote_port"] = tunnel_config.remote_port;
+  tunnel["active_provider"] = cloudevents_tunnel_provider_name(tunnel_snapshot.provider);
+  tunnel["ready"] = tunnel_snapshot.ready;
+  tunnel["url"] = tunnel_snapshot.url;
+  tunnel["remote_port"] = tunnel_snapshot.remote_port;
+  tunnel["connect_attempts"] = tunnel_snapshot.connect_attempts;
+  tunnel["last_error"] = tunnel_snapshot.last_error;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

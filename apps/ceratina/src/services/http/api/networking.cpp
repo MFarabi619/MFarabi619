@@ -49,8 +49,10 @@ void fill_tunnel_config(JsonObject &data, const ::networking::tunnel::Config &co
   data["enabled"] = config.enabled;
   data["provider"] = tunnel_provider_label(config.provider);
   data["host"] = config.host;
+  data["has_secret"] = config.secret[0] != '\0';
   data["path"] = config.path;
   data["local_port"] = config.local_port;
+  data["remote_port"] = config.remote_port;
   data["reconnect"] = config.reconnect;
 }
 
@@ -63,6 +65,8 @@ void fill_tunnel_status(JsonObject &data) {
   JsonObject config_data = data["config"].to<JsonObject>();
   fill_tunnel_config(config_data, config);
   JsonObject runtime = data["runtime"].to<JsonObject>();
+  runtime["requested_provider"] = tunnel_provider_label(config.provider);
+  runtime["requested_remote_port"] = config.remote_port;
   runtime["enabled"] = snapshot.enabled;
   runtime["started"] = snapshot.started;
   runtime["stopped"] = snapshot.stopped;
@@ -226,11 +230,17 @@ void services::http::api::networking::registerRoutes(AsyncWebServer &server,
     if (!body["host"].isNull()) {
       strlcpy(config.host, body["host"] | "", sizeof(config.host));
     }
+    if (!body["secret"].isNull()) {
+      strlcpy(config.secret, body["secret"] | "", sizeof(config.secret));
+    }
     if (!body["path"].isNull()) {
       strlcpy(config.path, body["path"] | "", sizeof(config.path));
     }
     if (!body["local_port"].isNull()) {
       config.local_port = body["local_port"] | config.local_port;
+    }
+    if (!body["remote_port"].isNull()) {
+      config.remote_port = body["remote_port"] | config.remote_port;
     }
     if (!body["reconnect"].isNull()) {
       config.reconnect = body["reconnect"] | config.reconnect;

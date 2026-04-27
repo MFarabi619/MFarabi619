@@ -12,6 +12,8 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <lwip/sockets.h>
+#include <mbedtls/md.h>
+#include <mbedtls/sha256.h>
 
 #include <time.h>
 
@@ -70,6 +72,8 @@ const char *provider_name(networking::tunnel::Provider provider) {
 }
 
 String normalize_device_path_identifier(const String &raw_identifier);
+String receive_null_delimited_message(WiFiClient &client, int timeout_milliseconds);
+void send_null_delimited_message(WiFiClient &client, const String &message);
 
 void delay_short() {
   vTaskDelay(pdMS_TO_TICKS(1));
@@ -201,25 +205,33 @@ void normalize_config(const networking::tunnel::Config &input,
   output->enabled = input.enabled;
   output->provider = input.provider;
   output->local_port = input.local_port > 0 ? input.local_port : config::tunnel::LOCAL_PORT;
+  output->remote_port = input.remote_port;
   output->reconnect = input.reconnect;
 
   String normalized_host = trim_and_strip_trailing_slashes(input.host);
   strlcpy(output->host, normalized_host.c_str(), sizeof(output->host));
 
-  String normalized_path = input.path;
-  normalized_path.trim();
-  while (normalized_path.startsWith("/")) {
-    normalized_path.remove(0, 1);
-  }
-  while (normalized_path.endsWith("/")) {
-    normalized_path.remove(normalized_path.length() - 1);
-  }
-  if (!normalized_path.length()) {
-    normalized_path = derive_default_device_path();
-  } else {
-    normalized_path = normalize_device_path_identifier(normalized_path);
+  String normalized_secret = input.secret ? input.secret : "";
+  normalized_secret.trim();
+  strlcpy(output->secret, normalized_secret.c_str(), sizeof(output->secret));
+
+  String normalized_path;
+  if (output->provider == networking::tunnel::ProviderSelfHosted) {
+    normalized_path = input.path;
+    normalized_path.trim();
+    while (normalized_path.startsWith("/")) {
+      normalized_path.remove(0, 1);
+    }
+    while (normalized_path.endsWith("/")) {
+      normalized_path.remove(normalized_path.length() - 1);
+    }
     if (!normalized_path.length()) {
       normalized_path = derive_default_device_path();
+    } else {
+      normalized_path = normalize_device_path_identifier(normalized_path);
+      if (!normalized_path.length()) {
+        normalized_path = derive_default_device_path();
+      }
     }
   }
   strlcpy(output->path, normalized_path.c_str(), sizeof(output->path));
@@ -227,10 +239,12 @@ void normalize_config(const networking::tunnel::Config &input,
 
 void configure_default_config() {
   networking::tunnel::Config defaults = {};
-  defaults.enabled = true;
-  defaults.provider = networking::tunnel::ProviderSelfHosted;
-  defaults.host[0] = '\0';
+  defaults.enabled = CONFIG_TUNNEL_DEFAULT_ENABLED;
+  defaults.provider = networking::tunnel::ProviderBore;
+  strlcpy(defaults.host, CONFIG_TUNNEL_HOST, sizeof(defaults.host));
+  strlcpy(defaults.secret, CONFIG_TUNNEL_SECRET, sizeof(defaults.secret));
   defaults.local_port = config::tunnel::LOCAL_PORT;
+  defaults.remote_port = CONFIG_TUNNEL_REMOTE_PORT;
   defaults.path[0] = '\0';
   defaults.reconnect = true;
   normalize_config(defaults, &state.config);
@@ -245,12 +259,14 @@ bool load_persisted_config() {
   if (!open_preferences(true, &preferences)) return false;
 
   networking::tunnel::Config loaded = {};
-  loaded.enabled = preferences.getBool("enabled", true);
+  loaded.enabled = preferences.getBool("enabled", CONFIG_TUNNEL_DEFAULT_ENABLED);
   loaded.provider = static_cast<networking::tunnel::Provider>(
-    preferences.getUChar("provider", static_cast<uint8_t>(networking::tunnel::ProviderSelfHosted))
+    preferences.getUChar("provider", static_cast<uint8_t>(networking::tunnel::ProviderBore))
   );
   preferences.getString("host", loaded.host, sizeof(loaded.host));
+  preferences.getString("secret", loaded.secret, sizeof(loaded.secret));
   loaded.local_port = preferences.getUShort("local_port", config::tunnel::LOCAL_PORT);
+  loaded.remote_port = preferences.getUShort("remote_port", CONFIG_TUNNEL_REMOTE_PORT);
   preferences.getString("path", loaded.path, sizeof(loaded.path));
   loaded.reconnect = preferences.getBool("reconnect", true);
   preferences.end();
@@ -270,14 +286,117 @@ bool is_self_hosted_configured(const networking::tunnel::Config &config) {
   return config.host[0] != '\0' && config.path[0] != '\0';
 }
 
+bool is_bore_configured(const networking::tunnel::Config &config) {
+  return config.host[0] != '\0';
+}
+
+int decode_hex_nibble(char character) {
+  if (character >= '0' && character <= '9') return character - '0';
+  if (character >= 'a' && character <= 'f') return 10 + (character - 'a');
+  if (character >= 'A' && character <= 'F') return 10 + (character - 'A');
+  return -1;
+}
+
+bool parse_uuid_bytes(const String &uuid, uint8_t *output) {
+  if (!output) return false;
+
+  uint8_t bytes[16] = {};
+  int nibble_count = 0;
+  int high_nibble = -1;
+  for (size_t index = 0; index < uuid.length(); index++) {
+    char character = uuid.charAt(index);
+    if (character == '-') continue;
+
+    int nibble = decode_hex_nibble(character);
+    if (nibble < 0) return false;
+    if (high_nibble < 0) {
+      high_nibble = nibble;
+      continue;
+    }
+
+    if (nibble_count / 2 >= 16) return false;
+    bytes[nibble_count / 2] = static_cast<uint8_t>((high_nibble << 4) | nibble);
+    high_nibble = -1;
+    nibble_count += 2;
+  }
+
+  if (nibble_count != 32 || high_nibble >= 0) return false;
+  memcpy(output, bytes, sizeof(bytes));
+  return true;
+}
+
+String hex_encode(const uint8_t *buffer, size_t length) {
+  static constexpr char kHexDigits[] = "0123456789abcdef";
+  String output;
+  output.reserve(length * 2);
+  for (size_t index = 0; index < length; index++) {
+    output += kHexDigits[(buffer[index] >> 4) & 0x0f];
+    output += kHexDigits[buffer[index] & 0x0f];
+  }
+  return output;
+}
+
+String parse_challenge_uuid(const String &message) {
+  int position = message.indexOf("\"Challenge\":\"");
+  if (position < 0) return "";
+
+  int start = position + strlen("\"Challenge\":\"");
+  int end = message.indexOf('"', start);
+  if (end < 0) return "";
+  return message.substring(start, end);
+}
+
+bool compute_bore_authentication_tag(const char *secret, const String &challenge_uuid, String *tag) {
+  if (!secret || secret[0] == '\0' || !tag) return false;
+
+  uint8_t challenge_bytes[16] = {};
+  if (!parse_uuid_bytes(challenge_uuid, challenge_bytes)) return false;
+
+  uint8_t hashed_secret[32] = {};
+  mbedtls_sha256(reinterpret_cast<const unsigned char *>(secret), strlen(secret), hashed_secret, 0);
+
+  const mbedtls_md_info_t *md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+  if (!md_info) return false;
+
+  uint8_t digest[32] = {};
+  if (mbedtls_md_hmac(md_info, hashed_secret, sizeof(hashed_secret), challenge_bytes, sizeof(challenge_bytes), digest) != 0) {
+    return false;
+  }
+
+  *tag = hex_encode(digest, sizeof(digest));
+  return true;
+}
+
+bool authenticate_bore_connection(WiFiClient &connection) {
+  if (state.config.secret[0] == '\0') return true;
+
+  String challenge_message = receive_null_delimited_message(connection, 3000);
+  if (!challenge_message.length()) {
+    record_error("bore auth challenge timeout");
+    return false;
+  }
+
+  String challenge_uuid = parse_challenge_uuid(challenge_message);
+  if (!challenge_uuid.length()) {
+    record_error("bore auth challenge invalid");
+    return false;
+  }
+
+  String authentication_tag;
+  if (!compute_bore_authentication_tag(state.config.secret, challenge_uuid, &authentication_tag)) {
+    record_error("bore auth tag generation failed");
+    return false;
+  }
+
+  send_null_delimited_message(connection, "{\"Authenticate\":\"" + authentication_tag + "\"}");
+  return true;
+}
+
 networking::tunnel::Provider resolve_preferred_provider() {
   if (!state.config.enabled) return networking::tunnel::ProviderDisabled;
 
   if (state.config.provider == networking::tunnel::ProviderSelfHosted) {
-    if (is_self_hosted_configured(state.config)) {
-      return networking::tunnel::ProviderSelfHosted;
-    }
-    return networking::tunnel::ProviderBore;
+    return networking::tunnel::ProviderSelfHosted;
   }
 
   if (state.config.provider == networking::tunnel::ProviderBore) {
@@ -788,7 +907,6 @@ bool begin_websocket_frame(int payload_length) {
 bool send_websocket_json(const String &json) {
   if (!begin_websocket_frame(json.length())) return false;
   state.self_hosted.websocket->print(json);
-  state.self_hosted.websocket->flush();
   return true;
 }
 
@@ -980,9 +1098,13 @@ void stop_self_hosted() {
 void proxy_bore_bytes(WiFiClient &remote, WiFiClient &local) {
   uint8_t buffer[512] = {};
   unsigned long last_activity = millis();
-  while (remote.connected() && local.connected()
-         && millis() - last_activity < config::tunnel::PROXY_IDLE_MS) {
+
+  // HTTP responses from the SD card may still have buffered bytes available
+  // after one side has started closing. Keep draining both directions until
+  // both sides are idle instead of stopping on the first disconnect signal.
+  while (millis() - last_activity < config::tunnel::PROXY_IDLE_MS) {
     bool has_activity = false;
+
     if (remote.available()) {
       int bytes_read = remote.read(buffer, sizeof(buffer));
       if (bytes_read > 0) {
@@ -997,21 +1119,26 @@ void proxy_bore_bytes(WiFiClient &remote, WiFiClient &local) {
         has_activity = true;
       }
     }
+
     if (has_activity) {
       last_activity = millis();
-    } else {
-      delay_short();
+      continue;
     }
+
+    bool remote_open = remote.connected() || remote.available();
+    bool local_open = local.connected() || local.available();
+    if (!remote_open && !local_open) {
+      break;
+    }
+
+    delay_short();
   }
   remote.stop();
   local.stop();
 }
 
 const char *access_bore_host() {
-  if (state.config.provider == networking::tunnel::ProviderBore && state.config.host[0] != '\0') {
-    return state.config.host;
-  }
-  return config::tunnel::BORE_HOST;
+  return state.config.host;
 }
 
 void accept_bore_connection(const String &uuid, int slot) {
@@ -1019,6 +1146,10 @@ void accept_bore_connection(const String &uuid, int slot) {
   WiFiClient &local_connection = bore_local_connections[slot];
 
   if (!connect_to_host(proxy_connection, access_bore_host(), kBoreControlPort)) return;
+  if (!authenticate_bore_connection(proxy_connection)) {
+    proxy_connection.stop();
+    return;
+  }
   send_null_delimited_message(proxy_connection, "{\"Accept\":\"" + uuid + "\"}");
 
   if (!connect_to_local(local_connection)) {
@@ -1031,6 +1162,10 @@ void accept_bore_connection(const String &uuid, int slot) {
 
 bool initialize_bore() {
   if (WiFi.status() != WL_CONNECTED) return false;
+  if (!is_bore_configured(state.config)) {
+    record_error("bore tunnel requires host");
+    return false;
+  }
   if (bore_control_connection.connected()) {
     bore_control_connection.stop();
   }
@@ -1040,7 +1175,11 @@ bool initialize_bore() {
     return false;
   }
   configure_keepalive(bore_control_connection);
-  send_null_delimited_message(bore_control_connection, "{\"Hello\":0}");
+  if (!authenticate_bore_connection(bore_control_connection)) {
+    bore_control_connection.stop();
+    return false;
+  }
+  send_null_delimited_message(bore_control_connection, "{\"Hello\":" + String(state.config.remote_port) + "}");
 
   String response = receive_null_delimited_message(bore_control_connection, 10000);
   if (!response.length()) {
@@ -1110,12 +1249,12 @@ bool initialize_active_provider() {
 
   if (preferred_provider == networking::tunnel::ProviderSelfHosted) {
     state.snapshot.provider = networking::tunnel::ProviderSelfHosted;
-    if (connect_self_hosted_websocket()) {
-      return true;
+    if (!is_self_hosted_configured(state.config)) {
+      record_error("self-hosted tunnel requires host and path");
+      return false;
     }
 
-    state.snapshot.provider = networking::tunnel::ProviderBore;
-    if (initialize_bore()) {
+    if (connect_self_hosted_websocket()) {
       return true;
     }
     return false;
@@ -1299,7 +1438,9 @@ bool networking::tunnel::storeConfig(Config *config) {
   preferences.putBool("enabled", normalized.enabled);
   preferences.putUChar("provider", static_cast<uint8_t>(normalized.provider));
   preferences.putString("host", normalized.host);
+  preferences.putString("secret", normalized.secret);
   preferences.putUShort("local_port", normalized.local_port);
+  preferences.putUShort("remote_port", normalized.remote_port);
   preferences.putString("path", normalized.path);
   preferences.putBool("reconnect", normalized.reconnect);
   preferences.end();
@@ -1360,6 +1501,7 @@ void networking::tunnel::configure(const Config &config) { (void)config; }
 void networking::tunnel::accessConfig(Config &config) {
   memset(&config, 0, sizeof(config));
   config.local_port = config::tunnel::LOCAL_PORT;
+  config.remote_port = CONFIG_TUNNEL_REMOTE_PORT;
 }
 bool networking::tunnel::storeConfig(Config *config) { return config != nullptr; }
 bool networking::tunnel::clearConfig() { return true; }
@@ -1423,11 +1565,10 @@ static void test_tunnel_initialize_state(void) {
   TEST_ASSERT_TRUE_MESSAGE(snapshot.started, "device: tunnel should be started after initialize");
   TEST_ASSERT_FALSE_MESSAGE(snapshot.stopped, "device: tunnel should not be stopped after initialize");
   TEST_ASSERT_FALSE_MESSAGE(snapshot.ready, "device: tunnel should not be ready before connect");
-  TEST_ASSERT_EQUAL_UINT8_MESSAGE(networking::tunnel::ProviderSelfHosted, config.provider,
-    "device: default configured provider should prefer self-hosted");
-  TEST_ASSERT_TRUE_MESSAGE(snapshot.provider == networking::tunnel::ProviderSelfHosted
-                           || snapshot.provider == networking::tunnel::ProviderBore,
-    "device: active provider should be self-hosted or bore fallback");
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(networking::tunnel::ProviderBore, config.provider,
+    "device: default configured provider should prefer bore");
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(networking::tunnel::ProviderBore, snapshot.provider,
+    "device: active provider should default to bore");
   TEST_ASSERT_TRUE_MESSAGE(config.path[0] != '\0',
     "device: default tunnel path should be derived from device identity");
   TEST_ASSERT_EQUAL_UINT8_MESSAGE(networking::tunnel::PhaseInit, snapshot.phase,
@@ -1469,6 +1610,7 @@ static void test_tunnel_configure_preserves_provider(void) {
   expected.provider = networking::tunnel::ProviderSelfHosted;
   strlcpy(expected.host, "https://example.com", sizeof(expected.host));
   expected.local_port = 8080;
+  expected.remote_port = 15027;
   strlcpy(expected.path, "device-demo", sizeof(expected.path));
   expected.reconnect = false;
 
@@ -1485,6 +1627,8 @@ static void test_tunnel_configure_preserves_provider(void) {
     "device: tunnel host should match the configured host");
   TEST_ASSERT_EQUAL_UINT16_MESSAGE(expected.local_port, actual.local_port,
     "device: tunnel local port should match the configured port");
+  TEST_ASSERT_EQUAL_UINT16_MESSAGE(expected.remote_port, actual.remote_port,
+    "device: tunnel remote port should match the configured port request");
   TEST_ASSERT_EQUAL_STRING_MESSAGE(expected.path, actual.path,
     "device: tunnel path should match the configured path");
   TEST_ASSERT_EQUAL_MESSAGE(expected.reconnect, actual.reconnect,
@@ -1502,8 +1646,10 @@ static void test_tunnel_store_config_roundtrip(void) {
   networking::tunnel::Config written = {};
   written.enabled = true;
   written.provider = networking::tunnel::ProviderBore;
-  strlcpy(written.host, "bore.pub", sizeof(written.host));
+  strlcpy(written.host, "10.0.0.198", sizeof(written.host));
+  strlcpy(written.secret, "ceratina", sizeof(written.secret));
   written.local_port = 81;
+  written.remote_port = 15027;
   strlcpy(written.path, "device-test", sizeof(written.path));
   written.reconnect = true;
 
@@ -1518,8 +1664,12 @@ static void test_tunnel_store_config_roundtrip(void) {
     "device: provider should survive tunnel config roundtrip");
   TEST_ASSERT_EQUAL_STRING_MESSAGE(written.host, read_back.host,
     "device: host should survive tunnel config roundtrip");
+  TEST_ASSERT_EQUAL_STRING_MESSAGE(written.secret, read_back.secret,
+    "device: secret should survive tunnel config roundtrip");
   TEST_ASSERT_EQUAL_UINT16_MESSAGE(written.local_port, read_back.local_port,
     "device: local port should survive tunnel config roundtrip");
+  TEST_ASSERT_EQUAL_UINT16_MESSAGE(written.remote_port, read_back.remote_port,
+    "device: remote port should survive tunnel config roundtrip");
   TEST_ASSERT_EQUAL_STRING_MESSAGE(written.path, read_back.path,
     "device: path should survive tunnel config roundtrip");
   TEST_ASSERT_EQUAL_MESSAGE(written.reconnect, read_back.reconnect,
@@ -1551,9 +1701,9 @@ static void test_tunnel_path_is_normalized_for_relay(void) {
 #endif
 }
 
-static void test_tunnel_self_hosted_without_host_falls_back_to_bore(void) {
+static void test_tunnel_self_hosted_without_host_reports_configuration_error(void) {
   WHEN("self-hosted is selected without a relay host");
-  THEN("the active provider falls back to bore during startup");
+  THEN("startup reports a configuration error instead of falling back");
 
 #if CERATINA_TUNNEL_ENABLED
   networking::tunnel::stop();
@@ -1570,8 +1720,15 @@ static void test_tunnel_self_hosted_without_host_falls_back_to_bore(void) {
   networking::tunnel::Snapshot snapshot = {};
   networking::tunnel::accessSnapshot(snapshot);
 
-  TEST_ASSERT_EQUAL_UINT8_MESSAGE(networking::tunnel::ProviderBore, snapshot.provider,
-    "device: active provider should fall back to bore when self-hosted host is unset");
+  TEST_ASSERT_EQUAL_UINT8_MESSAGE(networking::tunnel::ProviderSelfHosted, snapshot.provider,
+    "device: active provider should remain self-hosted when selected");
+  TEST_ASSERT_FALSE_MESSAGE(snapshot.ready,
+    "device: incomplete self-hosted config should not become ready");
+
+  networking::tunnel::service();
+  networking::tunnel::accessSnapshot(snapshot);
+  TEST_ASSERT_EQUAL_STRING_MESSAGE("self-hosted tunnel requires host and path", snapshot.last_error,
+    "device: incomplete self-hosted config should report a clear validation error");
 #else
   TEST_IGNORE_MESSAGE("tunnel is disabled - test not applicable");
 #endif
@@ -1586,7 +1743,7 @@ void networking::tunnel::test(void) {
   RUN_TEST(test_tunnel_configure_preserves_provider);
   RUN_TEST(test_tunnel_store_config_roundtrip);
   RUN_TEST(test_tunnel_path_is_normalized_for_relay);
-  RUN_TEST(test_tunnel_self_hosted_without_host_falls_back_to_bore);
+  RUN_TEST(test_tunnel_self_hosted_without_host_reports_configuration_error);
 }
 
 #endif

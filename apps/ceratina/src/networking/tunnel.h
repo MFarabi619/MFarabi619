@@ -21,7 +21,9 @@ struct Config {
     bool enabled;
     Provider provider;
     char host[96];
+    char secret[96];
     uint16_t local_port;
+    uint16_t remote_port;
     char path[64];
     bool reconnect;
 };

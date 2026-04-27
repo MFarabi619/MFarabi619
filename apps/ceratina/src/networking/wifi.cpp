@@ -1,6 +1,7 @@
 #include <networking/wifi.h>
 #include "wifi_internal.h"
 #include <identity.h>
+#include <led.h>
 #include "../services/preferences.h"
 
 #include <Arduino.h>
@@ -145,7 +146,36 @@ bool networking::wifi::connect(WifiConnectCommand *command) {
     }
   }
 
-  command->result.status_code = WiFi.waitForConnectResult(config::wifi::CONNECT_TIMEOUT_MS);
+  uint8_t saved_brightness = LED.getBrightness();
+  unsigned long started_at = millis();
+  unsigned long last_frame_at = 0;
+  command->result.status_code = WiFi.status();
+
+  while (millis() - started_at < config::wifi::CONNECT_TIMEOUT_MS) {
+    wl_status_t status = WiFi.status();
+    if (status == WL_CONNECTED
+        || status == WL_CONNECT_FAILED
+        || status == WL_NO_SSID_AVAIL
+        || status == WL_CONNECTION_LOST) {
+      command->result.status_code = status;
+      break;
+    }
+
+    unsigned long now = millis();
+    if (now - last_frame_at >= config::led::FRAME_MS) {
+      unsigned long phase = (now - started_at) % 1200;
+      unsigned long ramp = phase < 600 ? phase : (1200 - phase);
+      uint8_t pulsed_brightness = 32 + static_cast<uint8_t>((saved_brightness * ramp) / 600);
+      LED.setBrightness(pulsed_brightness);
+      LED.set(colors::Yellow);
+      last_frame_at = now;
+    }
+
+    delay(config::led::FRAME_MS);
+    command->result.status_code = status;
+  }
+
+  LED.setBrightness(saved_brightness);
   command->result.connected = (command->result.status_code == WL_CONNECTED);
 
   if (!command->result.connected && command->request.enable_ap_fallback

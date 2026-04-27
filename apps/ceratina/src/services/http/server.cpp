@@ -59,6 +59,14 @@ class CaptivePortalRedirectHandler : public AsyncWebHandler {
 public:
   bool canHandle(AsyncWebServerRequest *request) const override {
     if (!request || !request->hasHeader("Host")) return true;
+    String path = request->url();
+    if (path != "/" && path != "/generate_204" && path != "/gen_204"
+        && path != "/fwlink" && path != "/redirect"
+        && path != "/hotspot-detect.html" && path != "/canonical.html"
+        && path != "/mobile/status.php" && path != "/connecttest.txt"
+        && path != "/ncsi.txt" && path != "/success.txt") {
+      return false;
+    }
     const AsyncWebHeader *host = request->getHeader("Host");
     if (!host) return true;
     String h = host->value();
