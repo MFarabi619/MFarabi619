@@ -159,7 +159,7 @@ i2s_led: &i2s0 {
 		status = "okay";
 		mmc {
 			compatible = "zephyr,sdmmc-disk";
-			disk-name = "SD";
+			disk-name = "sd";
 			status = "okay";
 		};
 	};

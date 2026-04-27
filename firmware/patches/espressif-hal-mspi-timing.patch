@@ -1,12 +1,12 @@
-Add missing MSPI timing tuning source for ESP32-S3 80 MHz PSRAM.
-
-At SPIRAM_SPEED_80M, mspi_timing_tuning.c calls port-specific tuning
-functions defined in mspi_timing_by_mspi_delay.c. The Zephyr CMakeLists
-for ESP32-S3 omits this file (newer chips like ESP32-C5 include it).
-
-Without this, linking fails with 14 undefined mspi_timing_* symbols.
-
+diff --git a/zephyr/esp32s3/CMakeLists.txt b/zephyr/esp32s3/CMakeLists.txt
+index 2241970f1d..736572e727 100644
 --- a/zephyr/esp32s3/CMakeLists.txt
 +++ b/zephyr/esp32s3/CMakeLists.txt
-@@ after mspi_timing_config.c
+@@ -396,6 +396,7 @@ if(CONFIG_SOC_SERIES_ESP32S3)
+     ../../components/esp_hw_support/mac_addr.c
+     ../../components/esp_hw_support/mspi/mspi_timing_tuning/mspi_timing_tuning.c
+     ../../components/esp_hw_support/mspi/mspi_timing_tuning/port/${CONFIG_SOC_SERIES}/mspi_timing_config.c
 +    ../../components/esp_hw_support/mspi/mspi_timing_tuning/port/${CONFIG_SOC_SERIES}/mspi_timing_by_mspi_delay.c
+     ../../components/esp_hw_support/periph_ctrl.c
+     ../../components/esp_hw_support/port/${CONFIG_SOC_SERIES}/cpu_region_protect.c
+     ../../components/esp_hw_support/port/${CONFIG_SOC_SERIES}/esp_clk_tree.c

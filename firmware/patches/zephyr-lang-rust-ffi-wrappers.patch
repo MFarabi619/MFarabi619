@@ -1,41 +1,108 @@
-Expose Zephyr subsystem APIs to Rust via bindgen FFI wrappers.
-
-Adds headers and inline C wrappers for macros that bindgen cannot handle
-(net_mgmt, DEVICE_DT_GET, shell_backend_uart_get_ptr, wifi events).
-Extends bindgen allowlist to generate bindings for LED strip, sensor,
-networking, and shell APIs.
-
-The led_strip device getter is guarded with DT_NODE_EXISTS so it compiles
-on boards without an led-strip alias (e.g. Walter).
-
+diff --git a/zephyr-build/src/lib.rs b/zephyr-build/src/lib.rs
+index 85ba339..9e7029f 100644
+--- a/zephyr-build/src/lib.rs
++++ b/zephyr-build/src/lib.rs
+@@ -66,7 +66,12 @@ pub fn build_kconfig_mod() {
+         let line = line.expect("reading line from dotconfig");
+         if let Some(caps) = config_hex.captures(&line) {
+             writeln!(&mut f, "#[allow(dead_code)]").unwrap();
+-            writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
++            let val = u64::from_str_radix(caps[2].trim_start_matches("0x").trim_start_matches("0X"), 16).unwrap_or(0);
++            if val > u32::MAX as u64 {
++                writeln!(&mut f, "pub const {}: u64 = {};", &caps[1], &caps[2]).unwrap();
++            } else {
++                writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
++            }
+         } else if let Some(caps) = config_int.captures(&line) {
+             writeln!(&mut f, "#[allow(dead_code)]").unwrap();
+             writeln!(&mut f, "pub const {}: isize = {};", &caps[1], &caps[2]).unwrap();
+diff --git a/zephyr-sys/build.rs b/zephyr-sys/build.rs
+index 5d6a93f..23441af 100644
+--- a/zephyr-sys/build.rs
++++ b/zephyr-sys/build.rs
+@@ -79,11 +79,34 @@ fn main() -> Result<()> {
+         .allowlist_function("gpio_.*")
+         .allowlist_function("flash_.*")
+         .allowlist_function("zr_.*")
++        .allowlist_function("led_strip_.*")
++        .allowlist_function("net_mgmt_.*")
++        .allowlist_function("net_if_.*")
++        .allowlist_function("shell_.*")
++        .allowlist_function("net_hostname_.*")
++        .allowlist_function("sensor_.*")
++        .allowlist_function("wifi_credentials_.*")
++        .allowlist_function("http_server_start")
++        .allowlist_function("http_server_stop")
++        .allowlist_function("k_msleep")
+         .allowlist_item("GPIO_.*")
+         .allowlist_item("FLASH_.*")
+         .allowlist_item("Z_.*")
+         .allowlist_item("ZR_.*")
+         .allowlist_item("K_.*")
++        .allowlist_item("NET_EVENT_WIFI_.*")
++        .allowlist_item("NET_REQUEST_WIFI_.*")
++        .allowlist_item("SENSOR_.*")
++        .allowlist_item("WIFI_SECURITY_TYPE_.*")
++        .allowlist_item("wifi_scan_result")
++        .allowlist_item("wifi_connect_req_params")
++        .allowlist_item("http_client_ctx")
++        .allowlist_item("http_transaction_status.*")
++        .allowlist_item("http_request_ctx")
++        .allowlist_item("http_response_ctx")
++        .allowlist_item("http_status.*")
++        .allowlist_item("http_method.*")
++        .allowlist_item("HTTP_RESOURCE_TYPE_.*")
+         // Each DT node has a device entry that is a static.
+         .allowlist_item("__device_dts_ord.*")
+         .allowlist_function("device_.*")
+diff --git a/zephyr-sys/wrapper.h b/zephyr-sys/wrapper.h
+index 577ce08..8ee1032 100644
 --- a/zephyr-sys/wrapper.h
 +++ b/zephyr-sys/wrapper.h
-@@ includes
+@@ -39,10 +39,22 @@ extern int errno;
+ #include <zephyr/kernel.h>
+ #include <zephyr/kernel/thread_stack.h>
+ #include <zephyr/drivers/gpio.h>
 +#include <zephyr/drivers/led_strip.h>
 +#include <zephyr/drivers/sensor.h>
+ #include <zephyr/logging/log.h>
+ #include <zephyr/bluetooth/bluetooth.h>
+ #include <zephyr/drivers/flash.h>
+ #include <zephyr/irq.h>
 +#include <zephyr/net/net_mgmt.h>
 +#include <zephyr/net/net_if.h>
 +#include <zephyr/net/wifi_mgmt.h>
 +#include <zephyr/net/wifi_credentials.h>
 +#include <zephyr/net/http/server.h>
 +#include <zephyr/net/http/service.h>
++#include <zephyr/net/dhcpv4_server.h>
 +#include <zephyr/shell/shell.h>
 +#include <zephyr/shell/shell_uart.h>
 +#include <zephyr/net/hostname.h>
-
-@@ after zr_irq_unlock
+ 
+ /*
+  * bindgen will only output #defined constants that resolve to simple numbers.  These are some
+@@ -94,3 +106,121 @@ static inline int zr_irq_lock(void) {
+ static inline void zr_irq_unlock(int key) {
+ 	irq_unlock(key);
+ }
++
 +static inline struct net_if *zr_net_if_get_default(void) {
 +	return net_if_get_default();
 +}
 +
++static inline struct net_if *zr_net_if_get_wifi_sta(void) {
++	return net_if_get_wifi_sta();
++}
++
 +static inline int zr_wifi_connect_stored(void) {
 +	return net_mgmt(NET_REQUEST_WIFI_CONNECT_STORED,
-+			net_if_get_default(), NULL, 0);
++			net_if_get_wifi_sta(), NULL, 0);
 +}
 +
 +static inline int zr_wifi_scan(void) {
 +	return net_mgmt(NET_REQUEST_WIFI_SCAN,
-+			net_if_get_default(), NULL, 0);
++			net_if_get_wifi_sta(), NULL, 0);
 +}
 +
 +static inline int zr_wifi_connect(const char *ssid, uint8_t ssid_len,
@@ -50,12 +117,12 @@ on boards without an led-strip alias (e.g. Walter).
 +		.channel = channel,
 +	};
 +	return net_mgmt(NET_REQUEST_WIFI_CONNECT,
-+			net_if_get_default(), &params, sizeof(params));
++			net_if_get_wifi_sta(), &params, sizeof(params));
 +}
 +
 +static inline int zr_wifi_disconnect(void) {
 +	return net_mgmt(NET_REQUEST_WIFI_DISCONNECT,
-+			net_if_get_default(), NULL, 0);
++			net_if_get_wifi_sta(), NULL, 0);
 +}
 +
 +static inline int zr_wifi_ap_enable(const char *ssid, uint8_t ssid_len,
@@ -68,14 +135,15 @@ on boards without an led-strip alias (e.g. Walter).
 +		.psk_length = psk_len,
 +		.security = WIFI_SECURITY_TYPE_PSK,
 +		.channel = channel,
++		.band = WIFI_FREQ_BAND_2_4_GHZ,
 +	};
 +	return net_mgmt(NET_REQUEST_WIFI_AP_ENABLE,
-+			net_if_get_default(), &params, sizeof(params));
++			net_if_get_wifi_sap(), &params, sizeof(params));
 +}
 +
 +static inline int zr_wifi_ap_disable(void) {
 +	return net_mgmt(NET_REQUEST_WIFI_AP_DISABLE,
-+			net_if_get_default(), NULL, 0);
++			net_if_get_wifi_sap(), NULL, 0);
 +}
 +
 +static inline int zr_wifi_credentials_set(const char *ssid, size_t ssid_len,
@@ -93,6 +161,29 @@ on boards without an led-strip alias (e.g. Walter).
 +
 +static inline bool zr_wifi_credentials_is_empty(void) {
 +	return wifi_credentials_is_empty();
++}
++
++static inline int zr_wifi_ap_setup_network(void) {
++	struct net_if *iface = net_if_get_wifi_sap();
++	if (!iface) {
++		return -ENODEV;
++	}
++
++	struct net_in_addr addr, netmask, pool;
++
++	net_addr_pton(AF_INET, "192.168.4.1", &addr);
++	net_addr_pton(AF_INET, "255.255.255.0", &netmask);
++
++	net_if_ipv4_set_gw(iface, &addr);
++
++	if (!net_if_ipv4_addr_add(iface, &addr, NET_ADDR_MANUAL, 0)) {
++		return -ENOENT;
++	}
++
++	net_if_ipv4_set_netmask_by_addr(iface, &addr, &netmask);
++
++	net_addr_pton(AF_INET, "192.168.4.10", &pool);
++	return net_dhcpv4_server_start(iface, &pool);
 +}
 +
 +static inline const struct shell *zr_shell_backend_uart_get_ptr(void) {
@@ -113,48 +204,3 @@ on boards without an led-strip alias (e.g. Walter).
 +const uint64_t ZR_NET_EVENT_WIFI_SCAN_DONE = NET_EVENT_WIFI_SCAN_DONE;
 +const uint64_t ZR_NET_EVENT_WIFI_AP_ENABLE_RESULT = NET_EVENT_WIFI_AP_ENABLE_RESULT;
 +const uint64_t ZR_NET_EVENT_WIFI_AP_STA_CONNECTED = NET_EVENT_WIFI_AP_STA_CONNECTED;
-
---- a/zephyr-sys/build.rs
-+++ b/zephyr-sys/build.rs
-@@ allowlist_function
-+        .allowlist_function("led_strip_.*")
-+        .allowlist_function("net_mgmt_.*")
-+        .allowlist_function("net_if_.*")
-+        .allowlist_function("shell_.*")
-+        .allowlist_function("net_hostname_.*")
-+        .allowlist_function("sensor_.*")
-+        .allowlist_function("wifi_credentials_.*")
-+        .allowlist_function("http_server_start")
-+        .allowlist_function("http_server_stop")
-+        .allowlist_function("k_msleep")
-
-@@ allowlist_item
-+        .allowlist_item("NET_EVENT_WIFI_.*")
-+        .allowlist_item("NET_REQUEST_WIFI_.*")
-+        .allowlist_item("SENSOR_.*")
-+        .allowlist_item("WIFI_SECURITY_TYPE_.*")
-+        .allowlist_item("wifi_scan_result")
-+        .allowlist_item("wifi_connect_req_params")
-+        .allowlist_item("http_client_ctx")
-+        .allowlist_item("http_transaction_status.*")
-+        .allowlist_item("http_request_ctx")
-+        .allowlist_item("http_response_ctx")
-+        .allowlist_item("http_status.*")
-+        .allowlist_item("http_method.*")
-+        .allowlist_item("HTTP_RESOURCE_TYPE_.*")
-
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ cmake_parse_arguments (extends embassy-bump CRATE_NAME patch)
--  cmake_parse_arguments(RUST_APP "" "CRATE_NAME" "" ${ARGN})
-+  cmake_parse_arguments(RUST_APP "" "CRATE_NAME;FEATURES" "" ${ARGN})
-
-@@ after CRATE_NAME default
-+  if(RUST_APP_FEATURES)
-+    set(rust_features_arg "--features" "${RUST_APP_FEATURES}")
-+  else()
-+    set(rust_features_arg "")
-+  endif()
-
-@@ cargo build args
-+      ${rust_features_arg}

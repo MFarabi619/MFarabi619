@@ -1,8 +1,8 @@
 diff --git a/subsys/shell/Kconfig b/subsys/shell/Kconfig
-index 4bbc1aef709..261e5368796 100644
+index eecfef3b1fa..c8fd5360890 100644
 --- a/subsys/shell/Kconfig
 +++ b/subsys/shell/Kconfig
-@@ -71,7 +71,7 @@ config SHELL_PROMPT_CHANGE
+@@ -72,7 +72,7 @@ config SHELL_PROMPT_CHANGE
  config SHELL_PROMPT_BUFF_SIZE
  	int "Shell prompt buffer size"
  	depends on SHELL_PROMPT_CHANGE

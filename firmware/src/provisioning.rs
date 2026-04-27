@@ -32,6 +32,14 @@ static SCAN_BUF: ScanResponseBuffer = ScanResponseBuffer {
     data: UnsafeCell::new([0; 1024]),
 };
 
+struct RedirectHeader(http_header);
+unsafe impl Sync for RedirectHeader {}
+
+static REDIRECT_HEADER: RedirectHeader = RedirectHeader(http_header {
+    name: b"Location\0".as_ptr() as *const _,
+    value: b"/public/index.html\0".as_ptr() as *const _,
+});
+
 fn json_response(response_ctx: *mut http_response_ctx, body: &[u8], is_final: bool) {
     unsafe {
         (*response_ctx).body = body.as_ptr();
@@ -106,10 +114,19 @@ extern "C" fn provisioning_index_handler(
         || status == http_transaction_status_HTTP_SERVER_REQUEST_DATA_MORE
     {
         unsafe {
-            (*response_ctx).body = SETUP_HTML.as_ptr();
-            (*response_ctx).body_len = SETUP_HTML.len();
-            (*response_ctx).final_chunk = true;
-            (*response_ctx).status = http_status_HTTP_200_OK;
+            if wifi::is_provisioning() {
+                (*response_ctx).body = SETUP_HTML.as_ptr();
+                (*response_ctx).body_len = SETUP_HTML.len();
+                (*response_ctx).final_chunk = true;
+                (*response_ctx).status = http_status_HTTP_200_OK;
+            } else {
+                (*response_ctx).status = http_status_HTTP_302_FOUND;
+                (*response_ctx).headers = &REDIRECT_HEADER.0;
+                (*response_ctx).header_count = 1;
+                (*response_ctx).body = core::ptr::null();
+                (*response_ctx).body_len = 0;
+                (*response_ctx).final_chunk = true;
+            }
         }
     }
 

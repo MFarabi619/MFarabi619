@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 75ece41..6e35e57 100644
+index 75ece41..7cf75a2 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -53,6 +53,16 @@ function(_rust_map_target)
@@ -19,15 +19,67 @@ index 75ece41..6e35e57 100644
    else()
      message(FATAL_ERROR "Rust: Add support for other target")
    endif()
-@@ -173,7 +183,7 @@ ${config_paths}
+@@ -68,6 +78,16 @@ function(get_include_dirs target dirs)
+ endfunction()
+ 
+ function(rust_cargo_application)
++  cmake_parse_arguments(RUST_APP "" "CRATE_NAME;FEATURES" "" ${ARGN})
++  if(NOT RUST_APP_CRATE_NAME)
++    set(RUST_APP_CRATE_NAME "rustapp")
++  endif()
++  if(RUST_APP_FEATURES)
++    set(rust_features_arg "--no-default-features" "--features" "${RUST_APP_FEATURES}")
++  else()
++    set(rust_features_arg "")
++  endif()
++
+   # For now, hard-code the Zephyr crate directly here.  Once we have
+   # more than one crate, these should be added by the modules
+   # themselves.
+@@ -94,7 +114,7 @@ function(rust_cargo_application)
+   set(BUILD_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}")
+ 
+   set(CARGO_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/rust/target")
+-  set(RUST_LIBRARY "${CARGO_TARGET_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}/librustapp.a")
++  set(RUST_LIBRARY "${CARGO_TARGET_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}/lib${RUST_APP_CRATE_NAME}.a")
+   set(SAMPLE_CARGO_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/rust/sample-cargo-config.toml")
+ 
+   # The generated C binding wrappers. These are bindgen-generated wrappers for the inline functions
+@@ -173,14 +193,9 @@ ${config_paths}
        WRAPPER_FILE="${WRAPPER_FILE}"
        DT_AUGMENTS="${DT_AUGMENTS}"
        BINARY_DIR_INCLUDE_GENERATED="${BINARY_DIR_INCLUDE_GENERATED}"
 -      cargo build
 +      cargo $<$<BOOL:${CONFIG_XTENSA}>:+esp> build --lib
        ${rust_build_type_arg}
+-
+-      # Override the features according to the shield given. For a general case,
+-      # this will need to come from a variable or argument.
+-      # TODO: This needs to be passed in.
+-      # --no-default-features
+-      # --features ${SHIELD_FEATURE}
++      ${rust_features_arg}
  
-       # Override the features according to the shield given. For a general case,
+       # Set a replacement so that packages can just use `zephyr-sys` as a package
+       # name to find it.
+@@ -192,7 +207,7 @@ ${config_paths}
+   )
+ 
+   # Be sure we don't try building this until all of the generated headers have been generated.
+-  add_custom_target(librustapp ALL
++  add_custom_target(lib${RUST_APP_CRATE_NAME} ALL
+     DEPENDS ${DUMMY_FILE}
+         # The variables, defined at the top level, don't seem to be accessible here.
+         offsets_h
+@@ -253,7 +268,7 @@ ${config_paths}
+   # Example of warning reported by ld when this fix is not in place:
+   # <path>/ld.bfd: rust/target/riscv64imac-unknown-none-elf/debug/librustapp.a(45c91108d938afe8-clzdi2.o): unsupported relocation type 0x3d
+   target_link_libraries(app PUBLIC $<TARGET_PROPERTY:linker,rt_library> -Wl,--allow-multiple-definition ${RUST_LIBRARY})
+-  add_dependencies(app librustapp)
++  add_dependencies(app lib${RUST_APP_CRATE_NAME})
+ 
+   # Presumably, Rust applications will have no C source files, but cmake will require them.
+   # Add an empty file so that this will build.  The main will come from the rust library.
 diff --git a/Kconfig b/Kconfig
 index 0b2d057..6bebb7c 100644
 --- a/Kconfig
@@ -40,21 +92,3 @@ index 0b2d057..6bebb7c 100644
  				(RISCV && !RISCV_ISA_RV32E && !RISCV_ISA_RV128I) || \
  				(ARCH_POSIX && 64BIT)) && \
  				!TIMER_READS_ITS_FREQUENCY_AT_RUNTIME)
-diff --git a/zephyr-build/src/lib.rs b/zephyr-build/src/lib.rs
-index 85ba339..9e7029f 100644
---- a/zephyr-build/src/lib.rs
-+++ b/zephyr-build/src/lib.rs
-@@ -66,7 +66,12 @@ pub fn build_kconfig_mod() {
-         let line = line.expect("reading line from dotconfig");
-         if let Some(caps) = config_hex.captures(&line) {
-             writeln!(&mut f, "#[allow(dead_code)]").unwrap();
--            writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
-+            let val = u64::from_str_radix(caps[2].trim_start_matches("0x").trim_start_matches("0X"), 16).unwrap_or(0);
-+            if val > u32::MAX as u64 {
-+                writeln!(&mut f, "pub const {}: u64 = {};", &caps[1], &caps[2]).unwrap();
-+            } else {
-+                writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
-+            }
-         } else if let Some(caps) = config_int.captures(&line) {
-             writeln!(&mut f, "#[allow(dead_code)]").unwrap();
-             writeln!(&mut f, "pub const {}: isize = {};", &caps[1], &caps[2]).unwrap();

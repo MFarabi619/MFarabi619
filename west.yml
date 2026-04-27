@@ -2,12 +2,24 @@ manifest:
     remotes:
         - name: zephyrproject
           url-base: https://github.com/zephyrproject-rtos
+        - name: wolfssl
+          url-base: https://github.com/wolfSSL
 
     projects:
         - name: zephyr-lang-rust
           remote: zephyrproject
           revision: main
           path: vendor/modules/lang/rust
+
+        - name: wolfssl
+          remote: wolfssl
+          revision: v5.9.1-stable
+          path: vendor/modules/crypto/wolfssl
+
+        - name: wolfssh
+          remote: wolfssl
+          revision: v1.5.0-stable
+          path: vendor/modules/lib/wolfssh
 
         - name: zephyr
           remote: zephyrproject

@@ -1,39 +1,23 @@
-Bump embassy ecosystem in vendored zephyr crate to match esp-hal's generation.
-
-Resolves `links = "embassy-time-queue"` conflict that prevented unifying
-firmware/Cargo.toml for both bare-metal and Zephyr builds.
-
-Also parameterizes `rust_cargo_application()` to accept CRATE_NAME, allowing
-the firmware crate to keep its real name instead of being forced to "rustapp".
-
+diff --git a/zephyr/Cargo.toml b/zephyr/Cargo.toml
+index 0cebba8..f995b81 100644
 --- a/zephyr/Cargo.toml
 +++ b/zephyr/Cargo.toml
-@@ embassy-time-queue-utils
+@@ -56,15 +56,15 @@ version = "0.2"
+ optional = true
+ 
+ [dependencies.embassy-time-queue-utils]
 -version = "0.1"
 +version = "0.3"
-
-@@ embassy-sync
+ optional = true
+ 
+ [dependencies.embassy-sync]
 -version = "0.6.2"
 +version = "0.7"
-
-@@ embassy-executor
+ optional = true
+ 
+ [dependencies.embassy-executor]
 -version = "0.7.0"
 +version = "0.10"
-
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ rust_cargo_application()
-+  cmake_parse_arguments(RUST_APP "" "CRATE_NAME" "" ${ARGN})
-+  if(NOT RUST_APP_CRATE_NAME)
-+    set(RUST_APP_CRATE_NAME "rustapp")
-+  endif()
-
-@@ librustapp.a
--  set(RUST_LIBRARY "${CARGO_TARGET_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}/librustapp.a")
-+  set(RUST_LIBRARY "${CARGO_TARGET_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}/lib${RUST_APP_CRATE_NAME}.a")
-
-@@ add_custom_target / add_dependencies
--  add_custom_target(librustapp ALL
-+  add_custom_target(lib${RUST_APP_CRATE_NAME} ALL
--  add_dependencies(app librustapp)
-+  add_dependencies(app lib${RUST_APP_CRATE_NAME})
+ optional = true
+ 
+ # These are needed at build time.

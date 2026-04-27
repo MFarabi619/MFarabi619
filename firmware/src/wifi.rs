@@ -108,14 +108,7 @@ pub fn init() {
         );
         net_mgmt_add_event_callback(cb);
 
-        if zr_wifi_credentials_is_empty() {
-            info!("No stored WiFi credentials, starting AP provisioning");
-            start_ap();
-        } else {
-            info!("Stored WiFi credentials found, connecting");
-            CURRENT_MODE.store(MODE_CONNECTING, Ordering::Relaxed);
-            zr_wifi_connect_stored();
-        }
+        CURRENT_MODE.store(MODE_CONNECTING, Ordering::Relaxed);
     }
 }
 
@@ -203,6 +196,16 @@ pub fn delete_credentials() -> i32 {
 
 #[embassy_executor::task]
 pub async fn task() {
+    Timer::after(Duration::from_secs(2)).await;
+    unsafe {
+        let sta_iface = zr_net_if_get_wifi_sta();
+        if !sta_iface.is_null() {
+            net_if_up(sta_iface);
+        }
+    }
+    Timer::after(Duration::from_secs(1)).await;
+    info!("Connecting to stored/static WiFi credentials");
+    unsafe { zr_wifi_connect_stored(); }
     let mut connect_start = embassy_time::Instant::now();
 
     loop {
@@ -215,6 +218,16 @@ pub async fn task() {
                     info!("WiFi connected");
                     CURRENT_MODE.store(MODE_CONNECTED, Ordering::Relaxed);
                     led::set(GREEN);
+                }
+                EVENT_DISCONNECTED => {
+                    if connect_start.elapsed() < Duration::from_secs(STA_CONNECT_TIMEOUT_SECONDS) {
+                        Timer::after(Duration::from_secs(STA_RETRY_DELAY_SECONDS)).await;
+                        unsafe { zr_wifi_connect_stored(); }
+                    } else {
+                        info!("STA connect timeout, switching to AP provisioning");
+                        unsafe { zr_wifi_disconnect(); }
+                        start_ap();
+                    }
                 }
                 _ => {
                     if connect_start.elapsed() > Duration::from_secs(STA_CONNECT_TIMEOUT_SECONDS) {
