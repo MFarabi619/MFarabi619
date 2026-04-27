@@ -5,8 +5,6 @@ use zephyr::raw::*;
 
 use crate::wifi;
 
-static SETUP_HTML: &[u8] = br#"<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ceratina Setup</title><style>*{box-sizing:border-box;font-family:system-ui}body{max-width:400px;margin:40px auto;padding:0 16px}h1{font-size:1.4em}button,input,select{width:100%;padding:10px;margin:4px 0;border:1px solid #ccc;border-radius:4px;font-size:1em}button{background:#333;color:#fff;border:0;cursor:pointer}button:active{background:#555}#networks{margin:12px 0}#msg{padding:8px;margin:8px 0;border-radius:4px;display:none}.ok{background:#d4edda;display:block!important}.err{background:#f8d7da;display:block!important}</style></head><body><h1>Ceratina WiFi Setup</h1><button onclick="scan()">Scan Networks</button><div id="networks"></div><form onsubmit="return connect(event)"><input id="ssid" placeholder="SSID" required><input id="psk" type="password" placeholder="Password" required><button type="submit">Connect</button></form><div id="msg"></div><script>function scan(){fetch('/api/wifi/scan',{method:'POST'}).then(r=>r.json()).then(d=>{let h='';d.forEach(n=>{h+='<button type="button" onclick="document.getElementById(\'ssid\').value=\''+n.ssid+'\'">'+n.ssid+' ('+n.rssi+' dBm, ch'+n.channel+')</button>'});document.getElementById('networks').innerHTML=h||'<p>No networks found</p>'}).catch(()=>msg('Scan failed','err'))}function connect(e){e.preventDefault();let s=document.getElementById('ssid').value,p=document.getElementById('psk').value;fetch('/api/wifi/connect',{method:'POST',body:JSON.stringify({ssid:s,password:p})}).then(r=>{if(r.ok)msg('Connecting to '+s+'...','ok');else msg('Failed','err')}).catch(()=>msg('Error','err'))}function msg(t,c){let m=document.getElementById('msg');m.textContent=t;m.className=c}</script></body></html>"#;
-
 use core::cell::UnsafeCell;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
@@ -114,19 +112,12 @@ extern "C" fn provisioning_index_handler(
         || status == http_transaction_status_HTTP_SERVER_REQUEST_DATA_MORE
     {
         unsafe {
-            if wifi::is_provisioning() {
-                (*response_ctx).body = SETUP_HTML.as_ptr();
-                (*response_ctx).body_len = SETUP_HTML.len();
-                (*response_ctx).final_chunk = true;
-                (*response_ctx).status = http_status_HTTP_200_OK;
-            } else {
-                (*response_ctx).status = http_status_HTTP_302_FOUND;
-                (*response_ctx).headers = &REDIRECT_HEADER.0;
-                (*response_ctx).header_count = 1;
-                (*response_ctx).body = core::ptr::null();
-                (*response_ctx).body_len = 0;
-                (*response_ctx).final_chunk = true;
-            }
+            (*response_ctx).status = http_status_HTTP_302_FOUND;
+            (*response_ctx).headers = &REDIRECT_HEADER.0;
+            (*response_ctx).header_count = 1;
+            (*response_ctx).body = core::ptr::null();
+            (*response_ctx).body_len = 0;
+            (*response_ctx).final_chunk = true;
         }
     }
 

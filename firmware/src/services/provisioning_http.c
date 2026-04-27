@@ -91,6 +91,18 @@ HTTP_RESOURCE_DEFINE(provisioning_connect, provisioning_service,
 HTTP_RESOURCE_DEFINE(provisioning_credentials, provisioning_service,
 		     "/api/wifi/credentials", &credentials_detail);
 
+extern int device_status_handler(struct http_client_ctx *client,
+				 enum http_transaction_status status,
+				 const struct http_request_ctx *request_ctx,
+				 struct http_response_ctx *response_ctx,
+				 void *user_data);
+
+extern int cloudevents_handler(struct http_client_ctx *client,
+			       enum http_transaction_status status,
+			       const struct http_request_ctx *request_ctx,
+			       struct http_response_ctx *response_ctx,
+			       void *user_data);
+
 extern int filesystem_upload_handler(struct http_client_ctx *client,
 				     enum http_transaction_status status,
 				     const struct http_request_ctx *request_ctx,
@@ -114,8 +126,32 @@ static struct http_resource_detail_static_fs public_files_detail = {
 		.type = HTTP_RESOURCE_TYPE_STATIC_FS,
 		.bitmask_of_supported_http_methods = BIT(HTTP_GET),
 	},
-	.fs_path = "/sd:/public",
+	.fs_path = "/sd:",
 };
 
 HTTP_RESOURCE_DEFINE(public_files, provisioning_service,
 		     "/public/*", &public_files_detail);
+
+static struct http_resource_detail_dynamic device_status_detail = {
+	.common = {
+		.type = HTTP_RESOURCE_TYPE_DYNAMIC,
+		.bitmask_of_supported_http_methods = BIT(HTTP_GET),
+	},
+	.cb = device_status_handler,
+	.user_data = NULL,
+};
+
+HTTP_RESOURCE_DEFINE(device_status, provisioning_service,
+		     "/api/system/device/status", &device_status_detail);
+
+static struct http_resource_detail_dynamic cloudevents_detail = {
+	.common = {
+		.type = HTTP_RESOURCE_TYPE_DYNAMIC,
+		.bitmask_of_supported_http_methods = BIT(HTTP_GET),
+	},
+	.cb = cloudevents_handler,
+	.user_data = NULL,
+};
+
+HTTP_RESOURCE_DEFINE(cloudevents, provisioning_service,
+		     "/api/cloudevents", &cloudevents_detail);

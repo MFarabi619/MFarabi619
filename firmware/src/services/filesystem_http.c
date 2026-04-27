@@ -5,6 +5,8 @@
 
 LOG_MODULE_REGISTER(filesystem_http, LOG_LEVEL_INF);
 
+HTTP_SERVER_CONTENT_TYPE(wasm, "application/wasm")
+
 #define API_PREFIX "/api/filesystem/"
 #define API_PREFIX_LEN (sizeof(API_PREFIX) - 1)
 
