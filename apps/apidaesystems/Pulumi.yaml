@@ -1,0 +1,15 @@
+name: local
+runtime: go
+config:
+    docker:host:
+        value: unix:///var/run/docker.sock
+
+#     libvirt:uri:
+#         value: qemu:///session?socket=/Users/mfarabi/.cache/libvirt/libvirt-sock
+
+# packages:
+#     libvirt:
+#         source: terraform-provider
+#         version: 1.0.2
+#         parameters:
+#             - dmacvicar/libvirt
