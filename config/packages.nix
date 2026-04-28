@@ -12,10 +12,6 @@ in
   packages =
     with pkgs-unstable;
     [
-      pulumi
-      pulumi-esc
-    ]
-    ++ [
       grafana
       grafanactl
       mcp-grafana # https://github.com/grafana/mcp-grafana
