@@ -10,8 +10,9 @@ namespace config {
   inline constexpr const char* HOSTNAME = "ceratina";
 
   namespace led {
-      inline constexpr uint8_t  BRIGHTNESS = 255;
-      inline constexpr uint8_t  FRAME_MS   = 20;
+      inline constexpr uint8_t  BRIGHTNESS     = 255;
+      inline constexpr uint8_t  DIM_BRIGHTNESS = 8;
+      inline constexpr uint8_t  FRAME_MS       = 20;
   }
 
   namespace system {
@@ -118,6 +119,7 @@ namespace config {
       inline constexpr const char* NVS_NAMESPACE            = "sleep";
       inline constexpr const char* ENABLED_KEY             = "enabled";
       inline constexpr const char* DURATION_KEY            = "duration_s";
+      inline constexpr uint32_t    MAX_AWAKE_SECONDS        = 180;
   }
 
   namespace provisioning {

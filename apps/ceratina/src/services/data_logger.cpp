@@ -92,8 +92,10 @@ bool ensure_headers() {
 
   if (sensors::soil::isAvailable())
     ensure_csv("/soil.csv",
-               "slave_id,moisture_percent,temperature_celsius,"
-               "conductivity,salinity,tds,ph,has_ph,time");
+               "time,id,model,temperature_celsius,moisture_percent,ph,"
+               "electrical_conductivity_us_cm,salinity_mg_l,total_dissolved_solids_ppm,"
+               "temperature_calibration,moisture_calibration,conductivity_calibration,"
+               "conductivity_temperature_coefficient,salinity_coefficient,tds_coefficient");
 
   header_written = true;
   return true;
@@ -212,22 +214,35 @@ void log_soil() {
     SoilSensorData soil = {};
     if (!sensors::manager::accessSoil(index, &soil)) continue;
 
-    file.printf("%u,", soil.slave_id);
-    write_float(file, soil.moisture_percent, 1);
-    file.print(',');
+    write_timestamp(file);
+    file.printf(",%u,%s,", soil.slave_id, soil.model ? soil.model : "Unknown");
     write_float(file, soil.temperature_celsius);
     file.print(',');
-    file.print(soil.conductivity);
-    file.print(',');
-    file.print(soil.salinity);
-    file.print(',');
-    file.print(soil.tds);
+    write_float(file, soil.moisture_percent, 1);
     file.print(',');
     if (soil.has_ph) write_float(file, soil.ph, 1);
     file.print(',');
-    file.print(soil.has_ph ? "true" : "false");
+    if (soil.has_conductivity) file.print(soil.conductivity);
     file.print(',');
-    write_timestamp(file);
+    if (soil.has_salinity) file.print(soil.salinity);
+    file.print(',');
+    if (soil.has_tds) file.print(soil.tds);
+    file.print(',');
+    if (soil.has_calibration) {
+      write_float(file, soil.temperature_calibration, 1);
+      file.print(',');
+      write_float(file, soil.moisture_calibration, 1);
+      file.print(',');
+      file.print(soil.conductivity_calibration);
+      file.print(',');
+      write_float(file, soil.conductivity_temperature_coefficient, 1);
+      file.print(',');
+      write_float(file, soil.salinity_coefficient, 2);
+      file.print(',');
+      write_float(file, soil.tds_coefficient, 2);
+    } else {
+      file.print(",,,,,");
+    }
     file.println();
   }
   file.close();
@@ -333,7 +348,7 @@ static void test_csv_headers_created(void) {
   check_csv_header("/wind.csv", "wind_speed_kmh,");
   check_csv_header("/temperature_humidity.csv", "temperature_celsius_0,");
   check_csv_header("/rainfall.csv", "rainfall_millimeters,");
-  check_csv_header("/soil.csv", "slave_id,");
+  check_csv_header("/soil.csv", "time,");
 }
 
 void services::data_logger::test(void) {

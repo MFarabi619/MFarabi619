@@ -38,6 +38,8 @@ namespace sensors::solar_radiation { void test(); }
 namespace sensors::temperature_and_humidity { void test(); }
 namespace sensors::rainfall { void test(); }
 namespace sensors::voltage { void test(); }
+namespace sensors::wind_direction { void test(); }
+namespace sensors::wind_speed { void test(); }
 
 namespace programs::buttons { void test(); }
 namespace programs::coreutils { void test(); }

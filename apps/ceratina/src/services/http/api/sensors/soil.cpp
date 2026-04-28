@@ -26,13 +26,16 @@ void handle_get(AsyncWebServerRequest *request) {
     probe["index"] = index;
     probe["slave_id"] = sensor_data.slave_id;
     probe["read_ok"] = ok;
+    probe["has_conductivity"] = sensor_data.has_conductivity;
+    probe["has_salinity"] = sensor_data.has_salinity;
+    probe["has_tds"] = sensor_data.has_tds;
     probe["has_ph"] = sensor_data.has_ph;
     if (ok) {
       probe["temperature_celsius"] = sensor_data.temperature_celsius;
       probe["moisture_percent"] = sensor_data.moisture_percent;
-      probe["conductivity"] = sensor_data.conductivity;
-      probe["salinity"] = sensor_data.salinity;
-      probe["tds"] = sensor_data.tds;
+      if (sensor_data.has_conductivity) probe["conductivity"] = sensor_data.conductivity;
+      if (sensor_data.has_salinity) probe["salinity"] = sensor_data.salinity;
+      if (sensor_data.has_tds) probe["tds"] = sensor_data.tds;
       if (sensor_data.has_ph) probe["ph"] = sensor_data.ph;
     }
   }

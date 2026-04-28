@@ -51,9 +51,13 @@ pub fn Home() -> Element {
         co2_readings: Signal::new(Vec::new()),
         temperature_humidity_readings: Signal::new(Vec::new()),
         voltage_readings: Signal::new(Vec::new()),
+        current_readings: Signal::new(Vec::new()),
         pressure_readings: Signal::new(Vec::new()),
         rainfall_readings: Signal::new(Vec::new()),
         soil_readings: Signal::new(Vec::new()),
+        wind_speed_readings: Signal::new(Vec::new()),
+        wind_direction_readings: Signal::new(Vec::new()),
+        solar_radiation_readings: Signal::new(Vec::new()),
     });
     let mut active_tab = use_signal(|| MeasurementTab::TemperatureHumidity);
     let mut co2_config = use_signal(|| None::<api::Co2ConfigData>);

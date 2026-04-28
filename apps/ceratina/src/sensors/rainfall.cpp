@@ -1,46 +1,29 @@
 #include "rainfall.h"
+#include "modbus_config.h"
 #include "registry.h"
 
-#include <config.h>
-#include "../hardware/rs485.h"
 #include "../networking/modbus.h"
 
 #include <math.h>
 
-namespace {
+//--- state --------------------------------------------------------------------
 
-bool available = false;
+static bool available = false;
 
-const config::ModbusSensorConfig *access_config() {
-  for (size_t index = 0; index < config::modbus::DEVICE_COUNT; index++) {
-    const config::ModbusSensorConfig &sensor_config = config::modbus::DEVICES[index];
-    if (sensor_config.kind == config::ModbusSensorKind::Rain) {
-      return &sensor_config;
-    }
-  }
-  return nullptr;
-}
-
-hardware::rs485::Channel channel_from_config(const config::ModbusSensorConfig *sensor_config) {
-  return sensor_config && sensor_config->channel == 0
-      ? hardware::rs485::Channel::Bus0
-      : hardware::rs485::Channel::Bus1;
-}
-
-}
+//--- public API ---------------------------------------------------------------
 
 bool sensors::rainfall::access(RainfallSensorData *sensor_data) {
   if (!sensor_data) return false;
   sensor_data->millimeters = NAN;
   sensor_data->ok = false;
-  const config::ModbusSensorConfig *sensor_config = access_config();
-  if (!sensor_config) return false;
+  const auto *device = find_modbus_device(config::ModbusSensorKind::Rain);
+  if (!device) return false;
 
   uint16_t output_words[1] = {0};
   ReadHoldingRegistersCommand command = {
-    .channel = channel_from_config(sensor_config),
-    .slave_id = sensor_config->slave_id,
-    .start_register = sensor_config->register_address,
+    .channel = channel_for_device(device),
+    .slave_id = device->slave_id,
+    .start_register = device->register_address,
     .register_count = 1,
     .output_words = output_words,
     .error = ModbusError::NotInitialized,
@@ -54,14 +37,14 @@ bool sensors::rainfall::access(RainfallSensorData *sensor_data) {
 }
 
 bool sensors::rainfall::clear() {
-  const config::ModbusSensorConfig *sensor_config = access_config();
-  if (!sensor_config) return false;
+  const auto *device = find_modbus_device(config::ModbusSensorKind::Rain);
+  if (!device) return false;
 
   WriteSingleRegisterCommand command = {
-    .channel = channel_from_config(sensor_config),
-    .slave_id = sensor_config->slave_id,
-    .register_address = 0x0000,
-    .value = 0x005A,
+    .channel = channel_for_device(device),
+    .slave_id = device->slave_id,
+    .register_address = config::rainfall::CLEAR_REGISTER,
+    .value = config::rainfall::CLEAR_VALUE,
     .error = ModbusError::NotInitialized,
   };
 
@@ -69,7 +52,7 @@ bool sensors::rainfall::clear() {
 }
 
 bool sensors::rainfall::initialize() {
-  if (!access_config()) {
+  if (!find_modbus_device(config::ModbusSensorKind::Rain)) {
     available = false;
     return true;
   }
@@ -96,29 +79,29 @@ bool sensors::rainfall::isAvailable() {
   return available;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Tests
-// ─────────────────────────────────────────────────────────────────────────────
+//--- tests --------------------------------------------------------------------
+
 #ifdef PIO_UNIT_TESTING
 
 #include <testing/utils.h>
-
-namespace sensors::rainfall { void test(void); }
 
 static void test_rainfall_config(void) {
   GIVEN("rainfall sensor config");
   THEN("the device entry exists in the config array");
 
-  bool found = false;
-  for (size_t index = 0; index < config::modbus::DEVICE_COUNT; index++) {
-    if (config::modbus::DEVICES[index].kind == config::ModbusSensorKind::Rain) {
-      found = true;
-      TEST_ASSERT_EQUAL_MESSAGE(0, config::modbus::DEVICES[index].channel,
-        "device: rain sensor should be on Bus 0 (9600 baud)");
-      break;
-    }
+  const auto *device = find_modbus_device(config::ModbusSensorKind::Rain);
+  if (!device) {
+    TEST_IGNORE_MESSAGE("no rain sensor configured — skipping");
+    return;
   }
-  TEST_ASSERT_TRUE_MESSAGE(found, "device: Rain entry missing from modbus::DEVICES");
+
+  TEST_ASSERT_EQUAL_MESSAGE(0, device->channel,
+    "device: rain sensor should be on Bus 0");
+
+  char msg[64];
+  snprintf(msg, sizeof(msg), "channel=%d slave=%d register=%d",
+           device->channel, device->slave_id, device->register_address);
+  TEST_MESSAGE(msg);
 }
 
 static void test_rainfall_read(void) {

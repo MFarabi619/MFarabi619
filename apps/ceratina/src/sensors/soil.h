@@ -3,14 +3,25 @@
 #include <stdint.h>
 
 struct SoilSensorData {
+  uint8_t slave_id;
+  const char *model;
   float temperature_celsius;
   float moisture_percent;
   uint16_t conductivity;
   uint16_t salinity;
   uint16_t tds;
   float ph;
+  bool has_conductivity;
+  bool has_salinity;
+  bool has_tds;
   bool has_ph;
-  uint8_t slave_id;
+  float temperature_calibration;
+  float moisture_calibration;
+  uint16_t conductivity_calibration;
+  float conductivity_temperature_coefficient;
+  float salinity_coefficient;
+  float tds_coefficient;
+  bool has_calibration;
   bool ok;
 };
 

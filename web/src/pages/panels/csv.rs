@@ -114,16 +114,74 @@ impl CsvRow for RainfallRow {
 
 impl CsvRow for SoilRow {
     fn header(_: &[Self]) -> String {
-        "#,SLAVE_ID,MOISTURE_PCT,TEMP_C,EC,SALINITY,TDS,PH,TIME".to_string()
+        "TIME,#,ID,MODEL,TEMPERATURE_CELSIUS,MOISTURE_PERCENT,PH,ELECTRICAL_CONDUCTIVITY_US_CM,SALINITY_MG_L,TOTAL_DISSOLVED_SOLIDS_PPM,TEMPERATURE_CALIBRATION,MOISTURE_CALIBRATION,CONDUCTIVITY_CALIBRATION,CONDUCTIVITY_TEMPERATURE_COEFFICIENT,SALINITY_COEFFICIENT,TDS_COEFFICIENT".to_string()
     }
 
     fn to_row(&self) -> String {
-        let ph = if self.has_ph { format!("{:.1}", self.ph) } else { String::new() };
+        let ph = self.ph.map(|value| format!("{value:.1}")).unwrap_or_else(|| "N/A".into());
+        let conductivity = self.conductivity.map(|value| value.to_string()).unwrap_or_else(|| "N/A".into());
+        let salinity = self.salinity.map(|value| value.to_string()).unwrap_or_else(|| "N/A".into());
+        let tds = self.tds.map(|value| value.to_string()).unwrap_or_else(|| "N/A".into());
+        let temperature_calibration = self.temperature_calibration.map(|value| format!("{value:.1}")).unwrap_or_else(|| "N/A".into());
+        let moisture_calibration = self.moisture_calibration.map(|value| format!("{value:.1}")).unwrap_or_else(|| "N/A".into());
+        let conductivity_calibration = self.conductivity_calibration.map(|value| value.to_string()).unwrap_or_else(|| "N/A".into());
+        let conductivity_temperature_coefficient = self.conductivity_temperature_coefficient.map(|value| format!("{value:.1}")).unwrap_or_else(|| "N/A".into());
+        let salinity_coefficient = self.salinity_coefficient.map(|value| format!("{value:.2}")).unwrap_or_else(|| "N/A".into());
+        let tds_coefficient = self.tds_coefficient.map(|value| format!("{value:.2}")).unwrap_or_else(|| "N/A".into());
         format!(
-            "{},{},{:.1},{:.1},{},{},{},{},{}",
-            self.row, self.slave_id, self.moisture_percent, self.temperature_celsius,
-            self.conductivity, self.salinity, self.tds, ph, self.time
+            "{},{},{},{},{:.1},{:.1},{},{},{},{},{},{},{},{},{},{}",
+            self.time, self.row, self.address, self.model,
+            self.temperature_celsius, self.moisture_percent,
+            ph, conductivity, salinity, tds,
+            temperature_calibration, moisture_calibration, conductivity_calibration,
+            conductivity_temperature_coefficient, salinity_coefficient, tds_coefficient
         )
+    }
+}
+
+impl CsvRow for CurrentRow {
+    fn header(_: &[Self]) -> String {
+        "#,CURRENT_MA,BUS_V,SHUNT_MV,POWER_MW,ENERGY_J,CHARGE_C,DIE_TEMP_C,TIME".to_string()
+    }
+
+    fn to_row(&self) -> String {
+        format!(
+            "{},{:.3},{:.4},{:.4},{:.3},{:.3},{:.6},{:.1},{}",
+            self.row, self.current_milliamps, self.bus_voltage,
+            self.shunt_voltage_millivolts, self.power_milliwatts,
+            self.energy_joules, self.charge_coulombs,
+            self.die_temperature_celsius, self.time
+        )
+    }
+}
+
+impl CsvRow for WindSpeedRow {
+    fn header(_: &[Self]) -> String {
+        "#,WIND_SPEED_KMH,TIME".to_string()
+    }
+
+    fn to_row(&self) -> String {
+        format!("{},{:.1},{}", self.row, self.kilometers_per_hour, self.time)
+    }
+}
+
+impl CsvRow for WindDirectionRow {
+    fn header(_: &[Self]) -> String {
+        "#,DEGREES,ANGLE_SLICE,TIME".to_string()
+    }
+
+    fn to_row(&self) -> String {
+        format!("{},{:.1},{},{}", self.row, self.degrees, self.angle_slice, self.time)
+    }
+}
+
+impl CsvRow for SolarRadiationRow {
+    fn header(_: &[Self]) -> String {
+        "#,WATTS_PER_M2,TIME".to_string()
+    }
+
+    fn to_row(&self) -> String {
+        format!("{},{},{}", self.row, self.watts_per_square_meter, self.time)
     }
 }
 

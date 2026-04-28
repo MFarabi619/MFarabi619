@@ -14,6 +14,7 @@
 #include "../programs/buttons.h"
 #include <led.h>
 #include "../power/sleep.h"
+#include "../power/sleep_after_poll.h"
 #include "../programs/shell/shell.h"
 #include "../programs/ssh/ssh_server.h"
 #include "../services/http.h"
@@ -117,6 +118,10 @@ void system_task(void *pvParameters) {
   connect_networking();
   boot::system::startServices();
 
+#if CERATINA_SLEEP_AFTER_POLL_ENABLED
+  power::sleep_after_poll::initialize();
+#endif
+
   TimerHandle_t heartbeat = xTimerCreate("heartbeat", pdMS_TO_TICKS(5000),
                                           pdTRUE, nullptr, heartbeat_callback);
   xTimerStart(heartbeat, 0);
@@ -129,6 +134,10 @@ void system_task(void *pvParameters) {
     networking::ota::service();
     // programs::buttons::service();
     power::sleep::service();
+
+#if CERATINA_SLEEP_AFTER_POLL_ENABLED
+    power::sleep_after_poll::service();
+#endif
 
 #if CERATINA_BLE_ENABLED
     networking::ble::service();

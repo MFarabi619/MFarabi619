@@ -1,47 +1,30 @@
 #include "wind_direction.h"
+#include "modbus_config.h"
 #include "registry.h"
 
-#include <config.h>
-#include "../hardware/rs485.h"
 #include "../networking/modbus.h"
 
 #include <math.h>
 
-namespace {
+//--- state --------------------------------------------------------------------
 
-bool available = false;
+static bool available = false;
 
-const config::ModbusSensorConfig *access_config() {
-  for (size_t index = 0; index < config::modbus::DEVICE_COUNT; index++) {
-    const config::ModbusSensorConfig &sensor_config = config::modbus::DEVICES[index];
-    if (sensor_config.kind == config::ModbusSensorKind::WindDirection) {
-      return &sensor_config;
-    }
-  }
-  return nullptr;
-}
-
-hardware::rs485::Channel channel_from_config(const config::ModbusSensorConfig *sensor_config) {
-  return sensor_config && sensor_config->channel == 0
-      ? hardware::rs485::Channel::Bus0
-      : hardware::rs485::Channel::Bus1;
-}
-
-}
+//--- public API ---------------------------------------------------------------
 
 bool sensors::wind_direction::access(WindDirectionSensorData *sensor_data) {
   if (!sensor_data) return false;
   sensor_data->degrees = NAN;
   sensor_data->slice = 0xFF;
   sensor_data->ok = false;
-  const config::ModbusSensorConfig *sensor_config = access_config();
-  if (!sensor_config) return false;
+  const auto *device = find_modbus_device(config::ModbusSensorKind::WindDirection);
+  if (!device) return false;
 
   uint16_t output_words[2] = {0, 0};
   ReadHoldingRegistersCommand command = {
-    .channel = channel_from_config(sensor_config),
-    .slave_id = sensor_config->slave_id,
-    .start_register = sensor_config->register_address,
+    .channel = channel_for_device(device),
+    .slave_id = device->slave_id,
+    .start_register = device->register_address,
     .register_count = 2,
     .output_words = output_words,
     .error = ModbusError::NotInitialized,
@@ -57,7 +40,7 @@ bool sensors::wind_direction::access(WindDirectionSensorData *sensor_data) {
 }
 
 bool sensors::wind_direction::initialize() {
-  if (!access_config()) {
+  if (!find_modbus_device(config::ModbusSensorKind::WindDirection)) {
     available = false;
     return true;
   }
@@ -83,3 +66,62 @@ bool sensors::wind_direction::initialize() {
 bool sensors::wind_direction::isAvailable() {
   return available;
 }
+
+//--- tests --------------------------------------------------------------------
+
+#ifdef PIO_UNIT_TESTING
+
+#include <testing/utils.h>
+
+static void test_wind_direction_config(void) {
+  GIVEN("wind direction sensor config");
+  THEN("the device entry exists in the config array");
+
+  const auto *device = find_modbus_device(config::ModbusSensorKind::WindDirection);
+  if (!device) {
+    TEST_IGNORE_MESSAGE("no wind direction sensor configured — skipping");
+    return;
+  }
+
+  char msg[64];
+  snprintf(msg, sizeof(msg), "channel=%d slave=%d register=%d",
+           device->channel, device->slave_id, device->register_address);
+  TEST_MESSAGE(msg);
+}
+
+static void test_wind_direction_rejects_null(void) {
+  WHEN("a null buffer is passed to access");
+  THEN("it returns false");
+  TEST_ASSERT_FALSE_MESSAGE(sensors::wind_direction::access(nullptr),
+      "device: access should fail with null pointer");
+}
+
+static void test_wind_direction_read(void) {
+  WHEN("wind direction sensor is polled");
+  THEN("access returns a valid reading or fails gracefully");
+
+  WindDirectionSensorData sensor_data = {};
+  bool ok = sensors::wind_direction::access(&sensor_data);
+  if (ok) {
+    TEST_ASSERT_TRUE_MESSAGE(sensor_data.ok, "device: ok flag should be set");
+    TEST_ASSERT_FALSE_MESSAGE(isnan(sensor_data.degrees),
+      "device: degrees should not be NaN on successful read");
+    TEST_ASSERT_TRUE_MESSAGE(sensor_data.slice <= 15,
+      "device: slice must be 0-15");
+    char msg[64];
+    snprintf(msg, sizeof(msg), "wind direction: %.1f deg slice %d",
+             sensor_data.degrees, sensor_data.slice);
+    TEST_MESSAGE(msg);
+  } else {
+    TEST_IGNORE_MESSAGE("skipped — wind direction sensor not responding on bus");
+  }
+}
+
+void sensors::wind_direction::test(void) {
+  MODULE("Wind Direction");
+  RUN_TEST(test_wind_direction_config);
+  RUN_TEST(test_wind_direction_rejects_null);
+  RUN_TEST(test_wind_direction_read);
+}
+
+#endif

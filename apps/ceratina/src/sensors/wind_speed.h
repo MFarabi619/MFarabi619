@@ -12,5 +12,8 @@ bool initialize();
 bool isAvailable();
 bool access(WindSpeedSensorData *sensor_data);
 
-}
+#ifdef PIO_UNIT_TESTING
+void test();
+#endif
 
+}

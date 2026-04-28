@@ -4,6 +4,7 @@
 #include <networking/tunnel.h>
 #include "../sensors/registry.h"
 #include <manager.h>
+#include "../power/sleep_after_poll.h"
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -176,13 +177,26 @@ static void serialize_solar_radiation(const void *raw, JsonObject &out) {
 static void serialize_soil(const void *raw, JsonObject &out) {
   auto *d = static_cast<const SoilSensorData *>(raw);
   out["slave_id"] = d->slave_id;
+  out["model"] = d->model ? d->model : "Unknown";
   out["temperature_celsius"] = d->temperature_celsius;
   out["moisture_percent"] = d->moisture_percent;
-  out["conductivity"] = d->conductivity;
-  out["salinity"] = d->salinity;
-  out["tds"] = d->tds;
+  out["has_conductivity"] = d->has_conductivity;
+  out["has_salinity"] = d->has_salinity;
+  out["has_tds"] = d->has_tds;
   out["has_ph"] = d->has_ph;
+  if (d->has_conductivity) out["conductivity"] = d->conductivity;
+  if (d->has_salinity) out["salinity"] = d->salinity;
+  if (d->has_tds) out["tds"] = d->tds;
   if (d->has_ph) out["ph"] = d->ph;
+  out["has_calibration"] = d->has_calibration;
+  if (d->has_calibration) {
+    out["temperature_calibration"] = d->temperature_calibration;
+    out["moisture_calibration"] = d->moisture_calibration;
+    out["conductivity_calibration"] = d->conductivity_calibration;
+    out["conductivity_temperature_coefficient"] = d->conductivity_temperature_coefficient;
+    out["salinity_coefficient"] = d->salinity_coefficient;
+    out["tds_coefficient"] = d->tds_coefficient;
+  }
 }
 
 struct SensorSerializer {
@@ -282,6 +296,10 @@ static void handle_cloudevents_get(AsyncWebServerRequest *request) {
       request->beginResponseStream(MIME_CLOUDEVENTS_BATCH);
   serializeJson(payload, *response);
   request->send(response);
+
+#if CERATINA_SLEEP_AFTER_POLL_ENABLED
+  power::sleep_after_poll::notifyPolled();
+#endif
 }
 
 void services::cloudevents::registerRoutes(AsyncWebServer *server) {

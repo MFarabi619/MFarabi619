@@ -1,6 +1,7 @@
 use super::{
-    Co2Row, MeasurementState, MeasurementTab, PressureRow, RainfallRow, SensorAvailability, SoilRow, Td,
-    TemperatureHumidityRow, Th, VoltageRow, build_csv, download_csv, fetch_and_add_sensor_readings,
+    Co2Row, CurrentRow, MeasurementState, MeasurementTab, PressureRow, RainfallRow,
+    SensorAvailability, SoilRow, SolarRadiationRow, Td, TemperatureHumidityRow, Th, VoltageRow,
+    WindDirectionRow, WindSpeedRow, build_csv, download_csv, fetch_and_add_sensor_readings,
 };
 use crate::{api::Co2ConfigData, services::Co2Service};
 use dioxus::{prelude::*, signals::ReadSignal};
@@ -70,21 +71,31 @@ pub fn MeasurementPanel(
 ) -> Element {
     let avail = *measurement.read().availability.read();
 
-    let has_any_sensor = avail.temperature_humidity || avail.voltage || avail.pressure || avail.co2 || avail.rainfall || avail.soil;
+    let has_any_sensor = avail.temperature_humidity || avail.voltage || avail.current
+        || avail.pressure || avail.co2 || avail.rainfall || avail.soil
+        || avail.wind_speed || avail.wind_direction || avail.solar_radiation;
 
     let default_tab_value = if has_any_sensor {
         if avail.temperature_humidity {
             "temp_humidity"
         } else if avail.voltage {
             "voltage"
+        } else if avail.current {
+            "current"
         } else if avail.pressure {
             "pressure"
         } else if avail.co2 {
             "co2"
         } else if avail.rainfall {
             "rainfall"
-        } else {
+        } else if avail.soil {
             "soil"
+        } else if avail.wind_speed {
+            "wind_speed"
+        } else if avail.wind_direction {
+            "wind_direction"
+        } else {
+            "solar_radiation"
         }
     } else {
         "temp_humidity"
@@ -92,13 +103,17 @@ pub fn MeasurementPanel(
 
     let mut tab_value: Signal<Option<String>> = use_signal(|| None);
 
-    const TABS: [MeasurementTab; 6] = [
+    const TABS: [MeasurementTab; 10] = [
         MeasurementTab::TemperatureHumidity,
         MeasurementTab::Voltage,
+        MeasurementTab::Current,
         MeasurementTab::Pressure,
         MeasurementTab::CarbonDioxide,
         MeasurementTab::Rainfall,
         MeasurementTab::Soil,
+        MeasurementTab::WindSpeed,
+        MeasurementTab::WindDirection,
+        MeasurementTab::SolarRadiation,
     ];
 
     rsx! {
@@ -181,6 +196,34 @@ pub fn MeasurementPanel(
                                 value: "soil".to_string(),
                                 index: use_signal(|| 5usize),
                                 {soil_panel(device_url, measurement, sampling)}
+                            }
+                        }
+                        if avail.wind_speed {
+                            TabContent {
+                                value: "wind_speed".to_string(),
+                                index: use_signal(|| 6usize),
+                                {wind_speed_panel(device_url, measurement, sampling)}
+                            }
+                        }
+                        if avail.wind_direction {
+                            TabContent {
+                                value: "wind_direction".to_string(),
+                                index: use_signal(|| 7usize),
+                                {wind_direction_panel(device_url, measurement, sampling)}
+                            }
+                        }
+                        if avail.solar_radiation {
+                            TabContent {
+                                value: "solar_radiation".to_string(),
+                                index: use_signal(|| 8usize),
+                                {solar_radiation_panel(device_url, measurement, sampling)}
+                            }
+                        }
+                        if avail.current {
+                            TabContent {
+                                value: "current".to_string(),
+                                index: use_signal(|| 9usize),
+                                {current_panel(device_url, measurement, sampling)}
                             }
                         }
                     }
@@ -670,13 +713,254 @@ fn rainfall_panel(
     }
 }
 
+fn wind_speed_panel(
+    device_url: Signal<String>,
+    measurement: Signal<MeasurementState>,
+    sampling: Signal<bool>,
+) -> Element {
+    let wind_speed_readings = measurement.read().wind_speed_readings;
+    rsx! {
+        div {
+            div { class: "flex items-center gap-2 flex-wrap mb-3",
+                div { class: "flex-1" }
+
+                if !wind_speed_readings.read().is_empty() {
+                    {csv_button(move |_| {
+                        download_csv("wind_speed.csv", &build_csv(&wind_speed_readings.read()));
+                    })}
+                }
+
+                {sample_button(sampling, device_url, measurement,
+                    rsx! { lucide_dioxus::Wind { class: "w-4 h-4" } })}
+            }
+
+            div { class: "border border-border rounded-lg overflow-scroll min-h-[320px] max-h-[460px]",
+                div { class: "w-full overflow-auto h-full",
+                    table { class: "min-w-full border-collapse",
+                        thead { class: "bg-muted",
+                            tr {
+                                Th { "#" }
+                                Th { "Speed (km/h)" }
+                                Th { "TIME" }
+                            }
+                        }
+                        tbody {
+                            if wind_speed_readings.read().is_empty() {
+                                tr {
+                                    td { colspan: "3", class: "px-4 py-10 text-center",
+                                        div { class: "flex flex-col items-center gap-2",
+                                            lucide_dioxus::Wind { class: "w-9 h-9 text-muted-foreground" }
+                                            h3 { class: "text-sm font-medium text-foreground", "No readings yet" }
+                                            p { class: "text-sm text-muted-foreground", "Data streams automatically every 5 seconds" }
+                                        }
+                                    }
+                                }
+                            }
+                            for row in wind_speed_readings.read().iter().rev() {
+                                tr { key: "{row.row}", class: "border-b border-border hover:bg-muted/40 transition-colors",
+                                    Td { "{row.row}" }
+                                    Td { class: "tabular-nums", "{row.kilometers_per_hour:.1}" }
+                                    Td { class: "text-muted-foreground whitespace-nowrap", "{row.time}" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn wind_direction_panel(
+    device_url: Signal<String>,
+    measurement: Signal<MeasurementState>,
+    sampling: Signal<bool>,
+) -> Element {
+    let wind_direction_readings = measurement.read().wind_direction_readings;
+    rsx! {
+        div {
+            div { class: "flex items-center gap-2 flex-wrap mb-3",
+                div { class: "flex-1" }
+
+                if !wind_direction_readings.read().is_empty() {
+                    {csv_button(move |_| {
+                        download_csv("wind_direction.csv", &build_csv(&wind_direction_readings.read()));
+                    })}
+                }
+
+                {sample_button(sampling, device_url, measurement,
+                    rsx! { lucide_dioxus::Compass { class: "w-4 h-4" } })}
+            }
+
+            div { class: "border border-border rounded-lg overflow-scroll min-h-[320px] max-h-[460px]",
+                div { class: "w-full overflow-auto h-full",
+                    table { class: "min-w-full border-collapse",
+                        thead { class: "bg-muted",
+                            tr {
+                                Th { "#" }
+                                Th { "Degrees (\u{00b0})" }
+                                Th { "Slice" }
+                                Th { "TIME" }
+                            }
+                        }
+                        tbody {
+                            if wind_direction_readings.read().is_empty() {
+                                tr {
+                                    td { colspan: "4", class: "px-4 py-10 text-center",
+                                        div { class: "flex flex-col items-center gap-2",
+                                            lucide_dioxus::Compass { class: "w-9 h-9 text-muted-foreground" }
+                                            h3 { class: "text-sm font-medium text-foreground", "No readings yet" }
+                                            p { class: "text-sm text-muted-foreground", "Data streams automatically every 5 seconds" }
+                                        }
+                                    }
+                                }
+                            }
+                            for row in wind_direction_readings.read().iter().rev() {
+                                tr { key: "{row.row}", class: "border-b border-border hover:bg-muted/40 transition-colors",
+                                    Td { "{row.row}" }
+                                    Td { class: "tabular-nums", "{row.degrees:.1}" }
+                                    Td { class: "tabular-nums", "{row.angle_slice}" }
+                                    Td { class: "text-muted-foreground whitespace-nowrap", "{row.time}" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn solar_radiation_panel(
+    device_url: Signal<String>,
+    measurement: Signal<MeasurementState>,
+    sampling: Signal<bool>,
+) -> Element {
+    let solar_radiation_readings = measurement.read().solar_radiation_readings;
+    rsx! {
+        div {
+            div { class: "flex items-center gap-2 flex-wrap mb-3",
+                div { class: "flex-1" }
+
+                if !solar_radiation_readings.read().is_empty() {
+                    {csv_button(move |_| {
+                        download_csv("solar_radiation.csv", &build_csv(&solar_radiation_readings.read()));
+                    })}
+                }
+
+                {sample_button(sampling, device_url, measurement,
+                    rsx! { lucide_dioxus::Sun { class: "w-4 h-4" } })}
+            }
+
+            div { class: "border border-border rounded-lg overflow-scroll min-h-[320px] max-h-[460px]",
+                div { class: "w-full overflow-auto h-full",
+                    table { class: "min-w-full border-collapse",
+                        thead { class: "bg-muted",
+                            tr {
+                                Th { "#" }
+                                Th { "Irradiance (W/m\u{00b2})" }
+                                Th { "TIME" }
+                            }
+                        }
+                        tbody {
+                            if solar_radiation_readings.read().is_empty() {
+                                tr {
+                                    td { colspan: "3", class: "px-4 py-10 text-center",
+                                        div { class: "flex flex-col items-center gap-2",
+                                            lucide_dioxus::Sun { class: "w-9 h-9 text-muted-foreground" }
+                                            h3 { class: "text-sm font-medium text-foreground", "No readings yet" }
+                                            p { class: "text-sm text-muted-foreground", "Data streams automatically every 5 seconds" }
+                                        }
+                                    }
+                                }
+                            }
+                            for row in solar_radiation_readings.read().iter().rev() {
+                                tr { key: "{row.row}", class: "border-b border-border hover:bg-muted/40 transition-colors",
+                                    Td { "{row.row}" }
+                                    Td { class: "tabular-nums", "{row.watts_per_square_meter}" }
+                                    Td { class: "text-muted-foreground whitespace-nowrap", "{row.time}" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn current_panel(
+    device_url: Signal<String>,
+    measurement: Signal<MeasurementState>,
+    sampling: Signal<bool>,
+) -> Element {
+    let current_readings = measurement.read().current_readings;
+    rsx! {
+        div {
+            div { class: "flex items-center gap-2 flex-wrap mb-3",
+                div { class: "flex-1" }
+
+                if !current_readings.read().is_empty() {
+                    {csv_button(move |_| {
+                        download_csv("current.csv", &build_csv(&current_readings.read()));
+                    })}
+                }
+
+                {sample_button(sampling, device_url, measurement,
+                    rsx! { lucide_dioxus::Zap { class: "w-4 h-4" } })}
+            }
+
+            div { class: "border border-border rounded-lg overflow-scroll min-h-[320px] max-h-[460px]",
+                div { class: "w-full overflow-auto h-full",
+                    table { class: "min-w-full border-collapse",
+                        thead { class: "bg-muted",
+                            tr {
+                                Th { "#" }
+                                Th { "Current (mA)" }
+                                Th { "Bus (V)" }
+                                Th { "Shunt (mV)" }
+                                Th { "Power (mW)" }
+                                Th { "Die Temp (\u{00b0}C)" }
+                                Th { "TIME" }
+                            }
+                        }
+                        tbody {
+                            if current_readings.read().is_empty() {
+                                tr {
+                                    td { colspan: "7", class: "px-4 py-10 text-center",
+                                        div { class: "flex flex-col items-center gap-2",
+                                            lucide_dioxus::Zap { class: "w-9 h-9 text-muted-foreground" }
+                                            h3 { class: "text-sm font-medium text-foreground", "No readings yet" }
+                                            p { class: "text-sm text-muted-foreground", "Data streams automatically every 5 seconds" }
+                                        }
+                                    }
+                                }
+                            }
+                            for row in current_readings.read().iter().rev() {
+                                tr { key: "{row.row}", class: "border-b border-border hover:bg-muted/40 transition-colors",
+                                    Td { "{row.row}" }
+                                    Td { class: "tabular-nums", "{row.current_milliamps:.3}" }
+                                    Td { class: "tabular-nums", "{row.bus_voltage:.4}" }
+                                    Td { class: "tabular-nums", "{row.shunt_voltage_millivolts:.4}" }
+                                    Td { class: "tabular-nums", "{row.power_milliwatts:.3}" }
+                                    Td { class: "tabular-nums", "{row.die_temperature_celsius:.1}" }
+                                    Td { class: "text-muted-foreground whitespace-nowrap", "{row.time}" }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 fn soil_panel(
     device_url: Signal<String>,
     measurement: Signal<MeasurementState>,
     sampling: Signal<bool>,
 ) -> Element {
     let soil_readings = measurement.read().soil_readings;
-    let has_any_ph = soil_readings.read().iter().any(|r| r.has_ph);
     rsx! {
         div {
             div { class: "flex items-center gap-2 flex-wrap mb-3",
@@ -698,22 +982,27 @@ fn soil_panel(
                         thead { class: "bg-muted",
                             tr {
                                 Th { "#" }
-                                Th { "Slave" }
-                                Th { "Moisture (%)" }
+                                Th { "ID" }
+                                Th { "Model" }
                                 Th { "Temp (\u{00b0}C)" }
-                                Th { "EC" }
-                                Th { "Salinity" }
-                                Th { "TDS" }
-                                if has_any_ph {
-                                    Th { "pH" }
-                                }
-                                Th { "TIME" }
+                                Th { "Moisture (%)" }
+                                Th { "pH" }
+                                Th { "EC (\u{03bc}S/cm)" }
+                                Th { "Salinity (mg/L)" }
+                                Th { "TDS (ppm)" }
+                                Th { "Temp Cal" }
+                                Th { "Moist Cal" }
+                                Th { "EC Cal" }
+                                Th { "EC Temp Coeff" }
+                                Th { "Sal Coeff" }
+                                Th { "TDS Coeff" }
+                                Th { "Time" }
                             }
                         }
                         tbody {
                             if soil_readings.read().is_empty() {
                                 tr {
-                                    td { colspan: if has_any_ph { "9" } else { "8" }, class: "px-4 py-10 text-center",
+                                    td { colspan: "16", class: "px-4 py-10 text-center",
                                         div { class: "flex flex-col items-center gap-2",
                                             lucide_dioxus::Sprout { class: "w-9 h-9 text-muted-foreground" }
                                             h3 { class: "text-sm font-medium text-foreground", "No readings yet" }
@@ -723,22 +1012,37 @@ fn soil_panel(
                                 }
                             }
                             for row in soil_readings.read().iter().rev() {
-                                tr { key: "{row.row}", class: "border-b border-border hover:bg-muted/40 transition-colors",
-                                    Td { "{row.row}" }
-                                    Td { class: "tabular-nums", "{row.slave_id}" }
-                                    Td { class: "tabular-nums", "{row.moisture_percent:.1}" }
-                                    Td { class: "tabular-nums", "{row.temperature_celsius:.1}" }
-                                    Td { class: "tabular-nums", "{row.conductivity}" }
-                                    Td { class: "tabular-nums", "{row.salinity}" }
-                                    Td { class: "tabular-nums", "{row.tds}" }
-                                    if has_any_ph {
-                                        if row.has_ph {
-                                            Td { class: "tabular-nums", "{row.ph:.1}" }
-                                        } else {
-                                            Td { class: "text-muted-foreground", "\u{2014}" }
+                                {
+                                    let ph = row.ph.map(|value| format!("{value:.1}")).unwrap_or_else(|| "\u{2014}".into());
+                                    let conductivity = row.conductivity.map(|value| value.to_string()).unwrap_or_else(|| "\u{2014}".into());
+                                    let salinity = row.salinity.map(|value| value.to_string()).unwrap_or_else(|| "\u{2014}".into());
+                                    let tds = row.tds.map(|value| value.to_string()).unwrap_or_else(|| "\u{2014}".into());
+                                    let temperature_calibration = row.temperature_calibration.map(|value| format!("{value:.1}")).unwrap_or_else(|| "\u{2014}".into());
+                                    let moisture_calibration = row.moisture_calibration.map(|value| format!("{value:.1}")).unwrap_or_else(|| "\u{2014}".into());
+                                    let conductivity_calibration = row.conductivity_calibration.map(|value| value.to_string()).unwrap_or_else(|| "\u{2014}".into());
+                                    let conductivity_temperature_coefficient = row.conductivity_temperature_coefficient.map(|value| format!("{value:.1}")).unwrap_or_else(|| "\u{2014}".into());
+                                    let salinity_coefficient = row.salinity_coefficient.map(|value| format!("{value:.2}")).unwrap_or_else(|| "\u{2014}".into());
+                                    let tds_coefficient = row.tds_coefficient.map(|value| format!("{value:.2}")).unwrap_or_else(|| "\u{2014}".into());
+                                    rsx! {
+                                        tr { key: "{row.row}", class: "border-b border-border hover:bg-muted/40 transition-colors",
+                                            Td { "{row.row}" }
+                                            Td { class: "tabular-nums", "{row.address}" }
+                                            Td { class: "font-mono text-xs", "{row.model}" }
+                                            Td { class: "tabular-nums", "{row.temperature_celsius:.1}" }
+                                            Td { class: "tabular-nums", "{row.moisture_percent:.1}" }
+                                            Td { class: "tabular-nums", "{ph}" }
+                                            Td { class: "tabular-nums", "{conductivity}" }
+                                            Td { class: "tabular-nums", "{salinity}" }
+                                            Td { class: "tabular-nums", "{tds}" }
+                                            Td { class: "tabular-nums", "{temperature_calibration}" }
+                                            Td { class: "tabular-nums", "{moisture_calibration}" }
+                                            Td { class: "tabular-nums", "{conductivity_calibration}" }
+                                            Td { class: "tabular-nums", "{conductivity_temperature_coefficient}" }
+                                            Td { class: "tabular-nums", "{salinity_coefficient}" }
+                                            Td { class: "tabular-nums", "{tds_coefficient}" }
+                                            Td { class: "text-muted-foreground whitespace-nowrap", "{row.time}" }
                                         }
                                     }
-                                    Td { class: "text-muted-foreground whitespace-nowrap", "{row.time}" }
                                 }
                             }
                         }

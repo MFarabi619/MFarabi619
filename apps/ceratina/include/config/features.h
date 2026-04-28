@@ -50,10 +50,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 #define CERATINA_TELNET_ENABLED     1
-#define CERATINA_OTA_ENABLED        0
+#define CERATINA_OTA_ENABLED        1
 #define CERATINA_PROV_ENABLED       0
 #define CERATINA_BLE_ENABLED        0
 #define CERATINA_SMTP_ENABLED       0
 #define CERATINA_SMTP_TEST_ENABLED  0
 #define CERATINA_HTTP_AUTH_ENABLED  0
-#define CERATINA_TUNNEL_ENABLED     1
+#define CERATINA_TUNNEL_ENABLED         0
+#define CERATINA_SLEEP_AFTER_POLL_ENABLED 0

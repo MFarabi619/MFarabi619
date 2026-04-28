@@ -1,5 +1,6 @@
 #include <led.h>
 #include <config.h>
+#include "../power/sleep.h"
 
 #include <FastLED.h>
 
@@ -15,7 +16,14 @@ Led LED;
 bool Led::init() {
     FastLED.addLeds<NEOPIXEL, config::led::GPIO>(pixel, 1)
         .setCorrection(TypicalSMD5050);
-    FastLED.setBrightness(config::led::BRIGHTNESS);
+
+    SleepConfig sleep_config = {};
+    power::sleep::accessConfig(&sleep_config);
+    uint8_t brightness = sleep_config.enabled
+        ? config::led::DIM_BRIGHTNESS
+        : config::led::BRIGHTNESS;
+    FastLED.setBrightness(brightness);
+
     pixel[0] = CRGB::Black;
     FastLED.show();
     return true;

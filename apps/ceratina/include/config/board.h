@@ -45,17 +45,77 @@ namespace config {
       };
 
       inline constexpr BusConfig BUS_0 = {45, 48, 47, 9600};
-      inline constexpr BusConfig BUS_1 = {40, 39, 41, 4800};
+      inline constexpr BusConfig BUS_1 = {40, 39, 41, 9600};
   }
 
   enum class ModbusSensorKind : uint8_t {
       WindSpeed,
       WindDirection,
       SolarRadiation,
-      SoilProbe,
-      SoilProbeWithPH,
       Rain,
   };
+
+  enum class SoilProbeTier : uint8_t {
+      MoistureTemperature,
+      MoistureTemperatureEC,
+      MoistureTemperatureECPH,
+  };
+
+  struct SoilRegisterMap {
+      uint16_t start_register;
+      uint8_t  register_count;
+      int8_t   moisture_offset;
+      int8_t   temperature_offset;
+      int8_t   conductivity_offset;
+      int8_t   salinity_offset;
+      int8_t   tds_offset;
+      int8_t   ph_offset;
+  };
+
+  namespace soil {
+      // DFRobot SEN0600 — wiki.dfrobot.com/sen0600/docs/19789
+      inline constexpr SoilRegisterMap MOISTURE_TEMPERATURE = {
+          .start_register      = 0,
+          .register_count      = 2,
+          .moisture_offset     = 0,
+          .temperature_offset  = 1,
+          .conductivity_offset = -1,
+          .salinity_offset     = -1,
+          .tds_offset          = -1,
+          .ph_offset           = -1,
+      };
+
+      // DFRobot SEN0601 — wiki.dfrobot.com/sen0601/docs/21001
+      inline constexpr SoilRegisterMap MOISTURE_TEMPERATURE_EC = {
+          .start_register      = 0,
+          .register_count      = 5,
+          .moisture_offset     = 0,
+          .temperature_offset  = 1,
+          .conductivity_offset = 2,
+          .salinity_offset     = 3,
+          .tds_offset          = 4,
+          .ph_offset           = -1,
+      };
+
+      // DFRobot SEN0604 — wiki.dfrobot.com/sen0604/docs/20297 — registers 4-6 are unused (gap)
+      inline constexpr SoilRegisterMap MOISTURE_TEMPERATURE_EC_PH = {
+          .start_register      = 0,
+          .register_count      = 9,
+          .moisture_offset     = 0,
+          .temperature_offset  = 1,
+          .conductivity_offset = 2,
+          .salinity_offset     = 7,
+          .tds_offset          = 8,
+          .ph_offset           = 3,
+      };
+
+      // indexed by SoilProbeTier
+      inline constexpr const SoilRegisterMap* REGISTER_MAPS[] = {
+          &MOISTURE_TEMPERATURE,
+          &MOISTURE_TEMPERATURE_EC,
+          &MOISTURE_TEMPERATURE_EC_PH,
+      };
+  }
 
   struct ModbusSensorConfig {
       ModbusSensorKind kind;
@@ -66,13 +126,17 @@ namespace config {
 
   namespace modbus {
       inline constexpr ModbusSensorConfig DEVICES[] = {
-          {ModbusSensorKind::WindSpeed, 0, 20, 0},
-          {ModbusSensorKind::WindDirection, 0, 30, 0},
-          {ModbusSensorKind::SoilProbeWithPH, 0, 120, 0},
-          {ModbusSensorKind::Rain, 0, 140, 0},
+          {ModbusSensorKind::WindSpeed,      0,  20, 0},
+          {ModbusSensorKind::WindDirection,   0,  30, 0},
+          {ModbusSensorKind::Rain,            0, 140, 0},
       };
 
       inline constexpr uint32_t DEVICE_COUNT = sizeof(DEVICES) / sizeof(DEVICES[0]);
+  }
+
+  namespace rainfall {
+      inline constexpr uint16_t CLEAR_REGISTER = 0x0000;
+      inline constexpr uint16_t CLEAR_VALUE    = 0x005A;
   }
 
   namespace eeprom {

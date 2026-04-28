@@ -1,44 +1,27 @@
 #include "solar_radiation.h"
+#include "modbus_config.h"
 #include "registry.h"
 
-#include <config.h>
-#include "../hardware/rs485.h"
 #include "../networking/modbus.h"
 
-namespace {
+//--- state --------------------------------------------------------------------
 
-bool available = false;
+static bool available = false;
 
-const config::ModbusSensorConfig *access_config() {
-  for (size_t index = 0; index < config::modbus::DEVICE_COUNT; index++) {
-    const config::ModbusSensorConfig &sensor_config = config::modbus::DEVICES[index];
-    if (sensor_config.kind == config::ModbusSensorKind::SolarRadiation) {
-      return &sensor_config;
-    }
-  }
-  return nullptr;
-}
-
-hardware::rs485::Channel channel_from_config(const config::ModbusSensorConfig *sensor_config) {
-  return sensor_config && sensor_config->channel == 0
-      ? hardware::rs485::Channel::Bus0
-      : hardware::rs485::Channel::Bus1;
-}
-
-}
+//--- public API ---------------------------------------------------------------
 
 bool sensors::solar_radiation::access(SolarRadiationSensorData *sensor_data) {
   if (!sensor_data) return false;
   sensor_data->watts_per_square_meter = 0;
   sensor_data->ok = false;
-  const config::ModbusSensorConfig *sensor_config = access_config();
-  if (!sensor_config) return false;
+  const auto *device = find_modbus_device(config::ModbusSensorKind::SolarRadiation);
+  if (!device) return false;
 
   uint16_t output_words[1] = {0};
   ReadHoldingRegistersCommand command = {
-    .channel = channel_from_config(sensor_config),
-    .slave_id = sensor_config->slave_id,
-    .start_register = sensor_config->register_address,
+    .channel = channel_for_device(device),
+    .slave_id = device->slave_id,
+    .start_register = device->register_address,
     .register_count = 1,
     .output_words = output_words,
     .error = ModbusError::NotInitialized,
@@ -52,7 +35,7 @@ bool sensors::solar_radiation::access(SolarRadiationSensorData *sensor_data) {
 }
 
 bool sensors::solar_radiation::initialize() {
-  if (!access_config()) {
+  if (!find_modbus_device(config::ModbusSensorKind::SolarRadiation)) {
     available = false;
     return true;
   }
@@ -79,6 +62,8 @@ bool sensors::solar_radiation::isAvailable() {
   return available;
 }
 
+//--- tests --------------------------------------------------------------------
+
 #ifdef PIO_UNIT_TESTING
 
 #include <testing/utils.h>
@@ -86,22 +71,15 @@ bool sensors::solar_radiation::isAvailable() {
 static void test_solar_radiation_config_lookup(void) {
   WHEN("the modbus topology is checked for solar radiation");
 
-  const config::ModbusSensorConfig *cfg = nullptr;
-  for (size_t i = 0; i < config::modbus::DEVICE_COUNT; i++) {
-    if (config::modbus::DEVICES[i].kind == config::ModbusSensorKind::SolarRadiation) {
-      cfg = &config::modbus::DEVICES[i];
-      break;
-    }
-  }
-
-  if (!cfg) {
+  const auto *device = find_modbus_device(config::ModbusSensorKind::SolarRadiation);
+  if (!device) {
     TEST_IGNORE_MESSAGE("no solar radiation sensor configured — skipping");
     return;
   }
 
   char msg[64];
   snprintf(msg, sizeof(msg), "channel=%d slave=%d register=%d",
-           cfg->channel, cfg->slave_id, cfg->register_address);
+           device->channel, device->slave_id, device->register_address);
   TEST_MESSAGE(msg);
 }
 
