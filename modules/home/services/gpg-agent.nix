@@ -15,7 +15,9 @@
     pinentry.program = "pinentry-tty";
     pinentry.package = pkgs.pinentry-tty;
 
-    # extraConfig = ''
-    # '';
+    maxCacheTtl = 86400; # 24 hours
+    maxCacheTtlSsh = 86400; # 24 hours
+    defaultCacheTtl = 86400; # 24 hours
+    defaultCacheTtlSsh = 86400; # 24 hours
   };
 }
