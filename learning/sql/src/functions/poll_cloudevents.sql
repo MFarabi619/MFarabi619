@@ -24,7 +24,7 @@ BEGIN
             cloud_event->>'id',
             cloud_event->>'source',
             cloud_event->>'type',
-            (cloud_event->>'specversion')::FLOAT,
+            cloud_event->>'specversion',
             cloud_event->>'datacontenttype',
             (cloud_event->>'time')::TIMESTAMPTZ,
             cloud_event->'data'

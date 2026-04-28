@@ -1,5 +1,5 @@
 CREATE TABLE assets (
-    id UUID PRIMARY KEY DEFAULT generate_uuid_v7(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
     filename TEXT NOT NULL UNIQUE,
     content_type TEXT NOT NULL,
     image_data BYTEA NOT NULL,

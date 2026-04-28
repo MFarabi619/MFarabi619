@@ -46,7 +46,11 @@ seed_event_definitions AS (
             ('sensors.wind_direction.v1', 2),
             ('sensors.solar_radiation.v1', 3),
             ('sensors.soil.v1', 4),
-            ('sensors.temperature_and_humidity.v1', 5)
+            ('sensors.temperature_and_humidity.v1', 5),
+            ('sensors.power.v1', 6),
+            ('sensors.current.v1', 7),
+            ('sensors.barometric_pressure.v1', 8),
+            ('sensors.rainfall.v1', 9)
     ) AS arctic_event(event_type, event_sequence)
     WHERE seed_node_definitions.node_group = 'arctic'
 
@@ -119,7 +123,7 @@ SELECT
     seed_event_rows.cloud_event_id,
     seed_event_rows.event_source,
     seed_event_rows.event_type,
-    1.0::float8 AS specversion,
+    '1.0'::text AS specversion,
     'application/json'::text AS datacontenttype,
     seed_event_rows.event_time,
     CASE
@@ -173,6 +177,39 @@ SELECT
                 )
                 FROM generate_series(0, 19) AS soil_instance(instance_index)
             )
+        )
+        WHEN seed_event_rows.event_type = 'sensors.power.v1' THEN jsonb_build_object(
+            'read_ok', true,
+            'gain', 'GAIN_ONE',
+            'voltage', jsonb_build_array(
+                round((3.30 + 0.02 * sin(extract(epoch FROM seed_event_rows.event_time) / 1800.0))::numeric, 4),
+                round((3.31 + 0.02 * cos(extract(epoch FROM seed_event_rows.event_time) / 1800.0))::numeric, 4),
+                round((12.00 + 0.05 * sin(extract(epoch FROM seed_event_rows.event_time) / 2400.0))::numeric, 4),
+                round((0.001 * abs(sin(extract(epoch FROM seed_event_rows.event_time) / 3600.0)))::numeric, 4)
+            ),
+            'temperature_celsius', jsonb_build_array(
+                round((25.1 + 0.3 * sin(extract(epoch FROM seed_event_rows.event_time) / 3000.0))::numeric, 6),
+                round((25.2 + 0.3 * cos(extract(epoch FROM seed_event_rows.event_time) / 3000.0))::numeric, 6),
+                round((25.0 + 0.2 * sin(extract(epoch FROM seed_event_rows.event_time) / 3200.0))::numeric, 6),
+                round((25.0 + 0.2 * cos(extract(epoch FROM seed_event_rows.event_time) / 3200.0))::numeric, 6)
+            )
+        )
+        WHEN seed_event_rows.event_type = 'sensors.current.v1' THEN jsonb_build_object(
+            'current_mA', round((150.0 + 20.0 * sin(extract(epoch FROM seed_event_rows.event_time) / 2000.0))::numeric, 3),
+            'bus_voltage_V', round((3.30 + 0.01 * sin(extract(epoch FROM seed_event_rows.event_time) / 1800.0))::numeric, 4),
+            'shunt_voltage_mV', round((4.90 + 0.6 * sin(extract(epoch FROM seed_event_rows.event_time) / 2000.0))::numeric, 4),
+            'power_mW', round((495.0 + 66.0 * sin(extract(epoch FROM seed_event_rows.event_time) / 2000.0))::numeric, 3),
+            'energy_J', round(greatest(0, extract(epoch FROM (seed_event_rows.event_time - (SELECT min(event_time) FROM seed_event_time_series))) * 0.495)::numeric, 3),
+            'charge_C', round(greatest(0, extract(epoch FROM (seed_event_rows.event_time - (SELECT min(event_time) FROM seed_event_time_series))) * 0.150)::numeric, 6),
+            'die_temperature_C', round((28.0 + 1.0 * sin(extract(epoch FROM seed_event_rows.event_time) / 3600.0))::numeric, 1)
+        )
+        WHEN seed_event_rows.event_type = 'sensors.barometric_pressure.v1' THEN jsonb_build_object(
+            'model', 'LPS25',
+            'pressure_hpa', round((1013.25 + 5.0 * sin(extract(epoch FROM seed_event_rows.event_time) / 7200.0))::numeric, 2),
+            'temperature_celsius', round((22.0 + 1.5 * sin(extract(epoch FROM seed_event_rows.event_time) / 3600.0))::numeric, 1)
+        )
+        WHEN seed_event_rows.event_type = 'sensors.rainfall.v1' THEN jsonb_build_object(
+            'rainfall_millimeters', round(greatest(0, 0.8 * abs(sin(extract(epoch FROM seed_event_rows.event_time) / 5400.0)))::numeric, 1)
         )
         WHEN seed_event_rows.event_type = 'sensors.temperature_and_humidity.v1'
          AND seed_event_rows.node_group = 'arctic' THEN jsonb_build_object(

@@ -85,6 +85,60 @@ CROSS JOIN LATERAL (
 
     SELECT
         0 AS instance_index,
+        current_metric.metric_name,
+        current_metric.metric_value
+    FROM (
+        VALUES
+            ('current_mA', (events.data ->> 'current_mA')::double precision),
+            ('bus_voltage_V', (events.data ->> 'bus_voltage_V')::double precision),
+            ('shunt_voltage_mV', (events.data ->> 'shunt_voltage_mV')::double precision),
+            ('power_mW', (events.data ->> 'power_mW')::double precision),
+            ('energy_J', (events.data ->> 'energy_J')::double precision),
+            ('charge_C', (events.data ->> 'charge_C')::double precision),
+            ('die_temperature_C', (events.data ->> 'die_temperature_C')::double precision)
+    ) AS current_metric(metric_name, metric_value)
+    WHERE events.type = 'sensors.current.v1'
+
+    UNION ALL
+
+    SELECT
+        0 AS instance_index,
+        pressure_metric.metric_name,
+        pressure_metric.metric_value
+    FROM (
+        VALUES
+            ('pressure_hpa', (events.data ->> 'pressure_hpa')::double precision),
+            ('temperature_celsius', (events.data ->> 'temperature_celsius')::double precision)
+    ) AS pressure_metric(metric_name, metric_value)
+    WHERE events.type = 'sensors.barometric_pressure.v1'
+
+    UNION ALL
+
+    SELECT
+        0 AS instance_index,
+        'rainfall_millimeters'::text AS metric_name,
+        (events.data ->> 'rainfall_millimeters')::double precision AS metric_value
+    WHERE events.type = 'sensors.rainfall.v1'
+
+    UNION ALL
+
+    SELECT
+        voltage_channel.channel_index AS instance_index,
+        voltage_metric.metric_name,
+        voltage_metric.metric_value
+    FROM generate_series(0, 3) AS voltage_channel(channel_index)
+    CROSS JOIN LATERAL (
+        VALUES
+            ('voltage', (events.data -> 'voltage' ->> voltage_channel.channel_index)::double precision),
+            ('temperature_celsius', (events.data -> 'temperature_celsius' ->> voltage_channel.channel_index)::double precision)
+    ) AS voltage_metric(metric_name, metric_value)
+    WHERE events.type = 'sensors.power.v1'
+      AND jsonb_typeof(events.data -> 'voltage') = 'array'
+
+    UNION ALL
+
+    SELECT
+        0 AS instance_index,
         status_metric.metric_name,
         status_metric.metric_value
     FROM (

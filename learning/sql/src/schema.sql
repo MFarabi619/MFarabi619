@@ -19,7 +19,7 @@ CREATE EXTENSION IF NOT EXISTS system_stats;
 CREATE EXTENSION IF NOT EXISTS plpgsql_check;
 CREATE EXTENSION IF NOT EXISTS http;
 
-\ir functions/generate_uuid_v7.sql
+\ir functions/set_modified_at.sql
 
 \ir tables/assets.sql
 \ir tables/organizations.sql
@@ -27,6 +27,8 @@ CREATE EXTENSION IF NOT EXISTS http;
 \ir tables/resources.sql
 \ir tables/ipv4_addresses.sql
 \ir tables/metrics.sql
+
+\ir triggers/set_modified_at.sql
 
 \ir hypertables/events.sql
 \ir hypertables/samples.sql
@@ -36,8 +38,8 @@ CREATE EXTENSION IF NOT EXISTS http;
 \ir functions/extract_samples_from_event.sql
 \ir triggers/events_extract_samples.sql
 
+\ir hypertables/policies.sql
+
 \ir functions/poll_cloudevents.sql
-\ir functions/poll_sensor.sql
-\ir functions/poll_sensor_loop.sql
 
 \ir cron/poll.sql

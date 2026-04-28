@@ -5,8 +5,6 @@
   \echo 'DEVENV_ROOT is not set'
   \quit 1
 \endif
-
-
 \x off
 \timing 1
 \pset border 2

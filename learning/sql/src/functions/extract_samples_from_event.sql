@@ -7,6 +7,7 @@ DECLARE
     instance JSONB;
     metric_record RECORD;
     extracted_value DOUBLE PRECISION;
+    array_index INT;
 BEGIN
     instances_array := COALESCE(NEW.data->'instances', NEW.data->'sensors');
 
@@ -45,12 +46,25 @@ BEGIN
             FROM metrics
             WHERE metrics.type = NEW.type
         LOOP
-            extracted_value := (NEW.data->>metric_record.name)::DOUBLE PRECISION;
+            IF jsonb_typeof(NEW.data -> metric_record.name) = 'array' THEN
+                FOR array_index IN 0..jsonb_array_length(NEW.data -> metric_record.name) - 1
+                LOOP
+                    extracted_value := (NEW.data -> metric_record.name ->> array_index)::DOUBLE PRECISION;
 
-            IF extracted_value IS NOT NULL THEN
-                INSERT INTO samples (time, event_name, source, type, metric_id, instance_index, value)
-                VALUES (NEW.time, NEW.name, NEW.source, NEW.type, metric_record.id, 0, extracted_value)
-                ON CONFLICT DO NOTHING;
+                    IF extracted_value IS NOT NULL THEN
+                        INSERT INTO samples (time, event_name, source, type, metric_id, instance_index, value)
+                        VALUES (NEW.time, NEW.name, NEW.source, NEW.type, metric_record.id, array_index, extracted_value)
+                        ON CONFLICT DO NOTHING;
+                    END IF;
+                END LOOP;
+            ELSE
+                extracted_value := (NEW.data->>metric_record.name)::DOUBLE PRECISION;
+
+                IF extracted_value IS NOT NULL THEN
+                    INSERT INTO samples (time, event_name, source, type, metric_id, instance_index, value)
+                    VALUES (NEW.time, NEW.name, NEW.source, NEW.type, metric_record.id, 0, extracted_value)
+                    ON CONFLICT DO NOTHING;
+                END IF;
             END IF;
         END LOOP;
     END IF;
