@@ -12,6 +12,7 @@
     ./manual.nix
     ./stylix.nix
     ./accounts.nix
+    ./sops.nix
     ./nix-index.nix
     ./editorconfig.nix
   ];

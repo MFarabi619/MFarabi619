@@ -88,6 +88,7 @@
         tgpt
         nmap
         lazyssh # ssh tui
+        sops
         gpg-tui
         # termscp
         tcpdump

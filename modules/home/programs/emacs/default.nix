@@ -30,6 +30,9 @@
       in
       with epkgs;
       [
+        sops
+      ]
+      ++ [
         disaster
         # dts-mode
         devicetree-ts-mode
