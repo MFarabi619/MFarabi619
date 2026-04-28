@@ -3,13 +3,20 @@
     enable = true;
     mutableKeys = true;
     mutableTrust = true;
-    # settings = {};
-    # scdaemonSettings = { };
+
+    settings = {
+      use-agent = true;
+      no-comments = true;
+      keyid-format = "long";
+      no-emit-version = true;
+      with-fingerprint = true;
+      default-key = "306B94DA2CE6198A";
+    };
 
     publicKeys = [
       {
-        source = ../gpg-public.asc;
         trust = "ultimate";
+        source = ../gpg-public.asc;
       }
     ];
   };
