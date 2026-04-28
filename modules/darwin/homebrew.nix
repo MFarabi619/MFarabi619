@@ -50,6 +50,7 @@
       # "rust"
       "pulumi"
       "libvirt" # brew services start libvirt
+      "dfu-util"
       "pioarduino/pioarduino/pioarduino"
       # "dirien/dirien/lazy-pulumi"
       "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
