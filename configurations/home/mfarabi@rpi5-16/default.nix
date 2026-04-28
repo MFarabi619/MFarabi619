@@ -29,6 +29,7 @@ in
       fonts
       stylix
       manual
+      accounts
       editorconfig
     ]
     ++ map (f: services + "/${f}") [
