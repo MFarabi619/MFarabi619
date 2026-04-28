@@ -1,0 +1,12 @@
+.information-widget-greeting span {
+  background: linear-gradient(
+    90deg,
+    #ffd200 0%,
+    #ff9500 50%,
+    #e67300 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

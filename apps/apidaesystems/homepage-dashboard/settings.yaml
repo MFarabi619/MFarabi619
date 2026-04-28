@@ -1,0 +1,16 @@
+theme: dark
+cardBlur: 3xl
+useEqualHeights: true
+headerStyle: boxedWidgets
+showStats: true
+hideVersion: true
+title: Apidae Systems
+favicon: /icons/symbol.svg
+background: /images/apidae-systems-banner-bg.png
+
+quicklaunch:
+  provider: google
+  hideVisitURL: false
+  searchDescriptions: true
+  hideInternetSearch: false
+  showSearchSuggestions: true

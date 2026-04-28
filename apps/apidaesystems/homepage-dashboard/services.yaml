@@ -1,0 +1,12 @@
+- Sites:
+    - Apidae Systems:
+        href: https://www.apidaesystems.ca
+        siteMonitor: https://www.apidaesystems.ca
+        icon: /icons/symbol.svg
+
+- Monitoring:
+    - Grafana:
+        href: https://horizon.apidaesystems.ca
+        siteMonitor: https://horizon.apidaesystems.ca
+        icon: grafana.svg
+
