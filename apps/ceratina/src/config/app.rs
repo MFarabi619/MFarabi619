@@ -40,8 +40,8 @@ pub mod wifi {
     pub const FALLBACK_TO_AP: bool = true;
 
     pub mod ap {
-        pub const SSID: &str = "ceratina-setup";
-        pub const PASSWORD: &str = "changeme123";
+        pub const SSID: &str = "ceratina-access-point";
+        pub const PASSWORD: &str = "ceratina";
         pub const CHANNEL: u8 = 6;
         pub const MAX_CONNECTIONS: u8 = 4;
         pub const AUTH_MODE: &str = "WPA2";
