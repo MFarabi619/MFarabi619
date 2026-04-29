@@ -5,6 +5,7 @@ headerStyle: boxedWidgets
 showStats: true
 hideVersion: true
 title: Apidae Systems
+description: From silicon to sky
 favicon: /icons/symbol.svg
 background: /images/apidae-systems-banner-bg.png
 
