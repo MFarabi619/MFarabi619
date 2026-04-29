@@ -183,12 +183,45 @@ i2s_led: &i2s0 {
 		compatible = "zephyr,modbus-serial";
 		status = "okay";
 		de-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>; /* GPIO47 */
+
+		wind_speed: wind-speed {
+			compatible = "dfrobot,wind-speed";
+			slave-id = <20>;
+		};
+
+		wind_direction: wind-direction {
+			compatible = "dfrobot,wind-direction";
+			slave-id = <30>;
+		};
+
+		rainfall: rainfall {
+			compatible = "dfrobot,rainfall";
+			slave-id = <140>;
+		};
+
+		soil_tier1: soil-moisture-0 {
+			compatible = "dfrobot,soil-moisture";
+			scan-range-start = <100>;
+			scan-range-end = <109>;
+		};
+
+		soil_tier2: soil-moisture-1 {
+			compatible = "dfrobot,soil-moisture";
+			scan-range-start = <110>;
+			scan-range-end = <119>;
+		};
+
+		soil_tier3: soil-moisture-2 {
+			compatible = "dfrobot,soil-moisture";
+			scan-range-start = <120>;
+			scan-range-end = <129>;
+		};
 	};
 };
 
 &uart2 {
 	status = "okay";
-	current-speed = <4800>;
+	current-speed = <9600>;
 	pinctrl-0 = <&uart2_default>;
 	pinctrl-names = "default";
 

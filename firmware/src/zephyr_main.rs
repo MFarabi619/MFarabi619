@@ -8,6 +8,7 @@ unsafe extern "C" {
     fn schedule_deep_sleep();
     fn prompt_init(shell: *const core::ffi::c_void) -> bool;
     fn prompt_print_motd(shell: *const core::ffi::c_void, ip: *const u8);
+    // fn boot_websocket_shell();
     // fn get_ppp_iface() -> *mut net_if;
 }
 
@@ -33,6 +34,8 @@ extern "C" fn rust_main() {
     crate::wifi::init();
 
     unsafe {
+        // boot_websocket_shell();
+
         let ret = http_server_start();
         if ret == 0 {
             info!("HTTP server started");

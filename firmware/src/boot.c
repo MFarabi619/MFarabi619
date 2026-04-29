@@ -1,7 +1,6 @@
 #include <zephyr/kernel.h>
 #include "esp_wifi.h"
 #include <esp_sleep.h>
-// #include <zephyr/net/conn_mgr_connectivity.h>
 
 // #if defined(CONFIG_NET_L2_PPP)
 // #include <zephyr/net/ppp.h>
@@ -36,4 +35,11 @@ K_WORK_DELAYABLE_DEFINE(deep_sleep_work, deep_sleep_handler);
 void schedule_deep_sleep(void)
 {
 	// k_work_schedule(&deep_sleep_work, K_MSEC(AWAKE_DURATION_MS));
+}
+
+extern void websocket_shell_init(void);
+
+void boot_websocket_shell(void)
+{
+	websocket_shell_init();
 }

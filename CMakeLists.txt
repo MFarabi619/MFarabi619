@@ -24,7 +24,14 @@ target_sources(app PRIVATE
   firmware/src/services/provisioning_http.c
   firmware/src/services/sdcard.c
   firmware/src/services/filesystem_http.c
+  firmware/src/services/http/api.c
+  # firmware/src/services/websocket_shell.c
   # firmware/src/services/wifi_connectivity.c
+  firmware/src/sensors/devices.c
+  firmware/src/sensors/wind_speed.c
+  firmware/src/sensors/wind_direction.c
+  firmware/src/sensors/rainfall.c
+  firmware/src/sensors/soil_moisture.c
 )
 
 target_include_directories(app PRIVATE include firmware/include)

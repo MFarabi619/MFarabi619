@@ -10,6 +10,12 @@ HTTP_SERVER_CONTENT_TYPE(wasm, "application/wasm")
 #define API_PREFIX "/api/filesystem/"
 #define API_PREFIX_LEN (sizeof(API_PREFIX) - 1)
 
+extern int filesystem_handler(struct http_client_ctx *client,
+			      enum http_transaction_status status,
+			      const struct http_request_ctx *request_ctx,
+			      struct http_response_ctx *response_ctx,
+			      void *user_data);
+
 static struct fs_file_t upload_file;
 static bool upload_file_is_open;
 
@@ -142,4 +148,19 @@ int filesystem_upload_handler(struct http_client_ctx *client,
 	}
 
 	return 0;
+}
+
+int filesystem_dispatch_handler(struct http_client_ctx *client,
+				enum http_transaction_status status,
+				const struct http_request_ctx *request_ctx,
+				struct http_response_ctx *response_ctx,
+				void *user_data)
+{
+	if (client->method == HTTP_PUT) {
+		return filesystem_upload_handler(client, status, request_ctx,
+						 response_ctx, user_data);
+	}
+
+	return filesystem_handler(client, status, request_ctx,
+				  response_ctx, user_data);
 }

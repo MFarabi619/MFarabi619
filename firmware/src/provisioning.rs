@@ -30,14 +30,6 @@ static SCAN_BUF: ScanResponseBuffer = ScanResponseBuffer {
     data: UnsafeCell::new([0; 1024]),
 };
 
-struct RedirectHeader(http_header);
-unsafe impl Sync for RedirectHeader {}
-
-static REDIRECT_HEADER: RedirectHeader = RedirectHeader(http_header {
-    name: b"Location\0".as_ptr() as *const _,
-    value: b"/public/index.html\0".as_ptr() as *const _,
-});
-
 fn json_response(response_ctx: *mut http_response_ctx, body: &[u8], is_final: bool) {
     unsafe {
         (*response_ctx).body = body.as_ptr();
@@ -92,36 +84,6 @@ fn accumulate_body(
             None
         }
     }
-}
-
-#[unsafe(no_mangle)]
-extern "C" fn provisioning_index_handler(
-    _client: *mut http_client_ctx,
-    status: http_transaction_status,
-    _request_ctx: *const http_request_ctx,
-    response_ctx: *mut http_response_ctx,
-    _user_data: *mut c_void,
-) -> c_int {
-    if status == http_transaction_status_HTTP_SERVER_TRANSACTION_ABORTED
-        || status == http_transaction_status_HTTP_SERVER_TRANSACTION_COMPLETE
-    {
-        return 0;
-    }
-
-    if status == http_transaction_status_HTTP_SERVER_REQUEST_DATA_FINAL
-        || status == http_transaction_status_HTTP_SERVER_REQUEST_DATA_MORE
-    {
-        unsafe {
-            (*response_ctx).status = http_status_HTTP_302_FOUND;
-            (*response_ctx).headers = &REDIRECT_HEADER.0;
-            (*response_ctx).header_count = 1;
-            (*response_ctx).body = core::ptr::null();
-            (*response_ctx).body_len = 0;
-            (*response_ctx).final_chunk = true;
-        }
-    }
-
-    0
 }
 
 #[unsafe(no_mangle)]

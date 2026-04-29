@@ -1,0 +1,11 @@
+description: DFRobot wind speed sensor (Modbus RTU)
+
+compatible: "dfrobot,wind-speed"
+
+include: [sensor-device.yaml]
+
+properties:
+  slave-id:
+    type: int
+    required: true
+    description: Modbus slave address of the wind speed sensor

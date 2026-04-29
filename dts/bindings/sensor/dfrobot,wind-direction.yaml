@@ -1,0 +1,11 @@
+description: DFRobot wind direction sensor (Modbus RTU)
+
+compatible: "dfrobot,wind-direction"
+
+include: [sensor-device.yaml]
+
+properties:
+  slave-id:
+    type: int
+    required: true
+    description: Modbus slave address of the wind direction sensor

@@ -1,0 +1,16 @@
+description: DFRobot soil moisture sensor (Modbus RTU, multi-tier)
+
+compatible: "dfrobot,soil-moisture"
+
+include: [sensor-device.yaml]
+
+properties:
+  scan-range-start:
+    type: int
+    required: true
+    description: First Modbus slave address to scan for probes
+
+  scan-range-end:
+    type: int
+    required: true
+    description: Last Modbus slave address to scan for probes

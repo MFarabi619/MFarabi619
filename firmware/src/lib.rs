@@ -5,6 +5,7 @@ extern crate alloc;
 
 mod led;
 mod provisioning;
+pub mod sensors;
 mod wifi;
 mod zephyr_main;
 
