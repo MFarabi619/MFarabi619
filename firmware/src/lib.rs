@@ -3,9 +3,14 @@
 
 extern crate alloc;
 
+mod commands;
+mod home_assistant;
 mod led;
+mod mqtt;
 mod provisioning;
+mod publish;
 pub mod sensors;
+mod utils;
 mod wifi;
 mod zephyr_main;
 

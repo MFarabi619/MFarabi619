@@ -20,13 +20,13 @@ void wifi_pre_start(void)
 	esp_wifi_start();
 }
 
-#define AWAKE_DURATION_MS   5000
-#define SLEEP_DURATION_SEC  5
+extern uint32_t mqtt_service_get_sleep_duration(void);
 
 static void deep_sleep_handler(struct k_work *work)
 {
-	esp_sleep_enable_timer_wakeup(SLEEP_DURATION_SEC * 1000000ULL);
-	printk("Entering deep sleep for %d seconds\n", SLEEP_DURATION_SEC);
+	uint32_t duration = mqtt_service_get_sleep_duration();
+	esp_sleep_enable_timer_wakeup((uint64_t)duration * 1000000ULL);
+	printk("Entering deep sleep for %u seconds\n", duration);
 	esp_deep_sleep_start();
 }
 
@@ -34,7 +34,7 @@ K_WORK_DELAYABLE_DEFINE(deep_sleep_work, deep_sleep_handler);
 
 void schedule_deep_sleep(void)
 {
-	// k_work_schedule(&deep_sleep_work, K_MSEC(AWAKE_DURATION_MS));
+	k_work_schedule(&deep_sleep_work, K_NO_WAIT);
 }
 
 extern void websocket_shell_init(void);

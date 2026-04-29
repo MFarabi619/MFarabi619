@@ -138,6 +138,10 @@ pub fn is_provisioning() -> bool {
     CURRENT_MODE.load(Ordering::Relaxed) == MODE_PROVISIONING
 }
 
+pub fn is_connected() -> bool {
+    CURRENT_MODE.load(Ordering::Relaxed) == MODE_CONNECTED
+}
+
 pub fn start_scan() {
     if SCAN_IN_PROGRESS.load(Ordering::Relaxed) != 0 {
         return;

@@ -74,6 +74,41 @@ HTTP_RESOURCE_DEFINE(provisioning_connect, provisioning_service,
 HTTP_RESOURCE_DEFINE(provisioning_credentials, provisioning_service,
 		     "/api/wifi/credentials", &credentials_detail);
 
+extern int mqtt_config_get_handler(struct http_client_ctx *client,
+				   enum http_transaction_status status,
+				   const struct http_request_ctx *request_ctx,
+				   struct http_response_ctx *response_ctx,
+				   void *user_data);
+
+extern int mqtt_config_set_handler(struct http_client_ctx *client,
+				   enum http_transaction_status status,
+				   const struct http_request_ctx *request_ctx,
+				   struct http_response_ctx *response_ctx,
+				   void *user_data);
+
+static struct http_resource_detail_dynamic mqtt_config_get_detail = {
+	.common = {
+		.type = HTTP_RESOURCE_TYPE_DYNAMIC,
+		.bitmask_of_supported_http_methods = BIT(HTTP_GET),
+	},
+	.cb = mqtt_config_get_handler,
+	.user_data = NULL,
+};
+
+static struct http_resource_detail_dynamic mqtt_config_set_detail = {
+	.common = {
+		.type = HTTP_RESOURCE_TYPE_DYNAMIC,
+		.bitmask_of_supported_http_methods = BIT(HTTP_POST),
+	},
+	.cb = mqtt_config_set_handler,
+	.user_data = NULL,
+};
+
+HTTP_RESOURCE_DEFINE(mqtt_config_get, provisioning_service,
+		     "/api/mqtt/config", &mqtt_config_get_detail);
+HTTP_RESOURCE_DEFINE(mqtt_config_set, provisioning_service,
+		     "/api/mqtt/config/set", &mqtt_config_set_detail);
+
 extern int device_status_handler(struct http_client_ctx *client,
 				 enum http_transaction_status status,
 				 const struct http_request_ctx *request_ctx,
@@ -210,6 +245,25 @@ static struct http_resource_detail_dynamic soil_detail = {
 
 HTTP_RESOURCE_DEFINE(soil, provisioning_service,
 		     "/api/sensors/soil", &soil_detail);
+
+extern int metrics_handler(struct http_client_ctx *client,
+			   enum http_transaction_status status,
+			   const struct http_request_ctx *request_ctx,
+			   struct http_response_ctx *response_ctx,
+			   void *user_data);
+
+static struct http_resource_detail_dynamic metrics_detail = {
+	.common = {
+		.type = HTTP_RESOURCE_TYPE_DYNAMIC,
+		.bitmask_of_supported_http_methods = BIT(HTTP_GET),
+		.content_type = "text/plain",
+	},
+	.cb = metrics_handler,
+	.user_data = NULL,
+};
+
+HTTP_RESOURCE_DEFINE(metrics, provisioning_service,
+		     "/metrics", &metrics_detail);
 
 extern int reboot_handler(struct http_client_ctx *client,
 			  enum http_transaction_status status,

@@ -24,6 +24,8 @@ target_sources(app PRIVATE
   firmware/src/services/provisioning_http.c
   firmware/src/services/sdcard.c
   firmware/src/services/filesystem_http.c
+  firmware/src/services/mqtt.c
+  firmware/src/services/prometheus.c
   firmware/src/services/http/api.c
   # firmware/src/services/websocket_shell.c
   # firmware/src/services/wifi_connectivity.c

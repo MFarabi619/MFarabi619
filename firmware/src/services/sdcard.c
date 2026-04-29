@@ -15,6 +15,8 @@ static struct fs_mount_t sdcard_mount = {
 	.flags = FS_MOUNT_FLAG_USE_DISK_ACCESS,
 };
 
+static bool is_mounted;
+
 int sdcard_mount_filesystem(void)
 {
 	int result = fs_mount(&sdcard_mount);
@@ -22,6 +24,12 @@ int sdcard_mount_filesystem(void)
 		LOG_ERR("mount failed: %d", result);
 	} else {
 		LOG_INF("mounted at /sd:");
+		is_mounted = true;
 	}
 	return result;
+}
+
+bool sdcard_is_mounted(void)
+{
+	return is_mounted;
 }
