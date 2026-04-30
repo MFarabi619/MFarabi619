@@ -1,5 +1,6 @@
 name: local
 runtime: go
+main: apps/apidaesystems
 config:
     docker:host:
         value: unix:///var/run/docker.sock
@@ -39,6 +40,11 @@ config:
             enabled: true
             image: nats:2-alpine
             memory: 64
+    local:nui:
+        value:
+            enabled: true
+            image: ghcr.io/nats-nui/nui:latest
+            memory: 128
     local:home-assistant:
         value:
             enabled: true
