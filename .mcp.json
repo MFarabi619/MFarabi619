@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "likec4": {
+      "type": "stdio",
+      "command": "bunx",
+      "args": ["-y", "likec4@latest", "mcp", "./docs"]
+  }
+}
