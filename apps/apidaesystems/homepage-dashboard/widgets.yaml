@@ -1,29 +1,51 @@
 - logo:
-    icon: /icons/symbol.svg
+      icon: /icons/symbol.svg
 
 - greeting:
-    text_size: xl
-    text: Apidae Systems
+      text_size: xl
+      text: ⚡️ Apidae Systems ⚡
 
 - datetime:
-    text_size: l
-    format:
-      hour12: true
-      dateStyle: long
-      timeStyle: short
+      text_size: l
+      format:
+          hour12: true
+          dateStyle: long
+          timeStyle: short
+
+# - glances:
+#     url: http://glances:61208
+#     version: 4
+#     cpu: true
+#     mem: true
+#     cputemp: true
+#     uptime: true
+#     disk: /
+#     units: metric
+#     diskUnits: bytes
 
 - resources:
-    cpu: true
-    disk: /
-    memory: true
-    uptime: true
-    refresh: 1000
-    network: true
-    units: metric
-    diskUnits: bytes
+      cpu: true
+      disk: /
+      memory: true
+      uptime: true
+      tempmin: 0
+      tempmax: 100
+      cputemp: true
+      refresh: 1000
+      network: true
+      units: metric
+      diskUnits: bytes
+
+- openmeteo:
+      cache: 5
+      units: metric
+      label: Ottawa
+      latitude: 45.424721
+      longitude: -75.695000
+      timezone: America/Toronto
 
 - search:
-    focus: false
-    target: _blank
-    provider: duckduckgo
-    showSearchSuggestions: true
+      focus: false
+      target: _blank
+      provider: duckduckgo
+      showSearchSuggestions: true

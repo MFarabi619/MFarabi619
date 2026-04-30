@@ -1,9 +1,10 @@
-- Developer:
-    - GitHub:
-        - icon: github.png
-          href: https://github.com/apidae-systems
-
-- Social:
-    - LinkedIn:
-        - icon: linkedin.png
-          href: https://www.linkedin.com/company/apidae-systems
+- Links:
+      - GitHub:
+            - icon: github-light.png
+              href: https://github.com/apidae-systems
+      - Apidae Systems:
+            - icon: /icons/symbol.svg
+              href: https://www.apidaesystems.ca
+      - LinkedIn:
+            - icon: linkedin.png
+              href: https://www.linkedin.com/company/apidae-systems

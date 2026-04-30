@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
@@ -30,13 +32,24 @@ func createTraefikLabels(name, host, port string) docker.ContainerLabelArray {
 	}
 }
 
-func createTraefik(ctx *pulumi.Context, proxyNetwork *docker.Network) (*docker.Container, *docker.RemoteImage, error) {
-	image, err := docker.NewRemoteImage(ctx, "traefik", &docker.RemoteImageArgs{
-		Name:        pulumi.String("traefik:v3.4"),
-		KeepLocally: pulumi.Bool(true),
-	})
+const traefikServiceYAML = `    - Traefik:
+        icon: traefik.svg
+        server: local
+        container: traefik
+        widget:
+          type: traefik
+          url: http://traefik:8080
+`
+
+type traefikConfig struct {
+	serviceConfig
+	Port int `json:"port"`
+}
+
+func createTraefik(ctx *pulumi.Context, proxyNetwork *docker.Network, settings traefikConfig) error {
+	image, err := pullImage(ctx, "traefik", settings.Image)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
 	container, err := docker.NewContainer(ctx, "traefik", &docker.ContainerArgs{
@@ -48,8 +61,10 @@ func createTraefik(ctx *pulumi.Context, proxyNetwork *docker.Network) (*docker.C
 		Restart:             pulumi.String("unless-stopped"),
 		Wait:                pulumi.Bool(true),
 		WaitTimeout:         pulumi.Int(60),
-		Memory:              pulumi.Int(128),
-		MemorySwap:          pulumi.Int(128),
+		Memory:              pulumi.Int(settings.Memory),
+		MemorySwap:          pulumi.Int(settings.Memory),
+		MemoryReservation:   pulumi.Int(settings.Memory * 3 / 4),
+		CpuShares:           pulumi.Int(1024),
 		DestroyGraceSeconds: pulumi.Int(10),
 		Capabilities: &docker.ContainerCapabilitiesArgs{
 			Drops: pulumi.StringArray{pulumi.String("ALL")},
@@ -66,13 +81,15 @@ func createTraefik(ctx *pulumi.Context, proxyNetwork *docker.Network) (*docker.C
 			pulumi.String("--providers.docker=true"),
 			pulumi.String("--providers.docker.exposedbydefault=false"),
 			pulumi.String("--providers.docker.network=proxy"),
-			pulumi.String("--entrypoints.web.address=:80"),
+			pulumi.String(fmt.Sprintf("--entrypoints.web.address=:%d", settings.Port)),
+			pulumi.String("--entrypoints.web.forwardedHeaders.insecure=true"),
+			pulumi.String("--api.insecure=true"),
 			pulumi.String("--ping=true"),
 		},
 		Ports: docker.ContainerPortArray{
 			&docker.ContainerPortArgs{
-				Internal: pulumi.Int(80),
-				External: pulumi.Int(80),
+				Internal: pulumi.Int(settings.Port),
+				External: pulumi.Int(settings.Port),
 			},
 		},
 		Volumes: docker.ContainerVolumeArray{
@@ -96,8 +113,11 @@ func createTraefik(ctx *pulumi.Context, proxyNetwork *docker.Network) (*docker.C
 		},
 	})
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
-	return container, image, nil
+	ctx.Export("traefik image", image.RepoDigest)
+	ctx.Export("traefik id", container.ID())
+
+	return nil
 }

@@ -3,13 +3,62 @@ runtime: go
 config:
     docker:host:
         value: unix:///var/run/docker.sock
-
-#     libvirt:uri:
-#         value: qemu:///session?socket=/Users/mfarabi/.cache/libvirt/libvirt-sock
-
-# packages:
-#     libvirt:
-#         source: terraform-provider
-#         version: 1.0.2
-#         parameters:
-#             - dmacvicar/libvirt
+    local:domain:
+        type: string
+        default: apidae.systems
+    local:traefik:
+        value:
+            image: traefik:v3.4
+            memory: 128
+            port: 80
+    local:homepage:
+        value:
+            image: ghcr.io/gethomepage/homepage:latest
+            memory: 256
+    local:radicle:
+        value:
+            enabled: false
+            memory: 512
+    local:cgit:
+        value:
+            enabled: true
+            image: joseluisq/alpine-cgit:latest
+            memory: 128
+    local:grafana:
+        value:
+            enabled: true
+            image: grafana/grafana:latest
+            memory: 512
+    local:glances:
+        value:
+            enabled: true
+            image: nicolargo/glances:latest-full
+            memory: 256
+    local:nats:
+        value:
+            enabled: true
+            image: nats:2-alpine
+            memory: 64
+    local:home-assistant:
+        value:
+            enabled: true
+            image: ghcr.io/home-assistant/home-assistant:stable
+            memory: 512
+    local:postgresql:
+        value:
+            enabled: true
+            image: timescale/timescaledb:latest-pg17
+            memory: 512
+    local:authentik:
+        value:
+            enabled: true
+            image: ghcr.io/goauthentik/server:2025.10
+            memory: 1024
+    local:penpot:
+        value:
+            enabled: false
+    local:bore:
+        value:
+            enabled: true
+            image: ekzhang/bore:latest
+            memory: 32

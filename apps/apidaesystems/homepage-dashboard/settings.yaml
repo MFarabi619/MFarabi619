@@ -4,14 +4,51 @@ useEqualHeights: true
 headerStyle: boxedWidgets
 showStats: true
 hideVersion: true
-title: Apidae Systems
-description: From silicon to sky
+title: 🐝 Apidae Systems 🐝
+description: Silicon to Sky
 favicon: /icons/symbol.svg
 background: /images/apidae-systems-banner-bg.png
 
+layout:
+    Services:
+        tab: Services
+        header: false
+        style: row
+        columns: 3
+    System:
+        tab: Services
+        style: row
+        columns: 5
+    Calendar:
+        tab: Services
+        header: false
+        style: row
+        columns: 1
+    Monitoring:
+        tab: Monitoring
+        header: false
+        style: row
+        columns: 5
+    Schedule:
+        tab: Monitoring
+        header: false
+        style: row
+        columns: 1
+    Links:
+        tab: Services
+        header: false
+        style: row
+        columns: 3
+
+pwa:
+    icons:
+        - src: /icons/symbol.svg
+          type: image/svg+xml
+          sizes: any
+
 quicklaunch:
-  provider: google
-  hideVisitURL: false
-  searchDescriptions: true
-  hideInternetSearch: false
-  showSearchSuggestions: true
+    provider: google
+    hideVisitURL: false
+    searchDescriptions: true
+    hideInternetSearch: false
+    showSearchSuggestions: true

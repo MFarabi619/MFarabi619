@@ -5,8 +5,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-const authentikServiceYAML = `- Identity:
-    - Authentik:
+const authentikServiceYAML = `    - Authentik:
         href: https://auth.{{HOMEPAGE_VAR_DOMAIN}}
         siteMonitor: https://auth.{{HOMEPAGE_VAR_DOMAIN}}
         icon: authentik.svg
@@ -26,29 +25,19 @@ func createAuthentikEnvs(secrets map[string]string) pulumi.StringArray {
 		pulumi.String("AUTHENTIK_POSTGRESQL__USER=authentik"),
 		pulumi.String("AUTHENTIK_POSTGRESQL__NAME=authentik"),
 		pulumi.String("AUTHENTIK_POSTGRESQL__PASSWORD=" + secrets["AUTHENTIK_PG_PASSWORD"]),
+		pulumi.String("AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS=0.0.0.0/0,::/0"),
 	}
 }
 
-func createAuthentikServer(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets map[string]string) (*docker.Container, *docker.RemoteImage, *docker.Volume, error) {
-	media, err := docker.NewVolume(ctx, "authentik-media", &docker.VolumeArgs{
-		Name: pulumi.String("authentik-media"),
-		Labels: docker.VolumeLabelArray{
-			&docker.VolumeLabelArgs{
-				Label: pulumi.String("managed-by"),
-				Value: pulumi.String("pulumi"),
-			},
-		},
-	})
+func createAuthentikServer(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets map[string]string, domain string, postgresql *docker.Container, settings serviceConfig) (*docker.RemoteImage, *docker.Volume, error) {
+	media, err := createVolume(ctx, "authentik-media")
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
-	image, err := docker.NewRemoteImage(ctx, "authentik", &docker.RemoteImageArgs{
-		Name:        pulumi.String("ghcr.io/goauthentik/server:2025.10"),
-		KeepLocally: pulumi.Bool(true),
-	})
+	image, err := pullImage(ctx, "authentik", settings.Image)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	container, err := docker.NewContainer(ctx, "authentik-server", &docker.ContainerArgs{
@@ -57,8 +46,11 @@ func createAuthentikServer(ctx *pulumi.Context, proxyNetwork *docker.Network, se
 		Hostname:            pulumi.String("authentik-server"),
 		Init:                pulumi.Bool(true),
 		Restart:             pulumi.String("unless-stopped"),
-		Memory:              pulumi.Int(1024),
-		MemorySwap:          pulumi.Int(1024),
+		Memory:              pulumi.Int(settings.Memory),
+		MemorySwap:          pulumi.Int(settings.Memory),
+		MemoryReservation:   pulumi.Int(settings.Memory * 3 / 4),
+		ShmSize:             pulumi.Int(512),
+		CpuShares:           pulumi.Int(512),
 		DestroyGraceSeconds: pulumi.Int(10),
 		Capabilities: &docker.ContainerCapabilitiesArgs{
 			Drops: pulumi.StringArray{pulumi.String("ALL")},
@@ -99,23 +91,30 @@ func createAuthentikServer(ctx *pulumi.Context, proxyNetwork *docker.Network, se
 				Name: proxyNetwork.Name,
 			},
 		},
-	})
+	}, pulumi.DependsOn([]pulumi.Resource{postgresql}), pulumi.AdditionalSecretOutputs([]string{"envs"}))
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
-	return container, image, media, nil
+	ctx.Export("authentik image", image.RepoDigest)
+	ctx.Export("authentik server id", container.ID())
+	ctx.Export("authentik media", media.Mountpoint)
+
+	return image, media, nil
 }
 
-func createAuthentikWorker(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets map[string]string, image *docker.RemoteImage, media *docker.Volume) (*docker.Container, error) {
+func createAuthentikWorker(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets map[string]string, image *docker.RemoteImage, media *docker.Volume, postgresql *docker.Container, settings serviceConfig) error {
 	container, err := docker.NewContainer(ctx, "authentik-worker", &docker.ContainerArgs{
 		Image:               image.ImageId,
 		Name:                pulumi.String("authentik-worker"),
 		Hostname:            pulumi.String("authentik-worker"),
 		Init:                pulumi.Bool(true),
 		Restart:             pulumi.String("unless-stopped"),
-		Memory:              pulumi.Int(1024),
-		MemorySwap:          pulumi.Int(1024),
+		Memory:              pulumi.Int(settings.Memory),
+		MemorySwap:          pulumi.Int(settings.Memory),
+		MemoryReservation:   pulumi.Int(settings.Memory * 3 / 4),
+		ShmSize:             pulumi.Int(512),
+		CpuShares:           pulumi.Int(256),
 		DestroyGraceSeconds: pulumi.Int(10),
 		Capabilities: &docker.ContainerCapabilitiesArgs{
 			Drops: pulumi.StringArray{pulumi.String("ALL")},
@@ -159,10 +158,12 @@ func createAuthentikWorker(ctx *pulumi.Context, proxyNetwork *docker.Network, se
 				Name: proxyNetwork.Name,
 			},
 		},
-	})
+	}, pulumi.DependsOn([]pulumi.Resource{postgresql}), pulumi.AdditionalSecretOutputs([]string{"envs"}))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return container, nil
+	ctx.Export("authentik worker id", container.ID())
+
+	return nil
 }

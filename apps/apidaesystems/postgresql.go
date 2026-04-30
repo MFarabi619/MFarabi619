@@ -1,48 +1,76 @@
 package main
 
 import (
+	"github.com/pulumi/pulumi-command/sdk/go/command/local"
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func createPostgreSQL(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets map[string]string) (*docker.Container, *docker.RemoteImage, *docker.Volume, error) {
-	data, err := docker.NewVolume(ctx, "postgresql-data", &docker.VolumeArgs{
-		Name: pulumi.String("postgresql-data"),
-		Labels: docker.VolumeLabelArray{
-			&docker.VolumeLabelArgs{
-				Label: pulumi.String("managed-by"),
-				Value: pulumi.String("pulumi"),
-			},
-		},
-	})
+func authentikInitScript(secrets map[string]string) string {
+	return "#!/bin/bash\nset -e\npsql -v ON_ERROR_STOP=1 --username \"$POSTGRES_USER\" <<-EOSQL\n" +
+		"    SELECT 'CREATE USER authentik WITH PASSWORD ''" + secrets["AUTHENTIK_PG_PASSWORD"] + "''' WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'authentik')\\gexec\n" +
+		"    SELECT 'CREATE DATABASE authentik OWNER authentik' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'authentik')\\gexec\n" +
+		"EOSQL\n"
+}
+
+func grafanaInitScript() string {
+	return "#!/bin/bash\nset -e\n" +
+		"psql -v ON_ERROR_STOP=1 --username \"$POSTGRES_USER\" <<-EOSQL\n" +
+		"    SELECT 'CREATE USER grafana WITH LOGIN' WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'grafana')\\gexec\n" +
+		"    SELECT 'CREATE DATABASE grafana OWNER grafana' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'grafana')\\gexec\n" +
+		"EOSQL\n" +
+		"sed -i '/^host.*all.*all.*all/i host    grafana     grafana     all             trust' \"$PGDATA/pg_hba.conf\"\n"
+}
+
+func createPostgreSQL(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets map[string]string, settings serviceConfig, initScripts docker.ContainerUploadArray, dependsOn ...pulumi.Resource) (*docker.Container, error) {
+	data, err := createVolume(ctx, "postgresql-data")
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
 
-	image, err := docker.NewRemoteImage(ctx, "postgresql", &docker.RemoteImageArgs{
-		Name:        pulumi.String("postgres:18-alpine"),
-		KeepLocally: pulumi.Bool(true),
+	const imageTag = "apidae-systems-postgresql:latest"
+
+	buildImage, err := local.NewCommand(ctx, "postgresql-image-build", &local.CommandArgs{
+		Create: pulumi.String("docker build -t " + imageTag + " ./docker/postgresql/"),
+		Delete: pulumi.Sprintf("docker rmi %s || true", imageTag),
 	})
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
+
+	var containerOptions []pulumi.ResourceOption
+	containerOptions = append(containerOptions, pulumi.AdditionalSecretOutputs([]string{"envs"}))
+	dependsOn = append(dependsOn, buildImage)
+	containerOptions = append(containerOptions, pulumi.DependsOn(dependsOn))
 
 	container, err := docker.NewContainer(ctx, "postgresql", &docker.ContainerArgs{
-		Image:               image.ImageId,
+		Image:               pulumi.String(imageTag),
 		Name:                pulumi.String("postgresql"),
 		Hostname:            pulumi.String("postgresql"),
-		Init:                pulumi.Bool(true),
 		Restart:             pulumi.String("unless-stopped"),
 		Wait:                pulumi.Bool(true),
 		WaitTimeout:         pulumi.Int(120),
-		Memory:              pulumi.Int(512),
-		MemorySwap:          pulumi.Int(512),
-		DestroyGraceSeconds: pulumi.Int(10),
+		Memory:              pulumi.Int(settings.Memory),
+		MemorySwap:          pulumi.Int(settings.Memory),
+		MemoryReservation:   pulumi.Int(settings.Memory * 3 / 4),
+		CpuShares:           pulumi.Int(1024),
+		ShmSize:             pulumi.Int(256),
+		StopTimeout:         pulumi.Int(30),
+		DestroyGraceSeconds: pulumi.Int(30),
+		Command: pulumi.StringArray{
+			pulumi.String("postgres"),
+			pulumi.String("-c"),
+			pulumi.String("shared_preload_libraries=timescaledb,pgnats"),
+		},
 		Capabilities: &docker.ContainerCapabilitiesArgs{
 			Drops: pulumi.StringArray{pulumi.String("ALL")},
-		},
-		SecurityOpts: pulumi.StringArray{
-			pulumi.String("no-new-privileges:true"),
+			Adds: pulumi.StringArray{
+				pulumi.String("CHOWN"),
+				pulumi.String("SETUID"),
+				pulumi.String("SETGID"),
+				pulumi.String("DAC_OVERRIDE"),
+				pulumi.String("FOWNER"),
+			},
 		},
 		LogDriver: pulumi.String("json-file"),
 		LogOpts: pulumi.StringMap{
@@ -50,20 +78,29 @@ func createPostgreSQL(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets
 			"max-file": pulumi.String("3"),
 		},
 		Envs: pulumi.StringArray{
-			pulumi.String("POSTGRES_DB=authentik"),
-			pulumi.String("POSTGRES_USER=authentik"),
-			pulumi.String("POSTGRES_PASSWORD=" + secrets["AUTHENTIK_PG_PASSWORD"]),
+			pulumi.String("POSTGRES_DB=postgres"),
+			pulumi.String("POSTGRES_USER=postgres"),
+			pulumi.String("POSTGRES_PASSWORD=" + secrets["PG_SUPERUSER_PASSWORD"]),
+			pulumi.String("TIMESCALEDB_TELEMETRY=off"),
 		},
+		Ports: docker.ContainerPortArray{
+			&docker.ContainerPortArgs{
+				Internal: pulumi.Int(5432),
+				External: pulumi.Int(5432),
+				Ip:       pulumi.String("127.0.0.1"),
+			},
+		},
+		Uploads: initScripts,
 		Volumes: docker.ContainerVolumeArray{
 			&docker.ContainerVolumeArgs{
 				VolumeName:    data.Name,
-				ContainerPath: pulumi.String("/var/lib/postgresql/data"),
+				ContainerPath: pulumi.String("/var/lib/postgresql"),
 			},
 		},
 		Healthcheck: &docker.ContainerHealthcheckArgs{
 			Tests: pulumi.StringArray{
 				pulumi.String("CMD-SHELL"),
-				pulumi.String("pg_isready -U authentik"),
+				pulumi.String("pg_isready -U postgres -d postgres"),
 			},
 			Interval:    pulumi.String("30s"),
 			Timeout:     pulumi.String("10s"),
@@ -75,10 +112,13 @@ func createPostgreSQL(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets
 				Name: proxyNetwork.Name,
 			},
 		},
-	})
+	}, containerOptions...)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, err
 	}
 
-	return container, image, data, nil
+	ctx.Export("postgresql id", container.ID())
+	ctx.Export("postgresql data", data.Mountpoint)
+
+	return container, nil
 }

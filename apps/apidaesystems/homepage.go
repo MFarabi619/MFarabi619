@@ -5,20 +5,20 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-const homepageServiceYAML = `- Sites:
-    - Apidae Systems:
-        href: https://www.apidaesystems.ca
-        siteMonitor: https://www.apidaesystems.ca
-        icon: /icons/symbol.svg
+const calendarServiceYAML = `    - Calendar:
+        widget:
+          type: calendar
+          view: monthly
+          maxEvents: 10
+          showTime: true
+          timezone: America/Toronto
+          firstDayInWeek: monday
 `
 
-func createHomepage(ctx *pulumi.Context, proxyNetwork *docker.Network, servicesYAML string, envs pulumi.StringArray) (*docker.Container, *docker.RemoteImage, error) {
-	image, err := docker.NewRemoteImage(ctx, "homepage", &docker.RemoteImageArgs{
-		Name:        pulumi.String("ghcr.io/gethomepage/homepage:latest"),
-		KeepLocally: pulumi.Bool(true),
-	})
+func createHomepage(ctx *pulumi.Context, proxyNetwork *docker.Network, servicesYAML string, envs pulumi.StringArray, domain string, settings serviceConfig) error {
+	image, err := pullImage(ctx, "homepage", settings.Image)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
 	container, err := docker.NewContainer(ctx, "homepage", &docker.ContainerArgs{
@@ -27,8 +27,10 @@ func createHomepage(ctx *pulumi.Context, proxyNetwork *docker.Network, servicesY
 		Hostname:            pulumi.String("homepage"),
 		Init:                pulumi.Bool(true),
 		Restart:             pulumi.String("unless-stopped"),
-		Memory:              pulumi.Int(256),
-		MemorySwap:          pulumi.Int(256),
+		Memory:              pulumi.Int(settings.Memory),
+		MemorySwap:          pulumi.Int(settings.Memory),
+		MemoryReservation:   pulumi.Int(settings.Memory * 3 / 4),
+		CpuShares:           pulumi.Int(256),
 		DestroyGraceSeconds: pulumi.Int(10),
 		Capabilities: &docker.ContainerCapabilitiesArgs{
 			Drops: pulumi.StringArray{pulumi.String("ALL")},
@@ -96,6 +98,14 @@ func createHomepage(ctx *pulumi.Context, proxyNetwork *docker.Network, servicesY
 				File:   pulumi.String("/app/public/images/apidae-systems-banner-bg.png"),
 				Source: pulumi.String("../../assets/apidae-systems-banner-bg.png"),
 			},
+			&docker.ContainerUploadArgs{
+				File:   pulumi.String("/app/public/icons/radicle.svg"),
+				Source: pulumi.String("../../assets/icons/radicle.svg"),
+			},
+			&docker.ContainerUploadArgs{
+				File:   pulumi.String("/app/public/icons/nats.svg"),
+				Source: pulumi.String("../../assets/icons/nats.svg"),
+			},
 		},
 		Volumes: docker.ContainerVolumeArray{
 			&docker.ContainerVolumeArgs{
@@ -110,10 +120,23 @@ func createHomepage(ctx *pulumi.Context, proxyNetwork *docker.Network, servicesY
 				Name: proxyNetwork.Name,
 			},
 		},
-	})
+		Healthcheck: &docker.ContainerHealthcheckArgs{
+			Tests: pulumi.StringArray{
+				pulumi.String("CMD-SHELL"),
+				pulumi.String("wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1"),
+			},
+			Interval:    pulumi.String("30s"),
+			Timeout:     pulumi.String("5s"),
+			Retries:     pulumi.Int(3),
+			StartPeriod: pulumi.String("10s"),
+		},
+	}, pulumi.AdditionalSecretOutputs([]string{"envs"}))
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
-	return container, image, nil
+	ctx.Export("homepage image", image.RepoDigest)
+	ctx.Export("homepage id", container.ID())
+
+	return nil
 }
