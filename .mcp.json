@@ -4,5 +4,10 @@
       "type": "stdio",
       "command": "bunx",
       "args": ["-y", "likec4@latest", "mcp", "./docs"]
+    },
+    "pulumi": {
+      "type": "http",
+      "url": "https://mcp.ai.pulumi.com/mcp"
+    }
   }
 }
