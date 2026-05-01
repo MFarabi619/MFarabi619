@@ -7,7 +7,8 @@
   home = {
     packages =
       with pkgs;
-      [
+      [ talosctl ]
+      ++ [
         esptool
         (python314.withPackages (
           ps: with ps; [
