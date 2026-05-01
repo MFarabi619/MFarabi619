@@ -27,8 +27,6 @@ target_sources(app PRIVATE
   firmware/src/services/mqtt.c
   firmware/src/services/prometheus.c
   firmware/src/services/http/api.c
-  # firmware/src/services/websocket_shell.c
-  # firmware/src/services/wifi_connectivity.c
   firmware/src/sensors/devices.c
   firmware/src/sensors/wind_speed.c
   firmware/src/sensors/wind_direction.c
@@ -37,6 +35,14 @@ target_sources(app PRIVATE
 )
 
 target_include_directories(app PRIVATE include firmware/include)
+
+if(DEFINED ENV{MQTT_HOST})
+  target_compile_definitions(app PRIVATE
+    MQTT_DEFAULT_HOST="$ENV{MQTT_HOST}"
+    MQTT_DEFAULT_USERNAME="$ENV{MQTT_USERNAME}"
+    MQTT_DEFAULT_PASSWORD="$ENV{NATS_MQTT_PASSWORD}"
+  )
+endif()
 
 zephyr_linker_sources(SECTIONS
   ${CMAKE_CURRENT_SOURCE_DIR}/firmware/linker/discard_defmt.ld

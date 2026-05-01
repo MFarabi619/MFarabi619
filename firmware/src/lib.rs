@@ -3,6 +3,7 @@
 
 extern crate alloc;
 
+mod cloudevents;
 mod commands;
 mod home_assistant;
 mod led;

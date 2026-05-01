@@ -9,8 +9,6 @@ unsafe extern "C" {
     fn schedule_deep_sleep();
     fn prompt_init(shell: *const core::ffi::c_void) -> bool;
     fn prompt_print_motd(shell: *const core::ffi::c_void, ip: *const u8);
-    // fn boot_websocket_shell();
-    // fn get_ppp_iface() -> *mut net_if;
 }
 
 const MQTT_RECONNECT_DELAY_SECONDS: u64 = 10;
@@ -21,7 +19,7 @@ async fn mqtt_task() {
     Timer::after(Duration::from_secs(MQTT_WIFI_WAIT_SECONDS)).await;
 
     if let Err(error) = crate::mqtt::init() {
-        info!("MQTT init failed: {}", error);
+        info!("MQTT init failed: {:?}", error);
         return;
     }
 
@@ -35,7 +33,8 @@ async fn mqtt_task() {
             Timer::after(Duration::from_secs(MQTT_WIFI_WAIT_SECONDS)).await;
         }
 
-        if crate::mqtt::connect().is_err() {
+        if let Err(error) = crate::mqtt::connect() {
+            info!("MQTT connect failed before TCP/CONNECT: {:?}", error);
             Timer::after(Duration::from_secs(MQTT_RECONNECT_DELAY_SECONDS)).await;
             continue;
         }
@@ -49,7 +48,7 @@ async fn mqtt_task() {
         }
 
         if !crate::mqtt::is_connected() {
-            info!("MQTT connection timed out");
+            info!("MQTT no CONNACK in 5s - broker silent or rejecting handshake");
             let _ = crate::mqtt::disconnect();
             Timer::after(Duration::from_secs(MQTT_RECONNECT_DELAY_SECONDS)).await;
             continue;
@@ -110,29 +109,13 @@ extern "C" fn rust_main() {
     crate::wifi::init();
 
     unsafe {
-        // boot_websocket_shell();
-
         let ret = http_server_start();
         if ret == 0 {
             info!("HTTP server started");
         } else {
             info!("HTTP server start failed: {}", ret);
         }
-
-        // let ppp_iface = get_ppp_iface();
-        // if !ppp_iface.is_null() {
-        //     let ret = net_if_up(ppp_iface);
-        //     if ret == 0 {
-        //         info!("PPP interface brought up");
-        //     }
-        // }
     }
-
-    // unsafe {
-    //     let sh = zephyr::raw::zr_shell_backend_uart_get_ptr() as *const core::ffi::c_void;
-    //     prompt_init(sh);
-    //     prompt_print_motd(sh, core::ptr::null());
-    // }
 
     let executor = EXECUTOR.init(Executor::new());
     executor.run(|spawner: embassy_executor::Spawner| {

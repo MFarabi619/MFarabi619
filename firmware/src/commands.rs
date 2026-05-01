@@ -58,6 +58,7 @@ pub fn handle_command(topic: &str, payload: &[u8]) {
                 let clamped = seconds.clamp(5, 3600);
                 info!("Setting publish interval to {}s", clamped);
                 mqtt::set_publish_interval(clamped);
+                home_assistant::publish_discovery_configs();
                 publish::publish_config_state();
             }
         }

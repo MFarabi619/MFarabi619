@@ -1,5 +1,26 @@
 use core::ffi::c_int;
 
+#[derive(Debug)]
+pub enum MqttError {
+    NotConnected,
+    InvalidConfig,
+    HostUnreachable,
+    Transport(c_int),
+}
+
+fn from_result(code: c_int) -> Result<(), MqttError> {
+    match code {
+        0 => Ok(()),
+        x if x == -(zephyr::raw::ENOTCONN as i32) => Err(MqttError::NotConnected),
+        x if x == -(zephyr::raw::EINVAL as i32) => Err(MqttError::InvalidConfig),
+        x if x == -(zephyr::raw::EHOSTUNREACH as i32) => Err(MqttError::HostUnreachable),
+        other => Err(MqttError::Transport(other)),
+    }
+}
+
+const MAX_INCOMING_TOPIC_LENGTH: usize = 128;
+const MAX_INCOMING_PAYLOAD_LENGTH: usize = 128;
+
 unsafe extern "C" {
     fn mqtt_service_init() -> c_int;
     fn mqtt_service_is_configured() -> bool;
@@ -38,9 +59,8 @@ unsafe extern "C" {
     fn mqtt_service_get_availability_topic() -> *const u8;
 }
 
-pub fn init() -> Result<(), c_int> {
-    let result = unsafe { mqtt_service_init() };
-    if result == 0 { Ok(()) } else { Err(result) }
+pub fn init() -> Result<(), MqttError> {
+    from_result(unsafe { mqtt_service_init() })
 }
 
 pub fn is_configured() -> bool {
@@ -51,35 +71,31 @@ pub fn is_connected() -> bool {
     unsafe { mqtt_service_is_connected() }
 }
 
-pub fn connect() -> Result<(), c_int> {
-    let result = unsafe { mqtt_service_connect() };
-    if result == 0 { Ok(()) } else { Err(result) }
+pub fn connect() -> Result<(), MqttError> {
+    from_result(unsafe { mqtt_service_connect() })
 }
 
-pub fn publish(topic: &str, payload: &[u8], retain: bool) -> Result<(), c_int> {
+pub fn publish(topic: &str, payload: &[u8], retain: bool) -> Result<(), MqttError> {
     let topic_cstr = make_c_string::<128>(topic);
-    let result = unsafe {
+    from_result(unsafe {
         mqtt_service_publish(topic_cstr.as_ptr(), payload.as_ptr(), payload.len(), retain)
-    };
-    if result == 0 { Ok(()) } else { Err(result) }
+    })
 }
 
-pub fn disconnect() -> Result<(), c_int> {
-    let result = unsafe { mqtt_service_disconnect() };
-    if result == 0 { Ok(()) } else { Err(result) }
+pub fn disconnect() -> Result<(), MqttError> {
+    from_result(unsafe { mqtt_service_disconnect() })
 }
 
-pub fn poll(timeout_milliseconds: i32) -> Result<(), c_int> {
-    let result = unsafe { mqtt_service_poll(timeout_milliseconds) };
-    if result == 0 { Ok(()) } else { Err(result) }
+pub fn poll(timeout_milliseconds: i32) -> Result<(), MqttError> {
+    from_result(unsafe { mqtt_service_poll(timeout_milliseconds) })
 }
 
 pub fn keepalive_time_left() -> i32 {
     unsafe { mqtt_service_keepalive_time_left() }
 }
 
-static mut INCOMING_TOPIC: [u8; 128] = [0; 128];
-static mut INCOMING_PAYLOAD: [u8; 128] = [0; 128];
+static mut INCOMING_TOPIC: [u8; MAX_INCOMING_TOPIC_LENGTH] = [0; MAX_INCOMING_TOPIC_LENGTH];
+static mut INCOMING_PAYLOAD: [u8; MAX_INCOMING_PAYLOAD_LENGTH] = [0; MAX_INCOMING_PAYLOAD_LENGTH];
 
 pub fn get_incoming_command() -> Option<(&'static str, &'static [u8])> {
     use core::ptr::addr_of_mut;
@@ -102,9 +118,9 @@ pub fn get_incoming_command() -> Option<(&'static str, &'static [u8])> {
             return None;
         }
 
-        let topic = core::str::from_utf8_unchecked(
+        let topic = core::str::from_utf8(
             core::slice::from_raw_parts(topic_ptr, topic_length),
-        );
+        ).ok()?;
         let payload = core::slice::from_raw_parts(payload_ptr, payload_length);
         Some((topic, payload))
     }
@@ -134,7 +150,7 @@ pub fn set_sleep_duration(seconds: u32) {
     unsafe { mqtt_service_set_sleep_duration(seconds) }
 }
 
-pub fn set_config(host: &str, port: u16, username: Option<&str>, password: Option<&str>) -> Result<(), c_int> {
+pub fn set_config(host: &str, port: u16, username: Option<&str>, password: Option<&str>) -> Result<(), MqttError> {
     let host_cstr = make_c_string::<64>(host);
     let username_cstr = username.map(make_c_string::<64>);
     let password_cstr = password.map(make_c_string::<64>);
@@ -142,10 +158,9 @@ pub fn set_config(host: &str, port: u16, username: Option<&str>, password: Optio
     let username_ptr = username_cstr.as_ref().map_or(core::ptr::null(), |s| s.as_ptr());
     let password_ptr = password_cstr.as_ref().map_or(core::ptr::null(), |s| s.as_ptr());
 
-    let result = unsafe {
+    from_result(unsafe {
         mqtt_service_set_config(host_cstr.as_ptr(), port, username_ptr, password_ptr)
-    };
-    if result == 0 { Ok(()) } else { Err(result) }
+    })
 }
 
 fn make_c_string<const N: usize>(source: &str) -> [u8; N] {

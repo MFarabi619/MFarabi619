@@ -37,9 +37,3 @@ void schedule_deep_sleep(void)
 	k_work_schedule(&deep_sleep_work, K_NO_WAIT);
 }
 
-extern void websocket_shell_init(void);
-
-void boot_websocket_shell(void)
-{
-	websocket_shell_init();
-}

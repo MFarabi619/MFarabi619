@@ -9,6 +9,19 @@ pub fn hostname() -> &'static str {
         while *pointer.add(length) != 0 {
             length += 1;
         }
-        core::str::from_utf8_unchecked(core::slice::from_raw_parts(pointer, length))
+        core::str::from_utf8(core::slice::from_raw_parts(pointer, length)).unwrap_or("")
+    }
+}
+
+pub unsafe fn c_str_to_bytes<'a>(pointer: *const u8) -> &'a [u8] {
+    if pointer.is_null() {
+        return b"";
+    }
+    let mut length = 0;
+    unsafe {
+        while *pointer.add(length) != 0 {
+            length += 1;
+        }
+        core::slice::from_raw_parts(pointer, length)
     }
 }

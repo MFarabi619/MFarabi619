@@ -3,6 +3,7 @@
 #include <zephyr/net/http/server.h>
 #include <zephyr/net/http/service.h>
 #include <zephyr/net/prometheus/collector.h>
+#include <zephyr/net/prometheus/counter.h>
 #include <zephyr/net/prometheus/gauge.h>
 #include <zephyr/net/prometheus/formatter.h>
 #include <zephyr/net/net_if.h>
@@ -19,19 +20,25 @@ extern const struct device *zr_sensor_get_soil_tier1(void);
 extern const struct device *zr_sensor_get_soil_tier2(void);
 extern const struct device *zr_sensor_get_soil_tier3(void);
 
+extern void mqtt_helper_get_mac(uint8_t *out);
+extern void mqtt_helper_get_ipv4(char *out, size_t out_size);
+extern uint32_t mqtt_helper_get_chip_revision(void);
+
+#define CERATINA_FIRMWARE_VERSION "0.1.0"
+
 PROMETHEUS_COLLECTOR_DEFINE(ceratina_collector);
 
 PROMETHEUS_GAUGE_DEFINE(ceratina_uptime_seconds,
 			"System uptime in seconds",
-			({ .key = "device", .value = "ceratina" }), NULL);
+			({ .key = "class", .value = "system" }), NULL);
 
 PROMETHEUS_GAUGE_DEFINE(ceratina_heap_free_bytes,
 			"Free heap memory in bytes",
-			({ .key = "device", .value = "ceratina" }), NULL);
+			({ .key = "class", .value = "system" }), NULL);
 
 PROMETHEUS_GAUGE_DEFINE(ceratina_wifi_rssi,
 			"WiFi signal strength in dBm",
-			({ .key = "device", .value = "ceratina" }), NULL);
+			({ .key = "class", .value = "system" }), NULL);
 
 PROMETHEUS_GAUGE_DEFINE(ceratina_wind_speed_kilometers_per_hour,
 			"Wind speed in km/h",
@@ -69,6 +76,15 @@ PROMETHEUS_GAUGE_DEFINE(ceratina_soil_temperature_celsius_tier3,
 			"Soil temperature celsius tier 3",
 			({ .key = "tier", .value = "3" }), NULL);
 
+PROMETHEUS_COUNTER_DEFINE(ceratina_mqtt_publish_failures_total,
+			  "Total MQTT publish failures since boot",
+			  ({ .key = "class", .value = "mqtt" }), NULL);
+
+void prometheus_increment_publish_failures(void)
+{
+	prometheus_counter_inc(&ceratina_mqtt_publish_failures_total);
+}
+
 static float sensor_val_to_float(const struct sensor_value *val)
 {
 	return (float)val->val1 + (float)val->val2 / 1000000.0f;
@@ -95,7 +111,7 @@ static void update_system_gauges(void)
 
 		if (net_mgmt(NET_REQUEST_WIFI_IFACE_STATUS, iface,
 			     &wifi_status, sizeof(wifi_status)) == 0) {
-			prometheus_gauge_set(&ceratina_wifi_rssi, (double)wifi_status.rssi);
+			ceratina_wifi_rssi.value = (double)wifi_status.rssi;
 		}
 	}
 }
@@ -193,11 +209,36 @@ static void register_metrics(void)
 	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_temperature_celsius_tier2.base);
 	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_moisture_percent_tier3.base);
 	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_temperature_celsius_tier3.base);
+	prometheus_collector_register_metric(&ceratina_collector, &ceratina_mqtt_publish_failures_total.base);
 
 	is_registered = true;
 }
 
-static char metrics_buffer[2048];
+static char metrics_buffer[4096];
+
+static size_t append_device_info(char *buffer, size_t buffer_size, size_t used)
+{
+	uint8_t mac[6] = {0};
+	char ip[16] = {0};
+
+	mqtt_helper_get_mac(mac);
+	mqtt_helper_get_ipv4(ip, sizeof(ip));
+
+	int written = snprintk(buffer + used, buffer_size - used,
+		"# HELP ceratina_device_info Device metadata\n"
+		"# TYPE ceratina_device_info gauge\n"
+		"ceratina_device_info{firmware=\"%s\",hardware=\"rev%u\","
+		"mac=\"%02x%02x%02x%02x%02x%02x\",ip=\"%s\"} 1\n",
+		CERATINA_FIRMWARE_VERSION,
+		mqtt_helper_get_chip_revision(),
+		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5],
+		ip);
+
+	if (written > 0 && (size_t)written < buffer_size - used) {
+		return used + written;
+	}
+	return used;
+}
 
 int metrics_handler(struct http_client_ctx *client,
 		    enum http_transaction_status status,
@@ -230,6 +271,9 @@ int metrics_handler(struct http_client_ctx *client,
 		return 0;
 	}
 
+	size_t used = strlen(metrics_buffer);
+	used = append_device_info(metrics_buffer, sizeof(metrics_buffer), used);
+
 	static const struct http_header plaintext_headers[] = {
 		{.name = "Content-Type", .value = "text/plain; charset=utf-8"},
 	};
@@ -238,7 +282,7 @@ int metrics_handler(struct http_client_ctx *client,
 	response_ctx->headers = plaintext_headers;
 	response_ctx->header_count = ARRAY_SIZE(plaintext_headers);
 	response_ctx->body = (const uint8_t *)metrics_buffer;
-	response_ctx->body_len = strlen(metrics_buffer);
+	response_ctx->body_len = used;
 	response_ctx->final_chunk = true;
 
 	return 0;

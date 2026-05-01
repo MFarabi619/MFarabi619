@@ -6,6 +6,7 @@
 #include <zephyr/net/net_mgmt.h>
 #include <zephyr/net/wifi_mgmt.h>
 #include <zephyr/settings/settings.h>
+#include <zephyr/sys/clock.h>
 #include <zephyr/sys/sys_heap.h>
 #include <zephyr/sys/reboot.h>
 #include <zephyr/logging/log.h>
@@ -247,13 +248,14 @@ static void event_handler(struct mqtt_client *client_handle,
 {
 	switch (event->type) {
 	case MQTT_EVT_CONNACK:
+		LOG_INF("MQTT CONNACK: result=%d return_code=%u session_present=%u",
+			event->result,
+			event->param.connack.return_code,
+			event->param.connack.session_present_flag);
 		if (event->result == 0) {
-			LOG_INF("Connected to MQTT broker");
 			is_connected = true;
 			publish_availability("online");
 			subscribe_command_topics();
-		} else {
-			LOG_ERR("MQTT CONNACK error: %d", event->result);
 		}
 		break;
 
@@ -281,6 +283,16 @@ static void event_handler(struct mqtt_client *client_handle,
 int mqtt_service_init(void)
 {
 	settings_load_subtree("mqtt");
+
+#ifdef MQTT_DEFAULT_HOST
+	if (mqtt_config.host[0] == '\0') {
+		strncpy(mqtt_config.host, MQTT_DEFAULT_HOST, sizeof(mqtt_config.host) - 1);
+#ifdef MQTT_DEFAULT_USERNAME
+		strncpy(mqtt_config.username, MQTT_DEFAULT_USERNAME, sizeof(mqtt_config.username) - 1);
+		strncpy(mqtt_config.password, MQTT_DEFAULT_PASSWORD, sizeof(mqtt_config.password) - 1);
+#endif
+	}
+#endif
 
 	if (mqtt_config.port == 0) {
 		mqtt_config.port = MQTT_BROKER_PORT_DEFAULT;
@@ -349,6 +361,7 @@ int mqtt_service_connect(void)
 	client.client_id.utf8 = client_id;
 	client.client_id.size = strlen(client_id);
 	client.protocol_version = MQTT_VERSION_3_1_1;
+	client.clean_session = 1;
 
 	static struct mqtt_utf8 user_name_storage;
 	static struct mqtt_utf8 password_storage;
@@ -383,11 +396,17 @@ int mqtt_service_connect(void)
 	error = mqtt_connect(&client);
 
 	if (error) {
-		LOG_ERR("MQTT connect failed: %d", error);
+		const char *kind =
+			error == -ETIMEDOUT    ? "ETIMEDOUT"    :
+			error == -ECONNREFUSED ? "ECONNREFUSED" :
+			error == -EHOSTUNREACH ? "EHOSTUNREACH" :
+			error == -ENETUNREACH  ? "ENETUNREACH"  : "other";
+		LOG_ERR("MQTT connect failed at TCP layer: %d (%s)", error, kind);
 		return error;
 	}
 
-	LOG_INF("MQTT connecting to %s:%u", mqtt_config.host, mqtt_config.port);
+	LOG_INF("MQTT TCP up, awaiting CONNACK from %s:%u",
+		mqtt_config.host, mqtt_config.port);
 	return 0;
 }
 
@@ -422,16 +441,17 @@ int mqtt_service_publish(const char *topic, const uint8_t *payload,
 
 int mqtt_service_disconnect(void)
 {
-	if (!is_connected) {
-		return 0;
+	if (is_connected) {
+		mqtt_disconnect(&client, NULL);
+		is_connected = false;
 	}
 
-	return mqtt_disconnect(&client, NULL);
+	return mqtt_abort(&client);
 }
 
 int mqtt_service_poll(int timeout_milliseconds)
 {
-	if (!is_connected && client.transport.type == 0) {
+	if (client.transport.tcp.sock < 0) {
 		return -ENOTCONN;
 	}
 
@@ -643,4 +663,15 @@ void mqtt_helper_get_ipv4(char *out, size_t out_size)
 	if (addr) {
 		net_addr_ntop(AF_INET, addr, out, out_size);
 	}
+}
+
+int64_t mqtt_helper_get_epoch_seconds(void)
+{
+	struct timespec ts = {0};
+
+	if (sys_clock_gettime(SYS_CLOCK_REALTIME, &ts) != 0) {
+		return 0;
+	}
+
+	return (int64_t)ts.tv_sec;
 }
