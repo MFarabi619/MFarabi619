@@ -14,6 +14,14 @@ type serviceConfig struct {
 	Memory    int    `json:"memory"`
 }
 
+// talosConfig holds the Talos node's reachable address. NodeIP is what
+// apid binds to; Endpoint is what talosctl dials. They differ only when
+// the controlplane sits behind NAT/proxy.
+type talosConfig struct {
+	NodeIP   string `json:"nodeIP"`
+	Endpoint string `json:"endpoint"`
+}
+
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		pulumiConfig := config.New(ctx, "")
@@ -33,6 +41,8 @@ func main() {
 		pulumiConfig.RequireObject("grafana", &grafanaSettings)
 		var natsSettings serviceConfig
 		pulumiConfig.RequireObject("nats", &natsSettings)
+		var nuiSettings serviceConfig
+		pulumiConfig.RequireObject("nui", &nuiSettings)
 		var homeAssistantSettings serviceConfig
 		pulumiConfig.RequireObject("home-assistant", &homeAssistantSettings)
 		var postgresqlSettings serviceConfig
@@ -43,13 +53,22 @@ func main() {
 		pulumiConfig.RequireObject("penpot", &penpotSettings)
 		var boreSettings serviceConfig
 		pulumiConfig.RequireObject("bore", &boreSettings)
+		var talosSettings talosConfig
+		pulumiConfig.RequireObject("talos", &talosSettings)
 
-		cleartext, err := decrypt.File("../../secrets.yaml", "yaml")
+		cleartext, err := decrypt.File(repoPath("secrets.yaml"), "yaml")
 		if err != nil {
 			return err
 		}
 		var secrets map[string]string
 		if err := yaml.Unmarshal(cleartext, &secrets); err != nil {
+			return err
+		}
+
+		// kubeconfig is returned for future use by a kubernetes.Provider
+		// (e.g. Helm releases, manifests). Discarded today; wire it in when
+		// adding cluster-managed resources.
+		if _, err := createTalos(ctx, talosSettings.NodeIP, talosSettings.Endpoint); err != nil {
 			return err
 		}
 
@@ -145,6 +164,12 @@ func main() {
 		if natsSettings.IsEnabled {
 			natsContainer, err = createNATS(ctx, proxyNetwork, secrets, natsSettings)
 			if err != nil {
+				return err
+			}
+		}
+
+		if nuiSettings.IsEnabled {
+			if err := createNUI(ctx, proxyNetwork, domain, nuiSettings); err != nil {
 				return err
 			}
 		}

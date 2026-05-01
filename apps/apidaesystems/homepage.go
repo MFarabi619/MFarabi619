@@ -43,28 +43,7 @@ func createHomepage(ctx *pulumi.Context, proxyNetwork *docker.Network, servicesY
 			"max-size": pulumi.String("10m"),
 			"max-file": pulumi.String("3"),
 		},
-		Labels: docker.ContainerLabelArray{
-			&docker.ContainerLabelArgs{
-				Label: pulumi.String("traefik.enable"),
-				Value: pulumi.String("true"),
-			},
-			&docker.ContainerLabelArgs{
-				Label: pulumi.String("traefik.docker.network"),
-				Value: pulumi.String("proxy"),
-			},
-			&docker.ContainerLabelArgs{
-				Label: pulumi.String("traefik.http.routers.homepage.rule"),
-				Value: pulumi.String("Host(`" + domain + "`) || Host(`www." + domain + "`)"),
-			},
-			&docker.ContainerLabelArgs{
-				Label: pulumi.String("traefik.http.routers.homepage.entrypoints"),
-				Value: pulumi.String("web"),
-			},
-			&docker.ContainerLabelArgs{
-				Label: pulumi.String("traefik.http.services.homepage.loadbalancer.server.port"),
-				Value: pulumi.String("3000"),
-			},
-		},
+		Labels: createTraefikLabels("homepage", domain, "3000", "www."+domain),
 		Uploads: docker.ContainerUploadArray{
 			&docker.ContainerUploadArgs{
 				File:   pulumi.String("/app/config/settings.yaml"),
@@ -92,19 +71,19 @@ func createHomepage(ctx *pulumi.Context, proxyNetwork *docker.Network, servicesY
 			},
 			&docker.ContainerUploadArgs{
 				File:   pulumi.String("/app/public/icons/symbol.svg"),
-				Source: pulumi.String("../../web/assets/symbol.svg"),
+				Source: pulumi.String(repoPath("web", "assets", "symbol.svg")),
 			},
 			&docker.ContainerUploadArgs{
 				File:   pulumi.String("/app/public/images/apidae-systems-banner-bg.png"),
-				Source: pulumi.String("../../assets/apidae-systems-banner-bg.png"),
+				Source: pulumi.String(repoPath("assets", "apidae-systems-banner-bg.png")),
 			},
 			&docker.ContainerUploadArgs{
 				File:   pulumi.String("/app/public/icons/radicle.svg"),
-				Source: pulumi.String("../../assets/icons/radicle.svg"),
+				Source: pulumi.String(repoPath("assets", "icons", "radicle.svg")),
 			},
 			&docker.ContainerUploadArgs{
 				File:   pulumi.String("/app/public/icons/nats.svg"),
-				Source: pulumi.String("../../assets/icons/nats.svg"),
+				Source: pulumi.String(repoPath("assets", "icons", "nats.svg")),
 			},
 		},
 		Volumes: docker.ContainerVolumeArray{

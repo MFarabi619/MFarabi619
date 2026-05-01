@@ -1,9 +1,6 @@
 package main
 
 import (
-	"os/exec"
-	"strings"
-
 	"github.com/pulumi/pulumi-command/sdk/go/command/local"
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -36,18 +33,14 @@ func createCgit(ctx *pulumi.Context, proxyNetwork *docker.Network, domain string
 		return err
 	}
 
+	hostRepoPath := monorepoRoot()
+
 	seedRepos, err := local.NewCommand(ctx, "cgit-seed-repos", &local.CommandArgs{
-		Create: pulumi.Sprintf(`docker run --rm --entrypoint sh -v %s:/srv/git -v "$(git -C ../../ rev-parse --show-toplevel)":/src:ro alpine/git -c 'test -d /srv/git/MFarabi619.git || git clone --mirror /src /srv/git/MFarabi619.git'`, gitRepos.Name),
+		Create: pulumi.Sprintf(`docker run --rm --entrypoint sh -v %s:/srv/git -v %s:/src:ro alpine/git -c 'test -d /srv/git/MFarabi619.git || git clone --mirror /src /srv/git/MFarabi619.git'`, gitRepos.Name, hostRepoPath),
 	}, pulumi.DependsOn([]pulumi.Resource{gitRepos}))
 	if err != nil {
 		return err
 	}
-
-	hostRepoOut, err := exec.Command("git", "-C", "../../", "rev-parse", "--show-toplevel").Output()
-	if err != nil {
-		return err
-	}
-	hostRepoPath := strings.TrimSpace(string(hostRepoOut))
 
 	fetchImage, err := pullImage(ctx, "cgit-fetch", "alpine/git:latest")
 	if err != nil {

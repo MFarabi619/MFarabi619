@@ -7,6 +7,14 @@ config:
     local:domain:
         type: string
         default: apidae.systems
+    # Talos node address. Set via DHCP reservation or static-IP config patch.
+    # Same value used for both --nodes (the machine apid talks to) and
+    # --endpoints (where talosctl initiates the gRPC connection); they only
+    # differ when the controlplane sits behind NAT/proxy.
+    local:talos:
+        value:
+            nodeIP: 192.168.64.29
+            endpoint: 192.168.64.29
     local:traefik:
         value:
             image: traefik:v3.4

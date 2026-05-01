@@ -7,7 +7,11 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func createTraefikLabels(name, host, port string) docker.ContainerLabelArray {
+func createTraefikLabels(name, host, port string, extraHosts ...string) docker.ContainerLabelArray {
+	rule := "Host(`" + host + "`)"
+	for _, h := range extraHosts {
+		rule += " || Host(`" + h + "`)"
+	}
 	return docker.ContainerLabelArray{
 		&docker.ContainerLabelArgs{
 			Label: pulumi.String("traefik.enable"),
@@ -19,7 +23,7 @@ func createTraefikLabels(name, host, port string) docker.ContainerLabelArray {
 		},
 		&docker.ContainerLabelArgs{
 			Label: pulumi.String("traefik.http.routers." + name + ".rule"),
-			Value: pulumi.String("Host(`" + host + "`)"),
+			Value: pulumi.String(rule),
 		},
 		&docker.ContainerLabelArgs{
 			Label: pulumi.String("traefik.http.routers." + name + ".entrypoints"),
