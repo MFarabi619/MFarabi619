@@ -28,6 +28,7 @@ http_port: 8222
 }
 
 const natsServiceYAML = `    - NATS:
+        href: https://nui.{{HOMEPAGE_VAR_DOMAIN}}
         icon: /icons/nats.svg
         server: local
         container: nats
@@ -72,6 +73,14 @@ func createNATS(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets map[s
 			&docker.ContainerPortArgs{
 				Internal: pulumi.Int(1883),
 				External: pulumi.Int(1883),
+			},
+			&docker.ContainerPortArgs{
+				Internal: pulumi.Int(4222),
+				External: pulumi.Int(4222),
+			},
+			&docker.ContainerPortArgs{
+				Internal: pulumi.Int(8222),
+				External: pulumi.Int(8222),
 			},
 		},
 		Uploads: docker.ContainerUploadArray{
