@@ -174,6 +174,7 @@ static struct http_resource_detail_dynamic cloudevents_detail = {
 HTTP_RESOURCE_DEFINE(cloudevents, provisioning_service,
 		     "/api/cloudevents", &cloudevents_detail);
 
+#if 0
 extern int wind_speed_handler(struct http_client_ctx *client,
 			      enum http_transaction_status status,
 			      const struct http_request_ctx *request_ctx,
@@ -191,12 +192,6 @@ extern int rainfall_handler(struct http_client_ctx *client,
 			    const struct http_request_ctx *request_ctx,
 			    struct http_response_ctx *response_ctx,
 			    void *user_data);
-
-extern int soil_handler(struct http_client_ctx *client,
-			enum http_transaction_status status,
-			const struct http_request_ctx *request_ctx,
-			struct http_response_ctx *response_ctx,
-			void *user_data);
 
 static struct http_resource_detail_dynamic wind_speed_detail = {
 	.common = {
@@ -233,6 +228,13 @@ static struct http_resource_detail_dynamic rainfall_detail = {
 
 HTTP_RESOURCE_DEFINE(rainfall, provisioning_service,
 		     "/api/sensors/rainfall", &rainfall_detail);
+#endif
+
+extern int soil_handler(struct http_client_ctx *client,
+			enum http_transaction_status status,
+			const struct http_request_ctx *request_ctx,
+			struct http_response_ctx *response_ctx,
+			void *user_data);
 
 static struct http_resource_detail_dynamic soil_detail = {
 	.common = {
@@ -246,6 +248,7 @@ static struct http_resource_detail_dynamic soil_detail = {
 HTTP_RESOURCE_DEFINE(soil, provisioning_service,
 		     "/api/sensors/soil", &soil_detail);
 
+#if 0
 extern int metrics_handler(struct http_client_ctx *client,
 			   enum http_transaction_status status,
 			   const struct http_request_ctx *request_ctx,
@@ -264,6 +267,7 @@ static struct http_resource_detail_dynamic metrics_detail = {
 
 HTTP_RESOURCE_DEFINE(metrics, provisioning_service,
 		     "/metrics", &metrics_detail);
+#endif
 
 extern int reboot_handler(struct http_client_ctx *client,
 			  enum http_transaction_status status,

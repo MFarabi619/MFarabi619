@@ -13,9 +13,5 @@
 		return DEVICE_DT_GET_OR_NULL(DT_NODELABEL(nodelabel));   \
 	}
 
-SENSOR_DEVICE_GETTER(wind_speed, wind_speed)
-SENSOR_DEVICE_GETTER(wind_direction, wind_direction)
-SENSOR_DEVICE_GETTER(rainfall, rainfall)
-SENSOR_DEVICE_GETTER(soil_tier1, soil_tier1)
-SENSOR_DEVICE_GETTER(soil_tier2, soil_tier2)
-SENSOR_DEVICE_GETTER(soil_tier3, soil_tier3)
+SENSOR_DEVICE_GETTER(soil_moisture, soil_moisture)
+SENSOR_DEVICE_GETTER(soil_moisture_three_in_one, soil_moisture_three_in_one)

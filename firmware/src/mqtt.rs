@@ -71,6 +71,20 @@ pub fn is_connected() -> bool {
     unsafe { mqtt_service_is_connected() }
 }
 
+pub fn note_connection_state(is_currently_connected: bool) {
+    use core::sync::atomic::{AtomicBool, Ordering};
+
+    static LAST_CONNECTED: AtomicBool = AtomicBool::new(false);
+    static EVER_CONNECTED: AtomicBool = AtomicBool::new(false);
+
+    let was_connected = LAST_CONNECTED.swap(is_currently_connected, Ordering::Relaxed);
+    if is_currently_connected && !was_connected {
+        if EVER_CONNECTED.swap(true, Ordering::Relaxed) {
+            crate::diagnostics::MQTT_RECONNECT_COUNT.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+}
+
 pub fn connect() -> Result<(), MqttError> {
     from_result(unsafe { mqtt_service_connect() })
 }

@@ -38,7 +38,7 @@ fn uuid_v5(input: &[u8]) -> String {
         .into()
 }
 
-fn epoch_to_rfc3339(epoch: i64) -> String {
+pub(crate) fn epoch_to_rfc3339(epoch: i64) -> String {
     let days = epoch.div_euclid(86400);
     let secs_of_day = epoch.rem_euclid(86400);
 

@@ -4,7 +4,6 @@ use log_04::info;
 use crate::home_assistant;
 use crate::mqtt;
 use crate::publish;
-use crate::sensors;
 
 unsafe extern "C" {
     fn sys_reboot(type_: core::ffi::c_int);
@@ -22,12 +21,12 @@ fn parse_u32(payload: &[u8]) -> Option<u32> {
         .and_then(|text| text.trim().parse().ok())
 }
 
-pub fn handle_command(topic: &str, payload: &[u8]) {
+pub async fn handle_command(topic: &str, payload: &[u8]) {
     if topic == "homeassistant/status" {
         let text = core::str::from_utf8(payload).unwrap_or("");
         if text.trim() == "online" {
             info!("Home Assistant came online, re-publishing discovery");
-            home_assistant::publish_discovery_configs();
+            home_assistant::publish_discovery_configs().await;
             publish::publish_config_state();
             publish::publish_all();
         }
@@ -44,11 +43,6 @@ pub fn handle_command(topic: &str, payload: &[u8]) {
             info!("Reboot command received");
             unsafe { sys_reboot(0) };
         }
-        "command/clear_rainfall" => {
-            info!("Clear rainfall command received");
-            sensors::clear_rainfall();
-            publish::publish_rainfall();
-        }
         "command/force_publish" => {
             info!("Force publish command received");
             publish::publish_all();
@@ -58,7 +52,7 @@ pub fn handle_command(topic: &str, payload: &[u8]) {
                 let clamped = seconds.clamp(5, 3600);
                 info!("Setting publish interval to {}s", clamped);
                 mqtt::set_publish_interval(clamped);
-                home_assistant::publish_discovery_configs();
+                home_assistant::publish_discovery_configs().await;
                 publish::publish_config_state();
             }
         }
@@ -76,6 +70,11 @@ pub fn handle_command(topic: &str, payload: &[u8]) {
             info!("Setting deep sleep: {}", if enabled { "ON" } else { "OFF" });
             mqtt::set_deep_sleep_enabled(enabled);
             publish::publish_config_state();
+        }
+        "command/firmware/install" => {
+            info!("OTA install requested but MCUboot is disabled in this build; \
+                   set CONFIG_BOOTLOADER_MCUBOOT=y to activate");
+            publish::publish_update_state();
         }
         _ => {
             info!("Unknown command suffix: {}", suffix);

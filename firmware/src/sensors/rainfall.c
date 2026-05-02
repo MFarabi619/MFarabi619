@@ -42,7 +42,12 @@ static int rainfall_init(const struct device *dev)
 		return -ENODEV;
 	}
 
-	modbus_init_client(iface, config->client_param);
+	int init_status = modbus_init_client(iface, config->client_param);
+
+	if (init_status != 0 && init_status != -EALREADY) {
+		LOG_ERR("modbus client init failed: %d", init_status);
+		return init_status;
+	}
 
 	data->iface = iface;
 

@@ -1,3 +1,4 @@
+use core::sync::atomic::Ordering;
 use embassy_time::{Duration, Timer};
 use log_04::info;
 use static_cell::StaticCell;
@@ -9,6 +10,20 @@ unsafe extern "C" {
     fn schedule_deep_sleep();
     fn prompt_init(shell: *const core::ffi::c_void) -> bool;
     fn prompt_print_motd(shell: *const core::ffi::c_void, ip: *const u8);
+    fn mqtt_helper_get_epoch_seconds() -> i64;
+}
+
+fn capture_boot_epoch_once() {
+    if crate::diagnostics::BOOT_EPOCH_SECONDS.load(Ordering::Relaxed) > 0 {
+        return;
+    }
+    let epoch_now = unsafe { mqtt_helper_get_epoch_seconds() };
+    if epoch_now <= 0 {
+        return;
+    }
+    let uptime_seconds = unsafe { k_uptime_get() / 1000 };
+    let boot_epoch = (epoch_now - uptime_seconds) as u32;
+    crate::diagnostics::BOOT_EPOCH_SECONDS.store(boot_epoch, Ordering::Relaxed);
 }
 
 const MQTT_RECONNECT_DELAY_SECONDS: u64 = 10;
@@ -54,10 +69,14 @@ async fn mqtt_task() {
             continue;
         }
 
-        crate::home_assistant::publish_discovery_configs();
+        crate::mqtt::note_connection_state(true);
+        crate::home_assistant::publish_discovery_configs().await;
         crate::publish::publish_config_state();
+        crate::publish::publish_firmware_info();
+        crate::publish::publish_update_state();
 
         while crate::mqtt::is_connected() {
+            capture_boot_epoch_once();
             crate::publish::publish_all();
 
             if crate::mqtt::deep_sleep_enabled() {
@@ -73,15 +92,17 @@ async fn mqtt_task() {
                 let keepalive_ms = crate::mqtt::keepalive_time_left();
                 let poll_timeout = keepalive_ms.min(500);
                 let _ = crate::mqtt::poll(poll_timeout);
+                crate::mqtt::note_connection_state(crate::mqtt::is_connected());
 
                 if let Some((topic, payload)) = crate::mqtt::get_incoming_command() {
-                    crate::commands::handle_command(topic, payload);
+                    crate::commands::handle_command(topic, payload).await;
                 }
 
                 Timer::after(Duration::from_millis(100)).await;
             }
         }
 
+        crate::mqtt::note_connection_state(false);
         info!("MQTT connection lost, reconnecting");
         Timer::after(Duration::from_secs(MQTT_RECONNECT_DELAY_SECONDS)).await;
     }
@@ -99,6 +120,9 @@ extern "C" fn rust_main() {
         zephyr::set_logger().unwrap();
     }
     info!("Microvisor starting");
+
+    let boot_count = crate::diagnostics::increment_boot_count();
+    info!("Boot count: {}", boot_count);
 
     unsafe {
         sdcard_mount_filesystem();

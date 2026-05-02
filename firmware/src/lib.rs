@@ -5,6 +5,7 @@ extern crate alloc;
 
 mod cloudevents;
 mod commands;
+mod diagnostics;
 mod home_assistant;
 mod led;
 mod mqtt;

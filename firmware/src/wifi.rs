@@ -1,11 +1,21 @@
 use core::cell::UnsafeCell;
 
-use core::sync::atomic::{AtomicU8, Ordering};
+use core::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use embassy_time::{Duration, Timer};
 use log_04::info;
 use zephyr::raw::*;
 
-use crate::led::{self, GREEN, MAGENTA, YELLOW};
+use crate::diagnostics;
+// MAGENTA was the AP-provisioning LED colour; reintroduce when AP is back.
+use crate::led::{self, GREEN, YELLOW};
+
+static EVER_CONNECTED: AtomicBool = AtomicBool::new(false);
+
+fn record_connection() {
+    if EVER_CONNECTED.swap(true, Ordering::Relaxed) {
+        diagnostics::WIFI_RECONNECT_COUNT.fetch_add(1, Ordering::Relaxed);
+    }
+}
 
 static WIFI_STATE: AtomicU8 = AtomicU8::new(0);
 const EVENT_CONNECTED: u8 = 1;
@@ -16,8 +26,14 @@ const EVENT_AP_ENABLED: u8 = 4;
 const STA_CONNECT_TIMEOUT_SECONDS: u64 = 15;
 const STA_RETRY_DELAY_SECONDS: u64 = 5;
 
+// AP provisioning disabled — re-enable once STA-only operation is stable and
+// the WiFi netbuf pressure during dual STA+AP is solved. Keep the constants so
+// re-enabling is a one-line revert.
+#[allow(dead_code)]
 const AP_SSID: &[u8] = b"ceratina-access-point";
+#[allow(dead_code)]
 const AP_PSK: &[u8] = b"ceratina";
+#[allow(dead_code)]
 const AP_CHANNEL: u8 = 6;
 
 const MODE_CONNECTING: u8 = 0;
@@ -112,7 +128,11 @@ pub fn init() {
     }
 }
 
+// AP DISABLED: keep the function so wiring stays in place; retrying STA
+// indefinitely is the new behaviour. Restore the original body when re-enabling.
+#[allow(dead_code)]
 fn start_ap() {
+    /*
     CURRENT_MODE.store(MODE_PROVISIONING, Ordering::Relaxed);
     led::set(MAGENTA);
     unsafe {
@@ -132,6 +152,7 @@ fn start_ap() {
             info!("Failed to enable AP: {}", result);
         }
     }
+    */
 }
 
 pub fn is_provisioning() -> bool {
@@ -222,22 +243,22 @@ pub async fn task() {
                     info!("WiFi connected");
                     CURRENT_MODE.store(MODE_CONNECTED, Ordering::Relaxed);
                     led::set(GREEN);
+                    record_connection();
                 }
                 EVENT_DISCONNECTED => {
-                    if connect_start.elapsed() < Duration::from_secs(STA_CONNECT_TIMEOUT_SECONDS) {
-                        Timer::after(Duration::from_secs(STA_RETRY_DELAY_SECONDS)).await;
-                        unsafe { zr_wifi_connect_stored(); }
-                    } else {
-                        info!("STA connect timeout, switching to AP provisioning");
-                        unsafe { zr_wifi_disconnect(); }
-                        start_ap();
+                    // AP DISABLED: retry STA forever instead of falling back to AP.
+                    Timer::after(Duration::from_secs(STA_RETRY_DELAY_SECONDS)).await;
+                    unsafe { zr_wifi_connect_stored(); }
+                    if connect_start.elapsed() > Duration::from_secs(STA_CONNECT_TIMEOUT_SECONDS) {
+                        connect_start = embassy_time::Instant::now();
                     }
                 }
                 _ => {
                     if connect_start.elapsed() > Duration::from_secs(STA_CONNECT_TIMEOUT_SECONDS) {
-                        info!("STA connect timeout, switching to AP provisioning");
-                        unsafe { zr_wifi_disconnect(); }
-                        start_ap();
+                        // AP DISABLED: previously called start_ap() here.
+                        info!("STA connect timeout, retrying STA");
+                        connect_start = embassy_time::Instant::now();
+                        unsafe { zr_wifi_connect_stored(); }
                     }
                 }
             },
@@ -257,6 +278,7 @@ pub async fn task() {
                     info!("WiFi connected via provisioning");
                     CURRENT_MODE.store(MODE_CONNECTED, Ordering::Relaxed);
                     led::set(GREEN);
+                    record_connection();
                 }
                 EVENT_AP_ENABLED => {
                     info!("AP enabled: SSID={}", unsafe { core::str::from_utf8_unchecked(AP_SSID) });

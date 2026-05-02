@@ -1,9 +1,16 @@
 use alloc::format;
 use alloc::string::String;
+use embassy_time::{Duration, Timer};
 use log_04::info;
 
 use crate::mqtt;
 use crate::sensors;
+
+const DISCOVERY_THROTTLE_MS: u64 = 50;
+
+async fn drain() {
+    Timer::after(Duration::from_millis(DISCOVERY_THROTTLE_MS)).await;
+}
 
 unsafe extern "C" {
     fn mqtt_helper_get_mac(out: *mut u8);
@@ -42,7 +49,7 @@ fn chip_revision() -> u32 {
     unsafe { mqtt_helper_get_chip_revision() }
 }
 
-const FIRMWARE_VERSION: &str = "0.1.0";
+pub(crate) const FIRMWARE_VERSION: &str = "0.1.0";
 const SUPPORT_URL: &str = "https://github.com/MFarabi619/MFarabi619";
 
 fn device_block(host: &str, mac_colon: &str, mac_hex: &str, ip: &str, device_id: &str) -> String {
@@ -210,7 +217,59 @@ fn publish_binary_sensor(
     let _ = mqtt::publish(&topic, payload.as_bytes(), true);
 }
 
-pub fn publish_discovery_configs() {
+fn publish_text_sensor(
+    device_id: &str,
+    device: &str,
+    availability_topic: &str,
+    sensor_id: &str,
+    name: &str,
+    device_class: Option<&str>,
+    state_topic: &str,
+    value_template: &str,
+    entity_category: Option<&str>,
+    icon: Option<&str>,
+    expire_after: u32,
+) {
+    let dc = device_class
+        .map(|dc| format!(r#","device_class":"{}""#, dc))
+        .unwrap_or_default();
+    let ec = entity_category
+        .map(|c| format!(r#","entity_category":"{}""#, c))
+        .unwrap_or_default();
+    let ic = icon
+        .map(|i| format!(r#","icon":"{}""#, i))
+        .unwrap_or_default();
+
+    let payload = format!(
+        r#"{{{},"unique_id":"{}_{}","name":"{}"{}{}{},"state_topic":"{}","value_template":"{}","availability_topic":"{}","expire_after":{}}}"#,
+        device, device_id, sensor_id, name, dc, ec, ic,
+        state_topic, value_template, availability_topic, expire_after,
+    );
+
+    let topic = format!("homeassistant/sensor/{}/{}/config", device_id, sensor_id);
+    let _ = mqtt::publish(&topic, payload.as_bytes(), true);
+}
+
+fn publish_update_entity(
+    device_id: &str,
+    device: &str,
+    availability_topic: &str,
+    update_id: &str,
+    name: &str,
+    state_topic: &str,
+    command_topic: &str,
+) {
+    let payload = format!(
+        r#"{{{},"unique_id":"{}_{}","name":"{}","state_topic":"{}","command_topic":"{}","payload_install":"install","entity_category":"config","availability_topic":"{}"}}"#,
+        device, device_id, update_id, name,
+        state_topic, command_topic, availability_topic,
+    );
+
+    let topic = format!("homeassistant/update/{}/{}/config", device_id, update_id);
+    let _ = mqtt::publish(&topic, payload.as_bytes(), true);
+}
+
+pub async fn publish_discovery_configs() {
     let host = crate::utils::hostname();
     let mac = mac_address();
     let mac_hex = mac_string(&mac);
@@ -221,47 +280,25 @@ pub fn publish_discovery_configs() {
     let device = device_block(host, &mac_colon, &mac_hex, &ip, &device_id);
     let expire_after = mqtt::publish_interval().saturating_mul(5) / 2;
 
-    publish_sensor(&device_id, &device, &availability,
-        "wind_speed", "Wind Speed",
-        Some("wind_speed"), Some("km/h"),
-        &format!("ceratina/{}/wind_speed/state", host),
-        "{{ value_json.data.wind_speed_kilometers_per_hour }}",
-        "measurement", Some(1), None, Some("mdi:weather-windy"), expire_after);
-
-    publish_sensor(&device_id, &device, &availability,
-        "wind_direction", "Wind Direction",
-        None, Some("°"),
-        &format!("ceratina/{}/wind_direction/state", host),
-        "{{ value_json.data.wind_direction_angle }}",
-        "measurement", Some(0), None, Some("mdi:compass-outline"), expire_after);
-
-    publish_sensor(&device_id, &device, &availability,
-        "rainfall", "Rainfall",
-        Some("precipitation"), Some("mm"),
-        &format!("ceratina/{}/rainfall/state", host),
-        "{{ value_json.data.rainfall_millimeters }}",
-        "total_increasing", Some(1), None, Some("mdi:weather-pouring"), expire_after);
-
-    for device_ptr in sensors::soil_devices() {
-        if device_ptr.is_null() {
+    for (index, probe) in sensors::soil_probes().iter().enumerate() {
+        if probe.device.is_null() {
             continue;
         }
-        let count = sensors::soil_probe_count(device_ptr);
-        for index in 0..count {
-            let state_topic = format!("ceratina/{}/soil/{}/state", host, index);
+        let state_topic = format!("ceratina/{}/soil/{}/state", host, index);
 
-            publish_sensor(&device_id, &device, &availability,
-                &format!("soil_{}_temperature", index), "Soil Temperature",
-                Some("temperature"), Some("°C"),
-                &state_topic, "{{ value_json.data.temperature_celsius }}",
-                "measurement", Some(1), None, Some("mdi:thermometer"), expire_after);
+        publish_sensor(&device_id, &device, &availability,
+            &format!("soil_{}_temperature", index), "Soil Temperature",
+            Some("temperature"), Some("°C"),
+            &state_topic, "{{ value_json.data.temperature_celsius }}",
+            "measurement", Some(1), None, Some("mdi:thermometer"), expire_after);
 
-            publish_sensor(&device_id, &device, &availability,
-                &format!("soil_{}_moisture", index), "Soil Moisture",
-                Some("moisture"), Some("%"),
-                &state_topic, "{{ value_json.data.moisture_percent }}",
-                "measurement", Some(1), None, Some("mdi:water-percent"), expire_after);
+        publish_sensor(&device_id, &device, &availability,
+            &format!("soil_{}_moisture", index), "Soil Moisture",
+            Some("moisture"), Some("%"),
+            &state_topic, "{{ value_json.data.moisture_percent }}",
+            "measurement", Some(1), None, Some("mdi:water-percent"), expire_after);
 
+        if probe.has_extended_metrics {
             publish_sensor(&device_id, &device, &availability,
                 &format!("soil_{}_conductivity", index), "Soil Electrical Conductivity",
                 None, Some("µS/cm"),
@@ -279,13 +316,9 @@ pub fn publish_discovery_configs() {
                 None, Some("ppm"),
                 &state_topic, "{{ value_json.data.tds }}",
                 "measurement", Some(0), None, Some("mdi:beaker-outline"), expire_after);
-
-            publish_sensor(&device_id, &device, &availability,
-                &format!("soil_{}_ph", index), "Soil pH",
-                None, None,
-                &state_topic, "{{ value_json.data.ph }}",
-                "measurement", Some(1), None, Some("mdi:ph"), expire_after);
         }
+
+        drain().await;
     }
 
     let status_topic = format!("ceratina/{}/status/state", host);
@@ -314,13 +347,11 @@ pub fn publish_discovery_configs() {
         &status_topic, "{{ value_json.data.sd_mounted }}",
         Some("diagnostic"));
 
+    drain().await;
+
     publish_button(&device_id, &device, &availability,
         "reboot", "Reboot", Some("restart"), Some("mdi:restart"),
         &format!("ceratina/{}/command/reboot", host));
-
-    publish_button(&device_id, &device, &availability,
-        "clear_rainfall", "Clear Rainfall", None, Some("mdi:water-off-outline"),
-        &format!("ceratina/{}/command/clear_rainfall", host));
 
     publish_button(&device_id, &device, &availability,
         "force_publish", "Force Publish", None, Some("mdi:upload-outline"),
@@ -343,6 +374,125 @@ pub fn publish_discovery_configs() {
         &format!("ceratina/{}/config/deep_sleep/set", host),
         &format!("ceratina/{}/config/deep_sleep", host),
         Some("config"));
+
+    drain().await;
+
+    publish_text_sensor(&device_id, &device, &availability,
+        "last_boot", "Last Boot",
+        Some("timestamp"),
+        &status_topic, "{{ value_json.data.last_boot_iso }}",
+        Some("diagnostic"), Some("mdi:clock-start"), expire_after);
+
+    publish_sensor(&device_id, &device, &availability,
+        "heap_min_free", "Heap Min Free",
+        Some("data_size"), Some("B"),
+        &status_topic, "{{ value_json.data.memory_heap_min_free }}",
+        "measurement", Some(0), Some("diagnostic"), Some("mdi:memory"), expire_after);
+
+    publish_sensor(&device_id, &device, &availability,
+        "heap_total", "Heap Total",
+        Some("data_size"), Some("B"),
+        &status_topic, "{{ value_json.data.memory_heap_total }}",
+        "measurement", Some(0), Some("diagnostic"), Some("mdi:memory"), expire_after);
+
+    publish_sensor(&device_id, &device, &availability,
+        "heap_free_percent", "Heap Free Percent",
+        None, Some("%"),
+        &status_topic,
+        "{{ ((value_json.data.memory_heap_free | float) / (value_json.data.memory_heap_total | float) * 100) | round(0) }}",
+        "measurement", Some(0), Some("diagnostic"), Some("mdi:gauge"), expire_after);
+
+    drain().await;
+
+    publish_sensor(&device_id, &device, &availability,
+        "publish_success_total", "Publish Successes",
+        None, None,
+        &status_topic, "{{ value_json.data.publish_success_total }}",
+        "total_increasing", Some(0), Some("diagnostic"), Some("mdi:check-circle-outline"), expire_after);
+
+    publish_sensor(&device_id, &device, &availability,
+        "publish_failures_total", "Publish Failures",
+        None, None,
+        &status_topic, "{{ value_json.data.publish_failures_total }}",
+        "total_increasing", Some(0), Some("diagnostic"), Some("mdi:alert-circle-outline"), expire_after);
+
+    publish_sensor(&device_id, &device, &availability,
+        "mqtt_reconnects_total", "MQTT Reconnects",
+        None, None,
+        &status_topic, "{{ value_json.data.mqtt_reconnects_total }}",
+        "total_increasing", Some(0), Some("diagnostic"), Some("mdi:network-outline"), expire_after);
+
+    publish_sensor(&device_id, &device, &availability,
+        "wifi_reconnects_total", "WiFi Reconnects",
+        None, None,
+        &status_topic, "{{ value_json.data.wifi_reconnects_total }}",
+        "total_increasing", Some(0), Some("diagnostic"), Some("mdi:wifi-arrow-up-down"), expire_after);
+
+    drain().await;
+
+    publish_text_sensor(&device_id, &device, &availability,
+        "reset_cause", "Reset Cause",
+        None,
+        &status_topic, "{{ value_json.data.reset_cause }}",
+        Some("diagnostic"), Some("mdi:restart-alert"), expire_after);
+
+    publish_sensor(&device_id, &device, &availability,
+        "boot_count", "Boot Count",
+        None, None,
+        &status_topic, "{{ value_json.data.boot_count }}",
+        "total_increasing", Some(0), Some("diagnostic"), Some("mdi:counter"), expire_after);
+
+    publish_text_sensor(&device_id, &device, &availability,
+        "wifi_ssid", "WiFi SSID",
+        None,
+        &status_topic, "{{ value_json.data.wifi_ssid }}",
+        Some("diagnostic"), Some("mdi:wifi-cog"), expire_after);
+
+    publish_text_sensor(&device_id, &device, &availability,
+        "wifi_bssid", "WiFi BSSID",
+        None,
+        &status_topic, "{{ value_json.data.wifi_bssid }}",
+        Some("diagnostic"), Some("mdi:router-wireless"), expire_after);
+
+    drain().await;
+
+    publish_sensor(&device_id, &device, &availability,
+        "wifi_channel", "WiFi Channel",
+        None, None,
+        &status_topic, "{{ value_json.data.wifi_channel }}",
+        "measurement", Some(0), Some("diagnostic"), Some("mdi:numeric"), expire_after);
+
+    publish_text_sensor(&device_id, &device, &availability,
+        "wifi_link_mode", "WiFi Link Mode",
+        None,
+        &status_topic, "{{ value_json.data.wifi_link_mode }}",
+        Some("diagnostic"), Some("mdi:speedometer"), expire_after);
+
+    publish_text_sensor(&device_id, &device, &availability,
+        "ip_address", "IP Address",
+        None,
+        &status_topic, "{{ value_json.data.ip_address }}",
+        Some("diagnostic"), Some("mdi:ip-network"), expire_after);
+
+    drain().await;
+
+    publish_sensor(&device_id, &device, &availability,
+        "cpu_temperature", "CPU Temperature",
+        Some("temperature"), Some("\u{00b0}C"),
+        &status_topic,
+        "{% set t = value_json.data.cpu_temperature_milli_c | int %}{% if t > -2147483647 %}{{ (t / 1000) | round(1) }}{% endif %}",
+        "measurement", Some(1), Some("diagnostic"), Some("mdi:thermometer"), expire_after);
+
+    publish_sensor(&device_id, &device, &availability,
+        "storage_free_bytes", "Storage Free",
+        Some("data_size"), Some("B"),
+        &status_topic, "{{ value_json.data.storage_free_bytes }}",
+        "measurement", Some(0), Some("diagnostic"), Some("mdi:sd"), expire_after);
+
+    publish_update_entity(&device_id, &device, &availability,
+        "firmware", "Firmware",
+        &format!("ceratina/{}/firmware/state", host),
+        &format!("ceratina/{}/command/firmware/install", host));
 
     info!("Home Assistant discovery configs published");
 }

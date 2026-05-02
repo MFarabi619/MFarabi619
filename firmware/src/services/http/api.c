@@ -21,9 +21,8 @@ extern struct k_heap _system_heap;
 extern const struct device *zr_sensor_get_wind_speed(void);
 extern const struct device *zr_sensor_get_wind_direction(void);
 extern const struct device *zr_sensor_get_rainfall(void);
-extern const struct device *zr_sensor_get_soil_tier1(void);
-extern const struct device *zr_sensor_get_soil_tier2(void);
-extern const struct device *zr_sensor_get_soil_tier3(void);
+extern const struct device *zr_sensor_get_soil_moisture(void);
+extern const struct device *zr_sensor_get_soil_moisture_three_in_one(void);
 
 static char response_buffer[4096];
 
@@ -339,6 +338,7 @@ int cloudevents_handler(struct http_client_ctx *client,
 	return 0;
 }
 
+#if 0
 struct wind_speed_response {
 	bool ok;
 	float wind_speed_kilometers_per_hour;
@@ -460,6 +460,7 @@ int rainfall_handler(struct http_client_ctx *client,
 	return json_respond(response_ctx, rainfall_response_descr,
 			    ARRAY_SIZE(rainfall_response_descr), &response);
 }
+#endif
 
 #define MAX_SOIL_PROBES 10
 
@@ -474,8 +475,6 @@ struct soil_probe_reading {
 	uint32_t salinity;
 	bool has_tds;
 	uint32_t tds;
-	bool has_ph;
-	float ph;
 };
 
 static const struct json_obj_descr soil_probe_reading_descr[] = {
@@ -489,8 +488,6 @@ static const struct json_obj_descr soil_probe_reading_descr[] = {
 	JSON_OBJ_DESCR_PRIM(struct soil_probe_reading, salinity, JSON_TOK_NUMBER),
 	JSON_OBJ_DESCR_PRIM(struct soil_probe_reading, has_tds, JSON_TOK_TRUE),
 	JSON_OBJ_DESCR_PRIM(struct soil_probe_reading, tds, JSON_TOK_NUMBER),
-	JSON_OBJ_DESCR_PRIM(struct soil_probe_reading, has_ph, JSON_TOK_TRUE),
-	JSON_OBJ_DESCR_PRIM(struct soil_probe_reading, ph, JSON_TOK_FLOAT_FP),
 };
 
 struct soil_response {
@@ -508,77 +505,53 @@ static const struct json_obj_descr soil_response_descr[] = {
 				  ARRAY_SIZE(soil_probe_reading_descr)),
 };
 
-static void read_soil_device(const struct device *dev, struct soil_response *response)
+static void read_soil_device(const struct device *device, struct soil_response *response)
 {
-	if (!dev) {
+	if (!device) {
 		return;
 	}
 
-	struct sensor_value val;
-
-	if (sensor_attr_get(dev, 0, SENSOR_ATTR_CERATINA_SCAN, &val) != 0) {
+	if (response->probes_len >= MAX_SOIL_PROBES) {
 		return;
 	}
 
-	uint8_t count = (uint8_t)val.val1;
-
-	for (uint8_t index = 0; index < count; index++) {
-		if (response->probes_len >= MAX_SOIL_PROBES) {
-			break;
-		}
-
-		val.val1 = index;
-		val.val2 = 0;
-		sensor_attr_set(dev, 0, SENSOR_ATTR_CERATINA_SLAVE_ID, &val);
-
-		struct soil_probe_reading *probe = &response->probes[response->probes_len];
-
-		if (sensor_sample_fetch(dev) != 0) {
-			continue;
-		}
-
-		if (sensor_attr_get(dev, 0, SENSOR_ATTR_CERATINA_SLAVE_ID, &val) == 0) {
-			probe->slave_id = (uint32_t)val.val1;
-		}
-
-		struct sensor_value reading;
-
-		if (sensor_channel_get(dev, SENSOR_CHAN_CERATINA_SOIL_MOISTURE,
-				       &reading) == 0) {
-			probe->moisture_percent = sensor_val_to_float(&reading);
-			probe->is_read_ok = true;
-		}
-
-		if (sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &reading) == 0) {
-			probe->temperature_celsius = sensor_val_to_float(&reading);
-		}
-
-		if (sensor_channel_get(dev, SENSOR_CHAN_CERATINA_SOIL_CONDUCTIVITY,
-				       &reading) == 0) {
-			probe->has_conductivity = true;
-			probe->conductivity = (uint32_t)reading.val1;
-		}
-
-		if (sensor_channel_get(dev, SENSOR_CHAN_CERATINA_SOIL_SALINITY,
-				       &reading) == 0) {
-			probe->has_salinity = true;
-			probe->salinity = (uint32_t)reading.val1;
-		}
-
-		if (sensor_channel_get(dev, SENSOR_CHAN_CERATINA_SOIL_TDS,
-				       &reading) == 0) {
-			probe->has_tds = true;
-			probe->tds = (uint32_t)reading.val1;
-		}
-
-		if (sensor_channel_get(dev, SENSOR_CHAN_CERATINA_SOIL_PH,
-				       &reading) == 0) {
-			probe->has_ph = true;
-			probe->ph = sensor_val_to_float(&reading);
-		}
-
-		response->probes_len++;
+	if (sensor_sample_fetch(device) != 0) {
+		return;
 	}
+
+	struct soil_probe_reading *probe = &response->probes[response->probes_len];
+	struct sensor_value reading;
+
+	if (sensor_attr_get(device, 0, SENSOR_ATTR_CERATINA_SLAVE_ID, &reading) == 0) {
+		probe->slave_id = (uint32_t)reading.val1;
+	}
+
+	if (sensor_channel_get(device, SENSOR_CHAN_CERATINA_SOIL_MOISTURE, &reading) == 0) {
+		probe->moisture_percent = sensor_val_to_float(&reading);
+		probe->is_read_ok = true;
+	}
+
+	if (sensor_channel_get(device, SENSOR_CHAN_AMBIENT_TEMP, &reading) == 0) {
+		probe->temperature_celsius = sensor_val_to_float(&reading);
+	}
+
+	if (sensor_channel_get(device, SENSOR_CHAN_CERATINA_SOIL_CONDUCTIVITY,
+			       &reading) == 0) {
+		probe->has_conductivity = true;
+		probe->conductivity = (uint32_t)reading.val1;
+	}
+
+	if (sensor_channel_get(device, SENSOR_CHAN_CERATINA_SOIL_SALINITY, &reading) == 0) {
+		probe->has_salinity = true;
+		probe->salinity = (uint32_t)reading.val1;
+	}
+
+	if (sensor_channel_get(device, SENSOR_CHAN_CERATINA_SOIL_TDS, &reading) == 0) {
+		probe->has_tds = true;
+		probe->tds = (uint32_t)reading.val1;
+	}
+
+	response->probes_len++;
 }
 
 int soil_handler(struct http_client_ctx *client,
@@ -594,9 +567,8 @@ int soil_handler(struct http_client_ctx *client,
 
 	struct soil_response response = {0};
 
-	read_soil_device(zr_sensor_get_soil_tier1(), &response);
-	read_soil_device(zr_sensor_get_soil_tier2(), &response);
-	read_soil_device(zr_sensor_get_soil_tier3(), &response);
+	read_soil_device(zr_sensor_get_soil_moisture(), &response);
+	read_soil_device(zr_sensor_get_soil_moisture_three_in_one(), &response);
 
 	response.probe_count = (uint32_t)response.probes_len;
 	response.ok = response.probe_count > 0;

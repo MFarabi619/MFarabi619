@@ -11,14 +11,28 @@
 #include <zephyr/sys/sys_heap.h>
 #include <sensors/channels.h>
 
+/* Stubs for the FFI surface used by publish.rs / diagnostics.rs while the
+ * Prometheus collector below is parked. Restore by removing the #if 0/#endif. */
+static uint32_t publish_failures_count;
+
+void prometheus_increment_publish_failures(void)
+{
+	publish_failures_count++;
+}
+
+uint32_t prometheus_get_publish_failures(void)
+{
+	return publish_failures_count;
+}
+
+#if 0
 extern struct k_heap _system_heap;
 
 extern const struct device *zr_sensor_get_wind_speed(void);
 extern const struct device *zr_sensor_get_wind_direction(void);
 extern const struct device *zr_sensor_get_rainfall(void);
-extern const struct device *zr_sensor_get_soil_tier1(void);
-extern const struct device *zr_sensor_get_soil_tier2(void);
-extern const struct device *zr_sensor_get_soil_tier3(void);
+extern const struct device *zr_sensor_get_soil_moisture(void);
+extern const struct device *zr_sensor_get_soil_moisture_three_in_one(void);
 
 extern void mqtt_helper_get_mac(uint8_t *out);
 extern void mqtt_helper_get_ipv4(char *out, size_t out_size);
@@ -52,29 +66,21 @@ PROMETHEUS_GAUGE_DEFINE(ceratina_rainfall_millimeters,
 			"Cumulative rainfall in mm",
 			({ .key = "sensor", .value = "rainfall" }), NULL);
 
-PROMETHEUS_GAUGE_DEFINE(ceratina_soil_moisture_percent_tier1,
-			"Soil moisture percentage tier 1",
-			({ .key = "tier", .value = "1" }), NULL);
+PROMETHEUS_GAUGE_DEFINE(ceratina_soil_moisture_percent,
+			"Soil moisture percentage",
+			({ .key = "probe", .value = "soil_moisture" }), NULL);
 
-PROMETHEUS_GAUGE_DEFINE(ceratina_soil_temperature_celsius_tier1,
-			"Soil temperature celsius tier 1",
-			({ .key = "tier", .value = "1" }), NULL);
+PROMETHEUS_GAUGE_DEFINE(ceratina_soil_temperature_celsius,
+			"Soil temperature celsius",
+			({ .key = "probe", .value = "soil_moisture" }), NULL);
 
-PROMETHEUS_GAUGE_DEFINE(ceratina_soil_moisture_percent_tier2,
-			"Soil moisture percentage tier 2",
-			({ .key = "tier", .value = "2" }), NULL);
+PROMETHEUS_GAUGE_DEFINE(ceratina_soil_moisture_three_in_one_percent,
+			"Soil moisture percentage (three-in-one probe)",
+			({ .key = "probe", .value = "soil_moisture_three_in_one" }), NULL);
 
-PROMETHEUS_GAUGE_DEFINE(ceratina_soil_temperature_celsius_tier2,
-			"Soil temperature celsius tier 2",
-			({ .key = "tier", .value = "2" }), NULL);
-
-PROMETHEUS_GAUGE_DEFINE(ceratina_soil_moisture_percent_tier3,
-			"Soil moisture percentage tier 3",
-			({ .key = "tier", .value = "3" }), NULL);
-
-PROMETHEUS_GAUGE_DEFINE(ceratina_soil_temperature_celsius_tier3,
-			"Soil temperature celsius tier 3",
-			({ .key = "tier", .value = "3" }), NULL);
+PROMETHEUS_GAUGE_DEFINE(ceratina_soil_three_in_one_temperature_celsius,
+			"Soil temperature celsius (three-in-one probe)",
+			({ .key = "probe", .value = "soil_moisture_three_in_one" }), NULL);
 
 PROMETHEUS_COUNTER_DEFINE(ceratina_mqtt_publish_failures_total,
 			  "Total MQTT publish failures since boot",
@@ -83,6 +89,11 @@ PROMETHEUS_COUNTER_DEFINE(ceratina_mqtt_publish_failures_total,
 void prometheus_increment_publish_failures(void)
 {
 	prometheus_counter_inc(&ceratina_mqtt_publish_failures_total);
+}
+
+uint32_t prometheus_get_publish_failures(void)
+{
+	return (uint32_t)ceratina_mqtt_publish_failures_total.value;
 }
 
 static float sensor_val_to_float(const struct sensor_value *val)
@@ -147,46 +158,37 @@ static void update_weather_gauges(void)
 	}
 }
 
-static void update_soil_tier(const struct device *dev,
-			     struct prometheus_gauge *moisture_gauge,
-			     struct prometheus_gauge *temperature_gauge)
+static void update_soil_probe(const struct device *device,
+			      struct prometheus_gauge *moisture_gauge,
+			      struct prometheus_gauge *temperature_gauge)
 {
-	if (!dev) {
+	if (!device) {
 		return;
 	}
 
-	struct sensor_value val;
-
-	val.val1 = 0;
-	val.val2 = 0;
-	sensor_attr_set(dev, 0, SENSOR_ATTR_CERATINA_SLAVE_ID, &val);
-
-	if (sensor_sample_fetch(dev) != 0) {
+	if (sensor_sample_fetch(device) != 0) {
 		return;
 	}
 
 	struct sensor_value reading;
 
-	if (sensor_channel_get(dev, SENSOR_CHAN_CERATINA_SOIL_MOISTURE, &reading) == 0) {
+	if (sensor_channel_get(device, SENSOR_CHAN_CERATINA_SOIL_MOISTURE, &reading) == 0) {
 		prometheus_gauge_set(moisture_gauge, (double)sensor_val_to_float(&reading));
 	}
 
-	if (sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &reading) == 0) {
+	if (sensor_channel_get(device, SENSOR_CHAN_AMBIENT_TEMP, &reading) == 0) {
 		prometheus_gauge_set(temperature_gauge, (double)sensor_val_to_float(&reading));
 	}
 }
 
 static void update_soil_gauges(void)
 {
-	update_soil_tier(zr_sensor_get_soil_tier1(),
-			 &ceratina_soil_moisture_percent_tier1,
-			 &ceratina_soil_temperature_celsius_tier1);
-	update_soil_tier(zr_sensor_get_soil_tier2(),
-			 &ceratina_soil_moisture_percent_tier2,
-			 &ceratina_soil_temperature_celsius_tier2);
-	update_soil_tier(zr_sensor_get_soil_tier3(),
-			 &ceratina_soil_moisture_percent_tier3,
-			 &ceratina_soil_temperature_celsius_tier3);
+	update_soil_probe(zr_sensor_get_soil_moisture(),
+			  &ceratina_soil_moisture_percent,
+			  &ceratina_soil_temperature_celsius);
+	update_soil_probe(zr_sensor_get_soil_moisture_three_in_one(),
+			  &ceratina_soil_moisture_three_in_one_percent,
+			  &ceratina_soil_three_in_one_temperature_celsius);
 }
 
 static bool is_registered;
@@ -203,12 +205,10 @@ static void register_metrics(void)
 	prometheus_collector_register_metric(&ceratina_collector, &ceratina_wind_speed_kilometers_per_hour.base);
 	prometheus_collector_register_metric(&ceratina_collector, &ceratina_wind_direction_degrees.base);
 	prometheus_collector_register_metric(&ceratina_collector, &ceratina_rainfall_millimeters.base);
-	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_moisture_percent_tier1.base);
-	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_temperature_celsius_tier1.base);
-	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_moisture_percent_tier2.base);
-	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_temperature_celsius_tier2.base);
-	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_moisture_percent_tier3.base);
-	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_temperature_celsius_tier3.base);
+	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_moisture_percent.base);
+	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_temperature_celsius.base);
+	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_moisture_three_in_one_percent.base);
+	prometheus_collector_register_metric(&ceratina_collector, &ceratina_soil_three_in_one_temperature_celsius.base);
 	prometheus_collector_register_metric(&ceratina_collector, &ceratina_mqtt_publish_failures_total.base);
 
 	is_registered = true;
@@ -287,3 +287,4 @@ int metrics_handler(struct http_client_ctx *client,
 
 	return 0;
 }
+#endif
