@@ -59,6 +59,10 @@
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ("󱄅 microvisor : arch:upgrade"       :command "sudo pacman -Syu                 "                                                  :annotation "    pacman ")
             ("󱄅 microvisor : debian:upgrade"     :command "sudo apt update && sudo apt upgrade -y"                                             :annotation "       apt ")
+            ;; ======================================|=======|================================================|=========|=================================================== ;;
+            ;; ======================================|=======|================================================|=========|=================================================== ;;
+            (" pulumi :󱓞 pulumi up"              :command "pulumi up -fyv=3"                                                                   :annotation "    pulumi ")
+            (" pulumi :󰢈 pulumi destroy"         :command "pulumi state unprotect --all -y; pulumi destroy -y; pulumi refresh -y;"             :annotation "    pulumi ")
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
@@ -83,12 +87,13 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
 
-            (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
+            ;; (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
+            (" ESP32S3 :󰐊 build"                 :command "rm -rf target build; west build -p always"                                          :annotation "      west 󱦅")
             (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
-
-            (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
+            ;; (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
+            (" ESP32S3 :󰔰 flash"                 :command "west flash"                                                                         :annotation "      west 󱦅")
             (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
-            (" ESP32S3 : debug"                 :command "espflash partition-table firmware/machine/esp32s3.partitions.csv; cargo +esp rr"     :annotation "cargo +esp ")
+            (" ESP32S3 : debug"                 :command "espflash partition-table firmware/machine/esp32s3.partitions.csv; cargo +esp rr"    :annotation "cargo +esp ")
             (" ESP32S3 :󰭎 monitor"               :command "probe-rs run"                                  :prodigy nil                         :annotation "cargo +esp ")
 
             (" ESP32S3 :󱈫 test"                  :command "cargo +esp tt                     "                                                 :annotation "cargo +esp ")
