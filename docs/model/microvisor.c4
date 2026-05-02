@@ -25,7 +25,7 @@ model {
         }
 
 
-        langugages = container "Languages" {
+        languages = container "Languages" {
             likec4 = component {
                 title: "LikeC4"
                 icon @/likec4-symbol.svg

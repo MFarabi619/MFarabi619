@@ -119,7 +119,7 @@ views {
       vendors._,
       microcontrollers.*,
       operating-systems.*,
-      langugages.*,
+      languages.*,
       documentation.*,
       pr-review.*,
       gitops.*,
