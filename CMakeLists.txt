@@ -12,6 +12,8 @@ if(DEFINED ENV{WIFI_SSID})
   list(APPEND EXTRA_CONF_FILE ${wifi_conf})
 endif()
 
+list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/firmware)
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(microvisor)
 
