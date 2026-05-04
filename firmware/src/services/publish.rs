@@ -4,9 +4,9 @@ use core::sync::atomic::Ordering;
 use log_04::info;
 use zephyr::raw::*;
 
-use crate::cloudevents;
-use crate::diagnostics;
-use crate::mqtt;
+use crate::services::cloudevents;
+use crate::services::diagnostics;
+use crate::services::mqtt;
 use crate::sensors;
 
 unsafe extern "C" {
@@ -173,7 +173,7 @@ pub fn publish_firmware_info() {
     let topic = format!("ceratina/{}/firmware/info", host);
     let payload = format!(
         r#"{{"installed_version":"{}","build_target":"esp32s3"}}"#,
-        crate::home_assistant::FIRMWARE_VERSION,
+        crate::services::home_assistant::FIRMWARE_VERSION,
     );
     publish_tracked_raw(&topic, payload.as_bytes());
 }
@@ -183,8 +183,8 @@ pub fn publish_update_state() {
     let topic = format!("ceratina/{}/firmware/state", host);
     let payload = format!(
         r#"{{"installed_version":"{}","latest_version":"{}"}}"#,
-        crate::home_assistant::FIRMWARE_VERSION,
-        crate::home_assistant::FIRMWARE_VERSION,
+        crate::services::home_assistant::FIRMWARE_VERSION,
+        crate::services::home_assistant::FIRMWARE_VERSION,
     );
     publish_tracked_raw(&topic, payload.as_bytes());
 }
@@ -197,13 +197,33 @@ fn publish_tracked_raw(topic: &str, payload: &[u8]) {
 
 pub fn publish_led_state() {
     let host = crate::utils::hostname();
-    let state = if crate::led::is_on() { "ON" } else { "OFF" };
+    let state = if crate::programs::neopixel::is_on() { "ON" } else { "OFF" };
     let topic = format!("ceratina/{}/led/state", host);
     publish_tracked_raw(&topic, state.as_bytes());
 
-    let color = crate::led::current_color();
+    let color = crate::programs::neopixel::current_color();
     let payload = format!("{},{},{}", color.0, color.1, color.2);
     let topic = format!("ceratina/{}/led/color", host);
+    publish_tracked_raw(&topic, payload.as_bytes());
+}
+
+pub fn publish_motor_state() {
+    let host = crate::utils::hostname();
+
+    let topic = format!("ceratina/{}/motor/active", host);
+    let payload = if crate::programs::motor::is_active() { "ON" } else { "OFF" };
+    publish_tracked_raw(&topic, payload.as_bytes());
+
+    let topic = format!("ceratina/{}/motor/speed", host);
+    let payload = format!("{}", crate::programs::motor::current_speed());
+    publish_tracked_raw(&topic, payload.as_bytes());
+
+    let topic = format!("ceratina/{}/motor/direction", host);
+    let payload = if crate::programs::motor::current_direction() { "forward" } else { "reverse" };
+    publish_tracked_raw(&topic, payload.as_bytes());
+
+    let topic = format!("ceratina/{}/motor/frequency", host);
+    let payload = format!("{}", crate::programs::motor::current_frequency());
     publish_tracked_raw(&topic, payload.as_bytes());
 }
 
@@ -231,5 +251,6 @@ pub fn publish_all() {
     publish_air_quality();
     publish_status();
     publish_led_state();
+    publish_motor_state();
     info!("Published all sensor state to MQTT");
 }

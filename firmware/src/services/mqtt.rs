@@ -80,7 +80,7 @@ pub fn note_connection_state(is_currently_connected: bool) {
     let was_connected = LAST_CONNECTED.swap(is_currently_connected, Ordering::Relaxed);
     if is_currently_connected && !was_connected {
         if EVER_CONNECTED.swap(true, Ordering::Relaxed) {
-            crate::diagnostics::MQTT_RECONNECT_COUNT.fetch_add(1, Ordering::Relaxed);
+            crate::services::diagnostics::MQTT_RECONNECT_COUNT.fetch_add(1, Ordering::Relaxed);
         }
     }
 }

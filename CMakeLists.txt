@@ -21,9 +21,9 @@ target_sources(app PRIVATE
   firmware/src/boot.c
   firmware/src/console/prompt.c
   firmware/src/console/fs_aliases.c
-  firmware/src/services/provisioning_http.c
+  firmware/src/services/http/provisioning.c
   firmware/src/services/sdcard.c
-  firmware/src/services/filesystem_http.c
+  firmware/src/services/http/filesystem.c
   firmware/src/services/mqtt.c
   firmware/src/services/prometheus.c
   firmware/src/services/diagnostics.c

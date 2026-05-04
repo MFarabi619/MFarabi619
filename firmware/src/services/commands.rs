@@ -1,9 +1,9 @@
 use alloc::format;
 use log_04::info;
 
-use crate::home_assistant;
-use crate::mqtt;
-use crate::publish;
+use crate::services::home_assistant;
+use crate::services::mqtt;
+use crate::services::publish;
 
 unsafe extern "C" {
     fn sys_reboot(type_: core::ffi::c_int);
@@ -16,6 +16,12 @@ fn strip_prefix<'a>(topic: &'a str) -> Option<&'a str> {
 }
 
 fn parse_u32(payload: &[u8]) -> Option<u32> {
+    core::str::from_utf8(payload)
+        .ok()
+        .and_then(|text| text.trim().parse().ok())
+}
+
+fn parse_u8(payload: &[u8]) -> Option<u8> {
     core::str::from_utf8(payload)
         .ok()
         .and_then(|text| text.trim().parse().ok())
@@ -50,9 +56,9 @@ pub async fn handle_command(topic: &str, payload: &[u8]) {
         "command/led/state" => {
             let text = core::str::from_utf8(payload).unwrap_or("").trim();
             if text == "ON" {
-                crate::led::turn_on();
+                crate::programs::neopixel::turn_on();
             } else if text == "OFF" {
-                crate::led::turn_off();
+                crate::programs::neopixel::turn_off();
             } else {
                 info!("Unknown LED state: {}", text);
                 return;
@@ -70,8 +76,60 @@ pub async fn handle_command(topic: &str, payload: &[u8]) {
                 info!("Bad LED color payload: {}", text);
                 return;
             };
-            crate::led::set_color(red, green, blue);
+            crate::programs::neopixel::set_color(red, green, blue);
             publish::publish_led_state();
+        }
+        "command/motor/active" => {
+            let text = core::str::from_utf8(payload).unwrap_or("").trim();
+            let is_active_request = match text {
+                "ON" => true,
+                "OFF" => false,
+                _ => {
+                    info!("Unknown motor active payload: {}", text);
+                    return;
+                }
+            };
+            crate::programs::motor::set_active(is_active_request);
+            publish::publish_motor_state();
+        }
+        "command/motor/speed" => {
+            let Some(magnitude) = parse_u8(payload) else {
+                info!("Bad motor speed payload");
+                return;
+            };
+            crate::programs::motor::set_speed(magnitude);
+            publish::publish_motor_state();
+        }
+        "command/motor/direction" => {
+            let text = core::str::from_utf8(payload).unwrap_or("").trim();
+            let is_forward = match text {
+                "forward" => true,
+                "reverse" => false,
+                _ => {
+                    info!("Unknown motor direction payload: {}", text);
+                    return;
+                }
+            };
+            crate::programs::motor::set_direction(is_forward);
+            publish::publish_motor_state();
+        }
+        "command/motor/frequency" => {
+            let Some(hz) = parse_u32(payload) else {
+                info!("Bad motor frequency payload");
+                return;
+            };
+            crate::programs::motor::set_frequency(hz);
+            publish::publish_motor_state();
+        }
+        "command/motor/brake" => {
+            info!("Motor brake command received");
+            crate::programs::motor::brake();
+            publish::publish_motor_state();
+        }
+        "command/motor/coast" => {
+            info!("Motor coast command received");
+            crate::programs::motor::coast();
+            publish::publish_motor_state();
         }
         "config/publish_interval/set" => {
             if let Some(seconds) = parse_u32(payload) {

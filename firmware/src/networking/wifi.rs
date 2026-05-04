@@ -6,9 +6,9 @@ use log_04::info;
 use static_cell::StaticCell;
 use zephyr::raw::*;
 
-use crate::diagnostics;
+use crate::services::diagnostics;
 // MAGENTA was the AP-provisioning LED colour; reintroduce when AP is back.
-use crate::led::{self, GREEN, YELLOW};
+use crate::programs::neopixel::{self, GREEN, YELLOW};
 
 static EVER_CONNECTED: AtomicBool = AtomicBool::new(false);
 
@@ -126,7 +126,7 @@ pub fn init() {
 fn start_ap() {
     /*
     CURRENT_MODE.store(MODE_PROVISIONING, Ordering::Relaxed);
-    led::set(MAGENTA);
+    neopixel::set(MAGENTA);
     unsafe {
         let result = zr_wifi_ap_setup_network();
         if result != 0 {
@@ -200,7 +200,7 @@ pub fn connect_to_network(ssid: &[u8], password: &[u8]) -> i32 {
         }
 
         CURRENT_MODE.store(MODE_CONNECTING, Ordering::Relaxed);
-        led::set(YELLOW);
+        neopixel::set(YELLOW);
 
         zr_wifi_ap_disable();
         zr_wifi_connect_stored()
@@ -234,7 +234,7 @@ pub async fn task() {
                 EVENT_CONNECTED => {
                     info!("WiFi connected");
                     CURRENT_MODE.store(MODE_CONNECTED, Ordering::Relaxed);
-                    led::set(GREEN);
+                    neopixel::set(GREEN);
                     record_connection();
                 }
                 EVENT_DISCONNECTED => {
@@ -257,7 +257,7 @@ pub async fn task() {
             MODE_CONNECTED => match event {
                 EVENT_DISCONNECTED => {
                     info!("WiFi disconnected, retrying in {}s", STA_RETRY_DELAY_SECONDS);
-                    led::set(YELLOW);
+                    neopixel::set(YELLOW);
                     Timer::after(Duration::from_secs(STA_RETRY_DELAY_SECONDS)).await;
                     CURRENT_MODE.store(MODE_CONNECTING, Ordering::Relaxed);
                     connect_start = embassy_time::Instant::now();
@@ -269,7 +269,7 @@ pub async fn task() {
                 EVENT_CONNECTED => {
                     info!("WiFi connected via provisioning");
                     CURRENT_MODE.store(MODE_CONNECTED, Ordering::Relaxed);
-                    led::set(GREEN);
+                    neopixel::set(GREEN);
                     record_connection();
                 }
                 EVENT_AP_ENABLED => {

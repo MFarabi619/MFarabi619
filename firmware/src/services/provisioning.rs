@@ -4,7 +4,7 @@ use log_04::info;
 use zephyr::raw::*;
 
 use crate::utils::c_str_to_bytes;
-use crate::wifi;
+use crate::networking::wifi;
 
 use core::cell::UnsafeCell;
 use core::sync::atomic::{AtomicUsize, Ordering};
@@ -393,7 +393,7 @@ extern "C" fn mqtt_config_set_handler(
     let username_str = username.and_then(|u| core::str::from_utf8(u).ok());
     let password_str = password.and_then(|p| core::str::from_utf8(p).ok());
 
-    match crate::mqtt::set_config(host_str, port, username_str, password_str) {
+    match crate::services::mqtt::set_config(host_str, port, username_str, password_str) {
         Ok(_) => {
             info!("MQTT config updated: {}:{}", host_str, port);
             static OK: &[u8] = br#"{"status":"saved"}"#;

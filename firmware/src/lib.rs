@@ -3,17 +3,11 @@
 
 extern crate alloc;
 
-mod cloudevents;
-mod commands;
-mod diagnostics;
-mod home_assistant;
-mod led;
-mod mqtt;
-mod provisioning;
-mod publish;
+mod networking;
+mod programs;
 pub mod sensors;
+mod services;
 mod utils;
-mod wifi;
 mod zephyr_main;
 
 mod defmt_stubs {

@@ -83,5 +83,5 @@ pub fn last_boot_iso() -> String {
     if boot_epoch == 0 {
         return String::new();
     }
-    crate::cloudevents::epoch_to_rfc3339(boot_epoch as i64)
+    crate::services::cloudevents::epoch_to_rfc3339(boot_epoch as i64)
 }

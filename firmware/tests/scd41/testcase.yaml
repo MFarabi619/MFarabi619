@@ -1,0 +1,12 @@
+tests:
+  firmware.renode.scd41:
+    integration_platforms:
+      - esp32s3_devkitc/esp32s3/procpu
+    platform_allow:
+      - esp32s3_devkitc/esp32s3/procpu
+    tags:
+      - firmware
+      - renode
+      - sensor
+      - scd41
+    timeout: 30

@@ -16,6 +16,15 @@
 		compatible = "espressif,esp32-wifi";
 		status = "okay";
 	};
+
+	sensor_rail: sensor-rail {
+		compatible = "regulator-fixed";
+		regulator-name = "sensor-rail";
+		enable-gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
+		regulator-boot-on;
+		regulator-always-on;
+		startup-delay-us = <3000000>;
+	};
 };
 
 &coretemp {
@@ -61,6 +70,13 @@
 			bias-pull-up;
 		};
 	};
+
+	ledc0_default: ledc0_default {
+		group1 {
+			pinmux = <LEDC_CH0_GPIO9>, <LEDC_CH1_GPIO8>;
+			output-enable;
+		};
+	};
 };
 
 &i2c0 {
@@ -74,10 +90,13 @@
 		reg = <0x44>;
 	};
 
-	scd41@62 {
+	scd41: scd41@62 {
 		compatible = "sensirion,scd41";
 		reg = <0x62>;
-		mode = <2>;
+		mode = <1>;
+		friendly-name = "Air Quality (CO2/T/RH)";
+		vin-supply = <&sensor_rail>;
+		zephyr,deferred-init;
 	};
 
 	lps25hb@5c {
@@ -198,5 +217,23 @@ i2s_led: &i2s0 {
 			compatible = "dfrobot,soil-moisture-three-in-one";
 			slave-id = <110>;
 		};
+	};
+};
+
+&ledc0 {
+	status = "okay";
+	pinctrl-0 = <&ledc0_default>;
+	pinctrl-names = "default";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel0@0 {
+		reg = <0x0>;
+		timer = <0>;
+	};
+
+	channel1@1 {
+		reg = <0x1>;
+		timer = <0>;
 	};
 };

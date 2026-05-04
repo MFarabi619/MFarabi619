@@ -2,7 +2,7 @@ use alloc::format;
 use alloc::string::String;
 use log_04::info;
 
-use crate::mqtt;
+use crate::services::mqtt;
 use crate::sensors;
 
 const DISCOVERY_THROTTLE_MS: u64 = 50;
@@ -146,8 +146,8 @@ async fn publish_number(
     name: &str,
     command_topic: &str,
     state_topic: &str,
-    min: u32,
-    max: u32,
+    min: i32,
+    max: i32,
     step: u32,
     unit: &str,
     entity_category: Option<&str>,
@@ -176,19 +176,69 @@ async fn publish_switch(
     command_topic: &str,
     state_topic: &str,
     entity_category: Option<&str>,
+    icon: Option<&str>,
+    payload_on: Option<&str>,
+    payload_off: Option<&str>,
 ) {
     let ec = entity_category
         .map(|c| format!(r#","entity_category":"{}""#, c))
         .unwrap_or_default();
+    let ic = icon
+        .map(|i| format!(r#","icon":"{}""#, i))
+        .unwrap_or_default();
+    let po = payload_on
+        .map(|p| format!(r#","payload_on":"{}""#, p))
+        .unwrap_or_default();
+    let pf = payload_off
+        .map(|p| format!(r#","payload_off":"{}""#, p))
+        .unwrap_or_default();
 
     let payload = format!(
-        r#"{{{},"unique_id":"{}_{}","name":"{}","command_topic":"{}","state_topic":"{}"{},"availability_topic":"{}"}}"#,
+        r#"{{{},"unique_id":"{}_{}","name":"{}","command_topic":"{}","state_topic":"{}"{}{}{}{},"availability_topic":"{}"}}"#,
         device, device_id, switch_id, name,
-        command_topic, state_topic, ec, availability_topic,
+        command_topic, state_topic, ec, ic, po, pf, availability_topic,
     );
 
     let topic = format!("homeassistant/switch/{}/{}/config", device_id, switch_id);
     let _ = mqtt::publish(&topic, payload.as_bytes(), true);
+    drain().await;
+}
+
+async fn publish_fan(
+    device_id: &str,
+    device: &str,
+    availability_topic: &str,
+    fan_id: &str,
+    name: &str,
+    command_topic: &str,
+    state_topic: &str,
+    percentage_command_topic: &str,
+    percentage_state_topic: &str,
+    direction_command_topic: &str,
+    direction_state_topic: &str,
+    icon: Option<&str>,
+) {
+    let ic = icon
+        .map(|i| format!(r#","icon":"{}""#, i))
+        .unwrap_or_default();
+
+    let payload = format!(
+        r#"{{{},"unique_id":"{}_{}","name":"{}","command_topic":"{}","state_topic":"{}","percentage_command_topic":"{}","percentage_state_topic":"{}","direction_command_topic":"{}","direction_state_topic":"{}"{},"availability_topic":"{}"}}"#,
+        device, device_id, fan_id, name,
+        command_topic, state_topic,
+        percentage_command_topic, percentage_state_topic,
+        direction_command_topic, direction_state_topic,
+        ic, availability_topic,
+    );
+
+    let topic = format!("homeassistant/fan/{}/{}/config", device_id, fan_id);
+    let _ = mqtt::publish(&topic, payload.as_bytes(), true);
+    drain().await;
+}
+
+async fn retire_discovery(domain: &str, device_id: &str, entity_id: &str) {
+    let topic = format!("homeassistant/{}/{}/{}/config", domain, device_id, entity_id);
+    let _ = mqtt::publish(&topic, &[], true);
     drain().await;
 }
 
@@ -432,7 +482,7 @@ pub async fn publish_discovery_configs() {
         "deep_sleep", "Deep Sleep",
         &format!("ceratina/{}/config/deep_sleep/set", host),
         &format!("ceratina/{}/config/deep_sleep", host),
-        Some("config")).await;
+        Some("config"), None, None, None).await;
 
     publish_light(&device_id, &device, &availability,
         "led", "Status LED",
@@ -441,6 +491,34 @@ pub async fn publish_discovery_configs() {
         &format!("ceratina/{}/command/led/color", host),
         &format!("ceratina/{}/led/color", host),
         Some("mdi:led-on")).await;
+
+    retire_discovery("switch", &device_id, "motor_active").await;
+    retire_discovery("number", &device_id, "motor_speed").await;
+    retire_discovery("switch", &device_id, "motor_direction").await;
+
+    publish_fan(&device_id, &device, &availability,
+        "motor", "Motor",
+        &format!("ceratina/{}/command/motor/active", host),
+        &format!("ceratina/{}/motor/active", host),
+        &format!("ceratina/{}/command/motor/speed", host),
+        &format!("ceratina/{}/motor/speed", host),
+        &format!("ceratina/{}/command/motor/direction", host),
+        &format!("ceratina/{}/motor/direction", host),
+        Some("mdi:engine")).await;
+
+    publish_number(&device_id, &device, &availability,
+        "motor_frequency", "Motor PWM Frequency",
+        &format!("ceratina/{}/command/motor/frequency", host),
+        &format!("ceratina/{}/motor/frequency", host),
+        100, 25000, 100, "Hz", Some("config")).await;
+
+    publish_button(&device_id, &device, &availability,
+        "motor_brake", "Motor Brake", None, Some("mdi:car-brake-hold"),
+        &format!("ceratina/{}/command/motor/brake", host)).await;
+
+    publish_button(&device_id, &device, &availability,
+        "motor_coast", "Motor Coast", None, Some("mdi:engine-off-outline"),
+        &format!("ceratina/{}/command/motor/coast", host)).await;
 
     publish_text_sensor(&device_id, &device, &availability,
         "last_boot", "Last Boot",
