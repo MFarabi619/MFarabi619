@@ -3,5 +3,6 @@
     enable = true;
     enableSSHSupport = true;
     enableExtraSocket = true;
+    enableBrowserSocket = true;
   };
 }
