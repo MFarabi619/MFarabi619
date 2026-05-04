@@ -1,0 +1,25 @@
+/* M5Stack 4G LTE Module on M-Bus.
+ * Module silkscreen says "COM.LTE" but the chip is SIM7600G-H (Cat-4).
+ * simcom,a76xx compat works for data-only PPP because A76xx and SIM7600
+ * share the SIMCom AT command set modem_cellular drives. Only GNSS
+ * init differs (AT+CGNSSPWR=1 vs AT+CGPS=1) — irrelevant here.
+ */
+
+&wifi {
+	status = "disabled";
+};
+
+&uart1 {
+	modem: modem {
+		compatible = "simcom,a76xx";
+		mdm-power-gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+		status = "okay";
+	};
+};
+
+/ {
+	aliases {
+		modem = &modem;
+		modem-uart = &uart1;
+	};
+};
