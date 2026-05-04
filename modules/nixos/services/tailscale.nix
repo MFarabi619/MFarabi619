@@ -21,9 +21,11 @@
       "--ssh"
     ];
 
-    # extraSetFlags = [
-    #   "--advertise-exit-node"
-    # ];
+    extraSetFlags = [
+      "--accept-dns=true"
+      "--accept-routes=true"
+      # "--advertise-exit-node"
+    ];
 
     # authKeyParameters = {
     #   baseURL = "";
