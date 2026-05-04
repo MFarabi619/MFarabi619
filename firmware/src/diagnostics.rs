@@ -62,7 +62,8 @@ fn fill_string(call: unsafe extern "C" fn(*mut c_char, usize) -> i32, capacity: 
 }
 
 pub fn reset_cause() -> String {
-    fill_string(diagnostics_get_reset_cause, 32)
+    let cause = fill_string(diagnostics_get_reset_cause, 32);
+    if cause.is_empty() { String::from("unknown") } else { cause }
 }
 
 pub fn wifi_ssid() -> String {

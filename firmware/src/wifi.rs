@@ -3,6 +3,7 @@ use core::cell::UnsafeCell;
 use core::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use embassy_time::{Duration, Timer};
 use log_04::info;
+use static_cell::StaticCell;
 use zephyr::raw::*;
 
 use crate::diagnostics;
@@ -63,15 +64,7 @@ static SCAN_BUFFER: ScanBuffer = ScanBuffer {
 static SCAN_COUNT: AtomicU8 = AtomicU8::new(0);
 static SCAN_IN_PROGRESS: AtomicU8 = AtomicU8::new(0);
 
-struct CallbackStorage {
-    inner: UnsafeCell<core::mem::MaybeUninit<net_mgmt_event_callback>>,
-}
-
-unsafe impl Sync for CallbackStorage {}
-
-static WIFI_CB: CallbackStorage = CallbackStorage {
-    inner: UnsafeCell::new(core::mem::MaybeUninit::uninit()),
-};
+static WIFI_CB: StaticCell<net_mgmt_event_callback> = StaticCell::new();
 
 #[unsafe(no_mangle)]
 extern "C" fn wifi_event_handler(
@@ -110,8 +103,8 @@ extern "C" fn wifi_event_handler(
 }
 
 pub fn init() {
+    let cb = WIFI_CB.init(unsafe { core::mem::zeroed() });
     unsafe {
-        let cb = WIFI_CB.inner.get() as *mut net_mgmt_event_callback;
         net_mgmt_init_event_callback(
             cb,
             Some(wifi_event_handler),
@@ -123,9 +116,8 @@ pub fn init() {
                 | ZR_NET_EVENT_WIFI_AP_STA_CONNECTED,
         );
         net_mgmt_add_event_callback(cb);
-
-        CURRENT_MODE.store(MODE_CONNECTING, Ordering::Relaxed);
     }
+    CURRENT_MODE.store(MODE_CONNECTING, Ordering::Relaxed);
 }
 
 // AP DISABLED: keep the function so wiring stays in place; retrying STA

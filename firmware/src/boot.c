@@ -1,5 +1,7 @@
 #include <zephyr/kernel.h>
+#ifdef CONFIG_WIFI
 #include "esp_wifi.h"
+#endif
 #include <esp_sleep.h>
 
 // #if defined(CONFIG_NET_L2_PPP)
@@ -16,8 +18,10 @@
 /* Work around Zephyr ESP32 WiFi driver race in esp32_wifi_connect() */
 void wifi_pre_start(void)
 {
+#ifdef CONFIG_WIFI
 	esp_wifi_set_mode(ESP32_WIFI_MODE_STA);
 	esp_wifi_start();
+#endif
 }
 
 extern uint32_t mqtt_service_get_sleep_duration(void);

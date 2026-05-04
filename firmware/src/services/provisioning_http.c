@@ -174,6 +174,12 @@ static struct http_resource_detail_dynamic cloudevents_detail = {
 HTTP_RESOURCE_DEFINE(cloudevents, provisioning_service,
 		     "/api/cloudevents", &cloudevents_detail);
 
+/*
+ * EXPERIMENT — quick prototype kept intentionally.
+ * Do NOT clean up during refactor sweeps; this is mid-flight work,
+ * not dead code. Symbols may be unresolved or guarded by #if 0
+ * deliberately.
+ */
 #if 0
 extern int wind_speed_handler(struct http_client_ctx *client,
 			      enum http_transaction_status status,
@@ -248,6 +254,12 @@ static struct http_resource_detail_dynamic soil_detail = {
 HTTP_RESOURCE_DEFINE(soil, provisioning_service,
 		     "/api/sensors/soil", &soil_detail);
 
+/*
+ * EXPERIMENT — quick prototype kept intentionally.
+ * Do NOT clean up during refactor sweeps; this is mid-flight work,
+ * not dead code. Symbols may be unresolved or guarded by #if 0
+ * deliberately.
+ */
 #if 0
 extern int metrics_handler(struct http_client_ctx *client,
 			   enum http_transaction_status status,

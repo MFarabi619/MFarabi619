@@ -16,6 +16,8 @@ const SLAVE_ID_ATTRIBUTE: u32 = sensor_attribute_SENSOR_ATTR_PRIV_START + 1;
 unsafe extern "C" {
     fn zr_sensor_get_soil_moisture() -> *const device;
     fn zr_sensor_get_soil_moisture_three_in_one() -> *const device;
+    fn zr_sensor_get_co2() -> *const device;
+    fn zr_sensor_init_co2() -> i32;
 }
 
 fn sensor_value_to_f32(value: &sensor_value) -> f32 {
@@ -110,4 +112,45 @@ pub fn soil_probes() -> [SoilProbe; 2] {
             },
         ]
     }
+}
+
+pub struct Scd41Reading {
+    pub co2_ppm: u16,
+    pub temperature_celsius: f32,
+    pub humidity_percent: f32,
+}
+
+pub fn co2_device() -> *const device {
+    unsafe { zr_sensor_get_co2() }
+}
+
+pub fn init_co2() -> Result<(), i32> {
+    let result = unsafe { zr_sensor_init_co2() };
+    if result == 0 {
+        Ok(())
+    } else {
+        Err(result)
+    }
+}
+
+pub fn read_scd41(device: *const device) -> Option<Scd41Reading> {
+    if device.is_null() {
+        return None;
+    }
+
+    unsafe {
+        if sensor_sample_fetch(device as *mut _) != 0 {
+            return None;
+        }
+    }
+
+    let co2 = get_channel(device, sensor_channel_SENSOR_CHAN_CO2)?;
+    let temperature = get_channel(device, sensor_channel_SENSOR_CHAN_AMBIENT_TEMP)?;
+    let humidity = get_channel(device, sensor_channel_SENSOR_CHAN_HUMIDITY)?;
+
+    Some(Scd41Reading {
+        co2_ppm: co2 as u16,
+        temperature_celsius: temperature,
+        humidity_percent: humidity,
+    })
 }

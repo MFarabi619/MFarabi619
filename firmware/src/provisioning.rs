@@ -3,6 +3,7 @@ use core::ffi::c_void;
 use log_04::info;
 use zephyr::raw::*;
 
+use crate::utils::c_str_to_bytes;
 use crate::wifi;
 
 use core::cell::UnsafeCell;
@@ -404,19 +405,6 @@ extern "C" fn mqtt_config_set_handler(
     }
 
     0
-}
-
-unsafe fn c_str_to_bytes<'a>(pointer: *const u8) -> &'a [u8] {
-    if pointer.is_null() {
-        return b"";
-    }
-    let mut length = 0;
-    unsafe {
-        while *pointer.add(length) != 0 {
-            length += 1;
-        }
-        core::slice::from_raw_parts(pointer, length)
-    }
 }
 
 fn write_u16(value: u16, buffer: &mut [u8]) -> usize {

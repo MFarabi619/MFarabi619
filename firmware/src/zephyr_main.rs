@@ -28,6 +28,24 @@ fn capture_boot_epoch_once() {
 
 const MQTT_RECONNECT_DELAY_SECONDS: u64 = 10;
 const MQTT_WIFI_WAIT_SECONDS: u64 = 5;
+const SCD41_INIT_MAX_ATTEMPTS: u32 = 5;
+
+#[embassy_executor::task]
+async fn scd41_init_task() {
+    for attempt in 1..=SCD41_INIT_MAX_ATTEMPTS {
+        Timer::after(Duration::from_secs(attempt as u64)).await;
+        match crate::sensors::init_co2() {
+            Ok(()) => {
+                info!("SCD41 init succeeded on attempt {}", attempt);
+                return;
+            }
+            Err(error) => {
+                info!("SCD41 init attempt {} failed: {}", attempt, error);
+            }
+        }
+    }
+    info!("SCD41 init giving up after {} attempts", SCD41_INIT_MAX_ATTEMPTS);
+}
 
 #[embassy_executor::task]
 async fn mqtt_task() {
@@ -145,5 +163,6 @@ extern "C" fn rust_main() {
     executor.run(|spawner: embassy_executor::Spawner| {
         spawner.spawn(crate::wifi::task().unwrap());
         spawner.spawn(mqtt_task().unwrap());
+        spawner.spawn(scd41_init_task().unwrap());
     })
 }

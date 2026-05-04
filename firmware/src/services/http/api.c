@@ -338,6 +338,12 @@ int cloudevents_handler(struct http_client_ctx *client,
 	return 0;
 }
 
+/*
+ * EXPERIMENT — quick prototype kept intentionally.
+ * Do NOT clean up during refactor sweeps; this is mid-flight work,
+ * not dead code. Symbols may be unresolved or guarded by #if 0
+ * deliberately.
+ */
 #if 0
 struct wind_speed_response {
 	bool ok;

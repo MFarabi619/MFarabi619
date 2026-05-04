@@ -358,6 +358,12 @@ void prompt_print_motd(const struct shell *shell, const char *remote_ip) {
 
 //---
 
+/*
+ * EXPERIMENT — quick prototype kept intentionally.
+ * Do NOT clean up during refactor sweeps; this is mid-flight work,
+ * not dead code. Symbols may be unresolved or guarded by #if 0
+ * deliberately.
+ */
 #if defined(CONFIG_ZTEST) && defined(CONFIG_TEST_PROMPT)
 #include <zephyr/ztest.h>
 

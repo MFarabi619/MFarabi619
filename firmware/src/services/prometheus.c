@@ -25,6 +25,12 @@ uint32_t prometheus_get_publish_failures(void)
 	return publish_failures_count;
 }
 
+/*
+ * EXPERIMENT — quick prototype kept intentionally.
+ * Do NOT clean up during refactor sweeps; this is mid-flight work,
+ * not dead code. Symbols may be unresolved or guarded by #if 0
+ * deliberately.
+ */
 #if 0
 extern struct k_heap _system_heap;
 

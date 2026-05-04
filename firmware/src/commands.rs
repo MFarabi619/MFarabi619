@@ -47,6 +47,32 @@ pub async fn handle_command(topic: &str, payload: &[u8]) {
             info!("Force publish command received");
             publish::publish_all();
         }
+        "command/led/state" => {
+            let text = core::str::from_utf8(payload).unwrap_or("").trim();
+            if text == "ON" {
+                crate::led::turn_on();
+            } else if text == "OFF" {
+                crate::led::turn_off();
+            } else {
+                info!("Unknown LED state: {}", text);
+                return;
+            }
+            publish::publish_led_state();
+        }
+        "command/led/color" => {
+            let Ok(text) = core::str::from_utf8(payload) else {
+                return;
+            };
+            let mut iter = text.trim().split(',').map(str::trim).map(str::parse::<u8>);
+            let (Some(Ok(red)), Some(Ok(green)), Some(Ok(blue)), None) =
+                (iter.next(), iter.next(), iter.next(), iter.next())
+            else {
+                info!("Bad LED color payload: {}", text);
+                return;
+            };
+            crate::led::set_color(red, green, blue);
+            publish::publish_led_state();
+        }
         "config/publish_interval/set" => {
             if let Some(seconds) = parse_u32(payload) {
                 let clamped = seconds.clamp(5, 3600);

@@ -91,6 +91,24 @@ pub fn publish_soil() {
     }
 }
 
+pub fn publish_air_quality() {
+    let host = crate::utils::hostname();
+    let source = source_uri(host);
+
+    let device = sensors::co2_device();
+    let Some(reading) = sensors::read_scd41(device) else {
+        return;
+    };
+
+    let data = format!(
+        r#"{{"co2_ppm":{},"temperature_celsius":{:.1},"humidity_percent":{:.1}}}"#,
+        reading.co2_ppm, reading.temperature_celsius, reading.humidity_percent,
+    );
+
+    let topic = format!("ceratina/{}/air_quality/state", host);
+    publish_event(&topic, "sensors.air_quality.v1", &source, &data);
+}
+
 pub fn publish_status() {
     let host = crate::utils::hostname();
     let rssi = unsafe { mqtt_helper_get_wifi_rssi() };
@@ -141,7 +159,9 @@ pub fn publish_status() {
     data.push_str(&format!(r#","ip_address":"{}""#, ip_address));
     data.push_str(&format!(r#","storage_free_bytes":{}"#, storage_free_bytes));
     data.push_str(&format!(r#","cpu_temperature_milli_c":{}"#, cpu_temperature_milli_c));
-    data.push_str(&format!(r#","last_boot_iso":"{}""#, last_boot_iso));
+    if !last_boot_iso.is_empty() {
+        data.push_str(&format!(r#","last_boot_iso":"{}""#, last_boot_iso));
+    }
     data.push('}');
 
     let topic = format!("ceratina/{}/status/state", host);
@@ -175,6 +195,18 @@ fn publish_tracked_raw(topic: &str, payload: &[u8]) {
     }
 }
 
+pub fn publish_led_state() {
+    let host = crate::utils::hostname();
+    let state = if crate::led::is_on() { "ON" } else { "OFF" };
+    let topic = format!("ceratina/{}/led/state", host);
+    publish_tracked_raw(&topic, state.as_bytes());
+
+    let color = crate::led::current_color();
+    let payload = format!("{},{},{}", color.0, color.1, color.2);
+    let topic = format!("ceratina/{}/led/color", host);
+    publish_tracked_raw(&topic, payload.as_bytes());
+}
+
 pub fn publish_config_state() {
     let host = crate::utils::hostname();
     let interval = mqtt::publish_interval();
@@ -196,6 +228,8 @@ pub fn publish_config_state() {
 
 pub fn publish_all() {
     publish_soil();
+    publish_air_quality();
     publish_status();
+    publish_led_state();
     info!("Published all sensor state to MQTT");
 }
