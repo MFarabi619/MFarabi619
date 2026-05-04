@@ -12,8 +12,8 @@
     grabKeyboardAndMouse = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
-    pinentry.program = "pinentry-tty";
-    pinentry.package = pkgs.pinentry-tty;
+    pinentry.package =
+      if pkgs.stdenv.isDarwin then pkgs.pinentry_mac else pkgs.pinentry-tty;
 
     maxCacheTtl = 86400; # 24 hours
     maxCacheTtlSsh = 86400; # 24 hours
