@@ -16,8 +16,9 @@
           userName = config.me.email;
           realName = config.me.fullname;
           passwordCommand = "${pkgs.pass}/bin/pass Email/GmailApp";
+
           gpg.signByDefault = true;
-          gpg.key = "306B94DA2CE6198A";
+          gpg.key = config.programs.gpg.settings.default-key;
 
           signature = {
             showSignature = "append";
