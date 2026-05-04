@@ -5,6 +5,7 @@ pub enum MqttError {
     NotConnected,
     InvalidConfig,
     HostUnreachable,
+    #[allow(dead_code)]
     Transport(c_int),
 }
 

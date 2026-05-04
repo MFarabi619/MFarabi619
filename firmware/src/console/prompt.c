@@ -212,10 +212,10 @@ static void prompt_format_ram(char *free_buffer, size_t free_buffer_size,
 
   if (stats.free_bytes >= (1024U * 1024U)) {
     snprintf(free_buffer, free_buffer_size, "%.1fM",
-             stats.free_bytes / (1024.0f * 1024.0f));
+             stats.free_bytes / (1024.0 * 1024.0));
   } else {
     snprintf(free_buffer, free_buffer_size, "%.1fK",
-             stats.free_bytes / 1024.0f);
+             stats.free_bytes / 1024.0);
   }
 
   snprintf(percent_buffer, percent_buffer_size, "%lu%%",

@@ -112,10 +112,6 @@ pub fn is_active() -> bool {
     IS_ACTIVE.load(Ordering::Relaxed)
 }
 
-pub fn is_braking() -> bool {
-    IS_BRAKING.load(Ordering::Relaxed)
-}
-
 fn period_ns_from_hz(hz: u32) -> u32 {
     1_000_000_000u32 / hz
 }

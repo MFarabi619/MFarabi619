@@ -619,7 +619,11 @@ static int recursive_delete(const char *path)
 			break;
 		}
 
-		snprintk(child, sizeof(child), "%s/%s", path, entry.name);
+		int written = snprintk(child, sizeof(child), "%s/%s", path, entry.name);
+		if (written < 0 || (size_t)written >= sizeof(child)) {
+			result = -ENAMETOOLONG;
+			break;
+		}
 		result = recursive_delete(child);
 		if (result < 0) {
 			break;
