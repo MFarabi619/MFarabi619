@@ -55,7 +55,7 @@
             rpi5 = "rpi5-8:7681";
             emacs = "rpi5-8:7682";
             neovim = "rpi5-8:7683";
-            freebsd = "msi-ge76:7681";
+            freebsd = "freebsd-hp-elitebook-820:7681";
             mirror = config.services.anubis.instances.mirror.settings.TARGET;
           };
 
