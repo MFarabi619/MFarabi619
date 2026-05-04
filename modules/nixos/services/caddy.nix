@@ -99,7 +99,7 @@
       (lib.mapAttrs'
         (
           name: upstream:
-          lib.nameValuePair "http://${name}" {
+          lib.nameValuePair name {
             extraConfig = ''
               reverse_proxy ${upstream} {
                 header_up X-Forwarded-For {client_ip}
@@ -110,8 +110,20 @@
           }
         )
         {
-          "microvisor.systems" = "http://10.0.0.236";
-          "tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
+          "apidae.systems" = "http://macos";
+          "www.apidae.systems" = "http://macos";
+
+          "nui.apidae.systems" = "http://macos";
+          "nats.apidae.systems" = "http://macos";
+          "git.apidae.systems" = "http://macos";
+          "auth.apidae.systems" = "http://macos";
+          "bore.apidae.systems" = "http://macos";
+          "grafana.apidae.systems" = "http://macos";
+          "ceratina.apidae.systems" = "http://macos";
+          "home-assistant.apidae.systems" = "http://macos";
+
+          "http://microvisor.systems" = "http://10.0.0.236";
+          "http://tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
         }
       )
       {
