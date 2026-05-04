@@ -48,7 +48,7 @@ impl FirmwareSettings {
     }
 
     pub fn partition_table(&self) -> String {
-        format!("boards/{}.partitions.csv", self.chip)
+        format!("firmware/boards/{}.partitions.csv", self.chip)
     }
 
     pub fn bin_name(&self) -> &str {

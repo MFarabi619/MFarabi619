@@ -89,7 +89,7 @@
 
             ;; (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
             (" ESP32S3 :󰐊 build"                 :command "rm -rf target build; west build -p always"                                          :annotation "      west 󱦅")
-            (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
+            (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
             ;; (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
             (" ESP32S3 :󰔰 flash"                 :command "west flash"                                                                         :annotation "      west 󱦅")
             (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
@@ -200,7 +200,7 @@
                  ;;                   :coreIndex 0
                  ;;                   :rttEnabled t
                  ;;                   :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
-                 ;;                   :svdFile (lambda () (let ((f (expand-file-name "boards/esp32s3.svd" (project-root (project-current)))))
+                 ;;                   :svdFile (lambda () (let ((f (expand-file-name "firmware/boards/esp32s3.svd" (project-root (project-current)))))
                  ;;                                         (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
                  ;;                   :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/examples/gpio" (project-root (project-current))))
                  ;;                   )]

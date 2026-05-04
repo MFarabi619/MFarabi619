@@ -13,6 +13,8 @@ if(DEFINED ENV{WIFI_SSID})
 endif()
 
 list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/firmware)
+set(APPLICATION_CONFIG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/firmware)
+set(KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/firmware/Kconfig)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(microvisor)
