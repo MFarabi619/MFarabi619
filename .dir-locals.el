@@ -88,7 +88,7 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
 
             ;; (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
-            (" ESP32S3 :󰐊 build"                 :command "rm -rf target build; west build -p always"                                          :annotation "      west 󱦅")
+            (" ESP32S3 :󰐊 build"                 :command "rm -rf target build; west build"                                 :annotation "      west 󱦅")
             (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
             ;; (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
             (" ESP32S3 :󰔰 flash"                 :command "west flash"                                                                         :annotation "      west 󱦅")

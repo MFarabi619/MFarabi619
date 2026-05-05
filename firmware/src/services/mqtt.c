@@ -284,15 +284,13 @@ int mqtt_service_init(void)
 {
 	settings_load_subtree("mqtt");
 
-#ifdef MQTT_DEFAULT_HOST
-	if (mqtt_config.host[0] == '\0') {
-		strncpy(mqtt_config.host, MQTT_DEFAULT_HOST, sizeof(mqtt_config.host) - 1);
-#ifdef MQTT_DEFAULT_USERNAME
-		strncpy(mqtt_config.username, MQTT_DEFAULT_USERNAME, sizeof(mqtt_config.username) - 1);
-		strncpy(mqtt_config.password, MQTT_DEFAULT_PASSWORD, sizeof(mqtt_config.password) - 1);
-#endif
+	if (mqtt_config.host[0] == '\0' && CONFIG_MQTT_DEFAULT_HOST[0] != '\0') {
+		strncpy(mqtt_config.host, CONFIG_MQTT_DEFAULT_HOST, sizeof(mqtt_config.host) - 1);
+		if (CONFIG_MQTT_DEFAULT_USERNAME[0] != '\0') {
+			strncpy(mqtt_config.username, CONFIG_MQTT_DEFAULT_USERNAME, sizeof(mqtt_config.username) - 1);
+			strncpy(mqtt_config.password, CONFIG_MQTT_DEFAULT_PASSWORD, sizeof(mqtt_config.password) - 1);
+		}
 	}
-#endif
 
 	if (mqtt_config.port == 0) {
 		mqtt_config.port = MQTT_BROKER_PORT_DEFAULT;

@@ -1,10 +1,10 @@
 [manifest]
 path     = .
-file     = west.yml
+file     = firmware/west.yml
 project-filter = +zephyr-lang-rust
 
 [zephyr]
-base     = vendor/zephyr
+base     = firmware/zephyr
 
 [build]
 pristine = always
@@ -14,4 +14,3 @@ board    = esp32s3_devkitc/esp32s3/procpu
 
 [flash]
 rebuild = true
-

@@ -100,6 +100,6 @@ overflow-checks = true # was false — silent integer wrapping is dangerous for 
 # debug-assertions = false  # already the default for release
 
 [patch.crates-io]
-zephyr = { path = "vendor/modules/lang/rust/zephyr" }
-zephyr-build = { path = "vendor/modules/lang/rust/zephyr-build" }
-zephyr-sys = { path = "vendor/modules/lang/rust/zephyr-sys" }
+zephyr = { path = "firmware/modules/lang/rust/zephyr" }
+zephyr-build = { path = "firmware/modules/lang/rust/zephyr-build" }
+zephyr-sys = { path = "firmware/modules/lang/rust/zephyr-sys" }

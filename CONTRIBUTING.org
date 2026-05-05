@@ -90,9 +90,9 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
 
-            (" ESP32S3 :󰐊 build"                 :command "pio run"                                                                            :annotation "cargo +esp ")
+            (" ESP32S3 :󰐊 build"                 :command "rm -rf target build; west build"                                                                            :annotation "cargo +esp ")
             ;; (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
-            (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
+            (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
 
             (" ESP32S3 :󰔰 flash"                 :command "pio run -t upload --upload-port '/dev/cu.usbmodem2101'"                             :annotation "cargo +esp ")
             (" ESP32S3 : upload"                :command "pio run -t uploadfs"                                                                :annotation "cargo +esp ")
@@ -200,7 +200,7 @@
                  ;;                   :coreIndex 0
                  ;;                   :rttEnabled t
                  ;;                   :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
-                 ;;                   :svdFile (lambda () (let ((f (expand-file-name "boards/esp32s3.svd" (project-root (project-current)))))
+                 ;;                   :svdFile (lambda () (let ((f (expand-file-name "firmware/boards/esp32s3.svd" (project-root (project-current)))))
                  ;;                                         (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
                  ;;                   :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/examples/gpio" (project-root (project-current))))
                  ;;                   )]
@@ -219,7 +219,7 @@
 speed = 40000
 chip = "esp32s3"
 always-print-stacktrace = true
-# idf-partition-table = "boards/esp32s3.partitions.csv"
+# idf-partition-table = "firmware/boards/esp32s3.partitions.csv"
 log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
 
 [presets.esp32-s3-devkitc-1]
@@ -284,7 +284,7 @@ enabled                 = false
 #+begin_src toml :tangle espflash.toml
 [idf_format_args]
 target_app_partition = "ota_0"
-partition_table = "boards/esp32s3.partitions.csv"
+partition_table = "firmware/boards/esp32s3.partitions.csv"
 #+end_src
 
 *** [[https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-toolchain-file][rust-toolchain.toml]]
@@ -383,7 +383,7 @@ If the new image fails to boot, the bootloader rolls back automatically.
 | =ota_0=     | =0x10000=  | ~4 MB | Primary firmware slot                             |
 | =ota_1=     | =0x400000= | 4 MB  | Secondary firmware slot (OTA target)              |
 
-#+begin_src csv :tangle boards/esp32s3.partitions.csv
+#+begin_src csv :tangle firmware/boards/esp32s3.partitions.csv
 # https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-guides/partition-tables.html
 
 # Name,   Type, SubType, Offset,   Size,     Flags

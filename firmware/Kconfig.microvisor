@@ -1,3 +1,15 @@
+config MQTT_DEFAULT_HOST
+	string "Default MQTT broker host"
+	default ""
+
+config MQTT_DEFAULT_USERNAME
+	string "Default MQTT username"
+	default ""
+
+config MQTT_DEFAULT_PASSWORD
+	string "Default MQTT password"
+	default ""
+
 menu "Microvisor Test Suites"
 	depends on ZTEST
 

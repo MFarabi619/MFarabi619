@@ -2,55 +2,21 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-if(DEFINED ENV{WIFI_SSID})
-  set(wifi_conf "${CMAKE_CURRENT_BINARY_DIR}/wifi_credentials.conf")
-  file(WRITE ${wifi_conf}
-    "CONFIG_WIFI_CREDENTIALS_STATIC=y\n"
-    "CONFIG_WIFI_CREDENTIALS_STATIC_SSID=\"$ENV{WIFI_SSID}\"\n"
-    "CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD=\"$ENV{WIFI_PSK}\"\n"
-  )
-  list(APPEND EXTRA_CONF_FILE ${wifi_conf})
+if(DEFINED ENV{CONFIG_WIFI_CREDENTIALS_STATIC_SSID})
+  set(CONFIG_WIFI_CREDENTIALS_STATIC y CACHE STRING "" FORCE)
+  set(CONFIG_WIFI_CREDENTIALS_STATIC_SSID "\"$ENV{CONFIG_WIFI_CREDENTIALS_STATIC_SSID}\"" CACHE STRING "" FORCE)
+  set(CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD "\"$ENV{CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD}\"" CACHE STRING "" FORCE)
 endif()
 
-list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/firmware)
+if(DEFINED ENV{CONFIG_MQTT_DEFAULT_HOST})
+  set(CONFIG_MQTT_DEFAULT_HOST "\"$ENV{CONFIG_MQTT_DEFAULT_HOST}\"" CACHE STRING "" FORCE)
+  set(CONFIG_MQTT_DEFAULT_USERNAME "\"$ENV{CONFIG_MQTT_DEFAULT_USERNAME}\"" CACHE STRING "" FORCE)
+  set(CONFIG_MQTT_DEFAULT_PASSWORD "\"$ENV{CONFIG_MQTT_DEFAULT_PASSWORD}\"" CACHE STRING "" FORCE)
+endif()
+
 set(APPLICATION_CONFIG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/firmware)
 set(KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/firmware/Kconfig)
-
+list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/firmware)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(microvisor)
-
-rust_cargo_application(CRATE_NAME firmware FEATURES zephyr)
-
-target_sources(app PRIVATE
-  firmware/src/boot.c
-  firmware/src/console/prompt.c
-  firmware/src/console/fs_aliases.c
-  firmware/src/services/http/provisioning.c
-  firmware/src/services/sdcard.c
-  firmware/src/services/http/filesystem.c
-  firmware/src/services/mqtt.c
-  firmware/src/services/prometheus.c
-  firmware/src/services/diagnostics.c
-  firmware/src/services/http/api.c
-  firmware/src/sensors/devices.c
-  firmware/src/sensors/soil_moisture.c
-  firmware/src/sensors/soil_moisture_three_in_one.c
-)
-
-target_include_directories(app PRIVATE include firmware/include)
-
-if(DEFINED ENV{MQTT_HOST})
-  target_compile_definitions(app PRIVATE
-    MQTT_DEFAULT_HOST="$ENV{MQTT_HOST}"
-    MQTT_DEFAULT_USERNAME="$ENV{MQTT_USERNAME}"
-    MQTT_DEFAULT_PASSWORD="$ENV{NATS_MQTT_PASSWORD}"
-  )
-endif()
-
-zephyr_linker_sources(SECTIONS
-  ${CMAKE_CURRENT_SOURCE_DIR}/firmware/linker/discard_defmt.ld
-  ${CMAKE_CURRENT_SOURCE_DIR}/firmware/linker/http-resources.ld
-)
-
-zephyr_linker_section(NAME http_resource_desc_provisioning_service
-                      KVMA RAM_REGION GROUP RODATA_REGION)
+project(firmware)
+add_subdirectory(firmware)

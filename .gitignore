@@ -62,7 +62,10 @@ local.properties
 #====================================================
 /.pnp
 .pnp.js
-vendor/
+firmware/zephyr/
+firmware/modules/
+firmware/bootloader/
+firmware/tools/
 build/
 
 opencode.json
