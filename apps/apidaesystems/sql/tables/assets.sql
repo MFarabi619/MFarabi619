@@ -1,0 +1,8 @@
+CREATE TABLE assets (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v7(),
+    filename TEXT NOT NULL UNIQUE,
+    content_type TEXT NOT NULL,
+    image_data BYTEA NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modified_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

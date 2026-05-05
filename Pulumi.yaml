@@ -2,77 +2,100 @@ name: local
 runtime: go
 main: apps/apidaesystems
 config:
-    docker:host:
-        value: unix:///var/run/docker.sock
-    local:domain:
-        type: string
-        default: apidae.systems
-    # Talos node address. Set via DHCP reservation or static-IP config patch.
-    # Same value used for both --nodes (the machine apid talks to) and
-    # --endpoints (where talosctl initiates the gRPC connection); they only
-    # differ when the controlplane sits behind NAT/proxy.
-    local:talos:
-        value:
-            nodeIP: 192.168.64.29
-            endpoint: 192.168.64.29
-    local:traefik:
-        value:
-            image: traefik:v3.4
-            memory: 128
-            port: 80
-    local:homepage:
-        value:
-            image: ghcr.io/gethomepage/homepage:latest
-            memory: 256
-    local:radicle:
-        value:
-            enabled: false
-            memory: 512
-    local:cgit:
-        value:
-            enabled: true
-            image: joseluisq/alpine-cgit:latest
-            memory: 128
-    local:grafana:
-        value:
-            enabled: true
-            image: grafana/grafana:latest
-            memory: 512
-    local:glances:
-        value:
-            enabled: true
-            image: nicolargo/glances:latest-full
-            memory: 256
-    local:nats:
-        value:
-            enabled: true
-            image: nats:2-alpine
-            memory: 64
-    local:nui:
-        value:
-            enabled: true
-            image: ghcr.io/nats-nui/nui:latest
-            memory: 128
-    local:home-assistant:
-        value:
-            enabled: true
-            image: ghcr.io/home-assistant/home-assistant:stable
-            memory: 512
-    local:postgresql:
-        value:
-            enabled: true
-            image: timescale/timescaledb:latest-pg17
-            memory: 512
-    local:authentik:
-        value:
-            enabled: true
-            image: ghcr.io/goauthentik/server:2025.10
-            memory: 1024
-    local:penpot:
-        value:
-            enabled: false
-    local:bore:
-        value:
-            enabled: true
-            image: ekzhang/bore:latest
-            memory: 32
+  docker:host:
+    value: unix:///var/run/docker.sock
+  local:domain:
+    type: string
+    default: apidae.systems
+  # Talos node address. Set via DHCP reservation or static-IP config patch.
+  # Same value used for both --nodes (the machine apid talks to) and
+  # --endpoints (where talosctl initiates the gRPC connection); they only
+  # differ when the controlplane sits behind NAT/proxy.
+  local:talos:
+    value:
+      enabled: false
+      nodeIP: 192.168.64.29
+      endpoint: 192.168.64.29
+  local:traefik:
+    value:
+      image: traefik:v3.4
+      memory: 128
+      port: 80
+  local:homepage:
+    value:
+      image: ghcr.io/gethomepage/homepage:latest
+      memory: 256
+  local:radicle:
+    value:
+      enabled: false
+      memory: 512
+  local:cgit:
+    value:
+      enabled: true
+      image: joseluisq/alpine-cgit:latest
+      memory: 128
+  local:emacs-browse:
+    value:
+      enabled: false
+      memory: 512
+  local:grafana:
+    value:
+      enabled: true
+      image: grafana/grafana:latest
+      memory: 512
+  local:glances:
+    value:
+      enabled: true
+      image: nicolargo/glances:latest-full
+      memory: 256
+  local:nats:
+    value:
+      enabled: true
+      image: nats:2-alpine
+      memory: 64
+  local:nui:
+    value:
+      enabled: true
+      image: ghcr.io/nats-nui/nui:latest
+      memory: 128
+  local:home-assistant:
+    value:
+      enabled: true
+      image: ghcr.io/home-assistant/home-assistant:stable
+      memory: 512
+  local:wyoming-whisper:
+    value:
+      enabled: false
+      image: rhasspy/wyoming-whisper:latest
+      memory: 2048
+  local:wyoming-piper:
+    value:
+      enabled: false
+      image: rhasspy/wyoming-piper:latest
+      memory: 512
+  local:voice:
+    value:
+      enabled: false
+      ollamaURL: http://host.docker.internal:11434
+      ollamaModel: qwen2.5:32b-instruct
+      piperVoice: en_US-amy-low
+      whisperModel: base-int8
+      pipelineName: Apidae Voice
+  local:postgresql:
+    value:
+      enabled: true
+      image: timescale/timescaledb:latest-pg17
+      memory: 512
+  local:authentik:
+    value:
+      enabled: false
+      image: ghcr.io/goauthentik/server:2025.10
+      memory: 1024
+  local:penpot:
+    value:
+      enabled: false
+  local:bore:
+    value:
+      enabled: false
+      image: ekzhang/bore:latest
+      memory: 32

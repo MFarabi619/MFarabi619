@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/pulumi/pulumi-command/sdk/go/command/local"
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"gopkg.in/yaml.v3"
@@ -18,15 +19,21 @@ const homeAssistantServiceYAML = `    - Home Assistant:
           key: "{{HOMEPAGE_VAR_HA_ACCESS_TOKEN}}"
 `
 
-func createHomeAssistant(ctx *pulumi.Context, proxyNetwork *docker.Network, domain string, settings serviceConfig) error {
+// createHomeAssistant provisions the HA container. mqttBroker is taken as a
+// dependency (so HA starts after the broker is up) but the broker connection
+// itself must be configured via HA's UI integration flow — Settings →
+// Devices & Services → Add Integration → MQTT — because HA dropped YAML-based
+// broker config in 2022.12. After that one-time UI step, the firmware's
+// `homeassistant/sensor/.../config` discovery messages auto-populate entities.
+func createHomeAssistant(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets map[string]string, domain string, settings serviceConfig, mqttBroker *docker.Container) (*docker.Container, error) {
 	homeAssistantConfig, err := createVolume(ctx, "home-assistant-config")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	image, err := pullImage(ctx, "home-assistant", settings.Image)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	configuration := map[string]any{
@@ -52,9 +59,14 @@ func createHomeAssistant(ctx *pulumi.Context, proxyNetwork *docker.Network, doma
 		},
 		"history": nil,
 	}
+
+	var resourceOptions []pulumi.ResourceOption
+	if mqttBroker != nil {
+		resourceOptions = append(resourceOptions, pulumi.DependsOn([]pulumi.Resource{mqttBroker}))
+	}
 	configYAML, err := yaml.Marshal(configuration)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	container, err := docker.NewContainer(ctx, "home-assistant", &docker.ContainerArgs{
@@ -114,14 +126,78 @@ func createHomeAssistant(ctx *pulumi.Context, proxyNetwork *docker.Network, doma
 			Retries:     pulumi.Int(3),
 			StartPeriod: pulumi.String("30s"),
 		},
-	})
+	}, resourceOptions...)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ctx.Export("home-assistant image", image.RepoDigest)
 	ctx.Export("home-assistant id", container.ID())
 	ctx.Export("home-assistant config", homeAssistantConfig.Mountpoint)
 
-	return nil
+	onboardingScript := `#!/bin/sh
+set -eu
+RUN="docker run --rm --network=proxy curlimages/curl:8.10.0"
+post() {
+  step=$1; shift
+  body=$1; shift
+  resp=$($RUN -s -o /tmp/ha-resp -w "%{http_code}" -X POST -H "$auth" -H "Content-Type: application/json" -d "$body" "http://home-assistant:8123/api/onboarding/$step")
+  case "$resp" in
+    2*) ;;
+    *) echo "step $step failed: HTTP $resp $(cat /tmp/ha-resp 2>/dev/null)" >&2; exit 1 ;;
+  esac
+}
+ready=0
+for attempt in $(seq 1 60); do
+  status=$($RUN -sf -o /dev/null -w "%{http_code}" http://home-assistant:8123/api/onboarding || echo 000)
+  case "$status" in 200) ready=1; break;; esac
+  sleep 2
+done
+if [ "$ready" != "1" ]; then
+  echo "home-assistant did not respond on /api/onboarding within 120s" >&2
+  exit 1
+fi
+done_user=$($RUN -s http://home-assistant:8123/api/onboarding | grep -o '"step":"user"[^}]*"done":true' || true)
+if [ -n "$done_user" ]; then
+  echo "onboarding already complete"
+  exit 0
+fi
+resp=$($RUN -s -X POST -H "Content-Type: application/json" \
+  -d "{\"client_id\":\"http://home-assistant:8123/\",\"name\":\"Owner\",\"username\":\"$HOME_ASSISTANT_USERNAME\",\"password\":\"$HOME_ASSISTANT_PASSWORD\",\"language\":\"en\"}" \
+  http://home-assistant:8123/api/onboarding/users)
+code=$(echo "$resp" | sed -n 's/.*"auth_code":"\([^"]*\)".*/\1/p')
+if [ -z "$code" ]; then
+  echo "users step response: $resp" >&2
+  exit 1
+fi
+token_resp=$($RUN -s -X POST \
+  --data-urlencode "client_id=http://home-assistant:8123/" \
+  --data-urlencode "grant_type=authorization_code" \
+  --data-urlencode "code=$code" \
+  http://home-assistant:8123/auth/token)
+access=$(echo "$token_resp" | sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+if [ -z "$access" ]; then
+  echo "/auth/token did not return an access_token: $token_resp" >&2
+  exit 1
+fi
+auth="Authorization: Bearer $access"
+post core_config '{}'
+post analytics '{}'
+post integration "{\"client_id\":\"http://home-assistant:8123/\",\"redirect_uri\":\"http://home-assistant:8123/?auth_callback=1\"}"
+echo "onboarding complete"
+`
+
+	if _, err := local.NewCommand(ctx, "home-assistant-onboarding", &local.CommandArgs{
+		Create: pulumi.String(onboardingScript),
+		Update: pulumi.String(onboardingScript),
+		Environment: pulumi.StringMap{
+			"HOME_ASSISTANT_USERNAME": pulumi.String(secrets["HOME_ASSISTANT_USERNAME"]),
+			"HOME_ASSISTANT_PASSWORD": pulumi.String(secrets["HOME_ASSISTANT_PASSWORD"]),
+		},
+		Triggers: pulumi.Array{container.ID()},
+	}, pulumi.DependsOn([]pulumi.Resource{container}), pulumi.AdditionalSecretOutputs([]string{"environment", "stdout", "stderr"})); err != nil {
+		return nil, err
+	}
+
+	return container, nil
 }

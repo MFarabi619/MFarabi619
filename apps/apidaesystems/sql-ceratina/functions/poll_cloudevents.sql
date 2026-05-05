@@ -7,6 +7,7 @@ DECLARE
     cloud_events JSONB;
     cloud_event JSONB;
     inserted_count INT := 0;
+    device_source TEXT := substring(source_url FROM '^https?://([^/]+)');
 BEGIN
     SELECT * INTO response FROM http_get(source_url);
 
@@ -22,7 +23,7 @@ BEGIN
         INSERT INTO events (name, source, type, specversion, datacontenttype, time, data)
         VALUES (
             cloud_event->>'id',
-            cloud_event->>'source',
+            device_source,
             cloud_event->>'type',
             cloud_event->>'specversion',
             cloud_event->>'datacontenttype',

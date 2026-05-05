@@ -23,6 +23,84 @@ spec:
   cursorSync: 'Off'
   editable: true
   elements:
+    panel-status:
+      kind: Panel
+      spec:
+        data:
+          kind: QueryGroup
+          spec:
+            queries:
+              - kind: PanelQuery
+                spec:
+                  hidden: false
+                  query:
+                    group: grafana-postgresql-datasource
+                    kind: DataQuery
+                    spec:
+                      dataset: postgres
+                      editorMode: code
+                      format: time_series
+                      rawQuery: true
+                      rawSql: |-
+                        SELECT
+                            samples.time,
+                            samples.value,
+                            format('%s/%s', samples.source, metrics.name) AS series
+                        FROM samples
+                        JOIN metrics ON metrics.id = samples.metric_id
+                        WHERE samples.type = 'status.v1'
+                          AND metrics.name IN ('wifi_rssi', 'uptime_seconds', 'memory_heap_free')
+                          AND $__timeFilter(samples.time)
+                        ORDER BY samples.time;
+                    version: v0
+                  refId: A
+            queryOptions: {}
+            transformations: []
+        description: 'Live device telemetry — pipeline smoke test'
+        id: 100
+        links: []
+        title: Status
+        transparent: true
+        vizConfig:
+          group: timeseries
+          kind: VizConfig
+          spec:
+            fieldConfig:
+              defaults:
+                color:
+                  mode: palette-classic
+                custom:
+                  axisBorderShow: false
+                  axisCenteredZero: false
+                  axisColorMode: text
+                  axisPlacement: auto
+                  drawStyle: line
+                  fillOpacity: 10
+                  gradientMode: none
+                  lineInterpolation: linear
+                  lineWidth: 1
+                  pointSize: 4
+                  scaleDistribution:
+                    type: linear
+                  showPoints: auto
+                  spanNulls: false
+                thresholds:
+                  mode: absolute
+                  steps:
+                    - color: green
+                      value: 0
+              overrides: []
+            options:
+              legend:
+                calcs: []
+                displayMode: list
+                placement: bottom
+                showLegend: true
+              tooltip:
+                hideZeros: false
+                mode: single
+                sort: none
+          version: 12.3.2
     panel-11:
       kind: Panel
       spec:
@@ -552,28 +630,20 @@ spec:
                       columns: []
                       data: >-
                         [
-
-                        { "node": "Rutabega Ranch", "latitude": 44.947860,
-                        "longitude": -75.391341 },
-
-                        { "node": "University of Ottawa", "latitude": 45.426022,
-                        "longitude": -75.681213},
-
-                        {"node":"Mumtahin Farabi", "latitude":
-                        45.46508203138764, "longitude": -75.48664339999996},
-
-                        {"node":"Mingye Chen", "latitude": 45.384572484193285,
-                        "longitude": -75.73580483133657},
-
-                        {"node":"Blake Arbour", "latitude": 45.455686685519495,
-                        "longitude": -75.65228766169203},
-
-                        {"node":"Larry's Farm", "latitude": 45.04433516614163,
-                        "longitude": -75.11461190117969},
-
-                        {"node":"Heart City Farm", "latitude":
-                        45.39621177945424, "longitude": -75.57330621784294}
-
+                          {"node":"ByWard Market", "latitude": 45.4283, "longitude": -75.6924},
+                          {"node":"University of Ottawa", "latitude": 45.426022, "longitude": -75.681213},
+                          {"node":"Rutabega Ranch", "latitude": 44.947860, "longitude": -75.391341},
+                          {"node":"Saunders Farm", "latitude": 45.2253, "longitude": -75.9904},
+                          {"node":"Cannamore Orchard", "latitude": 45.2153, "longitude": -75.0859},
+                          {"node":"Avonmore Berry Farm", "latitude": 45.2217, "longitude": -74.9000},
+                          {"node":"Mariposa Farm", "latitude": 45.5414, "longitude": -74.9694},
+                          {"node":"Rideau Pines Farm", "latitude": 45.2197, "longitude": -75.7028},
+                          {"node":"Acorn Creek Garden Farm", "latitude": 45.3550, "longitude": -76.0303},
+                          {"node":"Strathmere Farm", "latitude": 45.1267, "longitude": -75.7117},
+                          {"node":"Just Food Community Farm", "latitude": 45.4181, "longitude": -75.5219},
+                          {"node":"Roots and Shoots Farm", "latitude": 45.4500, "longitude": -76.0500},
+                          {"node":"Acres of Origin Farm", "latitude": 45.2456, "longitude": -75.5817},
+                          {"node":"Bekings Poultry Farm", "latitude": 44.9100, "longitude": -75.6700}
                         ]
                       filters: []
                       format: table
@@ -1128,19 +1198,69 @@ spec:
                 padding: 8
                 zoom: 18
           version: 12.3.2
+  # Active layout: panel-2 (Deployments map), panel-5 (Temperature &
+  # Humidity), panel-15 (Soil). Others stay commented until their data
+  # sources are flowing.
   layout:
     kind: GridLayout
     spec:
       items:
         - kind: GridLayoutItem
           spec:
-            element:
-              kind: ElementReference
-              name: panel-2
-            height: 10
-            width: 24
+            element: { kind: ElementReference, name: panel-2 }
             x: 0
             'y': 0
+            width: 24
+            height: 10
+        - kind: GridLayoutItem
+          spec:
+            element: { kind: ElementReference, name: panel-5 }
+            x: 0
+            'y': 10
+            width: 12
+            height: 8
+        - kind: GridLayoutItem
+          spec:
+            element: { kind: ElementReference, name: panel-15 }
+            x: 12
+            'y': 10
+            width: 12
+            height: 8
+        # - kind: GridLayoutItem
+        #   spec:
+        #     element: { kind: ElementReference, name: panel-11 }
+        #     x: 0
+        #     'y': 30
+        #     width: 8
+        #     height: 8
+        # - kind: GridLayoutItem
+        #   spec:
+        #     element: { kind: ElementReference, name: panel-4 }
+        #     x: 8
+        #     'y': 30
+        #     width: 8
+        #     height: 8
+        # - kind: GridLayoutItem
+        #   spec:
+        #     element: { kind: ElementReference, name: panel-14 }
+        #     x: 16
+        #     'y': 30
+        #     width: 8
+        #     height: 8
+        # - kind: GridLayoutItem
+        #   spec:
+        #     element: { kind: ElementReference, name: panel-12 }
+        #     x: 0
+        #     'y': 38
+        #     width: 12
+        #     height: 8
+        # - kind: GridLayoutItem
+        #   spec:
+        #     element: { kind: ElementReference, name: panel-13 }
+        #     x: 12
+        #     'y': 38
+        #     width: 12
+        #     height: 8
   links: []
   liveNow: true
   preload: true

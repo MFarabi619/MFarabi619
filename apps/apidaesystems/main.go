@@ -18,8 +18,9 @@ type serviceConfig struct {
 // apid binds to; Endpoint is what talosctl dials. They differ only when
 // the controlplane sits behind NAT/proxy.
 type talosConfig struct {
-	NodeIP   string `json:"nodeIP"`
-	Endpoint string `json:"endpoint"`
+	IsEnabled bool   `json:"enabled"`
+	NodeIP    string `json:"nodeIP"`
+	Endpoint  string `json:"endpoint"`
 }
 
 func main() {
@@ -35,6 +36,8 @@ func main() {
 		pulumiConfig.RequireObject("radicle", &radicleSettings)
 		var cgitSettings serviceConfig
 		pulumiConfig.RequireObject("cgit", &cgitSettings)
+		var emacsBrowseSettings serviceConfig
+		pulumiConfig.RequireObject("emacs-browse", &emacsBrowseSettings)
 		var glancesSettings serviceConfig
 		pulumiConfig.RequireObject("glances", &glancesSettings)
 		var grafanaSettings serviceConfig
@@ -45,6 +48,12 @@ func main() {
 		pulumiConfig.RequireObject("nui", &nuiSettings)
 		var homeAssistantSettings serviceConfig
 		pulumiConfig.RequireObject("home-assistant", &homeAssistantSettings)
+		var wyomingWhisperSettings serviceConfig
+		pulumiConfig.RequireObject("wyoming-whisper", &wyomingWhisperSettings)
+		var wyomingPiperSettings serviceConfig
+		pulumiConfig.RequireObject("wyoming-piper", &wyomingPiperSettings)
+		var voiceSettings voiceConfig
+		pulumiConfig.RequireObject("voice", &voiceSettings)
 		var postgresqlSettings serviceConfig
 		pulumiConfig.RequireObject("postgresql", &postgresqlSettings)
 		var authentikSettings serviceConfig
@@ -68,8 +77,10 @@ func main() {
 		// kubeconfig is returned for future use by a kubernetes.Provider
 		// (e.g. Helm releases, manifests). Discarded today; wire it in when
 		// adding cluster-managed resources.
-		if _, err := createTalos(ctx, talosSettings.NodeIP, talosSettings.Endpoint); err != nil {
-			return err
+		if talosSettings.IsEnabled {
+			if _, err := createTalos(ctx, talosSettings.NodeIP, talosSettings.Endpoint); err != nil {
+				return err
+			}
 		}
 
 		proxyNetwork, err := docker.NewNetwork(ctx, "proxy", &docker.NetworkArgs{
@@ -114,6 +125,9 @@ func main() {
 		if cgitSettings.IsEnabled {
 			applicationServices += cgitServiceYAML
 		}
+		if emacsBrowseSettings.IsEnabled {
+			applicationServices += emacsBrowseServiceYAML
+		}
 		if natsSettings.IsEnabled {
 			applicationServices += natsServiceYAML
 		}
@@ -148,6 +162,12 @@ func main() {
 			}
 		}
 
+		if emacsBrowseSettings.IsEnabled {
+			if err := createEmacsBrowse(ctx, proxyNetwork, domain, emacsBrowseSettings); err != nil {
+				return err
+			}
+		}
+
 		if grafanaSettings.IsEnabled {
 			if err := createGrafana(ctx, proxyNetwork, secrets, domain, grafanaSettings); err != nil {
 				return err
@@ -174,8 +194,24 @@ func main() {
 			}
 		}
 
+		var homeAssistantContainer *docker.Container
 		if homeAssistantSettings.IsEnabled {
-			if err := createHomeAssistant(ctx, proxyNetwork, domain, homeAssistantSettings); err != nil {
+			homeAssistantContainer, err = createHomeAssistant(ctx, proxyNetwork, secrets, domain, homeAssistantSettings, natsContainer)
+			if err != nil {
+				return err
+			}
+		}
+
+		if homeAssistantSettings.IsEnabled && voiceSettings.IsEnabled {
+			whisperContainer, err := createWyomingWhisper(ctx, proxyNetwork, wyomingWhisperSettings, voiceSettings.WhisperModel)
+			if err != nil {
+				return err
+			}
+			piperContainer, err := createWyomingPiper(ctx, proxyNetwork, wyomingPiperSettings, voiceSettings.PiperVoice)
+			if err != nil {
+				return err
+			}
+			if err := setupVoicePipeline(ctx, homeAssistantContainer, whisperContainer, piperContainer, secrets, voiceSettings); err != nil {
 				return err
 			}
 		}
@@ -186,11 +222,27 @@ func main() {
 			if err != nil {
 				return err
 			}
+			ceratinaSchemaSQL, err := resolveCeratinaSchemaSQL()
+			if err != nil {
+				return err
+			}
 
 			initScripts := docker.ContainerUploadArray{
 				&docker.ContainerUploadArgs{
+					File:    pulumi.String("/docker-entrypoint-initdb.d/00-apidae.sh"),
+					Content: pulumi.String(apidaeInitScript()),
+				},
+				&docker.ContainerUploadArgs{
+					File:    pulumi.String("/docker-entrypoint-initdb.d/00-ceratina.sh"),
+					Content: pulumi.String(ceratinaInitScript()),
+				},
+				&docker.ContainerUploadArgs{
 					File:    pulumi.String("/docker-entrypoint-initdb.d/01-schema.sql"),
 					Content: pulumi.String(schemaSQL),
+				},
+				&docker.ContainerUploadArgs{
+					File:    pulumi.String("/docker-entrypoint-initdb.d/02-ceratina-schema.sql"),
+					Content: pulumi.String(ceratinaSchemaSQL),
 				},
 			}
 			if authentikSettings.IsEnabled {
@@ -208,6 +260,10 @@ func main() {
 						Content: pulumi.String(grafanaInitScript()),
 					},
 				}, initScripts...)
+				initScripts = append(initScripts, &docker.ContainerUploadArgs{
+					File:    pulumi.String("/docker-entrypoint-initdb.d/03-grafana-grants.sh"),
+					Content: pulumi.String(grafanaGrantsScript()),
+				})
 			}
 
 			var postgresqlDependencies []pulumi.Resource

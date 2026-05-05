@@ -1,0 +1,222 @@
+title: Apidae
+views:
+  - title: ceratina-dcb4d90ecc08
+    path: dcb4d90ecc08
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        column_span: 4
+        cards:
+          - type: markdown
+            content: >
+              ## ceratina-dcb4d90ecc08
+
+              ESP32-S3 · Firmware
+              **{{ states('update.ceratina_dcb4d90ecc08_firmware') }}** ·
+              IP **{{ states('sensor.ceratina_dcb4d90ecc08_ip_address') }}** ·
+              Uptime **{{ states('sensor.ceratina_dcb4d90ecc08_uptime') }} s** ·
+              RSSI **{{ states('sensor.ceratina_dcb4d90ecc08_wifi_rssi') }} dBm**
+
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Soil
+            heading_style: title
+            icon: mdi:sprout
+          - type: gauge
+            entity: sensor.ceratina_dcb4d90ecc08_soil_moisture_2_in_1
+            name: Moisture (2-in-1)
+            min: 0
+            max: 100
+            unit: '%'
+            needle: true
+            severity:
+              red: 0
+              yellow: 20
+              green: 40
+          - type: gauge
+            entity: sensor.ceratina_dcb4d90ecc08_soil_moisture_3_in_1
+            name: Moisture (3-in-1)
+            min: 0
+            max: 100
+            unit: '%'
+            needle: true
+            severity:
+              red: 0
+              yellow: 20
+              green: 40
+          - type: gauge
+            entity: sensor.ceratina_dcb4d90ecc08_soil_temperature_2_in_1
+            name: Temperature (2-in-1)
+            min: -10
+            max: 50
+            unit: °C
+            needle: true
+            severity:
+              green: 5
+              yellow: 30
+              red: 35
+          - type: gauge
+            entity: sensor.ceratina_dcb4d90ecc08_soil_temperature_3_in_1
+            name: Temperature (3-in-1)
+            min: -10
+            max: 50
+            unit: °C
+            needle: true
+            severity:
+              green: 5
+              yellow: 30
+              red: 35
+          - type: tile
+            entity: sensor.ceratina_dcb4d90ecc08_soil_electrical_conductivity
+            name: EC
+          - type: tile
+            entity: sensor.ceratina_dcb4d90ecc08_soil_salinity
+            name: Salinity
+          - type: tile
+            entity: sensor.ceratina_dcb4d90ecc08_soil_tds
+            name: TDS
+
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Weather
+            heading_style: title
+            icon: mdi:weather-partly-cloudy
+          - type: tile
+            entity: sensor.ceratina_dcb4d90ecc08_wind_speed
+            name: Wind speed
+          - type: tile
+            entity: sensor.ceratina_dcb4d90ecc08_wind_direction
+            name: Wind direction
+          - type: tile
+            entity: sensor.ceratina_dcb4d90ecc08_rainfall
+            name: Rainfall
+
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: 24h trends
+            heading_style: title
+            icon: mdi:chart-line
+          - type: history-graph
+            title: Soil moisture
+            hours_to_show: 24
+            entities:
+              - entity: sensor.ceratina_dcb4d90ecc08_soil_moisture_2_in_1
+                name: 2-in-1
+              - entity: sensor.ceratina_dcb4d90ecc08_soil_moisture_3_in_1
+                name: 3-in-1
+          - type: history-graph
+            title: Soil temperature
+            hours_to_show: 24
+            entities:
+              - entity: sensor.ceratina_dcb4d90ecc08_soil_temperature_2_in_1
+                name: 2-in-1
+              - entity: sensor.ceratina_dcb4d90ecc08_soil_temperature_3_in_1
+                name: 3-in-1
+
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Controls
+            heading_style: title
+            icon: mdi:tune
+          - type: tile
+            entity: switch.ceratina_dcb4d90ecc08_status_led
+            name: Status LED
+          - type: tile
+            entity: switch.ceratina_dcb4d90ecc08_deep_sleep
+            name: Deep sleep
+          - type: entities
+            title: Intervals
+            entities:
+              - entity: number.ceratina_dcb4d90ecc08_publish_interval
+                name: Publish interval (s)
+              - entity: number.ceratina_dcb4d90ecc08_sleep_duration
+                name: Sleep duration (s)
+          - type: horizontal-stack
+            cards:
+              - show_name: true
+                show_icon: true
+                type: button
+                entity: button.ceratina_dcb4d90ecc08_force_publish
+                name: Force publish
+                icon: mdi:upload
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  target:
+                    entity_id: button.ceratina_dcb4d90ecc08_force_publish
+              - show_name: true
+                show_icon: true
+                type: button
+                entity: button.ceratina_dcb4d90ecc08_reboot
+                name: Reboot
+                icon: mdi:restart
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  target:
+                    entity_id: button.ceratina_dcb4d90ecc08_reboot
+              - show_name: true
+                show_icon: true
+                type: button
+                entity: button.ceratina_dcb4d90ecc08_clear_rainfall
+                name: Clear rainfall
+                icon: mdi:weather-pouring
+                tap_action:
+                  action: call-service
+                  service: button.press
+                  target:
+                    entity_id: button.ceratina_dcb4d90ecc08_clear_rainfall
+
+      - type: grid
+        column_span: 4
+        cards:
+          - type: heading
+            heading: Health
+            heading_style: title
+            icon: mdi:heart-pulse
+          - type: glance
+            columns: 4
+            entities:
+              - entity: sensor.ceratina_dcb4d90ecc08_uptime
+                name: Uptime
+              - entity: sensor.ceratina_dcb4d90ecc08_wifi_rssi
+                name: RSSI
+              - entity: sensor.ceratina_dcb4d90ecc08_ip_address
+                name: IP
+              - entity: sensor.ceratina_dcb4d90ecc08_heap_free_percent
+                name: Heap free
+              - entity: sensor.ceratina_dcb4d90ecc08_boot_count
+                name: Boots
+              - entity: sensor.ceratina_dcb4d90ecc08_publish_successes
+                name: Publishes
+              - entity: sensor.ceratina_dcb4d90ecc08_mqtt_reconnects
+                name: MQTT reconnects
+              - entity: sensor.ceratina_dcb4d90ecc08_cpu_temperature
+                name: CPU temp
+
+      - type: grid
+        column_span: 4
+        cards:
+          - type: heading
+            heading: Activity
+            heading_style: title
+            icon: mdi:history
+          - type: logbook
+            hours_to_show: 24
+            entities:
+              - sensor.ceratina_dcb4d90ecc08_soil_moisture_3_in_1
+              - sensor.ceratina_dcb4d90ecc08_soil_temperature_3_in_1
+              - switch.ceratina_dcb4d90ecc08_status_led
+              - switch.ceratina_dcb4d90ecc08_deep_sleep
+              - button.ceratina_dcb4d90ecc08_force_publish
+              - button.ceratina_dcb4d90ecc08_reboot
+              - button.ceratina_dcb4d90ecc08_clear_rainfall

@@ -71,6 +71,9 @@ COPY --from=extensions-builder /usr/share/postgresql/17/extension/system_stats* 
 COPY --from=extensions-builder /usr/lib/postgresql/17/lib/plpgsql_check.so /usr/lib/postgresql/17/lib/
 COPY --from=extensions-builder /usr/share/postgresql/17/extension/plpgsql_check* /usr/share/postgresql/17/extension/
 
-RUN apt-get update && apt-get install -y libmagic1 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+        libmagic1 \
+        postgresql-17-http \
+    && rm -rf /var/lib/apt/lists/*
 
 USER postgres

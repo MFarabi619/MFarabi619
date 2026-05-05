@@ -9,8 +9,21 @@ import (
 )
 
 func resolveSchemaSQL() (string, error) {
-	schemaPath := filepath.Join("..", "..", "learning", "sql", "src", "schema.sql")
-	return resolveFile(schemaPath, make(map[string]string))
+	schemaPath := filepath.Join(monorepoRoot(), "apps", "apidaesystems", "sql", "schema.sql")
+	body, err := resolveFile(schemaPath, make(map[string]string))
+	if err != nil {
+		return "", err
+	}
+	return "\\c apidae\n" + body, nil
+}
+
+func resolveCeratinaSchemaSQL() (string, error) {
+	schemaPath := filepath.Join(monorepoRoot(), "apps", "apidaesystems", "sql-ceratina", "schema.sql")
+	body, err := resolveFile(schemaPath, make(map[string]string))
+	if err != nil {
+		return "", err
+	}
+	return "\\c ceratina\n" + body, nil
 }
 
 func resolveFile(filePath string, variables map[string]string) (string, error) {

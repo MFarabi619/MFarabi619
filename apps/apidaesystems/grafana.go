@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	grafana "github.com/pulumiverse/pulumi-grafana/sdk/v2/go/grafana"
@@ -77,7 +79,7 @@ func createGrafana(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets ma
 			pulumi.String("GF_SECURITY_COOKIE_SAMESITE=none"),
 
 			pulumi.String("GF_AUTH_DISABLE_LOGIN_FORM=false"),
-			pulumi.String("GF_AUTH_AUTO_ASSIGN_ORG_NAME=Apidae Systems"),
+			pulumi.String("GF_AUTH_AUTO_ASSIGN_ORG_NAME=Demo"),
 			pulumi.String("GF_USERS_ALLOW_SIGN_UP=false"),
 
 			pulumi.String("GF_AUTH_GOOGLE_ENABLED=true"),
@@ -166,13 +168,22 @@ func createGrafana(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets ma
 		return err
 	}
 
+	_, err = oss.NewOrganization(ctx, "grafana-apidae-org", &oss.OrganizationArgs{
+		Name:        pulumi.String("Apidae Systems"),
+		AdminUser:   pulumi.String("admin"),
+		CreateUsers: pulumi.Bool(false),
+	}, pulumi.Provider(grafanaProvider), pulumi.Import(pulumi.ID("1")))
+	if err != nil {
+		return err
+	}
+
 	_, err = oss.NewDataSource(ctx, "grafana-postgresql", &oss.DataSourceArgs{
 		Type:            pulumi.String("postgres"),
-		Name:            pulumi.String("PostgreSQL"),
+		Name:            pulumi.String("Apidae"),
 		Url:             pulumi.String("postgresql:5432"),
 		Username:        pulumi.String("grafana"),
-		DatabaseName:    pulumi.String("grafana"),
-		JsonDataEncoded: pulumi.String(`{"sslmode":"disable","postgresVersion":1500,"timescaledb":true}`),
+		DatabaseName:    pulumi.String("apidae"),
+		JsonDataEncoded: pulumi.String(`{"database":"apidae","sslmode":"disable","postgresVersion":1500,"timescaledb":true}`),
 		IsDefault:       pulumi.Bool(true),
 	}, pulumi.Provider(grafanaProvider))
 	if err != nil {
@@ -233,6 +244,87 @@ func createGrafana(ctx *pulumi.Context, proxyNetwork *docker.Network, secrets ma
 		WeekStart:        pulumi.String("monday"),
 		HomeDashboardUid: pulumi.String("apidae-home"),
 	}, pulumi.Provider(grafanaProvider), pulumi.DependsOn([]pulumi.Resource{dashboard}))
+	if err != nil {
+		return err
+	}
+
+	demoOrg, err := oss.NewOrganization(ctx, "grafana-demo-org", &oss.OrganizationArgs{
+		Name:        pulumi.String("Demo"),
+		AdminUser:   pulumi.String("admin"),
+		CreateUsers: pulumi.Bool(false),
+	}, pulumi.Provider(grafanaProvider))
+	if err != nil {
+		return err
+	}
+
+	demoOrgIdString := demoOrg.OrgId.ApplyT(func(id int) string {
+		return strconv.Itoa(id)
+	}).(pulumi.StringOutput)
+
+	demoProvider, err := grafana.NewProvider(ctx, "grafana-demo", &grafana.ProviderArgs{
+		Url:   pulumi.String("http://localhost:3000"),
+		Auth:  pulumi.Sprintf("admin:%s", secrets["GRAFANA_ADMIN_PASSWORD"]),
+		OrgId: demoOrg.OrgId,
+	}, pulumi.DependsOn([]pulumi.Resource{demoOrg}))
+	if err != nil {
+		return err
+	}
+
+	_, err = oss.NewDataSource(ctx, "grafana-demo-postgresql", &oss.DataSourceArgs{
+		OrgId:           demoOrgIdString,
+		Type:            pulumi.String("postgres"),
+		Name:            pulumi.String("Apidae"),
+		Url:             pulumi.String("postgresql:5432"),
+		Username:        pulumi.String("grafana"),
+		DatabaseName:    pulumi.String("apidae"),
+		JsonDataEncoded: pulumi.String(`{"database":"apidae","sslmode":"disable","postgresVersion":1500,"timescaledb":true}`),
+		IsDefault:       pulumi.Bool(true),
+	}, pulumi.Provider(demoProvider))
+	if err != nil {
+		return err
+	}
+
+	_, err = oss.NewDataSource(ctx, "grafana-demo-infinity", &oss.DataSourceArgs{
+		OrgId: demoOrgIdString,
+		Type:  pulumi.String("yesoreyeram-infinity-datasource"),
+		Name:  pulumi.String("Infinity"),
+	}, pulumi.Provider(demoProvider))
+	if err != nil {
+		return err
+	}
+
+	demoFolder, err := oss.NewFolder(ctx, "grafana-demo-folder", &oss.FolderArgs{
+		OrgId:                    demoOrgIdString,
+		Title:                    pulumi.String("Demo"),
+		PreventDestroyIfNotEmpty: pulumi.Bool(true),
+	}, pulumi.Provider(demoProvider))
+	if err != nil {
+		return err
+	}
+
+	demoDashboard, err := appsv2.NewDashboard(ctx, "grafana-demo-dashboard", &appsv2.DashboardArgs{
+		Metadata: &appsv2.DashboardMetadataArgs{
+			Uid:       pulumi.String("demo-home"),
+			FolderUid: demoFolder.Uid,
+		},
+		Spec: &appsv2.DashboardSpecArgs{
+			Json: pulumi.String(dashboardSpecJSON),
+		},
+		Options: &appsv2.DashboardOptionsArgs{
+			Overwrite: pulumi.Bool(true),
+		},
+	}, pulumi.Provider(demoProvider))
+	if err != nil {
+		return err
+	}
+
+	_, err = oss.NewOrganizationPreferences(ctx, "grafana-demo-preferences", &oss.OrganizationPreferencesArgs{
+		OrgId:            demoOrgIdString,
+		Theme:            pulumi.String("gildedgrove"),
+		Timezone:         pulumi.String("America/Toronto"),
+		WeekStart:        pulumi.String("monday"),
+		HomeDashboardUid: pulumi.String("demo-home"),
+	}, pulumi.Provider(demoProvider), pulumi.DependsOn([]pulumi.Resource{demoDashboard}))
 	if err != nil {
 		return err
 	}
