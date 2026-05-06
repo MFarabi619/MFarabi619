@@ -22,7 +22,6 @@
   imports = map (path: ./config + path) [
     "/services"
     "/languages"
-    "/tasks.nix"
     "/microvisor"
     "/scripts.nix"
     "/packages.nix"
