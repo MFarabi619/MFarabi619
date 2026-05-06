@@ -127,14 +127,14 @@ bool networking::wifi::connect(WifiConnectCommand *command) {
         WiFi.begin(saved_config.ssid, saved_config.password);
       }
     } else
-#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
-    if (strlen(CONFIG_WIFI_SSID) > 0) {
-      Serial.printf("[wifi] credentials from build flags: %s\n", CONFIG_WIFI_SSID);
+#if defined(CONFIG_WIFI_CREDENTIALS_STATIC_SSID) && defined(CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD)
+    if (strlen(CONFIG_WIFI_CREDENTIALS_STATIC_SSID) > 0) {
+      Serial.printf("[wifi] credentials from build flags: %s\n", CONFIG_WIFI_CREDENTIALS_STATIC_SSID);
 #if CONFIG_WIFI_ENTERPRISE
-      WiFi.begin(CONFIG_WIFI_SSID, WPA2_AUTH_PEAP,
-                 CONFIG_WIFI_IDENTITY, CONFIG_WIFI_USERNAME, CONFIG_WIFI_PASS);
+      WiFi.begin(CONFIG_WIFI_CREDENTIALS_STATIC_SSID, WPA2_AUTH_PEAP,
+                 CONFIG_WIFI_IDENTITY, CONFIG_WIFI_USERNAME, CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD);
 #else
-      WiFi.begin(CONFIG_WIFI_SSID, CONFIG_WIFI_PASS);
+      WiFi.begin(CONFIG_WIFI_CREDENTIALS_STATIC_SSID, CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD);
 #endif
     } else
 #endif
@@ -276,8 +276,8 @@ static void test_wifi_connect_fails_without_ssid(void) {
   WiFi.eraseAP();
   delay(100);
 
-#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
-  if (strlen(CONFIG_WIFI_SSID) > 0) {
+#if defined(CONFIG_WIFI_CREDENTIALS_STATIC_SSID) && defined(CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD)
+  if (strlen(CONFIG_WIFI_CREDENTIALS_STATIC_SSID) > 0) {
     restore_nvs();
     TEST_IGNORE_MESSAGE("build-flag WiFi credentials configured — skipping no-SSID failure assertion");
   }

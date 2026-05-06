@@ -33,8 +33,8 @@ bool boot::provisioning::isProvisioned(void) {
       conf.sta.ssid[0] != '\0')
     return true;
 
-#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
-  if (strlen(CONFIG_WIFI_SSID) > 0)
+#if defined(CONFIG_WIFI_CREDENTIALS_STATIC_SSID) && defined(CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD)
+  if (strlen(CONFIG_WIFI_CREDENTIALS_STATIC_SSID) > 0)
     return true;
 #endif
 
@@ -279,8 +279,8 @@ static void test_provisioning_detects_credentials(void) {
   GIVEN("build flags with WiFi credentials");
   THEN("provisioning state is detected");
 
-#if defined(CONFIG_WIFI_SSID) && defined(CONFIG_WIFI_PASS)
-  if (strlen(CONFIG_WIFI_SSID) > 0) {
+#if defined(CONFIG_WIFI_CREDENTIALS_STATIC_SSID) && defined(CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD)
+  if (strlen(CONFIG_WIFI_CREDENTIALS_STATIC_SSID) > 0) {
     TEST_ASSERT_TRUE_MESSAGE(
         boot::provisioning::isProvisioned(),
         "device: should be provisioned when build flags have SSID");

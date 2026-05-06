@@ -5,12 +5,12 @@
 //  Build flags from platformio.ini (preprocessor injection defaults)
 // ─────────────────────────────────────────────────────────────────────────────
 
-#ifndef CONFIG_WIFI_SSID
-#define CONFIG_WIFI_SSID ""
+#ifndef CONFIG_WIFI_CREDENTIALS_STATIC_SSID
+#define CONFIG_WIFI_CREDENTIALS_STATIC_SSID ""
 #endif
 
-#ifndef CONFIG_WIFI_PASS
-#define CONFIG_WIFI_PASS ""
+#ifndef CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD
+#define CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD ""
 #endif
 
 #ifndef CONFIG_WIFI_IDENTITY
@@ -42,7 +42,7 @@
 #endif
 
 #ifndef CONFIG_TUNNEL_REMOTE_PORT
-#define CONFIG_TUNNEL_REMOTE_PORT 2098
+#define CONFIG_TUNNEL_REMOTE_PORT 30098
 #endif
 
 // ─────────────────────────────────────────────────────────────────────────────
