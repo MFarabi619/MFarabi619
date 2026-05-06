@@ -160,7 +160,7 @@ in
       # "vivaldi"
       "vscode.nix"
       "yazi.nix"
-      "zed.nix"
+      "zed-editor.nix"
       "zellij.nix"
       "zoxide.nix"
     ];

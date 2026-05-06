@@ -1,23 +1,23 @@
 {
   programs.zed-editor = {
     enable = false;
-    themes = {};
-    userKeymaps = [];
-    userTasks = [];
+    themes = { };
+    userTasks = [ ];
+    userKeymaps = [ ];
     installRemoteServer = true;
 
     userSettings = {
       vim_mode = true;
       "base_keymap" = "VSCode";
+      features.copilot = false;
 
-      features = {
-        copilot = false;
-      };
+      telemetry.metrics = false;
+      telemetry.diagnostics = false;
 
-      telemetry = {
-        metrics = false;
-        diagnostics = false;
-      };
+      "git_panel".dock = "right";
+      "project_panel".dock = "right";
+      "outline_panel".dock = "right";
+      "pane_split_direction_vertical" = "left";
 
       # "ui_font_size" = 16;
       # "buffer_font_size" = 16;
@@ -26,20 +26,6 @@
       #   light = "One Light";
       #   dark = "Gruvbox Dark Hard";
       # };
-
-      "pane_split_direction_vertical" = "left";
-
-      "project_panel" = {
-        dock = "right";
-      };
-
-      "outline_panel" = {
-        dock = "right";
-      };
-
-      "git_panel" = {
-        dock = "right";
-      };
     };
 
     extensions = [
