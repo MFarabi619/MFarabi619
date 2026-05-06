@@ -10,6 +10,9 @@
       [ talosctl ]
       ++ [
         esptool
+        bore-cli
+        mcumgr-client
+        renode-dts2repl
         (python314.withPackages (
           ps: with ps; [
             west
@@ -20,6 +23,10 @@
             click
             semver
             patool
+            jinja2
+            anytree
+            tkinter
+            pygments
             pyserial
             intelhex
             requests
@@ -28,9 +35,6 @@
             cryptography
           ]
         ))
-        bore-cli
-        mcumgr-client
-        renode-dts2repl
       ]
       ++ [
         lighttpd
