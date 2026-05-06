@@ -1,3 +1,0 @@
-{
-  languages.cplusplus.enable = true;
-}

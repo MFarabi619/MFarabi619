@@ -7,12 +7,46 @@
   home = {
     packages =
       with pkgs;
-      [ talosctl ]
+      [
+        trunk # rust web app server
+        rustywind
+      ]
       ++ [
-        esptool
+        sqlite # :tools lookup & :lang org +roam
+        talosctl
+        grafana
         bore-cli
+        grafanactl
+        supabase-cli
+        mcp-grafana # https://github.com/grafana/mcp-grafana
+      ]
+      ++ [
+        llvm
+        lldb
+        SDL2 # for embedded TUI simulator
+        espup
+        ninja
+        ccache
+        # avrdude
+        dfu-util
+        esptool
+        openocd
+        ldproxy
+        esptool
+        espflash
+        esp-generate
+        dfu-programmer
+        kconfig-frontends
+        python314Packages.kconfiglib
+        cargo-embassy
+        cargo-generate
         mcumgr-client
         renode-dts2repl
+
+        (probe-rs-tools.overrideAttrs (old: {
+          cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
+        }))
+
         (python314.withPackages (
           ps: with ps; [
             west
@@ -81,7 +115,6 @@
         ffmpegthumbnailer
 
         # =============
-        sqlite # :tools lookup & :lang org +roam
         gnuplot
         shellcheck # shell script formatting
         octaveFull # gnu octave
@@ -191,15 +224,10 @@
       ]
       ++ lib.optionals stdenv.isDarwin [
         utm # virtual machines on macos
-        llvm
-        lldb
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
-        ccache
-        avrdude
-        dfu-util
         minikube
         jsonschema
-        dfu-programmer
+        binsider
         vscode-extensions.llvm-vs-code-extensions.lldb-dap
       ];
 

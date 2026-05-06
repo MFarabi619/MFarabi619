@@ -28,15 +28,15 @@
         # "pipe-operator" # if using lix
       ];
 
-      trusted-users = [
-      ]
-      ++ lib.optionals pkgs.stdenv.isLinux [
-        "root"
-      ]
-      ++ lib.optionals pkgs.stdenv.isDarwin [
-        "@admin"
-      ]
-      ++ config.myusers;
+      trusted-users =
+        [ ]
+        ++ lib.optionals pkgs.stdenv.isLinux [
+          "root"
+        ]
+        ++ lib.optionals pkgs.stdenv.isDarwin [
+          "@admin"
+        ]
+        ++ config.myusers;
 
       substituters = [
         "https://cache.nixos.org"

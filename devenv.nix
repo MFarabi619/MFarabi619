@@ -5,14 +5,11 @@
   inputs,
   ...
 }:
-# let
-#   api = config.languages.rust.import ./. { };
-# in
+let
+  # api = config.languages.rust.import ./. { };
+  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+in
 {
-  # packages = [
-  #   api
-  # ];
-
   name = "microvisor";
 
   infoSections = {
@@ -21,13 +18,87 @@
 
   imports = map (path: ./config + path) [
     "/services"
-    "/languages"
     "/microvisor"
-    "/scripts.nix"
-    "/packages.nix"
-    "/processes.nix"
   ];
 
+  env.PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_22}/bin/node";
+
+  packages =
+    with pkgs-unstable;
+    [
+      rustup
+    ]
+    ++ lib.optionals config.languages.ruby.enable [
+      libyaml # rails new --help
+      rubyPackages_3_4.rails # rails new store -Gc tailwind --skip-ci
+    ]
+    ++ lib.optionals stdenv.isDarwin [ ]
+    ++ lib.optionals stdenv.isLinux [ ];
+
+  scripts = {
+    up.exec = ''devenv up "$@"'';
+    clean.exec = "git clean -fdX";
+    run.exec = ''devenv tasks run "$@" -m before'';
+    docs.exec = "bunx likec4 start ${config.git.root}/docs";
+  };
+
+  processes = {
+    # "cargo:loco:watch" = {
+    #   exec = "cargo loco watch";
+    #   ports.http.allocate = config.languages.rust.loco.config.development.server.port;
+    #   process-compose = {
+    #     is_tty = true;
+    #     namespace = "🧩 API";
+    #   };
+    # };
+  }
+  //
+    builtins.mapAttrs
+      (_: cfg: {
+        process-compose = {
+          is_tty = true;
+          namespace = "🎡 SERVICES";
+        };
+      })
+      {
+        sqld.enable = false;
+        caddy.enable = true;
+        mailpit.enable = true;
+        prometheus.enable = false;
+        "tailscale-funnel".enable = false;
+      }
+  // lib.optionalAttrs (!config.devenv.isTesting) {
+    console = {
+      exec = ''
+        ttyd --writable --browser --url-arg --once devenv up
+      '';
+      process-compose = {
+        disabled = true;
+        namespace = "🧮 VIEWS";
+        description = "🕹 Attach the Microvisor Kernel to the Browser";
+      };
+    };
+  };
+
+  # process = {
+  #   manager.args = {
+  #     "config" = "${config.git.root}/config/process-compose/settings.yaml";
+  #     "shortcuts" = "${config.git.root}/config/process-compose/shortcuts.yaml";
+  #   };
+
+  #   managers.process-compose.settings = {
+  #     is_strict = true;
+  #     #   availability = {
+  #     #   max_restarts = 5;
+  #     #   backoff_seconds = 2;
+  #     #   restart = "on_failure";
+  #     # };
+  #   };
+  # };
+
+  enterTest = ''
+    echo "Running tests"
+  '';
   enterShell = ''
     echo "👋🧩"
 
@@ -55,24 +126,8 @@
       user."mfarabi".module.env = {
         BASE_URL = "mfarabi.sh";
         EXERCISM_API_URL = "https://api.exercism.org/v1";
-        # PGUSER = "mfarabi";
-        # PGDATABASE = "postgres";
-        # PGPORT = config.services.postgres.port;
-        # PGHOST = config.services.postgres.listen_addresses;
       };
-      # }
-      # // lib.optionalAttrs config.microvisor.embassy.enable {
-      #   ci.module.microvisor.embassy."probe-rs".server.address = "0.0.0.0";
-      #   hostname.rpi5-16.extends = [ "ci" ];
-      #   hostname.framework-desktop.extends = [ "ci" ];
     };
-
-  env = {
-    ZELLIJ_AUTO_EXIT = "true";
-    ZELLIJ_AUTO_ATTACH = "true";
-    # PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
-    # PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_22}/bin/node";
-  };
 
   cachix = {
     enable = true;
@@ -83,22 +138,64 @@
       "devenv"
       "nixpkgs"
       "mfarabi"
-      "emacs-ci"
-      "nix-darwin"
       "nix-community"
       "pre-commit-hooks"
     ];
   };
 
-  # nix profile install github:fuellabs/fuel.nix#fuel
-  # cachix use fuellabs
-  # fuel-labs:
-  #   url: github:fuellabs/fuel.nix
-  #   or
-  #   url: github:fuellabs/fuel.nix#fuel-nightly
-  # nix profile list
+  languages = rec {
+    nix.enable = true;
+    shell.enable = true;
+    cplusplus.enable = true;
 
-  enterTest = ''
-    echo "Running tests"
-  '';
+    c = {
+      enable = true;
+      debugger = pkgs.gdb;
+    };
+
+    rust = {
+      enable = true;
+      channel = "stable";
+      # lld.enable = true;  # FIXME: breaks dioxus
+      # mold.enable = true; # FIXME: breaks loco
+
+      components = [
+        "rustc"
+        "cargo"
+        "clippy"
+        "rustfmt"
+        "rust-std"
+        "rust-src"
+        "rust-analyzer"
+      ];
+
+      loco.enable = true;
+      dioxus = {
+        enable = true;
+        desktop.linux.enable = false;
+        mobile.android.enable = false;
+      };
+    };
+
+    python = {
+      enable = false;
+      uv.enable = true;
+    };
+
+    typescript.enable = javascript.enable;
+
+    javascript = {
+      enable = true;
+      bun.enable = true;
+      package = pkgs.nodejs_24;
+      # FIXME: find out why this crashes for intel macbooks
+      # pnpm.enable = !(pkgs.stdenv.isDarwin && pkgs.stdenv.isx86_64);
+    };
+
+    ruby = {
+      enable = true;
+      bundler.enable = true;
+      documentation.enable = true;
+    };
+  };
 }
