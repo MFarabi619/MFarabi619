@@ -6,291 +6,127 @@
     # extraOptionOverrides = {};
 
     matchBlocks = {
-      rt-be88u-7a50 = {
-        user = "admin";
-        host = "rt-be88u-7a50";
-        addKeysToAgent = "yes";
-        hostname = "rt-be88u-7a50.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      halowlink1-3c5b = {
-        user = "root";
-        host = "halowlink1-3c5b";
-        addKeysToAgent = "yes";
-        hostname = "10.0.0.134";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      halowlink2-75cf = {
-        user = "root";
-        host = "halowlink1-75cf";
-        addKeysToAgent = "yes";
-        hostname = "halowlink2-75cf.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      halowlink2-6c7f = {
-        user = "root";
-        host = "halowlink1-6c7f";
-        addKeysToAgent = "yes";
-        hostname = "halowlink2-6c7f.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      rutx11 = {
-        user = "root";
-        host = "RUTX11";
-        addKeysToAgent = "yes";
-        hostname = "rutx11.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      rut241 = {
-        user = "root";
-        host = "RUT241";
-        addKeysToAgent = "yes";
-        hostname = "10.0.0.4";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      hp-elitebook-820-g2 = {
-        user = "mfarabi";
-        host = "hp-elitebook-820-g2";
-        addKeysToAgent = "yes";
-        hostname = "hp-elitebook-820-g2.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      macbook-5-5 = {
-        host = "guix";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "macbook-5-5.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      macbook-11-4 = {
-        user = "mfarabi";
-        host = "macbook-11-4";
-        addKeysToAgent = "yes";
-        hostname = "macbook-11-4.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      macos = {
-        host = "macos";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "macos.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      msi-gs65 = {
-        user = "mfarabi";
-        host = "msi-gs65";
-        addKeysToAgent = "yes";
-        hostname = "msi-gs65.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      msi-gs76 = {
-        host = "msi-gs76";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "msi-gs76.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      framework-16 = {
-        user = "mfarabi";
-        host = "framework-16";
-        addKeysToAgent = "yes";
-        hostname = "framework-16.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      framework-desktop = {
-        user = "mfarabi";
-        host = "framework-desktop";
-        addKeysToAgent = "yes";
-        hostname = "framework-desktop.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      nixos-wsl = {
-        user = "mfarabi";
-        host = "nixos-wsl";
-        addKeysToAgent = "yes";
-        hostname = "nixos-wsl.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      nixos-utm = {
-        user = "mfarabi";
-        host = "nixos-utm";
-        addKeysToAgent = "yes";
-        hostname = "nixos-utm.comet-locrian.ts.net";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      surface-pro-7 = {
-        user = "mfarabi";
-        host = "surface-pro-7";
-        addKeysToAgent = "yes";
-        hostname = "surface-pro-7.taila4d019.ts.net";
-        setEnv.TERM = "xterm-kitty";
-      };
-
-      rpi4 = {
-        host = "rpi4";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "rpi4.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      rpi5-ubuntu = {
-        host = "rpi5-ubuntu";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "rpi5-ubuntu.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      rpi5-4 = {
-        host = "rpi5-4";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "rpi5-4.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      rpi5-16 = {
-        host = "rpi5-16";
-        user = "mfarabi";
+      "*" = {
         checkHostIP = true;
         addKeysToAgent = "yes";
-        hostname = "rpi5-16.taila4d019.ts.net";
+        controlMaster = "auto";
+        controlPersist = "10m";
+        controlPath = "~/.ssh/cm-%C";
         setEnv.TERM = "xterm-256color";
-      };
 
-      rpi5-8 = {
-        host = "rpi5-8";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "rpi5-8.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
+        extraOptions = {
+          CanonicalizeHostname = "yes";
+          CanonicalDomains = "taila4d019.ts.net";
+          ExitOnForwardFailure = "yes";
+        };
       };
-
-      rpi02w = {
-        host = "rpi02w";
+    }
+    // {
+      "rpi02w rpi02w-* rutx11 halowlink2-* halowlink1-3c5b rut241" = {
         user = "root";
-        addKeysToAgent = "yes";
-        hostname = "rpi02w.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
       };
 
-      rpi02w-art = {
-        host = "rpi02w-art";
-        user = "root";
-        addKeysToAgent = "yes";
-        hostname = "rpi02w-art.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
+      "rt-be88u-7a50" = {
+        user = "admin";
       };
 
-      rpi02w-ttc-swy = {
-        host = "rpi02w-ttc-swy";
-        user = "root";
-        addKeysToAgent = "yes";
-        hostname = "rpi02w-ttc-swy.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      ubuntu = {
-        host = "ubuntu";
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        hostname = "ubuntu.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
-      };
-
-      ubuntu-s-1vcpu-1gb-50gb-mon1-01 = {
+      "ubuntu-s-1vcpu-1gb-50gb-mon1-01" = {
         user = "ubuntu";
-        addKeysToAgent = "yes";
-        host = "ubuntu-s-1vcpu-1gb-50gb-mon1-01";
-        hostname = "ubuntu-s-1vcpu-1gb-50gb-mon1-01.taila4d019.ts.net";
-        setEnv.TERM = "xterm-256color";
       };
 
-      ubuntu-s-1vcpu-512mb-10gb-tor1-01 = {
-        user = "mfarabi";
-        addKeysToAgent = "yes";
-        host = "ubuntu-s-1vcpu-512mb-10gb-tor1-01.taila4d019.ts.net";
+      "framework-* rpi* ubuntu msi-* macbook-* macos nixos-wsl surface-pro-7 hp-elitebook-820-g2 guix nixos-utm ubuntu-s-1vcpu-512mb-10gb-tor1-01" =
+        {
+          user = "mfarabi";
+        };
+    }
+    // {
+      "framework-desktop macbook-11-4 macos msi-gs76 nixos-wsl surface-pro-7 hp-elitebook-820-g2 nixos-utm" =
+        {
+          setEnv.TERM = "xterm-kitty";
+        };
+    }
+    // {
+      "guix" = {
+        hostname = "macbook-5-5";
+      };
+
+      "nixos-utm" = {
+        hostname = "nixos-utm.comet-locrian.ts.net";
+      };
+
+      "halowlink1-3c5b" = {
+        hostname = "10.0.0.134";
+      };
+
+      "rut241" = {
+        hostname = "10.0.0.4";
+      };
+
+      "ubuntu-s-1vcpu-512mb-10gb-tor1-01" = {
         hostname = "ubuntu-s-1vcpu-512mb-10gb-tor1-01";
-        setEnv.TERM = "xterm-256color";
-
-        # addressFamily = null; # "any" | "inet" | "inet6"
-        # certificateFile = [ ./.file ];
-
-        # compression = false;
-        # controlmaster = null; # "yes" | "no" | "ask" | "auto" | "autoask"
-        # controlPath = null; # path to control socket used for connection sharing
-        # controlPersist = "10am"; # whether control socket should remain open in background
-
-        # identityFile = [];
-        # identityAgent = [];
-        # identitiesOnly = false;
-
-        # hashKnownHosts = null;
-        # userKnownHostsFile = "~/.ssh/known_hosts";
-
-        # serverAliveInterval = 5;
-        # serverAliveCountMax = 5;
-
-        # proxyJump = "";
-        # proxyCommand = "";
-
-        #  match = ''
-        #  host  canonical
-        #  host  exec "ping -c1 -q 192.168.17.1"
-        # '';
-
-        # dynamicForwards  = [
-        #   {
-        #     "name" = {
-        #       address = "localhost";
-        #       port = 8080;
-        #     };
-        #   }
-        # ];
-
-        # remoteForwards = [
-        #   {
-        #     bind = {
-        #       address = "10.0.0.13";
-        #       port = 8080;
-        #     };
-        #     host = {
-        #       address = "10.0.0.13";
-        #       port = 80;
-        #     };
-        #   }
-        # ];
-
-        # localForwards = [
-        #   {
-        #     bind = {
-        #       address = "10.0.0.13";
-        #       port = "8080";
-        #     };
-        #     host = {
-        #       address = "10.0.0.13";
-        #       port = "80";
-        #     };
-        #   }
-        # ];
       };
+    }
+    // {
+      # addressFamily = null; # "any" | "inet" | "inet6"
+      # certificateFile = [ ./.file ];
+
+      # compression = false;
+      # controlmaster = null; # "yes" | "no" | "ask" | "auto" | "autoask"
+      # controlPath = null; # path to control socket used for connection sharing
+      # controlPersist = "10am"; # whether control socket should remain open in background
+
+      # identityFile = [];
+      # identityAgent = [];
+      # identitiesOnly = false;
+
+      # hashKnownHosts = null;
+      # userKnownHostsFile = "~/.ssh/known_hosts";
+
+      # serverAliveInterval = 5;
+      # serverAliveCountMax = 5;
+
+      # proxyJump = "";
+      # proxyCommand = "";
+
+      # match = ''
+      #   host canonical
+      #   host exec "ping -c1 -q 192.168.17.1"
+      # '';
+
+      # dynamicForwards = [
+      #   {
+      #     "name" = {
+      #       address = "localhost";
+      #       port = 8080;
+      #     };
+      #   }
+      # ];
+
+      # remoteForwards = [
+      #   {
+      #     bind = {
+      #       address = "10.0.0.13";
+      #       port = 8080;
+      #     };
+      #     host = {
+      #       address = "10.0.0.13";
+      #       port = 80;
+      #     };
+      #   }
+      # ];
+
+      # localForwards = [
+      #   {
+      #     bind = {
+      #       address = "10.0.0.13";
+      #       port = "8080";
+      #     };
+      #     host = {
+      #       address = "10.0.0.13";
+      #       port = "80";
+      #     };
+      #   }
+      # ];
     };
   };
 }
