@@ -8,6 +8,7 @@
 (set-default-coding-systems 'utf-8)
 (set-frame-parameter nil 'undecorated t)
 (add-to-list 'default-frame-alist '(undecorated . t))
+(add-to-list 'auto-mode-alist '("\\.overlay\\'" . devicetree-ts-mode))
 
 (setopt doom-theme 'doom-gruvbox
         ;; doom-theme 'catppuccin
