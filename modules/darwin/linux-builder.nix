@@ -15,6 +15,8 @@
     config = {
       imports = [
         ../nixos/time.nix
+        ../nixos/i18n.nix
+        ../nixos/nixpkgs.nix
       ];
 
       nix.settings.experimental-features = [
