@@ -60,14 +60,15 @@
           };
         };
 
-        apidaesystems = {
+        apidaesystems = rec {
           gpg = personal.gpg;
           flavor = personal.flavor;
           folders = personal.folders;
           realName = config.me.fullname;
 
           address = "farabi@apidaesystems.ca";
-          userName = "farabi@apidaesystems.ca";
+          userName = address;
+
           passwordCommand = "${pkgs.pass}/bin/pass Email/apidaesystems";
 
           mu.enable = true;
