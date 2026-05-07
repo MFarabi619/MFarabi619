@@ -291,6 +291,13 @@ in
           {
             "GNU/Linux" = [
               {
+                "🏗️ Zephyr RTOS" = {
+                  href = "https://www.zephyrproject.org";
+                  # siteMonitor = "https://zephyr.openws.org";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/zephyr.png";
+                };
+              }
+              {
                 "🏗️ GNU GUIX" = {
                   href = "https://guix.openws.org";
                   # siteMonitor = "https://guix.openws.org";
