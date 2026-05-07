@@ -6,20 +6,27 @@
     ./zsh
 
     ./anki.nix
+    ./aria2.nix
+    ./aria2p.nix
     ./atuin.nix
     ./aichat.nix
+
     ./bash.nix
     ./bat.nix
     ./btop.nix
     ./bun.nix
+
     ./cargo.nix
     ./chromium.nix
     ./clock-rs.nix
     ./command-not-found.nix
+
     ./direnv.nix
     ./delta.nix
+
     ./element-desktop.nix
     ./eza.nix
+
     ./fastfetch
     ./fd.nix
     # ./firefox.nix
@@ -49,11 +56,14 @@
     ./mcp.nix
     ./mpv.nix
     ./mu.nix
-    ./neomutt.nix
+
     ./nh.nix
+    ./npm.nix
+    ./neomutt.nix
     ./nix-index.nix
     ./nix-search-tv.nix
-    ./npm.nix
+    ./nix-your-shell.nix
+
     ./obs-studio.nix
     ./obsidian.nix
     ./opencode.nix
