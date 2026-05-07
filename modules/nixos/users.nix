@@ -7,6 +7,10 @@
   users.users.mfarabi = {
     description = "Mumtahin Farabi";
 
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKz3Y58uXWAd7qPUfm+pcEPfCw484gt9Agjl+0hmZuU3 mfarabi@macos"
+    ];
+
     extraGroups = [
       "wheel"
       "video"
