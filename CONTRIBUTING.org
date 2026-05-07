@@ -66,6 +66,10 @@
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ("󱄅 microvisor : arch:upgrade"       :command "sudo pacman -Syu                 "                                                  :annotation "    pacman ")
             ("󱄅 microvisor : debian:upgrade"     :command "sudo apt update && sudo apt upgrade -y"                                             :annotation "       apt ")
+            ;; ======================================|=======|================================================|=========|=================================================== ;;
+            ;; ======================================|=======|================================================|=========|=================================================== ;;
+            (" pulumi :󱓞 pulumi up"              :command "pulumi up -fyv=3"                                                                   :annotation "    pulumi ")
+            (" pulumi :󰢈 pulumi destroy"         :command "pulumi state unprotect --all -y; pulumi destroy -y; pulumi refresh -y;"             :annotation "    pulumi ")
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|=======|================================================|=========|==========================|===========|============ ;;
@@ -90,38 +94,41 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
 
-            (" ESP32S3 :󰐊 build"                 :command "rm -rf target build; west build"                                                                            :annotation "cargo +esp ")
             ;; (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
+            (" ESP32S3 :󰐊 build"                 :command "rm -rf target build; west build"                                 :annotation "      west 󱦅")
             (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
-
-            (" ESP32S3 :󰔰 flash"                 :command "pio run -t upload --upload-port '/dev/cu.usbmodem2101'"                             :annotation "cargo +esp ")
-            (" ESP32S3 : upload"                :command "pio run -t uploadfs"                                                                :annotation "cargo +esp ")
             ;; (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
-            ;; (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
-            (" ESP32S3 : debug"                 :command "cargo +esp rr"                                                                      :annotation "cargo +esp ")
+            (" ESP32S3 :󰔰 flash"                 :command "west flash"                                                                         :annotation "      west 󱦅")
+            (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
+            (" ESP32S3 : debug"                 :command "espflash partition-table firmware/machine/esp32s3.partitions.csv; cargo +esp rr"    :annotation "cargo +esp ")
             (" ESP32S3 :󰭎 monitor"               :command "probe-rs run"                                  :prodigy nil                         :annotation "cargo +esp ")
 
+            (" ESP32S3 :󱈫 test"                  :command "cargo +esp tt                     "                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󱠡 test:hello"            :command "cargo +esp tt --test hello        "                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󰋊 test:spi"              :command "cargo +esp tt --test spi          "                                                 :annotation "cargo +esp ")
-            (" ESP32S3 :󱂛 test:http_api"         :command "cargo +esp tt --test http_api     "                                                 :annotation "cargo +esp ")
-            (" ESP32S3 :󰈘 test:sd_card_webpage"  :command "cargo +esp tt --test sd_card_webpage"                                               :annotation "cargo +esp ")
-            (" ESP32S3 : test:sdhost"           :command "cargo +esp tt --test sdhost       "                                                 :annotation "cargo +esp ")
-            (" ESP32S3 :󰹤 test:ota"              :command "cargo +esp tt --test ota_probe    "                                                 :annotation "cargo +esp ")
+            (" ESP32S3 : test:sd"               :command "cargo +esp tt --test sd           "                                                 :annotation "cargo +esp ")
+            (" ESP32S3 :󰹤 test:ota"              :command "cargo +esp tt --test ota          "                                                 :annotation "cargo +esp ")
             (" ESP32S3 : test:i2c"              :command "cargo +esp tt --test i2c          "                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󰒪 test:sntp"             :command "cargo +esp tt --test sntp         "                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󰜤 test:scd30"            :command "cargo +esp tt --test scd30        "                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󰟤 test:scd4x"            :command "cargo +esp tt --test scd4x        "                                                 :annotation "cargo +esp ")
+            (" ESP32S3 : e2e:system"            :command "cargo +esp tt --test system       "                                                 :annotation "cargo +esp ")
             (" ESP32S3 : test:ds3231"           :command "cargo +esp tt --test ds3231       "                                                 :annotation "cargo +esp ")
+            (" ESP32S3 :󱡬 example:gpio"          :command "cargo +esp rr --example gpio      "                                                 :annotation "cargo +esp ")
+            (" ESP32S3 :󱂛 test:http_api"         :command "cargo +esp tt --test http_api     "                                                 :annotation "cargo +esp ")
             (" ESP32S3 : test:filesystem"       :command "cargo +esp tt --test filesystem   "                                                 :annotation "cargo +esp ")
             (" ESP32S3 : test:ntc_formula"      :command "cargo +esp tt --test ntc_formula  "                                                 :annotation "cargo +esp ")
-            (" ESP32S3 : e2e:microvisor"        :command "cargo +esp tt --test microvisor   "                                                 :annotation "cargo +esp ")
-            (" ESP32S3 :󱡬 example:gpio"          :command "cargo +esp rr --example gpio      "                                                 :annotation "cargo +esp ")
+            (" ESP32S3 :󰈘 test:sd_card_webpage"  :command "cargo +esp tt --test sd_card_webpage"                                               :annotation "cargo +esp ")
             ;; (" ESP32S3 : example:mdns"          :command "cargo +esp rr --example mdns_responder"                                             :annotation "cargo +esp ")
             (" ESP32S3 :󰒲 example:deep_sleep"    :command "cargo +esp rr --example deep_sleep"                                                 :annotation "cargo +esp ")
             (" ESP32S3 :󰒲 example:defmt-tcp"     :command "cargo +esp rr --example defmt-tcp "                                                 :annotation "cargo +esp ")
-            (" ESP32S3 :󰐊 pio run"               :command "pio run                                                                          "  :annotation "platformio ")
-            (" ESP32S3 :󰔰 pio run -t upload"     :command "pio run -t upload                                                                "  :annotation "platformio ")
-            (" ESP32S3 :󰭎 pio device monitor"    :command "pio device monitor                                                               "  :annotation "platformio ")
+            (" ESP32S3 :󰐊 pio run"               :command "pio run                           "                                                 :annotation "platformio ")
+            (" ESP32S3 : pio test"              :command "pio test                          "                                                 :annotation "platformio ")
+            (" ESP32S3 :󰞏 pio test --without"    :command "pio test --without-building --without-uploading"                                    :annotation "platformio ")
+            (" ESP32S3 :󰔰 pio run -t upload"     :command "pio run -t upload                 "                                                 :annotation "platformio ")
+            (" ESP32S3 : pio run -t compiledb"  :command "pio run -t compiledb              "                                                 :annotation "platformio ")
+            (" ESP32S3 : pio run -t uploadfs"   :command "pio run -t uploadfs               "                                                 :annotation "platformio ")
+            (" ESP32S3 :󰭎 pio device monitor"    :command "pio device monitor                "                                                 :annotation "platformio ")
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
             ;; ======================================|=======|============================================================================================================== ;;
@@ -213,53 +220,53 @@
 * Files
 ** Firmware
 *** [[https://github.com/probe-rs/probe-rs][probe-rs]]
-
 #+begin_src toml :tangle .probe-rs.toml
+[server]
+port    = 8443
+address = "rpi5-16"
+
+[[server.users]]
+name  = "mfarabi"
+token = "rpi5-16"
+
 [presets.default]
 speed = 40000
-chip = "esp32s3"
+chip  = "esp32s3"
 always-print-stacktrace = true
+# probe = "303a:1001:1C:DB:D4:40:64:F8"
 # idf-partition-table = "firmware/boards/esp32s3.partitions.csv"
 log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
 
 [presets.esp32-s3-devkitc-1]
-chip = "esp32s3"
-host = "ws://rpi5-16:8443"
-probe = "303a:1001:1C:DB:D4:40:4E:38"
+chip  = "esp32s3"
 token = "rpi5-16"
+host  = "ws://rpi5-16:8443"
+probe = "303a:1001:1C:DB:D4:40:64:F8"
 
 [presets.seeed_xiao_esp32s3]
-chip = "esp32s3"
+chip  = "esp32s3"
 probe = "303a:1001:D8:3B:DA:74:82:E8"
 
 [presets.stm32h723zg]
-always-print-stacktrace = true
-chip = "stm32h723zg"
 preverify = true
-
-[server]
-address = "rpi5-16"
-port = 8443
-
-[[server.users]]
-name = "mfarabi"
-token = "rpi5-16"
+chip      = "stm32h723zg"
+always-print-stacktrace = true
 #+end_src
 
 *** [[https://github.com/probe-rs/cargo-embed][cargo-embed]]
 
 #+begin_src toml :tangle Embed.toml
 [default.general]
-chip        = "esp32s3"
+chip          = "esp32s3"
 
 [default.probe]
-protocol    = "Jtag"
+protocol      = "Jtag"
 
 [default.rtt]
-enabled     = true
-timeout     = 3000
-log_enabled = false
-up_channels = [
+enabled       = true
+timeout       = 3000
+log_enabled   = false
+up_channels   = [
     { channel = 0, mode = "BlockIfFull", format = "Defmt", show_location = true },
 ]
 
@@ -284,7 +291,7 @@ enabled                 = false
 #+begin_src toml :tangle espflash.toml
 [idf_format_args]
 target_app_partition = "ota_0"
-partition_table = "firmware/boards/esp32s3.partitions.csv"
+partition_table      = "firmware/boards/esp32s3.partitions.csv"
 #+end_src
 
 *** [[https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-toolchain-file][rust-toolchain.toml]]
@@ -301,7 +308,6 @@ components = [
     "rustfmt",
     "rust-src",
     "rust-analyzer",
-    "rustfmt",
 ]
 
 targets = [
@@ -348,14 +354,22 @@ build_flags      =
   -DBOARD_HAS_PSRAM
   -DARDUINO_USB_MODE=1
   -DARDUINO_USB_CDC_ON_BOOT=1
-  '-DCONFIG_WIFI_PASS="${sysenv.WIFI_PSK}"'
-  '-DCONFIG_WIFI_SSID="${sysenv.WIFI_SSID}"'
+  '-DCONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD="${sysenv.WIFI_PSK}"'
+  '-DCONFIG_WIFI_CREDENTIALS_STATIC_SSID="${sysenv.WIFI_CREDENTIALS_STATIC_SSID}"'
   '-DCONFIG_WIFI_IDENTITY="${sysenv.WIFI_IDENTITY}"'
   '-DCONFIG_WIFI_USERNAME="${sysenv.WIFI_USERNAME}"'
 
 [env:ceratina]
 extends          = embedded
 board            = esp32-s3-devkitc1-n8r8
+
+monitor_filters  = direct
+upload_speed     = 921600
+upload_port      = hwgrep://303A:1001
+
+test_build_src   = true
+test_framework   = custom
+
 build_src_filter = +<*>, -<bin/*>, +<bin/${this.__env__}.cpp>, -<*.rs>
 
 board_build.arduino.memory_type = qio_opi
@@ -395,16 +409,13 @@ lib_deps        =
   sensirion/Sensirion I2C SCD4x@^1.0.0
   adafruit/Adafruit INA228 Library@^3.0.0
   https://github.com/stefangs/arduino-library-at24cxxx.git#1.2.2
-monitor_filters = direct
-upload_speed    = 921600
-upload_port     = hwgrep://303A:1001
-
-test_build_src  = true
-test_framework  = custom
 
 [env:walter-iot]
 extends                         = embedded
+upload_port                     = hwgrep://303A:1001
+
 board                           = esp32-s3-devkitc1-n16r2
+
 board_upload.flash_size         = 16MB
 board_upload.maximum_ram_size   = 327680
 board_upload.maximum_size       = 16777216
@@ -414,15 +425,13 @@ board_build.f_flash             = 80000000L
 board_build.f_cpu               = 240000000L
 board_build.arduino.partitions  = default_16MB.csv
 
-upload_port = hwgrep://303A:1001
-
+build_src_filter = -<*> +<bin/${this.__env__}.cpp>
 build_flags =
   ${embedded.build_flags}
   -DARDUINO_ESP32S3_DEV
   -DARDUINO_RUNNING_CORE=1
   -DARDUINO_EVENT_RUNNING_CORE=1
 
-build_src_filter = -<*> +<bin/${this.__env__}.cpp>
 lib_deps         = quickspot/WalterModem@1.5.0
 
 [env:esp32p4]
@@ -445,7 +454,7 @@ If the new image fails to boot, the bootloader rolls back automatically.
 | =ota_0=     | =0x10000=  | ~4 MB | Primary firmware slot                             |
 | =ota_1=     | =0x400000= | 4 MB  | Secondary firmware slot (OTA target)              |
 
-#+begin_src csv :tangle firmware/boards/esp32s3.partitions.csv
+#+begin_src csv :tangle apps/ceratina/machine/esp32s3.partitions.csv
 # https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-guides/partition-tables.html
 
 # Name,   Type, SubType, Offset,   Size,     Flags
@@ -482,33 +491,32 @@ tailwind_input = "tailwind.css"
 tailwind_output = "assets/tailwind.css"
 
 [bundle]
-category = "Utility"
-publisher = "Mumtahin Farabi"
-icon = ["assets/symbolmark.png"]
+category   = "Utility"
+publisher  = "Mumtahin Farabi"
+icon       = ["assets/symbolmark.png"]
 identifier = "com.microvisorsystems"
-copyright = "2026 Microvisor Systems"
+copyright  = "2026 Microvisor Systems"
 short_description = "General web client."
 #+END_SRC
 
-#+begin_SRC .gitignore :tangle .gitignore
+#+begin_SRC conf :tangle .gitignore
 #====================================================
 #              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
-# .dir-locals.el
+**/dist
 **/.pio/
 **/debug/
 **/result
 **/zig-out
 **/target/
-**/dist
+.shellspec
+**/node_modules
+config/data.sqld
+tests/env_spec.sh
+learning/assembly/build/
 assets/static/tui.js
 assets/static/index.html
 assets/static/tui_bg.wasm
-.shellspec
-**/node_modules
-tests/env_spec.sh
-learning/assembly/build/
-config/data.sqld
 
 #====================================================
 #                 CACHES/LOGS
@@ -562,15 +570,4 @@ opencode.json
 
 #+begin_SRC bash
 sudo socat -v TCP-LISTEN:987,reuseaddr,fork /dev/serial/by-id/usb-VictronEnergy_BV_VE_Direct_cable_VE9YKH5O-if00-port0,rawer,b19200,echo=0
-#+END_SRC
-
-#+begin_SRC bash
-west init
-west update
-west blobs fetch hal_espressif
-
-/opt/homebrew/Cellar/west/1.5.0/libexec/bin/python -m pip install requests patool semver tqdm pyelftools esptool jsonschema
-
-/opt/homebrew/Cellar/west/1.5.0/libexec/bin/python -m pip install -r zephyr/scripts/requirements.txt
-west build -p always -b esp32s3_devkitc/esp32s3/procpu samples/basic/blinky
 #+END_SRC
