@@ -19,7 +19,10 @@
       # extraFlags = [ "--verbose" ];
     };
 
-    taps = [ "espressif/eim" ];
+    taps = [
+      "espressif/eim"
+      "quickemu-project/quickemu"
+    ];
 
     casks = [
       "via"
@@ -47,6 +50,7 @@
       # "rust"
       "pulumi"
       "libvirt" # brew services start libvirt
+      "quickemu"
       "dfu-util"
       "pioarduino/pioarduino/pioarduino"
       # "dirien/dirien/lazy-pulumi"
