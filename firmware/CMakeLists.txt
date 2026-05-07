@@ -10,6 +10,7 @@ target_sources(app PRIVATE
   src/services/sdcard.c
   src/services/http/filesystem.c
   src/services/mqtt.c
+  src/services/mcumgr.c
   src/services/prometheus.c
   src/services/diagnostics.c
   src/services/http/api.c
