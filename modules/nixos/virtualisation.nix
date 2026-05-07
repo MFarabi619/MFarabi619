@@ -52,7 +52,7 @@
       autoPrune.enable = true;
       autoPrune.persistent = true;
       autoPrune.flags = [ "--all" ];
-      daemon.settings.live-restore = config.networking.hostname == "nixos-qemu";
+      daemon.settings.live-restore = config.networking.hostname == "nixos";
     };
 
     podman = {

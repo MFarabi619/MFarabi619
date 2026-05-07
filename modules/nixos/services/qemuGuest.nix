@@ -3,5 +3,5 @@
   ...
 }:
 {
-  services.qemuGuest.enable = config.networking.hostName == "nixos-qemu";
+  services.qemuGuest.enable = config.networking.hostName == "nixos";
 }

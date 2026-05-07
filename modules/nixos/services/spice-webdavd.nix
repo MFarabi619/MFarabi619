@@ -3,5 +3,5 @@
   ...
 }:
 {
-  services.spice-webdavd.enable = config.networking.hostName == "nixos-qemu";
+  services.spice-webdavd.enable = config.networking.hostName == "nixos";
 }

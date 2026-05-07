@@ -10,8 +10,8 @@
     ./hardware-configuration.nix
   ];
 
+  networking.hostName = "nixos";
   system.stateVersion = "25.11";
   nixpkgs.config.allowUnfree = true;
-  networking.hostName = "nixos-utm";
   nixos-unified.sshTarget = config.networking.hostName;
 }
