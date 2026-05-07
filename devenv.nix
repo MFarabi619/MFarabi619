@@ -5,10 +5,10 @@
   inputs,
   ...
 }:
-let
-  # api = config.languages.rust.import ./. { };
-  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
-in
+# let
+#   # api = config.languages.rust.import ./. { };
+#   pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+# in
 {
   name = "microvisor";
 
@@ -23,17 +23,15 @@ in
 
   env.PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_22}/bin/node";
 
-  packages =
-    with pkgs-unstable;
-    [
-      rustup
-    ]
-    ++ lib.optionals config.languages.ruby.enable [
-      libyaml # rails new --help
-      rubyPackages_3_4.rails # rails new store -Gc tailwind --skip-ci
-    ]
-    ++ lib.optionals stdenv.isDarwin [ ]
-    ++ lib.optionals stdenv.isLinux [ ];
+  # packages =
+  #   with pkgs-unstable;
+  #   [ ]
+  #   ++ lib.optionals config.languages.ruby.enable [
+  #     libyaml # rails new --help
+  #     rubyPackages_3_4.rails # rails new store -Gc tailwind --skip-ci
+  #   ]
+  #   ++ lib.optionals stdenv.isDarwin [ ]
+  #   ++ lib.optionals stdenv.isLinux [ ];
 
   scripts = {
     up.exec = ''devenv up "$@"'';
@@ -80,27 +78,8 @@ in
     };
   };
 
-  # process = {
-  #   manager.args = {
-  #     "config" = "${config.git.root}/config/process-compose/settings.yaml";
-  #     "shortcuts" = "${config.git.root}/config/process-compose/shortcuts.yaml";
-  #   };
-
-  #   managers.process-compose.settings = {
-  #     is_strict = true;
-  #     #   availability = {
-  #     #   max_restarts = 5;
-  #     #   backoff_seconds = 2;
-  #     #   restart = "on_failure";
-  #     # };
-  #   };
-  # };
-
-  enterTest = ''
-    echo "Running tests"
-  '';
   enterShell = ''
-    echo "👋🧩"
+    export PATH="$HOME/.cargo/bin:$PATH";
 
     if [ -f "\$\{ESPUP_EXPORT_FILE:-}" ]; then
       . "$ESPUP_EXPORT_FILE"
@@ -114,7 +93,6 @@ in
       echo -e "\033[36m[devenv:embassy]:\033[0m\033[34m xtensa-esp-elf-gcc \033[0m\033[31mtoolchain not found ⚠️\033[0m"
       echo -e "\033[36m[devenv:embassy]:\033[0m\033[33m install with \033[0m\033[35mespup install && direnv allow\033[0m\n"
     fi
-
   ''
   + lib.optionalString (pkgs.stdenv.isLinux && config.services.caddy.enable) ''
     # sudo sysctl -w net.ipv4.ip_unprivileged_port_start=0
@@ -169,7 +147,6 @@ in
         "rust-analyzer"
       ];
 
-      loco.enable = true;
       dioxus = {
         enable = true;
         desktop.linux.enable = false;

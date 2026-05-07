@@ -8,47 +8,37 @@
     packages =
       with pkgs;
       [
-        trunk # rust web app server
+        loco
+        trunk
+        libyaml
+        binaryen
         rustywind
+        dioxus-cli
+        sea-orm-cli
+        tailwindcss_4
+        wasm-bindgen-cli
+        rubyPackages_3_4.rails
       ]
       ++ [
-        sqlite # :tools lookup & :lang org +roam
-        talosctl
-        grafana
-        bore-cli
-        grafanactl
-        supabase-cli
-        mcp-grafana # https://github.com/grafana/mcp-grafana
-      ]
-      ++ [
-        llvm
-        lldb
-        SDL2 # for embedded TUI simulator
         espup
-        ninja
-        ccache
-        # avrdude
-        dfu-util
+        SDL2 # for embedded TUI simulator
         esptool
-        openocd
-        ldproxy
         esptool
         espflash
         esp-generate
-        dfu-programmer
-        kconfig-frontends
-        python314Packages.kconfiglib
+        mcumgr-client
         cargo-embassy
         cargo-generate
-        mcumgr-client
+        cargo-binstall
         renode-dts2repl
+        kconfig-frontends
 
         (probe-rs-tools.overrideAttrs (old: {
           cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
         }))
 
         (python314.withPackages (
-          ps: with ps; [
+          package: with package; [
             west
             tqdm
             cbor
@@ -64,6 +54,7 @@
             pyserial
             intelhex
             requests
+            kconfiglib
             pyelftools
             jsonschema
             cryptography
@@ -82,6 +73,28 @@
         # radicle-native-ci
       ]
       ++ [
+        sqlite # :tools lookup & :lang org +roam
+        grafana
+        talosctl
+        bore-cli
+        grafanactl
+        supabase-cli
+        mcp-grafana # https://github.com/grafana/mcp-grafana
+      ]
+      ++ [
+        llvm
+        lldb
+        ninja
+        cmake
+        ccache
+        gnumake
+        ldproxy
+        openocd
+        # avrdude
+        dfu-util
+        dfu-programmer
+      ]
+      ++ [
         socat
         godot
         delve
@@ -94,9 +107,7 @@
         tree
         pixi # multi-language package manager
         pnpm
-        cmake # vterm compilation and more
         duckdb
-        gnumake
         stylelint
         # vi-mongo  # mongodb tui
         # fritzing
@@ -123,10 +134,10 @@
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui           # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         pik # local port tui
+        sops
         tgpt
         nmap
         lazyssh # ssh tui
-        sops
         gpg-tui
         # termscp
         tcpdump
@@ -140,8 +151,8 @@
         # keymap-drawer # visualize keyboard layout
         nvtopPackages.full # btop for gpu
 
-        gama-tui # github actions runners
-        codeberg-cli
+        # gama-tui # github actions runners
+        # codeberg-cli
 
         exercism
         presenterm
@@ -158,7 +169,7 @@
         nix-top # nix process visualizer
         nix-web # web gui
         nix-info
-        mcp-nixos # mcp server for NixOS
+        # mcp-nixos
         nix-health # health check
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
@@ -179,12 +190,27 @@
         # (writeShellScriptBin "my-hello" ''
         #   echo "Hello, ${config.home.username}!"
         # '')
-
+      ]
+      ++ [
         discordo
         jellyfin-tui
       ]
       ++ lib.optionals stdenv.isLinux [
-        platformio
+        atk
+        glib
+        file
+        cairo
+        pango
+        xdotool
+        openssl
+        librsvg
+        gdk-pixbuf
+        pkg-config
+        webkitgtk_4_1
+        libappindicator-gtk3
+      ]
+      ++ lib.optionals stdenv.isLinux [
+        # platformio
         # ============== 🤪 =================
         hollywood # movie hacker screen animation
 
@@ -226,8 +252,8 @@
         utm # virtual machines on macos
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
         minikube
-        jsonschema
         binsider
+        jsonschema
         vscode-extensions.llvm-vs-code-extensions.lldb-dap
       ];
 
