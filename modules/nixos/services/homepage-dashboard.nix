@@ -252,6 +252,13 @@ in
                 };
               }
               {
+                "🏗️ OpenIndiana" = {
+                  href = "https://docs.openindiana.org/misc/openindiana";
+                  siteMonitor = "https://openindiana.openws.org";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/openindiana.svg";
+                };
+              }
+              {
                 "🏗️ Darwin" = {
                   href = "https://en.wikipedia.org/wiki/Darwin_(operating_system)";
                   # siteMonitor = "https://darwin.openws.org";
