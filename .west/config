@@ -14,3 +14,7 @@ board    = esp32s3_devkitc/esp32s3/procpu
 
 [flash]
 rebuild = true
+
+[alias]
+# mylist = list -f '{name} {revision}'
+# run = build -p always; flash; espressif monitor
