@@ -19,9 +19,7 @@
       # extraFlags = [ "--verbose" ];
     };
 
-    taps = [
-      "espressif/eim"
-    ];
+    taps = [ "espressif/eim" ];
 
     casks = [
       "via"
@@ -31,7 +29,6 @@
       "binary-ninja-free"
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
-      "huly"
       # "comfyui"
       # "sonic-pi"
       # "unity-hub"
