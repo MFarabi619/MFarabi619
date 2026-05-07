@@ -41,8 +41,8 @@ in
         home = "/Users/${name}";
       }
       // lib.optionalAttrs pkgs.stdenv.isLinux {
-        isNormalUser = true;
         shell = pkgs.zsh;
+        isNormalUser = true;
 
         extraGroups = [
           "dialout"
