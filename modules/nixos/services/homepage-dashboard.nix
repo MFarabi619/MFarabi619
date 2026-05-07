@@ -259,6 +259,13 @@ in
                 };
               }
               {
+                "🏗️ OmniOS" = {
+                  href = "https://omnios.org";
+                  siteMonitor = "https://omnios.openws.org";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/omnios.svg";
+                };
+              }
+              {
                 "🏗️ Darwin" = {
                   href = "https://en.wikipedia.org/wiki/Darwin_(operating_system)";
                   # siteMonitor = "https://darwin.openws.org";
