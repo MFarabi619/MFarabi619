@@ -2,7 +2,7 @@
   programs.lazyvim = {
     extras = {
       test.core.enable = true;
-      ai.copilot_chat.enable = true;
+      ai.copilot.enable = true;
 
       dap = {
         core.enable = true;
@@ -11,16 +11,16 @@
 
       ui = {
         edgy.enable = true;
-        mini_animate.enable = true;
-        dashboard_nvim.enable = true;
-        mini_indentscope.enable = true;
-        treesitter_context.enable = true;
+        mini-animate.enable = true;
+        dashboard-nvim.enable = true;
+        mini-indentscope.enable = true;
+        treesitter-context.enable = true;
       };
 
       editor = {
         aerial.enable = true;
         overseer.enable = true;
-        neo_tree.enable = false;
+        neo-tree.enable = false;
         telescope.enable = true;
         refactoring.enable = true;
       };
@@ -28,8 +28,8 @@
       coding = {
         yanky.enable = true;
         luasnip.enable = false;
-        mini_comment.enable = true;
-        mini_surround.enable = true;
+        mini-comment.enable = true;
+        mini-surround.enable = true;
       };
 
       lang = {
@@ -61,7 +61,7 @@
         rest.enable = true;
         project.enable = true;
         startuptime.enable = true;
-        mini_hipatterns.enable = true;
+        mini-hipatterns.enable = true;
       };
     };
 

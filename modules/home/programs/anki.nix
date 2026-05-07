@@ -5,7 +5,7 @@
 }:
 {
   programs.anki = {
-    enable = true;
+    enable = false; # FIXME: broken as of Thu May  7 01:37:43 EDT 2026
     uiScale = 1.0;
     hideTopBar = true;
     reduceMotion = true;
