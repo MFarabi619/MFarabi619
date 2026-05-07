@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   ...
 }:
@@ -22,9 +23,7 @@
 
       qemu = {
         swtpm.enable = true;
-        vhostUserPackages = with pkgs; [
-          virtiofsd
-        ];
+        vhostUserPackages = with pkgs; [ virtiofsd ];
       };
     };
 
@@ -50,14 +49,10 @@
     # only enable either docker or podman -- Not both
     docker = {
       enable = true;
-
-      autoPrune = {
-        enable = true;
-        persistent = true;
-        flags = [
-          "--all"
-        ];
-      };
+      autoPrune.enable = true;
+      autoPrune.persistent = true;
+      autoPrune.flags = [ "--all" ];
+      daemon.settings.live-restore = config.networking.hostname == "nixos-qemu";
     };
 
     podman = {

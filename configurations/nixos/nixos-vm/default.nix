@@ -8,8 +8,9 @@ let
 in
 {
   imports = [
-    self.nixosModules.default
-    flake.inputs.stylix.nixosModules.stylix
     ./configuration.nix
+    self.nixosModules.boot
+    self.nixosModules.users
+    self.nixosModules.default
   ];
 }

@@ -1,6 +1,9 @@
 # See /modules/nixos/* for actual settings
 # This file is just *top-level* configuration.
-{ flake, ... }:
+{
+  flake,
+  ...
+}:
 
 let
   inherit (flake) inputs;
@@ -12,6 +15,5 @@ in
     self.nixosModules.boot
     self.nixosModules.users
     self.nixosModules.default
-    flake.inputs.stylix.nixosModules.stylix
   ];
 }
