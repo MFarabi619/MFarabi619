@@ -14,7 +14,7 @@
   # '';
 
   services.caddy = {
-    email = config.security.acme.defaults.email;
+    inherit (config.security.acme.defaults) email;
     enable = config.networking.hostName == "framework-desktop";
 
     globalConfig = ''
