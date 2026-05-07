@@ -7,7 +7,8 @@
     enable = true;
     uri.rad.browser = true;
     uri.web-rad.enable = true;
-    uri.rad.vscode.enable = true;
+    uri.rad.vscode.enable = config.programs.vscode.enable;
+
     settings = {
       node.alias = config.me.username;
       web.pinned.repositories = [ "rad:z2VXjpUYKv3CN6DzjZS983Bo3qo7d" ];
