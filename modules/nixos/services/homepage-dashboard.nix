@@ -255,7 +255,7 @@ in
                 "🏗️ OpenBSD" = {
                   href = "https://openbsd.org";
                   # siteMonitor = "https://openbsd.openws.org";
-                  icon = "https://avatars.githubusercontent.com/u/929183?s=200&v=4";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/openbsd.png";
                 };
               }
               {
