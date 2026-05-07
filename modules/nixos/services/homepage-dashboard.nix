@@ -238,6 +238,13 @@ in
           {
             "UNIX" = [
               {
+                "🏗️ Apache NuttX" = {
+                  href = "https://nuttx.apache.org";
+                  # siteMonitor = "https://nuttx.openws.org";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/nuttx.png";
+                };
+              }
+              {
                 "FreeBSD" = {
                   href = "https://freebsd.openws.org";
                   siteMonitor = "https://freebsd.openws.org";
@@ -254,14 +261,14 @@ in
               {
                 "🏗️ OpenIndiana" = {
                   href = "https://docs.openindiana.org/misc/openindiana";
-                  siteMonitor = "https://openindiana.openws.org";
+                  # siteMonitor = "https://openindiana.openws.org";
                   icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/openindiana.svg";
                 };
               }
               {
                 "🏗️ OmniOS" = {
                   href = "https://omnios.org";
-                  siteMonitor = "https://omnios.openws.org";
+                  # siteMonitor = "https://omnios.openws.org";
                   icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/omnios.svg";
                 };
               }
@@ -272,13 +279,13 @@ in
                   icon = "https://www.svgrepo.com/show/303484/apple1-logo.svg";
                 };
               }
-              {
-                "🏗️ DoomBSD" = {
-                  href = "https://www.linkedin.com/posts/mfarabi_announcing-the-doombsd-project-an-advanced-activity-7341980656043786240-uw9M/";
-                  # siteMonitor = "https://darwin.openws.org";
-                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/doombsd-symbol-orb.svg";
-                };
-              }
+              # {
+              #   "🏗️ DoomBSD" = {
+              #     href = "https://www.linkedin.com/posts/mfarabi_announcing-the-doombsd-project-an-advanced-activity-7341980656043786240-uw9M/";
+              #     # siteMonitor = "https://doombsd.openws.org";
+              #     icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/doombsd-symbol-orb.svg";
+              #   };
+              # }
             ];
           }
           {
