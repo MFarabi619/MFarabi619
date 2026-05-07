@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+HOST="ceratina.local"
 ROOT="target/dx/web/release/web/public"
-BASE_URL="http://ceratina.local/api/filesystem/sd/public"
+BASE_URL="http://$HOST/api/filesystem/sd/public"
 
 c_reset=$'\033[0m'
 c_dim=$'\033[2m'
@@ -55,7 +56,6 @@ if [ -f "$ROOT/index.html" ]; then
   fi
 fi
 
-HOST="ceratina.local"
 printf "  ${c_dim}Waiting for ${HOST} ...${c_reset}"
 until ping -c1 -W1 "$HOST" &>/dev/null; do
   printf "${c_dim}.${c_reset}"
