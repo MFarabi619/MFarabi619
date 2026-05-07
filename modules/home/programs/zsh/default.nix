@@ -59,19 +59,24 @@
     oh-my-zsh = {
       enable = true;
       plugins = [
-        "uv"
-        "git"
         "sudo"
         "rust"
         "emoji"
-        "docker"
         "pulumi"
+        "docker"
         "kubectl"
         "colorize"
         "tailscale"
         "docker-compose"
         "colored-man-pages"
       ]
+      ++ lib.filter (name: config.programs.${name}.enable) [
+        "uv"
+        "git"
+      ]
+      # ++ lib.filter (name: config.services.${name}.enable) [
+      #   "tailscale"
+      # ]
       ++ lib.optionals pkgs.stdenv.isDarwin [
         "brew"
         "dash"
