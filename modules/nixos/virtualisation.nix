@@ -52,7 +52,7 @@
       autoPrune.enable = true;
       autoPrune.persistent = true;
       autoPrune.flags = [ "--all" ];
-      daemon.settings.live-restore = config.networking.hostname == "nixos";
+      daemon.settings.live-restore = config.networking.hostName == "nixos";
     };
 
     podman = {
