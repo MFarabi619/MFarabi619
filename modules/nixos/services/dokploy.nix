@@ -1,6 +1,7 @@
 # docker service update --env-add TZ=America/Toronto dokploy_dokploy
 {
   pkgs,
+  lib,
   flake,
   config,
   ...
@@ -10,7 +11,10 @@
     flake.inputs.nix-dokploy.nixosModules.default
   ];
 
-  virtualisation.docker.daemon.settings.live-restore = false;
+  # dokploy needs live-restore=false for swarm; gate on the same hostname
+  # predicate as services.dokploy.enable below so other hosts aren't constrained.
+  virtualisation.docker.daemon.settings.live-restore =
+    lib.mkIf (config.networking.hostName == "framework-desktop") false;
 
   services.dokploy = {
     port = "1212:3000";
