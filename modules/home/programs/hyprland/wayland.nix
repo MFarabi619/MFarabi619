@@ -64,7 +64,6 @@
       "$menu" = "rofi -show drun";
 
       exec-once = [
-        "waybar &"
         "$term --hold fastfetch"
         "vivaldi"
         # "emacs -nw"

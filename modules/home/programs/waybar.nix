@@ -1,7 +1,8 @@
-{ pkgs
-, lib
-# , config
-, ...
+{
+  lib,
+  pkgs,
+  config,
+  ...
 }:
 # let
 #   betterTransition = "all 0.3s cubic-bezier(.55,-0.68,.48,1.682)";
@@ -277,22 +278,35 @@ let
   base0E = "D3869B";
   base0F = "D65D0E";
 in
-with lib; {
+with lib;
+{
   programs.waybar = lib.mkIf pkgs.stdenv.isLinux {
-    enable = true;
+    enable = config.wayland.enable;
     systemd = {
       enable = true;
       enableDebug = false;
       enableInspect = false;
     };
+
     settings = [
       {
         layer = "top";
         position = "top";
 
-        modules-left = [ "custom/startmenu" "tray" "hyprland/window" ];
+        modules-left = [
+          "custom/startmenu"
+          "tray"
+          "hyprland/window"
+        ];
         modules-center = [ "hyprland/workspaces" ];
-        modules-right = [ "idle_inhibitor" "custom/notification" "pulseaudio" "battery" "clock" "custom/exit" ];
+        modules-right = [
+          "idle_inhibitor"
+          "custom/notification"
+          "pulseaudio"
+          "battery"
+          "clock"
+          "custom/exit"
+        ];
 
         "hyprland/workspaces" = {
           format = "{name}";
@@ -305,10 +319,8 @@ with lib; {
           on-scroll-down = "hyprctl dispatch workspace e-1";
         };
         "clock" = {
-          format = '' {:%H:%M}'';
-          /*
-            ''{: %I:%M %p}'';
-            */
+          format = " {:%H:%M}";
+          # ''{: %I:%M %p}'';
           tooltip = true;
           tooltip-format = "<big>{:%A, %d.%B %Y }</big><tt><small>{calendar}</small></tt>";
         };
@@ -335,7 +347,13 @@ with lib; {
           #on-click = "${terminal} -e sh -c df -h ; read";
         };
         "network" = {
-          format-icons = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
+          format-icons = [
+            "󰤯"
+            "󰤟"
+            "󰤢"
+            "󰤥"
+            "󰤨"
+          ];
           format-ethernet = " {bandwidthDownBits}";
           format-wifi = " {bandwidthDownBits}";
           format-disconnected = "󰤮";
@@ -359,7 +377,11 @@ with lib; {
             phone = "";
             portable = "";
             car = "";
-            default = [ "" "" "" ];
+            default = [
+              ""
+              ""
+              ""
+            ];
           };
           on-click = "pavucontrol";
         };
@@ -409,7 +431,18 @@ with lib; {
           format = "{icon} {capacity}%";
           format-charging = "󰂄 {capacity}%";
           format-plugged = "󱘖 {capacity}%";
-          format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+          format-icons = [
+            "󰁺"
+            "󰁻"
+            "󰁼"
+            "󰁽"
+            "󰁾"
+            "󰁿"
+            "󰂀"
+            "󰂁"
+            "󰂂"
+            "󰁹"
+          ];
           on-click = "";
           tooltip = false;
         };
