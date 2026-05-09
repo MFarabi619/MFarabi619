@@ -4,9 +4,6 @@
   ...
 }:
 {
-  imports = [
-    ./packages.nix
-  ];
 
   home = {
     shell = {

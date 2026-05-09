@@ -29,6 +29,7 @@ in
       fonts
       stylix
       manual
+      packages
       editorconfig
     ]
     ++ map (p: programs + "/${p}") [

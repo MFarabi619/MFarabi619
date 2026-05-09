@@ -8,11 +8,12 @@
     ./me.nix
     ./xdg.nix
     ./home.nix
+    ./sops.nix
     ./fonts.nix
     ./manual.nix
     ./stylix.nix
     ./accounts.nix
-    ./sops.nix
+    ./packages.nix
     ./nix-index.nix
     ./editorconfig.nix
   ];

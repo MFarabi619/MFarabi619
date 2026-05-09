@@ -30,6 +30,7 @@ in
       stylix
       manual
       accounts
+      packages
       editorconfig
     ]
     ++ map (f: services + "/${f}") [
