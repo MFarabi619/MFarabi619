@@ -34,8 +34,8 @@
     userDirs = {
       enable = true;
       createDirectories = true;
+      setSessionVariables = true;
 
-      # Define standard XDG user directories
       music = "${config.home.homeDirectory}/Music";
       videos = "${config.home.homeDirectory}/Videos";
       desktop = "${config.home.homeDirectory}/Desktop";
@@ -46,7 +46,6 @@
       templates = "${config.home.homeDirectory}/Templates";
     };
 
-    # Define standard XDG base directories
     cacheHome = "${config.home.homeDirectory}/.cache";
     configHome = "${config.home.homeDirectory}/.config";
     dataHome = "${config.home.homeDirectory}/.local/share";
