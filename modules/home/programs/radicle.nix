@@ -5,8 +5,7 @@
 {
   programs.radicle = {
     enable = true;
-    uri.rad.browser = true;
-    uri.web-rad.enable = true;
+    # uri.web-rad.enable = true;
     uri.rad.vscode.enable = config.programs.vscode.enable;
 
     settings = {

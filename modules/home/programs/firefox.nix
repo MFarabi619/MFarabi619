@@ -1,6 +1,6 @@
 {
   programs.firefox = {
     enable = false;
+    nativeMessagingHosts = [ ];
   };
-  nativeMessagingHosts = [];
 }

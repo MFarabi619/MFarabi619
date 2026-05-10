@@ -1,6 +1,7 @@
 {
-  pkgs,
   lib,
+  pkgs,
+  config,
   ...
 }:
 {
@@ -38,10 +39,14 @@
       };
     };
 
-    sessionVariables = lib.mkIf (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) {
-      XDG_BACKEND = "wayland";
-      XDG_RUNTIME_DIR = "/run/user/$(id -u)";
-    };
+    sessionVariables =
+      lib.mkIf (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64 && config.programs.wayland)
+        {
+          XDG_BACKEND = "wayland";
+          NIXOS_OZONE_WL = "1";
+          MOZ_ENABLE_WAYLAND = "1";
+          XDG_RUNTIME_DIR = "/run/user/$(id -u)";
+        };
 
     sessionPath =
       lib.optionals pkgs.stdenv.isLinux [
