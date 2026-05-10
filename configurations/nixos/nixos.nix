@@ -15,7 +15,6 @@ in
     disko
     users
     default
-    containers
     (modulesPath + "/profiles/qemu-guest.nix")
   ];
 
@@ -24,8 +23,7 @@ in
   nixpkgs.hostPlatform = "aarch64-linux";
   nixos-unified.sshTarget = config.networking.hostName;
 
-  # Host-specific performance tunings. Migrate to shared modules
-  # once validated and known-safe for framework-desktop.
+  # TODO: migrate to shared modules once validated and known-safe for framework-desktop.
   boot = {
     tmp = {
       useTmpfs = true;

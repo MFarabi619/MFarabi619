@@ -281,7 +281,7 @@ in
 with lib;
 {
   programs.waybar = lib.mkIf pkgs.stdenv.isLinux {
-    enable = config.wayland.enable;
+    enable = config.wayland.windowManager.hyprland.enable;
     systemd = {
       enable = true;
       enableDebug = false;

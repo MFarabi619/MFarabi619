@@ -1,6 +1,6 @@
 {
-  pkgs,
   lib,
+  pkgs,
   ...
 }:
 {
@@ -22,7 +22,6 @@
       ++ [
         SDL2 # for embedded TUI simulator
         espup
-        esptool
         esptool
         espflash
         esp-generate

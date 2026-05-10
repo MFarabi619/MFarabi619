@@ -40,7 +40,8 @@
     };
 
     sessionVariables =
-      lib.mkIf (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64 && config.programs.wayland)
+      lib.mkIf
+        (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64 && config.wayland.windowManager.hyprland.enable)
         {
           XDG_BACKEND = "wayland";
           NIXOS_OZONE_WL = "1";
