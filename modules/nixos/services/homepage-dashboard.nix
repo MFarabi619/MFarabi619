@@ -255,7 +255,7 @@ in
                 "🏗️ OpenBSD" = {
                   href = "https://openbsd.org";
                   # siteMonitor = "https://openbsd.openws.org";
-                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/openbsd.png";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/openbsd.png";
                 };
               }
               {
@@ -294,7 +294,7 @@ in
                 "🏗️ Zephyr RTOS" = {
                   href = "https://www.zephyrproject.org";
                   # siteMonitor = "https://zephyr.openws.org";
-                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/zephyr.png";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/zephyr.png";
                 };
               }
               {
