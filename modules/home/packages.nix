@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  config,
   ...
 }:
 {
@@ -194,62 +195,10 @@
         discordo
         jellyfin-tui
       ]
-      ++ lib.optionals stdenv.isLinux [
-        atk
-        glib
-        file
-        cairo
-        pango
-        xdotool
-        openssl
-        librsvg
-        gdk-pixbuf
-        pkg-config
-        webkitgtk_4_1
-        libappindicator-gtk3
-      ]
-      ++ lib.optionals stdenv.isLinux [
-        # platformio
-        # ============== 🤪 =================
-        hollywood # movie hacker screen animation
-
-        # atopile     # circuit diagrams as code
-        # ventoy-full # flash multiple isos to usb
-        # super-slicer # 3D printing
-        freecad
-        woeusb-ng # flash bootable windows iso
-        virt-viewer
-        smartmontools
-
-        # ============= 🧑‍💻🐞✨‍ ================
-        ugm # user group management
-        isd # systemd units
-        dysk # see mounted
-        kmon # kernel monitor
-        termshark # wireshark-like TUI
-        systeroid # powerful sysctl alternative
-        netscanner
-        lazyjournal # journal logs
-        # lazyhetzner
-        systemctl-tui # systemctl logs
-
-        # qmk
-        # qmk_hid
-        # qmk-udev-rules
-      ]
-      ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [
-        blink
-        impala # wifi mgmt tui
-        gparted
-        bluetui
-        crates-tui
-        # stm32cubemx
-        # penpot-desktop
-        # webcord-vencord
-      ]
       ++ lib.optionals stdenv.isDarwin [
         utm # virtual machines on macos
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
+        # quickemu # broken as of Sun May 10 18:29:41 EDT 2026. error: Cannot build '/nix/store/3swsq60jxg8qdrpv7kjm19xah38r64d4-samba-4.23.5.drv'.
         minikube
         binsider
         jsonschema
@@ -271,6 +220,72 @@
         source = ../darwin/kanata.kbd;
       };
     };
+
+  }
+  // lib.optionalAttrs pkgs.stdenv.isLinux {
+    packages =
+      with pkgs;
+      [
+        # ============== 🤪 ================
+        hollywood # movie hacker screen animation
+
+        # atopile     # circuit diagrams as code
+        # ventoy-full # flash multiple isos to usb
+        # super-slicer # 3D printing
+        woeusb-ng # flash bootable windows iso
+        virt-viewer
+        smartmontools
+      ]
+      ++ [
+        # ============= 🧑‍💻🐞✨‍ ================
+        ugm # user group management
+        isd # systemd units
+        dysk # see mounted
+        kmon # kernel monitor
+        termshark # wireshark-like TUI
+        systeroid # powerful sysctl alternative
+        netscanner
+        lazyjournal # journal logs
+        # lazyhetzner
+        systemctl-tui # systemctl logs
+
+        # qmk
+        # qmk_hid
+        # qmk-udev-rules
+      ]
+      ++ [
+        atk
+        glib
+        file
+        cairo
+        pango
+        xdotool
+        openssl
+        librsvg
+        pkg-config
+        webkitgtk_4_1
+        libappindicator-gtk3
+      ]
+      ++ lib.optionals config.wayland.windowManager.hyprland.enable [
+        wl-screenrec
+        wl-clipboard
+      ]
+      ++ lib.optionals stdenv.isx86_64 [
+        # x86_64-linux only — these pull fltk-1.3.11 via gmsh, which currently
+        # fails to build on aarch64-linux in this nixpkgs revision.
+        # Drop gate once aarch64 fltk works.
+        freecad
+      ]
+      ++ lib.optionals stdenv.isx86_64 [
+        blink
+        impala # wifi mgmt tui
+        gparted
+        bluetui
+        crates-tui
+        # stm32cubemx
+        # penpot-desktop
+        # webcord-vencord
+      ];
   };
 }
 
