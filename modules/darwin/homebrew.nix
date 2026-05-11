@@ -20,7 +20,6 @@
     };
 
     taps = [
-      "espressif/eim"
       "quickemu-project/quickemu"
     ];
 
@@ -52,12 +51,12 @@
       "libvirt" # brew services start libvirt
       "quickemu"
       "dfu-util"
-      "pioarduino/pioarduino/pioarduino"
+      "galaxy-io/tap/gnat"
       # "dirien/dirien/lazy-pulumi"
-      "Valkyrie00/homebrew-bbrew/bbrew" # homebrew TUI
+      "Valkyrie00/homebrew-bbrew/bbrew"
+      "pioarduino/pioarduino/pioarduino"
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
-      "eim"
       "mlx"
       "qemu"
       "nemu"
@@ -65,9 +64,7 @@
       "ollama"
       "ferron" # rust-based caddy-like web server
       "netscanner"
-      # "podman"
-      # "avr-gcc"
-      # "arm-none-eabi-gcc"
+      "espressif/eim/eim"
       "renode/tap/renode-nightly"
       "Vaishnav-Sabari-Girish/taps/comchan" # TUI serial monitor
     ];
