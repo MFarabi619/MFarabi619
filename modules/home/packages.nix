@@ -21,6 +21,7 @@
         rubyPackages_3_4.rails
       ]
       ++ [
+        tio
         SDL2 # for embedded TUI simulator
         espup
         esptool
