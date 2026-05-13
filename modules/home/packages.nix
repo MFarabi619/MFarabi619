@@ -39,26 +39,44 @@
         }))
 
         (python314.withPackages (
-          package: with package; [
+          package:
+          with package;
+          [
+            dtc
             west
             tqdm
             cbor
-            pyusb
             cbor2
             click
-            semver
             patool
             jinja2
             anytree
             tkinter
-            pygments
-            pyserial
             intelhex
             requests
-            kconfiglib
             pyelftools
             jsonschema
             cryptography
+          ]
+          ++ [
+            esptool
+          ]
+          ++ [
+            pyusb
+            pyserial
+          ]
+          ++ [
+            semver
+            pygments
+            kconfiglib
+          ]
+          ++ [
+            # NOTE: for west twister
+            psutil
+            pytest
+            natsort
+            tabulate # for --device-testing
+            junitparser
           ]
         ))
       ]
