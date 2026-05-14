@@ -48,6 +48,7 @@
       macos_colorspace = "default";
       hide_window_decorations = "titlebar-only";
       macos_quit_when_last_window_closed = "yes";
+      enabled_layouts = "splits:split_axis=horizontal";
 
       # confirm_os_window_close = 0;
     };

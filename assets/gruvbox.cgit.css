@@ -1,0 +1,172 @@
+:root {
+    --bg_h: #1d2021;
+    --bg:   #282828;
+    --bg_s: #32302f;
+    --bg1:  #3c3836;
+    --bg2:  #504945;
+    --bg3:  #665c54;
+    --bg4:  #7c6f64;
+
+    --fg:  #fbf1c7;
+    --fg1: #ebdbb2;
+    --fg2: #d5c4a1;
+    --fg3: #bdae93;
+    --fg4: #a89984;
+
+    --red:    #fb4934;
+    --green:  #b8bb26;
+    --yellow: #fabd2f;
+    --blue:   #83a598;
+    --purple: #d3869b;
+    --aqua:   #8ec07c;
+    --gray:   #928374;
+    --orange: #fe8019;
+
+    --red-dim:    #cc2412;
+    --green-dim:  #98971a;
+    --yellow-dim: #d79921;
+    --blue-dim:   #458588;
+    --purple-dim: #b16286;
+    --aqua-dim:   #689d6a;
+    --gray-dim:   #a89984;
+    --orange-dim: #d65d0e;
+}
+
+body, #cgit, .path, div#cgit table.blob td.hashes,
+div#cgit table.blob td.lines, div#cgit div.cgit-panel table,
+div#cgit table.diffstat {
+    background: var(--bg) !important;
+    color: var(--fg) !important;
+    border: none
+}
+
+a {
+    color: var(--fg) !important;
+    text-decoration: underline !important;
+}
+
+select, input {
+    border: none;
+    background: var(--bg2);
+    color: var(--fg);
+}
+
+/**************/
+/*** TABLES ***/
+/**************/
+div#cgit table.tabs td a.active {
+    background: var(--bg) !important;
+    color: var(--yellow) !important;
+}
+
+div#cgit table.tabs, div#cgit div.content,
+div#cgit table#header td.sub {
+    border: none;
+}
+
+div#cgit table.list tr.nohover,
+div#cgit table.list tr:nth-child(2n) {
+    background: var(--bg) !important;
+}
+
+div#cgit table.list tr:nth-child(2n+1) {
+    background: var(--bg_s) !important;
+}
+
+div#cgit table.list tr:hover:not(.nohover) {
+    background: var(--bg1) !important;
+}
+
+/************/
+/*** CODE ***/
+/************/
+div#cgit table.blob td.linenumbers,
+div#cgit table.blob {
+    border-color: var(--gray);
+}
+
+div#cgit table.blob td.linenumbers a {
+    color: var(--gray) !important;
+    text-decoration: none !important;
+}
+
+.markdown-body code, .markdown-body tt,
+.markdown-body .highlight pre, .markdown-body pre {
+    background: var(--bg1) !important;
+}
+
+/************/
+/*** AGES ***/
+/************/
+.age-hours {
+    color: var(--aqua) !important;
+}
+
+.age-days {
+    color: var(--aqua-dim) !important;
+}
+
+.age-weeks {
+    color: var(--fg) !important;
+}
+
+.age-months {
+    color: var(--fg2) !important;
+}
+
+.age-years {
+    color: var(--fg4) !important;
+}
+
+/******************/
+/*** DECORATORS ***/
+/******************/
+div#cgit a.branch-deco {
+    background: var(--aqua);
+    border: none;
+    color: var(--bg) !important;
+}
+
+div#cgit a.deco {
+    background: var(--yellow);
+    border: none;
+    color: var(--bg) !important;
+}
+
+div#cgit a.tag-deco {
+    background: var(--gray);
+    border: none;
+    color: var(--bg) !important;
+}
+
+/************/
+/*** DIFF ***/
+/************/
+div#cgit table.diff td div.hunk {
+    color: var(--blue);
+}
+
+div#cgit table.diff td div.del {
+    color: var(--red);
+}
+
+div#cgit table.diff td div.add {
+    color: var(--green);
+}
+
+div#cgit table.diff td div.ctx {
+    color: var(--gray);
+}
+
+div#cgit table.diff td div.head {
+    color: var(--fg);
+}
+
+div#cgit table.diffstat td.graph td.add {
+    background: var(--green);
+}
+
+div#cgit table.diffstat td.graph td.rem {
+    background: var(--red);
+}
+.logo { display: none; }
