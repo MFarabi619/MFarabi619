@@ -6,7 +6,7 @@
 {
   programs.kitty = {
     enable = true;
-    enableGitIntegration = true;
+    enableGitIntegration = config.programs.git.enable;
 
     shellIntegration = {
       enableZshIntegration = true;
