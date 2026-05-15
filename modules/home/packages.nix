@@ -59,9 +59,6 @@
             cryptography
           ]
           ++ [
-            esptool
-          ]
-          ++ [
             pyusb
             pyserial
           ]
