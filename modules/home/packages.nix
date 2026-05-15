@@ -81,6 +81,9 @@
         ))
       ]
       ++ [
+        flock
+      ]
+      ++ [
         lighttpd
         radicle-tui
         radicle-httpd
