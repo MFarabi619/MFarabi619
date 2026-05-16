@@ -6,19 +6,23 @@
 {
   services.cgit."cgit" = {
     enable = true;
-    scanPath = "/var/lib/git";
+    scanPath = "/srv/git";
     gitHttpBackend.enable = true;
-
-    repos = {
-      MFarabi619 = {
-        path = "/var/lib/git/MFarabi619";
-        desc = "Monorepo containing configs, projects, notes, etc. Doubling as practice for managing huge, multi-language codebases with potentially unrelated concerns.";
-      };
-    };
+    gitHttpBackend.checkExportOkFiles = false;
+    nginx.virtualHost = "cgit.mfarabi.sh";
 
     settings = {
       root-title = "Mumtahin Farabi";
       root-desc = "A society grows great when the old plant trees in whose shade they know they shall never sit. 🌴";
+      root-readme = builtins.toFile "cgit-root-readme.txt" ''
+        Public Git mirror for Mumtahin Farabi's monorepo.
+
+        Clone:    git clone https://cgit.mfarabi.sh/MFarabi619
+        Browse:   click a repository name above.
+
+        Theme:    gruvbox-cgit by imn1
+                  https://gitlab.com/imn1/gruvbox-cgit
+      '';
 
       remove-suffix = "1";
       section-from-path = "1";
@@ -41,26 +45,31 @@
 
       branch-sort = "age";
 
-      favicon = "${flake.self}/assets/apollyon-linux-logo.png";
+      favicon = "/favicon.png";
+      logo = "/favicon.png";
       logo-link = "https://mfarabi.sh";
+
+      section-sort = "0";
 
       snapshots = "tar.gz";
 
       readme = [
-        ":README.md"
-        ":README"
         ":readme.md"
         ":readme"
+        ":README.md"
+        ":README"
       ];
 
       cache-size = "1000";
       cache-root = "/var/cache/cgit";
+      cache-root-ttl = "60";
+      cache-repo-ttl = "15";
 
       about-filter = "${pkgs.cgit}/lib/cgit/filters/about-formatting.sh";
 
       css = [
-        "/etc/cgit.css"
-        "${flake.self}/assets/gruvbox.cgit.css"
+        "/cgit.css"
+        "/gruvbox.cgit.css"
       ];
     };
   };

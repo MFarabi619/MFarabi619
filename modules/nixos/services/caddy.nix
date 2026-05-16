@@ -115,18 +115,22 @@
 
           "nui.apidae.systems" = "http://macos";
           "nats.apidae.systems" = "http://macos";
-          "git.apidae.systems" = "http://macos";
           "auth.apidae.systems" = "http://macos";
           "bore.apidae.systems" = "http://macos";
           "grafana.apidae.systems" = "http://macos";
           "ceratina.apidae.systems" = "http://macos";
           "home-assistant.apidae.systems" = "http://macos";
+          "cgit.apidae.systems" = "http://freebsd-macbook-11-4";
 
           "http://microvisor.systems" = "http://10.0.0.236";
           "http://tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
         }
       )
       {
+
+        "${config.services.cgit."cgit".nginx.virtualHost}".extraConfig =
+          "reverse_proxy http://localhost:${toString config.services.nginx.defaultHTTPListenPort}";
+
         "http://manzikert.ca".extraConfig = "reverse_proxy :81";
         "http://www.manzikert.ca".extraConfig = "reverse_proxy :81";
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
