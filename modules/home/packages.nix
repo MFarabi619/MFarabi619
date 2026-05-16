@@ -33,6 +33,7 @@
         cargo-binstall
         renode-dts2repl
         kconfig-frontends
+        home-assistant-cli
 
         (probe-rs-tools.overrideAttrs (old: {
           cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
