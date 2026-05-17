@@ -45,8 +45,8 @@
 
       branch-sort = "age";
 
-      favicon = "/favicon.png";
-      logo = "/favicon.png";
+      favicon = "/favicon.svg";
+      logo = "/favicon.svg";
       logo-link = "https://mfarabi.sh";
 
       section-sort = "0";
