@@ -147,7 +147,7 @@ ya pkg add yazi-rs/plugins:{git,mime-ext,smart-enter,smart-filter,smart-paste,ch
 #+end_src
 
 #+begin_src zsh
-doas pkg install tailscale systeroid gh ttyd sysutils/lazyssh
+doas pkg install tailscale systeroid ttyd sysutils/lazyssh
 #+end_src
 
 #+begin_src zsh
