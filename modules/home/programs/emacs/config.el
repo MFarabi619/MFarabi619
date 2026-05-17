@@ -11,58 +11,58 @@
 (add-to-list 'auto-mode-alist '("\\.overlay\\'" . devicetree-ts-mode))
 
 (setopt doom-theme 'doom-gruvbox
-        ;; doom-theme 'catppuccin
-        fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
+  ;; doom-theme 'catppuccin
+  fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
 
-        column-number-mode nil
-        size-indication-mode nil
-        doom-modeline-percent-position nil
+  column-number-mode nil
+  size-indication-mode nil
+  doom-modeline-percent-position nil
 
-        doom-modeline-hud t
-        doom-modeline-time-icon t
-        doom-modeline-battery nil
-        doom-modeline-persp-name t
-        doom-modeline-major-mode-icon t
-        ;; doom-lantern-padded-modeline t
+  doom-modeline-hud t
+  doom-modeline-time-icon t
+  doom-modeline-battery nil
+  doom-modeline-persp-name t
+  doom-modeline-major-mode-icon t
+  ;; doom-lantern-padded-modeline t
 
-        display-time-day-and-date t
-        display-line-numbers-type 'relative
+  display-time-day-and-date t
+  display-line-numbers-type 'relative
 
-        doom-font                (font-spec :family "JetBrainsMono Nerd Font" :size 14)
-        doom-big-font            (font-spec :family "JetBrainsMono Nerd Font" :size 32)
-        doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
-        doom-symbol-font doom-font
+  doom-font                (font-spec :family "JetBrainsMono Nerd Font" :size 14)
+  doom-big-font            (font-spec :family "JetBrainsMono Nerd Font" :size 32)
+  doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
+  doom-symbol-font doom-font
 
-        evil-escape-key-sequence "jk"
-        which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
+  evil-escape-key-sequence "jk"
+  which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
 
-        which-key-idle-delay 0.25
+  which-key-idle-delay 0.25
 
-        org-latex-compiler "lualatex"
-        plantuml-default-exec-mode "executable"
+  org-latex-compiler "lualatex"
+  plantuml-default-exec-mode "executable"
 
-        org-directory "~/Documents/org/"
-        user-full-name "Mumtahin Farabi"
-        user-mail-address "mfarabi619@gmail.com"
-        ;; plstore-cache-passphrase-for-symmetric-encryption t
+  org-directory "~/Documents/org/"
+  user-full-name "Mumtahin Farabi"
+  user-mail-address "mfarabi619@gmail.com"
+  ;; plstore-cache-passphrase-for-symmetric-encryption t
 
-        compilation-scroll-output t
-        find-file-visit-truename nil
-        ;; browse-url-browser-function 'browse-url-default-browser
-        projectile-project-search-path '("~/workspace/" "~/Documents/")
+  compilation-scroll-output t
+  find-file-visit-truename nil
+  ;; browse-url-browser-function 'browse-url-default-browser
+  projectile-project-search-path '("~/workspace/" "~/Documents/")
 
-        lsp-postgres-server-path "postgrestools"
+  lsp-postgres-server-path "postgrestools"
 
-        gdb-debuginfod-enable-setting t
-        gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
+  gdb-debuginfod-enable-setting t
+  gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
 
 ;; message-mode globals — shared by gnus, mu4e, and any compose-mail buffer.
 (setopt send-mail-function               #'sendmail-send-it
-        sendmail-program                 (executable-find "msmtp")
-        message-sendmail-f-is-evil       t
-        message-sendmail-envelope-from   'header
-        message-send-mail-function       #'message-send-mail-with-sendmail
-        message-sendmail-extra-arguments '("--read-envelope-from"))
+  sendmail-program                 (executable-find "msmtp")
+  message-sendmail-f-is-evil       t
+  message-sendmail-envelope-from   'header
+  message-send-mail-function       #'message-send-mail-with-sendmail
+  message-sendmail-extra-arguments '("--read-envelope-from"))
 
 (load!        "./dashboard.el")
 ;; (add-load-path! "pio-mode")
@@ -80,7 +80,7 @@
 ;; (use-package! fancy-compilation     :after compile       :config (setopt fancy-compilation-term "xterm-256color" fancy-compilation-quiet-prelude t fancy-compilation-quiet-prolog t fancy-compilation-override-colors nil) (fancy-compilation-mode 1))
 (use-package! ob-duckdb             :after org           :config (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
 (use-package! disaster              :commands (disaster) :init ;; If you prefer viewing assembly code in `nasm-mode` instead of `asm-mode`
-              (setq disaster-assembly-mode #'nasm-mode) (map! :localleader :map (c++-mode-map c-mode-map fortran-mode-map) :desc "Disaster" "d" #'disaster))
+  (setq disaster-assembly-mode #'nasm-mode) (map! :localleader :map (c++-mode-map c-mode-map fortran-mode-map) :desc "Disaster" "d" #'disaster))
 
 (after!       direnv        (direnv-mode -1))
 (after!       undo-tree     (global-undo-tree-mode 1))
@@ -110,25 +110,27 @@
 (after!       gnus          (setopt gnus-secondary-select-methods nil mm-text-html-renderer 'shr mm-inline-large-images t mm-discouraged-alternatives '("text/plain" "text/richtext") shr-use-colors nil shr-max-width 100 shr-max-image-proportion 0.6 shr-use-fonts nil gnus-select-method '(nnmaildir "local" (directory "~/Maildir/personal"))))
 (after!       rustic-mode   (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
 (after!       which-key     (add-to-list 'which-key-replacement-alist '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))) (add-to-list 'which-key-replacement-alist '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
-
+;; (after!       eww           (add-hook! 'eww-mode-hook #'writeroom-mode))
 (after! xwidget
-  (setopt browse-url-browser-function #'xwidget-webkit-browse-url)
+  (setopt
+    browse-url-browser-function #'xwidget-webkit-browse-url
+    xwidget-webkit-enable-plugins t)
 
-  (add-hook! 'xwidget-webkit-mode-hook
-    (hide-mode-line-mode 1)
-    (setq-local mode-line-format nil)
-    (setq-local header-line-format nil)
-    ;; (when (bound-and-true-p doom-modeline-mode) (doom-modeline-mode -1))
-    )
+  ;; (add-hook! 'xwidget-webkit-mode-hook
+  ;;   (hide-mode-line-mode 1)
+  ;;   (setq-local mode-line-format nil)
+  ;;   (setq-local header-line-format nil)
+  ;;   ;; (when (bound-and-true-p doom-modeline-mode) (doom-modeline-mode -1))
+  ;;   )
 
   (map! :map xwidget-webkit-edit-mode-map
-        "DEL" #'xwidget-webkit-pass-command-event
-        "<backspace>" #'xwidget-webkit-pass-command-event
-        "M-DEL" #'xwidget-webkit-pass-command-event
-        "M-<backspace>" #'xwidget-webkit-pass-command-event
-        "<delete>" #'xwidget-webkit-pass-command-event
-        "M-<delete>" #'xwidget-webkit-pass-command-event
-        "C-h" #'xwidget-webkit-pass-command-event))
+    "DEL" #'xwidget-webkit-pass-command-event
+    "<backspace>" #'xwidget-webkit-pass-command-event
+    "M-DEL" #'xwidget-webkit-pass-command-event
+    "M-<backspace>" #'xwidget-webkit-pass-command-event
+    "<delete>" #'xwidget-webkit-pass-command-event
+    "M-<delete>" #'xwidget-webkit-pass-command-event
+    "C-h" #'xwidget-webkit-pass-command-event))
 
 (after!       proced        (setopt proced-auto-update-interval 1 proced-goal-attribute nil proced-enable-color-flag t proced-format 'medium) (setq-default proced-auto-update-flag t)
   (add-hook! 'proced-mode-hook
@@ -150,77 +152,77 @@
 
   (defun my/prodigy-group-row-p (&optional pos) (let ((id (tabulated-list-get-id pos))) (and (consp id) (eq (car id) :group))))
   (defun my/prodigy-next-service (&optional n) (interactive "p") (let ((n (or n 1))) (dotimes (_ n) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))
-                                                                      (when (eobp) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))))
+                                                                   (when (eobp) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))))
   (defun my/prodigy-previous-service (&optional n) (interactive "p") (let ((n (or n 1))) (dotimes (_ n) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))
-                                                                          (when (my/prodigy-group-row-p) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))))
+                                                                       (when (my/prodigy-group-row-p) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))))
   (defun my/prodigy-display-name (service) (or (plist-get service :display-name) (plist-get service :name) ""))
   (defun my/prodigy-group-label (service) (or (plist-get service :group-label) "other"))
 
   (defun my/prodigy-service-entry (service) (list (prodigy-service-id service) (vector (prodigy-marked-col service) (propertize (my/prodigy-display-name service) 'face (or (prodigy-status-face service) 'default)) (if-let ((port (plist-get service :port))) (number-to-string port) ""))))
 
   (defun my/prodigy-group-entry (label) (let* ((width 35)
-                                               (text  (format "  %s  " label))
-                                               (text-width (string-width text))
-                                               (left-width  (max 0 (/ (- width text-width) 2)))
-                                               (right-width (max 0 (- width text-width left-width)))
-                                               (left  (propertize (make-string left-width ?─) 'face 'shadow))
-                                               (right (propertize (make-string right-width ?─) 'face 'shadow))
-                                               (mid   (propertize text 'face 'shadow)))
+                                                (text  (format "  %s  " label))
+                                                (text-width (string-width text))
+                                                (left-width  (max 0 (/ (- width text-width) 2)))
+                                                (right-width (max 0 (- width text-width left-width)))
+                                                (left  (propertize (make-string left-width ?─) 'face 'shadow))
+                                                (right (propertize (make-string right-width ?─) 'face 'shadow))
+                                                (mid   (propertize text 'face 'shadow)))
                                           (list `(:group ,label) (vector "" (concat left mid right) ""))))
 
   (defun my/prodigy-list-entries () (apply #'append (mapcar (lambda (group) (let ((label (car group)) (services (sort (copy-sequence (cdr group)) (lambda (a b) (string-lessp (my/prodigy-display-name a) (my/prodigy-display-name b))))))
                                                                               (cons (my/prodigy-group-entry label) (mapcar #'my/prodigy-service-entry services))))
-                                                            (seq-group-by #'my/prodigy-group-label (prodigy-services)))))
+                                                      (seq-group-by #'my/prodigy-group-label (prodigy-services)))))
 
   (add-hook! 'prodigy-mode-hook (setq-local mode-line-format nil
-                                            header-line-format nil
-                                            tabulated-list-padding 0
-                                            tabulated-list-groups nil
-                                            tabulated-list-sort-key nil
-                                            tabulated-list-entries #'my/prodigy-list-entries
-                                            tabulated-list-format [(" " 1 nil) ("Service" 35 t) ("Port" 1 t)])
+                                  header-line-format nil
+                                  tabulated-list-padding 0
+                                  tabulated-list-groups nil
+                                  tabulated-list-sort-key nil
+                                  tabulated-list-entries #'my/prodigy-list-entries
+                                  tabulated-list-format [(" " 1 nil) ("Service" 35 t) ("Port" 1 t)])
     (tabulated-list-print t))) ;; end prodigy
 
 (with-eval-after-load 'circe
   (set-irc-server! "irc.libera.chat"
     '(:tls t
-      :port 6697
-      :nick "mfarabi"
-      :channels ("#emacs")
-      :sasl-username (+pass-get-user "irc/libera.chat")
-      :sasl-password (+pass-get-secret "irc/libera.chat"))))
+       :port 6697
+       :nick "mfarabi"
+       :channels ("#emacs")
+       :sasl-username (+pass-get-user "irc/libera.chat")
+       :sasl-password (+pass-get-secret "irc/libera.chat"))))
 
 (with-eval-after-load 'mu4e
   (setopt
-   mu4e-maildir (expand-file-name "~/Maildir")
-   mu4e-index-cleanup nil
-   mu4e-index-lazy-check t
-   mu4e-context-policy 'ask-if-none
-   mu4e-compose-context-policy 'always-ask)
+    mu4e-maildir (expand-file-name "~/Maildir")
+    mu4e-index-cleanup nil
+    mu4e-index-lazy-check t
+    mu4e-context-policy 'ask-if-none
+    mu4e-compose-context-policy 'always-ask)
   (setq mu4e-contexts
-        (list
-         (make-mu4e-context
-          :name "Gmail"
-          :match-func (lambda (msg)
-                        (when msg
-                          (string-prefix-p "/personal" (mu4e-message-field msg :maildir))))
-          :vars '((user-mail-address     . "mfarabi619@gmail.com")
-                  (mu4e-sent-folder      . "/personal/[Gmail]/Sent Mail")
-                  (mu4e-drafts-folder    . "/personal/[Gmail]/Drafts")
-                  (mu4e-trash-folder     . "/personal/[Gmail]/Trash")
-                  (mu4e-refile-folder    . "/personal/[Gmail]/All Mail")
-                  (smtpmail-smtp-user    . "mfarabi619@gmail.com")))
-         (make-mu4e-context
-          :name "apidaesystems"
-          :match-func (lambda (msg)
-                        (when msg
-                          (string-prefix-p "/apidaesystems" (mu4e-message-field msg :maildir))))
-          :vars '((user-mail-address     . "farabi@apidaesystems.ca")
-                  (mu4e-sent-folder      . "/apidaesystems/[Gmail]/Sent Mail")
-                  (mu4e-drafts-folder    . "/apidaesystems/[Gmail]/Drafts")
-                  (mu4e-trash-folder     . "/apidaesystems/[Gmail]/Trash")
-                  (mu4e-refile-folder    . "/apidaesystems/[Gmail]/All Mail")
-                  (smtpmail-smtp-user    . "farabi@apidaesystems.ca")))))
+    (list
+      (make-mu4e-context
+        :name "Gmail"
+        :match-func (lambda (msg)
+                      (when msg
+                        (string-prefix-p "/personal" (mu4e-message-field msg :maildir))))
+        :vars '((user-mail-address     . "mfarabi619@gmail.com")
+                 (mu4e-sent-folder      . "/personal/[Gmail]/Sent Mail")
+                 (mu4e-drafts-folder    . "/personal/[Gmail]/Drafts")
+                 (mu4e-trash-folder     . "/personal/[Gmail]/Trash")
+                 (mu4e-refile-folder    . "/personal/[Gmail]/All Mail")
+                 (smtpmail-smtp-user    . "mfarabi619@gmail.com")))
+      (make-mu4e-context
+        :name "apidaesystems"
+        :match-func (lambda (msg)
+                      (when msg
+                        (string-prefix-p "/apidaesystems" (mu4e-message-field msg :maildir))))
+        :vars '((user-mail-address     . "farabi@apidaesystems.ca")
+                 (mu4e-sent-folder      . "/apidaesystems/[Gmail]/Sent Mail")
+                 (mu4e-drafts-folder    . "/apidaesystems/[Gmail]/Drafts")
+                 (mu4e-trash-folder     . "/apidaesystems/[Gmail]/Trash")
+                 (mu4e-refile-folder    . "/apidaesystems/[Gmail]/All Mail")
+                 (smtpmail-smtp-user    . "farabi@apidaesystems.ca")))))
   ;; (use-package! mu4e-views        :config (setopt mu4e-views-completion-method 'default mu4e-views-default-view-method "html" mu4e-views-auto-view-selected-message t mu4e-views-next-previous-message-behaviour 'stick-to-current-window) (mu4e-views-mu4e-use-view-msg-method "html"))
   (use-package! mu4e-column-faces :config (mu4e-column-faces-mode 1))
   (use-package! mu4e-marker-icons :config (mu4e-marker-icons-mode 1)))
@@ -258,49 +260,49 @@ when they were opened, so they skip the re-application."
         (hack-dir-local-variables-non-file-buffer))))
   (let ((this-command 'compile-multi) (real-this-command 'compile-multi))
     (if (bound-and-true-p vertico-posframe-mode)
-        (unwind-protect (progn (vertico-posframe-mode -1) (compile-multi--get-task))
-          (vertico-posframe-mode 1))
+      (unwind-protect (progn (vertico-posframe-mode -1) (compile-multi--get-task))
+        (vertico-posframe-mode 1))
       (compile-multi--get-task))))
 
 (defun my/compile-multi-prodigy ()
   (interactive)
   (let* ((task        (my/compile-multi-read-task))
-         (title       (car task))
-         (plain-title (substring-no-properties title))
-         (plist       (cdr task)))
+          (title       (car task))
+          (plain-title (substring-no-properties title))
+          (plist       (cdr task)))
     (if (plist-get plist :prodigy)
-        (if-let ((service (prodigy-find-service plain-title)))
-            (progn (save-selected-window (prodigy))
-                   (if (prodigy-service-started-p service)
-                       (prodigy-restart-service service
-                         (lambda () (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))
+      (if-let ((service (prodigy-find-service plain-title)))
+        (progn (save-selected-window (prodigy))
+          (if (prodigy-service-started-p service)
+            (prodigy-restart-service service
+              (lambda () (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))
 
-                     (prodigy-start-service service
-                       (lambda ()
-                         (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))))
-          (message "No Prodigy service found for %s" plain-title))
+            (prodigy-start-service service
+              (lambda ()
+                (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))))
+        (message "No Prodigy service found for %s" plain-title))
       (compile-multi nil (plist-get plist :command)))))
 
 (defvar-keymap my-claude-code-map :repeat t "M" #'claude-code-cycle-mode)
 
 (map! :n                                      "j" #'evil-next-visual-line
-      :n                                      "k" #'evil-previous-visual-line
-      :leader             :desc "Dirvish"     "k" #'dirvish
-      :leader             :desc "vterm"       "j" #'+vterm/toggle
-      :leader             :desc "Lazygit"     "l" #'+lazygit/toggle
-      :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
-      :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
-      :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
-      :leader :prefix "c" :desc "Compile"     "c" #'my/compile-multi-prodigy
-      :leader :prefix "c" :desc "In-Progress" "p" #'compilation-goto-in-progress-buffer
+  :n                                      "k" #'evil-previous-visual-line
+  :leader             :desc "Dirvish"     "k" #'dirvish
+  :leader             :desc "vterm"       "j" #'+vterm/toggle
+  :leader             :desc "Lazygit"     "l" #'+lazygit/toggle
+  :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
+  :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
+  :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
+  :leader :prefix "c" :desc "Compile"     "c" #'my/compile-multi-prodigy
+  :leader :prefix "c" :desc "In-Progress" "p" #'compilation-goto-in-progress-buffer
 
-      :map prodigy-mode-map :n "j" #'my/prodigy-next-service :n "k" #'my/prodigy-previous-service
-      :map mu4e-headers-mode-map
-      "M-p" #'mu4e-views-cursor-msg-view-window-up
-      "M-n" #'mu4e-views-cursor-msg-view-window-down
-      "i"   #'mu4e-views-mu4e-view-as-nonblocked-html
-      "v"   #'mu4e-views-mu4e-select-view-msg-method
-      "f"   #'mu4e-views-toggle-auto-view-selected-message)
+  :map prodigy-mode-map :n "j" #'my/prodigy-next-service :n "k" #'my/prodigy-previous-service
+  :map mu4e-headers-mode-map
+  "M-p" #'mu4e-views-cursor-msg-view-window-up
+  "M-n" #'mu4e-views-cursor-msg-view-window-down
+  "i"   #'mu4e-views-mu4e-view-as-nonblocked-html
+  "v"   #'mu4e-views-mu4e-select-view-msg-method
+  "f"   #'mu4e-views-toggle-auto-view-selected-message)
 
 (after! dape
   (defvar my/dape-use-custom-layout nil)
@@ -308,143 +310,143 @@ when they were opened, so they skip the re-application."
   (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-channel-config)) _body) (dape-request conn "rttWindowOpened" '((channelNumber . 0) (windowIsOpen . t)))) ;; Tell probe-rs that the RTT terminal window is open.
 
   (setopt
-   dape-request-timeout 60
-   dape-repl-echo-shell-output t
-   dape-info-variable-table-aligned t
-   dape-buffer-window-arrangement 'gud
-   dape-adapter-dir "~/.local/share/nix-doom/debug-adapters/"
-   dape-display-source-buffer-action '((display-buffer-reuse-window display-buffer-same-window)) ;; Keep source in the selected main window.
-   dape-info-buffer-window-groups    '(((dape-info-scope-mode 3) dape-info-breakpoints-mode dape-info-threads-mode)
-                                       ((dape-info-scope-mode 0) dape-info-watch-mode) ((dape-info-scope-mode 2))
-                                       (dape-info-stack-mode (dape-info-scope-mode 1) dape-info-modules-mode dape-info-sources-mode))
-   display-buffer-alist      (append '(((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-1)))
-                                        (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . -1) (window-width . 0.70))
-                                       ((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-2)))
-                                        (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . 0) (window-width . 0.15))
-                                       ((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-4)))
-                                        (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . 1) (window-width . 0.15)))
-                                     display-buffer-alist))
+    dape-request-timeout 60
+    dape-repl-echo-shell-output t
+    dape-info-variable-table-aligned t
+    dape-buffer-window-arrangement 'gud
+    dape-adapter-dir "~/.local/share/nix-doom/debug-adapters/"
+    dape-display-source-buffer-action '((display-buffer-reuse-window display-buffer-same-window)) ;; Keep source in the selected main window.
+    dape-info-buffer-window-groups    '(((dape-info-scope-mode 3) dape-info-breakpoints-mode dape-info-threads-mode)
+                                         ((dape-info-scope-mode 0) dape-info-watch-mode) ((dape-info-scope-mode 2))
+                                         (dape-info-stack-mode (dape-info-scope-mode 1) dape-info-modules-mode dape-info-sources-mode))
+    display-buffer-alist      (append '(((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-1)))
+                                          (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . -1) (window-width . 0.70))
+                                         ((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-2)))
+                                           (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . 0) (window-width . 0.15))
+                                         ((lambda (_buffer alist) (and (eq dape-buffer-window-arrangement 'gud) (eq (alist-get 'category alist) 'dape-info-4)))
+                                           (display-buffer-reuse-window display-buffer-in-side-window) (side . bottom) (slot . 1) (window-width . 0.15)))
+                                display-buffer-alist))
 
   (when my/dape-use-custom-layout
     (setopt
-     dape-buffer-window-arrangement nil
-     dape-info-buffer-window-groups '(((dape-info-scope-mode 3)) ((dape-info-scope-mode 1)) (dape-info-watch-mode)
-                                      ((dape-info-scope-mode 0)) ((dape-info-scope-mode 2)) (dape-info-breakpoints-mode)
-                                      (dape-info-threads-mode) (dape-info-stack-mode dape-info-modules-mode dape-info-sources-mode))
-     display-buffer-alist
-     (append
-      '(
-        ;; LEFT TOP: Variables
-        ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-0))
-         (display-buffer-reuse-window display-buffer-in-side-window)
-         (side . left) (slot . 0) (window-width . 0.25))
+      dape-buffer-window-arrangement nil
+      dape-info-buffer-window-groups '(((dape-info-scope-mode 3)) ((dape-info-scope-mode 1)) (dape-info-watch-mode)
+                                        ((dape-info-scope-mode 0)) ((dape-info-scope-mode 2)) (dape-info-breakpoints-mode)
+                                        (dape-info-threads-mode) (dape-info-stack-mode dape-info-modules-mode dape-info-sources-mode))
+      display-buffer-alist
+      (append
+        '(
+           ;; LEFT TOP: Variables
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-0))
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . left) (slot . 0) (window-width . 0.25))
 
-        ;; RIGHT MID: Static
-        ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-1))
-         (display-buffer-reuse-window display-buffer-in-side-window)
-         (side . right) (slot . 1) (window-width . 0.45) (window-height . 0.38))
+           ;; RIGHT MID: Static
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-1))
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . right) (slot . 1) (window-width . 0.45) (window-height . 0.38))
 
-        ;; LEFT: Stack / Modules / Sources
-        ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-3))
-         (display-buffer-reuse-window display-buffer-in-side-window)
-         (side . left) (slot . 2) (window-width . 0.25) (window-height . 0.18))
+           ;; LEFT: Stack / Modules / Sources
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-3))
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . left) (slot . 2) (window-width . 0.25) (window-height . 0.18))
 
-        ;; LEFT LOWER: Watch
-        ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-2))
-         (display-buffer-reuse-window display-buffer-in-side-window)
-         (side . left) (slot . 3) (window-width . 0.25) (window-height . 0.05))
+           ;; LEFT LOWER: Watch
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-2))
+             (display-buffer-reuse-window display-buffer-in-side-window)
+             (side . left) (slot . 3) (window-width . 0.25) (window-height . 0.05))
 
-        ;; LEFT BOTTOM: Breakpoints
-        ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-5))
-         (display-buffer-reuse-window
-          (lambda (buffer alist)
-            (let ((window (display-buffer-in-side-window buffer alist)))
-              (with-current-buffer buffer (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1)) window)))
-         (side . left) (slot . 4) (window-width . 0.25) (window-height . 0.03))
+           ;; LEFT BOTTOM: Breakpoints
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-5))
+             (display-buffer-reuse-window
+               (lambda (buffer alist)
+                 (let ((window (display-buffer-in-side-window buffer alist)))
+                   (with-current-buffer buffer (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1)) window)))
+             (side . left) (slot . 4) (window-width . 0.25) (window-height . 0.03))
 
-        ;; LEFT BOTTOM: Threads
-        ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-6))
-         (display-buffer-reuse-window
-          (lambda (buffer alist)
-            (let ((window (display-buffer-in-side-window buffer alist)))
-              (with-current-buffer buffer (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1)) window)))
-         (side . left) (slot . 5) (window-width . 0.25) (window-height . 0.03))
+           ;; LEFT BOTTOM: Threads
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-6))
+             (display-buffer-reuse-window
+               (lambda (buffer alist)
+                 (let ((window (display-buffer-in-side-window buffer alist)))
+                   (with-current-buffer buffer (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1)) window)))
+             (side . left) (slot . 5) (window-width . 0.25) (window-height . 0.03))
 
-        ;; LEFT MID: Registers
-        ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-4))
-         (display-buffer-reuse-window
-          (lambda (buffer alist)
-            (let ((window (display-buffer-in-side-window buffer alist)))
-              (with-current-buffer buffer (setq-local dape-info-variable-table-aligned t)) window)))
-         (side . left) (slot . 1) (window-width . 0.25) (window-height . 0.24))
+           ;; LEFT MID: Registers
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-4))
+             (display-buffer-reuse-window
+               (lambda (buffer alist)
+                 (let ((window (display-buffer-in-side-window buffer alist)))
+                   (with-current-buffer buffer (setq-local dape-info-variable-table-aligned t)) window)))
+             (side . left) (slot . 1) (window-width . 0.25) (window-height . 0.24))
 
-        ;; RIGHT TOP: Peripherals
-        ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-7))
-         (display-buffer-reuse-window
-          (lambda (buffer alist)
-            (let ((window (display-buffer-in-side-window buffer alist)))
-              (with-current-buffer buffer (setq-local dape-info-variable-table-aligned t dape-info-variable-table-row-config '((name . 0) (value . 0) (type . 0)) face-remapping-alist '((default (:height 0.84)) (header-line (:height 0.84))))) window)))
-         (side . right) (slot . 0) (window-width . 0.45) (window-height . 0.62))
+           ;; RIGHT TOP: Peripherals
+           ((lambda (_buffer alist) (eq (alist-get 'category alist) 'dape-info-7))
+             (display-buffer-reuse-window
+               (lambda (buffer alist)
+                 (let ((window (display-buffer-in-side-window buffer alist)))
+                   (with-current-buffer buffer (setq-local dape-info-variable-table-aligned t dape-info-variable-table-row-config '((name . 0) (value . 0) (type . 0)) face-remapping-alist '((default (:height 0.84)) (header-line (:height 0.84))))) window)))
+             (side . right) (slot . 0) (window-width . 0.45) (window-height . 0.62))
 
-        ;; REPL: top half of the center area only
-        ("^\\*dape-repl\\*$" (display-buffer-reuse-window display-buffer-in-direction) (direction . above) (window-height . 0.3))
-        ("^\\*Welcome to the Dape REPL\\*$" (display-buffer-reuse-window display-buffer-in-direction) (direction . above) (window-height . 0.3)))
-      display-buffer-alist)))
+           ;; REPL: top half of the center area only
+           ("^\\*dape-repl\\*$" (display-buffer-reuse-window display-buffer-in-direction) (direction . above) (window-height . 0.3))
+           ("^\\*Welcome to the Dape REPL\\*$" (display-buffer-reuse-window display-buffer-in-direction) (direction . above) (window-height . 0.3)))
+        display-buffer-alist)))
 
   (add-to-list
-   'dape-configs
-   '(probe-rs
-     :chip "esp32s3" :request "launch" :type "probe-rs-debug" :consoleLogLevel "Console" :flashingConfig (:flashingEnabled t)
+    'dape-configs
+    '(probe-rs
+       :chip "esp32s3" :request "launch" :type "probe-rs-debug" :consoleLogLevel "Console" :flashingConfig (:flashingEnabled t)
 
-     port :autoport host "localhost" command "probe-rs"
-     modes (rust-mode rustic-mode)
-     compile "espflash partition-table boards/esp32s3.partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table boards/esp32s3.partitions.csv -- -rp firmware --bin p-uog-gre --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'"
-     command-args ("dap-server" "--port" ":autoport")
-     command-cwd (lambda () (project-root (project-current)))
-     :fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
-     :coreConfigs [(
-                    :coreIndex 0
-                    :rttEnabled t
-                    :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
-                    :svdFile (lambda () (let ((f (expand-file-name "boards/esp32s3.svd" (project-root (project-current))))) (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
-                    :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/microvisor" (project-root (project-current)))))]))
+       port :autoport host "localhost" command "probe-rs"
+       modes (rust-mode rustic-mode)
+       compile "espflash partition-table boards/esp32s3.partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table boards/esp32s3.partitions.csv -- -rp firmware --bin p-uog-gre --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'"
+       command-args ("dap-server" "--port" ":autoport")
+       command-cwd (lambda () (project-root (project-current)))
+       :fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
+       :coreConfigs [(
+                       :coreIndex 0
+                       :rttEnabled t
+                       :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
+                       :svdFile (lambda () (let ((f (expand-file-name "boards/esp32s3.svd" (project-root (project-current))))) (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
+                       :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/microvisor" (project-root (project-current)))))]))
 
   (add-hook!
-   'dape-display-source-hook #'pulse-momentary-highlight-one-line
-   'dape-repl-mode-hook (defun dape--repl-wrap () (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1))
-   'dape-info-parent-mode-hook
-   (defun dape--info-compact ()
-     (when (string-prefix-p "Registers" (format-mode-line header-line-format))
-       (setq-local
-        dape-info-variable-table-aligned t
-        dape-info-variable-table-row-config '((name . 8) (value . 10) (type . 14))))
-     (face-remap-add-relative 'header-line :height 0.9) (face-remap-add-relative 'default :height 0.9))))
+    'dape-display-source-hook #'pulse-momentary-highlight-one-line
+    'dape-repl-mode-hook (defun dape--repl-wrap () (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1))
+    'dape-info-parent-mode-hook
+    (defun dape--info-compact ()
+      (when (string-prefix-p "Registers" (format-mode-line header-line-format))
+        (setq-local
+          dape-info-variable-table-aligned t
+          dape-info-variable-table-row-config '((name . 8) (value . 10) (type . 14))))
+      (face-remap-add-relative 'header-line :height 0.9) (face-remap-add-relative 'default :height 0.9))))
 
 (after! dap-mode
   (dap-register-debug-template
-   "Embedded::OpenOCD"
-   (list :autorun t
-         :target ":3333"
-         :request "attach"
-         :type "gdbserver"
-         :printCalls :json-false
-         :name "Embedded::OpenOCD"
-         :gdbpath "arm-none-eabi-gdb"
-         :showDevDebugOutput :json-false
-         :executable "target/thumbv7em-none-eabihf/debug/led-roulette"
-         :debugger_args ["-q" "-ix" "extended-remote" "-x" "learning/rust/openocd.gdb"])))
+    "Embedded::OpenOCD"
+    (list :autorun t
+      :target ":3333"
+      :request "attach"
+      :type "gdbserver"
+      :printCalls :json-false
+      :name "Embedded::OpenOCD"
+      :gdbpath "arm-none-eabi-gdb"
+      :showDevDebugOutput :json-false
+      :executable "target/thumbv7em-none-eabihf/debug/led-roulette"
+      :debugger_args ["-q" "-ix" "extended-remote" "-x" "learning/rust/openocd.gdb"])))
 
 (after! dirvish
   (setopt dirvish-default-layout '(1 0.11 0.70)
-          dirvish-quick-access-entries
-          `(("h" "~/"                          "Home")
-            ("t" "~/.local/share/Trash/files/" "Trash")
-            ("p" "~/Pictures/"                 "Pictures")
-            ("w" "~/workspace/"                "Workspace")
-            ("d" "~/Downloads/"                "Downloads")
-            ("a" "~/Documents/"                "Documents")
-            ("m" "/mnt/"                       "Mounted drives")
-            ("e" ,user-emacs-directory         "Emacs user directory"))))
+    dirvish-quick-access-entries
+    `(("h" "~/"                          "Home")
+       ("t" "~/.local/share/Trash/files/" "Trash")
+       ("p" "~/Pictures/"                 "Pictures")
+       ("w" "~/workspace/"                "Workspace")
+       ("d" "~/Downloads/"                "Downloads")
+       ("a" "~/Documents/"                "Documents")
+       ("m" "/mnt/"                       "Mounted drives")
+       ("e" ,user-emacs-directory         "Emacs user directory"))))
 
 (defconst my/lazygit-command " lazygit status -sm normal")
 (defvar my/vterm-warmed-projects (make-hash-table :test #'equal))
@@ -489,45 +491,45 @@ If lazygit is active there, quit it and leave the shell running."
   (org-babel-do-load-languages 'org-babel-load-languages (append org-babel-load-languages '((duckdb . t))))
 
   (setopt
-   org-startup-numerated t
-   org-tag-beautify-mode t
-   org-link-beautify-mode t
-   org-modern-star 'replace
-   org-modern-table-vertical 1
-   org-modern-table-horizontal 0.2
-   org-link-search-must-match-exact-headline nil
-   org-modern-list    '((43 . "➤") (45 . "–") (42 . "•"))
-   ;; org-modern-footnote (cons nil (cadr org-script-display))
-   ;; (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))
-   ;; (after! spell-fu (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
-   org-todo-keywords  '((sequence "TODO(t)" "INPROGRESS(i)" "BLOCKED(b)" "|" "DONE(d)" "CANCELLED(c)"))
-   org-priority-faces '((?A :foreground "#e45649") (?B :foreground "#da8548") (?C :foreground "#0098dd"))
-   org-todo-keyword-faces '(("DONE" :foreground "#50a14f" :weight normal :underline t)
-                            ("TODO" :foreground "#7c7c75" :weight normal :underline t)
-                            ("BLOCKED" :foreground "#ff9800" :weight normal :underline t)
-                            ("CANCELLED" :foreground "#ff6480" :weight normal :underline t)
-                            ("INPROGRESS" :foreground "#0098dd" :weight normal :underline t))))
+    org-startup-numerated t
+    org-tag-beautify-mode t
+    org-link-beautify-mode t
+    org-modern-star 'replace
+    org-modern-table-vertical 1
+    org-modern-table-horizontal 0.2
+    org-link-search-must-match-exact-headline nil
+    org-modern-list    '((43 . "➤") (45 . "–") (42 . "•"))
+    ;; org-modern-footnote (cons nil (cadr org-script-display))
+    ;; (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo))
+    ;; (after! spell-fu (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
+    org-todo-keywords  '((sequence "TODO(t)" "INPROGRESS(i)" "BLOCKED(b)" "|" "DONE(d)" "CANCELLED(c)"))
+    org-priority-faces '((?A :foreground "#e45649") (?B :foreground "#da8548") (?C :foreground "#0098dd"))
+    org-todo-keyword-faces '(("DONE" :foreground "#50a14f" :weight normal :underline t)
+                              ("TODO" :foreground "#7c7c75" :weight normal :underline t)
+                              ("BLOCKED" :foreground "#ff9800" :weight normal :underline t)
+                              ("CANCELLED" :foreground "#ff6480" :weight normal :underline t)
+                              ("INPROGRESS" :foreground "#0098dd" :weight normal :underline t))))
 
 (after! magit
   (add-hook! 'magit-mode-hook #'hl-line-mode #'magit-delta-mode #'magit-todos-mode)
   (setopt magit-diff-refine-hunk 'all
-          magit-log-margin-show-author t
-          magit-delta-hide-plus-minus-markers t
-          magit-revision-insert-related-refs t
-          magit-log-margin-show-committer-date t
-          magit-section-visibility-indicator '(" " . " ")
-          magit-status-margin '(t age magit-log-margin-width t 22)
-          magit-format-file-function #'magit-format-file-nerd-icons
-          magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")
-          magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256")))
+    magit-log-margin-show-author t
+    magit-delta-hide-plus-minus-markers t
+    magit-revision-insert-related-refs t
+    magit-log-margin-show-committer-date t
+    magit-section-visibility-indicator '(" " . " ")
+    magit-status-margin '(t age magit-log-margin-width t 22)
+    magit-format-file-function #'magit-format-file-nerd-icons
+    magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")
+    magit-log-arguments '("--graph" "--decorate" "--color" "--abbrev-commit" "-n256")))
 
 (custom-set-faces
- '(magit-diff-context ((t (:foreground "#b0b0b0"))))
- '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
- '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
- '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
- '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
- '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff")))))
+  '(magit-diff-context ((t (:foreground "#b0b0b0"))))
+  '(magit-diff-hunk-heading ((t (:background "#3a3f5a"))))
+  '(magit-section-heading ((t (:foreground "#ffff00" :weight bold))))
+  '(magit-diff-added ((t (:foreground "#00ff00" :background "#002200"))))
+  '(magit-diff-removed ((t (:foreground "#ff0000" :background "#220000"))))
+  '(magit-diff-hunk-heading-highlight ((t (:background "#51576d" :foreground "#ffffff")))))
 
 ;; (use-package! gptel
 ;;   :config
