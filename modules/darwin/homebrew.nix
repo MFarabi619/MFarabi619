@@ -63,6 +63,7 @@
       "ollama"
       "ferron" # rust-based caddy-like web server
       "netscanner"
+      "u-boot-tools"
       "espressif/eim/eim"
       "renode/tap/renode-nightly"
       "Vaishnav-Sabari-Girish/taps/comchan" # TUI serial monitor
