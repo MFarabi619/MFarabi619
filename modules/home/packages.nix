@@ -25,6 +25,7 @@
         SDL2 # for embedded TUI simulator
         espup
         esptool
+        esphome
         espflash
         esp-generate
         mcumgr-client
