@@ -29,7 +29,8 @@
         );
       in
       with epkgs;
-      [
+      [ hass ]
+      ++ [
         sops
       ]
       ++ [
