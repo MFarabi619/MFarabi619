@@ -6,6 +6,7 @@
 
 {
   services.caddy.openFirewall = config.services.caddy.enable;
+  services.esphome.openFirewall = config.services.esphome.enable;
 
   # TODO: audit this pls
   networking.firewall = {
