@@ -197,21 +197,4 @@
         bashdb
       ];
   };
-
-  services.emacs = {
-    enable = true;
-    defaultEditor = false;
-    # socketActivation.enable = true;
-
-    # extraOptions = [
-    #   "TERM=xterm-kitty"
-    # ];
-
-    # client = {
-    #   enable = true;
-    #   # arguments = [
-    #   #   "--tty"
-    #   # ];
-    # };
-  };
 }
