@@ -116,8 +116,6 @@
           "nui.apidae.systems" = "http://macos";
           "nats.apidae.systems" = "http://macos";
           "auth.apidae.systems" = "http://macos";
-          "bore.apidae.systems" = "http://macos";
-          "grafana.apidae.systems" = "http://macos";
           "ceratina.apidae.systems" = "http://macos";
           "home-assistant.apidae.systems" = "http://macos";
           "cgit.apidae.systems" = "http://freebsd-macbook-11-4";
@@ -152,6 +150,32 @@
             reverse_proxy :${toString config.services.plantuml-server.listenPort}
           }
         '';
+
+        "mfarabi.sh" = {
+          extraConfig = ''
+            root * /srv/mfarabi.sh
+            try_files {path} /index.html
+            file_server
+            header {
+              Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+              X-Frame-Options "DENY"
+              X-Content-Type-Options "nosniff"
+            }
+          '';
+        };
+
+        "www.mfarabi.sh" = {
+          extraConfig = ''
+            root * /srv/mfarabi.sh
+            try_files {path} /index.html
+            file_server
+            header {
+              Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+              X-Frame-Options "DENY"
+              X-Content-Type-Options "nosniff"
+            }
+          '';
+        };
 
         "http://docs.openws.org" = {
           extraConfig = ''
