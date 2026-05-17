@@ -8,7 +8,6 @@
   # eval "$(/opt/homebrew/bin/brew shellenv)"
   homebrew = {
     enable = true;
-    global.autoUpdate = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
 
