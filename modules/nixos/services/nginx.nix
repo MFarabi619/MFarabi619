@@ -14,7 +14,7 @@ in
 
     virtualHosts."${cgit.nginx.virtualHost}".locations = {
       "= /gruvbox.cgit.css".alias = "${flake.self}/assets/gruvbox.cgit.css";
-      "= ${cgit.settings.favicon}".alias = "${flake.self}/assets/static/public/mfarabi-git.svg";
+      "= ${cgit.settings.favicon}".alias = "${flake.self}/assets/static/public/favicon.svg";
     };
 
     # statusPage = true; # enable http://127.0.0.1:80/nginx_status
