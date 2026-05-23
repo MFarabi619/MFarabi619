@@ -138,7 +138,7 @@
         # kicad
         # logseq
         vips # dired image previews
-        # openscad # FIXME: home-manager update
+        openscad
         mediainfo
         openscad-lsp
         imagemagick # for image-dired
