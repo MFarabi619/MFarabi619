@@ -23,7 +23,6 @@
     ./console.nix
     ./systemd.nix
     ./myusers.nix
-    ./hyprland.nix
     ./environment.nix
     ./documentation.nix
     ./virtualisation.nix
