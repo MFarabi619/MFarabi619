@@ -4,36 +4,26 @@
     # includes = [];
     enableDefaultConfig = false;
     # extraOptionOverrides = {};
-
-    matchBlocks = {
+    settings = {
       "*" = {
         checkHostIP = true;
         addKeysToAgent = "yes";
         controlMaster = "auto";
         controlPersist = "10m";
         controlPath = "~/.ssh/cm-%C";
-        setEnv.TERM = "xterm-256color";
-
-        extraOptions = {
-          CanonicalizeHostname = "yes";
-          CanonicalDomains = "taila4d019.ts.net";
-          ExitOnForwardFailure = "yes";
-        };
+        CanonicalizeHostname = "yes";
+        ExitOnForwardFailure = "yes";
+        SetEnv.TERM = "xterm-256color";
+        CanonicalDomains = "taila4d019.ts.net";
       };
     }
     // {
       "rpi02w rpi02w-* rutx11 halowlink2-* halowlink1-3c5b rut241" = {
         user = "root";
       };
-
       "rt-be88u-7a50" = {
         user = "admin";
       };
-
-      "ubuntu-s-1vcpu-1gb-50gb-mon1-01" = {
-        user = "ubuntu";
-      };
-
       "framework-* rpi* ubuntu msi-* macbook-* macos nixos-wsl surface-pro-7 hp-elitebook-820-g2 guix nixos-utm ubuntu-s-1vcpu-512mb-10gb-tor1-01" =
         {
           user = "mfarabi";
@@ -42,26 +32,13 @@
     // {
       "framework-desktop macbook-11-4 macos msi-gs76 nixos-wsl surface-pro-7 hp-elitebook-820-g2 nixos-utm" =
         {
-          setEnv.TERM = "xterm-kitty";
+          SetEnv.TERM = "xterm-kitty";
         };
     }
     // {
       "guix" = {
         hostname = "macbook-5-5";
       };
-
-      "nixos-utm" = {
-        hostname = "nixos-utm.comet-locrian.ts.net";
-      };
-
-      "halowlink1-3c5b" = {
-        hostname = "10.0.0.134";
-      };
-
-      "rut241" = {
-        hostname = "10.0.0.4";
-      };
-
       "ubuntu-s-1vcpu-512mb-10gb-tor1-01" = {
         hostname = "ubuntu-s-1vcpu-512mb-10gb-tor1-01";
       };
@@ -69,30 +46,23 @@
     // {
       # addressFamily = null; # "any" | "inet" | "inet6"
       # certificateFile = [ ./.file ];
-
       # compression = false;
       # controlmaster = null; # "yes" | "no" | "ask" | "auto" | "autoask"
       # controlPath = null; # path to control socket used for connection sharing
       # controlPersist = "10am"; # whether control socket should remain open in background
-
       # identityFile = [];
       # identityAgent = [];
       # identitiesOnly = false;
-
       # hashKnownHosts = null;
       # userKnownHostsFile = "~/.ssh/known_hosts";
-
       # serverAliveInterval = 5;
       # serverAliveCountMax = 5;
-
       # proxyJump = "";
       # proxyCommand = "";
-
       # match = ''
       #   host canonical
       #   host exec "ping -c1 -q 192.168.17.1"
       # '';
-
       # dynamicForwards = [
       #   {
       #     "name" = {
@@ -101,7 +71,6 @@
       #     };
       #   }
       # ];
-
       # remoteForwards = [
       #   {
       #     bind = {
@@ -114,7 +83,6 @@
       #     };
       #   }
       # ];
-
       # localForwards = [
       #   {
       #     bind = {

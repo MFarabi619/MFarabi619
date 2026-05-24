@@ -76,7 +76,6 @@
     ];
   }
   // lib.optionalAttrs pkgs.stdenv.isDarwin {
-    enableAllTerminfo = true;
     pathsToLink = [ "/Applications" ];
 
     systemPackages =
