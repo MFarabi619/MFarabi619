@@ -114,9 +114,8 @@
           "www.apidae.systems" = "http://macos";
 
           "nui.apidae.systems" = "http://macos";
-          "nats.apidae.systems" = "http://macos";
-          "auth.apidae.systems" = "http://macos";
-          "ceratina.apidae.systems" = "http://macos";
+          "grafana.apidae.systems" = "http://macos";
+          "canopeo.apidae.systems" = "http://macos:8080";
           "home-assistant.apidae.systems" = "http://macos";
           "cgit.apidae.systems" = "http://freebsd-macbook-11-4";
 
