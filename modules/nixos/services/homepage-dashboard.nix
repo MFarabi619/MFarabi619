@@ -1,27 +1,10 @@
 {
   config,
-  pkgs,
   ...
 }:
-let
-  background = pkgs.fetchurl {
-    name = "homepage-background.png";
-    url = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
-    hash = "sha256-01vx98qijcsc1nqank2chdiq6zj0gp6zifjncv4368zblys51i65";
-  };
-
-  package = pkgs.homepage-dashboard.overrideAttrs (oldAttrs: {
-    postInstall = ''
-      mkdir -p $out/share/homepage/public/images
-      ln -s ${background} $out/share/homepage/public/images/homepage-background.png
-    '';
-  });
-in
 {
-  services.homepage-dashboard = {
-    # inherit package;
+  services.homepage-dashboard = rec {
     enable = config.networking.hostName == "framework-desktop";
-    # environmentFile = "";
     allowedHosts = "openws.org";
 
     settings = {
@@ -49,13 +32,13 @@ in
     widgets = [
       {
         logo = {
-          icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
+          icon = settings.favicon;
         };
       }
       {
         greeting = {
           text_size = "xl";
-          text = "🕹️ Microvisor Systems 🕹️";
+          text = settings.title;
         };
       }
       {
@@ -107,10 +90,10 @@ in
       {
         "Sites" = [
           {
-            "Landing Page" = {
+            "Landing Page" = rec {
               href = "https://microvisor.systems";
-              siteMonitor = "https://microvisor.systems";
               icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
+              siteMonitor = href;
             };
           }
           {
@@ -121,18 +104,18 @@ in
             };
           }
           {
-            "Arch Linux Mirror" = {
+            "Arch Linux Mirror" = rec {
               href = "https://mirror.openws.org";
-              siteMonitor = "https://mirror.openws.org";
+              siteMonitor = href;
               icon = "arch-linux.svg";
             };
           }
           {
-            "🏗️ Netdata" = {
-              href = "https://www.netdata.cloud";
-              # siteMonitor = "https://www.netdata.cloud";
-              icon = "netdata.svg";
-            };
+            # "🏗️ Netdata" = {
+            #   href = "https://www.netdata.cloud";
+            #   # siteMonitor = "https://www.netdata.cloud";
+            #   icon = "netdata.svg";
+            # };
           }
         ];
       }
@@ -141,9 +124,9 @@ in
           {
             "AI/ML" = [
               {
-                "Open WebUI" = {
-                  href = "https://ai.openws.org";
-                  siteMonitor = "https://ai.openws.org";
+                "Open WebUI" = rec {
+                  href = config.services.open-webui.environment.WEBUI_URL;
+                  siteMonitor = href;
                   icon = "open-webui.svg";
                 };
               }
@@ -192,10 +175,10 @@ in
           {
             "CI/CD" = [
               {
-                "Dokploy" = {
+                "Dokploy" = rec {
                   icon = "dokploy.svg";
                   href = "https://admin.openws.org";
-                  siteMonitor = "https://admin.openws.org";
+                  siteMonitor = href;
                 };
               }
               {
@@ -209,24 +192,24 @@ in
           {
             "🛖 Userspace Environments" = [
               {
-                "Emacs - Doom" = {
+                "Emacs - Doom" = rec {
+                  siteMonitor = href;
                   href = "https://emacs.openws.org";
-                  siteMonitor = "https://emacs.openws.org";
                   icon = "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png";
                 };
               }
               {
-                "Neovim - Lazyvim" = {
+                "Neovim - Lazyvim" = rec {
+                  siteMonitor = href;
                   href = "https://neovim.openws.org";
-                  siteMonitor = "https://neovim.openws.org";
                   icon = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg";
                 };
               }
               {
-                "Penpot" = {
+                "Penpot" = rec {
+                  siteMonitor = href;
                   icon = "penpot.svg";
                   href = "https://penpot.openws.org";
-                  siteMonitor = "https://penpot.openws.org";
                 };
               }
             ];
