@@ -4,7 +4,7 @@
 }:
 {
   services.ollama = {
-    enable = !pkgs.stdenv.isDarwin;
+    enable = false;
     # acceleration = "rocm";
     # acceleration = "cuda"; # nvidia
     # environmentVariables = { };
