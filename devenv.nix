@@ -110,15 +110,7 @@
   cachix = {
     enable = true;
     push = "mfarabi";
-    pull = [
-      "cachix"
-      "oxalica"
-      "devenv"
-      "nixpkgs"
-      "mfarabi"
-      "nix-community"
-      "pre-commit-hooks"
-    ];
+    pull = [ "oxalica" ];
   };
 
   languages = rec {
