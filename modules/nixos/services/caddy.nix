@@ -52,26 +52,16 @@
             velxio = ":3080";
             excalidraw = ":81";
             registry = ":5000";
-            rpi5 = "rpi5-8:7681";
-            emacs = "rpi5-8:7682";
-            neovim = "rpi5-8:7683";
-            freebsd = "freebsd-hp-elitebook-820:7681";
+            rpi5 = "rpi5-16:7681";
+            emacs = "rpi5-16:7682";
+            neovim = "rpi5-16:7683";
+            freebsd = "freebsd-macbook-11-4:7681";
             mirror = config.services.anubis.instances.mirror.settings.TARGET;
           };
 
-          "apidaesystems.ca" = {
-            crm = ":81";
-            portal = ":81";
-            sentry = ":81";
-            supabase = ":81";
-            minio = "rpi5-16";
-            horizon = "rpi5-8";
-            registry = "rpi5-16";
-            admin = "rpi5-16:3000";
-            rutx11 = "100.111.144.127";
-            ceratina = "http://rutx11:3000";
-            halow = "http://halowlink2-6c7f";
-          };
+          # "apidaesystems.ca" = {
+          #   admin = "rpi5-16:3000";
+          # };
         }
       )
       # (lib.concatMapAttrs
