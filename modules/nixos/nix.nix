@@ -10,15 +10,20 @@
     gc.automatic = true;
     optimise.automatic = true;
     channel.enable = pkgs.stdenv.isDarwin;
-    # builders-use-substitutes = pkgs.stdenv.isLinux;
 
-    settings = {
+    settings = rec {
+      cores = 0;
       show-trace = true;
+      keep-outputs = true;
       trace-verbose = true;
       http-connections = 40;
+      keep-derivations = true;
       max-substitution-jobs = 32;
+      builders-use-substitutes = true;
+      # builders-use-substitutes = pkgs.stdenv.isLinux;
       # FIXME: showing as unknown option despite - https://nix.dev/manual/nix/2.24/command-ref/conf-file.html#conf-download-buffer-size
       # download-buffer-size = 6710886400;
+      # download-buffer-size = 17179869184;
       auto-optimise-store = pkgs.stdenv.isLinux;
 
       experimental-features = [
@@ -49,15 +54,7 @@
         "https://nix-community.cachix.org"
       ];
 
-      trusted-substituters = [
-        "https://cache.nixos.org"
-        # "https://cache.lix.systems"
-        "https://cachix.cachix.org"
-        "https://devenv.cachix.org"
-        "https://mfarabi.cachix.org"
-        "https://nixpkgs.cachix.org"
-        "https://nix-darwin.cachix.org"
-        "https://nix-community.cachix.org"
+      trusted-substituters = substituters ++ [
         "https://cache.saumon.network/proxmox-nixos"
       ];
 
