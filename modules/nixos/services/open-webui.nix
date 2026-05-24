@@ -1,6 +1,11 @@
 {
+  config,
+  ...
+}:
+{
   services.open-webui = {
-    enable = config.networking.hostName == "framework-desktop";
+    # enable = config.networking.hostName == "framework-desktop";
+    enable = false;
     port = 7777;
     stateDir = "/var/lib/open-webui";
     environmentFile = "/var/lib/secrets/open-webui";
