@@ -6,8 +6,8 @@
 {
   services.github-runners = {
     nixos-1 = {
-      enable = config.networking.hostName == "framework-desktop";
-      # enable = false;
+      # enable = config.networking.hostName == "framework-desktop";
+      enable = false;
       # group = null;
       replace = true;
       # name = "nixos"; # defaults to hostname, changing this triggers new registration
