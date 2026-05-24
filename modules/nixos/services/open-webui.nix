@@ -1,24 +1,17 @@
 {
-  config,
-  ...
-}:
-let
-  URL = "https://ai.openws.org";
-in
-{
   services.open-webui = {
     enable = config.networking.hostName == "framework-desktop";
     port = 7777;
     stateDir = "/var/lib/open-webui";
     environmentFile = "/var/lib/secrets/open-webui";
-    environment = {
+    environment = rec {
       # docs.openwebui.com/getting-started/env-configuration
 
       # ============================================== #
       # =============== 👋 GENERAL 👋 ================ #
       # ============================================== #
 
-      WEBUI_URL = URL;
+      WEBUI_URL = "https://ai.openws.org";
       ENABLE_SIGNUP = "True";
       ENABLE_SIGNUP_PASSWORD_CONFIRMATION = "True";
       ENABLE_LOGIN_FORM = "False"; # enable OAuth before setting to "False"
@@ -27,7 +20,7 @@ in
       DEFAULT_USER_ROLE = "user"; # pending | user | admin
 
       ENABLE_CHANNELS = "False";
-      WEBHOOK_URL = "${URL}/webhook";
+      WEBHOOK_URL = "${WEBUI_URL}/webhook";
 
       ENABLE_API_KEYS = "True";
       ENABLE_API_KEYS_ENDPOINT_RESTRICTIONS = "False";
@@ -155,12 +148,12 @@ in
       OAUTH_UPDATE_PICTURE_ON_LOGIN = "True";
       OAUTH_SCOPES = "openid email profile";
       OPENID_PROVIDER_URL = "https://accounts.google.com/.well-known/openid-configuration";
-      OPENID_REDIRECT_URI = "${URL}/oauth/oidc/callback";
+      OPENID_REDIRECT_URI = "${WEBUI_URL}/oauth/oidc/callback";
 
       # GOOGLE_CLIENT_ID = "";
       # GOOGLE_CLIENT_SECRET = "";
       GOOGLE_OAUTH_SCOPE = "openid email profile";
-      GOOGLE_REDIRECT_URI = "${URL}/oauth/google/callback";
+      GOOGLE_REDIRECT_URI = "${WEBUI_URL}/oauth/google/callback";
 
       DO_NO_TRACK = "True";
       SCARF_NO_ANALYTICS = "True";
