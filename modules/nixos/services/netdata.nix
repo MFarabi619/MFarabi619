@@ -5,7 +5,8 @@
 }:
 {
   services.netdata = {
-    enable = pkgs.stdenv.isLinux;
+    # enable = pkgs.stdenv.isLinux;
+    enable = false;
 
     package = pkgs.netdata.override {
       withCloudUi = true;
