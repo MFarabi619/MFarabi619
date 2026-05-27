@@ -29,10 +29,12 @@
         );
       in
       with epkgs;
-      [ hass ]
-      ++ [
-        sops
+      [
+        ros
+        ros-face
       ]
+      ++ [ hass ]
+      ++ [ sops ]
       ++ [
         disaster
         # dts-mode
