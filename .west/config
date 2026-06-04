@@ -1,20 +1,24 @@
 [manifest]
 path     = .
-file     = firmware/west.yml
-project-filter = +zephyr-lang-rust
+file     = west.yml
 
 [zephyr]
-base     = firmware/zephyr
-
-[build]
-pristine = always
-runner   = probe-rs
-# board    = walter/esp32s3/procpu
-board    = esp32s3_devkitc/esp32s3/procpu
+base     = vendor/zephyr
 
 [flash]
-rebuild = true
+rebuild  = true
+
+[build]
+sysbuild = true
+pristine = always
+board    = walter/esp32s3/procpu
+dir-fmt  = build/{board_normalized}
+# board    = xiao_esp32s3/esp32s3/procpu/sense
+# board    = esp32s3_devkitc/esp32s3/procpu
 
 [alias]
-# mylist = list -f '{name} {revision}'
-# run = build -p always; flash; espressif monitor
+guiconfig  = build --pristine=never --target guiconfig
+menuconfig = build --pristine=never --target menuconfig
+patch      = patch -l apps/walter-router/patches.yml -b apps/walter-router/patches
+test       = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 -vv -T apps/walter-router/tests
+test-debug = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 --inline-logs -vv -ll DEBUG -T apps/walter-router/tests

@@ -1,0 +1,71 @@
+manifest:
+    self:
+        path: .
+
+    remotes:
+        - name: zephyrproject
+          url-base: https://github.com/zephyrproject-rtos
+
+        - name: wolfssl
+          url-base: https://github.com/wolfSSL
+
+    projects:
+        - name: zephyr-lang-rust
+          remote: zephyrproject
+          revision: a763400f31e92994d5c5aa0836346e19048f5bde # main 2026-05-02
+          path: vendor/modules/lang/rust
+
+        - name: wolfssl
+          remote: wolfssl
+          revision: master
+          path: vendor/modules/crypto/wolfssl
+
+        - name: wolfssh
+          remote: wolfssl
+          revision: master
+          path: vendor/modules/lib/wolfssh
+
+        - name: zephyr
+          remote: zephyrproject
+          # revision: f1ff557f96f74a6d82d8b290bc4488ee5f93c483 # main~2: before HAL CS timing regression
+          revision: 72a6d3b1e71
+          import:
+              path-prefix: vendor
+              name-allowlist:
+                  - qemu
+
+                  # ESP32
+                  - hal_xtensa
+                  - hal_espressif
+
+                  # STM32
+                  # - hal_stm32
+                  # - hal_st
+
+                  # Core
+                  - mcuboot
+                  - cmsis
+                  - cmsis_6
+                  - mbedtls
+                  - mbedtls-3.6
+                  # tf-psa-crypto is the sibling source tree mbedtls 4.x requires (per
+                  # vendor/modules/crypto/mbedtls/CMakeLists.txt:346). Without this
+                  # entry, any image with CONFIG_WIFI_ESP32=y fails at CMake-configure
+                  # because WIFI_ESP32 selects PSA_CRYPTO which pulls mbedtls full build.
+                  - tf-psa-crypto
+
+                  # Filesystems
+                  - fatfs
+                  - littlefs
+
+                  # Libraries
+                  - zcbor
+                  - segger # RTT logging
+                  - nanopb # protobuf
+                  - libmetal
+                  - picolibc
+                  - mipi-sys-t
+
+                  # Debug
+                  - percepio
+                  - net-tools

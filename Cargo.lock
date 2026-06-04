@@ -4800,10 +4800,7 @@ checksum = "9844ddc3a6e533d62bba727eb6c28b5d360921d5175e9ff0f1e621a5c590a4d5"
 name = "firmware"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
- "embassy-time",
  "log",
- "static_cell",
  "zephyr",
  "zephyr-build",
 ]
@@ -13117,6 +13114,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "walter-router"
+version = "0.1.0"
+dependencies = [
+ "firmware",
+ "log",
+ "zephyr",
+ "zephyr-build",
+]
+
+[[package]]
 name = "want"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -14349,10 +14356,6 @@ dependencies = [
  "arrayvec",
  "cfg-if",
  "critical-section",
- "embassy-executor",
- "embassy-sync 0.7.2",
- "embassy-time-driver",
- "embassy-time-queue-utils",
  "fugit",
  "log",
  "paste",
@@ -14393,6 +14396,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bindgen",
+ "zephyr-build",
 ]
 
 [[package]]

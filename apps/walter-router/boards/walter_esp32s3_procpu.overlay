@@ -1,0 +1,21 @@
+/ {
+	v3_3_regulator: v3_3-regulator {
+		regulator-boot-on;
+		regulator-always-on;
+		compatible = "regulator-fixed";
+		regulator-name = "walter-3v3-output";
+		enable-gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
+	};
+};
+
+&uart1 {
+	current-speed = <921600>;
+};
+
+&modem {
+	/* ESP32-S3 GPIO driver doesn't support OPEN_SOURCE (only PP/OD),
+	 * which the vendored DTS specifies for the wake pin. Deleting the
+	 * property lets the modem driver skip wake GPIO entirely.
+	 */
+	/delete-property/ mdm-wake-gpios;
+};

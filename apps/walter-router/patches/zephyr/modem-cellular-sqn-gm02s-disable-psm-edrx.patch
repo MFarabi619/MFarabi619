@@ -1,0 +1,12 @@
+diff --git a/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c b/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
+--- a/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
++++ b/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
+@@ -13,6 +13,8 @@ MODEM_CELLULAR_COMMON_CHAT_MATCHES();
+ MODEM_CHAT_SCRIPT_CMDS_DEFINE(
+ 	sqn_gm02s_init_chat_script_cmds, MODEM_CHAT_SCRIPT_CMD_RESP("ATE0", ok_match),
+ 	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CFUN=4", ok_match),
++	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CPSMS=0", ok_match),
++	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CEDRXS=0", ok_match),
+ 	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CMEE=1", ok_match),
+ 	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CEREG=1", ok_match),
+ 	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CEREG?", ok_match),

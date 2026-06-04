@@ -1,12 +1,13 @@
 [workspace]
 resolver = "3"
 exclude = ["ml"]
-default-members = ["firmware"]
+default-members = ["libs/walter-router"]
 members = [
     ".",
     "web",
     "tui",
-    "firmware",
+    "libs/firmware",
+    "libs/walter-router",
     "tests/e2e",
     "apps/readme",
     "apps/microtop",
@@ -101,6 +102,6 @@ overflow-checks = true # was false — silent integer wrapping is dangerous for 
 # debug-assertions = false  # already the default for release
 
 [patch.crates-io]
-zephyr = { path = "firmware/modules/lang/rust/zephyr" }
-zephyr-build = { path = "firmware/modules/lang/rust/zephyr-build" }
-zephyr-sys = { path = "firmware/modules/lang/rust/zephyr-sys" }
+zephyr = { path = "vendor/modules/lang/rust/zephyr" }
+zephyr-build = { path = "vendor/modules/lang/rust/zephyr-build" }
+zephyr-sys = { path = "vendor/modules/lang/rust/zephyr-sys" }

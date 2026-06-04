@@ -1,0 +1,12 @@
+diff --git a/zephyr-build/src/lib.rs b/zephyr-build/src/lib.rs
+--- a/zephyr-build/src/lib.rs
++++ b/zephyr-build/src/lib.rs
+@@ -78,7 +78,7 @@ pub fn build_kconfig_mod() {
+     for line in BufReader::new(file).lines() {
+         let line = line.expect("reading line from dotconfig");
+         if let Some(caps) = config_hex.captures(&line) {
+-            writeln!(&mut f, "#[allow(dead_code)]").unwrap();
++            writeln!(&mut f, "#[allow(dead_code, overflowing_literals)]").unwrap();
+             writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
+         } else if let Some(caps) = config_int.captures(&line) {
+             writeln!(&mut f, "#[allow(dead_code)]").unwrap();

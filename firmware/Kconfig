@@ -1,2 +1,0 @@
-source "$(ZEPHYR_BASE)/Kconfig"
-rsource "Kconfig.microvisor"
