@@ -11,6 +11,7 @@ pub fn MainLayout() -> Element {
     let route = use_route::<Route>();
     let title = match route {
         Route::Home { .. } => "Apidae Systems",
+        Route::Canopeo { .. } => "Canopeo — Apidae Systems",
         Route::Docs { .. } => "Apidae Systems - Docs",
         Route::Err404 { .. } => "Apidae Systems - 404",
         _ => "Apidae Systems",

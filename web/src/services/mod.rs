@@ -4,6 +4,7 @@ pub mod wifi;
 pub mod filesystem;
 pub mod co2;
 pub mod sensors;
+pub mod canopeo;
 
 pub use cloudevents::CloudEventsService;
 pub use device::DeviceService;

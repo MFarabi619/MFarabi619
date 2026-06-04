@@ -20,7 +20,7 @@ pub struct DeviceContext {
 
 use crate::content::docs;
 use crate::layouts::{DocsLayout, MainLayout};
-use crate::pages::{Err404, Home, Shell};
+use crate::pages::{Canopeo, Err404, Home, Shell};
 
 const BANNER_IMAGE: Asset = asset!("/assets/header.svg");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
@@ -35,6 +35,9 @@ enum Route {
     #[layout(MainLayout)]
         #[route("/")]
         Home {},
+
+        #[route("/canopeo")]
+        Canopeo {},
 
         // ===== Docs =====
         #[layout(DocsLayout)]
