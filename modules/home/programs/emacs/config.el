@@ -82,22 +82,44 @@
 (use-package! disaster              :commands (disaster) :init ;; If you prefer viewing assembly code in `nasm-mode` instead of `asm-mode`
   (setq disaster-assembly-mode #'nasm-mode) (map! :localleader :map (c++-mode-map c-mode-map fortran-mode-map) :desc "Disaster" "d" #'disaster))
 
+;; (after! hass                  (setopt hass-insecure t hass-host "homeassistant" hass-apikey ""
+;;                                 hass-dash-layouts
+;;                                 '((default .
+;;                                     ((hass-dash-group
+;;                                        :title "Home Assistant"
+;;                                        :format "%t\n\n%v"
+;;                                        (hass-dash-group
+;;                                          :title "Kitchen"
+;;                                          :title-face outline-2
+;;                                          (hass-dash-toggle :entity-id "light.kitchen_lights")
+;;                                          (hass-dash-toggle :entity-id "light.master_bedroom_lights")
+;;                                          (hass-dash-toggle :entity-id "switch.entry_light"
+;;                                            :label "Hallway"
+;;                                            :confirm t)))
+;;                                       (hass-dash-group
+;;                                         :title "Group 2"
+;;                                         :format "\n\n%t\n\n%v"
+;;                                         (hass-dash-toggle :entity-id "light.master_bedroom_fan_light"))))
+
+;;                                    (simple .
+;;                                      ((hass-dash-toggle :entity-id "light.kitchen_lights")
+;;                                        (hass-dash-toggle :entity-id "switch.entry_light"))))))
+
 (after!       direnv        (direnv-mode -1))
 (after!       undo-tree     (global-undo-tree-mode 1))
 (after!       nerd-icons    (nerd-icons-completion-mode 1))
 (after!       pdf-tools     (setopt pdf-view-continuous t))
 (after!       dape          (dape-breakpoint-global-mode 1))
 (after!       evil          (setopt evil-ex-substitute-global t))
-(after!       files         (add-to-list 'safe-local-variable-directories "~/MFarabi619/"))
 ;; (after!       claude-code   (map! :leader :desc "Claude Code run" "C-c" #'claude-code-run))
 ;; (after!       nyan-mode     (setopt nyan-animate-nyancat t nyan-wavy-trail t) (nyan-mode -1))
 (after!       dap-gdb       (setopt dap-gdb-debug-program '("arm-none-eabi-gdb" "-i" "dap")))
 (after!       treesit       (setopt treesit-font-lock-level 4 treesit-auto-install-grammar 'always))
-(after!       projectile    (add-hook! 'projectile-after-switch-project-hook #'my/warm-project-vterm))
 ;; (after!       doom-modeline (setopt doom-modeline-percent-position nil doom-modeline-buffer-position nil))
 (after!       tramp         (setopt tramp-verbose 1           tramp-default-method "sshx" tramp-connection-timeout 10))
 (after!       osm           (setopt osm-copyright t           osm-home (list 45.38730243858645 -75.69539479599302 15)))
 (after!       kitty-graphics (when (and (not (display-graphic-p)) (getenv "KITTY_WINDOW_ID")) (kitty-graphics-mode 1)))
+(after!       files         (dolist (dir '("~/MFarabi619/" "~/workspace/apidae-systems/src/")) (add-to-list 'safe-local-variable-directories dir)))
 (after!       sql           (setopt sql-database "microvisor" sql-server "127.0.0.1" sql-port 5432 sql-user "mfarabi" sql-password ""))
 (after!       verb-mode     (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
 (after!       dirvish       (setopt dirvish-peek-mode t dirvish-side-auto-close t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
@@ -236,7 +258,6 @@
 ;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
 ;; (add-hook! 'prodigy-view-mode-hook (text-scale-set 1))
 ;; (add-hook! 'prodigy-view-mode-hook (text-scale-set -2))
-(add-hook! 'doom-first-buffer-hook #'my/warm-project-vterm)
 (add-hook! 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
 (add-hook! '(sql-mode-hook sql-interactive-mode-hook) (setq-local sql-default-directory (projectile-project-root)) (sql-highlight-postgres-keywords))
 
@@ -449,19 +470,11 @@ when they were opened, so they skip the re-application."
        ("e" ,user-emacs-directory         "Emacs user directory"))))
 
 (defconst my/lazygit-command " lazygit status -sm normal")
-(defvar my/vterm-warmed-projects (make-hash-table :test #'equal))
 
 (defun my/project-root () (let ((root (or (doom-project-root default-directory) (and (fboundp 'projectile-project-root) (ignore-errors (projectile-project-root))) default-directory))) (file-name-as-directory (expand-file-name root))))
 (defun my/vterm-buffer-name () (format "*doom:vterm-popup:project-%s*" (if (bound-and-true-p persp-mode) (safe-persp-name (get-current-persp)) "main")))
 (defun my/vterm-project-buffer () (let* ((buffer-name (my/vterm-buffer-name)) (buffer (get-buffer-create buffer-name)) (root (my/project-root)))
                                     (with-current-buffer buffer (let ((default-directory root)) (unless (derived-mode-p 'vterm-mode) (vterm-mode)) (setq-local +vterm--id buffer-name))) buffer))
-
-(defun my/warm-project-vterm ()
-  "Pre-create vterm per project so first use is instant."
-  (let ((root (my/project-root)))
-    (unless (gethash root my/vterm-warmed-projects)
-      (puthash root t my/vterm-warmed-projects)
-      (run-with-idle-timer 0.2 nil (lambda (dir) (when (file-directory-p dir) (let ((default-directory dir)) (save-window-excursion (my/vterm-project-buffer))))) root))))
 
 (defun +vterm/toggle ()
   "Toggle the project vterm buffer.
