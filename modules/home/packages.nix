@@ -120,6 +120,7 @@
         godot
         delve
         bashdb
+        lemminx # xml lsp
         dts-lsp
         asm-lsp
         crates-lsp
