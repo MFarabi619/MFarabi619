@@ -2,8 +2,8 @@
   services.kmscon = {
     enable = true;
     hwRender = true;
+    config.font-size = 14;
     # autologinUser = "mfarabi";
-    extraConfig = "font-size=14";
     extraOptions = "--term xterm-256color";
   };
 }
