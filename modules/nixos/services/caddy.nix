@@ -105,9 +105,10 @@
 
           "nui.apidae.systems" = "http://macos";
           "grafana.apidae.systems" = "http://macos";
-          "canopeo.apidae.systems" = "http://macos:8080";
           "home-assistant.apidae.systems" = "http://macos";
           "cgit.apidae.systems" = "http://freebsd-macbook-11-4";
+          "smtp.apidae.systems" = "http://freebsd-hp-elitebook-820";
+          "canopeo.apidae.systems" = "http://127.0.0.1:8080";
 
           "http://microvisor.systems" = "http://10.0.0.236";
           "http://tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
