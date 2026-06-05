@@ -1,0 +1,45 @@
+--- a/scripts/west_commands/runners/probe_rs.py
++++ b/scripts/west_commands/runners/probe_rs.py
+@@ -22,6 +22,7 @@
+                  speed=None,
+                  connect_under_reset=False,
+                  verify=False,
++                 base_address=None,
+                  tool_opt=None):
+         super().__init__(cfg)
+ 
+@@ -32,6 +33,7 @@
+         self.speed = speed
+         self.connect_under_reset = connect_under_reset
+         self.verify = verify
++        self.base_address = base_address
+ 
+         self.args = ['--chip', chip]
+ 
+@@ -89,6 +91,9 @@
+                             help='connect under reset')
+         parser.add_argument('--verify', action='store_true',
+                             help='verify flash after programming')
++        parser.add_argument('--base-address', type=lambda x: int(x, 0), default=None,
++                            help='base address for bin file flashing (e.g. 0x20000); '
++                                 'only applies when --file-type=bin')
+         parser.add_argument('--gdb-host', default=DEFAULT_PROBE_RS_GDB_HOST,
+                             help=f'probe-rs gdb host, defaults to {DEFAULT_PROBE_RS_GDB_HOST}')
+         parser.add_argument('--gdb-port', type=int, default=DEFAULT_PROBE_RS_GDB_PORT,
+@@ -114,6 +119,7 @@
+                                    speed=args.speed,
+                                    connect_under_reset=args.connect_under_reset,
+                                    verify=args.verify,
++                                   base_address=args.base_address,
+                                    gdb_host=args.gdb_host,
+                                    gdb_port=args.gdb_port,
+                                    tool_opt=args.tool_opt)
+@@ -156,6 +162,8 @@
+             flash_file = self.hex_name
+             flash_format = 'hex'
+ 
++        if flash_format == 'bin' and self.base_address is not None:
++            download_args += [f'--base-address={self.base_address:#x}']
+         download_args += ['--binary-format', flash_format, flash_file]
+ 
+         self.check_call([self.probe_rs, 'download']

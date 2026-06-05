@@ -6,19 +6,26 @@ file     = west.yml
 base     = vendor/zephyr
 
 [flash]
-rebuild  = true
+rebuild  = false
 
 [build]
 sysbuild = true
-pristine = always
-board    = walter/esp32s3/procpu
+# pristine = always
+pristine = auto
 dir-fmt  = build/{board_normalized}
-# board    = xiao_esp32s3/esp32s3/procpu/sense
 # board    = esp32s3_devkitc/esp32s3/procpu
 
 [alias]
-guiconfig  = build --pristine=never --target guiconfig
-menuconfig = build --pristine=never --target menuconfig
-patch      = patch -l apps/walter-router/patches.yml -b apps/walter-router/patches
+bx       = build apps/xiao          --board xiao_esp32s3/esp32s3/procpu
+bh       = build apps/halow-xiao    --board xiao_esp32s3/esp32s3/procpu
+bw       = build apps/walter-router --board walter/esp32s3/procpu
+
+fx       = flash --runner probe-rs --domain xiao
+
+guiconfig  = build --pristine=never   --target guiconfig
+menuconfig = build --pristine=never   --target menuconfig
+
+patch      = patch -l patches.yml -b .
+
 test       = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 -vv -T apps/walter-router/tests
 test-debug = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 --inline-logs -vv -ll DEBUG -T apps/walter-router/tests

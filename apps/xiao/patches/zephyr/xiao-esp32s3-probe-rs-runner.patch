@@ -1,0 +1,8 @@
+diff --git a/boards/seeed/xiao_esp32s3/board.cmake b/boards/seeed/xiao_esp32s3/board.cmake
+--- a/boards/seeed/xiao_esp32s3/board.cmake
++++ b/boards/seeed/xiao_esp32s3/board.cmake
+@@ -7,3 +7,4 @@ find_program(OPENOCD openocd PATHS ${ESPRESSIF_TOOLCHAIN_PATH}/openocd-esp32/bin
+
+ include(${ZEPHYR_BASE}/boards/common/esp32.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/openocd.board.cmake)
++include(${ZEPHYR_BASE}/boards/common/probe-rs.board.cmake)

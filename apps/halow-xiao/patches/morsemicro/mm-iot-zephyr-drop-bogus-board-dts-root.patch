@@ -1,0 +1,11 @@
+diff --git a/zephyr/module.yml b/zephyr/module.yml
+--- a/zephyr/module.yml
++++ b/zephyr/module.yml
+@@ -1,6 +1,3 @@
+ build:
+   cmake: .
+   kconfig: Kconfig
+-  settings:
+-    board_root: .
+-    dts_root: .
+\ No newline at end of file

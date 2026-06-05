@@ -1,0 +1,305 @@
+patches:
+  # ===== xiao =====
+
+  - path: apps/xiao/patches/zephyr/probe-rs-runner-base-address.patch
+    sha256sum: 802484c62a79ef7de7ddb3a0ac2a9983fd4580d1271a8607b25ea2897a88b11c
+    module: vendor/zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-06
+    upstreamable: true
+    comments: |
+      Expose `--base-address` as a first-class arg on the Zephyr `probe-rs`
+      runner (`scripts/west_commands/runners/probe_rs.py`).
+
+      probe-rs's own `download --binary-format bin <file>` requires a
+      `--base-address` for any non-zero flash offset, but the Zephyr runner
+      does not surface it. Workaround was to pass it via `--tool-opt`,
+      which the runner appends to `self.args` — those args are reused for
+      the post-flash `probe-rs reset` step, which rejects `--base-address`
+      and aborts the flash with `error: unexpected argument '--base-address'`.
+
+      This patch adds `--base-address` as a regular runner arg (parsed with
+      `int(x, 0)` so both `0x20000` and `131072` are accepted), and applies
+      it only to the `download` command's `download_args` — never to reset,
+      gdb, or attach. This is the natural arg for any mcuboot-based image
+      flashed at `slot0_partition` (or any chip with a non-zero offset).
+
+      Upstreamable as-is to Zephyr.
+
+  - path: apps/xiao/patches/zephyr/xiao-esp32s3-probe-rs-runner.patch
+    sha256sum: 99fc3163fe46530351638daa08fa70ade631a631943d293542df43dd8358a06c
+    module: vendor/zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-06
+    upstreamable: true
+    comments: |
+      Register probe-rs as a recognised runner for the XIAO ESP32-S3
+      board. probe-rs has supported the chip via its built-in
+      USB-Serial-JTAG since 2024 (probe-rs CHANGELOG: "Xtensa: Add
+      flashing support for the esp32s3" / "Add support for the esp32s3
+      target"), and Zephyr ships the runner at
+      scripts/west_commands/runners/probe_rs.py — but the runner is only
+      *registered* per board by an `include(common/probe-rs.board.cmake)`
+      line in that board's `board.cmake`. The XIAO ESP32-S3 board file
+      currently only registers `esp32` (esptool) and `openocd`, so
+      `west flash -r probe-rs` errors with "board ... does not support
+      runner probe-rs" even though the runner exists.
+
+      This patch adds the one missing include line. It does NOT change
+      the default flasher (esptool stays default via the earlier
+      `esp32.board.cmake` include + `board_set_flasher_ifnset`); it only
+      makes probe-rs available when the user explicitly opts in with
+      `-r probe-rs`.
+
+      Upstreamable as-is — same one-line pattern Zephyr already uses for
+      several other boards (e.g. esp32_devkitc_wroom, nrf boards). A PR
+      adding XIAO ESP32-S3 to that list would be uncontroversial.
+
+  # ===== halow-xiao =====
+
+  - path: apps/halow-xiao/patches/morsemicro/mm-iot-zephyr-zephyr44-port.patch
+    sha256sum: 30623bb9d3e3cfdb2801a1de75c3b5388a835febda1ed494c919391cf6398cd2
+    module: vendor/modules/lib/morsemicro
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-05
+    upstreamable: true
+    comments: |
+      Port craigpeacock/mm-iot-zephyr (Zephyr 4.3-targeted) to Zephyr 4.4
+      and add the bits needed for the wifi-shell + NM (Network Manager)
+      path to work on the XIAO ESP32-S3 + Wio-WM6108 HaLow hat.
+
+      Five logical changes bundled (all in the same module's git tree):
+
+      1. drivers/wifi/morse_sm/morse.c — wifi_mgmt callback signatures
+         All five wifi_mgmt_ops callbacks (scan / connect / disconnect /
+         iface_status / get_version) get the new `struct net_if *iface`
+         second parameter added in Zephyr 4.4. Without this the build
+         fails with prototype-mismatch errors when assigning the function
+         pointers to wifi_mgmt_ops.
+
+      2. drivers/wifi/morse_sm/morse.c — register with WIFI_NM
+         Add #include <zephyr/net/wifi_nm.h>, DEFINE_WIFI_NM_INSTANCE
+         after the morse_api struct, and a wifi_nm_register_mgd_type_iface
+         call in morse_iface_init. Without this, `wifi <subcmd>` shell
+         commands fail with "Interface -1 is not a nm wifi iface" because
+         the wifi-shell layer dispatches through the NM subsystem and the
+         morse driver was never registering itself.
+
+      3. components/morse_sm/CMakeLists.txt
+         components/morse_sm/hostap/CMakeLists.txt
+         components/morse_sm/mmmbedtls/CMakeLists.txt    (NEW)
+         components/morse_sm/mmmbedtls/entropy_zephyr.c  (NEW)
+           Vendor mm-iot-sdk's bundled mbedtls 3.6.2 as a standalone
+         Zephyr library (`mmmbedtls`) and have hostap depend on it
+         instead of Zephyr's `mbedTLS` target. Zephyr 4.4 ships mbedtls
+         4.x, which (a) the mm-iot config doesn't validate against, and
+         (b) requires PSA_CRYPTO_CLIENT for its TLS sources to compile.
+         mm-iot only needs crypto primitives (AES/SHA/HMAC/CMAC etc.)
+         for WPA2/SAE, not TLS — so building its own 3.6.2 sidesteps
+         the entire 4.x compat problem. entropy_zephyr.c shims
+         mbedtls_hardware_poll → sys_rand_get since
+         MBEDTLS_ENTROPY_HARDWARE_ALT is set in the mm-iot config.
+
+      4. drivers/wifi/morse_sm/shims/wlan_hal.c — SPI IRQ trigger
+         Switch mmhal_wlan_set_spi_irq_enabled from GPIO_INT_EDGE_TO_ACTIVE
+         to GPIO_INT_LEVEL_ACTIVE. The comment right above the original
+         line says "Ideally the interrupt pin would be configured as a
+         low level interrupt"; the mm6108 holds the IRQ line low until
+         the host reads the pending data, so edge-trigger has a race
+         where the line was already asserted when the IRQ was enabled
+         and the callback never fires — manifests as `wifi scan` returning
+         "Scan requested" but no results ever come back. Seeed's
+         mm-iot-esp32 shim (framework/mm_shims/wlan_hal.c) uses
+         GPIO_INTR_LOW_LEVEL for the same reason.
+
+  - path: apps/halow-xiao/patches/morsemicro/mm-iot-sdk-ffs-include.patch
+    sha256sum: 797db1914ce9765e5748617e881c5e06865a9fc0aa9f23d11beae4a8e0a64daa
+    module: vendor/modules/lib/morsemicro/submodules/mm-iot-sdk
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-05
+    upstreamable: true
+    comments: |
+      framework/morselib/.../mm6108/pager_if_hw.c calls ffs() without
+      including <strings.h>. Picolibc / xtensa-espressif's libc declares
+      ffs() in <strings.h> (POSIX), not in <string.h>. Without the include
+      we get an implicit-function-declaration error under -Werror.
+      One-line fix: add #include <strings.h> after the existing
+      #include <string.h>.
+
+  - path: apps/halow-xiao/patches/morsemicro/mm-iot-zephyr-drop-bogus-board-dts-root.patch
+    sha256sum: 4b4e268cd585d8aa403e80b91b4fbd5ed3b8d0c64b64e7b44a970e6c76b42fc7
+    module: vendor/modules/lib/morsemicro
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-06
+    upstreamable: true
+    comments: |
+      Drop the `settings: { board_root: ., dts_root: . }` block from
+      mm-iot-zephyr's `zephyr/module.yml`. The module advertises itself
+      as contributing boards and DTS roots at its own top level, but
+      there is no `boards/` (and no `dts/`) directory at that level —
+      the only boards-related tree sits one level deeper in
+      `submodules/mm-iot-sdk/boards/`, which we don't use either (XIAO
+      ESP32-S3 board comes from upstream Zephyr at
+      `vendor/zephyr/boards/seeed/`).
+
+      The dead board_root declaration triggers `boards.cmake:132`:
+        BOARD_ROOT element without a 'boards' subdirectory:
+        /…/vendor/modules/lib/morsemicro
+      on every sysbuild configure step (three times per build —
+      sysbuild, mcuboot image, app image), polluting the log.
+
+      No functional change — Zephyr never finds boards or DTS under
+      this root either way; this just stops it from looking.
+
+      Upstreamable as a one-line fix to craigpeacock/mm-iot-zephyr.
+
+  # ===== walter-router =====
+
+  - path: apps/walter-router/patches/zephyr-lang-rust-xtensa.patch
+    sha256sum: 18182e5c1207e71f8bba9fd8247d41b818b40836c5d8cc359e09a2da3319c436
+    module: lang-rust
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-05-23
+    upstreamable: true
+    comments: |
+      Upstream zephyr-lang-rust HEAD doesn't map xtensa in _rust_map_target().
+      Adds esp32 / esp32s2 / esp32s3 mappings and CRATE_NAME / FEATURES args
+      to rust_cargo_application(). module: lang-rust matches the name in
+      vendor/modules/lang/rust/zephyr/module.yml; the project name in
+      west.yml (zephyr-lang-rust) is intentionally different and would cause
+      `west patch` to silently skip the entry.
+
+  - path: apps/walter-router/patches/zephyr-lang-rust-kconfig-overflow.patch
+    sha256sum: 53f73e2ddcbc644ff329f13983806a941448ccf1b1dfab9a41efcab121746cdd
+    module: lang-rust
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-05-23
+    upstreamable: true
+    comments: |
+      zephyr-build emits hex Kconfig values as `pub const FOO: usize = 0xHEX;`
+      unconditionally. On xtensa-esp32s3 `usize` is 32-bit and Kconfig values
+      like CONFIG_SOC_GPIO_VALID_DIGITAL_IO_PAD_MASK (0x0001FFFFFC000000) don't
+      fit, producing a hard `overflowing_literals` error. Add the lint to the
+      existing #[allow(...)] on hex constants. Value is still truncated but
+      that matches `usize` semantics on this target and the truncated constants
+      aren't referenced by any of our code yet.
+
+      Proper upstream fix would be to emit `u64` for hex values that exceed
+      u32::MAX, but this minimal patch unblocks the build.
+
+  - path: apps/walter-router/patches/zephyr/modem-cellular-sqn-gm02s-1000ms-reset.patch
+    sha256sum: 6f60535fc27141e6aa72d4a997ef42f691a1298936b70dbe272e626a832bf530
+    module: vendor/zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-05-13
+    upstreamable: true
+    comments: |
+      Zephyr's default reset_pulse_duration_ms=100 isn't long enough to
+      fully clear CMUX state on Sequans GM02SP firmware LR8.2.1.0-61488
+      and newer. After a Walter reboot without full power-cycle, the modem
+      stays in CMUX mode; subsequent boots send raw ATE0 which the modem
+      doesn't decode, causing init script timeouts.
+
+      DPTechnics' own walter-arduino MOTA/passthrough sketches use a
+      1000ms reset pulse for this exact reason — that's the proven-good
+      value on this hardware. Bumping the Zephyr driver's pulse to match.
+
+      Cost: ~900ms additional boot time. Worth it to eliminate the
+      flash-flap-reboot recovery loop.
+
+  - path: apps/walter-router/patches/zephyr/modem-cellular-sqn-gm02s-disable-psm-edrx.patch
+    sha256sum: ed24cf4bb6a99c40456d412a7dff50937e676bb735234f8116c351e46ca2c226
+    module: vendor/zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-05-13
+    upstreamable: true
+    comments: |
+      Sequans GM02SP defaults to enabling PSM (Power Save Mode, 3GPP TS 24.008)
+      and eDRX (Extended DRX) after registration. Both add hundreds of
+      milliseconds of wake latency to the first packet of any new burst —
+      catastrophic for interactive web browsing, which sends sparse bursts
+      followed by waits for the response. Send AT+CPSMS=0 and AT+CEDRXS=0
+      during the init chat script while the modem is in CFUN=4 (RF off),
+      before CMUX and PPP bring-up. This makes the modem stay in continuous-
+      reception mode, trading some battery life for latency. Walter is
+      mains-powered as a router so battery is not a concern.
+
+  - path: apps/walter-router/patches/zephyr/modem-cellular-carrier-gated-ppp-dead.patch
+    sha256sum: 8824a202a90e5c3dabf2a77f4dfee45cb9577dda103a39d2e21c83dcd63cc49f
+    module: vendor/zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-05-12
+    upstreamable: true
+    comments: |
+      modem_cellular's registered-state handler unconditionally tears down
+      PPP on BOTH MODEM_CELLULAR_EVENT_DEREGISTERED (from `+CEREG: 2` URC)
+      and MODEM_CELLULAR_EVENT_PPP_DEAD (from NET_EVENT_PPP_PHASE_DEAD).
+      Two failure modes hit us routinely on Sequans GM02SP + Walter:
+       1. The modem briefly cycles `+CEREG: 2 → +CEREG: 1` within ~1ms
+          immediately after `ATD*99***1#` returns CONNECT, during PDP
+          context binding. Driver's DEREGISTERED handler tears down PPP
+          before LCP can finish.
+       2. After LCP completes and IPCP starts, the modem sometimes
+          retransmits its LCP Configure-Req (likely due to slow ACK from
+          us under DBG log load). RFC 1661 §4.6 says we must reset NCPs
+          and bounce LCP back to REQUEST_SENT, transitioning phase
+          NETWORK → DEAD → ESTABLISH. Driver's PPP_DEAD handler tears
+          down PPP just as IPCP would assign an IPv4 address.
+      Both teardowns happen while the modem's CMUX link is still healthy
+      (carrier still ON). This patch gates both handlers on
+      `!net_if_is_carrier_ok()` — only re-dial when the modem has truly
+      dropped its CMUX link to us, not when PPP is renegotiating or the
+      modem's CEREG URC is flapping. Carrier_off is set elsewhere by the
+      driver when CMUX DLCIs actually close, so genuine disconnections
+      still trigger the re-dial path.
+
+  - path: apps/walter-router/patches/zephyr/modem-cellular-sqn-gm02s-await-sysstart.patch
+    sha256sum: d79e7b550720e24e984b2ec5043402c82abbd076ab595bb06612a7d15775d3b0
+    module: vendor/zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-05-17
+    upstreamable: true
+    comments: |
+      Zephyr's SQN GM02SP init chat script blindly fires ATE0 after a fixed
+      startup_time_ms=2000 timer post-reset. SQN GM02SP cold-boot is 3-10s
+      depending on firmware revision and saved state — when ATE0 lands on
+      an unready modem, no OK comes back, the 10s script timeout fires, and
+      the state machine retries in a non-deterministic loop. Every Walter
+      init failure we've observed has matched this signature.
+
+      DPTechnics' canonical Walter libraries block on the "+SYSSTART" URC
+      instead of guessing a timer:
+       - walter-esp-idf/src/WalterModem.cpp:4367 — _runCmd({}, "+SYSSTART", ...)
+       - walter-arduino/src/WalterModem.cpp:4367 — same pattern
+
+      "+SYSSTART" is Sequans' documented boot-completion URC. Adds a
+      MODEM_CHAT_MATCH_DEFINE for it, prepends a wait-step at the head of
+      the init script, and bumps the script timeout 10→30s to fit worst-
+      case boot + the 12 AT cmds with margin.
+
+  - path: apps/walter-router/patches/zephyr/modem-cellular-sqn-gm02s-cmee-verbose.patch
+    sha256sum: 317897c0ec65a3beaec6054d8c9d23e828f319a89dc3087969ae5b75f9b33018
+    module: vendor/zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-05-17
+    upstreamable: true
+    comments: |
+      Zephyr's SQN init sets AT+CMEE=1 (numeric error codes per 3GPP TS
+      27.007 §9.1). DPTechnics' Walter libraries use AT+CMEE=2 (verbose
+      text) — see walter-esp-idf/src/WalterModem.cpp configCMEErrorReports().
+      Verbose text makes log triage trivially faster ("+CME ERROR: SIM not
+      inserted" vs "+CME ERROR: 10"). The abort_matches list keys on the
+      literal "ERROR" substring which CMEE=2 responses still contain, so
+      error abort behavior is preserved.

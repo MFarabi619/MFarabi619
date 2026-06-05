@@ -9,7 +9,17 @@ manifest:
         - name: wolfssl
           url-base: https://github.com/wolfSSL
 
+        - name: craigpeacock
+          url-base: https://github.com/craigpeacock
+
     projects:
+        - name: mm-iot-zephyr
+          remote: craigpeacock
+          revision: main
+          path: vendor/modules/lib/morsemicro
+          submodules: true
+          import: false
+
         - name: zephyr-lang-rust
           remote: zephyrproject
           revision: a763400f31e92994d5c5aa0836346e19048f5bde # main 2026-05-02

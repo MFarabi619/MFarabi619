@@ -8,6 +8,8 @@ members = [
     "tui",
     "libs/firmware",
     "libs/walter-router",
+    "apps/xiao",
+    "apps/halow-xiao",
     "tests/e2e",
     "apps/readme",
     "apps/microtop",

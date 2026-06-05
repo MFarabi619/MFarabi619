@@ -1,0 +1,12 @@
+diff --git a/framework/morselib/src/driver/morse_driver/mm6108/pager_if_hw.c b/framework/morselib/src/driver/morse_driver/mm6108/pager_if_hw.c
+index e6ed0fa8..2f4e2bfa 100644
+--- a/framework/morselib/src/driver/morse_driver/mm6108/pager_if_hw.c
++++ b/framework/morselib/src/driver/morse_driver/mm6108/pager_if_hw.c
+@@ -6,6 +6,7 @@
+ 
+ #include <errno.h>
+ #include <string.h>
++#include <strings.h>
+ 
+ #include "mmutils.h"
+ 

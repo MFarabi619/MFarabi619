@@ -6,11 +6,21 @@
   product: DPTechnics Walter
   serial: /dev/cu.usbmodem2101
   platform: walter/esp32s3/procpu
-# - id: /dev/cu.usbmodem11311101
-#   baud: 115200
-#   runner: esp32
-#   connected: true
-#   flash_before: true
-#   serial: /dev/cu.usbmodem11311101
-#   product: ESP32-S3-DevKitC-1-N8R8
-#   platform: esp32s3_devkitc/esp32s3/procpu
+
+- id: /dev/cu.usbmodem1101
+  baud: 115200
+  runner: esp32
+  connected: true
+  flash_before: true
+  serial: /dev/cu.usbmodem1101
+  product: ESP32-S3-DevKitC-1-N8R8
+  platform: esp32s3_devkitc/esp32s3/procpu
+
+- id: /dev/cu.usbmodem101
+  baud: 115200
+  runner: esp32
+  connected: true
+  flash_before: true
+  serial: /dev/cu.usbmodem101
+  product: ESP32-S3-DevKitC-1-N8R8
+  platform: xiao_esp32s3/esp32s3/procpu

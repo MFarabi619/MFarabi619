@@ -19,6 +19,10 @@ map       = INLCRNL
 # Every chip reset, 'west flash', and USB re-enumeration just resumes the session
 no-reconnect = false
 
+[xiao]
+log-file  = tio.xiao.log
+device    = /dev/cu.usbmodem101
+
 [walter]
 log-file  = tio.walter.log
 device    = /dev/cu.usbmodem2101

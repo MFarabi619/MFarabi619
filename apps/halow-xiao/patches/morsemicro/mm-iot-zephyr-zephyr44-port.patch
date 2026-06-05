@@ -1,0 +1,195 @@
+diff --git a/components/morse_sm/CMakeLists.txt b/components/morse_sm/CMakeLists.txt
+index a1cbfdd..cefa7aa 100644
+--- a/components/morse_sm/CMakeLists.txt
++++ b/components/morse_sm/CMakeLists.txt
+@@ -1,6 +1,7 @@
+ # Copyright 2024-2025 Morse Micro
+ # SPDX-License-Identifier: Apache-2.0
+ 
++add_subdirectory(mmmbedtls)
+ add_subdirectory(hostap)
+ add_subdirectory(firmware)
+ add_subdirectory(libmorse)
+diff --git a/components/morse_sm/hostap/CMakeLists.txt b/components/morse_sm/hostap/CMakeLists.txt
+index 9a8bc3a..9bae2ef 100644
+--- a/components/morse_sm/hostap/CMakeLists.txt
++++ b/components/morse_sm/hostap/CMakeLists.txt
+@@ -106,5 +106,5 @@ target_compile_definitions(
+   ${BUILD_DEFINES}
+ )
+ 
+-zephyr_library_add_dependencies(mbedTLS)
+-zephyr_library_link_libraries(mbedTLS)
++zephyr_library_add_dependencies(mmmbedtls)
++zephyr_library_link_libraries(mmmbedtls)
+diff --git a/components/morse_sm/mmmbedtls/CMakeLists.txt b/components/morse_sm/mmmbedtls/CMakeLists.txt
+new file mode 100644
+index 0000000..9467aab
+--- /dev/null
++++ b/components/morse_sm/mmmbedtls/CMakeLists.txt
+@@ -0,0 +1,51 @@
++# Copyright 2026 Apidae Systems
++# SPDX-License-Identifier: Apache-2.0
++#
++# Build mm-iot's vendored mbedtls 3.6.2 as a standalone Zephyr library
++# so we don't depend on Zephyr 4.4's mbedtls 4.x (incompatible config).
++
++set(MMMBEDTLS_DIR ${MMIOT_ROOT}/framework/src/mbedtls)
++
++zephyr_library_named(mmmbedtls)
++
++set(src_crypto
++  aes.c aesni.c aesce.c aria.c asn1parse.c asn1write.c base64.c
++  bignum.c bignum_core.c bignum_mod.c bignum_mod_raw.c block_cipher.c
++  camellia.c ccm.c chacha20.c chachapoly.c cipher.c cipher_wrap.c
++  constant_time.c cmac.c ctr_drbg.c des.c dhm.c ecdh.c ecdsa.c ecjpake.c
++  ecp.c ecp_curves.c ecp_curves_new.c entropy.c entropy_poll.c error.c
++  gcm.c hkdf.c hmac_drbg.c lmots.c lms.c md.c md5.c memory_buffer_alloc.c
++  nist_kw.c oid.c padlock.c pem.c pk.c pk_ecc.c pk_wrap.c pkcs12.c
++  pkcs5.c pkparse.c pkwrite.c platform.c platform_util.c poly1305.c
++  psa_crypto.c psa_crypto_aead.c psa_crypto_cipher.c psa_crypto_client.c
++  psa_crypto_driver_wrappers_no_static.c psa_crypto_ecp.c psa_crypto_ffdh.c
++  psa_crypto_hash.c psa_crypto_mac.c psa_crypto_pake.c psa_crypto_rsa.c
++  psa_crypto_se.c psa_crypto_slot_management.c psa_crypto_storage.c
++  psa_its_file.c psa_util.c ripemd160.c rsa.c rsa_alt_helpers.c sha1.c
++  sha256.c sha512.c sha3.c threading.c timing.c version.c version_features.c
++)
++
++set(src_x509
++  pkcs7.c x509.c x509_create.c x509_crl.c x509_crt.c x509_csr.c
++  x509write.c x509write_crt.c x509write_csr.c
++)
++
++foreach(f ${src_crypto} ${src_x509})
++  zephyr_library_sources(${MMMBEDTLS_DIR}/library/${f})
++endforeach()
++
++zephyr_library_sources(${CMAKE_CURRENT_SOURCE_DIR}/entropy_zephyr.c)
++
++zephyr_include_directories(
++  ${MMMBEDTLS_DIR}/include
++  ${MMIOT_ROOT}/framework/morselib/include
++  ${CMAKE_CURRENT_SOURCE_DIR}/../hostap
++)
++
++zephyr_library_compile_definitions(
++  MBEDTLS_CONFIG_FILE="morse_mbedtls_config.h"
++)
++
++target_compile_definitions(mmmbedtls INTERFACE
++  MBEDTLS_CONFIG_FILE="morse_mbedtls_config.h"
++)
+diff --git a/components/morse_sm/mmmbedtls/entropy_zephyr.c b/components/morse_sm/mmmbedtls/entropy_zephyr.c
+new file mode 100644
+index 0000000..9b79e20
+--- /dev/null
++++ b/components/morse_sm/mmmbedtls/entropy_zephyr.c
+@@ -0,0 +1,10 @@
++#include <stddef.h>
++#include <zephyr/random/random.h>
++
++int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t *olen)
++{
++    (void)data;
++    sys_rand_get(output, len);
++    *olen = len;
++    return 0;
++}
+diff --git a/drivers/wifi/morse_sm/morse.c b/drivers/wifi/morse_sm/morse.c
+index 5077f88..5350798 100644
+--- a/drivers/wifi/morse_sm/morse.c
++++ b/drivers/wifi/morse_sm/morse.c
+@@ -15,6 +15,7 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME, CONFIG_WIFI_LOG_LEVEL);
+ #include <zephyr/drivers/spi.h>
+ #include <zephyr/net/conn_mgr/connectivity_wifi_mgmt.h>
+ #include <zephyr/net/wifi_mgmt.h>
++#include <zephyr/net/wifi_nm.h>
+ #include <zephyr/pm/device.h>
+ 
+ #include "morse.h"
+@@ -143,8 +144,8 @@ static void scan_complete_callback(enum mmwlan_scan_state state, void *arg)
+ 	morse->scan_cb(morse->iface, 0, NULL);
+ }
+ 
+-static int morse_mgmt_scan(const struct device *dev, struct wifi_scan_params *params,
+-			   scan_result_cb_t cb)
++static int morse_mgmt_scan(const struct device *dev, struct net_if *iface,
++			   struct wifi_scan_params *params, scan_result_cb_t cb)
+ {
+ 	struct morse_data *morse = dev->data;
+ 
+@@ -167,7 +168,8 @@ static int morse_mgmt_scan(const struct device *dev, struct wifi_scan_params *pa
+ 	return 0;
+ }
+ 
+-static int morse_mgmt_connect(const struct device *dev, struct wifi_connect_req_params *params)
++static int morse_mgmt_connect(const struct device *dev, struct net_if *iface,
++			      struct wifi_connect_req_params *params)
+ {
+ 	struct morse_data *morse = dev->data;
+ 	struct mmwlan_sta_args *sta_args = &morse->sta_args;
+@@ -217,7 +219,7 @@ static int morse_mgmt_connect(const struct device *dev, struct wifi_connect_req_
+ 	return 0;
+ }
+ 
+-static int morse_mgmt_disconnect(const struct device *dev)
++static int morse_mgmt_disconnect(const struct device *dev, struct net_if *iface)
+ {
+ 	struct morse_data *morse = dev->data;
+ 	enum mmwlan_status status = mmwlan_sta_disable();
+@@ -231,7 +233,8 @@ static int morse_mgmt_disconnect(const struct device *dev)
+ 	return 0;
+ }
+ 
+-static int morse_mgmt_iface_status(const struct device *dev, struct wifi_iface_status *status)
++static int morse_mgmt_iface_status(const struct device *dev, struct net_if *iface,
++				   struct wifi_iface_status *status)
+ {
+ 	struct morse_data *morse = dev->data;
+ 
+@@ -271,7 +274,8 @@ static int morse_mgmt_iface_status(const struct device *dev, struct wifi_iface_s
+ 	return 0;
+ }
+ 
+-static int morse_mgmt_get_version(const struct device *dev, struct wifi_version *params)
++static int morse_mgmt_get_version(const struct device *dev, struct net_if *iface,
++				  struct wifi_version *params)
+ {
+ 	struct morse_data *morse = dev->data;
+ 
+@@ -389,6 +393,8 @@ static void morse_iface_init(struct net_if *iface)
+ 	eth_ctx->eth_if_type = L2_ETH_IF_TYPE_WIFI;
+ 	morse->iface = iface;
+ 
++	wifi_nm_register_mgd_type_iface(wifi_nm_get_instance("morse_nm"), WIFI_TYPE_STA, iface);
++
+ 	morse->status = WIFI_STATE_INTERFACE_DISABLED;
+ 
+ 	LOG_DBG("%s: initialising morse interface\n", __func__);
+@@ -548,6 +554,8 @@ static const struct net_wifi_mgmt_offload morse_api = {
+ 	.wifi_mgmt_api = &morse_mgmt_api,
+ };
+ 
++DEFINE_WIFI_NM_INSTANCE(morse_nm, &morse_mgmt_api);
++
+ const struct morse_config conf = {
+ 	.spi = SPI_DT_SPEC_INST_GET(0,
+ 				    (SPI_LOCK_ON | SPI_OP_MODE_MASTER | SPI_TRANSFER_MSB |
+diff --git a/drivers/wifi/morse_sm/shims/wlan_hal.c b/drivers/wifi/morse_sm/shims/wlan_hal.c
+index 04f794e..28d0108 100644
+--- a/drivers/wifi/morse_sm/shims/wlan_hal.c
++++ b/drivers/wifi/morse_sm/shims/wlan_hal.c
+@@ -190,12 +190,12 @@ void mmhal_wlan_set_spi_irq_enabled(bool enabled)
+ 		 * to be retrived. Ideally the interrupt pin would be configured as a low level
+ 		 * interrupt.
+ 		 */
++		gpio_pin_interrupt_configure_dt(&cfg->spi_irq, GPIO_INT_LEVEL_ACTIVE);
+ 		if (mmhal_wlan_spi_irq_is_asserted()) {
+ 			if (spi_irq_handler != NULL) {
+ 				spi_irq_handler();
+ 			}
+ 		}
+-		gpio_pin_interrupt_configure_dt(&cfg->spi_irq, GPIO_INT_EDGE_TO_ACTIVE);
+ 	} else {
+ 		gpio_pin_interrupt_configure_dt(&cfg->spi_irq, GPIO_INT_DISABLE);
+ 	}

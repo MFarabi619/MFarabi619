@@ -1,0 +1,19 @@
+&wifi {
+	status = "disabled";
+};
+
+&spi2 {
+	status = "okay";
+	cs-gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
+
+	morse_halow: morse@0 {
+		compatible = "morse,mm6108";
+		reg = <0>;
+		spi-max-frequency = <12000000>;
+
+		resetn-gpios  = <&gpio0 1 GPIO_ACTIVE_LOW>;
+		wakeup-gpios  = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+		busy-gpios    = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+		spi-irq-gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
+	};
+};
