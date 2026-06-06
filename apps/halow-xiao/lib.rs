@@ -1,8 +1,12 @@
 #![no_std]
 
-use zephyr::printk;
+use log::info;
 
 #[no_mangle]
 extern "C" fn rust_main() {
-    printk!("=== halow_xiao rust_main on {} ===\n", zephyr::kconfig::CONFIG_BOARD);
+    unsafe {
+        zephyr::set_logger().unwrap();
+    }
+
+    info!("halow_xiao rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
 }

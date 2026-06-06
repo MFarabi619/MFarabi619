@@ -9,23 +9,46 @@ if(DEFINED ENV{CONFIG_WIFI_CREDENTIALS_STATIC_SSID})
 endif()
 
 set(WORKSPACE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-set(FIRMWARE_LIB ${WORKSPACE_ROOT}/libs/firmware)
+set(LIBS_FIRMWARE ${WORKSPACE_ROOT}/libs/firmware)
 
 list(APPEND SNIPPET espressif-flash-8M)
 
 list(APPEND EXTRA_CONF_FILE
-  ${FIRMWARE_LIB}/rust.conf
-  ${FIRMWARE_LIB}/boot/kernel.conf
-  ${FIRMWARE_LIB}/boot/mcuboot.conf
-  ${FIRMWARE_LIB}/boot/psram.conf
-  ${FIRMWARE_LIB}/console/log.conf
-  ${FIRMWARE_LIB}/console/shell.conf
-  ${FIRMWARE_LIB}/console/debug.conf
-  ${FIRMWARE_LIB}/filesystems/storage.conf
-  ${FIRMWARE_LIB}/networking/net.conf
-  ${FIRMWARE_LIB}/networking/dns.conf
-  ${FIRMWARE_LIB}/networking/wifi/wifi.conf
-  ${FIRMWARE_LIB}/boards/xiao_esp32s3.conf
+  ${LIBS_FIRMWARE}/rust.conf
+
+  ${LIBS_FIRMWARE}/boot/kernel.conf
+  ${LIBS_FIRMWARE}/boot/mcuboot.conf
+  ${LIBS_FIRMWARE}/boot/thread_analyzer.conf
+
+  ${LIBS_FIRMWARE}/hardware/esp_spiram.conf
+
+  ${LIBS_FIRMWARE}/console/logger.conf
+  ${LIBS_FIRMWARE}/console/shell.conf
+  ${LIBS_FIRMWARE}/console/debug.conf
+  ${LIBS_FIRMWARE}/console/statistics.conf
+
+  ${LIBS_FIRMWARE}/filesystems/zvfs.conf
+  ${LIBS_FIRMWARE}/filesystems/flash.conf
+  ${LIBS_FIRMWARE}/filesystems/nvs.conf
+  ${LIBS_FIRMWARE}/filesystems/settings.conf
+  ${LIBS_FIRMWARE}/filesystems/img.conf
+
+  ${LIBS_FIRMWARE}/networking/default.conf
+  ${LIBS_FIRMWARE}/networking/hostname.conf
+  ${LIBS_FIRMWARE}/networking/ipv4.conf
+  ${LIBS_FIRMWARE}/networking/ipv6.conf
+  ${LIBS_FIRMWARE}/networking/buf.conf
+  ${LIBS_FIRMWARE}/networking/mgmt.conf
+  ${LIBS_FIRMWARE}/networking/statistics.conf
+  ${LIBS_FIRMWARE}/networking/dns/resolver.conf
+  ${LIBS_FIRMWARE}/networking/dns/server.conf
+  ${LIBS_FIRMWARE}/networking/dns/mdns.conf
+
+  ${LIBS_FIRMWARE}/networking/wifi/default.conf
+  ${LIBS_FIRMWARE}/networking/wifi/credentials.conf
+  ${LIBS_FIRMWARE}/networking/wifi/esp.conf
+
+  ${LIBS_FIRMWARE}/boards/xiao_esp32s3.conf
 )
 
 function(app_set_runner_args)
@@ -42,4 +65,4 @@ project(xiao)
 
 rust_cargo_application(CRATE_NAME xiao)
 
-add_subdirectory(${FIRMWARE_LIB} ${CMAKE_BINARY_DIR}/firmware-lib)
+add_subdirectory(${LIBS_FIRMWARE} ${CMAKE_BINARY_DIR}/firmware-lib)

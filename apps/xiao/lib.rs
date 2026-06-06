@@ -1,6 +1,6 @@
 #![no_std]
 
-use zephyr::printk;
+use log::info;
 
 extern "C" {
     fn wifiSTAConnectStored() -> i32;
@@ -8,8 +8,12 @@ extern "C" {
 
 #[no_mangle]
 extern "C" fn rust_main() {
-    printk!("=== rust_main on {} ===\n", zephyr::kconfig::CONFIG_BOARD);
+    unsafe {
+        zephyr::set_logger().unwrap();
+    }
+
+    info!("rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
 
     let ret = unsafe { wifiSTAConnectStored() };
-    printk!("[wifi] connect_stored = {}\n", ret);
+    info!("wifi connect_stored = {}", ret);
 }

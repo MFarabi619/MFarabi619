@@ -6,21 +6,25 @@ file     = west.yml
 base     = vendor/zephyr
 
 [flash]
-rebuild  = false
+rebuild  = true
 
 [build]
 sysbuild = true
-# pristine = always
-pristine = auto
+pristine = always
 dir-fmt  = build/{board_normalized}
 # board    = esp32s3_devkitc/esp32s3/procpu
+# board    = xiao_esp32s3/esp32s3/procpu
 
 [alias]
+bw       = build apps/walter-router --board walter/esp32s3/procpu
 bx       = build apps/xiao          --board xiao_esp32s3/esp32s3/procpu
 bh       = build apps/halow-xiao    --board xiao_esp32s3/esp32s3/procpu
-bw       = build apps/walter-router --board walter/esp32s3/procpu
 
-fx       = flash --runner probe-rs --domain xiao
+fx       = flash --runner probe-rs  --domain xiao
+fw       = flash --runner probe-rs  --domain walter
+
+ax       = attach --runner probe-rs --domain xiao
+
 
 guiconfig  = build --pristine=never   --target guiconfig
 menuconfig = build --pristine=never   --target menuconfig

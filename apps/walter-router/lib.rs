@@ -3,10 +3,10 @@
 
 use log::{info, warn};
 
-mod cellular;
-
-use firmware::networking::{dns, nat, wifi};
-use firmware::utils::errno::{Errno, IntoResult};
+use firmware::{
+    networking::{cellular, dns, nat, wifi},
+    utils::errno::{Errno, IntoResult},
+};
 
 extern "C" {
     fn boot_is_img_confirmed() -> bool;

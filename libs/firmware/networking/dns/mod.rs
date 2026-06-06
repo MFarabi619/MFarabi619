@@ -1,5 +1,4 @@
-use core::ffi::{c_char, CStr};
-use core::net::Ipv4Addr;
+use core::{ffi::{c_char, CStr}, net::Ipv4Addr};
 
 use crate::utils::errno::{Errno, IntoResult};
 

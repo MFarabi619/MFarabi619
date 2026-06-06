@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
 description = "Walter cellular router firmware"
+build = "../../libs/firmware/build.rs"
 
 [lib]
 path = "lib.rs"
@@ -12,7 +13,7 @@ crate-type = ["staticlib"]
 [dependencies]
 log = "0.4"
 zephyr = "0.1.0"
-firmware = { path = "../firmware" }
+firmware = { path = "../../libs/firmware" }
 
 [build-dependencies]
 zephyr-build = "0.1.0"

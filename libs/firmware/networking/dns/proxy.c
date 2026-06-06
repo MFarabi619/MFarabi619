@@ -15,7 +15,7 @@
 #include <zephyr/sys/byteorder.h>
 
 #include "dns_pack.h"
-#include "dns_proxy.h"
+#include "proxy.h"
 
 LOG_MODULE_REGISTER(dns_proxy, LOG_LEVEL_INF);
 

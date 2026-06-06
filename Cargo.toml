@@ -1,13 +1,13 @@
 [workspace]
 resolver = "3"
 exclude = ["ml"]
-default-members = ["libs/walter-router"]
+default-members = ["apps/walter-router"]
 members = [
     ".",
     "web",
     "tui",
     "libs/firmware",
-    "libs/walter-router",
+    "apps/walter-router",
     "apps/xiao",
     "apps/halow-xiao",
     "tests/e2e",

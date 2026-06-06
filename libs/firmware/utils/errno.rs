@@ -1,5 +1,4 @@
-use core::fmt;
-use core::num::NonZeroI32;
+use core::{fmt, num::NonZeroI32};
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub struct Errno(NonZeroI32);

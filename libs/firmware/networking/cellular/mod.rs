@@ -1,10 +1,12 @@
-use core::ffi::{c_char, CStr};
-use core::sync::atomic::{AtomicI32, Ordering};
-use core::time::Duration;
+use core::{
+    ffi::{c_char, CStr},
+    sync::atomic::{AtomicI32, Ordering},
+    time::Duration,
+};
 
 use log::{info, warn};
 
-use firmware::utils::errno::{Errno, IntoResult};
+use crate::utils::errno::{Errno, IntoResult};
 
 const MAX_IDENTITY_LEN: usize = 64;
 const _: () = assert!(
