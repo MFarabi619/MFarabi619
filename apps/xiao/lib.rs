@@ -2,7 +2,7 @@
 
 use log::{info, warn};
 
-use firmware::{networking::wifi, services::tailscale};
+use firmware::networking::{wifi, wireguard};
 
 #[no_mangle]
 extern "C" fn rust_main() {
@@ -12,11 +12,11 @@ extern "C" fn rust_main() {
 
     info!("rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
 
-    if let Err(e) = wifi::sta_connect_stored() {
+    if let Err(e) = wifi::sta::connect() {
         warn!("wifi sta: {e}");
     }
 
-    if let Err(e) = tailscale::start() {
-        warn!("tailscale: {e}");
+    if let Err(e) = wireguard::initialize() {
+        warn!("wireguard: {e}");
     }
 }

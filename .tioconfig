@@ -25,7 +25,7 @@ device    = /dev/cu.usbmodem101
 
 [walter]
 log-file  = tio.walter.log
-device    = /dev/cu.usbmodem2101
+device    = /dev/cu.usbmodem1101
 
 [usbmodem-%1]
 pattern   = ^usbmodem-([0-9]+)$

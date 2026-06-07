@@ -1,0 +1,27 @@
+if WIREGUARD
+
+config WIREGUARD_LOCAL_PRIVATE_KEY
+	string "Local node private key (base64)"
+	default ""
+
+config WIREGUARD_LOCAL_TUNNEL_CIDR
+	string "Local tunnel address with prefix"
+	default "10.10.10.2/24"
+
+config WIREGUARD_PEER_PUBLIC_KEY
+	string "Peer public key (base64)"
+	default "bBk3IoOmGxRJwPLCYl0QyoM/J74D+Pt72Q5mLxIiDmQ="
+
+config WIREGUARD_PEER_ALLOWED_CIDR
+	string "Peer allowed-IPs CIDR"
+	default "10.10.10.0/24"
+
+config WIREGUARD_PEER_ENDPOINT
+	string "Peer endpoint host:port"
+	default "10.0.0.162:51820"
+
+config WIREGUARD_PEER_TUNNEL_ADDR
+	string "Peer tunnel address used to kick off the first handshake"
+	default "10.10.10.1"
+
+endif # WIREGUARD

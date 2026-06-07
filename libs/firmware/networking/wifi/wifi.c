@@ -9,12 +9,13 @@
  */
 
 #include <errno.h>
+#include <stdbool.h>
 
 #include <zephyr/net/dhcpv4_server.h>
 #include <zephyr/net/net_if.h>
 #include <zephyr/net/wifi_mgmt.h>
 
-int wifiSTAConnectStored(void)
+int wifi_sta_connect_stored(void)
 {
 	struct net_if *iface = net_if_get_first_wifi();
 
@@ -24,7 +25,17 @@ int wifiSTAConnectStored(void)
 	return net_mgmt(NET_REQUEST_WIFI_CONNECT_STORED, iface, NULL, 0);
 }
 
-int wifiAPEnable(const char *ssid, size_t ssid_len, const char *psk, size_t psk_len)
+bool wifi_sta_has_ipv4(void)
+{
+	struct net_if *iface = net_if_get_first_wifi();
+
+	if (iface == NULL) {
+		return false;
+	}
+	return net_if_ipv4_get_global_addr(iface, NET_ADDR_PREFERRED) != NULL;
+}
+
+int wifi_ap_enable(const char *ssid, size_t ssid_len, const char *psk, size_t psk_len)
 {
 	struct net_if *iface = net_if_get_wifi_sap();
 
@@ -45,7 +56,7 @@ int wifiAPEnable(const char *ssid, size_t ssid_len, const char *psk, size_t psk_
 	return net_mgmt(NET_REQUEST_WIFI_AP_ENABLE, iface, &params, sizeof(params));
 }
 
-int wifiAPDisable(void)
+int wifi_ap_disable(void)
 {
 	struct net_if *iface = net_if_get_wifi_sap();
 
@@ -55,7 +66,7 @@ int wifiAPDisable(void)
 	return net_mgmt(NET_REQUEST_WIFI_AP_DISABLE, iface, NULL, 0);
 }
 
-int wifiAPDHCPv4ServerStart(void)
+int wifi_ap_dhcpv4_server_start(void)
 {
 	struct net_if *iface = net_if_get_wifi_sap();
 

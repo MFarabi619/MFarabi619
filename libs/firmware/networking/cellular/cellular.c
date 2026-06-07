@@ -37,32 +37,32 @@ static const struct device *modem_device(void)
 	return DEVICE_DT_GET(DT_ALIAS(modem));
 }
 
-int cellularAccessIMEI(char *buf, size_t buf_len)
+int cellular_access_imei(char *buf, size_t buf_len)
 {
 	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_IMEI, buf, buf_len);
 }
 
-int cellularAccessManufacturer(char *buf, size_t buf_len)
+int cellular_access_manufacturer(char *buf, size_t buf_len)
 {
 	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_MANUFACTURER, buf, buf_len);
 }
 
-int cellularAccessModel(char *buf, size_t buf_len)
+int cellular_access_model(char *buf, size_t buf_len)
 {
 	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_MODEL_ID, buf, buf_len);
 }
 
-int cellularAccessFirmware(char *buf, size_t buf_len)
+int cellular_access_firmware(char *buf, size_t buf_len)
 {
 	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_FW_VERSION, buf, buf_len);
 }
 
-int cellularAccessIMSI(char *buf, size_t buf_len)
+int cellular_access_imsi(char *buf, size_t buf_len)
 {
 	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_SIM_IMSI, buf, buf_len);
 }
 
-int cellularAccessICCID(char *buf, size_t buf_len)
+int cellular_access_iccid(char *buf, size_t buf_len)
 {
 	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_SIM_ICCID, buf, buf_len);
 }
@@ -76,7 +76,7 @@ static const char *const registration_status_names[] = {
 	[CELLULAR_REGISTRATION_REGISTERED_ROAMING] = "roaming",
 };
 
-const char *cellularRegistrationStatusString(int status)
+const char *cellular_registration_status_string(int status)
 {
 	if ((size_t)status < ARRAY_SIZE(registration_status_names) &&
 	    registration_status_names[status] != NULL) {
@@ -85,8 +85,8 @@ const char *cellularRegistrationStatusString(int status)
 	return "?";
 }
 
-extern void onCellularRegistrationStatus(int status);
-extern void onCellularModemInfoChanged(void);
+extern void on_cellular_registration_status(int status);
+extern void on_cellular_modem_info_changed(void);
 
 #define REGISTRATION_RECOVERY_TIMEOUT_MS 120000
 #define REGISTRATION_WATCHDOG_POLL_MS    10000
@@ -132,18 +132,18 @@ static void cellular_event_handler(const struct device *dev, enum cellular_event
 		if (registration_is_attached((int)reg->status)) {
 			last_attached_uptime = k_uptime_get();
 		}
-		onCellularRegistrationStatus((int)reg->status);
+		on_cellular_registration_status((int)reg->status);
 		break;
 	}
 	case CELLULAR_EVENT_MODEM_INFO_CHANGED:
-		onCellularModemInfoChanged();
+		on_cellular_modem_info_changed();
 		break;
 	default:
 		break;
 	}
 }
 
-int cellularInitializeCallbacks(void)
+int cellular_initialize_callbacks(void)
 {
 	return cellular_set_callback(modem_device(),
 				     CELLULAR_EVENT_REGISTRATION_STATUS_CHANGED |
@@ -162,8 +162,8 @@ static struct net_if *ppp_iface_ref;
 static K_SEM_DEFINE(dns_server_added, 0, 1);
 static K_SEM_DEFINE(ppp_connected, 0, 1);
 
-extern void onCellularL4Connected(void);
-extern void onCellularL4Disconnected(void);
+extern void on_cellular_l4_connected(void);
+extern void on_cellular_l4_disconnected(void);
 
 static void on_l4_event(uint64_t event, struct net_if *iface, void *info, size_t info_length,
 			void *user_data)
@@ -181,10 +181,10 @@ static void on_l4_event(uint64_t event, struct net_if *iface, void *info, size_t
 	}
 	if (event == NET_EVENT_L4_CONNECTED) {
 		k_sem_give(&ppp_connected);
-		onCellularL4Connected();
+		on_cellular_l4_connected();
 	} else if (event == NET_EVENT_L4_DISCONNECTED) {
 		k_sem_reset(&ppp_connected);
-		onCellularL4Disconnected();
+		on_cellular_l4_disconnected();
 	}
 }
 
@@ -229,7 +229,7 @@ static int apn_load_into_modem(void)
 	return rc;
 }
 
-int cellularSaveAPN(const char *apn, size_t len)
+int cellular_save_apn(const char *apn, size_t len)
 {
 	if (len >= sizeof(persisted_apn)) {
 		return -EINVAL;
@@ -239,7 +239,7 @@ int cellularSaveAPN(const char *apn, size_t len)
 	return settings_save_one("cellular/apn", persisted_apn, strlen(persisted_apn));
 }
 
-int cellularInitialize(void)
+int cellular_initialize(void)
 {
 	const struct device *modem = modem_device();
 
@@ -301,7 +301,7 @@ static int cmd_cellular_status(const struct shell *sh, size_t argc, char **argv)
 
 	if (cellular_get_registration_status(modem_device(), CELLULAR_ACCESS_TECHNOLOGY_E_UTRAN,
 					     &status) == 0) {
-		shell_print(sh, "lte: %s", cellularRegistrationStatusString((int)status));
+		shell_print(sh, "lte: %s", cellular_registration_status_string((int)status));
 	}
 	return 0;
 }
@@ -353,7 +353,7 @@ static int cmd_cellular_apn(const struct shell *sh, size_t argc, char **argv)
 		shell_print(sh, "set_apn failed: %d", rc);
 		return rc;
 	}
-	int save_rc = cellularSaveAPN(argv[1], strlen(argv[1]));
+	int save_rc = cellular_save_apn(argv[1], strlen(argv[1]));
 
 	if (save_rc < 0) {
 		shell_warn(sh, "apn set but save failed: %d", save_rc);
@@ -408,12 +408,12 @@ SHELL_STATIC_SUBCMD_SET_CREATE(cellular_subcmds,
 
 SHELL_CMD_REGISTER(cellular, &cellular_subcmds, "Cellular runtime", NULL);
 
-struct net_if *cellularPPPIface(void)
+struct net_if *cellular_ppp_iface(void)
 {
 	return ppp_iface_ref;
 }
 
-int cellularWaitForAttach(int timeout_ms)
+int cellular_wait_for_attach(int timeout_ms)
 {
 	int64_t deadline = k_uptime_get() + timeout_ms;
 

@@ -15,31 +15,31 @@ const _: () = assert!(
 );
 
 extern "C" {
-    fn cellularInitialize() -> i32;
-    fn cellularWaitForAttach(timeout_ms: i32) -> i32;
+    fn cellular_initialize() -> i32;
+    fn cellular_wait_for_attach(timeout_ms: i32) -> i32;
 
-    fn cellularInitializeCallbacks() -> i32;
-    fn cellularRegistrationStatusString(status: i32) -> *const c_char;
+    fn cellular_initialize_callbacks() -> i32;
+    fn cellular_registration_status_string(status: i32) -> *const c_char;
 
-    fn cellularAccessIMEI(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellularAccessManufacturer(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellularAccessModel(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellularAccessFirmware(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellularAccessIMSI(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellularAccessICCID(buf: *mut c_char, buf_len: usize) -> i32;
+    fn cellular_access_imei(buf: *mut c_char, buf_len: usize) -> i32;
+    fn cellular_access_manufacturer(buf: *mut c_char, buf_len: usize) -> i32;
+    fn cellular_access_model(buf: *mut c_char, buf_len: usize) -> i32;
+    fn cellular_access_firmware(buf: *mut c_char, buf_len: usize) -> i32;
+    fn cellular_access_imsi(buf: *mut c_char, buf_len: usize) -> i32;
+    fn cellular_access_iccid(buf: *mut c_char, buf_len: usize) -> i32;
 }
 
 pub fn initialize() -> Result<(), Errno> {
-    unsafe { cellularInitialize() }.ok()
+    unsafe { cellular_initialize() }.ok()
 }
 
-pub fn waitForAttach(timeout: Duration) -> Result<(), Errno> {
+pub fn wait_for_attach(timeout: Duration) -> Result<(), Errno> {
     let ms = timeout.as_millis().min(i32::MAX as u128) as i32;
-    unsafe { cellularWaitForAttach(ms) }.ok()
+    unsafe { cellular_wait_for_attach(ms) }.ok()
 }
 
-pub fn initializeCallbacks() -> Result<(), Errno> {
-    unsafe { cellularInitializeCallbacks() }.ok()
+pub fn initialize_callbacks() -> Result<(), Errno> {
+    unsafe { cellular_initialize_callbacks() }.ok()
 }
 
 pub struct CellularIdentity {
@@ -70,25 +70,25 @@ impl CellularIdentity {
     }
 }
 
-pub fn accessIMEI() -> [u8; MAX_IDENTITY_LEN]         { accessField("imei",         cellularAccessIMEI) }
-pub fn accessManufacturer() -> [u8; MAX_IDENTITY_LEN] { accessField("manufacturer", cellularAccessManufacturer) }
-pub fn accessModel() -> [u8; MAX_IDENTITY_LEN]        { accessField("model",        cellularAccessModel) }
-pub fn accessFirmware() -> [u8; MAX_IDENTITY_LEN]     { accessField("firmware",     cellularAccessFirmware) }
-pub fn accessIMSI() -> [u8; MAX_IDENTITY_LEN]         { accessField("imsi",         cellularAccessIMSI) }
-pub fn accessICCID() -> [u8; MAX_IDENTITY_LEN]        { accessField("iccid",        cellularAccessICCID) }
+pub fn access_imei() -> [u8; MAX_IDENTITY_LEN]         { access_field("imei",         cellular_access_imei) }
+pub fn access_manufacturer() -> [u8; MAX_IDENTITY_LEN] { access_field("manufacturer", cellular_access_manufacturer) }
+pub fn access_model() -> [u8; MAX_IDENTITY_LEN]        { access_field("model",        cellular_access_model) }
+pub fn access_firmware() -> [u8; MAX_IDENTITY_LEN]     { access_field("firmware",     cellular_access_firmware) }
+pub fn access_imsi() -> [u8; MAX_IDENTITY_LEN]         { access_field("imsi",         cellular_access_imsi) }
+pub fn access_iccid() -> [u8; MAX_IDENTITY_LEN]        { access_field("iccid",        cellular_access_iccid) }
 
-pub fn accessIdentity() -> CellularIdentity {
+pub fn access_identity() -> CellularIdentity {
     CellularIdentity {
-        imei:         accessIMEI(),
-        manufacturer: accessManufacturer(),
-        model:        accessModel(),
-        firmware:     accessFirmware(),
-        imsi:         accessIMSI(),
-        iccid:        accessICCID(),
+        imei:         access_imei(),
+        manufacturer: access_manufacturer(),
+        model:        access_model(),
+        firmware:     access_firmware(),
+        imsi:         access_imsi(),
+        iccid:        access_iccid(),
     }
 }
 
-fn accessField(
+fn access_field(
     label: &str,
     extern_fn: unsafe extern "C" fn(*mut c_char, usize) -> i32,
 ) -> [u8; MAX_IDENTITY_LEN] {
@@ -103,12 +103,12 @@ fn accessField(
 static LAST_STATUS: AtomicI32 = AtomicI32::new(-1);
 
 #[no_mangle]
-unsafe extern "C" fn onCellularRegistrationStatus(status: i32) {
+unsafe extern "C" fn on_cellular_registration_status(status: i32) {
     if LAST_STATUS.swap(status, Ordering::SeqCst) == status {
         return;
     }
     let label = unsafe {
-        let ptr = cellularRegistrationStatusString(status);
+        let ptr = cellular_registration_status_string(status);
         if ptr.is_null() {
             "?"
         } else {
@@ -119,8 +119,8 @@ unsafe extern "C" fn onCellularRegistrationStatus(status: i32) {
 }
 
 #[no_mangle]
-unsafe extern "C" fn onCellularModemInfoChanged() {
-    for (label, value) in accessIdentity().iter() {
+unsafe extern "C" fn on_cellular_modem_info_changed() {
+    for (label, value) in access_identity().iter() {
         if !value.is_empty() {
             info!("{label}: {value}");
         }
@@ -128,11 +128,11 @@ unsafe extern "C" fn onCellularModemInfoChanged() {
 }
 
 #[no_mangle]
-unsafe extern "C" fn onCellularL4Connected() {
+unsafe extern "C" fn on_cellular_l4_connected() {
     info!("cellular online");
 }
 
 #[no_mangle]
-unsafe extern "C" fn onCellularL4Disconnected() {
+unsafe extern "C" fn on_cellular_l4_disconnected() {
     info!("cellular disconnected");
 }

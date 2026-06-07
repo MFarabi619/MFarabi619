@@ -1,9 +1,9 @@
 use crate::utils::errno::{Errno, IntoResult};
 
 extern "C" {
-    fn natInitialize() -> i32;
+    fn nat_initialize() -> i32;
 }
 
 pub fn initialize() -> Result<(), Errno> {
-    unsafe { natInitialize() }.ok()
+    unsafe { nat_initialize() }.ok()
 }

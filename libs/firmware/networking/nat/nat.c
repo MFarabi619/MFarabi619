@@ -23,7 +23,7 @@
 #include "iram.h"
 #include "conntrack.h"
 
-extern struct net_if *cellularPPPIface(void);
+extern struct net_if *cellular_ppp_iface(void);
 
 LOG_MODULE_REGISTER(nat, LOG_LEVEL_INF);
 
@@ -378,10 +378,10 @@ static void reap_handler(struct k_work *work)
 	k_work_schedule(&reap_work, K_SECONDS(10));
 }
 
-int natInitialize(void)
+int nat_initialize(void)
 {
 	struct net_if *ap_iface = net_if_get_wifi_sap();
-	struct net_if *cell_iface = cellularPPPIface();
+	struct net_if *cell_iface = cellular_ppp_iface();
 
 	if (ap_iface == NULL || cell_iface == NULL) {
 		return -ENODEV;

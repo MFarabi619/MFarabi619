@@ -1,5 +1,4 @@
 #![no_std]
-#![allow(non_snake_case)]
 
 use log::{info, warn};
 
@@ -21,13 +20,13 @@ extern "C" fn rust_main() {
     let board = zephyr::kconfig::CONFIG_BOARD;
     info!("rust_main on {board}");
 
-    confirmImage();
+    confirm_image();
 
-    if let Err(e) = bringUpCellularStack() {
+    if let Err(e) = bring_up_cellular_stack() {
         warn!("cellular stack: {e}");
     }
 
-    if let Err(e) = wifi::enable_ap(
+    if let Err(e) = wifi::ap::enable(
         zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_SSID,
         zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_PASSWORD,
     ) {
@@ -35,7 +34,7 @@ extern "C" fn rust_main() {
     }
 }
 
-fn confirmImage() {
+fn confirm_image() {
     if unsafe { boot_is_img_confirmed() } {
         return;
     }
@@ -45,18 +44,18 @@ fn confirmImage() {
     }
 }
 
-fn bringUpCellularStack() -> Result<(), Errno> {
+fn bring_up_cellular_stack() -> Result<(), Errno> {
     use core::time::Duration;
     let timeout = Duration::from_millis(zephyr::kconfig::CONFIG_CELLULAR_ATTACH_TIMEOUT_MS as u64);
 
     cellular::initialize()?;
-    cellular::waitForAttach(timeout)?;
-    for (label, value) in cellular::accessIdentity().iter() {
+    cellular::wait_for_attach(timeout)?;
+    for (label, value) in cellular::access_identity().iter() {
         if !value.is_empty() {
             info!("{label}: {value}");
         }
     }
-    if let Err(e) = cellular::initializeCallbacks() {
+    if let Err(e) = cellular::initialize_callbacks() {
         warn!("cellular: registration init failed: {e}");
     }
     nat::initialize()?;

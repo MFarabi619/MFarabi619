@@ -34,7 +34,7 @@ enum DNSDecision {
 	DNS_DECISION_FORWARD = 3,
 };
 
-extern int dnsDecide(const char *name, uint16_t qtype, uint32_t *out_ip_be);
+extern int dns_decide(const char *name, uint16_t qtype, uint32_t *out_ip_be);
 
 NET_BUF_POOL_DEFINE(dns_msg_pool, 1, DNS_NAME_MAX_SIZE, 0, NULL);
 
@@ -217,7 +217,7 @@ static void handle_query(uint8_t *rx_buf, size_t rx_len, const struct sockaddr_i
 	bool rd = dns_header_rd(rx_buf);
 
 	uint32_t answer_ip_be = 0;
-	int decision = dnsDecide((const char *)qname->data,
+	int decision = dns_decide((const char *)qname->data,
 				       (uint16_t)qtype, &answer_ip_be);
 
 	switch (decision) {
@@ -298,7 +298,7 @@ static void dns_proxy_event_cb(struct net_socket_service_event *evt)
 
 NET_SOCKET_SERVICE_SYNC_DEFINE_STATIC(dns_proxy_service, dns_proxy_event_cb, 1);
 
-int dnsProxyInitialize(void)
+int dns_proxy_initialize(void)
 {
 	proxy_sock = zsock_socket(NET_AF_INET, NET_SOCK_DGRAM, NET_IPPROTO_UDP);
 	if (proxy_sock < 0) {

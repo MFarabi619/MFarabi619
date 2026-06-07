@@ -88,7 +88,7 @@ const BLOCKLIST: &[&[u8]] = &[
 ];
 
 #[no_mangle]
-pub unsafe extern "C" fn dnsDecide(
+pub unsafe extern "C" fn dns_decide(
     name: *const c_char,
     qtype: u16,
     out_ip_be: *mut u32,
@@ -108,7 +108,7 @@ pub unsafe extern "C" fn dnsDecide(
         }
     }
 
-    if isBlocked(name) {
+    if is_blocked(name) {
         return Decision::Block;
     }
 
@@ -119,7 +119,7 @@ pub unsafe extern "C" fn dnsDecide(
     Decision::Forward
 }
 
-fn isBlocked(qname: &[u8]) -> bool {
+fn is_blocked(qname: &[u8]) -> bool {
     BLOCKLIST.iter().any(|suffix| {
         qname.len() >= suffix.len()
             && qname[qname.len() - suffix.len()..].eq_ignore_ascii_case(suffix)
@@ -127,9 +127,9 @@ fn isBlocked(qname: &[u8]) -> bool {
 }
 
 pub fn initialize() -> Result<(), Errno> {
-    unsafe { dnsProxyInitialize() }.ok()
+    unsafe { dns_proxy_initialize() }.ok()
 }
 
 extern "C" {
-    fn dnsProxyInitialize() -> i32;
+    fn dns_proxy_initialize() -> i32;
 }
