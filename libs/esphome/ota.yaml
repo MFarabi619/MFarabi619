@@ -1,0 +1,7 @@
+ota:
+  - platform: esphome
+
+safe_mode:
+  num_attempts: 10
+  reboot_timeout: 5min
+  boot_is_good_after: 1min

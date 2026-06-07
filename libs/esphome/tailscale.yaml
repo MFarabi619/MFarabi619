@@ -1,0 +1,18 @@
+tailscale:
+  hostname: $hostname
+  auth_key: !secret tailscale_auth_key
+
+packages:
+  tailscale:
+    ref: v0.2.2
+    refresh: 1d
+    files: [packages/tailscale/tailscale.yaml]
+    url: https://github.com/Csontikka/esphome-tailscale
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/Csontikka/esphome-tailscale.git
+      ref: v0.2.2
+    components: [tailscale]
+    refresh: 1d

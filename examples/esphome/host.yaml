@@ -1,0 +1,16 @@
+esphome:
+  name: host_test
+  min_version: 2026.4.5
+
+host:
+
+logger:
+
+api:
+
+web_server:
+  local: true
+
+sensor:
+  - platform: uptime
+    name: "Uptime"

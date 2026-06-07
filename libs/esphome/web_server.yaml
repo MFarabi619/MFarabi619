@@ -1,0 +1,4 @@
+web_server:
+  version: 3
+  local: true
+  include_internal: true
