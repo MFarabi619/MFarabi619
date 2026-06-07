@@ -14267,6 +14267,7 @@ dependencies = [
 name = "xiao"
 version = "0.1.0"
 dependencies = [
+ "firmware",
  "log",
  "zephyr",
  "zephyr-build",

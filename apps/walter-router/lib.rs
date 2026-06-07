@@ -27,7 +27,10 @@ extern "C" fn rust_main() {
         warn!("cellular stack: {e}");
     }
 
-    if let Err(e) = wifi::initialize() {
+    if let Err(e) = wifi::enable_ap(
+        zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_SSID,
+        zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_PASSWORD,
+    ) {
         warn!("wifi ap: {e}");
     }
 }

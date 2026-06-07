@@ -1,10 +1,8 @@
 #![no_std]
 
-use log::info;
+use log::{info, warn};
 
-extern "C" {
-    fn wifiSTAConnectStored() -> i32;
-}
+use firmware::{networking::wifi, services::tailscale};
 
 #[no_mangle]
 extern "C" fn rust_main() {
@@ -14,6 +12,11 @@ extern "C" fn rust_main() {
 
     info!("rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
 
-    let ret = unsafe { wifiSTAConnectStored() };
-    info!("wifi connect_stored = {}", ret);
+    if let Err(e) = wifi::sta_connect_stored() {
+        warn!("wifi sta: {e}");
+    }
+
+    if let Err(e) = tailscale::start() {
+        warn!("tailscale: {e}");
+    }
 }

@@ -12,6 +12,7 @@ crate-type = ["staticlib"]
 [dependencies]
 log = "0.4"
 zephyr = "0.1.0"
+firmware = { path = "../../libs/firmware" }
 
 [build-dependencies]
 zephyr-build = "0.1.0"

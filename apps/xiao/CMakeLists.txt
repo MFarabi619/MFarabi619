@@ -34,6 +34,7 @@ list(APPEND EXTRA_CONF_FILE
   ${LIBS_FIRMWARE}/filesystems/img.conf
 
   ${LIBS_FIRMWARE}/networking/default.conf
+  ${LIBS_FIRMWARE}/networking/sockets.conf
   ${LIBS_FIRMWARE}/networking/hostname.conf
   ${LIBS_FIRMWARE}/networking/ipv4.conf
   ${LIBS_FIRMWARE}/networking/ipv6.conf
@@ -47,6 +48,8 @@ list(APPEND EXTRA_CONF_FILE
   ${LIBS_FIRMWARE}/networking/wifi/default.conf
   ${LIBS_FIRMWARE}/networking/wifi/credentials.conf
   ${LIBS_FIRMWARE}/networking/wifi/esp.conf
+
+  ${LIBS_FIRMWARE}/networking/wireguard.conf
 
   ${LIBS_FIRMWARE}/boards/xiao_esp32s3.conf
 )

@@ -4,6 +4,8 @@ target_sources_ifdef(CONFIG_NVS app PRIVATE filesystems/flash_init_fix.c)
 
 target_sources_ifdef(CONFIG_MODEM_CELLULAR app PRIVATE networking/cellular/cellular.c)
 
+target_sources_ifdef(CONFIG_WIREGUARD app PRIVATE services/tailscale/tailscale.c)
+
 target_sources_ifdef(CONFIG_NET_PKT_FILTER_IPV4_HOOK app PRIVATE
   networking/nat/nat.c
   networking/nat/conntrack.c

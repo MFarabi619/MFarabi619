@@ -22,6 +22,7 @@ list(APPEND EXTRA_CONF_FILE
   ${LIBS_FIRMWARE}/filesystems/zvfs.conf
 
   ${LIBS_FIRMWARE}/networking/default.conf
+  ${LIBS_FIRMWARE}/networking/sockets.conf
   ${LIBS_FIRMWARE}/networking/hostname.conf
   ${LIBS_FIRMWARE}/networking/ipv4.conf
   ${LIBS_FIRMWARE}/networking/ipv6.conf

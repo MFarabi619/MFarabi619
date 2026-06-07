@@ -10,12 +10,10 @@ extern "C" {
         psk_len: usize,
     ) -> i32;
     fn wifiAPDHCPv4ServerStart() -> i32;
+    fn wifiSTAConnectStored() -> i32;
 }
 
-pub fn initialize() -> Result<(), Errno> {
-    let ssid = zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_SSID;
-    let psk = zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_PASSWORD;
-
+pub fn enable_ap(ssid: &str, psk: &str) -> Result<(), Errno> {
     // IP / gateway / netmask + DHCP server must be configured BEFORE the AP
     // radio is enabled. Otherwise Zephyr brings the iface up with whatever
     // defaults `NET_REQUEST_WIFI_AP_ENABLE` puts in place, and clients that
@@ -29,4 +27,8 @@ pub fn initialize() -> Result<(), Errno> {
     unsafe { wifiAPEnable(ssid.as_ptr(), ssid.len(), psk.as_ptr(), psk.len()) }.ok()?;
     info!("ap: enabled ssid={ssid}");
     Ok(())
+}
+
+pub fn sta_connect_stored() -> Result<(), Errno> {
+    unsafe { wifiSTAConnectStored() }.ok()
 }
