@@ -22,8 +22,8 @@ manifest:
 
         - name: zephyr-lang-rust
           remote: zephyrproject
-          revision: a763400f31e92994d5c5aa0836346e19048f5bde # main 2026-05-02
           path: vendor/modules/lang/rust
+          revision: 404fcefdbab0f2711cd342a1fab9d2eda52a1ba9 # main 2026-05-27
 
         - name: wolfssl
           remote: wolfssl
@@ -37,7 +37,6 @@ manifest:
 
         - name: zephyr
           remote: zephyrproject
-          # revision: f1ff557f96f74a6d82d8b290bc4488ee5f93c483 # main~2: before HAL CS timing regression
           revision: 72a6d3b1e71
           import:
               path-prefix: vendor
