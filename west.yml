@@ -41,20 +41,20 @@ manifest:
           import:
               path-prefix: vendor
               name-allowlist:
-                  - qemu
+                  # - qemu
+                  # - percepio
+                  # - net-tools
 
-                  # ESP32
+                  - mcuboot
                   - hal_xtensa
                   - hal_espressif
 
-                  # STM32
                   # - hal_stm32
                   # - hal_st
 
-                  # Core
-                  - mcuboot
                   - cmsis
-                  - cmsis_6
+                  # - cmsis_6
+
                   - mbedtls
                   - mbedtls-3.6
                   # tf-psa-crypto is the sibling source tree mbedtls 4.x requires (per
@@ -63,18 +63,12 @@ manifest:
                   # because WIFI_ESP32 selects PSA_CRYPTO which pulls mbedtls full build.
                   - tf-psa-crypto
 
-                  # Filesystems
-                  - fatfs
-                  - littlefs
+                  # - fatfs
+                  # - littlefs
 
-                  # Libraries
                   - zcbor
                   - segger # RTT logging
-                  - nanopb # protobuf
-                  - libmetal
+                  # - nanopb # protobuf
+                  # - libmetal
                   - picolibc
                   - mipi-sys-t
-
-                  # Debug
-                  - percepio
-                  - net-tools
