@@ -37,7 +37,7 @@ manifest:
 
         - name: zephyr
           remote: zephyrproject
-          revision: b862310ea03 # main 2026-05-15, last commit before SQN_GM02S unsol_matches arg
+          revision: fbfc5f19636 # main 2026-05-19, modem vendor-struct refactor
           import:
               path-prefix: vendor
               name-allowlist:

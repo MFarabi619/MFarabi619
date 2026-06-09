@@ -1,10 +1,8 @@
-diff --git a/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c b/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
 --- a/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
 +++ b/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
-@@ -10,8 +10,12 @@
-
- MODEM_CELLULAR_COMMON_CHAT_MATCHES();
-
+@@ -13,7 +13,11 @@
+ MODEM_CHAT_MATCHES_DEFINE(sqn_gm02s_unsol, MODEM_CELLULAR_COMMON_UNSOL_MATCHES);
+ 
 +MODEM_CHAT_MATCH_DEFINE(sqn_gm02s_sysstart_match, "+SYSSTART", "", NULL);
 +
  MODEM_CHAT_SCRIPT_CMDS_DEFINE(
@@ -15,12 +13,12 @@ diff --git a/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c b/drivers/
  	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CFUN=4", ok_match),
  	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CPSMS=0", ok_match),
  	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CEDRXS=0", ok_match),
-@@ -25,7 +29,7 @@
+@@ -27,7 +31,7 @@
  	MODEM_CHAT_SCRIPT_CMD_RESP("AT+CMUX=0,0,5,127", ok_match));
-
+ 
  MODEM_CHAT_SCRIPT_DEFINE(sqn_gm02s_init_chat_script, sqn_gm02s_init_chat_script_cmds, abort_matches,
 -			 modem_cellular_chat_callback_handler, 10);
 +			 modem_cellular_chat_callback_handler, 30);
-
+ 
  MODEM_CHAT_SCRIPT_CMDS_DEFINE(sqn_gm02s_dial_chat_script_cmds,
  			      MODEM_CHAT_SCRIPT_CMD_RESP_MULT("AT+CGACT=0,1", allow_match),

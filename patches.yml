@@ -9,30 +9,9 @@ patches:
     date: 2026-06-06
     upstreamable: true
     comments: |
-      Declare SEGGER RTT support on the ESP32-S3 SoC. The upstream Zephyr
-      `soc/espressif/esp32s3/Kconfig` does not `select HAS_SEGGER_RTT`,
-      so `CONFIG_USE_SEGGER_RTT=y` is rejected at configure time and the
-      whole RTT chain (log_backend_rtt, shell_backend_rtt, rtt_console) is
-      unreachable. This blocks using probe-rs (or any other RTT-capable
-      JTAG host) for console / shell / log over the chip's built-in
-      USB-Serial-JTAG.
-
-      Technically nothing on the chip side prevents RTT — SEGGER RTT is
-      just a memory-layout convention (a `_SEGGER_RTT` control block in
-      SRAM) that the host scans for. probe-rs's `esp32s3.yaml` target
-      file already declares the relevant SRAM1/SRAM2 data-bus + i-bus
-      regions, so it finds the control block automatically.
-
-      Fix is a one-liner mirroring the Nordic SoC pattern
-      (e.g. `soc/nordic/nrf52/Kconfig`): add
-      `select HAS_SEGGER_RTT if ZEPHYR_SEGGER_MODULE` to
-      `config SOC_SERIES_ESP32S3`. Gated on `ZEPHYR_SEGGER_MODULE` so the
-      SEGGER module being absent (e.g. workspaces that don't fetch it)
-      doesn't break the SoC build.
-
-      Same one-liner would extend cleanly to esp32 / esp32s2 / esp32c3
-      / etc. — a wider patch would just touch each SoC Kconfig the same
-      way. Upstreamable as a single PR for all Espressif SoCs.
+      Add `select HAS_SEGGER_RTT if ZEPHYR_SEGGER_MODULE` to ESP32-S3 SoC
+      Kconfig so probe-rs (and other RTT-capable JTAG hosts) can use RTT
+      over USB-Serial-JTAG.
 
   - path: libs/firmware/patches/zephyr/probe-rs-runner-base-address.patch
     sha256sum: 802484c62a79ef7de7ddb3a0ac2a9983fd4580d1271a8607b25ea2897a88b11c
@@ -228,7 +207,7 @@ patches:
       u32::MAX, but this minimal patch unblocks the build.
 
   - path: libs/firmware/patches/zephyr/modem-cellular-sqn-gm02s-1000ms-reset.patch
-    sha256sum: 6f60535fc27141e6aa72d4a997ef42f691a1298936b70dbe272e626a832bf530
+    sha256sum: d6af85f794a758f7706ef1e61f5048cf337eab393607a504384c831b497aabe6
     module: vendor/zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
@@ -297,7 +276,7 @@ patches:
       still trigger the re-dial path.
 
   - path: libs/firmware/patches/zephyr/modem-cellular-sqn-gm02s-await-sysstart.patch
-    sha256sum: d79e7b550720e24e984b2ec5043402c82abbd076ab595bb06612a7d15775d3b0
+    sha256sum: b5719ff53f85ad37fb62344c6a6d9f5bfacf0f66e8c9aa8b218b27d959de7a5b
     module: vendor/zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca

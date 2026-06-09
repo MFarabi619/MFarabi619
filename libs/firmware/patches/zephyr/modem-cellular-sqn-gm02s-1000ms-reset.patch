@@ -1,10 +1,13 @@
 diff --git a/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c b/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
+index 2768c6642a9..a64b500fc11 100644
 --- a/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
 +++ b/drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c
-@@ -58,4 +58,4 @@ MODEM_CHAT_SCRIPT_DEFINE(sqn_gm02s_periodic_chat_script, sqn_gm02s_periodic_chat
- 	MODEM_CELLULAR_DEFINE_AND_INIT_USER_PIPES(inst, (user_pipe_0, 3), (user_pipe_1, 4))        \
-                                                                                                    \
--	MODEM_CELLULAR_DEFINE_INSTANCE(inst, 1500, 100, 2000, 5000, true, &sqn_gm02s_scripts)
-+	MODEM_CELLULAR_DEFINE_INSTANCE(inst, 1500, 1000, 2000, 5000, true, &sqn_gm02s_scripts)
-
- DT_INST_FOREACH_STATUS_OKAY(MODEM_CELLULAR_DEVICE_SQN_GM02S)
+@@ -54,7 +54,7 @@ static const struct modem_cellular_vendor_config sqn_gm02s_vendor = {
+ 	},
+ 	/* clang-format on */
+ 	.power_pulse_duration_ms = 1500,
+-	.reset_pulse_duration_ms = 100,
++	.reset_pulse_duration_ms = 1000,
+ 	.startup_time_ms = 2000,
+ 	.shutdown_time_ms = 5000,
+ 	.force_autostart = true,
