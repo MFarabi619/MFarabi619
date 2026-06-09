@@ -37,7 +37,7 @@ manifest:
 
         - name: zephyr
           remote: zephyrproject
-          revision: 72a6d3b1e71
+          revision: b862310ea03 # main 2026-05-15, last commit before SQN_GM02S unsol_matches arg
           import:
               path-prefix: vendor
               name-allowlist:
