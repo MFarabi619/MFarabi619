@@ -2,7 +2,7 @@ patches:
   # ===== xiao =====
 
   - path: libs/firmware/patches/zephyr/esp32s3-has-segger-rtt.patch
-    sha256sum: 8bb7e89edf40f9567be78b63b29eeac5d84c27da35eec9b5863a4eb3b8563e05
+    sha256sum: d868bc99d01c67f047c9de3089fb36cc59b49d51e2465c0dc37b885aacb61a66
     module: vendor/zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
@@ -246,7 +246,7 @@ patches:
       mains-powered as a router so battery is not a concern.
 
   - path: libs/firmware/patches/zephyr/modem-cellular-carrier-gated-ppp-dead.patch
-    sha256sum: 8824a202a90e5c3dabf2a77f4dfee45cb9577dda103a39d2e21c83dcd63cc49f
+    sha256sum: e621602e24d6a36d19acb3d886ed2c461dda828beb5b6103dee01f706472ea39
     module: vendor/zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca

@@ -2,9 +2,9 @@
 +++ b/soc/espressif/esp32s3/Kconfig
 @@ -12,6 +12,7 @@
  	select CPU_HAS_FPU
+ 	select CPU_HAS_DCACHE
  	select HAS_PM
  	select HAS_POWEROFF
 +	select HAS_SEGGER_RTT if ZEPHYR_SEGGER_MODULE
  
  if SOC_SERIES_ESP32S3
- 
