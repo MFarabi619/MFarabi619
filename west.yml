@@ -37,7 +37,7 @@ manifest:
 
         - name: zephyr
           remote: zephyrproject
-          revision: 8ab6fd77804 # main 2026-05-28, last commit before modem subfolder shuffle
+          revision: 1f70d28f25e # main HEAD 2026-06-09
           import:
               path-prefix: vendor
               name-allowlist:
