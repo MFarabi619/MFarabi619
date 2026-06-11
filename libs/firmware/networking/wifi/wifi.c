@@ -15,6 +15,8 @@
 #include <zephyr/net/net_if.h>
 #include <zephyr/net/wifi_mgmt.h>
 
+#include "route_ipv4.h"
+
 int wifi_sta_connect_stored(void)
 {
 	struct net_if *iface = net_if_get_first_wifi();
@@ -33,6 +35,30 @@ bool wifi_sta_has_ipv4(void)
 		return false;
 	}
 	return net_if_ipv4_get_global_addr(iface, NET_ADDR_PREFERRED) != NULL;
+}
+
+int wifi_sta_install_default_route(void)
+{
+	struct net_if *iface = net_if_get_first_wifi();
+
+	if (iface == NULL) {
+		return -ENODEV;
+	}
+
+	struct in_addr gw = net_if_ipv4_get_gw(iface);
+
+	if (net_ipv4_is_addr_unspecified(&gw)) {
+		return -EAGAIN;
+	}
+
+	struct in_addr default_dst = {0};
+
+	if (net_route_ipv4_add(iface, &default_dst, 0, &gw,
+			       NET_ROUTE_INFINITE_LIFETIME,
+			       NET_ROUTE_PREFERENCE_MEDIUM) == NULL) {
+		return -ENOMEM;
+	}
+	return 0;
 }
 
 int wifi_ap_enable(const char *ssid, size_t ssid_len, const char *psk, size_t psk_len)

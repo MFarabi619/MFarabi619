@@ -45,8 +45,8 @@ fn confirm_image() {
 }
 
 fn bring_up_cellular_stack() -> Result<(), Errno> {
-    use core::time::Duration;
-    let timeout = Duration::from_millis(zephyr::kconfig::CONFIG_CELLULAR_ATTACH_TIMEOUT_MS as u64);
+    use zephyr::time::Duration;
+    let timeout = Duration::millis(zephyr::kconfig::CONFIG_CELLULAR_ATTACH_TIMEOUT_MS as u64);
 
     cellular::initialize()?;
     cellular::wait_for_attach(timeout)?;

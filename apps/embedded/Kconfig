@@ -1,0 +1,3 @@
+rsource "../../libs/firmware/Kconfig"
+
+source "Kconfig.zephyr"

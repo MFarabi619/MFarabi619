@@ -11,29 +11,26 @@ sysbuild = true
 # west update, west patch ..., env-var creds change, west.yml edits, & snippet/sysbuild flips.
 pristine = auto
 dir-fmt  = build/{board_normalized}
+board    = xiao_esp32s3/esp32s3/procpu
 # board    = esp32s3_devkitc/esp32s3/procpu
 
 [flash]
 rebuild  = true
-# board    = xiao_esp32s3/esp32s3/procpu
 
 [alias]
+b        = build apps/embedded
+bb       = build apps/microtop
 bw       = build apps/walter-router --board walter/esp32s3/procpu
-bx       = build apps/xiao          --board xiao_esp32s3/esp32s3/procpu
-bh       = build apps/halow-xiao    --board xiao_esp32s3/esp32s3/procpu
 
-fx       = flash --runner probe-rs  --domain xiao
+f        = flash --runner probe-rs  --domain embedded
 fw       = flash --runner probe-rs  --domain walter
 
-ax       = attach --runner probe-rs --domain xiao
+ax       = attach --runner probe-rs --domain embedded
 
 patch    = patch -l patches.yml -b ..
 pl       = patch -l patches.yml -b .. list
 pc       = patch -l patches.yml -b .. clean
 pa       = patch -l patches.yml -b .. apply --roll-back
 
-guiconfig  = build --pristine=never   --target guiconfig
-menuconfig = build --pristine=never   --target menuconfig
-
-test       = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 -vv -T apps/walter-router/tests
+test     = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 -vv -T apps/walter-router/tests
 test-debug = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 --inline-logs -vv -ll DEBUG -T apps/walter-router/tests

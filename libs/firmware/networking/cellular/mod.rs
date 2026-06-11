@@ -1,8 +1,8 @@
 use core::{
     ffi::{c_char, CStr},
     sync::atomic::{AtomicI32, Ordering},
-    time::Duration,
 };
+use zephyr::time::Duration;
 
 use log::{info, warn};
 
@@ -34,7 +34,7 @@ pub fn initialize() -> Result<(), Errno> {
 }
 
 pub fn wait_for_attach(timeout: Duration) -> Result<(), Errno> {
-    let ms = timeout.as_millis().min(i32::MAX as u128) as i32;
+    let ms = timeout.to_millis().min(i32::MAX as u64) as i32;
     unsafe { cellular_wait_for_attach(ms) }.ok()
 }
 

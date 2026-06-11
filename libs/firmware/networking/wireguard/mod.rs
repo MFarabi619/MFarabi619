@@ -1,4 +1,4 @@
-use core::time::Duration;
+use zephyr::time::Duration;
 
 use log::warn;
 
@@ -6,11 +6,11 @@ use crate::networking::wifi;
 use crate::utils::errno::{Errno, IntoResult};
 
 const KEEPALIVE_SECONDS: i32 = 25;
-const UNDERLAY_TIMEOUT: Duration = Duration::from_secs(30);
+const UNDERLAY_TIMEOUT: Duration = Duration::secs(30);
 
 pub const PUBLIC_KEY_B64_SIZE: usize = 45;
 pub const ENDPOINT_STR_SIZE: usize = 24;
-pub const ALLOWED_CIDR_SIZE: usize = 20;
+pub const ALLOWED_CIDR_SIZE: usize = 24;
 pub const MAX_PEERS: usize = zephyr::kconfig::CONFIG_WIREGUARD_MAX_PEER as usize;
 
 #[repr(C)]

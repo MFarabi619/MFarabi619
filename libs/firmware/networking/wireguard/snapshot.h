@@ -12,7 +12,7 @@
 
 #define WG_PUBLIC_KEY_B64_SIZE  45
 #define WG_ENDPOINT_STR_SIZE    24
-#define WG_ALLOWED_CIDR_SIZE    20
+#define WG_ALLOWED_CIDR_SIZE    24
 
 struct wg_peer_snapshot {
 	bool valid;

@@ -6,6 +6,14 @@ fn main() {
         println!("cargo:rustc-cfg={flag}");
         println!("cargo:rustc-check-cfg=cfg({flag})");
     }
+    for cfg in [
+        "CONFIG_MODEM_CELLULAR",
+        "CONFIG_WIREGUARD",
+        "CONFIG_SNTP",
+        "CONFIG_MCUMGR_TRANSPORT_UDP",
+    ] {
+        println!("cargo:rustc-check-cfg=cfg({cfg})");
+    }
     println!("cargo:rerun-if-env-changed=DOTCONFIG");
     println!("cargo:rerun-if-changed={dotconfig}");
 }
