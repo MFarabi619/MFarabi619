@@ -78,16 +78,6 @@ int wifi_ap_enable(const char *ssid, size_t ssid_len, const char *psk, size_t ps
 	return net_mgmt(NET_REQUEST_WIFI_AP_ENABLE, iface, &params, sizeof(params));
 }
 
-int wifi_ap_disable(void)
-{
-	struct net_if *iface = net_if_get_wifi_sap();
-
-	if (iface == NULL) {
-		return -ENODEV;
-	}
-	return net_mgmt(NET_REQUEST_WIFI_AP_DISABLE, iface, NULL, 0);
-}
-
 int wifi_ap_dhcpv4_server_start(void)
 {
 	struct net_if *iface = net_if_get_wifi_sap();

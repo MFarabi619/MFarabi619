@@ -33,52 +33,10 @@ static const struct device *modem_device(void)
 	return DEVICE_DT_GET(DT_ALIAS(modem));
 }
 
-int cellular_access_imei(char *buf, size_t buf_len)
+int cellular_access(int field, char *buf, size_t buf_len)
 {
-	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_IMEI, buf, buf_len);
-}
-
-int cellular_access_manufacturer(char *buf, size_t buf_len)
-{
-	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_MANUFACTURER, buf, buf_len);
-}
-
-int cellular_access_model(char *buf, size_t buf_len)
-{
-	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_MODEL_ID, buf, buf_len);
-}
-
-int cellular_access_firmware(char *buf, size_t buf_len)
-{
-	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_FW_VERSION, buf, buf_len);
-}
-
-int cellular_access_imsi(char *buf, size_t buf_len)
-{
-	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_SIM_IMSI, buf, buf_len);
-}
-
-int cellular_access_iccid(char *buf, size_t buf_len)
-{
-	return cellular_get_modem_info(modem_device(), CELLULAR_MODEM_INFO_SIM_ICCID, buf, buf_len);
-}
-
-static const char *const registration_status_names[] = {
-	[CELLULAR_REGISTRATION_NOT_REGISTERED] = "not_registered",
-	[CELLULAR_REGISTRATION_REGISTERED_HOME] = "home",
-	[CELLULAR_REGISTRATION_SEARCHING] = "searching",
-	[CELLULAR_REGISTRATION_DENIED] = "denied",
-	[CELLULAR_REGISTRATION_UNKNOWN] = "unknown",
-	[CELLULAR_REGISTRATION_REGISTERED_ROAMING] = "roaming",
-};
-
-const char *cellular_registration_status_string(int status)
-{
-	if ((size_t)status < ARRAY_SIZE(registration_status_names) &&
-	    registration_status_names[status] != NULL) {
-		return registration_status_names[status];
-	}
-	return "?";
+	return cellular_get_modem_info(modem_device(),
+				       (enum cellular_modem_info_type)field, buf, buf_len);
 }
 
 extern void on_cellular_registration_status(int status);

@@ -1,5 +1,5 @@
 use core::{
-    ffi::{c_char, CStr},
+    ffi::c_char,
     sync::atomic::{AtomicI32, Ordering},
 };
 use zephyr::time::Duration;
@@ -14,19 +14,33 @@ const _: () = assert!(
     "MAX_IDENTITY_LEN must hold ICCID (22 chars) + NUL"
 );
 
+#[repr(i32)]
+#[derive(Clone, Copy)]
+enum Field {
+    Imei         = 0,
+    ModelId      = 1,
+    Manufacturer = 2,
+    FwVersion    = 3,
+    SimImsi      = 4,
+    SimIccid     = 5,
+}
+
+const REGISTRATION_NAMES: [&str; 6] = [
+    "not_registered", "home", "searching", "denied", "unknown", "roaming",
+];
+
+fn registration_label(status: i32) -> &'static str {
+    usize::try_from(status)
+        .ok()
+        .and_then(|i| REGISTRATION_NAMES.get(i).copied())
+        .unwrap_or("?")
+}
+
 extern "C" {
     fn cellular_initialize() -> i32;
     fn cellular_wait_for_attach(timeout_ms: i32) -> i32;
-
     fn cellular_initialize_callbacks() -> i32;
-    fn cellular_registration_status_string(status: i32) -> *const c_char;
-
-    fn cellular_access_imei(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellular_access_manufacturer(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellular_access_model(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellular_access_firmware(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellular_access_imsi(buf: *mut c_char, buf_len: usize) -> i32;
-    fn cellular_access_iccid(buf: *mut c_char, buf_len: usize) -> i32;
+    fn cellular_access(field: i32, buf: *mut c_char, buf_len: usize) -> i32;
 }
 
 pub fn initialize() -> Result<(), Errno> {
@@ -70,34 +84,24 @@ impl CellularIdentity {
     }
 }
 
-pub fn access_imei() -> [u8; MAX_IDENTITY_LEN]         { access_field("imei",         cellular_access_imei) }
-pub fn access_manufacturer() -> [u8; MAX_IDENTITY_LEN] { access_field("manufacturer", cellular_access_manufacturer) }
-pub fn access_model() -> [u8; MAX_IDENTITY_LEN]        { access_field("model",        cellular_access_model) }
-pub fn access_firmware() -> [u8; MAX_IDENTITY_LEN]     { access_field("firmware",     cellular_access_firmware) }
-pub fn access_imsi() -> [u8; MAX_IDENTITY_LEN]         { access_field("imsi",         cellular_access_imsi) }
-pub fn access_iccid() -> [u8; MAX_IDENTITY_LEN]        { access_field("iccid",        cellular_access_iccid) }
-
-pub fn access_identity() -> CellularIdentity {
-    CellularIdentity {
-        imei:         access_imei(),
-        manufacturer: access_manufacturer(),
-        model:        access_model(),
-        firmware:     access_firmware(),
-        imsi:         access_imsi(),
-        iccid:        access_iccid(),
-    }
-}
-
-fn access_field(
-    label: &str,
-    extern_fn: unsafe extern "C" fn(*mut c_char, usize) -> i32,
-) -> [u8; MAX_IDENTITY_LEN] {
+fn read_field(label: &str, field: Field) -> [u8; MAX_IDENTITY_LEN] {
     let mut buf = [0u8; MAX_IDENTITY_LEN];
-    let rc = unsafe { extern_fn(buf.as_mut_ptr() as *mut c_char, buf.len()) };
+    let rc = unsafe { cellular_access(field as i32, buf.as_mut_ptr() as *mut c_char, buf.len()) };
     if rc != 0 {
         warn!("cellular: {label} rc={rc}");
     }
     buf
+}
+
+pub fn access_identity() -> CellularIdentity {
+    CellularIdentity {
+        imei:         read_field("imei",         Field::Imei),
+        manufacturer: read_field("manufacturer", Field::Manufacturer),
+        model:        read_field("model",        Field::ModelId),
+        firmware:     read_field("firmware",     Field::FwVersion),
+        imsi:         read_field("imsi",         Field::SimImsi),
+        iccid:        read_field("iccid",        Field::SimIccid),
+    }
 }
 
 static LAST_STATUS: AtomicI32 = AtomicI32::new(-1);
@@ -107,15 +111,7 @@ unsafe extern "C" fn on_cellular_registration_status(status: i32) {
     if LAST_STATUS.swap(status, Ordering::SeqCst) == status {
         return;
     }
-    let label = unsafe {
-        let ptr = cellular_registration_status_string(status);
-        if ptr.is_null() {
-            "?"
-        } else {
-            CStr::from_ptr(ptr).to_str().unwrap_or("?")
-        }
-    };
-    info!("registration: {label}");
+    info!("registration: {}", registration_label(status));
 }
 
 #[no_mangle]
