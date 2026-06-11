@@ -1,5 +1,9 @@
-use core::ffi::{c_char, c_int, c_void};
+use core::ffi::{c_char, c_void};
 use zephyr::{
+    raw::{
+        conn_mgr_mon_resend_status, net_addr_state_NET_ADDR_PREFERRED, net_if,
+        net_if_ipv4_get_global_addr, net_if_set_default, sys_reboot,
+    },
     sync::atomic::{AtomicI32, AtomicI64, Ordering},
     sys::sync::Semaphore,
     time::Duration,
@@ -55,18 +59,8 @@ extern "C" {
     fn cellular_initialize_callbacks() -> i32;
     fn cellular_access(field: i32, buf: *mut c_char, buf_len: usize) -> i32;
     fn cellular_ppp_iface() -> *mut c_void;
-    fn conn_mgr_mon_resend_status();
-    fn net_if_set_default(iface: *mut c_void);
-    fn net_if_ipv4_get_global_addr(iface: *mut c_void, state: c_int) -> *const InAddr;
-    fn sys_reboot(reboot_type: i32) -> !;
 }
 
-#[repr(C)]
-struct InAddr {
-    s4_addr: [u8; 4],
-}
-
-const NET_ADDR_PREFERRED: c_int = 1;
 const ETIMEDOUT: i32 = -110;
 const ENOTCONN: i32 = -128;
 
@@ -91,13 +85,13 @@ pub fn wait_for_attach(timeout: Duration) -> Result<(), Errno> {
         return ETIMEDOUT.ok();
     }
 
-    let iface = unsafe { cellular_ppp_iface() };
-    let addr = unsafe { net_if_ipv4_get_global_addr(iface, NET_ADDR_PREFERRED) };
+    let iface = unsafe { cellular_ppp_iface() as *mut net_if };
+    let addr = unsafe { net_if_ipv4_get_global_addr(iface, net_addr_state_NET_ADDR_PREFERRED) };
     if addr.is_null() {
         warn!("L4_CONNECTED fired but no IPv4 address on PPP iface");
         return ENOTCONN.ok();
     }
-    let b = unsafe { (*addr).s4_addr };
+    let b: [u8; 4] = unsafe { core::ptr::read(addr as *const [u8; 4]) };
     info!("cellular ppp ipv4: {}.{}.{}.{}", b[0], b[1], b[2], b[3]);
     unsafe { net_if_set_default(iface) };
 

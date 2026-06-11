@@ -206,6 +206,73 @@ patches:
       Proper upstream fix would be to emit `u64` for hex values that exceed
       u32::MAX, but this minimal patch unblocks the build.
 
+  - path: libs/firmware/patches/lang-rust/zephyr-lang-rust-net-bindings.patch
+    sha256sum: 482c9590133f6e4bddc0dc6166d0db8dfb44cc1bac05edf304c83f04152b586c
+    module: lang-rust
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-11
+    upstreamable: true
+    comments: |
+      Expose Zephyr's public networking surface to zephyr-sys bindings.
+
+      Upstream zephyr-sys/wrapper.h includes only kernel + GPIO + UART +
+      flash + bluetooth headers, and build.rs allowlists only k_*, sys_*,
+      gpio_*, flash_*, uart_*, bt_*. Networking is deliberately out-of-scope
+      for the upstream module. Every Rust caller into the net stack
+      therefore has to hand-roll `extern "C" { fn net_if_*; ... }` decls
+      and manually replicate `repr(C)` layouts for `net_in_addr`,
+      `net_sockaddr_storage`, `wireguard_peer_config`, etc.
+
+      This patch adds the public networking surface, conditionally on the
+      relevant Kconfigs so non-net builds stay unaffected:
+
+      wrapper.h adds (each gated on its own CONFIG_):
+        - net_if.h, net_ip.h, net_mgmt.h, net_event.h    (CONFIG_NETWORKING)
+        - socket.h                                       (CONFIG_NET_SOCKETS)
+        - conn_mgr_monitor.h            (CONFIG_NET_CONNECTION_MANAGER)
+        - wireguard.h, virtual.h, virtual_mgmt.h         (CONFIG_WIREGUARD)
+        - dhcpv4_server.h               (CONFIG_NET_DHCPV4_SERVER)
+        - dns_resolve.h                 (CONFIG_DNS_RESOLVER)
+        - wifi_mgmt.h                   (CONFIG_NET_L2_WIFI_MGMT)
+        - sntp.h                                         (CONFIG_SNTP)
+        - base64.h                                       (CONFIG_BASE64)
+        - byteorder.h, reboot.h                          (unconditional)
+        - pm/device.h                                    (CONFIG_PM_DEVICE)
+        - dfu/mcuboot.h                        (CONFIG_BOOTLOADER_MCUBOOT)
+        - mgmt/mcumgr/transport/smp_udp.h    (CONFIG_MCUMGR_TRANSPORT_UDP)
+
+      build.rs allowlists added (mirror the Kconfig gates):
+        - net_*, NET_*                       (CONFIG_NETWORKING)
+        - zsock_*                            (CONFIG_NET_SOCKETS)
+        - conn_mgr_*                         (CONFIG_NET_CONNECTION_MANAGER)
+        - wireguard_*, WIREGUARD_*           (CONFIG_WIREGUARD)
+        - virtual_*                          (CONFIG_NET_L2_VIRTUAL)
+        - dns_*, DNS_*                       (CONFIG_DNS_RESOLVER)
+        - wifi_*, WIFI_*, lowercase wifi_*   (CONFIG_NET_L2_WIFI_MGMT)
+        - sntp_*, SNTP_*                     (CONFIG_SNTP)
+        - base64_*                           (CONFIG_BASE64)
+        - pm_device_*, PM_DEVICE_*           (CONFIG_PM_DEVICE)
+        - boot_*                             (CONFIG_BOOTLOADER_MCUBOOT)
+        - smp_udp_*                          (CONFIG_MCUMGR_TRANSPORT_UDP)
+        - init_entry                         (unconditional, in <zephyr/init.h>)
+
+      Bonus side effect: bindgen already extracts `net_mgmt(REQUEST, ...)`
+      macro expansions as the per-request handler symbols
+      `net_mgmt_NET_REQUEST_*`, so the token-paste problem that makes
+      direct `net_mgmt()` calls hard from Rust is incidentally solved —
+      callers can use e.g. `zephyr::raw::net_mgmt_NET_REQUEST_WIFI_AP_ENABLE`
+      directly (still exposes internal ABI for the handler name, but no
+      worse than the equivalent C macro path).
+
+      Strictly additive: no existing allowlist or include is touched, so
+      kernel/GPIO/flash builds with CONFIG_NETWORKING=n produce identical
+      bindings to upstream.
+
+      Upstreamable. The shape mirrors the existing BT/GPIO/Flash/UART
+      gating in zephyr-sys/build.rs; a PR adding "networking" alongside
+      those would be uncontroversial.
+
   - path: libs/firmware/patches/zephyr/modem-cellular-sqn-gm02s-1000ms-reset.patch
     sha256sum: d6af85f794a758f7706ef1e61f5048cf337eab393607a504384c831b497aabe6
     module: vendor/zephyr

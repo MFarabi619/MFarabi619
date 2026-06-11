@@ -1,12 +1,5 @@
-use core::ffi::{c_int, c_void};
-
-#[repr(C)]
-struct InitEntry {
-    init_fn: Option<unsafe extern "C" fn() -> c_int>,
-    dev: *const c_void,
-}
-
-unsafe impl Sync for InitEntry {}
+use core::ffi::c_int;
+use zephyr::raw::init_entry;
 
 unsafe extern "C" {
     fn esp_flash_app_init();
@@ -21,9 +14,13 @@ unsafe extern "C" fn flash_default_chip_init() -> c_int {
     0
 }
 
+#[repr(transparent)]
+struct InitEntry(#[allow(dead_code)] init_entry);
+unsafe impl Sync for InitEntry {}
+
 #[used]
 #[link_section = ".z_init_POST_KERNEL_P_99_SUB_0_"]
-static FLASH_INIT_ENTRY: InitEntry = InitEntry {
+static FLASH_INIT_ENTRY: InitEntry = InitEntry(init_entry {
     init_fn: Some(flash_default_chip_init),
     dev: core::ptr::null(),
-};
+});
