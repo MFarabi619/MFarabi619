@@ -1,0 +1,25 @@
+[package]
+edition = "2024"
+version = "0.1.0"
+name    = "lazyzephyr"
+
+[dependencies]
+lazyzephyr-core = { path = "../../libs/lazyzephyr" }
+cfg-if          = "1.0"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+crossterm          = "0.29.0"
+ratatui            = { workspace = true, features = ["crossterm"] }
+mcumgr-toolkit     = "0.14.0"
+anyhow             = "1.0"
+tui-term           = "0.3.4"
+portable-pty       = "0.9.0"
+vt100              = "0.16.2"
+probe-rs           = "0.31.0"
+serialport         = "4.9.0"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+ratatui  = { workspace = true, features = ["all-widgets", "layout-cache"] }
+ratzilla = "0.3.0"
+web-time = "1.1.0"
+web-sys  = { version = "0.3", features = ["Window", "Document", "Element", "DomRect"] }

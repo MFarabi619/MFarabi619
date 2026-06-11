@@ -1,0 +1,8 @@
+[package]
+name    = "lazyzephyr-core"
+edition = "2024"
+version = "0.1.0"
+
+[dependencies]
+ratatui             = { version = "0.30.0", default-features = false, features = ["all-widgets", "layout-cache", "palette", "portable-atomic"] }
+throbber-widgets-tui = { version = "0.11.0", default-features = false }

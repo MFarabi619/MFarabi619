@@ -1,17 +1,18 @@
 [workspace]
 resolver = "3"
 exclude = ["ml"]
-default-members = ["apps/walter-router"]
+default-members = ["apps/lazyzephyr"]
 members = [
     ".",
     "web",
     "tui",
     "libs/firmware",
+    "libs/lazyzephyr",
     "apps/walter-router",
     "apps/embedded",
     "tests/e2e",
     "apps/readme",
-    "apps/microtop",
+    "apps/lazyzephyr",
     "apps/ceratina",
 ]
 
