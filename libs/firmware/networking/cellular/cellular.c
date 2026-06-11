@@ -268,75 +268,6 @@ int cellular_initialize(void)
 	return 0;
 }
 
-static int cmd_cellular_signal(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-
-	const struct device *modem = modem_device();
-	int16_t value;
-
-	if (cellular_get_signal(modem, CELLULAR_SIGNAL_RSSI, &value) == 0) {
-		shell_print(sh, "rssi:  %d dBm", value);
-	}
-	if (cellular_get_signal(modem, CELLULAR_SIGNAL_RSRP, &value) == 0) {
-		shell_print(sh, "rsrp:  %d dBm", value);
-	}
-	if (cellular_get_signal(modem, CELLULAR_SIGNAL_RSRQ, &value) == 0) {
-		shell_print(sh, "rsrq:  %d dB", value);
-	}
-	return 0;
-}
-
-static int cmd_cellular_status(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-
-	enum cellular_registration_status status;
-
-	if (cellular_get_registration_status(modem_device(), CELLULAR_ACCESS_TECHNOLOGY_E_UTRAN,
-					     &status) == 0) {
-		shell_print(sh, "lte: %s", cellular_registration_status_string((int)status));
-	}
-	return 0;
-}
-
-static int cmd_cellular_cell(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-	return shell_execute_cmd(sh, "modem at AT+SQNMONI=0");
-}
-
-static int cmd_cellular_pdp(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-	return shell_execute_cmd(sh, "modem at AT+CGCONTRDP");
-}
-
-static int cmd_cellular_last_error(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-	return shell_execute_cmd(sh, "modem at AT+CEER");
-}
-
-static int cmd_cellular_baud(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-	return shell_execute_cmd(sh, "modem at AT+IPR?");
-}
-
-static int cmd_cellular_cesq(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-	return shell_execute_cmd(sh, "modem at AT+CESQ");
-}
-
 static int cmd_cellular_apn(const struct shell *sh, size_t argc, char **argv)
 {
 	if (argc < 2) {
@@ -359,47 +290,8 @@ static int cmd_cellular_apn(const struct shell *sh, size_t argc, char **argv)
 	return 0;
 }
 
-static int cmd_cellular_identity(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-
-	static const struct {
-		enum cellular_modem_info_type field;
-		const char *label;
-	} items[] = {
-		{ CELLULAR_MODEM_INFO_IMEI,         "imei" },
-		{ CELLULAR_MODEM_INFO_MANUFACTURER, "manufacturer" },
-		{ CELLULAR_MODEM_INFO_MODEL_ID,     "model" },
-		{ CELLULAR_MODEM_INFO_FW_VERSION,   "firmware" },
-		{ CELLULAR_MODEM_INFO_SIM_IMSI,     "imsi" },
-		{ CELLULAR_MODEM_INFO_SIM_ICCID,    "iccid" },
-	};
-
-	char buf[64];
-
-	for (size_t i = 0; i < ARRAY_SIZE(items); i++) {
-		if (cellular_get_modem_info(modem_device(), items[i].field,
-					    buf, sizeof(buf)) == 0 && buf[0] != '\0') {
-			shell_print(sh, "%-12s: %s", items[i].label, buf);
-		}
-	}
-	return 0;
-}
-
 SHELL_STATIC_SUBCMD_SET_CREATE(cellular_subcmds,
-	SHELL_CMD(signal,     NULL, "Show RSSI/RSRP/RSRQ (via driver)", cmd_cellular_signal),
-	SHELL_CMD(cesq,       NULL, "Raw AT+CESQ (rxlev/ber/rscp/ecno/rsrq/rsrp)",
-		  cmd_cellular_cesq),
-	SHELL_CMD(status,     NULL, "Show registration status", cmd_cellular_status),
-	SHELL_CMD(identity,   NULL, "Show IMEI/IMSI/ICCID/model/firmware",
-		  cmd_cellular_identity),
-	SHELL_CMD(cell,       NULL, "Serving cell via AT+SQNMONI=0", cmd_cellular_cell),
-	SHELL_CMD(pdp,        NULL, "PDP context via AT+CGCONTRDP (IP/MTU/DNS)",
-		  cmd_cellular_pdp),
-	SHELL_CMD(last_error, NULL, "AT+CEER — last EMM/ESM cause", cmd_cellular_last_error),
-	SHELL_CMD(baud,       NULL, "AT+IPR? — current UART baud", cmd_cellular_baud),
-	SHELL_CMD(apn,        NULL, "Set APN: cellular apn <name>", cmd_cellular_apn),
+	SHELL_CMD(apn, NULL, "Set APN: cellular apn <name>", cmd_cellular_apn),
 	SHELL_SUBCMD_SET_END);
 
 SHELL_CMD_REGISTER(cellular, &cellular_subcmds, "Cellular runtime", NULL);
