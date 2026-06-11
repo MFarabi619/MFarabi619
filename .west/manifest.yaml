@@ -6,8 +6,8 @@ manifest:
         - name: zephyrproject
           url-base: https://github.com/zephyrproject-rtos
 
-        - name: wolfssl
-          url-base: https://github.com/wolfSSL
+        # - name: wolfssl
+        #   url-base: https://github.com/wolfSSL
 
         - name: craigpeacock
           url-base: https://github.com/craigpeacock
@@ -25,15 +25,16 @@ manifest:
           path: vendor/modules/lang/rust
           revision: 404fcefdbab0f2711cd342a1fab9d2eda52a1ba9 # main 2026-05-27
 
-        - name: wolfssl
-          remote: wolfssl
-          revision: master
-          path: vendor/modules/crypto/wolfssl
-
-        - name: wolfssh
-          remote: wolfssl
-          revision: master
-          path: vendor/modules/lib/wolfssh
+        # NOTE: uncomment CONFIG_WOLFSSH guard in libs/firmware/CMakeLists.txt to use
+        # - name: wolfssl
+        #   remote: wolfssl
+        #   revision: master
+        #   path: vendor/modules/crypto/wolfssl
+        #
+        # - name: wolfssh
+        #   remote: wolfssl
+        #   revision: master
+        #   path: vendor/modules/lib/wolfssh
 
         - name: zephyr
           remote: zephyrproject

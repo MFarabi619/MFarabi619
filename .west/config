@@ -1,18 +1,20 @@
 [manifest]
-path     = .
-file     = west.yml
+path     = .west
+file     = manifest.yaml
 
 [zephyr]
 base     = vendor/zephyr
 
-[flash]
-rebuild  = true
-
 [build]
 sysbuild = true
-pristine = always
+# NOTE: MUST manually `west build --pristine` after:
+# west update, west patch ..., env-var creds change, west.yml edits, & snippet/sysbuild flips.
+pristine = auto
 dir-fmt  = build/{board_normalized}
 # board    = esp32s3_devkitc/esp32s3/procpu
+
+[flash]
+rebuild  = true
 # board    = xiao_esp32s3/esp32s3/procpu
 
 [alias]
@@ -25,14 +27,13 @@ fw       = flash --runner probe-rs  --domain walter
 
 ax       = attach --runner probe-rs --domain xiao
 
+patch    = patch -l patches.yml -b ..
+pl       = patch -l patches.yml -b .. list
+pc       = patch -l patches.yml -b .. clean
+pa       = patch -l patches.yml -b .. apply --roll-back
 
 guiconfig  = build --pristine=never   --target guiconfig
 menuconfig = build --pristine=never   --target menuconfig
-
-patch      = patch -l patches.yml -b .
-pa         = patch -l patches.yml -b . apply --roll-back
-pc         = patch -l patches.yml -b . clean
-pl         = patch -l patches.yml -b . list
 
 test       = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 -vv -T apps/walter-router/tests
 test-debug = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 --inline-logs -vv -ll DEBUG -T apps/walter-router/tests

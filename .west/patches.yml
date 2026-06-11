@@ -69,9 +69,9 @@ patches:
       several other boards (e.g. esp32_devkitc_wroom, nrf boards). A PR
       adding XIAO ESP32-S3 to that list would be uncontroversial.
 
-  # ===== halow-xiao =====
+  # ===== halow (morsemicro vendor patches, used when halow.conf is enabled in embedded) =====
 
-  - path: apps/halow-xiao/patches/morsemicro/mm-iot-zephyr-zephyr44-port.patch
+  - path: libs/firmware/patches/morsemicro/mm-iot-zephyr-zephyr44-port.patch
     sha256sum: 30623bb9d3e3cfdb2801a1de75c3b5388a835febda1ed494c919391cf6398cd2
     module: vendor/modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -127,7 +127,7 @@ patches:
          mm-iot-esp32 shim (framework/mm_shims/wlan_hal.c) uses
          GPIO_INTR_LOW_LEVEL for the same reason.
 
-  - path: apps/halow-xiao/patches/morsemicro/mm-iot-sdk-ffs-include.patch
+  - path: libs/firmware/patches/morsemicro/mm-iot-sdk-ffs-include.patch
     sha256sum: 797db1914ce9765e5748617e881c5e06865a9fc0aa9f23d11beae4a8e0a64daa
     module: vendor/modules/lib/morsemicro/submodules/mm-iot-sdk
     author: Mumtahin Farabi
@@ -142,7 +142,7 @@ patches:
       One-line fix: add #include <strings.h> after the existing
       #include <string.h>.
 
-  - path: apps/halow-xiao/patches/morsemicro/mm-iot-zephyr-drop-bogus-board-dts-root.patch
+  - path: libs/firmware/patches/morsemicro/mm-iot-zephyr-drop-bogus-board-dts-root.patch
     sha256sum: 4b4e268cd585d8aa403e80b91b4fbd5ed3b8d0c64b64e7b44a970e6c76b42fc7
     module: vendor/modules/lib/morsemicro
     author: Mumtahin Farabi
