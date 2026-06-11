@@ -20,7 +20,6 @@
 #include <zephyr/pm/device.h>
 #include <zephyr/settings/settings.h>
 #include <zephyr/shell/shell.h>
-#include <zephyr/sys/reboot.h>
 #include <zephyr/sys/util.h>
 
 /* Espressif HAL — for gpio_hold_dis() used by modem_reset_release SYS_INIT. */
@@ -42,37 +41,6 @@ int cellular_access(int field, char *buf, size_t buf_len)
 extern void on_cellular_registration_status(int status);
 extern void on_cellular_modem_info_changed(void);
 
-#define REGISTRATION_RECOVERY_TIMEOUT_MS 120000
-#define REGISTRATION_WATCHDOG_POLL_MS    10000
-
-static int64_t last_attached_uptime;
-static void registration_watchdog_handler(struct k_work *work);
-static K_WORK_DELAYABLE_DEFINE(registration_watchdog, registration_watchdog_handler);
-
-static bool registration_is_attached(int status)
-{
-	return status == CELLULAR_REGISTRATION_REGISTERED_HOME ||
-	       status == CELLULAR_REGISTRATION_REGISTERED_ROAMING;
-}
-
-static void registration_watchdog_handler(struct k_work *work)
-{
-	ARG_UNUSED(work);
-
-	enum cellular_registration_status status;
-	int rc = cellular_get_registration_status(modem_device(),
-						  CELLULAR_ACCESS_TECHNOLOGY_E_UTRAN, &status);
-
-	if (rc == 0 && registration_is_attached((int)status)) {
-		last_attached_uptime = k_uptime_get();
-	} else if (k_uptime_get() - last_attached_uptime > REGISTRATION_RECOVERY_TIMEOUT_MS) {
-		LOG_WRN("cellular unattached for >%d ms — rebooting",
-			REGISTRATION_RECOVERY_TIMEOUT_MS);
-		sys_reboot(SYS_REBOOT_COLD);
-	}
-	k_work_reschedule(&registration_watchdog, K_MSEC(REGISTRATION_WATCHDOG_POLL_MS));
-}
-
 static void cellular_event_handler(const struct device *dev, enum cellular_event event,
 				   const void *payload, void *user_data)
 {
@@ -83,9 +51,6 @@ static void cellular_event_handler(const struct device *dev, enum cellular_event
 	case CELLULAR_EVENT_REGISTRATION_STATUS_CHANGED: {
 		const struct cellular_evt_registration_status *reg = payload;
 
-		if (registration_is_attached((int)reg->status)) {
-			last_attached_uptime = k_uptime_get();
-		}
 		on_cellular_registration_status((int)reg->status);
 		break;
 	}
@@ -113,11 +78,10 @@ static int modem_reset_release(void)
 SYS_INIT(modem_reset_release, PRE_KERNEL_2, 0);
 
 static struct net_if *ppp_iface_ref;
-static K_SEM_DEFINE(dns_server_added, 0, 1);
-static K_SEM_DEFINE(ppp_connected, 0, 1);
 
 extern void on_cellular_l4_connected(void);
 extern void on_cellular_l4_disconnected(void);
+extern void on_cellular_dns_server_added(void);
 
 static void on_l4_event(uint64_t event, struct net_if *iface, void *info, size_t info_length,
 			void *user_data)
@@ -127,17 +91,15 @@ static void on_l4_event(uint64_t event, struct net_if *iface, void *info, size_t
 	ARG_UNUSED(user_data);
 
 	if (event == NET_EVENT_DNS_SERVER_ADD) {
-		k_sem_give(&dns_server_added);
+		on_cellular_dns_server_added();
 		return;
 	}
 	if (iface != ppp_iface_ref) {
 		return;
 	}
 	if (event == NET_EVENT_L4_CONNECTED) {
-		k_sem_give(&ppp_connected);
 		on_cellular_l4_connected();
 	} else if (event == NET_EVENT_L4_DISCONNECTED) {
-		k_sem_reset(&ppp_connected);
 		on_cellular_l4_disconnected();
 	}
 }
@@ -221,8 +183,6 @@ int cellular_initialize(void)
 		return ret;
 	}
 
-	last_attached_uptime = k_uptime_get();
-	k_work_reschedule(&registration_watchdog, K_MSEC(REGISTRATION_WATCHDOG_POLL_MS));
 	return 0;
 }
 
@@ -257,42 +217,4 @@ SHELL_CMD_REGISTER(cellular, &cellular_subcmds, "Cellular runtime", NULL);
 struct net_if *cellular_ppp_iface(void)
 {
 	return ppp_iface_ref;
-}
-
-int cellular_wait_for_attach(int timeout_ms)
-{
-	int64_t deadline = k_uptime_get() + timeout_ms;
-
-	conn_mgr_mon_resend_status();
-
-	if (k_sem_take(&ppp_connected, K_MSEC(timeout_ms)) != 0) {
-		LOG_WRN("Attach did not complete within %d ms — see modem_cellular logs",
-			timeout_ms);
-		return -ETIMEDOUT;
-	}
-
-	const struct in_addr *ppp_addr =
-		net_if_ipv4_get_global_addr(ppp_iface_ref, NET_ADDR_PREFERRED);
-
-	if (ppp_addr == NULL) {
-		LOG_WRN("L4_CONNECTED fired but no IPv4 address on PPP iface");
-		return -ENOTCONN;
-	}
-
-	LOG_INF("cellular ppp ipv4: %d.%d.%d.%d", ppp_addr->s4_addr[0], ppp_addr->s4_addr[1],
-		ppp_addr->s4_addr[2], ppp_addr->s4_addr[3]);
-	net_if_set_default(ppp_iface_ref);
-
-	int64_t dns_deadline = deadline - k_uptime_get();
-
-	if (dns_deadline < 1000) {
-		dns_deadline = 10000;
-	}
-	if (k_sem_take(&dns_server_added, K_MSEC(dns_deadline)) != 0) {
-		LOG_WRN("DNS server not registered within %lld ms — proceeding anyway",
-			dns_deadline);
-	} else {
-		LOG_INF("DNS server registered");
-	}
-	return 0;
 }
