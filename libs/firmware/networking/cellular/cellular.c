@@ -1,8 +1,4 @@
 /*
- * Copyright (c) 2026 Apidae Systems
- *
- * SPDX-License-Identifier: Apache-2.0
- *
  * C glue exposing Zephyr's cellular driver API to Rust. The driver's enums
  * (cellular_modem_info_type, cellular_signal_type, cellular_registration_status)
  * live in <zephyr/drivers/cellular.h> which zephyr-sys doesn't bindgen, so each

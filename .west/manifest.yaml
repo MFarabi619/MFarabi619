@@ -1,6 +1,7 @@
 manifest:
     self:
         path: .
+        west-commands: commands.yml
 
     remotes:
         - name: zephyrproject

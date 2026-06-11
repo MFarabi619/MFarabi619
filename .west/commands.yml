@@ -1,0 +1,6 @@
+west-commands:
+  - file: commands.py
+    commands:
+      - name: lazyzephyr
+        class: Lazyzephyr
+        help: echo lazyzephyr

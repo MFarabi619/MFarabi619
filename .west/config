@@ -10,7 +10,6 @@ sysbuild = true
 # NOTE: MUST manually `west build --pristine` after:
 # west update, west patch ..., env-var creds change, west.yml edits, & snippet/sysbuild flips.
 pristine = auto
-dir-fmt  = build/{board_normalized}
 board    = xiao_esp32s3/esp32s3/procpu
 # board    = esp32s3_devkitc/esp32s3/procpu
 
@@ -18,14 +17,9 @@ board    = xiao_esp32s3/esp32s3/procpu
 rebuild  = true
 
 [alias]
-b        = build apps/embedded
-bb       = build apps/microtop
-bw       = build apps/embedded --board walter/esp32s3/procpu
-
-f        = flash --runner probe-rs  --domain embedded
-fw       = flash --runner probe-rs  --domain embedded
-
-ax       = attach --runner probe-rs --domain embedded
+f        = flash --runner probe-rs
+ax       = attach --runner probe-rs
+bw       = build --board walter/esp32s3/procpu
 
 patch    = patch -l patches.yml -b ..
 pl       = patch -l patches.yml -b .. list

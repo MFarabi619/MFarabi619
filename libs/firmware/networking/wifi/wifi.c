@@ -1,8 +1,4 @@
 /*
- * Copyright (c) 2026 Apidae Systems
- *
- * SPDX-License-Identifier: Apache-2.0
- *
  * Thin C glue exposing wifi_mgmt to Rust. NET_REQUEST_WIFI_*_*
  * are bit-packed macros that are safer to dereference in C than to
  * hardcode as Rust constants. STA and AP coexist on ESP32-S3 (same channel).

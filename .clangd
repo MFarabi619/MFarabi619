@@ -1,2 +1,41 @@
+#  https://clangd.llvm.org/config
 CompileFlags:
-  CompilationDatabase: build/embedded/
+  CompilationDatabase: build/xiao_esp32s3/esp32s3/procpu/MFarabi619/
+
+  # NOTE: Strip xtensa-GCC-only flags clangd doesn't recognize.
+  # Otherwise source file opens with cascading "unknown argument" diagnostics.
+  Remove:
+    - -fno-reorder-functions
+    - -fstrict-volatile-bitfields
+    - -fno-common
+    - -fno-reorder-blocks-and-partition
+    - -fno-defer-pop
+    - -fno-printf-return-value
+    - -mtext-section-literals
+    - -mlongcalls
+    - -mtarget-align
+
+Diagnostics:
+  # HACK: Suppress noise from Zephyr macro patterns clangd can't expand
+  # such as (SYS_INIT, NET_DEVICE_INIT, DEVICE_DT_DEFINE, etc.).
+  Suppress:
+    - pp_file_not_found
+    - pp_file_not_found_typo_not_fatal
+    - implicit_function_declaration
+    - undeclared_var_use
+    - undeclared_var_use_suggest
+    # NOTE: ELF `__attribute__((section(".foo")))` looks invalid to clangd's Mach-O
+    # host frontend (LOG_MODULE_REGISTER, IRAM_HOT, linker section macros).
+    # Resolved properly by --query-driver at the editor level; silenced here
+    # too as a fallback.
+    - attribute_section_invalid_for_target
+  UnusedIncludes: None
+
+---
+
+If:
+  PathMatch:
+    - .*/networking/cellular/.*\.c
+    - .*/networking/nat/.*\.c
+CompileFlags:
+  CompilationDatabase: build/walter/esp32s3/procpu/MFarabi619/
