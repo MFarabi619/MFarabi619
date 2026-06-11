@@ -30,6 +30,7 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_LIST_DIR}/networking/statistics.conf
   ${CMAKE_CURRENT_LIST_DIR}/networking/dns/server.conf
   ${CMAKE_CURRENT_LIST_DIR}/networking/dns/resolver.conf
+  ${CMAKE_CURRENT_LIST_DIR}/networking/dhcpv4.conf
 
   ${CMAKE_CURRENT_LIST_DIR}/networking/wifi/esp32.conf
   ${CMAKE_CURRENT_LIST_DIR}/networking/wifi/default.conf

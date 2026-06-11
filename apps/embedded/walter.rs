@@ -1,27 +1,10 @@
-#![no_std]
-
 use log::{info, warn};
+use zephyr::time::Duration;
 
-use firmware::{
-    networking::{cellular, dns, nat, wifi},
-    utils::errno::{Errno, IntoResult},
-};
+use firmware::networking::{cellular, dns, nat, wifi};
+use firmware::utils::errno::Errno;
 
-extern "C" {
-    fn boot_is_img_confirmed() -> bool;
-    fn boot_write_img_confirmed() -> i32;
-}
-
-#[no_mangle]
-extern "C" fn rust_main() {
-    unsafe {
-        zephyr::set_logger().unwrap();
-    }
-    let board = zephyr::kconfig::CONFIG_BOARD;
-    info!("rust_main on {board}");
-
-    confirm_image();
-
+pub fn run() {
     if let Err(e) = bring_up_cellular_stack() {
         warn!("cellular stack: {e}");
     }
@@ -34,18 +17,7 @@ extern "C" fn rust_main() {
     }
 }
 
-fn confirm_image() {
-    if unsafe { boot_is_img_confirmed() } {
-        return;
-    }
-    match unsafe { boot_write_img_confirmed() }.ok() {
-        Ok(()) => info!("mcuboot: image confirmed"),
-        Err(e) => warn!("mcuboot: image confirm failed: {e}"),
-    }
-}
-
 fn bring_up_cellular_stack() -> Result<(), Errno> {
-    use zephyr::time::Duration;
     let timeout = Duration::millis(zephyr::kconfig::CONFIG_CELLULAR_ATTACH_TIMEOUT_MS as u64);
 
     cellular::initialize()?;

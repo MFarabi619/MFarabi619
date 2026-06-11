@@ -20,10 +20,10 @@ rebuild  = true
 [alias]
 b        = build apps/embedded
 bb       = build apps/microtop
-bw       = build apps/walter-router --board walter/esp32s3/procpu
+bw       = build apps/embedded --board walter/esp32s3/procpu
 
 f        = flash --runner probe-rs  --domain embedded
-fw       = flash --runner probe-rs  --domain walter
+fw       = flash --runner probe-rs  --domain embedded
 
 ax       = attach --runner probe-rs --domain embedded
 
@@ -31,6 +31,3 @@ patch    = patch -l patches.yml -b ..
 pl       = patch -l patches.yml -b .. list
 pc       = patch -l patches.yml -b .. clean
 pa       = patch -l patches.yml -b .. apply --roll-back
-
-test     = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 -vv -T apps/walter-router/tests
-test-debug = twister --device-testing --hardware-map hardware-map.yaml --clobber-output --force-color --retry-failed 2 --retry-interval 5 --inline-logs -vv -ll DEBUG -T apps/walter-router/tests

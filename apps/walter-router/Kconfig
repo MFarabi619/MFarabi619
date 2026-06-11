@@ -1,7 +1,0 @@
-rsource "../../libs/firmware/Kconfig"
-
-config CELLULAR_ATTACH_TIMEOUT_MS
-	int "Cellular attach timeout (milliseconds)"
-	default 180000
-
-source "Kconfig.zephyr"

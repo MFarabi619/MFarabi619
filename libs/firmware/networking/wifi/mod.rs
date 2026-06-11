@@ -25,6 +25,13 @@ pub mod ap {
         }
         unsafe { wifi_ap_enable(ssid.as_ptr(), ssid.len(), psk.as_ptr(), psk.len()) }.ok()?;
         info!("ap: enabled ssid={ssid}");
+
+        #[cfg(CONFIG_MCUMGR_TRANSPORT_UDP)]
+        match crate::services::mcumgr::udp_open() {
+            Ok(()) => info!("mcumgr: udp listening"),
+            Err(e) => warn!("mcumgr udp: {e}"),
+        }
+
         Ok(())
     }
 }

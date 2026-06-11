@@ -8,7 +8,6 @@ members = [
     "tui",
     "libs/firmware",
     "libs/lazyzephyr",
-    "apps/walter-router",
     "apps/embedded",
     "tests/e2e",
     "apps/readme",

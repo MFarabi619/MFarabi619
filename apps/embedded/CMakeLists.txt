@@ -15,29 +15,55 @@ list(APPEND EXTRA_CONF_FILE ${CMAKE_CURRENT_BINARY_DIR}/wireguard_credentials.co
 set(WORKSPACE_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 set(LIBS_FIRMWARE ${WORKSPACE_ROOT}/libs/firmware)
 
-list(APPEND SNIPPET espressif-flash-8M)
-
 include(${LIBS_FIRMWARE}/default.cmake)
 
-list(APPEND EXTRA_CONF_FILE
-  ${LIBS_FIRMWARE}/networking/dns/mdns.conf
-  ${LIBS_FIRMWARE}/networking/sntp.conf
-  ${LIBS_FIRMWARE}/networking/dhcpv4.conf
-  ${LIBS_FIRMWARE}/networking/wireguard.conf
-  ${LIBS_FIRMWARE}/security/mbedtls.conf
+# BOARD is set by Zephyr's CMake init during find_package(Zephyr); but EXTRA_CONF_FILE
+# must be populated before that. Under sysbuild the value lives in SYSBUILD_CACHE so
+# we pre-read it to drive the role conditional below.
+if(DEFINED SYSBUILD_CACHE AND EXISTS ${SYSBUILD_CACHE})
+  file(STRINGS ${SYSBUILD_CACHE} _sysbuild_board_line REGEX "^BOARD:STRING=")
+  if(_sysbuild_board_line)
+    string(REGEX REPLACE "^BOARD:STRING=" "" BOARD "${_sysbuild_board_line}")
+  endif()
+endif()
 
-  # NOTE: uncomment + add `-DDTC_OVERLAY_FILE=${LIBS_FIRMWARE}/networking/wifi/halow.overlay` to use
-  # ${LIBS_FIRMWARE}/networking/wifi/halow.conf
-)
+if(BOARD MATCHES "^walter")
+  # Router role: upstream cellular + downstream WiFi-AP + NAT + DNS
+  list(APPEND EXTRA_CONF_FILE
+    ${LIBS_FIRMWARE}/networking/pkt.conf
+    ${LIBS_FIRMWARE}/networking/ppp.conf
 
-function(app_set_runner_args)
-  board_runner_args(probe-rs
-    "--chip" "esp32s3"
-    "--protocol" "jtag"
-    "--file-type" "bin"
-    "--base-address=0x20000"
+    ${LIBS_FIRMWARE}/networking/modem.conf
+    ${LIBS_FIRMWARE}/networking/cellular/default.conf
+
+    ${LIBS_FIRMWARE}/hardware/regulator.conf
+
+    ${LIBS_FIRMWARE}/power/pm.conf
+    ${LIBS_FIRMWARE}/services/task_wdt.conf
   )
-endfunction()
+elseif(BOARD MATCHES "^xiao_esp32s3")
+  # Node role: WiFi STA + WireGuard underlay + AP fallback for provisioning
+  list(APPEND SNIPPET espressif-flash-8M)
+
+  list(APPEND EXTRA_CONF_FILE
+    ${LIBS_FIRMWARE}/networking/dns/mdns.conf
+    ${LIBS_FIRMWARE}/networking/sntp.conf
+    ${LIBS_FIRMWARE}/networking/wireguard.conf
+    ${LIBS_FIRMWARE}/security/mbedtls.conf
+
+    # NOTE: uncomment + add `-DDTC_OVERLAY_FILE=${LIBS_FIRMWARE}/networking/wifi/halow.overlay` to use
+    # ${LIBS_FIRMWARE}/networking/wifi/halow.conf
+  )
+
+  function(app_set_runner_args)
+    board_runner_args(probe-rs
+      "--chip" "esp32s3"
+      "--protocol" "jtag"
+      "--file-type" "bin"
+      "--base-address=0x20000"
+    )
+  endfunction()
+endif()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(embedded)
