@@ -49,7 +49,6 @@ elseif(BOARD MATCHES "^xiao_esp32s3")
 
   list(APPEND EXTRA_CONF_FILE
     ${LIBS_FIRMWARE}/networking/dns/mdns.conf
-    ${LIBS_FIRMWARE}/networking/sntp.conf
     ${LIBS_FIRMWARE}/networking/wireguard.conf
     ${LIBS_FIRMWARE}/security/mbedtls.conf
 

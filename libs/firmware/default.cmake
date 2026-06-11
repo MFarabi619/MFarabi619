@@ -36,6 +36,8 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_LIST_DIR}/networking/wifi/default.conf
   ${CMAKE_CURRENT_LIST_DIR}/networking/wifi/credentials.conf
 
+  ${CMAKE_CURRENT_LIST_DIR}/networking/sntp.conf
+
   ${CMAKE_CURRENT_LIST_DIR}/services/mcumgr.conf
 
   ${CMAKE_CURRENT_LIST_DIR}/programs/hwinfo.conf

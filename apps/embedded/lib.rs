@@ -7,7 +7,7 @@ use firmware::boot;
 
 #[cfg(CONFIG_MODEM_CELLULAR)]
 use firmware::{
-    networking::{cellular, dns, nat, wifi},
+    networking::{cellular, dns, nat, sntp, wifi},
     utils::errno::Errno,
 };
 
@@ -63,6 +63,13 @@ fn bring_up_cellular_stack() -> Result<(), Errno> {
     }
     nat::initialize()?;
     dns::initialize()?;
+    match sntp::sync(
+        core::ffi::CStr::from_bytes_with_nul(b"pool.ntp.org\0").unwrap(),
+        5000,
+    ) {
+        Ok(()) => info!("sntp: time synced"),
+        Err(e) => warn!("sntp: {e}"),
+    }
     Ok(())
 }
 

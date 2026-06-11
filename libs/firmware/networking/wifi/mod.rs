@@ -4,8 +4,6 @@ extern "C" {
     fn wifi_sta_connect_stored() -> i32;
     fn wifi_sta_has_ipv4() -> bool;
     fn wifi_sta_install_default_route() -> i32;
-    #[cfg(CONFIG_SNTP)]
-    fn sntp_sync(server: *const u8, timeout_ms: u32) -> i32;
 }
 
 pub mod ap {
@@ -63,13 +61,12 @@ pub mod sta {
                 if let Err(e) = unsafe { wifi_sta_install_default_route() }.ok() {
                     warn!("wifi default route: {e}");
                 }
-                #[cfg(CONFIG_SNTP)]
-                {
-                    let server = b"pool.ntp.org\0";
-                    match unsafe { super::sntp_sync(server.as_ptr(), 5000) }.ok() {
-                        Ok(()) => info!("sntp: time synced"),
-                        Err(e) => warn!("sntp: {e}"),
-                    }
+                match crate::networking::sntp::sync(
+                    core::ffi::CStr::from_bytes_with_nul(b"pool.ntp.org\0").unwrap(),
+                    5000,
+                ) {
+                    Ok(()) => info!("sntp: time synced"),
+                    Err(e) => warn!("sntp: {e}"),
                 }
                 #[cfg(CONFIG_MCUMGR_TRANSPORT_UDP)]
                 match crate::services::mcumgr::udp_open() {

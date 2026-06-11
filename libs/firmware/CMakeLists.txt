@@ -11,8 +11,6 @@ target_sources_ifdef(CONFIG_NET_DHCPV4_SERVER app PRIVATE
   networking/dns/proxy.c
 )
 
-target_sources_ifdef(CONFIG_SNTP app PRIVATE networking/sntp.c)
-target_sources_ifdef(CONFIG_NVS app PRIVATE filesystems/flash_init_fix.c)
 target_sources_ifdef(CONFIG_MODEM_CELLULAR app PRIVATE networking/cellular/cellular.c)
 
 target_sources_ifdef(CONFIG_WIREGUARD app PRIVATE networking/wireguard/wireguard.c)

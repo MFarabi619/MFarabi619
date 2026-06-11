@@ -16,7 +16,6 @@ fn main() {
     for cfg in [
         "CONFIG_MODEM_CELLULAR",
         "CONFIG_WIREGUARD",
-        "CONFIG_SNTP",
         "CONFIG_MCUMGR_TRANSPORT_UDP",
         "CONFIG_NET_DHCPV4_SERVER",
         "CONFIG_NET_PKT_FILTER_IPV4_HOOK",
