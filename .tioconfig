@@ -1,33 +1,17 @@
 [default]
-databits  = 8
-stopbits  = 1
-color     = 12
-flow      = none
-parity    = none
-color     = bold
 log       = true
 log-strip = true
-timestamp = false
 baudrate  = 115200
-log-append = false
-
-# INLCRNL maps incoming LF to CR-LF so embedded firmware that emits bare \n
-# renders correctly. Zephyr's LOG_INF already uses \r\n; this is defensive.
-map       = INLCRNL
-
-# auto-reconnect is the default.
-# Every chip reset, 'west flash', and USB re-enumeration just resumes the session
-no-reconnect = false
+exclude-devices = !("/dev/cu.usbmodem*,")
 
 [xiao]
-log-file  = tio.xiao.log
+log-file  = xiao.log
 device    = /dev/cu.usbmodem101
 
 [walter]
-log-file  = tio.walter.log
-device    = /dev/cu.usbmodem1101
+log-file  = walter.log
+device    = /dev/cu.usbmodem101
 
 [usbmodem-%1]
 pattern   = ^usbmodem-([0-9]+)$
-#pattern   = ^usbserial-([0-9]+)$
 device    = /dev/cu.usbmodem%m1
