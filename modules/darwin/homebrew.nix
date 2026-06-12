@@ -8,6 +8,7 @@
   # eval "$(/opt/homebrew/bin/brew shellenv)"
   homebrew = {
     enable = true;
+    greedyCasks = true;
     enableZshIntegration = true;
     enableBashIntegration = true;
 
