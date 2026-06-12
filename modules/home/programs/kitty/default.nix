@@ -6,26 +6,11 @@
 {
   programs.kitty = {
     enable = true;
+    environment.LS_COLORS = "1";
     enableGitIntegration = config.programs.git.enable;
-
-    shellIntegration = {
-      enableZshIntegration = true;
-      enableBashIntegration = true;
-    };
-
-    # themeFile = "SpaceGray_Eighties";
-
-    keybindings = {
-      # "ctrl+shift+v" = "paste_from_selection";
-      "ctrl+c" = "copy_and_clear_or_interrupt";
-    };
-
-    environment = {
-      LS_COLORS = "1";
-    };
+    keybindings."ctrl+c" = "copy_and_clear_or_interrupt";
 
     settings = {
-      # cursor_trail = 1;
       copy_on_select = "yes";
       window_padding_width = 5;
       enable_audio_bell = "yes";
@@ -48,9 +33,6 @@
       macos_colorspace = "default";
       hide_window_decorations = "titlebar-only";
       macos_quit_when_last_window_closed = "yes";
-      enabled_layouts = "splits:split_axis=horizontal";
-
-      # confirm_os_window_close = 0;
     };
 
     extraConfig = lib.mkIf config.targets.genericLinux.enable ''
