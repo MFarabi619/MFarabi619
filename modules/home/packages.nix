@@ -49,6 +49,7 @@
             cbor
             cbor2
             click
+            plotly
             patool
             jinja2
             anytree
