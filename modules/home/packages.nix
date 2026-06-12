@@ -20,9 +20,9 @@
         wasm-bindgen-cli
         rubyPackages_3_4.rails
       ]
+      ++ lib.optional pkgs.stdenv.isLinux espup
       ++ [
         SDL2 # for embedded TUI simulator
-        espup
         esptool
         esphome
         espflash
