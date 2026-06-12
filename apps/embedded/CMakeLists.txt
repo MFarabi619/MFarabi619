@@ -1,1 +1,0 @@
-rust_cargo_application(CRATE_NAME embedded)

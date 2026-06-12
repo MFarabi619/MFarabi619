@@ -1,2 +1,0 @@
-rsource "networking/wifi/Kconfig"
-rsource "networking/wireguard/Kconfig"

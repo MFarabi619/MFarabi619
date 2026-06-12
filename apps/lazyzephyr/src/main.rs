@@ -138,7 +138,7 @@ cfg_if::cfg_if! {
             let pinout_img: std::sync::Arc<dyn lazyzephyr_core::tui::pinout_image::PinoutImageRenderer> = {
                 let home = std::path::PathBuf::from(std::env::var("HOME").unwrap_or_default()).join("MFarabi619");
                 std::sync::Arc::new(pinout_image::PinoutImages::load(vec![
-                    ("xiao_esp32s3".into(),   home.join("xiao-esp32s3-pinout-2.png")),
+                    ("xiao_esp32s3".into(),   home.join("assets/xiao-esp32s3-pinout-2.png")),
                     ("walter_esp32s3".into(), home.join("assets/walter-iot-pinout.png")),
                 ]))
             };

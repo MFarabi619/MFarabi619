@@ -1,21 +1,25 @@
 #![no_std]
 
+pub mod boot;
+pub mod filesystems;
+pub mod networking;
+pub mod services;
+pub mod utils;
+
 use log::{info, warn};
 use zephyr::time::Duration;
 
-use firmware::boot;
-
 #[cfg(CONFIG_MODEM_CELLULAR)]
-use firmware::{
+use crate::{
     networking::{cellular, dns, nat, sntp, wifi},
     utils::errno::Errno,
 };
 
 #[cfg(not(CONFIG_MODEM_CELLULAR))]
-use firmware::networking::wifi;
+use crate::networking::wifi;
 
 #[cfg(all(not(CONFIG_MODEM_CELLULAR), CONFIG_WIREGUARD))]
-use firmware::networking::wireguard;
+use crate::networking::wireguard;
 
 #[no_mangle]
 extern "C" fn rust_main() {

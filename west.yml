@@ -1,8 +1,4 @@
 manifest:
-    self:
-        path: .
-        west-commands: commands.yml
-
     remotes:
         - name: zephyrproject
           url-base: https://github.com/zephyrproject-rtos
@@ -26,7 +22,7 @@ manifest:
           path: modules/lang/rust
           revision: 404fcefdbab0f2711cd342a1fab9d2eda52a1ba9 # main 2026-05-27
 
-        # NOTE: uncomment CONFIG_WOLFSSH guard in libs/firmware/CMakeLists.txt to use
+        # NOTE: uncomment CONFIG_WOLFSSH guard in CMakeLists.txt to use
         # - name: wolfssl
         #   remote: wolfssl
         #   revision: master

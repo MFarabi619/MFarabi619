@@ -1,6 +1,6 @@
 [manifest]
-path     = .west
-file     = manifest.yaml
+path     = .
+file     = west.yml
 
 [zephyr]
 base     = zephyr
@@ -24,7 +24,7 @@ fw       = flash --port-filter serial=8C:BF:EA:8E:AC:28
 fx       = flash --port-filter serial=D0:CF:13:54:27:18
 ax       = attach --runner probe-rs
 
-patch    = patch -l patches.yml -b ..
-pl       = patch -l patches.yml -b .. list
-pc       = patch -l patches.yml -b .. clean
-pa       = patch -l patches.yml -b .. apply --roll-back
+patch    = patch -l patches.yml
+pl       = patch -l patches.yml list
+pc       = patch -l patches.yml clean
+pa       = patch -l patches.yml apply --roll-back

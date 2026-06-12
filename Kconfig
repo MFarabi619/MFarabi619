@@ -1,4 +1,5 @@
-rsource "../../libs/firmware/Kconfig"
+rsource "src/networking/wifi/Kconfig"
+rsource "src/networking/wireguard/Kconfig"
 
 config CELLULAR_ATTACH_TIMEOUT_MS
 	int "Cellular attach timeout (milliseconds)"
