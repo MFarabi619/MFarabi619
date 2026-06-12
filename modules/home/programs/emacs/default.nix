@@ -37,8 +37,6 @@
       ++ [ sops ]
       ++ [
         disaster
-        # dts-mode
-        devicetree-ts-mode
         abc-mode
         kdl-mode
         scad-mode
@@ -47,6 +45,7 @@
         kconfig-mode
         mermaid-mode # github.com/abrochard/mermaid-mode
         lsp-tailwindcss
+        devicetree-ts-mode
         treesitWithAllExceptQuint
       ]
       ++ [
