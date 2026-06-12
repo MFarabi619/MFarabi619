@@ -1,3 +1,7 @@
 {
-  programs.cargo.enable = true;
+  pkgs,
+  ...
+}:
+{
+  programs.cargo.enable = pkgs.stdenv.isLinux;
 }
