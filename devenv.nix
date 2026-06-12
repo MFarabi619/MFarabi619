@@ -5,40 +5,66 @@
   inputs,
   ...
 }:
-# let
-#   # api = config.languages.rust.import ./. { };
-#   pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
-# in
+let
+  # api = config.languages.rust.import ./. { };
+  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+in
 {
   name = "microvisor";
 
-  infoSections = {
-    name = [ "Mumtahin Farabi" ];
-  };
-
   imports = map (path: ./config + path) [
     "/services"
-    "/microvisor"
   ];
 
-  env.PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_22}/bin/node";
+  env.PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_25}/bin/node";
+
+  packages =
+    with pkgs-unstable;
+    [ ]
+    ++ lib.optionals config.languages.ruby.enable [
+      libyaml # rails new --help
+      rubyPackages_3_4.rails # rails new store -Gc tailwind --skip-ci
+    ]
+    ++ lib.optionals stdenv.isDarwin [ ]
+    ++ lib.optionals stdenv.isLinux [ ];
 
   # packages =
-  #   with pkgs-unstable;
-  #   [ ]
-  #   ++ lib.optionals config.languages.ruby.enable [
-  #     libyaml # rails new --help
-  #     rubyPackages_3_4.rails # rails new store -Gc tailwind --skip-ci
-  #   ]
-  #   ++ lib.optionals stdenv.isDarwin [ ]
-  #   ++ lib.optionals stdenv.isLinux [ ];
+  #   (with pkgs-unstable; [
+  #     binaryen
+  #     dioxus-cli
+  #     tailwindcss_4
+  #     cargo-binstall
+  #     # FIXME: nixpkgs behind on latest
+  #     # use `cargo binstall wasm-bindgen-cli@0.2.116`
+  #   ])
+  #   ++ lib.optionals pkgs.stdenv.isLinux (
+  #     with pkgs-unstable;
+  #     [
+  #       openssl
+  #     ]
+  #   )
+  #   ++ lib.optionals (dioxus.desktop.linux.enable && pkgs.stdenv.isLinux) (
+  #     with pkgs-unstable;
+  #     [
+  #       atk
+  #       glib
+  #       file
+  #       cairo
+  #       pango
+  #       xdotool
+  #       librsvg
+  #       gdk-pixbuf
+  #       pkg-config
+  #       webkitgtk_4_1
+  #       libappindicator-gtk3
+  #     ]
+  #   );
 
   scripts = {
     up.exec = ''devenv up "$@"'';
     clean.exec = "git clean -fdX";
     run.exec = ''devenv tasks run "$@" -m before'';
     docs.exec = "bunx likec4 start ${config.git.root}/docs";
-    # comchan.exec = ''comchan -c "$DEVENV_ROOT/comchan.config.toml" "$@"'';
   };
 
   processes = {
@@ -80,7 +106,7 @@
   };
 
   enterShell = ''
-    export PATH="$HOME/.cargo/bin:$PATH";
+    # export PATH="$HOME/.cargo/bin:$PATH";
 
     if [ -f "\$\{ESPUP_EXPORT_FILE:-}" ]; then
       . "$ESPUP_EXPORT_FILE"
@@ -89,10 +115,10 @@
     fi
 
     if command -v xtensa-esp-elf-gcc >/dev/null 2>&1; then
-      echo -e "\033[36m[devenv:embassy]:\033[0m\033[32m Espressif Rust toolchain ready 🦀\033[0m"
+      echo -e "\033[36m[devenv:enterShell]:\033[0m\033[32m Espressif Rust toolchain ready 🦀\033[0m"
     else
-      echo -e "\033[36m[devenv:embassy]:\033[0m\033[34m xtensa-esp-elf-gcc \033[0m\033[31mtoolchain not found ⚠️\033[0m"
-      echo -e "\033[36m[devenv:embassy]:\033[0m\033[33m install with \033[0m\033[35mespup install && direnv allow\033[0m\n"
+      echo -e "\033[36m[devenv:enterShell]:\033[0m\033[34m xtensa-esp-elf-gcc \033[0m\033[31mtoolchain not found ⚠️\033[0m"
+      echo -e "\033[36m[devenv:enterShell]:\033[0m\033[33m install with \033[0m\033[35mespup install && direnv allow\033[0m\n"
     fi
   ''
   + lib.optionalString (pkgs.stdenv.isLinux && config.services.caddy.enable) ''
@@ -103,69 +129,53 @@
     { }
     // lib.optionalAttrs config.services.postgres.enable {
       user."mfarabi".module.env = {
-        BASE_URL = "mfarabi.sh";
+        # BASE_URL = "mfarabi.sh";
         EXERCISM_API_URL = "https://api.exercism.org/v1";
       };
     };
 
   cachix = {
     enable = true;
-    push = "mfarabi";
-    pull = [ "oxalica" ];
+    pull =
+      [ ]
+      ++ lib.optionals config.languages.rust.enable [
+        "oxalica"
+      ];
   };
 
   languages = rec {
     nix.enable = true;
     shell.enable = true;
+    python.enable = false;
+    python.uv.enable = true;
+
+    c.enable = true;
+    c.debugger = pkgs.gdb;
     cplusplus.enable = true;
 
-    c = {
-      enable = true;
-      debugger = pkgs.gdb;
-    };
-
     rust = {
-      enable = true;
-      channel = "stable";
-      # lld.enable = true;  # FIXME: breaks dioxus
-      # mold.enable = true; # FIXME: breaks loco
-
-      components = [
-        "rustc"
-        "cargo"
-        "clippy"
-        "rustfmt"
-        "rust-std"
-        "rust-src"
-        "rust-analyzer"
-      ];
-
-      dioxus = {
-        enable = true;
-        desktop.linux.enable = false;
-        mobile.android.enable = false;
-      };
-    };
-
-    python = {
       enable = false;
-      uv.enable = true;
+      toolchainFile = ./rust-toolchain.toml;
     };
 
-    typescript.enable = javascript.enable;
-
+    typescript.enable = false;
     javascript = {
-      enable = true;
       bun.enable = true;
-      package = pkgs.nodejs_24;
-      # FIXME: find out why this crashes for intel macbooks
-      # pnpm.enable = !(pkgs.stdenv.isDarwin && pkgs.stdenv.isx86_64);
+      package = pkgs.nodejs_25;
+      enable = typescript.enable;
     };
 
     ruby = {
-      enable = true;
+      enable = false;
       bundler.enable = true;
       documentation.enable = true;
     };
   };
+
+  # android = lib.mkIf dioxus.mobile.android.enable {
+  #   enable = true;
+  #   ndk.enable = true;
+  #   emulator.enable = true;
+  #   android-studio.enable = true;
+  # };
 }
