@@ -1,4 +1,4 @@
-use lazyzephyr_core::probes::{ProbeInfo, ProbeRegistry};
+use lazyzephyr_core::commands::probes::{ProbeInfo, ProbeRegistry};
 use probe_rs::probe::list::Lister;
 use serialport::{SerialPortType, available_ports};
 

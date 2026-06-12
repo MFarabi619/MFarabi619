@@ -12,7 +12,10 @@ use firmware::{
 };
 
 #[cfg(not(CONFIG_MODEM_CELLULAR))]
-use firmware::networking::{wifi, wireguard};
+use firmware::networking::wifi;
+
+#[cfg(all(not(CONFIG_MODEM_CELLULAR), CONFIG_WIREGUARD))]
+use firmware::networking::wireguard;
 
 #[no_mangle]
 extern "C" fn rust_main() {
@@ -42,7 +45,7 @@ fn walter() {
     }
     if let Err(e) = wifi::ap::enable(
         zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_SSID,
-        zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_PASSWORD,
+        wifi::DEFAULT_AP_PASSWORD,
     ) {
         warn!("wifi ap: {e}");
     }
@@ -57,9 +60,6 @@ fn bring_up_cellular_stack() -> Result<(), Errno> {
         if !value.is_empty() {
             info!("{label}: {value}");
         }
-    }
-    if let Err(e) = cellular::initialize_callbacks() {
-        warn!("cellular: registration init failed: {e}");
     }
     nat::initialize()?;
     dns::initialize()?;
@@ -80,6 +80,7 @@ fn xiao() {
     }
     match wifi::sta::wait_for_ipv4(Duration::secs(30)) {
         Ok(()) => {
+            #[cfg(CONFIG_WIREGUARD)]
             if let Err(e) = wireguard::initialize() {
                 warn!("wireguard: {e}");
             }
@@ -87,8 +88,8 @@ fn xiao() {
         Err(e) => {
             warn!("wifi sta wait_for_ipv4: {e} — falling back to AP for provisioning");
             if let Err(e) = wifi::ap::enable(
-                zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_SSID,
-                zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_PASSWORD,
+                zephyr::kconfig::CONFIG_NET_HOSTNAME,
+                wifi::DEFAULT_AP_PASSWORD,
             ) {
                 warn!("wifi ap fallback: {e}");
             }

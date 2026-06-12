@@ -2,7 +2,7 @@ use std::time::{Duration, Instant};
 
 use anyhow::Result;
 use mcumgr_toolkit::MCUmgrClient;
-use lazyzephyr_core::source::{
+use lazyzephyr_core::commands::source::{
     EventEntry, HeapPoolEntry, InterfaceEntry, InterfaceKind, Source, SourceStatus,
     StatGroupEntry, ThreadEntry, WifiStatus,
 };

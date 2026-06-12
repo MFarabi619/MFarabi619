@@ -3,17 +3,11 @@
 
 extern crate alloc;
 
-pub mod app;
-pub mod build;
-pub mod input;
-pub mod panel;
-pub mod probes;
-pub mod serial;
-pub mod source;
-pub mod state;
+pub mod commands;
+pub mod config;
 pub mod theme;
-pub mod ui;
+pub mod tui;
 
-pub use app::App;
-pub use input::Key;
-pub use ui::render;
+pub use tui::input::Key;
+pub use tui::state::App;
+pub use tui::layout::layout;

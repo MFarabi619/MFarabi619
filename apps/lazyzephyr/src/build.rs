@@ -10,14 +10,14 @@ use ratatui::{
     Frame,
     layout::{Constraint, Rect},
     style::{Style, Stylize},
-    text::{Line, Span},
+    text::Line,
     widgets::{Cell, Paragraph, Row, Scrollbar, ScrollbarOrientation, ScrollbarState, Table, TableState, Wrap},
 };
 
 use lazyzephyr_core::{
-    build::{BuildAction, BuildRunner, BuildStatus},
-    input::Key,
+    commands::build::{BuildAction, BuildRunner, BuildStatus},
     theme::Theme,
+    tui::input::Key,
 };
 
 const SCROLLBACK_LEN: usize = 5000;
@@ -201,7 +201,7 @@ impl BuildRunner for WestBuildRunner {
         } else {
             frame.render_widget(
                 Paragraph::new(Line::from(
-                    Span::raw("press 0 to start").fg(theme.label).bold(),
+                    "press 0 to start".fg(theme.label).bold(),
                 )),
                 area,
             );
@@ -286,7 +286,7 @@ impl TextCapture {
     fn render(&mut self, frame: &mut Frame, area: Rect, theme: &Theme) {
         if let Some(err) = self.error.lock().ok().and_then(|g| g.clone()) {
             frame.render_widget(
-                Paragraph::new(Span::raw(err).fg(theme.error)).wrap(Wrap { trim: false }),
+                Paragraph::new(err.fg(theme.error)).wrap(Wrap { trim: false }),
                 area,
             );
             return;
@@ -297,7 +297,7 @@ impl TextCapture {
 
         if snapshot.is_empty() {
             let message = if self.status() == BuildStatus::Running { "running…" } else { "no rows" };
-            frame.render_widget(Paragraph::new(Span::raw(message).fg(theme.label)), area);
+            frame.render_widget(Paragraph::new(message.fg(theme.label)), area);
             return;
         }
 
@@ -350,7 +350,7 @@ fn compute_constraints(headers: &[&str], rows: &[Vec<String>]) -> Vec<Constraint
         }
     }
     widths.iter().enumerate().map(|(i, w)| {
-        if i + 1 == n { Constraint::Min(0) } else { Constraint::Length(*w as u16) }
+        if i + 1 == n { Constraint::Fill(1) } else { Constraint::Length(*w as u16) }
     }).collect()
 }
 

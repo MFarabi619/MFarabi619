@@ -7,7 +7,8 @@ use zephyr::{
         net_if_ipv4_set_netmask_by_addr, net_in_addr,
         net_mgmt_NET_REQUEST_WIFI_AP_ENABLE, net_mgmt_NET_REQUEST_WIFI_CONNECT_STORED,
         wifi_connect_req_params, wifi_frequency_bands_WIFI_FREQ_BAND_2_4_GHZ,
-        wifi_mfp_options_WIFI_MFP_OPTIONAL, wifi_security_type_WIFI_SECURITY_TYPE_PSK,
+        wifi_mfp_options_WIFI_MFP_OPTIONAL, wifi_security_type_WIFI_SECURITY_TYPE_NONE,
+        wifi_security_type_WIFI_SECURITY_TYPE_PSK,
     },
     time::Duration,
 };
@@ -19,6 +20,11 @@ use crate::utils::errno::{Errno, IntoResult};
 const WIFI_CHANNEL_ANY: u8 = 255;
 const ENODEV: i32 = -19;
 const ETIMEDOUT: i32 = -110;
+
+/// Default AP password used when no explicit password is supplied.
+/// Anyone joining either board's AP uses this; xiao's STA static credentials
+/// reach walter via this same secret.
+pub const DEFAULT_AP_PASSWORD: &str = "pingmemaybe";
 
 // net_route_ipv4_add lives in private subsys/net/ip headers (not in zephyr-sys
 // bindings). Keep a one-function C shim for the default-route install.
@@ -54,12 +60,18 @@ pub mod ap {
         let mut params: wifi_connect_req_params = unsafe { core::mem::zeroed() };
         params.ssid = ssid.as_ptr();
         params.ssid_length = ssid.len() as u8;
-        params.psk = psk.as_ptr();
-        params.psk_length = psk.len() as u8;
-        params.security = wifi_security_type_WIFI_SECURITY_TYPE_PSK;
+        if psk.is_empty() {
+            // ESP HAL rejects WIFI_SECURITY_TYPE_PSK with a zero-length PSK
+            // (ESP_ERR_WIFI_PASSWORD = 12299). Open AP for provisioning.
+            params.security = wifi_security_type_WIFI_SECURITY_TYPE_NONE;
+        } else {
+            params.psk = psk.as_ptr();
+            params.psk_length = psk.len() as u8;
+            params.security = wifi_security_type_WIFI_SECURITY_TYPE_PSK;
+            params.mfp = wifi_mfp_options_WIFI_MFP_OPTIONAL;
+        }
         params.channel = WIFI_CHANNEL_ANY;
         params.band = wifi_frequency_bands_WIFI_FREQ_BAND_2_4_GHZ as u8;
-        params.mfp = wifi_mfp_options_WIFI_MFP_OPTIONAL;
 
         unsafe {
             net_mgmt_NET_REQUEST_WIFI_AP_ENABLE(

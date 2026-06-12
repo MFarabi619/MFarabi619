@@ -1,0 +1,5 @@
+The files in this directory are derived from binsider (https://github.com/orhun/binsider),
+Copyright (c) 2024 Orhun Parmaksız, dual-licensed under MIT or Apache-2.0.
+
+Original sources: https://github.com/orhun/binsider/tree/main/src/elf
+Original LICENSE: MIT (preserved upstream)

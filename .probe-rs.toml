@@ -9,8 +9,8 @@ log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:b
 
 [presets.esp32-s3-devkitc-1]
 chip = "esp32s3"
-token = "rpi5-16"
-host = "ws://rpi5-16:8443"
+# token = "rpi5-16"
+# host = "ws://rpi5-16:8443"
 probe = "303a:1001:1C:DB:D4:40:64:F8"
 
 [presets.seeed_xiao_esp32s3]
@@ -22,11 +22,11 @@ preverify = true
 chip = "stm32h723zg"
 always-print-stacktrace = true
 
-[server]
-port = 8443
-address = "rpi5-16"
+# [server]
+# port = 8443
+# address = "rpi5-16"
 
-[[server.users]]
-name = "mfarabi"
-token = "rpi5-16"
+# [[server.users]]
+# name = "mfarabi"
+# token = "rpi5-16"
 # [[https://github.com/probe-rs/probe-rs][probe-rs]]:1 ends here

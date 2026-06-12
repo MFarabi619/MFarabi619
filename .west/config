@@ -3,23 +3,26 @@ path     = .west
 file     = manifest.yaml
 
 [zephyr]
-base     = vendor/zephyr
+base     = zephyr
 
 [build]
 sysbuild = true
-# NOTE: MUST manually `west build --pristine` after:
-# west update, west patch ..., env-var creds change, west.yml edits, & snippet/sysbuild flips.
 pristine = auto
+# https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html#configuration-options
+# dir-fmt  = build/{app}
 board    = xiao_esp32s3/esp32s3/procpu
 # board    = esp32s3_devkitc/esp32s3/procpu
+# cmake-args = "-C build.cmake" # https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html#permanent-cmake-arguments
 
 [flash]
 rebuild  = true
 
 [alias]
-f        = flash --runner probe-rs
-ax       = attach --runner probe-rs
+# f        = flash --runner probe-rs
 bw       = build --board walter/esp32s3/procpu
+fw       = flash --port-filter serial=8C:BF:EA:8E:AC:28
+fx       = flash --port-filter serial=D0:CF:13:54:27:18
+ax       = attach --runner probe-rs
 
 patch    = patch -l patches.yml -b ..
 pl       = patch -l patches.yml -b .. list

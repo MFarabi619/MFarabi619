@@ -14,9 +14,9 @@ use ratatui::{
 };
 
 use lazyzephyr_core::{
-    input::Key,
-    serial::{SerialMonitor, SerialStatus},
+    commands::serial::{SerialMonitor, SerialStatus},
     theme::Theme,
+    tui::input::Key,
 };
 
 const SCROLLBACK_LEN: usize = 5000;

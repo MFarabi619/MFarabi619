@@ -1,11 +1,18 @@
-use lazyzephyr_core::{App, Key, render};
+use lazyzephyr_core::{App, Key, layout};
 
 cfg_if::cfg_if! {
     if #[cfg(not(target_arch = "wasm32"))] {
+        mod analyze;
         mod build;
+        mod config_io;
+        mod elf_inspect;
+        mod matcher;
+        mod mcumgr;
+        mod pinout_image;
         mod probes;
         mod serial;
         mod smp;
+        mod waiting;
 
         use crossterm::{
             event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyEventKind, MouseButton, MouseEventKind},
@@ -48,7 +55,7 @@ cfg_if::cfg_if! {
         fn run_native(app: &mut App, terminal: &mut DefaultTerminal) -> io::Result<()> {
             while !app.should_quit {
                 app.advance_frame();
-                terminal.draw(|frame| render(frame, app))?;
+                terminal.draw(|frame| layout(frame, app))?;
 
                 if event::poll(Duration::from_millis(FRAME_POLL_INTERVAL_MS))? {
                     match event::read()? {
@@ -67,17 +74,41 @@ cfg_if::cfg_if! {
             Ok(())
         }
 
-        fn build_source() -> Box<dyn lazyzephyr_core::source::Source> {
+        fn build_source() -> Box<dyn lazyzephyr_core::commands::source::Source> {
             match smp::SmpSerialSource::auto() {
                 Ok(source) => Box::new(source),
                 Err(error) => {
                     eprintln!("lazyzephyr: no SMP-capable device auto-detected ({error}); using mock source");
-                    Box::new(lazyzephyr_core::source::mock::MockSource::new())
+                    Box::new(lazyzephyr_core::commands::source::mock::MockSource::new())
                 }
             }
         }
 
-        fn build_serial() -> Box<dyn lazyzephyr_core::serial::SerialMonitor> {
+        fn build_mcumgr(cfg: &lazyzephyr_core::config::McumgrConfig)
+            -> std::sync::Arc<dyn lazyzephyr_core::commands::mcumgr::McumgrService>
+        {
+            use lazyzephyr_core::commands::mcumgr::noop_arc;
+            use std::time::Duration;
+            if cfg.address.is_empty() { return noop_arc(); }
+            let addr = if cfg.address.contains(':') { cfg.address.clone() }
+                       else { format!("{}:1337", cfg.address) };
+            let parsed: std::net::SocketAddr = match addr.parse() {
+                Ok(a) => a,
+                Err(err) => {
+                    eprintln!("lazyzephyr: invalid mcumgr address {addr:?}: {err}");
+                    return noop_arc();
+                }
+            };
+            match mcumgr::UdpMcumgr::connect(parsed, Duration::from_millis(cfg.timeout_ms)) {
+                Ok(c) => std::sync::Arc::new(c),
+                Err(err) => {
+                    eprintln!("lazyzephyr: mcumgr UDP connect to {parsed} failed: {err}");
+                    noop_arc()
+                }
+            }
+        }
+
+        fn build_serial() -> Box<dyn lazyzephyr_core::commands::serial::SerialMonitor> {
             // TODO: parse apps/lazyzephyr/lazyzephyr.conf for CONFIG_LAZYZEPHYR_DEFAULT_*
             let profile = serial::Profile {
                 device:   "/dev/cu.usbmodem101".into(),
@@ -89,19 +120,32 @@ cfg_if::cfg_if! {
         }
 
         fn main() -> io::Result<()> {
+            probe_rs_espressif::register_plugin();
             let source  = build_source();
             let serial  = build_serial();
-            // TODO: derive build cwd from app/board chosen via lazyzephyr.conf.
-            // For now: spawned in whatever directory `cargo run -p lazyzephyr` is invoked from
-            // (typically the workspace root, which is where `west build` expects to be called).
             let builder = Box::new(build::WestBuildRunner::new());
             let probes  = Box::new(probes::ProbeRsRegistry::new());
-            let mut terminal = ratatui::init();
-            execute!(io::stdout(), EnableMouseCapture)?;
-            let mut app = App::new(source, serial, builder, probes);
-            let result = run_native(&mut app, &mut terminal);
-            let _ = execute!(io::stdout(), DisableMouseCapture);
-            ratatui::restore();
+            let config  = config_io::load();
+            let elf     = analyze::load();
+            let mouse   = config.gui.mouse_events;
+            let matcher: Box<dyn lazyzephyr_core::tui::matcher::Matcher> = if config.gui.fuzzy_search {
+                Box::new(matcher::NucleoMatcher::new())
+            } else {
+                Box::new(lazyzephyr_core::tui::matcher::SubstringMatcher)
+            };
+            let mcumgr_svc: std::sync::Arc<dyn lazyzephyr_core::commands::mcumgr::McumgrService> =
+                build_mcumgr(&config.mcumgr);
+            let pinout_img: std::sync::Arc<dyn lazyzephyr_core::tui::pinout_image::PinoutImageRenderer> = {
+                let home = std::path::PathBuf::from(std::env::var("HOME").unwrap_or_default()).join("MFarabi619");
+                std::sync::Arc::new(pinout_image::PinoutImages::load(vec![
+                    ("xiao_esp32s3".into(),   home.join("xiao-esp32s3-pinout-2.png")),
+                    ("walter_esp32s3".into(), home.join("assets/walter-iot-pinout.png")),
+                ]))
+            };
+            let mut app = App::new(source, serial, builder, probes, matcher, mcumgr_svc, pinout_img, config, elf);
+            if mouse { execute!(io::stdout(), EnableMouseCapture)?; }
+            let result = ratatui::run(|terminal| run_native(&mut app, terminal));
+            if mouse { let _ = execute!(io::stdout(), DisableMouseCapture); }
             result
         }
     } else {
@@ -175,7 +219,7 @@ cfg_if::cfg_if! {
             terminal.draw_web(move |frame| {
                 let mut app = app_state.borrow_mut();
                 app.advance_frame();
-                render(frame, &mut app);
+                layout(frame, &mut app);
             });
 
             Ok(())

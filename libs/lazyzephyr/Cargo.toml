@@ -4,5 +4,11 @@ edition = "2024"
 version = "0.1.0"
 
 [dependencies]
-ratatui             = { version = "0.30.0", default-features = false, features = ["all-widgets", "layout-cache", "palette", "portable-atomic"] }
+ratatui              = { version = "0.30.0", default-features = false, features = ["all-widgets", "layout-cache", "macros", "palette", "portable-atomic"] }
 throbber-widgets-tui = { version = "0.11.0", default-features = false }
+serde                = { version = "1", default-features = false, features = ["derive", "alloc"] }
+schemars             = { version = "1.2", default-features = false, features = ["derive"], optional = true }
+
+[features]
+default = []
+schema  = ["dep:schemars"]

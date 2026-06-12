@@ -17,31 +17,30 @@ manifest:
         - name: mm-iot-zephyr
           remote: craigpeacock
           revision: main
-          path: vendor/modules/lib/morsemicro
+          path: modules/lib/morsemicro
           submodules: true
           import: false
 
         - name: zephyr-lang-rust
           remote: zephyrproject
-          path: vendor/modules/lang/rust
+          path: modules/lang/rust
           revision: 404fcefdbab0f2711cd342a1fab9d2eda52a1ba9 # main 2026-05-27
 
         # NOTE: uncomment CONFIG_WOLFSSH guard in libs/firmware/CMakeLists.txt to use
         # - name: wolfssl
         #   remote: wolfssl
         #   revision: master
-        #   path: vendor/modules/crypto/wolfssl
+        #   path: modules/crypto/wolfssl
         #
         # - name: wolfssh
         #   remote: wolfssl
         #   revision: master
-        #   path: vendor/modules/lib/wolfssh
+        #   path: modules/lib/wolfssh
 
         - name: zephyr
           remote: zephyrproject
           revision: 1f70d28f25e # main HEAD 2026-06-09
           import:
-              path-prefix: vendor
               name-allowlist:
                   # - qemu
                   # - percepio
@@ -60,7 +59,7 @@ manifest:
                   - mbedtls
                   - mbedtls-3.6
                   # tf-psa-crypto is the sibling source tree mbedtls 4.x requires (per
-                  # vendor/modules/crypto/mbedtls/CMakeLists.txt:346). Without this
+                  # modules/crypto/mbedtls/CMakeLists.txt:346). Without this
                   # entry, any image with CONFIG_WIFI_ESP32=y fails at CMake-configure
                   # because WIFI_ESP32 selects PSA_CRYPTO which pulls mbedtls full build.
                   - tf-psa-crypto

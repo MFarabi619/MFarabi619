@@ -1,2 +1,12 @@
 [toolchain]
-components = ["rust-src", "rustfmt", "clippy"]
+channel = "stable"
+
+targets = [
+    # "i686-linux-android",
+    # "x86_64-linux-android",
+    # "aarch64-linux-android",
+    "wasm32-unknown-unknown",
+    # "armv7-linux-androideabi",
+]
+
+components = ["rust-src", "rustfmt", "clippy", "rust-analyzer"]

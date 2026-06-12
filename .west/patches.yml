@@ -3,7 +3,7 @@ patches:
 
   - path: libs/firmware/patches/zephyr/esp32s3-has-segger-rtt.patch
     sha256sum: d868bc99d01c67f047c9de3089fb36cc59b49d51e2465c0dc37b885aacb61a66
-    module: vendor/zephyr
+    module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-06-06
@@ -15,7 +15,7 @@ patches:
 
   - path: libs/firmware/patches/zephyr/probe-rs-runner-base-address.patch
     sha256sum: 802484c62a79ef7de7ddb3a0ac2a9983fd4580d1271a8607b25ea2897a88b11c
-    module: vendor/zephyr
+    module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-06-06
@@ -41,7 +41,7 @@ patches:
 
   - path: libs/firmware/patches/zephyr/xiao-esp32s3-probe-rs-runner.patch
     sha256sum: 99fc3163fe46530351638daa08fa70ade631a631943d293542df43dd8358a06c
-    module: vendor/zephyr
+    module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-06-06
@@ -73,7 +73,7 @@ patches:
 
   - path: libs/firmware/patches/morsemicro/mm-iot-zephyr-zephyr44-port.patch
     sha256sum: 30623bb9d3e3cfdb2801a1de75c3b5388a835febda1ed494c919391cf6398cd2
-    module: vendor/modules/lib/morsemicro
+    module: modules/lib/morsemicro
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-06-05
@@ -129,7 +129,7 @@ patches:
 
   - path: libs/firmware/patches/morsemicro/mm-iot-sdk-ffs-include.patch
     sha256sum: 797db1914ce9765e5748617e881c5e06865a9fc0aa9f23d11beae4a8e0a64daa
-    module: vendor/modules/lib/morsemicro/submodules/mm-iot-sdk
+    module: modules/lib/morsemicro/submodules/mm-iot-sdk
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-06-05
@@ -144,7 +144,7 @@ patches:
 
   - path: libs/firmware/patches/morsemicro/mm-iot-zephyr-drop-bogus-board-dts-root.patch
     sha256sum: 4b4e268cd585d8aa403e80b91b4fbd5ed3b8d0c64b64e7b44a970e6c76b42fc7
-    module: vendor/modules/lib/morsemicro
+    module: modules/lib/morsemicro
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-06-06
@@ -157,11 +157,11 @@ patches:
       the only boards-related tree sits one level deeper in
       `submodules/mm-iot-sdk/boards/`, which we don't use either (XIAO
       ESP32-S3 board comes from upstream Zephyr at
-      `vendor/zephyr/boards/seeed/`).
+      `zephyr/boards/seeed/`).
 
       The dead board_root declaration triggers `boards.cmake:132`:
         BOARD_ROOT element without a 'boards' subdirectory:
-        /…/vendor/modules/lib/morsemicro
+        /…/modules/lib/morsemicro
       on every sysbuild configure step (three times per build —
       sysbuild, mcuboot image, app image), polluting the log.
 
@@ -183,7 +183,7 @@ patches:
       Upstream zephyr-lang-rust HEAD doesn't map xtensa in _rust_map_target().
       Adds esp32 / esp32s2 / esp32s3 mappings and CRATE_NAME / FEATURES args
       to rust_cargo_application(). module: lang-rust matches the name in
-      vendor/modules/lang/rust/zephyr/module.yml; the project name in
+      modules/lang/rust/zephyr/module.yml; the project name in
       west.yml (zephyr-lang-rust) is intentionally different and would cause
       `west patch` to silently skip the entry.
 
@@ -275,7 +275,7 @@ patches:
 
   - path: libs/firmware/patches/zephyr/modem-cellular-sqn-gm02s-1000ms-reset.patch
     sha256sum: d6af85f794a758f7706ef1e61f5048cf337eab393607a504384c831b497aabe6
-    module: vendor/zephyr
+    module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-05-13
@@ -296,7 +296,7 @@ patches:
 
   - path: libs/firmware/patches/zephyr/modem-cellular-sqn-gm02s-disable-psm-edrx.patch
     sha256sum: ed24cf4bb6a99c40456d412a7dff50937e676bb735234f8116c351e46ca2c226
-    module: vendor/zephyr
+    module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-05-13
@@ -314,7 +314,7 @@ patches:
 
   - path: libs/firmware/patches/zephyr/modem-cellular-carrier-gated-ppp-dead.patch
     sha256sum: e621602e24d6a36d19acb3d886ed2c461dda828beb5b6103dee01f706472ea39
-    module: vendor/zephyr
+    module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-05-12
@@ -344,7 +344,7 @@ patches:
 
   - path: libs/firmware/patches/zephyr/modem-cellular-sqn-gm02s-await-sysstart.patch
     sha256sum: b5719ff53f85ad37fb62344c6a6d9f5bfacf0f66e8c9aa8b218b27d959de7a5b
-    module: vendor/zephyr
+    module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-05-17
@@ -369,7 +369,7 @@ patches:
 
   - path: libs/firmware/patches/zephyr/modem-cellular-sqn-gm02s-cmee-verbose.patch
     sha256sum: 317897c0ec65a3beaec6054d8c9d23e828f319a89dc3087969ae5b75f9b33018
-    module: vendor/zephyr
+    module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-05-17

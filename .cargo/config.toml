@@ -1,8 +1,8 @@
 # [[file:../CONTRIBUTING.org::*\[\[https:/doc.rust-lang.org/cargo/reference/config.html\]\[Cargo Config\]\]][[[https://doc.rust-lang.org/cargo/reference/config.html][Cargo Config]]:1]]
 [alias]
 ee = ["run", "-p", "e2e"]
-loco = ["run", "-p", "microvisor", "--"]
-playground = ["run", "--example", "playground"]
+loco = ["run", "-p", "server", "--"]
+playground = ["run", "-p", "server", "--example", "playground"]
 
 rr = ["run", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
 bb = ["build", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
@@ -22,6 +22,7 @@ build-std = ["core", "alloc"]
 [env]
 OTA_DEVICE_IP = "10.0.0.68"
 DEFMT_LOG = "info,embedded_test=warn"
+LOCO_CONFIG_FOLDER = { value = "apps/server/config", relative = true }
 
 # PROBE_RS_REMOTE_TOKEN = "rpi5-16"
 # PROBE_RS_REMOTE_HOST = "ws://rpi5-16:8443"

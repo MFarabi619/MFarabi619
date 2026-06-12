@@ -16,7 +16,15 @@ tui-term           = "0.3.4"
 portable-pty       = "0.9.0"
 vt100              = "0.16.2"
 probe-rs           = "0.31.0"
+probe-rs-espressif = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" }  # 2026-06-08
 serialport         = "4.9.0"
+serde_yaml_ng      = "0.10.0"
+etcetera           = "0.11.0"
+elf                = "0.8.0"
+bytesize           = "2.3.1"
+nucleo-matcher     = "0.3.1"
+ratatui-image      = { version = "11", default-features = false, features = ["crossterm"] }
+image              = "0.25"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 ratatui  = { workspace = true, features = ["all-widgets", "layout-cache"] }

@@ -49,7 +49,11 @@ elseif(BOARD MATCHES "^xiao_esp32s3")
 
   list(APPEND EXTRA_CONF_FILE
     ${LIBS_FIRMWARE}/networking/dns/mdns.conf
-    ${LIBS_FIRMWARE}/networking/wireguard.conf
+    # NOTE: wireguard.conf temporarily out — vendor wg.c + wg_shell.c have
+    # unconditional sockaddr_in6 memcpys that trigger -Warray-bounds when
+    # CONFIG_NET_IPV6=n. Re-enable once we patch vendor to cfg-gate the
+    # IPv6 paths (or upstream picks it up).
+    # ${LIBS_FIRMWARE}/networking/wireguard.conf
     ${LIBS_FIRMWARE}/security/mbedtls.conf
 
     # NOTE: uncomment + add `-DDTC_OVERLAY_FILE=${LIBS_FIRMWARE}/networking/wifi/halow.overlay` to use

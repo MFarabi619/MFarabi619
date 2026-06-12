@@ -1,0 +1,36 @@
+gui:
+  theme:
+    activeBorderColor:
+      - "#83a598"
+      - bold
+    inactiveBorderColor:
+      - "#665c54"
+    searchingActiveBorderColor:
+      - "#bdae93"
+      - bold
+    optionsTextColor:
+      - "#ebdbb2"
+    selectedLineBgColor:
+      - "#665c54"
+    defaultFgColor:
+      - "#d5c4a1"
+    successColor:
+      - "#b8bb26"
+    warningColor:
+      - "#fabd2f"
+    errorColor:
+      - "#fb4934"
+    labelColor:
+      - "#665c54"
+    valueColor:
+      - "#ebdbb2"
+    tierColors:
+      - ["#8ec07c"]
+      - ["#b8bb26"]
+      - ["#fabd2f"]
+      - ["#fe8019"]
+      - ["#fb4934"]
+
+mcumgr:
+  address: "10.0.0.21"
+  timeoutMs: 1000

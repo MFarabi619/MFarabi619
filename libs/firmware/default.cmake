@@ -23,6 +23,7 @@ list(APPEND EXTRA_CONF_FILE
 
   ${CMAKE_CURRENT_LIST_DIR}/networking/buf.conf
   ${CMAKE_CURRENT_LIST_DIR}/networking/ipv4.conf
+  ${CMAKE_CURRENT_LIST_DIR}/networking/ipv6.conf
   ${CMAKE_CURRENT_LIST_DIR}/networking/mgmt.conf
   ${CMAKE_CURRENT_LIST_DIR}/networking/default.conf
   ${CMAKE_CURRENT_LIST_DIR}/networking/sockets.conf
