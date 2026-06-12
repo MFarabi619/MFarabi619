@@ -33,7 +33,6 @@
         cargo-generate
         cargo-binstall
         renode-dts2repl
-        kconfig-frontends
         home-assistant-cli
 
         (probe-rs-tools.overrideAttrs (old: {
