@@ -17,6 +17,5 @@
     ../nixos/nixpkgs.nix
     ../nixos/myusers.nix
     ../nixos/environment.nix
-    ../nixos/documentation.nix
   ];
 }

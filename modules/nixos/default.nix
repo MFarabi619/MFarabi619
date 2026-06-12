@@ -24,7 +24,6 @@
     ./systemd.nix
     ./myusers.nix
     ./environment.nix
-    ./documentation.nix
     ./virtualisation.nix
   ];
 }
