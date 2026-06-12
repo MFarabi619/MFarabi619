@@ -14,60 +14,55 @@
 
     onActivation = {
       upgrade = true;
-      cleanup = "zap";
       autoUpdate = true;
+      cleanup = "uninstall";
       # extraFlags = [ "--verbose" ];
     };
 
-    taps = [
-      "quickemu-project/quickemu"
+    cargoPackages = [
+      "espup"
+      "comchan"
+      "cargo-binstall"
     ];
 
-    casks = [
-      "via"
-      "vial"
-      "vivaldi"
-      "coderabbit"
-      "binary-ninja-free"
-    ]
-    ++ lib.optionals (pkgs.stdenv.isAarch64) [
-      # "comfyui"
-      # "sonic-pi"
-      # "unity-hub"
-      "leader-key"
-      "claude-code"
-      "tailscale-app"
-      # "supercollider"
-      "docker-desktop"
-      "gcc-arm-embedded"
-      "visual-studio-code"
-      "raspberry-pi-imager"
-      "silicon-labs-vcp-driver"
-    ];
+    # taps = [ "quickemu-project/quickemu" ];
 
     brews = [
-      # "rust"
+      "rust"
+      "rustup" # rustup toolchain link system "$(brew --prefix rust)"
       "pulumi"
       "libvirt" # brew services start libvirt
-      "quickemu"
+      # "quickemu"
       "dfu-util"
-      "galaxy-io/tap/gnat"
-      # "dirien/dirien/lazy-pulumi"
+      # "galaxy-io/tap/gnat" # NATS tui
+      "atopile/tap/atopile"
       "Valkyrie00/homebrew-bbrew/bbrew"
-      "pioarduino/pioarduino/pioarduino"
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
       "mlx"
       "qemu"
       "nemu"
-      "stlink"
       "ollama"
-      "ferron" # rust-based caddy-like web server
+      # "ferron" # rust-based caddy-like web server
       "netscanner"
       "u-boot-tools"
-      "espressif/eim/eim"
+      # "espressif/eim/eim"
       "renode/tap/renode-nightly"
-      "Vaishnav-Sabari-Girish/taps/comchan" # TUI serial monitor
+    ];
+
+    casks = [
+      "vivaldi"
+      "binary-ninja-free"
+    ]
+    ++ lib.optionals (pkgs.stdenv.isAarch64) [
+      "leader-key"
+      "claude-code"
+      "tailscale-app"
+      "docker-desktop"
+      "gcc-arm-embedded"
+      "visual-studio-code"
+      "raspberry-pi-imager"
+      "silicon-labs-vcp-driver"
     ];
   };
 }
