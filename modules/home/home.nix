@@ -14,13 +14,9 @@
     };
 
     shellAliases = {
-      n = "nvim";
       cat = "bat";
-      z = "zoxide";
       man = "batman";
       lg = "lazygit";
-      zlj = "zellij";
-      lsh = "lazyssh";
       lj = "lazyjournal";
       mkdir = "mkdir -p";
       # mic = "tv microvisor";
@@ -29,7 +25,7 @@
     }
     // lib.optionalAttrs (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64) {
       zig = "~/.zvm/bin/zig";
-      stmcli = "/Applications/STMicroelectronics/STM32Cube/STM32CubeProgrammer/STM32CubeProgrammer.app/Contents/MacOs/bin/STM32_Programmer_CLI";
+      # stmcli = "/Applications/STMicroelectronics/STM32Cube/STM32CubeProgrammer/STM32CubeProgrammer.app/Contents/MacOs/bin/STM32_Programmer_CLI";
     };
 
     file = {
