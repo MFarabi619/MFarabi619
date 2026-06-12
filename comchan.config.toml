@@ -1,0 +1,11 @@
+port = "auto"
+zephyr = true
+verbose = false
+simulate = false
+hex_mode = false
+hex_pretty = false
+
+baud = 115200
+timeout_ms = 500
+reset_delay_ms = 1000
+export_limit = 1000000
