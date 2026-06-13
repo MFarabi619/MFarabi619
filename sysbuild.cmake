@@ -6,8 +6,8 @@ set(mcuboot_EXTRA_CONF_FILE
 if(BOARD MATCHES "^walter")
   # Router role: upstream cellular + downstream WiFi-AP + NAT + DNS
   set(MFarabi619_EXTRA_CONF_FILE
+    "${CMAKE_CURRENT_LIST_DIR}/src/networking/wifi/walter.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/pkt.conf"
-    "${CMAKE_CURRENT_LIST_DIR}/src/networking/nat/default.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/ppp.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/modem.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/cellular/default.conf"
