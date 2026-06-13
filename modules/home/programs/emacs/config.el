@@ -14,6 +14,8 @@
   ;; doom-theme 'catppuccin
   fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
 
+  mouse-autoselect-window t
+
   column-number-mode nil
   size-indication-mode nil
   doom-modeline-percent-position nil
