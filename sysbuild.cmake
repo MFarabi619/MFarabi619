@@ -1,10 +1,13 @@
-if(BOARD MATCHES "^walter")
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/mcuboot_per_board.conf "CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y\n")
-  set(mcuboot_EXTRA_CONF_FILE ${CMAKE_CURRENT_BINARY_DIR}/mcuboot_per_board.conf CACHE INTERNAL "")
+set(mcuboot_EXTRA_CONF_FILE
+  "${CMAKE_CURRENT_LIST_DIR}/src/boot/mcuboot.conf"
+  CACHE INTERNAL ""
+)
 
+if(BOARD MATCHES "^walter")
   # Router role: upstream cellular + downstream WiFi-AP + NAT + DNS
   set(MFarabi619_EXTRA_CONF_FILE
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/pkt.conf"
+    "${CMAKE_CURRENT_LIST_DIR}/src/networking/nat/default.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/ppp.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/modem.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/cellular/default.conf"
@@ -14,9 +17,6 @@ if(BOARD MATCHES "^walter")
     CACHE INTERNAL ""
   )
 elseif(BOARD MATCHES "^xiao_esp32s3")
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/mcuboot_per_board.conf "CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y\n")
-  set(mcuboot_EXTRA_CONF_FILE ${CMAKE_CURRENT_BINARY_DIR}/mcuboot_per_board.conf CACHE INTERNAL "")
-
   # Node role: WiFi STA + WireGuard underlay + AP fallback for provisioning
   set(MFarabi619_EXTRA_CONF_FILE
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/dns/mdns.conf"

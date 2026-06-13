@@ -5,7 +5,7 @@ usb_pid     = "1001"
 serial      = "D0:CF:13:54:27:18"
 
 [default.flashing]
-enabled                  = true
+enabled                  = false
 verify                   = true
 preverify                = true
 read_flashed_rtt         = true
@@ -20,7 +20,7 @@ halt_afterwards          = false
 chip        = "esp32s3"
 
 [default.rtt]
-enabled     = true
+enabled     = false
 timeout     = 3000
 log_enabled = false
 log_path    = "rtt.log"

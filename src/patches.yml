@@ -207,7 +207,7 @@ patches:
       u32::MAX, but this minimal patch unblocks the build.
 
   - path: networking/net-bindings.patch
-    sha256sum: 482c9590133f6e4bddc0dc6166d0db8dfb44cc1bac05edf304c83f04152b586c
+    sha256sum: b842c7af19a00d1369a536769859a9f860948043f601f3f29c8af444073350ff
     module: lang-rust
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca

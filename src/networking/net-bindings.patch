@@ -47,15 +47,19 @@ diff --git a/zephyr-sys/wrapper.h b/zephyr-sys/wrapper.h
 index 92ac2a3..9ab59d2 100644
 --- a/zephyr-sys/wrapper.h
 +++ b/zephyr-sys/wrapper.h
-@@ -47,6 +47,62 @@ extern int errno;
+@@ -47,6 +47,66 @@ extern int errno;
  #include <zephyr/logging/log.h>
  #include <zephyr/irq.h>
- 
+
 +#ifdef CONFIG_NETWORKING
 +#include <zephyr/net/net_if.h>
 +#include <zephyr/net/net_ip.h>
 +#include <zephyr/net/net_mgmt.h>
 +#include <zephyr/net/net_event.h>
++#endif
++
++#ifdef CONFIG_NET_IPV4_NAT
++#include <zephyr/net/ipv4_nat.h>
 +#endif
 +
 +#ifdef CONFIG_BOOTLOADER_MCUBOOT

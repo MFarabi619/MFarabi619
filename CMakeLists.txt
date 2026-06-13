@@ -26,6 +26,8 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/console/shell.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/console/debug.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/console/stats.conf
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/console/ram.conf
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/console/mcumgr.conf
 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystems/nvs.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystems/img.conf

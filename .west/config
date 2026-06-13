@@ -15,7 +15,7 @@ board    = xiao_esp32s3/esp32s3/procpu
 # cmake-args = "-C build.cmake" # https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html#permanent-cmake-arguments
 
 [flash]
-rebuild  = true
+rebuild  = false
 
 [alias]
 # f        = flash --runner probe-rs
