@@ -1,16 +1,13 @@
 [workspace]
 resolver = "3"
-exclude = ["ml"]
-default-members = ["apps/lazyzephyr"]
+exclude = ["ml", "libs/lazyzephyr", "apps/lazyzephyr"]
 members = [
     "web",
     "tui",
-    "libs/lazyzephyr",
     "apps/server",
     "apps/server/migration",
     "tests/e2e",
     "apps/readme",
-    "apps/lazyzephyr",
     "apps/ceratina",
 ]
 

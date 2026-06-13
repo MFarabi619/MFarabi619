@@ -13,8 +13,13 @@ fn main() {
         println!("cargo:rerun-if-env-changed=DOTCONFIG");
         println!("cargo:rerun-if-changed={dotconfig}");
     }
+    // DT-based cfgs enable #[cfg(dt = "labels::<name>")]. Requires Zephyr's CMake
+    // env (ZEPHYR_DTS + BINARY_DIR_INCLUDE_GENERATED); skip otherwise.
+    if std::env::var("ZEPHYR_DTS").is_ok() {
+        zephyr_build::dt_cfgs();
+    }
+    println!("cargo:rustc-check-cfg=cfg(dt, values(any()))");
     for cfg in [
-        "CONFIG_MODEM_CELLULAR",
         "CONFIG_WIREGUARD",
         "CONFIG_MCUMGR_TRANSPORT_UDP",
         "CONFIG_NET_DHCPV4_SERVER",

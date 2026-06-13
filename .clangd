@@ -1,6 +1,6 @@
 #  https://clangd.llvm.org/config
 CompileFlags:
-  CompilationDatabase: build/xiao_esp32s3/esp32s3/procpu/MFarabi619/
+  CompilationDatabase: build/MFarabi619/
 
   # NOTE: Strip xtensa-GCC-only flags clangd doesn't recognize.
   # Otherwise source file opens with cascading "unknown argument" diagnostics.
@@ -30,12 +30,3 @@ Diagnostics:
     # too as a fallback.
     - attribute_section_invalid_for_target
   UnusedIncludes: None
-
----
-
-If:
-  PathMatch:
-    - .*/networking/cellular/.*\.c
-    - .*/networking/nat/.*\.c
-CompileFlags:
-  CompilationDatabase: build/walter/esp32s3/procpu/MFarabi619/

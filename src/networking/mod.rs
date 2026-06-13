@@ -1,4 +1,4 @@
-#[cfg(CONFIG_MODEM_CELLULAR)]
+#[cfg(dt = "labels::modem")]
 pub mod cellular;
 
 #[cfg(CONFIG_NET_DHCPV4_SERVER)]

@@ -9,16 +9,16 @@ pub mod utils;
 use log::{info, warn};
 use zephyr::time::Duration;
 
-#[cfg(CONFIG_MODEM_CELLULAR)]
+#[cfg(dt = "labels::modem")]
 use crate::{
     networking::{cellular, dns, nat, sntp, wifi},
     utils::errno::Errno,
 };
 
-#[cfg(not(CONFIG_MODEM_CELLULAR))]
+#[cfg(not(dt = "labels::modem"))]
 use crate::networking::wifi;
 
-#[cfg(all(not(CONFIG_MODEM_CELLULAR), CONFIG_WIREGUARD))]
+#[cfg(all(not(dt = "labels::modem"), CONFIG_WIREGUARD))]
 use crate::networking::wireguard;
 
 #[no_mangle]
@@ -28,11 +28,11 @@ extern "C" fn rust_main() {
     }
     info!("rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
 
-    #[cfg(CONFIG_MODEM_CELLULAR)]
-    walter();
+    #[cfg(dt = "labels::modem")]
+    router();
 
-    #[cfg(not(CONFIG_MODEM_CELLULAR))]
-    xiao();
+    #[cfg(not(dt = "labels::modem"))]
+    node();
 
     if !boot::is_confirmed() {
         match boot::confirm() {
@@ -42,8 +42,29 @@ extern "C" fn rust_main() {
     }
 }
 
-#[cfg(CONFIG_MODEM_CELLULAR)]
-fn walter() {
+#[cfg(dt = "labels::modem")]
+fn router() {
+    let bring_up_cellular_stack = || -> Result<(), Errno> {
+        let timeout = Duration::millis(180_000);
+        cellular::initialize()?;
+        cellular::wait_for_attach(timeout)?;
+        for (label, value) in cellular::access_identity().iter() {
+            if !value.is_empty() {
+                info!("{label}: {value}");
+            }
+        }
+        nat::initialize()?;
+        dns::initialize()?;
+        match sntp::sync(
+            core::ffi::CStr::from_bytes_with_nul(b"pool.ntp.org\0").unwrap(),
+            5000,
+        ) {
+            Ok(()) => info!("sntp: time synced"),
+            Err(e) => warn!("sntp: {e}"),
+        }
+        Ok(())
+    };
+
     if let Err(e) = bring_up_cellular_stack() {
         warn!("cellular stack: {e}");
     }
@@ -55,30 +76,8 @@ fn walter() {
     }
 }
 
-#[cfg(CONFIG_MODEM_CELLULAR)]
-fn bring_up_cellular_stack() -> Result<(), Errno> {
-    let timeout = Duration::millis(zephyr::kconfig::CONFIG_CELLULAR_ATTACH_TIMEOUT_MS as u64);
-    cellular::initialize()?;
-    cellular::wait_for_attach(timeout)?;
-    for (label, value) in cellular::access_identity().iter() {
-        if !value.is_empty() {
-            info!("{label}: {value}");
-        }
-    }
-    nat::initialize()?;
-    dns::initialize()?;
-    match sntp::sync(
-        core::ffi::CStr::from_bytes_with_nul(b"pool.ntp.org\0").unwrap(),
-        5000,
-    ) {
-        Ok(()) => info!("sntp: time synced"),
-        Err(e) => warn!("sntp: {e}"),
-    }
-    Ok(())
-}
-
-#[cfg(not(CONFIG_MODEM_CELLULAR))]
-fn xiao() {
+#[cfg(not(dt = "labels::modem"))]
+fn node() {
     if let Err(e) = wifi::sta::connect() {
         warn!("wifi sta: {e}");
     }

@@ -1,30 +1,38 @@
-# [[file:CONTRIBUTING.org::*\[\[https:/github.com/probe-rs/cargo-embed\]\[cargo-embed\]\]][[[https://github.com/probe-rs/cargo-embed][cargo-embed]]:1]]
-[default.general]
-chip        = "esp32s3"
-
 [default.probe]
 protocol    = "Jtag"
+usb_vid     = "303a"
+usb_pid     = "1001"
+serial      = "D0:CF:13:54:27:18"
+
+[default.flashing]
+enabled                  = true
+verify                   = true
+preverify                = true
+read_flashed_rtt         = true
+restore_unwritten_bytes  = true
+flash_layout_output_path = "out.svg"
+
+[default.reset]
+enabled                  = true
+halt_afterwards          = false
+
+[default.general]
+chip        = "esp32s3"
 
 [default.rtt]
 enabled     = true
 timeout     = 3000
 log_enabled = false
-up_channels = [
-    { channel = 0, mode = "BlockIfFull", format = "Defmt", show_location = true },
-]
+log_path    = "rtt.log"
+# up_channels = [
+#     { channel = 0, mode = "BlockIfFull", format = "Defmt", show_location = true },
+# ]
 
-down_channels = [
-    { channel = 0, mode = "BlockIfFull" },
-]
-
-[default.flashing]
-enabled                 = true
-restore_unwritten_bytes = true
-
-[default.reset]
-enabled                 = true
-halt_afterwards         = false
+# down_channels = [
+#     { channel = 0, mode = "BlockIfFull" },
+# ]
+# tabs        = []
 
 [default.gdb]
-enabled                 = false
-# [[https://github.com/probe-rs/cargo-embed][cargo-embed]]:1 ends here
+enabled               = false
+gdb_connection_string = "127.0.0.1:1337"

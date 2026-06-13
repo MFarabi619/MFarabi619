@@ -1,7 +1,7 @@
 patches:
   # ===== xiao =====
 
-  - path: patches/zephyr/esp32s3-has-segger-rtt.patch
+  - path: console/segger-rtt.patch
     sha256sum: d868bc99d01c67f047c9de3089fb36cc59b49d51e2465c0dc37b885aacb61a66
     module: zephyr
     author: Mumtahin Farabi
@@ -13,7 +13,7 @@ patches:
       Kconfig so probe-rs (and other RTT-capable JTAG hosts) can use RTT
       over USB-Serial-JTAG.
 
-  - path: patches/zephyr/probe-rs-runner-base-address.patch
+  - path: probe-rs-runner-base-address.patch
     sha256sum: 802484c62a79ef7de7ddb3a0ac2a9983fd4580d1271a8607b25ea2897a88b11c
     module: zephyr
     author: Mumtahin Farabi
@@ -39,7 +39,7 @@ patches:
 
       Upstreamable as-is to Zephyr.
 
-  - path: patches/zephyr/xiao-esp32s3-probe-rs-runner.patch
+  - path: xiao-esp32s3-probe-rs-runner.patch
     sha256sum: 99fc3163fe46530351638daa08fa70ade631a631943d293542df43dd8358a06c
     module: zephyr
     author: Mumtahin Farabi
@@ -71,7 +71,7 @@ patches:
 
   # ===== halow (morsemicro vendor patches, used when halow.conf is enabled in embedded) =====
 
-  - path: patches/morsemicro/mm-iot-zephyr-zephyr44-port.patch
+  - path: networking/wifi/zephyr44-port.patch
     sha256sum: 30623bb9d3e3cfdb2801a1de75c3b5388a835febda1ed494c919391cf6398cd2
     module: modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -127,7 +127,7 @@ patches:
          mm-iot-esp32 shim (framework/mm_shims/wlan_hal.c) uses
          GPIO_INTR_LOW_LEVEL for the same reason.
 
-  - path: patches/morsemicro/mm-iot-sdk-ffs-include.patch
+  - path: networking/wifi/ffs-include.patch
     sha256sum: 797db1914ce9765e5748617e881c5e06865a9fc0aa9f23d11beae4a8e0a64daa
     module: modules/lib/morsemicro/submodules/mm-iot-sdk
     author: Mumtahin Farabi
@@ -142,7 +142,7 @@ patches:
       One-line fix: add #include <strings.h> after the existing
       #include <string.h>.
 
-  - path: patches/morsemicro/mm-iot-zephyr-drop-bogus-board-dts-root.patch
+  - path: networking/wifi/drop-bogus-board-dts-root.patch
     sha256sum: 4b4e268cd585d8aa403e80b91b4fbd5ed3b8d0c64b64e7b44a970e6c76b42fc7
     module: modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -172,7 +172,7 @@ patches:
 
   # ===== walter-router =====
 
-  - path: patches/lang-rust/zephyr-lang-rust-xtensa.patch
+  - path: zephyr-lang-rust-xtensa.patch
     sha256sum: 0075635b6c7c973741ed5fcad7ad575a38653bb2ce47da789c209631a73704ef
     module: lang-rust
     author: Mumtahin Farabi
@@ -187,7 +187,7 @@ patches:
       west.yml (zephyr-lang-rust) is intentionally different and would cause
       `west patch` to silently skip the entry.
 
-  - path: patches/lang-rust/zephyr-lang-rust-kconfig-overflow.patch
+  - path: zephyr-lang-rust-kconfig-overflow.patch
     sha256sum: 53f73e2ddcbc644ff329f13983806a941448ccf1b1dfab9a41efcab121746cdd
     module: lang-rust
     author: Mumtahin Farabi
@@ -206,7 +206,7 @@ patches:
       Proper upstream fix would be to emit `u64` for hex values that exceed
       u32::MAX, but this minimal patch unblocks the build.
 
-  - path: patches/lang-rust/zephyr-lang-rust-net-bindings.patch
+  - path: networking/net-bindings.patch
     sha256sum: 482c9590133f6e4bddc0dc6166d0db8dfb44cc1bac05edf304c83f04152b586c
     module: lang-rust
     author: Mumtahin Farabi
@@ -273,7 +273,7 @@ patches:
       gating in zephyr-sys/build.rs; a PR adding "networking" alongside
       those would be uncontroversial.
 
-  - path: patches/zephyr/modem-cellular-sqn-gm02s-1000ms-reset.patch
+  - path: networking/cellular/sqn-gm02s-1000ms-reset.patch
     sha256sum: d6af85f794a758f7706ef1e61f5048cf337eab393607a504384c831b497aabe6
     module: zephyr
     author: Mumtahin Farabi
@@ -294,7 +294,7 @@ patches:
       Cost: ~900ms additional boot time. Worth it to eliminate the
       flash-flap-reboot recovery loop.
 
-  - path: patches/zephyr/modem-cellular-sqn-gm02s-disable-psm-edrx.patch
+  - path: networking/cellular/sqn-gm02s-disable-psm-edrx.patch
     sha256sum: ed24cf4bb6a99c40456d412a7dff50937e676bb735234f8116c351e46ca2c226
     module: zephyr
     author: Mumtahin Farabi
@@ -312,7 +312,7 @@ patches:
       reception mode, trading some battery life for latency. Walter is
       mains-powered as a router so battery is not a concern.
 
-  - path: patches/zephyr/modem-cellular-carrier-gated-ppp-dead.patch
+  - path: networking/cellular/carrier-gated-ppp-dead.patch
     sha256sum: e621602e24d6a36d19acb3d886ed2c461dda828beb5b6103dee01f706472ea39
     module: zephyr
     author: Mumtahin Farabi
@@ -342,7 +342,7 @@ patches:
       driver when CMUX DLCIs actually close, so genuine disconnections
       still trigger the re-dial path.
 
-  - path: patches/zephyr/modem-cellular-sqn-gm02s-await-sysstart.patch
+  - path: networking/cellular/sqn-gm02s-await-sysstart.patch
     sha256sum: b5719ff53f85ad37fb62344c6a6d9f5bfacf0f66e8c9aa8b218b27d959de7a5b
     module: zephyr
     author: Mumtahin Farabi
@@ -367,7 +367,7 @@ patches:
       the init script, and bumps the script timeout 10→30s to fit worst-
       case boot + the 12 AT cmds with margin.
 
-  - path: patches/zephyr/modem-cellular-sqn-gm02s-cmee-verbose.patch
+  - path: networking/cellular/sqn-gm02s-cmee-verbose.patch
     sha256sum: 317897c0ec65a3beaec6054d8c9d23e828f319a89dc3087969ae5b75f9b33018
     module: zephyr
     author: Mumtahin Farabi

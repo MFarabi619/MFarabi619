@@ -1,6 +1,6 @@
 [manifest]
-path     = .
-file     = west.yml
+path     = src
+file     = manifest.yml
 
 [zephyr]
 base     = zephyr
@@ -9,7 +9,7 @@ base     = zephyr
 sysbuild = true
 pristine = auto
 # https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html#configuration-options
-# dir-fmt  = build/{app}
+# dir-fmt  = build/{board}
 board    = xiao_esp32s3/esp32s3/procpu
 # board    = esp32s3_devkitc/esp32s3/procpu
 # cmake-args = "-C build.cmake" # https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html#permanent-cmake-arguments
@@ -19,12 +19,17 @@ rebuild  = true
 
 [alias]
 # f        = flash --runner probe-rs
-bw       = build --board walter/esp32s3/procpu
-fw       = flash --port-filter serial=8C:BF:EA:8E:AC:28
-fx       = flash --port-filter serial=D0:CF:13:54:27:18
+bw       = build -b walter/esp32s3/procpu -p
+bx       = build -b xiao_esp32s3/esp32s3/procpu -p
+
+fw       = flash --esp-device hwgrep://D0:CF:13:54:27:18
+fx       = flash --esp-device hwgrep://8C:BF:EA:8E:AC:28
+
+mw       = espressif monitor -p hwgrep://D0:CF:13:54:27:18
+mx       = espressif monitor -p hwgrep://8C:BF:EA:8E:AC:28
+
 ax       = attach --runner probe-rs
 
-patch    = patch -l patches.yml
-pl       = patch -l patches.yml list
-pc       = patch -l patches.yml clean
-pa       = patch -l patches.yml apply --roll-back
+p        = patch -l patches.yml -b ../src
+pc       = p clean
+pa       = p apply --roll-back
