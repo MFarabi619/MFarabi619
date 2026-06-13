@@ -65,6 +65,7 @@ in
     clean.exec = "git clean -fdX";
     run.exec = ''devenv tasks run "$@" -m before'';
     docs.exec = "bunx likec4 start ${config.git.root}/docs";
+    tio.exec = ''HOME="$DEVENV_ROOT" ${pkgs.tio}/bin/tio "$@"'';
   };
 
   processes = {
