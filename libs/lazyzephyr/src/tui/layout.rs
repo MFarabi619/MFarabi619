@@ -9,7 +9,7 @@ use crate::tui::{
     command_log, help, main_panels, menu_panel, options_map,
     panel::{Panel, PanelTag},
     panes::{AnalyzePanel, KernelPanel, McumgrPanel, StatusPanel, WipPanel},
-    state::App,
+    state::{App, ScreenMode},
 };
 
 pub const PANELS: &[&dyn Panel] = &[
@@ -49,8 +49,18 @@ pub fn layout(frame: &mut Frame, app: &mut App) {
 }
 
 fn render_body(frame: &mut Frame, area: Rect, app: &mut App) {
-    let left_pct  = (app.config.gui.side_panel_width.clamp(0.05, 0.95) * 100.0) as u16;
-    let right_pct = 100u16.saturating_sub(left_pct);
+    if app.screen_mode == ScreenMode::Full {
+        return render_full(frame, area, app);
+    }
+
+    let configured_left = (app.config.gui.side_panel_width.clamp(0.05, 0.95) * 100.0) as u16;
+    let (left_pct, right_pct) = match app.screen_mode {
+        ScreenMode::Half => {
+            if app.detail_focused { (configured_left.min(30), 100u16.saturating_sub(configured_left.min(30))) }
+            else                  { (configured_left.max(50), 100u16.saturating_sub(configured_left.max(50))) }
+        }
+        _ => (configured_left, 100u16.saturating_sub(configured_left)),
+    };
     let [left_rail, right_column] = Layout::horizontal([
         Constraint::Percentage(left_pct),
         Constraint::Percentage(right_pct),
@@ -64,15 +74,20 @@ fn render_body(frame: &mut Frame, area: Rect, app: &mut App) {
     ])
     .areas(right_column);
 
-    let constraints: Vec<Constraint> = PANELS.iter().enumerate().map(|(i, panel)| {
-        match panel.tag() {
-            PanelTag::Status | PanelTag::Wip => {
-                if app.focused_index == i { Constraint::Fill(1) }
-                else                      { Constraint::Length(3) }
+    let constraints: Vec<Constraint> = match app.screen_mode {
+        ScreenMode::Half => PANELS.iter().enumerate().map(|(i, _)| {
+            if app.focused_index == i { Constraint::Fill(1) } else { Constraint::Length(0) }
+        }).collect(),
+        _ => PANELS.iter().enumerate().map(|(i, panel)| {
+            match panel.tag() {
+                PanelTag::Status | PanelTag::Wip => {
+                    if app.focused_index == i { Constraint::Fill(1) }
+                    else                      { Constraint::Length(3) }
+                }
+                _ => Constraint::Fill(1),
             }
-            _ => Constraint::Fill(1),
-        }
-    }).collect();
+        }).collect(),
+    };
 
     let areas = Layout::vertical(constraints).split(left_rail);
     app.detail_rect = detail_area;
@@ -89,5 +104,19 @@ fn render_body(frame: &mut Frame, area: Rect, app: &mut App) {
         command_log::render(frame, log_area, app);
     } else {
         app.command_log_rect = Rect::default();
+    }
+}
+
+fn render_full(frame: &mut Frame, area: Rect, app: &mut App) {
+    app.command_log_rect = Rect::default();
+    for rect in app.panel_rects.iter_mut() { *rect = Rect::default(); }
+    if app.detail_focused {
+        app.detail_rect = area;
+        main_panels::render(frame, area, app);
+    } else {
+        app.detail_rect = Rect::default();
+        let focused_idx = app.focused_index;
+        app.panel_rects[focused_idx] = area;
+        PANELS[focused_idx].render_list(frame, area, app, true);
     }
 }

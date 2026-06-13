@@ -6,7 +6,7 @@ use ratatui::{
     macros::line,
     style::Stylize,
     text::Line,
-    widgets::{List, ListItem, Paragraph},
+    widgets::{List, ListItem, Paragraph, Wrap},
 };
 
 use crate::tui::{
@@ -15,12 +15,25 @@ use crate::tui::{
     state::App,
 };
 
+struct StatusEntry {
+    name: &'static str,
+    icon: &'static str,
+}
+
+const ENTRIES: &[StatusEntry] = &[
+    StatusEntry { name: "menuconfig", icon: "\u{f0493}" },
+    StatusEntry { name: "workspace",  icon: "\u{f0c1d}" },
+];
+
+const IDX_MENUCONFIG: usize = 0;
+const IDX_WORKSPACE:  usize = 1;
+
 pub struct StatusPanel;
 
 impl StatusPanel {
     pub fn selected_action(&self, app: &App) -> Option<usize> {
         let idx = app.state_of(self.tag()).list.selected().unwrap_or(0);
-        if idx < app.build.actions().len() { Some(idx) } else { None }
+        if idx < ENTRIES.len() { Some(idx) } else { None }
     }
 }
 
@@ -30,20 +43,18 @@ impl Panel for StatusPanel {
 
     fn detail_tabs(&self, app: &App) -> Vec<&'static str> {
         match self.selected_action(app) {
-            Some(idx) => app.build.actions().get(idx).map(|a| {
-                if a.tabs.is_empty() { alloc::vec![a.name] } else { a.tabs.to_vec() }
-            }).unwrap_or_else(|| alloc::vec!["(no action)"]),
-            None => alloc::vec!["(no actions)"],
+            Some(idx) => ENTRIES.get(idx).map(|e| alloc::vec![e.name]).unwrap_or_else(|| alloc::vec!["(none)"]),
+            None      => alloc::vec!["(none)"],
         }
     }
 
-    fn list_len(&self, app: &App) -> usize {
-        app.build.actions().len()
+    fn list_len(&self, _app: &App) -> usize {
+        ENTRIES.len()
     }
 
     fn current_name(&self, app: &App) -> String {
         self.selected_action(app)
-            .and_then(|idx| app.build.actions().get(idx).map(|a| a.name.into()))
+            .and_then(|idx| ENTRIES.get(idx).map(|e| e.name.into()))
             .unwrap_or_default()
     }
 
@@ -61,11 +72,10 @@ impl Panel for StatusPanel {
         let selected = app.state_of(self.tag()).list.selected();
         let block    = titled_list_block(&theme, title, focused, selected, total);
 
-        let actions = app.build.actions();
-        let items: Vec<ListItem> = actions.iter().map(|action| {
+        let items: Vec<ListItem> = ENTRIES.iter().map(|entry| {
             ListItem::new(line![
-                format!("{} ", action.icon).fg(theme.muted),
-                action.name.to_string().fg(theme.foreground),
+                format!("{} ", entry.icon).fg(theme.muted),
+                entry.name.to_string().fg(theme.foreground),
             ])
         }).collect();
 
@@ -76,50 +86,62 @@ impl Panel for StatusPanel {
         frame.render_stateful_widget(list, area, state);
     }
 
-    fn render_detail(&self, frame: &mut Frame, area: Rect, app: &mut App, tab: &str) {
+    fn render_detail(&self, frame: &mut Frame, area: Rect, app: &mut App, _tab: &str) {
         let theme = *app.theme();
-        let Some(action_idx) = self.selected_action(app) else {
-            frame.render_widget(Paragraph::new("no build actions configured".fg(theme.label)), area);
+        let Some(idx) = self.selected_action(app) else {
+            frame.render_widget(Paragraph::new("no status entries configured".fg(theme.label)), area);
             return;
         };
-        let Some(action) = app.build.actions().get(action_idx).cloned() else {
-            frame.render_widget(Paragraph::new("no build action".fg(theme.label)), area);
-            return;
-        };
-        let tab_idx = if action.tabs.is_empty() {
-            0
-        } else {
-            action.tabs.iter().position(|t| *t == tab).unwrap_or(0)
-        };
-        if let Some(cmd) = app.build.ensure_spawned(action_idx, tab_idx) {
-            let label = if action.tabs.is_empty() {
-                format!("Status: {}", action.name)
-            } else {
-                format!("Status: {} / {}", action.name, action.tabs[tab_idx])
-            };
-            app.log_command(label, cmd);
+        match idx {
+            IDX_MENUCONFIG => {
+                if let Some(cmd) = app.build.ensure_spawned(0, 0) {
+                    app.log_command("Status: menuconfig", cmd);
+                }
+                app.build.render(0, 0, frame, area, &theme);
+            }
+            IDX_WORKSPACE => render_workspace(frame, area, app),
+            _ => {}
         }
-        app.build.render(action_idx, tab_idx, frame, area, &theme);
-        let _ = Line::raw("");
     }
 
     fn scroll_detail(&self, app: &mut App, lines: isize) {
-        let Some(action_idx) = self.selected_action(app) else { return; };
-        let tab_idx = active_build_tab_idx(app, action_idx);
-        app.build.scroll(action_idx, tab_idx, lines);
+        let Some(idx) = self.selected_action(app) else { return; };
+        if idx == IDX_MENUCONFIG {
+            app.build.scroll(0, 0, lines);
+        }
     }
+}
+
+fn render_workspace(frame: &mut Frame, area: Rect, app: &App) {
+    let theme = *app.theme();
+    let entries = &app.workspace.config;
+    if entries.is_empty() {
+        frame.render_widget(Paragraph::new("west config unavailable \u{2014} `west config -l` returned nothing".fg(theme.label)), area);
+        return;
+    }
+    let mut lines: Vec<Line<'static>> = Vec::with_capacity(entries.len() + 1);
+    let mut current_section: Option<String> = None;
+    for entry in entries {
+        let (section, leaf) = entry.key.split_once('.').unwrap_or(("", entry.key.as_str()));
+        let section_owned = section.to_string();
+        if current_section.as_deref() != Some(section) {
+            if current_section.is_some() { lines.push(Line::raw("")); }
+            lines.push(Line::from(format!("[{section_owned}]").fg(theme.accent).bold()));
+            current_section = Some(section_owned);
+        }
+        lines.push(line![
+            format!("{:<14}", leaf).fg(theme.label),
+            entry.value.clone().fg(theme.value).bold(),
+        ]);
+    }
+    frame.render_widget(Paragraph::new(lines).wrap(Wrap { trim: false }), area);
 }
 
 fn refresh_build(app: &mut App) {
     let panel = StatusPanel;
-    if let Some(action_idx) = panel.selected_action(app) {
-        let tab_idx = active_build_tab_idx(app, action_idx);
-        app.build.refresh(action_idx, tab_idx);
+    if let Some(idx) = panel.selected_action(app) {
+        if idx == IDX_MENUCONFIG {
+            app.build.refresh(0, 0);
+        }
     }
-}
-
-fn active_build_tab_idx(app: &App, action_idx: usize) -> usize {
-    let detail_tab = app.state_of(PanelTag::Status).detail_tab;
-    let Some(action) = app.build.actions().get(action_idx) else { return 0; };
-    if action.tabs.is_empty() { 0 } else { detail_tab.min(action.tabs.len().saturating_sub(1)) }
 }

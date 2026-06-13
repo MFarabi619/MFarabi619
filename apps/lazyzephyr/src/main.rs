@@ -10,9 +10,10 @@ cfg_if::cfg_if! {
         mod mcumgr;
         mod pinout_image;
         mod probes;
-        mod serial;
+        mod runner;
         mod smp;
         mod waiting;
+        mod workspace;
 
         use crossterm::{
             event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyEventKind, MouseButton, MouseEventKind},
@@ -108,23 +109,12 @@ cfg_if::cfg_if! {
             }
         }
 
-        fn build_serial() -> Box<dyn lazyzephyr_core::commands::serial::SerialMonitor> {
-            // TODO: parse apps/lazyzephyr/lazyzephyr.conf for CONFIG_LAZYZEPHYR_DEFAULT_*
-            let profile = serial::Profile {
-                device:   "/dev/cu.usbmodem101".into(),
-                baudrate: 115_200,
-                command:  "tio".into(),
-                args:     vec!["xiao".into()],
-            };
-            Box::new(serial::TtySerial::new(profile))
-        }
-
         fn main() -> io::Result<()> {
             probe_rs_espressif::register_plugin();
             let source  = build_source();
-            let serial  = build_serial();
             let builder = Box::new(build::WestBuildRunner::new());
             let probes  = Box::new(probes::ProbeRsRegistry::new());
+            let runner  = Box::new(runner::ThreadedRunner);
             let config  = config_io::load();
             let elf     = analyze::load();
             let mouse   = config.gui.mouse_events;
@@ -142,7 +132,8 @@ cfg_if::cfg_if! {
                     ("walter_esp32s3".into(), home.join("assets/walter-iot-pinout.png")),
                 ]))
             };
-            let mut app = App::new(source, serial, builder, probes, matcher, mcumgr_svc, pinout_img, config, elf);
+            let workspace = workspace::load();
+            let mut app = App::new(source, builder, probes, runner, matcher, mcumgr_svc, pinout_img, config, elf, workspace);
             if mouse { execute!(io::stdout(), EnableMouseCapture)?; }
             let result = ratatui::run(|terminal| run_native(&mut app, terminal));
             if mouse { let _ = execute!(io::stdout(), DisableMouseCapture); }

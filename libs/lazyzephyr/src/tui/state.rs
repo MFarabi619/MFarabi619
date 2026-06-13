@@ -8,8 +8,9 @@ use crate::{
         elf::ElfInfo,
         mcumgr::{McumgrService, noop_arc as mcumgr_noop_arc},
         probes::{ProbeInfo, ProbeRegistry, noop_box as probes_noop_box},
-        serial::{SerialMonitor, noop_box},
+        runner::{CommandRunner, StreamingCommand, noop_box as runner_noop_box},
         source::{Source, mock::MockSource},
+        workspace::WestWorkspace,
     },
     config::UserConfig,
     theme::{self, Theme},
@@ -27,6 +28,31 @@ use alloc::sync::Arc;
 
 #[derive(Debug, Clone, Copy)]
 pub enum MenuAction { Toggle, Focus, Cancel }
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum ScreenMode {
+    #[default]
+    Normal,
+    Half,
+    Full,
+}
+
+impl ScreenMode {
+    pub fn next(self) -> Self {
+        match self {
+            ScreenMode::Normal     => ScreenMode::Half,
+            ScreenMode::Half       => ScreenMode::Full,
+            ScreenMode::Full => ScreenMode::Normal,
+        }
+    }
+    pub fn prev(self) -> Self {
+        match self {
+            ScreenMode::Normal     => ScreenMode::Full,
+            ScreenMode::Half       => ScreenMode::Normal,
+            ScreenMode::Full => ScreenMode::Half,
+        }
+    }
+}
 
 pub struct MenuOption {
     pub key:    Option<char>,
@@ -65,12 +91,16 @@ pub struct App {
     pub search_history:    VecDeque<String>,
     pub search_history_cursor: Option<usize>,
     pub source:              Box<dyn Source>,
-    pub serial:              Box<dyn SerialMonitor>,
     pub build:               Box<dyn BuildRunner>,
     pub probes:              Box<dyn ProbeRegistry>,
     pub probe_list:          Vec<ProbeInfo>,
-    pub probe_selection:     usize,
+    pub runner:              Box<dyn CommandRunner>,
+    pub active_command:      Option<Arc<dyn StreamingCommand>>,
     pub mcumgr_collapsed_groups: BTreeSet<String>,
+    pub probes_flat:         bool,
+    pub screen_mode:         ScreenMode,
+    pub workspace:           WestWorkspace,
+    pub boards_collapsed_vendors: BTreeSet<String>,
     pub matcher:             Box<dyn Matcher>,
     pub mcumgr:              Arc<dyn McumgrService>,
     pub pinout_image:        Arc<dyn PinoutImageRenderer>,
@@ -82,14 +112,15 @@ pub struct App {
 impl App {
     pub fn new(
         source:   Box<dyn Source>,
-        serial:   Box<dyn SerialMonitor>,
         build:    Box<dyn BuildRunner>,
         probes:   Box<dyn ProbeRegistry>,
+        runner:   Box<dyn CommandRunner>,
         matcher:       Box<dyn Matcher>,
         mcumgr:        Arc<dyn McumgrService>,
         pinout_image:  Arc<dyn PinoutImageRenderer>,
         config:        UserConfig,
         elf_info: ElfInfo,
+        workspace: WestWorkspace,
     ) -> Self {
         let states = (0..PANELS.len()).map(|_| PanelState::default()).collect();
         let initial = 1usize.min(PANELS.len().saturating_sub(1));
@@ -111,12 +142,16 @@ impl App {
             search_history:    VecDeque::new(),
             search_history_cursor: None,
             source,
-            serial,
             build,
             probes,
             probe_list:          Vec::new(),
-            probe_selection:     0,
+            runner,
+            active_command:      None,
             mcumgr_collapsed_groups: BTreeSet::new(),
+            probes_flat:         false,
+            screen_mode:         ScreenMode::Normal,
+            workspace,
+            boards_collapsed_vendors: BTreeSet::new(),
             matcher,
             mcumgr,
             pinout_image,
@@ -129,14 +164,11 @@ impl App {
     }
 
     pub fn with_mock() -> Self {
-        Self::new(Box::new(MockSource::new()), noop_box(), build_noop_box(), probes_noop_box(), matcher_default(), mcumgr_noop_arc(), pinout_image_noop_arc(), UserConfig::default(), ElfInfo::default())
+        Self::new(Box::new(MockSource::new()), build_noop_box(), probes_noop_box(), runner_noop_box(), matcher_default(), mcumgr_noop_arc(), pinout_image_noop_arc(), UserConfig::default(), ElfInfo::default(), WestWorkspace::default())
     }
 
     pub fn refresh_probes(&mut self) {
         self.probe_list = self.probes.list();
-        if self.probe_selection >= self.probe_list.len() {
-            self.probe_selection = 0;
-        }
     }
 
     pub fn theme(&self) -> &Theme { &self.resolved_theme }
@@ -173,7 +205,6 @@ impl App {
     pub fn advance_frame(&mut self) {
         self.frame_tick = self.frame_tick.wrapping_add(1);
         self.source.poll();
-        self.serial.poll();
         self.build.poll();
         self.expire_toasts();
         self.sync_waiting();
@@ -255,9 +286,7 @@ impl App {
                 return;
             }
             Key::ScrollUp(x, y)   => {
-                if self.is_serial_at(x, y) {
-                    self.serial.scroll(3);
-                } else if self.detail_rect.contains(Position { x, y }) {
+                if self.detail_rect.contains(Position { x, y }) {
                     self.current_panel().scroll_detail(self, 3);
                 } else if let Some(idx) = self.panel_at(x, y) {
                     let len = PANELS[idx].list_len(self);
@@ -266,9 +295,7 @@ impl App {
                 return;
             }
             Key::ScrollDown(x, y) => {
-                if self.is_serial_at(x, y) {
-                    self.serial.scroll(-3);
-                } else if self.detail_rect.contains(Position { x, y }) {
+                if self.detail_rect.contains(Position { x, y }) {
                     self.current_panel().scroll_detail(self, -3);
                 } else if let Some(idx) = self.panel_at(x, y) {
                     let len = PANELS[idx].list_len(self);
@@ -339,8 +366,13 @@ impl App {
             Key::Char('k') | Key::Up                    => self.move_within_focus(-1),
             Key::Char('g')                              => self.current_state_mut().list.select_first(),
             Key::Char('G')                              => self.current_state_mut().list.select_last(),
+            Key::Char('w')                              => self.cycle_inner_tab(-1),
+            Key::Char('e')                              => self.cycle_inner_tab(1),
             Key::Char('[') | Key::Char('i')             => self.cycle_detail_tab(-1),
             Key::Char(']') | Key::Char('o')             => self.cycle_detail_tab(1),
+            Key::Char('+')                              => self.screen_mode = self.screen_mode.next(),
+            Key::Char('_')                              => self.screen_mode = self.screen_mode.prev(),
+            Key::Char('/')                              => self.mode = InputMode::Search,
             Key::Ctrl('u')                              => self.current_panel().scroll_detail(self, SCROLL_STEP),
             Key::Ctrl('d')                              => self.current_panel().scroll_detail(self, -SCROLL_STEP),
             _ => {}
@@ -350,8 +382,6 @@ impl App {
     fn panel_at(&self, x: u16, y: u16) -> Option<usize> {
         self.panel_rects.iter().position(|rect| rect.contains(Position { x, y }))
     }
-
-    fn is_serial_at(&self, _x: u16, _y: u16) -> bool { false }
 
     fn handle_search_key(&mut self, key: Key) {
         match key {
