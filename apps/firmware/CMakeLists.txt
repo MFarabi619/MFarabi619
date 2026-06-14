@@ -37,7 +37,6 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/buf.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/ipv4.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/ipv6.conf
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/mgmt.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/net.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/sockets.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/hostname.conf

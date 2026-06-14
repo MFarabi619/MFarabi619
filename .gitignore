@@ -75,7 +75,8 @@ build/
 /modules/lang/
 /modules/lib/
 /modules/tee/
-/tools
+/modules/tools/
+/tools/
 
 opencode.json
 /.codex/config.toml

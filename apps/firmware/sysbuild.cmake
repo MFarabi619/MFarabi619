@@ -19,7 +19,6 @@ elseif(BOARD MATCHES "^xiao_esp32s3")
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/dns/mdns.conf"
     # NOTE: wireguard.conf out — vendor wg.c needs IPv6 cfg-gates
     # "${CMAKE_CURRENT_LIST_DIR}/src/networking/wireguard.conf"
-    "${CMAKE_CURRENT_LIST_DIR}/src/security/mbedtls.conf"
     # NOTE: uncomment + add `-DDTC_OVERLAY_FILE=libs/firmware/halow/halow.overlay` to use
     # "${CMAKE_CURRENT_LIST_DIR}/../../libs/firmware/halow/halow.conf"
     CACHE INTERNAL ""

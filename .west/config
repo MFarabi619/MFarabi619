@@ -18,7 +18,7 @@ p = patch -l patches.yml -b .
 pc = p clean
 pa = p apply --roll-back
 
-menuconfig = build -p=never -t menuconfig
+menuconfig = build apps/firmware -p=never -t menuconfig
 
 r  = build -b qemu_riscv32 libs/firmware --no-sysbuild -d build/qemu_riscv32 -t run
 

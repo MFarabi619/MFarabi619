@@ -347,7 +347,7 @@ patches:
 
   # ===== shared (both boards) =====
 
-  - path: shell-prompt.patch
+  - path: shell.patch
     sha256sum: 247539c0f29e46338020c2d0319d54af346ecfd4a46177db542674ad14967dc5
     module: zephyr
     author: Mumtahin Farabi

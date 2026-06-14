@@ -1,5 +1,6 @@
 use core::{cell::UnsafeCell, ffi::c_char, mem::MaybeUninit, sync::atomic::AtomicPtr};
 use zephyr::{
+    error::to_result_void,
     raw::{
         __device_dts_ord_107, cellular_driver_api, cellular_modem_info_type,
         conn_mgr_mon_resend_status, device, device_is_ready, net_addr_state_NET_ADDR_PREFERRED,
@@ -21,14 +22,13 @@ const _: () = assert!(zephyr::devicetree::labels::modem::ORD == 107);
 
 use log::{info, warn};
 
-use zephyr::error::to_result_void;
-
 const MAX_IDENTITY_LEN: usize = 64;
 const _: () = assert!(
     MAX_IDENTITY_LEN >= 23,
     "MAX_IDENTITY_LEN must hold ICCID (22 chars) + NUL"
 );
 
+const ATTACH_TIMEOUT_MS: u64 = 180_000;
 const RECOVERY_TIMEOUT_MS: i64 = 120_000;
 const WATCHDOG_POLL_MS: u64 = 10_000;
 const SYS_REBOOT_COLD: i32 = 1;
@@ -191,10 +191,18 @@ pub fn initialize() -> zephyr::Result<()> {
     }
 
     let _ = registration_watchdog().start();
+
+    wait_for_attach(Duration::millis(ATTACH_TIMEOUT_MS))?;
+
+    for (label, value) in access_identity().iter() {
+        if !value.is_empty() {
+            info!("{label}: {value}");
+        }
+    }
     Ok(())
 }
 
-pub fn wait_for_attach(timeout: Duration) -> zephyr::Result<()> {
+fn wait_for_attach(timeout: Duration) -> zephyr::Result<()> {
     let timeout_ms = timeout.to_millis().min(i32::MAX as u64) as i64;
 
     unsafe { conn_mgr_mon_resend_status() };

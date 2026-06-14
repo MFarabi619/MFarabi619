@@ -1,12 +1,8 @@
 use zephyr::error::to_result_void;
-use zephyr::time::Duration;
 
 use log::warn;
 
-use crate::networking::wifi;
-
 const KEEPALIVE_SECONDS: i32 = 25;
-const UNDERLAY_TIMEOUT: Duration = Duration::secs(30);
 
 pub const PUBLIC_KEY_B64_SIZE: usize = 45;
 pub const ENDPOINT_STR_SIZE: usize = 24;
@@ -60,8 +56,6 @@ pub fn initialize() -> zephyr::Result<()> {
         warn!("credentials not configured; skipping");
         return to_result_void(-2);
     }
-
-    wifi::sta::wait_for_ipv4(UNDERLAY_TIMEOUT)?;
 
     let local_cidr = zephyr::kconfig::CONFIG_WIREGUARD_LOCAL_TUNNEL_CIDR;
     to_result_void(unsafe { wireguard_set_private_key(private_key.as_ptr(), private_key.len()) })?;

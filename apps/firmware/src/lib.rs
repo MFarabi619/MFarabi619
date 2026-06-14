@@ -1,12 +1,14 @@
 #![no_std]
 
-pub mod boot;
-pub mod filesystems;
 pub mod networking;
 pub mod shell;
 
+use core::ffi::c_int;
 use log::{info, warn};
-use zephyr::time::Duration;
+use zephyr::{
+    error::to_result_void,
+    raw::{boot_is_img_confirmed, boot_write_img_confirmed, init_entry},
+};
 
 #[cfg(dt = "labels::modem")]
 use crate::networking::{cellular, dns, nat, wifi};
@@ -16,6 +18,30 @@ use crate::networking::wifi;
 
 #[cfg(all(not(dt = "labels::modem"), CONFIG_WIREGUARD))]
 use crate::networking::wireguard;
+
+unsafe extern "C" {
+    fn esp_flash_app_init();
+    fn esp_flash_init_default_chip() -> c_int;
+}
+
+unsafe extern "C" fn flash_default_chip_init() -> c_int {
+    unsafe {
+        esp_flash_app_init();
+        esp_flash_init_default_chip();
+    }
+    0
+}
+
+#[repr(transparent)]
+struct InitEntry(#[allow(dead_code)] init_entry);
+unsafe impl Sync for InitEntry {}
+
+#[used]
+#[link_section = ".z_init_POST_KERNEL_P_99_SUB_0_"]
+static FLASH_INIT_ENTRY: InitEntry = InitEntry(init_entry {
+    init_fn: Some(flash_default_chip_init),
+    dev: core::ptr::null(),
+});
 
 #[no_mangle]
 extern "C" fn rust_main() {
@@ -34,8 +60,8 @@ extern "C" fn rust_main() {
     #[cfg(not(dt = "labels::modem"))]
     node();
 
-    if !boot::is_confirmed() {
-        match boot::confirm() {
+    if !unsafe { boot_is_img_confirmed() } {
+        match to_result_void(unsafe { boot_write_img_confirmed() }) {
             Ok(()) => info!("boot: image confirmed"),
             Err(e) => warn!("boot confirm: {e}"),
         }
@@ -44,48 +70,28 @@ extern "C" fn rust_main() {
 
 #[cfg(dt = "labels::modem")]
 fn router() {
-    let bring_up_cellular_stack = || -> zephyr::Result<()> {
-        let timeout = Duration::millis(180_000);
-        cellular::initialize()?;
-        cellular::wait_for_attach(timeout)?;
-        for (label, value) in cellular::access_identity().iter() {
-            if !value.is_empty() {
-                info!("{label}: {value}");
-            }
-        }
-        nat::initialize()?;
-        dns::initialize()?;
-        Ok(())
-    };
-
-    if let Err(e) = bring_up_cellular_stack() {
-        warn!("cellular stack: {e}");
+    if let Err(e) = cellular::initialize() {
+        warn!("cellular: {e}");
     }
-    if let Err(e) = wifi::ap::enable() {
+    if let Err(e) = nat::initialize() {
+        warn!("nat: {e}");
+    }
+    if let Err(e) = dns::initialize() {
+        warn!("dns: {e}");
+    }
+    if let Err(e) = wifi::ap::initialize() {
         warn!("wifi ap: {e}");
     }
 }
 
 #[cfg(not(dt = "labels::modem"))]
 fn node() {
-    if let Err(e) = wifi::sta::connect() {
+    if let Err(e) = wifi::sta::initialize() {
         warn!("wifi sta: {e}");
+        return;
     }
-    match wifi::sta::wait_for_ipv4(Duration::secs(30)) {
-        Ok(()) =>
-        {
-            #[cfg(CONFIG_WIREGUARD)]
-            if let Err(e) = wireguard::initialize() {
-                warn!("wireguard: {e}");
-            }
-        }
-        Err(e) => {
-            warn!("wifi sta wait_for_ipv4: {e} — falling back to AP for provisioning");
-            if let Err(e) = wifi::ap::enable() {
-                warn!("wifi ap fallback: {e}");
-            } else {
-                wifi::ap::start_fallback_watchdog();
-            }
-        }
+    #[cfg(CONFIG_WIREGUARD)]
+    if let Err(e) = wireguard::initialize() {
+        warn!("wireguard: {e}");
     }
 }

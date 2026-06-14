@@ -102,7 +102,7 @@ pub mod ap {
 
     /// Fallback AP at 192.168.4.1/wlan1 conflicts with the peer-AP subnet on STA,
     /// stalling DHCP in `selecting`. Disable the AP the moment STA gets a lease.
-    pub fn start_fallback_watchdog() {
+    pub(super) fn start_fallback_watchdog() {
         unsafe {
             let cb = (*FALLBACK_CB.0.get()).as_mut_ptr();
             net_mgmt_init_event_callback(cb, Some(on_dhcp_bound), ZR_NET_EVENT_IPV4_DHCP_BOUND);
@@ -111,7 +111,7 @@ pub mod ap {
     }
 
     /// SSID = hostname; PSK comes from wifi_credentials by SSID, open AP if unset.
-    pub fn enable() -> zephyr::Result<()> {
+    pub fn initialize() -> zephyr::Result<()> {
         let ssid = zephyr::kconfig::CONFIG_NET_HOSTNAME;
 
         let mut creds: wifi_credentials_personal = unsafe { core::mem::zeroed() };
@@ -173,7 +173,7 @@ pub mod ap {
         Ok(())
     }
 
-    pub fn disable() -> zephyr::Result<()> {
+    pub(super) fn disable() -> zephyr::Result<()> {
         let iface = unsafe { net_if_get_wifi_sap() };
         if iface.is_null() {
             return to_result_void(ENODEV);
@@ -272,7 +272,25 @@ pub mod sta {
         }
     }
 
-    pub fn connect() -> zephyr::Result<()> {
+    const STA_CONNECT_TIMEOUT_SECS: u64 = 30;
+
+    pub fn initialize() -> zephyr::Result<()> {
+        connect()?;
+        match wait_for_ipv4(Duration::secs(STA_CONNECT_TIMEOUT_SECS)) {
+            Ok(()) => Ok(()),
+            Err(e) => {
+                warn!("sta wait_for_ipv4: {e} — falling back to AP for provisioning");
+                if let Err(ape) = super::ap::initialize() {
+                    warn!("ap fallback: {ape}");
+                } else {
+                    super::ap::start_fallback_watchdog();
+                }
+                Err(e)
+            }
+        }
+    }
+
+    fn connect() -> zephyr::Result<()> {
         let iface = unsafe { net_if_get_first_wifi() };
         if iface.is_null() {
             return to_result_void(ENODEV);
@@ -290,7 +308,7 @@ pub mod sta {
         unsafe { !net_if_ipv4_get_global_addr(iface, net_addr_state_NET_ADDR_PREFERRED).is_null() }
     }
 
-    pub fn wait_for_ipv4(timeout: Duration) -> zephyr::Result<()> {
+    pub(super) fn wait_for_ipv4(timeout: Duration) -> zephyr::Result<()> {
         if is_connected() {
             return Ok(());
         }
