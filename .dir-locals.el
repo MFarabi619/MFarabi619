@@ -88,10 +88,12 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
 
             ;; (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
-            (" ESP32S3 :󰐊 build"                 :command "rm -rf target build; west build"                                 :annotation "      west 󱦅")
-            (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"                       :annotation "cargo +esp ")
+            (" ESP32S3 :󰐊 build:walter"          :command "west build --board walter/esp32s3/procpu --pristine"                                :annotation "      west 󱦅")
+            (" ESP32S3 :󰐊 build:xiao"            :command "west build --board xiao_esp32s3/esp32s3/procpu --pristine"                          :annotation "      west 󱦅")
+            (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"              :annotation "cargo +esp ")
             ;; (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
-            (" ESP32S3 :󰔰 flash"                 :command "west flash"                                                                         :annotation "      west 󱦅")
+            (" ESP32S3 :󰔰 flash:walter"          :command "west flash --esp-device flash --esp-device hwgrep://D0:CF:13:54:27:18"              :annotation "      west 󱦅")
+            (" ESP32S3 :󰔰 flash:xiao"            :command "west flash --esp-device flash --esp-device hwgrep://8C:BF:EA:8E:AC:28"              :annotation "      west 󱦅")
             (" ESP32S3 : upload"                :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
             (" ESP32S3 : debug"                 :command "espflash partition-table firmware/machine/esp32s3.partitions.csv; cargo +esp rr"    :annotation "cargo +esp ")
             (" ESP32S3 :󰭎 monitor"               :command "probe-rs run"                                  :prodigy nil                         :annotation "cargo +esp ")
