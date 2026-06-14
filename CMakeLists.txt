@@ -12,7 +12,7 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/boot/kernel.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/boot/thread_analyzer.conf
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/hardware/esp_spiram.conf
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/esp32.conf
 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/console/log.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/console/shell.conf
@@ -39,9 +39,7 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/dns/resolver.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/dhcpv4.conf
 
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/wifi/esp32.conf
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/wifi/default.conf
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/wifi/credentials.conf
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/wifi.conf
 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/sntp.conf
 
@@ -66,8 +64,7 @@ project(firmware)
 
 rust_cargo_application(CRATE_NAME firmware)
 
-target_sources(app PRIVATE src/networking/wifi/wifi.c)
-
+# cellular.c still needs route_ipv4.h (private header) for net_route_ipv4_add.
 target_include_directories(app PRIVATE ${ZEPHYR_BASE}/subsys/net/ip)
 
 target_sources_ifdef(CONFIG_NET_DHCPV4_SERVER app PRIVATE

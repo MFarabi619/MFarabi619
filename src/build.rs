@@ -21,8 +21,8 @@ fn main() {
     println!("cargo:rustc-check-cfg=cfg(dt, values(any()))");
     for cfg in [
         "CONFIG_WIREGUARD",
-        "CONFIG_MCUMGR_TRANSPORT_UDP",
         "CONFIG_NET_DHCPV4_SERVER",
+        "CONFIG_MCUMGR_TRANSPORT_UDP",
         "CONFIG_NET_PKT_FILTER_IPV4_HOOK",
     ] {
         println!("cargo:rustc-check-cfg=cfg({cfg})");

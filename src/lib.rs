@@ -90,7 +90,7 @@ fn node() {
             if let Err(e) = wifi::ap::enable() {
                 warn!("wifi ap fallback: {e}");
             } else {
-                wifi::arm_fallback_ap_watchdog();
+                wifi::ap::start_fallback_watchdog();
             }
         }
     }

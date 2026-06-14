@@ -1,6 +1,17 @@
+diff --git a/boards/seeed/xiao_esp32s3/board.cmake b/boards/seeed/xiao_esp32s3/board.cmake
+index 2f04d1fe886..6fea660caf5 100644
+--- a/boards/seeed/xiao_esp32s3/board.cmake
++++ b/boards/seeed/xiao_esp32s3/board.cmake
+@@ -7,3 +7,4 @@ find_program(OPENOCD openocd PATHS ${ESPRESSIF_TOOLCHAIN_PATH}/openocd-esp32/bin
+ 
+ include(${ZEPHYR_BASE}/boards/common/esp32.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/openocd.board.cmake)
++include(${ZEPHYR_BASE}/boards/common/probe-rs.board.cmake)
+diff --git a/scripts/west_commands/runners/probe_rs.py b/scripts/west_commands/runners/probe_rs.py
+index 909f1e28454..7ccfbb18067 100644
 --- a/scripts/west_commands/runners/probe_rs.py
 +++ b/scripts/west_commands/runners/probe_rs.py
-@@ -22,6 +22,7 @@
+@@ -22,6 +22,7 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
                   speed=None,
                   connect_under_reset=False,
                   verify=False,
@@ -8,7 +19,7 @@
                   tool_opt=None):
          super().__init__(cfg)
  
-@@ -32,6 +33,7 @@
+@@ -32,6 +33,7 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
          self.speed = speed
          self.connect_under_reset = connect_under_reset
          self.verify = verify
@@ -16,7 +27,7 @@
  
          self.args = ['--chip', chip]
  
-@@ -89,6 +91,9 @@
+@@ -89,6 +91,9 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
                              help='connect under reset')
          parser.add_argument('--verify', action='store_true',
                              help='verify flash after programming')
@@ -26,7 +37,7 @@
          parser.add_argument('--gdb-host', default=DEFAULT_PROBE_RS_GDB_HOST,
                              help=f'probe-rs gdb host, defaults to {DEFAULT_PROBE_RS_GDB_HOST}')
          parser.add_argument('--gdb-port', type=int, default=DEFAULT_PROBE_RS_GDB_PORT,
-@@ -114,6 +119,7 @@
+@@ -114,6 +119,7 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
                                     speed=args.speed,
                                     connect_under_reset=args.connect_under_reset,
                                     verify=args.verify,
@@ -34,7 +45,7 @@
                                     gdb_host=args.gdb_host,
                                     gdb_port=args.gdb_port,
                                     tool_opt=args.tool_opt)
-@@ -156,6 +162,8 @@
+@@ -156,6 +162,8 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
              flash_file = self.hex_name
              flash_format = 'hex'
  

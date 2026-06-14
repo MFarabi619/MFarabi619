@@ -13,65 +13,42 @@ patches:
       Kconfig so probe-rs (and other RTT-capable JTAG hosts) can use RTT
       over USB-Serial-JTAG.
 
-  - path: probe-rs-runner-base-address.patch
-    sha256sum: 802484c62a79ef7de7ddb3a0ac2a9983fd4580d1271a8607b25ea2897a88b11c
+  - path: probe-rs.patch
+    sha256sum: 751ba921004e1ae4460b8c419cd72f9d6e2ef9e7e3af2aa365d46d49ea49ad4f
     module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-06-06
     upstreamable: true
     comments: |
-      Expose `--base-address` as a first-class arg on the Zephyr `probe-rs`
-      runner (`scripts/west_commands/runners/probe_rs.py`).
+      Two fixes bundled, both needed to make `west flash -r probe-rs` work
+      for the XIAO ESP32-S3 on mcuboot-shifted images:
 
-      probe-rs's own `download --binary-format bin <file>` requires a
-      `--base-address` for any non-zero flash offset, but the Zephyr runner
-      does not surface it. Workaround was to pass it via `--tool-opt`,
-      which the runner appends to `self.args` — those args are reused for
-      the post-flash `probe-rs reset` step, which rejects `--base-address`
-      and aborts the flash with `error: unexpected argument '--base-address'`.
+      1. scripts/west_commands/runners/probe_rs.py — expose
+         `--base-address` as a first-class runner arg. probe-rs's own
+         `download --binary-format bin <file>` requires a `--base-address`
+         for any non-zero flash offset (e.g. mcuboot's `slot0_partition`).
+         Passing it via `--tool-opt` appended to `self.args` is rejected
+         by the subsequent `probe-rs reset` step which doesn't accept the
+         flag — aborts the flash. Patch parses `--base-address` with
+         `int(x, 0)` (accepts `0x20000` and `131072`) and applies it only
+         to the `download` command's `download_args`.
 
-      This patch adds `--base-address` as a regular runner arg (parsed with
-      `int(x, 0)` so both `0x20000` and `131072` are accepted), and applies
-      it only to the `download` command's `download_args` — never to reset,
-      gdb, or attach. This is the natural arg for any mcuboot-based image
-      flashed at `slot0_partition` (or any chip with a non-zero offset).
+      2. boards/seeed/xiao_esp32s3/board.cmake — register probe-rs as a
+         recognised runner. probe-rs has supported the chip via its
+         built-in USB-Serial-JTAG since 2024, and Zephyr ships the runner,
+         but XIAO ESP32-S3's board.cmake only `include`s esp32+openocd,
+         so `-r probe-rs` errors with "board does not support runner
+         probe-rs". The patch adds the one missing
+         `include(common/probe-rs.board.cmake)` line. Does NOT change the
+         default flasher — esptool stays default; probe-rs only available
+         when explicitly opted in with `-r probe-rs`.
 
-      Upstreamable as-is to Zephyr.
-
-  - path: xiao-esp32s3-probe-rs-runner.patch
-    sha256sum: 99fc3163fe46530351638daa08fa70ade631a631943d293542df43dd8358a06c
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-06-06
-    upstreamable: true
-    comments: |
-      Register probe-rs as a recognised runner for the XIAO ESP32-S3
-      board. probe-rs has supported the chip via its built-in
-      USB-Serial-JTAG since 2024 (probe-rs CHANGELOG: "Xtensa: Add
-      flashing support for the esp32s3" / "Add support for the esp32s3
-      target"), and Zephyr ships the runner at
-      scripts/west_commands/runners/probe_rs.py — but the runner is only
-      *registered* per board by an `include(common/probe-rs.board.cmake)`
-      line in that board's `board.cmake`. The XIAO ESP32-S3 board file
-      currently only registers `esp32` (esptool) and `openocd`, so
-      `west flash -r probe-rs` errors with "board ... does not support
-      runner probe-rs" even though the runner exists.
-
-      This patch adds the one missing include line. It does NOT change
-      the default flasher (esptool stays default via the earlier
-      `esp32.board.cmake` include + `board_set_flasher_ifnset`); it only
-      makes probe-rs available when the user explicitly opts in with
-      `-r probe-rs`.
-
-      Upstreamable as-is — same one-line pattern Zephyr already uses for
-      several other boards (e.g. esp32_devkitc_wroom, nrf boards). A PR
-      adding XIAO ESP32-S3 to that list would be uncontroversial.
+      Both halves upstreamable to Zephyr as-is.
 
   # ===== halow (morsemicro vendor patches, used when halow.conf is enabled in embedded) =====
 
-  - path: networking/wifi/zephyr44-port.patch
+  - path: networking/halow/zephyr44-port.patch
     sha256sum: 30623bb9d3e3cfdb2801a1de75c3b5388a835febda1ed494c919391cf6398cd2
     module: modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -127,7 +104,7 @@ patches:
          mm-iot-esp32 shim (framework/mm_shims/wlan_hal.c) uses
          GPIO_INTR_LOW_LEVEL for the same reason.
 
-  - path: networking/wifi/ffs-include.patch
+  - path: networking/halow/ffs-include.patch
     sha256sum: 797db1914ce9765e5748617e881c5e06865a9fc0aa9f23d11beae4a8e0a64daa
     module: modules/lib/morsemicro/submodules/mm-iot-sdk
     author: Mumtahin Farabi
@@ -142,7 +119,7 @@ patches:
       One-line fix: add #include <strings.h> after the existing
       #include <string.h>.
 
-  - path: networking/wifi/drop-bogus-board-dts-root.patch
+  - path: networking/halow/drop-bogus-board-dts-root.patch
     sha256sum: 4b4e268cd585d8aa403e80b91b4fbd5ed3b8d0c64b64e7b44a970e6c76b42fc7
     module: modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -173,40 +150,34 @@ patches:
   # ===== walter-router =====
 
   - path: zephyr-lang-rust-xtensa.patch
-    sha256sum: 0075635b6c7c973741ed5fcad7ad575a38653bb2ce47da789c209631a73704ef
+    sha256sum: 0f1c85ca68ec0d79dd2354ef04f8133bb2000653bacfdac99847efcab8bef23b
     module: lang-rust
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-05-23
     upstreamable: true
     comments: |
-      Upstream zephyr-lang-rust HEAD doesn't map xtensa in _rust_map_target().
-      Adds esp32 / esp32s2 / esp32s3 mappings and CRATE_NAME / FEATURES args
-      to rust_cargo_application(). module: lang-rust matches the name in
-      modules/lang/rust/zephyr/module.yml; the project name in
-      west.yml (zephyr-lang-rust) is intentionally different and would cause
-      `west patch` to silently skip the entry.
+      Two fixes bundled — both required for any Rust-on-Xtensa Zephyr build,
+      neither covered upstream yet:
 
-  - path: zephyr-lang-rust-kconfig-overflow.patch
-    sha256sum: 53f73e2ddcbc644ff329f13983806a941448ccf1b1dfab9a41efcab121746cdd
-    module: lang-rust
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-05-23
-    upstreamable: true
-    comments: |
-      zephyr-build emits hex Kconfig values as `pub const FOO: usize = 0xHEX;`
-      unconditionally. On xtensa-esp32s3 `usize` is 32-bit and Kconfig values
-      like CONFIG_SOC_GPIO_VALID_DIGITAL_IO_PAD_MASK (0x0001FFFFFC000000) don't
-      fit, producing a hard `overflowing_literals` error. Add the lint to the
-      existing #[allow(...)] on hex constants. Value is still truncated but
-      that matches `usize` semantics on this target and the truncated constants
-      aren't referenced by any of our code yet.
+      1. CMakeLists.txt + Kconfig: upstream `_rust_map_target()` has no
+         branch for CONFIG_XTENSA. Adds esp32 / esp32s2 / esp32s3 mappings
+         and CRATE_NAME / FEATURES args to `rust_cargo_application()`.
 
-      Proper upstream fix would be to emit `u64` for hex values that exceed
-      u32::MAX, but this minimal patch unblocks the build.
+      2. zephyr-build/src/lib.rs: emits hex Kconfig values as
+         `pub const FOO: usize = 0xHEX;` unconditionally. On 32-bit Xtensa
+         `usize`, multi-word constants like CONFIG_SOC_GPIO_VALID_GPIO_MASK
+         (0x1FFFFFFFFFFFF) overflow and rustc errors out with
+         `overflowing_literals`. Add the lint to the existing #[allow(...)]
+         on hex constants. Value is truncated but that matches usize
+         semantics on the target. A proper upstream fix would emit u64 for
+         hex values exceeding u32::MAX.
 
-  - path: networking/net-bindings.patch
+      module: lang-rust matches modules/lang/rust/zephyr/module.yml; the
+      project name in west.yml (zephyr-lang-rust) is intentionally different
+      and would cause `west patch` to silently skip the entry.
+
+  - path: networking/rust_zephyr-sys_build.patch
     sha256sum: ea12c774f8c4a118993d9fab3aec4f1c2bba20922788dcd9727a6c8682dfd98f
     module: lang-rust
     author: Mumtahin Farabi
@@ -273,44 +244,47 @@ patches:
       gating in zephyr-sys/build.rs; a PR adding "networking" alongside
       those would be uncontroversial.
 
-  - path: networking/cellular/sqn-gm02s-1000ms-reset.patch
-    sha256sum: d6af85f794a758f7706ef1e61f5048cf337eab393607a504384c831b497aabe6
+  - path: networking/cellular/sqn-gm02s.patch
+    sha256sum: dd32c12cfbe5de530f9cca1d1625a0595eedf73be906977f683a1fe2693a1c89
     module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-05-13
     upstreamable: true
     comments: |
-      Zephyr's default reset_pulse_duration_ms=100 isn't long enough to
-      fully clear CMUX state on Sequans GM02SP firmware LR8.2.1.0-61488
-      and newer. After a Walter reboot without full power-cycle, the modem
-      stays in CMUX mode; subsequent boots send raw ATE0 which the modem
-      doesn't decode, causing init script timeouts.
+      Four Sequans GM02SP / Walter-board fixes bundled (all touch
+      drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c), each
+      derived from DPTechnics' canonical Walter reference code:
 
-      DPTechnics' own walter-arduino MOTA/passthrough sketches use a
-      1000ms reset pulse for this exact reason — that's the proven-good
-      value on this hardware. Bumping the Zephyr driver's pulse to match.
+      1. reset_pulse_duration_ms 100 → 1000. Zephyr's default isn't long
+         enough to fully clear CMUX state on firmware LR8.2.1.0-61488+.
+         After a Walter reboot without full power-cycle the modem stays
+         in CMUX mode; subsequent boots send raw ATE0 which the modem
+         doesn't decode, causing init-script timeouts. DPTechnics'
+         walter-arduino MOTA/passthrough sketches use 1000ms for this
+         exact reason. Cost: ~900ms boot time.
 
-      Cost: ~900ms additional boot time. Worth it to eliminate the
-      flash-flap-reboot recovery loop.
+      2. Wait for `+SYSSTART` URC before ATE0; bump script timeout 10→30s.
+         Zephyr fires ATE0 after a fixed startup_time_ms=2000 timer post-
+         reset, but cold-boot is 3-10s depending on firmware revision —
+         ATE0 lands on an unready modem, script times out, retry loop.
+         DPTechnics' walter-esp-idf/src/WalterModem.cpp:4367 blocks on
+         the documented "+SYSSTART" URC instead. Adds the URC matcher and
+         a wait-step at the head of the init script.
 
-  - path: networking/cellular/sqn-gm02s-disable-psm-edrx.patch
-    sha256sum: ed24cf4bb6a99c40456d412a7dff50937e676bb735234f8116c351e46ca2c226
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-05-13
-    upstreamable: true
-    comments: |
-      Sequans GM02SP defaults to enabling PSM (Power Save Mode, 3GPP TS 24.008)
-      and eDRX (Extended DRX) after registration. Both add hundreds of
-      milliseconds of wake latency to the first packet of any new burst —
-      catastrophic for interactive web browsing, which sends sparse bursts
-      followed by waits for the response. Send AT+CPSMS=0 and AT+CEDRXS=0
-      during the init chat script while the modem is in CFUN=4 (RF off),
-      before CMUX and PPP bring-up. This makes the modem stay in continuous-
-      reception mode, trading some battery life for latency. Walter is
-      mains-powered as a router so battery is not a concern.
+      3. Disable PSM (Power Save Mode, 3GPP TS 24.008) and eDRX (Extended
+         DRX). Defaults add hundreds of ms wake latency to the first
+         packet of any new burst — catastrophic for interactive use which
+         sends sparse bursts. Sends AT+CPSMS=0 and AT+CEDRXS=0 during
+         init while in CFUN=4. Walter is mains-powered so the battery
+         trade-off doesn't matter.
+
+      4. AT+CMEE=1 → AT+CMEE=2 (verbose text error codes). DPTechnics'
+         Walter libraries use the verbose form
+         (WalterModem.cpp configCMEErrorReports). Verbose makes triage
+         trivial ("+CME ERROR: SIM not inserted" vs "+CME ERROR: 10").
+         The abort_matches list keys on "ERROR" which CMEE=2 still
+         contains, so abort behaviour is preserved.
 
   - path: networking/cellular/carrier-gated-ppp-dead.patch
     sha256sum: e621602e24d6a36d19acb3d886ed2c461dda828beb5b6103dee01f706472ea39
@@ -342,48 +316,7 @@ patches:
       driver when CMUX DLCIs actually close, so genuine disconnections
       still trigger the re-dial path.
 
-  - path: networking/cellular/sqn-gm02s-await-sysstart.patch
-    sha256sum: b5719ff53f85ad37fb62344c6a6d9f5bfacf0f66e8c9aa8b218b27d959de7a5b
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-05-17
-    upstreamable: true
-    comments: |
-      Zephyr's SQN GM02SP init chat script blindly fires ATE0 after a fixed
-      startup_time_ms=2000 timer post-reset. SQN GM02SP cold-boot is 3-10s
-      depending on firmware revision and saved state — when ATE0 lands on
-      an unready modem, no OK comes back, the 10s script timeout fires, and
-      the state machine retries in a non-deterministic loop. Every Walter
-      init failure we've observed has matched this signature.
-
-      DPTechnics' canonical Walter libraries block on the "+SYSSTART" URC
-      instead of guessing a timer:
-       - walter-esp-idf/src/WalterModem.cpp:4367 — _runCmd({}, "+SYSSTART", ...)
-       - walter-arduino/src/WalterModem.cpp:4367 — same pattern
-
-      "+SYSSTART" is Sequans' documented boot-completion URC. Adds a
-      MODEM_CHAT_MATCH_DEFINE for it, prepends a wait-step at the head of
-      the init script, and bumps the script timeout 10→30s to fit worst-
-      case boot + the 12 AT cmds with margin.
-
-  - path: networking/cellular/sqn-gm02s-cmee-verbose.patch
-    sha256sum: 317897c0ec65a3beaec6054d8c9d23e828f319a89dc3087969ae5b75f9b33018
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-05-17
-    upstreamable: true
-    comments: |
-      Zephyr's SQN init sets AT+CMEE=1 (numeric error codes per 3GPP TS
-      27.007 §9.1). DPTechnics' Walter libraries use AT+CMEE=2 (verbose
-      text) — see walter-esp-idf/src/WalterModem.cpp configCMEErrorReports().
-      Verbose text makes log triage trivially faster ("+CME ERROR: SIM not
-      inserted" vs "+CME ERROR: 10"). The abort_matches list keys on the
-      literal "ERROR" substring which CMEE=2 responses still contain, so
-      error abort behavior is preserved.
-
-  - path: networking/ipv4-nat-lladdr-clear.patch
+  - path: networking/subsys_net_ip_ipv4-nat.patch
     sha256sum: 7f91e64979daa54cfb8457d86a8d52af8d12214f480f8059fae714f8d38ef02e
     module: zephyr
     author: Mumtahin Farabi
