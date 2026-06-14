@@ -68,10 +68,7 @@ fn router() {
     if let Err(e) = bring_up_cellular_stack() {
         warn!("cellular stack: {e}");
     }
-    if let Err(e) = wifi::ap::enable(
-        zephyr::kconfig::CONFIG_WIFI_CREDENTIALS_AP_SSID,
-        wifi::DEFAULT_AP_PASSWORD,
-    ) {
+    if let Err(e) = wifi::ap::enable() {
         warn!("wifi ap: {e}");
     }
 }
@@ -90,11 +87,10 @@ fn node() {
         }
         Err(e) => {
             warn!("wifi sta wait_for_ipv4: {e} — falling back to AP for provisioning");
-            if let Err(e) = wifi::ap::enable(
-                zephyr::kconfig::CONFIG_NET_HOSTNAME,
-                wifi::DEFAULT_AP_PASSWORD,
-            ) {
+            if let Err(e) = wifi::ap::enable() {
                 warn!("wifi ap fallback: {e}");
+            } else {
+                wifi::arm_fallback_ap_watchdog();
             }
         }
     }

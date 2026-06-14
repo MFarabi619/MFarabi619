@@ -1,13 +1,5 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-if(DEFINED ENV{CONFIG_WIFI_CREDENTIALS_STATIC_SSID})
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/wifi_credentials.conf
-       "CONFIG_WIFI_CREDENTIALS_STATIC=y\n"
-       "CONFIG_WIFI_CREDENTIALS_STATIC_SSID=\"$ENV{CONFIG_WIFI_CREDENTIALS_STATIC_SSID}\"\n"
-       "CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD=\"$ENV{CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD}\"\n")
-  list(APPEND EXTRA_CONF_FILE ${CMAKE_CURRENT_BINARY_DIR}/wifi_credentials.conf)
-endif()
-
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/wireguard_credentials.conf
      "CONFIG_WIREGUARD_LOCAL_PRIVATE_KEY=\"$ENV{CONFIG_WIREGUARD_LOCAL_PRIVATE_KEY}\"\n")
 list(APPEND EXTRA_CONF_FILE ${CMAKE_CURRENT_BINARY_DIR}/wireguard_credentials.conf)
@@ -77,11 +69,6 @@ rust_cargo_application(CRATE_NAME firmware)
 target_sources(app PRIVATE src/networking/wifi/wifi.c)
 
 target_include_directories(app PRIVATE ${ZEPHYR_BASE}/subsys/net/ip)
-
-target_sources_ifdef(CONFIG_NET_PKT_FILTER_IPV4_HOOK app PRIVATE
-  src/networking/nat/nat.c
-  src/networking/nat/conntrack.c
-)
 
 target_sources_ifdef(CONFIG_NET_DHCPV4_SERVER app PRIVATE
   src/networking/dns/proxy.c

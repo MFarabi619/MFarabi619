@@ -1,14 +1,21 @@
-use core::ffi::c_void;
+use core::{
+    cell::UnsafeCell,
+    ffi::{c_char, c_void},
+    mem::MaybeUninit,
+};
 use zephyr::{
     raw::{
-        net_addr_state_NET_ADDR_PREFERRED, net_addr_type_NET_ADDR_MANUAL,
-        net_dhcpv4_server_start, net_if_get_first_wifi, net_if_get_wifi_sap,
-        net_if_ipv4_addr_add, net_if_ipv4_get_global_addr, net_if_ipv4_set_gw,
-        net_if_ipv4_set_netmask_by_addr, net_in_addr,
-        net_mgmt_NET_REQUEST_WIFI_AP_ENABLE, net_mgmt_NET_REQUEST_WIFI_CONNECT_STORED,
-        wifi_connect_req_params, wifi_frequency_bands_WIFI_FREQ_BAND_2_4_GHZ,
+        net_addr_state_NET_ADDR_PREFERRED, net_addr_type_NET_ADDR_MANUAL, net_dhcpv4_server_start,
+        net_dhcpv4_server_stop, net_if, net_if_get_first_wifi, net_if_get_wifi_sap,
+        net_if_ipv4_addr_add, net_if_ipv4_addr_rm, net_if_ipv4_get_global_addr,
+        net_if_ipv4_set_gw, net_if_ipv4_set_netmask_by_addr, net_in_addr,
+        net_mgmt_NET_REQUEST_WIFI_AP_DISABLE, net_mgmt_NET_REQUEST_WIFI_AP_ENABLE,
+        net_mgmt_NET_REQUEST_WIFI_CONNECT_STORED, net_mgmt_add_event_callback,
+        net_mgmt_del_event_callback, net_mgmt_event_callback, net_mgmt_init_event_callback,
+        wifi_connect_req_params, wifi_credentials_get_by_ssid_personal_struct,
+        wifi_credentials_personal, wifi_frequency_bands_WIFI_FREQ_BAND_2_4_GHZ,
         wifi_mfp_options_WIFI_MFP_OPTIONAL, wifi_security_type_WIFI_SECURITY_TYPE_NONE,
-        wifi_security_type_WIFI_SECURITY_TYPE_PSK,
+        ZR_NET_EVENT_IPV4_DHCP_BOUND,
     },
     time::Duration,
 };
@@ -21,15 +28,9 @@ const WIFI_CHANNEL_ANY: u8 = 255;
 const ENODEV: i32 = -19;
 const ETIMEDOUT: i32 = -110;
 
-/// Default AP password used when no explicit password is supplied.
-/// Anyone joining either board's AP uses this; xiao's STA static credentials
-/// reach walter via this same secret.
-pub const DEFAULT_AP_PASSWORD: &str = "pingmemaybe";
-
-// net_route_ipv4_add lives in private subsys/net/ip headers (not in zephyr-sys
-// bindings). Keep a one-function C shim for the default-route install.
 extern "C" {
     fn wifi_sta_install_default_route() -> i32;
+    fn wifi_ap_install_subnet_route() -> i32;
 }
 
 fn in_addr_v4(bytes: [u8; 4]) -> net_in_addr {
@@ -38,18 +39,58 @@ fn in_addr_v4(bytes: [u8; 4]) -> net_in_addr {
     addr
 }
 
+struct CbCell(UnsafeCell<MaybeUninit<net_mgmt_event_callback>>);
+unsafe impl Sync for CbCell {}
+static FALLBACK_AP_CB: CbCell = CbCell(UnsafeCell::new(MaybeUninit::uninit()));
+
+unsafe extern "C" fn on_dhcp_bound(
+    cb: *mut net_mgmt_event_callback,
+    _event: u64,
+    iface: *mut net_if,
+) {
+    if iface == unsafe { net_if_get_wifi_sap() } {
+        return;
+    }
+    info!("ap: STA got IP — tearing down fallback AP");
+    let _ = ap::disable();
+    unsafe { net_mgmt_del_event_callback(cb) };
+}
+
+/// Fallback AP at 192.168.4.1/wlan1 conflicts with the peer-AP subnet on STA,
+/// stalling DHCP in `selecting`. Disable the AP the moment STA gets a lease.
+pub fn arm_fallback_ap_watchdog() {
+    unsafe {
+        let cb = (*FALLBACK_AP_CB.0.get()).as_mut_ptr();
+        net_mgmt_init_event_callback(cb, Some(on_dhcp_bound), ZR_NET_EVENT_IPV4_DHCP_BOUND);
+        net_mgmt_add_event_callback(cb);
+    }
+}
+
 pub mod ap {
     use super::*;
 
-    pub fn enable(ssid: &str, psk: &str) -> Result<(), Errno> {
-        // IP / gateway / netmask + DHCP server must be configured BEFORE the AP
-        // radio is enabled. Otherwise Zephyr brings the iface up with whatever
-        // defaults NET_REQUEST_WIFI_AP_ENABLE puts in place, and clients that
-        // associate before our gw/netmask call lands DHCP a broken lease (no
-        // gateway → "connected, no internet").
+    /// SSID = hostname; PSK comes from wifi_credentials by SSID, open AP if unset.
+    pub fn enable() -> Result<(), Errno> {
+        let ssid = zephyr::kconfig::CONFIG_NET_HOSTNAME;
+
+        let mut creds: wifi_credentials_personal = unsafe { core::mem::zeroed() };
+        let cred_rc = unsafe {
+            wifi_credentials_get_by_ssid_personal_struct(
+                ssid.as_ptr() as *const c_char,
+                ssid.len(),
+                &mut creds,
+            )
+        };
+
+        // Must run BEFORE AP_ENABLE: clients that associate before the gw/netmask
+        // call lands get a broken DHCP lease (no gateway).
         match dhcpv4_server_start() {
             Ok(()) => info!("ap: dhcpv4 server up on 192.168.4.1/24"),
             Err(e) => warn!("ap: dhcpv4 server start {e}"),
+        }
+
+        if let Err(e) = unsafe { wifi_ap_install_subnet_route() }.ok() {
+            warn!("ap subnet route: {e}");
         }
 
         let iface = unsafe { net_if_get_wifi_sap() };
@@ -60,14 +101,17 @@ pub mod ap {
         let mut params: wifi_connect_req_params = unsafe { core::mem::zeroed() };
         params.ssid = ssid.as_ptr();
         params.ssid_length = ssid.len() as u8;
-        if psk.is_empty() {
-            // ESP HAL rejects WIFI_SECURITY_TYPE_PSK with a zero-length PSK
-            // (ESP_ERR_WIFI_PASSWORD = 12299). Open AP for provisioning.
+        if cred_rc != 0 || creds.password_len == 0 {
+            if cred_rc != 0 && cred_rc != -2 /* -ENOENT */ {
+                warn!("ap cred load: errno {cred_rc}");
+            }
+            info!("ap: no stored cred for '{ssid}' — open AP for provisioning");
             params.security = wifi_security_type_WIFI_SECURITY_TYPE_NONE;
         } else {
-            params.psk = psk.as_ptr();
-            params.psk_length = psk.len() as u8;
-            params.security = wifi_security_type_WIFI_SECURITY_TYPE_PSK;
+            info!("ap: using stored cred for '{ssid}'");
+            params.psk = creds.password.as_ptr() as *const u8;
+            params.psk_length = creds.password_len as u8;
+            params.security = creds.header.type_ as u32;
             params.mfp = wifi_mfp_options_WIFI_MFP_OPTIONAL;
         }
         params.channel = WIFI_CHANNEL_ANY;
@@ -90,6 +134,25 @@ pub mod ap {
             Err(e) => warn!("mcumgr udp: {e}"),
         }
         Ok(())
+    }
+
+    pub fn disable() -> Result<(), Errno> {
+        let iface = unsafe { net_if_get_wifi_sap() };
+        if iface.is_null() {
+            return ENODEV.ok();
+        }
+        let rc = unsafe { net_dhcpv4_server_stop(iface) };
+        if rc != 0 && rc != -2 /* -ENOENT */ {
+            warn!("ap: dhcpv4 server stop: {rc}");
+        }
+        let ap_addr = super::in_addr_v4([192, 168, 4, 1]);
+        if !unsafe { net_if_ipv4_addr_rm(iface, &ap_addr) } {
+            warn!("ap: addr_rm 192.168.4.1 returned false");
+        }
+        unsafe {
+            net_mgmt_NET_REQUEST_WIFI_AP_DISABLE(0, iface, core::ptr::null_mut(), 0)
+        }
+        .ok()
     }
 
     fn dhcpv4_server_start() -> Result<(), Errno> {

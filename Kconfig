@@ -1,4 +1,3 @@
-rsource "src/networking/wifi/Kconfig"
 rsource "src/networking/wireguard/Kconfig"
 
 source "Kconfig.zephyr"

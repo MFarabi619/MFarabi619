@@ -1,7 +1,0 @@
-config WIFI_CREDENTIALS_AP_SSID
-	string "Soft AP SSID"
-	default "Edge of the Subnet"
-
-config WIFI_CREDENTIALS_AP_PASSWORD
-	string "Soft AP WPA2 pre-shared key (empty = open AP)"
-	default ""

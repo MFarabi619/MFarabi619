@@ -44,13 +44,13 @@ index 6b825d1..1630807 100644
          .generate()
          .expect("Unable to generate bindings");
 diff --git a/zephyr-sys/wrapper.h b/zephyr-sys/wrapper.h
-index 92ac2a3..9ab59d2 100644
+index dbb3842..526dbb7 100644
 --- a/zephyr-sys/wrapper.h
 +++ b/zephyr-sys/wrapper.h
-@@ -47,6 +47,66 @@ extern int errno;
+@@ -90,6 +90,70 @@ extern int errno;
  #include <zephyr/logging/log.h>
  #include <zephyr/irq.h>
-
+ 
 +#ifdef CONFIG_NETWORKING
 +#include <zephyr/net/net_if.h>
 +#include <zephyr/net/net_ip.h>
@@ -96,6 +96,10 @@ index 92ac2a3..9ab59d2 100644
 +#include <zephyr/net/wifi_mgmt.h>
 +#endif
 +
++#ifdef CONFIG_WIFI_CREDENTIALS
++#include <zephyr/net/wifi_credentials.h>
++#endif
++
 +#ifdef CONFIG_SNTP
 +#include <zephyr/net/sntp.h>
 +#endif
@@ -114,3 +118,14 @@ index 92ac2a3..9ab59d2 100644
  /*
   * bindgen will only output #defined constants that resolve to simple numbers.  These are some
   * symbols that we want exported that, at least in some situations, are more complex, usually with a
+@@ -102,6 +166,10 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
+ 
+ const uint32_t ZR_POLL_TYPE_SEM_AVAILABLE = K_POLL_TYPE_SEM_AVAILABLE;
+ const uint32_t ZR_POLL_TYPE_SIGNAL = K_POLL_TYPE_SIGNAL;
++
++#ifdef CONFIG_NETWORKING
++const uint64_t ZR_NET_EVENT_IPV4_DHCP_BOUND = NET_EVENT_IPV4_DHCP_BOUND;
++#endif
+ const uint32_t ZR_POLL_TYPE_DATA_AVAILABLE = K_POLL_TYPE_DATA_AVAILABLE;
+ 
+ #ifdef CONFIG_GPIO_ENABLE_DISABLE_INTERRUPT

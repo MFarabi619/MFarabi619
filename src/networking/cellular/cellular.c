@@ -13,16 +13,22 @@
  * Zephyr's bit-packing layout.
  */
 
+#include <errno.h>
 #include <stddef.h>
 
 #include <zephyr/device.h>
 #include <zephyr/drivers/cellular.h>
 #include <zephyr/init.h>
 #include <zephyr/net/net_event.h>
+#include <zephyr/net/net_if.h>
 #include <zephyr/sys/util.h>
+
+#include "route_ipv4.h"
 
 /* Espressif HAL — for gpio_hold_dis() used by modem_reset_release SYS_INIT. */
 #include <driver/gpio.h>
+
+extern struct net_if *cellular_ppp_iface(void);
 
 const struct device *cellular_modem_device(void)
 {
@@ -45,3 +51,26 @@ static int modem_reset_release(void)
 	return 0;
 }
 SYS_INIT(modem_reset_release, PRE_KERNEL_2, 0);
+
+/* Without a route table entry, the kernel's `ipv4_route_packet` drops
+ * NAT-forwarded transit packets (no on-link match for arbitrary internet
+ * destinations). PPP has no nexthop IP, so pass NULL for an on-link
+ * default route via the PPP iface.
+ */
+int cellular_install_default_route(void)
+{
+	struct net_if *iface = cellular_ppp_iface();
+
+	if (iface == NULL) {
+		return -ENODEV;
+	}
+
+	struct in_addr default_dst = {0};
+
+	if (net_route_ipv4_add(iface, &default_dst, 0, NULL,
+			       NET_ROUTE_INFINITE_LIFETIME,
+			       NET_ROUTE_PREFERENCE_MEDIUM) == NULL) {
+		return -ENOMEM;
+	}
+	return 0;
+}

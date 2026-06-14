@@ -8,6 +8,7 @@ if(BOARD MATCHES "^walter")
   set(MFarabi619_EXTRA_CONF_FILE
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/wifi/walter.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/pkt.conf"
+    "${CMAKE_CURRENT_LIST_DIR}/src/networking/nat.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/ppp.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/modem.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/cellular/default.conf"

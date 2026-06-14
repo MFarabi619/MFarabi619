@@ -207,7 +207,7 @@ patches:
       u32::MAX, but this minimal patch unblocks the build.
 
   - path: networking/net-bindings.patch
-    sha256sum: b842c7af19a00d1369a536769859a9f860948043f601f3f29c8af444073350ff
+    sha256sum: ea12c774f8c4a118993d9fab3aec4f1c2bba20922788dcd9727a6c8682dfd98f
     module: lang-rust
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
@@ -382,3 +382,39 @@ patches:
       inserted" vs "+CME ERROR: 10"). The abort_matches list keys on the
       literal "ERROR" substring which CMEE=2 responses still contain, so
       error abort behavior is preserved.
+
+  - path: networking/ipv4-nat-lladdr-clear.patch
+    sha256sum: 7f91e64979daa54cfb8457d86a8d52af8d12214f480f8059fae714f8d38ef02e
+    module: zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-13
+    upstreamable: true
+    comments: |
+      Two related bugs in `do_snat`/`do_dnat` when forwarding across L2
+      types (Ethernet AP → PPP cellular, the walter router topology):
+
+      1. The functions pre-set the egress iface via `net_pkt_set_iface()`.
+         The kernel's `ipv4_route_packet` (called after NPF) captures the
+         input iface as `orig_iface` BEFORE its own route lookup overrides
+         iface, then compares orig vs new to set the cross-iface forwarding
+         flag. With NAT pre-setting the iface, `orig == new`, so the flag
+         is never set and forwarding accounting/policy breaks.
+
+      2. The L2 link-layer framing (Ethernet src/dst MAC + `ll_proto_type`)
+         is left intact from the input iface. When the egress iface is a
+         different L2 type (e.g. PPP), its L2 send path can't process the
+         stale Ethernet framing and silently drops the packet.
+
+      Fix: drop the `net_pkt_set_iface()` call (let the kernel's route
+      lookup pick the egress iface and correctly detect cross-iface
+      forwarding), and clear the L2 link-layer addresses + stamp the
+      protocol type to NET_ETH_PTYPE_IP — same pattern Zephyr's own
+      forwarding path uses in `subsys/net/ip/ipv4.c`.
+
+      Upstream's NAT test (`tests/net/ipv4_nat/src/main.c`) only exercises
+      two dummy Ethernet ifaces with the same L2 type, so neither bug was
+      caught there.
+
+      Upstreamable as-is — single conceptual change to `ipv4_nat.c`, no
+      Kconfig or API change.

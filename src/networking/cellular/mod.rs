@@ -48,6 +48,7 @@ enum Field {
 extern "C" {
     fn cellular_modem_device() -> *const device;
     fn cellular_access(field: i32, buf: *mut c_char, buf_len: usize) -> i32;
+    fn cellular_install_default_route() -> i32;
     static _net_l2_PPP: net_l2;
     static CELLULAR_NET_EVENT_L4_CONNECTED: u64;
     static CELLULAR_NET_EVENT_L4_DISCONNECTED: u64;
@@ -57,9 +58,8 @@ extern "C" {
 static PPP_CONNECTED: Semaphore = Semaphore::new(0, 1);
 static PPP_IFACE: AtomicPtr<net_if> = AtomicPtr::new(core::ptr::null_mut());
 
-/// nat.c imports this symbol to install its IPv4 mgmt-event hook on the
-/// PPP iface. The `improper_ctypes_definitions` lint is advisory for pointer
-/// returns — `net_if` transitively contains `k_spinlock`.
+/// `improper_ctypes_definitions` is advisory for the pointer return —
+/// `net_if` transitively contains `k_spinlock`.
 #[no_mangle]
 #[allow(improper_ctypes_definitions)]
 pub extern "C" fn cellular_ppp_iface() -> *mut net_if {
@@ -139,6 +139,9 @@ pub fn wait_for_attach(timeout: Duration) -> Result<(), Errno> {
     let b: [u8; 4] = unsafe { core::ptr::read(addr as *const [u8; 4]) };
     info!("cellular ppp ipv4: {}.{}.{}.{}", b[0], b[1], b[2], b[3]);
     unsafe { net_if_set_default(iface) };
+    if let Err(e) = unsafe { cellular_install_default_route() }.ok() {
+        warn!("cellular default route: {e}");
+    }
     Ok(())
 }
 

@@ -1,0 +1,26 @@
+diff --git a/subsys/net/ip/ipv4_nat.c b/subsys/net/ip/ipv4_nat.c
+index 589088d3219..89911e7c4d8 100644
+--- a/subsys/net/ip/ipv4_nat.c
++++ b/subsys/net/ip/ipv4_nat.c
+@@ -370,8 +370,8 @@ static void do_snat(struct net_pkt *pkt,
+ 	iphdr->ttl--;
+ 	net_ipv4_addr_copy_raw(iphdr->src, tuple->dst);
+ 
+-	/* update target iface */
+-	net_pkt_set_iface(pkt, entry->iface[NET_NAT_DIR_REPLY]);
++	net_pkt_lladdr_clear(pkt);
++	net_pkt_set_ll_proto_type(pkt, NET_ETH_PTYPE_IP);
+ }
+ 
+ /* change pkt dst from local iface addr to original tuple src addr */
+@@ -418,8 +418,8 @@ static void do_dnat(struct net_pkt *pkt,
+ 	iphdr->ttl--;
+ 	net_ipv4_addr_copy_raw(iphdr->dst, tuple->src);
+ 
+-	/* update target iface */
+-	net_pkt_set_iface(pkt, entry->iface[NET_NAT_DIR_ORIGIN]);
++	net_pkt_lladdr_clear(pkt);
++	net_pkt_set_ll_proto_type(pkt, NET_ETH_PTYPE_IP);
+ }
+ 
+ /* iptable rule management */
