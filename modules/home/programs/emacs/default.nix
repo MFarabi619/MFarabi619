@@ -80,7 +80,7 @@
       ++ [
         multi-vterm
         compile-multi
-        # fancy-compilation # FIXME: Codeberg tarball server down and hanging the ENTIRE nix run .#activate
+        fancy-compilation
         compile-multi-embark
         consult-compile-multi
       ]
