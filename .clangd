@@ -1,6 +1,6 @@
 #  https://clangd.llvm.org/config
 CompileFlags:
-  CompilationDatabase: build/MFarabi619/
+  CompilationDatabase: build/xiao_esp32s3_procpu/firmware/
 
   # NOTE: Strip xtensa-GCC-only flags clangd doesn't recognize.
   # Otherwise source file opens with cascading "unknown argument" diagnostics.

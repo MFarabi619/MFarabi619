@@ -5,7 +5,7 @@ set(mcuboot_EXTRA_CONF_FILE
 
 if(BOARD MATCHES "^walter")
   # Router role: upstream cellular + downstream WiFi-AP + NAT + DNS
-  set(MFarabi619_EXTRA_CONF_FILE
+  set(firmware_EXTRA_CONF_FILE
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/pkt.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/nat.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/ppp.conf"
@@ -18,7 +18,7 @@ if(BOARD MATCHES "^walter")
   )
 elseif(BOARD MATCHES "^xiao_esp32s3")
   # Node role: WiFi STA + WireGuard underlay + AP fallback for provisioning
-  set(MFarabi619_EXTRA_CONF_FILE
+  set(firmware_EXTRA_CONF_FILE
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/dns/mdns.conf"
     # NOTE: wireguard.conf out — vendor wg.c needs IPv6 cfg-gates
     # "${CMAKE_CURRENT_LIST_DIR}/src/networking/wireguard.conf"
@@ -27,5 +27,5 @@ elseif(BOARD MATCHES "^xiao_esp32s3")
     # "${CMAKE_CURRENT_LIST_DIR}/src/networking/halow/halow.conf"
     CACHE INTERNAL ""
   )
-  set(MFarabi619_SNIPPET espressif-flash-8M CACHE INTERNAL "")
+  set(firmware_SNIPPET espressif-flash-8M CACHE INTERNAL "")
 endif()

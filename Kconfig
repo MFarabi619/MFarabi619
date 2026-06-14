@@ -1,3 +1,0 @@
-rsource "src/networking/wireguard/Kconfig"
-
-source "Kconfig.zephyr"

@@ -1,6 +1,6 @@
 [manifest]
-path     = src
 file     = manifest.yml
+path     = apps/firmware/src
 
 [zephyr]
 base     = zephyr
@@ -8,8 +8,6 @@ base     = zephyr
 [build]
 sysbuild = true
 pristine = auto
-# https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html#configuration-options
-# dir-fmt  = build/{board}
 board    = xiao_esp32s3/esp32s3/procpu
 # board    = esp32s3_devkitc/esp32s3/procpu
 # cmake-args = "-C build.cmake" # https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html#permanent-cmake-arguments
@@ -18,18 +16,18 @@ board    = xiao_esp32s3/esp32s3/procpu
 rebuild  = false
 
 [alias]
-# f        = flash --runner probe-rs
-bw       = build -b walter/esp32s3/procpu -p
-bx       = build -b xiao_esp32s3/esp32s3/procpu -p
+p        = patch -l patches.yml -b .
+pc       = p clean
+pa       = p apply --roll-back
 
-fw       = flash --esp-device hwgrep://D0:CF:13:54:27:18
-fx       = flash --esp-device hwgrep://8C:BF:EA:8E:AC:28
+bw       = build apps/firmware -b walter/esp32s3/procpu -d build/walter_esp32s3_procpu
+bx       = build apps/firmware -b xiao_esp32s3/esp32s3/procpu -d build/xiao_esp32s3_procpu
+
+# f        = flash --runner probe-rs
+fw       = flash -d build/walter_esp32s3_procpu --esp-device hwgrep://D0:CF:13:54:27:18
+fx       = flash -d build/xiao_esp32s3_procpu --esp-device hwgrep://8C:BF:EA:8E:AC:28
 
 mw       = espressif monitor -p hwgrep://D0:CF:13:54:27:18
 mx       = espressif monitor -p hwgrep://8C:BF:EA:8E:AC:28
 
-ax       = attach --runner probe-rs
-
-p        = patch -l patches.yml -b ../src
-pc       = p clean
-pa       = p apply --roll-back
+ax       = attach -d build/xiao_esp32s3_procpu --runner probe-rs

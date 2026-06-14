@@ -1,18 +1,6 @@
 patches:
   # ===== xiao =====
 
-  - path: console/segger-rtt.patch
-    sha256sum: d868bc99d01c67f047c9de3089fb36cc59b49d51e2465c0dc37b885aacb61a66
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-06-06
-    upstreamable: true
-    comments: |
-      Add `select HAS_SEGGER_RTT if ZEPHYR_SEGGER_MODULE` to ESP32-S3 SoC
-      Kconfig so probe-rs (and other RTT-capable JTAG hosts) can use RTT
-      over USB-Serial-JTAG.
-
   - path: probe-rs.patch
     sha256sum: 751ba921004e1ae4460b8c419cd72f9d6e2ef9e7e3af2aa365d46d49ea49ad4f
     module: zephyr
@@ -245,7 +233,7 @@ patches:
       those would be uncontroversial.
 
   - path: networking/cellular/sqn-gm02s.patch
-    sha256sum: dd32c12cfbe5de530f9cca1d1625a0595eedf73be906977f683a1fe2693a1c89
+    sha256sum: 693f0c6aa826259c44b01b8b27ddcdfaecbf9149eb7d87c6eeb14522fa2efe9b
     module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
@@ -264,13 +252,19 @@ patches:
          walter-arduino MOTA/passthrough sketches use 1000ms for this
          exact reason. Cost: ~900ms boot time.
 
-      2. Wait for `+SYSSTART` URC before ATE0; bump script timeout 10→30s.
-         Zephyr fires ATE0 after a fixed startup_time_ms=2000 timer post-
-         reset, but cold-boot is 3-10s depending on firmware revision —
-         ATE0 lands on an unready modem, script times out, retry loop.
-         DPTechnics' walter-esp-idf/src/WalterModem.cpp:4367 blocks on
-         the documented "+SYSSTART" URC instead. Adds the URC matcher and
-         a wait-step at the head of the init script.
+      2. Wire +SYSSTART URC into the standard AWAIT_POWER_ON path.
+         Upstream already sets `force_autostart = true`, which makes the
+         driver wait in AWAIT_POWER_ON for a MODEM_READY event before
+         entering RUN_INIT_SCRIPT. But MODEM_READY is only raised by the
+         common unsol matches "APP RDY" / "Ready" — SQN GM02S sends
+         "+SYSSTART" instead, so the wait times out after
+         startup_time_ms=2000ms and the driver hits an unready modem with
+         ATE0. Fix: add MODEM_CHAT_MATCH("+SYSSTART", "",
+         modem_cellular_chat_on_modem_ready) to sqn_gm02s_unsol, and bump
+         startup_time_ms 2000 → 30000 to cover slow cold-boots (3–10s,
+         occasionally longer per firmware revision). The init script
+         no longer needs its own SYSSTART wait-step or extended timeout —
+         all the waiting is now in the framework-correct state.
 
       3. Disable PSM (Power Save Mode, 3GPP TS 24.008) and eDRX (Extended
          DRX). Defaults add hundreds of ms wake latency to the first

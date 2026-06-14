@@ -1,18 +1,11 @@
 manifest:
-    remotes:
-        - name: zephyrproject
-          url-base: https://github.com/zephyrproject-rtos
-
-        # - name: wolfssl
-        #   url-base: https://github.com/wolfSSL
-
     projects:
         - name: mm-iot-zephyr
-          url: https://github.com/craigpeacock/mm-iot-zephyr
           revision: main
-          path: modules/lib/morsemicro
-          submodules: true
           import: false
+          submodules: true
+          path: modules/lib/morsemicro
+          url: https://github.com/craigpeacock/mm-iot-zephyr
 
         - name: zephyr-lang-rust
           remote: zephyrproject
@@ -34,3 +27,10 @@ manifest:
           remote: zephyrproject
           revision: 77ef70e6b01adfd619f0aa2ab7179ff7d215e6a3 # main as of 2026-06-12 (v4.4.0-5144)
           import: true
+
+    remotes:
+        - name: zephyrproject
+          url-base: https://github.com/zephyrproject-rtos
+
+        # - name: wolfssl
+        #   url-base: https://github.com/wolfSSL

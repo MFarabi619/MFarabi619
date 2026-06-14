@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 exclude = ["ml"]
-default-members = ["."]
+default-members = ["apps/firmware"]
 members = [
     "web",
     "tui",
@@ -12,24 +12,8 @@ members = [
     "apps/ceratina",
     "libs/lazyzephyr",
     "apps/lazyzephyr",
+    "apps/firmware",
 ]
-
-[package]
-name = "firmware"
-version = "0.1.0"
-edition = "2021"
-license = "Apache-2.0"
-build = "src/build.rs"
-
-[lib]
-crate-type = ["staticlib"]
-
-[dependencies]
-log = "0.4"
-zephyr = "0.1.0"
-
-[build-dependencies]
-zephyr-build = "0.1.0"
 
 [workspace.dependencies]
 serde_json = "1"
