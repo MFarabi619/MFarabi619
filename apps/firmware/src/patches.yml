@@ -36,7 +36,7 @@ patches:
 
   # ===== halow (morsemicro vendor patches, used when halow.conf is enabled in embedded) =====
 
-  - path: networking/halow/zephyr44-port.patch
+  - path: ../../../libs/firmware/halow/zephyr44-port.patch
     sha256sum: 30623bb9d3e3cfdb2801a1de75c3b5388a835febda1ed494c919391cf6398cd2
     module: modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -92,7 +92,7 @@ patches:
          mm-iot-esp32 shim (framework/mm_shims/wlan_hal.c) uses
          GPIO_INTR_LOW_LEVEL for the same reason.
 
-  - path: networking/halow/ffs-include.patch
+  - path: ../../../libs/firmware/halow/ffs-include.patch
     sha256sum: 797db1914ce9765e5748617e881c5e06865a9fc0aa9f23d11beae4a8e0a64daa
     module: modules/lib/morsemicro/submodules/mm-iot-sdk
     author: Mumtahin Farabi
@@ -107,7 +107,7 @@ patches:
       One-line fix: add #include <strings.h> after the existing
       #include <string.h>.
 
-  - path: networking/halow/drop-bogus-board-dts-root.patch
+  - path: ../../../libs/firmware/halow/drop-bogus-board-dts-root.patch
     sha256sum: 4b4e268cd585d8aa403e80b91b4fbd5ed3b8d0c64b64e7b44a970e6c76b42fc7
     module: modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -138,23 +138,36 @@ patches:
   # ===== walter-router =====
 
   - path: rust.patch
-    sha256sum: 14a6aca961d8496f6b81a5bc9c86f76e41d992e831479f0103edbb29cdfff593
+    sha256sum: 95a0acf717737a9a170e583ad1a3c9037cb4ce28f64393fc0f50cba6bc54cff2
     module: lang-rust
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
-    date: 2026-06-11
+    date: 2026-06-14
     upstreamable: true
     comments: |
       Bundles every lang-rust workaround needed for a Rust-on-Xtensa Zephyr
-      build with networking. Four files touched, three problems addressed:
+      build with networking, plus a RISC-V refinement. Four files touched:
 
-      1. CMakeLists.txt: upstream `_rust_map_target()` has no branch for
-         CONFIG_XTENSA. Adds esp32 / esp32s2 / esp32s3 mappings, the
-         `cargo +esp` toolchain prefix, and CRATE_NAME / FEATURES args to
-         `rust_cargo_application()`. (The matching `RUST_SUPPORTED`
-         Kconfig gate is bypassed downstream via
-         `select RUST_SUPPORTED` in apps/firmware/Kconfig — no upstream
-         patch needed for that part.)
+      1. CMakeLists.txt: two changes to _rust_map_target().
+
+         a. Upstream has no branch for CONFIG_XTENSA. Adds esp32 /
+            esp32s2 / esp32s3 mappings, the `cargo +esp` toolchain prefix,
+            and CRATE_NAME / FEATURES args to `rust_cargo_application()`.
+            (The matching RUST_SUPPORTED Kconfig gate is bypassed
+            downstream via `select RUST_SUPPORTED` in
+            apps/firmware/Kconfig — no upstream patch needed for that.)
+
+         b. Refine the RV32I branch (upstream's own TODO comment on
+            line 47 asks for this). Upstream unconditionally returns
+            `riscv32i-unknown-none-elf` regardless of which ISA
+            extensions the SoC selects. qemu_riscv32 (SiFive Freedom
+            E) selects RVI+M+A+C, ESP32-C3 selects RVI+M+C, etc. —
+            the bare RV32I target ignores all of that and the linker
+            then refuses to mix object files with mismatched ABI tags.
+            Pick the closest-matching imac/imc/i target based on
+            CONFIG_RISCV_ISA_EXT_{M,A,C}. Side benefit: matches the
+            host's already-installed targets so most users don't need
+            an extra `rustup target add` step.
 
       2. zephyr-build/src/lib.rs: emits hex Kconfig values as
          `pub const FOO: usize = 0xHEX;` unconditionally. On 32-bit Xtensa
@@ -331,3 +344,36 @@ patches:
 
       Upstreamable as-is — single conceptual change to `ipv4_nat.c`, no
       Kconfig or API change.
+
+  # ===== shared (both boards) =====
+
+  - path: shell-prompt.patch
+    sha256sum: 247539c0f29e46338020c2d0319d54af346ecfd4a46177db542674ad14967dc5
+    module: zephyr
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-14
+    upstreamable: true
+    comments: |
+      Two related changes to make Zephyr's shell hold a Powerlevel10k-style
+      prompt (powerline glyphs, ANSI color, multi-segment):
+
+      1. subsys/shell/Kconfig — bump SHELL_PROMPT_BUFF_SIZE upper bound
+         from 40 to 1024. A full powerline string (background+foreground
+         color codes per segment, U+E0B0 separators, Nerd Font glyphs,
+         right-alignment via \x1b[<col>G) easily runs 200-500 bytes. The
+         40-byte cap predates VT100_COLORS being widely used and is
+         arbitrary; the buffer is allocated via Kconfig at compile time so
+         users still pay only for what they set.
+
+      2. subsys/shell/shell_utils.h — z_shell_strlen now returns visible
+         column width instead of raw strlen. Skips CSI escape sequences
+         (\x1b[ ... <final 0x40-0x7E>) and treats UTF-8 continuation bytes
+         (0xC0..0xBF) as zero-width. The result is stored as
+         vt100_ctx.cons.name_len (shell.c:1754, 2122) which the line-wrap
+         and cursor-backtrack math depend on; with the naive strlen, any
+         prompt containing ANSI codes mis-computes the wrap column and
+         garbles redraws on long commands or Ctrl-A.
+
+      Both upstreamable. The strlen fix is a known papercut — anyone using
+      shell_prompt_change with colors hits it.

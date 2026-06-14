@@ -8,9 +8,16 @@ if(DEFINED ENV{OPENOCD})
   set(OPENOCD "$ENV{OPENOCD}" CACHE STRING "" FORCE)
 endif()
 
+set(LIBS_FIRMWARE ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/firmware)
+
 list(APPEND EXTRA_CONF_FILE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/boot/kernel.conf
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/boot/thread_analyzer.conf
+  ${LIBS_FIRMWARE}/rust.conf
+  ${LIBS_FIRMWARE}/kernel.conf
+  ${LIBS_FIRMWARE}/log.conf
+  ${LIBS_FIRMWARE}/shell.conf
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/kernel.conf
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/programs/thread_analyzer.conf
 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/esp32.conf
 
@@ -31,7 +38,7 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/ipv4.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/ipv6.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/mgmt.conf
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/default.conf
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/net.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/sockets.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/hostname.conf
   ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/statistics.conf
@@ -79,7 +86,7 @@ set_source_files_properties(
   PROPERTIES INCLUDE_DIRECTORIES "${ZEPHYR_BASE}/subsys/net/lib/dns"
 )
 
-# NOTE: uncomment wolfssl/wolfssh projects in west.yml + add services/ssh/wolfssh.conf + boot/posix.conf to app's EXTRA_CONF_FILE
+# NOTE: uncomment wolfssl/wolfssh projects in west.yml + add services/ssh/wolfssh.conf + ${LIBS_FIRMWARE}/posix.conf to app's EXTRA_CONF_FILE
 # if(CONFIG_WOLFSSH)
 #   zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/services/ssh)
 # endif()

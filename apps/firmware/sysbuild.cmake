@@ -1,5 +1,5 @@
 set(mcuboot_EXTRA_CONF_FILE
-  "${CMAKE_CURRENT_LIST_DIR}/src/boot/mcuboot.conf"
+  "${CMAKE_CURRENT_LIST_DIR}/src/mcuboot.conf"
   CACHE INTERNAL ""
 )
 
@@ -20,8 +20,8 @@ elseif(BOARD MATCHES "^xiao_esp32s3")
     # NOTE: wireguard.conf out — vendor wg.c needs IPv6 cfg-gates
     # "${CMAKE_CURRENT_LIST_DIR}/src/networking/wireguard.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/security/mbedtls.conf"
-    # NOTE: uncomment + add `-DDTC_OVERLAY_FILE=...halow.overlay` to use
-    # "${CMAKE_CURRENT_LIST_DIR}/src/networking/halow/halow.conf"
+    # NOTE: uncomment + add `-DDTC_OVERLAY_FILE=libs/firmware/halow/halow.overlay` to use
+    # "${CMAKE_CURRENT_LIST_DIR}/../../libs/firmware/halow/halow.conf"
     CACHE INTERNAL ""
   )
   set(firmware_SNIPPET espressif-flash-8M CACHE INTERNAL "")

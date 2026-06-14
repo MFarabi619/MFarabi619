@@ -1,16 +1,27 @@
 manifest:
     projects:
-        - name: mm-iot-zephyr
-          revision: main
-          import: false
-          submodules: true
-          path: modules/lib/morsemicro
-          url: https://github.com/craigpeacock/mm-iot-zephyr
-
         - name: zephyr-lang-rust
           remote: zephyrproject
           path: modules/lang/rust
-          revision: ab3e546232bfa2f4e16d6c5156b9d9500885b4e8 # main as of 2026-06-12
+          revision: ab3e546232bfa2f4e16d6c5156b9d9500885b4e8 # 2026-06-12
+
+        - name: zephyr
+          import: true
+          remote: zephyrproject
+          revision: 77ef70e6b01adfd619f0aa2ab7179ff7d215e6a3 # 2026-06-12 (v4.4.0-5144)
+
+        - name: dtsh
+          revision: zephyr
+          path: modules/tools/dtsh
+          west-commands: scripts/west-commands.yml
+          url: https://github.com/dottspina/dtsh.git
+
+        - name: mm-iot-zephyr
+          import: false
+          revision: main
+          submodules: true
+          path: modules/lib/morsemicro
+          url: https://github.com/craigpeacock/mm-iot-zephyr
 
         # NOTE: uncomment CONFIG_WOLFSSH guard in CMakeLists.txt to use
         # - name: wolfssl
@@ -22,11 +33,6 @@ manifest:
         #   remote: wolfssl
         #   revision: master
         #   path: modules/lib/wolfssh
-
-        - name: zephyr
-          remote: zephyrproject
-          revision: 77ef70e6b01adfd619f0aa2ab7179ff7d215e6a3 # main as of 2026-06-12 (v4.4.0-5144)
-          import: true
 
     remotes:
         - name: zephyrproject
