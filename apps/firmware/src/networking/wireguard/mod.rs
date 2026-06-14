@@ -1,9 +1,9 @@
+use zephyr::error::to_result_void;
 use zephyr::time::Duration;
 
 use log::warn;
 
 use crate::networking::wifi;
-use crate::utils::errno::{Errno, IntoResult};
 
 const KEEPALIVE_SECONDS: i32 = 25;
 const UNDERLAY_TIMEOUT: Duration = Duration::secs(30);
@@ -54,20 +54,20 @@ extern "C" {
     fn wireguard_access_snapshot(snapshot: *mut Snapshot) -> i32;
 }
 
-pub fn initialize() -> Result<(), Errno> {
+pub fn initialize() -> zephyr::Result<()> {
     let private_key = zephyr::kconfig::CONFIG_WIREGUARD_LOCAL_PRIVATE_KEY;
     if private_key.is_empty() {
         warn!("credentials not configured; skipping");
-        return (-2_i32).ok();
+        return to_result_void(-2);
     }
 
     wifi::sta::wait_for_ipv4(UNDERLAY_TIMEOUT)?;
 
     let local_cidr = zephyr::kconfig::CONFIG_WIREGUARD_LOCAL_TUNNEL_CIDR;
-    unsafe { wireguard_set_private_key(private_key.as_ptr(), private_key.len()) }.ok()?;
+    to_result_void(unsafe { wireguard_set_private_key(private_key.as_ptr(), private_key.len()) })?;
     let _ = unsafe { wireguard_log_public_key() };
-    unsafe { wireguard_assign_local_addr(local_cidr.as_ptr(), local_cidr.len()) }.ok()?;
-    unsafe { wireguard_bring_interface_up() }.ok()?;
+    to_result_void(unsafe { wireguard_assign_local_addr(local_cidr.as_ptr(), local_cidr.len()) })?;
+    to_result_void(unsafe { wireguard_bring_interface_up() })?;
 
     add_peer(
         zephyr::kconfig::CONFIG_WIREGUARD_PEER_PUBLIC_KEY,
@@ -84,8 +84,8 @@ pub fn add_peer(
     endpoint: &str,
     allowed_cidr: &str,
     keepalive_seconds: i32,
-) -> Result<(), Errno> {
-    unsafe {
+) -> zephyr::Result<()> {
+    to_result_void(unsafe {
         wireguard_add_peer(
             pubkey_b64.as_ptr(),
             pubkey_b64.len(),
@@ -95,12 +95,11 @@ pub fn add_peer(
             allowed_cidr.len(),
             keepalive_seconds,
         )
-    }
-    .ok()
+    })
 }
 
-pub fn kickoff_handshake(peer_addr: &str) -> Result<(), Errno> {
-    unsafe { wireguard_kickoff_handshake(peer_addr.as_ptr(), peer_addr.len()) }.ok()
+pub fn kickoff_handshake(peer_addr: &str) -> zephyr::Result<()> {
+    to_result_void(unsafe { wireguard_kickoff_handshake(peer_addr.as_ptr(), peer_addr.len()) })
 }
 
 pub fn access_snapshot() -> Snapshot {

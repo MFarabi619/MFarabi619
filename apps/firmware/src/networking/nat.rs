@@ -4,8 +4,9 @@ use zephyr::raw::{
     net_ipv4_table_rule_add,
 };
 
+use zephyr::error::to_result_void;
+
 use crate::networking::cellular::cellular_ppp_iface;
-use crate::utils::errno::{Errno, IntoResult};
 
 const ENODEV: i32 = -19;
 
@@ -21,11 +22,11 @@ const PROTOCOLS: [ProtocolTimeouts; 3] = [
     ProtocolTimeouts { proto: net_ip_protocol_NET_IPPROTO_ICMP, unreply_s: 15, reply_s: 120 },
 ];
 
-pub fn initialize() -> Result<(), Errno> {
+pub fn initialize() -> zephyr::Result<()> {
     let access_point_iface = unsafe { net_if_get_wifi_sap() };
     let cellular_iface = cellular_ppp_iface();
     if access_point_iface.is_null() || cellular_iface.is_null() {
-        return ENODEV.ok();
+        return to_result_void(ENODEV);
     }
     let access_point_idx = unsafe { net_if_get_by_iface(access_point_iface) };
     let cellular_idx = unsafe { net_if_get_by_iface(cellular_iface) };
@@ -37,7 +38,7 @@ pub fn initialize() -> Result<(), Errno> {
         params.proto = protocol.proto;
         params.unreply_timeout = protocol.unreply_s;
         params.reply_timeout = protocol.reply_s;
-        unsafe { net_ipv4_table_rule_add(&mut params) }.ok()?;
+        to_result_void(unsafe { net_ipv4_table_rule_add(&mut params) })?;
     }
     Ok(())
 }

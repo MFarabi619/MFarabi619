@@ -7,8 +7,6 @@ pub mod dns;
 #[cfg(CONFIG_NET_PKT_FILTER_IPV4_HOOK)]
 pub mod nat;
 
-pub mod sntp;
-
 pub mod wifi;
 
 #[cfg(CONFIG_WIREGUARD)]

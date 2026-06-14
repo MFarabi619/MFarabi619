@@ -10,9 +10,6 @@ if(BOARD MATCHES "^walter")
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/nat.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/ppp.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/networking/modem.conf"
-    "${CMAKE_CURRENT_LIST_DIR}/src/networking/cellular/default.conf"
-    "${CMAKE_CURRENT_LIST_DIR}/src/power/regulator.conf"
-    "${CMAKE_CURRENT_LIST_DIR}/src/power/pm.conf"
     "${CMAKE_CURRENT_LIST_DIR}/src/services/task_wdt.conf"
     CACHE INTERNAL ""
   )

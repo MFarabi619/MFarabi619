@@ -137,20 +137,24 @@ patches:
 
   # ===== walter-router =====
 
-  - path: zephyr-lang-rust-xtensa.patch
-    sha256sum: 0f1c85ca68ec0d79dd2354ef04f8133bb2000653bacfdac99847efcab8bef23b
+  - path: rust.patch
+    sha256sum: 14a6aca961d8496f6b81a5bc9c86f76e41d992e831479f0103edbb29cdfff593
     module: lang-rust
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
-    date: 2026-05-23
+    date: 2026-06-11
     upstreamable: true
     comments: |
-      Two fixes bundled — both required for any Rust-on-Xtensa Zephyr build,
-      neither covered upstream yet:
+      Bundles every lang-rust workaround needed for a Rust-on-Xtensa Zephyr
+      build with networking. Four files touched, three problems addressed:
 
-      1. CMakeLists.txt + Kconfig: upstream `_rust_map_target()` has no
-         branch for CONFIG_XTENSA. Adds esp32 / esp32s2 / esp32s3 mappings
-         and CRATE_NAME / FEATURES args to `rust_cargo_application()`.
+      1. CMakeLists.txt: upstream `_rust_map_target()` has no branch for
+         CONFIG_XTENSA. Adds esp32 / esp32s2 / esp32s3 mappings, the
+         `cargo +esp` toolchain prefix, and CRATE_NAME / FEATURES args to
+         `rust_cargo_application()`. (The matching `RUST_SUPPORTED`
+         Kconfig gate is bypassed downstream via
+         `select RUST_SUPPORTED` in apps/firmware/Kconfig — no upstream
+         patch needed for that part.)
 
       2. zephyr-build/src/lib.rs: emits hex Kconfig values as
          `pub const FOO: usize = 0xHEX;` unconditionally. On 32-bit Xtensa
@@ -161,23 +165,11 @@ patches:
          semantics on the target. A proper upstream fix would emit u64 for
          hex values exceeding u32::MAX.
 
-      module: lang-rust matches modules/lang/rust/zephyr/module.yml; the
-      project name in west.yml (zephyr-lang-rust) is intentionally different
-      and would cause `west patch` to silently skip the entry.
-
-  - path: networking/rust_zephyr-sys_build.patch
-    sha256sum: ea12c774f8c4a118993d9fab3aec4f1c2bba20922788dcd9727a6c8682dfd98f
-    module: lang-rust
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-06-11
-    upstreamable: true
-    comments: |
-      Expose Zephyr's public networking surface to zephyr-sys bindings.
-
-      Upstream zephyr-sys/wrapper.h includes only kernel + GPIO + UART +
-      flash + bluetooth headers, and build.rs allowlists only k_*, sys_*,
-      gpio_*, flash_*, uart_*, bt_*. Networking is deliberately out-of-scope
+      3. zephyr-sys/{wrapper.h,build.rs}: expose Zephyr's public networking
+         surface to bindgen. Upstream wrapper.h includes only kernel + GPIO
+         + UART + flash + bluetooth headers, and build.rs allowlists only
+         k_*, sys_*, gpio_*, flash_*, uart_*, bt_*. Networking is
+         deliberately out-of-scope
       for the upstream module. Every Rust caller into the net stack
       therefore has to hand-roll `extern "C" { fn net_if_*; ... }` decls
       and manually replicate `repr(C)` layouts for `net_in_addr`,
@@ -194,12 +186,10 @@ patches:
         - dhcpv4_server.h               (CONFIG_NET_DHCPV4_SERVER)
         - dns_resolve.h                 (CONFIG_DNS_RESOLVER)
         - wifi_mgmt.h                   (CONFIG_NET_L2_WIFI_MGMT)
-        - sntp.h                                         (CONFIG_SNTP)
         - base64.h                                       (CONFIG_BASE64)
         - byteorder.h, reboot.h                          (unconditional)
         - pm/device.h                                    (CONFIG_PM_DEVICE)
         - dfu/mcuboot.h                        (CONFIG_BOOTLOADER_MCUBOOT)
-        - mgmt/mcumgr/transport/smp_udp.h    (CONFIG_MCUMGR_TRANSPORT_UDP)
 
       build.rs allowlists added (mirror the Kconfig gates):
         - net_*, NET_*                       (CONFIG_NETWORKING)
@@ -209,11 +199,9 @@ patches:
         - virtual_*                          (CONFIG_NET_L2_VIRTUAL)
         - dns_*, DNS_*                       (CONFIG_DNS_RESOLVER)
         - wifi_*, WIFI_*, lowercase wifi_*   (CONFIG_NET_L2_WIFI_MGMT)
-        - sntp_*, SNTP_*                     (CONFIG_SNTP)
         - base64_*                           (CONFIG_BASE64)
         - pm_device_*, PM_DEVICE_*           (CONFIG_PM_DEVICE)
         - boot_*                             (CONFIG_BOOTLOADER_MCUBOOT)
-        - smp_udp_*                          (CONFIG_MCUMGR_TRANSPORT_UDP)
         - init_entry                         (unconditional, in <zephyr/init.h>)
 
       Bonus side effect: bindgen already extracts `net_mgmt(REQUEST, ...)`
@@ -232,17 +220,20 @@ patches:
       gating in zephyr-sys/build.rs; a PR adding "networking" alongside
       those would be uncontroversial.
 
-  - path: networking/cellular/sqn-gm02s.patch
-    sha256sum: 693f0c6aa826259c44b01b8b27ddcdfaecbf9149eb7d87c6eeb14522fa2efe9b
+  - path: networking/cellular.patch
+    sha256sum: 8ceb4019166d79e51e2a7e9f09e6de141835036f6dd8b303fa2ed79d0a37c953
     module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
     date: 2026-05-13
     upstreamable: true
     comments: |
-      Four Sequans GM02SP / Walter-board fixes bundled (all touch
-      drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c), each
-      derived from DPTechnics' canonical Walter reference code:
+      All Sequans GM02SP / Walter modem fixes bundled. Touches two files:
+      drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c and
+      drivers/modem/modem_cellular.c. Each fix is derived from DPTechnics'
+      canonical Walter reference code or directly observed in our logs.
+
+      Vendor-specific (cellular_sqn_gm02s.c):
 
       1. reset_pulse_duration_ms 100 → 1000. Zephyr's default isn't long
          enough to fully clear CMUX state on firmware LR8.2.1.0-61488+.
@@ -280,37 +271,32 @@ patches:
          The abort_matches list keys on "ERROR" which CMEE=2 still
          contains, so abort behaviour is preserved.
 
-  - path: networking/cellular/carrier-gated-ppp-dead.patch
-    sha256sum: e621602e24d6a36d19acb3d886ed2c461dda828beb5b6103dee01f706472ea39
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-05-12
-    upstreamable: true
-    comments: |
-      modem_cellular's registered-state handler unconditionally tears down
-      PPP on BOTH MODEM_CELLULAR_EVENT_DEREGISTERED (from `+CEREG: 2` URC)
-      and MODEM_CELLULAR_EVENT_PPP_DEAD (from NET_EVENT_PPP_PHASE_DEAD).
-      Two failure modes hit us routinely on Sequans GM02SP + Walter:
-       1. The modem briefly cycles `+CEREG: 2 → +CEREG: 1` within ~1ms
-          immediately after `ATD*99***1#` returns CONNECT, during PDP
-          context binding. Driver's DEREGISTERED handler tears down PPP
-          before LCP can finish.
-       2. After LCP completes and IPCP starts, the modem sometimes
-          retransmits its LCP Configure-Req (likely due to slow ACK from
-          us under DBG log load). RFC 1661 §4.6 says we must reset NCPs
-          and bounce LCP back to REQUEST_SENT, transitioning phase
-          NETWORK → DEAD → ESTABLISH. Driver's PPP_DEAD handler tears
-          down PPP just as IPCP would assign an IPv4 address.
-      Both teardowns happen while the modem's CMUX link is still healthy
-      (carrier still ON). This patch gates both handlers on
-      `!net_if_is_carrier_ok()` — only re-dial when the modem has truly
-      dropped its CMUX link to us, not when PPP is renegotiating or the
-      modem's CEREG URC is flapping. Carrier_off is set elsewhere by the
-      driver when CMUX DLCIs actually close, so genuine disconnections
-      still trigger the re-dial path.
+      Generic driver fix (modem_cellular.c):
 
-  - path: networking/subsys_net_ip_ipv4-nat.patch
+      5. carrier-gate PPP teardown. The registered-state handler
+         unconditionally tears down PPP on BOTH MODEM_CELLULAR_EVENT_
+         DEREGISTERED (from `+CEREG: 2` URC) and MODEM_CELLULAR_EVENT_
+         PPP_DEAD (from NET_EVENT_PPP_PHASE_DEAD). Two failure modes
+         routinely on Sequans GM02SP + Walter:
+          a. The modem briefly cycles `+CEREG: 2 → +CEREG: 1` within
+             ~1ms immediately after `ATD*99***1#` returns CONNECT,
+             during PDP context binding. DEREGISTERED handler tears
+             down PPP before LCP can finish.
+          b. After LCP completes and IPCP starts, the modem sometimes
+             retransmits its LCP Configure-Req (likely due to slow ACK
+             under DBG log load). RFC 1661 §4.6 says we reset NCPs and
+             bounce LCP back to REQUEST_SENT, transitioning phase
+             NETWORK → DEAD → ESTABLISH. PPP_DEAD handler tears down
+             PPP just as IPCP would assign an IPv4 address.
+         Both teardowns happen while the modem's CMUX link is still
+         healthy (carrier still ON). Patch gates both handlers on
+         `!net_if_is_carrier_ok()` — only re-dial when the modem has
+         truly dropped its CMUX link to us, not when PPP is
+         renegotiating or CEREG is flapping. Carrier_off is set
+         elsewhere when CMUX DLCIs actually close, so genuine
+         disconnections still trigger re-dial.
+
+  - path: networking/nat.patch
     sha256sum: 7f91e64979daa54cfb8457d86a8d52af8d12214f480f8059fae714f8d38ef02e
     module: zephyr
     author: Mumtahin Farabi

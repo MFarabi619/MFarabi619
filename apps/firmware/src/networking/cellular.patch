@@ -34,3 +34,20 @@ index 2768c6642a9..3d201a30c23 100644
  	.shutdown_time_ms = 5000,
  	.force_autostart = true,
  };
+--- a/drivers/modem/modem_cellular.c
++++ b/drivers/modem/modem_cellular.c
+@@ -1472,9 +1472,12 @@
+ 	case MODEM_CELLULAR_EVENT_DEREGISTERED:
+-		modem_cellular_enter_state(data, MODEM_CELLULAR_STATE_AWAIT_PPP_DEAD);
++		if (!net_if_is_carrier_ok(modem_ppp_get_iface(data->ppp))) {
++			modem_cellular_enter_state(data, MODEM_CELLULAR_STATE_AWAIT_PPP_DEAD);
++		}
+ 		break;
+ 	case MODEM_CELLULAR_EVENT_PPP_DEAD:
+-		if (net_if_is_admin_up(modem_ppp_get_iface(data->ppp))) {
++		if (net_if_is_admin_up(modem_ppp_get_iface(data->ppp)) &&
++		    !net_if_is_carrier_ok(modem_ppp_get_iface(data->ppp))) {
+ 			modem_cellular_enter_state(data, MODEM_CELLULAR_STATE_AWAIT_PPP_DEAD);
+ 			modem_cellular_start_timer(data, MODEM_CELLULAR_PERIODIC_SCRIPT_TIMEOUT);
+ 		}
+ 		break;

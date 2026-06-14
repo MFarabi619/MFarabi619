@@ -64,14 +64,10 @@ project(firmware)
 
 rust_cargo_application(CRATE_NAME firmware)
 
-# cellular.c still needs route_ipv4.h (private header) for net_route_ipv4_add.
-target_include_directories(app PRIVATE ${ZEPHYR_BASE}/subsys/net/ip)
-
 target_sources_ifdef(CONFIG_NET_DHCPV4_SERVER app PRIVATE
   src/networking/dns/proxy.c
 )
 
-target_sources_ifdef(CONFIG_MODEM_CELLULAR app PRIVATE src/networking/cellular/cellular.c)
 
 target_sources_ifdef(CONFIG_WIREGUARD app PRIVATE src/networking/wireguard/wireguard.c)
 if(CONFIG_WIREGUARD)

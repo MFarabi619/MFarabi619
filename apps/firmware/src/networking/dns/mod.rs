@@ -1,6 +1,6 @@
 use core::{ffi::{c_char, CStr}, net::Ipv4Addr};
 
-use crate::utils::errno::{Errno, IntoResult};
+use zephyr::error::to_result_void;
 
 const DNS_RR_TYPE_A: u16 = 1;
 
@@ -126,8 +126,8 @@ fn is_blocked(qname: &[u8]) -> bool {
     })
 }
 
-pub fn initialize() -> Result<(), Errno> {
-    unsafe { dns_proxy_initialize() }.ok()
+pub fn initialize() -> zephyr::Result<()> {
+    to_result_void(unsafe { dns_proxy_initialize() })
 }
 
 extern "C" {

@@ -1,0 +1,235 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index be31379..d733314 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -53,6 +53,16 @@ function(_rust_map_target)
+     set(RUST_TARGET "x86_64-unknown-none" PARENT_SCOPE)
+   elseif(CONFIG_ARCH_POSIX AND CONFIG_64BIT AND (${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "aarch64"))
+     set(RUST_TARGET "aarch64-unknown-none" PARENT_SCOPE)
++  elseif(CONFIG_XTENSA)
++    if(CONFIG_SOC STREQUAL "esp32s3")
++      set(RUST_TARGET "xtensa-esp32s3-none-elf" PARENT_SCOPE)
++    elseif(CONFIG_SOC STREQUAL "esp32")
++      set(RUST_TARGET "xtensa-esp32-none-elf" PARENT_SCOPE)
++    elseif(CONFIG_SOC STREQUAL "esp32s2")
++      set(RUST_TARGET "xtensa-esp32s2-none-elf" PARENT_SCOPE)
++    else()
++      message(FATAL_ERROR "Rust: Unsupported Xtensa SOC")
++    endif()
+   else()
+     message(FATAL_ERROR "Rust: Add support for other target")
+   endif()
+@@ -104,7 +114,7 @@ function(add_cargo_target_with_zephyr_env target)
+       WRAPPER_FILE="${WRAPPER_FILE}"
+       DT_AUGMENTS="${DT_AUGMENTS}"
+       BINARY_DIR_INCLUDE_GENERATED="${BINARY_DIR_INCLUDE_GENERATED}"
+-      cargo ${cargo_command}
++      cargo $<$<BOOL:${CONFIG_XTENSA}>:+esp> ${cargo_command}
+       ${rust_build_type_arg}
+ 
+       # Set a replacement so that packages can just use `zephyr-sys` as a package
+@@ -128,6 +138,16 @@ function(add_cargo_target_with_zephyr_env target)
+ endfunction()
+ 
+ function(rust_cargo_application)
++  cmake_parse_arguments(RUST_APP "" "CRATE_NAME;FEATURES" "" ${ARGN})
++  if(NOT RUST_APP_CRATE_NAME)
++    set(RUST_APP_CRATE_NAME "rustapp")
++  endif()
++  if(RUST_APP_FEATURES)
++    set(rust_features_arg "--no-default-features" "--features" "${RUST_APP_FEATURES}")
++  else()
++    set(rust_features_arg "")
++  endif()
++
+   # For now, hard-code the Zephyr crate directly here.  Once we have
+   # more than one crate, these should be added by the modules
+   # themselves.
+@@ -154,7 +174,7 @@ function(rust_cargo_application)
+   set(BUILD_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}")
+ 
+   set(CARGO_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/rust/target")
+-  set(RUST_LIBRARY "${CARGO_TARGET_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}/librustapp.a")
++  set(RUST_LIBRARY "${CARGO_TARGET_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}/lib${RUST_APP_CRATE_NAME}.a")
+   set(SAMPLE_CARGO_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/rust/sample-cargo-config.toml")
+ 
+   # The generated C binding wrappers. These are bindgen-generated wrappers for the inline functions
+@@ -213,26 +233,14 @@ ${config_paths}
+ ")
+ 
+   # The library is built by invoking Cargo.
+-  add_cargo_target_with_zephyr_env(librustapp
++  add_cargo_target_with_zephyr_env(lib${RUST_APP_CRATE_NAME}
+     ALL
+     OUTPUT ${DUMMY_FILE}
+     BYPRODUCTS ${RUST_LIBRARY} ${WRAPPER_FILE}
+-    CARGO_ARGS build
++    CARGO_ARGS build --lib ${rust_features_arg}
+     COMMENT "Building Rust application"
+   )
+ 
+-  # Command to lint the Rust application.
+-  add_cargo_target_with_zephyr_env(clippy
+-    ALL
+-    OUTPUT run_rust_clippy
+-    CARGO_ARGS
+-      clippy
+-      --
+-      -D warnings
+-      -D clippy::undocumented_unsafe_blocks
+-    COMMENT "Linting Rust application"
+-  )
+-
+   # Command to generate the rust docs.
+   add_cargo_target_with_zephyr_env(rustdoc
+     OUTPUT generate_rust_docs
+@@ -249,7 +257,7 @@ ${config_paths}
+   # Example of warning reported by ld when this fix is not in place:
+   # <path>/ld.bfd: rust/target/riscv64imac-unknown-none-elf/debug/librustapp.a(45c91108d938afe8-clzdi2.o): unsupported relocation type 0x3d
+   target_link_libraries(app PUBLIC $<TARGET_PROPERTY:linker,rt_library> -Wl,--allow-multiple-definition ${RUST_LIBRARY})
+-  add_dependencies(app librustapp)
++  add_dependencies(app lib${RUST_APP_CRATE_NAME})
+ 
+   # Presumably, Rust applications will have no C source files, but cmake will require them.
+   # Add an empty file so that this will build.  The main will come from the rust library.
+diff --git a/zephyr-build/src/lib.rs b/zephyr-build/src/lib.rs
+index 6fd4f77..a3fa2b3 100644
+--- a/zephyr-build/src/lib.rs
++++ b/zephyr-build/src/lib.rs
+@@ -77,7 +77,7 @@ pub fn build_kconfig_mod() {
+     for line in BufReader::new(file).lines() {
+         let line = line.expect("reading line from dotconfig");
+         if let Some(caps) = config_hex.captures(&line) {
+-            writeln!(&mut f, "#[allow(dead_code)]").unwrap();
++            writeln!(&mut f, "#[allow(dead_code, overflowing_literals)]").unwrap();
+             writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
+         } else if let Some(caps) = config_int.captures(&line) {
+             writeln!(&mut f, "#[allow(dead_code)]").unwrap();
+diff --git a/zephyr-sys/build.rs b/zephyr-sys/build.rs
+index 6b825d1..35dc67b 100644
+--- a/zephyr-sys/build.rs
++++ b/zephyr-sys/build.rs
+@@ -113,6 +113,38 @@ fn main() -> anyhow::Result<()> {
+         // UART
+         .allowlist_item_if("CONFIG_UART_.*", || options.contains("CONFIG_SERIAL"))
+         .allowlist_function_if("uart_.*", || options.contains("CONFIG_SERIAL"))
++        // Networking core
++        .allowlist_function_if("net_.*", || options.contains("CONFIG_NETWORKING"))
++        .allowlist_item_if("NET_.*", || options.contains("CONFIG_NETWORKING"))
++        // Sockets
++        .allowlist_function_if("zsock_.*", || options.contains("CONFIG_NET_SOCKETS"))
++        // Connection manager
++        .allowlist_function_if("conn_mgr_.*", || options.contains("CONFIG_NET_CONNECTION_MANAGER"))
++        // Wireguard
++        .allowlist_function_if("wireguard_.*", || options.contains("CONFIG_WIREGUARD"))
++        .allowlist_item_if("WIREGUARD_.*", || options.contains("CONFIG_WIREGUARD"))
++        // Virtual interfaces (VPN, WireGuard, IPIP, VLAN)
++        .allowlist_function_if("virtual_.*", || options.contains("CONFIG_NET_L2_VIRTUAL"))
++        .allowlist_item_if("virtual_.*", || options.contains("CONFIG_NET_L2_VIRTUAL"))
++        // DNS
++        .allowlist_function_if("dns_.*", || options.contains("CONFIG_DNS_RESOLVER"))
++        .allowlist_item_if("DNS_.*", || options.contains("CONFIG_DNS_RESOLVER"))
++        // WiFi mgmt
++        .allowlist_function_if("wifi_.*", || options.contains("CONFIG_NET_L2_WIFI_MGMT"))
++        .allowlist_item_if("WIFI_.*", || options.contains("CONFIG_NET_L2_WIFI_MGMT"))
++        .allowlist_item_if("wifi_.*", || options.contains("CONFIG_NET_L2_WIFI_MGMT"))
++        // Cellular
++        .allowlist_function_if("cellular_.*", || options.contains("CONFIG_MODEM_CELLULAR"))
++        .allowlist_item_if("cellular_.*", || options.contains("CONFIG_MODEM_CELLULAR"))
++        // Base64
++        .allowlist_function_if("base64_.*", || options.contains("CONFIG_BASE64"))
++        // PM device
++        .allowlist_function_if("pm_device_.*", || options.contains("CONFIG_PM_DEVICE"))
++        .allowlist_item_if("PM_DEVICE_.*", || options.contains("CONFIG_PM_DEVICE"))
++        // MCUboot
++        .allowlist_function_if("boot_.*", || options.contains("CONFIG_BOOTLOADER_MCUBOOT"))
++        // Init entry (SYS_INIT struct, in <zephyr/init.h> via kernel.h)
++        .allowlist_item("init_entry")
+         // Generate
+         .generate()
+         .expect("Unable to generate bindings");
+diff --git a/zephyr-sys/wrapper.h b/zephyr-sys/wrapper.h
+index dbb3842..6f905b8 100644
+--- a/zephyr-sys/wrapper.h
++++ b/zephyr-sys/wrapper.h
+@@ -90,6 +90,66 @@ extern int errno;
+ #include <zephyr/logging/log.h>
+ #include <zephyr/irq.h>
+ 
++#ifdef CONFIG_NETWORKING
++#include <zephyr/net/net_if.h>
++#include <zephyr/net/net_ip.h>
++#include <zephyr/net/net_mgmt.h>
++#include <zephyr/net/net_event.h>
++#endif
++
++#ifdef CONFIG_NET_IPV4_NAT
++#include <zephyr/net/ipv4_nat.h>
++#endif
++
++#ifdef CONFIG_BOOTLOADER_MCUBOOT
++#include <zephyr/dfu/mcuboot.h>
++#endif
++
++#ifdef CONFIG_NET_SOCKETS
++#include <zephyr/net/socket.h>
++#endif
++
++#ifdef CONFIG_NET_CONNECTION_MANAGER
++#include <zephyr/net/conn_mgr_monitor.h>
++#endif
++
++#ifdef CONFIG_WIREGUARD
++#include <zephyr/net/wireguard.h>
++#include <zephyr/net/virtual.h>
++#include <zephyr/net/virtual_mgmt.h>
++#endif
++
++#ifdef CONFIG_NET_DHCPV4_SERVER
++#include <zephyr/net/dhcpv4_server.h>
++#endif
++
++#ifdef CONFIG_DNS_RESOLVER
++#include <zephyr/net/dns_resolve.h>
++#endif
++
++#ifdef CONFIG_NET_L2_WIFI_MGMT
++#include <zephyr/net/wifi_mgmt.h>
++#endif
++
++#ifdef CONFIG_WIFI_CREDENTIALS
++#include <zephyr/net/wifi_credentials.h>
++#endif
++
++#ifdef CONFIG_MODEM_CELLULAR
++#include <zephyr/drivers/cellular.h>
++#endif
++
++#ifdef CONFIG_BASE64
++#include <zephyr/sys/base64.h>
++#endif
++
++#include <zephyr/sys/byteorder.h>
++#include <zephyr/sys/reboot.h>
++
++#ifdef CONFIG_PM_DEVICE
++#include <zephyr/pm/device.h>
++#endif
++
+ /*
+  * bindgen will only output #defined constants that resolve to simple numbers.  These are some
+  * symbols that we want exported that, at least in some situations, are more complex, usually with a
+@@ -102,6 +162,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
+ 
+ const uint32_t ZR_POLL_TYPE_SEM_AVAILABLE = K_POLL_TYPE_SEM_AVAILABLE;
+ const uint32_t ZR_POLL_TYPE_SIGNAL = K_POLL_TYPE_SIGNAL;
++
++#ifdef CONFIG_NETWORKING
++const uint64_t ZR_NET_EVENT_IPV4_DHCP_BOUND = NET_EVENT_IPV4_DHCP_BOUND;
++const uint64_t ZR_NET_EVENT_L4_CONNECTED    = NET_EVENT_L4_CONNECTED;
++const uint64_t ZR_NET_EVENT_L4_DISCONNECTED = NET_EVENT_L4_DISCONNECTED;
++const uint64_t ZR_NET_EVENT_DNS_SERVER_ADD  = NET_EVENT_DNS_SERVER_ADD;
++#endif
+ const uint32_t ZR_POLL_TYPE_DATA_AVAILABLE = K_POLL_TYPE_DATA_AVAILABLE;
+ 
+ #ifdef CONFIG_GPIO_ENABLE_DISABLE_INTERRUPT

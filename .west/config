@@ -13,12 +13,14 @@ board    = xiao_esp32s3/esp32s3/procpu
 # cmake-args = "-C build.cmake" # https://docs.zephyrproject.org/latest/develop/west/build-flash-debug.html#permanent-cmake-arguments
 
 [flash]
-rebuild  = false
+rebuild  = true
 
 [alias]
 p        = patch -l patches.yml -b .
 pc       = p clean
 pa       = p apply --roll-back
+
+menuconfig = build -p=never -t menuconfig
 
 bw       = build apps/firmware -b walter/esp32s3/procpu -d build/walter_esp32s3_procpu
 bx       = build apps/firmware -b xiao_esp32s3/esp32s3/procpu -d build/xiao_esp32s3_procpu

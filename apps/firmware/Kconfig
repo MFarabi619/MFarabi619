@@ -7,4 +7,9 @@ config FORCE_HAS_SEGGER_RTT
 	default y
 	select HAS_SEGGER_RTT
 
+config FORCE_RUST_SUPPORTED
+	bool
+	default y
+	select RUST_SUPPORTED
+
 source "Kconfig.zephyr"
