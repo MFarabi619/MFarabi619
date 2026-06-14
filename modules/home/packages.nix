@@ -45,6 +45,7 @@
             dtc
             west
             tqdm
+            rich
             cbor
             cbor2
             click
@@ -55,6 +56,7 @@
             tkinter
             intelhex
             requests
+            colorama
             pyelftools
             jsonschema
             cryptography
