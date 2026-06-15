@@ -467,8 +467,7 @@ Applied after grid flush by `pinout--apply-buttons'.")
           (left   (plist-get rect :chip-left))
           (right  (plist-get rect :chip-right))
           (chip-w (plist-get rect :chip-w))
-          (mid-x  (+ left (/ chip-w 2)))
-          (top-half (/ (- chip-w 3) 2)))
+          (mid-x  (+ left (/ chip-w 2))))
     (pinout--grid-set grid top left  (pinout--cell ?┌))
     (cl-loop for c from (1+ left) below mid-x do
       (pinout--grid-set grid top c (pinout--cell ?─)))
@@ -532,104 +531,78 @@ Applied after grid flush by `pinout--apply-buttons'.")
 Writes: pin-number pill inside chip (skipped for power/ground roles,
 which only show their external trapezoid chip), lead chars, chip-wall
 connector, touch glyph at outermost lead position, and external label
-chips.  Queues clickable button regions onto `pinout--pending-buttons'."
+chips.  Queues clickable button regions onto `pinout--pending-buttons'.
+Side-specific differences (chip wall position, lead step direction,
+pin-pill anchor, label-start column) are derived from SIDE."
   (cl-destructuring-bind
     (&key chip-left chip-right lead left-rows right-rows &allow-other-keys) rect
-    (let* ((n            (plist-get pin :n))
-            (row          (alist-get n (if (eq side 'left) left-rows right-rows)))
-            (pad          (make-string pinout-label-padding ?\s))
-            (segments     (pinout--pin-display-segments pin side))
-            (label-w      (pinout--pin-display-width pin))
-            (color        (pinout--pin-number-color pin))
-            (pin-num-str  (number-to-string n))
-            (primary-role (pinout--segment-role (plist-get pin :primary)))
-            (skip-num     (memq primary-role '(power ground)))
-            (pwm-p        (plist-get pin :pwm))
-            (lead-char    (if pwm-p ?∿ ?─))
-            (lead-face    (when color
-                            (if pwm-p
-                              `(:foreground ,color :height 1.3)
-                              `(:foreground ,color))))
-            (lead-cell    (apply #'pinout--cell lead-char
-                            (and lead-face (list 'face lead-face))))
-            (color-props  (when color (list 'face (list :foreground color))))
-            (left-conn    (apply #'pinout--cell ?┤            color-props))
-            (right-conn   (apply #'pinout--cell ?├            color-props))
-            (pill-color   (face-attribute 'pinout-gpio :background nil t))
-            (pill-edge    (list :foreground pill-color))
-            (pill-left    (pinout--cell ?◖ 'face pill-edge))
-            (pill-right   (pinout--cell ?◗ 'face pill-edge))
-            (touch-cell   (when (plist-get pin :touch)
-                            (pinout--cell ?󰩕 'face
-                              `(:foreground ,pill-color :weight bold :height 1.3)))))
-      (let ((effective-lead (if touch-cell (1+ lead) lead)))
-       (pcase side
-        ('left
-          (pinout--grid-set grid row chip-left left-conn)
-          (when touch-cell
-            (pinout--grid-set grid row (1- chip-left) touch-cell))
-          (cl-loop for i from (if touch-cell 2 1) to effective-lead do
-            (pinout--grid-set grid row (- chip-left i) lead-cell))
-          (unless skip-num
-            (let* ((num-col    (+ chip-left 2))
-                    (digits-end (+ num-col 1 (length pin-num-str))))
-              (pinout--grid-set   grid row num-col              pill-left)
-              (pinout--grid-place grid row (1+ num-col) pin-num-str 'pinout-gpio)
-              (pinout--grid-set   grid row digits-end           pill-right)))
-          (let ((col (- chip-left effective-lead label-w)))
-            (dolist (seg segments)
-              (let* ((text       (car seg))
-                      (role       (cdr seg))
-                      (face       (pinout--role-face role))
-                      (edge-face  (intern (format "pinout-edge-%s" role)))
-                      (body       (concat pad text pad))
-                      (segw       (+ 2 (length body)))
-                      (start-col  col))
-                (pinout--grid-set grid row col (pinout--cell ?◥ 'face edge-face))
-                (setq col (1+ col))
-                (pinout--grid-place grid row col body face)
-                (setq col (+ col (length body)))
-                (pinout--grid-set grid row col (pinout--cell ?◣ 'face edge-face))
-                (setq col (1+ col))
-                (push (list row start-col (+ start-col segw -1)
-                        :type 'pinout-pin-segment
-                        'mouse-face (list 'pinout-hover)
-                        'pinout-pin pin
-                        'pinout-segment text)
-                  pinout--pending-buttons)))))
-        ('right
-          (pinout--grid-set grid row chip-right right-conn)
-          (when touch-cell
-            (pinout--grid-set grid row (1+ chip-right) touch-cell))
-          (cl-loop for i from (if touch-cell 2 1) to effective-lead do
-            (pinout--grid-set grid row (+ chip-right i) lead-cell))
-          (unless skip-num
-            (let* ((num-col    (- chip-right (+ (length pin-num-str) 3)))
-                    (digits-end (+ num-col 1 (length pin-num-str))))
-              (pinout--grid-set   grid row num-col              pill-left)
-              (pinout--grid-place grid row (1+ num-col) pin-num-str 'pinout-gpio)
-              (pinout--grid-set   grid row digits-end           pill-right)))
-          (let ((col (+ chip-right effective-lead 1)))
-            (dolist (seg segments)
-              (let* ((text       (car seg))
-                      (role       (cdr seg))
-                      (face       (pinout--role-face role))
-                      (edge-face  (intern (format "pinout-edge-%s" role)))
-                      (body       (concat pad text pad))
-                      (segw       (+ 2 (length body)))
-                      (start-col  col))
-                (pinout--grid-set grid row col (pinout--cell ?◥ 'face edge-face))
-                (setq col (1+ col))
-                (pinout--grid-place grid row col body face)
-                (setq col (+ col (length body)))
-                (pinout--grid-set grid row col (pinout--cell ?◣ 'face edge-face))
-                (setq col (1+ col))
-                (push (list row start-col (+ start-col segw -1)
-                        :type 'pinout-pin-segment
-                        'mouse-face (list 'pinout-hover)
-                        'pinout-pin pin
-                        'pinout-segment text)
-                  pinout--pending-buttons))))))))))
+    (let* ((leftp         (eq side 'left))
+            (n             (plist-get pin :n))
+            (row           (alist-get n (if leftp left-rows right-rows)))
+            (pad           (make-string pinout-label-padding ?\s))
+            (segments      (pinout--pin-display-segments pin side))
+            (label-w       (pinout--pin-display-width pin))
+            (color         (pinout--pin-number-color pin))
+            (pin-num-str   (number-to-string n))
+            (primary-role  (pinout--segment-role (plist-get pin :primary)))
+            (skip-num      (memq primary-role '(power ground)))
+            (pwm-p         (plist-get pin :pwm))
+            (lead-char     (if pwm-p ?∿ ?─))
+            (lead-face     (when color
+                             (if pwm-p
+                               `(:foreground ,color :height 1.3)
+                               `(:foreground ,color))))
+            (lead-cell     (apply #'pinout--cell lead-char
+                             (and lead-face (list 'face lead-face))))
+            (color-props   (when color (list 'face (list :foreground color))))
+            (wall-cell     (apply #'pinout--cell
+                             (if leftp ?┤ ?├) color-props))
+            (pill-color    (face-attribute 'pinout-gpio :background nil t))
+            (pill-edge     (list :foreground pill-color))
+            (pill-left     (pinout--cell ?◖ 'face pill-edge))
+            (pill-right    (pinout--cell ?◗ 'face pill-edge))
+            (touch-cell    (when (plist-get pin :touch)
+                             (pinout--cell ?󰩕 'face
+                               `(:foreground ,pill-color :weight bold :height 1.3))))
+            (effective-lead (if touch-cell (1+ lead) lead))
+            (chip-edge     (if leftp chip-left chip-right))
+            (step          (if leftp -1 1))
+            (num-col       (if leftp
+                             (+ chip-left 2)
+                             (- chip-right (+ (length pin-num-str) 3))))
+            (label-col     (if leftp
+                             (- chip-left effective-lead label-w)
+                             (+ chip-right effective-lead 1))))
+      (pinout--grid-set grid row chip-edge wall-cell)
+      (when touch-cell
+        (pinout--grid-set grid row (+ chip-edge step) touch-cell))
+      (cl-loop for i from (if touch-cell 2 1) to effective-lead do
+        (pinout--grid-set grid row (+ chip-edge (* step i)) lead-cell))
+      (unless skip-num
+        (let ((digits-end (+ num-col 1 (length pin-num-str))))
+          (pinout--grid-set   grid row num-col              pill-left)
+          (pinout--grid-place grid row (1+ num-col) pin-num-str 'pinout-gpio)
+          (pinout--grid-set   grid row digits-end           pill-right)))
+      (let ((col label-col))
+        (dolist (seg segments)
+          (let* ((text       (car seg))
+                  (role       (cdr seg))
+                  (face       (pinout--role-face role))
+                  (edge-face  (intern (format "pinout-edge-%s" role)))
+                  (body       (concat pad text pad))
+                  (segw       (+ 2 (length body)))
+                  (start-col  col))
+            (pinout--grid-set grid row col (pinout--cell ?◥ 'face edge-face))
+            (setq col (1+ col))
+            (pinout--grid-place grid row col body face)
+            (setq col (+ col (length body)))
+            (pinout--grid-set grid row col (pinout--cell ?◣ 'face edge-face))
+            (setq col (1+ col))
+            (push (list row start-col (+ start-col segw -1)
+                    :type 'pinout-pin-segment
+                    'pinout-pin pin
+                    'pinout-segment text)
+              pinout--pending-buttons)))))))
 
 (defun pinout--draw-legend (grid rect)
   "Draw the legend strip centered on `canvas-w'."
@@ -665,7 +638,6 @@ driven by manual `face' overlays toggled by `pinout--poll-mouse'."
     (let* ((pos-start (pinout--grid-buffer-pos origin row col-start))
             (pos-end   (1+ (pinout--grid-buffer-pos origin row col-end)))
             (button    (apply #'make-button pos-start pos-end props)))
-      (overlay-put button 'mouse-face nil)
       (push (list button pos-start (1- pos-end)) pinout--chip-overlays))))
 
 ;;; ============================================================
@@ -774,6 +746,22 @@ visible pinout buffer."
     (setq pinout--mouse-tracker-timer
       (run-with-timer 0.05 0.05 #'pinout--poll-mouse))))
 
+(defun pinout--maybe-stop-hover-tracking ()
+  "Cancel the mouse-tracker timer when no other pinout buffer remains.
+Hooked onto buffer-local `kill-buffer-hook' so it fires as a pinout
+buffer is being killed; the current buffer is excluded from the
+remaining-pinout count."
+  (when (and pinout--mouse-tracker-timer
+          (memq pinout--mouse-tracker-timer timer-list)
+          (not (cl-some (lambda (b)
+                          (and (not (eq b (current-buffer)))
+                            (buffer-live-p b)
+                            (with-current-buffer b
+                              (derived-mode-p 'pinout-mode))))
+                 (buffer-list))))
+    (cancel-timer pinout--mouse-tracker-timer)
+    (setq pinout--mouse-tracker-timer nil)))
+
 ;;; ============================================================
 ;;; Pin segment button type + action
 ;;; ============================================================
@@ -810,6 +798,7 @@ visible pinout buffer."
 
 (define-button-type 'pinout-pin-segment
   'face        nil
+  'mouse-face  nil
   'follow-link t
   'action      #'pinout--segment-action
   'help-echo
@@ -1017,17 +1006,15 @@ timer fires after evil has finished initial state setup."
 (defun pinout--apply-face-remap ()
   "Apply font-family + font-height face-remap from defcustoms.
 Use `C-x C-+' / `C-x C--' for live zoom within the buffer."
-  (when (and pinout--face-remap-cookie (not (eq pinout--face-remap-cookie t)))
+  (when pinout--face-remap-cookie
     (face-remap-remove-relative pinout--face-remap-cookie))
-  (setq pinout--face-remap-cookie nil)
-  (let (spec)
-    (when pinout-font-family
-      (setq spec (append spec (list :family pinout-font-family))))
-    (when (and (numberp pinout-font-height) (/= pinout-font-height 1.0))
-      (setq spec (append spec (list :height pinout-font-height))))
-    (when spec
-      (setq pinout--face-remap-cookie
-        (apply #'face-remap-add-relative 'default spec)))))
+  (let ((spec (append
+                (and pinout-font-family
+                  (list :family pinout-font-family))
+                (and (numberp pinout-font-height) (/= pinout-font-height 1.0)
+                  (list :height pinout-font-height)))))
+    (setq pinout--face-remap-cookie
+      (when spec (apply #'face-remap-add-relative 'default spec)))))
 
 (defvar pinout--resize-timer nil)
 
@@ -1084,6 +1071,7 @@ role + pin number.  g re-renders for the current window width."
   (add-hook 'eldoc-documentation-functions #'pinout--eldoc-at-point nil t)
   (eldoc-mode 1)
   (add-hook 'window-size-change-functions #'pinout--handle-resize nil t)
+  (add-hook 'kill-buffer-hook #'pinout--maybe-stop-hover-tracking nil t)
   (pinout--enable-hover-tracking))
 
 (add-hook 'pinout-mode-hook #'pinout--hide-cursor-deferred)
