@@ -8,7 +8,8 @@ base = zephyr
 [build]
 sysbuild = true
 pristine = auto
-board = xiao_esp32s3/esp32s3/procpu
+# board = xiao_esp32s3/esp32s3/procpu
+board = xiao_esp32s3/esp32s3/procpu/sense
 
 [flash]
 rebuild = true
@@ -23,15 +24,18 @@ menuconfig = build apps/firmware -p=never -t menuconfig
 r  = build -b qemu_riscv32 libs/firmware --no-sysbuild -d build/qemu_riscv32 -t run
 
 bw = build apps/firmware -b walter/esp32s3/procpu -d build/walter_esp32s3_procpu
-bx = build apps/firmware -b xiao_esp32s3/esp32s3/procpu -d build/xiao_esp32s3_procpu
+# bx = build apps/firmware -b xiao_esp32s3/esp32s3/procpu -d build/xiao_esp32s3_procpu
+bx = build apps/firmware -b xiao_esp32s3/esp32s3/procpu/sense -d build/xiao_esp32s3_procpu_sense
 
 fw = flash -d build/walter_esp32s3_procpu --esp-device hwgrep://D0:CF:13:54:27:18
-fx = flash -d build/xiao_esp32s3_procpu --esp-device hwgrep://8C:BF:EA:8E:AC:28
+# fx = flash -d build/xiao_esp32s3_procpu --esp-device hwgrep://8C:BF:EA:8E:AC:28
+fx = flash -d build/xiao_esp32s3_procpu_sense --esp-device hwgrep://CC:BA:97:16:2B:68
 
 mw = espressif monitor -p hwgrep://D0:CF:13:54:27:18
-mx = espressif monitor -p hwgrep://8C:BF:EA:8E:AC:28
+# mx = espressif monitor -p hwgrep://8C:BF:EA:8E:AC:28
+mx = espressif monitor -p hwgrep://CC:BA:97:16:2B:68
 
-ax = attach -d build/xiao_esp32s3_procpu --runner probe-rs
+ax = attach -d build/xiao_esp32s3_procpu_sense --runner probe-rs
 
 dtw = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/walter_esp32s3_procpu/firmware/zephyr/zephyr.dts
-dtx = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/xiao_esp32s3_procpu/firmware/zephyr/zephyr.dts
+dtx = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/xiao_esp32s3_procpu_sense/firmware/zephyr/zephyr.dts
