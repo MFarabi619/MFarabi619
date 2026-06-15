@@ -1,13 +1,17 @@
 #![no_std]
 
-pub mod networking;
+extern crate alloc;
+
+pub mod icons;
+pub mod prompt;
 pub mod shell;
 
-use core::ffi::c_int;
+pub mod networking;
+
 use log::{info, warn};
 use zephyr::{
     error::to_result_void,
-    raw::{boot_is_img_confirmed, boot_write_img_confirmed, init_entry},
+    raw::{boot_is_img_confirmed, boot_write_img_confirmed},
 };
 
 #[cfg(dt = "labels::modem")]
@@ -18,6 +22,9 @@ use crate::networking::wifi;
 
 #[cfg(all(not(dt = "labels::modem"), CONFIG_WIREGUARD))]
 use crate::networking::wireguard;
+
+use core::ffi::c_int;
+use zephyr::raw::init_entry;
 
 unsafe extern "C" {
     fn esp_flash_app_init();
@@ -50,10 +57,6 @@ extern "C" fn rust_main() {
     }
     info!("rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
 
-    let _ = shell::set_prompt(
-        core::ffi::CStr::from_bytes_with_nul(b"\x1b[32mfirmware\x1b[0m:~$ \0").unwrap(),
-    );
-
     #[cfg(dt = "labels::modem")]
     router();
 
@@ -66,6 +69,12 @@ extern "C" fn rust_main() {
             Err(e) => warn!("boot confirm: {e}"),
         }
     }
+
+    zephyr::time::sleep(zephyr::time::Duration::millis_at_least(200));
+    shell::probe_terminal_size();
+    let p = prompt::build_prompt();
+    let _ = shell::set_prompt(p.as_c_str());
+    shell::redraw_prompt();
 }
 
 #[cfg(dt = "labels::modem")]

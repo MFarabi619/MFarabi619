@@ -122,10 +122,10 @@ index 6fd4f77..a3fa2b3 100644
          } else if let Some(caps) = config_int.captures(&line) {
              writeln!(&mut f, "#[allow(dead_code)]").unwrap();
 diff --git a/zephyr-sys/build.rs b/zephyr-sys/build.rs
-index 6b825d1..35dc67b 100644
+index 6b825d1..afebb6c 100644
 --- a/zephyr-sys/build.rs
 +++ b/zephyr-sys/build.rs
-@@ -113,6 +113,38 @@ fn main() -> anyhow::Result<()> {
+@@ -113,6 +113,43 @@ fn main() -> anyhow::Result<()> {
          // UART
          .allowlist_item_if("CONFIG_UART_.*", || options.contains("CONFIG_SERIAL"))
          .allowlist_function_if("uart_.*", || options.contains("CONFIG_SERIAL"))
@@ -152,6 +152,11 @@ index 6b825d1..35dc67b 100644
 +        // Cellular
 +        .allowlist_function_if("cellular_.*", || options.contains("CONFIG_MODEM_CELLULAR"))
 +        .allowlist_item_if("cellular_.*", || options.contains("CONFIG_MODEM_CELLULAR"))
++        // Shell
++        .allowlist_function_if("shell_.*", || options.contains("CONFIG_SHELL"))
++        .allowlist_function_if("z_shell_.*", || options.contains("CONFIG_SHELL"))
++        .allowlist_item_if("shell_.*", || options.contains("CONFIG_SHELL"))
++        .allowlist_item_if("SHELL_.*", || options.contains("CONFIG_SHELL"))
 +        // Base64
 +        .allowlist_function_if("base64_.*", || options.contains("CONFIG_BASE64"))
 +        // PM device
@@ -165,13 +170,17 @@ index 6b825d1..35dc67b 100644
          .generate()
          .expect("Unable to generate bindings");
 diff --git a/zephyr-sys/wrapper.h b/zephyr-sys/wrapper.h
-index dbb3842..6f905b8 100644
+index dbb3842..2f7456a 100644
 --- a/zephyr-sys/wrapper.h
 +++ b/zephyr-sys/wrapper.h
-@@ -90,6 +90,66 @@ extern int errno;
+@@ -90,6 +90,70 @@ extern int errno;
  #include <zephyr/logging/log.h>
  #include <zephyr/irq.h>
  
++#ifdef CONFIG_SHELL
++#include <zephyr/shell/shell.h>
++#endif
++
 +#ifdef CONFIG_NETWORKING
 +#include <zephyr/net/net_if.h>
 +#include <zephyr/net/net_ip.h>
@@ -235,7 +244,7 @@ index dbb3842..6f905b8 100644
  /*
   * bindgen will only output #defined constants that resolve to simple numbers.  These are some
   * symbols that we want exported that, at least in some situations, are more complex, usually with a
-@@ -102,6 +162,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
+@@ -102,6 +166,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
  
  const uint32_t ZR_POLL_TYPE_SEM_AVAILABLE = K_POLL_TYPE_SEM_AVAILABLE;
  const uint32_t ZR_POLL_TYPE_SIGNAL = K_POLL_TYPE_SIGNAL;

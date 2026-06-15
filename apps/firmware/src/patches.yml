@@ -138,7 +138,7 @@ patches:
   # ===== walter-router =====
 
   - path: rust.patch
-    sha256sum: 95a0acf717737a9a170e583ad1a3c9037cb4ce28f64393fc0f50cba6bc54cff2
+    sha256sum: f5ea3af871a4e1de3f30efa2fa9b25aee791d0a566ea591c37e379673e24c331
     module: lang-rust
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
@@ -348,7 +348,7 @@ patches:
   # ===== shared (both boards) =====
 
   - path: shell.patch
-    sha256sum: 247539c0f29e46338020c2d0319d54af346ecfd4a46177db542674ad14967dc5
+    sha256sum: 620ba134245af92dc16a9b302b7f67b6af5068b92fefe85e1be5f3c114a3f4b0
     module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca

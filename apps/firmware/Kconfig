@@ -12,4 +12,8 @@ config FORCE_RUST_SUPPORTED
 	default y
 	select RUST_SUPPORTED
 
+config PROMPT_TZ_OFFSET_MINUTES
+	int "Prompt clock timezone offset (minutes from UTC)"
+	default 0
+
 source "Kconfig.zephyr"

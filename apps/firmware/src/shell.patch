@@ -12,10 +12,10 @@ index 2478bd87eee..ba5b3854e85 100644
  	default 20
  	help
 diff --git a/subsys/shell/shell_utils.h b/subsys/shell/shell_utils.h
-index 0af5d7d68cc..1c7dbeb553a 100644
+index 0af5d7d68cc..630242ea8f5 100644
 --- a/subsys/shell/shell_utils.h
 +++ b/subsys/shell/shell_utils.h
-@@ -33,7 +33,31 @@ void z_shell_multiline_data_calc(struct shell_multiline_cons *cons,
+@@ -33,7 +33,40 @@ void z_shell_multiline_data_calc(struct shell_multiline_cons *cons,
  
  static inline uint16_t z_shell_strlen(const char *str)
  {
@@ -38,6 +38,15 @@ index 0af5d7d68cc..1c7dbeb553a 100644
 +			}
 +			continue;
 +		}
++		if (*p == '\n') {
++			visible = 0;
++			p++;
++			continue;
++		}
++		if (*p == '\r') {
++			p++;
++			continue;
++		}
 +		if ((*p & 0xC0) != 0x80) {
 +			visible++;
 +		}
@@ -46,5 +55,5 @@ index 0af5d7d68cc..1c7dbeb553a 100644
 +
 +	return visible;
  }
- 
+
  char z_shell_make_argv(size_t *argc, const char **argv,
