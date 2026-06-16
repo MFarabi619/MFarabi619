@@ -1,5 +1,5 @@
 diff --git a/subsys/shell/Kconfig b/subsys/shell/Kconfig
-index 2478bd87eee..ba5b3854e85 100644
+index 2478bd87eee..152dfdfa6fe 100644
 --- a/subsys/shell/Kconfig
 +++ b/subsys/shell/Kconfig
 @@ -79,7 +79,7 @@ config SHELL_PROMPT_CHANGE
@@ -7,10 +7,39 @@ index 2478bd87eee..ba5b3854e85 100644
  	int "Shell prompt buffer size"
  	depends on SHELL_PROMPT_CHANGE
 -	range 2 40
-+	range 2 1024
++	range 2 4096
  	default 10 if SHELL_MINIMAL
  	default 20
  	help
+diff --git a/subsys/shell/shell.c b/subsys/shell/shell.c
+index d7a08c9a5ab..1be288aa5e1 100644
+--- a/subsys/shell/shell.c
++++ b/subsys/shell/shell.c
+@@ -2107,20 +2107,21 @@ int shell_prompt_change(const struct shell *sh, const char *prompt)
+ 		return -EINVAL;
+ 	}
+ 
+-	size_t prompt_length = z_shell_strlen(prompt);
++	size_t prompt_bytes = strlen(prompt);
++	size_t prompt_visible = z_shell_strlen(prompt);
+ 
+ 	if (!z_shell_trylock(sh, SHELL_TX_MTX_TIMEOUT)) {
+ 		return -EBUSY;
+ 	}
+ 
+-	if (prompt_length + 1 > CONFIG_SHELL_PROMPT_BUFF_SIZE) {
++	if (prompt_bytes + 1 > CONFIG_SHELL_PROMPT_BUFF_SIZE) {
+ 		z_shell_unlock(sh);
+ 		return -EINVAL;
+ 	}
+ 
+ 	strcpy(sh->ctx->prompt, prompt);
+ 
+-	sh->ctx->vt100_ctx.cons.name_len = prompt_length;
++	sh->ctx->vt100_ctx.cons.name_len = prompt_visible;
+ 
+ 	z_shell_unlock(sh);
+ 
 diff --git a/subsys/shell/shell_utils.h b/subsys/shell/shell_utils.h
 index 0af5d7d68cc..630242ea8f5 100644
 --- a/subsys/shell/shell_utils.h
@@ -55,5 +84,5 @@ index 0af5d7d68cc..630242ea8f5 100644
 +
 +	return visible;
  }
-
+ 
  char z_shell_make_argv(size_t *argc, const char **argv,

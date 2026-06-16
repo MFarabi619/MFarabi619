@@ -66,6 +66,7 @@ pub const NF_MD_PUBLIC:       &str = "\u{f151f}";
 pub const NF_MD_TEMP:         &str = "\u{f0403}";
 pub const NF_MD_SSH:          &str = "\u{f12c0}";
 pub const NF_MD_RAM:          &str = "\u{f0e4}";
+pub const NF_MD_KITE:         &str = "\u{f1985}";
 
 // ─── Powerline (nf-ple-*) ───────────────────────────────────────────────────
 

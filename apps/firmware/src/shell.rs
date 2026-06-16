@@ -75,42 +75,42 @@ pub fn probe_terminal_size() {
 pub mod theme {
     use crate::icons;
 
-    pub const OS_ICON: &str = icons::NF_FA_MICROCHIP;
-    pub const OS_FG: &str = "\x1b[30m";
-    pub const OS_BG: &str = "\x1b[44m";
-    pub const OS_BG_AS_FG: &str = "\x1b[34m";
+    pub const OS_ICON: &str = icons::NF_MD_KITE;
+    pub const OS_FG: &str = "\x1b[38;2;0;0;0m";
+    pub const OS_BG: &str = "\x1b[48;2;220;200;150m";
+    pub const OS_BG_AS_FG: &str = "\x1b[38;2;220;200;150m";
 
     pub const HOME_ICON: &str = icons::NF_FA_HOME;
     pub const ROOT_ICON: &str = icons::NF_FA_LOCK;
     pub const FOLDER_ICON: &str = icons::NF_FA_FOLDER_OPEN;
-    pub const DIR_FG: &str = "\x1b[30m";
-    pub const DIR_BG: &str = "\x1b[45m";
-    pub const DIR_BG_AS_FG: &str = "\x1b[35m";
+    pub const DIR_FG: &str = "\x1b[38;2;0;0;0m";
+    pub const DIR_BG: &str = "\x1b[48;2;142;122;181m";
+    pub const DIR_BG_AS_FG: &str = "\x1b[38;2;142;122;181m";
 
     pub const ARCH_ICON: &str = icons::NF_MD_ARCH;
     pub const ARCH_LABEL: &str = zephyr::kconfig::CONFIG_ARCH;
-    pub const ARCH_FG: &str = "\x1b[30m";
-    pub const ARCH_BG: &str = "\x1b[43m";
-    pub const ARCH_BG_AS_FG: &str = "\x1b[33m";
+    pub const ARCH_FG: &str = "\x1b[38;2;0;0;0m";
+    pub const ARCH_BG: &str = "\x1b[48;2;229;177;83m";
+    pub const ARCH_BG_AS_FG: &str = "\x1b[38;2;229;177;83m";
 
-    pub const STATUS_OK_FG: &str = "\x1b[1;32m";
+    pub const STATUS_OK_FG: &str = "\x1b[1;38;2;46;204;113m";
     pub const STATUS_OK_GLYPH: &str = "\u{2713}";
-    pub const STATUS_ERR_FG: &str = "\x1b[1;31m";
+    pub const STATUS_ERR_FG: &str = "\x1b[1;38;2;231;76;60m";
     pub const STATUS_ERR_GLYPH: &str = "\u{2717}";
 
-    pub const CTX_FG: &str = "\x1b[33m";
-    pub const CTX_BG: &str = "\x1b[40m";
-    pub const CTX_BG_AS_FG: &str = "\x1b[30m";
+    pub const CTX_FG: &str = "\x1b[38;2;229;177;83m";
+    pub const CTX_BG: &str = "\x1b[48;2;30;30;30m";
+    pub const CTX_BG_AS_FG: &str = "\x1b[38;2;30;30;30m";
 
     pub const RAM_ICON: &str = icons::NF_MD_RAM;
-    pub const RAM_FG: &str = "\x1b[30m";
-    pub const RAM_BG: &str = "\x1b[43m";
-    pub const RAM_BG_AS_FG: &str = "\x1b[33m";
+    pub const RAM_FG: &str = "\x1b[38;2;0;0;0m";
+    pub const RAM_BG: &str = "\x1b[48;2;229;177;83m";
+    pub const RAM_BG_AS_FG: &str = "\x1b[38;2;229;177;83m";
 
     pub const CLOCK_ICON: &str = icons::NF_FA_CLOCK;
-    pub const CLOCK_FG: &str = "\x1b[30m";
-    pub const CLOCK_BG: &str = "\x1b[47m";
-    pub const CLOCK_BG_AS_FG: &str = "\x1b[37m";
+    pub const CLOCK_FG: &str = "\x1b[38;2;0;0;0m";
+    pub const CLOCK_BG: &str = "\x1b[48;2;220;200;150m";
+    pub const CLOCK_BG_AS_FG: &str = "\x1b[38;2;220;200;150m";
 
     pub const LEFT_SEGMENT_SEPARATOR: &str = icons::NF_PLE_LEFT_HARD;
     pub const RIGHT_SEGMENT_SEPARATOR: &str = icons::NF_PLE_RIGHT_HARD;

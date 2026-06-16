@@ -348,7 +348,7 @@ patches:
   # ===== shared (both boards) =====
 
   - path: shell.patch
-    sha256sum: 620ba134245af92dc16a9b302b7f67b6af5068b92fefe85e1be5f3c114a3f4b0
+    sha256sum: b09414f902bc10a6536c286544259909f3a81943b855c2392fd46307ca32c081
     module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
