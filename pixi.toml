@@ -1,0 +1,45 @@
+[workspace]
+version = "0.1.0"
+name = "MFarabi619"
+authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
+description = "Monorepo ROS 2 + RoboStack environment"
+channels = ["https://prefix.dev/conda-forge"]
+platforms = ["linux-64", "win-64", "osx-64", "osx-arm64", "linux-aarch64"]
+
+[tasks]
+robot = { cmd = "ros2 run robot hat_mdd10sm", depends-on = ["build"] }
+teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
+
+[target.win.activation]
+scripts = ["install/setup.bat"]
+
+[target.unix.activation]
+scripts = ["install/setup.bash"]
+
+[feature.build.target.win-64.tasks]
+build = "colcon build --merge-install --paths libs/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
+
+[feature.build.target.unix.tasks]
+build = "colcon build --symlink-install --paths libs/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
+
+[dependencies]
+make = "*"
+cmake = "*"
+ninja = "*"
+python = "*"
+rosdep = "*"
+compilers = "*"
+pkg-config = "*"
+colcon-common-extensions = "*"
+
+[target.linux.dependencies]
+libgl-devel = "*"
+
+[environments]
+lyrical = { features = ["lyrical", "build"] }
+
+[feature.lyrical]
+channels = ["https://prefix.dev/robostack-lyrical"]
+
+[feature.lyrical.dependencies]
+ros-lyrical-desktop = "*"

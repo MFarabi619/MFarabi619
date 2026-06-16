@@ -17,6 +17,10 @@ tests/env_spec.sh
 apps/ceratina/tests/__pycache__
 learning/assembly/build/
 config/data.sqld
+.pixi/
+/install/
+/build/
+/log/
 
 #====================================================
 #                 CACHES/LOGS
