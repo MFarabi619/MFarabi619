@@ -69,6 +69,7 @@
             semver
             pygments
             kconfiglib
+            kconfig-frontends
           ]
           ++ [
             # NOTE: for west twister
