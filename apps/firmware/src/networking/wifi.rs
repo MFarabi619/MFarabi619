@@ -13,7 +13,8 @@ use zephyr::{
         net_mgmt_NET_REQUEST_WIFI_AP_ENABLE, net_mgmt_NET_REQUEST_WIFI_CONNECT_STORED,
         net_mgmt_add_event_callback, net_mgmt_del_event_callback, net_mgmt_event_callback,
         net_mgmt_init_event_callback, wifi_connect_req_params,
-        wifi_credentials_get_by_ssid_personal_struct, wifi_credentials_personal,
+        wifi_credentials_for_each_ssid, wifi_credentials_get_by_ssid_personal_struct,
+        wifi_credentials_is_empty, wifi_credentials_personal,
         wifi_frequency_bands_WIFI_FREQ_BAND_2_4_GHZ, wifi_mfp_options_WIFI_MFP_OPTIONAL,
         wifi_security_type_WIFI_SECURITY_TYPE_NONE, ZR_NET_EVENT_IPV4_DHCP_BOUND,
     },
@@ -110,17 +111,70 @@ pub mod ap {
         }
     }
 
-    /// SSID = hostname; PSK comes from wifi_credentials by SSID, open AP if unset.
-    pub fn initialize() -> zephyr::Result<()> {
-        let ssid = zephyr::kconfig::CONFIG_NET_HOSTNAME;
+    /// Pulls the first stored SSID via `wifi_credentials_for_each_ssid` into the buffer.
+    /// Returns Some(len) on capture, None if the store is empty.
+    fn first_stored_ssid(buf: &mut [u8; 32]) -> Option<usize> {
+        if unsafe { wifi_credentials_is_empty() } {
+            return None;
+        }
 
-        let mut creds: wifi_credentials_personal = unsafe { core::mem::zeroed() };
-        let cred_rc = unsafe {
-            wifi_credentials_get_by_ssid_personal_struct(
-                ssid.as_ptr() as *const c_char,
-                ssid.len(),
-                &mut creds,
-            )
+        struct Sink<'a> {
+            dst: &'a mut [u8; 32],
+            len: usize,
+            captured: bool,
+        }
+
+        unsafe extern "C" fn cb(arg: *mut c_void, ssid: *const c_char, ssid_len: usize) {
+            let sink = unsafe { &mut *(arg as *mut Sink<'_>) };
+            if sink.captured {
+                return;
+            }
+            let n = ssid_len.min(sink.dst.len());
+            unsafe {
+                core::ptr::copy_nonoverlapping(ssid as *const u8, sink.dst.as_mut_ptr(), n);
+            }
+            sink.len = n;
+            sink.captured = true;
+        }
+
+        let mut sink = Sink { dst: buf, len: 0, captured: false };
+        unsafe {
+            wifi_credentials_for_each_ssid(Some(cb), &mut sink as *mut _ as *mut c_void);
+        }
+        sink.captured.then_some(sink.len)
+    }
+
+    /// SSID + PSK from `wifi_credentials` if any are stored; otherwise the
+    /// hostname comes up as an open AP for first-time provisioning.
+    pub fn initialize() -> zephyr::Result<()> {
+        let mut ssid_buf: [u8; 32] = [0; 32];
+        let stored_len = first_stored_ssid(&mut ssid_buf);
+
+        let (ssid_ptr, ssid_len, creds_opt) = if let Some(n) = stored_len {
+            let mut creds: wifi_credentials_personal = unsafe { core::mem::zeroed() };
+            let rc = unsafe {
+                wifi_credentials_get_by_ssid_personal_struct(
+                    ssid_buf.as_ptr() as *const c_char,
+                    n,
+                    &mut creds,
+                )
+            };
+            let creds = if rc == 0 && creds.password_len > 0 {
+                Some(creds)
+            } else {
+                if rc != 0 {
+                    warn!("cred load: errno {rc}");
+                }
+                None
+            };
+            (ssid_buf.as_ptr() as *const c_char, n, creds)
+        } else {
+            let hostname = zephyr::kconfig::CONFIG_NET_HOSTNAME;
+            (hostname.as_ptr() as *const c_char, hostname.len(), None)
+        };
+
+        let ssid_str = unsafe {
+            core::str::from_utf8_unchecked(core::slice::from_raw_parts(ssid_ptr as *const u8, ssid_len))
         };
 
         // Must run BEFORE AP_ENABLE: clients that associate before the gw/netmask
@@ -140,22 +194,17 @@ pub mod ap {
         }
 
         let mut params: wifi_connect_req_params = unsafe { core::mem::zeroed() };
-        params.ssid = ssid.as_ptr();
-        params.ssid_length = ssid.len() as u8;
-        if cred_rc != 0 || creds.password_len == 0 {
-            if cred_rc != 0 && cred_rc != -2
-            /* -ENOENT */
-            {
-                warn!("cred load: errno {cred_rc}");
-            }
-            info!("no stored cred for '{ssid}' — open AP for provisioning");
-            params.security = wifi_security_type_WIFI_SECURITY_TYPE_NONE;
-        } else {
-            info!("using stored cred for '{ssid}'");
-            params.psk = creds.password.as_ptr() as *const u8;
-            params.psk_length = creds.password_len as u8;
-            params.security = creds.header.type_ as u32;
+        params.ssid = ssid_ptr as *const u8;
+        params.ssid_length = ssid_len as u8;
+        if let Some(c) = creds_opt.as_ref() {
+            info!("using stored cred for '{ssid_str}'");
+            params.psk = c.password.as_ptr() as *const u8;
+            params.psk_length = c.password_len as u8;
+            params.security = c.header.type_ as u32;
             params.mfp = wifi_mfp_options_WIFI_MFP_OPTIONAL;
+        } else {
+            info!("no stored cred — open AP '{ssid_str}' for provisioning");
+            params.security = wifi_security_type_WIFI_SECURITY_TYPE_NONE;
         }
         params.channel = WIFI_CHANNEL_ANY;
         params.band = wifi_frequency_bands_WIFI_FREQ_BAND_2_4_GHZ as u8;
@@ -168,7 +217,7 @@ pub mod ap {
                 core::mem::size_of::<wifi_connect_req_params>(),
             )
         })?;
-        info!("enabled ssid={ssid}");
+        info!("enabled ssid={ssid_str}");
 
         Ok(())
     }
