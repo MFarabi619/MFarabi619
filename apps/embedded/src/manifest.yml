@@ -23,6 +23,16 @@ manifest:
           path: modules/lib/morsemicro
           url: https://github.com/craigpeacock/mm-iot-zephyr
 
+        - name: nuttx
+          revision: nuttx-12.13.0
+          path: nuttx
+          url: https://github.com/apache/nuttx
+
+        - name: nuttx-apps
+          revision: nuttx-12.13.0
+          path: examples/nuttx-apps
+          url: https://github.com/apache/nuttx-apps
+
         # NOTE: uncomment CONFIG_WOLFSSH guard in CMakeLists.txt to use
         # - name: wolfssl
         #   remote: wolfssl

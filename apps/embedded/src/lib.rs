@@ -2,35 +2,37 @@
 
 extern crate alloc;
 
-pub mod icons;
-pub mod prompt;
-pub mod shell;
-
-pub mod networking;
+use firmware::shell;
 
 use log::{info, warn};
+
+#[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]
+use firmware::networking::{cellular, dns, nat, wifi};
+
+#[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem")))]
+use firmware::networking::wifi;
+
+#[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem"), CONFIG_WIREGUARD))]
+use firmware::networking::wireguard;
+
+#[cfg(CONFIG_BOOTLOADER_MCUBOOT)]
 use zephyr::{
     error::to_result_void,
     raw::{boot_is_img_confirmed, boot_write_img_confirmed},
 };
 
-#[cfg(dt = "labels::modem")]
-use crate::networking::{cellular, dns, nat, wifi};
-
-#[cfg(not(dt = "labels::modem"))]
-use crate::networking::wifi;
-
-#[cfg(all(not(dt = "labels::modem"), CONFIG_WIREGUARD))]
-use crate::networking::wireguard;
-
+#[cfg(target_arch = "xtensa")]
 use core::ffi::c_int;
+#[cfg(target_arch = "xtensa")]
 use zephyr::raw::init_entry;
 
+#[cfg(target_arch = "xtensa")]
 unsafe extern "C" {
     fn esp_flash_app_init();
     fn esp_flash_init_default_chip() -> c_int;
 }
 
+#[cfg(target_arch = "xtensa")]
 unsafe extern "C" fn flash_default_chip_init() -> c_int {
     unsafe {
         esp_flash_app_init();
@@ -39,10 +41,13 @@ unsafe extern "C" fn flash_default_chip_init() -> c_int {
     0
 }
 
+#[cfg(target_arch = "xtensa")]
 #[repr(transparent)]
 struct InitEntry(#[allow(dead_code)] init_entry);
+#[cfg(target_arch = "xtensa")]
 unsafe impl Sync for InitEntry {}
 
+#[cfg(target_arch = "xtensa")]
 #[used]
 #[link_section = ".z_init_POST_KERNEL_P_99_SUB_0_"]
 static FLASH_INIT_ENTRY: InitEntry = InitEntry(init_entry {
@@ -57,12 +62,13 @@ extern "C" fn rust_main() {
     }
     info!("rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
 
-    #[cfg(dt = "labels::modem")]
+    #[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]
     router();
 
-    #[cfg(not(dt = "labels::modem"))]
+    #[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem")))]
     node();
 
+    #[cfg(CONFIG_BOOTLOADER_MCUBOOT)]
     if !unsafe { boot_is_img_confirmed() } {
         match to_result_void(unsafe { boot_write_img_confirmed() }) {
             Ok(()) => info!("boot: image confirmed"),
@@ -70,14 +76,12 @@ extern "C" fn rust_main() {
         }
     }
 
-    zephyr::time::sleep(zephyr::time::Duration::millis_at_least(200));
-    shell::probe_terminal_size();
-    let p = prompt::build_prompt();
-    let _ = shell::set_prompt(p.as_c_str());
-    shell::redraw_prompt();
+    if let Err(e) = shell::initialize() {
+        warn!("shell: {e}");
+    }
 }
 
-#[cfg(dt = "labels::modem")]
+#[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]
 fn router() {
     if let Err(e) = cellular::initialize() {
         warn!("cellular: {e}");
@@ -93,7 +97,7 @@ fn router() {
     }
 }
 
-#[cfg(not(dt = "labels::modem"))]
+#[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem")))]
 fn node() {
     if let Err(e) = wifi::sta::initialize() {
         warn!("wifi sta: {e}");

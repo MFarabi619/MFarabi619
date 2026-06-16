@@ -4070,6 +4070,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded"
+version = "0.1.0"
+dependencies = [
+ "firmware",
+ "log",
+ "zephyr",
+ "zephyr-build",
+]
+
+[[package]]
 name = "embedded-can"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10742,14 +10752,6 @@ dependencies = [
  "serde",
  "serde_json",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "rustapp"
-version = "0.1.0"
-dependencies = [
- "log",
- "zephyr",
 ]
 
 [[package]]

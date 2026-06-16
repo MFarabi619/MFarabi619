@@ -1,3 +1,5 @@
+pub mod prompt;
+
 use core::ffi::{c_char, c_int, c_void, CStr};
 
 extern "C" {
@@ -8,6 +10,23 @@ extern "C" {
     fn shell_execute_cmd(sh: *const zephyr::raw::shell, cmd: *const c_char) -> i32;
     fn shell_get_return_value(sh: *const zephyr::raw::shell) -> i32;
     pub fn gmtime_r(timer: *const i64, result: *mut Tm) -> *mut Tm;
+    pub fn sys_clock_gettime(clock_id: c_int, tp: *mut Timespec) -> c_int;
+}
+
+#[repr(C)]
+#[derive(Default)]
+pub struct Timespec {
+    pub tv_sec: i64,
+    pub tv_nsec: i64,
+}
+
+pub fn initialize() -> zephyr::Result<()> {
+    zephyr::time::sleep(zephyr::time::Duration::millis_at_least(200));
+    probe_terminal_size();
+    let p = prompt::build_prompt();
+    set_prompt(p.as_c_str())?;
+    redraw_prompt();
+    Ok(())
 }
 
 pub fn last_return_value() -> i32 {

@@ -1,12 +1,12 @@
 [package]
-name = "rustapp"
+name = "firmware"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
 
-[lib]
-crate-type = ["staticlib"]
-
 [dependencies]
 zephyr = "0.1.0"
 log = "0.4"
+
+[build-dependencies]
+zephyr-build = "0.1.0"

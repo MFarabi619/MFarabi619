@@ -2,15 +2,15 @@ use alloc::ffi::CString;
 use alloc::string::String;
 use core::fmt::Write;
 
-use crate::shell::{self, theme};
+use super::{self as shell, theme};
 
 fn build_frame() -> String {
     let mut out = String::new();
 
     let board = zephyr::kconfig::CONFIG_BOARD;
 
-    let mut ts = zephyr::raw::timespec::default();
-    let synced = unsafe { zephyr::raw::sys_clock_gettime(1, &mut ts) } == 0
+    let mut ts = shell::Timespec::default();
+    let synced = unsafe { shell::sys_clock_gettime(1, &mut ts) } == 0
         && ts.tv_sec > 1_577_836_800;
 
     let uptime_ms = unsafe { zephyr::raw::k_uptime_get() };

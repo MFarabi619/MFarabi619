@@ -155,7 +155,7 @@ patches:
             and CRATE_NAME / FEATURES args to `rust_cargo_application()`.
             (The matching RUST_SUPPORTED Kconfig gate is bypassed
             downstream via `select RUST_SUPPORTED` in
-            apps/firmware/Kconfig — no upstream patch needed for that.)
+            apps/embedded/Kconfig — no upstream patch needed for that.)
 
          b. Refine the RV32I branch (upstream's own TODO comment on
             line 47 asks for this). Upstream unconditionally returns

@@ -1,14 +1,14 @@
 [workspace]
 resolver = "3"
 exclude = ["ml"]
-default-members = ["apps/firmware"]
+default-members = ["apps/embedded"]
 members = [
     "web",
     "tui",
     "tests/e2e",
     "apps/server",
     "apps/readme",
-    "apps/firmware",
+    "apps/embedded",
     "libs/firmware",
     "apps/ceratina",
     "libs/lazyzephyr",

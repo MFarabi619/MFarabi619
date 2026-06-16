@@ -23,6 +23,8 @@ fn main() {
         "CONFIG_WIREGUARD",
         "CONFIG_NET_DHCPV4_SERVER",
         "CONFIG_NET_PKT_FILTER_IPV4_HOOK",
+        "CONFIG_NETWORKING",
+        "CONFIG_BOOTLOADER_MCUBOOT",
     ] {
         println!("cargo:rustc-check-cfg=cfg({cfg})");
     }

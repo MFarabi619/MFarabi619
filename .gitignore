@@ -64,6 +64,8 @@ local.properties
 .pnp.js
 build/
 
+/nuttx/
+/examples/nuttx-apps/
 /zephyr/
 /bootloader/
 /modules/audio/
