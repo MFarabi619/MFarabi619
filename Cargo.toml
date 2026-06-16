@@ -5,15 +5,15 @@ default-members = ["apps/firmware"]
 members = [
     "web",
     "tui",
-    "apps/server",
-    "apps/server/migration",
     "tests/e2e",
+    "apps/server",
     "apps/readme",
+    "apps/firmware",
+    "libs/firmware",
     "apps/ceratina",
     "libs/lazyzephyr",
     "apps/lazyzephyr",
-    "apps/firmware",
-    "libs/firmware",
+    "apps/server/migration",
 ]
 
 [workspace.dependencies]
