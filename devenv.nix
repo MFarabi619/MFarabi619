@@ -12,11 +12,9 @@ in
 {
   name = "microvisor";
 
-  imports = map (path: ./config + path) [
-    "/services"
-  ];
+  # imports = map (path: ./config + path) [ "/services" ];
 
-  env.PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_25}/bin/node";
+  # env.PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_26}/bin/node";
 
   packages =
     with pkgs-unstable;
@@ -68,52 +66,52 @@ in
     tio.exec = ''HOME="$DEVENV_ROOT" ${pkgs.tio}/bin/tio "$@"'';
   };
 
-  processes = {
-    # "cargo:loco:watch" = {
-    #   exec = "cargo loco watch";
-    #   ports.http.allocate = config.languages.rust.loco.config.development.server.port;
-    #   process-compose = {
-    #     is_tty = true;
-    #     namespace = "🧩 API";
-    #   };
-    # };
-  }
-  //
-    builtins.mapAttrs
-      (_: cfg: {
-        process-compose = {
-          is_tty = true;
-          namespace = "🎡 SERVICES";
-        };
-      })
-      {
-        sqld.enable = false;
-        caddy.enable = true;
-        mailpit.enable = true;
-        prometheus.enable = false;
-        "tailscale-funnel".enable = false;
-      }
-  // lib.optionalAttrs (!config.devenv.isTesting) {
-    console = {
-      exec = ''
-        ttyd --writable --browser --url-arg --once devenv up
-      '';
-      process-compose = {
-        disabled = true;
-        namespace = "🧮 VIEWS";
-        description = "🕹 Attach the Microvisor Kernel to the Browser";
-      };
-    };
-  };
+  # processes = {
+  #   # "cargo:loco:watch" = {
+  #   #   exec = "cargo loco watch";
+  #   #   ports.http.allocate = config.languages.rust.loco.config.development.server.port;
+  #   #   process-compose = {
+  #   #     is_tty = true;
+  #   #     namespace = "🧩 API";
+  #   #   };
+  #   # };
+  # }
+  # //
+  #   builtins.mapAttrs
+  #     (_: cfg: {
+  #       process-compose = {
+  #         is_tty = true;
+  #         namespace = "🎡 SERVICES";
+  #       };
+  #     })
+  #     {
+  #       sqld.enable = false;
+  #       caddy.enable = true;
+  #       mailpit.enable = true;
+  #       prometheus.enable = false;
+  #       "tailscale-funnel".enable = false;
+  #     }
+  # // lib.optionalAttrs (!config.devenv.isTesting) {
+  #   console = {
+  #     exec = ''
+  #       ttyd --writable --browser --url-arg --once devenv up
+  #     '';
+  #     process-compose = {
+  #       disabled = true;
+  #       namespace = "🧮 VIEWS";
+  #       description = "🕹 Attach the Microvisor Kernel to the Browser";
+  #     };
+  #   };
+  # };
 
-  profiles =
-    { }
-    // lib.optionalAttrs config.services.postgres.enable {
-      user."mfarabi".module.env = {
-        # BASE_URL = "mfarabi.sh";
-        EXERCISM_API_URL = "https://api.exercism.org/v1";
-      };
-    };
+  # profiles =
+  #   { }
+  #   // lib.optionalAttrs config.services.postgres.enable {
+  #     user."mfarabi".module.env = {
+  #       # BASE_URL = "mfarabi.sh";
+  #       EXERCISM_API_URL = "https://api.exercism.org/v1";
+  #     };
+  #   };
 
   cachix = {
     enable = true;
@@ -142,7 +140,7 @@ in
     typescript.enable = false;
     javascript = {
       bun.enable = true;
-      package = pkgs.nodejs_25;
+      package = pkgs.nodejs_26;
       enable = typescript.enable;
     };
 
