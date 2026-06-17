@@ -9,6 +9,7 @@ platforms = ["linux-64", "win-64", "osx-64", "osx-arm64", "linux-aarch64"]
 [tasks]
 robot = { cmd = "ros2 run robot hat_mdd10sm", depends-on = ["build"] }
 teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
+bridge = "ros2 run foxglove_bridge foxglove_bridge"
 
 [target.win.activation]
 scripts = ["install/setup.bat"]
@@ -47,6 +48,7 @@ channels = ["https://prefix.dev/robostack-lyrical"]
 
 [feature.lyrical.dependencies]
 ros-lyrical-desktop = "*"
+ros-lyrical-foxglove-bridge = "*"
 
 [feature.lyrical.target.linux-aarch64.dependencies]
 lgpio = "*"
