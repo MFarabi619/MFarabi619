@@ -66,7 +66,14 @@
   message-send-mail-function       #'message-send-mail-with-sendmail
   message-sendmail-extra-arguments '("--read-envelope-from"))
 
-(load!        "./dashboard.el")
+(after! doom-dashboard
+  ;; Insert a quote right after the banner widget.
+  (when-let ((pos (cl-position #'doom-dashboard-widget-banner +doom-dashboard-functions)))
+    (setq +doom-dashboard-functions
+          (append (cl-subseq +doom-dashboard-functions 0 (1+ pos))
+                  (list (lambda ()
+                          (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n")))
+                  (cl-subseq +doom-dashboard-functions (1+ pos))))))
 ;; (add-load-path! "pio-mode")
 ;; (use-package! pio-mode)
 (use-package! org-anki)
