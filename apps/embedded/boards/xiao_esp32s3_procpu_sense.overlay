@@ -3,7 +3,7 @@
 		compatible = "zephyr,fstab";
 		sd: sd {
 			compatible = "zephyr,fstab,fatfs";
-			mount-point = "/sd";
+			mount-point = "/SD:";
 			disk-access;
 			automount;
 		};
