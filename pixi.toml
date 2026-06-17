@@ -22,6 +22,9 @@ build = "colcon build --merge-install --paths libs/robot --cmake-args -DCMAKE_EX
 [feature.build.target.unix.tasks]
 build = "colcon build --symlink-install --paths libs/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
 
+[system-requirements]
+libc = { family = "glibc", version = "2.34" }
+
 [dependencies]
 make = "*"
 cmake = "*"
@@ -43,3 +46,6 @@ channels = ["https://prefix.dev/robostack-lyrical"]
 
 [feature.lyrical.dependencies]
 ros-lyrical-desktop = "*"
+
+[feature.lyrical.target.linux-aarch64.dependencies]
+lgpio = "*"
