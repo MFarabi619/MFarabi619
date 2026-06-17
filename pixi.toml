@@ -39,6 +39,7 @@ colcon-common-extensions = "*"
 libgl-devel = "*"
 
 [environments]
+default = { features = ["lyrical", "build"] }
 lyrical = { features = ["lyrical", "build"] }
 
 [feature.lyrical]
