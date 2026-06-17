@@ -1,4 +1,34 @@
 / {
+	ramdisk0 {
+		compatible = "zephyr,ram-disk";
+		disk-name = "RAM";
+		sector-size = <512>;
+		sector-count = <128>;
+	};
+
+	fstab {
+		compatible = "zephyr,fstab";
+
+		lfs: lfs {
+			compatible = "zephyr,fstab,littlefs";
+			mount-point = "/lfs";
+			partition = <&storage_partition>;
+			automount;
+			read-size = <16>;
+			prog-size = <16>;
+			cache-size = <64>;
+			lookahead-size = <32>;
+			block-cycles = <512>;
+		};
+
+		ffs1: ffs1 {
+			compatible = "zephyr,fstab,fatfs";
+			disk-access;
+			automount;
+			mount-point = "/RAM:";
+		};
+	};
+
 	sim_flash: sim_flash {
 		compatible = "zephyr,sim-flash";
 		#address-cells = <1>;
@@ -22,22 +52,6 @@
 					reg = <0x00000000 0x00040000>;
 				};
 			};
-		};
-	};
-
-	fstab {
-		compatible = "zephyr,fstab";
-
-		lfs: lfs {
-			compatible = "zephyr,fstab,littlefs";
-			mount-point = "/lfs";
-			partition = <&storage_partition>;
-			automount;
-			read-size = <16>;
-			prog-size = <16>;
-			cache-size = <64>;
-			lookahead-size = <32>;
-			block-cycles = <512>;
 		};
 	};
 };

@@ -25,6 +25,7 @@ fn main() {
         "CONFIG_NET_PKT_FILTER_IPV4_HOOK",
         "CONFIG_NETWORKING",
         "CONFIG_BOOTLOADER_MCUBOOT",
+        "CONFIG_FS_FATFS_HAS_RTC",
     ] {
         println!("cargo:rustc-check-cfg=cfg({cfg})");
     }

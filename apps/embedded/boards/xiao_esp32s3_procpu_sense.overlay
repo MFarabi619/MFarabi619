@@ -1,0 +1,11 @@
+/ {
+	fstab {
+		compatible = "zephyr,fstab";
+		sd: sd {
+			compatible = "zephyr,fstab,fatfs";
+			mount-point = "/sd";
+			disk-access;
+			automount;
+		};
+	};
+};

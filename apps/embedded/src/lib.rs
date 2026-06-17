@@ -21,6 +21,26 @@ use zephyr::{
     raw::{boot_is_img_confirmed, boot_write_img_confirmed},
 };
 
+#[cfg(CONFIG_FS_FATFS_HAS_RTC)]
+#[no_mangle]
+extern "C" fn get_fattime() -> u32 {
+    let mut wall_clock = shell::Timespec::default();
+    if unsafe { shell::sys_clock_gettime(1, &mut wall_clock) } != 0
+        || wall_clock.tv_sec < 1_577_836_800
+    {
+        return 0;
+    }
+    wall_clock.tv_sec += (zephyr::kconfig::CONFIG_PROMPT_TZ_OFFSET_MINUTES as i64) * 60;
+    let mut calendar = shell::Tm::default();
+    unsafe { shell::gmtime_r(&wall_clock.tv_sec, &mut calendar) };
+    ((calendar.tm_year - 80) as u32) << 25
+        | ((calendar.tm_mon + 1) as u32) << 21
+        | (calendar.tm_mday as u32) << 16
+        | (calendar.tm_hour as u32) << 11
+        | (calendar.tm_min as u32) << 5
+        | ((calendar.tm_sec / 2) as u32)
+}
+
 #[cfg(target_arch = "xtensa")]
 use core::ffi::c_int;
 #[cfg(target_arch = "xtensa")]

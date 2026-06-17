@@ -58,6 +58,10 @@ if(NOT BOARD MATCHES "^qemu_")
   )
 endif()
 
+if(BOARD MATCHES "^qemu_")
+  list(APPEND EXTRA_CONF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystems/fs.conf)
+endif()
+
 if(BOARD MATCHES "^xiao_esp32s3")
   function(app_set_runner_args)
     board_runner_args(probe-rs
