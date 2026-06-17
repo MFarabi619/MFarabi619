@@ -88,8 +88,9 @@
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
 
             ;; (" ESP32S3 :󰐊 build"                 :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
-            (" ESP32S3 :󰐊 build:walter"          :command "west build --board walter/esp32s3/procpu --pristine"                                :annotation "      west 󱦅")
-            (" ESP32S3 :󰐊 build:xiao"            :command "west build --board xiao_esp32s3/esp32s3/procpu --pristine"                          :annotation "      west 󱦅")
+            (" ESP32S3 :󰐊 build:walter"          :command "west build apps/embedded -b walter/esp32s3/procpu -d build/walter_esp32s3_procpu -p" :annotation "      west 󱦅")
+            (" ESP32S3 :󰐊 build:xiao"            :command "west build apps/embedded -b xiao_esp32s3/esp32s3/procpu -d build/xiao_esp32s3_procpu_sense -p" :annotation " west 󱦅")
+            (" ESP32S3 :󰐊 build:qemu"            :command "west build apps/embedded -b qemu_riscv32 -d build/qemu_riscv32 -p"                  :annotation      " west 󱦅")
             (" ESP32S3 :󱈝 build:partition"       :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"              :annotation "cargo +esp ")
             ;; (" ESP32S3 :󰔰 flash"                 :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
             (" ESP32S3 :󰔰 flash:walter"          :command "west flash --esp-device flash --esp-device hwgrep://D0:CF:13:54:27:18"              :annotation "      west 󱦅")
