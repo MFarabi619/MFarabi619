@@ -67,7 +67,7 @@ fn main() -> io::Result<()> {
 
     let mut backend = CanvasBackend::new()?;
     backend.set_background_color(Color::Rgb(1, 1, 1));
-    let terminal = Terminal::new(backend)?;
+    let mut terminal = Terminal::new(backend)?;
 
     terminal.on_key_event({
         let app_state = app_state.clone();
