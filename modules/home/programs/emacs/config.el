@@ -12,7 +12,7 @@
 
 (setopt doom-theme 'doom-gruvbox
   ;; doom-theme 'catppuccin
-  fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
+  fancy-splash-image "~/MFarabi619/assets/icons/apollyon-emacs.png"
 
   mouse-autoselect-window t
 

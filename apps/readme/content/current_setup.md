@@ -1,6 +1,6 @@
 <h1> <a href="https://nixos.org"> <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25"> </a> Current Setup </h1>
 
-| <strong><a href="https://freebsd.org"> <img src="assets/freebsd-symbol.svg" alt="Freebsd Symbol" width="25" height="25"> </a>DoomBSD</a></strong> |<strong><img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"> Apollyon Linux </strong> | <strong><img src="assets/icons/apple.svg" alt="Apple Symbol" width="25" height="25"> MicroDarwin</strong> |
+| <strong><a href="https://freebsd.org"> <img src="assets/icons/freebsd.svg" alt="Freebsd Symbol" width="25" height="25"> </a>DoomBSD</a></strong> |<strong><img src="assets/icons/apollyon-linux.png" alt="Apollyon Linux Symbol" width="25" height="25"> Apollyon Linux </strong> | <strong><img src="assets/icons/apple.svg" alt="Apple Symbol" width="25" height="25"> MicroDarwin</strong> |
 |-|-|-|
 | ![Fastfetch + DoomBSD Config + Doom Emacs Dashboard](assets/fastfetch-doombsd-with-doom-emacs.png) | ![Apollyon Linux](assets/apollyon-linux.jpeg) | ![MicroDarwin](assets/microdarwin.png) |
 
@@ -13,8 +13,8 @@
 | ![Hack the Box theme with btop](https://github.com/user-attachments/assets/b4962240-c274-46e8-bd7d-1cfc0fd38225) | ![Decay Green theme with ugm and pacseek](https://github.com/user-attachments/assets/7cab75e8-167b-4d35-964f-cebef4258b49) | ![Red Stone theme with Lazydocker and K9S](https://github.com/user-attachments/assets/fa60e70c-89b8-4752-b312-49a911feacda) |
 | ![Gruvbox theme with Lazydocker and kmon](https://github.com/user-attachments/assets/7d3cb417-33e2-4eb7-a3bd-910eff87010c) | ![Catpuccin Mocha theme with procs and netscanner](https://github.com/user-attachments/assets/9630c715-e3d6-4f07-9e3d-7292cad37074) | ![Rose Pine theme with Gather on Vivaldi and Discord](https://github.com/user-attachments/assets/630387a9-ccea-4cdd-a7a8-0074331c2360) |
 
-<strong><a href="https://www.gnu.org/software/emacs/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Symbol" width="25" height="25" /></a><a href="https://github.com/doomemacs/doomemacs" >Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.vim.org">
-  <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Symbol" width="25" height="25">
+<strong><a href="https://www.gnu.org/software/emacs/"><img src="assets/icons/emacs.svg" alt="Emacs Symbol" width="25" height="25" /></a><a href="https://github.com/doomemacs/doomemacs" >Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.vim.org">
+  <img src="assets/icons/vim.svg" alt="Vim Symbol" width="25" height="25">
 </a> </strong>
 
 ![Fastfetch + Pacman -Syu + Doom Emacs Dashboard](https://github.com/user-attachments/assets/4016386f-be76-4222-a362-bc4baaa25a6a)

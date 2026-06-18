@@ -1,8 +1,6 @@
-use crate::brand;
-use crate::components::navbar::Navbar;
-use crate::Route;
+use crate::{Route, brand, components::navbar::Navbar};
 use dioxus::prelude::*;
-use dioxus_router::{use_route, Outlet};
+use dioxus_router::{Outlet, use_route};
 use ui::components::toast::ToastProvider;
 
 #[component]
@@ -102,7 +100,7 @@ pub fn MainLayout() -> Element {
                             target: "_blank",
                             rel: "noopener noreferrer",
                             title: "NixOS",
-                            img { class: "inline w-5", src: "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/nix.svg" }
+                            img { class: "inline w-5", src: "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/nix.svg" }
                         }
                         span { ", " }
                         a {
@@ -110,7 +108,7 @@ pub fn MainLayout() -> Element {
                             target: "_blank",
                             rel: "noopener noreferrer",
                             title: "Rust",
-                            img { class: "inline w-5", src: "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/rust-symbol.svg" }
+                            img { class: "inline w-5", src: "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/rust-symbol.svg" }
                         }
                         span { "," }
                         a {
@@ -118,7 +116,7 @@ pub fn MainLayout() -> Element {
                             target: "_blank",
                             rel: "noopener noreferrer",
                             title: "Dioxus",
-                            img { class: "inline w-6", src: "https://raw.githubusercontent.com/DioxusLabs/brand/4f5601935824dd39962f8982feda06c95eae026a/logos/multiplatform.svg" }
+                            img { class: "inline w-6", src: "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/dioxus-multiplatform-animated.svg" }
                         }
                         span { ", & " }
                         a {

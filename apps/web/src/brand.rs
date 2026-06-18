@@ -17,8 +17,8 @@ pub struct NavLink {
     pub href: &'static str,
 }
 
-const MICROVISOR_SYSTEMS_LOGO: Asset = asset!("/assets/microvisor-systems-logo.svg");
-const APIDAE_SYSTEMS_LOGO: Asset = asset!("/assets/apidae-systems-logo.svg");
+const MICROVISOR_SYSTEMS_LOGO: Asset = asset!("/assets/microvisor-systems.svg");
+const APIDAE_SYSTEMS_LOGO: Asset = asset!("/assets/apidae-systems.svg");
 
 pub const MICROVISOR_SYSTEMS: Brand = Brand {
     key: "microvisor_systems",
@@ -30,9 +30,18 @@ pub const MICROVISOR_SYSTEMS: Brand = Brand {
     attribution_name: "Mumtahin Farabi",
     attribution_url: "https://github.com/mfarabi619",
     nav_links: &[
-        NavLink { label: "OpenWS",   href: "https://openws.org" },
-        NavLink { label: "LinkedIn", href: "https://www.linkedin.com/company/microvisor-systems/" },
-        NavLink { label: "GitHub",   href: "https://github.com/microvisor-systems" },
+        NavLink {
+            label: "OpenWS",
+            href: "https://openws.org",
+        },
+        NavLink {
+            label: "LinkedIn",
+            href: "https://www.linkedin.com/company/microvisor-systems/",
+        },
+        NavLink {
+            label: "GitHub",
+            href: "https://github.com/microvisor-systems",
+        },
     ],
 };
 

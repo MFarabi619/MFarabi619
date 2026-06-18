@@ -16,7 +16,7 @@
       # background = "/images/homepage-background.png";
       background = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
       description = "🤖 Beep boop, from bootloader to browser 🤖";
-      favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
+      favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/nix-mfarabi.svg";
 
       quicklaunch = {
         # target = "_blank";
@@ -92,7 +92,7 @@
           {
             "Landing Page" = rec {
               href = "https://microvisor.systems";
-              icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/fe07ec17f23aeb202d11333d8faa62d3b79a103e/assets/nix-mfarabi.svg";
+              icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/nix-mfarabi.svg";
               siteMonitor = href;
             };
           }
@@ -100,7 +100,7 @@
             "Docs" = {
               href = "https://docs.openws.org/view/index";
               siteMonitor = "https://docs.openws.org";
-              icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/likec4-symbol.svg";
+              icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/likec4.svg";
             };
           }
           {
@@ -266,7 +266,7 @@
               #   "🏗️ DoomBSD" = {
               #     href = "https://www.linkedin.com/posts/mfarabi_announcing-the-doombsd-project-an-advanced-activity-7341980656043786240-uw9M/";
               #     # siteMonitor = "https://doombsd.openws.org";
-              #     icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/doombsd-symbol-orb.svg";
+              #     icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/doombsd-orb.svg";
               #   };
               # }
             ];
@@ -305,7 +305,7 @@
                 "🏗️ Apollyon Linux" = {
                   href = "https://archlinux.org";
                   # siteMonitor = "https://archlinux.openws.org";
-                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/apollyon-linux-logo.png";
+                  icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/apollyon-linux.png";
                 };
               }
               {

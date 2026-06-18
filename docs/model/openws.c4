@@ -7,7 +7,7 @@ model {
         }
     }
     openws = context "OpenWS" {
-        icon @/microvisor-systems-logo.png
+        icon @/icons/microvisor-systems.png
         summary "Open Web Services"
         style {
             color: violet-500
@@ -41,7 +41,7 @@ model {
         }
 
         homepage = component "Homepage" {
-            icon @/microvisor-systems-logo.png
+            icon @/icons/microvisor-systems.png
             link https://openws.org
 
             style {
@@ -74,7 +74,7 @@ model {
 
         docs = component "Docs" {
             link https://docs.openws.org "📚 Docs"
-            icon @/likec4-symbol.svg
+            icon @/icons/likec4.svg
             style {
                 color slate
                 shape browser

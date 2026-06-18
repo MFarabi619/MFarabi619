@@ -62,7 +62,7 @@ deployment {
       color gray
     }
     acl = node "ACL" {
-      icon: @/tailscale-symbol.png
+      icon: @/icons/tailscale.png
       link : https://tailscale.com "Website"
       style {
         color gray-800
@@ -76,7 +76,7 @@ deployment {
     }
 
     coordination-server = node "Coordination Server" {
-      icon: @/tailscale-symbol.png
+      icon: @/icons/tailscale.png
       link : https://tailscale.com "Website"
       style {
         color gray-800
@@ -170,7 +170,7 @@ deployment {
         style {
           color red
         }
-        icon @/doombsd-symbol-orb.svg
+        icon @/icons/doombsd-orb.svg
 
         instanceOf doombsd
         instanceOf vendors.tailscale "Tailscale Client"

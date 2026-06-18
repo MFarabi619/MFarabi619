@@ -72,7 +72,7 @@ in
         config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/modules/home/programs/hyprland/hypr/windowrules.conf";
 
       ".config/hypr/devilish_linux_penguin_wide.webp".source =
-        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/assets/devilish_linux_penguin_wide.webp";
+        config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/MFarabi619/assets/wallpapers/devilish_linux_penguin_wide.webp";
     };
   };
 

@@ -1,7 +1,7 @@
 model {
     doombsd = component "DoomBSD" {
         summary "Modernized & Hardened FreeBSD"
-        icon @/doombsd-symbol-orb.svg
+        icon @/icons/doombsd-orb.svg
         style {
             color red
         }
@@ -9,7 +9,7 @@ model {
 
     apollyon-linux = component "Apollyon Linux" {
         summary "Supercharged Arch Linux"
-        icon @/apollyon-linux-logo.png
+        icon @/icons/apollyon-linux.png
         style {
             color violet-900
         }
@@ -28,7 +28,7 @@ model {
         languages = container "Languages" {
             likec4 = component {
                 title: "LikeC4"
-                icon @/likec4-symbol.svg
+                icon @/icons/likec4.svg
                 link: https://likec4.dev/ "Website"
                 style {
                     color: green
@@ -54,7 +54,7 @@ model {
             }
 
             embedded-rust = component "Embedded Rust" {
-                icon @/embedded-rust-symbol.svg
+                icon @/icons/embedded-rust.svg
                 link : https://rust-lang.org/what/embedded/ "Website"
                 style {
                     color: amber
@@ -62,7 +62,7 @@ model {
             }
 
             embedded-c = component "Embedded C" {
-                icon @/embedded-c-symbol.svg
+                icon @/icons/embedded-c.svg
                 link : https://en.wikipedia.org/wiki/Embedded_C "Wikipedia"
                 style {
                     color: red
@@ -97,7 +97,7 @@ model {
             }
 
             org-mode = component "Org Mode" {
-                icon: @/org-mode-symbol.svg
+                icon: @/icons/org-mode.svg
                 link : https://orgmode.org "Website"
                 style {
                     color: gray-800
@@ -121,7 +121,7 @@ model {
             }
 
             platformio = component "PlatformIO" {
-                icon @/platformio-symbol.svg
+                icon @/icons/platformio.svg
                 link https://platformio.org "Website"
                 style {
                     color: amber
@@ -145,7 +145,7 @@ model {
             }
 
             freertos = component "FreeRTOS" {
-                icon @/freertos-logo.png
+                icon @/icons/freertos.png
                 link https://www.freertos.org "Website"
                 style {
                     color: green
@@ -155,7 +155,7 @@ model {
 
 
             loco-rs = container "Loco.rs" {
-                icon @/loco-rs-symbol.png
+                icon @/icons/loco-rs.png
                 link https://loco.rs "Website"
                 style {
                     color red
@@ -163,7 +163,7 @@ model {
             }
 
             ratatui = container "Ratatui" {
-                icon @/ratatui-symbol.png
+                icon @/icons/ratatui.png
                 link https://ratatui.rs "Website"
                 style {
                     color purple-800
@@ -171,7 +171,7 @@ model {
             }
 
             dioxus = container "Dioxus" {
-                icon @/dioxus-symbol.png
+                icon @/icons/dioxus.png
                 link https://dioxuslabs.com "Website"
                 style {
                     color amber
@@ -179,7 +179,7 @@ model {
             }
 
             embassy = container "Embassy" {
-                icon @/embassy-symbol.png
+                icon @/icons/embassy.png
                 link https://embassy.dev "Website"
                 style {
                     color orange-500
@@ -187,7 +187,7 @@ model {
             }
 
             bastillebsd = container "BastilleBSD" {
-                icon @/bastillebsd-symbol.png
+                icon @/icons/bastillebsd.png
                 link https://bastillebsd.org "Website"
                 style {
                     color red
@@ -411,7 +411,7 @@ model {
             }
 
             arduino = component "Arduino" {
-                icon @/arduino-symbol.svg
+                icon @/icons/arduino.svg
                 link https://www.arduino.cc "Website"
                 style {
                     color: sky
@@ -445,7 +445,7 @@ model {
             }
 
             stmicroelectronics = component "STMicroelectronics" {
-                icon @/stmicroelectronics-symbol.png
+                icon @/icons/stmicroelectronics.png
                 link https://www.st.com/content/st_com/en.html "Website"
                 style {
                     color: yellow
@@ -460,7 +460,7 @@ model {
                 }
 
                 stm32cube = component "STM32 Cube" {
-                    icon @/stm32cube-symbol.svg
+                    icon @/icons/stm32cube.svg
                     link https://www.st.com/en/embedded-software/stm32cube-mcu-mpu-packages.html "Website"
                     style {
                         color: yellow
@@ -545,7 +545,7 @@ model {
                     nixos-wsl = component "NixOS WSL" {
                         description: "Windows Subsystem for Linux distribution via systemd workarounds."
                         link https://github.com/nix-community/NixOS-WSL "GitHub"
-                        icon https://raw.githubusercontent.com/nix-community/NixOS-WSL/refs/heads/main/assets/NixOS-WSL.svg
+                        icon @/icons/nixos-wsl.svg
                         style {
                             color: purple-800
                         }

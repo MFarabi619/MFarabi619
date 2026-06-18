@@ -45,51 +45,51 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <tr>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">
-<img src="assets/nix.svg" alt="Nix Language Logo" width="40" height="40" />
+<img src="assets/icons/nix.svg" alt="Nix Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://ziglang.org" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/zig/zig-original.svg" alt="Zig Logo" width="40" height="40" />
+<img src="assets/icons/zig.svg" alt="Zig Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.rust-lang.org/" target="_blank" rel="noreferrer">
-<img src="https://icons.veryicon.com/png/o/business/vscode-program-item-icon/rust-1.png" alt="Rust Logo" width="40" height="40" />
+<img src="assets/icons/rust.svg" alt="Rust Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://rust-embedded.org" target="_blank" rel="noreferrer">
-<img src="assets/embedded-rust-symbol.png" alt="Embedded Rust Logo" width="40" height="40" />
+<img src="assets/icons/embedded-rust.svg" alt="Embedded Rust Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://golang.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/go/go-original-wordmark.svg" alt="Go Logo" width="40" height="40" />
+<img src="assets/icons/go.svg" alt="Go Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://en.wikipedia.org/wiki/Embedded_C" target="_blank" rel="noreferrer">
-<img src="./assets/embedded-c-symbol.svg" alt="Embedded C Logo" width="40" height="40" />
+<img src="assets/icons/embedded-c.svg" alt="Embedded C Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://en.wikipedia.org/wiki/C%2B%2B" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/cplusplus/cplusplus-original.svg" alt="C++ Logo" width="40" height="40" />
+<img src="assets/icons/cplusplus.svg" alt="C++ Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.gnu.org/software/bash/" target="_blank" rel="noreferrer">
-<img src="https://bashlogo.com/img/symbol/png/monochrome_light.png" alt="Bash Logo" width="40" height="40" />
+<img src="assets/icons/bash.png" alt="Bash Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://en.wikipedia.org/wiki/Emacs_Lisp" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Lisp Logo" width="40" height="40" />
+<img src="assets/icons/emacs.svg" alt="Emacs Lisp Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://orgmode.org" target="_blank" rel="noreferrer">
-<img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Org-mode-unicorn.svg" alt="Org mode Logo" width="40" height="40" />
+<img src="assets/icons/org-mode.svg" alt="Org mode Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.latex-project.org/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/latex_logo.svg" alt="LaTeX Logo" width="40" height="40" />
+<img src="assets/icons/latex.svg" alt="LaTeX Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://likec4.dev" target="_blank" rel="noreferrer">
-<img src="https://likec4.dev/_astro/logo-dark.h9QdQ6Li.svg" alt="LikeC4 Logo" width="40" height="40" />
+<img src="assets/icons/likec4.svg" alt="LikeC4 Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
@@ -98,11 +98,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://sqlite.org" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" alt="SQLite Logo" width="40" height="40" />
+<img src="assets/icons/sqlite.svg" alt="SQLite Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-plain-wordmark.svg" alt="PostgreSQL Logo" width="40" height="40" />
+<img src="assets/icons/postgresql.svg" alt="PostgreSQL Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.tigerdata.com/timescaledb" target="_blank" rel="noreferrer">
@@ -114,27 +114,27 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://devenv.sh" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/cachix/devenv/36807c727e743e7a00999922e7f737a0cc4e05ac/logos/devenv-dark-bg.svg" alt="Devenv Logo" width="40" height="40" />
+<img src="assets/icons/devenv-dark-bg.svg" alt="Devenv Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://loco.rs" target="_blank" rel="noreferrer">
-<img src="https://loco.rs/icon.svg" alt="Loco.rs Logo" width="40" height="40" />
+<img src="assets/icons/loco-rs.png" alt="Loco.rs Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://ratatui.rs" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/125200832?s=48&v=4" alt="Ratatui Logo" width="40" height="40" />
+<img src="assets/icons/ratatui.png" alt="Ratatui Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://dioxuslabs.com" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/79236386?s=200&v=4" alt="Dioxus Logo" width="40" height="40" />
+<img src="assets/icons/dioxus.png" alt="Dioxus Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://embassy.dev" target="_blank" rel="noreferrer">
-<img src="https://embassy.dev/favicon.png" alt="Embassy Logo" width="40" height="40" />
+<img src="assets/icons/embassy.png" alt="Embassy Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.pulumi.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pulumi/pulumi-original.svg" alt="Pulumi Logo" width="40" height="40" />
+<img src="assets/icons/pulumi.svg" alt="Pulumi Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
@@ -155,11 +155,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://github.com/doomemacs/doomemacs" target="_blank" rel="noreferrer">
-<img src="https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png" alt="Doom Emacs Logo" width="40" height="40" />
+<img src="assets/icons/doom-emacs.png" alt="Doom Emacs Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
-<img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="Git Logo" width="40" height="40" />
+<img src="assets/icons/git.svg" alt="Git Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.devicetree.org" target="_blank" rel="noreferrer">
@@ -167,7 +167,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://trunkbaseddevelopment.com" target="_blank" rel="noreferrer">
-<img src="https://trunkbaseddevelopment.com/images/logo.png" alt="Trunk-Based Development Logo" width="40" height="40" />
+<img src="assets/icons/trunk-based-development.png" alt="Trunk-Based Development Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://tailscale.com" target="_blank" rel="noreferrer">
@@ -183,7 +183,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.penpot.com/" target="_blank" rel="noreferrer">
-<img src="https://logowik.com/content/uploads/images/penpot-design-tool-icon1721166198.logowik.com.webp" alt="Penpot Logo" width="40" height="40" />
+<img src="assets/icons/penpot.webp" alt="Penpot Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 </tr>
@@ -193,47 +193,47 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <tr>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://docs.fuel.network/docs/sway/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/FuelLabs/sway/eb57cbf2849ed118f8f403954b545fd4d08a3643/forc-plugins/forc-doc/src/static.files/sway-logo.svg" alt="Sway Logo" width="40" height="40" />
+<img src="assets/icons/sway.svg" alt="Sway Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.java.com" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" alt="Java Logo" width="40" height="40" />
+<img src="assets/icons/java.svg" alt="Java Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.python.org" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="Python Logo" width="40" height="40" />
+<img src="assets/icons/python.svg" alt="Python Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript Logo" width="40" height="40" />
+<img src="assets/icons/typescript.svg" alt="TypeScript Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="JavaScript Logo" width="40" height="40" />
+<img src="assets/icons/javascript.svg" alt="JavaScript Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://svelte.dev/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original-wordmark.svg" alt="Svelte Logo" width="40" height="40" />
+<img src="assets/icons/svelte.svg" alt="Svelte Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.lua.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/lua/lua-original.svg" alt="Lua Logo" width="40" height="40" />
+<img src="assets/icons/lua.svg" alt="Lua Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://tailwindcss.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" alt="Tailwind CSS Logo" width="40" height="40" />
+<img src="assets/icons/tailwindcss.svg" alt="Tailwind CSS Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="HTML Logo" width="40" height="40" />
+<img src="assets/icons/html5.svg" alt="HTML Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="CSS Logo" width="40" height="40" />
+<img src="assets/icons/css3.svg" alt="CSS Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://kdl.dev" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/76023148?s=280&v=4.svg" alt="KDL Logo" width="40" height="40" />
+<img src="assets/icons/kdl.png" alt="KDL Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
@@ -242,132 +242,132 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://platformio.org" target="_blank" rel="noreferrer">
-<img src="assets/platformio-symbol.svg" alt="Platformio Logo" width="40" height="40" />
+<img src="assets/icons/platformio.svg" alt="Platformio Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.arduino.cc/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/arduino/arduino-original-wordmark.svg" alt="Arduino Logo" width="40" height="40" />
+<img src="assets/icons/arduino.svg" alt="Arduino Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://deno.com" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/42048915?s=48&v=4" alt="Deno Logo" width="40" height="40" />
+<img src="assets/icons/deno.png" alt="Deno Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://nodejs.org/en/about" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-plain-wordmark.svg" alt="Node.js Logo" width="40" height="40" />
+<img src="assets/icons/nodejs.svg" alt="Node.js Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://expressjs.com/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/MFarabi619/MFarabi619/5a4606bb573657a028ae5b2583f58ea151268667/Markdown%20Sections/Section%20Data/express_logo.svg" alt="Express Logo" width="40" height="40" />
+<img src="assets/icons/express.svg" alt="Express Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://nestjs.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nestjs/nestjs-original.svg" alt="Nest.js Logo" width="40" height="40" />
+<img src="assets/icons/nestjs.svg" alt="Nest.js Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://orm.drizzle.team/" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/108468352?s=160&v=4.svg" alt="Drizzle Logo" width="40" height="40" />
+<img src="assets/icons/drizzle.svg" alt="Drizzle Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://xstate.js.org" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/61783956?s=200&v=4.png" alt="XState Logo" width="40" height="40" />
+<img src="assets/icons/xstate.png" alt="XState Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://graphql.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/graphql/graphql-plain-wordmark.svg" alt="GraphQL Logo" width="40" height="40" />
+<img src="assets/icons/graphql.svg" alt="GraphQL Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://payloadcms.com/" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/62968818?s=48&v=4" alt="Payload CMS Logo" width="40" height="40" />
+<img src="assets/icons/payload-cms.jpg" alt="Payload CMS Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://reactrouter.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/reactrouter/reactrouter-original.svg" alt="React Router 7 Logo" width="40" height="40" />
+<img src="assets/icons/reactrouter.svg" alt="React Router 7 Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://nextjs.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js Logo" width="40" height="40" />
+<img src="assets/icons/nextjs.svg" alt="Next.js Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://remix.run/" target="_blank" rel="noreferrer">
-<img src="https://github.com/user-attachments/assets/5ac0e523-a337-42a2-ba56-c13d314fdaac" alt="Remix.js Logo" width="40" height="40" />
+<img src="assets/icons/remix.png" alt="Remix.js Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://astro.build/" target="_blank" rel="noreferrer">
-<img src="https://www.svgrepo.com/show/373446/astro.svg" alt="Astro Logo" width="40" height="40" />
+<img src="assets/icons/astro.svg" alt="Astro Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://kit.svelte.dev/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/svelte/svelte-original.svg" alt="SvelteKit Logo" width="40" height="40" />
+<img src="assets/icons/sveltekit.svg" alt="SvelteKit Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://emberjs.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ember/ember-original-wordmark.svg" alt="Ember.js Logo" width="40" height="40" />
+<img src="assets/icons/ember.svg" alt="Ember.js Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://reactjs.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React Logo" width="40" height="40" />
+<img src="assets/icons/react.svg" alt="React Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://wxt.dev" target="_blank" rel="noreferrer">
-<img src="https://wxt.dev/hero-logo.svg" alt="WXT Logo" width="40" height="40" />
+<img src="assets/icons/wxt.svg" alt="WXT Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://storybook.js.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/storybook/storybook-original.svg" alt="Storybook Logo" width="40" height="40" />
+<img src="assets/icons/storybook.svg" alt="Storybook Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://motion.dev" target="_blank" rel="noreferrer">
-<img src="https://user-images.githubusercontent.com/7850794/164965523-3eced4c4-6020-467e-acde-f11b7900ad62.png" alt="Framer Motion Logo" width="40" height="40" />
+<img src="assets/icons/framer-motion.png" alt="Framer Motion Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://sli.dev" target="_blank" rel="noreferrer">
-<img src="assets/slidev-symbol.svg" alt="Slidev Logo" width="40" height="40" />
+<img src="assets/icons/slidev.svg" alt="Slidev Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/25189746?s=200&v=4" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40" />
+<img src="assets/icons/serenity.png" alt="Serenity.js Screenplay Pattern Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://playwright.dev/" target="_blank" rel="noreferrer">
-<img src="https://playwright.dev/img/playwright-logo.svg" alt="Playwright Logo" width="40" height="40" />
+<img src="assets/icons/playwright.svg" alt="Playwright Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://vitest.dev/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitest/vitest-original.svg" alt="Vitest Logo" width="40" height="40" />
+<img src="assets/icons/vitest.svg" alt="Vitest Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jest/jest-plain.svg" alt="Jest Logo" width="40" height="40" />
+<img src="assets/icons/jest.svg" alt="Jest Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.chaijs.com/" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/1515293?s=280&v=4" alt="Chai Logo" width="40" height="40" />
+<img src="assets/icons/chai.png" alt="Chai Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://mochajs.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mocha/mocha-original.svg" alt="Mocha Logo" width="40" height="40" />
+<img src="assets/icons/mocha.svg" alt="Mocha Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://docs.pytest.org/en/7.3.x/" target="_blank" rel="noreferrer">
-<img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg" alt="PyTest Logo" width="40" height="40" />
+<img src="assets/icons/pytest.svg" alt="PyTest Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" alt="GNU/Linux Logo" width="40" height="40" />
+<img src="assets/icons/linux.svg" alt="GNU/Linux Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://archlinux.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/archlinux/archlinux-original.svg" alt="Arch Linux Logo" width="40" height="40" />
+<img src="assets/icons/archlinux.svg" alt="Arch Linux Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.oracle.com/ca-en/linux/" target="_blank" rel="noreferrer">
-<img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Oracle_linux_logo.svg" alt="Oracle Enterprise Linux Logo" width="40" height="40" />
+<img src="assets/icons/oracle-linux.svg" alt="Oracle Enterprise Linux Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://ubuntu.com/" target="_blank" rel="noreferrer">
-<img src="https://www.vectorlogo.zone/logos/ubuntu/ubuntu-icon.svg" alt="Ubuntu Logo" width="40" height="40" />
+<img src="assets/icons/ubuntu.svg" alt="Ubuntu Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
@@ -375,75 +375,75 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://supabase.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" alt="Supabase Logo" width="40" height="40" />
+<img src="assets/icons/supabase.svg" alt="Supabase Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://zellij.dev/" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/zellij-org/zellij/main/assets/logo.png" alt="Zellij Logo" width="40" height="40" />
+<img src="assets/icons/zellij.png" alt="Zellij Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://neovim.io/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/neovim/neovim-original.svg" alt="NeoVim Logo" width="40" height="40" />
+<img src="assets/icons/neovim.svg" alt="NeoVim Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.vim.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Logo" width="40" height="40" />
+<img src="assets/icons/vim.svg" alt="Vim Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://code.visualstudio.com/" target="_blank" rel="noreferrer">
-<img src="https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" alt="VS Code Logo" width="40" height="40" />
+<img src="assets/icons/vscode.svg" alt="VS Code Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noreferrer">
-<img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Tmux_logo.svg" alt="Tmux Logo" width="40" height="40" />
+<img src="assets/icons/tmux.svg" alt="Tmux Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.atlassian.com/software/jira" target="_blank" rel="noreferrer">
-<img src="https://cdn.worldvectorlogo.com/logos/jira-1.svg" alt="Jira Logo" width="40" height="40" />
+<img src="assets/icons/jira.svg" alt="Jira Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://bitbucket.org/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bitbucket/bitbucket-original.svg" alt="BitBucket Logo" width="40" height="40" />
+<img src="assets/icons/bitbucket.svg" alt="BitBucket Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noreferrer">
-<img src="https://cdn.worldvectorlogo.com/logos/confluence-1.svg" alt="Confluence Logo" width="40" height="40" />
+<img src="assets/icons/confluence.svg" alt="Confluence Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://azure.microsoft.com/en-ca/products/devops" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azuredevops/azuredevops-original.svg" alt="Azure DevOps Logo" width="40" height="40" />
+<img src="assets/icons/azuredevops.svg" alt="Azure DevOps Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://nx.dev" target="_blank" rel="noreferrer">
-<img src="https://api.iconify.design/logos:nx.svg" alt="Nx Logo" width="40" height="40" />
+<img src="assets/icons/nx.svg" alt="Nx Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.sanity.io/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sanity/sanity-original.svg" alt="Sanity Logo" width="40" height="40" />
+<img src="assets/icons/sanity.svg" alt="Sanity Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://github.com/features/actions" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/githubactions/githubactions-plain.svg" alt="GitHub Actions Logo" width="40" height="40" />
+<img src="assets/icons/github-actions.svg" alt="GitHub Actions Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://netlify.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/netlify/netlify-original.svg" alt="Netlify Logo" width="40" height="40" />
+<img src="assets/icons/netlify.svg" alt="Netlify Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://vercel.com" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/14985020?s=48&v=4" alt="Vercel Logo" width="40" height="40" />
+<img src="assets/icons/vercel.png" alt="Vercel Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://fuel.network" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/55993183?s=200&v=4.svg" alt="Fuel SDKs Logo" width="40" height="40" />
+<img src="assets/icons/fuel.svg" alt="Fuel SDKs Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.figma.com/" target="_blank" rel="noreferrer">
-<img src="https://www.vectorlogo.zone/logos/figma/figma-icon.svg" alt="Figma Logo" width="40" height="40" />
+<img src="assets/icons/figma.svg" alt="Figma Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.cloudflare.com" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" alt="Cloudflare Logo" width="40" height="40" />
+<img src="assets/icons/cloudflare.svg" alt="Cloudflare Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 </tr>
@@ -457,15 +457,15 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://squeak.org" target="_blank" rel="noreferrer">
-<img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/Smalltalk_Balloon.svg" alt="Smalltalk Logo" width="40" height="40" />
+<img src="assets/icons/smalltalk.svg" alt="Smalltalk Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.ruby-lang.org/en/" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/ruby/ruby-original.svg" alt="Ruby Logo" width="40" height="40" />
+<img src="assets/icons/ruby.svg" alt="Ruby Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.haskell.org" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/haskell/haskell-original.svg" alt="Haskell Logo" width="40" height="40" />
+<img src="assets/icons/haskell.svg" alt="Haskell Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.swift.org/get-started/embedded/" target="_blank" rel="noreferrer">
@@ -473,12 +473,12 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://soliditylang.org" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/solidity/solidity-original.svg" alt="Solidity Logo" width="40" height="40" />
+<img src="assets/icons/solidity.svg" alt="Solidity Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
 <a href="https://tinygo.org" target="_blank" rel="noreferrer">
-<img src="https://tinygo.org/images/tinygo-logo.png" alt="TinyGo Logo" width="40" height="40" />
+<img src="assets/icons/tinygo.png" alt="TinyGo Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://burn.dev" target="_blank" rel="noreferrer">
@@ -486,27 +486,27 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.ros.org" target="_blank" rel="noreferrer">
-<img src="https://www.ros.org/imgs/jazzy_robot.png" alt="ROS 2 Logo" width="40" height="40" />
+<img src="assets/icons/ros2-jazzy-robot.png" alt="ROS 2 Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://kubenix.org" target="_blank" rel="noreferrer">
-<img src="https://raw.githubusercontent.com/hall/kubenix/d6ddf1b4e8804e3c9564696a493ac14c0bcb19e2/docs/static/logo.svg" alt="Kubenix Logo" width="40" height="40" />
+<img src="assets/icons/kubenix.svg" alt="Kubenix Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noreferrer">
-<img src="https://avatars.githubusercontent.com/u/30696987?s=200&v=4" alt="Qiskit Logo" width="40" height="40" />
+<img src="assets/icons/qiskit.png" alt="Qiskit Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://rubyonrails.org" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rails/rails-plain-wordmark.svg" alt="Ruby on Rails Logo" width="40" height="40" />
+<img src="assets/icons/rails.svg" alt="Ruby on Rails Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://ihp.digitallyinduced.com" target="_blank" rel="noreferrer">
-<img src="https://ihp.digitallyinduced.com/Guide/images/ihp-logo-readme.svg" alt="Integrated Haskell Platform Logo" width="40" height="40" />
+<img src="assets/icons/ihp.svg" alt="Integrated Haskell Platform Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
-<a href="https://9p.io/plan9/" target="_blank" rel="noreferrer">
+<a href="https://9p.io/plan9" target="_blank" rel="noreferrer">
 <img src="assets/icons/plan-9.svg" alt="Plan 9 Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
@@ -519,31 +519,27 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://sel4.systems" target="_blank" rel="noreferrer">
-<img src="https://sel4.systems/images/seL4.svg" alt="seL4 Logo" width="40" height="40" />
+<img src="assets/icons/sel4.svg" alt="seL4 Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://kubernetes.io" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-original.svg" alt="Kubernetes Logo" width="40" height="40" />
+<img src="assets/icons/kubernetes.svg" alt="Kubernetes Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://bazel.build" target="_blank" rel="noreferrer">
 <img src="assets/icons/bazel.svg" alt="Bazel Logo" width="40" height="40" />
 </a>
 </td></tr><tr><td align="center" style="padding: 8px;">
-<a href="https://blocktorch.xyz" target="_blank" rel="noreferrer">
-<img src="https://cdn.prod.website-files.com/645a274bb89991808d214c54/645a274bb899913b91214c66_Torch_mini.png" alt="Blocktorch Logo" width="40" height="40" />
-</a>
-</td><td align="center" style="padding: 8px;">
 <a href="https://kafka.apache.org" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apachekafka/apachekafka-original.svg" alt="Kafka Logo" width="40" height="40" />
+<img src="assets/icons/kafka.svg" alt="Kafka Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://redis.io" target="_blank" rel="noreferrer">
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/redis/redis-original.svg" alt="Redis Logo" width="40" height="40" />
+<img src="assets/icons/redis.svg" alt="Redis Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
-<a href="https://pharo.org/" target="_blank" rel="noreferrer">
-<img src="https://pharo.org/web/files/pharo.png" alt="Pharo Logo" width="40" height="40" />
+</td><td align="center" style="padding: 8px;">
+<a href="https://pharo.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/pharo.svg" alt="Pharo Logo" width="40" height="40" />
 </a>
 </td></tr></table></td>
 </tr>
@@ -553,7 +549,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 
 <h1> <a href="https://nixos.org"> <img src="assets/nix-mfarabi.svg" alt="nix-symbol-mfarabi" width="25" height="25"> </a> Current Setup </h1>
 
-| <strong><a href="https://freebsd.org"> <img src="assets/freebsd-symbol.svg" alt="Freebsd Symbol" width="25" height="25"> </a>DoomBSD</a></strong> |<strong><img src="assets/apollyon-linux-logo.png" alt="Apollyon Linux Symbol" width="25" height="25"> Apollyon Linux </strong> | <strong><img src="assets/icons/apple.svg" alt="Apple Symbol" width="25" height="25"> MicroDarwin</strong> |
+| <strong><a href="https://freebsd.org"> <img src="assets/icons/freebsd.svg" alt="Freebsd Symbol" width="25" height="25"> </a>DoomBSD</a></strong> |<strong><img src="assets/icons/apollyon-linux.png" alt="Apollyon Linux Symbol" width="25" height="25"> Apollyon Linux </strong> | <strong><img src="assets/icons/apple.svg" alt="Apple Symbol" width="25" height="25"> MicroDarwin</strong> |
 |-|-|-|
 | ![Fastfetch + DoomBSD Config + Doom Emacs Dashboard](assets/fastfetch-doombsd-with-doom-emacs.png) | ![Apollyon Linux](assets/apollyon-linux.jpeg) | ![MicroDarwin](assets/microdarwin.png) |
 
@@ -566,8 +562,8 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 | ![Hack the Box theme with btop](https://github.com/user-attachments/assets/b4962240-c274-46e8-bd7d-1cfc0fd38225) | ![Decay Green theme with ugm and pacseek](https://github.com/user-attachments/assets/7cab75e8-167b-4d35-964f-cebef4258b49) | ![Red Stone theme with Lazydocker and K9S](https://github.com/user-attachments/assets/fa60e70c-89b8-4752-b312-49a911feacda) |
 | ![Gruvbox theme with Lazydocker and kmon](https://github.com/user-attachments/assets/7d3cb417-33e2-4eb7-a3bd-910eff87010c) | ![Catpuccin Mocha theme with procs and netscanner](https://github.com/user-attachments/assets/9630c715-e3d6-4f07-9e3d-7292cad37074) | ![Rose Pine theme with Gather on Vivaldi and Discord](https://github.com/user-attachments/assets/630387a9-ccea-4cdd-a7a8-0074331c2360) |
 
-<strong><a href="https://www.gnu.org/software/emacs/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/emacs/emacs-original.svg" alt="Emacs Symbol" width="25" height="25" /></a><a href="https://github.com/doomemacs/doomemacs" >Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.vim.org">
-  <img src="https://cdn.worldvectorlogo.com/logos/vim.svg" alt="Vim Symbol" width="25" height="25">
+<strong><a href="https://www.gnu.org/software/emacs/"><img src="assets/icons/emacs.svg" alt="Emacs Symbol" width="25" height="25" /></a><a href="https://github.com/doomemacs/doomemacs" >Doom Emacs</a> + <a href="https://github.com/emacs-evil/evil">Evil Mode</a> <a href="https://www.vim.org">
+  <img src="assets/icons/vim.svg" alt="Vim Symbol" width="25" height="25">
 </a> </strong>
 
 ![Fastfetch + Pacman -Syu + Doom Emacs Dashboard](https://github.com/user-attachments/assets/4016386f-be76-4222-a362-bc4baaa25a6a)
