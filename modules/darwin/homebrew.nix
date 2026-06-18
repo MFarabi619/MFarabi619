@@ -24,6 +24,7 @@
       "comchan"
       "mcumgrctl"
       "cargo-binstall"
+      "wasm-bindgen-cli"
     ];
 
     # taps = [ "quickemu-project/quickemu" ];
