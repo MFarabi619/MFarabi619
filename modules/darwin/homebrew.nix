@@ -41,6 +41,7 @@
       "Valkyrie00/homebrew-bbrew/bbrew"
     ]
     ++ lib.optionals (pkgs.stdenv.isAarch64) [
+      "zig"
       "mlx"
       "qemu"
       "nemu"
