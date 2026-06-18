@@ -22,6 +22,7 @@
     cargoPackages = [
       "espup"
       "comchan"
+      "mcumgrctl"
       "cargo-binstall"
     ];
 
