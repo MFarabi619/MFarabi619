@@ -16,7 +16,7 @@ pub fn Err404(segments: Vec<String>) -> Element {
                 }
 
                 div { class: "flex justify-center",
-                    Link { to: Route::Home {},
+                    Link { to: Route::Landing {},
                         Button {
                             variant: ButtonVariant::Primary,
                             size: ButtonSize::Large,

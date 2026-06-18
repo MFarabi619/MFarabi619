@@ -65,7 +65,7 @@ pub fn FlashPanel() -> Element {
             // ── Connect button ──
             if !*device.is_connected.read() {
                 Button {
-                    class: "gold-button-outline text-sm w-full justify-center py-3".to_string(),
+                    class: "brand-button-outline text-sm w-full justify-center py-3".to_string(),
                     variant: ButtonVariant::Outline,
                     disabled: *device.connecting.read(),
                     loading: *device.connecting.read(),

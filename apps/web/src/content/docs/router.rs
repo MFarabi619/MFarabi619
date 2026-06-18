@@ -17,9 +17,7 @@ impl BookRoute {
     /// Get the markdown for a page by its ID
     pub const fn page_markdown(id: use_mdbook::mdbook_shared::PageId) -> &'static str {
         match id.0 {
-            0usize => {
-                "# Introduction\n\nDocumentation is currently a work in progress.\n\nThe previous pages have been removed for now while the firmware and web app are still changing."
-            }
+            0usize => "# Introduction\n\nWork-in-progress.",
             _ => panic!("Invalid page ID:"),
         }
     }
@@ -144,9 +142,7 @@ pub fn Index(section: IndexSection) -> Element {
     rsx! {
         h1 { id : "introduction", Link { to : BookRoute::Index { section :
         IndexSection::Introduction, }, class : "header", "Introduction" } } p {
-        "Documentation is currently a work in progress." } p {
-        "The previous pages have been removed for now while the firmware and web app are still changing."
-        }
+        "Work-in-progress." }
     }
 }
 

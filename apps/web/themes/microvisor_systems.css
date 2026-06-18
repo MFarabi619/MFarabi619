@@ -1,0 +1,43 @@
+[data-brand="microvisor_systems"] {
+  --background: oklch(0.10 0.012 285);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.14 0.015 285);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.12 0.013 285);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.795 0.184 86);
+  --primary-foreground: oklch(0.14 0.015 285);
+  --secondary: oklch(0.14 0.012 285);
+  --secondary-foreground: oklch(0.93 0.04 80);
+  --muted: oklch(0.18 0.012 285);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.62 0.28 310);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.62 0.22 27);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.15);
+  --ring: oklch(0.795 0.184 86);
+  --chart-1: oklch(0.795 0.184 86);
+  --chart-2: oklch(0.62 0.28 310);
+  --chart-3: oklch(0.86 0.18 100);
+  --chart-4: oklch(0.78 0.22 90);
+  --chart-5: oklch(0.66 0.16 65);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.14 0.015 285);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.795 0.184 86);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.20 0.04 290);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 0.1);
+  --sidebar-ring: oklch(0.795 0.184 86);
+
+  --app-shell-glow: 0 0 0 1px oklch(0.42 0.10 86 / 0.2), 0 18px 60px oklch(0.30 0.12 86 / 0.18);
+  --app-shell-glow-strong: 0 0 0 1px oklch(0.48 0.12 86 / 0.34), 0 24px 90px oklch(0.35 0.16 86 / 0.24);
+
+  --aura-1: #cc00ff;
+  --aura-2: #ffee00;
+  --aura-3: #00ff22;
+  --hero-gradient: linear-gradient(90deg, #ffd200 0%, #ec8c78 33%, #e779c1 67%, #58c7f3 100%);
+  --hero-glow: drop-shadow(0 0 20px rgba(204, 0, 255, 0.4)) drop-shadow(0 0 12px rgba(255, 238, 0, 0.3));
+}

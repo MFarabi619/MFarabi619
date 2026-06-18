@@ -2,6 +2,7 @@ use dioxus::document;
 use dioxus::prelude::*;
 
 pub mod api;
+pub mod brand;
 mod components;
 mod content;
 mod hooks;
@@ -20,12 +21,10 @@ pub struct DeviceContext {
 
 use crate::content::docs;
 use crate::layouts::{DocsLayout, MainLayout};
-use crate::pages::{Canopeo, Err404, Home, Shell};
+use crate::pages::{Canopeo, Dashboard, Err404, Landing, Shell};
 
 const BANNER_IMAGE: Asset = asset!("/assets/header.svg");
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
-const FAVICON: Asset = asset!("/assets/symbol.svg");
-const APIDAE_SYMBOL: Asset = asset!("/assets/symbol.svg");
 
 #[derive(Clone, Routable, PartialEq, Eq, Debug)]
 enum Route {
@@ -34,7 +33,10 @@ enum Route {
 
     #[layout(MainLayout)]
         #[route("/")]
-        Home {},
+        Landing {},
+
+        #[route("/app")]
+        Dashboard {},
 
         #[route("/canopeo")]
         Canopeo {},
@@ -78,9 +80,8 @@ fn main() {
 #[component]
 fn App() -> Element {
     rsx! {
-        document::Link { rel: "icon", href: FAVICON }
+        document::Link { rel: "icon", href: brand::ACTIVE.logo }
         document::Link { rel: "manifest", href: "/assets/manifest.json" }
-        document::Meta { name: "theme-color", content: "#f5b72b" }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
         document::Link { rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/@xterm/xterm@5/css/xterm.min.css" }
         script { src: "https://cdn.jsdelivr.net/npm/@xterm/xterm@5/lib/xterm.min.js" }
@@ -89,19 +90,19 @@ fn App() -> Element {
         script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11/lib/addon-web-links.min.js" }
         script { src: "https://cdn.jsdelivr.net/npm/@xterm/addon-attach@0.11/lib/addon-attach.min.js" }
         script { src: "https://cdn.jsdelivr.net/npm/spark-md5@3.0.2/spark-md5.min.js" }
-        script { "window.CERATINA_THEME={{background:'#0a0a0c',foreground:'#d4a84b',cursor:'#f5b72b',selectionBackground:'rgba(245,183,43,0.3)',black:'#0a0a0c',red:'#e06c6c',green:'#6cc070',yellow:'#f5b72b',blue:'#6c9ee0',magenta:'#c06cc0',cyan:'#6cc0c0',white:'#d4a84b'}};" }
         script { r#"if('serviceWorker' in navigator)navigator.serviceWorker.register('/assets/sw.js')"# }
         document::Meta { property: "og:type", content: "website" }
         document::Meta { property: "og:image", content: BANNER_IMAGE }
-        document::Meta { property: "og:url", content: "https://microvisor.systems" }
-        document::Meta { property: "og:title", content: "Apidae Systems" }
+        document::Meta { property: "og:url", content: brand::ACTIVE.homepage_url }
+        document::Meta { property: "og:title", content: brand::ACTIVE.name }
+        document::Meta { property: "og:description", content: brand::ACTIVE.tagline }
         document::Meta { name: "twitter:card", content: "summary_large_image" }
-        document::Meta {
-            property: "og:description",
-            content: "From Bootloader to Browser.",
-        }
 
-        div { class: "min-h-screen", Router::<Route> {} }
+        div {
+            class: "min-h-screen",
+            "data-brand": brand::ACTIVE.key,
+            Router::<Route> {}
+        }
     }
 }
 

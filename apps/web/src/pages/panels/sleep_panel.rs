@@ -117,7 +117,7 @@ pub fn SleepPanel(
                         div { class: "flex items-center",
                             input {
                                 r#type: "number",
-                                class: "gold-input w-7 px-0 py-1 text-xs font-mono text-center bg-background border border-border rounded-l",
+                                class: "brand-input w-7 px-0 py-1 text-xs font-mono text-center bg-background border border-border rounded-l",
                                 aria_label: "Hours",
                                 placeholder: "0",
                                 value: custom_h.read().clone(),
@@ -130,7 +130,7 @@ pub fn SleepPanel(
                             span { class: "text-[10px] text-muted-foreground px-0.5", "h" }
                             input {
                                 r#type: "number",
-                                class: "gold-input w-7 px-0 py-1 text-xs font-mono text-center bg-background border border-border",
+                                class: "brand-input w-7 px-0 py-1 text-xs font-mono text-center bg-background border border-border",
                                 aria_label: "Minutes",
                                 placeholder: "0",
                                 value: custom_m.read().clone(),
@@ -143,7 +143,7 @@ pub fn SleepPanel(
                             span { class: "text-[10px] text-muted-foreground px-0.5", "m" }
                             input {
                                 r#type: "number",
-                                class: "gold-input w-7 px-0 py-1 text-xs font-mono text-center bg-background border border-border rounded-r",
+                                class: "brand-input w-7 px-0 py-1 text-xs font-mono text-center bg-background border border-border rounded-r",
                                 aria_label: "Seconds",
                                 placeholder: "0",
                                 value: custom_s.read().clone(),

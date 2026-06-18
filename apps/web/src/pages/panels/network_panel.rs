@@ -30,7 +30,7 @@ pub fn NetworkPanel(
         section { id: "network-section", class: "flex flex-col h-full",
             div { class: "mb-3",
                 Button {
-                    class: "gold-button-outline text-sm w-full justify-center".to_string(),
+                    class: "brand-button-outline text-sm w-full justify-center".to_string(),
                     variant: ButtonVariant::Outline,
                     disabled: *scanning.read(),
                     loading: *scanning.read(),
@@ -88,7 +88,7 @@ pub fn NetworkPanel(
                     }
                     Input {
                         id: Some("network-ssid-input".to_string()),
-                        class: Some("gold-input w-full px-3 py-2 text-sm".to_string()),
+                        class: Some("brand-input w-full px-3 py-2 text-sm".to_string()),
                         input_type: "text".to_string(),
                         aria_label: Some("SSID".to_string()),
                         placeholder: "SSID".to_string(),
@@ -104,7 +104,7 @@ pub fn NetworkPanel(
                     }
                     Input {
                         id: Some("network-password-input".to_string()),
-                        class: Some("gold-input w-full px-3 py-2 text-sm".to_string()),
+                        class: Some("brand-input w-full px-3 py-2 text-sm".to_string()),
                         input_type: "password".to_string(),
                         aria_label: Some("Password".to_string()),
                         placeholder: "Password (blank for open)".to_string(),
@@ -114,7 +114,7 @@ pub fn NetworkPanel(
                 }
                 div { class: "lg:w-auto lg:flex-none",
                     Button {
-                        class: "gold-button-outline text-sm whitespace-nowrap".to_string(),
+                        class: "brand-button-outline text-sm whitespace-nowrap".to_string(),
                         variant: ButtonVariant::Outline,
                         button_type: "submit".to_string(),
                         disabled: ssid_input.read().is_empty() || *connecting.read(),

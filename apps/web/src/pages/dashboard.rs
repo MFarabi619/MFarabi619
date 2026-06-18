@@ -15,7 +15,7 @@ use ui::components::input::Input;
 use ui::components::toast::Toasts;
 
 #[component]
-pub fn Home() -> Element {
+pub fn Dashboard() -> Element {
     let mut device_url = use_signal(|| {
         #[cfg(target_arch = "wasm32")]
         {
