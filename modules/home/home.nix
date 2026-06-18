@@ -5,7 +5,6 @@
   ...
 }:
 {
-
   home = {
     shell = {
       enableZshIntegration = true;
