@@ -3,9 +3,8 @@
 
 extern crate alloc;
 
-pub mod icons;
+pub mod programs;
 pub mod services;
-pub mod shell;
 
 #[cfg(target_arch = "xtensa")]
 pub mod esp32;

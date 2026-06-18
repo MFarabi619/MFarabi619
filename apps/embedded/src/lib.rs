@@ -3,7 +3,7 @@
 
 extern crate alloc;
 
-use firmware::shell;
+use firmware::programs::shell;
 
 #[cfg(CONFIG_HTTP_SERVER)]
 use firmware::services::http;

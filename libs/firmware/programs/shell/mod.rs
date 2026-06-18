@@ -1,4 +1,5 @@
 pub mod prompt;
+mod icons;
 
 use core::ffi::{c_char, c_int, CStr};
 
@@ -122,7 +123,7 @@ pub fn probe_terminal_size() {
 }
 
 pub mod theme {
-    use crate::icons;
+    use super::icons;
 
     pub const OS_ICON: &str = icons::NF_MD_KITE;
     pub const OS_FG: &str = "\x1b[38;2;0;0;0m";

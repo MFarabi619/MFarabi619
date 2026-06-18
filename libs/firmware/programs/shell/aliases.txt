@@ -1,0 +1,12 @@
+ls=fs ls
+cd=fs cd
+pwd=fs pwd
+mkdir=fs mkdir
+rm=fs rm
+cp=fs cp
+mv=fs mv
+cat=fs cat
+read=fs read
+write=fs write
+statvfs=fs statvfs
+trunc=fs trunc

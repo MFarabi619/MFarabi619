@@ -1,6 +1,6 @@
 [manifest]
 file = manifest.yml
-path = apps/embedded/src
+path = apps/embedded
 
 [zephyr]
 base = zephyr
@@ -15,7 +15,7 @@ board = xiao_esp32s3/esp32s3/procpu/sense
 rebuild = true
 
 [alias]
-p = patch -l patches.yml -b .
+p = patch -l ../../libs/firmware/patches/patches.yml -b ../../libs/firmware/patches
 pc = p clean
 pa = p apply --roll-back
 
@@ -27,9 +27,9 @@ bw = build apps/embedded -b walter/esp32s3/procpu -d build/walter_esp32s3_procpu
 # bx = build apps/embedded -b xiao_esp32s3/esp32s3/procpu -d build/xiao_esp32s3_procpu
 bx = build apps/embedded -b xiao_esp32s3/esp32s3/procpu/sense -d build/xiao_esp32s3_procpu_sense
 
-fw = flash -d build/walter_esp32s3_procpu --esp-device hwgrep://D0:CF:13:54:27:18 --esp-skip-flashed --esp-diff
+fw = flash -d build/walter_esp32s3_procpu --esp-device hwgrep://D0:CF:13:54:27:18
 # fx = flash -d build/xiao_esp32s3_procpu --esp-device hwgrep://8C:BF:EA:8E:AC:28
-fx = flash -d build/xiao_esp32s3_procpu_sense --esp-device hwgrep://CC:BA:97:16:2B:68 --esp-skip-flashed --esp-diff
+fx = flash -d build/xiao_esp32s3_procpu_sense --esp-device hwgrep://CC:BA:97:16:2B:68
 
 mw = espressif monitor -p hwgrep://D0:CF:13:54:27:18
 # mx = espressif monitor -p hwgrep://8C:BF:EA:8E:AC:28
@@ -37,5 +37,5 @@ mx = espressif monitor -p hwgrep://CC:BA:97:16:2B:68
 
 ax = attach -d build/xiao_esp32s3_procpu_sense --runner probe-rs
 
-dtw = dtsh --preferences apps/embedded/dtsh/preferences.ini --theme apps/embedded/dtsh/theme.ini build/walter_esp32s3_procpu/firmware/zephyr/zephyr.dts
-dtx = dtsh --preferences apps/embedded/dtsh/preferences.ini --theme apps/embedded/dtsh/theme.ini build/xiao_esp32s3_procpu_sense/firmware/zephyr/zephyr.dts
+dtw = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/walter_esp32s3_procpu/firmware/zephyr/zephyr.dts
+dtx = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/xiao_esp32s3_procpu_sense/firmware/zephyr/zephyr.dts

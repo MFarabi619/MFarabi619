@@ -1,7 +1,7 @@
 patches:
   # ===== xiao =====
 
-  - path: probe-rs.patch
+  - path: zephyr/probe-rs.patch
     sha256sum: 751ba921004e1ae4460b8c419cd72f9d6e2ef9e7e3af2aa365d46d49ea49ad4f
     module: zephyr
     author: Mumtahin Farabi
@@ -36,7 +36,7 @@ patches:
 
   # ===== halow (morsemicro vendor patches, used when halow.conf is enabled in embedded) =====
 
-  - path: ../../../libs/firmware/halow/zephyr44-port.patch
+  - path: ../halow/zephyr44-port.patch
     sha256sum: 30623bb9d3e3cfdb2801a1de75c3b5388a835febda1ed494c919391cf6398cd2
     module: modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -92,7 +92,7 @@ patches:
          mm-iot-esp32 shim (framework/mm_shims/wlan_hal.c) uses
          GPIO_INTR_LOW_LEVEL for the same reason.
 
-  - path: ../../../libs/firmware/halow/ffs-include.patch
+  - path: ../halow/ffs-include.patch
     sha256sum: 797db1914ce9765e5748617e881c5e06865a9fc0aa9f23d11beae4a8e0a64daa
     module: modules/lib/morsemicro/submodules/mm-iot-sdk
     author: Mumtahin Farabi
@@ -107,7 +107,7 @@ patches:
       One-line fix: add #include <strings.h> after the existing
       #include <string.h>.
 
-  - path: ../../../libs/firmware/halow/drop-bogus-board-dts-root.patch
+  - path: ../halow/drop-bogus-board-dts-root.patch
     sha256sum: 4b4e268cd585d8aa403e80b91b4fbd5ed3b8d0c64b64e7b44a970e6c76b42fc7
     module: modules/lib/morsemicro
     author: Mumtahin Farabi
@@ -137,7 +137,7 @@ patches:
 
   # ===== walter-router =====
 
-  - path: rust.patch
+  - path: lang-rust/rust.patch
     sha256sum: f5ea3af871a4e1de3f30efa2fa9b25aee791d0a566ea591c37e379673e24c331
     module: lang-rust
     author: Mumtahin Farabi
@@ -233,7 +233,7 @@ patches:
       gating in zephyr-sys/build.rs; a PR adding "networking" alongside
       those would be uncontroversial.
 
-  - path: networking/cellular.patch
+  - path: zephyr/cellular.patch
     sha256sum: 8ceb4019166d79e51e2a7e9f09e6de141835036f6dd8b303fa2ed79d0a37c953
     module: zephyr
     author: Mumtahin Farabi
@@ -309,7 +309,7 @@ patches:
          elsewhere when CMUX DLCIs actually close, so genuine
          disconnections still trigger re-dial.
 
-  - path: networking/nat.patch
+  - path: zephyr/nat.patch
     sha256sum: 7f91e64979daa54cfb8457d86a8d52af8d12214f480f8059fae714f8d38ef02e
     module: zephyr
     author: Mumtahin Farabi
@@ -347,7 +347,7 @@ patches:
 
   # ===== shared (both boards) =====
 
-  - path: shell.patch
+  - path: zephyr/shell.patch
     sha256sum: 4ae3056a73680559de290bcb7aef3fc224e916383ce5cff68612ab9e8c0116db
     module: zephyr
     author: Mumtahin Farabi

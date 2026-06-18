@@ -5,16 +5,13 @@ if(DEFINED ENV{OPENOCD})
 endif()
 
 set(LIBS_FIRMWARE ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/firmware)
+list(APPEND ZEPHYR_EXTRA_MODULES ${LIBS_FIRMWARE})
 
 list(APPEND EXTRA_CONF_FILE
   ${LIBS_FIRMWARE}/rust.conf
   ${LIBS_FIRMWARE}/kernel.conf
   ${LIBS_FIRMWARE}/log.conf
-  ${LIBS_FIRMWARE}/shell.conf
-
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/kernel.conf
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/console/log.conf
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/console/shell.conf
+  ${LIBS_FIRMWARE}/programs/shell/shell.conf
 )
 
 if(NOT BOARD MATCHES "^qemu_")
@@ -24,41 +21,42 @@ if(NOT BOARD MATCHES "^qemu_")
   list(APPEND EXTRA_CONF_FILE
     ${CMAKE_CURRENT_BINARY_DIR}/wireguard_credentials.conf
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/programs/thread_analyzer.conf
+    ${LIBS_FIRMWARE}/programs/thread_analyzer.conf
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/esp32.conf
+    ${LIBS_FIRMWARE}/esp32.conf
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/console/debug.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/programs/stats.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/console/ram.conf
+    ${LIBS_FIRMWARE}/debug.conf
+    ${LIBS_FIRMWARE}/programs/stats.conf
+    ${LIBS_FIRMWARE}/ram.conf
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystems/nvs.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystems/img.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystems/zvfs.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystems/flash.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/programs/settings.conf
+    ${LIBS_FIRMWARE}/filesystems/nvs.conf
+    ${LIBS_FIRMWARE}/filesystems/img.conf
+    ${LIBS_FIRMWARE}/filesystems/zvfs.conf
+    ${LIBS_FIRMWARE}/filesystems/flash.conf
+    ${LIBS_FIRMWARE}/programs/settings.conf
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/buf.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/ipv4.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/ipv6.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/net.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/sockets.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/hostname.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/statistics.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/dns/server.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/dns/resolver.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/dhcpv4.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/wifi.conf
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/networking/sntp.conf
+    ${LIBS_FIRMWARE}/networking/buf.conf
+    ${LIBS_FIRMWARE}/networking/ipv4.conf
+    ${LIBS_FIRMWARE}/networking/ipv6.conf
+    ${LIBS_FIRMWARE}/networking/net.conf
+    ${LIBS_FIRMWARE}/networking/sockets.conf
+    ${LIBS_FIRMWARE}/networking/hostname.conf
+    ${LIBS_FIRMWARE}/networking/statistics.conf
+    ${LIBS_FIRMWARE}/networking/dns/server.conf
+    ${LIBS_FIRMWARE}/networking/dns/resolver.conf
+    ${LIBS_FIRMWARE}/networking/dhcpv4.conf
+    ${LIBS_FIRMWARE}/networking/wifi.conf
+    ${LIBS_FIRMWARE}/networking/sntp.conf
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/services/mcumgr.conf
+    ${LIBS_FIRMWARE}/services/mcumgr.conf
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/programs/hwinfo.conf
+    ${LIBS_FIRMWARE}/programs/hwinfo.conf
+    ${LIBS_FIRMWARE}/programs/gpio.conf
   )
 endif()
 
 if(BOARD MATCHES "^qemu_")
-  list(APPEND EXTRA_CONF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/filesystems/fs.conf)
+  list(APPEND EXTRA_CONF_FILE ${LIBS_FIRMWARE}/filesystems/fs.conf)
 endif()
 
 if(BOARD MATCHES "^xiao_esp32s3")
@@ -76,37 +74,3 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(embedded)
 
 rust_cargo_application(CRATE_NAME embedded)
-
-target_sources_ifdef(CONFIG_NET_DHCPV4_SERVER app PRIVATE
-  src/networking/dns/proxy.c
-)
-
-if(CONFIG_SHELL_ALIASES_HAS_FILE)
-  generate_shell_aliases_inc_file_for_target(
-    app
-    ${CONFIG_SHELL_ALIASES_FILE}
-    ${ZEPHYR_BINARY_DIR}/include/generated/generated-shell-aliases.inc
-  )
-endif()
-
-target_sources_ifdef(CONFIG_HTTP_SERVER app PRIVATE
-  src/services/http.c
-)
-if(CONFIG_HTTP_SERVER)
-  zephyr_linker_sources(SECTIONS src/services/http_sections.ld)
-endif()
-
-target_sources_ifdef(CONFIG_WIREGUARD app PRIVATE src/networking/wireguard/wireguard.c)
-if(CONFIG_WIREGUARD)
-  target_include_directories(app PRIVATE ${ZEPHYR_BASE}/subsys/net/lib/wireguard)
-endif()
-
-set_source_files_properties(
-  src/networking/dns/proxy.c
-  PROPERTIES INCLUDE_DIRECTORIES "${ZEPHYR_BASE}/subsys/net/lib/dns"
-)
-
-# NOTE: uncomment wolfssl/wolfssh projects in west.yml + add services/ssh/wolfssh.conf + ${LIBS_FIRMWARE}/posix.conf to app's EXTRA_CONF_FILE
-# if(CONFIG_WOLFSSH)
-#   zephyr_include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/services/ssh)
-# endif()
