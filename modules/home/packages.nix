@@ -22,7 +22,6 @@
       ]
       ++ lib.optional pkgs.stdenv.isLinux espup
       ++ [
-        SDL2 # for embedded TUI simulator
         esptool
         esphome
         espflash

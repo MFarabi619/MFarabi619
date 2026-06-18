@@ -45,6 +45,7 @@
       "mlx"
       "qemu"
       "nemu"
+      "SDL2"
       "ollama"
       # "ferron" # rust-based caddy-like web server
       "netscanner"
