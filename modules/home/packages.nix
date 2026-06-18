@@ -27,7 +27,6 @@
         esphome
         espflash
         esp-generate
-        mcumgr-client
         cargo-embassy
         cargo-generate
         cargo-binstall
