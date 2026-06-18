@@ -1,20 +1,6 @@
+{ ... }:
 {
-  imports = [
-    ./targets
-    ./programs
-    ./services
-
-    # ./nix.nix
-    ./me.nix
-    ./xdg.nix
-    ./home.nix
-    ./sops.nix
-    ./fonts.nix
-    ./manual.nix
-    ./stylix.nix
-    ./accounts.nix
-    ./packages.nix
-    ./nix-index.nix
-    ./editorconfig.nix
-  ];
+  imports =
+    with builtins;
+    map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
 }
