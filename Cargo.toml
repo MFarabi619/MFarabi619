@@ -3,8 +3,8 @@ resolver = "3"
 exclude = ["ml"]
 default-members = ["apps/embedded"]
 members = [
-    "web",
     "tui",
+    "apps/web",
     "tests/e2e",
     "apps/server",
     "apps/readme",
@@ -26,7 +26,7 @@ embassy-executor = "0.10"
 embedded-io-async = "0.7.0"
 dioxus-sdk-time = "0.7.0"
 loco-rs = "0.16.4"
-dioxus-primitives.path = "libs/primitives"
+dioxus-primitives.path = "libs/web/primitives"
 serde = { version = "1", features = ["derive"] }
 tracing = { version = "0.1", features = ["std"] }
 ratatui = { version = "0.30.0", default-features = false }

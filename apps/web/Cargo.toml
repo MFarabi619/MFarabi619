@@ -11,8 +11,8 @@ lucide-dioxus.workspace     = true
 dioxus-sdk-time.workspace   = true
 dioxus-primitives.workspace = true
 urlencoding                 = "2.1"
-ui.path                     = "../libs/ui"
-use-mdbook.path             = "../libs/use-mdbook"
+ui.path                     = "../../libs/web/ui"
+use-mdbook.path             = "../../libs/web/use-mdbook"
 serde                       = { version = "1.0.163", features = ["derive"] }
 serde_json                  = "1"
 web-sys                     = { version = "0.3", features = ["console", "FormData", "File", "Navigator", "Clipboard", "Storage", "Blob", "BlobPropertyBag", "Url", "HtmlElement", "HtmlInputElement", "HtmlCanvasElement", "CanvasRenderingContext2d", "ImageData", "ImageBitmap", "Document", "Window", "ScrollIntoViewOptions", "ScrollBehavior", "Element"] }
@@ -34,5 +34,5 @@ desktop = ["dioxus/desktop"]
 dioxus-autofmt.version = "0.7.3"
 syn                    = "2.0.98"
 prettyplease           = "0.2.36"
-mdbook-shared.path     = "../libs/mdbook-shared"
-mdbook-gen             = { path ="../libs/mdbook-gen", features = ["manganis"] }
+mdbook-shared.path     = "../../libs/web/mdbook-shared"
+mdbook-gen             = { path ="../../libs/web/mdbook-gen", features = ["manganis"] }
