@@ -254,7 +254,6 @@ model {
 
         ui-ux-design = container {
             title: "UI/UX Design"
-            icon: ../assets/emoji-icons/nail-polish.svg
             style {
                 color: teal-700
                 shape: browser
