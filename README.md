@@ -775,7 +775,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 ### [Ferris Sweep](https://github.com/davidphilipbarr/Sweep) + Gear Shifting
 | | |
 |-|-|
-| ![Ferris Sweep with STM32 in front of Macbook](assets/ferris-sweep-with-stm32-in-front-of-macbook.jpg) | ![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/templates/keyboards/ferris-sweep/keymap.svg) |
+| ![Ferris Sweep with STM32 in front of Macbook](assets/ferris-sweep-with-stm32-in-front-of-macbook.jpg) | ![Ferris Sweep Split Keyboard Layout](https://github.com/MFarabi619/MFarabi619/blob/main/docs/keyboards/ferris-sweep/keymap.svg) |
 
 <details>
 <summary>
