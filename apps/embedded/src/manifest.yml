@@ -8,7 +8,7 @@ manifest:
         - name: zephyr
           import: true
           remote: zephyrproject
-          revision: 77ef70e6b01adfd619f0aa2ab7179ff7d215e6a3 # 2026-06-12 (v4.4.0-5144)
+          revision: e79a0db70fc9ad33982f9786b428b115a78eaadd # 2026-06-14
 
         - name: dtsh
           revision: zephyr

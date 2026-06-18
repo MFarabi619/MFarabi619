@@ -348,15 +348,15 @@ patches:
   # ===== shared (both boards) =====
 
   - path: shell.patch
-    sha256sum: b09414f902bc10a6536c286544259909f3a81943b855c2392fd46307ca32c081
+    sha256sum: 4ae3056a73680559de290bcb7aef3fc224e916383ce5cff68612ab9e8c0116db
     module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
-    date: 2026-06-14
-    upstreamable: true
+    date: 2026-06-16
+    upstreamable: false
     comments: |
-      Two related changes to make Zephyr's shell hold a Powerlevel10k-style
-      prompt (powerline glyphs, ANSI color, multi-segment):
+      All shell-related local edits bundled — kept together for local
+      maintenance, not split for upstreaming.
 
       1. subsys/shell/Kconfig — bump SHELL_PROMPT_BUFF_SIZE upper bound
          from 40 to 1024. A full powerline string (background+foreground
@@ -366,14 +366,22 @@ patches:
          arbitrary; the buffer is allocated via Kconfig at compile time so
          users still pay only for what they set.
 
-      2. subsys/shell/shell_utils.h — z_shell_strlen now returns visible
-         column width instead of raw strlen. Skips CSI escape sequences
-         (\x1b[ ... <final 0x40-0x7E>) and treats UTF-8 continuation bytes
-         (0xC0..0xBF) as zero-width. The result is stored as
-         vt100_ctx.cons.name_len (shell.c:1754, 2122) which the line-wrap
-         and cursor-backtrack math depend on; with the naive strlen, any
+      2. subsys/shell/shell.c + subsys/shell/shell_utils.h —
+         z_shell_strlen now returns visible column width instead of raw
+         strlen, and shell_prompt_change checks the byte length against
+         the buffer separately from the visible-width math. Skips CSI
+         escape sequences (\x1b[ ... <final 0x40-0x7E>) and treats UTF-8
+         continuation bytes (0xC0..0xBF) as zero-width. The result is
+         stored as vt100_ctx.cons.name_len which the line-wrap and
+         cursor-backtrack math depend on; with the naive strlen, any
          prompt containing ANSI codes mis-computes the wrap column and
          garbles redraws on long commands or Ctrl-A.
 
-      Both upstreamable. The strlen fix is a known papercut — anyone using
-      shell_prompt_change with colors hits it.
+      3. subsys/fs/shell.c — add `const char *fs_shell_get_cwd(void)`
+         getter (the FS shell keeps cwd in a file-static char[] with no
+         C API to observe it), plus `__weak void fs_shell_on_cwd_changed(void)`
+         called from cmd_cd at the end of all three cwd-mutation branches
+         (no-arg → root, `..` → parent, normal path). Strong override in
+         libs/firmware rebuilds and re-sets the shell prompt so the DIR
+         segment updates the moment cwd changes — event-driven, no
+         polling.

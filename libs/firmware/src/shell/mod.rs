@@ -1,16 +1,52 @@
 pub mod prompt;
 
-use core::ffi::{c_char, c_int, c_void, CStr};
+use core::ffi::{c_char, c_int, CStr};
 
+// zephyr::raw::shell is opaque from bindgen (its k_spinlock member has no fields), so rustc warns
+// improper_ctypes on every signature here even though we treat the pointer as a handle.
+#[allow(improper_ctypes)]
 extern "C" {
     fn shell_backend_uart_get_ptr() -> *const zephyr::raw::shell;
     fn shell_prompt_change(sh: *const zephyr::raw::shell, prompt: *const c_char) -> i32;
-    fn shell_start(sh: *const zephyr::raw::shell) -> i32;
     fn z_shell_print_prompt_and_cmd(sh: *const zephyr::raw::shell);
     fn shell_execute_cmd(sh: *const zephyr::raw::shell, cmd: *const c_char) -> i32;
     fn shell_get_return_value(sh: *const zephyr::raw::shell) -> i32;
+}
+
+extern "C" {
     pub fn gmtime_r(timer: *const i64, result: *mut Tm) -> *mut Tm;
     pub fn sys_clock_gettime(clock_id: c_int, tp: *mut Timespec) -> c_int;
+    #[cfg(CONFIG_FILE_SYSTEM_SHELL)]
+    fn fs_shell_get_cwd() -> *const c_char;
+}
+
+#[cfg(CONFIG_FILE_SYSTEM_SHELL)]
+pub fn cwd() -> alloc::string::String {
+    use alloc::string::ToString;
+    unsafe { CStr::from_ptr(fs_shell_get_cwd()).to_string_lossy().to_string() }
+}
+
+#[cfg(CONFIG_FILE_SYSTEM_SHELL)]
+#[no_mangle]
+extern "C" fn fs_shell_on_cwd_changed() {
+    let prompt_text = prompt::build_prompt();
+    let _ = set_prompt(prompt_text.as_c_str());
+}
+
+#[cfg(not(CONFIG_FILE_SYSTEM_SHELL))]
+pub fn cwd() -> alloc::string::String {
+    alloc::string::String::from("/")
+}
+
+pub fn execute(cmd: &str) -> i32 {
+    let shell_handle = unsafe { shell_backend_uart_get_ptr() };
+    if shell_handle.is_null() {
+        return -19;
+    }
+    let Ok(cmd_cstring) = alloc::ffi::CString::new(cmd) else {
+        return -22;
+    };
+    unsafe { shell_execute_cmd(shell_handle, cmd_cstring.as_ptr()) }
 }
 
 #[repr(C)]
@@ -23,18 +59,20 @@ pub struct Timespec {
 pub fn initialize() -> zephyr::Result<()> {
     zephyr::time::sleep(zephyr::time::Duration::millis_at_least(200));
     probe_terminal_size();
-    let p = prompt::build_prompt();
-    set_prompt(p.as_c_str())?;
+    #[cfg(CONFIG_SDMMC_STACK)]
+    execute("fs cd /SD:");
+    let prompt_text = prompt::build_prompt();
+    set_prompt(prompt_text.as_c_str())?;
     redraw_prompt();
     Ok(())
 }
 
 pub fn last_return_value() -> i32 {
-    let sh = unsafe { shell_backend_uart_get_ptr() };
-    if sh.is_null() {
+    let shell_handle = unsafe { shell_backend_uart_get_ptr() };
+    if shell_handle.is_null() {
         return 0;
     }
-    unsafe { shell_get_return_value(sh) }
+    unsafe { shell_get_return_value(shell_handle) }
 }
 
 #[repr(C)]
@@ -52,43 +90,35 @@ pub struct Tm {
 }
 
 pub fn set_prompt(prompt: &CStr) -> zephyr::Result<()> {
-    let sh = unsafe { shell_backend_uart_get_ptr() };
-    if sh.is_null() {
+    let shell_handle = unsafe { shell_backend_uart_get_ptr() };
+    if shell_handle.is_null() {
         return zephyr::error::to_result_void(-19);
     }
-    zephyr::error::to_result_void(unsafe { shell_prompt_change(sh, prompt.as_ptr()) })
-}
-
-pub fn start() -> zephyr::Result<()> {
-    let sh = unsafe { shell_backend_uart_get_ptr() };
-    if sh.is_null() {
-        return zephyr::error::to_result_void(-19);
-    }
-    zephyr::error::to_result_void(unsafe { shell_start(sh) })
+    zephyr::error::to_result_void(unsafe { shell_prompt_change(shell_handle, prompt.as_ptr()) })
 }
 
 pub fn redraw_prompt() {
-    let sh = unsafe { shell_backend_uart_get_ptr() };
-    if sh.is_null() {
+    let shell_handle = unsafe { shell_backend_uart_get_ptr() };
+    if shell_handle.is_null() {
         return;
     }
-    unsafe { z_shell_print_prompt_and_cmd(sh) };
+    unsafe { z_shell_print_prompt_and_cmd(shell_handle) };
 }
 
 pub fn terminal_width() -> u16 {
-    let sh = unsafe { shell_backend_uart_get_ptr() };
-    if sh.is_null() {
+    let shell_handle = unsafe { shell_backend_uart_get_ptr() };
+    if shell_handle.is_null() {
         return 80;
     }
-    unsafe { (*(*sh).ctx).vt100_ctx.cons.terminal_wid }
+    unsafe { (*(*shell_handle).ctx).vt100_ctx.cons.terminal_wid }
 }
 
 pub fn probe_terminal_size() {
-    let sh = unsafe { shell_backend_uart_get_ptr() };
-    if sh.is_null() {
+    let shell_handle = unsafe { shell_backend_uart_get_ptr() };
+    if shell_handle.is_null() {
         return;
     }
-    unsafe { shell_execute_cmd(sh, c"resize".as_ptr()) };
+    unsafe { shell_execute_cmd(shell_handle, c"resize".as_ptr()) };
 }
 
 pub mod theme {
@@ -102,7 +132,7 @@ pub mod theme {
     pub const HOME_ICON: &str = icons::NF_FA_HOME;
     pub const ROOT_ICON: &str = icons::NF_FA_LOCK;
     pub const FOLDER_ICON: &str = icons::NF_FA_FOLDER_OPEN;
-    pub const DIR_FG: &str = "\x1b[38;2;0;0;0m";
+    pub const DIR_FG: &str = "\x1b[1;38;2;0;0;0m";
     pub const DIR_BG: &str = "\x1b[48;2;142;122;181m";
     pub const DIR_BG_AS_FG: &str = "\x1b[38;2;142;122;181m";
 
@@ -111,6 +141,10 @@ pub mod theme {
     pub const ARCH_FG: &str = "\x1b[38;2;0;0;0m";
     pub const ARCH_BG: &str = "\x1b[48;2;229;177;83m";
     pub const ARCH_BG_AS_FG: &str = "\x1b[38;2;229;177;83m";
+
+    pub const HOST_ICON: &str = icons::NF_FA_SERVER;
+    pub const HOST_LABEL: &str = zephyr::kconfig::CONFIG_BOARD;
+    pub const HOST_FG: &str = "\x1b[38;2;229;177;83m";
 
     pub const STATUS_OK_FG: &str = "\x1b[1;38;2;46;204;113m";
     pub const STATUS_OK_GLYPH: &str = "\u{2713}";

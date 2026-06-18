@@ -1,3 +1,56 @@
+diff --git a/subsys/fs/shell.c b/subsys/fs/shell.c
+index a7741f673a3..4c4e89f29b6 100644
+--- a/subsys/fs/shell.c
++++ b/subsys/fs/shell.c
+@@ -93,6 +93,8 @@ static struct fs_mount_t littlefs_mnt = {
+ /* Maintenance guarantees this begins with '/' and is NUL-terminated. */
+ static char cwd[MAX_PATH_LEN] = "/";
+ 
++void fs_shell_on_cwd_changed(void);
++
+ static void create_abs_path(const char *name, char *path, size_t len)
+ {
+ 	if (name[0] == '/') {
+@@ -131,6 +133,7 @@ static int cmd_cd(const struct shell *sh, size_t argc, char **argv)
+ 
+ 	if (argc < 2) {
+ 		strcpy(cwd, "/");
++		fs_shell_on_cwd_changed();
+ 		return 0;
+ 	}
+ 
+@@ -144,6 +147,7 @@ static int cmd_cd(const struct shell *sh, size_t argc, char **argv)
+ 		}
+ 
+ 		/* No need to test that a parent exists */
++		fs_shell_on_cwd_changed();
+ 		return 0;
+ 	}
+ 
+@@ -163,6 +167,7 @@ static int cmd_cd(const struct shell *sh, size_t argc, char **argv)
+ 	strncpy(cwd, path, sizeof(cwd));
+ 	cwd[sizeof(cwd) - 1] = '\0';
+ 
++	fs_shell_on_cwd_changed();
+ 	return 0;
+ }
+ 
+@@ -922,6 +927,15 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_fs_mount,
+ );
+ #endif
+ 
++const char *fs_shell_get_cwd(void)
++{
++	return cwd;
++}
++
++__weak void fs_shell_on_cwd_changed(void)
++{
++}
++
+ SHELL_STATIC_SUBCMD_SET_CREATE(sub_fs,
+ 	SHELL_CMD(cd, NULL, SHELL_HELP("Change working directory", "[<path>]"), cmd_cd),
+ 	SHELL_CMD(ls, NULL, SHELL_HELP("List files in current directory", "[<path>]"), cmd_ls),
 diff --git a/subsys/shell/Kconfig b/subsys/shell/Kconfig
 index 2478bd87eee..152dfdfa6fe 100644
 --- a/subsys/shell/Kconfig
@@ -41,7 +94,7 @@ index d7a08c9a5ab..1be288aa5e1 100644
  	z_shell_unlock(sh);
  
 diff --git a/subsys/shell/shell_utils.h b/subsys/shell/shell_utils.h
-index 0af5d7d68cc..630242ea8f5 100644
+index c0e27146c46..4b744202f60 100644
 --- a/subsys/shell/shell_utils.h
 +++ b/subsys/shell/shell_utils.h
 @@ -33,7 +33,40 @@ void z_shell_multiline_data_calc(struct shell_multiline_cons *cons,

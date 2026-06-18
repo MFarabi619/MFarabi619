@@ -24,7 +24,10 @@ elseif(BOARD MATCHES "^xiao_esp32s3")
     # "${CMAKE_CURRENT_LIST_DIR}/../../libs/firmware/halow/halow.conf"
   )
   if(BOARD_QUALIFIERS MATCHES "sense")
-    list(APPEND _xiao_extra_conf "${CMAKE_CURRENT_LIST_DIR}/src/filesystems/fs.conf")
+    list(APPEND _xiao_extra_conf
+      "${CMAKE_CURRENT_LIST_DIR}/src/filesystems/fs.conf"
+      "${CMAKE_CURRENT_LIST_DIR}/src/services/http.conf"
+    )
   endif()
   set(embedded_EXTRA_CONF_FILE "${_xiao_extra_conf}" CACHE INTERNAL "")
   # NOTE: espressif-psram-reloc skipped — OCT PSRAM + 40M flash (WREN workaround)

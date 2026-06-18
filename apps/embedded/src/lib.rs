@@ -1,8 +1,12 @@
 #![no_std]
+#![allow(unexpected_cfgs)]
 
 extern crate alloc;
 
 use firmware::shell;
+
+#[cfg(CONFIG_HTTP_SERVER)]
+use firmware::services::http;
 
 use log::{info, warn};
 
@@ -40,40 +44,6 @@ extern "C" fn get_fattime() -> u32 {
         | (calendar.tm_min as u32) << 5
         | ((calendar.tm_sec / 2) as u32)
 }
-
-#[cfg(target_arch = "xtensa")]
-use core::ffi::c_int;
-#[cfg(target_arch = "xtensa")]
-use zephyr::raw::init_entry;
-
-#[cfg(target_arch = "xtensa")]
-unsafe extern "C" {
-    fn esp_flash_app_init();
-    fn esp_flash_init_default_chip() -> c_int;
-}
-
-#[cfg(target_arch = "xtensa")]
-unsafe extern "C" fn flash_default_chip_init() -> c_int {
-    unsafe {
-        esp_flash_app_init();
-        esp_flash_init_default_chip();
-    }
-    0
-}
-
-#[cfg(target_arch = "xtensa")]
-#[repr(transparent)]
-struct InitEntry(#[allow(dead_code)] init_entry);
-#[cfg(target_arch = "xtensa")]
-unsafe impl Sync for InitEntry {}
-
-#[cfg(target_arch = "xtensa")]
-#[used]
-#[link_section = ".z_init_POST_KERNEL_P_99_SUB_0_"]
-static FLASH_INIT_ENTRY: InitEntry = InitEntry(init_entry {
-    init_fn: Some(flash_default_chip_init),
-    dev: core::ptr::null(),
-});
 
 #[no_mangle]
 extern "C" fn rust_main() {
@@ -126,5 +96,9 @@ fn node() {
     #[cfg(CONFIG_WIREGUARD)]
     if let Err(e) = wireguard::initialize() {
         warn!("wireguard: {e}");
+    }
+    #[cfg(CONFIG_HTTP_SERVER)]
+    if let Err(e) = http::server::initialize() {
+        warn!("http server: {e}");
     }
 }

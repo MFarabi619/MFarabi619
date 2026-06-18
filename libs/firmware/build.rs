@@ -4,21 +4,11 @@ fn main() {
             .expect("failed to extract Kconfig flags");
         for flag in &flags {
             println!("cargo:rustc-cfg={flag}");
-            println!("cargo:rustc-check-cfg=cfg({flag})");
         }
         println!("cargo:rerun-if-env-changed=DOTCONFIG");
         println!("cargo:rerun-if-changed={dotconfig}");
     }
     if std::env::var("ZEPHYR_DTS").is_ok() {
         zephyr_build::dt_cfgs();
-    }
-    println!("cargo:rustc-check-cfg=cfg(dt, values(any()))");
-    for cfg in [
-        "CONFIG_WIREGUARD",
-        "CONFIG_NET_DHCPV4_SERVER",
-        "CONFIG_NET_PKT_FILTER_IPV4_HOOK",
-        "CONFIG_NETWORKING",
-    ] {
-        println!("cargo:rustc-check-cfg=cfg({cfg})");
     }
 }
