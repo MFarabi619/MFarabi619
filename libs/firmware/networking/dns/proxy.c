@@ -203,6 +203,9 @@ static void handle_query(uint8_t *rx_buf, size_t rx_len, const struct sockaddr_i
 	if (qname_len < 0 || qclass != DNS_CLASS_IN) {
 		goto out;
 	}
+	if (qname->len > DNS_NAME_MAX_SIZE) {
+		goto out;
+	}
 
 	size_t question_len = dns_msg.query_offset - DNS_MSG_HEADER_SIZE;
 	if (question_len > DNS_PROXY_QUESTION_MAX) {
