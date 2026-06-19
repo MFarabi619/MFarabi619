@@ -1,5 +1,4 @@
 rsource "networking/wireguard/Kconfig"
-rsource "programs/sqlite/Kconfig"
 
 # Upstream ESP32-S3 SoC Kconfig doesn't `select HAS_SEGGER_RTT` even when the
 # segger module is present. Force it here so `CONFIG_USE_SEGGER_RTT=y` resolves.

@@ -1,0 +1,22 @@
+manifest:
+    remotes:
+        - name: zephyrproject
+          url-base: https://github.com/zephyrproject-rtos
+
+    projects:
+        - name: zephyr
+          import: true
+          remote: zephyrproject
+          revision: e79a0db70fc9ad33982f9786b428b115a78eaadd # 2026-06-14
+
+        - name: zephyr-lang-rust
+          remote: zephyrproject
+          path: modules/lang/rust
+          revision: ab3e546232bfa2f4e16d6c5156b9d9500885b4e8 # 2026-06-12
+
+        - name: mm-iot-zephyr
+          import: false
+          revision: main
+          submodules: true
+          path: modules/lib/morsemicro
+          url: https://github.com/craigpeacock/mm-iot-zephyr

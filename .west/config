@@ -30,7 +30,7 @@ bw = build apps/embedded --sysbuild -b walter/esp32s3/procpu
 # bx = build apps/embedded --sysbuild -b xiao_esp32s3/esp32s3/procpu
 bx = build apps/embedded --sysbuild -b xiao_esp32s3/esp32s3/procpu/sense
 
-fw = flash --esp-device hwgrep://D0:CF:13:54:27:18
+fw = flash --esp-device hwgrep://D0:CF:13:54:27:18 -d build/walter/esp32s3/procpu
 # fx = flash --esp-device hwgrep://8C:BF:EA:8E:AC:28
 fx = flash --esp-device hwgrep://CC:BA:97:16:2B:68 -d build/xiao_esp32s3/esp32s3/procpu/sense
 

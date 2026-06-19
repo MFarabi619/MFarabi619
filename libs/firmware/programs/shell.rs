@@ -275,7 +275,7 @@ pub mod prompt {
                 uptime_minutes, uptime_seconds_within_minute, theme::CLOCK_ICON, theme::RESET
             );
         }
-        let _ = write!(buffer, "{}{}{}", theme::FRAME, theme::FRAME_TOP_RIGHT, theme::RESET);
+        // let _ = write!(buffer, "{}{}{}", theme::FRAME, theme::FRAME_TOP_RIGHT, theme::RESET);
 
         buffer
     }

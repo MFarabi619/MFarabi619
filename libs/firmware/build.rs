@@ -17,7 +17,7 @@ fn main() {
 }
 
 fn generate_sqlite_bindings() {
-    let header = "programs/sqlite/sqlite3ext.h";
+    let header = "../zephyr-lib-sqlite/sqlite3ext.h";
     println!("cargo:rerun-if-changed={header}");
     let bindings = bindgen::Builder::default()
         .header(header)

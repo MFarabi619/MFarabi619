@@ -5,7 +5,9 @@ if(DEFINED ENV{OPENOCD})
 endif()
 
 set(LIBS_FIRMWARE ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/firmware)
-list(APPEND ZEPHYR_EXTRA_MODULES ${LIBS_FIRMWARE})
+set(LIBS_ZEPHYR_LIB_SQLITE ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/zephyr-lib-sqlite)
+set(LIBS_ZEPHYR_ZTEST_FANCY ${CMAKE_CURRENT_SOURCE_DIR}/../../libs/zephyr-ztest-fancy)
+list(APPEND EXTRA_ZEPHYR_MODULES ${LIBS_FIRMWARE} ${LIBS_ZEPHYR_LIB_SQLITE} ${LIBS_ZEPHYR_ZTEST_FANCY})
 
 list(APPEND EXTRA_CONF_FILE
   ${LIBS_FIRMWARE}/rust.conf
@@ -58,7 +60,7 @@ endif()
 if(BOARD MATCHES "^qemu_")
   list(APPEND EXTRA_CONF_FILE
     ${LIBS_FIRMWARE}/filesystems/fs.conf
-    ${LIBS_FIRMWARE}/programs/sqlite/sqlite.conf
+    ${LIBS_ZEPHYR_LIB_SQLITE}/sqlite.conf
   )
 endif()
 
@@ -73,12 +75,13 @@ if(BOARD MATCHES "^xiao_esp32s3")
   endfunction()
 endif()
 
+if(BOARD STREQUAL "xiao_esp32s3" AND BOARD_QUALIFIERS MATCHES "/sense$")
+  list(APPEND EXTRA_CONF_FILE
+    ${LIBS_ZEPHYR_LIB_SQLITE}/sqlite.conf
+  )
+endif()
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(embedded)
-
-if(CONFIG_ZTEST)
-  zephyr_include_directories(include)
-  target_sources(app PRIVATE test_main.c)
-endif()
 
 rust_cargo_application(CRATE_NAME embedded)

@@ -1,0 +1,27 @@
+config ZTEST_FANCY
+	bool "Fancy ZTEST runner with BDD narration"
+	select ZTEST
+	select ZTEST_TC_UTIL_USER_OVERRIDE
+	help
+	  Enables a ZTEST setup with colored verdict tags ([PASSED]/[FAILED]/
+	  [SKIPPED]), START line, the canonical PASS/FAIL/SKIP sentinel that
+	  twister's ztest harness parses, and C BDD narration macros
+	  (GIVEN/WHEN/THEN/AND from <bdd.h>). Ships a default test_main that
+	  runs all ZTEST_SUITEs, verifies coverage, emits TC_END_REPORT, and
+	  powers off QEMU via the SiFive test finisher.
+
+if ZTEST_FANCY
+
+config ZTEST_STACK_SIZE
+	default 16384
+
+config TEST_LOGGING_DEFAULTS
+	default n
+
+config LOG_BACKEND_SHOW_COLOR
+	default y
+
+config SHELL_BACKEND_DUMMY
+	default y
+
+endif # ZTEST_FANCY
