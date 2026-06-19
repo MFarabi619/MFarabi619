@@ -18,6 +18,8 @@
   size-indication-mode nil
   mouse-autoselect-window t
 
+  +zen-text-scale 4.0
+
   doom-modeline-hud t
   doom-modeline-time-icon t
   doom-modeline-battery nil
