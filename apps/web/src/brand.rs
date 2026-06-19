@@ -48,7 +48,7 @@ pub const MICROVISOR_SYSTEMS: Brand = Brand {
 pub const APIDAE_SYSTEMS: Brand = Brand {
     key: "apidae_systems",
     name: "Apidae Systems",
-    tagline: "🐝 From bootloader to browser 🐝",
+    tagline: "🐝 Silicon to Sky 🐝",
     homepage_url: "https://apidae.systems",
     logo: APIDAE_SYSTEMS_LOGO,
     hero_emoji_accent: "🐝",
@@ -57,6 +57,5 @@ pub const APIDAE_SYSTEMS: Brand = Brand {
     nav_links: &[],
 };
 
-// Swap which line is commented to switch brand:
-pub const ACTIVE: Brand = MICROVISOR_SYSTEMS;
-// pub const ACTIVE: Brand = APIDAE_SYSTEMS;
+// pub const ACTIVE: Brand = MICROVISOR_SYSTEMS;
+pub const ACTIVE: Brand = APIDAE_SYSTEMS;

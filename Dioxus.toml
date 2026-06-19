@@ -9,7 +9,7 @@ tailwind_output = "assets/tailwind.css"
 [bundle]
 category = "Utility"
 publisher = "Mumtahin Farabi"
-icon = ["assets/microvisor-systems-logo.svg"]
+icon = ["assets/microvisor-systems.svg"]
 identifier = "com.microvisorsystems"
 copyright = "2026 Microvisor Systems"
 short_description = "General web client."
