@@ -27,13 +27,6 @@
       # stmcli = "/Applications/STMicroelectronics/STM32Cube/STM32CubeProgrammer/STM32CubeProgrammer.app/Contents/MacOs/bin/STM32_Programmer_CLI";
     };
 
-    file = {
-      "receipt.json" = {
-        enable = false;
-        source = ./receipt.json;
-      };
-    };
-
     sessionVariables =
       lib.mkIf
         (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64 && config.wayland.windowManager.hyprland.enable)
