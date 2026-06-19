@@ -1,0 +1,4 @@
+name: zephyr-lang-zig
+build:
+  cmake: .
+  kconfig: Kconfig

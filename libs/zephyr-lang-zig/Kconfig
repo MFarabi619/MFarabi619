@@ -1,0 +1,37 @@
+# Zig configuration options
+#
+# Copyright (c) 2026 Mumtahin Farabi
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Zig Language Support"
+
+config ZIG_SUPPORTED
+	bool
+	default y if RISCV && !RISCV_ISA_RV32E && !RISCV_ISA_RV128I
+	help
+	  Selected for platforms that have support for Zig.
+
+config ZIG
+	bool "Zig support for the application"
+	depends on ZIG_SUPPORTED
+	select EXPERIMENTAL
+	help
+	  This option enables the use of applications written in Zig.
+
+if ZIG
+
+config ZIG_OPTIMIZE
+	string "Zig optimization mode"
+	default "ReleaseSmall"
+	help
+	  One of: Debug, ReleaseSafe, ReleaseFast, ReleaseSmall.
+
+config MAIN_STACK_SIZE
+	default 8192 if ZTEST
+
+config ZTEST_STACK_SIZE
+	default 8192
+
+endif # ZIG
+
+endmenu

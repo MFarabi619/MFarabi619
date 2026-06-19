@@ -1,0 +1,13 @@
+/ {
+	test_gpio: gpio_emul {
+		status = "okay";
+		compatible = "zephyr,gpio-emul";
+		gpio-controller;
+		rising-edge;
+		falling-edge;
+		high-level;
+		low-level;
+		#gpio-cells = <2>;
+		ngpios = <8>;
+	};
+};

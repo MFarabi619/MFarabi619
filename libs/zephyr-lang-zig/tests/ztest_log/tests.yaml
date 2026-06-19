@@ -1,0 +1,11 @@
+common:
+  harness: ztest
+  tags:
+    - zephyr_lang_zig
+
+tests:
+  zephyr_lang_zig.log:
+    platform_allow:
+      - qemu_riscv32
+    integration_platforms:
+      - qemu_riscv32

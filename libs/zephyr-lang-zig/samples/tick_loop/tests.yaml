@@ -1,0 +1,15 @@
+common:
+  tags:
+    - zephyr_lang_zig
+  harness: console
+  harness_config:
+    type: one_line
+    regex:
+      - "tick\\s+\\d+ at \\d+ms"
+
+tests:
+  zephyr_lang_zig.sample.tick_loop:
+    platform_allow:
+      - qemu_riscv32
+    integration_platforms:
+      - qemu_riscv32

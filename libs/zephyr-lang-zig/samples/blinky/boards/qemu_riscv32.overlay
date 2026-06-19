@@ -1,0 +1,27 @@
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+	aliases {
+		led0 = &emul_led0;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		emul_led0: led_0 {
+			gpios = <&led_gpio 0 GPIO_ACTIVE_HIGH>;
+			label = "emul-led";
+		};
+	};
+
+	led_gpio: gpio_emul {
+		status = "okay";
+		compatible = "zephyr,gpio-emul";
+		gpio-controller;
+		rising-edge;
+		falling-edge;
+		high-level;
+		low-level;
+		#gpio-cells = <2>;
+		ngpios = <8>;
+	};
+};
