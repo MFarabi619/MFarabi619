@@ -203,12 +203,12 @@ static void handle_query(uint8_t *rx_buf, size_t rx_len, const struct sockaddr_i
 	if (qname_len < 0 || qclass != DNS_CLASS_IN) {
 		goto out;
 	}
-	if (qname->len > DNS_NAME_MAX_SIZE) {
+	if (qname->len >= sizeof(pending[0].qname)) {
 		goto out;
 	}
 
 	size_t question_len = dns_msg.query_offset - DNS_MSG_HEADER_SIZE;
-	if (question_len > DNS_PROXY_QUESTION_MAX) {
+	if (question_len > sizeof(pending[0].question)) {
 		goto out;
 	}
 	const uint8_t *question = rx_buf + DNS_MSG_HEADER_SIZE;
@@ -295,6 +295,21 @@ static void dns_proxy_event_cb(struct net_socket_service_event *evt)
 }
 
 NET_SOCKET_SERVICE_SYNC_DEFINE_STATIC(dns_proxy_service, dns_proxy_event_cb, 1);
+
+#ifdef DNS_PROXY_TEST_HOOKS
+/* Test-only entry point that exposes handle_query with a fixed dummy client address.
+ * Returns negative to signal the query was not forwarded upstream. */
+int dns_proxy_handle_request(const uint8_t *buf, size_t len, void *auth)
+{
+	(void)auth;
+	if (len < DNS_MSG_HEADER_SIZE) {
+		return -EINVAL;
+	}
+	static struct sockaddr_in dummy;
+	handle_query((uint8_t *)buf, len, &dummy);
+	return -EPERM;
+}
+#endif
 
 int dns_proxy_initialize(void)
 {
