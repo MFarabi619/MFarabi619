@@ -1,0 +1,17 @@
+substitutions:
+    hostname: esp32s3-devkitc-1
+    use_address: 100.127.251.3
+
+api:
+    encryption:
+        key: !secret esp32s3-devkitc-1
+
+<<:
+    - !include ../ota.yaml
+    - !include ../wifi.yaml
+    - !include ../esp32.yaml
+    - !include ../psram.yaml
+    - !include ../logger.yaml
+    - !include ../default.yaml
+    - !include ../tailscale.yaml
+    - !include ../web_server.yaml

@@ -1,0 +1,17 @@
+substitutions:
+    hostname: xiao-esp32s3
+    # use_address: 100.72.169.123
+
+api:
+    encryption:
+        key: !secret xiao-esp32s3
+
+<<:
+    - !include ../ota.yaml
+    - !include ../wifi.yaml
+    - !include ../esp32.yaml
+    - !include ../psram.yaml
+    - !include ../logger.yaml
+    - !include ../default.yaml
+    - !include ../tailscale.yaml
+    - !include ../web_server.yaml
