@@ -1,0 +1,28 @@
+rsource "networking/wireguard/Kconfig"
+rsource "programs/sqlite/Kconfig"
+
+# Upstream ESP32-S3 SoC Kconfig doesn't `select HAS_SEGGER_RTT` even when the
+# segger module is present. Force it here so `CONFIG_USE_SEGGER_RTT=y` resolves.
+config FORCE_HAS_SEGGER_RTT
+	bool
+	default y
+	select HAS_SEGGER_RTT
+
+config FORCE_RUST_SUPPORTED
+	bool
+	default y
+	select RUST_SUPPORTED
+
+config PROMPT_TZ_OFFSET_MINUTES
+	int "Prompt clock timezone offset (minutes from UTC)"
+	default -240
+
+# Auto-enable the `fs` shell command on every build that has both SHELL and
+# FILE_SYSTEM. Avoids assigning FILE_SYSTEM_SHELL=y in conf files (which would
+# warn on builds where one of the deps is off, e.g. walter has shell but no fs;
+# the tests app has fs but no shell).
+config FORCE_FILE_SYSTEM_SHELL
+	bool
+	default y
+	depends on SHELL && FILE_SYSTEM
+	select FILE_SYSTEM_SHELL

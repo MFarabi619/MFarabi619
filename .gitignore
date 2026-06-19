@@ -21,6 +21,7 @@ config/data.sqld
 /install/
 /build/
 /log/
+**/twister-out*/
 
 #====================================================
 #                 CACHES/LOGS
@@ -88,3 +89,4 @@ opencode.json
 /.codex/config.toml
 /compile_commands.json
 /tests/__pycache__
+

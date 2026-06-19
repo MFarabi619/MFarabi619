@@ -1,6 +1,6 @@
 #  https://clangd.llvm.org/config
 CompileFlags:
-  CompilationDatabase: build/xiao_esp32s3_procpu/firmware/
+  CompilationDatabase: build/xiao_esp32s3/esp32s3/procpu/sense/embedded/
 
   # NOTE: Strip xtensa-GCC-only flags clangd doesn't recognize.
   # Otherwise source file opens with cascading "unknown argument" diagnostics.

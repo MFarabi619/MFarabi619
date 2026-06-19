@@ -1,0 +1,16 @@
+config SQLITE
+	bool "SQLite3 embedded database engine"
+	depends on FILE_SYSTEM
+	help
+	  SQLite3 amalgamation with a custom VFS over Zephyr's native fs_*
+	  API. Single-threaded (SQLITE_THREADSAFE=0); locking is a no-op.
+
+config SQLITE_SHELL
+	bool "SQLite shell commands"
+	depends on SQLITE
+	depends on SHELL
+	default y
+	help
+	  Register a `sqlite` command tree (open/close/exec/version) in
+	  the Zephyr shell. Handlers are implemented in Rust; the C side
+	  is a thin SHELL_CMD_REGISTER trampoline.

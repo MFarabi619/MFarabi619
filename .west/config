@@ -6,10 +6,11 @@ path = apps/embedded
 base = zephyr
 
 [build]
-sysbuild = true
 pristine = auto
-# board = xiao_esp32s3/esp32s3/procpu
-board = xiao_esp32s3/esp32s3/procpu/sense
+sysbuild = false
+guess-dir = runners
+board = qemu_riscv32
+dir-fmt = build/{board}
 
 [flash]
 rebuild = true
@@ -21,21 +22,23 @@ pa = p apply --roll-back
 
 menuconfig = build apps/embedded -p=never -t menuconfig
 
-r  = build -b qemu_riscv32 apps/embedded --no-sysbuild -d build/qemu_riscv32 -t run
+r  = build apps/embedded -t run
+t  = build apps/embedded --extra-conf=test.conf -t run
+tr = twister -T apps/embedded --inline-logs -c --log-level DEBUG
 
-bw = build apps/embedded -b walter/esp32s3/procpu -d build/walter_esp32s3_procpu
-# bx = build apps/embedded -b xiao_esp32s3/esp32s3/procpu -d build/xiao_esp32s3_procpu
-bx = build apps/embedded -b xiao_esp32s3/esp32s3/procpu/sense -d build/xiao_esp32s3_procpu_sense
+bw = build apps/embedded --sysbuild -b walter/esp32s3/procpu
+# bx = build apps/embedded --sysbuild -b xiao_esp32s3/esp32s3/procpu
+bx = build apps/embedded --sysbuild -b xiao_esp32s3/esp32s3/procpu/sense
 
-fw = flash -d build/walter_esp32s3_procpu --esp-device hwgrep://D0:CF:13:54:27:18
-# fx = flash -d build/xiao_esp32s3_procpu --esp-device hwgrep://8C:BF:EA:8E:AC:28
-fx = flash -d build/xiao_esp32s3_procpu_sense --esp-device hwgrep://CC:BA:97:16:2B:68
+fw = flash --esp-device hwgrep://D0:CF:13:54:27:18
+# fx = flash --esp-device hwgrep://8C:BF:EA:8E:AC:28
+fx = flash --esp-device hwgrep://CC:BA:97:16:2B:68 -d build/xiao_esp32s3/esp32s3/procpu/sense
 
 mw = espressif monitor -p hwgrep://D0:CF:13:54:27:18
 # mx = espressif monitor -p hwgrep://8C:BF:EA:8E:AC:28
 mx = espressif monitor -p hwgrep://CC:BA:97:16:2B:68
 
-ax = attach -d build/xiao_esp32s3_procpu_sense --runner probe-rs
+ax = attach --runner probe-rs
 
-dtw = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/walter_esp32s3_procpu/firmware/zephyr/zephyr.dts
-dtx = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/xiao_esp32s3_procpu_sense/firmware/zephyr/zephyr.dts
+dtw = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/walter/esp32s3/procpu/embedded/firmware/zephyr/zephyr.dts
+dtx = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/xiao_esp32s3/esp32s3/procpu/sense/embedded/firmware/zephyr/zephyr.dts

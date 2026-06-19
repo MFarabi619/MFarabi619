@@ -7,9 +7,23 @@ license = "Apache-2.0"
 [lib]
 path = "lib.rs"
 
+# Carried over from vlcn sqlite-rs-embedded: vlcn's source cfg-gates on
+# `feature = "static"` (engine linked into the same image, our case) vs
+# `feature = "loadable_extension"` (runtime .so plugin, not applicable to
+# embedded). `omit_load_extension` mirrors SQLITE_OMIT_LOAD_EXTENSION in
+# sqlite_config.h — keep them in sync.
+[features]
+default = ["static", "omit_load_extension"]
+static = []
+loadable_extension = []
+omit_load_extension = []
+
 [dependencies]
 zephyr = "0.1.0"
 log = "0.4"
+num-traits = { version = "0.2", default-features = false }
+num-derive = "0.4"
 
 [build-dependencies]
 zephyr-build = "0.1.0"
+bindgen = "0.71"

@@ -11,7 +11,7 @@ list(APPEND EXTRA_CONF_FILE
   ${LIBS_FIRMWARE}/rust.conf
   ${LIBS_FIRMWARE}/kernel.conf
   ${LIBS_FIRMWARE}/log.conf
-  ${LIBS_FIRMWARE}/programs/shell/shell.conf
+  ${LIBS_FIRMWARE}/programs/shell.conf
 )
 
 if(NOT BOARD MATCHES "^qemu_")
@@ -56,7 +56,10 @@ if(NOT BOARD MATCHES "^qemu_")
 endif()
 
 if(BOARD MATCHES "^qemu_")
-  list(APPEND EXTRA_CONF_FILE ${LIBS_FIRMWARE}/filesystems/fs.conf)
+  list(APPEND EXTRA_CONF_FILE
+    ${LIBS_FIRMWARE}/filesystems/fs.conf
+    ${LIBS_FIRMWARE}/programs/sqlite/sqlite.conf
+  )
 endif()
 
 if(BOARD MATCHES "^xiao_esp32s3")
@@ -72,5 +75,10 @@ endif()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(embedded)
+
+if(CONFIG_ZTEST)
+  zephyr_include_directories(include)
+  target_sources(app PRIVATE test_main.c)
+endif()
 
 rust_cargo_application(CRATE_NAME embedded)

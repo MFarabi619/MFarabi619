@@ -6,6 +6,13 @@
 		sector-count = <128>;
 	};
 
+	ramdisk1 {
+		compatible = "zephyr,ram-disk";
+		disk-name = "EXT";
+		sector-size = <512>;
+		sector-count = <256>;
+	};
+
 	fstab {
 		compatible = "zephyr,fstab";
 
@@ -26,6 +33,14 @@
 			disk-access;
 			automount;
 			mount-point = "/RAM:";
+		};
+
+		ext2fs1: ext2fs1 {
+			compatible = "zephyr,fstab,ext2";
+			disk-access;
+			disk-name = "EXT";
+			automount;
+			mount-point = "/ext2";
 		};
 	};
 
