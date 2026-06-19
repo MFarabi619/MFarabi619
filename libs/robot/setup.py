@@ -13,9 +13,9 @@ setup(
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="Mumtahin Farabi",
-    maintainer_email="farabi@apidaesystems.ca",
-    description="Freenove tank motor driver (HatMDD10SM) as a ROS 2 node.",
-    license="MIT",
+    maintainer_email="mfarabi619@gmail.com",
+    description="ROS 2 Scaffolding",
+    license="AGPL",
     entry_points={
         "console_scripts": [
             "hat_mdd10sm = robot.hat_mdd10sm:main",
