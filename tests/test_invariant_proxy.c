@@ -83,14 +83,17 @@ START_TEST(test_dns_proxy_qname_bounds_guard)
     uint8_t buf[600];
     size_t len;
 
-    /* Case 1: oversized QNAME — one label of 256 bytes (exceeds DNS_NAME_MAX_SIZE).
-     * The guard must reject this before any memcpy into p->qname. */
-    uint8_t big_label[257];
-    big_label[0] = 255; /* label length byte */
-    memset(big_label + 1, 'a', 255);
-    big_label[256] = 0; /* terminating root label (build_dns_query also adds one,
-                           so the parser will see two roots — still oversized) */
-    build_dns_query(buf, &len, big_label, sizeof(big_label));
+    /* Case 1: oversized QNAME — 4 valid labels of 63 bytes each => 256 total
+     * (4 * (1 byte length + 63 bytes data) = 256 bytes before root).
+     * Each label is wire-valid (length <= 63) but the total exceeds DNS_NAME_MAX_SIZE. */
+    uint8_t big_qname[256];
+    size_t pos = 0;
+    for (int i = 0; i < 4; i++) {
+        big_qname[pos++] = 63; /* valid label length */
+        memset(big_qname + pos, 'a' + i, 63);
+        pos += 63;
+    }
+    build_dns_query(buf, &len, big_qname, sizeof(big_qname));
     /* dns_proxy_handle_request always returns negative in test mode */
     int r = dns_proxy_handle_request(buf, len, NULL);
     ck_assert_msg(r < 0,
