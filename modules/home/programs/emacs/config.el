@@ -18,13 +18,14 @@
 
   column-number-mode nil
   size-indication-mode nil
-  doom-modeline-percent-position nil
+  mouse-autoselect-window t
 
   doom-modeline-hud t
   doom-modeline-time-icon t
   doom-modeline-battery nil
   doom-modeline-persp-name t
   doom-modeline-major-mode-icon t
+  doom-modeline-percent-position nil
   ;; doom-lantern-padded-modeline t
 
   display-time-day-and-date t
@@ -35,13 +36,13 @@
   doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 14)
   doom-symbol-font doom-font
 
+  which-key-idle-delay 0.25
   evil-escape-key-sequence "jk"
   which-key-allow-multiple-replacements t ;; Remove 'evil-' in too many popups
 
-  which-key-idle-delay 0.25
-
   org-latex-compiler "lualatex"
   plantuml-default-exec-mode "executable"
+  lsp-postgres-server-path "postgrestools"
 
   org-directory "~/Documents/org/"
   user-full-name "Mumtahin Farabi"
@@ -52,8 +53,6 @@
   find-file-visit-truename nil
   ;; browse-url-browser-function 'browse-url-default-browser
   projectile-project-search-path '("~/workspace/" "~/Documents/")
-
-  lsp-postgres-server-path "postgrestools"
 
   gdb-debuginfod-enable-setting t
   gud-gdb-command-name "arm-none-eabi-gdb -i=mi")
@@ -67,13 +66,12 @@
   message-sendmail-extra-arguments '("--read-envelope-from"))
 
 (after! doom-dashboard
-  ;; Insert a quote right after the banner widget.
   (when-let ((pos (cl-position #'doom-dashboard-widget-banner +doom-dashboard-functions)))
     (setq +doom-dashboard-functions
-          (append (cl-subseq +doom-dashboard-functions 0 (1+ pos))
-                  (list (lambda ()
-                          (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n")))
-                  (cl-subseq +doom-dashboard-functions (1+ pos))))))
+      (append (cl-subseq +doom-dashboard-functions 0 (1+ pos))
+        (list (lambda ()
+                (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n")))
+        (cl-subseq +doom-dashboard-functions (1+ pos))))))
 ;; (add-load-path! "pio-mode")
 ;; (use-package! pio-mode)
 (use-package! org-anki)
@@ -142,10 +140,7 @@
 (after!       rustic-mode   (setopt lsp-rust-features "all" lsp-rust-unstable-features t lsp-rust-analyzer-implicit-drops t lsp-rust-analyzer-lens-references-adt-enable t lsp-rust-analyzer-lens-references-trait-enable t lsp-rust-analyzer-lens-references-method-enable t lsp-rust-analyzer-lens-references-enum-variant-enable t lsp-rust-analyzer-display-lifetime-elision-hints-enable t lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t))
 (after!       which-key     (add-to-list 'which-key-replacement-alist '(("" . "\\`+?evil[-:]?\\(?:a-\\)?\\(.*\\)") . (nil . "◂\\1"))) (add-to-list 'which-key-replacement-alist '(("\\`g s" . "\\`evilem--?motion-\\(.*\\)") . (nil . "◃\\1"))))
 ;; (after!       eww           (add-hook! 'eww-mode-hook #'writeroom-mode))
-(after! xwidget
-  (setopt
-    browse-url-browser-function #'xwidget-webkit-browse-url
-    xwidget-webkit-enable-plugins t)
+(after!       xwidget       (setopt browse-url-browser-function #'xwidget-webkit-browse-url xwidget-webkit-enable-plugins t)
 
   ;; (add-hook! 'xwidget-webkit-mode-hook
   ;;   (hide-mode-line-mode 1)
@@ -155,13 +150,13 @@
   ;;   )
 
   (map! :map xwidget-webkit-edit-mode-map
+    "C-h" #'xwidget-webkit-pass-command-event
     "DEL" #'xwidget-webkit-pass-command-event
-    "<backspace>" #'xwidget-webkit-pass-command-event
     "M-DEL" #'xwidget-webkit-pass-command-event
-    "M-<backspace>" #'xwidget-webkit-pass-command-event
     "<delete>" #'xwidget-webkit-pass-command-event
     "M-<delete>" #'xwidget-webkit-pass-command-event
-    "C-h" #'xwidget-webkit-pass-command-event))
+    "<backspace>" #'xwidget-webkit-pass-command-event
+    "M-<backspace>" #'xwidget-webkit-pass-command-event))
 
 (after!       proced        (setopt proced-auto-update-interval 1 proced-goal-attribute nil proced-enable-color-flag t proced-format 'medium) (setq-default proced-auto-update-flag t)
   (add-hook! 'proced-mode-hook
@@ -175,10 +170,7 @@
       (face-remap-add-relative 'success                      :weight 'bold :foreground "#b8bb26"                      )
       (face-remap-add-relative 'warning                      :weight 'bold :foreground "#fabd2f"                      ))))
 
-(after! prodigy
-  (require 'seq)
-
-  (setopt prodigy-kill-process-buffer-on-stop t)
+(after!      prodigy (require 'seq) (setopt prodigy-kill-process-buffer-on-stop t)
   (custom-set-faces! '(prodigy-red-face    :foreground "#fb4934" :weight bold) '(prodigy-green-face  :foreground "#b8bb26" :weight bold) '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
 
   (defun my/prodigy-group-row-p (&optional pos) (let ((id (tabulated-list-get-id pos))) (and (consp id) (eq (car id) :group))))
@@ -315,7 +307,8 @@ when they were opened, so they skip the re-application."
 
 (defvar-keymap my-claude-code-map :repeat t "M" #'claude-code-cycle-mode)
 
-(map! :n                                      "j" #'evil-next-visual-line
+(map!
+  :n                                      "j" #'evil-next-visual-line
   :n                                      "k" #'evil-previous-visual-line
   :leader             :desc "Dirvish"     "k" #'dirvish
   :leader             :desc "vterm"       "j" #'+vterm/toggle
