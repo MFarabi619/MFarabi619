@@ -57,3 +57,15 @@ endchoice
 choice WIFI_USAGE_MODE
 	default WIFI_USAGE_MODE_STA_AP if BOARD_XIAO_ESP32S3
 endchoice
+
+config MCUMGR_GRP_SHELL
+	default y if MCUMGR && SHELL && !BOARD_WALTER
+
+config SHELL_BACKEND_DUMMY
+	default y if MCUMGR && SHELL && !BOARD_WALTER
+
+config FLASH_SHELL
+	default y if FLASH && SHELL && FLASH_PAGE_LAYOUT && !BOARD_WALTER
+
+config FLASH_MAP_SHELL
+	default y if FLASH_MAP && SHELL && !BOARD_WALTER
