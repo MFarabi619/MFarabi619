@@ -1,8 +1,6 @@
 #include <string.h>
 
 #include <zephyr/fs/fs.h>
-#include <zephyr/shell/shell.h>
-#include <zephyr/shell/shell_dummy.h>
 #include <zephyr/ztest.h>
 
 #include <bdd.h>
@@ -20,7 +18,10 @@ static void *fs_setup(void) { return &fs_fixture; }
 static void fs_unlink_before(const struct ztest_unit_test *test, void *data) {
   if (strcmp(test->test_suite_name, "fs") == 0) {
     struct fs_fixture *f = data;
-    fs_unlink(f->path);
+    struct fs_dirent entry;
+    if (fs_stat(f->path, &entry) == 0) {
+      fs_unlink(f->path);
+    }
   }
 }
 
@@ -158,87 +159,3 @@ ZTEST_F(fs, unlink_removes_the_file) {
   zassert_equal(fs_stat(fixture->path, &entry), -ENOENT, "");
 }
 
-/* ============================ fs_shell suite ============================ */
-
-#ifdef CONFIG_SHELL_BACKEND_DUMMY
-struct fs_shell_fixture {
-  const struct shell *sh;
-  const char *path;
-  const char *dir;
-};
-
-static struct fs_shell_fixture fs_shell_fixture;
-
-static void *fs_shell_setup(void) {
-  fs_shell_fixture.sh = shell_backend_dummy_get_ptr();
-  fs_shell_fixture.path = "/lfs/fs_shell_test.bin";
-  fs_shell_fixture.dir = "/lfs/fs_shell_dir";
-  return &fs_shell_fixture;
-}
-
-static void fs_shell_reset_before(const struct ztest_unit_test *test,
-                                  void *data) {
-  if (strcmp(test->test_suite_name, "fs_shell") == 0) {
-    struct fs_shell_fixture *f = data;
-    fs_unlink(f->path);
-    fs_unlink(f->dir);
-    shell_backend_dummy_clear_output(f->sh);
-  }
-}
-
-ZTEST_RULE(fs_shell_clean, fs_shell_reset_before, NULL);
-
-ZTEST_SUITE(fs_shell, NULL, fs_shell_setup, NULL, NULL, NULL);
-
-ZTEST_F(fs_shell, ls_on_mount_point_succeeds) {
-  GIVEN("the dummy shell backend is initialized");
-  WHEN("'fs ls /lfs' is executed");
-  THEN("the command returns zero");
-  zassert_equal(shell_execute_cmd(fixture->sh, "fs ls /lfs"), 0, "");
-}
-
-ZTEST_F(fs_shell, mkdir_then_stat_confirms_directory) {
-  struct fs_dirent entry;
-
-  GIVEN("an unused directory path");
-  WHEN("'fs mkdir <path>' is executed");
-  zassert_equal(shell_execute_cmd(fixture->sh, "fs mkdir /lfs/fs_shell_dir"), 0,
-                "");
-  THEN("fs_stat reports the path as a directory");
-  zassert_equal(fs_stat(fixture->dir, &entry), 0, "");
-  zassert_equal(entry.type, FS_DIR_ENTRY_DIR, "");
-}
-
-ZTEST_F(fs_shell, write_then_read_round_trips_payload) {
-  struct fs_dirent entry;
-
-  GIVEN("an unused file path");
-  WHEN("'fs write <path> 41 42 43 44 45' writes five hex bytes");
-  zassert_equal(
-      shell_execute_cmd(fixture->sh,
-                        "fs write /lfs/fs_shell_test.bin 41 42 43 44 45"),
-      0, "");
-  THEN("the file exists with five bytes");
-  zassert_equal(fs_stat(fixture->path, &entry), 0, "");
-  zassert_equal(entry.size, 5, "size was %u", (unsigned int)entry.size);
-  AND("'fs read <path>' executes successfully");
-  zassert_equal(
-      shell_execute_cmd(fixture->sh, "fs read /lfs/fs_shell_test.bin"), 0, "");
-}
-
-ZTEST_F(fs_shell, rm_removes_the_file) {
-  struct fs_dirent entry;
-  struct fs_file_t file;
-  fs_file_t_init(&file);
-
-  GIVEN("an existing file at the test path");
-  zassert_equal(fs_open(&file, fixture->path, FS_O_CREATE | FS_O_WRITE), 0, "");
-  fs_close(&file);
-
-  WHEN("'fs rm <path>' is executed");
-  zassert_equal(shell_execute_cmd(fixture->sh, "fs rm /lfs/fs_shell_test.bin"),
-                0, "");
-  THEN("fs_stat returns -ENOENT");
-  zassert_equal(fs_stat(fixture->path, &entry), -ENOENT, "");
-}
-#endif

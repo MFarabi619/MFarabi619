@@ -7,7 +7,6 @@ set(mcuboot_EXTRA_CONF_FILE
 
 if(BOARD MATCHES "^walter")
   # Router role: upstream cellular + downstream WiFi-AP + NAT + DNS
-  set(embedded_SNIPPET "espressif-flash-16M;espressif-psram-2M;espressif-psram-wifi;wifi-credentials" CACHE INTERNAL "")
   set(embedded_EXTRA_CONF_FILE
     "${LIBS_FIRMWARE}/networking/pkt.conf"
     "${LIBS_FIRMWARE}/networking/nat.conf"
@@ -18,6 +17,8 @@ if(BOARD MATCHES "^walter")
   )
 elseif(BOARD MATCHES "^xiao_esp32s3")
   # Node role: WiFi STA + WireGuard underlay + AP fallback for provisioning
+  # NOTE: espressif-psram-reloc skipped — OCT PSRAM + 40M flash (WREN workaround)
+  # interact badly with boot-time .text/.rodata copy from flash; shell hangs.
   set(_xiao_extra_conf
     "${LIBS_FIRMWARE}/networking/dns/mdns.conf"
     # NOTE: wireguard.conf out — vendor wg.c needs IPv6 cfg-gates
@@ -28,12 +29,8 @@ elseif(BOARD MATCHES "^xiao_esp32s3")
   if(BOARD_QUALIFIERS MATCHES "sense")
     list(APPEND _xiao_extra_conf
       "${LIBS_FIRMWARE}/filesystems/fs.conf"
-      "${LIBS_FIRMWARE}/services/mcumgr_fs.conf"
       "${LIBS_FIRMWARE}/services/http/http.conf"
     )
   endif()
   set(embedded_EXTRA_CONF_FILE "${_xiao_extra_conf}" CACHE INTERNAL "")
-  # NOTE: espressif-psram-reloc skipped — OCT PSRAM + 40M flash (WREN workaround)
-  # interact badly with boot-time .text/.rodata copy from flash; shell hangs.
-  set(embedded_SNIPPET "espressif-flash-8M;espressif-psram-wifi;wifi-credentials" CACHE INTERNAL "")
 endif()

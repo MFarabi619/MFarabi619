@@ -6,39 +6,43 @@ path = apps/embedded
 base = zephyr
 
 [build]
-pristine = auto
-sysbuild = false
-guess-dir = runners
-board = qemu_riscv32
-dir-fmt = build/{board}
+pristine   = auto
+sysbuild   = false
+guess-dir  = runners
+board      = qemu_riscv32
+dir-fmt    = build/{board}
+# cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
 [flash]
 rebuild = true
 
 [alias]
-p = patch -l ../../libs/firmware/patches/patches.yml -b ../../libs/firmware/patches
-pc = p clean
-pa = p apply --roll-back
+p          = patch -l ../../libs/firmware/patches/patches.yml -b ../../libs/firmware/patches
+pc         = p clean
+pa         = p apply --roll-back
 
 menuconfig = build apps/embedded -p=never -t menuconfig
 
-r  = build apps/embedded -t run
-t  = build apps/embedded --extra-conf=test.conf -t run
-tr = twister -T apps/embedded --inline-logs -c --log-level DEBUG
+r          = build apps/embedded -t run
+t          = r -T qemu.riscv32
 
-bw = build apps/embedded --sysbuild -b walter/esp32s3/procpu
-# bx = build apps/embedded --sysbuild -b xiao_esp32s3/esp32s3/procpu
-bx = build apps/embedded --sysbuild -b xiao_esp32s3/esp32s3/procpu/sense
+tr         = twister -T apps/embedded -s qemu.riscv32 --inline-logs -c --log-level DEBUG
+tb         = twister -T apps/embedded --tag esp32s3   --inline-logs -c --all
+tz         = build libs/zephyr-lang-zig/tests --extra-conf=test.conf -t run
 
-fw = flash --esp-device hwgrep://D0:CF:13:54:27:18 -d build/walter/esp32s3/procpu
-# fx = flash --esp-device hwgrep://8C:BF:EA:8E:AC:28
-fx = flash --esp-device hwgrep://CC:BA:97:16:2B:68 -d build/xiao_esp32s3/esp32s3/procpu/sense
+bs         = build apps/embedded -b stm32f3_disco@E
 
-mw = espressif monitor -p hwgrep://D0:CF:13:54:27:18
-# mx = espressif monitor -p hwgrep://8C:BF:EA:8E:AC:28
-mx = espressif monitor -p hwgrep://CC:BA:97:16:2B:68
+bw         = build apps/embedded -T esp32s3.walter     -b walter/esp32s3/procpu
+bx         = build apps/embedded -T esp32s3.xiao       -b xiao_esp32s3/esp32s3/procpu
+bxs        = build apps/embedded -T esp32s3.xiao.sense -b xiao_esp32s3/esp32s3/procpu/sense
 
-ax = attach --runner probe-rs
+fw         = flash --esp-device hwgrep://D0:CF:13:54:27:18 -d build/walter/esp32s3/procpu             --esp-skip-flashed --esp-diff
+fxs        = flash --esp-device hwgrep://CC:BA:97:16:2B:68 -d build/xiao_esp32s3/esp32s3/procpu/sense --esp-skip-flashed --esp-diff
 
-dtw = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/walter/esp32s3/procpu/embedded/firmware/zephyr/zephyr.dts
-dtx = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/xiao_esp32s3/esp32s3/procpu/sense/embedded/firmware/zephyr/zephyr.dts
+mw         = espressif monitor -p hwgrep://D0:CF:13:54:27:18
+mx         = espressif monitor -p hwgrep://CC:BA:97:16:2B:68
+
+ax         = attach --runner probe-rs
+
+dtw        = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/walter/esp32s3/procpu/embedded/firmware/zephyr/zephyr.dts
+dtx        = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/xiao_esp32s3/esp32s3/procpu/sense/embedded/firmware/zephyr/zephyr.dts

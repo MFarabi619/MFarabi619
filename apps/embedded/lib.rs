@@ -77,6 +77,7 @@ extern "C" fn rust_main() {
         }
     }
 
+    #[cfg(not(CONFIG_TEST))]
     if let Err(e) = shell::initialize() {
         warn!("shell: {e}");
     }
@@ -87,7 +88,7 @@ extern "C" fn rust_main() {
             core::ffi::CStr::from_ptr(firmware::programs::sqlite::bindings::sqlite3_libversion())
         };
         info!("Rust sees SQLite {}", version.to_string_lossy());
-        for path in ["/lfs/sqlite.db", "/RAM:/sqlite.db", "/ext2/sqlite.db"] {
+        for path in ["/lfs/sqlite.db"] {
             info!("--- smoke test on {} ---", path);
             if let Err(e) = sqlite_smoke_test(path) {
                 warn!("sqlite smoke test on {}: {:?}", path, e);

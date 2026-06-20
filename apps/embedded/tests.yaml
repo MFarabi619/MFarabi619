@@ -1,24 +1,42 @@
-# levels:
-#     - name: e2e
-#       adds:
-#           - sqlite.*
-
 tests:
-    embedded.firmware:
+    qemu.riscv32:
+        tags: e2e
         min_ram: 2048
         min_flash: 1024
-        tags: e2e
         platform_allow: qemu_riscv32
-        extra_args: EXTRA_CONF_FILE=test.conf
-        # extra_configs:
-        #     - CONFIG_ZTEST=y
-        #     - CONFIG_ZTEST_STACK_SIZE=16384
-        #     - CONFIG_ZTEST_TC_UTIL_USER_OVERRIDE=y
+        extra_conf_files:
+            - test.conf
+            - ../../libs/firmware/filesystems/fs.conf
 
-        #     - CONFIG_LOG_PRINTK=n
-        #     - CONFIG_LOG_BACKEND_SHOW_COLOR=y
-        #     - CONFIG_TEST_LOGGING_DEFAULTS=n
+    esp32s3.walter:
+        tags: esp32s3
+        sysbuild: true
+        build_only: true
+        platform_allow: walter/esp32s3/procpu
+        required_snippets:
+            - espressif-flash-16M
+            - espressif-psram-2M
+            - espressif-psram-wifi
+            - wifi-credentials
 
-        #     - CONFIG_MAIN_STACK_SIZE=8192
-        #     - CONFIG_SHELL_BACKEND_DUMMY=y
-        #     - CONFIG_HEAP_MEM_POOL_SIZE=65536
+    esp32s3.xiao:
+        tags: esp32s3
+        sysbuild: true
+        build_only: true
+        platform_allow: xiao_esp32s3/esp32s3/procpu
+        required_snippets:
+            - wifi-credentials
+            - espressif-flash-8M
+            - espressif-psram-wifi
+
+    esp32s3.xiao.sense:
+        tags: esp32s3
+        sysbuild: true
+        build_only: true
+        platform_allow: xiao_esp32s3/esp32s3/procpu/sense
+        extra_conf_files:
+            - ../../libs/zephyr-lib-sqlite/sqlite.conf
+        required_snippets:
+            - wifi-credentials
+            - espressif-flash-8M
+            - espressif-psram-wifi

@@ -1,18 +1,4 @@
 / {
-	ramdisk0 {
-		compatible = "zephyr,ram-disk";
-		disk-name = "RAM";
-		sector-size = <512>;
-		sector-count = <128>;
-	};
-
-	ramdisk1 {
-		compatible = "zephyr,ram-disk";
-		disk-name = "EXT";
-		sector-size = <512>;
-		sector-count = <256>;
-	};
-
 	fstab {
 		compatible = "zephyr,fstab";
 
@@ -26,21 +12,6 @@
 			cache-size = <64>;
 			lookahead-size = <32>;
 			block-cycles = <512>;
-		};
-
-		ffs1: ffs1 {
-			compatible = "zephyr,fstab,fatfs";
-			disk-access;
-			automount;
-			mount-point = "/RAM:";
-		};
-
-		ext2fs1: ext2fs1 {
-			compatible = "zephyr,fstab,ext2";
-			disk-access;
-			disk-name = "EXT";
-			automount;
-			mount-point = "/ext2";
 		};
 	};
 
