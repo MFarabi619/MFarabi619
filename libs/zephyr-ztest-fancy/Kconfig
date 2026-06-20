@@ -21,7 +21,4 @@ config TEST_LOGGING_DEFAULTS
 config LOG_BACKEND_SHOW_COLOR
 	default y
 
-config SHELL_BACKEND_DUMMY
-	default y
-
 endif # ZTEST_FANCY
