@@ -232,7 +232,7 @@
 #### Previously on [Piantor](https://github.com/beekeeb/piantor)
 |||
 |-|-|
-| ![Piantor Split Keyboard with Luna in front of Framework Laptop](templates/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) ![Piantor Split Keyboard disassembled on bed](templates/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg) |  ![Piantor Split Keyboard Layout](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6) |
+| ![Piantor Split Keyboard with Luna in front of Framework Laptop](docs/keyboards/beebkeeb-piantor/luna_framework_laptop.jpg) ![Piantor Split Keyboard disassembled on bed](docs/keyboards/beebkeeb-piantor/disassembled_on_bed.jpg) |  ![Piantor Split Keyboard Layout](https://github.com/user-attachments/assets/e85575de-dcc4-4ae0-98cf-6ab5b1515bd6) |
 
 #### Started out on [Keebio Iris Rev. 5](https://docs.keeb.io/iris-rev3-build-guide)
 
