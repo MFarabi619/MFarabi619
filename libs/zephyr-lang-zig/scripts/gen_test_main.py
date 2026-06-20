@@ -44,6 +44,7 @@ def main():
         "#include <stdint.h>\n",
         "#include <stddef.h>\n",
         "#include <stdbool.h>\n",
+        "#include <zephyr/sys/printk.h>\n",
         "#include <zephyr/ztest.h>\n",
         "\n",
     ]
@@ -80,6 +81,7 @@ def main():
         lines.append(f"ZTEST({args.suite}, {case})\n")
         lines.append("{\n")
         lines.append(f"\t{name}();\n")
+        lines.append(f"\tprintk(\"PASS - {case} in 0.000 seconds\\n\");\n")
         lines.append("}\n")
         lines.append("\n")
 

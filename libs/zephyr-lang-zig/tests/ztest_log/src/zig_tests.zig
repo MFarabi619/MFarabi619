@@ -49,27 +49,47 @@ export fn zig_before() void {
 }
 
 export fn zig_test_log_info_dispatches() void {
+    zephyr.bdd.given("a scoped logger wired through zephyr.logFn");
+    zephyr.bdd.when("log.info is called with a formatted argument");
+    zephyr.bdd.then("captured level is INFO and the message contains the rendered value");
+
     log.info("hello {d}", .{42});
     t.zig_assert_i64_eq(captured_level, LOG_LEVEL_INF);
     t.zig_assert_true(last_msg_contains("hello 42"));
 }
 
 export fn zig_test_log_warn_dispatches() void {
+    zephyr.bdd.given("a scoped logger");
+    zephyr.bdd.when("log.warn is called");
+    zephyr.bdd.then("captured level is WARN");
+
     log.warn("careful {d}", .{1});
     t.zig_assert_i64_eq(captured_level, LOG_LEVEL_WRN);
 }
 
 export fn zig_test_log_err_dispatches() void {
+    zephyr.bdd.given("a scoped logger");
+    zephyr.bdd.when("log.err is called");
+    zephyr.bdd.then("captured level is ERR");
+
     log.err("oops {d}", .{99});
     t.zig_assert_i64_eq(captured_level, LOG_LEVEL_ERR);
 }
 
 export fn zig_test_log_debug_dispatches() void {
+    zephyr.bdd.given("a scoped logger");
+    zephyr.bdd.when("log.debug is called");
+    zephyr.bdd.then("captured level is DBG");
+
     log.debug("verbose {d}", .{0});
     t.zig_assert_i64_eq(captured_level, LOG_LEVEL_DBG);
 }
 
 export fn zig_test_log_scope_prefixed() void {
+    zephyr.bdd.given("a logger scoped to .custom_scope");
+    zephyr.bdd.when("an info message is logged");
+    zephyr.bdd.then("the captured payload begins with the scope tag");
+
     const custom = std.log.scoped(.custom_scope);
     custom.info("ping", .{});
     t.zig_assert_true(last_msg_contains("[custom_scope]"));
@@ -77,6 +97,10 @@ export fn zig_test_log_scope_prefixed() void {
 }
 
 export fn zig_test_log_format_args() void {
+    zephyr.bdd.given("a multi-argument log format string");
+    zephyr.bdd.when("integer, string, and hex arguments are passed");
+    zephyr.bdd.then("all three render in the captured message");
+
     log.info("multi {d} {s} {x}", .{ 7, "args", @as(u32, 0xCAFE) });
     t.zig_assert_true(last_msg_contains("multi 7 args cafe"));
 }

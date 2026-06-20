@@ -141,6 +141,29 @@ The C ``ZTEST`` scaffolding is generated.  Optional
 :file:`src/test_bridge.c` for C-side fixtures (``K_MUTEX_DEFINE``,
 ``DEVICE_DT_GET``).
 
+Tests enable ``CONFIG_ZTEST_FANCY=y`` (from the sibling
+``libs/zephyr-ztest-fancy`` module), which supplies the ``test_main``
+runner, colored ``[PASSED]`` / ``[FAILED]`` verdict tags, ``TC_END_REPORT``,
+and a SiFive test-finisher poweroff so QEMU exits cleanly after the suite
+instead of hanging until twister's timeout.
+
+BDD-style narration is available as ``zephyr.bdd.given`` /
+``zephyr.bdd.when`` / ``zephyr.bdd.then`` / ``zephyr.bdd.@"and"`` — Zig
+counterparts to the ``GIVEN`` / ``WHEN`` / ``THEN`` / ``AND`` C macros in
+the fancy module. Each takes a single comptime string (no varargs); the
+function name encodes the BDD phase via ANSI-colored ``[GIVEN]`` /
+``[WHEN]`` / ``[THEN]`` prefixes matching the C macros byte-for-byte.
+
+.. code-block:: zig
+
+   export fn zig_test_sem_take_give() void {
+       zephyr.bdd.given("an empty semaphore");
+       zephyr.bdd.when("we give then immediately take");
+       zephyr.bdd.then("count returns to 0");
+
+       // ... assertions ...
+   }
+
 Run:
 
 .. code-block:: console

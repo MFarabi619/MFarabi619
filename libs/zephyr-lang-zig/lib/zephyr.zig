@@ -115,6 +115,21 @@ pub fn say(msg: [*:0]const u8) void {
     printk("%s", msg);
 }
 
+pub const bdd = struct {
+    pub fn given(comptime narration: []const u8) void {
+        printk("  \x1b[1;30;46m[GIVEN]\x1b[0m \x1b[36m" ++ narration ++ "\x1b[0m\n");
+    }
+    pub fn when(comptime narration: []const u8) void {
+        printk("    \x1b[1;30;103m[WHEN]\x1b[0m \x1b[33m" ++ narration ++ "\x1b[0m\n");
+    }
+    pub fn then(comptime narration: []const u8) void {
+        printk("      \x1b[1;30;105m[THEN]\x1b[0m \x1b[35m" ++ narration ++ "\x1b[0m\n");
+    }
+    pub fn @"and"(comptime narration: []const u8) void {
+        printk("      \x1b[1;30;105m[AND]\x1b[0m  \x1b[35m" ++ narration ++ "\x1b[0m\n");
+    }
+};
+
 extern fn zig_log_err(msg: [*:0]const u8) void;
 extern fn zig_log_warn(msg: [*:0]const u8) void;
 extern fn zig_log_info(msg: [*:0]const u8) void;

@@ -3,6 +3,10 @@ const zephyr = @import("zephyr");
 const t = @import("test_helpers");
 
 export fn zig_test_heap_basic_alloc_free() void {
+    zephyr.bdd.given("a KMallocAllocator wrapping Zephyr's heap");
+    zephyr.bdd.when("64 bytes are allocated and memset to 0xAB");
+    zephyr.bdd.then("the byte-sum equals 64 * 0xAB");
+
     var state = zephyr.KMallocAllocator{};
     const allocator = state.allocator();
 
@@ -19,6 +23,10 @@ export fn zig_test_heap_basic_alloc_free() void {
 }
 
 export fn zig_test_heap_alignment() void {
+    zephyr.bdd.given("a KMallocAllocator");
+    zephyr.bdd.when("an aligned alloc requests 32 bytes at 16-byte alignment");
+    zephyr.bdd.then("the returned pointer is 16-byte aligned");
+
     var state = zephyr.KMallocAllocator{};
     const allocator = state.allocator();
 
@@ -32,6 +40,10 @@ export fn zig_test_heap_alignment() void {
 }
 
 export fn zig_test_heap_arraylist() void {
+    zephyr.bdd.given("a heap-backed std.ArrayList(u32)");
+    zephyr.bdd.when("100 sequential integers are appended");
+    zephyr.bdd.then("len is 100 and the sum equals (99 * 100) / 2");
+
     var state = zephyr.KMallocAllocator{};
     const allocator = state.allocator();
 
@@ -54,6 +66,10 @@ export fn zig_test_heap_arraylist() void {
 }
 
 export fn zig_test_heap_alloc_print() void {
+    zephyr.bdd.given("a heap-backed allocator");
+    zephyr.bdd.when("std.fmt.allocPrint formats \"count={d}\" with arg 42");
+    zephyr.bdd.then("the resulting heap string equals \"count=42\"");
+
     var state = zephyr.KMallocAllocator{};
     const allocator = state.allocator();
 
@@ -68,6 +84,10 @@ export fn zig_test_heap_alloc_print() void {
 }
 
 export fn zig_test_heap_many_cycles() void {
+    zephyr.bdd.given("a KMallocAllocator");
+    zephyr.bdd.when("1000 alloc/free cycles run with varying sizes 16..143");
+    zephyr.bdd.then("none of them OOM or assert");
+
     var state = zephyr.KMallocAllocator{};
     const allocator = state.allocator();
 
