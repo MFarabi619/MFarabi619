@@ -315,7 +315,7 @@ when they were opened, so they skip the re-application."
   :leader             :desc "Lazygit"     "l" #'+lazygit/toggle
   :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
   :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
-  :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
+  ;; :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
   :leader :prefix "c" :desc "Compile"     "c" #'my/compile-multi-prodigy
   :leader :prefix "c" :desc "In-Progress" "p" #'compilation-goto-in-progress-buffer
 
