@@ -55,4 +55,11 @@ elseif(BOARD MATCHES "^xiao_esp32s3")
   endif()
   set(firmware_EXTRA_CONF_FILE "${_xiao_extra_conf}" CACHE INTERNAL "")
   set(mcuboot_SNIPPET "espressif-flash-8M" CACHE INTERNAL "")
+elseif(BOARD MATCHES "^esp32s3_devkitc")
+  set(firmware_EXTRA_CONF_FILE
+    ${_esp32s3_bundle}
+    "${CMAKE_CURRENT_LIST_DIR}/networking/dns/mdns.conf"
+    CACHE INTERNAL ""
+  )
+  set(mcuboot_SNIPPET "espressif-flash-8M" CACHE INTERNAL "")
 endif()

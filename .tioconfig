@@ -17,10 +17,10 @@ log       = true
 log-file  = tio.stm32f3_disco.log
 device    = /dev/cu.usbmodem103
 
-[ceratina]
+[esp32s3_devkitc]
 log       = true
-log-file  = tio.ceratina.log
-device    =  /dev/cu.usbmodem1311101
+log-file  = tio.esp32s3_devkitc.log
+device    =  /dev/cu.usbmodem1101
 
 [usb]
 pattern   = ^usb([0-9]*)

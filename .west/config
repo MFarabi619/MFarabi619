@@ -33,6 +33,7 @@ bs         = build apps/firmware -T stm32f3.disco      -b stm32f3_disco@E/stm32f
 bw         = build apps/firmware -T esp32s3.walter     -b walter/esp32s3/procpu
 bx         = build apps/firmware -T esp32s3.xiao       -b xiao_esp32s3/esp32s3/procpu
 bxs        = build apps/firmware -T esp32s3.xiao.sense -b xiao_esp32s3/esp32s3/procpu/sense
+be         = build apps/firmware -T esp32s3.devkitc    -b esp32s3_devkitc/esp32s3/procpu
 
 mw         = espressif monitor -p hwgrep://D0:CF:13:54:27:18
 mx         = espressif monitor -p hwgrep://CC:BA:97:16:2B:68

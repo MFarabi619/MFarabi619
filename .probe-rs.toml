@@ -6,11 +6,11 @@ chip = "esp32s3"
 # idf-partition-table = "firmware/boards/esp32s3.partitions.csv"
 # log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
 
-[presets.esp32-s3-devkitc-1]
+[presets.esp32s3-devkitc]
 chip = "esp32s3"
 # token = "rpi5-16"
 # host = "ws://rpi5-16:8443"
-probe = "303a:1001:1C:DB:D4:40:64:F8"
+probe = "303a:1001:DC:B4:D9:0C:5E:F8"
 
 [presets.seeed_xiao_esp32s3]
 chip = "esp32s3"
