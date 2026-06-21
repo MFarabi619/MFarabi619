@@ -7,9 +7,9 @@ channels = ["https://prefix.dev/conda-forge"]
 platforms = ["linux-64", "win-64", "osx-64", "osx-arm64", "linux-aarch64"]
 
 [tasks]
-robot = { cmd = "ros2 run robot hat_mdd10sm", depends-on = ["build"] }
-teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
 bridge = "ros2 run foxglove_bridge foxglove_bridge"
+teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
+robot = { cmd = "ros2 run robot hat_mdd10sm", depends-on = ["build"] }
 
 [target.win.activation]
 scripts = ["install/setup.bat"]
