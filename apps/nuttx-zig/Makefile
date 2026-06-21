@@ -1,0 +1,11 @@
+include $(APPDIR)/Make.defs
+
+MAINSRC = nuttx_zig.zig
+
+ZIGFLAGS += -O ReleaseSmall -lc -I$(TOPDIR)/include
+PROGNAME  = $(CONFIG_APPS_NUTTX_ZIG_PROGNAME)
+PRIORITY  = $(CONFIG_APPS_NUTTX_ZIG_PRIORITY)
+STACKSIZE = $(CONFIG_APPS_NUTTX_ZIG_STACKSIZE)
+MODULE    = $(CONFIG_APPS_NUTTX_ZIG)
+
+include $(APPDIR)/Application.mk

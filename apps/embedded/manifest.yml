@@ -4,6 +4,7 @@ manifest:
             - ../../libs/firmware/west.yml
             - ../../libs/zephyr-lib-sqlite/west.yml
             - ../../libs/zephyr-ztest-fancy/west.yml
+            - ../nuttx-zig/west.yml
 
     projects:
         - name: dtsh
@@ -11,16 +12,6 @@ manifest:
           path: modules/tools/dtsh
           west-commands: scripts/west-commands.yml
           url: https://github.com/dottspina/dtsh.git
-
-        - name: nuttx
-          revision: nuttx-12.13.0
-          path: nuttx
-          url: https://github.com/apache/nuttx
-
-        - name: nuttx-apps
-          revision: nuttx-12.13.0
-          path: examples/nuttx-apps
-          url: https://github.com/apache/nuttx-apps
 
         # NOTE: uncomment CONFIG_WOLFSSH guard in CMakeLists.txt to use
         # - name: wolfssl

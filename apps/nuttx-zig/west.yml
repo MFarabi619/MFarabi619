@@ -1,0 +1,11 @@
+manifest:
+    projects:
+        - name: nuttx
+          revision: nuttx-12.13.0
+          path: apps/nuttx-zig/nuttx
+          url: https://github.com/apache/nuttx
+
+        - name: nuttx-apps
+          revision: nuttx-12.13.0
+          path: apps/nuttx-zig/nuttx-apps
+          url: https://github.com/apache/nuttx-apps

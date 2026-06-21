@@ -1,0 +1,21 @@
+config APPS_NUTTX_ZIG
+	tristate "Hello-Zig demo app"
+	default n
+	---help---
+		Minimal Zig demo for NuttX. Prints a greeting then exits.
+
+if APPS_NUTTX_ZIG
+
+config APPS_NUTTX_ZIG_PROGNAME
+	string "Program name"
+	default "nuttx_zig"
+
+config APPS_NUTTX_ZIG_PRIORITY
+	int "Task priority"
+	default 100
+
+config APPS_NUTTX_ZIG_STACKSIZE
+	int "Stack size"
+	default DEFAULT_TASK_STACKSIZE
+
+endif

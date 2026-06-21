@@ -69,8 +69,8 @@ local.properties
 .pnp.js
 build/
 
-/nuttx/
-/examples/nuttx-apps/
+/apps/nuttx-zig/nuttx/
+/apps/nuttx-zig/nuttx-apps/
 /zephyr/
 /bootloader/
 /modules/audio/
@@ -89,4 +89,3 @@ opencode.json
 /.codex/config.toml
 /compile_commands.json
 /tests/__pycache__
-
