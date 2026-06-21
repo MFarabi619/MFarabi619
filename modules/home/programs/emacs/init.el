@@ -63,7 +63,7 @@
   (window-select    ; visually switch windows
     +numbers)
   workspaces        ; tab emulation, persistence & separate workspaces
-  (zen +focus)      ; distraction-free coding or writing
+  zen               ; distraction-free coding or writing
 
   :editor
   (evil +everywhere); come to the dark side, we have cookies
