@@ -11,6 +11,7 @@ let
 in
 {
   name = "microvisor";
+  cachix.pull = lib.optionals config.languages.rust.enable [ "oxalica" ];
 
   # imports = map (path: ./config + path) [ "/services" ];
   # env.PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_26}/bin/node";
@@ -32,24 +33,23 @@ in
       ]
     )
     ++ lib.optionals pkgs.stdenv.isDarwin [ ]
-    ++ lib.optionals pkgs.stdenv.isLinux (with pkgs-unstable; [ openssl ]);
-
-  #   ++ lib.optionals (dioxus.desktop.linux.enable && pkgs.stdenv.isLinux) (
-  #     with pkgs-unstable;
-  #     [
-  #       atk
-  #       glib
-  #       file
-  #       cairo
-  #       pango
-  #       xdotool
-  #       librsvg
-  #       gdk-pixbuf
-  #       pkg-config
-  #       webkitgtk_4_1
-  #       libappindicator-gtk3
-  #     ]
-  #   );
+    ++ lib.optionals pkgs.stdenv.isLinux (
+      with pkgs-unstable;
+      [
+        openssl
+        #       atk
+        #       glib
+        #       file
+        #       cairo
+        #       pango
+        #       xdotool
+        #       librsvg
+        #       gdk-pixbuf
+        #       pkg-config
+        #       webkitgtk_4_1
+        #       libappindicator-gtk3
+      ]
+    );
 
   scripts = {
     up.exec = ''devenv up "$@"'';
@@ -57,6 +57,35 @@ in
     run.exec = ''devenv tasks run "$@" -m before'';
     docs.exec = "bunx likec4 start ${config.git.root}/docs";
     tio.exec = ''HOME="$DEVENV_ROOT" ${pkgs.tio}/bin/tio "$@"'';
+  };
+
+  languages = rec {
+    nix.enable = true;
+    shell.enable = true;
+    python.enable = false;
+    python.uv.enable = true;
+
+    c.enable = true;
+    c.debugger = pkgs.gdb;
+    cplusplus.enable = true;
+
+    rust = {
+      enable = false;
+      toolchainFile = ./rust-toolchain.toml;
+    };
+
+    typescript.enable = false;
+    javascript = {
+      bun.enable = true;
+      package = pkgs.nodejs_26;
+      enable = typescript.enable;
+    };
+
+    ruby = {
+      enable = false;
+      bundler.enable = true;
+      documentation.enable = true;
+    };
   };
 
   # processes = {
@@ -105,42 +134,6 @@ in
   #       EXERCISM_API_URL = "https://api.exercism.org/v1";
   #     };
   #   };
-
-  cachix = {
-    enable = true;
-    pull = lib.optionals config.languages.rust.enable [
-      "oxalica"
-    ];
-  };
-
-  languages = rec {
-    nix.enable = true;
-    shell.enable = true;
-    python.enable = false;
-    python.uv.enable = true;
-
-    c.enable = true;
-    c.debugger = pkgs.gdb;
-    cplusplus.enable = true;
-
-    rust = {
-      enable = false;
-      toolchainFile = ./rust-toolchain.toml;
-    };
-
-    typescript.enable = false;
-    javascript = {
-      bun.enable = true;
-      package = pkgs.nodejs_26;
-      enable = typescript.enable;
-    };
-
-    ruby = {
-      enable = false;
-      bundler.enable = true;
-      documentation.enable = true;
-    };
-  };
 
   # certificates = [ "*.localhost" ];
   # hosts = lib.genAttrs (lib.attrNames config.services.caddy.virtualHosts) (_: "127.0.0.1");
