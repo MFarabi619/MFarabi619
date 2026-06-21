@@ -5,9 +5,43 @@ set(mcuboot_EXTRA_CONF_FILE
   CACHE INTERNAL ""
 )
 
+set(_esp32s3_bundle
+  "${CMAKE_CURRENT_LIST_DIR}/mcumgr.conf"
+
+  "${LIBS_FIRMWARE}/programs/thread_analyzer.conf"
+
+  "${LIBS_FIRMWARE}/debug.conf"
+  "${LIBS_FIRMWARE}/programs/stats.conf"
+  "${LIBS_FIRMWARE}/ram.conf"
+
+  "${LIBS_FIRMWARE}/filesystems/nvs.conf"
+  "${LIBS_FIRMWARE}/filesystems/img.conf"
+  "${LIBS_FIRMWARE}/filesystems/zvfs.conf"
+  "${LIBS_FIRMWARE}/filesystems/flash.conf"
+  "${LIBS_FIRMWARE}/programs/settings.conf"
+
+  "${LIBS_FIRMWARE}/networking/buf.conf"
+  "${LIBS_FIRMWARE}/networking/ipv4.conf"
+  "${LIBS_FIRMWARE}/networking/ipv6.conf"
+  "${LIBS_FIRMWARE}/networking/net.conf"
+  "${LIBS_FIRMWARE}/networking/sockets.conf"
+  "${LIBS_FIRMWARE}/networking/hostname.conf"
+  "${LIBS_FIRMWARE}/networking/statistics.conf"
+  "${LIBS_FIRMWARE}/networking/dns/server.conf"
+  "${LIBS_FIRMWARE}/networking/dns/resolver.conf"
+  "${LIBS_FIRMWARE}/networking/dhcpv4.conf"
+  "${LIBS_FIRMWARE}/networking/wifi.conf"
+  "${LIBS_FIRMWARE}/networking/sntp.conf"
+
+  "${LIBS_FIRMWARE}/services/mcumgr.conf"
+
+  "${LIBS_FIRMWARE}/programs/hwinfo.conf"
+  "${LIBS_FIRMWARE}/programs/gpio.conf"
+)
+
 if(BOARD MATCHES "^walter")
-  # Router role: upstream cellular + downstream WiFi-AP + NAT + DNS
   set(embedded_EXTRA_CONF_FILE
+    ${_esp32s3_bundle}
     "${LIBS_FIRMWARE}/networking/pkt.conf"
     "${LIBS_FIRMWARE}/networking/nat.conf"
     "${LIBS_FIRMWARE}/networking/ppp.conf"
@@ -16,15 +50,9 @@ if(BOARD MATCHES "^walter")
     CACHE INTERNAL ""
   )
 elseif(BOARD MATCHES "^xiao_esp32s3")
-  # Node role: WiFi STA + WireGuard underlay + AP fallback for provisioning
-  # NOTE: espressif-psram-reloc skipped — OCT PSRAM + 40M flash (WREN workaround)
-  # interact badly with boot-time .text/.rodata copy from flash; shell hangs.
   set(_xiao_extra_conf
+    ${_esp32s3_bundle}
     "${LIBS_FIRMWARE}/networking/dns/mdns.conf"
-    # NOTE: wireguard.conf out — vendor wg.c needs IPv6 cfg-gates
-    # "${LIBS_FIRMWARE}/networking/wireguard.conf"
-    # NOTE: uncomment + add `-DDTC_OVERLAY_FILE=libs/firmware/halow/halow.overlay` to use
-    # "${LIBS_FIRMWARE}/halow/halow.conf"
   )
   if(BOARD_QUALIFIERS MATCHES "sense")
     list(APPEND _xiao_extra_conf

@@ -27,15 +27,15 @@ r          = build apps/embedded -t run
 t          = r -T qemu.riscv32
 
 tr         = twister -T apps/embedded -s qemu.riscv32 --inline-logs -c --log-level DEBUG
-tb         = twister -T apps/embedded --tag esp32s3   --inline-logs -c --all
+tb         = twister -T apps/embedded --tag build     --inline-logs -c --all
 tz         = build libs/zephyr-lang-zig/tests --extra-conf=test.conf -t run
 
-bs         = build apps/embedded -b stm32f3_disco@E
-
+bs         = build apps/embedded -T stm32f3.disco      -b stm32f3_disco@E/stm32f303xc
 bw         = build apps/embedded -T esp32s3.walter     -b walter/esp32s3/procpu
 bx         = build apps/embedded -T esp32s3.xiao       -b xiao_esp32s3/esp32s3/procpu
 bxs        = build apps/embedded -T esp32s3.xiao.sense -b xiao_esp32s3/esp32s3/procpu/sense
 
+fs         = flash -d build/stm32f3_disco@E/stm32f303xc
 fw         = flash --esp-device hwgrep://D0:CF:13:54:27:18 -d build/walter/esp32s3/procpu             --esp-skip-flashed --esp-diff
 fxs        = flash --esp-device hwgrep://CC:BA:97:16:2B:68 -d build/xiao_esp32s3/esp32s3/procpu/sense --esp-skip-flashed --esp-diff
 

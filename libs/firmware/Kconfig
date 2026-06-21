@@ -1,71 +1,79 @@
 rsource "networking/wireguard/Kconfig"
 
-config FORCE_HAS_SEGGER_RTT
-	bool
+config HAS_SEGGER_RTT
 	default y
-	select HAS_SEGGER_RTT
 
-config FORCE_RUST_SUPPORTED
-	bool
+config RUST_SUPPORTED
 	default y
-	select RUST_SUPPORTED
+
+config FILE_SYSTEM_SHELL
+	default y if SHELL && FILE_SYSTEM
 
 config PROMPT_TZ_OFFSET_MINUTES
 	int "Prompt clock timezone offset (minutes from UTC)"
 	default -240
 
-config FORCE_FILE_SYSTEM_SHELL
-	bool
-	default y
-	depends on SHELL && FILE_SYSTEM
-	select FILE_SYSTEM_SHELL
-
 config ESP_SPIRAM
 	default y if SOC_SERIES_ESP32S3
 
+if SOC_SERIES_ESP32S3 && ESP_SPIRAM
 config ESP_SPIRAM_MEMTEST
-	default y if SOC_SERIES_ESP32S3 && ESP_SPIRAM
+	default y
+endif
 
-config ESP_SPIRAM_HEAP_SIZE
-	default 6291456 if BOARD_XIAO_ESP32S3
-
+if SOC_SERIES_ESP32S3 && WIFI_ESP32
 config ESP32_WIFI_IRAM_OPT
-	default y if SOC_SERIES_ESP32S3 && WIFI_ESP32
-
+	default y
 config ESP32_WIFI_RX_IRAM_OPT
-	default y if SOC_SERIES_ESP32S3 && WIFI_ESP32
-
+	default y
 config ESP32_WIFI_STA_RECONNECT
-	default y if SOC_SERIES_ESP32S3 && WIFI_ESP32
+	default y
+endif
+
+if BOARD_XIAO_ESP32S3
+config ESP_SPIRAM_HEAP_SIZE
+	default 6291456
 
 choice SPIRAM_MODE
-	default SPIRAM_MODE_OCT if BOARD_XIAO_ESP32S3
+	default SPIRAM_MODE_OCT
 endchoice
 
 choice ESPTOOLPY_FLASHMODE
-	default ESPTOOLPY_FLASHMODE_QIO if BOARD_XIAO_ESP32S3
+	default ESPTOOLPY_FLASHMODE_QIO
 endchoice
 
 choice ESPTOOLPY_FLASHFREQ
-	default ESPTOOLPY_FLASHFREQ_40M if BOARD_XIAO_ESP32S3
+	default ESPTOOLPY_FLASHFREQ_40M
 endchoice
 
 choice ESPTOOLPY_FLASHSIZE
-	default ESPTOOLPY_FLASHSIZE_8MB if BOARD_XIAO_ESP32S3
+	default ESPTOOLPY_FLASHSIZE_8MB
 endchoice
 
 choice WIFI_USAGE_MODE
-	default WIFI_USAGE_MODE_STA_AP if BOARD_XIAO_ESP32S3
+	default WIFI_USAGE_MODE_STA_AP
 endchoice
+endif
 
+if !BOARD_WALTER
 config MCUMGR_GRP_SHELL
-	default y if MCUMGR && SHELL && !BOARD_WALTER
-
+	default y if MCUMGR && SHELL
 config SHELL_BACKEND_DUMMY
-	default y if MCUMGR && SHELL && !BOARD_WALTER
-
+	default y if MCUMGR && SHELL
 config FLASH_SHELL
-	default y if FLASH && SHELL && FLASH_PAGE_LAYOUT && !BOARD_WALTER
-
+	default y if FLASH && SHELL && FLASH_PAGE_LAYOUT
 config FLASH_MAP_SHELL
-	default y if FLASH_MAP && SHELL && !BOARD_WALTER
+	default y if FLASH_MAP && SHELL
+endif
+
+config HEAP_MEM_POOL_SIZE
+	default 65536
+
+config MAIN_STACK_SIZE
+	default 8192
+
+config SHELL_STACK_SIZE
+	default 5200
+
+config SYSTEM_WORKQUEUE_STACK_SIZE
+	default 4096

@@ -19,11 +19,11 @@ loadable_extension = []
 omit_load_extension = []
 
 [dependencies]
-zephyr = "0.1.0"
 log = "0.4"
-num-traits = { version = "0.2", default-features = false }
+zephyr = "0.1.0"
 num-derive = "0.4"
+num-traits = { version = "0.2", default-features = false }
 
 [build-dependencies]
-zephyr-build = "0.1.0"
 bindgen = "0.71"
+zephyr-build = "0.1.0"

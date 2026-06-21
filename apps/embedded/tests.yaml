@@ -9,18 +9,18 @@ tests:
             - ../../libs/firmware/filesystems/fs.conf
 
     esp32s3.walter:
-        tags: esp32s3
+        tags: esp32s3 build
         sysbuild: true
         build_only: true
         platform_allow: walter/esp32s3/procpu
         required_snippets:
+            - wifi-credentials
             - espressif-flash-16M
             - espressif-psram-2M
             - espressif-psram-wifi
-            - wifi-credentials
 
     esp32s3.xiao:
-        tags: esp32s3
+        tags: esp32s3 build
         sysbuild: true
         build_only: true
         platform_allow: xiao_esp32s3/esp32s3/procpu
@@ -30,7 +30,7 @@ tests:
             - espressif-psram-wifi
 
     esp32s3.xiao.sense:
-        tags: esp32s3
+        tags: esp32s3 build
         sysbuild: true
         build_only: true
         platform_allow: xiao_esp32s3/esp32s3/procpu/sense
@@ -40,3 +40,14 @@ tests:
             - wifi-credentials
             - espressif-flash-8M
             - espressif-psram-wifi
+
+    stm32f3.disco:
+        tags: stm32f3 build
+        build_only: true
+        platform_allow: stm32f3_disco@E/stm32f303xc
+
+# https://docs.zephyrproject.org/latest/develop/test/ztest.html
+# https://docs.zephyrproject.org/latest/build/sysbuild/images.html
+# https://docs.zephyrproject.org/latest/build/kconfig/setting.html
+# https://docs.zephyrproject.org/latest/develop/test/twister.html#twister-harnesses
+# https://docs.zephyrproject.org/latest/develop/application/index.html#third-party-library-code
