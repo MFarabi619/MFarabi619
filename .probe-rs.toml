@@ -1,11 +1,10 @@
-# [[file:CONTRIBUTING.org::*\[\[https:/github.com/probe-rs/probe-rs\]\[probe-rs\]\]][[[https://github.com/probe-rs/probe-rs][probe-rs]]:1]]
 [presets.default]
 speed = 40000
 chip = "esp32s3"
-always-print-stacktrace = true
+# always-print-stacktrace = true
 # probe = "303a:1001:1C:DB:D4:40:64:F8"
 # idf-partition-table = "firmware/boards/esp32s3.partitions.csv"
-log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
+# log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
 
 [presets.esp32-s3-devkitc-1]
 chip = "esp32s3"
@@ -16,6 +15,10 @@ probe = "303a:1001:1C:DB:D4:40:64:F8"
 [presets.seeed_xiao_esp32s3]
 chip = "esp32s3"
 probe = "303a:1001:D8:3B:DA:74:82:E8"
+
+[presets.seeed_xiao_esp32s3_sense]
+chip = "esp32s3"
+probe = "303a:1001:CC:BA:97:16:2B:68"
 
 [presets.stm32h723zg]
 preverify = true
@@ -29,4 +32,3 @@ always-print-stacktrace = true
 # [[server.users]]
 # name = "mfarabi"
 # token = "rpi5-16"
-# [[https://github.com/probe-rs/probe-rs][probe-rs]]:1 ends here

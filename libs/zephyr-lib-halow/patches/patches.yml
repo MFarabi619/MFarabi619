@@ -1,0 +1,99 @@
+patches:
+  - path: zephyr44-port.patch
+    sha256sum: 30623bb9d3e3cfdb2801a1de75c3b5388a835febda1ed494c919391cf6398cd2
+    module: modules/lib/morsemicro
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-05
+    upstreamable: true
+    comments: |
+      Port craigpeacock/mm-iot-zephyr (Zephyr 4.3-targeted) to Zephyr 4.4
+      and add the bits needed for the wifi-shell + NM (Network Manager)
+      path to work on the XIAO ESP32-S3 + Wio-WM6108 HaLow hat.
+
+      Five logical changes bundled (all in the same module's git tree):
+
+      1. drivers/wifi/morse_sm/morse.c — wifi_mgmt callback signatures
+         All five wifi_mgmt_ops callbacks (scan / connect / disconnect /
+         iface_status / get_version) get the new `struct net_if *iface`
+         second parameter added in Zephyr 4.4. Without this the build
+         fails with prototype-mismatch errors when assigning the function
+         pointers to wifi_mgmt_ops.
+
+      2. drivers/wifi/morse_sm/morse.c — register with WIFI_NM
+         Add #include <zephyr/net/wifi_nm.h>, DEFINE_WIFI_NM_INSTANCE
+         after the morse_api struct, and a wifi_nm_register_mgd_type_iface
+         call in morse_iface_init. Without this, `wifi <subcmd>` shell
+         commands fail with "Interface -1 is not a nm wifi iface" because
+         the wifi-shell layer dispatches through the NM subsystem and the
+         morse driver was never registering itself.
+
+      3. components/morse_sm/CMakeLists.txt
+         components/morse_sm/hostap/CMakeLists.txt
+         components/morse_sm/mmmbedtls/CMakeLists.txt    (NEW)
+         components/morse_sm/mmmbedtls/entropy_zephyr.c  (NEW)
+           Vendor mm-iot-sdk's bundled mbedtls 3.6.2 as a standalone
+         Zephyr library (`mmmbedtls`) and have hostap depend on it
+         instead of Zephyr's `mbedTLS` target. Zephyr 4.4 ships mbedtls
+         4.x, which (a) the mm-iot config doesn't validate against, and
+         (b) requires PSA_CRYPTO_CLIENT for its TLS sources to compile.
+         mm-iot only needs crypto primitives (AES/SHA/HMAC/CMAC etc.)
+         for WPA2/SAE, not TLS — so building its own 3.6.2 sidesteps
+         the entire 4.x compat problem. entropy_zephyr.c shims
+         mbedtls_hardware_poll → sys_rand_get since
+         MBEDTLS_ENTROPY_HARDWARE_ALT is set in the mm-iot config.
+
+      4. drivers/wifi/morse_sm/shims/wlan_hal.c — SPI IRQ trigger
+         Switch mmhal_wlan_set_spi_irq_enabled from GPIO_INT_EDGE_TO_ACTIVE
+         to GPIO_INT_LEVEL_ACTIVE. The comment right above the original
+         line says "Ideally the interrupt pin would be configured as a
+         low level interrupt"; the mm6108 holds the IRQ line low until
+         the host reads the pending data, so edge-trigger has a race
+         where the line was already asserted when the IRQ was enabled
+         and the callback never fires — manifests as `wifi scan` returning
+         "Scan requested" but no results ever come back. Seeed's
+         mm-iot-esp32 shim (framework/mm_shims/wlan_hal.c) uses
+         GPIO_INTR_LOW_LEVEL for the same reason.
+
+  - path: ffs-include.patch
+    sha256sum: 797db1914ce9765e5748617e881c5e06865a9fc0aa9f23d11beae4a8e0a64daa
+    module: modules/lib/morsemicro/submodules/mm-iot-sdk
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-05
+    upstreamable: true
+    comments: |
+      framework/morselib/.../mm6108/pager_if_hw.c calls ffs() without
+      including <strings.h>. Picolibc / xtensa-espressif's libc declares
+      ffs() in <strings.h> (POSIX), not in <string.h>. Without the include
+      we get an implicit-function-declaration error under -Werror.
+      One-line fix: add #include <strings.h> after the existing
+      #include <string.h>.
+
+  - path: drop-bogus-board-dts-root.patch
+    sha256sum: 4b4e268cd585d8aa403e80b91b4fbd5ed3b8d0c64b64e7b44a970e6c76b42fc7
+    module: modules/lib/morsemicro
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-06
+    upstreamable: true
+    comments: |
+      Drop the `settings: { board_root: ., dts_root: . }` block from
+      mm-iot-zephyr's `zephyr/module.yml`. The module advertises itself
+      as contributing boards and DTS roots at its own top level, but
+      there is no `boards/` (and no `dts/`) directory at that level —
+      the only boards-related tree sits one level deeper in
+      `submodules/mm-iot-sdk/boards/`, which we don't use either (XIAO
+      ESP32-S3 board comes from upstream Zephyr at
+      `zephyr/boards/seeed/`).
+
+      The dead board_root declaration triggers `boards.cmake:132`:
+        BOARD_ROOT element without a 'boards' subdirectory:
+        /…/modules/lib/morsemicro
+      on every sysbuild configure step (three times per build —
+      sysbuild, mcuboot image, app image), polluting the log.
+
+      No functional change — Zephyr never finds boards or DTS under
+      this root either way; this just stops it from looking.
+
+      Upstreamable as a one-line fix to craigpeacock/mm-iot-zephyr.

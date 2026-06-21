@@ -66,7 +66,6 @@ in
     python.uv.enable = true;
 
     c.enable = true;
-    c.debugger = pkgs.gdb;
     cplusplus.enable = true;
 
     rust = {

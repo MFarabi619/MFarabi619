@@ -1,48 +1,42 @@
 [manifest]
 file = manifest.yml
-path = apps/embedded
+path = apps/firmware
 
 [zephyr]
 base = zephyr
 
 [build]
 pristine   = auto
-sysbuild   = false
 guess-dir  = runners
 board      = qemu_riscv32
-dir-fmt    = build/{board}
+# dir-fmt  = build/{board}     # disabled: one shared build/ keeps cargo + clangd paths board-agnostic
 # cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
 [flash]
 rebuild = true
 
 [alias]
-p          = patch -l ../../libs/firmware/patches/patches.yml -b ../../libs/firmware/patches
+p          = patch -l ../../apps/firmware/patches/patches.yml -b ../../apps/firmware/patches
 pc         = p clean
 pa         = p apply --roll-back
 
-menuconfig = build apps/embedded -p=never -t menuconfig
+menuconfig = build apps/firmware -p=never -t menuconfig
 
-r          = build apps/embedded -t run
+r          = build apps/firmware -t run
 t          = r -T qemu.riscv32
 
-tr         = twister -T apps/embedded -s qemu.riscv32 --inline-logs -c --log-level DEBUG
-tb         = twister -T apps/embedded --tag build     --inline-logs -c --all
+tr         = twister -T apps/firmware -s qemu.riscv32 --inline-logs -c --log-level DEBUG
+tb         = twister -T apps/firmware --tag build     --inline-logs -c --all
 tz         = build libs/zephyr-lang-zig/tests --extra-conf=test.conf -t run
 
-bs         = build apps/embedded -T stm32f3.disco      -b stm32f3_disco@E/stm32f303xc
-bw         = build apps/embedded -T esp32s3.walter     -b walter/esp32s3/procpu
-bx         = build apps/embedded -T esp32s3.xiao       -b xiao_esp32s3/esp32s3/procpu
-bxs        = build apps/embedded -T esp32s3.xiao.sense -b xiao_esp32s3/esp32s3/procpu/sense
-
-fs         = flash -d build/stm32f3_disco@E/stm32f303xc
-fw         = flash --esp-device hwgrep://D0:CF:13:54:27:18 -d build/walter/esp32s3/procpu             --esp-skip-flashed --esp-diff
-fxs        = flash --esp-device hwgrep://CC:BA:97:16:2B:68 -d build/xiao_esp32s3/esp32s3/procpu/sense --esp-skip-flashed --esp-diff
+bs         = build apps/firmware -T stm32f3.disco      -b stm32f3_disco@E/stm32f303xc
+bw         = build apps/firmware -T esp32s3.walter     -b walter/esp32s3/procpu
+bx         = build apps/firmware -T esp32s3.xiao       -b xiao_esp32s3/esp32s3/procpu
+bxs        = build apps/firmware -T esp32s3.xiao.sense -b xiao_esp32s3/esp32s3/procpu/sense
 
 mw         = espressif monitor -p hwgrep://D0:CF:13:54:27:18
 mx         = espressif monitor -p hwgrep://CC:BA:97:16:2B:68
 
 ax         = attach --runner probe-rs
 
-dtw        = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/walter/esp32s3/procpu/embedded/firmware/zephyr/zephyr.dts
-dtx        = dtsh --preferences libs/firmware/dtsh/preferences.ini --theme libs/firmware/dtsh/theme.ini build/xiao_esp32s3/esp32s3/procpu/sense/embedded/firmware/zephyr/zephyr.dts
+dt         = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/firmware/zephyr/zephyr.dts

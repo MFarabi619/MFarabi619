@@ -6,7 +6,6 @@ tests:
         platform_allow: qemu_riscv32
         extra_conf_files:
             - test.conf
-            - ../../libs/firmware/filesystems/fs.conf
 
     esp32s3.walter:
         tags: esp32s3 build
@@ -27,6 +26,7 @@ tests:
         required_snippets:
             - wifi-credentials
             - espressif-flash-8M
+            - espressif-psram-8M
             - espressif-psram-wifi
 
     esp32s3.xiao.sense:
@@ -39,6 +39,7 @@ tests:
         required_snippets:
             - wifi-credentials
             - espressif-flash-8M
+            - espressif-psram-8M
             - espressif-psram-wifi
 
     stm32f3.disco:

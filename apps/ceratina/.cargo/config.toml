@@ -1,0 +1,33 @@
+[alias]
+rr = ["run", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
+bb = ["build", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
+tt = ["test", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
+# tt = [
+#     "test",
+#     "-p",
+#     "ceratina",
+#     "--target",
+#     "xtensa-esp32s3-none-elf",
+#     "--config",
+#     "target.xtensa-esp32s3-none-elf.runner = 'probe-rs run --idf-partition-table ../../apps/ceratina/machine/esp32s3.partitions.csv'",
+# ]
+
+[unstable]
+build-std = ["core", "alloc"]
+
+[env]
+OTA_DEVICE_IP = "10.0.0.68"
+DEFMT_LOG = "info,embedded_test=warn"
+
+[target.xtensa-esp32s3-none-elf]
+runner = "probe-rs run --idf-partition-table machine/esp32s3.partitions.csv"
+
+# PROBE_RS_REMOTE_TOKEN = "rpi5-16"
+# PROBE_RS_REMOTE_HOST = "ws://rpi5-16:8443"
+
+[target.xtensa-esp32-none-elf]
+runner = "espflash flash --monitor --chip esp32"
+
+[target.thumbv7em-none-eabihf]
+runner = "probe-rs run --chip stm32h723zg"
+# [[https://doc.rust-lang.org/cargo/reference/config.html][Cargo Config]]:1 ends here

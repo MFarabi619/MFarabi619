@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include <zephyr/kernel.h>
 #include <zephyr/shell/shell.h>
 
 extern int rust_sqlite_open(const struct shell *sh, const char *path);
@@ -33,18 +34,25 @@ static int cmd_close(const struct shell *sh, size_t argc, char **argv)
 
 static int cmd_exec(const struct shell *sh, size_t argc, char **argv)
 {
-	char sql_buffer[CONFIG_SHELL_CMD_BUFF_SIZE];
+	char *sql_buffer = k_malloc(CONFIG_SHELL_CMD_BUFF_SIZE);
+	if (!sql_buffer) {
+		shell_error(sh, "k_malloc(%d) failed", CONFIG_SHELL_CMD_BUFF_SIZE);
+		return -ENOMEM;
+	}
 	size_t offset = 0;
 	for (size_t index = 1; index < argc; index++) {
-		int needed = snprintf(sql_buffer + offset, sizeof(sql_buffer) - offset,
+		int needed = snprintf(sql_buffer + offset, CONFIG_SHELL_CMD_BUFF_SIZE - offset,
 				      "%s%s", index > 1 ? " " : "", argv[index]);
-		if (needed < 0 || (size_t)needed >= sizeof(sql_buffer) - offset) {
-			shell_error(sh, "SQL exceeds buffer (%zu bytes)", sizeof(sql_buffer));
+		if (needed < 0 || (size_t)needed >= CONFIG_SHELL_CMD_BUFF_SIZE - offset) {
+			shell_error(sh, "SQL exceeds buffer (%d bytes)", CONFIG_SHELL_CMD_BUFF_SIZE);
+			k_free(sql_buffer);
 			return -EMSGSIZE;
 		}
 		offset += needed;
 	}
-	return rust_sqlite_exec(sh, sql_buffer);
+	int rc = rust_sqlite_exec(sh, sql_buffer);
+	k_free(sql_buffer);
+	return rc;
 }
 
 static int cmd_version(const struct shell *sh, size_t argc, char **argv)

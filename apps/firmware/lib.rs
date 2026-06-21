@@ -3,22 +3,72 @@
 
 extern crate alloc;
 
-use firmware::programs::shell;
+pub mod programs;
+pub mod services;
+
+#[cfg(CONFIG_NETWORKING)]
+pub mod networking;
+
+#[cfg(CONFIG_ZTEST)]
+pub mod bdd {
+    use alloc::ffi::CString;
+    use core::ffi::c_char;
+
+    extern "C" {
+        fn printk(format: *const c_char, ...);
+    }
+
+    pub fn given(text: &str) {
+        emit(
+            text,
+            c"  \x1b[1;30;46m[GIVEN]\x1b[0m \x1b[36m%s\x1b[0m\n".as_ptr(),
+        );
+    }
+
+    pub fn when(text: &str) {
+        emit(
+            text,
+            c"    \x1b[1;30;103m[WHEN]\x1b[0m \x1b[33m%s\x1b[0m\n".as_ptr(),
+        );
+    }
+
+    pub fn then(text: &str) {
+        emit(
+            text,
+            c"      \x1b[1;30;105m[THEN]\x1b[0m \x1b[35m%s\x1b[0m\n".as_ptr(),
+        );
+    }
+
+    pub fn and(text: &str) {
+        emit(
+            text,
+            c"      \x1b[1;30;105m[AND]\x1b[0m  \x1b[35m%s\x1b[0m\n".as_ptr(),
+        );
+    }
+
+    fn emit(text: &str, format: *const c_char) {
+        if let Ok(c_text) = CString::new(text) {
+            unsafe { printk(format, c_text.as_ptr()) };
+        }
+    }
+}
+
+use crate::programs::shell;
 
 #[cfg(all(CONFIG_HTTP_SERVER, not(CONFIG_ZTEST)))]
-use firmware::services::http;
+use crate::services::http;
 
 #[cfg(not(CONFIG_ZTEST))]
 use log::{info, warn};
 
 #[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]
-use firmware::networking::{cellular, dns, nat, wifi};
+use crate::networking::{cellular, dns, nat, wifi};
 
 #[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem")))]
-use firmware::networking::wifi;
+use crate::networking::wifi;
 
 #[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem"), CONFIG_WIREGUARD))]
-use firmware::networking::wireguard;
+use crate::networking::wireguard;
 
 #[cfg(CONFIG_BOOTLOADER_MCUBOOT)]
 use zephyr::{
@@ -81,45 +131,6 @@ extern "C" fn rust_main() {
     if let Err(e) = shell::initialize() {
         warn!("shell: {e}");
     }
-
-    #[cfg(CONFIG_SQLITE)]
-    {
-        let version = unsafe {
-            core::ffi::CStr::from_ptr(firmware::programs::sqlite::bindings::sqlite3_libversion())
-        };
-        info!("Rust sees SQLite {}", version.to_string_lossy());
-        for path in ["/lfs/sqlite.db"] {
-            info!("--- smoke test on {} ---", path);
-            if let Err(e) = sqlite_smoke_test(path) {
-                warn!("sqlite smoke test on {}: {:?}", path, e);
-            }
-        }
-    }
-}
-
-#[cfg(all(CONFIG_SQLITE, not(CONFIG_ZTEST)))]
-fn sqlite_smoke_test(path: &str) -> Result<(), firmware::programs::sqlite::ResultCode> {
-    use alloc::ffi::CString;
-    use firmware::programs::sqlite::{self, Connection, ResultCode};
-
-    let c_path = CString::new(path).unwrap();
-    let db = sqlite::open(c_path.as_ptr())?;
-    db.exec_safe(
-        "CREATE TABLE IF NOT EXISTS readings (
-            id INTEGER PRIMARY KEY, temperature REAL, label TEXT)",
-    )?;
-    db.exec_safe("DELETE FROM readings")?;
-    db.exec_safe("INSERT INTO readings (temperature, label) VALUES (21.5, 'kitchen')")?;
-    db.exec_safe("INSERT INTO readings (temperature, label) VALUES (19.0, 'outside')")?;
-
-    let stmt = db.prepare_v2("SELECT id, temperature, label FROM readings")?;
-    while stmt.step()? == ResultCode::ROW {
-        let id = stmt.column_int64(0);
-        let temp = stmt.column_double(1);
-        let label = stmt.column_text(2)?;
-        info!("row: id={} temp={} label={}", id, temp, label);
-    }
-    Ok(())
 }
 
 #[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]

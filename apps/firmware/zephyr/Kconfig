@@ -1,10 +1,12 @@
-rsource "networking/wireguard/Kconfig"
+rsource "../networking/wireguard/Kconfig"
 
 config HAS_SEGGER_RTT
 	default y
 
-config RUST_SUPPORTED
+config FORCE_RUST_SUPPORTED
+	bool
 	default y
+	select RUST_SUPPORTED
 
 config FILE_SYSTEM_SHELL
 	default y if SHELL && FILE_SYSTEM
@@ -13,10 +15,7 @@ config PROMPT_TZ_OFFSET_MINUTES
 	int "Prompt clock timezone offset (minutes from UTC)"
 	default -240
 
-config ESP_SPIRAM
-	default y if SOC_SERIES_ESP32S3
-
-if SOC_SERIES_ESP32S3 && ESP_SPIRAM
+if ESP_SPIRAM
 config ESP_SPIRAM_MEMTEST
 	default y
 endif
@@ -73,6 +72,7 @@ config MAIN_STACK_SIZE
 	default 8192
 
 config SHELL_STACK_SIZE
+	default 8192 if SQLITE
 	default 5200
 
 config SYSTEM_WORKQUEUE_STACK_SIZE

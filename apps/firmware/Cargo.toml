@@ -6,6 +6,7 @@ license = "Apache-2.0"
 
 [lib]
 path = "lib.rs"
+crate-type = ["staticlib"]
 
 # Carried over from vlcn sqlite-rs-embedded: vlcn's source cfg-gates on
 # `feature = "static"` (engine linked into the same image, our case) vs

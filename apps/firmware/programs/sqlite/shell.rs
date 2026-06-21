@@ -31,10 +31,25 @@ extern "C" fn rust_sqlite_open(sh: *const c_void, path: *const c_char) -> c_int 
     let db_slot = unsafe { &mut *DB.0.get() };
     *db_slot = None;
 
-    match sqlite_open(path) {
+    let input = unsafe { CStr::from_ptr(path) }.to_string_lossy();
+    let resolved = if input.starts_with('/') {
+        alloc::string::String::from(input.as_ref())
+    } else {
+        let cwd = super::super::shell::cwd();
+        let separator = if cwd.ends_with('/') || cwd.ends_with(':') { "" } else { "/" };
+        format!("{cwd}{separator}{input}")
+    };
+    let resolved_c = match CString::new(resolved.as_str()) {
+        Ok(c) => c,
+        Err(_) => {
+            error_line(sh, "path contains NUL byte");
+            return -22;
+        }
+    };
+
+    match sqlite_open(resolved_c.as_ptr()) {
         Ok(connection) => {
-            let path_str = unsafe { CStr::from_ptr(path) }.to_string_lossy();
-            print_line(sh, &format!("opened {path_str}"));
+            print_line(sh, &format!("opened {resolved}"));
             *db_slot = Some(connection);
             0
         }

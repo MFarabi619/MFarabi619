@@ -1,15 +1,14 @@
 [workspace]
 resolver = "3"
 exclude = ["ml"]
-default-members = ["apps/embedded"]
+default-members = ["apps/firmware"]
 members = [
     "tui",
     "apps/web",
     "tests/e2e",
     "apps/server",
     "apps/readme",
-    "apps/embedded",
-    "libs/firmware",
+    "apps/firmware",
     "apps/ceratina",
     "libs/lazyzephyr",
     "apps/lazyzephyr",
@@ -17,15 +16,15 @@ members = [
 ]
 
 [workspace.dependencies]
-serde_json = "1"
 defmt = "1.0.1"
+serde_json = "1"
+loco-rs = "0.16.4"
 embedded-io = "0.7.1"
 embassy-time = { version = "0.5.0" }
 # embassy-time = { version = "0.5.0", features = ["tick-hz-10_000"] }
 embassy-executor = "0.10"
 embedded-io-async = "0.7.0"
 dioxus-sdk-time = "0.7.0"
-loco-rs = "0.16.4"
 dioxus-primitives.path = "libs/web/primitives"
 serde = { version = "1", features = ["derive"] }
 tracing = { version = "0.1", features = ["std"] }
