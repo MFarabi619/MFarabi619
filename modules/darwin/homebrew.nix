@@ -51,7 +51,7 @@
       "netscanner"
       "u-boot-tools"
       # "espressif/eim/eim"
-      "renode/tap/renode-nightly"
+      # "renode/tap/renode-nightly"
     ];
 
     casks = [

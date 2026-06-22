@@ -2,9 +2,25 @@
 ee         = ["run", "-p", "e2e"]
 loco       = ["run", "-p", "server", "--"]
 playground = ["run", "-p", "server", "--example", "playground"]
+rr         = ["run",   "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
+bb         = ["build", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
+tt         = ["test",  "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
 
 [unstable]
 build-std = ["core", "alloc"]
 
 [env]
-ZEPHYR_BASE = { value = "zephyr", relative = true }
+ZEPHYR_BASE   = { value = "zephyr", relative = true }
+DOTCONFIG     = { value = "build/firmware/zephyr/.config", relative = true }
+ZEPHYR_DTS    = { value = "build/firmware/zephyr/zephyr.dts", relative = true }
+OTA_DEVICE_IP = "10.0.0.68"
+DEFMT_LOG     = "info,embedded_test=warn"
+
+[target.xtensa-esp32s3-none-elf]
+runner = "probe-rs run --idf-partition-table apps/ceratina/machine/esp32s3.partitions.csv"
+
+[target.xtensa-esp32-none-elf]
+runner = "espflash flash --monitor --chip esp32"
+
+[target.thumbv7em-none-eabihf]
+runner = "probe-rs run --chip stm32h723zg"

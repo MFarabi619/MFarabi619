@@ -333,7 +333,7 @@ when they were opened, so they skip the re-application."
   (cl-defmethod dape-handle-event (conn (_event (eql probe-rs-rtt-channel-config)) _body) (dape-request conn "rttWindowOpened" '((channelNumber . 0) (windowIsOpen . t)))) ;; Tell probe-rs that the RTT terminal window is open.
 
   (setopt
-    dape-request-timeout 60
+    dape-request-timeout 300
     dape-repl-echo-shell-output t
     dape-info-variable-table-aligned t
     dape-buffer-window-arrangement 'gud
@@ -423,27 +423,64 @@ when they were opened, so they skip the re-application."
 
        port :autoport host "localhost" command "probe-rs"
        modes (rust-mode rustic-mode)
-       compile "espflash partition-table boards/esp32s3.partitions.csv && cargo +esp flash --chip esp32s3 --binary-format idf --idf-partition-table boards/esp32s3.partitions.csv -- -rp firmware --bin p-uog-gre --target xtensa-esp32s3-none-elf -F esp32s3 --config 'unstable.build-std=[\"core\",\"alloc\"]'"
+       compile "espflash partition-table apps/ceratina/machine/esp32s3.partitions.csv && cargo +esp bb && probe-rs download --chip esp32s3 --binary-format idf --idf-partition-table apps/ceratina/machine/esp32s3.partitions.csv target/xtensa-esp32s3-none-elf/debug/microvisor"
        command-args ("dap-server" "--port" ":autoport")
        command-cwd (lambda () (project-root (project-current)))
-       :fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
+       fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
        :coreConfigs [(
                        :coreIndex 0
                        :rttEnabled t
                        :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
-                       :svdFile (lambda () (let ((f (expand-file-name "boards/esp32s3.svd" (project-root (project-current))))) (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
+                       :svdFile (lambda () (let ((f (expand-file-name "apps/ceratina/machine/esp32s3.svd" (project-root (project-current))))) (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
                        :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/microvisor" (project-root (project-current)))))]))
 
-  (add-hook!
-    'dape-display-source-hook #'pulse-momentary-highlight-one-line
-    'dape-repl-mode-hook (defun dape--repl-wrap () (setq-local truncate-lines nil word-wrap t) (visual-line-mode 1))
-    'dape-info-parent-mode-hook
+  (add-to-list
+    'dape-configs
+    '(zephyr-probe-rs
+       :chip "esp32s3" :request "attach" :type "probe-rs-debug" :consoleLogLevel "Console" :flashingConfig (:flashingEnabled :json-false)
+
+       port :autoport host "localhost" command "probe-rs"
+       modes (rust-mode rustic-mode)
+       compile "west flash"
+       command-args ("dap-server" "--port" ":autoport")
+       command-cwd (lambda () (project-root (project-current)))
+       :coreConfigs [(
+                       :coreIndex 0
+                       :rttEnabled t
+                       :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")
+                                            (:channelNumber 1 :showTimestamps t :dataFormat "String")]
+                       :svdFile (lambda () (let ((f (expand-file-name "apps/ceratina/machine/esp32s3.svd" (project-root (project-current))))) (when (file-exists-p f) f)))
+                       :programBinary (lambda () (expand-file-name "build/firmware/zephyr/zephyr.elf" (project-root (project-current)))))]))
+
+  (add-to-list
+    'dape-configs
+    '(zephyr-esp32s3-openocd
+       modes (rust-mode rustic-mode)
+       ensure dape-ensure-command
+       compile "west flash -r openocd"
+       command "xtensa-esp32s3-elf-gdb"
+       command-args ("--interpreter=dap"
+                      "-ex" "target extended-remote :3333")
+       command-cwd dape-command-cwd
+       defer-launch-attach t
+       :request "attach"
+       :program (lambda () (expand-file-name "build/firmware/zephyr/zephyr.elf" (project-root (project-current))))))
+
+  (add-hook! 'dape-display-source-hook #'pulse-momentary-highlight-one-line)
+
+  (add-hook! 'dape-repl-mode-hook
+    (defun dape--repl-wrap ()
+      (setq-local truncate-lines nil word-wrap t)
+      (visual-line-mode 1)))
+
+  (add-hook! 'dape-info-parent-mode-hook
     (defun dape--info-compact ()
       (when (string-prefix-p "Registers" (format-mode-line header-line-format))
         (setq-local
           dape-info-variable-table-aligned t
           dape-info-variable-table-row-config '((name . 8) (value . 10) (type . 14))))
-      (face-remap-add-relative 'header-line :height 0.9) (face-remap-add-relative 'default :height 0.9))))
+      (face-remap-add-relative 'header-line :height 0.9)
+      (face-remap-add-relative 'default :height 0.9))))
 
 (after! dap-mode
   (dap-register-debug-template

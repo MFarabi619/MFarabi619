@@ -10,48 +10,7 @@ pub mod services;
 pub mod networking;
 
 #[cfg(CONFIG_ZTEST)]
-pub mod bdd {
-    use alloc::ffi::CString;
-    use core::ffi::c_char;
-
-    extern "C" {
-        fn printk(format: *const c_char, ...);
-    }
-
-    pub fn given(text: &str) {
-        emit(
-            text,
-            c"  \x1b[1;30;46m[GIVEN]\x1b[0m \x1b[36m%s\x1b[0m\n".as_ptr(),
-        );
-    }
-
-    pub fn when(text: &str) {
-        emit(
-            text,
-            c"    \x1b[1;30;103m[WHEN]\x1b[0m \x1b[33m%s\x1b[0m\n".as_ptr(),
-        );
-    }
-
-    pub fn then(text: &str) {
-        emit(
-            text,
-            c"      \x1b[1;30;105m[THEN]\x1b[0m \x1b[35m%s\x1b[0m\n".as_ptr(),
-        );
-    }
-
-    pub fn and(text: &str) {
-        emit(
-            text,
-            c"      \x1b[1;30;105m[AND]\x1b[0m  \x1b[35m%s\x1b[0m\n".as_ptr(),
-        );
-    }
-
-    fn emit(text: &str, format: *const c_char) {
-        if let Ok(c_text) = CString::new(text) {
-            unsafe { printk(format, c_text.as_ptr()) };
-        }
-    }
-}
+pub mod bdd;
 
 use crate::programs::shell;
 
@@ -62,13 +21,22 @@ use crate::services::http;
 use log::{info, warn};
 
 #[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]
-use crate::networking::{cellular, dns, nat, wifi};
+use crate::networking::{cellular, dns, wifi};
 
 #[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem")))]
 use crate::networking::wifi;
 
 #[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem"), CONFIG_WIREGUARD))]
 use crate::networking::wireguard;
+
+#[cfg(not(CONFIG_ZTEST))]
+macro_rules! try_init {
+    ($name:literal => $expr:expr) => {
+        if let Err(e) = $expr {
+            warn!("{}: {e}", $name);
+        }
+    };
+}
 
 #[cfg(CONFIG_BOOTLOADER_MCUBOOT)]
 use zephyr::{
@@ -114,10 +82,22 @@ extern "C" fn rust_main() {
     info!("rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
 
     #[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]
-    router();
+    {
+        try_init!("cellular" => cellular::initialize());
+        try_init!("nat"      => cellular::nat::initialize());
+        try_init!("dns"      => dns::initialize());
+        try_init!("wifi ap"  => wifi::ap::initialize());
+    }
 
     #[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem")))]
-    node();
+    if let Err(e) = wifi::sta::initialize() {
+        warn!("wifi sta: {e}");
+    } else {
+        #[cfg(CONFIG_WIREGUARD)]
+        try_init!("wireguard"   => wireguard::initialize());
+        #[cfg(CONFIG_HTTP_SERVER)]
+        try_init!("http server" => http::server::initialize());
+    }
 
     #[cfg(CONFIG_BOOTLOADER_MCUBOOT)]
     if !unsafe { boot_is_img_confirmed() } {
@@ -125,42 +105,5 @@ extern "C" fn rust_main() {
             Ok(()) => info!("boot: image confirmed"),
             Err(e) => warn!("boot confirm: {e}"),
         }
-    }
-
-    #[cfg(not(CONFIG_TEST))]
-    if let Err(e) = shell::initialize() {
-        warn!("shell: {e}");
-    }
-}
-
-#[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]
-fn router() {
-    if let Err(e) = cellular::initialize() {
-        warn!("cellular: {e}");
-    }
-    if let Err(e) = nat::initialize() {
-        warn!("nat: {e}");
-    }
-    if let Err(e) = dns::initialize() {
-        warn!("dns: {e}");
-    }
-    if let Err(e) = wifi::ap::initialize() {
-        warn!("wifi ap: {e}");
-    }
-}
-
-#[cfg(all(CONFIG_NETWORKING, not(dt = "labels::modem")))]
-fn node() {
-    if let Err(e) = wifi::sta::initialize() {
-        warn!("wifi sta: {e}");
-        return;
-    }
-    #[cfg(CONFIG_WIREGUARD)]
-    if let Err(e) = wireguard::initialize() {
-        warn!("wireguard: {e}");
-    }
-    #[cfg(CONFIG_HTTP_SERVER)]
-    if let Err(e) = http::server::initialize() {
-        warn!("http server: {e}");
     }
 }

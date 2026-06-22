@@ -55,7 +55,11 @@ pub fn cwd() -> alloc::string::String {
     #[cfg(CONFIG_FILE_SYSTEM_SHELL)]
     {
         use alloc::string::ToString;
-        unsafe { CStr::from_ptr(fs_shell_get_cwd()).to_string_lossy().to_string() }
+        unsafe {
+            CStr::from_ptr(fs_shell_get_cwd())
+                .to_string_lossy()
+                .to_string()
+        }
     }
     #[cfg(not(CONFIG_FILE_SYSTEM_SHELL))]
     alloc::string::String::from("/")
@@ -78,14 +82,14 @@ pub fn execute(command: &str) -> i32 {
 }
 
 pub fn last_return_value() -> i32 {
-    with_shell(0, |shell_handle| unsafe { shell_get_return_value(shell_handle) })
+    with_shell(0, |shell_handle| unsafe {
+        shell_get_return_value(shell_handle)
+    })
 }
 
 pub fn set_prompt(prompt: &CStr) -> zephyr::Result<()> {
     with_shell(zephyr::error::to_result_void(-19), |shell_handle| {
-        zephyr::error::to_result_void(unsafe {
-            shell_prompt_change(shell_handle, prompt.as_ptr())
-        })
+        zephyr::error::to_result_void(unsafe { shell_prompt_change(shell_handle, prompt.as_ptr()) })
     })
 }
 
@@ -175,8 +179,7 @@ pub mod theme {
 }
 
 pub mod prompt {
-    use alloc::ffi::CString;
-    use alloc::string::String;
+    use alloc::{ffi::CString, string::String};
     use core::fmt::Write;
 
     use super::{self as shell, theme};
@@ -204,23 +207,49 @@ pub mod prompt {
         let uptime_minutes = uptime_seconds / 60;
         let uptime_seconds_within_minute = uptime_seconds % 60;
 
-        let _ = write!(buffer, "{}{}{}", theme::FRAME, theme::FRAME_TOP_LEFT, theme::RESET);
+        let _ = write!(
+            buffer,
+            "{}{}{}",
+            theme::FRAME,
+            theme::FRAME_TOP_LEFT,
+            theme::RESET
+        );
 
-        let _ = write!(buffer, "{}{} {} ", theme::OS_BG, theme::OS_FG, theme::OS_ICON);
-        let _ = write!(buffer, "{}{}{}", theme::DIR_BG, theme::OS_BG_AS_FG, theme::LEFT_SEGMENT_SEPARATOR);
-        let _ = write!(buffer, "{}{} {} {} ", theme::DIR_BG, theme::DIR_FG, cwd_icon, cwd);
-        let _ = write!(buffer, "{}{}{}{}", theme::RESET, theme::DIR_BG_AS_FG, theme::LEFT_SEGMENT_SEPARATOR, theme::RESET);
+        let _ = write!(
+            buffer,
+            "{}{} {} ",
+            theme::OS_BG,
+            theme::OS_FG,
+            theme::OS_ICON
+        );
+        let _ = write!(
+            buffer,
+            "{}{}{}",
+            theme::DIR_BG,
+            theme::OS_BG_AS_FG,
+            theme::LEFT_SEGMENT_SEPARATOR
+        );
+        let _ = write!(
+            buffer,
+            "{}{} {} {} ",
+            theme::DIR_BG,
+            theme::DIR_FG,
+            cwd_icon,
+            cwd
+        );
+        let _ = write!(
+            buffer,
+            "{}{}{}{}",
+            theme::RESET,
+            theme::DIR_BG_AS_FG,
+            theme::LEFT_SEGMENT_SEPARATOR,
+            theme::RESET
+        );
 
-        let left_visible_width = 2
-            + 1 + 1 + 1
-            + 1
-            + 1 + 1 + 1 + cwd.chars().count() + 1
-            + 1;
+        let left_visible_width = 2 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + cwd.chars().count() + 1 + 1;
         let status_visible_width = 1 + 1 + 1;
         let host_visible_width = 1 + 1 + 1 + theme::HOST_LABEL.chars().count() + 1;
-        let arch_visible_width = 1
-            + 1 + theme::ARCH_LABEL.chars().count() + 1
-            + 1 + 1;
+        let arch_visible_width = 1 + 1 + theme::ARCH_LABEL.chars().count() + 1 + 1 + 1;
         let time_visible_width = if is_synced {
             11
         } else if uptime_minutes < 10 {
@@ -231,8 +260,11 @@ pub mod prompt {
             7
         };
         let clock_visible_width = 1 + 1 + time_visible_width + 1 + 1 + 1;
-        let right_visible_width =
-            status_visible_width + host_visible_width + arch_visible_width + clock_visible_width + 2;
+        let right_visible_width = status_visible_width
+            + host_visible_width
+            + arch_visible_width
+            + clock_visible_width
+            + 2;
         let fill_width = (shell::terminal_width() as usize)
             .saturating_sub(left_visible_width + right_visible_width)
             .max(1);
@@ -243,14 +275,46 @@ pub mod prompt {
         }
         let _ = write!(buffer, "{}", theme::RESET);
 
-        let _ = write!(buffer, " {}{}{} ", theme::STATUS_OK_FG, theme::STATUS_OK_GLYPH, theme::RESET);
+        let _ = write!(
+            buffer,
+            " {}{}{} ",
+            theme::STATUS_OK_FG,
+            theme::STATUS_OK_GLYPH,
+            theme::RESET
+        );
 
-        let _ = write!(buffer, "{} {} {} {}", theme::HOST_FG, theme::HOST_ICON, theme::HOST_LABEL, theme::RESET);
+        let _ = write!(
+            buffer,
+            "{} {} {} {}",
+            theme::HOST_FG,
+            theme::HOST_ICON,
+            theme::HOST_LABEL,
+            theme::RESET
+        );
 
-        let _ = write!(buffer, " {}{}{}", theme::ARCH_BG_AS_FG, theme::RIGHT_SEGMENT_SEPARATOR, theme::RESET);
-        let _ = write!(buffer, "{}{} {} {} ", theme::ARCH_BG, theme::ARCH_FG, theme::ARCH_LABEL, theme::ARCH_ICON);
+        let _ = write!(
+            buffer,
+            " {}{}{}",
+            theme::ARCH_BG_AS_FG,
+            theme::RIGHT_SEGMENT_SEPARATOR,
+            theme::RESET
+        );
+        let _ = write!(
+            buffer,
+            "{}{} {} {} ",
+            theme::ARCH_BG,
+            theme::ARCH_FG,
+            theme::ARCH_LABEL,
+            theme::ARCH_ICON
+        );
 
-        let _ = write!(buffer, "{}{}{}", theme::ARCH_BG, theme::CLOCK_BG_AS_FG, theme::RIGHT_SEGMENT_SEPARATOR);
+        let _ = write!(
+            buffer,
+            "{}{}{}",
+            theme::ARCH_BG,
+            theme::CLOCK_BG_AS_FG,
+            theme::RIGHT_SEGMENT_SEPARATOR
+        );
         let _ = write!(buffer, "{}{}", theme::CLOCK_BG, theme::CLOCK_FG);
         if is_synced {
             let local_timestamp =
@@ -266,13 +330,21 @@ pub mod prompt {
             let _ = write!(
                 buffer,
                 " {:02}:{:02}:{:02} {} {} {}",
-                hour_12, calendar.tm_min, calendar.tm_sec, meridiem, theme::CLOCK_ICON, theme::RESET
+                hour_12,
+                calendar.tm_min,
+                calendar.tm_sec,
+                meridiem,
+                theme::CLOCK_ICON,
+                theme::RESET
             );
         } else {
             let _ = write!(
                 buffer,
                 " {}m{:02}s {} {}",
-                uptime_minutes, uptime_seconds_within_minute, theme::CLOCK_ICON, theme::RESET
+                uptime_minutes,
+                uptime_seconds_within_minute,
+                theme::CLOCK_ICON,
+                theme::RESET
             );
         }
         // let _ = write!(buffer, "{}{}{}", theme::FRAME, theme::FRAME_TOP_RIGHT, theme::RESET);
@@ -283,7 +355,13 @@ pub mod prompt {
     pub fn build_prompt() -> CString {
         let mut buffer = String::from("\r\n");
         buffer.push_str(&build_frame());
-        let _ = write!(buffer, "\r\n{}{}{} ", theme::FRAME, theme::FRAME_BOT_LEFT, theme::RESET);
+        let _ = write!(
+            buffer,
+            "\r\n{}{}{} ",
+            theme::FRAME,
+            theme::FRAME_BOT_LEFT,
+            theme::RESET
+        );
         CString::new(buffer).unwrap()
     }
 }
@@ -294,66 +372,66 @@ mod icons {
     // Format: NF_{source}_{name} in SCREAMING_SNAKE_CASE.
     #![allow(dead_code)]
 
-    pub const NF_FA_FILE:         &str = "\u{f15b}";
-    pub const NF_FA_FILE_TEXT:    &str = "\u{f15c}";
-    pub const NF_FA_FILE_IMAGE:   &str = "\u{f1c5}";
-    pub const NF_FA_FOLDER:       &str = "\u{f07b}";
-    pub const NF_FA_FOLDER_OPEN:  &str = "\u{f07c}";
+    pub const NF_FA_FILE: &str = "\u{f15b}";
+    pub const NF_FA_FILE_TEXT: &str = "\u{f15c}";
+    pub const NF_FA_FILE_IMAGE: &str = "\u{f1c5}";
+    pub const NF_FA_FOLDER: &str = "\u{f07b}";
+    pub const NF_FA_FOLDER_OPEN: &str = "\u{f07c}";
 
-    pub const NF_FA_HOME:         &str = "\u{f015}";
-    pub const NF_FA_LOCK:         &str = "\u{f023}";
-    pub const NF_FA_CLOCK:        &str = "\u{f017}";
-    pub const NF_FA_DATABASE:     &str = "\u{f1c0}";
-    pub const NF_FA_GLOBE:        &str = "\u{f0ac}";
-    pub const NF_FA_SERVER:       &str = "\u{f233}";
-    pub const NF_FA_PLUG:         &str = "\u{f1e6}";
-    pub const NF_FA_WIFI:         &str = "\u{f1eb}";
-    pub const NF_FA_COG:          &str = "\u{f085}";
-    pub const NF_FA_BOLT:         &str = "\u{f0e7}";
-    pub const NF_FA_HDD:          &str = "\u{f0a0}";
-    pub const NF_FA_LEAF:         &str = "\u{f06c}";
-    pub const NF_FA_THERMOMETER:  &str = "\u{f2c9}";
-    pub const NF_FA_TINT:         &str = "\u{f043}";
-    pub const NF_FA_SITEMAP:      &str = "\u{f1e0}";
-    pub const NF_FA_MICROCHIP:    &str = "\u{f2db}";
-    pub const NF_FA_SIGNAL:       &str = "\u{f2c8}";
-    pub const NF_FA_DOWNLOAD:     &str = "\u{f498}";
-    pub const NF_FA_TERMINAL:     &str = "\u{f120}";
-    pub const NF_FA_DESKTOP:      &str = "\u{f108}";
-    pub const NF_FA_MEMORY:       &str = "\u{f538}";
+    pub const NF_FA_HOME: &str = "\u{f015}";
+    pub const NF_FA_LOCK: &str = "\u{f023}";
+    pub const NF_FA_CLOCK: &str = "\u{f017}";
+    pub const NF_FA_DATABASE: &str = "\u{f1c0}";
+    pub const NF_FA_GLOBE: &str = "\u{f0ac}";
+    pub const NF_FA_SERVER: &str = "\u{f233}";
+    pub const NF_FA_PLUG: &str = "\u{f1e6}";
+    pub const NF_FA_WIFI: &str = "\u{f1eb}";
+    pub const NF_FA_COG: &str = "\u{f085}";
+    pub const NF_FA_BOLT: &str = "\u{f0e7}";
+    pub const NF_FA_HDD: &str = "\u{f0a0}";
+    pub const NF_FA_LEAF: &str = "\u{f06c}";
+    pub const NF_FA_THERMOMETER: &str = "\u{f2c9}";
+    pub const NF_FA_TINT: &str = "\u{f043}";
+    pub const NF_FA_SITEMAP: &str = "\u{f1e0}";
+    pub const NF_FA_MICROCHIP: &str = "\u{f2db}";
+    pub const NF_FA_SIGNAL: &str = "\u{f2c8}";
+    pub const NF_FA_DOWNLOAD: &str = "\u{f498}";
+    pub const NF_FA_TERMINAL: &str = "\u{f120}";
+    pub const NF_FA_DESKTOP: &str = "\u{f108}";
+    pub const NF_FA_MEMORY: &str = "\u{f538}";
 
-    pub const NF_DEV_RUST:        &str = "\u{e7a8}";
-    pub const NF_DEV_HTML5:       &str = "\u{e736}";
-    pub const NF_DEV_JAVASCRIPT:  &str = "\u{e74e}";
-    pub const NF_DEV_CSS3:        &str = "\u{e749}";
+    pub const NF_DEV_RUST: &str = "\u{e7a8}";
+    pub const NF_DEV_HTML5: &str = "\u{e736}";
+    pub const NF_DEV_JAVASCRIPT: &str = "\u{e74e}";
+    pub const NF_DEV_CSS3: &str = "\u{e749}";
 
-    pub const NF_SETI_CONFIG:     &str = "\u{e5fc}";
-    pub const NF_SETI_TOML:       &str = "\u{e6b2}";
-    pub const NF_SETI_JSON:       &str = "\u{e60b}";
-    pub const NF_SETI_MARKDOWN:   &str = "\u{e73e}";
-    pub const NF_SETI_ORG:        &str = "\u{e633}";
-    pub const NF_SETI_WASM:       &str = "\u{e6a1}";
+    pub const NF_SETI_CONFIG: &str = "\u{e5fc}";
+    pub const NF_SETI_TOML: &str = "\u{e6b2}";
+    pub const NF_SETI_JSON: &str = "\u{e60b}";
+    pub const NF_SETI_MARKDOWN: &str = "\u{e73e}";
+    pub const NF_SETI_ORG: &str = "\u{e633}";
+    pub const NF_SETI_WASM: &str = "\u{e6a1}";
 
-    pub const NF_LINUX_NIX:       &str = "\u{f313}";
+    pub const NF_LINUX_NIX: &str = "\u{f313}";
 
-    pub const NF_MD_BINARY:       &str = "\u{f471}";
-    pub const NF_MD_ARCH:         &str = "\u{e266}";
-    pub const NF_MD_KERNEL:       &str = "\u{e615}";
-    pub const NF_MD_PICTURE:      &str = "\u{f02ef}";
-    pub const NF_MD_DOCUMENT:     &str = "\u{f09ee}";
-    pub const NF_MD_PUBLIC:       &str = "\u{f151f}";
-    pub const NF_MD_TEMP:         &str = "\u{f0403}";
-    pub const NF_MD_SSH:          &str = "\u{f12c0}";
-    pub const NF_MD_RAM:          &str = "\u{f0e4}";
-    pub const NF_MD_KITE:         &str = "\u{f1985}";
+    pub const NF_MD_BINARY: &str = "\u{f471}";
+    pub const NF_MD_ARCH: &str = "\u{e266}";
+    pub const NF_MD_KERNEL: &str = "\u{e615}";
+    pub const NF_MD_PICTURE: &str = "\u{f02ef}";
+    pub const NF_MD_DOCUMENT: &str = "\u{f09ee}";
+    pub const NF_MD_PUBLIC: &str = "\u{f151f}";
+    pub const NF_MD_TEMP: &str = "\u{f0403}";
+    pub const NF_MD_SSH: &str = "\u{f12c0}";
+    pub const NF_MD_RAM: &str = "\u{f0e4}";
+    pub const NF_MD_KITE: &str = "\u{f1985}";
 
-    pub const NF_PLE_LEFT_HARD:   &str = "\u{e0b0}";
-    pub const NF_PLE_RIGHT_HARD:  &str = "\u{e0b2}";
-    pub const NF_PLE_LEFT_SOFT:   &str = "\u{e0b1}";
-    pub const NF_PLE_RIGHT_SOFT:  &str = "\u{e0b3}";
-    pub const NF_PLE_LEFT_ROUND:  &str = "\u{e0b6}";
+    pub const NF_PLE_LEFT_HARD: &str = "\u{e0b0}";
+    pub const NF_PLE_RIGHT_HARD: &str = "\u{e0b2}";
+    pub const NF_PLE_LEFT_SOFT: &str = "\u{e0b1}";
+    pub const NF_PLE_RIGHT_SOFT: &str = "\u{e0b3}";
+    pub const NF_PLE_LEFT_ROUND: &str = "\u{e0b6}";
     pub const NF_PLE_RIGHT_ROUND: &str = "\u{e0b4}";
 
-    pub const DEGREE_SIGN:        &str = "\u{00b0}";
-    pub const BOX_HORIZONTAL:     char = '\u{2500}';
+    pub const DEGREE_SIGN: &str = "\u{00b0}";
+    pub const BOX_HORIZONTAL: char = '\u{2500}';
 }

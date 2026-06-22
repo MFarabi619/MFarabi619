@@ -2,7 +2,7 @@ patches:
   # ===== xiao =====
 
   - path: zephyr/probe-rs.patch
-    sha256sum: 751ba921004e1ae4460b8c419cd72f9d6e2ef9e7e3af2aa365d46d49ea49ad4f
+    sha256sum: ae0a9d54be7b3042dea5607cfd15a53f60b22664dde1e9899f37d737a5661f07
     module: zephyr
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca

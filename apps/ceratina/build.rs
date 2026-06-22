@@ -24,8 +24,8 @@ fn stm32() {
 }
 
 fn esp32() {
-    set_env_default("WIFI_SSID", "");
-    set_env_default("WIFI_PSK", "");
+    set_env_default("WIFI_SSID", "openws");
+    set_env_default("WIFI_PSK", "ithurtswhenip");
     set_env_default("SHELL_USER", "");
     set_env_default("HOSTNAME", "");
 

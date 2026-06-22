@@ -8,44 +8,50 @@ index 2f04d1fe886..6fea660caf5 100644
  include(${ZEPHYR_BASE}/boards/common/openocd.board.cmake)
 +include(${ZEPHYR_BASE}/boards/common/probe-rs.board.cmake)
 diff --git a/scripts/west_commands/runners/probe_rs.py b/scripts/west_commands/runners/probe_rs.py
-index 909f1e28454..7ccfbb18067 100644
+index 909f1e28454..89c88bf2267 100644
 --- a/scripts/west_commands/runners/probe_rs.py
 +++ b/scripts/west_commands/runners/probe_rs.py
-@@ -22,6 +22,7 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
+@@ -22,6 +22,8 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
                   speed=None,
                   connect_under_reset=False,
                   verify=False,
 +                 base_address=None,
++                 gdb_init_file=None,
                   tool_opt=None):
          super().__init__(cfg)
  
-@@ -32,6 +33,7 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
+@@ -32,6 +34,8 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
          self.speed = speed
          self.connect_under_reset = connect_under_reset
          self.verify = verify
 +        self.base_address = base_address
++        self.gdb_init_file = gdb_init_file
  
          self.args = ['--chip', chip]
  
-@@ -89,6 +91,9 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
+@@ -89,6 +93,12 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
                              help='connect under reset')
          parser.add_argument('--verify', action='store_true',
                              help='verify flash after programming')
 +        parser.add_argument('--base-address', type=lambda x: int(x, 0), default=None,
 +                            help='base address for bin file flashing (e.g. 0x20000); '
 +                                 'only applies when --file-type=bin')
++        parser.add_argument('--gdb-init-file', default=None,
++                            help='Path to a GDB init script sourced via -x '
++                                 'when launching gdb for debug/debugserver')
          parser.add_argument('--gdb-host', default=DEFAULT_PROBE_RS_GDB_HOST,
                              help=f'probe-rs gdb host, defaults to {DEFAULT_PROBE_RS_GDB_HOST}')
          parser.add_argument('--gdb-port', type=int, default=DEFAULT_PROBE_RS_GDB_PORT,
-@@ -114,6 +119,7 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
+@@ -114,6 +124,8 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
                                     speed=args.speed,
                                     connect_under_reset=args.connect_under_reset,
                                     verify=args.verify,
 +                                   base_address=args.base_address,
++                                   gdb_init_file=args.gdb_init_file,
                                     gdb_host=args.gdb_host,
                                     gdb_port=args.gdb_port,
                                     tool_opt=args.tool_opt)
-@@ -156,6 +162,8 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
+@@ -156,6 +168,8 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
              flash_file = self.hex_name
              flash_format = 'hex'
  
@@ -54,16 +60,65 @@ index 909f1e28454..7ccfbb18067 100644
          download_args += ['--binary-format', flash_format, flash_file]
  
          self.check_call([self.probe_rs, 'download']
+@@ -167,18 +181,38 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
+ 
+     def do_debug_debugserver(self, command, **kwargs):
+         '''Start GDB server or debug session using probe-rs gdb command.'''
+-        debug_args = ['--gdb-connection-string', f"{self.gdb_host}:{self.gdb_port}"]
+-        if command == 'debug':
+-            if self.gdb_cmd is None:
+-                raise ValueError('Cannot debug; gdb is missing')
+-            debug_args += [self.elf_name]
+-            debug_args += ['--gdb', self.gdb_cmd]
+-        else:
+-            # debugserver mode
+-            self.logger.info(f'probe-rs GDB server running on port {self.gdb_port}')
++        server_args = [self.probe_rs, 'gdb', '--reset-halt'] + self.args + \
++                      ['--gdb-connection-string', f"{self.gdb_host}:{self.gdb_port}"]
+ 
+-        self.check_call_ignore_sigint([self.probe_rs, 'gdb']
+-                        + self.args + debug_args)
++        if command == 'debugserver':
++            self.logger.info(f'probe-rs GDB server running on port {self.gdb_port}')
++            self.check_call_ignore_sigint(server_args)
++            return
++
++        if self.gdb_cmd is None:
++            raise ValueError('Cannot debug; gdb is missing')
++
++        # Spawn gdb ourselves instead of using probe-rs gdb --gdb, so that
++        # --gdb-init-file (-x) and any future trailing gdb args don't get
++        # mangled by probe-rs's apply_config_preset pushing preset entries
++        # past the `--` separator into [GDB ARGS].
++        import subprocess
++        server = subprocess.Popen(server_args,
++                                  stdout=subprocess.DEVNULL,
++                                  stderr=subprocess.DEVNULL)
++        try:
++            gdb_cmd = [self.gdb_cmd,
++                       '-ex', f'target remote {self.gdb_host}:{self.gdb_port}',
++                       self.elf_name]
++            if self.gdb_init_file is not None:
++                gdb_cmd += ['-x', self.gdb_init_file]
++            self.check_call_ignore_sigint(gdb_cmd)
++        finally:
++            server.terminate()
++            try:
++                server.wait(timeout=2)
++            except subprocess.TimeoutExpired:
++                server.kill()
+ 
+     def do_attach(self, **kwargs):
+         '''Attach to RTT logging using probe-rs attach command.'''
 diff --git a/soc/espressif/common/CMakeLists.txt b/soc/espressif/common/CMakeLists.txt
-index d8508e663cb..5cd535e17f6 100644
+index d8508e663cb..ba3623fd3bc 100644
 --- a/soc/espressif/common/CMakeLists.txt
 +++ b/soc/espressif/common/CMakeLists.txt
-@@ -106,8 +106,18 @@ board_runner_args(esp32 "--esp-flash-size=${esptoolpy_flashsize}MB")
+@@ -106,8 +106,17 @@ board_runner_args(esp32 "--esp-flash-size=${esptoolpy_flashsize}MB")
  board_runner_args(esp32 "--esp-flash-freq=${CONFIG_ESPTOOLPY_FLASHFREQ}")
  board_runner_args(esp32 "--esp-flash-mode=${CONFIG_ESPTOOLPY_FLASHMODE}")
  board_runner_args(esp32 "--esp-idf-path=${ESP_IDF_PATH}")
 +board_runner_args(esp32 "--esp-skip-flashed")
-+board_runner_args(esp32 "--esp-diff")
  board_finalize_runner_args(esp32 "--esp-monitor-baud=${monitor_baud}")
  
 +board_runner_args(probe-rs

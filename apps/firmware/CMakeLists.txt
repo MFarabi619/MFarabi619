@@ -12,6 +12,7 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_LIST_DIR}/rust.conf
   ${CMAKE_CURRENT_LIST_DIR}/kernel.conf
   ${CMAKE_CURRENT_LIST_DIR}/log.conf
+  ${CMAKE_CURRENT_LIST_DIR}/rtt.conf
   ${CMAKE_CURRENT_LIST_DIR}/programs/shell.conf
   ${CMAKE_CURRENT_LIST_DIR}/programs/hwinfo.conf
 )
@@ -34,7 +35,10 @@ function(app_set_runner_args)
   set_property(GLOBAL PROPERTY APP_RUNNER_ARGS_DONE TRUE)
 
   if(BOARD MATCHES "^esp32s3_devkitc")
-    board_runner_args(probe-rs "-O=--preset=esp32s3_devkitc")
+    board_runner_args(probe-rs
+      "-O=--preset=esp32s3_devkitc"
+      "--gdb-init-file=${APPLICATION_SOURCE_DIR}/.gdbinit"
+    )
   endif()
 
   if(BOARD MATCHES "^walter")

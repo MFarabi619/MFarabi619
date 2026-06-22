@@ -41,10 +41,14 @@ opt-level = "s"
 
 [profile.release]
 debug = 2         # full debug symbols — adds to binary size, enable for profiling
-lto = "fat"
-codegen-units = 1 # LLVM can perform better optimizations using a single thread
-# opt-level = 3          # max speed — produces 30MB WASM, bad for firmware flash too
-opt-level = "z"        # min size — halves WASM (~15MB), better for ESP32 flash. all targets are IO-bound.
+# Relaxed for debugger usability — original size-optimized values commented out below.
+# lto = "fat"
+# codegen-units = 1 # LLVM can perform better optimizations using a single thread
+# opt-level = "z"   # min size — halves WASM (~15MB), better for ESP32 flash. all targets are IO-bound.
+# opt-level = 3     # max speed — produces 30MB WASM, bad for firmware flash too
+lto = false           # was "fat" — inlining destroys stack frames for debugger
+codegen-units = 1     # was 16    — fewer units = less DWARF duplication for probe-rs; lto=false still keeps fn boundaries at link
+opt-level = 1         # was "z"   — keep some opts but preserve variable visibility for `info locals`
 incremental = false
 overflow-checks = true # was false — silent integer wrapping is dangerous for sensor math
 # debug-assertions = false  # already the default for release
