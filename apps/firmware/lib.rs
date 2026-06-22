@@ -106,4 +106,6 @@ extern "C" fn rust_main() {
             Err(e) => warn!("boot confirm: {e}"),
         }
     }
+
+    try_init!("shell" => shell::initialize());
 }

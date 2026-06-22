@@ -50,7 +50,7 @@
       # "ferron" # rust-based caddy-like web server
       "netscanner"
       "u-boot-tools"
-      # "espressif/eim/eim"
+      "espressif/eim/eim"
       # "renode/tap/renode-nightly"
     ];
 

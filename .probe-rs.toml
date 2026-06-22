@@ -1,11 +1,10 @@
 [presets.default]
-speed = 40000
 chip = "esp32s3"
 protocol = "jtag"
 preverify = true
 # binary-format = "bin"
 # base-address = 0x20000
-# always-print-stacktrace = true
+always-print-stacktrace = true
 probe = "303a:1001:DC:B4:D9:0C:5E:F8"
 # idf-partition-table = "firmware/boards/esp32s3.partitions.csv"
 # log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
@@ -30,6 +29,10 @@ probe = "303a:1001:CC:BA:97:16:2B:68"
 preverify = true
 chip = "stm32h723zg"
 always-print-stacktrace = true
+
+[presets.walter]
+preverify = true
+probe = "303a:1001:D0:CF:13:54:27:18"
 
 # [server]
 # port = 8443

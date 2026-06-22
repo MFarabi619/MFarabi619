@@ -13,6 +13,7 @@ endif()
 set(_esp32s3_bundle
   "${CMAKE_CURRENT_LIST_DIR}/mcumgr.conf"
 
+  "${CMAKE_CURRENT_LIST_DIR}/programs/gpio.conf"
   "${CMAKE_CURRENT_LIST_DIR}/programs/thread_analyzer.conf"
 
   "${CMAKE_CURRENT_LIST_DIR}/debug.conf"
@@ -39,8 +40,6 @@ set(_esp32s3_bundle
   "${CMAKE_CURRENT_LIST_DIR}/networking/sntp.conf"
 
   "${CMAKE_CURRENT_LIST_DIR}/services/mcumgr.conf"
-
-  "${CMAKE_CURRENT_LIST_DIR}/programs/gpio.conf"
 )
 
 if(BOARD MATCHES "^walter")

@@ -1,0 +1,45 @@
+[default.probe]
+protocol = "Jtag"
+usb_vid = "303a"
+usb_pid = "1001"
+serial = "D0:CF:13:54:27:18"
+
+[default.flashing]
+verify = true
+enabled = false
+preverify = true
+disable_double_buffering = false
+flash_layout_output_path = "out.svg"
+
+[default.reset]
+enabled = true
+halt_afterwards = false
+
+[default.general]
+chip = "esp32s3"
+
+[default.rtt]
+enabled = true
+timeout = 3000
+log_enabled = false
+log_path = "rtt.log"
+# up_channels = [
+#     { channel = 0, mode = "BlockIfFull", format = "String", socket = "127.0.0.1:19021" },
+# ]
+
+# up_channels = [
+#     { channel = 0, mode = "BlockIfFull", format = "Defmt", show_location = true },
+# ]
+
+# down_channels = [
+#     { channel = 0, mode = "BlockIfFull" },
+# ]
+
+# tabs = [
+#     # { up_channel = 0, down_channel = 0, name = "My channel" },
+#     # { up_channel = 1, hide = true },
+# ]
+
+[default.gdb]
+enabled = false
+gdb_connection_string = "127.0.0.1:1337"

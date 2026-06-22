@@ -12,7 +12,6 @@ list(APPEND EXTRA_CONF_FILE
   ${CMAKE_CURRENT_LIST_DIR}/rust.conf
   ${CMAKE_CURRENT_LIST_DIR}/kernel.conf
   ${CMAKE_CURRENT_LIST_DIR}/log.conf
-  ${CMAKE_CURRENT_LIST_DIR}/rtt.conf
   ${CMAKE_CURRENT_LIST_DIR}/programs/shell.conf
   ${CMAKE_CURRENT_LIST_DIR}/programs/hwinfo.conf
 )
@@ -56,7 +55,7 @@ endfunction()
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(firmware)
 
-if(BOARD MATCHES "^esp32s3_devkitc")
+if(BOARD MATCHES "^(esp32s3_devkitc|xiao_esp32s3|walter)")
   set_property(TARGET runners_yaml_props_target APPEND_STRING
     PROPERTY yaml_contents "flash-runner: probe-rs\n")
 endif()
