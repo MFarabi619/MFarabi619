@@ -47,6 +47,7 @@
       "nemu"
       "SDL2"
       "ollama"
+      "libgcrypt"
       # "ferron" # rust-based caddy-like web server
       "netscanner"
       "u-boot-tools"
