@@ -33,13 +33,8 @@ function(app_set_runner_args)
   endif()
   set_property(GLOBAL PROPERTY APP_RUNNER_ARGS_DONE TRUE)
 
-  if(BOARD MATCHES "^xiao_esp32s3")
-    board_runner_args(probe-rs
-      "--chip" "esp32s3"
-      "--protocol" "jtag"
-      "--file-type" "bin"
-      "--base-address=0x20000"
-    )
+  if(BOARD MATCHES "^esp32s3_devkitc")
+    board_runner_args(probe-rs "-O=--preset=esp32s3_devkitc")
   endif()
 
   if(BOARD MATCHES "^walter")
@@ -50,12 +45,17 @@ function(app_set_runner_args)
     set(_esp_device "hwgrep://DC:B4:D9:0C:5E:F8")
   endif()
   if(_esp_device)
-    board_runner_args(esp32 "--esp-device=${_esp_device}" "--esp-skip-flashed" "--esp-diff")
+    board_runner_args(esp32 "--esp-device=${_esp_device}")
   endif()
 endfunction()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(firmware)
+
+if(BOARD MATCHES "^esp32s3_devkitc")
+  set_property(TARGET runners_yaml_props_target APPEND_STRING
+    PROPERTY yaml_contents "flash-runner: probe-rs\n")
+endif()
 
 if(CONFIG_FILE_SYSTEM AND CONFIG_ZTEST_FANCY)
   target_sources(app PRIVATE filesystems/tests.c)

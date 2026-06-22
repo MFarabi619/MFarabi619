@@ -9,7 +9,7 @@ base = zephyr
 pristine   = auto
 guess-dir  = runners
 board      = qemu_riscv32
-# dir-fmt  = build/{board}     # disabled: one shared build/ keeps cargo + clangd paths board-agnostic
+# dir-fmt  = build/{board}
 # cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
 [flash]

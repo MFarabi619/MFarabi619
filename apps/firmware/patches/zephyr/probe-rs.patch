@@ -54,3 +54,26 @@ index 909f1e28454..7ccfbb18067 100644
          download_args += ['--binary-format', flash_format, flash_file]
  
          self.check_call([self.probe_rs, 'download']
+diff --git a/soc/espressif/common/CMakeLists.txt b/soc/espressif/common/CMakeLists.txt
+index d8508e663cb..5cd535e17f6 100644
+--- a/soc/espressif/common/CMakeLists.txt
++++ b/soc/espressif/common/CMakeLists.txt
+@@ -106,8 +106,18 @@ board_runner_args(esp32 "--esp-flash-size=${esptoolpy_flashsize}MB")
+ board_runner_args(esp32 "--esp-flash-freq=${CONFIG_ESPTOOLPY_FLASHFREQ}")
+ board_runner_args(esp32 "--esp-flash-mode=${CONFIG_ESPTOOLPY_FLASHMODE}")
+ board_runner_args(esp32 "--esp-idf-path=${ESP_IDF_PATH}")
++board_runner_args(esp32 "--esp-skip-flashed")
++board_runner_args(esp32 "--esp-diff")
+ board_finalize_runner_args(esp32 "--esp-monitor-baud=${monitor_baud}")
+ 
++board_runner_args(probe-rs
++  "--chip" "${CONFIG_SOC}"
++  "--protocol" "jtag"
++  "--file-type" "bin"
++  "--base-address=${image_off}"
++)
++board_finalize_runner_args(probe-rs)
++
+ message(STATUS "Image partition address: ${image_off}")
+ 
+ # Look for cross references between bootloader sections
