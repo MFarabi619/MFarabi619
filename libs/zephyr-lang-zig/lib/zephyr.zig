@@ -1,6 +1,7 @@
 const std = @import("std");
 const build_config = @import("build_config");
 const timing = @import("timing");
+pub const sys = @import("sys");
 
 pub const TICKS_PER_SEC: i64 = build_config.ticks_per_sec;
 
@@ -50,58 +51,52 @@ pub const Error = error{
     Unknown,
 };
 
-/// Translate a negative Zephyr/Linux errno into a typed error. Non-negative
-/// return codes are success.
+/// Translate a negative Zephyr errno into a typed error. Non-negative is success.
 pub fn checkError(rc: c_int) Error!void {
     if (rc >= 0) return;
     return switch (-rc) {
-        1 => error.NotPermitted,
-        2 => error.NotFound,
-        5 => error.IoError,
-        11 => error.TryAgain,
-        12 => error.NoMemory,
-        16 => error.Busy,
-        19 => error.NoDevice,
-        22 => error.InvalidArg,
-        38 => error.NotImplemented,
-        107 => error.NotConnected,
-        110 => error.TimedOut,
-        114 => error.AlreadyInProgress,
+        sys.EPERM => error.NotPermitted,
+        sys.ENOENT => error.NotFound,
+        sys.EIO => error.IoError,
+        sys.EAGAIN => error.TryAgain,
+        sys.ENOMEM => error.NoMemory,
+        sys.EBUSY => error.Busy,
+        sys.ENODEV => error.NoDevice,
+        sys.EINVAL => error.InvalidArg,
+        sys.ENOSYS => error.NotImplemented,
+        sys.ETIMEDOUT => error.TimedOut,
+        sys.ENOTCONN => error.NotConnected,
+        sys.EALREADY => error.AlreadyInProgress,
         else => error.Unknown,
     };
 }
-
-extern fn z_impl_k_sleep(timeout: Timeout) i32;
-extern fn z_impl_k_uptime_ticks() i64;
-extern fn zig_cycle_get_32() u32;
-extern fn zig_cycle_hz() u32;
 
 /// 32-bit CPU cycle counter. Wraps every (2^32 / cycleHz()) seconds —
 /// at typical clock rates that's a few seconds, so it's only useful for
 /// short interval measurements with wrapping subtraction.
 pub fn cycleGet32() u32 {
-    return zig_cycle_get_32();
+    return sys.sys_clock_cycle_get_32();
 }
 
 pub fn cycleHz() u32 {
-    return zig_cycle_hz();
+    return sys.sys_clock_hw_cycles_per_sec();
 }
 
 pub fn sleepMs(ms: i64) Error!void {
-    const remaining = z_impl_k_sleep(Timeout.fromMs(ms));
+    const timeout = Timeout.fromMs(ms);
+    const remaining = sys.z_impl_k_sleep(@bitCast(timeout));
     if (remaining != 0) return error.Interrupted;
 }
 
 pub fn uptimeMs() i64 {
-    return timing.ticks_to_ms(z_impl_k_uptime_ticks(), TICKS_PER_SEC);
+    return timing.ticks_to_ms(sys.z_impl_k_uptime_ticks(), TICKS_PER_SEC);
 }
 
 extern fn printk(fmt: [*:0]const u8, ...) void;
 
 const print_buffer_size = 128;
 
-// Format with std.fmt then pass through "%s" so '%' in user data isn't
-// reinterpreted as a printk format specifier.
+// Format via std.fmt then route through "%s" so '%' in user data isn't reinterpreted.
 pub fn print(comptime fmt: []const u8, args: anytype) void {
     var buf: [print_buffer_size]u8 = undefined;
     const formatted = std.fmt.bufPrintZ(&buf, fmt, args) catch {
@@ -130,14 +125,12 @@ pub const bdd = struct {
     }
 };
 
-extern fn zig_log_err(msg: [*:0]const u8) void;
-extern fn zig_log_warn(msg: [*:0]const u8) void;
-extern fn zig_log_info(msg: [*:0]const u8) void;
-extern fn zig_log_debug(msg: [*:0]const u8) void;
+extern fn log_err(msg: [*:0]const u8) void;
+extern fn log_warn(msg: [*:0]const u8) void;
+extern fn log_info(msg: [*:0]const u8) void;
+extern fn log_debug(msg: [*:0]const u8) void;
 
-/// Wire as `std.options.logFn`. Routes `std.log.scoped(.tag).info(...)`
-/// through Zephyr's LOG_* macros. Requires C bridge functions
-/// zig_log_err/warn/info/debug to be linked in.
+/// Wire as `std.options.logFn` to route `std.log` through Zephyr's LOG_* macros.
 pub fn logFn(
     comptime level: std.log.Level,
     comptime scope: @TypeOf(.enum_literal),
@@ -148,80 +141,35 @@ pub fn logFn(
     const prefix = "[" ++ @tagName(scope) ++ "] ";
     const formatted = std.fmt.bufPrintZ(&buf, prefix ++ fmt, args) catch return;
     switch (level) {
-        .err => zig_log_err(formatted.ptr),
-        .warn => zig_log_warn(formatted.ptr),
-        .info => zig_log_info(formatted.ptr),
-        .debug => zig_log_debug(formatted.ptr),
+        .err => log_err(formatted.ptr),
+        .warn => log_warn(formatted.ptr),
+        .info => log_info(formatted.ptr),
+        .debug => log_debug(formatted.ptr),
     }
 }
 
-extern fn k_aligned_alloc(alignment: usize, size: usize) ?*anyopaque;
-extern fn k_free(ptr: ?*anyopaque) void;
-
-pub const KMallocAllocator = struct {
-    pub fn allocator(self: *KMallocAllocator) std.mem.Allocator {
-        return .{
-            .ptr = self,
-            .vtable = &.{
-                .alloc = alloc,
-                .resize = resize,
-                .remap = remap,
-                .free = free,
-            },
-        };
-    }
-
-    fn alloc(_: *anyopaque, len: usize, alignment: std.mem.Alignment, _: usize) ?[*]u8 {
-        return @ptrCast(k_aligned_alloc(alignment.toByteUnits(), len));
-    }
-
-    fn resize(_: *anyopaque, buf: []u8, _: std.mem.Alignment, new_len: usize, _: usize) bool {
-        return new_len <= buf.len;
-    }
-
-    fn remap(_: *anyopaque, buf: []u8, alignment: std.mem.Alignment, new_len: usize, _: usize) ?[*]u8 {
-        const new_ptr = k_aligned_alloc(alignment.toByteUnits(), new_len) orelse return null;
-        const copy_len = @min(buf.len, new_len);
-        @memcpy(@as([*]u8, @ptrCast(new_ptr))[0..copy_len], buf[0..copy_len]);
-        k_free(buf.ptr);
-        return @ptrCast(new_ptr);
-    }
-
-    fn free(_: *anyopaque, buf: []u8, _: std.mem.Alignment, _: usize) void {
-        k_free(buf.ptr);
-    }
-};
-
-extern fn z_impl_k_mutex_init(m: *anyopaque) c_int;
-extern fn z_impl_k_mutex_lock(m: *anyopaque, timeout: Timeout) c_int;
-extern fn z_impl_k_mutex_unlock(m: *anyopaque) c_int;
-
 pub const Mutex = struct {
-    handle: *anyopaque,
+    handle: [*c]sys.k_mutex,
 
-    /// Wrap a handle already initialized by C (e.g. K_MUTEX_DEFINE).
     pub fn fromHandle(handle: *anyopaque) Mutex {
-        return .{ .handle = handle };
+        return .{ .handle = @ptrCast(@alignCast(handle)) };
     }
 
-    /// Initialize a fresh k_mutex at the given handle.
     pub fn init(handle: *anyopaque) Error!Mutex {
-        try checkError(z_impl_k_mutex_init(handle));
-        return .{ .handle = handle };
+        const typed: [*c]sys.k_mutex = @ptrCast(@alignCast(handle));
+        try checkError(sys.z_impl_k_mutex_init(typed));
+        return .{ .handle = typed };
     }
 
     pub fn lock(self: Mutex, timeout: Timeout) Error!void {
-        try checkError(z_impl_k_mutex_lock(self.handle, timeout));
+        try checkError(sys.z_impl_k_mutex_lock(self.handle, @bitCast(timeout)));
     }
 
     pub fn unlock(self: Mutex) Error!void {
-        try checkError(z_impl_k_mutex_unlock(self.handle));
+        try checkError(sys.z_impl_k_mutex_unlock(self.handle));
     }
 };
 
-/// ABI-matched mirror of `struct gpio_dt_spec` (port: *const device, pin: u8,
-/// dt_flags: u16). Construct one from a devicetree gpio handle:
-///   const led = GpioDtSpec.fromDt(dt.leds.led_0.gpios);
 pub const GpioDtSpec = extern struct {
     port: *const anyopaque,
     pin: u8,
@@ -236,53 +184,43 @@ pub const GpioDtSpec = extern struct {
     }
 
     pub fn isReady(self: *const GpioDtSpec) bool {
-        return zig_gpio_is_ready_dt(self);
+        return sys.z_impl_device_is_ready(@ptrCast(@alignCast(self.port)));
     }
 
     pub fn configure(self: *const GpioDtSpec, flags: u32) Error!void {
-        try checkError(zig_gpio_pin_configure_dt(self, flags));
+        const combined: u32 = @as(u32, self.dt_flags) | flags;
+        try checkError(sys.z_impl_gpio_pin_configure(@ptrCast(@alignCast(self.port)), self.pin, combined));
     }
 
     pub fn toggle(self: *const GpioDtSpec) Error!void {
-        try checkError(zig_gpio_pin_toggle_dt(self));
+        try checkError(sys.z_impl_gpio_pin_toggle(@ptrCast(@alignCast(self.port)), self.pin));
     }
 };
 
-extern fn zig_gpio_is_ready_dt(spec: *const GpioDtSpec) bool;
-extern fn zig_gpio_pin_configure_dt(spec: *const GpioDtSpec, flags: u32) c_int;
-extern fn zig_gpio_pin_toggle_dt(spec: *const GpioDtSpec) c_int;
-
-/// GPIO_OUTPUT_INACTIVE = GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOGICAL | GPIO_OUTPUT_INIT_LOW
-/// Pulled from gpio.h via translate-c probe; mirrors bit positions 17/18/20.
-pub const GPIO_OUTPUT_INACTIVE: u32 = (1 << 17) | (1 << 18) | (1 << 20);
-
-extern fn z_impl_k_sem_init(s: *anyopaque, initial: c_uint, limit: c_uint) c_int;
-extern fn z_impl_k_sem_take(s: *anyopaque, timeout: Timeout) c_int;
-extern fn z_impl_k_sem_give(s: *anyopaque) void;
-extern fn zig_sem_count(s: *anyopaque) c_uint;
+pub const GPIO_OUTPUT_INACTIVE: u32 = @intCast(sys.GPIO_OUTPUT_INACTIVE);
 
 pub const Semaphore = struct {
-    handle: *anyopaque,
+    handle: [*c]sys.k_sem,
 
-    /// Wrap a handle already initialized by C (e.g. K_SEM_DEFINE).
     pub fn fromHandle(handle: *anyopaque) Semaphore {
-        return .{ .handle = handle };
+        return .{ .handle = @ptrCast(@alignCast(handle)) };
     }
 
     pub fn init(handle: *anyopaque, initial: c_uint, limit: c_uint) Error!Semaphore {
-        try checkError(z_impl_k_sem_init(handle, initial, limit));
-        return .{ .handle = handle };
+        const typed: [*c]sys.k_sem = @ptrCast(@alignCast(handle));
+        try checkError(sys.z_impl_k_sem_init(typed, initial, limit));
+        return .{ .handle = typed };
     }
 
     pub fn take(self: Semaphore, timeout: Timeout) Error!void {
-        try checkError(z_impl_k_sem_take(self.handle, timeout));
+        try checkError(sys.z_impl_k_sem_take(self.handle, @bitCast(timeout)));
     }
 
     pub fn give(self: Semaphore) void {
-        z_impl_k_sem_give(self.handle);
+        sys.z_impl_k_sem_give(self.handle);
     }
 
     pub fn count(self: Semaphore) c_uint {
-        return zig_sem_count(self.handle);
+        return sys.z_impl_k_sem_count_get(self.handle);
     }
 };

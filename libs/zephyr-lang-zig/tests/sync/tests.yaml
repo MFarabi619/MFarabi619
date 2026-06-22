@@ -2,9 +2,11 @@ common:
   harness: ztest
   tags:
     - zephyr_lang_zig
+  extra_conf_files:
+    - ../test.conf
 
 tests:
-  zephyr_lang_zig.timing:
+  zephyr_lang_zig.sync:
     platform_allow:
       - qemu_riscv32
     integration_platforms:

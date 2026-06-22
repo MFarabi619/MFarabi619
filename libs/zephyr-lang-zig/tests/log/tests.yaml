@@ -2,6 +2,8 @@ common:
   harness: ztest
   tags:
     - zephyr_lang_zig
+  extra_conf_files:
+    - ../test.conf
 
 tests:
   zephyr_lang_zig.log:

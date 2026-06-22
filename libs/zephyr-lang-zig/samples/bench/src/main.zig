@@ -41,10 +41,8 @@ fn bench_bufprintz() void {
     _ = std.fmt.bufPrintZ(&buf, "value={d}", .{42}) catch unreachable;
 }
 
-var alloc_state = zephyr.KMallocAllocator{};
-
 fn bench_alloc_free() void {
-    const allocator = alloc_state.allocator();
+    const allocator = std.heap.c_allocator;
     const buf = allocator.alloc(u8, 32) catch return;
     allocator.free(buf);
 }
@@ -63,7 +61,7 @@ export fn main() c_int {
     bench("atomic_increment", 100_000, bench_atomic_increment);
     bench("ring_push_pop", 100_000, bench_ring_push_pop);
     bench("bufPrintZ_fmt", 100_000, bench_bufprintz);
-    bench("kmalloc_free_32B", 10_000, bench_alloc_free);
+    bench("malloc_free_32B", 10_000, bench_alloc_free);
 
     zephyr.print("\n=== bench done ===\n", .{});
     return 0;

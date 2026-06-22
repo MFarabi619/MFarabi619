@@ -80,13 +80,13 @@ Route ``std.log`` through Zephyr's ``LOG_*`` macros:
 Heap
 ----
 
-``zephyr.KMallocAllocator`` is a ``std.mem.Allocator`` over ``k_aligned_alloc``
-/ ``k_free``.  Requires ``CONFIG_HEAP_MEM_POOL_SIZE``.
+Use ``std.heap.c_allocator`` directly — Zephyr's ``CONFIG_COMMON_LIBC_MALLOC``
+routes libc ``malloc``/``free`` to the kernel ``sys_heap``. Pick the arena
+size with ``CONFIG_COMMON_LIBC_MALLOC_ARENA_SIZE``.
 
 .. code-block:: zig
 
-   var state = zephyr.KMallocAllocator{};
-   const allocator = state.allocator();
+   const allocator = std.heap.c_allocator;
 
 Errors
 ------
