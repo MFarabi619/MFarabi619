@@ -1,53 +1,19 @@
-find_program(ZIG_EXECUTABLE zig REQUIRED)
+if("${ARCH}" STREQUAL "xtensa")
+  include(${CMAKE_CURRENT_LIST_DIR}/zig-download.cmake)
+  set(ZIG_EXECUTABLE "${ZIG_BIN}" CACHE FILEPATH "" FORCE)
+else()
+  find_program(ZIG_EXECUTABLE zig REQUIRED)
+endif()
 message(STATUS "zephyr-lang-zig: zig at ${ZIG_EXECUTABLE}")
 
-# add_zig_object(<zephyr-target> <zig-source>
-#                [MODULES name=path [name=path ...]])
-#
-# Compiles <zig-source> with `zig build-obj` using Zephyr's INTERFACE
-# include directories + compile definitions (via the canonical
-# `zephyr_get_*_for_lang` helpers) and a per-target libc paths file
-# (`--libc`) pointing Zig's clang at zephyr-sdk's per-target sysroot.
-# Then adds the resulting object as a source of <zephyr-target>.
-#
-# A `build_config` Zig module is auto-generated and made importable —
-# carries Zephyr Kconfig values that Zig sources can read at comptime
-# (e.g. `@import("build_config").ticks_per_sec`).
-#
-# Additional `-M` modules can be passed via MODULES, in name=path form.
-# Every user module also gets the *other* user modules + build_config
-# in its import table — so a higher-level module like zephyr.zig can
-# `@import("timing")` without the caller spelling out the dep graph.
-# Zig 0.16 forbids @import of files outside the root module's directory
-# tree, so cross-directory file sharing has to go through the module
-# system.
-#
-# The Zig optimization mode comes from CONFIG_ZIG_OPTIMIZE.
 function(add_zig_object zephyr_target zig_source)
   cmake_parse_arguments(ARG "" "" "MODULES" ${ARGN})
 
-  get_filename_component(_bin_dir "${CMAKE_C_COMPILER}" DIRECTORY)
-  get_filename_component(_toolchain_root "${_bin_dir}" DIRECTORY)
-  get_filename_component(_target_triple "${_toolchain_root}" NAME)
-  set(_sysroot_include "${_toolchain_root}/${_target_triple}/include")
-
-  if(NOT EXISTS "${_sysroot_include}")
-    message(FATAL_ERROR
-      "zephyr-lang-zig: derived sysroot include '${_sysroot_include}' does not exist. "
-      "The zephyr-sdk layout assumption (gnu/<triple>/<triple>/include) doesn't "
-      "match this toolchain. Extend zig.cmake with a fallback for your layout.")
-  endif()
-
-  # crt_dir must be non-empty even for build-obj — Zig's libc-paths
-  # parser refuses an empty value for freestanding. We point at the
-  # toolchain lib dir containing crt0.o; we never actually link CRT
-  # (Zephyr provides its own startup).
   set(_libc_txt "${CMAKE_CURRENT_BINARY_DIR}/zig_libc.txt")
-  set(_sysroot_lib "${_toolchain_root}/${_target_triple}/lib")
   file(WRITE "${_libc_txt}"
-    "include_dir=${_sysroot_include}\n"
-    "sys_include_dir=${_sysroot_include}\n"
-    "crt_dir=${_sysroot_lib}\n"
+    "include_dir=${SYSROOT_DIR}/include\n"
+    "sys_include_dir=${SYSROOT_DIR}/include\n"
+    "crt_dir=${SYSROOT_DIR}/lib\n"
     "msvc_lib_dir=\n"
     "kernel32_lib_dir=\n"
     "gcc_dir=\n"
@@ -65,36 +31,17 @@ function(add_zig_object zephyr_target zig_source)
   get_filename_component(src_name "${zig_source}" NAME)
   set(obj_path "${CMAKE_CURRENT_BINARY_DIR}/${src_name}.o")
 
-  # Parse user modules into parallel name+path lists.
   set(_user_mod_names)
   set(_user_mod_paths)
   foreach(_module ${ARG_MODULES})
     if(NOT _module MATCHES "^([^=]+)=(.+)$")
-      message(FATAL_ERROR
-        "add_zig_object: MODULES entry '${_module}' must be 'name=path'")
+      message(FATAL_ERROR "add_zig_object: MODULES entry '${_module}' must be 'name=path'")
     endif()
-    set(_mod_name "${CMAKE_MATCH_1}")
     get_filename_component(_mod_path "${CMAKE_MATCH_2}" ABSOLUTE)
-    # Generated modules (e.g. dt.zig from edt.pickle) don't exist at
-    # configure time but will by the time zig build-obj runs — ninja
-    # sequences through the file dependency. Only flag missing sources
-    # under the source tree.
-    if(NOT EXISTS "${_mod_path}" AND NOT "${_mod_path}" MATCHES "^${CMAKE_BINARY_DIR}")
-      message(FATAL_ERROR
-        "add_zig_object: module '${_mod_name}' path '${_mod_path}' does not exist")
-    endif()
-    list(APPEND _user_mod_names "${_mod_name}")
+    list(APPEND _user_mod_names "${CMAKE_MATCH_1}")
     list(APPEND _user_mod_paths "${_mod_path}")
   endforeach()
 
-  # Build the --dep / -M argument chain. Zig 0.16: each `--dep X`
-  # accumulates onto the next `-M`'s import table; the `-M` then
-  # declares the module.
-  #   Root module: --dep build_config + --dep for each user module
-  #   Each user module: --dep build_config + --dep for every *other*
-  #     user module — lets a higher-level module like zephyr.zig
-  #     `@import("timing")` without callers having to know the dep
-  #     graph. build_config and self are excluded from self-deps.
   set(_root_dep_args --dep build_config)
   foreach(_n IN LISTS _user_mod_names)
     list(APPEND _root_dep_args --dep ${_n})
@@ -122,10 +69,7 @@ function(add_zig_object zephyr_target zig_source)
       -target ${ZIG_TARGET}
       -mcpu=${ZIG_MCPU}
       -O ${CONFIG_ZIG_OPTIMIZE}
-      -fno-PIC
-      -fno-PIE
-      -fno-stack-check
-      -freference-trace
+      -fno-PIC -fno-PIE -fno-stack-check -freference-trace
       -femit-bin=${obj_path}
       --libc ${_libc_txt}
       ${_zephyr_includes}

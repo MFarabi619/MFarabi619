@@ -1,10 +1,7 @@
 const zephyr = @import("zephyr");
 const timing = @import("timing");
 const RingBuffer = @import("ring_buffer").RingBuffer;
-
-extern fn zig_assert_i64_eq(actual: i64, expected: i64) void;
-extern fn zig_assert_true(condition: bool) void;
-extern fn zig_assert_usize_eq(actual: usize, expected: usize) void;
+const assert = @import("test_helpers");
 
 // -- timing --
 
@@ -13,7 +10,7 @@ export fn zig_test_ms_to_ticks_100hz_1000ms() void {
     zephyr.bdd.when("1000ms is converted to ticks");
     zephyr.bdd.then("the result is exactly 100");
 
-    zig_assert_i64_eq(timing.ms_to_ticks(1000, 100), 100);
+    assert.eq(timing.ms_to_ticks(1000, 100), 100);
 }
 
 export fn zig_test_ms_to_ticks_100hz_1ms() void {
@@ -21,7 +18,7 @@ export fn zig_test_ms_to_ticks_100hz_1ms() void {
     zephyr.bdd.when("1ms is converted to ticks");
     zephyr.bdd.then("the result rounds up to 1 (never zero)");
 
-    zig_assert_i64_eq(timing.ms_to_ticks(1, 100), 1);
+    assert.eq(timing.ms_to_ticks(1, 100), 1);
 }
 
 export fn zig_test_ms_to_ticks_100hz_10ms() void {
@@ -29,7 +26,7 @@ export fn zig_test_ms_to_ticks_100hz_10ms() void {
     zephyr.bdd.when("an exact-period 10ms is converted");
     zephyr.bdd.then("the result is exactly 1 tick");
 
-    zig_assert_i64_eq(timing.ms_to_ticks(10, 100), 1);
+    assert.eq(timing.ms_to_ticks(10, 100), 1);
 }
 
 export fn zig_test_ms_to_ticks_100hz_11ms() void {
@@ -37,7 +34,7 @@ export fn zig_test_ms_to_ticks_100hz_11ms() void {
     zephyr.bdd.when("11ms (just over one period) is converted");
     zephyr.bdd.then("the result rounds up to 2 ticks");
 
-    zig_assert_i64_eq(timing.ms_to_ticks(11, 100), 2);
+    assert.eq(timing.ms_to_ticks(11, 100), 2);
 }
 
 export fn zig_test_ms_to_ticks_1000hz() void {
@@ -45,8 +42,8 @@ export fn zig_test_ms_to_ticks_1000hz() void {
     zephyr.bdd.when("1000ms and 1ms are converted");
     zephyr.bdd.then("the results are 1000 and 1 respectively");
 
-    zig_assert_i64_eq(timing.ms_to_ticks(1000, 1000), 1000);
-    zig_assert_i64_eq(timing.ms_to_ticks(1, 1000), 1);
+    assert.eq(timing.ms_to_ticks(1000, 1000), 1000);
+    assert.eq(timing.ms_to_ticks(1, 1000), 1);
 }
 
 export fn zig_test_ticks_to_ms_roundtrip() void {
@@ -54,8 +51,8 @@ export fn zig_test_ticks_to_ms_roundtrip() void {
     zephyr.bdd.when("converted to milliseconds");
     zephyr.bdd.then("the result is exactly 1000ms regardless of rate");
 
-    zig_assert_i64_eq(timing.ticks_to_ms(100, 100), 1000);
-    zig_assert_i64_eq(timing.ticks_to_ms(1024, 1024), 1000);
+    assert.eq(timing.ticks_to_ms(100, 100), 1000);
+    assert.eq(timing.ticks_to_ms(1024, 1024), 1000);
 }
 
 // -- ring_buffer --
@@ -65,15 +62,15 @@ export fn zig_test_ring_buffer_fifo_order() void {
     zephyr.bdd.when("10, 20, 30 are pushed and then popped");
     zephyr.bdd.then("they come out in FIFO order and a fourth pop yields null");
 
-    var rb = RingBuffer(u32, 4){};
-    rb.push(10) catch unreachable;
-    rb.push(20) catch unreachable;
-    rb.push(30) catch unreachable;
-    zig_assert_usize_eq(rb.len(), 3);
-    zig_assert_i64_eq(@intCast(rb.pop().?), 10);
-    zig_assert_i64_eq(@intCast(rb.pop().?), 20);
-    zig_assert_i64_eq(@intCast(rb.pop().?), 30);
-    zig_assert_true(rb.pop() == null);
+    var ring = RingBuffer(u32, 4){};
+    ring.push(10) catch unreachable;
+    ring.push(20) catch unreachable;
+    ring.push(30) catch unreachable;
+    assert.eq(ring.len(), 3);
+    assert.eq(ring.pop().?, 10);
+    assert.eq(ring.pop().?, 20);
+    assert.eq(ring.pop().?, 30);
+    assert.isTrue(ring.pop() == null);
 }
 
 export fn zig_test_ring_buffer_overwrite() void {
@@ -81,12 +78,12 @@ export fn zig_test_ring_buffer_overwrite() void {
     zephyr.bdd.when("pushOverwrite is called with a third value 3");
     zephyr.bdd.then("the oldest entry (1) is returned as the dropped value");
 
-    var rb = RingBuffer(u8, 2){};
-    zig_assert_true(rb.pushOverwrite(1) == null);
-    zig_assert_true(rb.pushOverwrite(2) == null);
-    const dropped = rb.pushOverwrite(3);
-    zig_assert_true(dropped != null);
-    zig_assert_i64_eq(@intCast(dropped.?), 1);
+    var ring = RingBuffer(u8, 2){};
+    assert.isTrue(ring.pushOverwrite(1) == null);
+    assert.isTrue(ring.pushOverwrite(2) == null);
+    const dropped = ring.pushOverwrite(3);
+    assert.isTrue(dropped != null);
+    assert.eq(dropped.?, 1);
 }
 
 export fn zig_test_ring_buffer_full_returns_error() void {
@@ -94,13 +91,13 @@ export fn zig_test_ring_buffer_full_returns_error() void {
     zephyr.bdd.when("plain push (no overwrite) is called");
     zephyr.bdd.then("error.Full is returned");
 
-    var rb = RingBuffer(u8, 2){};
-    rb.push(1) catch unreachable;
-    rb.push(2) catch unreachable;
-    if (rb.push(3)) |_| {
-        zig_assert_true(false);
+    var ring = RingBuffer(u8, 2){};
+    ring.push(1) catch unreachable;
+    ring.push(2) catch unreachable;
+    if (ring.push(3)) |_| {
+        assert.isTrue(false);
     } else |err| {
-        zig_assert_true(err == error.Full);
+        assert.isTrue(err == error.Full);
     }
 }
 
@@ -109,16 +106,16 @@ export fn zig_test_ring_buffer_iterator() void {
     zephyr.bdd.when("the iterator walks all entries");
     zephyr.bdd.then("the sum is 6 and len is unchanged");
 
-    var rb = RingBuffer(u16, 8){};
-    rb.push(1) catch unreachable;
-    rb.push(2) catch unreachable;
-    rb.push(3) catch unreachable;
+    var ring = RingBuffer(u16, 8){};
+    ring.push(1) catch unreachable;
+    ring.push(2) catch unreachable;
+    ring.push(3) catch unreachable;
 
     var sum: u32 = 0;
-    var it = rb.iterate();
+    var it = ring.iterate();
     while (it.next()) |item| {
         sum += item;
     }
-    zig_assert_i64_eq(@intCast(sum), 6);
-    zig_assert_usize_eq(rb.len(), 3);
+    assert.eq(sum, 6);
+    assert.eq(ring.len(), 3);
 }

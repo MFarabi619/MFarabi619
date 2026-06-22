@@ -150,9 +150,11 @@ instead of hanging until twister's timeout.
 BDD-style narration is available as ``zephyr.bdd.given`` /
 ``zephyr.bdd.when`` / ``zephyr.bdd.then`` / ``zephyr.bdd.@"and"`` — Zig
 counterparts to the ``GIVEN`` / ``WHEN`` / ``THEN`` / ``AND`` C macros in
-the fancy module. Each takes a single comptime string (no varargs); the
-function name encodes the BDD phase via ANSI-colored ``[GIVEN]`` /
-``[WHEN]`` / ``[THEN]`` prefixes matching the C macros byte-for-byte.
+the fancy module. Each takes a single ``[*:0]const u8`` (runtime
+null-terminated string), passed through printk's ``%s`` so a stray ``%``
+in user text won't be reinterpreted. The function name encodes the BDD
+phase via ANSI-colored ``[GIVEN]`` / ``[WHEN]`` / ``[THEN]`` prefixes
+matching the C macros byte-for-byte.
 
 .. code-block:: zig
 

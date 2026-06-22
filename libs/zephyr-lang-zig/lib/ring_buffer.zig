@@ -83,85 +83,85 @@ pub fn RingBuffer(comptime T: type, comptime capacity: usize) type {
 }
 
 test "RingBuffer basic push/pop FIFO order" {
-    var rb = RingBuffer(u32, 4){};
-    try testing.expect(rb.isEmpty());
-    try rb.push(10);
-    try rb.push(20);
-    try rb.push(30);
-    try testing.expectEqual(@as(usize, 3), rb.len());
-    try testing.expectEqual(@as(?u32, 10), rb.pop());
-    try testing.expectEqual(@as(?u32, 20), rb.pop());
-    try testing.expectEqual(@as(?u32, 30), rb.pop());
-    try testing.expectEqual(@as(?u32, null), rb.pop());
+    var ring = RingBuffer(u32, 4){};
+    try testing.expect(ring.isEmpty());
+    try ring.push(10);
+    try ring.push(20);
+    try ring.push(30);
+    try testing.expectEqual(@as(usize, 3), ring.len());
+    try testing.expectEqual(@as(?u32, 10), ring.pop());
+    try testing.expectEqual(@as(?u32, 20), ring.pop());
+    try testing.expectEqual(@as(?u32, 30), ring.pop());
+    try testing.expectEqual(@as(?u32, null), ring.pop());
 }
 
 test "RingBuffer rejects when full" {
-    var rb = RingBuffer(u8, 2){};
-    try rb.push(1);
-    try rb.push(2);
-    try testing.expect(rb.isFull());
-    try testing.expectError(error.Full, rb.push(3));
+    var ring = RingBuffer(u8, 2){};
+    try ring.push(1);
+    try ring.push(2);
+    try testing.expect(ring.isFull());
+    try testing.expectError(error.Full, ring.push(3));
 }
 
 test "RingBuffer wraps cleanly over many cycles" {
-    var rb = RingBuffer(u8, 4){};
+    var ring = RingBuffer(u8, 4){};
     var i: u8 = 0;
     while (i < 100) : (i += 1) {
-        try rb.push(i);
-        try testing.expectEqual(@as(?u8, i), rb.pop());
+        try ring.push(i);
+        try testing.expectEqual(@as(?u8, i), ring.pop());
     }
 }
 
 test "RingBuffer pushOverwrite drops oldest" {
-    var rb = RingBuffer(u8, 2){};
-    try testing.expectEqual(@as(?u8, null), rb.pushOverwrite(1));
-    try testing.expectEqual(@as(?u8, null), rb.pushOverwrite(2));
-    try testing.expectEqual(@as(?u8, 1), rb.pushOverwrite(3));
-    try testing.expectEqual(@as(?u8, 2), rb.pop());
-    try testing.expectEqual(@as(?u8, 3), rb.pop());
+    var ring = RingBuffer(u8, 2){};
+    try testing.expectEqual(@as(?u8, null), ring.pushOverwrite(1));
+    try testing.expectEqual(@as(?u8, null), ring.pushOverwrite(2));
+    try testing.expectEqual(@as(?u8, 1), ring.pushOverwrite(3));
+    try testing.expectEqual(@as(?u8, 2), ring.pop());
+    try testing.expectEqual(@as(?u8, 3), ring.pop());
 }
 
 test "RingBuffer peek doesn't consume" {
-    var rb = RingBuffer(u16, 4){};
-    try rb.push(42);
-    try testing.expectEqual(@as(?u16, 42), rb.peek());
-    try testing.expectEqual(@as(?u16, 42), rb.peek());
-    try testing.expectEqual(@as(usize, 1), rb.len());
+    var ring = RingBuffer(u16, 4){};
+    try ring.push(42);
+    try testing.expectEqual(@as(?u16, 42), ring.peek());
+    try testing.expectEqual(@as(?u16, 42), ring.peek());
+    try testing.expectEqual(@as(usize, 1), ring.len());
 }
 
 test "RingBuffer iterator visits in FIFO order without consuming" {
-    var rb = RingBuffer(u8, 8){};
-    try rb.push(1);
-    try rb.push(2);
-    try rb.push(3);
+    var ring = RingBuffer(u8, 8){};
+    try ring.push(1);
+    try ring.push(2);
+    try ring.push(3);
 
     var sum: u32 = 0;
     var count: u32 = 0;
-    var it = rb.iterate();
+    var it = ring.iterate();
     while (it.next()) |item| {
         sum += item;
         count += 1;
     }
     try testing.expectEqual(@as(u32, 3), count);
     try testing.expectEqual(@as(u32, 6), sum);
-    try testing.expectEqual(@as(usize, 3), rb.len());
+    try testing.expectEqual(@as(usize, 3), ring.len());
 }
 
 test "RingBuffer clear" {
-    var rb = RingBuffer(u8, 4){};
-    try rb.push(1);
-    try rb.push(2);
-    rb.clear();
-    try testing.expect(rb.isEmpty());
-    try testing.expectEqual(@as(?u8, null), rb.pop());
+    var ring = RingBuffer(u8, 4){};
+    try ring.push(1);
+    try ring.push(2);
+    ring.clear();
+    try testing.expect(ring.isEmpty());
+    try testing.expectEqual(@as(?u8, null), ring.pop());
 }
 
 test "RingBuffer over composite type" {
     const Event = struct { id: u32, payload: u64 };
-    var rb = RingBuffer(Event, 4){};
-    try rb.push(.{ .id = 1, .payload = 100 });
-    try rb.push(.{ .id = 2, .payload = 200 });
-    const first = rb.pop().?;
+    var ring = RingBuffer(Event, 4){};
+    try ring.push(.{ .id = 1, .payload = 100 });
+    try ring.push(.{ .id = 2, .payload = 200 });
+    const first = ring.pop().?;
     try testing.expectEqual(@as(u32, 1), first.id);
     try testing.expectEqual(@as(u64, 100), first.payload);
 }

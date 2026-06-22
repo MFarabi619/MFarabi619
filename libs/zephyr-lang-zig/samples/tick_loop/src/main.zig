@@ -1,3 +1,4 @@
+const std = @import("std");
 const builtin = @import("builtin");
 const zephyr = @import("zephyr");
 const RingBuffer = @import("ring_buffer").RingBuffer;
@@ -16,7 +17,7 @@ export fn main() c_int {
     zephyr.print("tick_loop on {s}\n", .{@tagName(builtin.cpu.arch)});
 
     var events = RingBuffer(TickEvent, 8){};
-    var ticks = zephyr.AtomicCounter{};
+    var ticks = std.atomic.Value(u32).init(0);
     var phase: Phase = .booting;
 
     while (true) {
@@ -25,7 +26,7 @@ export fn main() c_int {
             continue;
         };
 
-        const count = ticks.increment() + 1;
+        const count = ticks.fetchAdd(1, .seq_cst) + 1;
         phase = .{ .running = count };
 
         if (events.pushOverwrite(.{ .count = count, .uptime_ms = zephyr.uptimeMs() })) |dropped| {

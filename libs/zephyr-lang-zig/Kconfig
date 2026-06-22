@@ -8,6 +8,7 @@ menu "Zig Language Support"
 config ZIG_SUPPORTED
 	bool
 	default y if RISCV && !RISCV_ISA_RV32E && !RISCV_ISA_RV128I
+	default y if XTENSA && SOC_FAMILY_ESPRESSIF_ESP32
 	help
 	  Selected for platforms that have support for Zig.
 

@@ -23,10 +23,10 @@ fn bench(comptime name: []const u8, iterations: u32, comptime body: anytype) voi
     });
 }
 
-var counter = zephyr.AtomicCounter{};
+var counter = std.atomic.Value(u32).init(0);
 
 fn bench_atomic_increment() void {
-    _ = counter.increment();
+    _ = counter.fetchAdd(1, .seq_cst);
 }
 
 var ring: RingBuffer(u32, 16) = .{};

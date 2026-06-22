@@ -1,6 +1,6 @@
 const std = @import("std");
 const zephyr = @import("zephyr");
-const t = @import("test_helpers");
+const assert = @import("test_helpers");
 
 extern fn get_test_mutex() *anyopaque;
 extern fn get_test_sem() *anyopaque;
@@ -22,10 +22,10 @@ export fn zig_test_mutex_lock_unlock() void {
     zephyr.bdd.when("lock(.forever) then unlock are called in sequence");
     zephyr.bdd.then("both calls return without error");
 
-    const m = zephyr.Mutex.fromHandle(get_test_mutex());
-    m.lock(zephyr.Timeout.forever()) catch t.zig_assert_unreachable();
-    m.unlock() catch t.zig_assert_unreachable();
-    t.zig_assert_true(true);
+    const mutex = zephyr.Mutex.fromHandle(get_test_mutex());
+    mutex.lock(zephyr.Timeout.forever()) catch assert.unreached();
+    mutex.unlock() catch assert.unreached();
+    assert.isTrue(true);
 }
 
 export fn zig_test_mutex_reentrant() void {
@@ -33,12 +33,12 @@ export fn zig_test_mutex_reentrant() void {
     zephyr.bdd.when("the same thread locks twice and unlocks twice");
     zephyr.bdd.then("all four calls succeed");
 
-    const m = zephyr.Mutex.fromHandle(get_test_mutex());
-    m.lock(zephyr.Timeout.forever()) catch t.zig_assert_unreachable();
-    m.lock(zephyr.Timeout.forever()) catch t.zig_assert_unreachable();
-    m.unlock() catch t.zig_assert_unreachable();
-    m.unlock() catch t.zig_assert_unreachable();
-    t.zig_assert_true(true);
+    const mutex = zephyr.Mutex.fromHandle(get_test_mutex());
+    mutex.lock(zephyr.Timeout.forever()) catch assert.unreached();
+    mutex.lock(zephyr.Timeout.forever()) catch assert.unreached();
+    mutex.unlock() catch assert.unreached();
+    mutex.unlock() catch assert.unreached();
+    assert.isTrue(true);
 }
 
 export fn zig_test_mutex_runtime_init() void {
@@ -46,12 +46,12 @@ export fn zig_test_mutex_runtime_init() void {
     zephyr.bdd.when("Mutex.init initializes it at runtime");
     zephyr.bdd.then("lock with a 100ms timeout succeeds");
 
-    const m = zephyr.Mutex.init(get_runtime_mutex()) catch {
-        t.zig_assert_unreachable();
+    const mutex = zephyr.Mutex.init(get_runtime_mutex()) catch {
+        assert.unreached();
     };
-    m.lock(zephyr.Timeout.fromMs(100)) catch t.zig_assert_unreachable();
-    m.unlock() catch t.zig_assert_unreachable();
-    t.zig_assert_true(true);
+    mutex.lock(zephyr.Timeout.fromMs(100)) catch assert.unreached();
+    mutex.unlock() catch assert.unreached();
+    assert.isTrue(true);
 }
 
 export fn zig_test_sem_take_give() void {
@@ -59,10 +59,10 @@ export fn zig_test_sem_take_give() void {
     zephyr.bdd.when("we give then immediately take");
     zephyr.bdd.then("count returns to 0");
 
-    const s = zephyr.Semaphore.fromHandle(get_test_sem());
-    s.give();
-    s.take(zephyr.Timeout.forever()) catch t.zig_assert_unreachable();
-    t.zig_assert_u32_eq(s.count(), 0);
+    const sem = zephyr.Semaphore.fromHandle(get_test_sem());
+    sem.give();
+    sem.take(zephyr.Timeout.forever()) catch assert.unreached();
+    assert.eq(sem.count(), 0);
 }
 
 export fn zig_test_sem_take_no_wait_empty() void {
@@ -70,12 +70,12 @@ export fn zig_test_sem_take_no_wait_empty() void {
     zephyr.bdd.when("take is called with a .noWait timeout");
     zephyr.bdd.then("it returns either Busy or TryAgain");
 
-    const s = zephyr.Semaphore.fromHandle(get_test_sem());
-    s.take(zephyr.Timeout.noWait()) catch |err| {
-        t.zig_assert_true(err == zephyr.Error.Busy or err == zephyr.Error.TryAgain);
+    const sem = zephyr.Semaphore.fromHandle(get_test_sem());
+    sem.take(zephyr.Timeout.noWait()) catch |err| {
+        assert.isTrue(err == zephyr.Error.Busy or err == zephyr.Error.TryAgain);
         return;
     };
-    t.zig_assert_unreachable();
+    assert.unreached();
 }
 
 export fn zig_test_sem_count() void {
@@ -83,11 +83,11 @@ export fn zig_test_sem_count() void {
     zephyr.bdd.when("give is called three times in a row");
     zephyr.bdd.then("count is 3");
 
-    const s = zephyr.Semaphore.fromHandle(get_test_sem());
-    s.give();
-    s.give();
-    s.give();
-    t.zig_assert_u32_eq(s.count(), 3);
+    const sem = zephyr.Semaphore.fromHandle(get_test_sem());
+    sem.give();
+    sem.give();
+    sem.give();
+    assert.eq(sem.count(), 3);
 }
 
 export fn zig_test_sem_runtime_init() void {
@@ -95,13 +95,13 @@ export fn zig_test_sem_runtime_init() void {
     zephyr.bdd.when("Semaphore.init creates it with initial=2 limit=5");
     zephyr.bdd.then("count is 2 and two takes drain it to 0");
 
-    const s = zephyr.Semaphore.init(get_runtime_sem(), 2, 5) catch {
-        t.zig_assert_unreachable();
+    const sem = zephyr.Semaphore.init(get_runtime_sem(), 2, 5) catch {
+        assert.unreached();
     };
-    t.zig_assert_u32_eq(s.count(), 2);
-    s.take(zephyr.Timeout.noWait()) catch t.zig_assert_unreachable();
-    s.take(zephyr.Timeout.noWait()) catch t.zig_assert_unreachable();
-    t.zig_assert_u32_eq(s.count(), 0);
+    assert.eq(sem.count(), 2);
+    sem.take(zephyr.Timeout.noWait()) catch assert.unreached();
+    sem.take(zephyr.Timeout.noWait()) catch assert.unreached();
+    assert.eq(sem.count(), 0);
 }
 
 export fn zig_test_check_error_success() void {
@@ -109,9 +109,9 @@ export fn zig_test_check_error_success() void {
     zephyr.bdd.when("non-negative return codes (0 and 7) are passed");
     zephyr.bdd.then("no error is raised");
 
-    zephyr.checkError(0) catch t.zig_assert_unreachable();
-    zephyr.checkError(7) catch t.zig_assert_unreachable();
-    t.zig_assert_true(true);
+    zephyr.checkError(0) catch assert.unreached();
+    zephyr.checkError(7) catch assert.unreached();
+    assert.isTrue(true);
 }
 
 export fn zig_test_check_error_invalid_arg() void {
@@ -120,10 +120,10 @@ export fn zig_test_check_error_invalid_arg() void {
     zephyr.bdd.then("it raises Error.InvalidArg");
 
     zephyr.checkError(-22) catch |err| {
-        t.zig_assert_true(err == zephyr.Error.InvalidArg);
+        assert.isTrue(err == zephyr.Error.InvalidArg);
         return;
     };
-    t.zig_assert_unreachable();
+    assert.unreached();
 }
 
 export fn zig_test_check_error_busy() void {
@@ -132,10 +132,10 @@ export fn zig_test_check_error_busy() void {
     zephyr.bdd.then("it raises Error.Busy");
 
     zephyr.checkError(-16) catch |err| {
-        t.zig_assert_true(err == zephyr.Error.Busy);
+        assert.isTrue(err == zephyr.Error.Busy);
         return;
     };
-    t.zig_assert_unreachable();
+    assert.unreached();
 }
 
 export fn zig_test_check_error_unknown() void {
@@ -144,8 +144,8 @@ export fn zig_test_check_error_unknown() void {
     zephyr.bdd.then("it raises Error.Unknown as the catch-all");
 
     zephyr.checkError(-9999) catch |err| {
-        t.zig_assert_true(err == zephyr.Error.Unknown);
+        assert.isTrue(err == zephyr.Error.Unknown);
         return;
     };
-    t.zig_assert_unreachable();
+    assert.unreached();
 }

@@ -116,17 +116,17 @@ pub fn say(msg: [*:0]const u8) void {
 }
 
 pub const bdd = struct {
-    pub fn given(comptime narration: []const u8) void {
-        printk("  \x1b[1;30;46m[GIVEN]\x1b[0m \x1b[36m" ++ narration ++ "\x1b[0m\n");
+    pub fn given(narration: [*:0]const u8) void {
+        printk("  \x1b[1;30;46m[GIVEN]\x1b[0m \x1b[36m%s\x1b[0m\n", narration);
     }
-    pub fn when(comptime narration: []const u8) void {
-        printk("    \x1b[1;30;103m[WHEN]\x1b[0m \x1b[33m" ++ narration ++ "\x1b[0m\n");
+    pub fn when(narration: [*:0]const u8) void {
+        printk("    \x1b[1;30;103m[WHEN]\x1b[0m \x1b[33m%s\x1b[0m\n", narration);
     }
-    pub fn then(comptime narration: []const u8) void {
-        printk("      \x1b[1;30;105m[THEN]\x1b[0m \x1b[35m" ++ narration ++ "\x1b[0m\n");
+    pub fn then(narration: [*:0]const u8) void {
+        printk("      \x1b[1;30;105m[THEN]\x1b[0m \x1b[35m%s\x1b[0m\n", narration);
     }
-    pub fn @"and"(comptime narration: []const u8) void {
-        printk("      \x1b[1;30;105m[AND]\x1b[0m  \x1b[35m" ++ narration ++ "\x1b[0m\n");
+    pub fn @"and"(narration: [*:0]const u8) void {
+        printk("      \x1b[1;30;105m[AND]\x1b[0m  \x1b[35m%s\x1b[0m\n", narration);
     }
 };
 
@@ -154,22 +154,6 @@ pub fn logFn(
         .debug => zig_log_debug(formatted.ptr),
     }
 }
-
-pub const AtomicCounter = struct {
-    value: u32 align(4) = 0,
-
-    pub fn increment(self: *AtomicCounter) u32 {
-        return @atomicRmw(u32, &self.value, .Add, 1, .seq_cst);
-    }
-
-    pub fn load(self: *const AtomicCounter) u32 {
-        return @atomicLoad(u32, &self.value, .seq_cst);
-    }
-
-    pub fn reset(self: *AtomicCounter) void {
-        @atomicStore(u32, &self.value, 0, .seq_cst);
-    }
-};
 
 extern fn k_aligned_alloc(alignment: usize, size: usize) ?*anyopaque;
 extern fn k_free(ptr: ?*anyopaque) void;

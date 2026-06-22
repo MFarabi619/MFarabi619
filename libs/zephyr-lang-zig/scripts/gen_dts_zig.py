@@ -11,7 +11,6 @@
 # of Zephyr headers required.
 
 import argparse
-import os
 import pickle
 import sys
 import re
@@ -140,8 +139,8 @@ def str2ident(s):
     return re.sub("[-,.@/+]", "_", s.lower())
 
 
-def list2init(l):
-    return "{" + ", ".join(l) + "}"
+def list2init(items):
+    return "{" + ", ".join(items) + "}"
 
 
 def quote_str(s):

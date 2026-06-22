@@ -1,6 +1,6 @@
 const std = @import("std");
 const zephyr = @import("zephyr");
-const t = @import("test_helpers");
+const assert = @import("test_helpers");
 
 const LOG_LEVEL_ERR: c_int = 1;
 const LOG_LEVEL_WRN: c_int = 2;
@@ -54,8 +54,8 @@ export fn zig_test_log_info_dispatches() void {
     zephyr.bdd.then("captured level is INFO and the message contains the rendered value");
 
     log.info("hello {d}", .{42});
-    t.zig_assert_i64_eq(captured_level, LOG_LEVEL_INF);
-    t.zig_assert_true(last_msg_contains("hello 42"));
+    assert.eq(captured_level, LOG_LEVEL_INF);
+    assert.isTrue(last_msg_contains("hello 42"));
 }
 
 export fn zig_test_log_warn_dispatches() void {
@@ -64,7 +64,7 @@ export fn zig_test_log_warn_dispatches() void {
     zephyr.bdd.then("captured level is WARN");
 
     log.warn("careful {d}", .{1});
-    t.zig_assert_i64_eq(captured_level, LOG_LEVEL_WRN);
+    assert.eq(captured_level, LOG_LEVEL_WRN);
 }
 
 export fn zig_test_log_err_dispatches() void {
@@ -73,7 +73,7 @@ export fn zig_test_log_err_dispatches() void {
     zephyr.bdd.then("captured level is ERR");
 
     log.err("oops {d}", .{99});
-    t.zig_assert_i64_eq(captured_level, LOG_LEVEL_ERR);
+    assert.eq(captured_level, LOG_LEVEL_ERR);
 }
 
 export fn zig_test_log_debug_dispatches() void {
@@ -82,7 +82,7 @@ export fn zig_test_log_debug_dispatches() void {
     zephyr.bdd.then("captured level is DBG");
 
     log.debug("verbose {d}", .{0});
-    t.zig_assert_i64_eq(captured_level, LOG_LEVEL_DBG);
+    assert.eq(captured_level, LOG_LEVEL_DBG);
 }
 
 export fn zig_test_log_scope_prefixed() void {
@@ -92,8 +92,8 @@ export fn zig_test_log_scope_prefixed() void {
 
     const custom = std.log.scoped(.custom_scope);
     custom.info("ping", .{});
-    t.zig_assert_true(last_msg_contains("[custom_scope]"));
-    t.zig_assert_true(last_msg_contains("ping"));
+    assert.isTrue(last_msg_contains("[custom_scope]"));
+    assert.isTrue(last_msg_contains("ping"));
 }
 
 export fn zig_test_log_format_args() void {
@@ -102,5 +102,5 @@ export fn zig_test_log_format_args() void {
     zephyr.bdd.then("all three render in the captured message");
 
     log.info("multi {d} {s} {x}", .{ 7, "args", @as(u32, 0xCAFE) });
-    t.zig_assert_true(last_msg_contains("multi 7 args cafe"));
+    assert.isTrue(last_msg_contains("multi 7 args cafe"));
 }

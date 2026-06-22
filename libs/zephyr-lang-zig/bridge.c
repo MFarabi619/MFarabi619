@@ -1,15 +1,3 @@
-/*
- * C bridge for Zephyr APIs that are static inline in headers and therefore
- * not directly callable from Zig as extern symbols, plus the small adapter
- * surface that `zephyr.logFn` dispatches through and the shared ztest
- * assertion bridges every test calls into.
- *
- * With CONFIG_LOG=n the LOG_MODULE_REGISTER and LOG_* macros expand to
- * no-ops, so these functions still link cleanly — they just don't emit
- * anything. The assertion bridges are gated on CONFIG_ZTEST so non-test
- * builds don't pull in ztest.h.
- */
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -69,52 +57,3 @@ void zig_log_debug(const char *msg)
 {
 	LOG_DBG("%s", msg);
 }
-
-#ifdef CONFIG_ZTEST
-#include <zephyr/ztest.h>
-
-void zig_assert_true(bool condition)
-{
-	zassert_true(condition, "expected true");
-}
-
-void zig_assert_i64_eq(int64_t actual, int64_t expected)
-{
-	zassert_equal(actual, expected, "expected %lld got %lld",
-		      (long long)expected, (long long)actual);
-}
-
-void zig_assert_u32_eq(uint32_t actual, uint32_t expected)
-{
-	zassert_equal(actual, expected, "expected %u got %u",
-		      (unsigned int)expected, (unsigned int)actual);
-}
-
-void zig_assert_usize_eq(size_t actual, size_t expected)
-{
-	zassert_equal(actual, expected, "expected %zu got %zu",
-		      expected, actual);
-}
-
-void zig_assert_not_null(const void *p)
-{
-	zassert_not_null(p, "expected non-null pointer");
-}
-
-FUNC_NORETURN void zig_assert_unreachable(void)
-{
-	zassert_unreachable("control reached an `unreachable` path from Zig");
-	CODE_UNREACHABLE;
-}
-
-void zig_assume_true(bool condition)
-{
-	zassume_true(condition, "precondition failed");
-}
-
-void zig_assume_i64_eq(int64_t actual, int64_t expected)
-{
-	zassume_equal(actual, expected, "precondition: expected %lld got %lld",
-		      (long long)expected, (long long)actual);
-}
-#endif /* CONFIG_ZTEST */

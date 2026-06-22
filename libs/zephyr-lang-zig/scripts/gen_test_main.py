@@ -1,16 +1,4 @@
 #!/usr/bin/env python3
-"""
-Generate a Zephyr ZTEST C bridge from a zephyr-lang-zig zig_tests.zig file.
-
-For every `export fn zig_test_NAME(...)` found in the Zig source, emit:
-    void zig_test_NAME(void);
-    ZTEST(<suite>, test_NAME) { zig_test_NAME(); }
-
-If the file additionally exports `zig_before()` or `zig_after()`, wire
-those as the suite's per-test before/after hooks. The Zig source then
-expresses lifecycle setup once instead of repeated at the top of every
-test function.
-"""
 import argparse
 import re
 import sys

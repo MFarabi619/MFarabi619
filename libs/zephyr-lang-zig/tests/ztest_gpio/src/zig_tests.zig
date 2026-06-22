@@ -1,6 +1,6 @@
 const std = @import("std");
 const zephyr = @import("zephyr");
-const t = @import("test_helpers");
+const assert = @import("test_helpers");
 
 extern fn zig_gpio_emul_device() *anyopaque;
 extern fn zig_gpio_emul_device_is_ready() bool;
@@ -34,7 +34,7 @@ export fn zig_test_device_is_ready() void {
     zephyr.bdd.when("device_is_ready is queried");
     zephyr.bdd.then("the device reports ready");
 
-    t.zig_assert_true(zig_gpio_emul_device_is_ready());
+    assert.isTrue(zig_gpio_emul_device_is_ready());
 }
 
 export fn zig_test_output_set_high_reads_high() void {
@@ -43,10 +43,10 @@ export fn zig_test_output_set_high_reads_high() void {
     zephyr.bdd.then("the emulator's masked output read shows the bit set");
 
     const dev = zig_gpio_emul_device();
-    zephyr.checkError(zig_gpio_pin_set_raw(dev, PIN_OUT, 1)) catch t.zig_assert_unreachable();
-    var v: u32 = 0;
-    zephyr.checkError(gpio_emul_output_get_masked(dev, @as(u32, 1) << PIN_OUT, &v)) catch t.zig_assert_unreachable();
-    t.zig_assert_u32_eq(v & (@as(u32, 1) << PIN_OUT), @as(u32, 1) << PIN_OUT);
+    zephyr.checkError(zig_gpio_pin_set_raw(dev, PIN_OUT, 1)) catch assert.unreached();
+    var pin_bits: u32 = 0;
+    zephyr.checkError(gpio_emul_output_get_masked(dev, @as(u32, 1) << PIN_OUT, &pin_bits)) catch assert.unreached();
+    assert.eq(pin_bits & (@as(u32, 1) << PIN_OUT), @as(u32, 1) << PIN_OUT);
 }
 
 export fn zig_test_output_set_low_reads_low() void {
@@ -55,11 +55,11 @@ export fn zig_test_output_set_low_reads_low() void {
     zephyr.bdd.then("the emulator's masked output read shows the bit clear");
 
     const dev = zig_gpio_emul_device();
-    zephyr.checkError(zig_gpio_pin_set_raw(dev, PIN_OUT, 1)) catch t.zig_assert_unreachable();
-    zephyr.checkError(zig_gpio_pin_set_raw(dev, PIN_OUT, 0)) catch t.zig_assert_unreachable();
-    var v: u32 = 0;
-    zephyr.checkError(gpio_emul_output_get_masked(dev, @as(u32, 1) << PIN_OUT, &v)) catch t.zig_assert_unreachable();
-    t.zig_assert_u32_eq(v & (@as(u32, 1) << PIN_OUT), 0);
+    zephyr.checkError(zig_gpio_pin_set_raw(dev, PIN_OUT, 1)) catch assert.unreached();
+    zephyr.checkError(zig_gpio_pin_set_raw(dev, PIN_OUT, 0)) catch assert.unreached();
+    var pin_bits: u32 = 0;
+    zephyr.checkError(gpio_emul_output_get_masked(dev, @as(u32, 1) << PIN_OUT, &pin_bits)) catch assert.unreached();
+    assert.eq(pin_bits & (@as(u32, 1) << PIN_OUT), 0);
 }
 
 export fn zig_test_input_driven_high_reads_high() void {
@@ -70,7 +70,7 @@ export fn zig_test_input_driven_high_reads_high() void {
     const dev = zig_gpio_emul_device();
     _ = gpio_emul_input_set_masked(dev, @as(u32, 1) << PIN_IN, @as(u32, 1) << PIN_IN);
     const val = zig_gpio_pin_get_raw(dev, PIN_IN);
-    t.zig_assert_i64_eq(val, 1);
+    assert.eq(val, 1);
 }
 
 export fn zig_test_input_driven_low_reads_low() void {
@@ -82,7 +82,7 @@ export fn zig_test_input_driven_low_reads_low() void {
     _ = gpio_emul_input_set_masked(dev, @as(u32, 1) << PIN_IN, @as(u32, 1) << PIN_IN);
     _ = gpio_emul_input_set_masked(dev, @as(u32, 1) << PIN_IN, 0);
     const val = zig_gpio_pin_get_raw(dev, PIN_IN);
-    t.zig_assert_i64_eq(val, 0);
+    assert.eq(val, 0);
 }
 
 export fn zig_test_configure_output_then_flags_persist() void {
@@ -91,10 +91,10 @@ export fn zig_test_configure_output_then_flags_persist() void {
     zephyr.bdd.then("the GPIO_OUTPUT bit is set");
 
     const dev = zig_gpio_emul_device();
-    zephyr.checkError(zig_gpio_pin_configure(dev, PIN_OUT, GPIO_OUTPUT)) catch t.zig_assert_unreachable();
+    zephyr.checkError(zig_gpio_pin_configure(dev, PIN_OUT, GPIO_OUTPUT)) catch assert.unreached();
     var flags: u32 = 0;
-    zephyr.checkError(gpio_emul_flags_get(dev, PIN_OUT, &flags)) catch t.zig_assert_unreachable();
-    t.zig_assert_u32_eq(flags & GPIO_OUTPUT, GPIO_OUTPUT);
+    zephyr.checkError(gpio_emul_flags_get(dev, PIN_OUT, &flags)) catch assert.unreached();
+    assert.eq(flags & GPIO_OUTPUT, GPIO_OUTPUT);
 }
 
 export fn zig_test_multi_pin_output() void {
@@ -103,13 +103,13 @@ export fn zig_test_multi_pin_output() void {
     zephyr.bdd.then("the masked output read shows both bits set");
 
     const dev = zig_gpio_emul_device();
-    zephyr.checkError(zig_gpio_pin_configure(dev, 2, GPIO_OUTPUT_LOW)) catch t.zig_assert_unreachable();
-    zephyr.checkError(zig_gpio_pin_configure(dev, 3, GPIO_OUTPUT_LOW)) catch t.zig_assert_unreachable();
+    zephyr.checkError(zig_gpio_pin_configure(dev, 2, GPIO_OUTPUT_LOW)) catch assert.unreached();
+    zephyr.checkError(zig_gpio_pin_configure(dev, 3, GPIO_OUTPUT_LOW)) catch assert.unreached();
     _ = zig_gpio_pin_set_raw(dev, 2, 1);
     _ = zig_gpio_pin_set_raw(dev, 3, 1);
-    var v: u32 = 0;
-    _ = gpio_emul_output_get_masked(dev, (@as(u32, 1) << 2) | (@as(u32, 1) << 3), &v);
-    t.zig_assert_u32_eq(v, (@as(u32, 1) << 2) | (@as(u32, 1) << 3));
+    var pin_bits: u32 = 0;
+    _ = gpio_emul_output_get_masked(dev, (@as(u32, 1) << 2) | (@as(u32, 1) << 3), &pin_bits);
+    assert.eq(pin_bits, (@as(u32, 1) << 2) | (@as(u32, 1) << 3));
 }
 
 export fn zig_test_output_init_high_starts_high() void {
@@ -118,8 +118,8 @@ export fn zig_test_output_init_high_starts_high() void {
     zephyr.bdd.then("the bit is already high without any explicit set_raw");
 
     const dev = zig_gpio_emul_device();
-    zephyr.checkError(zig_gpio_pin_configure(dev, 4, GPIO_OUTPUT_HIGH)) catch t.zig_assert_unreachable();
-    var v: u32 = 0;
-    _ = gpio_emul_output_get_masked(dev, @as(u32, 1) << 4, &v);
-    t.zig_assert_u32_eq(v & (@as(u32, 1) << 4), @as(u32, 1) << 4);
+    zephyr.checkError(zig_gpio_pin_configure(dev, 4, GPIO_OUTPUT_HIGH)) catch assert.unreached();
+    var pin_bits: u32 = 0;
+    _ = gpio_emul_output_get_masked(dev, @as(u32, 1) << 4, &pin_bits);
+    assert.eq(pin_bits & (@as(u32, 1) << 4), @as(u32, 1) << 4);
 }
