@@ -108,4 +108,31 @@ extern "C" fn rust_main() {
     }
 
     try_init!("shell" => shell::initialize());
+
+    spawn_embassy_executor();
+}
+
+#[cfg(not(CONFIG_ZTEST))]
+static EXECUTOR: static_cell::StaticCell<zephyr::embassy::Executor> =
+    static_cell::StaticCell::new();
+
+#[cfg(not(CONFIG_ZTEST))]
+fn spawn_embassy_executor() {
+    let stack = EMBASSY_STACK.init_once(()).unwrap();
+    let mut thread = EMBASSY_THREAD.init_once(stack).unwrap();
+    thread.set_priority(5);
+    thread.spawn(move || {
+        let executor = EXECUTOR.init(zephyr::embassy::Executor::new());
+        executor.run(|spawner| {
+            let _ = spawner;
+            #[cfg(all(CONFIG_NETWORKING, dt = "labels::modem"))]
+            spawner.spawn(cellular::registration_watchdog()).unwrap();
+        });
+    });
+}
+
+#[cfg(not(CONFIG_ZTEST))]
+zephyr::kobj_define! {
+    static EMBASSY_THREAD: StaticThread;
+    static EMBASSY_STACK: ThreadStack<2048>;
 }

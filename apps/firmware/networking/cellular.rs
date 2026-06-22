@@ -190,8 +190,6 @@ pub fn initialize() -> zephyr::Result<()> {
         net_mgmt_add_event_callback(cb);
     }
 
-    let _ = registration_watchdog().start();
-
     wait_for_attach(Duration::millis(ATTACH_TIMEOUT_MS))?;
 
     for (label, value) in access_identity().iter() {
@@ -275,11 +273,11 @@ pub fn access_identity() -> CellularIdentity {
     }
 }
 
-#[zephyr::thread(stack_size = 1024)]
-fn registration_watchdog() {
+#[embassy_executor::task]
+pub async fn registration_watchdog() {
     let mut last_online_ms = unsafe { zephyr::raw::k_uptime_get() };
     loop {
-        zephyr::time::sleep(Duration::millis(WATCHDOG_POLL_MS));
+        embassy_time::Timer::after(embassy_time::Duration::from_millis(WATCHDOG_POLL_MS)).await;
         let now = unsafe { zephyr::raw::k_uptime_get() };
         let iface = PPP_IFACE.load(Ordering::SeqCst);
         let has_ipv4 = !iface.is_null()

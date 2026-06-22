@@ -36,6 +36,20 @@ patches:
 
   # ===== walter-router =====
 
+  - path: lang-rust/embassy-queue-utils-bump.patch
+    sha256sum: e1a466607ea7dfea87c7bdd3a3d679a51e358c2b971912bb9a737f85164c18ad
+    module: lang-rust
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-22
+    upstreamable: true
+    comments: |
+      Bump embassy-time-queue-utils 0.1 → 0.3 in zephyr/Cargo.toml.
+      Required for workspace coexistence with esp-rtos 0.2.0 (ceratina),
+      which transitively needs ^0.3; the `links = "embassy-time-queue"`
+      marker forbids two versions in one graph. API-compatible — the
+      three Queue methods zephyr uses are unchanged between versions.
+
   - path: lang-rust/rust.patch
     sha256sum: f5ea3af871a4e1de3f30efa2fa9b25aee791d0a566ea591c37e379673e24c331
     module: lang-rust
