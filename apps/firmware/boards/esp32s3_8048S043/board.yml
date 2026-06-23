@@ -1,0 +1,6 @@
+board:
+  name: esp32s3_8048S043
+  full_name: Sunton ESP32-S3 4.3" 800x480
+  vendor: espressif
+  socs:
+  - name: esp32s3

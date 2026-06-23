@@ -26,13 +26,7 @@ if(BOARD MATCHES "^stm32f3_disco")
   )
 endif()
 
-function(app_set_runner_args)
-  get_property(_done GLOBAL PROPERTY APP_RUNNER_ARGS_DONE)
-  if(_done)
-    return()
-  endif()
-  set_property(GLOBAL PROPERTY APP_RUNNER_ARGS_DONE TRUE)
-
+macro(app_set_runner_args)
   if(BOARD MATCHES "^esp32s3_devkitc")
     board_runner_args(probe-rs
       "-O=--preset=esp32s3_devkitc"
@@ -50,7 +44,7 @@ function(app_set_runner_args)
   if(_esp_device)
     board_runner_args(esp32 "--esp-device=${_esp_device}")
   endif()
-endfunction()
+endmacro()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(firmware)

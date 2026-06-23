@@ -69,4 +69,12 @@ elseif(BOARD MATCHES "^esp32s3_devkitc")
     CACHE INTERNAL ""
   )
   set(mcuboot_SNIPPET "espressif-flash-8M" CACHE INTERNAL "")
+elseif(BOARD MATCHES "^esp32s3_8048S043")
+  set(firmware_EXTRA_CONF_FILE
+    ${_esp32s3_bundle}
+    "${CMAKE_CURRENT_LIST_DIR}/networking/dns/mdns.conf"
+    "${CMAKE_CURRENT_LIST_DIR}/filesystems/fs.conf"
+    CACHE INTERNAL ""
+  )
+  set(mcuboot_SNIPPET "espressif-flash-16M" CACHE INTERNAL "")
 endif()

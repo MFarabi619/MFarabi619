@@ -40,6 +40,17 @@ tests:
             - espressif-psram-8M
             - espressif-psram-wifi
 
+    esp32s3.8048S043:
+        tags: esp32s3 build
+        sysbuild: true
+        build_only: true
+        platform_allow: esp32s3_8048S043/esp32s3/procpu
+        required_snippets:
+            - wifi-credentials
+            - espressif-flash-16M
+            - espressif-psram-8M
+            - espressif-psram-wifi
+
     esp32s3.xiao.sense:
         tags: esp32s3 build
         sysbuild: true
