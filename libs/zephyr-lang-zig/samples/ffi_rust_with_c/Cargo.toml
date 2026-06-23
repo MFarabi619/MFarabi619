@@ -1,0 +1,20 @@
+# Self-contained workspace: opt out of the monorepo-root Cargo workspace.
+[workspace]
+
+[package]
+name = "rust_ffi"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+heapless = { version = "0.8", default-features = false }
+crc = { version = "3", default-features = false }
+
+[profile.release]
+opt-level = "z"
+strip = true
+lto = true
+panic = "abort"

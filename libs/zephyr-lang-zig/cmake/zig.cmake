@@ -7,7 +7,7 @@ endif()
 message(STATUS "zephyr-lang-zig: zig at ${ZIG_EXECUTABLE}")
 
 function(add_zig_object zephyr_target zig_source)
-  cmake_parse_arguments(ARG "" "DT;BUILD_FILE" "" ${ARGN})
+  cmake_parse_arguments(ARG "" "DT;BUILD_FILE" "EXTRA_OUTPUTS" ${ARGN})
 
   get_filename_component(src_absolute "${zig_source}" ABSOLUTE)
   get_filename_component(src_name "${zig_source}" NAME_WE)
@@ -29,7 +29,7 @@ function(add_zig_object zephyr_target zig_source)
   # Resolve Zephyr's generator-expression include dirs/defs at build-generate
   # time, joined with '|' for build.zig to tokenize.
   add_custom_command(
-    OUTPUT ${obj_path}
+    OUTPUT ${obj_path} ${ARG_EXTRA_OUTPUTS}
     COMMAND ${ZIG_EXECUTABLE} build
       --build-file ${_build_file}
       --cache-dir ${_zig_cache}

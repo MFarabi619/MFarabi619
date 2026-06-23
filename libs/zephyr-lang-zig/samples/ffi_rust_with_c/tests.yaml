@@ -1,0 +1,15 @@
+common:
+  tags:
+    - zephyr_lang_zig
+  harness: console
+  harness_config:
+    type: one_line
+    regex:
+      - "ffi_rust_with_c: done"
+
+tests:
+  zephyr_lang_zig.sample.ffi_rust_with_c:
+    platform_allow:
+      - qemu_riscv32
+    integration_platforms:
+      - qemu_riscv32

@@ -3,6 +3,8 @@ const std = @import("std");
 const sys_headers = [_][]const u8{
     "zephyr/kernel.h",
     "zephyr/drivers/gpio.h",
+    "zephyr/drivers/eeprom.h",
+    "zephyr/drivers/rtc.h",
     "zephyr/drivers/led_strip.h",
     "zephyr/sys/printk.h",
 };

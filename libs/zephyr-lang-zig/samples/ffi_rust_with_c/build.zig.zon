@@ -1,0 +1,21 @@
+.{
+    .name = .ffi_rust_with_c,
+    .version = "0.1.0",
+    .fingerprint = 0x4f02eb07b850c2b5,
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{
+        .zephyr_lang_zig = .{ .path = "../.." },
+        .build_crab = .{
+            .url = "git+https://github.com/akarpovskii/build.crab#ada65dd868aa6c02e51cd4063cddadcc2d8e3703",
+            .hash = "build_crab-0.3.0-V2z3NyyVAADLPwokqPtP7UkThnD2M-lVxU5ypeZNw6-G",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "Cargo.toml",
+        "rust-toolchain.toml",
+        "include",
+        "src",
+    },
+}
