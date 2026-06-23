@@ -92,7 +92,7 @@
           {
             "Landing Page" = rec {
               href = "https://microvisor.systems";
-              icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/nix-mfarabi.svg";
+              icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/nix-mfarabi.svg";
               siteMonitor = href;
             };
           }
