@@ -4,10 +4,8 @@
 }:
 {
   services.open-webui = {
-    # enable = config.networking.hostName == "framework-desktop";
-    enable = false;
+    enable = config.networking.hostName == "framework-desktop";
     port = 7777;
-    stateDir = "/var/lib/open-webui";
     environmentFile = "/var/lib/secrets/open-webui";
     environment = rec {
       # docs.openwebui.com/getting-started/env-configuration
