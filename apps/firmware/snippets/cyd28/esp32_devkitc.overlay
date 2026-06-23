@@ -1,0 +1,160 @@
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/pwm/pwm.h>
+#include <zephyr/dt-bindings/pinctrl/esp32-pinctrl.h>
+
+/ {
+	chosen {
+		zephyr,display = &ili9341;
+		zephyr,touch = &xpt2046;
+	};
+
+	lcd_backlight: lcd_backlight {
+		compatible = "regulator-fixed";
+		regulator-name = "lcd_backlight";
+		enable-gpios = <&gpio0 21 GPIO_ACTIVE_HIGH>;
+		regulator-boot-on;
+	};
+
+	pwmleds {
+		compatible = "pwm-leds";
+
+		pwm_led_red: pwm_led_red {
+			pwms = <&ledc0 0 PWM_HZ(1000) PWM_POLARITY_INVERTED>;
+			label = "Red LED";
+		};
+
+		pwm_led_green: pwm_led_green {
+			pwms = <&ledc0 1 PWM_HZ(1000) PWM_POLARITY_INVERTED>;
+			label = "Green LED";
+		};
+
+		pwm_led_blue: pwm_led_blue {
+			pwms = <&ledc0 2 PWM_HZ(1000) PWM_POLARITY_INVERTED>;
+			label = "Blue LED";
+		};
+	};
+
+	aliases {
+		led0 = &pwm_led_red;
+		led1 = &pwm_led_green;
+		led2 = &pwm_led_blue;
+	};
+
+	fstab {
+		compatible = "zephyr,fstab";
+		sd: sd {
+			compatible = "zephyr,fstab,fatfs";
+			mount-point = "/SD:";
+			disk-access;
+			automount;
+		};
+	};
+
+	touch_spi: touch-spi {
+		compatible = "zephyr,spi-bitbang";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "okay";
+		clk-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
+		mosi-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+		miso-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+		cs-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
+
+		xpt2046: xpt2046@0 {
+			compatible = "xptek,xpt2046";
+			reg = <0>;
+			spi-max-frequency = <2000000>;
+			int-gpios = <&gpio1 4 GPIO_ACTIVE_LOW>;
+			touchscreen-size-x = <320>;
+			touchscreen-size-y = <240>;
+			min-x = <300>;
+			min-y = <300>;
+			max-x = <3800>;
+			max-y = <3800>;
+			z-threshold = <400>;
+		};
+	};
+};
+
+&psram0 {
+	status = "disabled";
+};
+
+&i2c0 {
+	status = "disabled";
+};
+
+&spi2 {
+	cs-gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+
+	mipi_dbi: mipi_dbi {
+		compatible = "zephyr,mipi-dbi-spi";
+		spi-dev = <&spi2>;
+		dc-gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+		write-only;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ili9341: ili9341@0 {
+			compatible = "ilitek,ili9341";
+			reg = <0>;
+			mipi-max-frequency = <25000000>;
+			pixel-format = <0>;
+			rotation = <0>;
+			width = <240>;
+			height = <320>;
+		};
+	};
+};
+
+&spi3 {
+	cs-gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+
+	sdcard: sdcard@0 {
+		compatible = "zephyr,sdhc-spi-slot";
+		reg = <0>;
+		status = "okay";
+
+		mmc {
+			compatible = "zephyr,sdmmc-disk";
+			disk-name = "SD";
+			status = "okay";
+		};
+
+		spi-max-frequency = <20000000>;
+	};
+};
+
+&pinctrl {
+	ledc0_default: ledc0_default {
+		group1 {
+			pinmux = <LEDC_CH0_GPIO17>,
+				 <LEDC_CH1_GPIO22>,
+				 <LEDC_CH2_GPIO16>;
+			output-enable;
+		};
+	};
+};
+
+&ledc0 {
+	status = "okay";
+	pinctrl-0 = <&ledc0_default>;
+	pinctrl-names = "default";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel0@0 {
+		reg = <0x0>;
+		timer = <0>;
+	};
+
+	channel1@1 {
+		reg = <0x1>;
+		timer = <0>;
+	};
+
+	channel2@2 {
+		reg = <0x2>;
+		timer = <0>;
+	};
+};

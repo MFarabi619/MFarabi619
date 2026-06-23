@@ -51,6 +51,13 @@ tests:
             - espressif-psram-8M
             - espressif-psram-wifi
 
+    esp32.cyd28:
+        tags: esp32 build
+        build_only: true
+        platform_allow: esp32_devkitc/esp32/procpu
+        required_snippets:
+            - cyd28
+
     esp32s3.xiao.sense:
         tags: esp32s3 build
         sysbuild: true

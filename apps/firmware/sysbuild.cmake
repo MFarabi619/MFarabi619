@@ -10,7 +10,7 @@ if(BOARD MATCHES "^esp32s3" OR BOARD MATCHES "^xiao_esp32s3" OR BOARD MATCHES "^
   endif()
 endif()
 
-set(_esp32s3_bundle
+set(_common_bundle
   "${CMAKE_CURRENT_LIST_DIR}/mcumgr.conf"
 
   "${CMAKE_CURRENT_LIST_DIR}/programs/gpio.conf"
@@ -22,9 +22,7 @@ set(_esp32s3_bundle
 
   "${CMAKE_CURRENT_LIST_DIR}/programs/settings.conf"
 
-  "${CMAKE_CURRENT_LIST_DIR}/networking/buf.conf"
   "${CMAKE_CURRENT_LIST_DIR}/networking/ipv4.conf"
-  "${CMAKE_CURRENT_LIST_DIR}/networking/ipv6.conf"
   "${CMAKE_CURRENT_LIST_DIR}/networking/net.conf"
   "${CMAKE_CURRENT_LIST_DIR}/networking/sockets.conf"
   "${CMAKE_CURRENT_LIST_DIR}/networking/hostname.conf"
@@ -36,6 +34,12 @@ set(_esp32s3_bundle
   "${CMAKE_CURRENT_LIST_DIR}/networking/sntp.conf"
 
   "${CMAKE_CURRENT_LIST_DIR}/services/mcumgr.conf"
+)
+
+set(_esp32s3_bundle
+  ${_common_bundle}
+  "${CMAKE_CURRENT_LIST_DIR}/networking/buf.conf"
+  "${CMAKE_CURRENT_LIST_DIR}/networking/ipv6.conf"
 )
 
 if(BOARD MATCHES "^walter")

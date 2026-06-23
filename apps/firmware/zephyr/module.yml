@@ -2,3 +2,4 @@ build:
   kconfig: zephyr/Kconfig
   settings:
     board_root: .
+    snippet_root: .
