@@ -1,2 +1,3 @@
 [env]
+OTA_DEVICE_IP = "10.0.0.68"
 LOCO_CONFIG_FOLDER = { value = "config", relative = true }

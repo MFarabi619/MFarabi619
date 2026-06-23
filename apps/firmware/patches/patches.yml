@@ -51,7 +51,7 @@ patches:
       three Queue methods zephyr uses are unchanged between versions.
 
   - path: lang-rust/rust.patch
-    sha256sum: 1fe2e46584c32bac8e3e1ee33cb0b1e13400410fdd37d64358973048eb9666e1
+    sha256sum: e472af3317ad88906c80832c3be810e000879c23d4c3092f6f6d6135b75983da
     module: lang-rust
     author: Mumtahin Farabi
     email: farabi@apidaesystems.ca
@@ -145,6 +145,20 @@ patches:
       Upstreamable. The shape mirrors the existing BT/GPIO/Flash/UART
       gating in zephyr-sys/build.rs; a PR adding "networking" alongside
       those would be uncontroversial.
+
+  - path: lang-rust/build-rs-graceful.patch
+    sha256sum: a3858939d873ac0fe60b127962ae7734ff1fabf94062389b7bf5cd2b5d08f7f1
+    module: lang-rust
+    author: Mumtahin Farabi
+    email: farabi@apidaesystems.ca
+    date: 2026-06-23
+    upstreamable: true
+    comments: |
+      Make zephyr-build and zephyr-sys build scripts skip gracefully when
+      DOTCONFIG / ZEPHYR_BASE are unset (host-side cargo check, IDE
+      indexing). Stubs out the generated include!() targets so call sites
+      fail with a normal "unresolved item" at compile time instead of a
+      build-script panic. No behavior change in the Zephyr-CMake path.
 
   - path: zephyr/cellular.patch
     sha256sum: 8ceb4019166d79e51e2a7e9f09e6de141835036f6dd8b303fa2ed79d0a37c953

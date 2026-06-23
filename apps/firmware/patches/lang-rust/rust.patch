@@ -125,7 +125,7 @@ diff --git a/zephyr-sys/build.rs b/zephyr-sys/build.rs
 index 6b825d1..afebb6c 100644
 --- a/zephyr-sys/build.rs
 +++ b/zephyr-sys/build.rs
-@@ -113,6 +113,43 @@ fn main() -> anyhow::Result<()> {
+@@ -113,6 +113,47 @@ fn main() -> anyhow::Result<()> {
          // UART
          .allowlist_item_if("CONFIG_UART_.*", || options.contains("CONFIG_SERIAL"))
          .allowlist_function_if("uart_.*", || options.contains("CONFIG_SERIAL"))
@@ -166,6 +166,10 @@ index 6b825d1..afebb6c 100644
 +        .allowlist_function_if("boot_.*", || options.contains("CONFIG_BOOTLOADER_MCUBOOT"))
 +        // Init entry (SYS_INIT struct, in <zephyr/init.h> via kernel.h)
 +        .allowlist_item("init_entry")
++        // Display
++        .allowlist_function_if("display_.*", || options.contains("CONFIG_DISPLAY"))
++        .allowlist_item_if("display_.*", || options.contains("CONFIG_DISPLAY"))
++        .allowlist_item_if("PIXEL_FORMAT_.*", || options.contains("CONFIG_DISPLAY"))
          // Generate
          .generate()
          .expect("Unable to generate bindings");
@@ -173,7 +177,7 @@ diff --git a/zephyr-sys/wrapper.h b/zephyr-sys/wrapper.h
 index dbb3842..b8d9507 100644
 --- a/zephyr-sys/wrapper.h
 +++ b/zephyr-sys/wrapper.h
-@@ -90,6 +90,71 @@ extern int errno;
+@@ -90,6 +90,75 @@ extern int errno;
  #include <zephyr/logging/log.h>
  #include <zephyr/irq.h>
  
@@ -242,10 +246,14 @@ index dbb3842..b8d9507 100644
 +#include <zephyr/pm/device.h>
 +#endif
 +
++#ifdef CONFIG_DISPLAY
++#include <zephyr/drivers/display.h>
++#endif
++
  /*
   * bindgen will only output #defined constants that resolve to simple numbers.  These are some
   * symbols that we want exported that, at least in some situations, are more complex, usually with a
-@@ -102,6 +167,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
+@@ -102,6 +171,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
  
  const uint32_t ZR_POLL_TYPE_SEM_AVAILABLE = K_POLL_TYPE_SEM_AVAILABLE;
  const uint32_t ZR_POLL_TYPE_SIGNAL = K_POLL_TYPE_SIGNAL;

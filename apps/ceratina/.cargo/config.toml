@@ -1,0 +1,14 @@
+[unstable]
+build-std = ["core", "alloc"]
+
+[env]
+DEFMT_LOG = "info,embedded_test=warn"
+
+[target.xtensa-esp32s3-none-elf]
+runner = "probe-rs run --idf-partition-table apps/ceratina/machine/esp32s3.partitions.csv"
+
+[target.xtensa-esp32-none-elf]
+runner = "espflash flash --monitor --chip esp32"
+
+[target.thumbv7em-none-eabihf]
+runner = "probe-rs run --chip stm32h723zg"

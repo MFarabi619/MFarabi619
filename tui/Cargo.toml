@@ -8,14 +8,6 @@ default-run = "tui"
 name = "tui"
 path = "src/main.rs"
 
-[[bin]]
-name = "simulator"
-path = "src/simulator/modifiers.rs"
-
-[[bin]]
-name = "simulator-minimal"
-path = "src/simulator/minimal.rs"
-
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 serde.workspace = true
 serde_json.workspace = true

@@ -1,5 +1,8 @@
-#![no_std]
+#![cfg_attr(target_arch = "xtensa", no_std)]
 #![allow(unexpected_cfgs)]
+
+cfg_if::cfg_if! {
+if #[cfg(target_arch = "xtensa")] {
 
 extern crate alloc;
 
@@ -110,6 +113,17 @@ extern "C" fn rust_main() {
     try_init!("shell" => shell::initialize());
 
     spawn_embassy_executor();
+
+    #[cfg(CONFIG_DISPLAY)]
+    spawn_ui_thread();
+}
+
+#[cfg(all(CONFIG_DISPLAY, not(CONFIG_ZTEST)))]
+fn spawn_ui_thread() {
+    let stack = UI_STACK.init_once(()).unwrap();
+    let mut thread = UI_THREAD.init_once(stack).unwrap();
+    thread.set_priority(7);
+    thread.spawn(|| programs::tui::display_loop());
 }
 
 #[cfg(not(CONFIG_ZTEST))]
@@ -136,3 +150,11 @@ zephyr::kobj_define! {
     static EMBASSY_THREAD: StaticThread;
     static EMBASSY_STACK: ThreadStack<2048>;
 }
+
+#[cfg(all(CONFIG_DISPLAY, not(CONFIG_ZTEST)))]
+zephyr::kobj_define! {
+    static UI_THREAD: StaticThread;
+    static UI_STACK: ThreadStack<8192>;
+}
+
+}}

@@ -1,18 +1,22 @@
 fn main() {
     if let Ok(dotconfig) = std::env::var("DOTCONFIG") {
-        let flags = zephyr_build::extract_kconfig_bool_options(&dotconfig)
-            .expect("failed to extract Kconfig flags");
-        for flag in &flags {
-            println!("cargo:rustc-cfg={flag}");
+        if std::path::Path::new(&dotconfig).exists() {
+            let flags = zephyr_build::extract_kconfig_bool_options(&dotconfig)
+                .expect("failed to extract Kconfig flags");
+            for flag in &flags {
+                println!("cargo:rustc-cfg={flag}");
+            }
+            if flags.iter().any(|f| f == "CONFIG_SQLITE") {
+                generate_sqlite_bindings();
+            }
+            println!("cargo:rerun-if-env-changed=DOTCONFIG");
+            println!("cargo:rerun-if-changed={dotconfig}");
         }
-        if flags.iter().any(|f| f == "CONFIG_SQLITE") {
-            generate_sqlite_bindings();
-        }
-        println!("cargo:rerun-if-env-changed=DOTCONFIG");
-        println!("cargo:rerun-if-changed={dotconfig}");
     }
-    if std::env::var("ZEPHYR_DTS").is_ok() {
-        zephyr_build::dt_cfgs();
+    if let Ok(dts) = std::env::var("ZEPHYR_DTS") {
+        if std::path::Path::new(&dts).exists() {
+            zephyr_build::dt_cfgs();
+        }
     }
 }
 

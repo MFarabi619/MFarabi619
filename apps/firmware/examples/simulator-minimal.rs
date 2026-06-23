@@ -1,9 +1,9 @@
 use embedded_graphics_simulator::{OutputSettings, SimulatorDisplay, SimulatorEvent, Window};
 use mousefood::{embedded_graphics::geometry, error::Error, prelude::*};
 use ratatui::{
-    Frame, Terminal,
     style::*,
     widgets::{Block, Paragraph, Wrap},
+    Frame, Terminal,
 };
 
 fn main() -> Result<(), Error> {
