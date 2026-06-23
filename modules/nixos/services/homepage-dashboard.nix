@@ -14,9 +14,9 @@
       headerStyle = "boxedWidgets";
       title = "🕹️ Microvisor Systems 🕹️";
       # background = "/images/homepage-background.png";
-      background = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
       description = "🤖 Beep boop, from bootloader to browser 🤖";
       favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/nix-mfarabi.svg";
+      background = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
 
       quicklaunch = {
         # target = "_blank";
@@ -103,13 +103,13 @@
               icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/likec4.svg";
             };
           }
-          {
-            "Arch Linux Mirror" = rec {
-              href = "https://mirror.openws.org";
-              siteMonitor = href;
-              icon = "arch-linux.svg";
-            };
-          }
+          # {
+          #   "Arch Linux Mirror" = rec {
+          #     href = "https://mirror.openws.org";
+          #     siteMonitor = href;
+          #     icon = "arch-linux.svg";
+          #   };
+          # }
           {
             # "🏗️ Netdata" = {
             #   href = "https://www.netdata.cloud";
@@ -193,21 +193,21 @@
             "🛖 Userspace Environments" = [
               {
                 "Emacs - Doom" = rec {
-                  siteMonitor = href;
+                  # siteMonitor = href;
                   href = "https://emacs.openws.org";
                   icon = "https://user-images.githubusercontent.com/590297/85930281-0d379c00-b889-11ea-9eb8-6f7b816b6c4a.png";
                 };
               }
               {
                 "Neovim - Lazyvim" = rec {
-                  siteMonitor = href;
+                  # siteMonitor = href;
                   href = "https://neovim.openws.org";
                   icon = "https://upload.wikimedia.org/wikipedia/commons/3/3a/Neovim-mark.svg";
                 };
               }
               {
                 "Penpot" = rec {
-                  siteMonitor = href;
+                  # siteMonitor = href;
                   icon = "penpot.svg";
                   href = "https://penpot.openws.org";
                 };
@@ -230,7 +230,7 @@
               {
                 "FreeBSD" = {
                   href = "https://freebsd.openws.org";
-                  siteMonitor = "https://freebsd.openws.org";
+                  # siteMonitor = "https://freebsd.openws.org";
                   icon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/freebsd-symbol-orb.png";
                 };
               }
@@ -290,7 +290,7 @@
               {
                 "NixOS" = {
                   href = "https://demo.openws.org";
-                  siteMonitor = "https://demo.openws.org";
+                  # siteMonitor = "https://demo.openws.org";
                   icon = "nixos.svg";
                 };
               }
@@ -325,7 +325,7 @@
               {
                 "Raspberry Pi 5 (Trixie)" = {
                   icon = "raspberry-pi.svg";
-                  href = "https://rpi5.openws.org";
+                  # href = "https://rpi5.openws.org";
                   siteMonitor = "https://rpi5.openws.org";
                 };
               }
