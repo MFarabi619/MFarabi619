@@ -226,35 +226,29 @@ fn panicFn(msg: []const u8, first_trace_addr: ?usize) noreturn {
     var buf: [192]u8 = undefined;
     const formatted = std.fmt.bufPrintZ(&buf, "[zig panic] {s}\n", .{msg}) catch "[zig panic]\n";
     printk("%s", formatted.ptr);
-    _ = sys.k_panic();
+    // k_panic() chains down to ARCH_EXCEPT → arch_syscall_invoke1, which is a
+    // static-inline-with-asm that translate-c demotes to extern. Skip the
+    // syscall trap; just halt with @breakpoint so a debugger can attach.
     while (true) @breakpoint();
 }
 
 pub const panic = std.debug.FullPanic(panicFn);
 
-const root = @import("root");
-
-comptime {
-    if (@hasDecl(root, "main")) {
-        const Trampoline = struct {
-            fn entry() callconv(.c) c_int {
-                const RT = @typeInfo(@TypeOf(root.main)).@"fn".return_type.?;
-                if (comptime @typeInfo(RT) == .error_union) {
-                    root.main() catch |err| {
-                        var buf: [192]u8 = undefined;
-                        const formatted = std.fmt.bufPrintZ(&buf, "[main] error: {s}\n", .{@errorName(err)}) catch "[main] error\n";
-                        printk("%s", formatted.ptr);
-                        return 1;
-                    };
-                    return 0;
-                } else if (comptime @typeInfo(RT) == .void) {
-                    root.main();
-                    return 0;
-                } else {
-                    @compileError("zephyr-lang-zig: root `main` must return `void` or `!void`");
-                }
-            }
+// Helper for user code: `export fn main() c_int { return zephyr.runApp(app); }`
+pub inline fn runApp(comptime appFn: anytype) c_int {
+    const RT = @typeInfo(@TypeOf(appFn)).@"fn".return_type.?;
+    if (comptime @typeInfo(RT) == .error_union) {
+        appFn() catch |err| {
+            var buf: [192]u8 = undefined;
+            const formatted = std.fmt.bufPrintZ(&buf, "[app] error: {s}\n", .{@errorName(err)}) catch "[app] error\n";
+            printk("%s", formatted.ptr);
+            return 1;
         };
-        @export(&Trampoline.entry, .{ .name = "main", .linkage = .strong });
+        return 0;
+    } else if (comptime @typeInfo(RT) == .void) {
+        appFn();
+        return 0;
+    } else {
+        @compileError("zephyr-lang-zig: app must return `void` or `!void`");
     }
 }

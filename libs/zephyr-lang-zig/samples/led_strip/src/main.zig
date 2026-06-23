@@ -5,7 +5,7 @@ const sys = zephyr.sys;
 const strip = dt.aliases.led_strip;
 const num_pixels: usize = @intCast(strip.*.chain_length);
 const brightness: u8 = 0x40;
-const delay_ms: i64 = 50;
+const delay_ms: i64 = 200;
 
 const colors = [_]sys.led_rgb{
     .{ .r = brightness, .g = 0, .b = 0 },
@@ -18,7 +18,7 @@ var pixels: [num_pixels]sys.led_rgb = [_]sys.led_rgb{off} ** num_pixels;
 
 pub const panic = zephyr.panic;
 
-pub fn main() !void {
+fn app() !void {
     zephyr.say("Displaying pattern on strip\n");
 
     var color: usize = 0;
@@ -32,4 +32,8 @@ pub fn main() !void {
         }
         color = (color + 1) % colors.len;
     }
+}
+
+export fn main() c_int {
+    return zephyr.runApp(app);
 }

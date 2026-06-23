@@ -1,0 +1,18 @@
+.{
+    .name = .clay_tui,
+    .version = "0.1.0",
+    .fingerprint = 0xe68a8bd664c2235b,
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{
+        .zephyr_lang_zig = .{ .path = "../.." },
+        .zclay = .{
+            .url = "git+https://github.com/johan0A/clay-zig-bindings#e0286c488a303b93501944ccde10730cc74ecd58",
+            .hash = "zclay-0.2.2-Ej1rkP3RAACYZGzQB5NGPaqfySgKfO26NYk5Ja6Z15gC",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}

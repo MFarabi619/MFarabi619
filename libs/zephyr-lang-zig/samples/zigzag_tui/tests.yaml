@@ -1,0 +1,15 @@
+common:
+  tags:
+    - zephyr_lang_zig
+  harness: console
+  harness_config:
+    type: one_line
+    regex:
+      - "zigzag-tui ready"
+
+tests:
+  zephyr_lang_zig.sample.zigzag_tui:
+    platform_allow:
+      - qemu_riscv32
+    integration_platforms:
+      - qemu_riscv32

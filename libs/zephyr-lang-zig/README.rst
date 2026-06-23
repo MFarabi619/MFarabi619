@@ -3,183 +3,59 @@
 Zig Language Support
 ####################
 
-Zig is a systems programming language with comptime metaprogramming, explicit
-allocators, and seamless C interop.  It has no runtime, links cleanly against
-Zephyr's C kernel, and can compile C sources directly.
+Zig support for Zephyr. Enable with ``CONFIG_ZIG=y``.
 
-Enabling Zig Support
-********************
+Requirements
+************
 
-Select :kconfig:option:`CONFIG_ZIG` in the application configuration.
+- Zephyr SDK
+- Zig 0.16+ (Xtensa toolchain auto-downloaded; RISC-V/host uses system ``zig``)
 
-Install Zig 0.16 or later from the `Zig downloads page`_ or via a package
-manager.  ``riscv32`` works with upstream Zig; ``xtensa`` needs the
-`zig-espressif-bootstrap`_ fork.
+Hello World
+***********
 
-.. _Zig downloads page: https://ziglang.org/download/
-.. _zig-espressif-bootstrap: https://github.com/kassane/zig-espressif-bootstrap
-
-Target and CPU model are derived from ``ARCH``.  Only ``riscv32`` is mapped
-today — extend ``cmake/zig-target.cmake`` for more.
-
-Writing a Zig Application
-*************************
-
-See :file:`samples/` for ``hello_world``, ``tick_loop``, ``blinky``, ``bench``, and ``sqlite``.
-
-CMake file
-----------
-
-.. code-block:: cmake
+``CMakeLists.txt``::
 
    cmake_minimum_required(VERSION 3.20.0)
-
    list(APPEND ZEPHYR_EXTRA_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-
    find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-   project(hello_world LANGUAGES C)
-
+   project(my_app LANGUAGES C)
    zig_sample_app()
 
-``zig_sample_app()`` compiles :file:`src/main.zig` with Zephyr's include paths
-and links the result into the app target.
+``prj.conf``::
 
-Application
------------
+   CONFIG_ZIG=y
 
-:file:`src/main.zig`:
-
-.. code-block:: zig
+``src/main.zig``::
 
    const zephyr = @import("zephyr");
 
+   pub const panic = zephyr.panic;
+
+   fn app() !void {
+       zephyr.say("Hello, Zephyr!\n");
+   }
+
    export fn main() c_int {
-       zephyr.print("Hello from Zig on Zephyr!\n", .{});
-       return 0;
+       return zephyr.runApp(app);
    }
 
-Pre-registered modules: ``zephyr`` (Zephyr API wrappers), ``timing``
-(ms/ticks math), ``ring_buffer`` (SPSC ring buffer), ``build_config`` (Kconfig
-values as comptime constants).
+See ``samples/`` for more.
 
-Zephyr Functionality
-********************
+Architectures
+*************
 
-Logging
--------
+- RISC-V (``qemu_riscv32``, ESP32-Cx) — upstream Zig
+- Xtensa (ESP32, ESP32-S2, ESP32-S3) — auto-fetched `kassane/zig-espressif-bootstrap`_
 
-Route ``std.log`` through Zephyr's ``LOG_*`` macros:
+ARM Cortex-M is not supported.
 
-.. code-block:: zig
+.. _kassane/zig-espressif-bootstrap: https://github.com/kassane/zig-espressif-bootstrap
 
-   pub const std_options: std.Options = .{
-       .log_level = .debug,
-       .logFn = zephyr.logFn,
-   };
+Tests
+*****
 
-Heap
-----
+::
 
-Use ``std.heap.c_allocator`` directly — Zephyr's ``CONFIG_COMMON_LIBC_MALLOC``
-routes libc ``malloc``/``free`` to the kernel ``sys_heap``. Pick the arena
-size with ``CONFIG_COMMON_LIBC_MALLOC_ARENA_SIZE``.
-
-.. code-block:: zig
-
-   const allocator = std.heap.c_allocator;
-
-Errors
-------
-
-``zephyr.checkError(rc)`` lifts negative ``errno`` returns into Zig's typed
-error set (``InvalidArg``, ``Busy``, ``TimedOut``, ...).
-
-Sync
-----
-
-``zephyr.Mutex`` and ``zephyr.Semaphore`` wrap ``k_mutex`` / ``k_sem``.
-``init(handle)`` for runtime, ``fromHandle(handle)`` for ``K_MUTEX_DEFINE``
-symbols.
-
-Time
-----
-
-``zephyr.Timeout`` mirrors ``k_timeout_t``.  ``sleepMs``, ``uptimeMs``,
-``cycleGet32``, ``cycleHz``.
-
-Kconfig at comptime
--------------------
-
-.. code-block:: zig
-
-   const build_config = @import("build_config");
-   const ticks_per_sec = build_config.ticks_per_sec;
-
-Add new values in ``cmake/zig.cmake``.
-
-Testing
-*******
-
-Host-side:
-
-.. code-block:: console
-
-   $ zig test libs/zephyr-lang-zig/lib/timing.zig
-
-On-target with ``ztest``: a test directory contains :file:`prj.conf`,
-:file:`tests.yaml`, :file:`CMakeLists.txt` calling ``zig_ztest_app()``, and
-:file:`src/zig_tests.zig`:
-
-.. code-block:: zig
-
-   export fn zig_test_my_case() void {
-       t.zig_assert_i64_eq(1 + 1, 2);
-   }
-
-The C ``ZTEST`` scaffolding is generated.  Optional
-``zig_before`` / ``zig_after`` register per-test hooks.  Add
-:file:`src/test_bridge.c` for C-side fixtures (``K_MUTEX_DEFINE``,
-``DEVICE_DT_GET``).
-
-Tests enable ``CONFIG_ZTEST_FANCY=y`` (from the sibling
-``libs/zephyr-ztest-fancy`` module), which supplies the ``test_main``
-runner, colored ``[PASSED]`` / ``[FAILED]`` verdict tags, ``TC_END_REPORT``,
-and a SiFive test-finisher poweroff so QEMU exits cleanly after the suite
-instead of hanging until twister's timeout.
-
-BDD-style narration is available as ``zephyr.bdd.given`` /
-``zephyr.bdd.when`` / ``zephyr.bdd.then`` / ``zephyr.bdd.@"and"`` — Zig
-counterparts to the ``GIVEN`` / ``WHEN`` / ``THEN`` / ``AND`` C macros in
-the fancy module. Each takes a single ``[*:0]const u8`` (runtime
-null-terminated string), passed through printk's ``%s`` so a stray ``%``
-in user text won't be reinterpreted. The function name encodes the BDD
-phase via ANSI-colored ``[GIVEN]`` / ``[WHEN]`` / ``[THEN]`` prefixes
-matching the C macros byte-for-byte.
-
-.. code-block:: zig
-
-   export fn zig_test_sem_take_give() void {
-       zephyr.bdd.given("an empty semaphore");
-       zephyr.bdd.when("we give then immediately take");
-       zephyr.bdd.then("count returns to 0");
-
-       // ... assertions ...
-   }
-
-Run:
-
-.. code-block:: console
-
-   $ west twister -T libs/zephyr-lang-zig -p qemu_riscv32
-
-Known Limitations
-*****************
-
-* Only ``riscv32`` validated.  ``xtensa`` needs the Kassane fork.
-* ``@cImport`` doesn't work against picolibc — bindings are ``extern fn``.
-* Devicetree exposed via ``@import("dt")`` — ``scripts/gen_dts_zig.py``
-  walks the build's ``edt.pickle`` and emits nested ``const`` Zig data;
-  phandles become Zig references. ``chosen`` and ``DT_NODELABEL`` labels
-  not yet translated.
-* ``static inline`` Zephyr APIs (``k_msleep``, ``gpio_pin_*``,
-  ``k_sem_count_get``) need C trampolines — see :file:`bridge.c`.
+   $ zig test lib/timing.zig    # host-side, pure-Zig logic
+   $ west twister -T .          # on-target via QEMU
