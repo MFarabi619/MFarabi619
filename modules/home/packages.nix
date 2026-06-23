@@ -20,7 +20,7 @@
         wasm-bindgen-cli
         rubyPackages_3_4.rails
       ]
-      ++ lib.optional pkgs.stdenv.isLinux [
+      ++ lib.optionals stdenv.isLinux [
         espup
         (probe-rs-tools.overrideAttrs (old: {
           cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
