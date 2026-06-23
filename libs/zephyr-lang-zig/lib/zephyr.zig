@@ -52,7 +52,7 @@ pub const Error = error{
 };
 
 /// Translate a negative Zephyr errno into a typed error. Non-negative is success.
-pub fn checkError(rc: c_int) Error!void {
+pub inline fn checkError(rc: c_int) Error!void {
     if (rc >= 0) return;
     return switch (-rc) {
         sys.EPERM => error.NotPermitted,
@@ -82,7 +82,7 @@ pub fn cycleHz() u32 {
     return sys.sys_clock_hw_cycles_per_sec();
 }
 
-pub fn sleepMs(ms: i64) Error!void {
+pub inline fn sleepMs(ms: i64) Error!void {
     const timeout = Timeout.fromMs(ms);
     const remaining = sys.z_impl_k_sleep(@bitCast(timeout));
     if (remaining != 0) return error.Interrupted;
@@ -106,7 +106,7 @@ pub fn print(comptime fmt: []const u8, args: anytype) void {
     printk("%s", formatted.ptr);
 }
 
-pub fn say(msg: [*:0]const u8) void {
+pub inline fn say(msg: [*:0]const u8) void {
     printk("%s", msg);
 }
 
@@ -183,19 +183,22 @@ pub const GpioDtSpec = extern struct {
         };
     }
 
-    pub fn isReady(self: *const GpioDtSpec) bool {
-        return sys.z_impl_device_is_ready(@ptrCast(@alignCast(self.port)));
+    pub inline fn isReady(self: *const GpioDtSpec) bool {
+        return bridge_gpio_is_ready_dt(self);
     }
 
-    pub fn configure(self: *const GpioDtSpec, flags: u32) Error!void {
-        const combined: u32 = @as(u32, self.dt_flags) | flags;
-        try checkError(sys.z_impl_gpio_pin_configure(@ptrCast(@alignCast(self.port)), self.pin, combined));
+    pub inline fn configure(self: *const GpioDtSpec, flags: u32) Error!void {
+        try checkError(bridge_gpio_pin_configure_dt(self, flags));
     }
 
-    pub fn toggle(self: *const GpioDtSpec) Error!void {
-        try checkError(sys.z_impl_gpio_pin_toggle(@ptrCast(@alignCast(self.port)), self.pin));
+    pub inline fn toggle(self: *const GpioDtSpec) Error!void {
+        try checkError(bridge_gpio_pin_toggle_dt(self));
     }
 };
+
+extern fn bridge_gpio_is_ready_dt(spec: *const GpioDtSpec) bool;
+extern fn bridge_gpio_pin_configure_dt(spec: *const GpioDtSpec, flags: u32) c_int;
+extern fn bridge_gpio_pin_toggle_dt(spec: *const GpioDtSpec) c_int;
 
 pub const GPIO_OUTPUT_INACTIVE: u32 = @intCast(sys.GPIO_OUTPUT_INACTIVE);
 

@@ -1,0 +1,14 @@
+common:
+  tags:
+    - zephyr_lang_zig
+  harness: console
+  harness_config:
+    type: one_line
+    regex:
+      - "Displaying pattern on strip"
+
+tests:
+  zephyr_lang_zig.sample.led_strip:
+    build_only: true
+    platform_allow:
+      - esp32s3_devkitc/esp32s3/procpu

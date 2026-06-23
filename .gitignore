@@ -14,7 +14,6 @@ assets/static/tui_bg.wasm
 .shellspec
 **/node_modules
 tests/env_spec.sh
-apps/ceratina/tests/__pycache__
 learning/assembly/build/
 config/data.sqld
 .pixi/
@@ -22,6 +21,7 @@ config/data.sqld
 /build/
 /log/
 **/twister-out*/
+**/__pycache__/
 
 #====================================================
 #                 CACHES/LOGS
@@ -88,4 +88,3 @@ build/
 opencode.json
 /.codex/config.toml
 /compile_commands.json
-/tests/__pycache__

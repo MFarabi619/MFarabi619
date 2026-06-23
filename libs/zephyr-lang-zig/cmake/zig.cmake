@@ -49,6 +49,7 @@ function(add_zig_object zephyr_target zig_source)
       "-Dsys-includes=$<JOIN:$<TARGET_PROPERTY:zephyr_interface,INTERFACE_SYSTEM_INCLUDE_DIRECTORIES>,|>"
       "-Dc-defines=$<JOIN:$<TARGET_PROPERTY:zephyr_interface,INTERFACE_COMPILE_DEFINITIONS>,|>"
       ${_dt_arg}
+    COMMAND ${CMAKE_OBJCOPY} --remove-section=.note.GNU-stack ${obj_path}
     DEPENDS ${src_absolute} ${_libc_txt} ${ARG_DT}
       ${ZIG_MODULE_DIR}/scripts/zephyr_stub.h
     VERBATIM

@@ -1,7 +1,7 @@
 const dt = @import("dt");
 const zephyr = @import("zephyr");
 
-const led = zephyr.GpioDtSpec.fromDt(dt.leds.led_0.gpios);
+const led = zephyr.GpioDtSpec.fromDt(dt.aliases.led0.*.gpios);
 
 export fn main() c_int {
     if (!led.isReady()) {

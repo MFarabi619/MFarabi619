@@ -3,12 +3,14 @@
 # Derived from zig-zephyr (https://github.com/rcrnstn/zig-zephyr),
 # Copyright (c) 2021 Nordic Semiconductor ASA, Apache-2.0.
 #
-# Walks the EDT pickle Zephyr produces during DTS processing and emits an
-# idiomatic Zig module that mirrors the devicetree as nested struct/const
-# data. Phandles become real Zig references. `__device_dts_ord_N` externs
-# (declared by Zephyr's DEVICE_DT_* macros) are declared up front as
-# opaque externs so the generated module is self-contained — no @cImport
-# of Zephyr headers required.
+# Walks the EDT pickle Zephyr produces during DTS processing and emits a
+# Zig module that mirrors the devicetree as flat top-level constants.
+# Every node becomes `pub const <flat_name> = .{...};` — phandle refs
+# point at these flat names, so no nested-comptime-field issues even
+# when siblings cross-reference (e.g. ESP32-S3's soc children).
+# `__device_dts_ord_N` externs (declared by Zephyr's DEVICE_DT_* macros)
+# are declared up front as opaque externs so the generated module is
+# self-contained — no @cImport of Zephyr headers required.
 
 import argparse
 import pickle
@@ -35,7 +37,7 @@ def main():
     ordinals = sorted(
         node.dep_ordinal
         for node in edt.nodes
-        if "status" in node.props and node.props["status"].val == "okay"
+        if node.status == "okay"
     )
 
     with open(args.zig_out, "w", encoding="utf-8") as zig_out:
@@ -43,50 +45,41 @@ def main():
         for ordinal in ordinals:
             print(f"pub extern const __device_dts_ord_{ordinal}: Device;", file=zig_out)
         print("", file=zig_out)
-        print(print_node_props_and_children(edt.scc_order[0][0], 0, True), file=zig_out)
+        for node in edt.nodes:
+            if node.path == "/":
+                continue
+            if node.path == "/aliases":
+                continue
+            print(f"// {node.dep_ordinal}", file=zig_out)
+            print(f"pub const {path2ident(node.path)} = .{{", file=zig_out)
+            print(emit_node_props(node, 1), end="", file=zig_out)
+            print("};", file=zig_out)
+        print("pub const aliases = .{", file=zig_out)
+        for node in edt.nodes:
+            for alias_name in node.aliases:
+                print(f"    .{str2ident(alias_name)} = {path2ref(node.path)},", file=zig_out)
+        print("};", file=zig_out)
 
 
 def ident(level):
     return " " * (4 * level)
 
 
-def print_node_props_and_children(node, level, decl):
+def emit_node_props(node, level):
     s = ""
-    if "status" in node.props and node.props["status"].val == "okay":
-        s += ident(level)
-        s += "const _device = " if decl else "._device = "
-        s += f"&__device_dts_ord_{node.dep_ordinal}"
-        s += ";\n" if decl else ",\n"
+    if node.status == "okay":
+        s += ident(level) + f"._device = &__device_dts_ord_{node.dep_ordinal},\n"
     for prop_name, prop in node.props.items():
         prop_id = str2ident(prop_name)
         val = prop2value(prop)
         if val is None:
-            s += ident(level) + f"// {prop.type}" + "\n"
-        s += ident(level)
-        s += "const " if decl else "."
-        s += f"{prop_id} = "
+            s += ident(level) + f"// {prop.type}\n"
+        s += ident(level) + f".{prop_id} = "
         if val is not None:
             s += f"{val}"
         else:
             s += "undefined"
-        s += ";\n" if decl else ",\n"
-    for child in node.children.values():
-        child_decl = True if str2ident(child.name) == "soc" else False
-        s += ident(level)
-        s += f"// {child.dep_ordinal}\n"
-        s += ident(level)
-        if decl:
-            if level == 0:
-                s += "pub "
-            s += "const "
-        else:
-            s += "."
-        s += f"{str2ident(child.name)} = "
-        s += "struct {" if child_decl else ".{"
-        s += "\n"
-        s += print_node_props_and_children(child, level + 1, child_decl)
-        s += ident(level)
-        s += "};\n" if decl else "},\n"
+        s += ",\n"
     return s
 
 
@@ -94,6 +87,8 @@ def prop2value(prop):
     if prop.type == "string":
         return quote_str(prop.val)
     if prop.type == "int":
+        if prop.val < 0:
+            return f"@as(i32, {prop.val})"
         return f"@as(u32, {prop.val})"
     if prop.type == "boolean":
         return "true" if prop.val else "false"
@@ -131,8 +126,12 @@ def pharray2items(val):
     return s
 
 
+def path2ident(p):
+    return re.sub("[-/,.@+]", "_", p[1:].lower())
+
+
 def path2ref(p):
-    return "&" + re.sub("[/]", ".", re.sub("[-,.@+]", "_", p[1:].lower()))
+    return "&" + path2ident(p)
 
 
 def str2ident(s):
