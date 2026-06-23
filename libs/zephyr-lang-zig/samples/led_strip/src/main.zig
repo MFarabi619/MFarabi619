@@ -1,35 +1,34 @@
 const dt = @import("dt");
 const zephyr = @import("zephyr");
+const sys = zephyr.sys;
 
-const LedRgb = extern struct { r: u8 = 0, g: u8 = 0, b: u8 = 0 };
+const strip = dt.aliases.led_strip;
+const num_pixels: usize = @intCast(strip.*.chain_length);
+const brightness: u8 = 0x40;
+const delay_ms: i64 = 50;
 
-extern fn bridge_led_strip_update_rgb(dev: *const anyopaque, pixels: [*]LedRgb, num_pixels: usize) c_int;
-
-const strip_node = dt.aliases.led_strip;
-const STRIP_NUM_PIXELS: usize = @intCast(strip_node.*.chain_length);
-const BRIGHTNESS: u8 = 0x40;
-const DELAY_MS: i64 = 50;
-
-const colors = [_]LedRgb{
-    .{ .r = BRIGHTNESS, .g = 0, .b = 0 },
-    .{ .r = 0, .g = BRIGHTNESS, .b = 0 },
-    .{ .r = 0, .g = 0, .b = BRIGHTNESS },
+const colors = [_]sys.led_rgb{
+    .{ .r = brightness, .g = 0, .b = 0 },
+    .{ .r = 0, .g = brightness, .b = 0 },
+    .{ .r = 0, .g = 0, .b = brightness },
 };
 
-var pixels: [STRIP_NUM_PIXELS]LedRgb = .{LedRgb{}} ** STRIP_NUM_PIXELS;
+const off: sys.led_rgb = .{ .r = 0, .g = 0, .b = 0 };
+var pixels: [num_pixels]sys.led_rgb = [_]sys.led_rgb{off} ** num_pixels;
 
-export fn main() c_int {
-    const strip: *const anyopaque = @ptrCast(strip_node.*._device);
+pub const panic = zephyr.panic;
+
+pub fn main() !void {
     zephyr.say("Displaying pattern on strip\n");
 
     var color: usize = 0;
     while (true) {
         var cursor: usize = 0;
         while (cursor < pixels.len) : (cursor += 1) {
-            for (&pixels) |*p| p.* = .{};
+            @memset(&pixels, off);
             pixels[cursor] = colors[color];
-            _ = bridge_led_strip_update_rgb(strip, &pixels, pixels.len);
-            zephyr.sleepMs(DELAY_MS) catch return 1;
+            try zephyr.call(sys.led_strip_update_rgb, .{ zephyr.devOf(strip), &pixels, pixels.len });
+            try zephyr.sleepMs(delay_ms);
         }
         color = (color + 1) % colors.len;
     }

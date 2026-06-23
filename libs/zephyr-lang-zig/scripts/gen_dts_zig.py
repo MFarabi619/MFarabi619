@@ -13,6 +13,7 @@
 # self-contained — no @cImport of Zephyr headers required.
 
 import argparse
+import os
 import pickle
 import sys
 import re
@@ -30,6 +31,9 @@ def main():
     global zig_out
     args = parse_args()
     sys.path.insert(0, args.edt_lib)
+    sys.path.insert(0, os.path.dirname(os.path.dirname(args.edt_lib)))
+    import edtlib_logger
+    edtlib_logger.setup_edtlib_logging()
 
     with open(args.edt_pickle, "rb") as f:
         edt = pickle.load(f)
@@ -41,9 +45,9 @@ def main():
     )
 
     with open(args.zig_out, "w", encoding="utf-8") as zig_out:
-        print("pub const Device = opaque {};", file=zig_out)
+        print('pub const sys = @import("sys");', file=zig_out)
         for ordinal in ordinals:
-            print(f"pub extern const __device_dts_ord_{ordinal}: Device;", file=zig_out)
+            print(f"pub extern const __device_dts_ord_{ordinal}: sys.struct_device;", file=zig_out)
         print("", file=zig_out)
         for node in edt.nodes:
             if node.path == "/":

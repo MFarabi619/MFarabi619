@@ -23,9 +23,12 @@ if ZIG
 
 config ZIG_OPTIMIZE
 	string "Zig optimization mode"
+	default "ReleaseSafe" if XTENSA
 	default "ReleaseSmall"
 	help
 	  One of: Debug, ReleaseSafe, ReleaseFast, ReleaseSmall.
+	  Defaults to ReleaseSafe on Xtensa because Espressif LLVM at -Oz
+	  drops translate-c'd static-inline bodies, breaking sys.* link.
 
 config MAIN_STACK_SIZE
 	default 8192 if ZTEST

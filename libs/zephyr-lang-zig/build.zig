@@ -1,17 +1,46 @@
 const std = @import("std");
 
-const ModuleSpec = struct {
-    name: []const u8,
-    file: []const u8,
-    deps: []const []const u8 = &.{},
+// Zephyr headers exposed through the translated `sys` module. Append here
+// to surface a new driver/subsystem to Zig code.
+const sys_headers = [_][]const u8{
+    "zephyr/kernel.h",
+    "zephyr/drivers/gpio.h",
+    "zephyr/drivers/led_strip.h",
+    "zephyr/sys/printk.h",
 };
 
-const lib_specs = [_]ModuleSpec{
-    .{ .name = "timing", .file = "lib/timing.zig" },
-    .{ .name = "ring_buffer", .file = "lib/ring_buffer.zig" },
-    .{ .name = "test_helpers", .file = "lib/test_helpers.zig" },
-    .{ .name = "zephyr", .file = "lib/zephyr.zig", .deps = &.{ "timing", "build_config", "sys" } },
-};
+// Pre-translation stub. Picolibc's <sys/_types.h> references typedefs it
+// doesn't fully provide under translate-c; Aro also fails on inline asm,
+// so we neuter compiler_barrier() — its memory clobber is a compile-time
+// fence only, no runtime effect.
+const stub_prelude =
+    \\typedef unsigned int wint_t;
+    \\typedef int wctype_t;
+    \\typedef unsigned int wctrans_t;
+    \\#define __machine_mbstate_t_defined
+    \\typedef struct {
+    \\    int __count;
+    \\    union {
+    \\        unsigned int __wch;
+    \\        unsigned char __wchb[4];
+    \\    } __value;
+    \\} _mbstate_t;
+    \\
+;
+
+const stub_pre_includes =
+    \\#include <autoconf.h>
+    \\#include <zephyr/toolchain/zephyr_stdint.h>
+    \\#include <stdint.h>
+    \\
+    \\#define ZEPHYR_INCLUDE_IRQ_MULTILEVEL_H_
+    \\typedef uint32_t _z_irq_t;
+    \\
+    \\#include <zephyr/toolchain.h>
+    \\#undef compiler_barrier
+    \\#define compiler_barrier() do {} while (0)
+    \\
+;
 
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
@@ -22,15 +51,39 @@ pub fn build(b: *std.Build) !void {
     const output_name = b.option([]const u8, "output-name", "basename for emitted .o") orelse "app_zig";
     const ticks_per_sec = b.option(i64, "ticks-per-sec", "Zephyr CONFIG_SYS_CLOCK_TICKS_PER_SEC") orelse
         @panic("zephyr-lang-zig: -Dticks-per-sec is required");
-    const libc_path = b.option([]const u8, "libc", "absolute path to libc.txt");
+    const sysroot = b.option([]const u8, "sysroot", "Zephyr SDK sysroot directory") orelse
+        @panic("zephyr-lang-zig: -Dsysroot is required");
     const dt_path = b.option([]const u8, "dt", "absolute path to generated dt.zig");
 
     const user_includes_arg = b.option([]const u8, "user-includes", "pipe-separated -I dirs") orelse "";
     const sys_includes_arg = b.option([]const u8, "sys-includes", "pipe-separated -isystem dirs") orelse "";
     const c_defines_arg = b.option([]const u8, "c-defines", "pipe-separated NAME or NAME=value macros") orelse "";
 
+    const wf = b.addWriteFiles();
+
+    const libc_content = b.fmt(
+        \\include_dir={s}/include
+        \\sys_include_dir={s}/include
+        \\crt_dir={s}/lib
+        \\msvc_lib_dir=
+        \\kernel32_lib_dir=
+        \\gcc_dir=
+        \\
+    , .{ sysroot, sysroot, sysroot });
+    const libc_lp = wf.add("zig_libc.txt", libc_content);
+
+    var stub: std.ArrayList(u8) = .empty;
+    defer stub.deinit(b.allocator);
+    try stub.appendSlice(b.allocator, stub_prelude);
+    if (target.result.cpu.arch.isXtensa()) {
+        try stub.appendSlice(b.allocator, "#define __IEEE_LITTLE_ENDIAN 1\n");
+    }
+    try stub.appendSlice(b.allocator, stub_pre_includes);
+    for (sys_headers) |h| try stub.print(b.allocator, "#include <{s}>\n", .{h});
+    const stub_lp = wf.add("zephyr_stub.h", stub.items);
+
     const sys_translate = b.addTranslateC(.{
-        .root_source_file = b.path("scripts/zephyr_stub.h"),
+        .root_source_file = stub_lp,
         .target = target,
         .optimize = optimize,
         .link_libc = true,
@@ -65,45 +118,25 @@ pub fn build(b: *std.Build) !void {
             }
         }
     }
+    const sys_mod = sys_translate.createModule();
 
-    const sys_module = sys_translate.createModule();
+    const timing = b.createModule(.{ .root_source_file = b.path("lib/timing.zig") });
+    const ring_buffer = b.createModule(.{ .root_source_file = b.path("lib/ring_buffer.zig") });
+    const test_helpers = b.createModule(.{ .root_source_file = b.path("lib/test_helpers.zig") });
 
-    var module_map = std.StringHashMap(*std.Build.Module).init(b.allocator);
-    defer module_map.deinit();
+    const zephyr = b.createModule(.{ .root_source_file = b.path("lib/zephyr.zig") });
+    zephyr.addImport("timing", timing);
+    zephyr.addImport("sys", sys_mod);
 
-    const build_config_options = b.addOptions();
-    build_config_options.addOption(i64, "ticks_per_sec", ticks_per_sec);
-    try module_map.put("build_config", build_config_options.createModule());
-    try module_map.put("sys", sys_module);
+    const build_config = b.addOptions();
+    build_config.addOption(i64, "ticks_per_sec", ticks_per_sec);
+    zephyr.addOptions("build_config", build_config);
 
-    if (dt_path) |path| {
-        const dt_mod = b.createModule(.{
-            .root_source_file = .{ .cwd_relative = path },
-        });
-        try module_map.put("dt", dt_mod);
-    }
-
-    inline for (lib_specs) |spec| {
-        var imports: std.ArrayList(std.Build.Module.Import) = .empty;
-        defer imports.deinit(b.allocator);
-        inline for (spec.deps) |dep_name| {
-            const dep_mod = module_map.get(dep_name) orelse
-                @panic("zephyr-lang-zig: dep '" ++ dep_name ++ "' missing for module '" ++ spec.name ++ "'");
-            try imports.append(b.allocator, .{ .name = dep_name, .module = dep_mod });
-        }
-        const mod = b.createModule(.{
-            .root_source_file = b.path(spec.file),
-            .imports = imports.items,
-        });
-        try module_map.put(spec.name, mod);
-    }
-
-    var root_imports: std.ArrayList(std.Build.Module.Import) = .empty;
-    defer root_imports.deinit(b.allocator);
-    var iter = module_map.iterator();
-    while (iter.next()) |entry| {
-        try root_imports.append(b.allocator, .{ .name = entry.key_ptr.*, .module = entry.value_ptr.* });
-    }
+    const dt_mod: ?*std.Build.Module = if (dt_path) |path| blk: {
+        const m = b.createModule(.{ .root_source_file = .{ .cwd_relative = path } });
+        m.addImport("sys", sys_mod);
+        break :blk m;
+    } else null;
 
     const obj = b.addObject(.{
         .name = output_name,
@@ -112,14 +145,18 @@ pub fn build(b: *std.Build) !void {
             .target = target,
             .optimize = optimize,
             .link_libc = true,
-            .imports = root_imports.items,
             .pic = false,
             .stack_check = false,
         }),
     });
-    if (libc_path) |path| {
-        obj.setLibCFile(.{ .cwd_relative = path });
-    }
+    obj.setLibCFile(libc_lp);
+    obj.root_module.addImport("zephyr", zephyr);
+    obj.root_module.addImport("timing", timing);
+    obj.root_module.addImport("ring_buffer", ring_buffer);
+    obj.root_module.addImport("test_helpers", test_helpers);
+    obj.root_module.addImport("sys", sys_mod);
+    obj.root_module.addOptions("build_config", build_config);
+    if (dt_mod) |dt| obj.root_module.addImport("dt", dt);
 
     b.getInstallStep().dependOn(&b.addInstallArtifact(obj, .{
         .dest_dir = .{ .override = .{ .custom = "obj" } },

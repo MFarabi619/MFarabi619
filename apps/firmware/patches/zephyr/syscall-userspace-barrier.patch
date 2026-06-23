@@ -1,0 +1,21 @@
+diff --git a/scripts/build/gen_syscalls.py b/scripts/build/gen_syscalls.py
+index 2d5431fc6b5..5deaa9d3446 100755
+--- a/scripts/build/gen_syscalls.py
++++ b/scripts/build/gen_syscalls.py
+@@ -301,10 +301,15 @@ def wrapper_defs(func_name, func_type, args, fn, userspace_only):
+         # Otherwise fall through to direct invocation of the impl func.
+         # Note the compiler barrier: that is required to prevent code from
+         # the impl call from being hoisted above the check for user
+-        # context.
++        # context. Only emit it when CONFIG_USERSPACE is enabled — without
++        # the userspace branch above there is nothing to be hoisted past,
++        # and the inline asm clobber blocks source-level C parsers (Aro
++        # used by zig's translate-c, etc.) from emitting the wrapper body.
+         impl_arglist = ", ".join([argrec[1] for argrec in args])
+         impl_call = f"z_impl_{func_name}({impl_arglist})"
++        wrap += "#ifdef CONFIG_USERSPACE\n"
+         wrap += "\t" + "compiler_barrier();\n"
++        wrap += "#endif\n"
+         ret = "return " if func_type != "void" else ""
+         wrap += "\t" + f"{ret}{impl_call};\n"
+ 

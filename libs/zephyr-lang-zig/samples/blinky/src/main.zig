@@ -3,21 +3,17 @@ const zephyr = @import("zephyr");
 
 const led = zephyr.GpioDtSpec.fromDt(dt.aliases.led0.*.gpios);
 
-export fn main() c_int {
-    if (!led.isReady()) {
-        zephyr.print("led0 not ready\n", .{});
-        return 1;
-    }
-    led.configure(zephyr.GPIO_OUTPUT_INACTIVE) catch {
-        zephyr.print("led0 configure failed\n", .{});
-        return 1;
-    };
+pub const panic = zephyr.panic;
+
+pub fn main() !void {
+    if (!led.isReady()) return error.LedNotReady;
+    try led.configure(zephyr.GPIO_OUTPUT_INACTIVE);
 
     zephyr.print("blinky on led0\n", .{});
 
     while (true) {
-        zephyr.sleepMs(500) catch return 1;
-        led.toggle() catch return 1;
+        try zephyr.sleepMs(500);
+        try led.toggle();
         zephyr.print("toggle\n", .{});
     }
 }

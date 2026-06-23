@@ -258,6 +258,25 @@ patches:
       Upstreamable as-is — single conceptual change to `ipv4_nat.c`, no
       Kconfig or API change.
 
+  # ===== zephyr-lang-zig =====
+
+  - path: zephyr/syscall-userspace-barrier.patch
+    sha256sum: 174329c5060fade4cd305f5b71cdae7e9a050fc15b31e60c4bcd6eb401a3e38b
+    module: zephyr
+    author: Mumtahin Farabi
+    email: mfarabi619@gmail.com
+    date: 2026-06-22
+    upstreamable: true
+    comments: |
+      Guard the `compiler_barrier()` in gen_syscalls.py wrappers with
+      `#ifdef CONFIG_USERSPACE`. The in-source comment already says the
+      barrier exists to protect the user-context check — which lives
+      inside the same `#ifdef`, so with CONFIG_USERSPACE=n there's
+      nothing to guard. The unconditional emit breaks source-level C
+      parsers that can't model inline asm (Aro / zig translate-c),
+      demoting every `sys.*` wrapper to extern. Bit-identical output
+      with CONFIG_USERSPACE=y.
+
   # ===== shared (both boards) =====
 
   - path: zephyr/shell.patch

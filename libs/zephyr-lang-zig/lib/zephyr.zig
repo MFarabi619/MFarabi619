@@ -88,6 +88,14 @@ pub inline fn sleepMs(ms: i64) Error!void {
     if (remaining != 0) return error.Interrupted;
 }
 
+pub inline fn devOf(node: anytype) [*c]const sys.struct_device {
+    return node.*._device;
+}
+
+pub inline fn call(comptime f: anytype, args: anytype) Error!void {
+    try checkError(@call(.auto, f, args));
+}
+
 pub fn uptimeMs() i64 {
     return timing.ticks_to_ms(sys.z_impl_k_uptime_ticks(), TICKS_PER_SEC);
 }
@@ -125,12 +133,6 @@ pub const bdd = struct {
     }
 };
 
-extern fn log_err(msg: [*:0]const u8) void;
-extern fn log_warn(msg: [*:0]const u8) void;
-extern fn log_info(msg: [*:0]const u8) void;
-extern fn log_debug(msg: [*:0]const u8) void;
-
-/// Wire as `std.options.logFn` to route `std.log` through Zephyr's LOG_* macros.
 pub fn logFn(
     comptime level: std.log.Level,
     comptime scope: @TypeOf(.enum_literal),
@@ -138,14 +140,9 @@ pub fn logFn(
     args: anytype,
 ) void {
     var buf: [256]u8 = undefined;
-    const prefix = "[" ++ @tagName(scope) ++ "] ";
+    const prefix = "[" ++ comptime level.asText() ++ "][" ++ @tagName(scope) ++ "] ";
     const formatted = std.fmt.bufPrintZ(&buf, prefix ++ fmt, args) catch return;
-    switch (level) {
-        .err => log_err(formatted.ptr),
-        .warn => log_warn(formatted.ptr),
-        .info => log_info(formatted.ptr),
-        .debug => log_debug(formatted.ptr),
-    }
+    printk("%s\n", formatted.ptr);
 }
 
 pub const Mutex = struct {
@@ -171,34 +168,30 @@ pub const Mutex = struct {
 };
 
 pub const GpioDtSpec = extern struct {
-    port: *const anyopaque,
+    port: [*c]const sys.struct_device,
     pin: u8,
     dt_flags: u16,
 
     pub fn fromDt(gpios: anytype) GpioDtSpec {
         return .{
-            .port = @ptrCast(gpios.ph._device),
+            .port = gpios.ph._device,
             .pin = @intCast(gpios.pin),
             .dt_flags = @intCast(gpios.flags),
         };
     }
 
     pub inline fn isReady(self: *const GpioDtSpec) bool {
-        return bridge_gpio_is_ready_dt(self);
+        return sys.gpio_is_ready_dt(@ptrCast(self));
     }
 
     pub inline fn configure(self: *const GpioDtSpec, flags: u32) Error!void {
-        try checkError(bridge_gpio_pin_configure_dt(self, flags));
+        try checkError(sys.gpio_pin_configure_dt(@ptrCast(self), flags));
     }
 
     pub inline fn toggle(self: *const GpioDtSpec) Error!void {
-        try checkError(bridge_gpio_pin_toggle_dt(self));
+        try checkError(sys.gpio_pin_toggle_dt(@ptrCast(self)));
     }
 };
-
-extern fn bridge_gpio_is_ready_dt(spec: *const GpioDtSpec) bool;
-extern fn bridge_gpio_pin_configure_dt(spec: *const GpioDtSpec, flags: u32) c_int;
-extern fn bridge_gpio_pin_toggle_dt(spec: *const GpioDtSpec) c_int;
 
 pub const GPIO_OUTPUT_INACTIVE: u32 = @intCast(sys.GPIO_OUTPUT_INACTIVE);
 
@@ -227,3 +220,41 @@ pub const Semaphore = struct {
         return sys.z_impl_k_sem_count_get(self.handle);
     }
 };
+
+fn panicFn(msg: []const u8, first_trace_addr: ?usize) noreturn {
+    _ = first_trace_addr;
+    var buf: [192]u8 = undefined;
+    const formatted = std.fmt.bufPrintZ(&buf, "[zig panic] {s}\n", .{msg}) catch "[zig panic]\n";
+    printk("%s", formatted.ptr);
+    _ = sys.k_panic();
+    while (true) @breakpoint();
+}
+
+pub const panic = std.debug.FullPanic(panicFn);
+
+const root = @import("root");
+
+comptime {
+    if (@hasDecl(root, "main")) {
+        const Trampoline = struct {
+            fn entry() callconv(.c) c_int {
+                const RT = @typeInfo(@TypeOf(root.main)).@"fn".return_type.?;
+                if (comptime @typeInfo(RT) == .error_union) {
+                    root.main() catch |err| {
+                        var buf: [192]u8 = undefined;
+                        const formatted = std.fmt.bufPrintZ(&buf, "[main] error: {s}\n", .{@errorName(err)}) catch "[main] error\n";
+                        printk("%s", formatted.ptr);
+                        return 1;
+                    };
+                    return 0;
+                } else if (comptime @typeInfo(RT) == .void) {
+                    root.main();
+                    return 0;
+                } else {
+                    @compileError("zephyr-lang-zig: root `main` must return `void` or `!void`");
+                }
+            }
+        };
+        @export(&Trampoline.entry, .{ .name = "main", .linkage = .strong });
+    }
+}
