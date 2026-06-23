@@ -5,14 +5,15 @@ use core::{
 };
 use zephyr::{
     raw::{
-        net_addr_state_NET_ADDR_PREFERRED, net_addr_type_NET_ADDR_MANUAL, net_dhcpv4_server_start,
-        net_dhcpv4_server_stop, net_if, net_if_get_first_wifi, net_if_get_wifi_sap,
-        net_if_ipv4_addr_add, net_if_ipv4_addr_rm, net_if_ipv4_get_global_addr, net_if_ipv4_get_gw,
-        net_if_ipv4_set_gw, net_if_ipv4_set_netmask_by_addr, net_in_addr,
-        net_ipv4_is_addr_unspecified, net_mgmt_NET_REQUEST_WIFI_AP_DISABLE,
-        net_mgmt_NET_REQUEST_WIFI_AP_ENABLE, net_mgmt_NET_REQUEST_WIFI_CONNECT_STORED,
+        conn_mgr_ignore_iface, k_timeout_t, net_addr_state_NET_ADDR_PREFERRED,
+        net_addr_type_NET_ADDR_MANUAL, net_dhcpv4_server_start, net_dhcpv4_server_stop, net_if,
+        net_if_get_wifi_sap, net_if_get_wifi_sta, net_if_ipv4_addr_add, net_if_ipv4_addr_rm,
+        net_if_ipv4_get_global_addr, net_if_ipv4_get_gw, net_if_ipv4_set_gw,
+        net_if_ipv4_set_netmask_by_addr, net_in_addr, net_ipv4_is_addr_unspecified,
+        net_mgmt_NET_REQUEST_WIFI_AP_DISABLE, net_mgmt_NET_REQUEST_WIFI_AP_ENABLE,
+        net_mgmt_NET_REQUEST_WIFI_CONNECT_STORED,
         net_mgmt_add_event_callback, net_mgmt_del_event_callback, net_mgmt_event_callback,
-        net_mgmt_init_event_callback, wifi_connect_req_params,
+        net_mgmt_event_wait_on_iface, net_mgmt_init_event_callback, wifi_connect_req_params,
         wifi_credentials_for_each_ssid, wifi_credentials_get_by_ssid_personal_struct,
         wifi_credentials_is_empty, wifi_credentials_personal,
         wifi_frequency_bands_WIFI_FREQ_BAND_2_4_GHZ, wifi_mfp_options_WIFI_MFP_OPTIONAL,
@@ -193,6 +194,8 @@ pub mod ap {
             return to_result_void(ENODEV);
         }
 
+        unsafe { conn_mgr_ignore_iface(iface) };
+
         let mut params: wifi_connect_req_params = unsafe { core::mem::zeroed() };
         params.ssid = ssid_ptr as *const u8;
         params.ssid_length = ssid_len as u8;
@@ -295,7 +298,7 @@ pub mod sta {
     use super::*;
 
     fn install_default_route() -> zephyr::Result<()> {
-        let iface = unsafe { net_if_get_first_wifi() };
+        let iface = unsafe { net_if_get_wifi_sta() };
         if iface.is_null() {
             return to_result_void(ENODEV);
         }
@@ -340,7 +343,7 @@ pub mod sta {
     }
 
     fn connect() -> zephyr::Result<()> {
-        let iface = unsafe { net_if_get_first_wifi() };
+        let iface = unsafe { net_if_get_wifi_sta() };
         if iface.is_null() {
             return to_result_void(ENODEV);
         }
@@ -350,7 +353,7 @@ pub mod sta {
     }
 
     pub fn is_connected() -> bool {
-        let iface = unsafe { net_if_get_first_wifi() };
+        let iface = unsafe { net_if_get_wifi_sta() };
         if iface.is_null() {
             return false;
         }
@@ -358,24 +361,41 @@ pub mod sta {
     }
 
     pub(super) fn wait_for_ipv4(timeout: Duration) -> zephyr::Result<()> {
-        if is_connected() {
+        let iface = unsafe { net_if_get_wifi_sta() };
+        if iface.is_null() {
+            return to_result_void(ENODEV);
+        }
+
+        // Fast path: already has IPv4 (e.g. on a soft reboot)
+        if !unsafe { net_if_ipv4_get_global_addr(iface, net_addr_state_NET_ADDR_PREFERRED) }
+            .is_null()
+        {
+            if let Err(e) = install_default_route() {
+                warn!("wifi default route: {e}");
+            }
             return Ok(());
         }
-        let timeout_ms = timeout.to_millis() as u32;
-        let poll_ms: u32 = 500;
-        let mut waited: u32 = 0;
-        while waited < timeout_ms {
-            if is_connected() {
-                info!("IPv4 up after {} ms", waited);
-                if let Err(e) = install_default_route() {
-                    warn!("wifi default route: {e}");
-                }
-                return Ok(());
-            }
-            zephyr::time::sleep(Duration::millis(poll_ms as u64));
-            waited += poll_ms;
+
+        let mut raised: u64 = 0;
+        let rc = unsafe {
+            net_mgmt_event_wait_on_iface(
+                iface,
+                ZR_NET_EVENT_IPV4_DHCP_BOUND,
+                &mut raised,
+                core::ptr::null_mut(),
+                core::ptr::null_mut(),
+                k_timeout_t { ticks: timeout.ticks() as i64 },
+            )
+        };
+        if rc != 0 {
+            warn!("no wifi IPv4 after {} ms", timeout.to_millis() as u32);
+            return to_result_void(ETIMEDOUT);
         }
-        warn!("no wifi IPv4 after {} ms", timeout_ms);
-        to_result_void(ETIMEDOUT)
+
+        info!("IPv4 up");
+        if let Err(e) = install_default_route() {
+            warn!("wifi default route: {e}");
+        }
+        Ok(())
     }
 }

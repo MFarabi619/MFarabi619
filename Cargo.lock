@@ -1502,11 +1502,11 @@ dependencies = [
  "defmt 1.1.0",
  "ds323x",
  "ed25519-dalek",
- "embassy-executor",
+ "embassy-executor 0.10.0",
  "embassy-futures",
  "embassy-net",
  "embassy-sync 0.7.2",
- "embassy-time",
+ "embassy-time 0.5.1",
  "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "embedded-io 0.7.1",
@@ -3911,6 +3911,17 @@ dependencies = [
 
 [[package]]
 name = "embassy-executor"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "90327bcc66333a507f89ecc4e2d911b265c45f5c9bc241f98eee076752d35ac6"
+dependencies = [
+ "critical-section",
+ "document-features",
+ "embassy-executor-macros 0.6.2",
+]
+
+[[package]]
+name = "embassy-executor"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5d0d3b15c9d7dc4fec1d8cb77112472fb008b3b28c51ad23838d83587a6d2f1e"
@@ -3919,8 +3930,20 @@ dependencies = [
  "critical-section",
  "defmt 1.1.0",
  "document-features",
- "embassy-executor-macros",
+ "embassy-executor-macros 0.8.0",
  "embassy-executor-timer-queue",
+]
+
+[[package]]
+name = "embassy-executor-macros"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3577b1e9446f61381179a330fc5324b01d511624c55f25e3c66c9e3c626dbecf"
+dependencies = [
+ "darling 0.20.11",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -3969,7 +3992,7 @@ dependencies = [
  "document-features",
  "embassy-net-driver",
  "embassy-sync 0.8.0",
- "embassy-time",
+ "embassy-time 0.5.1",
  "embedded-io-async 0.7.0",
  "embedded-nal-async",
  "heapless 0.9.1",
@@ -4032,6 +4055,22 @@ dependencies = [
 
 [[package]]
 name = "embassy-time"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f820157f198ada183ad62e0a66f554c610cdcd1a9f27d4b316358103ced7a1f8"
+dependencies = [
+ "cfg-if",
+ "critical-section",
+ "document-features",
+ "embassy-time-driver",
+ "embedded-hal 0.2.7",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "futures-util",
+]
+
+[[package]]
+name = "embassy-time"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "592b0c143ec626e821d4d90da51a2bd91d559d6c442b7c74a47d368c9e23d97a"
@@ -4084,7 +4123,7 @@ checksum = "fb205e26d59e483e8c48f91f637ec217ec7e2cfb0b61d50482301b991b4ff431"
 dependencies = [
  "critical-section",
  "embassy-sync 0.8.0",
- "embassy-time",
+ "embassy-time 0.5.1",
  "embassy-usb-driver",
  "portable-atomic",
 ]
@@ -4283,7 +4322,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "688d2915ed90ecd8cea89f287a1c6d18e1d276bb8bbeecc9d54900bd7359a95b"
 dependencies = [
  "defmt 1.1.0",
- "embassy-executor",
+ "embassy-executor 0.10.0",
  "embedded-test-linker-script",
  "embedded-test-macros",
  "semihosting",
@@ -4656,7 +4695,7 @@ dependencies = [
  "cfg-if",
  "defmt 1.1.0",
  "document-features",
- "embassy-executor",
+ "embassy-executor 0.10.0",
  "embassy-sync 0.8.0",
  "embassy-time-driver",
  "embassy-time-queue-utils",
@@ -5057,9 +5096,13 @@ name = "firmware"
 version = "0.1.0"
 dependencies = [
  "bindgen 0.71.1",
+ "embassy-executor 0.7.0",
+ "embassy-time 0.4.0",
+ "embassy-time-queue-utils",
  "log",
  "num-derive",
  "num-traits",
+ "static_cell",
  "zephyr",
  "zephyr-build",
 ]
@@ -9136,7 +9179,7 @@ source = "git+https://github.com/sammhicks/picoserve?rev=815ca5b#815ca5bf4a3968f
 dependencies = [
  "const-sha1",
  "embassy-net",
- "embassy-time",
+ "embassy-time 0.5.1",
  "embedded-io-async 0.7.0",
  "heapless 0.8.0",
  "picoserve_derive",
@@ -13461,7 +13504,7 @@ dependencies = [
  "bt-hci",
  "embassy-futures",
  "embassy-sync 0.7.2",
- "embassy-time",
+ "embassy-time 0.5.1",
  "embedded-io 0.7.1",
  "futures",
  "heapless 0.9.1",
@@ -15532,6 +15575,10 @@ dependencies = [
  "arrayvec",
  "cfg-if",
  "critical-section",
+ "embassy-executor 0.7.0",
+ "embassy-sync 0.6.2",
+ "embassy-time-driver",
+ "embassy-time-queue-utils",
  "fugit",
  "log",
  "paste",

@@ -10,11 +10,13 @@ tt         = ["test",  "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
 build-std = ["core", "alloc"]
 
 [env]
-ZEPHYR_BASE   = { value = "zephyr", relative = true }
-DOTCONFIG     = { value = "build/firmware/zephyr/.config", relative = true }
-ZEPHYR_DTS    = { value = "build/firmware/zephyr/zephyr.dts", relative = true }
 OTA_DEVICE_IP = "10.0.0.68"
 DEFMT_LOG     = "info,embedded_test=warn"
+ZEPHYR_BASE   = { value = "zephyr", relative = true }
+WRAPPER_FILE  = { value = "build/rust/wrapper.c", relative = true }
+DOTCONFIG     = { value = "build/firmware/zephyr/.config", relative = true }
+DT_AUGMENTS   = { value = "modules/lang/rust/dt-rust.yaml", relative = true }
+ZEPHYR_DTS    = { value = "build/firmware/zephyr/zephyr.dts", relative = true }
 
 [target.xtensa-esp32s3-none-elf]
 runner = "probe-rs run --idf-partition-table apps/ceratina/machine/esp32s3.partitions.csv"
@@ -24,3 +26,8 @@ runner = "espflash flash --monitor --chip esp32"
 
 [target.thumbv7em-none-eabihf]
 runner = "probe-rs run --chip stm32h723zg"
+
+# [patch.crates-io]
+# zephyr.path = { value = "modules/lang/rust/zephyr", relative = true }
+# zephyr-sys.path = { value = "modules/lang/rust/zephyr-sys", relative = true }
+# zephyr-build.path = { value = "modules/lang/rust/zephyr-build", relative = true }

@@ -7,8 +7,8 @@ base = zephyr
 
 [build]
 pristine   = auto
-guess-dir  = runners
-board      = qemu_riscv32
+# guess-dir  = runners
+# board      = qemu_riscv32
 # dir-fmt  = build/{board}
 # cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
@@ -22,8 +22,8 @@ pa         = p apply --roll-back
 
 menuconfig = build apps/firmware -p=never -t menuconfig
 
-r          = build apps/firmware -t run
-t          = r -T qemu.riscv32
+r          = build apps/firmware -b qemu_riscv32 -t run
+t          = r -T qemu.riscv32 --extra-conf=test.conf
 
 tr         = twister -T apps/firmware -s qemu.riscv32 --inline-logs -c --log-level DEBUG
 tb         = twister -T apps/firmware --tag build     --inline-logs -c --all

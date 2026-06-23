@@ -1,17 +1,15 @@
-use core::{cell::UnsafeCell, ffi::c_char, mem::MaybeUninit, sync::atomic::AtomicPtr};
+use core::{ffi::c_char, sync::atomic::AtomicPtr};
 use zephyr::{
     error::to_result_void,
     raw::{
-        __device_dts_ord_107, cellular_driver_api, cellular_modem_info_type,
-        conn_mgr_mon_resend_status, device, device_is_ready, net_addr_state_NET_ADDR_PREFERRED,
-        net_if, net_if_get_first_by_type, net_if_ipv4_get_global_addr, net_if_set_default,
-        net_if_up, net_in_addr, net_l2, net_mgmt_add_event_callback, net_mgmt_event_callback,
-        net_mgmt_init_event_callback, pm_device_action_PM_DEVICE_ACTION_RESUME,
-        pm_device_action_run, sys_reboot, ZR_NET_EVENT_DNS_SERVER_ADD, ZR_NET_EVENT_L4_CONNECTED,
-        ZR_NET_EVENT_L4_DISCONNECTED,
+        __device_dts_ord_107, cellular_driver_api, cellular_modem_info_type, device,
+        device_is_ready, k_timeout_t, net_addr_state_NET_ADDR_PREFERRED, net_if,
+        net_if_get_first_by_type, net_if_ipv4_get_global_addr, net_if_set_default, net_if_up,
+        net_in_addr, net_l2, net_mgmt_event_wait_on_iface,
+        pm_device_action_PM_DEVICE_ACTION_RESUME, pm_device_action_run, sys_reboot,
+        ZR_NET_EVENT_L4_CONNECTED,
     },
     sync::atomic::Ordering,
-    sys::sync::Semaphore,
     time::Duration,
 };
 
@@ -131,7 +129,6 @@ fn install_default_route(iface: *mut net_if) -> zephyr::Result<()> {
     }
 }
 
-static PPP_CONNECTED: Semaphore = Semaphore::new(0, 1);
 static PPP_IFACE: AtomicPtr<net_if> = AtomicPtr::new(core::ptr::null_mut());
 
 /// `improper_ctypes_definitions` is advisory for the pointer return —
@@ -140,27 +137,6 @@ static PPP_IFACE: AtomicPtr<net_if> = AtomicPtr::new(core::ptr::null_mut());
 #[allow(improper_ctypes_definitions)]
 pub extern "C" fn cellular_ppp_iface() -> *mut net_if {
     PPP_IFACE.load(Ordering::SeqCst)
-}
-
-struct L4CbCell(UnsafeCell<MaybeUninit<net_mgmt_event_callback>>);
-unsafe impl Sync for L4CbCell {}
-static L4_CB: L4CbCell = L4CbCell(UnsafeCell::new(MaybeUninit::uninit()));
-
-unsafe extern "C" fn on_l4_event(
-    _cb: *mut net_mgmt_event_callback,
-    event: u64,
-    iface: *mut net_if,
-) {
-    if iface != PPP_IFACE.load(Ordering::SeqCst) {
-        return;
-    }
-    if event == unsafe { ZR_NET_EVENT_L4_CONNECTED } {
-        info!("online");
-        PPP_CONNECTED.give();
-    } else if event == unsafe { ZR_NET_EVENT_L4_DISCONNECTED } {
-        info!("disconnected");
-        PPP_CONNECTED.reset();
-    }
 }
 
 pub fn initialize() -> zephyr::Result<()> {
@@ -180,16 +156,6 @@ pub fn initialize() -> zephyr::Result<()> {
     let _ = unsafe { pm_device_action_run(modem, pm_device_action_PM_DEVICE_ACTION_RESUME) };
     to_result_void(unsafe { net_if_up(iface) })?;
 
-    unsafe {
-        let cb = (*L4_CB.0.get()).as_mut_ptr();
-        net_mgmt_init_event_callback(
-            cb,
-            Some(on_l4_event),
-            ZR_NET_EVENT_L4_CONNECTED | ZR_NET_EVENT_L4_DISCONNECTED | ZR_NET_EVENT_DNS_SERVER_ADD,
-        );
-        net_mgmt_add_event_callback(cb);
-    }
-
     wait_for_attach(Duration::millis(ATTACH_TIMEOUT_MS))?;
 
     for (label, value) in access_identity().iter() {
@@ -202,15 +168,27 @@ pub fn initialize() -> zephyr::Result<()> {
 
 fn wait_for_attach(timeout: Duration) -> zephyr::Result<()> {
     let timeout_ms = timeout.to_millis().min(i32::MAX as u64) as i64;
+    let iface = PPP_IFACE.load(Ordering::SeqCst);
 
-    unsafe { conn_mgr_mon_resend_status() };
-
-    if PPP_CONNECTED.take(timeout).is_err() {
-        warn!("Attach did not complete within {timeout_ms} ms — see modem_cellular logs");
-        return to_result_void(ETIMEDOUT);
+    let existing = unsafe { net_if_ipv4_get_global_addr(iface, net_addr_state_NET_ADDR_PREFERRED) };
+    if existing.is_null() {
+        let mut raised: u64 = 0;
+        let rc = unsafe {
+            net_mgmt_event_wait_on_iface(
+                iface,
+                ZR_NET_EVENT_L4_CONNECTED,
+                &mut raised,
+                core::ptr::null_mut(),
+                core::ptr::null_mut(),
+                k_timeout_t { ticks: timeout.ticks() as i64 },
+            )
+        };
+        if rc != 0 {
+            warn!("Attach did not complete within {timeout_ms} ms — see modem_cellular logs");
+            return to_result_void(ETIMEDOUT);
+        }
     }
 
-    let iface = PPP_IFACE.load(Ordering::SeqCst);
     let addr = unsafe { net_if_ipv4_get_global_addr(iface, net_addr_state_NET_ADDR_PREFERRED) };
     if addr.is_null() {
         warn!("L4_CONNECTED fired but no IPv4 address on PPP iface");

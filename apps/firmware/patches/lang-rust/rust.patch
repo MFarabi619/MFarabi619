@@ -170,10 +170,10 @@ index 6b825d1..afebb6c 100644
          .generate()
          .expect("Unable to generate bindings");
 diff --git a/zephyr-sys/wrapper.h b/zephyr-sys/wrapper.h
-index dbb3842..2f7456a 100644
+index dbb3842..b8d9507 100644
 --- a/zephyr-sys/wrapper.h
 +++ b/zephyr-sys/wrapper.h
-@@ -90,6 +90,70 @@ extern int errno;
+@@ -90,6 +90,71 @@ extern int errno;
  #include <zephyr/logging/log.h>
  #include <zephyr/irq.h>
  
@@ -202,6 +202,7 @@ index dbb3842..2f7456a 100644
 +
 +#ifdef CONFIG_NET_CONNECTION_MANAGER
 +#include <zephyr/net/conn_mgr_monitor.h>
++#include <zephyr/net/conn_mgr_connectivity.h>
 +#endif
 +
 +#ifdef CONFIG_WIREGUARD
@@ -244,7 +245,7 @@ index dbb3842..2f7456a 100644
  /*
   * bindgen will only output #defined constants that resolve to simple numbers.  These are some
   * symbols that we want exported that, at least in some situations, are more complex, usually with a
-@@ -102,6 +166,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
+@@ -102,6 +167,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
  
  const uint32_t ZR_POLL_TYPE_SEM_AVAILABLE = K_POLL_TYPE_SEM_AVAILABLE;
  const uint32_t ZR_POLL_TYPE_SIGNAL = K_POLL_TYPE_SIGNAL;
@@ -258,3 +259,16 @@ index dbb3842..2f7456a 100644
  const uint32_t ZR_POLL_TYPE_DATA_AVAILABLE = K_POLL_TYPE_DATA_AVAILABLE;
  
  #ifdef CONFIG_GPIO_ENABLE_DISABLE_INTERRUPT
+diff --git a/zephyr/Cargo.toml b/zephyr/Cargo.toml
+index 0cebba8..4a6b7e2 100644
+--- a/zephyr/Cargo.toml
++++ b/zephyr/Cargo.toml
+@@ -56,7 +56,7 @@ version = "0.2"
+ optional = true
+ 
+ [dependencies.embassy-time-queue-utils]
+-version = "0.1"
++version = "0.3"
+ optional = true
+ 
+ [dependencies.embassy-sync]
