@@ -22,9 +22,6 @@
       ]
       ++ lib.optionals stdenv.isLinux [
         espup
-        (probe-rs-tools.overrideAttrs (old: {
-          cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
-        }))
       ]
       ++ [
         esptool
