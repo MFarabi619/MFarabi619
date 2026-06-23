@@ -52,6 +52,9 @@
           enable = true;
           port = "0.0.0.0:80:3000";
 
+          database.useInsecureHardcodedPassword = true;
+          auth.useInsecureHardcodedSecret = true;
+
           swarm = {
             autoRecreate = true;
             advertiseAddress = "private";

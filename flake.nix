@@ -58,8 +58,8 @@
       # inputs.nixpkgs.follows = "nixpkgs-nvmd-modules-with-keys";
     };
 
-    # nix-dokploy.url = "github:kedom1337/nix-dokploy/kd/feat/compat";
-    nix-dokploy.url = ./nix-dokploy;
+    nix-dokploy.url = "github:el-kurto/nix-dokploy";
+    nix-dokploy.inputs.nixpkgs.follows = "nixpkgs";
     proxmox-nixos.url = "github:SaumonNet/proxmox-nixos";
   };
 

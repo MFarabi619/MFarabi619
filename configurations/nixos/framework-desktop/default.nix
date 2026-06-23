@@ -10,6 +10,7 @@ in
 {
   imports = [
     ./configuration.nix
+    ./dokploy.nix
     self.nixosModules.boot
     self.nixosModules.users
     self.nixosModules.default
