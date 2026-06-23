@@ -259,16 +259,3 @@ index dbb3842..b8d9507 100644
  const uint32_t ZR_POLL_TYPE_DATA_AVAILABLE = K_POLL_TYPE_DATA_AVAILABLE;
  
  #ifdef CONFIG_GPIO_ENABLE_DISABLE_INTERRUPT
-diff --git a/zephyr/Cargo.toml b/zephyr/Cargo.toml
-index 0cebba8..4a6b7e2 100644
---- a/zephyr/Cargo.toml
-+++ b/zephyr/Cargo.toml
-@@ -56,7 +56,7 @@ version = "0.2"
- optional = true
- 
- [dependencies.embassy-time-queue-utils]
--version = "0.1"
-+version = "0.3"
- optional = true
- 
- [dependencies.embassy-sync]

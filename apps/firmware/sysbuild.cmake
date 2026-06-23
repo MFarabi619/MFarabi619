@@ -20,10 +20,6 @@ set(_esp32s3_bundle
   "${CMAKE_CURRENT_LIST_DIR}/programs/stats.conf"
   "${CMAKE_CURRENT_LIST_DIR}/ram.conf"
 
-  "${CMAKE_CURRENT_LIST_DIR}/filesystems/nvs.conf"
-  "${CMAKE_CURRENT_LIST_DIR}/filesystems/img.conf"
-  "${CMAKE_CURRENT_LIST_DIR}/filesystems/zvfs.conf"
-  "${CMAKE_CURRENT_LIST_DIR}/filesystems/flash.conf"
   "${CMAKE_CURRENT_LIST_DIR}/programs/settings.conf"
 
   "${CMAKE_CURRENT_LIST_DIR}/networking/buf.conf"
