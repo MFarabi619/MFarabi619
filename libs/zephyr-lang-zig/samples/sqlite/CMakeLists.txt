@@ -5,6 +5,10 @@ list(APPEND ZEPHYR_EXTRA_MODULES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../zephyr-lib-sqlite
 )
 
+if(NOT BOARD)
+  set(BOARD qemu_riscv32)
+endif()
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(zig_sqlite LANGUAGES C)
 
