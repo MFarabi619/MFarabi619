@@ -1,12 +1,13 @@
 {
-  config,
-  pkgs,
   lib,
+  pkgs,
+  config,
   ...
 }:
 {
   services.ttyd = {
-    enable = config.networking.hostName == "framework-desktop";
+    # enable = config.networking.hostName == "framework-desktop"; # BUG: broken as of Jun 13, 2026
+    enable = false;
     logLevel = 7;
     maxClients = 0;
     # indexFile = "";
@@ -16,7 +17,7 @@
     # username = "";
     # passwordFile = pkgs.writeText "ttydpw" "";
     checkOrigin = false;
-    interface = "127.0.0.1";
+    # interface = "wlp192s0";
     # terminalType = "xterm-kitty";
 
     entrypoint = [
