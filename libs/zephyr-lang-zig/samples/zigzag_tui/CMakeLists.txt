@@ -9,4 +9,9 @@ endif()
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(zig_zigzag_tui LANGUAGES C)
 
-zig_sample_app(BUILD_FILE ${CMAKE_CURRENT_SOURCE_DIR}/build.zig)
+zig_sample_app(
+  BUILD_FILE ${CMAKE_CURRENT_SOURCE_DIR}/build.zig
+  ZIG_SOURCE src/showcase.zig
+)
+
+target_sources(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/uart_input.c)

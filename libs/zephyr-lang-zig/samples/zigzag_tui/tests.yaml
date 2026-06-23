@@ -5,7 +5,7 @@ common:
   harness_config:
     type: one_line
     regex:
-      - "zigzag-tui ready"
+      - "showcase: ready"
 
 tests:
   zephyr_lang_zig.sample.zigzag_tui:

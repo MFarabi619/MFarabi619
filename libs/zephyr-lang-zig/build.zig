@@ -152,6 +152,7 @@ pub fn addApp(
         }),
     });
     obj.setLibCFile(libc_path);
+    obj.bundle_compiler_rt = true;
     obj.root_module.addImport("zephyr", zephyr);
     obj.root_module.addImport("timing", timing);
     obj.root_module.addImport("ring_buffer", ring_buffer);
