@@ -20,7 +20,12 @@
         wasm-bindgen-cli
         rubyPackages_3_4.rails
       ]
-      ++ lib.optional pkgs.stdenv.isLinux espup
+      ++ lib.optional pkgs.stdenv.isLinux [
+        espup
+        (probe-rs-tools.overrideAttrs (old: {
+          cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
+        }))
+      ]
       ++ [
         esptool
         esphome
@@ -32,10 +37,6 @@
         renode-dts2repl
         kconfig-frontends
         home-assistant-cli
-
-        (probe-rs-tools.overrideAttrs (old: {
-          cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
-        }))
 
         (python314.withPackages (
           package:
