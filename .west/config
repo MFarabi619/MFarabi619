@@ -7,7 +7,6 @@ base = zephyr
 
 [build]
 pristine   = auto
-# guess-dir  = runners
 # board      = qemu_riscv32
 # dir-fmt  = build/{board}
 # cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
@@ -35,10 +34,5 @@ bw         = build apps/firmware -T esp32s3.walter     -b walter/esp32s3/procpu
 bx         = build apps/firmware -T esp32s3.xiao       -b xiao_esp32s3/esp32s3/procpu
 bxs        = build apps/firmware -T esp32s3.xiao.sense -b xiao_esp32s3/esp32s3/procpu/sense
 be         = build apps/firmware -T esp32s3.devkitc    -b esp32s3_devkitc/esp32s3/procpu
-
-mw         = espressif monitor -p hwgrep://D0:CF:13:54:27:18
-mx         = espressif monitor -p hwgrep://CC:BA:97:16:2B:68
-
-ax         = attach --runner probe-rs
 
 dt         = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/firmware/zephyr/zephyr.dts
