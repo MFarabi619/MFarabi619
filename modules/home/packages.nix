@@ -124,6 +124,7 @@
         crates-lsp
         cmake-language-server
         postgres-language-server
+        vscode-json-languageserver
         # ============= 🤖 ==================
         tree
         pixi # multi-language package manager
