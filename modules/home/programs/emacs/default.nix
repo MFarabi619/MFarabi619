@@ -41,6 +41,7 @@
         kdl-mode
         scad-mode
         sqlup-mode
+        eldoc-cmake
         kconfig-ref
         kconfig-mode
         mermaid-mode # github.com/abrochard/mermaid-mode
