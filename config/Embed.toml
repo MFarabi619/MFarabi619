@@ -1,8 +1,8 @@
-[default.probe]
-protocol = "Jtag"
-usb_vid = "303a"
-usb_pid = "1001"
-serial = "D0:CF:13:54:27:18"
+# [default.probe]
+# protocol = "Jtag"
+# usb_vid = "303a"
+# usb_pid = "1001"
+# serial = "D0:CF:13:54:27:18"
 
 [default.flashing]
 verify = true
