@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index be31379..f59bb8a 100644
+index be31379..0c13ea6 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -44,8 +44,13 @@ function(_rust_map_target)
@@ -70,7 +70,18 @@ index be31379..f59bb8a 100644
    set(SAMPLE_CARGO_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/rust/sample-cargo-config.toml")
  
    # The generated C binding wrappers. These are bindgen-generated wrappers for the inline functions
-@@ -213,26 +238,14 @@ ${config_paths}
+@@ -179,10 +204,6 @@ function(rust_cargo_application)
+       "${config_paths}\
+ ${module}.path = \"$CACHE{RUST_MODULE_DIR}/${module}\"
+ ")
+-    list(APPEND command_paths
+-      "--config"
+-      "patch.crates-io.${module}.path=\\\"$CACHE{RUST_MODULE_DIR}/${module}\\\""
+-      )
+   endforeach()
+ 
+   # Write out a cargo config file that can be copied into `.cargo/config.toml` (or made a
+@@ -213,26 +234,14 @@ ${config_paths}
  ")
  
    # The library is built by invoking Cargo.
@@ -99,7 +110,7 @@ index be31379..f59bb8a 100644
    # Command to generate the rust docs.
    add_cargo_target_with_zephyr_env(rustdoc
      OUTPUT generate_rust_docs
-@@ -249,7 +262,7 @@ ${config_paths}
+@@ -249,7 +258,7 @@ ${config_paths}
    # Example of warning reported by ld when this fix is not in place:
    # <path>/ld.bfd: rust/target/riscv64imac-unknown-none-elf/debug/librustapp.a(45c91108d938afe8-clzdi2.o): unsupported relocation type 0x3d
    target_link_libraries(app PUBLIC $<TARGET_PROPERTY:linker,rt_library> -Wl,--allow-multiple-definition ${RUST_LIBRARY})

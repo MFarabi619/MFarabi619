@@ -31,6 +31,8 @@ tracing = { version = "0.1", features = ["std"] }
 ratatui = { version = "0.30.0", default-features = false }
 lucide-dioxus = { version = "2.45.0", features = ["all-icons"] }
 dioxus = { version = "0.7.7", features = ["router", "fullstack"] }
+zephyr       = { path = "zephyrproject/modules/lang/rust/zephyr" }
+zephyr-build = { path = "zephyrproject/modules/lang/rust/zephyr-build" }
 
 [profile.dev]
 # Rust debug is too slow.
@@ -54,9 +56,5 @@ overflow-checks = true # was false — silent integer wrapping is dangerous for 
 # debug-assertions = false  # already the default for release
 
 [patch.crates-io]
-zephyr = { path = "zephyrproject/modules/lang/rust/zephyr" }
-zephyr-sys = { path = "zephyrproject/modules/lang/rust/zephyr-sys" }
-zephyr-build = { path = "zephyrproject/modules/lang/rust/zephyr-build" }
-
 probe-rs = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" }        # 2026-06-08
 probe-rs-target = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" } # 2026-06-08

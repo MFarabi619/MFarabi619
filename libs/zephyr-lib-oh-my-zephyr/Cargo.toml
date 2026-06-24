@@ -8,7 +8,7 @@ license = "Apache-2.0"
 path = "src/lib.rs"
 
 [dependencies]
-zephyr = { version = "0.1.0" }
+zephyr = { workspace = true }
 
 [build-dependencies]
-zephyr-build = "0.1.0"
+zephyr-build = { workspace = true }

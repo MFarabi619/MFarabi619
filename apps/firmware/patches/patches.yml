@@ -47,10 +47,10 @@ patches:
           three Queue methods zephyr uses are unchanged between versions.
 
     - path: lang-rust/rust.patch
-      sha256sum: e472af3317ad88906c80832c3be810e000879c23d4c3092f6f6d6135b75983da
+      sha256sum: 77f5c68de5b60ea948c0916e4fa41f2f01d10fc71389ec4ce27b75a667edf908
       module: lang-rust
       author: Mumtahin Farabi
-      email: farabi@apidaesystems.ca
+      email: mfarabi619@gmail.com
       date: 2026-06-14
       upstreamable: true
       comments: |

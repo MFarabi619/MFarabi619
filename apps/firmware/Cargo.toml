@@ -35,7 +35,7 @@ log    = "0.4"
 libm   = "0.2"
 
 [target.'cfg(target_os = "none")'.dependencies]
-zephyr             = { version = "0.1.0", features = ["time-driver", "executor-zephyr"] }
+zephyr             = { workspace = true, features = ["time-driver", "executor-zephyr"] }
 oh-my-zephyr       = { path = "../../libs/zephyr-lib-oh-my-zephyr" }
 mousefood          = { version = "0.5", default-features = false, features = ["fonts", "blink"] }
 ratatui            = { workspace = true, default-features = false, features = ["all-widgets"] }
@@ -65,7 +65,7 @@ ratatui                     = { workspace = true, features = ["crossterm", "all-
 
 [build-dependencies]
 bindgen = "0.71"
-zephyr-build = "0.1.0"
+zephyr-build = { workspace = true }
 
 [package.metadata.trunk.build]
 inject_scripts = true
