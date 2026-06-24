@@ -1,26 +1,79 @@
 use alloc::{vec, vec::Vec};
 use core::convert::Infallible;
+use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 
 use embedded_graphics::{
     pixelcolor::{raw::ToBytes, Rgb565},
     prelude::*,
     primitives::Rectangle,
 };
-use mousefood::{fonts, EmbeddedBackend, EmbeddedBackendConfig};
+use mousefood::{EmbeddedBackend, EmbeddedBackendConfig, fonts};
 use ratatui::{
-    style::*,
-    widgets::{Block, Paragraph, Wrap},
     Frame, Terminal,
+    layout::{Alignment, Constraint, Layout, Rect},
+    style::*,
+    widgets::{Block, BorderType, Paragraph, Wrap},
 };
 use zephyr::raw::{
-    __device_dts_ord_118, device, display_blanking_off, display_buffer_descriptor,
-    display_capabilities, display_get_capabilities, display_write, k_msleep,
+    INPUT_ABS_X, INPUT_ABS_Y, INPUT_BTN_TOUCH, INPUT_EV_ABS, INPUT_EV_KEY, __device_dts_ord_48,
+    __device_dts_ord_52, __device_dts_ord_121, device, display_blanking_off,
+    display_buffer_descriptor, display_capabilities, display_get_capabilities, display_write,
+    input_callback, input_event, k_msleep, led_off, led_set_brightness, sys_reboot,
 };
 
-const _: () = assert!(zephyr::devicetree::labels::ili9341::ORD == 118);
+const _: () = assert!(zephyr::devicetree::labels::ili9341::ORD == 121);
+const _: () = assert!(zephyr::devicetree::pwmleds::ORD == 48);
+const _: () = assert!(zephyr::devicetree::labels::pwmleds_backlight::ORD == 52);
+
+const SYS_REBOOT_COLD: i32 = 1;
+const FONT_W: u16 = 10;
+const FONT_H: u16 = 20;
+
+static TOUCH_X: AtomicI32 = AtomicI32::new(-1);
+static TOUCH_Y: AtomicI32 = AtomicI32::new(-1);
+static TOUCH_PRESSED: AtomicBool = AtomicBool::new(false);
+
+unsafe extern "C" fn on_touch(evt: *mut input_event, _user: *mut core::ffi::c_void) {
+    let evt = unsafe { &*evt };
+    let t = evt.type_ as u32;
+    let c = evt.code as u32;
+    if t == INPUT_EV_ABS {
+        if c == INPUT_ABS_X {
+            TOUCH_X.store(evt.value, Ordering::Relaxed);
+        } else if c == INPUT_ABS_Y {
+            TOUCH_Y.store(evt.value, Ordering::Relaxed);
+        }
+    } else if t == INPUT_EV_KEY && c == INPUT_BTN_TOUCH {
+        TOUCH_PRESSED.store(evt.value != 0, Ordering::Relaxed);
+    }
+}
+
+// Hand-rolled iterable-section entry equivalent to INPUT_CALLBACK_DEFINE.
+// Section name reconstructed from STRUCT_SECTION_ITERABLE expansion:
+// `._<struct_type>.static.<varname>_` per zephyr/sys/iterable_sections.h.
+// dev = NULL → receives events from all input devices.
+#[repr(transparent)]
+struct InputCallbackEntry(input_callback);
+unsafe impl Sync for InputCallbackEntry {}
+
+#[link_section = "._input_callback.static._input_callback__touch_"]
+#[used]
+static TOUCH_CB: InputCallbackEntry = InputCallbackEntry(input_callback {
+    dev: core::ptr::null(),
+    callback: Some(on_touch),
+    user_data: core::ptr::null_mut(),
+});
 
 fn display_device() -> *const device {
-    unsafe { &__device_dts_ord_118 as *const device }
+    unsafe { &__device_dts_ord_121 as *const device }
+}
+
+fn led_device() -> *const device {
+    unsafe { &__device_dts_ord_48 as *const device }
+}
+
+fn backlight_device() -> *const device {
+    unsafe { &__device_dts_ord_52 as *const device }
 }
 
 pub struct ZephyrDisplay {
@@ -130,12 +183,52 @@ impl DrawTarget for ZephyrDisplay {
     }
 }
 
+fn cell_rect_contains_pixel(rect: Rect, px: i32, py: i32) -> bool {
+    if px < 0 || py < 0 {
+        return false;
+    }
+    let px = px as u16;
+    let py = py as u16;
+    let x_lo = rect.x * FONT_W;
+    let y_lo = rect.y * FONT_H;
+    let x_hi = x_lo + rect.width * FONT_W;
+    let y_hi = y_lo + rect.height * FONT_H;
+    px >= x_lo && px < x_hi && py >= y_lo && py < y_hi
+}
+
+fn render_button(frame: &mut Frame, area: Rect, label: &str, highlight: bool) {
+    let (fg, bg) = if highlight {
+        (Color::Black, Color::Yellow)
+    } else {
+        (Color::White, Color::Reset)
+    };
+    let block = Block::bordered()
+        .border_type(BorderType::Double)
+        .border_style(Style::new().fg(Color::Yellow));
+    let paragraph = Paragraph::new(label)
+        .alignment(Alignment::Center)
+        .style(Style::default().fg(fg).bg(bg))
+        .block(block)
+        .wrap(Wrap { trim: true });
+    frame.render_widget(paragraph, area);
+}
+
+enum Action {
+    LedOff,
+    Reboot,
+}
+
 pub fn display_loop() {
     let dev = display_device();
 
     let blanking_rc = unsafe { display_blanking_off(dev) };
     if blanking_rc != 0 {
         log::warn!("ui: display_blanking_off rc={}", blanking_rc);
+    }
+
+    let bl_rc = unsafe { led_set_brightness(backlight_device(), 0, 100) };
+    if bl_rc != 0 {
+        log::warn!("ui: led_set_brightness(backlight) rc={}", bl_rc);
     }
 
     let mut caps: display_capabilities = unsafe { core::mem::zeroed() };
@@ -159,19 +252,53 @@ pub fn display_loop() {
         }
     };
 
+    let mut last_pressed = false;
+
     loop {
-        let _ = terminal.draw(draw);
+        let pressed = TOUCH_PRESSED.load(Ordering::Relaxed);
+        let tx = TOUCH_X.load(Ordering::Relaxed);
+        let ty = TOUCH_Y.load(Ordering::Relaxed);
+        let edge = pressed && !last_pressed;
+        last_pressed = pressed;
+
+        let mut action: Option<Action> = None;
+        let _ = terminal.draw(|frame| {
+            let [top, bottom] =
+                Layout::vertical([Constraint::Ratio(1, 2); 2]).areas(frame.area());
+
+            let top_hit = cell_rect_contains_pixel(top, tx, ty);
+            let bot_hit = cell_rect_contains_pixel(bottom, tx, ty);
+
+            render_button(frame, top, "LED OFF", pressed && top_hit);
+            render_button(frame, bottom, "REBOOT", pressed && bot_hit);
+
+            if edge {
+                if top_hit {
+                    action = Some(Action::LedOff);
+                } else if bot_hit {
+                    action = Some(Action::Reboot);
+                }
+            }
+        });
+
+        match action {
+            Some(Action::LedOff) => {
+                log::info!("ui: LED OFF tapped");
+                unsafe {
+                    let _ = led_off(led_device(), 0);
+                    let _ = led_off(led_device(), 1);
+                    let _ = led_off(led_device(), 2);
+                }
+            }
+            Some(Action::Reboot) => {
+                log::info!("ui: REBOOT tapped");
+                unsafe { sys_reboot(SYS_REBOOT_COLD) };
+            }
+            None => {}
+        }
+
         unsafe {
             k_msleep(33);
         }
     }
-}
-
-fn draw(frame: &mut Frame) {
-    let text = "Ratatui on embedded devices!";
-    let paragraph = Paragraph::new(text.dark_gray()).wrap(Wrap { trim: true });
-    let bordered_block = Block::bordered()
-        .border_style(Style::new().yellow())
-        .title("Mousefood");
-    frame.render_widget(paragraph.block(bordered_block), frame.area());
 }

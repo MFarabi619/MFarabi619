@@ -1,0 +1,33 @@
+--- a/zephyr-sys/wrapper.h
++++ b/zephyr-sys/wrapper.h
+@@ -159,6 +159,14 @@
+ #include <zephyr/drivers/display.h>
+ #endif
+ 
++#ifdef CONFIG_INPUT
++#include <zephyr/input/input.h>
++#endif
++
++#ifdef CONFIG_LED
++#include <zephyr/drivers/led.h>
++#endif
++
+ /*
+  * bindgen will only output #defined constants that resolve to simple numbers.  These are some
+  * symbols that we want exported that, at least in some situations, are more complex, usually with a
+--- a/zephyr-sys/build.rs
++++ b/zephyr-sys/build.rs
+@@ -171,6 +171,13 @@
+         .allowlist_function_if("display_.*", || options.contains("CONFIG_DISPLAY"))
+         .allowlist_item_if("display_.*", || options.contains("CONFIG_DISPLAY"))
+         .allowlist_item_if("PIXEL_FORMAT_.*", || options.contains("CONFIG_DISPLAY"))
++        // Input
++        .allowlist_function_if("input_.*", || options.contains("CONFIG_INPUT"))
++        .allowlist_item_if("input_.*", || options.contains("CONFIG_INPUT"))
++        .allowlist_item_if("INPUT_.*", || options.contains("CONFIG_INPUT"))
++        // LED
++        .allowlist_function_if("led_.*", || options.contains("CONFIG_LED"))
++        .allowlist_item_if("LED_.*", || options.contains("CONFIG_LED"))
+         // Generate
+         .generate()
+         .expect("Unable to generate bindings");

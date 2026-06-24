@@ -9,28 +9,30 @@
 		zephyr,touch = &xpt2046;
 	};
 
-	lcd_backlight: lcd_backlight {
-		compatible = "regulator-fixed";
-		regulator-name = "lcd_backlight";
-		enable-gpios = <&gpio0 21 GPIO_ACTIVE_HIGH>;
-		regulator-boot-on;
+	pwmleds_backlight: pwmleds-backlight {
+		compatible = "pwm-leds";
+
+		lcd_backlight: lcd_backlight {
+			pwms = <&ledc0 3 PWM_HZ(1000) PWM_POLARITY_NORMAL>;
+			label = "LCD Backlight";
+		};
 	};
 
 	pwmleds {
 		compatible = "pwm-leds";
 
 		pwm_led_red: pwm_led_red {
-			pwms = <&ledc0 0 PWM_HZ(1000) PWM_POLARITY_NORMAL>;
+			pwms = <&ledc0 0 PWM_HZ(1000) PWM_POLARITY_INVERTED>;
 			label = "Red LED";
 		};
 
 		pwm_led_green: pwm_led_green {
-			pwms = <&ledc0 1 PWM_HZ(1000) PWM_POLARITY_NORMAL>;
+			pwms = <&ledc0 1 PWM_HZ(1000) PWM_POLARITY_INVERTED>;
 			label = "Green LED";
 		};
 
 		pwm_led_blue: pwm_led_blue {
-			pwms = <&ledc0 2 PWM_HZ(1000) PWM_POLARITY_NORMAL>;
+			pwms = <&ledc0 2 PWM_HZ(1000) PWM_POLARITY_INVERTED>;
 			label = "Blue LED";
 		};
 	};
@@ -72,7 +74,8 @@
 			min-y = <300>;
 			max-x = <3800>;
 			max-y = <3800>;
-			z-threshold = <400>;
+			z-threshold = <150>;
+      reads = <3>;
 		};
 	};
 };
@@ -87,6 +90,7 @@
 
 &spi2 {
 	cs-gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+	dma-enabled;
 
 	mipi_dbi: mipi_dbi {
 		compatible = "zephyr,mipi-dbi-spi";
@@ -101,7 +105,6 @@
 			reg = <0>;
 			mipi-max-frequency = <25000000>;
 			pixel-format = <PANEL_PIXEL_FORMAT_RGB_565>;
-			rotation = <270>;
 			height = <320>;
 			width = <240>;
 			h-mirror;
@@ -134,6 +137,12 @@
 				 <LEDC_CH1_GPIO22>,
 				 <LEDC_CH2_GPIO16>;
 			output-enable;
+			bias-pull-up;
+		};
+		group2 {
+			pinmux = <LEDC_CH3_GPIO21>;
+			output-enable;
+			bias-pull-down;
 		};
 	};
 };
@@ -157,6 +166,11 @@
 
 	channel2@2 {
 		reg = <0x2>;
+		timer = <0>;
+	};
+
+	channel3@3 {
+		reg = <0x3>;
 		timer = <0>;
 	};
 };
