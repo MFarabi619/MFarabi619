@@ -122,6 +122,7 @@
         dts-lsp
         asm-lsp
         crates-lsp
+        cmake-language-server
         postgres-language-server
         # ============= 🤖 ==================
         tree
