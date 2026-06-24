@@ -9,7 +9,6 @@ let
 in
 {
   imports = [
-    ./dokploy.nix
     ./configuration.nix
     self.nixosModules.boot
     self.nixosModules.users
