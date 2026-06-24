@@ -14,6 +14,56 @@ manifest:
           revision: 5c5f97c22e7 # 2026-06-22
           import:
               path-prefix: zephyrproject
+              name-blocklist:
+                  - hal_adi
+                  - hal_afbr
+                  - hal_ambiq
+                  - hal_atmel
+                  - hal_bouffalolab
+                  - hal_ethos_u
+                  - hal_gigadevice
+                  - hal_infineon
+                  - hal_intel
+                  - hal_microchip
+                  - hal_nordic
+                  - hal_nuvoton
+                  - hal_nxp
+                  - hal_openisa
+                  - hal_quicklogic
+                  - hal_realtek
+                  - hal_renesas
+                  - hal_rpi_pico
+                  - hal_sifli
+                  - hal_silabs
+                  - hal_st
+                  - hal_tdk
+                  - hal_telink
+                  - hal_ti
+                  - hal_wch
+                  - hal_wurthelektronik
+
+                  - bsim
+                  - babblesim_base
+                  - babblesim_ext_2G4_channel_NtNcable
+                  - babblesim_ext_2G4_channel_multiatt
+                  - babblesim_ext_2G4_device_WLAN_actmod
+                  - babblesim_ext_2G4_device_burst_interferer
+                  - babblesim_ext_2G4_device_playback
+                  - babblesim_ext_2G4_libPhyComv1
+                  - babblesim_ext_2G4_modem_BLE_simple
+                  - babblesim_ext_2G4_modem_magic
+                  - babblesim_ext_2G4_phy_v1
+                  - babblesim_ext_libCryptov1
+                  - nrf_hw_models
+
+                  - trusted-firmware-a
+                  - trusted-firmware-m
+                  - tf-m-tests
+                  - psa-arch-tests
+
+                  - edtt
+                  - mipi-sys-t
+                  - percepio
 
         - name: dtsh
           revision: zephyr

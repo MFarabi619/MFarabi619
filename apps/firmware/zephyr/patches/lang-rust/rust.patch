@@ -123,15 +123,23 @@ diff --git a/zephyr-build/src/lib.rs b/zephyr-build/src/lib.rs
 index 6fd4f77..a3fa2b3 100644
 --- a/zephyr-build/src/lib.rs
 +++ b/zephyr-build/src/lib.rs
-@@ -77,7 +77,7 @@ pub fn build_kconfig_mod() {
+@@ -77,13 +77,13 @@ pub fn build_kconfig_mod() {
      for line in BufReader::new(file).lines() {
          let line = line.expect("reading line from dotconfig");
          if let Some(caps) = config_hex.captures(&line) {
 -            writeln!(&mut f, "#[allow(dead_code)]").unwrap();
-+            writeln!(&mut f, "#[allow(dead_code, overflowing_literals)]").unwrap();
++            writeln!(&mut f, "#[allow(dead_code, overflowing_literals, non_upper_case_globals)]").unwrap();
              writeln!(&mut f, "pub const {}: usize = {};", &caps[1], &caps[2]).unwrap();
          } else if let Some(caps) = config_int.captures(&line) {
-             writeln!(&mut f, "#[allow(dead_code)]").unwrap();
+-            writeln!(&mut f, "#[allow(dead_code)]").unwrap();
++            writeln!(&mut f, "#[allow(dead_code, non_upper_case_globals)]").unwrap();
+             writeln!(&mut f, "pub const {}: isize = {};", &caps[1], &caps[2]).unwrap();
+         } else if let Some(caps) = config_str.captures(&line) {
+-            writeln!(&mut f, "#[allow(dead_code)]").unwrap();
++            writeln!(&mut f, "#[allow(dead_code, non_upper_case_globals)]").unwrap();
+             writeln!(&mut f, "pub const {}: &str = {};", &caps[1], &caps[2]).unwrap();
+         }
+     }
 diff --git a/zephyr-sys/build.rs b/zephyr-sys/build.rs
 index 6b825d1..afebb6c 100644
 --- a/zephyr-sys/build.rs

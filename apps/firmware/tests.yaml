@@ -8,7 +8,7 @@ tests:
             - test.conf
 
     esp32s3.walter:
-        tags: esp32s3 build
+        tags: [esp32s3, build]
         sysbuild: true
         build_only: true
         platform_allow: walter/esp32s3/procpu
@@ -19,7 +19,7 @@ tests:
             - espressif-psram-wifi
 
     esp32s3.xiao:
-        tags: esp32s3 build
+        tags: [esp32s3, build]
         sysbuild: true
         build_only: true
         platform_allow: xiao_esp32s3/esp32s3/procpu
@@ -30,7 +30,7 @@ tests:
             - espressif-psram-wifi
 
     esp32s3.devkitc:
-        tags: esp32s3 build
+        tags: [esp32s3, build]
         sysbuild: true
         build_only: true
         platform_allow: esp32s3_devkitc/esp32s3/procpu
@@ -41,7 +41,7 @@ tests:
             - espressif-psram-wifi
 
     esp32s3.8048S043:
-        tags: esp32s3 build
+        tags: [esp32s3, build]
         sysbuild: true
         build_only: true
         platform_allow: esp32s3_8048S043/esp32s3/procpu
@@ -52,14 +52,14 @@ tests:
             - espressif-psram-wifi
 
     esp32.cyd28:
-        tags: esp32 build
+        tags: [esp32, build]
         build_only: true
         platform_allow: esp32_devkitc/esp32/procpu
         required_snippets:
             - cyd28
 
     esp32s3.xiao.sense:
-        tags: esp32s3 build
+        tags: [esp32s3, build]
         sysbuild: true
         build_only: true
         platform_allow: xiao_esp32s3/esp32s3/procpu/sense
@@ -72,7 +72,7 @@ tests:
             - espressif-psram-wifi
 
     stm32f3.disco:
-        tags: stm32f3 build
+        tags: [stm32f3, build]
         build_only: true
         platform_allow: stm32f3_disco@E/stm32f303xc
 

@@ -1,38 +1,47 @@
-[presets.default]
+[presets.esp32_devkitc_esp32_procpu]
+chip = "esp32"
+probe = "1A86:7523"
+
+[presets.esp32s3_devkitc_esp32s3_procpu]
 chip = "esp32s3"
 protocol = "jtag"
-preverify = true
-# binary-format = "bin"
-# base-address = 0x20000
-always-print-stacktrace = true
 probe = "303a:1001:DC:B4:D9:0C:5E:F8"
+
+[presets.xiao_esp32s3_esp32s3_procpu]
+chip = "esp32s3"
+protocol = "jtag"
+probe = "303a:1001:D8:3B:DA:74:82:E8"
+
+[presets.xiao_esp32s3_esp32s3_procpu_sense]
+chip = "esp32s3"
+protocol = "jtag"
+probe = "303a:1001:CC:BA:97:16:2B:68"
+
+[presets.walter_esp32s3_procpu]
+chip = "esp32s3"
+protocol = "jtag"
+probe = "303a:1001:D0:CF:13:54:27:18"
+
+[presets.stm32f3_disco_stm32f303xc]
+protocol = "swd"
+chip = "stm32f303cc"
+probe = "0483:374b:066FFF494877514867152643"
+
+[presets.nucleo_h723zg_stm32h723xx_m7]
+protocol = "swd"
+chip = "stm32h723zg"
+probe = "0483:374e:003E00203234510237333934"
+
+[presets.default]
+preverify = true
+# # binary-format = "bin"
+# # base-address = 0x20000
+always-print-stacktrace = true
 # idf-partition-table = "firmware/boards/esp32s3.partitions.csv"
 # log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
 
 # token = "rpi5-16"
 # host = "ws://rpi5-16:8443"
-
-[presets.esp32s3_devkitc]
-speed = 40000
-preverify = true
-probe = "303a:1001:DC:B4:D9:0C:5E:F8"
-
-[presets.seeed_xiao_esp32s3]
-chip = "esp32s3"
-probe = "303a:1001:D8:3B:DA:74:82:E8"
-
-[presets.seeed_xiao_esp32s3_sense]
-chip = "esp32s3"
-probe = "303a:1001:CC:BA:97:16:2B:68"
-
-[presets.stm32h723zg]
-preverify = true
-chip = "stm32h723zg"
-always-print-stacktrace = true
-
-[presets.walter]
-preverify = true
-probe = "303a:1001:D0:CF:13:54:27:18"
 
 # [server]
 # port = 8443

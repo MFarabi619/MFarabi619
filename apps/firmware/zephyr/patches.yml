@@ -1,42 +1,23 @@
 patches:
     - path: zephyr/probe-rs.patch
-      sha256sum: ae0a9d54be7b3042dea5607cfd15a53f60b22664dde1e9899f37d737a5661f07
+      sha256sum: 8cebae991c25a58cbc3bc2615b6a6ea6d430740ad9f16a95fb89f6d858aa60cf
       module: zephyrproject/zephyr
       author: Mumtahin Farabi
-      email: farabi@apidaesystems.ca
+      email: mfarabi619@gmail.com
       date: 2026-06-06
       upstreamable: true
       comments: |
-          Two fixes bundled, both needed to make `west flash -r probe-rs` work
-          for the XIAO ESP32-S3 on mcuboot-shifted images:
-
-          1. scripts/west_commands/runners/probe_rs.py — expose
-             `--base-address` as a first-class runner arg. probe-rs's own
-             `download --binary-format bin <file>` requires a `--base-address`
-             for any non-zero flash offset (e.g. mcuboot's `slot0_partition`).
-             Passing it via `--tool-opt` appended to `self.args` is rejected
-             by the subsequent `probe-rs reset` step which doesn't accept the
-             flag — aborts the flash. Patch parses `--base-address` with
-             `int(x, 0)` (accepts `0x20000` and `131072`) and applies it only
-             to the `download` command's `download_args`.
-
-          2. boards/seeed/xiao_esp32s3/board.cmake — register probe-rs as a
-             recognised runner. probe-rs has supported the chip via its
-             built-in USB-Serial-JTAG since 2024, and Zephyr ships the runner,
-             but XIAO ESP32-S3's board.cmake only `include`s esp32+openocd,
-             so `-r probe-rs` errors with "board does not support runner
-             probe-rs". The patch adds the one missing
-             `include(common/probe-rs.board.cmake)` line. Does NOT change the
-             default flasher — esptool stays default; probe-rs only available
-             when explicitly opted in with `-r probe-rs`.
-
-          Both halves upstreamable to Zephyr as-is.
+          Make `west flash -r probe-rs` work fleet-wide on mcuboot images.
+          probe_rs.py: add --base-address / --gdb-init-file runner args;
+          spawn gdb ourselves so -x survives preset injection.
+          espressif/common: auto-register probe-rs args (chip, jtag, bin,
+          image_off base-address) + esp32 --esp-skip-flashed.
 
     - path: lang-rust/embassy-queue-utils-bump.patch
       sha256sum: e1a466607ea7dfea87c7bdd3a3d679a51e358c2b971912bb9a737f85164c18ad
       module: lang-rust
       author: Mumtahin Farabi
-      email: farabi@apidaesystems.ca
+      email: mfarabi619@gmail.com
       date: 2026-06-22
       upstreamable: true
       comments: |
@@ -47,7 +28,7 @@ patches:
           three Queue methods zephyr uses are unchanged between versions.
 
     - path: lang-rust/rust.patch
-      sha256sum: 77f5c68de5b60ea948c0916e4fa41f2f01d10fc71389ec4ce27b75a667edf908
+      sha256sum: 39b0812e8df7b1940665ab3ece0cf9cc7b99509d4490ae458e96ba7097eb6428
       module: lang-rust
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -174,7 +155,7 @@ patches:
       sha256sum: 8ceb4019166d79e51e2a7e9f09e6de141835036f6dd8b303fa2ed79d0a37c953
       module: zephyrproject/zephyr
       author: Mumtahin Farabi
-      email: farabi@apidaesystems.ca
+      email: mfarabi619@gmail.com
       date: 2026-05-13
       upstreamable: true
       comments: |
@@ -250,7 +231,7 @@ patches:
       sha256sum: 7f91e64979daa54cfb8457d86a8d52af8d12214f480f8059fae714f8d38ef02e
       module: zephyrproject/zephyr
       author: Mumtahin Farabi
-      email: farabi@apidaesystems.ca
+      email: mfarabi619@gmail.com
       date: 2026-06-13
       upstreamable: true
       comments: |
@@ -303,7 +284,7 @@ patches:
       sha256sum: 4ae3056a73680559de290bcb7aef3fc224e916383ce5cff68612ab9e8c0116db
       module: zephyrproject/zephyr
       author: Mumtahin Farabi
-      email: farabi@apidaesystems.ca
+      email: mfarabi619@gmail.com
       date: 2026-06-16
       upstreamable: false
       comments: |

@@ -1,12 +1,3 @@
-diff --git a/boards/seeed/xiao_esp32s3/board.cmake b/boards/seeed/xiao_esp32s3/board.cmake
-index 2f04d1fe886..6fea660caf5 100644
---- a/boards/seeed/xiao_esp32s3/board.cmake
-+++ b/boards/seeed/xiao_esp32s3/board.cmake
-@@ -7,3 +7,4 @@ find_program(OPENOCD openocd PATHS ${ESPRESSIF_TOOLCHAIN_PATH}/openocd-esp32/bin
- 
- include(${ZEPHYR_BASE}/boards/common/esp32.board.cmake)
- include(${ZEPHYR_BASE}/boards/common/openocd.board.cmake)
-+include(${ZEPHYR_BASE}/boards/common/probe-rs.board.cmake)
 diff --git a/scripts/west_commands/runners/probe_rs.py b/scripts/west_commands/runners/probe_rs.py
 index 909f1e28454..89c88bf2267 100644
 --- a/scripts/west_commands/runners/probe_rs.py

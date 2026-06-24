@@ -29,7 +29,7 @@ ZTEST_RULE(fs_clean, fs_unlink_before, NULL);
 
 ZTEST_SUITE(fs, NULL, fs_setup, NULL, NULL, NULL);
 
-ZTEST_F(fs, open_create_close_succeeds) {
+ZTEST_F(fs, test_open_create_close_succeeds) {
   struct fs_file_t file;
   fs_file_t_init(&file);
 
@@ -41,7 +41,7 @@ ZTEST_F(fs, open_create_close_succeeds) {
   zassert_equal(fs_close(&file), 0, "fs_close failed");
 }
 
-ZTEST_F(fs, write_then_read_returns_same_bytes) {
+ZTEST_F(fs, test_write_then_read_returns_same_bytes) {
   const char payload[] = "hello, filesystem!";
   char buffer[sizeof(payload)] = {0};
   struct fs_file_t file;
@@ -58,7 +58,7 @@ ZTEST_F(fs, write_then_read_returns_same_bytes) {
   fs_close(&file);
 }
 
-ZTEST_F(fs, file_persists_across_close_and_reopen) {
+ZTEST_F(fs, test_file_persists_across_close_and_reopen) {
   const char payload[] = "persisted";
   char buffer[sizeof(payload)] = {0};
   struct fs_file_t file;
@@ -78,7 +78,7 @@ ZTEST_F(fs, file_persists_across_close_and_reopen) {
   fs_close(&file);
 }
 
-ZTEST_F(fs, stat_reports_size_after_write) {
+ZTEST_F(fs, test_stat_reports_size_after_write) {
   const char payload[100] = {0};
   struct fs_file_t file;
   struct fs_dirent entry;
@@ -95,7 +95,7 @@ ZTEST_F(fs, stat_reports_size_after_write) {
   zassert_equal(entry.size, 100, "size was %u", (unsigned int)entry.size);
 }
 
-ZTEST_F(fs, seek_set_then_read_returns_byte_at_offset) {
+ZTEST_F(fs, test_seek_set_then_read_returns_byte_at_offset) {
   const char payload[] = "ABCDEFGH";
   char byte = 0;
   struct fs_file_t file;
@@ -112,7 +112,7 @@ ZTEST_F(fs, seek_set_then_read_returns_byte_at_offset) {
   fs_close(&file);
 }
 
-ZTEST_F(fs, sync_returns_zero) {
+ZTEST_F(fs, test_sync_returns_zero) {
   struct fs_file_t file;
   fs_file_t_init(&file);
 
@@ -125,7 +125,7 @@ ZTEST_F(fs, sync_returns_zero) {
   fs_close(&file);
 }
 
-ZTEST_F(fs, truncate_shrinks_file) {
+ZTEST_F(fs, test_truncate_shrinks_file) {
   const char payload[100] = {0};
   struct fs_file_t file;
   struct fs_dirent entry;
@@ -143,7 +143,7 @@ ZTEST_F(fs, truncate_shrinks_file) {
   zassert_equal(entry.size, 25, "size was %u", (unsigned int)entry.size);
 }
 
-ZTEST_F(fs, unlink_removes_the_file) {
+ZTEST_F(fs, test_unlink_removes_the_file) {
   struct fs_file_t file;
   struct fs_dirent entry;
   fs_file_t_init(&file);

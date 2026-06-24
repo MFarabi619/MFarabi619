@@ -28,35 +28,22 @@ if(BOARD MATCHES "^stm32f3_disco")
 endif()
 
 macro(app_set_runner_args)
-  if(BOARD MATCHES "^esp32s3_devkitc")
-    board_runner_args(probe-rs
-      "-O=--preset=esp32s3_devkitc"
-      "--gdb-init-file=${APPLICATION_SOURCE_DIR}/.gdbinit"
-    )
-  endif()
-
-  if(BOARD MATCHES "^walter")
-    set(_esp_device "hwgrep://D0:CF:13:54:27:18")
-  elseif(BOARD MATCHES "^xiao_esp32s3" AND BOARD_QUALIFIERS MATCHES "sense")
-    set(_esp_device "hwgrep://CC:BA:97:16:2B:68")
-  elseif(BOARD MATCHES "^esp32s3_devkitc")
-    set(_esp_device "hwgrep://DC:B4:D9:0C:5E:F8")
-  elseif(BOARD MATCHES "^esp32_devkitc")
-    set(_esp_device "hwgrep://1A86:7523")
-    board_runner_args(esp32 "--esp-baud-rate=460800")
-  endif()
-  if(_esp_device)
-    board_runner_args(esp32 "--esp-device=${_esp_device}")
-  endif()
+  string(REGEX REPLACE "/" "_" _preset "${BOARD}${BOARD_QUALIFIERS}")
+  board_runner_args(probe-rs
+    "-O=--preset=${_preset}"
+    "--gdb-init-file=${APPLICATION_SOURCE_DIR}/.gdbinit"
+  )
 endmacro()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(firmware)
 
-if(BOARD MATCHES "^(esp32s3_devkitc|xiao_esp32s3|walter)")
-  set_property(TARGET runners_yaml_props_target APPEND_STRING
-    PROPERTY yaml_contents "flash-runner: probe-rs\n")
-endif()
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/discard-rust-gnu-stack.ld
+  "/DISCARD/ : { *(.note.GNU-stack) }\n")
+zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_BINARY_DIR}/discard-rust-gnu-stack.ld)
+
+set_property(TARGET runners_yaml_props_target APPEND_STRING
+  PROPERTY yaml_contents "flash-runner: probe-rs\n")
 
 if(CONFIG_FILE_SYSTEM AND CONFIG_ZTEST_FANCY)
   target_sources(app PRIVATE filesystems/tests.c)
