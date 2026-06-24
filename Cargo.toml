@@ -3,9 +3,8 @@ resolver = "3"
 exclude = ["ml"]
 default-members = ["apps/firmware"]
 members = [
-    "tui",
+    "apps/tui",
     "apps/web",
-    "tests/e2e",
     "apps/server",
     "apps/readme",
     "apps/firmware",

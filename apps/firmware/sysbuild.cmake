@@ -1,3 +1,7 @@
+if(NOT BOARD)
+  set(BOARD qemu_riscv32)
+endif()
+
 if(BOARD MATCHES "^esp32s3" OR BOARD MATCHES "^xiao_esp32s3" OR BOARD MATCHES "^walter")
   file(GLOB espressif_openocd_installs LIST_DIRECTORIES true
     "$ENV{HOME}/.espressif/tools/openocd-esp32/*/openocd-esp32")

@@ -1,10 +1,13 @@
 #![cfg_attr(target_arch = "xtensa", no_std)]
 #![allow(unexpected_cfgs)]
 
+#[cfg(target_arch = "xtensa")]
+extern crate alloc;
+
+pub mod ui;
+
 cfg_if::cfg_if! {
 if #[cfg(target_arch = "xtensa")] {
-
-extern crate alloc;
 
 pub mod programs;
 pub mod services;

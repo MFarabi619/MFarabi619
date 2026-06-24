@@ -8,12 +8,7 @@ use embedded_graphics::{
     primitives::Rectangle,
 };
 use mousefood::{EmbeddedBackend, EmbeddedBackendConfig, fonts};
-use ratatui::{
-    Frame, Terminal,
-    layout::{Alignment, Constraint, Layout, Rect},
-    style::*,
-    widgets::{Block, BorderType, Paragraph, Wrap},
-};
+use ratatui::Terminal;
 use zephyr::raw::{
     INPUT_ABS_X, INPUT_ABS_Y, INPUT_BTN_TOUCH, INPUT_EV_ABS, INPUT_EV_KEY, __device_dts_ord_48,
     __device_dts_ord_52, __device_dts_ord_121, device, display_blanking_off,
@@ -21,13 +16,13 @@ use zephyr::raw::{
     input_callback, input_event, k_msleep, led_off, led_set_brightness, sys_reboot,
 };
 
+use crate::ui::{self, Action, TouchState};
+
 const _: () = assert!(zephyr::devicetree::labels::ili9341::ORD == 121);
 const _: () = assert!(zephyr::devicetree::pwmleds::ORD == 48);
 const _: () = assert!(zephyr::devicetree::labels::pwmleds_backlight::ORD == 52);
 
 const SYS_REBOOT_COLD: i32 = 1;
-const FONT_W: u16 = 10;
-const FONT_H: u16 = 20;
 
 static TOUCH_X: AtomicI32 = AtomicI32::new(-1);
 static TOUCH_Y: AtomicI32 = AtomicI32::new(-1);
@@ -183,41 +178,6 @@ impl DrawTarget for ZephyrDisplay {
     }
 }
 
-fn cell_rect_contains_pixel(rect: Rect, px: i32, py: i32) -> bool {
-    if px < 0 || py < 0 {
-        return false;
-    }
-    let px = px as u16;
-    let py = py as u16;
-    let x_lo = rect.x * FONT_W;
-    let y_lo = rect.y * FONT_H;
-    let x_hi = x_lo + rect.width * FONT_W;
-    let y_hi = y_lo + rect.height * FONT_H;
-    px >= x_lo && px < x_hi && py >= y_lo && py < y_hi
-}
-
-fn render_button(frame: &mut Frame, area: Rect, label: &str, highlight: bool) {
-    let (fg, bg) = if highlight {
-        (Color::Black, Color::Yellow)
-    } else {
-        (Color::White, Color::Reset)
-    };
-    let block = Block::bordered()
-        .border_type(BorderType::Double)
-        .border_style(Style::new().fg(Color::Yellow));
-    let paragraph = Paragraph::new(label)
-        .alignment(Alignment::Center)
-        .style(Style::default().fg(fg).bg(bg))
-        .block(block)
-        .wrap(Wrap { trim: true });
-    frame.render_widget(paragraph, area);
-}
-
-enum Action {
-    LedOff,
-    Reboot,
-}
-
 pub fn display_loop() {
     let dev = display_device();
 
@@ -252,34 +212,18 @@ pub fn display_loop() {
         }
     };
 
-    let mut last_pressed = false;
+    let mut touch = TouchState::new();
 
     loop {
-        let pressed = TOUCH_PRESSED.load(Ordering::Relaxed);
-        let tx = TOUCH_X.load(Ordering::Relaxed);
-        let ty = TOUCH_Y.load(Ordering::Relaxed);
-        let edge = pressed && !last_pressed;
-        last_pressed = pressed;
+        touch.pressed = TOUCH_PRESSED.load(Ordering::Relaxed);
+        touch.x = TOUCH_X.load(Ordering::Relaxed);
+        touch.y = TOUCH_Y.load(Ordering::Relaxed);
 
         let mut action: Option<Action> = None;
         let _ = terminal.draw(|frame| {
-            let [top, bottom] =
-                Layout::vertical([Constraint::Ratio(1, 2); 2]).areas(frame.area());
-
-            let top_hit = cell_rect_contains_pixel(top, tx, ty);
-            let bot_hit = cell_rect_contains_pixel(bottom, tx, ty);
-
-            render_button(frame, top, "LED OFF", pressed && top_hit);
-            render_button(frame, bottom, "REBOOT", pressed && bot_hit);
-
-            if edge {
-                if top_hit {
-                    action = Some(Action::LedOff);
-                } else if bot_hit {
-                    action = Some(Action::Reboot);
-                }
-            }
+            action = ui::render_app(frame, &touch);
         });
+        touch.commit();
 
         match action {
             Some(Action::LedOff) => {
