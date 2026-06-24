@@ -1,3 +1,8 @@
+#![no_std]
+#![allow(unexpected_cfgs)]
+
+extern crate alloc;
+
 use core::ffi::{c_char, c_int, CStr};
 
 // zephyr::raw::shell is opaque from bindgen (its k_spinlock member has no fields), so rustc warns
@@ -347,7 +352,6 @@ pub mod prompt {
                 theme::RESET
             );
         }
-        // let _ = write!(buffer, "{}{}{}", theme::FRAME, theme::FRAME_TOP_RIGHT, theme::RESET);
 
         buffer
     }
@@ -366,7 +370,7 @@ pub mod prompt {
     }
 }
 
-mod icons {
+pub mod icons {
     // Centralized Nerd Font glyph registry.
     // Names match the Nerd Font cheat sheet: https://www.nerdfonts.com/cheat-sheet
     // Format: NF_{source}_{name} in SCREAMING_SNAKE_CASE.

@@ -1,0 +1,17 @@
+config OH_MY_ZEPHYR
+	bool "Like oh-my-zsh, but for Zephyr RTOS"
+	depends on SHELL
+	select SHELL_PROMPT_CHANGE
+	select SHELL_VT100_COLORS
+	select SHELL_CMDS_RESIZE
+	help
+	  Shell prompt helpers and powerline-style
+	  default prompt for Zephyr RTOS shells.
+
+	  Selects the Zephyr shell features the library calls into:
+	    - SHELL_PROMPT_CHANGE (required: set_prompt uses shell_prompt_change)
+	    - SHELL_VT100_COLORS (the powerline prompt embeds ANSI escapes)
+	    - SHELL_CMDS_RESIZE (probe_terminal_size executes `resize`)
+
+config SHELL_PROMPT_BUFF_SIZE
+	default 2048 if OH_MY_ZEPHYR

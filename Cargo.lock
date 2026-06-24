@@ -5131,6 +5131,7 @@ dependencies = [
  "mousefood",
  "num-derive",
  "num-traits",
+ "oh-my-zephyr",
  "ratatui",
  "ratzilla",
  "static_cell",
@@ -8690,6 +8691,14 @@ dependencies = [
  "flate2",
  "memchr",
  "ruzstd",
+]
+
+[[package]]
+name = "oh-my-zephyr"
+version = "0.1.0"
+dependencies = [
+ "zephyr",
+ "zephyr-build",
 ]
 
 [[package]]

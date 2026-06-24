@@ -1,15 +1,49 @@
-#![cfg_attr(target_arch = "xtensa", no_std)]
+#![cfg_attr(target_os = "none", no_std)]
 #![allow(unexpected_cfgs)]
 
-#[cfg(target_arch = "xtensa")]
+#[cfg(target_os = "none")]
 extern crate alloc;
 
 pub mod ui;
 
+#[cfg(target_os = "none")]
+pub mod programs;
+
+// Anchor the zephyr crate on non-xtensa bare-metal targets so its
+// #[panic_handler] and #[global_allocator] get linked into the staticlib.
+// (Xtensa anchors zephyr via the rich rust_main below.)
+#[cfg(all(target_os = "none", not(target_arch = "xtensa")))]
+extern crate zephyr;
+
+#[cfg(all(target_os = "none", not(target_arch = "xtensa")))]
+#[no_mangle]
+extern "C" fn rust_main() {
+    #[cfg(CONFIG_ZTEST)]
+    {
+        extern "C" {
+            fn test_main();
+        }
+        unsafe { test_main() };
+        return;
+    }
+
+    #[cfg(not(CONFIG_ZTEST))]
+    {
+        unsafe {
+            zephyr::set_logger().unwrap();
+        }
+        log::info!("rust_main on {}", zephyr::kconfig::CONFIG_BOARD);
+
+        #[cfg(CONFIG_OH_MY_ZEPHYR)]
+        if let Err(e) = oh_my_zephyr::initialize() {
+            log::warn!("shell: {e}");
+        }
+    }
+}
+
 cfg_if::cfg_if! {
 if #[cfg(target_arch = "xtensa")] {
 
-pub mod programs;
 pub mod services;
 
 #[cfg(CONFIG_NETWORKING)]
@@ -18,7 +52,7 @@ pub mod networking;
 #[cfg(CONFIG_ZTEST)]
 pub mod bdd;
 
-use crate::programs::shell;
+use oh_my_zephyr as shell;
 
 #[cfg(all(CONFIG_HTTP_SERVER, not(CONFIG_ZTEST)))]
 use crate::services::http;

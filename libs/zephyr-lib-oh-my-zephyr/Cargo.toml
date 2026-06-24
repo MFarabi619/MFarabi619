@@ -1,0 +1,14 @@
+[package]
+name    = "oh-my-zephyr"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+zephyr = { version = "0.1.0" }
+
+[build-dependencies]
+zephyr-build = "0.1.0"

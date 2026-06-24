@@ -1,0 +1,1 @@
+zephyr_library_named(oh_my_zephyr)

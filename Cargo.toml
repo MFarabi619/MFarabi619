@@ -12,6 +12,7 @@ members = [
     "libs/lazyzephyr",
     "apps/lazyzephyr",
     "apps/server/migration",
+    "libs/zephyr-lib-oh-my-zephyr",
 ]
 
 [workspace.dependencies]
