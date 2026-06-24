@@ -53,8 +53,9 @@ overflow-checks = true # was false — silent integer wrapping is dangerous for 
 # debug-assertions = false  # already the default for release
 
 [patch.crates-io]
-zephyr = { path = "modules/lang/rust/zephyr" }
-zephyr-sys = { path = "modules/lang/rust/zephyr-sys" }
-zephyr-build = { path = "modules/lang/rust/zephyr-build" }
+zephyr = { path = "zephyrproject/modules/lang/rust/zephyr" }
+zephyr-sys = { path = "zephyrproject/modules/lang/rust/zephyr-sys" }
+zephyr-build = { path = "zephyrproject/modules/lang/rust/zephyr-build" }
+
 probe-rs = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" }        # 2026-06-08
 probe-rs-target = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" } # 2026-06-08

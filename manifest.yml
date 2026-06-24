@@ -1,0 +1,5 @@
+manifest:
+    self:
+        import:
+            - apps/firmware/west.yml
+            - apps/nuttx-zig/west.yml

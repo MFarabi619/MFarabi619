@@ -69,21 +69,8 @@ local.properties
 .pnp.js
 build/
 
-/apps/nuttx-zig/nuttx/
-/apps/nuttx-zig/nuttx-apps/
-/zephyr/
-/bootloader/
-/modules/audio/
-/modules/bsim_hw_models/
-/modules/crypto/
-/modules/debug/
-/modules/fs/
-/modules/hal/
-/modules/lang/
-/modules/lib/
-/modules/tee/
-/modules/tools/
-/tools/
+/zephyrproject/
+/nuttxspace/
 
 opencode.json
 /.codex/config.toml

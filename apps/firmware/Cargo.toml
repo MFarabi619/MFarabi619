@@ -54,12 +54,12 @@ ratzilla         = "0.3.0"
 critical-section = { version = "1", features = ["std"] }
 
 [target.'cfg(not(any(target_arch = "xtensa", target_arch = "wasm32")))'.dependencies]
-ratatui                     = { workspace = true, features = ["crossterm", "all-widgets"] }
 crossterm                   = "0.29.0"
-mousefood                   = { version = "0.5", features = ["fonts", "blink"] }
 embedded-graphics           = "0.8"
 embedded-graphics-simulator = "0.8"
 tui-big-text                = "0.8"
+mousefood                   = { version = "0.5", features = ["fonts", "blink"] }
+ratatui                     = { workspace = true, features = ["crossterm", "all-widgets"] }
 
 [build-dependencies]
 bindgen = "0.71"

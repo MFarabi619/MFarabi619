@@ -6,16 +6,17 @@ manifest:
     projects:
         - name: zephyr-lang-rust
           remote: zephyrproject
-          path: modules/lang/rust
+          path: zephyrproject/modules/lang/rust
           revision: ab3e546232bfa2f4e16d6c5156b9d9500885b4e8 # 2026-06-12
 
         - name: zephyr
-          import: true
           remote: zephyrproject
           revision: 5c5f97c22e7 # 2026-06-22
+          import:
+              path-prefix: zephyrproject
 
         - name: dtsh
           revision: zephyr
-          path: modules/tools/dtsh
+          path: zephyrproject/modules/tools/dtsh
           west-commands: scripts/west-commands.yml
           url: https://github.com/dottspina/dtsh.git

@@ -91,7 +91,9 @@
 &spi2 {
 	cs-gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
 	dma-enabled;
+};
 
+/ {
 	mipi_dbi: mipi_dbi {
 		compatible = "zephyr,mipi-dbi-spi";
 		spi-dev = <&spi2>;

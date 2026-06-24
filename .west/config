@@ -1,9 +1,9 @@
 [manifest]
+path = .
 file = manifest.yml
-path = apps/firmware
 
 [zephyr]
-base = zephyr
+base = zephyrproject/zephyr
 
 [build]
 pristine   = auto
@@ -15,7 +15,7 @@ pristine   = auto
 rebuild = true
 
 [alias]
-p          = patch -l ../../apps/firmware/patches/patches.yml -b ../../apps/firmware/patches
+p          = patch -l apps/firmware/patches/patches.yml -b apps/firmware/patches
 pc         = p clean
 pa         = p apply --roll-back
 

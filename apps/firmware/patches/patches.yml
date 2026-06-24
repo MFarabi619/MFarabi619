@@ -1,347 +1,339 @@
 patches:
-  # ===== xiao =====
+    - path: zephyr/probe-rs.patch
+      sha256sum: ae0a9d54be7b3042dea5607cfd15a53f60b22664dde1e9899f37d737a5661f07
+      module: zephyrproject/zephyr
+      author: Mumtahin Farabi
+      email: farabi@apidaesystems.ca
+      date: 2026-06-06
+      upstreamable: true
+      comments: |
+          Two fixes bundled, both needed to make `west flash -r probe-rs` work
+          for the XIAO ESP32-S3 on mcuboot-shifted images:
 
-  - path: zephyr/probe-rs.patch
-    sha256sum: ae0a9d54be7b3042dea5607cfd15a53f60b22664dde1e9899f37d737a5661f07
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-06-06
-    upstreamable: true
-    comments: |
-      Two fixes bundled, both needed to make `west flash -r probe-rs` work
-      for the XIAO ESP32-S3 on mcuboot-shifted images:
+          1. scripts/west_commands/runners/probe_rs.py — expose
+             `--base-address` as a first-class runner arg. probe-rs's own
+             `download --binary-format bin <file>` requires a `--base-address`
+             for any non-zero flash offset (e.g. mcuboot's `slot0_partition`).
+             Passing it via `--tool-opt` appended to `self.args` is rejected
+             by the subsequent `probe-rs reset` step which doesn't accept the
+             flag — aborts the flash. Patch parses `--base-address` with
+             `int(x, 0)` (accepts `0x20000` and `131072`) and applies it only
+             to the `download` command's `download_args`.
 
-      1. scripts/west_commands/runners/probe_rs.py — expose
-         `--base-address` as a first-class runner arg. probe-rs's own
-         `download --binary-format bin <file>` requires a `--base-address`
-         for any non-zero flash offset (e.g. mcuboot's `slot0_partition`).
-         Passing it via `--tool-opt` appended to `self.args` is rejected
-         by the subsequent `probe-rs reset` step which doesn't accept the
-         flag — aborts the flash. Patch parses `--base-address` with
-         `int(x, 0)` (accepts `0x20000` and `131072`) and applies it only
-         to the `download` command's `download_args`.
+          2. boards/seeed/xiao_esp32s3/board.cmake — register probe-rs as a
+             recognised runner. probe-rs has supported the chip via its
+             built-in USB-Serial-JTAG since 2024, and Zephyr ships the runner,
+             but XIAO ESP32-S3's board.cmake only `include`s esp32+openocd,
+             so `-r probe-rs` errors with "board does not support runner
+             probe-rs". The patch adds the one missing
+             `include(common/probe-rs.board.cmake)` line. Does NOT change the
+             default flasher — esptool stays default; probe-rs only available
+             when explicitly opted in with `-r probe-rs`.
 
-      2. boards/seeed/xiao_esp32s3/board.cmake — register probe-rs as a
-         recognised runner. probe-rs has supported the chip via its
-         built-in USB-Serial-JTAG since 2024, and Zephyr ships the runner,
-         but XIAO ESP32-S3's board.cmake only `include`s esp32+openocd,
-         so `-r probe-rs` errors with "board does not support runner
-         probe-rs". The patch adds the one missing
-         `include(common/probe-rs.board.cmake)` line. Does NOT change the
-         default flasher — esptool stays default; probe-rs only available
-         when explicitly opted in with `-r probe-rs`.
+          Both halves upstreamable to Zephyr as-is.
 
-      Both halves upstreamable to Zephyr as-is.
+    - path: lang-rust/embassy-queue-utils-bump.patch
+      sha256sum: e1a466607ea7dfea87c7bdd3a3d679a51e358c2b971912bb9a737f85164c18ad
+      module: lang-rust
+      author: Mumtahin Farabi
+      email: farabi@apidaesystems.ca
+      date: 2026-06-22
+      upstreamable: true
+      comments: |
+          Bump embassy-time-queue-utils 0.1 → 0.3 in zephyr/Cargo.toml.
+          Required for workspace coexistence with esp-rtos 0.2.0 (ceratina),
+          which transitively needs ^0.3; the `links = "embassy-time-queue"`
+          marker forbids two versions in one graph. API-compatible — the
+          three Queue methods zephyr uses are unchanged between versions.
 
-  # ===== walter-router =====
+    - path: lang-rust/rust.patch
+      sha256sum: e472af3317ad88906c80832c3be810e000879c23d4c3092f6f6d6135b75983da
+      module: lang-rust
+      author: Mumtahin Farabi
+      email: farabi@apidaesystems.ca
+      date: 2026-06-14
+      upstreamable: true
+      comments: |
+          Bundles every lang-rust workaround needed for a Rust-on-Xtensa Zephyr
+          build with networking, plus a RISC-V refinement. Four files touched:
 
-  - path: lang-rust/embassy-queue-utils-bump.patch
-    sha256sum: e1a466607ea7dfea87c7bdd3a3d679a51e358c2b971912bb9a737f85164c18ad
-    module: lang-rust
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-06-22
-    upstreamable: true
-    comments: |
-      Bump embassy-time-queue-utils 0.1 → 0.3 in zephyr/Cargo.toml.
-      Required for workspace coexistence with esp-rtos 0.2.0 (ceratina),
-      which transitively needs ^0.3; the `links = "embassy-time-queue"`
-      marker forbids two versions in one graph. API-compatible — the
-      three Queue methods zephyr uses are unchanged between versions.
+          1. CMakeLists.txt: two changes to _rust_map_target().
 
-  - path: lang-rust/rust.patch
-    sha256sum: e472af3317ad88906c80832c3be810e000879c23d4c3092f6f6d6135b75983da
-    module: lang-rust
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-06-14
-    upstreamable: true
-    comments: |
-      Bundles every lang-rust workaround needed for a Rust-on-Xtensa Zephyr
-      build with networking, plus a RISC-V refinement. Four files touched:
+             a. Upstream has no branch for CONFIG_XTENSA. Adds esp32 /
+                esp32s2 / esp32s3 mappings, the `cargo +esp` toolchain prefix,
+                and CRATE_NAME / FEATURES args to `rust_cargo_application()`.
+                (The matching RUST_SUPPORTED Kconfig gate is bypassed
+                downstream via `select RUST_SUPPORTED` in
+                apps/firmware/zephyr/Kconfig — no upstream patch needed for that.)
 
-      1. CMakeLists.txt: two changes to _rust_map_target().
+             b. Refine the RV32I branch (upstream's own TODO comment on
+                line 47 asks for this). Upstream unconditionally returns
+                `riscv32i-unknown-none-elf` regardless of which ISA
+                extensions the SoC selects. qemu_riscv32 (SiFive Freedom
+                E) selects RVI+M+A+C, ESP32-C3 selects RVI+M+C, etc. —
+                the bare RV32I target ignores all of that and the linker
+                then refuses to mix object files with mismatched ABI tags.
+                Pick the closest-matching imac/imc/i target based on
+                CONFIG_RISCV_ISA_EXT_{M,A,C}. Side benefit: matches the
+                host's already-installed targets so most users don't need
+                an extra `rustup target add` step.
 
-         a. Upstream has no branch for CONFIG_XTENSA. Adds esp32 /
-            esp32s2 / esp32s3 mappings, the `cargo +esp` toolchain prefix,
-            and CRATE_NAME / FEATURES args to `rust_cargo_application()`.
-            (The matching RUST_SUPPORTED Kconfig gate is bypassed
-            downstream via `select RUST_SUPPORTED` in
-            apps/firmware/zephyr/Kconfig — no upstream patch needed for that.)
+          2. zephyr-build/src/lib.rs: emits hex Kconfig values as
+             `pub const FOO: usize = 0xHEX;` unconditionally. On 32-bit Xtensa
+             `usize`, multi-word constants like CONFIG_SOC_GPIO_VALID_GPIO_MASK
+             (0x1FFFFFFFFFFFF) overflow and rustc errors out with
+             `overflowing_literals`. Add the lint to the existing #[allow(...)]
+             on hex constants. Value is truncated but that matches usize
+             semantics on the target. A proper upstream fix would emit u64 for
+             hex values exceeding u32::MAX.
 
-         b. Refine the RV32I branch (upstream's own TODO comment on
-            line 47 asks for this). Upstream unconditionally returns
-            `riscv32i-unknown-none-elf` regardless of which ISA
-            extensions the SoC selects. qemu_riscv32 (SiFive Freedom
-            E) selects RVI+M+A+C, ESP32-C3 selects RVI+M+C, etc. —
-            the bare RV32I target ignores all of that and the linker
-            then refuses to mix object files with mismatched ABI tags.
-            Pick the closest-matching imac/imc/i target based on
-            CONFIG_RISCV_ISA_EXT_{M,A,C}. Side benefit: matches the
-            host's already-installed targets so most users don't need
-            an extra `rustup target add` step.
+          3. zephyr-sys/{wrapper.h,build.rs}: expose Zephyr's public networking
+             surface to bindgen. Upstream wrapper.h includes only kernel + GPIO
+             + UART + flash + bluetooth headers, and build.rs allowlists only
+             k_*, sys_*, gpio_*, flash_*, uart_*, bt_*. Networking is
+             deliberately out-of-scope
+          for the upstream module. Every Rust caller into the net stack
+          therefore has to hand-roll `extern "C" { fn net_if_*; ... }` decls
+          and manually replicate `repr(C)` layouts for `net_in_addr`,
+          `net_sockaddr_storage`, `wireguard_peer_config`, etc.
 
-      2. zephyr-build/src/lib.rs: emits hex Kconfig values as
-         `pub const FOO: usize = 0xHEX;` unconditionally. On 32-bit Xtensa
-         `usize`, multi-word constants like CONFIG_SOC_GPIO_VALID_GPIO_MASK
-         (0x1FFFFFFFFFFFF) overflow and rustc errors out with
-         `overflowing_literals`. Add the lint to the existing #[allow(...)]
-         on hex constants. Value is truncated but that matches usize
-         semantics on the target. A proper upstream fix would emit u64 for
-         hex values exceeding u32::MAX.
+          This patch adds the public networking surface, conditionally on the
+          relevant Kconfigs so non-net builds stay unaffected:
 
-      3. zephyr-sys/{wrapper.h,build.rs}: expose Zephyr's public networking
-         surface to bindgen. Upstream wrapper.h includes only kernel + GPIO
-         + UART + flash + bluetooth headers, and build.rs allowlists only
-         k_*, sys_*, gpio_*, flash_*, uart_*, bt_*. Networking is
-         deliberately out-of-scope
-      for the upstream module. Every Rust caller into the net stack
-      therefore has to hand-roll `extern "C" { fn net_if_*; ... }` decls
-      and manually replicate `repr(C)` layouts for `net_in_addr`,
-      `net_sockaddr_storage`, `wireguard_peer_config`, etc.
+          wrapper.h adds (each gated on its own CONFIG_):
+            - net_if.h, net_ip.h, net_mgmt.h, net_event.h    (CONFIG_NETWORKING)
+            - socket.h                                       (CONFIG_NET_SOCKETS)
+            - conn_mgr_monitor.h            (CONFIG_NET_CONNECTION_MANAGER)
+            - wireguard.h, virtual.h, virtual_mgmt.h         (CONFIG_WIREGUARD)
+            - dhcpv4_server.h               (CONFIG_NET_DHCPV4_SERVER)
+            - dns_resolve.h                 (CONFIG_DNS_RESOLVER)
+            - wifi_mgmt.h                   (CONFIG_NET_L2_WIFI_MGMT)
+            - base64.h                                       (CONFIG_BASE64)
+            - byteorder.h, reboot.h                          (unconditional)
+            - pm/device.h                                    (CONFIG_PM_DEVICE)
+            - dfu/mcuboot.h                        (CONFIG_BOOTLOADER_MCUBOOT)
 
-      This patch adds the public networking surface, conditionally on the
-      relevant Kconfigs so non-net builds stay unaffected:
+          build.rs allowlists added (mirror the Kconfig gates):
+            - net_*, NET_*                       (CONFIG_NETWORKING)
+            - zsock_*                            (CONFIG_NET_SOCKETS)
+            - conn_mgr_*                         (CONFIG_NET_CONNECTION_MANAGER)
+            - wireguard_*, WIREGUARD_*           (CONFIG_WIREGUARD)
+            - virtual_*                          (CONFIG_NET_L2_VIRTUAL)
+            - dns_*, DNS_*                       (CONFIG_DNS_RESOLVER)
+            - wifi_*, WIFI_*, lowercase wifi_*   (CONFIG_NET_L2_WIFI_MGMT)
+            - base64_*                           (CONFIG_BASE64)
+            - pm_device_*, PM_DEVICE_*           (CONFIG_PM_DEVICE)
+            - boot_*                             (CONFIG_BOOTLOADER_MCUBOOT)
+            - init_entry                         (unconditional, in <zephyr/init.h>)
 
-      wrapper.h adds (each gated on its own CONFIG_):
-        - net_if.h, net_ip.h, net_mgmt.h, net_event.h    (CONFIG_NETWORKING)
-        - socket.h                                       (CONFIG_NET_SOCKETS)
-        - conn_mgr_monitor.h            (CONFIG_NET_CONNECTION_MANAGER)
-        - wireguard.h, virtual.h, virtual_mgmt.h         (CONFIG_WIREGUARD)
-        - dhcpv4_server.h               (CONFIG_NET_DHCPV4_SERVER)
-        - dns_resolve.h                 (CONFIG_DNS_RESOLVER)
-        - wifi_mgmt.h                   (CONFIG_NET_L2_WIFI_MGMT)
-        - base64.h                                       (CONFIG_BASE64)
-        - byteorder.h, reboot.h                          (unconditional)
-        - pm/device.h                                    (CONFIG_PM_DEVICE)
-        - dfu/mcuboot.h                        (CONFIG_BOOTLOADER_MCUBOOT)
+          Bonus side effect: bindgen already extracts `net_mgmt(REQUEST, ...)`
+          macro expansions as the per-request handler symbols
+          `net_mgmt_NET_REQUEST_*`, so the token-paste problem that makes
+          direct `net_mgmt()` calls hard from Rust is incidentally solved —
+          callers can use e.g. `zephyr::raw::net_mgmt_NET_REQUEST_WIFI_AP_ENABLE`
+          directly (still exposes internal ABI for the handler name, but no
+          worse than the equivalent C macro path).
 
-      build.rs allowlists added (mirror the Kconfig gates):
-        - net_*, NET_*                       (CONFIG_NETWORKING)
-        - zsock_*                            (CONFIG_NET_SOCKETS)
-        - conn_mgr_*                         (CONFIG_NET_CONNECTION_MANAGER)
-        - wireguard_*, WIREGUARD_*           (CONFIG_WIREGUARD)
-        - virtual_*                          (CONFIG_NET_L2_VIRTUAL)
-        - dns_*, DNS_*                       (CONFIG_DNS_RESOLVER)
-        - wifi_*, WIFI_*, lowercase wifi_*   (CONFIG_NET_L2_WIFI_MGMT)
-        - base64_*                           (CONFIG_BASE64)
-        - pm_device_*, PM_DEVICE_*           (CONFIG_PM_DEVICE)
-        - boot_*                             (CONFIG_BOOTLOADER_MCUBOOT)
-        - init_entry                         (unconditional, in <zephyr/init.h>)
+          Strictly additive: no existing allowlist or include is touched, so
+          kernel/GPIO/flash builds with CONFIG_NETWORKING=n produce identical
+          bindings to upstream.
 
-      Bonus side effect: bindgen already extracts `net_mgmt(REQUEST, ...)`
-      macro expansions as the per-request handler symbols
-      `net_mgmt_NET_REQUEST_*`, so the token-paste problem that makes
-      direct `net_mgmt()` calls hard from Rust is incidentally solved —
-      callers can use e.g. `zephyr::raw::net_mgmt_NET_REQUEST_WIFI_AP_ENABLE`
-      directly (still exposes internal ABI for the handler name, but no
-      worse than the equivalent C macro path).
+          Upstreamable. The shape mirrors the existing BT/GPIO/Flash/UART
+          gating in zephyr-sys/build.rs; a PR adding "networking" alongside
+          those would be uncontroversial.
 
-      Strictly additive: no existing allowlist or include is touched, so
-      kernel/GPIO/flash builds with CONFIG_NETWORKING=n produce identical
-      bindings to upstream.
+    - path: lang-rust/build-rs-graceful.patch
+      sha256sum: a3858939d873ac0fe60b127962ae7734ff1fabf94062389b7bf5cd2b5d08f7f1
+      module: lang-rust
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-06-23
+      upstreamable: true
+      comments: |
+          Make zephyr-build and zephyr-sys build scripts skip gracefully when
+          DOTCONFIG / ZEPHYR_BASE are unset (host-side cargo check, IDE
+          indexing). Stubs out the generated include!() targets so call sites
+          fail with a normal "unresolved item" at compile time instead of a
+          build-script panic. No behavior change in the Zephyr-CMake path.
 
-      Upstreamable. The shape mirrors the existing BT/GPIO/Flash/UART
-      gating in zephyr-sys/build.rs; a PR adding "networking" alongside
-      those would be uncontroversial.
+    - path: lang-rust/input-led-allowlist.patch
+      sha256sum: 824588c9d9c5f5cad81ac6d70249145d94abccb054b8585179b498d454784ea0
+      module: lang-rust
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-06-23
+      upstreamable: true
+      comments: |
+          Expose Zephyr's input subsystem and LED driver API to bindgen,
+          gated on CONFIG_INPUT / CONFIG_LED. Mirrors the existing
+          display/net/shell allowlist pattern. Required for hand-rolled
+          INPUT_CALLBACK_DEFINE (via #[link_section]) and direct led_off()
+          calls from Rust without C shims.
 
-  - path: lang-rust/build-rs-graceful.patch
-    sha256sum: a3858939d873ac0fe60b127962ae7734ff1fabf94062389b7bf5cd2b5d08f7f1
-    module: lang-rust
-    author: Mumtahin Farabi
-    email: mfarabi619@gmail.com
-    date: 2026-06-23
-    upstreamable: true
-    comments: |
-      Make zephyr-build and zephyr-sys build scripts skip gracefully when
-      DOTCONFIG / ZEPHYR_BASE are unset (host-side cargo check, IDE
-      indexing). Stubs out the generated include!() targets so call sites
-      fail with a normal "unresolved item" at compile time instead of a
-      build-script panic. No behavior change in the Zephyr-CMake path.
+    - path: zephyr/cellular.patch
+      sha256sum: 8ceb4019166d79e51e2a7e9f09e6de141835036f6dd8b303fa2ed79d0a37c953
+      module: zephyrproject/zephyr
+      author: Mumtahin Farabi
+      email: farabi@apidaesystems.ca
+      date: 2026-05-13
+      upstreamable: true
+      comments: |
+          All Sequans GM02SP / Walter modem fixes bundled. Touches two files:
+          drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c and
+          drivers/modem/modem_cellular.c. Each fix is derived from DPTechnics'
+          canonical Walter reference code or directly observed in our logs.
 
-  - path: lang-rust/input-led-allowlist.patch
-    sha256sum: 824588c9d9c5f5cad81ac6d70249145d94abccb054b8585179b498d454784ea0
-    module: lang-rust
-    author: Mumtahin Farabi
-    email: mfarabi619@gmail.com
-    date: 2026-06-23
-    upstreamable: true
-    comments: |
-      Expose Zephyr's input subsystem and LED driver API to bindgen,
-      gated on CONFIG_INPUT / CONFIG_LED. Mirrors the existing
-      display/net/shell allowlist pattern. Required for hand-rolled
-      INPUT_CALLBACK_DEFINE (via #[link_section]) and direct led_off()
-      calls from Rust without C shims.
+          Vendor-specific (cellular_sqn_gm02s.c):
 
-  - path: zephyr/cellular.patch
-    sha256sum: 8ceb4019166d79e51e2a7e9f09e6de141835036f6dd8b303fa2ed79d0a37c953
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-05-13
-    upstreamable: true
-    comments: |
-      All Sequans GM02SP / Walter modem fixes bundled. Touches two files:
-      drivers/modem/vendor_modem_cellular/cellular_sqn_gm02s.c and
-      drivers/modem/modem_cellular.c. Each fix is derived from DPTechnics'
-      canonical Walter reference code or directly observed in our logs.
+          1. reset_pulse_duration_ms 100 → 1000. Zephyr's default isn't long
+             enough to fully clear CMUX state on firmware LR8.2.1.0-61488+.
+             After a Walter reboot without full power-cycle the modem stays
+             in CMUX mode; subsequent boots send raw ATE0 which the modem
+             doesn't decode, causing init-script timeouts. DPTechnics'
+             walter-arduino MOTA/passthrough sketches use 1000ms for this
+             exact reason. Cost: ~900ms boot time.
 
-      Vendor-specific (cellular_sqn_gm02s.c):
+          2. Wire +SYSSTART URC into the standard AWAIT_POWER_ON path.
+             Upstream already sets `force_autostart = true`, which makes the
+             driver wait in AWAIT_POWER_ON for a MODEM_READY event before
+             entering RUN_INIT_SCRIPT. But MODEM_READY is only raised by the
+             common unsol matches "APP RDY" / "Ready" — SQN GM02S sends
+             "+SYSSTART" instead, so the wait times out after
+             startup_time_ms=2000ms and the driver hits an unready modem with
+             ATE0. Fix: add MODEM_CHAT_MATCH("+SYSSTART", "",
+             modem_cellular_chat_on_modem_ready) to sqn_gm02s_unsol, and bump
+             startup_time_ms 2000 → 30000 to cover slow cold-boots (3–10s,
+             occasionally longer per firmware revision). The init script
+             no longer needs its own SYSSTART wait-step or extended timeout —
+             all the waiting is now in the framework-correct state.
 
-      1. reset_pulse_duration_ms 100 → 1000. Zephyr's default isn't long
-         enough to fully clear CMUX state on firmware LR8.2.1.0-61488+.
-         After a Walter reboot without full power-cycle the modem stays
-         in CMUX mode; subsequent boots send raw ATE0 which the modem
-         doesn't decode, causing init-script timeouts. DPTechnics'
-         walter-arduino MOTA/passthrough sketches use 1000ms for this
-         exact reason. Cost: ~900ms boot time.
+          3. Disable PSM (Power Save Mode, 3GPP TS 24.008) and eDRX (Extended
+             DRX). Defaults add hundreds of ms wake latency to the first
+             packet of any new burst — catastrophic for interactive use which
+             sends sparse bursts. Sends AT+CPSMS=0 and AT+CEDRXS=0 during
+             init while in CFUN=4. Walter is mains-powered so the battery
+             trade-off doesn't matter.
 
-      2. Wire +SYSSTART URC into the standard AWAIT_POWER_ON path.
-         Upstream already sets `force_autostart = true`, which makes the
-         driver wait in AWAIT_POWER_ON for a MODEM_READY event before
-         entering RUN_INIT_SCRIPT. But MODEM_READY is only raised by the
-         common unsol matches "APP RDY" / "Ready" — SQN GM02S sends
-         "+SYSSTART" instead, so the wait times out after
-         startup_time_ms=2000ms and the driver hits an unready modem with
-         ATE0. Fix: add MODEM_CHAT_MATCH("+SYSSTART", "",
-         modem_cellular_chat_on_modem_ready) to sqn_gm02s_unsol, and bump
-         startup_time_ms 2000 → 30000 to cover slow cold-boots (3–10s,
-         occasionally longer per firmware revision). The init script
-         no longer needs its own SYSSTART wait-step or extended timeout —
-         all the waiting is now in the framework-correct state.
+          4. AT+CMEE=1 → AT+CMEE=2 (verbose text error codes). DPTechnics'
+             Walter libraries use the verbose form
+             (WalterModem.cpp configCMEErrorReports). Verbose makes triage
+             trivial ("+CME ERROR: SIM not inserted" vs "+CME ERROR: 10").
+             The abort_matches list keys on "ERROR" which CMEE=2 still
+             contains, so abort behaviour is preserved.
 
-      3. Disable PSM (Power Save Mode, 3GPP TS 24.008) and eDRX (Extended
-         DRX). Defaults add hundreds of ms wake latency to the first
-         packet of any new burst — catastrophic for interactive use which
-         sends sparse bursts. Sends AT+CPSMS=0 and AT+CEDRXS=0 during
-         init while in CFUN=4. Walter is mains-powered so the battery
-         trade-off doesn't matter.
+          Generic driver fix (modem_cellular.c):
 
-      4. AT+CMEE=1 → AT+CMEE=2 (verbose text error codes). DPTechnics'
-         Walter libraries use the verbose form
-         (WalterModem.cpp configCMEErrorReports). Verbose makes triage
-         trivial ("+CME ERROR: SIM not inserted" vs "+CME ERROR: 10").
-         The abort_matches list keys on "ERROR" which CMEE=2 still
-         contains, so abort behaviour is preserved.
+          5. carrier-gate PPP teardown. The registered-state handler
+             unconditionally tears down PPP on BOTH MODEM_CELLULAR_EVENT_
+             DEREGISTERED (from `+CEREG: 2` URC) and MODEM_CELLULAR_EVENT_
+             PPP_DEAD (from NET_EVENT_PPP_PHASE_DEAD). Two failure modes
+             routinely on Sequans GM02SP + Walter:
+              a. The modem briefly cycles `+CEREG: 2 → +CEREG: 1` within
+                 ~1ms immediately after `ATD*99***1#` returns CONNECT,
+                 during PDP context binding. DEREGISTERED handler tears
+                 down PPP before LCP can finish.
+              b. After LCP completes and IPCP starts, the modem sometimes
+                 retransmits its LCP Configure-Req (likely due to slow ACK
+                 under DBG log load). RFC 1661 §4.6 says we reset NCPs and
+                 bounce LCP back to REQUEST_SENT, transitioning phase
+                 NETWORK → DEAD → ESTABLISH. PPP_DEAD handler tears down
+                 PPP just as IPCP would assign an IPv4 address.
+             Both teardowns happen while the modem's CMUX link is still
+             healthy (carrier still ON). Patch gates both handlers on
+             `!net_if_is_carrier_ok()` — only re-dial when the modem has
+             truly dropped its CMUX link to us, not when PPP is
+             renegotiating or CEREG is flapping. Carrier_off is set
+             elsewhere when CMUX DLCIs actually close, so genuine
+             disconnections still trigger re-dial.
 
-      Generic driver fix (modem_cellular.c):
+    - path: zephyr/nat.patch
+      sha256sum: 7f91e64979daa54cfb8457d86a8d52af8d12214f480f8059fae714f8d38ef02e
+      module: zephyrproject/zephyr
+      author: Mumtahin Farabi
+      email: farabi@apidaesystems.ca
+      date: 2026-06-13
+      upstreamable: true
+      comments: |
+          Two related bugs in `do_snat`/`do_dnat` when forwarding across L2
+          types (Ethernet AP → PPP cellular, the walter router topology):
 
-      5. carrier-gate PPP teardown. The registered-state handler
-         unconditionally tears down PPP on BOTH MODEM_CELLULAR_EVENT_
-         DEREGISTERED (from `+CEREG: 2` URC) and MODEM_CELLULAR_EVENT_
-         PPP_DEAD (from NET_EVENT_PPP_PHASE_DEAD). Two failure modes
-         routinely on Sequans GM02SP + Walter:
-          a. The modem briefly cycles `+CEREG: 2 → +CEREG: 1` within
-             ~1ms immediately after `ATD*99***1#` returns CONNECT,
-             during PDP context binding. DEREGISTERED handler tears
-             down PPP before LCP can finish.
-          b. After LCP completes and IPCP starts, the modem sometimes
-             retransmits its LCP Configure-Req (likely due to slow ACK
-             under DBG log load). RFC 1661 §4.6 says we reset NCPs and
-             bounce LCP back to REQUEST_SENT, transitioning phase
-             NETWORK → DEAD → ESTABLISH. PPP_DEAD handler tears down
-             PPP just as IPCP would assign an IPv4 address.
-         Both teardowns happen while the modem's CMUX link is still
-         healthy (carrier still ON). Patch gates both handlers on
-         `!net_if_is_carrier_ok()` — only re-dial when the modem has
-         truly dropped its CMUX link to us, not when PPP is
-         renegotiating or CEREG is flapping. Carrier_off is set
-         elsewhere when CMUX DLCIs actually close, so genuine
-         disconnections still trigger re-dial.
+          1. The functions pre-set the egress iface via `net_pkt_set_iface()`.
+             The kernel's `ipv4_route_packet` (called after NPF) captures the
+             input iface as `orig_iface` BEFORE its own route lookup overrides
+             iface, then compares orig vs new to set the cross-iface forwarding
+             flag. With NAT pre-setting the iface, `orig == new`, so the flag
+             is never set and forwarding accounting/policy breaks.
 
-  - path: zephyr/nat.patch
-    sha256sum: 7f91e64979daa54cfb8457d86a8d52af8d12214f480f8059fae714f8d38ef02e
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-06-13
-    upstreamable: true
-    comments: |
-      Two related bugs in `do_snat`/`do_dnat` when forwarding across L2
-      types (Ethernet AP → PPP cellular, the walter router topology):
+          2. The L2 link-layer framing (Ethernet src/dst MAC + `ll_proto_type`)
+             is left intact from the input iface. When the egress iface is a
+             different L2 type (e.g. PPP), its L2 send path can't process the
+             stale Ethernet framing and silently drops the packet.
 
-      1. The functions pre-set the egress iface via `net_pkt_set_iface()`.
-         The kernel's `ipv4_route_packet` (called after NPF) captures the
-         input iface as `orig_iface` BEFORE its own route lookup overrides
-         iface, then compares orig vs new to set the cross-iface forwarding
-         flag. With NAT pre-setting the iface, `orig == new`, so the flag
-         is never set and forwarding accounting/policy breaks.
+          Fix: drop the `net_pkt_set_iface()` call (let the kernel's route
+          lookup pick the egress iface and correctly detect cross-iface
+          forwarding), and clear the L2 link-layer addresses + stamp the
+          protocol type to NET_ETH_PTYPE_IP — same pattern Zephyr's own
+          forwarding path uses in `subsys/net/ip/ipv4.c`.
 
-      2. The L2 link-layer framing (Ethernet src/dst MAC + `ll_proto_type`)
-         is left intact from the input iface. When the egress iface is a
-         different L2 type (e.g. PPP), its L2 send path can't process the
-         stale Ethernet framing and silently drops the packet.
+          Upstream's NAT test (`tests/net/ipv4_nat/src/main.c`) only exercises
+          two dummy Ethernet ifaces with the same L2 type, so neither bug was
+          caught there.
 
-      Fix: drop the `net_pkt_set_iface()` call (let the kernel's route
-      lookup pick the egress iface and correctly detect cross-iface
-      forwarding), and clear the L2 link-layer addresses + stamp the
-      protocol type to NET_ETH_PTYPE_IP — same pattern Zephyr's own
-      forwarding path uses in `subsys/net/ip/ipv4.c`.
+          Upstreamable as-is — single conceptual change to `ipv4_nat.c`, no
+          Kconfig or API change.
 
-      Upstream's NAT test (`tests/net/ipv4_nat/src/main.c`) only exercises
-      two dummy Ethernet ifaces with the same L2 type, so neither bug was
-      caught there.
+    - path: zephyr/syscall-userspace-barrier.patch
+      sha256sum: 174329c5060fade4cd305f5b71cdae7e9a050fc15b31e60c4bcd6eb401a3e38b
+      module: zephyrproject/zephyr
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-06-22
+      upstreamable: true
+      comments: |
+          Guard the `compiler_barrier()` in gen_syscalls.py wrappers with
+          `#ifdef CONFIG_USERSPACE`. The in-source comment already says the
+          barrier exists to protect the user-context check — which lives
+          inside the same `#ifdef`, so with CONFIG_USERSPACE=n there's
+          nothing to guard. The unconditional emit breaks source-level C
+          parsers that can't model inline asm (Aro / zig translate-c),
+          demoting every `sys.*` wrapper to extern. Bit-identical output
+          with CONFIG_USERSPACE=y.
 
-      Upstreamable as-is — single conceptual change to `ipv4_nat.c`, no
-      Kconfig or API change.
+    - path: zephyr/shell.patch
+      sha256sum: 4ae3056a73680559de290bcb7aef3fc224e916383ce5cff68612ab9e8c0116db
+      module: zephyrproject/zephyr
+      author: Mumtahin Farabi
+      email: farabi@apidaesystems.ca
+      date: 2026-06-16
+      upstreamable: false
+      comments: |
+          All shell-related local edits bundled — kept together for local
+          maintenance, not split for upstreaming.
 
-  # ===== zephyr-lang-zig =====
+          1. subsys/shell/Kconfig — bump SHELL_PROMPT_BUFF_SIZE upper bound
+             from 40 to 1024. A full powerline string (background+foreground
+             color codes per segment, U+E0B0 separators, Nerd Font glyphs,
+             right-alignment via \x1b[<col>G) easily runs 200-500 bytes. The
+             40-byte cap predates VT100_COLORS being widely used and is
+             arbitrary; the buffer is allocated via Kconfig at compile time so
+             users still pay only for what they set.
 
-  - path: zephyr/syscall-userspace-barrier.patch
-    sha256sum: 174329c5060fade4cd305f5b71cdae7e9a050fc15b31e60c4bcd6eb401a3e38b
-    module: zephyr
-    author: Mumtahin Farabi
-    email: mfarabi619@gmail.com
-    date: 2026-06-22
-    upstreamable: true
-    comments: |
-      Guard the `compiler_barrier()` in gen_syscalls.py wrappers with
-      `#ifdef CONFIG_USERSPACE`. The in-source comment already says the
-      barrier exists to protect the user-context check — which lives
-      inside the same `#ifdef`, so with CONFIG_USERSPACE=n there's
-      nothing to guard. The unconditional emit breaks source-level C
-      parsers that can't model inline asm (Aro / zig translate-c),
-      demoting every `sys.*` wrapper to extern. Bit-identical output
-      with CONFIG_USERSPACE=y.
+          2. subsys/shell/shell.c + subsys/shell/shell_utils.h —
+             z_shell_strlen now returns visible column width instead of raw
+             strlen, and shell_prompt_change checks the byte length against
+             the buffer separately from the visible-width math. Skips CSI
+             escape sequences (\x1b[ ... <final 0x40-0x7E>) and treats UTF-8
+             continuation bytes (0xC0..0xBF) as zero-width. The result is
+             stored as vt100_ctx.cons.name_len which the line-wrap and
+             cursor-backtrack math depend on; with the naive strlen, any
+             prompt containing ANSI codes mis-computes the wrap column and
+             garbles redraws on long commands or Ctrl-A.
 
-  # ===== shared (both boards) =====
-
-  - path: zephyr/shell.patch
-    sha256sum: 4ae3056a73680559de290bcb7aef3fc224e916383ce5cff68612ab9e8c0116db
-    module: zephyr
-    author: Mumtahin Farabi
-    email: farabi@apidaesystems.ca
-    date: 2026-06-16
-    upstreamable: false
-    comments: |
-      All shell-related local edits bundled — kept together for local
-      maintenance, not split for upstreaming.
-
-      1. subsys/shell/Kconfig — bump SHELL_PROMPT_BUFF_SIZE upper bound
-         from 40 to 1024. A full powerline string (background+foreground
-         color codes per segment, U+E0B0 separators, Nerd Font glyphs,
-         right-alignment via \x1b[<col>G) easily runs 200-500 bytes. The
-         40-byte cap predates VT100_COLORS being widely used and is
-         arbitrary; the buffer is allocated via Kconfig at compile time so
-         users still pay only for what they set.
-
-      2. subsys/shell/shell.c + subsys/shell/shell_utils.h —
-         z_shell_strlen now returns visible column width instead of raw
-         strlen, and shell_prompt_change checks the byte length against
-         the buffer separately from the visible-width math. Skips CSI
-         escape sequences (\x1b[ ... <final 0x40-0x7E>) and treats UTF-8
-         continuation bytes (0xC0..0xBF) as zero-width. The result is
-         stored as vt100_ctx.cons.name_len which the line-wrap and
-         cursor-backtrack math depend on; with the naive strlen, any
-         prompt containing ANSI codes mis-computes the wrap column and
-         garbles redraws on long commands or Ctrl-A.
-
-      3. subsys/fs/shell.c — add `const char *fs_shell_get_cwd(void)`
-         getter (the FS shell keeps cwd in a file-static char[] with no
-         C API to observe it), plus `__weak void fs_shell_on_cwd_changed(void)`
-         called from cmd_cd at the end of all three cwd-mutation branches
-         (no-arg → root, `..` → parent, normal path). Strong override in
-         apps/firmware rebuilds and re-sets the shell prompt so the DIR
-         segment updates the moment cwd changes — event-driven, no
-         polling.
+          3. subsys/fs/shell.c — add `const char *fs_shell_get_cwd(void)`
+             getter (the FS shell keeps cwd in a file-static char[] with no
+             C API to observe it), plus `__weak void fs_shell_on_cwd_changed(void)`
+             called from cmd_cd at the end of all three cwd-mutation branches
+             (no-arg → root, `..` → parent, normal path). Strong override in
+             apps/firmware rebuilds and re-sets the shell prompt so the DIR
+             segment updates the moment cwd changes — event-driven, no
+             polling.
