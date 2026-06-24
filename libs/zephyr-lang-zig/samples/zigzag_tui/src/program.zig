@@ -18,7 +18,7 @@ pub const Context = struct {
 
     pub fn fps(self: *const Context) f64 {
         if (self.last_delta == 0) return 0.0;
-        return 1000.0 / @as(f64, @floatFromInt(self.last_delta));
+        return 1_000_000_000.0 / @as(f64, @floatFromInt(self.last_delta));
     }
 };
 
@@ -171,11 +171,12 @@ pub fn Program(comptime ModelType: type) type {
                 const delta_ms: i64 = now - last_frame_ms;
                 last_frame_ms = now;
 
-                ctx.elapsed = @intCast(now - start_ms);
+                const elapsed_ns: i64 = (now - start_ms) * std.time.ns_per_ms;
+                ctx.elapsed = @intCast(elapsed_ns);
                 ctx.frame += 1;
-                ctx.last_delta = @intCast(@max(delta_ms, 1));
+                ctx.last_delta = @intCast(@max(delta_ms, 1) * std.time.ns_per_ms);
 
-                _ = model.update(.{ .tick = .{ .timestamp = now, .delta = ctx.last_delta } }, &ctx);
+                _ = model.update(.{ .tick = .{ .timestamp = elapsed_ns, .delta = ctx.last_delta } }, &ctx);
 
                 frame_fba.reset();
                 const body = model.view(&ctx);

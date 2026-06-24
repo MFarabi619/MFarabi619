@@ -65,6 +65,11 @@ const Model = struct {
     // Editor tab
     text_area: zz.TextArea,
 
+    // Global
+    confirm: zz.Confirm,
+    help: zz.components.Help,
+    show_quit_confirm: bool,
+
     const DataFocus = enum { table_focus, tree_focus };
 
     pub const Msg = union(enum) {
@@ -242,6 +247,13 @@ const Model = struct {
 
         // Global
         self.active_tab = .dashboard;
+        self.confirm = zz.Confirm.init("Are you sure you want to quit?");
+        self.show_quit_confirm = false;
+
+        self.help = zz.components.Help.init(ctx.persistent_allocator);
+        self.help.addBinding("1-6", "tabs") catch {};
+        self.help.addBinding("Tab", "next tab") catch {};
+        self.help.addBinding("Ctrl+Q", "quit") catch {};
 
         return zz.Cmd(Msg).tickMs(16);
     }
@@ -298,11 +310,25 @@ const Model = struct {
                 return .none;
             },
             .key => |k| {
+                // Handle quit confirm first
+                if (self.show_quit_confirm) {
+                    self.confirm.handleKey(k);
+                    if (self.confirm.result()) |confirmed| {
+                        self.show_quit_confirm = false;
+                        if (confirmed) return .quit;
+                    }
+                    return .none;
+                }
+
                 // Global keys
                 if (k.modifiers.ctrl) {
                     switch (k.key) {
                         .char => |c| switch (c) {
-                            'q', 'Q' => return .quit,
+                            'q' => {
+                                self.show_quit_confirm = true;
+                                self.confirm.show();
+                                return .none;
+                            },
                             else => {},
                         },
                         else => {},
@@ -440,8 +466,17 @@ const Model = struct {
         const content = self.renderActiveTab(ctx) catch return "Error rendering content";
         const status = self.renderStatusBar(ctx) catch return "Error rendering status";
 
+        // Confirmation overlay
+        const confirm_view = if (self.show_quit_confirm)
+            self.confirm.view(ctx.allocator) catch ""
+        else
+            "";
+
         // Compose full view
-        const main_view = zz.joinVertical(ctx.allocator, &.{ tab_bar, "", content, "", status }) catch tab_bar;
+        const main_view = if (self.show_quit_confirm)
+            zz.joinVertical(ctx.allocator, &.{ tab_bar, "", content, "", confirm_view, "", status }) catch tab_bar
+        else
+            zz.joinVertical(ctx.allocator, &.{ tab_bar, "", content, "", status }) catch tab_bar;
 
         return zz.place.place(
             ctx.allocator,
@@ -1001,6 +1036,7 @@ const Model = struct {
         self.styled_list.deinit();
         self.file_viewport.deinit();
         self.text_area.deinit();
+        self.help.deinit();
     }
 };
 
