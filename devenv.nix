@@ -14,6 +14,7 @@ in
   cachix.pull = lib.optionals config.languages.rust.enable [ "oxalica" ];
 
   imports = map (path: ./config + path) [
+    "/env.nix"
     "/scripts.nix"
     "/languages"
   ];
