@@ -20,22 +20,30 @@ pub mod avatar;
 pub mod calendar;
 pub mod checkbox;
 pub mod collapsible;
+pub mod color_picker;
+pub mod combobox;
 pub mod context_menu;
 pub mod date_picker;
 pub mod dialog;
+pub mod drag_and_drop_list;
 pub mod dropdown_menu;
 mod focus;
 pub mod hover_card;
 pub mod label;
+mod listbox;
 pub mod menubar;
+mod move_interaction;
 #[cfg(feature = "router")]
 pub mod navbar;
+mod pointer;
 pub mod popover;
 mod portal;
 pub mod progress;
 pub mod radio_group;
 pub mod scroll_area;
 pub mod select;
+mod selectable;
+mod selection;
 pub mod separator;
 pub mod slider;
 pub mod switch;
@@ -45,6 +53,8 @@ pub mod toggle;
 pub mod toggle_group;
 pub mod toolbar;
 pub mod tooltip;
+pub(crate) mod r#virtual;
+pub mod virtual_list;
 
 pub(crate) const FOCUS_TRAP_JS: Asset = asset!("/src/js/focus-trap.js");
 
@@ -91,6 +101,17 @@ fn use_id_or<T: Clone + PartialEq + 'static>(
             gen_id.peek().clone()
         }
     })
+}
+
+/// A controlled-or-uncontrolled prop trio: external value signal,
+/// fallback default signal, and change callback. Bundles the three
+/// pieces that always travel together when forwarding props into
+/// internal hooks like [`use_controlled`].
+#[derive(Clone, Copy)]
+pub(crate) struct Controlled<T: Clone + PartialEq + 'static> {
+    pub(crate) value: ReadSignal<Option<T>>,
+    pub(crate) default: ReadSignal<T>,
+    pub(crate) on_change: Callback<T>,
 }
 
 /// Allows some state to be either controlled or uncontrolled.
@@ -184,6 +205,38 @@ fn use_global_keydown_listener(key: &'static str, on_escape: impl FnMut() + Clon
             }
         });
         move || _ = escape.send(true)
+    });
+}
+
+/// Light-dismiss when pointerdown/focusin lands outside the element with the given `id`.
+/// `id` should be the id of the popover/dialog root that contains every "inside" element.
+fn use_outside_dismiss(
+    id: impl Readable<Target = String> + Copy + 'static,
+    on_dismiss: impl FnMut() + Clone + 'static,
+) {
+    use_effect_with_cleanup(move || {
+        let mut eval = document::eval(
+            "const id = await dioxus.recv();
+            const f = e => {
+                const root = document.getElementById(id);
+                if (root && !root.contains(e.target)) dioxus.send(true);
+            };
+            document.addEventListener('pointerdown', f, true);
+            document.addEventListener('focusin', f, true);
+            await dioxus.recv();
+            document.removeEventListener('pointerdown', f, true);
+            document.removeEventListener('focusin', f, true);",
+        );
+        let _ = eval.send(id.cloned());
+        let mut on_dismiss = on_dismiss.clone();
+        spawn(async move {
+            while let Ok(true) = eval.recv().await {
+                on_dismiss();
+            }
+        });
+        move || {
+            let _ = eval.send(true);
+        }
     });
 }
 

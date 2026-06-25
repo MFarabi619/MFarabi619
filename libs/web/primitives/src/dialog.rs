@@ -3,8 +3,10 @@
 use dioxus::document;
 use dioxus::prelude::*;
 
-use crate::use_global_escape_listener;
-use crate::{use_animated_open, use_controlled, use_id_or, use_unique_id, FOCUS_TRAP_JS};
+use crate::{
+    use_animated_open, use_controlled, use_global_escape_listener, use_id_or, use_outside_dismiss,
+    use_unique_id, FOCUS_TRAP_JS,
+};
 
 /// Context for the [`DialogRoot`] component
 #[derive(Clone, Copy)]
@@ -116,6 +118,9 @@ pub fn DialogRoot(props: DialogRootProps) -> Element {
 
     let (open, set_open) = use_controlled(props.open, props.default_open, props.on_open_change);
 
+    let unique_id = use_unique_id();
+    let id = use_id_or(unique_id, props.id);
+
     use_context_provider(|| DialogCtx {
         open,
         set_open,
@@ -123,9 +128,6 @@ pub fn DialogRoot(props: DialogRootProps) -> Element {
         dialog_labelledby,
         dialog_describedby,
     });
-
-    let unique_id = use_unique_id();
-    let id = use_id_or(unique_id, props.id);
 
     let render = use_animated_open(id, open);
 
@@ -137,11 +139,7 @@ pub fn DialogRoot(props: DialogRootProps) -> Element {
         if render() {
             div {
                 id,
-                class: "dialog-overlay",
                 aria_hidden: (!open()).then_some("true"),
-                onclick: move |_| {
-                    set_open.call(false);
-                },
                 "data-state": if open() { "open" } else { "closed" },
                 ..props.attributes,
                 {props.children}
@@ -229,6 +227,8 @@ pub fn DialogContent(props: DialogContentProps) -> Element {
 
     let gen_id = use_unique_id();
     let id = use_id_or(gen_id, props.id);
+
+    use_outside_dismiss(id, move || set_open.call(false));
     use_effect(move || {
         let is_modal = is_modal();
         if !is_modal {
@@ -260,11 +260,7 @@ pub fn DialogContent(props: DialogContentProps) -> Element {
             aria_modal: "true",
             aria_labelledby: ctx.dialog_labelledby,
             aria_describedby: ctx.dialog_describedby,
-            class: props.class.clone().unwrap_or_else(|| "dialog".to_string()),
-            onclick: move |e| {
-                // Prevent the click event from propagating to the overlay.
-                e.stop_propagation();
-            },
+            class: props.class.clone().unwrap_or_else(|| "dx-dialog".to_string()),
             ..props.attributes,
             {props.children}
         }

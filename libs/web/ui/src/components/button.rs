@@ -25,13 +25,13 @@ pub enum ButtonSize {
 
 #[derive(Props, Clone, PartialEq)]
 pub struct ButtonProps {
-    /// Optional extra classes appended to the component defaults
-    #[props(default)]
-    class: String,
-
     /// The button type (submit, reset, button)
     #[props(default = String::from("button"))]
     button_type: String,
+
+    /// Optional extra classes appended to the component defaults
+    #[props(default)]
+    class: String,
 
     /// The variant of the button
     #[props(default)]

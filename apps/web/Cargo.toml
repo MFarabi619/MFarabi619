@@ -35,7 +35,7 @@ name = "e2e"
 path = "bin/e2e/main.rs"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-playwright-rs = { git = "https://github.com/padamson/playwright-rust", rev = "f83b084c17411021da811d753e2b07dc8f8fcf3a" }
+playwright-rs = { git = "https://github.com/padamson/playwright-rust", rev = "1594a73cf1cfa7c8c7a56e4f90d2fff2d0cfb595", features = ["screenshot-diff"] }
 regex         = "1"
 tokio         = { version = "1", features = ["macros", "rt-multi-thread"] }
 

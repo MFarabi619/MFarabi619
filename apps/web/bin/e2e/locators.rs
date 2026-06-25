@@ -167,12 +167,10 @@ impl Locator {
                 Self::Last(inner) => inner.resolve(page).await.last(),
                 Self::Nth(inner, n) => inner.resolve(page).await.nth(*n),
                 Self::Filtered { base, has_text, has_not_text } => {
-                    base.resolve(page).await.filter(FilterOptions {
-                        has_text: has_text.clone(),
-                        has_not_text: has_not_text.clone(),
-                        has: None,
-                        has_not: None,
-                    })
+                    let mut opts = FilterOptions::default();
+                    opts.has_text = has_text.clone();
+                    opts.has_not_text = has_not_text.clone();
+                    base.resolve(page).await.filter(opts)
                 }
                 _ => self.resolve_leaf(page).await,
             }
@@ -207,12 +205,10 @@ impl Locator {
             Self::Last(inner) => inner.resolve_in(parent).last(),
             Self::Nth(inner, n) => inner.resolve_in(parent).nth(*n),
             Self::Filtered { base, has_text, has_not_text } => {
-                base.resolve_in(parent).filter(FilterOptions {
-                    has_text: has_text.clone(),
-                    has_not_text: has_not_text.clone(),
-                    has: None,
-                    has_not: None,
-                })
+                let mut opts = FilterOptions::default();
+                opts.has_text = has_text.clone();
+                opts.has_not_text = has_not_text.clone();
+                base.resolve_in(parent).filter(opts)
             }
         }
     }
