@@ -70,3 +70,9 @@ manifest:
           path: zephyrproject/modules/tools/dtsh
           west-commands: scripts/west-commands.yml
           url: https://github.com/dottspina/dtsh.git
+
+        - name: zview
+          revision: fd128d38e9c9c64690258b33ea4ca72eb724086f # v0.13.1
+          path: zephyrproject/modules/tools/zview
+          west-commands: scripts/west-commands.yml
+          url: https://github.com/wkhadgar/zview.git
