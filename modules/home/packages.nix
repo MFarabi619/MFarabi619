@@ -61,6 +61,7 @@
           ++ [
             pyusb
             pyserial
+            pylink-square
           ]
           ++ [
             semver
