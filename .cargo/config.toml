@@ -1,3 +1,6 @@
+[env]
+LOCO_CONFIG_FOLDER = { value = "apps/server/config", relative = true }
+
 [alias]
 ee         = ["run", "-p", "e2e"]
 loco       = ["run", "-p", "server", "--"]
