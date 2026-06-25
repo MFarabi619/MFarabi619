@@ -114,6 +114,9 @@
         # avrdude
         dfu-util
         dfu-programmer
+        (probe-rs-tools.overrideAttrs (old: {
+          cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
+        }))
       ]
       ++ [
         socat

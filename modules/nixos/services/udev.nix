@@ -8,7 +8,6 @@ let
   });
 in
 {
-  environment.systemPackages = [ probe-rs-tools ];
   services.udev = {
     enable = true;
 
