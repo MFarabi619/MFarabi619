@@ -1,3 +1,19 @@
+diff --git a/boards/st/stm32f3_disco/board.cmake b/boards/st/stm32f3_disco/board.cmake
+index abb6568458f..76910de20f9 100644
+--- a/boards/st/stm32f3_disco/board.cmake
++++ b/boards/st/stm32f3_disco/board.cmake
+@@ -3,9 +3,11 @@
+ # keep first
+ board_runner_args(stm32cubeprogrammer "--port=swd" "--reset-mode=hw")
+ board_runner_args(jlink "--device=STM32F303VC" "--speed=4000")
++board_runner_args(probe-rs "--chip=STM32F303VC")
+
+ # keep first
+ include(${ZEPHYR_BASE}/boards/common/stm32cubeprogrammer.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/openocd-stm32.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/jlink.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/stlink_gdbserver.board.cmake)
++include(${ZEPHYR_BASE}/boards/common/probe-rs.board.cmake)
 diff --git a/scripts/west_commands/runners/probe_rs.py b/scripts/west_commands/runners/probe_rs.py
 index 909f1e28454..89c88bf2267 100644
 --- a/scripts/west_commands/runners/probe_rs.py

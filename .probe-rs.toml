@@ -24,7 +24,7 @@ probe = "303a:1001:D0:CF:13:54:27:18"
 
 [presets.stm32f3_disco_stm32f303xc]
 protocol = "swd"
-chip = "stm32f303cc"
+chip = "stm32f303vc"
 probe = "0483:374b:066FFF494877514867152643"
 
 [presets.nucleo_h723zg_stm32h723xx_m7]

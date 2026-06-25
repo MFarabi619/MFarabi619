@@ -27,12 +27,35 @@ if(BOARD MATCHES "^stm32f3_disco")
   )
 endif()
 
+set(BOARD_FLASH_RUNNER probe-rs)
+
 macro(app_set_runner_args)
-  string(REGEX REPLACE "/" "_" _preset "${BOARD}${BOARD_QUALIFIERS}")
-  board_runner_args(probe-rs
-    "-O=--preset=${_preset}"
-    "--gdb-init-file=${APPLICATION_SOURCE_DIR}/.gdbinit"
-  )
+  get_property(_probe_rs_queued GLOBAL PROPERTY _PROBE_RS_PRESET_QUEUED SET)
+  if(NOT _probe_rs_queued)
+    set_property(GLOBAL PROPERTY _PROBE_RS_PRESET_QUEUED 1)
+    string(REGEX REPLACE "/" "_" _preset "${BOARD}/${BOARD_QUALIFIERS}")
+    board_runner_args(probe-rs "-O=--preset=${_preset}")
+
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/.gdbinit [[
+set print asm-demangle on
+set print pretty on
+set style sources on
+set confirm off
+break rust_main
+continue
+step
+]])
+    board_runner_args(probe-rs "--gdb-init-file=${CMAKE_CURRENT_BINARY_DIR}/.gdbinit")
+
+    board_runner_args(openocd "--cmd-pre-init=adapter speed 950")
+    board_runner_args(openocd "--gdb-init=source ${CMAKE_CURRENT_BINARY_DIR}/.gdbinit")
+    foreach(_cmd
+      "monitor stm32f3x.tpiu configure -protocol uart -traceclk 72000000 -pin-freq 2000000 -formatter 0 -output ${CMAKE_CURRENT_BINARY_DIR}/itm.txt"
+      "monitor stm32f3x.tpiu enable"
+      "monitor itm port 0 on")
+      board_runner_args(openocd "--gdb-init=${_cmd}")
+    endforeach()
+  endif()
 endmacro()
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
@@ -41,9 +64,6 @@ project(firmware)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/discard-rust-gnu-stack.ld
   "/DISCARD/ : { *(.note.GNU-stack) }\n")
 zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_BINARY_DIR}/discard-rust-gnu-stack.ld)
-
-set_property(TARGET runners_yaml_props_target APPEND_STRING
-  PROPERTY yaml_contents "flash-runner: probe-rs\n")
 
 if(CONFIG_FILE_SYSTEM AND CONFIG_ZTEST_FANCY)
   target_sources(app PRIVATE filesystems/tests.c)
