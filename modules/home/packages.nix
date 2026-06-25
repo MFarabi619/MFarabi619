@@ -20,9 +20,22 @@
         wasm-bindgen-cli
         rubyPackages_3_4.rails
       ]
-      ++ lib.optionals stdenv.isLinux [
-        espup
+      ++ [
+        llvm
+        lldb
+        ninja
+        cmake
+        ccache
+        gnumake
+        ldproxy
+        openocd
+        dfu-util
+        dfu-programmer
+        (probe-rs-tools.overrideAttrs (old: {
+          cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
+        }))
       ]
+      ++ lib.optionals stdenv.isLinux [ espup ]
       ++ [
         esptool
         esphome
@@ -103,22 +116,6 @@
         mcp-grafana # https://github.com/grafana/mcp-grafana
       ]
       ++ [
-        llvm
-        lldb
-        ninja
-        cmake
-        ccache
-        gnumake
-        ldproxy
-        openocd
-        # avrdude
-        dfu-util
-        dfu-programmer
-        (probe-rs-tools.overrideAttrs (old: {
-          cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
-        }))
-      ]
-      ++ [
         socat
         godot
         delve
@@ -180,11 +177,13 @@
 
         # gama-tui # github actions runners
         # codeberg-cli
-
+      ]
+      ++ [
         exercism
         presenterm
         wireshark-cli
-
+      ]
+      ++ [
         # ============= ‍❄🕸 ================
         nil # nix formatter
         # omnix
@@ -200,7 +199,8 @@
         nix-health # health check
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
-
+      ]
+      ++ [
         # ============== 🤪 =================
         genact # nonsense activity generator
         smassh # TUI monkeytype
