@@ -63,39 +63,10 @@
     proxmox-nixos.url = "github:SaumonNet/proxmox-nixos";
   };
 
-  # nixos-unified.org/autowiring.html
   outputs =
     inputs:
-    let
-      flake = inputs.nixos-unified.lib.mkFlake {
-        inherit inputs;
-        root = ./.;
-      };
-    in
-    flake
-    // {
-      nixOnDroidConfigurations.default = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
-        home-manager-path = inputs.home-manager.outPath;
-        extraSpecialArgs = {
-          # rootPath = ./.;
-          inherit inputs;
-        };
-
-        pkgs = import inputs.nixpkgs {
-          system = "aarch64-linux";
-          overlays = [
-            inputs.nix-on-droid.overlays.default
-          ];
-        };
-
-        modules = [
-          ./modules/nixos/time.nix
-          ./configurations/nixos/nix-on-droid/terminal.nix
-          ./configurations/nixos/nix-on-droid/environment.nix
-          ./configurations/nixos/nix-on-droid/nix-on-droid.nix
-          ./configurations/nixos/nix-on-droid/home-manager.nix
-          ./configurations/nixos/nix-on-droid/android-integration.nix
-        ];
-      };
+    inputs.nixos-unified.lib.mkFlake {
+      inherit inputs;
+      root = ./.;
     };
 }
