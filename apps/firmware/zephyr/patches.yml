@@ -14,6 +14,17 @@ patches:
           image_off base-address) + esp32 --esp-skip-flashed.
           stm32f3_disco/board.cmake: register probe-rs (was missing).
 
+    - path: lang-rust/zephyr-macros-description.patch
+      sha256sum: a3475a7b667714efef3cecde1cbf00d782532a52fef057b4c4d3d7424add757f
+      module: lang-rust
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-06-25
+      upstreamable: true
+      comments: |
+          zephyr-macros/Cargo.toml: `descriptions` → `description`. Manifest
+          key typo (plural) caused cargo to emit a warning on every build.
+
     - path: lang-rust/embassy-queue-utils-bump.patch
       sha256sum: e1a466607ea7dfea87c7bdd3a3d679a51e358c2b971912bb9a737f85164c18ad
       module: lang-rust

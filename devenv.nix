@@ -57,7 +57,125 @@ in
     run.exec = ''devenv tasks run "$@" -m before'';
     docs.exec = "bunx likec4 start ${config.git.root}/docs";
     tio.exec = ''HOME="$DEVENV_ROOT" ${pkgs.tio}/bin/tio "$@"'';
+    "emulate:firmware".exec = ''
+      west build apps/firmware --board qemu_riscv32 --build-dir build/qemu_riscv32 --target run
+    '';
   };
+
+  enterTest = ''
+    devenv tasks run build
+  '';
+
+  tasks = lib.mkMerge [
+    (lib.mapAttrs'
+      (
+        board: spec:
+        lib.nameValuePair "build:firmware:${lib.replaceStrings [ "." "@" ] [ "_" "_" ] board}" {
+          cwd = "${config.git.root}";
+          exec = lib.concatStringsSep " " (
+            [
+              "west build apps/firmware"
+              "--board ${lib.replaceStrings [ "." ] [ "/" ] board}"
+              "--build-dir build/${lib.replaceStrings [ "." "@" ] [ "_" "_" ] board}"
+            ]
+            ++ lib.optional (spec.sysbuild or false) "--sysbuild"
+            ++ map (s: "-S ${s}") (spec.snippets or [ ])
+            ++ lib.optional (
+              (spec.extra_conf or [ ]) != [ ]
+            ) "-DEXTRA_CONF_FILE=${lib.concatStringsSep ";" spec.extra_conf}"
+          );
+        }
+      )
+      {
+        "qemu_riscv32".extra_conf = [ "test.conf" ];
+        "esp32_devkitc.esp32.procpu".snippets = [ "cyd28" ];
+        "esp32s3_8048S043.esp32s3.procpu" = {
+          sysbuild = true;
+          snippets = [
+            "espressif-psram-8M"
+            "espressif-flash-16M"
+          ];
+        };
+        "walter.esp32s3.procpu" = {
+          sysbuild = true;
+          snippets = [
+            "wifi-credentials"
+            "espressif-psram-2M"
+            "espressif-flash-16M"
+            "espressif-psram-wifi"
+          ];
+        };
+        "xiao_esp32s3.esp32s3.procpu" = {
+          sysbuild = true;
+          snippets = [
+            "wifi-credentials"
+            "espressif-flash-8M"
+            "espressif-psram-8M"
+            "espressif-psram-wifi"
+          ];
+        };
+        "esp32s3_devkitc.esp32s3.procpu" = {
+          sysbuild = true;
+          snippets = [
+            "wifi-credentials"
+            "espressif-flash-8M"
+            "espressif-psram-8M"
+            "espressif-psram-wifi"
+          ];
+        };
+        "xiao_esp32s3.esp32s3.procpu.sense" = {
+          sysbuild = true;
+          snippets = [
+            "wifi-credentials"
+            "espressif-flash-8M"
+            "espressif-psram-8M"
+            "espressif-psram-wifi"
+          ];
+          extra_conf = [ "../../libs/zephyr-lib-sqlite/sqlite.conf" ];
+        };
+        "stm32f3_disco@E.stm32f303xc" = { };
+      }
+    )
+
+    (lib.mapAttrs
+      (_: command: {
+        cwd = "${config.git.root}";
+        exec = command;
+      })
+      {
+        "build:server" = "cargo loco doctor";
+        "build:ceratina-rs" = "cargo +esp bb";
+        "build:ceratina" = "pio run";
+        "build:web" = "dx build --ssg -rp web";
+        "build:tui" = "cargo b -rp tui";
+        "build:lazyzephyr" = "cargo b -rp lazyzephyr";
+        "build:darwin" = "darwin-rebuild build --flake .";
+        "build:robot" = "pixi run build";
+      }
+    )
+
+    (builtins.listToAttrs (
+      map
+        (sample: {
+          name = "build:zephyr-lang-zig:${sample}";
+          value = {
+            cwd = "${config.git.root}";
+            exec = "west build libs/zephyr-lang-zig/samples/${sample} --build-dir build/zephyr_lang_zig_${sample}";
+          };
+        })
+        [
+          "bench"
+          "blinky"
+          "clay_tui"
+          "ffi_rust_with_c"
+          "hello_world"
+          "led_strip"
+          "sqlite"
+          "tick_loop"
+          "zigzag_tui"
+        ]
+    ))
+  ];
 
   languages = rec {
     nix.enable = true;
@@ -88,16 +206,22 @@ in
     };
   };
 
-  # processes = {
-  #   # "cargo:loco:watch" = {
-  #   #   exec = "cargo loco watch";
-  #   #   ports.http.allocate = config.languages.rust.loco.config.development.server.port;
-  #   #   process-compose = {
-  #   #     is_tty = true;
-  #   #     namespace = "🧩 API";
-  #   #   };
-  #   # };
-  # }
+  # process.manager.implementation = "process-compose";
+  # process.manager.args = {
+  #   shortcuts = "${config.git.root}/config/process-compose/shortcuts.yaml";
+  #   theme     = "Monokai";
+  # };
+  process.managers.process-compose.settings.is_strict = true;
+  processes = {
+    # "cargo:loco:watch" = {
+    #   exec = "cargo loco watch";
+    #   ports.http.allocate = 5150;
+    #   # process-compose = {
+    #   #   is_tty = true;
+    #   #   namespace = "🧩 API";
+    #   # };
+    # };
+  }
   # //
   #   builtins.mapAttrs
   #     (_: cfg: {
@@ -113,18 +237,22 @@ in
   #       prometheus.enable = false;
   #       "tailscale-funnel".enable = false;
   #     }
-  # // lib.optionalAttrs (!config.devenv.isTesting) {
-  #   console = {
-  #     exec = ''
-  #       ttyd --writable --browser --url-arg --once devenv up
-  #     '';
-  #     process-compose = {
-  #       disabled = true;
-  #       namespace = "🧮 VIEWS";
-  #       description = "🕹 Attach the Microvisor Kernel to the Browser";
-  #     };
-  #   };
-  # };
+  // lib.optionalAttrs (!config.devenv.isTesting) {
+    #   console = {
+    #     exec = ''
+    #       ttyd --writable --browser --url-arg --once devenv up
+    #     '';
+    #     process-compose = {
+    #       disabled = true;
+    #       namespace = "🧮 VIEWS";
+    #       description = "🕹 Attach the Microvisor Kernel to the Browser";
+    #     };
+    # };
+    # "test:firmware:qemu_riscv32" = {
+    #   cwd = "${config.git.root}";
+    #   exec = "west build apps/firmware --board qemu_riscv32 --build-dir build/qemu_riscv32_test --target run -DEXTRA_CONF_FILE=test.conf";
+    # };
+  };
 
   # profiles =
   #   { }

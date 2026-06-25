@@ -1,0 +1,13 @@
+diff --git a/zephyr-macros/Cargo.toml b/zephyr-macros/Cargo.toml
+index a9c386b..0ebd1f6 100644
+--- a/zephyr-macros/Cargo.toml
++++ b/zephyr-macros/Cargo.toml
+@@ -3,7 +3,7 @@ name = "zephyr-macros"
+ version = "0.1.0"
+ edition = "2024"
+ license = "MIT OR Apache-2.0"
+-descriptions = "Macros for managing tasks and work queues in Zephyr"
++description = "Macros for managing tasks and work queues in Zephyr"
+
+ [lib]
+ proc-macro = true

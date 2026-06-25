@@ -36,6 +36,30 @@ macro(app_set_runner_args)
     string(REGEX REPLACE "/" "_" _preset "${BOARD}/${BOARD_QUALIFIERS}")
     board_runner_args(probe-rs "-O=--preset=${_preset}")
 
+    get_property(_probe_rs_args GLOBAL PROPERTY BOARD_RUNNER_ARGS_EXPLICIT_probe_rs)
+    set(_chip "")
+    set(_prev_was_chip 0)
+    foreach(_arg ${_probe_rs_args})
+      if(_prev_was_chip)
+        set(_chip "${_arg}")
+        set(_prev_was_chip 0)
+      elseif(_arg MATCHES "^--chip=(.+)$")
+        set(_chip "${CMAKE_MATCH_1}")
+      elseif(_arg STREQUAL "--chip")
+        set(_prev_was_chip 1)
+      endif()
+    endforeach()
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/rust)
+    if(_chip)
+      file(WRITE ${CMAKE_BINARY_DIR}/rust/probe_rs_meta.rs
+"probe_rs_meta::chip!(b\"${_chip}\");
+probe_rs_meta::timeout!(60);
+")
+    else()
+      file(WRITE ${CMAKE_BINARY_DIR}/rust/probe_rs_meta.rs "")
+      message(STATUS "No --chip= in probe-rs runner args for ${BOARD}; probe-rs-meta omitted")
+    endif()
+
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/.gdbinit [[
 set print asm-demangle on
 set print pretty on
@@ -64,6 +88,7 @@ project(firmware)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/discard-rust-gnu-stack.ld
   "/DISCARD/ : { *(.note.GNU-stack) }\n")
 zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_BINARY_DIR}/discard-rust-gnu-stack.ld)
+zephyr_linker_sources(SECTIONS ${CMAKE_CURRENT_LIST_DIR}/probe-rs-meta.ld)
 
 if(CONFIG_FILE_SYSTEM AND CONFIG_ZTEST_FANCY)
   target_sources(app PRIVATE filesystems/tests.c)

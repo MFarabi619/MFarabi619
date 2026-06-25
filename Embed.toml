@@ -4,6 +4,9 @@
 # usb_pid = "1001"
 # serial = "D0:CF:13:54:27:18"
 
+# [default.general]
+# chip = "esp32s3"
+
 [default.flashing]
 verify = true
 enabled = false
@@ -13,13 +16,10 @@ flash_layout_output_path = "out.svg"
 
 [default.reset]
 enabled = true
-halt_afterwards = false
-
-[default.general]
-chip = "esp32s3"
+halt_afterwards = true
 
 [default.rtt]
-enabled = true
+enabled = false
 timeout = 3000
 log_enabled = false
 log_path = "rtt.log"
@@ -41,5 +41,8 @@ log_path = "rtt.log"
 # ]
 
 [default.gdb]
-enabled = false
+enabled = true
 gdb_connection_string = "127.0.0.1:1337"
+
+# [stm32f3_disco.general]
+# chip = "stm32f303vc"

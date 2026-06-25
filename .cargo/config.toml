@@ -6,8 +6,8 @@ ee         = ["run", "-p", "e2e"]
 loco       = ["run", "-p", "server", "--"]
 playground = ["run", "-p", "server", "--example", "playground"]
 
-rr = ["run",   "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
-bb = ["build", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
-tt = ["test",  "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf"]
+rr = ["run",   "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf", "-Zbuild-std=core,alloc"]
+bb = ["build", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf", "-Zbuild-std=core,alloc"]
+tt = ["test",  "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf", "-Zbuild-std=core,alloc"]
 
 include = ["../apps/ceratina/.cargo/config.toml"]

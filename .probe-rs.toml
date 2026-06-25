@@ -32,11 +32,11 @@ protocol = "swd"
 chip = "stm32h723zg"
 probe = "0483:374e:003E00203234510237333934"
 
-[presets.default]
-preverify = true
+# [presets.default]
+# preverify = true
 # # binary-format = "bin"
 # # base-address = 0x20000
-always-print-stacktrace = true
+# always-print-stacktrace = true
 # idf-partition-table = "firmware/boards/esp32s3.partitions.csv"
 # log-format = "{[{L:bold:green:4}]%bold} {s:bold:white} :: {ff:bold:magenta}:{l:bold:cyan}"
 

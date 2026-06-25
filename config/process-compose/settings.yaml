@@ -1,0 +1,6 @@
+theme: Monokai
+disable_exit_confirmation: true # if true, will disable the TUI exit confirmation dialog
+
+sort:
+    by: STATUS
+    isReversed: true
