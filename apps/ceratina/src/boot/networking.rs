@@ -39,7 +39,7 @@ pub async fn initialize_networking(
     let ble_connector = BleConnector::new(bt_peripheral, Default::default()).unwrap();
     let ble_controller = ExternalController::<_, 1>::new(ble_connector);
 
-    let (wifi_controller, interfaces) = esp_radio::wifi::new(
+    let wifi_controller = esp_radio::wifi::WifiController::new(
         wifi_peripheral,
         esp_radio::wifi::ControllerConfig::default()
             .with_static_rx_buf_num(4)
@@ -48,6 +48,7 @@ pub async fn initialize_networking(
             .with_initial_config(mode_config),
     )
     .expect("Failed to initialize Wi-Fi controller");
+    let sta_interface = esp_radio::wifi::Interface::station();
 
     info!(
         "attempting STA connection to '{}'",
@@ -62,7 +63,7 @@ pub async fn initialize_networking(
 
     let network_config = embassy_net::Config::dhcpv4(Default::default());
     let (stack, runner) = embassy_net::new(
-        interfaces.station,
+        sta_interface,
         network_config,
         mk_static!(StackResources<7>, StackResources::<7>::new()),
         seed,

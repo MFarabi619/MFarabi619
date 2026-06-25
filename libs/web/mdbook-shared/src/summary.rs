@@ -1,7 +1,7 @@
 use crate::{errors::*, get_book_content_path};
 use log::{debug, trace, warn};
 use memchr::{self, Memchr};
-use pulldown_cmark::{self, Event, HeadingLevel, Tag};
+use pulldown_cmark::{self, Event, HeadingLevel, Tag, TagEnd};
 use serde::{Deserialize, Serialize};
 use std::fmt::{self, Display, Formatter};
 use std::iter::FromIterator;
@@ -184,7 +184,7 @@ impl<R> From<Link<R>> for SummaryItem<R> {
 struct SummaryParser<'a> {
     src_path: Option<&'a Path>,
     src: &'a str,
-    stream: pulldown_cmark::OffsetIter<'a, 'a>,
+    stream: pulldown_cmark::OffsetIter<'a>,
     offset: usize,
 
     /// We can't actually put an event back into the `OffsetIter` stream, so instead we store it
@@ -287,7 +287,7 @@ impl<'a> SummaryParser<'a> {
         loop {
             match self.next_event() {
                 Some(ev @ Event::Start(Tag::List(..)))
-                | Some(ev @ Event::Start(Tag::Heading(HeadingLevel::H1, ..))) => {
+                | Some(ev @ Event::Start(Tag::Heading { level: HeadingLevel::H1, .. })) => {
                     if is_prefix {
                         // we've finished prefix chapters and are at the start
                         // of the numbered section.
@@ -297,7 +297,7 @@ impl<'a> SummaryParser<'a> {
                         bail!(self.parse_error("Suffix chapters cannot be followed by a list"));
                     }
                 }
-                Some(Event::Start(Tag::Link(_type, href, _title))) => {
+                Some(Event::Start(Tag::Link { dest_url: href, .. })) => {
                     let link = self.parse_link(href.to_string())?;
                     items.push(SummaryItem::Link(link));
                 }
@@ -326,10 +326,10 @@ impl<'a> SummaryParser<'a> {
                     break;
                 }
 
-                Some(Event::Start(Tag::Heading(HeadingLevel::H1, ..))) => {
+                Some(Event::Start(Tag::Heading { level: HeadingLevel::H1, .. })) => {
                     debug!("Found a h1 in the SUMMARY");
 
-                    let tags = collect_events!(self.stream, end Tag::Heading(HeadingLevel::H1, ..));
+                    let tags = collect_events!(self.stream, end TagEnd::Heading(HeadingLevel::H1));
                     Some(stringify_events(tags))
                 }
 
@@ -360,7 +360,7 @@ impl<'a> SummaryParser<'a> {
     /// Finishes parsing a link once the `Event::Start(Tag::Link(..))` has been opened.
     fn parse_link(&mut self, href: String) -> Result<Link<PathBuf>> {
         let href = href.replace("%20", " ");
-        let link_content = collect_events!(self.stream, end Tag::Link(..));
+        let link_content = collect_events!(self.stream, end TagEnd::Link);
         let name = stringify_events(link_content);
 
         let path = if href.is_empty() {
@@ -414,7 +414,7 @@ impl<'a> SummaryParser<'a> {
                 }
                 // The expectation is that pulldown cmark will terminate a paragraph before a new
                 // heading, so we can always count on this to return without skipping headings.
-                Some(ev @ Event::Start(Tag::Heading(HeadingLevel::H1, ..))) => {
+                Some(ev @ Event::Start(Tag::Heading { level: HeadingLevel::H1, .. })) => {
                     // we're starting a new part
                     self.back(ev);
                     break;
@@ -435,7 +435,7 @@ impl<'a> SummaryParser<'a> {
 
                     // Skip over the contents of this tag
                     while let Some(event) = self.next_event() {
-                        if event == Event::End(other_tag.clone()) {
+                        if event == Event::End(other_tag.to_end()) {
                             break;
                         }
                     }
@@ -509,7 +509,7 @@ impl<'a> SummaryParser<'a> {
 
                     last_item.nested_items = sub_items;
                 }
-                Some(Event::End(Tag::List(..))) => break,
+                Some(Event::End(TagEnd::List(..))) => break,
                 Some(_) => {}
                 None => break,
             }
@@ -526,7 +526,7 @@ impl<'a> SummaryParser<'a> {
         loop {
             match self.next_event() {
                 Some(Event::Start(Tag::Paragraph)) => continue,
-                Some(Event::Start(Tag::Link(_type, href, _title))) => {
+                Some(Event::Start(Tag::Link { dest_url: href, .. })) => {
                     let mut link = self.parse_link(href.to_string())?;
 
                     let mut number = parent.clone();
@@ -569,10 +569,10 @@ impl<'a> SummaryParser<'a> {
     fn parse_title(&mut self) -> Option<String> {
         loop {
             match self.next_event() {
-                Some(Event::Start(Tag::Heading(HeadingLevel::H1, ..))) => {
+                Some(Event::Start(Tag::Heading { level: HeadingLevel::H1, .. })) => {
                     debug!("Found a h1 in the SUMMARY");
 
-                    let tags = collect_events!(self.stream, end Tag::Heading(HeadingLevel::H1, ..));
+                    let tags = collect_events!(self.stream, end TagEnd::Heading(HeadingLevel::H1));
                     return Some(stringify_events(tags));
                 }
                 // Skip a HTML element such as a comment line.
@@ -766,7 +766,7 @@ mod tests {
         let _ = parser.stream.next(); // Discard opening paragraph
 
         let href = match parser.stream.next() {
-            Some((Event::Start(Tag::Link(_type, href, _title)), _range)) => href.to_string(),
+            Some((Event::Start(Tag::Link { dest_url: href, .. }), _range)) => href.to_string(),
             other => panic!("Unreachable, {:?}", other),
         };
 

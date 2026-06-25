@@ -72,7 +72,7 @@ serialport                  = { version = "4", features = ["usbportinfo-interfac
 comfy-table                 = "7"
 
 [build-dependencies]
-bindgen = "0.71"
+bindgen = "0.72"
 zephyr-build = { workspace = true }
 
 [package.metadata.trunk.build]

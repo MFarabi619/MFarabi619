@@ -227,7 +227,7 @@ ratatui = { version = "0.30.0", default-features = false, features = [
 embedded-sdmmc = { git = "https://github.com/rust-embedded-community/embedded-sdmmc-rs", rev = "c7231ddb3dfe9a67c76f15d150d4b42a0d0c9f70", default-features = false, features = [
     "defmt-log",
 ] }
-volatile = "0.4.3"
+volatile = "0.6"
 static_cell = "2.1.1"
 critical-section = "1.2.0"
 embedded-io = { workspace = true, features = ["defmt"] }
@@ -236,30 +236,31 @@ embassy-executor = { workspace = true, features = ["defmt"] }
 embedded-io-async = { workspace = true, features = ["defmt"] }
 rtt-target = { version = "0.6.2", features = ["defmt"] }
 
-esp-alloc = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+esp-alloc = { git = "https://github.com/esp-rs/esp-hal", rev = "0d04588d", features = [
     "defmt",
 ] }
 panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
-esp-bootloader-esp-idf = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+esp-bootloader-esp-idf = { git = "https://github.com/esp-rs/esp-hal", rev = "0d04588d", features = [
     "defmt",
     "esp32s3",
 ] }
-esp-storage = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+esp-storage = { git = "https://github.com/esp-rs/esp-hal", rev = "0d04588d", features = [
     "esp32s3",
+    "embedded-storage",
 ] }
-esp-hal = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+esp-hal = { git = "https://github.com/esp-rs/esp-hal", rev = "0d04588d", features = [
     "defmt",
     "esp32s3",
     "unstable",
 ] }
 embassy-futures = "0.1"
-embassy-sync = { version = "0.7", features = ["defmt"] }
-trouble-host = { version = "0.6.0", features = ["gatt"] }
-bt-hci = "0.8.0"
-chacha20 = { version = "0.9", default-features = false }
-constant_time_eq = { version = "0.3", default-features = false }
-poly1305 = { version = "0.8", default-features = false }
-sha2 = { version = "0.10", default-features = false }
+embassy-sync = { version = "0.8", features = ["defmt"] }
+trouble-host = { version = "0.7", features = ["gatt"] }
+bt-hci = "0.9"
+chacha20 = { version = "0.10", default-features = false, features = ["cipher", "legacy"] }
+constant_time_eq = { version = "0.5", default-features = false }
+poly1305 = { version = "0.9", default-features = false }
+sha2 = { version = "0.11", default-features = false }
 x25519-dalek = { version = "2.0", default-features = false }
 ed25519-dalek = { version = "2.1", default-features = false }
 rand = { version = "0.8", default-features = false }
@@ -274,14 +275,14 @@ embassy-net = { version = "0.9.0", features = [
     "multicast",
     "auto-icmp-echo-reply",
 ] }
-esp-rtos = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+esp-rtos = { git = "https://github.com/esp-rs/esp-hal", rev = "0d04588d", features = [
     "defmt",
     "embassy",
     "esp32s3",
     "esp-alloc",
     "esp-radio",
 ] }
-esp-radio = { git = "https://github.com/esp-rs/esp-hal", rev = "c670420d", features = [
+esp-radio = { git = "https://github.com/esp-rs/esp-hal", rev = "0d04588d", features = [
     "ble",
     "coex",
     "wifi",
@@ -309,7 +310,7 @@ scd30-interface = { version = "2.0.0", default-features = false, features = [
     "async",
     "defmt",
 ] }
-sntpc = { version = "0.8", default-features = false }
+sntpc = { version = "0.10", default-features = false }
 libm = "0.2.16"
 serde = { version = "1", default-features = false, features = ["derive"] }
 

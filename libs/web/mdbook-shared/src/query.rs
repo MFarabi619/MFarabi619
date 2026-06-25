@@ -1,6 +1,6 @@
 use crate::*;
 use anyhow::{Context, Ok};
-use pulldown_cmark::{Event, Tag};
+use pulldown_cmark::{Event, Tag, TagEnd};
 use serde::{Deserialize, Serialize};
 use slab::Slab;
 use std::{
@@ -176,14 +176,14 @@ impl MdBook<PathBuf> {
         let mut title = String::new();
 
         parser.for_each(|event| match event {
-            Event::Start(Tag::Heading(level, ..)) => {
+            Event::Start(Tag::Heading { level, .. }) => {
                 title.clear();
                 last_heading = Some(level);
             }
             Event::Text(text) | Event::Code(text) => {
                 title.push_str(&text);
             }
-            Event::End(Tag::Heading(_, _, _)) => {
+            Event::End(TagEnd::Heading(_)) => {
                 if let Some(current_level) = &mut last_heading {
                     let anchor = title
                         .clone()

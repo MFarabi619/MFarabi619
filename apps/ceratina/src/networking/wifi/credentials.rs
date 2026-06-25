@@ -1,5 +1,4 @@
 use embedded_storage::nor_flash::NorFlash;
-use embedded_storage::ReadStorage;
 use esp_storage::FlashStorage;
 
 pub const DEFAULT_SSID: &str = env!("WIFI_SSID");

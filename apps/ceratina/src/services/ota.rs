@@ -3,7 +3,6 @@ use core::sync::atomic::{AtomicBool, Ordering};
 use defmt::info;
 use embassy_net::{Stack, tcp::TcpSocket};
 use embassy_time::{Duration, Timer};
-use embedded_storage::Storage;
 use esp_bootloader_esp_idf::ota::OtaImageState;
 use esp_bootloader_esp_idf::ota_updater::OtaUpdater;
 use esp_bootloader_esp_idf::partitions::PARTITION_TABLE_MAX_LEN;
