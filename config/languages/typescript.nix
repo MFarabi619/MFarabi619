@@ -1,0 +1,3 @@
+{
+  languages.typescript.enable = false;
+}

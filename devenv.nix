@@ -15,6 +15,7 @@ in
 
   imports = map (path: ./config + path) [
     "/scripts.nix"
+    "/languages"
   ];
 
   packages =
@@ -166,35 +167,6 @@ in
         ]
     ))
   ];
-
-  languages = rec {
-    nix.enable = true;
-    shell.enable = true;
-    python.enable = false;
-    python.uv.enable = true;
-
-    c.enable = true;
-    c.debugger = pkgs.gdb;
-    cplusplus.enable = true;
-
-    rust = {
-      enable = false;
-      toolchainFile = ./rust-toolchain.toml;
-    };
-
-    typescript.enable = false;
-    javascript = {
-      bun.enable = true;
-      package = pkgs.nodejs_26;
-      enable = typescript.enable;
-    };
-
-    ruby = {
-      enable = false;
-      bundler.enable = true;
-      documentation.enable = true;
-    };
-  };
 
   # process.manager.implementation = "process-compose";
   # process.manager.args = {
