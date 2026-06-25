@@ -13,8 +13,9 @@ in
   name = "microvisor";
   cachix.pull = lib.optionals config.languages.rust.enable [ "oxalica" ];
 
-  # imports = map (path: ./config + path) [ "/services" ];
-  # env.PLAYWRIGHT_NODEJS_PATH = "${pkgs.nodejs_26}/bin/node";
+  imports = map (path: ./config + path) [
+    "/scripts.nix"
+  ];
 
   packages =
     (
@@ -50,17 +51,6 @@ in
         #       libappindicator-gtk3
       ]
     );
-
-  scripts = {
-    up.exec = ''devenv up "$@"'';
-    clean.exec = "git clean -fdX";
-    run.exec = ''devenv tasks run "$@" -m before'';
-    docs.exec = "bunx likec4 start ${config.git.root}/docs";
-    tio.exec = ''HOME="$DEVENV_ROOT" ${pkgs.tio}/bin/tio "$@"'';
-    "emulate:firmware".exec = ''
-      west build apps/firmware --board qemu_riscv32 --build-dir build/qemu_riscv32 --target run
-    '';
-  };
 
   enterTest = ''
     devenv tasks run build
