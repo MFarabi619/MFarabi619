@@ -59,6 +59,7 @@
             cryptography
           ]
           ++ [
+            pyocd
             pyusb
             pyserial
             pylink-square
