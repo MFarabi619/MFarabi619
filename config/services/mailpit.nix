@@ -1,0 +1,3 @@
+{
+  services.mailpit.enable = true;
+}
