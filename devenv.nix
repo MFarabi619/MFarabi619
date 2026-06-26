@@ -11,62 +11,35 @@ let
 in
 {
   name = "microvisor";
-  cachix.pull = lib.optionals config.languages.rust.enable [ "oxalica" ];
+  packages = with pkgs-unstable; lib.optionals pkgs.stdenv.isLinux [ openssl ];
 
-  imports = map (path: ./config + path) [
-    # "/services"
-    "/languages"
+  languages = {
+    nix.enable = true;
+    shell.enable = true;
 
-    "/env.nix"
-    "/tasks.nix"
-    "/scripts.nix"
-    # "/profiles.nix"
-    "/processes.nix"
-  ];
+    c.enable = true;
+    c.debugger = pkgs.gdb;
+    cplusplus.enable = true;
 
-  packages =
-    (
-      with pkgs-unstable;
-      [
-        #     binaryen
-        #     dioxus-cli
-        #     tailwindcss_4
-        #     cargo-binstall
-        #     # FIXME: nixpkgs behind on latest
-        #     # use `cargo binstall wasm-bindgen-cli@0.2.116`
-      ]
-      ++ lib.optionals config.languages.ruby.enable [
-        libyaml # rails new --help
-        rubyPackages_3_4.rails # rails new store -Gc tailwind --skip-ci
-      ]
-    )
-    ++ lib.optionals pkgs.stdenv.isDarwin [ ]
-    ++ lib.optionals pkgs.stdenv.isLinux (
-      with pkgs-unstable;
-      [
-        openssl
-        #       atk
-        #       glib
-        #       file
-        #       cairo
-        #       pango
-        #       xdotool
-        #       librsvg
-        #       gdk-pixbuf
-        #       pkg-config
-        #       webkitgtk_4_1
-        #       libappindicator-gtk3
-      ]
-    );
+    typescript.enable = false;
+    javascript = {
+      bun.enable = true;
+      package = pkgs.nodejs_26;
+      enable = config.languages.typescript.enable;
+    };
+  };
 
-  enterTest = ''
-    devenv tasks run build
-  '';
+  scripts = {
+    up.exec = ''devenv up "$@"'';
+    clean.exec = "git clean -fdX";
+    run.exec = ''devenv tasks run "$@" -m before'';
+    docs.exec = "bunx likec4 start ${config.git.root}/docs";
+    tio.exec = ''HOME="$DEVENV_ROOT" ${pkgs.tio}/bin/tio "$@"'';
+  };
 
-  # android = lib.mkIf dioxus.mobile.android.enable {
-  #   enable = true;
-  #   ndk.enable = true;
-  #   emulator.enable = true;
-  #   android-studio.enable = true;
-  # };
+  profiles.user."mfarabi".module.env = {
+    # BASE_URL = "mfarabi.sh";
+    EXERCISM_API_URL = "https://api.exercism.org/v1";
+    LIBRARY_PATH = lib.mkIf pkgs.stdenv.isDarwin "/opt/homebrew/lib";
+  };
 }
