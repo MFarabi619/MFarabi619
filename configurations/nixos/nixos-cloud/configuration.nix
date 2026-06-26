@@ -1,25 +1,30 @@
-{ ... }:
+{ config, ... }:
+
 {
   imports = [
-    ./networking.nix # generated at runtime by nixos-infect
     ./hardware-configuration.nix
   ];
 
-  zramSwap.enable = true;
-  boot.tmp.cleanOnBoot = true;
+  networking.hostName = "nixos-cloud";
+  system.stateVersion = "25.11";
+  nixos-unified.sshTarget = config.networking.hostName;
 
-  networking = {
-    hostName = "nixos-cloud";
-    domain = "";
+  boot = {
+    tmp = {
+      useTmpfs = true;
+      tmpfsSize = "50%";
+    };
+
+    kernel.sysctl = {
+      "vm.swappiness" = 10;
+      "net.core.default_qdisc" = "fq";
+      "net.ipv4.tcp_congestion_control" = "bbr";
+    };
   };
 
-  services = {
-    openssh.enable = true;
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 50;
   };
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    ''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHX5kFcw6u7VABnRc2bg2MdOK4QssJnATEPvV84XynWD''
-  ];
-
-  system.stateVersion = "23.11";
 }

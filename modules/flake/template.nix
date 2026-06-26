@@ -213,5 +213,35 @@
         };
       };
     };
+
+    om.ci.default = {
+      root = {
+        dir = ".";
+        steps.custom.nix-on-droid = {
+          type = "devshell";
+          systems = [ "aarch64-linux" ];
+          command = [
+            "nix"
+            "build"
+            ".#nixOnDroidConfigurations.default.activationPackage"
+            "--impure"
+            "--no-link"
+          ];
+        };
+      };
+
+      rpi5 = {
+        dir = "configurations/nixos/rpi5";
+        systems = [ "aarch64-linux" ];
+      };
+    };
+
+    om.health.default = {
+      direnv.required = true;
+      caches.required = [
+        "https://cache.nixos.org"
+        "https://mfarabi.cachix.org"
+      ];
+    };
   };
 }

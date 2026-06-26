@@ -61,10 +61,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland-plugins.url = "github:hyprwm/hyprland-plugins";
-
     nix-on-droid = {
-      # hyprland-plugins.inputs.hyprland.follows = "nixpkgs";
       url = "github:nix-community/nix-on-droid/release-24.05";
       inputs = {
         nixpkgs.follows = "nixpkgs";

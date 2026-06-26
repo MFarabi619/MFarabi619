@@ -44,7 +44,6 @@
       lix-module,
       home-manager,
       stylix,
-      hyprland,
       hyprland-plugins,
       nix-doom-emacs-unstraightened,
       nix-index-database,
@@ -78,6 +77,7 @@
               };
               users.mfarabi = {
                 home.stateVersion = "25.05";
+                stylix.overlays.enable = false;
                 imports = [
                   inputs.nix-doom-emacs-unstraightened.homeModule
                   stylix.homeModules.stylix

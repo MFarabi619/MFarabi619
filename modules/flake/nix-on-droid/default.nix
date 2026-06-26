@@ -101,6 +101,8 @@
             };
 
             config = {
+              stylix.overlays.enable = false;
+
               home = {
                 username = lib.mkForce config.user.userName;
                 stateVersion = "24.05";

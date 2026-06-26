@@ -13,7 +13,6 @@ in
   imports = [
     self.nixosModules.wsl
     self.nixosModules.default
-    flake.inputs.stylix.nixosModules.stylix
   ];
 
   system.stateVersion = "25.05";

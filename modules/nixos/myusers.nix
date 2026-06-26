@@ -24,7 +24,7 @@ in
     defaultText = "All users under ./configuration/users are included by default";
     default =
       let
-        dirContents = builtins.readDir (self + /configurations/home);
+        dirContents = builtins.readDir (self + /configurations/users);
         fileNames = builtins.attrNames dirContents; # Extract keys: [ "mfarabi.nix" ]
         regularFiles = builtins.filter (name: dirContents.${name} == "regular") fileNames; # Filter for regular files
         baseNames = map (name: builtins.replaceStrings [ ".nix" ] [ "" ] name) regularFiles; # Remove .nix extension
@@ -54,7 +54,7 @@ in
       backupFileExtension = "hm-bak";
       users = mapListToAttrs config.myusers (name: {
         imports = [
-          (self + /configurations/home/${name}.nix)
+          (self + /configurations/users/${name}.nix)
           # ]
           # ++ lib.optionals pkgs.stdenv.isLinux [
           #   flake.inputs.stylix.homeModules.stylix

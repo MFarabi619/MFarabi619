@@ -18,4 +18,6 @@
   nixpkgs.config.allowUnfree = true;
   networking.hostName = "framework-desktop";
   nixos-unified.sshTarget = config.networking.hostName;
+
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 }

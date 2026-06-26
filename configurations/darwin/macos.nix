@@ -12,7 +12,6 @@ in
 {
   imports = [
     self.darwinModules.default
-    flake.inputs.stylix.darwinModules.stylix
   ];
 
   nixpkgs.hostPlatform = "aarch64-darwin";

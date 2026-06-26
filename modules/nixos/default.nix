@@ -6,7 +6,7 @@
 }:
 {
   imports = [
-    # flake.inputs.stylix.nixosModules.stylix
+    ./stylix.nix
 
     ./services
     ./security

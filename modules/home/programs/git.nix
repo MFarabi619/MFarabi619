@@ -17,7 +17,7 @@
     signing = {
       format = "openpgp";
       signByDefault = false;
-      key = config.accounts.email.accounts.personal.gpg.key;
+      key = config.accounts.email.accounts.personal.gpg.key or null;
     };
 
     ignores = [

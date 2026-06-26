@@ -11,6 +11,28 @@
     optimise.automatic = true;
     channel.enable = pkgs.stdenv.isDarwin;
 
+    distributedBuilds = pkgs.stdenv.isDarwin;
+    buildMachines = lib.optionals pkgs.stdenv.isDarwin [
+      {
+        hostName = "framework-desktop";
+        sshUser = "mfarabi";
+        sshKey = "/Users/mfarabi/.ssh/id_ed25519";
+        protocol = "ssh-ng";
+
+        systems = [
+          "x86_64-linux"
+          "aarch64-linux"
+        ];
+
+        maxJobs = 8;
+        supportedFeatures = [
+          "kvm"
+          "benchmark"
+          "big-parallel"
+        ];
+      }
+    ];
+
     settings = rec {
       cores = 0;
       show-trace = true;

@@ -4,6 +4,7 @@
   imports = [
     ./services
 
+    ./stylix.nix
     ./power.nix
     ./system.nix
     ./launchd.nix
