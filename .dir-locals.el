@@ -145,7 +145,7 @@
                                      ("cargo"             'nerd-icons-orange)
                                      ("west"              'nerd-icons-purple)
                                      ("platformio"        'nerd-icons-yellow)
-                                     ("pulumi"            'nerd-icons-dpurple)
+                                     ("pulumi"            'nerd-icons-purple)
                                      ("pkg"               'nerd-icons-red)
                                      ("apt"               'nerd-icons-dred)
                                      ("pacman"            'nerd-icons-blue)
