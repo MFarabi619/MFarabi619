@@ -75,6 +75,7 @@
 ;; (add-load-path! "pio-mode")
 ;; (use-package! pio-mode)
 (use-package! org-anki)
+(use-package! codemetrics)
 (use-package! kbd-mode              :defer t)
 ;; (use-package! gptel-integrations)
 (use-package! org-auto-tangle       :after org)
@@ -111,8 +112,8 @@
 ;;                                    (simple .
 ;;                                      ((hass-dash-toggle :entity-id "light.kitchen_lights")
 ;;                                        (hass-dash-toggle :entity-id "switch.entry_light"))))))
-
 (after!       direnv        (direnv-mode -1))
+(after!       codemetrics   (codemetrics-mode 1))
 (after!       undo-tree     (global-undo-tree-mode 1))
 (after!       nerd-icons    (nerd-icons-completion-mode 1))
 (after!       pdf-tools     (setopt pdf-view-continuous t))
@@ -465,6 +466,7 @@ when they were opened, so they skip the re-application."
        defer-launch-attach t
        :request "attach"
        :program (lambda () (expand-file-name "build/firmware/zephyr/zephyr.elf" (project-root (project-current))))))
+
 
   (add-hook! 'dape-display-source-hook #'pulse-momentary-highlight-one-line)
 
