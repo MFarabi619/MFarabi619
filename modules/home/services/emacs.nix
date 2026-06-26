@@ -5,12 +5,10 @@
 {
   services.emacs = {
     enable = config.programs.emacs.enable;
-    defaultEditor = false;
     # socketActivation.enable = true;
+    defaultEditor = false;
+    # extraOptions = [ "TERM=xterm-kitty" ];
 
-    # extraOptions = [
-    #   "TERM=xterm-kitty"
-    # ];
 
     # client = {
     #   enable = true;
