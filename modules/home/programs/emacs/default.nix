@@ -6,26 +6,19 @@
   ...
 }:
 {
-  imports = [
-    flake.inputs.nix-doom-emacs-unstraightened.homeModule
-  ];
+  imports = [ flake.inputs.nix-doom-emacs-unstraightened.homeModule ];
 
   programs.doom-emacs = {
     enable = true;
     doomDir = ./.;
-    # provideEmacs = false;
+    # doomLocalDir = "~/.config/emacs";
     experimentalFetchTree = config.targets.genericLinux.enable;
 
     extraPackages =
       epkgs:
       let
         treesitWithAllExceptQuint = epkgs.treesit-grammars.with-grammars (
-          grammars:
-          builtins.attrValues (
-            builtins.removeAttrs grammars [
-              "tree-sitter-quint"
-            ]
-          )
+          grammars: builtins.attrValues (builtins.removeAttrs grammars [ "tree-sitter-quint" ])
         );
       in
       with epkgs;
@@ -141,7 +134,6 @@
         protobuf
         protoc-gen-go
         protoc-gen-go-grpc
-
       ]
       ++ [
         jq-lsp
@@ -196,8 +188,6 @@
         # ==== 💿 SQL 💿 =====
         postgres-language-server
       ]
-      ++ lib.optionals (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) [
-        bashdb
-      ];
+      ++ lib.optionals (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) [ bashdb ];
   };
 }
