@@ -1,16 +1,8 @@
 {
-  pkgs,
-  ...
-}:
-
-let
-  name = if pkgs.stdenv.isx86_64 then "macos-intel" else "macos";
-in
-{
-  networking = {
-    hostName = name;
-    computerName = name;
-    localHostName = name;
+  networking = rec {
+    hostName = "macos";
+    computerName = hostName;
+    localHostName = hostName;
     wakeOnLan.enable = true;
   };
 }

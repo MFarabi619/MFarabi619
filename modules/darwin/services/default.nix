@@ -1,8 +1,6 @@
 {
   imports = [
     ./ipfs.nix
-    ./skhd.nix
-    ./yabai.nix
     ./aerospace.nix
     ./karabiner-elements.nix
 

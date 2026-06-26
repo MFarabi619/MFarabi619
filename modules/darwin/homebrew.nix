@@ -30,36 +30,42 @@
     # taps = [ "quickemu-project/quickemu" ];
 
     brews = [
+      "zig"
       "rust"
       "rustup" # rustup toolchain link system "$(brew --prefix rust)"
       "pulumi"
-      "libvirt" # brew services start libvirt
-      # "quickemu"
-      "dfu-util"
-      # "galaxy-io/tap/gnat" # NATS tui
       "atopile/tap/atopile"
-      "Valkyrie00/homebrew-bbrew/bbrew"
     ]
-    ++ lib.optionals pkgs.stdenv.isAarch64 [
-      "zig"
+    ++ [
+      "dfu-util"
+      "u-boot-tools"
+      "espressif/eim/eim"
+    ]
+    ++ [
       "mlx"
       "qemu"
       "nemu"
+      "libvirt" # brew services start libvirt
+      # "quickemu"
+    ]
+    ++ [
       "SDL2"
       "ollama"
       "libgcrypt"
-      # "ferron" # rust-based caddy-like web server
       "netscanner"
-      "u-boot-tools"
-      "espressif/eim/eim"
+      "Valkyrie00/homebrew-bbrew/bbrew"
+    ]
+    ++ [
+      # "galaxy-io/tap/gnat" # NATS tui
       # "renode/tap/renode-nightly"
+      # "ferron" # rust-based caddy-like web server
     ];
 
     casks = [
       "vivaldi"
       "binary-ninja-free"
     ]
-    ++ lib.optionals pkgs.stdenv.isAarch64 [
+    ++ [
       "leader-key"
       "claude-code"
       "tailscale-app"
