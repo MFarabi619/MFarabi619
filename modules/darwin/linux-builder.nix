@@ -9,8 +9,8 @@
   # sudo ssh linux-builder
   nix.linux-builder = {
     maxJobs = 4;
-    ephemeral = false;
-    enable = pkgs.stdenv.isAarch64;
+    # enable = pkgs.stdenv.isAarch64;
+    enable = false;
 
     config = {
       imports = [
