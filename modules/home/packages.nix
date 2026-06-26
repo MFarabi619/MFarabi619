@@ -78,6 +78,7 @@
           ++ [
             pyocd
             pyusb
+            zeroconf
             pyserial
             pylink-square
           ]
