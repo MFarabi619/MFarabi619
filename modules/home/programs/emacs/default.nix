@@ -81,6 +81,7 @@
       ]
       ++ [
         org-anki
+        ob-duckdb
         ob-mermaid
         org-roam-ui
         org-pdftools

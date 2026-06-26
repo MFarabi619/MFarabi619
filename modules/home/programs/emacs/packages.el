@@ -103,7 +103,6 @@
 
 (package! kbd-mode       :recipe (:host github :repo "kmonad/kbd-mode")                  :pin "f8951b2efc5c29954b0105a9e57e973515125b0d")
 (package! monet          :recipe (:host github :repo "stevemolitor/monet")               :pin "72a18d372fef4b0971267bf13f127dcce681859a")
-(package! ob-duckdb      :recipe (:host github :repo "gggion/ob-duckdb" :files ("*.el")) :pin "d5b6df504e63f635512a57b23afd9a37683fca40")
 (package! codemetrics    :recipe (:host github :repo "emacs-vs/codemetrics")             :pin "863a9ac167ecdf20f3730fd9d308d44314fce903")
 (package! kitty-graphics :recipe (:host github :repo "cashmeredev/kitty-graphics.el")    :pin "f18cebbe766a5ccedebf4c07ae9a6f731a926a8d")
 
