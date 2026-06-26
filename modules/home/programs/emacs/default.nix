@@ -66,6 +66,7 @@
         circe
         corfu
         prodigy
+        buttercup
         pdf-tools
         magit-todos
         magit-delta
