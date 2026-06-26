@@ -186,7 +186,7 @@
       ++ [
         # ============= ‍❄🕸 ================
         nil # nix formatter
-        # omnix
+        omnix
         devenv
         cachix
         nix-du # store visualizer
