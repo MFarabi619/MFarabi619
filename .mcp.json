@@ -16,6 +16,12 @@
       "args": [
         "mcp"
       ]
+    },
+    "nixos": {
+      "command": "uvx",
+      "args": [
+        "mcp-nixos"
+      ]
     }
   }
 }
