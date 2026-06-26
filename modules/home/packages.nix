@@ -21,6 +21,7 @@
         rubyPackages_3_4.rails
       ]
       ++ [
+        flock
         llvm
         lldb
         ninja
@@ -47,7 +48,6 @@
         renode-dts2repl
         kconfig-frontends
         home-assistant-cli
-
         (python314.withPackages (
           package:
           with package;
@@ -91,9 +91,6 @@
             junitparser
           ]
         ))
-      ]
-      ++ [
-        flock
       ]
       ++ [
         lighttpd
