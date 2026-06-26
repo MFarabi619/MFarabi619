@@ -9,6 +9,9 @@
     packages =
       with pkgs;
       [
+        libsixel
+      ]
+      ++ [
         loco
         trunk
         libyaml
