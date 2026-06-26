@@ -27,6 +27,7 @@ in
       lldb
       tscli
       nix-ld
+      nvtopPackages.amd
       # libvterm
       jellyfin
       filebrowser
@@ -82,7 +83,6 @@ in
       me
       home
       fonts
-      # stylix
       manual
       packages
       editorconfig

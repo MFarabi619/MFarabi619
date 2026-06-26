@@ -10,16 +10,16 @@
     gc.automatic = true;
     optimise.automatic = true;
     channel.enable = pkgs.stdenv.isDarwin;
-
     distributedBuilds = pkgs.stdenv.isDarwin;
     buildMachines = lib.optionals pkgs.stdenv.isDarwin [
       {
-        hostName = "framework-desktop";
         sshUser = "mfarabi";
-        sshKey = "/Users/mfarabi/.ssh/id_ed25519";
         protocol = "ssh-ng";
+        hostName = "framework-desktop";
+        sshKey = "/Users/mfarabi/.ssh/id_ed25519";
 
         systems = [
+          "i686-linux"
           "x86_64-linux"
           "aarch64-linux"
         ];
@@ -52,21 +52,15 @@
         "flakes"
         "nix-command"
         "pipe-operators"
-        # "pipe-operator" # if using lix
       ];
 
       trusted-users =
-        lib.optionals pkgs.stdenv.isLinux [
-          "root"
-        ]
-        ++ lib.optionals pkgs.stdenv.isDarwin [
-          "@admin"
-        ]
+        lib.optionals pkgs.stdenv.isLinux [ "root" ]
+        ++ lib.optionals pkgs.stdenv.isDarwin [ "@admin" ]
         ++ config.myusers;
 
       substituters = [
         "https://cache.nixos.org"
-        # "https://cache.lix.systems"
         "https://cachix.cachix.org"
         "https://devenv.cachix.org"
         "https://mfarabi.cachix.org"
@@ -75,13 +69,10 @@
         "https://nix-community.cachix.org"
       ];
 
-      trusted-substituters = substituters ++ [
-        "https://cache.saumon.network/proxmox-nixos"
-      ];
+      trusted-substituters = substituters ++ [ "https://cache.saumon.network/proxmox-nixos" ];
 
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        # "cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o="
         "cachix.cachix.org-1:eWNHQldwUO7G2VkjpnjDbWwy4KQ/HNxht7H4SSoMckM="
         "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
         "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="

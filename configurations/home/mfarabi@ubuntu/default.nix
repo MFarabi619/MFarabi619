@@ -32,6 +32,7 @@ in
       dconf
       nix-ld
       spice-vdagent
+      nvtopPackages.full
     ];
   };
 

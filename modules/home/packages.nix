@@ -170,10 +170,12 @@
         cargo-seek
         # leetcode-tui
         # keymap-drawer # visualize keyboard layout
-        nvtopPackages.full # btop for gpu
 
         # gama-tui # github actions runners
         # codeberg-cli
+      ]
+      ++ lib.optionals (!config.targets.genericLinux.enable) [
+        nvtopPackages.full # btop for gpu; genericLinux hosts set their own variant per-host
       ]
       ++ [
         exercism

@@ -18,6 +18,7 @@ in
     packages = with pkgs; [
       ttyd
       nix-ld
+      nvtopPackages.v3d
     ];
   };
 
