@@ -10,7 +10,7 @@
     in
       import ./configuration.nix {
         inherit pkgs;
-        lib = pkgs.lib;
+        inherit (pkgs) lib;
       };
 
     meta = {
