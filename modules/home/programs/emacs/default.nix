@@ -58,6 +58,7 @@
         vterm
         circe
         corfu
+        ghostel
         prodigy
         buttercup
         pdf-tools

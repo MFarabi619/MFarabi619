@@ -118,6 +118,7 @@
 (after!       pdf-tools     (setopt pdf-view-continuous t))
 (after!       dape          (dape-breakpoint-global-mode 1))
 (after!       evil          (setopt evil-ex-substitute-global t))
+;; (after!       ghostel       (setopt ghostel-compile-global-mode t ghostel-comint-global-mode t))
 (after!       ob-duckdb     (setopt org-babel-duckdb-max-rows 200 org-babel-duckdb-show-progress t org-babel-duckdb-queue-display 'auto org-babel-duckdb-queue-position 'side org-babel-duckdb-progress-display 'popup org-babel-duckdb-output-buffer "*DuckDB Results*"))
 ;; (after!       eww           (add-hook! 'eww-mode-hook #'writeroom-mode))
 ;; (after!       claude-code   (map! :leader :desc "Claude Code run" "C-c" #'claude-code-run))
