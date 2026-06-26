@@ -5,10 +5,12 @@
       inherit (tpkgs)
         lato
         latex
+        dvipng
         latexmk
         fontspec
         algorithms
         latex-fonts
+        dvipsconfig
         fontawesome6
         collection-basic
         collection-latex
@@ -19,7 +21,8 @@
         collection-latexextra
         collection-fontsextra
         collection-formatsextra
-        collection-fontsrecommended;
+        collection-fontsrecommended
+        ;
     };
   };
 }
