@@ -9,7 +9,6 @@
 (set-frame-parameter nil 'undecorated t)
 (add-to-list 'default-frame-alist '(undecorated . t))
 (add-to-list 'auto-mode-alist '("\\.overlay\\'" . devicetree-ts-mode))
-
 (setopt doom-theme 'doom-gruvbox
   ;; doom-theme 'catppuccin
   fancy-splash-image "~/MFarabi619/assets/apollyon-emacs.png"
@@ -81,6 +80,7 @@
 (use-package! org-auto-tangle       :after org)
 (use-package! consult-compile-multi :after compile-multi :config (consult-compile-multi-mode 1))
 (use-package! exercism              :defer t             :unless (eq system-type 'berkeley-unix))
+(use-package! kitty-graphics                             :config (setopt kitty-gfx-enable-video t) (kitty-graphics-setup))
 ;; (use-package! llm-tool-collection                        :config (mapc (apply-partially #'apply #'gptel-make-tool) (llm-tool-collection-get-all)))
 (use-package! fretboard             :defer t             :config (setopt fretboard-fret-count 15) (add-hook 'fretboard-mode-hook #'evil-emacs-state))
 ;; (use-package! nov-xwidget           :after (nov)         :config (add-hook! 'nov-mode-hook #'nov-xwidget-inject-all-files) (define-key nov-mode-map (kbd "o") #'nov-xwidget-view))
@@ -127,7 +127,6 @@
 ;; (after!       doom-modeline (setopt doom-modeline-percent-position nil doom-modeline-buffer-position nil))
 (after!       tramp         (setopt tramp-verbose 1           tramp-default-method "sshx" tramp-connection-timeout 10))
 (after!       osm           (setopt osm-copyright t           osm-home (list 45.38730243858645 -75.69539479599302 15)))
-(after!       kitty-graphics (when (and (not (display-graphic-p)) (getenv "KITTY_WINDOW_ID")) (kitty-graphics-mode 1)))
 (after!       sql           (setopt sql-database "microvisor" sql-server "127.0.0.1" sql-port 5432 sql-user "mfarabi" sql-password ""))
 (after!       verb-mode     (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
 (after!       files         (dolist (dir '("~/MFarabi619/" "~/workspace/apidae-systems/src/")) (add-to-list 'safe-local-variable-directories dir)))
