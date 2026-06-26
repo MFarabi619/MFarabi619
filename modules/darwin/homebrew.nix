@@ -40,7 +40,7 @@
       "atopile/tap/atopile"
       "Valkyrie00/homebrew-bbrew/bbrew"
     ]
-    ++ lib.optionals (pkgs.stdenv.isAarch64) [
+    ++ lib.optionals pkgs.stdenv.isAarch64 [
       "zig"
       "mlx"
       "qemu"
@@ -59,7 +59,7 @@
       "vivaldi"
       "binary-ninja-free"
     ]
-    ++ lib.optionals (pkgs.stdenv.isAarch64) [
+    ++ lib.optionals pkgs.stdenv.isAarch64 [
       "leader-key"
       "claude-code"
       "tailscale-app"

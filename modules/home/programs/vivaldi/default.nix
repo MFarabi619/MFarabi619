@@ -10,9 +10,7 @@
 
   home.packages =
     with pkgs;
-    [
-    ]
-    ++ lib.optionals stdenv.isLinux [
+    lib.optionals stdenv.isLinux [
       vivaldi-ffmpeg-codecs
     ];
 }

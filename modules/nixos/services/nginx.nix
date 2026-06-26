@@ -8,7 +8,7 @@ let
 in
 {
   services.nginx = {
-    enable = cgit.enable;
+    inherit (cgit) enable;
     defaultHTTPListenPort = 82;
     defaultSSLListenPort = 445;
 

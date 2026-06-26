@@ -61,9 +61,9 @@
         };
 
         apidaesystems = rec {
-          gpg = personal.gpg;
-          flavor = personal.flavor;
-          folders = personal.folders;
+          inherit (personal) gpg;
+          inherit (personal) flavor;
+          inherit (personal) folders;
           realName = config.me.fullname;
 
           address = "farabi@apidaesystems.ca";
@@ -74,7 +74,7 @@
           mu.enable = true;
           msmtp.enable = true;
           neomutt.enable = true;
-          mbsync = personal.mbsync;
+          inherit (personal) mbsync;
 
           signature = {
             showSignature = "append";

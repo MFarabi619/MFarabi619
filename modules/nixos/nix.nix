@@ -56,8 +56,7 @@
       ];
 
       trusted-users =
-        [ ]
-        ++ lib.optionals pkgs.stdenv.isLinux [
+        lib.optionals pkgs.stdenv.isLinux [
           "root"
         ]
         ++ lib.optionals pkgs.stdenv.isDarwin [

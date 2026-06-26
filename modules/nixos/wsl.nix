@@ -3,9 +3,7 @@
   ...
 }:
 {
-  imports = [
-    flake.inputs.nixos-wsl.nixosModules.default
-  ];
+  imports = [ flake.inputs.nixos-wsl.nixosModules.default ];
 
   hardware.uinput.enable = true;
 
@@ -21,12 +19,9 @@
     defaultUser = "mfarabi";
     useWindowsDriver = true;
     startMenuLaunchers = true;
+    interop.includePath = true;
     docker-desktop.enable = true;
 
-    interop = {
-      includePath = true;
-    };
-    # tarball.configPath = null;
     usbip = {
       enable = true;
       autoAttach = [ ];

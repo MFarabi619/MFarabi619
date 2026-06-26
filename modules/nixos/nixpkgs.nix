@@ -1,6 +1,3 @@
 {
-  nixpkgs = {
-    # buildPlatform = "aarch64-darwin";
-    config.allowUnfree = true;
-  };
+  nixpkgs.config.allowUnfree = true;
 }
