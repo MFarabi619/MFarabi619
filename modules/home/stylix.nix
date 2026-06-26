@@ -61,8 +61,8 @@
       };
 
       emoji = {
-        name = "Noto Color Emoji";
-        package = pkgs.noto-fonts-color-emoji;
+        name = "Twitter Color Emoji";
+        package = pkgs.twemoji-color-font;
       };
 
       serif = {

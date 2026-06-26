@@ -42,7 +42,6 @@ in
       me
       xdg
       home
-      fonts
       stylix
       manual
       packages

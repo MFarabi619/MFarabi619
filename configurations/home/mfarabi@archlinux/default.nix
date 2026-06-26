@@ -82,7 +82,7 @@ in
     [
       me
       home
-      fonts
+      stylix
       manual
       packages
       editorconfig

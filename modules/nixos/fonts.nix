@@ -13,7 +13,7 @@
       material-icons
       fira-code-symbols
       noto-fonts-cjk-sans
-      noto-fonts-color-emoji
+      twemoji-color-font
       nerd-fonts.jetbrains-mono
     ]
     ++ lib.optionals stdenv.isDarwin [
