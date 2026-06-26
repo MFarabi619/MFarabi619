@@ -101,10 +101,10 @@
 ;; (package! pg     :recipe (:host github :repo "emarsden/pg-el")  :pin "67f50311947a54913d91852ebd6880dbe68930bc")
 ;; (package! pgmacs :recipe (:host github :repo "emarsden/pgmacs") :pin "04df50eb6cb1cc997deae9c5120ba66353601d3a")
 
-(package! kbd-mode       :recipe (:host github :repo "kmonad/kbd-mode")                  :pin "f8951b2efc5c29954b0105a9e57e973515125b0d")
-(package! monet          :recipe (:host github :repo "stevemolitor/monet")               :pin "72a18d372fef4b0971267bf13f127dcce681859a")
+(package! kbd-mode       :recipe (:host github :repo "kmonad/kbd-mode")                  :pin "1c81889f00de92483b48a16bb32b4c2a5eddcfc1")
+(package! monet          :recipe (:host github :repo "stevemolitor/monet")               :pin "ee2e35557e8ae07de842c435486f7c152f3750e0")
 (package! codemetrics    :recipe (:host github :repo "emacs-vs/codemetrics")             :pin "863a9ac167ecdf20f3730fd9d308d44314fce903")
-(package! kitty-graphics :recipe (:host github :repo "cashmeredev/kitty-graphics.el")    :pin "f18cebbe766a5ccedebf4c07ae9a6f731a926a8d")
+(package! kitty-graphics :recipe (:host github :repo "cashmeredev/kitty-graphics.el")    :pin "586ff4b36f2ae44b12d35b0d4f256da23bc71f08")
 
 ;; (package! llm-tool-collection :recipe (:host github :repo "skissue/llm-tool-collection") :pin "6d2765a16dc10af2e1d1911bcabf6d7f287e0434")
 ;; FIXME: Cannot open load file: No such file or directory, hydra | https://github.com/l3kn/org-fc/issues/67
