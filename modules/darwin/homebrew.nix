@@ -47,6 +47,9 @@
       "nemu"
       "libvirt" # brew services start libvirt
       # "quickemu"
+      # "galaxy-io/tap/gnat" # NATS tui
+      # "renode/tap/renode-nightly"
+      # "ferron" # rust-based caddy-like web server
     ]
     ++ [
       "SDL2"
@@ -54,11 +57,6 @@
       "libgcrypt"
       "netscanner"
       "Valkyrie00/homebrew-bbrew/bbrew"
-    ]
-    ++ [
-      # "galaxy-io/tap/gnat" # NATS tui
-      # "renode/tap/renode-nightly"
-      # "ferron" # rust-based caddy-like web server
     ];
 
     casks = [

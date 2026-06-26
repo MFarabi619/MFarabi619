@@ -229,11 +229,6 @@
           ];
         };
       };
-
-      rpi5 = {
-        dir = "configurations/nixos/rpi5";
-        systems = [ "aarch64-linux" ];
-      };
     };
 
     om.health.default = {

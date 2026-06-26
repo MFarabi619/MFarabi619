@@ -95,14 +95,12 @@
         "https://emacs-ci.cachix.org"
         "https://hyprland.cachix.org"
         "https://nix-on-droid.cachix.org"
-        "https://nixos-raspberrypi.cachix.org"
       ];
 
       extra-trusted-public-keys = [
         "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
         "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
         "nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU="
-        "nixos-raspberrypi.cachix.org-1:4iMO9LXa8BqhU+Rpg6LQKiGa2lsNh/j2oiYLNOQ5sPI="
       ];
     };
   };

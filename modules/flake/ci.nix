@@ -1,14 +1,9 @@
 {
-  config,
-  lib,
-  ...
-}:
-{
   perSystem =
     { pkgs, ... }:
     let
       ci = pkgs.writeShellScriptBin "ci" ''
-        exec om ci run --systems ${lib.concatStringsSep "," config.systems} "$@"
+        exec om ci run --systems github:nix-systems/default "$@"
       '';
     in
     {

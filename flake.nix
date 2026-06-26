@@ -70,13 +70,6 @@
     };
 
     # use fork to allow disabling modules introduced by mkRemovedOptionModule and similar functions
-    # see PR nixos:nixpkgs#398456 (https://github.com/NixOS/nixpkgs/pull/398456)
-    # nixpkgs-nvmd-modules-with-keys.url = "github:nvmd/nixpkgs/modules-with-keys-25.05";
-    nixos-raspberrypi = {
-      url = "github:nvmd/nixos-raspberrypi/main";
-      # inputs.nixpkgs.follows = "nixpkgs-nvmd-modules-with-keys";
-    };
-
     nix-dokploy = {
       url = "github:el-kurto/nix-dokploy";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -90,5 +83,10 @@
     inputs.nixos-unified.lib.mkFlake {
       inherit inputs;
       root = ./.;
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ];
     };
 }
