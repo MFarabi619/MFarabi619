@@ -9,18 +9,25 @@ let
   inherit (flake) inputs;
   inherit (inputs) self;
 in
-{
+rec {
   imports = [
     self.nixosModules.wsl
     self.nixosModules.default
+    self.nixosModules.nixpkgs
   ];
 
   system.stateVersion = "25.05";
   networking.hostName = "nixos-wsl";
-  nixos-unified.sshTarget = "nixos-wsl";
+  nixpkgs.hostPlatform = "x86_64-linux";
+  nixos-unified.sshTarget = networking.hostName;
 
-  nixpkgs = {
-    config.allowUnfree = true;
-    hostPlatform = "x86_64-linux";
+  hardware.uinput.enable = true;
+
+  services = {
+    seatd.enable = true;
+    qemuGuest.enable = true;
+    spice-webdavd.enable = true;
+    spice-vdagentd.enable = true;
   };
+
 }
