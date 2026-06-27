@@ -22,15 +22,17 @@
 
 (let* ((this-dir   (file-name-directory (or load-file-name buffer-file-name)))
         (parent-dir (file-name-directory (directory-file-name this-dir))))
-  (dolist (subdir '("west" "zephyr" "platformio" "mcumgr"))
+  (dolist (subdir '("pixi" "west" "zephyr" "platformio" "mcumgr" "tailscale"))
     (let ((sibling (expand-file-name subdir parent-dir)))
       (when (file-directory-p sibling)
         (add-to-list 'load-path sibling)))))
 
-(require 'west)
-(require 'zephyr)
-(require 'mcumgr)
-(require 'platformio)
+(load "pixi"       'noerror 'nomessage)
+(load "west"       'noerror 'nomessage)
+(load "zephyr"     'noerror 'nomessage)
+(load "mcumgr"     'noerror 'nomessage)
+(load "platformio" 'noerror 'nomessage)
+(load "tailscale"  'noerror 'nomessage)
 
 (defgroup microvisor ()
   "Project task and service orchestration."

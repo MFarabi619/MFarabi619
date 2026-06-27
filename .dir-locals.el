@@ -60,7 +60,7 @@
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ("󰕮 microtop 󰕮 : run"                    :command "cargo r -rp microtop"                          :prodigy t                           :annotation "     cargo ")
             ("󰕮 microtop 󰕮 :󰳽 serve"                  :command "trunk serve --config apps/microtop/Trunk.toml" :prodigy t :port 8080                :annotation "     cargo ")
-            ("󰕮 buttercup 󰕮 :󰳽 test"                  :command "emacs --batch -L ~/MFarabi619/modules/home/programs/emacs/extra/west -L ~/MFarabi619/modules/home/programs/emacs/extra/zephyr -L ~/MFarabi619/modules/home/programs/emacs/extra/platformio -L ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr -l buttercup -f buttercup-run-discover ~/MFarabi619/modules/home/programs/emacs/extra/west ~/MFarabi619/modules/home/programs/emacs/extra/zephyr ~/MFarabi619/modules/home/programs/emacs/extra/platformio ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr"                :annotation "     emacs  ")
+            ("󰕮 buttercup 󰕮 :󰳽 test"                  :command "emacs --batch -L ~/MFarabi619/modules/home/programs/emacs/extra/west -L ~/MFarabi619/modules/home/programs/emacs/extra/zephyr -L ~/MFarabi619/modules/home/programs/emacs/extra/platformio -L ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr -L ~/MFarabi619/modules/home/programs/emacs/extra/tailscale -l buttercup -f buttercup-run-discover ~/MFarabi619/modules/home/programs/emacs/extra/west ~/MFarabi619/modules/home/programs/emacs/extra/zephyr ~/MFarabi619/modules/home/programs/emacs/extra/platformio ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr ~/MFarabi619/modules/home/programs/emacs/extra/tailscale"                :annotation "     emacs  ")
 
             ;; ======================================|========|================================================|=========|=================================================== ;;
             ;; ======================================|========|================================================|=========|=================================================== ;;
@@ -131,7 +131,7 @@
        ;; ===========================================|========|============================================================================================================== ;;
        (eval . (let* ((extra-dir (expand-file-name "modules/home/programs/emacs/extra/" (locate-dominating-file default-directory ".dir-locals.el"))) (microvisor-dir (expand-file-name "microvisor/" extra-dir)))
                  (add-to-list 'load-path microvisor-dir)
-                 (require 'microvisor)))
+                 (load (expand-file-name "microvisor" microvisor-dir) 'noerror 'nomessage)))
 
        ;; ============================================================================================================================================================ ;;
        ;; (add-to-list
