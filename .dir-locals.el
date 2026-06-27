@@ -65,6 +65,8 @@
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ("󰕮 microtop 󰕮 : run"                    :command "cargo r -rp microtop"                          :prodigy t                           :annotation "     cargo ")
             ("󰕮 microtop 󰕮 :󰳽 serve"                  :command "trunk serve --config apps/microtop/Trunk.toml" :prodigy t :port 8080                :annotation "     cargo ")
+            ("󰕮 buttercup 󰕮 :󰳽 test"                  :command "emacs --batch -L ~/MFarabi619/modules/home/programs/emacs/extra/west -L ~/MFarabi619/modules/home/programs/emacs/extra/platformio -L ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr -l buttercup -f buttercup-run-discover ~/MFarabi619/modules/home/programs/emacs/extra/west ~/MFarabi619/modules/home/programs/emacs/extra/platformio ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr"                :annotation "     emacs  ")
+
             ;; ======================================|========|================================================|=========|=================================================== ;;
             ;; ======================================|========|================================================|=========|=================================================== ;;
             ("󰦉 web 󰦉 :󰳽 serve"                       :command "dx serve -p web"                               :prodigy t                           :annotation "    dioxus ")
@@ -141,6 +143,7 @@
                              ((> (length annotation_words) 1))
                              (user_icon (car (last annotation_words)))
                              (face (pcase (car annotation_words)
+                                     ("emacs"             'nerd-icons-dpurple)
                                      ("dioxus"            'nerd-icons-cyan)
                                      ("cargo"             'nerd-icons-orange)
                                      ("west"              'nerd-icons-purple)
@@ -223,5 +226,46 @@
                  ;;                   )]
                  ;;    ))
                  ;; ========================================================================================================================================================= ;;
+                 (with-eval-after-load 'dape
+                   (setf (alist-get 'zephyr-stm32 dape-configs)
+                         '(command "gdb" :request "attach" :target ":3333"
+                           command-args ("--interpreter=dap")
+                           ensure (lambda (config)
+                                    (dape-ensure-command config)
+                                    (let* ((output (shell-command-to-string "gdb --version"))
+                                           (version (when (string-match "GNU gdb \\(?:(.*) \\)?\\([0-9.]+\\)" output)
+                                                      (string-to-number (match-string 1 output)))))
+                                      (unless (and version (>= version 14.1))
+                                        (user-error "Requires gdb version >= 14.1"))))
+                           :program (lambda () (expand-file-name "build/zephyr/zephyr.elf" (project-root (project-current)))))))
                  )) ;; end eval
+
+       (eval . (let* ((extra-dir (expand-file-name
+                                  "modules/home/programs/emacs/extra/"
+                                  (locate-dominating-file default-directory
+                                                          ".dir-locals.el")))
+                      (west-dir       (expand-file-name "west/"       extra-dir))
+                      (platformio-dir (expand-file-name "platformio/" extra-dir))
+                      (mcumgr-dir     (expand-file-name "mcumgr/"     extra-dir)))
+                 (dolist (dir (list west-dir platformio-dir mcumgr-dir))
+                   (add-to-list 'load-path dir))
+                 (load (expand-file-name "west"       west-dir)       'noerror 'nomessage)
+                 (load (expand-file-name "platformio" platformio-dir) 'noerror 'nomessage)
+                 (load (expand-file-name "mcumgr"     mcumgr-dir)     'noerror 'nomessage)))
+
+       (eval . (with-eval-after-load 'buttercup
+                 (setq buttercup-stack-frame-style 'pretty
+                       buttercup-colors
+                       '((black   . "38;5;240")
+                         (red     . "38;5;203")
+                         (green   . "38;5;114")
+                         (yellow  . "38;5;221")
+                         (blue    . "38;5;110")
+                         (magenta . "38;5;176")
+                         (cyan    . "38;5;116")
+                         (white   . "38;5;253")))))
+
+       (eval . (when (and buffer-file-name (string-match-p "/extra/[^/]+/.*-tests?\\.el\\'" buffer-file-name)) (buttercup-minor-mode 1)))
+
+       (eval . (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter))
        )))
