@@ -180,46 +180,35 @@
 \"platformio_exe\":{\"title\":\"PlatformIO Core Executable\",\"value\":\"/usr/local/bin/pio\"}}")
 
 (describe "pio-system-info accessors"
-  (before-each (setq pio--system-info-cache nil))
+  (before-each
+    (setq pio--system-info-cache nil)
+    (spy-on 'shell-command-to-string
+            :and-return-value pio-tests--system-info-json))
 
   (it "parses `pio system info' JSON into title+value plists"
-    (cl-letf (((symbol-function 'shell-command-to-string)
-               (lambda (&rest _) pio-tests--system-info-json)))
-      (expect (pio-core-version)
-              :to-equal '(:title "PlatformIO Core" :value "6.1.19"))
-      (expect (pio-core-dir)
-              :to-equal '(:title "PlatformIO Core Directory"
-                          :value "/Users/x/.platformio"))
-      (expect (pio-platformio-exe)
-              :to-equal '(:title "PlatformIO Core Executable"
-                          :value "/usr/local/bin/pio"))))
+    (expect (pio-core-version)
+            :to-equal '(:title "PlatformIO Core" :value "6.1.19"))
+    (expect (pio-core-dir)
+            :to-equal '(:title "PlatformIO Core Directory"
+                        :value "/Users/x/.platformio"))
+    (expect (pio-platformio-exe)
+            :to-equal '(:title "PlatformIO Core Executable"
+                        :value "/usr/local/bin/pio")))
 
   (it "caches `pio system info' across calls"
-    (let ((call-count 0))
-      (cl-letf (((symbol-function 'shell-command-to-string)
-                 (lambda (&rest _)
-                   (cl-incf call-count)
-                   pio-tests--system-info-json)))
-        (pio-core-version)
-        (pio-python-version)
-        (pio-platformio-exe)
-        (expect call-count :to-equal 1))))
+    (pio-core-version)
+    (pio-python-version)
+    (pio-platformio-exe)
+    (expect 'shell-command-to-string :to-have-been-called-times 1))
 
   (it "re-fetches after `pio-system-info-invalidate'"
-    (let ((call-count 0))
-      (cl-letf (((symbol-function 'shell-command-to-string)
-                 (lambda (&rest _)
-                   (cl-incf call-count)
-                   pio-tests--system-info-json)))
-        (pio-core-version)
-        (pio-system-info-invalidate)
-        (pio-core-version)
-        (expect call-count :to-equal 2))))
+    (pio-core-version)
+    (pio-system-info-invalidate)
+    (pio-core-version)
+    (expect 'shell-command-to-string :to-have-been-called-times 2))
 
   (it "returns nil for unknown fields"
-    (cl-letf (((symbol-function 'shell-command-to-string)
-               (lambda (&rest _) pio-tests--system-info-json)))
-      (expect (pio-package-tool-nums) :not :to-be-truthy))))
+    (expect (pio-package-tool-nums) :not :to-be-truthy)))
 
 (describe "pio--detect-executables"
   (it "finds pio and platformio across PATH entries"
@@ -245,38 +234,31 @@
           (expect (pio--detect-executables) :to-equal (list pio)))))))
 
 (describe "pio--warn-multiple-executables"
-  (before-each (setq pio--multiple-executables-warned nil))
+  (before-each
+    (setq pio--multiple-executables-warned nil)
+    (spy-on 'display-warning))
 
   (it "calls `display-warning' when more than one executable is found"
-    (cl-letf* ((warnings nil)
-               ((symbol-function 'pio--detect-executables)
-                (lambda () '("/a/pio" "/b/platformio")))
-               ((symbol-function 'display-warning)
-                (lambda (type message &rest _) (push (cons type message) warnings))))
-      (pio--warn-multiple-executables)
-      (expect (length warnings) :to-equal 1)
-      (expect (caar warnings) :to-equal 'pio)
-      (expect (cdar warnings) :to-match "Multiple PlatformIO executables")))
+    (spy-on 'pio--detect-executables
+            :and-return-value '("/a/pio" "/b/platformio"))
+    (pio--warn-multiple-executables)
+    (expect 'display-warning :to-have-been-called-times 1)
+    (let ((args (spy-calls-args-for 'display-warning 0)))
+      (expect (nth 0 args) :to-equal 'pio)
+      (expect (nth 1 args) :to-match "Multiple PlatformIO executables")))
 
   (it "does not warn when only one executable exists"
-    (cl-letf* ((called nil)
-               ((symbol-function 'pio--detect-executables)
-                (lambda () '("/a/pio")))
-               ((symbol-function 'display-warning)
-                (lambda (&rest _) (setq called t))))
-      (pio--warn-multiple-executables)
-      (expect called :not :to-be-truthy)))
+    (spy-on 'pio--detect-executables :and-return-value '("/a/pio"))
+    (pio--warn-multiple-executables)
+    (expect 'display-warning :not :to-have-been-called))
 
   (it "only warns once per session"
-    (cl-letf* ((call-count 0)
-               ((symbol-function 'pio--detect-executables)
-                (lambda () '("/a/pio" "/b/platformio")))
-               ((symbol-function 'display-warning)
-                (lambda (&rest _) (cl-incf call-count))))
-      (pio--warn-multiple-executables)
-      (pio--warn-multiple-executables)
-      (pio--warn-multiple-executables)
-      (expect call-count :to-equal 1))))
+    (spy-on 'pio--detect-executables
+            :and-return-value '("/a/pio" "/b/platformio"))
+    (pio--warn-multiple-executables)
+    (pio--warn-multiple-executables)
+    (pio--warn-multiple-executables)
+    (expect 'display-warning :to-have-been-called-times 1)))
 
 (describe "pio--read-key"
   (before-each (pio-project-config-invalidate))
@@ -413,104 +395,268 @@
 
 (describe "pio--device-list-entries"
   (it "puts SERIAL and VID:PID first, then PORT, LOCATION, and DESCRIPTION last"
-    (cl-letf (((symbol-function 'pio-serial-devices)
-               (lambda ()
-                 (vector
-                  (pio-tests--make-device
-                   "/dev/cu.usbmodem1101" "USB JTAG/serial debug unit"
-                   "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")))))
-      (let ((entries (pio--device-list-entries)))
-        (expect (length entries) :to-equal 1)
-        (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101")
-        (expect (pio-tests--row-strings (car entries))
-                :to-equal
-                '("CC:BA:97:16:2B:68"
-                  "303A:1001"
-                  "/dev/cu.usbmodem1101"
-                  "1-1"
-                  "USB JTAG/serial debug unit")))))
+    (spy-on 'pio-serial-devices :and-return-value
+            (vector
+             (pio-tests--make-device
+              "/dev/cu.usbmodem1101" "USB JTAG/serial debug unit"
+              "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")))
+    (let ((entries (pio--device-list-entries)))
+      (expect (length entries) :to-equal 1)
+      (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101")
+      (expect (pio-tests--row-strings (car entries))
+              :to-equal
+              '("CC:BA:97:16:2B:68"
+                "303A:1001"
+                "/dev/cu.usbmodem1101"
+                "1-1"
+                "USB JTAG/serial debug unit"))))
 
   (it "leaves hwid columns empty when the hwid string is missing"
-    (cl-letf (((symbol-function 'pio-serial-devices)
-               (lambda ()
-                 (vector (pio-tests--make-device "/dev/cu.x" nil "VID:PID=0000:0000")))))
-      (expect (pio-tests--row-strings (car (pio--device-list-entries)))
-              :to-equal '("" "0000:0000" "/dev/cu.x" "" ""))))
+    (spy-on 'pio-serial-devices :and-return-value
+            (vector (pio-tests--make-device "/dev/cu.x" nil "VID:PID=0000:0000")))
+    (expect (pio-tests--row-strings (car (pio--device-list-entries)))
+            :to-equal '("" "0000:0000" "/dev/cu.x" "" "")))
 
   (it "propertizes the SERIAL cell with success and the PORT cell with warning"
-    (cl-letf (((symbol-function 'pio-serial-devices)
-               (lambda ()
-                 (vector (pio-tests--make-device
-                          "/dev/cu.x" "x"
-                          "VID:PID=0000:0000 SER=AB:CD")))))
-      (let* ((row        (cadr (car (pio--device-list-entries))))
-             (serial-cell (aref row 0))
-             (port-cell   (aref row 2)))
-        (expect (get-text-property 0 'face serial-cell) :to-equal 'success)
-        (expect (get-text-property 0 'face port-cell)   :to-equal 'warning))))
+    (spy-on 'pio-serial-devices :and-return-value
+            (vector (pio-tests--make-device
+                     "/dev/cu.x" "x"
+                     "VID:PID=0000:0000 SER=AB:CD")))
+    (let* ((row         (cadr (car (pio--device-list-entries))))
+           (serial-cell (aref row 0))
+           (port-cell   (aref row 2)))
+      (expect (get-text-property 0 'face serial-cell) :to-equal 'success)
+      (expect (get-text-property 0 'face port-cell)   :to-equal 'warning)))
 
   (it "hides devices whose hwid is \"n/a\" when `hide-unidentified' is t"
-    (cl-letf (((symbol-function 'pio-serial-devices)
-               (lambda ()
-                 (vector
-                  (pio-tests--make-device "/dev/cu.Bluetooth-Incoming-Port" "n/a" "n/a")
-                  (pio-tests--make-device "/dev/cu.PowerbeatsPro"           "n/a" "n/a")
-                  (pio-tests--make-device "/dev/cu.debug-console"           "n/a" "n/a")
-                  (pio-tests--make-device "/dev/cu.usbmodem1101" "USB JTAG" "VID:PID=303A:1001")))))
-      (let* ((pio-device-list-hide-unidentified t)
-             (pio-device-list-exclude-regexps nil)
-             (entries (pio--device-list-entries)))
-        (expect (length entries) :to-equal 1)
-        (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101"))))
+    (spy-on 'pio-serial-devices :and-return-value
+            (vector
+             (pio-tests--make-device "/dev/cu.Bluetooth-Incoming-Port" "n/a" "n/a")
+             (pio-tests--make-device "/dev/cu.PowerbeatsPro"           "n/a" "n/a")
+             (pio-tests--make-device "/dev/cu.debug-console"           "n/a" "n/a")
+             (pio-tests--make-device "/dev/cu.usbmodem1101" "USB JTAG" "VID:PID=303A:1001")))
+    (let* ((pio-device-list-hide-unidentified t)
+           (pio-device-list-exclude-regexps nil)
+           (entries (pio--device-list-entries)))
+      (expect (length entries) :to-equal 1)
+      (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101")))
 
   (it "filters by `exclude-regexps' on top of the heuristic"
-    (cl-letf (((symbol-function 'pio-serial-devices)
-               (lambda ()
-                 (vector
-                  (pio-tests--make-device "/dev/cu.usbserial-FTDI"  "FTDI" "VID:PID=0403:6001")
-                  (pio-tests--make-device "/dev/cu.usbmodem1101"    "USB JTAG" "VID:PID=303A:1001")))))
-      (let* ((pio-device-list-hide-unidentified t)
-             (pio-device-list-exclude-regexps '("FTDI"))
-             (entries (pio--device-list-entries)))
-        (expect (length entries) :to-equal 1)
-        (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101"))))
+    (spy-on 'pio-serial-devices :and-return-value
+            (vector
+             (pio-tests--make-device "/dev/cu.usbserial-FTDI"  "FTDI" "VID:PID=0403:6001")
+             (pio-tests--make-device "/dev/cu.usbmodem1101"    "USB JTAG" "VID:PID=303A:1001")))
+    (let* ((pio-device-list-hide-unidentified t)
+           (pio-device-list-exclude-regexps '("FTDI"))
+           (entries (pio--device-list-entries)))
+      (expect (length entries) :to-equal 1)
+      (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101")))
 
   (it "shows every device when both filters are disabled"
-    (cl-letf (((symbol-function 'pio-serial-devices)
-               (lambda ()
-                 (vector
-                  (pio-tests--make-device "/dev/cu.Bluetooth-Incoming-Port" "n/a" "n/a")
-                  (pio-tests--make-device "/dev/cu.usbmodem1101" "x" "y")))))
-      (let ((pio-device-list-hide-unidentified nil)
-            (pio-device-list-exclude-regexps nil))
-        (expect (length (pio--device-list-entries)) :to-equal 2)))))
+    (spy-on 'pio-serial-devices :and-return-value
+            (vector
+             (pio-tests--make-device "/dev/cu.Bluetooth-Incoming-Port" "n/a" "n/a")
+             (pio-tests--make-device "/dev/cu.usbmodem1101" "x" "y")))
+    (let ((pio-device-list-hide-unidentified nil)
+          (pio-device-list-exclude-regexps nil))
+      (expect (length (pio--device-list-entries)) :to-equal 2))))
 
 (describe "pio-device-list-monitor"
+  (before-each
+    (spy-on 'pio-default-envs   :and-return-value nil)
+    (spy-on 'pio-device-monitor))
+
   (it "passes the port at point to `pio-device-monitor'"
-    (let (captured)
-      (cl-letf (((symbol-function 'pio-default-envs)   (lambda (&rest _) nil))
-                ((symbol-function 'pio-device-monitor)
-                 (lambda (&rest args) (setq captured args))))
-        (with-temp-buffer
-          (pio-device-list-mode)
-          (setq tabulated-list-entries
-                '(("/dev/cu.usbmodem1101"
-                   ["ABC" "303A:1001" "/dev/cu.usbmodem1101" "1-1" "x"])))
-          (tabulated-list-print)
-          (goto-char (point-min))
-          (pio-device-list-monitor)
-          (expect captured :to-equal '(:port "/dev/cu.usbmodem1101"))))))
+    (with-temp-buffer
+      (pio-device-list-mode)
+      (setq tabulated-list-entries
+            '(("/dev/cu.usbmodem1101"
+               ["ABC" "303A:1001" "/dev/cu.usbmodem1101" "1-1" "x"])))
+      (tabulated-list-print)
+      (goto-char (point-min))
+      (pio-device-list-monitor)
+      (expect 'pio-device-monitor
+              :to-have-been-called-with :port "/dev/cu.usbmodem1101")))
 
   (it "is a no-op when point is not on a device row"
-    (let (called)
-      (cl-letf (((symbol-function 'pio-default-envs)   (lambda (&rest _) nil))
-                ((symbol-function 'pio-device-monitor)
-                 (lambda (&rest _) (setq called t))))
-        (with-temp-buffer
-          (pio-device-list-mode)
-          (setq tabulated-list-entries nil)
-          (tabulated-list-print)
-          (pio-device-list-monitor)
-          (expect called :not :to-be-truthy))))))
+    (with-temp-buffer
+      (pio-device-list-mode)
+      (setq tabulated-list-entries nil)
+      (tabulated-list-print)
+      (pio-device-list-monitor)
+      (expect 'pio-device-monitor :not :to-have-been-called))))
+
+(describe "nerd-icons registration"
+  (it "registers `pio-mode' with `nf-md-chip' in `nerd-icons-mode-icon-alist'"
+    (require 'nerd-icons)
+    (let ((entry (assq 'pio-mode nerd-icons-mode-icon-alist)))
+      (expect entry :to-be-truthy)
+      (expect (nth 1 entry) :to-equal 'nerd-icons-mdicon)
+      (expect (nth 2 entry) :to-equal "nf-md-chip"))))
+
+;;; Account
+
+(defconst pio-tests--account-json
+  "{
+    \"profile\": {
+      \"username\": \"alice\",
+      \"email\": \"alice@example.com\",
+      \"firstname\": \"Alice\",
+      \"lastname\": \"Example\"
+    },
+    \"packages\": [
+      {\"name\": \"pkg-a\", \"title\": \"Package A\",
+       \"description\": \"first package\"},
+      {\"name\": \"pkg-b\", \"title\": \"Package B\",
+       \"description\": \"second package\"}
+    ],
+    \"subscriptions\": [],
+    \"user_id\": \"00000000-0000-0000-0000-000000000000\",
+    \"expire_at\": 1783205299
+  }")
+
+(defun pio-tests--account ()
+  "Return the sample account fixture parsed into the shape `pio-account-show' yields."
+  (json-parse-string pio-tests--account-json
+                     :object-type 'hash-table
+                     :array-type  'list
+                     :false-object nil
+                     :null-object  nil))
+
+(describe "pio--run-json"
+  (it "signals `pio-exec-error' on non-zero exit"
+    (cl-letf (((symbol-function 'call-process)
+               (lambda (&rest _) (insert "boom\n") 1)))
+      (expect (pio--run-json "wat") :to-throw 'pio-exec-error)))
+
+  (it "signals `pio-parse-error' when stdout is not JSON"
+    (cl-letf (((symbol-function 'call-process)
+               (lambda (&rest _) (insert "not json {[") 0)))
+      (expect (pio--run-json "account" "show" "--json-output")
+              :to-throw 'pio-parse-error)))
+
+  (it "subclasses can be caught as the generic `pio-error'"
+    (cl-letf (((symbol-function 'call-process)
+               (lambda (&rest _) (insert "boom") 1)))
+      (expect (pio--run-json "wat") :to-throw 'pio-error))))
+
+(describe "pio-account-show"
+  (before-each
+    (pio-account-invalidate)
+    (spy-on 'pio--run-json
+            :and-call-fake (lambda (&rest _) (pio-tests--account))))
+
+  (it "delegates to `pio--run-json' with the right args"
+    (pio-account-show)
+    (expect 'pio--run-json
+            :to-have-been-called-with "account" "show" "--json-output"))
+
+  (it "caches the parsed account across calls"
+    (pio-account-show)
+    (pio-account-show)
+    (pio-account-show)
+    (expect 'pio--run-json :to-have-been-called-times 1))
+
+  (it "re-fetches when REFRESH is non-nil"
+    (pio-account-show)
+    (pio-account-show t)
+    (expect 'pio--run-json :to-have-been-called-times 2))
+
+  (it "re-fetches after `pio-account-invalidate'"
+    (pio-account-show)
+    (pio-account-invalidate)
+    (pio-account-show)
+    (expect 'pio--run-json :to-have-been-called-times 2)))
+
+(describe "pio-account-* accessors"
+  :var (account)
+  (before-each (setq account (pio-tests--account)))
+
+  (it "extracts the username"
+    (expect (pio-account-username account) :to-equal "alice"))
+
+  (it "extracts the email"
+    (expect (pio-account-email account) :to-equal "alice@example.com"))
+
+  (it "joins firstname + lastname into a fullname"
+    (expect (pio-account-fullname account) :to-equal "Alice Example"))
+
+  (it "extracts the stable user id"
+    (expect (pio-account-user-id account)
+            :to-equal "00000000-0000-0000-0000-000000000000"))
+
+  (it "extracts the packages list"
+    (expect (length (pio-account-packages account)) :to-equal 2))
+
+  (it "extracts the subscriptions list (empty for free tier)"
+    (expect (pio-account-subscriptions account) :to-equal nil))
+
+  (it "extracts the account expiry epoch"
+    (expect (pio-account-expire-at account) :to-equal 1783205299)))
+
+(describe "pio--render"
+  :var (rendered)
+  (before-each
+    (spy-on 'pio-core-version
+            :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
+    (with-temp-buffer
+      (pio--render (pio-tests--account))
+      (setq rendered (buffer-string))))
+
+  (it "renders a PROFILE heading and its fields"
+    (expect rendered :to-match "^PROFILE")
+    (expect rendered :to-match "alice")
+    (expect rendered :to-match "Alice Example")
+    (expect rendered :to-match "alice@example\\.com")
+    (expect rendered :to-match "00000000-"))
+
+  (it "renders a PACKAGES section with the count and titles"
+    (expect rendered :to-match "^PACKAGES (2)")
+    (expect rendered :to-match "Package A")
+    (expect rendered :to-match "first package")
+    (expect rendered :to-match "Package B")
+    (expect rendered :to-match "second package"))
+
+  (it "renders the SUBSCRIPTIONS heading as `none' when the list is empty"
+    (expect rendered :to-match "SUBSCRIPTIONS (none)")))
+
+(describe "pio--set-mode-line"
+  (it "sets `mode-name' to include core version + username"
+    (spy-on 'pio-core-version
+            :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
+    (with-temp-buffer
+      (pio--set-mode-line (pio-tests--account))
+      (let ((joined (apply #'concat mode-name)))
+        (expect joined :to-match "v6\\.1\\.19")
+        (expect joined :to-match "alice")))))
+
+(describe "pio (interactive entry point)"
+  (before-each
+    (pio-account-invalidate)
+    (spy-on 'pio--run-json
+            :and-call-fake (lambda (&rest _) (pio-tests--account)))
+    (spy-on 'pio-core-version
+            :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
+    (spy-on 'pop-to-buffer))
+
+  (after-each
+    (when (get-buffer pio-buffer-name)
+      (let (kill-buffer-query-functions)
+        (kill-buffer pio-buffer-name))))
+
+  (it "creates a `*pio*' buffer in `pio-mode'"
+    (pio)
+    (let ((buffer (get-buffer pio-buffer-name)))
+      (expect (buffer-live-p buffer) :to-be-truthy)
+      (with-current-buffer buffer
+        (expect major-mode :to-equal 'pio-mode)
+        (expect (buffer-string) :to-match "PROFILE"))))
+
+  (it "is revertable via `revert-buffer'"
+    (pio)
+    (with-current-buffer pio-buffer-name
+      (let ((before (buffer-string)))
+        (revert-buffer nil t)
+        (expect (buffer-string) :to-equal before)))))
 
 ;;; platformio-tests.el ends here

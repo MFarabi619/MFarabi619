@@ -26,36 +26,27 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-
 ;;; Commentary:
 ;;
-;; TODO Platformio is ....
+;; PlatformIO project integration: env/board/framework introspection from
+;; `platformio.ini' (cached, parsed via `pio project config --json-output'),
+;; a tabulated device-list buffer, and a serial monitor wrapper running
+;; through vterm.
+;;
 ;; Commands:
-;;   access    Manage resource access
-;;   account   Manage PlatformIO account
-;;   boards    Board Explorer
-;;   check     Static Code Analysis
-;;   ci        Continuous Integration
-;;   debug     Unified Debugger
-;;   device    Device manager & Serial/Socket monitor
-;;   home      GUI to manage PIO
-;;   org       Manage organizations
-;;   pkg       Unified Package Manager
-;;   project   Project Manager
-;;   remote    Remote Development
-;;   run       Run project targets (build, upload, clean, etc.)
-;;   settings  Manage system settings
-;;   system    Miscellaneous system commands
-;;   team      Manage organization teams
-;;   test      Unit Testing
-;;   upgrade   Upgrade PlatformIO Core to the latest version
+;;   pio-device-list                list detected devices
+;;   pio-device-monitor             monitor device (Serial/Socket)
+;;   pio-project-config-invalidate  drop the cached `platformio.ini' parse
+;;   pio-system-info-invalidate     drop the cached `pio system info'
 ;;
 ;;; Code:
 
-(require 'xdg)
 (require 'json)
 (require 'map)
+(require 'nerd-icons)
 (require 'pcase)
+(require 'vui-components)
+(require 'xdg)
 
 ;;; Declarations
 
@@ -79,12 +70,14 @@ exist on your system to choose which one to use."
   :group 'pio)
 
 (defun pio--executable ()
+  "Return the configured PlatformIO binary, falling back to PATH lookup."
   (or pio-executable
     (executable-find "pio")
     (executable-find "platformio")
     "pio"))
 
 (defun pio--detect-executables ()
+  "Return every `pio'/`platformio' executable found on PATH (deduped)."
   (let (results)
     (dolist (dir (split-string (or (getenv "PATH") "") path-separator t))
       (dolist (name '("pio" "platformio"))
@@ -94,9 +87,11 @@ exist on your system to choose which one to use."
             (push path results)))))
     (delete-dups (nreverse results))))
 
-(defvar pio--multiple-executables-warned nil)
+(defvar pio--multiple-executables-warned nil
+  "Non-nil after the multiple-executables warning has been shown once.")
 
 (defun pio--warn-multiple-executables ()
+  "Display a one-shot warning if more than one PlatformIO binary is on PATH."
   (unless pio--multiple-executables-warned
     (setq pio--multiple-executables-warned t)
     (let ((execs (pio--detect-executables)))
@@ -109,104 +104,124 @@ exist on your system to choose which one to use."
           :warning)))))
 
 (defun pio-p (&optional directory)
+  "Non-nil if DIRECTORY contains a `platformio.ini' file."
   (file-exists-p
     (expand-file-name "platformio.ini" (or directory default-directory))))
 
 (defun pio-root (&optional directory)
+  "Walk up from DIRECTORY to find the enclosing `platformio.ini' project."
   (locate-dominating-file (or directory default-directory) "platformio.ini"))
 
 (defun pio-in-project-p (&optional directory)
+  "Non-nil if DIRECTORY (or `default-directory') is inside a PlatformIO project."
   (and (pio-root directory) t))
 
 (defun pio-name (&optional project-root)
+  "Return the basename of PROJECT-ROOT (or the discovered project)."
   (when-let ((root (or project-root (pio-root))))
     (file-name-nondirectory (directory-file-name root))))
 
 (defun pio-config-file (&optional project-root)
+  "Return the absolute path of PROJECT-ROOT's `platformio.ini'."
   (when-let ((root (or project-root (pio-root))))
     (expand-file-name "platformio.ini" root)))
 
-(defvar pio--config-cache (make-hash-table :test 'equal))
+(defvar pio--config-cache (make-hash-table :test 'equal)
+  "Per-project cache mapping ROOT -> (MTIME . PARSED-CONFIG).")
 
 (defun pio--read-project-config (project-root)
+  "Shell out to `pio project config --json-output' for PROJECT-ROOT (uncached)."
   (with-temp-buffer
     (let ((exit (call-process (pio--executable) nil t nil
-                              "project" "config"
-                              "--json-output"
-                              "-d" (directory-file-name
-                                    (expand-file-name project-root)))))
+                  "project" "config"
+                  "--json-output"
+                  "-d" (directory-file-name
+                         (expand-file-name project-root)))))
       (unless (zerop exit)
         (error "pio project config failed (exit %d): %s"
-               exit (buffer-string)))
+          exit (buffer-string)))
       (mapcar (pcase-lambda (`(,section ,settings))
                 (cons section
-                      (mapcar (pcase-lambda (`(,k ,v)) (cons k v))
-                              settings)))
-              (json-parse-string (buffer-string)
-                                 :array-type 'list
-                                 :object-type 'plist
-                                 :false-object nil
-                                 :null-object nil)))))
+                  (mapcar (pcase-lambda (`(,k ,v)) (cons k v))
+                    settings)))
+        (json-parse-string (buffer-string)
+          :array-type 'list
+          :object-type 'plist
+          :false-object nil
+          :null-object nil)))))
 
 (defun pio-project-config (&optional project-root)
+  "Return parsed `platformio.ini' for PROJECT-ROOT, cached by file mtime."
   (when-let* ((root (or project-root (pio-root)))
-              (ini  (pio-config-file root))
-              ((file-exists-p ini)))
+               (ini  (pio-config-file root))
+               ((file-exists-p ini)))
     (let* ((mtime  (file-attribute-modification-time (file-attributes ini)))
-           (cached (gethash root pio--config-cache)))
+            (cached (gethash root pio--config-cache)))
       (if (and cached (equal (car cached) mtime))
-          (cdr cached)
+        (cdr cached)
         (let ((parsed (pio--read-project-config root)))
           (puthash root (cons mtime parsed) pio--config-cache)
           parsed)))))
 
 (defun pio-project-config-invalidate (&optional project-root)
+  "Drop the cached `platformio.ini' parse for PROJECT-ROOT (or every project)."
   (interactive)
   (if project-root
-      (remhash project-root pio--config-cache)
+    (remhash project-root pio--config-cache)
     (clrhash pio--config-cache)))
+(put 'pio-project-config-invalidate 'completion-predicate #'ignore)
 
 (defun pio-envs (&optional project-root)
+  "Return the list of env names declared in PROJECT-ROOT's `platformio.ini'."
   (seq-keep (pcase-lambda (`(,section . ,_))
               (when (string-prefix-p "env:" section)
                 (substring section 4)))
-            (pio-project-config project-root)))
+    (pio-project-config project-root)))
 
 (defun pio--read-key (section key &optional project-root)
+  "Look up KEY in SECTION of PROJECT-ROOT's resolved config."
   (when-let* ((config   (pio-project-config project-root))
-              (settings (cdr (assoc section config))))
+               (settings (cdr (assoc section config))))
     (cdr (assoc key settings))))
 
 (defun pio-default-envs (&optional project-root)
+  "Return PROJECT-ROOT's default envs (env var > `[platformio]' `default_envs')."
   (let ((value (or (getenv "PLATFORMIO_DEFAULT_ENVS")
-                   (pio--read-key "platformio" "default_envs" project-root))))
+                 (pio--read-key "platformio" "default_envs" project-root))))
     (cond ((null value)    nil)
-          ((listp value)   value)
-          ((stringp value) (split-string value "[ ,]+" t)))))
+      ((listp value)   value)
+      ((stringp value) (split-string value "[ ,]+" t)))))
 
 (defun pio-env-board (env &optional project-root)
+  "Return the `board' key for `[env:ENV]' in PROJECT-ROOT."
   (pio--read-key (format "env:%s" env) "board" project-root))
 
 (defun pio-env-platform (env &optional project-root)
+  "Return the `platform' key for `[env:ENV]' in PROJECT-ROOT."
   (pio--read-key (format "env:%s" env) "platform" project-root))
 
 (defun pio-env-framework (env &optional project-root)
+  "Return the `framework' key for `[env:ENV]' in PROJECT-ROOT."
   (pio--read-key (format "env:%s" env) "framework" project-root))
 
 (defun pio-build-dir (&optional project-root)
+  "Return PROJECT-ROOT's build directory (env var > `<root>/.pio')."
   (or (getenv "PLATFORMIO_BUILD_DIR")
     (when-let ((root (or project-root (pio-root))))
       (expand-file-name ".pio" root))))
 
 (defun pio--device-list (kind)
+  "Return parsed `pio device list --KIND --json-output' (KIND is serial/logical)."
   (json-parse-string
     (shell-command-to-string
       (format "%s device list --%s --json-output" (pio--executable) kind))))
 
 (defun pio-serial-devices ()
+  "Return detected serial devices as a hash-table vector."
   (pio--device-list "serial"))
 
 (defun pio-logical-devices ()
+  "Return detected logical (filesystem-mountable) devices."
   (pio--device-list "logical"))
 
 (defcustom pio-device-list-hide-unidentified t
@@ -226,10 +241,12 @@ regexp matched against the device's port path (e.g.
   :group 'pio)
 
 (defun pio--device-unidentified-p (device)
+  "Non-nil if DEVICE has no usable `hwid' (nil / empty / \"n/a\")."
   (let ((hwid (gethash "hwid" device)))
     (or (null hwid) (string-empty-p hwid) (string= hwid "n/a"))))
 
 (defun pio--device-excluded-p (device)
+  "Non-nil if DEVICE should be hidden by the heuristic + exclude regexps."
   (or (and pio-device-list-hide-unidentified
         (pio--device-unidentified-p device))
     (let ((port (gethash "port" device)))
@@ -250,6 +267,7 @@ Returns nil if HWID is not a string."
       result)))
 
 (defun pio--device-list-entries ()
+  "Build tabulated-list entries for the `*pio-device-list*' buffer."
   (mapcar (lambda (dev)
             (let* ((port   (gethash "port" dev))
                     (desc   (gethash "description" dev))
@@ -264,9 +282,11 @@ Returns nil if HWID is not a string."
     (seq-remove #'pio--device-excluded-p (pio-serial-devices))))
 
 (defun pio--device-list-refresh ()
+  "Refresh `tabulated-list-entries' for `pio-device-list-mode'."
   (setq tabulated-list-entries (pio--device-list-entries)))
 
 (defun pio-device-list-monitor ()
+  "Open the serial monitor for the device at point, then return to the list."
   (interactive)
   (when-let* ((port      (tabulated-list-get-id))
                (source    (current-buffer))
@@ -318,9 +338,11 @@ Returns nil if HWID is not a string."
       (tabulated-list-print))
     (pop-to-buffer buffer)))
 
-(defvar pio--system-info-cache nil)
+(defvar pio--system-info-cache nil
+  "In-memory cache of parsed `pio system info' (cleared via invalidate).")
 
 (defun pio-system-info ()
+  "Return parsed `pio system info --json-output' as a hash table (cached)."
   (or pio--system-info-cache
     (progn
       (pio--warn-multiple-executables)
@@ -330,28 +352,31 @@ Returns nil if HWID is not a string."
             (format "%s system info --json-output" (pio--executable))))))))
 
 (defun pio-system-info-invalidate ()
+  "Drop the cached system info + multi-exec warning state."
   (interactive)
   (setq pio--system-info-cache nil
     pio--multiple-executables-warned nil))
+(put 'pio-system-info-invalidate 'completion-predicate #'ignore)
 
 (defun pio--system-info-field (key)
+  "Return the (:title :value) plist for KEY from `pio system info'."
   (when-let* ((info (pio-system-info))
                (entry (gethash key info)))
     (list :title (gethash "title" entry)
       :value (gethash "value" entry))))
 
-(defun pio-core-version        () (pio--system-info-field "core_version"))
-(defun pio-python-version      () (pio--system-info-field "python_version"))
-(defun pio-system              () (pio--system-info-field "system"))
-(defun pio-platform            () (pio--system-info-field "platform"))
-(defun pio-filesystem-encoding () (pio--system-info-field "filesystem_encoding"))
-(defun pio-locale-encoding     () (pio--system-info-field "locale_encoding"))
-(defun pio-core-dir            () (pio--system-info-field "core_dir"))
-(defun pio-platformio-exe      () (pio--system-info-field "platformio_exe"))
-(defun pio-python-exe          () (pio--system-info-field "python_exe"))
-(defun pio-global-lib-nums     () (pio--system-info-field "global_lib_nums"))
-(defun pio-dev-platform-nums   () (pio--system-info-field "dev_platform_nums"))
-(defun pio-package-tool-nums   () (pio--system-info-field "package_tool_nums"))
+(defun pio-core-version        () "PlatformIO Core version field."         (pio--system-info-field "core_version"))
+(defun pio-python-version      () "Python version field."                  (pio--system-info-field "python_version"))
+(defun pio-system              () "Operating system field."                (pio--system-info-field "system"))
+(defun pio-platform            () "Platform string field."                 (pio--system-info-field "platform"))
+(defun pio-filesystem-encoding () "Filesystem encoding field."             (pio--system-info-field "filesystem_encoding"))
+(defun pio-locale-encoding     () "Locale encoding field."                 (pio--system-info-field "locale_encoding"))
+(defun pio-core-dir            () "PlatformIO core directory field."       (pio--system-info-field "core_dir"))
+(defun pio-platformio-exe      () "PlatformIO Core executable path field." (pio--system-info-field "platformio_exe"))
+(defun pio-python-exe          () "Python executable path field."          (pio--system-info-field "python_exe"))
+(defun pio-global-lib-nums     () "Global lib count field."                (pio--system-info-field "global_lib_nums"))
+(defun pio-dev-platform-nums   () "Installed dev-platform count field."    (pio--system-info-field "dev_platform_nums"))
+(defun pio-package-tool-nums   () "Installed package-tool count field."    (pio--system-info-field "package_tool_nums"))
 
 (defconst pio--monitor-spec
   '((:port      "monitor_port"     "--port"        :string)
@@ -369,17 +394,19 @@ Returns nil if HWID is not a string."
      (:env       nil                "--environment" :string)))
 
 (defun pio--monitor-coerce (type value)
+  "Coerce VALUE to the declared TYPE (`:number', `:flag', `:list', etc.)."
   (pcase type
     (:number (if (numberp value) value (string-to-number value)))
     (:flag   (cond ((booleanp value) value)
-                   ((stringp value)
-                    (and (member (downcase value) '("yes" "true" "1")) t))
-                   (t (and value t))))
+               ((stringp value)
+                 (and (member (downcase value) '("yes" "true" "1")) t))
+               (t (and value t))))
     (:list   (cond ((listp value)   value)
-                   ((stringp value) (split-string value "[ ,]+" t))))
+               ((stringp value) (split-string value "[ ,]+" t))))
     (_       value)))
 
 (defun pio-env-monitor (env &optional project-root)
+  "Return a coerced plist of monitor settings declared for ENV in PROJECT-ROOT."
   (let ((section (format "env:%s" env))
          result)
     (pcase-dolist (`(,key ,ini-key _ ,type) pio--monitor-spec)
@@ -399,12 +426,14 @@ Example:
   :group 'pio)
 
 (defun pio-monitor-resolve (&rest overrides)
+  "Merge env settings + named profile + explicit OVERRIDES into one plist."
   (let* ((env-name (or (plist-get overrides :env) (car (pio-default-envs))))
           (profile  (alist-get (plist-get overrides :profile) pio-monitor-profiles))
           (env-settings (when env-name (pio-env-monitor env-name))))
     (map-merge 'plist (or env-settings ()) (or profile ()) overrides)))
 
 (defun pio-monitor-command-args (settings)
+  "Convert resolved monitor SETTINGS plist into CLI argument strings."
   (mapcan (pcase-lambda (`(,key _ ,flag ,type))
             (when-let ((value (plist-get settings key)))
               (pcase type
@@ -415,11 +444,13 @@ Example:
     pio--monitor-spec))
 
 (defun pio-monitor-command (&rest overrides)
+  "Return the full `pio device monitor' command line as a list of strings."
   (append (list (pio--executable) "device" "monitor")
     (pio-monitor-command-args
       (apply #'pio-monitor-resolve overrides))))
 
 (defun pio--monitor-buffer-name (settings)
+  "Return the `*pio:monitor:<key>*' buffer name for SETTINGS."
   (format "*pio:monitor:%s*"
     (or (plist-get settings :port)
       (plist-get settings :profile)
@@ -450,6 +481,171 @@ Example:
                            " "))
              (vterm-buffer-name bufname))
         (vterm)))))
+
+;;; Error taxonomy
+;; Subclasses of `pio-error' so callers can `condition-case' on specific
+;; failure modes without parsing message strings.
+
+(define-error 'pio-error       "PlatformIO error")
+(define-error 'pio-exec-error  "PlatformIO CLI execution failed" 'pio-error)
+(define-error 'pio-parse-error "PlatformIO output parse failed"  'pio-error)
+
+;;; Generic JSON runner
+
+(defun pio--run-json (&rest args)
+  "Run pio with ARGS and parse stdout as JSON.
+Signals `pio-exec-error' on non-zero exit, `pio-parse-error' on bad JSON."
+  (with-temp-buffer
+    (let ((exit-code (apply #'call-process
+                            (pio--executable) nil t nil args)))
+      (unless (zerop exit-code)
+        (signal 'pio-exec-error
+                (list :args args :exit-code exit-code
+                      :output (buffer-string))))
+      (condition-case parse-failure
+          (json-parse-string (buffer-string)
+                             :object-type 'hash-table
+                             :array-type  'list
+                             :false-object nil
+                             :null-object  nil)
+        (json-parse-error
+         (signal 'pio-parse-error
+                 (list :args args :output (buffer-string)
+                       :cause parse-failure)))))))
+
+;;; Account
+
+(defvar pio--account-cache nil
+  "In-memory cache of parsed `pio account show'.")
+
+(defun pio-account-show (&optional refresh)
+  "Return parsed `pio account show --json-output' (cached unless REFRESH)."
+  (when refresh (setq pio--account-cache nil))
+  (or pio--account-cache
+      (setq pio--account-cache
+            (pio--run-json "account" "show" "--json-output"))))
+
+(defun pio-account-invalidate ()
+  "Drop the cached `pio account show'."
+  (interactive)
+  (setq pio--account-cache nil))
+(put 'pio-account-invalidate 'completion-predicate #'ignore)
+
+(defun pio-account-profile        (&optional account) "Profile hash."           (gethash "profile"       (or account (pio-account-show))))
+(defun pio-account-packages       (&optional account) "Installed packages."     (gethash "packages"      (or account (pio-account-show))))
+(defun pio-account-subscriptions  (&optional account) "Active subscriptions."   (gethash "subscriptions" (or account (pio-account-show))))
+(defun pio-account-user-id        (&optional account) "Stable user UUID."       (gethash "user_id"       (or account (pio-account-show))))
+(defun pio-account-expire-at      (&optional account) "Account expiry epoch."   (gethash "expire_at"     (or account (pio-account-show))))
+
+(defun pio-account-username (&optional account)
+  "Return the profile username."
+  (when-let* ((profile (pio-account-profile account)))
+    (gethash "username" profile)))
+
+(defun pio-account-email (&optional account)
+  "Return the profile email."
+  (when-let* ((profile (pio-account-profile account)))
+    (gethash "email" profile)))
+
+(defun pio-account-fullname (&optional account)
+  "Return `Firstname Lastname' from the profile, or nil."
+  (when-let* ((profile (pio-account-profile account))
+              (first   (gethash "firstname" profile))
+              (last    (gethash "lastname"  profile)))
+    (string-trim (format "%s %s" first last))))
+
+;;; Dashboard
+
+(defconst pio-buffer-name "*pio*"
+  "Name of the dashboard buffer.")
+
+(define-derived-mode pio-mode special-mode "pio"
+  "Major mode for the `*pio*' dashboard buffer."
+  (setq-local truncate-lines t))
+(put 'pio-mode 'completion-predicate #'ignore)
+
+(with-eval-after-load 'nerd-icons
+  (add-to-list 'nerd-icons-mode-icon-alist
+               '(pio-mode nerd-icons-mdicon "nf-md-chip"
+                          :face nerd-icons-green)))
+
+(defun pio--label (text)
+  "Wrap TEXT in the muted-label face."
+  (propertize text 'face 'vui-muted))
+
+(defun pio--value (text)
+  "Wrap TEXT in the strong face (or muted if nil)."
+  (if text
+      (propertize text 'face 'vui-strong)
+    (propertize "—" 'face 'vui-muted)))
+
+(defun pio--field (label value)
+  "Render a `LABEL  VALUE' line."
+  (insert "  " (string-pad (pio--label label) 12) "  "
+          (pio--value value) "\n"))
+
+(defun pio--set-mode-line (account)
+  "Update `mode-name' with a chip icon, core version, and ACCOUNT username."
+  (let ((version (plist-get (pio-core-version) :value))
+        (user    (pio-account-username account)))
+    (setq mode-name
+          (list " "
+                (nerd-icons-mdicon "nf-md-chip" :face 'vui-success)
+                "  v" (propertize (or version "?") 'face 'vui-muted)
+                "  "
+                (propertize (or user "?") 'face 'vui-heading-1)))))
+
+(defun pio--render-package (package)
+  "Render a single PACKAGE hash as two lines: title (bold) + description (muted)."
+  (insert "  "
+          (nerd-icons-mdicon "nf-md-package_variant" :face 'vui-success)
+          " "
+          (propertize (or (gethash "title" package)
+                          (gethash "name"  package) "?")
+                      'face 'vui-strong)
+          "\n      "
+          (propertize (or (gethash "description" package) "")
+                      'face 'vui-muted)
+          "\n"))
+
+(defun pio--render (account)
+  "Render ACCOUNT into the current buffer."
+  (pio--set-mode-line account)
+  (let ((packages      (pio-account-packages      account))
+        (subscriptions (pio-account-subscriptions account)))
+    (insert (propertize "PROFILE\n" 'face 'vui-heading-2))
+    (pio--field "username" (pio-account-username account))
+    (pio--field "name"     (pio-account-fullname account))
+    (pio--field "email"    (pio-account-email    account))
+    (pio--field "user id"  (pio-account-user-id  account))
+    (insert "\n")
+    (insert (propertize (format "PACKAGES (%d)\n" (length packages))
+                        'face 'vui-heading-2))
+    (mapc #'pio--render-package packages)
+    (insert "\n")
+    (insert (propertize (format "SUBSCRIPTIONS (%s)\n"
+                                (if subscriptions
+                                    (number-to-string (length subscriptions))
+                                  "none"))
+                        'face 'vui-heading-2))))
+
+(defun pio--revert (&rest _)
+  "Refresh the `*pio*' buffer (bound as `revert-buffer-function')."
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (pio--render (pio-account-show t))
+    (goto-char (point-min))))
+
+;;;###autoload
+(defun pio ()
+  "Open the `*pio*' dashboard showing the active PlatformIO account."
+  (interactive)
+  (let ((buffer (get-buffer-create pio-buffer-name)))
+    (with-current-buffer buffer
+      (pio-mode)
+      (setq-local revert-buffer-function #'pio--revert)
+      (pio--revert))
+    (pop-to-buffer buffer)))
 
 (provide 'platformio)
 
