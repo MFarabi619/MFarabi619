@@ -34,6 +34,7 @@
 (defconst mcumgr-log-buffer-name "*mcumgr*")
 
 (defun mcumgr--executable ()
+  "Return the configured `mcumgrctl' binary, falling back to PATH lookup."
   (or mcumgr-executable
       (executable-find "mcumgrctl")
       "mcumgrctl"))
@@ -43,12 +44,14 @@
   (setq-local truncate-lines nil))
 
 (defun mcumgr--log-buffer ()
+  "Get-or-create the `*mcumgr*' log buffer in `mcumgr-log-mode'."
   (let ((buf (get-buffer-create mcumgr-log-buffer-name)))
     (with-current-buffer buf
       (unless (derived-mode-p 'mcumgr-log-mode) (mcumgr-log-mode)))
     buf))
 
 (defun mcumgr--log (args exit-code stdout stderr elapsed-ms)
+  "Append one timestamped entry for an invocation to the log buffer."
   (when mcumgr-log-enabled
     (with-current-buffer (mcumgr--log-buffer)
       (let ((inhibit-read-only t))
@@ -100,7 +103,8 @@
       (delete-file stderr-file))))
 
 (defun mcumgr--run (&rest args)
-  "Run mcumgrctl with ARGS; return stdout. Signal `mcumgr-exec-error' on non-zero exit."
+  "Run mcumgrctl with ARGS; return stdout.
+Signal `mcumgr-exec-error' on non-zero exit."
   (pcase-let ((`(,exit-code ,stdout ,stderr)
                (mcumgr--call (mcumgr--executable) args)))
     (unless (zerop exit-code)
@@ -112,7 +116,8 @@
     stdout))
 
 (defun mcumgr--run-json (&rest args)
-  "Run mcumgrctl with ARGS; parse stdout as JSON. Signal `mcumgr-parse-error' on bad JSON."
+  "Run mcumgrctl with ARGS; parse stdout as JSON.
+Signal `mcumgr-parse-error' on bad JSON."
   (let ((output (apply #'mcumgr--run args)))
     (condition-case err
         (json-parse-string output
@@ -228,9 +233,11 @@ via identifier is broken upstream."
 ;;; Enumeration
 
 (defun mcumgr-usb-serial-devices ()
+  "Enumerate USB-serial devices known to mcumgrctl (parsed JSON)."
   (mcumgr--run-json "--usb-serial" "--json"))
 
 (defun mcumgr-serial-ports ()
+  "Enumerate serial ports known to mcumgrctl (parsed JSON list of strings)."
   (mcumgr--run-json "--serial" "--json"))
 
 ;;; Connectivity
@@ -246,6 +253,8 @@ Returns nil on any `mcumgr-exec-error' (unreachable, timeout, etc.)."
 ;;; Image group
 
 (defun mcumgr-image-get-state (transport)
+  "Return slot state for the device matched by TRANSPORT.
+Wraps `mcumgr image get-state'."
   (apply #'mcumgr--run-json
          (append (mcumgr--transport-args transport)
                  (list "image" "get-state" "--json"))))
