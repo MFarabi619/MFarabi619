@@ -55,17 +55,75 @@
     (expect (pio-config-file "/some/proj/")
             :to-equal "/some/proj/platformio.ini")))
 
-(describe "pio-envs"
-  (it "extracts all [env:X] section names in order"
+(defun pio-tests--make-project (dir config)
+  "Create a platformio.ini at DIR and stub `pio--read-project-config' to CONFIG."
+  (write-region "" nil (expand-file-name "platformio.ini" dir))
+  (pio-project-config-invalidate)
+  (spy-on 'pio--read-project-config :and-return-value config))
+
+(describe "pio-project-config"
+  (before-each (pio-project-config-invalidate))
+
+  (it "returns nil when platformio.ini is absent"
     (ert-with-temp-directory dir
-      (write-region "[platformio]\ndefault_envs = release\n\n[env:release]\nbuild_type = release\n\n[env:debug]\nbuild_type = debug\n\n[env:custom_plank]\nboard = custom\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (expect (pio-project-config dir) :not :to-be-truthy)))
+
+  (it "delegates to pio--read-project-config and returns its result"
+    (ert-with-temp-directory dir
+      (pio-tests--make-project dir '(("platformio" ("name" . "demo"))))
+      (expect (pio-project-config dir)
+              :to-equal '(("platformio" ("name" . "demo"))))))
+
+  (it "caches the parsed config and skips reading on subsequent calls"
+    (ert-with-temp-directory dir
+      (pio-tests--make-project dir '(("platformio" ("name" . "demo"))))
+      (pio-project-config dir)
+      (pio-project-config dir)
+      (pio-project-config dir)
+      (expect 'pio--read-project-config :to-have-been-called-times 1)))
+
+  (it "re-reads when the platformio.ini mtime changes"
+    (ert-with-temp-directory dir
+      (let ((ini (expand-file-name "platformio.ini" dir)))
+        (pio-tests--make-project dir '(("platformio" ("name" . "v1"))))
+        (pio-project-config dir)
+        (set-file-times ini (time-add (current-time) 5))
+        (pio-project-config dir)
+        (expect 'pio--read-project-config :to-have-been-called-times 2))))
+
+  (it "invalidates a single project on demand"
+    (ert-with-temp-directory dir
+      (pio-tests--make-project dir '(("platformio" ("name" . "demo"))))
+      (pio-project-config dir)
+      (pio-project-config-invalidate dir)
+      (pio-project-config dir)
+      (expect 'pio--read-project-config :to-have-been-called-times 2))))
+
+(describe "pio-envs"
+  (before-each (pio-project-config-invalidate))
+
+  (it "extracts env: section names in declaration order"
+    (ert-with-temp-directory dir
+      (pio-tests--make-project dir
+       '(("platformio"      ("default_envs" "release"))
+         ("env:release"     ("build_type"   . "release"))
+         ("env:debug"       ("build_type"   . "debug"))
+         ("env:custom_plank" ("board"       . "custom"))))
       (expect (pio-envs dir)
               :to-equal '("release" "debug" "custom_plank"))))
 
-  (it "returns nil when no [env:X] sections exist"
+  (it "ignores non-env sections like [platformio] and [embedded]"
     (ert-with-temp-directory dir
-      (write-region "[platformio]\n" nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir
+       '(("platformio" ("default_envs" "release"))
+         ("embedded"   ("framework" . "arduino"))
+         ("env:dev"    ("board" . "esp32dev"))))
+      (expect (pio-envs dir) :to-equal '("dev"))))
+
+  (it "returns nil when no env: sections exist"
+    (ert-with-temp-directory dir
+      (pio-tests--make-project dir
+       '(("platformio" ("name" . "demo"))))
       (expect (pio-envs dir) :not :to-be-truthy)))
 
   (it "returns nil when platformio.ini is absent"
@@ -74,36 +132,31 @@
 
 (describe "pio-default-envs"
   (before-each
+    (pio-project-config-invalidate)
     (setenv "PLATFORMIO_DEFAULT_ENVS" nil))
 
-  (it "splits comma- or space-separated default_envs from [platformio]"
+  (it "returns the default_envs list from [platformio]"
     (ert-with-temp-directory dir
-      (write-region "[platformio]\ndefault_envs = release, debug\n\n[env:release]\n[env:debug]\n"
-                    nil (expand-file-name "platformio.ini" dir))
-      (expect (pio-default-envs dir)
-              :to-equal '("release" "debug"))))
+      (pio-tests--make-project dir
+       '(("platformio" ("default_envs" "release" "debug"))))
+      (expect (pio-default-envs dir) :to-equal '("release" "debug"))))
 
-  (it "handles a single default env"
+  (it "handles a single-element default_envs list"
     (ert-with-temp-directory dir
-      (write-region "[platformio]\ndefault_envs = release\n\n[env:release]\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir
+       '(("platformio" ("default_envs" "release"))))
       (expect (pio-default-envs dir) :to-equal '("release"))))
 
   (it "returns nil when default_envs is absent"
     (ert-with-temp-directory dir
-      (write-region "[platformio]\nfoo = bar\n" nil (expand-file-name "platformio.ini" dir))
-      (expect (pio-default-envs dir) :not :to-be-truthy)))
-
-  (it "does not read default_envs from inside an [env:X] section"
-    (ert-with-temp-directory dir
-      (write-region "[platformio]\n\n[env:release]\ndefault_envs = wrong\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir
+       '(("platformio" ("name" . "demo"))))
       (expect (pio-default-envs dir) :not :to-be-truthy)))
 
   (it "honors PLATFORMIO_DEFAULT_ENVS env var over the config value"
     (ert-with-temp-directory dir
-      (write-region "[platformio]\ndefault_envs = from-config\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir
+       '(("platformio" ("default_envs" "from-config"))))
       (with-environment-variables (("PLATFORMIO_DEFAULT_ENVS" "from-env, also-env"))
         (expect (pio-default-envs dir)
                 :to-equal '("from-env" "also-env"))))))
@@ -226,59 +279,71 @@
       (expect call-count :to-equal 1))))
 
 (describe "pio--read-key"
+  (before-each (pio-project-config-invalidate))
+
   (it "reads a key from a named section"
     (ert-with-temp-directory dir
-      (write-region "[env:dev]\nboard = esp32dev\nplatform = espressif32\n"
-                    nil (expand-file-name "platformio.ini" dir))
-      (expect (pio--read-key "env:dev" "board" dir) :to-equal "esp32dev")
+      (pio-tests--make-project dir
+       '(("env:dev" ("board"    . "esp32dev")
+                    ("platform" . "espressif32"))))
+      (expect (pio--read-key "env:dev" "board"    dir) :to-equal "esp32dev")
       (expect (pio--read-key "env:dev" "platform" dir) :to-equal "espressif32")))
 
   (it "does not read keys outside the named section"
     (ert-with-temp-directory dir
-      (write-region "[env:a]\nboard = esp32dev\n\n[env:b]\nframework = arduino\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir
+       '(("env:a" ("board"     . "esp32dev"))
+         ("env:b" ("framework" . "arduino"))))
       (expect (pio--read-key "env:a" "framework" dir) :not :to-be-truthy)
-      (expect (pio--read-key "env:b" "board" dir) :not :to-be-truthy)))
+      (expect (pio--read-key "env:b" "board"     dir) :not :to-be-truthy)))
 
   (it "returns nil when the section is absent"
     (ert-with-temp-directory dir
-      (write-region "[env:dev]\nboard = esp32dev\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir '(("env:dev" ("board" . "esp32dev"))))
       (expect (pio--read-key "env:missing" "board" dir) :not :to-be-truthy)))
 
   (it "returns nil when the section exists but the key does not"
     (ert-with-temp-directory dir
-      (write-region "[env:dev]\nboard = esp32dev\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir '(("env:dev" ("board" . "esp32dev"))))
       (expect (pio--read-key "env:dev" "framework" dir) :not :to-be-truthy)))
 
-  (it "handles the last section in the file (no trailing section header)"
+  (it "returns native typed values (numbers, lists, booleans)"
     (ert-with-temp-directory dir
-      (write-region "[platformio]\ndefault_envs = release\n"
-                    nil (expand-file-name "platformio.ini" dir))
-      (expect (pio--read-key "platformio" "default_envs" dir)
-              :to-equal "release"))))
+      (pio-tests--make-project dir
+       '(("env:dev" ("monitor_speed"  . 115200)
+                    ("monitor_filters" "direct" "colorize")
+                    ("test_build_src" . t))))
+      (expect (pio--read-key "env:dev" "monitor_speed"   dir) :to-equal 115200)
+      (expect (pio--read-key "env:dev" "monitor_filters" dir)
+              :to-equal '("direct" "colorize"))
+      (expect (pio--read-key "env:dev" "test_build_src"  dir) :to-equal t))))
 
 (describe "pio-env-board"
+  (before-each (pio-project-config-invalidate))
   (it "reads the board key from the [env:ENV] section"
     (ert-with-temp-directory dir
-      (write-region "[env:walter]\nboard = esp32dev\nplatform = espressif32\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir
+       '(("env:walter" ("board"    . "esp32dev")
+                       ("platform" . "espressif32"))))
       (expect (pio-env-board "walter" dir) :to-equal "esp32dev"))))
 
 (describe "pio-env-platform"
+  (before-each (pio-project-config-invalidate))
   (it "reads the platform key from the [env:ENV] section"
     (ert-with-temp-directory dir
-      (write-region "[env:walter]\nboard = esp32dev\nplatform = espressif32\n"
-                    nil (expand-file-name "platformio.ini" dir))
+      (pio-tests--make-project dir
+       '(("env:walter" ("board"    . "esp32dev")
+                       ("platform" . "espressif32"))))
       (expect (pio-env-platform "walter" dir) :to-equal "espressif32"))))
 
 (describe "pio-env-framework"
+  (before-each (pio-project-config-invalidate))
   (it "reads the framework key from the [env:ENV] section"
     (ert-with-temp-directory dir
-      (write-region "[env:walter]\nboard = esp32dev\nframework = arduino\n"
-                    nil (expand-file-name "platformio.ini" dir))
-      (expect (pio-env-framework "walter" dir) :to-equal "arduino"))))
+      (pio-tests--make-project dir
+       '(("env:walter" ("board"     . "esp32dev")
+                       ("framework" "arduino"))))
+      (expect (pio-env-framework "walter" dir) :to-equal '("arduino")))))
 
 (describe "vterm kill-buffer contract"
   (it "killing a vterm buffer kills the underlying subprocess"
@@ -308,6 +373,7 @@
                   :filters ("direct"))))
           captured-shell captured-name)
       (cl-letf (((symbol-function 'require) (lambda (&rest _) t))
+                ((symbol-function 'pio-default-envs) (lambda (&rest _) nil))
                 ((symbol-function 'vterm)
                  (lambda (&rest _)
                    (setq captured-shell vterm-shell
@@ -422,7 +488,8 @@
 (describe "pio-device-list-monitor"
   (it "passes the port at point to `pio-device-monitor'"
     (let (captured)
-      (cl-letf (((symbol-function 'pio-device-monitor)
+      (cl-letf (((symbol-function 'pio-default-envs)   (lambda (&rest _) nil))
+                ((symbol-function 'pio-device-monitor)
                  (lambda (&rest args) (setq captured args))))
         (with-temp-buffer
           (pio-device-list-mode)
@@ -436,7 +503,8 @@
 
   (it "is a no-op when point is not on a device row"
     (let (called)
-      (cl-letf (((symbol-function 'pio-device-monitor)
+      (cl-letf (((symbol-function 'pio-default-envs)   (lambda (&rest _) nil))
+                ((symbol-function 'pio-device-monitor)
                  (lambda (&rest _) (setq called t))))
         (with-temp-buffer
           (pio-device-list-mode)

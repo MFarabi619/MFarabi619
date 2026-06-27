@@ -126,37 +126,63 @@ exist on your system to choose which one to use."
   (when-let ((root (or project-root (pio-root))))
     (expand-file-name "platformio.ini" root)))
 
+(defvar pio--config-cache (make-hash-table :test 'equal))
+
+(defun pio--read-project-config (project-root)
+  (with-temp-buffer
+    (let ((exit (call-process (pio--executable) nil t nil
+                              "project" "config"
+                              "--json-output"
+                              "-d" (directory-file-name
+                                    (expand-file-name project-root)))))
+      (unless (zerop exit)
+        (error "pio project config failed (exit %d): %s"
+               exit (buffer-string)))
+      (mapcar (pcase-lambda (`(,section ,settings))
+                (cons section
+                      (mapcar (pcase-lambda (`(,k ,v)) (cons k v))
+                              settings)))
+              (json-parse-string (buffer-string)
+                                 :array-type 'list
+                                 :object-type 'plist
+                                 :false-object nil
+                                 :null-object nil)))))
+
+(defun pio-project-config (&optional project-root)
+  (when-let* ((root (or project-root (pio-root)))
+              (ini  (pio-config-file root))
+              ((file-exists-p ini)))
+    (let* ((mtime  (file-attribute-modification-time (file-attributes ini)))
+           (cached (gethash root pio--config-cache)))
+      (if (and cached (equal (car cached) mtime))
+          (cdr cached)
+        (let ((parsed (pio--read-project-config root)))
+          (puthash root (cons mtime parsed) pio--config-cache)
+          parsed)))))
+
+(defun pio-project-config-invalidate (&optional project-root)
+  (interactive)
+  (if project-root
+      (remhash project-root pio--config-cache)
+    (clrhash pio--config-cache)))
+
 (defun pio-envs (&optional project-root)
-  (when-let* ((ini (pio-config-file project-root))
-               ((file-exists-p ini)))
-    (with-temp-buffer
-      (insert-file-contents ini)
-      (let (envs)
-        (goto-char (point-min))
-        (while (re-search-forward "^\\[env:\\([^]]+\\)\\]" nil t)
-          (push (match-string 1) envs))
-        (nreverse envs)))))
+  (seq-keep (pcase-lambda (`(,section . ,_))
+              (when (string-prefix-p "env:" section)
+                (substring section 4)))
+            (pio-project-config project-root)))
 
 (defun pio--read-key (section key &optional project-root)
-  (when-let* ((ini (pio-config-file project-root))
-               ((file-exists-p ini)))
-    (with-temp-buffer
-      (insert-file-contents ini)
-      (goto-char (point-min))
-      (when (re-search-forward (format "^\\[%s\\]" (regexp-quote section)) nil t)
-        (let ((section-end (save-excursion
-                             (if (re-search-forward "^\\[" nil t)
-                               (match-beginning 0)
-                               (point-max)))))
-          (when (re-search-forward
-                  (format "^\\s-*%s\\s-*=\\s-*\\(.+?\\)\\s-*$" (regexp-quote key))
-                  section-end t)
-            (match-string 1)))))))
+  (when-let* ((config   (pio-project-config project-root))
+              (settings (cdr (assoc section config))))
+    (cdr (assoc key settings))))
 
 (defun pio-default-envs (&optional project-root)
-  (when-let ((value (or (getenv "PLATFORMIO_DEFAULT_ENVS")
-                      (pio--read-key "platformio" "default_envs" project-root))))
-    (split-string value "[ ,]+" t)))
+  (let ((value (or (getenv "PLATFORMIO_DEFAULT_ENVS")
+                   (pio--read-key "platformio" "default_envs" project-root))))
+    (cond ((null value)    nil)
+          ((listp value)   value)
+          ((stringp value) (split-string value "[ ,]+" t)))))
 
 (defun pio-env-board (env &optional project-root)
   (pio--read-key (format "env:%s" env) "board" project-root))
@@ -344,9 +370,13 @@ Returns nil if HWID is not a string."
 
 (defun pio--monitor-coerce (type value)
   (pcase type
-    (:number (string-to-number value))
-    (:flag   (and (member (downcase value) '("yes" "true" "1")) t))
-    (:list   (split-string value "[ ,]+" t))
+    (:number (if (numberp value) value (string-to-number value)))
+    (:flag   (cond ((booleanp value) value)
+                   ((stringp value)
+                    (and (member (downcase value) '("yes" "true" "1")) t))
+                   (t (and value t))))
+    (:list   (cond ((listp value)   value)
+                   ((stringp value) (split-string value "[ ,]+" t))))
     (_       value)))
 
 (defun pio-env-monitor (env &optional project-root)
