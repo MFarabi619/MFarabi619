@@ -29,10 +29,10 @@
   (expand-file-name (concat name ".eld") zephyr-cache-dir))
 
 (defun zephyr--cache-load (name)
-  (let ((f (zephyr--cache-file name)))
-    (when (file-exists-p f)
+  (let ((cache-file (zephyr--cache-file name)))
+    (when (file-exists-p cache-file)
       (with-temp-buffer
-        (insert-file-contents f)
+        (insert-file-contents cache-file)
         (read (current-buffer))))))
 
 (defun zephyr--cache-save (name data)
@@ -41,16 +41,27 @@
     (prin1 data (current-buffer))))
 
 (defun zephyr-base (&optional workspace-root)
-  (or (getenv "ZEPHYR_BASE")
-      (when-let ((root (or workspace-root (west-workspace-root))))
-        (expand-file-name "zephyrproject/zephyr/" root))))
+  (let* ((cfg (west-config))
+         (env (getenv "ZEPHYR_BASE"))
+         (cfg-value (cdr (assoc "zephyr.base" cfg)))
+         (cfg-resolved (when cfg-value
+                         (if (file-name-absolute-p cfg-value)
+                             cfg-value
+                           (when-let ((root (or workspace-root (west-workspace-root))))
+                             (expand-file-name cfg-value root)))))
+         (prefer (or (cdr (assoc "zephyr.base-prefer" cfg)) "env"))
+         (result (if (equal prefer "configfile")
+                     (or cfg-resolved env)
+                   (or env cfg-resolved))))
+    (when result
+      (file-name-as-directory result))))
 
 (defun zephyr-version (&optional base)
-  (when-let* ((b (or base (zephyr-base)))
-              (vfile (expand-file-name "VERSION" b)))
-    (when (file-exists-p vfile)
+  (when-let* ((effective-base (or base (zephyr-base)))
+              (version-file (expand-file-name "VERSION" effective-base)))
+    (when (file-exists-p version-file)
       (with-temp-buffer
-        (insert-file-contents vfile)
+        (insert-file-contents version-file)
         (string-trim (buffer-string))))))
 
 (defcustom zephyr-sdk-search-paths
@@ -92,9 +103,7 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
 (defun zephyr-sdk-toolchains (&optional sdk-path)
   (let ((path (or sdk-path (zephyr-sdk-path))))
     (when (and path (file-directory-p path))
-      (seq-filter (lambda (name)
-                    (string-match-p "zephyr-\\(elf\\|eabi\\)\\'" name))
-                  (directory-files path)))))
+      (directory-files path nil "zephyr-\\(elf\\|eabi\\)\\'"))))
 
 (defun zephyr-toolchain-variant ()
   (or (getenv "ZEPHYR_TOOLCHAIN_VARIANT") "zephyr"))
@@ -104,16 +113,16 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
       (cdr (assoc "build.board" (west-config)))))
 
 (defun zephyr-shield ()
-  (when-let ((v (getenv "SHIELD")))
-    (split-string v ";" t " ")))
+  (when-let ((value (getenv "SHIELD")))
+    (split-string value ";" t " ")))
 
 (defun zephyr-snippet ()
-  (when-let ((v (getenv "SNIPPET")))
-    (split-string v ";" t " ")))
+  (when-let ((value (getenv "SNIPPET")))
+    (split-string value ";" t " ")))
 
 (defun zephyr--env-list (var)
-  (when-let ((v (getenv var)))
-    (split-string v path-separator t " ")))
+  (when-let ((value (getenv var)))
+    (split-string value path-separator t " ")))
 
 (defun zephyr-board-roots       () (zephyr--env-list "BOARD_ROOT"))
 (defun zephyr-shield-roots      () (zephyr--env-list "SHIELD_ROOT"))
@@ -150,23 +159,67 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
     (:extra-modules     "EXTRA_ZEPHYR_MODULES"      zephyr-extra-modules)))
 
 (defun zephyr-cmake-args (&optional overrides)
-  (delq nil
-        (mapcar (pcase-lambda (`(,key ,name ,getter))
-                  (zephyr--cmake-arg name
-                                     (or (plist-get overrides key)
-                                         (funcall getter))))
-                zephyr--cmake-arg-spec)))
+  (seq-keep (pcase-lambda (`(,key ,name ,getter))
+              (zephyr--cmake-arg name
+                                 (or (plist-get overrides key)
+                                     (funcall getter))))
+            zephyr--cmake-arg-spec))
+
+(defun zephyr-build-dir (&optional workspace-root)
+  (when-let ((root (or workspace-root (west-workspace-root))))
+    (expand-file-name "build" root)))
+
+(defun zephyr-build-command (app &optional overrides)
+  (let* ((build-dir (or (plist-get overrides :build-dir) (zephyr-build-dir)))
+         (sysbuild  (plist-get overrides :sysbuild))
+         (source-dir (if sysbuild
+                         (expand-file-name "share/sysbuild" (zephyr-base))
+                       (directory-file-name app)))
+         (extra-args (when sysbuild
+                       (list (format "-DAPP_DIR=%s" (directory-file-name app))))))
+    (concat
+     (mapconcat #'shell-quote-argument
+                `("cmake" "-B" ,build-dir "-GNinja"
+                  ,@extra-args
+                  ,@(zephyr-cmake-args overrides)
+                  ,source-dir)
+                " ")
+     " && "
+     (mapconcat #'shell-quote-argument
+                `("ninja" "-C" ,build-dir)
+                " "))))
+
+(defun zephyr-build (app &optional overrides)
+  (interactive
+   (list (read-directory-name "Zephyr app: "
+                              (or (west-app-root) default-directory)
+                              nil t)))
+  (let* ((base (zephyr-base))
+         (process-environment
+          (if base
+              (cons (format "ZEPHYR_BASE=%s" (directory-file-name base))
+                    process-environment)
+            process-environment)))
+    (compile (zephyr-build-command app overrides))))
 
 (defun zephyr-apps (&optional workspace-root)
-  (seq-keep (lambda (app)
-              (let ((path (plist-get app :path)))
-                (when (west-app-p path)
-                  (list :name     (or (west-app-name path)
-                                      (plist-get app :name))
-                        :path     path
-                        :manifest (plist-get app :manifest)
-                        :boards   (west-app-boards path)))))
-            (west-manifest-apps workspace-root)))
+  (or
+   (seq-keep (lambda (manifest-app)
+               (let ((path (plist-get manifest-app :path)))
+                 (when (west-app-p path)
+                   (zephyr--make-app-plist path (plist-get manifest-app :manifest)))))
+             (west-manifest-apps workspace-root))
+   (when-let* ((root (or workspace-root (west-workspace-root)))
+               (app-dir (file-name-as-directory (expand-file-name "app" root))))
+     (when (west-app-p app-dir)
+       (list (zephyr--make-app-plist app-dir nil))))))
+
+(defun zephyr--make-app-plist (path manifest-path)
+  (list :name     (or (west-app-name path)
+                      (file-name-nondirectory (directory-file-name path)))
+        :path     path
+        :manifest manifest-path
+        :boards   (west-app-boards path)))
 
 (defvar zephyr--boards-cache nil)
 
@@ -177,11 +230,11 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
    (zephyr--boards-cache
     zephyr--boards-cache)
    (t
-    (let* ((disk (zephyr--cache-load "boards"))
+    (let* ((disk-cache (zephyr--cache-load "boards"))
            (current-version (zephyr-version)))
       (setq zephyr--boards-cache
-            (if (and disk (equal (plist-get disk :version) current-version))
-                (plist-get disk :data)
+            (if (and disk-cache (equal (plist-get disk-cache :version) current-version))
+                (plist-get disk-cache :data)
               (let ((data (zephyr--boards-uncached)))
                 (zephyr--cache-save "boards"
                                     (list :version current-version :data data))
@@ -190,15 +243,47 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
 (defun zephyr-boards-invalidate ()
   (interactive)
   (setq zephyr--boards-cache nil)
-  (let ((f (zephyr--cache-file "boards")))
-    (when (file-exists-p f) (delete-file f))))
+  (let ((cache-file (zephyr--cache-file "boards")))
+    (when (file-exists-p cache-file) (delete-file cache-file))))
+
+(defun zephyr-module-board-roots (&optional workspace-root)
+  (when-let* ((root (or workspace-root (west-workspace-root)))
+              (module-file (expand-file-name "zephyr/module.yml" root))
+              ((file-exists-p module-file))
+              (parsed (with-temp-buffer
+                        (insert-file-contents module-file)
+                        (yaml-parse-string (buffer-string)
+                                           :object-type 'hash-table
+                                           :sequence-type 'list)))
+              (board-root (map-nested-elt parsed '(build settings board_root))))
+    (mapcar (lambda (relative) (expand-file-name relative root))
+            (if (listp board-root) board-root (list board-root)))))
 
 (defun zephyr--boards-uncached (&optional base)
-  (when-let* ((b (or base (zephyr-base)))
-              (boards-dir (expand-file-name "boards" b)))
-    (when (file-directory-p boards-dir)
+  (let* ((effective-base (or base (zephyr-base)))
+         (base-boards (when effective-base
+                        (expand-file-name "boards" effective-base)))
+         (app-boards (mapcar (lambda (app)
+                               (expand-file-name "boards" (plist-get app :path)))
+                             (zephyr-apps)))
+         (module-boards (mapcar (lambda (module-root)
+                                  (expand-file-name "boards" module-root))
+                                (zephyr-module-board-roots)))
+         (all-dirs (seq-filter #'file-directory-p
+                               (cons base-boards
+                                     (append app-boards module-boards)))))
+    (when all-dirs
       (seq-keep #'zephyr--parse-board-file
-                (directory-files-recursively boards-dir "\\.yaml\\'")))))
+                (mapcan (lambda (dir)
+                          (directory-files-recursively dir "\\.yaml\\'"))
+                        all-dirs)))))
+
+(defun zephyr-board-id-from-hint (hint)
+  (plist-get
+   (seq-find (lambda (board)
+               (equal hint (replace-regexp-in-string "/" "_" (plist-get board :id))))
+             (zephyr-boards))
+   :id))
 
 (defun zephyr--parse-board-file (path)
   (when (file-exists-p path)

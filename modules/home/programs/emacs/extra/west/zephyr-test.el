@@ -15,18 +15,36 @@
   :expect-mismatch-phrase "Expected `%A' not to refer to the same file as `%B', but it did.")
 
 (describe "zephyr-base"
-  (it "honors ZEPHYR_BASE env var when set"
-    (with-environment-variables (("ZEPHYR_BASE" "/explicit/zephyr"))
-      (expect (zephyr-base) :to-equal "/explicit/zephyr")))
+  (before-each
+    (spy-on 'west-config :and-return-value nil))
 
-  (it "falls back to <workspace>/zephyrproject/zephyr/ when env var is unset"
+  (it "honors ZEPHYR_BASE env var when set and prefer is the default (env)"
+    (with-environment-variables (("ZEPHYR_BASE" "/explicit/zephyr"))
+      (expect (zephyr-base) :to-equal "/explicit/zephyr/")))
+
+  (it "falls back to zephyr.base from .west/config (relative, resolved against workspace)"
     (with-environment-variables (("ZEPHYR_BASE" nil))
+      (spy-on 'west-config :and-return-value
+              '(("zephyr.base" . "zephyrproject/zephyr")))
       (expect (zephyr-base "/some/ws/") :to-equal "/some/ws/zephyrproject/zephyr/")))
 
-  (it "returns nil when no workspace exists and env var is unset"
+  (it "honors an absolute zephyr.base value as-is"
     (with-environment-variables (("ZEPHYR_BASE" nil))
-      (let ((default-directory "/"))
-        (expect (zephyr-base) :not :to-be-truthy)))))
+      (spy-on 'west-config :and-return-value
+              '(("zephyr.base" . "/abs/zephyr")))
+      (expect (zephyr-base "/some/ws/") :to-equal "/abs/zephyr/")))
+
+  (it "lets zephyr.base configfile win when zephyr.base-prefer is configfile"
+    (with-environment-variables (("ZEPHYR_BASE" "/env/zephyr"))
+      (spy-on 'west-config :and-return-value
+              '(("zephyr.base"        . "/cfg/zephyr")
+                ("zephyr.base-prefer" . "configfile")))
+      (expect (zephyr-base "/some/ws/") :to-equal "/cfg/zephyr/")))
+
+  (it "returns nil when neither env nor config provide a value"
+    (with-environment-variables (("ZEPHYR_BASE" nil))
+      (spy-on 'west-workspace-root :and-return-value nil)
+      (expect (zephyr-base) :not :to-be-truthy))))
 
 (describe "zephyr-version"
   (it "reads and trims the VERSION file"
@@ -54,6 +72,7 @@
 (describe "zephyr-boards"
   :var (base)
   (before-each
+    (spy-on 'zephyr-apps :and-return-value nil)
     (setq base (file-name-as-directory (make-temp-file "zephyr-test-" t)))
     (make-directory (expand-file-name "boards/vendor1/board1" base) t)
     (make-directory (expand-file-name "boards/vendor1/board2" base) t)
@@ -68,6 +87,21 @@
   (it "parses every board YAML under the boards/ tree"
     (expect (length (zephyr-boards base)) :to-equal 2))
 
+  (it "also picks up boards contributed by Zephyr apps' boards/ dirs"
+    (let ((app-dir (make-temp-file "zephyr-app-" t)))
+      (unwind-protect
+          (let ((app-boards (expand-file-name "boards/others/customboard" app-dir)))
+            (make-directory app-boards t)
+            (write-region "identifier: customboard/socC/core1\nname: Custom\narch: arm\nvendor: me\n"
+                          nil (expand-file-name "customboard_socC_core1.yaml" app-boards))
+            (spy-on 'zephyr-apps :and-return-value (list (list :path app-dir)))
+            (let ((ids (mapcar (lambda (b) (plist-get b :id)) (zephyr-boards base))))
+              (expect ids :to-have-same-items-as
+                      '("board1/socA/core1"
+                        "board2/socB/core1"
+                        "customboard/socC/core1"))))
+        (delete-directory app-dir t))))
+
   (it "exposes :id :name :arch :vendor for each board"
     (let* ((boards (zephyr-boards base))
            (by-id (sort boards (lambda (a b) (string< (plist-get a :id)
@@ -77,9 +111,6 @@
       (expect (plist-get (nth 0 by-id) :arch)   :to-equal "arm")
       (expect (plist-get (nth 0 by-id) :vendor) :to-equal "vendor1")
       (expect (plist-get (nth 1 by-id) :arch)   :to-equal "riscv")))
-
-  (it "filters out YAML files that lack an identifier field"
-    (expect (seq-every-p (lambda (b) (plist-get b :id)) (zephyr-boards base))))
 
   (it "returns nil when no boards/ directory exists"
     (ert-with-temp-directory empty
@@ -150,11 +181,9 @@
       (expect (zephyr-sdk-toolchains dir) :not :to-contain "hosttools"))))
 
 (describe "zephyr-toolchain-variant"
-  (it "honors ZEPHYR_TOOLCHAIN_VARIANT env var when set"
+  (it "honors ZEPHYR_TOOLCHAIN_VARIANT env var, defaulting to \"zephyr\" when unset"
     (with-environment-variables (("ZEPHYR_TOOLCHAIN_VARIANT" "gnuarmemb"))
-      (expect (zephyr-toolchain-variant) :to-equal "gnuarmemb")))
-
-  (it "defaults to \"zephyr\" when the env var is unset"
+      (expect (zephyr-toolchain-variant) :to-equal "gnuarmemb"))
     (with-environment-variables (("ZEPHYR_TOOLCHAIN_VARIANT" nil))
       (expect (zephyr-toolchain-variant) :to-equal "zephyr"))))
 
@@ -165,13 +194,12 @@
 
   (it "falls back to .west/config build.board when env is unset"
     (with-environment-variables (("BOARD" nil))
-      (spy-on 'west-config :and-return-value
-              '(("manifest.path" . ".") ("build.board" . "qemu_riscv32")))
+      (spy-on 'west-config :and-return-value '(("build.board" . "qemu_riscv32")))
       (expect (zephyr-board) :to-equal "qemu_riscv32")))
 
   (it "returns nil when neither env nor config provide a value"
     (with-environment-variables (("BOARD" nil))
-      (spy-on 'west-config :and-return-value '(("manifest.path" . ".")))
+      (spy-on 'west-config :and-return-value nil)
       (expect (zephyr-board) :not :to-be-truthy))))
 
 (describe "zephyr-shield"
@@ -184,11 +212,7 @@
       (expect (zephyr-shield)
               :to-equal '("x_nucleo_iks01a3" "adafruit_winc1500"))))
 
-  (it "returns a single-element list for a single SHIELD value"
-    (with-environment-variables (("SHIELD" "x_nucleo_iks01a3"))
-      (expect (zephyr-shield) :to-equal '("x_nucleo_iks01a3"))))
-
-  (it "returns nil when SHIELD is empty or whitespace"
+  (it "returns nil when SHIELD is the empty string"
     (with-environment-variables (("SHIELD" ""))
       (expect (zephyr-shield) :not :to-be-truthy))))
 
@@ -202,49 +226,45 @@
       (expect (zephyr-snippet) :to-equal '("cdc-acm-console" "rtt-console")))))
 
 (describe "named *-roots accessors"
-  (it "zephyr-board-roots reads BOARD_ROOT (env-only, no implicit base)"
-    (with-environment-variables (("BOARD_ROOT" (mapconcat #'identity '("/x" "/y") path-separator)))
-      (expect (zephyr-board-roots) :to-equal '("/x" "/y"))))
-
-  (it "zephyr-soc-roots reads SOC_ROOT"
-    (with-environment-variables (("SOC_ROOT" "/x"))
-      (expect (zephyr-soc-roots) :to-equal '("/x"))))
-
-  (it "zephyr-snippet-roots reads SNIPPET_ROOT"
-    (with-environment-variables (("SNIPPET_ROOT" "/x"))
-      (expect (zephyr-snippet-roots) :to-equal '("/x"))))
+  (it "each named accessor reads its corresponding env var"
+    (with-environment-variables (("BOARD_ROOT"      "/b1")
+                                 ("SHIELD_ROOT"     "/sh1")
+                                 ("SNIPPET_ROOT"    "/sn1")
+                                 ("SOC_ROOT"        "/so1")
+                                 ("ARCH_ROOT"       "/ar1")
+                                 ("DTS_ROOT"        "/dt1")
+                                 ("MODULE_EXT_ROOT" "/mo1"))
+      (expect (zephyr-board-roots)      :to-equal '("/b1"))
+      (expect (zephyr-shield-roots)     :to-equal '("/sh1"))
+      (expect (zephyr-snippet-roots)    :to-equal '("/sn1"))
+      (expect (zephyr-soc-roots)        :to-equal '("/so1"))
+      (expect (zephyr-arch-roots)       :to-equal '("/ar1"))
+      (expect (zephyr-dts-roots)        :to-equal '("/dt1"))
+      (expect (zephyr-module-ext-roots) :to-equal '("/mo1"))))
 
   (it "returns nil when the env var is unset"
     (with-environment-variables (("BOARD_ROOT" nil))
       (expect (zephyr-board-roots) :not :to-be-truthy))))
 
 (describe "zephyr-modules"
-  (it "splits ZEPHYR_MODULES into a list of paths"
+  (it "splits ZEPHYR_MODULES into a list of paths, or nil if unset"
     (with-environment-variables (("ZEPHYR_MODULES" (mapconcat #'identity '("/m1" "/m2") path-separator)))
-      (expect (zephyr-modules) :to-equal '("/m1" "/m2"))))
-
-  (it "returns nil when unset"
+      (expect (zephyr-modules) :to-equal '("/m1" "/m2")))
     (with-environment-variables (("ZEPHYR_MODULES" nil))
       (expect (zephyr-modules) :not :to-be-truthy))))
 
 (describe "zephyr-extra-modules"
-  (it "splits EXTRA_ZEPHYR_MODULES into a list of paths"
+  (it "splits EXTRA_ZEPHYR_MODULES into a list of paths, or nil if unset"
     (with-environment-variables (("EXTRA_ZEPHYR_MODULES" (mapconcat #'identity '("/e1" "/e2") path-separator)))
-      (expect (zephyr-extra-modules) :to-equal '("/e1" "/e2"))))
-
-  (it "returns nil when unset"
+      (expect (zephyr-extra-modules) :to-equal '("/e1" "/e2")))
     (with-environment-variables (("EXTRA_ZEPHYR_MODULES" nil))
       (expect (zephyr-extra-modules) :not :to-be-truthy))))
 
 (describe "zephyr--cmake-arg"
-  (it "returns nil when value is nil"
-    (expect (zephyr--cmake-arg "BOARD" nil) :not :to-be-truthy))
-
-  (it "formats a single string value"
+  (it "formats -DKEY=VALUE, joining list values with semicolons, returning nil for nil"
+    (expect (zephyr--cmake-arg "BOARD" nil) :not :to-be-truthy)
     (expect (zephyr--cmake-arg "BOARD" "walter/esp32s3/procpu")
-            :to-equal "-DBOARD=walter/esp32s3/procpu"))
-
-  (it "joins list values with semicolons (CMake list syntax)"
+            :to-equal "-DBOARD=walter/esp32s3/procpu")
     (expect (zephyr--cmake-arg "BOARD_ROOT" '("/x" "/y" "/z"))
             :to-equal "-DBOARD_ROOT=/x;/y;/z")))
 
@@ -267,15 +287,13 @@
   (it "returns nil when nothing is set anywhere"
     (expect (zephyr-cmake-args) :not :to-be-truthy))
 
-  (it "emits -DBOARD from the :board override"
+  (it "emits one -DKEY=VALUE arg per override (lists joined with semicolons)"
     (expect (zephyr-cmake-args '(:board "walter/esp32s3/procpu"))
-            :to-equal '("-DBOARD=walter/esp32s3/procpu")))
-
-  (it "emits -DSHIELD with semicolon-joined list"
+            :to-equal '("-DBOARD=walter/esp32s3/procpu"))
+    (expect (zephyr-cmake-args '(:toolchain-variant "gnuarmemb"))
+            :to-equal '("-DZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb"))
     (expect (zephyr-cmake-args '(:shield ("x_nucleo_iks01a3" "adafruit_winc1500")))
-            :to-equal '("-DSHIELD=x_nucleo_iks01a3;adafruit_winc1500")))
-
-  (it "emits -DBOARD_ROOT with semicolon-joined list"
+            :to-equal '("-DSHIELD=x_nucleo_iks01a3;adafruit_winc1500"))
     (expect (zephyr-cmake-args '(:board-roots ("/extra/boards" "/other/boards")))
             :to-equal '("-DBOARD_ROOT=/extra/boards;/other/boards")))
 
@@ -296,17 +314,147 @@
   (it "lets an explicit override win over the env-derived value"
     (spy-on 'zephyr-board :and-return-value "qemu_riscv32")
     (expect (zephyr-cmake-args '(:board "walter/esp32s3/procpu"))
-            :to-equal '("-DBOARD=walter/esp32s3/procpu")))
+            :to-equal '("-DBOARD=walter/esp32s3/procpu"))))
 
-  (it "honors the toolchain-variant override"
-    (expect (zephyr-cmake-args '(:toolchain-variant "gnuarmemb"))
-            :to-equal '("-DZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb"))))
+(describe "zephyr-board-id-from-hint"
+  (before-each
+    (spy-on 'zephyr-boards :and-return-value
+            '((:id "walter/esp32s3/procpu"           :name "Walter PROCPU")
+              (:id "xiao_esp32s3/esp32s3/procpu"     :name "XIAO ESP32S3 PROCPU")
+              (:id "xiao_esp32s3/esp32s3/procpu/sense" :name "XIAO ESP32S3 PROCPU sense")
+              (:id "qemu_riscv32"                    :name "QEMU RISC-V")
+              (:id "stm32f3_disco"                   :name "STM32F3 Disco"))))
+
+  (it "resolves a slash-replaced hint to the canonical slashed ID"
+    (expect (zephyr-board-id-from-hint "walter_esp32s3_procpu")
+            :to-equal "walter/esp32s3/procpu"))
+
+  (it "returns IDs without slashes unchanged"
+    (expect (zephyr-board-id-from-hint "qemu_riscv32") :to-equal "qemu_riscv32")
+    (expect (zephyr-board-id-from-hint "stm32f3_disco") :to-equal "stm32f3_disco"))
+
+  (it "returns nil when no board matches"
+    (expect (zephyr-board-id-from-hint "nonexistent_board") :not :to-be-truthy)))
+
+(describe "zephyr-build-dir"
+  (it "returns <workspace-root>/build for an explicit workspace"
+    (expect (zephyr-build-dir "/some/ws/") :to-equal "/some/ws/build"))
+
+  (it "returns nil when no workspace can be detected"
+    (spy-on 'west-workspace-root :and-return-value nil)
+    (expect (zephyr-build-dir) :not :to-be-truthy)))
+
+(describe "zephyr-build-command"
+  (before-each
+    (spy-on 'zephyr-cmake-args :and-return-value
+            '("-DBOARD=walter/esp32s3/procpu" "-DZEPHYR_TOOLCHAIN_VARIANT=zephyr"))
+    (spy-on 'zephyr-build-dir :and-return-value "/ws/build"))
+
+  (it "composes cmake configure + ninja build chained with &&"
+    (expect (zephyr-build-command "/ws/apps/firmware/")
+            :to-equal
+            "cmake -B /ws/build -GNinja -DBOARD\\=walter/esp32s3/procpu -DZEPHYR_TOOLCHAIN_VARIANT\\=zephyr /ws/apps/firmware && ninja -C /ws/build"))
+
+  (it "strips the trailing slash from the app path"
+    (expect (zephyr-build-command "/ws/apps/firmware/")
+            :to-match "/ws/apps/firmware && ninja"))
+
+  (it "passes overrides through to zephyr-cmake-args"
+    (zephyr-build-command "/ws/apps/firmware/" '(:board "qemu_riscv32"))
+    (expect 'zephyr-cmake-args :to-have-been-called-with '(:board "qemu_riscv32")))
+
+  (it "honors a :build-dir override"
+    (expect (zephyr-build-command "/ws/apps/firmware/" '(:build-dir "/custom/build"))
+            :to-match "cmake -B /custom/build "))
+
+  (it "shell-escapes arguments containing spaces"
+    (spy-on 'zephyr-cmake-args :and-return-value '("-DBOARD=foo"))
+    (expect (zephyr-build-command "/ws/apps/path with spaces/app")
+            :to-match "/ws/apps/path\\\\ with\\\\ spaces/app && ninja")))
+
+(describe "zephyr-build"
+  (it "injects ZEPHYR_BASE into the subprocess environment"
+    (spy-on 'zephyr-base :and-return-value "/explicit/zephyr/")
+    (spy-on 'zephyr-build-command :and-return-value "true")
+    (let (captured)
+      (spy-on 'compile :and-call-fake
+              (lambda (_cmd) (setq captured (getenv "ZEPHYR_BASE"))))
+      (zephyr-build "/some/app")
+      (expect captured :to-equal "/explicit/zephyr")))
+
+  (it "strips trailing slash from ZEPHYR_BASE before injecting"
+    (spy-on 'zephyr-base :and-return-value "/explicit/zephyr/")
+    (spy-on 'zephyr-build-command :and-return-value "true")
+    (let (captured)
+      (spy-on 'compile :and-call-fake
+              (lambda (_cmd) (setq captured (getenv "ZEPHYR_BASE"))))
+      (zephyr-build "/some/app")
+      (expect captured :not :to-match "/$")))
+
+  (it "leaves ZEPHYR_BASE unchanged when zephyr-base returns nil"
+    (spy-on 'zephyr-base :and-return-value nil)
+    (spy-on 'zephyr-build-command :and-return-value "true")
+    (with-environment-variables (("ZEPHYR_BASE" "/preexisting"))
+      (let (captured)
+        (spy-on 'compile :and-call-fake
+                (lambda (_cmd) (setq captured (getenv "ZEPHYR_BASE"))))
+        (zephyr-build "/some/app")
+        (expect captured :to-equal "/preexisting")))))
+
+(describe "zephyr-build-command with :sysbuild"
+  (before-each
+    (spy-on 'zephyr-cmake-args :and-return-value '("-DBOARD=walter/esp32s3/procpu"))
+    (spy-on 'zephyr-build-dir :and-return-value "/ws/build")
+    (spy-on 'zephyr-base :and-return-value "/ws/zephyrproject/zephyr/"))
+
+  (it "uses Zephyr's share/sysbuild as the cmake source dir"
+    (expect (zephyr-build-command "/ws/apps/firmware/" '(:sysbuild t))
+            :to-match "/ws/zephyrproject/zephyr/share/sysbuild"))
+
+  (it "passes APP_DIR pointing at the user's app"
+    (expect (zephyr-build-command "/ws/apps/firmware/" '(:sysbuild t))
+            :to-match "-DAPP_DIR\\\\=/ws/apps/firmware"))
+
+  (it "omits the APP_DIR arg when :sysbuild is not set"
+    (expect (zephyr-build-command "/ws/apps/firmware/")
+            :not :to-match "-DAPP_DIR")))
+
+(describe "zephyr-module-board-roots"
+  (it "returns absolute paths from zephyr/module.yml's build.settings.board_root"
+    (ert-with-temp-directory dir
+      (make-directory (expand-file-name "zephyr" dir))
+      (write-region "build:\n  settings:\n    board_root: .\n"
+                    nil (expand-file-name "zephyr/module.yml" dir))
+      (expect (zephyr-module-board-roots dir)
+              :to-have-same-items-as (list (directory-file-name dir)))))
+
+  (it "resolves multiple board_root entries when given a list"
+    (ert-with-temp-directory dir
+      (make-directory (expand-file-name "zephyr" dir))
+      (write-region "build:\n  settings:\n    board_root:\n      - ./vendor-a\n      - ./vendor-b\n"
+                    nil (expand-file-name "zephyr/module.yml" dir))
+      (expect (zephyr-module-board-roots dir)
+              :to-have-same-items-as
+              (list (expand-file-name "vendor-a" dir)
+                    (expand-file-name "vendor-b" dir)))))
+
+  (it "returns nil when zephyr/module.yml is absent"
+    (ert-with-temp-directory dir
+      (expect (zephyr-module-board-roots dir) :not :to-be-truthy)))
+
+  (it "returns nil when module.yml has no board_root setting"
+    (ert-with-temp-directory dir
+      (make-directory (expand-file-name "zephyr" dir))
+      (write-region "build:\n  cmake: .\n" nil
+                    (expand-file-name "zephyr/module.yml" dir))
+      (expect (zephyr-module-board-roots dir) :not :to-be-truthy))))
 
 (describe "zephyr-apps"
   :var (dir manifest fw-dir other-dir)
   (before-each
+    (spy-on 'west-config :and-return-value nil)
     (setq dir (make-temp-file "zephyr-test-" t))
-    (setq manifest (expand-file-name "manifest.yml" dir))
+    (setq manifest (expand-file-name "west.yml" dir))
     (setq fw-dir (expand-file-name "apps/firmware/" dir))
     (setq other-dir (expand-file-name "apps/other/" dir))
     (make-directory (expand-file-name ".west" dir))
@@ -321,31 +469,72 @@
                   nil (expand-file-name "CMakeLists.txt" fw-dir))
     (write-region "find_package(SomethingElse)\nproject(other)\n"
                   nil (expand-file-name "CMakeLists.txt" other-dir))
-    (write-region "" nil (expand-file-name "boards/walter_procpu.conf" fw-dir))
+    (write-region "" nil (expand-file-name "boards/walter_esp32s3_procpu.conf" fw-dir))
     (write-region "" nil (expand-file-name "boards/qemu_riscv32.conf" fw-dir)))
   (after-each (delete-directory dir t))
 
-  (it "filters out apps whose CMakeLists is not a Zephyr app"
+  (it "returns Zephyr-app plists (filtering non-Zephyr apps) with name/path/manifest/boards"
     (let ((apps (zephyr-apps dir)))
-      (expect (length apps) :to-equal 1)))
-
-  (it "uses the project() name from CMakeLists.txt"
-    (let ((apps (zephyr-apps dir)))
-      (expect (plist-get (car apps) :name) :to-equal "my_fw")))
-
-  (it "includes :path and :manifest from the workspace manifest"
-    (let ((apps (zephyr-apps dir)))
+      (expect (length apps) :to-equal 1)
+      (expect (plist-get (car apps) :name)     :to-equal "my_fw")
       (expect (plist-get (car apps) :path)     :to-equal fw-dir)
       (expect (plist-get (car apps) :manifest) :to-equal
-              (expand-file-name "west.yml" fw-dir))))
-
-  (it "includes boards discovered from the app's boards/ directory"
-    (let ((apps (zephyr-apps dir)))
+              (expand-file-name "west.yml" fw-dir))
       (expect (plist-get (car apps) :boards)
-              :to-have-same-items-as '("walter_procpu" "qemu_riscv32"))))
+              :to-have-same-items-as '("walter_esp32s3_procpu" "qemu_riscv32"))))
 
   (it "returns nil when no workspace exists"
     (ert-with-temp-directory empty
-      (expect (zephyr-apps empty) :not :to-be-truthy))))
+      (expect (zephyr-apps empty) :not :to-be-truthy)))
+
+  (it "falls back to <workspace>/app/ when manifest declares no apps"
+    (spy-on 'west-config :and-return-value nil)
+    (ert-with-temp-directory ws-dir
+      (let ((app-dir (file-name-as-directory (expand-file-name "app" ws-dir))))
+        (make-directory (expand-file-name ".west" ws-dir))
+        (write-region "manifest:\n  projects: []\n"
+                      nil (expand-file-name "west.yml" ws-dir))
+        (make-directory app-dir t)
+        (write-region "find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})\nproject(my_app)\n"
+                      nil (expand-file-name "CMakeLists.txt" app-dir))
+        (let ((apps (zephyr-apps ws-dir)))
+          (expect (length apps) :to-equal 1)
+          (expect (plist-get (car apps) :name) :to-equal "my_app")
+          (expect (plist-get (car apps) :path) :to-be-file-equal app-dir)
+          (expect (plist-get (car apps) :manifest) :not :to-be-truthy))))))
+
+(describe "against example-application (real-world integration)"
+  :var (example)
+  (before-each
+    (setq example (expand-file-name "~/workspace/example-application/"))
+    (assume (file-directory-p example)
+            "example-application not cloned at ~/workspace/example-application/"))
+
+  (it "ignores HWMv2 board.yml files (no identifier field)"
+    (expect (zephyr--parse-board-file
+             (concat example "boards/vendor/custom_plank/board.yml"))
+            :not :to-be-truthy))
+
+  (it "parses the legacy custom_plank.yaml into a board plist"
+    (let ((parsed (zephyr--parse-board-file
+                   (concat example "boards/vendor/custom_plank/custom_plank.yaml"))))
+      (expect (plist-get parsed :id)        :to-equal "custom_plank")
+      (expect (plist-get parsed :name)      :to-equal "Custom-Plank")
+      (expect (plist-get parsed :arch)      :to-equal "arm")
+      (expect (plist-get parsed :vendor)    :to-equal "vendor")
+      (expect (plist-get parsed :supported) :to-equal '("gpio"))))
+
+  (it "discovers app/ via app-walk fallback when manifest declares no apps"
+    (spy-on 'west-manifest-apps :and-return-value nil)
+    (let ((apps (zephyr-apps example)))
+      (expect (length apps) :to-equal 1)
+      (expect (plist-get (car apps) :name) :to-equal "app")
+      (expect (plist-get (car apps) :path)
+              :to-be-file-equal (concat example "app/"))))
+
+  (it "honors zephyr/module.yml settings.board_root for workspace-as-module"
+    (expect (zephyr-module-board-roots example)
+            :to-have-same-items-as
+            (list (directory-file-name example)))))
 
 ;;; zephyr-test.el ends here
