@@ -205,10 +205,10 @@ regexp matched against the device's port path (e.g.
 
 (defun pio--device-excluded-p (device)
   (or (and pio-device-list-hide-unidentified
-           (pio--device-unidentified-p device))
-      (let ((port (gethash "port" device)))
-        (seq-some (lambda (re) (string-match-p re port))
-                  pio-device-list-exclude-regexps))))
+        (pio--device-unidentified-p device))
+    (let ((port (gethash "port" device)))
+      (seq-some (lambda (re) (string-match-p re port))
+        pio-device-list-exclude-regexps))))
 
 (defun pio--parse-hwid (hwid)
   "Parse a PIO hwid string into a plist `(:vid-pid :serial :location)'.
@@ -226,15 +226,15 @@ Returns nil if HWID is not a string."
 (defun pio--device-list-entries ()
   (mapcar (lambda (dev)
             (let* ((port   (gethash "port" dev))
-                   (desc   (gethash "description" dev))
-                   (parsed (pio--parse-hwid (gethash "hwid" dev))))
+                    (desc   (gethash "description" dev))
+                    (parsed (pio--parse-hwid (gethash "hwid" dev))))
               (list port
-                    (vector
-                     (propertize port 'face 'success)
-                     (propertize (or (plist-get parsed :serial)   "") 'face 'warning)
-                     (propertize (or (plist-get parsed :vid-pid)  "") 'face 'font-lock-constant-face)
-                     (propertize (or (plist-get parsed :location) "") 'face 'font-lock-function-name-face)
-                     (propertize (or desc "")                          'face 'font-lock-comment-face)))))
+                (vector
+                  (propertize (or (plist-get parsed :serial)   "") 'face 'success)
+                  (propertize (or (plist-get parsed :vid-pid)  "") 'face 'font-lock-constant-face)
+                  (propertize port                                  'face 'warning)
+                  (propertize (or (plist-get parsed :location) "") 'face 'font-lock-function-name-face)
+                  (propertize (or desc "")                          'face 'font-lock-comment-face)))))
     (seq-remove #'pio--device-excluded-p (pio-serial-devices))))
 
 (defun pio--device-list-refresh ()
@@ -243,18 +243,18 @@ Returns nil if HWID is not a string."
 (defun pio-device-list-monitor ()
   (interactive)
   (when-let* ((port      (tabulated-list-get-id))
-              (source    (current-buffer))
-              (settings  (pio-monitor-resolve :port port))
-              (monitor-name (pio--monitor-buffer-name settings)))
+               (source    (current-buffer))
+               (settings  (pio-monitor-resolve :port port))
+               (monitor-name (pio--monitor-buffer-name settings)))
     (pio-device-monitor :port port)
     (when-let ((monitor-buf (get-buffer monitor-name)))
       (with-current-buffer monitor-buf
         (add-hook 'kill-buffer-hook
-                  (lambda ()
-                    (when (buffer-live-p source)
-                      (when-let ((win (get-buffer-window (current-buffer))))
-                        (set-window-buffer win source))))
-                  nil t)))))
+          (lambda ()
+            (when (buffer-live-p source)
+              (when-let ((win (get-buffer-window (current-buffer))))
+                (set-window-buffer win source))))
+          nil t)))))
 (put 'pio-device-list-monitor 'completion-predicate #'ignore)
 
 (defvar pio-device-list-mode-map
@@ -264,20 +264,26 @@ Returns nil if HWID is not a string."
     (define-key map (kbd "r")   #'revert-buffer)
     map))
 
+(with-eval-after-load 'evil
+  (evil-define-key 'normal pio-device-list-mode-map
+    (kbd "RET") #'pio-device-list-monitor
+    (kbd "r")   #'revert-buffer))
+
 (define-derived-mode pio-device-list-mode tabulated-list-mode "pio-device-list"
   "Major mode for the `pio-device-list' buffer."
   (setq tabulated-list-format
-    [("Port"        24 t)
-     ("SERIAL"      19 t)
-     ("VID:PID"     10 t)
-     ("LOCATION"    10 t)
-     ("Description"  0 t)]
-    tabulated-list-sort-key (cons "Port" nil))
+    [("SERIAL"      19 t)
+      ("VID:PID"     10 t)
+      ("PORT"        24 t)
+      ("LOCATION"    10 t)
+      ("DESCRIPTION"  0 t)]
+    tabulated-list-sort-key (cons "PORT" nil))
   (add-hook 'tabulated-list-revert-hook #'pio--device-list-refresh nil t)
   (tabulated-list-init-header))
 (put 'pio-device-list-mode 'completion-predicate #'ignore)
 
 (defun pio-device-list ()
+  "List detected devices."
   (interactive)
   (let ((buffer (get-buffer-create "*pio-device-list*")))
     (with-current-buffer buffer
@@ -392,6 +398,7 @@ Example:
       "default")))
 
 (defun pio-device-monitor (&rest overrides)
+  "Monitor device (Serial/Socket) (as OVERRIDES)."
   (interactive
     (when current-prefix-arg
       (when-let* ((names (mapcar (lambda (p) (symbol-name (car p)))

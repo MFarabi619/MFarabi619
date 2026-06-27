@@ -346,7 +346,7 @@
   (mapcar #'substring-no-properties (append (cadr row) nil)))
 
 (describe "pio--device-list-entries"
-  (it "splits hwid into SERIAL, VID:PID, LOCATION columns and puts Description last"
+  (it "puts SERIAL and VID:PID first, then PORT, LOCATION, and DESCRIPTION last"
     (cl-letf (((symbol-function 'pio-serial-devices)
                (lambda ()
                  (vector
@@ -358,9 +358,9 @@
         (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101")
         (expect (pio-tests--row-strings (car entries))
                 :to-equal
-                '("/dev/cu.usbmodem1101"
-                  "CC:BA:97:16:2B:68"
+                '("CC:BA:97:16:2B:68"
                   "303A:1001"
+                  "/dev/cu.usbmodem1101"
                   "1-1"
                   "USB JTAG/serial debug unit")))))
 
@@ -369,15 +369,19 @@
                (lambda ()
                  (vector (pio-tests--make-device "/dev/cu.x" nil "VID:PID=0000:0000")))))
       (expect (pio-tests--row-strings (car (pio--device-list-entries)))
-              :to-equal '("/dev/cu.x" "" "0000:0000" "" ""))))
+              :to-equal '("" "0000:0000" "/dev/cu.x" "" ""))))
 
-  (it "propertizes the Port cell with the success face"
+  (it "propertizes the SERIAL cell with success and the PORT cell with warning"
     (cl-letf (((symbol-function 'pio-serial-devices)
                (lambda ()
-                 (vector (pio-tests--make-device "/dev/cu.x" "x" "VID:PID=0000:0000")))))
-      (let* ((entries (pio--device-list-entries))
-             (port-cell (aref (cadr (car entries)) 0)))
-        (expect (get-text-property 0 'face port-cell) :to-equal 'success))))
+                 (vector (pio-tests--make-device
+                          "/dev/cu.x" "x"
+                          "VID:PID=0000:0000 SER=AB:CD")))))
+      (let* ((row        (cadr (car (pio--device-list-entries))))
+             (serial-cell (aref row 0))
+             (port-cell   (aref row 2)))
+        (expect (get-text-property 0 'face serial-cell) :to-equal 'success)
+        (expect (get-text-property 0 'face port-cell)   :to-equal 'warning))))
 
   (it "hides devices whose hwid is \"n/a\" when `hide-unidentified' is t"
     (cl-letf (((symbol-function 'pio-serial-devices)
@@ -424,7 +428,7 @@
           (pio-device-list-mode)
           (setq tabulated-list-entries
                 '(("/dev/cu.usbmodem1101"
-                   ["/dev/cu.usbmodem1101" "ABC" "303A:1001" "1-1" "x"])))
+                   ["ABC" "303A:1001" "/dev/cu.usbmodem1101" "1-1" "x"])))
           (tabulated-list-print)
           (goto-char (point-min))
           (pio-device-list-monitor)
