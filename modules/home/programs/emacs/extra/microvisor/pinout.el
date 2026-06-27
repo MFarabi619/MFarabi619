@@ -1,27 +1,13 @@
 ;;; pinout.el --- Pretty board-pin diagrams for embedded dev -*- lexical-binding: t; -*-
 
-;; Author: Mumtahin Farabi <farabi@apidaesystems.ca>
+;; Author: Mumtahin Farabi <mfarabi619@gmail.com>
 ;; Keywords: tools, embedded, hardware
 ;; URL: https://github.com/MFarabi619/pinout.el
 ;; Package-Requires: ((emacs "29.1"))
 
 ;;; Commentary:
 
-;; Standalone Emacs package that draws colored ASCII pinout diagrams
-;; for embedded development boards.  Pin labels are clickable
-;; text-property buttons; each segment is color-coded by inferred role
-;; (power / ground / gpio / adc / i2c / spi / uart / pin-name / system
-;; / peripheral).
-;;
-;; Architecture: rectangle-first.  Each board describes its pins by
-;; SIDE (left, right, top, bottom).  The renderer computes the chip's
-;; rectangle bounds once, builds an in-memory char grid, draws the
-;; rectangle + USB connector + each side's pins as independent passes,
-;; and flushes the grid into the buffer at the end.  Clickable buttons
-;; are applied after flush using deterministic grid-to-buffer position
-;; math.
-;;
-;; Entry point: `M-x pinout'.  Doom users get `SPC p n' for free.
+;; Colored ASCII pinout diagrams for embedded boards.  Entry point: `M-x pinout'.
 
 ;;; Code:
 
@@ -42,9 +28,8 @@
   :group 'tools
   :prefix "pinout-")
 
-;;; ============================================================
 ;;; defcustoms
-;;; ============================================================
+
 
 (defcustom pinout-box-width 51
   "Width (in columns) of the chip body in the pinout diagram.
@@ -208,9 +193,8 @@ Each entry is (KEY . PLIST).  PLIST keys:
   :type 'sexp
   :group 'pinout)
 
-;;; ============================================================
 ;;; Faces and palette
-;;; ============================================================
+
 
 (defface pinout-power           '((t :background "#e57373" :foreground "#1d2021" :weight bold)) "POWER face.")
 (defface pinout-ground          '((t :background "#000000" :foreground "#1d2021" :weight bold)) "GND face.")
@@ -313,16 +297,11 @@ the same role color."
 
 (pinout--apply-theme-colors)
 
-;; Re-resolve role and edge face colors whenever the user enables a
-;; new theme — the resolved colors come from `nerd-icons-*' faces, so
-;; a theme change without this hook would leave them stale (chips and
-;; the triangle edges would render with the previous theme's palette).
 (add-hook 'enable-theme-functions
   (lambda (&rest _) (pinout--apply-theme-colors)))
 
-;;; ============================================================
 ;;; Segment role inference
-;;; ============================================================
+
 
 (defun pinout--segment-role (segment)
   "Infer role symbol for pin SEGMENT name."
@@ -396,15 +375,8 @@ number tint and the slanted edge glyphs."
   "Color used to tint the pin number, taken from PIN's primary role."
   (pinout--role-color (pinout--segment-role (plist-get pin :primary))))
 
-;;; ============================================================
 ;;; Grid data type
-;;;
-;;; A grid is a vector of rows; each row is a vector of cells.  A cell
-;;; is nil (renders as space) or (CHAR . PROPS-PLIST).  Drawing
-;;; functions mutate the grid by setting cells; the flush converts the
-;;; grid into a single buffer write and returns the start position so
-;;; callers can derive buffer positions for any (row, col).
-;;; ============================================================
+
 
 (defun pinout--grid-make (rows cols)
   "Make a fresh ROWS×COLS grid."
@@ -455,9 +427,8 @@ Returns an origin plist (:start :cols :left-pad) for `pinout--grid-buffer-pos'."
         (lpad  (plist-get origin :left-pad)))
     (+ start (* row (+ lpad cols 1)) lpad col)))
 
-;;; ============================================================
 ;;; Rectangle: bounds + per-pin row assignments
-;;; ============================================================
+
 
 (defun pinout--side-pins (board side)
   "Get pin list for BOARD's SIDE (a symbol)."
@@ -488,17 +459,12 @@ canvas), per-pin row assignments, and total canvas dimensions."
          (gap         (max 0 (or (plist-get board :row-spacing)
                                  pinout-row-spacing)))
          (chip-h      (+ 2 max-pins (* (max 0 (1- max-pins)) gap)))
-         ;; Vertical layout: USB label, chip rows, board name, blank, legend.
          (usb-row     0)
          (chip-top    1)
          (chip-bot    (+ chip-top chip-h -1))
          (show-legend (and (boundp 'pinout--show-legend) pinout--show-legend))
          (legend-row  (if show-legend (+ chip-bot 2) (+ chip-bot 1)))
          (canvas-h    (+ legend-row 1))
-         ;; Horizontal layout: left-labels | lead | chip | lead | right-labels.
-         ;; When the legend is visible the canvas must accommodate it
-         ;; (centered with the diagram via h-offset).  Hidden legend
-         ;; drops the canvas width back to the diagram-only width.
          (diagram-w   (+ left-max lead chip-w lead right-max))
          (legend-w    (if show-legend (pinout--legend-width) 0))
          (canvas-w    (max diagram-w legend-w))
@@ -530,14 +496,8 @@ canvas), per-pin row assignments, and total canvas dimensions."
           :left-rows  left-rows
           :right-rows right-rows)))
 
-;;; ============================================================
 ;;; Drawing primitives
-;;;
-;;; Each draws onto the grid using rect coordinates.  None of them
-;;; references another draw function; positions come from the rect.
-;;; Button regions accumulate in `pinout--pending-buttons' and get
-;;; applied after grid flush.
-;;; ============================================================
+
 
 (defvar pinout--pending-buttons nil
   "List of (ROW COL-START COL-END . BUTTON-PROPS) tuples.
@@ -588,10 +548,10 @@ Applied after grid flush by `pinout--apply-buttons'.")
                        ('start  chip-left)
                        ('end    (- chip-right pill-w))
                        (_       (- chip-mid (/ pill-w 2))))))
-            (pinout--grid-set   grid y x (pinout--cell ?◖ 'face edge-face))
+            (pinout--grid-set   grid y x (pinout--cell ? 'face edge-face))
             (pinout--grid-place grid y (1+ x) padded 'pinout-usb)
             (pinout--grid-set   grid y (+ x 1 (length padded))
-              (pinout--cell ?◗ 'face edge-face))))
+              (pinout--cell ? 'face edge-face))))
         (_ nil)))))
 
 (defun pinout--draw-board-name (grid rect name)
@@ -636,8 +596,8 @@ pin-pill anchor, label-start column) are derived from SIDE."
                                  (if leftp ?┤ ?├) color-props))
            (pill-color    (face-attribute 'pinout-gpio :background nil t))
            (pill-edge     (list :foreground pill-color))
-           (pill-left     (pinout--cell ?◖ 'face pill-edge))
-           (pill-right    (pinout--cell ?◗ 'face pill-edge))
+           (pill-left     (pinout--cell ? 'face pill-edge))
+           (pill-right    (pinout--cell ? 'face pill-edge))
            (touch-cell    (when (plist-get pin :touch)
                             (pinout--cell ?󰩕 'face
                                           `(:foreground ,pill-color :weight bold :height 1.3))))
@@ -716,25 +676,8 @@ driven by manual `face' overlays toggled by `pinout--poll-mouse'."
            (button    (apply #'make-button pos-start pos-end props)))
       (push (list button pos-start (1- pos-end)) pinout--chip-overlays))))
 
-;;; ============================================================
 ;;; Custom hover (manual mouse-position tracking)
-;;;
-;;; Emacs' built-in `mouse-face' resolves to ONE face per hover region,
-;;; determined by the single winning overlay's start..end (see
-;;; `note_mouse_highlight' in xdisp.c).  We want body cells to show
-;;; `pinout-hover' (yellow bg + dark fg) and the two edge cells to show
-;;; `pinout-edge-hover' (yellow fg only) simultaneously — that requires
-;;; different faces in the same hover region, which `mouse-face' cannot
-;;; express.
-;;;
-;;; Solution: poll mouse position on a short repeating timer.  When the
-;;; mouse moves over a chip we create three `face' overlays (body +
-;;; left edge + right edge); on leave we delete them.  Overlay `face'
-;;; MERGES per-attribute with the underlying text-property face, so an
-;;; edge overlay with only `:foreground' set lets the cell's bg fall
-;;; through to default (dark), producing the desired yellow-triangle-
-;;; on-dark-bg look.
-;;; ============================================================
+
 
 (defvar-local pinout--chip-overlays nil
   "List of registered chips for hover tracking.
@@ -756,12 +699,7 @@ Each entry: (BUTTON-OVERLAY LEFT-EDGE-POS RIGHT-EDGE-POS).")
         pinout--current-hover-chip nil))
 
 (defun pinout--apply-hover (chip)
-  "Create hover overlays painting CHIP as a yellow parallelogram.
-The body overlay covers ONLY the 6 body cells (between the two
-triangle edge cells).  Edge overlays cover the `◥' and `◣' cells
-individually.  Non-overlapping ranges ensure the body's yellow
-`:background' doesn't bleed into the edge cells where we want the
-default dark bg to show through behind the yellow triangle glyph."
+  "Paint CHIP as a yellow parallelogram via three non-overlapping `face' overlays."
   (pcase-let ((`(,_button ,left-pos ,right-pos) chip))
     (let* ((body-start (1+ left-pos))
            (body-end   right-pos)
@@ -830,9 +768,8 @@ remaining-pinout count."
     (cancel-timer pinout--mouse-tracker-timer)
     (setq pinout--mouse-tracker-timer nil)))
 
-;;; ============================================================
 ;;; Pin segment button type + action
-;;; ============================================================
+
 
 (defun pinout--segment-action (button)
   "Echo info about the pin segment at BUTTON."
@@ -877,9 +814,8 @@ remaining-pinout count."
               (plist-get pin :n) seg
               (pinout--segment-role seg)))))
 
-;;; ============================================================
 ;;; Render orchestrator
-;;; ============================================================
+
 
 (defun pinout--render (board)
   "Render BOARD into the current buffer."
@@ -916,9 +852,8 @@ remaining-pinout count."
       (goto-char (point-min)))
     (set-buffer-modified-p t)))
 
-;;; ============================================================
 ;;; Zephyr workspace discovery
-;;; ============================================================
+
 
 (defun pinout--workspace-root ()
   (locate-dominating-file default-directory ".west"))
@@ -957,9 +892,8 @@ remaining-pinout count."
               ((file-exists-p file)))
     file))
 
-;;; ============================================================
 ;;; YAML parsing (tree-sitter)
-;;; ============================================================
+
 
 (defun pinout--yaml-node-to-data (node)
   (pcase (treesit-node-type node)
@@ -1023,9 +957,8 @@ remaining-pinout count."
        (if (stringp val) val match)))
    format-string t t))
 
-;;; ============================================================
 ;;; Major mode + responsive sizing
-;;; ============================================================
+
 
 (defvar-local pinout--current-board nil
   "Symbol identifying the board shown in this buffer.")
@@ -1174,9 +1107,8 @@ role + pin number.  g re-renders for the current window width."
 
 (add-hook 'pinout-mode-hook #'pinout--hide-cursor-deferred)
 
-;;; ============================================================
 ;;; Entry point
-;;; ============================================================
+
 
 ;;;###autoload
 (defun pinout (&optional board)
@@ -1201,8 +1133,7 @@ to pick a board interactively."
       (user-error "No pinout defined for %s.  Add to `pinout-boards'" board))
     (switch-to-buffer (get-buffer-create buf-name))
     (pinout--render-board-in-buffer key)
-    ;; PARKED: header-line board info — uncomment to show "vendor full_name"
-    ;; banner at the top of the pinout buffer.
+    ;; NOTE: uncomment to show a "vendor full_name" header-line banner.
     ;; (when-let* ((yml      (pinout--locate-board-yml key))
     ;;              (parsed   (pinout--parse-board-yml yml))
     ;;              (rendered (pinout--format-board-info
@@ -1245,9 +1176,8 @@ to a plain `completing-read'."
           (completing-read "Board: " cands nil t)))))
   (pinout board))
 
-;;; ============================================================
 ;;; M-x discoverability + Doom keybinding
-;;; ============================================================
+
 
 (unless read-extended-command-predicate
   (setq read-extended-command-predicate #'command-completion-default-include-p))
