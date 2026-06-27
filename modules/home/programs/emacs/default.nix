@@ -43,6 +43,7 @@
         treesitWithAllExceptQuint
       ]
       ++ [
+        vui
         nov
         mu4e
         mu4e-views
