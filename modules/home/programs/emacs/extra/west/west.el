@@ -9,6 +9,7 @@
 
 ;;; Code:
 
+(require 'map)
 (require 'vc-git)
 (require 'projectile)
 
@@ -76,8 +77,8 @@
     (process-lines "west" "config" "-l")))
 
 (defun west--parse-config-line (line)
-  (let ((i (string-search "=" line)))
-    (cons (substring line 0 i) (substring line (1+ i)))))
+  (let ((eq-pos (string-search "=" line)))
+    (cons (substring line 0 eq-pos) (substring line (1+ eq-pos)))))
 
 (defun west-list ()
   (mapcar #'west--parse-list-line
@@ -101,9 +102,16 @@
 (defun west-boards ()
   (process-lines "west" "boards"))
 
+(defun west-update ()
+  (interactive)
+  (compile "west update"))
+
 (defun west-manifest-path (&optional workspace-root)
   (when-let ((root (or workspace-root (west-workspace-root))))
-    (expand-file-name "manifest.yml" root)))
+    (let* ((cfg (west-config))
+           (path (or (cdr (assoc "manifest.path" cfg)) "."))
+           (file (or (cdr (assoc "manifest.file" cfg)) "west.yml")))
+      (expand-file-name file (expand-file-name path root)))))
 
 (defun west-manifest (&optional path)
   (require 'yaml)
@@ -116,18 +124,13 @@
           :sequence-type 'list)))))
 
 (defun west-manifest-self-imports (manifest)
-  (when-let* ((m manifest)
-               (inner (gethash 'manifest m))
-               (self (gethash 'self inner))
-               (imports (gethash 'import self)))
-    (cond ((stringp imports) (list imports))
-      ((listp imports)   imports)
-      (t                 nil))))
+  (when-let ((imports (and manifest
+                           (map-nested-elt manifest '(manifest self import)))))
+    (if (stringp imports) (list imports) imports)))
 
 (defun west-manifest-projects (manifest)
-  (when-let* ((m manifest)
-               (inner (gethash 'manifest m))
-               (projects (gethash 'projects inner)))
+  (when-let ((projects (and manifest
+                            (map-nested-elt manifest '(manifest projects)))))
     (mapcar #'west--parse-manifest-project projects)))
 
 (defun west--parse-manifest-project (entry)
@@ -147,16 +150,17 @@
 
 (defun west-manifest-apps (&optional workspace-root)
   (when-let* ((root (or workspace-root (west-workspace-root)))
-               (manifest-file (west-manifest-path root))
-               (imports (west-manifest-self-imports (west-manifest manifest-file))))
+              (manifest-file (west-manifest-path root))
+              (manifest-repo (file-name-directory manifest-file))
+              (imports (west-manifest-self-imports (west-manifest manifest-file))))
     (mapcar (lambda (import-path)
-              (let* ((abs-manifest (expand-file-name import-path root))
-                      (app-dir (file-name-directory abs-manifest)))
+              (let* ((app-manifest-path (expand-file-name import-path manifest-repo))
+                     (app-dir (file-name-directory app-manifest-path)))
                 (list :name (file-name-nondirectory
-                              (directory-file-name app-dir))
-                  :path app-dir
-                  :manifest abs-manifest)))
-      imports)))
+                             (directory-file-name app-dir))
+                      :path app-dir
+                      :manifest app-manifest-path)))
+            imports)))
 
 (provide 'west)
 

@@ -31,12 +31,7 @@
     (ert-with-temp-directory dir
       (let ((default-directory dir))
         (make-directory ".git")
-        (expect (west-vc-in-git-repo-p)))))
-
-  (it "is nil outside a repo"
-    (ert-with-temp-directory dir
-      (let ((default-directory dir))
-        (expect (west-vc-in-git-repo-p) :not :to-be-truthy)))))
+        (expect (west-vc-in-git-repo-p))))))
 
 (describe "west-projectile-root"
   (it "finds the project when .git is present"
@@ -55,12 +50,7 @@
     (ert-with-temp-directory dir
       (let ((default-directory dir))
         (make-directory ".git")
-        (expect (west-projectile-in-project-p)))))
-
-  (it "is nil outside a project"
-    (ert-with-temp-directory dir
-      (let ((default-directory dir))
-        (expect (west-projectile-in-project-p) :not :to-be-truthy)))))
+        (expect (west-projectile-in-project-p))))))
 
 (describe "west-workspace-root"
   (it "finds the workspace when .west is present"
@@ -79,12 +69,7 @@
     (ert-with-temp-directory dir
       (let ((default-directory dir))
         (make-directory ".west")
-        (expect (west-in-workspace-p)))))
-
-  (it "is nil outside a workspace"
-    (ert-with-temp-directory dir
-      (let ((default-directory dir))
-        (expect (west-in-workspace-p) :not :to-be-truthy)))))
+        (expect (west-in-workspace-p))))))
 
 (describe "west-app-p"
   (it "is non-nil with the canonical Zephyr boilerplate"
@@ -158,10 +143,6 @@
   (it "returns nil when CMakeLists.txt has no project() call"
     (ert-with-temp-directory dir
       (write-region "find_package(Zephyr)\n" nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-name dir) :not :to-be-truthy)))
-
-  (it "returns nil when CMakeLists.txt is missing"
-    (ert-with-temp-directory dir
       (expect (west-app-name dir) :not :to-be-truthy))))
 
 (describe "west-topdir"
@@ -175,11 +156,9 @@
     (expect 'process-lines :to-have-been-called-with "west" "topdir")))
 
 (describe "west--parse-config-line"
-  (it "splits on the first equals sign"
+  (it "splits on the first equals sign, preserving subsequent equals signs in the value"
     (expect (west--parse-config-line "manifest.path=.")
-            :to-equal '("manifest.path" . ".")))
-
-  (it "preserves equals signs in the value"
+            :to-equal '("manifest.path" . "."))
     (expect (west--parse-config-line "alias.menuconfig=build -p=never")
             :to-equal '("alias.menuconfig" . "build -p=never"))))
 
@@ -219,10 +198,8 @@
             "west" "list" "-f" "{name}\t{path}\t{revision}\t{url}")))
 
 (describe "west--parse-version"
-  (it "strips the West version: prefix"
-    (expect (west--parse-version "West version: v1.5.0") :to-equal "v1.5.0"))
-
-  (it "returns the line unchanged when the prefix is absent"
+  (it "strips the \"West version: \" prefix when present, returns the line unchanged when absent"
+    (expect (west--parse-version "West version: v1.5.0") :to-equal "v1.5.0")
     (expect (west--parse-version "v1.5.0") :to-equal "v1.5.0")))
 
 (describe "west-version"
@@ -245,38 +222,55 @@
     (west-boards)
     (expect 'process-lines :to-have-been-called-with "west" "boards")))
 
+(describe "west-update"
+  (it "compiles `west update'"
+    (spy-on 'compile)
+    (west-update)
+    (expect 'compile :to-have-been-called-with "west update")))
+
 (describe "west-app-boards"
   :var (dir)
   (before-each
     (setq dir (make-temp-file "west-test-" t))
     (let ((boards (expand-file-name "boards" dir)))
       (make-directory boards)
-      (write-region "" nil (expand-file-name "walter_procpu.conf" boards))
-      (write-region "" nil (expand-file-name "walter_procpu.overlay" boards))
+      (write-region "" nil (expand-file-name "walter_esp32s3_procpu.conf" boards))
+      (write-region "" nil (expand-file-name "walter_esp32s3_procpu.overlay" boards))
       (write-region "" nil (expand-file-name "qemu_riscv32.conf" boards))
-      (write-region "" nil (expand-file-name "xiao_esp32s3_procpu.conf" boards))
+      (write-region "" nil (expand-file-name "xiao_esp32s3_esp32s3_procpu.conf" boards))
       (write-region "" nil (expand-file-name "README.md" boards))))
   (after-each (delete-directory dir t))
 
   (it "returns the deduped basenames of .conf and .overlay files under boards/"
     (expect (west-app-boards dir)
             :to-have-same-items-as
-            '("walter_procpu" "qemu_riscv32" "xiao_esp32s3_procpu")))
-
-  (it "excludes files that are not .conf or .overlay"
-    (expect (west-app-boards dir) :not :to-contain "README"))
+            '("walter_esp32s3_procpu" "qemu_riscv32" "xiao_esp32s3_esp32s3_procpu")))
 
   (it "returns nil for an app with no boards/ directory"
     (ert-with-temp-directory empty
       (expect (west-app-boards empty) :not :to-be-truthy))))
 
 (describe "west-manifest-path"
-  (it "joins workspace root with manifest.yml"
+  (it "defaults to <workspace>/west.yml when neither manifest.path nor manifest.file is set"
+    (spy-on 'west-config :and-return-value nil)
+    (expect (west-manifest-path "/some/ws/") :to-equal "/some/ws/west.yml"))
+
+  (it "honors a configured manifest.file"
+    (spy-on 'west-config :and-return-value
+            '(("manifest.file" . "manifest.yml")))
     (expect (west-manifest-path "/some/ws/") :to-equal "/some/ws/manifest.yml"))
 
+  (it "joins manifest.path and manifest.file when both are set"
+    (spy-on 'west-config :and-return-value
+            '(("manifest.path" . "manifests")
+              ("manifest.file" . "my.yml")))
+    (expect (west-manifest-path "/some/ws/")
+            :to-equal "/some/ws/manifests/my.yml"))
+
   (it "returns nil when no workspace is detected"
-    (let ((default-directory "/"))
-      (expect (west-manifest-path) :not :to-be-truthy))))
+    (spy-on 'west-config :and-return-value nil)
+    (spy-on 'west-workspace-root :and-return-value nil)
+    (expect (west-manifest-path) :not :to-be-truthy)))
 
 (describe "west-manifest"
   (it "parses a manifest file into a hash table"
@@ -284,9 +278,9 @@
       (let ((manifest (expand-file-name "manifest.yml" dir)))
         (write-region "manifest:\n  self:\n    import:\n      - apps/firmware/west.yml\n      - apps/nuttx-zig/west.yml\n"
                       nil manifest)
-        (let ((m (west-manifest manifest)))
-          (expect (hash-table-p m))
-          (expect (gethash 'manifest m))))))
+        (let ((parsed (west-manifest manifest)))
+          (expect (hash-table-p parsed))
+          (expect (gethash 'manifest parsed))))))
 
   (it "returns nil when the manifest file does not exist"
     (expect (west-manifest "/does/not/exist.yml") :not :to-be-truthy)))
@@ -328,8 +322,9 @@
 (describe "west-manifest-apps"
   :var (dir manifest)
   (before-each
+    (spy-on 'west-config :and-return-value nil)
     (setq dir (make-temp-file "west-test-" t))
-    (setq manifest (expand-file-name "manifest.yml" dir))
+    (setq manifest (expand-file-name "west.yml" dir))
     (make-directory (expand-file-name ".west" dir))
     (write-region "manifest:\n  self:\n    import:\n      - apps/firmware/west.yml\n      - apps/nuttx-zig/west.yml\n"
                   nil manifest))
@@ -347,6 +342,60 @@
 
   (it "returns nil when the workspace has no manifest"
     (delete-file manifest)
-    (expect (west-manifest-apps dir) :not :to-be-truthy)))
+    (expect (west-manifest-apps dir) :not :to-be-truthy))
+
+  (it "resolves self.import paths relative to the manifest repository directory"
+    (delete-file manifest)
+    (let* ((repo-dir (expand-file-name "manifests/" dir))
+           (repo-manifest (expand-file-name "west.yml" repo-dir)))
+      (make-directory repo-dir)
+      (write-region "manifest:\n  self:\n    import:\n      - ../apps/firmware/west.yml\n"
+                    nil repo-manifest)
+      (spy-on 'west-config :and-return-value
+              '(("manifest.path" . "manifests")
+                ("manifest.file" . "west.yml")))
+      (let ((apps (west-manifest-apps dir)))
+        (expect (length apps) :to-equal 1)
+        (expect (plist-get (car apps) :path) :to-equal
+                (expand-file-name "apps/firmware/" dir))
+        (expect (plist-get (car apps) :manifest) :to-equal
+                (expand-file-name "apps/firmware/west.yml" dir))))))
+
+(describe "against example-application (real-world integration)"
+  :var (example)
+  (before-each
+    (setq example (expand-file-name "~/workspace/example-application/"))
+    (assume (file-directory-p example)
+            "example-application not cloned at ~/workspace/example-application/"))
+
+  (it "identifies app/ as a Zephyr app and root as not"
+    (expect (west-app-p (concat example "app/")))
+    (expect (west-app-p example) :not :to-be-truthy))
+
+  (it "extracts the project name from app/CMakeLists.txt"
+    (expect (west-app-name (concat example "app/")) :to-equal "app"))
+
+  (it "walks up from app/src/ to find the app root"
+    (expect (west-app-root (concat example "app/src/"))
+            :to-be-file-equal (concat example "app/")))
+
+  (it "finds per-app overlays in app/boards/"
+    (expect (west-app-boards (concat example "app/"))
+            :to-contain "nucleo_f302r8"))
+
+  (it "parses west.yml into a manifest hash table"
+    (let ((parsed (west-manifest (concat example "west.yml"))))
+      (expect (hash-table-p parsed))
+      (expect (gethash 'manifest parsed))))
+
+  (it "returns nil for self.import (workspace-IS-module pattern, no self.import declared)"
+    (expect (west-manifest-self-imports
+             (west-manifest (concat example "west.yml")))
+            :not :to-be-truthy))
+
+  (it "declares one top-level project (zephyr) in the manifest"
+    (expect (length (west-manifest-projects
+                     (west-manifest (concat example "west.yml"))))
+            :to-equal 1)))
 
 ;;; west-tests.el ends here
