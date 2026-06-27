@@ -16,12 +16,7 @@
 ;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
 ((nil .
-      ((compile-multi-annotate-cmds . t)
-       (compile-multi-annotate-limit . 10)
-       (compile-multi-annotate-string-cmds . nil)
-       (compile-multi-group-cmds . group-and-replace)
-       ;; ================================================================================================================================================================== ;;
-       (compile-multi-dir-local-config
+      ((compile-multi-dir-local-config
         . ((t
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ("󱄅 microvisor  :󰔡 activate"             :command "nix run .#activate"                                                                 :annotation "       nix ")
@@ -134,126 +129,44 @@
             ;; ======================================|========|============================================================================================================== ;;
             )))
        ;; ===========================================|========|============================================================================================================== ;;
-       (eval . (progn
-                 (require 'seq) (require 'cl-lib) (require 'subr-x) (require 'prodigy) (require 'compile-multi) (require 'nerd-icons nil t)
-                 ;; ========================================================================================================================================================= ;;
-                 (defun my/compile-multi-local-annotation (original-function task)
-                   (if-let* ((annotation_text (plist-get (cdr task) :annotation)) ((stringp annotation_text)) ((fboundp 'nerd-icons-icon-for-file))
-                             (annotation_words (split-string (string-trim-right annotation_text) "[[:space:]]+" t))
-                             ((> (length annotation_words) 1))
-                             (user_icon (car (last annotation_words)))
-                             (face (pcase (car annotation_words)
-                                     ("emacs"             'nerd-icons-dpurple)
-                                     ("dioxus"            'nerd-icons-cyan)
-                                     ("cargo"             'nerd-icons-orange)
-                                     ("west"              'nerd-icons-purple)
-                                     ("platformio"        'nerd-icons-yellow)
-                                     ("pulumi"            'nerd-icons-purple)
-                                     ("pkg"               'nerd-icons-red)
-                                     ("apt"               'nerd-icons-dred)
-                                     ("pacman"            'nerd-icons-blue)
-                                     ("guix"              'nerd-icons-yellow)
-                                     ("pkg_add"           'nerd-icons-yellow)
-                                     ((or "nix" "devenv") 'nerd-icons-lblue)
-                                     (_                   nil)))
-                             (icon (if face (propertize user_icon 'face face) user_icon)))
-                       (let* ((annotation_base (string-join (butlast annotation_words) " "))
-                              (annotation_text_truncated (if (and compile-multi-annotate-limit (> (length annotation_base) compile-multi-annotate-limit))
-                                                             (concat (truncate-string-to-width annotation_base compile-multi-annotate-limit) "…") annotation_base))
-                              (annotation_rendered (concat (propertize annotation_text_truncated 'face 'completions-annotations) " " icon))
-                              (annotation_width (string-width (substring-no-properties annotation_rendered))))
-                         (concat " " (propertize " " 'display `(space :align-to (- right ,(+ 1 annotation_width)))) annotation_rendered))
-                     (funcall original-function task))) ;; end defun my/compile-multi-local-annotation
-                 ;; ========================================================================================================================================================= ;;
-                 (unless (advice-member-p #'my/compile-multi-local-annotation #'compile-multi--annotation-function)
-                   (advice-add 'compile-multi--annotation-function :around #'my/compile-multi-local-annotation)) ;; end unless
-                 (defun my/compile-multi-running-prodigy-face (original-function tasks)
-                   (mapcar
-                    (lambda (task)
-                      (let* ((title (car task))
-                             (plist (cdr task))
-                             (plain-title (substring-no-properties title))
-                             (service (and (plist-get plist :prodigy) (prodigy-find-service plain-title))))
-                        (if (and service (prodigy-service-started-p service))
-                            (let ((title* (copy-sequence title))) (add-face-text-property 0 (length title*) 'prodigy-green-face t title*) (cons title* plist))
-                          task)))
-                    (funcall original-function tasks)))
+       (eval . (let* ((extra-dir (expand-file-name "modules/home/programs/emacs/extra/" (locate-dominating-file default-directory ".dir-locals.el"))) (microvisor-dir (expand-file-name "microvisor/" extra-dir)))
+                 (add-to-list 'load-path microvisor-dir)
+                 (require 'microvisor)))
 
-                 (unless (advice-member-p #'my/compile-multi-running-prodigy-face #'compile-multi--add-properties)
-                   (advice-add 'compile-multi--add-properties :around #'my/compile-multi-running-prodigy-face))
-                 ;; ========================================================================================================================================================= ;;
-                 (dolist (task (seq-filter (lambda (task) (plist-get (cdr task) :prodigy)) (thread-first (compile-multi--config-tasks) (compile-multi--fill-tasks) (compile-multi--add-properties))))
+       ;; ============================================================================================================================================================ ;;
+       ;; (add-to-list
+       ;;  'dape-configs
+       ;;  '(probe-rs
+       ;;    :chip "esp32s3" :request "launch" :type "probe-rs-debug" :consoleLogLevel "Console" :flashingConfig (:flashingEnabled t)
 
-                   (let* ((title        (car task))
-                          (plist        (cdr task))
-                          (port         (plist-get plist :port))
-                          (plain-title  (substring-no-properties title))
-                          (command      (or (get-text-property 0 'compile-multi--task title) (plist-get plist :command)))
-                          (group-label  (or (get-text-property 0 'consult--type title) (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title) (string-trim (match-string 1 plain-title)) plain-title)))
-                          (display-name (if (string-match "\\`\\([^:]+\\):\\(.*\\)\\'" plain-title) (string-trim (match-string 2 plain-title)) plain-title)))
-
-                     (apply #'prodigy-define-service
-                            (append
-                             (list
-                              :stop-signal                 'kill
-                              :name                        plain-title
-                              :display-name                display-name
-                              :group-label                 (format "%s" group-label)
-                              :kill-process-buffer-on-stop 'unless-visible
-                              :command                     shell-file-name
-                              :cwd                         (projectile-project-root)
-                              :args                        (list shell-command-switch command))
-                             (when port                    (list :port port))))))
-                 ;; ========================================================================================================================================================= ;;
-                 ;; (add-to-list
-                 ;;  'dape-configs
-                 ;;  '(probe-rs
-                 ;;    :chip "esp32s3" :request "launch" :type "probe-rs-debug" :consoleLogLevel "Console" :flashingConfig (:flashingEnabled t)
-
-                 ;;    port :autoport host "localhost" command "probe-rs"
-                 ;;    modes (rust-mode rustic-mode)
-                 ;;    compile "cargo +esp b -p firmware  --example gpio --target xtensa-esp32s3-none-elf"
-                 ;;    command-args ("dap-server" "--port" ":autoport")
-                 ;;    command-cwd (lambda () (project-root (project-current)))
-                 ;;    :fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
-                 ;;    :coreConfigs [(
-                 ;;                   :coreIndex 0
-                 ;;                   :rttEnabled t
-                 ;;                   :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
-                 ;;                   :svdFile (lambda () (let ((f (expand-file-name "firmware/boards/esp32s3.svd" (project-root (project-current)))))
-                 ;;                                         (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
-                 ;;                   :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/examples/gpio" (project-root (project-current))))
-                 ;;                   )]
-                 ;;    ))
-                 ;; ========================================================================================================================================================= ;;
-                 (with-eval-after-load 'dape
-                   (setf (alist-get 'zephyr-stm32 dape-configs)
-                         '(command "gdb" :request "attach" :target ":3333"
-                           command-args ("--interpreter=dap")
-                           ensure (lambda (config)
-                                    (dape-ensure-command config)
-                                    (let* ((output (shell-command-to-string "gdb --version"))
-                                           (version (when (string-match "GNU gdb \\(?:(.*) \\)?\\([0-9.]+\\)" output)
-                                                      (string-to-number (match-string 1 output)))))
-                                      (unless (and version (>= version 14.1))
-                                        (user-error "Requires gdb version >= 14.1"))))
-                           :program (lambda () (expand-file-name "build/zephyr/zephyr.elf" (project-root (project-current)))))))
-                 )) ;; end eval
-
-       (eval . (let* ((extra-dir (expand-file-name
-                                  "modules/home/programs/emacs/extra/"
-                                  (locate-dominating-file default-directory
-                                                          ".dir-locals.el")))
-                      (west-dir       (expand-file-name "west/"       extra-dir))
-                      (zephyr-dir     (expand-file-name "zephyr/"     extra-dir))
-                      (platformio-dir (expand-file-name "platformio/" extra-dir))
-                      (mcumgr-dir     (expand-file-name "mcumgr/"     extra-dir)))
-                 (dolist (dir (list west-dir zephyr-dir platformio-dir mcumgr-dir))
-                   (add-to-list 'load-path dir))
-                 (load (expand-file-name "west"       west-dir)       'noerror 'nomessage)
-                 (load (expand-file-name "zephyr"     zephyr-dir)     'noerror 'nomessage)
-                 (load (expand-file-name "platformio" platformio-dir) 'noerror 'nomessage)
-                 (load (expand-file-name "mcumgr"     mcumgr-dir)     'noerror 'nomessage)))
+       ;;    port :autoport host "localhost" command "probe-rs"
+       ;;    modes (rust-mode rustic-mode)
+       ;;    compile "cargo +esp b -p firmware  --example gpio --target xtensa-esp32s3-none-elf"
+       ;;    command-args ("dap-server" "--port" ":autoport")
+       ;;    command-cwd (lambda () (project-root (project-current)))
+       ;;    :fn (lambda (config) (if (derived-mode-p 'dape-repl-mode) config (plist-put config 'compile nil)))
+       ;;    :coreConfigs [(
+       ;;                   :coreIndex 0
+       ;;                   :rttEnabled t
+       ;;                   :rttChannelFormats [(:channelNumber 0 :showTimestamps t :dataFormat "String")]
+       ;;                   :svdFile (lambda () (let ((f (expand-file-name "firmware/boards/esp32s3.svd" (project-root (project-current)))))
+       ;;                                         (unless (file-exists-p f) (error "Missing SVD file: %s" f)) f))
+       ;;                   :programBinary (lambda () (expand-file-name "target/xtensa-esp32s3-none-elf/debug/examples/gpio" (project-root (project-current))))
+       ;;                   )]
+       ;;    ))
+       ;; ============================================================================================================================================================ ;;
+       (eval . (with-eval-after-load 'dape
+                 (setf (alist-get 'zephyr-stm32 dape-configs)
+                       '(command "gdb" :request "attach" :target ":3333"
+                         command-args ("--interpreter=dap")
+                         ensure (lambda (config)
+                                  (dape-ensure-command config)
+                                  (let* ((output (shell-command-to-string "gdb --version"))
+                                         (version (when (string-match "GNU gdb \\(?:(.*) \\)?\\([0-9.]+\\)" output)
+                                                    (string-to-number (match-string 1 output)))))
+                                    (unless (and version (>= version 14.1))
+                                      (user-error "Requires gdb version >= 14.1"))))
+                         :program (lambda () (expand-file-name "build/zephyr/zephyr.elf" (project-root (project-current))))))))
 
        (eval . (with-eval-after-load 'buttercup
                  (setq buttercup-stack-frame-style 'pretty
@@ -268,6 +181,4 @@
                          (white   . "38;5;253")))))
 
        (eval . (when (and buffer-file-name (string-match-p "/extra/[^/]+/.*-tests?\\.el\\'" buffer-file-name)) (buttercup-minor-mode 1)))
-
-       (eval . (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter))
        )))

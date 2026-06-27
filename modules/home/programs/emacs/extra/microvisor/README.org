@@ -1,0 +1,80 @@
+#+title:    :tools microvisor
+#+subtitle: Embedded Systems Development via Emacs
+#+created:  June 27, 2026
+#+since:    2.2.0
+
+* Description :unfold:
+This module adds support for embedded systems development with:
+This module enhances the Emacs experience for Embedded Systems Development,
+and also provides a united interface for overall project management, tasks
+such as testing, continous integration, continous deployment, etc.
+
+It does this with several modular packages focused on enhancing the built-in
+~compile~ interface. The primary packages are:
+
+- Fancy Compilation, which provides beautiful colored outputs
+- Compile Multi, which provides a supercharged compilation experience with live narrowing and fuzzy finding
+- Prodigy, which provides service management primitives with processes and ports
+- Projectile, which provides workspace discoverty and deep integration with existing build systems
+
+** Module flags
+- +esphome ::
+   [[https://esphome.io][ESPHome]]
+- +espidf ::
+   [[https://docs.espressif.com/projects/esp-idf/en/stable/esp32/get-started/index.html][ESP IDF]]
+- +embassy ::
+- +platformio ::
+  [[https://platformio.org][PlatformIO]]
+- +nuttx ::
+   [[https://nuttx.apache.org][Apache Nuttx]]
+- +zephyr ::
+   [[https://www.zephyrproject.org][Zephyr Project]] with or without [[https://docs.zephyrproject.org/latest/develop/west/index.html][West]], along with Rust and Zig integrations.
+
+** Maintainers
+- [[doom-user:][@mfarabi619]]
+
+[[doom-contrib-maintainer:][Become a maintainer?]]
+
+** Module flags
+/This module has no flags./
+
+** Packages
+- [[doom-package:doom-themes]]
+
+** Hacks
+/No hacks documented for this module./
+
+** TODO Changelog
+# This section will be machine generated. Don't edit it by hand.
+/This module does not have a changelog yet./
+
+* Installation
+[[id:01cffea4-3329-45e2-a892-95a384ab2338][Enable this module in your ~doom!~ block.]]
+
+/This module has no external requirements./
+
+* TODO Usage
+#+begin_quote
+ 󱌣 This module has no usage documentation yet. [[doom-contrib-module:][Write some?]]
+#+end_quote
+
+* TODO Configuration
+#+begin_quote
+ 󱌣 /This module's configuration documentation is incomplete./ [[doom-contrib-module:][Complete it?]]
+#+end_quote
+
+* Troubleshooting
+[[doom-report:][Report an issue?]]
+
+** Strange font symbols
+If you're seeing strange unicode symbols, this is likely because you don't have
+~nerd-icons~'s font icon installed. You can install them with ~M-x
+nerd-icons-install-fonts~.
+
+* Frequently asked questions
+/This module has no FAQs yet./ [[doom-suggest-faq:][Ask one?]]
+
+* TODO Appendix
+#+begin_quote
+ 󱌣 This module has no appendix yet. [[doom-contrib-module:][Write one?]]
+#+end_quote
