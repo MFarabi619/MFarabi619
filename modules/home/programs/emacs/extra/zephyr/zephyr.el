@@ -25,6 +25,44 @@
   :type 'directory
   :group 'zephyr)
 
+(defun zephyr-app-p (&optional directory)
+  (let ((cmake-file (expand-file-name "CMakeLists.txt"
+                      (or directory default-directory))))
+    (when (file-exists-p cmake-file)
+      (let ((content (with-temp-buffer
+                       (insert-file-contents cmake-file)
+                       (buffer-string)))
+             (case-fold-search t))
+        (and (string-match-p "find_package(\\s-*Zephyr\\b" content)
+          (string-match-p "project(\\s-*\\w" content))))))
+
+(defun zephyr-app-root (&optional directory)
+  (locate-dominating-file (or directory default-directory) #'zephyr-app-p))
+
+(defun zephyr-app-name (app-path)
+  (let ((cmake-file (expand-file-name "CMakeLists.txt" app-path)))
+    (when (and (file-exists-p cmake-file)
+            (treesit-language-available-p 'cmake))
+      (with-temp-buffer
+        (insert-file-contents cmake-file)
+        (treesit-parser-create 'cmake)
+        (when-let* ((query (treesit-query-compile 'cmake
+                             '(((normal_command
+                                  (identifier) @cmd
+                                  (argument_list (argument) @arg))
+                                 (:match "^[Pp][Rr][Oo][Jj][Ee][Cc][Tt]$" @cmd)))))
+                     (captures (treesit-query-capture
+                                 (treesit-buffer-root-node 'cmake) query))
+                     (arg-node (alist-get 'arg captures)))
+          (treesit-node-text arg-node))))))
+
+(defun zephyr-app-boards (app-path)
+  (let ((boards-dir (expand-file-name "boards" app-path)))
+    (when (file-directory-p boards-dir)
+      (seq-uniq
+        (mapcar #'file-name-base
+          (directory-files boards-dir nil "\\.\\(conf\\|overlay\\)\\'"))))))
+
 (defun zephyr--cache-file (name)
   (expand-file-name (concat name ".eld") zephyr-cache-dir))
 
@@ -192,7 +230,7 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
 (defun zephyr-build (app &optional overrides)
   (interactive
    (list (read-directory-name "Zephyr app: "
-                              (or (west-app-root) default-directory)
+                              (or (zephyr-app-root) default-directory)
                               nil t)))
   (let* ((base (zephyr-base))
          (process-environment
@@ -206,20 +244,20 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
   (or
    (seq-keep (lambda (manifest-app)
                (let ((path (plist-get manifest-app :path)))
-                 (when (west-app-p path)
+                 (when (zephyr-app-p path)
                    (zephyr--make-app-plist path (plist-get manifest-app :manifest)))))
              (west-manifest-apps workspace-root))
    (when-let* ((root (or workspace-root (west-workspace-root)))
                (app-dir (file-name-as-directory (expand-file-name "app" root))))
-     (when (west-app-p app-dir)
+     (when (zephyr-app-p app-dir)
        (list (zephyr--make-app-plist app-dir nil))))))
 
 (defun zephyr--make-app-plist (path manifest-path)
-  (list :name     (or (west-app-name path)
+  (list :name     (or (zephyr-app-name path)
                       (file-name-nondirectory (directory-file-name path)))
         :path     path
         :manifest manifest-path
-        :boards   (west-app-boards path)))
+        :boards   (zephyr-app-boards path)))
 
 (defvar zephyr--boards-cache nil)
 
@@ -302,6 +340,65 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
               :toolchain (gethash 'toolchain parsed)
               :supported (gethash 'supported parsed)
               :path      path)))))
+
+(defun zephyr-patches-yml (&optional app-path)
+  (when-let* ((root (or app-path (zephyr-app-root))))
+    (let ((yml (expand-file-name "zephyr/patches.yml" root)))
+      (when (file-exists-p yml) yml))))
+
+(defun zephyr--resolve-app (&optional app-path filter)
+  (or app-path
+      (let ((current (zephyr-app-root)))
+        (when (and current (or (null filter) (funcall filter current)))
+          current))
+      (let* ((all  (zephyr-apps))
+             (apps (if filter
+                       (seq-filter (lambda (a) (funcall filter (plist-get a :path)))
+                                   all)
+                     all)))
+        (cond
+         ((null apps)
+          (user-error "No matching Zephyr apps found in this workspace"))
+         ((= 1 (length apps))
+          (plist-get (car apps) :path))
+         (t
+          (let* ((by-name (mapcar (lambda (a)
+                                    (cons (plist-get a :name)
+                                          (plist-get a :path)))
+                                  apps))
+                 (choice  (completing-read "App: " (mapcar #'car by-name)
+                                           nil t)))
+            (cdr (assoc choice by-name))))))))
+
+(defun zephyr--patch-run (subcommands label app-path)
+  (let* ((root      (zephyr--resolve-app app-path #'zephyr-patches-yml))
+         (workspace (and root (west-workspace-root root))))
+    (unless (zephyr-patches-yml root)
+      (user-error "No zephyr/patches.yml found for %s"
+                  (or root "current app")))
+    (unless workspace
+      (user-error "No west workspace found for %s" root))
+    (let* ((default-directory (expand-file-name workspace))
+           (module (shell-quote-argument
+                    (directory-file-name
+                     (file-relative-name root workspace))))
+           (subs (if (listp subcommands) subcommands (list subcommands))))
+      (west--compile label
+                     (mapconcat
+                      (lambda (sub) (format "west patch -sm %s %s" module sub))
+                      subs " && ")))))
+
+(defun zephyr-patch-apply (&optional app-path)
+  (interactive)
+  (zephyr--patch-run "apply" "patch-apply" app-path))
+
+(defun zephyr-patch-clean (&optional app-path)
+  (interactive)
+  (zephyr--patch-run "clean" "patch-clean" app-path))
+
+(defun zephyr-patch-clean-apply (&optional app-path)
+  (interactive)
+  (zephyr--patch-run '("clean" "apply") "patch-clean-apply" app-path))
 
 (provide 'zephyr)
 

@@ -1,4 +1,4 @@
-;;; zephyr-test.el --- Buttercup tests for zephyr.el  -*- lexical-binding: t; -*-
+;;; zephyr-tests.el --- Buttercup tests for zephyr.el  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;; Run from CLI:        emacs --batch -L . -l buttercup -f buttercup-run-discover
@@ -13,6 +13,112 @@
     :to-be-file-equal file-equal-p
   :expect-match-phrase    "Expected `%A' to refer to the same file as `%B', but it was `%a'."
   :expect-mismatch-phrase "Expected `%A' not to refer to the same file as `%B', but it did.")
+
+(defun zephyr-tests--make-workspace-with-app (ws relative-app)
+  "Create a .west workspace in WS with an app at RELATIVE-APP/zephyr/patches.yml.
+Return the absolute app path."
+  (make-directory (expand-file-name ".west" ws))
+  (let* ((app    (expand-file-name (file-name-as-directory relative-app) ws))
+         (zephyr (expand-file-name "zephyr" app)))
+    (make-directory zephyr t)
+    (write-region "" nil (expand-file-name "patches.yml" zephyr))
+    app))
+
+(describe "zephyr-app-p"
+  (it "is non-nil with the canonical Zephyr boilerplate"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})\nproject(firmware)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-p dir))))
+
+  (it "accepts the bare find_package(Zephyr) form"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Zephyr)\nproject(x)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-p dir))))
+
+  (it "is case-insensitive on both calls"
+    (ert-with-temp-directory dir
+      (write-region "FIND_PACKAGE(Zephyr)\nPROJECT(x)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-p dir))))
+
+  (it "is nil when CMakeLists.txt is missing"
+    (ert-with-temp-directory dir
+      (expect (zephyr-app-p dir) :not :to-be-truthy)))
+
+  (it "is nil when find_package(Zephyr) is present but project() is missing"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})\n"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-p dir) :not :to-be-truthy)))
+
+  (it "is nil when project() is present but find_package(Zephyr) is missing"
+    (ert-with-temp-directory dir
+      (write-region "project(plain_cmake)\nadd_executable(foo foo.c)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-p dir) :not :to-be-truthy)))
+
+  (it "is nil when only Sysbuild (not Zephyr) is required"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Sysbuild REQUIRED HINTS $ENV{ZEPHYR_BASE})\nproject(x)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-p dir) :not :to-be-truthy))))
+
+(describe "zephyr-app-root"
+  (it "walks up from a subdirectory to find the app root"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Zephyr)\nproject(x)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (let ((subdir (expand-file-name "src" dir)))
+        (make-directory subdir)
+        (let ((default-directory subdir))
+          (expect (zephyr-app-root) :to-be-file-equal dir)))))
+
+  (it "returns nil when no app is found in the parent chain"
+    (ert-with-temp-directory dir
+      (let ((default-directory dir))
+        (expect (zephyr-app-root) :not :to-be-truthy)))))
+
+(describe "zephyr-app-name"
+  (it "extracts the project name from a Zephyr CMakeLists.txt"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})\nproject(firmware)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-name dir) :to-equal "firmware")))
+
+  (it "is case-insensitive on the project() keyword"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Zephyr)\nPROJECT(my_app)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-name dir) :to-equal "my_app")))
+
+  (it "returns nil when CMakeLists.txt has no project() call"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Zephyr)\n" nil (expand-file-name "CMakeLists.txt" dir))
+      (expect (zephyr-app-name dir) :not :to-be-truthy))))
+
+(describe "zephyr-app-boards"
+  :var (dir)
+  (before-each
+    (setq dir (make-temp-file "zephyr-test-" t))
+    (let ((boards (expand-file-name "boards" dir)))
+      (make-directory boards)
+      (write-region "" nil (expand-file-name "walter_esp32s3_procpu.conf" boards))
+      (write-region "" nil (expand-file-name "walter_esp32s3_procpu.overlay" boards))
+      (write-region "" nil (expand-file-name "qemu_riscv32.conf" boards))
+      (write-region "" nil (expand-file-name "xiao_esp32s3_esp32s3_procpu.conf" boards))
+      (write-region "" nil (expand-file-name "README.md" boards))))
+  (after-each (delete-directory dir t))
+
+  (it "returns the deduped basenames of .conf and .overlay files under boards/"
+    (expect (zephyr-app-boards dir)
+            :to-have-same-items-as
+            '("walter_esp32s3_procpu" "qemu_riscv32" "xiao_esp32s3_esp32s3_procpu")))
+
+  (it "returns nil for an app with no boards/ directory"
+    (ert-with-temp-directory empty
+      (expect (zephyr-app-boards empty) :not :to-be-truthy))))
 
 (describe "zephyr-base"
   (before-each
@@ -503,12 +609,176 @@
           (expect (plist-get (car apps) :path) :to-be-file-equal app-dir)
           (expect (plist-get (car apps) :manifest) :not :to-be-truthy))))))
 
+(describe "zephyr-patches-yml"
+  (it "returns the absolute patches.yml path when present"
+    (ert-with-temp-directory dir
+      (let ((zephyr (expand-file-name "zephyr" dir)))
+        (make-directory zephyr)
+        (write-region "" nil (expand-file-name "patches.yml" zephyr))
+        (expect (zephyr-patches-yml dir)
+                :to-be-file-equal (expand-file-name "zephyr/patches.yml" dir)))))
+
+  (it "returns nil when patches.yml is missing"
+    (ert-with-temp-directory dir
+      (expect (zephyr-patches-yml dir) :not :to-be-truthy)))
+
+  (it "discovers the current app's patches.yml via zephyr-app-root"
+    (ert-with-temp-directory dir
+      (write-region "find_package(Zephyr)\nproject(firmware)"
+                    nil (expand-file-name "CMakeLists.txt" dir))
+      (let ((zephyr (expand-file-name "zephyr" dir)))
+        (make-directory zephyr)
+        (write-region "" nil (expand-file-name "patches.yml" zephyr))
+        (let ((default-directory dir))
+          (expect (zephyr-patches-yml)
+                  :to-be-file-equal (expand-file-name "zephyr/patches.yml" dir)))))))
+
+(describe "zephyr--resolve-app"
+  (it "prefers an explicit APP-PATH"
+    (expect (zephyr--resolve-app "/explicit/app/") :to-equal "/explicit/app/"))
+
+  (it "falls back to the current app via zephyr-app-root"
+    (spy-on 'zephyr-app-root :and-return-value "/current/app/")
+    (expect (zephyr--resolve-app) :to-equal "/current/app/"))
+
+  (it "auto-picks the only Zephyr app discovered via zephyr-apps"
+    (spy-on 'zephyr-app-root :and-return-value nil)
+    (spy-on 'zephyr-apps :and-return-value
+            '((:name "firmware" :path "/ws/apps/firmware/")))
+    (expect (zephyr--resolve-app) :to-equal "/ws/apps/firmware/"))
+
+  (it "prompts when multiple Zephyr apps exist"
+    (spy-on 'zephyr-app-root :and-return-value nil)
+    (spy-on 'zephyr-apps :and-return-value
+            '((:name "firmware"  :path "/ws/apps/firmware/")
+              (:name "nuttx-zig" :path "/ws/apps/nuttx-zig/")))
+    (spy-on 'completing-read :and-return-value "nuttx-zig")
+    (expect (zephyr--resolve-app) :to-equal "/ws/apps/nuttx-zig/"))
+
+  (it "signals user-error when no apps can be discovered"
+    (spy-on 'zephyr-app-root :and-return-value nil)
+    (spy-on 'zephyr-apps :and-return-value nil)
+    (expect (zephyr--resolve-app) :to-throw 'user-error))
+
+  (it "filters apps with the supplied predicate"
+    (spy-on 'zephyr-app-root :and-return-value nil)
+    (spy-on 'zephyr-apps :and-return-value
+            '((:name "firmware"  :path "/ws/apps/firmware/")
+              (:name "nuttx-zig" :path "/ws/apps/nuttx-zig/")))
+    (let ((accepted '("/ws/apps/firmware/")))
+      (expect (zephyr--resolve-app nil (lambda (p) (member p accepted)))
+              :to-equal "/ws/apps/firmware/")))
+
+  (it "ignores the current app when it does not satisfy the predicate"
+    (spy-on 'zephyr-app-root :and-return-value "/ws/apps/nuttx-zig/")
+    (spy-on 'zephyr-apps :and-return-value
+            '((:name "firmware"  :path "/ws/apps/firmware/")
+              (:name "nuttx-zig" :path "/ws/apps/nuttx-zig/")))
+    (expect (zephyr--resolve-app
+             nil (lambda (p) (string= p "/ws/apps/firmware/")))
+            :to-equal "/ws/apps/firmware/")))
+
+(describe "zephyr-patch-apply"
+  (it "invokes `west patch -sm <workspace-relative-app> apply'"
+    (ert-with-temp-directory ws
+      (let ((app (zephyr-tests--make-workspace-with-app ws "apps/firmware")))
+        (spy-on 'compile)
+        (zephyr-patch-apply app)
+        (expect 'compile :to-have-been-called-with
+                "west patch -sm apps/firmware apply"))))
+
+  (it "runs the compile from the workspace root"
+    (ert-with-temp-directory ws
+      (let* ((app (zephyr-tests--make-workspace-with-app ws "apps/firmware"))
+             captured)
+        (spy-on 'compile :and-call-fake
+                (lambda (&rest _) (setq captured default-directory)))
+        (zephyr-patch-apply app)
+        (expect captured :to-be-file-equal ws))))
+
+  (it "isolates output into a `*west:patch-apply*' buffer"
+    (ert-with-temp-directory ws
+      (let ((app (zephyr-tests--make-workspace-with-app ws "apps/firmware"))
+            captured)
+        (spy-on 'compile :and-call-fake
+                (lambda (&rest _)
+                  (setq captured (funcall compilation-buffer-name-function nil))))
+        (zephyr-patch-apply app)
+        (expect captured :to-equal "*west:patch-apply*"))))
+
+  (it "signals user-error when no patches.yml is present"
+    (ert-with-temp-directory ws
+      (make-directory (expand-file-name ".west" ws))
+      (spy-on 'compile)
+      (expect (zephyr-patch-apply ws) :to-throw 'user-error)
+      (expect 'compile :not :to-have-been-called))))
+
+(describe "zephyr-patch-clean"
+  (it "invokes `west patch -sm <workspace-relative-app> clean'"
+    (ert-with-temp-directory ws
+      (let ((app (zephyr-tests--make-workspace-with-app ws "apps/firmware")))
+        (spy-on 'compile)
+        (zephyr-patch-clean app)
+        (expect 'compile :to-have-been-called-with
+                "west patch -sm apps/firmware clean"))))
+
+  (it "isolates output into a `*west:patch-clean*' buffer"
+    (ert-with-temp-directory ws
+      (let ((app (zephyr-tests--make-workspace-with-app ws "apps/firmware"))
+            captured)
+        (spy-on 'compile :and-call-fake
+                (lambda (&rest _)
+                  (setq captured (funcall compilation-buffer-name-function nil))))
+        (zephyr-patch-clean app)
+        (expect captured :to-equal "*west:patch-clean*"))))
+
+  (it "signals user-error when no patches.yml is present"
+    (ert-with-temp-directory ws
+      (make-directory (expand-file-name ".west" ws))
+      (spy-on 'compile)
+      (expect (zephyr-patch-clean ws) :to-throw 'user-error)
+      (expect 'compile :not :to-have-been-called))))
+
+(describe "zephyr-patch-clean-apply"
+  (it "chains `clean' then `apply' in a single compile invocation"
+    (ert-with-temp-directory ws
+      (let ((app (zephyr-tests--make-workspace-with-app ws "apps/firmware")))
+        (spy-on 'compile)
+        (zephyr-patch-clean-apply app)
+        (expect 'compile :to-have-been-called-with
+                "west patch -sm apps/firmware clean && west patch -sm apps/firmware apply"))))
+
+  (it "isolates output into a `*west:patch-clean-apply*' buffer"
+    (ert-with-temp-directory ws
+      (let ((app (zephyr-tests--make-workspace-with-app ws "apps/firmware"))
+            captured)
+        (spy-on 'compile :and-call-fake
+                (lambda (&rest _)
+                  (setq captured (funcall compilation-buffer-name-function nil))))
+        (zephyr-patch-clean-apply app)
+        (expect captured :to-equal "*west:patch-clean-apply*")))))
+
 (describe "against example-application (real-world integration)"
   :var (example)
   (before-each
     (setq example (expand-file-name "~/workspace/example-application/"))
     (assume (file-directory-p example)
             "example-application not cloned at ~/workspace/example-application/"))
+
+  (it "identifies app/ as a Zephyr app and root as not"
+    (expect (zephyr-app-p (concat example "app/")))
+    (expect (zephyr-app-p example) :not :to-be-truthy))
+
+  (it "extracts the project name from app/CMakeLists.txt"
+    (expect (zephyr-app-name (concat example "app/")) :to-equal "app"))
+
+  (it "walks up from app/src/ to find the app root"
+    (expect (zephyr-app-root (concat example "app/src/"))
+            :to-be-file-equal (concat example "app/")))
+
+  (it "finds per-app overlays in app/boards/"
+    (expect (zephyr-app-boards (concat example "app/"))
+            :to-contain "nucleo_f302r8"))
 
   (it "ignores HWMv2 board.yml files (no identifier field)"
     (expect (zephyr--parse-board-file
@@ -537,4 +807,4 @@
             :to-have-same-items-as
             (list (directory-file-name example)))))
 
-;;; zephyr-test.el ends here
+;;; zephyr-tests.el ends here

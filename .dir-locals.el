@@ -65,7 +65,7 @@
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ("󰕮 microtop 󰕮 : run"                    :command "cargo r -rp microtop"                          :prodigy t                           :annotation "     cargo ")
             ("󰕮 microtop 󰕮 :󰳽 serve"                  :command "trunk serve --config apps/microtop/Trunk.toml" :prodigy t :port 8080                :annotation "     cargo ")
-            ("󰕮 buttercup 󰕮 :󰳽 test"                  :command "emacs --batch -L ~/MFarabi619/modules/home/programs/emacs/extra/west -L ~/MFarabi619/modules/home/programs/emacs/extra/platformio -L ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr -l buttercup -f buttercup-run-discover ~/MFarabi619/modules/home/programs/emacs/extra/west ~/MFarabi619/modules/home/programs/emacs/extra/platformio ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr"                :annotation "     emacs  ")
+            ("󰕮 buttercup 󰕮 :󰳽 test"                  :command "emacs --batch -L ~/MFarabi619/modules/home/programs/emacs/extra/west -L ~/MFarabi619/modules/home/programs/emacs/extra/zephyr -L ~/MFarabi619/modules/home/programs/emacs/extra/platformio -L ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr -l buttercup -f buttercup-run-discover ~/MFarabi619/modules/home/programs/emacs/extra/west ~/MFarabi619/modules/home/programs/emacs/extra/zephyr ~/MFarabi619/modules/home/programs/emacs/extra/platformio ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr"                :annotation "     emacs  ")
 
             ;; ======================================|========|================================================|=========|=================================================== ;;
             ;; ======================================|========|================================================|=========|=================================================== ;;
@@ -245,11 +245,13 @@
                                   (locate-dominating-file default-directory
                                                           ".dir-locals.el")))
                       (west-dir       (expand-file-name "west/"       extra-dir))
+                      (zephyr-dir     (expand-file-name "zephyr/"     extra-dir))
                       (platformio-dir (expand-file-name "platformio/" extra-dir))
                       (mcumgr-dir     (expand-file-name "mcumgr/"     extra-dir)))
-                 (dolist (dir (list west-dir platformio-dir mcumgr-dir))
+                 (dolist (dir (list west-dir zephyr-dir platformio-dir mcumgr-dir))
                    (add-to-list 'load-path dir))
                  (load (expand-file-name "west"       west-dir)       'noerror 'nomessage)
+                 (load (expand-file-name "zephyr"     zephyr-dir)     'noerror 'nomessage)
                  (load (expand-file-name "platformio" platformio-dir) 'noerror 'nomessage)
                  (load (expand-file-name "mcumgr"     mcumgr-dir)     'noerror 'nomessage)))
 

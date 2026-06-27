@@ -71,80 +71,6 @@
         (make-directory ".west")
         (expect (west-in-workspace-p))))))
 
-(describe "west-app-p"
-  (it "is non-nil with the canonical Zephyr boilerplate"
-    (ert-with-temp-directory dir
-      (write-region "find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})\nproject(firmware)"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-p dir))))
-
-  (it "accepts the bare find_package(Zephyr) form"
-    (ert-with-temp-directory dir
-      (write-region "find_package(Zephyr)\nproject(x)"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-p dir))))
-
-  (it "is case-insensitive on both calls"
-    (ert-with-temp-directory dir
-      (write-region "FIND_PACKAGE(Zephyr)\nPROJECT(x)"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-p dir))))
-
-  (it "is nil when CMakeLists.txt is missing"
-    (ert-with-temp-directory dir
-      (expect (west-app-p dir) :not :to-be-truthy)))
-
-  (it "is nil when find_package(Zephyr) is present but project() is missing"
-    (ert-with-temp-directory dir
-      (write-region "find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})\n"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-p dir) :not :to-be-truthy)))
-
-  (it "is nil when project() is present but find_package(Zephyr) is missing"
-    (ert-with-temp-directory dir
-      (write-region "project(plain_cmake)\nadd_executable(foo foo.c)"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-p dir) :not :to-be-truthy)))
-
-  (it "is nil when only Sysbuild (not Zephyr) is required"
-    (ert-with-temp-directory dir
-      (write-region "find_package(Sysbuild REQUIRED HINTS $ENV{ZEPHYR_BASE})\nproject(x)"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-p dir) :not :to-be-truthy))))
-
-(describe "west-app-root"
-  (it "walks up from a subdirectory to find the app root"
-    (ert-with-temp-directory dir
-      (write-region "find_package(Zephyr)\nproject(x)"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (let ((subdir (expand-file-name "src" dir)))
-        (make-directory subdir)
-        (let ((default-directory subdir))
-          (expect (west-app-root) :to-be-file-equal dir)))))
-
-  (it "returns nil when no app is found in the parent chain"
-    (ert-with-temp-directory dir
-      (let ((default-directory dir))
-        (expect (west-app-root) :not :to-be-truthy)))))
-
-(describe "west-app-name"
-  (it "extracts the project name from a Zephyr CMakeLists.txt"
-    (ert-with-temp-directory dir
-      (write-region "find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})\nproject(firmware)"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-name dir) :to-equal "firmware")))
-
-  (it "is case-insensitive on the project() keyword"
-    (ert-with-temp-directory dir
-      (write-region "find_package(Zephyr)\nPROJECT(my_app)"
-                    nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-name dir) :to-equal "my_app")))
-
-  (it "returns nil when CMakeLists.txt has no project() call"
-    (ert-with-temp-directory dir
-      (write-region "find_package(Zephyr)\n" nil (expand-file-name "CMakeLists.txt" dir))
-      (expect (west-app-name dir) :not :to-be-truthy))))
-
 (describe "west-topdir"
   (it "returns the path from west topdir's stdout"
     (spy-on 'process-lines :and-return-value '("/some/workspace"))
@@ -226,29 +152,15 @@
   (it "compiles `west update'"
     (spy-on 'compile)
     (west-update)
-    (expect 'compile :to-have-been-called-with "west update")))
+    (expect 'compile :to-have-been-called-with "west update"))
 
-(describe "west-app-boards"
-  :var (dir)
-  (before-each
-    (setq dir (make-temp-file "west-test-" t))
-    (let ((boards (expand-file-name "boards" dir)))
-      (make-directory boards)
-      (write-region "" nil (expand-file-name "walter_esp32s3_procpu.conf" boards))
-      (write-region "" nil (expand-file-name "walter_esp32s3_procpu.overlay" boards))
-      (write-region "" nil (expand-file-name "qemu_riscv32.conf" boards))
-      (write-region "" nil (expand-file-name "xiao_esp32s3_esp32s3_procpu.conf" boards))
-      (write-region "" nil (expand-file-name "README.md" boards))))
-  (after-each (delete-directory dir t))
-
-  (it "returns the deduped basenames of .conf and .overlay files under boards/"
-    (expect (west-app-boards dir)
-            :to-have-same-items-as
-            '("walter_esp32s3_procpu" "qemu_riscv32" "xiao_esp32s3_esp32s3_procpu")))
-
-  (it "returns nil for an app with no boards/ directory"
-    (ert-with-temp-directory empty
-      (expect (west-app-boards empty) :not :to-be-truthy))))
+  (it "isolates output into a `*west:update*' buffer"
+    (let (captured)
+      (spy-on 'compile :and-call-fake
+              (lambda (&rest _)
+                (setq captured (funcall compilation-buffer-name-function nil))))
+      (west-update)
+      (expect captured :to-equal "*west:update*"))))
 
 (describe "west-manifest-path"
   (it "defaults to <workspace>/west.yml when neither manifest.path nor manifest.file is set"
@@ -367,21 +279,6 @@
     (setq example (expand-file-name "~/workspace/example-application/"))
     (assume (file-directory-p example)
             "example-application not cloned at ~/workspace/example-application/"))
-
-  (it "identifies app/ as a Zephyr app and root as not"
-    (expect (west-app-p (concat example "app/")))
-    (expect (west-app-p example) :not :to-be-truthy))
-
-  (it "extracts the project name from app/CMakeLists.txt"
-    (expect (west-app-name (concat example "app/")) :to-equal "app"))
-
-  (it "walks up from app/src/ to find the app root"
-    (expect (west-app-root (concat example "app/src/"))
-            :to-be-file-equal (concat example "app/")))
-
-  (it "finds per-app overlays in app/boards/"
-    (expect (west-app-boards (concat example "app/"))
-            :to-contain "nucleo_f302r8"))
 
   (it "parses west.yml into a manifest hash table"
     (let ((parsed (west-manifest (concat example "west.yml"))))

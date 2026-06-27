@@ -37,38 +37,6 @@
 (defun west-in-workspace-p (&optional directory)
   (and (west-workspace-root directory) t))
 
-(defun west-app-p (&optional directory)
-  (let ((cmake-file (expand-file-name "CMakeLists.txt"
-                      (or directory default-directory))))
-    (when (file-exists-p cmake-file)
-      (let ((content (with-temp-buffer
-                       (insert-file-contents cmake-file)
-                       (buffer-string)))
-             (case-fold-search t))
-        (and (string-match-p "find_package(\\s-*Zephyr\\b" content)
-          (string-match-p "project(\\s-*\\w" content))))))
-
-(defun west-app-root (&optional directory)
-  (locate-dominating-file (or directory default-directory) #'west-app-p))
-
-(defun west-app-name (app-path)
-  (require 'treesit)
-  (let ((cmake-file (expand-file-name "CMakeLists.txt" app-path)))
-    (when (and (file-exists-p cmake-file)
-            (treesit-language-available-p 'cmake))
-      (with-temp-buffer
-        (insert-file-contents cmake-file)
-        (treesit-parser-create 'cmake)
-        (when-let* ((query (treesit-query-compile 'cmake
-                             '(((normal_command
-                                  (identifier) @cmd
-                                  (argument_list (argument) @arg))
-                                 (:match "^[Pp][Rr][Oo][Jj][Ee][Cc][Tt]$" @cmd)))))
-                     (captures (treesit-query-capture
-                                 (treesit-buffer-root-node 'cmake) query))
-                     (arg-node (alist-get 'arg captures)))
-          (treesit-node-text arg-node))))))
-
 (defun west-topdir ()
   (car (process-lines "west" "topdir")))
 
@@ -102,9 +70,14 @@
 (defun west-boards ()
   (process-lines "west" "boards"))
 
+(defun west--compile (label command)
+  (let ((compilation-buffer-name-function
+         (lambda (_mode) (format "*west:%s*" label))))
+    (compile command)))
+
 (defun west-update ()
   (interactive)
-  (compile "west update"))
+  (west--compile "update" "west update"))
 
 (defun west-manifest-path (&optional workspace-root)
   (when-let ((root (or workspace-root (west-workspace-root))))
@@ -140,13 +113,6 @@
     :remote   (gethash 'remote entry)
     :url      (gethash 'url entry)
     :groups   (gethash 'groups entry)))
-
-(defun west-app-boards (app-path)
-  (let ((boards-dir (expand-file-name "boards" app-path)))
-    (when (file-directory-p boards-dir)
-      (seq-uniq
-        (mapcar #'file-name-base
-          (directory-files boards-dir nil "\\.\\(conf\\|overlay\\)\\'"))))))
 
 (defun west-manifest-apps (&optional workspace-root)
   (when-let* ((root (or workspace-root (west-workspace-root)))
