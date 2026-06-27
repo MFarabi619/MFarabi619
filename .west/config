@@ -8,31 +8,12 @@ base = zephyrproject/zephyr
 [build]
 pristine   = auto
 # board      = qemu_riscv32
-# dir-fmt  = build/{board}
 # cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
 [flash]
 rebuild = true
 
 [alias]
-p          = patch -l apps/firmware/zephyr/patches.yml -b apps/firmware/zephyr/patches
-pc         = p clean
-pa         = p apply --roll-back
-
 menuconfig = build apps/firmware -p=never -t menuconfig
-
-r          = build apps/firmware -b qemu_riscv32 -t run
-t          = r -T qemu.riscv32 --extra-conf=test.conf
-
-tr         = twister -T apps/firmware -s qemu.riscv32 --inline-logs -c --log-level DEBUG
-tb         = twister -T apps/firmware --tag build     --inline-logs -c --all
-tz         = build libs/zephyr-lang-zig/tests --extra-conf=test.conf -t run
-
-bb         = build apps/firmware -T esp32.cyd28        -b esp32_devkitc/esp32/procpu
-bs         = build apps/firmware -T stm32f3.disco      -b stm32f3_disco@E/stm32f303xc
-bw         = build apps/firmware -T esp32s3.walter     -b walter/esp32s3/procpu
-bx         = build apps/firmware -T esp32s3.xiao       -b xiao_esp32s3/esp32s3/procpu
-bxs        = build apps/firmware -T esp32s3.xiao.sense -b xiao_esp32s3/esp32s3/procpu/sense
-be         = build apps/firmware -T esp32s3.devkitc    -b esp32s3_devkitc/esp32s3/procpu
 
 dt         = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/firmware/zephyr/zephyr.dts

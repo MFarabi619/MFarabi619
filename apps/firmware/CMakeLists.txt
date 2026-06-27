@@ -114,5 +114,4 @@ target_include_directories_ifdef(CONFIG_WIREGUARD app PRIVATE "${ZEPHYR_BASE}/su
 target_sources_ifdef(CONFIG_HTTP_SERVER app PRIVATE services/http/http.c)
 zephyr_linker_sources_ifdef(CONFIG_HTTP_SERVER SECTIONS services/http/http_sections.ld)
 
-
 rust_cargo_application(CRATE_NAME firmware)
