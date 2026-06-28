@@ -363,7 +363,25 @@
         (pio-device-monitor :profile 'esp))
       (expect captured-shell :to-equal
               "pio device monitor --port /dev/cu.usbmodem1101 --baud 115200 --filter direct")
-      (expect captured-name :to-equal "*pio:monitor:/dev/cu.usbmodem1101*"))))
+      (expect captured-name :to-equal "*pio:monitor:/dev/cu.usbmodem1101*")))
+
+  (it "reuses a live monitor buffer instead of spawning a duplicate"
+    (let* ((bufname "*pio:monitor:/dev/cu.usbmodem1101*")
+           (existing (generate-new-buffer bufname)))
+      (spy-on 'pop-to-buffer)
+      (spy-on 'vterm)
+      (spy-on 'get-buffer-process :and-return-value 'pretend-proc)
+      (spy-on 'process-live-p :and-return-value t)
+      (unwind-protect
+          (let ((pio-monitor-profiles
+                 '((esp :port "/dev/cu.usbmodem1101" :baud 115200
+                        :filters ("direct"))))
+                (pio-executable "pio"))
+            (cl-letf (((symbol-function 'pio-default-envs) (lambda (&rest _) nil)))
+              (pio-device-monitor :profile 'esp))
+            (expect 'pop-to-buffer :to-have-been-called)
+            (expect 'vterm :not :to-have-been-called))
+        (let (kill-buffer-query-functions) (kill-buffer existing))))))
 
 (defun pio-tests--make-device (port description hwid)
   (let ((dev (make-hash-table :test 'equal)))
@@ -486,14 +504,6 @@
       (pio-device-list-monitor)
       (expect 'pio-device-monitor :not :to-have-been-called))))
 
-(describe "nerd-icons registration"
-  (it "registers `pio-mode' with `nf-md-chip' in `nerd-icons-mode-icon-alist'"
-    (require 'nerd-icons)
-    (let ((entry (assq 'pio-mode nerd-icons-mode-icon-alist)))
-      (expect entry :to-be-truthy)
-      (expect (nth 1 entry) :to-equal 'nerd-icons-mdicon)
-      (expect (nth 2 entry) :to-equal "nf-md-chip"))))
-
 ;;; Account
 
 (defconst pio-tests--account-json
@@ -599,8 +609,29 @@
   (before-each
     (spy-on 'pio-core-version
             :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
+    (spy-on 'pio-serial-devices :and-return-value
+            (vector (pio-tests--make-device
+                     "/dev/cu.usbmodem1101" "USB JTAG/serial debug unit"
+                     "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")))
     (with-temp-buffer
       (pio--render (pio-tests--account))
+      (setq rendered (buffer-string))))
+
+  (it "renders a DEVICES section as the top heading"
+    (expect rendered :to-match "\\`DEVICES"))
+
+  (it "renders a header row with the column labels under the heading"
+    (dolist (header '("SERIAL" "VID:PID" "PORT" "LOCATION" "DESCRIPTION"))
+      (expect rendered :to-match (regexp-quote header))))
+
+  (it "includes the connected device's port in the DEVICES section"
+    (expect rendered :to-match "/dev/cu\\.usbmodem1101")))
+
+(describe "pio--render-profile (still callable; just not wired into the dashboard yet)"
+  :var (rendered)
+  (before-each
+    (with-temp-buffer
+      (pio--render-profile (pio-tests--account))
       (setq rendered (buffer-string))))
 
   (it "renders a PROFILE heading and its fields"
@@ -621,14 +652,24 @@
     (expect rendered :to-match "SUBSCRIPTIONS (none)")))
 
 (describe "pio--set-mode-line"
-  (it "sets `mode-name' to include core version + username"
+  (before-each
     (spy-on 'pio-core-version
-            :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
+            :and-return-value '(:title "PlatformIO Core" :value "6.1.19")))
+
+  (it "sets `mode-name' to include core version + username"
     (with-temp-buffer
       (pio--set-mode-line (pio-tests--account))
       (let ((joined (apply #'concat mode-name)))
         (expect joined :to-match "v6\\.1\\.19")
-        (expect joined :to-match "alice")))))
+        (expect joined :to-match "alice"))))
+
+  (it "does NOT include the chip icon next to the version"
+    (require 'nerd-icons)
+    (with-temp-buffer
+      (pio--set-mode-line (pio-tests--account))
+      (let ((joined (apply #'concat mode-name)))
+        (expect joined :not :to-match
+                (regexp-quote (nerd-icons-mdicon "nf-md-chip")))))))
 
 (describe "pio (interactive entry point)"
   (before-each
@@ -645,12 +686,13 @@
         (kill-buffer pio-buffer-name))))
 
   (it "creates a `*pio*' buffer in `pio-mode'"
+    (spy-on 'pio-serial-devices :and-return-value [])
     (pio)
     (let ((buffer (get-buffer pio-buffer-name)))
       (expect (buffer-live-p buffer) :to-be-truthy)
       (with-current-buffer buffer
         (expect major-mode :to-equal 'pio-mode)
-        (expect (buffer-string) :to-match "PROFILE"))))
+        (expect (buffer-string) :to-match "DEVICES"))))
 
   (it "is revertable via `revert-buffer'"
     (pio)
@@ -658,5 +700,56 @@
       (let ((before (buffer-string)))
         (revert-buffer nil t)
         (expect (buffer-string) :to-equal before)))))
+
+(describe "pio-monitor-mode (serial-monitor C-c passthrough)"
+  (it "pressing C-c sends a literal Ctrl-c to the underlying RTOS process"
+    (spy-on 'vterm-send-key)
+    (with-temp-buffer
+      (pio-monitor-mode 1)
+      (call-interactively (key-binding (kbd "C-c")))
+      (expect 'vterm-send-key :to-have-been-called-with "c" nil nil t))))
+
+
+(describe "pio--render-device device-row text property"
+  (it "tags each data row with the port as `pio-device-port'"
+    (spy-on 'pio-serial-devices :and-return-value
+            (vector (pio-tests--make-device
+                     "/dev/cu.usbmodem101" "USB JTAG"
+                     "USB VID:PID=303A:1001 SER=AA LOCATION=1-1")))
+    (with-temp-buffer
+      (pio--render-devices)
+      (goto-char (point-min))
+      (re-search-forward "/dev/cu\\.usbmodem101")
+      (expect (get-text-property (point) 'pio-device-port)
+              :to-equal "/dev/cu.usbmodem101")))
+
+  (it "does NOT tag the header row with a port"
+    (spy-on 'pio-serial-devices :and-return-value [])
+    (with-temp-buffer
+      (pio--render-devices)
+      (goto-char (point-min))
+      (re-search-forward "SERIAL")
+      (expect (get-text-property (point) 'pio-device-port) :to-be nil))))
+
+(describe "pressing RET on a device row in the *pio* dashboard"
+  (it "opens the monitor for that row's port"
+    (spy-on 'pio-device-monitor)
+    (with-temp-buffer
+      (pio-mode)
+      (let ((inhibit-read-only t))
+        (insert (propertize "row\n" 'pio-device-port "/dev/cu.x")))
+      (goto-char (point-min))
+      (call-interactively (key-binding (kbd "RET")))
+      (expect 'pio-device-monitor
+              :to-have-been-called-with :port "/dev/cu.x")))
+
+  (it "is a no-op on a non-device row (no port property)"
+    (spy-on 'pio-device-monitor)
+    (with-temp-buffer
+      (pio-mode)
+      (let ((inhibit-read-only t)) (insert "header line\n"))
+      (goto-char (point-min))
+      (call-interactively (key-binding (kbd "RET")))
+      (expect 'pio-device-monitor :not :to-have-been-called))))
 
 ;;; platformio-tests.el ends here

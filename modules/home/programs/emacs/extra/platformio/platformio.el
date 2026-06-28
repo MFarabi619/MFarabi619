@@ -329,7 +329,7 @@ Returns nil if HWID is not a string."
 (put 'pio-device-list-mode 'completion-predicate #'ignore)
 
 (defun pio-device-list ()
-  "List detected devices."
+  "List detected devices (old standalone buffer; superseded by `pio')."
   (interactive)
   (let ((buffer (get-buffer-create "*pio-device-list*")))
     (with-current-buffer buffer
@@ -337,6 +337,7 @@ Returns nil if HWID is not a string."
       (pio--device-list-refresh)
       (tabulated-list-print))
     (pop-to-buffer buffer)))
+(put 'pio-device-list 'completion-predicate #'ignore)
 
 (defvar pio--system-info-cache nil
   "In-memory cache of parsed `pio system info' (cleared via invalidate).")
@@ -458,6 +459,30 @@ Example:
       (car (pio-default-envs))
       "default")))
 
+(defun pio--monitor-send-C-c ()
+  "Send a literal Ctrl-c to the underlying serial process.
+Bound to \\`C-c' in `pio-monitor-mode' so the RTOS shell, not Emacs,
+receives the interrupt."
+  (interactive)
+  (vterm-send-key "c" nil nil t))
+
+(defvar pio-monitor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c") #'pio--monitor-send-C-c)
+    map)
+  "Keymap active in `pio-monitor-mode'.
+Reserves \\`C-c' for the underlying RTOS shell so it doesn't act as
+an Emacs prefix.  Buffer + window lifecycle is left to the user
+(`SPC b d', `C-x 0', etc.) — vterm tears down the PTY on kill-buffer,
+and evil's default \\`C-g' still toggles insert → normal state.")
+
+(define-minor-mode pio-monitor-mode
+  "Minor mode for pio serial-monitor vterm buffers.
+Only side effect: \\`C-c' is sent to the inferior process instead of
+being intercepted by Emacs as a prefix key."
+  :lighter " pio-mon"
+  :keymap pio-monitor-mode-map)
+
 (defun pio-device-monitor (&rest overrides)
   "Monitor device (Serial/Socket) (as OVERRIDES)."
   (interactive
@@ -480,7 +505,10 @@ Example:
                                               (pio-monitor-command-args settings))))
                            " "))
              (vterm-buffer-name bufname))
-        (vterm)))))
+        (vterm))
+      (when-let ((new-buf (get-buffer bufname)))
+        (with-current-buffer new-buf
+          (pio-monitor-mode 1))))))
 
 ;;; Error taxonomy
 ;; Subclasses of `pio-error' so callers can `condition-case' on specific
@@ -557,7 +585,30 @@ Signals `pio-exec-error' on non-zero exit, `pio-parse-error' on bad JSON."
 ;;; Dashboard
 
 (defconst pio-buffer-name "*pio*"
-  "Name of the dashboard buffer.")
+  "Name of the dashboard buffer.
+Named so users can target it from `display-buffer-alist'.")
+
+(defun pio-monitor-at-point ()
+  "Open the serial monitor for the device row at point.
+Reads the `pio-device-port' text property on the current line.
+Reuses an already-open monitor for the same port; buffer/window
+lifecycle is left to the user."
+  (interactive)
+  (when-let ((port (get-text-property (point) 'pio-device-port)))
+    (pio-device-monitor :port port)))
+(put 'pio-monitor-at-point 'completion-predicate #'ignore)
+
+(defvar pio-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map special-mode-map)
+    (define-key map (kbd "RET") #'pio-monitor-at-point)
+    (define-key map (kbd "r")   #'revert-buffer)
+    map))
+
+(with-eval-after-load 'evil
+  (evil-define-key 'normal pio-mode-map
+    (kbd "RET") #'pio-monitor-at-point
+    (kbd "r")   #'revert-buffer))
 
 (define-derived-mode pio-mode special-mode "pio"
   "Major mode for the `*pio*' dashboard buffer."
@@ -566,8 +617,8 @@ Signals `pio-exec-error' on non-zero exit, `pio-parse-error' on bad JSON."
 
 (with-eval-after-load 'nerd-icons
   (add-to-list 'nerd-icons-mode-icon-alist
-               '(pio-mode nerd-icons-mdicon "nf-md-chip"
-                          :face nerd-icons-green)))
+               '(pio-mode nerd-icons-sucicon "nf-seti-platformio"
+                          :face nerd-icons-yellow)))
 
 (defun pio--label (text)
   "Wrap TEXT in the muted-label face."
@@ -585,13 +636,11 @@ Signals `pio-exec-error' on non-zero exit, `pio-parse-error' on bad JSON."
           (pio--value value) "\n"))
 
 (defun pio--set-mode-line (account)
-  "Update `mode-name' with a chip icon, core version, and ACCOUNT username."
+  "Update `mode-name' with core version and ACCOUNT username."
   (let ((version (plist-get (pio-core-version) :value))
         (user    (pio-account-username account)))
     (setq mode-name
-          (list " "
-                (nerd-icons-mdicon "nf-md-chip" :face 'vui-success)
-                "  v" (propertize (or version "?") 'face 'vui-muted)
+          (list " v" (propertize (or version "?") 'face 'vui-muted)
                 "  "
                 (propertize (or user "?") 'face 'vui-heading-1)))))
 
@@ -608,9 +657,9 @@ Signals `pio-exec-error' on non-zero exit, `pio-parse-error' on bad JSON."
                       'face 'vui-muted)
           "\n"))
 
-(defun pio--render (account)
-  "Render ACCOUNT into the current buffer."
-  (pio--set-mode-line account)
+(defun pio--render-profile (account)
+  "Render ACCOUNT profile / packages / subscriptions into the current buffer.
+Currently unwired from `pio--render' — kept for future re-enable."
   (let ((packages      (pio-account-packages      account))
         (subscriptions (pio-account-subscriptions account)))
     (insert (propertize "PROFILE\n" 'face 'vui-heading-2))
@@ -628,6 +677,59 @@ Signals `pio-exec-error' on non-zero exit, `pio-parse-error' on bad JSON."
                                     (number-to-string (length subscriptions))
                                   "none"))
                         'face 'vui-heading-2))))
+
+(defconst pio--device-columns
+  '(("SERIAL"      . 18)
+    ("VID:PID"     . 10)
+    ("PORT"        . 21)
+    ("LOCATION"    .  8)
+    ("DESCRIPTION" .  0))
+  "Column (LABEL . WIDTH) for the dashboard's DEVICES table.
+Width 0 = unpadded last column.")
+
+(defun pio--render-device-row (cells face &optional port)
+  "Render one row of CELLS, applying FACE (or nil).
+When PORT is non-nil, tag the row with it as `pio-device-port'
+so `pio-monitor-at-point' can find it."
+  (let ((start (point)))
+    (cl-loop for (_ . width) in pio--device-columns
+             for i from 0
+             for cell = (aref cells i)
+             for padded = (if (zerop width) cell (string-pad cell width))
+             do (insert (if face (propertize padded 'face face) padded))
+             unless (eq i (1- (length pio--device-columns)))
+               do (insert " "))
+    (insert "\n")
+    (when port
+      (put-text-property start (point) 'pio-device-port port))))
+
+(defun pio--render-device (entry)
+  "Render one ENTRY (id + cell vector from `pio--device-list-entries').
+The entry's id (port) is attached as a row text property."
+  (pio--render-device-row (cadr entry) nil (car entry)))
+
+(defun pio--render-device-header ()
+  "Insert the muted column-header row above the device rows."
+  (pio--render-device-row
+   (vconcat (mapcar #'car pio--device-columns))
+   'vui-muted))
+
+(defun pio--render-devices ()
+  "Render the DEVICES section using `pio--device-list-entries'."
+  (let ((entries (pio--device-list-entries)))
+    (insert (propertize (format "DEVICES (%d)\n" (length entries))
+                        'face 'vui-heading-2))
+    (pio--render-device-header)
+    (mapc #'pio--render-device entries)))
+
+(defun pio--render (account)
+  "Render the dashboard into the current buffer.
+ACCOUNT is still fetched for the modeline; the PROFILE/PACKAGES/SUBSCRIPTIONS
+sections live in `pio--render-profile' and are temporarily unwired."
+  (pio--set-mode-line account)
+  (pio--render-devices)
+  ;; (pio--render-profile account)  ; re-enable when ready
+  )
 
 (defun pio--revert (&rest _)
   "Refresh the `*pio*' buffer (bound as `revert-buffer-function')."
