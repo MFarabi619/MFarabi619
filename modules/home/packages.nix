@@ -9,6 +9,7 @@
     packages =
       with pkgs;
       [
+        eask-cli
         libsixel
         ghostscript
       ]
