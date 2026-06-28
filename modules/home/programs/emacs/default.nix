@@ -23,6 +23,10 @@
       in
       with epkgs;
       [
+        vui
+        verdict
+      ]
+      ++ [
         ros
         ros-face
       ]
@@ -43,7 +47,6 @@
         treesitWithAllExceptQuint
       ]
       ++ [
-        vui
         nov
         mu4e
         mu4e-views
