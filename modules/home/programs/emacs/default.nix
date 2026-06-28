@@ -23,6 +23,15 @@
       in
       with epkgs;
       [
+        eask
+        easky
+        eask-mode
+        eldoc-eask
+        company-eask
+        flymake-eask
+        flycheck-eask
+      ]
+      ++ [
         vui
         verdict
       ]
