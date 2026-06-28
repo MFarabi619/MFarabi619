@@ -41,7 +41,7 @@
 
 (defcustom microvisor-icon-faces
   '(("emacs"      . nerd-icons-dpurple)
-     ("dioxus"     . nerd-icons-cyan)
+     ("dioxus"     . nerd-icons-blue)
      ("cargo"      . nerd-icons-orange)
      ("west"       . nerd-icons-purple)
      ("platformio" . nerd-icons-yellow)
