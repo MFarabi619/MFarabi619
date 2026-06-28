@@ -1,4 +1,4 @@
-;;; tailscale.el --- Tailscale tailnet dashboard for GNU Emacs  -*- lexical-binding: t -*-
+;;; tailscale.el --- Tailscale for GNU Emacs  -*- lexical-binding: t -*-
 
 ;; Copyright © 2026 Mumtahin Farabi <mfarabi619@gmail.com>
 
@@ -29,11 +29,7 @@
 
 ;;; Commentary:
 ;;
-;; Tailnet dashboard talking to the local `tailscale' CLI.
-;;
-;; Commands:
-;;   tailscale     show state of tailscaled and its connections
-;;                 (g to refresh, q to bury)
+;; View tailnet via local `tailscale' CLI.
 ;;
 ;;; Code:
 
@@ -126,6 +122,50 @@ malformed JSON."
                                 (or status (tailscale-status)))))
     (car (split-string version-string "-"))))
 
+;;; Netcheck
+
+(defun tailscale-netcheck ()
+  "Return parsed `tailscale netcheck --format json' as a hash table."
+  (tailscale--run-json "netcheck" "--format" "json"))
+
+(defun tailscale-netcheck-udp              (r) "UDP reachability from report R."          (gethash "UDP"            r))
+(defun tailscale-netcheck-ipv4             (r) "IPv4 reachability from report R."         (gethash "IPv4"           r))
+(defun tailscale-netcheck-ipv6             (r) "IPv6 reachability from report R."         (gethash "IPv6"           r))
+(defun tailscale-netcheck-preferred-derp   (r) "Preferred DERP region ID from report R."  (gethash "PreferredDERP"  r))
+(defun tailscale-netcheck-region-latency   (r) "RegionLatency hash from report R."        (gethash "RegionLatency"  r))
+(defun tailscale-netcheck-global-ipv4      (r) "Global IPv4 addr:port from report R."     (gethash "GlobalV4"       r))
+(defun tailscale-netcheck-global-ipv6      (r) "Global IPv6 addr:port from report R."     (gethash "GlobalV6"       r))
+(defun tailscale-netcheck-captive-portal   (r) "Non-nil if a captive portal was detected." (gethash "CaptivePortal" r))
+
+;;; ========= DNS status ==========
+
+(defun tailscale-dns-status ()
+  "Return parsed `tailscale dns status --json' as a hash table."
+  (tailscale--run-json "dns" "status" "--json"))
+
+(defun tailscale-dns-enabled-p        (s) "Non-nil if Tailscale DNS is active in status S."        (gethash "TailscaleDNS"      s))
+(defun tailscale-dns-magic-suffix     (s) "MagicDNS suffix from status S."                         (map-nested-elt s '("CurrentTailnet" "MagicDNSSuffix")))
+(defun tailscale-dns-magic-enabled-p  (s) "Non-nil if MagicDNS is enabled in status S."            (map-nested-elt s '("CurrentTailnet" "MagicDNSEnabled")))
+(defun tailscale-dns-self-name        (s) "This node's MagicDNS FQDN from status S."               (map-nested-elt s '("CurrentTailnet" "SelfDNSName")))
+(defun tailscale-dns-search-domains   (s) "Search domain list from status S."                       (gethash "SearchDomains"     s))
+(defun tailscale-dns-cert-domains     (s) "Cert domain list from status S."                         (gethash "CertDomains"       s))
+(defun tailscale-dns-split-routes     (s) "SplitDNSRoutes hash (domain → resolver list) from S."   (gethash "SplitDNSRoutes"    s))
+(defun tailscale-dns-system-servers   (s) "OS-level nameserver list from status S."                 (map-nested-elt s '("SystemDNS" "Nameservers")))
+
+;;; Whois
+
+(defun tailscale-whois (ip)
+  "Return parsed `tailscale whois --json IP' as a hash table."
+  (tailscale--run-json "whois" "--json" ip))
+
+(defun tailscale-whois-node          (r) "Node hash from whois result R."                     (gethash "Node"        r))
+(defun tailscale-whois-user-profile  (r) "UserProfile hash from whois result R."              (gethash "UserProfile" r))
+(defun tailscale-whois-node-name     (r) "Node FQDN from whois result R."                     (map-nested-elt r '("Node" "Name")))
+(defun tailscale-whois-node-hostname (r) "Node short hostname from whois result R."            (map-nested-elt r '("Node" "Hostinfo" "Hostname")))
+(defun tailscale-whois-node-addrs    (r) "Node Tailscale address CIDRs from whois result R."  (map-nested-elt r '("Node" "Addresses")))
+(defun tailscale-whois-login-name    (r) "UserProfile LoginName from whois result R."          (map-nested-elt r '("UserProfile" "LoginName")))
+(defun tailscale-whois-display-name  (r) "UserProfile DisplayName from whois result R."        (map-nested-elt r '("UserProfile" "DisplayName")))
+
 ;;; Peer accessors
 
 (defun tailscale-peer-hostname        (peer) "PEER hostname."                              (gethash "HostName"       peer))
@@ -152,8 +192,8 @@ malformed JSON."
 
 (with-eval-after-load 'nerd-icons
   (add-to-list 'nerd-icons-mode-icon-alist
-               '(tailscale-mode nerd-icons-mdicon "nf-md-vpn"
-                                :face nerd-icons-green)))
+    '(tailscale-mode nerd-icons-mdicon "nf-md-vpn"
+       :face nerd-icons-green)))
 
 ;;; Faces
 
@@ -411,7 +451,7 @@ Each entry is a plist: :header label, optional :width for `string-pad',
     (mapcar (lambda (col)
               (tailscale--label
                 (tailscale--pad (plist-get col :header)
-                                (plist-get col :width))))
+                  (plist-get col :width))))
       tailscale--columns)))
 
 (defun tailscale--render-peer (peer)
@@ -420,7 +460,7 @@ Each entry is a plist: :header label, optional :width for `string-pad',
     (tailscale--render-row
       (mapcar (lambda (col)
                 (tailscale--pad (funcall (plist-get col :cell) peer online)
-                                (plist-get col :width)))
+                  (plist-get col :width)))
         tailscale--columns))))
 
 ;;; Mode-line

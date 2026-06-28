@@ -9,88 +9,8 @@
 (require 'cl-lib)
 (require 'tailscale)
 
-;;; Fixtures
-
-(defconst tailscale-tests--sample-json
-  "{
-     \"Version\": \"1.98.5-t8f8fe6a2e-gc1619fb10\",
-     \"BackendState\": \"Running\",
-     \"MagicDNSSuffix\": \"tail-example.ts.net\",
-     \"CurrentTailnet\": {
-       \"Name\": \"acme.github\",
-       \"MagicDNSSuffix\": \"tail-example.ts.net\",
-       \"MagicDNSEnabled\": true
-     },
-     \"Self\": {
-       \"ID\": \"nKxxxxxxxxxxCNTRL\",
-       \"HostName\": \"laptop\",
-       \"DNSName\": \"laptop.tail-example.ts.net.\",
-       \"OS\": \"macOS\",
-       \"TailscaleIPs\": [\"100.64.0.1\", \"fd7a:115c:a1e0::1\"],
-       \"Online\": true,
-       \"Relay\": \"tor\"
-     },
-     \"Peer\": {
-       \"nodekey:aaa\": {
-         \"HostName\": \"homeassistant-1\",
-         \"DNSName\": \"homeassistant-1.tail-example.ts.net.\",
-         \"OS\": \"linux\",
-         \"TailscaleIPs\": [\"100.64.0.2\"],
-         \"Online\": true,
-         \"Relay\": \"yyz\",
-         \"Created\": \"2026-01-15T00:00:00Z\",
-         \"LastSeen\": \"2026-06-27T10:00:00Z\",
-         \"KeyExpiry\": \"2027-01-15T00:00:00Z\",
-         \"ExitNode\": false,
-         \"ExitNodeOption\": true,
-         \"Tags\": [\"tag:owner\", \"tag:staging\"]
-       },
-       \"nodekey:bbb\": {
-         \"HostName\": \"server-1\",
-         \"DNSName\": \"server-1.tail-example.ts.net.\",
-         \"OS\": \"linux\",
-         \"TailscaleIPs\": [\"100.64.0.3\"],
-         \"Online\": false,
-         \"Relay\": \"\",
-         \"Created\": \"2025-06-01T00:00:00Z\",
-         \"LastSeen\": \"2026-06-20T00:00:00Z\",
-         \"KeyExpiry\": \"2026-07-10T00:00:00Z\",
-         \"ExitNode\": false,
-         \"ExitNodeOption\": false,
-         \"sshHostKeys\": [\"ssh-ed25519 AAAA...\"]
-       },
-       \"nodekey:ccc\": {
-         \"HostName\": \"workstation\",
-         \"DNSName\": \"workstation.tail-example.ts.net.\",
-         \"OS\": \"linux\",
-         \"TailscaleIPs\": [\"100.64.0.4\"],
-         \"Online\": false,
-         \"Relay\": \"\",
-         \"Created\": \"2025-12-01T00:00:00Z\",
-         \"LastSeen\": \"0001-01-01T00:00:00Z\",
-         \"KeyExpiry\": \"0001-01-01T00:00:00Z\",
-         \"ExitNode\": false,
-         \"ExitNodeOption\": false
-       }
-     }
-   }")
-
-(defun tailscale-tests--parse (&optional json)
-  "Parse JSON (or the sample fixture) into the same hash shape tailscale.el uses."
-  (json-parse-string (or json tailscale-tests--sample-json)
-                     :object-type 'hash-table
-                     :array-type  'list
-                     :false-object nil
-                     :null-object  nil))
-
-(defun tailscale-tests--peer (&rest plist)
-  "Build a peer hash table from PLIST of `:JsonKey VALUE' pairs.
-Keys are taken verbatim (minus the leading colon); the JSON shape uses
-PascalCase, so pass `:HostName' not `:hostname'."
-  (let ((peer (make-hash-table :test 'equal)))
-    (cl-loop for (key value) on plist by #'cddr
-             do (puthash (substring (symbol-name key) 1) value peer))
-    peer))
+(buttercup-error-on-stale-elc)
+(setq buttercup-stack-frame-style 'pretty)
 
 ;;; Custom matchers
 
@@ -107,8 +27,7 @@ PascalCase, so pass `:HostName' not `:hostname'."
          (position       (string-match (regexp-quote needle) string)))
     (cond
      ((null position)
-      (cons nil (format "Substring %S not found in rendered output"
-                        needle)))
+      (cons nil (format "Substring %S not found in rendered output" needle)))
      ((eq (get-text-property position 'face string) expected-face)
       (cons t  (format "Found %S with face %S at position %d"
                        needle expected-face position)))
@@ -128,23 +47,123 @@ PascalCase, so pass `:HostName' not `:hostname'."
          (missing   (seq-find (lambda (cell) (null (cdr cell))) positions)))
     (cond
      (missing
-      (cons nil (format "Substring %S not found in rendered output"
-                        (car missing))))
+      (cons nil (format "Substring %S not found in rendered output" (car missing))))
      ((apply #'< (mapcar #'cdr positions))
       (cons t  (format "Substrings appear in order: %S" needles)))
      (t
-      (cons nil (format "Expected order %S, got positions %S"
-                        needles positions))))))
+      (cons nil (format "Expected order %S, got positions %S" needles positions))))))
 
-;;; Specs
+(buttercup-define-matcher :to-render-substrings (rendered substrings)
+  "Match a rendered string when every entry in SUBSTRINGS appears in it."
+  (let ((text (funcall rendered))
+        (subs (funcall substrings)))
+    (let ((missing (seq-remove (lambda (s) (string-match-p (regexp-quote s) text)) subs)))
+      (if (null missing)
+          (cons t  (format "Expected rendered string NOT to contain all of %S" subs))
+        (cons nil (format "Expected rendered string to contain %S, missing %S" subs missing))))))
 
-(describe "nerd-icons registration"
-  (it "registers `tailscale-mode' with `nf-md-vpn' in `nerd-icons-mode-icon-alist'"
-    (require 'nerd-icons)
-    (let ((entry (assq 'tailscale-mode nerd-icons-mode-icon-alist)))
-      (expect entry :to-be-truthy)
-      (expect (nth 1 entry) :to-equal 'nerd-icons-mdicon)
-      (expect (nth 2 entry) :to-equal "nf-md-vpn"))))
+;;; Fixtures
+
+(defconst tailscale-tests--fixtures-dir
+  (expand-file-name "fixtures/"
+    (file-name-directory (or load-file-name buffer-file-name)))
+  "Directory holding the `tailscale-<command>.json' fixtures captured from real CLI output.")
+
+(defun tailscale-tests--fixture (name)
+  "Return the contents of `fixtures/NAME' as a string.
+Safe to call from inside spec bodies; the directory is resolved at load time."
+  (with-temp-buffer
+    (insert-file-contents (expand-file-name name tailscale-tests--fixtures-dir))
+    (buffer-string)))
+
+(defconst tailscale-tests--sample-json
+  (tailscale-tests--fixture "tailscale-status.json"))
+
+(defconst tailscale-tests--netcheck-json
+  (tailscale-tests--fixture "tailscale-netcheck.json"))
+
+(defconst tailscale-tests--dns-status-json
+  (tailscale-tests--fixture "tailscale-dns-status.json"))
+
+(defconst tailscale-tests--whois-json
+  (tailscale-tests--fixture "tailscale-whois.json"))
+
+(defconst tailscale-tests--fixture-manifest
+  '(("tailscale-status.json"     "status"  "--json")
+    ("tailscale-netcheck.json"   "netcheck" "--format" "json")
+    ("tailscale-dns-status.json" "dns" "status" "--json")
+    ("tailscale-whois.json"      "whois" "--json"))
+  "Alist mapping `fixtures/FILE.json' → the `tailscale' args that produced it.
+The whois entry omits the IP argument; the live drift spec fills it from
+`tailscale-tests-whois-ip'.  All other entries run without parameters.")
+
+(defcustom tailscale-tests-whois-ip nil
+  "IP address to pass to `tailscale whois --json' for the live drift check.
+Set in your local config (e.g. `.dir-locals.el') to enable the whois freshness
+spec; left nil otherwise so CI doesn't fail."
+  :type '(choice (const :tag "Skip" nil) string)
+  :group 'tailscale)
+
+(defun tailscale-tests--parse (&optional json)
+  "Parse JSON (or the sample fixture) into the same hash shape tailscale.el uses."
+  (json-parse-string (or json tailscale-tests--sample-json)
+                     :object-type 'hash-table
+                     :array-type  'list
+                     :false-object nil
+                     :null-object  nil))
+
+(defun tailscale-tests--peer (&rest plist)
+  "Build a peer hash table from PLIST of `:JsonKey VALUE' pairs.
+Keys are taken verbatim (minus the leading colon); the JSON shape uses
+PascalCase, so pass `:HostName' not `:hostname'."
+  (let ((peer (make-hash-table :test 'equal)))
+    (cl-loop for (key value) on plist by #'cddr
+             do (puthash (substring (symbol-name key) 1) value peer))
+    peer))
+
+(defun tailscale-tests--run-cli (&rest args)
+  "Run `tailscale ARGS' and return stdout as a string. Signals on non-zero exit.
+Comment lines (e.g. the stability warning from `netcheck --format json') are
+stripped so callers can treat the result as raw JSON unconditionally."
+  (with-temp-buffer
+    ;; Discard stderr explicitly — `call-process' with destination t intermixes
+    ;; stdout+stderr, which breaks json-parse-string on netcheck debug logs.
+    (let ((exit (apply #'call-process
+                       (or tailscale-executable "tailscale")
+                       nil (list (current-buffer) "/dev/null") nil args)))
+      (unless (zerop exit)
+        (error "tailscale %s failed (exit %d): %s"
+               (string-join args " ") exit (buffer-string)))
+      ;; Also strip stdout comment lines (`netcheck --format json' emits
+      ;; "# Warning: ..." before the JSON object).
+      (replace-regexp-in-string "^#[^\n]*\n?" "" (buffer-string)))))
+
+;;; Auto-generated fixture specs
+
+(describe "every captured fixture"
+  (dolist (entry tailscale-tests--fixture-manifest)
+    (let* ((name    (car entry))
+           (args    (cdr entry))
+           (cli-str (format "tailscale %s" (string-join args " "))))
+
+      (it (format "%s parses as non-empty JSON" name)
+        (let ((content (tailscale-tests--fixture name)))
+          (expect (length content) :to-be-greater-than 0)
+          (expect (json-parse-string content) :not :to-throw)))
+
+      (it (format "stays in sync with `%s' on the running machine" cli-str)
+        (assume (executable-find "tailscale") "tailscale not on PATH")
+        (when (equal (car args) "whois")
+          (assume tailscale-tests-whois-ip
+                  "`tailscale-tests-whois-ip' unset"))
+        (let* ((full-args (if (and (equal (car args) "whois") tailscale-tests-whois-ip)
+                              (append args (list tailscale-tests-whois-ip))
+                            args))
+               (raw (apply #'tailscale-tests--run-cli full-args)))
+          (expect (length raw) :to-be-greater-than 0)
+          (expect (json-parse-string raw) :not :to-throw))))))
+
+;;; Runner
 
 (describe "tailscale--run-json"
   (it "parses stdout into a hash table when the call exits zero"
@@ -172,6 +191,18 @@ PascalCase, so pass `:HostName' not `:hostname'."
     (cl-letf (((symbol-function 'call-process)
                (lambda (&rest _args) (insert "boom\n") 1)))
       (expect (tailscale--run-json "wat") :to-throw 'tailscale-error))))
+
+;;; nerd-icons registration
+
+(describe "nerd-icons registration"
+  (it "registers `tailscale-mode' with `nf-md-vpn' in `nerd-icons-mode-icon-alist'"
+    (require 'nerd-icons)
+    (let ((entry (assq 'tailscale-mode nerd-icons-mode-icon-alist)))
+      (expect entry :to-be-truthy)
+      (expect (nth 1 entry) :to-equal 'nerd-icons-mdicon)
+      (expect (nth 2 entry) :to-equal "nf-md-vpn"))))
+
+;;; Status accessors
 
 (describe "tailscale-self"
   (it "returns the Self hash"
@@ -204,6 +235,24 @@ PascalCase, so pass `:HostName' not `:hostname'."
                     (tailscale-peers (tailscale-tests--parse)))))
       (expect (tailscale-peer-online-p offline) :not :to-be-truthy))))
 
+(describe "tailnet metadata accessors"
+  :var (status)
+  (before-each (setq status (tailscale-tests--parse)))
+
+  (it "extracts the tailnet name"
+    (expect (tailscale-tailnet-name status) :to-equal "acme.github"))
+
+  (it "extracts the MagicDNS suffix"
+    (expect (tailscale-magic-dns-suffix status) :to-equal "tail-example.ts.net"))
+
+  (it "extracts the backend state"
+    (expect (tailscale-backend-state status) :to-equal "Running"))
+
+  (it "strips the git-rev suffix from the version"
+    (expect (tailscale-version status) :to-equal "1.98.5")))
+
+;;; Time helpers
+
 (describe "tailscale--iso-never-p"
   (it "is non-nil for the all-zero sentinel"
     (expect (tailscale--iso-never-p "0001-01-01T00:00:00Z") :to-be-truthy))
@@ -227,11 +276,8 @@ PascalCase, so pass `:HostName' not `:hostname'."
     (expect (tailscale--humanize-seconds 40000000)  :to-equal "1y")))
 
 (describe "tailscale--ago and --from-now"
-  ;; Each spec stubs `tailscale--now' to its own value because the
-  ;; future-vs-past branch differs per test.
-
   (it "returns nil for the never sentinel"
-    (expect (tailscale--ago     "0001-01-01T00:00:00Z") :not :to-be-truthy)
+    (expect (tailscale--ago      "0001-01-01T00:00:00Z") :not :to-be-truthy)
     (expect (tailscale--from-now "0001-01-01T00:00:00Z") :not :to-be-truthy))
 
   (it "formats past timestamps with the `ago' suffix"
@@ -245,6 +291,8 @@ PascalCase, so pass `:HostName' not `:hostname'."
   (it "renders expired future timestamps as `X ago' instead of negative"
     (spy-on 'tailscale--now :and-return-value 2000000000.0)
     (expect (tailscale--from-now "2020-01-01T00:00:00Z") :to-match "ago\\'")))
+
+;;; Icon dispatch
 
 (describe "tailscale--peer-icon-spec"
   (cl-flet ((icon-of (hostname os)
@@ -281,21 +329,7 @@ PascalCase, so pass `:HostName' not `:hostname'."
       (expect (plist-get (icon-of "HomeAssistant-X" "linux") :name)
               :to-equal "nf-md-home_assistant"))))
 
-(describe "tailnet metadata accessors"
-  :var (status)
-  (before-each (setq status (tailscale-tests--parse)))
-
-  (it "extracts the tailnet name"
-    (expect (tailscale-tailnet-name status) :to-equal "acme.github"))
-
-  (it "extracts the MagicDNS suffix"
-    (expect (tailscale-magic-dns-suffix status) :to-equal "tail-example.ts.net"))
-
-  (it "extracts the backend state"
-    (expect (tailscale-backend-state status) :to-equal "Running"))
-
-  (it "strips the git-rev suffix from the version"
-    (expect (tailscale-version status) :to-equal "1.98.5")))
+;;; Rendering helpers
 
 (describe "tailscale--tag-pill"
   (it "strips the `tag:' prefix and applies the pill face"
@@ -344,6 +378,30 @@ PascalCase, so pass `:HostName' not `:hostname'."
               t))
             :to-equal "alpha   SSH ")))
 
+(describe "tailscale--pad"
+  (it "right-pads to WIDTH when given"
+    (expect (tailscale--pad "hi" 5) :to-equal "hi   "))
+  (it "passes through unchanged when WIDTH is nil"
+    (expect (tailscale--pad "hi" nil) :to-equal "hi")))
+
+(describe "tailscale--columns"
+  (it "covers every column the dashboard expects"
+    (let ((headers (mapcar (lambda (column) (plist-get column :header))
+                           tailscale--columns)))
+      (dolist (expected '("HOSTNAME" "TAGS" "ADDRESS (IPV4)"
+                          "LAST SEEN" "EXPIRES" "CREATED" "RELAY"))
+        (expect headers :to-contain expected))))
+
+  (it "each entry has a :cell renderer that returns a string"
+    (let ((peer (tailscale-tests--peer :HostName "x" :Online t
+                                       :OS "linux"
+                                       :TailscaleIPs '("1.2.3.4"))))
+      (dolist (column tailscale--columns)
+        (expect (stringp (funcall (plist-get column :cell) peer t))
+                :to-be-truthy)))))
+
+;;; Dashboard rendering
+
 (describe "tailscale--render"
   :var (rendered)
   (before-each
@@ -376,9 +434,9 @@ PascalCase, so pass `:HostName' not `:hostname'."
             '("laptop" "homeassistant-1" "workstation")))
 
   (it "renders every column header"
-    (dolist (header '("HOSTNAME" "TAGS" "ADDRESS (IPV4)"
-                      "LAST SEEN" "EXPIRES" "CREATED" "RELAY"))
-      (expect rendered :to-match (regexp-quote header))))
+    (expect rendered :to-render-substrings
+            '("HOSTNAME" "TAGS" "ADDRESS (IPV4)"
+              "LAST SEEN" "EXPIRES" "CREATED" "RELAY")))
 
   (it "puts tags in their own column, right after HOSTNAME"
     (expect rendered :to-render-in-order '("HOSTNAME" "TAGS" "ADDRESS")))
@@ -400,27 +458,7 @@ PascalCase, so pass `:HostName' not `:hostname'."
   (it "colors offline hostnames with `vui-muted' (dim, not green, not bold)"
     (expect rendered :to-have-face-at "workstation" 'vui-muted)))
 
-(describe "tailscale--pad"
-  (it "right-pads to WIDTH when given"
-    (expect (tailscale--pad "hi" 5) :to-equal "hi   "))
-  (it "passes through unchanged when WIDTH is nil"
-    (expect (tailscale--pad "hi" nil) :to-equal "hi")))
-
-(describe "tailscale--columns"
-  (it "covers every column the dashboard expects"
-    (let ((headers (mapcar (lambda (column) (plist-get column :header))
-                           tailscale--columns)))
-      (dolist (expected '("HOSTNAME" "TAGS" "ADDRESS (IPV4)"
-                          "LAST SEEN" "EXPIRES" "CREATED" "RELAY"))
-        (expect headers :to-contain expected))))
-
-  (it "each entry has a :cell renderer that returns a string"
-    (let ((peer (tailscale-tests--peer :HostName "x" :Online t
-                                       :OS "linux"
-                                       :TailscaleIPs '("1.2.3.4"))))
-      (dolist (column tailscale--columns)
-        (expect (stringp (funcall (plist-get column :cell) peer t))
-                :to-be-truthy)))))
+;;; Mode line
 
 (describe "tailscale--set-mode-line"
   (it "sets `mode-name' to a list containing version + tailnet + count"
@@ -429,8 +467,9 @@ PascalCase, so pass `:HostName' not `:hostname'."
       (let ((joined (apply #'concat mode-name)))
         (expect joined :to-match "v1\\.98\\.5")
         (expect joined :to-match "acme\\.github")
-        ;; 1 online peer + self (online) = 2 online of 4 total
         (expect joined :to-match "2/4")))))
+
+;;; Interactive entry point
 
 (describe "tailscale (interactive entry point)"
   (before-each
@@ -456,5 +495,103 @@ PascalCase, so pass `:HostName' not `:hostname'."
       (let ((before (buffer-string)))
         (revert-buffer nil t)
         (expect (buffer-string) :to-equal before)))))
+
+;;; Netcheck accessors
+
+(describe "tailscale-netcheck accessors"
+  :var (report)
+  (before-each
+    (setq report (tailscale-tests--parse tailscale-tests--netcheck-json)))
+
+  (it "parses connectivity flags"
+    (expect (tailscale-netcheck-udp  report) :to-be-truthy)
+    (expect (tailscale-netcheck-ipv4 report) :to-be-truthy)
+    (expect (tailscale-netcheck-ipv6 report) :to-be-truthy))
+
+  (it "extracts the preferred DERP region"
+    (expect (tailscale-netcheck-preferred-derp report) :to-equal 1))
+
+  (it "extracts RegionLatency as a hash table keyed by region ID string"
+    (let ((latency (tailscale-netcheck-region-latency report)))
+      (expect (hash-table-p latency) :to-be-truthy)
+      (expect (gethash "1" latency) :to-equal 25123292)
+      (expect (gethash "12" latency) :to-equal 46356875)))
+
+  (it "extracts global IPv4 and IPv6 addresses"
+    (expect (tailscale-netcheck-global-ipv4 report) :to-equal "174.0.0.1:51991")
+    (expect (tailscale-netcheck-global-ipv6 report) :to-equal "[2001:db8::1]:52847"))
+
+  (it "returns nil for captive-portal when null"
+    (expect (tailscale-netcheck-captive-portal report) :not :to-be-truthy))
+
+  (it "runner passes `netcheck --format json' to the CLI"
+    (spy-on 'tailscale--run-json :and-return-value report)
+    (tailscale-netcheck)
+    (expect 'tailscale--run-json
+            :to-have-been-called-with "netcheck" "--format" "json")))
+
+;;; DNS status accessors
+
+(describe "tailscale-dns-status accessors"
+  :var (status)
+  (before-each
+    (setq status (tailscale-tests--parse tailscale-tests--dns-status-json)))
+
+  (it "reports Tailscale DNS as enabled"
+    (expect (tailscale-dns-enabled-p status) :to-be-truthy))
+
+  (it "extracts MagicDNS suffix and self FQDN"
+    (expect (tailscale-dns-magic-suffix status) :to-equal "tail-example.ts.net")
+    (expect (tailscale-dns-self-name    status) :to-equal "laptop.tail-example.ts.net."))
+
+  (it "reports MagicDNS as enabled"
+    (expect (tailscale-dns-magic-enabled-p status) :to-be-truthy))
+
+  (it "extracts search and cert domains"
+    (expect (tailscale-dns-search-domains status) :to-equal '("tail-example.ts.net"))
+    (expect (tailscale-dns-cert-domains   status) :to-equal '("laptop.tail-example.ts.net")))
+
+  (it "extracts split DNS routes as a hash table"
+    (let ((routes (tailscale-dns-split-routes status)))
+      (expect (hash-table-p routes) :to-be-truthy)
+      (expect (gethash "ts.net." routes) :to-be-truthy)))
+
+  (it "extracts OS-level nameservers"
+    (expect (tailscale-dns-system-servers status) :to-equal '("1.1.1.1" "1.0.0.1")))
+
+  (it "runner passes `dns status --json' to the CLI"
+    (spy-on 'tailscale--run-json :and-return-value status)
+    (tailscale-dns-status)
+    (expect 'tailscale--run-json
+            :to-have-been-called-with "dns" "status" "--json")))
+
+;;; Whois accessors
+
+(describe "tailscale-whois accessors"
+  :var (result)
+  (before-each
+    (setq result (tailscale-tests--parse tailscale-tests--whois-json)))
+
+  (it "extracts the Node and UserProfile sub-hashes"
+    (expect (hash-table-p (tailscale-whois-node         result)) :to-be-truthy)
+    (expect (hash-table-p (tailscale-whois-user-profile result)) :to-be-truthy))
+
+  (it "extracts node FQDN and short hostname"
+    (expect (tailscale-whois-node-name     result) :to-equal "laptop.tail-example.ts.net.")
+    (expect (tailscale-whois-node-hostname result) :to-equal "laptop"))
+
+  (it "extracts node Tailscale address CIDRs"
+    (expect (tailscale-whois-node-addrs result)
+            :to-equal '("100.64.0.1/32" "fd7a:115c:a1e0::1/128")))
+
+  (it "extracts user login and display name"
+    (expect (tailscale-whois-login-name   result) :to-equal "user@acme.github")
+    (expect (tailscale-whois-display-name result) :to-equal "Alice"))
+
+  (it "runner passes `whois --json IP' to the CLI"
+    (spy-on 'tailscale--run-json :and-return-value result)
+    (tailscale-whois "100.64.0.2")
+    (expect 'tailscale--run-json
+            :to-have-been-called-with "whois" "--json" "100.64.0.2")))
 
 ;;; tailscale-tests.el ends here
