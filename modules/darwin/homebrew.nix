@@ -60,6 +60,7 @@
     ];
 
     casks = [
+      "freecad"
       "vivaldi"
       "binary-ninja-free"
     ]
