@@ -132,7 +132,7 @@
 (after!       verb-mode     (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
 (dolist (dir '("~/MFarabi619/" "~/workspace/apidae-systems/src/")) (add-to-list 'safe-local-variable-directories dir))
 (after!       lsp           (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t))
-(after!       dirvish       (setopt dirvish-peek-mode t dirvish-side-auto-close t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
+(after!       dirvish       (setopt dirvish-peek-mode t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
 (after!       parrot        (setopt parrot-animate-parrot t parrot-num-rotations 1000 parrot-animation-frame-interval 0.045 parrot-spaces-before 1 parrot-spaces-after 1) (parrot-type "confused")(parrot-mode -1))
 (after!       lsp-clangd    (setopt lsp-clients-clangd-args '("-j=3" "--clang-tidy" "--background-index" "--header-insertion=never" "--completion-style=detailed" "--header-insertion-decorators=0")) (set-lsp-priority! 'clangd 2) )
 (after!       vertico       (vertico-multiform-mode 1) (add-to-list 'vertico-multiform-commands '(compile-multi buffer (vertico-buffer-display-action . ((display-buffer-reuse-window display-buffer-in-side-window) (side . right) (window-width . 0.20) (window-parameters . ((no-delete-other-windows . t) (mode-line-format . none))))))))
