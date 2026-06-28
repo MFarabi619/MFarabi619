@@ -111,13 +111,6 @@
             ;; (" ESP32S3  : example:mdns"            :command "cargo +esp rr --example mdns_responder"                                             :annotation "cargo +esp ")
             (" ESP32S3  :󰒲 example:deep_sleep"      :command "cargo +esp rr --example deep_sleep"                                                 :annotation "cargo +esp ")
             (" ESP32S3  :󰒲 example:defmt-tcp"       :command "cargo +esp rr --example defmt-tcp "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󰐊 pio run"                 :command "pio run                           "                                                 :annotation "platformio ")
-            (" ESP32S3  : pio test"                :command "pio test                          "                                                 :annotation "platformio ")
-            (" ESP32S3  :󰞏 pio test --without"      :command "pio test --without-building --without-uploading"                                    :annotation "platformio ")
-            (" ESP32S3  :󰔰 pio run -t upload"       :command "pio run -t upload                 "                                                 :annotation "platformio ")
-            (" ESP32S3  : pio run -t compiledb"    :command "pio run -t compiledb              "                                                 :annotation "platformio ")
-            (" ESP32S3  : pio run -t uploadfs"     :command "pio run -t uploadfs               "                                                 :annotation "platformio ")
-            (" ESP32S3  :󰭎 pio device monitor"      :command "pio device monitor                "                                                 :annotation "platformio ")
             ;; ======================================|========|=====================================================================================|===========|============ ;;
             ;; ======================================|========|=====================================================================================|===========|============ ;;
             (" ESP32  : run"                       :command "cargo +esp rr"                                                                      :annotation "cargo +esp ")

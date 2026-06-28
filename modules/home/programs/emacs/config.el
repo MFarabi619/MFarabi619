@@ -71,8 +71,6 @@
         (list (lambda ()
                 (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n")))
         (cl-subseq +doom-dashboard-functions (1+ pos))))))
-;; (add-load-path! "pio-mode")
-;; (use-package! pio-mode)
 (use-package! org-anki)
                                         ; (use-package! codemetrics)
 (use-package! kbd-mode              :defer t)

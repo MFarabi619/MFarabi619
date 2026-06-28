@@ -22,17 +22,17 @@
 
 (let* ((this-dir   (file-name-directory (or load-file-name buffer-file-name)))
         (parent-dir (file-name-directory (directory-file-name this-dir))))
-  (dolist (subdir '("pixi" "west" "zephyr" "platformio" "mcumgr" "tailscale"))
+  (dolist (subdir '("pixi" "west" "zephyr" "pio-mode" "mcumgr" "tailscale"))
     (let ((sibling (expand-file-name subdir parent-dir)))
       (when (file-directory-p sibling)
         (add-to-list 'load-path sibling)))))
 
-(load "pixi"       'noerror 'nomessage)
-(load "west"       'noerror 'nomessage)
-(load "zephyr"     'noerror 'nomessage)
-(load "mcumgr"     'noerror 'nomessage)
-(load "platformio" 'noerror 'nomessage)
-(load "tailscale"  'noerror 'nomessage)
+(load "pixi"      'noerror 'nomessage)
+(load "west"      'noerror 'nomessage)
+(load "zephyr"    'noerror 'nomessage)
+(load "mcumgr"    'noerror 'nomessage)
+(load "pio-mode"  'noerror 'nomessage)
+(load "tailscale" 'noerror 'nomessage)
 
 (defgroup microvisor ()
   "Project task and service orchestration."
@@ -69,26 +69,40 @@ icon glyph and rendered in the looked-up face."
   compile-multi-annotate-string-cmds nil
   compile-multi-group-cmds           'group-and-replace)
 
+(defun microvisor--icon-glyph-p (word)
+  "Non-nil when WORD is a single nerd-icons glyph (Private Use Area)."
+  (and (= (length word) 1) (>= (aref word 0) #xE000)))
+
 (defun microvisor--annotation-function (original-function task)
+  "Right-align the `:annotation' of TASK as an optional label plus an icon.
+An annotation of `LABEL... ICON' colors ICON via the LABEL face key; a lone
+glyph renders icon-only (caller owns its face).  Else call ORIGINAL-FUNCTION."
   (if-let* ((annotation-text (plist-get (cdr task) :annotation))
              ((stringp annotation-text))
              ((fboundp 'nerd-icons-icon-for-file))
              (words (split-string (string-trim-right annotation-text)
                       "[[:space:]]+" t))
-             ((> (length words) 1))
-             (user-icon (car (last words)))
-             (face      (microvisor-icon-face (car words)))
-             (icon      (if face (propertize user-icon 'face face) user-icon)))
-    (let* ((base (string-join (butlast words) " "))
+             (spec (let ((face (and (> (length words) 1)
+                                 (microvisor-icon-face (car words)))))
+                     (cond
+                       ((and (= (length words) 1)
+                          (microvisor--icon-glyph-p (car words)))
+                         (cons "" (car words)))
+                       (face
+                         (cons (string-join (butlast words) " ")
+                           (propertize (car (last words)) 'face face)))))))
+    (let* ((label (car spec))
+            (icon  (cdr spec))
             (truncated (if (and compile-multi-annotate-limit
-                             (> (length base) compile-multi-annotate-limit))
+                             (> (length label) compile-multi-annotate-limit))
                          (concat (truncate-string-to-width
-                                   base compile-multi-annotate-limit)
+                                   label compile-multi-annotate-limit)
                            "…")
-                         base))
-            (rendered (concat (propertize truncated
-                                'face 'completions-annotations)
-                        " " icon))
+                         label))
+            (rendered (if (string-empty-p label)
+                        icon
+                        (concat (propertize truncated 'face 'completions-annotations)
+                          " " icon)))
             (width (string-width (substring-no-properties rendered))))
       (concat " "
         (propertize " " 'display

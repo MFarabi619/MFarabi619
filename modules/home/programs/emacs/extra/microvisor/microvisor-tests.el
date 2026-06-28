@@ -49,7 +49,16 @@
     (let* ((task   '("foo" :annotation "unknown-tool x"))
            (result (microvisor--annotation-function
                     (lambda (_) "FALLBACK") task)))
-      (expect result :to-equal "FALLBACK"))))
+      (expect result :to-equal "FALLBACK")))
+
+  (it "renders a lone glyph as an icon-only annotation, preserving its face"
+    (let* ((glyph  (propertize "" 'face 'nerd-icons-yellow))
+            (task   (list "foo" :annotation glyph))
+            (result (microvisor--annotation-function (lambda (_) "FALLBACK") task)))
+      (expect result :not :to-equal "FALLBACK")
+      (expect result :to-match (regexp-quote ""))
+      (expect (get-text-property (1- (length result)) 'face result)
+              :to-equal 'nerd-icons-yellow))))
 
 (describe "microvisor--prodigy-running-face-function"
   :var (started?)
