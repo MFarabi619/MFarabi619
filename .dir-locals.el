@@ -19,17 +19,17 @@
       ((compile-multi-dir-local-config
         . ((t
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
-            ("󱄅 microvisor  :󰔡 activate"             :command "nix run .#activate"                                                                 :annotation "       nix ")
+            ("󱄅 flake  :󰔡 activate"                  :command "nix run .#activate"                                                                 :annotation "       nix ")
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
-            ("󱄅 microvisor  :󰋽 info"                 :command "devenv info"                                  :prodigy t                            :annotation "    devenv 󱄅")
-            ("󱄅 microvisor  :󰇺 tasks"                :command "devenv tasks list"                            :prodigy t                            :annotation "    devenv 󱄅")
-            ("󱄅 microvisor  :󰚦 down"                 :command "devenv processes down"                        :prodigy t                            :annotation "    devenv 󱄅")
-            ("󱄅 microvisor  : sqld"                 :command "devenv up sqld"                               :prodigy t :port 8080                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor  : caddy"                :command "devenv up caddy"                              :prodigy t :port   80                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor  :󰇮 mailpit"              :command "devenv up mailpit"                            :prodigy t :port 8025                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor  : postgres"             :command "devenv up postgres"                           :prodigy t :port 5432                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor  : tailscale"            :command "devenv up tailscale"                          :prodigy t :port 8080                 :annotation "    devenv 󱄅")
-            ("󱄅 microvisor  : prometheus"           :command "devenv up prometheus"                         :prodigy t :port 9090                 :annotation "    devenv 󱄅")
+            ("󱄅 devenv  :󰋽 info"                     :command "devenv info"                                  :prodigy t                            :annotation "       nix 󱄅")
+            ("󱄅 devenv  :󰇺 tasks"                    :command "devenv tasks list"                            :prodigy t                            :annotation "       nix 󱄅")
+            ("󱄅 devenv  :󰚦 down"                     :command "devenv processes down"                        :prodigy t                            :annotation "       nix 󱄅")
+            ("󱄅 devenv  : sqld"                     :command "devenv up sqld"                               :prodigy t :port 8080                 :annotation "       nix 󱄅")
+            ("󱄅 devenv  : caddy"                    :command "devenv up caddy"                              :prodigy t :port   80                 :annotation "       nix 󱄅")
+            ("󱄅 devenv  :󰇮 mailpit"                  :command "devenv up mailpit"                            :prodigy t :port 8025                 :annotation "       nix 󱄅")
+            ("󱄅 devenv  : postgres"                 :command "devenv up postgres"                           :prodigy t :port 5432                 :annotation "       nix 󱄅")
+            ("󱄅 devenv  : tailscale"                :command "devenv up tailscale"                          :prodigy t :port 8080                 :annotation "       nix 󱄅")
+            ("󱄅 devenv  : prometheus"               :command "devenv up prometheus"                         :prodigy t :port 9090                 :annotation "       nix 󱄅")
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             (" loco  : start"                      :command "cargo loco start"                             :prodigy t :port 5150                 :annotation "     cargo ")
             (" loco  : db"                         :command "cargo loco db"                                :prodigy t                            :annotation "     cargo ")
