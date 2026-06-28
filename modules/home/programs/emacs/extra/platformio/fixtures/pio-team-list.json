@@ -1,0 +1,19 @@
+[
+  {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "name": "dev",
+    "description": "",
+    "members": [
+      {
+        "username": "bob",
+        "firstname": "Bob",
+        "lastname": "Example"
+      },
+      {
+        "username": "alice",
+        "firstname": "Alice",
+        "lastname": "Example"
+      }
+    ]
+  }
+]

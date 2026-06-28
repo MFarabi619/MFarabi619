@@ -1,0 +1,14 @@
+[
+  {
+    "orgname": "acme-corp",
+    "displayname": "",
+    "email": "",
+    "owners": [
+      {
+        "username": "alice",
+        "firstname": "Alice",
+        "lastname": "Example"
+      }
+    ]
+  }
+]

@@ -1,0 +1,115 @@
+{
+  "ceratina": {
+    "build_type": "release",
+    "env_name": "ceratina",
+    "libsource_dirs": [
+      "/Users/x/workspace/libs",
+      "/Users/x/workspace/.pio/libdeps/ceratina",
+      "/Users/x/.platformio/lib"
+    ],
+    "defines": [
+      "PLATFORMIO=60119",
+      "ARDUINO_ESP32S3_DEV",
+      "ARDUINO_RUNNING_CORE=1",
+      "ARDUINO_EVENT_RUNNING_CORE=1",
+      "BOARD_HAS_PSRAM",
+      "BOARD_HAS_PSRAM",
+      "ARDUINO_USB_MODE=1",
+      "ARDUINO_USB_CDC_ON_BOOT=1",
+      "CONFIG_WIFI_CREDENTIALS_STATIC_SSID=\"\"",
+      "CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD=\"\""
+    ],
+    "includes": {
+      "build": [
+        "/Users/x/workspace/apps/ceratina/src",
+        "/Users/x/workspace/libs/sqlite/src",
+        "/Users/x/workspace/.pio/libdeps/ceratina/Sqlite3Esp32/src",
+        "/Users/x/.platformio/packages/framework-arduinoespressif32/libraries/HTTPUpdate/src"
+      ],
+      "compatlib": [
+        "/Users/x/workspace/libs/sqlite/src",
+        "/Users/x/.platformio/packages/framework-arduinoespressif32/libraries/SD/src",
+        "/Users/x/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src"
+      ],
+      "toolchain": [
+        "/Users/x/.platformio/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0",
+        "/Users/x/.platformio/packages/toolchain-xtensa-esp-elf/xtensa-esp-elf/include/c++/14.2.0/xtensa-esp-elf",
+        "/Users/x/.platformio/packages/toolchain-xtensa-esp-elf/lib/gcc/xtensa-esp-elf/14.2.0/include"
+      ]
+    },
+    "cc_flags": [
+      "-mlongcalls",
+      "-fno-builtin-memcpy",
+      "-fno-builtin-memset",
+      "-fno-builtin-bzero",
+      "-mdisable-hardware-atomics",
+      "-std=gnu17",
+      "-Wno-old-style-declaration",
+      "-Wno-strict-prototypes"
+    ],
+    "cxx_flags": [
+      "-mlongcalls",
+      "-fno-builtin-memcpy",
+      "-fno-builtin-memset",
+      "-fno-builtin-bzero",
+      "-mdisable-hardware-atomics",
+      "-fno-rtti",
+      "-std=gnu++2b",
+      "-fexceptions"
+    ],
+    "cc_path": "/Users/x/.platformio/packages/toolchain-xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc",
+    "cxx_path": "/Users/x/.platformio/packages/toolchain-xtensa-esp-elf/bin/xtensa-esp32s3-elf-g++",
+    "gdb_path": "/Users/x/.platformio/packages/tool-xtensa-esp-elf-gdb/bin/xtensa-esp32s3-elf-gdb",
+    "prog_path": "/Users/x/workspace/.pio/build/ceratina/firmware.elf",
+    "svd_path": "/Users/x/.platformio/platforms/espressif32/misc/svd/esp32s3.svd",
+    "compiler_type": "gcc",
+    "targets": [
+      {
+        "name": "buildfs",
+        "title": "Build Filesystem Image",
+        "description": null,
+        "group": "Platform"
+      },
+      {
+        "name": "size",
+        "title": "Program Size",
+        "description": "Calculate program size",
+        "group": "Platform"
+      },
+      {
+        "name": "upload",
+        "title": "Upload",
+        "description": null,
+        "group": "Platform"
+      },
+      {
+        "name": "uploadfs",
+        "title": "Upload Filesystem Image",
+        "description": null,
+        "group": "Platform"
+      },
+      {
+        "name": "uploadfsota",
+        "title": "Upload Filesystem Image OTA",
+        "description": null,
+        "group": "Platform"
+      }
+    ],
+    "extra": {
+      "flash_images": [
+        {
+          "offset": "0x0000",
+          "path": "/Users/x/workspace/.pio/build/ceratina/bootloader.bin"
+        },
+        {
+          "offset": "0x8000",
+          "path": "/Users/x/workspace/.pio/build/ceratina/partitions.bin"
+        },
+        {
+          "offset": "0xe000",
+          "path": "/Users/x/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin"
+        }
+      ]
+    }
+  }
+}

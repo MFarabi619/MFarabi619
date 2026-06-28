@@ -1,0 +1,63 @@
+{
+  "profile": {
+    "username": "alice",
+    "email": "alice@example.com",
+    "firstname": "Alice",
+    "lastname": "Example"
+  },
+  "packages": [
+    {
+      "name": "Remote Development for Developer",
+      "path": "/Packages/Remote Development for Developer",
+      "service.remote.agents": {
+        "title": "100 Concurrent Remote Agents",
+        "limit": 100
+      },
+      "service.remote.shares": {
+        "title": "100 Shares per Remote Agent",
+        "limit": 100
+      },
+      "service.remote.cmd.test": {
+        "title": "Remote Unit Testing (100,000 sessions per month)",
+        "limit": 100000
+      },
+      "service.remote.cmd.device.list": "Remote Device Manager",
+      "service.remote.cmd.device.monitor": {
+        "title": "Remote Serial Port Monitor (50,000 sessions per month)",
+        "limit": 50000
+      },
+      "description": "Forever Free Remote Development for an awesome PlatformIO Community",
+      "title": "Remote Development for Developer",
+      "service.remote.cmd.run": {
+        "title": "Remote Firmware Updates (100,000 per month)",
+        "limit": 100000
+      }
+    },
+    {
+      "name": "Trusted Registry for Developer",
+      "path": "/Packages/Trusted Registry for Developer",
+      "service.registry.publish-public-platform": {
+        "title": "Publish a public development platform (max. size 50MB)",
+        "limit": 50
+      },
+      "service.registry.unpublish-package": {
+        "title": "Unpublish a pushed package or version in 72h",
+        "limit": 259200
+      },
+      "service.registry.publish-public-tool": {
+        "title": "Publish a public tool (framework, SDK, toolchain, upload and debug tools, etc.) (max. size 500MB)",
+        "limit": 500
+      },
+      "service.registry.automoderate-public-library": "Automatic moderation for a public library",
+      "description": "Forever Free Trusted Registry for an awesome PlatformIO Community",
+      "service.registry.publish-public-library": {
+        "title": "Publish a public library (max. size 50MB)",
+        "limit": 50
+      },
+      "title": "Trusted Registry for Developer"
+    }
+  ],
+  "subscriptions": [],
+  "user_id": "00000000-0000-0000-0000-000000000000",
+  "expire_at": 1783222658
+}

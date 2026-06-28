@@ -1,0 +1,13 @@
+[
+  {
+    "image": 0,
+    "slot": 0,
+    "version": "0.0.0",
+    "hash": "7af280662d5a726daeec0b644a93e69317f593f6be51b09f44244f5ab215a11e",
+    "bootable": true,
+    "pending": false,
+    "confirmed": true,
+    "active": true,
+    "permanent": false
+  }
+]

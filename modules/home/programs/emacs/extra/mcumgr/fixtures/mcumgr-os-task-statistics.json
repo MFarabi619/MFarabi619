@@ -1,0 +1,146 @@
+{
+  "net_socket_service": {
+    "prio": 14,
+    "tid": 4,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 735162810
+  },
+  "conn_mgr_monitor": {
+    "prio": -1,
+    "tid": 3,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 56028
+  },
+  "rx_q[0]": {
+    "prio": -1,
+    "tid": 6,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 2536475170
+  },
+  "logging": {
+    "prio": 14,
+    "tid": 14,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 195461
+  },
+  "tcp_work": {
+    "prio": -14,
+    "tid": 8,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 1079
+  },
+  "http_server_tid": {
+    "prio": -1,
+    "tid": 0,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 209039
+  },
+  "mcumgr smp": {
+    "prio": 3,
+    "tid": 1,
+    "state": 128,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 12092945
+  },
+  "shell_uart": {
+    "prio": 14,
+    "tid": 9,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 14150873
+  },
+  "wifi": {
+    "prio": 5,
+    "tid": 10,
+    "state": 128,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 19205329835
+  },
+  "smp_udp4": {
+    "prio": 0,
+    "tid": 2,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 2531857
+  },
+  "tx_q[0]": {
+    "prio": -1,
+    "tid": 5,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 3766238
+  },
+  "sysworkq": {
+    "prio": -8,
+    "tid": 11,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 952610
+  },
+  "shell_dummy": {
+    "prio": 14,
+    "tid": 13,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 849090
+  },
+  "net_mgmt": {
+    "prio": -1,
+    "tid": 7,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 113204
+  },
+  "idle": {
+    "prio": 15,
+    "tid": 15,
+    "state": 0,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 2010194059231
+  },
+  "esp_timer": {
+    "prio": 3,
+    "tid": 12,
+    "state": 2,
+    "stkuse": null,
+    "stksiz": null,
+    "cswcnt": null,
+    "runtime": 1042610064
+  }
+}

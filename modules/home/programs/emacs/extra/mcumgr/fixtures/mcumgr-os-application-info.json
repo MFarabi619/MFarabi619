@@ -1,0 +1,10 @@
+{
+  "Hardware platform": "xiao_esp32s3/esp32s3/procpu/sense",
+  "Kernel name": "Zephyr",
+  "Kernel release": "v4.4.0-5566-ge79a0db70fc9",
+  "Kernel version": "4.4.99",
+  "Machine": "xtensa",
+  "Node name": "zephyr-1",
+  "Operating system": "Zephyr",
+  "Processor": "xtensa"
+}

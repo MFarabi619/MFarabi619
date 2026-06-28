@@ -1,0 +1,34 @@
+[
+  {
+    "path": "/",
+    "name": ""
+  },
+  {
+    "path": "/System/Volumes/VM",
+    "name": "VM"
+  },
+  {
+    "path": "/System/Volumes/Preboot",
+    "name": "Preboot"
+  },
+  {
+    "path": "/System/Volumes/Update",
+    "name": "Update"
+  },
+  {
+    "path": "/System/Volumes/xarts",
+    "name": "xarts"
+  },
+  {
+    "path": "/System/Volumes/iSCPreboot",
+    "name": "iSCPreboot"
+  },
+  {
+    "path": "/System/Volumes/Hardware",
+    "name": "Hardware"
+  },
+  {
+    "path": "/nix",
+    "name": "nix"
+  }
+]

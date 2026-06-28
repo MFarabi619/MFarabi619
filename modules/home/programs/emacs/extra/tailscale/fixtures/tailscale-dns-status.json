@@ -1,0 +1,36 @@
+{
+  "TailscaleDNS": true,
+  "CurrentTailnet": {
+    "MagicDNSEnabled": true,
+    "MagicDNSSuffix": "tail-example.ts.net",
+    "SelfDNSName": "laptop.tail-example.ts.net."
+  },
+  "SplitDNSRoutes": {
+    "ts.net.": [
+      {
+        "Addr": "100.100.100.100"
+      },
+      {
+        "Addr": "fd7a:115c:a1e0::53"
+      }
+    ]
+  },
+  "SearchDomains": [
+    "tail-example.ts.net"
+  ],
+  "CertDomains": [
+    "laptop.tail-example.ts.net"
+  ],
+  "ExitNodeFilteredSet": [
+    ".ts.net",
+    ".tailscale.net"
+  ],
+  "SystemDNS": {
+    "Nameservers": [
+      "1.1.1.1",
+      "1.0.0.1"
+    ],
+    "SearchDomains": [],
+    "MatchDomains": []
+  }
+}

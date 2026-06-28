@@ -1,0 +1,42 @@
+[
+  {
+    "group": 0,
+    "name": "os mgmt",
+    "handlers": 9
+  },
+  {
+    "group": 1,
+    "name": "img mgmt",
+    "handlers": 7
+  },
+  {
+    "group": 2,
+    "name": "stat mgmt",
+    "handlers": 2
+  },
+  {
+    "group": 3,
+    "name": "settings mgmt",
+    "handlers": 4
+  },
+  {
+    "group": 8,
+    "name": "fs mgmt",
+    "handlers": 5
+  },
+  {
+    "group": 9,
+    "name": "shell mgmt",
+    "handlers": 1
+  },
+  {
+    "group": 10,
+    "name": "enum mgmt",
+    "handlers": 4
+  },
+  {
+    "group": 63,
+    "name": "zephyr basic mgmt",
+    "handlers": 1
+  }
+]

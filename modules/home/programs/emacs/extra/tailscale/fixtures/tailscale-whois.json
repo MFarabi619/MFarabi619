@@ -1,0 +1,69 @@
+{
+  "Node": {
+    "ID": 1000000000000001,
+    "StableID": "nKxxxxxxxxxxCNTRL",
+    "Name": "laptop.tail-example.ts.net.",
+    "User": 100001,
+    "Key": "nodekey:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "KeyExpiry": "2027-01-01T00:00:00Z",
+    "DiscoKey": "discokey:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "Addresses": [
+      "100.64.0.1/32",
+      "fd7a:115c:a1e0::1/128"
+    ],
+    "AllowedIPs": [
+      "100.64.0.1/32",
+      "fd7a:115c:a1e0::1/128"
+    ],
+    "Endpoints": [
+      "174.0.0.1:44969",
+      "174.0.0.1:41641",
+      "[2001:db8::1]:41641",
+      "10.0.0.1:41641"
+    ],
+    "Hostinfo": {
+      "Hostname": "laptop",
+      "Services": [
+        {
+          "Proto": "peerapi4",
+          "Port": 41642
+        },
+        {
+          "Proto": "peerapi6",
+          "Port": 41643
+        },
+        {
+          "Proto": "peerapi-dns-proxy",
+          "Port": 1
+        }
+      ]
+    },
+    "Created": "2026-01-01T00:00:00Z",
+    "MachineAuthorized": true,
+    "Capabilities": [
+      "https://tailscale.com/cap/is-admin",
+      "https://tailscale.com/cap/tailnet-lock"
+    ],
+    "CapMap": {
+      "default-auto-update": [true],
+      "funnel": [],
+      "https": [],
+      "https://tailscale.com/cap/file-sharing": [],
+      "https://tailscale.com/cap/funnel-ports?ports=443,8443,10000": [],
+      "https://tailscale.com/cap/is-admin": [],
+      "https://tailscale.com/cap/is-owner": [],
+      "https://tailscale.com/cap/ssh": [],
+      "https://tailscale.com/cap/tailnet-lock": [],
+      "tailnet-display-name": ["Acme Corp"]
+    },
+    "ComputedName": "laptop",
+    "ComputedNameWithHost": "laptop"
+  },
+  "UserProfile": {
+    "ID": 100001,
+    "LoginName": "user@acme.github",
+    "DisplayName": "Alice",
+    "ProfilePicURL": ""
+  },
+  "CapMap": null
+}

@@ -1,0 +1,50 @@
+{
+  "core_version": {
+    "title": "PlatformIO Core",
+    "value": "6.1.19"
+  },
+  "python_version": {
+    "title": "Python",
+    "value": "3.13.7-final.0"
+  },
+  "system": {
+    "title": "System Type",
+    "value": "darwin_arm64"
+  },
+  "platform": {
+    "title": "Platform",
+    "value": "macOS-26.5.1"
+  },
+  "filesystem_encoding": {
+    "title": "File System Encoding",
+    "value": "utf-8"
+  },
+  "locale_encoding": {
+    "title": "Locale Encoding",
+    "value": "UTF-8"
+  },
+  "core_dir": {
+    "title": "PlatformIO Core Directory",
+    "value": "/Users/x/.platformio"
+  },
+  "platformio_exe": {
+    "title": "PlatformIO Core Executable",
+    "value": "/Users/x/.local/bin/platformio"
+  },
+  "python_exe": {
+    "title": "Python Executable",
+    "value": "/Users/x/.local/share/uv/tools/pioarduino/bin/python"
+  },
+  "global_lib_nums": {
+    "title": "Global Libraries",
+    "value": 0
+  },
+  "dev_platform_nums": {
+    "title": "Development Platforms",
+    "value": 4
+  },
+  "package_tool_nums": {
+    "title": "Tools & Toolchains",
+    "value": 23
+  }
+}
