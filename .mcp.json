@@ -22,6 +22,12 @@
       "args": [
         "mcp-nixos"
       ]
+    },
+    "build123d-mcp": {
+      "command": "uvx",
+      "args": [
+        "build123d-mcp"
+      ]
     }
   }
 }
