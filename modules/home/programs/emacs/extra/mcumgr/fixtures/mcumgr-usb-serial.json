@@ -1,0 +1,26 @@
+[
+  {
+    "identifier": "303a:1001:1",
+    "port_name": "/dev/cu.usbmodem1101",
+    "port_info": {
+      "vid": 12346,
+      "pid": 4097,
+      "serial_number": "CC:BA:97:16:2B:68",
+      "manufacturer": "Espressif",
+      "product": "USB JTAG/serial debug unit",
+      "interface": 1
+    }
+  },
+  {
+    "identifier": "303a:1001:1",
+    "port_name": "/dev/tty.usbmodem1101",
+    "port_info": {
+      "vid": 12346,
+      "pid": 4097,
+      "serial_number": "CC:BA:97:16:2B:68",
+      "manufacturer": "Espressif",
+      "product": "USB JTAG/serial debug unit",
+      "interface": 1
+    }
+  }
+]
