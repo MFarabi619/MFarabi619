@@ -1,0 +1,137 @@
+[
+  {
+    "environment": "default",
+    "features": [
+      {
+        "name": "lyrical",
+        "tasks": []
+      },
+      {
+        "name": "build",
+        "tasks": [
+          {
+            "name": "build",
+            "cmd": "colcon build --symlink-install --paths libs/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY",
+            "description": null,
+            "depends_on": [],
+            "args": null,
+            "cwd": null,
+            "env": null,
+            "default_environment": null,
+            "clean_env": false,
+            "inputs": null,
+            "outputs": null
+          }
+        ]
+      },
+      {
+        "name": "default",
+        "tasks": [
+          {
+            "name": "rviz",
+            "cmd": "rviz2",
+            "description": null,
+            "depends_on": [],
+            "args": null,
+            "cwd": null,
+            "env": null,
+            "default_environment": null,
+            "clean_env": false,
+            "inputs": null,
+            "outputs": null
+          },
+          {
+            "name": "cad-export",
+            "cmd": "python libs/robot/robot/cad.py",
+            "description": null,
+            "depends_on": [],
+            "args": null,
+            "cwd": null,
+            "env": null,
+            "default_environment": null,
+            "clean_env": false,
+            "inputs": null,
+            "outputs": null
+          },
+          {
+            "name": "bridge",
+            "cmd": "ros2 run foxglove_bridge foxglove_bridge",
+            "description": null,
+            "depends_on": [],
+            "args": null,
+            "cwd": null,
+            "env": null,
+            "default_environment": null,
+            "clean_env": false,
+            "inputs": null,
+            "outputs": null
+          },
+          {
+            "name": "viz",
+            "cmd": "python libs/robot/robot/viz.py",
+            "description": null,
+            "depends_on": [
+              {
+                "task_name": "build",
+                "args": null,
+                "environment": null
+              }
+            ],
+            "args": null,
+            "cwd": null,
+            "env": null,
+            "default_environment": null,
+            "clean_env": false,
+            "inputs": null,
+            "outputs": null
+          },
+          {
+            "name": "cad",
+            "cmd": "python libs/robot/robot/cad.py --serve",
+            "description": null,
+            "depends_on": [],
+            "args": null,
+            "cwd": null,
+            "env": null,
+            "default_environment": null,
+            "clean_env": false,
+            "inputs": null,
+            "outputs": null
+          },
+          {
+            "name": "teleop",
+            "cmd": "ros2 run teleop_twist_keyboard teleop_twist_keyboard",
+            "description": null,
+            "depends_on": [],
+            "args": null,
+            "cwd": null,
+            "env": null,
+            "default_environment": null,
+            "clean_env": false,
+            "inputs": null,
+            "outputs": null
+          },
+          {
+            "name": "robot",
+            "cmd": "ros2 run robot hat_mdd10sm",
+            "description": null,
+            "depends_on": [
+              {
+                "task_name": "build",
+                "args": null,
+                "environment": null
+              }
+            ],
+            "args": null,
+            "cwd": null,
+            "env": null,
+            "default_environment": null,
+            "clean_env": false,
+            "inputs": null,
+            "outputs": null
+          }
+        ]
+      }
+    ]
+  }
+]

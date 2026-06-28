@@ -1,0 +1,88 @@
+{
+  "platform": "osx-arm64",
+  "virtual_packages": [
+    "__unix=0=0",
+    "__osx=26.5.1=0",
+    "__archspec=1=m4"
+  ],
+  "version": "0.70.2",
+  "tls_backend": "rustls",
+  "cache_dir": "/Users/x/Library/Caches/rattler/cache",
+  "cache_size": null,
+  "auth_dir": "/Users/x/.rattler/credentials.json",
+  "global_info": {
+    "bin_dir": "/Users/x/.pixi/bin",
+    "env_dir": "/Users/x/.pixi/envs",
+    "manifest": "/Users/x/.pixi/manifests/pixi-global.toml"
+  },
+  "project_info": {
+    "name": "MFarabi619",
+    "manifest_path": "/Users/x/MFarabi619/pixi.toml",
+    "last_updated": "28-06-2026 00:43:56",
+    "pixi_folder_size": null,
+    "version": "0.1.0"
+  },
+  "environments_info": [
+    {
+      "name": "default",
+      "features": [
+        "lyrical",
+        "build",
+        "default"
+      ],
+      "solve_group": null,
+      "environment_size": null,
+      "dependencies": [
+        "ros-lyrical-desktop",
+        "ros-lyrical-foxglove-bridge",
+        "ros-lyrical-ros-gz",
+        "make",
+        "cmake",
+        "ninja",
+        "python",
+        "rosdep",
+        "compilers",
+        "pkg-config",
+        "colcon-common-extensions",
+        "watchfiles"
+      ],
+      "pypi_dependencies": [
+        "build123d",
+        "yacv-server"
+      ],
+      "platforms": [
+        "win-64",
+        "linux-aarch64",
+        "linux-64",
+        "osx-64",
+        "osx-arm64"
+      ],
+      "tasks": [
+        "bridge",
+        "robot",
+        "viz",
+        "cad-export",
+        "rviz",
+        "cad",
+        "teleop",
+        "build"
+      ],
+      "channels": [
+        "https://prefix.dev/robostack-lyrical",
+        "https://prefix.dev/conda-forge"
+      ],
+      "prefix": "/Users/x/MFarabi619/.pixi/envs/default",
+      "system_requirements": {
+        "macos": null,
+        "linux": null,
+        "cuda": null,
+        "libc": {
+          "family": "glibc",
+          "version": "2.34"
+        },
+        "archspec": null
+      }
+    }
+  ],
+  "config_locations": []
+}

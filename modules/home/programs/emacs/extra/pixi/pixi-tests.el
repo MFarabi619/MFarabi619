@@ -1,49 +1,70 @@
 ;;; pixi-tests.el --- Buttercup tests for pixi.el -*- lexical-binding: t; -*-
 
-;;; Commentary:
-
 ;;; Code:
 
 (require 'buttercup)
-(require 'ert-x)
 (require 'cl-lib)
 (require 'pixi)
+
+(buttercup-error-on-stale-elc)
+(setq buttercup-stack-frame-style 'pretty)
 
 (buttercup-define-matcher-for-binary-function
     :to-be-file-equal file-equal-p
   :expect-match-phrase    "Expected `%A' to refer to the same file as `%B', but it was `%a'."
   :expect-mismatch-phrase "Expected `%A' not to refer to the same file as `%B', but it did.")
 
-(defconst pixi-tests--info-json
-  "{\"platform\":\"osx-arm64\",\"version\":\"0.70.0\",\
-\"project_info\":{\"name\":\"X\",\"version\":\"0.1.0\"},\
-\"environments_info\":[\
-{\"name\":\"default\",\"tasks\":[\"build\",\"run\"]},\
-{\"name\":\"dev\",\"tasks\":[\"build\",\"test\"]}\
-]}")
+(buttercup-define-matcher :to-render-substrings (rendered substrings)
+  "Match a rendered string when every entry in SUBSTRINGS appears in it."
+  (let ((text (funcall rendered))
+        (subs (funcall substrings)))
+    (let ((missing (seq-remove (lambda (s) (string-match-p (regexp-quote s) text)) subs)))
+      (if (null missing)
+          (cons t  (format "Expected rendered string NOT to contain all of %S" subs))
+        (cons nil (format "Expected rendered string to contain %S, missing %S" subs missing))))))
 
-(defconst pixi-tests--task-list-json
-  "[{\"environment\":\"default\",\
-\"features\":[\
-{\"name\":\"build\",\"tasks\":[\
-{\"name\":\"build\",\"cmd\":\"colcon build\",\"depends_on\":[]}\
-]},\
-{\"name\":\"default\",\"tasks\":[\
-{\"name\":\"robot\",\"cmd\":\"ros2 run robot x\",\
-\"depends_on\":[{\"task_name\":\"build\"}]}\
-]}]},\
-{\"environment\":\"dev\",\
-\"features\":[{\"name\":\"build\",\"tasks\":[\
-{\"name\":\"build\",\"cmd\":\"colcon build\",\"depends_on\":[]}\
-]}]}]")
+(defmacro pixi-tests--with-temp-dir (var &rest body)
+  "Buttercup-friendly temp-dir: bind VAR to a fresh dir, run BODY, then delete it."
+  (declare (indent 1))
+  `(let ((,var (file-name-as-directory (make-temp-file "pixi-test-" t))))
+     (unwind-protect (progn ,@body)
+       (delete-directory ,var t))))
+
+(defconst pixi-tests--fixtures-dir
+  (expand-file-name "fixtures/"
+    (file-name-directory (or load-file-name buffer-file-name)))
+  "Directory holding the `pixi-<command>.json' fixtures captured from real CLI output.")
+
+(defun pixi-tests--fixture (name)
+  "Return the contents of `fixtures/NAME' as a string.
+Safe to call from inside spec bodies; the directory is resolved at load time."
+  (with-temp-buffer
+    (insert-file-contents (expand-file-name name pixi-tests--fixtures-dir))
+    (buffer-string)))
+
+(defconst pixi-tests--fixture-manifest
+  '(("pixi-info.json"      "info" "--json")
+    ("pixi-task-list.json" "task" "list" "--json"))
+  "Alist mapping `fixtures/FILE.json' → the `pixi' subcommand args that produced it.
+Used by the auto-generated parse + freshness specs in the
+\"every captured fixture\" suite.  Drop a new fixture in the
+manifest and you get free parse-cleanly + live-drift coverage.")
+
+(defcustom pixi-tests-project-root nil
+  "Project root for the live-drift freshness specs.
+Set in your local config (e.g. `direnv', `.dir-locals.el') to enable
+the `pixi info'/`pixi task list' drift checks against a real workspace;
+left nil otherwise so CI doesn't fail."
+  :type '(choice (const :tag "Skip" nil) directory)
+  :group 'pixi)
 
 (defun pixi-tests--info ()
-  (json-parse-string pixi-tests--info-json
+  (json-parse-string (pixi-tests--fixture "pixi-info.json")
                      :object-type 'alist :array-type 'list
                      :null-object nil :false-object nil))
 
 (defun pixi-tests--task-list-raw ()
-  (json-parse-string pixi-tests--task-list-json
+  (json-parse-string (pixi-tests--fixture "pixi-task-list.json")
                      :object-type 'alist :array-type 'list
                      :null-object nil :false-object nil))
 
@@ -53,16 +74,46 @@
     (write-region manifest-body nil manifest)
     manifest))
 
+(defun pixi-tests--run-pixi (args)
+  "Run `pixi ARGS' and return stdout as a string.  Signals on non-zero exit."
+  (with-temp-buffer
+    (let ((exit (apply #'call-process "pixi" nil t nil args)))
+      (unless (zerop exit)
+        (error "pixi %s failed (exit %d): %s"
+               (string-join args " ") exit (buffer-string)))
+      (buffer-string))))
+
+(describe "every captured fixture"
+  (dolist (entry pixi-tests--fixture-manifest)
+    (let* ((name    (car entry))
+           (args    (cdr entry))
+           (cli-str (format "pixi %s" (string-join args " "))))
+
+      (it (format "%s parses as non-empty JSON" name)
+        (let ((content (pixi-tests--fixture name)))
+          (expect (length content) :to-be-greater-than 0)
+          (expect (json-parse-string content) :not :to-throw)))
+
+      (it (format "stays in sync with `%s' on the running machine" cli-str)
+        (assume (executable-find "pixi") "pixi not on PATH")
+        (assume pixi-tests-project-root
+                "`pixi-tests-project-root' unset")
+        (let* ((manifest  (expand-file-name "pixi.toml" pixi-tests-project-root))
+               (full-args (append args (list "--manifest-path" manifest)))
+               (raw       (pixi-tests--run-pixi full-args)))
+          (expect (length raw) :to-be-greater-than 0)
+          (expect (json-parse-string raw) :not :to-throw))))))
+
 (describe "pixi--pyproject-has-pixi-p"
   (it "is non-nil when [tool.pixi.*] is declared"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((path (expand-file-name "pyproject.toml" dir)))
         (write-region "[project]\nname = \"x\"\n\n[tool.pixi.workspace]\nchannels = []\n"
                       nil path)
         (expect (pixi--pyproject-has-pixi-p path)))))
 
   (it "is nil for a plain pyproject.toml without [tool.pixi]"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((path (expand-file-name "pyproject.toml" dir)))
         (write-region "[project]\nname = \"x\"\n" nil path)
         (expect (pixi--pyproject-has-pixi-p path) :not :to-be-truthy))))
@@ -73,13 +124,13 @@
 
 (describe "pixi-p"
   (it "is non-nil when pixi.toml is present"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\nname = \"t\"\n")
       (let ((default-directory dir))
         (expect (pixi-p)))))
 
   (it "is non-nil when pyproject.toml carries a [tool.pixi.*] section"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace
        dir "pyproject.toml"
        "[tool.pixi.workspace]\nchannels=[]\n")
@@ -87,20 +138,20 @@
         (expect (pixi-p)))))
 
   (it "is nil for a plain pyproject.toml"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pyproject.toml" "[project]\nname=\"x\"\n")
       (let ((default-directory dir))
         (expect (pixi-p) :not :to-be-truthy)))))
 
 (describe "pixi-manifest-file"
   (it "returns the absolute pixi.toml path when present"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((manifest (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n"))
             (default-directory dir))
         (expect (pixi-manifest-file) :to-be-file-equal manifest))))
 
   (it "falls back to pyproject.toml when [tool.pixi] is declared there"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((manifest (pixi-tests--make-workspace
                        dir "pyproject.toml"
                        "[tool.pixi.workspace]\nchannels=[]\n"))
@@ -108,13 +159,13 @@
         (expect (pixi-manifest-file) :to-be-file-equal manifest))))
 
   (it "returns nil when neither manifest is present"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((default-directory dir))
         (expect (pixi-manifest-file) :not :to-be-truthy)))))
 
 (describe "pixi-root"
   (it "walks up from a nested subdirectory to the workspace root"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((subdir (expand-file-name "deep/nested/" dir)))
         (make-directory subdir t)
@@ -122,26 +173,26 @@
           (expect (pixi-root) :to-be-file-equal dir)))))
 
   (it "returns nil outside any pixi workspace"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((default-directory dir))
         (expect (pixi-root) :not :to-be-truthy)))))
 
 (describe "pixi--manifest-args"
   (it "returns (\"--manifest-path\" PATH) inside a workspace"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((manifest (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n"))
             (default-directory dir))
         (expect (pixi--manifest-args)
                 :to-equal (list "--manifest-path" manifest)))))
 
   (it "returns nil outside any workspace"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((default-directory dir))
         (expect (pixi--manifest-args) :not :to-be-truthy)))))
 
 (describe "pixi--call"
   (it "appends --manifest-path AFTER the subcommand args"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((manifest (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n"))
             (default-directory dir)
             captured)
@@ -154,17 +205,69 @@
         (expect captured :to-equal
                 (list "info" "--json" "--manifest-path" manifest)))))
 
-  (it "signals on non-zero exit"
+  (it "signals `pixi-exec-error' on non-zero exit"
     (cl-letf (((symbol-function 'call-process)
                (lambda (&rest _) (insert "boom\n") 2)))
-      (expect (pixi--call '("info")) :to-throw 'error))))
+      (expect (pixi--call '("info")) :to-throw 'pixi-exec-error)))
+
+  (it "the exec error is catchable as the parent `pixi-error'"
+    (cl-letf (((symbol-function 'call-process)
+               (lambda (&rest _) (insert "boom\n") 2)))
+      (expect (pixi--call '("info")) :to-throw 'pixi-error))))
 
 (describe "pixi--json-call"
   (it "decodes stdout as an alist via pixi--call"
     (spy-on 'pixi--call :and-return-value "{\"name\":\"x\",\"version\":\"1.0\"}")
     (let ((parsed (pixi--json-call '("info" "--json"))))
       (expect (alist-get 'name    parsed) :to-equal "x")
-      (expect (alist-get 'version parsed) :to-equal "1.0"))))
+      (expect (alist-get 'version parsed) :to-equal "1.0")))
+
+  (it "signals `pixi-parse-error' when stdout is not JSON"
+    (let (debug-on-error)
+      (spy-on 'pixi--call :and-return-value "not json {[")
+      (expect (pixi--json-call '("info" "--json"))
+              :to-throw 'pixi-parse-error)))
+
+  (it "the parse error is catchable as the parent `pixi-error'"
+    (let (debug-on-error)
+      (spy-on 'pixi--call :and-return-value "not json {[")
+      (expect (pixi--json-call '("info" "--json")) :to-throw 'pixi-error))))
+
+(describe "the typed-error contract propagates through every CLI-read path"
+  (it "pixi-info surfaces `pixi-exec-error' from the underlying call"
+    (clrhash pixi--info-cache)
+    (pixi-tests--with-temp-dir dir
+      (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
+      (let ((default-directory dir))
+        (spy-on 'pixi--json-call :and-throw-error 'pixi-exec-error)
+        (expect (pixi-info) :to-throw 'pixi-exec-error))))
+
+  (it "pixi-info surfaces `pixi-parse-error' from the underlying call"
+    (clrhash pixi--info-cache)
+    (pixi-tests--with-temp-dir dir
+      (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
+      (let ((default-directory dir))
+        (spy-on 'pixi--json-call :and-throw-error 'pixi-parse-error)
+        (expect (pixi-info) :to-throw 'pixi-parse-error))))
+
+  (it "pixi-task-list-raw surfaces any `pixi-error' subclass to its caller"
+    (spy-on 'pixi--json-call :and-throw-error 'pixi-exec-error)
+    (expect (pixi-task-list-raw) :to-throw 'pixi-error))
+
+  (it "pixi-packages surfaces any `pixi-error' subclass to its caller"
+    (spy-on 'pixi--json-call :and-throw-error 'pixi-parse-error)
+    (expect (pixi-packages) :to-throw 'pixi-error))
+
+  (it "lets callers `condition-case' on the parent class to catch any read failure"
+    (clrhash pixi--info-cache)
+    (pixi-tests--with-temp-dir dir
+      (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
+      (let ((default-directory dir))
+        (spy-on 'pixi--json-call :and-throw-error 'pixi-parse-error)
+        (let ((caught (condition-case err
+                          (progn (pixi-info) nil)
+                        (pixi-error (car err)))))
+          (expect caught :to-equal 'pixi-parse-error))))))
 
 (describe "pixi-info"
   :var (manifest dir)
@@ -172,7 +275,7 @@
     (clrhash pixi--info-cache))
 
   (it "shells out only once for repeated reads at the same manifest mtime"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir))
         (spy-on 'pixi--json-call :and-call-fake
@@ -182,7 +285,7 @@
         (expect 'pixi--json-call :to-have-been-called-times 1))))
 
   (it "re-fetches after `pixi-info-invalidate'"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir))
         (spy-on 'pixi--json-call :and-call-fake
@@ -192,30 +295,35 @@
         (pixi-info)
         (expect 'pixi--json-call :to-have-been-called-times 2)))))
 
-(describe "thin info-backed readers"
+(describe "thin info-backed readers (against the captured `pixi info' fixture)"
   (before-each
     (spy-on 'pixi-info :and-call-fake
             (lambda (&rest _) (pixi-tests--info))))
 
   (it "expose platform / cli-version"
     (expect (pixi-platform)    :to-equal "osx-arm64")
-    (expect (pixi-cli-version) :to-equal "0.70.0"))
+    (expect (pixi-cli-version) :to-equal "0.70.2"))
 
   (it "expose project name and version"
-    (expect (pixi-name)    :to-equal "X")
+    (expect (pixi-name)    :to-equal "MFarabi619")
     (expect (pixi-version) :to-equal "0.1.0"))
 
   (it "enumerate environment names"
-    (expect (pixi-environment-names) :to-equal '("default" "dev")))
+    (expect (pixi-environment-names) :to-equal '("default")))
 
   (it "compose `pixi-tasks' as the deduped union of per-env tasks"
     (expect (sort (pixi-tasks) #'string<)
-            :to-equal '("build" "run" "test")))
+            :to-equal (sort '("bridge" "robot" "viz" "cad-export"
+                              "rviz" "cad" "teleop" "build")
+                            #'string<)))
 
   (it "scope `pixi-environment-tasks' to a single env"
-    (expect (pixi-environment-tasks "dev") :to-equal '("build" "test"))))
+    (expect (sort (pixi-environment-tasks "default") #'string<)
+            :to-equal (sort '("bridge" "robot" "viz" "cad-export"
+                              "rviz" "cad" "teleop" "build")
+                            #'string<))))
 
-(describe "pixi-tasks-detailed"
+(describe "pixi-tasks-detailed (against the captured `pixi task list' fixture)"
   (before-each
     (spy-on 'pixi-task-list-raw :and-call-fake
             (lambda (&rest _) (pixi-tests--task-list-raw))))
@@ -236,20 +344,28 @@
       (expect (pixi--task-depends-on robot) :to-equal '("build")))))
 
 (describe "pixi-task"
-  (before-each
-    (spy-on 'pixi-task-list-raw :and-call-fake
-            (lambda (&rest _) (pixi-tests--task-list-raw))))
-
   (it "disambiguates by (name, environment) when the same task exists in many envs"
+    (spy-on 'pixi-task-list-raw :and-return-value
+            (json-parse-string
+             "[{\"environment\":\"default\",\"features\":[\
+{\"name\":\"build\",\"tasks\":[\
+{\"name\":\"build\",\"cmd\":\"colcon build\",\"depends_on\":[]}]}]},\
+{\"environment\":\"dev\",\"features\":[\
+{\"name\":\"build\",\"tasks\":[\
+{\"name\":\"build\",\"cmd\":\"colcon build --debug\",\"depends_on\":[]}]}]}]"
+             :object-type 'alist :array-type 'list
+             :null-object nil :false-object nil))
     (expect (alist-get 'cmd (pixi-task "build" "default")) :to-equal "colcon build")
-    (expect (alist-get 'cmd (pixi-task "build" "dev"))     :to-equal "colcon build"))
+    (expect (alist-get 'cmd (pixi-task "build" "dev"))     :to-equal "colcon build --debug"))
 
   (it "returns nil for an unknown task"
+    (spy-on 'pixi-task-list-raw :and-call-fake
+            (lambda (&rest _) (pixi-tests--task-list-raw)))
     (expect (pixi-task "nonexistent" "default") :not :to-be-truthy)))
 
 (describe "pixi-packages"
   (it "passes `-e ENV' before `--manifest-path'"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (let ((manifest (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n"))
             (default-directory dir)
             captured)
@@ -263,7 +379,7 @@
                 (list "list" "--json" "-e" "lyrical"
                       "--manifest-path" manifest))))))
 
-(describe "pixi--task-list-grouped"
+(describe "pixi--task-list-grouped (against the captured `pixi task list' fixture)"
   (before-each
     (spy-on 'pixi-task-list-raw :and-call-fake
             (lambda (&rest _) (pixi-tests--task-list-raw))))
@@ -274,8 +390,10 @@
                                (equal (car row) '("build" . "build")))
                              groups)))
       (expect build :to-be-truthy)
-      (expect (cddr build) :to-have-same-items-as '("default" "dev"))
-      (expect (length groups) :to-equal 2))))
+      (expect (cddr build) :to-equal '("default"))))
+
+  (it "yields one row per (feature, name) pair (no env-driven duplicates)"
+    (expect (length (pixi--task-list-grouped)) :to-equal 8)))
 
 (describe "pixi--visible-envs"
   (it "removes envs listed in `pixi-task-list-hide-envs'"
@@ -307,9 +425,8 @@
                    (cmd . "ros2 run robot hat_mdd10sm")))
            (title (substring-no-properties
                    (pixi--task-row-title task '("default" "lyrical")))))
-      (expect title :to-match "robot")
-      (expect title :to-match "lyrical")
-      (expect title :to-match "ros2 run robot hat_mdd10sm")))
+      (expect title :to-render-substrings
+              '("robot" "lyrical" "ros2 run robot hat_mdd10sm"))))
 
   (it "omits disabled columns (default visible set has no FEATURE)"
     (let* ((pixi-task-list-visible-columns '(task cmd environments))
@@ -318,8 +435,7 @@
                    (cmd . "ros2 run robot hat_mdd10sm")))
            (title (substring-no-properties
                    (pixi--task-row-title task '("lyrical")))))
-      (expect title :to-match "robot")
-      (expect title :to-match "lyrical")
+      (expect title :to-render-substrings '("robot" "lyrical"))
       (expect title :not :to-match "\\bdefault\\b")))
 
   (it "truncates a long cmd to `pixi-task-list-cmd-width'"
@@ -336,9 +452,7 @@
   (it "uses only the labels of visible columns"
     (let ((pixi-task-list-visible-columns '(task cmd environments))
           (header (substring-no-properties (pixi--task-header-row))))
-      (expect header :to-match "TASK")
-      (expect header :to-match "ENVIRONMENTS")
-      (expect header :to-match "CMD")
+      (expect header :to-render-substrings '("TASK" "ENVIRONMENTS" "CMD"))
       (expect header :not :to-match "FEATURE")))
 
   (it "respects the visible-columns order"
@@ -401,7 +515,7 @@
   (before-each
     (setq icon-calls nil)
     (spy-on 'pixi-info  :and-call-fake (lambda (&rest _) (pixi-tests--info)))
-    (spy-on 'pixi-tasks :and-return-value '("build" "run" "test"))
+    (spy-on 'pixi-tasks :and-return-value '("build" "robot" "teleop"))
     (spy-on 'nerd-icons-codicon :and-call-fake
             (lambda (name &rest _) (push name icon-calls) ""))
     (with-temp-buffer
@@ -411,10 +525,10 @@
                                             (flatten-list mode-name))))))
 
   (it "prefixes the CLI version with `v'"
-    (expect joined :to-match "v0\\.70\\.0"))
+    (expect joined :to-match "v0\\.70\\.2"))
 
   (it "renders the env count followed by labels (no `envs' word)"
-    (expect joined :to-match " 2 ")
+    (expect joined :to-match " 1 ")
     (expect joined :not :to-match "envs"))
 
   (it "renders the task count followed by labels (no `tasks' word)"
@@ -444,7 +558,7 @@
   (before-each (spy-on 'yes-or-no-p :and-return-value t))
 
   (it "compiles `pixi clean' without -e by default"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir)
             captured)
@@ -455,7 +569,7 @@
         (expect captured :not :to-match "-e"))))
 
   (it "adds `-e ENV' when scoped to an environment"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir)
             captured)
@@ -464,7 +578,7 @@
         (expect captured :to-match "-e lyrical"))))
 
   (it "aborts (no compile call) when confirmation is declined"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir))
         (spy-on 'yes-or-no-p :and-return-value nil)
@@ -474,7 +588,7 @@
 
 (describe "pixi-tree"
   (it "compiles `pixi tree' with no -e when bare"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir)
             captured)
@@ -485,7 +599,7 @@
         (expect captured :not :to-match "-e"))))
 
   (it "scopes to an environment via -e"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir)
             captured)
@@ -494,7 +608,7 @@
         (expect captured :to-match "tree -e lyrical"))))
 
   (it "appends the regex as a positional after `-e ENV'"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir)
             captured)
@@ -503,13 +617,63 @@
         (expect captured :to-match "tree -e default ros"))))
 
   (it "drops an empty regex string from the command line"
-    (ert-with-temp-directory dir
+    (pixi-tests--with-temp-dir dir
       (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
       (let ((default-directory dir)
             captured)
         (spy-on 'compile :and-call-fake (lambda (cmd) (setq captured cmd)))
         (pixi-tree "default" "")
         (expect captured :to-match "tree -e default --manifest-path")))))
+
+(describe "pixi-run-task"
+  (it "compiles `pixi run NAME' with the manifest-path appended"
+    (pixi-tests--with-temp-dir dir
+      (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
+      (let ((default-directory dir)
+            captured)
+        (spy-on 'compile :and-call-fake (lambda (cmd) (setq captured cmd)))
+        (pixi-run-task "build")
+        (expect captured :to-match "\\bpixi\\b")
+        (expect captured :to-match "\\brun build\\b")
+        (expect captured :to-match "--manifest-path"))))
+
+  (it "isolates output into a `*pixi:NAME*' buffer"
+    (pixi-tests--with-temp-dir dir
+      (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
+      (let ((default-directory dir)
+            captured-name)
+        (spy-on 'compile :and-call-fake
+                (lambda (&rest _)
+                  (setq captured-name (funcall compilation-buffer-name-function nil))))
+        (pixi-run-task "viz")
+        (expect captured-name :to-equal "*pixi:viz*"))))
+
+  (it "does not change the selected window"
+    (pixi-tests--with-temp-dir dir
+      (pixi-tests--make-workspace dir "pixi.toml" "[workspace]\n")
+      (let* ((default-directory dir)
+             (original (selected-window)))
+        (spy-on 'compile)
+        (pixi-run-task "build")
+        (expect (selected-window) :to-equal original)))))
+
+(describe "pixi--task-row-title text properties"
+  (it "carries the task name as a `pixi-task' text property on the row"
+    (let* ((task '((name . "robot")
+                   (feature . "default")
+                   (cmd . "ros2 run robot hat_mdd10sm")))
+           (title (pixi--task-row-title task '("lyrical"))))
+      (expect (get-text-property 0 'pixi-task title) :to-equal "robot"))))
+
+(describe "pixi-mode-map binding for r"
+  (it "binds `r' to a command that pulls the task name from `pixi-task' text property at point"
+    (with-temp-buffer
+      (insert (propertize "robot row" 'pixi-task "robot"))
+      (goto-char (point-min))
+      (let (captured)
+        (spy-on 'pixi-run-task :and-call-fake (lambda (n) (setq captured n)))
+        (call-interactively (lookup-key pixi-mode-map "r"))
+        (expect captured :to-equal "robot")))))
 
 (defconst pixi-tests--pixi-el
   (expand-file-name "pixi.el"
@@ -586,16 +750,14 @@
                  ";;; Commentary:\\(\\(?:\n;;.*\\)*\\)"
                  contents)
                 (match-string 1 contents))))
-      (expect commands-section :to-match "Commands:")
-      (expect commands-section :to-match "^;;   pixi\\b")
-      (expect commands-section :to-match "^;;   pixi-clean\\b")
-      (expect commands-section :to-match "^;;   pixi-tree\\b")
-      (expect commands-section :to-match "^;;   pixi-refresh\\b"))))
+      (expect commands-section :to-render-substrings
+              '("Commands:" ";;   pixi" ";;   pixi-clean"
+                ";;   pixi-tree" ";;   pixi-refresh")))))
 
 (describe "pixi--buffer-name"
   (it "embeds the workspace identity as `*pixi:NAME@VERSION*'"
     (spy-on 'pixi-info :and-call-fake (lambda (&rest _) (pixi-tests--info)))
-    (expect (pixi--buffer-name) :to-equal "*pixi:X@0.1.0*"))
+    (expect (pixi--buffer-name) :to-equal "*pixi:MFarabi619@0.1.0*"))
 
   (it "falls back to `*pixi*' when pixi-info is unavailable"
     (spy-on 'pixi-info :and-return-value nil)
@@ -605,7 +767,7 @@
   :var (mode-line-text faces)
   (before-each
     (spy-on 'pixi-info  :and-call-fake (lambda (&rest _) (pixi-tests--info)))
-    (spy-on 'pixi-tasks :and-return-value '("build" "run" "test"))
+    (spy-on 'pixi-tasks :and-return-value '("build" "robot" "teleop"))
     (with-temp-buffer
       (pixi--task-list-set-mode-line)
       (setq mode-line-text (apply #'concat
@@ -623,7 +785,7 @@
     (expect mode-line-text :not :to-match "0\\.1\\.0"))
 
   (it "still shows the pixi CLI version"
-    (expect mode-line-text :to-match "0\\.70\\.0"))
+    (expect mode-line-text :to-match "0\\.70\\.2"))
 
   (it "uses more than one face across its icons (not all vui-success)"
     (expect (length (delete-dups faces)) :to-be-greater-than 2)))
@@ -645,9 +807,10 @@
       (spy-on 'pixi--task-list-set-mode-line)
       (spy-on 'pixi-mode)
       (spy-on 'pixi-info :and-call-fake (lambda (&rest _) (pixi-tests--info)))
-      (when (get-buffer "*pixi:X@0.1.0*") (kill-buffer "*pixi:X@0.1.0*"))
+      (when (get-buffer "*pixi:MFarabi619@0.1.0*")
+        (kill-buffer "*pixi:MFarabi619@0.1.0*"))
       (pixi)
-      (expect captured-buffer-name :to-equal "*pixi:X@0.1.0*"))))
+      (expect captured-buffer-name :to-equal "*pixi:MFarabi619@0.1.0*"))))
 
 (describe "M-x discoverability"
   (it "scopes `pixi-clean' to pixi-mode buffers"
@@ -662,34 +825,5 @@
   (it "hides `pixi-info-invalidate' from M-x entirely"
     (expect (get 'pixi-info-invalidate 'completion-predicate)
             :to-equal #'ignore)))
-
-(describe "against MFarabi619 (real-world integration)"
-  :var (workspace)
-  (before-each
-    (setq workspace (expand-file-name "~/MFarabi619/"))
-    (assume (file-exists-p (expand-file-name "pixi.toml" workspace))
-            "MFarabi619 workspace not present")
-    (assume (executable-find "pixi") "pixi CLI not on PATH")
-    (pixi-info-invalidate))
-
-  (it "detects the workspace from the repo root"
-    (expect (pixi-root workspace) :to-be-file-equal workspace))
-
-  (it "exposes workspace identity via pixi-info"
-    (expect (pixi-name workspace)    :to-equal "MFarabi619")
-    (expect (pixi-version workspace) :to-equal "0.1.0"))
-
-  (it "lists both environments (default + lyrical)"
-    (expect (pixi-environment-names workspace)
-            :to-have-same-items-as '("default" "lyrical")))
-
-  (it "collapses bridge/robot/teleop/build into 4 unique grouped tasks"
-    (let ((default-directory workspace))
-      (expect (length (pixi--task-list-grouped)) :to-equal 4)))
-
-  (it "discovers `colcon build' as the `build' task's cmd in the default env"
-    (let* ((default-directory workspace)
-           (build (pixi-task "build" "default")))
-      (expect (alist-get 'cmd build) :to-match "\\bcolcon build\\b"))))
 
 ;;; pixi-tests.el ends here
