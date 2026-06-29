@@ -1,0 +1,15 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
+(package "dioxus"
+         "0.0.1"
+         "Dioxus (dx) project integration for GNU Emacs")
+
+(website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/dioxus")
+(keywords "tools" "languages")
+
+(package-file "dioxus.el")
+
+(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+
+(development
+ (depends-on "buttercup"))

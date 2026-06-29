@@ -1,0 +1,246 @@
+Build the Dioxus project and all of its assets
+
+Usage: dx build [OPTIONS] [COMMAND]
+
+Commands:
+  @client  Specify the arguments for the client build
+  @server  Specify the arguments for the server build
+
+Options:
+      --fullstack [<FULLSTACK>]
+          Enable fullstack mode [default: false]
+          
+          This is automatically detected from `dx serve` if the "fullstack" feature is enabled by
+          default.
+          
+          [possible values: true, false]
+
+      --ssg
+          Pre-render all routes returned from the app's `/static_routes` endpoint [default: false]
+
+      --fat-binary
+          Force a "fat" binary, required to use `dx build-tools hotpatch`
+
+      --force-sequential [<FORCE_SEQUENTIAL>]
+          This flag only applies to fullstack builds. By default fullstack builds will run the
+          server and client builds in parallel. This flag will force the build to run the server
+          build first, then the client build. [default: false]
+          
+          If CI is enabled, this will be set to true by default.
+          
+          [possible values: true, false]
+
+      --verbose
+          Use verbose output [default: false]
+
+      --trace
+          Use trace output [default: false]
+
+      --json-output
+          Output logs in JSON format
+
+      --device [<DEVICE>]
+          The name of the device we are hoping to upload to. By default, dx tries to upload to the
+          active simulator. If the device name is passed, we will upload to that device instead.
+          
+          This performs a search among devices, and fuzzy matches might be found.
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+Platform:
+      --web
+          Target a web app
+
+      --desktop
+          Target a desktop app
+
+      --macos
+          Target a macos desktop app
+
+      --windows
+          Target a windows desktop app
+
+      --linux
+          Target a linux desktop app
+
+      --ios
+          Target an ios app
+
+      --android
+          Target an android app
+
+      --server
+          Target a server build
+
+      --liveview
+          Target a liveview build
+
+      --platform <PLATFORM>
+          Manually set the platform (web, macos, windows, linux, ios, android, server, liveview)
+          
+          [possible values: web, macos, windows, linux, ios, android, server, liveview, desktop]
+
+Target Options:
+      --renderer <RENDERER>
+          Which renderer to use? By default, this is usually inferred from the platform
+
+          Possible values:
+          - webview:  Targeting webview renderer
+          - native:   Targeting native renderer
+          - server:   Targeting the server platform using Axum and Dioxus-Fullstack
+          - liveview: Targeting the static generation platform using SSR and Dioxus-Fullstack
+          - web:      Targeting the web-sys renderer
+
+      --bundle <BUNDLE>
+          The bundle format to target for the build: supports web, macos, windows, linux, ios,
+          android, and server
+
+  -r, --release
+          Build in release mode [default: false]
+
+  -p, --package <PACKAGE>
+          The package to build
+
+      --bin <BIN>
+          Build a specific binary [default: ""]
+
+      --example <EXAMPLE>
+          Build a specific example [default: ""]
+
+      --profile <PROFILE>
+          Build the app with custom a profile
+
+      --features <FEATURES>
+          Space separated list of features to activate
+
+      --no-default-features
+          Don't include the default features in the build
+
+      --all-features
+          Include all features in the build
+
+      --target <TARGET>
+          Rustc platform triple
+
+      --cargo-args <CARGO_ARGS>
+          Extra arguments passed to `cargo`
+          
+          To see a list of args, run `cargo rustc --help`
+          
+          This can include stuff like, "--locked", "--frozen", etc. Note that `dx` sets many of
+          these args directly from other args in this command.
+
+      --rustc-args <RUSTC_ARGS>
+          Extra arguments passed to `rustc`. This can be used to customize the linker, or other
+          flags.
+          
+          For example, specifign `dx build --rustc-args "-Clink-arg=-Wl,-blah"` will pass
+          "-Clink-arg=-Wl,-blah" to the underlying the `cargo rustc` command:
+          
+          cargo rustc -- -Clink-arg=-Wl,-blah
+
+      --skip-assets
+          Skip collecting assets from dependencies [default: false]
+
+      --inject-loading-scripts [<INJECT_LOADING_SCRIPTS>]
+          Inject scripts to load the wasm and js files for your dioxus app if they are not already
+          present [default: true]
+          
+          [default: true]
+          [possible values: true, false]
+
+      --wasm-split
+          Experimental: Bundle split the wasm binary into multiple chunks based on `#[wasm_split]`
+          annotations [default: false]
+
+      --debug-symbols [<DEBUG_SYMBOLS>]
+          Generate debug symbols for the wasm binary [default: true]
+          
+          This will make the binary larger and take longer to compile, but will allow you to debug
+          the wasm binary
+          
+          [default: true]
+          [possible values: true, false]
+
+      --keep-names
+          Keep the name section in the wasm binary, useful for profiling and debugging [default:
+          false]
+          
+          Unlike --debug-symbols which preserves DWARF debug info (requiring a browser extension to
+          read), the name section allows tools like console_error_panic_hook to print backtraces
+          with human-readable function names without any browser extension.
+
+      --base-path <BASE_PATH>
+          The base path the build will fetch assets relative to. This will override the base path
+          set in the `dioxus` config
+
+      --codesign [<CODESIGN>]
+          Should dx attempt to codesign the app bundle?
+          
+          [default: false]
+          [possible values: true, false]
+
+      --apple-entitlements <APPLE_ENTITLEMENTS>
+          The path to the Apple entitlements file to used to sign the resulting app bundle.
+          
+          On iOS, this is required for deploy to a device and some configurations in the simulator.
+
+      --apple-team-id <APPLE_TEAM_ID>
+          The Apple team ID to use when signing the app bundle.
+          
+          Usually this is an email or name associated with your Apple Developer account, usually in
+          the format `Signing Name (GXTEAMID123)`.
+          
+          This is passed directly to the `codesign` tool.
+          
+          ``` codesign --force --entitlements <entitlements_file> --sign <apple_team_id>
+          <app_bundle> ```
+
+      --session-cache-dir <SESSION_CACHE_DIR>
+          The folder where DX stores its temporary artifacts for things like hotpatching, build
+          caches, window position, etc. This is meant to be stable within an invocation of the CLI,
+          but you can persist it by setting this flag
+
+      --client-target <CLIENT_TARGET>
+          The target for the client build, used for specifying which target the server should end up
+          in when merging `@client and @server` targets together
+
+      --wasm-js-cfg [<WASM_JS_CFG>]
+          Automatically pass `--features=js_cfg` when building for wasm targets. This is enabled by
+          default
+          
+          [default: true]
+          [possible values: true, false]
+
+      --windows-subsystem <WINDOWS_SUBSYSTEM>
+          The Windows subsystem to use when building for Windows targets. This can be either
+          `CONSOLE` or `WINDOWS`.
+          
+          By default, DX uses `WINDOWS` since it assumes a GUI application, but you can override
+          this behavior with this flag.
+          
+          See
+          <https://learn.microsoft.com/en-us/cpp/build/reference/subsystem-specify-subsystem?view=msvc-170>
+          for more information.
+
+      --raw-json-diagnostics
+          Output raw JSON diagnostics from cargo instead of processing them [default: false]
+          
+          When enabled, cargo's JSON output will be relayed directly to stdout without any
+          processing or formatting by DX. This is useful for integration with other tools that
+          expect cargo's raw JSON format.
+
+Logging Options:
+      --log-to-file <LOG_TO_FILE>
+          Write *all* logs to a file
+
+Manifest Options:
+      --locked
+          Assert that `Cargo.lock` will remain unchanged
+
+      --offline
+          Run without accessing the network
+
+      --frozen
+          Equivalent to specifying both --locked and --offline

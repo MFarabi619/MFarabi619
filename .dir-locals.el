@@ -31,16 +31,6 @@
             ("󱄅 devenv  : tailscale"                :command "devenv up tailscale"                          :prodigy t :port 8080                 :annotation "       nix 󱄅")
             ("󱄅 devenv  : prometheus"               :command "devenv up prometheus"                         :prodigy t :port 9090                 :annotation "       nix 󱄅")
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
-            (" loco  : start"                      :command "cargo loco start"                             :prodigy t :port 5150                 :annotation "     cargo ")
-            (" loco  : db"                         :command "cargo loco db"                                :prodigy t                            :annotation "     cargo ")
-            (" loco  :󱤟 db:status"                  :command "cargo loco db status"                         :prodigy t                            :annotation "     cargo ")
-            (" loco  :󱘽 db:migrate:up"              :command "cargo loco db migrate up"                     :prodigy t                            :annotation "     cargo ")
-            (" loco  :󱘼 db:migrate:down"            :command "cargo loco db migrate up"                     :prodigy t                            :annotation "     cargo ")
-            (" loco  :󰆺 db:seed"                    :command "cargo loco db seed"                           :prodigy t                            :annotation "     cargo ")
-            (" loco  :󰑪 routes"                     :command "cargo loco routes"                            :prodigy t                            :annotation "     cargo ")
-            (" loco  :󰣖 jobs"                       :command "cargo loco jobs"                              :prodigy t                            :annotation "     cargo ")
-            (" loco  : doctor"                     :command "cargo loco doctor"                            :prodigy t                            :annotation "     cargo ")
-            ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ("󱄅 microvisor  : arch:upgrade"         :command "sudo pacman -Syu                 "                                                  :annotation "    pacman ")
@@ -60,16 +50,12 @@
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ("󰕮 microtop 󰕮 : run"                    :command "cargo r -rp microtop"                          :prodigy t                           :annotation "     cargo ")
             ("󰕮 microtop 󰕮 :󰳽 serve"                  :command "trunk serve --config apps/microtop/Trunk.toml" :prodigy t :port 8080                :annotation "     cargo ")
-            ("󰕮 buttercup 󰕮 :󰳽 test"                  :command "emacs --batch -L ~/MFarabi619/modules/home/programs/emacs/extra/west -L ~/MFarabi619/modules/home/programs/emacs/extra/zephyr -L ~/MFarabi619/modules/home/programs/emacs/extra/platformio -L ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr -L ~/MFarabi619/modules/home/programs/emacs/extra/tailscale -l buttercup -f buttercup-run-discover ~/MFarabi619/modules/home/programs/emacs/extra/west ~/MFarabi619/modules/home/programs/emacs/extra/zephyr ~/MFarabi619/modules/home/programs/emacs/extra/platformio ~/MFarabi619/modules/home/programs/emacs/extra/mcumgr ~/MFarabi619/modules/home/programs/emacs/extra/tailscale"                :annotation "     emacs  ")
-
-            ;; ======================================|========|================================================|=========|=================================================== ;;
-            ;; ======================================|========|================================================|=========|=================================================== ;;
-            ("󰦉 web 󰦉 :󰳽 serve"                       :command "dx serve -p web"                               :prodigy t                           :annotation "    dioxus ")
-            ("󰦉 web 󰦉 :󰟀 serve:desktop"               :command "dx serve -p web"                               :prodigy t                           :annotation "    dioxus ")
-            ("󰦉 web 󰦉 : serve:ssg"                   :command "dx serve -rp web --ssg"                        :prodigy t :port 8080                :annotation "    dioxus ")
-            ("󰦉 web 󰦉 :󰡢 build"                       :command "dx build -p web"                               :prodigy t                           :annotation "    dioxus ")
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
+            ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
+            (" buttercup  :󰳽 test"                  :command "for pkg in ~/MFarabi619/modules/home/programs/emacs/extra/*/Eask; do (cd \"${pkg%/Eask}\" && eask test buttercup); done"                :annotation "     emacs  ")
+            ;; ======================================|========|================================================|=========|=================================================== ;;
+            ;; ======================================|========|================================================|=========|=================================================== ;;
             (" tui  : run"                         :command "cargo r -rp tui"                               :prodigy t                           :annotation "     cargo ")
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
