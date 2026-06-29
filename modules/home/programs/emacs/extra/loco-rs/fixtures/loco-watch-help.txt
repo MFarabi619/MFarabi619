@@ -1,0 +1,10 @@
+Watch and restart the app
+
+Usage: loco watch [OPTIONS]
+
+Options:
+  -w, --worker [<WORKER>...]       start worker
+  -s, --server-and-worker          start same-process server and worker
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

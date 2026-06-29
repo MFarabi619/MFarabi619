@@ -1,0 +1,12 @@
+Run the scheduler
+
+Usage: loco scheduler [OPTIONS]
+
+Options:
+  -n, --name <NAME>                Run a specific job by its name
+  -t, --tag <TAG>                  Run jobs that are associated with a specific tag
+  -c, --config <CONFIG_PATH>       Specify a path to a dedicated scheduler configuration file. by default load schedulers job setting from environment config
+  -l, --list                       Show all configured jobs
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

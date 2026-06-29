@@ -1,0 +1,20 @@
+Perform DB operations
+
+Usage: loco db [OPTIONS] <COMMAND>
+
+Commands:
+  create    Create schema
+  migrate   Migrate schema (up)
+  down      Run one down migration, or add a number to run multiple down migrations (i.e. `down 2`)
+  reset     Drop all tables, then reapply all migrations
+  status    Migration status
+  entities  Generate entity .rs files from database schema
+  truncate  Truncate data in tables (without dropping)
+  seed      Seed your database with initial data or dump tables to files
+  schema    Dump database schema
+  help      Print this message or the help of the given subcommand(s)
+
+Options:
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

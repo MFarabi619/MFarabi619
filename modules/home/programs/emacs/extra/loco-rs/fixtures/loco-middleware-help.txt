@@ -1,0 +1,9 @@
+Describe all application middlewares
+
+Usage: loco middleware [OPTIONS]
+
+Options:
+  -c, --config
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

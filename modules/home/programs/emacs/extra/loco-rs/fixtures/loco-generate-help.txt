@@ -1,0 +1,22 @@
+code generation creates a set of files and code templates based on a predefined set of rules
+
+Usage: loco generate [OPTIONS] <COMMAND>
+
+Commands:
+  model       Generates a new model file for defining the data structure of your application, and test file logic
+  migration   Generates a new migration file
+  scaffold    Generates a CRUD scaffold, model and controller
+  controller  Generate a new controller with the given controller name, and test file
+  task        Generate a Task based on the given name
+  scheduler   Generate a scheduler jobs configuration template
+  worker      Generate worker
+  mailer      Generate mailer
+  data        Generate data loader
+  deployment  Generate a deployment infrastructure
+  override    Override templates and allows you to take control of them. You can always go back when deleting the local template
+  help        Print this message or the help of the given subcommand(s)
+
+Options:
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

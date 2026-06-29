@@ -1,0 +1,12 @@
+Run a custom task
+
+Usage: loco task [OPTIONS] [NAME] [PARAMS]...
+
+Arguments:
+  [NAME]       Task name (identifier)
+  [PARAMS]...  Task params (e.g. <`my_task`> foo:bar baz:qux)
+
+Options:
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

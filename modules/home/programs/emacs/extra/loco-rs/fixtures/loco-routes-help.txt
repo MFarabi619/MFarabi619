@@ -1,0 +1,8 @@
+Describe all application endpoints
+
+Usage: loco routes [OPTIONS]
+
+Options:
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

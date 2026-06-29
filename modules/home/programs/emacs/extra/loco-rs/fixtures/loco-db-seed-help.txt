@@ -1,0 +1,12 @@
+Seed your database with initial data or dump tables to files
+
+Usage: loco db seed [OPTIONS]
+
+Options:
+  -r, --reset                      Clears all data in the database before seeding
+  -d, --dump                       Dumps all database tables to files
+      --dump-tables <DUMP_TABLES>  Specifies specific tables to dump
+      --from <FROM>                Specifies the folder containing seed files (defaults to 'src/fixtures') [default: src/fixtures]
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

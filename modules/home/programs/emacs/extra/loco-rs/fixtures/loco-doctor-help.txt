@@ -1,0 +1,10 @@
+Validate and diagnose configurations
+
+Usage: loco doctor [OPTIONS]
+
+Options:
+  -c, --config                     print out the current configurations
+  -p, --production
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version

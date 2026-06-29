@@ -1,0 +1,14 @@
+Start an app
+
+Usage: loco start [OPTIONS]
+
+Options:
+  -w, --worker [<WORKER>...]       Start worker. Optionally provide tags to run specific jobs (e.g. --worker=tag1,tag2)
+  -s, --server-and-worker          Start the server and worker in the same process
+  -a, --all                        Start the server, worker, and scheduler in the same process
+  -b, --binding <BINDING>          server bind address
+  -p, --port <PORT>                server port address
+  -n, --no-banner                  disable the banner display
+  -e, --environment <ENVIRONMENT>  Specify the environment [default: development]
+  -h, --help                       Print help
+  -V, --version                    Print version
