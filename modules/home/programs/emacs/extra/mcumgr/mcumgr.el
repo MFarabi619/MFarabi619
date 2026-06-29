@@ -3,7 +3,10 @@
 ;; Copyright (C) 2026 Mumtahin Farabi
 
 ;; Author: Mumtahin Farabi <mfarabi619@gmail.com>
+;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/mcumgr
 ;; Keywords: lisp, tools
+;; Version: 0.0.1
+;; Package-Requires: ((emacs "29.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -25,7 +28,7 @@
   :group 'lisp)
 
 (defcustom mcumgr-executable nil
-  "Path to the mcumgrctl executable. If nil, search PATH for mcumgrctl."
+  "Path to the mcumgrctl executable.  If nil, search PATH for mcumgrctl."
   :type '(choice (const :tag "Auto-detect" nil) file)
   :group 'mcumgr)
 
@@ -54,7 +57,8 @@
     buf))
 
 (defun mcumgr--log (args exit-code stdout stderr elapsed-ms)
-  "Append one timestamped entry for an invocation to the log buffer."
+  "Append one timestamped log entry for an invocation.
+ARGS is the command; EXIT-CODE, STDOUT, STDERR and ELAPSED-MS are its result."
   (when mcumgr-log-enabled
     (with-current-buffer (mcumgr--log-buffer)
       (let ((inhibit-read-only t))
@@ -88,7 +92,7 @@
         (erase-buffer)))))
 
 (defun mcumgr--call (executable args)
-  "Run EXECUTABLE with ARGS. Return (EXIT-CODE STDOUT STDERR)."
+  "Run EXECUTABLE with ARGS.  Return (EXIT-CODE STDOUT STDERR)."
   (let ((stderr-file (make-temp-file "mcumgr-stderr-"))
          (start (float-time)))
     (unwind-protect
@@ -135,12 +139,13 @@ Signal `mcumgr-parse-error' on bad JSON."
             :args   args))))))
 
 (defun mcumgr--run-json (&rest args)
-  "Run mcumgrctl with ARGS; parse stdout as JSON (objects → plists, arrays → lists).
+  "Run mcumgrctl with ARGS, parsing stdout as JSON.
+Objects become plists and arrays become lists.
 Signal `mcumgr-parse-error' on bad JSON."
   (apply #'mcumgr--run-json-as 'plist 'list args))
 
 (defun mcumgr--make-line-filter (on-output)
-  "Return a process filter that calls ON-OUTPUT for each complete stdout line."
+  "Return a process filter that invokes ON-OUTPUT for each complete stdout line."
   (let (tail)
     (lambda (proc chunk)
       (when (buffer-live-p (process-buffer proc))
@@ -156,7 +161,9 @@ Signal `mcumgr-parse-error' on bad JSON."
               (set-marker tail (point)))))))))
 
 (defun mcumgr--make-sentinel (on-exit args start-time)
-  "Return a process sentinel that logs, stashes stdout/stderr, and calls ON-EXIT."
+  "Return a process sentinel for the mcumgrctl invocation of ARGS.
+On exit it logs, stashes stdout/stderr, and invokes ON-EXIT.
+START-TIME (a `float-time' value) seeds the elapsed-time log field."
   (lambda (proc _event)
     (when (memq (process-status proc) '(exit signal))
       (let* ((stdout-buf (process-buffer proc))
@@ -179,7 +186,7 @@ Signal `mcumgr-parse-error' on bad JSON."
             (when (buffer-live-p stderr-buf) (kill-buffer stderr-buf))))))))
 
 (defun mcumgr-run-async (args &rest plist)
-  "Run mcumgrctl with ARGS asynchronously. Return the spawned process.
+  "Run mcumgrctl with ARGS asynchronously.  Return the spawned process.
 PLIST keys:
   :on-output FN  (FN LINE)                       per stdout line
   :on-exit   FN  (FN EXIT-CODE STDOUT STDERR)    on termination
@@ -202,7 +209,7 @@ Cancel with `mcumgr-task-cancel' or `delete-process'."
     process))
 
 (defun mcumgr-task-cancel (process)
-  "Cancel PROCESS. Triggers its sentinel for cleanup."
+  "Cancel PROCESS, triggering its sentinel for cleanup."
   (when (process-live-p process)
     (delete-process process))
   t)
@@ -216,6 +223,13 @@ Signal `mcumgr-exec-error' on non-zero exit or TIMEOUT (seconds)."
       (accept-process-output process 0.05)))
   (let ((timed-out (process-live-p process)))
     (when timed-out (delete-process process))
+    ;; The sentinel stashes stdout/stderr (and runs `:on-exit') on a later
+    ;; event-loop turn than the one on which the process dies.  Pump until it
+    ;; has run so we never read the stash before it exists.
+    (let ((sentinel-deadline (+ (float-time) 1.0)))
+      (while (and (null (process-get process 'mcumgr-stdout))
+               (< (float-time) sentinel-deadline))
+        (accept-process-output nil 0.05)))
     (let ((exit-code (process-exit-status process))
            (stdout    (or (process-get process 'mcumgr-stdout) ""))
            (stderr    (or (process-get process 'mcumgr-stderr) "")))
@@ -306,7 +320,7 @@ Keys include \"Name\", \"Mode\", \"Downgrade Prevention\"."
 ;;; Stats group
 
 (defun mcumgr-stats-list-groups (transport)
-  "Return the list of available stat group names for the device matched by TRANSPORT."
+  "Return the available stat-group names for the device matched by TRANSPORT."
   (apply #'mcumgr--run-json
     (append (mcumgr--transport-args transport)
       (list "stats" "list-groups" "--json"))))
@@ -346,7 +360,7 @@ Result is a hash-table with keys \"checksum\", \"type\", \"data length\",
 ;;; Enum group
 
 (defun mcumgr-enum-list-groups (transport)
-  "Return the list of supported MCUmgr group IDs for the device matched by TRANSPORT."
+  "Return the supported MCUmgr group IDs for the device matched by TRANSPORT."
   (apply #'mcumgr--run-json
     (append (mcumgr--transport-args transport)
       (list "enum" "list-groups" "--json"))))

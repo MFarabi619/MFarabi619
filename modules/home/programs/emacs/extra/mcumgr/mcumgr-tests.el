@@ -17,7 +17,8 @@
 (defconst mcumgr-tests--fixtures-dir
   (expand-file-name "fixtures/"
     (file-name-directory (or load-file-name buffer-file-name)))
-  "Directory holding the `mcumgr-<command>.json' fixtures captured from real CLI output.")
+  "Directory of the `mcumgr-<command>.json' fixtures.
+Captured from real `mcumgrctl' output.")
 
 (defun mcumgr-tests--fixture (name)
   "Return the contents of `fixtures/NAME' as a string.
@@ -46,9 +47,9 @@ Safe to call from inside spec bodies; the directory is resolved at load time."
      ;; device: fs group
      ("mcumgr-fs-status.json"               "fs" "status"   "/SD:/www/index.html" "--json")
      ("mcumgr-fs-checksum.json"             "fs" "checksum" "/SD:/www/index.html" "--json"))
-  "Alist mapping `fixtures/FILE.json' → the `mcumgrctl' args that produced it.
-Host-side entries start with `--usb-serial' or `--serial'; all others require a
-transport.  The auto-generated suite uses this to run parse-cleanly and live-drift
+  "Map each `fixtures/FILE.json' to the `mcumgrctl' args that produced it.
+Host-side entries start with `--usb-serial' or `--serial'; all others need a
+transport.  The auto-generated suite uses this for parse-cleanly and live-drift
 specs without per-command boilerplate.")
 
 (defcustom mcumgr-tests-transport nil
@@ -58,11 +59,11 @@ Left nil to skip all device-side drift checks."
   :group 'mcumgr)
 
 (defun mcumgr-tests--run-cli (&rest args)
-  "Run `mcumgrctl ARGS' and return stdout as a string. Signals on non-zero exit."
+  "Run `mcumgrctl ARGS', returning stdout as a string; error on non-zero exit."
   (with-temp-buffer
     (let ((exit (apply #'call-process "mcumgrctl" nil t nil args)))
       (unless (zerop exit)
-        (error "mcumgrctl %s failed (exit %d): %s"
+        (error "Mcumgrctl %s failed (exit %d): %s"
           (string-join args " ") exit (buffer-string)))
       (buffer-string))))
 
@@ -74,20 +75,32 @@ Left nil to skip all device-side drift checks."
 ;;; Test helpers
 
 (defmacro mcumgr-tests--stub-run (output &rest body)
-  "Stub `mcumgr--run' to return OUTPUT and capture its args while BODY runs."
+  "Stub `mcumgr--run' to return OUTPUT and capture its args during BODY."
   (declare (indent 1))
   `(let (captured-args)
+     (ignore captured-args)
      (cl-letf (((symbol-function 'mcumgr--run)
                  (lambda (&rest args) (setq captured-args args) ,output)))
        ,@body)))
 
 (defmacro mcumgr-tests--with-shell (&rest body)
-  "Override `mcumgr--executable' to /bin/sh while BODY runs.
+  "Override `mcumgr--executable' to /bin/sh for BODY.
 Logging is disabled so the shared `*mcumgr*' buffer is not polluted."
   (declare (indent 0))
   `(let ((mcumgr-log-enabled nil))
      (cl-letf (((symbol-function 'mcumgr--executable) (lambda () "/bin/sh")))
        ,@body)))
+
+(defun mcumgr-tests--wait (proc &optional done-p)
+  "Pump the event loop until PROC exits and DONE-P (when given) is non-nil.
+Waiting on `process-live-p' alone is insufficient: a process's sentinel
+runs on a later event-loop turn, so sentinel effects (`:on-exit', buffer
+cleanup, the final `:on-output' line) may not have happened yet when the
+process is already dead.  DONE-P expresses that post-condition.  A timeout
+guards against a sentinel that never fires."
+  (with-timeout (5 (error "Mcumgr async wait timed out"))
+    (while (or (process-live-p proc) (and done-p (not (funcall done-p))))
+      (accept-process-output nil 0.05))))
 
 ;;; Auto-generated fixture specs
 
@@ -123,7 +136,7 @@ Logging is disabled so the shared `*mcumgr*' buffer is not polluted."
                 (lambda (_exe _args)
                   (list 1 "partial stdout" "Error: connection timed out\n"))))
       (condition-case err
-        (progn (mcumgr--run "--udp" "10.0.0.1") (error "expected to signal"))
+        (progn (mcumgr--run "--udp" "10.0.0.1") (error "Expected to signal"))
         (mcumgr-exec-error
           (let ((data (cdr err)))
             (expect (plist-get data :exit-code) :to-equal 1)
@@ -141,7 +154,7 @@ Logging is disabled so the shared `*mcumgr*' buffer is not polluted."
     (cl-letf (((symbol-function 'mcumgr--run)
                 (lambda (&rest _) "this is not json")))
       (condition-case err
-        (progn (mcumgr--run-json "--bogus") (error "expected to signal"))
+        (progn (mcumgr--run-json "--bogus") (error "Expected to signal"))
         (mcumgr-parse-error
           (let ((data (cdr err)))
             (expect (plist-get data :output) :to-equal "this is not json")
@@ -164,7 +177,7 @@ Logging is disabled so the shared `*mcumgr*' buffer is not polluted."
                       '("-c" "echo out; echo err >&2; exit 3")
                       :on-exit (lambda (code o e)
                                  (setq result (list code o e))))))
-          (while (process-live-p proc) (accept-process-output proc 0.05))
+          (mcumgr-tests--wait proc (lambda () result))
           (expect (nth 0 result) :to-equal 3)
           (expect (nth 1 result) :to-match "out")
           (expect (nth 2 result) :to-match "err")))))
@@ -175,14 +188,14 @@ Logging is disabled so the shared `*mcumgr*' buffer is not polluted."
         (let ((proc (mcumgr-run-async
                       '("-c" "echo a; echo b; echo c")
                       :on-output (lambda (line) (push line lines)))))
-          (while (process-live-p proc) (accept-process-output proc 0.05))
+          (mcumgr-tests--wait proc (lambda () (= (length lines) 3)))
           (expect (nreverse lines) :to-equal '("a" "b" "c"))))))
 
   (it "kills the underlying buffers when the process exits"
     (mcumgr-tests--with-shell
       (let* ((before (length (buffer-list)))
               (proc   (mcumgr-run-async '("-c" "echo done"))))
-        (while (process-live-p proc) (accept-process-output proc 0.05))
+        (mcumgr-tests--wait proc (lambda () (= (length (buffer-list)) before)))
         (expect (length (buffer-list)) :to-equal before)))))
 
 (describe "mcumgr-task-wait"
@@ -197,7 +210,7 @@ Logging is disabled so the shared `*mcumgr*' buffer is not polluted."
       (let ((proc (mcumgr-run-async
                     '("-c" "echo out; echo boom >&2; exit 5"))))
         (condition-case err
-          (progn (mcumgr-task-wait proc) (error "expected to signal"))
+          (progn (mcumgr-task-wait proc) (error "Expected to signal"))
           (mcumgr-exec-error
             (let ((data (cdr err)))
               (expect (plist-get data :exit-code) :to-equal 5)
@@ -227,7 +240,7 @@ Logging is disabled so the shared `*mcumgr*' buffer is not polluted."
   (it "is a no-op on a process that has already exited"
     (mcumgr-tests--with-shell
       (let ((proc (mcumgr-run-async '("-c" "true"))))
-        (while (process-live-p proc) (accept-process-output proc 0.05))
+        (mcumgr-tests--wait proc)
         (expect (mcumgr-task-cancel proc) :to-be-truthy)))))
 
 ;;; Logging

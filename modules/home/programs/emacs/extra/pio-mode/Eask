@@ -1,0 +1,15 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
+(package "pio-mode"
+         "0.0.1"
+         "PlatformIO project integration for GNU Emacs")
+
+(website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/pio-mode")
+(keywords "tools" "embedded")
+
+(package-file "pio-mode.el")
+
+(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+
+(development
+ (depends-on "buttercup"))

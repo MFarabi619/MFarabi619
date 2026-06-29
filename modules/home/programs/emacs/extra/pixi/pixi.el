@@ -5,8 +5,7 @@
 ;; Author: Mumtahin Farabi <mfarabi619@gmail.com>
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/pixi
 ;; Keywords: tools, embedded
-;; Package-Version: 0.0
-;; Package-Revision: nil
+;; Version: 0.0.1
 ;; Package-Requires: ((emacs "29.1") (nerd-icons "0.1") (vui "0.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -462,8 +461,8 @@ The whole line carries a `pixi-task' text property naming the task, so
   (pixi-info-invalidate)
   (vui-refresh))
 
-(defun pixi--task-names (&optional project-root)
-  "Return all unique task names defined in PROJECT-ROOT."
+(defun pixi--task-names ()
+  "Return all unique task names."
   (mapcar (lambda (row) (cdr (car row)))
     (pixi--task-list-grouped)))
 
@@ -487,6 +486,7 @@ steal focus from the current window."
     map)
   "Keymap for `pixi-mode' buffers.")
 
+(declare-function evil-define-key "evil-core")
 (with-eval-after-load 'evil
   (evil-define-key 'normal pixi-mode-map
     (kbd "g") #'pixi-refresh

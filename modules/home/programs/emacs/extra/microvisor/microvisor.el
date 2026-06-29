@@ -3,7 +3,9 @@
 ;; Copyright (C) 2026 Mumtahin Farabi
 
 ;; Author: Mumtahin Farabi <mfarabi619@gmail.com>
+;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/microvisor
 ;; Keywords: lisp, tools, convenience
+;; Version: 0.0.1
 ;; Package-Requires: ((emacs "29.1") (compile-multi "0.7") (prodigy "0.7") (nerd-icons "0.1") (projectile "2.8"))
 
 ;; This file is not part of GNU Emacs.
@@ -22,12 +24,14 @@
 
 (let* ((this-dir   (file-name-directory (or load-file-name buffer-file-name)))
         (parent-dir (file-name-directory (directory-file-name this-dir))))
-  (dolist (subdir '("pixi" "west" "zephyr" "pio-mode" "mcumgr" "tailscale"))
+  (dolist (subdir '("pixi" "loco-rs" "dioxus" "west" "zephyr" "pio-mode" "mcumgr" "tailscale"))
     (let ((sibling (expand-file-name subdir parent-dir)))
       (when (file-directory-p sibling)
         (add-to-list 'load-path sibling)))))
 
 (load "pixi"      'noerror 'nomessage)
+(load "loco-rs"   'noerror 'nomessage)
+(load "dioxus"    'noerror 'nomessage)
 (load "west"      'noerror 'nomessage)
 (load "zephyr"    'noerror 'nomessage)
 (load "mcumgr"    'noerror 'nomessage)
@@ -111,6 +115,9 @@ glyph renders icon-only (caller owns its face).  Else call ORIGINAL-FUNCTION."
     (funcall original-function task)))
 
 (defun microvisor--prodigy-running-face-function (original-function tasks)
+  "Around-advice for ORIGINAL-FUNCTION applied to TASKS.
+Renders the title of any `:prodigy' task whose service is already started in
+`prodigy-green-face'."
   (mapcar
     (lambda (task)
       (let* ((title       (car task))
@@ -136,6 +143,9 @@ With no colon, both halves are PLAIN-TITLE."
     (cons plain-title plain-title)))
 
 (defun microvisor--define-prodigy-service (task)
+  "Define a prodigy service from compile-multi TASK.
+Splits the title into group/display, runs the command via the shell from the
+project root, and forwards a `:port' when the task declares one."
   (let* ((title        (car task))
           (plist        (cdr task))
           (port         (plist-get plist :port))
@@ -173,6 +183,8 @@ so titles carry the same text properties prodigy expects."
       (microvisor--define-prodigy-service task))))
 
 (defun microvisor--maybe-register-services ()
+  "Register prodigy services when a dir-local compile-multi config is present.
+Hook for `hack-local-variables-hook'."
   (when (bound-and-true-p compile-multi-dir-local-config)
     (microvisor-register-prodigy-services)))
 

@@ -9,35 +9,35 @@
 (setq buttercup-stack-frame-style 'pretty)
 
 (buttercup-define-matcher-for-binary-function
-    :to-be-file-equal file-equal-p
+  :to-be-file-equal file-equal-p
   :expect-match-phrase    "Expected `%A' to refer to the same file as `%B', but it was `%a'."
   :expect-mismatch-phrase "Expected `%A' not to refer to the same file as `%B', but it did.")
 
 (buttercup-define-matcher :to-have-ports (entries expected-ports)
   "Match `pio--device-list-entries' output by its port list (id of each row)."
   (let ((entries (funcall entries))
-        (expected (funcall expected-ports)))
+         (expected (funcall expected-ports)))
     (let ((actual (mapcar #'car entries)))
       (if (equal actual expected)
-          (cons t  (format "Expected entries NOT to have ports %S" expected))
+        (cons t  (format "Expected entries NOT to have ports %S" expected))
         (cons nil (format "Expected entries to have ports %S, got %S" expected actual))))))
 
 (buttercup-define-matcher :to-have-sections (config expected-sections)
   "Match a `pio-project-config' alist by its top-level section names, in order."
   (let ((cfg (funcall config))
-        (expected (funcall expected-sections)))
+         (expected (funcall expected-sections)))
     (let ((actual (mapcar #'car cfg)))
       (if (equal actual expected)
-          (cons t  (format "Expected config NOT to have sections %S" expected))
+        (cons t  (format "Expected config NOT to have sections %S" expected))
         (cons nil (format "Expected config to have sections %S, got %S" expected actual))))))
 
 (buttercup-define-matcher :to-render-substrings (rendered substrings)
   "Match a rendered string when every entry in SUBSTRINGS appears in it."
   (let ((text (funcall rendered))
-        (subs (funcall substrings)))
+         (subs (funcall substrings)))
     (let ((missing (seq-remove (lambda (s) (string-match-p (regexp-quote s) text)) subs)))
       (if (null missing)
-          (cons t  (format "Expected rendered string NOT to contain all of %S" subs))
+        (cons t  (format "Expected rendered string NOT to contain all of %S" subs))
         (cons nil (format "Expected rendered string to contain %S, missing %S" subs missing))))))
 
 (defmacro pio-tests--with-temp-dir (var &rest body)
@@ -89,7 +89,7 @@
 (describe "pio-config-file"
   (it "returns <project-root>/platformio.ini"
     (expect (pio-config-file "/some/proj/")
-            :to-equal "/some/proj/platformio.ini")))
+      :to-equal "/some/proj/platformio.ini")))
 
 (defun pio-tests--make-project (dir config)
   "Create a platformio.ini at DIR and stub `pio--read-project-config' to CONFIG."
@@ -108,7 +108,7 @@
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir '(("platformio" ("name" . "demo"))))
       (expect (pio-project-config dir)
-              :to-equal '(("platformio" ("name" . "demo"))))))
+        :to-equal '(("platformio" ("name" . "demo"))))))
 
   (it "caches the parsed config and skips reading on subsequent calls"
     (pio-tests--with-temp-dir dir
@@ -138,18 +138,18 @@
   (describe "against a real `pio project config' capture (microvisor workspace)"
     (before-each
       (spy-on 'pio--run-json-as
-              :and-return-value
-              (json-parse-string (pio-tests--fixture "pio-project-config.json")
-                                 :object-type 'hash-table :array-type 'list
-                                 :false-object nil :null-object nil))
+        :and-return-value
+        (json-parse-string (pio-tests--fixture "pio-project-config.json")
+          :object-type 'hash-table :array-type 'list
+          :false-object nil :null-object nil))
       (pio-project-config-invalidate))
 
     (it "preserves section ordering, including non-env templates"
       (pio-tests--with-temp-dir dir
         (write-region "" nil (expand-file-name "platformio.ini" dir))
         (expect (pio-project-config dir) :to-have-sections
-                '("platformio" "native" "env:clay"
-                  "embedded" "env:ceratina" "env:walter-iot" "env:esp32p4"))))
+          '("platformio" "native" "env:clay"
+             "embedded" "env:ceratina" "env:walter-iot" "env:esp32p4"))))
 
     (it "surfaces only `env:' sections through `pio-envs'"
       (pio-tests--with-temp-dir dir
@@ -171,10 +171,10 @@
   (before-each
     (pio-project-metadata-invalidate)
     (spy-on 'pio--run-json-as
-            :and-return-value
-            (json-parse-string (pio-tests--fixture "pio-project-metadata.json")
-                               :object-type 'hash-table :array-type 'list
-                               :false-object nil :null-object nil)))
+      :and-return-value
+      (json-parse-string (pio-tests--fixture "pio-project-metadata.json")
+        :object-type 'hash-table :array-type 'list
+        :false-object nil :null-object nil)))
 
   (it "returns parsed per-env metadata"
     (pio-tests--with-temp-dir dir
@@ -203,10 +203,10 @@
   (before-each
     (pio-project-metadata-invalidate)
     (spy-on 'pio--run-json-as
-            :and-return-value
-            (json-parse-string (pio-tests--fixture "pio-project-metadata.json")
-                               :object-type 'hash-table :array-type 'list
-                               :false-object nil :null-object nil)))
+      :and-return-value
+      (json-parse-string (pio-tests--fixture "pio-project-metadata.json")
+        :object-type 'hash-table :array-type 'list
+        :false-object nil :null-object nil)))
 
   (it "returns the list of buildable targets for a known env"
     (pio-tests--with-temp-dir dir
@@ -226,25 +226,25 @@
   (it "extracts env: section names in declaration order"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("platformio"      ("default_envs" "release"))
-         ("env:release"     ("build_type"   . "release"))
-         ("env:debug"       ("build_type"   . "debug"))
-         ("env:custom_plank" ("board"       . "custom"))))
+        '(("platformio"      ("default_envs" "release"))
+           ("env:release"     ("build_type"   . "release"))
+           ("env:debug"       ("build_type"   . "debug"))
+           ("env:custom_plank" ("board"       . "custom"))))
       (expect (pio-envs dir)
-              :to-equal '("release" "debug" "custom_plank"))))
+        :to-equal '("release" "debug" "custom_plank"))))
 
   (it "ignores non-env sections like [platformio] and [embedded]"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("platformio" ("default_envs" "release"))
-         ("embedded"   ("framework" . "arduino"))
-         ("env:dev"    ("board" . "esp32dev"))))
+        '(("platformio" ("default_envs" "release"))
+           ("embedded"   ("framework" . "arduino"))
+           ("env:dev"    ("board" . "esp32dev"))))
       (expect (pio-envs dir) :to-equal '("dev"))))
 
   (it "returns nil when no env: sections exist"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("platformio" ("name" . "demo"))))
+        '(("platformio" ("name" . "demo"))))
       (expect (pio-envs dir) :not :to-be-truthy)))
 
   (it "returns nil when platformio.ini is absent"
@@ -259,28 +259,28 @@
   (it "returns the default_envs list from [platformio]"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("platformio" ("default_envs" "release" "debug"))))
+        '(("platformio" ("default_envs" "release" "debug"))))
       (expect (pio-default-envs dir) :to-equal '("release" "debug"))))
 
   (it "handles a single-element default_envs list"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("platformio" ("default_envs" "release"))))
+        '(("platformio" ("default_envs" "release"))))
       (expect (pio-default-envs dir) :to-equal '("release"))))
 
   (it "returns nil when default_envs is absent"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("platformio" ("name" . "demo"))))
+        '(("platformio" ("name" . "demo"))))
       (expect (pio-default-envs dir) :not :to-be-truthy)))
 
   (it "honors PLATFORMIO_DEFAULT_ENVS env var over the config value"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("platformio" ("default_envs" "from-config"))))
+        '(("platformio" ("default_envs" "from-config"))))
       (with-environment-variables (("PLATFORMIO_DEFAULT_ENVS" "from-env, also-env"))
         (expect (pio-default-envs dir)
-                :to-equal '("from-env" "also-env"))))))
+          :to-equal '("from-env" "also-env"))))))
 
 (describe "pio-build-dir"
   (before-each
@@ -288,7 +288,7 @@
 
   (it "returns <project-root>/.pio by convention"
     (expect (pio-build-dir "/some/proj/")
-            :to-equal "/some/proj/.pio"))
+      :to-equal "/some/proj/.pio"))
 
   (it "honors PLATFORMIO_BUILD_DIR env var when set"
     (with-environment-variables (("PLATFORMIO_BUILD_DIR" "/custom/build"))
@@ -308,14 +308,14 @@ Safe to call from inside spec bodies; the directory is resolved at load time."
 
 (defconst pio-tests--fixture-manifest
   '(("pio-account-show.json"        "account" "show"             "--json-output")
-    ("pio-system-info.json"         "system"  "info"             "--json-output")
-    ("pio-device-list-serial.json"  "device"  "list" "--serial"  "--json-output")
-    ("pio-device-list-logical.json" "device"  "list" "--logical" "--json-output")
-    ("pio-boards.json"              "boards"  "esp32-s3"         "--json-output")
-    ("pio-org-list.json"            "org"     "list"             "--json-output")
-    ("pio-team-list.json"           "team"    "list" "acme-corp" "--json-output")
-    ("pio-project-config.json"      "project" "config"            "--json-output")
-    ("pio-project-metadata.json"    "project" "metadata"          "--json-output"))
+     ("pio-system-info.json"         "system"  "info"             "--json-output")
+     ("pio-device-list-serial.json"  "device"  "list" "--serial"  "--json-output")
+     ("pio-device-list-logical.json" "device"  "list" "--logical" "--json-output")
+     ("pio-boards.json"              "boards"  "esp32-s3"         "--json-output")
+     ("pio-org-list.json"            "org"     "list"             "--json-output")
+     ("pio-team-list.json"           "team"    "list" "acme-corp" "--json-output")
+     ("pio-project-config.json"      "project" "config"            "--json-output")
+     ("pio-project-metadata.json"    "project" "metadata"          "--json-output"))
   "Alist mapping `fixtures/FILE.json' → the `pio' subcommand args that produced it.
 Used by the auto-generated parse + freshness specs in the
 \"fixtures (auto-generated)\" suite.  Drop a new fixture in the
@@ -341,14 +341,14 @@ CLI must be re-invoked with the real org name to compare."
     (let ((exit (apply #'call-process "pio" nil t nil args)))
       (unless (zerop exit)
         (error "pio %s failed (exit %d): %s"
-               (string-join args " ") exit (buffer-string)))
+          (string-join args " ") exit (buffer-string)))
       (buffer-string))))
 
 (describe "every captured fixture"
   (dolist (entry pio-tests--fixture-manifest)
     (let* ((name    (car entry))
-           (args    (cdr entry))
-           (cli-str (format "pio %s" (string-join args " "))))
+            (args    (cdr entry))
+            (cli-str (format "pio %s" (string-join args " "))))
 
       (it (format "%s parses as non-empty JSON" name)
         (let ((content (pio-tests--fixture name)))
@@ -359,18 +359,18 @@ CLI must be re-invoked with the real org name to compare."
         (assume (executable-find "pio") "pio not on PATH")
         (when (equal (car args) "project")
           (assume pio-tests-project-root
-                  "`pio-tests-project-root' unset"))
+            "`pio-tests-project-root' unset"))
         (when (equal (car args) "team")
           (assume pio-tests-real-org
-                  "`pio-tests-real-org' unset (scrubbed org name in fixture)"))
+            "`pio-tests-real-org' unset (scrubbed org name in fixture)"))
         (let* ((full-args (cond
-                           ((equal (car args) "project")
-                            (append (butlast args 1)  ; drop --json-output
-                                    (list "-d" pio-tests-project-root "--json-output")))
-                           ((equal (car args) "team")
-                            (append (list "team" "list" pio-tests-real-org "--json-output")))
-                           (t args)))
-               (raw (pio-tests--run-pio full-args)))
+                            ((equal (car args) "project")
+                              (append (butlast args 1)  ; drop --json-output
+                                (list "-d" pio-tests-project-root "--json-output")))
+                            ((equal (car args) "team")
+                              (append (list "team" "list" pio-tests-real-org "--json-output")))
+                            (t args)))
+                (raw (pio-tests--run-pio full-args)))
           (expect (length raw) :to-be-greater-than 0)
           (expect (json-parse-string raw) :not :to-throw))))))
 
@@ -380,17 +380,17 @@ CLI must be re-invoked with the real org name to compare."
   (before-each
     (setq pio--system-info-cache nil)
     (spy-on 'pio--run-json
-            :and-return-value (json-parse-string pio-tests--system-info-json)))
+      :and-return-value (json-parse-string pio-tests--system-info-json)))
 
   (it "parses `pio system info' JSON into title+value plists"
     (expect (pio-core-version)
-            :to-equal '(:title "PlatformIO Core" :value "6.1.19"))
+      :to-equal '(:title "PlatformIO Core" :value "6.1.19"))
     (expect (pio-core-dir)
-            :to-equal '(:title "PlatformIO Core Directory"
-                        :value "/Users/x/.platformio"))
+      :to-equal '(:title "PlatformIO Core Directory"
+                   :value "/Users/x/.platformio"))
     (expect (pio-platformio-exe)
-            :to-equal '(:title "PlatformIO Core Executable"
-                        :value "/Users/x/.local/bin/platformio")))
+      :to-equal '(:title "PlatformIO Core Executable"
+                   :value "/Users/x/.local/bin/platformio")))
 
   (it "caches `pio system info' across calls"
     (pio-core-version)
@@ -412,14 +412,14 @@ CLI must be re-invoked with the real org name to compare."
     (pio-tests--with-temp-dir dir1
       (pio-tests--with-temp-dir dir2
         (let ((pio1 (expand-file-name "pio" dir1))
-              (pio2 (expand-file-name "platformio" dir2)))
+               (pio2 (expand-file-name "platformio" dir2)))
           (write-region "" nil pio1)
           (write-region "" nil pio2)
           (set-file-modes pio1 #o755)
           (set-file-modes pio2 #o755)
           (let ((exec-path (list dir1 dir2)))
             (expect (pio--detect-executables)
-                    :to-have-same-items-as (list pio1 pio2)))))))
+              :to-have-same-items-as (list pio1 pio2)))))))
 
   (it "returns a single entry when only one binary is on `exec-path'"
     (pio-tests--with-temp-dir dir
@@ -438,11 +438,11 @@ CLI must be re-invoked with the real org name to compare."
 
   (it "writes a `pio'-categorized warning to *Warnings* when more than one binary is on PATH"
     (spy-on 'pio--detect-executables
-            :and-return-value '("/a/pio" "/b/platformio"))
+      :and-return-value '("/a/pio" "/b/platformio"))
     (buttercup-suppress-warning-capture
       (pio--warn-multiple-executables)
       (expect (with-current-buffer "*Warnings*" (buffer-string))
-              :to-match "Multiple PlatformIO executables")))
+        :to-match "Multiple PlatformIO executables")))
 
   (it "stays silent when only one binary is on PATH"
     (spy-on 'pio--detect-executables :and-return-value '("/a/pio"))
@@ -452,7 +452,7 @@ CLI must be re-invoked with the real org name to compare."
 
   (it "warns at most once per session"
     (spy-on 'pio--detect-executables
-            :and-return-value '("/a/pio" "/b/platformio"))
+      :and-return-value '("/a/pio" "/b/platformio"))
     (spy-on 'display-warning)
     (pio--warn-multiple-executables)
     (pio--warn-multiple-executables)
@@ -465,16 +465,16 @@ CLI must be re-invoked with the real org name to compare."
   (it "reads a key from a named section"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("env:dev" ("board"    . "esp32dev")
-                    ("platform" . "espressif32"))))
+        '(("env:dev" ("board"    . "esp32dev")
+            ("platform" . "espressif32"))))
       (expect (pio--read-key "env:dev" "board"    dir) :to-equal "esp32dev")
       (expect (pio--read-key "env:dev" "platform" dir) :to-equal "espressif32")))
 
   (it "does not read keys outside the named section"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("env:a" ("board"     . "esp32dev"))
-         ("env:b" ("framework" . "arduino"))))
+        '(("env:a" ("board"     . "esp32dev"))
+           ("env:b" ("framework" . "arduino"))))
       (expect (pio--read-key "env:a" "framework" dir) :not :to-be-truthy)
       (expect (pio--read-key "env:b" "board"     dir) :not :to-be-truthy)))
 
@@ -491,12 +491,12 @@ CLI must be re-invoked with the real org name to compare."
   (it "returns native typed values (numbers, lists, booleans)"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("env:dev" ("monitor_speed"  . 115200)
-                    ("monitor_filters" "direct" "colorize")
-                    ("test_build_src" . t))))
+        '(("env:dev" ("monitor_speed"  . 115200)
+            ("monitor_filters" "direct" "colorize")
+            ("test_build_src" . t))))
       (expect (pio--read-key "env:dev" "monitor_speed"   dir) :to-equal 115200)
       (expect (pio--read-key "env:dev" "monitor_filters" dir)
-              :to-equal '("direct" "colorize"))
+        :to-equal '("direct" "colorize"))
       (expect (pio--read-key "env:dev" "test_build_src"  dir) :to-equal t))))
 
 (describe "pio-env-board"
@@ -504,8 +504,8 @@ CLI must be re-invoked with the real org name to compare."
   (it "reads the board key from the [env:ENV] section"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("env:walter" ("board"    . "esp32dev")
-                       ("platform" . "espressif32"))))
+        '(("env:walter" ("board"    . "esp32dev")
+            ("platform" . "espressif32"))))
       (expect (pio-env-board "walter" dir) :to-equal "esp32dev"))))
 
 (describe "pio-env-platform"
@@ -513,8 +513,8 @@ CLI must be re-invoked with the real org name to compare."
   (it "reads the platform key from the [env:ENV] section"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("env:walter" ("board"    . "esp32dev")
-                       ("platform" . "espressif32"))))
+        '(("env:walter" ("board"    . "esp32dev")
+            ("platform" . "espressif32"))))
       (expect (pio-env-platform "walter" dir) :to-equal "espressif32"))))
 
 (describe "pio-env-framework"
@@ -522,25 +522,21 @@ CLI must be re-invoked with the real org name to compare."
   (it "reads the framework key from the [env:ENV] section"
     (pio-tests--with-temp-dir dir
       (pio-tests--make-project dir
-       '(("env:walter" ("board"     . "esp32dev")
-                       ("framework" "arduino"))))
+        '(("env:walter" ("board"     . "esp32dev")
+            ("framework" "arduino"))))
       (expect (pio-env-framework "walter" dir) :to-equal '("arduino")))))
 
 (describe "vterm kill-buffer contract"
   (it "killing a vterm buffer kills the underlying subprocess"
-    ;; Documents the contract `pio-device-monitor' relies on: when the
-    ;; vterm buffer is killed, vterm tears down the PTY and the child
-    ;; process receives SIGHUP. A long-running `sleep' stands in for pio
-    ;; so the test is hermetic (no pio, no serial device required).
-    (assume (and (fboundp 'vterm) (executable-find "sleep"))
-            "vterm or sleep unavailable")
+    (assume (and (not noninteractive) (fboundp 'vterm) (executable-find "sleep"))
+      "vterm lifecycle requires an interactive frame")
     (let ((vterm-shell "sleep 60")
-          (vterm-buffer-name "*pio-test-vterm-lifecycle*")
-          (kill-buffer-query-functions nil))
+           (vterm-buffer-name "*pio-test-vterm-lifecycle*")
+           (kill-buffer-query-functions nil))
       (when (get-buffer vterm-buffer-name) (kill-buffer vterm-buffer-name))
       (vterm)
       (let* ((buffer (get-buffer vterm-buffer-name))
-             (proc   (get-buffer-process buffer)))
+              (proc   (get-buffer-process buffer)))
         (expect (process-live-p proc))
         (kill-buffer buffer)
         (sleep-for 0.3)
@@ -558,20 +554,20 @@ CLI must be re-invoked with the real org name to compare."
 
   (it "with exactly one connected serial port, auto-uses it (no prompt)"
     (spy-on 'pio--connected-serial-ports
-            :and-return-value '("/dev/cu.usbmodem1101"))
+      :and-return-value '("/dev/cu.usbmodem1101"))
     (expect (let ((current-prefix-arg nil))
               (call-interactively #'pio-device-monitor))
-            :not :to-throw)
+      :not :to-throw)
     (expect 'pio-device-monitor
-            :to-have-been-called-with :port "/dev/cu.usbmodem1101")
+      :to-have-been-called-with :port "/dev/cu.usbmodem1101")
     (expect 'pio :not :to-have-been-called))
 
   (it "with zero or multiple ports, drops the user into the *pio* dashboard"
     (spy-on 'pio--connected-serial-ports
-            :and-return-value '("/dev/cu.A" "/dev/cu.B"))
+      :and-return-value '("/dev/cu.A" "/dev/cu.B"))
     (expect (let ((current-prefix-arg nil))
               (call-interactively #'pio-device-monitor))
-            :to-throw 'user-error)
+      :to-throw 'user-error)
     (expect 'pio :to-have-been-called))
 
   (it "with prefix arg, still prompts for a profile (existing behavior)"
@@ -584,35 +580,35 @@ CLI must be re-invoked with the real org name to compare."
 (describe "pio-device-monitor"
   (it "vterm backend passes the resolved command to vterm via `vterm-shell'"
     (let ((pio-device-monitor-backend 'vterm)
-          (pio-executable "pio")
-          (pio-device-monitor-profiles
-           '((esp :port "/dev/cu.usbmodem1101" :baud 115200
-                  :filters ("direct"))))
-          captured-shell captured-name)
+           (pio-executable "pio")
+           (pio-device-monitor-profiles
+             '((esp :port "/dev/cu.usbmodem1101" :baud 115200
+                 :filters ("direct"))))
+           captured-shell captured-name)
       (cl-letf (((symbol-function 'require) (lambda (&rest _) t))
-                ((symbol-function 'pio-default-envs) (lambda (&rest _) nil))
-                ((symbol-function 'vterm)
-                 (lambda (&rest _)
-                   (setq captured-shell vterm-shell
-                         captured-name  vterm-buffer-name))))
+                 ((symbol-function 'pio-default-envs) (lambda (&rest _) nil))
+                 ((symbol-function 'vterm)
+                   (lambda (&rest _)
+                     (setq captured-shell vterm-shell
+                       captured-name  vterm-buffer-name))))
         (pio-device-monitor :profile 'esp))
       (expect captured-shell :to-equal
-              "pio device monitor --port /dev/cu.usbmodem1101 --baud 115200 --filter direct")
+        "pio device monitor --port /dev/cu.usbmodem1101 --baud 115200 --filter direct")
       (expect captured-name :to-equal "*pio:monitor:/dev/cu.usbmodem1101*")))
 
   (it "serial-term backend calls `serial-term' with port + baud (no prompts) and does NOT rename the buffer"
     (require 'term)
     (let* ((pio-device-monitor-backend 'serial-term)
-           (pio-executable "pio")
-           (pio-device-monitor-profiles
-            '((esp :port "/dev/cu.usbmodem1101" :baud 115200
-                   :filters ("direct"))))
-           captured-port captured-baud)
+            (pio-executable "pio")
+            (pio-device-monitor-profiles
+              '((esp :port "/dev/cu.usbmodem1101" :baud 115200
+                  :filters ("direct"))))
+            captured-port captured-baud)
       (cl-letf (((symbol-function 'pio-default-envs) (lambda (&rest _) nil))
-                ((symbol-function 'serial-term)
-                 (lambda (port baud &optional _line-mode)
-                   (setq captured-port port captured-baud baud)
-                   (generate-new-buffer "*tmp-serial-term*"))))
+                 ((symbol-function 'serial-term)
+                   (lambda (port baud &optional _line-mode)
+                     (setq captured-port port captured-baud baud)
+                     (generate-new-buffer "*tmp-serial-term*"))))
         (pio-device-monitor :profile 'esp))
       (expect captured-port :to-equal "/dev/cu.usbmodem1101")
       (expect captured-baud :to-equal 115200)
@@ -623,14 +619,14 @@ CLI must be re-invoked with the real org name to compare."
   (it "serial-term backend reuses an existing live serial process for the same port"
     (require 'term)
     (let* ((pio-device-monitor-backend 'serial-term)
-           (pio-device-monitor-profiles
-            '((esp :port "/dev/cu.usbmodem1101" :baud 115200)))
-           (existing-buf (generate-new-buffer "*pretend-serial*")))
+            (pio-device-monitor-profiles
+              '((esp :port "/dev/cu.usbmodem1101" :baud 115200)))
+            (existing-buf (generate-new-buffer "*pretend-serial*")))
       (spy-on 'pop-to-buffer)
       (spy-on 'serial-term)
       (cl-letf (((symbol-function 'pio-default-envs) (lambda (&rest _) nil))
-                ((symbol-function 'pio--device-monitor-serial-term-find)
-                 (lambda (_port) existing-buf)))
+                 ((symbol-function 'pio--device-monitor-serial-term-find)
+                   (lambda (_port) existing-buf)))
         (pio-device-monitor :profile 'esp))
       (expect 'pop-to-buffer :to-have-been-called-with existing-buf)
       (expect 'serial-term :not :to-have-been-called)
@@ -638,21 +634,21 @@ CLI must be re-invoked with the real org name to compare."
 
   (it "vterm backend reuses an existing `*pio:monitor:PORT*' buffer if its process is live"
     (let* ((pio-device-monitor-backend 'vterm)
-           (bufname "*pio:monitor:/dev/cu.usbmodem1101*")
-           (existing (generate-new-buffer bufname)))
+            (bufname "*pio:monitor:/dev/cu.usbmodem1101*")
+            (existing (generate-new-buffer bufname)))
       (spy-on 'pop-to-buffer)
       (spy-on 'vterm)
       (spy-on 'get-buffer-process :and-return-value 'pretend-proc)
       (spy-on 'process-live-p :and-return-value t)
       (unwind-protect
-          (let ((pio-device-monitor-profiles
-                 '((esp :port "/dev/cu.usbmodem1101" :baud 115200
-                        :filters ("direct"))))
-                (pio-executable "pio"))
-            (cl-letf (((symbol-function 'pio-default-envs) (lambda (&rest _) nil)))
-              (pio-device-monitor :profile 'esp))
-            (expect 'pop-to-buffer :to-have-been-called)
-            (expect 'vterm :not :to-have-been-called))
+        (let ((pio-device-monitor-profiles
+                '((esp :port "/dev/cu.usbmodem1101" :baud 115200
+                    :filters ("direct"))))
+               (pio-executable "pio"))
+          (cl-letf (((symbol-function 'pio-default-envs) (lambda (&rest _) nil)))
+            (pio-device-monitor :profile 'esp))
+          (expect 'pop-to-buffer :to-have-been-called)
+          (expect 'vterm :not :to-have-been-called))
         (let (kill-buffer-query-functions) (kill-buffer existing))))))
 
 (defun pio-tests--make-device (port description hwid)
@@ -665,15 +661,15 @@ CLI must be re-invoked with the real org name to compare."
 (describe "pio--parse-hwid"
   (it "extracts vid-pid, serial, and location from a full hwid string"
     (expect (pio--parse-hwid
-             "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")
-            :to-equal
-            '(:vid-pid "303A:1001"
-              :serial  "CC:BA:97:16:2B:68"
-              :location "1-1")))
+              "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")
+      :to-equal
+      '(:vid-pid "303A:1001"
+         :serial  "CC:BA:97:16:2B:68"
+         :location "1-1")))
 
   (it "returns only the keys that appear in the input"
     (expect (pio--parse-hwid "USB VID:PID=10C4:EA60")
-            :to-equal '(:vid-pid "10C4:EA60")))
+      :to-equal '(:vid-pid "10C4:EA60")))
 
   (it "returns nil for a non-string or absent hwid"
     (expect (pio--parse-hwid nil) :to-equal nil)
@@ -686,70 +682,70 @@ CLI must be re-invoked with the real org name to compare."
 (describe "pio--device-list-entries"
   (it "puts SERIAL and VID:PID first, then PORT, LOCATION, and DESCRIPTION last"
     (spy-on 'pio-serial-devices :and-return-value
-            (vector
-             (pio-tests--make-device
-              "/dev/cu.usbmodem1101" "USB JTAG/serial debug unit"
-              "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")))
+      (vector
+        (pio-tests--make-device
+          "/dev/cu.usbmodem1101" "USB JTAG/serial debug unit"
+          "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")))
     (let ((entries (pio--device-list-entries)))
       (expect (length entries) :to-equal 1)
       (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101")
       (expect (pio-tests--row-strings (car entries))
-              :to-equal
-              '("CC:BA:97:16:2B:68"
-                "303A:1001"
-                "/dev/cu.usbmodem1101"
-                "1-1"
-                "USB JTAG/serial debug unit"))))
+        :to-equal
+        '("CC:BA:97:16:2B:68"
+           "303A:1001"
+           "/dev/cu.usbmodem1101"
+           "1-1"
+           "USB JTAG/serial debug unit"))))
 
   (it "leaves hwid columns empty when the hwid string is missing"
     (spy-on 'pio-serial-devices :and-return-value
-            (vector (pio-tests--make-device "/dev/cu.x" nil "VID:PID=0000:0000")))
+      (vector (pio-tests--make-device "/dev/cu.x" nil "VID:PID=0000:0000")))
     (expect (pio-tests--row-strings (car (pio--device-list-entries)))
-            :to-equal '("" "0000:0000" "/dev/cu.x" "" "")))
+      :to-equal '("" "0000:0000" "/dev/cu.x" "" "")))
 
   (it "hides devices whose hwid is \"n/a\" when `hide-unidentified' is t"
     (spy-on 'pio-serial-devices :and-return-value
-            (vector
-             (pio-tests--make-device "/dev/cu.Bluetooth-Incoming-Port" "n/a" "n/a")
-             (pio-tests--make-device "/dev/cu.PowerbeatsPro"           "n/a" "n/a")
-             (pio-tests--make-device "/dev/cu.debug-console"           "n/a" "n/a")
-             (pio-tests--make-device "/dev/cu.usbmodem1101" "USB JTAG" "VID:PID=303A:1001")))
+      (vector
+        (pio-tests--make-device "/dev/cu.Bluetooth-Incoming-Port" "n/a" "n/a")
+        (pio-tests--make-device "/dev/cu.PowerbeatsPro"           "n/a" "n/a")
+        (pio-tests--make-device "/dev/cu.debug-console"           "n/a" "n/a")
+        (pio-tests--make-device "/dev/cu.usbmodem1101" "USB JTAG" "VID:PID=303A:1001")))
     (let* ((pio-device-list-hide-unidentified t)
-           (pio-device-list-exclude-regexps nil)
-           (entries (pio--device-list-entries)))
+            (pio-device-list-exclude-regexps nil)
+            (entries (pio--device-list-entries)))
       (expect (length entries) :to-equal 1)
       (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101")))
 
   (it "filters by `exclude-regexps' on top of the heuristic"
     (spy-on 'pio-serial-devices :and-return-value
-            (vector
-             (pio-tests--make-device "/dev/cu.usbserial-FTDI"  "FTDI" "VID:PID=0403:6001")
-             (pio-tests--make-device "/dev/cu.usbmodem1101"    "USB JTAG" "VID:PID=303A:1001")))
+      (vector
+        (pio-tests--make-device "/dev/cu.usbserial-FTDI"  "FTDI" "VID:PID=0403:6001")
+        (pio-tests--make-device "/dev/cu.usbmodem1101"    "USB JTAG" "VID:PID=303A:1001")))
     (let* ((pio-device-list-hide-unidentified t)
-           (pio-device-list-exclude-regexps '("FTDI"))
-           (entries (pio--device-list-entries)))
+            (pio-device-list-exclude-regexps '("FTDI"))
+            (entries (pio--device-list-entries)))
       (expect (length entries) :to-equal 1)
       (expect (car (car entries)) :to-equal "/dev/cu.usbmodem1101")))
 
   (it "shows every device when both filters are disabled"
     (spy-on 'pio-serial-devices :and-return-value
-            (vector
-             (pio-tests--make-device "/dev/cu.Bluetooth-Incoming-Port" "n/a" "n/a")
-             (pio-tests--make-device "/dev/cu.usbmodem1101" "x" "y")))
+      (vector
+        (pio-tests--make-device "/dev/cu.Bluetooth-Incoming-Port" "n/a" "n/a")
+        (pio-tests--make-device "/dev/cu.usbmodem1101" "x" "y")))
     (let ((pio-device-list-hide-unidentified nil)
-          (pio-device-list-exclude-regexps nil))
+           (pio-device-list-exclude-regexps nil))
       (expect (length (pio--device-list-entries)) :to-equal 2)))
 
   (describe "against a real `pio device list --serial' capture (macOS, 4 ports)"
     :var (entries)
     (before-each
       (spy-on 'pio--run-json-as
-              :and-return-value
-              (json-parse-string (pio-tests--fixture "pio-device-list-serial.json")
-                                 :object-type 'hash-table :array-type 'array
-                                 :false-object nil :null-object nil))
+        :and-return-value
+        (json-parse-string (pio-tests--fixture "pio-device-list-serial.json")
+          :object-type 'hash-table :array-type 'array
+          :false-object nil :null-object nil))
       (let ((pio-device-list-hide-unidentified t)
-            (pio-device-list-exclude-regexps nil))
+             (pio-device-list-exclude-regexps nil))
         (setq entries (pio--device-list-entries))))
 
     (it "filters every `n/a' system/Bluetooth/headphone entry, keeping only the real USB device"
@@ -770,27 +766,27 @@ CLI must be re-invoked with the real org name to compare."
 (defun pio-tests--account ()
   "Return the sample account fixture parsed into the shape `pio-account-show' yields."
   (json-parse-string pio-tests--account-json
-                     :object-type 'hash-table
-                     :array-type  'list
-                     :false-object nil
-                     :null-object  nil))
+    :object-type 'hash-table
+    :array-type  'list
+    :false-object nil
+    :null-object  nil))
 
 (describe "pio--run-json"
   (it "signals `pio-exec-error' on non-zero exit"
     (cl-letf (((symbol-function 'process-file)
-               (lambda (&rest _) (insert "boom\n") 1)))
+                (lambda (&rest _) (insert "boom\n") 1)))
       (expect (pio--run-json "wat") :to-throw 'pio-exec-error)))
 
   (it "signals `pio-parse-error' when stdout is not JSON"
     (let (debug-on-error)
       (cl-letf (((symbol-function 'process-file)
-                 (lambda (&rest _) (insert "not json {[") 0)))
+                  (lambda (&rest _) (insert "not json {[") 0)))
         (expect (pio--run-json "account" "show" "--json-output")
-                :to-throw 'pio-parse-error))))
+          :to-throw 'pio-parse-error))))
 
   (it "subclasses can be caught as the generic `pio-error'"
     (cl-letf (((symbol-function 'process-file)
-               (lambda (&rest _) (insert "boom") 1)))
+                (lambda (&rest _) (insert "boom") 1)))
       (expect (pio--run-json "wat") :to-throw 'pio-error))))
 
 (describe "the typed-error contract propagates through every CLI-read path"
@@ -820,7 +816,7 @@ CLI must be re-invoked with the real org name to compare."
     (pio-account-invalidate)
     (spy-on 'pio--run-json :and-throw-error 'pio-parse-error)
     (let ((caught (condition-case err
-                      (progn (pio-account-show) nil)
+                    (progn (pio-account-show) nil)
                     (pio-error (car err)))))
       (expect caught :to-equal 'pio-parse-error))))
 
@@ -828,12 +824,12 @@ CLI must be re-invoked with the real org name to compare."
   (before-each
     (pio-account-invalidate)
     (spy-on 'pio--run-json
-            :and-call-fake (lambda (&rest _) (pio-tests--account))))
+      :and-call-fake (lambda (&rest _) (pio-tests--account))))
 
   (it "delegates to `pio--run-json' with the right args"
     (pio-account-show)
     (expect 'pio--run-json
-            :to-have-been-called-with "account" "show" "--json-output"))
+      :to-have-been-called-with "account" "show" "--json-output"))
 
   (it "caches the parsed account across calls"
     (pio-account-show)
@@ -867,7 +863,7 @@ CLI must be re-invoked with the real org name to compare."
 
   (it "extracts the stable user id"
     (expect (pio-account-user-id account)
-            :to-equal "00000000-0000-0000-0000-000000000000"))
+      :to-equal "00000000-0000-0000-0000-000000000000"))
 
   (it "extracts the packages list"
     (expect (length (pio-account-packages account)) :to-equal 2))
@@ -882,11 +878,11 @@ CLI must be re-invoked with the real org name to compare."
   :var (rendered)
   (before-each
     (spy-on 'pio-core-version
-            :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
+      :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
     (spy-on 'pio-serial-devices :and-return-value
-            (vector (pio-tests--make-device
-                     "/dev/cu.usbmodem1101" "USB JTAG/serial debug unit"
-                     "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")))
+      (vector (pio-tests--make-device
+                "/dev/cu.usbmodem1101" "USB JTAG/serial debug unit"
+                "USB VID:PID=303A:1001 SER=CC:BA:97:16:2B:68 LOCATION=1-1")))
     (spy-on 'pio-envs)
     (spy-on 'pio-default-envs)
     (spy-on 'pio-env-targets)
@@ -918,16 +914,16 @@ CLI must be re-invoked with the real org name to compare."
 
   (it "renders the PROFILE heading with the username, full name, email, and user id"
     (expect rendered :to-render-substrings
-            '("PROFILE" "alice" "Alice Example"
-              "alice@example.com" "00000000-")))
+      '("PROFILE" "alice" "Alice Example"
+         "alice@example.com" "00000000-")))
 
   (it "renders the PACKAGES heading with each package title and description"
     (expect rendered :to-render-substrings
-            '("PACKAGES (2)"
-              "Remote Development for Developer"
-              "Trusted Registry for Developer"
-              "Forever Free Remote Development"
-              "Forever Free Trusted Registry")))
+      '("PACKAGES (2)"
+         "Remote Development for Developer"
+         "Trusted Registry for Developer"
+         "Forever Free Remote Development"
+         "Forever Free Trusted Registry")))
 
   (it "renders SUBSCRIPTIONS as `none' when the subscriptions list is empty"
     (expect rendered :to-match "SUBSCRIPTIONS (none)")))
@@ -935,7 +931,7 @@ CLI must be re-invoked with the real org name to compare."
 (describe "pio--set-mode-line"
   (before-each
     (spy-on 'pio-core-version
-            :and-return-value '(:title "PlatformIO Core" :value "6.1.19")))
+      :and-return-value '(:title "PlatformIO Core" :value "6.1.19")))
 
   (it "leaves `mode-name' alone so ibuffer's Mode column stays as `pio-mode'"
     (with-temp-buffer
@@ -954,9 +950,9 @@ CLI must be re-invoked with the real org name to compare."
   (before-each
     (pio-account-invalidate)
     (spy-on 'pio--run-json
-            :and-call-fake (lambda (&rest _) (pio-tests--account)))
+      :and-call-fake (lambda (&rest _) (pio-tests--account)))
     (spy-on 'pio-core-version
-            :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
+      :and-return-value '(:title "PlatformIO Core" :value "6.1.19"))
     (spy-on 'pio-envs)
     (spy-on 'pio-default-envs)
     (spy-on 'pio-env-targets)
@@ -995,15 +991,15 @@ CLI must be re-invoked with the real org name to compare."
 (describe "pio--render-device device-row text property"
   (it "tags each data row with the port as `pio-device-port'"
     (spy-on 'pio-serial-devices :and-return-value
-            (vector (pio-tests--make-device
-                     "/dev/cu.usbmodem101" "USB JTAG"
-                     "USB VID:PID=303A:1001 SER=AA LOCATION=1-1")))
+      (vector (pio-tests--make-device
+                "/dev/cu.usbmodem101" "USB JTAG"
+                "USB VID:PID=303A:1001 SER=AA LOCATION=1-1")))
     (with-temp-buffer
       (pio--render-devices)
       (goto-char (point-min))
       (re-search-forward "/dev/cu\\.usbmodem101")
       (expect (get-text-property (point) 'pio-device-port)
-              :to-equal "/dev/cu.usbmodem101")))
+        :to-equal "/dev/cu.usbmodem101")))
 
   (it "does NOT tag the header row with a port"
     (spy-on 'pio-serial-devices :and-return-value [])
@@ -1023,7 +1019,7 @@ CLI must be re-invoked with the real org name to compare."
       (goto-char (point-min))
       (call-interactively (key-binding (kbd "RET")))
       (expect 'pio-device-monitor
-              :to-have-been-called-with :port "/dev/cu.x")))
+        :to-have-been-called-with :port "/dev/cu.x")))
 
   (it "is a no-op on a non-device row (no port property)"
     (spy-on 'pio-device-monitor)
@@ -1039,16 +1035,16 @@ CLI must be re-invoked with the real org name to compare."
   (before-each
     (pio-project-config-invalidate)
     (spy-on 'pio--run-json-as
-            :and-return-value
-            (json-parse-string (pio-tests--fixture "pio-project-config.json")
-                               :object-type 'hash-table :array-type 'list
-                               :false-object nil :null-object nil))
+      :and-return-value
+      (json-parse-string (pio-tests--fixture "pio-project-config.json")
+        :object-type 'hash-table :array-type 'list
+        :false-object nil :null-object nil))
     (cl-letf (((symbol-function 'pio-root)
-               (lambda () "/Users/x/workspace/")))
+                (lambda () "/Users/x/workspace/")))
       (pio-tests--with-temp-dir dir
         (write-region "" nil (expand-file-name "platformio.ini" dir))
         (cl-letf (((symbol-function 'pio-root)
-                   (lambda () dir)))
+                    (lambda () dir)))
           (with-temp-buffer
             (pio--render-envs)
             (setq rendered (buffer-string)))))))
@@ -1058,7 +1054,7 @@ CLI must be re-invoked with the real org name to compare."
 
   (it "lists every env name, marking the default with a star"
     (expect rendered :to-render-substrings
-            '("ceratina" "walter-iot" "esp32p4" "clay" "★"))))
+      '("ceratina" "walter-iot" "esp32p4" "clay" "★"))))
 
 (describe "pio--platform-display"
   (it "passes short platform names through unchanged"
@@ -1068,11 +1064,11 @@ CLI must be re-invoked with the real org name to compare."
 
   (it "extracts the package basename from a git URL spec"
     (expect (pio--platform-display
-             "https://github.com/pioarduino/platform-espressif32.git#develop")
-            :to-equal "espressif32")
+              "https://github.com/pioarduino/platform-espressif32.git#develop")
+      :to-equal "espressif32")
     (expect (pio--platform-display
-             "https://github.com/platformio/platform-ststm32.git")
-            :to-equal "ststm32"))
+              "https://github.com/platformio/platform-ststm32.git")
+      :to-equal "ststm32"))
 
   (it "returns empty string for nil or empty input"
     (expect (pio--platform-display nil) :to-equal "")
@@ -1192,7 +1188,7 @@ CLI must be re-invoked with the real org name to compare."
     (let ((ann (plist-get (cdr (car (pio-compile-multi-tasks))) :annotation)))
       (expect ann :not :to-match "platformio")
       (expect (string-search (nerd-icons-sucicon "nf-seti-platformio") ann)
-              :to-be-truthy)))
+        :to-be-truthy)))
 
   (it "shows the `platformio' label when show-label is non-nil"
     (let* ((pio-compile-multi-show-label t)

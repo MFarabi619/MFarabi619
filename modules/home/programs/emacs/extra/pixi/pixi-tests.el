@@ -566,7 +566,7 @@ left nil otherwise so CI doesn't fail."
         (pixi-clean)
         (expect captured :to-match "\\bclean\\b")
         (expect captured :to-match "--manifest-path")
-        (expect captured :not :to-match "-e"))))
+        (expect captured :not :to-match " -e "))))
 
   (it "adds `-e ENV' when scoped to an environment"
     (pixi-tests--with-temp-dir dir
@@ -596,7 +596,7 @@ left nil otherwise so CI doesn't fail."
         (pixi-tree)
         (expect captured :to-match "\\btree\\b")
         (expect captured :to-match "--manifest-path")
-        (expect captured :not :to-match "-e"))))
+        (expect captured :not :to-match " -e "))))
 
   (it "scopes to an environment via -e"
     (pixi-tests--with-temp-dir dir
@@ -731,9 +731,8 @@ left nil otherwise so CI doesn't fail."
   (it "declares a URL line"
     (expect contents :to-match "^;; URL: https://github\\.com/MFarabi619/MFarabi619"))
 
-  (it "declares Package-Version, Package-Revision, Package-Requires"
-    (expect contents :to-match "^;; Package-Version:")
-    (expect contents :to-match "^;; Package-Revision:")
+  (it "declares Version and Package-Requires"
+    (expect contents :to-match "^;; Version:")
     (expect contents :to-match "^;; Package-Requires:"))
 
   (it "carries the `not part of GNU Emacs' notice with full GPL header"

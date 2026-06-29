@@ -96,26 +96,28 @@
     (spy-on 'projectile-project-root :and-return-value "/proj/"))
 
   (it "defines one service per :prodigy task with name + command + cwd"
-    (microvisor-register-prodigy-services
-     '((t (" loco  : start"      :command "cargo loco start"     :prodigy t :port 5150)
-          (" loco  : doctor"     :command "cargo loco doctor"    :prodigy t)
-          (" ESP32  : run"       :command "cargo +esp rr"))))
-    (expect 'prodigy-define-service :to-have-been-called-times 2)
-    (let* ((first-args (spy-calls-args-for 'prodigy-define-service 0)))
-      (expect (plist-get first-args :name)         :to-equal " loco  : start")
-      (expect (plist-get first-args :group-label)  :to-equal "loco")
-      (expect (plist-get first-args :display-name) :to-equal "start")
-      (expect (plist-get first-args :cwd)          :to-equal "/proj/")
-      (expect (plist-get first-args :port)         :to-equal 5150)
-      (expect (plist-get first-args :command)      :to-equal shell-file-name)
-      (expect (plist-get first-args :args)
-              :to-equal (list shell-command-switch "cargo loco start"))))
+    (let ((compile-multi-config nil))
+      (microvisor-register-prodigy-services
+       '((t (" loco  : start"      :command "cargo loco start"     :prodigy t :port 5150)
+            (" loco  : doctor"     :command "cargo loco doctor"    :prodigy t)
+            (" ESP32  : run"       :command "cargo +esp rr"))))
+      (expect 'prodigy-define-service :to-have-been-called-times 2)
+      (let* ((first-args (spy-calls-args-for 'prodigy-define-service 0)))
+        (expect (plist-get first-args :name)         :to-equal " loco  : start")
+        (expect (plist-get first-args :group-label)  :to-equal "loco")
+        (expect (plist-get first-args :display-name) :to-equal "start")
+        (expect (plist-get first-args :cwd)          :to-equal "/proj/")
+        (expect (plist-get first-args :port)         :to-equal 5150)
+        (expect (plist-get first-args :command)      :to-equal shell-file-name)
+        (expect (plist-get first-args :args)
+                :to-equal (list shell-command-switch "cargo loco start")))))
 
   (it "omits :port when the task has none"
-    (microvisor-register-prodigy-services
-     '((t (" loco  : doctor" :command "cargo loco doctor" :prodigy t))))
-    (let ((args (spy-calls-args-for 'prodigy-define-service 0)))
-      (expect (plist-member args :port) :not :to-be-truthy))))
+    (let ((compile-multi-config nil))
+      (microvisor-register-prodigy-services
+       '((t (" loco  : doctor" :command "cargo loco doctor" :prodigy t))))
+      (let ((args (spy-calls-args-for 'prodigy-define-service 0)))
+        (expect (plist-member args :port) :not :to-be-truthy)))))
 
 (describe "microvisor--maybe-register-services"
   (before-each (spy-on 'microvisor-register-prodigy-services))

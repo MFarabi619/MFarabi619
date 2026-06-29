@@ -5,8 +5,7 @@
 ;; Author: Mumtahin Farabi <mfarabi619@gmail.com>
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/pio-mode
 ;; Keywords: tools, embedded
-;; Package-Version: 0.0
-;; Package-Revision: nil
+;; Version: 0.0.1
 ;; Package-Requires: ((emacs "29.1") (compile-multi "0.7") (nerd-icons "0.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -27,8 +26,6 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Commentary:
-;;
-;; pio  open the dashboard; RET on a device row opens its monitor
 ;;
 ;;; Code:
 
@@ -885,7 +882,7 @@ non-strings are formatted with `%s'; nil becomes the empty string."
 Extracts NAME from PlatformIO's `platform-NAME.git' URL convention."
   (let ((string (pio--cell-string value)))
     (if (not (string-prefix-p "http" string))
-        string
+      string
       (string-remove-prefix "platform-"
         (file-name-base (replace-regexp-in-string "#.*\\'" "" string))))))
 
