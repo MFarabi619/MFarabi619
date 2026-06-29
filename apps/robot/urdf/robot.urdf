@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<robot name="robot">
+
+  <material name="aluminum"><color rgba="0.78 0.80 0.83 1.0"/></material>
+  <material name="plywood"><color rgba="0.78 0.62 0.40 1.0"/></material>
+  <material name="steel"><color rgba="0.45 0.45 0.48 1.0"/></material>
+  <material name="brass"><color rgba="0.85 0.65 0.30 1.0"/></material>
+  <material name="pcb"><color rgba="0.10 0.40 0.20 1.0"/></material>
+  <material name="plastic"><color rgba="0.20 0.20 0.22 1.0"/></material>
+  <material name="tire"><color rgba="0.05 0.05 0.05 1.0"/></material>
+  <material name="rim"><color rgba="0.90 0.90 0.92 1.0"/></material>
+  <material name="wheelmetal"><color rgba="0.63 0.63 0.63 1.0"/></material>
+  <material name="motor"><color rgba="0.75 0.75 0.75 1.0"/></material>
+
+  <link name="base_link"/>
+
+  <link name="body">
+    <visual><geometry><mesh filename="package://robot/meshes/wheel_tire.stl" scale="0.001 0.001 0.001"/></geometry><material name="tire"/></visual>
+    <visual><geometry><mesh filename="package://robot/meshes/wheel_rim.stl" scale="0.001 0.001 0.001"/></geometry><material name="rim"/></visual>
+    <visual><geometry><mesh filename="package://robot/meshes/wheel_wheelmetal.stl" scale="0.001 0.001 0.001"/></geometry><material name="wheelmetal"/></visual>
+    <visual><geometry><mesh filename="package://robot/meshes/wheel_motor.stl" scale="0.001 0.001 0.001"/></geometry><material name="motor"/></visual>
+  </link>
+  <joint name="base_to_body" type="fixed">
+    <parent link="base_link"/>
+    <child link="body"/>
+    <origin rpy="-1.5707963 0 0"/>
+  </joint>
+
+  <link name="chassis">
+    <visual><geometry><mesh filename="package://robot/meshes/aluminum.stl" scale="0.001 0.001 0.001"/></geometry><material name="aluminum"/></visual>
+    <visual><geometry><mesh filename="package://robot/meshes/plywood.stl" scale="0.001 0.001 0.001"/></geometry><material name="plywood"/></visual>
+    <visual><geometry><mesh filename="package://robot/meshes/steel.stl" scale="0.001 0.001 0.001"/></geometry><material name="steel"/></visual>
+    <visual><geometry><mesh filename="package://robot/meshes/brass.stl" scale="0.001 0.001 0.001"/></geometry><material name="brass"/></visual>
+    <visual><geometry><mesh filename="package://robot/meshes/pcb.stl" scale="0.001 0.001 0.001"/></geometry><material name="pcb"/></visual>
+    <visual><geometry><mesh filename="package://robot/meshes/plastic.stl" scale="0.001 0.001 0.001"/></geometry><material name="plastic"/></visual>
+  </link>
+  <joint name="body_to_chassis" type="fixed">
+    <parent link="body"/>
+    <child link="chassis"/>
+    <origin xyz="0 0 0.058"/>
+  </joint>
+
+  <link name="camera_link"/>
+  <joint name="base_to_camera" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.15 0 0.2"/>
+  </joint>
+
+  <link name="camera_optical_frame"/>
+  <joint name="camera_to_optical" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_optical_frame"/>
+    <origin rpy="-1.5707963 0 -1.5707963"/>
+  </joint>
+
+</robot>
