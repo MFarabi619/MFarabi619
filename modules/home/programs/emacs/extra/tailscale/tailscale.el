@@ -5,8 +5,7 @@
 ;; Author: Mumtahin Farabi <mfarabi619@gmail.com>
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/tailscale
 ;; Keywords: tools, comm
-;; Package-Version: 0.0
-;; Package-Revision: nil
+;; Version: 0.0.1
 ;; Package-Requires: ((emacs "29.1") (nerd-icons "0.1") (vui "0.1"))
 
 ;; This file is NOT part of GNU Emacs.
