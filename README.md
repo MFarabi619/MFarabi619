@@ -93,6 +93,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td></tr></table></td>
 <td align='center' width='33%' valign='top'><table width='100%'><tr><td align="center" style="padding: 8px;">
+<a href="https://www.ros.org" target="_blank" rel="noreferrer">
+<img src="assets/icons/ros2-jazzy-robot.png" alt="ROS 2 Logo" width="40" height="40" />
+</a>
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.zephyrproject.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/zephyr.png" alt="Zephyr Logo" width="40" height="40" />
 </a>
@@ -100,11 +104,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://sqlite.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/sqlite.svg" alt="SQLite Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
 <img src="assets/icons/postgresql.svg" alt="PostgreSQL Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://www.tigerdata.com/timescaledb" target="_blank" rel="noreferrer">
 <img src="assets/icons/timescaledb.svg" alt="TimescaleDB Logo" width="40" height="40" />
 </a>
@@ -112,11 +116,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://nats.io" target="_blank" rel="noreferrer">
 <img src="assets/icons/nats.svg" alt="NATS Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://devenv.sh" target="_blank" rel="noreferrer">
 <img src="assets/icons/devenv-dark-bg.svg" alt="Devenv Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://loco.rs" target="_blank" rel="noreferrer">
 <img src="assets/icons/loco-rs.png" alt="Loco.rs Logo" width="40" height="40" />
 </a>
@@ -124,11 +128,11 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://ratatui.rs" target="_blank" rel="noreferrer">
 <img src="assets/icons/ratatui.png" alt="Ratatui Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://dioxuslabs.com" target="_blank" rel="noreferrer">
 <img src="assets/icons/dioxus.png" alt="Dioxus Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://embassy.dev" target="_blank" rel="noreferrer">
 <img src="assets/icons/embassy.png" alt="Embassy Logo" width="40" height="40" />
 </a>
@@ -485,14 +489,10 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <img src="assets/icons/burn.png" alt="Burn Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
-<a href="https://www.ros.org" target="_blank" rel="noreferrer">
-<img src="assets/icons/ros2-jazzy-robot.png" alt="ROS 2 Logo" width="40" height="40" />
-</a>
-</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://kubenix.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/kubenix.svg" alt="Kubenix Logo" width="40" height="40" />
 </a>
-</td><td align="center" style="padding: 8px;">
+</td></tr><tr><td align="center" style="padding: 8px;">
 <a href="https://www.ibm.com/quantum/qiskit" target="_blank" rel="noreferrer">
 <img src="assets/icons/qiskit.png" alt="Qiskit Logo" width="40" height="40" />
 </a>
@@ -500,7 +500,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 <a href="https://rubyonrails.org" target="_blank" rel="noreferrer">
 <img src="assets/icons/rails.svg" alt="Ruby on Rails Logo" width="40" height="40" />
 </a>
-</td></tr><tr><td align="center" style="padding: 8px;">
+</td><td align="center" style="padding: 8px;">
 <a href="https://ihp.digitallyinduced.com" target="_blank" rel="noreferrer">
 <img src="assets/icons/ihp.svg" alt="Integrated Haskell Platform Logo" width="40" height="40" />
 </a>

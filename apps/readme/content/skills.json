@@ -64,6 +64,11 @@
     ],
     "Frameworks & Libraries": [
       {
+        "name": "ROS 2",
+        "url": "https://www.ros.org",
+        "icon": "assets/icons/ros2-jazzy-robot.png"
+      },
+      {
         "name": "Zephyr",
         "url": "https://www.zephyrproject.org",
         "icon": "assets/icons/zephyr.png"
@@ -548,11 +553,6 @@
         "name": "Burn",
         "url": "https://burn.dev",
         "icon": "assets/icons/burn.png"
-      },
-      {
-        "name": "ROS 2",
-        "url": "https://www.ros.org",
-        "icon": "assets/icons/ros2-jazzy-robot.png"
       },
       {
         "name": "Kubenix",
