@@ -51,7 +51,6 @@
         kconfig-ref
         kconfig-mode
         mermaid-mode # github.com/abrochard/mermaid-mode
-        lsp-tailwindcss
         devicetree-ts-mode
         treesitWithAllExceptQuint
       ]
