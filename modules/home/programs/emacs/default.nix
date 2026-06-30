@@ -11,7 +11,6 @@
   programs.doom-emacs = {
     enable = true;
     doomDir = ./.;
-    # doomLocalDir = "~/.config/emacs";
     experimentalFetchTree = config.targets.genericLinux.enable;
 
     extraPackages =
@@ -191,7 +190,7 @@
       ]
       ++ [
         lldb
-        taplo # toml lsp
+        taplo
         # emmet-ls
         # yaml-language-server
         # dockerfile-language-server
