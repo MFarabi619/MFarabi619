@@ -2,6 +2,7 @@
 #              🏗 BUILD/TEST OUTPUTS 🏗
 #====================================================
 # .dir-locals.el
+**/.eask/
 **/.pio/
 **/debug/
 **/result
