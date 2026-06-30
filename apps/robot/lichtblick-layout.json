@@ -1,0 +1,261 @@
+{
+  "configById": {
+    "Image!3lb8z57": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {},
+      "transforms": {},
+      "topics": {},
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/camera/image_raw"
+      }
+    },
+    "3D!uhzpgc": {
+      "cameraState": {
+        "perspective": true,
+        "distance": 2.8479148268970764,
+        "phi": 58.33458533261424,
+        "thetaOffset": 90.63007308659476,
+        "targetOffset": [
+          0.28931210954974196,
+          0.09860279841153664,
+          -0.05580585145827961
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "followTf": "base_link",
+      "scene": {
+        "transforms": {
+          "showLabel": true,
+          "lineWidth": 2
+        },
+        "enableStats": true
+      },
+      "transforms": {
+        "frame:base_link": {
+          "visible": false
+        },
+        "frame:odom": {
+          "visible": false
+        },
+        "frame:camera_link": {
+          "visible": false
+        },
+        "frame:wheel_front_left": {
+          "visible": false
+        },
+        "frame:wheel_front_right": {
+          "visible": false
+        },
+        "frame:wheel_rear_left": {
+          "visible": false
+        },
+        "frame:wheel_rear_right": {
+          "visible": false
+        },
+        "frame:camera_optical_frame": {
+          "visible": false
+        },
+        "frame:map": {
+          "visible": false
+        },
+        "frame:body": {
+          "visible": false
+        },
+        "frame:chassis": {
+          "visible": false
+        },
+        "frame:wheel_fl": {
+          "visible": false
+        },
+        "frame:wheel_fr": {
+          "visible": false
+        },
+        "frame:wheel_rl": {
+          "visible": false
+        },
+        "frame:wheel_rr": {
+          "visible": false
+        }
+      },
+      "topics": {},
+      "layers": {
+        "8f199680-bd53-4884-ac67-06a9b5a0ba8d": {
+          "visible": true,
+          "frameLocked": true,
+          "label": "URDF",
+          "instanceId": "8f199680-bd53-4884-ac67-06a9b5a0ba8d",
+          "layerId": "foxglove.Urdf",
+          "sourceType": "url",
+          "url": "package://robot/urdf/robot.urdf",
+          "filePath": "",
+          "parameter": "",
+          "topic": "",
+          "framePrefix": "",
+          "displayMode": "auto",
+          "fallbackColor": "#ffffff",
+          "order": 2
+        }
+      },
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "map!2ldju1g": {
+      "center": {
+        "lat": 45.35418657274263,
+        "lon": -75.55821150541306
+      },
+      "customTileUrl": "",
+      "disabledTopics": [],
+      "followTopic": "",
+      "layer": "satellite",
+      "topicColors": {},
+      "zoomLevel": 18,
+      "maxNativeZoom": 18
+    },
+    "TopicGraph!1eov52p": {},
+    "StateTransitions!yh2q6r": {
+      "paths": [
+        {
+          "value": "/cmd_vel.linear.y",
+          "timestampMethod": "receiveTime"
+        },
+        {
+          "value": "/rosout.name",
+          "timestampMethod": "receiveTime"
+        }
+      ],
+      "isSynced": true,
+      "showPoints": true
+    },
+    "SourceInfo!3xzxadd": {},
+    "Table!1hqw2es": {
+      "topicPath": "/cmd_vel"
+    },
+    "foxglove-teleop-twist-keyboard.Teleop Twist!emawaz": {
+      "publishRate": 5,
+      "maxLinearSpeed": 1,
+      "maxAngularSpeed": 1
+    },
+    "Teleop!hc6a2z": {
+      "topic": "/cmd_vel",
+      "publishRate": 1,
+      "upButton": {
+        "field": "linear-x",
+        "value": 1
+      },
+      "downButton": {
+        "field": "linear-x",
+        "value": -1
+      },
+      "leftButton": {
+        "field": "angular-z",
+        "value": 1
+      },
+      "rightButton": {
+        "field": "angular-z",
+        "value": -1
+      }
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "row",
+    "first": {
+      "first": "Image!3lb8z57",
+      "second": "3D!uhzpgc",
+      "direction": "column",
+      "splitPercentage": 49.90384615384615
+    },
+    "second": {
+      "direction": "row",
+      "first": {
+        "first": "map!2ldju1g",
+        "second": "TopicGraph!1eov52p",
+        "direction": "column"
+      },
+      "second": {
+        "first": {
+          "first": "StateTransitions!yh2q6r",
+          "second": "SourceInfo!3xzxadd",
+          "direction": "column",
+          "splitPercentage": 38.97707231040565
+        },
+        "second": {
+          "first": "Table!1hqw2es",
+          "second": {
+            "first": "foxglove-teleop-twist-keyboard.Teleop Twist!emawaz",
+            "second": "Teleop!hc6a2z",
+            "direction": "row"
+          },
+          "direction": "column",
+          "splitPercentage": 27.484143763213524
+        },
+        "direction": "column",
+        "splitPercentage": 54.51923076923077
+      },
+      "splitPercentage": 53.54862756500274
+    },
+    "splitPercentage": 41.7890520694259
+  }
+}

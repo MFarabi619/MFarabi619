@@ -1,3 +1,6 @@
+import os
+from glob import glob
+
 from setuptools import find_packages, setup
 
 package_name = "robot"
@@ -9,16 +12,20 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ["package.xml"]),
+        (os.path.join("share", package_name, "launch"), glob("launch/*.launch.py")),
+        (os.path.join("share", package_name, "urdf"), glob("urdf/*.urdf")),
+        (os.path.join("share", package_name, "meshes"), glob("meshes/*.stl") + glob("meshes/*.glb")),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="Mumtahin Farabi",
     maintainer_email="mfarabi619@gmail.com",
-    description="ROS 2 Scaffolding",
-    license="AGPL",
+    description="Differential-drive farm rover: Cytron MDD10 hardware driver and a kinematic/camera simulator as ROS 2 nodes.",
+    license="AGPL-3.0-or-later",
     entry_points={
         "console_scripts": [
             "hat_mdd10sm = robot.hat_mdd10sm:main",
+            "sim = robot.sim:main",
         ],
     },
 )
