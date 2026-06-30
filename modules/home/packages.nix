@@ -199,8 +199,6 @@
         nix-btm # nix process monitor
         nix-top # nix process visualizer
         nix-web # web gui
-        nix-info
-        # mcp-nixos
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
       ]
