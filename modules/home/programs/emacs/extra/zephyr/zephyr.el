@@ -5,8 +5,7 @@
 ;; Author: Mumtahin Farabi <mfarabi619@gmail.com>
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/zephyr
 ;; Keywords: tools, embedded
-;; Package-Version: 0.0
-;; Package-Revision: nil
+;; Version: 0.0.1
 ;; Package-Requires: ((emacs "29.1") (west "0.0") (yaml "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -59,7 +58,8 @@
   :group 'zephyr)
 
 (defun zephyr-app-p (&optional directory)
-  "Non-nil if DIRECTORY's `CMakeLists.txt' uses `find_package(Zephyr)' + `project()'."
+  "Non-nil if DIRECTORY's `CMakeLists.txt' has `find_package(Zephyr)'
+and `project()'."
   (let ((cmake-file (expand-file-name "CMakeLists.txt"
                       (or directory default-directory))))
     (when (file-exists-p cmake-file)
@@ -252,7 +252,8 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
     (:extra-modules     "EXTRA_ZEPHYR_MODULES"      zephyr-extra-modules)))
 
 (defun zephyr-cmake-args (&optional overrides)
-  "Return a list of `-DKEY=VALUE' args from env, with plist OVERRIDES taking precedence."
+  "Return a list of `-DKEY=VALUE' args from env.
+Plist OVERRIDES take precedence."
   (seq-keep (pcase-lambda (`(,key ,name ,getter))
               (zephyr--cmake-arg name
                                  (or (plist-get overrides key)

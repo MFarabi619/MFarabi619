@@ -1,0 +1,18 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
+(package "zephyr"
+         "0.0.1"
+         "Zephyr RTOS workspace integration for GNU Emacs")
+
+(website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/zephyr")
+(keywords "tools" "embedded")
+
+(package-file "zephyr.el")
+
+;; west is a sibling source package under extra/, not baked into the emacs.
+(load-paths "../west")
+
+(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+
+(development
+ (depends-on "buttercup"))

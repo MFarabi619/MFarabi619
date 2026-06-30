@@ -5,8 +5,7 @@
 ;; Author: Mumtahin Farabi <mfarabi619@gmail.com>
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/west
 ;; Keywords: tools, embedded
-;; Package-Version: 0.0
-;; Package-Revision: nil
+;; Version: 0.0.1
 ;; Package-Requires: ((emacs "29.1") (projectile "2.8") (yaml "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -41,6 +40,7 @@
 (require 'map)
 (require 'vc-git)
 (require 'projectile)
+(require 'yaml)
 
 (defgroup west ()
   "West, the Zephyr RTOS project's meta-tool."

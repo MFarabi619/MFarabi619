@@ -81,12 +81,14 @@ Return the absolute app path."
 
 (describe "zephyr-app-name"
   (it "extracts the project name from a Zephyr CMakeLists.txt"
+    (assume (treesit-language-available-p 'cmake) "cmake tree-sitter grammar unavailable")
     (ert-with-temp-directory dir
       (write-region "find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})\nproject(firmware)"
         nil (expand-file-name "CMakeLists.txt" dir))
       (expect (zephyr-app-name dir) :to-equal "firmware")))
 
   (it "is case-insensitive on the project() keyword"
+    (assume (treesit-language-available-p 'cmake) "cmake tree-sitter grammar unavailable")
     (ert-with-temp-directory dir
       (write-region "find_package(Zephyr)\nPROJECT(my_app)"
         nil (expand-file-name "CMakeLists.txt" dir))
@@ -581,7 +583,8 @@ Return the absolute app path."
   (it "returns Zephyr-app plists (filtering non-Zephyr apps) with name/path/manifest/boards"
     (let ((apps (zephyr-apps dir)))
       (expect (length apps) :to-equal 1)
-      (expect (plist-get (car apps) :name)     :to-equal "my_fw")
+      (when (treesit-language-available-p 'cmake)
+        (expect (plist-get (car apps) :name)   :to-equal "my_fw"))
       (expect (plist-get (car apps) :path)     :to-equal fw-dir)
       (expect (plist-get (car apps) :manifest) :to-equal
         (expand-file-name "west.yml" fw-dir))
@@ -604,7 +607,8 @@ Return the absolute app path."
           nil (expand-file-name "CMakeLists.txt" app-dir))
         (let ((apps (zephyr-apps ws-dir)))
           (expect (length apps) :to-equal 1)
-          (expect (plist-get (car apps) :name) :to-equal "my_app")
+          (when (treesit-language-available-p 'cmake)
+            (expect (plist-get (car apps) :name) :to-equal "my_app"))
           (expect (plist-get (car apps) :path) :to-be-file-equal app-dir)
           (expect (plist-get (car apps) :manifest) :not :to-be-truthy))))))
 
@@ -769,6 +773,7 @@ Return the absolute app path."
     (expect (zephyr-app-p example) :not :to-be-truthy))
 
   (it "extracts the project name from app/CMakeLists.txt"
+    (assume (treesit-language-available-p 'cmake) "cmake tree-sitter grammar unavailable")
     (expect (zephyr-app-name (concat example "app/")) :to-equal "app"))
 
   (it "walks up from app/src/ to find the app root"

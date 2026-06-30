@@ -1,0 +1,15 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
+(package "west"
+         "0.0.1"
+         "West (Zephyr's meta-tool) integration for GNU Emacs")
+
+(website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/west")
+(keywords "tools" "embedded")
+
+(package-file "west.el")
+
+(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+
+(development
+ (depends-on "buttercup"))
