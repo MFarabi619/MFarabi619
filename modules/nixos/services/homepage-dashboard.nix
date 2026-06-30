@@ -15,7 +15,7 @@
       title = "🕹️ Microvisor Systems 🕹️";
       # background = "/images/homepage-background.png";
       description = "🤖 Beep boop, from bootloader to browser 🤖";
-      favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/icons/nix-mfarabi.svg";
+      favicon = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/nix-mfarabi.svg";
       background = "https://raw.githubusercontent.com/MFarabi619/MFarabi619/refs/heads/main/assets/homepage-background.png";
 
       quicklaunch = {
