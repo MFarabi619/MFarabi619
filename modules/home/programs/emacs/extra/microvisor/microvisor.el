@@ -24,17 +24,18 @@
 
 (let* ((this-dir   (file-name-directory (or load-file-name buffer-file-name)))
         (parent-dir (file-name-directory (directory-file-name this-dir))))
-  (dolist (subdir '("pixi" "loco-rs" "dioxus" "west" "zephyr" "pio-mode" "mcumgr" "tailscale"))
+  (dolist (subdir '("pixi" "loco-rs" "dioxus" "west" "zephyr" "pio-mode" "mcumgr" "tailscale" "kanban"))
     (let ((sibling (expand-file-name subdir parent-dir)))
       (when (file-directory-p sibling)
         (add-to-list 'load-path sibling)))))
 
 (load "pixi"      'noerror 'nomessage)
-(load "loco-rs"   'noerror 'nomessage)
-(load "dioxus"    'noerror 'nomessage)
 (load "west"      'noerror 'nomessage)
+(load "kanban"    'noerror 'nomessage)
 (load "zephyr"    'noerror 'nomessage)
 (load "mcumgr"    'noerror 'nomessage)
+(load "dioxus"    'noerror 'nomessage)
+(load "loco-rs"   'noerror 'nomessage)
 (load "pio-mode"  'noerror 'nomessage)
 (load "tailscale" 'noerror 'nomessage)
 
