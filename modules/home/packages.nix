@@ -201,7 +201,6 @@
         nix-web # web gui
         nix-info
         # mcp-nixos
-        nix-health # health check
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
       ]
