@@ -1,3 +1,13 @@
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+&gpioe {
+	motor_dir_hog {
+		gpio-hog;
+		gpios = <14 GPIO_ACTIVE_HIGH>, <13 GPIO_ACTIVE_LOW>;
+		output-high;
+	};
+};
+
 &timers1 {
 	st,prescaler = <20>;
 	status = "okay";
