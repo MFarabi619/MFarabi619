@@ -84,6 +84,7 @@
 ;; (use-package! nov-xwidget           :after (nov)         :config (add-hook! 'nov-mode-hook #'nov-xwidget-inject-all-files) (define-key nov-mode-map (kbd "o") #'nov-xwidget-view))
 (use-package! claude-code           :after (vterm)       :config (setopt claude-code-terminal-backend 'vterm) (after! monet (add-hook 'claude-code-process-environment-functions #'monet-start-server-function) (monet-mode 1)))
 (use-package! fancy-compilation     :after compile       :config (setopt fancy-compilation-term "xterm-256color" fancy-compilation-quiet-prelude t fancy-compilation-quiet-prolog t fancy-compilation-override-colors nil) (fancy-compilation-mode 1))
+(after! buttercup (setq buttercup-stack-frame-style 'pretty buttercup-colors '((black . "38;5;240") (red . "38;5;203") (green . "38;5;114") (yellow . "38;5;221") (blue . "38;5;110") (magenta . "38;5;176") (cyan . "38;5;116") (white . "38;5;253"))))
 (use-package! disaster              :commands (disaster) :init ;; If you prefer viewing assembly code in `nasm-mode` instead of `asm-mode`
   (setq disaster-assembly-mode #'nasm-mode) (map! :localleader :map (c++-mode-map c-mode-map fortran-mode-map) :desc "Disaster" "d" #'disaster))
 

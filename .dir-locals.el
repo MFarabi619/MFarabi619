@@ -147,17 +147,5 @@
                                       (user-error "Requires gdb version >= 14.1"))))
                          :program (lambda () (expand-file-name "build/zephyr/zephyr.elf" (project-root (project-current))))))))
 
-       (eval . (with-eval-after-load 'buttercup
-                 (setq buttercup-stack-frame-style 'pretty
-                       buttercup-colors
-                       '((black   . "38;5;240")
-                         (red     . "38;5;203")
-                         (green   . "38;5;114")
-                         (yellow  . "38;5;221")
-                         (blue    . "38;5;110")
-                         (magenta . "38;5;176")
-                         (cyan    . "38;5;116")
-                         (white   . "38;5;253")))))
-
        (eval . (when (and buffer-file-name (string-match-p "/extra/[^/]+/.*-tests?\\.el\\'" buffer-file-name)) (buttercup-minor-mode 1)))
        )))
