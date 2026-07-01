@@ -460,11 +460,21 @@ stripped so callers can treat the result as raw JSON unconditionally."
 
 ;;; Mode line
 
+(describe "tailscale--count-face"
+  (it "is `vui-success' when every peer is online"
+    (expect (tailscale--count-face 4 4) :to-equal 'vui-success))
+
+  (it "is `vui-warning' when some peers are offline"
+    (expect (tailscale--count-face 2 4) :to-equal 'vui-warning))
+
+  (it "is `vui-muted' when there are no peers"
+    (expect (tailscale--count-face 0 0) :to-equal 'vui-muted)))
+
 (describe "tailscale--set-mode-line"
-  (it "sets `mode-name' to a list containing version + tailnet + count"
+  (it "sets `mode-line-process' to a list containing version + tailnet + count"
     (with-temp-buffer
       (tailscale--set-mode-line (tailscale-tests--parse))
-      (let ((joined (apply #'concat mode-name)))
+      (let ((joined (apply #'concat mode-line-process)))
         (expect joined :to-match "v1\\.98\\.5")
         (expect joined :to-match "acme\\.github")
         (expect joined :to-match "2/4")))))

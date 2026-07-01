@@ -184,7 +184,7 @@ malformed JSON."
 
 ;;; Mode
 
-(define-derived-mode tailscale-mode special-mode "tailscale"
+(define-derived-mode tailscale-mode special-mode "tailscale-mode"
   "Major mode for the `*tailscale*' buffer."
   (setq-local truncate-lines t))
 (put 'tailscale-mode 'completion-predicate #'ignore)
@@ -464,14 +464,23 @@ Each entry is a plist: :header label, optional :width for `string-pad',
 
 ;;; Mode-line
 
+(defun tailscale--count-face (online total)
+  "Return the face for an ONLINE/TOTAL peer count.
+Green when all peers are up, yellow when some are down, muted when none."
+  (cond ((zerop total)    'vui-muted)
+    ((= online total) 'vui-success)
+    (t                'vui-warning)))
+
 (defun tailscale--set-mode-line (status)
-  "Update `mode-name' with VPN icon, version, tailnet, and peer count."
+  "Update `mode-line-process' with VPN icon, version, tailnet, and peer count.
+Uses `mode-line-process' (doom-modeline renders it after the major mode) so
+`mode-name' stays `tailscale' for ibuffer and other mode-name readers."
   (let* ((self           (tailscale-self status))
           (peers          (tailscale-peers status))
           (all-peers      (if self (cons self peers) peers))
           (online-count   (seq-count #'tailscale-peer-online-p all-peers))
           (total-count    (length all-peers)))
-    (setq mode-name
+    (setq mode-line-process
       (list " "
         (nerd-icons-mdicon "nf-md-vpn" :face 'vui-success)
         "  v" (propertize (or (tailscale-version status) "?")
@@ -483,7 +492,7 @@ Each entry is a plist: :header label, optional :width for `string-pad',
         (nerd-icons-mdicon "nf-md-server_network" :face 'vui-muted)
         " "
         (propertize (format "%d/%d" online-count total-count)
-          'face 'vui-muted)))))
+          'face (tailscale--count-face online-count total-count))))))
 
 ;;; Render + entry point
 
