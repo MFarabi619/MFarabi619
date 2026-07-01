@@ -1,0 +1,28 @@
+/simulator
+  Subscribers:
+    /cmd_vel: geometry_msgs/msg/Twist
+  Publishers:
+    /battery: sensor_msgs/msg/BatteryState
+    /camera/camera_info: sensor_msgs/msg/CameraInfo
+    /camera/image_raw: sensor_msgs/msg/Image
+    /gps/fix: sensor_msgs/msg/NavSatFix
+    /joint_states: sensor_msgs/msg/JointState
+    /odom: nav_msgs/msg/Odometry
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rosout: rcl_interfaces/msg/Log
+    /tf: tf2_msgs/msg/TFMessage
+    /tf_static: tf2_msgs/msg/TFMessage
+  Service Servers:
+    /simulator/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /simulator/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /simulator/get_parameters: rcl_interfaces/srv/GetParameters
+    /simulator/get_type_description: type_description_interfaces/srv/GetTypeDescription
+    /simulator/list_parameters: rcl_interfaces/srv/ListParameters
+    /simulator/set_parameters: rcl_interfaces/srv/SetParameters
+    /simulator/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:
+

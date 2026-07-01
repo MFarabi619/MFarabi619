@@ -11,7 +11,7 @@ rviz.cmd = "rviz2"
 test.cmd = "pytest apps/robot/test -v"
 bridge.cmd = "ros2 run foxglove_bridge foxglove_bridge"
 teleop.cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
-sim = { cmd = "ros2 launch robot sim.launch.py", depends-on = [ "build" ] }
+simulator = { cmd = "ros2 launch robot simulator.launch.py", depends-on = [ "build" ] }
 cad = { cmd = "python main.py", env = { YACV_HOST = "127.0.0.1", YACV_PORT = "32323" }, cwd = "libs/cad" }
 
 [system-requirements]
@@ -44,4 +44,4 @@ default = { features = ["lyrical"] }
 [feature]
 lyrical.target.linux-aarch64.dependencies.lgpio = "*"
 lyrical.channels = ["https://prefix.dev/robostack-lyrical"]
-lyrical.dependencies = { ros-lyrical-desktop = "*", ros-lyrical-foxglove-bridge = "*", ros-lyrical-ros-gz = "*" }
+lyrical.dependencies = { ros-lyrical-desktop = "*", ros-lyrical-foxglove-bridge = "*", ros-lyrical-ros-gz = "*", ros-lyrical-generate-parameter-library = "*", ros-lyrical-generate-parameter-library-py = "*" }

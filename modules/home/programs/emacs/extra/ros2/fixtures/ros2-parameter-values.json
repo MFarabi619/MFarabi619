@@ -1,0 +1,14 @@
+{
+  "op": "parameterValues",
+  "parameters": [
+    {
+      "name": "/simulator.use_sim_time",
+      "value": false
+    },
+    {
+      "name": "/simulator.start_type_description_service",
+      "value": true
+    }
+  ],
+  "id": "cap"
+}

@@ -1,9 +1,18 @@
 import os
+import sys
 from glob import glob
 
 from setuptools import find_packages, setup
 
 package_name = "robot"
+
+if len(sys.argv) >= 2 and sys.argv[1] != "clean":
+    from generate_parameter_library_py.setup_helper import generate_parameter_module
+
+    generate_parameter_module(
+        "hat_mdd10sm_parameters",
+        "robot/hat_mdd10sm_parameters.yaml",
+    )
 
 setup(
     name=package_name,
@@ -25,7 +34,7 @@ setup(
     entry_points={
         "console_scripts": [
             "hat_mdd10sm = robot.hat_mdd10sm:main",
-            "sim = robot.sim:main",
+            "simulator = robot.simulator:main",
         ],
     },
 )

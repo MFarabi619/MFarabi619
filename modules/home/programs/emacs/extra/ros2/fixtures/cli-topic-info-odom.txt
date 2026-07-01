@@ -1,0 +1,3 @@
+Type: nav_msgs/msg/Odometry
+Publisher count: 1
+Subscription count: 0

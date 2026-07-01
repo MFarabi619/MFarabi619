@@ -1,0 +1,21 @@
+Type: nav_msgs/msg/Odometry
+
+Publisher count: 1
+
+Node name: simulator
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Topic type hash: RIHS01_3cc97dc7fb7502f8714462c526d369e35b603cfc34d946e3f2eda2766dfec6e0
+Endpoint type: PUBLISHER
+GID: 01.02.03.04.05.06.07.08.00.00.00.00.00.00.13.03
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): KEEP_LAST (10)
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 0
+

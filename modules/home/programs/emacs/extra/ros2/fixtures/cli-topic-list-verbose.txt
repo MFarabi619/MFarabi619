@@ -1,0 +1,18 @@
+Published topics:
+ * /battery [sensor_msgs/msg/BatteryState] 1 publisher
+ * /camera/camera_info [sensor_msgs/msg/CameraInfo] 1 publisher
+ * /camera/image_raw [sensor_msgs/msg/Image] 1 publisher
+ * /gps/fix [sensor_msgs/msg/NavSatFix] 1 publisher
+ * /joint_states [sensor_msgs/msg/JointState] 1 publisher
+ * /odom [nav_msgs/msg/Odometry] 1 publisher
+ * /parameter_events [rcl_interfaces/msg/ParameterEvent] 4 publishers
+ * /robot_description [std_msgs/msg/String] 1 publisher
+ * /rosout [rcl_interfaces/msg/Log] 4 publishers
+ * /tf [tf2_msgs/msg/TFMessage] 2 publishers
+ * /tf_static [tf2_msgs/msg/TFMessage] 2 publishers
+
+Subscribed topics:
+ * /cmd_vel [geometry_msgs/msg/Twist] 1 subscriber
+ * /joint_states [sensor_msgs/msg/JointState] 1 subscriber
+ * /parameter_events [rcl_interfaces/msg/ParameterEvent] 1 subscriber
+

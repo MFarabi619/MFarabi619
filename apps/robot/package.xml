@@ -19,6 +19,9 @@
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
 
+  <depend>generate_parameter_library</depend>
+  <depend>generate_parameter_library_py</depend>
+
   <test_depend>python3-pytest</test_depend>
 
   <export>

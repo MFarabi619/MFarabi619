@@ -1,0 +1,21 @@
+{
+  "op": "serverInfo",
+  "name": "",
+  "capabilities": [
+    "clientPublish",
+    "connectionGraph",
+    "parameters",
+    "parametersSubscribe",
+    "services",
+    "assets"
+  ],
+  "supportedEncodings": [
+    "cdr",
+    "json"
+  ],
+  "metadata": {
+    "fg-library": "foxglove-sdk-cpp/v0.18.0",
+    "ROS_DISTRO": "lyrical"
+  },
+  "sessionId": "1782878006231"
+}

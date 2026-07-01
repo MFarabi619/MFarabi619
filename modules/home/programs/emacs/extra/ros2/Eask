@@ -1,0 +1,20 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
+(package "ros2"
+         "0.0.1"
+         "ROS2 support")
+
+(website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/ros2")
+(keywords "tools" "robotics")
+
+(package-file "ros2.el")
+
+(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+
+(source "melpa")
+
+(depends-on "websocket")
+(depends-on "prodigy")
+
+(development
+ (depends-on "buttercup"))

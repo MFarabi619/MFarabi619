@@ -1,0 +1,5 @@
+/simulator:
+  ros__parameters:
+    start_type_description_service: true
+    use_sim_time: false
+

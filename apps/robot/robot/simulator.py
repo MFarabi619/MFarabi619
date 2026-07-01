@@ -27,7 +27,7 @@ CAMERA_FRAME = "camera_optical_frame"
 
 class Sim(Node):
     def __init__(self):
-        super().__init__("sim")
+        super().__init__("simulator")
         self.x = 0.0
         self.y = 0.0
         self.theta = 0.0

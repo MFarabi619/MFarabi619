@@ -16,7 +16,7 @@ def generate_launch_description():
                 executable="robot_state_publisher",
                 parameters=[{"robot_description": robot_description}],
             ),
-            Node(package="robot", executable="sim", name="sim", output="screen"),
+            Node(package="robot", executable="simulator", name="simulator", output="screen"),
             Node(package="foxglove_bridge", executable="foxglove_bridge", output="screen"),
         ]
     )

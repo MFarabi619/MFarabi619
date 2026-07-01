@@ -1,0 +1,53 @@
+hat_mdd10sm:
+  gpio_chip:
+    type: int
+    default_value: 0
+    description: "lgpio chip number to open."
+
+  pwm_frequency_hz:
+    type: int
+    default_value: 1000
+    description: "PWM frequency for the motor channels, in hertz."
+    validation:
+      bounds<>: [100, 20000]
+
+  left_pwm_pin:
+    type: int
+    default_value: 12
+    description: "GPIO pin for the left motor's PWM (speed) signal."
+
+  right_pwm_pin:
+    type: int
+    default_value: 13
+    description: "GPIO pin for the right motor's PWM (speed) signal."
+
+  left_dir_pin:
+    type: int
+    default_value: 26
+    description: "GPIO pin for the left motor's direction signal."
+
+  right_dir_pin:
+    type: int
+    default_value: 24
+    description: "GPIO pin for the right motor's direction signal."
+
+  left_forward_level:
+    type: int
+    default_value: 1
+    description: "Direction-pin level that drives the left motor forward."
+    validation:
+      bounds<>: [0, 1]
+
+  right_forward_level:
+    type: int
+    default_value: 0
+    description: "Direction-pin level that drives the right motor forward."
+    validation:
+      bounds<>: [0, 1]
+
+  duty_scale:
+    type: double
+    default_value: 50.0
+    description: "Percent PWM duty per unit of wheel speed (clamped to 100)."
+    validation:
+      bounds<>: [0.0, 100.0]
