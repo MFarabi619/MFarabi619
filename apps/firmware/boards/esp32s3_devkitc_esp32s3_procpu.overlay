@@ -15,6 +15,10 @@
 	status = "okay";
 };
 
+&psram0 {
+	size = <DT_SIZE_M(8)>;
+};
+
 &pinctrl {
 	spim2_ws2812: spim2_ws2812 {
 		group1 {

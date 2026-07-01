@@ -75,7 +75,7 @@
 			max-x = <3800>;
 			max-y = <3800>;
 			z-threshold = <150>;
-      reads = <3>;
+			reads = <3>;
 		};
 	};
 };

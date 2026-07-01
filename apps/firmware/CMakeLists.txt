@@ -9,32 +9,28 @@ list(APPEND EXTRA_ZEPHYR_MODULES
   ${LIBS_DIR}/zephyr-ztest-fancy
 )
 
-list(APPEND EXTRA_CONF_FILE
-  ${CMAKE_CURRENT_LIST_DIR}/rust.conf
-  ${CMAKE_CURRENT_LIST_DIR}/kernel.conf
-  ${CMAKE_CURRENT_LIST_DIR}/log.conf
-  ${CMAKE_CURRENT_LIST_DIR}/programs/shell.conf
-  ${CMAKE_CURRENT_LIST_DIR}/programs/hwinfo.conf
-)
-
-if(BOARD MATCHES "^stm32f3_disco")
-  list(APPEND EXTRA_CONF_FILE
-    ${CMAKE_CURRENT_LIST_DIR}/programs/gpio.conf
-    ${CMAKE_CURRENT_LIST_DIR}/programs/i2c.conf
-    ${CMAKE_CURRENT_LIST_DIR}/programs/input.conf
-    ${CMAKE_CURRENT_LIST_DIR}/programs/led.conf
-    ${CMAKE_CURRENT_LIST_DIR}/programs/sensor.conf
-  )
-endif()
-
 set(BOARD_FLASH_RUNNER probe-rs)
 
 macro(app_set_runner_args)
-  get_property(_probe_rs_queued GLOBAL PROPERTY _PROBE_RS_PRESET_QUEUED SET)
-  if(NOT _probe_rs_queued)
-    set_property(GLOBAL PROPERTY _PROBE_RS_PRESET_QUEUED 1)
-    string(REGEX REPLACE "/" "_" _preset "${BOARD}/${BOARD_QUALIFIERS}")
-    board_runner_args(probe-rs "-O=--preset=${_preset}")
+  get_property(_app_runner_args_queued GLOBAL PROPERTY _APP_RUNNER_ARGS_QUEUED SET)
+  if(NOT _app_runner_args_queued)
+    set_property(GLOBAL PROPERTY _APP_RUNNER_ARGS_QUEUED 1)
+
+    if(BOARD MATCHES "^esp32s3_devkitc")
+      board_runner_args(probe-rs "--dev-id=303a:1001:DC:B4:D9:0C:5E:F8")
+    elseif(BOARD MATCHES "^xiao_esp32s3" AND BOARD_QUALIFIERS MATCHES "sense")
+      board_runner_args(probe-rs "--dev-id=303a:1001:CC:BA:97:16:2B:68")
+    elseif(BOARD MATCHES "^xiao_esp32s3")
+      board_runner_args(probe-rs "--dev-id=303a:1001:D8:3B:DA:74:82:E8")
+    elseif(BOARD MATCHES "^walter")
+      board_runner_args(probe-rs "--dev-id=303a:1001:D0:CF:13:54:27:18")
+    elseif(BOARD MATCHES "^esp32_devkitc")
+      board_runner_args(probe-rs "--dev-id=1A86:7523")
+    elseif(BOARD MATCHES "^stm32f3_disco")
+      board_runner_args(probe-rs "--protocol=swd" "--dev-id=0483:374b:066FFF494877514867152643")
+    elseif(BOARD MATCHES "^nucleo_h723zg")
+      board_runner_args(probe-rs "--chip=stm32h723zg" "--protocol=swd" "--dev-id=0483:374e:003E00203234510237333934")
+    endif()
 
     get_property(_probe_rs_args GLOBAL PROPERTY BOARD_RUNNER_ARGS_EXPLICIT_probe_rs)
     set(_chip "")

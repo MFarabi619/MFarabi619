@@ -15,3 +15,7 @@
 &modem {
 	/delete-property/ mdm-wake-gpios;
 };
+
+&psram0 {
+	size = <DT_SIZE_M(2)>;
+};

@@ -1,0 +1,6 @@
+set(stm32f3_disco_BOARD_ALIAS   stm32f3_disco@E/stm32f303xc)
+set(walter_BOARD_ALIAS          walter/esp32s3/procpu)
+set(xiao_BOARD_ALIAS            xiao_esp32s3/esp32s3/procpu)
+set(xiao_sense_BOARD_ALIAS      xiao_esp32s3/esp32s3/procpu/sense)
+set(esp32s3_devkitc_BOARD_ALIAS esp32s3_devkitc/esp32s3/procpu)
+set(esp32_cyd_BOARD_ALIAS       esp32_devkitc/esp32/procpu)

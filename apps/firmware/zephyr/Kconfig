@@ -1,6 +1,6 @@
 rsource "../networking/wireguard/Kconfig"
 
-config HAS_SEGGER_RTT
+configdefault HAS_SEGGER_RTT
 	default y
 
 config FORCE_RUST_SUPPORTED
@@ -8,7 +8,7 @@ config FORCE_RUST_SUPPORTED
 	default y
 	select RUST_SUPPORTED
 
-config FILE_SYSTEM_SHELL
+configdefault FILE_SYSTEM_SHELL
 	default y if SHELL && FILE_SYSTEM
 
 config PROMPT_TZ_OFFSET_MINUTES
@@ -16,21 +16,21 @@ config PROMPT_TZ_OFFSET_MINUTES
 	default -240
 
 if ESP_SPIRAM
-config ESP_SPIRAM_MEMTEST
+configdefault ESP_SPIRAM_MEMTEST
 	default y
 endif
 
 if SOC_SERIES_ESP32S3 && WIFI_ESP32
-config ESP32_WIFI_IRAM_OPT
+configdefault ESP32_WIFI_IRAM_OPT
 	default y
-config ESP32_WIFI_RX_IRAM_OPT
+configdefault ESP32_WIFI_RX_IRAM_OPT
 	default y
-config ESP32_WIFI_STA_RECONNECT
+configdefault ESP32_WIFI_STA_RECONNECT
 	default y
 endif
 
 if BOARD_XIAO_ESP32S3 || BOARD_ESP32S3_DEVKITC
-config ESP_SPIRAM_HEAP_SIZE
+configdefault ESP_SPIRAM_HEAP_SIZE
 	default 6291456
 
 choice SPIRAM_MODE
@@ -55,25 +55,22 @@ endchoice
 endif
 
 if !BOARD_WALTER
-config MCUMGR_GRP_SHELL
+configdefault MCUMGR_GRP_SHELL
 	default y if MCUMGR && SHELL
-config SHELL_BACKEND_DUMMY
+configdefault SHELL_BACKEND_DUMMY
 	default y if MCUMGR && SHELL
-config FLASH_SHELL
+configdefault FLASH_SHELL
 	default y if FLASH && SHELL && FLASH_PAGE_LAYOUT
-config FLASH_MAP_SHELL
+configdefault FLASH_MAP_SHELL
 	default y if FLASH_MAP && SHELL
 endif
 
-config HEAP_MEM_POOL_SIZE
+configdefault HEAP_MEM_POOL_SIZE
 	default 65536
 
-config MAIN_STACK_SIZE
-	default 8192
-
-config SHELL_STACK_SIZE
+configdefault SHELL_STACK_SIZE
 	default 8192 if SQLITE
 	default 5200
 
-config SYSTEM_WORKQUEUE_STACK_SIZE
+configdefault SYSTEM_WORKQUEUE_STACK_SIZE
 	default 4096
