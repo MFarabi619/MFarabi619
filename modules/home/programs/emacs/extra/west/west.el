@@ -6,7 +6,7 @@
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/west
 ;; Keywords: tools, embedded
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "29.1") (projectile "2.8") (yaml "0.5"))
+;; Package-Requires: ((emacs "29.1") (projectile "2.8") (yaml "0.5") (compile-multi "0.7"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -41,6 +41,11 @@
 (require 'vc-git)
 (require 'projectile)
 (require 'yaml)
+(require 'compile-multi)
+
+(declare-function vterm "vterm")
+(defvar vterm-shell)
+(defvar vterm-buffer-name)
 
 (defgroup west ()
   "West, the Zephyr RTOS project's meta-tool."
@@ -83,8 +88,8 @@
 
 (defun west--parse-config-line (line)
   "Split LINE on the first `=' into a (KEY . VALUE) cons."
-  (let ((eq-pos (string-search "=" line)))
-    (cons (substring line 0 eq-pos) (substring line (1+ eq-pos)))))
+  (let ((separator-index (string-search "=" line)))
+    (cons (substring line 0 separator-index) (substring line (1+ separator-index)))))
 
 (defun west-list ()
   "Return `west list' as a list of per-project plists."
@@ -105,31 +110,110 @@
 
 (defun west--parse-version (line)
   "Strip the `West version: ' prefix from LINE."
-  (if (string-match "\\`West version: \\(.+\\)\\'" line)
-    (match-string 1 line)
-    line))
+  (string-remove-prefix "West version: " line))
 
 (defun west-boards ()
   "Return `west boards' as a list of board names."
   (process-lines "west" "boards"))
 
-(defun west--compile (label command)
-  "Run COMMAND via `compile' in an isolated `*west:LABEL*' buffer."
-  (let ((compilation-buffer-name-function
-         (lambda (_mode) (format "*west:%s*" label))))
-    (compile command)))
+(defun west--run-interactive (label command)
+  "Run COMMAND in a fresh vterm buffer `*west:LABEL*' for interactive targets."
+  (require 'vterm)
+  (let* ((buffer-name (format "*west:%s*" label))
+          (existing    (get-buffer buffer-name)))
+    (when existing
+      (let (kill-buffer-query-functions) (kill-buffer existing)))
+    (let ((vterm-shell command)
+           (vterm-buffer-name buffer-name))
+      (vterm))))
 
 (defun west-update ()
   "Update projects described in west manifest."
   (interactive)
-  (west--compile "update" "west update"))
+  (compile "west update"))
+
+(defcustom west-update-show-in-m-x nil
+  "When non-nil, offer `west-update' in \\[execute-extended-command]."
+  :type 'boolean
+  :group 'west)
+
+(put 'west-update 'completion-predicate
+  (lambda (_symbol _buffer) west-update-show-in-m-x))
+
+(defun west-patches-path (&optional app-path)
+  "Return APP-PATH's `zephyr/patches.yml' (defaults to the current app), or nil."
+  (when-let* ((app-path (or app-path (west--current-app))))
+    (let ((yml (expand-file-name "zephyr/patches.yml" app-path)))
+      (when (file-exists-p yml) yml))))
+
+(defun west--current-app ()
+  "Return the manifest app directory containing `default-directory', or nil."
+  (seq-some (lambda (app)
+              (let ((path (plist-get app :path)))
+                (and path (file-in-directory-p default-directory path) path)))
+    (west-manifest-apps)))
+
+(defun west--resolve-patch-app (&optional app-path)
+  "Resolve a manifest app with a `zephyr/patches.yml': APP-PATH, current, sole, or prompt."
+  (or app-path
+    (let ((current (west--current-app)))
+      (and current (west-patches-path current) current))
+    (let ((apps (seq-filter (lambda (app) (west-patches-path (plist-get app :path)))
+                  (west-manifest-apps))))
+      (cond
+        ((null apps) nil)
+        ((= 1 (length apps)) (plist-get (car apps) :path))
+        (t (let* ((by-name (mapcar (lambda (app)
+                                     (cons (plist-get app :name) (plist-get app :path)))
+                             apps))
+                   (choice (completing-read "App: " (mapcar #'car by-name) nil t)))
+             (cdr (assoc choice by-name))))))))
+
+(defun west--patch-run (subcommands app-path)
+  "Run `west patch SUBCOMMANDS' for APP-PATH's module."
+  (let* ((app-path  (west--resolve-patch-app app-path))
+          (workspace (and app-path (west-workspace-root app-path))))
+    (unless (and app-path (west-patches-path app-path))
+      (user-error "No zephyr/patches.yml found for %s" (or app-path "current app")))
+    (unless workspace
+      (user-error "No west workspace found for %s" app-path))
+    (let* ((default-directory (expand-file-name workspace))
+            (module (shell-quote-argument
+                      (directory-file-name (file-relative-name app-path workspace))))
+            (subs (ensure-list subcommands)))
+      (compile
+        (mapconcat
+          (lambda (sub) (format "west patch -sm %s %s" module sub))
+          subs " && ")))))
+
+(defcustom west-patch-apply-clean-first t
+  "When non-nil, `west-patch-apply' resets patches (clean) before applying."
+  :type 'boolean
+  :group 'west)
+
+(defun west-patch-apply (&optional app-path)
+  "Apply APP-PATH's patches; clean first when `west-patch-apply-clean-first'."
+  (interactive)
+  (west--patch-run
+    (if west-patch-apply-clean-first '("clean" "apply") "apply")
+    app-path))
+
+(defun west-patch-clean (&optional app-path)
+  "Reset patches declared in APP-PATH's `zephyr/patches.yml'."
+  (interactive)
+  (west--patch-run "clean" app-path))
+
+(defun west-patch-clean-apply (&optional app-path)
+  "Clean then apply patches declared in APP-PATH's `zephyr/patches.yml'."
+  (interactive)
+  (west--patch-run '("clean" "apply") app-path))
 
 (defun west-manifest-path (&optional workspace-root)
   "Return the absolute path of the manifest file for WORKSPACE-ROOT."
   (when-let ((root (or workspace-root (west-workspace-root))))
-    (let* ((cfg (west-config))
-           (path (or (cdr (assoc "manifest.path" cfg)) "."))
-           (file (or (cdr (assoc "manifest.file" cfg)) "west.yml")))
+    (let* ((config (west-config))
+           (path (or (cdr (assoc "manifest.path" config)) "."))
+           (file (or (cdr (assoc "manifest.file" config)) "west.yml")))
       (expand-file-name file (expand-file-name path root)))))
 
 (defun west-manifest (&optional path)
@@ -147,7 +231,7 @@
   "Return the `manifest.self.import' list from MANIFEST (string -> 1-list)."
   (when-let ((imports (and manifest
                            (map-nested-elt manifest '(manifest self import)))))
-    (if (stringp imports) (list imports) imports)))
+    (ensure-list imports)))
 
 (defun west-manifest-projects (manifest)
   "Return MANIFEST's `manifest.projects' as a list of per-project plists."
@@ -179,6 +263,26 @@ Each entry is a plist with :name, :path (directory), and :manifest (file)."
                       :path app-dir
                       :manifest app-manifest-path)))
             imports)))
+
+(defconst west--compile-multi-group "\U000f1985"
+  "Kite glyph flanking the west compile-multi group header.")
+
+(defconst west--task-annotation (concat "west " west--compile-multi-group)
+  "Right-column annotation (label plus kite glyph) for west compile-multi tasks.")
+
+(defun west-compile-multi-tasks ()
+  "Workspace-level west compile-multi tasks (update, patch apply/clean)."
+  (when (west-in-workspace-p)
+    (list
+      (cons (format "%s west %s :\U0000e726 update"
+              west--compile-multi-group west--compile-multi-group)
+        (list :command "west update" :annotation west--task-annotation))
+      (cons (format "%s west %s :\U0000e729 patch apply"
+              west--compile-multi-group west--compile-multi-group)
+        (list :command #'west-patch-apply :annotation west--task-annotation)))))
+
+(add-to-list 'compile-multi-config
+  '((west-in-workspace-p) . (west-compile-multi-tasks)))
 
 (provide 'west)
 

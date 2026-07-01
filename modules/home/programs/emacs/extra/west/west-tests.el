@@ -8,6 +8,16 @@
 (require 'ert-x)
 (require 'west)
 
+(defun west-tests--make-workspace-with-app (ws relative-app)
+  "Create a .west workspace in WS with an app at RELATIVE-APP/zephyr/patches.yml.
+Return the absolute app path."
+  (make-directory (expand-file-name ".west" ws))
+  (let* ((app    (expand-file-name (file-name-as-directory relative-app) ws))
+          (zephyr (expand-file-name "zephyr" app)))
+    (make-directory zephyr t)
+    (write-region "" nil (expand-file-name "patches.yml" zephyr))
+    app))
+
 (buttercup-define-matcher-for-binary-function
   :to-be-file-equal file-equal-p
   :expect-match-phrase    "Expected `%A' to refer to the same file as `%B', but it was `%a'."
@@ -151,15 +161,19 @@
   (it "compiles `west update'"
     (spy-on 'compile)
     (west-update)
-    (expect 'compile :to-have-been-called-with "west update"))
+    (expect 'compile :to-have-been-called-with "west update")))
 
-  (it "isolates output into a `*west:update*' buffer"
-    (let (captured)
-      (spy-on 'compile :and-call-fake
+(describe "west--run-interactive"
+  (it "spawns a vterm buffer named *west:LABEL* running COMMAND"
+    (assume (require 'vterm nil t) "vterm unavailable")
+    (let (captured-shell captured-name)
+      (spy-on 'vterm :and-call-fake
         (lambda (&rest _)
-          (setq captured (funcall compilation-buffer-name-function nil))))
-      (west-update)
-      (expect captured :to-equal "*west:update*"))))
+          (setq captured-shell vterm-shell
+            captured-name vterm-buffer-name)))
+      (west--run-interactive "run" "west build -t run")
+      (expect captured-shell :to-equal "west build -t run")
+      (expect captured-name :to-equal "*west:run*"))))
 
 (describe "west-manifest-path"
   (it "defaults to <workspace>/west.yml when neither manifest.path nor manifest.file is set"
@@ -293,5 +307,148 @@
     (expect (length (west-manifest-projects
                       (west-manifest (concat example "west.yml"))))
       :to-equal 1)))
+
+(describe "west-update M-x visibility"
+  (it "is hidden from M-x by default"
+    (let ((west-update-show-in-m-x nil))
+      (expect (funcall (get 'west-update 'completion-predicate)
+                'west-update (current-buffer))
+        :to-be nil)))
+
+  (it "is offered in M-x when `west-update-show-in-m-x' is non-nil"
+    (let ((west-update-show-in-m-x t))
+      (expect (funcall (get 'west-update 'completion-predicate)
+                'west-update (current-buffer))
+        :to-be-truthy))))
+
+(describe "west-compile-multi-tasks"
+  (it "contributes update + patch apply tasks inside a workspace"
+    (spy-on 'west-in-workspace-p :and-return-value t)
+    (let* ((tasks    (west-compile-multi-tasks))
+            (titles   (mapcar #'car tasks))
+            (commands (mapcar (lambda (task) (plist-get (cdr task) :command)) tasks)))
+      (expect commands :to-contain "west update")
+      (expect commands :to-contain #'west-patch-apply)
+      (expect (seq-some (lambda (s) (string-suffix-p "patch apply" s)) titles)
+        :to-be-truthy)))
+
+  (it "does not surface a standalone patch clean task"
+    (spy-on 'west-in-workspace-p :and-return-value t)
+    (let ((titles (mapcar #'car (west-compile-multi-tasks))))
+      (expect (seq-some (lambda (s) (string-suffix-p "patch clean" s)) titles)
+        :to-be nil)))
+
+  (it "returns nil outside a workspace"
+    (spy-on 'west-in-workspace-p :and-return-value nil)
+    (expect (west-compile-multi-tasks) :to-be nil)))
+
+(describe "west-patches-path"
+  (it "returns the absolute patches.yml path when present"
+    (ert-with-temp-directory dir
+      (let ((zephyr (expand-file-name "zephyr" dir)))
+        (make-directory zephyr)
+        (write-region "" nil (expand-file-name "patches.yml" zephyr))
+        (expect (west-patches-path dir)
+          :to-be-file-equal (expand-file-name "zephyr/patches.yml" dir)))))
+
+  (it "returns nil when patches.yml is missing"
+    (ert-with-temp-directory dir
+      (expect (west-patches-path dir) :not :to-be-truthy)))
+
+  (it "discovers the current app's patches.yml via west--current-app"
+    (ert-with-temp-directory dir
+      (let ((zephyr (expand-file-name "zephyr" dir)))
+        (make-directory zephyr)
+        (write-region "" nil (expand-file-name "patches.yml" zephyr))
+        (spy-on 'west--current-app :and-return-value dir)
+        (expect (west-patches-path)
+          :to-be-file-equal (expand-file-name "zephyr/patches.yml" dir))))))
+
+(describe "west--resolve-patch-app"
+  (it "prefers an explicit APP-PATH"
+    (expect (west--resolve-patch-app "/explicit/app/") :to-equal "/explicit/app/"))
+
+  (it "falls back to the current app when it has patches.yml"
+    (spy-on 'west--current-app :and-return-value "/current/app/")
+    (spy-on 'west-patches-path :and-return-value "/current/app/zephyr/patches.yml")
+    (expect (west--resolve-patch-app) :to-equal "/current/app/"))
+
+  (it "auto-picks the only manifest app carrying a patches.yml"
+    (spy-on 'west--current-app :and-return-value nil)
+    (spy-on 'west-manifest-apps :and-return-value
+      '((:name "firmware" :path "/ws/apps/firmware/")))
+    (spy-on 'west-patches-path :and-call-fake
+      (lambda (&optional p) (and (equal p "/ws/apps/firmware/") "x")))
+    (expect (west--resolve-patch-app) :to-equal "/ws/apps/firmware/"))
+
+  (it "prompts when multiple manifest apps carry a patches.yml"
+    (spy-on 'west--current-app :and-return-value nil)
+    (spy-on 'west-manifest-apps :and-return-value
+      '((:name "firmware" :path "/ws/apps/firmware/")
+         (:name "other"    :path "/ws/apps/other/")))
+    (spy-on 'west-patches-path :and-return-value "x")
+    (spy-on 'completing-read :and-return-value "other")
+    (expect (west--resolve-patch-app) :to-equal "/ws/apps/other/"))
+
+  (it "returns nil when no app carries a patches.yml"
+    (spy-on 'west--current-app :and-return-value nil)
+    (spy-on 'west-manifest-apps :and-return-value
+      '((:name "firmware" :path "/ws/apps/firmware/")))
+    (spy-on 'west-patches-path :and-return-value nil)
+    (expect (west--resolve-patch-app) :to-be nil)))
+
+(describe "west-patch-apply"
+  (it "cleans then applies by default"
+    (ert-with-temp-directory ws
+      (let ((app (west-tests--make-workspace-with-app ws "apps/firmware")))
+        (spy-on 'compile)
+        (west-patch-apply app)
+        (expect 'compile :to-have-been-called-with
+          (concat "west patch -sm apps/firmware clean"
+            " && west patch -sm apps/firmware apply")))))
+
+  (it "applies without cleaning when `west-patch-apply-clean-first' is nil"
+    (ert-with-temp-directory ws
+      (let ((app (west-tests--make-workspace-with-app ws "apps/firmware"))
+             (west-patch-apply-clean-first nil))
+        (spy-on 'compile)
+        (west-patch-apply app)
+        (expect 'compile :to-have-been-called-with
+          "west patch -sm apps/firmware apply"))))
+
+  (it "runs the compile from the workspace root"
+    (ert-with-temp-directory ws
+      (let ((app (west-tests--make-workspace-with-app ws "apps/firmware"))
+             captured)
+        (spy-on 'compile :and-call-fake
+          (lambda (&rest _) (setq captured default-directory)))
+        (west-patch-apply app)
+        (expect captured :to-be-file-equal ws))))
+
+  (it "signals user-error when no patches.yml is present"
+    (ert-with-temp-directory ws
+      (make-directory (expand-file-name ".west" ws))
+      (spy-on 'compile)
+      (expect (west-patch-apply ws) :to-throw 'user-error)
+      (expect 'compile :not :to-have-been-called))))
+
+(describe "west-patch-clean"
+  (it "invokes `west patch -sm <workspace-relative-app> clean'"
+    (ert-with-temp-directory ws
+      (let ((app (west-tests--make-workspace-with-app ws "apps/firmware")))
+        (spy-on 'compile)
+        (west-patch-clean app)
+        (expect 'compile :to-have-been-called-with
+          "west patch -sm apps/firmware clean")))))
+
+(describe "west-patch-clean-apply"
+  (it "chains `clean' then `apply' in a single compile invocation"
+    (ert-with-temp-directory ws
+      (let ((app (west-tests--make-workspace-with-app ws "apps/firmware")))
+        (spy-on 'compile)
+        (west-patch-clean-apply app)
+        (expect 'compile :to-have-been-called-with
+          (concat "west patch -sm apps/firmware clean"
+            " && west patch -sm apps/firmware apply"))))))
 
 ;;; west-tests.el ends here

@@ -63,13 +63,6 @@
             (" firmware  :󰍹 example:simulator"      :command "cargo r -rp firmware --example simulator"      :prodigy t                           :annotation "     cargo ")
             (" firmware  :󰇉 example:simulator(min)" :command "cargo r -rp firmware --example simulator-minimal"       :prodigy t                  :annotation "     cargo ")
             (" firmware  :󰳽 serve"                  :command "trunk serve"                                   :prodigy t :port 8080                :annotation "     cargo ")
-            (" firmware  : build:qemu"             :command "west build apps/firmware -T qemu.riscv32"                                           :annotation "      west 󱦅")
-            (" firmware  : build:cyd"              :command "west build apps/firmware -T esp32.cyd28        -b esp32_devkitc/esp32/procpu"       :annotation "      west 󱦅")
-            (" firmware  : build:esp32s3_devkitc"  :command "west build apps/firmware -T esp32s3.devkitc    -b esp32s3_devkitc/esp32s3/procpu"   :annotation "      west 󱦅")
-            (" firmware  : build:walter"           :command "west build apps/firmware -T esp32s3.walter     -b walter/esp32s3/procpu"            :annotation "      west 󱦅")
-            (" firmware  : build:xiao"             :command "west build apps/firmware -T esp32s3.xiao       -b xiao_esp32s3/esp32s3/procpu/sense":annotation "      west 󱦅")
-            (" firmware  :󰔰 flash:walter"           :command "west flash --esp-device hwgrep://D0:CF:13:54:27:18"                                 :annotation "      west 󱦅")
-            (" firmware  :󰔰 flash:xiao"             :command "west flash --esp-device hwgrep://8C:BF:EA:8E:AC:28"                                 :annotation "      west 󱦅")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             (" ESP32S3  : build"                   :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")

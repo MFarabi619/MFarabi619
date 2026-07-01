@@ -1,4 +1,4 @@
-;;; zephyr.el --- Zephyr RTOS workspace integration for GNU Emacs  -*- lexical-binding: t -*-
+;;; zephyr.el --- Zephyr Project Support  -*- lexical-binding: t -*-
 
 ;; Copyright © 2026 Mumtahin Farabi <mfarabi619@gmail.com>
 
@@ -6,7 +6,7 @@
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/zephyr
 ;; Keywords: tools, embedded
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "29.1") (west "0.0") (yaml "0.5"))
+;; Package-Requires: ((emacs "29.1") (west "0.0") (yaml "0.5") (compile-multi "0.7"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -28,16 +28,7 @@
 
 ;;; Commentary:
 ;;
-;; Zephyr RTOS workspace integration: app detection, SDK + toolchain
-;; resolution, CMake build command assembly, and `west patch' wrappers.
-;; Generic west / manifest logic lives in west.el.
-;;
-;; Commands:
-;;   zephyr-build              compile a Zephyr application
-;;   zephyr-patch-apply        apply patches
-;;   zephyr-patch-clean        clean patches
-;;   zephyr-patch-clean-apply  clean then apply
-;;   zephyr-boards-invalidate  drop the boards cache (in-memory + on-disk)
+;; Zephyr RTOS ..
 ;;
 ;;; Code:
 
@@ -45,6 +36,7 @@
 (require 'xdg)
 (require 'yaml)
 (require 'treesit)
+(require 'compile-multi)
 
 (defgroup zephyr ()
   "Zephyr RTOS workspace integration."
@@ -58,8 +50,7 @@
   :group 'zephyr)
 
 (defun zephyr-app-p (&optional directory)
-  "Non-nil if DIRECTORY's `CMakeLists.txt' has `find_package(Zephyr)'
-and `project()'."
+  "Non-nil if DIRECTORY's `CMakeLists.txt' has `find_package(Zephyr)' and `project()'."
   (let ((cmake-file (expand-file-name "CMakeLists.txt"
                       (or directory default-directory))))
     (when (file-exists-p cmake-file)
@@ -120,25 +111,25 @@ and `project()'."
 
 (defun zephyr-base (&optional workspace-root)
   "Return ZEPHYR_BASE: env var, else `.west/config' value, as a directory."
-  (let* ((cfg (west-config))
-         (env (getenv "ZEPHYR_BASE"))
-         (cfg-value (cdr (assoc "zephyr.base" cfg)))
-         (cfg-resolved (when cfg-value
-                         (if (file-name-absolute-p cfg-value)
-                             cfg-value
-                           (when-let ((root (or workspace-root (west-workspace-root))))
-                             (expand-file-name cfg-value root)))))
-         (prefer (or (cdr (assoc "zephyr.base-prefer" cfg)) "env"))
-         (result (if (equal prefer "configfile")
-                     (or cfg-resolved env)
-                   (or env cfg-resolved))))
+  (let* ((config (west-config))
+          (env (getenv "ZEPHYR_BASE"))
+          (config-value (cdr (assoc "zephyr.base" config)))
+          (config-resolved (when config-value
+                             (if (file-name-absolute-p config-value)
+                               config-value
+                               (when-let ((root (or workspace-root (west-workspace-root))))
+                                 (expand-file-name config-value root)))))
+          (prefer (or (cdr (assoc "zephyr.base-prefer" config)) "env"))
+          (result (if (equal prefer "configfile")
+                    (or config-resolved env)
+                    (or env config-resolved))))
     (when result
       (file-name-as-directory result))))
 
 (defun zephyr-version (&optional base)
   "Return the trimmed contents of the `VERSION' file at BASE (or `zephyr-base')."
   (when-let* ((effective-base (or base (zephyr-base)))
-              (version-file (expand-file-name "VERSION" effective-base)))
+               (version-file (expand-file-name "VERSION" effective-base)))
     (when (file-exists-p version-file)
       (with-temp-buffer
         (insert-file-contents version-file)
@@ -146,8 +137,8 @@ and `project()'."
 
 (defcustom zephyr-sdk-search-paths
   `("~/zephyr-sdk-*"
-    "/opt/zephyr-sdk-*"
-    ,(expand-file-name "zephyr-sdk-*" (xdg-data-home)))
+     "/opt/zephyr-sdk-*"
+     ,(expand-file-name "zephyr-sdk-*" (xdg-data-home)))
   "Glob patterns to search for Zephyr SDK installations.
 The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
   :type '(repeat string)
@@ -156,29 +147,28 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
 (defun zephyr-sdk-path ()
   "Return ZEPHYR_SDK_INSTALL_DIR, else the highest-version SDK on disk."
   (or (getenv "ZEPHYR_SDK_INSTALL_DIR")
-      (car (zephyr--sdk-discover))))
+    (car (zephyr--sdk-discover))))
 
 (defun zephyr--sdk-discover ()
   "Return SDK directories matching `zephyr-sdk-search-paths', newest first."
   (sort (seq-filter
-         (lambda (dir) (file-exists-p (expand-file-name "sdk_version" dir)))
-         (mapcan (lambda (pattern)
-                   (file-expand-wildcards (expand-file-name pattern)))
-                 zephyr-sdk-search-paths))
-        (lambda (a b)
-          (version< (zephyr--sdk-version-from-path b)
-                    (zephyr--sdk-version-from-path a)))))
+          (lambda (dir) (file-exists-p (expand-file-name "sdk_version" dir)))
+          (mapcan (lambda (pattern)
+                    (file-expand-wildcards (expand-file-name pattern)))
+            zephyr-sdk-search-paths))
+    (lambda (a b)
+      (version< (zephyr--sdk-version-from-path b)
+        (zephyr--sdk-version-from-path a)))))
 
 (defun zephyr--sdk-version-from-path (path)
   "Extract the version suffix from a `zephyr-sdk-X.Y.Z' PATH."
-  (if (string-match "zephyr-sdk-\\(.+?\\)/?\\'" path)
-      (match-string 1 path)
-    path))
+  (string-remove-prefix "zephyr-sdk-"
+    (file-name-nondirectory (directory-file-name path))))
 
 (defun zephyr-sdk-version (&optional sdk-path)
   "Return the `sdk_version' contents at SDK-PATH (or `zephyr-sdk-path')."
   (let* ((path (or sdk-path (zephyr-sdk-path)))
-         (version-file (and path (expand-file-name "sdk_version" path))))
+          (version-file (and path (expand-file-name "sdk_version" path))))
     (when (and version-file (file-exists-p version-file))
       (with-temp-buffer
         (insert-file-contents version-file)
@@ -197,7 +187,7 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
 (defun zephyr-board ()
   "Return BOARD env var, falling back to `build.board' in `.west/config'."
   (or (getenv "BOARD")
-      (cdr (assoc "build.board" (west-config)))))
+    (cdr (assoc "build.board" (west-config)))))
 
 (defun zephyr-shield ()
   "Return the SHIELD env var as a list (semicolon-separated)."
@@ -230,97 +220,27 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
   "Return EXTRA_ZEPHYR_MODULES as a list."
   (zephyr--env-list "EXTRA_ZEPHYR_MODULES"))
 
-(defun zephyr--cmake-arg (key value)
-  "Format `-DKEY=VALUE' (list VALUE joined by `;'); nil when VALUE is nil."
-  (when value
-    (format "-D%s=%s" key
-            (if (listp value) (string-join value ";") value))))
-
-(defconst zephyr--cmake-arg-spec
-  '((:board             "BOARD"                     zephyr-board)
-    (:shield            "SHIELD"                    zephyr-shield)
-    (:snippet           "SNIPPET"                   zephyr-snippet)
-    (:toolchain-variant "ZEPHYR_TOOLCHAIN_VARIANT"  zephyr-toolchain-variant)
-    (:sdk-path          "ZEPHYR_SDK_INSTALL_DIR"    zephyr-sdk-path)
-    (:board-roots       "BOARD_ROOT"                zephyr-board-roots)
-    (:shield-roots      "SHIELD_ROOT"               zephyr-shield-roots)
-    (:snippet-roots     "SNIPPET_ROOT"              zephyr-snippet-roots)
-    (:soc-roots         "SOC_ROOT"                  zephyr-soc-roots)
-    (:arch-roots        "ARCH_ROOT"                 zephyr-arch-roots)
-    (:dts-roots         "DTS_ROOT"                  zephyr-dts-roots)
-    (:modules           "ZEPHYR_MODULES"            zephyr-modules)
-    (:extra-modules     "EXTRA_ZEPHYR_MODULES"      zephyr-extra-modules)))
-
-(defun zephyr-cmake-args (&optional overrides)
-  "Return a list of `-DKEY=VALUE' args from env.
-Plist OVERRIDES take precedence."
-  (seq-keep (pcase-lambda (`(,key ,name ,getter))
-              (zephyr--cmake-arg name
-                                 (or (plist-get overrides key)
-                                     (funcall getter))))
-            zephyr--cmake-arg-spec))
-
-(defun zephyr-build-dir (&optional workspace-root)
-  "Return `<WORKSPACE-ROOT>/build' (defaults to the active workspace)."
-  (when-let ((root (or workspace-root (west-workspace-root))))
-    (expand-file-name "build" root)))
-
-(defun zephyr-build-command (app &optional overrides)
-  "Return a shell command that configures + builds APP with optional OVERRIDES."
-  (let* ((build-dir (or (plist-get overrides :build-dir) (zephyr-build-dir)))
-         (sysbuild  (plist-get overrides :sysbuild))
-         (source-dir (if sysbuild
-                         (expand-file-name "share/sysbuild" (zephyr-base))
-                       (directory-file-name app)))
-         (extra-args (when sysbuild
-                       (list (format "-DAPP_DIR=%s" (directory-file-name app))))))
-    (concat
-     (mapconcat #'shell-quote-argument
-                `("cmake" "-B" ,build-dir "-GNinja"
-                  ,@extra-args
-                  ,@(zephyr-cmake-args overrides)
-                  ,source-dir)
-                " ")
-     " && "
-     (mapconcat #'shell-quote-argument
-                `("ninja" "-C" ,build-dir)
-                " "))))
-
-(defun zephyr-build (app &optional overrides)
-  "Compile a Zephyr application at APP using `compile' with optional OVERRIDES."
-  (interactive
-   (list (read-directory-name "Zephyr app: "
-                              (or (zephyr-app-root) default-directory)
-                              nil t)))
-  (let* ((base (zephyr-base))
-         (process-environment
-          (if base
-              (cons (format "ZEPHYR_BASE=%s" (directory-file-name base))
-                    process-environment)
-            process-environment)))
-    (compile (zephyr-build-command app overrides))))
-
 (defun zephyr-apps (&optional workspace-root)
   "Return Zephyr apps in WORKSPACE-ROOT as plists (:name :path :manifest :boards).
 Falls back to `<WORKSPACE-ROOT>/app/' when the manifest declares none."
   (or
-   (seq-keep (lambda (manifest-app)
-               (let ((path (plist-get manifest-app :path)))
-                 (when (zephyr-app-p path)
-                   (zephyr--make-app-plist path (plist-get manifest-app :manifest)))))
-             (west-manifest-apps workspace-root))
-   (when-let* ((root (or workspace-root (west-workspace-root)))
-               (app-dir (file-name-as-directory (expand-file-name "app" root))))
-     (when (zephyr-app-p app-dir)
-       (list (zephyr--make-app-plist app-dir nil))))))
+    (seq-keep (lambda (manifest-app)
+                (let ((path (plist-get manifest-app :path)))
+                  (when (zephyr-app-p path)
+                    (zephyr--make-app-plist path (plist-get manifest-app :manifest)))))
+      (west-manifest-apps workspace-root))
+    (when-let* ((root (or workspace-root (west-workspace-root)))
+                 (app-dir (file-name-as-directory (expand-file-name "app" root))))
+      (when (zephyr-app-p app-dir)
+        (list (zephyr--make-app-plist app-dir nil))))))
 
-(defun zephyr--make-app-plist (path manifest-path)
-  "Build a zephyr-app plist from PATH + MANIFEST-PATH."
-  (list :name     (or (zephyr-app-name path)
-                      (file-name-nondirectory (directory-file-name path)))
-        :path     path
-        :manifest manifest-path
-        :boards   (zephyr-app-boards path)))
+(defun zephyr--make-app-plist (app-path manifest-path)
+  "Build a zephyr-app plist from APP-PATH + MANIFEST-PATH."
+  (list :name     (or (zephyr-app-name app-path)
+                    (file-name-nondirectory (directory-file-name app-path)))
+    :path     app-path
+    :manifest manifest-path
+    :boards   (zephyr-app-boards app-path)))
 
 (defvar zephyr--boards-cache nil
   "In-memory cache of parsed boards; mirrors the on-disk `boards' cache file.")
@@ -328,20 +248,20 @@ Falls back to `<WORKSPACE-ROOT>/app/' when the manifest declares none."
 (defun zephyr-boards (&optional base)
   "Return all parsed board plists; cached unless BASE overrides the lookup."
   (cond
-   (base
-    (zephyr--boards-uncached base))
-   (zephyr--boards-cache
-    zephyr--boards-cache)
-   (t
-    (let* ((disk-cache (zephyr--cache-load "boards"))
-           (current-version (zephyr-version)))
-      (setq zephyr--boards-cache
-            (if (and disk-cache (equal (plist-get disk-cache :version) current-version))
-                (plist-get disk-cache :data)
-              (let ((data (zephyr--boards-uncached)))
-                (zephyr--cache-save "boards"
-                                    (list :version current-version :data data))
-                data)))))))
+    (base
+      (zephyr--boards-uncached base))
+    (zephyr--boards-cache
+      zephyr--boards-cache)
+    (t
+      (let* ((disk-cache (zephyr--cache-load "boards"))
+              (current-version (zephyr-version)))
+        (setq zephyr--boards-cache
+          (if (and disk-cache (equal (plist-get disk-cache :version) current-version))
+            (plist-get disk-cache :data)
+            (let ((data (zephyr--boards-uncached)))
+              (zephyr--cache-save "boards"
+                (list :version current-version :data data))
+              data)))))))
 
 (defun zephyr-boards-invalidate ()
   "Drop the in-memory + on-disk boards cache."
@@ -353,44 +273,44 @@ Falls back to `<WORKSPACE-ROOT>/app/' when the manifest declares none."
 (defun zephyr-module-board-roots (&optional workspace-root)
   "Return absolute board roots from WORKSPACE-ROOT's `zephyr/module.yml'."
   (when-let* ((root (or workspace-root (west-workspace-root)))
-              (module-file (expand-file-name "zephyr/module.yml" root))
-              ((file-exists-p module-file))
-              (parsed (with-temp-buffer
-                        (insert-file-contents module-file)
-                        (yaml-parse-string (buffer-string)
-                                           :object-type 'hash-table
-                                           :sequence-type 'list)))
-              (board-root (map-nested-elt parsed '(build settings board_root))))
+               (module-file (expand-file-name "zephyr/module.yml" root))
+               ((file-exists-p module-file))
+               (parsed (with-temp-buffer
+                         (insert-file-contents module-file)
+                         (yaml-parse-string (buffer-string)
+                           :object-type 'hash-table
+                           :sequence-type 'list)))
+               (board-root (map-nested-elt parsed '(build settings board_root))))
     (mapcar (lambda (relative) (expand-file-name relative root))
-            (if (listp board-root) board-root (list board-root)))))
+      (ensure-list board-root))))
 
 (defun zephyr--boards-uncached (&optional base)
   "Parse every `boards/**/*.yaml' under BASE + apps + module roots."
   (let* ((effective-base (or base (zephyr-base)))
-         (base-boards (when effective-base
-                        (expand-file-name "boards" effective-base)))
-         (app-boards (mapcar (lambda (app)
-                               (expand-file-name "boards" (plist-get app :path)))
-                             (zephyr-apps)))
-         (module-boards (mapcar (lambda (module-root)
-                                  (expand-file-name "boards" module-root))
-                                (zephyr-module-board-roots)))
-         (all-dirs (seq-filter #'file-directory-p
-                               (cons base-boards
-                                     (append app-boards module-boards)))))
+          (base-boards (when effective-base
+                         (expand-file-name "boards" effective-base)))
+          (app-boards (mapcar (lambda (app)
+                                (expand-file-name "boards" (plist-get app :path)))
+                        (zephyr-apps)))
+          (module-boards (mapcar (lambda (module-root)
+                                   (expand-file-name "boards" module-root))
+                           (zephyr-module-board-roots)))
+          (all-dirs (seq-filter #'file-directory-p
+                      (cons base-boards
+                        (append app-boards module-boards)))))
     (when all-dirs
       (seq-keep #'zephyr--parse-board-file
-                (mapcan (lambda (dir)
-                          (directory-files-recursively dir "\\.yaml\\'"))
-                        all-dirs)))))
+        (mapcan (lambda (dir)
+                  (directory-files-recursively dir "\\.yaml\\'"))
+          all-dirs)))))
 
 (defun zephyr-board-id-from-hint (hint)
   "Resolve underscore-slugified HINT to the canonical `board/soc/core' ID."
   (plist-get
-   (seq-find (lambda (board)
-               (equal hint (replace-regexp-in-string "/" "_" (plist-get board :id))))
-             (zephyr-boards))
-   :id))
+    (seq-find (lambda (board)
+                (equal hint (string-replace "/" "_" (plist-get board :id))))
+      (zephyr-boards))
+    :id))
 
 (defun zephyr--parse-board-file (path)
   "Parse a single board YAML at PATH into a plist (nil for HWMv2 files)."
@@ -398,84 +318,157 @@ Falls back to `<WORKSPACE-ROOT>/app/' when the manifest declares none."
     (let ((parsed (with-temp-buffer
                     (insert-file-contents path)
                     (yaml-parse-string (buffer-string)
-                                       :object-type 'hash-table
-                                       :sequence-type 'list))))
+                      :object-type 'hash-table
+                      :sequence-type 'list))))
       (when (and (hash-table-p parsed)
-                 (gethash 'identifier parsed))
+              (gethash 'identifier parsed))
         (list :id        (gethash 'identifier parsed)
-              :name      (gethash 'name parsed)
-              :arch      (gethash 'arch parsed)
-              :type      (gethash 'type parsed)
-              :vendor    (gethash 'vendor parsed)
-              :toolchain (gethash 'toolchain parsed)
-              :supported (gethash 'supported parsed)
-              :path      path)))))
+          :name      (gethash 'name parsed)
+          :arch      (gethash 'arch parsed)
+          :type      (gethash 'type parsed)
+          :vendor    (gethash 'vendor parsed)
+          :toolchain (gethash 'toolchain parsed)
+          :supported (gethash 'supported parsed)
+          :path      path)))))
 
-(defun zephyr-patches-yml (&optional app-path)
-  "Return APP-PATH's `zephyr/patches.yml' (defaults to current app), or nil."
-  (when-let* ((root (or app-path (zephyr-app-root))))
-    (let ((yml (expand-file-name "zephyr/patches.yml" root)))
-      (when (file-exists-p yml) yml))))
+(defconst zephyr--sysbuild-soc-pattern "esp32s3"
+  "Board-id substring identifying SoCs that build with `--sysbuild'.")
 
-(defun zephyr--resolve-app (&optional app-path filter)
-  "Resolve a Zephyr app: APP-PATH, then current, then sole match, then prompt.
-FILTER, if non-nil, must accept an APP path and return non-nil to keep it."
-  (or app-path
-      (let ((current (zephyr-app-root)))
-        (when (and current (or (null filter) (funcall filter current)))
-          current))
-      (let* ((all  (zephyr-apps))
-             (apps (if filter
-                       (seq-filter (lambda (a) (funcall filter (plist-get a :path)))
-                                   all)
-                     all)))
-        (cond
-         ((null apps)
-          (user-error "No matching Zephyr apps found in this workspace"))
-         ((= 1 (length apps))
-          (plist-get (car apps) :path))
-         (t
-          (let* ((by-name (mapcar (lambda (a)
-                                    (cons (plist-get a :name)
-                                          (plist-get a :path)))
-                                  apps))
-                 (choice  (completing-read "App: " (mapcar #'car by-name)
-                                           nil t)))
-            (cdr (assoc choice by-name))))))))
+(defconst zephyr--emulated-board-pattern "qemu\\|native"
+  "Board-id regexp identifying emulated targets (run, not flashed).")
 
-(defun zephyr--patch-run (subcommands label app-path)
-  "Run `west patch SUBCOMMANDS' for APP-PATH; output to `*west:LABEL*'."
-  (let* ((root      (zephyr--resolve-app app-path #'zephyr-patches-yml))
-         (workspace (and root (west-workspace-root root))))
-    (unless (zephyr-patches-yml root)
-      (user-error "No zephyr/patches.yml found for %s"
-                  (or root "current app")))
-    (unless workspace
-      (user-error "No west workspace found for %s" root))
-    (let* ((default-directory (expand-file-name workspace))
-           (module (shell-quote-argument
-                    (directory-file-name
-                     (file-relative-name root workspace))))
-           (subs (if (listp subcommands) subcommands (list subcommands))))
-      (west--compile label
-                     (mapconcat
-                      (lambda (sub) (format "west patch -sm %s %s" module sub))
-                      subs " && ")))))
+(defun zephyr--board-sysbuild-p (board-id)
+  "Non-nil if BOARD-ID targets the esp32s3 SoC."
+  (and (string-match-p zephyr--sysbuild-soc-pattern board-id) t))
 
-(defun zephyr-patch-apply (&optional app-path)
-  "Apply patches declared in APP-PATH's `zephyr/patches.yml'."
-  (interactive)
-  (zephyr--patch-run "apply" "patch-apply" app-path))
+(defun zephyr--west-build-command (board-id app build-dir)
+  "Return the `west build' command for BOARD-ID from APP source into BUILD-DIR."
+  (string-join
+    (append '("west" "build")
+      (and (zephyr--board-sysbuild-p board-id) '("--sysbuild"))
+      (list "-b" board-id "-d" build-dir app))
+    " "))
 
-(defun zephyr-patch-clean (&optional app-path)
-  "Reset patches declared in APP-PATH's `zephyr/patches.yml'."
-  (interactive)
-  (zephyr--patch-run "clean" "patch-clean" app-path))
+(defun zephyr--west-flash-command (build-dir)
+  "Return the `west flash' command targeting BUILD-DIR."
+  (concat "west flash -d " build-dir))
 
-(defun zephyr-patch-clean-apply (&optional app-path)
-  "Clean then apply patches declared in APP-PATH's `zephyr/patches.yml'."
-  (interactive)
-  (zephyr--patch-run '("clean" "apply") "patch-clean-apply" app-path))
+(defun zephyr--board-emulated-p (board-id)
+  "Non-nil if BOARD-ID is an emulated target (run via QEMU/native, not flashed)."
+  (and (string-match-p zephyr--emulated-board-pattern board-id) t))
+
+(defun zephyr--west-run-command (board-id app build-dir)
+  "Return the `west build -t run' command for BOARD-ID from APP into BUILD-DIR."
+  (string-join
+    (append '("west" "build")
+      (and (zephyr--board-sysbuild-p board-id) '("--sysbuild"))
+      (list "-b" board-id "-d" build-dir "-t" "run" app))
+    " "))
+
+(defun zephyr--west-test-command (board-id app build-dir)
+  "Return the run command layering test.conf for BOARD-ID from APP into BUILD-DIR."
+  (concat (zephyr--west-run-command board-id app build-dir)
+    " -- -DEXTRA_CONF_FILE=test.conf"))
+
+(defconst zephyr--compile-multi-group "\U000f1985"
+  "Kite glyph flanking the west compile-multi group header.")
+
+(defconst zephyr--task-annotation (concat "west " zephyr--compile-multi-group)
+  "Right-column annotation (label plus kite glyph) for west compile-multi tasks.")
+
+(defconst zephyr--board-display-max 24
+  "Maximum width of a board string shown in a compile-multi row.")
+
+(defun zephyr--board-display (board-id &optional width)
+  "Return BOARD-ID for display, middle-eliding the qualifier past WIDTH."
+  (let ((width (or width zephyr--board-display-max)))
+    (if (<= (length board-id) width)
+      board-id
+      (let* ((segments (split-string board-id "/" t))
+              (elided (if (> (length segments) 2)
+                        (concat (car segments) "/\u2026/" (car (last segments)))
+                        board-id)))
+        (if (<= (length elided) width)
+          elided
+          (concat (truncate-string-to-width elided (max 1 (1- width))) "\u2026"))))))
+
+(defun zephyr-board-aliases (file)
+  "Parse FILE's board-alias lines into an (ALIAS . BOARD) alist."
+  (when (file-exists-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (let (aliases)
+        (while (re-search-forward
+                 "set(\\([A-Za-z0-9_]+\\)_BOARD_ALIAS[ \t]+\\([^ \t)]+\\)" nil t)
+          (push (cons (match-string 1) (match-string 2)) aliases))
+        (nreverse aliases)))))
+
+(defun zephyr--board-base (board)
+  "Return BOARD's base name: its first `/'-segment with any `@revision' dropped."
+  (car (split-string (car (split-string board "/")) "@")))
+
+(defun zephyr--app-board-entries (app-path)
+  "Return (LABEL . BOARD) entries for APP-PATH.
+Every alias in `boards/aliases.cmake' is used as-is; each supported board
+whose base is not already aliased is added under its canonical name."
+  (let* ((aliases (zephyr-board-aliases
+                    (expand-file-name "boards/aliases.cmake" app-path)))
+          (aliased-bases (mapcar (lambda (entry) (zephyr--board-base (cdr entry)))
+                           aliases)))
+    (append
+      aliases
+      (seq-keep
+        (lambda (hint)
+          (let ((board (or (zephyr-board-id-from-hint hint) hint)))
+            (unless (member (zephyr--board-base board) aliased-bases)
+              (cons (string-replace "/" "_" board) board))))
+        (zephyr-app-boards app-path)))))
+
+(defun zephyr--app-compile-multi-tasks (app-plist workspace)
+  "Build + flash/run compile-multi entries for APP-PLIST relative to WORKSPACE."
+  (let* ((path (plist-get app-plist :path))
+          (app  (directory-file-name (file-relative-name path workspace))))
+    (mapcan
+      (lambda (entry)
+        (let* ((label (car entry))
+                (board (cdr entry))
+                (shown (zephyr--board-display board))
+                (build-dir (concat "build/" label)))
+          (append
+            (list
+              (cons (format "%s west %s :\U000f0862 build %s"
+                      zephyr--compile-multi-group zephyr--compile-multi-group shown)
+                (list :command (zephyr--west-build-command board app build-dir)
+                  :annotation (propertize "\U0000e794" 'face 'nerd-icons-lgreen))))
+            (if (zephyr--board-emulated-p board)
+              (list
+                (cons (format "%s west %s :\U000f0379 run %s"
+                        zephyr--compile-multi-group zephyr--compile-multi-group shown)
+                  (list :command
+                    (lambda ()
+                      (west--run-interactive
+                        "run" (zephyr--west-run-command board app build-dir)))
+                    :annotation zephyr--task-annotation))
+                (cons (format "%s west %s :\U000f0cea test %s"
+                        zephyr--compile-multi-group zephyr--compile-multi-group shown)
+                  (list :command (zephyr--west-test-command
+                                   board app (concat build-dir "-test"))
+                    :annotation zephyr--task-annotation)))
+              (list
+                (cons (format "%s west %s :\U000f0530 flash %s"
+                        zephyr--compile-multi-group zephyr--compile-multi-group shown)
+                  (list :command (zephyr--west-flash-command build-dir)
+                    :annotation zephyr--task-annotation)))))))
+      (zephyr--app-board-entries path))))
+
+(defun zephyr-compile-multi-tasks ()
+  "Workspace-wide `west build'/`west flash' compile-multi entries per board."
+  (when-let* ((workspace (west-workspace-root)))
+    (mapcan (lambda (app) (zephyr--app-compile-multi-tasks app workspace))
+      (zephyr-apps workspace))))
+
+(add-to-list 'compile-multi-config
+  '((west-in-workspace-p) . (zephyr-compile-multi-tasks)))
 
 (provide 'zephyr)
 

@@ -58,7 +58,23 @@
       (expect result :not :to-equal "FALLBACK")
       (expect result :to-match (regexp-quote ""))
       (expect (get-text-property (1- (length result)) 'face result)
-              :to-equal 'nerd-icons-yellow))))
+              :to-equal 'nerd-icons-yellow)))
+
+  (it "omits the label text by default, showing only the colored icon"
+    (let* ((task   '("ESP32S3 : run" :annotation "cargo X"))
+           (result (microvisor--annotation-function
+                    (lambda (_) "FALLBACK") task)))
+      (expect (substring-no-properties result) :not :to-match "cargo")
+      (expect result :to-match "X")
+      (expect (get-text-property (1- (length result)) 'face result)
+              :to-equal 'nerd-icons-orange)))
+
+  (it "shows the label text when `microvisor-annotation-show-label' is non-nil"
+    (let* ((microvisor-annotation-show-label t)
+           (task   '("ESP32S3 : run" :annotation "cargo X"))
+           (result (microvisor--annotation-function
+                    (lambda (_) "FALLBACK") task)))
+      (expect (substring-no-properties result) :to-match "cargo"))))
 
 (describe "microvisor--prodigy-running-face-function"
   :var (started?)
@@ -149,5 +165,37 @@
     (expect (memq #'microvisor--maybe-register-services
                   hack-local-variables-hook)
             :to-be-truthy)))
+
+(describe "microvisor-sort-tasks"
+  (it "places patch tasks right after update per the configured order"
+    (expect
+      (microvisor-sort-tasks
+        '("W :* build aaa" "W :* patch apply" "W :* update" "W :* run aaa"))
+      :to-equal
+      '("W :* update" "W :* patch apply" "W :* run aaa" "W :* build aaa")))
+
+  (it "orders by group, the configured command order, then target"
+    (expect
+      (microvisor-sort-tasks
+        '("W :* flash bbb" "W :* build bbb" "W :* run aaa"
+           "W :* build aaa" "W :* test aaa" "W :* update"))
+      :to-equal
+      '("W :* update" "W :* run aaa" "W :* test aaa"
+         "W :* build aaa" "W :* build bbb" "W :* flash bbb")))
+
+  (it "keeps tasks of different groups apart"
+    (expect
+      (microvisor-sort-tasks '("X :* build z" "W :* build a" "X :* build a"))
+      :to-equal
+      '("W :* build a" "X :* build a" "X :* build z")))
+
+  (it "falls back to the raw candidate when it has no command form"
+    (expect (microvisor-sort-tasks '("zeta" "alpha"))
+      :to-equal '("alpha" "zeta")))
+
+  (it "registers a display-sort-function for the compile-multi category"
+    (expect (alist-get 'display-sort-function
+              (alist-get 'compile-multi completion-category-overrides))
+      :to-equal #'microvisor-sort-tasks)))
 
 ;;; microvisor-tests.el ends here
