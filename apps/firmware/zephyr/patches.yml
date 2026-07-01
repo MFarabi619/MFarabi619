@@ -1,6 +1,6 @@
 patches:
     - path: zephyr/probe-rs.patch
-      sha256sum: 6d27e1e3287b475230b1d95c6a2d13915d6549e7c4b6afd44e5b5cdb848e3b11
+      sha256sum: b229ec58371dd87d90acb4bad4617870e24cd2e4458f7e11ca0c98428a7c9a6b
       module: zephyrproject/zephyr
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -13,6 +13,7 @@ patches:
           espressif/common: auto-register probe-rs args (chip, jtag, bin,
           image_off base-address) + esp32 --esp-skip-flashed.
           stm32f3_disco/board.cmake: register probe-rs (was missing).
+          nucleo_h723zg/board.cmake: register probe-rs (was missing).
 
     - path: lang-rust/zephyr-macros-description.patch
       sha256sum: a3475a7b667714efef3cecde1cbf00d782532a52fef057b4c4d3d7424add757f
