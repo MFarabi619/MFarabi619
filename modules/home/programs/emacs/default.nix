@@ -33,8 +33,7 @@
       ++ [
         vui
         verdict
-      ]
-      ++ [
+        websocket
       ]
       ++ [ hass ]
       ++ [ sops ]
@@ -55,7 +54,6 @@
         nov
         mu4e
         mu4e-views
-        org-web-tools
         mu4e-column-faces
         mu4e-marker-icons
       ]
@@ -96,6 +94,7 @@
         org-roam-ui
         org-pdftools
         org-nix-shell
+        org-web-tools
         org-auto-tangle
         org-super-agenda
         org-tag-beautify
