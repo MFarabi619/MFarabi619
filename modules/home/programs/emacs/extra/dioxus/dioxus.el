@@ -118,7 +118,7 @@ Reads the `name' field of the `Cargo.toml' beside the discovered `Dioxus.toml'."
 SPEC is `(DISPLAY ICON ARGS . PLIST)'; a `:server' key becomes a prodigy
 service on `dioxus-serve-port'.  The title is grouped under a dioxus-glyphed
 PACKAGE header."
-  (let* ((glyph (nerd-icons-mdicon "nf-md-monitor_cellphone"))
+  (let* ((glyph (nerd-icons-faicon "nf-fa-dna" :face 'nerd-icons-blue))
           (server (plist-get (nthcdr 3 spec) :server)))
     (cons (format "%s %s %s :%s %s"
             glyph package glyph

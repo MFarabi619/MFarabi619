@@ -68,7 +68,7 @@ to `--platform desktop'), with `-p PKG' derived from the app's Cargo.toml.")
     (expect (length (dioxus-compile-multi-tasks)) :to-equal 4))
 
   (it "groups every task under the dioxus-glyphed package header"
-    (let ((glyph (nerd-icons-mdicon "nf-md-monitor_cellphone")))
+    (let ((glyph (nerd-icons-faicon "nf-fa-dna" :face 'nerd-icons-blue)))
       (expect (seq-every-p (lambda (task)
                              (and (string-search "web" (car task))
                                (string-search glyph (car task))))
