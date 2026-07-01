@@ -1,0 +1,14 @@
+#+TODO: TODO | DONE
+
+* TODO Alpha task
+  :PROPERTIES:
+  :CATEGORY: Backend
+  :END:
+* TODO Beta task
+  :PROPERTIES:
+  :CATEGORY: Frontend
+  :END:
+* DONE Gamma task
+  :PROPERTIES:
+  :CATEGORY: Backend
+  :END:

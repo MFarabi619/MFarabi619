@@ -1,0 +1,10 @@
+#+TODO: TODO NEXT WAIT | DONE CANCELLED
+#+CATEGORY: Demo
+
+* TODO [#A] Buy milk :errand:
+* NEXT Ship release :work:urgent:
+  DEADLINE: <2026-07-01 Tue>
+  :PROPERTIES:
+  :Effort:   2:00
+  :END:
+* DONE Old thing

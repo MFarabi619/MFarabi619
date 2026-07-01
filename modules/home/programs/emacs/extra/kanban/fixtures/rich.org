@@ -1,0 +1,17 @@
+#+TODO: TODO | DONE
+
+* Project Apollo
+** TODO Build lander [1/3] :hardware:
+   SCHEDULED: <2026-07-02 Thu> DEADLINE: <2026-07-10 Fri>
+   :PROPERTIES:
+   :ID: lander-1
+   :ASSIGNEE: Mei
+   :END:
+   - [X] legs
+   - [ ] engine
+   - [ ] tanks
+   :LOGBOOK:
+   CLOCK: [2026-06-30 Tue 09:00]--[2026-06-30 Tue 10:30] =>  1:30
+   :END:
+* DONE Shipped thing
+   CLOSED: [2026-06-29 Mon 14:00]
