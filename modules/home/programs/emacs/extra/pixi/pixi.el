@@ -27,17 +27,16 @@
 
 
 ;;; Commentary:
+
+;; Pixi is a package manager capable of installing from various ecosystems
+;; such as but not limited to:
 ;;
-;; Pixi workspace integration: project detection, JSON-driven readers over
-;; `pixi info' / `pixi task list' / `pixi list', and a vui-rendered tasks
-;; dashboard with mode-line workspace metadata.
+;; - Rust
+;; - Python
+;; - Node.js
 ;;
-;; Commands:
-;;   pixi          open the `*pixi:NAME@VERSION*' tasks dashboard
-;;   pixi-clean    run `pixi clean' (all envs, or one with `\\[universal-argument]')
-;;   pixi-tree     run `pixi tree' in a compile buffer
-;;   pixi-refresh  drop the `pixi info' cache and re-render the dashboard
-;;
+;; Learn more: https://pixi.prefix.dev/latest/
+
 ;;; Code:
 
 (require 'json)
@@ -486,9 +485,9 @@ steal focus from the current window."
     map)
   "Keymap for `pixi-mode' buffers.")
 
-(declare-function evil-define-key "evil-core")
+(declare-function evil-define-key* "evil-core")
 (with-eval-after-load 'evil
-  (evil-define-key 'normal pixi-mode-map
+  (evil-define-key* 'normal pixi-mode-map
     (kbd "g") #'pixi-refresh
     (kbd "r") #'pixi-run-task))
 
