@@ -11,7 +11,6 @@ rviz.cmd = "rviz2"
 test.cmd = "pytest apps/robot/test -v"
 bridge.cmd = "ros2 run foxglove_bridge foxglove_bridge"
 teleop.cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
-robot = { cmd = "ros2 run robot hat_mdd10sm", depends-on = [ "build" ] }
 sim = { cmd = "ros2 launch robot sim.launch.py", depends-on = [ "build" ] }
 cad = { cmd = "python main.py", env = { YACV_HOST = "127.0.0.1", YACV_PORT = "32323" }, cwd = "libs/cad" }
 
@@ -37,6 +36,7 @@ osx.pypi-dependencies = { build123d = "*", yacv-server = "*", bd-warehouse = "*"
 linux-64.pypi-dependencies = { build123d = "*", yacv-server = "*", bd-warehouse = "*" }
 win-64.tasks.build = "colcon build --merge-install --paths apps/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
 unix.tasks.build = "colcon build --symlink-install --paths apps/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
+linux-aarch64.tasks.robot = { cmd = "ros2 run robot hat_mdd10sm", depends-on = [ "build" ] }
 
 [environments]
 default = { features = ["lyrical"] }
