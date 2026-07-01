@@ -170,7 +170,7 @@
       (face-remap-add-relative 'success                      :weight 'bold :foreground "#b8bb26"                      )
       (face-remap-add-relative 'warning                      :weight 'bold :foreground "#fabd2f"                      ))))
 
-(after!      prodigy (require 'seq) (setopt prodigy-kill-process-buffer-on-stop t)
+(after!      prodigy (require 'seq) (setopt prodigy-kill-process-buffer-on-stop t prodigy-completion-system 'default)
   (custom-set-faces! '(prodigy-red-face    :foreground "#fb4934" :weight bold) '(prodigy-green-face  :foreground "#b8bb26" :weight bold) '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
 
   (defun my/prodigy-group-row-p (&optional pos) (let ((id (tabulated-list-get-id pos))) (and (consp id) (eq (car id) :group))))
