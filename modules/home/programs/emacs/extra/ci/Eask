@@ -1,0 +1,15 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
+(package "ci"
+         "0.0.1"
+         "Local-first CI + service orchestration over prodigy")
+
+(website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/ci")
+(keywords "tools" "processes")
+
+(package-file "ci.el")
+
+(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+
+(development
+ (depends-on "buttercup"))
