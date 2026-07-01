@@ -10,17 +10,17 @@ use embedded_graphics::{
 use mousefood::{EmbeddedBackend, EmbeddedBackendConfig, fonts};
 use ratatui::Terminal;
 use zephyr::raw::{
-    INPUT_ABS_X, INPUT_ABS_Y, INPUT_BTN_TOUCH, INPUT_EV_ABS, INPUT_EV_KEY, __device_dts_ord_26,
-    __device_dts_ord_51, __device_dts_ord_55, device, display_blanking_off,
+    INPUT_ABS_X, INPUT_ABS_Y, INPUT_BTN_TOUCH, INPUT_EV_ABS, INPUT_EV_KEY, __device_dts_ord_24,
+    __device_dts_ord_49, __device_dts_ord_53, device, display_blanking_off,
     display_buffer_descriptor, display_capabilities, display_get_capabilities, display_write,
     input_callback, input_event, k_msleep, led_off, led_set_brightness, sys_reboot,
 };
 
 use crate::ui::{self, Action, TouchState};
 
-const _: () = assert!(zephyr::devicetree::labels::ili9341::ORD == 26);
-const _: () = assert!(zephyr::devicetree::pwmleds::ORD == 51);
-const _: () = assert!(zephyr::devicetree::labels::pwmleds_backlight::ORD == 55);
+const _: () = assert!(zephyr::devicetree::labels::ili9341::ORD == 24);
+const _: () = assert!(zephyr::devicetree::pwmleds::ORD == 49);
+const _: () = assert!(zephyr::devicetree::labels::pwmleds_backlight::ORD == 53);
 
 const SYS_REBOOT_COLD: i32 = 1;
 
@@ -60,15 +60,15 @@ static TOUCH_CB: InputCallbackEntry = InputCallbackEntry(input_callback {
 });
 
 fn display_device() -> *const device {
-    unsafe { &__device_dts_ord_26 as *const device }
+    unsafe { &__device_dts_ord_24 as *const device }
 }
 
 fn led_device() -> *const device {
-    unsafe { &__device_dts_ord_51 as *const device }
+    unsafe { &__device_dts_ord_49 as *const device }
 }
 
 fn backlight_device() -> *const device {
-    unsafe { &__device_dts_ord_55 as *const device }
+    unsafe { &__device_dts_ord_53 as *const device }
 }
 
 pub struct ZephyrDisplay {
