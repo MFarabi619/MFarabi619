@@ -35,8 +35,6 @@
         verdict
       ]
       ++ [
-        ros
-        ros-face
       ]
       ++ [ hass ]
       ++ [ sops ]
