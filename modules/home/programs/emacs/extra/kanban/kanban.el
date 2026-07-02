@@ -236,7 +236,7 @@ per-file `#+TODO:' lines are honored."
     (with-current-buffer (find-file-noselect (car files))
       (copy-sequence org-todo-keywords-1))))
 
-(defcustom kanban-group-by nil
+(defcustom kanban-group-by 'priority
   "Field to group cards into swimlanes, or nil for a single board.
 - `category' groups by each heading's Org category.
 - `priority' groups by the priority cookie (A/B/C).
@@ -245,6 +245,14 @@ per-file `#+TODO:' lines are honored."
            (const :tag "Org category" category)
            (const :tag "Priority" priority)
            (string :tag "Org property name")))
+
+(defcustom kanban-band-expanded-indicator "▾"
+  "Indicator shown on an expanded swimlane band."
+  :type 'string)
+
+(defcustom kanban-band-collapsed-indicator "▸"
+  "Indicator shown on a collapsed swimlane band."
+  :type 'string)
 
 (defun kanban--entry-group ()
   "Return the swimlane group key for the Org entry at point.
@@ -256,6 +264,13 @@ Dispatches on `kanban-group-by'; nil means ungrouped."
                  (if priority (char-to-string priority) "No priority")))
     ((and (pred stringp) property)
       (or (org-entry-get nil property) (format "No %s" property)))
+    (_ nil)))
+
+(defun kanban--none-group ()
+  "Group value `kanban--entry-group' uses for a missing field, or nil."
+  (pcase kanban-group-by
+    ('priority "No priority")
+    ((and (pred stringp) property) (format "No %s" property))
     (_ nil)))
 
 (defun kanban--parse-progress (heading)
@@ -315,13 +330,22 @@ highest priority first.  The result matches the shape
       keywords)))
 
 (defun kanban--distinct-groups (columns)
-  "Return the distinct card group keys across COLUMNS, in first-seen order."
-  (let ((seen nil))
-    (dolist (column columns (nreverse seen))
+  "Return the distinct card group keys across COLUMNS, ordered for display.
+A missing-field group sinks to the bottom; priority groups sort A→Z;
+other groupings keep first-seen order."
+  (let ((seen nil)
+         (none (kanban--none-group)))
+    (dolist (column columns)
       (dolist (card (kanban-column-items column))
         (let ((group (kanban--card-group card)))
           (unless (member group seen)
-            (push group seen)))))))
+            (push group seen)))))
+    (sort (nreverse seen)
+      (lambda (a b)
+        (cond ((equal a none) nil)
+          ((equal b none) t)
+          ((eq kanban-group-by 'priority) (string< a b))
+          (t nil))))))
 
 (defun kanban--group-into-bands (columns)
   "Split COLUMNS into swimlane bands by each card's group.
@@ -438,8 +462,10 @@ group's cards.  When grouping is off, returns one (nil . COLUMNS)."
           (title-width (max 1 (- inner effort-width (if effort 1 0))))
           (title (truncate-string-to-width (kanban--strip-cookie (kanban-card-title card))
                    title-width nil nil "…"))
-          (pad (max 0 (- inner (string-width title) effort-width))))
-    (kanban--card-line (concat title (make-string pad ?\s) (or effort "")))))
+          (pad (max 0 (- inner (string-width title) effort-width)))
+          (content (concat title (make-string pad ?\s) (or effort "")))
+          (marker (plist-get card :marker)))
+    (kanban--card-line (if marker (propertize content 'kanban-marker marker) content))))
 
 (defun kanban--deadline-face (days)
   "Return the urgency face for a deadline DAYS from now.
@@ -701,22 +727,31 @@ When TOTAL-LINES is non-nil, pad the rows to fill that many lines."
                     (kanban--empty-row columns))
             (kanban--rows columns (and total-lines (max 0 (- total-lines 2)))))))
 
-(defun kanban--band-header (group columns)
-  "Return a full-width band-header line for GROUP across COLUMNS."
-  (let ((width (* (length columns) (+ kanban-column-width kanban-column-gutter)))
-         (count (apply #'+ (mapcar #'kanban-column-count columns))))
-    (vui-box (vui-text (format "%s  %d" (or group "Ungrouped") count) :face 'kanban-band)
-      :width (max 1 width)
-      :padding-left 1
-      :face 'kanban-band)))
+(defun kanban--band-title (group columns)
+  "Return the \"GROUP (N)\" band title, rule-filled across COLUMNS."
+  (let* ((width (* (length columns) (+ kanban-column-width kanban-column-gutter)))
+          (label (format "%s (%d)" (or group "Ungrouped")
+                   (apply #'+ (mapcar #'kanban-column-count columns))))
+          (inner (max 1 (- width 2)))
+          (fill (max 0 (- inner (string-width label) 1))))
+    (concat label (when (> fill 0)
+                    (concat " " (make-string fill kanban-header-rule-char))))))
 
 (defun kanban--render-bands (columns)
-  "Render COLUMNS as swimlane bands: column headers once, then each band."
+  "Render COLUMNS as swimlane bands: column headers once, then each
+collapsible band (`vui-collapsible', expanded by default)."
   (apply #'vui-vstack :spacing 1
     (vui-table :columns (kanban--columns-spec columns)
       :rows (list (kanban--header-row columns)))
-    (mapcan (pcase-lambda (`(,group . ,band-columns))
-              (list (kanban--band-header group band-columns)
+    (mapcar (pcase-lambda (`(,group . ,band-columns))
+              (vui-collapsible
+                :title (kanban--band-title group band-columns)
+                :title-face 'kanban-band
+                :expanded-indicator kanban-band-expanded-indicator
+                :collapsed-indicator kanban-band-collapsed-indicator
+                :initially-expanded t
+                :indent 0
+                :key (format "band-%s" (or group "ungrouped"))
                 (vui-table :columns (kanban--columns-spec columns)
                   :rows (kanban--rows band-columns))))
       (kanban--group-into-bands columns))))
@@ -734,15 +769,61 @@ set, otherwise a single flat board filled to TOTAL-LINES."
   :state ((columns (kanban--board-columns)))
   :render (kanban--board columns (kanban--window-body-rows)))
 
+;;; Interaction
+
+(defun kanban--card-marker-at-point ()
+  "Return the Org marker of the card at point, or nil."
+  (get-text-property (point) 'kanban-marker))
+
+(defun kanban-next-card ()
+  "Move point to the next card."
+  (interactive)
+  (let ((match (text-property-search-forward 'kanban-marker nil (lambda (_ p) p) t)))
+    (if match
+      (goto-char (prop-match-beginning match))
+      (message "No next card"))))
+
+(defun kanban-previous-card ()
+  "Move point to the previous card."
+  (interactive)
+  (let ((match (text-property-search-backward 'kanban-marker nil (lambda (_ p) p) t)))
+    (if match
+      (goto-char (prop-match-beginning match))
+      (message "No previous card"))))
+
+(defun kanban-open-card ()
+  "Open the Org heading of the card at point."
+  (interactive)
+  (let ((marker (kanban--card-marker-at-point)))
+    (if (and marker (marker-buffer marker))
+      (progn
+        (pop-to-buffer (marker-buffer marker))
+        (goto-char (marker-position marker))
+        (when (fboundp 'org-fold-show-context)
+          (org-fold-show-context 'agenda)))
+      (message "No card at point"))))
+
+(defvar kanban-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "n") #'kanban-next-card)
+    (define-key map (kbd "p") #'kanban-previous-card)
+    (define-key map (kbd "RET") #'kanban-open-card)
+    map)
+  "Keymap for `kanban-mode'.")
+
+(define-derived-mode kanban-mode vui-mode "kanban-mode"
+  "Major mode for the kanban board.")
+
 ;;; Entry point
 
 ;;;###autoload
 (defun kanban ()
   "Open the kanban board."
   (interactive)
+  (with-current-buffer (get-buffer-create kanban-buffer-name)
+    (unless (derived-mode-p 'kanban-mode) (kanban-mode)))
   (let ((instance (vui-mount (vui-component 'kanban-board) kanban-buffer-name)))
     (with-current-buffer kanban-buffer-name
-      (setq-local mode-name "kanban-mode")
       (vui-rerender-on-resize)
       (vui-rerender instance))))
 

@@ -379,6 +379,7 @@
           :to-equal "#ff0000")))))
 
 (describe "kanban--board render"
+  (before-each (setq kanban-group-by nil))
   (it "renders the default Todo and Done columns with the seeded cards"
     (expect (kanban-tests--render (kanban--board kanban-columns))
       :to-render-substrings '("TODO" "DONE" "My first card" "My second card")))
@@ -457,6 +458,7 @@
         :to-equal 4))))
 
 (describe "kanban--board fill"
+  (before-each (setq kanban-group-by nil))
   (it "fills the board to TOTAL-LINES"
     (expect (length (split-string
                       (kanban-tests--render
@@ -571,7 +573,27 @@
         (expect (mapcar #'kanban-card-title (kanban-column-items (kanban-tests--column "TODO" backend)))
           :to-equal '("Alpha task"))
         (expect (mapcar #'kanban-card-title (kanban-column-items (kanban-tests--column "DONE" backend)))
-          :to-equal '("Gamma task"))))))
+          :to-equal '("Gamma task")))))
+
+  (it "orders priority bands A-Z with No priority last"
+    (let ((kanban-group-by 'priority))
+      (expect (mapcar #'car
+                (kanban--group-into-bands
+                  '((:name "T" :items ((:title "x" :group "No priority")
+                                        (:title "y" :group "B")
+                                        (:title "z" :group "A"))))))
+        :to-equal '("A" "B" "No priority")))))
+
+(describe "kanban--band-title"
+  (it "shows the group name, card count, and a fill rule"
+    (let ((title (kanban--band-title
+                   "Backend" '((:name "T" :items ((:title "a") (:title "b")))))))
+      (expect title :to-match "Backend (2)")
+      (expect title :to-match "─")))
+
+  (it "labels an ungrouped band \"Ungrouped\""
+    (expect (kanban--band-title nil '((:name "T" :items ((:title "a")))))
+      :to-match "Ungrouped (1)")))
 
 (describe "kanban--board swimlanes render"
   (it "renders a band header per category with its cards beneath"
@@ -581,7 +603,8 @@
                                          (list (kanban-tests--fixture "swimlanes.org")))))))
         (expect rendered :to-match "Backend")
         (expect rendered :to-match "Frontend")
-        (expect rendered :to-match "Alpha task")))))
+        (expect rendered :to-match "Alpha task")
+        (expect rendered :to-match (regexp-quote kanban-band-expanded-indicator))))))
 
 (describe "kanban--board-columns (source dispatch)"
   (it "uses the demo columns when kanban-org-files is nil"
@@ -618,9 +641,47 @@
         (with-current-buffer buffer
           (expect (buffer-string) :to-match "My first card")))))
 
-  (it "labels the modeline \"kanban-mode\" without renaming the shared vui-mode"
+  (it "puts the buffer in kanban-mode, derived from vui-mode"
     (kanban)
     (with-current-buffer kanban-buffer-name
+      (expect (derived-mode-p 'kanban-mode) :to-be-truthy)
+      (expect (derived-mode-p 'vui-mode) :to-be-truthy)
       (expect mode-name :to-equal "kanban-mode"))))
+
+(describe "card markers"
+  (it "tags the title row with the card's Org marker"
+    (with-temp-buffer
+      (vui-render (kanban--card-title-cell (list :title "Ship it" :marker (point-marker))))
+      (goto-char (point-min))
+      (search-forward "Ship")
+      (expect (markerp (get-text-property (match-beginning 0) 'kanban-marker)) :to-be-truthy)))
+
+  (it "leaves the title row unmarked when the card has no marker"
+    (with-temp-buffer
+      (vui-render (kanban--card-title-cell '(:title "Ship it")))
+      (goto-char (point-min))
+      (search-forward "Ship")
+      (expect (get-text-property (match-beginning 0) 'kanban-marker) :to-be nil))))
+
+(describe "card navigation"
+  (it "moves point forward and back between card markers"
+    (let ((board (kanban--read-board (list (kanban-tests--fixture "swimlanes.org")))))
+      (with-temp-buffer
+        (let ((kanban-group-by nil)) (vui-render (kanban--board board)))
+        (goto-char (point-min))
+        (kanban-next-card)
+        (expect (markerp (kanban--card-marker-at-point)) :to-be-truthy)
+        (let ((first (kanban--card-marker-at-point)))
+          (kanban-next-card)
+          (expect (kanban--card-marker-at-point) :not :to-equal first)
+          (kanban-previous-card)
+          (expect (kanban--card-marker-at-point) :to-equal first)))))
+
+  (it "reports no card at point in an unmarked buffer"
+    (with-temp-buffer
+      (insert "nothing here")
+      (goto-char (point-min))
+      (expect (kanban--card-marker-at-point) :to-be nil)
+      (expect (kanban-open-card) :not :to-throw))))
 
 ;;; kanban-tests.el ends here
