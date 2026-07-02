@@ -14,7 +14,6 @@ in
   packages = with pkgs-unstable; lib.optionals pkgs.stdenv.isLinux [ openssl ];
 
   languages = {
-    nix.enable = true;
     shell.enable = true;
 
     c.enable = true;
