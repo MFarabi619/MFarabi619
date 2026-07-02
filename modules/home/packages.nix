@@ -46,6 +46,7 @@
         esptool
         esphome
         espflash
+        cargo-seek
         esp-generate
         cargo-embassy
         cargo-generate
@@ -115,8 +116,8 @@
         talosctl
         bore-cli
         grafanactl
-        supabase-cli
         mcp-grafana # https://github.com/grafana/mcp-grafana
+        supabase-cli
         process-compose
       ]
       ++ [
@@ -127,16 +128,17 @@
         lemminx # xml lsp
         dts-lsp
         asm-lsp
+        stylelint
         crates-lsp
+        openscad-lsp
         cmake-language-server
         postgres-language-server
         vscode-json-languageserver
         # ============= 🤖 ==================
         tree
-        pixi # multi-language package manager
+        pixi
         pnpm
         duckdb
-        stylelint
         # vi-mongo  # mongodb tui
         # fritzing
         kubernetes-helm
@@ -147,7 +149,6 @@
         vips # dired image previews
         openscad
         mediainfo
-        openscad-lsp
         imagemagick # for image-dired
         poppler-utils # dired pdf previews
         epub-thumbnailer # dired epub previews
@@ -174,7 +175,6 @@
         wiki-tui
         keymapviz # visualize keyboard layout in ascii
         bandwhich
-        cargo-seek
         # leetcode-tui
         # keymap-drawer # visualize keyboard layout
 
