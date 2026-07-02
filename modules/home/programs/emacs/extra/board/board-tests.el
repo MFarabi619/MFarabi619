@@ -27,7 +27,26 @@
   (it "has seven pins on each side"
     (let ((board (alist-get 'xiao_esp32s3 board-definitions)))
       (expect (length (board-side-pins board 'left)) :to-equal 7)
-      (expect (length (board-side-pins board 'right)) :to-equal 7))))
+      (expect (length (board-side-pins board 'right)) :to-equal 7)))
+
+  (it "defines the esp32s3_devkitc1 board with 22 and 21 pins"
+    (let ((board (alist-get 'esp32s3_devkitc1 board-definitions)))
+      (expect board :to-be-truthy)
+      (expect (length (board-side-pins board 'left)) :to-equal 22)
+      (expect (length (board-side-pins board 'right)) :to-equal 21)))
+
+  (it "gives the devkit a micro-usb connector on the bottom"
+    (expect (board-usb (alist-get 'esp32s3_devkitc1 board-definitions))
+      :to-equal '(:type usb-micro :side bottom))))
+
+(describe "board--row-spacing"
+  (it "uses the board's own :row-spacing override"
+    (expect (board--row-spacing (alist-get 'esp32s3_devkitc1 board-definitions))
+      :to-equal 1))
+
+  (it "falls back to board-row-spacing"
+    (expect (board--row-spacing (alist-get 'xiao_esp32s3 board-definitions))
+      :to-equal board-row-spacing)))
 
 (describe "model accessors"
   (it "reads a board's name"
@@ -79,6 +98,10 @@
     (expect (board-label-role "TX0") :to-be 'uart)
     (expect (board-label-role "RX0") :to-be 'uart))
 
+  (it "classifies silicon UART pad names"
+    (expect (board-label-role "U0TXD") :to-be 'uart)
+    (expect (board-label-role "U0RXD") :to-be 'uart))
+
   (it "classifies GPIO names as pin names"
     (expect (board-label-role "GPIO43") :to-be 'pin-name))
 
@@ -112,7 +135,27 @@
       :to-equal "◥ SDA1 ◣◥ RTC ◣◥ GPIO5 ◣◥ ADC1/A4 ◣"))
 
   (it "renders an absent pin as an empty cell"
-    (expect (board--labels-cell nil 'left) :to-equal "")))
+    (expect (board--labels-cell nil 'left) :to-equal ""))
+
+  (it "carries the pin and the chip keymap on every chip"
+    (let ((cell (board--labels-cell board-tests--sample-pin 'right)))
+      (expect (get-text-property 0 'board-pin cell) :to-be board-tests--sample-pin)
+      (expect (get-text-property (1- (length cell)) 'board-pin cell)
+        :to-be board-tests--sample-pin)
+      (expect (get-text-property 0 'keymap cell) :to-be board-chip-map)))
+
+  (it "gives adjacent chips distinct help-echo runs"
+    (let* ((cell (board--labels-cell board-tests--sample-pin 'right))
+            (second-chip (next-single-property-change 0 'help-echo cell)))
+      (expect second-chip :to-equal 11)
+      (expect (eq (get-text-property 0 'help-echo cell)
+                (get-text-property second-chip 'help-echo cell))
+        :to-be nil)))
+
+  (it "describes pin, label, and role in each chip's help echo"
+    (let ((cell (board--labels-cell board-tests--sample-pin 'right)))
+      (expect (get-text-property 0 'help-echo cell)
+        :to-equal "Pin 5 · ADC1/A4 · adc"))))
 
 (describe "board--pin-primary-role"
   (it "uses the hidden :primary identity label when present"
@@ -130,31 +173,31 @@
         :to-equal (face-attribute 'board-gpio :background nil t)))))
 
 (describe "board--lead"
-  (it "draws a straight lead for plain pins"
+  (it "draws a full-width straight lead for plain pins"
     (expect (substring-no-properties (board--lead '(:number 14 :labels ("VBUS")) 'right))
-      :to-equal "──"))
+      :to-equal "───"))
 
-  (it "draws a sine lead for pwm pins"
+  (it "draws a full-width sine lead for pwm pins"
     (expect (substring-no-properties (board--lead '(:number 7 :labels ("GPIO43") :pwm t) 'left))
-      :to-equal "∿∿"))
+      :to-equal "∿∿∿"))
 
-  (it "puts the touch glyph against the wall on the left side"
+  (it "adds the touch glyph beside the wall without shortening the lead, left side"
     (expect (substring-no-properties
               (board--lead '(:number 1 :labels ("GPIO1") :pwm t :touch t) 'left))
-      :to-equal "∿󰩕"))
+      :to-equal "∿∿󰩕"))
 
-  (it "puts the touch glyph against the wall on the right side"
+  (it "adds the touch glyph beside the wall without shortening the lead, right side"
     (expect (substring-no-properties
               (board--lead '(:number 9 :labels ("GPIO7") :pwm t :touch t) 'right))
-      :to-equal "󰩕∿"))
+      :to-equal "󰩕∿∿"))
 
   (it "tints the touch glyph pill-green"
     (let ((lead (board--lead '(:number 1 :labels ("GPIO1") :touch t) 'left)))
-      (expect (plist-get (get-text-property 1 'face lead) :foreground)
+      (expect (plist-get (get-text-property 2 'face lead) :foreground)
         :to-equal (face-attribute 'board-gpio :background nil t))))
 
   (it "renders blank margin for an absent pin"
-    (expect (board--lead nil 'left) :to-equal "  ")))
+    (expect (board--lead nil 'left) :to-equal "   ")))
 
 (describe "board--body-cell"
   (it "is exactly the body span wide"
@@ -164,12 +207,12 @@
   (it "draws leads, connected walls, and pin numbers in round pills"
     (let ((cell (substring-no-properties
                   (board--body-cell '(:number 1 :labels ("A")) '(:number 14 :labels ("B"))))))
-      (expect cell :to-match "\\`──┤ .1. +.14. ├──\\'")))
+      (expect cell :to-match "\\`───┤ .1. +.14. ├───\\'")))
 
   (it "draws a plain wall and no lead where a side has no pin"
     (let ((cell (substring-no-properties
                   (board--body-cell nil '(:number 14 :labels ("B"))))))
-      (expect cell :to-match "\\`  │ +.14. ├──\\'")))
+      (expect cell :to-match "\\`   │ +.14. ├───\\'")))
 
   (it "omits the number pill on power and ground pins"
     (let ((cell (substring-no-properties
@@ -179,18 +222,18 @@
   (it "tints the lead and wall with the primary label's role color"
     (let* ((cell (board--body-cell '(:number 14 :labels ("VBUS")) nil))
             (power-tint (list :foreground (face-attribute 'board-power :background nil t))))
-      (expect (get-text-property 0 'face cell) :to-equal power-tint)
-      (expect (get-text-property board-lead-length 'face cell) :to-equal power-tint))))
+      (expect (get-text-property 1 'face cell) :to-equal power-tint)
+      (expect (get-text-property (board--lead-width) 'face cell) :to-equal power-tint))))
 
 (describe "board--body-top-cell and board--body-bottom-cell"
   (it "spans the body span with corners"
     (expect (length (board--body-top-cell)) :to-equal (board--body-span))
-    (expect (board--body-top-cell) :to-match "\\`  ┌─+┐  \\'"))
+    (expect (board--body-top-cell) :to-match "\\`   ┌─+┐   \\'"))
 
   (it "centers the board name in the bottom edge"
     (let ((bottom (substring-no-properties (board--body-bottom-cell "XIAO"))))
       (expect (length bottom) :to-equal (board--body-span))
-      (expect bottom :to-match "\\`  └─+ XIAO ─+┘  \\'"))))
+      (expect bottom :to-match "\\`   └─+ XIAO ─+┘   \\'"))))
 
 (describe "board--centering-pad"
   (it "halves the leftover space, flooring"
@@ -374,6 +417,106 @@
   (it "signals a user-error for an unknown board"
     (let ((board-default-board 'no_such_board))
       (expect (board) :to-throw 'user-error))))
+
+(describe "board hover engine"
+  (it "finds the chip bounds around a position"
+    (with-temp-buffer
+      (insert (board--labels-cell board-tests--sample-pin 'right))
+      (expect (board--chip-bounds 3) :to-equal '(1 . 12))
+      (expect (board--chip-bounds 12) :to-equal '(12 . 21))))
+
+  (it "returns nil away from any chip"
+    (with-temp-buffer
+      (insert "  ")
+      (expect (board--chip-bounds 1) :to-be nil)))
+
+  (it "paints the body background and the edge foregrounds"
+    (with-temp-buffer
+      (insert (board--labels-cell board-tests--sample-pin 'right))
+      (board--apply-hover 1 12)
+      (let ((hover-color (face-attribute 'board-hover :background nil t)))
+        (expect (mapcar (lambda (overlay) (overlay-get overlay 'face))
+                  board--hover-overlays)
+          :to-equal (list (list :background hover-color)
+                      (list :foreground hover-color)
+                      (list :foreground hover-color))))
+      (board--clear-hover)
+      (expect board--hover-overlays :to-be nil)))
+
+  (it "binds mouse movement in board-mode"
+    (expect (keymap-lookup board-mode-map "<mouse-movement>")
+      :to-be #'board-follow-mouse)))
+
+(describe "pin interaction"
+  (it "navigates forward and backward between chips"
+    (with-temp-buffer
+      (insert (board--labels-cell board-tests--sample-pin 'right))
+      (goto-char (point-min))
+      (board-next-chip)
+      (expect (point) :to-equal 12)
+      (board-next-chip)
+      (expect (point) :to-equal 21)
+      (board-previous-chip)
+      (expect (point) :to-equal 12)))
+
+  (it "highlights the chip reached by navigation"
+    (with-temp-buffer
+      (insert (board--labels-cell board-tests--sample-pin 'right))
+      (goto-char (point-min))
+      (board-next-chip)
+      (expect (length board--hover-overlays) :to-equal 3)))
+
+  (it "echoes the chip description at point"
+    (with-temp-buffer
+      (insert (board--labels-cell board-tests--sample-pin 'right))
+      (goto-char (+ (point-min) 2))
+      (spy-on 'message)
+      (board-describe-pin)
+      (expect 'message :to-have-been-called-with "%s" "Pin 5 · ADC1/A4 · adc")))
+
+  (it "describes the chip at point for eldoc"
+    (with-temp-buffer
+      (insert (board--labels-cell board-tests--sample-pin 'right))
+      (goto-char (+ (point-min) 2))
+      (let (told)
+        (board--eldoc-at-point (lambda (text) (setq told text)))
+        (expect told :to-equal "Pin 5 · ADC1/A4 · adc"))))
+
+  (it "indexes one imenu entry per pin"
+    (with-temp-buffer
+      (insert (board--labels-cell board-tests--sample-pin 'right) " "
+        (board--labels-cell '(:number 14 :labels ("VBUS")) 'right))
+      (expect (board--imenu-create-index)
+        :to-equal '(("Pin 5 (ADC1/A4)" . 1) ("Pin 14 (VBUS)" . 37)))))
+
+  (it "binds chip and mode keys"
+    (expect (keymap-lookup board-chip-map "RET") :to-be #'board-describe-pin)
+    (expect (keymap-lookup board-chip-map "<mouse-1>") :to-be #'board-describe-pin)
+    (expect (keymap-lookup board-mode-map "TAB") :to-be #'board-next-chip)
+    (expect (keymap-lookup board-mode-map "<backtab>") :to-be #'board-previous-chip)))
+
+(describe "M-x visibility"
+  (it "hides the mode command from M-x"
+    (expect (get 'board-mode 'completion-predicate) :to-be #'ignore))
+
+  (it "restricts buffer commands to board-mode"
+    (dolist (command '(board-switch board-describe-pin
+                        board-next-chip board-previous-chip board-follow-mouse))
+      (expect (command-modes command) :to-equal '(board-mode)))))
+
+(describe "board-mode"
+  (it "hides the cursor"
+    (with-temp-buffer
+      (board-mode)
+      (expect cursor-type :to-be nil)
+      (expect cursor-in-non-selected-windows :to-be nil))))
+
+(describe "board-switch"
+  (it "signals a user-error for an unknown board"
+    (expect (board-switch 'no_such_board) :to-throw 'user-error))
+
+  (it "is bound to / in board-mode"
+    (expect (keymap-lookup board-mode-map "/") :to-be #'board-switch)))
 
 (provide 'board-tests)
 
