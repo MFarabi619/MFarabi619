@@ -197,11 +197,12 @@
         # ============= ‍❄🕸 ================
         nil # nix formatter
         omnix
+        nix-du # store visualizer
         devenv
         statix
         vulnix
         cachix
-        nix-du # store visualizer
+        deadnix
         # nix-ld      # run unpatched dynamic binaries
         nix-btm # nix process monitor
         nix-top # nix process visualizer
