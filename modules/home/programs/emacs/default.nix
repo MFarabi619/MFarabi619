@@ -33,6 +33,7 @@
       ++ [
         vui
         verdict
+        dag-draw
         websocket
       ]
       ++ [ hass ]
