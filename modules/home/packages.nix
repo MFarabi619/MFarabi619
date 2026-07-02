@@ -157,6 +157,7 @@
         ffmpegthumbnailer
 
         # =============
+        shfmt
         gnuplot
         shellcheck # shell script formatting
         octaveFull # gnu octave
