@@ -15,9 +15,6 @@ in
 
   languages = {
 
-    c.enable = true;
-    c.debugger = pkgs.gdb;
-    cplusplus.enable = true;
 
     typescript.enable = false;
     javascript = {
