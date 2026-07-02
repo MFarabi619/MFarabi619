@@ -1,0 +1,15 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
+(package "board"
+         "0.0.1"
+         "Board pinout diagrams for GNU Emacs")
+
+(website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/board")
+(keywords "tools" "embedded" "hardware")
+
+(package-file "board.el")
+
+(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+
+(development
+ (depends-on "buttercup"))
