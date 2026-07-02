@@ -14,7 +14,6 @@ in
   packages = with pkgs-unstable; lib.optionals pkgs.stdenv.isLinux [ openssl ];
 
   languages = {
-    shell.enable = true;
 
     c.enable = true;
     c.debugger = pkgs.gdb;
