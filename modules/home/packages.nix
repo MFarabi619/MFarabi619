@@ -121,6 +121,7 @@
         process-compose
       ]
       ++ [
+        bats
         socat
         godot
         delve
