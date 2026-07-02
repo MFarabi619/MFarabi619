@@ -137,7 +137,6 @@
     extraBinPackages =
       with pkgs;
       [
-        nil
         nixfmt
         ispell
       ]
