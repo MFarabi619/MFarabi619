@@ -132,6 +132,7 @@
         stylelint
         crates-lsp
         openscad-lsp
+        bash-language-server
         cmake-language-server
         postgres-language-server
         vscode-json-languageserver
