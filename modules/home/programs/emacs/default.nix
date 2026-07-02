@@ -151,6 +151,9 @@
         graphql-language-service-cli
       ]
       ++ [
+        shfmt
+      ]
+      ++ [
         # ===== 🛠 ASSEMBLY 🛠 ======
         asmfmt
       ]
