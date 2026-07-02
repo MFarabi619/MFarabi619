@@ -117,6 +117,7 @@
         grafanactl
         supabase-cli
         mcp-grafana # https://github.com/grafana/mcp-grafana
+        process-compose
       ]
       ++ [
         socat
