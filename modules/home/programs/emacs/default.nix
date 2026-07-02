@@ -42,6 +42,7 @@
         disaster
         abc-mode
         kdl-mode
+        bats-mode
         scad-mode
         sqlup-mode
         eldoc-cmake
