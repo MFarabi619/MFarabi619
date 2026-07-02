@@ -121,7 +121,11 @@
         process-compose
       ]
       ++ [
-        bats
+        (bats.withLibraries (batsPackages: [
+          batsPackages.bats-assert
+          batsPackages.bats-file
+          batsPackages.bats-support
+        ]))
         ccls
         socat
         godot
@@ -195,7 +199,7 @@
       ]
       ++ [
         # ============= ‍❄🕸 ================
-        nil # nix formatter
+        nil # nix lsp
         omnix
         nix-du # store visualizer
         devenv
