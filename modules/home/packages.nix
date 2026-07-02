@@ -198,6 +198,7 @@
         nil # nix formatter
         omnix
         devenv
+        statix
         cachix
         nix-du # store visualizer
         # nix-ld      # run unpatched dynamic binaries
