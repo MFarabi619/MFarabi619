@@ -199,6 +199,7 @@
         omnix
         devenv
         statix
+        vulnix
         cachix
         nix-du # store visualizer
         # nix-ld      # run unpatched dynamic binaries
