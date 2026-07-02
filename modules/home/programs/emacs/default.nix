@@ -38,6 +38,7 @@
       ++ [ hass ]
       ++ [ sops ]
       ++ [
+        ccls
         disaster
         abc-mode
         kdl-mode
