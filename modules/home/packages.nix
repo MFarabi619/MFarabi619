@@ -122,6 +122,7 @@
       ]
       ++ [
         bats
+        ccls
         socat
         godot
         delve
