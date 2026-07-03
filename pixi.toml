@@ -44,6 +44,7 @@ win-64.tasks.build = "colcon build --merge-install --paths apps/robot --cmake-ar
 
 [environments]
 default = { features = ["lyrical"] }
+voice = { features = ["voice"], no-default-feature = true }
 
 [feature]
 lyrical.target.linux-aarch64.dependencies.ros-lyrical-usb-cam = "*"
@@ -60,3 +61,8 @@ lyrical.target.linux-aarch64.dependencies.glog = "*"
 lyrical.target.linux-aarch64.dependencies.elfutils = "*"
 lyrical.channels = ["https://prefix.dev/robostack-lyrical"]
 lyrical.dependencies = { ros-lyrical-desktop = "*", ros-lyrical-foxglove-bridge = "*", ros-lyrical-ros-gz = "*", ros-lyrical-generate-parameter-library = "*", ros-lyrical-generate-parameter-library-py = "*" , ros-lyrical-ros2-controllers = ">=6.7.0,<7", ros-lyrical-controller-manager = ">=6.7.1,<7" }
+voice.platforms = ["osx-arm64"]
+voice.system-requirements = { macos = "15.0" }
+voice.dependencies = { python = "3.14.*" }
+voice.pypi-dependencies = { mlx-whisper = "*", sounddevice = "*", pynput = "*", websocket-client = "*" }
+voice.tasks = { voice = { cmd = "python libs/voice/main.py", env = { ROS2_BRIDGE_URL = "ws://localhost:8765", WHISPER_MODEL = "mlx-community/whisper-large-v3-turbo" } } }
