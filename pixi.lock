@@ -1085,13 +1085,17 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-aarch64/gl2ps-1.4.2-hd9db0c5_2.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/glew-2.3.0-hf9dcc85_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/glfw-3.4-he30d5cf_1.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/glib-2.88.1-h72f18f7_2.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/glib-tools-2.88.1-h7439e1d_2.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/glog-0.7.1-h468a4a4_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/glslang-16.3.0-h124e036_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/gmock-1.17.0-h8af1aa0_1.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/gmp-6.3.0-h0a1ffab_2.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/gnutls-3.8.13-hfe111f1_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/graphite2-1.3.15-hfae3067_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/graphviz-14.1.2-h45e821f_0.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/gst-plugins-base-1.28.4-h3e91f74_0.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/gstreamer-1.28.4-hf552038_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/gtest-1.17.0-h17cf362_1.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/gtk3-3.24.52-h75d4e7a_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/gts-0.7.6-he293c15_4.conda
@@ -1150,6 +1154,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libbrotlicommon-1.2.0-he30d5cf_1.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libbrotlidec-1.2.0-he30d5cf_1.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libbrotlienc-1.2.0-he30d5cf_1.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/libcamera-0.5.2-py314_h78c1fe7_103_upstream.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libcap-2.78-hf9559e3_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libcblas-3.11.0-8_hd72aa62_openblas.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libccd-double-2.1-h2f0025b_3.conda
@@ -1163,6 +1168,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libegl-1.7.0-hd24410f_3.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libegl-devel-1.7.0-hd24410f_3.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libev-4.33-h31becfc_2.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/libevent-2.1.12-h4ba1bb4_1.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libexpat-2.8.1-hfae3067_1.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libffi-3.5.2-h376a255_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libflac-1.5.0-he9c94f4_1.conda
@@ -1254,6 +1260,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libopenvino-tensorflow-lite-frontend-2026.2.0-hfae3067_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libopus-1.6.1-h80f16a2_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libpciaccess-0.19-he30d5cf_0.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/libpisp-1.4.0-py310h14307ba_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libplacebo-7.360.1-h07e46df_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libpng-1.6.58-h1abf092_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libpq-18.4-hccacd55_0.conda
@@ -1278,7 +1285,8 @@ environments:
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libtasn1-4.21.0-he30d5cf_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libtheora-1.1.1-h68df207_1006.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libtiff-4.7.1-hdb009f0_1.conda
-      - conda: https://prefix.dev/conda-forge/linux-aarch64/libudev1-260.2-hb290c7d_1.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/libudev-261.1-hb290c7d_0.conda
+      - conda: https://prefix.dev/conda-forge/linux-aarch64/libudev1-261.1-hb290c7d_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libunistring-0.9.10-hf897c2e_0.tar.bz2
       - conda: https://prefix.dev/conda-forge/linux-aarch64/libunwind-1.8.3-h6470e1d_0.conda
       - conda: https://prefix.dev/conda-forge/linux-aarch64/liburcu-0.14.0-h0a1ffab_0.conda
@@ -1611,7 +1619,14 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-ament-uncrustify-0.20.6-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-ament-xmllint-0.20.6-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-angles-1.16.1-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-apriltag-3.4.5-np2py314h3d27a0f_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-apriltag-msgs-2.0.1-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-apriltag-ros-3.3.0-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-backward-ros-1.0.8-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-builtin-interfaces-2.4.5-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-camera-calibration-parsers-6.4.8-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-camera-info-manager-6.4.8-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-camera-ros-0.6.0-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-class-loader-2.9.4-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-common-interfaces-5.9.2-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-composition-0.37.8-np2py314h2824dc6_20.conda
@@ -1627,6 +1642,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-depthimage-to-laserscan-2.5.1-np2py314h3d27a0f_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-desktop-0.13.0-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-diagnostic-msgs-5.9.2-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-diagnostic-updater-4.4.6-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-dummy-map-server-0.37.8-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-dummy-robot-bringup-0.37.8-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-dummy-sensors-0.37.8-np2py314h2824dc6_20.conda
@@ -1677,9 +1693,12 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-iceoryx-hoofs-2.0.6-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-iceoryx-posh-2.0.6-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-geometry-4.1.0-np2py314h3d27a0f_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-proc-7.1.6-np2py314h3d27a0f_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-publisher-7.1.6-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-tools-0.37.8-np2py314h3d27a0f_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-transport-6.4.8-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-transport-plugins-6.2.5-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-view-7.1.6-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-interactive-markers-2.8.4-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-intra-process-demo-0.37.8-np2py314h3d27a0f_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-joy-3.3.0-np2py314h2824dc6_20.conda
@@ -1693,6 +1712,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-launch-testing-ros-0.29.8-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-launch-xml-3.9.7-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-launch-yaml-3.9.7-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-libcamera-0.5.2-py314hfaa7f48_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-libstatistics-collector-2.1.2-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-libyaml-vendor-1.8.1-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-lifecycle-0.37.8-np2py314h2824dc6_20.conda
@@ -1887,6 +1907,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-tlsf-cpp-0.20.1-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-topic-monitor-0.37.8-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-tracetools-8.10.2-np2py314h2824dc6_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-tracetools-image-pipeline-7.1.6-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-trajectory-msgs-5.9.2-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-turtlesim-1.10.9-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-turtlesim-msgs-1.10.9-np2py314h2824dc6_20.conda
@@ -1897,6 +1918,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-urdf-parser-plugin-2.13.2-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-urdfdom-5.1.0-py314he64b795_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-urdfdom-headers-2.1.0-py314he64b795_20.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-usb-cam-0.8.1-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-vision-msgs-4.2.0-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-visualization-msgs-5.9.2-np2py314h2824dc6_20.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-xacro-2.1.1-np2py314h2824dc6_20.conda
@@ -14744,6 +14766,21 @@ packages:
     - glfw >=3.4,<4.0a0
   size: 170266
   timestamp: 1758809249325
+- conda: https://prefix.dev/conda-forge/linux-aarch64/glib-2.88.1-h72f18f7_2.conda
+  sha256: e549384595431504ebd83bab7ad26c79d0d07a7c59fde00e0c56a074e93c3a3c
+  md5: 89fd41b112496272149273fb3a051e05
+  depends:
+  - python *
+  - packaging
+  - libglib ==2.88.1 h96a7f82_2
+  - glib-tools ==2.88.1 h7439e1d_2
+  license: LGPL-2.1-or-later
+  purls: []
+  run_exports:
+    weak:
+    - libglib >=2.88.1,<3.0a0
+  size: 102948
+  timestamp: 1778508920982
 - conda: https://prefix.dev/conda-forge/linux-aarch64/glib-tools-2.88.1-h7439e1d_2.conda
   sha256: a8d09a59c1cd0df08a085f6ed8401139b3301799735511746165e126c29c3fce
   md5: 49b98fdeb09f7379d52a167b35b99223
@@ -14756,6 +14793,21 @@ packages:
   run_exports: {}
   size: 257707
   timestamp: 1778508920982
+- conda: https://prefix.dev/conda-forge/linux-aarch64/glog-0.7.1-h468a4a4_0.conda
+  sha256: 920795d4f775a9f47e91c2223e64847f0b212b3fedc56c137c5889e32efe8ba0
+  md5: 08940a32c6ced3703d1412dd37df4f62
+  depends:
+  - gflags >=2.2.2,<2.3.0a0
+  - libgcc-ng >=12
+  - libstdcxx-ng >=12
+  license: BSD-3-Clause
+  license_family: BSD
+  purls: []
+  run_exports:
+    weak:
+    - glog >=0.7.1,<0.8.0a0
+  size: 145811
+  timestamp: 1718284208668
 - conda: https://prefix.dev/conda-forge/linux-aarch64/glslang-16.3.0-h124e036_0.conda
   sha256: bae4806f4076cf9f91089fbeae7c9357ce4348df3657c25b249ac4487beed230
   md5: c0045dffcc3660ecd1b9123df377796f
@@ -14855,6 +14907,61 @@ packages:
     - graphviz >=14.1.2,<15.0a0
   size: 2578234
   timestamp: 1769427141106
+- conda: https://prefix.dev/conda-forge/linux-aarch64/gst-plugins-base-1.28.4-h3e91f74_0.conda
+  sha256: 40502e80aa249fb358d14267eb0302896f41c15076325b0a1eb46c34fb68855e
+  md5: 92509696392bd4f86b6aaf3bef793e9f
+  depends:
+  - gstreamer ==1.28.4 hf552038_0
+  - libgcc >=14
+  - libstdcxx >=14
+  - gstreamer >=1.28.4,<1.29.0a0
+  - xorg-libxshmfence >=1.3.3,<2.0a0
+  - xorg-libx11 >=1.8.13,<2.0a0
+  - libglib >=2.88.1,<3.0a0
+  - libvorbis >=1.3.7,<1.4.0a0
+  - xorg-libxau >=1.0.12,<2.0a0
+  - xorg-libxext >=1.3.7,<2.0a0
+  - xorg-libxrender >=0.9.12,<0.10.0a0
+  - libxcb >=1.17.0,<2.0a0
+  - pango >=1.56.4,<2.0a0
+  - libzlib >=1.3.2,<2.0a0
+  - libegl >=1.7.0,<2.0a0
+  - libopus >=1.6.1,<2.0a0
+  - xorg-libxdamage >=1.1.6,<2.0a0
+  - libexpat >=2.8.1,<3.0a0
+  - libdrm >=2.4.127,<2.5.0a0
+  - libogg >=1.3.5,<1.4.0a0
+  - alsa-lib >=1.2.16,<1.3.0a0
+  - xorg-libxxf86vm >=1.1.7,<2.0a0
+  - xorg-libxfixes >=6.0.2,<7.0a0
+  - libpng >=1.6.58,<1.7.0a0
+  - libgl >=1.7.0,<2.0a0
+  license: LGPL-2.0-or-later
+  license_family: LGPL
+  purls: []
+  run_exports:
+    weak:
+    - gst-plugins-base >=1.28.4,<1.29.0a0
+  size: 3274455
+  timestamp: 1781370509588
+- conda: https://prefix.dev/conda-forge/linux-aarch64/gstreamer-1.28.4-hf552038_0.conda
+  sha256: b597d039c93c0c5a8aff5ba5c45c32a348dd210c85989eac73a2e38e870f3e8a
+  md5: 782f4ca9b975d623ff5c425b2f73af6c
+  depends:
+  - glib >=2.88.1,<3.0a0
+  - libgcc >=14
+  - libstdcxx >=14
+  - libzlib >=1.3.2,<2.0a0
+  - libglib >=2.88.1,<3.0a0
+  - libiconv >=1.18,<2.0a0
+  license: LGPL-2.0-or-later
+  license_family: LGPL
+  purls: []
+  run_exports:
+    weak:
+    - gstreamer >=1.28.4,<1.29.0a0
+  size: 2365575
+  timestamp: 1781370509588
 - conda: https://prefix.dev/conda-forge/linux-aarch64/gtest-1.17.0-h17cf362_1.conda
   sha256: 9f48b9cd4393fb033882cd456fb3310d42fc853885c6c263db66c06769903061
   md5: a058f4fa55dea20cdc8a7664c8537b6a
@@ -15756,6 +15863,41 @@ packages:
     - libbrotlienc >=1.2.0,<1.3.0a0
   size: 309304
   timestamp: 1764017292044
+- conda: https://prefix.dev/conda-forge/linux-aarch64/libcamera-0.5.2-py314_h78c1fe7_103_upstream.conda
+  build_number: 103
+  sha256: 657c3b7366f442d8a07067f06b6c8e6048393a0194fae2f47814c26b94245ec8
+  md5: 36107084c131bcf22e1bec8222eb7465
+  depends:
+  - __glibc >=2.34,<3.0.a0
+  - gst-plugins-base >=1.28.2,<1.29.0a0
+  - gstreamer >=1.28.2,<1.29.0a0
+  - libboost >=1.88.0,<1.89.0a0
+  - libdrm >=2.4.125,<2.5.0a0
+  - libevent >=2.1.12,<2.1.13.0a0
+  - libgcc >=14
+  - libgl >=1.7.0,<2.0a0
+  - libglib >=2.86.4,<3.0a0
+  - libjpeg-turbo >=3.1.4.1,<4.0a0
+  - libpisp >=1.4.0,<1.4.1.0a0
+  - libstdcxx >=14
+  - libtiff >=4.7.1,<4.8.0a0
+  - libudev1 >=257.13
+  - libunwind >=1.8.3,<1.9.0a0
+  - openssl >=3.5.6,<4.0a0
+  - python >=3.14,<3.15.0a0
+  - python >=3.14,<3.15.0a0 *_cp314
+  - python_abi 3.14.* *_cp314
+  - qt6-main >=6.11.0,<6.12.0a0
+  - sdl2 >=2.32.56,<3.0a0
+  - yaml >=0.2.5,<0.3.0a0
+  license: |
+    LGPL-2.1-or-later AND BSD-2-Clause AND BSD-3-Clause AND MIT AND Apache-2.0 AND CC0-1.0 AND CC-BY-SA-4.0 AND CC-BY-4.0
+  purls: []
+  run_exports:
+    weak:
+    - libcamera >=0.5.2,<0.6.0a0
+  size: 2154324
+  timestamp: 1776789948876
 - conda: https://prefix.dev/conda-forge/linux-aarch64/libcap-2.78-hf9559e3_0.conda
   sha256: 14b6654d942be7a68496d4e52d6aa4e217cf82005a42c20d1880eb473e34eb3a
   md5: 1503ce9f8a3df149a33ccd7c300ec1d2
@@ -15946,6 +16088,20 @@ packages:
     - libev >=4.33,<4.34.0a0
   size: 115123
   timestamp: 1702146237623
+- conda: https://prefix.dev/conda-forge/linux-aarch64/libevent-2.1.12-h4ba1bb4_1.conda
+  sha256: 01333cc7d6e6985dd5700b43660d90e9e58049182017fd24862088ecbe1458e4
+  md5: 96ae6083cd1ac9f6bc81631ac835b317
+  depends:
+  - libgcc-ng >=12
+  - openssl >=3.1.1,<4.0a0
+  license: BSD-3-Clause
+  license_family: BSD
+  purls: []
+  run_exports:
+    weak:
+    - libevent >=2.1.12,<2.1.13.0a0
+  size: 438992
+  timestamp: 1685726046519
 - conda: https://prefix.dev/conda-forge/linux-aarch64/libexpat-2.8.1-hfae3067_1.conda
   sha256: 20a5726bc8705d91437c9e6ef83b30da64a1719b869656d20a1ee818333ea5ac
   md5: fac3b65a605cd253037fdf3daf2de8d9
@@ -17868,6 +18024,21 @@ packages:
     - libpciaccess >=0.19,<0.20.0a0
   size: 30294
   timestamp: 1773533057559
+- conda: https://prefix.dev/conda-forge/linux-aarch64/libpisp-1.4.0-py310h14307ba_0.conda
+  sha256: ad689d6491ab6fa2d2c88a3a342f83bd4c4abf4e956e41fae4383079806893d0
+  md5: 44bae97d13856c2c19ade87fabfd7090
+  depends:
+  - __glibc >=2.28,<3.0.a0
+  - libstdcxx >=14
+  - libgcc >=14
+  license: BSD-3-Clause
+  license_family: BSD
+  purls: []
+  run_exports:
+    weak:
+    - libpisp >=1.4.0,<1.4.1.0a0
+  size: 243389
+  timestamp: 1774301127732
 - conda: https://prefix.dev/conda-forge/linux-aarch64/libplacebo-7.360.1-h07e46df_0.conda
   sha256: 3af9437023ec7fa8f9bf5e390b7f6ad3df403aa736b0305121d1734af2d0620e
   md5: 1909ad87fcdfa8397e3568d01500dc8d
@@ -18272,9 +18443,21 @@ packages:
     - libtiff >=4.7.1,<4.8.0a0
   size: 488407
   timestamp: 1762022048105
-- conda: https://prefix.dev/conda-forge/linux-aarch64/libudev1-260.2-hb290c7d_1.conda
-  sha256: 780e55b7b7275b047231d8f5b6194a7088122e8c988c74100e988614015482aa
-  md5: dacae5e0eb2261877b6ac7a64a25efe2
+- conda: https://prefix.dev/conda-forge/linux-aarch64/libudev-261.1-hb290c7d_0.conda
+  sha256: 6d1ff34793ecc6ab4573593f6a3eec85badefcf93a915e05281023e19c7128bc
+  md5: 2225bbaa2808d6bd15c683c029efdc37
+  depends:
+  - libudev1 261.1 hb290c7d_0
+  license: LGPL-2.1-or-later
+  purls: []
+  run_exports:
+    weak:
+    - libudev1 >=261.1
+  size: 19946
+  timestamp: 1782489474634
+- conda: https://prefix.dev/conda-forge/linux-aarch64/libudev1-261.1-hb290c7d_0.conda
+  sha256: 481dd7858512b6e491e897c714fb358a47413034236cb4d3f2d325f45ad0d3e3
+  md5: ad7a23a502d01deecb4b4dc3775ae5cc
   depends:
   - __glibc >=2.34,<3.0.a0
   - libcap >=2.78,<2.79.0a0
@@ -18282,8 +18465,8 @@ packages:
   license: LGPL-2.1-or-later
   purls: []
   run_exports: {}
-  size: 566420
-  timestamp: 1780084811620
+  size: 589499
+  timestamp: 1782489472971
 - conda: https://prefix.dev/conda-forge/linux-aarch64/libunistring-0.9.10-hf897c2e_0.tar.bz2
   sha256: 03acebd5a01a255fe40d47f941c6cab4dc7829206d86d990b0c88cf0ff66e646
   md5: 7c68521243dc20afba4c4c05eb09586e
@@ -52729,6 +52912,93 @@ packages:
   run_exports: {}
   size: 34143
   timestamp: 1779327581439
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-apriltag-3.4.5-np2py314h3d27a0f_20.conda
+  sha256: bb921439cc1c3a1bc37d464f49494d89206afd6a4ea3fbaa3d0349436cce3ff8
+  md5: f2f997b37129bac171431a9e4f827c33
+  depends:
+  - python
+  - ros-lyrical-ros-workspace
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - libstdcxx >=14
+  - libgcc >=14
+  - __glibc >=2.28,<3.0.a0
+  - libopencv >=4.13.0,<4.13.1.0a0
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - libgl >=1.7.0,<2.0a0
+  - py-opencv >=4.13.0,<5.0a0
+  - libopengl >=1.7.0,<2.0a0
+  - numpy >=1.23,<3
+  - python_abi 3.14.* *_cp314
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 1352464
+  timestamp: 1779327043453
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-apriltag-msgs-2.0.1-np2py314h2824dc6_20.conda
+  sha256: 7e1ed8f11c7cc68febf662c18ee1a4b2882af6c74938e4908c00af045623a9c1
+  md5: 1be32ef6bbd6537cd52b0ef977f6f0b8
+  depends:
+  - python
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-rosidl-default-runtime
+  - ros-lyrical-std-msgs
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - libgcc >=14
+  - __glibc >=2.28,<3.0.a0
+  - libstdcxx >=14
+  - python_abi 3.14.* *_cp314
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - numpy >=1.23,<3
+  license: MIT
+  run_exports: {}
+  size: 126751
+  timestamp: 1779329662863
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-apriltag-ros-3.3.0-np2py314h2824dc6_20.conda
+  sha256: ae8d83dbea52f6326faecf716bb8cf4d0f559baa04869d9046241fba39c783a2
+  md5: b7eb85d7281b589cceba0cff6d3fab06
+  depends:
+  - python
+  - ros-lyrical-apriltag
+  - ros-lyrical-apriltag-msgs
+  - ros-lyrical-camera-ros
+  - ros-lyrical-cv-bridge
+  - ros-lyrical-image-proc
+  - ros-lyrical-image-transport
+  - ros-lyrical-image-transport-plugins
+  - ros-lyrical-rclcpp
+  - ros-lyrical-rclcpp-components
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-sensor-msgs
+  - ros-lyrical-tf2-ros
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - __glibc >=2.28,<3.0.a0
+  - libgcc >=14
+  - libstdcxx >=14
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - python_abi 3.14.* *_cp314
+  - numpy >=1.23,<3
+  license: MIT
+  run_exports: {}
+  size: 224080
+  timestamp: 1779338214385
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-backward-ros-1.0.8-np2py314h2824dc6_20.conda
+  sha256: 0ad316767c83d491f9441751c8738f2603aa4808dcf317792582e8c1e6ca9aea
+  md5: edfd2162e33a7703415e0c46eb402273
+  depends:
+  - elfutils
+  - python
+  - ros-lyrical-ros-workspace
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - libgcc >=14
+  - libstdcxx >=14
+  - __glibc >=2.28,<3.0.a0
+  - numpy >=1.23,<3
+  - python_abi 3.14.* *_cp314
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - elfutils >=0.194,<0.195.0a0
+  license: MIT
+  run_exports: {}
+  size: 323159
+  timestamp: 1779327162451
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-builtin-interfaces-2.4.5-np2py314h2824dc6_20.conda
   sha256: 7d6f26c1f90ddea22720ab5589a26033be7dccd7c78e3c1d886d813686d0cd10
   md5: 48f4ab112a2e8d9f66c99e09e2afe0e9
@@ -52747,6 +53017,75 @@ packages:
   run_exports: {}
   size: 86398
   timestamp: 1779329223336
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-camera-calibration-parsers-6.4.8-np2py314h2824dc6_20.conda
+  sha256: 80db4b496ebaa6d2d7161e75e24515b1927d4be6fd8e20115a1d278ac8c991c0
+  md5: 8859cd3d27cc7349e1ecda7816a2e1c3
+  depends:
+  - python
+  - ros-lyrical-rclcpp
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-sensor-msgs
+  - ros-lyrical-yaml-cpp-vendor
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - libgcc >=14
+  - __glibc >=2.28,<3.0.a0
+  - libstdcxx >=14
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - python_abi 3.14.* *_cp314
+  - numpy >=1.23,<3
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 115415
+  timestamp: 1779331925859
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-camera-info-manager-6.4.8-np2py314h2824dc6_20.conda
+  sha256: 6a6bf29ccd1d90909ab5d49ffc451d3366bb26a0f1dd209c66a61e85f02458e9
+  md5: c4b61bfe44bb98755f05e5f5fd4fe846
+  depends:
+  - python
+  - ros-lyrical-ament-index-cpp
+  - ros-lyrical-camera-calibration-parsers
+  - ros-lyrical-rclcpp
+  - ros-lyrical-rclcpp-lifecycle
+  - ros-lyrical-rcpputils
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-sensor-msgs
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - libstdcxx >=14
+  - libgcc >=14
+  - __glibc >=2.28,<3.0.a0
+  - python_abi 3.14.* *_cp314
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - numpy >=1.23,<3
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 90579
+  timestamp: 1779332094141
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-camera-ros-0.6.0-np2py314h2824dc6_20.conda
+  sha256: 0a81e1e89f52ab15a2d08855295d4e7b549d74ba97df75783817a2a739b3ddb2
+  md5: 7e564478d0d0cc5e26bda2b1d1b3f62f
+  depends:
+  - python
+  - ros-lyrical-ament-index-python
+  - ros-lyrical-camera-info-manager
+  - ros-lyrical-cv-bridge
+  - ros-lyrical-image-view
+  - ros-lyrical-libcamera
+  - ros-lyrical-rclcpp
+  - ros-lyrical-rclcpp-components
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-ros2launch
+  - ros-lyrical-sensor-msgs
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - libgcc >=14
+  - libstdcxx >=14
+  - __glibc >=2.28,<3.0.a0
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - python_abi 3.14.* *_cp314
+  - numpy >=1.23,<3
+  license: MIT
+  run_exports: {}
+  size: 341589
+  timestamp: 1779337902587
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-class-loader-2.9.4-np2py314h2824dc6_20.conda
   sha256: d3c7f82cf8327c65fac536811973c8feffb07b224d2d7659c94a9549d18cd160
   md5: a6b886e1151286a0916ec13336d54fa5
@@ -53143,6 +53482,27 @@ packages:
   run_exports: {}
   size: 227805
   timestamp: 1779329783681
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-diagnostic-updater-4.4.6-np2py314h2824dc6_20.conda
+  sha256: dcb29ea7dc5da0f1818e0057a4ba0d75aa88f4b0ae6ccfd1c1e598ebcae11a13
+  md5: caf81c50a327593e5103708d6c82430f
+  depends:
+  - python
+  - ros-lyrical-diagnostic-msgs
+  - ros-lyrical-rclcpp
+  - ros-lyrical-rclpy
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-std-msgs
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - __glibc >=2.28,<3.0.a0
+  - libgcc >=14
+  - libstdcxx >=14
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - numpy >=1.23,<3
+  - python_abi 3.14.* *_cp314
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 194845
+  timestamp: 1779332488408
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-dummy-map-server-0.37.8-np2py314h2824dc6_20.conda
   sha256: dfec136398928e46c4e833e3668802fd001948deb4c607c6f531828fb225889a
   md5: 275c7084d9c27da841d5c57c5dac97fb
@@ -54362,6 +54722,66 @@ packages:
   run_exports: {}
   size: 92660
   timestamp: 1779330614632
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-proc-7.1.6-np2py314h3d27a0f_20.conda
+  sha256: ece757877c0f53fe0b962087858ca9d263c5a3003821acbc2c388c4dd20a37ab
+  md5: 7d4f915274765fd8f17a6c975908baa0
+  depends:
+  - libgl-devel
+  - libopencv
+  - libopengl-devel
+  - py-opencv
+  - python
+  - ros-lyrical-camera-calibration-parsers
+  - ros-lyrical-cv-bridge
+  - ros-lyrical-geometry-msgs
+  - ros-lyrical-image-geometry
+  - ros-lyrical-image-transport
+  - ros-lyrical-rclcpp
+  - ros-lyrical-rclcpp-components
+  - ros-lyrical-rcutils
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-sensor-msgs
+  - ros-lyrical-tf2
+  - ros-lyrical-tf2-geometry-msgs
+  - ros-lyrical-tracetools-image-pipeline
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - __glibc >=2.28,<3.0.a0
+  - libgcc >=14
+  - libstdcxx >=14
+  - py-opencv >=4.13.0,<5.0a0
+  - libgl >=1.7.0,<2.0a0
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - libopencv >=4.13.0,<4.13.1.0a0
+  - numpy >=1.23,<3
+  - python_abi 3.14.* *_cp314
+  - libopengl >=1.7.0,<2.0a0
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 397388
+  timestamp: 1779337976017
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-publisher-7.1.6-np2py314h2824dc6_20.conda
+  sha256: a46a06d17c4715a4b7bcf4381c2e58254fdcc0e845beb2ac766bdc1c5a98e858
+  md5: 31de22eadb032f03f399e62c39a3acec
+  depends:
+  - python
+  - ros-lyrical-camera-info-manager
+  - ros-lyrical-cv-bridge
+  - ros-lyrical-image-transport
+  - ros-lyrical-rcl-interfaces
+  - ros-lyrical-rclcpp
+  - ros-lyrical-rclcpp-components
+  - ros-lyrical-ros-workspace
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - __glibc >=2.28,<3.0.a0
+  - libstdcxx >=14
+  - libgcc >=14
+  - python_abi 3.14.* *_cp314
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - numpy >=1.23,<3
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 212633
+  timestamp: 1779337616497
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-tools-0.37.8-np2py314h3d27a0f_20.conda
   sha256: 62554573761f8261e6d73c9761116076338f33685ef7f2a16395e63e48b28017
   md5: 6658dad89ca63c5937aa7558a2e61e06
@@ -54434,6 +54854,35 @@ packages:
   run_exports: {}
   size: 22790
   timestamp: 1779337935790
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-image-view-7.1.6-np2py314h2824dc6_20.conda
+  sha256: d581e3f7ce65bc1e558d45d334b64cf76fbbba46a333af51493b8a3762ecfed7
+  md5: 01b6ac678ac9ffa3deae4a098df6d136
+  depends:
+  - python
+  - ros-lyrical-camera-calibration-parsers
+  - ros-lyrical-cv-bridge
+  - ros-lyrical-image-transport
+  - ros-lyrical-message-filters
+  - ros-lyrical-rclcpp
+  - ros-lyrical-rclcpp-components
+  - ros-lyrical-rclpy
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-sensor-msgs
+  - ros-lyrical-std-srvs
+  - ros-lyrical-stereo-msgs
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - libstdcxx >=14
+  - libgcc >=14
+  - __glibc >=2.28,<3.0.a0
+  - libgl >=1.7.0,<2.0a0
+  - python_abi 3.14.* *_cp314
+  - numpy >=1.23,<3
+  - libopengl >=1.7.0,<2.0a0
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 451044
+  timestamp: 1779337552874
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-interactive-markers-2.8.4-np2py314h2824dc6_20.conda
   sha256: 0d9862c44de21d0a98f02fd542f99039179f096af1c1ba28f8cbd6eed8f0a62d
   md5: 4b0c7495fd0112e94970a4afe2121f8f
@@ -54714,6 +55163,30 @@ packages:
   run_exports: {}
   size: 26400
   timestamp: 1779327888440
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-libcamera-0.5.2-py314hfaa7f48_20.conda
+  sha256: d8dc4a6f07b1c59664f0c703f6a28879bb060f25590ed790de68ef45553e8e95
+  md5: 955a941ad0a032d8ccc14e70beb9b0d8
+  depends:
+  - libcamera >=0.5.2,<0.6.0a0
+  - libudev
+  - libusb
+  - openssl
+  - python
+  - ros-lyrical-ros-workspace
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - yaml
+  - yaml-cpp
+  - openssl >=3.6.2,<4.0a0
+  - yaml-cpp >=0.8.0,<0.9.0a0
+  - libudev1 >=260.1
+  - yaml >=0.2.5,<0.3.0a0
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - libusb >=1.0.29,<2.0a0
+  - python_abi 3.14.* *_cp314
+  license: Apache-2.0 OR BSD-2-Clause OR BSD-3-Clause OR GPL-2.0-or-later OR LGPL-2.1-or-later
+  run_exports: {}
+  size: 10481
+  timestamp: 1779327035627
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-libstatistics-collector-2.1.2-np2py314h2824dc6_20.conda
   sha256: 12737cfdbc2e2699ff6bfa41be8b6c3b471f33f02bc8cfaa9edf93cef7984e19
   md5: eb4e612dff6269b9a644e97de8cb8881
@@ -59281,6 +59754,23 @@ packages:
   run_exports: {}
   size: 77814
   timestamp: 1779328546372
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-tracetools-image-pipeline-7.1.6-np2py314h2824dc6_20.conda
+  sha256: da8e68bc306b1555d20382704d9801694fa22fe8752747054a1aa512b4117980
+  md5: 32229e3d78cc0088cdd24b6a6d7e0da9
+  depends:
+  - python
+  - ros-lyrical-ros-workspace
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - libstdcxx >=14
+  - libgcc >=14
+  - __glibc >=2.28,<3.0.a0
+  - numpy >=1.23,<3
+  - python_abi 3.14.* *_cp314
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  license: Apache-2.0
+  run_exports: {}
+  size: 39243
+  timestamp: 1779330607129
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-trajectory-msgs-5.9.2-np2py314h2824dc6_20.conda
   sha256: e253abd3ff54b3182ab1d78aa99e5682a9131a38bd2b7607a4553dbf30f13461
   md5: 390e2a1d4a8e3c1d0fae620b03a2f908
@@ -59482,6 +59972,36 @@ packages:
   run_exports: {}
   size: 6896
   timestamp: 1779327055853
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-usb-cam-0.8.1-np2py314h2824dc6_20.conda
+  sha256: 61c420727f7b018653ea85d4364426e1332feb708478afc6f52b30f0cd4a7172
+  md5: e343235d963f4c2be809268fd0d882b5
+  depends:
+  - ffmpeg
+  - python
+  - ros-lyrical-builtin-interfaces
+  - ros-lyrical-camera-info-manager
+  - ros-lyrical-cv-bridge
+  - ros-lyrical-image-transport
+  - ros-lyrical-image-transport-plugins
+  - ros-lyrical-rclcpp
+  - ros-lyrical-rclcpp-components
+  - ros-lyrical-ros-workspace
+  - ros-lyrical-rosidl-default-runtime
+  - ros-lyrical-sensor-msgs
+  - ros-lyrical-std-msgs
+  - ros-lyrical-std-srvs
+  - ros2-distro-mutex 0.16.* lyrical_*
+  - __glibc >=2.28,<3.0.a0
+  - libgcc >=14
+  - libstdcxx >=14
+  - ffmpeg >=8.1.1,<9.0a0
+  - numpy >=1.23,<3
+  - ros2-distro-mutex >=0.16.0,<0.17.0a0
+  - python_abi 3.14.* *_cp314
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 277472
+  timestamp: 1779338258235
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-vision-msgs-4.2.0-np2py314h2824dc6_20.conda
   sha256: 5dd6350e723f41ff2d252fb948df9a7700f6525759f7bf2eb50ed943bb854e74
   md5: 422622351eb83a4d4cfc35405d2fe6e6
