@@ -13,6 +13,7 @@
     distributedBuilds = pkgs.stdenv.isDarwin;
     buildMachines = lib.optionals pkgs.stdenv.isDarwin [
       {
+        maxJobs = 8;
         sshUser = "mfarabi";
         protocol = "ssh-ng";
         hostName = "framework-desktop";
@@ -24,7 +25,6 @@
           "aarch64-linux"
         ];
 
-        maxJobs = 8;
         supportedFeatures = [
           "kvm"
           "benchmark"
@@ -59,17 +59,25 @@
         ++ lib.optionals pkgs.stdenv.isDarwin [ "@admin" ]
         ++ config.myusers;
 
-      substituters = [
-        "https://cache.nixos.org"
-        "https://cachix.cachix.org"
-        "https://devenv.cachix.org"
-        "https://mfarabi.cachix.org"
-        "https://nixpkgs.cachix.org"
-        "https://nix-darwin.cachix.org"
-        "https://nix-community.cachix.org"
-      ];
+      substituters =
+        lib.optionals (!(config.services.atticd.enable or false)) [
+          "http://framework-desktop:7070/mfarabi"
+        ]
+        ++ [
+          "https://cache.nixos.org"
+          "https://cachix.cachix.org"
+          "https://devenv.cachix.org"
+          "https://mfarabi.cachix.org"
+          "https://nixpkgs.cachix.org"
+          "https://nix-community.cachix.org"
+        ]
+        ++ lib.optionals pkgs.stdenv.isDarwin [ "https://nix-darwin.cachix.org" ];
 
-      trusted-substituters = substituters ++ [ "https://cache.saumon.network/proxmox-nixos" ];
+      trusted-substituters =
+        substituters
+        ++ lib.optionals (config.services.proxmox-ve.enable or false) [
+          "https://cache.saumon.network/proxmox-nixos"
+        ];
 
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
@@ -77,21 +85,30 @@
         "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
         "mfarabi.cachix.org-1:FPO/Xsv7VIaZqGBAbjYMyjU1uUekdeEdMbWfxzf5wrM="
         "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
-        "nix-darwin.cachix.org-1:LxMyKzQk7Uqkc1Pfq5uhm9GSn07xkERpy+7cpwc006A="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      ]
+      ++ lib.optionals (!(config.services.atticd.enable or false)) [
+        "mfarabi:9j4mW1ebyKidbRB59Wjxer85IyggTyl0/nPRF2W3M7Y="
+      ]
+      ++ lib.optionals pkgs.stdenv.isDarwin [
+        "nix-darwin.cachix.org-1:LxMyKzQk7Uqkc1Pfq5uhm9GSn07xkERpy+7cpwc006A="
+      ]
+      ++ lib.optionals (config.services.proxmox-ve.enable or false) [
         "proxmox-nixos:D9RYSWpQQC/msZUWphOY2I5RLH5Dd6yQcaHIuug7dWM="
       ];
 
       extra-substituters = [
         "https://emacs-ci.cachix.org"
+      ]
+      ++ lib.optionals (config.programs.hyprland.enable or false) [
         "https://hyprland.cachix.org"
-        "https://nix-on-droid.cachix.org"
       ];
 
       extra-trusted-public-keys = [
         "emacs-ci.cachix.org-1:B5FVOrxhXXrOL0S+tQ7USrhjMT5iOPH+QN9q0NItom4="
+      ]
+      ++ lib.optionals (config.programs.hyprland.enable or false) [
         "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
-        "nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU="
       ];
     };
   };
