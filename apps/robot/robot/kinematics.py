@@ -1,6 +1,9 @@
 import math
 
 EARTH_RADIUS_METERS = 6378137.0
+WHEEL_RADIUS = 0.178
+WHEEL_HALF_TRACK = 0.527
+WHEEL_JOINT_NAMES = ["wheel_fl_joint", "wheel_fr_joint", "wheel_rl_joint", "wheel_rr_joint"]
 
 
 def normalize_angle(angle):
@@ -17,6 +20,12 @@ def integrate_pose(x, y, theta, linear_velocity, angular_velocity, dt):
     x += turn_radius * (math.sin(theta_next) - math.sin(theta))
     y -= turn_radius * (math.cos(theta_next) - math.cos(theta))
     return x, y, normalize_angle(theta_next)
+
+
+def wheel_angular_velocities(linear_velocity, angular_velocity):
+    left = (linear_velocity - angular_velocity * WHEEL_HALF_TRACK) / WHEEL_RADIUS
+    right = (linear_velocity + angular_velocity * WHEEL_HALF_TRACK) / WHEEL_RADIUS
+    return left, right
 
 
 def yaw_to_quaternion(theta):

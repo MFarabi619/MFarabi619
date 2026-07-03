@@ -21,6 +21,8 @@ class hat_mdd10sm:
         # for detecting if the parameter struct has been updated
         stamp_ = Time()
 
+        rgpiod_host = "rpi5-16"
+        rgpiod_port = 8889
         gpio_chip = 0
         pwm_frequency_hz = 1000
         left_pwm_pin = 12
@@ -99,6 +101,14 @@ class hat_mdd10sm:
             updated_params = self.get_params()
 
             for param in parameters:
+                if param.name == self.prefix_ + "rgpiod_host":
+                    updated_params.rgpiod_host = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
+                if param.name == self.prefix_ + "rgpiod_port":
+                    updated_params.rgpiod_port = param.value
+                    self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+
                 if param.name == self.prefix_ + "gpio_chip":
                     updated_params.gpio_chip = param.value
                     self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
@@ -161,13 +171,23 @@ class hat_mdd10sm:
         def declare_params(self):
             updated_params = self.get_params()
             # declare all parameters and give default values to non-required ones
+            if not self.node_.has_parameter(self.prefix_ + "rgpiod_host"):
+                descriptor = ParameterDescriptor(description=r"Hostname or IP of the SBC running rgpiod. Tailnet name works best (source IP matches the -n allowlist).", read_only = False)
+                parameter = updated_params.rgpiod_host
+                self.node_.declare_parameter(self.prefix_ + "rgpiod_host", parameter, descriptor)
+
+            if not self.node_.has_parameter(self.prefix_ + "rgpiod_port"):
+                descriptor = ParameterDescriptor(description=r"", read_only = False)
+                parameter = updated_params.rgpiod_port
+                self.node_.declare_parameter(self.prefix_ + "rgpiod_port", parameter, descriptor)
+
             if not self.node_.has_parameter(self.prefix_ + "gpio_chip"):
-                descriptor = ParameterDescriptor(description=r"lgpio chip number to open.", read_only = False)
+                descriptor = ParameterDescriptor(description=r"GPIO chip number to open on the SBC.", read_only = False)
                 parameter = updated_params.gpio_chip
                 self.node_.declare_parameter(self.prefix_ + "gpio_chip", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "pwm_frequency_hz"):
-                descriptor = ParameterDescriptor(description=r"PWM frequency for the motor channels, in hertz.", read_only = False)
+                descriptor = ParameterDescriptor(description=r"PWM frequency for the motor channels.", read_only = False)
                 descriptor.integer_range.append(IntegerRange())
                 descriptor.integer_range[-1].from_value = 100
                 descriptor.integer_range[-1].to_value = 20000
@@ -195,7 +215,7 @@ class hat_mdd10sm:
                 self.node_.declare_parameter(self.prefix_ + "right_dir_pin", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "left_forward_level"):
-                descriptor = ParameterDescriptor(description=r"Direction-pin level that drives the left motor forward.", read_only = False)
+                descriptor = ParameterDescriptor(description=r"Direction-pin level that drives the left motor forward. Differs from right_forward_level because MDD10 channels are wired physically mirrored on the chassis.", read_only = False)
                 descriptor.integer_range.append(IntegerRange())
                 descriptor.integer_range[-1].from_value = 0
                 descriptor.integer_range[-1].to_value = 1
@@ -203,7 +223,7 @@ class hat_mdd10sm:
                 self.node_.declare_parameter(self.prefix_ + "left_forward_level", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "right_forward_level"):
-                descriptor = ParameterDescriptor(description=r"Direction-pin level that drives the right motor forward.", read_only = False)
+                descriptor = ParameterDescriptor(description=r"Direction-pin level that drives the right motor forward. Differs from left_forward_level because MDD10 channels are wired physically mirrored on the chassis.", read_only = False)
                 descriptor.integer_range.append(IntegerRange())
                 descriptor.integer_range[-1].from_value = 0
                 descriptor.integer_range[-1].to_value = 1
@@ -211,7 +231,7 @@ class hat_mdd10sm:
                 self.node_.declare_parameter(self.prefix_ + "right_forward_level", parameter, descriptor)
 
             if not self.node_.has_parameter(self.prefix_ + "duty_scale"):
-                descriptor = ParameterDescriptor(description=r"Percent PWM duty per unit of wheel speed (clamped to 100).", read_only = False)
+                descriptor = ParameterDescriptor(description=r"Percent PWM duty per unit of wheel speed.", read_only = False)
                 descriptor.floating_point_range.append(FloatingPointRange())
                 descriptor.floating_point_range[-1].from_value = 0.0
                 descriptor.floating_point_range[-1].to_value = 100.0
@@ -220,6 +240,12 @@ class hat_mdd10sm:
 
             # TODO: need validation
             # get parameters and fill struct fields
+            param = self.node_.get_parameter(self.prefix_ + "rgpiod_host")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.rgpiod_host = param.value
+            param = self.node_.get_parameter(self.prefix_ + "rgpiod_port")
+            self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
+            updated_params.rgpiod_port = param.value
             param = self.node_.get_parameter(self.prefix_ + "gpio_chip")
             self.logger_.debug(param.name + ": " + param.type_.name + " = " + str(param.value))
             updated_params.gpio_chip = param.value

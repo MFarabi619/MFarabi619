@@ -1,13 +1,22 @@
 hat_mdd10sm:
+  rgpiod_host:
+    type: string
+    default_value: "rpi5-16"
+    description: "Hostname or IP of the SBC running rgpiod. Tailnet name works best (source IP matches the -n allowlist)."
+
+  rgpiod_port:
+    type: int
+    default_value: 8889
+
   gpio_chip:
     type: int
     default_value: 0
-    description: "lgpio chip number to open."
+    description: "GPIO chip number to open on the SBC."
 
   pwm_frequency_hz:
     type: int
     default_value: 1000
-    description: "PWM frequency for the motor channels, in hertz."
+    description: "PWM frequency for the motor channels."
     validation:
       bounds<>: [100, 20000]
 
@@ -34,20 +43,20 @@ hat_mdd10sm:
   left_forward_level:
     type: int
     default_value: 1
-    description: "Direction-pin level that drives the left motor forward."
+    description: "Direction-pin level that drives the left motor forward. Differs from right_forward_level because MDD10 channels are wired physically mirrored on the chassis."
     validation:
       bounds<>: [0, 1]
 
   right_forward_level:
     type: int
     default_value: 0
-    description: "Direction-pin level that drives the right motor forward."
+    description: "Direction-pin level that drives the right motor forward. Differs from left_forward_level because MDD10 channels are wired physically mirrored on the chassis."
     validation:
       bounds<>: [0, 1]
 
   duty_scale:
     type: double
     default_value: 50.0
-    description: "Percent PWM duty per unit of wheel speed (clamped to 100)."
+    description: "Percent PWM duty per unit of wheel speed."
     validation:
       bounds<>: [0.0, 100.0]

@@ -29,21 +29,23 @@ colcon-common-extensions = "*"
 [target]
 linux.dependencies.libgl-devel = "*"
 osx.dependencies.watchfiles = "*"
+osx.pypi-dependencies = { build123d = "*", yacv-server = "*", bd-warehouse = "*" }
 linux-64.dependencies.watchfiles = "*"
+linux-64.pypi-dependencies = { build123d = "*", yacv-server = "*", bd-warehouse = "*" }
 win.activation.scripts = ["install/setup.bat"]
 unix.activation.scripts = ["install/setup.bash"]
-osx.pypi-dependencies = { build123d = "*", yacv-server = "*", bd-warehouse = "*" }
-linux-64.pypi-dependencies = { build123d = "*", yacv-server = "*", bd-warehouse = "*" }
-win-64.tasks.build = "colcon build --merge-install --paths apps/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
 unix.tasks.build = "colcon build --symlink-install --paths apps/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
+osx-arm64.pypi-dependencies = { rgpio = "*" }
+osx-arm64.tasks.robot = { cmd = "ros2 run robot hat_mdd10sm", depends-on = [ "build" ] }
+linux-aarch64.pypi-dependencies = { rgpio = "*" }
 linux-aarch64.tasks.robot = { cmd = "ros2 launch robot robot.launch.py", depends-on = [ "build" ] }
 linux-aarch64.tasks.orbbec-build = { cmd = "colcon build --symlink-install --base-paths src --cmake-args -DCMAKE_BUILD_TYPE=Release" }
+win-64.tasks.build = "colcon build --merge-install --paths apps/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
 
 [environments]
 default = { features = ["lyrical"] }
 
 [feature]
-lyrical.target.linux-aarch64.dependencies.lgpio = "*"
 lyrical.target.linux-aarch64.dependencies.ros-lyrical-usb-cam = "*"
 lyrical.target.linux-aarch64.dependencies.ros-lyrical-apriltag-ros = "*"
 lyrical.target.linux-aarch64.dependencies.ros-lyrical-camera-info-manager = "*"
@@ -57,4 +59,4 @@ lyrical.target.linux-aarch64.dependencies.nlohmann_json = "*"
 lyrical.target.linux-aarch64.dependencies.glog = "*"
 lyrical.target.linux-aarch64.dependencies.elfutils = "*"
 lyrical.channels = ["https://prefix.dev/robostack-lyrical"]
-lyrical.dependencies = { ros-lyrical-desktop = "*", ros-lyrical-foxglove-bridge = "*", ros-lyrical-ros-gz = "*", ros-lyrical-generate-parameter-library = "*", ros-lyrical-generate-parameter-library-py = "*" }
+lyrical.dependencies = { ros-lyrical-desktop = "*", ros-lyrical-foxglove-bridge = "*", ros-lyrical-ros-gz = "*", ros-lyrical-generate-parameter-library = "*", ros-lyrical-generate-parameter-library-py = "*" , ros-lyrical-ros2-controllers = ">=6.7.0,<7", ros-lyrical-controller-manager = ">=6.7.1,<7" }

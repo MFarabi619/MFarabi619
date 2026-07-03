@@ -6,12 +6,16 @@ from sensor_msgs.msg import BatteryState, CameraInfo, Image, JointState, NavSatF
 from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster
 
 from robot.camera_view import intrinsics, render_field
-from robot.kinematics import enu_to_geodetic, integrate_pose, yaw_to_quaternion
+from robot.kinematics import (
+    WHEEL_JOINT_NAMES,
+    enu_to_geodetic,
+    integrate_pose,
+    wheel_angular_velocities,
+    yaw_to_quaternion,
+)
 
 MAX_LINEAR_VELOCITY = 0.6
 MAX_ANGULAR_VELOCITY = 1.5
-WHEEL_RADIUS = 0.178
-WHEEL_HALF_TRACK = 0.527
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 400
 CAMERA_FOV_DEG = 70.0
@@ -74,10 +78,11 @@ class Sim(Node):
         self.battery_percent = max(0.0, self.battery_percent - drain)
         self.publish_odometry(now)
         self.publish_base_transform(now)
-        left_speed = self.linear_velocity - self.angular_velocity * WHEEL_HALF_TRACK
-        right_speed = self.linear_velocity + self.angular_velocity * WHEEL_HALF_TRACK
-        self.left_wheel_angle += left_speed / WHEEL_RADIUS * dt
-        self.right_wheel_angle += right_speed / WHEEL_RADIUS * dt
+        left_speed, right_speed = wheel_angular_velocities(
+            self.linear_velocity, self.angular_velocity
+        )
+        self.left_wheel_angle += left_speed * dt
+        self.right_wheel_angle += right_speed * dt
         self.publish_joint_states(now)
 
     def publish_odometry(self, stamp):
@@ -118,7 +123,7 @@ class Sim(Node):
     def publish_joint_states(self, stamp):
         joint_state = JointState()
         joint_state.header.stamp = stamp.to_msg()
-        joint_state.name = ["wheel_fl_joint", "wheel_fr_joint", "wheel_rl_joint", "wheel_rr_joint"]
+        joint_state.name = WHEEL_JOINT_NAMES
         joint_state.position = [
             self.left_wheel_angle, self.right_wheel_angle,
             self.left_wheel_angle, self.right_wheel_angle,
