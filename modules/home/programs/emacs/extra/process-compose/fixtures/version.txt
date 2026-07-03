@@ -1,0 +1,7 @@
+Process Compose
+Version:        v1.116.0
+Commit:         1057510
+Date (UTC):     2026-06-16T19:55:43Z
+License:        Apache-2.0
+Discord:        https://discord.gg/S4xgmRSHdC
+Author:         Eugene Berger

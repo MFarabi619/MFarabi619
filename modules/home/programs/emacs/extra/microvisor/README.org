@@ -14,7 +14,6 @@ It does this with several modular packages focused on enhancing the built-in
 
 - Fancy Compilation, which provides beautiful colored outputs
 - Compile Multi, which provides a supercharged compilation experience with live narrowing and fuzzy finding
-- Prodigy, which provides service management primitives with processes and ports
 - Projectile, which provides workspace discoverty and deep integration with existing build systems
 
 ** Module flags

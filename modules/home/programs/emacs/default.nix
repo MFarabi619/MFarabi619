@@ -32,6 +32,7 @@
       ]
       ++ [
         vui
+        # uniline
         verdict
         dag-draw
         websocket
@@ -65,18 +66,12 @@
         empv
         verb
         # gptel
-        vterm
         circe
-        corfu
         ghostel
-        prodigy
         buttercup
-        pdf-tools
         magit-todos
         magit-delta
         claude-code
-        corfu-terminal
-        nerd-icons-corfu
       ]
       ++ [
         devdocs
@@ -95,7 +90,6 @@
         ob-duckdb
         ob-mermaid
         org-roam-ui
-        org-pdftools
         org-nix-shell
         org-web-tools
         org-auto-tangle
@@ -139,7 +133,6 @@
       with pkgs;
       [
         nixfmt
-        ispell
       ]
       ++ [
         buf # protobuf lsp
@@ -150,9 +143,6 @@
       ++ [
         jq-lsp
         graphql-language-service-cli
-      ]
-      ++ [
-        shfmt
       ]
       ++ [
         # ===== 🛠 ASSEMBLY 🛠 ======
@@ -173,36 +163,25 @@
       ++ [
         graphviz
         plantuml
-        octaveFull # gnu octave
-        mermaid-cli # mermaid diagram support
       ]
       ++ [
         fd
         git
+        ripgrep
         tuntox # collab
         gnutls # :app irc
         # semgrep
       ]
       ++ [
+        taplo
         # eslint
+        # emmet-ls
         # proselint
-        rustywind
         # markdownlint-cli
         # mdx-language-server
-      ]
-      ++ [
-        lldb
-        taplo
-        # emmet-ls
         # yaml-language-server
         # dockerfile-language-server
         # vscode-langservers-extracted
-        vscode-extensions.llvm-vs-code-extensions.lldb-dap
-      ]
-      ++ [
-        # ==== 💿 SQL 💿 =====
-        postgres-language-server
-      ]
-      ++ lib.optionals (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64) [ bashdb ];
+      ];
   };
 }

@@ -2,7 +2,7 @@
 
 (package "kanban"
          "0.0.1"
-         "Kanban board for GNU Emacs")
+         "Kanban board")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/kanban")
 (keywords "tools" "convenience")

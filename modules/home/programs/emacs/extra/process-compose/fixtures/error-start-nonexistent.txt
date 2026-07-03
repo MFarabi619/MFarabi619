@@ -1,0 +1,2 @@
+[90m26-07-02 13:44:19.956[0m [31mFTL[0m [1mfailed to start process nonexistent[0m [36merror=[0m[31m[1m"no such process: nonexistent"[0m[0m
+exit-code:1

@@ -2,7 +2,7 @@
 
 (package "pio-mode"
          "0.0.1"
-         "PlatformIO project integration for GNU Emacs")
+         "PlatformIO project integration")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/pio-mode")
 (keywords "tools" "embedded")

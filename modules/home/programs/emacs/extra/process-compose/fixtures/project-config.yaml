@@ -1,0 +1,38 @@
+version: "0.5"
+name: acme-stack
+
+processes:
+  db:
+    command: "echo 'db system is ready to accept connections' && sleep 300"
+    ready_log_line: "ready to accept connections"
+
+  migrate:
+    command: "echo 'applying migrations' && sleep 3 && echo 'migrations applied'"
+    depends_on:
+      db:
+        condition: process_started
+
+  web:
+    command: "echo 'web listening on :3000' && while true; do echo 'GET /healthz 200'; sleep 2; done"
+    ready_log_line: "listening on"
+    depends_on:
+      migrate:
+        condition: process_completed
+
+  worker:
+    namespace: jobs
+    command: "while true; do echo 'processing job queue'; sleep 5; done"
+    depends_on:
+      db:
+        condition: process_started
+
+  flaky-sync:
+    namespace: jobs
+    command: "echo 'sync starting' && sleep 2 && echo 'sync failed: connection refused' >&2 && exit 1"
+    availability:
+      restart: on_failure
+      max_restarts: 2
+
+  pgadmin:
+    command: "sleep 300"
+    disabled: true

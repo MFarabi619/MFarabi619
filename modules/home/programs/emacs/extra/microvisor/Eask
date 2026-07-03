@@ -2,7 +2,7 @@
 
 (package "microvisor"
          "0.0.1"
-         "Project task and service orchestration for GNU Emacs")
+         "Project task and service orchestration")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/microvisor")
 (keywords "lisp" "tools" "convenience")

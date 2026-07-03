@@ -1,4 +1,4 @@
-;;; tailscale.el --- Tailscale for GNU Emacs  -*- lexical-binding: t -*-
+;;; tailscale.el --- Tailscale  -*- lexical-binding: t -*-
 
 ;; Copyright © 2026 Mumtahin Farabi <mfarabi619@gmail.com>
 

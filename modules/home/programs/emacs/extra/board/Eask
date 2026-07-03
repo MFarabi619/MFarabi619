@@ -2,14 +2,16 @@
 
 (package "board"
          "0.0.1"
-         "Board pinout diagrams for GNU Emacs")
+         "Board pinout diagrams")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/board")
 (keywords "tools" "embedded" "hardware")
 
 (package-file "board.el")
 
-(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+(depends-on "emacs" "29.1")
+
+(script "check" "eask lint checkdoc && eask lint declare && eask compile && eask clean elc && eask test activate && eask test buttercup")
 
 (development
  (depends-on "buttercup"))

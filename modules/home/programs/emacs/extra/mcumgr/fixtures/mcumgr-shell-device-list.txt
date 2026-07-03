@@ -1,0 +1,17 @@
+
+devices:
+- clock (READY)
+  DT node labels: clock
+- gpio@60004800 (READY)
+  DT node labels: gpio1
+- gpio@60004000 (READY)
+  DT node labels: gpio0
+- trng@6003507c (READY)
+  DT node labels: trng0
+- uart@60038000 (READY)
+  DT node labels: usb_serial
+- uart@60000000 (READY)
+  DT node labels: uart0 xiao_serial
+- flash-controller@60002000 (READY)
+  DT node labels: flash
+- spi@60024000 (

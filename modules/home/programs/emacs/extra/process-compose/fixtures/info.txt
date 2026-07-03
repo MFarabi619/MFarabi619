@@ -1,0 +1,4 @@
+Process Compose
+Logs:           /tmp/process-compose-user.log
+Custom Theme:   /home/user/Library/Application Support/process-compose/theme.yaml
+Settings:       /home/user/Library/Application Support/process-compose/settings.yaml

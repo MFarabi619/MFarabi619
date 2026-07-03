@@ -1,0 +1,8 @@
+PID     NAME         NAMESPACE   STATUS      AGE   HEALTH   RESTARTS   EXITCODE   
+52499   cache        default     Running     3s    -        0          0          
+51551   db           default     Running     49s   Ready    0          0          
+52222   flaky-sync   jobs        Completed   -     -        2          1          
+51552   migrate      default     Completed   2s    -        0          0          
+0       pgadmin      default     Disabled    -     -        0          0          
+51547   web          default     Running     49s   Ready    0          0          
+51548   worker       jobs        Running     49s   -        0          0          

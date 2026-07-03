@@ -2,6 +2,91 @@
   "op": "parameterValues",
   "parameters": [
     {
+      "name": "/robot_state_publisher.frame_prefix",
+      "value": ""
+    },
+    {
+      "name": "/robot_state_publisher.ignore_timestamp",
+      "value": false
+    },
+    {
+      "name": "/robot_state_publisher.publish_frequency",
+      "type": "float64",
+      "value": 20.0
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./joint_states.subscription.depth",
+      "value": 5
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./joint_states.subscription.history",
+      "value": "keep_last"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./joint_states.subscription.reliability",
+      "value": "best_effort"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./parameter_events.publisher.depth",
+      "value": 1000
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./parameter_events.publisher.durability",
+      "value": "volatile"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./parameter_events.publisher.history",
+      "value": "keep_last"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./parameter_events.publisher.reliability",
+      "value": "reliable"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./tf.publisher.depth",
+      "value": 100
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./tf.publisher.durability",
+      "value": "volatile"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./tf.publisher.history",
+      "value": "keep_last"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./tf.publisher.reliability",
+      "value": "reliable"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./tf_static.publisher.depth",
+      "value": 1
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./tf_static.publisher.history",
+      "value": "keep_last"
+    },
+    {
+      "name": "/robot_state_publisher.qos_overrides./tf_static.publisher.reliability",
+      "value": "reliable"
+    },
+    {
+      "name": "/robot_state_publisher.robot_description",
+      "value": "<?xml version=\"1.0\"?>\n<robot name=\"robot\">\n\n  <material name=\"aluminum\"><color rgba=\"0.78 0.80 0.83 1.0\"/></material>\n  <material name=\"plywood\"><color rgba=\"0.78 0.62 0.40 1.0\"/></material>\n  <material name=\"steel\"><color rgba=\"0.45 0.45 0.48 1.0\"/></material>\n  <material name=\"brass\"><color rgba=\"0.85 0.65 0.30 1.0\"/></material>\n  <material name=\"pcb\"><color rgba=\"0.10 0.40 0.20 1.0\"/></material>\n  <material name=\"plastic\"><color rgba=\"0.20 0.20 0.22 1.0\"/></material>\n  <material name=\"motor\"><color rgba=\"0.75 0.75 0.75 1.0\"/></material>\n  <material name=\"bracket\"><color rgba=\"0.63 0.63 0.63 1.0\"/></material>\n  <material name=\"tire\"><color rgba=\"0.05 0.05 0.05 1.0\"/></material>\n  <material name=\"rim\"><color rgba=\"0.90 0.90 0.92 1.0\"/></material>\n  <material name=\"hub\"><color rgba=\"0.63 0.63 0.63 1.0\"/></material>\n\n  <link name=\"base_link\"/>\n\n  <link name=\"chassis\">\n    <visual><geometry><mesh filename=\"package://robot/meshes/chassis_aluminum.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"aluminum\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/chassis_plywood.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"plywood\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/chassis_steel.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"steel\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/chassis_brass.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"brass\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/chassis_pcb.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"pcb\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/chassis_plastic.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"plastic\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/chassis_motor.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"motor\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/chassis_bracket.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"bracket\"/></visual>\n  </link>\n  <joint name=\"base_to_chassis\" type=\"fixed\">\n    <parent link=\"base_link\"/>\n    <child link=\"chassis\"/>\n    <origin rpy=\"0 0 0\"/>\n  </joint>\n\n  <link name=\"wheel_fl\">\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_tire.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"tire\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_rim.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"rim\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_hub.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"hub\"/></visual>\n  </link>\n  <joint name=\"wheel_fl_joint\" type=\"continuous\">\n    <parent link=\"chassis\"/>\n    <child link=\"wheel_fl\"/>\n    <origin xyz=\"0.53 0.527 0.178\"/>\n    <axis xyz=\"0 1 0\"/>\n  </joint>\n\n  <link name=\"wheel_fr\">\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_tire.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"tire\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_rim.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"rim\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_hub.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"hub\"/></visual>\n  </link>\n  <joint name=\"wheel_fr_joint\" type=\"continuous\">\n    <parent link=\"chassis\"/>\n    <child link=\"wheel_fr\"/>\n    <origin xyz=\"0.53 -0.527 0.178\"/>\n    <axis xyz=\"0 1 0\"/>\n  </joint>\n\n  <link name=\"wheel_rl\">\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_tire.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"tire\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_rim.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"rim\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_hub.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"hub\"/></visual>\n  </link>\n  <joint name=\"wheel_rl_joint\" type=\"continuous\">\n    <parent link=\"chassis\"/>\n    <child link=\"wheel_rl\"/>\n    <origin xyz=\"-0.53 0.527 0.178\"/>\n    <axis xyz=\"0 1 0\"/>\n  </joint>\n\n  <link name=\"wheel_rr\">\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_tire.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"tire\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_rim.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"rim\"/></visual>\n    <visual><geometry><mesh filename=\"package://robot/meshes/wheel_hub.stl\" scale=\"0.001 0.001 0.001\"/></geometry><material name=\"hub\"/></visual>\n  </link>\n  <joint name=\"wheel_rr_joint\" type=\"continuous\">\n    <parent link=\"chassis\"/>\n    <child link=\"wheel_rr\"/>\n    <origin xyz=\"-0.53 -0.527 0.178\"/>\n    <axis xyz=\"0 1 0\"/>\n  </joint>\n\n  <link name=\"camera_link\"/>\n  <joint name=\"base_to_camera\" type=\"fixed\">\n    <parent link=\"base_link\"/>\n    <child link=\"camera_link\"/>\n    <origin xyz=\"0.15 0 0.2\"/>\n  </joint>\n\n  <link name=\"camera_optical_frame\"/>\n  <joint name=\"camera_to_optical\" type=\"fixed\">\n    <parent link=\"camera_link\"/>\n    <child link=\"camera_optical_frame\"/>\n    <origin rpy=\"-1.5707963 0 -1.5707963\"/>\n  </joint>\n\n</robot>\n"
+    },
+    {
+      "name": "/robot_state_publisher.start_type_description_service",
+      "value": true
+    },
+    {
+      "name": "/robot_state_publisher.use_robot_description_topic",
+      "value": false
+    },
+    {
+      "name": "/robot_state_publisher.use_sim_time",
+      "value": false
+    },
+    {
       "name": "/simulator.use_sim_time",
       "value": false
     },

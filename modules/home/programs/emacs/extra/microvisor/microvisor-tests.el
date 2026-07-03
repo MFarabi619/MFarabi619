@@ -11,7 +11,6 @@
 (describe "microvisor-icon-face"
   (it "returns the registered face for a known prefix"
     (expect (microvisor-icon-face "cargo")  :to-equal 'nerd-icons-orange)
-    (expect (microvisor-icon-face "devenv") :to-equal 'nerd-icons-lblue)
     (expect (microvisor-icon-face "west")   :to-equal 'nerd-icons-purple))
 
   (it "returns nil for an unknown prefix"
@@ -76,79 +75,87 @@
                     (lambda (_) "FALLBACK") task)))
       (expect (substring-no-properties result) :to-match "cargo"))))
 
-(describe "microvisor--prodigy-running-face-function"
-  :var (started?)
+(describe "microvisor--running-face-function"
+  (it "greens the title of a running :process-compose task"
+    (let ((process-compose--states
+           (list (let ((state (make-hash-table :test #'equal)))
+                   (puthash "name" "tui-run" state)
+                   (puthash "is_running" t state)
+                   state))))
+      (let* ((task '(" tui  : run" :process-compose (:disabled t)))
+             (result (car (microvisor--running-face-function
+                           (lambda (tasks) tasks) (list task)))))
+        (expect (memq 'success
+                      (flatten-tree
+                       (get-text-property 0 'face (car result))))
+                :to-be-truthy))))
+  (it "leaves stopped and unmarked tasks untouched"
+    (let ((process-compose--states nil))
+      (let* ((task '(" tui  : run" :process-compose (:disabled t)))
+             (result (car (microvisor--running-face-function
+                           (lambda (tasks) tasks) (list task)))))
+        (expect (get-text-property 0 'face (car result)) :to-be nil))
+      (let* ((task '("plain task" :command "x"))
+             (result (car (microvisor--running-face-function
+                           (lambda (tasks) tasks) (list task)))))
+        (expect (car result) :to-equal "plain task")))))
+
+(describe "microvisor--process-compose-slug"
+  (it "slugifies a display name for the process handle"
+    (expect (microvisor--process-compose-slug "run") :to-equal "run")
+    (expect (microvisor--process-compose-slug "example:simulator(min)")
+            :to-equal "example-simulator-min")
+    (expect (microvisor--process-compose-slug "dx serve") :to-equal "dx-serve")))
+
+(describe "microvisor--plain-label"
+  (it "strips glyphs and whitespace"
+    (expect (microvisor--plain-label "󰕮 microtop 󰕮") :to-equal "microtop")
+    (expect (microvisor--plain-label " firmware ") :to-equal "firmware")
+    (expect (microvisor--plain-label "󰍹 example:simulator")
+            :to-equal "example:simulator")))
+
+(describe "microvisor-register-process-compose-services"
   (before-each
-    (setq started? nil)
-    (spy-on 'prodigy-find-service :and-return-value 'fake-service)
-    (spy-on 'prodigy-service-started-p
-            :and-call-fake (lambda (_) started?)))
-
-  (it "adds prodigy-green-face to titles whose service is running"
-    (setq started? t)
-    (let* ((task   '("run" :prodigy t))
-           (result (car (microvisor--prodigy-running-face-function
-                         (lambda (tasks) tasks) (list task))))
-           (title  (car result)))
-      (expect (memq 'prodigy-green-face
-                    (ensure-list (get-text-property 0 'face title)))
-              :to-be-truthy)))
-
-  (it "leaves the title unchanged when the service is not running"
-    (let* ((task   '("run" :prodigy t))
-           (result (car (microvisor--prodigy-running-face-function
-                         (lambda (tasks) tasks) (list task)))))
-      (expect (equal-including-properties result task) :to-be-truthy)))
-
-  (it "ignores tasks without :prodigy"
-    (let* ((task   '("run"))
-           (result (car (microvisor--prodigy-running-face-function
-                         (lambda (tasks) tasks) (list task)))))
-      (expect (equal-including-properties result task) :to-be-truthy))))
-
-(describe "microvisor-register-prodigy-services"
-  (before-each
-    (spy-on 'prodigy-define-service)
+    (spy-on 'process-compose-declare)
+    (spy-on 'process-compose-reconcile)
     (spy-on 'projectile-project-root :and-return-value "/proj/"))
 
-  (it "defines one service per :prodigy task with name + command + cwd"
+  (it "declares every :process-compose task, carrying flag-value extras"
     (let ((compile-multi-config nil))
-      (microvisor-register-prodigy-services
-       '((t (" loco  : start"      :command "cargo loco start"     :prodigy t :port 5150)
-            (" loco  : doctor"     :command "cargo loco doctor"    :prodigy t)
-            (" ESP32  : run"       :command "cargo +esp rr"))))
-      (expect 'prodigy-define-service :to-have-been-called-times 2)
-      (let* ((first-args (spy-calls-args-for 'prodigy-define-service 0)))
-        (expect (plist-get first-args :name)         :to-equal " loco  : start")
-        (expect (plist-get first-args :group-label)  :to-equal "loco")
-        (expect (plist-get first-args :display-name) :to-equal "start")
-        (expect (plist-get first-args :cwd)          :to-equal "/proj/")
-        (expect (plist-get first-args :port)         :to-equal 5150)
-        (expect (plist-get first-args :command)      :to-equal shell-file-name)
-        (expect (plist-get first-args :args)
-                :to-equal (list shell-command-switch "cargo loco start")))))
-
-  (it "omits :port when the task has none"
-    (let ((compile-multi-config nil))
-      (microvisor-register-prodigy-services
-       '((t (" loco  : doctor" :command "cargo loco doctor" :prodigy t))))
-      (let ((args (spy-calls-args-for 'prodigy-define-service 0)))
-        (expect (plist-member args :port) :not :to-be-truthy)))))
+      (microvisor-register-process-compose-services
+       '((t ("󰕮 microtop 󰕮 :󰳽 serve" :command "trunk serve" :process-compose t)
+            (" firmware  :󰍹 simulator" :command "cargo r" :process-compose (:disabled t))
+            (" other  : plain" :command "x"))))
+      (expect 'process-compose-declare :to-have-been-called-times 2)
+      (let ((first-declaration (car (spy-calls-args-for 'process-compose-declare 0)))
+            (second-declaration (car (spy-calls-args-for 'process-compose-declare 1))))
+        (expect (plist-get first-declaration :name) :to-equal "microtop-serve")
+        (expect (plist-get first-declaration :namespace) :to-equal "microtop")
+        (expect (plist-get first-declaration :display-name) :to-equal "serve")
+        (expect (plist-get first-declaration :command) :to-equal "trunk serve")
+        (expect (plist-get second-declaration :name)
+                :to-equal "firmware-simulator")
+        (expect (plist-get second-declaration :display-name)
+                :to-equal "simulator")
+        (expect (plist-get second-declaration :disabled) :to-be t))
+      (expect 'process-compose-reconcile :to-have-been-called))))
 
 (describe "microvisor--maybe-register-services"
-  (before-each (spy-on 'microvisor-register-prodigy-services))
+  (before-each (spy-on 'microvisor-register-process-compose-services))
 
   (it "no-ops when compile-multi-dir-local-config is unbound"
     (let (compile-multi-dir-local-config)
       (makunbound 'compile-multi-dir-local-config)
       (microvisor--maybe-register-services)
-      (expect 'microvisor-register-prodigy-services :not :to-have-been-called)))
+      (expect 'microvisor-register-process-compose-services
+              :not :to-have-been-called)))
 
   (it "delegates when compile-multi-dir-local-config is bound and non-nil"
     (let ((compile-multi-dir-local-config
-           '((t (" loco  : doctor" :command "x" :prodigy t)))))
+           '((t (" loco  : doctor" :command "x" :process-compose (:disabled t))))))
       (microvisor--maybe-register-services)
-      (expect 'microvisor-register-prodigy-services :to-have-been-called))))
+      (expect 'microvisor-register-process-compose-services
+              :to-have-been-called))))
 
 (describe "load-time installation"
   (it "registers `microvisor--annotation-function' as :around advice"
@@ -156,8 +163,8 @@
                              'compile-multi--annotation-function)
             :to-be-truthy))
 
-  (it "registers `microvisor--prodigy-running-face-function' as :around advice"
-    (expect (advice-member-p #'microvisor--prodigy-running-face-function
+  (it "registers `microvisor--running-face-function' as :around advice"
+    (expect (advice-member-p #'microvisor--running-face-function
                              'compile-multi--add-properties)
             :to-be-truthy))
 
@@ -192,6 +199,11 @@
   (it "falls back to the raw candidate when it has no command form"
     (expect (microvisor-sort-tasks '("zeta" "alpha"))
       :to-equal '("alpha" "zeta")))
+
+  (it "floats the most recent run's group and command to the top"
+    (let ((compile-multi-history '("X :* build z")))
+      (expect (microvisor-sort-tasks '("W :* run a" "X :* build a" "X :* build z"))
+        :to-equal '("X :* build z" "X :* build a" "W :* run a"))))
 
   (it "registers a display-sort-function for the compile-multi category"
     (expect (alist-get 'display-sort-function

@@ -1,0 +1,38 @@
+{
+  "nodes": {
+    "web": {
+      "name": "web",
+      "process_status": "Running",
+      "is_ready": "Ready",
+      "depends_on": {
+        "migrate": {
+          "name": "migrate",
+          "process_status": "Completed",
+          "is_ready": "-",
+          "depends_on": {
+            "db": {
+              "name": "db",
+              "process_status": "Running",
+              "is_ready": "Ready",
+              "dependency_type": "started"
+            }
+          },
+          "dependency_type": "completed"
+        }
+      }
+    },
+    "worker": {
+      "name": "worker",
+      "process_status": "Running",
+      "is_ready": "-",
+      "depends_on": {
+        "db": {
+          "name": "db",
+          "process_status": "Running",
+          "is_ready": "Ready",
+          "dependency_type": "started"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+
+free:           42052
+allocated:      23308
+max. allocated: 25036
+

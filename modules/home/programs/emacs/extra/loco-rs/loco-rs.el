@@ -1,4 +1,4 @@
-;;; loco-rs.el --- loco-rs (cargo loco) project integration for GNU Emacs  -*- lexical-binding: t -*-
+;;; loco-rs.el --- loco-rs (cargo loco) project integration  -*- lexical-binding: t -*-
 
 ;; Copyright © 2026 Mumtahin Farabi <mfarabi619@gmail.com>
 
@@ -39,7 +39,7 @@
   :group 'tools)
 
 (defcustom loco-rs-tasks
-  '(("start"      "nf-dev-rails"               ("start") :prodigy t)
+  '(("start"      "nf-dev-rails"               ("start") :process-compose server)
      ("db"         "nf-dev-database"            ("db"))
      ("db:status"  "nf-md-database_eye"         ("db" "status"))
      ("db:migrate" "nf-md-database_arrow_right" ("db" "migrate"))
@@ -47,11 +47,11 @@
      ("db:seed"    "nf-md-database_plus"        ("db" "seed"))
      ("routes"     "nf-md-routes"               ("routes"))
      ("jobs"       "nf-md-cogs"                 ("jobs"))
-     ("doctor"     "nf-fa-heart_pulse"          ("doctor")))
+     ("doctor"     "nf-fa-heart_pulse"          ("doctor") :process-compose t))
   "Compile-multi task specs for `cargo loco', each `(DISPLAY ICON ARGS . PLIST)'.
 DISPLAY is the row label, ICON a nerd-icons `nf-SET-NAME' glyph (any set), ARGS
-the `cargo loco' subcommand.  Remaining PLIST keys (e.g. `:prodigy', `:port')
-pass through to the generated compile-multi task."
+the `cargo loco' subcommand.  A `:process-compose' key marks the task as a
+process declaration: `server' adds a readiness probe, t declares it plain."
   :type '(repeat (cons (string :tag "Display")
                    (cons (string :tag "Nerd-icon name")
                      (cons (repeat :tag "loco args" string)
@@ -149,16 +149,30 @@ Mirrors loco's own resolution (environment, config folder, `<env>.yaml',
         (loco-rs--parse-port file))
     loco-rs-default-port))
 
+(defun loco-rs--process-compose-value (flag)
+  "Return the process declaration extras for a task marked FLAG.
+A `server' task gets a `/_readiness' probe on the resolved port."
+  (if (eq flag 'server)
+      `(:disabled t
+        :config ((readiness_probe
+                  . ((http_get . ((host . "127.0.0.1")
+                                  (port . ,(loco-rs--server-port))
+                                  (path . "/_readiness")))))
+                 (availability . ((restart . "on_failure")
+                                  (max_restarts . 2)))))
+    '(:disabled t)))
+
 (defun loco-rs--task (spec)
   "Build a `(TITLE . PLIST)' compile-multi entry from SPEC.
 SPEC is `(DISPLAY ICON ARGS . PLIST)'; PLIST keys pass through to the task.
-A `:prodigy' (server) task is stamped with loco's derived `server.port'.
+A `:process-compose' task carries its generated process declaration extras.
 The title is grouped under a train-glyphed `loco' header."
   (let* ((train (nerd-icons-wicon "nf-weather-train"))
-          (extra (nthcdr 3 spec))
-          (extra (if (plist-get extra :prodigy)
-                   (plist-put (copy-sequence extra) :port (loco-rs--server-port))
-                   extra)))
+          (extra (copy-sequence (nthcdr 3 spec))))
+    (when (plist-get extra :process-compose)
+      (setq extra (plist-put extra :process-compose
+                    (loco-rs--process-compose-value
+                     (plist-get extra :process-compose)))))
     (cons (format "%s loco %s :%s %s"
             train train
             (loco-rs--nerd-icon (nth 1 spec))

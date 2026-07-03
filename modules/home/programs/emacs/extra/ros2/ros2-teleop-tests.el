@@ -71,7 +71,7 @@
     (expect (commandp (lookup-key ros2-teleop-mode-map "i")) :to-be-truthy)
     (expect (commandp (lookup-key ros2-teleop-mode-map ".")) :to-be-truthy)
     (expect (lookup-key ros2-teleop-mode-map (kbd "SPC")) :to-equal #'ros2-teleop-stop)
-    (expect (lookup-key ros2-teleop-mode-map "q") :to-equal #'quit-window))
+    (expect (lookup-key ros2-teleop-mode-map "q") :to-equal #'ros2-teleop-quit))
 
   (it "scopes `ros2-teleop-stop' to the teleop window, hiding it from global M-x"
     (expect (command-modes 'ros2-teleop-stop) :to-equal '(ros2-teleop-mode))))

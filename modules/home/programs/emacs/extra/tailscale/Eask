@@ -2,7 +2,7 @@
 
 (package "tailscale"
          "0.0.1"
-         "Tailscale for GNU Emacs")
+         "Tailscale")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/tailscale")
 (keywords "tools" "comm")

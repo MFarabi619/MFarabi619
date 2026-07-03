@@ -1,0 +1,5 @@
+flowchart LR
+    migrate --> db
+    web --> migrate
+    worker --> db
+

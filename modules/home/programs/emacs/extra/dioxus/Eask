@@ -2,7 +2,7 @@
 
 (package "dioxus"
          "0.0.1"
-         "Dioxus (dx) project integration for GNU Emacs")
+         "Dioxus (dx) project integration")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/dioxus")
 (keywords "tools" "languages")

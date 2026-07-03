@@ -2,12 +2,16 @@
 
 (package "mcumgr"
          "0.0.1"
-         "MCUmgr Toolkit integration for GNU Emacs")
+         "MCUmgr Toolkit integration")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/mcumgr")
 (keywords "lisp" "tools")
 
 (package-file "mcumgr.el")
+(files "mcumgr.el" "mcumgr-tramp.el")
+
+(depends-on "nerd-icons")
+(depends-on "vui")
 
 (script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
 

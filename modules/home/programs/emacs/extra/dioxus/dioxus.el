@@ -1,4 +1,4 @@
-;;; dioxus.el --- Dioxus (dx) project integration for GNU Emacs  -*- lexical-binding: t -*-
+;;; dioxus.el --- Dioxus (dx) project integration  -*- lexical-binding: t -*-
 
 ;; Copyright © 2026 Mumtahin Farabi <mfarabi619@gmail.com>
 
@@ -46,8 +46,8 @@
   "Compile-multi task specs for `dx', each `(DISPLAY ICON ARGS . PLIST)'.
 DISPLAY is the row label, ICON a nerd-icons `nf-SET-NAME' glyph (any set), ARGS
 the `dx' subcommand and flags (the `-p PKG' flag is appended automatically).
-A `:server' key marks a long-running dev server: it becomes a prodigy service
-on `dioxus-serve-port'."
+A `:server' key marks a long-running dev server: it becomes a process
+declaration probing `dioxus-serve-port'."
   :type '(repeat (cons (string :tag "Display")
                    (cons (string :tag "Nerd-icon name")
                      (cons (repeat :tag "dx args" string)
@@ -115,9 +115,9 @@ Reads the `name' field of the `Cargo.toml' beside the discovered `Dioxus.toml'."
 
 (defun dioxus--task (spec package)
   "Build a `(TITLE . PLIST)' compile-multi entry from SPEC for PACKAGE.
-SPEC is `(DISPLAY ICON ARGS . PLIST)'; a `:server' key becomes a prodigy
-service on `dioxus-serve-port'.  The title is grouped under a dioxus-glyphed
-PACKAGE header."
+SPEC is `(DISPLAY ICON ARGS . PLIST)'; a `:server' key becomes a process
+declaration probing `dioxus-serve-port'.  The title is grouped under a
+dioxus-glyphed PACKAGE header."
   (let* ((glyph (nerd-icons-faicon "nf-fa-dna" :face 'nerd-icons-blue))
           (server (plist-get (nthcdr 3 spec) :server)))
     (cons (format "%s %s %s :%s %s"
@@ -126,7 +126,13 @@ PACKAGE header."
             (nth 0 spec))
       (append (list :command    (dioxus--command (nth 2 spec) package)
                 :annotation (dioxus--annotation))
-        (when server (list :prodigy t :port dioxus-serve-port))))))
+        (when server
+          (list :process-compose
+            `(:disabled t
+              :config ((readiness_probe
+                        . ((http_get . ((host . "127.0.0.1")
+                                        (port . ,dioxus-serve-port)
+                                        (path . "/")))))))))))))
 
 (defun dioxus-compile-multi-tasks ()
   "Return the `dx' compile-multi task entries from `dioxus-tasks'."

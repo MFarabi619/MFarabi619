@@ -50,7 +50,8 @@
   :group 'zephyr)
 
 (defun zephyr-app-p (&optional directory)
-  "Non-nil if DIRECTORY's `CMakeLists.txt' has `find_package(Zephyr)' and `project()'."
+  "Non-nil if DIRECTORY's CMakeLists.txt declares a Zephyr project.
+Checks for both `find_package(Zephyr)' and `project()'."
   (let ((cmake-file (expand-file-name "CMakeLists.txt"
                       (or directory default-directory))))
     (when (file-exists-p cmake-file)
@@ -110,7 +111,7 @@
     (prin1 data (current-buffer))))
 
 (defun zephyr-base (&optional workspace-root)
-  "Return ZEPHYR_BASE: env var, else `.west/config' value, as a directory."
+  "Return ZEPHYR_BASE for WORKSPACE-ROOT: env var, else `.west/config'."
   (let* ((config (west-config))
           (env (getenv "ZEPHYR_BASE"))
           (config-value (cdr (assoc "zephyr.base" config)))
@@ -200,7 +201,7 @@ The XDG_DATA_HOME entry honors the user's XDG environment at file load time."
     (split-string value ";" t " ")))
 
 (defun zephyr--env-list (var)
-  "Return env VAR as a list split on `path-separator', or nil if unset."
+  "Return env VAR split on the variable `path-separator', or nil if unset."
   (when-let ((value (getenv var)))
     (split-string value path-separator t " ")))
 
@@ -331,8 +332,10 @@ Falls back to `<WORKSPACE-ROOT>/app/' when the manifest declares none."
           :supported (gethash 'supported parsed)
           :path      path)))))
 
-(defconst zephyr--sysbuild-soc-pattern "esp32s3"
-  "Board-id substring identifying SoCs that build with `--sysbuild'.")
+(defconst zephyr--sysbuild-soc-pattern "esp32"
+  "Board-id substring identifying SoCs that build with `--sysbuild'.
+The whole espressif family: apps/firmware/Kconfig.sysbuild gates
+MCUboot on SOC_FAMILY_ESPRESSIF_ESP32.")
 
 (defconst zephyr--emulated-board-pattern "qemu\\|native"
   "Board-id regexp identifying emulated targets (run, not flashed).")
@@ -371,13 +374,13 @@ Falls back to `<WORKSPACE-ROOT>/app/' when the manifest declares none."
     " -- -DEXTRA_CONF_FILE=test.conf"))
 
 (defconst zephyr--compile-multi-group "\U000f1985"
-  "Kite glyph flanking the west compile-multi group header.")
+  "Kite glyph flanking the west task group header.")
 
 (defconst zephyr--task-annotation (concat "west " zephyr--compile-multi-group)
-  "Right-column annotation (label plus kite glyph) for west compile-multi tasks.")
+  "Right-column annotation (label plus kite glyph) for west tasks.")
 
 (defconst zephyr--board-display-max 24
-  "Maximum width of a board string shown in a compile-multi row.")
+  "Maximum width of a board string shown in a task row.")
 
 (defun zephyr--board-display (board-id &optional width)
   "Return BOARD-ID for display, middle-eliding the qualifier past WIDTH."
@@ -425,7 +428,7 @@ whose base is not already aliased is added under its canonical name."
         (zephyr-app-boards app-path)))))
 
 (defun zephyr--app-compile-multi-tasks (app-plist workspace)
-  "Build + flash/run compile-multi entries for APP-PLIST relative to WORKSPACE."
+  "Build + flash/run `compile-multi' entries for APP-PLIST under WORKSPACE."
   (let* ((path (plist-get app-plist :path))
           (app  (directory-file-name (file-relative-name path workspace))))
     (mapcan
@@ -462,7 +465,7 @@ whose base is not already aliased is added under its canonical name."
       (zephyr--app-board-entries path))))
 
 (defun zephyr-compile-multi-tasks ()
-  "Workspace-wide `west build'/`west flash' compile-multi entries per board."
+  "Workspace-wide `west build'/`west flash' `compile-multi' rows per board."
   (when-let* ((workspace (west-workspace-root)))
     (mapcan (lambda (app) (zephyr--app-compile-multi-tasks app workspace))
       (zephyr-apps workspace))))

@@ -87,14 +87,18 @@ to `--platform desktop'), with `-p PKG' derived from the app's Cargo.toml.")
             (expect (plist-get (cdr task) :command) :to-equal command)
             (expect (car task) :to-match (regexp-quote (funcall icon-fn icon-name))))))))
 
-  (it "marks the serve tasks as prodigy services on the serve port"
+  (it "declares the serve tasks as processes probing the serve port"
     (dolist (display '("serve" "serve:desktop" "serve:ssg"))
-      (let ((plist (cdr (dioxus-tests--task display))))
-        (expect (plist-get plist :prodigy) :to-be-truthy)
-        (expect (plist-get plist :port) :to-equal dioxus-serve-port))))
+      (let* ((flag (plist-get (cdr (dioxus-tests--task display)) :process-compose))
+             (http-get (cdr (assq 'http_get
+                                  (cdr (assq 'readiness_probe
+                                             (plist-get flag :config)))))))
+        (expect (plist-get flag :disabled) :to-be t)
+        (expect (cdr (assq 'port http-get)) :to-equal dioxus-serve-port))))
 
-  (it "leaves `build' as a one-shot (no prodigy)"
-    (expect (plist-get (cdr (dioxus-tests--task "build")) :prodigy) :to-be nil)))
+  (it "leaves `build' as a one-shot (no process declaration)"
+    (expect (plist-get (cdr (dioxus-tests--task "build")) :process-compose)
+            :to-be nil)))
 
 (describe "compile-multi integration"
   (it "registers the dioxus task generator in `compile-multi-config'"

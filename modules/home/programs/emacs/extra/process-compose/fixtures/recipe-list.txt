@@ -1,0 +1,2 @@
+No recipes installed locally.
+Use 'process-compose recipe search' to find recipes, then 'process-compose recipe pull <name>' to install them.

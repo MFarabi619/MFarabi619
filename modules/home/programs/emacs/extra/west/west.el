@@ -1,4 +1,4 @@
-;;; west.el --- West (Zephyr's meta-tool) integration for GNU Emacs  -*- lexical-binding: t -*-
+;;; west.el --- West (Zephyr's meta-tool) integration  -*- lexical-binding: t -*-
 
 ;; Copyright © 2026 Mumtahin Farabi <mfarabi619@gmail.com>
 

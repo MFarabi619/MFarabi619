@@ -170,41 +170,6 @@
       (face-remap-add-relative 'success                      :weight 'bold :foreground "#b8bb26"                      )
       (face-remap-add-relative 'warning                      :weight 'bold :foreground "#fabd2f"                      ))))
 
-(after!      prodigy (require 'seq) (setopt prodigy-kill-process-buffer-on-stop t prodigy-completion-system 'default)
-  (custom-set-faces! '(prodigy-red-face    :foreground "#fb4934" :weight bold) '(prodigy-green-face  :foreground "#b8bb26" :weight bold) '(prodigy-yellow-face :foreground "#fabd2f" :weight bold))
-
-  (defun my/prodigy-group-row-p (&optional pos) (let ((id (tabulated-list-get-id pos))) (and (consp id) (eq (car id) :group))))
-  (defun my/prodigy-next-service (&optional n) (interactive "p") (let ((n (or n 1))) (dotimes (_ n) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))
-                                                                   (when (eobp) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))))
-  (defun my/prodigy-previous-service (&optional n) (interactive "p") (let ((n (or n 1))) (dotimes (_ n) (forward-line -1) (while (and (not (bobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line -1)))
-                                                                       (when (my/prodigy-group-row-p) (forward-line 1) (while (and (not (eobp)) (or (my/prodigy-group-row-p) (null (tabulated-list-get-id)))) (forward-line 1)))))
-  (defun my/prodigy-display-name (service) (or (plist-get service :display-name) (plist-get service :name) ""))
-  (defun my/prodigy-group-label (service) (or (plist-get service :group-label) "other"))
-
-  (defun my/prodigy-service-entry (service) (list (prodigy-service-id service) (vector (prodigy-marked-col service) (propertize (my/prodigy-display-name service) 'face (or (prodigy-status-face service) 'default)) (if-let ((port (plist-get service :port))) (number-to-string port) ""))))
-
-  (defun my/prodigy-group-entry (label) (let* ((width 35)
-                                                (text  (format "  %s  " label))
-                                                (text-width (string-width text))
-                                                (left-width  (max 0 (/ (- width text-width) 2)))
-                                                (right-width (max 0 (- width text-width left-width)))
-                                                (left  (propertize (make-string left-width ?─) 'face 'shadow))
-                                                (right (propertize (make-string right-width ?─) 'face 'shadow))
-                                                (mid   (propertize text 'face 'shadow)))
-                                          (list `(:group ,label) (vector "" (concat left mid right) ""))))
-
-  (defun my/prodigy-list-entries () (apply #'append (mapcar (lambda (group) (let ((label (car group)) (services (sort (copy-sequence (cdr group)) (lambda (a b) (string-lessp (my/prodigy-display-name a) (my/prodigy-display-name b))))))
-                                                                              (cons (my/prodigy-group-entry label) (mapcar #'my/prodigy-service-entry services))))
-                                                      (seq-group-by #'my/prodigy-group-label (prodigy-services)))))
-
-  (add-hook! 'prodigy-mode-hook (setq-local mode-line-format nil
-                                  header-line-format nil
-                                  tabulated-list-padding 0
-                                  tabulated-list-groups nil
-                                  tabulated-list-sort-key nil
-                                  tabulated-list-entries #'my/prodigy-list-entries
-                                  tabulated-list-format [(" " 1 nil) ("Service" 35 t) ("Port" 1 t)])
-    (tabulated-list-print t))) ;; end prodigy
 
 (with-eval-after-load 'circe
   (set-irc-server! "irc.libera.chat"
@@ -257,14 +222,10 @@
 ;; (add-hook! 'sql-mode-hook #'sqlup-mode!)
 ;; (add-hook! 'sql-interactive-mode-hook #'sqlup-mode!)
 ;; (add-hook! 'lsp-mode-hook #'lsp-inlay-hints-mode)
-;; (add-hook! 'prodigy-view-mode-hook (text-scale-set 1))
-;; (add-hook! 'prodigy-view-mode-hook (text-scale-set -2))
 (add-hook! 'pdf-view-mode-hook #'pdf-view-midnight-minor-mode)
 (add-hook! '(sql-mode-hook sql-interactive-mode-hook) (setq-local sql-default-directory (projectile-project-root)) (sql-highlight-postgres-keywords))
 
-(set-popup-rule! "^\\*prodigy\\*$"              :side 'right  :quit t :slot 1 :ttl nil :vslot 0 :height 0.50 :width 0.20 :select t   :modeline nil)
-(set-popup-rule! "^\\*prodigy-.*\\*$"           :side 'right  :quit t :slot 2 :ttl nil :vslot 0 :height 0.45 :width 0.40 :select nil :modeline nil)
-;; (set-popup-rule! "^*prodigy-.*$"           :side 'bottom :quit t :slot  2 :ttl nil :vslot 0 :height 0.20 :width 0.40 :select nil :modeline nil)
+(set-popup-rule! "^\\*process-compose-log: .*\\*$" :side 'right :quit t :slot 2 :ttl nil :vslot 0 :height 0.45 :width 0.40 :select nil :modeline nil)
 (set-popup-rule! "^\\*compilation\\*.*$"        :side 'right  :quit t :slot 1 :ttl nil :vslot 0 :height 0.30 :width 0.50 :select nil :modeline nil)
 (set-popup-rule! "^\\*Flycheck errors\\*$"      :side 'bottom                                   :height 0.40 :width 0.40 :select t   :modeline nil)
 (set-popup-rule! "^\\*doom:vterm-popup:.*\\*$"  :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :height 0.50 :width 0.50 :select t   :modeline nil)
@@ -286,23 +247,18 @@ when they were opened, so they skip the re-application."
         (vertico-posframe-mode 1))
       (compile-multi--get-task))))
 
-(defun my/compile-multi-prodigy ()
+(defun my/compile-multi-process-compose ()
   (interactive)
   (let* ((task        (my/compile-multi-read-task))
-          (title       (car task))
-          (plain-title (substring-no-properties title))
+          (plain-title (substring-no-properties (car task)))
           (plist       (cdr task)))
-    (if (plist-get plist :prodigy)
-      (if-let ((service (prodigy-find-service plain-title)))
-        (progn (save-selected-window (prodigy))
-          (if (prodigy-service-started-p service)
-            (prodigy-restart-service service
-              (lambda () (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))
-
-            (prodigy-start-service service
-              (lambda ()
-                (save-selected-window (prodigy) (when-let ((buffer (get-buffer (prodigy-buffer-name service)))) (with-current-buffer buffer (unless (eq major-mode 'prodigy-view-mode) (prodigy-view-mode))) (display-buffer buffer)))))))
-        (message "No Prodigy service found for %s" plain-title))
+    (if (plist-get plist :process-compose)
+      (progn
+        (process-compose-ensure)
+        (if (process-compose-state plain-title)
+          (process-compose-restart-process plain-title)
+          (process-compose-start-process plain-title))
+        (display-buffer (process-compose-log-buffer plain-title)))
       (compile-multi nil (plist-get plist :command)))))
 
 (defvar-keymap my-claude-code-map :repeat t "M" #'claude-code-cycle-mode)
@@ -315,11 +271,9 @@ when they were opened, so they skip the re-application."
   :leader             :desc "Lazygit"     "l" #'+lazygit/toggle
   :leader             :desc "Treemacs"    "[" #'+treemacs/toggle
   :leader             :desc "Last buffer" "e" #'evil-switch-to-windows-last-buffer
-  ;; :leader :prefix "o" :desc "Prodigy"     "p" #'prodigy
-  :leader :prefix "c" :desc "Compile"     "c" #'my/compile-multi-prodigy
+  :leader :prefix "c" :desc "Compile"     "c" #'my/compile-multi-process-compose
   :leader :prefix "c" :desc "In-Progress" "p" #'compilation-goto-in-progress-buffer
 
-  :map prodigy-mode-map :n "j" #'my/prodigy-next-service :n "k" #'my/prodigy-previous-service
   :map mu4e-headers-mode-map
   "M-p" #'mu4e-views-cursor-msg-view-window-up
   "M-n" #'mu4e-views-cursor-msg-view-window-down

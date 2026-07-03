@@ -130,7 +130,6 @@
         socat
         godot
         delve
-        bashdb
         lemminx # xml lsp
         dts-lsp
         asm-lsp
@@ -192,6 +191,7 @@
       ++ lib.optionals (!config.targets.genericLinux.enable) [
         nvtopPackages.full # btop for gpu; genericLinux hosts set their own variant per-host
       ]
+      ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [ bashdb ]
       ++ [
         exercism
         presenterm

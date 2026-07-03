@@ -2,7 +2,7 @@
 
 (package "zephyr"
          "0.0.1"
-         "Zephyr RTOS workspace integration for GNU Emacs")
+         "Zephyr RTOS workspace integration")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/zephyr")
 (keywords "tools" "embedded")

@@ -2,7 +2,7 @@
 
 (package "west"
          "0.0.1"
-         "West (Zephyr's meta-tool) integration for GNU Emacs")
+         "West (Zephyr's meta-tool) integration")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/west")
 (keywords "tools" "embedded")

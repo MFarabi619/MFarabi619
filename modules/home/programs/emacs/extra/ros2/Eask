@@ -13,8 +13,9 @@
 
 (source "melpa")
 
+(load-paths "../process-compose")
+
 (depends-on "websocket")
-(depends-on "prodigy")
 
 (development
  (depends-on "buttercup"))

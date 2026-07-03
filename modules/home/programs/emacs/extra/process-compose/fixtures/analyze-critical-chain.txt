@@ -1,0 +1,14 @@
+The time when unit became ready is printed after the "@" character.
+The time the unit took to become ready is printed after the "+" character.
+
+Project: workstation/acme-stack
+Started: 2026-07-02T13:43:32-04:00
+Up time: 47.215s
+
+pgadmin (not started) [Disabled]
+web @3.023s +6ms
+└─migrate @2ms
+  └─db @6ms +4ms
+worker @3ms
+└─db @6ms +4ms
+flaky-sync @1ms

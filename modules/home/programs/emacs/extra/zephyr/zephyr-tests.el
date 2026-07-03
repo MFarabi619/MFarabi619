@@ -543,11 +543,11 @@
       (list (directory-file-name example)))))
 
 (describe "zephyr--board-sysbuild-p"
-  (it "is non-nil for esp32s3 boards (sysbuild/MCUboot)"
+  (it "is non-nil for the espressif family (sysbuild/MCUboot)"
     (expect (zephyr--board-sysbuild-p "walter/esp32s3/procpu"))
-    (expect (zephyr--board-sysbuild-p "xiao_esp32s3/esp32s3/procpu/sense")))
-  (it "is nil for non-esp32s3 boards"
-    (expect (zephyr--board-sysbuild-p "esp32_devkitc/esp32/procpu") :to-be nil)
+    (expect (zephyr--board-sysbuild-p "xiao_esp32s3/esp32s3/procpu/sense"))
+    (expect (zephyr--board-sysbuild-p "esp32_devkitc/esp32/procpu")))
+  (it "is nil outside the espressif family"
     (expect (zephyr--board-sysbuild-p "qemu_riscv32") :to-be nil)
     (expect (zephyr--board-sysbuild-p "stm32f3_disco/stm32f303xc") :to-be nil)))
 

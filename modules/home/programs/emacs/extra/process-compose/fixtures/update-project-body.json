@@ -1,0 +1,167 @@
+{
+  "processes": {
+    "db": {
+      "name": "db",
+      "command": "echo 'db system is ready to accept connections' && sleep 300",
+      "restartPolicy": {},
+      "readyLogLine": "ready to accept connections",
+      "shutDownParams": {
+        "signal": 15
+      },
+      "namespace": "default",
+      "replicas": 1,
+      "vars": {
+        "PC_REPLICA_NUM": 0
+      },
+      "launchTimeout": 5,
+      "originalConfig": "{\"name\":\"db\",\"command\":\"echo 'db system is ready to accept connections' \\u0026\\u0026 sleep 300\",\"restartPolicy\":{},\"readyLogLine\":\"ready to accept connections\",\"shutDownParams\":{\"signal\":15},\"namespace\":\"default\",\"replicas\":1,\"launchTimeout\":5,\"replicaName\":\"db\"}",
+      "replicaName": "db",
+      "executable": "bash",
+      "args": [
+        "-c",
+        "echo 'db system is ready to accept connections' && sleep 300"
+      ]
+    },
+    "migrate": {
+      "name": "migrate",
+      "command": "echo 'applying migrations' && sleep 3 && echo 'migrations applied'",
+      "restartPolicy": {},
+      "dependsOn": {
+        "db": {
+          "condition": 3
+        }
+      },
+      "shutDownParams": {
+        "signal": 15
+      },
+      "namespace": "default",
+      "replicas": 1,
+      "vars": {
+        "PC_REPLICA_NUM": 0
+      },
+      "launchTimeout": 5,
+      "originalConfig": "{\"name\":\"migrate\",\"command\":\"echo 'applying migrations' \\u0026\\u0026 sleep 3 \\u0026\\u0026 echo 'migrations applied'\",\"restartPolicy\":{},\"dependsOn\":{\"db\":{\"condition\":3}},\"shutDownParams\":{\"signal\":15},\"namespace\":\"default\",\"replicas\":1,\"launchTimeout\":5,\"replicaName\":\"migrate\"}",
+      "replicaName": "migrate",
+      "executable": "bash",
+      "args": [
+        "-c",
+        "echo 'applying migrations' && sleep 3 && echo 'migrations applied'"
+      ]
+    },
+    "web": {
+      "name": "web",
+      "command": "echo 'web listening on :3000' && while true; do echo 'GET /healthz 200'; sleep 2; done",
+      "restartPolicy": {},
+      "dependsOn": {
+        "migrate": {}
+      },
+      "readyLogLine": "listening on",
+      "shutDownParams": {
+        "signal": 15
+      },
+      "namespace": "default",
+      "replicas": 1,
+      "vars": {
+        "PC_REPLICA_NUM": 0
+      },
+      "launchTimeout": 5,
+      "originalConfig": "{\"name\":\"web\",\"command\":\"echo 'web listening on :3000' \\u0026\\u0026 while true; do echo 'GET /healthz 200'; sleep 2; done\",\"restartPolicy\":{},\"dependsOn\":{\"migrate\":{}},\"readyLogLine\":\"listening on\",\"shutDownParams\":{\"signal\":15},\"namespace\":\"default\",\"replicas\":1,\"launchTimeout\":5,\"replicaName\":\"web\"}",
+      "replicaName": "web",
+      "executable": "bash",
+      "args": [
+        "-c",
+        "echo 'web listening on :3000' && while true; do echo 'GET /healthz 200'; sleep 2; done"
+      ]
+    },
+    "worker": {
+      "name": "worker",
+      "command": "while true; do echo 'processing job queue'; sleep 5; done",
+      "restartPolicy": {},
+      "dependsOn": {
+        "db": {
+          "condition": 3
+        }
+      },
+      "shutDownParams": {
+        "signal": 15
+      },
+      "namespace": "jobs",
+      "replicas": 1,
+      "vars": {
+        "PC_REPLICA_NUM": 0
+      },
+      "launchTimeout": 5,
+      "originalConfig": "{\"name\":\"worker\",\"command\":\"while true; do echo 'processing job queue'; sleep 5; done\",\"restartPolicy\":{},\"dependsOn\":{\"db\":{\"condition\":3}},\"shutDownParams\":{\"signal\":15},\"namespace\":\"jobs\",\"replicas\":1,\"launchTimeout\":5,\"replicaName\":\"worker\"}",
+      "replicaName": "worker",
+      "executable": "bash",
+      "args": [
+        "-c",
+        "while true; do echo 'processing job queue'; sleep 5; done"
+      ]
+    },
+    "flaky-sync": {
+      "name": "flaky-sync",
+      "command": "echo 'sync starting' && sleep 2 && echo 'sync failed: connection refused' >&2 && exit 1",
+      "restartPolicy": {
+        "restart": 2,
+        "maxRestarts": 2
+      },
+      "shutDownParams": {
+        "signal": 15
+      },
+      "namespace": "jobs",
+      "replicas": 1,
+      "vars": {
+        "PC_REPLICA_NUM": 0
+      },
+      "launchTimeout": 5,
+      "originalConfig": "{\"name\":\"flaky-sync\",\"command\":\"echo 'sync starting' \\u0026\\u0026 sleep 2 \\u0026\\u0026 echo 'sync failed: connection refused' \\u003e\\u00262 \\u0026\\u0026 exit 1\",\"restartPolicy\":{\"restart\":2,\"maxRestarts\":2},\"shutDownParams\":{\"signal\":15},\"namespace\":\"jobs\",\"replicas\":1,\"launchTimeout\":5,\"replicaName\":\"flaky-sync\"}",
+      "replicaName": "flaky-sync",
+      "executable": "bash",
+      "args": [
+        "-c",
+        "echo 'sync starting' && sleep 2 && echo 'sync failed: connection refused' >&2 && exit 1"
+      ]
+    },
+    "pgadmin": {
+      "name": "pgadmin",
+      "disabled": true,
+      "command": "sleep 300",
+      "restartPolicy": {},
+      "shutDownParams": {
+        "signal": 15
+      },
+      "namespace": "default",
+      "replicas": 1,
+      "vars": {
+        "PC_REPLICA_NUM": 0
+      },
+      "launchTimeout": 5,
+      "originalConfig": "{\"name\":\"pgadmin\",\"disabled\":true,\"command\":\"sleep 300\",\"restartPolicy\":{},\"shutDownParams\":{\"signal\":15},\"namespace\":\"default\",\"replicas\":1,\"launchTimeout\":5,\"replicaName\":\"pgadmin\"}",
+      "replicaName": "pgadmin",
+      "executable": "bash",
+      "args": [
+        "-c",
+        "sleep 300"
+      ]
+    },
+    "cache": {
+      "name": "cache",
+      "command": "sleep 300",
+      "namespace": "default",
+      "replicas": 1,
+      "replicaName": "cache",
+      "executable": "bash",
+      "args": [
+        "-c",
+        "sleep 300"
+      ],
+      "shutDownParams": {
+        "signal": 15
+      },
+      "launchTimeout": 5,
+      "restartPolicy": {},
+      "dependsOn": {}
+    }
+  }
+}

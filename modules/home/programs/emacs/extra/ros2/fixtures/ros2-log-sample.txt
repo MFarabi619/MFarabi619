@@ -1,0 +1,6 @@
+[INFO] [1700000000.000000000] [talker]: Publishing: 'Hello World: 1'
+[INFO] [1700000001.000000000] [talker]: Publishing: 'Hello World: 2'
+[WARN] [1700000002.000000000] [talker]: publish queue is filling up
+[ERROR] [1700000003.000000000] [talker]: failed to publish message
+[foxglove_bridge-3] [INFO] [1700000004.000000000] [foxglove_bridge]: Server listening on port 8765
+[ros2run]: Received signal:  Interrupt: 2

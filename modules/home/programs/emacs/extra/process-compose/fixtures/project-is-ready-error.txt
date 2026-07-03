@@ -1,0 +1,2 @@
+[90m26-07-02 13:44:19.941[0m [31mFTL[0m [36merror=[0m[31m[1m"processes are not ready:\n• worker (failed with exit code -1)\n• flaky-sync (failed with exit code 1)"[0m[0m
+is-ready-exit:1

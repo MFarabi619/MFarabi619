@@ -1,0 +1,6 @@
+Dependency Graph
+├── web [Running]
+│   └── migrate <completed> [Completed]
+│       └── db <started> [Running]
+└── worker [Running]
+    └── db <started> [Running]

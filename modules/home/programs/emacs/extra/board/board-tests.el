@@ -10,6 +10,18 @@
 (buttercup-error-on-stale-elc)
 (setq buttercup-stack-frame-style 'pretty)
 
+(defconst board-tests--fixtures
+  (expand-file-name "fixtures"
+    (file-name-directory (or load-file-name buffer-file-name)))
+  "Fixture mirrors of the upstream source trees.")
+
+(setq board-zephyr-root (expand-file-name "zephyr" board-tests--fixtures)
+  board-hal-espressif-root (expand-file-name "hal_espressif"
+                             board-tests--fixtures)
+  board-arduino-variants-root
+  (expand-file-name "framework-arduinoespressif32/variants"
+    board-tests--fixtures))
+
 (defun board-tests--render (vnode)
   "Render VNODE into a temp buffer and return the resulting string."
   (with-temp-buffer
@@ -20,59 +32,120 @@
   '(:number 5 :labels ("ADC1/A4" "GPIO5" "RTC" "SDA1"))
   "Sample pin plist used across specs.")
 
+(describe "board sources"
+  :var* ((xiao-directory (board--zephyr-board-directory "seeed/xiao_esp32s3")))
+
+  (it "reads the board name and chip from board.yml"
+    (expect (board--board-yml xiao-directory)
+      :to-equal '(:full-name "XIAO ESP32S3" :chip "esp32s3")))
+
+  (it "decodes the connector map across gpio ports"
+    (let ((connector (board--connector-gpios xiao-directory)))
+      (expect (alist-get 0 connector) :to-equal 1)
+      (expect (alist-get 6 connector) :to-equal 43)
+      (expect (alist-get 10 connector) :to-equal 9)))
+
+  (it "collects each GPIO's pinmux signals"
+    (let ((signals (board--pinctrl-signals xiao-directory)))
+      (expect (alist-get 43 signals) :to-equal '("UART0_TX"))
+      (expect (alist-get 5 signals) :to-equal '("I2C0_SDA"))
+      (expect (alist-get 3 signals) :to-equal '("TWAI_TX"))))
+
+  (it "maps GPIOs to ADC channels from the silicon table"
+    (let ((adc (board--adc-labels "esp32s3")))
+      (expect (alist-get 1 adc) :to-equal "ADC1_0")
+      (expect (alist-get 19 adc) :to-equal "ADC2_8")))
+
+  (it "lists the RTC-domain GPIOs"
+    (let ((rtc (board--rtc-gpios "esp32s3")))
+      (expect (memq 21 rtc) :to-be-truthy)
+      (expect (memq 22 rtc) :to-be nil)))
+
+  (it "reads touch pads from the Arduino variant"
+    (expect (board--arduino-touch-gpios "XIAO_ESP32S3")
+      :to-equal '(1 2 3 4 5 6 7 8 9)))
+
+  (it "keeps Zephyr signal names for known buses and silences the rest"
+    (expect (board--signal-chip-label "UART0_TX") :to-equal "UART0_TX")
+    (expect (board--signal-chip-label "SPIM2_SCLK") :to-equal "SPIM2_SCLK")
+    (expect (board--signal-chip-label "LCD_CAM_CAM_CLK") :to-be nil))
+
+  (it "renders Arduino short forms under that label style"
+    (let ((board-label-style 'arduino))
+      (expect (board--signal-chip-label "UART0_TX") :to-equal "TX0")
+      (expect (board--signal-chip-label "SPIM2_SCLK") :to-equal "SCK2")
+      (expect (board--signal-chip-label "TWAI_RX") :to-equal "CAN_RX"))))
+
+(describe "board--resolve"
+  :var* ((xiao (board--lookup 'xiao_esp32s3)))
+
+  (it "names the board from board.yml"
+    (expect (board-name xiao) :to-equal "XIAO ESP32S3"))
+
+  (it "resolves a connector pin with its full capability chain"
+    (expect (car (board-side-pins xiao 'left))
+      :to-equal '(:number 1 :primary "D0"
+                   :labels ("GPIO1" "RTC" "ADC1_0") :pwm t :touch t)))
+
+  (it "resolves bus roles from the board pinctrl"
+    (expect (plist-get (nth 4 (board-side-pins xiao 'left)) :labels)
+      :to-equal '("GPIO5" "I2C0_SDA" "RTC" "ADC1_4")))
+
+  (it "resolves each label style separately through the cache"
+    (let* ((board-label-style 'arduino)
+            (arduino-pin (nth 4 (board-side-pins
+                                  (board--lookup 'xiao_esp32s3) 'left))))
+      (expect (plist-get arduino-pin :labels)
+        :to-equal '("GPIO5" "SDA0" "RTC" "ADC1_4"))))
+
+  (it "numbers the right side counterclockwise from the total"
+    (expect (car (board-side-pins xiao 'right))
+      :to-equal '(:number 14 :labels ("VBUS"))))
+
+  (it "resolves plain GPIO keys without a vendor primary"
+    (let ((uart-pin (nth 1 (board-side-pins
+                             (board--lookup 'esp32s3_devkitc1) 'right))))
+      (expect (plist-get uart-pin :primary) :to-be nil)
+      (expect (plist-get uart-pin :labels) :to-equal '("GPIO43" "UART0_TX")))))
+
 (describe "board-definitions (default data)"
   (it "defines the xiao_esp32s3 board"
-    (expect (alist-get 'xiao_esp32s3 board-definitions) :to-be-truthy))
+    (expect (board--lookup 'xiao_esp32s3) :to-be-truthy))
 
   (it "has seven pins on each side"
-    (let ((board (alist-get 'xiao_esp32s3 board-definitions)))
+    (let ((board (board--lookup 'xiao_esp32s3)))
       (expect (length (board-side-pins board 'left)) :to-equal 7)
       (expect (length (board-side-pins board 'right)) :to-equal 7)))
 
-  (it "defines the esp32s3_devkitc1 board with 22 and 21 pins"
-    (let ((board (alist-get 'esp32s3_devkitc1 board-definitions)))
+  (it "defines the esp32s3_devkitc1 board with all 44 header pins"
+    (let ((board (board--lookup 'esp32s3_devkitc1)))
       (expect board :to-be-truthy)
       (expect (length (board-side-pins board 'left)) :to-equal 22)
-      (expect (length (board-side-pins board 'right)) :to-equal 21)))
+      (expect (length (board-side-pins board 'right)) :to-equal 22)))
 
   (it "gives the devkit a micro-usb connector on the bottom"
-    (expect (board-usb (alist-get 'esp32s3_devkitc1 board-definitions))
+    (expect (board-usb (board--lookup 'esp32s3_devkitc1))
       :to-equal '(:type usb-micro :side bottom))))
 
 (describe "board--row-spacing"
   (it "uses the board's own :row-spacing override"
-    (expect (board--row-spacing (alist-get 'esp32s3_devkitc1 board-definitions))
+    (expect (board--row-spacing (board--lookup 'esp32s3_devkitc1))
       :to-equal 1))
 
   (it "falls back to board-row-spacing"
-    (expect (board--row-spacing (alist-get 'xiao_esp32s3 board-definitions))
+    (expect (board--row-spacing (board--lookup 'xiao_esp32s3))
       :to-equal board-row-spacing)))
 
-(describe "model accessors"
-  (it "reads a board's name"
-    (expect (board-name '(:name "XIAO ESP32-S3")) :to-equal "XIAO ESP32-S3"))
-
-  (it "reads a side's pins"
+(describe "board-side-pins"
+  (it "unwraps the side's extra list nesting"
     (let ((board '(:sides ((left ((:number 1 :labels ("A"))))
                            (right ((:number 2 :labels ("B"))))))))
       (expect (board-pin-number (car (board-side-pins board 'right)))
-        :to-equal 2)))
-
-  (it "reads a pin's number and labels"
-    (expect (board-pin-number board-tests--sample-pin) :to-equal 5)
-    (expect (board-pin-labels board-tests--sample-pin)
-      :to-equal '("ADC1/A4" "GPIO5" "RTC" "SDA1")))
-
-  (it "reads a pin's pwm and touch capabilities"
-    (let ((pins (board-side-pins (alist-get 'xiao_esp32s3 board-definitions) 'left)))
-      (expect (board-pin-pwm-p (car pins)) :to-be-truthy)
-      (expect (board-pin-touch-p (car pins)) :to-be-truthy)
-      (expect (board-pin-pwm-p (nth 6 pins)) :to-be-truthy)
-      (expect (board-pin-touch-p (nth 6 pins)) :to-be nil))))
+        :to-equal 2))))
 
 (describe "board-label-role"
   (it "classifies power rails"
-    (dolist (label '("VBUS" "3V3" "5V0" "3.3V-OUT"))
+    (dolist (label '("VBUS" "3V3" "5V0" "3V3-OUT"))
       (expect (board-label-role label) :to-be 'power)))
 
   (it "classifies ground"
@@ -167,7 +240,7 @@
       :to-be 'power))
 
   (it "tints XIAO gpio leads pill-green via the D-name identity"
-    (let* ((pin (car (board-side-pins (alist-get 'xiao_esp32s3 board-definitions) 'left)))
+    (let* ((pin (car (board-side-pins (board--lookup 'xiao_esp32s3) 'left)))
             (lead (board--lead pin 'left)))
       (expect (plist-get (get-text-property 0 'face lead) :foreground)
         :to-equal (face-attribute 'board-gpio :background nil t)))))
@@ -243,25 +316,6 @@
   (it "never goes negative when content overflows"
     (expect (board--centering-pad 5 9) :to-equal 0)))
 
-(describe "board--fit-scale"
-  (it "picks the tighter of the two axes"
-    (let ((board-fit-fraction 0.8)
-           (board-max-scale 2.0)
-           (board-min-scale 0.6))
-      (expect (board--fit-scale 50 10 1000 500 10 20) :to-equal 1.6)))
-
-  (it "caps at board-max-scale"
-    (let ((board-fit-fraction 0.8)
-           (board-max-scale 2.0)
-           (board-min-scale 0.6))
-      (expect (board--fit-scale 10 5 4000 2000 10 20) :to-equal 2.0)))
-
-  (it "floors at board-min-scale"
-    (let ((board-fit-fraction 0.8)
-           (board-max-scale 2.0)
-           (board-min-scale 0.6))
-      (expect (board--fit-scale 500 100 400 200 10 20) :to-equal 0.6))))
-
 (describe "board--vnode-size"
   (it "measures a single text node"
     (expect (board--vnode-size (vui-text "abc")) :to-equal '(3 . 1)))
@@ -273,7 +327,7 @@
     (let* ((board-row-spacing 0)
             (board-show-legend nil)
             (size (board--vnode-size
-                    (board--diagram (alist-get 'xiao_esp32s3 board-definitions)))))
+                    (board--diagram (board--lookup 'xiao_esp32s3)))))
       (expect (cdr size) :to-equal 10)
       (expect (car size) :to-be-greater-than board-body-width))))
 
@@ -282,13 +336,13 @@
     (let* ((board-row-spacing 2)
             (board-show-legend nil)
             (size (board--vnode-size
-                    (board--diagram (alist-get 'xiao_esp32s3 board-definitions)))))
+                    (board--diagram (board--lookup 'xiao_esp32s3)))))
       (expect (cdr size) :to-equal 22)))
 
   (it "draws unconnected walls through spacer rows"
     (let* ((board-row-spacing 1)
             (text (board-tests--render
-                    (board--diagram (alist-get 'xiao_esp32s3 board-definitions))))
+                    (board--diagram (board--lookup 'xiao_esp32s3))))
             (spacer-lines (seq-filter
                             (lambda (line)
                               (and (string-match-p "│" line)
@@ -334,7 +388,7 @@
   :var* ((lines (let ((board-row-spacing 0))
                   (split-string
                     (board-tests--render
-                      (board--diagram (alist-get 'xiao_esp32s3 board-definitions)))
+                      (board--diagram (board--lookup 'xiao_esp32s3)))
                     "\n"))))
 
   (it "draws the usb pill in the row above the top edge"
@@ -350,11 +404,50 @@
   (it "omits the legend when board-show-legend is nil"
     (let ((board-show-legend nil))
       (expect (board-tests--render
-                (board--diagram (alist-get 'xiao_esp32s3 board-definitions)))
+                (board--diagram (board--lookup 'xiao_esp32s3)))
         :not :to-match "SYSTEM"))))
 
+(describe "board--layout"
+  (it "keeps the preferred spacing when it fits"
+    (pcase-let* ((board (board--lookup 'xiao_esp32s3))
+                  (`(,_ . ,canvas-size) (board--layout board 4000)))
+      (expect (cdr canvas-size)
+        :to-equal (cdr (board--vnode-size (board--diagram board))))))
+
+  (it "compresses the gaps between pins when the window is short"
+    (pcase-let* ((board (board--lookup 'xiao_esp32s3))
+                  (`(,_ . ,canvas-size) (board--layout board 20)))
+      (expect (cdr canvas-size)
+        :to-be-less-than (cdr (board--vnode-size (board--diagram board))))
+      (expect (cdr canvas-size) :to-be-weakly-less-than 20)))
+
+  (it "spends exactly the spare rows when a full spacing level cannot fit"
+    (pcase-let* ((board (board--lookup 'esp32s3_devkitc1))
+                  (dense-rows (cdr (board--vnode-size (board--diagram board 0))))
+                  (`(,_ . ,canvas-size)
+                    (board--layout board (+ dense-rows 5))))
+      (expect (cdr canvas-size) :to-equal (+ dense-rows 5))))
+
+  (it "gives content every last row: margins are only leftovers"
+    (pcase-let* ((board (board--lookup 'esp32s3_devkitc1))
+                  (rows-with-gaps (cdr (board--vnode-size
+                                         (board--diagram board 1))))
+                  (`(,_ . ,canvas-size)
+                    (board--layout board rows-with-gaps)))
+      (expect (cdr canvas-size) :to-equal rows-with-gaps)))
+
+  (it "fits whenever fitting is possible; the dense diagram is the floor"
+    (dolist (key '(xiao_esp32s3 esp32s3_devkitc1))
+      (dolist (window-rows '(20 50 110 400))
+        (pcase-let* ((board (board--lookup key))
+                      (dense-rows (cdr (board--vnode-size
+                                         (board--diagram board 0))))
+                      (`(,_ . ,canvas-size) (board--layout board window-rows)))
+          (expect (cdr canvas-size)
+            :to-be-weakly-less-than (max window-rows dense-rows)))))))
+
 (describe "board--center"
-  :var* ((board (alist-get 'xiao_esp32s3 board-definitions))
+  :var* ((board (board--lookup 'xiao_esp32s3))
           (size (let ((board-row-spacing 0)
                        (board-show-legend nil))
                   (board--vnode-size (board--diagram board))))
@@ -398,11 +491,11 @@
 
 (describe "board--diagram"
   :var* ((text (board-tests--render
-                 (board--diagram (alist-get 'xiao_esp32s3 board-definitions))))
+                 (board--diagram (board--lookup 'xiao_esp32s3))))
           (lines (split-string text "\n")))
 
   (it "renders the board name and pin labels"
-    (dolist (expected '("XIAO ESP32-S3" "VBUS" "GND" "3.3V-OUT" "GPIO43" "ADC1/A0"))
+    (dolist (expected '("XIAO ESP32S3" "VBUS" "GND" "3V3-OUT" "GPIO43" "ADC1_0"))
       (expect text :to-match (regexp-quote expected))))
 
   (it "renders one connected left wall per left pin"
@@ -413,10 +506,91 @@
     (let ((columns (delq nil (mapcar (lambda (line) (cl-position ?┤ line)) lines))))
       (expect (length (seq-uniq columns)) :to-equal 1))))
 
+(describe "a mounted board buffer"
+  (before-each
+    (board-show (board--lookup 'xiao_esp32s3)))
+
+  (after-each
+    (when-let* ((buffer (get-buffer board-buffer-name)))
+      (kill-buffer buffer)))
+
+  (it "re-displays a buried board in the invoking window instead of splitting"
+    (delete-other-windows)
+    (set-window-buffer (selected-window) (get-buffer-create "*scratch*"))
+    (board-show (board--lookup 'esp32s3_devkitc1))
+    (expect (get-buffer-window board-buffer-name t) :to-be (selected-window))
+    (expect (length (window-list)) :to-equal 1))
+
+  (it "is displayed in a window with the board rendered"
+    (expect (get-buffer-window board-buffer-name) :to-be-truthy)
+    (with-current-buffer board-buffer-name
+      (expect board--current
+        :to-be (board--lookup 'xiao_esp32s3))
+      (expect (buffer-string) :to-match "XIAO ESP32S3")))
+
+  (it "highlights the chip under a synthetic mouse event and clears off-chip"
+    (let* ((window (get-buffer-window board-buffer-name))
+            (chip-position
+              (with-current-buffer board-buffer-name
+                (goto-char (point-min))
+                (prop-match-beginning
+                  (text-property-search-forward 'help-echo nil
+                    (lambda (_ value) value))))))
+      (board-follow-mouse
+        (list 'mouse-movement (list window chip-position '(0 . 0) 0)))
+      (with-current-buffer board-buffer-name
+        (expect (length board--hover-overlays) :to-equal 3))
+      (board-follow-mouse
+        (list 'mouse-movement (list window 1 '(0 . 0) 0)))
+      (with-current-buffer board-buffer-name
+        (expect board--hover-overlays :to-be nil))))
+
+  (it "swaps boards in place through board-switch"
+    (board-switch 'esp32s3_devkitc1)
+    (with-current-buffer board-buffer-name
+      (expect (board-name board--current) :to-equal "ESP32-S3-DevKitC-1")))
+
+  (it "names the current board in the mode line"
+    (with-current-buffer board-buffer-name
+      (expect mode-name :to-equal "board[XIAO ESP32S3]"))))
+
+(describe "board--refit-if-window-changed"
+  (it "refreshes once when the window changed since the layout"
+    (with-temp-buffer
+      (spy-on 'vui-refresh)
+      (setq-local board--layout-window-cells '(1 . 1))
+      (cl-letf (((symbol-function 'get-buffer-window)
+                  (lambda (&rest _) (selected-window))))
+        (board--refit-if-window-changed))
+      (expect 'vui-refresh :to-have-been-called)))
+
+  (it "stays quiet while the geometry still matches"
+    (with-temp-buffer
+      (spy-on 'vui-refresh)
+      (let ((window (selected-window)))
+        (cl-letf (((symbol-function 'get-buffer-window)
+                    (lambda (&rest _) window)))
+          (setq-local board--layout-window-cells
+            (cons (window-body-width window t)
+              (window-body-height window t)))
+          (board--refit-if-window-changed)))
+      (expect 'vui-refresh :not :to-have-been-called))))
+
 (describe "board (entry point)"
   (it "signals a user-error for an unknown board"
     (let ((board-default-board 'no_such_board))
-      (expect (board) :to-throw 'user-error))))
+      (expect (board) :to-throw 'user-error)))
+
+  (it "shows the board in exactly one window and selects it"
+    (unwind-protect
+      (progn
+        (board)
+        (expect (length (get-buffer-window-list board-buffer-name nil t))
+          :to-equal 1)
+        (expect (window-buffer (selected-window))
+          :to-be (get-buffer board-buffer-name)))
+      (when-let* ((buffer (get-buffer board-buffer-name)))
+        (kill-buffer buffer)))))
 
 (describe "board hover engine"
   (it "finds the chip bounds around a position"
@@ -509,7 +683,27 @@
     (with-temp-buffer
       (board-mode)
       (expect cursor-type :to-be nil)
-      (expect cursor-in-non-selected-windows :to-be nil))))
+      (expect cursor-in-non-selected-windows :to-be nil)))
+
+  (it "keeps the display geometry honest: no wrapping, no extra line pixels"
+    (with-temp-buffer
+      (board-mode)
+      (expect truncate-lines :to-be-truthy)
+      (expect line-spacing :to-equal 0)))
+
+  (it "refits when the window configuration changes"
+    (with-temp-buffer
+      (board-mode)
+      (expect (memq #'board--refit-if-window-changed
+                window-configuration-change-hook)
+        :to-be-truthy))))
+
+(describe "board--display-window"
+  (it "searches every frame, so a selected child frame cannot hijack layout"
+    (spy-on 'get-buffer-window :and-call-through)
+    (board--display-window)
+    (expect 'get-buffer-window
+      :to-have-been-called-with board-buffer-name t)))
 
 (describe "board-switch"
   (it "signals a user-error for an unknown board"
@@ -517,6 +711,68 @@
 
   (it "is bound to / in board-mode"
     (expect (keymap-lookup board-mode-map "/") :to-be #'board-switch)))
+
+(describe "board--label-chip"
+  (it "keeps slant edges even at zero spacing"
+    (let ((rendered (with-temp-buffer
+                      (vui-render (board--diagram
+                                    (board--lookup 'xiao_esp32s3)
+                                    0)
+                        (current-buffer))
+                      (buffer-string))))
+      (expect (string-search "◥" rendered) :to-be-truthy))))
+
+(describe "board--distribute"
+  (it "spends the whole budget when it fits under the cap"
+    (let ((gaps (board--distribute 27 30 4)))
+      (expect (apply #'+ gaps) :to-equal 27)
+      (expect (length gaps) :to-equal 30)
+      (expect (seq-max gaps) :to-equal 1)))
+
+  (it "sinks the short-changed pairs to the bottom of the board"
+    (let ((gaps (board--distribute 27 30 4)))
+      (expect (seq-take gaps 27) :to-equal (make-list 27 1))
+      (expect (seq-drop gaps 27) :to-equal '(0 0 0))))
+
+  (it "caps every gap at the preferred spacing"
+    (expect (board--distribute 100 6 4) :to-equal '(4 4 4 4 4 4)))
+
+  (it "spreads a partial remainder evenly instead of piling it up"
+    (let ((gaps (board--distribute 8 6 4)))
+      (expect (apply #'+ gaps) :to-equal 8)
+      (expect (- (seq-max gaps) (seq-min gaps)) :to-equal 1)))
+
+  (it "returns nil for a single-pin board with no gaps"
+    (expect (board--distribute 5 0 4) :to-be nil)))
+
+(describe "board-debug"
+  (it "reports the window size and every spacing candidate's verdict"
+    (with-temp-buffer
+      (setq-local board--current (board--lookup 'xiao_esp32s3))
+      (cl-letf (((symbol-function 'get-buffer-window)
+                  (lambda (&rest _) (selected-window))))
+        (let ((report (board-debug)))
+          (expect report :to-match "window [0-9]+×[0-9]+")
+          (expect report :to-match "dense [0-9]+×[0-9]+")
+          (expect report :to-match "spare")
+          (expect report :to-match "fits\\|OVER"))))))
+
+(describe "board-toggle-label-style"
+  (it "flips the style and re-shows the current board"
+    (spy-on 'board-show)
+    (let ((board-label-style 'zephyr)
+           (board--current-key 'xiao_esp32s3))
+      (board-toggle-label-style)
+      (expect board-label-style :to-be 'arduino)
+      (expect 'board-show :to-have-been-called))))
+
+(describe "board-toggle-legend"
+  (it "toggles the legend and refreshes"
+    (spy-on 'vui-refresh)
+    (let ((board-show-legend t))
+      (board-toggle-legend)
+      (expect board-show-legend :to-be nil)
+      (expect 'vui-refresh :to-have-been-called))))
 
 (provide 'board-tests)
 

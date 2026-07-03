@@ -109,10 +109,22 @@ The cell bound to ACTIVE-KEY renders its arrow highlighted."
                 row))
             (ros2-teleop--rows))))
 
+(defcustom ros2-teleop-max-linear 1.0
+  "Maximum linear speed (m/s) published at full grid weight."
+  :type 'number
+  :group 'ros2-teleop)
+
+(defcustom ros2-teleop-max-angular 1.0
+  "Maximum angular speed (rad/s) published at full grid weight."
+  :type 'number
+  :group 'ros2-teleop)
+
 (defun ros2-teleop-publish (linear angular)
-  "Publish a velocity command with LINEAR and ANGULAR weights.
-Not wired up yet."
-  (ignore linear angular))
+  "Publish a Twist for LINEAR and ANGULAR grid weights, scaled by the maxima.
+Silently does nothing unless the studio is connected."
+  (when (fboundp 'ros2--publish-twist)
+    (ros2--publish-twist (* (float linear) ros2-teleop-max-linear)
+                         (* (float angular) ros2-teleop-max-angular))))
 
 
 ;;; Teleop panel: its own buffer, window, and isolated keymap
@@ -127,8 +139,8 @@ Not wired up yet."
   :type 'integer
   :group 'ros2-teleop)
 
-(defcustom ros2-teleop-show-mode-line nil
-  "When non-nil, show the mode-line in the *ros2:teleop* window."
+(defcustom ros2-teleop-show-mode-line t
+  "When non-nil, show the mode-line in the *ros2-teleop* window."
   :type 'boolean
   :group 'ros2-teleop)
 
@@ -148,11 +160,37 @@ Not wired up yet."
     (vui-text "")
     (vui-text (ros2-teleop--status-line))))
 
+(defvar ros2-teleop--publish-timer nil
+  "Repeating timer republishing the engaged twist, or nil.")
+
+(defun ros2-teleop--publish-active ()
+  "Republish the twist for the engaged key in the teleop buffer."
+  (when-let ((buffer (get-buffer "*ros2-teleop*")))
+    (with-current-buffer buffer
+      (when-let ((cell (and ros2-teleop--active
+                            (ros2-teleop--cell-for-key ros2-teleop--active))))
+        (ros2-teleop-publish (nth 2 cell) (nth 3 cell))))))
+
+(defun ros2-teleop--ensure-publish-timer ()
+  "Start the republish timer at `ros2-teleop-publish-rate' Hz if not running."
+  (unless (and ros2-teleop--publish-timer
+               (memq ros2-teleop--publish-timer timer-list))
+    (setq ros2-teleop--publish-timer
+          (run-at-time 0 (/ 1.0 (max 1 ros2-teleop-publish-rate))
+                       #'ros2-teleop--publish-active))))
+
+(defun ros2-teleop--cancel-publish-timer ()
+  "Stop the republish timer, if running."
+  (when ros2-teleop--publish-timer
+    (cancel-timer ros2-teleop--publish-timer)
+    (setq ros2-teleop--publish-timer nil)))
+
 (defun ros2-teleop--drive (key)
   "Engage teleop KEY: publish its velocity weights and re-light the grid."
   (setq ros2-teleop--active key)
   (when-let ((cell (ros2-teleop--cell-for-key key)))
     (ros2-teleop-publish (nth 2 cell) (nth 3 cell)))
+  (ros2-teleop--ensure-publish-timer)
   (vui-refresh))
 
 (defun ros2-teleop-stop ()
@@ -161,6 +199,16 @@ Not wired up yet."
   (interactive)
   (ros2-teleop--drive "k"))
 
+(defun ros2-teleop-quit ()
+  "Close the teleop panel window.
+Deletes the (dedicated side) window, which `quit-window' will not."
+  (declare (modes ros2-teleop-mode))
+  (interactive)
+  (ros2-teleop--cancel-publish-timer)
+  (when-let ((window (get-buffer-window (current-buffer))))
+    (let ((ignore-window-parameters t))
+      (delete-window window))))
+
 (defvar ros2-teleop-mode-map
   (let ((map (make-sparse-keymap)))
     (dolist (cell ros2-teleop--cells)
@@ -168,18 +216,20 @@ Not wired up yet."
         (let ((key (nth 0 cell)))
           (lambda () (interactive) (ros2-teleop--drive key)))))
     (define-key map (kbd "SPC") #'ros2-teleop-stop)
-    (define-key map "q" #'quit-window)
+    (define-key map "q" #'ros2-teleop-quit)
     map)
-  "Keymap for `ros2-teleop-mode', local to the *ros2:teleop* window.")
+  "Keymap for `ros2-teleop-mode', local to the *ros2-teleop* window.")
 
 (declare-function evil-set-initial-state "evil-core")
 (with-eval-after-load 'evil
   (evil-set-initial-state 'ros2-teleop-mode 'emacs))
 
 (define-derived-mode ros2-teleop-mode vui-mode "ros2-teleop-mode"
-  "Major mode for the *ros2:teleop* drive panel."
+  "Major mode for the *ros2-teleop* drive panel."
+  (setq-local global-mode-string nil)
   (unless ros2-teleop-show-mode-line
-    (setq-local mode-line-format nil)))
+    (setq-local mode-line-format nil))
+  (add-hook 'kill-buffer-hook #'ros2-teleop--cancel-publish-timer nil t))
 (put 'ros2-teleop-mode 'completion-predicate #'ignore)
 
 (with-eval-after-load 'nerd-icons
@@ -187,14 +237,14 @@ Not wired up yet."
                '(ros2-teleop-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
 
 (defun ros2-teleop--buffer ()
-  "Return the *ros2:teleop* buffer, creating and mounting its panel if needed.
+  "Return the *ros2-teleop* buffer, creating and mounting its panel if needed.
 Mounts without stealing the selected window, so the caller controls layout."
-  (let ((buffer (get-buffer-create "*ros2:teleop*")))
+  (let ((buffer (get-buffer-create "*ros2-teleop*")))
     (with-current-buffer buffer
       (unless (derived-mode-p 'ros2-teleop-mode)
         (ros2-teleop-mode)))
     (save-window-excursion
-      (vui-mount (vui-component 'ros2-teleop--panel) "*ros2:teleop*"))
+      (vui-mount (vui-component 'ros2-teleop--panel) "*ros2-teleop*"))
     buffer))
 
 (provide 'ros2-teleop)

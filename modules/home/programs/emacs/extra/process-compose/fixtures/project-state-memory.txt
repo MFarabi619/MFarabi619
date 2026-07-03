@@ -1,0 +1,12 @@
+[32mProject[0m:           workstation/acme-stack
+[32mUser[0m:              user
+[32mVersion[0m:           v1.116.0
+[32mUp Time[0m:           47s
+[32mProcesses[0m:         6
+[32mRunning Processes[0m: 3
+[32mFile Names[0m:
+	 - pc.yaml
+[32mAllocated MB[0m:      12
+[32mTotal Alloc MB[0m:    24
+[32mSystem MB[0m:         34
+[32mGC Cycles[0m:         6

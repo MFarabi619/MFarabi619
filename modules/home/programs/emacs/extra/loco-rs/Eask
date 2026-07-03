@@ -2,7 +2,7 @@
 
 (package "loco-rs"
          "0.0.1"
-         "loco-rs (cargo loco) project integration for GNU Emacs")
+         "loco-rs (cargo loco) project integration")
 
 (website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/loco-rs")
 (keywords "tools" "languages")

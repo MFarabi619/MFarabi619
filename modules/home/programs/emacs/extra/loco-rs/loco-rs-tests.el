@@ -75,15 +75,23 @@ renamed to `db:migrate' and `db:down' to match.")
             (expect (plist-get (cdr task) :command) :to-equal command)
             (expect (car task) :to-match (regexp-quote (funcall icon-fn icon-name))))))))
 
-  (it "marks only the `start' server as a prodigy service"
-    (expect (plist-get (cdr (loco-rs-tests--task "start")) :prodigy) :to-be-truthy)
+  (it "declares only `start' and `doctor' as processes"
+    (expect (plist-get (cdr (loco-rs-tests--task "start")) :process-compose)
+            :to-be-truthy)
+    (expect (plist-get (cdr (loco-rs-tests--task "doctor")) :process-compose)
+            :to-be-truthy)
     (dolist (display '("db" "db:status" "db:migrate" "db:down"
-                        "db:seed" "routes" "jobs" "doctor"))
-      (expect (plist-get (cdr (loco-rs-tests--task display)) :prodigy) :to-be nil)))
+                        "db:seed" "routes" "jobs"))
+      (expect (plist-get (cdr (loco-rs-tests--task display)) :process-compose)
+              :to-be nil)))
 
-  (it "stamps the `start' server with the port loco-rs derives"
+  (it "probes the `start' server on the port loco-rs derives"
     (spy-on 'loco-rs--server-port :and-return-value 9999)
-    (expect (plist-get (cdr (loco-rs-tests--task "start")) :port) :to-equal 9999))
+    (let* ((flag (plist-get (cdr (loco-rs-tests--task "start")) :process-compose))
+           (http-get (cdr (assq 'http_get
+                                (cdr (assq 'readiness_probe
+                                           (plist-get flag :config)))))))
+      (expect (cdr (assq 'port http-get)) :to-equal 9999)))
 
   (it "annotates every task with the cargo icon"
     (expect (seq-every-p (lambda (task)
@@ -150,5 +158,32 @@ renamed to `db:migrate' and `db:down' to match.")
     (expect (assoc '(loco-rs-project-p) compile-multi-config) :not :to-be nil)))
 
 (provide 'loco-rs-tests)
+
+(describe "loco-rs process declarations"
+  (it "start emits a disabled process probing /_readiness on the resolved port"
+    (spy-on 'loco-rs--server-port :and-return-value 5150)
+    (let* ((task (loco-rs--task
+                  '("start" "nf-dev-rails" ("start") :process-compose server)))
+           (flag (plist-get (cdr task) :process-compose))
+           (http-get (cdr (assq 'http_get
+                                (cdr (assq 'readiness_probe
+                                           (plist-get flag :config)))))))
+      (expect (plist-get flag :disabled) :to-be t)
+      (expect (cdr (assq 'path http-get)) :to-equal "/_readiness")
+      (expect (cdr (assq 'port http-get)) :to-equal 5150)
+      (expect (cdr (assq 'restart
+                         (cdr (assq 'availability (plist-get flag :config)))))
+              :to-equal "on_failure")))
+  (it "doctor emits a plain disabled process"
+    (let ((flag (plist-get
+                 (cdr (loco-rs--task
+                       '("doctor" "nf-fa-heart_pulse" ("doctor")
+                         :process-compose t)))
+                 :process-compose)))
+      (expect flag :to-equal '(:disabled t))))
+  (it "unmarked tasks emit no declaration"
+    (expect (plist-get (cdr (loco-rs--task '("db" "nf-dev-database" ("db"))))
+                       :process-compose)
+            :to-be nil)))
 
 ;;; loco-rs-tests.el ends here

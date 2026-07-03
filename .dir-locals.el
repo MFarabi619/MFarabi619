@@ -20,16 +20,8 @@
         . ((t
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ("󱄅 flake  :󰔡 activate"                  :command "nix run .#activate"                                                                 :annotation "       nix ")
+            ("󱄅 nix  : om health"                   :command "om health"                            :process-compose (:disabled t)                :annotation "       nix ")
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
-            ("󱄅 devenv  :󰋽 info"                     :command "devenv info"                                  :prodigy t                            :annotation "       nix 󱄅")
-            ("󱄅 devenv  :󰇺 tasks"                    :command "devenv tasks list"                            :prodigy t                            :annotation "       nix 󱄅")
-            ("󱄅 devenv  :󰚦 down"                     :command "devenv processes down"                        :prodigy t                            :annotation "       nix 󱄅")
-            ("󱄅 devenv  : sqld"                     :command "devenv up sqld"                               :prodigy t :port 8080                 :annotation "       nix 󱄅")
-            ("󱄅 devenv  : caddy"                    :command "devenv up caddy"                              :prodigy t :port   80                 :annotation "       nix 󱄅")
-            ("󱄅 devenv  :󰇮 mailpit"                  :command "devenv up mailpit"                            :prodigy t :port 8025                 :annotation "       nix 󱄅")
-            ("󱄅 devenv  : postgres"                 :command "devenv up postgres"                           :prodigy t :port 5432                 :annotation "       nix 󱄅")
-            ("󱄅 devenv  : tailscale"                :command "devenv up tailscale"                          :prodigy t :port 8080                 :annotation "       nix 󱄅")
-            ("󱄅 devenv  : prometheus"               :command "devenv up prometheus"                         :prodigy t :port 9090                 :annotation "       nix 󱄅")
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
@@ -48,21 +40,21 @@
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
-            ("󰕮 microtop 󰕮 : run"                    :command "cargo r -rp microtop"                          :prodigy t                           :annotation "     cargo ")
-            ("󰕮 microtop 󰕮 :󰳽 serve"                  :command "trunk serve --config apps/microtop/Trunk.toml" :prodigy t :port 8080                :annotation "     cargo ")
+            ("󰕮 microtop 󰕮 : run"                    :command "cargo r -rp microtop"                          :process-compose (:disabled t)                           :annotation "     cargo ")
+            ("󰕮 microtop 󰕮 :󰳽 serve"                  :command "trunk serve --config apps/microtop/Trunk.toml" :process-compose (:disabled t) :annotation "     cargo ")
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             (" buttercup  :󰳽 test"                  :command "for pkg in ~/MFarabi619/modules/home/programs/emacs/extra/*/Eask; do (cd \"${pkg%/Eask}\" && eask test buttercup); done"                :annotation "     emacs  ")
             ;; ======================================|========|================================================|=========|=================================================== ;;
             ;; ======================================|========|================================================|=========|=================================================== ;;
-            (" tui  : run"                         :command "cargo r -rp tui"                               :prodigy t                           :annotation "     cargo ")
+            (" tui  : run"                         :command "cargo r -rp tui"                               :process-compose (:disabled t)                           :annotation "     cargo ")
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
-            (" firmware  :󰍹 example:simulator"      :command "cargo r -rp firmware --example simulator"      :prodigy t                           :annotation "     cargo ")
-            (" firmware  :󰇉 example:simulator(min)" :command "cargo r -rp firmware --example simulator-minimal"       :prodigy t                  :annotation "     cargo ")
-            (" firmware  :󰳽 serve"                  :command "trunk serve"                                   :prodigy t :port 8080                :annotation "     cargo ")
+            (" firmware  :󰍹 example:simulator(mod)" :command "cargo r -rp firmware --example simulator-modifiers"     :process-compose (:disabled t) :annotation "     cargo ")
+            (" firmware  :󰇉 example:simulator(min)" :command "cargo r -rp firmware --example simulator-minimal"       :annotation "     cargo ")
+            (" firmware  :󰳽 serve"                  :command "trunk serve"                                   :process-compose (:disabled t) :annotation "     cargo ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             (" ESP32S3  : build"                   :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
@@ -70,7 +62,7 @@
             (" ESP32S3  :󰔰 flash"                   :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
             (" ESP32S3  : upload"                  :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
             (" ESP32S3  : debug"                   :command "espflash partition-table firmware/machine/esp32s3.partitions.csv; cargo +esp rr"    :annotation "cargo +esp ")
-            (" ESP32S3  :󰭎 monitor"                 :command "probe-rs run"                                  :prodigy nil                         :annotation "cargo +esp ")
+            (" ESP32S3  :󰭎 monitor"                 :command "probe-rs run"                                                                       :annotation "cargo +esp ")
             (" ESP32S3  :󱈫 test"                    :command "cargo +esp tt                     "                                                 :annotation "cargo +esp ")
             (" ESP32S3  :󱠡 test:hello"              :command "cargo +esp tt --test hello        "                                                 :annotation "cargo +esp ")
             (" ESP32S3  :󰋊 test:spi"                :command "cargo +esp tt --test spi          "                                                 :annotation "cargo +esp ")
@@ -141,4 +133,11 @@
                          :program (lambda () (expand-file-name "build/zephyr/zephyr.elf" (project-root (project-current))))))))
 
        (eval . (when (and buffer-file-name (string-match-p "/extra/[^/]+/.*-tests?\\.el\\'" buffer-file-name)) (buttercup-minor-mode 1)))
+
+       (eval . (when (boundp 'lsp-file-watch-ignored-directories)
+                 (setq-local lsp-file-watch-ignored-directories
+                             (append lsp-file-watch-ignored-directories
+                                     '("[/\\\\]zephyrproject\\'"
+                                       "[/\\\\]nuttxspace\\'"
+                                       "[/\\\\]\\.pixi\\'")))))
        )))

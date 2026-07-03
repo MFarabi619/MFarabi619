@@ -1,0 +1,22 @@
+[
+	{
+		"name": "web",
+		"namespace": "default",
+		"status": "Running",
+		"system_time": "42s",
+		"age": 42725395000,
+		"is_ready": "Ready",
+		"has_ready_probe": false,
+		"restarts": 0,
+		"exit_code": 0,
+		"pid": 50702,
+		"is_elevated": false,
+		"password_provided": false,
+		"mem": 7471104,
+		"cpu": 0.027121027241378638,
+		"is_running": true,
+		"last_activity_time": "2026-07-02T13:44:17.87361-04:00",
+		"process_start_time": "2026-07-02T13:43:35.681497-04:00",
+		"process_ready_time": "2026-07-02T13:43:35.687784-04:00"
+	}
+]

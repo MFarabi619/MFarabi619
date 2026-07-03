@@ -1,4 +1,4 @@
-;;; pio-mode.el --- PlatformIO project integration for GNU Emacs  -*- lexical-binding: t -*-
+;;; pio-mode.el --- PlatformIO project integration  -*- lexical-binding: t -*-
 
 ;; Copyright © 2025-2026 Mumtahin Farabi <mfarabi619@gmail.com>
 

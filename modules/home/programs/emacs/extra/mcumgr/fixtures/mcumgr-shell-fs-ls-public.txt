@@ -1,0 +1,13 @@
+
+   15205 android-chrome-192x192.png
+   52368 android-chrome-512x512.png
+    7905 apple-touch-icon.png
+    4338 favicon-96x96.png
+   15086 favicon.ico
+   57255 favicon.svg
+   10797 mfarabi-git.svg
+     465 site.webmanifest
+   26919 symbol.svg
+    8477 web-app-manifest-192x192.png
+   29398 web-app-manifest-512x512.png
+

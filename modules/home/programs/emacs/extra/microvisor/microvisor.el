@@ -6,7 +6,7 @@
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/microvisor
 ;; Keywords: lisp, tools, convenience
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "29.1") (compile-multi "0.7") (prodigy "0.7") (nerd-icons "0.1") (projectile "2.8"))
+;; Package-Requires: ((emacs "29.1") (compile-multi "0.7") (nerd-icons "0.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -18,13 +18,11 @@
 (require 'cl-lib)
 (require 'subr-x)
 (require 'compile-multi)
-(require 'prodigy)
 (require 'nerd-icons)
-(require 'projectile)
 
 (let* ((this-dir   (file-name-directory (or load-file-name buffer-file-name)))
        (parent-dir (file-name-directory (directory-file-name this-dir))))
-  (dolist (subdir '("pixi" "loco-rs" "dioxus" "west" "zephyr" "pio-mode" "mcumgr" "tailscale" "kanban" "ros2" "ci"))
+  (dolist (subdir '("pixi" "loco-rs" "dioxus" "west" "zephyr" "pio-mode" "mcumgr" "tailscale" "kanban" "ros2" "board" "process-compose"))
     (let ((sibling (expand-file-name subdir parent-dir)))
       (when (file-directory-p sibling)
         (add-to-list 'load-path sibling)))))
@@ -39,7 +37,12 @@
 (load "pio-mode"   'noerror 'nomessage)
 (load "tailscale"  'noerror 'nomessage)
 (load "ros2" 'noerror 'nomessage)
-(load "ci"         'noerror 'nomessage)
+(load "board"      'noerror 'nomessage)
+(load "process-compose" 'noerror 'nomessage)
+
+(declare-function process-compose-declare "process-compose" (declaration))
+(declare-function process-compose-reconcile "process-compose" ())
+(declare-function process-compose-state "process-compose" (name))
 
 (defgroup microvisor ()
   "Project task and service orchestration."
@@ -58,8 +61,7 @@
     ("pacman"     . nerd-icons-blue)
     ("guix"       . nerd-icons-yellow)
     ("pkg_add"    . nerd-icons-yellow)
-    ("nix"        . nerd-icons-lblue)
-    ("devenv"     . nerd-icons-lblue))
+    ("nix"        . nerd-icons-lblue))
   "Alist mapping `:annotation' prefix words to nerd-icons faces.
 The prefix is the first whitespace-separated word of an entry's
 `:annotation' string; the last word is taken as the user-provided
@@ -83,27 +85,38 @@ icon glyph and rendered in the looked-up face."
 
 (defcustom microvisor-task-command-order
   '("update" "patch" "run" "test" "build" "flash")
-  "Preferred ordering of compile-multi command verbs; unlisted verbs sort last."
+  "Preferred ordering of `compile-multi' command verbs; unlisted sort last."
   :type '(repeat string)
   :group 'microvisor)
 
-(defun microvisor--task-sort-key (candidate)
-  "Sort key for CANDIDATE: group, then `microvisor-task-command-order', then target."
+(defun microvisor--task-sort-key (candidate &optional recent recent-group)
+  "Sort key for CANDIDATE.
+Floats RECENT-GROUP first and the RECENT command atop it; otherwise orders by
+group, `microvisor-task-command-order' verb, then target."
   (if (string-match "\\`\\(.*?:\\). \\([a-z][a-z-]*\\)\\(?: \\(.*\\)\\)?\\'" candidate)
-      (let* ((group  (match-string 1 candidate))
-             (verb   (match-string 2 candidate))
-             (target (or (match-string 3 candidate) ""))
-             (rank   (or (cl-position verb microvisor-task-command-order :test #'equal)
-                         (length microvisor-task-command-order))))
-        (format "%s%d %s %s" group rank verb target))
+      (let* ((group     (match-string 1 candidate))
+             (verb      (match-string 2 candidate))
+             (target    (or (match-string 3 candidate) ""))
+             (rank      (or (cl-position verb microvisor-task-command-order :test #'equal)
+                            (length microvisor-task-command-order)))
+             (group-pri (if (and recent-group (equal group recent-group)) 0 1))
+             (item-pri  (if (and recent (equal (substring-no-properties candidate) recent))
+                          0 1)))
+        (format "%d%s %d%d %s %s" group-pri group item-pri rank verb target))
     candidate))
 
 (defun microvisor-sort-tasks (candidates)
-  "Order compile-multi CANDIDATES by group, command verb, then target."
-  (sort (copy-sequence candidates)
-        (lambda (a b)
-          (string-lessp (microvisor--task-sort-key a)
-                        (microvisor--task-sort-key b)))))
+  "Order CANDIDATES by group + command verb, floating the most recent run first.
+The most recent `compile-multi-history' entry's group is placed first, with
+that command atop it."
+  (let* ((recent       (when compile-multi-history
+                         (substring-no-properties (car compile-multi-history))))
+         (recent-group (when (and recent (string-match "\\`\\(.*?:\\)" recent))
+                         (match-string 1 recent))))
+    (sort (copy-sequence candidates)
+          (lambda (a b)
+            (string-lessp (microvisor--task-sort-key a recent recent-group)
+                          (microvisor--task-sort-key b recent recent-group))))))
 
 (setf (alist-get 'display-sort-function
                  (alist-get 'compile-multi completion-category-overrides))
@@ -150,25 +163,6 @@ glyph renders icon-only (caller owns its face).  Else call ORIGINAL-FUNCTION."
                 rendered))
     (funcall original-function task)))
 
-(defun microvisor--prodigy-running-face-function (original-function tasks)
-  "Around-advice for ORIGINAL-FUNCTION applied to TASKS.
-Renders the title of any `:prodigy' task whose service is already started in
-`prodigy-green-face'."
-  (mapcar
-   (lambda (task)
-     (let* ((title       (car task))
-            (plist       (cdr task))
-            (plain-title (substring-no-properties title))
-            (service     (and (plist-get plist :prodigy)
-                              (prodigy-find-service plain-title))))
-       (if (and service (prodigy-service-started-p service))
-           (let ((title* (copy-sequence title)))
-             (add-face-text-property 0 (length title*)
-                                     'prodigy-green-face t title*)
-             (cons title* plist))
-         task)))
-   (funcall original-function tasks)))
-
 (defun microvisor--split-title (plain-title)
   "Split PLAIN-TITLE on the first colon into (GROUP . DISPLAY).
 With no colon, both halves are PLAIN-TITLE."
@@ -178,61 +172,92 @@ With no colon, both halves are PLAIN-TITLE."
         (cons (string-trim group) (string-trim display)))
     (cons plain-title plain-title)))
 
-(defun microvisor--define-prodigy-service (task)
-  "Define a prodigy service from compile-multi TASK.
-Splits the title into group/display, runs the command via the shell from the
-project root, and forwards a `:port' when the task declares one."
-  (let* ((title        (car task))
-         (plist        (cdr task))
-         (port         (plist-get plist :port))
-         (plain-title  (substring-no-properties title))
-         (command      (or (get-text-property 0 'compile-multi--task title)
-                           (plist-get plist :command)))
-         (split        (microvisor--split-title plain-title))
-         (group-label  (car split))
-         (display-name (cdr split)))
-    (apply #'prodigy-define-service
-           (append
-            (list :stop-signal                 'kill
-                  :name                        plain-title
-                  :display-name                display-name
-                  :group-label                 group-label
-                  :kill-process-buffer-on-stop 'unless-visible
-                  :command                     shell-file-name
-                  :cwd                         (projectile-project-root)
-                  :args                        (list shell-command-switch
-                                                     command))
-            (when port (list :port port))))))
+(defun microvisor--process-compose-slug (display-name)
+  "Return DISPLAY-NAME as a handle segment: lowercase, punctuation to hyphens."
+  (string-trim (replace-regexp-in-string "[^a-z0-9_]+" "-"
+                                         (downcase display-name))
+               "-" "-"))
 
-(defun microvisor-register-prodigy-services (&optional config)
-  "Define a prodigy service for every `:prodigy' task in CONFIG.
-CONFIG defaults to `compile-multi-dir-local-config'.
-Tasks are expanded through compile-multi's fill / properties pipeline
-so titles carry the same text properties prodigy expects."
-  (let ((compile-multi-dir-local-config
-         (or config compile-multi-dir-local-config)))
-    (dolist (task (seq-filter
-                   (lambda (task) (plist-get (cdr task) :prodigy))
-                   (thread-first (compile-multi--config-tasks)
-                                 (compile-multi--fill-tasks)
-                                 (compile-multi--add-properties))))
-      (microvisor--define-prodigy-service task))))
+(defun microvisor--plain-label (label)
+  "Return LABEL with icon glyphs and padding stripped."
+  (string-trim (replace-regexp-in-string "[^[:ascii:]]+" "" label)))
+
+(defun microvisor--task-process-state (plain-title)
+  "Return the process-compose state for the task titled PLAIN-TITLE, or nil."
+  (when (fboundp 'process-compose-state)
+    (let* ((split (microvisor--split-title plain-title))
+           (namespace (microvisor--plain-label (car split)))
+           (name (concat namespace "-"
+                         (microvisor--process-compose-slug
+                          (microvisor--plain-label (cdr split))))))
+      (process-compose-state name))))
+
+(defun microvisor--running-face-function (original-function tasks)
+  "Around-advice for ORIGINAL-FUNCTION applied to TASKS.
+Renders the title of any `:process-compose' task whose process is running
+in the `success' face."
+  (mapcar
+   (lambda (task)
+     (let* ((title       (car task))
+            (plist       (cdr task))
+            (plain-title (substring-no-properties title))
+            (state       (and (plist-get plist :process-compose)
+                              (microvisor--task-process-state plain-title))))
+       (if (and state (gethash "is_running" state))
+           (let ((title* (copy-sequence title)))
+             (add-face-text-property 0 (length title*) 'success t title*)
+             (cons title* plist))
+         task)))
+   (funcall original-function tasks)))
+
+(defun microvisor--declare-process-compose-service (task)
+  "Declare `compile-multi' TASK as a process-compose process."
+  (let* ((title (car task))
+         (plist (cdr task))
+         (flag (plist-get plist :process-compose))
+         (plain-title (substring-no-properties title))
+         (command (or (get-text-property 0 'compile-multi--task title)
+                      (plist-get plist :command)))
+         (split (microvisor--split-title plain-title))
+         (namespace (microvisor--plain-label (car split)))
+         (display-name (microvisor--plain-label (cdr split))))
+    (process-compose-declare
+     (append (list :name (concat namespace "-"
+                                 (microvisor--process-compose-slug display-name))
+                   :namespace namespace
+                   :display-name display-name
+                   :command command)
+             (and (listp flag) flag)))))
+
+(defun microvisor-register-process-compose-services (&optional config)
+  "Declare every `:process-compose' task in CONFIG, then reconcile.
+CONFIG defaults to `compile-multi-dir-local-config'."
+  (when (fboundp 'process-compose-declare)
+    (let ((compile-multi-dir-local-config
+           (or config compile-multi-dir-local-config)))
+      (dolist (task (seq-filter
+                     (lambda (task) (plist-get (cdr task) :process-compose))
+                     (thread-first (compile-multi--config-tasks)
+                                   (compile-multi--fill-tasks)
+                                   (compile-multi--add-properties))))
+        (microvisor--declare-process-compose-service task))
+      (process-compose-reconcile))))
 
 (defun microvisor--maybe-register-services ()
-  "Register prodigy services when a dir-local compile-multi config is present.
+  "Register declared services when a dir-local compile-multi config is present.
 Hook for `hack-local-variables-hook'."
   (when (bound-and-true-p compile-multi-dir-local-config)
-    (microvisor-register-prodigy-services)))
+    (microvisor-register-process-compose-services)))
 
 (unless (advice-member-p #'microvisor--annotation-function
                          'compile-multi--annotation-function)
   (advice-add 'compile-multi--annotation-function
               :around #'microvisor--annotation-function))
 
-(unless (advice-member-p #'microvisor--prodigy-running-face-function
+(unless (advice-member-p #'microvisor--running-face-function
                          'compile-multi--add-properties)
   (advice-add 'compile-multi--add-properties
-              :around #'microvisor--prodigy-running-face-function))
+              :around #'microvisor--running-face-function))
 
 (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
 (add-hook 'hack-local-variables-hook #'microvisor--maybe-register-services)

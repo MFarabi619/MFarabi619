@@ -5,7 +5,7 @@
     "port_info": {
       "vid": 12346,
       "pid": 4097,
-      "serial_number": "CC:BA:97:16:2B:68",
+      "serial_number": "AA:BB:CC:DD:EE:FF",
       "manufacturer": "Espressif",
       "product": "USB JTAG/serial debug unit",
       "interface": 1
@@ -17,7 +17,7 @@
     "port_info": {
       "vid": 12346,
       "pid": 4097,
-      "serial_number": "CC:BA:97:16:2B:68",
+      "serial_number": "AA:BB:CC:DD:EE:FF",
       "manufacturer": "Espressif",
       "product": "USB JTAG/serial debug unit",
       "interface": 1
