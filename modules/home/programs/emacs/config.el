@@ -590,10 +590,6 @@ If lazygit is active there, quit it and leave the shell running."
 ;;     ;; :new-connection (lsp-stdio-connection '("likec4-language-server" "--stdio"))
 ;;     :new-connection (lsp-stdio-connection '("npx" "@likec4/language-server" "--stdio")))))
 
-;; https://git.sr.ht/~morgansmith/sway-ts-mode
-;; ;; (load! "./extra/sway-ts-mode")
-;; (setopt treesit-extra-load-path "./extra")
-
 ;; karthinks.com/software/emacs-window-management-almanac/
 ;; notes.justin.vc/config
 
