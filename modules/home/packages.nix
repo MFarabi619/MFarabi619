@@ -242,6 +242,7 @@
         # quickemu # broken as of Sun May 10 18:29:41 EDT 2026. error: Cannot build '/nix/store/3swsq60jxg8qdrpv7kjm19xah38r64d4-samba-4.23.5.drv'.
         minikube
         binsider
+        attic-client
         vscode-extensions.llvm-vs-code-extensions.lldb-dap
       ]
       ++ lib.optionals stdenv.isLinux (
