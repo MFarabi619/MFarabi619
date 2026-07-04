@@ -46,7 +46,7 @@
   (emoji +unicode)  ; 🙂
   hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
   indent-guides     ; highlighted indent columns
-  ;;ligatures       ; ligatures and symbols to make your code pretty again
+  ;; ligatures       ; ligatures and symbols to make your code pretty again
   minimap           ; show a map of the code on the side
   modeline          ; snazzy, Atom-inspired modeline, plus API
   nav-flash         ; blink cursor line after big motions
@@ -91,17 +91,17 @@
   vc                ; version-control and Emacs, sitting in a tree
 
   :term
-  ;; eshell            ; the elisp shell that works everywhere
+  ;; eshell         ; the elisp shell that works everywhere
   ;; shell          ; simple shell REPL for Emacs
-  ;;term            ; basic terminal emulator for Emacs
+  ;; term           ; basic terminal emulator for Emacs
   vterm             ; the best terminal emulation in Emacs
 
   :checkers
   (syntax           ; tasing you for every semicolon you forget
     +icons
     +flymake)
-  (spell
-    +flyspell)       ; tasing you for misspelling mispelling
+  (spell            ; tasing you for misspelling mispelling
+    +flyspell)
   grammar           ; tasing grammar mistake every you make
 
   :tools
@@ -123,7 +123,6 @@
   make              ; run make tasks from Emacs
   (pass +auth)      ; password manager for nerds
   pdf               ; pdf enhancements
-  ;; prodigy           ; FIXME managing external services & code builders
   ;; (terraform +lsp)  ; infrastructure as code
   ;; tmux           ; an API for interacting with tmux
   tree-sitter       ; syntax and parsing, sitting in a tree...
@@ -136,9 +135,9 @@
   :lang
   ;;agda            ; types of types of types of types...
   ;;beancount       ; mind the GAAP
-  (cc
+  (cc               ; C > C++ == 1
     +lsp
-    +tree-sitter)    ; C > C++ == 1
+    +tree-sitter)
   ;;clojure         ; java with a lisp
   ;;common-lisp     ; if you've seen one lisp, you've seen them all
   ;;coq             ; proofs-as-programs
@@ -147,23 +146,26 @@
   data              ; config/data formats
   ;;(dart +flutter) ; paint ui and not much else
   ;;dhall
-  ;; (elixir +lsp
-  ;;         +tree-sitter)          ; erlang done right
+  ;; (elixir           ; erlang done right
+  ;;   +lsp
+  ;;   +tree-sitter)
   ;;elm             ; care for a cup of TEA?
   emacs-lisp        ; drown in parentheses
-  ;; (erlang +lsp
-  ;;         +tree-sitter)          ; an elegant language for a more civilized age
-  (ess +stan
-    +tree-sitter); emacs speaks statistics
+  ;; (erlang           ; an elegant language for a more civilized age
+  ;;   +lsp
+  ;;   +tree-sitter)
+  (ess              ; emacs speaks statistics
+    +stan
+    +tree-sitter)
   ;;factor
   ;;faust           ; dsp, but you get to keep your soul
   ;;fortran         ; in FORTRAN, GOD is REAL (unless declared INTEGER)
   ;;fsharp          ; ML stands for Microsoft's Language
   ;;fstar           ; (dependent) types and (monadic) effects and Z3
   ;;gdscript        ; the language you waited for
-  (go
+  (go               ; the hipster dialect
     +lsp
-    +tree-sitter)    ; the hipster dialect
+    +tree-sitter)
   (graphql          ; Give queries a REST
     +lsp)
   ;;(haskell +lsp)  ; a language that's lazier than I am
@@ -188,9 +190,9 @@
   (lua              ; one-based indices? one-based indices
     +lsp
     +tree-sitter)
-  (markdown
+  (markdown         ; writing docs for people to ignore
     +grip
-    +tree-sitter)    ; writing docs for people to ignore
+    +tree-sitter)
   ;;nim             ; python + lisp at the speed of c
   (nix              ; I hereby declare "nix geht mehr!"
     +lsp
@@ -244,11 +246,10 @@
     +tree-sitter)
   (yaml
     +lsp
-    +tree-sitter)     ; JSON, but readable
+    +tree-sitter)    ; JSON, but readable
   (zig               ; C, but simpler
     +lsp
-    ;; +tree-sitter
-    )
+    +tree-sitter)
 
   :email
   (mu4e
