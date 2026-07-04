@@ -21,6 +21,7 @@
       pane_frames = false;
       osc8_hyperlinks = true;
       attach_to_session = true;
+      session_name = "zellij-session";
       show_startup_tips = false;
       show_release_notes = false;
       ui.pane_frames.hide_session_name = true;
