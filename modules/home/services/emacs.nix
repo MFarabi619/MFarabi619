@@ -4,16 +4,14 @@
 }:
 {
   services.emacs = rec {
+    defaultEditor = false;
     enable = config.programs.emacs.enable;
     # socketActivation.enable = true;
-    defaultEditor = false;
     # extraOptions = [ "TERM=xterm-kitty" ];
 
     client = {
       inherit enable;
-      # arguments = [
-      #   "--tty"
-      # ];
+      # arguments = [ "-nw" ];
     };
   };
 }
