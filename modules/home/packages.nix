@@ -145,35 +145,34 @@
         process-compose
       ]
       ++ [
-        (bats.withLibraries (batsPackages: [
-          batsPackages.bats-assert
-          batsPackages.bats-file
-          batsPackages.bats-support
-        ]))
         ccls
         godot
         delve
+        shfmt
         lemminx # xml lsp
         dts-lsp
         asm-lsp
         stylelint
+        shellcheck # shell script formatting
         crates-lsp
         openscad-lsp
         bash-language-server
         cmake-language-server
         postgres-language-server
         vscode-json-languageserver
+        (bats.withLibraries (batsPackages: [
+          batsPackages.bats-assert
+          batsPackages.bats-file
+          batsPackages.bats-support
+        ]))
         # ============= 🤖 ==================
         tree
         # vi-mongo # mongodb tui
         fritzing
         # =============
         # kicad
-        # logseq
         openscad
         # =============
-        shfmt
-        shellcheck # shell script formatting
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui           # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         pik # local port tui
@@ -224,7 +223,7 @@
         # ============== 🤪 =================
         genact # nonsense activity generator
         smassh # TUI monkeytype
-        cowsay # ascii cow
+        cowsay
         lolcat # rainbow text output
         figlet # fancy ascii text output
         cmatrix # matrix animation
