@@ -118,6 +118,7 @@
         grafanactl
         mcp-grafana # https://github.com/grafana/mcp-grafana
         supabase-cli
+        smartmontools
         process-compose
       ]
       ++ [
@@ -252,7 +253,6 @@
           # super-slicer # 3D printing
           woeusb-ng # flash bootable windows iso
           virt-viewer
-          smartmontools
         ]
         ++ [
           # ============= 🧑‍💻🐞✨‍ ================
