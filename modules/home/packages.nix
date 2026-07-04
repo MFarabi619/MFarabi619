@@ -159,14 +159,12 @@
         poppler-utils # dired pdf previews
         epub-thumbnailer # dired epub previews
         ffmpegthumbnailer
-
         # =============
         shfmt
         gnuplot
         shellcheck # shell script formatting
         octaveFull # gnu octave
         mermaid-cli # mermaid diagram support
-
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui           # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         pik # local port tui
@@ -182,10 +180,9 @@
         wiki-tui
         keymapviz # visualize keyboard layout in ascii
         bandwhich
+        # gama-tui # github actions runners
         # leetcode-tui
         # keymap-drawer # visualize keyboard layout
-
-        # gama-tui # github actions runners
         # codeberg-cli
       ]
       ++ lib.optionals (!config.targets.genericLinux.enable) [
