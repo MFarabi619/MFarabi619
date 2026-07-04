@@ -51,6 +51,7 @@
         kconfig-ref
         kconfig-mode
         mermaid-mode # github.com/abrochard/mermaid-mode
+        colorful-mode
         devicetree-ts-mode
         treesitWithAllExceptQuint
       ]
