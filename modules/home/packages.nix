@@ -9,11 +9,28 @@
     packages =
       with pkgs;
       [
+        vips
+        ispell
+        gnuplot
         eask-cli
         libsixel
+        mediainfo
+        octaveFull # gnu octave
+        mermaid-cli
         ghostscript
+        imagemagick
+        poppler-utils
+        epub-thumbnailer
+        ffmpegthumbnailer
       ]
       ++ [
+        duckdb
+        sqlite
+        supabase-cli
+      ]
+      ++ [
+        pixi
+        pnpm
         loco
         trunk
         libyaml
@@ -27,9 +44,9 @@
         rubyPackages_3_4.rails
       ]
       ++ [
-        flock
         llvm
         lldb
+        flock
         ninja
         cmake
         ccache
@@ -112,13 +129,18 @@
         # radicle-native-ci
       ]
       ++ [
-        sqlite # :tools lookup & :lang org +roam
         grafana
-        talosctl
-        bore-cli
         grafanactl
-        mcp-grafana # https://github.com/grafana/mcp-grafana
-        supabase-cli
+        mcp-grafana
+      ]
+      ++ [
+        talosctl
+        minikube
+        kubernetes-helm
+      ]
+      ++ [
+        socat
+        bore-cli
         smartmontools
         process-compose
       ]
@@ -129,7 +151,6 @@
           batsPackages.bats-support
         ]))
         ccls
-        socat
         godot
         delve
         lemminx # xml lsp
@@ -144,29 +165,15 @@
         vscode-json-languageserver
         # ============= 🤖 ==================
         tree
-        pixi
-        pnpm
-        duckdb
-        # vi-mongo  # mongodb tui
+        # vi-mongo # mongodb tui
         # fritzing
-        kubernetes-helm
         # =============
-        ispell
         # kicad
         # logseq
-        vips # dired image previews
         openscad
-        mediainfo
-        imagemagick # for image-dired
-        poppler-utils # dired pdf previews
-        epub-thumbnailer # dired epub previews
-        ffmpegthumbnailer
         # =============
         shfmt
-        gnuplot
         shellcheck # shell script formatting
-        octaveFull # gnu octave
-        mermaid-cli # mermaid diagram support
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui           # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         pik # local port tui
@@ -239,7 +246,6 @@
         utm # virtual machines on macos
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
         # quickemu # broken as of Sun May 10 18:29:41 EDT 2026. error: Cannot build '/nix/store/3swsq60jxg8qdrpv7kjm19xah38r64d4-samba-4.23.5.drv'.
-        minikube
         binsider
         attic-client
         vscode-extensions.llvm-vs-code-extensions.lldb-dap
