@@ -21,6 +21,7 @@
         rustywind
         dioxus-cli
         sea-orm-cli
+        virt-viewer
         tailwindcss_4
         wasm-bindgen-cli
         rubyPackages_3_4.rails
@@ -252,7 +253,6 @@
           # ventoy-full # flash multiple isos to usb
           # super-slicer # 3D printing
           woeusb-ng # flash bootable windows iso
-          virt-viewer
         ]
         ++ [
           # ============= 🧑‍💻🐞✨‍ ================
