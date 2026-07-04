@@ -21,7 +21,8 @@
         );
       in
       with epkgs;
-      [
+      [ sops ]
+      ++ [
         eask
         easky
         eask-mode
@@ -37,8 +38,6 @@
         dag-draw
         websocket
       ]
-      ++ [ hass ]
-      ++ [ sops ]
       ++ [
         ccls
         disaster
@@ -54,6 +53,7 @@
         colorful-mode
         devicetree-ts-mode
         treesitWithAllExceptQuint
+        # treesit-grammars.with-all-grammars
       ]
       ++ [
         nov
@@ -110,6 +110,7 @@
         all-the-icons
       ]
       ++ [
+        hass
         parrot
         pacmacs
         key-quiz
@@ -118,23 +119,13 @@
         fretboard
         speed-type
         chordpro-mode
-        # treesit-grammars.with-all-grammars
-        # ================
-        # ================
-        # ================
-        # jira
-        # obsidian
         # catppuccin-theme
       ]
-      ++ lib.optionals pkgs.stdenv.isDarwin [
-        consult-spotlight
-      ];
+      ++ lib.optionals pkgs.stdenv.isDarwin [ consult-spotlight ];
 
     extraBinPackages =
       with pkgs;
-      [
-        nixfmt
-      ]
+      [ nixfmt ]
       ++ [
         buf # protobuf lsp
         protobuf
@@ -145,10 +136,8 @@
         jq-lsp
         graphql-language-service-cli
       ]
-      ++ [
-        # ===== 🛠 ASSEMBLY 🛠 ======
-        asmfmt
-      ]
+      # ===== 🛠 ASSEMBLY 🛠 ====
+      ++ [ asmfmt ]
       ++ [
         # ===== 🦫 GO 🦫 ======
         gore
@@ -157,10 +146,8 @@
         gocode-gomod
         golangci-lint
       ]
-      ++ [
-        # ==== 🚂 RUBY 🚂 =====
-        ruby-lsp
-      ]
+      # ==== 🚂 RUBY 🚂 ===
+      ++ [ ruby-lsp ]
       ++ [
         graphviz
         plantuml
@@ -168,9 +155,9 @@
       ++ [
         fd
         git
-        ripgrep
         tuntox # collab
         gnutls # :app irc
+        ripgrep
         # semgrep
       ]
       ++ [
