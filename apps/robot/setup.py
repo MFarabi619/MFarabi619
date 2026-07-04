@@ -22,7 +22,8 @@ setup(
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ["package.xml"]),
         (os.path.join("share", package_name, "launch"), glob("launch/*.launch.py")),
-        (os.path.join("share", package_name, "urdf"), glob("urdf/*.urdf")),
+        (os.path.join("share", package_name, "urdf"), glob("urdf/*.xacro")),
+        (os.path.join("share", package_name, "config"), glob("config/*.yaml")),
         (os.path.join("share", package_name, "meshes"), glob("meshes/*.stl") + glob("meshes/*.glb")),
     ],
     install_requires=["setuptools"],
@@ -35,6 +36,7 @@ setup(
         "console_scripts": [
             "hat_mdd10sm = robot.hat_mdd10sm:main",
             "simulator = robot.simulator:main",
+            "camera = robot.camera:main",
         ],
     },
 )

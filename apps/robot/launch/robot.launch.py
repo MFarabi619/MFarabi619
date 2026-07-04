@@ -1,49 +1,30 @@
-import os
+from better_launch import BetterLaunch, convenience, launch_this
 
-from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
-from launch_ros.actions import Node
+from robot.camera_stream import stream_url
 
 
-def generate_launch_description():
-    urdf_path = os.path.join(get_package_share_directory("robot"), "urdf", "robot.urdf")
-    with open(urdf_path) as urdf_file:
-        robot_description = urdf_file.read()
-    return LaunchDescription(
-        [
-            Node(
-                package="robot_state_publisher",
-                executable="robot_state_publisher",
-                parameters=[{"robot_description": robot_description}],
-            ),
-            Node(package="robot", executable="hat_mdd10sm", name="hat_mdd10sm", output="screen"),
-            Node(
-                package="usb_cam",
-                executable="usb_cam_node_exe",
-                namespace="camera",
-                name="camera",
-                parameters=[
-                    {
-                        "video_device": "/dev/video0",
-                        "pixel_format": "mjpeg2rgb",
-                        "image_width": 1920,
-                        "image_height": 1200,
-                        "framerate": 90.0,
-                    }
-                ],
-                output="screen",
-            ),
-            Node(
-                package="apriltag_ros",
-                executable="apriltag_node",
-                name="apriltag",
-                remappings=[
-                    ("image_rect", "/camera/image_raw"),
-                    ("camera_info", "/camera/camera_info"),
-                ],
-                parameters=[{"family": "36h11", "size": 0.1}],
-                output="screen",
-            ),
-            Node(package="foxglove_bridge", executable="foxglove_bridge", output="screen"),
-        ]
+@launch_this(ui=True, colormode="RAINBOW")
+def robot(camera: bool = True):
+    bl = BetterLaunch()
+
+    convenience.robot_state_publisher(
+        "robot", "robot.urdf.xacro", node_name="robot_state_publisher", anonymous=False
     )
+
+    bl.node("robot", "hat_mdd10sm", "hat_mdd10sm")
+    bl.node("foxglove_bridge", "foxglove_bridge", "foxglove_bridge")
+
+    if camera:
+        params = bl.load_params("robot", "camera.yaml", qualifier="camera")
+        params["url"] = stream_url(params.pop("host"), params.pop("port"))
+        with bl.group("camera"):
+            bl.node("robot", "camera", "camera", params=params)
+
+        # Still images via image_publisher (imread on `filename` — single files, NOT streams);
+        # kept scaffolded for future static-image needs:
+        # bl.node(
+        #     "image_publisher",
+        #     "image_publisher_node",
+        #     "camera",
+        #     params={"filename": params["url"], "frame_id": params["frame_id"], "publish_rate": params["publish_rate"]},
+        # )

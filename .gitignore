@@ -23,6 +23,7 @@ config/data.sqld
 /log/
 **/twister-out*/
 **/__pycache__/
+apps/robot/robot/*_parameters.py
 
 #====================================================
 #                 CACHES/LOGS

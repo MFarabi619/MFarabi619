@@ -4,18 +4,13 @@ name = "MFarabi619"
 requires-pixi = ">=0.40"
 channels = ["https://prefix.dev/conda-forge"]
 authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
-platforms = ["linux-64", "win-64", "osx-64", "osx-arm64", "linux-aarch64"]
-
-[tasks]
-rviz.cmd = "rviz2"
-test.cmd = "pytest apps/robot/test -v"
-bridge.cmd = "ros2 run foxglove_bridge foxglove_bridge"
-teleop.cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
-simulator = { cmd = "ros2 launch robot simulator.launch.py", depends-on = [ "build" ] }
-cad = { cmd = "python main.py", env = { YACV_HOST = "127.0.0.1", YACV_PORT = "32323" }, cwd = "libs/cad" }
+platforms = ["linux-64", "osx-arm64"]
 
 [system-requirements]
 libc = { family = "glibc", version = "2.34" }
+
+[activation]
+scripts = ["install/setup.bash"]
 
 [dependencies]
 make = "*"
@@ -26,43 +21,72 @@ compilers = "*"
 pkg-config = "*"
 colcon-common-extensions = "*"
 
-[target]
-linux.dependencies.libgl-devel = "*"
-osx.dependencies.watchfiles = "*"
-osx.pypi-dependencies = { build123d = "*", yacv-server = "*", bd-warehouse = "*" }
-linux-64.dependencies.watchfiles = "*"
-linux-64.pypi-dependencies = { build123d = "*", yacv-server = "*", bd-warehouse = "*" }
-win.activation.scripts = ["install/setup.bat"]
-unix.activation.scripts = ["install/setup.bash"]
-unix.tasks.build = "colcon build --symlink-install --paths apps/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
-osx-arm64.pypi-dependencies = { rgpio = "*" }
-osx-arm64.tasks.robot = { cmd = "ros2 run robot hat_mdd10sm", depends-on = [ "build" ] }
-linux-aarch64.pypi-dependencies = { rgpio = "*" }
-linux-aarch64.tasks.robot = { cmd = "ros2 launch robot robot.launch.py", depends-on = [ "build" ] }
-linux-aarch64.tasks.orbbec-build = { cmd = "colcon build --symlink-install --base-paths src --cmake-args -DCMAKE_BUILD_TYPE=Release" }
-win-64.tasks.build = "colcon build --merge-install --paths apps/robot --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DPython_FIND_VIRTUALENV=ONLY -DPython3_FIND_VIRTUALENV=ONLY"
+[tasks]
+rviz = "rviz2"
+test = { cmd = "pytest apps/robot/test -v", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
+bridge = "ros2 run foxglove_bridge foxglove_bridge"
+teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
+simulator = { cmd = "ros2 launch robot simulator.launch.py", depends-on = ["build"] }
+record = { cmd = "bl robot record.launch.py", depends-on = ["build"] }
+
+[tasks.build]
+cmd = "colcon build --symlink-install --paths apps/robot libs/robot_hardware --cmake-args -Wno-dev -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+inputs = ["apps/robot", "libs/robot_hardware"]
+
+[target.linux-64.dependencies]
+libgl-devel = "*"
+
+[target.osx-arm64.dependencies]
+watchfiles = "*"
+
+[target.osx-arm64.pypi-dependencies]
+rgpio = "*"
+build123d = "*"
+yacv-server = "*"
+bd-warehouse = "*"
+
+[target.osx-arm64.tasks]
+robot = { cmd = "bl robot robot.launch.py", depends-on = ["build"] }
+
+[target.osx-arm64.tasks.cad]
+cmd = "python main.py"
+cwd = "libs/cad"
+env = { YACV_HOST = "127.0.0.1", YACV_PORT = "32323" }
 
 [environments]
 default = { features = ["lyrical"] }
 voice = { features = ["voice"], no-default-feature = true }
 
-[feature]
-lyrical.target.linux-aarch64.dependencies.ros-lyrical-usb-cam = "*"
-lyrical.target.linux-aarch64.dependencies.ros-lyrical-apriltag-ros = "*"
-lyrical.target.linux-aarch64.dependencies.ros-lyrical-camera-info-manager = "*"
-lyrical.target.linux-aarch64.dependencies.ros-lyrical-diagnostic-updater = "*"
-lyrical.target.linux-aarch64.dependencies.ros-lyrical-image-publisher = "*"
-lyrical.target.linux-aarch64.dependencies.ros-lyrical-image-transport-plugins = "*"
-lyrical.target.linux-aarch64.dependencies.ros-lyrical-backward-ros = "*"
-lyrical.target.linux-aarch64.dependencies.ros-lyrical-xacro = "*"
-lyrical.target.linux-aarch64.dependencies.gflags = "*"
-lyrical.target.linux-aarch64.dependencies.nlohmann_json = "*"
-lyrical.target.linux-aarch64.dependencies.glog = "*"
-lyrical.target.linux-aarch64.dependencies.elfutils = "*"
-lyrical.channels = ["https://prefix.dev/robostack-lyrical"]
-lyrical.dependencies = { ros-lyrical-desktop = "*", ros-lyrical-foxglove-bridge = "*", ros-lyrical-ros-gz = "*", ros-lyrical-generate-parameter-library = "*", ros-lyrical-generate-parameter-library-py = "*" , ros-lyrical-ros2-controllers = ">=6.7.0,<7", ros-lyrical-controller-manager = ">=6.7.1,<7" }
-voice.platforms = ["osx-arm64"]
-voice.system-requirements = { macos = "15.0" }
-voice.dependencies = { python = "3.14.*" }
-voice.pypi-dependencies = { mlx-whisper = "*", sounddevice = "*", pynput = "*", websocket-client = "*" }
-voice.tasks = { voice = { cmd = "python libs/voice/main.py", env = { ROS2_BRIDGE_URL = "ws://localhost:8765", WHISPER_MODEL = "mlx-community/whisper-large-v3-turbo" } } }
+[feature.lyrical]
+channels = ["https://prefix.dev/robostack-lyrical"]
+
+[feature.lyrical.dependencies]
+ros-lyrical-ros-gz = "*"
+ros-lyrical-desktop = "*"
+ros-lyrical-cv-bridge = "*"
+ros-lyrical-twist-mux = ">=4.5.1,<5"
+ros-lyrical-better-launch = "*"
+ros-lyrical-foxglove-bridge = "*"
+ros-lyrical-image-publisher = "*"
+ros-lyrical-ros2-controllers = ">=6.7.0,<7"
+ros-lyrical-controller-manager = ">=6.7.1,<7"
+ros-lyrical-diagnostic-updater = "*"
+ros-lyrical-generate-parameter-library = "*"
+ros-lyrical-generate-parameter-library-py = "*"
+
+[feature.voice]
+platforms = ["osx-arm64"]
+system-requirements = { macos = "15.0" }
+
+[feature.voice.dependencies]
+python = "3.14.*"
+
+[feature.voice.pypi-dependencies]
+pynput = "*"
+mlx-whisper = "*"
+sounddevice = "*"
+websocket-client = "*"
+
+[feature.voice.tasks.voice]
+cmd = "python libs/voice/main.py"
+env = { ROS2_BRIDGE_URL = "ws://localhost:8765", WHISPER_MODEL = "mlx-community/whisper-large-v3-turbo" }

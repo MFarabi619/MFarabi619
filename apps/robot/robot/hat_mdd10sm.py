@@ -1,11 +1,15 @@
 import rclpy
 import rgpio
+from diagnostic_msgs.msg import DiagnosticStatus
+from diagnostic_updater import Updater
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 
 from robot.hat_mdd10sm_parameters import hat_mdd10sm
 from robot.kinematics import WHEEL_JOINT_NAMES, wheel_angular_velocities
+
+CMD_VEL_STALE_SECONDS = 2.0
 
 
 def clamp_duty_percent(value):
@@ -34,6 +38,7 @@ class HatMDD10SM(Node):
         self.halt_motors()
 
         self.create_subscription(Twist, "cmd_vel", self.on_cmd_vel, 10)
+        self.last_cmd_vel = None
         self.linear = 0.0
         self.angular = 0.0
         self.left_wheel_angle = 0.0
@@ -41,6 +46,12 @@ class HatMDD10SM(Node):
         self.last_update = self.get_clock().now()
         self.joint_pub = self.create_publisher(JointState, "joint_states", 10)
         self.create_timer(0.02, self.publish_joint_states)
+
+        self.diagnostics = Updater(self)
+        self.diagnostics.setHardwareID(self.params.rgpiod_host)
+        self.diagnostics.add("rgpiod connection", self.diagnose_rgpiod)
+        self.diagnostics.add("cmd_vel", self.diagnose_cmd_vel)
+
         self.get_logger().info(
             f"ready on {self.params.rgpiod_host}:{self.params.rgpiod_port} chip {self.params.gpio_chip}, subscribed to /cmd_vel"
         )
@@ -73,6 +84,7 @@ class HatMDD10SM(Node):
         )
 
     def on_cmd_vel(self, msg):
+        self.last_cmd_vel = self.get_clock().now()
         if self.param_listener.is_old(self.params):
             self.param_listener.refresh_dynamic_parameters()
             self.params = self.param_listener.get_params()
@@ -120,6 +132,28 @@ class HatMDD10SM(Node):
             self.right_wheel_angle,
         ]
         self.joint_pub.publish(joint_state)
+
+    def diagnose_rgpiod(self, stat):
+        if self.sbc.connected:
+            stat.summary(
+                DiagnosticStatus.OK,
+                f"connected to {self.params.rgpiod_host}:{self.params.rgpiod_port}",
+            )
+        else:
+            stat.summary(DiagnosticStatus.ERROR, "lost connection to rgpiod")
+        return stat
+
+    def diagnose_cmd_vel(self, stat):
+        if self.last_cmd_vel is None:
+            stat.summary(DiagnosticStatus.WARN, "no command received yet")
+            return stat
+        age = (self.get_clock().now() - self.last_cmd_vel).nanoseconds / 1e9
+        stat.add("seconds_since_last", f"{age:.2f}")
+        if age > CMD_VEL_STALE_SECONDS:
+            stat.summary(DiagnosticStatus.WARN, f"stale: {age:.1f}s since last command")
+        else:
+            stat.summary(DiagnosticStatus.OK, f"{age:.1f}s since last command")
+        return stat
 
     def shutdown(self):
         self.halt_motors()

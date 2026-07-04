@@ -1,21 +1,18 @@
 import rclpy
-from geometry_msgs.msg import TransformStamped, Twist
+from diagnostic_msgs.msg import DiagnosticStatus
+from diagnostic_updater import (
+    DiagnosedPublisher,
+    FrequencyStatusParam,
+    TimeStampStatusParam,
+    Updater,
+)
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
-from sensor_msgs.msg import BatteryState, CameraInfo, Image, JointState, NavSatFix, NavSatStatus
-from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster
+from sensor_msgs.msg import BatteryState, CameraInfo, Image, NavSatFix, NavSatStatus
 
 from robot.camera_view import intrinsics, render_field
-from robot.kinematics import (
-    WHEEL_JOINT_NAMES,
-    enu_to_geodetic,
-    integrate_pose,
-    wheel_angular_velocities,
-    yaw_to_quaternion,
-)
+from robot.kinematics import enu_to_geodetic, yaw_from_quaternion
 
-MAX_LINEAR_VELOCITY = 0.6
-MAX_ANGULAR_VELOCITY = 1.5
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 400
 CAMERA_FOV_DEG = 70.0
@@ -23,8 +20,6 @@ CAMERA_HEIGHT = 0.2
 LATITUDE_ORIGIN = 45.4215
 LONGITUDE_ORIGIN = -75.6972
 
-MAP_FRAME = "map"
-ODOM_FRAME = "odom"
 BASE_FRAME = "base_link"
 CAMERA_FRAME = "camera_optical_frame"
 
@@ -35,108 +30,36 @@ class Sim(Node):
         self.x = 0.0
         self.y = 0.0
         self.theta = 0.0
-        self.linear_velocity = 0.0
-        self.angular_velocity = 0.0
+        self.speed = 0.0
         self.battery_percent = 100.0
-        self.left_wheel_angle = 0.0
-        self.right_wheel_angle = 0.0
-        self.last_update = self.get_clock().now()
 
-        self.odom_pub = self.create_publisher(Odometry, "odom", 10)
-        self.image_pub = self.create_publisher(Image, "camera/image_raw", 10)
+        self.diagnostics = Updater(self)
+        self.diagnostics.setHardwareID("simulator")
+
+        self.image_pub = DiagnosedPublisher(
+            self.create_publisher(Image, "camera/image_raw", 10),
+            self.diagnostics,
+            FrequencyStatusParam({"min": 10.0, "max": 20.0}),
+            TimeStampStatusParam(),
+        )
         self.camera_info_pub = self.create_publisher(CameraInfo, "camera/camera_info", 10)
         self.gps_pub = self.create_publisher(NavSatFix, "gps/fix", 10)
         self.battery_pub = self.create_publisher(BatteryState, "battery", 10)
-        self.joint_pub = self.create_publisher(JointState, "joint_states", 10)
+        self.diagnostics.add("battery", self.diagnose_battery)
 
-        self.tf_broadcaster = TransformBroadcaster(self)
-        self.static_tf_broadcaster = StaticTransformBroadcaster(self)
-        self.publish_static_transforms()
-
-        self.create_subscription(Twist, "cmd_vel", self.on_cmd_vel, 10)
-        self.create_timer(0.02, self.update)
+        self.create_subscription(Odometry, "/diff_drive_controller/odom", self.on_odom, 10)
         self.create_timer(1.0 / 15.0, self.publish_camera)
         self.create_timer(0.2, self.publish_gps)
         self.create_timer(1.0, self.publish_battery)
-        self.get_logger().info("sim ready, subscribed to /cmd_vel")
+        self.get_logger().info("sim sensors ready, tracking /diff_drive_controller/odom")
 
-    def on_cmd_vel(self, msg):
-        self.linear_velocity = max(-MAX_LINEAR_VELOCITY, min(MAX_LINEAR_VELOCITY, msg.linear.x))
-        self.angular_velocity = max(-MAX_ANGULAR_VELOCITY, min(MAX_ANGULAR_VELOCITY, msg.angular.z))
-
-    def update(self):
-        now = self.get_clock().now()
-        dt = (now - self.last_update).nanoseconds / 1e9
-        self.last_update = now
-        if dt <= 0.0:
-            return
-        self.x, self.y, self.theta = integrate_pose(
-            self.x, self.y, self.theta,
-            self.linear_velocity, self.angular_velocity, dt,
+    def on_odom(self, msg):
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
+        self.theta = yaw_from_quaternion(
+            msg.pose.pose.orientation.z, msg.pose.pose.orientation.w
         )
-        drain = (0.02 + 0.5 * (abs(self.linear_velocity) + abs(self.angular_velocity))) * dt
-        self.battery_percent = max(0.0, self.battery_percent - drain)
-        self.publish_odometry(now)
-        self.publish_base_transform(now)
-        left_speed, right_speed = wheel_angular_velocities(
-            self.linear_velocity, self.angular_velocity
-        )
-        self.left_wheel_angle += left_speed * dt
-        self.right_wheel_angle += right_speed * dt
-        self.publish_joint_states(now)
-
-    def publish_odometry(self, stamp):
-        qx, qy, qz, qw = yaw_to_quaternion(self.theta)
-        odom = Odometry()
-        odom.header.stamp = stamp.to_msg()
-        odom.header.frame_id = ODOM_FRAME
-        odom.child_frame_id = BASE_FRAME
-        odom.pose.pose.position.x = self.x
-        odom.pose.pose.position.y = self.y
-        odom.pose.pose.orientation.x = qx
-        odom.pose.pose.orientation.y = qy
-        odom.pose.pose.orientation.z = qz
-        odom.pose.pose.orientation.w = qw
-        odom.twist.twist.linear.x = self.linear_velocity
-        odom.twist.twist.angular.z = self.angular_velocity
-        odom.pose.covariance[0] = 0.001
-        odom.pose.covariance[7] = 0.001
-        odom.pose.covariance[35] = 0.01
-        odom.twist.covariance[0] = 0.001
-        odom.twist.covariance[35] = 0.01
-        self.odom_pub.publish(odom)
-
-    def publish_base_transform(self, stamp):
-        qx, qy, qz, qw = yaw_to_quaternion(self.theta)
-        transform = TransformStamped()
-        transform.header.stamp = stamp.to_msg()
-        transform.header.frame_id = ODOM_FRAME
-        transform.child_frame_id = BASE_FRAME
-        transform.transform.translation.x = self.x
-        transform.transform.translation.y = self.y
-        transform.transform.rotation.x = qx
-        transform.transform.rotation.y = qy
-        transform.transform.rotation.z = qz
-        transform.transform.rotation.w = qw
-        self.tf_broadcaster.sendTransform(transform)
-
-    def publish_joint_states(self, stamp):
-        joint_state = JointState()
-        joint_state.header.stamp = stamp.to_msg()
-        joint_state.name = WHEEL_JOINT_NAMES
-        joint_state.position = [
-            self.left_wheel_angle, self.right_wheel_angle,
-            self.left_wheel_angle, self.right_wheel_angle,
-        ]
-        self.joint_pub.publish(joint_state)
-
-    def publish_static_transforms(self):
-        map_to_odom = TransformStamped()
-        map_to_odom.header.stamp = self.get_clock().now().to_msg()
-        map_to_odom.header.frame_id = MAP_FRAME
-        map_to_odom.child_frame_id = ODOM_FRAME
-        map_to_odom.transform.rotation.w = 1.0
-        self.static_tf_broadcaster.sendTransform([map_to_odom])
+        self.speed = abs(msg.twist.twist.linear.x) + abs(msg.twist.twist.angular.z)
 
     def publish_camera(self):
         stamp = self.get_clock().now().to_msg()
@@ -188,6 +111,7 @@ class Sim(Node):
         self.gps_pub.publish(fix)
 
     def publish_battery(self):
+        self.battery_percent = max(0.0, self.battery_percent - (0.02 + 0.5 * self.speed))
         battery = BatteryState()
         battery.header.stamp = self.get_clock().now().to_msg()
         battery.voltage = 11.5 + 1.2 * (self.battery_percent / 100.0)
@@ -195,6 +119,16 @@ class Sim(Node):
         battery.power_supply_status = BatteryState.POWER_SUPPLY_STATUS_DISCHARGING
         battery.present = True
         self.battery_pub.publish(battery)
+
+    def diagnose_battery(self, stat):
+        stat.add("percentage", f"{self.battery_percent:.0f}%")
+        if self.battery_percent < 10.0:
+            stat.summary(DiagnosticStatus.ERROR, f"critical: {self.battery_percent:.0f}%")
+        elif self.battery_percent < 30.0:
+            stat.summary(DiagnosticStatus.WARN, f"low: {self.battery_percent:.0f}%")
+        else:
+            stat.summary(DiagnosticStatus.OK, f"{self.battery_percent:.0f}%")
+        return stat
 
 
 def main():

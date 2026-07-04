@@ -6,30 +6,14 @@ WHEEL_HALF_TRACK = 0.527
 WHEEL_JOINT_NAMES = ["wheel_fl_joint", "wheel_fr_joint", "wheel_rl_joint", "wheel_rr_joint"]
 
 
-def normalize_angle(angle):
-    return math.atan2(math.sin(angle), math.cos(angle))
-
-
-def integrate_pose(x, y, theta, linear_velocity, angular_velocity, dt):
-    if abs(angular_velocity) < 1e-6:
-        x += linear_velocity * math.cos(theta) * dt
-        y += linear_velocity * math.sin(theta) * dt
-        return x, y, normalize_angle(theta)
-    theta_next = theta + angular_velocity * dt
-    turn_radius = linear_velocity / angular_velocity
-    x += turn_radius * (math.sin(theta_next) - math.sin(theta))
-    y -= turn_radius * (math.cos(theta_next) - math.cos(theta))
-    return x, y, normalize_angle(theta_next)
-
-
 def wheel_angular_velocities(linear_velocity, angular_velocity):
     left = (linear_velocity - angular_velocity * WHEEL_HALF_TRACK) / WHEEL_RADIUS
     right = (linear_velocity + angular_velocity * WHEEL_HALF_TRACK) / WHEEL_RADIUS
     return left, right
 
 
-def yaw_to_quaternion(theta):
-    return 0.0, 0.0, math.sin(theta / 2.0), math.cos(theta / 2.0)
+def yaw_from_quaternion(qz, qw):
+    return 2.0 * math.atan2(qz, qw)
 
 
 def enu_to_geodetic(east_meters, north_meters, latitude_origin, longitude_origin):

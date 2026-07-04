@@ -11,11 +11,12 @@
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
-  <exec_depend>tf2_ros</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>foxglove_bridge</exec_depend>
-  <exec_depend>usb_cam</exec_depend>
+  <exec_depend>image_publisher</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>diagnostic_updater</exec_depend>
+  <exec_depend>better_launch</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>

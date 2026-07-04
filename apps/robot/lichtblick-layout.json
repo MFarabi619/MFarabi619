@@ -1,5 +1,16 @@
 {
   "configById": {
+    "SourceInfo!3xzxadd": {},
+    "Table!1hqw2es": {
+      "topicPath": "/cmd_vel"
+    },
+    "DiagnosticSummary!1z5vkzc": {
+      "minLevel": 0,
+      "pinnedIds": [],
+      "hardwareIdFilter": "",
+      "topicToRender": "/diagnostics",
+      "sortByLevel": true
+    },
     "Image!3lb8z57": {
       "cameraState": {
         "distance": 20,
@@ -44,15 +55,28 @@
         "imageTopic": "/camera/image_raw"
       }
     },
+    "map!2ldju1g": {
+      "center": {
+        "lat": 45.3590210006211,
+        "lon": -75.5568301677704
+      },
+      "customTileUrl": "",
+      "disabledTopics": [],
+      "followTopic": "",
+      "layer": "satellite",
+      "topicColors": {},
+      "zoomLevel": 16,
+      "maxNativeZoom": 18
+    },
     "3D!uhzpgc": {
       "cameraState": {
         "perspective": true,
-        "distance": 2.8479148268970764,
-        "phi": 58.33458533261424,
-        "thetaOffset": 90.63007308659476,
+        "distance": 2.5702431312731475,
+        "phi": 61.531750212106395,
+        "thetaOffset": -51.1357457847365,
         "targetOffset": [
-          0.28931210954974196,
-          0.09860279841153664,
+          0.27942100879541,
+          -0.046788333646208345,
           -0.05580585145827961
         ],
         "target": [
@@ -71,11 +95,12 @@
         "far": 5000
       },
       "followMode": "follow-pose",
-      "followTf": "base_link",
+      "followTf": "chassis",
       "scene": {
         "transforms": {
           "showLabel": true,
-          "lineWidth": 2
+          "lineWidth": 2,
+          "enablePreloading": true
         },
         "enableStats": true
       },
@@ -126,25 +151,22 @@
           "visible": false
         }
       },
-      "topics": {},
-      "layers": {
-        "8f199680-bd53-4884-ac67-06a9b5a0ba8d": {
+      "topics": {
+        "/camera/image_raw": {
+          "visible": false
+        },
+        "/robot_description": {
           "visible": true,
-          "frameLocked": true,
-          "label": "URDF",
-          "instanceId": "8f199680-bd53-4884-ac67-06a9b5a0ba8d",
-          "layerId": "foxglove.Urdf",
-          "sourceType": "url",
-          "url": "package://robot/urdf/robot.urdf",
-          "filePath": "",
-          "parameter": "",
-          "topic": "",
-          "framePrefix": "",
-          "displayMode": "auto",
-          "fallbackColor": "#ffffff",
-          "order": 2
+          "displayMode": "auto"
+        },
+        "/move_base_simple/goal": {
+          "visible": true
+        },
+        "/initialpose": {
+          "visible": true
         }
       },
+      "layers": {},
       "publish": {
         "type": "point",
         "poseTopic": "/move_base_simple/goal",
@@ -156,20 +178,7 @@
       },
       "imageMode": {}
     },
-    "map!2ldju1g": {
-      "center": {
-        "lat": 45.35418657274263,
-        "lon": -75.55821150541306
-      },
-      "customTileUrl": "",
-      "disabledTopics": [],
-      "followTopic": "",
-      "layer": "satellite",
-      "topicColors": {},
-      "zoomLevel": 18,
-      "maxNativeZoom": 18
-    },
-    "TopicGraph!1eov52p": {},
+    "TopicGraph!3iwuqkq": {},
     "StateTransitions!yh2q6r": {
       "paths": [
         {
@@ -184,34 +193,153 @@
       "isSynced": true,
       "showPoints": true
     },
-    "SourceInfo!3xzxadd": {},
-    "Table!1hqw2es": {
-      "topicPath": "/cmd_vel"
+    "RosOut!31279qm": {
+      "searchTerms": [],
+      "minLogLevel": 1
     },
-    "foxglove-teleop-twist-keyboard.Teleop Twist!emawaz": {
-      "publishRate": 5,
-      "maxLinearSpeed": 1,
-      "maxAngularSpeed": 1
-    },
-    "Teleop!hc6a2z": {
-      "topic": "/cmd_vel",
-      "publishRate": 1,
-      "upButton": {
-        "field": "linear-x",
-        "value": 1
+    "Control Extension.ASLZ Control Lite!2pgfbq3": {
+      "showLiteTabBar": true,
+      "pubJoyTopic": "/joy",
+      "publishJoy": true,
+      "publishTwistMode": true,
+      "pubTwistTopic": "/cmd_vel",
+      "dataSource": "keyboard",
+      "gamepadJoyTransform": "default",
+      "gamepadId": 0,
+      "twistMappingGamepad": {
+        "linearX": {
+          "sourceType": "axis",
+          "sourceIndex": 1,
+          "scale": 1,
+          "invert": true
+        },
+        "linearY": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "linearZ": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularX": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularY": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularZ": {
+          "sourceType": "axis",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        }
       },
-      "downButton": {
-        "field": "linear-x",
-        "value": -1
+      "twistMappingKeyboard": {
+        "linearX": {
+          "sourceType": "axis",
+          "sourceIndex": 1,
+          "scale": 1,
+          "invert": false
+        },
+        "linearY": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "linearZ": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularX": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularY": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularZ": {
+          "sourceType": "axis",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        }
       },
-      "leftButton": {
-        "field": "angular-z",
-        "value": 1
+      "twistMappingJoystick": {
+        "linearX": {
+          "sourceType": "axis",
+          "sourceIndex": 1,
+          "scale": 1,
+          "invert": false
+        },
+        "linearY": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "linearZ": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularX": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularY": {
+          "sourceType": "none",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        },
+        "angularZ": {
+          "sourceType": "axis",
+          "sourceIndex": 0,
+          "scale": 1,
+          "invert": false
+        }
       },
-      "rightButton": {
-        "field": "angular-z",
-        "value": -1
-      }
+      "showButtons": true,
+      "showAxes": true,
+      "axisVisualization": "bars",
+      "showGamepad": true,
+      "showGamepadRightSide": true,
+      "gamepadVisualization": "auto",
+      "gamepadDeadzoneEnabled": true,
+      "gamepadDeadzone": 0.08,
+      "showKeyboard": true,
+      "showKeyboardRightSide": true,
+      "showJoystick": true,
+      "showJoystickRightSide": true,
+      "showControlButtons": true,
+      "keyboardLayout": "wasd",
+      "joystickAxisLeft": "both",
+      "joystickAxisRight": "both",
+      "joystickSize": "md",
+      "joystickSticky": false,
+      "joystickSecond": false,
+      "lichtblickPanelTitle": "Teleop"
     }
   },
   "globalVariables": {},
@@ -222,40 +350,44 @@
   "layout": {
     "direction": "row",
     "first": {
-      "first": "Image!3lb8z57",
-      "second": "3D!uhzpgc",
+      "first": "SourceInfo!3xzxadd",
+      "second": {
+        "first": "Table!1hqw2es",
+        "second": "DiagnosticSummary!1z5vkzc",
+        "direction": "column"
+      },
       "direction": "column",
-      "splitPercentage": 49.90384615384615
+      "splitPercentage": 57.87831513260531
     },
     "second": {
       "direction": "row",
       "first": {
-        "first": "map!2ldju1g",
-        "second": "TopicGraph!1eov52p",
-        "direction": "column"
+        "first": {
+          "first": "Image!3lb8z57",
+          "second": "map!2ldju1g",
+          "direction": "row"
+        },
+        "second": "3D!uhzpgc",
+        "direction": "column",
+        "splitPercentage": 49.732047159699896
       },
       "second": {
-        "first": {
-          "first": "StateTransitions!yh2q6r",
-          "second": "SourceInfo!3xzxadd",
-          "direction": "column",
-          "splitPercentage": 38.97707231040565
-        },
+        "first": "TopicGraph!3iwuqkq",
         "second": {
-          "first": "Table!1hqw2es",
-          "second": {
-            "first": "foxglove-teleop-twist-keyboard.Teleop Twist!emawaz",
-            "second": "Teleop!hc6a2z",
-            "direction": "row"
+          "first": {
+            "first": "StateTransitions!yh2q6r",
+            "second": "RosOut!31279qm",
+            "direction": "column"
           },
+          "second": "Control Extension.ASLZ Control Lite!2pgfbq3",
           "direction": "column",
-          "splitPercentage": 27.484143763213524
+          "splitPercentage": 56.567164179104466
         },
         "direction": "column",
-        "splitPercentage": 54.51923076923077
+        "splitPercentage": 28.188638799571276
       },
-      "splitPercentage": 53.54862756500274
+      "splitPercentage": 76.34152854212121
     },
-    "splitPercentage": 41.7890520694259
+    "splitPercentage": 23.230974632843793
   }
 }

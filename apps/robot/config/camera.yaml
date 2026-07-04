@@ -1,0 +1,6 @@
+/**:
+  ros__parameters:
+    host: rpi5-16
+    port: 8888
+    frame_id: camera_optical_frame
+    publish_rate: 30.0
