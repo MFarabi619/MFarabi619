@@ -166,7 +166,7 @@
         # ============= 🤖 ==================
         tree
         # vi-mongo # mongodb tui
-        # fritzing
+        fritzing
         # =============
         # kicad
         # logseq
