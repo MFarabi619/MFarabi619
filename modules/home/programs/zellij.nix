@@ -1,17 +1,15 @@
 {
   programs.zellij = {
     enable = true;
-    # themes = { };
     exitShellOnExit = false;
-    enableBashIntegration = false;
     enableZshIntegration = false;
+    enableBashIntegration = false;
     # NOTE: trace: warning: mfarabi profile: You have enabled `programs.zellij.attachExistingSession`, but none of the shell integrations are enabled. This option will have no effect.
     # attachExistingSession = true;
 
     settings = {
       mouse_mode = true;
       mirror_session = true;
-      # theme = "gruvbox-dark";
       default_mode = "normal";
       show_startup_tips = false;
       show_release_notes = false;
