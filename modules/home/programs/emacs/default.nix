@@ -21,7 +21,8 @@
         );
       in
       with epkgs;
-      [ sops ]
+      lib.optionals pkgs.stdenv.isDarwin [ consult-spotlight ]
+      ++ [ sops ]
       ++ [
         eask
         easky
@@ -35,6 +36,9 @@
         vui
         # uniline
         verdict
+        buttercup
+      ]
+      ++ [
         dag-draw
         websocket
       ]
@@ -56,20 +60,24 @@
         # treesit-grammars.with-all-grammars
       ]
       ++ [
+        nix-update
+        nixos-options
+      ]
+      ++ [
         nov
         mu4e
+        shrface
         mu4e-views
         mu4e-column-faces
         mu4e-marker-icons
       ]
       ++ [
         osm
-        empv
         verb
-        # gptel
+        empv
         circe
+        # gptel
         ghostel
-        buttercup
         magit-todos
         magit-delta
         claude-code
@@ -100,76 +108,21 @@
         org-table-highlight
       ]
       ++ [
+        hass
+        parrot
         wttrin
-        shrface
+        pacmacs
         keycast
         leetcode
         exercism
-        nix-update
-        nixos-options
-        all-the-icons
-      ]
-      ++ [
-        hass
-        parrot
-        pacmacs
         key-quiz
         nyan-mode
         fireplace
         fretboard
         speed-type
         chordpro-mode
+        all-the-icons
         # catppuccin-theme
-      ]
-      ++ lib.optionals pkgs.stdenv.isDarwin [ consult-spotlight ];
-
-    extraBinPackages =
-      with pkgs;
-      [ nixfmt ]
-      ++ [
-        buf # protobuf lsp
-        protobuf
-        protoc-gen-go
-        protoc-gen-go-grpc
-      ]
-      ++ [
-        jq-lsp
-        graphql-language-service-cli
-      ]
-      # ===== 🛠 ASSEMBLY 🛠 ====
-      ++ [ asmfmt ]
-      ++ [
-        # ===== 🦫 GO 🦫 ======
-        gore
-        gotests
-        gomodifytags
-        gocode-gomod
-        golangci-lint
-      ]
-      # ==== 🚂 RUBY 🚂 ===
-      ++ [ ruby-lsp ]
-      ++ [
-        graphviz
-        plantuml
-      ]
-      ++ [
-        fd
-        git
-        tuntox # collab
-        gnutls # :app irc
-        ripgrep
-        # semgrep
-      ]
-      ++ [
-        taplo
-        # eslint
-        # emmet-ls
-        # proselint
-        # markdownlint-cli
-        # mdx-language-server
-        # yaml-language-server
-        # dockerfile-language-server
-        # vscode-langservers-extracted
       ];
   };
 }

@@ -10,9 +10,11 @@
       with pkgs;
       [
         vips
+        godot
         ispell
         gnuplot
-        eask-cli
+        graphviz
+        plantuml
         libsixel
         mediainfo
         octaveFull # gnu octave
@@ -22,6 +24,11 @@
         poppler-utils
         epub-thumbnailer
         ffmpegthumbnailer
+      ]
+      ++ [
+        eask-cli
+        tuntox # collab
+        gnutls # :app irc
       ]
       ++ [
         duckdb
@@ -59,7 +66,6 @@
           cargoBuildFeatures = (old.cargoBuildFeatures or [ ]) ++ [ "remote" ];
         }))
       ]
-      ++ lib.optionals stdenv.isLinux [ espup ]
       ++ [
         esptool
         esphome
@@ -120,13 +126,10 @@
       ++ [
         lighttpd
         radicle-tui
+        # radicle-job
         radicle-httpd
         radicle-desktop
         radicle-explorer
-        # TODO: are these already provided by services.radicle or programs.radicle?
-        # radicle-job
-        # radicle-ci-broker
-        # radicle-native-ci
       ]
       ++ [
         grafana
@@ -136,35 +139,74 @@
       ++ [
         talosctl
         minikube
+        process-compose
         kubernetes-helm
       ]
       ++ [
         socat
         bore-cli
         smartmontools
-        process-compose
+      ]
+      ++ [
+        shfmt
+        bashdb
+        shellcheck
+        bash-language-server
+        (bats.withLibraries (
+          batsPackages: with batsPackages; [
+            bats-file
+            bats-assert
+            bats-support
+          ]
+        ))
+      ]
+      ++ [
+        nil
+        nixfmt
+        statix
       ]
       ++ [
         ccls
-        godot
         delve
-        shfmt
-        lemminx # xml lsp
-        dts-lsp
+        asmfmt
         asm-lsp
-        stylelint
-        shellcheck # shell script formatting
+        dts-lsp
         crates-lsp
-        openscad-lsp
-        bash-language-server
         cmake-language-server
+      ]
+      ++ [ ruby-lsp ]
+      ++ [
+        buf # protobuf lsp
+        protobuf
+        protoc-gen-go
+        protoc-gen-go-grpc
+      ]
+      ++ [
+        # ===== 🦫 GO 🦫 ======
+        gore
+        gotests
+        gomodifytags
+        gocode-gomod
+        golangci-lint
+      ]
+      ++ [
+        taplo
+        jq-lsp
+        lemminx # xml lsp
+        stylelint
+        openscad-lsp
         postgres-language-server
         vscode-json-languageserver
-        (bats.withLibraries (batsPackages: [
-          batsPackages.bats-assert
-          batsPackages.bats-file
-          batsPackages.bats-support
-        ]))
+        graphql-language-service-cli
+        # semgrep
+        # eslint
+        # emmet-ls
+        # proselint
+        # markdownlint-cli
+        # mdx-language-server
+        # yaml-language-server
+        # dockerfile-language-server
+        # vscode-langservers-extracted
         # ============= 🤖 ==================
         tree
         # vi-mongo # mongodb tui
@@ -196,7 +238,7 @@
       ++ lib.optionals (!config.targets.genericLinux.enable) [
         nvtopPackages.full # btop for gpu; genericLinux hosts set their own variant per-host
       ]
-      ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [ bashdb ]
+      ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [ ]
       ++ [
         exercism
         presenterm
@@ -204,11 +246,9 @@
       ]
       ++ [
         # ============= ‍❄🕸 ================
-        nil # nix lsp
         omnix
         nix-du # store visualizer
         devenv
-        statix
         vulnix
         cachix
         deadnix
@@ -251,6 +291,7 @@
       ]
       ++ lib.optionals stdenv.isLinux (
         [
+          espup
           # ============== 🤪 ================
           hollywood # movie hacker screen animation
 
