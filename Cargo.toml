@@ -5,6 +5,7 @@ default-members = ["apps/firmware"]
 members = [
     "apps/tui",
     "apps/web",
+    "apps/robot",
     "apps/server",
     "apps/readme",
     "apps/firmware",

@@ -4,15 +4,13 @@ name = "MFarabi619"
 requires-pixi = ">=0.40"
 channels = ["https://prefix.dev/conda-forge"]
 authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
-platforms = ["linux-64", "osx-arm64"]
-
-[system-requirements]
-libc = { family = "glibc", version = "2.34" }
+platforms = [{ platform = "linux-64", glibc = "2.34" }, "osx-arm64"]
 
 [activation]
 scripts = ["install/setup.bash"]
 
 [dependencies]
+git = "*"
 make = "*"
 cmake = "*"
 ninja = "*"
@@ -25,13 +23,11 @@ colcon-common-extensions = "*"
 rviz = "rviz2"
 test = { cmd = "pytest apps/robot/test -v", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
 bridge = "ros2 run foxglove_bridge foxglove_bridge"
-teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard"
-simulator = { cmd = "ros2 launch robot simulator.launch.py", depends-on = ["build"] }
 record = { cmd = "bl robot record.launch.py", depends-on = ["build"] }
 
 [tasks.build]
-cmd = "colcon build --symlink-install --paths apps/robot libs/robot_hardware --cmake-args -Wno-dev -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
-inputs = ["apps/robot", "libs/robot_hardware"]
+cmd = "colcon build --symlink-install --paths apps/robot --cmake-args -Wno-dev -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+inputs = ["apps/robot"]
 
 [target.linux-64.dependencies]
 libgl-devel = "*"
@@ -61,25 +57,18 @@ voice = { features = ["voice"], no-default-feature = true }
 channels = ["https://prefix.dev/robostack-lyrical"]
 
 [feature.lyrical.dependencies]
-ros-lyrical-ros-gz = "*"
 ros-lyrical-desktop = "*"
 ros-lyrical-cv-bridge = "*"
-ros-lyrical-twist-mux = ">=4.5.1,<5"
 ros-lyrical-better-launch = "*"
 ros-lyrical-foxglove-bridge = "*"
 ros-lyrical-image-publisher = "*"
-ros-lyrical-ros2-controllers = ">=6.7.0,<7"
-ros-lyrical-controller-manager = ">=6.7.1,<7"
 ros-lyrical-diagnostic-updater = "*"
 ros-lyrical-generate-parameter-library = "*"
 ros-lyrical-generate-parameter-library-py = "*"
 
 [feature.voice]
 platforms = ["osx-arm64"]
-system-requirements = { macos = "15.0" }
-
-[feature.voice.dependencies]
-python = "3.14.*"
+dependencies.python = "3.14.*"
 
 [feature.voice.pypi-dependencies]
 pynput = "*"

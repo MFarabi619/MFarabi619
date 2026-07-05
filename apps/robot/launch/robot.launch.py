@@ -8,7 +8,7 @@ def robot(camera: bool = True):
     bl = BetterLaunch()
 
     convenience.robot_state_publisher(
-        "robot", "robot.urdf.xacro", node_name="robot_state_publisher", anonymous=False
+        "robot", "robot.urdf", node_name="robot_state_publisher", anonymous=False
     )
 
     bl.node("robot", "hat_mdd10sm", "hat_mdd10sm")

@@ -1,8 +1,0 @@
-twist_mux:
-  ros__parameters:
-    use_stamped: true
-    topics:
-      teleop:
-        topic: cmd_vel
-        timeout: 0.5
-        priority: 100

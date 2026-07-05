@@ -22,7 +22,7 @@ setup(
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ["package.xml"]),
         (os.path.join("share", package_name, "launch"), glob("launch/*.launch.py")),
-        (os.path.join("share", package_name, "urdf"), glob("urdf/*.xacro")),
+        (os.path.join("share", package_name, "urdf"), glob("urdf/*.urdf")),
         (os.path.join("share", package_name, "config"), glob("config/*.yaml")),
         (os.path.join("share", package_name, "meshes"), glob("meshes/*.stl") + glob("meshes/*.glb")),
     ],
@@ -30,12 +30,11 @@ setup(
     zip_safe=True,
     maintainer="Mumtahin Farabi",
     maintainer_email="mfarabi619@gmail.com",
-    description="Differential-drive farm rover: Cytron MDD10 hardware driver and a kinematic/camera simulator as ROS 2 nodes.",
+    description="Differential-drive farm rover: Cytron MDD10 hardware driver and camera nodes.",
     license="AGPL-3.0-or-later",
     entry_points={
         "console_scripts": [
             "hat_mdd10sm = robot.hat_mdd10sm:main",
-            "simulator = robot.simulator:main",
             "camera = robot.camera:main",
         ],
     },

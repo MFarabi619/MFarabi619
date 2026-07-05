@@ -1,0 +1,21 @@
+[package]
+name = "robot"
+version = "0.1.0"
+edition = "2021"
+default-run = "simulator"
+
+[dependencies]
+oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
+zenoh = { version = "1", features = ["unstable"] }
+crossterm = "0.28"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+foxglove = "0.25.3"
+serde_json = "1"
+
+[dev-dependencies]
+tokio-tungstenite = "0.26"
+futures-util = "0.3"
+
+[lints.clippy]
+all = "deny"
