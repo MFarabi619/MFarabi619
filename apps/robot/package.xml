@@ -24,8 +24,6 @@
   <depend>generate_parameter_library</depend>
   <depend>generate_parameter_library_py</depend>
 
-  <test_depend>python3-pytest</test_depend>
-
   <export>
     <build_type>ament_python</build_type>
   </export>

@@ -21,8 +21,6 @@ colcon-common-extensions = "*"
 
 [tasks]
 rviz = "rviz2"
-test = { cmd = "pytest apps/robot/test -v", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
-bridge = "ros2 run foxglove_bridge foxglove_bridge"
 record = { cmd = "bl robot record.launch.py", depends-on = ["build"] }
 
 [tasks.build]
@@ -46,7 +44,7 @@ robot = { cmd = "bl robot robot.launch.py", depends-on = ["build"] }
 
 [target.osx-arm64.tasks.cad]
 cmd = "python main.py"
-cwd = "libs/cad"
+cwd = "apps/robot/cad"
 env = { YACV_HOST = "127.0.0.1", YACV_PORT = "32323" }
 
 [environments]
