@@ -26,9 +26,9 @@
         ffmpegthumbnailer
       ]
       ++ [
+        tuntox
+        gnutls
         eask-cli
-        tuntox # collab
-        gnutls # :app irc
       ]
       ++ [
         duckdb
