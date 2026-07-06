@@ -46,6 +46,7 @@
         dioxus-cli
         sea-orm-cli
         virt-viewer
+        attic-client
         tailwindcss_4
         wasm-bindgen-cli
         rubyPackages_3_4.rails
@@ -286,7 +287,6 @@
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
         # quickemu # broken as of Sun May 10 18:29:41 EDT 2026. error: Cannot build '/nix/store/3swsq60jxg8qdrpv7kjm19xah38r64d4-samba-4.23.5.drv'.
         binsider
-        attic-client
         vscode-extensions.llvm-vs-code-extensions.lldb-dap
       ]
       ++ lib.optionals stdenv.isLinux (
