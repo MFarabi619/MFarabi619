@@ -11,7 +11,9 @@ use oxidros::{
             },
             geometry_msgs::msg::Twist,
             nav_msgs::msg::Odometry,
-            sensor_msgs::msg::{BatteryState, CameraInfo, Image, NavSatFix, NavSatStatus},
+            sensor_msgs::msg::{
+                BatteryState, CameraInfo, CompressedImage, NavSatFix, NavSatStatus,
+            },
             std_msgs::msg::String as StringMsg,
         },
         msg::{F64Seq, RosString, U8Seq},
@@ -23,13 +25,14 @@ use tokio::time::interval;
 use crate::{
     battery_diagnostic_level, command_is_stale, enu_to_geodetic,
     frames::{BASE_LINK, CAMERA_OPTICAL, ODOM},
-    integrate_pose, intrinsics, render_field,
+    integrate_pose, intrinsics, CameraRenderer,
 };
 
-const IMAGE_WIDTH: usize = 640;
-const IMAGE_HEIGHT: usize = 400;
+const IMAGE_WIDTH: usize = 1280;
+const IMAGE_HEIGHT: usize = 800;
 const CAMERA_FOV_DEG: f64 = 70.0;
-const CAMERA_HEIGHT: f64 = 0.2;
+const CAMERA_HEIGHT: f64 = 0.6;
+const JPEG_QUALITY: u8 = 80;
 const LATITUDE_ORIGIN: f64 = 45.4215;
 const LONGITUDE_ORIGIN: f64 = -75.6972;
 const PHYSICS_HZ: f64 = 50.0;
@@ -86,47 +89,6 @@ impl SimState {
 
     fn speed(&self) -> f64 {
         self.linear.abs() + self.angular.abs()
-    }
-
-    fn camera(&self) -> (Image, CameraInfo) {
-        let (sec, nanosec) = now_stamp();
-        let (fx, fy, cx, cy) = intrinsics(IMAGE_WIDTH, IMAGE_HEIGHT, CAMERA_FOV_DEG);
-        let frame = render_field(
-            self.x,
-            self.y,
-            self.theta,
-            IMAGE_WIDTH,
-            IMAGE_HEIGHT,
-            CAMERA_FOV_DEG,
-            CAMERA_HEIGHT,
-        );
-
-        let mut image = Image::new().unwrap();
-        image.header.stamp.sec = sec;
-        image.header.stamp.nanosec = nanosec;
-        image.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
-        image.height = IMAGE_HEIGHT as u32;
-        image.width = IMAGE_WIDTH as u32;
-        image.encoding = RosString::new("rgb8").unwrap();
-        image.is_bigendian = 0;
-        image.step = (IMAGE_WIDTH * 3) as u32;
-        let mut data = U8Seq::new(frame.len()).unwrap();
-        data.as_mut_slice().copy_from_slice(&frame);
-        image.data = data;
-
-        let mut info = CameraInfo::new().unwrap();
-        info.header.stamp.sec = sec;
-        info.header.stamp.nanosec = nanosec;
-        info.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
-        info.width = IMAGE_WIDTH as u32;
-        info.height = IMAGE_HEIGHT as u32;
-        info.distortion_model = RosString::new("plumb_bob").unwrap();
-        info.d = F64Seq::new(5).unwrap();
-        info.k = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0];
-        info.r = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
-        info.p = [fx, 0.0, cx, 0.0, 0.0, fy, cy, 0.0, 0.0, 0.0, 1.0, 0.0];
-
-        (image, info)
     }
 
     fn gps(&self, lat_origin: f64, lon_origin: f64) -> NavSatFix {
@@ -204,12 +166,42 @@ impl SimState {
     }
 }
 
+fn compressed_image(jpeg: Vec<u8>) -> (CompressedImage, CameraInfo) {
+    let (sec, nanosec) = now_stamp();
+    let (fx, fy, cx, cy) = intrinsics(IMAGE_WIDTH, IMAGE_HEIGHT, CAMERA_FOV_DEG);
+
+    let mut image = CompressedImage::new().unwrap();
+    image.header.stamp.sec = sec;
+    image.header.stamp.nanosec = nanosec;
+    image.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
+    image.format = RosString::new("jpeg").unwrap();
+    let mut data = U8Seq::new(jpeg.len()).unwrap();
+    data.as_mut_slice().copy_from_slice(&jpeg);
+    image.data = data;
+
+    let mut info = CameraInfo::new().unwrap();
+    info.header.stamp.sec = sec;
+    info.header.stamp.nanosec = nanosec;
+    info.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
+    info.width = IMAGE_WIDTH as u32;
+    info.height = IMAGE_HEIGHT as u32;
+    info.distortion_model = RosString::new("plumb_bob").unwrap();
+    info.d = F64Seq::new(5).unwrap();
+    info.k = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0];
+    info.r = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0];
+    info.p = [fx, 0.0, cx, 0.0, 0.0, fy, cy, 0.0, 0.0, 0.0, 1.0, 0.0];
+
+    (image, info)
+}
+
 pub async fn run_simulator(
     node: Arc<Node>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut cmd_vel = node.create_subscriber::<Twist>("cmd_vel", None)?;
-    let image_pub =
-        node.create_publisher::<Image>("camera/image_raw", Some(Profile::sensor_data()))?;
+    let image_pub = node.create_publisher::<CompressedImage>(
+        "camera/image_raw/compressed",
+        Some(Profile::sensor_data()),
+    )?;
     let camera_info_pub =
         node.create_publisher::<CameraInfo>("camera/camera_info", Some(Profile::sensor_data()))?;
     let gps_pub = node.create_publisher::<NavSatFix>("gps/fix", Some(Profile::sensor_data()))?;
@@ -255,11 +247,40 @@ pub async fn run_simulator(
     let mut lat_origin = read_f64("latitude_origin", LATITUDE_ORIGIN);
     let mut lon_origin = read_f64("longitude_origin", LONGITUDE_ORIGIN);
 
+    let camera_renderer = CameraRenderer::new(
+        IMAGE_WIDTH as u32,
+        IMAGE_HEIGHT as u32,
+        CAMERA_FOV_DEG,
+        CAMERA_HEIGHT,
+    )
+    .await?;
+    let (pose_tx, pose_rx) = tokio::sync::watch::channel((0.0f64, 0.0f64, 0.0f64));
+    let camera_task = tokio::spawn(async move {
+        let mut camera_tick = interval(Duration::from_secs_f64(1.0 / CAMERA_HZ));
+        let start = Instant::now();
+        loop {
+            camera_tick.tick().await;
+            let (x, y, theta) = *pose_rx.borrow();
+            let frame = camera_renderer.render(x, y, theta, start.elapsed().as_secs_f64());
+            let mut jpeg = Vec::new();
+            jpeg_encoder::Encoder::new(&mut jpeg, JPEG_QUALITY)
+                .encode(
+                    &frame,
+                    IMAGE_WIDTH as u16,
+                    IMAGE_HEIGHT as u16,
+                    jpeg_encoder::ColorType::Rgb,
+                )
+                .ok();
+            let (image, info) = compressed_image(jpeg);
+            let _ = image_pub.send(&image);
+            let _ = camera_info_pub.send(&info);
+        }
+    });
+
     let mut state = SimState::new();
     let mut last_command = Instant::now();
     let dt = 1.0 / PHYSICS_HZ;
     let mut physics_tick = interval(Duration::from_secs_f64(dt));
-    let mut camera_tick = interval(Duration::from_secs_f64(1.0 / CAMERA_HZ));
     let mut gps_tick = interval(Duration::from_secs_f64(1.0 / GPS_HZ));
     let mut battery_tick = interval(Duration::from_secs_f64(1.0 / BATTERY_HZ));
     let mut odom_tick = interval(Duration::from_secs_f64(1.0 / ODOM_HZ));
@@ -292,11 +313,7 @@ pub async fn run_simulator(
                     state.stop();
                 }
                 state.integrate(dt);
-            }
-            _ = camera_tick.tick() => {
-                let (image, info) = state.camera();
-                image_pub.send(&image)?;
-                camera_info_pub.send(&info)?;
+                let _ = pose_tx.send((state.x, state.y, state.theta));
             }
             _ = gps_tick.tick() => gps_pub.send(&state.gps(lat_origin, lon_origin))?,
             _ = odom_tick.tick() => odom_pub.send(&state.odom())?,
@@ -311,5 +328,6 @@ pub async fn run_simulator(
     }
 
     tracing::info!("shutting down");
+    camera_task.abort();
     Ok(())
 }

@@ -57,26 +57,28 @@
     },
     "map!2ldju1g": {
       "center": {
-        "lat": 45.3590210006211,
-        "lon": -75.5568301677704
+        "lat": 45.421512819179384,
+        "lon": -75.69720625877382
       },
       "customTileUrl": "",
       "disabledTopics": [],
-      "followTopic": "",
+      "followTopic": "/gps/fix",
       "layer": "satellite",
-      "topicColors": {},
+      "topicColors": {
+        "/gps/fix": "#f31111"
+      },
       "zoomLevel": 16,
       "maxNativeZoom": 18
     },
     "3D!uhzpgc": {
       "cameraState": {
         "perspective": true,
-        "distance": 2.5702431312731475,
-        "phi": 61.531750212106395,
-        "thetaOffset": -51.1357457847365,
+        "distance": 2.997805080936821,
+        "phi": 58.558483978571644,
+        "thetaOffset": 52.657533184254234,
         "targetOffset": [
-          0.27942100879541,
-          -0.046788333646208345,
+          -0.17436822000526334,
+          -0.0777847288552845,
           -0.05580585145827961
         ],
         "target": [
@@ -95,21 +97,23 @@
         "far": 5000
       },
       "followMode": "follow-pose",
-      "followTf": "chassis",
+      "followTf": "base_link",
       "scene": {
         "transforms": {
           "showLabel": true,
           "lineWidth": 2,
           "enablePreloading": true
         },
-        "enableStats": true
+        "enableStats": true,
+        "syncCamera": true,
+        "labelScaleFactor": 0.61
       },
       "transforms": {
         "frame:base_link": {
-          "visible": false
+          "visible": true
         },
         "frame:odom": {
-          "visible": false
+          "visible": true
         },
         "frame:camera_link": {
           "visible": false
@@ -153,7 +157,14 @@
       },
       "topics": {
         "/camera/image_raw": {
-          "visible": false
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/camera/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
         },
         "/robot_description": {
           "visible": true,
@@ -163,6 +174,9 @@
           "visible": true
         },
         "/initialpose": {
+          "visible": true
+        },
+        "/camera/camera_info": {
           "visible": true
         }
       },
@@ -203,8 +217,8 @@
       "publishJoy": true,
       "publishTwistMode": true,
       "pubTwistTopic": "/cmd_vel",
-      "dataSource": "keyboard",
-      "gamepadJoyTransform": "default",
+      "dataSource": "joystick",
+      "gamepadJoyTransform": "xbox",
       "gamepadId": 0,
       "twistMappingGamepad": {
         "linearX": {
@@ -333,10 +347,10 @@
       "showJoystick": true,
       "showJoystickRightSide": true,
       "showControlButtons": true,
-      "keyboardLayout": "wasd",
+      "keyboardLayout": "arrows",
       "joystickAxisLeft": "both",
       "joystickAxisRight": "both",
-      "joystickSize": "md",
+      "joystickSize": "xl",
       "joystickSticky": false,
       "joystickSecond": false,
       "lichtblickPanelTitle": "Teleop"
@@ -388,6 +402,6 @@
       },
       "splitPercentage": 76.34152854212121
     },
-    "splitPercentage": 23.230974632843793
+    "splitPercentage": 20.360480640854473
   }
 }

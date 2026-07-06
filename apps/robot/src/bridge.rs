@@ -6,7 +6,7 @@ use std::{
 
 use foxglove::{
     messages::{FrameTransform, FrameTransforms, Quaternion, Timestamp, Vector3},
-    websocket::{Capability, Client, ClientChannel, ServerListener},
+    websocket::{Capability, Client, ClientChannel, ConnectionGraph, ServerListener},
 };
 use oxidros::{
     core::{TypeDescription, TypeSupport},
@@ -14,13 +14,19 @@ use oxidros::{
         diagnostic_msgs::msg::DiagnosticArray,
         geometry_msgs::msg::{Pose, Twist},
         nav_msgs::msg::Odometry,
-        sensor_msgs::msg::{BatteryState, CameraInfo, Image, NavSatFix},
+        sensor_msgs::msg::{BatteryState, CameraInfo, CompressedImage, Image, NavSatFix},
         std_msgs::msg::String as StringMsg,
     },
     prelude::*,
 };
+use zenoh::{
+    handlers::RingChannel,
+    key_expr::format::{kedefine, keformat},
+};
 
 use crate::frames::{BASE_LINK, CAMERA_LINK, CAMERA_OPTICAL, CHASSIS, ODOM};
+
+kedefine!(pub(crate) topic_keyexpr: "${domain:*}/${topic:**}/${dds_type:*}/${hash:*}");
 
 struct Meshes(HashMap<String, Vec<u8>>);
 
@@ -93,6 +99,7 @@ const HALF_WHEELBASE: f64 = 0.53;
 const WHEEL_AXLE_HEIGHT: f64 = 0.178;
 const CAMERA_MOUNT_FORWARD: f64 = 0.15;
 const CAMERA_MOUNT_HEIGHT: f64 = 0.2;
+const RING_CHANNEL_CAPACITY: usize = 16;
 
 fn quaternion_about_y(angle: f64) -> (f64, f64, f64, f64) {
     (0.0, (angle / 2.0).sin(), 0.0, (angle / 2.0).cos())
@@ -247,6 +254,7 @@ fn rewrite_schema_headers(schema: String) -> String {
 fn schema_for(ros_type: &str) -> Option<String> {
     let desc = match ros_type {
         "sensor_msgs/msg/Image" => Image::type_description(),
+        "sensor_msgs/msg/CompressedImage" => CompressedImage::type_description(),
         "sensor_msgs/msg/CameraInfo" => CameraInfo::type_description(),
         "sensor_msgs/msg/NavSatFix" => NavSatFix::type_description(),
         "sensor_msgs/msg/BatteryState" => BatteryState::type_description(),
@@ -268,7 +276,7 @@ pub async fn run_bridge(
     let server = foxglove::WebSocketServer::new()
         .name("bridge")
         .bind("127.0.0.1", port)
-        .capabilities([Capability::ClientPublish])
+        .capabilities([Capability::ClientPublish, Capability::ConnectionGraph])
         .supported_encodings(["json", "cdr"])
         .listener(Arc::new(CmdVelRelay { tx: teleop_tx }))
         .fetch_asset_handler(Arc::new(Meshes(meshes())))
@@ -314,6 +322,38 @@ pub async fn run_bridge(
             _ = &mut ctrl_c => break,
             _ = poll.tick() => {
                 let graph = ctx.graph_cache();
+
+                let qualify = |namespace: &str, node: &str| -> String {
+                    if namespace == "/" {
+                        format!("/{node}")
+                    } else {
+                        format!("{namespace}/{node}")
+                    }
+                };
+                let mut connection_graph = ConnectionGraph::new();
+                for (topic, _ty) in graph.get_topic_names_and_types() {
+                    let publishers: Vec<String> = graph
+                        .get_publishers_info(&topic)
+                        .into_iter()
+                        .map(|e| qualify(&e.namespace, &e.node_name))
+                        .collect();
+                    if !publishers.is_empty() {
+                        connection_graph.set_published_topic(topic.clone(), publishers);
+                    }
+                    let mut subscribers: Vec<String> = graph
+                        .get_subscribers_info(&topic)
+                        .into_iter()
+                        .map(|e| qualify(&e.namespace, &e.node_name))
+                        .collect();
+                    if subscribed.contains(&topic) {
+                        subscribers.push("/bridge".to_string());
+                    }
+                    if !subscribers.is_empty() {
+                        connection_graph.set_subscribed_topic(topic.clone(), subscribers);
+                    }
+                }
+                let _ = server.publish_connection_graph(connection_graph);
+
                 for (topic, _ty) in graph.get_topic_names_and_types() {
                     if subscribed.contains(&topic) {
                         continue;
@@ -337,9 +377,18 @@ pub async fn run_bridge(
                         .build_raw()?;
 
                     let topic_key = topic.strip_prefix('/').unwrap_or(&topic);
-                    let key_expr =
-                        format!("{}/{}/{}/{}", ctx.domain_id(), topic_key, dds_type, type_hash);
-                    let sub = ctx.session().declare_subscriber(&key_expr).await?;
+                    let key_expr = keformat!(
+                        topic_keyexpr::formatter(),
+                        domain = ctx.domain_id(),
+                        topic = topic_key,
+                        dds_type = &dds_type,
+                        hash = &type_hash,
+                    )?;
+                    let sub = ctx
+                        .session()
+                        .declare_subscriber(&key_expr)
+                        .with(RingChannel::new(RING_CHANNEL_CAPACITY))
+                        .await?;
                     tokio::spawn(async move {
                         while let Ok(sample) = sub.recv_async().await {
                             let bytes = sample.payload().to_bytes();
@@ -356,4 +405,25 @@ pub async fn run_bridge(
     tracing::info!("shutting down");
     server.stop().wait().await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn topic_keyexpr_matches_the_hand_built_layout() {
+        let built = keformat!(
+            topic_keyexpr::formatter(),
+            domain = 0,
+            topic = "camera/image_raw",
+            dds_type = "sensor_msgs::msg::dds_::Image_",
+            hash = "RIHS01_abc",
+        )
+        .unwrap();
+        assert_eq!(
+            built.as_str(),
+            "0/camera/image_raw/sensor_msgs::msg::dds_::Image_/RIHS01_abc"
+        );
+    }
 }
