@@ -6,8 +6,8 @@ file = manifest.yml
 base = zephyrproject/zephyr
 
 [build]
-pristine   = auto
-# board      = qemu_riscv32
+pristine = auto
+sysbuild = true
 # cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
 [flash]
@@ -15,5 +15,4 @@ rebuild = true
 
 [alias]
 menuconfig = build apps/firmware -p=never -t menuconfig
-
 dt         = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/firmware/zephyr/zephyr.dts

@@ -1,0 +1,295 @@
+if SOC_SERIES_ESP32S3
+
+configdefault IMG_MANAGER
+	default y
+configdefault IMG_ERASE_PROGRESSIVELY
+	default y
+
+configdefault MCUBOOT_SHELL
+	default y
+
+configdefault STREAM_FLASH
+	default y
+
+configdefault ZVFS_OPEN_MAX
+	default 24
+
+configdefault NVS_INIT_BAD_MEMORY_REGION
+	default y
+
+configdefault MAIN_STACK_SIZE
+	default 8192
+configdefault ESPTOOLPY_FLASH_MODE_AUTO_DETECT
+	default n
+configdefault DEBUG_THREAD_INFO
+	default y
+
+choice COMPILER_OPTIMIZATIONS
+	default DEBUG_OPTIMIZATIONS
+endchoice
+
+configdefault SYMTAB
+	default y
+configdefault INIT_STACKS
+	default y
+configdefault STACK_SENTINEL
+	default y
+configdefault DEBUG_COREDUMP
+	default y
+
+choice DEBUG_COREDUMP_MEMORY_DUMP
+	default DEBUG_COREDUMP_MEMORY_DUMP_MIN
+endchoice
+
+choice DEBUG_COREDUMP_BACKEND
+	default DEBUG_COREDUMP_BACKEND_LOGGING
+endchoice
+
+configdefault RAM_CONSOLE
+	default y
+configdefault RAM_CONSOLE_BUFFER_SIZE
+	default 4096
+
+configdefault GPIO_SHELL
+	default y
+configdefault STATS
+	default y
+configdefault STATS_SHELL
+	default y
+configdefault THREAD_ANALYZER
+	default y
+configdefault SETTINGS_SHELL
+	default y
+configdefault SETTINGS_RUNTIME
+	default y
+
+configdefault MCUMGR
+	default y
+configdefault ZCBOR
+	default y
+configdefault BASE64
+	default y
+configdefault MCUMGR_GRP_OS
+	default y
+configdefault MCUMGR_GRP_IMG
+	default y
+configdefault MCUMGR_GRP_STAT
+	default y
+configdefault MCUMGR_GRP_ENUM
+	default y
+configdefault MCUMGR_GRP_ZBASIC
+	default y
+configdefault MCUMGR_GRP_OS_INFO
+	default y
+configdefault MCUMGR_GRP_SETTINGS
+	default y
+configdefault MCUMGR_GRP_OS_TASKSTAT
+	default y
+configdefault MCUMGR_GRP_ENUM_DETAILS
+	default y
+configdefault MCUMGR_GRP_IMG_SLOT_INFO
+	default y
+configdefault MCUMGR_GRP_OS_MCUMGR_PARAMS
+	default y
+configdefault MCUMGR_GRP_OS_BOOTLOADER_INFO
+	default y
+configdefault MCUMGR_GRP_ZBASIC_STORAGE_ERASE
+	default y
+configdefault UART_CONSOLE_MCUMGR
+	default y
+configdefault MCUMGR_TRANSPORT_UDP
+	default y
+configdefault MCUMGR_TRANSPORT_UDP_IPV4
+	default y
+configdefault MCUMGR_TRANSPORT_SHELL
+	default y
+configdefault MCUMGR_TRANSPORT_UDP_STACK_SIZE
+	default 4096
+configdefault MCUMGR_TRANSPORT_WORKQUEUE_STACK_SIZE
+	default 8192
+
+configdefault NETWORKING
+	default y
+configdefault NET_LOG
+	default y
+configdefault NET_SHELL
+	default y
+configdefault NET_MAX_CONN
+	default 16
+configdefault NET_CONNECTION_MANAGER
+	default y
+configdefault NET_TC_TX_COUNT
+	default 1
+configdefault NET_MGMT_EVENT_QUEUE_SIZE
+	default 10
+configdefault NET_MGMT_EVENT_STACK_SIZE
+	default 4096
+
+choice NET_TC_THREAD_TYPE
+	default NET_TC_THREAD_COOPERATIVE
+endchoice
+
+configdefault NET_IPV4
+	default y
+configdefault NET_IPV4_IGMP
+	default y
+configdefault NET_IPV4_MTU
+	default 1500
+configdefault NET_IF_MAX_IPV4_COUNT
+	default 3
+configdefault NET_IPV6
+	default n
+
+configdefault NET_SOCKETS
+	default y
+configdefault NET_SOCKETS_SERVICE_STACK_SIZE
+	default 8192
+configdefault NET_TCP
+	default y
+configdefault NET_TCP_MAX_SEND_WINDOW_SIZE
+	default 16384
+configdefault NET_TCP_MAX_RECV_WINDOW_SIZE
+	default 16384
+configdefault NET_UDP
+	default y
+configdefault NET_MAX_CONTEXTS
+	default 16
+configdefault NET_CONTEXT_RCVTIMEO
+	default y
+configdefault ZVFS_POLL_MAX
+	default 32
+configdefault ZVFS_EVENTFD_MAX
+	default 2
+
+configdefault NET_BUF_POOL_USAGE
+	default y
+configdefault NET_BUF_DATA_SIZE
+	default 1500
+configdefault NET_BUF_RX_COUNT
+	default 256
+configdefault NET_BUF_TX_COUNT
+	default 256
+
+configdefault NET_STATISTICS
+	default y
+configdefault NET_STATISTICS_USER_API
+	default y
+configdefault NET_STATISTICS_PER_INTERFACE
+	default y
+
+configdefault NET_HOSTNAME_ENABLE
+	default y
+configdefault NET_HOSTNAME_UNIQUE
+	default n
+
+configdefault NET_DHCPV4
+	default y
+configdefault NET_DHCPV4_SERVER
+	default y
+configdefault NET_DHCPV4_INITIAL_DELAY_MAX
+	default 2
+configdefault NET_DHCPV4_SERVER_ICMP_PROBE_TIMEOUT
+	default 0
+configdefault NET_DHCPV4_SERVER_OPTION_DNS_ADDRESS
+	default "192.168.4.1"
+
+configdefault DNS_RESOLVER
+	default y
+configdefault DNS_RESOLVER_CACHE
+	default y
+configdefault DNS_RESOLVER_MAX_SERVERS
+	default 3
+configdefault DNS_RESOLVER_AI_MAX_ENTRIES
+	default 8
+configdefault DNS_RESOLVER_MAX_NAME_LEN
+	default 128
+configdefault DNS_RESOLVER_MAX_ANSWER_SIZE
+	default 2048
+configdefault DNS_RESOLVER_CACHE_MAX_ENTRIES
+	default 128
+configdefault DNS_NUM_CONCUR_QUERIES
+	default 32
+configdefault DNS_SERVER1
+	default "1.1.1.1"
+configdefault DNS_SERVER2
+	default "8.8.8.8"
+configdefault DNS_SERVER3
+	default "9.9.9.9"
+configdefault DNS_SERVER_IP_ADDRESSES
+	default y
+configdefault MDNS_RESOLVER
+	default y
+configdefault MDNS_RESPONDER
+	default y
+
+configdefault SNTP
+	default y
+configdefault DATE_SHELL
+	default y
+configdefault NET_CONFIG_SETTINGS
+	default y
+configdefault NET_CONFIG_AUTO_INIT
+	default n
+configdefault NET_CONFIG_CLOCK_SNTP_INIT
+	default y
+configdefault NET_CONFIG_SNTP_INIT_RESYNC
+	default y
+configdefault NET_CONFIG_SNTP_INIT_SERVER
+	default "pool.ntp.org"
+configdefault NET_CONFIG_SNTP_INIT_USE_CONNECTION_MANAGER
+	default y
+
+configdefault WIFI
+	default y
+configdefault WIFI_NM
+	default y
+configdefault NET_L2_WIFI_SHELL
+	default y
+configdefault WIFI_SHELL_MAX_AP_STA
+	default 8
+configdefault WIFI_CREDENTIALS
+	default y
+configdefault WIFI_CREDENTIALS_SHELL
+	default y
+configdefault WIFI_CREDENTIALS_CONNECT_STORED
+	default y
+
+choice WIFI_CREDENTIALS_BACKEND
+	default WIFI_CREDENTIALS_BACKEND_SETTINGS
+endchoice
+
+choice WIFI_LOG_LEVEL_CHOICE
+	default WIFI_LOG_LEVEL_INF
+endchoice
+
+choice WIFI_NM_LOG_LEVEL_CHOICE
+	default WIFI_NM_LOG_LEVEL_INF
+endchoice
+
+configdefault FLASH
+	default y
+configdefault FLASH_PAGE_LAYOUT
+	default y
+configdefault FLASH_MAP
+	default y
+configdefault NVS
+	default y
+configdefault SETTINGS
+	default y
+
+choice SETTINGS_BACKEND
+	default SETTINGS_NVS
+endchoice
+
+configdefault ESP_SPIRAM
+	default y
+configdefault ESP32_WIFI_NET_ALLOC_SPIRAM
+	default y
+
+choice ESP_WIFI_HEAP
+	default ESP_WIFI_HEAP_SPIRAM
+endchoice
+
+endif # SOC_SERIES_ESP32S3
+
+source "Kconfig.zephyr"

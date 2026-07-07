@@ -165,6 +165,21 @@ patches:
           INPUT_CALLBACK_DEFINE (via #[link_section]) and direct led_off()
           calls from Rust without C shims.
 
+    - path: lang-rust/dt-rust-gpio-flags.patch
+      sha256sum: 7ab4ba487d117f440d5ea31e70ed7c6898dbb2f42e4c585227e1e9eddb1ae5fa
+      module: lang-rust
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-07-01
+      upstreamable: true
+      comments: |
+          zephyr-build DT codegen: default the GPIO flags cell to 0 when a
+          controller declares `#gpio-cells = <1>` (e.g. ARM MPS2 CMSDK
+          per-pin GPIOs). Such specs (`<&gpio_led0 0>`) omit the flags cell,
+          but GpioPin::new() requires dt_flags — the generated devicetree.rs
+          otherwise emits a 5-arg call against the 6-arg constructor and
+          fails to compile. Addresses the handler's own TODO about cell counts.
+
     - path: zephyr/cellular.patch
       sha256sum: 8ceb4019166d79e51e2a7e9f09e6de141835036f6dd8b303fa2ed79d0a37c953
       module: zephyrproject/zephyr
@@ -332,3 +347,52 @@ patches:
              apps/firmware rebuilds and re-sets the shell prompt so the DIR
              segment updates the moment cwd changes — event-driven, no
              polling.
+
+    - path: zephyr/cmux-maybe-uninitialized.patch
+      sha256sum: 6b3cc9815525ff80c27c106b257700c0f499e97fc790a293e91819eee0761829
+      module: zephyrproject/zephyr
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-07-03
+      upstreamable: true
+      comments: |
+          subsys/modem/modem_cmux.c: initialize `connected`/`connecting`.
+          K_SPINLOCK expands to a one-iteration for-loop; gcc cannot prove
+          the body runs and warns -Wmaybe-uninitialized on the returns.
+
+    - path: bno08x/include-path.patch
+      sha256sum: b15a17c195c7a7aa1df0f5f9e4c98a3103c26d1eda2db73260587447f5aaf45f
+      module: bno08x
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-07-01
+      upstreamable: true
+      comments: |
+          CMakeLists.txt: add include/bno08x to the include path. src/bno08x.c
+          includes the public header bare (`#include "bno08x.h"`) but it lives
+          at include/bno08x/bno08x.h and the module only exposed include/, so
+          the header wasn't found.
+
+    - path: bno08x/dt-i2c-address.patch
+      sha256sum: 814c261d9b0b7b4c0822bee0ca3d3b3a9bef270c3679ce5341964d79ff840012
+      module: bno08x
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-07-01
+      upstreamable: true
+      comments: |
+          sh2_hal.c: take the I2C address from the devicetree node (DT_REG_ADDR)
+          instead of hardcoding 0x4B. The Adafruit BNO085 defaults to 0x4A; the
+          overlay reg now drives the address.
+
+    - path: bno08x/kconfig-opt-in.patch
+      sha256sum: 4b9fe2be73446e9d7077bdde9267f2cab101da7ae337f1d7263bb2c8401d6c48
+      module: bno08x
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-07-03
+      upstreamable: true
+      comments: |
+          Kconfig: drop `default y`. sh2_hal.c requires a bno086 devicetree
+          node; boards without one broke at DT_NODELABEL. Boards with the
+          sensor opt in via CONFIG_BNO08X=y.

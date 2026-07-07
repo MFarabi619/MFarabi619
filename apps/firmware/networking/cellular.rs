@@ -49,6 +49,9 @@ enum Field {
     SimIccid = 5,
 }
 
+// `improper_ctypes` is advisory for the `*mut net_if` parameter —
+// `net_if` transitively contains `k_spinlock`.
+#[allow(improper_ctypes)]
 extern "C" {
     static _net_l2_PPP: net_l2;
 

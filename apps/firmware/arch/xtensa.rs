@@ -24,7 +24,7 @@ macro_rules! try_init {
     };
 }
 
-#[cfg(CONFIG_BOOTLOADER_MCUBOOT)]
+#[cfg(CONFIG_IMG_MANAGER)]
 use zephyr::{
     error::to_result_void,
     raw::{boot_is_img_confirmed, boot_write_img_confirmed},
@@ -85,7 +85,7 @@ extern "C" fn rust_main() {
         try_init!("http server" => http::server::initialize());
     }
 
-    #[cfg(CONFIG_BOOTLOADER_MCUBOOT)]
+    #[cfg(CONFIG_IMG_MANAGER)]
     if !unsafe { boot_is_img_confirmed() } {
         match to_result_void(unsafe { boot_write_img_confirmed() }) {
             Ok(()) => info!("boot: image confirmed"),

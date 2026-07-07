@@ -1,0 +1,9 @@
+choice BOOTLOADER
+	default BOOTLOADER_MCUBOOT if SOC_FAMILY_ESPRESSIF_ESP32
+endchoice
+
+choice MCUBOOT_MODE
+	default MCUBOOT_MODE_SWAP_USING_OFFSET if SOC_FAMILY_ESPRESSIF_ESP32
+endchoice
+
+source "share/sysbuild/Kconfig"

@@ -59,6 +59,8 @@ configdefault MCUMGR_GRP_SHELL
 	default y if MCUMGR && SHELL
 configdefault SHELL_BACKEND_DUMMY
 	default y if MCUMGR && SHELL
+configdefault SHELL_BACKEND_DUMMY_BUF_SIZE
+	default 1024 if MCUMGR_GRP_SHELL
 configdefault FLASH_SHELL
 	default y if FLASH && SHELL && FLASH_PAGE_LAYOUT
 configdefault FLASH_MAP_SHELL

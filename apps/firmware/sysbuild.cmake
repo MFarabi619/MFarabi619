@@ -14,7 +14,3 @@ if(BOARD MATCHES "^esp32s3" OR BOARD MATCHES "^xiao_esp32s3" OR BOARD MATCHES "^
   endif()
 endif()
 
-if(BOARD_QUALIFIERS MATCHES "esp32s3")
-  set(firmware_EXTRA_CONF_FILE "${CMAKE_CURRENT_LIST_DIR}/esp32s3-base.conf" CACHE INTERNAL "")
-endif()
-

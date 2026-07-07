@@ -65,6 +65,9 @@ const fn parse_ipv4(s: &str) -> [u8; 4] {
 const NET_ROUTE_INFINITE_LIFETIME: u32 = u32::MAX;
 const NET_ROUTE_PREFERENCE_MEDIUM: u8 = 0;
 
+// `improper_ctypes` is advisory for the `*mut net_if` parameter —
+// `net_if` transitively contains `k_spinlock`.
+#[allow(improper_ctypes)]
 extern "C" {
     fn net_route_ipv4_add(
         iface: *mut net_if,

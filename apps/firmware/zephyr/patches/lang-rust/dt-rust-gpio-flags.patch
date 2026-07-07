@@ -1,0 +1,19 @@
+diff --git a/zephyr-build/src/devicetree/augment.rs b/zephyr-build/src/devicetree/augment.rs
+index 53d9609..8c60f00 100644
+--- a/zephyr-build/src/devicetree/augment.rs
++++ b/zephyr-build/src/devicetree/augment.rs
+@@ -257,7 +257,13 @@ impl RawInfo {
+                 // TODO: We would try to correlate with parent node's notion of number of cells, and
+                 // try to handle cases where there is more than one reference.  It is unclear when
+                 // this will be needed.
+-                let args: Vec<u32> = words[1..].iter().map(|n| n.as_number().unwrap()).collect();
++                let mut args: Vec<u32> = words[1..].iter().map(|n| n.as_number().unwrap()).collect();
++                // Single-cell GPIO controllers (`#gpio-cells = <1>`, e.g. the ARM MPS2 CMSDK
++                // per-pin GPIOs) omit the flags cell that `GpioPin::new()` still requires;
++                // default the missing flags to 0 so the generated call has the right arity.
++                if args.len() == 1 {
++                    args.push(0);
++                }
+ 
+                 let target_route = target.route_to_rust();
+ 
