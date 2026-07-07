@@ -15,7 +15,7 @@ use oxidros::{
     },
     prelude::*,
 };
-use robot::sim::DEADMAN_SECONDS;
+use robot::simulator::DEADMAN_SECONDS;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn drives_on_cmd_vel_then_halts_after_deadman() -> Result<(), Box<dyn Error + Send + Sync>> {

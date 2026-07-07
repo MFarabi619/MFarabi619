@@ -1,12 +1,31 @@
 pub mod bridge;
+pub mod camera;
+pub mod driver;
+pub mod hardware;
+pub mod kinematics;
+pub mod odometry;
 pub mod renderer;
-pub mod sim;
+pub mod simulator;
+pub mod teleop;
+use std::{
+    sync::Arc,
+    time::{SystemTime, UNIX_EPOCH},
+};
+
 pub use bridge::run_bridge;
-use oxidros::msg::common_interfaces::diagnostic_msgs::msg::DiagnosticStatus;
+pub use camera::run_camera;
+pub use driver::{run_driver, Config};
+use oxidros::{
+    core::qos::{DurabilityPolicy, HistoryPolicy, Profile},
+    msg::common_interfaces::diagnostic_msgs::msg::DiagnosticStatus,
+    prelude::*,
+};
 pub use renderer::CameraRenderer;
-pub use sim::run_simulator;
+pub use simulator::run_simulator;
+pub use teleop::run_teleop;
 
 pub const EARTH_RADIUS_METERS: f64 = 6_378_137.0;
+pub const BRIDGE_PORT: u16 = 8765;
 
 pub mod frames {
     pub const BASE_LINK: &str = "base_link";
@@ -16,7 +35,7 @@ pub mod frames {
     pub const CAMERA_OPTICAL: &str = "camera_optical_frame";
 }
 
-pub fn intrinsics(width: usize, height: usize, fov_deg: f64) -> (f64, f64, f64, f64) {
+pub fn camera_intrinsics(width: usize, height: usize, fov_deg: f64) -> (f64, f64, f64, f64) {
     let focal = (width as f64 / 2.0) / (fov_deg.to_radians() / 2.0).tan();
     (focal, focal, width as f64 / 2.0, height as f64 / 2.0)
 }
@@ -58,6 +77,44 @@ pub fn command_is_stale(age_secs: f64, threshold_secs: f64) -> bool {
     age_secs > threshold_secs
 }
 
+pub fn now_stamp() -> (i32, u32) {
+    let since = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default();
+    (since.as_secs() as i32, since.subsec_nanos())
+}
+
+pub fn spawn_logged(
+    task_name: &'static str,
+    future: impl std::future::Future<Output = Result<(), Box<dyn std::error::Error + Send + Sync>>>
+        + Send
+        + 'static,
+) {
+    tokio::spawn(async move {
+        if let Err(error) = future.await {
+            tracing::error!("{task_name} stopped: {error}");
+        }
+    });
+}
+
+pub fn spawn_bridge(
+    context: &Arc<Context>,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let node = context.create_node("bridge", None)?;
+    tracing::info!("connect Lichtblick to ws://localhost:{BRIDGE_PORT}");
+    spawn_logged("bridge", run_bridge(node, BRIDGE_PORT));
+    Ok(())
+}
+
+pub fn latched_profile() -> Profile {
+    Profile {
+        durability: DurabilityPolicy::TransientLocal,
+        history: HistoryPolicy::KeepLast,
+        depth: 1,
+        ..Default::default()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -77,8 +134,8 @@ mod tests {
     }
 
     #[test]
-    fn intrinsics_center_is_half_the_frame() {
-        let (_, _, cx, cy) = intrinsics(640, 400, 70.0);
+    fn camera_intrinsics_center_is_half_the_frame() {
+        let (_, _, cx, cy) = camera_intrinsics(640, 400, 70.0);
         assert_eq!(cx, 320.0);
         assert_eq!(cy, 200.0);
     }

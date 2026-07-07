@@ -21,11 +21,6 @@ colcon-common-extensions = "*"
 
 [tasks]
 rviz = "rviz2"
-record = { cmd = "bl robot record.launch.py", depends-on = ["build"] }
-
-[tasks.build]
-cmd = "colcon build --symlink-install --paths apps/robot --cmake-args -Wno-dev -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
-inputs = ["apps/robot"]
 
 [target.linux-64.dependencies]
 libgl-devel = "*"
@@ -38,9 +33,6 @@ rgpio = "*"
 build123d = "*"
 yacv-server = "*"
 bd-warehouse = "*"
-
-[target.osx-arm64.tasks]
-robot = { cmd = "bl robot robot.launch.py", depends-on = ["build"] }
 
 [target.osx-arm64.tasks.cad]
 cmd = "python main.py"
@@ -55,10 +47,3 @@ channels = ["https://prefix.dev/robostack-lyrical"]
 
 [feature.lyrical.dependencies]
 ros-lyrical-desktop = "*"
-ros-lyrical-cv-bridge = "*"
-ros-lyrical-better-launch = "*"
-ros-lyrical-foxglove-bridge = "*"
-ros-lyrical-image-publisher = "*"
-ros-lyrical-diagnostic-updater = "*"
-ros-lyrical-generate-parameter-library = "*"
-ros-lyrical-generate-parameter-library-py = "*"

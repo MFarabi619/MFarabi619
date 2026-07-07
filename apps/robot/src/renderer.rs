@@ -1,13 +1,14 @@
 use bytemuck::{Pod, Zeroable};
 
-const ROW_ALIGNMENT: u32 = 256;
+const RGBA_BYTES_PER_PIXEL: u32 = 4;
+const FULLSCREEN_TRIANGLE_VERTEX_COUNT: u32 = 3;
 
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 struct CameraUniform {
     position: [f32; 2],
     heading: f32,
-    camera_height: f32,
+    camera_mount_height_meters: f32,
     tan_half_fov: f32,
     aspect: f32,
     time: f32,
@@ -26,7 +27,7 @@ pub struct CameraRenderer {
     width: u32,
     height: u32,
     fov_deg: f64,
-    camera_height: f64,
+    camera_mount_height_meters: f64,
 }
 
 impl CameraRenderer {
@@ -34,7 +35,7 @@ impl CameraRenderer {
         width: u32,
         height: u32,
         fov_deg: f64,
-        camera_height: f64,
+        camera_mount_height_meters: f64,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let instance = wgpu::Instance::default();
         let adapter = instance
@@ -155,7 +156,7 @@ impl CameraRenderer {
             width,
             height,
             fov_deg,
-            camera_height,
+            camera_mount_height_meters,
         })
     }
 
@@ -163,7 +164,7 @@ impl CameraRenderer {
         let uniform = CameraUniform {
             position: [x as f32, y as f32],
             heading: theta as f32,
-            camera_height: self.camera_height as f32,
+            camera_mount_height_meters: self.camera_mount_height_meters as f32,
             tan_half_fov: (self.fov_deg.to_radians() / 2.0).tan() as f32,
             aspect: self.width as f32 / self.height as f32,
             time: time as f32,
@@ -196,7 +197,7 @@ impl CameraRenderer {
             });
             pass.set_pipeline(&self.pipeline);
             pass.set_bind_group(0, &self.bind_group, &[]);
-            pass.draw(0..3, 0..1);
+            pass.draw(0..FULLSCREEN_TRIANGLE_VERTEX_COUNT, 0..1);
         }
 
         let bytes_per_row = padded_bytes_per_row(self.width);
@@ -230,19 +231,19 @@ impl CameraRenderer {
             .unwrap();
 
         let mapped = slice.get_mapped_range().unwrap();
-        let row_bytes = (self.width * 4) as usize;
-        let mut rgb = Vec::with_capacity((self.width * self.height * 3) as usize);
+        let row_bytes = (self.width * RGBA_BYTES_PER_PIXEL) as usize;
+        let mut rgba =
+            Vec::with_capacity((self.width * self.height * RGBA_BYTES_PER_PIXEL) as usize);
         for row in mapped.chunks_exact(bytes_per_row as usize) {
-            for pixel in row[..row_bytes].chunks_exact(4) {
-                rgb.extend_from_slice(&pixel[0..3]);
-            }
+            rgba.extend_from_slice(&row[..row_bytes]);
         }
         drop(mapped);
         self.readback.unmap();
-        rgb
+        rgba
     }
 }
 
 fn padded_bytes_per_row(width: u32) -> u32 {
-    (width * 4).div_ceil(ROW_ALIGNMENT) * ROW_ALIGNMENT
+    (width * RGBA_BYTES_PER_PIXEL).div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT)
+        * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT
 }

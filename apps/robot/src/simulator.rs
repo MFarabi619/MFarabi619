@@ -1,6 +1,6 @@
 use std::{
     sync::Arc,
-    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+    time::{Duration, Instant},
 };
 
 use oxidros::{
@@ -16,22 +16,22 @@ use oxidros::{
             },
             std_msgs::msg::String as StringMsg,
         },
-        msg::{F64Seq, RosString, U8Seq},
+        msg::{F64Seq, RosString},
     },
     prelude::*,
 };
 use tokio::time::interval;
 
 use crate::{
-    battery_diagnostic_level, command_is_stale, enu_to_geodetic,
+    battery_diagnostic_level, camera_intrinsics, command_is_stale, enu_to_geodetic,
     frames::{BASE_LINK, CAMERA_OPTICAL, ODOM},
-    integrate_pose, intrinsics, CameraRenderer,
+    integrate_pose, latched_profile, now_stamp, CameraRenderer,
 };
 
 const IMAGE_WIDTH: usize = 1280;
 const IMAGE_HEIGHT: usize = 800;
 const CAMERA_FOV_DEG: f64 = 70.0;
-const CAMERA_HEIGHT: f64 = 0.6;
+const CAMERA_MOUNT_HEIGHT_METERS: f64 = 0.6;
 const JPEG_QUALITY: u8 = 80;
 const LATITUDE_ORIGIN: f64 = 45.4215;
 const LONGITUDE_ORIGIN: f64 = -75.6972;
@@ -40,19 +40,12 @@ pub const DEADMAN_SECONDS: f64 = 2.0;
 const ROBOT_URDF: &str = include_str!("../urdf/robot.urdf");
 const CAMERA_HZ: f64 = 15.0;
 const GPS_HZ: f64 = 5.0;
-const ODOM_HZ: f64 = 30.0;
+const ODOMETRY_HZ: f64 = 30.0;
 const BATTERY_HZ: f64 = 1.0;
 const BATTERY_IDLE_DRAIN: f64 = 0.02;
 const BATTERY_MOTION_DRAIN: f64 = 0.5;
 const BATTERY_MIN_VOLTAGE: f64 = 11.5;
 const BATTERY_VOLTAGE_SPAN: f64 = 1.2;
-
-fn now_stamp() -> (i32, u32) {
-    let since = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default();
-    (since.as_secs() as i32, since.subsec_nanos())
-}
 
 #[derive(Default)]
 struct SimState {
@@ -148,10 +141,10 @@ impl SimState {
 
         let percentage_text = format!("{:.0}%", self.battery_percent);
 
-        let mut kv = KeyValue::new().unwrap();
-        kv.key = RosString::new("percentage").unwrap();
-        kv.value = RosString::new(&percentage_text).unwrap();
-        let values = KeyValueSeq::<0>::from_vec(vec![kv]).unwrap();
+        let mut key_value = KeyValue::new().unwrap();
+        key_value.key = RosString::new("percentage").unwrap();
+        key_value.value = RosString::new(&percentage_text).unwrap();
+        let values = KeyValueSeq::<0>::from_vec(vec![key_value]).unwrap();
 
         let mut status = DiagnosticStatus::new().unwrap();
         status.level = battery_diagnostic_level(self.battery_percent);
@@ -168,16 +161,14 @@ impl SimState {
 
 fn compressed_image(jpeg: Vec<u8>) -> (CompressedImage, CameraInfo) {
     let (sec, nanosec) = now_stamp();
-    let (fx, fy, cx, cy) = intrinsics(IMAGE_WIDTH, IMAGE_HEIGHT, CAMERA_FOV_DEG);
+    let (fx, fy, cx, cy) = camera_intrinsics(IMAGE_WIDTH, IMAGE_HEIGHT, CAMERA_FOV_DEG);
 
     let mut image = CompressedImage::new().unwrap();
     image.header.stamp.sec = sec;
     image.header.stamp.nanosec = nanosec;
     image.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
     image.format = RosString::new("jpeg").unwrap();
-    let mut data = U8Seq::new(jpeg.len()).unwrap();
-    data.as_mut_slice().copy_from_slice(&jpeg);
-    image.data = data;
+    image.data = jpeg.as_slice().try_into().unwrap();
 
     let mut info = CameraInfo::new().unwrap();
     info.header.stamp.sec = sec;
@@ -202,42 +193,51 @@ pub async fn run_simulator(
         "camera/image_raw/compressed",
         Some(Profile::sensor_data()),
     )?;
-    let camera_info_pub =
-        node.create_publisher::<CameraInfo>("camera/camera_info", Some(Profile::sensor_data()))?;
+    let camera_info_pub = node.create_publisher::<CameraInfo>(
+        "camera/image_raw/camera_info",
+        Some(Profile::sensor_data()),
+    )?;
     let gps_pub = node.create_publisher::<NavSatFix>("gps/fix", Some(Profile::sensor_data()))?;
     let battery_pub = node.create_publisher::<BatteryState>("battery", None)?;
     let diag_pub = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
     let odom_pub = node.create_publisher::<Odometry>("odom", None)?;
-    let robot_description_pub = node.create_publisher::<StringMsg>("robot_description", None)?;
+    let robot_description_pub =
+        node.create_publisher::<StringMsg>("robot_description", Some(latched_profile()))?;
 
     let mut param_server = node.create_parameter_server()?;
     {
         let mut params = param_server.params.write();
-        params.set_parameter(
-            "deadman_seconds".to_string(),
+        let mut declare = |name: &str, value: Value, description: &str| {
+            if params.get_parameter(name).is_none() {
+                let _ = params.set_parameter(
+                    name.to_string(),
+                    value,
+                    false,
+                    Some(description.to_string()),
+                );
+            }
+        };
+        declare(
+            "deadman_seconds",
             Value::F64(DEADMAN_SECONDS),
-            false,
-            Some("Halt the robot if no cmd_vel arrives within this many seconds".to_string()),
-        )?;
-        params.set_floating_point_range("deadman_seconds", 0.1, 60.0, 0.0)?;
-        params.set_parameter(
-            "latitude_origin".to_string(),
+            "Halt the robot if no cmd_vel arrives within this many seconds",
+        );
+        declare(
+            "latitude_origin",
             Value::F64(LATITUDE_ORIGIN),
-            false,
-            Some("GPS origin latitude in degrees".to_string()),
-        )?;
-        params.set_parameter(
-            "longitude_origin".to_string(),
+            "GPS origin latitude in degrees",
+        );
+        declare(
+            "longitude_origin",
             Value::F64(LONGITUDE_ORIGIN),
-            false,
-            Some("GPS origin longitude in degrees".to_string()),
-        )?;
+            "GPS origin longitude in degrees",
+        );
     }
     let params = param_server.params.clone();
     let read_f64 = |name: &str, fallback: f64| -> f64 {
-        if let Some(p) = params.read().get_parameter(name) {
-            if let Value::F64(v) = p.value {
-                return v;
+        if let Some(parameter) = params.read().get_parameter(name) {
+            if let Value::F64(value) = parameter.value {
+                return value;
             }
             tracing::warn!("parameter '{name}' is not an f64; keeping {fallback}");
         }
@@ -251,7 +251,7 @@ pub async fn run_simulator(
         IMAGE_WIDTH as u32,
         IMAGE_HEIGHT as u32,
         CAMERA_FOV_DEG,
-        CAMERA_HEIGHT,
+        CAMERA_MOUNT_HEIGHT_METERS,
     )
     .await?;
     let (pose_tx, pose_rx) = tokio::sync::watch::channel((0.0f64, 0.0f64, 0.0f64));
@@ -268,7 +268,7 @@ pub async fn run_simulator(
                     &frame,
                     IMAGE_WIDTH as u16,
                     IMAGE_HEIGHT as u16,
-                    jpeg_encoder::ColorType::Rgb,
+                    jpeg_encoder::ColorType::Rgba,
                 )
                 .ok();
             let (image, info) = compressed_image(jpeg);
@@ -283,7 +283,11 @@ pub async fn run_simulator(
     let mut physics_tick = interval(Duration::from_secs_f64(dt));
     let mut gps_tick = interval(Duration::from_secs_f64(1.0 / GPS_HZ));
     let mut battery_tick = interval(Duration::from_secs_f64(1.0 / BATTERY_HZ));
-    let mut odom_tick = interval(Duration::from_secs_f64(1.0 / ODOM_HZ));
+    let mut odom_tick = interval(Duration::from_secs_f64(1.0 / ODOMETRY_HZ));
+
+    let mut description = StringMsg::new().unwrap();
+    description.data = RosString::new(ROBOT_URDF).unwrap();
+    robot_description_pub.send(&description)?;
 
     tracing::info!("driving on cmd_vel -> camera/gps/battery");
     let ctrl_c = tokio::signal::ctrl_c();
@@ -301,7 +305,7 @@ pub async fn run_simulator(
                         lat_origin = read_f64("latitude_origin", lat_origin);
                         lon_origin = read_f64("longitude_origin", lon_origin);
                     }
-                    Err(e) => tracing::warn!("parameter service error: {e}"),
+                    Err(error) => tracing::warn!("parameter service error: {error}"),
                 }
             }
             message = cmd_vel.recv() => {
@@ -320,9 +324,6 @@ pub async fn run_simulator(
             _ = battery_tick.tick() => {
                 battery_pub.send(&state.step_battery())?;
                 diag_pub.send(&state.diagnostics())?;
-                let mut description = StringMsg::new().unwrap();
-                description.data = RosString::new(ROBOT_URDF).unwrap();
-                robot_description_pub.send(&description)?;
             }
         }
     }

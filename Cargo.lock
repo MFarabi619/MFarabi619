@@ -11542,6 +11542,7 @@ dependencies = [
  "tracing",
  "wgpu",
  "zenoh",
+ "zenoh-ext",
 ]
 
 [[package]]
