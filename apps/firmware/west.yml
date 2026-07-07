@@ -75,3 +75,8 @@ manifest:
           path: zephyrproject/modules/tools/zview
           west-commands: scripts/west-commands.yml
           url: https://github.com/wkhadgar/zview.git
+
+        - name: bno08x
+          revision: 1c01e81ce7f51b96403203a1a239663d8f39c9ef # 2026-07-01
+          path: zephyrproject/modules/lib/bno08x
+          url: https://github.com/mvrck-dev/bno08x.git
