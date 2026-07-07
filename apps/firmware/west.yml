@@ -11,7 +11,7 @@ manifest:
 
         - name: zephyr
           remote: zephyrproject
-          revision: a80b84df51a # 2026-06-30
+          revision: f4509a09915 # 2026-07-07
           import:
               path-prefix: zephyrproject
               name-blocklist:
