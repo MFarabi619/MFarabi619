@@ -52,12 +52,13 @@
         "poseEstimateThetaDeviation": 0.26179939
       },
       "imageMode": {
-        "imageTopic": "/camera/image_raw"
+        "imageTopic": "/camera/image_raw/compressed",
+        "calibrationTopic": "/camera/image_raw/camera_info"
       }
     },
     "map!2ldju1g": {
       "center": {
-        "lat": 45.421512819179384,
+        "lat": 45.42149775834506,
         "lon": -75.69720625877382
       },
       "customTileUrl": "",
@@ -73,12 +74,12 @@
     "3D!uhzpgc": {
       "cameraState": {
         "perspective": true,
-        "distance": 2.997805080936821,
+        "distance": 2.997805080936819,
         "phi": 58.558483978571644,
-        "thetaOffset": 52.657533184254234,
+        "thetaOffset": 52.65753318425425,
         "targetOffset": [
-          -0.17436822000526334,
-          -0.0777847288552845,
+          -0.13141548956901306,
+          -0.13408163726542077,
           -0.05580585145827961
         ],
         "target": [
@@ -217,7 +218,7 @@
       "publishJoy": true,
       "publishTwistMode": true,
       "pubTwistTopic": "/cmd_vel",
-      "dataSource": "joystick",
+      "dataSource": "keyboard",
       "gamepadJoyTransform": "xbox",
       "gamepadId": 0,
       "twistMappingGamepad": {
@@ -255,7 +256,7 @@
           "sourceType": "axis",
           "sourceIndex": 0,
           "scale": 1,
-          "invert": false
+          "invert": true
         }
       },
       "twistMappingKeyboard": {
@@ -331,7 +332,7 @@
           "sourceType": "axis",
           "sourceIndex": 0,
           "scale": 1,
-          "invert": false
+          "invert": true
         }
       },
       "showButtons": true,

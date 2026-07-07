@@ -19,8 +19,8 @@ const ARM_GRIPPER_HOME_DEG: f64 = 140.0;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    init_ros_logging("freenove_fnk0077");
     let context = Context::new()?;
+    robot::init_logging(&context, "freenove_fnk0077")?;
 
     let connection = Connection::connect(HOST, 8889)?;
     let chip = connection.open_chip(0)?;

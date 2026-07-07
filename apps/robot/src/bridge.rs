@@ -11,12 +11,15 @@ use foxglove::{
 };
 use oxidros::{
     core::{TypeDescription, TypeSupport},
-    msg::common_interfaces::{
-        diagnostic_msgs::msg::DiagnosticArray,
-        geometry_msgs::msg::{Pose, Twist},
-        nav_msgs::msg::Odometry,
-        sensor_msgs::msg::{BatteryState, CameraInfo, CompressedImage, Image, NavSatFix},
-        std_msgs::msg::String as StringMsg,
+    msg::{
+        common_interfaces::{
+            diagnostic_msgs::msg::DiagnosticArray,
+            geometry_msgs::msg::{Pose, Twist},
+            nav_msgs::msg::Odometry,
+            sensor_msgs::msg::{BatteryState, CameraInfo, CompressedImage, Image, NavSatFix},
+            std_msgs::msg::String as StringMsg,
+        },
+        interfaces::rcl_interfaces::msg::Log,
     },
     prelude::*,
 };
@@ -245,6 +248,7 @@ fn schema_for(ros_type: &str) -> Option<String> {
         "diagnostic_msgs/msg/DiagnosticArray" => DiagnosticArray::type_description(),
         "geometry_msgs/msg/Twist" => Twist::type_description(),
         "std_msgs/msg/String" => StringMsg::type_description(),
+        "rcl_interfaces/msg/Log" => Log::type_description(),
         _ => return None,
     };
     Some(rewrite_schema_headers(description.to_msg_definition()))

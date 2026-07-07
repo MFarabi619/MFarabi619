@@ -11,8 +11,8 @@ const PWM_FREQUENCY_HZ: f32 = 1000.0;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    init_ros_logging("cytron_md30c");
     let context = Context::new()?;
+    robot::init_logging(&context, "cytron_md30c")?;
 
     let connection = Connection::connect("rpi5-16-2", 8889)?;
     let chip = connection.open_chip(0)?;

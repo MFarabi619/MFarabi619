@@ -5,6 +5,7 @@ pub mod hardware;
 pub mod kinematics;
 pub mod odometry;
 pub mod renderer;
+pub mod rosout;
 pub mod simulator;
 pub mod teleop;
 use std::{
@@ -21,6 +22,7 @@ use oxidros::{
     prelude::*,
 };
 pub use renderer::CameraRenderer;
+pub use rosout::init_logging;
 pub use simulator::run_simulator;
 pub use teleop::run_teleop;
 
