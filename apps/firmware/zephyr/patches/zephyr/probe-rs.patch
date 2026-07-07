@@ -13,6 +13,21 @@ index 68f24ee9e7d..af1b982efa8 100644
  include(${ZEPHYR_BASE}/boards/common/openocd-stm32.board.cmake)
  include(${ZEPHYR_BASE}/boards/common/jlink.board.cmake)
 +include(${ZEPHYR_BASE}/boards/common/probe-rs.board.cmake)
+diff --git a/boards/st/nucleo_h755zi_q/board.cmake b/boards/st/nucleo_h755zi_q/board.cmake
+index bc87412503a..ad584224279 100644
+--- a/boards/st/nucleo_h755zi_q/board.cmake
++++ b/boards/st/nucleo_h755zi_q/board.cmake
+@@ -8,8 +8,10 @@ if(CONFIG_BOARD_NUCLEO_H755ZI_Q_STM32H755XX_M7)
+ elseif(CONFIG_BOARD_NUCLEO_H755ZI_Q_STM32H755XX_M4)
+   board_runner_args(openocd --target-handle=_CHIPNAME.cpu1)
+ endif()
++board_runner_args(probe-rs "--chip=STM32H755ZI")
+ 
+ # keep first
+ include(${ZEPHYR_BASE}/boards/common/stm32cubeprogrammer.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/openocd-stm32.board.cmake)
+ include(${ZEPHYR_BASE}/boards/common/jlink.board.cmake)
++include(${ZEPHYR_BASE}/boards/common/probe-rs.board.cmake)
 diff --git a/boards/st/stm32f3_disco/board.cmake b/boards/st/stm32f3_disco/board.cmake
 index abb6568458f..76910de20f9 100644
 --- a/boards/st/stm32f3_disco/board.cmake

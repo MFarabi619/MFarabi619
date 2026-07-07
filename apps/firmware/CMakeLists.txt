@@ -30,6 +30,8 @@ macro(app_set_runner_args)
       board_runner_args(probe-rs "--protocol=swd" "--dev-id=0483:374b:066FFF494877514867152643")
     elseif(BOARD MATCHES "^nucleo_h723zg")
       board_runner_args(probe-rs "--protocol=swd" "--dev-id=0483:374e:003E00203234510237333934")
+    elseif(BOARD MATCHES "^nucleo_h755zi_q")
+      board_runner_args(probe-rs "--protocol=swd" "--dev-id=0483:374e:003D00323434511834313937")
     endif()
 
     get_property(_probe_rs_args GLOBAL PROPERTY BOARD_RUNNER_ARGS_EXPLICIT_probe_rs)
