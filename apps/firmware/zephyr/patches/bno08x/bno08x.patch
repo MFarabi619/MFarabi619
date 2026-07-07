@@ -1,0 +1,36 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d51e25b..97d065d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,6 +5,7 @@ if(CONFIG_BNO08X)
+ 
+     # Expose the public headers
+     zephyr_include_directories(include)
++    zephyr_include_directories(include/bno08x)
+     
+     # Internal headers for the library compilation
+     zephyr_include_directories(lib/sh2)
+diff --git a/Kconfig b/Kconfig
+index bb5981c..8869f65 100644
+--- a/Kconfig
++++ b/Kconfig
+@@ -1,6 +1,5 @@
+ menuconfig BNO08X
+ 	bool "BNO08x IMU Sensor Support"
+-	default y
+ 	help
+ 	  Enable support for the BNO08x IMU sensor using the Hillcrest SH-2 library.
+ 
+diff --git a/src/sh2_hal.c b/src/sh2_hal.c
+index fe89552..775ff10 100644
+--- a/src/sh2_hal.c
++++ b/src/sh2_hal.c
+@@ -4,7 +4,7 @@
+ 
+ #define BNO086_NODE DT_NODELABEL(bno086)
+ static const struct device *i2c_dev = DEVICE_DT_GET(DT_BUS(BNO086_NODE));
+-#define BNO086_ADDR 0x4B
++#define BNO086_ADDR DT_REG_ADDR(BNO086_NODE)
+ 
+ static int hal_open(sh2_Hal_t *self) {
+     if (!device_is_ready(i2c_dev)) return -1;

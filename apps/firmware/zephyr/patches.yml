@@ -42,7 +42,7 @@ patches:
           three Queue methods zephyr uses are unchanged between versions.
 
     - path: lang-rust/rust.patch
-      sha256sum: 39b0812e8df7b1940665ab3ece0cf9cc7b99509d4490ae458e96ba7097eb6428
+      sha256sum: 4063668a24e76a77f011928a75c59402bd512c84928481ca80f36e99b72b7818
       module: lang-rust
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -137,33 +137,14 @@ patches:
           gating in zephyr-sys/build.rs; a PR adding "networking" alongside
           those would be uncontroversial.
 
-    - path: lang-rust/build-rs-graceful.patch
-      sha256sum: a3858939d873ac0fe60b127962ae7734ff1fabf94062389b7bf5cd2b5d08f7f1
-      module: lang-rust
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-06-23
-      upstreamable: true
-      comments: |
-          Make zephyr-build and zephyr-sys build scripts skip gracefully when
-          DOTCONFIG / ZEPHYR_BASE are unset (host-side cargo check, IDE
-          indexing). Stubs out the generated include!() targets so call sites
-          fail with a normal "unresolved item" at compile time instead of a
-          build-script panic. No behavior change in the Zephyr-CMake path.
+          4. zephyr-build/src/lib.rs + zephyr-sys/build.rs: skip gracefully when
+             DOTCONFIG / ZEPHYR_BASE are unset (host cargo check, IDE indexing) —
+             stub the include!() targets so call sites fail with a normal
+             "unresolved item" instead of a build-script panic. (was build-rs-graceful)
 
-    - path: lang-rust/input-led-allowlist.patch
-      sha256sum: 824588c9d9c5f5cad81ac6d70249145d94abccb054b8585179b498d454784ea0
-      module: lang-rust
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-06-23
-      upstreamable: true
-      comments: |
-          Expose Zephyr's input subsystem and LED driver API to bindgen,
-          gated on CONFIG_INPUT / CONFIG_LED. Mirrors the existing
-          display/net/shell allowlist pattern. Required for hand-rolled
-          INPUT_CALLBACK_DEFINE (via #[link_section]) and direct led_off()
-          calls from Rust without C shims.
+          5. zephyr-sys/{build.rs,wrapper.h}: input subsystem + LED driver
+             allowlist, gated on CONFIG_INPUT / CONFIG_LED, for hand-rolled
+             INPUT_CALLBACK_DEFINE and direct led_off() from Rust. (was input-led-allowlist)
 
     - path: lang-rust/dt-rust-gpio-flags.patch
       sha256sum: 7ab4ba487d117f440d5ea31e70ed7c6898dbb2f42e4c585227e1e9eddb1ae5fa
@@ -181,7 +162,7 @@ patches:
           fails to compile. Addresses the handler's own TODO about cell counts.
 
     - path: zephyr/cellular.patch
-      sha256sum: 8ceb4019166d79e51e2a7e9f09e6de141835036f6dd8b303fa2ed79d0a37c953
+      sha256sum: fc47f2592ca9d2f248e857d9c488b263d339ac100a5692494712982bfaaff0c5
       module: zephyrproject/zephyr
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -255,6 +236,12 @@ patches:
              renegotiating or CEREG is flapping. Carrier_off is set
              elsewhere when CMUX DLCIs actually close, so genuine
              disconnections still trigger re-dial.
+
+          CMUX (subsys/modem/modem_cmux.c):
+
+          6. Initialize `connected`/`connecting`. K_SPINLOCK expands to a
+             one-iteration for-loop; gcc can't prove the body runs and warns
+             -Wmaybe-uninitialized on the returns. (was cmux-maybe-uninitialized)
 
     - path: zephyr/nat.patch
       sha256sum: 7f91e64979daa54cfb8457d86a8d52af8d12214f480f8059fae714f8d38ef02e
@@ -348,51 +335,25 @@ patches:
              segment updates the moment cwd changes — event-driven, no
              polling.
 
-    - path: zephyr/cmux-maybe-uninitialized.patch
-      sha256sum: 6b3cc9815525ff80c27c106b257700c0f499e97fc790a293e91819eee0761829
-      module: zephyrproject/zephyr
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-07-03
-      upstreamable: true
-      comments: |
-          subsys/modem/modem_cmux.c: initialize `connected`/`connecting`.
-          K_SPINLOCK expands to a one-iteration for-loop; gcc cannot prove
-          the body runs and warns -Wmaybe-uninitialized on the returns.
-
-    - path: bno08x/include-path.patch
-      sha256sum: b15a17c195c7a7aa1df0f5f9e4c98a3103c26d1eda2db73260587447f5aaf45f
+    - path: bno08x/bno08x.patch
+      sha256sum: 4ef70d5789391c1e304d8d5bc01da95af4143e679e6ef82728e7faadb246dc11
       module: bno08x
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
       date: 2026-07-01
       upstreamable: true
       comments: |
-          CMakeLists.txt: add include/bno08x to the include path. src/bno08x.c
-          includes the public header bare (`#include "bno08x.h"`) but it lives
-          at include/bno08x/bno08x.h and the module only exposed include/, so
-          the header wasn't found.
+          All bno08x module fixes bundled. Touches three files:
 
-    - path: bno08x/dt-i2c-address.patch
-      sha256sum: 814c261d9b0b7b4c0822bee0ca3d3b3a9bef270c3679ce5341964d79ff840012
-      module: bno08x
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-07-01
-      upstreamable: true
-      comments: |
-          sh2_hal.c: take the I2C address from the devicetree node (DT_REG_ADDR)
-          instead of hardcoding 0x4B. The Adafruit BNO085 defaults to 0x4A; the
-          overlay reg now drives the address.
+          1. CMakeLists.txt: add include/bno08x to the include path. src/bno08x.c
+             includes the public header bare (`#include "bno08x.h"`) but it lives
+             at include/bno08x/bno08x.h and the module only exposed include/, so
+             the header wasn't found.
 
-    - path: bno08x/kconfig-opt-in.patch
-      sha256sum: 4b9fe2be73446e9d7077bdde9267f2cab101da7ae337f1d7263bb2c8401d6c48
-      module: bno08x
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-07-03
-      upstreamable: true
-      comments: |
-          Kconfig: drop `default y`. sh2_hal.c requires a bno086 devicetree
-          node; boards without one broke at DT_NODELABEL. Boards with the
-          sensor opt in via CONFIG_BNO08X=y.
+          2. Kconfig: drop `default y`. sh2_hal.c requires a bno086 devicetree
+             node; boards without one broke at DT_NODELABEL. Boards with the
+             sensor opt in via CONFIG_BNO08X=y.
+
+          3. sh2_hal.c: take the I2C address from the devicetree node (DT_REG_ADDR)
+             instead of hardcoding 0x4B. The Adafruit BNO085 defaults to 0x4A; the
+             overlay reg now drives the address.

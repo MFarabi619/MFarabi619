@@ -120,10 +120,68 @@ index be31379..0c13ea6 100644
    # Presumably, Rust applications will have no C source files, but cmake will require them.
    # Add an empty file so that this will build.  The main will come from the rust library.
 diff --git a/zephyr-build/src/lib.rs b/zephyr-build/src/lib.rs
-index 6fd4f77..a3fa2b3 100644
+index 6fd4f77..182ae22 100644
 --- a/zephyr-build/src/lib.rs
 +++ b/zephyr-build/src/lib.rs
-@@ -77,13 +77,13 @@ pub fn build_kconfig_mod() {
+@@ -25,6 +25,22 @@ use devicetree::{Augment, DeviceTree};
+ 
+ mod devicetree;
+ 
++/// Returns `true` if invoked from a Zephyr CMake build (ZEPHYR_BASE env
++/// var set by the CMake wrapper). When `false`, build scripts should skip
++/// their Zephyr-specific work so `cargo metadata` / `cargo check` / IDE
++/// indexing / non-Zephyr bins in the same package compile without panicking.
++pub fn is_zephyr_cmake_context() -> bool {
++    env::var("ZEPHYR_BASE").is_ok()
++}
++
++fn warn_no_context(what: &str) {
++    println!(
++        "cargo:warning=zephyr-build: {what} skipped \u{2014} not invoked from \
++         Zephyr CMake (DOTCONFIG unset). Build only valid for cargo \
++         metadata/check, not actual code generation.",
++    );
++}
++
+ /// Extract boolean Kconfig entries.  This must happen in any crate that wishes to access the
+ /// configuration settings.
+ pub fn extract_kconfig_bool_options(path: &str) -> anyhow::Result<HashSet<String>> {
+@@ -44,6 +60,10 @@ pub fn extract_kconfig_bool_options(path: &str) -> anyhow::Result<HashSet<String
+ /// Export boolean Kconfig entries.  This must happen in any crate that wishes to access the
+ /// configuration settings.
+ pub fn export_kconfig_bool_options() {
++    if !is_zephyr_cmake_context() {
++        warn_no_context("export_kconfig_bool_options");
++        return;
++    }
+     let dotconfig = env::var("DOTCONFIG").expect("DOTCONFIG must be set by wrapper");
+ 
+     // Ensure the build script is rerun when the dotconfig changes.
+@@ -61,8 +81,15 @@ pub fn export_kconfig_bool_options() {
+ /// Ideally, this would be built on the types of the values, but that will require more
+ /// introspection.
+ pub fn build_kconfig_mod() {
+-    let dotconfig = env::var("DOTCONFIG").expect("DOTCONFIG must be set by wrapper");
+     let outdir = env::var("OUT_DIR").expect("OUT_DIR must be set");
++    let gen_path = Path::new(&outdir).join("kconfig.rs");
++    if !is_zephyr_cmake_context() {
++        warn_no_context("build_kconfig_mod");
++        // Empty stub so `include!()` in zephyr/src/lib.rs succeeds.
++        File::create(&gen_path).expect("Unable to create kconfig.rs stub");
++        return;
++    }
++    let dotconfig = env::var("DOTCONFIG").expect("DOTCONFIG must be set by wrapper");
+ 
+     // The assumption is that hex values are unsigned, and decimal are signed.
+     let config_hex = Regex::new(r"^(CONFIG_.*)=(0x[0-9a-fA-F]+)$").unwrap();
+@@ -71,19 +98,19 @@ pub fn build_kconfig_mod() {
+     let config_str = Regex::new(r#"^(CONFIG_.*)=(".*")$"#).unwrap();
+     let gen_path = Path::new(&outdir).join("kconfig.rs");
+ 
+-    let mut f = File::create(&gen_path).unwrap();
++    let mut f = File::create(&gen_path).expect("Unable to create kconfig.rs");
+ 
+     let file = File::open(&dotconfig).expect("Unable to open dotconfig");
      for line in BufReader::new(file).lines() {
          let line = line.expect("reading line from dotconfig");
          if let Some(caps) = config_hex.captures(&line) {
@@ -140,11 +198,67 @@ index 6fd4f77..a3fa2b3 100644
              writeln!(&mut f, "pub const {}: &str = {};", &caps[1], &caps[2]).unwrap();
          }
      }
+@@ -100,10 +127,18 @@ fn import_dt() -> DeviceTree {
+ }
+ 
+ pub fn build_dts() {
+-    let dt = import_dt();
+-
+     let outdir = env::var("OUT_DIR").expect("OUT_DIR must be set");
+     let out_path = Path::new(&outdir).join("devicetree.rs");
++    if !is_zephyr_cmake_context() {
++        warn_no_context("build_dts");
++        // Minimal stub so `include!()` and any `pub mod labels` references in
++        // zephyr/src/lib.rs degrade cleanly.
++        let mut out = File::create(&out_path).expect("Unable to create devicetree.rs stub");
++        writeln!(out, "pub mod labels {{}}").unwrap();
++        return;
++    }
++    let dt = import_dt();
++
+     let mut out = File::create(&out_path).expect("Unable to create devicetree.rs");
+ 
+     let augments = env::var("DT_AUGMENTS").expect("DT_AUGMENTS must be set");
+@@ -141,6 +176,10 @@ pub fn build_dts() {
+ /// This assumes that build_dts was already run by the `zephyr` crate, which should happen if this
+ /// is called from a user application.
+ pub fn dt_cfgs() {
++    if env::var("ZEPHYR_DTS").is_err() {
++        warn_no_context("dt_cfgs");
++        return;
++    }
+     let dt = import_dt();
+     dt.output_node_paths(&mut std::io::stdout()).unwrap();
+ }
 diff --git a/zephyr-sys/build.rs b/zephyr-sys/build.rs
-index 6b825d1..afebb6c 100644
+index 6b825d1..c9e36aa 100644
 --- a/zephyr-sys/build.rs
 +++ b/zephyr-sys/build.rs
-@@ -113,6 +113,47 @@ fn main() -> anyhow::Result<()> {
+@@ -17,6 +17,23 @@ use std::path::{Path, PathBuf};
+ use bindgen::Builder;
+ 
+ fn main() -> anyhow::Result<()> {
++    // Skip when not invoked from Zephyr CMake (e.g. host-side `cargo check`,
++    // IDE indexing, host bins in the same package as the Zephyr lib). Writes
++    // an empty bindings.rs so `include!()` in zephyr-sys/src/lib.rs succeeds;
++    // any user code referencing FFI types fails at compile time with a clear
++    // "unresolved item" error instead of a build-script panic here.
++    if env::var("ZEPHYR_BASE").is_err() {
++        println!(
++            "cargo:warning=zephyr-sys: ZEPHYR_BASE unset \u{2014} skipping \
++             bindgen. Build only valid for cargo metadata/check, not actual \
++             code generation."
++        );
++        let out_path = PathBuf::from(env::var("OUT_DIR").expect("missing output directory"));
++        std::fs::File::create(out_path.join("bindings.rs"))
++            .expect("write empty bindings.rs stub");
++        return Ok(());
++    }
++
+     // Determine which version of Clang we linked with.
+     let version = bindgen::clang_version();
+     println!("Clang version: {:?}", version);
+@@ -113,6 +130,54 @@ fn main() -> anyhow::Result<()> {
          // UART
          .allowlist_item_if("CONFIG_UART_.*", || options.contains("CONFIG_SERIAL"))
          .allowlist_function_if("uart_.*", || options.contains("CONFIG_SERIAL"))
@@ -189,14 +303,21 @@ index 6b825d1..afebb6c 100644
 +        .allowlist_function_if("display_.*", || options.contains("CONFIG_DISPLAY"))
 +        .allowlist_item_if("display_.*", || options.contains("CONFIG_DISPLAY"))
 +        .allowlist_item_if("PIXEL_FORMAT_.*", || options.contains("CONFIG_DISPLAY"))
++        // Input
++        .allowlist_function_if("input_.*", || options.contains("CONFIG_INPUT"))
++        .allowlist_item_if("input_.*", || options.contains("CONFIG_INPUT"))
++        .allowlist_item_if("INPUT_.*", || options.contains("CONFIG_INPUT"))
++        // LED
++        .allowlist_function_if("led_.*", || options.contains("CONFIG_LED"))
++        .allowlist_item_if("LED_.*", || options.contains("CONFIG_LED"))
          // Generate
          .generate()
          .expect("Unable to generate bindings");
 diff --git a/zephyr-sys/wrapper.h b/zephyr-sys/wrapper.h
-index dbb3842..b8d9507 100644
+index dbb3842..94be370 100644
 --- a/zephyr-sys/wrapper.h
 +++ b/zephyr-sys/wrapper.h
-@@ -90,6 +90,75 @@ extern int errno;
+@@ -90,6 +90,83 @@ extern int errno;
  #include <zephyr/logging/log.h>
  #include <zephyr/irq.h>
  
@@ -269,10 +390,18 @@ index dbb3842..b8d9507 100644
 +#include <zephyr/drivers/display.h>
 +#endif
 +
++#ifdef CONFIG_INPUT
++#include <zephyr/input/input.h>
++#endif
++
++#ifdef CONFIG_LED
++#include <zephyr/drivers/led.h>
++#endif
++
  /*
   * bindgen will only output #defined constants that resolve to simple numbers.  These are some
   * symbols that we want exported that, at least in some situations, are more complex, usually with a
-@@ -102,6 +171,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
+@@ -102,6 +179,13 @@ const uintptr_t ZR_STACK_RESERVED = K_KERNEL_STACK_RESERVED;
  
  const uint32_t ZR_POLL_TYPE_SEM_AVAILABLE = K_POLL_TYPE_SEM_AVAILABLE;
  const uint32_t ZR_POLL_TYPE_SIGNAL = K_POLL_TYPE_SIGNAL;
