@@ -1,0 +1,6 @@
+&i2c1 {
+	bno086: bno086@4a {
+		compatible = "i2c-device";
+		reg = <0x4a>;
+	};
+};
