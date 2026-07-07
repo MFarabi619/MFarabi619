@@ -1,0 +1,15 @@
+common:
+  tags:
+    - zephyr_lib_sqlite
+  harness: console
+  harness_config:
+    type: one_line
+    regex:
+      - "SQLite [0-9.]+ via Rust bindings"
+
+tests:
+  zephyr_lib_sqlite.sample.rust:
+    platform_allow:
+      - qemu_riscv32
+    integration_platforms:
+      - qemu_riscv32

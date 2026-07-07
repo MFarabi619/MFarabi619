@@ -32,13 +32,11 @@ extern "C" fn rust_sqlite_open(sh: *const c_void, path: *const c_char) -> c_int 
     *db_slot = None;
 
     let input = unsafe { CStr::from_ptr(path) }.to_string_lossy();
-    let resolved = if input.starts_with('/') {
-        alloc::string::String::from(input.as_ref())
-    } else {
-        let cwd = super::super::shell::cwd();
-        let separator = if cwd.ends_with('/') || cwd.ends_with(':') { "" } else { "/" };
-        format!("{cwd}{separator}{input}")
-    };
+    if !input.starts_with('/') {
+        error_line(sh, "path must be absolute (e.g. /lfs/app.db)");
+        return -22;
+    }
+    let resolved = alloc::string::String::from(input.as_ref());
     let resolved_c = match CString::new(resolved.as_str()) {
         Ok(c) => c,
         Err(_) => {

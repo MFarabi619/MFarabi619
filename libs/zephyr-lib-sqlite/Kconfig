@@ -9,6 +9,7 @@ config SQLITE_SHELL
 	bool "SQLite shell commands"
 	depends on SQLITE
 	depends on SHELL
+	depends on RUST
 	default y
 	help
 	  Register a `sqlite` command tree (open/close/exec/version) in

@@ -3904,6 +3904,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "directories"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16f5094c54661b38d03bd7e50df373292118db60b585c08a411c6d840017fe7d"
+dependencies = [
+ "dirs-sys",
+]
+
+[[package]]
 name = "dirs"
 version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5331,6 +5340,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "fetch-source"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5b194e905823df0c0205c6061c0bd123cebd9b7ecd2172a1c6f0347ce663c1d"
+dependencies = [
+ "derive_more 2.1.1",
+ "directories",
+ "flate2",
+ "serde",
+ "serde_json",
+ "sha256",
+ "thiserror 2.0.18",
+ "toml 0.9.12+spec-1.1.0",
+]
+
+[[package]]
 name = "fiat-crypto"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5373,7 +5398,6 @@ checksum = "9844ddc3a6e533d62bba727eb6c28b5d360921d5175e9ff0f1e621a5c590a4d5"
 name = "firmware"
 version = "0.1.0"
 dependencies = [
- "bindgen",
  "cfg-if",
  "comfy-table",
  "critical-section",
@@ -5386,8 +5410,6 @@ dependencies = [
  "libm",
  "log",
  "mousefood",
- "num-derive",
- "num-traits",
  "oh-my-zephyr",
  "probe-rs",
  "probe-rs-meta",
@@ -5399,6 +5421,7 @@ dependencies = [
  "tui-big-text",
  "zephyr",
  "zephyr-build",
+ "zephyr-lib-sqlite",
 ]
 
 [[package]]
@@ -11506,7 +11529,9 @@ name = "robot"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "cc",
  "crossterm 0.28.1",
+ "fetch-source",
  "foxglove",
  "futures-util",
  "jpeg-encoder",
@@ -11739,6 +11764,16 @@ dependencies = [
  "serde",
  "serde_json",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "rustapp"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "zephyr",
+ "zephyr-build",
+ "zephyr-lib-sqlite",
 ]
 
 [[package]]
@@ -12838,6 +12873,19 @@ name = "sha2-const-stable"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f179d4e11094a893b82fff208f74d448a7512f99f5a0acbd5c679b705f83ed9"
+
+[[package]]
+name = "sha256"
+version = "1.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f880fc8562bdeb709793f00eb42a2ad0e672c4f883bbe59122b926eca935c8f6"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "hex",
+ "sha2 0.10.9",
+ "tokio",
+]
 
 [[package]]
 name = "sha3"
@@ -17558,6 +17606,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "zephyr-lib-sqlite"
+version = "0.1.0"
+dependencies = [
+ "bindgen",
+ "num-derive",
+ "num-traits",
+ "zephyr-build",
+ "zephyr-ztest-fancy",
+]
+
+[[package]]
 name = "zephyr-macros"
 version = "0.1.0"
 dependencies = [
@@ -17575,6 +17634,10 @@ dependencies = [
  "bindgen",
  "zephyr-build",
 ]
+
+[[package]]
+name = "zephyr-ztest-fancy"
+version = "0.1.0"
 
 [[package]]
 name = "zerocopy"

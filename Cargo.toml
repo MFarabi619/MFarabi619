@@ -14,6 +14,9 @@ members = [
     "apps/lazyzephyr",
     "apps/server/migration",
     "libs/zephyr-lib-oh-my-zephyr",
+    "libs/zephyr-lib-sqlite",
+    "libs/zephyr-lib-sqlite/samples/rust",
+    "libs/zephyr-ztest-fancy",
 ]
 
 [workspace.dependencies]

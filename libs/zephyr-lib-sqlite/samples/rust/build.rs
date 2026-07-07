@@ -6,13 +6,7 @@ fn main() {
             for flag in &flags {
                 println!("cargo:rustc-cfg={flag}");
             }
-            println!("cargo:rerun-if-env-changed=DOTCONFIG");
             println!("cargo:rerun-if-changed={dotconfig}");
-        }
-    }
-    if let Ok(dts) = std::env::var("ZEPHYR_DTS") {
-        if std::path::Path::new(&dts).exists() {
-            zephyr_build::dt_cfgs();
         }
     }
 }

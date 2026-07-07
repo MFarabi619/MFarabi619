@@ -1318,7 +1318,7 @@ pub fn vtab_config(db: *mut sqlite3, options: u32) -> Result<ResultCode, ResultC
 #[cfg(CONFIG_ZTEST)]
 mod tests {
     use super::*;
-    use crate::bdd::{and, given, then, when};
+    use zephyr_ztest_fancy::bdd::{and, given, then, when};
 
     #[no_mangle]
     extern "C" fn rust_test_sqlite_engine_announces_version(_path: *const c_char) -> c_int {

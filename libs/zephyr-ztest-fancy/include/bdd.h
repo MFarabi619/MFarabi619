@@ -1,5 +1,5 @@
-#ifndef FIRMWARE_BDD_H
-#define FIRMWARE_BDD_H
+#ifndef ZTEST_FANCY_BDD_H
+#define ZTEST_FANCY_BDD_H
 
 #include <zephyr/sys/printk.h>
 

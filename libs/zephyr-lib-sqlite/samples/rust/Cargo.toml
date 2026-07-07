@@ -1,0 +1,16 @@
+[package]
+name = "rustapp"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0 OR MIT"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+zephyr = { workspace = true }
+zephyr-lib-sqlite = { path = "../.." }
+log = "0.4"
+
+[build-dependencies]
+zephyr-build = { workspace = true }
