@@ -38,6 +38,16 @@ pub(crate) mod ffi {
         ) -> c_int;
         pub fn spi_close(sbc: c_int, handle: c_int) -> c_int;
         pub fn spi_write(sbc: c_int, handle: c_int, buf: *const c_char, count: c_int) -> c_int;
+        pub fn i2c_open(sbc: c_int, i2c_bus: c_int, i2c_addr: c_int, i2c_flags: c_int) -> c_int;
+        pub fn i2c_close(sbc: c_int, handle: c_int) -> c_int;
+        pub fn i2c_write_byte_data(sbc: c_int, handle: c_int, reg: c_int, value: c_int) -> c_int;
+        pub fn i2c_write_i2c_block_data(
+            sbc: c_int,
+            handle: c_int,
+            reg: c_int,
+            buf: *const c_char,
+            count: c_int,
+        ) -> c_int;
     }
 }
 

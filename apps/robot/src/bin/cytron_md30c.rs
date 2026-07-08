@@ -7,6 +7,12 @@ use robot::{
     Config,
 };
 
+const LEFT_PWM_PIN: u32 = 12;
+const LEFT_DIR_PIN: u32 = 6;
+const RIGHT_PWM_PIN: u32 = 13;
+const RIGHT_DIR_PIN: u32 = 5;
+const LEFT_FORWARD_LEVEL: bool = true;
+const RIGHT_FORWARD_LEVEL: bool = false;
 const PWM_FREQUENCY_HZ: f32 = 1000.0;
 
 #[tokio::main]
@@ -17,8 +23,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let connection = Connection::connect("rpi5-16-2", 8889)?;
     let chip = connection.open_chip(0)?;
     let drivetrain = Drivetrain::new(
-        Motor::pwm_dir(&chip, 26, 19, true, PWM_FREQUENCY_HZ)?,
-        Motor::pwm_dir(&chip, 20, 16, false, PWM_FREQUENCY_HZ)?,
+        Motor::pwm_dir(
+            &chip,
+            LEFT_DIR_PIN,
+            LEFT_PWM_PIN,
+            LEFT_FORWARD_LEVEL,
+            PWM_FREQUENCY_HZ,
+        )?,
+        Motor::pwm_dir(
+            &chip,
+            RIGHT_DIR_PIN,
+            RIGHT_PWM_PIN,
+            RIGHT_FORWARD_LEVEL,
+            PWM_FREQUENCY_HZ,
+        )?,
     );
 
     robot::spawn_bridge(&context)?;

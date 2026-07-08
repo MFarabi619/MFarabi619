@@ -16,7 +16,6 @@ const CHASE_WAIT: Duration = Duration::from_millis(50);
 const RAINBOW_WAIT: Duration = Duration::from_millis(20);
 
 #[test]
-#[ignore = "drives the freenove WS2812 LEDs; run with --ignored"]
 fn leds_run_animations() -> Result<(), Box<dyn std::error::Error>> {
     let connection = Connection::connect(HOST, RGPIOD_PORT)?;
     let mut leds = LedStrip::open(&connection)?;
@@ -47,7 +46,6 @@ fn leds_run_animations() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-#[ignore = "drives the freenove tracks; lift the tracks first, run with --ignored"]
 fn motors_run_movement_sequence() -> Result<(), Box<dyn std::error::Error>> {
     let connection = Connection::connect(HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(0)?;

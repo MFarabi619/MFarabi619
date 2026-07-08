@@ -8,20 +8,19 @@ use robot::hardware::{
 const HOST: &str = "rpi5-16-2";
 const RGPIOD_PORT: u16 = 8889;
 const GPIO_CHIP: u32 = 0;
-const LEFT_PWM_PIN: u32 = 19;
-const LEFT_DIR_PIN: u32 = 26;
-const RIGHT_PWM_PIN: u32 = 16;
-const RIGHT_DIR_PIN: u32 = 20;
+const LEFT_PWM_PIN: u32 = 12;
+const LEFT_DIR_PIN: u32 = 6;
+const RIGHT_PWM_PIN: u32 = 13;
+const RIGHT_DIR_PIN: u32 = 5;
 const LEFT_FORWARD_LEVEL: bool = true;
 const RIGHT_FORWARD_LEVEL: bool = false;
 const PWM_FREQUENCY_HZ: f32 = 1000.0;
 const DIAGNOSTIC_DUTY: f32 = 40.0;
-const SPEED: f64 = 0.4;
+const SPEED: f64 = 0.8;
 const HOLD: Duration = Duration::from_millis(1500);
 const SETTLE: Duration = Duration::from_millis(1000);
 
 #[test]
-#[ignore = "drives the MD30C rover; lift the wheels first, run with --ignored"]
 fn motors_run_movement_sequence() -> Result<(), Box<dyn std::error::Error>> {
     let connection = Connection::connect(HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
@@ -59,7 +58,6 @@ fn motors_run_movement_sequence() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-#[ignore = "spins each MD30C motor both directions to check wiring/forward levels; run with --ignored"]
 fn motor_directions_sweep() -> Result<(), Box<dyn std::error::Error>> {
     let connection = Connection::connect(HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
