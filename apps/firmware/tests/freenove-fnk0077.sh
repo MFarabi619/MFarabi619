@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-# XIAO     HAT (PIN, not GPIO)
-#  D0  --> 18  left motor  fwd
-#  D1  --> 16  left motor  bwd
-#  D3  --> 29  right motor fwd
-#  D8  --> 31  right motor bwd
-#  D2  --> 19  WS2812 data
-#  5V  --> 2   power (needs S1 on)
-#  GND --> 6
-
 UDP_ADDRESS="10.0.0.21"
 PWM_DEVICE="ledc@60019000"
 

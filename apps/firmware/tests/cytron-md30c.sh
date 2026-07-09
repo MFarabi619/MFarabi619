@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-# XIAO     HAT (PIN, not GPIO)
-#  D0  --> 32  left motor  PWM
-#  D1  --> 37  left motor  DIR
-#  D3  --> 33  right motor PWM
-#  D8  --> 18  right motor DIR
-#  3V3 --> 17  logic power (else nothing moves)
-#  GND --> 34
-
 UDP_ADDRESS="10.0.0.21"
 
 GPIO_DEVICE="gpio0"

@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-# XIAO     HAT (PIN, not GPIO)
-#  D4  --> 3   I2C SDA
-#  D5  --> 5   I2C SCL
-#  3V3 --> 1   powers the HAT (else i2c scan is empty)
-#  GND --> 9
-
 UDP_ADDRESS="10.0.0.21"
 I2C_BUS="i2c@60013000"
 PWM_DEVICE="pca9685@40"
@@ -25,8 +19,8 @@ mcumgrctl --udp "$UDP_ADDRESS" shell "device list"
 mcumgrctl --udp "$UDP_ADDRESS" shell "i2c scan $I2C_BUS"
 
 for channel in $(seq "$FIRST_CHANNEL" "$LAST_CHANNEL"); do
-	for pulse_usec in "${PULSE_SWEEP_USEC[@]}"; do
-		mcumgrctl --udp "$UDP_ADDRESS" shell "pwm usec $PWM_DEVICE $channel $PERIOD_USEC $pulse_usec"
-		sleep "$SERVO_SETTLE_SECONDS"
-	done
+  for pulse_usec in "${PULSE_SWEEP_USEC[@]}"; do
+    mcumgrctl --udp "$UDP_ADDRESS" shell "pwm usec $PWM_DEVICE $channel $PERIOD_USEC $pulse_usec"
+    sleep "$SERVO_SETTLE_SECONDS"
+  done
 done

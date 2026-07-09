@@ -1,5 +1,11 @@
 #include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
 
+ /* XIAO     HAT (PIN, not GPIO) */
+ /*  D4  --> 3   I2C SDA */
+ /*  D5  --> 5   I2C SCL */
+ /*  3V3 --> 1   powers the HAT (else i2c scan is empty) */
+ /*  GND --> 9 */
+
 &xiao_i2c {
 	status = "okay";
 

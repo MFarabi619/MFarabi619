@@ -1,6 +1,15 @@
 #include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
 #include <zephyr/dt-bindings/led/led.h>
 
+ /* XIAO     HAT (PIN, not GPIO) */
+ /*  D0  --> 18  left motor  fwd */
+ /*  D1  --> 16  left motor  bwd */
+ /*  D3  --> 29  right motor fwd */
+ /*  D8  --> 31  right motor bwd */
+ /*  D2  --> 19  WS2812 data */
+ /*  5V  --> 2   power (needs S1 on) */
+ /*  GND --> 6 */
+
 &pinctrl {
 	ledc0_motors: ledc0_motors {
 		group1 {
