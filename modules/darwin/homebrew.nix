@@ -1,9 +1,4 @@
 {
-  lib,
-  pkgs,
-  ...
-}:
-{
   # /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   # eval "$(/opt/homebrew/bin/brew shellenv)"
   homebrew = {
@@ -63,17 +58,17 @@
     casks = [
       "freecad"
       "vivaldi"
-      "binary-ninja-free"
-    ]
-    ++ [
-      "leader-key"
       "claude-code"
       "tailscale-app"
       "docker-desktop"
-      "gcc-arm-embedded"
       "visual-studio-code"
       "raspberry-pi-imager"
+    ]
+    ++ [
+      "gcc-arm-embedded"
+      "binary-ninja-free"
       "silicon-labs-vcp-driver"
-    ];
+    ]
+    ++ [ "leader-key" ];
   };
 }
