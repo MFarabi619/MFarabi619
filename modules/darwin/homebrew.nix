@@ -48,6 +48,7 @@
       # "ferron" # rust-based caddy-like web server
     ]
     ++ [
+      "f3d"
       "SDL2"
       "ollama"
       "libgcrypt"
