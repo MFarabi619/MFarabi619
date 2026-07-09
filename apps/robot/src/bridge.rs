@@ -89,7 +89,7 @@ fn meshes() -> HashMap<String, Vec<u8>> {
 }
 
 const RING_CHANNEL_CAPACITY: usize = 16;
-const BIND_ADDRESS: &str = "127.0.0.1";
+const BIND_ADDRESS: &str = "0.0.0.0";
 const GRAPH_POLL_INTERVAL: Duration = Duration::from_secs(1);
 
 fn transform(
