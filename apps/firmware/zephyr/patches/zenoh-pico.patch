@@ -1,0 +1,209 @@
+diff --git a/include/zenoh-pico/system/platform/zephyr.h b/include/zenoh-pico/system/platform/zephyr.h
+index d43a9fbc..eb78df79 100644
+--- a/include/zenoh-pico/system/platform/zephyr.h
++++ b/include/zenoh-pico/system/platform/zephyr.h
+@@ -15,7 +15,7 @@
+ #ifndef ZENOH_PICO_SYSTEM_ZEPHYR_TYPES_H
+ #define ZENOH_PICO_SYSTEM_ZEPHYR_TYPES_H
+ 
+-#include <version.h>
++#include <zephyr/version.h>
+ 
+ #if KERNEL_VERSION_MAJOR == 2
+ #include <kernel.h>
+diff --git a/src/link/transport/serial/uart_zephyr.c b/src/link/transport/serial/uart_zephyr.c
+index 17cf9940..fd3d73ce 100644
+--- a/src/link/transport/serial/uart_zephyr.c
++++ b/src/link/transport/serial/uart_zephyr.c
+@@ -16,7 +16,7 @@
+ 
+ #if Z_FEATURE_LINK_SERIAL == 1 && defined(ZENOH_ZEPHYR)
+ 
+-#include <version.h>
++#include <zephyr/version.h>
+ 
+ #if KERNEL_VERSION_MAJOR == 2
+ #include <drivers/uart.h>
+diff --git a/src/system/zephyr/system.c b/src/system/zephyr/system.c
+index 5b383e61..7b2a2897 100644
+--- a/src/system/zephyr/system.c
++++ b/src/system/zephyr/system.c
+@@ -16,7 +16,7 @@
+ 
+ #if defined(ZENOH_ZEPHYR)
+ 
+-#include <version.h>
++#include <zephyr/version.h>
+ 
+ #if KERNEL_VERSION_MAJOR == 2
+ #include <random/rand32.h>
+@@ -52,6 +52,15 @@ uint64_t z_random_u64(void) {
+ void z_random_fill(void *buf, size_t len) { sys_rand_get(buf, len); }
+ 
+ /*------------------ Memory ------------------*/
++#if defined(CONFIG_ESP_SPIRAM)
++#include <esp_heap_caps.h>
++
++void *z_malloc(size_t size) { return heap_caps_malloc(size, MALLOC_CAP_8BIT); }
++
++void *z_realloc(void *ptr, size_t size) { return heap_caps_realloc(ptr, size, MALLOC_CAP_8BIT); }
++
++void z_free(void *ptr) { heap_caps_free(ptr); }
++#else
+ void *z_malloc(size_t size) { return k_malloc(size); }
+ 
+ void *z_realloc(void *ptr, size_t size) {
+@@ -60,6 +69,7 @@ void *z_realloc(void *ptr, size_t size) {
+ }
+ 
+ void z_free(void *ptr) { k_free(ptr); }
++#endif
+ 
+ #if Z_FEATURE_MULTI_THREAD == 1
+ 
+diff --git a/zephyr/CMakeLists.txt b/zephyr/CMakeLists.txt
+index 651fdb27..9166693b 100644
+--- a/zephyr/CMakeLists.txt
++++ b/zephyr/CMakeLists.txt
+@@ -7,9 +7,9 @@ zephyr_library()
+ function(configure_zenoh_feature config)
+   string(REPLACE CONFIG_ZENOH_PICO Z_FEATURE feature ${config})
+   if(${config})
+-    zephyr_compile_definitions(${feature}=1)
++    set(${feature} 1 PARENT_SCOPE)
+   else()
+-    zephyr_compile_definitions(${feature}=0)
++    set(${feature} 0 PARENT_SCOPE)
+   endif()
+ endfunction()
+ 
+@@ -27,6 +27,51 @@ configure_zenoh_feature(CONFIG_ZENOH_PICO_LINK_UDP_MULTICAST)
+ configure_zenoh_feature(CONFIG_ZENOH_PICO_SCOUTING)
+ configure_zenoh_feature(CONFIG_ZENOH_PICO_LINK_WS)
+ 
++configure_zenoh_feature(CONFIG_ZENOH_PICO_UNICAST_TRANSPORT)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_MULTICAST_TRANSPORT)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_LIVELINESS)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_INTEREST)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_MATCHING)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_FRAGMENTATION)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_ENCODING_VALUES)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_TCP_NODELAY)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_SESSION_CHECK)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_BATCHING)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_UNICAST_PEER)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_AUTO_RECONNECT)
++
++set(Z_FEATURE_CONNECTIVITY 0)
++set(Z_FEATURE_ADVANCED_PUBLICATION 0)
++set(Z_FEATURE_ADVANCED_SUBSCRIPTION 0)
++set(Z_FEATURE_LINK_BLUETOOTH 0)
++set(Z_FEATURE_LINK_SERIAL_USB 0)
++set(Z_FEATURE_LINK_TLS 0)
++set(Z_FEATURE_LOCAL_SUBSCRIBER 0)
++set(Z_FEATURE_LOCAL_QUERYABLE 0)
++set(Z_FEATURE_BATCH_TX_MUTEX 0)
++set(Z_FEATURE_BATCH_PEER_MUTEX 0)
++set(Z_FEATURE_RX_CACHE 0)
++set(Z_FEATURE_MULTICAST_DECLARATIONS 0)
++set(Z_FEATURE_ADMIN_SPACE 0)
++
++set(FRAG_MAX_SIZE 4096)
++set(BATCH_UNICAST_SIZE 2048)
++set(BATCH_MULTICAST_SIZE 2048)
++set(Z_CONFIG_SOCKET_TIMEOUT 100)
++set(Z_TRANSPORT_LEASE 10000)
++set(Z_TRANSPORT_LEASE_EXPIRE_FACTOR 3)
++set(Z_RUNTIME_MAX_TASKS 64)
++set(Z_RUNTIME_IDLE_READ_TASK_SLEEP 0)
++set(Z_TRANSPORT_ACCEPT_TIMEOUT 1000)
++set(Z_TRANSPORT_CONNECT_TIMEOUT 10000)
++set(Z_MAX_KEYEXPR_LENGTH 256)
++
++configure_file(
++  ${CMAKE_CURRENT_SOURCE_DIR}/../include/zenoh-pico/config.h.in
++  ${CMAKE_CURRENT_BINARY_DIR}/zenoh_pico_generated/zenoh-pico/config.h
++  @ONLY)
++zephyr_include_directories(${CMAKE_CURRENT_BINARY_DIR}/zenoh_pico_generated)
++
+ 
+ file(GLOB_RECURSE Sources
+   "../src/api/*.c"
+@@ -34,6 +79,7 @@ file(GLOB_RECURSE Sources
+   "../src/link/*.c"
+   "../src/net/*.c"
+   "../src/protocol/*.c"
++  "../src/runtime/*.c"
+   "../src/session/*.c"
+   "../src/transport/*.c"
+   "../src/utils/*.c"
+diff --git a/zephyr/Kconfig.zenoh b/zephyr/Kconfig.zenoh
+index 820e899a..79c4a09c 100644
+--- a/zephyr/Kconfig.zenoh
++++ b/zephyr/Kconfig.zenoh
+@@ -65,5 +65,65 @@ config ZENOH_PICO_LINK_WS
+ 	help
+ 	  WS Link
+ 
++config ZENOH_PICO_UNICAST_TRANSPORT
++	bool "Unicast transport"
++	help
++	  Unicast transport (required to connect to a router over TCP)
++
++config ZENOH_PICO_MULTICAST_TRANSPORT
++	bool "Multicast transport"
++	help
++	  Multicast transport
++
++config ZENOH_PICO_LIVELINESS
++	bool "Liveliness"
++	help
++	  Liveliness tokens (ROS 2 graph discovery)
++
++config ZENOH_PICO_INTEREST
++	bool "Interests"
++	help
++	  Interest declarations
++
++config ZENOH_PICO_MATCHING
++	bool "Matching"
++	help
++	  Publisher/querier matching status
++
++config ZENOH_PICO_FRAGMENTATION
++	bool "Fragmentation"
++	help
++	  Fragment messages larger than the batch size
++
++config ZENOH_PICO_ENCODING_VALUES
++	bool "Encoding values"
++	help
++	  Built-in encoding value constants
++
++config ZENOH_PICO_TCP_NODELAY
++	bool "TCP_NODELAY"
++	help
++	  Disable Nagle's algorithm on TCP links
++
++config ZENOH_PICO_SESSION_CHECK
++	bool "Session check"
++	help
++	  Validate the session on publisher/querier operations
++
++config ZENOH_PICO_BATCHING
++	bool "Batching"
++	help
++	  Batch multiple network messages together
++
++config ZENOH_PICO_UNICAST_PEER
++	bool "Unicast peer mode"
++	help
++	  Unicast peer-to-peer mode
++
++config ZENOH_PICO_AUTO_RECONNECT
++	bool "Automatic reconnection"
++	help
++	  Automatically reconnect a dropped session
++
+ endif
+ 
