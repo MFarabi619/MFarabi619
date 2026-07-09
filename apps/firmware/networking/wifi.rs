@@ -1,19 +1,14 @@
-use core::{
-    cell::UnsafeCell,
-    ffi::{c_char, c_void},
-    mem::MaybeUninit,
-};
+use core::ffi::{c_char, c_void};
 use zephyr::{
     raw::{
         conn_mgr_ignore_iface, k_timeout_t, net_addr_state_NET_ADDR_PREFERRED,
-        net_addr_type_NET_ADDR_MANUAL, net_dhcpv4_server_start, net_dhcpv4_server_stop, net_if,
-        net_if_get_wifi_sap, net_if_get_wifi_sta, net_if_ipv4_addr_add, net_if_ipv4_addr_rm,
+        net_addr_type_NET_ADDR_MANUAL, net_dhcpv4_server_start, net_if,
+        net_if_get_wifi_sap, net_if_get_wifi_sta, net_if_ipv4_addr_add,
         net_if_ipv4_get_global_addr, net_if_ipv4_get_gw, net_if_ipv4_set_gw,
         net_if_ipv4_set_netmask_by_addr, net_in_addr, net_ipv4_is_addr_unspecified,
-        net_mgmt_NET_REQUEST_WIFI_AP_DISABLE, net_mgmt_NET_REQUEST_WIFI_AP_ENABLE,
+        net_mgmt_NET_REQUEST_WIFI_AP_ENABLE,
         net_mgmt_NET_REQUEST_WIFI_CONNECT_STORED,
-        net_mgmt_add_event_callback, net_mgmt_del_event_callback, net_mgmt_event_callback,
-        net_mgmt_event_wait_on_iface, net_mgmt_init_event_callback, wifi_connect_req_params,
+        net_mgmt_event_wait_on_iface, wifi_connect_req_params,
         wifi_credentials_for_each_ssid, wifi_credentials_get_by_ssid_personal_struct,
         wifi_credentials_is_empty, wifi_credentials_personal,
         wifi_frequency_bands_WIFI_FREQ_BAND_2_4_GHZ, wifi_mfp_options_WIFI_MFP_OPTIONAL,
@@ -87,33 +82,6 @@ fn in_addr_v4(bytes: [u8; 4]) -> net_in_addr {
 
 pub mod ap {
     use super::*;
-
-    struct CbCell(UnsafeCell<MaybeUninit<net_mgmt_event_callback>>);
-    unsafe impl Sync for CbCell {}
-    static FALLBACK_CB: CbCell = CbCell(UnsafeCell::new(MaybeUninit::uninit()));
-
-    unsafe extern "C" fn on_dhcp_bound(
-        cb: *mut net_mgmt_event_callback,
-        _event: u64,
-        iface: *mut net_if,
-    ) {
-        if iface == unsafe { net_if_get_wifi_sap() } {
-            return;
-        }
-        info!("ap: STA got IP — tearing down fallback AP");
-        let _ = disable();
-        unsafe { net_mgmt_del_event_callback(cb) };
-    }
-
-    /// Fallback AP at 192.168.4.1/wlan1 conflicts with the peer-AP subnet on STA,
-    /// stalling DHCP in `selecting`. Disable the AP the moment STA gets a lease.
-    pub(super) fn start_fallback_watchdog() {
-        unsafe {
-            let cb = (*FALLBACK_CB.0.get()).as_mut_ptr();
-            net_mgmt_init_event_callback(cb, Some(on_dhcp_bound), ZR_NET_EVENT_IPV4_DHCP_BOUND);
-            net_mgmt_add_event_callback(cb);
-        }
-    }
 
     /// Pulls the first stored SSID via `wifi_credentials_for_each_ssid` into the buffer.
     /// Returns Some(len) on capture, None if the store is empty.
@@ -228,26 +196,6 @@ pub mod ap {
         Ok(())
     }
 
-    pub(super) fn disable() -> zephyr::Result<()> {
-        let iface = unsafe { net_if_get_wifi_sap() };
-        if iface.is_null() {
-            return to_result_void(ENODEV);
-        }
-        let rc = unsafe { net_dhcpv4_server_stop(iface) };
-        if rc != 0 && rc != -2
-        /* -ENOENT */
-        {
-            warn!("ap: dhcpv4 server stop: {rc}");
-        }
-        let ap_addr = super::in_addr_v4(AP_IPV4);
-        if !unsafe { net_if_ipv4_addr_rm(iface, &ap_addr) } {
-            warn!("addr_rm 192.168.4.1 returned false");
-        }
-        to_result_void(unsafe {
-            net_mgmt_NET_REQUEST_WIFI_AP_DISABLE(0, iface, core::ptr::null_mut(), 0)
-        })
-    }
-
     /// Explicit /24 route on the AP iface — without this, the longest-prefix-match
     /// route lookup matches a /0 default route (e.g. PPP on walter) before the
     /// onlink-subnet check, and DNAT'd replies to STAs get routed back out the
@@ -331,18 +279,7 @@ pub mod sta {
 
     pub fn initialize() -> zephyr::Result<()> {
         connect()?;
-        match wait_for_ipv4(Duration::secs(STA_CONNECT_TIMEOUT_SECS)) {
-            Ok(()) => Ok(()),
-            Err(e) => {
-                warn!("sta wait_for_ipv4: {e} — falling back to AP for provisioning");
-                if let Err(ape) = super::ap::initialize() {
-                    warn!("ap fallback: {ape}");
-                } else {
-                    super::ap::start_fallback_watchdog();
-                }
-                Err(e)
-            }
-        }
+        wait_for_ipv4(Duration::secs(STA_CONNECT_TIMEOUT_SECS))
     }
 
     fn connect() -> zephyr::Result<()> {

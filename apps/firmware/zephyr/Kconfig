@@ -50,7 +50,7 @@ choice ESPTOOLPY_FLASHSIZE
 endchoice
 
 choice WIFI_USAGE_MODE
-	default WIFI_USAGE_MODE_STA_AP
+	default WIFI_USAGE_MODE_STA
 endchoice
 endif
 
