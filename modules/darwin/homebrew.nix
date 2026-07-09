@@ -34,6 +34,7 @@
       "rust"
       "rustup" # rustup toolchain link system "$(brew --prefix rust)"
       "pulumi"
+      "opencascade"
       "atopile/tap/atopile"
     ]
     ++ [
