@@ -321,26 +321,32 @@ Return the absolute app path."
                 'west-update (current-buffer))
         :to-be-truthy))))
 
-(describe "west-compile-multi-tasks"
+(describe "west-tasks"
   (it "contributes update + patch apply tasks inside a workspace"
     (spy-on 'west-in-workspace-p :and-return-value t)
-    (let* ((tasks    (west-compile-multi-tasks))
-            (titles   (mapcar #'car tasks))
-            (commands (mapcar (lambda (task) (plist-get (cdr task) :command)) tasks)))
+    (let* ((tasks (west-tasks))
+            (names (mapcar (lambda (task) (plist-get task :name)) tasks))
+            (commands (mapcar (lambda (task) (plist-get task :command)) tasks)))
       (expect commands :to-contain "west update")
       (expect commands :to-contain #'west-patch-apply)
-      (expect (seq-some (lambda (s) (string-suffix-p "patch apply" s)) titles)
+      (expect names :to-contain "patch apply")
+      (expect names :not :to-contain "patch clean")
+      (expect (seq-every-p
+                (lambda (task) (equal (plist-get task :namespace) "west"))
+                tasks)
         :to-be-truthy)))
-
-  (it "does not surface a standalone patch clean task"
-    (spy-on 'west-in-workspace-p :and-return-value t)
-    (let ((titles (mapcar #'car (west-compile-multi-tasks))))
-      (expect (seq-some (lambda (s) (string-suffix-p "patch clean" s)) titles)
-        :to-be nil)))
 
   (it "returns nil outside a workspace"
     (spy-on 'west-in-workspace-p :and-return-value nil)
-    (expect (west-compile-multi-tasks) :to-be nil)))
+    (expect (west-tasks) :to-be nil)))
+
+(describe "west--compile-multi-tasks"
+  (it "feeds every west task through microvisor-task"
+    (spy-on 'west-in-workspace-p :and-return-value t)
+    (cl-letf (((symbol-function 'microvisor-task)
+               (lambda (task) (plist-get task :name))))
+      (expect (west--compile-multi-tasks)
+              :to-equal '("update" "patch apply")))))
 
 (describe "west-patches-path"
   (it "returns the absolute patches.yml path when present"

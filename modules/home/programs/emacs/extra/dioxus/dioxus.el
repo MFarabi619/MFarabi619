@@ -6,7 +6,7 @@
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/dioxus
 ;; Keywords: tools, languages
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "29.1") (compile-multi "0.7") (nerd-icons "0.1"))
+;; Package-Requires: ((emacs "29.1") (nerd-icons "0.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -29,7 +29,6 @@
 ;;
 ;;; Code:
 
-(require 'compile-multi)
 (require 'nerd-icons)
 (require 'seq)
 
@@ -77,10 +76,6 @@ declaration probing `dioxus-serve-port'."
   "Return the `dx' shell command string for ARGS targeting PACKAGE."
   (string-join (append '("dx") args (list "-p" package)) " "))
 
-(defun dioxus--annotation ()
-  "The right-aligned `dioxus' annotation (microvisor colors the icon)."
-  (concat "dioxus " (nerd-icons-faicon "nf-fa-dna")))
-
 (defun dioxus--workspace-root (&optional directory)
   "Return the workspace root at or above DIRECTORY (a `.git/' or Cargo dir)."
   (let ((start (or directory default-directory)))
@@ -88,7 +83,7 @@ declaration probing `dioxus-serve-port'."
       (locate-dominating-file start "Cargo.toml"))))
 
 (defun dioxus--toml (&optional directory)
-  "Return the path to the workspace's `Dioxus.toml', or nil.
+  "Return the path to DIRECTORY's workspace `Dioxus.toml', or nil.
 Globs conventional app locations under the workspace root, since the manifest
 typically sits in a member crate rather than the root."
   (when-let* ((root (dioxus--workspace-root directory)))
@@ -114,34 +109,36 @@ Reads the `name' field of the `Cargo.toml' beside the discovered `Dioxus.toml'."
   (and (dioxus--toml directory) t))
 
 (defun dioxus--task (spec package)
-  "Build a `(TITLE . PLIST)' compile-multi entry from SPEC for PACKAGE.
-SPEC is `(DISPLAY ICON ARGS . PLIST)'; a `:server' key becomes a process
-declaration probing `dioxus-serve-port'.  The title is grouped under a
-dioxus-glyphed PACKAGE header."
-  (let* ((glyph (nerd-icons-faicon "nf-fa-dna" :face 'nerd-icons-blue))
-          (server (plist-get (nthcdr 3 spec) :server)))
-    (cons (format "%s %s %s :%s %s"
-            glyph package glyph
-            (dioxus--nerd-icon (nth 1 spec))
-            (nth 0 spec))
-      (append (list :command    (dioxus--command (nth 2 spec) package)
-                :annotation (dioxus--annotation))
-        (when server
-          (list :process-compose
-            `(:disabled t
-              :config ((readiness_probe
-                        . ((http_get . ((host . "127.0.0.1")
-                                        (port . ,dioxus-serve-port)
-                                        (path . "/")))))))))))))
+  "Build a microvisor task plist from SPEC for PACKAGE.
+SPEC is `(DISPLAY ICON ARGS . PLIST)'; a `:server' key marks the task as a
+supervised daemon with a readiness probe on `dioxus-serve-port'."
+  (append (list :name (nth 0 spec) :namespace package
+            :icon (dioxus--nerd-icon (nth 1 spec)) :tool "dioxus"
+            :command (dioxus--command (nth 2 spec) package))
+    (when (plist-get (nthcdr 3 spec) :server)
+      (list :runner 'daemon
+        :config
+        `((readiness_probe
+           . ((http_get . ((host . "127.0.0.1")
+                           (port . ,dioxus-serve-port)
+                           (path . "/"))))))))))
 
-(defun dioxus-compile-multi-tasks ()
-  "Return the `dx' compile-multi task entries from `dioxus-tasks'."
+(defun dioxus-tasks-source ()
+  "Return the `dx' tasks when inside a Dioxus workspace."
   (when-let* ((root (dioxus--workspace-root))
                (package (dioxus--package root)))
     (mapcar (lambda (spec) (dioxus--task spec package)) dioxus-tasks)))
 
-(add-to-list 'compile-multi-config
-  '((dioxus-project-p) . (dioxus-compile-multi-tasks)))
+(declare-function microvisor-task "microvisor" (task))
+(defvar compile-multi-config)
+
+(defun dioxus--compile-multi-tasks ()
+  "Return the `dx' tasks as native `compile-multi' tasks."
+  (mapcar #'microvisor-task (dioxus-tasks-source)))
+
+(with-eval-after-load 'compile-multi
+  (add-to-list 'compile-multi-config
+               (list '(dioxus-project-p) #'dioxus--compile-multi-tasks)))
 
 (provide 'dioxus)
 

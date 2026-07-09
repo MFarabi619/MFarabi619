@@ -6,7 +6,7 @@
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/zephyr
 ;; Keywords: tools, embedded
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "29.1") (west "0.0") (yaml "0.5") (compile-multi "0.7"))
+;; Package-Requires: ((emacs "29.1") (west "0.0") (yaml "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -36,7 +36,6 @@
 (require 'xdg)
 (require 'yaml)
 (require 'treesit)
-(require 'compile-multi)
 
 (defgroup zephyr ()
   "Zephyr RTOS workspace integration."
@@ -373,12 +372,6 @@ MCUboot on SOC_FAMILY_ESPRESSIF_ESP32.")
   (concat (zephyr--west-run-command board-id app build-dir)
     " -- -DEXTRA_CONF_FILE=test.conf"))
 
-(defconst zephyr--compile-multi-group "\U000f1985"
-  "Kite glyph flanking the west task group header.")
-
-(defconst zephyr--task-annotation (concat "west " zephyr--compile-multi-group)
-  "Right-column annotation (label plus kite glyph) for west tasks.")
-
 (defconst zephyr--board-display-max 24
   "Maximum width of a board string shown in a task row.")
 
@@ -427,8 +420,8 @@ whose base is not already aliased is added under its canonical name."
               (cons (string-replace "/" "_" board) board))))
         (zephyr-app-boards app-path)))))
 
-(defun zephyr--app-compile-multi-tasks (app-plist workspace)
-  "Build + flash/run `compile-multi' entries for APP-PLIST under WORKSPACE."
+(defun zephyr--app-tasks (app-plist workspace)
+  "Return microvisor task plists for APP-PLIST's boards under WORKSPACE."
   (let* ((path (plist-get app-plist :path))
           (app  (directory-file-name (file-relative-name path workspace))))
     (mapcan
@@ -439,39 +432,44 @@ whose base is not already aliased is added under its canonical name."
                 (build-dir (concat "build/" label)))
           (append
             (list
-              (cons (format "%s west %s :\U000f0862 build %s"
-                      zephyr--compile-multi-group zephyr--compile-multi-group shown)
-                (list :command (zephyr--west-build-command board app build-dir)
-                  :annotation (propertize "\U0000e794" 'face 'nerd-icons-lgreen))))
+              (list :name (concat "build " shown) :namespace "west"
+                :icon "\U000f0862" :tool "west"
+                :command (zephyr--west-build-command board app build-dir)))
             (if (zephyr--board-emulated-p board)
               (list
-                (cons (format "%s west %s :\U000f0379 run %s"
-                        zephyr--compile-multi-group zephyr--compile-multi-group shown)
-                  (list :command
-                    (lambda ()
-                      (west--run-interactive
-                        "run" (zephyr--west-run-command board app build-dir)))
-                    :annotation zephyr--task-annotation))
-                (cons (format "%s west %s :\U000f0cea test %s"
-                        zephyr--compile-multi-group zephyr--compile-multi-group shown)
-                  (list :command (zephyr--west-test-command
-                                   board app (concat build-dir "-test"))
-                    :annotation zephyr--task-annotation)))
+                (list :name (concat "run " shown) :namespace "west"
+                  :icon "\U000f0379" :tool "west"
+                  :command (lambda ()
+                             (west--run-interactive
+                               "run" (zephyr--west-run-command
+                                       board app build-dir))))
+                (list :name (concat "test " shown) :namespace "west"
+                  :icon "\U000f0cea" :tool "west"
+                  :command (zephyr--west-test-command
+                             board app (concat build-dir "-test"))))
               (list
-                (cons (format "%s west %s :\U000f0530 flash %s"
-                        zephyr--compile-multi-group zephyr--compile-multi-group shown)
-                  (list :command (zephyr--west-flash-command build-dir)
-                    :annotation zephyr--task-annotation)))))))
+                (list :name (concat "flash " shown) :namespace "west"
+                  :icon "\U000f0530" :tool "west"
+                  :command (zephyr--west-flash-command build-dir)
+                  :runner 'compile))))))
       (zephyr--app-board-entries path))))
 
-(defun zephyr-compile-multi-tasks ()
-  "Workspace-wide `west build'/`west flash' `compile-multi' rows per board."
+(defun zephyr-tasks ()
+  "Workspace-wide west build/run/test/flash tasks, one set per board."
   (when-let* ((workspace (west-workspace-root)))
-    (mapcan (lambda (app) (zephyr--app-compile-multi-tasks app workspace))
+    (mapcan (lambda (app) (zephyr--app-tasks app workspace))
       (zephyr-apps workspace))))
 
-(add-to-list 'compile-multi-config
-  '((west-in-workspace-p) . (zephyr-compile-multi-tasks)))
+(declare-function microvisor-task "microvisor" (task))
+(defvar compile-multi-config)
+
+(defun zephyr--compile-multi-tasks ()
+  "Return the per-board west tasks as native `compile-multi' tasks."
+  (mapcar #'microvisor-task (zephyr-tasks)))
+
+(with-eval-after-load 'compile-multi
+  (add-to-list 'compile-multi-config
+               (list '(west-workspace-root) #'zephyr--compile-multi-tasks)))
 
 (provide 'zephyr)
 

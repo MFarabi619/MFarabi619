@@ -1,0 +1,15 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
+(package "glb-mode"
+         "0.0.1"
+         "Preview .glb models in an xwidget webkit view")
+
+(website-url "https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/glb-mode")
+(keywords "tools" "graphics" "3d")
+
+(package-file "glb-mode.el")
+
+(script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
+
+(development
+ (depends-on "buttercup"))

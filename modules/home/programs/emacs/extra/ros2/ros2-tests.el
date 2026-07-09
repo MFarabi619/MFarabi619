@@ -444,7 +444,7 @@ the protocol shape needs re-verifying.")
 (describe "node lifecycle helpers"
   (it "names each node's process-compose log buffer"
     (expect (ros2--node-log-buffer-name "bridge")
-      :to-equal "*process-compose-log: ros2:bridge*"))
+      :to-equal "*process-compose-log:ros2:bridge*"))
 
   (it "reports an undefined/unstarted node as stopped, and not running"
     (expect (ros2--node-state "no-such-node-running") :to-equal 'stopped)

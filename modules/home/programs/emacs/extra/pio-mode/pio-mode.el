@@ -6,7 +6,7 @@
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/pio-mode
 ;; Keywords: tools, embedded
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "29.1") (compile-multi "0.7") (nerd-icons "0.1"))
+;; Package-Requires: ((emacs "29.1") (nerd-icons "0.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -30,7 +30,6 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'compile-multi)
 (require 'json)
 (require 'map)
 (require 'nerd-icons)
@@ -59,7 +58,7 @@
   :link '(emacs-commentary-link :tag "Commentary" "pio-mode"))
 
 (defcustom pio-executable nil
-  "Path to the pio executable. If nil, search PATH for pio or platformio.
+  "Path to the pio executable.  If nil, search PATH for pio or platformio.
 Set this to a specific path when multiple PlatformIO installations
 exist on your system to choose which one to use."
   :type '(choice (const :tag "Auto-detect" nil) file))
@@ -238,7 +237,7 @@ appends `--environment ENV'.  PROJECT-ROOT defaults to the discovered pio root."
          ,@(when env (list "--environment" env)))
       " ")))
 
-(defcustom pio-compile-multi-targets
+(defcustom pio-targets
   '(("pio run"              "nf-md-play"            ("run"))
      ("pio test"             "nf-dev-embeddedc"      ("test"))
      ("pio test --without"   "nf-md-alarm_light"     ("test" "--without-building" "--without-uploading"))
@@ -246,29 +245,16 @@ appends `--environment ENV'.  PROJECT-ROOT defaults to the discovered pio root."
      ("pio run -t compiledb" "nf-dev-vscode"         ("run" "-t" "compiledb"))
      ("pio run -t uploadfs"  "nf-fa-cloud_arrow_up"  ("run" "-t" "uploadfs"))
      ("pio device monitor"   "nf-md-telescope"       ("device" "monitor")))
-  "Compile-multi tasks generated per env, each `(DISPLAY ICON ARGS)'.
+  "Tasks generated per env, each `(DISPLAY ICON ARGS)'.
 DISPLAY is the row label, ICON a nerd-icons `nf-SET-NAME' glyph (any set), ARGS
 the `pio' subcommand.  The command is scoped to the env via `--environment'."
   :type '(repeat (list (string :tag "Display")
                    (string :tag "Nerd-icon name")
                    (repeat :tag "pio args" string))))
 
-(defcustom pio-compile-multi-all-envs nil
+(defcustom pio-all-envs nil
   "When non-nil, generate tasks for every env, not just `default_envs'."
   :type 'boolean)
-
-(defcustom pio-compile-multi-show-label nil
-  "When non-nil, show the \"platformio\" label beside each task's bee icon.
-Off by default: the annotation is icon-only (just the bee)."
-  :type 'boolean)
-
-(defun pio--compile-multi-annotation ()
-  "Build the right-aligned task annotation: the bee icon, optionally labeled.
-Honors `pio-compile-multi-show-label'."
-  (let ((bee (nerd-icons-sucicon "nf-seti-platformio" :face 'nerd-icons-yellow)))
-    (if pio-compile-multi-show-label
-      (concat "platformio " bee)
-      bee)))
 
 (defconst pio--nerd-icon-functions
   '(("nf-md-"   . nerd-icons-mdicon)
@@ -285,32 +271,26 @@ Honors `pio-compile-multi-show-label'."
                        pio--nerd-icon-functions))))
     (funcall (or render #'nerd-icons-mdicon) name)))
 
-(defun pio--compile-multi-task (spec env root)
-  "Build a `(TITLE . PLIST)' compile-multi entry from SPEC for ENV under ROOT.
-SPEC is `(DISPLAY ICON ARGS)'; the task is grouped under ENV's bare name."
-  (cons (format "%s  :%s %s"
-          env
-          (pio--nerd-icon (nth 1 spec))
-          (nth 0 spec))
-    (list :command    (pio--compile-command (nth 2 spec) env root)
-      :annotation (pio--compile-multi-annotation))))
+(defun pio--task (spec env root)
+  "Build a microvisor task plist from SPEC for ENV under ROOT.
+SPEC is `(DISPLAY ICON ARGS)'; the task lives in ENV's namespace."
+  (list :name (nth 0 spec) :namespace env
+    :icon (pio--nerd-icon (nth 1 spec)) :tool "platformio"
+    :command (pio--compile-command (nth 2 spec) env root)))
 
-(defun pio-compile-multi-tasks ()
-  "Return the per-env compile-multi tasks for the current pio project.
-Generates `pio-compile-multi-targets' for each env, grouped by env name.
-Honors `pio-compile-multi-all-envs' (otherwise only `default_envs')."
+(defun pio-tasks ()
+  "Return the per-env tasks for the current pio project.
+Generates `pio-targets' for each env, one namespace per env name.
+Honors `pio-all-envs' (otherwise only `default_envs')."
   (when-let* ((root (pio-root))
-               (envs (or (and (not pio-compile-multi-all-envs)
+               (envs (or (and (not pio-all-envs)
                            (pio-default-envs root))
                        (pio-envs root))))
     (mapcan
       (lambda (env)
-        (mapcar (lambda (spec) (pio--compile-multi-task spec env root))
-          pio-compile-multi-targets))
+        (mapcar (lambda (spec) (pio--task spec env root))
+          pio-targets))
       envs)))
-
-(add-to-list 'compile-multi-config
-  '((pio-in-project-p) . (pio-compile-multi-tasks)))
 
 (defun pio-build-dir (&optional project-root)
   "Return PROJECT-ROOT's build directory (env var > `<root>/.pio')."
@@ -341,7 +321,7 @@ Real USB serial adapters always carry a `VID:PID=...' hwid."
 
 (defcustom pio-device-list-exclude-regexps nil
   "Port paths matching any of these regexps are hidden from `pio-device-list'.
-Applies on top of `pio-device-list-hide-unidentified'. Each entry is a
+Applies on top of `pio-device-list-hide-unidentified'.  Each entry is a
 regexp matched against the device's port path (e.g.
 \"/dev/cu.usbmodem1101\")."
   :type '(repeat regexp))
@@ -466,7 +446,7 @@ Signals typed errors via `pio--run-json'."
     result))
 
 (defcustom pio-device-monitor-profiles nil
-  "Alist of named monitor profiles. Each value is a plist of monitor settings.
+  "Alist of named monitor profiles.  Each value is a plist of monitor settings.
 
 Example:
   ((esp32 :port \"/dev/cu.usbmodem1101\" :baud 115200
@@ -531,7 +511,7 @@ receives the interrupt."
   "Keymap active in `pio-device-monitor-mode'.
 Reserves \\`C-c' for the underlying RTOS shell so it doesn't act as
 an Emacs prefix.  Buffer + window lifecycle is left to the user
-(`SPC b d', `C-x 0', etc.) — vterm tears down the PTY on `kill-buffer',
+\(`SPC b d', `C-x 0', etc.) — vterm tears down the PTY on `kill-buffer',
 and evil's default \\`C-g' still toggles insert → normal state.")
 
 (define-minor-mode pio-device-monitor-mode
@@ -938,6 +918,17 @@ by `pio-show-account-modeline'."
       (setq-local revert-buffer-function #'pio--revert)
       (pio--revert))
     (pop-to-buffer buffer)))
+
+(declare-function microvisor-task "microvisor" (task))
+(defvar compile-multi-config)
+
+(defun pio--compile-multi-tasks ()
+  "Return the per-env PlatformIO tasks as native `compile-multi' tasks."
+  (mapcar #'microvisor-task (pio-tasks)))
+
+(with-eval-after-load 'compile-multi
+  (add-to-list 'compile-multi-config
+               (list '(pio-root) #'pio--compile-multi-tasks)))
 
 (provide 'pio-mode)
 

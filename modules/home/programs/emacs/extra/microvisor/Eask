@@ -8,6 +8,7 @@
 (keywords "lisp" "tools" "convenience")
 
 (package-file "microvisor.el")
+(files "microvisor.el" "microvisor-process-compose.el" "microvisor-compile-multi.el")
 
 (script "check" "eask lint checkdoc && eask compile && eask clean elc && eask test buttercup")
 

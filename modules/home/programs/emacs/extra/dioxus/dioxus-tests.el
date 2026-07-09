@@ -36,9 +36,9 @@ created so the workspace root resolves.  `dir' is bound to the root."
 to `--platform desktop'), with `-p PKG' derived from the app's Cargo.toml.")
 
 (defun dioxus-tests--task (display)
-  "Return the generated task whose title ends with DISPLAY."
-  (seq-find (lambda (task) (string-suffix-p display (car task)))
-    (dioxus-compile-multi-tasks)))
+  "Return the generated task named DISPLAY."
+  (seq-find (lambda (task) (equal (plist-get task :name) display))
+    (dioxus-tasks-source)))
 
 (describe "dioxus-project-p"
   (it "detects a workspace containing a Dioxus app"
@@ -59,21 +59,22 @@ to `--platform desktop'), with `-p PKG' derived from the app's Cargo.toml.")
            ("apps/web/Cargo.toml" . "[package]\nname = \"web\"\n"))
       (expect (dioxus--package dir) :to-equal "web"))))
 
-(describe "dioxus-compile-multi-tasks"
+(describe "dioxus-tasks-source"
   (before-each
     (spy-on 'dioxus--workspace-root :and-return-value "/Users/x/repo/")
     (spy-on 'dioxus--package :and-return-value "web"))
 
-  (it "generates exactly the four dioxus tasks"
-    (expect (length (dioxus-compile-multi-tasks)) :to-equal 4))
-
-  (it "groups every task under the dioxus-glyphed package header"
-    (let ((glyph (nerd-icons-faicon "nf-fa-dna" :face 'nerd-icons-blue)))
-      (expect (seq-every-p (lambda (task)
-                             (and (string-search "web" (car task))
-                               (string-search glyph (car task))))
-                (dioxus-compile-multi-tasks))
-              :to-be-truthy)))
+  (it "generates exactly the four dioxus tasks in the package namespace"
+    (let ((tasks (dioxus-tasks-source)))
+      (expect (length tasks) :to-equal 4)
+      (expect (seq-every-p
+                (lambda (task) (equal (plist-get task :namespace) "web"))
+                tasks)
+        :to-be-truthy)
+      (expect (seq-every-p
+                (lambda (task) (equal (plist-get task :tool) "dioxus"))
+                tasks)
+        :to-be-truthy)))
 
   (describe "each task reproduces its command and icon"
     (dolist (spec dioxus-tests--expected)
@@ -84,25 +85,31 @@ to `--platform desktop'), with `-p PKG' derived from the app's Cargo.toml.")
         (it (format "renders `%s'" display)
           (let ((task (dioxus-tests--task display)))
             (expect task :not :to-be nil)
-            (expect (plist-get (cdr task) :command) :to-equal command)
-            (expect (car task) :to-match (regexp-quote (funcall icon-fn icon-name))))))))
+            (expect (plist-get task :command) :to-equal command)
+            (expect (plist-get task :icon)
+              :to-equal (funcall icon-fn icon-name)))))))
 
-  (it "declares the serve tasks as processes probing the serve port"
+  (it "supervises the serve tasks with a daemon runner + readiness probe"
     (dolist (display '("serve" "serve:desktop" "serve:ssg"))
-      (let* ((flag (plist-get (cdr (dioxus-tests--task display)) :process-compose))
+      (let* ((task (dioxus-tests--task display))
              (http-get (cdr (assq 'http_get
                                   (cdr (assq 'readiness_probe
-                                             (plist-get flag :config)))))))
-        (expect (plist-get flag :disabled) :to-be t)
+                                             (plist-get task :config)))))))
+        (expect (plist-get task :runner) :to-be 'daemon)
         (expect (cdr (assq 'port http-get)) :to-equal dioxus-serve-port))))
 
-  (it "leaves `build' as a one-shot (no process declaration)"
-    (expect (plist-get (cdr (dioxus-tests--task "build")) :process-compose)
-            :to-be nil)))
+  (it "leaves `build' as a one-shot (no runner override, no config)"
+    (expect (plist-get (dioxus-tests--task "build") :runner) :to-be nil)
+    (expect (plist-get (dioxus-tests--task "build") :config) :to-be nil)))
 
-(describe "compile-multi integration"
-  (it "registers the dioxus task generator in `compile-multi-config'"
-    (expect (assoc '(dioxus-project-p) compile-multi-config) :not :to-be nil)))
+(describe "dioxus--compile-multi-tasks"
+  (it "feeds every source task through microvisor-task"
+    (spy-on 'dioxus--workspace-root :and-return-value "/Users/x/repo/")
+    (spy-on 'dioxus--package :and-return-value "web")
+    (cl-letf (((symbol-function 'microvisor-task)
+               (lambda (task) (plist-get task :name))))
+      (expect (dioxus--compile-multi-tasks)
+              :to-equal '("serve" "serve:desktop" "serve:ssg" "build")))))
 
 (provide 'dioxus-tests)
 

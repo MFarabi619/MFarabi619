@@ -6,7 +6,7 @@
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/loco-rs
 ;; Keywords: tools, languages
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "29.1") (compile-multi "0.7") (nerd-icons "0.1"))
+;; Package-Requires: ((emacs "29.1") (nerd-icons "0.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -29,17 +29,16 @@
 ;;
 ;;; Code:
 
-(require 'compile-multi)
 (require 'nerd-icons)
 (require 'seq)
 
 (defgroup loco-rs ()
-  "Compile-multi integration for the loco-rs (`cargo loco') framework."
+  "Task integration for the loco-rs (`cargo loco') framework."
   :prefix "loco-rs-"
   :group 'tools)
 
 (defcustom loco-rs-tasks
-  '(("start"      "nf-dev-rails"               ("start") :process-compose server)
+  '(("start"      "nf-dev-rails"               ("start") :server t)
      ("db"         "nf-dev-database"            ("db"))
      ("db:status"  "nf-md-database_eye"         ("db" "status"))
      ("db:migrate" "nf-md-database_arrow_right" ("db" "migrate"))
@@ -47,11 +46,11 @@
      ("db:seed"    "nf-md-database_plus"        ("db" "seed"))
      ("routes"     "nf-md-routes"               ("routes"))
      ("jobs"       "nf-md-cogs"                 ("jobs"))
-     ("doctor"     "nf-fa-heart_pulse"          ("doctor") :process-compose t))
-  "Compile-multi task specs for `cargo loco', each `(DISPLAY ICON ARGS . PLIST)'.
-DISPLAY is the row label, ICON a nerd-icons `nf-SET-NAME' glyph (any set), ARGS
-the `cargo loco' subcommand.  A `:process-compose' key marks the task as a
-process declaration: `server' adds a readiness probe, t declares it plain."
+     ("doctor"     "nf-fa-heart_pulse"          ("doctor")))
+  "Task specs for `cargo loco', each `(DISPLAY ICON ARGS . PLIST)'.
+DISPLAY is the row label, ICON a nerd-icons `nf-SET-NAME' glyph (any set),
+ARGS the `cargo loco' subcommand.  A `:server' key adds a readiness probe
+and restart policy to the generated process config."
   :type '(repeat (cons (string :tag "Display")
                    (cons (string :tag "Nerd-icon name")
                      (cons (repeat :tag "loco args" string)
@@ -76,10 +75,6 @@ process declaration: `server' adds a readiness probe, t declares it plain."
 (defun loco-rs--command (args)
   "Return the `cargo loco' shell command string for ARGS."
   (string-join (append '("cargo" "loco") args) " "))
-
-(defun loco-rs--annotation ()
-  "The right-aligned `cargo' annotation (microvisor colors the rust icon)."
-  (concat "cargo " (nerd-icons-devicon "nf-dev-rust")))
 
 (defcustom loco-rs-default-port 5150
   "Fallback server port used when loco's config can't be read.
@@ -149,41 +144,29 @@ Mirrors loco's own resolution (environment, config folder, `<env>.yaml',
         (loco-rs--parse-port file))
     loco-rs-default-port))
 
-(defun loco-rs--process-compose-value (flag)
-  "Return the process declaration extras for a task marked FLAG.
-A `server' task gets a `/_readiness' probe on the resolved port."
-  (if (eq flag 'server)
-      `(:disabled t
-        :config ((readiness_probe
-                  . ((http_get . ((host . "127.0.0.1")
-                                  (port . ,(loco-rs--server-port))
-                                  (path . "/_readiness")))))
-                 (availability . ((restart . "on_failure")
-                                  (max_restarts . 2)))))
-    '(:disabled t)))
+(defun loco-rs--server-config ()
+  "Return the process config for the server: readiness probe + restarts."
+  `((readiness_probe
+     . ((http_get . ((host . "127.0.0.1")
+                     (port . ,(loco-rs--server-port))
+                     (path . "/_readiness")))))
+    (availability . ((restart . "on_failure")
+                     (max_restarts . 2)))))
 
 (defun loco-rs--task (spec)
-  "Build a `(TITLE . PLIST)' compile-multi entry from SPEC.
-SPEC is `(DISPLAY ICON ARGS . PLIST)'; PLIST keys pass through to the task.
-A `:process-compose' task carries its generated process declaration extras.
-The title is grouped under a train-glyphed `loco' header."
-  (let* ((train (nerd-icons-wicon "nf-weather-train"))
-          (extra (copy-sequence (nthcdr 3 spec))))
-    (when (plist-get extra :process-compose)
-      (setq extra (plist-put extra :process-compose
-                    (loco-rs--process-compose-value
-                     (plist-get extra :process-compose)))))
-    (cons (format "%s loco %s :%s %s"
-            train train
-            (loco-rs--nerd-icon (nth 1 spec))
-            (nth 0 spec))
-      (append (list :command    (loco-rs--command (nth 2 spec))
-                :annotation (loco-rs--annotation))
-        extra))))
+  "Build a microvisor task plist from SPEC.
+SPEC is `(DISPLAY ICON ARGS . PLIST)'; a `:server' key in PLIST marks the
+task as a supervised daemon with a readiness probe and restart policy."
+  (append (list :name (nth 0 spec) :namespace "loco"
+            :icon (loco-rs--nerd-icon (nth 1 spec)) :tool "cargo"
+            :command (loco-rs--command (nth 2 spec)))
+    (when (plist-get (nthcdr 3 spec) :server)
+      (list :runner 'daemon :config (loco-rs--server-config)))))
 
-(defun loco-rs-compile-multi-tasks ()
-  "Return the `cargo loco' compile-multi task entries from `loco-rs-tasks'."
-  (mapcar #'loco-rs--task loco-rs-tasks))
+(defun loco-rs-tasks-source ()
+  "Return the `cargo loco' tasks when inside a loco project."
+  (when (loco-rs-project-p)
+    (mapcar #'loco-rs--task loco-rs-tasks)))
 
 (defun loco-rs-project-p (&optional directory)
   "Non-nil when DIRECTORY sits in a project wired for `cargo loco'.
@@ -195,8 +178,16 @@ alias (the alias is what makes `cargo loco' runnable)."
       (goto-char (point-min))
       (and (re-search-forward "^[[:space:]]*loco[[:space:]]*=" nil t) t))))
 
-(add-to-list 'compile-multi-config
-  '((loco-rs-project-p) . (loco-rs-compile-multi-tasks)))
+(declare-function microvisor-task "microvisor" (task))
+(defvar compile-multi-config)
+
+(defun loco-rs--compile-multi-tasks ()
+  "Return the `cargo loco' tasks as native `compile-multi' tasks."
+  (mapcar #'microvisor-task (loco-rs-tasks-source)))
+
+(with-eval-after-load 'compile-multi
+  (add-to-list 'compile-multi-config
+               (list '(loco-rs-project-p) #'loco-rs--compile-multi-tasks)))
 
 (provide 'loco-rs)
 

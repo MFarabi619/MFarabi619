@@ -47,23 +47,24 @@ subcommands are `db migrate' (up) and `db down' (down), so the labels are
 renamed to `db:migrate' and `db:down' to match.")
 
 (defun loco-rs-tests--task (display)
-  "Return the generated task whose title ends with DISPLAY."
-  (seq-find (lambda (task) (string-suffix-p display (car task)))
-    (loco-rs-compile-multi-tasks)))
+  "Return the generated task named DISPLAY."
+  (seq-find (lambda (task) (equal (plist-get task :name) display))
+    (mapcar #'loco-rs--task loco-rs-tasks)))
 
-(describe "loco-rs-compile-multi-tasks"
-  (it "generates exactly the nine loco tasks"
-    (expect (length (loco-rs-compile-multi-tasks)) :to-equal 9))
+(describe "loco-rs task generation"
+  (it "generates exactly the nine loco tasks in the loco namespace"
+    (let ((tasks (mapcar #'loco-rs--task loco-rs-tasks)))
+      (expect (length tasks) :to-equal 9)
+      (expect (seq-every-p
+                (lambda (task) (equal (plist-get task :namespace) "loco"))
+                tasks)
+        :to-be-truthy)
+      (expect (seq-every-p
+                (lambda (task) (equal (plist-get task :tool) "cargo"))
+                tasks)
+        :to-be-truthy)))
 
-  (it "groups every task under a train-glyphed `loco' header"
-    (let ((train (nerd-icons-wicon "nf-weather-train")))
-      (expect (seq-every-p (lambda (task)
-                             (and (string-search "loco" (car task))
-                               (string-search train (car task))))
-                (loco-rs-compile-multi-tasks))
-              :to-be-truthy)))
-
-  (describe "each task reproduces its `.dir-locals' command and icon"
+  (describe "each task reproduces its command and icon"
     (dolist (spec loco-rs-tests--expected)
       (let ((display   (nth 0 spec))
              (command  (nth 1 spec))
@@ -72,33 +73,39 @@ renamed to `db:migrate' and `db:down' to match.")
         (it (format "renders `%s'" display)
           (let ((task (loco-rs-tests--task display)))
             (expect task :not :to-be nil)
-            (expect (plist-get (cdr task) :command) :to-equal command)
-            (expect (car task) :to-match (regexp-quote (funcall icon-fn icon-name))))))))
+            (expect (plist-get task :command) :to-equal command)
+            (expect (plist-get task :icon)
+              :to-equal (funcall icon-fn icon-name)))))))
 
-  (it "declares only `start' and `doctor' as processes"
-    (expect (plist-get (cdr (loco-rs-tests--task "start")) :process-compose)
-            :to-be-truthy)
-    (expect (plist-get (cdr (loco-rs-tests--task "doctor")) :process-compose)
-            :to-be-truthy)
+  (it "supervises only `start' (daemon + process config)"
+    (expect (plist-get (loco-rs-tests--task "start") :runner) :to-be 'daemon)
+    (expect (plist-get (loco-rs-tests--task "start") :config) :to-be-truthy)
     (dolist (display '("db" "db:status" "db:migrate" "db:down"
-                        "db:seed" "routes" "jobs"))
-      (expect (plist-get (cdr (loco-rs-tests--task display)) :process-compose)
-              :to-be nil)))
+                        "db:seed" "routes" "jobs" "doctor"))
+      (expect (plist-get (loco-rs-tests--task display) :runner) :to-be nil)
+      (expect (plist-get (loco-rs-tests--task display) :config) :to-be nil)))
 
   (it "probes the `start' server on the port loco-rs derives"
     (spy-on 'loco-rs--server-port :and-return-value 9999)
-    (let* ((flag (plist-get (cdr (loco-rs-tests--task "start")) :process-compose))
+    (let* ((config (plist-get (loco-rs-tests--task "start") :config))
            (http-get (cdr (assq 'http_get
-                                (cdr (assq 'readiness_probe
-                                           (plist-get flag :config)))))))
+                                (cdr (assq 'readiness_probe config))))))
       (expect (cdr (assq 'port http-get)) :to-equal 9999)))
 
-  (it "annotates every task with the cargo icon"
-    (expect (seq-every-p (lambda (task)
-                           (string-match-p "cargo"
-                             (or (plist-get (cdr task) :annotation) "")))
-              (loco-rs-compile-multi-tasks))
-            :to-be-truthy)))
+  (it "self-gates the source on being inside a loco project"
+    (spy-on 'loco-rs-project-p :and-return-value nil)
+    (expect (loco-rs-tasks-source) :to-be nil)
+    (spy-on 'loco-rs-project-p :and-return-value t)
+    (expect (length (loco-rs-tasks-source)) :to-equal 9)))
+
+(describe "loco-rs--compile-multi-tasks"
+  (it "feeds every source task through microvisor-task"
+    (spy-on 'loco-rs-project-p :and-return-value t)
+    (cl-letf (((symbol-function 'microvisor-task)
+               (lambda (task) (plist-get task :name))))
+      (expect (loco-rs--compile-multi-tasks)
+              :to-equal '("start" "db" "db:status" "db:migrate" "db:down"
+                          "db:seed" "routes" "jobs" "doctor")))))
 
 (describe "loco-rs-project-p"
   (it "detects a project whose .cargo/config.toml defines a loco alias"
@@ -153,37 +160,20 @@ renamed to `db:migrate' and `db:down' to match.")
       (let ((loco-rs-default-port 5150))
         (expect (loco-rs--server-port dir) :to-equal 5150)))))
 
-(describe "compile-multi integration"
-  (it "registers the loco task generator in `compile-multi-config'"
-    (expect (assoc '(loco-rs-project-p) compile-multi-config) :not :to-be nil)))
 
 (provide 'loco-rs-tests)
 
-(describe "loco-rs process declarations"
-  (it "start emits a disabled process probing /_readiness on the resolved port"
+(describe "loco-rs server config"
+  (it "start probes /_readiness on the resolved port with a restart policy"
     (spy-on 'loco-rs--server-port :and-return-value 5150)
     (let* ((task (loco-rs--task
-                  '("start" "nf-dev-rails" ("start") :process-compose server)))
-           (flag (plist-get (cdr task) :process-compose))
+                  '("start" "nf-dev-rails" ("start") :server t)))
+           (config (plist-get task :config))
            (http-get (cdr (assq 'http_get
-                                (cdr (assq 'readiness_probe
-                                           (plist-get flag :config)))))))
-      (expect (plist-get flag :disabled) :to-be t)
+                                (cdr (assq 'readiness_probe config))))))
       (expect (cdr (assq 'path http-get)) :to-equal "/_readiness")
       (expect (cdr (assq 'port http-get)) :to-equal 5150)
-      (expect (cdr (assq 'restart
-                         (cdr (assq 'availability (plist-get flag :config)))))
-              :to-equal "on_failure")))
-  (it "doctor emits a plain disabled process"
-    (let ((flag (plist-get
-                 (cdr (loco-rs--task
-                       '("doctor" "nf-fa-heart_pulse" ("doctor")
-                         :process-compose t)))
-                 :process-compose)))
-      (expect flag :to-equal '(:disabled t))))
-  (it "unmarked tasks emit no declaration"
-    (expect (plist-get (cdr (loco-rs--task '("db" "nf-dev-database" ("db"))))
-                       :process-compose)
-            :to-be nil)))
+      (expect (cdr (assq 'restart (cdr (assq 'availability config))))
+              :to-equal "on_failure"))))
 
 ;;; loco-rs-tests.el ends here

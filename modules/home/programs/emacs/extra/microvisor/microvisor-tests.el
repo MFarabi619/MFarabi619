@@ -8,206 +8,208 @@
 (require 'buttercup)
 (require 'microvisor)
 
-(describe "microvisor-icon-face"
-  (it "returns the registered face for a known prefix"
-    (expect (microvisor-icon-face "cargo")  :to-equal 'nerd-icons-orange)
-    (expect (microvisor-icon-face "west")   :to-equal 'nerd-icons-purple))
+(defun microvisor-tests--task (&rest overrides)
+  "Build a task plist from OVERRIDES over sane defaults."
+  (append overrides '(:name "serve" :namespace "web" :command "trunk serve")))
 
-  (it "returns nil for an unknown prefix"
+(describe "microvisor-icon-face"
+  (it "returns the registered face for a known tool"
+    (expect (microvisor-icon-face "cargo") :to-equal 'nerd-icons-orange)
+    (expect (microvisor-icon-face "west")  :to-equal 'nerd-icons-purple))
+  (it "returns nil for an unknown tool"
     (expect (microvisor-icon-face "totally-fake") :not :to-be-truthy)))
 
-(describe "microvisor--split-title"
-  (it "splits on the first colon and trims both halves"
-    (expect (microvisor--split-title "ESP32S3 : test:hello")
-            :to-equal '("ESP32S3" . "test:hello")))
-
-  (it "returns the title in both halves when there is no colon"
-    (expect (microvisor--split-title "activate")
-            :to-equal '("activate" . "activate"))))
-
-(describe "microvisor--annotation-function"
-  (it "renders an icon in the registered face for a known prefix"
-    (let* ((task   '("ESP32S3 : run" :annotation "     cargo X"))
-           (result (microvisor--annotation-function
-                    (lambda (_) "FALLBACK") task)))
-      (expect (get-text-property (1- (length result)) 'face result)
-              :to-equal 'nerd-icons-orange)))
-
-  (it "falls back to ORIGINAL-FUNCTION when annotation lacks an icon glyph"
-    (let* ((task   '("foo" :annotation "cargo"))
-           (result (microvisor--annotation-function
-                    (lambda (_) "FALLBACK") task)))
-      (expect result :to-equal "FALLBACK")))
-
-  (it "falls back to ORIGINAL-FUNCTION when there is no :annotation"
-    (let ((result (microvisor--annotation-function
-                   (lambda (_) "FALLBACK") '("foo"))))
-      (expect result :to-equal "FALLBACK")))
-
-  (it "falls back when the prefix is not in `microvisor-icon-faces'"
-    (let* ((task   '("foo" :annotation "unknown-tool x"))
-           (result (microvisor--annotation-function
-                    (lambda (_) "FALLBACK") task)))
-      (expect result :to-equal "FALLBACK")))
-
-  (it "renders a lone glyph as an icon-only annotation, preserving its face"
-    (let* ((glyph  (propertize "" 'face 'nerd-icons-yellow))
-            (task   (list "foo" :annotation glyph))
-            (result (microvisor--annotation-function (lambda (_) "FALLBACK") task)))
-      (expect result :not :to-equal "FALLBACK")
-      (expect result :to-match (regexp-quote ""))
-      (expect (get-text-property (1- (length result)) 'face result)
-              :to-equal 'nerd-icons-yellow)))
-
-  (it "omits the label text by default, showing only the colored icon"
-    (let* ((task   '("ESP32S3 : run" :annotation "cargo X"))
-           (result (microvisor--annotation-function
-                    (lambda (_) "FALLBACK") task)))
-      (expect (substring-no-properties result) :not :to-match "cargo")
-      (expect result :to-match "X")
-      (expect (get-text-property (1- (length result)) 'face result)
-              :to-equal 'nerd-icons-orange)))
-
-  (it "shows the label text when `microvisor-annotation-show-label' is non-nil"
-    (let* ((microvisor-annotation-show-label t)
-           (task   '("ESP32S3 : run" :annotation "cargo X"))
-           (result (microvisor--annotation-function
-                    (lambda (_) "FALLBACK") task)))
-      (expect (substring-no-properties result) :to-match "cargo"))))
-
-(describe "microvisor--running-face-function"
-  (it "greens the title of a running :process-compose task"
-    (let ((process-compose--states
-           (list (let ((state (make-hash-table :test #'equal)))
-                   (puthash "name" "tui-run" state)
-                   (puthash "is_running" t state)
-                   state))))
-      (let* ((task '(" tui  : run" :process-compose (:disabled t)))
-             (result (car (microvisor--running-face-function
-                           (lambda (tasks) tasks) (list task)))))
-        (expect (memq 'success
-                      (flatten-tree
-                       (get-text-property 0 'face (car result))))
-                :to-be-truthy))))
-  (it "leaves stopped and unmarked tasks untouched"
-    (let ((process-compose--states nil))
-      (let* ((task '(" tui  : run" :process-compose (:disabled t)))
-             (result (car (microvisor--running-face-function
-                           (lambda (tasks) tasks) (list task)))))
-        (expect (get-text-property 0 'face (car result)) :to-be nil))
-      (let* ((task '("plain task" :command "x"))
-             (result (car (microvisor--running-face-function
-                           (lambda (tasks) tasks) (list task)))))
-        (expect (car result) :to-equal "plain task")))))
-
-(describe "microvisor--process-compose-slug"
-  (it "slugifies a display name for the process handle"
-    (expect (microvisor--process-compose-slug "run") :to-equal "run")
-    (expect (microvisor--process-compose-slug "example:simulator(min)")
+(describe "microvisor--slug"
+  (it "lowercases and hyphenates punctuation, trimming the edges"
+    (expect (microvisor--slug "example:simulator(min)")
             :to-equal "example-simulator-min")
-    (expect (microvisor--process-compose-slug "dx serve") :to-equal "dx-serve")))
+    (expect (microvisor--slug "build walter") :to-equal "build-walter")))
 
-(describe "microvisor--plain-label"
-  (it "strips glyphs and whitespace"
-    (expect (microvisor--plain-label "󰕮 microtop 󰕮") :to-equal "microtop")
-    (expect (microvisor--plain-label " firmware ") :to-equal "firmware")
-    (expect (microvisor--plain-label "󰍹 example:simulator")
-            :to-equal "example:simulator")))
+(describe "microvisor-task"
+  (it "bakes the title, a tool+glyph annotation, and a daemon marker"
+    (let* ((microvisor-namespace-icons '(("loco" . "L")))
+           (microvisor-tool-display '(("cargo" "G" . nerd-icons-orange)))
+           (task (microvisor-task
+                  '(:name "start" :namespace "loco" :icon "R" :tool "cargo"
+                    :command "cargo loco start" :runner daemon
+                    :config ((availability . t))))))
+      (expect (car task) :to-equal "L loco L:R start")
+      (expect (plist-get (cdr task) :command) :to-equal "cargo loco start")
+      (expect (plist-get (cdr task) :annotation) :to-equal "cargo G")
+      (expect (plist-get (cdr task) :process-compose)
+              :to-equal '((availability . t)))))
+  (it "leaves a plain task unmarked, keeping the tool+glyph annotation"
+    (let* ((microvisor-tool-display '(("cargo" "G" . nerd-icons-orange)))
+           (task (microvisor-task
+                  '(:name "db" :namespace "loco" :icon "D" :tool "cargo"
+                    :command "cargo loco db"))))
+      (expect (plist-member (cdr task) :process-compose) :to-be nil)
+      (expect (plist-get (cdr task) :annotation) :to-equal "cargo G")))
+  (it "falls back to a bare namespace label with no glyph or tool"
+    (let ((microvisor-namespace-icons nil)
+          (microvisor-tool-display nil))
+      (expect (car (microvisor-task (microvisor-tests--task)))
+              :to-equal "web:serve"))))
 
-(describe "microvisor-register-process-compose-services"
+(describe "microvisor--process-compose-run"
   (before-each
     (spy-on 'process-compose-declare)
+    (spy-on 'process-compose-ensure)
     (spy-on 'process-compose-reconcile)
-    (spy-on 'projectile-project-root :and-return-value "/proj/"))
+    (spy-on 'process-compose-log-buffer)
+    (spy-on 'display-buffer))
+  (it "declares the task under its namespace, then starts it"
+    (spy-on 'process-compose-state :and-return-value nil)
+    (spy-on 'process-compose-start-process)
+    (microvisor--process-compose-run "loco-serve" "loco" "trunk serve")
+    (expect 'process-compose-declare :to-have-been-called-with
+            '(:name "loco-serve" :namespace "loco" :command "trunk serve"))
+    (expect 'process-compose-start-process
+            :to-have-been-called-with "loco-serve"))
+  (it "folds a config alist into the declaration"
+    (spy-on 'process-compose-state :and-return-value nil)
+    (spy-on 'process-compose-start-process)
+    (microvisor--process-compose-run "loco-serve" "loco" "trunk serve"
+                                     '((availability . t)))
+    (expect 'process-compose-declare :to-have-been-called-with
+            '(:name "loco-serve" :namespace "loco" :command "trunk serve"
+              :config ((availability . t)))))
+  (it "restarts a handle that already has board state"
+    (spy-on 'process-compose-state :and-return-value (make-hash-table))
+    (spy-on 'process-compose-restart-process)
+    (microvisor--process-compose-run "loco-serve" "loco" "trunk serve")
+    (expect 'process-compose-restart-process
+            :to-have-been-called-with "loco-serve")))
 
-  (it "declares every :process-compose task, carrying flag-value extras"
-    (let ((compile-multi-config nil))
-      (microvisor-register-process-compose-services
-       '((t ("󰕮 microtop 󰕮 :󰳽 serve" :command "trunk serve" :process-compose t)
-            (" firmware  :󰍹 simulator" :command "cargo r" :process-compose (:disabled t))
-            (" other  : plain" :command "x"))))
-      (expect 'process-compose-declare :to-have-been-called-times 2)
-      (let ((first-declaration (car (spy-calls-args-for 'process-compose-declare 0)))
-            (second-declaration (car (spy-calls-args-for 'process-compose-declare 1))))
-        (expect (plist-get first-declaration :name) :to-equal "microtop-serve")
-        (expect (plist-get first-declaration :namespace) :to-equal "microtop")
-        (expect (plist-get first-declaration :display-name) :to-equal "serve")
-        (expect (plist-get first-declaration :command) :to-equal "trunk serve")
-        (expect (plist-get second-declaration :name)
-                :to-equal "firmware-simulator")
-        (expect (plist-get second-declaration :display-name)
-                :to-equal "simulator")
-        (expect (plist-get second-declaration :disabled) :to-be t))
-      (expect 'process-compose-reconcile :to-have-been-called))))
+(describe "board config (generated, not spied)"
+  (it "serialises the declaration to valid JSON with a string namespace"
+    (let ((process-compose-processes nil))
+      (process-compose-declare
+       (list :name "loco-serve" :namespace "loco" :command "trunk serve"
+             :config '((availability . ((restart . "on_failure"))))))
+      (let* ((parsed (json-parse-string (process-compose--project-config "t")))
+             (proc (gethash "loco-serve" (gethash "processes" parsed))))
+        (expect (gethash "namespace" proc) :to-equal "loco")
+        (expect (gethash "command" proc) :to-equal "trunk serve")))))
 
-(describe "microvisor--maybe-register-services"
-  (before-each (spy-on 'microvisor-register-process-compose-services))
+(describe "microvisor--run-task"
+  (before-each (spy-on 'compile))
+  (it "routes a :process-compose task to the board, slugging the title"
+    (spy-on 'compile-multi--get-task :and-return-value
+            '("󰕮 microtop 󰕮: 󰳽 serve" :command "trunk serve" :process-compose t))
+    (spy-on 'microvisor--process-compose-run)
+    (microvisor--run-task)
+    (expect 'microvisor--process-compose-run :to-have-been-called-with
+            "microtop-serve" "microtop" "trunk serve" nil)
+    (expect 'compile :not :to-have-been-called))
+  (it "passes a :process-compose config alist through to the board"
+    (spy-on 'compile-multi--get-task :and-return-value
+            '("web: serve" :command "trunk serve"
+              :process-compose ((availability . t))))
+    (spy-on 'microvisor--process-compose-run)
+    (microvisor--run-task)
+    (expect 'microvisor--process-compose-run :to-have-been-called-with
+            "web-serve" "web" "trunk serve" '((availability . t))))
+  (it "compiles a plain string task"
+    (spy-on 'compile-multi--get-task :and-return-value
+            '("esp32s3: build" :command "cargo +esp bb"))
+    (microvisor--run-task)
+    (expect 'compile :to-have-been-called-with "cargo +esp bb"))
+  (it "calls a function command directly"
+    (spy-on 'compile-multi--get-task :and-return-value
+            (list "west: patch" :command #'ignore))
+    (spy-on 'ignore)
+    (microvisor--run-task)
+    (expect 'ignore :to-have-been-called)))
 
-  (it "no-ops when compile-multi-dir-local-config is unbound"
-    (let (compile-multi-dir-local-config)
-      (makunbound 'compile-multi-dir-local-config)
-      (microvisor--maybe-register-services)
-      (expect 'microvisor-register-process-compose-services
-              :not :to-have-been-called)))
+(describe "microvisor--compile-multi-annotation-advice"
+  (it "tints a native :annotation with its named tool's face"
+    (let ((result (microvisor--compile-multi-annotation-advice
+                   (lambda (_) (copy-sequence "cargo +esp"))
+                   '("t" :command "x" :annotation "cargo +esp "))))
+      (expect (get-text-property 0 'face result) :to-be 'nerd-icons-orange)))
+  (it "leaves an unknown-tool :annotation untinted"
+    (expect (get-text-property
+             0 'face (microvisor--compile-multi-annotation-advice
+                      (lambda (_) (copy-sequence "whatever"))
+                      '("t" :command "x" :annotation "notatool ")))
+            :to-be nil))
+  (it "returns the original untinted when there is no :annotation"
+    (expect (microvisor--compile-multi-annotation-advice
+             (lambda (_) "ORIG") '("t" :command "x"))
+            :to-equal "ORIG")))
 
-  (it "delegates when compile-multi-dir-local-config is bound and non-nil"
-    (let ((compile-multi-dir-local-config
-           '((t (" loco  : doctor" :command "x" :process-compose (:disabled t))))))
-      (microvisor--maybe-register-services)
-      (expect 'microvisor-register-process-compose-services
-              :to-have-been-called))))
+(describe "microvisor--group-margin-advice"
+  (before-each (spy-on 'process-compose-state :and-return-value nil))
+  (it "left-pads the stripped display and leaves the header alone"
+    (expect (microvisor--group-margin-advice
+             (lambda (_c _t) "build") "esp32s3:build" t)
+            :to-equal " build")
+    (expect (microvisor--group-margin-advice
+             (lambda (_c _t) "esp32s3") "esp32s3:build" nil)
+            :to-equal "esp32s3"))
+  (it "tints a live process row by its status face"
+    (spy-on 'microvisor--process-status :and-return-value '(vui-success . " "))
+    (let ((row (microvisor--group-margin-advice
+                (lambda (_c _t) "start") "loco:start" t)))
+      (expect (substring-no-properties row) :to-equal " start")
+      (expect (memq 'vui-success (ensure-list (get-text-property 0 'face row)))
+              :to-be-truthy))))
+
+(describe "microvisor--process-status"
+  (it "maps a live process to its status face with a plain lead"
+    (spy-on 'process-compose-state :and-return-value (make-hash-table :test 'equal))
+    (spy-on 'process-compose--status-class :and-return-value 'failed)
+    (let ((status (microvisor--process-status "loco:start")))
+      (expect (car status) :to-be 'vui-error)
+      (expect (cdr status) :to-equal " ")))
+  (it "returns nil when the title has no live process"
+    (spy-on 'process-compose-state :and-return-value nil)
+    (expect (microvisor--process-status "esp32s3:build") :to-be nil)))
+
+(describe "microvisor--picker-refresh"
+  (it "installs then removes the timer and states hook"
+    (microvisor--picker-refresh t)
+    (expect microvisor--picker-timer :to-be-truthy)
+    (expect (memq #'microvisor--refresh-picker
+                  process-compose--states-updated-hook) :to-be-truthy)
+    (microvisor--picker-refresh nil)
+    (expect microvisor--picker-timer :to-be nil)
+    (expect (memq #'microvisor--refresh-picker
+                  process-compose--states-updated-hook) :to-be nil)))
+
+(describe "process-compose end-to-end (real daemon, no spies)"
+  (it "runs a :process-compose task and streams its output to the log"
+    (assume (executable-find "process-compose") "process-compose not installed")
+    (let* ((dir (make-temp-file "microvisor-e2e-" t))
+           (default-directory (file-name-as-directory dir)))
+      (call-process "git" nil nil nil "init")
+      (unwind-protect
+          (progn
+            (microvisor--process-compose-run
+             "e2e-echo" "test" "echo E2E_MARKER; sleep 2")
+            (let ((deadline (+ (float-time) 15)))
+              (while (and (< (float-time) deadline)
+                          (not (string-match-p
+                                "E2E_MARKER"
+                                (with-current-buffer
+                                    (process-compose-log-buffer "e2e-echo")
+                                  (buffer-string)))))
+                (accept-process-output nil 0.2)))
+            (expect (with-current-buffer (process-compose-log-buffer "e2e-echo")
+                      (buffer-string))
+                    :to-match "E2E_MARKER"))
+        (ignore-errors (process-compose-down))
+        (dotimes (_ 10) (accept-process-output nil 0.2))
+        (ignore-errors (delete-directory dir t))))))
 
 (describe "load-time installation"
-  (it "registers `microvisor--annotation-function' as :around advice"
-    (expect (advice-member-p #'microvisor--annotation-function
+  (it "advises compile-multi's annotation and group functions"
+    (expect (advice-member-p #'microvisor--compile-multi-annotation-advice
                              'compile-multi--annotation-function)
-            :to-be-truthy))
-
-  (it "registers `microvisor--running-face-function' as :around advice"
-    (expect (advice-member-p #'microvisor--running-face-function
-                             'compile-multi--add-properties)
-            :to-be-truthy))
-
-  (it "hooks `microvisor--maybe-register-services' into hack-local-variables-hook"
-    (expect (memq #'microvisor--maybe-register-services
-                  hack-local-variables-hook)
+            :to-be-truthy)
+    (expect (advice-member-p #'microvisor--group-margin-advice
+                             'compile-multi--group-function)
             :to-be-truthy)))
-
-(describe "microvisor-sort-tasks"
-  (it "places patch tasks right after update per the configured order"
-    (expect
-      (microvisor-sort-tasks
-        '("W :* build aaa" "W :* patch apply" "W :* update" "W :* run aaa"))
-      :to-equal
-      '("W :* update" "W :* patch apply" "W :* run aaa" "W :* build aaa")))
-
-  (it "orders by group, the configured command order, then target"
-    (expect
-      (microvisor-sort-tasks
-        '("W :* flash bbb" "W :* build bbb" "W :* run aaa"
-           "W :* build aaa" "W :* test aaa" "W :* update"))
-      :to-equal
-      '("W :* update" "W :* run aaa" "W :* test aaa"
-         "W :* build aaa" "W :* build bbb" "W :* flash bbb")))
-
-  (it "keeps tasks of different groups apart"
-    (expect
-      (microvisor-sort-tasks '("X :* build z" "W :* build a" "X :* build a"))
-      :to-equal
-      '("W :* build a" "X :* build a" "X :* build z")))
-
-  (it "falls back to the raw candidate when it has no command form"
-    (expect (microvisor-sort-tasks '("zeta" "alpha"))
-      :to-equal '("alpha" "zeta")))
-
-  (it "floats the most recent run's group and command to the top"
-    (let ((compile-multi-history '("X :* build z")))
-      (expect (microvisor-sort-tasks '("W :* run a" "X :* build a" "X :* build z"))
-        :to-equal '("X :* build z" "X :* build a" "W :* run a"))))
-
-  (it "registers a display-sort-function for the compile-multi category"
-    (expect (alist-get 'display-sort-function
-              (alist-get 'compile-multi completion-category-overrides))
-      :to-equal #'microvisor-sort-tasks)))
 
 ;;; microvisor-tests.el ends here

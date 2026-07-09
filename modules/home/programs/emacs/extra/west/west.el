@@ -6,7 +6,7 @@
 ;; URL: https://github.com/MFarabi619/MFarabi619/modules/home/programs/emacs/extra/west
 ;; Keywords: tools, embedded
 ;; Version: 0.0.1
-;; Package-Requires: ((emacs "29.1") (projectile "2.8") (yaml "0.5") (compile-multi "0.7"))
+;; Package-Requires: ((emacs "29.1") (projectile "2.8") (yaml "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -41,7 +41,6 @@
 (require 'vc-git)
 (require 'projectile)
 (require 'yaml)
-(require 'compile-multi)
 
 (declare-function vterm "vterm")
 (defvar vterm-shell)
@@ -154,7 +153,8 @@
     (west-manifest-apps)))
 
 (defun west--resolve-patch-app (&optional app-path)
-  "Resolve a manifest app with a `zephyr/patches.yml': APP-PATH, current, sole, or prompt."
+  "Resolve the app owning zephyr/patches.yml.
+Tries APP-PATH, the current app, a sole manifest app, then prompts."
   (or app-path
     (let ((current (west--current-app)))
       (and current (west-patches-path current) current))
@@ -264,25 +264,25 @@ Each entry is a plist with :name, :path (directory), and :manifest (file)."
                       :manifest app-manifest-path)))
             imports)))
 
-(defconst west--compile-multi-group "\U000f1985"
-  "Kite glyph flanking the west compile-multi group header.")
-
-(defconst west--task-annotation (concat "west " west--compile-multi-group)
-  "Right-column annotation (label plus kite glyph) for west compile-multi tasks.")
-
-(defun west-compile-multi-tasks ()
-  "Workspace-level west compile-multi tasks (update, patch apply/clean)."
+(defun west-tasks ()
+  "Workspace-level west tasks: update and patch apply."
   (when (west-in-workspace-p)
     (list
-      (cons (format "%s west %s :\U0000e726 update"
-              west--compile-multi-group west--compile-multi-group)
-        (list :command "west update" :annotation west--task-annotation))
-      (cons (format "%s west %s :\U0000e729 patch apply"
-              west--compile-multi-group west--compile-multi-group)
-        (list :command #'west-patch-apply :annotation west--task-annotation)))))
+      (list :name "update" :namespace "west"
+        :icon "\U0000e726" :tool "west" :command "west update")
+      (list :name "patch apply" :namespace "west"
+        :icon "\U0000e729" :tool "west" :command #'west-patch-apply))))
 
-(add-to-list 'compile-multi-config
-  '((west-in-workspace-p) . (west-compile-multi-tasks)))
+(declare-function microvisor-task "microvisor" (task))
+(defvar compile-multi-config)
+
+(defun west--compile-multi-tasks ()
+  "Return the workspace-level west tasks as native `compile-multi' tasks."
+  (mapcar #'microvisor-task (west-tasks)))
+
+(with-eval-after-load 'compile-multi
+  (add-to-list 'compile-multi-config
+               (list '(west-in-workspace-p) #'west--compile-multi-tasks)))
 
 (provide 'west)
 

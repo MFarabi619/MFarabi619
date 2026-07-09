@@ -1098,7 +1098,7 @@ CLI must be re-invoked with the real org name to compare."
       (with-temp-buffer (pio--render)))
     (expect 'pio--set-mode-line :to-have-been-called)))
 
-(describe "dashboard keymap is RET-only (compile-multi owns task-running)"
+(describe "dashboard keymap is RET-only (the task registry owns task-running)"
   (it "binds RET to `pio-act-at-point'"
     (expect (lookup-key pio-mode-map (kbd "RET")) :to-equal #'pio-act-at-point))
 
@@ -1110,7 +1110,7 @@ CLI must be re-invoked with the real org name to compare."
     (dolist (key '("r" "c"))
       (expect (lookup-key pio-mode-map (kbd key)) :to-be nil))))
 
-(describe "surfaces removed in favour of compile-multi"
+(describe "surfaces removed in favour of the task registry"
   (it "no longer defines the `pio-dispatch' transient"
     (expect (fboundp 'pio-dispatch) :to-be nil))
 
@@ -1128,16 +1128,12 @@ CLI must be re-invoked with the real org name to compare."
         (with-temp-buffer (pio-mode)))
       (expect called-with :to-equal (list pio-mode-map 'normal)))))
 
-(describe "compile-multi integration (hard dependency, registered directly)"
-  (it "registers a pio task generator in `compile-multi-config'"
-    (expect (assoc '(pio-in-project-p) compile-multi-config) :not :to-be nil)))
-
 (describe "pio--nerd-icon (multi-set dispatch)"
   (it "dispatches on the `nf-SET-' prefix and returns a glyph for each set"
     (dolist (name '("nf-md-play" "nf-dev-embeddedc" "nf-fa-cloud_arrow_up"))
       (expect (string-empty-p (pio--nerd-icon name)) :to-be nil))))
 
-(describe "pio-compile-multi-tasks (the seven .dir-locals pio tasks, per env)"
+(describe "pio-tasks (the seven pio tasks, per env)"
   (before-each
     (spy-on 'pio-root :and-return-value "/Users/x/workspace/")
     (spy-on 'pio--executable :and-return-value "pio")
@@ -1145,59 +1141,56 @@ CLI must be re-invoked with the real org name to compare."
     (spy-on 'pio-default-envs :and-return-value '("ceratina")))
 
   (it "generates the tasks only for `default_envs' by default"
-    (let ((titles (mapcar #'car (pio-compile-multi-tasks))))
-      (expect (seq-some (lambda (s) (string-search "ceratina" s)) titles) :to-be-truthy)
-      (expect (seq-some (lambda (s) (string-search "walter" s)) titles) :not :to-be-truthy)))
+    (let ((namespaces (mapcar (lambda (task) (plist-get task :namespace))
+                        (pio-tasks))))
+      (expect namespaces :to-contain "ceratina")
+      (expect namespaces :not :to-contain "walter")))
 
-  (it "expands to every env when `pio-compile-multi-all-envs' is set"
-    (let* ((pio-compile-multi-all-envs t)
-            (titles (mapcar #'car (pio-compile-multi-tasks))))
-      (expect (seq-some (lambda (s) (string-search "walter" s)) titles) :to-be-truthy)))
+  (it "expands to every env when `pio-all-envs' is set"
+    (let* ((pio-all-envs t)
+            (namespaces (mapcar (lambda (task) (plist-get task :namespace))
+                          (pio-tasks))))
+      (expect namespaces :to-contain "walter")))
 
-  (it "reproduces exactly the seven pio tasks per env, in order"
-    (let ((titles (mapcar #'car (pio-compile-multi-tasks))))
-      (expect (length titles) :to-equal 7)
+  (it "reproduces exactly the seven pio tasks per env"
+    (let ((names (mapcar (lambda (task) (plist-get task :name)) (pio-tasks))))
+      (expect (length names) :to-equal 7)
       (dolist (label '("pio run" "pio test" "pio test --without"
                         "pio run -t upload" "pio run -t compiledb"
                         "pio run -t uploadfs" "pio device monitor"))
-        (expect (seq-some (lambda (s) (string-suffix-p label s)) titles) :to-be-truthy))))
+        (expect names :to-contain label))))
 
   (it "emits all seven regardless of env metadata (no gating)"
     (spy-on 'pio-env-targets :and-return-value nil)
-    (expect (length (pio-compile-multi-tasks)) :to-equal 7))
-
-  (it "groups each task under its bare env name (no group glyph)"
-    (let ((titles (mapcar #'car (pio-compile-multi-tasks))))
-      (expect (seq-every-p (lambda (s) (string-prefix-p "ceratina" s)) titles) :to-be-truthy)))
+    (expect (length (pio-tasks)) :to-equal 7))
 
   (it "emits compiledb once per env"
-    (let* ((pio-compile-multi-all-envs t)
-            (titles (mapcar #'car (pio-compile-multi-tasks))))
-      (expect (seq-count (lambda (s) (string-search "compiledb" s)) titles) :to-equal 2)))
+    (let* ((pio-all-envs t)
+            (names (mapcar (lambda (task) (plist-get task :name)) (pio-tasks))))
+      (expect (seq-count (lambda (name) (string-search "compiledb" name)) names)
+        :to-equal 2)))
 
-  (it "scopes each command to its env"
-    (let* ((task  (car (pio-compile-multi-tasks)))
-            (plist (cdr task)))
-      (expect (car task) :to-match "pio run")
-      (expect (plist-get plist :command) :to-match "--environment ceratina")))
+  (it "scopes each command to its env and tags the platformio tool"
+    (let ((task (car (pio-tasks))))
+      (expect (plist-get task :name) :to-equal "pio run")
+      (expect (plist-get task :command) :to-match "--environment ceratina")
+      (expect (plist-get task :tool) :to-equal "platformio")))
 
-  (it "defaults `pio-compile-multi-show-label' to nil (icon-only)"
-    (expect (default-value 'pio-compile-multi-show-label) :to-be nil))
+  (it "renders the `pio test' row with the exact devicon glyph"
+    (let ((task (seq-find (lambda (task)
+                            (equal (plist-get task :name) "pio test"))
+                  (pio-tasks))))
+      (expect (plist-get task :icon)
+        :to-equal (nerd-icons-devicon "nf-dev-embeddedc")))))
 
-  (it "omits the `platformio' label by default, keeping the bee"
-    (let ((ann (plist-get (cdr (car (pio-compile-multi-tasks))) :annotation)))
-      (expect ann :not :to-match "platformio")
-      (expect (string-search (nerd-icons-sucicon "nf-seti-platformio") ann)
-        :to-be-truthy)))
-
-  (it "shows the `platformio' label when show-label is non-nil"
-    (let* ((pio-compile-multi-show-label t)
-            (ann (plist-get (cdr (car (pio-compile-multi-tasks))) :annotation)))
-      (expect ann :to-match "platformio")))
-
-  (it "renders the `pio test' row with the exact .dir-locals devicon glyph"
-    (let* ((titles (mapcar #'car (pio-compile-multi-tasks)))
-            (row    (seq-find (lambda (s) (string-suffix-p "pio test" s)) titles)))
-      (expect row :to-match (regexp-quote (nerd-icons-devicon "nf-dev-embeddedc"))))))
+(describe "pio--compile-multi-tasks"
+  (it "feeds every pio task through microvisor-task"
+    (spy-on 'pio-root :and-return-value "/Users/x/workspace/")
+    (spy-on 'pio--executable :and-return-value "pio")
+    (spy-on 'pio-envs :and-return-value '("ceratina"))
+    (spy-on 'pio-default-envs :and-return-value '("ceratina"))
+    (cl-letf (((symbol-function 'microvisor-task)
+               (lambda (task) (plist-get task :name))))
+      (expect (length (pio--compile-multi-tasks)) :to-equal 7))))
 
 ;;; pio-mode-tests.el ends here

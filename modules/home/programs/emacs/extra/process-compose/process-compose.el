@@ -70,7 +70,7 @@ Each entry is a plist of :name (unique handle), :namespace, :display-name,
 :command, optional :disabled, and an optional :config alist of raw
 snake_case process keys.  The sole default is the daemon's own log
 tail: package mechanism, not project policy.  Project processes come
-from declarers (microvisor's `compile-multi' bridge, ros2) or user setq."
+from declarers (microvisor's task registry, ros2) or user setq."
   :type '(repeat plist)
   :group 'process-compose)
 
@@ -270,8 +270,8 @@ typos here instead of at daemon spawn."
   (let ((processes (make-hash-table :test #'equal)))
     (dolist (declaration process-compose-processes)
       (let ((process-config (make-hash-table :test #'equal)))
-        (puthash "namespace" (plist-get declaration :namespace)
-                 process-config)
+        (when-let* ((namespace (plist-get declaration :namespace)))
+          (puthash "namespace" namespace process-config))
         (puthash "command" (plist-get declaration :command) process-config)
         (when (plist-get declaration :disabled)
           (puthash "disabled" t process-config))
@@ -962,7 +962,8 @@ pid and is_running are populated, so those fields cannot be trusted."
 
 (define-derived-mode process-compose-log-mode special-mode "process-compose-log-mode"
   "Major mode for a process's log pane."
-  (font-lock-mode 1))
+  (font-lock-mode 1)
+  (compilation-minor-mode 1))
 (put 'process-compose-log-mode 'completion-predicate #'ignore)
 
 (defun process-compose--log-insert (log-buffer chunk)
@@ -1003,7 +1004,7 @@ pid and is_running are populated, so those fields cannot be trusted."
 
 (defun process-compose-log-buffer-name (name)
   "Return the log buffer name for the process NAME."
-  (format "*process-compose-log: %s*" name))
+  (format "*process-compose-log:%s*" name))
 
 (defun process-compose-log-buffer (name)
   "Return the log buffer for the process NAME, streaming logs while shown.
@@ -1101,6 +1102,14 @@ until the selection reaches a process with something to show."
     (process-compose--require-name-at-point)
     (unless (process-compose--follow-log-window)
       (message "No output yet; the pane opens when this process runs"))))
+
+(defun process-compose-log-quit ()
+  "Quit the log window and stop the pane following the selection."
+  (interactive nil process-compose-log-mode)
+  (setq process-compose--log-pane-enabled-p nil)
+  (quit-window))
+
+(keymap-set process-compose-log-mode-map "q" #'process-compose-log-quit)
 
 (defun process-compose--react-to-selection ()
   "Selection moved: retint the bar and retarget the log pane."

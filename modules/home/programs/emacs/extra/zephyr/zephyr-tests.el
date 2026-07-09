@@ -624,8 +624,8 @@
       :not :to-equal
       (zephyr--board-display "xiao_esp32s3/esp32s3/procpu/sense" 24))))
 
-(describe "zephyr-compile-multi-tasks"
-  (it "uses board-aliases for short labels + build/<alias>, real board for -b"
+(describe "zephyr-tasks"
+  (it "emits west-namespace task plists per board, run interactive"
     (ert-with-temp-directory dir
       (make-directory (expand-file-name ".west" dir))
       (let* ((app (expand-file-name "apps/firmware" dir)))
@@ -636,55 +636,42 @@
           nil (expand-file-name "boards/aliases.cmake" app))
         (spy-on 'zephyr-apps :and-return-value
           (list (list :name "firmware" :path app)))
-        ;; default-directory is the workspace ROOT, not the app: repo-wide
         (let* ((default-directory dir)
-                (tasks (zephyr-compile-multi-tasks))
-                (titles (mapcar #'car tasks))
-                (annotations
-                  (mapcar (lambda (task) (plist-get (cdr task) :annotation)) tasks))
-                (commands (mapcar (lambda (task) (plist-get (cdr task) :command)) tasks)))
-          ;; walter: build + flash; qemu: build + run + test
+                (tasks (zephyr-tasks))
+                (names (mapcar (lambda (task) (plist-get task :name)) tasks))
+                (commands (mapcar (lambda (task) (plist-get task :command))
+                            tasks)))
           (expect (length tasks) :to-equal 5)
-          ;; grouped under "west", full board shown, colon replaced by space
-          (expect (seq-every-p (lambda (s) (string-match-p " west " s)) titles)
+          (expect (seq-every-p
+                    (lambda (task)
+                      (equal (plist-get task :namespace) "west"))
+                    tasks)
             :to-be-truthy)
-          ;; emulated board gets a `test' task; real hardware does not
-          (expect (seq-some (lambda (s) (string-match-p "test +qemu_riscv32\\'" s))
-                    titles)
-            :to-be-truthy)
-          (expect (seq-some (lambda (s) (string-match-p "test +walter" s)) titles)
-            :to-be nil)
-          (expect commands :to-contain
-            (concat "west build -b qemu_riscv32 -d build/qemu-test -t run apps/firmware"
-              " -- -DEXTRA_CONF_FILE=test.conf"))
-          ;; build rows annotate with the cmake glyph, flash/run keep the kite
-          (expect (seq-some (lambda (a) (string-match-p "\U0000e794" a)) annotations)
-            :to-be-truthy)
-          (expect (seq-some (lambda (a) (string-match-p "\U000f1985" a)) annotations)
-            :to-be-truthy)
-          (expect (seq-some (lambda (s)
-                              (string-suffix-p "build walter/esp32s3/procpu" s))
-                    titles)
-            :to-be-truthy)
-          ;; real board → flash; emulated board → run (never flash qemu)
-          (expect (seq-some (lambda (s)
-                              (string-suffix-p "flash walter/esp32s3/procpu" s))
-                    titles)
-            :to-be-truthy)
-          (expect (seq-some (lambda (s) (string-match-p "run +qemu_riscv32\\'" s))
-                    titles)
-            :to-be-truthy)
-          (expect (seq-some (lambda (s) (string-match-p "flash +qemu" s)) titles)
+          (expect names :to-contain "build walter/esp32s3/procpu")
+          (expect names :to-contain "flash walter/esp32s3/procpu")
+          (expect names :to-contain "run qemu_riscv32")
+          (expect names :to-contain "test qemu_riscv32")
+          (expect (seq-some (lambda (name) (string-match-p "test walter" name))
+                    names)
             :to-be nil)
           (expect commands :to-contain
             "west build --sysbuild -b walter/esp32s3/procpu -d build/walter apps/firmware")
           (expect commands :to-contain "west flash -d build/walter")
-          ;; the run task is interactive: :command spawns a vterm, not a compile
+          (expect commands :to-contain
+            (concat "west build -b qemu_riscv32 -d build/qemu-test -t run apps/firmware"
+              " -- -DEXTRA_CONF_FILE=test.conf"))
+          (let ((flash-task (seq-find
+                              (lambda (task)
+                                (equal (plist-get task :name)
+                                  "flash walter/esp32s3/procpu"))
+                              tasks)))
+            (expect (plist-get flash-task :runner) :to-be 'compile))
           (let* ((run-task (seq-find
                              (lambda (task)
-                               (string-match-p "run +qemu_riscv32\\'" (car task)))
+                               (equal (plist-get task :name)
+                                 "run qemu_riscv32"))
                              tasks))
-                  (run-action (plist-get (cdr run-task) :command)))
+                  (run-action (plist-get run-task :command)))
             (expect (functionp run-action) :to-be-truthy)
             (spy-on 'west--run-interactive)
             (funcall run-action)
@@ -694,6 +681,17 @@
   (it "returns nil outside a west workspace"
     (ert-with-temp-directory dir
       (let ((default-directory dir))
-        (expect (zephyr-compile-multi-tasks) :to-be nil)))))
+        (expect (zephyr-tasks) :to-be nil)))))
+
+(describe "zephyr--compile-multi-tasks"
+  (it "feeds every zephyr task through microvisor-task"
+    (spy-on 'zephyr-tasks :and-return-value
+            '((:name "build walter" :namespace "west" :tool "west"
+               :command "west build")
+              (:name "run qemu" :namespace "west" :tool "west" :command ignore)))
+    (cl-letf (((symbol-function 'microvisor-task)
+               (lambda (task) (plist-get task :name))))
+      (expect (zephyr--compile-multi-tasks)
+              :to-equal '("build walter" "run qemu")))))
 
 ;;; zephyr-tests.el ends here

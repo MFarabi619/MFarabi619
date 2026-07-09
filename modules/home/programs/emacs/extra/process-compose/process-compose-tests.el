@@ -322,6 +322,12 @@
               :to-match (regexp-quote (expand-file-name "~/somewhere")))
       (expect (string-search "\"~/" (process-compose--project-config "p"))
               :to-be nil)))
+  (it "omits namespace when a declaration has none, never emitting {}"
+    (let* ((process-compose-processes '((:name "n" :command "true")))
+           (proc (gethash "n" (gethash "processes"
+                                      (json-parse-string
+                                       (process-compose--project-config "p"))))))
+      (expect (gethash "namespace" proc :absent) :to-be :absent)))
   (it "collects the daemon-log lines mentioning a process"
     (let ((log-file (make-temp-file "pc-daemon-log")))
       (unwind-protect
@@ -713,13 +719,20 @@
             :to-equal "mystery")))
 
 (describe "log pane"
+  (it "enables compilation-minor-mode so build logs support next-error"
+    (spy-on 'process-compose--start-log-stream)
+    (let ((buffer (process-compose-log-buffer "walter")))
+      (unwind-protect
+          (with-current-buffer buffer
+            (expect compilation-minor-mode :to-be-truthy))
+        (kill-buffer buffer))))
   (it "creates a log buffer in log mode and starts its stream"
     (spy-on 'process-compose--start-log-stream)
     (let ((buffer (process-compose-log-buffer "walter")))
       (unwind-protect
           (with-current-buffer buffer
             (expect (derived-mode-p 'process-compose-log-mode) :to-be-truthy)
-            (expect (buffer-name) :to-equal "*process-compose-log: walter*")
+            (expect (buffer-name) :to-equal "*process-compose-log:walter*")
             (expect 'process-compose--start-log-stream
                     :to-have-been-called-with "walter" buffer))
         (kill-buffer buffer))))
@@ -806,7 +819,7 @@
       (spy-on 'process-compose--display-log-window)
       (process-compose-logs-at-point)
       (expect 'process-compose--display-log-window :to-have-been-called)
-      (kill-buffer "*process-compose-log: walter*")))
+      (kill-buffer "*process-compose-log:walter*")))
   (it "toggle on a quiet row enables following but keeps the pane closed"
     (let ((process-compose--states
            (list (process-compose-tests--state :name "walter")))
@@ -882,7 +895,7 @@
 (describe "log stream lifecycle"
   (it "erases stale content before restarting a dead stream"
     (spy-on 'process-compose--start-log-stream)
-    (let ((log-buffer (get-buffer-create "*process-compose-log: walter*")))
+    (let ((log-buffer (get-buffer-create "*process-compose-log:walter*")))
       (unwind-protect
           (progn
             (with-current-buffer log-buffer
@@ -894,7 +907,7 @@
             (expect 'process-compose--start-log-stream :to-have-been-called))
         (kill-buffer log-buffer))))
   (it "stops a buffer's stream on demand"
-    (let ((log-buffer (get-buffer-create "*process-compose-log: walter*")))
+    (let ((log-buffer (get-buffer-create "*process-compose-log:walter*")))
       (unwind-protect
           (progn
             (with-current-buffer log-buffer
@@ -1089,5 +1102,16 @@
                       :to-equal "loco-doctor")))
         (when (get-buffer "*process-compose-test*")
           (kill-buffer "*process-compose-test*"))))))
+
+(describe "process-compose-log-quit"
+  (it "disables the follow pane and quits, so a re-render cannot reopen it"
+    (spy-on 'quit-window)
+    (let ((process-compose--log-pane-enabled-p t))
+      (process-compose-log-quit)
+      (expect process-compose--log-pane-enabled-p :to-be nil)
+      (expect 'quit-window :to-have-been-called)))
+  (it "is bound to q in the log buffer"
+    (expect (keymap-lookup process-compose-log-mode-map "q")
+            :to-be #'process-compose-log-quit)))
 
 ;;; process-compose-tests.el ends here
