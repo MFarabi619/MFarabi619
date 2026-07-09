@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 exclude = ["ml"]
-default-members = ["apps/firmware"]
+default-members = ["apps/robot"]
 members = [
     "apps/tui",
     "apps/web",
