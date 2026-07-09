@@ -1,0 +1,33 @@
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+
+&xiao_i2c {
+	status = "okay";
+
+	pca9685: pca9685@40 {
+		compatible = "nxp,pca9685-pwm";
+		reg = <0x40>;
+		#pwm-cells = <3>;
+		status = "okay";
+	};
+};
+
+&pinctrl {
+	ledc0_rgb: ledc0_rgb {
+		group1 {
+			pinmux = <LEDC_CH0_GPIO1>, <LEDC_CH1_GPIO2>, <LEDC_CH2_GPIO3>;
+			output-enable;
+		};
+	};
+};
+
+&ledc0 {
+	pinctrl-0 = <&ledc0_rgb>;
+	pinctrl-names = "default";
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel0@0 { reg = <0x0>; timer = <0>; inverted; };
+	channel1@1 { reg = <0x1>; timer = <0>; inverted; };
+	channel2@2 { reg = <0x2>; timer = <0>; inverted; };
+};

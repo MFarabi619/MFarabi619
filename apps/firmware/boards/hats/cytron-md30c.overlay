@@ -1,0 +1,21 @@
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+
+&pinctrl {
+	ledc0_motors: ledc0_motors {
+		group1 {
+			pinmux = <LEDC_CH0_GPIO1>, <LEDC_CH1_GPIO4>;
+			output-enable;
+		};
+	};
+};
+
+&ledc0 {
+	pinctrl-0 = <&ledc0_motors>;
+	pinctrl-names = "default";
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel0@0 { reg = <0x0>; timer = <0>; };
+	channel1@1 { reg = <0x1>; timer = <1>; };
+};

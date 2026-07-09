@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# XIAO     HAT (PIN, not GPIO)
+#  D4  --> 3   I2C SDA
+#  D5  --> 5   I2C SCL
+#  3V3 --> 1   powers the HAT (else i2c scan is empty)
+#  GND --> 9
+
 UDP_ADDRESS="10.0.0.21"
 I2C_BUS="i2c@60013000"
 PWM_DEVICE="pca9685@40"

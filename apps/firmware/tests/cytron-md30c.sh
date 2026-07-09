@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# XIAO     HAT (PIN, not GPIO)
+#  D0  --> 32  left motor  PWM
+#  D1  --> 37  left motor  DIR
+#  D3  --> 33  right motor PWM
+#  D8  --> 18  right motor DIR
+#  3V3 --> 17  logic power (else nothing moves)
+#  GND --> 34
+
 UDP_ADDRESS="10.0.0.21"
 
 GPIO_DEVICE="gpio0"
@@ -11,17 +19,15 @@ RIGHT_PWM_CHANNEL=1
 LEFT_DIR_PIN=2
 RIGHT_DIR_PIN=7
 
-PWM_PERIOD=1000
-PWM_DUTY=400
+PWM_PERIOD=50
+PWM_DUTY=40
 
 echo "forward"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $LEFT_DIR_PIN o1"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $RIGHT_DIR_PIN o0"
-
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
-sleep 1
-
+sleep 5
 echo "stop"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD 0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD 0"
@@ -29,11 +35,9 @@ mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM
 echo "backward"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $LEFT_DIR_PIN o0"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $RIGHT_DIR_PIN o1"
-
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
-sleep 1
-
+sleep 5
 echo "stop"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD 0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD 0"
@@ -41,11 +45,9 @@ mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM
 echo "left"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $LEFT_DIR_PIN o0"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $RIGHT_DIR_PIN o0"
-
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
-sleep 1
-
+sleep 5
 echo "stop"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD 0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD 0"
@@ -53,11 +55,9 @@ mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM
 echo "right"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $LEFT_DIR_PIN o1"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $RIGHT_DIR_PIN o1"
-
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
-sleep 1
-
+sleep 5
 echo "stop"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD 0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD 0"

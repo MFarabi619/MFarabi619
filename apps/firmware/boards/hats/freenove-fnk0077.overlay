@@ -1,0 +1,52 @@
+#include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+#include <zephyr/dt-bindings/led/led.h>
+
+&pinctrl {
+	ledc0_motors: ledc0_motors {
+		group1 {
+			pinmux = <LEDC_CH0_GPIO1>, <LEDC_CH1_GPIO2>,
+				 <LEDC_CH2_GPIO4>, <LEDC_CH3_GPIO7>;
+			output-enable;
+		};
+	};
+
+	spim2_ws2812: spim2_ws2812 {
+		group1 {
+			pinmux = <SPIM2_MOSI_GPIO3>, <SPIM2_SCLK_GPIO8>;
+			output-low;
+		};
+	};
+};
+
+&ledc0 {
+	pinctrl-0 = <&ledc0_motors>;
+	pinctrl-names = "default";
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel0@0 { reg = <0x0>; timer = <0>; };
+	channel1@1 { reg = <0x1>; timer = <0>; };
+	channel2@2 { reg = <0x2>; timer = <0>; };
+	channel3@3 { reg = <0x3>; timer = <0>; };
+};
+
+&spi2 {
+	status = "okay";
+	pinctrl-0 = <&spim2_ws2812>;
+	pinctrl-names = "default";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	led_strip: ws2812@0 {
+		compatible = "worldsemi,ws2812-spi";
+		reg = <0>;
+		spi-max-frequency = <6400000>;
+		chain-length = <4>;
+		spi-one-frame = <0xF8>;
+		spi-zero-frame = <0x80>;
+		color-mapping = <LED_COLOR_ID_GREEN>,
+				<LED_COLOR_ID_RED>,
+				<LED_COLOR_ID_BLUE>;
+	};
+};
