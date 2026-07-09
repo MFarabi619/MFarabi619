@@ -1,0 +1,141 @@
+WIP.
+
+* Remote GPIO
+
+** [[https://www.beagleboard.org/boards/beagley-ai][BeagleY-AI]]
+
+#+BEGIN_SRC sh
+mkdir ~/workspace
+cd ~/workspace
+git clone https://github.com/joan2937/lg
+cd ~/workspace/lg
+
+make clean
+make CPPFLAGS="-std=gnu17 -Wno-incompatible-pointer-types -Wno-implicit-function-declaration -Wno-int-conversion"
+sudo make install
+sudo /sbin/ldconfig
+sudo env LD_LIBRARY_PATH=/usr/local/lib rgpiod -h
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo tee /etc/systemd/system/rgpiod.service >/dev/null <<'EOF'
+[Unit]
+Description=lg remote GPIO daemon (rgpiod)
+After=network.target
+
+[Service]
+Environment=LD_LIBRARY_PATH=/usr/local/lib
+ExecStart=/usr/local/bin/rgpiod
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now rgpiod
+systemctl status rgpiod --no-pager
+sudo ss -ltnp | grep 8889
+#+END_SRC
+
+#+BEGIN_SRC sh
+nc -vz beagleyai 8889
+#+END_SRC
+
+** Raspberry Pi 5
+
+#+BEGIN_SRC sh
+[Unit]
+Description=uStreamer MJPEG server for the robot camera
+After=network-online.target tailscaled.service dev-video0.device
+Wants=network-online.target
+
+[Service]
+Type=simple
+RuntimeDirectory=ustreamer
+ExecStartPre=/usr/bin/v4l2-ctl -d /dev/video0 --set-ctrl=brightness=0,contrast=32,sharpness=3,gamma=130
+ExecStartPre=/bin/sh -c 'echo TAILSCALE_IP=$(tailscale ip -4 | head -1) > /run/ustreamer/env'
+EnvironmentFile=-/run/ustreamer/env
+ExecStart=/usr/bin/ustreamer \
+    --host ${TAILSCALE_IP} \
+    --port 8888 \
+    --device /dev/video0 \
+    --resolution 1920x1200 \
+    --desired-fps 90 \
+    --format MJPEG \
+    --persistent \
+    --buffers 2 \
+    --tcp-nodelay
+Restart=on-failure
+RestartSec=2
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+DevicePolicy=closed
+DeviceAllow=/dev/video0 rw
+SupplementaryGroups=video
+
+[Install]
+WantedBy=multi-user.target
+#+END_SRC
+
+#+BEGIN_SRC sh
+rpicam-vid -t 0 \
+--flush \
+--nopreview \
+--quality 95 \
+--codec mjpeg \
+--framerate 45 \
+--exposure sport \
+--buffer-count 3 \
+--denoise cdn_fast \
+--flicker-period 8333us \
+--width 1456 --height 1088 \
+--listen -o tcp://0.0.0.0:8888
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo tee /etc/systemd/system/rpicam.service >/dev/null <<'EOF'
+[Unit]
+Description=rpicam-vid MJPEG-over-TCP server for the robot camera (imx296 global shutter)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mfarabi
+SupplementaryGroups=video render
+ExecStart=/usr/bin/rpicam-vid -t 0 \
+    --flush \
+    --nopreview \
+    --quality 95 \
+    --codec mjpeg \
+    --framerate 45 \
+    --exposure sport \
+    --buffer-count 3 \
+    --denoise cdn_fast \
+    --flicker-period 8333us \
+    --width 1456 --height 1088 \
+    --listen -o tcp://0.0.0.0:8888
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl disable --now ustreamer
+sudo systemctl enable --now rpicam
+systemctl status rpicam --no-pager
+sudo ss -ltnp | grep 8888
+#+END_SRC
+
+#+BEGIN_SRC sh
+# revert to the USB webcam
+sudo systemctl disable --now rpicam
+sudo systemctl enable --now ustreamer
+#+END_SRC
