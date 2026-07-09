@@ -80,3 +80,8 @@ manifest:
           revision: 1c01e81ce7f51b96403203a1a239663d8f39c9ef # 2026-07-01
           path: zephyrproject/modules/lib/bno08x
           url: https://github.com/mvrck-dev/bno08x.git
+
+        - name: zenoh-pico
+          revision: 0ffe44a0502fd2cebeb974147239d4bca85b2ca7 # 2026-07-01
+          path: zephyrproject/modules/lib/zenoh-pico
+          url: https://github.com/eclipse-zenoh/zenoh-pico

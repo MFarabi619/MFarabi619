@@ -112,6 +112,8 @@ target_include_directories_ifdef(CONFIG_WIREGUARD app PRIVATE "${ZEPHYR_BASE}/su
 target_sources_ifdef(CONFIG_HTTP_SERVER app PRIVATE services/http/http.c)
 zephyr_linker_sources_ifdef(CONFIG_HTTP_SERVER SECTIONS services/http/http_sections.ld)
 
+target_sources_ifdef(CONFIG_ZENOH_PICO app PRIVATE programs/cmd_vel.c)
+
 if(CONFIG_BOARD_NUCLEO_H755ZI_Q_STM32H755XX_M7)
   target_sources(app PRIVATE programs/bno08x.c)
 endif()
