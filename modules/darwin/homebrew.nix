@@ -29,8 +29,6 @@
       "rust"
       "rustup" # rustup toolchain link system "$(brew --prefix rust)"
       "pulumi"
-      "opencascade"
-      "atopile/tap/atopile"
     ]
     ++ [
       "dfu-util"
@@ -39,6 +37,9 @@
     ]
     ++ [
       "mlx"
+      "ollama"
+    ]
+    ++ [
       "qemu"
       "nemu"
       "libvirt" # brew services start libvirt
@@ -50,9 +51,10 @@
     ++ [
       "f3d"
       "SDL2"
-      "ollama"
       "libgcrypt"
       "netscanner"
+      "opencascade"
+      "atopile/tap/atopile"
       "Valkyrie00/homebrew-bbrew/bbrew"
     ];
 
