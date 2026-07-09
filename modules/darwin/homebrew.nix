@@ -68,6 +68,7 @@
       "gcc-arm-embedded"
       "binary-ninja-free"
       "silicon-labs-vcp-driver"
+      "wch-ch34x-usb-serial-driver"
     ]
     ++ [ "leader-key" ];
   };
