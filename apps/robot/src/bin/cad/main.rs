@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     error::Error,
     f64::consts::{FRAC_PI_2, PI},
     fs::{self, File},
@@ -12,13 +13,19 @@ mod parameters;
 
 use gltf::{write_lit_gltf, MaterialProps};
 use parameters::{
-    ALUMINUM_COLOR, BATTERY_COLOR, CAVITY_OVERSHOOT_MM, CUTTER_OVERSHOOT_MM, DRIVE_WHEEL_TRACK,
-    EDGE_COINCIDENCE_EPSILON_MM, END_CAP_COLOR, END_FACE_NORMAL_X_THRESHOLD, FRAME_LENGTH,
-    FRAME_TOP_Z, FRAME_WIDTH, GUSSET_ARM_LENGTH, GUSSET_ARM_WIDTH, GUSSET_HOLES_PER_ARM,
-    GUSSET_HOLE_DIAMETER, GUSSET_HOLE_PITCH, GUSSET_THICKNESS, PLYWOOD_COLOR, RAIL_CROSS_HEIGHT,
-    RAIL_CROSS_WIDTH, RAIL_END_CAP_BOSS_DEPTH, RAIL_END_CAP_BOSS_WALL,
+    ALUMINUM_COLOR, ALUMINUM_DENSITY_KG_PER_M3, BATTERY_ANCHOR_BOLT_DIAMETER,
+    BATTERY_ANCHOR_HEAD_DIAMETER, BATTERY_ANCHOR_HEAD_HEIGHT, BATTERY_ANCHOR_NUT_DIAMETER,
+    BATTERY_ANCHOR_NUT_HEIGHT, BATTERY_COLOR, BATTERY_STRAP_OVERHANG, BATTERY_STRAP_THICKNESS,
+    BATTERY_STRAP_WIDTH, BATTERY_STRAP_X_SPACING, CAVITY_OVERSHOOT_MM,
+    CUTTER_OVERSHOOT_MM, DRIVE_WHEEL_TRACK, EDGE_COINCIDENCE_EPSILON_MM, END_CAP_COLOR,
+    END_FACE_NORMAL_X_THRESHOLD, FRAME_LENGTH, FRAME_TOP_Z, FRAME_WIDTH, GUSSET_ARM_LENGTH,
+    GUSSET_ARM_WIDTH, GUSSET_HOLES_PER_ARM, GUSSET_HOLE_DIAMETER, GUSSET_HOLE_PITCH,
+    GUSSET_THICKNESS, PLASTIC_DENSITY_KG_PER_M3, PLYWOOD_COLOR, PLYWOOD_DENSITY_KG_PER_M3,
+    RAIL_CROSS_HEIGHT, RAIL_CROSS_WIDTH, RAIL_END_CAP_BOSS_DEPTH, RAIL_END_CAP_BOSS_WALL,
     RAIL_END_CAP_FLANGE_THICKNESS, RAIL_FILLET_RADIUS, RAIL_HOLE_DIAMETER, RAIL_HOLE_SPACING,
-    RAIL_WALL_THICKNESS, STEEL_COLOR, TIRE_COLOR, WHEELBASE, WHEEL_RADIUS,
+    POST_HEIGHT, POST_INSET_FROM_END, RAIL_WALL_THICKNESS, RUBBER_DENSITY_KG_PER_M3,
+    SLA_BATTERY_DENSITY_KG_PER_M3, STEEL_COLOR, STEEL_DENSITY_KG_PER_M3, TIRE_COLOR,
+    WHEEL_RADIUS,
 };
 
 const DRIVE_WHEEL_STEP_FILENAME: &str = "motor_with_bracket_and_wheel.step";
@@ -134,13 +141,98 @@ fn frame() -> Result<Vec<Solid>, cadrum::Error> {
     .collect())
 }
 
-#[allow(dead_code)]
-fn caster() -> Result<Vec<Solid>, Box<dyn Error>> {
-    place_step_centered_and_grounded(
-        "fm3858-ball-valve-caster-wheel.step",
-        DVec3::new(WHEELBASE, 0.0, 0.0),
-        |solid| solid,
-    )
+fn vertical_posts() -> Result<Vec<Solid>, cadrum::Error> {
+    let post_template = perforated_rail(POST_HEIGHT)?
+        .translate(DVec3::Z * (RAIL_CROSS_HEIGHT / 2.0))
+        .rotate_y(-FRAC_PI_2);
+    let post_x_extent = FRAME_LENGTH / 2.0 - POST_INSET_FROM_END;
+    let post_y = FRAME_WIDTH / 2.0 - RAIL_CROSS_WIDTH / 2.0;
+    let post_z_center = FRAME_TOP_Z + POST_HEIGHT / 2.0;
+
+    let mut parts = Vec::with_capacity(4);
+    for post_x in [-post_x_extent, post_x_extent] {
+        for post_y_sign in [1.0, -1.0] {
+            parts.push(
+                post_template
+                    .clone()
+                    .translate(DVec3::new(post_x, post_y_sign * post_y, post_z_center))
+                    .paint(ALUMINUM_COLOR),
+            );
+        }
+    }
+    Ok(parts)
+}
+
+fn outer_face_gusset() -> Result<Solid, cadrum::Error> {
+    let half_width = GUSSET_ARM_WIDTH / 2.0;
+
+    let vertical_arm = Solid::cube(
+        DVec3::new(-half_width, 0.0, -half_width),
+        DVec3::new(half_width, GUSSET_THICKNESS, GUSSET_ARM_LENGTH),
+    );
+    let horizontal_arm = Solid::cube(
+        DVec3::new(-half_width, 0.0, -RAIL_CROSS_HEIGHT),
+        DVec3::new(GUSSET_ARM_LENGTH, GUSSET_THICKNESS, 0.0),
+    );
+    let l_shape = (&vertical_arm + &horizontal_arm).build()?;
+
+    let hole_radius = GUSSET_HOLE_DIAMETER / 2.0;
+    let cutter_axis = DVec3::Y * (GUSSET_THICKNESS + 2.0 * CUTTER_OVERSHOOT_MM);
+    let cutter_y_start = -CUTTER_OVERSHOOT_MM;
+
+    let mut cutters: Vec<Solid> = Vec::new();
+    for hole_index in 0..GUSSET_HOLES_PER_ARM {
+        let z_offset = hole_index as f64 * GUSSET_HOLE_PITCH;
+        cutters.push(
+            Solid::cylinder(hole_radius, cutter_axis)
+                .translate(DVec3::new(0.0, cutter_y_start, z_offset)),
+        );
+    }
+    for hole_index in 1..GUSSET_HOLES_PER_ARM {
+        let x_offset = hole_index as f64 * GUSSET_HOLE_PITCH;
+        cutters.push(
+            Solid::cylinder(hole_radius, cutter_axis)
+                .translate(DVec3::new(x_offset, cutter_y_start, -RAIL_CROSS_HEIGHT / 2.0)),
+        );
+    }
+
+    cutters
+        .iter()
+        .map(Boolean::from)
+        .fold(Boolean::from(&l_shape), |acc, c| acc - c)
+        .build()
+        .and_then(|solid| solid.clean())
+}
+
+fn post_gussets() -> Result<Vec<Solid>, Box<dyn Error>> {
+    let gusset_template = outer_face_gusset()?;
+
+    let post_x_extent = FRAME_LENGTH / 2.0 - POST_INSET_FROM_END;
+    let post_center_y = FRAME_WIDTH / 2.0 - RAIL_CROSS_WIDTH / 2.0;
+
+    let mut gussets = Vec::with_capacity(8);
+    for post_x_sign in [1.0, -1.0] {
+        for post_y_sign in [1.0, -1.0] {
+            let post_x = post_x_sign * post_x_extent;
+            let post_outer_face_y =
+                post_y_sign * post_center_y + post_y_sign * (RAIL_CROSS_WIDTH / 2.0);
+            for x_side_sign in [1.0, -1.0] {
+                let mut gusset = gusset_template.clone();
+                if x_side_sign < 0.0 {
+                    gusset = gusset.mirror(DVec3::ZERO, DVec3::X);
+                }
+                if post_y_sign < 0.0 {
+                    gusset = gusset.mirror(DVec3::ZERO, DVec3::Y);
+                }
+                gussets.push(
+                    gusset
+                        .translate(DVec3::new(post_x, post_outer_face_y, FRAME_TOP_Z))
+                        .paint(STEEL_COLOR),
+                );
+            }
+        }
+    }
+    Ok(gussets)
 }
 
 fn corner_gusset() -> Result<Solid, cadrum::Error> {
@@ -288,30 +380,123 @@ fn place_step_centered_and_grounded(
         .collect())
 }
 
-#[allow(dead_code)]
+fn battery_assembly() -> Result<Vec<Solid>, Box<dyn Error>> {
+    let deck_top_z = FRAME_TOP_Z;
+    let battery_center_x = -300.0;
+
+    let imported = Solid::read_step(&mut File::open(asset("12v-sla-battery.step"))?)?;
+    let [raw_min, raw_max] = combined_bounds(&imported);
+    let footprint = DVec3::new(
+        (raw_min.x + raw_max.x) / 2.0,
+        (raw_min.y + raw_max.y) / 2.0,
+        raw_min.z,
+    );
+    let battery_size = raw_max - raw_min;
+    let battery_top_z = deck_top_z + battery_size.z;
+
+    let mut parts: Vec<Solid> = imported
+        .into_iter()
+        .map(|solid| {
+            solid.translate(-footprint).translate(DVec3::Z * deck_top_z).paint(BATTERY_COLOR)
+        })
+        .collect();
+
+    let strap_length = battery_size.x + 2.0 * BATTERY_STRAP_OVERHANG;
+    let strap_z_center = battery_top_z + BATTERY_STRAP_THICKNESS / 2.0;
+    for strap_offset in [-BATTERY_STRAP_X_SPACING / 2.0, BATTERY_STRAP_X_SPACING / 2.0] {
+        parts.push(box_centered(
+            DVec3::new(strap_length, BATTERY_STRAP_WIDTH, BATTERY_STRAP_THICKNESS),
+            DVec3::new(0.0, strap_offset, strap_z_center),
+        ).paint(ALUMINUM_COLOR));
+    }
+
+    let anchor_x = battery_size.x / 2.0 + BATTERY_STRAP_OVERHANG;
+    let deck_bottom_z = deck_top_z - RAIL_CROSS_HEIGHT;
+    let shaft_bottom_z = deck_bottom_z - BATTERY_ANCHOR_NUT_HEIGHT;
+    let bolt_top_z = battery_top_z + BATTERY_STRAP_THICKNESS;
+    let shaft_axis = DVec3::Z * (bolt_top_z - shaft_bottom_z);
+    let head_axis = DVec3::Z * BATTERY_ANCHOR_HEAD_HEIGHT;
+    let nut_axis = DVec3::Z * BATTERY_ANCHOR_NUT_HEIGHT;
+    for strap_offset in [-BATTERY_STRAP_X_SPACING / 2.0, BATTERY_STRAP_X_SPACING / 2.0] {
+        for anchor_offset in [-anchor_x, anchor_x] {
+            parts.push(
+                Solid::cylinder(BATTERY_ANCHOR_BOLT_DIAMETER / 2.0, shaft_axis)
+                    .translate(DVec3::new(anchor_offset, strap_offset, shaft_bottom_z))
+                    .paint(STEEL_COLOR),
+            );
+            parts.push(
+                Solid::cylinder(BATTERY_ANCHOR_HEAD_DIAMETER / 2.0, head_axis)
+                    .translate(DVec3::new(anchor_offset, strap_offset, bolt_top_z))
+                    .paint(STEEL_COLOR),
+            );
+            parts.push(
+                Solid::cylinder(BATTERY_ANCHOR_NUT_DIAMETER / 2.0, nut_axis)
+                    .translate(DVec3::new(anchor_offset, strap_offset, shaft_bottom_z))
+                    .paint(STEEL_COLOR),
+            );
+        }
+    }
+
+    Ok(parts
+        .into_iter()
+        .map(|s| s.rotate_z(FRAC_PI_2).translate(DVec3::new(battery_center_x, 0.0, 0.0)))
+        .collect())
+}
+
 fn deck_parts() -> Result<Vec<Solid>, Box<dyn Error>> {
     let top = FRAME_TOP_Z;
-    let mut parts = Vec::new();
-    parts.extend(
-        place_step_centered_and_grounded(
-            "12v-sla-battery.step",
-            DVec3::new(110.0, 0.0, top),
-            |solid| solid.rotate_x(FRAC_PI_2),
-        )?
-        .into_iter()
-        .map(|solid| solid.paint(BATTERY_COLOR)),
-    );
+    let mut parts = battery_assembly()?;
     parts.extend(place_step_centered_and_grounded(
         "cytron-hat-md30c.STEP",
-        DVec3::new(110.0, 110.0, top),
+        DVec3::new(-300.0, 200.0, top),
         |solid| solid.rotate_z(PI),
     )?);
     parts.extend(place_step_centered_and_grounded(
         "cytron-hat-md30c.STEP",
-        DVec3::new(110.0, -110.0, top),
+        DVec3::new(-300.0, -200.0, top),
         |solid| solid,
     )?);
+    parts.extend(place_step_centered_and_grounded(
+        "breadboard-3220-pin-assembly.step",
+        DVec3::new(300.0, 0.0, top),
+        |solid| solid.rotate_z(-FRAC_PI_2),
+    )?);
+    parts.extend(place_step_top_centered_and_ceiling(
+        "hc-sr04-ultrasonic-sensor.step",
+        DVec3::new(FRAME_LENGTH / 2.0 + 10.0, 0.0, top),
+        |solid| solid.rotate_y(FRAC_PI_2).rotate_x(FRAC_PI_2),
+    )?);
+    parts.extend(place_step_top_centered_and_ceiling(
+        "hc-sr04-ultrasonic-sensor.step",
+        DVec3::new(-FRAME_LENGTH / 2.0 - 10.0, 0.0, top),
+        |solid| solid.rotate_y(FRAC_PI_2).rotate_x(FRAC_PI_2).rotate_z(PI),
+    )?);
+    parts.extend(place_step_centered_and_grounded(
+        "nucleo_h755zi_q.step",
+        DVec3::new(150.0, 200.0, top),
+        |solid| solid.rotate_z(-FRAC_PI_2),
+    )?);
+    parts.extend(place_step_centered_and_grounded(
+        "rpi5.step",
+        DVec3::new(150.0, -150.0, top),
+        |solid| solid.rotate_x(FRAC_PI_2),
+    )?);
     Ok(parts)
+}
+
+fn place_step_top_centered_and_ceiling(
+    asset_name: &str,
+    position: DVec3,
+    orient: impl Fn(Solid) -> Solid,
+) -> Result<Vec<Solid>, Box<dyn Error>> {
+    let imported_solids = Solid::read_step(&mut File::open(asset(asset_name))?)?;
+    let oriented: Vec<Solid> = imported_solids.into_iter().map(orient).collect();
+    let [min, max] = combined_bounds(&oriented);
+    let anchor = DVec3::new((min.x + max.x) / 2.0, (min.y + max.y) / 2.0, max.z);
+    Ok(oriented
+        .into_iter()
+        .map(|solid| solid.translate(-anchor).translate(position))
+        .collect())
 }
 
 fn max_bbox_dim(solid: &Solid) -> f64 {
@@ -367,13 +552,15 @@ fn drive_wheels() -> Result<Vec<Solid>, Box<dyn Error>> {
 }
 
 fn robot() -> Result<Vec<Solid>, Box<dyn Error>> {
-    let mut parts = vec![plank()];
+    let mut parts = Vec::new();
+    parts.push(plank());
     parts.extend(frame()?);
-    // parts.extend(caster()?);
     parts.extend(gussets()?);
     parts.extend(rail_end_caps()?);
+    parts.extend(vertical_posts()?);
+    parts.extend(post_gussets()?);
     parts.extend(drive_wheels()?);
-    // parts.extend(deck_parts()?);
+    parts.extend(deck_parts()?);
     Ok(parts)
 }
 
@@ -390,34 +577,72 @@ fn material_props_for(color: [u8; 3]) -> MaterialProps {
     }
 }
 
+fn density_kg_per_m3_for(color: [u8; 3]) -> f64 {
+    match color {
+        ALUMINUM_COLOR | WHEEL_BRACKET_COLOR => ALUMINUM_DENSITY_KG_PER_M3,
+        STEEL_COLOR => STEEL_DENSITY_KG_PER_M3,
+        END_CAP_COLOR => PLASTIC_DENSITY_KG_PER_M3,
+        PLYWOOD_COLOR => PLYWOOD_DENSITY_KG_PER_M3,
+        TIRE_COLOR => RUBBER_DENSITY_KG_PER_M3,
+        BATTERY_COLOR => SLA_BATTERY_DENSITY_KG_PER_M3,
+        _ => STEEL_DENSITY_KG_PER_M3,
+    }
+}
+
+fn material_name_for(color: [u8; 3]) -> &'static str {
+    match color {
+        ALUMINUM_COLOR => "aluminum",
+        WHEEL_BRACKET_COLOR => "aluminum",
+        STEEL_COLOR => "steel",
+        END_CAP_COLOR => "plastic",
+        PLYWOOD_COLOR => "plywood",
+        TIRE_COLOR => "rubber",
+        BATTERY_COLOR => "sla-battery",
+        _ => "steel(default)",
+    }
+}
+
+fn dominant_color_key(solid: &Solid) -> [u8; 3] {
+    let mut counts: HashMap<[u8; 3], usize> = HashMap::new();
+    for color in solid.colormap().values() {
+        let key = [
+            (color.r.clamp(0.0, 1.0) * 255.0) as u8,
+            (color.g.clamp(0.0, 1.0) * 255.0) as u8,
+            (color.b.clamp(0.0, 1.0) * 255.0) as u8,
+        ];
+        *counts.entry(key).or_insert(0) += 1;
+    }
+    counts
+        .into_iter()
+        .max_by_key(|(_, count)| *count)
+        .map(|(key, _)| key)
+        .unwrap_or(ALUMINUM_COLOR)
+}
+
 fn report_geometry_table(solids: &[Solid]) {
-    const ALUMINUM_DENSITY_KG_PER_M3: f64 = 2700.0;
     const CUBIC_MM_TO_CUBIC_M: f64 = 1e-9;
     println!(
-        "{:>3} {:>12} {:>14} {:>36} {:>30}",
-        "id", "volume mm³", "mass kg (Al est.)", "center xyz mm", "bbox size mm"
+        "{:>3} {:>14} {:>12} {:>10} {:>36} {:>30}",
+        "id", "material", "volume mm³", "mass kg", "center xyz mm", "bbox size mm"
     );
+    let mut total_mass = 0.0;
     for (index, solid) in solids.iter().enumerate() {
         let volume = solid.volume().abs();
-        let aluminum_mass_estimate =
-            volume * CUBIC_MM_TO_CUBIC_M * ALUMINUM_DENSITY_KG_PER_M3;
+        let color = dominant_color_key(solid);
+        let material = material_name_for(color);
+        let density = density_kg_per_m3_for(color);
+        let mass = volume * CUBIC_MM_TO_CUBIC_M * density;
+        total_mass += mass;
         let center = solid.center();
         let [bmin, bmax] = solid.bounding_box();
         let size = bmax - bmin;
         println!(
-            "{:>3} {:>12.3e} {:>14.4} {:>10.1}, {:>10.1}, {:>10.1} {:>8.1} × {:>8.1} × {:>8.1}",
-            index, volume, aluminum_mass_estimate,
+            "{:>3} {:>14} {:>12.3e} {:>10.4} {:>10.1}, {:>10.1}, {:>10.1} {:>8.1} × {:>8.1} × {:>8.1}",
+            index, material, volume, mass,
             center.x, center.y, center.z, size.x, size.y, size.z,
         );
     }
-    let total_aluminum_mass_estimate: f64 = solids
-        .iter()
-        .map(|s| s.volume().abs() * CUBIC_MM_TO_CUBIC_M * ALUMINUM_DENSITY_KG_PER_M3)
-        .sum();
-    println!(
-        "total assembly mass (all-aluminum estimate): {:.3} kg",
-        total_aluminum_mass_estimate
-    );
+    println!("total assembly mass: {:.3} kg", total_mass);
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -426,24 +651,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let solids = robot()?;
     report_geometry_table(&solids);
-    let mesh = Solid::mesh(&solids, Default::default())?;
 
-    // let step_path = output_directory.join("robot.step");
     let glb_path = output_directory.join("robot.glb");
-    // let stl_path = output_directory.join("robot.stl");
-    let png_path = output_directory.join("robot.png");
-
-    // Solid::write_step(&solids, &mut File::create(&step_path)?)?;
-    // mesh.write_stl(&mut File::create(&stl_path)?)?;
-    mesh.write_multiview_png(&mut File::create(&png_path)?)?;
-
     let gltf_solids: Vec<Solid> =
         solids.iter().cloned().map(|solid| solid.align_z(DVec3::Y, DVec3::X)).collect();
     let gltf_mesh = Solid::mesh(&gltf_solids, Tessellation { deflection_linear: 0.001, deflection_angular: 0.05, relative_linear: true })?;
     write_lit_gltf(&gltf_mesh, material_props_for, &mut File::create(&glb_path)?)?;
 
-    for path in [&glb_path, &png_path] {
-        println!("wrote {}", path.display());
-    }
+    println!("wrote {}", glb_path.display());
     Ok(())
 }
