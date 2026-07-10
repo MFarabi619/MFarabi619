@@ -11,15 +11,16 @@ RIGHT_PWM_CHANNEL=1
 LEFT_DIR_PIN=2
 RIGHT_DIR_PIN=7
 
-PWM_PERIOD=50
-PWM_DUTY=40
+PWM_PERIOD=100
+PWM_DUTY=$PWM_PERIOD
+DELAY_SECONDS=1
 
 echo "forward"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $LEFT_DIR_PIN o1"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $RIGHT_DIR_PIN o0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
-sleep 5
+sleep $DELAY_SECONDS
 echo "stop"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD 0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD 0"
@@ -29,7 +30,7 @@ mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $LEFT_DIR_PIN o0"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $RIGHT_DIR_PIN o1"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
-sleep 5
+sleep $DELAY_SECONDS
 echo "stop"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD 0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD 0"
@@ -39,7 +40,7 @@ mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $LEFT_DIR_PIN o0"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $RIGHT_DIR_PIN o0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
-sleep 5
+sleep $DELAY_SECONDS
 echo "stop"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD 0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD 0"
@@ -49,7 +50,7 @@ mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $LEFT_DIR_PIN o1"
 mcumgrctl --udp $UDP_ADDRESS shell "gpio conf $GPIO_DEVICE $RIGHT_DIR_PIN o1"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD $PWM_DUTY"
-sleep 5
+sleep $DELAY_SECONDS
 echo "stop"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $LEFT_PWM_CHANNEL $PWM_PERIOD 0"
 mcumgrctl --udp $UDP_ADDRESS shell "pwm usec $PWM_DEVICE $RIGHT_PWM_CHANNEL $PWM_PERIOD 0"
