@@ -206,7 +206,7 @@ configdefault DNS_RESOLVER_MAX_NAME_LEN
 configdefault DNS_RESOLVER_MAX_ANSWER_SIZE
 	default 2048
 configdefault DNS_RESOLVER_CACHE_MAX_ENTRIES
-	default 128
+	default 16
 configdefault DNS_NUM_CONCUR_QUERIES
 	default 32
 configdefault DNS_SERVER1

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-HOSTNAME=xiao.local
+HOSTNAME="xiao.local"
 HOST=$(ping $HOSTNAME -c1 | head -1 | awk -F'[()]' 'NR==1{print $2}')
 [ -z "$HOST" ] && {
   echo "couldn't resolve $HOSTNAME" >&2

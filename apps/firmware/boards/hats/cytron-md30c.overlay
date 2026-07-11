@@ -1,4 +1,6 @@
 #include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+#include <zephyr/dt-bindings/pwm/pwm.h>
+#include <zephyr/dt-bindings/gpio/gpio.h>
 
  /* XIAO     HAT (PIN, not GPIO) */
  /*  D0  --> 32  left motor  PWM */
@@ -8,21 +10,30 @@
  /*  GND --> 34 */
 
 &pinctrl {
-	ledc0_motors: ledc0_motors {
+	mcpwm0_hat: mcpwm0_hat {
 		group1 {
-			pinmux = <LEDC_CH0_GPIO1>, <LEDC_CH1_GPIO4>;
+			pinmux = <MCPWM0_OUT0A_GPIO1>, <MCPWM0_OUT1A_GPIO4>;
 			output-enable;
 		};
 	};
 };
 
-&ledc0 {
-	pinctrl-0 = <&ledc0_motors>;
+&mcpwm0 {
+	pinctrl-0 = <&mcpwm0_hat>;
 	pinctrl-names = "default";
+	prescale = <7>;
+	prescale-timer0 = <0>;
+	prescale-timer1 = <0>;
 	status = "okay";
-	#address-cells = <1>;
-	#size-cells = <0>;
+};
 
-	channel0@0 { reg = <0x0>; timer = <0>; };
-	channel1@1 { reg = <0x1>; timer = <1>; };
+/ {
+	hat {
+		compatible = "cytron,md30c";
+		pwms = <&mcpwm0 0 PWM_USEC(50) PWM_POLARITY_NORMAL>,
+		       <&mcpwm0 2 PWM_USEC(50) PWM_POLARITY_NORMAL>;
+		pwm-names = "left", "right";
+		dir-gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>,
+			    <&gpio0 7 GPIO_ACTIVE_LOW>;
+	};
 };

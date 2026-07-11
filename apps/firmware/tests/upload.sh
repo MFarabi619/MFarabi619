@@ -5,13 +5,21 @@ shopt -s globstar nullglob
 trunk build --release
 cd dist
 
-DEST=/SD:/www
-mcumgrctl --udp "$HOST" shell "fs mkdir $DEST" >/dev/null 2>&1 || true
+DESTINATION=/SD:/www
+HOSTNAME=xiao-sense.local
+HOST=$(ping $HOSTNAME -c1 | head -1 | awk -F'[()]' 'NR==1{print $2}')
+[ -z "$HOST" ] && {
+  echo "couldn't resolve $HOSTNAME" >&2
+  exit 1
+}
+
+mcumgrctl --udp "$HOST" shell "fs mkdir $DESTINATION" >/dev/null 2>&1 || true
+
 for path in **/*; do
   if [[ -d $path ]]; then
-    mcumgrctl --udp "$HOST" shell "fs mkdir $DEST/$path" >/dev/null 2>&1 || true
+    mcumgrctl --udp "$HOST" shell "fs mkdir $DESTINATION/$path" >/dev/null 2>&1 || true
   elif [[ -f $path ]]; then
     echo "→ $path"
-    mcumgrctl --udp "$HOST" fs upload "$path" "$DEST/$path"
+    mcumgrctl --udp "$HOST" fs upload "$path" "$DESTINATION/$path"
   fi
 done

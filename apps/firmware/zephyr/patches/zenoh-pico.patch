@@ -25,7 +25,7 @@ index 17cf9940..fd3d73ce 100644
  #if KERNEL_VERSION_MAJOR == 2
  #include <drivers/uart.h>
 diff --git a/src/system/zephyr/system.c b/src/system/zephyr/system.c
-index 5b383e61..f3b0d3e4 100644
+index 5b383e61..a8a5979e 100644
 --- a/src/system/zephyr/system.c
 +++ b/src/system/zephyr/system.c
 @@ -16,7 +16,7 @@
@@ -37,7 +37,7 @@ index 5b383e61..f3b0d3e4 100644
  
  #if KERNEL_VERSION_MAJOR == 2
  #include <random/rand32.h>
-@@ -52,14 +52,23 @@ uint64_t z_random_u64(void) {
+@@ -52,18 +52,27 @@ uint64_t z_random_u64(void) {
  void z_random_fill(void *buf, size_t len) { sys_rand_get(buf, len); }
  
  /*------------------ Memory ------------------*/
@@ -64,6 +64,11 @@ index 5b383e61..f3b0d3e4 100644
  
  #if Z_FEATURE_MULTI_THREAD == 1
  
+-#define Z_THREADS_NUM 4
++#define Z_THREADS_NUM 3
+ 
+ #ifdef CONFIG_TEST_EXTRA_STACK_SIZE
+ #define Z_PTHREAD_STACK_SIZE_DEFAULT CONFIG_MAIN_STACK_SIZE + CONFIG_TEST_EXTRA_STACK_SIZE
 diff --git a/zephyr/CMakeLists.txt b/zephyr/CMakeLists.txt
 index 651fdb27..9166693b 100644
 --- a/zephyr/CMakeLists.txt

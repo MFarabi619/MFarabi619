@@ -359,7 +359,7 @@ patches:
              overlay reg now drives the address.
 
     - path: zenoh-pico.patch
-      sha256sum: 92745b79e34742e6f1fa79f17b273eb72b5278902249d2c64ff51737e95e27c6
+      sha256sum: d3709c216b5de5c1b7082f051854b0250ed2e9ecb3f05e725d0c3c524b42a661
       module: zenoh-pico
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -393,3 +393,23 @@ patches:
              pool is too small for z_open -> OOM (-78). The EXTERNAL region is
              the 6MB PSRAM heap the WiFi driver already uses, so zenoh gets room
              without starving internal SRAM. Non-ESP boards keep k_malloc/k_realloc.
+
+          5. src/system/zephyr/system.c: Z_THREADS_NUM 4 -> 3. A client runs the
+             read + lease tasks; 4 static MAIN_STACK_SIZE stacks (thread_stack_area)
+             over-provisions internal DRAM by one slot.
+
+    - path: zephyr-mcpwm.patch
+      sha256sum: 7e000733cef5747700e318162c03e78fa14c2f0fb15cb09743d82968a00da2c3
+      module: zephyrproject/zephyr
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-07-11
+      upstreamable: true
+      comments: |
+          pwm_mc_esp32: fix the timer clock prescale math. duty_set and timer_set
+          divided the group clock by prescale and timer prescale directly, while
+          the hardware (and get_cycles_per_sec) divide by (prescale + 1). The
+          mismatch set a wrong timer peak, so the output frequency came out
+          prescale/(prescale+1) * timer_prescale/(timer_prescale+1) off. It also
+          divided by zero when either prescale was 0, and prescale-timerN defaults
+          to 0. Add the +1 on both lines to match the hardware.

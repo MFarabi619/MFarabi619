@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+
+include: base.yaml
+compatible: "freenove,fnk0077"
+description: Freenove FNK0077 dual DC-motor driver hat.
+properties:
+  pwms:
+    type: phandle-array
+    required: true
+    description: Forward and backward PWM channel per wheel.
+  pwm-names:
+    type: string-array
+    required: true

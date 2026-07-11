@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
+
+include: base.yaml
+compatible: "cytron,md30c"
+description: Cytron MD30C dual DC-motor driver hat.
+properties:
+  pwms:
+    type: phandle-array
+    required: true
+    description: PWM magnitude channel per wheel (left, right).
+  pwm-names:
+    type: string-array
+    required: true
+  dir-gpios:
+    type: phandle-array
+    required: true
+    description: Direction GPIO per wheel (left, right).

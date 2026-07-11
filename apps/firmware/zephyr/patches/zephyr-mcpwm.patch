@@ -1,0 +1,22 @@
+diff --git a/drivers/pwm/pwm_mc_esp32.c b/drivers/pwm/pwm_mc_esp32.c
+index b9d9ef08032..3701d833a5f 100644
+--- a/drivers/pwm/pwm_mc_esp32.c
++++ b/drivers/pwm/pwm_mc_esp32.c
+@@ -123,7 +123,7 @@ static void mcpwm_esp32_duty_set(const struct device *dev,
+ 		duty_mode = channel->inverted ? DUTY_MODE_ACTIVE_LOW : DUTY_MODE_ACTIVE_HIGH;
+ 	}
+ 
+-	uint32_t timer_clk_hz = data->mcpwm_clk_hz / config->prescale / channel->prescale;
++	uint32_t timer_clk_hz = data->mcpwm_clk_hz / (config->prescale + 1) / (channel->prescale + 1);
+ 
+ 	set_duty = (timer_clk_hz / channel->freq) * channel->duty / 100;
+ 	mcpwm_ll_operator_connect_timer(data->hal.dev, channel->operator_id, channel->timer_id);
+@@ -187,7 +187,7 @@ static int mcpwm_esp32_timer_set(const struct device *dev,
+ 	mcpwm_ll_timer_set_count_mode(data->hal.dev, channel->timer_id, MCPWM_TIMER_COUNT_MODE_UP);
+ 	mcpwm_ll_timer_update_period_at_once(data->hal.dev, channel->timer_id);
+ 
+-	uint32_t timer_clk_hz = data->mcpwm_clk_hz / config->prescale / channel->prescale;
++	uint32_t timer_clk_hz = data->mcpwm_clk_hz / (config->prescale + 1) / (channel->prescale + 1);
+ 
+ 	mcpwm_ll_timer_set_peak(data->hal.dev, channel->timer_id, timer_clk_hz / channel->freq,
+ 				false);

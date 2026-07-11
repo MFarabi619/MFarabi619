@@ -1,4 +1,5 @@
 #include <zephyr/dt-bindings/pinctrl/esp32s3-pinctrl.h>
+#include <zephyr/dt-bindings/pwm/pwm.h>
 #include <zephyr/dt-bindings/led/led.h>
 
  /* XIAO     HAT (PIN, not GPIO) */
@@ -11,10 +12,10 @@
  /*  GND --> 6 */
 
 &pinctrl {
-	ledc0_motors: ledc0_motors {
+	mcpwm0_hat: mcpwm0_hat {
 		group1 {
-			pinmux = <LEDC_CH0_GPIO1>, <LEDC_CH1_GPIO2>,
-				 <LEDC_CH2_GPIO4>, <LEDC_CH3_GPIO7>;
+			pinmux = <MCPWM0_OUT0A_GPIO1>, <MCPWM0_OUT0B_GPIO2>,
+				 <MCPWM0_OUT1A_GPIO4>, <MCPWM0_OUT1B_GPIO7>;
 			output-enable;
 		};
 	};
@@ -27,17 +28,13 @@
 	};
 };
 
-&ledc0 {
-	pinctrl-0 = <&ledc0_motors>;
+&mcpwm0 {
+	pinctrl-0 = <&mcpwm0_hat>;
 	pinctrl-names = "default";
+	prescale = <15>;
+	prescale-timer0 = <0>;
+	prescale-timer1 = <0>;
 	status = "okay";
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	channel0@0 { reg = <0x0>; timer = <0>; };
-	channel1@1 { reg = <0x1>; timer = <0>; };
-	channel2@2 { reg = <0x2>; timer = <0>; };
-	channel3@3 { reg = <0x3>; timer = <0>; };
 };
 
 &spi2 {
@@ -57,5 +54,16 @@
 		color-mapping = <LED_COLOR_ID_GREEN>,
 				<LED_COLOR_ID_RED>,
 				<LED_COLOR_ID_BLUE>;
+	};
+};
+
+/ {
+	hat {
+		compatible = "freenove,fnk0077";
+		pwms = <&mcpwm0 0 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+		       <&mcpwm0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+		       <&mcpwm0 2 PWM_MSEC(1) PWM_POLARITY_NORMAL>,
+		       <&mcpwm0 3 PWM_MSEC(1) PWM_POLARITY_NORMAL>;
+		pwm-names = "left-forward", "left-backward", "right-forward", "right-backward";
 	};
 };

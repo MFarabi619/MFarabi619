@@ -1,3 +1,5 @@
+#include "hats/freenove-fnk0077.overlay"
+
 / {
 	fstab {
 		compatible = "zephyr,fstab";
