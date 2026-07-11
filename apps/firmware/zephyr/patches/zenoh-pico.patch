@@ -25,7 +25,7 @@ index 17cf9940..fd3d73ce 100644
  #if KERNEL_VERSION_MAJOR == 2
  #include <drivers/uart.h>
 diff --git a/src/system/zephyr/system.c b/src/system/zephyr/system.c
-index 5b383e61..7b2a2897 100644
+index 5b383e61..f3b0d3e4 100644
 --- a/src/system/zephyr/system.c
 +++ b/src/system/zephyr/system.c
 @@ -16,7 +16,7 @@
@@ -37,25 +37,28 @@ index 5b383e61..7b2a2897 100644
  
  #if KERNEL_VERSION_MAJOR == 2
  #include <random/rand32.h>
-@@ -52,6 +52,15 @@ uint64_t z_random_u64(void) {
+@@ -52,14 +52,23 @@ uint64_t z_random_u64(void) {
  void z_random_fill(void *buf, size_t len) { sys_rand_get(buf, len); }
  
  /*------------------ Memory ------------------*/
+-void *z_malloc(size_t size) { return k_malloc(size); }
 +#if defined(CONFIG_ESP_SPIRAM)
-+#include <esp_heap_caps.h>
++#include <zephyr/multi_heap/shared_multi_heap.h>
 +
-+void *z_malloc(size_t size) { return heap_caps_malloc(size, MALLOC_CAP_8BIT); }
-+
-+void *z_realloc(void *ptr, size_t size) { return heap_caps_realloc(ptr, size, MALLOC_CAP_8BIT); }
-+
-+void z_free(void *ptr) { heap_caps_free(ptr); }
-+#else
- void *z_malloc(size_t size) { return k_malloc(size); }
++void *z_malloc(size_t size) { return shared_multi_heap_alloc(SMH_REG_ATTR_EXTERNAL, size); }
  
  void *z_realloc(void *ptr, size_t size) {
-@@ -60,6 +69,7 @@ void *z_realloc(void *ptr, size_t size) {
+-    // k_realloc not implemented in Zephyr
+-    return NULL;
++    return shared_multi_heap_realloc(SMH_REG_ATTR_EXTERNAL, ptr, size);
  }
  
++void z_free(void *ptr) { shared_multi_heap_free(ptr); }
++#else
++void *z_malloc(size_t size) { return k_malloc(size); }
++
++void *z_realloc(void *ptr, size_t size) { return k_realloc(ptr, size); }
++
  void z_free(void *ptr) { k_free(ptr); }
 +#endif
  

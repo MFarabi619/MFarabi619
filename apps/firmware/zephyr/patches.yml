@@ -359,11 +359,11 @@ patches:
              overlay reg now drives the address.
 
     - path: zenoh-pico.patch
-      sha256sum: 8e101d4b760baea18d6591ba8753c6744063395619f7be288b10ef704c1a0800
+      sha256sum: 92745b79e34742e6f1fa79f17b273eb72b5278902249d2c64ff51737e95e27c6
       module: zenoh-pico
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
-      date: 2026-07-08
+      date: 2026-07-10
       upstreamable: true
       comments: |
           Make the Zephyr module build against current zenoh-pico + Zephyr.
@@ -387,9 +387,9 @@ patches:
              `#include <zephyr/version.h>`. The bare path was removed in modern
              Zephyr; the file already uses <zephyr/kernel.h> for v3/v4.
 
-          4. src/system/zephyr/system.c: on CONFIG_ESP_SPIRAM, route
-             z_malloc/z_realloc/z_free to heap_caps_* (MALLOC_CAP_8BIT), like the
-             upstream espidf port. The Zephyr port used k_malloc (tiny internal
-             HEAP_MEM_POOL) and stubbed z_realloc to NULL -> z_open OOMs (-78).
-             heap_caps reaches the esp heap incl. PSRAM and has a real realloc.
-             Non-ESP boards keep k_malloc.
+          4. src/system/zephyr/system.c: route z_malloc/z_realloc/z_free to the
+             PSRAM shared_multi_heap (SMH_REG_ATTR_EXTERNAL) on CONFIG_ESP_SPIRAM.
+             The port stubbed z_realloc to NULL, and the 32K internal k_malloc
+             pool is too small for z_open -> OOM (-78). The EXTERNAL region is
+             the 6MB PSRAM heap the WiFi driver already uses, so zenoh gets room
+             without starving internal SRAM. Non-ESP boards keep k_malloc/k_realloc.

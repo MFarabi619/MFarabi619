@@ -1,6 +1,8 @@
+#include <math.h>
 #include <string.h>
 #include <zenoh-pico.h>
 #include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/led_strip.h>
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/kernel.h>
@@ -19,19 +21,18 @@
   (CDR_ENCAPSULATION_HEADER_BYTES + 5 * TWIST_FIELD_BYTES)
 #define TWIST_CDR_BYTES (CDR_ENCAPSULATION_HEADER_BYTES + 6 * TWIST_FIELD_BYTES)
 
-#define MILLI_UNITS_PER_UNIT 1000
-
-#define PWM_FREQUENCY_HZ 1000
+#define PWM_FREQUENCY_HZ 20000
 #define PWM_PERIOD_NS PWM_HZ(PWM_FREQUENCY_HZ)
 
-#define LEFT_FORWARD_CHANNEL 0
-#define LEFT_BACKWARD_CHANNEL 1
-#define RIGHT_FORWARD_CHANNEL 2
-#define RIGHT_BACKWARD_CHANNEL 3
+#define LEFT_PWM_CHANNEL 0
+#define RIGHT_PWM_CHANNEL 1
+#define LEFT_DIR_PIN 2
+#define RIGHT_DIR_PIN 7
+#define LEFT_FORWARD_LEVEL 1
+#define RIGHT_FORWARD_LEVEL 0
 
 #define SHAPING_DEADZONE 0.05
-#define SHAPING_MIN_DUTY 0.35
-#define SHAPING_SCALE 1.0
+#define SHAPING_MIN_SPEED 0.35
 #define MAX_NORMALIZED_SPEED 1.0
 
 #define DEADMAN_TIMEOUT_MS 500
@@ -47,64 +48,58 @@
 #define DEADMAN_THREAD_PRIORITY 6
 
 static const struct device *const motor_pwm = DEVICE_DT_GET(DT_NODELABEL(ledc0));
+static const struct device *const motor_dir = DEVICE_DT_GET(DT_NODELABEL(gpio0));
+#if DT_NODE_EXISTS(DT_NODELABEL(led_strip))
 static const struct device *const led_strip =
     DEVICE_DT_GET(DT_NODELABEL(led_strip));
 
 static const struct led_rgb LED_GREEN = {.r = 0, .g = 255, .b = 0};
+#endif
 
 struct wheel_speeds {
   double left;
   double right;
 };
 
-static struct wheel_speeds mix_velocity(double linear, double angular) {
+static struct wheel_speeds mix_wheel_speeds(double linear, double angular) {
   return (struct wheel_speeds){
       .left = linear - angular,
       .right = linear + angular,
   };
 }
 
-static double magnitude_of(double value) {
-  return value < 0.0 ? -value : value;
-}
-
 static double shape_wheel(double speed) {
-  double magnitude = magnitude_of(speed);
+  double magnitude = fabs(speed);
   if (magnitude < SHAPING_DEADZONE) {
     return 0.0;
   }
-  double scaled = magnitude * SHAPING_SCALE;
+  double scaled = magnitude;
   if (scaled > MAX_NORMALIZED_SPEED) {
     scaled = MAX_NORMALIZED_SPEED;
   }
-  if (scaled < SHAPING_MIN_DUTY) {
-    scaled = SHAPING_MIN_DUTY;
+  if (scaled < SHAPING_MIN_SPEED) {
+    scaled = SHAPING_MIN_SPEED;
   }
   return speed < 0.0 ? -scaled : scaled;
 }
 
-static void drive_wheel(uint32_t forward_channel, uint32_t backward_channel,
-                        double speed) {
-  double magnitude = magnitude_of(speed);
+static void drive_wheel(uint32_t pwm_channel, gpio_pin_t dir_pin,
+                        int forward_level, double speed) {
+  double magnitude = fabs(speed);
   if (magnitude > MAX_NORMALIZED_SPEED) {
     magnitude = MAX_NORMALIZED_SPEED;
   }
-  uint32_t pulse_ns = (uint32_t)(magnitude * PWM_PERIOD_NS);
-  if (speed >= 0.0) {
-    pwm_set(motor_pwm, backward_channel, PWM_PERIOD_NS, 0, 0);
-    pwm_set(motor_pwm, forward_channel, PWM_PERIOD_NS, pulse_ns, 0);
-  } else {
-    pwm_set(motor_pwm, forward_channel, PWM_PERIOD_NS, 0, 0);
-    pwm_set(motor_pwm, backward_channel, PWM_PERIOD_NS, pulse_ns, 0);
-  }
+  gpio_pin_set(motor_dir, dir_pin, speed >= 0.0 ? forward_level : !forward_level);
+  pwm_set(motor_pwm, pwm_channel, PWM_PERIOD_NS,
+          (uint32_t)(magnitude * PWM_PERIOD_NS), 0);
 }
 
 static void drive_robot(double linear, double angular) {
-  struct wheel_speeds velocity = mix_velocity(linear, angular);
-  drive_wheel(LEFT_FORWARD_CHANNEL, LEFT_BACKWARD_CHANNEL,
-              shape_wheel(velocity.left));
-  drive_wheel(RIGHT_FORWARD_CHANNEL, RIGHT_BACKWARD_CHANNEL,
-              shape_wheel(velocity.right));
+  struct wheel_speeds wheel_speeds = mix_wheel_speeds(linear, angular);
+  drive_wheel(LEFT_PWM_CHANNEL, LEFT_DIR_PIN, LEFT_FORWARD_LEVEL,
+              shape_wheel(wheel_speeds.left));
+  drive_wheel(RIGHT_PWM_CHANNEL, RIGHT_DIR_PIN, RIGHT_FORWARD_LEVEL,
+              shape_wheel(wheel_speeds.right));
 }
 
 static void halt(void) { drive_robot(0.0, 0.0); }
@@ -138,9 +133,6 @@ static void on_cmd_vel(z_loaned_sample_t *sample, void *arg) {
     memcpy(&linear_x, payload_bytes + TWIST_LINEAR_X_OFFSET, TWIST_FIELD_BYTES);
     memcpy(&angular_z, payload_bytes + TWIST_ANGULAR_Z_OFFSET,
            TWIST_FIELD_BYTES);
-    printk("cmd_vel: linear.x=%d angular.z=%d (milli-units)\n",
-           (int)(linear_x * MILLI_UNITS_PER_UNIT),
-           (int)(angular_z * MILLI_UNITS_PER_UNIT));
     drive_robot(linear_x, angular_z);
     k_timer_start(&deadman_timer, K_MSEC(DEADMAN_TIMEOUT_MS), K_NO_WAIT);
   }
@@ -148,6 +140,7 @@ static void on_cmd_vel(z_loaned_sample_t *sample, void *arg) {
   z_drop(z_move(payload));
 }
 
+#if DT_NODE_EXISTS(DT_NODELABEL(led_strip))
 static void led_color_wipe(struct led_rgb color) {
   struct led_rgb frame[LED_PIXEL_COUNT] = {0};
   for (size_t pixel_index = 0; pixel_index < LED_PIXEL_COUNT; pixel_index++) {
@@ -156,6 +149,7 @@ static void led_color_wipe(struct led_rgb color) {
     k_sleep(K_MSEC(LED_WIPE_WAIT_MS));
   }
 }
+#endif
 
 static void wait_for_network(void) {
   struct net_if *station = net_if_get_wifi_sta();
@@ -171,16 +165,24 @@ static void wait_for_network(void) {
 }
 
 static void cmd_vel_thread(void) {
+#if DT_NODE_EXISTS(DT_NODELABEL(led_strip))
   if (device_is_ready(led_strip)) {
     led_color_wipe(LED_GREEN);
   } else {
     printk("cmd_vel: led_strip not ready\n");
   }
+#endif
 
   if (!device_is_ready(motor_pwm)) {
     printk("cmd_vel: motor pwm not ready\n");
     return;
   }
+  if (!device_is_ready(motor_dir)) {
+    printk("cmd_vel: motor dir gpio not ready\n");
+    return;
+  }
+  gpio_pin_configure(motor_dir, LEFT_DIR_PIN, GPIO_OUTPUT_INACTIVE);
+  gpio_pin_configure(motor_dir, RIGHT_DIR_PIN, GPIO_OUTPUT_INACTIVE);
   halt();
 
   z_owned_session_t session;
