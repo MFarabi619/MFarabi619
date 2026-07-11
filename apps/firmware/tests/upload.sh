@@ -2,14 +2,11 @@
 set -euo pipefail
 shopt -s globstar nullglob
 
-HOST=10.0.0.172
-DEST=/SD:/www
-
 trunk build --release
-
-mcumgrctl --udp "$HOST" shell "fs mkdir $DEST" >/dev/null 2>&1 || true
-
 cd dist
+
+DEST=/SD:/www
+mcumgrctl --udp "$HOST" shell "fs mkdir $DEST" >/dev/null 2>&1 || true
 for path in **/*; do
   if [[ -d $path ]]; then
     mcumgrctl --udp "$HOST" shell "fs mkdir $DEST/$path" >/dev/null 2>&1 || true
