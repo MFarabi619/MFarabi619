@@ -2,6 +2,8 @@
 set -euo pipefail
 shopt -s globstar nullglob
 
+cd "$(git rev-parse --show-toplevel)"
+
 trunk build --release
 cd dist
 

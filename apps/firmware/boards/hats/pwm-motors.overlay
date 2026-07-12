@@ -29,7 +29,7 @@
 
 / {
 	hat {
-		compatible = "cytron,md30c";
+		compatible = "pwm-motors";
 		pwms = <&mcpwm0 0 PWM_USEC(50) PWM_POLARITY_NORMAL>,
 		       <&mcpwm0 2 PWM_USEC(50) PWM_POLARITY_NORMAL>;
 		pwm-names = "left", "right";

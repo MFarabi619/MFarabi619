@@ -4,7 +4,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/pwm.h>
 
-#define DT_DRV_COMPAT cytron_md30c
+#define DT_DRV_COMPAT pwm_motors
 
 static const struct pwm_dt_spec left_pwm = PWM_DT_SPEC_INST_GET_BY_NAME(0, left);
 static const struct pwm_dt_spec right_pwm = PWM_DT_SPEC_INST_GET_BY_NAME(0, right);

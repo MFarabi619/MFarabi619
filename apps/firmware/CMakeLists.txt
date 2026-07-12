@@ -114,9 +114,9 @@ zephyr_linker_sources_ifdef(CONFIG_HTTP_SERVER SECTIONS services/http/http_secti
 
 target_sources_ifdef(CONFIG_ZENOH_PICO app PRIVATE programs/cmd_vel.c)
 if(CONFIG_ZENOH_PICO)
-  dt_comp_path(cytron_md30c_path COMPATIBLE "cytron,md30c")
-  if(cytron_md30c_path)
-    target_sources(app PRIVATE programs/cytron_md30c.c)
+  dt_comp_path(pwm_motors_path COMPATIBLE "pwm-motors")
+  if(pwm_motors_path)
+    target_sources(app PRIVATE programs/pwm_motors.c)
   endif()
   dt_comp_path(freenove_fnk0077_path COMPATIBLE "freenove,fnk0077")
   if(freenove_fnk0077_path)
