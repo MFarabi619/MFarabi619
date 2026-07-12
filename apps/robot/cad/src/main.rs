@@ -4,49 +4,57 @@ use std::{
     f64::consts::{FRAC_PI_2, PI},
     fs::{self, File},
     path::{Path, PathBuf},
+    time::Instant,
 };
 
+use link::{Joint, JointType, Link, LinkId};
+use material::{Material, WithMaterial};
+
+macro_rules! time_it {
+    ($name:expr, $body:expr) => {{
+        let start = Instant::now();
+        let result = $body;
+        eprintln!("[cad] {:<24} {:>7.2}s", $name, start.elapsed().as_secs_f64());
+        result
+    }};
+}
+
+#[allow(unused_imports)]
+use cadrum::SceneOption;
 use cadrum::{Boolean, DVec3, Solid, Tessellation};
 
 mod gltf;
+mod link;
+mod material;
 mod parameters;
+mod urdf;
 
-use gltf::{write_lit_gltf, MaterialProps};
+use gltf::write_lit_gltf;
 use parameters::{
-    ALUMINUM_COLOR, ALUMINUM_DENSITY_KG_PER_M3, BATTERY_ANCHOR_BOLT_DIAMETER,
-    BATTERY_ANCHOR_HEAD_DIAMETER, BATTERY_ANCHOR_HEAD_HEIGHT, BATTERY_ANCHOR_NUT_DIAMETER,
-    BATTERY_ANCHOR_NUT_HEIGHT, BATTERY_COLOR, BATTERY_STRAP_OVERHANG, BATTERY_STRAP_THICKNESS,
-    BATTERY_STRAP_WIDTH, BATTERY_STRAP_X_SPACING, CAVITY_OVERSHOOT_MM,
-    CUTTER_OVERSHOOT_MM, DRIVE_WHEEL_TRACK, EDGE_COINCIDENCE_EPSILON_MM, END_CAP_COLOR,
+    BATTERY_ANCHOR_BOLT_DIAMETER, BATTERY_ANCHOR_HEAD_DIAMETER, BATTERY_ANCHOR_HEAD_HEIGHT,
+    BATTERY_ANCHOR_NUT_DIAMETER, BATTERY_ANCHOR_NUT_HEIGHT, BATTERY_PACK_CENTER_X,
+    BATTERY_PAIR_GAP, BATTERY_STRAP_OVERHANG, BATTERY_STRAP_PAIR_SPACING,
+    BATTERY_STRAP_THICKNESS, BATTERY_STRAP_WIDTH, CAMERA_INSET_FROM_FRONT, CAVITY_OVERSHOOT_MM,
+    CUTTER_OVERSHOOT_MM, DRIVE_WHEEL_TRACK, EDGE_COINCIDENCE_EPSILON_MM,
     END_FACE_NORMAL_X_THRESHOLD, FRAME_LENGTH, FRAME_TOP_Z, FRAME_WIDTH, GUSSET_ARM_LENGTH,
     GUSSET_ARM_WIDTH, GUSSET_HOLES_PER_ARM, GUSSET_HOLE_DIAMETER, GUSSET_HOLE_PITCH,
-    GUSSET_THICKNESS, PLASTIC_DENSITY_KG_PER_M3, PLYWOOD_COLOR, PLYWOOD_DENSITY_KG_PER_M3,
+    GUSSET_THICKNESS, MOTOR_CONTROLLER_OFFSET_Y, POST_HEIGHT, POST_INSET_FROM_END,
     RAIL_CROSS_HEIGHT, RAIL_CROSS_WIDTH, RAIL_END_CAP_BOSS_DEPTH, RAIL_END_CAP_BOSS_WALL,
     RAIL_END_CAP_FLANGE_THICKNESS, RAIL_FILLET_RADIUS, RAIL_HOLE_DIAMETER, RAIL_HOLE_SPACING,
-    POST_HEIGHT, POST_INSET_FROM_END, RAIL_WALL_THICKNESS, RUBBER_DENSITY_KG_PER_M3,
-    SLA_BATTERY_DENSITY_KG_PER_M3, STEEL_COLOR, STEEL_DENSITY_KG_PER_M3, TIRE_COLOR,
-    WHEEL_RADIUS,
+    RAIL_WALL_THICKNESS, ULTRASONIC_OUTBOARD_OFFSET, WHEEL_RADIUS,
 };
 
 const DRIVE_WHEEL_STEP_FILENAME: &str = "motor_with_bracket_and_wheel.step";
-const WHEEL_BRACKET_COLOR: [u8; 3] = [0x9d, 0xcf, 0xed];
+
+const UNKNOWN_MATERIAL_PBR: material::MaterialProps =
+    material::MaterialProps { metallic: 0.3, roughness: 0.7 };
 
 fn asset(name: &str) -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("assets").join(name)
-}
-
-fn hex_color(rgb: [u8; 3]) -> String {
-    format!("#{:02x}{:02x}{:02x}", rgb[0], rgb[1], rgb[2])
-}
-
-trait Paint {
-    fn paint(self, rgb: [u8; 3]) -> Self;
-}
-
-impl Paint for Solid {
-    fn paint(self, rgb: [u8; 3]) -> Self {
-        self.color(hex_color(rgb).as_str())
-    }
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("cad crate lives under the robot package")
+        .join("assets")
+        .join(name)
 }
 
 fn box_centered(size: DVec3, center: DVec3) -> Solid {
@@ -61,7 +69,7 @@ fn plank() -> Solid {
         DVec3::new(plank_length, plank_width, RAIL_CROSS_HEIGHT),
         DVec3::new(0.0, 0.0, plank_z_center),
     )
-    .paint(PLYWOOD_COLOR)
+    .with_material(Material::Plywood)
 }
 
 fn perforated_rail(length: f64) -> Result<Solid, cadrum::Error> {
@@ -137,7 +145,7 @@ fn frame() -> Result<Vec<Solid>, cadrum::Error> {
         cross_rail.translate(DVec3::new(rear_x, 0.0, FRAME_TOP_Z)),
     ]
     .into_iter()
-    .map(|rail| rail.paint(ALUMINUM_COLOR))
+    .map(|rail| rail.with_material(Material::Aluminum))
     .collect())
 }
 
@@ -156,7 +164,7 @@ fn vertical_posts() -> Result<Vec<Solid>, cadrum::Error> {
                 post_template
                     .clone()
                     .translate(DVec3::new(post_x, post_y_sign * post_y, post_z_center))
-                    .paint(ALUMINUM_COLOR),
+                    .with_material(Material::Aluminum),
             );
         }
     }
@@ -227,7 +235,7 @@ fn post_gussets() -> Result<Vec<Solid>, Box<dyn Error>> {
                 gussets.push(
                     gusset
                         .translate(DVec3::new(post_x, post_outer_face_y, FRAME_TOP_Z))
-                        .paint(STEEL_COLOR),
+                        .with_material(Material::Steel),
                 );
             }
         }
@@ -304,7 +312,7 @@ fn rail_end_cap() -> Result<Solid, cadrum::Error> {
 }
 
 fn rail_end_caps() -> Result<Vec<Solid>, cadrum::Error> {
-    let end_cap_template = rail_end_cap()?.paint(END_CAP_COLOR);
+    let end_cap_template = rail_end_cap()?.with_material(Material::Plastic);
 
     let rail_center_z = FRAME_TOP_Z - RAIL_CROSS_HEIGHT / 2.0;
     let side_y = FRAME_WIDTH / 2.0 - RAIL_CROSS_WIDTH / 2.0;
@@ -327,7 +335,7 @@ fn rail_end_caps() -> Result<Vec<Solid>, cadrum::Error> {
 }
 
 fn gussets() -> Result<Vec<Solid>, Box<dyn Error>> {
-    let gusset_template = corner_gusset()?.paint(STEEL_COLOR);
+    let gusset_template = corner_gusset()?.with_material(Material::Steel);
 
     let rear_outer_x = -FRAME_LENGTH / 2.0;
     let front_outer_x = FRAME_LENGTH / 2.0;
@@ -365,27 +373,37 @@ fn bounding_center(solids: &[Solid]) -> DVec3 {
     (min + max) / 2.0
 }
 
-fn place_step_centered_and_grounded(
+pub enum ZAnchor {
+    Bottom,
+    Top,
+}
+
+fn place_component(
     asset_name: &str,
     position: DVec3,
+    z_anchor: ZAnchor,
     orient: impl Fn(Solid) -> Solid,
 ) -> Result<Vec<Solid>, Box<dyn Error>> {
     let imported_solids = Solid::read_step(&mut File::open(asset(asset_name))?)?;
     let oriented: Vec<Solid> = imported_solids.into_iter().map(orient).collect();
     let [min, max] = combined_bounds(&oriented);
-    let footprint = DVec3::new((min.x + max.x) / 2.0, (min.y + max.y) / 2.0, min.z);
+    let anchor_z = match z_anchor {
+        ZAnchor::Bottom => min.z,
+        ZAnchor::Top => max.z,
+    };
+    let anchor = DVec3::new((min.x + max.x) / 2.0, (min.y + max.y) / 2.0, anchor_z);
     Ok(oriented
         .into_iter()
-        .map(|solid| solid.translate(-footprint).translate(position))
+        .map(|solid| solid.translate(-anchor).translate(position))
         .collect())
 }
 
 fn battery_assembly() -> Result<Vec<Solid>, Box<dyn Error>> {
     let deck_top_z = FRAME_TOP_Z;
-    let battery_center_x = -300.0;
 
     let imported = Solid::read_step(&mut File::open(asset("12v-sla-battery.step"))?)?;
-    let [raw_min, raw_max] = combined_bounds(&imported);
+    let oriented: Vec<Solid> = imported.into_iter().map(|s| s.rotate_x(FRAC_PI_2)).collect();
+    let [raw_min, raw_max] = combined_bounds(&oriented);
     let footprint = DVec3::new(
         (raw_min.x + raw_max.x) / 2.0,
         (raw_min.y + raw_max.y) / 2.0,
@@ -393,110 +411,112 @@ fn battery_assembly() -> Result<Vec<Solid>, Box<dyn Error>> {
     );
     let battery_size = raw_max - raw_min;
     let battery_top_z = deck_top_z + battery_size.z;
+    let battery_y_offset = battery_size.y / 2.0 + BATTERY_PAIR_GAP / 2.0;
 
-    let mut parts: Vec<Solid> = imported
-        .into_iter()
-        .map(|solid| {
-            solid.translate(-footprint).translate(DVec3::Z * deck_top_z).paint(BATTERY_COLOR)
-        })
-        .collect();
-
-    let strap_length = battery_size.x + 2.0 * BATTERY_STRAP_OVERHANG;
-    let strap_z_center = battery_top_z + BATTERY_STRAP_THICKNESS / 2.0;
-    for strap_offset in [-BATTERY_STRAP_X_SPACING / 2.0, BATTERY_STRAP_X_SPACING / 2.0] {
-        parts.push(box_centered(
-            DVec3::new(strap_length, BATTERY_STRAP_WIDTH, BATTERY_STRAP_THICKNESS),
-            DVec3::new(0.0, strap_offset, strap_z_center),
-        ).paint(ALUMINUM_COLOR));
+    let mut parts: Vec<Solid> = Vec::new();
+    for battery_y_sign in [1.0, -1.0] {
+        parts.extend(oriented.iter().cloned().map(|solid| {
+            solid
+                .translate(-footprint)
+                .translate(DVec3::new(0.0, battery_y_sign * battery_y_offset, deck_top_z))
+                .with_material(Material::SlaBattery)
+        }));
     }
 
-    let anchor_x = battery_size.x / 2.0 + BATTERY_STRAP_OVERHANG;
+    let strap_length = 2.0 * battery_size.y + BATTERY_PAIR_GAP + 2.0 * BATTERY_STRAP_OVERHANG;
+    let strap_z_center = battery_top_z + BATTERY_STRAP_THICKNESS / 2.0;
+    for strap_offset_x in [-BATTERY_STRAP_PAIR_SPACING / 2.0, BATTERY_STRAP_PAIR_SPACING / 2.0] {
+        parts.push(box_centered(
+            DVec3::new(BATTERY_STRAP_WIDTH, strap_length, BATTERY_STRAP_THICKNESS),
+            DVec3::new(strap_offset_x, 0.0, strap_z_center),
+        ).with_material(Material::Aluminum));
+    }
+
+    let anchor_y = battery_size.y + BATTERY_PAIR_GAP / 2.0 + BATTERY_STRAP_OVERHANG;
     let deck_bottom_z = deck_top_z - RAIL_CROSS_HEIGHT;
     let shaft_bottom_z = deck_bottom_z - BATTERY_ANCHOR_NUT_HEIGHT;
     let bolt_top_z = battery_top_z + BATTERY_STRAP_THICKNESS;
     let shaft_axis = DVec3::Z * (bolt_top_z - shaft_bottom_z);
     let head_axis = DVec3::Z * BATTERY_ANCHOR_HEAD_HEIGHT;
     let nut_axis = DVec3::Z * BATTERY_ANCHOR_NUT_HEIGHT;
-    for strap_offset in [-BATTERY_STRAP_X_SPACING / 2.0, BATTERY_STRAP_X_SPACING / 2.0] {
-        for anchor_offset in [-anchor_x, anchor_x] {
+    for strap_offset_x in [-BATTERY_STRAP_PAIR_SPACING / 2.0, BATTERY_STRAP_PAIR_SPACING / 2.0] {
+        for anchor_offset_y in [-anchor_y, anchor_y] {
             parts.push(
                 Solid::cylinder(BATTERY_ANCHOR_BOLT_DIAMETER / 2.0, shaft_axis)
-                    .translate(DVec3::new(anchor_offset, strap_offset, shaft_bottom_z))
-                    .paint(STEEL_COLOR),
+                    .translate(DVec3::new(strap_offset_x, anchor_offset_y, shaft_bottom_z))
+                    .with_material(Material::Steel),
             );
             parts.push(
                 Solid::cylinder(BATTERY_ANCHOR_HEAD_DIAMETER / 2.0, head_axis)
-                    .translate(DVec3::new(anchor_offset, strap_offset, bolt_top_z))
-                    .paint(STEEL_COLOR),
+                    .translate(DVec3::new(strap_offset_x, anchor_offset_y, bolt_top_z))
+                    .with_material(Material::Steel),
             );
             parts.push(
                 Solid::cylinder(BATTERY_ANCHOR_NUT_DIAMETER / 2.0, nut_axis)
-                    .translate(DVec3::new(anchor_offset, strap_offset, shaft_bottom_z))
-                    .paint(STEEL_COLOR),
+                    .translate(DVec3::new(strap_offset_x, anchor_offset_y, shaft_bottom_z))
+                    .with_material(Material::Steel),
             );
         }
     }
 
     Ok(parts
         .into_iter()
-        .map(|s| s.rotate_z(FRAC_PI_2).translate(DVec3::new(battery_center_x, 0.0, 0.0)))
+        .map(|s| s.translate(DVec3::new(BATTERY_PACK_CENTER_X, 0.0, 0.0)))
         .collect())
 }
 
 fn deck_parts() -> Result<Vec<Solid>, Box<dyn Error>> {
     let top = FRAME_TOP_Z;
     let mut parts = battery_assembly()?;
-    parts.extend(place_step_centered_and_grounded(
+    parts.extend(place_component(
         "cytron-hat-md30c.STEP",
-        DVec3::new(-300.0, 200.0, top),
+        DVec3::new(BATTERY_PACK_CENTER_X, MOTOR_CONTROLLER_OFFSET_Y, top),
+        ZAnchor::Bottom,
         |solid| solid.rotate_z(PI),
     )?);
-    parts.extend(place_step_centered_and_grounded(
+    parts.extend(place_component(
         "cytron-hat-md30c.STEP",
-        DVec3::new(-300.0, -200.0, top),
+        DVec3::new(BATTERY_PACK_CENTER_X, -MOTOR_CONTROLLER_OFFSET_Y, top),
+        ZAnchor::Bottom,
         |solid| solid,
     )?);
-    parts.extend(place_step_centered_and_grounded(
-        "breadboard-3220-pin-assembly.step",
-        DVec3::new(300.0, 0.0, top),
-        |solid| solid.rotate_z(-FRAC_PI_2),
-    )?);
-    parts.extend(place_step_top_centered_and_ceiling(
+    // parts.extend(place_component(
+    //     "breadboard-3220-pin-assembly.step",
+    //     DVec3::new(BREADBOARD_CENTER_X, 0.0, top),
+    //     ZAnchor::Bottom,
+    //     |solid| solid.rotate_z(-FRAC_PI_2),
+    // )?);
+    parts.extend(place_component(
         "hc-sr04-ultrasonic-sensor.step",
-        DVec3::new(FRAME_LENGTH / 2.0 + 10.0, 0.0, top),
+        DVec3::new(FRAME_LENGTH / 2.0 + ULTRASONIC_OUTBOARD_OFFSET, 0.0, top),
+        ZAnchor::Top,
         |solid| solid.rotate_y(FRAC_PI_2).rotate_x(FRAC_PI_2),
     )?);
-    parts.extend(place_step_top_centered_and_ceiling(
+    parts.extend(place_component(
         "hc-sr04-ultrasonic-sensor.step",
-        DVec3::new(-FRAME_LENGTH / 2.0 - 10.0, 0.0, top),
+        DVec3::new(-FRAME_LENGTH / 2.0 - ULTRASONIC_OUTBOARD_OFFSET, 0.0, top),
+        ZAnchor::Top,
         |solid| solid.rotate_y(FRAC_PI_2).rotate_x(FRAC_PI_2).rotate_z(PI),
     )?);
-    parts.extend(place_step_centered_and_grounded(
-        "nucleo_h755zi_q.step",
-        DVec3::new(150.0, 200.0, top),
-        |solid| solid.rotate_z(-FRAC_PI_2),
-    )?);
-    parts.extend(place_step_centered_and_grounded(
-        "rpi5.step",
-        DVec3::new(150.0, -150.0, top),
-        |solid| solid.rotate_x(FRAC_PI_2),
+    // parts.extend(place_component(
+    //     "nucleo_h755zi_q.step",
+    //     DVec3::new(NUCLEO_CENTER_X, NUCLEO_OFFSET_Y, top),
+    //     ZAnchor::Bottom,
+    //     |solid| solid.rotate_z(-FRAC_PI_2),
+    // )?);
+    // parts.extend(place_component(
+    //     "rpi5.step",
+    //     DVec3::new(RASPBERRY_PI_CENTER_X, RASPBERRY_PI_OFFSET_Y, top),
+    //     ZAnchor::Bottom,
+    //     |solid| solid.rotate_x(FRAC_PI_2),
+    // )?);
+    parts.extend(place_component(
+        "rpi-global-shutter-camera.step",
+        DVec3::new(FRAME_LENGTH / 2.0 - CAMERA_INSET_FROM_FRONT, 0.0, top),
+        ZAnchor::Bottom,
+        |solid| solid.rotate_z(FRAC_PI_2),
     )?);
     Ok(parts)
-}
-
-fn place_step_top_centered_and_ceiling(
-    asset_name: &str,
-    position: DVec3,
-    orient: impl Fn(Solid) -> Solid,
-) -> Result<Vec<Solid>, Box<dyn Error>> {
-    let imported_solids = Solid::read_step(&mut File::open(asset(asset_name))?)?;
-    let oriented: Vec<Solid> = imported_solids.into_iter().map(orient).collect();
-    let [min, max] = combined_bounds(&oriented);
-    let anchor = DVec3::new((min.x + max.x) / 2.0, (min.y + max.y) / 2.0, max.z);
-    Ok(oriented
-        .into_iter()
-        .map(|solid| solid.translate(-anchor).translate(position))
-        .collect())
 }
 
 fn max_bbox_dim(solid: &Solid) -> f64 {
@@ -505,7 +525,7 @@ fn max_bbox_dim(solid: &Solid) -> f64 {
     extents.x.max(extents.y).max(extents.z)
 }
 
-fn drive_wheels() -> Result<Vec<Solid>, Box<dyn Error>> {
+fn drive_wheels() -> Result<Vec<Link>, Box<dyn Error>> {
     let imported_solids = Solid::read_step(&mut File::open(asset(DRIVE_WHEEL_STEP_FILENAME))?)?;
     let center = bounding_center(&imported_solids);
 
@@ -520,103 +540,114 @@ fn drive_wheels() -> Result<Vec<Solid>, Box<dyn Error>> {
     let wheel_bbox_extent_neg_x = center.x - wheel_bbox_min.x;
     let frame_rear_x = -FRAME_LENGTH / 2.0;
     let frame_front_x = FRAME_LENGTH / 2.0;
-    let axle_x_positions = [
-        frame_rear_x + wheel_bbox_extent_neg_x,
-        frame_front_x - wheel_bbox_extent_pos_x,
+
+    let axles: [(LinkId, LinkId, f64); 2] = [
+        (LinkId::WheelRearLeft, LinkId::WheelRearRight, frame_rear_x + wheel_bbox_extent_neg_x),
+        (LinkId::WheelFrontLeft, LinkId::WheelFrontRight, frame_front_x - wheel_bbox_extent_pos_x),
     ];
-    let mut wheels =
-        Vec::with_capacity(imported_solids.len() * 2 * axle_x_positions.len());
-    for &axle_x in &axle_x_positions {
+
+    let mut wheels: Vec<Link> = Vec::with_capacity(4);
+    for &(left_id, right_id, axle_x) in &axles {
+        let left_origin = DVec3::new(axle_x, DRIVE_WHEEL_TRACK / 2.0, WHEEL_RADIUS);
+        let right_origin = DVec3::new(axle_x, -DRIVE_WHEEL_TRACK / 2.0, WHEEL_RADIUS);
+        let mut left_solids = Vec::with_capacity(imported_solids.len());
+        let mut right_solids = Vec::with_capacity(imported_solids.len());
         for (body_index, solid) in imported_solids.iter().enumerate() {
             let is_tire = Some(body_index) == tire_index;
-            let wheel_body = if is_tire {
-                solid.clone().paint(TIRE_COLOR)
-            } else {
-                solid.clone()
-            };
-            wheels.push(
+            let wheel_body =
+                if is_tire { solid.clone().with_material(Material::Rubber) } else { solid.clone() };
+            left_solids.push(
                 wheel_body
                     .clone()
                     .translate(-center)
-                    .translate(DVec3::new(axle_x, -DRIVE_WHEEL_TRACK / 2.0, WHEEL_RADIUS)),
-            );
-            wheels.push(
-                wheel_body
-                    .translate(-center)
                     .mirror(DVec3::ZERO, DVec3::Y)
-                    .translate(DVec3::new(axle_x, DRIVE_WHEEL_TRACK / 2.0, WHEEL_RADIUS)),
+                    .translate(left_origin),
             );
+            right_solids.push(wheel_body.translate(-center).translate(right_origin));
         }
+        wheels.push(Link { id: left_id, origin_world: left_origin, solids: left_solids });
+        wheels.push(Link { id: right_id, origin_world: right_origin, solids: right_solids });
     }
     Ok(wheels)
 }
 
-fn robot() -> Result<Vec<Solid>, Box<dyn Error>> {
-    let mut parts = Vec::new();
-    parts.push(plank());
-    parts.extend(frame()?);
-    parts.extend(gussets()?);
-    parts.extend(rail_end_caps()?);
-    parts.extend(vertical_posts()?);
-    parts.extend(post_gussets()?);
-    parts.extend(drive_wheels()?);
-    parts.extend(deck_parts()?);
-    Ok(parts)
+fn robot() -> Result<Vec<Link>, Box<dyn Error>> {
+    let mut chassis_solids: Vec<Solid> = Vec::new();
+    chassis_solids.push(time_it!("plank", plank()));
+    chassis_solids.extend(time_it!("frame", frame())?);
+    chassis_solids.extend(time_it!("gussets", gussets())?);
+    chassis_solids.extend(time_it!("rail_end_caps", rail_end_caps())?);
+    chassis_solids.extend(time_it!("vertical_posts", vertical_posts())?);
+    chassis_solids.extend(time_it!("post_gussets", post_gussets())?);
+    chassis_solids.extend(time_it!("deck_parts", deck_parts())?);
+
+    let mut links = vec![Link {
+        id: LinkId::Chassis,
+        origin_world: DVec3::ZERO,
+        solids: chassis_solids,
+    }];
+    links.extend(time_it!("drive_wheels", drive_wheels())?);
+    Ok(links)
 }
 
-fn material_props_for(color: [u8; 3]) -> MaterialProps {
-    match color {
-        ALUMINUM_COLOR => MaterialProps { metallic: 0.6, roughness: 0.55 },
-        STEEL_COLOR => MaterialProps { metallic: 0.35, roughness: 0.75 },
-        WHEEL_BRACKET_COLOR => MaterialProps { metallic: 0.25, roughness: 0.65 },
-        END_CAP_COLOR => MaterialProps { metallic: 0.0, roughness: 0.6 },
-        PLYWOOD_COLOR => MaterialProps { metallic: 0.0, roughness: 0.9 },
-        TIRE_COLOR => MaterialProps { metallic: 0.0, roughness: 0.95 },
-        BATTERY_COLOR => MaterialProps { metallic: 0.0, roughness: 0.9 },
-        _ => MaterialProps { metallic: 0.3, roughness: 0.7 },
-    }
+fn joint_table() -> Vec<Joint> {
+    vec![
+        Joint {
+            name: "base_to_chassis",
+            parent: LinkId::BaseLink,
+            child: LinkId::Chassis,
+            joint_type: JointType::Fixed,
+            axis: None,
+            rpy: None,
+        },
+        Joint {
+            name: "wheel_fl_joint",
+            parent: LinkId::Chassis,
+            child: LinkId::WheelFrontLeft,
+            joint_type: JointType::Continuous,
+            axis: Some(DVec3::Y),
+            rpy: None,
+        },
+        Joint {
+            name: "wheel_fr_joint",
+            parent: LinkId::Chassis,
+            child: LinkId::WheelFrontRight,
+            joint_type: JointType::Continuous,
+            axis: Some(DVec3::Y),
+            rpy: None,
+        },
+        Joint {
+            name: "wheel_rl_joint",
+            parent: LinkId::Chassis,
+            child: LinkId::WheelRearLeft,
+            joint_type: JointType::Continuous,
+            axis: Some(DVec3::Y),
+            rpy: None,
+        },
+        Joint {
+            name: "wheel_rr_joint",
+            parent: LinkId::Chassis,
+            child: LinkId::WheelRearRight,
+            joint_type: JointType::Continuous,
+            axis: Some(DVec3::Y),
+            rpy: None,
+        },
+    ]
 }
 
-fn density_kg_per_m3_for(color: [u8; 3]) -> f64 {
-    match color {
-        ALUMINUM_COLOR | WHEEL_BRACKET_COLOR => ALUMINUM_DENSITY_KG_PER_M3,
-        STEEL_COLOR => STEEL_DENSITY_KG_PER_M3,
-        END_CAP_COLOR => PLASTIC_DENSITY_KG_PER_M3,
-        PLYWOOD_COLOR => PLYWOOD_DENSITY_KG_PER_M3,
-        TIRE_COLOR => RUBBER_DENSITY_KG_PER_M3,
-        BATTERY_COLOR => SLA_BATTERY_DENSITY_KG_PER_M3,
-        _ => STEEL_DENSITY_KG_PER_M3,
-    }
-}
-
-fn material_name_for(color: [u8; 3]) -> &'static str {
-    match color {
-        ALUMINUM_COLOR => "aluminum",
-        WHEEL_BRACKET_COLOR => "aluminum",
-        STEEL_COLOR => "steel",
-        END_CAP_COLOR => "plastic",
-        PLYWOOD_COLOR => "plywood",
-        TIRE_COLOR => "rubber",
-        BATTERY_COLOR => "sla-battery",
-        _ => "steel(default)",
-    }
-}
-
-fn dominant_color_key(solid: &Solid) -> [u8; 3] {
-    let mut counts: HashMap<[u8; 3], usize> = HashMap::new();
+fn dominant_material(solid: &Solid) -> Option<Material> {
+    let mut counts: HashMap<Material, usize> = HashMap::new();
     for color in solid.colormap().values() {
-        let key = [
+        let rgb = [
             (color.r.clamp(0.0, 1.0) * 255.0) as u8,
             (color.g.clamp(0.0, 1.0) * 255.0) as u8,
             (color.b.clamp(0.0, 1.0) * 255.0) as u8,
         ];
-        *counts.entry(key).or_insert(0) += 1;
+        if let Some(material) = Material::from_rgb(rgb) {
+            *counts.entry(material).or_insert(0) += 1;
+        }
     }
-    counts
-        .into_iter()
-        .max_by_key(|(_, count)| *count)
-        .map(|(key, _)| key)
-        .unwrap_or(ALUMINUM_COLOR)
+    counts.into_iter().max_by_key(|(_, count)| *count).map(|(material, _)| material)
 }
 
 fn report_geometry_table(solids: &[Solid]) {
@@ -628,35 +659,75 @@ fn report_geometry_table(solids: &[Solid]) {
     let mut total_mass = 0.0;
     for (index, solid) in solids.iter().enumerate() {
         let volume = solid.volume().abs();
-        let color = dominant_color_key(solid);
-        let material = material_name_for(color);
-        let density = density_kg_per_m3_for(color);
-        let mass = volume * CUBIC_MM_TO_CUBIC_M * density;
+        let material = dominant_material(solid);
+        let material_name = material.map_or("?", Material::urdf_name);
+        let mass = material.map_or(0.0, |m| volume * CUBIC_MM_TO_CUBIC_M * m.density_kg_per_m3());
         total_mass += mass;
         let center = solid.center();
         let [bmin, bmax] = solid.bounding_box();
         let size = bmax - bmin;
         println!(
             "{:>3} {:>14} {:>12.3e} {:>10.4} {:>10.1}, {:>10.1}, {:>10.1} {:>8.1} × {:>8.1} × {:>8.1}",
-            index, material, volume, mass,
+            index, material_name, volume, mass,
             center.x, center.y, center.z, size.x, size.y, size.z,
         );
     }
-    println!("total assembly mass: {:.3} kg", total_mass);
+    println!("total assembly mass: {:.3} kg (excludes uncategorized parts)", total_mass);
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let output_directory = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("assets");
-    fs::create_dir_all(&output_directory)?;
+    let robot_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .expect("cad crate lives under the robot package")
+        .to_path_buf();
+    let assets_dir = robot_dir.join("assets");
+    let urdf_dir = robot_dir.join("urdf");
+    fs::create_dir_all(&assets_dir)?;
 
-    let solids = robot()?;
-    report_geometry_table(&solids);
+    let links = robot()?;
+    let flat_solids: Vec<Solid> = links.iter().flat_map(|link| link.solids.iter().cloned()).collect();
+    report_geometry_table(&flat_solids);
 
-    let glb_path = output_directory.join("robot.glb");
-    let gltf_solids: Vec<Solid> =
-        solids.iter().cloned().map(|solid| solid.align_z(DVec3::Y, DVec3::X)).collect();
-    let gltf_mesh = Solid::mesh(&gltf_solids, Tessellation { deflection_linear: 0.001, deflection_angular: 0.05, relative_linear: true })?;
-    write_lit_gltf(&gltf_mesh, material_props_for, &mut File::create(&glb_path)?)?;
+    let glb_path = assets_dir.join("robot.glb");
+    let gltf_solids: Vec<Solid> = time_it!(
+        "align_z",
+        flat_solids.iter().cloned().map(|solid| solid.align_z(DVec3::Y, DVec3::X)).collect()
+    );
+    let gltf_mesh = time_it!(
+        "tessellation",
+        Solid::mesh(
+            &gltf_solids,
+            Tessellation { deflection_linear: 0.01, deflection_angular: 0.05, relative_linear: true, is_parallel: true },
+        )
+    )?;
+    time_it!(
+        "gltf write",
+        write_lit_gltf(
+            &gltf_mesh,
+            |rgb| Material::from_rgb(rgb).map_or(UNKNOWN_MATERIAL_PBR, Material::pbr),
+            &mut File::create(&glb_path)?,
+        )
+    )?;
+
+    let joints = joint_table();
+    time_it!(
+        "urdf write",
+        urdf::write(&links, &joints, &robot_dir, |rgb| {
+            Material::from_rgb(rgb).map_or("misc", Material::urdf_name)
+        })
+    )?;
+    println!("wrote {}", urdf_dir.join("robot.urdf").display());
+
+    // PNG render is single-threaded via tiny-skia and takes far longer than tessellation on this
+    // model (15+ min single-view at 1024²). Un-comment when a still is genuinely needed.
+    // let png_path = output_directory.join("robot.png");
+    // time_it!(
+    //     "png write",
+    //     gltf_mesh
+    //         .scene(SceneOption { shading: true, hidden_edges: false, ..SceneOption::default() })
+    //         .write_png([1024, 1024], &mut File::create(&png_path)?)
+    // )?;
+    // println!("wrote {}", png_path.display());
 
     println!("wrote {}", glb_path.display());
     Ok(())

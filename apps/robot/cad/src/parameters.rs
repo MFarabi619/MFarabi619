@@ -27,15 +27,26 @@ pub const POST_HEIGHT: f64 = 400.0;
 pub const POST_INSET_FROM_END: f64 = 170.0;
 pub const INNER_RAIL_Y_OFFSET: f64 = 325.0;
 
+pub const BATTERY_PACK_CENTER_X: f64 = -300.0;
+pub const BATTERY_PAIR_GAP: f64 = 10.0;
 pub const BATTERY_STRAP_WIDTH: f64 = 25.0;
 pub const BATTERY_STRAP_THICKNESS: f64 = 3.0;
-pub const BATTERY_STRAP_X_SPACING: f64 = 100.0;
+pub const BATTERY_STRAP_PAIR_SPACING: f64 = 100.0;
 pub const BATTERY_STRAP_OVERHANG: f64 = 30.0;
 pub const BATTERY_ANCHOR_BOLT_DIAMETER: f64 = 5.0;
 pub const BATTERY_ANCHOR_HEAD_DIAMETER: f64 = 8.5;
 pub const BATTERY_ANCHOR_HEAD_HEIGHT: f64 = 5.0;
 pub const BATTERY_ANCHOR_NUT_DIAMETER: f64 = 9.24;
 pub const BATTERY_ANCHOR_NUT_HEIGHT: f64 = 4.0;
+
+pub const MOTOR_CONTROLLER_OFFSET_Y: f64 = 200.0;
+// pub const BREADBOARD_CENTER_X: f64 = 300.0;
+// pub const NUCLEO_CENTER_X: f64 = 150.0;
+// pub const NUCLEO_OFFSET_Y: f64 = 200.0;
+// pub const RASPBERRY_PI_CENTER_X: f64 = 150.0;
+// pub const RASPBERRY_PI_OFFSET_Y: f64 = -150.0;
+pub const CAMERA_INSET_FROM_FRONT: f64 = 15.0;
+pub const ULTRASONIC_OUTBOARD_OFFSET: f64 = 10.0;
 
 pub const EDGE_COINCIDENCE_EPSILON_MM: f64 = 1e-6;
 pub const END_FACE_NORMAL_X_THRESHOLD: f64 = 0.99;
@@ -55,3 +66,4 @@ pub const STEEL_COLOR: [u8; 3] = [0x5a, 0x5d, 0x63];
 pub const END_CAP_COLOR: [u8; 3] = [0x10, 0x10, 0x10];
 pub const TIRE_COLOR: [u8; 3] = [0x0c, 0x0c, 0x0c];
 pub const BATTERY_COLOR: [u8; 3] = [0x14, 0x14, 0x14];
+pub const WHEEL_BRACKET_COLOR: [u8; 3] = [0x9d, 0xcf, 0xed];

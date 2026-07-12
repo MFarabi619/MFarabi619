@@ -3,18 +3,13 @@ use std::io::{self, Write};
 
 use cadrum::{Color, DVec3, Mesh};
 
-pub struct MaterialProps {
-    pub metallic: f32,
-    pub roughness: f32,
-}
+use crate::material::{MaterialProps, DEFAULT_MATERIAL_RGB};
 
-impl Default for MaterialProps {
-    fn default() -> Self {
-        Self { metallic: 0.5, roughness: 0.5 }
-    }
-}
-
-const DEFAULT_COLOR: Color = Color { r: 0.867, g: 0.867, b: 0.867 };
+const DEFAULT_COLOR: Color = Color {
+    r: DEFAULT_MATERIAL_RGB[0] as f32 / 255.0,
+    g: DEFAULT_MATERIAL_RGB[1] as f32 / 255.0,
+    b: DEFAULT_MATERIAL_RGB[2] as f32 / 255.0,
+};
 
 const GLTF_MAGIC: u32 = 0x46546C67;
 const GLTF_VERSION: u32 = 2;

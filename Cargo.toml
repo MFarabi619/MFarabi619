@@ -10,13 +10,14 @@ members = [
     "apps/readme",
     "apps/firmware",
     "apps/ceratina",
+    "apps/robot/cad",
     "libs/lazyzephyr",
     "apps/lazyzephyr",
     "apps/server/migration",
-    "libs/zephyr-lib-oh-my-zephyr",
     "libs/zephyr-lib-sqlite",
-    "libs/zephyr-lib-sqlite/samples/rust",
     "libs/zephyr-ztest-fancy",
+    "libs/zephyr-lib-oh-my-zephyr",
+    "libs/zephyr-lib-sqlite/samples/rust",
 ]
 
 [workspace.dependencies]
@@ -35,7 +36,7 @@ tracing = { version = "0.1", features = ["std"] }
 ratatui = { version = "0.30.0", default-features = false }
 lucide-dioxus = { version = "3", features = ["all-icons"] }
 dioxus = { version = "0.7.7", features = ["router", "fullstack"] }
-zephyr       = { path = "zephyrproject/modules/lang/rust/zephyr" }
+zephyr = { path = "zephyrproject/modules/lang/rust/zephyr" }
 zephyr-build = { path = "zephyrproject/modules/lang/rust/zephyr-build" }
 
 [profile.dev]
@@ -46,15 +47,15 @@ debug = true
 opt-level = "s"
 
 [profile.release]
-debug = 2         # full debug symbols — adds to binary size, enable for profiling
+debug = 2 # full debug symbols — adds to binary size, enable for profiling
 # Relaxed for debugger usability — original size-optimized values commented out below.
 # lto = "fat"
 # codegen-units = 1 # LLVM can perform better optimizations using a single thread
 # opt-level = "z"   # min size — halves WASM (~15MB), better for ESP32 flash. all targets are IO-bound.
 # opt-level = 3     # max speed — produces 30MB WASM, bad for firmware flash too
-lto = false           # was "fat" — inlining destroys stack frames for debugger
-codegen-units = 1     # was 16    — fewer units = less DWARF duplication for probe-rs; lto=false still keeps fn boundaries at link
-opt-level = 1         # was "z"   — keep some opts but preserve variable visibility for `info locals`
+lto = false            # was "fat" — inlining destroys stack frames for debugger
+codegen-units = 1      # was 16    — fewer units = less DWARF duplication for probe-rs; lto=false still keeps fn boundaries at link
+opt-level = 1          # was "z"   — keep some opts but preserve variable visibility for `info locals`
 incremental = false
 overflow-checks = true # was false — silent integer wrapping is dangerous for sensor math
 # debug-assertions = false  # already the default for release
@@ -62,3 +63,4 @@ overflow-checks = true # was false — silent integer wrapping is dangerous for 
 [patch.crates-io]
 probe-rs = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" }        # 2026-06-08
 probe-rs-target = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" } # 2026-06-08
+cadrum = { path = "/Users/mfarabi/workspace/cadrum" }                                                                # local: adds Tessellation.is_parallel

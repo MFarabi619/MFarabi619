@@ -1,13 +1,7 @@
 [workspace]
-version = "0.1.0"
-name = "MFarabi619"
 requires-pixi = ">=0.40"
 channels = ["https://prefix.dev/conda-forge"]
-authors = ["Mumtahin Farabi <mfarabi619@gmail.com>"]
 platforms = [{ platform = "linux-64", glibc = "2.34" }, "osx-arm64"]
-
-[activation]
-scripts = ["install/setup.bash"]
 
 [dependencies]
 git = "*"
@@ -19,31 +13,16 @@ compilers = "*"
 pkg-config = "*"
 colcon-common-extensions = "*"
 
-[tasks]
-rviz = "rviz2"
-
-[target.linux-64.dependencies]
-libgl-devel = "*"
-
-[target.osx-arm64.dependencies]
-watchfiles = "*"
-
-[target.osx-arm64.pypi-dependencies]
-rgpio = "*"
-build123d = "*"
-yacv-server = "*"
-bd-warehouse = "*"
-
-[target.osx-arm64.tasks.cad]
-cmd = "python main.py"
-cwd = "apps/robot/cad"
-env = { YACV_HOST = "127.0.0.1", YACV_PORT = "32323" }
+[target]
+linux-64.dependencies.libgl-devel = "*"
 
 [environments]
-default = { features = ["lyrical"] }
+default.features = ["lyrical"]
 
 [feature.lyrical]
 channels = ["https://prefix.dev/robostack-lyrical"]
 
 [feature.lyrical.dependencies]
-ros-lyrical-desktop = "*"
+ros-lyrical-ur = "*"
+ros-lyrical-turtlesim = "*"
+ros-lyrical-desktop-full = "*"

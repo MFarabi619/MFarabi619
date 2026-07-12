@@ -25,6 +25,9 @@ config/data.sqld
 **/__pycache__/
 apps/robot/robot/*_parameters.py
 
+apps/robot/meshes/
+apps/robot/assets/robot.glb
+
 #====================================================
 #                 CACHES/LOGS
 #====================================================
