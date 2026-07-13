@@ -89,3 +89,18 @@ pub fn init_logging(
         .init();
     Ok(())
 }
+
+pub fn init_rosout_logging(
+    context: &Arc<Context>,
+    logger: &str,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let node = context.create_node("rosout", None)?;
+    let publisher = node.create_publisher::<Log>("/rosout", None)?;
+    LoggingBuilder::new(logger)
+        .with_layer(RosoutLayer {
+            logger: logger.to_string(),
+            publisher,
+        })
+        .init();
+    Ok(())
+}

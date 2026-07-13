@@ -1645,6 +1645,7 @@ name = "cad"
 version = "0.1.0"
 dependencies = [
  "cadrum",
+ "description",
 ]
 
 [[package]]
@@ -3248,6 +3249,13 @@ dependencies = [
  "rustc_version",
  "syn 2.0.118",
  "unicode-xid",
+]
+
+[[package]]
+name = "description"
+version = "0.1.0"
+dependencies = [
+ "glam",
 ]
 
 [[package]]
@@ -12070,6 +12078,7 @@ dependencies = [
  "cc",
  "comfy-table",
  "crossterm 0.29.0",
+ "description",
  "fetch-source",
  "foxglove",
  "futures-util",

@@ -2,9 +2,11 @@
 name = "cad"
 version = "0.1.0"
 edition = "2021"
+default-run = "robot"
 
 [dependencies]
 cadrum = "^0.8"
+description = { path = "../description" }
 
 [lints.clippy]
 all = "deny"

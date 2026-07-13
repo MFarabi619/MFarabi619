@@ -26,12 +26,29 @@ pub struct CameraRenderer {
     readback: wgpu::Buffer,
     width: u32,
     height: u32,
-    fov_deg: f64,
-    camera_mount_height_meters: f64,
+    tan_half_fov: f32,
+    aspect: f32,
+    camera_mount_height_meters: f32,
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum Scene {
+    Field,
+    Road,
+}
+
+impl Scene {
+    fn shader_source(self) -> &'static str {
+        match self {
+            Scene::Field => include_str!("field.wgsl"),
+            Scene::Road => include_str!("road.wgsl"),
+        }
+    }
 }
 
 impl CameraRenderer {
     pub async fn new(
+        scene: Scene,
         width: u32,
         height: u32,
         fov_deg: f64,
@@ -56,8 +73,8 @@ impl CameraRenderer {
             .await?;
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("field"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("field.wgsl").into()),
+            label: Some("scene"),
+            source: wgpu::ShaderSource::Wgsl(scene.shader_source().into()),
         });
 
         let uniform = device.create_buffer(&wgpu::BufferDescriptor {
@@ -155,8 +172,9 @@ impl CameraRenderer {
             readback,
             width,
             height,
-            fov_deg,
-            camera_mount_height_meters,
+            tan_half_fov: (fov_deg.to_radians() / 2.0).tan() as f32,
+            aspect: width as f32 / height as f32,
+            camera_mount_height_meters: camera_mount_height_meters as f32,
         })
     }
 
@@ -164,9 +182,9 @@ impl CameraRenderer {
         let uniform = CameraUniform {
             position: [x as f32, y as f32],
             heading: theta as f32,
-            camera_mount_height_meters: self.camera_mount_height_meters as f32,
-            tan_half_fov: (self.fov_deg.to_radians() / 2.0).tan() as f32,
-            aspect: self.width as f32 / self.height as f32,
+            camera_mount_height_meters: self.camera_mount_height_meters,
+            tan_half_fov: self.tan_half_fov,
+            aspect: self.aspect,
             time: time as f32,
             _pad: 0.0,
         };

@@ -1,9 +1,11 @@
-use std::collections::HashMap;
-use std::io::{self, Write};
+use std::{
+    collections::HashMap,
+    io::{self, Write},
+};
 
 use cadrum::{Color, DVec3, Mesh};
 
-use crate::material::{MaterialProps, DEFAULT_MATERIAL_RGB};
+use crate::material::{Pbr, DEFAULT_MATERIAL_RGB};
 
 const DEFAULT_COLOR: Color = Color {
     r: DEFAULT_MATERIAL_RGB[0] as f32 / 255.0,
@@ -25,14 +27,12 @@ const GLTF_COMPONENT_UNSIGNED_INT: u32 = 5125;
 const GLTF_COMPONENT_FLOAT: u32 = 5126;
 const GLTF_MODE_TRIANGLES: u32 = 4;
 
-pub fn write_lit_gltf<W, F>(mesh: &Mesh, material_lookup: F, writer: &mut W) -> io::Result<()>
+pub fn write_shaded_glb<W, F>(mesh: &Mesh, material_lookup: F, writer: &mut W) -> io::Result<()>
 where
     W: Write,
-    F: Fn([u8; 3]) -> MaterialProps,
+    F: Fn([u8; 3]) -> Pbr,
 {
-    let (positions, normals, indices_by_color) = split_and_smooth(mesh);
-    let mut sorted_groups: Vec<([u8; 3], Vec<u32>)> = indices_by_color.into_iter().collect();
-    sorted_groups.sort_by_key(|(color_key, _)| *color_key);
+    let (positions, normals, sorted_groups) = smooth_and_group(mesh);
 
     let needs_u32_indices = positions.len() > u16::MAX as usize;
     let mut binary_chunk: Vec<u8> = Vec::new();
@@ -79,9 +79,6 @@ where
     ));
 
     for (color_key, indices) in &sorted_groups {
-        if indices.is_empty() {
-            continue;
-        }
         let index_bytes = pack_indices(indices, needs_u32_indices);
         let index_buffer_view_index = push_buffer_view(
             &mut buffer_views,
@@ -127,9 +124,12 @@ where
     }
 
     let mut members: Vec<String> =
-        vec![r#""asset":{"version":"2.0","generator":"cad-bin lit"}"#.to_string()];
+        vec![r#""asset":{"version":"2.0","generator":"cad shaded glb"}"#.to_string()];
     if !binary_chunk.is_empty() {
-        members.push(format!(r#""buffers":[{{"byteLength":{}}}]"#, binary_chunk.len()));
+        members.push(format!(
+            r#""buffers":[{{"byteLength":{}}}]"#,
+            binary_chunk.len()
+        ));
     }
     if !buffer_views.is_empty() {
         members.push(format!(r#""bufferViews":[{}]"#, buffer_views.join(",")));
@@ -141,7 +141,10 @@ where
         members.push(format!(r#""materials":[{}]"#, materials.join(",")));
     }
     if !primitives.is_empty() {
-        members.push(format!(r#""meshes":[{{"primitives":[{}]}}]"#, primitives.join(",")));
+        members.push(format!(
+            r#""meshes":[{{"primitives":[{}]}}]"#,
+            primitives.join(",")
+        ));
         members.push(r#""nodes":[{"mesh":0}]"#.to_string());
         members.push(r#""scenes":[{"nodes":[0]}]"#.to_string());
         members.push(r#""scene":0"#.to_string());
@@ -160,7 +163,11 @@ where
     let total_length = GLTF_HEADER_BYTES
         + GLTF_CHUNK_HEADER_BYTES
         + json_bytes.len()
-        + if has_binary_chunk { GLTF_CHUNK_HEADER_BYTES + binary_chunk.len() } else { 0 };
+        + if has_binary_chunk {
+            GLTF_CHUNK_HEADER_BYTES + binary_chunk.len()
+        } else {
+            0
+        };
 
     writer.write_all(&GLTF_MAGIC.to_le_bytes())?;
     writer.write_all(&GLTF_VERSION.to_le_bytes())?;
@@ -179,7 +186,7 @@ where
     Ok(())
 }
 
-fn split_and_smooth(mesh: &Mesh) -> (Vec<DVec3>, Vec<DVec3>, HashMap<[u8; 3], Vec<u32>>) {
+pub(crate) fn smooth_and_group(mesh: &Mesh) -> (Vec<DVec3>, Vec<DVec3>, Vec<([u8; 3], Vec<u32>)>) {
     let triangle_count = mesh.indices.len() / 3;
     let mut positions: Vec<DVec3> = Vec::new();
     let mut normal_accum: Vec<DVec3> = Vec::new();
@@ -215,7 +222,11 @@ fn split_and_smooth(mesh: &Mesh) -> (Vec<DVec3>, Vec<DVec3>, HashMap<[u8; 3], Ve
             new_indices[corner_index] = new_vertex_index;
         }
 
-        let color = mesh.colormap.get(&face_id).copied().unwrap_or(DEFAULT_COLOR);
+        let color = mesh
+            .colormap
+            .get(&face_id)
+            .copied()
+            .unwrap_or(DEFAULT_COLOR);
         let color_key = [
             (color.r.clamp(0.0, 1.0) * 255.0) as u8,
             (color.g.clamp(0.0, 1.0) * 255.0) as u8,
@@ -228,7 +239,9 @@ fn split_and_smooth(mesh: &Mesh) -> (Vec<DVec3>, Vec<DVec3>, HashMap<[u8; 3], Ve
     }
 
     let normals: Vec<DVec3> = normal_accum.iter().map(|n| n.normalize_or_zero()).collect();
-    (positions, normals, indices_by_color)
+    let mut color_groups: Vec<([u8; 3], Vec<u32>)> = indices_by_color.into_iter().collect();
+    color_groups.sort_by_key(|(color_key, _)| *color_key);
+    (positions, normals, color_groups)
 }
 
 fn push_buffer_view(
@@ -279,13 +292,11 @@ fn pack_indices(indices: &[u32], needs_u32_indices: bool) -> Vec<u8> {
 }
 
 fn vertex_bounds(vertices: &[DVec3]) -> (DVec3, DVec3) {
-    let mut min = DVec3::splat(f64::INFINITY);
-    let mut max = DVec3::splat(f64::NEG_INFINITY);
-    for v in vertices {
-        min = min.min(*v);
-        max = max.max(*v);
-    }
-    (min, max)
+    let init = (DVec3::splat(f64::INFINITY), DVec3::splat(f64::NEG_INFINITY));
+    vertices
+        .iter()
+        .copied()
+        .fold(init, |(mn, mx), point| (mn.min(point), mx.max(point)))
 }
 
 fn format_finite_f32(x: f32) -> String {

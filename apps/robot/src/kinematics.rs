@@ -1,72 +1,46 @@
-pub const WHEEL_RADIUS_METERS: f64 = 0.178;
-pub const WHEEL_HALF_TRACK_METERS: f64 = 0.527;
-pub const WHEEL_HALF_BASE_METERS: f64 = 0.53;
+use std::sync::LazyLock;
 
-#[derive(Clone, Copy)]
-pub enum WheelSide {
-    Left,
-    Right,
-}
+use description::{
+    datums::WHEEL_TREAD_DIAMETER_MM,
+    placement::{joint_table, wheel_origin, Corner},
+    MM_TO_M,
+};
+
+pub const WHEEL_RADIUS_METERS: f64 = WHEEL_TREAD_DIAMETER_MM / 2.0 * MM_TO_M;
 
 pub struct Wheel {
-    pub joint: &'static str,
-    pub mount: [f64; 3],
-    pub side: WheelSide,
+    pub joint_name: &'static str,
+    pub corner: Corner,
 }
 
-impl Wheel {
-    pub fn link(&self) -> &str {
-        self.joint.strip_suffix("_joint").unwrap_or(self.joint)
-    }
-}
+pub static WHEELS: LazyLock<[Wheel; 4]> = LazyLock::new(|| {
+    let joints = joint_table();
+    Corner::ALL.map(|corner| {
+        let wheel_link = corner.wheel_link();
+        let joint_name = joints
+            .iter()
+            .find(|joint| joint.child == wheel_link)
+            .expect("description declares a joint for every wheel link")
+            .name;
+        Wheel { joint_name, corner }
+    })
+});
 
-pub const WHEELS: [Wheel; 4] = [
-    Wheel {
-        joint: "wheel_fl_joint",
-        mount: [
-            WHEEL_HALF_BASE_METERS,
-            WHEEL_HALF_TRACK_METERS,
-            WHEEL_RADIUS_METERS,
-        ],
-        side: WheelSide::Left,
-    },
-    Wheel {
-        joint: "wheel_fr_joint",
-        mount: [
-            WHEEL_HALF_BASE_METERS,
-            -WHEEL_HALF_TRACK_METERS,
-            WHEEL_RADIUS_METERS,
-        ],
-        side: WheelSide::Right,
-    },
-    Wheel {
-        joint: "wheel_rl_joint",
-        mount: [
-            -WHEEL_HALF_BASE_METERS,
-            WHEEL_HALF_TRACK_METERS,
-            WHEEL_RADIUS_METERS,
-        ],
-        side: WheelSide::Left,
-    },
-    Wheel {
-        joint: "wheel_rr_joint",
-        mount: [
-            -WHEEL_HALF_BASE_METERS,
-            -WHEEL_HALF_TRACK_METERS,
-            WHEEL_RADIUS_METERS,
-        ],
-        side: WheelSide::Right,
-    },
-];
+pub fn half_track_meters() -> f64 {
+    wheel_origin(Corner::FrontLeft).y * MM_TO_M
+}
 
 pub fn wheel_angular_velocities(linear_mps: f64, angular_rad_s: f64) -> (f64, f64) {
-    let left = (linear_mps - angular_rad_s * WHEEL_HALF_TRACK_METERS) / WHEEL_RADIUS_METERS;
-    let right = (linear_mps + angular_rad_s * WHEEL_HALF_TRACK_METERS) / WHEEL_RADIUS_METERS;
+    let half_track = half_track_meters();
+    let left = (linear_mps - angular_rad_s * half_track) / WHEEL_RADIUS_METERS;
+    let right = (linear_mps + angular_rad_s * half_track) / WHEEL_RADIUS_METERS;
     (left, right)
 }
 
 #[cfg(test)]
 mod tests {
+    use description::placement::Side;
+
     use super::*;
 
     #[test]
@@ -80,5 +54,17 @@ mod tests {
     fn spinning_in_place_counter_rotates_the_wheels() {
         let (left, right) = wheel_angular_velocities(0.0, 1.0);
         assert_eq!(left, -right);
+    }
+
+    #[test]
+    fn wheel_table_matches_the_description() {
+        assert_eq!(WHEELS.len(), 4);
+        let left_count = WHEELS
+            .iter()
+            .filter(|w| w.corner.side() == Side::Left)
+            .count();
+        assert_eq!(left_count, 2);
+        assert!(WHEELS.iter().all(|w| w.joint_name.ends_with("_joint")));
+        assert!(half_track_meters() > 0.0);
     }
 }

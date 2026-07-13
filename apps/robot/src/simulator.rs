@@ -3,18 +3,16 @@ use std::{
     time::{Duration, Instant},
 };
 
+use description::{placement, MM_TO_M};
 use oxidros::{
     msg::{
         common_interfaces::{
-            diagnostic_msgs::msg::{
-                DiagnosticArray, DiagnosticStatus, DiagnosticStatusSeq, KeyValue, KeyValueSeq,
-            },
+            diagnostic_msgs::msg::DiagnosticArray,
             geometry_msgs::msg::Twist,
             nav_msgs::msg::Odometry,
             sensor_msgs::msg::{
-                BatteryState, CameraInfo, CompressedImage, NavSatFix, NavSatStatus,
+                BatteryState, CameraInfo, CompressedImage, JointState, NavSatFix, NavSatStatus,
             },
-            std_msgs::msg::String as StringMsg,
         },
         msg::{F64Seq, RosString},
     },
@@ -23,21 +21,28 @@ use oxidros::{
 use tokio::time::interval;
 
 use crate::{
-    battery_diagnostic_level, camera_intrinsics, command_is_stale, enu_to_geodetic,
+    camera_intrinsics, command_is_stale,
+    diagnostics::{battery_diagnostic_level, diagnostic_array, Status},
+    enu_to_geodetic,
     frames::{BASE_LINK, CAMERA_OPTICAL, ODOM},
-    integrate_pose, latched_profile, now_stamp, CameraRenderer,
+    integrate_pose,
+    kinematics::wheel_angular_velocities,
+    now_stamp,
+    odometry::joint_state_message,
+    qos, CameraRenderer, Scene,
 };
 
 const IMAGE_WIDTH: usize = 1280;
 const IMAGE_HEIGHT: usize = 800;
 const CAMERA_FOV_DEG: f64 = 70.0;
-const CAMERA_MOUNT_HEIGHT_METERS: f64 = 0.6;
+const GPS_POSITION_COVARIANCE: [f64; 9] = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 4.0];
 const JPEG_QUALITY: u8 = 80;
 const LATITUDE_ORIGIN: f64 = 45.4215;
 const LONGITUDE_ORIGIN: f64 = -75.6972;
 const PHYSICS_HZ: f64 = 50.0;
 pub const DEADMAN_SECONDS: f64 = 2.0;
-const ROBOT_URDF: &str = include_str!("../urdf/robot.urdf");
+const DEADMAN_MIN_SECONDS: f64 = 0.0;
+const DEADMAN_MAX_SECONDS: f64 = 60.0;
 const CAMERA_HZ: f64 = 15.0;
 const GPS_HZ: f64 = 5.0;
 const ODOMETRY_HZ: f64 = 30.0;
@@ -54,6 +59,8 @@ struct SimState {
     theta: f64,
     linear: f64,
     angular: f64,
+    left_wheel_angle: f64,
+    right_wheel_angle: f64,
     battery_percent: f64,
 }
 
@@ -65,9 +72,9 @@ impl SimState {
         }
     }
 
-    fn set_command(&mut self, twist: &Twist) {
-        self.linear = twist.linear.x;
-        self.angular = twist.angular.z;
+    fn set_velocity_command(&mut self, linear: f64, angular: f64) {
+        self.linear = linear;
+        self.angular = angular;
     }
 
     fn stop(&mut self) {
@@ -78,15 +85,19 @@ impl SimState {
     fn integrate(&mut self, dt: f64) {
         (self.x, self.y, self.theta) =
             integrate_pose(self.x, self.y, self.theta, self.linear, self.angular, dt);
+        let (left_speed, right_speed) = wheel_angular_velocities(self.linear, self.angular);
+        self.left_wheel_angle += left_speed * dt;
+        self.right_wheel_angle += right_speed * dt;
     }
 
     fn speed(&self) -> f64 {
         self.linear.abs() + self.angular.abs()
     }
 
-    fn gps(&self, lat_origin: f64, lon_origin: f64) -> NavSatFix {
+    fn gps(&self, latitude_origin: f64, longitude_origin: f64) -> NavSatFix {
         let (sec, nanosec) = now_stamp();
-        let (latitude, longitude) = enu_to_geodetic(self.x, self.y, lat_origin, lon_origin);
+        let (latitude, longitude) =
+            enu_to_geodetic(self.x, self.y, latitude_origin, longitude_origin);
         let mut fix = NavSatFix::new().unwrap();
         fix.header.stamp.sec = sec;
         fix.header.stamp.nanosec = nanosec;
@@ -96,7 +107,7 @@ impl SimState {
         fix.latitude = latitude;
         fix.longitude = longitude;
         fix.altitude = 0.0;
-        fix.position_covariance = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 4.0];
+        fix.position_covariance = GPS_POSITION_COVARIANCE;
         fix.position_covariance_type = NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
         fix
     }
@@ -134,32 +145,19 @@ impl SimState {
     }
 
     fn diagnostics(&self) -> DiagnosticArray {
-        let (sec, nanosec) = now_stamp();
-        let mut array = DiagnosticArray::new().unwrap();
-        array.header.stamp.sec = sec;
-        array.header.stamp.nanosec = nanosec;
-
         let percentage_text = format!("{:.0}%", self.battery_percent);
-
-        let mut key_value = KeyValue::new().unwrap();
-        key_value.key = RosString::new("percentage").unwrap();
-        key_value.value = RosString::new(&percentage_text).unwrap();
-        let values = KeyValueSeq::<0>::from_vec(vec![key_value]).unwrap();
-
-        let mut status = DiagnosticStatus::new().unwrap();
-        status.level = battery_diagnostic_level(self.battery_percent);
-        status.name = RosString::new("battery").unwrap();
-        status.hardware_id = RosString::new("simulator").unwrap();
-        status.message = RosString::new(&percentage_text).unwrap();
-        status.values = values;
-
-        array.status = DiagnosticStatusSeq::<0>::from_vec(vec![status]).unwrap();
-
-        array
+        let battery = Status::new(
+            battery_diagnostic_level(self.battery_percent),
+            "battery",
+            "simulator",
+        )
+        .message(&percentage_text)
+        .value("percentage", &percentage_text);
+        diagnostic_array(vec![battery])
     }
 }
 
-fn compressed_image(jpeg: Vec<u8>) -> (CompressedImage, CameraInfo) {
+fn camera_messages(jpeg: Vec<u8>) -> (CompressedImage, CameraInfo) {
     let (sec, nanosec) = now_stamp();
     let (fx, fy, cx, cy) = camera_intrinsics(IMAGE_WIDTH, IMAGE_HEIGHT, CAMERA_FOV_DEG);
 
@@ -187,22 +185,20 @@ fn compressed_image(jpeg: Vec<u8>) -> (CompressedImage, CameraInfo) {
 
 pub async fn run_simulator(
     node: Arc<Node>,
+    scene: Scene,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let mut cmd_vel = node.create_subscriber::<Twist>("cmd_vel", None)?;
+    let mut cmd_vel = node.create_subscriber::<Twist>("cmd_vel", Some(qos::command()))?;
     let image_pub = node.create_publisher::<CompressedImage>(
         "camera/image_raw/compressed",
-        Some(Profile::sensor_data()),
+        Some(qos::sensor_data()),
     )?;
-    let camera_info_pub = node.create_publisher::<CameraInfo>(
-        "camera/image_raw/camera_info",
-        Some(Profile::sensor_data()),
-    )?;
-    let gps_pub = node.create_publisher::<NavSatFix>("gps/fix", Some(Profile::sensor_data()))?;
+    let camera_info_pub = node
+        .create_publisher::<CameraInfo>("camera/image_raw/camera_info", Some(qos::sensor_data()))?;
+    let gps_pub = node.create_publisher::<NavSatFix>("gps/fix", Some(qos::sensor_data()))?;
     let battery_pub = node.create_publisher::<BatteryState>("battery", None)?;
     let diag_pub = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
     let odom_pub = node.create_publisher::<Odometry>("odom", None)?;
-    let robot_description_pub =
-        node.create_publisher::<StringMsg>("robot_description", Some(latched_profile()))?;
+    let joint_state_pub = node.create_publisher::<JointState>("joint_states", None)?;
 
     let mut param_server = node.create_parameter_server()?;
     {
@@ -232,6 +228,12 @@ pub async fn run_simulator(
             Value::F64(LONGITUDE_ORIGIN),
             "GPS origin longitude in degrees",
         );
+        let _ = params.set_floating_point_range(
+            "deadman_seconds",
+            DEADMAN_MIN_SECONDS,
+            DEADMAN_MAX_SECONDS,
+            0.0,
+        );
     }
     let params = param_server.params.clone();
     let read_f64 = |name: &str, fallback: f64| -> f64 {
@@ -244,14 +246,15 @@ pub async fn run_simulator(
         fallback
     };
     let mut deadman_seconds = read_f64("deadman_seconds", DEADMAN_SECONDS);
-    let mut lat_origin = read_f64("latitude_origin", LATITUDE_ORIGIN);
-    let mut lon_origin = read_f64("longitude_origin", LONGITUDE_ORIGIN);
+    let mut latitude_origin = read_f64("latitude_origin", LATITUDE_ORIGIN);
+    let mut longitude_origin = read_f64("longitude_origin", LONGITUDE_ORIGIN);
 
     let camera_renderer = CameraRenderer::new(
+        scene,
         IMAGE_WIDTH as u32,
         IMAGE_HEIGHT as u32,
         CAMERA_FOV_DEG,
-        CAMERA_MOUNT_HEIGHT_METERS,
+        (placement::camera_origin().z - placement::ground_z()) * MM_TO_M,
     )
     .await?;
     let (pose_tx, pose_rx) = tokio::sync::watch::channel((0.0f64, 0.0f64, 0.0f64));
@@ -271,7 +274,7 @@ pub async fn run_simulator(
                     jpeg_encoder::ColorType::Rgba,
                 )
                 .ok();
-            let (image, info) = compressed_image(jpeg);
+            let (image, info) = camera_messages(jpeg);
             let _ = image_pub.send(&image);
             let _ = camera_info_pub.send(&info);
         }
@@ -284,10 +287,6 @@ pub async fn run_simulator(
     let mut gps_tick = interval(Duration::from_secs_f64(1.0 / GPS_HZ));
     let mut battery_tick = interval(Duration::from_secs_f64(1.0 / BATTERY_HZ));
     let mut odom_tick = interval(Duration::from_secs_f64(1.0 / ODOMETRY_HZ));
-
-    let mut description = StringMsg::new().unwrap();
-    description.data = RosString::new(ROBOT_URDF).unwrap();
-    robot_description_pub.send(&description)?;
 
     tracing::info!("driving on cmd_vel -> camera/gps/battery");
     let ctrl_c = tokio::signal::ctrl_c();
@@ -302,14 +301,15 @@ pub async fn run_simulator(
                             tracing::info!("parameter '{name}' updated");
                         }
                         deadman_seconds = read_f64("deadman_seconds", deadman_seconds);
-                        lat_origin = read_f64("latitude_origin", lat_origin);
-                        lon_origin = read_f64("longitude_origin", lon_origin);
+                        latitude_origin = read_f64("latitude_origin", latitude_origin);
+                        longitude_origin = read_f64("longitude_origin", longitude_origin);
                     }
                     Err(error) => tracing::warn!("parameter service error: {error}"),
                 }
             }
             message = cmd_vel.recv() => {
-                state.set_command(&message?.sample);
+                let twist = &message?.sample;
+                state.set_velocity_command(twist.linear.x, twist.angular.z);
                 last_command = Instant::now();
             }
             _ = physics_tick.tick() => {
@@ -319,8 +319,11 @@ pub async fn run_simulator(
                 state.integrate(dt);
                 let _ = pose_tx.send((state.x, state.y, state.theta));
             }
-            _ = gps_tick.tick() => gps_pub.send(&state.gps(lat_origin, lon_origin))?,
-            _ = odom_tick.tick() => odom_pub.send(&state.odom())?,
+            _ = gps_tick.tick() => gps_pub.send(&state.gps(latitude_origin, longitude_origin))?,
+            _ = odom_tick.tick() => {
+                odom_pub.send(&state.odom())?;
+                joint_state_pub.send(&joint_state_message(state.left_wheel_angle, state.right_wheel_angle))?;
+            }
             _ = battery_tick.tick() => {
                 battery_pub.send(&state.step_battery())?;
                 diag_pub.send(&state.diagnostics())?;

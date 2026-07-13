@@ -24,13 +24,20 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VsOut {
     return out;
 }
 
-const ROW_SPACING: f32 = 0.34;
-const HEIGHT_SCALE: f32 = 0.22;
-const MAX_DIST: f32 = 90.0;
-const FOG_DISTANCE: f32 = 78.0;
-const SUN_DIR: vec3<f32> = vec3<f32>(0.80, 0.28, 0.22);
-const SUN_COLOR: vec3<f32> = vec3<f32>(1.70, 0.82, 0.40);
-const SKY_TINT: vec3<f32> = vec3<f32>(0.40, 0.50, 0.78);
+const ROW_SPACING: f32 = 0.40;
+const PLANT_SPACING: f32 = 0.30;
+const PLANT_RADIUS: f32 = 0.145;
+const PLANT_HEIGHT: f32 = 0.16;
+const PLANT_JITTER: f32 = 0.05;
+const BED_PITCH: f32 = 1.60;
+const BED_PLANTED_FRACTION: f32 = 0.52;
+const TARP_HALF_WIDTH: f32 = 0.19;
+const LEAF_BUMP: f32 = 2.2;
+const MAX_DISTANCE: f32 = 90.0;
+const FOG_DISTANCE: f32 = 120.0;
+const SUN_DIR: vec3<f32> = vec3<f32>(0.60, 0.29, 0.42);
+const SUN_COLOR: vec3<f32> = vec3<f32>(1.18, 1.14, 1.02);
+const SKY_TINT: vec3<f32> = vec3<f32>(0.50, 0.58, 0.72);
 
 fn hash2(p: vec2<f32>) -> f32 {
     return fract(sin(dot(p, vec2<f32>(127.1, 311.7))) * 43758.5453);
@@ -60,18 +67,51 @@ fn fbm(p_in: vec2<f32>) -> f32 {
     return total;
 }
 
-fn crop_density(world: vec2<f32>) -> f32 {
-    let row = fract(world.y / ROW_SPACING);
-    let ridge = 1.0 - smoothstep(0.02, 0.46, abs(row - 0.5));
-    let vigor = 0.45 + 0.95 * fbm(world * 0.11);
-    let clump = fbm(world * vec2<f32>(5.5, 12.0));
-    let leaf = value_noise(world * vec2<f32>(28.0, 48.0));
-    let detail = value_noise(world * vec2<f32>(70.0, 110.0));
-    return clamp(ridge * vigor * (0.32 + 0.46 * clump + 0.14 * leaf + 0.08 * detail), 0.0, 1.4);
+fn crinkle(world: vec2<f32>) -> f32 {
+    return fbm(world * 58.0);
+}
+
+struct Plant {
+    distance: f32,
+    radius: f32,
+    redness: f32,
+    planted: f32,
+    row_center: f32,
+    tint: f32,
+};
+
+fn nearest_plant(world: vec2<f32>) -> Plant {
+    let col = floor(world.x / PLANT_SPACING + 0.5);
+    let row = floor(world.y / ROW_SPACING + 0.5);
+    let cell = vec2<f32>(col, row);
+
+    let jx = (hash2(cell + vec2<f32>(3.1, 1.7)) - 0.5) * 2.0 * PLANT_JITTER;
+    let jy = (hash2(cell + vec2<f32>(7.7, 2.3)) - 0.5) * 2.0 * PLANT_JITTER;
+    let center = vec2<f32>(col * PLANT_SPACING + jx, row * ROW_SPACING + jy);
+
+    var p: Plant;
+    p.row_center = row * ROW_SPACING;
+    p.distance = length(world - center);
+    p.radius = PLANT_RADIUS * (0.80 + 0.40 * hash2(cell + vec2<f32>(1.7, 9.2)));
+    p.planted = select(0.0, 1.0, fract(p.row_center / BED_PITCH) < BED_PLANTED_FRACTION);
+    p.tint = hash2(cell + vec2<f32>(2.9, 6.4));
+
+    let parity = step(0.25, fract((col + row * 3.0) * 0.5));
+    let flip = step(0.82, hash2(cell + vec2<f32>(5.3, 4.1)));
+    p.redness = abs(parity - flip);
+    return p;
 }
 
 fn terrain_height(world: vec2<f32>) -> f32 {
-    return HEIGHT_SCALE * crop_density(world);
+    let p = nearest_plant(world);
+    if (p.planted < 0.5) {
+        return 0.0;
+    }
+    let d = p.distance / p.radius;
+    let dome = 1.0 - smoothstep(0.5, 1.0, d);
+    let lobe = 0.72 + 0.28 * fbm(world * 9.0);
+    let crink = 0.010 * (crinkle(world) - 0.5);
+    return PLANT_HEIGHT * dome * lobe + crink * dome;
 }
 
 fn terrain_normal(world: vec2<f32>) -> vec3<f32> {
@@ -79,6 +119,13 @@ fn terrain_normal(world: vec2<f32>) -> vec3<f32> {
     let hx = terrain_height(world + vec2<f32>(e, 0.0)) - terrain_height(world - vec2<f32>(e, 0.0));
     let hy = terrain_height(world + vec2<f32>(0.0, e)) - terrain_height(world - vec2<f32>(0.0, e));
     return normalize(vec3<f32>(-hx, -hy, 2.0 * e));
+}
+
+fn leaf_normal(world: vec2<f32>, base: vec3<f32>) -> vec3<f32> {
+    let e = 0.004;
+    let dx = crinkle(world + vec2<f32>(e, 0.0)) - crinkle(world - vec2<f32>(e, 0.0));
+    let dy = crinkle(world + vec2<f32>(0.0, e)) - crinkle(world - vec2<f32>(0.0, e));
+    return normalize(base + vec3<f32>(-dx, -dy, 0.0) * LEAF_BUMP);
 }
 
 fn raymarch(origin: vec3<f32>, dir: vec3<f32>) -> f32 {
@@ -102,7 +149,7 @@ fn raymarch(origin: vec3<f32>, dir: vec3<f32>) -> f32 {
         }
         prev = t;
         t = t + max(0.012, t * 0.014);
-        if (t > MAX_DIST) {
+        if (t > MAX_DISTANCE) {
             break;
         }
     }
@@ -116,7 +163,7 @@ fn shadow_ray(p: vec3<f32>, sun: vec3<f32>) -> f32 {
         let sp = p + sun * t;
         let diff = sp.z - terrain_height(sp.xy);
         shade = min(shade, clamp(9.0 * diff / t, 0.0, 1.0));
-        if (sp.z > HEIGHT_SCALE * 1.5 || t > 4.0) {
+        if (sp.z > PLANT_HEIGHT * 1.5 || t > 4.0) {
             break;
         }
         t = t + max(0.02, t * 0.03);
@@ -127,60 +174,69 @@ fn shadow_ray(p: vec3<f32>, sun: vec3<f32>) -> f32 {
 fn atmosphere(dir: vec3<f32>) -> vec3<f32> {
     let sun = normalize(SUN_DIR);
     let up = clamp(dir.z, 0.0, 1.0);
-    let zenith = vec3<f32>(0.16, 0.20, 0.46);
-    let horizon = vec3<f32>(0.95, 0.60, 0.40);
-    var col = mix(horizon, zenith, pow(up, 0.40));
+    let zenith = vec3<f32>(0.18, 0.40, 0.80);
+    let sky = vec3<f32>(0.47, 0.67, 0.92);
+    var col = mix(sky, zenith, pow(up, 0.65));
+    col = mix(col, vec3<f32>(0.80, 0.85, 0.90), 0.5 * pow(1.0 - up, 16.0));
 
     let mu = max(dot(dir, sun), 0.0);
-    col = col + vec3<f32>(1.35, 0.60, 0.26) * pow(mu, 4.0) * 0.70;
-    col = col + vec3<f32>(1.45, 0.85, 0.42) * pow(mu, 40.0) * 1.30;
-    col = col + vec3<f32>(1.70, 1.05, 0.60) * smoothstep(0.9990, 0.9996, mu) * 38.0;
+    col = col + vec3<f32>(1.00, 0.96, 0.84) * pow(mu, 260.0) * 9.0;
+    col = col + vec3<f32>(0.95, 0.90, 0.78) * pow(mu, 8.0) * 0.30;
 
-    let azimuth = pow(max(dot(normalize(vec3<f32>(dir.xy, 0.0)), normalize(vec3<f32>(sun.xy, 0.0))), 0.0), 2.5);
-    col = mix(col, vec3<f32>(1.25, 0.55, 0.32), pow(1.0 - up, 5.0) * azimuth * 0.60);
-
-    if (dir.z > 0.015) {
-        let cloud_uv = dir.xy / dir.z * 1.6 + cam.time * 0.01;
-        let cloud = fbm(cloud_uv * 1.8);
-        let cover = smoothstep(0.50, 0.85, cloud) * smoothstep(0.02, 0.22, dir.z);
-        let lit = mix(vec3<f32>(0.52, 0.46, 0.52), vec3<f32>(1.35, 0.88, 0.58), pow(mu, 1.5));
-        col = mix(col, lit, cover * 0.72);
+    if (dir.z > 0.02) {
+        let cloud_uv = dir.xy / dir.z * 1.4 + cam.time * 0.008;
+        let cloud = fbm(cloud_uv * 1.6);
+        let cover = smoothstep(0.55, 0.90, cloud) * smoothstep(0.02, 0.30, dir.z);
+        col = mix(col, vec3<f32>(1.00, 1.00, 1.02), cover * 0.55);
     }
     return col;
 }
 
 fn surface_color(p: vec3<f32>, view: vec3<f32>) -> vec3<f32> {
     let world = p.xy;
-    let density = crop_density(world);
-    let normal = terrain_normal(world);
-    let sun = normalize(SUN_DIR);
+    let plant = nearest_plant(world);
+    let height = terrain_height(world);
+    let cover = smoothstep(0.03, 0.11, height);
 
+    let base_normal = terrain_normal(world);
+    let normal = normalize(mix(base_normal, leaf_normal(world, base_normal), cover));
+    let sun = normalize(SUN_DIR);
     let shade = shadow_ray(p, sun);
     let n_dot_l = max(dot(normal, sun), 0.0);
 
-    let soil_grain = fbm(world * 2.2);
-    let moisture = fbm(world * 0.7 + 20.0);
-    let soil = mix(vec3<f32>(0.24, 0.15, 0.09), vec3<f32>(0.46, 0.33, 0.21), soil_grain)
-        * mix(1.0, 0.68, smoothstep(0.4, 0.75, moisture));
-    let leaf_grain = fbm(world * vec2<f32>(5.0, 11.0) + 11.0);
-    let tint = fbm(world * 0.25 + 40.0);
-    let crop_green = mix(vec3<f32>(0.05, 0.19, 0.03), vec3<f32>(0.42, 0.64, 0.15), leaf_grain);
-    let crop = crop_green
-        * mix(vec3<f32>(0.85, 0.95, 1.0), vec3<f32>(1.28, 1.02, 0.40), smoothstep(0.45, 0.85, tint));
-    let cover = smoothstep(0.06, 0.5, density);
-    let albedo = mix(soil, crop, cover);
+    let grain = fbm(world * 3.0);
+    let dirt = mix(vec3<f32>(0.28, 0.22, 0.15), vec3<f32>(0.52, 0.44, 0.31), grain);
+    let bed_id = floor(plant.row_center / BED_PITCH + 0.5);
+    let tarp_present = step(0.40, hash2(vec2<f32>(bed_id, 17.0)));
+    let bed_distance = abs(world.y - plant.row_center);
+    let tarp_cover = plant.planted * tarp_present
+        * (1.0 - smoothstep(TARP_HALF_WIDTH - 0.05, TARP_HALF_WIDTH, bed_distance));
+    let speck = value_noise(world * 40.0);
+    let tarp = mix(vec3<f32>(0.035, 0.035, 0.040), dirt, 0.12 * speck);
+    let ground = mix(dirt, tarp, tarp_cover);
 
-    let sky_ambient = SKY_TINT * (0.32 + 0.32 * normal.z);
-    let occlusion = mix(0.35, 1.0, smoothstep(0.0, 0.6, density));
-    var col = albedo * (sky_ambient * occlusion + SUN_COLOR * n_dot_l * shade);
+    let tip = crinkle(world);
+    let mottle = fbm(world * 2.5 + 30.0);
+    let green = mix(vec3<f32>(0.09, 0.15, 0.04), vec3<f32>(0.38, 0.52, 0.15), tip);
+    let red = mix(vec3<f32>(0.09, 0.02, 0.04), vec3<f32>(0.33, 0.09, 0.10), tip);
+    var leaf = mix(green, red, plant.redness);
+    leaf = leaf * (0.82 + 0.30 * mottle) * (0.85 + 0.30 * plant.tint);
+    let luma = dot(leaf, vec3<f32>(0.299, 0.587, 0.114));
+    leaf = mix(vec3<f32>(luma), leaf, 0.82);
+
+    let albedo = mix(ground, leaf, cover);
+
+    let leaf_ao = mix(0.55, 1.0, smoothstep(0.25, 0.75, tip));
+    let ao = mix(0.65, 1.0, cover) * mix(1.0, leaf_ao, cover);
+    let sky_ambient = SKY_TINT * (0.42 + 0.35 * normal.z);
+    var col = albedo * (sky_ambient * ao + SUN_COLOR * n_dot_l * shade);
 
     let half = normalize(sun + view);
-    let fresnel = pow(1.0 - max(dot(view, normal), 0.0), 4.0);
-    let spec = pow(max(dot(normal, half), 0.0), 55.0) * (0.2 + fresnel) * shade;
+    let spec = pow(max(dot(normal, half), 0.0), 18.0) * 0.06 * shade;
     col = col + SUN_COLOR * spec * cover;
 
-    let back = pow(max(dot(view, -sun), 0.0), 3.0);
-    col = col + crop * SUN_COLOR * back * cover * density * 1.1;
+    let back = pow(max(dot(view, -sun), 0.0), 2.0);
+    col = col + leaf * SUN_COLOR * back * cover * 0.25;
 
     return col;
 }
@@ -221,10 +277,8 @@ fn aces(x: vec3<f32>) -> vec3<f32> {
 fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
     var col = scene(in.ndc);
 
-    col = aces(col * 1.06);
-    let grade = mix(vec3<f32>(1.06, 0.90, 0.78), vec3<f32>(1.12, 0.98, 0.82), col);
-    col = col * grade;
-    let vignette = 1.0 - 0.34 * dot(in.ndc, in.ndc);
+    col = aces(col * 1.02);
+    let vignette = 1.0 - 0.18 * dot(in.ndc, in.ndc);
     col = col * vignette;
     col = pow(col, vec3<f32>(1.0 / 2.2));
     return vec4<f32>(col.x, col.y, col.z, 1.0);

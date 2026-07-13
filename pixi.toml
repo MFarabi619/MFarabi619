@@ -23,6 +23,4 @@ default.features = ["lyrical"]
 channels = ["https://prefix.dev/robostack-lyrical"]
 
 [feature.lyrical.dependencies]
-ros-lyrical-ur = "*"
-ros-lyrical-turtlesim = "*"
 ros-lyrical-desktop-full = "*"

@@ -38,10 +38,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let camera_node = context.create_node("camera", None)?;
     robot::spawn_logged(
         "camera",
-        robot::run_camera(camera_node, format!("{HOST}:8888")),
+        robot::run_camera(camera_node, format!("{HOST}:8888"), robot::config::CAMERA),
     );
 
     robot::spawn_bridge(&context)?;
+    robot::spawn_robot_description(&context)?;
 
     let driver_node = context.create_node("freenove_fnk0077", None)?;
     robot::run_driver(

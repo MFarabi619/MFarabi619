@@ -2,24 +2,35 @@
 name = "robot"
 version = "0.1.0"
 edition = "2021"
-default-run = "cytron_md30c"
+default-run = "base_controller"
 
 [package.metadata.fetch-source]
 lg = { git = "https://github.com/joan2937/lg.git", tag = "v0.2.2" }
 
 [dependencies]
-oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
+description = { path = "description" }
+oxidros ={ git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
 zenoh = { version = "1", features = ["unstable"] }
 zenoh-ext = { version = "1", features = ["unstable"] }
-crossterm = "0.28"
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 foxglove = "0.25.3"
 serde_json = "1"
-wgpu = "30"
-bytemuck = { version = "1", features = ["derive"] }
-jpeg-encoder = "0.7"
+wgpu = { version = "30", optional = true }
+bytemuck = { version = "1", features = ["derive"], optional = true }
+jpeg-encoder = { version = "0.7", optional = true }
+zune-jpeg = { version = "0.4", optional = true }
+tract-onnx = { version = "0.23", optional = true }
+rsruckig = "2.2.1"
+rattler_shell = { version = "0.27", optional = true }
+rattler_conda_types = { version = "0.48", optional = true }
+
+[features]
+default = ["simulator", "perception", "pixi"]
+simulator = ["dep:wgpu", "dep:bytemuck", "dep:jpeg-encoder"]
+perception = ["dep:tract-onnx", "dep:zune-jpeg"]
+pixi = ["dep:rattler_shell", "dep:rattler_conda_types"]
 
 [build-dependencies]
 fetch-source = "0.1.2"
@@ -28,6 +39,53 @@ cc = "1"
 [dev-dependencies]
 tokio-tungstenite = "0.26"
 futures-util = "0.3"
+comfy-table = "7"
+ratatui = { workspace = true, features = ["crossterm", "all-widgets"] }
+crossterm = { version = "0.29", features = ["event-stream"] }
+
+[[test]]
+name = "e2e"
+harness = false
+
+[[bin]]
+name = "ros2"
+required-features = ["pixi"]
+
+[[example]]
+name = "task"
+required-features = ["pixi"]
+
+[[example]]
+name = "gz_sim"
+required-features = ["pixi"]
+
+[[example]]
+name = "simulator"
+required-features = ["simulator"]
+
+[[example]]
+name = "gesture_webcam"
+required-features = ["perception"]
+
+[[example]]
+name = "gesture_sim"
+required-features = ["simulator", "perception"]
+
+[[example]]
+name = "line_follow_sim"
+required-features = ["simulator", "perception"]
+
+[[example]]
+name = "gesture_pet"
+required-features = ["perception"]
+
+[[example]]
+name = "green_approach"
+required-features = ["perception"]
+
+[[example]]
+name = "line_follow"
+required-features = ["perception"]
 
 [lints.clippy]
 all = "deny"

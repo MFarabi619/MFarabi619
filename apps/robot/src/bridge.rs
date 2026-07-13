@@ -1,9 +1,12 @@
 use std::{
     collections::{HashMap, HashSet},
+    fs,
+    path::PathBuf,
     sync::{Arc, Mutex},
-    time::{Duration, Instant},
+    time::Duration,
 };
 
+use description::{placement::wheel_offset_from_motor, MESH_URI_PREFIX, MM_TO_M};
 use foxglove::{
     messages::{FrameTransform, FrameTransforms, Quaternion, Timestamp, Vector3},
     websocket::{Capability, ChannelView, Client, ClientChannel, ConnectionGraph, ServerListener},
@@ -16,7 +19,9 @@ use oxidros::{
             diagnostic_msgs::msg::DiagnosticArray,
             geometry_msgs::msg::{Pose, Twist},
             nav_msgs::msg::Odometry,
-            sensor_msgs::msg::{BatteryState, CameraInfo, CompressedImage, Image, NavSatFix},
+            sensor_msgs::msg::{
+                BatteryState, CameraInfo, CompressedImage, Image, JointState, NavSatFix,
+            },
             std_msgs::msg::String as StringMsg,
         },
         interfaces::rcl_interfaces::msg::Log,
@@ -30,62 +35,21 @@ use zenoh::{
 use zenoh_ext::AdvancedSubscriberBuilderExt;
 
 use crate::{
-    frames::{BASE_LINK, CHASSIS, ODOM},
-    kinematics::{wheel_angular_velocities, WheelSide, WHEELS},
+    frames::{BASE_LINK, ODOM},
+    kinematics::WHEELS,
 };
 
 kedefine!(pub(crate) topic_keyexpr: "${domain:*}/${topic:**}/${dds_type:*}/${hash:*}");
 
-fn meshes() -> HashMap<String, Vec<u8>> {
-    [
-        (
-            "chassis_aluminum",
-            include_bytes!("../meshes/chassis_aluminum.stl").as_slice(),
-        ),
-        (
-            "chassis_bracket",
-            include_bytes!("../meshes/chassis_bracket.stl").as_slice(),
-        ),
-        (
-            "chassis_brass",
-            include_bytes!("../meshes/chassis_brass.stl").as_slice(),
-        ),
-        (
-            "chassis_motor",
-            include_bytes!("../meshes/chassis_motor.stl").as_slice(),
-        ),
-        (
-            "chassis_pcb",
-            include_bytes!("../meshes/chassis_pcb.stl").as_slice(),
-        ),
-        (
-            "chassis_plastic",
-            include_bytes!("../meshes/chassis_plastic.stl").as_slice(),
-        ),
-        (
-            "chassis_plywood",
-            include_bytes!("../meshes/chassis_plywood.stl").as_slice(),
-        ),
-        (
-            "chassis_steel",
-            include_bytes!("../meshes/chassis_steel.stl").as_slice(),
-        ),
-        (
-            "wheel_hub",
-            include_bytes!("../meshes/wheel_hub.stl").as_slice(),
-        ),
-        (
-            "wheel_rim",
-            include_bytes!("../meshes/wheel_rim.stl").as_slice(),
-        ),
-        (
-            "wheel_tire",
-            include_bytes!("../meshes/wheel_tire.stl").as_slice(),
-        ),
-    ]
-    .iter()
-    .map(|(name, bytes)| (format!("package://robot/meshes/{name}.stl"), bytes.to_vec()))
-    .collect()
+fn read_mesh_asset(uri: &str) -> Result<Vec<u8>, String> {
+    let filename = uri
+        .strip_prefix(MESH_URI_PREFIX)
+        .filter(|name| !name.is_empty() && !name.contains('/') && !name.contains(".."))
+        .ok_or_else(|| format!("unknown asset {uri}"))?;
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("meshes")
+        .join(filename);
+    fs::read(&path).map_err(|error| format!("read {}: {error}", path.display()))
 }
 
 const RING_CHANNEL_CAPACITY: usize = 16;
@@ -132,76 +96,100 @@ fn base_link_transform(now: &Timestamp, pose: &Pose) -> FrameTransform {
     )
 }
 
-struct WheelOdometry {
-    left_angle: f64,
-    right_angle: f64,
-    last_update: Instant,
+fn wheel_transforms(now: &Timestamp, joint_states: &JointState) -> Vec<FrameTransform> {
+    WHEELS
+        .iter()
+        .filter_map(|wheel| {
+            let angle = joint_states
+                .name
+                .iter()
+                .zip(joint_states.position.iter())
+                .find(|(name, _)| name.get_string() == wheel.joint_name)
+                .map(|(_, position)| *position)?;
+            let (sin, cos) = (angle / 2.0).sin_cos();
+            let offset = wheel_offset_from_motor(wheel.corner.side()) * MM_TO_M;
+            Some(transform(
+                now,
+                wheel.corner.motor_link().urdf_name(),
+                wheel.corner.wheel_link().urdf_name(),
+                (offset.x, offset.y, offset.z),
+                (0.0, sin, 0.0, cos),
+            ))
+        })
+        .collect()
 }
 
-impl WheelOdometry {
-    fn new() -> Self {
-        Self {
-            left_angle: 0.0,
-            right_angle: 0.0,
-            last_update: Instant::now(),
-        }
-    }
-
-    fn integrate(&mut self, linear: f64, angular: f64) {
-        let dt = self.last_update.elapsed().as_secs_f64();
-        self.last_update = Instant::now();
-        let (left_speed, right_speed) = wheel_angular_velocities(linear, angular);
-        self.left_angle += left_speed * dt;
-        self.right_angle += right_speed * dt;
-    }
-
-    fn angle(&self, side: WheelSide) -> f64 {
-        match side {
-            WheelSide::Left => self.left_angle,
-            WheelSide::Right => self.right_angle,
-        }
-    }
-
-    fn wheel_transforms(&self, now: &Timestamp) -> Vec<FrameTransform> {
-        WHEELS
-            .iter()
-            .map(|wheel| {
-                let (sin, cos) = (self.angle(wheel.side) / 2.0).sin_cos();
-                transform(
-                    now,
-                    CHASSIS,
-                    wheel.link(),
-                    (wheel.mount[0], wheel.mount[1], wheel.mount[2]),
-                    (0.0, sin, 0.0, cos),
-                )
-            })
-            .collect()
-    }
+struct CachedChannel {
+    channel: Arc<RawChannel>,
+    last_payload: Vec<u8>,
 }
 
-type LastValues = Arc<Mutex<HashMap<ChannelId, (Arc<RawChannel>, Vec<u8>)>>>;
+type LastValues = Arc<Mutex<HashMap<ChannelId, CachedChannel>>>;
+
+const TELEOP_REPUBLISH_PERIOD: Duration = Duration::from_millis(50);
+
+enum TeleopEvent {
+    Command(f64, f64),
+    Stop,
+}
 
 struct BridgeListener {
-    teleop_tx: tokio::sync::mpsc::UnboundedSender<(String, Vec<u8>)>,
+    teleop_tx: tokio::sync::mpsc::UnboundedSender<TeleopEvent>,
+    webcam: crate::webcam::WebcamSink,
     last_values: LastValues,
 }
 
 impl ServerListener for BridgeListener {
     fn on_message_data(&self, _client: Client, channel: &ClientChannel, payload: &[u8]) {
         if channel.topic.contains("cmd_vel") {
-            let _ = self
-                .teleop_tx
-                .send((channel.encoding.clone(), payload.to_vec()));
+            if let Some(twist) = decode_twist(&channel.encoding, payload) {
+                let _ = self
+                    .teleop_tx
+                    .send(TeleopEvent::Command(twist.linear.x, twist.angular.z));
+            }
+            return;
+        }
+        if channel.topic.contains("image") {
+            self.webcam
+                .accept(&channel.topic, &channel.encoding, payload);
         }
     }
 
+    fn on_client_advertise(&self, _client: Client, channel: &ClientChannel) {
+        tracing::debug!(
+            topic = %channel.topic,
+            encoding = %channel.encoding,
+            schema_name = %channel.schema_name,
+            "client advertised channel"
+        );
+    }
+
+    fn on_client_unadvertise(&self, _client: Client, channel: &ClientChannel) {
+        if channel.topic.contains("cmd_vel") {
+            let _ = self.teleop_tx.send(TeleopEvent::Stop);
+        }
+    }
+
+    fn on_client_disconnect(&self) {
+        let _ = self.teleop_tx.send(TeleopEvent::Stop);
+    }
+
     fn on_subscribe(&self, client: Client, channel: ChannelView) {
-        if let Some((raw, last)) = self.last_values.lock().unwrap().get(&channel.id()) {
-            if !last.is_empty() {
-                raw.log_to_sink(last.as_slice(), client.sink_id());
+        if let Some(cached) = self.last_values.lock().unwrap().get(&channel.id()) {
+            if !cached.last_payload.is_empty() {
+                cached
+                    .channel
+                    .log_to_sink(cached.last_payload.as_slice(), client.sink_id());
             }
         }
     }
+}
+
+fn teleop_twist(linear: f64, angular: f64) -> Twist {
+    let mut message = Twist::new().unwrap();
+    message.linear.x = linear;
+    message.angular.z = angular;
+    message
 }
 
 fn decode_twist(encoding: &str, payload: &[u8]) -> Option<Twist> {
@@ -260,8 +248,9 @@ pub async fn run_bridge(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let context = node.context().clone();
 
-    let (teleop_tx, mut teleop_rx) = tokio::sync::mpsc::unbounded_channel::<(String, Vec<u8>)>();
+    let (teleop_tx, mut teleop_rx) = tokio::sync::mpsc::unbounded_channel::<TeleopEvent>();
     let last_values: LastValues = Arc::new(Mutex::new(HashMap::new()));
+    let webcam = crate::webcam::spawn_webcam_forwarder(&node)?;
     let server = foxglove::WebSocketServer::new()
         .name("bridge")
         .bind(BIND_ADDRESS, port)
@@ -269,41 +258,55 @@ pub async fn run_bridge(
         .supported_encodings(["json", "cdr"])
         .listener(Arc::new(BridgeListener {
             teleop_tx,
+            webcam,
             last_values: last_values.clone(),
         }))
-        .fetch_asset_handler_blocking_fn({
-            let meshes = meshes();
-            move |_client, uri| {
-                meshes
-                    .get(&uri)
-                    .cloned()
-                    .ok_or_else(|| format!("no asset {uri}"))
-            }
-        })
+        .fetch_asset_handler_blocking_fn(|_client, uri| read_mesh_asset(&uri))
         .start()
         .await?;
-    tracing::info!("bridge live: ws://{BIND_ADDRESS}:{port} (connect Lichtblick here)");
+    tracing::info!("bridge live: ws://{BIND_ADDRESS}:{port}");
 
-    let cmd_vel_pub = node.create_publisher::<Twist>("cmd_vel", None)?;
+    let cmd_vel_pub = node.create_publisher::<Twist>("cmd_vel", Some(crate::qos::command()))?;
     tokio::spawn(async move {
-        while let Some((encoding, payload)) = teleop_rx.recv().await {
-            if let Some(twist) = decode_twist(&encoding, &payload) {
-                let _ = cmd_vel_pub.send(&twist);
+        let mut command: Option<(f64, f64)> = None;
+        let mut tick = tokio::time::interval(TELEOP_REPUBLISH_PERIOD);
+        loop {
+            tokio::select! {
+                event = teleop_rx.recv() => match event {
+                    Some(TeleopEvent::Command(linear, angular)) => {
+                        command = Some((linear, angular));
+                    }
+                    Some(TeleopEvent::Stop) => {
+                        command = None;
+                        let _ = cmd_vel_pub.send(&teleop_twist(0.0, 0.0));
+                    }
+                    None => break,
+                },
+                _ = tick.tick() => {
+                    if let Some((linear, angular)) = command {
+                        let _ = cmd_vel_pub.send(&teleop_twist(linear, angular));
+                    }
+                }
             }
         }
     });
 
     let mut odom_sub = node.create_subscriber::<Odometry>("odom", None)?;
-    let tf_channel = foxglove::ChannelBuilder::new("/tf").build::<FrameTransforms>();
+    let mut joint_state_sub = node.create_subscriber::<JointState>("joint_states", None)?;
+    let tf_channel = Arc::new(foxglove::ChannelBuilder::new("/tf").build::<FrameTransforms>());
+    let wheel_tf_channel = tf_channel.clone();
     tokio::spawn(async move {
-        let mut wheels = WheelOdometry::new();
         while let Ok(message) = odom_sub.recv().await {
             let now = Timestamp::now();
-            let odom = &message.sample;
-            wheels.integrate(odom.twist.twist.linear.x, odom.twist.twist.angular.z);
-            let mut transforms = vec![base_link_transform(&now, &odom.pose.pose)];
-            transforms.extend(wheels.wheel_transforms(&now));
+            let transforms = vec![base_link_transform(&now, &message.sample.pose.pose)];
             tf_channel.log(&FrameTransforms { transforms });
+        }
+    });
+    tokio::spawn(async move {
+        while let Ok(message) = joint_state_sub.recv().await {
+            let now = Timestamp::now();
+            let transforms = wheel_transforms(&now, &message.sample);
+            wheel_tf_channel.log(&FrameTransforms { transforms });
         }
     });
 
@@ -373,7 +376,13 @@ pub async fn run_bridge(
                     last_values
                         .lock()
                         .unwrap()
-                        .insert(channel_id, (channel.clone(), Vec::new()));
+                        .insert(
+                            channel_id,
+                            CachedChannel {
+                                channel: channel.clone(),
+                                last_payload: Vec::new(),
+                            },
+                        );
 
                     let topic_key = topic.strip_prefix('/').unwrap_or(&topic);
                     let key_expr = keformat!(
@@ -394,9 +403,9 @@ pub async fn run_bridge(
                         while let Ok(sample) = subscriber.recv_async().await {
                             let bytes = sample.payload().to_bytes();
                             channel.log(bytes.as_ref());
-                            if let Some(entry) = last_values.lock().unwrap().get_mut(&channel_id) {
-                                entry.1.clear();
-                                entry.1.extend_from_slice(bytes.as_ref());
+                            if let Some(cached) = last_values.lock().unwrap().get_mut(&channel_id) {
+                                cached.last_payload.clear();
+                                cached.last_payload.extend_from_slice(bytes.as_ref());
                             }
                         }
                     });

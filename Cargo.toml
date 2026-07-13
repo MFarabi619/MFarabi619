@@ -11,6 +11,7 @@ members = [
     "apps/firmware",
     "apps/ceratina",
     "apps/robot/cad",
+    "apps/robot/description",
     "libs/lazyzephyr",
     "apps/lazyzephyr",
     "apps/server/migration",

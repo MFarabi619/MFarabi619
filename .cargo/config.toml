@@ -5,12 +5,37 @@ LOCO_CONFIG_FOLDER = { value = "apps/server/config", relative = true }
 incompatible-rust-versions = "allow"
 
 [alias]
-ee         = ["run", "-p", "e2e"]
-loco       = ["run", "-p", "server", "--"]
+ee = ["run", "-p", "e2e"]
+cad = ["run", "-p", "cad"]
+loco = ["run", "-p", "server", "--"]
+ros2 = ["run", "--bin", "ros2", "--"]
 playground = ["run", "-p", "server", "--example", "playground"]
 
-rr = ["run",   "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf", "-Zbuild-std=core,alloc"]
-bb = ["build", "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf", "-Zbuild-std=core,alloc"]
-tt = ["test",  "-p", "ceratina", "--target", "xtensa-esp32s3-none-elf", "-Zbuild-std=core,alloc"]
+rr = [
+    "run",
+    "-p",
+    "ceratina",
+    "--target",
+    "xtensa-esp32s3-none-elf",
+    "-Zbuild-std=core,alloc",
+]
+
+bb = [
+    "build",
+    "-p",
+    "ceratina",
+    "--target",
+    "xtensa-esp32s3-none-elf",
+    "-Zbuild-std=core,alloc",
+]
+
+tt = [
+    "test",
+    "-p",
+    "ceratina",
+    "--target",
+    "xtensa-esp32s3-none-elf",
+    "-Zbuild-std=core,alloc",
+]
 
 include = ["../apps/ceratina/.cargo/config.toml"]

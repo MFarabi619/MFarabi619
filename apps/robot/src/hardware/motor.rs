@@ -32,13 +32,14 @@ pub fn shape(velocity: Velocity, shaping: Shaping) -> Velocity {
     }
 }
 
-fn shape_side(value: f64, shaping: Shaping) -> f64 {
-    if value.abs() < shaping.deadzone {
+fn shape_side(side_velocity: f64, shaping: Shaping) -> f64 {
+    if side_velocity.abs() < shaping.deadzone {
         0.0
     } else {
-        (value.abs() * shaping.scale)
-            .clamp(shaping.min_duty, 1.0)
-            .copysign(value)
+        let travel =
+            ((side_velocity.abs() - shaping.deadzone) / (1.0 - shaping.deadzone)).clamp(0.0, 1.0);
+        (shaping.min_duty + travel * shaping.scale * (1.0 - shaping.min_duty))
+            .copysign(side_velocity)
     }
 }
 
@@ -159,6 +160,32 @@ impl<'a> Drivetrain<'a> {
     }
 }
 
+pub fn drivetrain<'a>(chip: &'a Chip<'a>) -> Result<Drivetrain<'a>, Error> {
+    const LEFT_DIR_PIN: u32 = 6;
+    const LEFT_PWM_PIN: u32 = 12;
+    const RIGHT_DIR_PIN: u32 = 5;
+    const RIGHT_PWM_PIN: u32 = 13;
+    const LEFT_FORWARD_LEVEL: bool = true;
+    const RIGHT_FORWARD_LEVEL: bool = false;
+    const PWM_FREQUENCY_HZ: f32 = 10_000.0;
+    Ok(Drivetrain::new(
+        Motor::pwm_dir(
+            chip,
+            LEFT_DIR_PIN,
+            LEFT_PWM_PIN,
+            LEFT_FORWARD_LEVEL,
+            PWM_FREQUENCY_HZ,
+        )?,
+        Motor::pwm_dir(
+            chip,
+            RIGHT_DIR_PIN,
+            RIGHT_PWM_PIN,
+            RIGHT_FORWARD_LEVEL,
+            PWM_FREQUENCY_HZ,
+        )?,
+    ))
+}
+
 impl Drop for Drivetrain<'_> {
     fn drop(&mut self) {
         let _ = self.drive(HALT);
@@ -221,8 +248,15 @@ mod tests {
         );
     }
 
+    fn approx(actual: f64, expected: f64) {
+        assert!(
+            (actual - expected).abs() < 1e-9,
+            "got {actual}, want {expected}"
+        );
+    }
+
     #[test]
-    fn shaping_floors_to_min_duty_and_keeps_sign() {
+    fn shaping_starts_at_min_duty_past_the_deadzone() {
         let shaping = Shaping {
             deadzone: 0.1,
             min_duty: 0.3,
@@ -230,12 +264,68 @@ mod tests {
         };
         let shaped = shape(
             Velocity {
-                left: 0.15,
-                right: -0.15,
+                left: 0.1,
+                right: -0.1,
             },
             shaping,
         );
-        assert_eq!(shaped.left, 0.3);
-        assert_eq!(shaped.right, -0.3);
+        approx(shaped.left, 0.3);
+        approx(shaped.right, -0.3);
+    }
+
+    #[test]
+    fn shaping_full_input_reaches_full_duty() {
+        let shaping = Shaping {
+            deadzone: 0.1,
+            min_duty: 0.3,
+            scale: 1.0,
+        };
+        let shaped = shape(
+            Velocity {
+                left: 1.0,
+                right: -1.0,
+            },
+            shaping,
+        );
+        approx(shaped.left, 1.0);
+        approx(shaped.right, -1.0);
+    }
+
+    #[test]
+    fn shaping_is_proportional_between_floor_and_full() {
+        let shaping = Shaping {
+            deadzone: 0.1,
+            min_duty: 0.3,
+            scale: 1.0,
+        };
+        // halfway across the live range (0.1..1.0) -> halfway between min_duty and 1.0
+        let shaped = shape(
+            Velocity {
+                left: 0.55,
+                right: -0.55,
+            },
+            shaping,
+        );
+        approx(shaped.left, 0.65);
+        approx(shaped.right, -0.65);
+    }
+
+    #[test]
+    fn shaping_scale_governs_top_speed() {
+        let shaping = Shaping {
+            deadzone: 0.1,
+            min_duty: 0.3,
+            scale: 0.5,
+        };
+        let shaped = shape(
+            Velocity {
+                left: 1.0,
+                right: -1.0,
+            },
+            shaping,
+        );
+        // full stick, half governor: min_duty + 0.5 * (1 - min_duty)
+        approx(shaped.left, 0.65);
+        approx(shaped.right, -0.65);
     }
 }
