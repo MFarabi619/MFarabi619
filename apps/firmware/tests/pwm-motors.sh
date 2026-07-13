@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 HOSTNAME="xiao.local"
-UDP_ADDRESS=10.0.0.21
 UDP_ADDRESS=$(ping $HOSTNAME -c1 | head -1 | awk -F'[()]' 'NR==1{print $2}')
-[ -z "$HOST" ] && {
+[ -z "$UDP_ADDRESS" ] && {
   echo "couldn't resolve $HOSTNAME" >&2
   exit 1
 }
