@@ -17,13 +17,19 @@
         plantuml
         libsixel
         mediainfo
-        octaveFull # gnu octave
         mermaid-cli
         ghostscript
         imagemagick
         poppler-utils
         epub-thumbnailer
         ffmpegthumbnailer
+      ]
+      ++ [
+        # kicad
+        fritzing
+        octaveFull
+        openscad
+        openscad-lsp
       ]
       ++ [
         tuntox
@@ -195,7 +201,6 @@
         jq-lsp
         lemminx # xml lsp
         stylelint
-        openscad-lsp
         postgres-language-server
         vscode-json-languageserver
         graphql-language-service-cli
@@ -211,11 +216,6 @@
         # ============= 🤖 ==================
         tree
         # vi-mongo # mongodb tui
-        fritzing
-        # =============
-        # kicad
-        openscad
-        # =============
         # ============= 🧑‍💻🐞✨‍ ================
         # tsui           # tailscale tui, not on nixpkgs yet | curl -fsSL https://neuralink.com/tsui/install.sh | bash
         pik # local port tui
