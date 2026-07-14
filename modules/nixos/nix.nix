@@ -69,6 +69,7 @@
           "https://devenv.cachix.org"
           "https://nixpkgs.cachix.org"
           "https://nix-community.cachix.org"
+          "https://doom-emacs-unstraightened.cachix.org"
         ]
         ++ lib.optionals pkgs.stdenv.isDarwin [ "https://nix-darwin.cachix.org" ];
 
@@ -84,6 +85,7 @@
         "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
         "nixpkgs.cachix.org-1:q91R6hxbwFvDqTSDKwDAV4T5PxqXGxswD8vhONFMeOE="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "doom-emacs-unstraightened.cachix.org-1:O5oOlRPnmQEvVaFyuMTmthCEooHbrg54WgSLR07tmg4="
       ]
       ++ lib.optionals (!(config.services.atticd.enable or false)) [
         "mfarabi:9j4mW1ebyKidbRB59Wjxer85IyggTyl0/nPRF2W3M7Y="
