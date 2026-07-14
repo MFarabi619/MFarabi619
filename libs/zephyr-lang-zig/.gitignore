@@ -1,6 +1,2 @@
 .zig-bootstrap-cache/
-.zig-cache/
-build/
-twister-out/
 zig-pkg/
-zig-out/

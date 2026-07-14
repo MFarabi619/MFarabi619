@@ -18,15 +18,11 @@ tests/env_spec.sh
 learning/assembly/build/
 config/data.sqld
 .pixi/
-/install/
-/build/
-/log/
+install/
+build/
+log/
 **/twister-out*/
 **/__pycache__/
-apps/robot/robot/*_parameters.py
-
-apps/robot/meshes/
-apps/robot/assets/robot.glb
 
 #====================================================
 #                 CACHES/LOGS
@@ -39,7 +35,6 @@ logs # MSVC Windows builds of rustc generate these, which store debugging inform
 *.sqlite
 *.sqlite-*
 **/*.qcow2
-**/.direnv/
 **/*.rs.bk
 .open-webui
 **/.git-hooks
@@ -72,11 +67,8 @@ local.properties
 #====================================================
 /.pnp
 .pnp.js
-build/
 
 /zephyrproject/
 /nuttxspace/
 
-opencode.json
-/.codex/config.toml
 /compile_commands.json
