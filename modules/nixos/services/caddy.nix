@@ -102,15 +102,9 @@
         {
           "apidae.systems" = "http://macos";
           "www.apidae.systems" = "http://macos";
-
-          "nui.apidae.systems" = "http://macos";
-          "grafana.apidae.systems" = "http://macos";
-          "home-assistant.apidae.systems" = "http://macos";
-          "canopeo.apidae.systems" = "http://127.0.0.1:8080";
-          "cgit.apidae.systems" = "http://freebsd-macbook-11-4";
-          "smtp.apidae.systems" = "http://freebsd-hp-elitebook-820";
-
+          "cgit.apidae.systems" = "http://openbsd";
           "http://microvisor.systems" = "http://10.0.0.236";
+          "canopeo.apidae.systems" = "http://127.0.0.1:8080";
           "http://tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
         }
       )
@@ -122,6 +116,30 @@
         "http://manzikert.ca".extraConfig = "reverse_proxy :81";
         "http://www.manzikert.ca".extraConfig = "reverse_proxy :81";
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
+
+        "http://app.tandemrobotics.ca".extraConfig = ''
+          reverse_proxy http://macos:3000 {
+            header_up X-Forwarded-For {client_ip}
+            header_up X-Real-IP {client_ip}
+            header_up X-Http-Version {http.request.proto}
+          }
+          header {
+            Cross-Origin-Opener-Policy "same-origin"
+            Cross-Origin-Embedder-Policy "credentialless"
+            X-Frame-Options "DENY"
+            X-Content-Type-Options "nosniff"
+            Referrer-Policy "origin"
+            Content-Security-Policy "base-uri 'self'"
+          }
+        '';
+
+        "http://bridge.tandemrobotics.ca".extraConfig = ''
+          reverse_proxy http://macos:8765 {
+            header_up X-Forwarded-For {client_ip}
+            header_up X-Real-IP {client_ip}
+            header_up X-Http-Version {http.request.proto}
+          }
+        '';
 
         "http://openws.org".extraConfig = ''
           reverse_proxy http://${config.services.anubis.instances.homepage-dashboard.settings.BIND} {
