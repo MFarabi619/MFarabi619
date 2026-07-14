@@ -103,8 +103,8 @@
 
 (package! kbd-mode       :recipe (:host github :repo "kmonad/kbd-mode")                  :pin "1c81889f00de92483b48a16bb32b4c2a5eddcfc1")
 (package! monet          :recipe (:host github :repo "stevemolitor/monet")               :pin "ee2e35557e8ae07de842c435486f7c152f3750e0")
-; (package! codemetrics    :recipe (:host github :repo "emacs-vs/codemetrics")             :pin "863a9ac167ecdf20f3730fd9d308d44314fce903")
-(package! kitty-graphics :recipe (:host github :repo "cashmeredev/kitty-graphics.el")    :pin "586ff4b36f2ae44b12d35b0d4f256da23bc71f08")
+;; (package! codemetrics    :recipe (:host github :repo "emacs-vs/codemetrics")             :pin "863a9ac167ecdf20f3730fd9d308d44314fce903")
+(package! kitty-graphics :recipe (:host github :repo "cashmeredev/kitty-graphics.el")    :pin "eaa8a217c94b71cfd07c3b14e35f929951ce8e68")
 
 ;; (package! llm-tool-collection :recipe (:host github :repo "skissue/llm-tool-collection") :pin "6d2765a16dc10af2e1d1911bcabf6d7f287e0434")
 ;; FIXME: Cannot open load file: No such file or directory, hydra | https://github.com/l3kn/org-fc/issues/67
