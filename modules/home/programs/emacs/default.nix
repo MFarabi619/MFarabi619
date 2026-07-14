@@ -77,7 +77,7 @@
         empv
         circe
         # gptel
-        ghostel
+        # ghostel
         magit-todos
         magit-delta
         claude-code
