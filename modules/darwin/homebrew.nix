@@ -27,6 +27,7 @@
     brews = [
       "zig"
       "rust"
+      "pixi"
       "rustup" # rustup toolchain link system "$(brew --prefix rust)"
       "pulumi"
     ]

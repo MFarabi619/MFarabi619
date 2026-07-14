@@ -42,7 +42,6 @@
         supabase-cli
       ]
       ++ [
-        pixi
         pnpm
         loco
         trunk
@@ -291,6 +290,9 @@
       ]
       ++ lib.optionals stdenv.isLinux (
         [
+          pixi
+        ]
+        ++ [
           espup
           # ============== 🤪 ================
           hollywood # movie hacker screen animation
