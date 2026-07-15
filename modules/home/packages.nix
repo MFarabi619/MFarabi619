@@ -200,6 +200,7 @@
         jq-lsp
         lemminx # xml lsp
         stylelint
+        astro-language-server
         postgres-language-server
         vscode-json-languageserver
         graphql-language-service-cli
