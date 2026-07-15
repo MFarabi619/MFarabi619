@@ -1,6 +1,6 @@
 {
   programs.go = {
     enable = true;
-    # packages = { };
+    telemetry.mode = "off";
   };
 }
