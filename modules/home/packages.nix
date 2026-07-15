@@ -190,6 +190,7 @@
       ++ [
         # ===== 🦫 GO 🦫 ======
         gore
+        gopls
         gotests
         gomodifytags
         gocode-gomod
