@@ -9,7 +9,7 @@ const sys_headers = [_][]const u8{
     "zephyr/sys/printk.h",
 };
 
-// Stubs Picolibc typedefs and Aro-hostile inline asm so translate-c succeeds.
+// stub Picolibc typedefs and Aro-hostile inline asm so translate-c succeeds.
 const stub_prelude =
     \\typedef unsigned int wint_t;
     \\typedef int wctype_t;
@@ -26,7 +26,7 @@ const stub_prelude =
 ;
 
 const stub_pre_includes =
-    \\#include <autoconf.h>
+    \\#include <zephyr/autoconf.h>
     \\#include <zephyr/toolchain/zephyr_stdint.h>
     \\#include <stdint.h>
     \\
@@ -152,7 +152,9 @@ pub fn addApp(
         }),
     });
     obj.setLibCFile(libc_path);
-    obj.bundle_compiler_rt = true;
+    // Xtensa l32r can't reach the literal pool of a compiler_rt-bloated object;
+    // let the SDK's libgcc (already linked via -lgcc) provide the runtime there.
+    obj.bundle_compiler_rt = !opts.target.result.cpu.arch.isXtensa();
     obj.root_module.addImport("zephyr", zephyr);
     obj.root_module.addImport("timing", timing);
     obj.root_module.addImport("ring_buffer", ring_buffer);
