@@ -23,10 +23,13 @@
         "mcp-nixos"
       ]
     },
-    "build123d-mcp": {
-      "command": "uvx",
+    "pulumi": {
+      "type": "stdio",
+      "command": "bunx",
       "args": [
-        "build123d-mcp"
+        "-y",
+        "@pulumi/mcp-server@latest",
+        "stdio"
       ]
     }
   }
