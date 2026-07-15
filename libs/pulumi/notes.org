@@ -14,7 +14,7 @@ GET /access
 * [[https://penpot.app][Penpot]]
 
 #+ATTR_ORG: :align center
-[[../assets/penpot.png]]
+[[../../assets/penpot.png]]
 
 
 # https://design.penpot.app/#/workspace?
@@ -84,7 +84,8 @@ POST /get-owned-teams
 {}
 
 
-** Accounts API :verb:
+* Platformio
+** Accounts :verb:
 template https://api.accounts.platformio.org/v1
 Accept: application/json
 # https://github.com/platformio/platformio-core/blob/73d9f3dbea809f337bdee5be495f4d3b896deef0/platformio/account/client.py#L18
@@ -104,3 +105,16 @@ get /{{(verb-json-get (oref (verb-stored-response "orgs-response") body) 0 'orgn
 
 **** Teams
 get /{{(verb-json-get (oref (verb-stored-response "orgs-response") body) 0 'orgname)}}/teams
+
+* Starlink
+
+** API :verb:
+template  https://starlink.com/api/public/v2
+Authorization: Token {{(getenv "STARLINK_API_KEY")}}
+Content-Type: application/json
+Accept: application/json
+# https://starlink.com/api/public/swagger/index.html
+# https://starlink.com/api/auth/.well-known/openid-configuration
+
+*** Account
+GET /account
