@@ -21,10 +21,10 @@ colcon-common-extensions = "*"
 libgl-devel = "*"
 
 [environments]
-default.features = ["lyrical"]
+default.features = ["ros2"]
 
-[feature.lyrical]
+[feature.ros2]
 channels = ["https://prefix.dev/robostack-lyrical"]
 
-[feature.lyrical.dependencies]
+[feature.ros2.dependencies]
 ros-lyrical-desktop-full = "*"
