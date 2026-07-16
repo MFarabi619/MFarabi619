@@ -1,7 +1,7 @@
 [workspace]
 preview = ["pixi-build"]
-requires-pixi = ">=0.40"
 channels = ["https://prefix.dev/conda-forge"]
+requires-pixi = ">=0.72.2"
 platforms = [{ platform = "linux-64", glibc = "2.34" }, "osx-arm64"]
 
 [dependencies]
