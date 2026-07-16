@@ -35,6 +35,7 @@ ros-lyrical-ros-gz-sim = "*"
 colcon-common-extensions = "*"
 ros-lyrical-desktop-full = "*"
 ros-lyrical-ros-gz-bridge = "*"
+ros-lyrical-gz-ros2-control = "*"
 [feature.ros2.tasks]
 build = { cmd = "colcon build --symlink-install --base-paths apps/robot" }
 turtlesim = "ros2 launch robot_bringup turtlesim.launch.py"
