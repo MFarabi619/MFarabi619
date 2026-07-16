@@ -23,6 +23,9 @@ func main() {
 		if err := createMailpit(ctx, network); err != nil {
 			return err
 		}
+		if err := createCaddy(ctx, network); err != nil {
+			return err
+		}
 
 		return nil
 	})
