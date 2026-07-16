@@ -11,7 +11,6 @@
       upgrade = true;
       autoUpdate = true;
       cleanup = "uninstall";
-      # extraFlags = [ "--verbose" ];
     };
 
     cargoPackages = [
@@ -22,11 +21,16 @@
       "wasm-bindgen-cli"
     ];
 
-    # taps = [ "quickemu-project/quickemu" ];
+    taps = [
+      {
+        trusted = true;
+        name = "osrf/simulation";
+      }
+      # "quickemu-project/quickemu"
+    ];
 
     brews = [
       "zig"
-      "rust"
       "pixi"
       "rustup" # rustup toolchain link system "$(brew --prefix rust)"
       "pulumi"
@@ -43,15 +47,34 @@
     ++ [
       "qemu"
       "nemu"
-      "libvirt" # brew services start libvirt
+      {
+        name = "libvirt";
+        start_service = true;
+      }
       # "quickemu"
       # "galaxy-io/tap/gnat" # NATS tui
       # "renode/tap/renode-nightly"
       # "ferron" # rust-based caddy-like web server
     ]
     ++ [
+      "qwt"
+      "tbb"
+      "qt@6"
+      "boost"
+      "flann"
+      "assimp"
+      "bullet"
+      "dartsim"
+      "ogre1.9"
+      "ogre2.3"
+      "urdfdom"
+      "tinyxml2"
+      "freetype"
+      "ossp-uuid"
+      "open-scene-graph"
+    ]
+    ++ [
       "f3d"
-      "SDL2"
       "libgcrypt"
       "netscanner"
       "opencascade"
@@ -74,6 +97,7 @@
       "silicon-labs-vcp-driver"
       "wch-ch34x-usb-serial-driver"
     ]
+    ++ [ "xquartz" ]
     ++ [ "leader-key" ];
   };
 }
