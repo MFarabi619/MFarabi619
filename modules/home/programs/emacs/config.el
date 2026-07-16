@@ -147,8 +147,7 @@
   ;;   (hide-mode-line-mode 1)
   ;;   (setq-local mode-line-format nil)
   ;;   (setq-local header-line-format nil)
-  ;;   ;; (when (bound-and-true-p doom-modeline-mode) (doom-modeline-mode -1))
-  ;;   )
+  ;;   ;; (when (bound-and-true-p doom-modeline-mode) (doom-modeline-mode -1)))
 
   (map! :map xwidget-webkit-edit-mode-map
     "C-h" #'xwidget-webkit-pass-command-event
@@ -160,19 +159,18 @@
     "M-<backspace>" #'xwidget-webkit-pass-command-event))
 
 (after! proced
-  (setopt proced-auto-update-interval 1
+  (setopt proced-format 'medium
     proced-goal-attribute nil
     proced-enable-color-flag t
-    proced-format 'medium)
+    proced-auto-update-interval 1)
   (setq-default proced-auto-update-flag t)
   (defun my/proced-visuals ()
-    (setq-local mode-line-format nil
-      line-spacing 0.10)
-    (face-remap-add-relative 'default :background (doom-darken (doom-color 'bg) 0.2))
-    (face-remap-add-relative 'proced-run-status-code                   :foreground (doom-color 'green))
+    (setq-local mode-line-format nil line-spacing 0.10)
+    (face-remap-add-relative 'default                                  :background (doom-darken (doom-color 'bg) 0.2))
+    (face-remap-add-relative 'proced-memory-high-usage                 :foreground (doom-color 'red))
     (face-remap-add-relative 'proced-uninterruptible-sleep-status-code :foreground (doom-color 'red))
     (face-remap-add-relative 'proced-interruptible-sleep-status-code   :foreground (doom-color 'grey))
-    (face-remap-add-relative 'proced-memory-high-usage                 :foreground (doom-color 'red))
+    (face-remap-add-relative 'proced-run-status-code                   :foreground (doom-color 'green))
     (face-remap-add-relative 'proced-memory-medium-usage               :foreground (doom-color 'yellow))
     (face-remap-add-relative 'proced-memory-low-usage                  :foreground (doom-color 'green)))
   (add-hook! 'proced-mode-hook #'my/proced-visuals))
@@ -180,20 +178,15 @@
 
 (with-eval-after-load 'circe
   (set-irc-server! "irc.libera.chat"
-    '(:tls t
-       :port 6697
-       :nick "mfarabi"
-       :channels ("#emacs")
-       :sasl-username (+pass-get-user "irc/libera.chat")
-       :sasl-password (+pass-get-secret "irc/libera.chat"))))
+    '(:tls t :port 6697 :nick "mfarabi" :channels ("#emacs") :sasl-username (+pass-get-user "irc/libera.chat") :sasl-password (+pass-get-secret "irc/libera.chat"))))
 
 (with-eval-after-load 'mu4e
   (setopt
-    mu4e-maildir (expand-file-name "~/Maildir")
     mu4e-index-cleanup nil
     mu4e-index-lazy-check t
     mu4e-context-policy 'ask-if-none
-    mu4e-compose-context-policy 'always-ask)
+    mu4e-compose-context-policy 'always-ask
+    mu4e-maildir (expand-file-name "~/Maildir"))
   (setq mu4e-contexts
     (list
       (make-mu4e-context
