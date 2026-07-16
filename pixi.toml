@@ -33,3 +33,5 @@ scripts = ["install/setup.sh"]
 [feature.ros2.dependencies]
 colcon-common-extensions = "*"
 ros-lyrical-desktop-full = "*"
+[feature.ros2.tasks]
+build = { cmd = "colcon build --symlink-install --base-paths apps/robot" }
