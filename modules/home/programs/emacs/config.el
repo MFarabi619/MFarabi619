@@ -131,6 +131,7 @@
 (after!       tramp         (setopt tramp-verbose 1           tramp-default-method "sshx" tramp-connection-timeout 10))
 (after!       osm           (setopt osm-copyright t           osm-home (list 45.38730243858645 -75.69539479599302 15)))
 (after!       sql           (setopt sql-database "microvisor" sql-server "127.0.0.1" sql-port 5432 sql-user "mfarabi" sql-password ""))
+(after!       leetcode      (setopt leetcode-prefer-language "rust" leetcode-save-solutions t leetcode-directory "~/Documents/leetcode"))
 (after!       verb-mode     (setopt verb-auto-show-headers-buffer t verb-auto-kill-response-buffers t verb-json-use-mode #'json-ts-mode))
 (after!       dirvish       (setopt dirvish-peek-mode t dirvish-side-follow-mode t dired-listing-switches "-alhX" dirvish-side-display-alist '((side . right) (slot . -1))))
 (after!       lsp           (setopt lsp-enable-folding t lsp-eldoc-render-all t lsp-before-save-edits t lsp-inlay-hint-enable t lsp-completion-enable t lsp-auto-execute-action t lsp-semantic-tokens-enable t lsp-enable-file-watchers nil))
