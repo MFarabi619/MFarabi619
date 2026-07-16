@@ -5,7 +5,6 @@ requires-pixi = ">=0.72.2"
 platforms = [{ platform = "linux-64", glibc = "2.34" }, "osx-arm64"]
 
 [dependencies]
-git = "*"
 make = "*"
 cmake = "*"
 ninja = "*"
