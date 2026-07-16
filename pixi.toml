@@ -46,3 +46,5 @@ ros-lyrical-ros2-controllers = "*"
 build = { cmd = "colcon build --symlink-install --base-paths apps/robot" }
 turtlesim = "ros2 launch robot_bringup turtlesim.launch.py"
 
+[feature.ros2.pypi-dependencies]
+better-launch = { git = "https://github.com/dfki-ric/better_launch", rev = "99aea170405745f342df1fa83a1a92810598c9ec" }
