@@ -5,21 +5,18 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func createMailpit(ctx *pulumi.Context) error {
+func createMailpit(ctx *pulumi.Context, network *docker.Network) error {
 	credential, err := decryptSecret("MP_SEND_API_AUTH")
 	if err != nil {
 		return err
 	}
 
-	image, err := docker.NewRemoteImage(ctx, "mailpit", &docker.RemoteImageArgs{
-		Name:        pulumi.String("axllent/mailpit:latest"),
-		KeepLocally: pulumi.Bool(true),
-	})
+	image, err := pullImage(ctx, "mailpit", "axllent/mailpit:latest")
 	if err != nil {
 		return err
 	}
 
-	container, err := docker.NewContainer(ctx, "mailpit", &docker.ContainerArgs{
+	_, err = docker.NewContainer(ctx, "mailpit", &docker.ContainerArgs{
 		Image:   image.ImageId,
 		Name:    pulumi.String("mailpit"),
 		Restart: pulumi.String("unless-stopped"),
@@ -36,12 +33,15 @@ func createMailpit(ctx *pulumi.Context) error {
 				External: pulumi.Int(8025),
 			},
 		},
+		NetworksAdvanced: docker.ContainerNetworksAdvancedArray{
+			&docker.ContainerNetworksAdvancedArgs{
+				Name: network.Name,
+			},
+		},
 	})
 	if err != nil {
 		return err
 	}
-
-	ctx.Export("mailpit id", container.ID())
 
 	return nil
 }
