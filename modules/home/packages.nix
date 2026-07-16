@@ -50,11 +50,14 @@
         rustywind
         dioxus-cli
         sea-orm-cli
-        virt-viewer
         attic-client
         tailwindcss_4
         wasm-bindgen-cli
         rubyPackages_3_4.rails
+      ]
+      ++ [
+        virt-viewer
+        virt-manager
       ]
       ++ [
         llvm
@@ -228,7 +231,7 @@
         # termscp
         tcpdump
         cointop # crypto price feed
-        caligula # disk imaging
+        # caligula # disk imaging # FIXME: broken on nix-darwin as of Jul 14th, 12:33 pm
         wiki-tui
         keymapviz # visualize keyboard layout in ascii
         bandwhich
