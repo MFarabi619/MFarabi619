@@ -26,5 +26,9 @@ default.features = ["ros2"]
 [feature.ros2]
 channels = ["https://prefix.dev/robostack-lyrical"]
 
+[feature.ros2.activation]
+env = { RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l" }
+scripts = ["install/setup.sh"]
+
 [feature.ros2.dependencies]
 ros-lyrical-desktop-full = "*"
