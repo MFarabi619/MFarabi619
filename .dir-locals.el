@@ -19,77 +19,77 @@
       ((compile-multi-dir-local-config
         . ((t
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
-            ("󱄅 flake  :󰔡 activate"                  :command "nix run .#activate"                                                                 :annotation "       nix ")
-            ("󱄅 nix  : om health"                     :command "om health"                            :process-compose (:disabled t)                :annotation "       nix ")
+            ("󱄅 flake  :󰔡 activate"               :command "nix run .#activate"                                                                :annotation "       nix ")
+            ("󱄅 nix  : om health"                   :command "om health"                            :process-compose (:disabled t)                 :annotation "       nix ")
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
             ;; ======================================|========|===============================================|=========|===========================|===========|============ ;;
-            ("󱄅 microvisor  : arch:upgrade"         :command "sudo pacman -Syu                 "                                                  :annotation "    pacman ")
-            ("󱄅 microvisor  : debian:upgrade"       :command "sudo apt update && sudo apt upgrade -y"                                             :annotation "       apt ")
-            ("󱄅 microvisor  : openbsd:upgrade"      :command "doas pkg_add -u                  "                                                  :annotation "   pkg_add ")
-            ("󱄅 microvisor  :󰣠 freebsd:upgrade"      :command "sudo pkg update && pkg upgrade -y"                                                  :annotation "       pkg 󰣠")
-            ("󱄅 microvisor  : darwin:switch"        :command "darwin-rebuild switch --flake .  "                                                  :annotation "       nix ")
-            ("󱄅 microvisor  :󰘳 darwin:rebuild"       :command "darwin-rebuild build  --flake .  "                                                  :annotation "       nix ")
-            ("󱄅 microvisor  : guix:pull"            :command "guix pull                        "                                                  :annotation "      guix ")
-            ("󱄅 microvisor  : nixos:rebuild"        :command "nixos-rebuild  build  --flake .  "                                                  :annotation "       nix ")
+            ("󱄅 microvisor  : arch:upgrade"      :command "sudo pacman -Syu                 "                                                 :annotation "    pacman ")
+            ("󱄅 microvisor  : debian:upgrade"    :command "sudo apt update && sudo apt upgrade -y"                                            :annotation "       apt ")
+            ("󱄅 microvisor  : openbsd:upgrade"   :command "doas pkg_add -u                  "                                                 :annotation "   pkg_add ")
+            ("󱄅 microvisor  :󰣠 freebsd:upgrade"   :command "sudo pkg update && pkg upgrade -y"                                                 :annotation "       pkg 󰣠")
+            ("󱄅 microvisor  : darwin:switch"     :command "darwin-rebuild switch --flake .  "                                                 :annotation "       nix ")
+            ("󱄅 microvisor  :󰘳 darwin:rebuild"    :command "darwin-rebuild build  --flake .  "                                                 :annotation "       nix ")
+            ("󱄅 microvisor  : guix:pull"         :command "guix pull                        "                                                 :annotation "      guix ")
+            ("󱄅 microvisor  : nixos:rebuild"     :command "nixos-rebuild  build  --flake .  "                                                 :annotation "       nix ")
             ;; ======================================|========|================================================|=========|=================================================== ;;
             ;; ======================================|========|================================================|=========|=================================================== ;;
-            (" pulumi  :󱓞 pulumi up"                :command "pulumi up -fyv=3"                                                                   :annotation "    pulumi ")
-            (" pulumi  :󰢈 pulumi destroy"           :command "pulumi state unprotect --all -y; pulumi destroy -y; pulumi refresh -y;"             :annotation "    pulumi ")
+            (" pulumi  :󱓞 pulumi up"             :command "pulumi up -fyv=3"                                                                    :annotation "    pulumi ")
+            (" pulumi  :󰢈 pulumi destroy"        :command "pulumi state unprotect --all -y; pulumi destroy -y; pulumi refresh -y;"              :annotation "    pulumi ")
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
-            ("󰕮 microtop 󰕮 : run"                    :command "cargo r -rp microtop"                          :process-compose (:disabled t)                           :annotation "     cargo ")
-            ("󰕮 microtop 󰕮 :󰳽 serve"                  :command "trunk serve --config apps/microtop/Trunk.toml" :process-compose (:disabled t) :annotation "     cargo ")
+            ("󰕮 microtop 󰕮 : run"                 :command "cargo r -rp microtop"                           :process-compose (:disabled t)       :annotation "     cargo ")
+            ("󰕮 microtop 󰕮 :󰳽 serve"               :command "trunk serve --config apps/microtop/Trunk.toml"  :process-compose (:disabled t)       :annotation "     cargo ")
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
-            (" buttercup  :󰳽 test"                  :command "for pkg in ~/MFarabi619/modules/home/programs/emacs/extra/*/Eask; do (cd \"${pkg%/Eask}\" && eask test buttercup); done"                :annotation "     emacs  ")
+            (" buttercup  :󰳽 test"               :command "for pkg in ~/MFarabi619/modules/home/programs/emacs/extra/*/Eask; do (cd \"${pkg%/Eask}\" && eask test buttercup); done"                :annotation "     emacs  ")
             ;; ======================================|========|================================================|=========|=================================================== ;;
             ;; ======================================|========|================================================|=========|=================================================== ;;
-            (" tui  : run"                         :command "cargo r -rp tui"                               :process-compose (:disabled t)                           :annotation "     cargo ")
+            (" tui  : run"                      :command "cargo r -rp tui"                                :process-compose (:disabled t)       :annotation "     cargo ")
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
             ;; ======================================|========|================================================|=========|==========================|===========|============ ;;
-            (" firmware  :󰍹 example:simulator(mod)" :command "cargo r -rp firmware --example simulator-modifiers"     :process-compose (:disabled t) :annotation "     cargo ")
-            (" firmware  :󰇉 example:simulator(min)" :command "cargo r -rp firmware --example simulator-minimal"       :annotation "     cargo ")
-            (" firmware  :󰳽 serve"                  :command "trunk serve"                                   :process-compose (:disabled t) :annotation "     cargo ")
+            (" firmware  :󰍹 example:simulator(mod)" :command "cargo r -rp firmware --example simulator-modifiers" :process-compose (:disabled t) :annotation "     cargo ")
+            (" firmware  :󰇉 example:simulator(min)" :command "cargo r -rp firmware --example simulator-minimal"                                  :annotation "     cargo ")
+            (" firmware  :󰳽 serve"               :command "trunk serve"                                        :process-compose (:disabled t) :annotation "     cargo ")
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
             ;; ======================================|=======|=====================================================================================|===========|============ ;;
-            (" ESP32S3  : build"                   :command "cargo +esp bb -r"                                                                   :annotation "cargo +esp ")
-            (" ESP32S3  :󱈝 build:partition"         :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"              :annotation "cargo +esp ")
-            (" ESP32S3  :󰔰 flash"                   :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                  :annotation "cargo +esp ")
-            (" ESP32S3  : upload"                  :command "cargo loco t upload"                                                                :annotation "cargo +esp ")
-            (" ESP32S3  : debug"                   :command "espflash partition-table firmware/machine/esp32s3.partitions.csv; cargo +esp rr"    :annotation "cargo +esp ")
-            (" ESP32S3  :󰭎 monitor"                 :command "probe-rs run"                                                                       :annotation "cargo +esp ")
-            (" ESP32S3  :󱈫 test"                    :command "cargo +esp tt                     "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󱠡 test:hello"              :command "cargo +esp tt --test hello        "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󰋊 test:spi"                :command "cargo +esp tt --test spi          "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  : test:sd"                 :command "cargo +esp tt --test sd           "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󰹤 test:ota"                :command "cargo +esp tt --test ota          "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  : test:i2c"                :command "cargo +esp tt --test i2c          "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󰒪 test:sntp"               :command "cargo +esp tt --test sntp         "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󰜤 test:scd30"              :command "cargo +esp tt --test scd30        "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󰟤 test:scd4x"              :command "cargo +esp tt --test scd4x        "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  : e2e:system"              :command "cargo +esp tt --test system       "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  : test:ds3231"             :command "cargo +esp tt --test ds3231       "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󱡬 example:gpio"            :command "cargo +esp rr --example gpio      "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󱂛 test:http_api"           :command "cargo +esp tt --test http_api     "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  : test:filesystem"         :command "cargo +esp tt --test filesystem   "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  : test:ntc_formula"        :command "cargo +esp tt --test ntc_formula  "                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󰈘 test:sd_card_webpage"    :command "cargo +esp tt --test sd_card_webpage"                                               :annotation "cargo +esp ")
-            ;; (" ESP32S3  : example:mdns"            :command "cargo +esp rr --example mdns_responder"                                             :annotation "cargo +esp ")
-            (" ESP32S3  :󰒲 example:deep_sleep"      :command "cargo +esp rr --example deep_sleep"                                                 :annotation "cargo +esp ")
-            (" ESP32S3  :󰒲 example:defmt-tcp"       :command "cargo +esp rr --example defmt-tcp "                                                 :annotation "cargo +esp ")
+            (" ESP32S3  : build"                :command "cargo +esp bb -r"                                                                  :annotation "cargo +esp ")
+            (" ESP32S3  :󱈝 build:partition"      :command "cargo espflash partition-table firmware/boards/esp32s3.partitions.csv"             :annotation "cargo +esp ")
+            (" ESP32S3  :󰔰 flash"                :command "cargo +esp flash --target xtensa-esp32s3-none-elf"                                 :annotation "cargo +esp ")
+            (" ESP32S3  : upload"               :command "cargo loco t upload"                                                               :annotation "cargo +esp ")
+            (" ESP32S3  : debug"                :command "espflash partition-table firmware/machine/esp32s3.partitions.csv; cargo +esp rr"   :annotation "cargo +esp ")
+            (" ESP32S3  :󰭎 monitor"              :command "probe-rs run"                                                                      :annotation "cargo +esp ")
+            (" ESP32S3  :󱈫 test"                 :command "cargo +esp tt                     "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󱠡 test:hello"           :command "cargo +esp tt --test hello        "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󰋊 test:spi"             :command "cargo +esp tt --test spi          "                                                :annotation "cargo +esp ")
+            (" ESP32S3  : test:sd"              :command "cargo +esp tt --test sd           "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󰹤 test:ota"             :command "cargo +esp tt --test ota          "                                                :annotation "cargo +esp ")
+            (" ESP32S3  : test:i2c"             :command "cargo +esp tt --test i2c          "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󰒪 test:sntp"            :command "cargo +esp tt --test sntp         "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󰜤 test:scd30"           :command "cargo +esp tt --test scd30        "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󰟤 test:scd4x"           :command "cargo +esp tt --test scd4x        "                                                :annotation "cargo +esp ")
+            (" ESP32S3  : e2e:system"           :command "cargo +esp tt --test system       "                                                :annotation "cargo +esp ")
+            (" ESP32S3  : test:ds3231"          :command "cargo +esp tt --test ds3231       "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󱡬 example:gpio"         :command "cargo +esp rr --example gpio      "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󱂛 test:http_api"        :command "cargo +esp tt --test http_api     "                                                :annotation "cargo +esp ")
+            (" ESP32S3  : test:filesystem"      :command "cargo +esp tt --test filesystem   "                                                :annotation "cargo +esp ")
+            (" ESP32S3  : test:ntc_formula"     :command "cargo +esp tt --test ntc_formula  "                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󰈘 test:sd_card_webpage" :command "cargo +esp tt --test sd_card_webpage"                                              :annotation "cargo +esp ")
+            ;; (" ESP32S3  : example:mdns"         :command "cargo +esp rr --example mdns_responder"                                            :annotation "cargo +esp ")
+            (" ESP32S3  :󰒲 example:deep_sleep"   :command "cargo +esp rr --example deep_sleep"                                                :annotation "cargo +esp ")
+            (" ESP32S3  :󰒲 example:defmt-tcp"    :command "cargo +esp rr --example defmt-tcp "                                                :annotation "cargo +esp ")
             ;; ======================================|========|=====================================================================================|===========|============ ;;
             ;; ======================================|========|=====================================================================================|===========|============ ;;
-            (" ESP32  : run"                       :command "cargo +esp rr"                                                                      :annotation "cargo +esp ")
+            (" ESP32  : run"                    :command "cargo +esp rr"                                                                     :annotation "cargo +esp ")
             ;; ======================================|========|============================================================================================================== ;;
             ;; ======================================|========|============================================================================================================== ;;
             ;; ======================================|========|============================================================================================================== ;;
-            ("󰚗 STM32H723ZG 󰚗 :󰔰 flash"               :command "cargo r -r    --bin stm32h723zg                    --target thumbv7em-none-eabihf"  :annotation "     cargo ")
-            ("󰚗 STM32H723ZG 󰚗 : debug"               :command "cargo r       --bin stm32h723zg                    --target thumbv7em-none-eabihf"  :annotation "     cargo ")
+            ("󰚗 STM32H723ZG 󰚗 :󰔰 flash"            :command "cargo r -r    --bin stm32h723zg                    --target thumbv7em-none-eabihf" :annotation "     cargo ")
+            ("󰚗 STM32H723ZG 󰚗 : debug"            :command "cargo r       --bin stm32h723zg                    --target thumbv7em-none-eabihf" :annotation "     cargo ")
             ;; ======================================|========|============================================================================================================== ;;
             )))
 
