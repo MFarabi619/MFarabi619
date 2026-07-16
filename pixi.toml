@@ -3,18 +3,22 @@ preview = ["pixi-build"]
 channels = ["https://prefix.dev/conda-forge"]
 requires-pixi = ">=0.72.2"
 platforms = [{ platform = "linux-64", glibc = "2.34" }, "osx-arm64"]
+# https://robostack.github.io/GettingStarted.html
 
 [dependencies]
-make = "*"
-cmake = "*"
-ninja = "*"
 python = "*"
+# Build tools
+make = "*"
+ninja = "*"
+cmake = "*"
 compilers = "*"
 pkg-config = "*"
+# ROS specific tools
+rosdep = "*"
 colcon-common-extensions = "*"
 
-[target]
-linux-64.dependencies.libgl-devel = "*"
+[target.linux.dependencies]
+libgl-devel = "*"
 
 [environments]
 default.features = ["lyrical"]
