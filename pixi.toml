@@ -34,6 +34,7 @@ scripts = ["install/setup.sh"]
 ros-lyrical-ros-gz-sim = "*"
 colcon-common-extensions = "*"
 ros-lyrical-desktop-full = "*"
+ros-lyrical-ros2-control = "*"
 ros-lyrical-ros-gz-bridge = "*"
 ros-lyrical-gz-ros2-control = "*"
 [feature.ros2.tasks]
