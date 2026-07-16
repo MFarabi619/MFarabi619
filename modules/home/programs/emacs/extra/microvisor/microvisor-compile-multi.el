@@ -23,6 +23,7 @@
 
 (defcustom microvisor-tool-display
   '(("cargo"      "\U0000E7A8" . nerd-icons-orange)
+    ("ros2"       "\U0000E893" . nerd-icons-dblue)
     ("west"       "\U000F1985" . nerd-icons-purple)
     ("dioxus"     "\U0000ED7D" . nerd-icons-blue)
     ("platformio" "\U0000E682" . nerd-icons-yellow)
@@ -45,6 +46,7 @@
 
 (defcustom microvisor-namespace-icons
   '(("loco"        . "\U0000E3C3")
+    ("ros2"        . "\U0000E893")
     ("west"        . "\U000F1985")
     ("web"         . "\U0000ED7D")
     ("ceratina"    . "\U0000E682")

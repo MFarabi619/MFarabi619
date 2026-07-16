@@ -155,18 +155,30 @@ the protocol shape needs re-verifying.")
                         "000000000000f03f" "0000000000000040" "0000000000000840"
                         "0000000000001040" "0000000000001440" "0000000000001840"))))
 
+(describe "ros2--bridge-url"
+  (it "assembles scheme, host, and port into a URL"
+    (let ((ros2-bridge-scheme "ws")
+           (ros2-bridge-host "127.0.0.1")
+           (ros2-bridge-port 8765))
+      (expect (ros2--bridge-url) :to-equal "ws://127.0.0.1:8765")))
+
+  (it "honours a wss scheme and a custom host and port"
+    (let ((ros2-bridge-scheme "wss")
+           (ros2-bridge-host "example.com")
+           (ros2-bridge-port 9090))
+      (expect (ros2--bridge-url) :to-equal "wss://example.com:9090")))
+
+  (it "defaults to the local foxglove bridge"
+    (expect (ros2--bridge-url) :to-equal "ws://127.0.0.1:8765")))
+
 (describe "ros2--display-host"
-  (it "strips the ws:// scheme"
-    (let ((ros2-url "ws://localhost:8765"))
+  (it "joins the configured host and port"
+    (let ((ros2-bridge-host "localhost") (ros2-bridge-port 8765))
       (expect (ros2--display-host) :to-equal "localhost:8765")))
 
-  (it "strips a wss:// scheme too"
-    (let ((ros2-url "wss://example.com:9090"))
-      (expect (ros2--display-host) :to-equal "example.com:9090")))
-
-  (it "passes a scheme-less host through unchanged"
-    (let ((ros2-url "localhost:8765"))
-      (expect (ros2--display-host) :to-equal "localhost:8765"))))
+  (it "reflects a custom host and port"
+    (let ((ros2-bridge-host "rpi5-16-2") (ros2-bridge-port 9090))
+      (expect (ros2--display-host) :to-equal "rpi5-16-2:9090"))))
 
 (describe "ros2--set-mode-line"
   :var (icon-names)
@@ -175,9 +187,9 @@ the protocol shape needs re-verifying.")
     (spy-on 'nerd-icons-mdicon
       :and-call-fake (lambda (name &rest _) (push name icon-names) "")))
 
-  (it "shows the connected glyph and the scheme-stripped host when connected"
+  (it "shows the connected glyph and the host and port when connected"
     (ros2-tests--with-dashboard
-      (let ((ros2-url "ws://localhost:8765"))
+      (let ((ros2-bridge-host "localhost") (ros2-bridge-port 8765))
         (setf (ros2--session-connected ros2--session) t)
         (ros2--set-mode-line)
         (let ((joined (apply #'concat (seq-filter #'stringp (flatten-list mode-line-process)))))
@@ -503,5 +515,24 @@ the protocol shape needs re-verifying.")
 
   (it "hides `ros2-mode' from M-x entirely"
     (expect (get 'ros2-mode 'completion-predicate) :to-equal #'ignore)))
+
+(describe "ros2-tasks"
+  (before-each (spy-on 'ros2--in-workspace-p :and-return-value t))
+
+  (it "offers topic list under the ros2 namespace, tooled as ros2"
+    (let ((task (car (ros2-tasks))))
+      (expect (plist-get task :name) :to-equal "topic list")
+      (expect (plist-get task :namespace) :to-equal "ros2")
+      (expect (plist-get task :icon) :to-equal (nerd-icons-mdicon "nf-md-rss"))
+      (expect (plist-get task :tool) :to-equal "ros2")
+      (expect (plist-get task :command)
+        :to-equal "cargo run -rp robot --bin ros2 -- topic list"))))
+
+(describe "ros2--compile-multi-tasks"
+  (it "feeds every robot task through microvisor-task"
+    (spy-on 'ros2--in-workspace-p :and-return-value t)
+    (cl-letf (((symbol-function 'microvisor-task)
+                (lambda (task) (plist-get task :name))))
+      (expect (ros2--compile-multi-tasks) :to-equal '("topic list")))))
 
 ;;; ros2-tests.el ends here

@@ -25,7 +25,6 @@
       (when (file-directory-p sibling)
         (add-to-list 'load-path sibling)))))
 
-(load "pixi"       'noerror 'nomessage)
 (load "west"       'noerror 'nomessage)
 (load "kanban"     'noerror 'nomessage)
 (load "zephyr"     'noerror 'nomessage)

@@ -25,7 +25,6 @@
 ;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;; Boston, MA 02110-1301, USA.
 
-
 ;;; Commentary:
 ;;
 ;;; Code:
@@ -45,9 +44,24 @@
   :prefix "ros2-"
   :group 'tools)
 
-(defcustom ros2-url "ws://localhost:8765"
-  "URL of the ROS2 bridge to connect to."
+(defcustom ros2-bridge-host "127.0.0.1"
+  "Host of the ROS2 bridge to connect to."
   :type 'string
+  :group 'ros2)
+
+(defcustom ros2-bridge-port 8765
+  "TCP port of the ROS2 bridge to connect to."
+  :type 'integer
+  :group 'ros2)
+
+(defcustom ros2-bridge-scheme "ws"
+  "URL scheme of the ROS2 bridge connection."
+  :type '(choice (const "ws") (const "wss"))
+  :group 'ros2)
+
+(defcustom ros2-prompt-for-host nil
+  "When non-nil, `ros2' prompts for the bridge host before connecting."
+  :type 'boolean
   :group 'ros2)
 
 (defcustom ros2-subprotocol "foxglove.sdk.v1"
@@ -59,15 +73,14 @@ subprotocol, so multiple cannot be listed."
   :type 'string
   :group 'ros2)
 
-(defcustom ros2-nodes '("bridge" "simulator")
+(defcustom ros2-nodes '("bridge")
   "Nodes the studio can start, stop, and monitor."
   :type '(repeat string)
   :group 'ros2)
 
-(defcustom ros2-autostart-nodes '("simulator")
+(defcustom ros2-autostart-nodes '("bridge")
   "Nodes to start automatically when the studio opens.
-The simulator's launch brings up the bridge too, so the studio connects on its
-own.  Set to nil to start nothing and attach to an already-running bridge."
+Set to nil to start nothing and attach to an already-running bridge."
   :type '(repeat string)
   :group 'ros2)
 
@@ -92,7 +105,7 @@ Each panel is displayed with its category (`ros2-topics', `ros2-parameters',
 placement can be overridden per-category via `display-buffer-alist' or Doom
 `set-popup-rule!' -- the same way `dape' is customised."
   :type '(choice (const :tag "Lichtblick 3-column (own the frame)" studio)
-                 (const :tag "Leave placement to display-buffer-alist" nil))
+           (const :tag "Leave placement to display-buffer-alist" nil))
   :group 'ros2)
 
 (defcustom ros2-workspace nil
@@ -101,9 +114,9 @@ When nil, it is discovered from `default-directory'."
   :type '(choice (const :tag "Discover from default-directory" nil) directory)
   :group 'ros2)
 
-(defcustom ros2-pixi-executable "pixi"
-  "The pixi executable used to launch nodes."
-  :type 'string
+(defcustom ros2-node-commands '(("bridge" . "cargo r --bin bridge"))
+  "Alist mapping a node name to the shell command that launches it."
+  :type '(alist :key-type string :value-type string)
   :group 'ros2)
 
 (defcustom ros2-stop-nodes-on-quit nil
@@ -119,7 +132,7 @@ Off by default: closing the UI should not take the robot down with it."
 
 (defcustom ros2-connect-retry-limit 60
   "How many times to retry the connection before giving up.
-High enough to cover the simulator's build-and-launch when it is autostarted."
+High enough to cover the bridge's build-and-launch when it is autostarted."
   :type 'integer
   :group 'ros2)
 
@@ -177,65 +190,65 @@ matches; a node without one is considered up once its process is live."
       (setq sign (if (< value 0.0) 1 0))
       (pcase-let ((`(,significand . ,exponent) (frexp (abs value))))
         (setq exp (+ (1- exponent) 1023)
-              frac (round (* (- (* 2.0 significand) 1.0) (expt 2 52))))))
+          frac (round (* (- (* 2.0 significand) 1.0) (expt 2 52))))))
     (unibyte-string
-     (logand frac #xff)
-     (logand (ash frac -8) #xff)
-     (logand (ash frac -16) #xff)
-     (logand (ash frac -24) #xff)
-     (logand (ash frac -32) #xff)
-     (logand (ash frac -40) #xff)
-     (logior (ash (logand exp #xf) 4) (logand (ash frac -48) #xf))
-     (logior (ash sign 7) (logand (ash exp -4) #x7f)))))
+      (logand frac #xff)
+      (logand (ash frac -8) #xff)
+      (logand (ash frac -16) #xff)
+      (logand (ash frac -24) #xff)
+      (logand (ash frac -32) #xff)
+      (logand (ash frac -40) #xff)
+      (logior (ash (logand exp #xf) 4) (logand (ash frac -48) #xf))
+      (logior (ash sign 7) (logand (ash exp -4) #x7f)))))
 
 (defun ros2--uint32-le (value)
   "Return VALUE as a 4-byte little-endian integer, a unibyte string."
   (unibyte-string (logand value #xff)
-                  (logand (ash value -8) #xff)
-                  (logand (ash value -16) #xff)
-                  (logand (ash value -24) #xff)))
+    (logand (ash value -8) #xff)
+    (logand (ash value -16) #xff)
+    (logand (ash value -24) #xff)))
 
 (defun ros2--encode-twist (linear angular)
   "Return the CDR bytes for a geometry_msgs/msg/Twist, a unibyte string.
 LINEAR and ANGULAR are each an (X Y Z) list of numbers."
   (apply #'concat
-         (unibyte-string #x00 #x01 #x00 #x00)
-         (mapcar (lambda (v) (ros2--float64-le (float v)))
-                 (append linear angular))))
+    (unibyte-string #x00 #x01 #x00 #x00)
+    (mapcar (lambda (v) (ros2--float64-le (float v)))
+      (append linear angular))))
 
 (defun ros2--publish-channel (topic schema)
   "Return the client channel id for TOPIC, advertising it once with SCHEMA."
   (when (and ros2--session (ros2--connected-p))
     (or (alist-get topic (ros2--session-publish-channels ros2--session) nil nil #'equal)
-        (let ((id (1+ (length (ros2--session-publish-channels ros2--session)))))
-          (websocket-send-text
-           (ros2--session-connection ros2--session)
-           (json-encode
+      (let ((id (1+ (length (ros2--session-publish-channels ros2--session)))))
+        (websocket-send-text
+          (ros2--session-connection ros2--session)
+          (json-encode
             `((op . "advertise")
-              (channels . ,(vector `((id . ,id) (topic . ,topic)
-                                     (encoding . "cdr") (schemaName . ,schema)))))))
-          (setf (alist-get topic (ros2--session-publish-channels ros2--session)
-                           nil nil #'equal)
-                id)
-          id))))
+               (channels . ,(vector `((id . ,id) (topic . ,topic)
+                                       (encoding . "cdr") (schemaName . ,schema)))))))
+        (setf (alist-get topic (ros2--session-publish-channels ros2--session)
+                nil nil #'equal)
+          id)
+        id))))
 
 (defun ros2--publish-message (channel-id payload)
   "Send PAYLOAD (a unibyte string) as a client message on CHANNEL-ID."
   (when (and ros2--session (ros2--connected-p))
     (websocket-send
-     (ros2--session-connection ros2--session)
-     (make-websocket-frame
-      :opcode 'binary
-      :payload (concat (unibyte-string #x01) (ros2--uint32-le channel-id) payload)
-      :completep t))))
+      (ros2--session-connection ros2--session)
+      (make-websocket-frame
+        :opcode 'binary
+        :payload (concat (unibyte-string #x01) (ros2--uint32-le channel-id) payload)
+        :completep t))))
 
 (defun ros2--publish-twist (linear-x angular-z)
   "Publish a Twist to `ros2-teleop-topic' with LINEAR-X and ANGULAR-Z (SI units)."
   (when-let ((channel (ros2--publish-channel ros2-teleop-topic
-                                             "geometry_msgs/msg/Twist")))
+                        "geometry_msgs/msg/Twist")))
     (ros2--publish-message
-     channel
-     (ros2--encode-twist (list linear-x 0.0 0.0) (list 0.0 0.0 angular-z)))))
+      channel
+      (ros2--encode-twist (list linear-x 0.0 0.0) (list 0.0 0.0 angular-z)))))
 
 (defvar-local ros2--topic-filter ""
   "Active TOPICS filter: show only topics or schemas containing this string.")
@@ -243,12 +256,12 @@ LINEAR and ANGULAR are each an (X Y Z) list of numbers."
 (defun ros2--channel-rows ()
   "Return the advertised channel alists, sorted by topic."
   (let ((channels (ros2--channels))
-        rows)
+         rows)
     (when (hash-table-p channels)
       (maphash (lambda (_id channel) (push channel rows)) channels))
     (sort rows (lambda (a b)
                  (string< (or (alist-get 'topic a) "")
-                          (or (alist-get 'topic b) ""))))))
+                   (or (alist-get 'topic b) ""))))))
 
 (defface ros2-filter '((t :inherit warning))
   "Face for the active TOPICS filter indicator."
@@ -259,13 +272,13 @@ LINEAR and ANGULAR are each an (X Y Z) list of numbers."
 FILTER is matched case-insensitively against each channel's topic and schema
 name; an empty FILTER returns CHANNELS unchanged."
   (if (string-empty-p filter)
-      channels
+    channels
     (let ((needle (downcase filter)))
       (seq-filter
-       (lambda (channel)
-         (or (string-search needle (downcase (or (alist-get 'topic channel) "")))
-             (string-search needle (downcase (or (alist-get 'schemaName channel) "")))))
-       channels))))
+        (lambda (channel)
+          (or (string-search needle (downcase (or (alist-get 'topic channel) "")))
+            (string-search needle (downcase (or (alist-get 'schemaName channel) "")))))
+        channels))))
 
 (defun ros2--filter-indicator (filter)
   "Return an inline indicator for a non-empty FILTER, or nil when it is empty."
@@ -282,31 +295,31 @@ name; an empty FILTER returns CHANNELS unchanged."
 
 (defconst ros2--center-panels
   '(("Parameters" . ros2-parameters)
-    ("Messages" . ros2-messages)
-    ("Log" . ros2-log))
+     ("Messages" . ros2-messages)
+     ("Log" . ros2-log))
   "Center-group panels and the commands that show them, in tab order.")
 
 (defun ros2--panel-tabs (active)
   "Return the center-group tab bar, highlighting the ACTIVE command's tab.
 Each tab is mouse-clickable and runs its command to show that panel."
   (mapconcat
-   (lambda (panel)
-     (let ((command (cdr panel)))
-       (propertize (format " %s " (car panel))
-                   'face (if (eq command active) 'ros2-tab-active 'ros2-tab-inactive)
-                   'mouse-face 'highlight
-                   'help-echo (format "Show the %s panel" (car panel))
-                   'keymap (let ((map (make-sparse-keymap)))
-                             (define-key map [header-line mouse-1]
-                                         (lambda () (interactive) (funcall command)))
-                             map))))
-   ros2--center-panels
-   (propertize "│" 'face 'shadow)))
+    (lambda (panel)
+      (let ((command (cdr panel)))
+        (propertize (format " %s " (car panel))
+          'face (if (eq command active) 'ros2-tab-active 'ros2-tab-inactive)
+          'mouse-face 'highlight
+          'help-echo (format "Show the %s panel" (car panel))
+          'keymap (let ((map (make-sparse-keymap)))
+                    (define-key map [header-line mouse-1]
+                      (lambda () (interactive) (funcall command)))
+                    map))))
+    ros2--center-panels
+    (propertize "│" 'face 'shadow)))
 
 (defun ros2--adjacent-panel (current step)
   "Return the center-panel command STEP positions from CURRENT, wrapping around."
   (let* ((commands (mapcar #'cdr ros2--center-panels))
-         (index (or (cl-position current commands) 0)))
+          (index (or (cl-position current commands) 0)))
     (nth (mod (+ index step) (length commands)) commands)))
 
 (defun ros2--current-panel-command ()
@@ -336,32 +349,36 @@ Read FILTER in the minibuffer, seeded with the current one; empty clears it."
   (setq ros2--topic-filter (string-trim filter))
   (ros2--schedule-update))
 
+(defun ros2--bridge-url ()
+  "Return the bridge URL assembled from host, port, and scheme."
+  (format "%s://%s:%d" ros2-bridge-scheme ros2-bridge-host ros2-bridge-port))
+
 (defun ros2--display-host ()
-  "Return `ros2-url' with the `ws://' or `wss://' scheme stripped."
-  (replace-regexp-in-string "\\`wss?://" "" ros2-url))
+  "Return the bridge host and port for display."
+  (format "%s:%d" ros2-bridge-host ros2-bridge-port))
 
 (defun ros2--display-buffer (buffer category)
   "Display BUFFER, tagged with CATEGORY, per `ros2-window-arrangement'.
 CATEGORY (e.g. `ros2-topics') rides in the `display-buffer' action alist so
 `display-buffer-alist' and Doom `set-popup-rule!' can override placement."
   (pcase-let
-      ((`(,fns . ,alist)
-        (if (eq ros2-window-arrangement 'studio)
-            (pcase category
-              ('ros2-topics
-               `((display-buffer-in-side-window)
-                 (side . left) (window-width . ,ros2-topics-width)
-                 (slot . 0) (dedicated . t)))
-              ('ros2-teleop
-               `((display-buffer-in-side-window)
-                 (side . right) (window-width . ,ros2-teleop-width)
-                 (slot . 0) (dedicated . t)))
-              (_ '((display-buffer-same-window))))
-          '(nil))))
+    ((`(,fns . ,alist)
+       (if (eq ros2-window-arrangement 'studio)
+         (pcase category
+           ('ros2-topics
+             `((display-buffer-in-side-window)
+                (side . left) (window-width . ,ros2-topics-width)
+                (slot . 0) (dedicated . t)))
+           ('ros2-teleop
+             `((display-buffer-in-side-window)
+                (side . right) (window-width . ,ros2-teleop-width)
+                (slot . 0) (dedicated . t)))
+           (_ '((display-buffer-same-window))))
+         '(nil))))
     (display-buffer buffer
-                    `((display-buffer-reuse-window . ,fns)
-                      (category . ,category)
-                      ,@alist))))
+      `((display-buffer-reuse-window . ,fns)
+         (category . ,category)
+         ,@alist))))
 
 
 ;;; Node lifecycle
@@ -379,22 +396,27 @@ Nil means the daemon default: the monorepo root, where pixi.toml lives."
   "Return the log buffer name for NODE."
   (process-compose-log-buffer-name (ros2--service-name node)))
 
+(defun ros2--node-command (node)
+  "Return the shell command that launches NODE."
+  (or (alist-get node ros2-node-commands nil nil #'equal)
+    (error "No launch command configured for ros2 node %s" node)))
+
 (defun ros2--declare-node (node)
   "Declare NODE as a Process Compose process; the daemon supervises it."
   (process-compose-declare
-   (list :name (ros2--service-name node)
-         :namespace "ros2"
-         :display-name node
-         :command (format "%s run %s" ros2-pixi-executable node)
-         :disabled t
-         :config
-         (append
-          '((shutdown . ((signal . 2))))
-          (when-let* ((workspace (ros2--workspace)))
-            `((working_dir . ,workspace)))
-          (when-let* ((ready (alist-get node ros2-node-ready-messages
-                                        nil nil #'equal)))
-            `((ready_log_line . ,ready)))))))
+    (list :name (ros2--service-name node)
+      :namespace "ros2"
+      :display-name node
+      :command (ros2--node-command node)
+      :disabled t
+      :config
+      (append
+        '((shutdown . ((signal . 2))))
+        (when-let* ((workspace (ros2--workspace)))
+          `((working_dir . ,workspace)))
+        (when-let* ((ready (alist-get node ros2-node-ready-messages
+                             nil nil #'equal)))
+          `((ready_log_line . ,ready)))))))
 
 (defun ros2--ensure-services ()
   "Declare every node in `ros2-nodes' and bring the daemon up to date."
@@ -407,10 +429,10 @@ Nil means the daemon default: the monorepo root, where pixi.toml lives."
   "Non-nil when NODE's live STATE has reached its ready state.
 Uses the ready log line when one is set, else the launch grace period."
   (if (alist-get node ros2-node-ready-messages nil nil #'equal)
-      (equal (gethash "is_ready" state) "Ready")
+    (equal (gethash "is_ready" state) "Ready")
     (let ((started (alist-get node (ros2--started-at) nil nil #'equal)))
       (or (null started)
-          (> (float-time (time-subtract (current-time) started)) ros2-launch-grace)))))
+        (> (float-time (time-subtract (current-time) started)) ros2-launch-grace)))))
 
 (defun ros2--node-state (node)
   "Return NODE's supervisory state.
@@ -419,13 +441,13 @@ daemon's state stream: a crash is a non-success exit (`failed'), while a
 user-stopped (exit -1), cleanly-exited, or never-run node is `stopped'."
   (let ((state (process-compose-state (ros2--service-name node))))
     (if (null state)
-        'stopped
+      'stopped
       (pcase (gethash "status" state)
         ((or "Running" "Launching" "Launched")
-         (if (ros2--node-ready-p node state) 'up 'launching))
+          (if (ros2--node-ready-p node state) 'up 'launching))
         ("Restarting" 'launching)
         ("Completed" (if (memql (gethash "exit_code" state 0) '(-1 0))
-                         'stopped
+                       'stopped
                        'failed))
         ("Error" 'failed)
         (_ 'stopped)))))
@@ -439,7 +461,7 @@ user-stopped (exit -1), cleanly-exited, or never-run node is `stopped'."
 The log buffer starts its follow stream immediately so the aggregated
 log panel sees output; displaying it is the caller's choice."
   (setf (alist-get node (ros2--session-started-at ros2--session) nil nil #'equal)
-        (current-time))
+    (current-time))
   (process-compose-start-process (ros2--service-name node))
   (process-compose-log-buffer (ros2--service-name node)))
 
@@ -477,32 +499,32 @@ log panel sees output; displaying it is the caller's choice."
   (when-let* ((state (process-compose-state (ros2--service-name node))))
     (let ((tail (ros2--node-log-tail node)))
       (concat (propertize (format "exit %d" (gethash "exit_code" state 0))
-                          'face 'vui-error)
-              (when tail
-                (concat "   " (propertize (truncate-string-to-width tail 52 nil nil "…")
-                                          'face 'vui-muted)))))))
+                'face 'vui-error)
+        (when tail
+          (concat "   " (propertize (truncate-string-to-width tail 52 nil nil "…")
+                          'face 'vui-muted)))))))
 
 (defun ros2--node-row (node)
   "Return the NODES-panel line for NODE, tagged for row-at-point lookup."
   (let* ((state (ros2--node-state node))
-         (glyph (ros2--node-glyph state))
-         (name  (propertize (format "%-10s" node)
-                            'face (if (eq state 'stopped) 'vui-muted 'default))))
+          (glyph (ros2--node-glyph state))
+          (name  (propertize (format "%-10s" node)
+                   'face (if (eq state 'stopped) 'vui-muted 'default))))
     (propertize
-     (concat "   " glyph "  " name
-             (when (eq state 'failed) (ros2--node-failure-detail node)))
-     'ros2-node node)))
+      (concat "   " glyph "  " name
+        (when (eq state 'failed) (ros2--node-failure-detail node)))
+      'ros2-node node)))
 
 (defun ros2--set-mode-line ()
   "Show the connection status in the mode-line.
 Uses `mode-line-process', not `mode-name', so ibuffer's Mode column stays clean."
   (setq mode-line-process
-        (list " "
-              (if (ros2--connected-p)
-                  (nerd-icons-mdicon "nf-md-lan_connect" :face 'success)
-                (nerd-icons-mdicon "nf-md-lan_disconnect" :face 'error))
-              " "
-              (propertize (ros2--display-host) 'face 'shadow)))
+    (list " "
+      (if (ros2--connected-p)
+        (nerd-icons-mdicon "nf-md-lan_connect" :face 'success)
+        (nerd-icons-mdicon "nf-md-lan_disconnect" :face 'error))
+      " "
+      (propertize (ros2--display-host) 'face 'shadow)))
   (force-mode-line-update))
 
 (defface ros2-topic '((t :weight bold))
@@ -517,12 +539,12 @@ Uses `mode-line-process', not `mode-name', so ibuffer's Mode column stays clean.
   "Return CHANNEL as a card: bold topic name, dimmed schema, and a faint rule.
 Name and schema share the left edge; a horizontal rule separates cards."
   (list
-   (vui-text (concat "  " (propertize (or (alist-get 'topic channel) "")
-                                      'face 'ros2-topic)))
-   (vui-text (concat "  " (propertize (or (alist-get 'schemaName channel) "")
-                                      'face 'shadow)))
-   (vui-text (propertize (make-string (max 1 (- ros2-topics-width 2)) ?─)
-                         'face 'ros2-divider))))
+    (vui-text (concat "  " (propertize (or (alist-get 'topic channel) "")
+                             'face 'ros2-topic)))
+    (vui-text (concat "  " (propertize (or (alist-get 'schemaName channel) "")
+                             'face 'shadow)))
+    (vui-text (propertize (make-string (max 1 (- ros2-topics-width 2)) ?─)
+                'face 'ros2-divider))))
 
 (defun ros2--topic-list ()
   "Return the advertised topics as cards, filtered by `ros2--topic-filter'.
@@ -530,12 +552,12 @@ Each card is a bold topic name over its dimmed schema.  Shows a placeholder
 when nothing is advertised, or nothing matches the filter."
   (let ((rows (ros2--filter-channels (ros2--channel-rows) ros2--topic-filter)))
     (if rows
-        (vui-vstack (mapcan #'ros2--topic-card-lines rows))
+      (vui-vstack (mapcan #'ros2--topic-card-lines rows))
       (vui-text (propertize
-                 (if (string-empty-p ros2--topic-filter)
-                     "  (no channels advertised)"
-                   (format "  (no topics match %S)" ros2--topic-filter))
-                 'face 'shadow)))))
+                  (if (string-empty-p ros2--topic-filter)
+                    "  (no channels advertised)"
+                    (format "  (no topics match %S)" ros2--topic-filter))
+                  'face 'shadow)))))
 
 
 ;;; Parameters
@@ -555,30 +577,30 @@ when nothing is advertised, or nothing matches the filter."
 (defun ros2--format-parameter-value (value)
   "Return parameter VALUE as a display string, coloured by its type."
   (cond
-   ((eq value t)      (propertize "true"  'face 'ros2-param-bool))
-   ((eq value :false) (propertize "false" 'face 'ros2-param-bool))
-   ((numberp value)   (propertize (number-to-string value) 'face 'ros2-param-number))
-   ((stringp value)   (propertize (format "%S" value) 'face 'ros2-param-string))
-   (t                 (format "%S" value))))
+    ((eq value t)      (propertize "true"  'face 'ros2-param-bool))
+    ((eq value :false) (propertize "false" 'face 'ros2-param-bool))
+    ((numberp value)   (propertize (number-to-string value) 'face 'ros2-param-number))
+    ((stringp value)   (propertize (format "%S" value) 'face 'ros2-param-string))
+    (t                 (format "%S" value))))
 
 (defun ros2--parameter-rows ()
   "Return the session parameters as name/value alists, sorted by name."
   (sort (copy-sequence (ros2--parameters))
-        (lambda (a b) (string< (or (alist-get 'name a) "")
-                               (or (alist-get 'name b) "")))))
+    (lambda (a b) (string< (or (alist-get 'name a) "")
+                    (or (alist-get 'name b) "")))))
 
 (defun ros2--parameter-table ()
   "Return the parameters as a coloured name/value table, or a placeholder."
   (let ((rows (ros2--parameter-rows)))
     (if rows
-        (vui-table
-         :header-face 'shadow
-         :columns '((:header "PARAMETER" :width 58 :truncate t)
+      (vui-table
+        :header-face 'shadow
+        :columns '((:header "PARAMETER" :width 58 :truncate t)
                     (:header "VALUE" :width 40 :truncate t))
-         :rows (mapcar
+        :rows (mapcar
                 (lambda (param)
                   (list (or (alist-get 'name param) "")
-                        (ros2--format-parameter-value (alist-get 'value param))))
+                    (ros2--format-parameter-value (alist-get 'value param))))
                 rows))
       (vui-text (propertize "  (no parameters)" 'face 'shadow)))))
 
@@ -599,7 +621,7 @@ when nothing is advertised, or nothing matches the filter."
 (define-derived-mode ros2-parameters-mode vui-mode "ros2-parameters"
   "Major mode for the *ros2-parameters* panel."
   (setq-local global-mode-string nil
-              header-line-format '(:eval (ros2--panel-tabs 'ros2-parameters))))
+    header-line-format '(:eval (ros2--panel-tabs 'ros2-parameters))))
 (put 'ros2-parameters-mode 'completion-predicate #'ignore)
 
 (with-eval-after-load 'evil
@@ -611,7 +633,7 @@ when nothing is advertised, or nothing matches the filter."
 
 (with-eval-after-load 'nerd-icons
   (add-to-list 'nerd-icons-mode-icon-alist
-               '(ros2-parameters-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
+    '(ros2-parameters-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
 
 (defun ros2--set-parameters (parameters)
   "Store PARAMETERS on the session."
@@ -620,11 +642,11 @@ when nothing is advertised, or nothing matches the filter."
 (defun ros2--request-parameters (&optional connection)
   "Ask the bridge for all parameters over CONNECTION or the current one."
   (let ((connection (or connection
-                        (and ros2--session (ros2--session-connection ros2--session)))))
+                      (and ros2--session (ros2--session-connection ros2--session)))))
     (when (and connection (websocket-openp connection))
       (websocket-send-text
-       connection
-       "{\"op\":\"getParameters\",\"parameterNames\":[],\"id\":\"ros2\"}"))))
+        connection
+        "{\"op\":\"getParameters\",\"parameterNames\":[],\"id\":\"ros2\"}"))))
 
 (defun ros2--parameters-buffer ()
   "Return the *ros2-parameters* buffer, mounted and ready.
@@ -659,21 +681,21 @@ Mounts without stealing the selected window, so the caller controls layout."
   (let ((indent (or indent 0)) (out ""))
     (dolist (field decoded out)
       (setq out (concat out (ros2--format-message-node
-                             (car field) (cdr field) indent))))))
+                              (car field) (cdr field) indent))))))
 
 (defun ros2--format-message-node (name value indent)
   "Format field NAME holding VALUE at depth INDENT as one or more tree lines."
   (let ((pad (make-string (* 2 indent) ?\s))
-        (key (propertize name 'face 'ros2-message-key)))
+         (key (propertize name 'face 'ros2-message-key)))
     (cond
-     ((ros2--message-alist-p value)
-      (concat pad key "\n" (ros2--format-message value (1+ indent))))
-     ((and (listp value) value)
-      (concat pad key (propertize (format " [%d]" (length value)) 'face 'shadow) "\n"
-              (ros2--format-message-array value (1+ indent))))
-     ((null value)
-      (concat pad key (propertize " []" 'face 'shadow) "\n"))
-     (t (concat pad key "  " (ros2--format-parameter-value value) "\n")))))
+      ((ros2--message-alist-p value)
+        (concat pad key "\n" (ros2--format-message value (1+ indent))))
+      ((and (listp value) value)
+        (concat pad key (propertize (format " [%d]" (length value)) 'face 'shadow) "\n"
+          (ros2--format-message-array value (1+ indent))))
+      ((null value)
+        (concat pad key (propertize " []" 'face 'shadow) "\n"))
+      (t (concat pad key "  " (ros2--format-parameter-value value) "\n")))))
 
 (defun ros2--format-message-array (items indent)
   "Format array ITEMS at depth INDENT, one indexed line or subtree each."
@@ -681,11 +703,11 @@ Mounts without stealing the selected window, so the caller controls layout."
     (dolist (item items out)
       (let ((tag (propertize (format "[%d]" index) 'face 'shadow)))
         (setq out (concat out
-                          (if (ros2--message-alist-p item)
-                              (concat pad tag "\n" (ros2--format-message item (1+ indent)))
-                            (concat pad tag "  "
-                                    (ros2--format-parameter-value item) "\n")))
-              index (1+ index))))))
+                    (if (ros2--message-alist-p item)
+                      (concat pad tag "\n" (ros2--format-message item (1+ indent)))
+                      (concat pad tag "  "
+                        (ros2--format-parameter-value item) "\n")))
+          index (1+ index))))))
 
 (defvar-local ros2--message-topic nil
   "The topic whose latest message the *ros2-messages* panel displays.")
@@ -693,18 +715,18 @@ Mounts without stealing the selected window, so the caller controls layout."
 (defun ros2--message-body ()
   "Return the selected topic's latest message as a tree, or a placeholder."
   (if-let ((topic ros2--message-topic))
-      (let ((decoded (and ros2--session
-                          (alist-get topic (ros2--session-messages ros2--session)
-                                     nil nil #'equal)))
-            (channel (ros2--channel-for-topic topic)))
-        (vui-vstack
-         (vui-text (concat "  " (propertize topic 'face 'ros2-message-key) "   "
-                           (propertize (or (alist-get 'schemaName channel) "")
-                                       'face 'shadow)))
-         (vui-text "")
-         (if decoded
-             (vui-text (string-trim-right (ros2--format-message decoded)))
-           (vui-text (propertize "  (waiting for a message…)" 'face 'shadow)))))
+    (let ((decoded (and ros2--session
+                     (alist-get topic (ros2--session-messages ros2--session)
+                       nil nil #'equal)))
+           (channel (ros2--channel-for-topic topic)))
+      (vui-vstack
+        (vui-text (concat "  " (propertize topic 'face 'ros2-message-key) "   "
+                    (propertize (or (alist-get 'schemaName channel) "")
+                      'face 'shadow)))
+        (vui-text "")
+        (if decoded
+          (vui-text (string-trim-right (ros2--format-message decoded)))
+          (vui-text (propertize "  (waiting for a message…)" 'face 'shadow)))))
     (vui-text (propertize "  Press / to pick a topic" 'face 'shadow))))
 
 (vui-defcomponent ros2--messages-view ()
@@ -735,7 +757,7 @@ Mounts without stealing the selected window, so the caller controls layout."
 (define-derived-mode ros2-messages-mode vui-mode "ros2-messages"
   "Major mode for the *ros2-messages* panel."
   (setq-local global-mode-string nil
-              header-line-format '(:eval (ros2--panel-tabs 'ros2-messages))))
+    header-line-format '(:eval (ros2--panel-tabs 'ros2-messages))))
 (put 'ros2-messages-mode 'completion-predicate #'ignore)
 
 (with-eval-after-load 'evil
@@ -748,7 +770,7 @@ Mounts without stealing the selected window, so the caller controls layout."
 
 (with-eval-after-load 'nerd-icons
   (add-to-list 'nerd-icons-mode-icon-alist
-               '(ros2-messages-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
+    '(ros2-messages-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
 
 (defun ros2--messages-buffer ()
   "Return the *ros2-messages* buffer, mounted and ready."
@@ -815,12 +837,12 @@ LEVEL is a symbol (`info', `warn', ...) or nil for an unstructured line, whose
 whole text becomes :message.  A leading launch-process prefix is stripped."
   (let ((stripped (replace-regexp-in-string "\\`\\[[^]]*-[0-9]+\\] " "" line)))
     (if (string-match
-         "\\`\\[\\(DEBUG\\|INFO\\|WARN\\|ERROR\\|FATAL\\)\\] \\[\\([0-9.]+\\)\\] \\[\\([^]]*\\)\\]: \\(.*\\)\\'"
-         stripped)
-        (list :level (intern (downcase (match-string 1 stripped)))
-              :stamp (match-string 2 stripped)
-              :node (match-string 3 stripped)
-              :message (match-string 4 stripped))
+          "\\`\\[\\(DEBUG\\|INFO\\|WARN\\|ERROR\\|FATAL\\)\\] \\[\\([0-9.]+\\)\\] \\[\\([^]]*\\)\\]: \\(.*\\)\\'"
+          stripped)
+      (list :level (intern (downcase (match-string 1 stripped)))
+        :stamp (match-string 2 stripped)
+        :node (match-string 3 stripped)
+        :message (match-string 4 stripped))
       (list :level nil :node nil :message line))))
 
 (defun ros2--filter-log-entries (entries min-level search)
@@ -829,34 +851,34 @@ Entries below MIN-LEVEL are dropped, but unstructured entries (no level) always
 pass; SEARCH is matched case-insensitively against message and node, and an
 empty SEARCH matches everything."
   (let ((min-value (ros2--log-level-value min-level))
-        (needle (unless (string-empty-p search) (downcase search))))
+         (needle (unless (string-empty-p search) (downcase search))))
     (seq-filter
-     (lambda (entry)
-       (let ((level (plist-get entry :level)))
-         (and (or (null level) (>= (ros2--log-level-value level) min-value))
-              (or (null needle)
-                  (string-search needle (downcase (or (plist-get entry :message) "")))
-                  (string-search needle (downcase (or (plist-get entry :node) "")))))))
-     entries)))
+      (lambda (entry)
+        (let ((level (plist-get entry :level)))
+          (and (or (null level) (>= (ros2--log-level-value level) min-value))
+            (or (null needle)
+              (string-search needle (downcase (or (plist-get entry :message) "")))
+              (string-search needle (downcase (or (plist-get entry :node) "")))))))
+      entries)))
 
 (defun ros2--format-log-entry (entry)
   "Return ENTRY as a single coloured log line."
   (let ((level (plist-get entry :level))
-        (node (plist-get entry :node))
-        (message (or (plist-get entry :message) "")))
+         (node (plist-get entry :node))
+         (message (or (plist-get entry :message) "")))
     (if (null level)
-        (propertize (concat "  " message) 'face 'shadow)
+      (propertize (concat "  " message) 'face 'shadow)
       (concat "  "
-              (propertize (format "%-5s" (upcase (symbol-name level)))
-                          'face (pcase level
-                                  ('warn 'ros2-log-warn)
-                                  ((or 'error 'fatal) 'ros2-log-error)
-                                  ('debug 'ros2-log-debug)
-                                  (_ 'default)))
-              " "
-              (propertize (or node "") 'face 'ros2-log-node)
-              (propertize ": " 'face 'shadow)
-              message))))
+        (propertize (format "%-5s" (upcase (symbol-name level)))
+          'face (pcase level
+                  ('warn 'ros2-log-warn)
+                  ((or 'error 'fatal) 'ros2-log-error)
+                  ('debug 'ros2-log-debug)
+                  (_ 'default)))
+        " "
+        (propertize (or node "") 'face 'ros2-log-node)
+        (propertize ": " 'face 'shadow)
+        message))))
 
 (defun ros2--log-entries ()
   "Collect, parse, and filter the recent log lines from the node buffers."
@@ -866,22 +888,22 @@ empty SEARCH matches everything."
         (with-current-buffer buffer
           (setq raw (append raw (split-string (ros2--strip-ansi (buffer-string)) "\n" t))))))
     (ros2--filter-log-entries
-     (mapcar #'ros2--parse-log-line (last raw ros2-log-max-lines))
-     ros2-log-min-level ros2--log-filter)))
+      (mapcar #'ros2--parse-log-line (last raw ros2-log-max-lines))
+      ros2-log-min-level ros2--log-filter)))
 
 (defun ros2--log-body ()
   "Return the filtered log entries as stacked lines, or a placeholder."
   (let ((entries (ros2--log-entries)))
     (if entries
-        (vui-vstack
-         (mapcar (lambda (entry) (vui-text (ros2--format-log-entry entry))) entries))
+      (vui-vstack
+        (mapcar (lambda (entry) (vui-text (ros2--format-log-entry entry))) entries))
       (vui-text (propertize "  (no log output)" 'face 'shadow)))))
 
 (vui-defcomponent ros2--log-view ()
   "The log panel: node output, parsed and coloured."
   :render
   (if-let ((indicator (ros2--filter-indicator ros2--log-filter)))
-      (vui-vstack (vui-text indicator) (ros2--log-body))
+    (vui-vstack (vui-text indicator) (ros2--log-body))
     (ros2--log-body)))
 
 (defun ros2-log-filter (filter)
@@ -905,7 +927,7 @@ Read FILTER in the minibuffer, seeded with the current one; empty clears it."
 (define-derived-mode ros2-log-mode vui-mode "ros2-log"
   "Major mode for the *ros2-log* panel."
   (setq-local global-mode-string nil
-              header-line-format '(:eval (ros2--panel-tabs 'ros2-log))))
+    header-line-format '(:eval (ros2--panel-tabs 'ros2-log))))
 (put 'ros2-log-mode 'completion-predicate #'ignore)
 
 (with-eval-after-load 'evil
@@ -918,7 +940,7 @@ Read FILTER in the minibuffer, seeded with the current one; empty clears it."
 
 (with-eval-after-load 'nerd-icons
   (add-to-list 'nerd-icons-mode-icon-alist
-               '(ros2-log-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
+    '(ros2-log-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
 
 (defun ros2--log-buffer ()
   "Return the *ros2-log* buffer, mounted and ready.
@@ -940,7 +962,7 @@ Mounts without stealing the selected window, so the caller controls layout."
   "The studio: the TOPICS list."
   :render
   (if-let ((indicator (ros2--filter-indicator ros2--topic-filter)))
-      (vui-vstack (vui-text indicator) (ros2--topic-list))
+    (vui-vstack (vui-text indicator) (ros2--topic-list))
     (ros2--topic-list)))
 
 (defcustom ros2-update-debounce 0.1
@@ -984,9 +1006,9 @@ Only visible panels are re-rendered; switching to a hidden one re-mounts it."
 (defun ros2--uint32-decode (bytes offset)
   "Read a little-endian `uint32' from BYTES starting at OFFSET."
   (logior (aref bytes offset)
-          (ash (aref bytes (+ offset 1)) 8)
-          (ash (aref bytes (+ offset 2)) 16)
-          (ash (aref bytes (+ offset 3)) 24)))
+    (ash (aref bytes (+ offset 1)) 8)
+    (ash (aref bytes (+ offset 2)) 16)
+    (ash (aref bytes (+ offset 3)) 24)))
 
 (defun ros2--channel-for-topic (topic)
   "Return the advertised channel alist for TOPIC, or nil."
@@ -995,7 +1017,7 @@ Only visible panels are re-rendered; switching to a hidden one re-mounts it."
       (maphash (lambda (_id channel)
                  (when (equal (alist-get 'topic channel) topic)
                    (throw 'found channel)))
-               (ros2--session-channels ros2--session))
+        (ros2--session-channels ros2--session))
       nil)))
 
 (defun ros2--topic-names ()
@@ -1003,34 +1025,34 @@ Only visible panels are re-rendered; switching to a hidden one re-mounts it."
   (when ros2--session
     (let (names)
       (maphash (lambda (_id channel) (push (alist-get 'topic channel) names))
-               (ros2--session-channels ros2--session))
+        (ros2--session-channels ros2--session))
       (sort names #'string<))))
 
 (defun ros2--subscribe (topic)
   "Subscribe to TOPIC through the bridge; return its subscription id or nil."
   (when-let ((channel (and (ros2--connected-p) (ros2--channel-for-topic topic))))
     (or (alist-get topic (ros2--session-subscriptions ros2--session) nil nil #'equal)
-        (let ((sub-id (1+ (length (ros2--session-subscriptions ros2--session)))))
-          (websocket-send-text
-           (ros2--session-connection ros2--session)
-           (json-encode
+      (let ((sub-id (1+ (length (ros2--session-subscriptions ros2--session)))))
+        (websocket-send-text
+          (ros2--session-connection ros2--session)
+          (json-encode
             `((op . "subscribe")
-              (subscriptions
-               . ,(vector `((id . ,sub-id)
-                            (channelId . ,(alist-get 'id channel))))))))
-          (setf (alist-get topic (ros2--session-subscriptions ros2--session) nil nil #'equal)
-                sub-id)
-          sub-id))))
+               (subscriptions
+                 . ,(vector `((id . ,sub-id)
+                               (channelId . ,(alist-get 'id channel))))))))
+        (setf (alist-get topic (ros2--session-subscriptions ros2--session) nil nil #'equal)
+          sub-id)
+        sub-id))))
 
 (defun ros2--unsubscribe (topic)
   "Stop the subscription to TOPIC and forget its last message."
   (when-let ((sub-id (and ros2--session
-                          (alist-get topic (ros2--session-subscriptions ros2--session)
-                                     nil nil #'equal))))
+                       (alist-get topic (ros2--session-subscriptions ros2--session)
+                         nil nil #'equal))))
     (when (ros2--connected-p)
       (websocket-send-text
-       (ros2--session-connection ros2--session)
-       (json-encode `((op . "unsubscribe") (subscriptionIds . ,(vector sub-id))))))
+        (ros2--session-connection ros2--session)
+        (json-encode `((op . "unsubscribe") (subscriptionIds . ,(vector sub-id))))))
     (setf (alist-get topic (ros2--session-subscriptions ros2--session) nil 'remove #'equal) nil)
     (setf (alist-get topic (ros2--session-messages ros2--session) nil 'remove #'equal) nil)))
 
@@ -1040,13 +1062,13 @@ The frame is a 1-byte opcode, a `uint32' subscription id, a `uint64' timestamp,
 then the CDR message."
   (when (and (> (length payload) 13) (= (aref payload 0) 1) ros2--session)
     (when-let* ((topic (ros2--topic-for-sub (ros2--uint32-decode payload 1)))
-                (channel (ros2--channel-for-topic topic))
-                (schema (alist-get 'schema channel)))
+                 (channel (ros2--channel-for-topic topic))
+                 (schema (alist-get 'schema channel)))
       (condition-case _err
-          (progn
-            (setf (alist-get topic (ros2--session-messages ros2--session) nil nil #'equal)
-                  (ros2-cdr-decode schema (substring payload 13)))
-            (ros2--schedule-update))
+        (progn
+          (setf (alist-get topic (ros2--session-messages ros2--session) nil nil #'equal)
+            (ros2-cdr-decode schema (substring payload 13)))
+          (ros2--schedule-update))
         (error nil)))))
 
 (defun ros2--topic-for-sub (sub-id)
@@ -1057,16 +1079,16 @@ then the CDR message."
 (defun ros2--handle-text (text)
   "Apply an incoming message TEXT to the session, then redraw."
   (condition-case nil
-      (let* ((message (json-parse-string text
-                                         :object-type 'alist :array-type 'list
-                                         :null-object nil :false-object :false))
-             (op (alist-get 'op message)))
-        (pcase op
-          ("serverInfo"      (setf (ros2--session-server-info ros2--session) message))
-          ("advertise"       (ros2--add-channels (alist-get 'channels message)))
-          ("unadvertise"     (ros2--remove-channels (alist-get 'channelIds message)))
-          ("parameterValues" (ros2--set-parameters (alist-get 'parameters message))))
-        (ros2--schedule-update))
+    (let* ((message (json-parse-string text
+                      :object-type 'alist :array-type 'list
+                      :null-object nil :false-object :false))
+            (op (alist-get 'op message)))
+      (pcase op
+        ("serverInfo"      (setf (ros2--session-server-info ros2--session) message))
+        ("advertise"       (ros2--add-channels (alist-get 'channels message)))
+        ("unadvertise"     (ros2--remove-channels (alist-get 'channelIds message)))
+        ("parameterValues" (ros2--set-parameters (alist-get 'parameters message))))
+      (ros2--schedule-update))
     (json-parse-error nil)))
 
 (defun ros2--on-message (_websocket frame)
@@ -1082,7 +1104,7 @@ then the CDR message."
       (when (and connection (websocket-openp connection))
         (websocket-close connection)))
     (setf (ros2--session-connection ros2--session) nil
-          (ros2--session-connected ros2--session) nil)))
+      (ros2--session-connected ros2--session) nil)))
 
 (defun ros2--connect ()
   "Open (or reopen) the session's connection to the bridge.
@@ -1091,28 +1113,28 @@ stale connection cannot corrupt a newer session."
   (ros2--disconnect)
   (let ((session ros2--session))
     (setf (ros2--session-channels session) (make-hash-table :test 'eql)
-          (ros2--session-server-info session) nil)
+      (ros2--session-server-info session) nil)
     (condition-case nil
-        (setf (ros2--session-connection session)
-              (websocket-open
-               ros2-url
-               :protocols (list ros2-subprotocol)
-               :on-open (lambda (ws)
-                          (when (eq session ros2--session)
-                            (setf (ros2--session-connected session) t)
-                            (ros2--request-parameters ws)
-                            (ros2--schedule-update)))
-               :on-message (lambda (ws frame)
-                             (when (eq session ros2--session)
-                               (ros2--on-message ws frame)))
-               :on-close (lambda (_ws)
-                           (when (eq session ros2--session)
-                             (setf (ros2--session-connected session) nil)
-                             (ros2--schedule-update)))
-               :on-error (lambda (_ws _type _err)
-                           (when (eq session ros2--session)
-                             (setf (ros2--session-connected session) nil)
-                             (ros2--schedule-update)))))
+      (setf (ros2--session-connection session)
+        (websocket-open
+          (ros2--bridge-url)
+          :protocols (list ros2-subprotocol)
+          :on-open (lambda (ws)
+                     (when (eq session ros2--session)
+                       (setf (ros2--session-connected session) t)
+                       (ros2--request-parameters ws)
+                       (ros2--schedule-update)))
+          :on-message (lambda (ws frame)
+                        (when (eq session ros2--session)
+                          (ros2--on-message ws frame)))
+          :on-close (lambda (_ws)
+                      (when (eq session ros2--session)
+                        (setf (ros2--session-connected session) nil)
+                        (ros2--schedule-update)))
+          :on-error (lambda (_ws _type _err)
+                      (when (eq session ros2--session)
+                        (setf (ros2--session-connected session) nil)
+                        (ros2--schedule-update)))))
       (error (setf (ros2--session-connected session) nil))))
   (ros2--schedule-update))
 
@@ -1136,10 +1158,10 @@ stale connection cannot corrupt a newer session."
 Defaults to the studio row at point.  Stopping is a separate key, `s'."
   (declare (modes ros2-mode))
   (interactive
-   (list (or (ros2--node-at-point)
-             (completing-read "Node: " ros2-nodes nil t))))
+    (list (or (ros2--node-at-point)
+            (completing-read "Node: " ros2-nodes nil t))))
   (if (ros2--node-running-p node)
-      (display-buffer (get-buffer-create (ros2--node-log-buffer-name node)))
+    (display-buffer (get-buffer-create (ros2--node-log-buffer-name node)))
     (ros2--start-node node)
     (display-buffer (get-buffer-create (ros2--node-log-buffer-name node)))
     (unless (ros2--connected-p) (ros2--connect-with-retry)))
@@ -1149,8 +1171,8 @@ Defaults to the studio row at point.  Stopping is a separate key, `s'."
   "Stop NODE, defaulting to the studio row at point."
   (declare (modes ros2-mode))
   (interactive
-   (list (or (ros2--node-at-point)
-             (completing-read "Stop node: " ros2-nodes nil t))))
+    (list (or (ros2--node-at-point)
+            (completing-read "Stop node: " ros2-nodes nil t))))
   (ros2--stop-node node)
   (ros2--schedule-update))
 
@@ -1158,8 +1180,8 @@ Defaults to the studio row at point.  Stopping is a separate key, `s'."
   "Show NODE's log, defaulting to the studio row at point."
   (declare (modes ros2-mode))
   (interactive
-   (list (or (ros2--node-at-point)
-             (completing-read "Log for node: " ros2-nodes nil t))))
+    (list (or (ros2--node-at-point)
+            (completing-read "Log for node: " ros2-nodes nil t))))
   (display-buffer (get-buffer-create (ros2--node-log-buffer-name node))))
 
 (defun ros2--show-teleop ()
@@ -1171,7 +1193,7 @@ Defaults to the studio row at point.  Stopping is a separate key, `s'."
   (declare (modes ros2-mode))
   (interactive)
   (if-let ((window (get-buffer-window "*ros2-teleop*")))
-      (delete-window window)
+    (delete-window window)
     (ros2--show-teleop)))
 
 (defun ros2-quit ()
@@ -1203,13 +1225,13 @@ Skips a tick while a connection is already open, so one in progress is not
 torn down."
   (when ros2--session
     (cond
-     ((ros2--session-connected ros2--session) (ros2--cancel-retry))
-     ((>= (ros2--session-retry-count ros2--session) ros2-connect-retry-limit)
-      (ros2--cancel-retry))
-     ((let ((connection (ros2--session-connection ros2--session)))
-        (and connection (websocket-openp connection)))
-      nil)
-     (t (cl-incf (ros2--session-retry-count ros2--session))
+      ((ros2--session-connected ros2--session) (ros2--cancel-retry))
+      ((>= (ros2--session-retry-count ros2--session) ros2-connect-retry-limit)
+        (ros2--cancel-retry))
+      ((let ((connection (ros2--session-connection ros2--session)))
+         (and connection (websocket-openp connection)))
+        nil)
+      (t (cl-incf (ros2--session-retry-count ros2--session))
         (ros2--connect)))))
 
 (defun ros2--connect-with-retry ()
@@ -1218,8 +1240,8 @@ torn down."
   (setf (ros2--session-retry-count ros2--session) 0)
   (ros2--connect)
   (setf (ros2--session-retry-timer ros2--session)
-        (run-at-time ros2-connect-retry-interval ros2-connect-retry-interval
-                     #'ros2--retry-tick)))
+    (run-at-time ros2-connect-retry-interval ros2-connect-retry-interval
+      #'ros2--retry-tick)))
 
 (defun ros2--teardown ()
   "Tear down the studio: stop timers, close the connection, maybe stop nodes."
@@ -1267,15 +1289,15 @@ The teleop drive keys and SPC live only in the teleop window, not here.")
 
 (with-eval-after-load 'nerd-icons
   (add-to-list 'nerd-icons-mode-icon-alist
-               '(ros2-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
+    '(ros2-mode nerd-icons-devicon "nf-dev-ros" :face nerd-icons-blue)))
 
-(defun ros2 (&optional url)
+(defun ros2 (&optional host)
   "Open the ROS2 studio.
-With a prefix argument, prompt for the bridge URL."
+Prompt for the bridge HOST when `ros2-prompt-for-host' is non-nil."
   (interactive
-   (list (when current-prefix-arg
-           (read-string "Bridge URL: " ros2-url))))
-  (when url (setq ros2-url url))
+    (list (when ros2-prompt-for-host
+            (read-string "Bridge host: " ros2-bridge-host))))
+  (when host (setq ros2-bridge-host host))
   (when ros2--session
     (ros2--cancel-retry)
     (ros2--disconnect))
@@ -1303,9 +1325,34 @@ With a prefix argument, prompt for the bridge URL."
   (eval '(set-popup-rule!
            (lambda (buffer-name &rest _)
              (and (boundp 'ros2-nodes)
-                  (member buffer-name (mapcar #'ros2--node-log-buffer-name ros2-nodes))))
+               (member buffer-name (mapcar #'ros2--node-log-buffer-name ros2-nodes))))
            :side 'bottom :size 0.3 :quit t :select nil :ttl nil)
-        t))
+    t))
+
+;;; Task registry
+
+(defun ros2--in-workspace-p ()
+  "Non-nil when a pixi.toml sits at or above `default-directory'."
+  (locate-dominating-file default-directory "pixi.toml"))
+
+(defun ros2-tasks ()
+  "Return the robot CLI commands as microvisor producer plists."
+  (when (ros2--in-workspace-p)
+    (list
+      (list :name "topic list" :namespace "ros2"
+        :icon (nerd-icons-mdicon "nf-md-rss") :tool "ros2"
+        :command "cargo ros2 -- topic list"))))
+
+(declare-function microvisor-task "microvisor" (task))
+(defvar compile-multi-config)
+
+(defun ros2--compile-multi-tasks ()
+  "Return `ros2-tasks' as native `compile-multi' tasks."
+  (mapcar #'microvisor-task (ros2-tasks)))
+
+(with-eval-after-load 'compile-multi
+  (add-to-list 'compile-multi-config
+    (list '(ros2--in-workspace-p) #'ros2--compile-multi-tasks)))
 
 (provide 'ros2)
 
