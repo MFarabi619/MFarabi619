@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<?xml-model href="https://raw.githubusercontent.com/ros/urdfdom/master/xsd/urdf.xsd" ?>
+<robot name="robot">
+
+  <link name="base_link"/>
+
+  <link name="base_footprint">
+  </link>
+  <link name="chassis">
+    <visual><geometry><mesh filename="package://robot_description/meshes/chassis.dae"/></geometry></visual>
+    <collision><origin xyz="0 0 0.2873"/><geometry><box size="1.1500 1.0000 0.0254"/></geometry></collision>
+  </link>
+  <link name="rear_left_mount_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/rear_left_mount_link.dae"/></geometry></visual>
+    <inertial>
+      <origin xyz="-0.0091 0.0135 -0.0392"/>
+      <mass value="0.2518"/>
+      <inertia ixx="5.463310e-4" ixy="2.070822e-5" ixz="-9.681193e-5" iyy="1.134640e-3" iyz="8.354465e-5" izz="6.916162e-4"/>
+    </inertial>
+  </link>
+  <link name="rear_left_motor_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/rear_left_motor_link.dae"/></geometry></visual>
+  </link>
+  <link name="rear_left_wheel_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/rear_left_wheel_link.dae"/></geometry></visual>
+    <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
+    <inertial>
+      <origin xyz="0.0000 0.0000 -0.0000"/>
+      <mass value="5.2861"/>
+      <inertia ixx="5.890944e-2" ixy="0.000000e0" ixz="0.000000e0" iyy="1.094965e-1" iyz="0.000000e0" izz="5.890944e-2"/>
+    </inertial>
+  </link>
+  <link name="rear_right_mount_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/rear_right_mount_link.dae"/></geometry></visual>
+    <inertial>
+      <origin xyz="-0.0091 -0.0135 -0.0392"/>
+      <mass value="0.2518"/>
+      <inertia ixx="5.463310e-4" ixy="-2.070822e-5" ixz="-9.681193e-5" iyy="1.134640e-3" iyz="-8.354465e-5" izz="6.916162e-4"/>
+    </inertial>
+  </link>
+  <link name="rear_right_motor_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/rear_right_motor_link.dae"/></geometry></visual>
+  </link>
+  <link name="rear_right_wheel_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/rear_right_wheel_link.dae"/></geometry></visual>
+    <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
+    <inertial>
+      <origin xyz="0.0000 -0.0000 -0.0000"/>
+      <mass value="5.2861"/>
+      <inertia ixx="5.890944e-2" ixy="0.000000e0" ixz="0.000000e0" iyy="1.094965e-1" iyz="0.000000e0" izz="5.890944e-2"/>
+    </inertial>
+  </link>
+  <link name="front_left_mount_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/front_left_mount_link.dae"/></geometry></visual>
+    <inertial>
+      <origin xyz="-0.0091 0.0135 -0.0392"/>
+      <mass value="0.2518"/>
+      <inertia ixx="5.463310e-4" ixy="2.070822e-5" ixz="-9.681193e-5" iyy="1.134640e-3" iyz="8.354465e-5" izz="6.916162e-4"/>
+    </inertial>
+  </link>
+  <link name="front_left_motor_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/front_left_motor_link.dae"/></geometry></visual>
+  </link>
+  <link name="front_left_wheel_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/front_left_wheel_link.dae"/></geometry></visual>
+    <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
+    <inertial>
+      <origin xyz="0.0000 0.0000 -0.0000"/>
+      <mass value="5.2861"/>
+      <inertia ixx="5.890944e-2" ixy="0.000000e0" ixz="5.551115e-17" iyy="1.094965e-1" iyz="0.000000e0" izz="5.890944e-2"/>
+    </inertial>
+  </link>
+  <link name="front_right_mount_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/front_right_mount_link.dae"/></geometry></visual>
+    <inertial>
+      <origin xyz="-0.0091 -0.0135 -0.0392"/>
+      <mass value="0.2518"/>
+      <inertia ixx="5.463310e-4" ixy="-2.070822e-5" ixz="-9.681193e-5" iyy="1.134640e-3" iyz="-8.354465e-5" izz="6.916162e-4"/>
+    </inertial>
+  </link>
+  <link name="front_right_motor_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/front_right_motor_link.dae"/></geometry></visual>
+  </link>
+  <link name="front_right_wheel_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/front_right_wheel_link.dae"/></geometry></visual>
+    <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
+    <inertial>
+      <origin xyz="0.0000 -0.0000 -0.0000"/>
+      <mass value="5.2861"/>
+      <inertia ixx="5.890944e-2" ixy="0.000000e0" ixz="5.551115e-17" iyy="1.094965e-1" iyz="0.000000e0" izz="5.890944e-2"/>
+    </inertial>
+  </link>
+
+  <link name="inertial_link">
+    <inertial>
+      <origin xyz="-0.0787 0.0001 0.3193"/>
+      <mass value="41.2746"/>
+      <inertia ixx="3.877554e0" ixy="1.345498e-3" ixz="2.024260e-1" iyy="5.251737e0" iyz="-8.390746e-4" izz="8.885363e0"/>
+    </inertial>
+  </link>
+  <joint name="inertial_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="inertial_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin xyz="0.0000 0.0000 0.0264" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="front_left_mount_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="front_left_mount_link"/>
+    <origin xyz="0.4000 0.4742 0.2746" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="front_right_mount_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="front_right_mount_link"/>
+    <origin xyz="0.4000 -0.4742 0.2746" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="rear_left_mount_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="rear_left_mount_link"/>
+    <origin xyz="-0.4000 0.4742 0.2746" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="rear_right_mount_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="rear_right_mount_link"/>
+    <origin xyz="-0.4000 -0.4742 0.2746" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="front_left_motor_joint" type="fixed">
+    <parent link="front_left_mount_link"/>
+    <child link="front_left_motor_link"/>
+    <origin xyz="-0.0260 0.0660 -0.0732" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="front_right_motor_joint" type="fixed">
+    <parent link="front_right_mount_link"/>
+    <child link="front_right_motor_link"/>
+    <origin xyz="-0.0260 -0.0660 -0.0732" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="rear_left_motor_joint" type="fixed">
+    <parent link="rear_left_mount_link"/>
+    <child link="rear_left_motor_link"/>
+    <origin xyz="-0.0260 0.0660 -0.0732" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="rear_right_motor_joint" type="fixed">
+    <parent link="rear_right_mount_link"/>
+    <child link="rear_right_motor_link"/>
+    <origin xyz="-0.0260 -0.0660 -0.0732" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <joint name="front_left_wheel_joint" type="continuous">
+    <parent link="front_left_motor_link"/>
+    <child link="front_left_wheel_link"/>
+    <origin xyz="0.0000 0.0450 0.0000" rpy="0.0000 0.0000 0.0000"/>
+    <axis xyz="0.0 1.0 0.0"/>
+  </joint>
+
+  <joint name="front_right_wheel_joint" type="continuous">
+    <parent link="front_right_motor_link"/>
+    <child link="front_right_wheel_link"/>
+    <origin xyz="0.0000 -0.0450 0.0000" rpy="0.0000 0.0000 0.0000"/>
+    <axis xyz="0.0 1.0 0.0"/>
+  </joint>
+
+  <joint name="rear_left_wheel_joint" type="continuous">
+    <parent link="rear_left_motor_link"/>
+    <child link="rear_left_wheel_link"/>
+    <origin xyz="0.0000 0.0450 0.0000" rpy="0.0000 0.0000 0.0000"/>
+    <axis xyz="0.0 1.0 0.0"/>
+  </joint>
+
+  <joint name="rear_right_wheel_joint" type="continuous">
+    <parent link="rear_right_motor_link"/>
+    <child link="rear_right_wheel_link"/>
+    <origin xyz="0.0000 -0.0450 0.0000" rpy="0.0000 0.0000 0.0000"/>
+    <axis xyz="0.0 1.0 0.0"/>
+  </joint>
+
+  <link name="camera_mount_link"/>
+  <joint name="camera_mount_link_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_mount_link"/>
+    <origin xyz="0.2000 0.0000 0.7500" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <link name="camera_link"/>
+  <joint name="camera_link_joint" type="fixed">
+    <parent link="camera_mount_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.3100 0.0000"/>
+  </joint>
+
+  <link name="camera_optical_frame"/>
+  <joint name="camera_optical_frame_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_optical_frame"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="-1.5708 0.0000 -1.5708"/>
+  </joint>
+
+  <link name="gps_link"/>
+  <joint name="gps_link_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="gps_link"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <ros2_control name="RobotHardware" type="system">
+    <hardware>
+      <plugin>robot_hardware_interfaces/RobotHardware</plugin>
+      <param name="rgpiod_host">10.0.0.208</param>
+      <param name="rgpiod_port">8889</param>
+      <param name="gpio_chip">0</param>
+      <param name="pwm_frequency">10000</param>
+      <param name="max_wheel_speed">11.4330</param>
+      <param name="left_wheel">front_left_wheel_joint</param>
+      <param name="left_pwm_pin">12</param>
+      <param name="left_dir_pin">6</param>
+      <param name="left_forward_level">1</param>
+      <param name="right_wheel">front_right_wheel_joint</param>
+      <param name="right_pwm_pin">13</param>
+      <param name="right_dir_pin">5</param>
+      <param name="right_forward_level">0</param>
+    </hardware>
+    <joint name="front_left_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="front_right_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rear_left_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rear_right_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>

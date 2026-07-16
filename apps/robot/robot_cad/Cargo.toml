@@ -1,0 +1,15 @@
+[package]
+name = "robot_cad"
+version = "0.1.0"
+edition = "2021"
+default-run = "assembly"
+
+[dependencies]
+cadrum = "^0.8"
+comfy-table = "7"
+robot_description = { path = "../robot_description" }
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+
+[lints.clippy]
+all = "deny"

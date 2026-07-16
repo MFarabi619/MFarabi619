@@ -1,14 +1,12 @@
 use std::time::Duration;
 
 use oxidros::prelude::*;
-use robot::{
-    hardware::{
-        gpio::Connection,
-        motor::{Drivetrain, Motor, Shaping},
-        servo::Servo,
-        ws2812::{LedStrip, GREEN},
-    },
-    Config,
+use robot::Config;
+use robot_drivers::{
+    gpio::Connection,
+    motor::{Drivetrain, Motor, Shaping},
+    servo::Servo,
+    ws2812::{LedStrip, GREEN},
 };
 
 const HOST: &str = "rpi5-16";

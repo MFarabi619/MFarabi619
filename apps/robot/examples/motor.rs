@@ -3,12 +3,10 @@ use std::{error::Error, thread::sleep, time::Duration};
 use comfy_table::{
     modifiers, presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table,
 };
-use robot::{
-    config::{GPIO_CHIP, HOST, RGPIOD_PORT},
-    hardware::{
-        gpio::Connection,
-        motor::{mix, Drivetrain, Motor, HALT},
-    },
+use robot::config::{GPIO_CHIP, HOST, RGPIOD_PORT};
+use robot_drivers::{
+    gpio::Connection,
+    motor::{mix, Drivetrain, Motor, HALT},
 };
 
 const LEFT_PWM_PIN: u32 = 12;

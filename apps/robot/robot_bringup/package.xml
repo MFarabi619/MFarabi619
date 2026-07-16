@@ -3,8 +3,7 @@
 <package format="3">
   <name>robot_bringup</name>
   <version>0.1.0</version>
-  <description>
-  </description>
+  <description>Top-level launch files bringing up the robot: description, control, and supervision.</description>
 
   <maintainer email="mfarabi619@gmail.com">Mumtahin Farabi</maintainer>
 

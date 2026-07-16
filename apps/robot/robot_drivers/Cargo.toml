@@ -1,0 +1,17 @@
+[package]
+name = "robot_drivers"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata.fetch-source]
+lg = { git = "https://github.com/joan2937/lg.git", tag = "v0.2.2" }
+
+[dependencies]
+robot_description = { path = "../robot_description" }
+
+[build-dependencies]
+fetch-source = "0.1.2"
+cc = "1"
+
+[lints.clippy]
+all = "deny"

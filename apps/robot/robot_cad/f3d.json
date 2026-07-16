@@ -1,0 +1,17 @@
+[
+  {
+    "options": {
+      "grid": false,
+      "watch": true,
+      "hdri-ambient": true,
+      "tone-mapping": true,
+      "light-intensity": 1.5,
+      "anti-aliasing": "fxaa",
+      "ambient-occlusion": true,
+      "camera-azimuth-angle": -35,
+      "camera-elevation-angle": 25,
+      "background-color": "0.14,0.14,0.16",
+      "hdri-file": "apps/robot/assets/public/env/studio.hdr"
+    }
+  }
+]

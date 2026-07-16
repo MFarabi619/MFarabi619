@@ -1,0 +1,30 @@
+serial_number: rover-0000
+version: 0
+system:
+  namespace: ""
+  hosts:
+    - hostname: rpi5-16-2
+      ip: 10.0.0.208
+platform:
+  attachments: []
+sensors:
+  camera:
+    - model: imx296_gs
+      parent: camera_mount_link
+      xyz: [0.0, 0.0, 0.0]
+      rpy: [0.0, 0.31, 0.0]
+      ros_parameters:
+        camera:
+          source: "10.0.0.208:8887"
+          image_topic: "camera/image_raw/compressed"
+  gps:
+    - model: gpsd
+      parent: base_link
+      ros_parameters:
+        gps:
+          host: 10.0.0.208
+mounts:
+  camera_mount:
+    - parent: base_link
+      xyz: [0.2, 0.0, 0.75]
+      rpy: [0.0, 0.0, 0.0]

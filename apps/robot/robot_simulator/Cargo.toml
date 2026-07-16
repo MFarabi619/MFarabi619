@@ -1,0 +1,18 @@
+[package]
+name = "robot_simulator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+robot_description = { path = "../robot_description" }
+robot_control = { path = "../robot_control" }
+robot_diagnostics = { path = "../robot_diagnostics" }
+oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+wgpu = "30"
+bytemuck = { version = "1", features = ["derive"] }
+jpeg-encoder = "0.7"
+
+[lints.clippy]
+all = "deny"

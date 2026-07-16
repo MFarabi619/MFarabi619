@@ -6,28 +6,24 @@ use std::{
 use oxidros::{
     msg::common_interfaces::{
         diagnostic_msgs::msg::{DiagnosticArray, DiagnosticStatus},
-        geometry_msgs::msg::Twist,
+        geometry_msgs::msg::TwistStamped,
     },
     prelude::*,
 };
 use tokio::time::interval;
 
-use crate::{
-    diagnostics::{diagnostic_array, Status},
-    hardware::motor::{mix, shape, Drivetrain, Shaping, Velocity, HALT},
+use robot_control::{
     odometry::Odometry,
-    qos,
-    ruckig_profile::{AxisLimits, RuckigProfile},
+    params::{bool_param, f64_param},
+    ruckig_profile::{
+        axis_limits, RuckigProfile, DEFAULT_ANGULAR, DEFAULT_LINEAR, DEFAULT_UPDATE_RATE,
+    },
 };
+use robot_diagnostics::{diagnostic_array, Status};
+use robot_drivers::motor::{mix, shape, Drivetrain, Shaping, DriveCommand, HALT};
 
-const CONTROL_HZ: f64 = 50.0;
-const ODOMETRY_HZ: f64 = 30.0;
-const DIAGNOSTICS_HZ: f64 = 1.0;
-
-const LINEAR_MAX_ACCELERATION: f64 = 8.0;
-const LINEAR_MAX_JERK: f64 = 60.0;
-const ANGULAR_MAX_ACCELERATION: f64 = 10.0;
-const ANGULAR_MAX_JERK: f64 = 70.0;
+const DEFAULT_ODOMETRY_RATE: f64 = 30.0;
+const DEFAULT_DIAGNOSTICS_RATE: f64 = 1.0;
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -57,10 +53,38 @@ pub async fn run_driver(
     drivetrain: Drivetrain<'_>,
     config: Config,
 ) -> Result<(), BoxError> {
-    let mut cmd_vel = node.create_subscriber::<Twist>("cmd_vel", Some(qos::command()))?;
+    let mut cmd_vel = node.create_subscriber::<TwistStamped>("platform/cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     let diagnostics_pub = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
 
-    let mut odometry = if config.publish_odometry {
+    let (
+        update_rate,
+        odometry_rate,
+        diagnostics_rate,
+        deadman_seconds,
+        shaping,
+        publish_odometry,
+        linear,
+        angular,
+    ) = {
+        let parameters = node.create_parameter_server()?;
+        let store = parameters.params.read();
+        (
+            f64_param(&store, "update_rate", DEFAULT_UPDATE_RATE),
+            f64_param(&store, "odometry_rate", DEFAULT_ODOMETRY_RATE),
+            f64_param(&store, "diagnostics_rate", DEFAULT_DIAGNOSTICS_RATE),
+            f64_param(&store, "cmd_vel_timeout", config.deadman_seconds),
+            Shaping {
+                deadzone: f64_param(&store, "shaping.deadzone", config.shaping.deadzone),
+                min_duty: f64_param(&store, "shaping.min_duty", config.shaping.min_duty),
+                scale: f64_param(&store, "shaping.scale", config.shaping.scale),
+            },
+            bool_param(&store, "publish_odometry", config.publish_odometry),
+            axis_limits(&store, "linear.x", DEFAULT_LINEAR),
+            axis_limits(&store, "angular.z", DEFAULT_ANGULAR),
+        )
+    };
+
+    let mut odometry = if publish_odometry {
         Some(Odometry::new(&node)?)
     } else {
         None
@@ -68,24 +92,14 @@ pub async fn run_driver(
 
     let mut target_linear = 0.0;
     let mut target_angular = 0.0;
-    let control_dt = 1.0 / CONTROL_HZ;
-    let mut profile = RuckigProfile::new(
-        control_dt,
-        AxisLimits {
-            max_acceleration: LINEAR_MAX_ACCELERATION,
-            max_jerk: LINEAR_MAX_JERK,
-        },
-        AxisLimits {
-            max_acceleration: ANGULAR_MAX_ACCELERATION,
-            max_jerk: ANGULAR_MAX_JERK,
-        },
-    );
+    let control_dt = 1.0 / update_rate;
+    let mut profile = RuckigProfile::new(control_dt, linear, angular);
 
     let mut last_command = Instant::now();
-    let mut last_written: Option<Velocity> = None;
+    let mut last_written: Option<DriveCommand> = None;
     let mut control = interval(Duration::from_secs_f64(control_dt));
-    let mut odometry_tick = interval(Duration::from_secs_f64(1.0 / ODOMETRY_HZ));
-    let mut diagnostics_tick = interval(Duration::from_secs_f64(1.0 / DIAGNOSTICS_HZ));
+    let mut odometry_tick = interval(Duration::from_secs_f64(1.0 / odometry_rate));
+    let mut diagnostics_tick = interval(Duration::from_secs_f64(1.0 / diagnostics_rate));
 
     tracing::info!("driving on cmd_vel via rgpiod at {}", config.host);
     let ctrl_c = tokio::signal::ctrl_c();
@@ -94,13 +108,13 @@ pub async fn run_driver(
         tokio::select! {
             _ = &mut ctrl_c => break,
             message = cmd_vel.recv() => {
-                let twist = message?.sample;
-                target_linear = twist.linear.x;
-                target_angular = twist.angular.z;
+                let command = message?.sample;
+                target_linear = command.twist.linear.x;
+                target_angular = command.twist.angular.z;
                 last_command = Instant::now();
             }
             _ = control.tick() => {
-                let output = if command_is_stale(last_command.elapsed().as_secs_f64(), config.deadman_seconds) {
+                let output = if command_is_stale(last_command.elapsed().as_secs_f64(), deadman_seconds) {
                     // Comms lost: hard stop and forget stored motion — a safety halt must not ease out.
                     profile.reset();
                     target_linear = 0.0;
@@ -114,7 +128,7 @@ pub async fn run_driver(
                     if let Some(odometry) = odometry.as_mut() {
                         odometry.set_velocity_command(linear, angular);
                     }
-                    shape(mix(linear, angular), config.shaping)
+                    shape(mix(linear, angular), shaping)
                 };
                 if last_written != Some(output) {
                     drivetrain.drive(output)?;
@@ -131,7 +145,7 @@ pub async fn run_driver(
                 diagnostics_pub.send(&diagnostics(
                     &config.host,
                     age_seconds,
-                    config.deadman_seconds,
+                    deadman_seconds,
                 ))?;
             }
         }

@@ -1,0 +1,22 @@
+row_length: 40
+rows_count: 24
+row_segments:
+  - straight
+  - curved
+row_segment_curved_radius_min: 6.0
+row_segment_curved_radius_max: 12.0
+hole_prob: 0.05
+hole_size_max: 6
+litters: 60
+litter_types:
+  - ale
+  - beer
+  - coke_can
+  - retro_pepsi_can
+weeds: 60
+weed_types:
+  - nettle
+  - unknown_weed
+ghost_objects: true
+location_markers: false
+seed: 111

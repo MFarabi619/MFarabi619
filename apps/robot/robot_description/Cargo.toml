@@ -1,0 +1,11 @@
+[package]
+name = "robot_description"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+glam = "0.33"
+oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
+
+[lints.clippy]
+all = "deny"

@@ -1,0 +1,5 @@
+teleop_twist_keyboard:
+  ros__parameters:
+    speed: 1.0
+    turn: 1.0
+    stamped: false

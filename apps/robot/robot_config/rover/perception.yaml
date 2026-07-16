@@ -1,0 +1,14 @@
+gesture:
+  ros__parameters:
+    forward_speed: 0.1
+    turn_speed: 0.1
+
+line_follower:
+  ros__parameters:
+    forward_speed: 0.4
+    steering_gain: 0.8
+
+row_follower:
+  ros__parameters:
+    forward_speed: 0.4
+    steering_gain: 0.8

@@ -6,10 +6,17 @@ use std::{
     time::Duration,
 };
 
-use description::{placement::wheel_offset_from_motor, MESH_URI_PREFIX, MM_TO_M};
+use robot_description::{
+    frames::{BASE_LINK, ODOM},
+    placement::wheel_offset_from_motor,
+    stamped_twist, MESH_URI_PREFIX, MM_TO_M,
+};
 use foxglove::{
     messages::{FrameTransform, FrameTransforms, Quaternion, Timestamp, Vector3},
-    websocket::{Capability, ChannelView, Client, ClientChannel, ConnectionGraph, ServerListener},
+    websocket::{
+        service::{Service, ServiceSchema},
+        Capability, ChannelView, Client, ClientChannel, ConnectionGraph, ServerListener,
+    },
     ChannelId, RawChannel,
 };
 use oxidros::{
@@ -17,14 +24,16 @@ use oxidros::{
     msg::{
         common_interfaces::{
             diagnostic_msgs::msg::DiagnosticArray,
-            geometry_msgs::msg::{Pose, Twist},
+            geometry_msgs::msg::{Pose, Twist, TwistStamped},
             nav_msgs::msg::Odometry,
             sensor_msgs::msg::{
                 BatteryState, CameraInfo, CompressedImage, Image, JointState, NavSatFix,
             },
             std_msgs::msg::String as StringMsg,
+            std_srvs::srv::{SetBool, SetBool_Request, SetBool_Response},
         },
         interfaces::rcl_interfaces::msg::Log,
+        msg::RosString,
     },
     prelude::*,
 };
@@ -34,10 +43,7 @@ use zenoh::{
 };
 use zenoh_ext::AdvancedSubscriberBuilderExt;
 
-use crate::{
-    frames::{BASE_LINK, ODOM},
-    kinematics::WHEELS,
-};
+use robot_control::kinematics::WHEELS;
 
 kedefine!(pub(crate) topic_keyexpr: "${domain:*}/${topic:**}/${dds_type:*}/${hash:*}");
 
@@ -47,6 +53,7 @@ fn read_mesh_asset(uri: &str) -> Result<Vec<u8>, String> {
         .filter(|name| !name.is_empty() && !name.contains('/') && !name.contains(".."))
         .ok_or_else(|| format!("unknown asset {uri}"))?;
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("robot_description")
         .join("meshes")
         .join(filename);
     fs::read(&path).map_err(|error| format!("read {}: {error}", path.display()))
@@ -135,7 +142,7 @@ enum TeleopEvent {
 
 struct BridgeListener {
     teleop_tx: tokio::sync::mpsc::UnboundedSender<TeleopEvent>,
-    webcam: crate::webcam::WebcamSink,
+    webcam: robot_sensors::WebcamSink,
     last_values: LastValues,
 }
 
@@ -185,13 +192,6 @@ impl ServerListener for BridgeListener {
     }
 }
 
-fn teleop_twist(linear: f64, angular: f64) -> Twist {
-    let mut message = Twist::new().unwrap();
-    message.linear.x = linear;
-    message.angular.z = angular;
-    message
-}
-
 fn decode_twist(encoding: &str, payload: &[u8]) -> Option<Twist> {
     match encoding {
         "cdr" => <Twist as TypeSupport>::from_bytes(payload).ok(),
@@ -235,11 +235,82 @@ fn schema_for(ros_type: &str) -> Option<String> {
         "sensor_msgs/msg/BatteryState" => BatteryState::type_description(),
         "diagnostic_msgs/msg/DiagnosticArray" => DiagnosticArray::type_description(),
         "geometry_msgs/msg/Twist" => Twist::type_description(),
+        "geometry_msgs/msg/TwistStamped" => TwistStamped::type_description(),
         "std_msgs/msg/String" => StringMsg::type_description(),
         "rcl_interfaces/msg/Log" => Log::type_description(),
         _ => return None,
     };
     Some(rewrite_schema_headers(description.to_msg_definition()))
+}
+
+const ENABLE_SERVICES: [&str; 3] = [
+    "/line_follower/enable",
+    "/row_follower/enable",
+    "/gesture/enable",
+];
+
+struct EnableCall {
+    service: String,
+    data: bool,
+    respond: tokio::sync::oneshot::Sender<Result<(bool, String), String>>,
+}
+
+fn parse_enable(payload: &[u8]) -> Result<bool, String> {
+    <SetBool_Request as TypeSupport>::from_bytes(payload)
+        .map(|request| request.data)
+        .map_err(|error| format!("invalid request: {error}"))
+}
+
+fn enable_response(success: bool, message: &str) -> Result<Vec<u8>, String> {
+    let mut response = SetBool_Response::new().ok_or("failed to build response")?;
+    response.success = success;
+    response.message = RosString::new(message).ok_or("invalid response message")?;
+    response.to_bytes().map_err(|error| error.to_string())
+}
+
+fn ros2_schema(ros_type: &str, definition: String) -> foxglove::Schema {
+    foxglove::Schema::new(ros_type, "ros2msg", rewrite_schema_headers(definition).into_bytes())
+}
+
+fn set_bool_schema() -> ServiceSchema {
+    ServiceSchema::new("std_srvs/srv/SetBool")
+        .with_request(
+            "cdr",
+            ros2_schema(
+                "std_srvs/srv/SetBool_Request",
+                SetBool_Request::type_description().to_msg_definition(),
+            ),
+        )
+        .with_response(
+            "cdr",
+            ros2_schema(
+                "std_srvs/srv/SetBool_Response",
+                SetBool_Response::type_description().to_msg_definition(),
+            ),
+        )
+}
+
+fn enable_service(name: &str, enable_tx: tokio::sync::mpsc::UnboundedSender<EnableCall>) -> Service {
+    Service::builder(name, set_bool_schema()).async_handler_fn(
+        move |request| {
+            let enable_tx = enable_tx.clone();
+            async move {
+                let data = parse_enable(request.payload())?;
+                let (respond, response) = tokio::sync::oneshot::channel();
+                enable_tx
+                    .send(EnableCall {
+                        service: request.service_name().to_string(),
+                        data,
+                        respond,
+                    })
+                    .map_err(|_| "enable worker stopped".to_string())?;
+                let (success, message) = response
+                    .await
+                    .map_err(|_| "no response from enable worker".to_string())??;
+                enable_response(success, &message)
+            }
+        },
+    )
 }
 
 pub async fn run_bridge(
@@ -250,12 +321,14 @@ pub async fn run_bridge(
 
     let (teleop_tx, mut teleop_rx) = tokio::sync::mpsc::unbounded_channel::<TeleopEvent>();
     let last_values: LastValues = Arc::new(Mutex::new(HashMap::new()));
-    let webcam = crate::webcam::spawn_webcam_forwarder(&node)?;
+    let webcam = robot_sensors::spawn_webcam_forwarder(&node)?;
+    let (enable_tx, mut enable_rx) = tokio::sync::mpsc::unbounded_channel::<EnableCall>();
     let server = foxglove::WebSocketServer::new()
         .name("bridge")
         .bind(BIND_ADDRESS, port)
         .capabilities([Capability::ClientPublish, Capability::ConnectionGraph])
         .supported_encodings(["json", "cdr"])
+        .services(ENABLE_SERVICES.map(|name| enable_service(name, enable_tx.clone())))
         .listener(Arc::new(BridgeListener {
             teleop_tx,
             webcam,
@@ -266,7 +339,43 @@ pub async fn run_bridge(
         .await?;
     tracing::info!("bridge live: ws://{BIND_ADDRESS}:{port}");
 
-    let cmd_vel_pub = node.create_publisher::<Twist>("cmd_vel", Some(crate::qos::command()))?;
+    let enable_node = node.clone();
+    tokio::spawn(async move {
+        let mut line = enable_node
+            .create_client::<SetBool>("/line_follower/enable", None)
+            .ok();
+        let mut row = enable_node
+            .create_client::<SetBool>("/row_follower/enable", None)
+            .ok();
+        let mut gesture = enable_node
+            .create_client::<SetBool>("/gesture/enable", None)
+            .ok();
+        while let Some(call) = enable_rx.recv().await {
+            let client = match call.service.as_str() {
+                "/line_follower/enable" => line.as_mut(),
+                "/row_follower/enable" => row.as_mut(),
+                "/gesture/enable" => gesture.as_mut(),
+                _ => None,
+            };
+            let result = match client {
+                None => Err(format!("no client for {}", call.service)),
+                Some(client) => {
+                    let mut request = SetBool_Request::new().unwrap();
+                    request.data = call.data;
+                    match tokio::time::timeout(Duration::from_secs(2), client.call(&request)).await {
+                        Ok(Ok(message)) => {
+                            Ok((message.sample.success, message.sample.message.to_string()))
+                        }
+                        Ok(Err(error)) => Err(error.to_string()),
+                        Err(_) => Err("service call timed out".to_string()),
+                    }
+                }
+            };
+            let _ = call.respond.send(result);
+        }
+    });
+
+    let cmd_vel_pub = node.create_publisher::<TwistStamped>("cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     tokio::spawn(async move {
         let mut command: Option<(f64, f64)> = None;
         let mut tick = tokio::time::interval(TELEOP_REPUBLISH_PERIOD);
@@ -278,13 +387,13 @@ pub async fn run_bridge(
                     }
                     Some(TeleopEvent::Stop) => {
                         command = None;
-                        let _ = cmd_vel_pub.send(&teleop_twist(0.0, 0.0));
+                        let _ = cmd_vel_pub.send(&stamped_twist(0.0, 0.0));
                     }
                     None => break,
                 },
                 _ = tick.tick() => {
                     if let Some((linear, angular)) = command {
-                        let _ = cmd_vel_pub.send(&teleop_twist(linear, angular));
+                        let _ = cmd_vel_pub.send(&stamped_twist(linear, angular));
                     }
                 }
             }

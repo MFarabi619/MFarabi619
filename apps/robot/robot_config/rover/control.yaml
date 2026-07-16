@@ -1,0 +1,27 @@
+base_controller:
+  ros__parameters:
+    update_rate: 50.0
+    odometry_rate: 30.0
+    diagnostics_rate: 1.0
+    cmd_vel_timeout: 0.5
+    linear.x.max_acceleration: 8.0
+    linear.x.max_deceleration: 16.0
+    linear.x.max_jerk: 60.0
+    angular.z.max_acceleration: 10.0
+    angular.z.max_deceleration: 20.0
+    angular.z.max_jerk: 70.0
+    shaping.deadzone: 0.05
+    shaping.min_duty: 0.2
+    shaping.scale: 1.0
+    publish_odometry: true
+
+velocity_smoother:
+  ros__parameters:
+    update_rate: 50.0
+    cmd_vel_timeout: 0.5
+    linear.x.max_acceleration: 8.0
+    linear.x.max_deceleration: 16.0
+    linear.x.max_jerk: 60.0
+    angular.z.max_acceleration: 10.0
+    angular.z.max_deceleration: 20.0
+    angular.z.max_jerk: 70.0

@@ -4,10 +4,9 @@ use oxidros::{
     msg::{interfaces::rcl_interfaces::msg::Log, msg::RosString},
     prelude::*,
 };
+use robot_description::time::now_stamp;
 use tracing::Subscriber;
 use tracing_subscriber::Layer;
-
-use crate::now_stamp;
 
 // TODO(rosout): oxidros leaves /rosout publishing as a future feature in its
 // ZenohLayer (oxidros-zenoh/src/logger.rs). Retire this module once oxidros

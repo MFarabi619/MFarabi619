@@ -1,0 +1,15 @@
+[package]
+name = "robot_sensors"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+robot_description = { path = "../robot_description" }
+robot_control = { path = "../robot_control" }
+oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+serde_json = "1"
+
+[lints.clippy]
+all = "deny"

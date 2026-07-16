@@ -44,7 +44,15 @@ ros-lyrical-ros2-controllers = "*"
 
 [feature.ros2.tasks]
 build = { cmd = "colcon build --symlink-install --base-paths apps/robot" }
+bringup = { cmd = "ros2 launch robot_bringup bringup.launch.py", depends-on = [
+    "build",
+] }
+sim = { cmd = "ros2 launch robot_gz simulation.launch.py", depends-on = [
+    "build",
+] }
 turtlesim = "ros2 launch robot_bringup turtlesim.launch.py"
+
+teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file apps/robot/robot_config/teleop.yaml"
 
 [feature.ros2.pypi-dependencies]
 better-launch = { git = "https://github.com/dfki-ric/better_launch", rev = "99aea170405745f342df1fa83a1a92810598c9ec" }

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<library path="robot_hardware_interfaces">
+  <class name="robot_hardware_interfaces/RobotHardware"
+         type="robot_hardware_interfaces::RobotHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      ros2_control SystemInterface for the rover, driving the motors over remote GPIO (rgpiod).
+    </description>
+  </class>
+</library>

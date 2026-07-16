@@ -1,0 +1,17 @@
+twist_mux:
+  ros__parameters:
+    use_stamped: true
+    topics:
+      teleop:
+        topic: cmd_vel_stamped
+        timeout: 0.5
+        priority: 90
+      autonomy:
+        topic: cmd_vel_autonomy
+        timeout: 0.5
+        priority: 10
+    locks:
+      e_stop:
+        topic: e_stop
+        timeout: 0.0
+        priority: 255

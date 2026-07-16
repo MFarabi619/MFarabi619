@@ -1,0 +1,4 @@
+camera:
+  ros__parameters:
+    source: '10.0.0.208:8887'
+    image_topic: 'camera/image_raw/compressed'

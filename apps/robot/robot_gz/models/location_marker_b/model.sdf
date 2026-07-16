@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<sdf version="1.5">
+  <model name="location_marker_b">
+    <static>true</static>
+    <link name="link">
+      <pose>0 0 1 0 0 0</pose>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1 1 2</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://location_marker_b/meshes/location_marker_b.dae</uri>
+            <scale>0.5 0.5 0.5</scale>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

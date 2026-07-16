@@ -1,9 +1,7 @@
 use std::{thread::sleep, time::Duration};
 
-use robot::{
-    config::{GPIO_CHIP, HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT},
-    hardware::{gpio::Connection, i2c::I2c, led::Led, pca9685::Pca9685},
-};
+use robot::config::{GPIO_CHIP, HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT};
+use robot_drivers::{gpio::Connection, i2c::I2c, led::Led, pca9685::Pca9685};
 
 const SERVO_CHANNELS: [u8; 3] = [0, 1, 2];
 const CENTER_DEG: f64 = 90.0;

@@ -1,0 +1,16 @@
+[package]
+name = "robot_perception"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
+robot_description = { path = "../robot_description" }
+foxglove = "0.25.3"
+zune-jpeg = "0.4"
+tract-onnx = "0.23"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+
+[lints.clippy]
+all = "deny"

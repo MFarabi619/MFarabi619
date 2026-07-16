@@ -1,16 +1,14 @@
-use crate::{driver::Config, hardware::motor::Shaping};
+use crate::driver::Config;
+use robot_drivers::motor::Shaping;
 
-pub const HOST: &str = "rpi5-16-2";
-
-pub const RGPIOD_PORT: u16 = 8889;
-pub const GPIO_CHIP: u32 = 0;
+pub use robot_description::wiring::{GPIO_CHIP, HOST, RGPIOD_PORT};
 
 pub const I2C_BUS: u32 = 1;
 pub const PCA9685_ADDRESS: u32 = 0x40;
 
 pub const BRIDGE_PORT: u16 = 8765;
-pub const CAMERA_PORT: u16 = 8888;
-pub const CAMERA: crate::camera::CameraProfile = crate::camera::ORBBEC_GEMINI_335L;
+pub const CAMERA_PORT: u16 = 8887;
+pub const CAMERA: robot_sensors::CameraProfile = robot_sensors::ORBBEC_GEMINI_335L;
 
 pub fn rover_config() -> Config {
     Config {

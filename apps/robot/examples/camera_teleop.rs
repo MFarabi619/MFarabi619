@@ -15,10 +15,8 @@ use ratatui::{
     widgets::Paragraph,
     DefaultTerminal, Frame,
 };
-use robot::{
-    config::{HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT},
-    hardware::{gpio::Connection, i2c::I2c, pca9685::Pca9685},
-};
+use robot::config::{HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT};
+use robot_drivers::{gpio::Connection, i2c::I2c, pca9685::Pca9685};
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 

@@ -1,47 +1,26 @@
 pub mod bridge;
-pub mod camera;
-pub mod clock;
+pub mod camera_mount;
 pub mod config;
-pub mod diagnostics;
 pub mod driver;
-pub mod frames;
-pub mod gps;
-pub mod hardware;
-pub mod kinematics;
-pub mod odometry;
-#[cfg(feature = "perception")]
-pub mod perception;
 #[cfg(feature = "pixi")]
 pub mod pixi;
-pub mod qos;
-#[cfg(feature = "simulator")]
-pub mod renderer;
 pub mod robot_state_publisher;
 pub mod rosout;
-pub mod ruckig_profile;
-#[cfg(feature = "simulator")]
-pub mod simulator;
-pub mod webcam;
 
 use std::sync::Arc;
 
 pub use bridge::run_bridge;
-pub use camera::{camera_intrinsics, run_camera, CameraProfile};
-pub use clock::now_stamp;
+pub use camera_mount::{rover_camera_mount, run_camera_mount};
+pub use robot_sensors::{run_camera, run_gps, CameraProfile};
 pub use config::{BRIDGE_PORT, CAMERA_PORT};
-pub use diagnostics::battery_diagnostic_level;
-pub use driver::{command_is_stale, run_driver, Config};
-pub use gps::{enu_to_geodetic, run_gps};
-pub use odometry::integrate_pose;
+pub use driver::{run_driver, Config};
 use oxidros::prelude::*;
 #[cfg(feature = "perception")]
-pub use perception::{run_gesture_pet, run_green_approach, run_line_follower, LineColor};
-#[cfg(feature = "simulator")]
-pub use renderer::{CameraRenderer, Scene};
+pub use robot_perception::{
+    run_gesture, run_green_approach, run_line_follower, run_row_follower, LineColor,
+};
 pub use robot_state_publisher::spawn_robot_description;
 pub use rosout::{init_logging, init_rosout_logging};
-#[cfg(feature = "simulator")]
-pub use simulator::run_simulator;
 
 pub fn spawn_logged(
     task_name: &'static str,
@@ -78,15 +57,53 @@ pub fn spawn_sensors(
         ),
     );
     let gps_node = context.create_node("gps", None)?;
-    spawn_logged("gps", run_gps(gps_node));
+    spawn_logged("gps", run_gps(gps_node, config::HOST));
     spawn_bridge(context)?;
     Ok(())
 }
 
+#[cfg(feature = "pixi")]
+pub async fn ensure_router() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    const ROUTER_ENDPOINT: &str = "127.0.0.1:7447";
+    if tokio::net::TcpStream::connect(ROUTER_ENDPOINT).await.is_ok() {
+        return Ok(());
+    }
+    tokio::spawn(async {
+        let argv = ["ros2", "run", "rmw_zenoh_cpp", "rmw_zenohd"].map(String::from);
+        match pixi::run(&argv, &[], None).await {
+            Ok(status) => tracing::error!("zenoh router exited: {status}"),
+            Err(error) => tracing::error!("zenoh router failed: {error}"),
+        }
+    });
+    for _ in 0..50 {
+        tokio::time::sleep(std::time::Duration::from_millis(200)).await;
+        if tokio::net::TcpStream::connect(ROUTER_ENDPOINT).await.is_ok() {
+            return Ok(());
+        }
+    }
+    Err("zenoh router did not start within 10s".into())
+}
+
+#[cfg(feature = "perception")]
+pub fn spawn_perception(
+    context: &Arc<Context>,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let line_node = context.create_node("line_follower", None)?;
+    spawn_logged(
+        "line_follower",
+        run_line_follower(line_node, LineColor::White, false),
+    );
+    let row_node = context.create_node("row_follower", None)?;
+    spawn_logged("row_follower", run_row_follower(row_node, false));
+    let gesture_node = context.create_node("gesture", None)?;
+    spawn_logged("gesture", run_gesture(gesture_node, false));
+    Ok(())
+}
+
 pub fn rover_chip(
-) -> Result<&'static hardware::gpio::Chip<'static>, Box<dyn std::error::Error + Send + Sync>> {
-    let connection: &'static hardware::gpio::Connection = Box::leak(Box::new(
-        hardware::gpio::Connection::connect(config::HOST, config::RGPIOD_PORT)?,
+) -> Result<&'static robot_drivers::gpio::Chip<'static>, Box<dyn std::error::Error + Send + Sync>> {
+    let connection: &'static robot_drivers::gpio::Connection = Box::leak(Box::new(
+        robot_drivers::gpio::Connection::connect(config::HOST, config::RGPIOD_PORT)?,
     ));
     Ok(Box::leak(Box::new(
         connection.open_chip(config::GPIO_CHIP)?,
@@ -96,7 +113,7 @@ pub fn rover_chip(
 pub fn spawn_rover_driver(
     context: &Arc<Context>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let drivetrain = hardware::motor::drivetrain(rover_chip()?)?;
+    let drivetrain = robot_drivers::motor::drivetrain(rover_chip()?)?;
     spawn_sensors(context)?;
     spawn_robot_description(context)?;
     let driver_node = context.create_node("base_controller", None)?;
