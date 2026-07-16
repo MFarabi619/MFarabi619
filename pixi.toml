@@ -31,4 +31,5 @@ env = { RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_
 scripts = ["install/setup.sh"]
 
 [feature.ros2.dependencies]
+colcon-common-extensions = "*"
 ros-lyrical-desktop-full = "*"
