@@ -1,11 +1,16 @@
 {
   programs.lazysql = {
     enable = true;
+
     settings = {
       application = {
+        TreeWidth = 20;
         DefaultPageSize = 300;
         DisableSidebar = false;
         SidebarOverlay = false;
+        JSONViewerWordWrap = false;
+        EnterOpensJSONViewer = true;
+        MaxQueryHistoryPerConnection = 100;
       };
 
       database = [
