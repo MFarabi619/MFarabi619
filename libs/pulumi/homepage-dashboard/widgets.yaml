@@ -1,0 +1,40 @@
+- logo:
+      icon: /icons/symbol.svg
+
+- greeting:
+      text_size: xl
+      text: 🚜 Tandem Robotics 🚜
+
+- datetime:
+      text_size: l
+      format:
+          hour12: true
+          dateStyle: long
+          timeStyle: short
+
+- resources:
+      cpu: true
+      disk: /
+      memory: true
+      uptime: true
+      tempmin: 0
+      tempmax: 100
+      cputemp: true
+      refresh: 1000
+      network: true
+      units: metric
+      diskUnits: bytes
+
+- openmeteo:
+      cache: 5
+      units: metric
+      label: Ottawa
+      latitude: 45.424721
+      longitude: -75.695000
+      timezone: America/Toronto
+
+- search:
+      focus: false
+      target: _blank
+      provider: duckduckgo
+      showSearchSuggestions: true
