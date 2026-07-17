@@ -9,9 +9,20 @@ use robot_drivers::{
     ws2812::{LedStrip, GREEN},
 };
 
-const HOST: &str = "rpi5-16";
+const RGPIOD_HOST: &str = "rpi5-16";
+const RGPIOD_PORT: u16 = 8889;
+const CAMERA_PORT: &str = "8888";
+const GPIO_CHIP: u32 = 0;
 const PWM_FREQUENCY_HZ: f32 = 1000.0;
 const SERVO_FREQUENCY_HZ: f32 = 50.0;
+
+const LEFT_FORWARD_PIN: u32 = 24;
+const LEFT_BACKWARD_PIN: u32 = 23;
+const RIGHT_FORWARD_PIN: u32 = 5;
+const RIGHT_BACKWARD_PIN: u32 = 6;
+const ARM_LIFT_PIN: u32 = 12;
+const ARM_GRIPPER_PIN: u32 = 13;
+
 const ARM_LIFT_RAISED_DEG: f64 = 150.0;
 const ARM_GRIPPER_HOME_DEG: f64 = 140.0;
 
@@ -20,15 +31,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     init_ros_logging("freenove_fnk0077");
     let context = Context::new()?;
 
-    let connection = Connection::connect(HOST, 8889)?;
-    let chip = connection.open_chip(0)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
+    let chip = connection.open_chip(GPIO_CHIP)?;
     let drivetrain = Drivetrain::new(
-        Motor::dual_pwm(&chip, 24, 23, PWM_FREQUENCY_HZ)?,
-        Motor::dual_pwm(&chip, 5, 6, PWM_FREQUENCY_HZ)?,
+        Motor::dual_pwm(&chip, LEFT_FORWARD_PIN, LEFT_BACKWARD_PIN, PWM_FREQUENCY_HZ)?,
+        Motor::dual_pwm(&chip, RIGHT_FORWARD_PIN, RIGHT_BACKWARD_PIN, PWM_FREQUENCY_HZ)?,
     );
 
-    Servo::new(&chip, 12, SERVO_FREQUENCY_HZ)?.angle(ARM_LIFT_RAISED_DEG)?;
-    Servo::new(&chip, 13, SERVO_FREQUENCY_HZ)?.angle(ARM_GRIPPER_HOME_DEG)?;
+    Servo::new(&chip, ARM_LIFT_PIN, SERVO_FREQUENCY_HZ)?.angle(ARM_LIFT_RAISED_DEG)?;
+    Servo::new(&chip, ARM_GRIPPER_PIN, SERVO_FREQUENCY_HZ)?.angle(ARM_GRIPPER_HOME_DEG)?;
 
     let mut leds = LedStrip::open(&connection)?;
     leds.color_wipe(GREEN, Duration::from_millis(120))?;
@@ -36,7 +47,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let camera_node = context.create_node("camera", None)?;
     robot::spawn_logged(
         "camera",
-        robot::run_camera(camera_node, format!("{HOST}:8888"), robot::config::CAMERA),
+        robot::run_camera(camera_node, format!("{RGPIOD_HOST}:{CAMERA_PORT}"), robot::config::CAMERA),
     );
 
     robot::spawn_bridge(&context)?;
@@ -47,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         driver_node,
         drivetrain,
         Config {
-            host: HOST.to_string(),
+            host: RGPIOD_HOST.to_string(),
             deadman_seconds: 0.5,
             shaping: Shaping {
                 deadzone: 0.05,

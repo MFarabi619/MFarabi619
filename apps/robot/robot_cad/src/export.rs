@@ -107,7 +107,7 @@ pub fn report_bom(summaries: &[LinkSummary]) {
     for summary in ordered {
         total_mass += summary.mass;
         table.add_row(vec![
-            Cell::new(summary.id.urdf_name()).fg(columns[0].1),
+            Cell::new(summary.id.link_name()).fg(columns[0].1),
             number(summary.parts.to_string(), columns[1].1),
             Cell::new(summary.material.map_or("?", Material::label)).fg(columns[2].1),
             number(format!("{:.3}", summary.mass), columns[3].1),

@@ -223,7 +223,7 @@
   <ros2_control name="RobotHardware" type="system">
     <hardware>
       <plugin>robot_hardware_interfaces/RobotHardware</plugin>
-      <param name="rgpiod_host">10.0.0.208</param>
+      <param name="rgpiod_host">rpi5-16-2</param>
       <param name="rgpiod_port">8889</param>
       <param name="gpio_chip">0</param>
       <param name="pwm_frequency">10000</param>

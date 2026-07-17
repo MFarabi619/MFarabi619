@@ -117,8 +117,8 @@ fn wheel_transforms(now: &Timestamp, joint_states: &JointState) -> Vec<FrameTran
             let offset = wheel_offset_from_motor(wheel.corner.side()) * MM_TO_M;
             Some(transform(
                 now,
-                wheel.corner.motor_link().urdf_name(),
-                wheel.corner.wheel_link().urdf_name(),
+                wheel.corner.motor_link().link_name(),
+                wheel.corner.wheel_link().link_name(),
                 (offset.x, offset.y, offset.z),
                 (0.0, sin, 0.0, cos),
             ))

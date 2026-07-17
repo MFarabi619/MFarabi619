@@ -3,7 +3,7 @@ use std::{error::Error, thread::sleep, time::Duration};
 use comfy_table::{
     modifiers, presets::UTF8_FULL, Attribute, Cell, Color, ContentArrangement, Table,
 };
-use robot::config::{GPIO_CHIP, HOST, RGPIOD_PORT};
+use robot::config::{GPIO_CHIP, RGPIOD_HOST, RGPIOD_PORT};
 use robot_drivers::{
     gpio::Connection,
     motor::{mix, Drivetrain, Motor, HALT},
@@ -53,7 +53,7 @@ fn config_table() -> Table {
 }
 
 fn movement_sequence() -> Result<(), Box<dyn Error>> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
     let drivetrain = Drivetrain::new(
         Motor::pwm_dir(
@@ -89,7 +89,7 @@ fn movement_sequence() -> Result<(), Box<dyn Error>> {
 }
 
 fn dir_combination_sweep() -> Result<(), Box<dyn Error>> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
     for pin in [LEFT_PWM_PIN, LEFT_DIR_PIN, RIGHT_PWM_PIN, RIGHT_DIR_PIN] {
         chip.claim_output(pin, false)?;
@@ -116,7 +116,7 @@ fn dir_combination_sweep() -> Result<(), Box<dyn Error>> {
 }
 
 fn per_side_direction_sweep() -> Result<(), Box<dyn Error>> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
     for pin in [LEFT_PWM_PIN, LEFT_DIR_PIN, RIGHT_PWM_PIN, RIGHT_DIR_PIN] {
         chip.claim_output(pin, false)?;
@@ -143,7 +143,7 @@ fn per_side_direction_sweep() -> Result<(), Box<dyn Error>> {
 fn main() -> Result<(), Box<dyn Error>> {
     println!("motor drive check");
     println!(
-        "host {HOST}:{RGPIOD_PORT} · PWM {:.0} kHz · diagnostic duty {DIAGNOSTIC_DUTY:.0}% · drive speed {DRIVE_MAGNITUDE}",
+        "host {RGPIOD_HOST}:{RGPIOD_PORT} · PWM {:.0} kHz · diagnostic duty {DIAGNOSTIC_DUTY:.0}% · drive speed {DRIVE_MAGNITUDE}",
         PWM_FREQUENCY_HZ / 1000.0
     );
     println!("{}", config_table());

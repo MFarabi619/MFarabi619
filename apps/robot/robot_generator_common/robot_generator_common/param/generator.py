@@ -8,7 +8,7 @@ from robot_generator_common.param.writer import ParamWriter
 
 
 DEFAULT_OUTPUT_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(__file__), '..', '..', '..',
+    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..',
     'robot_bringup', 'config', 'generated'))
 
 
@@ -17,8 +17,8 @@ class ParamGenerator(BaseGenerator):
                  setup_path: str = None,
                  output_path: str = DEFAULT_OUTPUT_PATH) -> None:
         super().__init__(setup_path)
-        self.params_path = output_path
-        os.makedirs(self.params_path, exist_ok=True)
+        self.output_path = output_path
+        os.makedirs(self.output_path, exist_ok=True)
 
     def generate(self) -> None:
         self.generate_sensors()
@@ -30,7 +30,7 @@ class ParamGenerator(BaseGenerator):
                 param_file = ParamFile(
                     name=node,
                     namespace=self.namespace,
-                    path=self.params_path,
+                    path=self.output_path,
                     parameters={node: ros_parameters[node]})
                 param_writer = ParamWriter(param_file)
                 param_writer.write_file()

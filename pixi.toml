@@ -16,6 +16,7 @@ pkg-config = "*"
 # ROS specific tools
 rosdep = "*"
 colcon-common-extensions = "*"
+transforms3d = "*"
 
 [target.linux.dependencies]
 libgl-devel = "*"
@@ -37,6 +38,7 @@ ros-lyrical-desktop-full = "*"
 ros-lyrical-ros2-control = "*"
 ros-lyrical-twist-mux = "*"
 ros-lyrical-twist-stamper = "*"
+ros-lyrical-nmea-navsat-driver = "*"
 ros-lyrical-foxglove-bridge = "*"
 ros-lyrical-ros-gz-bridge = "*"
 ros-lyrical-gz-ros2-control = "*"
@@ -44,7 +46,10 @@ ros-lyrical-ros2-controllers = "*"
 
 [feature.ros2.tasks]
 build = { cmd = "colcon build --symlink-install --base-paths apps/robot" }
-bringup = { cmd = "ros2 launch robot_bringup bringup.launch.py", depends-on = [
+generate = { cmd = "ros2 run robot_generator_common generate_param", depends-on = [
+    "build",
+] }
+launch = { cmd = "ros2 launch robot_bringup bringup.launch.py", depends-on = [
     "build",
 ] }
 sim = { cmd = "ros2 launch robot_gz simulation.launch.py", depends-on = [

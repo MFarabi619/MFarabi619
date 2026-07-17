@@ -178,10 +178,10 @@ impl CameraRenderer {
         })
     }
 
-    pub fn render(&self, x: f64, y: f64, theta: f64, time: f64) -> Vec<u8> {
+    pub fn render(&self, x: f64, y: f64, heading: f64, time: f64) -> Vec<u8> {
         let uniform = CameraUniform {
             position: [x as f32, y as f32],
-            heading: theta as f32,
+            heading: heading as f32,
             camera_mount_height_meters: self.camera_mount_height_meters,
             tan_half_fov: self.tan_half_fov,
             aspect: self.aspect,

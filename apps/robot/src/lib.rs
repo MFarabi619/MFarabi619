@@ -20,7 +20,7 @@ pub use robot_perception::{
     run_gesture, run_green_approach, run_line_follower, run_row_follower, LineColor,
 };
 pub use robot_state_publisher::spawn_robot_description;
-pub use rosout::{init_logging, init_rosout_logging};
+pub use rosout::{init_logging_with_console, init_rosout_only};
 
 pub fn spawn_logged(
     task_name: &'static str,
@@ -52,12 +52,12 @@ pub fn spawn_sensors(
         "camera",
         run_camera(
             camera_node,
-            format!("{}:{CAMERA_PORT}", config::HOST),
+            format!("{}:{CAMERA_PORT}", config::RGPIOD_HOST),
             config::CAMERA,
         ),
     );
     let gps_node = context.create_node("gps", None)?;
-    spawn_logged("gps", run_gps(gps_node, config::HOST));
+    spawn_logged("gps", run_gps(gps_node, config::RGPIOD_HOST));
     spawn_bridge(context)?;
     Ok(())
 }
@@ -103,7 +103,7 @@ pub fn spawn_perception(
 pub fn rover_chip(
 ) -> Result<&'static robot_drivers::gpio::Chip<'static>, Box<dyn std::error::Error + Send + Sync>> {
     let connection: &'static robot_drivers::gpio::Connection = Box::leak(Box::new(
-        robot_drivers::gpio::Connection::connect(config::HOST, config::RGPIOD_PORT)?,
+        robot_drivers::gpio::Connection::connect(config::RGPIOD_HOST, config::RGPIOD_PORT)?,
     ));
     Ok(Box::leak(Box::new(
         connection.open_chip(config::GPIO_CHIP)?,

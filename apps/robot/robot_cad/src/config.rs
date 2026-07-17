@@ -3,7 +3,7 @@ use std::{error::Error, fs, path::Path};
 use serde::Deserialize;
 
 #[derive(Debug, Default, Deserialize)]
-pub struct RobotYaml {
+pub struct RobotConfig {
     #[serde(default)]
     pub system: System,
     #[serde(default)]
@@ -51,6 +51,6 @@ pub struct Mount {
     pub rpy: [f64; 3],
 }
 
-pub fn load(path: &Path) -> Result<RobotYaml, Box<dyn Error>> {
+pub fn load(path: &Path) -> Result<RobotConfig, Box<dyn Error>> {
     Ok(serde_yaml::from_str(&fs::read_to_string(path)?)?)
 }

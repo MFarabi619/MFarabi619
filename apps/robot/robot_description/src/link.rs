@@ -19,10 +19,11 @@ pub enum LinkId {
     WheelRearRight,
     CameraLink,
     CameraOptical,
+    GpsLink,
 }
 
 impl LinkId {
-    pub const fn urdf_name(self) -> &'static str {
+    pub const fn link_name(self) -> &'static str {
         match self {
             LinkId::BaseLink => "base_link",
             LinkId::BaseFootprint => "base_footprint",
@@ -41,6 +42,7 @@ impl LinkId {
             LinkId::WheelRearRight => "rear_right_wheel_link",
             LinkId::CameraLink => "camera_link",
             LinkId::CameraOptical => "camera_optical_frame",
+            LinkId::GpsLink => "gps_link",
         }
     }
 }

@@ -7,7 +7,7 @@ from robot_generator_common.common import BaseGenerator
 
 
 DEFAULT_OUTPUT_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(__file__), '..', '..', '..',
+    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..',
     'robot_bringup', 'launch', 'generated'))
 
 
@@ -16,8 +16,8 @@ class LaunchGenerator(BaseGenerator):
                  setup_path: str = None,
                  output_path: str = DEFAULT_OUTPUT_PATH) -> None:
         super().__init__(setup_path)
-        self.launch_path = output_path
-        os.makedirs(self.launch_path, exist_ok=True)
+        self.output_path = output_path
+        os.makedirs(self.output_path, exist_ok=True)
 
     def generate(self) -> None:
         raise NotImplementedError()

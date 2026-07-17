@@ -15,7 +15,7 @@ use ratatui::{
     widgets::Paragraph,
     DefaultTerminal, Frame,
 };
-use robot::config::{HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT};
+use robot::config::{RGPIOD_HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT};
 use robot_drivers::{gpio::Connection, i2c::I2c, pca9685::Pca9685};
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
@@ -147,7 +147,7 @@ fn disable_hold_mode(hold_mode: bool) {
 
 #[tokio::main]
 async fn main() -> Result<(), BoxError> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let i2c = I2c::open(&connection, I2C_BUS, PCA9685_ADDRESS)?;
     let pca9685 = Pca9685::new(i2c)?;
 

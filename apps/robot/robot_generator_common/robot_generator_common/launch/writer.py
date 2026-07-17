@@ -6,7 +6,7 @@ from robot_generator_common.common import LaunchFile, Package
 
 
 class LaunchWriter():
-    tab = '    '
+    INDENT_UNIT = '    '
 
     def __init__(self, launch_file: LaunchFile):
         self.launch_file = launch_file
@@ -19,8 +19,8 @@ class LaunchWriter():
         os.makedirs(os.path.dirname(self.launch_file.get_full_path()), exist_ok=True)
         self.file = open(self.launch_file.get_full_path(), 'w+')
 
-    def write(self, string, indent_level=1):
-        self.file.write('{0}{1}\n'.format(self.tab * indent_level, string))
+    def write(self, line, indent_level=1):
+        self.file.write('{0}{1}\n'.format(self.INDENT_UNIT * indent_level, line))
 
     def write_comment(self, comment, indent_level=1):
         self.write('# {0}'.format(comment), indent_level)
@@ -40,21 +40,21 @@ class LaunchWriter():
     def write_variable(self, variable: LaunchFile.Variable, indent_level=1):
         self.write(variable.name, indent_level)
 
-    def write_obj(self, obj: object, indent_level=1):
-        if isinstance(obj, str):
-            self.write_string(obj, indent_level)
-        elif isinstance(obj, bool):
-            self.write_boolean(obj, indent_level)
-        elif isinstance(obj, int):
-            self.write_integer(obj, indent_level)
-        elif isinstance(obj, LaunchFile.Variable):
-            self.write_variable(obj, indent_level)
-        elif isinstance(obj, dict):
-            self.write_dictionary(obj, indent_level)
-        elif isinstance(obj, list):
-            self.write_list(obj, indent_level)
-        elif isinstance(obj, tuple):
-            self.write_tuple(obj, indent_level)
+    def write_value(self, value: object, indent_level=1):
+        if isinstance(value, str):
+            self.write_string(value, indent_level)
+        elif isinstance(value, bool):
+            self.write_boolean(value, indent_level)
+        elif isinstance(value, int):
+            self.write_integer(value, indent_level)
+        elif isinstance(value, LaunchFile.Variable):
+            self.write_variable(value, indent_level)
+        elif isinstance(value, dict):
+            self.write_dictionary(value, indent_level)
+        elif isinstance(value, list):
+            self.write_list(value, indent_level)
+        elif isinstance(value, tuple):
+            self.write_tuple(value, indent_level)
 
     def write_key_value_pair(self, key: str, value, indent_level=1):
         if isinstance(value, str):
@@ -64,32 +64,28 @@ class LaunchWriter():
 
     def write_dictionary(self, dictionary: dict, indent_level=1):
         self.write('{', indent_level)
-        for k in dictionary.keys():
-            # Write Key-Value pair
-            self.write_key_value_pair(k, dictionary[k], indent_level + 1)
+        for entry_key in dictionary.keys():
+            self.write_key_value_pair(entry_key, dictionary[entry_key], indent_level + 1)
             self.write(',', indent_level + 1)
         self.write('}', indent_level)
 
-    def write_list(self, _list: list, indent_level=1):
+    def write_list(self, values: list, indent_level=1):
         self.write('[', indent_level)
-        for i in _list:
-            self.write_obj(i, indent_level + 1)
+        for value in values:
+            self.write_value(value, indent_level + 1)
             self.write(',', indent_level + 1)
         self.write(']', indent_level)
 
-    def write_tuple(self, _tuple: tuple, indent_level=1):
+    def write_tuple(self, pair: tuple, indent_level=1):
         self.write('(', indent_level)
-        self.write_obj(_tuple[0], indent_level + 1)
+        self.write_value(pair[0], indent_level + 1)
         self.write(',', indent_level + 1)
-        self.write_obj(_tuple[1], indent_level + 1)
+        self.write_value(pair[1], indent_level + 1)
         self.write(')', indent_level)
 
     def find_package(self, package: Package):
         if package not in self.included_packages:
             self.included_packages.append(package)
-
-    def path_join_substitution(package, folder, file):
-        return "PathJoinSubstitution([{0}, '{1}', '{2}'])".format(package, folder, file)
 
     def add_launch_arg(self, launch_arg: LaunchFile.LaunchArg):
         if launch_arg not in self.declared_launch_args:
@@ -119,7 +115,7 @@ class LaunchWriter():
         elif isinstance(component, LaunchFile.Process):
             self.add_process(component)
 
-    def function_name(self):
+    def get_function_name(self):
         base = os.path.basename(self.launch_file.get_full_path())
         return base.replace('.launch.py', '').replace('.', '_')
 
@@ -132,9 +128,9 @@ class LaunchWriter():
             params = ', '.join(
                 "{0}: str = '{1}'".format(arg.name, arg.default_value)
                 for arg in self.declared_launch_args)
-            self.write('def {0}({1}):'.format(self.function_name(), params), 0)
+            self.write('def {0}({1}):'.format(self.get_function_name(), params), 0)
         else:
-            self.write('def {0}():'.format(self.function_name()), 0)
+            self.write('def {0}():'.format(self.get_function_name()), 0)
         self.write('bl = BetterLaunch()')
         self.write_newline()
 
@@ -160,12 +156,12 @@ class LaunchWriter():
                     self.write("namespace='{0}',".format(node.namespace), indent_level=2)
                 if len(node.arguments) > 0:
                     self.write('cmd_args=', indent_level=2)
-                    self.write_obj(node.arguments, indent_level=3)
+                    self.write_value(node.arguments, indent_level=3)
                     self.write(',', indent_level=2)
                 if len(node.remappings) > 0:
                     remaps = {source: target for source, target in node.remappings}
                     self.write('remaps=', indent_level=2)
-                    self.write_obj(remaps, indent_level=3)
+                    self.write_value(remaps, indent_level=3)
                     self.write(',', indent_level=2)
                 merged = {}
                 for entry in node.parameters:
@@ -176,7 +172,7 @@ class LaunchWriter():
                     self.write('use_sim_time={0},'.format(use_sim_time), indent_level=2)
                 if len(merged) > 0:
                     self.write('params=', indent_level=2)
-                    self.write_obj(merged, indent_level=3)
+                    self.write_value(merged, indent_level=3)
                     self.write(',', indent_level=2)
                 self.write(')')
                 self.write_newline()
@@ -188,7 +184,7 @@ class LaunchWriter():
                     self.write("bl.process('{0}', name='{1}')".format(process.cmd, name))
                 else:
                     self.write('bl.process(')
-                    self.write_obj(process.cmd, indent_level=2)
+                    self.write_value(process.cmd, indent_level=2)
                     self.write(", name='{0}')".format(name), indent_level=2)
                 self.write_newline()
 

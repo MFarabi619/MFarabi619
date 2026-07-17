@@ -139,3 +139,49 @@ sudo ss -ltnp | grep 8888
 sudo systemctl disable --now rpicam
 sudo systemctl enable --now ustreamer
 #+END_SRC
+
+** GPS
+
+#+BEGIN_SRC sh /boot/firmware/config.txt
+dtparam=uart0=on
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo raspi-config nonint do_serial_cons 1
+sudo apt install -y gpsd gpsd-clients
+#+END_SRC
+
+#+BEGIN_SRC sh /etc/default/gpsd
+DEVICES="/dev/ttyAMA0"
+GPSD_OPTIONS="-G -n -s 9600"
+USBAUTO="true"
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo systemctl enable --now gpsd.socket
+cgps
+#+END_SRC
+
+#+BEGIN_SRC conf /etc/systemd/system/gps-nmea.socket
+[Socket]
+ListenStream=0.0.0.0:9001
+Accept=yes
+
+[Install]
+WantedBy=sockets.target
+#+END_SRC
+
+#+BEGIN_SRC conf /etc/systemd/system/gps-nmea@.service
+[Unit]
+Requires=gpsd.socket
+After=gpsd.socket
+
+[Service]
+ExecStart=/usr/bin/gpspipe -r
+StandardInput=socket
+StandardOutput=socket
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo systemctl enable --now gps-nmea.socket
+#+END_SRC

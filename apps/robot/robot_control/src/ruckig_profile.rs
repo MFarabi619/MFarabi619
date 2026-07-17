@@ -46,7 +46,7 @@ pub struct RuckigProfile {
 }
 
 impl RuckigProfile {
-    pub fn new(delta_time: f64, linear: AxisLimits, angular: AxisLimits) -> Self {
+    pub fn new(delta_seconds: f64, linear: AxisLimits, angular: AxisLimits) -> Self {
         let mut input = InputParameter::<2>::new(None);
         input.control_interface = ControlInterface::Velocity;
         for axis in [LINEAR, ANGULAR] {
@@ -60,7 +60,7 @@ impl RuckigProfile {
         input.min_acceleration =
             Some(daov_stack![-linear.max_deceleration, -angular.max_deceleration]);
         Self {
-            generator: Ruckig::new(None, delta_time),
+            generator: Ruckig::new(None, delta_seconds),
             input,
             output: OutputParameter::<2>::new(None),
         }

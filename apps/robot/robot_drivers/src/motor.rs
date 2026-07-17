@@ -25,21 +25,21 @@ pub struct Shaping {
     pub scale: f64,
 }
 
-pub fn shape(velocity: DriveCommand, shaping: Shaping) -> DriveCommand {
+pub fn shape(command: DriveCommand, shaping: Shaping) -> DriveCommand {
     DriveCommand {
-        left: shape_side(velocity.left, shaping),
-        right: shape_side(velocity.right, shaping),
+        left: shape_side(command.left, shaping),
+        right: shape_side(command.right, shaping),
     }
 }
 
-fn shape_side(side_velocity: f64, shaping: Shaping) -> f64 {
-    if side_velocity.abs() < shaping.deadzone {
+fn shape_side(side_command: f64, shaping: Shaping) -> f64 {
+    if side_command.abs() < shaping.deadzone {
         0.0
     } else {
         let travel =
-            ((side_velocity.abs() - shaping.deadzone) / (1.0 - shaping.deadzone)).clamp(0.0, 1.0);
+            ((side_command.abs() - shaping.deadzone) / (1.0 - shaping.deadzone)).clamp(0.0, 1.0);
         (shaping.min_duty + travel * shaping.scale * (1.0 - shaping.min_duty))
-            .copysign(side_velocity)
+            .copysign(side_command)
     }
 }
 
@@ -111,15 +111,15 @@ impl<'a> Motor<'a> {
         Ok(motor)
     }
 
-    pub fn drive(&self, speed: f64) -> Result<(), Error> {
-        let speed = clamp_unit(speed);
-        let duty = (speed.abs() * FULL_DUTY_PERCENT) as f32;
+    pub fn drive(&self, command: f64) -> Result<(), Error> {
+        let command = clamp_unit(command);
+        let duty = (command.abs() * FULL_DUTY_PERCENT) as f32;
         match self.wiring {
             Wiring::DualPwm {
                 forward_pin,
                 backward_pin,
             } => {
-                if speed >= 0.0 {
+                if command >= 0.0 {
                     self.chip.pwm(backward_pin, self.frequency_hz, 0.0)?;
                     self.chip.pwm(forward_pin, self.frequency_hz, duty)
                 } else {
@@ -132,7 +132,7 @@ impl<'a> Motor<'a> {
                 pwm_pin,
                 forward_level,
             } => {
-                let direction_level = if speed >= 0.0 {
+                let direction_level = if command >= 0.0 {
                     forward_level
                 } else {
                     !forward_level
@@ -154,9 +154,9 @@ impl<'a> Drivetrain<'a> {
         Self { left, right }
     }
 
-    pub fn drive(&self, velocity: DriveCommand) -> Result<(), Error> {
-        self.left.drive(velocity.left)?;
-        self.right.drive(velocity.right)
+    pub fn drive(&self, command: DriveCommand) -> Result<(), Error> {
+        self.left.drive(command.left)?;
+        self.right.drive(command.right)
     }
 }
 

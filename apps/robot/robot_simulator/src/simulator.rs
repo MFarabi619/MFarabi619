@@ -52,10 +52,10 @@ const BATTERY_MIN_VOLTAGE: f64 = 11.5;
 const BATTERY_VOLTAGE_SPAN: f64 = 1.2;
 
 #[derive(Default)]
-struct SimState {
+struct SimulatorState {
     x: f64,
     y: f64,
-    theta: f64,
+    heading: f64,
     linear: f64,
     angular: f64,
     left_wheel_angle: f64,
@@ -63,9 +63,9 @@ struct SimState {
     battery_percent: f64,
 }
 
-impl SimState {
+impl SimulatorState {
     fn new() -> Self {
-        SimState {
+        SimulatorState {
             battery_percent: 100.0,
             ..Default::default()
         }
@@ -81,15 +81,15 @@ impl SimState {
         self.angular = 0.0;
     }
 
-    fn integrate(&mut self, dt: f64) {
-        (self.x, self.y, self.theta) =
-            integrate_pose(self.x, self.y, self.theta, self.linear, self.angular, dt);
-        let (left_speed, right_speed) = wheel_angular_velocities(self.linear, self.angular);
-        self.left_wheel_angle += left_speed * dt;
-        self.right_wheel_angle += right_speed * dt;
+    fn integrate(&mut self, delta_seconds: f64) {
+        (self.x, self.y, self.heading) =
+            integrate_pose(self.x, self.y, self.heading, self.linear, self.angular, delta_seconds);
+        let (left_velocity, right_velocity) = wheel_angular_velocities(self.linear, self.angular);
+        self.left_wheel_angle += left_velocity * delta_seconds;
+        self.right_wheel_angle += right_velocity * delta_seconds;
     }
 
-    fn speed(&self) -> f64 {
+    fn motion_magnitude(&self) -> f64 {
         self.linear.abs() + self.angular.abs()
     }
 
@@ -120,8 +120,8 @@ impl SimState {
         odom.child_frame_id = RosString::new(BASE_LINK).unwrap();
         odom.pose.pose.position.x = self.x;
         odom.pose.pose.position.y = self.y;
-        odom.pose.pose.orientation.z = (self.theta / 2.0).sin();
-        odom.pose.pose.orientation.w = (self.theta / 2.0).cos();
+        odom.pose.pose.orientation.z = (self.heading / 2.0).sin();
+        odom.pose.pose.orientation.w = (self.heading / 2.0).cos();
         odom.twist.twist.linear.x = self.linear;
         odom.twist.twist.angular.z = self.angular;
         odom
@@ -129,7 +129,7 @@ impl SimState {
 
     fn step_battery(&mut self) -> BatteryState {
         self.battery_percent = (self.battery_percent
-            - (BATTERY_IDLE_DRAIN + BATTERY_MOTION_DRAIN * self.speed()))
+            - (BATTERY_IDLE_DRAIN + BATTERY_MOTION_DRAIN * self.motion_magnitude()))
         .max(0.0);
         let (sec, nanosec) = now_stamp();
         let mut battery = BatteryState::new().unwrap();
@@ -195,7 +195,7 @@ pub async fn run_simulator(
         .create_publisher::<CameraInfo>("camera/image_raw/camera_info", Some(Profile::sensor_data()))?;
     let gps_pub = node.create_publisher::<NavSatFix>("gps/fix", Some(Profile::sensor_data()))?;
     let battery_pub = node.create_publisher::<BatteryState>("battery", None)?;
-    let diag_pub = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
+    let diagnostics_pub = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
     let odom_pub = node.create_publisher::<Odometry>("odom", None)?;
     let joint_state_pub = node.create_publisher::<JointState>("joint_states", None)?;
 
@@ -263,8 +263,8 @@ pub async fn run_simulator(
         let start = Instant::now();
         loop {
             camera_tick.tick().await;
-            let (x, y, theta) = *pose_rx.borrow();
-            let frame = camera_renderer.render(x, y, theta, start.elapsed().as_secs_f64());
+            let (x, y, heading) = *pose_rx.borrow();
+            let frame = camera_renderer.render(x, y, heading, start.elapsed().as_secs_f64());
             let mut jpeg = Vec::new();
             jpeg_encoder::Encoder::new(&mut jpeg, JPEG_QUALITY)
                 .encode(
@@ -280,10 +280,10 @@ pub async fn run_simulator(
         }
     });
 
-    let mut state = SimState::new();
+    let mut state = SimulatorState::new();
     let mut last_command = Instant::now();
-    let dt = 1.0 / PHYSICS_HZ;
-    let mut physics_tick = interval(Duration::from_secs_f64(dt));
+    let delta_seconds = 1.0 / PHYSICS_HZ;
+    let mut physics_tick = interval(Duration::from_secs_f64(delta_seconds));
     let mut gps_tick = interval(Duration::from_secs_f64(1.0 / GPS_HZ));
     let mut battery_tick = interval(Duration::from_secs_f64(1.0 / BATTERY_HZ));
     let mut odom_tick = interval(Duration::from_secs_f64(1.0 / ODOMETRY_HZ));
@@ -316,8 +316,8 @@ pub async fn run_simulator(
                 if last_command.elapsed().as_secs_f64() > deadman_seconds {
                     state.stop();
                 }
-                state.integrate(dt);
-                let _ = pose_tx.send((state.x, state.y, state.theta));
+                state.integrate(delta_seconds);
+                let _ = pose_tx.send((state.x, state.y, state.heading));
             }
             _ = gps_tick.tick() => gps_pub.send(&state.gps(latitude_origin, longitude_origin))?,
             _ = odom_tick.tick() => {
@@ -326,7 +326,7 @@ pub async fn run_simulator(
             }
             _ = battery_tick.tick() => {
                 battery_pub.send(&state.step_battery())?;
-                diag_pub.send(&state.diagnostics())?;
+                diagnostics_pub.send(&state.diagnostics())?;
             }
         }
     }

@@ -12,6 +12,10 @@ twist_mux:
         priority: 10
     locks:
       e_stop:
-        topic: e_stop
+        topic: platform/emergency_stop
         timeout: 0.0
         priority: 255
+      safety_stop:
+        topic: platform/safety_stop
+        timeout: 0.0
+        priority: 254

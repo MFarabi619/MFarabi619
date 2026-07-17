@@ -8,7 +8,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     robot::ensure_router().await?;
 
     let context = Context::new()?;
-    robot::init_logging(&context, "base_controller")?;
+    robot::init_logging_with_console(&context, "base_controller")?;
 
     let drivetrain = drivetrain(robot::rover_chip()?)?;
     robot::spawn_sensors(&context)?;

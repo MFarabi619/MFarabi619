@@ -24,7 +24,7 @@ fn spawn(
 #[tokio::main]
 async fn main() -> Result<(), BoxError> {
     let context = Context::new()?;
-    robot::init_logging(&context, "gazebo")?;
+    robot::init_logging_with_console(&context, "gazebo")?;
 
     spawn("router", &["ros2", "run", "rmw_zenoh_cpp", "rmw_zenohd"], &[]);
     tokio::time::sleep(Duration::from_secs(1)).await;

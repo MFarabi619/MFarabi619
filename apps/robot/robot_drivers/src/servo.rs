@@ -2,10 +2,10 @@ use super::gpio::{Chip, Error};
 
 const MIN_DUTY_PERCENT: f64 = 2.5;
 const MAX_DUTY_PERCENT: f64 = 12.5;
-const FULL_SWEEP_DEG: f64 = 180.0;
+const SERVO_RANGE_DEG: f64 = 180.0;
 
 pub fn servo_duty(angle_deg: f64) -> f32 {
-    (MIN_DUTY_PERCENT + (angle_deg / FULL_SWEEP_DEG) * (MAX_DUTY_PERCENT - MIN_DUTY_PERCENT)) as f32
+    (MIN_DUTY_PERCENT + (angle_deg / SERVO_RANGE_DEG) * (MAX_DUTY_PERCENT - MIN_DUTY_PERCENT)) as f32
 }
 
 pub struct Servo<'a> {

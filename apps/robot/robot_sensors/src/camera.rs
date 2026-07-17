@@ -20,7 +20,7 @@ use tokio::{
 
 const SOI: [u8; 2] = [0xFF, 0xD8];
 const EOI: [u8; 2] = [0xFF, 0xD9];
-const READ_CHUNK: usize = 65536;
+const READ_CHUNK_BYTES: usize = 65536;
 #[derive(Clone, Copy)]
 pub struct CameraProfile {
     pub width: usize,
@@ -60,21 +60,21 @@ fn take_jpeg(buffer: &mut Vec<u8>) -> Option<Vec<u8>> {
     Some(frame)
 }
 
-fn compressed_image(jpeg: &[u8], stamp: (i32, u32)) -> CompressedImage {
+fn compressed_image(jpeg: &[u8], (sec, nanosec): (i32, u32)) -> CompressedImage {
     let mut image = CompressedImage::new().unwrap();
-    image.header.stamp.sec = stamp.0;
-    image.header.stamp.nanosec = stamp.1;
+    image.header.stamp.sec = sec;
+    image.header.stamp.nanosec = nanosec;
     image.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
     image.format = RosString::new("jpeg").unwrap();
     image.data = jpeg.try_into().unwrap();
     image
 }
 
-fn camera_info(profile: CameraProfile, stamp: (i32, u32)) -> CameraInfo {
+fn camera_info(profile: CameraProfile, (sec, nanosec): (i32, u32)) -> CameraInfo {
     let (fx, fy, cx, cy) = camera_intrinsics(profile.width, profile.height, profile.fov_deg);
     let mut info = CameraInfo::new().unwrap();
-    info.header.stamp.sec = stamp.0;
-    info.header.stamp.nanosec = stamp.1;
+    info.header.stamp.sec = sec;
+    info.header.stamp.nanosec = nanosec;
     info.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
     info.width = profile.width as u32;
     info.height = profile.height as u32;
@@ -110,7 +110,7 @@ pub async fn run_camera(
     let request = format!("GET {STREAM_PATH} HTTP/1.0\r\nHost: {source}\r\n\r\n");
     stream.write_all(request.as_bytes()).await?;
     let mut buffer = Vec::new();
-    let mut chunk = vec![0u8; READ_CHUNK];
+    let mut chunk = vec![0u8; READ_CHUNK_BYTES];
     let mut last_publish: Option<Instant> = None;
     loop {
         let read = stream.read(&mut chunk).await?;

@@ -1,6 +1,6 @@
 use std::{thread::sleep, time::Duration};
 
-use robot::config::{GPIO_CHIP, HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT};
+use robot::config::{GPIO_CHIP, RGPIOD_HOST, I2C_BUS, PCA9685_ADDRESS, RGPIOD_PORT};
 use robot_drivers::{gpio::Connection, i2c::I2c, led::Led, pca9685::Pca9685};
 
 const SERVO_CHANNELS: [u8; 3] = [0, 1, 2];
@@ -14,7 +14,7 @@ const PORT3_GPIO13: u32 = 13;
 const LED_HOLD: Duration = Duration::from_millis(600);
 
 fn servos_sweep() -> Result<(), Box<dyn std::error::Error>> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let i2c = I2c::open(&connection, I2C_BUS, PCA9685_ADDRESS)?;
     let pca9685 = Pca9685::new(i2c)?;
 
@@ -34,7 +34,7 @@ fn servos_sweep() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn port_leds() -> Result<(), Box<dyn std::error::Error>> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
     let leds = [
         ("port1 GPIO5", Led::new(&chip, PORT1_GPIO5)?),
@@ -61,7 +61,7 @@ fn port_leds() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn servos_and_leds() -> Result<(), Box<dyn std::error::Error>> {
-    let connection = Connection::connect(HOST, RGPIOD_PORT)?;
+    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let i2c = I2c::open(&connection, I2C_BUS, PCA9685_ADDRESS)?;
     let pca9685 = Pca9685::new(i2c)?;
     let chip = connection.open_chip(GPIO_CHIP)?;

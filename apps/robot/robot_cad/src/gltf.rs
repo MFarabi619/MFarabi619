@@ -80,7 +80,7 @@ where
         normals.len(),
     ));
 
-    for (color_key, indices) in &sorted_groups {
+    for (rgb, indices) in &sorted_groups {
         let index_bytes = pack_indices(indices, needs_u32_indices);
         let index_buffer_view_index = push_buffer_view(
             &mut buffer_views,
@@ -101,11 +101,11 @@ where
             indices.len(),
         ));
 
-        let props = material_lookup(*color_key);
+        let props = material_lookup(*rgb);
         let material_index = materials.len();
-        let base_r = color_key[0] as f32 / 255.0;
-        let base_g = color_key[1] as f32 / 255.0;
-        let base_b = color_key[2] as f32 / 255.0;
+        let base_r = rgb[0] as f32 / 255.0;
+        let base_g = rgb[1] as f32 / 255.0;
+        let base_b = rgb[2] as f32 / 255.0;
         materials.push(format!(
             r#"{{"pbrMetallicRoughness":{{"baseColorFactor":[{},{},{},1],"metallicFactor":{},"roughnessFactor":{}}},"doubleSided":true}}"#,
             format_finite_f32(base_r),
@@ -229,12 +229,12 @@ pub(crate) fn smooth_and_group(mesh: &Mesh) -> (Vec<DVec3>, Vec<DVec3>, ColorGro
             .get(&face_id)
             .copied()
             .unwrap_or(DEFAULT_COLOR);
-        let color_key = [
+        let rgb = [
             (color.r.clamp(0.0, 1.0) * 255.0) as u8,
             (color.g.clamp(0.0, 1.0) * 255.0) as u8,
             (color.b.clamp(0.0, 1.0) * 255.0) as u8,
         ];
-        let color_indices = indices_by_color.entry(color_key).or_default();
+        let color_indices = indices_by_color.entry(rgb).or_default();
         color_indices.push(new_indices[0]);
         color_indices.push(new_indices[1]);
         color_indices.push(new_indices[2]);
@@ -242,7 +242,7 @@ pub(crate) fn smooth_and_group(mesh: &Mesh) -> (Vec<DVec3>, Vec<DVec3>, ColorGro
 
     let normals: Vec<DVec3> = normal_accum.iter().map(|n| n.normalize_or_zero()).collect();
     let mut color_groups: Vec<([u8; 3], Vec<u32>)> = indices_by_color.into_iter().collect();
-    color_groups.sort_by_key(|(color_key, _)| *color_key);
+    color_groups.sort_by_key(|(rgb, _)| *rgb);
     (positions, normals, color_groups)
 }
 

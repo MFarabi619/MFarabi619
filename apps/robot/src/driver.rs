@@ -92,12 +92,12 @@ pub async fn run_driver(
 
     let mut target_linear = 0.0;
     let mut target_angular = 0.0;
-    let control_dt = 1.0 / update_rate;
-    let mut profile = RuckigProfile::new(control_dt, linear, angular);
+    let delta_seconds = 1.0 / update_rate;
+    let mut profile = RuckigProfile::new(delta_seconds, linear, angular);
 
     let mut last_command = Instant::now();
     let mut last_written: Option<DriveCommand> = None;
-    let mut control = interval(Duration::from_secs_f64(control_dt));
+    let mut control = interval(Duration::from_secs_f64(delta_seconds));
     let mut odometry_tick = interval(Duration::from_secs_f64(1.0 / odometry_rate));
     let mut diagnostics_tick = interval(Duration::from_secs_f64(1.0 / diagnostics_rate));
 

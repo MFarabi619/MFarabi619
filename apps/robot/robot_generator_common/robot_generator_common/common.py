@@ -11,7 +11,7 @@ from robot_config.robot_config import RobotConfig
 # Repo default: apps/robot/robot_config/sample/rover.yaml, resolved relative
 # to this file's location in the source tree.
 DEFAULT_CONFIG_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(__file__), '..', '..',
+    os.path.dirname(os.path.realpath(__file__)), '..', '..',
     'robot_config', 'sample', 'rover.yaml'))
 
 
@@ -158,7 +158,6 @@ class ParamFile():
 
 
 class BaseGenerator():
-    PARAM_PATH = 'config/'
 
     def __init__(self, setup_path: str = None) -> None:
         if setup_path is not None:
@@ -171,10 +170,8 @@ class BaseGenerator():
 
         self.setup_path = setup_path
 
-        # Read YAML
-        self.config = read_yaml(self.config_path)
-        # Parse YAML into config
-        self.robot_config = RobotConfig(self.config)
+        self.raw_config = read_yaml(self.config_path)
+        self.robot_config = RobotConfig(self.raw_config)
 
         self.serial_number = self.robot_config.serial_number
         self.namespace = self.robot_config.system.namespace

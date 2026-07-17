@@ -9,7 +9,7 @@ use oxidros::{
 };
 use robot_control::params::string_param;
 use robot_description::time::now_stamp;
-use robot_description::frames::BASE_LINK;
+use robot_description::frames::GPS_LINK;
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     net::TcpStream,
@@ -33,7 +33,7 @@ fn tpv_to_fix(report: &serde_json::Value) -> Option<NavSatFix> {
     let mut fix = NavSatFix::new().unwrap();
     fix.header.stamp.sec = sec;
     fix.header.stamp.nanosec = nanosec;
-    fix.header.frame_id = RosString::new(BASE_LINK).unwrap();
+    fix.header.frame_id = RosString::new(GPS_LINK).unwrap();
     fix.status.status = NavSatStatus::STATUS_FIX;
     fix.status.service = NavSatStatus::SERVICE_GPS;
     fix.latitude = latitude;

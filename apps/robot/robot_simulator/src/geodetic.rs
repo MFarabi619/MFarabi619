@@ -1,8 +1,9 @@
 pub const EARTH_RADIUS_METERS: f64 = 6_378_137.0;
 
-pub fn enu_to_geodetic(east: f64, north: f64, lat0: f64, lon0: f64) -> (f64, f64) {
-    let latitude = lat0 + (north / EARTH_RADIUS_METERS).to_degrees();
-    let longitude = lon0 + (east / (EARTH_RADIUS_METERS * lat0.to_radians().cos())).to_degrees();
+pub fn enu_to_geodetic(east: f64, north: f64, latitude_origin: f64, longitude_origin: f64) -> (f64, f64) {
+    let latitude = latitude_origin + (north / EARTH_RADIUS_METERS).to_degrees();
+    let longitude =
+        longitude_origin + (east / (EARTH_RADIUS_METERS * latitude_origin.to_radians().cos())).to_degrees();
     (latitude, longitude)
 }
 

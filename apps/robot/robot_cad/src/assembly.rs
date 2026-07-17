@@ -440,7 +440,7 @@ fn battery_assembly() -> Result<Vec<Solid>, Box<dyn Error>> {
     let imported = Solid::read_step(&mut File::open(asset("12v-sla-battery.step"))?)?;
     let oriented: Vec<Solid> = imported
         .into_iter()
-        .map(|s| s.rotate_x(FRAC_PI_2))
+        .map(|solid| solid.rotate_x(FRAC_PI_2))
         .collect();
     let [raw_min, raw_max] = combined_bounds(&oriented);
     let footprint = DVec3::new(
@@ -517,7 +517,7 @@ fn battery_assembly() -> Result<Vec<Solid>, Box<dyn Error>> {
 
     Ok(parts
         .into_iter()
-        .map(|s| s.translate(DVec3::new(BATTERY_PACK_CENTER_X_MM, 0.0, 0.0)))
+        .map(|solid| solid.translate(DVec3::new(BATTERY_PACK_CENTER_X_MM, 0.0, 0.0)))
         .collect())
 }
 
@@ -594,7 +594,7 @@ impl MotorMountAssembly {
     pub fn load() -> Result<Self, Box<dyn Error>> {
         let mount_bodies = Solid::read_step(&mut File::open(asset(MOTOR_MOUNT_STEP))?)?
             .into_iter()
-            .map(|s| s.with_material(Material::AnodizedAluminum))
+            .map(|solid| solid.with_material(Material::AnodizedAluminum))
             .collect::<Vec<_>>();
         let [mount_min, mount_max] = combined_bounds(&mount_bodies);
         assert_datum(
@@ -619,8 +619,8 @@ impl MotorMountAssembly {
         self.mount_bodies
             .iter()
             .cloned()
-            .map(|s| {
-                let centered = s
+            .map(|solid| {
+                let centered = solid
                     .translate(-self.mount_anchor)
                     .rotate_x(PI)
                     .rotate_z(FRAC_PI_2);
@@ -637,10 +637,10 @@ impl MotorMountAssembly {
         self.motor_bodies
             .iter()
             .cloned()
-            .map(|s| {
+            .map(|solid| {
                 let oriented = match side {
-                    Side::Left => s,
-                    Side::Right => s.mirror(DVec3::ZERO, DVec3::Y),
+                    Side::Left => solid,
+                    Side::Right => solid.mirror(DVec3::ZERO, DVec3::Y),
                 };
                 oriented.translate(origin)
             })
@@ -698,7 +698,7 @@ impl WheelAssembly {
         );
         let mut bodies = tread_bodies
             .into_iter()
-            .map(|s| s.with_material(Material::Rubber))
+            .map(|solid| solid.with_material(Material::Rubber))
             .collect::<Vec<_>>();
         bodies.extend(Solid::read_step(&mut File::open(asset(WHEEL_RIM_STEP))?)?);
         let hub_bodies = Solid::read_step(&mut File::open(asset(WHEEL_HUB_STEP))?)?;
@@ -716,10 +716,10 @@ impl WheelAssembly {
         self.bodies
             .iter()
             .cloned()
-            .map(|s| {
+            .map(|solid| {
                 let oriented = match side {
-                    Side::Left => s,
-                    Side::Right => s.mirror(DVec3::ZERO, DVec3::Y),
+                    Side::Left => solid,
+                    Side::Right => solid.mirror(DVec3::ZERO, DVec3::Y),
                 };
                 oriented.translate(origin)
             })

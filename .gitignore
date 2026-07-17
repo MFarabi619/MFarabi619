@@ -20,6 +20,7 @@ config/data.sqld
 .pixi/
 install/
 build/
+out/
 log/
 **/twister-out*/
 **/__pycache__/

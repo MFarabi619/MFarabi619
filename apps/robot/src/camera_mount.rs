@@ -15,7 +15,7 @@ const MAXIMUM_DEG: f64 = 180.0;
 
 pub fn rover_camera_mount() -> Result<Pca9685<'static>, BoxError> {
     let connection: &'static Connection = Box::leak(Box::new(Connection::connect(
-        config::HOST,
+        config::RGPIOD_HOST,
         config::RGPIOD_PORT,
     )?));
     let i2c = I2c::open(connection, config::I2C_BUS, config::PCA9685_ADDRESS)?;

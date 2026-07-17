@@ -26,5 +26,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         "wrote {}",
         package_dir.join("urdf").join("robot.urdf").display()
     );
+
+    let drivetrain = robot_dir.join("robot_control/config/drivetrain.generated.yaml");
+    fs::write(&drivetrain, urdf::drivetrain_params())?;
+    println!("wrote {}", drivetrain.display());
     Ok(())
 }

@@ -73,7 +73,7 @@ impl tracing::field::Visit for MessageVisitor {
     }
 }
 
-pub fn init_logging(
+pub fn init_logging_with_console(
     context: &Arc<Context>,
     logger: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -89,7 +89,7 @@ pub fn init_logging(
     Ok(())
 }
 
-pub fn init_rosout_logging(
+pub fn init_rosout_only(
     context: &Arc<Context>,
     logger: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
