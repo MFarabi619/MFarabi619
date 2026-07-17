@@ -40,8 +40,8 @@ impl LinkId {
             LinkId::WheelFrontRight => "front_right_wheel_link",
             LinkId::WheelRearLeft => "rear_left_wheel_link",
             LinkId::WheelRearRight => "rear_right_wheel_link",
-            LinkId::CameraLink => "camera_link",
-            LinkId::CameraOptical => "camera_optical_frame",
+            LinkId::CameraLink => "camera_0_link",
+            LinkId::CameraOptical => "camera_0_color_optical_frame",
             LinkId::GpsLink => "gps_link",
         }
     }

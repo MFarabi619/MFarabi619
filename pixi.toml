@@ -1,7 +1,7 @@
 [workspace]
 preview = ["pixi-build"]
-channels = ["https://prefix.dev/conda-forge"]
 requires-pixi = ">=0.72.2"
+channels = ["https://prefix.dev/conda-forge"]
 platforms = [{ platform = "linux-64", glibc = "2.34" }, "osx-arm64"]
 # https://robostack.github.io/GettingStarted.html
 
@@ -15,8 +15,8 @@ compilers = "*"
 pkg-config = "*"
 # ROS specific tools
 rosdep = "*"
-colcon-common-extensions = "*"
 transforms3d = "*"
+colcon-common-extensions = "*"
 
 [target.linux.dependencies]
 libgl-devel = "*"
@@ -28,33 +28,33 @@ default.features = ["ros2"]
 channels = ["https://prefix.dev/robostack-lyrical"]
 
 [feature.ros2.activation]
-env = { RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l" }
 scripts = ["install/setup.sh"]
+env = { RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l" }
 
 [feature.ros2.dependencies]
-ros-lyrical-ros-gz-sim = "*"
-colcon-common-extensions = "*"
+ros-lyrical-twist-mux = "*"
 ros-lyrical-desktop-full = "*"
 ros-lyrical-ros2-control = "*"
-ros-lyrical-twist-mux = "*"
 ros-lyrical-twist-stamper = "*"
-ros-lyrical-nmea-navsat-driver = "*"
 ros-lyrical-foxglove-bridge = "*"
-ros-lyrical-ros-gz-bridge = "*"
 ros-lyrical-gz-ros2-control = "*"
 ros-lyrical-ros2-controllers = "*"
+ros-lyrical-nmea-navsat-driver = "*"
 
 [feature.ros2.tasks]
-build = { cmd = "colcon build --symlink-install --base-paths apps/robot" }
-generate = { cmd = "ros2 run robot_generator_common generate_param", depends-on = [
+build = "colcon build --symlink-install --base-paths apps/robot"
+generate = { cmd = "ros2 run robot_generator_common generate_param && ros2 run robot_generator_gz generate_gz_launch", depends-on = [
     "build",
 ] }
+
 launch = { cmd = "ros2 launch robot_bringup bringup.launch.py", depends-on = [
     "build",
 ] }
+
 sim = { cmd = "ros2 launch robot_gz simulation.launch.py", depends-on = [
     "build",
 ] }
+
 turtlesim = "ros2 launch robot_bringup turtlesim.launch.py"
 
 teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file apps/robot/robot_config/teleop.yaml"

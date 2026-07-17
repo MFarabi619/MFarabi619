@@ -138,14 +138,16 @@ fn ros2_control_block(is_simulation: bool, namespace: &str) -> String {
 
 fn sim_sensor_plugins(config: &RobotConfig) -> String {
     let mut xml = String::new();
-    for _camera in &config.sensors.camera {
-        xml.push_str(
-            r#"  <gazebo reference="camera_link">
-    <sensor name="camera" type="camera">
+    for (index, _camera) in config.sensors.camera.iter().enumerate() {
+        let link = format!("camera_{index}_link");
+        let optical = format!("camera_{index}_color_optical_frame");
+        xml.push_str(&format!(
+            r#"  <gazebo reference="{link}">
+    <sensor name="camera_{index}" type="camera">
       <update_rate>15</update_rate>
       <always_on>true</always_on>
-      <frame_id>camera_optical_frame</frame_id>
-      <topic>camera/image_raw</topic>
+      <frame_id>{optical}</frame_id>
+      <topic>sensors/camera_{index}/color/image</topic>
       <camera>
         <horizontal_fov>1.2217</horizontal_fov>
         <image>
@@ -160,8 +162,8 @@ fn sim_sensor_plugins(config: &RobotConfig) -> String {
     </sensor>
   </gazebo>
 
-"#,
-        );
+"#
+        ));
     }
     for _gps in &config.sensors.gps {
         xml.push_str(
@@ -170,7 +172,7 @@ fn sim_sensor_plugins(config: &RobotConfig) -> String {
       <always_on>1</always_on>
       <update_rate>1</update_rate>
       <frame_id>gps_link</frame_id>
-      <topic>gps/fix</topic>
+      <topic>sensors/gps_0/fix</topic>
     </sensor>
   </gazebo>
 
@@ -191,22 +193,12 @@ fn sensor_and_mount_frames(config: &RobotConfig) -> String {
             mount.rpy,
         );
     }
-    for camera in &config.sensors.camera {
-        push_frame(
-            &mut xml,
-            "camera_link",
-            &camera.parent,
-            camera.xyz,
-            camera.rpy,
-        );
+    for (index, camera) in config.sensors.camera.iter().enumerate() {
+        let link = format!("camera_{index}_link");
+        let optical = format!("camera_{index}_color_optical_frame");
+        push_frame(&mut xml, &link, &camera.parent, camera.xyz, camera.rpy);
         // ROS REP-103 optical convention: rotate x-forward body frame into z-forward optical frame.
-        push_frame(
-            &mut xml,
-            "camera_optical_frame",
-            "camera_link",
-            [0.0; 3],
-            CAMERA_OPTICAL_RPY,
-        );
+        push_frame(&mut xml, &optical, &link, [0.0; 3], CAMERA_OPTICAL_RPY);
     }
     for gps in &config.sensors.gps {
         push_frame(&mut xml, LinkId::GpsLink.link_name(), &gps.parent, gps.xyz, gps.rpy);

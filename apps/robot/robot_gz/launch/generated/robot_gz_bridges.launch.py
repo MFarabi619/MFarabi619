@@ -23,7 +23,9 @@ def robot_gz_bridges():
         name='image_bridge',
         cmd_args=
             [
-                'camera/image_raw'
+                'sensors/camera_0/color/image'
+                ,
+                'sensors/camera_1/color/image'
                 ,
             ]
         ,
@@ -35,9 +37,11 @@ def robot_gz_bridges():
         name='sensors_bridge',
         cmd_args=
             [
-                '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo'
+                '/sensors/camera_0/color/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo'
                 ,
-                '/gps/fix@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat'
+                '/sensors/camera_1/color/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo'
+                ,
+                '/sensors/gps_0/fix@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat'
                 ,
             ]
         ,

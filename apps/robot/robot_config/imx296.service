@@ -1,0 +1,26 @@
+[Unit]
+After=network-online.target
+Wants=network-online.target
+Description=MJPEG-over-TCP server for IMX296 global shutter camera
+
+[Service]
+Type=simple
+User=mfarabi
+RestartSec=2
+Restart=always
+SupplementaryGroups=video render
+ExecStart=/usr/bin/rpicam-vid -t 0 \
+    --flush \
+    --nopreview \
+    --quality 95 \
+    --codec mjpeg \
+    --framerate 45 \
+    --buffer-count 3 \
+    --exposure sport \
+    --denoise cdn_fast \
+    --flicker-period 8333us \
+    --width 1456 --height 1088 \
+    --listen -o tcp://0.0.0.0:8888
+
+[Install]
+WantedBy=multi-user.target

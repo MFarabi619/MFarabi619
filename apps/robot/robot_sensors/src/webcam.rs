@@ -8,7 +8,7 @@ use oxidros::{
     prelude::*,
 };
 
-type BoxError = Box<dyn std::error::Error + Send + Sync>;
+use crate::BoxError;
 
 pub struct WebcamSink {
     frames: tokio::sync::mpsc::UnboundedSender<(String, CompressedImage)>,

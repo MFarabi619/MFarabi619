@@ -90,19 +90,19 @@ pub async fn run_camera(
     node: Arc<Node>,
     default_source: String,
     profile: CameraProfile,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<(), crate::BoxError> {
     let (source, image_topic) = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
         (
             string_param(&store, "source", &default_source),
-            string_param(&store, "image_topic", "camera/image_raw/compressed"),
+            string_param(&store, "image_topic", "sensors/camera_0/color/image/compressed"),
         )
     };
     let image_pub =
         node.create_publisher::<CompressedImage>(&image_topic, Some(Profile::sensor_data()))?;
     let info_pub = node
-        .create_publisher::<CameraInfo>("camera/image_raw/camera_info", Some(Profile::sensor_data()))?;
+        .create_publisher::<CameraInfo>("sensors/camera_0/color/camera_info", Some(Profile::sensor_data()))?;
 
     tracing::info!("streaming camera from {source} -> {image_topic}");
     let mut stream = TcpStream::connect(&source).await?;

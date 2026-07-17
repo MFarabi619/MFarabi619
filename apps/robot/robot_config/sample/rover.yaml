@@ -9,14 +9,30 @@ platform:
   attachments: []
 sensors:
   camera:
+    - model: orbbec_gemini_335l
+      parent: camera_mount_link
+      xyz: [0.0, 0.0, 0.0]
+      rpy: [0.0, 0.31, 0.0]
+      ros_parameters:
+        camera_0:
+          name: camera_0
+          source: "rpi5-16-2:8887"
+          stream_path: "/stream"
+          width: 1280
+          height: 720
+          fov_deg: 90.0
     - model: imx296_gs
       parent: camera_mount_link
       xyz: [0.0, 0.0, 0.0]
       rpy: [0.0, 0.31, 0.0]
       ros_parameters:
-        camera:
-          source: "rpi5-16-2:8887"
-          image_topic: "camera/image_raw/compressed"
+        camera_1:
+          name: camera_1
+          source: "rpi5-16-2:8888"
+          stream_path: ""
+          width: 1456
+          height: 1088
+          fov_deg: 54.0
   gps:
     - model: gpsd
       parent: base_link

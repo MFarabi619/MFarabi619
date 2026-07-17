@@ -52,8 +52,8 @@
         "poseEstimateThetaDeviation": 0.26179939
       },
       "imageMode": {
-        "imageTopic": "/camera/image_raw/compressed",
-        "calibrationTopic": "/camera/image_raw/camera_info"
+        "imageTopic": "/sensors/camera_0/color/image/compressed",
+        "calibrationTopic": "/sensors/camera_0/color/camera_info"
       }
     },
     "map!2ldju1g": {
@@ -63,10 +63,10 @@
       },
       "customTileUrl": "",
       "disabledTopics": [],
-      "followTopic": "/gps/fix",
+      "followTopic": "/sensors/gps_0/fix",
       "layer": "satellite",
       "topicColors": {
-        "/gps/fix": "#f31111"
+        "/sensors/gps_0/fix": "#f31111"
       },
       "zoomLevel": 16,
       "maxNativeZoom": 18
@@ -157,7 +157,7 @@
         }
       },
       "topics": {
-        "/camera/image_raw": {
+        "/sensors/camera_0/color/image": {
           "visible": true,
           "frameLocked": true,
           "cameraInfoTopic": "/camera/camera_info",

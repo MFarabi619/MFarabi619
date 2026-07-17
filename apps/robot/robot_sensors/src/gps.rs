@@ -16,7 +16,7 @@ use tokio::{
     time::sleep,
 };
 
-type BoxError = Box<dyn std::error::Error + Send + Sync>;
+use crate::BoxError;
 
 const GPSD_PORT: u16 = 2947;
 const WATCH_COMMAND: &[u8] = b"?WATCH={\"enable\":true,\"json\":true}\r\n";
@@ -84,7 +84,7 @@ pub async fn run_gps(node: Arc<Node>, default_host: &str) -> Result<(), BoxError
         let store = parameters.params.read();
         string_param(&store, "host", default_host)
     };
-    let publisher = node.create_publisher::<NavSatFix>("gps/fix", Some(Profile::sensor_data()))?;
+    let publisher = node.create_publisher::<NavSatFix>("sensors/gps_0/fix", Some(Profile::sensor_data()))?;
     tracing::info!("reading gpsd at {host}:{GPSD_PORT}");
     loop {
         if let Err(error) = stream_fixes(&publisher, &host).await {

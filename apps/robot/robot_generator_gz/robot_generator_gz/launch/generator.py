@@ -9,7 +9,7 @@ from robot_generator_common.launch.writer import LaunchWriter
 
 
 DEFAULT_OUTPUT_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(__file__), '..', '..', '..',
+    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..',
     'robot_gz', 'launch', 'generated'))
 
 
@@ -18,7 +18,7 @@ class GzLaunchGenerator(LaunchGenerator):
     GZ_TO_ROS_TWIST = '@geometry_msgs/msg/Twist[gz.msgs.Twist'
     ROS_TO_GZ_TWIST = '@geometry_msgs/msg/Twist]gz.msgs.Twist'
     GZ_TO_ROS_CAMERA_INFO = '@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo'
-    GZ_TO_ROS_NAVSAT = '@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat'
+    GZ_TO_ROS_NAVSATFIX = '@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat'
 
     def __init__(self,
                  setup_path: str = None,
@@ -32,7 +32,7 @@ class GzLaunchGenerator(LaunchGenerator):
 
         self.gz_bridges_launch_file = LaunchFile(
             name='robot_gz_bridges',
-            path=self.launch_path)
+            path=self.output_path)
 
         # clock bridge
         self.clock_node = LaunchFile.Node(
@@ -44,6 +44,8 @@ class GzLaunchGenerator(LaunchGenerator):
                 '/clock' + self.GZ_TO_ROS_CLOCK
             ])
 
+        cameras = self.robot_config.sensors.get_all_cameras()
+
         # camera images via ros_gz_image (also republishes .../compressed)
         self.image_bridge_node = LaunchFile.Node(
             package='ros_gz_image',
@@ -51,18 +53,22 @@ class GzLaunchGenerator(LaunchGenerator):
             name='image_bridge',
             namespace=self.namespace,
             arguments=[
-                'camera/image_raw'
+                f'sensors/{camera.get_name()}/color/image'
+                for camera in cameras
             ])
 
         # camera_info + gps via parameter_bridge
+        camera_info_bridges = [
+            f'/sensors/{camera.get_name()}/color/camera_info' + self.GZ_TO_ROS_CAMERA_INFO
+            for camera in cameras
+        ]
         self.sensors_bridge_node = LaunchFile.Node(
             package='ros_gz_bridge',
             executable='parameter_bridge',
             name='sensors_bridge',
             namespace=self.namespace,
-            arguments=[
-                '/camera/camera_info' + self.GZ_TO_ROS_CAMERA_INFO,
-                '/gps/fix' + self.GZ_TO_ROS_NAVSAT
+            arguments=camera_info_bridges + [
+                '/sensors/gps_0/fix' + self.GZ_TO_ROS_NAVSATFIX
             ])
 
         self.bridge_components = [

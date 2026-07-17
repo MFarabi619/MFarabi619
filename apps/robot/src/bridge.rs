@@ -539,14 +539,14 @@ mod tests {
         let built = keformat!(
             topic_keyexpr::formatter(),
             domain = 0,
-            topic = "camera/image_raw",
+            topic = "sensors/camera_0/color/image",
             dds_type = "sensor_msgs::msg::dds_::Image_",
             hash = "RIHS01_abc",
         )
         .unwrap();
         assert_eq!(
             built.as_str(),
-            "0/camera/image_raw/sensor_msgs::msg::dds_::Image_/RIHS01_abc"
+            "0/sensors/camera_0/color/image/sensor_msgs::msg::dds_::Image_/RIHS01_abc"
         );
     }
 }

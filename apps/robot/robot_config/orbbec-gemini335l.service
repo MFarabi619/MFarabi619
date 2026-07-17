@@ -1,0 +1,28 @@
+[Unit]
+After=network-online.target
+Wants=network-online.target
+Description=uStreamer MJPEG server for Orbbec Gemini 335L camera
+
+[Service]
+Type=simple
+User=mfarabi
+SupplementaryGroups=video
+ExecStart=/usr/bin/ustreamer \
+    --port 8887 \
+    --buffers 2 \
+    --persistent \
+    --tcp-nodelay \
+    --host 0.0.0.0 \
+    --format MJPEG \
+    --desired-fps 15 \
+    --resolution 1280x720 \
+    --device /dev/v4l/by-id/usb-Orbbec_R__Orbbec_Gemini_335L_CP2C6410003B-video-index0
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
+
+# sudo systemctl daemon-reload
+# sudo systemctl enable --now rpicam ustreamer-orbbec
+# sudo ss -ltnp | grep -E "8887|8888"

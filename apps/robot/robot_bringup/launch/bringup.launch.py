@@ -11,12 +11,6 @@ def bringup():
         name="foxglove_bridge",
         params={"port": 8765},
     )
-    bl.node(
-        package="nmea_navsat_driver",
-        executable="nmea_tcpclient_driver",
-        name="nmea_navsat_driver",
-        param_files=bl.find("robot_bringup/share", "nmea_navsat_driver.yaml"),
-        remaps={"fix": "gps/fix"},
-    )
+    bl.include("robot_bringup", "sensors.launch.py")
     bl.include("robot_description", "description.launch.py")
     bl.include("robot_control", "control.launch.py")

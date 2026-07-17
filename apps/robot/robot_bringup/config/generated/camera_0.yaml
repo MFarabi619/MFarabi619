@@ -1,0 +1,8 @@
+camera_0:
+  ros__parameters:
+    name: 'camera_0'
+    source: 'rpi5-16-2:8887'
+    stream_path: '/stream'
+    width: 1280
+    height: 720
+    fov_deg: 90.0

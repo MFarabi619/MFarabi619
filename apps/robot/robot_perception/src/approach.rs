@@ -113,8 +113,9 @@ fn overlay(gate: &GreenGate, config: &Config, width: usize, height: usize) -> Im
 
 pub async fn run_green_approach(node: Arc<Node>) -> Result<(), BoxError> {
     let config = Config::default();
+    let image_topic = crate::params::DEFAULT_IMAGE_TOPIC;
     let mut images = node.create_subscriber::<CompressedImage>(
-        "camera/image_raw/compressed",
+        image_topic,
         Some(Profile::sensor_data()),
     )?;
     let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel_autonomy", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
@@ -122,7 +123,7 @@ pub async fn run_green_approach(node: Arc<Node>) -> Result<(), BoxError> {
         foxglove::ChannelBuilder::new("/green/overlay").build::<ImageAnnotations>();
     let frames = AtomicU64::new(0);
 
-    tracing::info!("green approach: driving forward on camera/image_raw/compressed until grass");
+    tracing::info!("green approach: driving forward on {image_topic} until grass");
     let ctrl_c = tokio::signal::ctrl_c();
     tokio::pin!(ctrl_c);
     let mut watchdog = tokio::time::interval(WATCHDOG_TIMEOUT);

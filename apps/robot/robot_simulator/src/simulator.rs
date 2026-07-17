@@ -5,7 +5,7 @@ use std::{
 
 use robot_description::{
     camera_intrinsics,
-    frames::{BASE_LINK, CAMERA_OPTICAL, ODOM},
+    frames::{BASE_LINK, CAMERA_OPTICAL, GPS_LINK, ODOM},
     placement, MM_TO_M,
 };
 use oxidros::{
@@ -100,7 +100,7 @@ impl SimulatorState {
         let mut fix = NavSatFix::new().unwrap();
         fix.header.stamp.sec = sec;
         fix.header.stamp.nanosec = nanosec;
-        fix.header.frame_id = RosString::new(BASE_LINK).unwrap();
+        fix.header.frame_id = RosString::new(GPS_LINK).unwrap();
         fix.status.status = NavSatStatus::STATUS_FIX;
         fix.status.service = NavSatStatus::SERVICE_GPS;
         fix.latitude = latitude;
@@ -188,12 +188,12 @@ pub async fn run_simulator(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut cmd_vel = node.create_subscriber::<TwistStamped>("platform/cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     let image_pub = node.create_publisher::<CompressedImage>(
-        "camera/image_raw/compressed",
+        "sensors/camera_0/color/image/compressed",
         Some(Profile::sensor_data()),
     )?;
     let camera_info_pub = node
-        .create_publisher::<CameraInfo>("camera/image_raw/camera_info", Some(Profile::sensor_data()))?;
-    let gps_pub = node.create_publisher::<NavSatFix>("gps/fix", Some(Profile::sensor_data()))?;
+        .create_publisher::<CameraInfo>("sensors/camera_0/color/camera_info", Some(Profile::sensor_data()))?;
+    let gps_pub = node.create_publisher::<NavSatFix>("sensors/gps_0/fix", Some(Profile::sensor_data()))?;
     let battery_pub = node.create_publisher::<BatteryState>("battery", None)?;
     let diagnostics_pub = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
     let odom_pub = node.create_publisher::<Odometry>("odom", None)?;

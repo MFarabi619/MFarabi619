@@ -1,4 +1,0 @@
-camera:
-  ros__parameters:
-    source: 'rpi5-16-2:8887'
-    image_topic: 'camera/image_raw/compressed'

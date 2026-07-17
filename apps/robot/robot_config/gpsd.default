@@ -1,0 +1,6 @@
+DEVICES="/dev/ttyAMA0"
+GPSD_OPTIONS="-G -n -s 9600"
+USBAUTO="true"
+
+# sudo cp gpsd.default /etc/default/gpsd
+# sudo systemctl restart gpsd

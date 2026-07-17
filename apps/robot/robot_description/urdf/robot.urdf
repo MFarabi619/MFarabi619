@@ -199,17 +199,31 @@
     <origin xyz="0.2000 0.0000 0.7500" rpy="0.0000 0.0000 0.0000"/>
   </joint>
 
-  <link name="camera_link"/>
-  <joint name="camera_link_joint" type="fixed">
+  <link name="camera_0_link"/>
+  <joint name="camera_0_link_joint" type="fixed">
     <parent link="camera_mount_link"/>
-    <child link="camera_link"/>
+    <child link="camera_0_link"/>
     <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.3100 0.0000"/>
   </joint>
 
-  <link name="camera_optical_frame"/>
-  <joint name="camera_optical_frame_joint" type="fixed">
-    <parent link="camera_link"/>
-    <child link="camera_optical_frame"/>
+  <link name="camera_0_color_optical_frame"/>
+  <joint name="camera_0_color_optical_frame_joint" type="fixed">
+    <parent link="camera_0_link"/>
+    <child link="camera_0_color_optical_frame"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="-1.5708 0.0000 -1.5708"/>
+  </joint>
+
+  <link name="camera_1_link"/>
+  <joint name="camera_1_link_joint" type="fixed">
+    <parent link="camera_mount_link"/>
+    <child link="camera_1_link"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.3100 0.0000"/>
+  </joint>
+
+  <link name="camera_1_color_optical_frame"/>
+  <joint name="camera_1_color_optical_frame_joint" type="fixed">
+    <parent link="camera_1_link"/>
+    <child link="camera_1_color_optical_frame"/>
     <origin xyz="0.0000 0.0000 0.0000" rpy="-1.5708 0.0000 -1.5708"/>
   </joint>
 
@@ -229,12 +243,12 @@
       <param name="pwm_frequency">10000</param>
       <param name="max_wheel_speed">11.4330</param>
       <param name="left_wheel">front_left_wheel_joint</param>
-      <param name="left_pwm_pin">12</param>
-      <param name="left_dir_pin">6</param>
+      <param name="left_pwm_pin">26</param>
+      <param name="left_dir_pin">19</param>
       <param name="left_forward_level">1</param>
       <param name="right_wheel">front_right_wheel_joint</param>
-      <param name="right_pwm_pin">13</param>
-      <param name="right_dir_pin">5</param>
+      <param name="right_pwm_pin">20</param>
+      <param name="right_dir_pin">16</param>
       <param name="right_forward_level">0</param>
     </hardware>
     <joint name="front_left_wheel_joint">
