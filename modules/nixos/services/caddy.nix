@@ -105,7 +105,8 @@
           "cgit.apidae.systems" = "http://openbsd";
           "http://microvisor.systems" = "http://10.0.0.236";
           "canopeo.apidae.systems" = "http://127.0.0.1:8080";
-          "http://tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
+          "http://tandemrobotics.ca" = "http://macos:4321";
+          # "http://tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
         }
       )
       {
@@ -126,10 +127,9 @@
           header {
             Cross-Origin-Opener-Policy "same-origin"
             Cross-Origin-Embedder-Policy "credentialless"
-            X-Frame-Options "DENY"
             X-Content-Type-Options "nosniff"
             Referrer-Policy "origin"
-            Content-Security-Policy "base-uri 'self'"
+            Content-Security-Policy "base-uri 'self'; frame-ancestors 'self' https://tandemrobotics.ca https://www.tandemrobotics.ca"
           }
         '';
 
