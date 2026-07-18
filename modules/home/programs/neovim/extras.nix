@@ -1,13 +1,8 @@
 {
   programs.lazyvim = {
     extras = {
+      dap.core.enable = true;
       test.core.enable = true;
-      ai.copilot.enable = true;
-
-      dap = {
-        core.enable = true;
-        nlua.enable = false;
-      };
 
       ui = {
         edgy.enable = true;
@@ -49,14 +44,11 @@
         clangd.enable = true;
         python.enable = true;
         docker.enable = false;
-        svelte.enable = false;
         tailwind.enable = true;
         typescript.enable = true;
       };
 
       util = {
-        gh.enable = true;
-        dot.enable = false;
         octo.enable = true;
         rest.enable = true;
         project.enable = true;
