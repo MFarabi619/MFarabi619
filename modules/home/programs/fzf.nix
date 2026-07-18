@@ -1,19 +1,10 @@
 {
-  # Type `<ctrl> + r` to fuzzy search your shell history
+  config,
+  ...
+}:
+{
   programs.fzf = {
     enable = true;
-    enableBashIntegration = true;
-    enableZshIntegration = true;
-    # defaultCommand = "";
-    # defaultOptions = [ "" ];
-    # changeDirWidgetCommand = "";
-    # changeDirWidgetOptions = [ "" ];
-    # historyWidgetOptions = [ "" ];
-    # fileWidgetCommand = "";
-    # fileWidgetOptions = [ "" ];
-    tmux = {
-      enableShellIntegration = false;
-      shellIntegrationOptions = [ ];
-    };
+    tmux.enableShellIntegration = config.programs.tmux.enable;
   };
 }
