@@ -1,6 +1,6 @@
 {
   programs.tmux = {
-    enable = false;
+    enable = true;
     keyMode = "vi";
     mouse = true;
     prefix = "C-a";
