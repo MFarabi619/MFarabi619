@@ -1,0 +1,15 @@
+/ {
+	fstab {
+		compatible = "zephyr,fstab";
+		sd: sd {
+			compatible = "zephyr,fstab,fatfs";
+			mount-point = "/SD:";
+			disk-access;
+			automount;
+		};
+	};
+};
+
+&psram0 {
+	size = <DT_SIZE_M(32)>;
+};

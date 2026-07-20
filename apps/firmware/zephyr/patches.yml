@@ -42,7 +42,7 @@ patches:
           three Queue methods zephyr uses are unchanged between versions.
 
     - path: lang-rust.patch
-      sha256sum: 4063668a24e76a77f011928a75c59402bd512c84928481ca80f36e99b72b7818
+      sha256sum: 2ebf5ce2aac3c607cdbead63b3a81b857baa3a3df2e0145338f8da531f9cc1e9
       module: lang-rust
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -69,7 +69,12 @@ patches:
                 the bare RV32I target ignores all of that and the linker
                 then refuses to mix object files with mismatched ABI tags.
                 Pick the closest-matching imac/imc/i target based on
-                CONFIG_RISCV_ISA_EXT_{M,A,C}. Side benefit: matches the
+                CONFIG_RISCV_ISA_EXT_{M,A,C}, and pick the hard-float
+                `riscv32imafc` (ilp32f) when CONFIG_FPU is set — gated on
+                CONFIG_FPU, not the F ISA bit (qemu_riscv32 sets the bit
+                but builds soft-float). ESP32-P4's single-precision FPU
+                needs this: soft-float Rust won't link against hard-float C.
+                Side benefit: matches the
                 host's already-installed targets so most users don't need
                 an extra `rustup target add` step.
 

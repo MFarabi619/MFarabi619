@@ -1,15 +1,21 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index be31379..0c13ea6 100644
+index be31379..fcda1cb 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -44,8 +44,13 @@ function(_rust_map_target)
+@@ -44,8 +44,19 @@ function(_rust_map_target)
        # TODO: Should fail if the extensions don't match.
        set(RUST_TARGET "riscv64imac-unknown-none-elf" PARENT_SCOPE)
      elseif(CONFIG_RISCV_ISA_RV32I)
 -      # TODO: We have multiple choices, try to pick the best.
 -      set(RUST_TARGET "riscv32i-unknown-none-elf" PARENT_SCOPE)
 +      if(CONFIG_RISCV_ISA_EXT_M AND CONFIG_RISCV_ISA_EXT_A AND CONFIG_RISCV_ISA_EXT_C)
-+        set(RUST_TARGET "riscv32imac-unknown-none-elf" PARENT_SCOPE)
++        # Gate hard-float on CONFIG_FPU, not ISA_EXT_F: qemu_riscv32 sets the F ISA
++        # bit but builds soft-float, so keying off the extension mismatches the linker.
++        if(CONFIG_FPU AND CONFIG_RISCV_ISA_EXT_F)
++          set(RUST_TARGET "riscv32imafc-unknown-none-elf" PARENT_SCOPE)
++        else()
++          set(RUST_TARGET "riscv32imac-unknown-none-elf" PARENT_SCOPE)
++        endif()
 +      elseif(CONFIG_RISCV_ISA_EXT_M AND CONFIG_RISCV_ISA_EXT_C)
 +        set(RUST_TARGET "riscv32imc-unknown-none-elf" PARENT_SCOPE)
 +      else()
@@ -18,7 +24,7 @@ index be31379..0c13ea6 100644
      else()
        message(FATAL_ERROR "Rust: Unsupported riscv ISA")
      endif()
-@@ -53,6 +58,16 @@ function(_rust_map_target)
+@@ -53,6 +64,16 @@ function(_rust_map_target)
      set(RUST_TARGET "x86_64-unknown-none" PARENT_SCOPE)
    elseif(CONFIG_ARCH_POSIX AND CONFIG_64BIT AND (${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "aarch64"))
      set(RUST_TARGET "aarch64-unknown-none" PARENT_SCOPE)
@@ -35,7 +41,7 @@ index be31379..0c13ea6 100644
    else()
      message(FATAL_ERROR "Rust: Add support for other target")
    endif()
-@@ -104,7 +119,7 @@ function(add_cargo_target_with_zephyr_env target)
+@@ -104,7 +125,7 @@ function(add_cargo_target_with_zephyr_env target)
        WRAPPER_FILE="${WRAPPER_FILE}"
        DT_AUGMENTS="${DT_AUGMENTS}"
        BINARY_DIR_INCLUDE_GENERATED="${BINARY_DIR_INCLUDE_GENERATED}"
@@ -44,7 +50,7 @@ index be31379..0c13ea6 100644
        ${rust_build_type_arg}
  
        # Set a replacement so that packages can just use `zephyr-sys` as a package
-@@ -128,6 +143,16 @@ function(add_cargo_target_with_zephyr_env target)
+@@ -128,6 +149,16 @@ function(add_cargo_target_with_zephyr_env target)
  endfunction()
  
  function(rust_cargo_application)
@@ -61,7 +67,7 @@ index be31379..0c13ea6 100644
    # For now, hard-code the Zephyr crate directly here.  Once we have
    # more than one crate, these should be added by the modules
    # themselves.
-@@ -154,7 +179,7 @@ function(rust_cargo_application)
+@@ -154,7 +185,7 @@ function(rust_cargo_application)
    set(BUILD_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}")
  
    set(CARGO_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/rust/target")
@@ -70,7 +76,7 @@ index be31379..0c13ea6 100644
    set(SAMPLE_CARGO_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/rust/sample-cargo-config.toml")
  
    # The generated C binding wrappers. These are bindgen-generated wrappers for the inline functions
-@@ -179,10 +204,6 @@ function(rust_cargo_application)
+@@ -179,10 +210,6 @@ function(rust_cargo_application)
        "${config_paths}\
  ${module}.path = \"$CACHE{RUST_MODULE_DIR}/${module}\"
  ")
@@ -81,7 +87,7 @@ index be31379..0c13ea6 100644
    endforeach()
  
    # Write out a cargo config file that can be copied into `.cargo/config.toml` (or made a
-@@ -213,26 +234,14 @@ ${config_paths}
+@@ -213,26 +240,14 @@ ${config_paths}
  ")
  
    # The library is built by invoking Cargo.
@@ -110,7 +116,7 @@ index be31379..0c13ea6 100644
    # Command to generate the rust docs.
    add_cargo_target_with_zephyr_env(rustdoc
      OUTPUT generate_rust_docs
-@@ -249,7 +258,7 @@ ${config_paths}
+@@ -249,7 +264,7 @@ ${config_paths}
    # Example of warning reported by ld when this fix is not in place:
    # <path>/ld.bfd: rust/target/riscv64imac-unknown-none-elf/debug/librustapp.a(45c91108d938afe8-clzdi2.o): unsupported relocation type 0x3d
    target_link_libraries(app PUBLIC $<TARGET_PROPERTY:linker,rt_library> -Wl,--allow-multiple-definition ${RUST_LIBRARY})
