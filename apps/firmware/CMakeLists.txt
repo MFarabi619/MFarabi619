@@ -128,4 +128,9 @@ if(CONFIG_BOARD_NUCLEO_H755ZI_Q_STM32H755XX_M7)
   target_sources(app PRIVATE programs/bno08x.c)
 endif()
 
+dt_comp_path(hd44780_path COMPATIBLE "hit,hd44780")
+if(hd44780_path)
+  target_sources(app PRIVATE programs/lcd.c)
+endif()
+
 rust_cargo_application(CRATE_NAME firmware)
