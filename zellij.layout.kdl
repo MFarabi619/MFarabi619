@@ -1,0 +1,158 @@
+layout {
+    default_tab_template {
+        pane {
+            size 1
+            borderless true
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane {
+            size 2
+            borderless true
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    tab name="CI" split_direction="vertical" {
+        pane split_direction="horizontal" {
+          pane {
+              name "trunk"
+              command "trunk"
+              args "build" "--release"
+              start_suspended true
+          }
+
+          pane {
+              name "loco doctor"
+              command "cargo"
+              args "loco" "doctor"
+              start_suspended true
+          }
+
+          pane {
+              name "loco"
+              command "cargo"
+              args "loco" "routes"
+              start_suspended true
+          }
+        }
+
+        pane split_direction="horizontal" {
+          pane {
+              name "dioxus"
+              command "serve"
+              args "-p" "web"
+              start_suspended true
+          }
+
+          pane {
+              name "firmware"
+              command "cargo"
+              args "r" "-p" "firmware"
+              start_suspended true
+          }
+      }
+    }
+
+    tab name=" ROS2" split_direction="vertical" {
+        pane split_direction="horizontal" {
+          pane {
+              name "node list"
+              command "pixi run ros2"
+              args "node" "list"
+              start_suspended true
+          }
+
+          pane {
+              name "topic list"
+              command "pixi run ros2"
+              args "topic" "list"
+              start_suspended true
+          }
+        }
+
+        pane split_direction="horizontal" {
+          pane {
+              name "service list"
+              command "pixi run ros2"
+              args "service" "list"
+              start_suspended true
+          }
+
+          pane {
+              name "action list"
+              command "pixi run ros2"
+              args "action" "list"
+              start_suspended true
+          }
+      }
+    }
+
+    tab name=" ROBOT" split_direction="vertical" {
+        pane split_direction="horizontal" {
+          pane {
+              name "bridge"
+              command "cargo"
+              args "run" "-rp" "robot" "--bin" "bridge"
+              start_suspended true
+          }
+
+          pane {
+              name "router"
+              command "cargo"
+              args "run" "-rp" "robot" "--bin" "ros2" "--" "run" "rmw_zenoh_cpp" "rmw_zenohd"
+              start_suspended true
+          }
+        }
+
+        pane split_direction="horizontal" {
+          pane {
+              name "cytron_md30c"
+              command "cargo"
+              args "run" "-rp" "robot" "--bin" "cytron_md30c"
+              start_suspended true
+          }
+
+          pane {
+              name "teleop"
+              command "cargo"
+              args "run" "-rp" "robot" "--example" "teleop"
+              start_suspended true
+          }
+      }
+    }
+
+    tab name=" FIRMWARE" split_direction="vertical" {
+        pane split_direction="horizontal" {
+          pane {
+              name "xiao"
+              command "west"
+              args "build" "apps/firmware" "-b" "xiao_esp32s3/esp32s3/procpu" "-d" "build/xiao"
+              start_suspended true
+          }
+
+          pane {
+              name "xiao_sense"
+              command "west"
+              args "build" "apps/firmware" "-b" "xiao_esp32s3/esp32s3/procpu/sense" "-d" "build/xiao_sense"
+              start_suspended true
+          }
+        }
+
+        pane split_direction="horizontal" {
+          pane {
+              name "walter"
+              command "west"
+              args "build" "apps/firmware" "-b" "walter/esp32s3/procpu" "-d" "build/walter"
+              start_suspended true
+          }
+
+          pane {
+              name "esp32s3_devkitc"
+              command "west"
+              args "build" "apps/firmware" "-b" "esp32s3_devkitc/esp32s3/procpu" "-d" "build/esp32s3_devkitc"
+              start_suspended true
+          }
+      }
+    }
+}

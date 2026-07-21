@@ -153,6 +153,7 @@
         kubernetes-helm
       ]
       ++ [
+        gpsd
         socat
         bore-cli
         smartmontools

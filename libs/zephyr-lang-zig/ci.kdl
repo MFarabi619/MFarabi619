@@ -1,0 +1,98 @@
+layout {
+    default_tab_template {
+        pane {
+            size 1
+            borderless true
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane {
+            size 2
+            borderless true
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    pane_template name="target" {
+        command "west"
+        start_suspended true
+    }
+
+    tab name="zigzag_tui" {
+        target name="zigzag_tui" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/samples/zigzag_tui" "-d" "build/zigzag_tui" "-t" "run"
+        }
+    }
+
+    tab name="bench" {
+        target name="bench" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/samples/bench" "-d" "build/bench" "-t" "run"
+        }
+    }
+
+    tab name="blinky" {
+        target name="blinky" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/samples/blinky" "-d" "build/blinky" "-t" "run"
+        }
+    }
+
+    tab name="clay_tui" {
+        target name="clay_tui" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/samples/clay_tui" "-d" "build/clay_tui" "-t" "run"
+        }
+    }
+
+    tab name="ffi_rust_with_c" {
+        target name="ffi_rust_with_c" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/samples/ffi_rust_with_c" "-d" "build/ffi_rust_with_c" "-t" "run"
+        }
+    }
+
+    tab name="hello_world" {
+        target name="hello_world" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/samples/hello_world" "-d" "build/hello_world" "-t" "run"
+        }
+    }
+
+    tab name="led_strip" {
+        target name="led_strip" {
+            args "build" "-p" "always" "-b" "esp32s3_devkitc/esp32s3/procpu" "libs/zephyr-lang-zig/samples/led_strip" "-d" "build/led_strip"
+        }
+    }
+
+    tab name="sqlite" {
+        target name="sqlite" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/samples/sqlite" "-d" "build/sqlite" "-t" "run"
+        }
+    }
+
+    tab name="tick_loop" {
+        target name="tick_loop" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/samples/tick_loop" "-d" "build/tick_loop" "-t" "run"
+        }
+    }
+
+    tab name="gpio" {
+        target name="gpio" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/tests/gpio" "-d" "build/gpio" "-t" "run"
+        }
+    }
+
+    tab name="heap" {
+        target name="heap" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/tests/heap" "-d" "build/heap" "-t" "run"
+        }
+    }
+
+    tab name="log" {
+        target name="log" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/tests/log" "-d" "build/log" "-t" "run"
+        }
+    }
+
+    tab name="sync" {
+        target name="sync" {
+            args "build" "-p" "always" "-b" "qemu_riscv32" "libs/zephyr-lang-zig/tests/sync" "-d" "build/sync" "-t" "run"
+        }
+    }
+}
