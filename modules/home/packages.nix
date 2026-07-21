@@ -81,6 +81,7 @@
         espflash
         cargo-seek
         esp-generate
+        bossa-arduino
         cargo-embassy
         cargo-generate
         cargo-binstall
