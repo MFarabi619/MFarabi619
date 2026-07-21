@@ -413,7 +413,7 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
 
     let mut images =
         node.create_subscriber::<CompressedImage>(&image_topic, Some(Profile::sensor_data()))?;
-    let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel_autonomy", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
+    let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     let mut enable = node.create_server::<SetBool>("~/enable", None)?;
     let skeleton = foxglove::ChannelBuilder::new("/hand/landmarks").build::<ImageAnnotations>();
     let mut brain = GestureBrain::new(forward_speed, turn_speed);

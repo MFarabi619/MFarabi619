@@ -1,4 +1,4 @@
-pub const RGPIOD_HOST: &str = "rpi5-16-2";
+pub const RGPIOD_HOST: &str = "192.168.12.119";
 pub const RGPIOD_PORT: u16 = 8889;
 pub const GPIO_CHIP: u32 = 0;
 

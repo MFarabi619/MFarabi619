@@ -199,11 +199,48 @@
     <origin xyz="0.2000 0.0000 0.7500" rpy="0.0000 0.0000 0.0000"/>
   </joint>
 
+  <link name="ptu_0_base_link"/>
+  <joint name="ptu_0_base_link_joint" type="fixed">
+    <parent link="camera_mount_link"/>
+    <child link="ptu_0_base_link"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <link name="ptu_0_pan_link">
+    <inertial>
+      <mass value="0.0100"/>
+      <origin xyz="0.0000 0.0000 0.0000"/>
+      <inertia ixx="1.666667e-7" ixy="0.000000e0" ixz="0.000000e0" iyy="1.666667e-7" iyz="0.000000e0" izz="1.666667e-7"/>
+    </inertial>
+  </link>
+  <joint name="ptu_0_pan" type="revolute">
+    <parent link="ptu_0_base_link"/>
+    <child link="ptu_0_pan_link"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.0000 0.0000"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.5708" upper="1.5708" effort="1.0" velocity="3.1416"/>
+  </joint>
+
+  <link name="ptu_0_tilt_link">
+    <inertial>
+      <mass value="0.0100"/>
+      <origin xyz="0.0000 0.0000 0.0000"/>
+      <inertia ixx="1.666667e-7" ixy="0.000000e0" ixz="0.000000e0" iyy="1.666667e-7" iyz="0.000000e0" izz="1.666667e-7"/>
+    </inertial>
+  </link>
+  <joint name="ptu_0_tilt" type="revolute">
+    <parent link="ptu_0_pan_link"/>
+    <child link="ptu_0_tilt_link"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.0000 0.0000"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.5708" upper="1.5708" effort="1.0" velocity="3.1416"/>
+  </joint>
+
   <link name="camera_0_link"/>
   <joint name="camera_0_link_joint" type="fixed">
-    <parent link="camera_mount_link"/>
+    <parent link="base_link"/>
     <child link="camera_0_link"/>
-    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.3100 0.0000"/>
+    <origin xyz="-0.5750 0.0000 0.7500" rpy="0.0000 0.3100 0.0000"/>
   </joint>
 
   <link name="camera_0_color_optical_frame"/>
@@ -215,9 +252,9 @@
 
   <link name="camera_1_link"/>
   <joint name="camera_1_link_joint" type="fixed">
-    <parent link="camera_mount_link"/>
+    <parent link="base_link"/>
     <child link="camera_1_link"/>
-    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.3100 0.0000"/>
+    <origin xyz="0.4050 0.4746 0.5000" rpy="0.0000 0.3100 0.0000"/>
   </joint>
 
   <link name="camera_1_color_optical_frame"/>
@@ -236,7 +273,7 @@
 
   <gazebo reference="camera_0_link">
     <sensor name="camera_0" type="camera">
-      <update_rate>15</update_rate>
+      <update_rate>30</update_rate>
       <always_on>true</always_on>
       <frame_id>camera_0_color_optical_frame</frame_id>
       <topic>sensors/camera_0/color/image</topic>
@@ -256,7 +293,7 @@
 
   <gazebo reference="camera_1_link">
     <sensor name="camera_1" type="camera">
-      <update_rate>15</update_rate>
+      <update_rate>30</update_rate>
       <always_on>true</always_on>
       <frame_id>camera_1_color_optical_frame</frame_id>
       <topic>sensors/camera_1/color/image</topic>

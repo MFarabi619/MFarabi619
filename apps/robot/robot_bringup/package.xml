@@ -18,6 +18,7 @@
   <exec_depend>robot_description</exec_depend>
   <exec_depend>robot_control</exec_depend>
   <exec_depend>robot_camera</exec_depend>
+  <exec_depend>robot_ptu</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -12150,8 +12150,10 @@ version = "0.1.0"
 dependencies = [
  "comfy-table",
  "crossterm 0.29.0",
+ "embedded-graphics",
  "foxglove",
  "futures-util",
+ "mousefood",
  "oxidros",
  "ratatui",
  "rattler_conda_types",

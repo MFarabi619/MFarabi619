@@ -12,6 +12,8 @@ def robot_spawn(x: float = -9.0, y: float = -16.0, z: float = 0.5, yaw: float = 
         robot_description = file.read()
     controllers = os.path.join(
         get_package_share_directory('robot_control'), 'config', 'control.yaml')
+    drivetrain = os.path.join(
+        get_package_share_directory('robot_control'), 'config', 'drivetrain.generated.yaml')
     robot_description = robot_description.replace(
         'package://robot_control/config/control.yaml', controllers)
 
@@ -30,14 +32,10 @@ def robot_spawn(x: float = -9.0, y: float = -16.0, z: float = 0.5, yaw: float = 
     bl.node(
         package='controller_manager',
         executable='spawner',
-        name='joint_state_broadcaster_spawner',
-        cmd_args=['joint_state_broadcaster'],
-        env={'ROS_SUPER_CLIENT': 'True'})
-    bl.node(
-        package='controller_manager',
-        executable='spawner',
-        name='diff_drive_controller_spawner',
-        cmd_args=['diff_drive_controller', '--param-file', controllers,
+        name='controller_spawner',
+        cmd_args=['joint_state_broadcaster', 'diff_drive_controller',
+                  '--param-file', controllers, '--param-file', drivetrain,
+                  '--controller-manager-timeout', '60',
                   '--controller-ros-args',
                   '-r ~/cmd_vel:=/platform/cmd_vel -r ~/reference:=/platform/cmd_vel'],
         env={'ROS_SUPER_CLIENT': 'True'})

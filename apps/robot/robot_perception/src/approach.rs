@@ -118,7 +118,7 @@ pub async fn run_green_approach(node: Arc<Node>) -> Result<(), BoxError> {
         image_topic,
         Some(Profile::sensor_data()),
     )?;
-    let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel_autonomy", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
+    let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     let overlay_channel =
         foxglove::ChannelBuilder::new("/green/overlay").build::<ImageAnnotations>();
     let frames = AtomicU64::new(0);

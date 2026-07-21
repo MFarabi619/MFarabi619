@@ -15,13 +15,6 @@ def control():
         remaps={"~/robot_description": "robot_description"},
     )
     bl.node(
-        package="twist_stamper",
-        executable="twist_stamper",
-        name="twist_stamper",
-        params={"frame_id": "base_link"},
-        remaps={"cmd_vel_in": "cmd_vel", "cmd_vel_out": "cmd_vel_stamped"},
-    )
-    bl.node(
         package="twist_mux",
         executable="twist_mux",
         name="twist_mux",
@@ -31,15 +24,11 @@ def control():
     bl.node(
         package="controller_manager",
         executable="spawner",
-        name="joint_state_broadcaster_spawner",
-        cmd_args=["joint_state_broadcaster"],
-    )
-    bl.node(
-        package="controller_manager",
-        executable="spawner",
-        name="diff_drive_controller_spawner",
+        name="controller_spawner",
         cmd_args=[
-            "diff_drive_controller", "--param-file", controllers, "--param-file", drivetrain,
+            "joint_state_broadcaster", "diff_drive_controller",
+            "--param-file", controllers, "--param-file", drivetrain,
+            "--controller-manager-timeout", "60",
             "--controller-ros-args", "-r ~/cmd_vel:=/platform/cmd_vel",
         ],
     )

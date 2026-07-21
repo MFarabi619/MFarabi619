@@ -8,8 +8,7 @@ use oxidros::{
     prelude::*,
 };
 use robot_control::params::string_param;
-use robot_description::time::now_stamp;
-use robot_description::frames::GPS_LINK;
+use robot_description::{frames::GPS_LINK, time::now_stamp};
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     net::TcpStream,
@@ -84,7 +83,8 @@ pub async fn run_gps(node: Arc<Node>, default_host: &str) -> Result<(), BoxError
         let store = parameters.params.read();
         string_param(&store, "host", default_host)
     };
-    let publisher = node.create_publisher::<NavSatFix>("sensors/gps_0/fix", Some(Profile::sensor_data()))?;
+    let publisher =
+        node.create_publisher::<NavSatFix>("sensors/gps_0/fix", Some(Profile::sensor_data()))?;
     tracing::info!("reading gpsd at {host}:{GPSD_PORT}");
     loop {
         if let Err(error) = stream_fixes(&publisher, &host).await {

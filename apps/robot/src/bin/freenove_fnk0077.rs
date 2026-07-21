@@ -11,7 +11,7 @@ use robot_drivers::{
 
 const RGPIOD_HOST: &str = "rpi5-16";
 const RGPIOD_PORT: u16 = 8889;
-const CAMERA_PORT: &str = "8888";
+const CAMERA_PORT: u16 = 8888;
 const GPIO_CHIP: u32 = 0;
 const PWM_FREQUENCY_HZ: f32 = 1000.0;
 const SERVO_FREQUENCY_HZ: f32 = 50.0;
@@ -47,7 +47,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let camera_node = context.create_node("camera", None)?;
     robot::spawn_logged(
         "camera",
-        robot::run_camera(camera_node, format!("{RGPIOD_HOST}:{CAMERA_PORT}"), robot::config::CAMERA),
+        robot::run_camera(camera_node, RGPIOD_HOST.to_string(), CAMERA_PORT, robot::config::CAMERA),
     );
 
     robot::spawn_bridge(&context)?;

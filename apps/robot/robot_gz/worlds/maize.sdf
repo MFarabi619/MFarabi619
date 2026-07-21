@@ -34,8 +34,8 @@
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
       <world_frame_orientation>ENU</world_frame_orientation>
-      <latitude_deg>45.4215</latitude_deg>
-      <longitude_deg>-75.6972</longitude_deg>
+      <latitude_deg>45.395134</latitude_deg>
+      <longitude_deg>-75.572868</longitude_deg>
       <elevation>70.0</elevation>
       <heading_deg>0.0</heading_deg>
     </spherical_coordinates>
@@ -63382,9 +63382,13 @@
       <static>true</static>
     </include>
     <model name="cone_red">
-      <static>true</static>
       <pose>-12.0 -19.0 0.122 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <pose>0 0 0.175 0 0 0</pose>
+          <mass>2.0</mass>
+          <inertia><ixx>0.0513</ixx><iyy>0.0513</iyy><izz>0.0290</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+        </inertial>
         <visual name="visual">
           <pose>0 0 0.35 0 0 0</pose>
           <geometry><cone><radius>0.22</radius><length>0.7</length></cone></geometry>
@@ -63397,9 +63401,13 @@
       </link>
     </model>
     <model name="cone_orange">
-      <static>true</static>
       <pose>-10.0 -19.0 0.130 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <pose>0 0 0.175 0 0 0</pose>
+          <mass>2.0</mass>
+          <inertia><ixx>0.0513</ixx><iyy>0.0513</iyy><izz>0.0290</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+        </inertial>
         <visual name="visual">
           <pose>0 0 0.35 0 0 0</pose>
           <geometry><cone><radius>0.22</radius><length>0.7</length></cone></geometry>
@@ -63412,9 +63420,13 @@
       </link>
     </model>
     <model name="cone_yellow">
-      <static>true</static>
       <pose>-8.0 -19.0 0.116 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <pose>0 0 0.175 0 0 0</pose>
+          <mass>2.0</mass>
+          <inertia><ixx>0.0513</ixx><iyy>0.0513</iyy><izz>0.0290</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+        </inertial>
         <visual name="visual">
           <pose>0 0 0.35 0 0 0</pose>
           <geometry><cone><radius>0.22</radius><length>0.7</length></cone></geometry>
@@ -63427,9 +63439,13 @@
       </link>
     </model>
     <model name="cone_blue">
-      <static>true</static>
       <pose>-6.0 -19.0 0.122 0 0 0</pose>
       <link name="link">
+        <inertial>
+          <pose>0 0 0.175 0 0 0</pose>
+          <mass>2.0</mass>
+          <inertia><ixx>0.0513</ixx><iyy>0.0513</iyy><izz>0.0290</izz><ixy>0</ixy><ixz>0</ixz><iyz>0</iyz></inertia>
+        </inertial>
         <visual name="visual">
           <pose>0 0 0.35 0 0 0</pose>
           <geometry><cone><radius>0.22</radius><length>0.7</length></cone></geometry>

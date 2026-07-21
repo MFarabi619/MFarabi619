@@ -1,0 +1,19 @@
+[Unit]
+Description=Orbbec Gemini 335L driver (ROS 2 — depth; point cloud is built off-board)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=mfarabi
+SupplementaryGroups=video
+Environment=RMW_IMPLEMENTATION=rmw_zenoh_cpp
+Environment=ROS_DOMAIN_ID=0
+Environment='ZENOH_CONFIG_OVERRIDE=mode="client";connect/endpoints=["tcp/macos.local:7447"]'
+ExecStart=/home/mfarabi/.pixi/bin/ros2 launch orbbec_camera gemini_330_series.launch.py enable_color:=false enable_point_cloud:=false
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

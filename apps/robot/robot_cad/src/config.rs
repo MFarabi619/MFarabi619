@@ -16,6 +16,13 @@ pub struct RobotConfig {
 pub struct System {
     #[serde(default)]
     pub namespace: String,
+    #[serde(default)]
+    pub hosts: Vec<Host>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Host {
+    pub ip: String,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -24,6 +31,8 @@ pub struct Sensors {
     pub camera: Vec<Sensor>,
     #[serde(default)]
     pub gps: Vec<Sensor>,
+    #[serde(default)]
+    pub ptu: Vec<Mount>,
 }
 
 #[derive(Debug, Deserialize)]

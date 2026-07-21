@@ -14,3 +14,4 @@ def bringup():
     bl.include("robot_bringup", "sensors.launch.py")
     bl.include("robot_description", "description.launch.py")
     bl.include("robot_control", "control.launch.py")
+    bl.process("pixi run gesture", name="gesture_recognizer")

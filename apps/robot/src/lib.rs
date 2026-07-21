@@ -52,7 +52,8 @@ pub fn spawn_sensors(
         "camera",
         run_camera(
             camera_node,
-            format!("{}:{CAMERA_PORT}", config::RGPIOD_HOST),
+            config::RGPIOD_HOST.to_string(),
+            CAMERA_PORT,
             config::CAMERA,
         ),
     );

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.16)
 project(robot_gz NONE)
 
 find_package(ament_cmake REQUIRED)

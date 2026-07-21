@@ -10,6 +10,7 @@ from robot_config.sensors.types.camera import (
     USBWebcam,
 )
 from robot_config.sensors.types.gps import BaseGPS, Gpsd
+from robot_config.sensors.types.ptu import BasePTU, Pca9685Servo
 from robot_config.sensors.types.sensor import BaseSensor
 
 
@@ -51,6 +52,23 @@ class GlobalPositioningSystem():
         return cls.MODEL[model]()
 
 
+class PanTiltUnit():
+    PCA9685_SERVO = Pca9685Servo.SENSOR_MODEL
+
+    MODEL = {
+        PCA9685_SERVO: Pca9685Servo,
+    }
+
+    @classmethod
+    def assert_model(cls, model: str) -> None:
+        if model not in cls.MODEL:
+            raise ValueError(f'Model "{model}" must be one of "{cls.MODEL.keys()}"')
+
+    def __new__(cls, model: str) -> BasePTU:
+        cls.assert_model(model)
+        return cls.MODEL[model]()
+
+
 class SensorListConfig(OrderedListConfig[BaseSensor]):
 
     def __init__(self) -> None:
@@ -68,11 +86,13 @@ class SensorConfig(BaseConfig):
     SENSORS = 'sensors'
     CAMERA = BaseCamera.SENSOR_TYPE
     GPS = BaseGPS.SENSOR_TYPE
+    PTU = BasePTU.SENSOR_TYPE
 
     TEMPLATE = {
         SENSORS: {
             CAMERA: CAMERA,
             GPS: GPS,
+            PTU: PTU,
         }
     }
 
@@ -81,6 +101,7 @@ class SensorConfig(BaseConfig):
     DEFAULTS = {
         CAMERA: [],
         GPS: [],
+        PTU: [],
     }
 
     def __init__(
@@ -88,17 +109,21 @@ class SensorConfig(BaseConfig):
             config: dict = {},
             camera: List[BaseCamera] = DEFAULTS[CAMERA],
             gps: List[BaseGPS] = DEFAULTS[GPS],
+            ptu: List[BasePTU] = DEFAULTS[PTU],
             ) -> None:
         # List Initialization
         self._camera = SensorListConfig()
         self._gps = SensorListConfig()
+        self._ptu = SensorListConfig()
         # Initialization
         self.camera = camera
         self.gps = gps
+        self.ptu = ptu
         # Template
         template = {
             self.KEYS[self.CAMERA]: SensorConfig.camera,
             self.KEYS[self.GPS]: SensorConfig.gps,
+            self.KEYS[self.PTU]: SensorConfig.ptu,
         }
         super().__init__(template, config, self.SENSORS)
 
@@ -150,11 +175,36 @@ class SensorConfig(BaseConfig):
             sensor_list.append(sensor)
         self._gps.set_all(sensor_list)
 
+    @property
+    def ptu(self) -> OrderedListConfig:
+        self.set_config_param(
+            key=self.KEYS[self.PTU],
+            value=self._ptu.to_dict()
+        )
+        return self._ptu
+
+    @ptu.setter
+    def ptu(self, value: List[dict]) -> None:
+        if not isinstance(value, list):
+            raise TypeError(f'PTU must be list of "dict". Got {value}')
+        for d in value:
+            if not isinstance(d, dict):
+                raise TypeError(f'PTU {d} must be of type "dict"')
+            if 'model' not in d:
+                raise ValueError(f'PTU {d} does not have a "model" parameter')
+        sensor_list = []
+        for d in value:
+            sensor = PanTiltUnit(d['model'])
+            sensor.from_dict(d)
+            sensor_list.append(sensor)
+        self._ptu.set_all(sensor_list)
+
     # Get All Sensors
     def get_all_sensors(self) -> List[BaseSensor]:
         sensors = []
         sensors.extend(self.get_all_cameras())
         sensors.extend(self.get_all_gps())
+        sensors.extend(self.get_all_ptu())
         return sensors
 
     # Camera: Get All
@@ -164,3 +214,7 @@ class SensorConfig(BaseConfig):
     # GPS: Get All
     def get_all_gps(self) -> List[BaseGPS]:
         return self._gps.get_all()
+
+    # PTU: Get All
+    def get_all_ptu(self) -> List[BasePTU]:
+        return self._ptu.get_all()

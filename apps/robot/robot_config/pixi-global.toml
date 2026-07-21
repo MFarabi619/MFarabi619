@@ -1,0 +1,6 @@
+version = 1
+
+[envs.robot]
+channels = ["robostack-jazzy", "conda-forge"]
+dependencies = { ros-jazzy-orbbec-camera = "*", ros-jazzy-ros2launch = "*", ros-jazzy-rmw-zenoh-cpp = "*", ros-jazzy-ros2run = "*" }
+exposed = { ros2 = "ros2" }

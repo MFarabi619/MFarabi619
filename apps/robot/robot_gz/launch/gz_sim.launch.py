@@ -5,7 +5,8 @@ from better_launch import BetterLaunch, launch_this
 
 
 @launch_this
-def gz_sim(world: str = 'maize'):
+def gz_sim(world: str = 'maize', headless: bool = False):
+    headless = str(headless).lower() in ('true', '1')
     bl = BetterLaunch()
     share = get_package_share_directory('robot_gz')
     worlds = os.path.join(share, 'worlds')
@@ -16,7 +17,7 @@ def gz_sim(world: str = 'maize'):
     world_file = os.path.join(worlds, f'{world}.sdf')
     plugin_path = os.path.join(os.environ.get('CONDA_PREFIX', ''), 'lib')
     bl.process(
-        ['gz', 'sim', world_file, '-r', '-v', '4'],
+        ['gz', 'sim', world_file, '-r', '-v', '4'] + (['-s'] if headless else []),
         name='gazebo',
         env={
             'GZ_SIM_RESOURCE_PATH': resource_path,

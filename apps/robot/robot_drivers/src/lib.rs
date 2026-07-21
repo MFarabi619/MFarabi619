@@ -5,4 +5,5 @@ pub mod motor;
 pub mod pca9685;
 pub mod servo;
 pub mod spi;
+pub mod ssd1306;
 pub mod ws2812;

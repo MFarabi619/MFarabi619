@@ -18,7 +18,7 @@ def robot(platform: str = "rover"):
     bl.process(
         f"target/release/base_controller --ros-args"
         f" --params-file {control}"
-        f" --params-file {generated}/camera.yaml"
+        f" --params-file {generated}/camera_0.yaml"
         f" --params-file {generated}/gps.yaml",
         name="base_controller",
     )

@@ -22,7 +22,8 @@ class MjpegCamera(Node):
     def __init__(self):
         super().__init__("camera")
         self.name = self.declare_parameter("name", "camera_0").value
-        self.source = self.declare_parameter("source", "rpi5-16-2:8887").value
+        self.host = self.declare_parameter("host", "192.168.12.119").value
+        self.port = self.declare_parameter("port", 8887).value
         self.image_topic = self.declare_parameter(
             "image_topic", "color/image/compressed"
         ).value
@@ -63,12 +64,13 @@ class MjpegCamera(Node):
         return info
 
     def _read_loop(self):
-        host, _, port = self.source.partition(":")
         while not self.stopped.is_set() and rclpy.ok():
             try:
-                self._stream(host, int(port))
+                self._stream(self.host, self.port)
             except OSError as error:
-                self.get_logger().warn(f"camera stream {self.source} lost ({error}); retrying")
+                self.get_logger().warning(
+                    f"camera stream {self.host}:{self.port} lost ({error}); retrying"
+                )
                 self.stopped.wait(1.0)
 
     def _stream(self, host, port):

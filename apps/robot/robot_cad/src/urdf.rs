@@ -1,5 +1,6 @@
 use std::{
     error::Error,
+    f64::consts::FRAC_PI_2,
     fs::{self, File},
     io::BufWriter,
     path::Path,
@@ -23,7 +24,7 @@ use crate::{
     Joint, JointType, Link,
 };
 
-fn hardware_params() -> String {
+fn hardware_params(host: &str) -> String {
     use robot_description::wiring;
     let max_wheel_speed =
         wiring::MAX_LINEAR_VELOCITY_MPS / (WHEEL_TREAD_DIAMETER_MM / 2.0 * MM_TO_M);
@@ -42,7 +43,7 @@ fn hardware_params() -> String {
       <param name="right_dir_pin">{right_dir}</param>
       <param name="right_forward_level">{right_fwd}</param>
 "#,
-        host = wiring::RGPIOD_HOST,
+        host = host,
         port = wiring::RGPIOD_PORT,
         chip = wiring::GPIO_CHIP,
         freq = wiring::PWM_FREQUENCY_HZ,
@@ -106,7 +107,7 @@ fn gz_ros2_control_system(namespace: &str) -> String {
     )
 }
 
-fn ros2_control_block(is_simulation: bool, namespace: &str) -> String {
+fn ros2_control_block(is_simulation: bool, namespace: &str, host: &str) -> String {
     let plugin = if is_simulation {
         "gz_ros2_control/GazeboSimSystem"
     } else {
@@ -116,7 +117,7 @@ fn ros2_control_block(is_simulation: bool, namespace: &str) -> String {
         String::from("  <ros2_control name=\"RobotHardware\" type=\"system\">\n    <hardware>\n");
     block.push_str(&format!("      <plugin>{plugin}</plugin>\n"));
     if !is_simulation {
-        block.push_str(&hardware_params());
+        block.push_str(&hardware_params(host));
     }
     block.push_str("    </hardware>\n");
     for wheel_joint in [
@@ -144,7 +145,7 @@ fn sim_sensor_plugins(config: &RobotConfig) -> String {
         xml.push_str(&format!(
             r#"  <gazebo reference="{link}">
     <sensor name="camera_{index}" type="camera">
-      <update_rate>15</update_rate>
+      <update_rate>30</update_rate>
       <always_on>true</always_on>
       <frame_id>{optical}</frame_id>
       <topic>sensors/camera_{index}/color/image</topic>
@@ -193,6 +194,14 @@ fn sensor_and_mount_frames(config: &RobotConfig) -> String {
             mount.rpy,
         );
     }
+    for (index, ptu) in config.sensors.ptu.iter().enumerate() {
+        let base = format!("ptu_{index}_base_link");
+        let pan = format!("ptu_{index}_pan_link");
+        let tilt = format!("ptu_{index}_tilt_link");
+        push_frame(&mut xml, &base, &ptu.parent, ptu.xyz, ptu.rpy);
+        push_revolute(&mut xml, &format!("ptu_{index}_pan"), &base, &pan, [0.0, 0.0, 1.0]);
+        push_revolute(&mut xml, &format!("ptu_{index}_tilt"), &pan, &tilt, [0.0, 1.0, 0.0]);
+    }
     for (index, camera) in config.sensors.camera.iter().enumerate() {
         let link = format!("camera_{index}_link");
         let optical = format!("camera_{index}_color_optical_frame");
@@ -214,6 +223,44 @@ fn push_frame(xml: &mut String, name: &str, parent: &str, xyz: [f64; 3], rpy: [f
     xml.push_str(&format!(
         "    <origin xyz=\"{:.4} {:.4} {:.4}\" rpy=\"{:.4} {:.4} {:.4}\"/>\n",
         xyz[0], xyz[1], xyz[2], rpy[0], rpy[1], rpy[2],
+    ));
+    xml.push_str("  </joint>\n\n");
+}
+
+const DUMMY_INERTIAL_MASS_KG: f64 = 0.01;
+const DUMMY_INERTIAL_EXTENT_M: f64 = 0.01;
+
+fn dummy_inertial_xml() -> String {
+    let extent = DUMMY_INERTIAL_EXTENT_M;
+    let diagonal = (1.0 / 12.0) * DUMMY_INERTIAL_MASS_KG * (extent * extent + extent * extent);
+    format!(
+        concat!(
+            "    <inertial>\n",
+            "      <mass value=\"{:.4}\"/>\n",
+            "      <origin xyz=\"0.0000 0.0000 0.0000\"/>\n",
+            "      <inertia ixx=\"{d:.6e}\" ixy=\"0.000000e0\" ixz=\"0.000000e0\" iyy=\"{d:.6e}\" iyz=\"0.000000e0\" izz=\"{d:.6e}\"/>\n",
+            "    </inertial>\n",
+        ),
+        DUMMY_INERTIAL_MASS_KG,
+        d = diagonal,
+    )
+}
+
+fn push_revolute(xml: &mut String, joint: &str, parent: &str, child: &str, axis: [f64; 3]) {
+    xml.push_str(&format!("  <link name=\"{child}\">\n"));
+    xml.push_str(&dummy_inertial_xml());
+    xml.push_str("  </link>\n");
+    xml.push_str(&format!("  <joint name=\"{joint}\" type=\"revolute\">\n"));
+    xml.push_str(&format!("    <parent link=\"{parent}\"/>\n"));
+    xml.push_str(&format!("    <child link=\"{child}\"/>\n"));
+    xml.push_str("    <origin xyz=\"0.0000 0.0000 0.0000\" rpy=\"0.0000 0.0000 0.0000\"/>\n");
+    xml.push_str(&format!(
+        "    <axis xyz=\"{:.0} {:.0} {:.0}\"/>\n",
+        axis[0], axis[1], axis[2],
+    ));
+    xml.push_str(&format!(
+        "    <limit lower=\"{:.4}\" upper=\"{:.4}\" effort=\"1.0\" velocity=\"3.1416\"/>\n",
+        -FRAC_PI_2, FRAC_PI_2,
     ));
     xml.push_str("  </joint>\n\n");
 }
@@ -303,11 +350,20 @@ pub fn write(
 
     let header = "<?xml version=\"1.0\"?>\n<?xml-model href=\"https://raw.githubusercontent.com/ros/urdfdom/master/xsd/urdf.xsd\" ?>\n<robot name=\"robot\">\n\n";
     let namespace = &config.system.namespace;
-    let hardware_urdf = format!("{header}{body}{}</robot>\n", ros2_control_block(false, namespace));
+    let rgpiod_host = config
+        .system
+        .hosts
+        .first()
+        .map(|host| host.ip.as_str())
+        .unwrap_or(robot_description::wiring::RGPIOD_HOST);
+    let hardware_urdf = format!(
+        "{header}{body}{}</robot>\n",
+        ros2_control_block(false, namespace, rgpiod_host)
+    );
     let simulation_urdf = format!(
         "{header}{body}{}{}</robot>\n",
         sim_sensor_plugins(config),
-        ros2_control_block(true, namespace)
+        ros2_control_block(true, namespace, rgpiod_host)
     );
 
     let urdf_directory = package_directory.join("urdf");

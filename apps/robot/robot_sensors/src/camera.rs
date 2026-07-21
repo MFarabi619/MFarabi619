@@ -10,9 +10,8 @@ use oxidros::{
     },
     prelude::*,
 };
-use robot_control::params::string_param;
-use robot_description::time::now_stamp;
-use robot_description::{camera_intrinsics, frames::CAMERA_OPTICAL};
+use robot_control::params::{f64_param, string_param};
+use robot_description::{camera_intrinsics, time::now_stamp};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -21,6 +20,7 @@ use tokio::{
 const SOI: [u8; 2] = [0xFF, 0xD8];
 const EOI: [u8; 2] = [0xFF, 0xD9];
 const READ_CHUNK_BYTES: usize = 65536;
+
 #[derive(Clone, Copy)]
 pub struct CameraProfile {
     pub width: usize,
@@ -60,22 +60,22 @@ fn take_jpeg(buffer: &mut Vec<u8>) -> Option<Vec<u8>> {
     Some(frame)
 }
 
-fn compressed_image(jpeg: &[u8], (sec, nanosec): (i32, u32)) -> CompressedImage {
+fn compressed_image(jpeg: &[u8], frame_id: &str, (sec, nanosec): (i32, u32)) -> CompressedImage {
     let mut image = CompressedImage::new().unwrap();
     image.header.stamp.sec = sec;
     image.header.stamp.nanosec = nanosec;
-    image.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
+    image.header.frame_id = RosString::new(frame_id).unwrap();
     image.format = RosString::new("jpeg").unwrap();
     image.data = jpeg.try_into().unwrap();
     image
 }
 
-fn camera_info(profile: CameraProfile, (sec, nanosec): (i32, u32)) -> CameraInfo {
+fn camera_info(profile: CameraProfile, frame_id: &str, (sec, nanosec): (i32, u32)) -> CameraInfo {
     let (fx, fy, cx, cy) = camera_intrinsics(profile.width, profile.height, profile.fov_deg);
     let mut info = CameraInfo::new().unwrap();
     info.header.stamp.sec = sec;
     info.header.stamp.nanosec = nanosec;
-    info.header.frame_id = RosString::new(CAMERA_OPTICAL).unwrap();
+    info.header.frame_id = RosString::new(frame_id).unwrap();
     info.width = profile.width as u32;
     info.height = profile.height as u32;
     info.distortion_model = RosString::new("plumb_bob").unwrap();
@@ -88,21 +88,27 @@ fn camera_info(profile: CameraProfile, (sec, nanosec): (i32, u32)) -> CameraInfo
 
 pub async fn run_camera(
     node: Arc<Node>,
-    default_source: String,
+    default_host: String,
+    default_port: u16,
     profile: CameraProfile,
 ) -> Result<(), crate::BoxError> {
-    let (source, image_topic) = {
+    let (source, image_topic, info_topic, frame_id) = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
+        let name = string_param(&store, "name", "camera_0");
+        let host = string_param(&store, "host", &default_host);
+        let port = f64_param(&store, "port", default_port as f64) as u16;
         (
-            string_param(&store, "source", &default_source),
-            string_param(&store, "image_topic", "sensors/camera_0/color/image/compressed"),
+            format!("{host}:{port}"),
+            format!("sensors/{name}/color/image/compressed"),
+            format!("sensors/{name}/color/camera_info"),
+            format!("{name}_color_optical_frame"),
         )
     };
     let image_pub =
         node.create_publisher::<CompressedImage>(&image_topic, Some(Profile::sensor_data()))?;
-    let info_pub = node
-        .create_publisher::<CameraInfo>("sensors/camera_0/color/camera_info", Some(Profile::sensor_data()))?;
+    let info_pub =
+        node.create_publisher::<CameraInfo>(&info_topic, Some(Profile::sensor_data()))?;
 
     tracing::info!("streaming camera from {source} -> {image_topic}");
     let mut stream = TcpStream::connect(&source).await?;
@@ -124,12 +130,11 @@ pub async fn run_camera(
             }
             last_publish = Some(Instant::now());
             let stamp = now_stamp();
-            let _ = image_pub.send(&compressed_image(&frame, stamp));
-            let _ = info_pub.send(&camera_info(profile, stamp));
+            let _ = image_pub.send(&compressed_image(&frame, &frame_id, stamp));
+            let _ = info_pub.send(&camera_info(profile, &frame_id, stamp));
         }
     }
 
     tracing::warn!("camera stream at {source} closed");
     Ok(())
 }
-

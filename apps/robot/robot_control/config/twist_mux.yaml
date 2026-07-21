@@ -2,14 +2,14 @@ twist_mux:
   ros__parameters:
     use_stamped: true
     topics:
-      teleop:
-        topic: cmd_vel_stamped
-        timeout: 0.5
-        priority: 90
-      autonomy:
-        topic: cmd_vel_autonomy
+      joy:
+        topic: joy_teleop/cmd_vel
         timeout: 0.5
         priority: 10
+      external:
+        topic: cmd_vel
+        timeout: 0.5
+        priority: 1
     locks:
       e_stop:
         topic: platform/emergency_stop

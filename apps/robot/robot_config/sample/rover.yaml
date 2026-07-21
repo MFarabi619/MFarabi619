@@ -4,43 +4,55 @@ system:
   namespace: ""
   hosts:
     - hostname: rpi5-16-2
-      ip: 10.0.0.208
+      ip: &host 192.168.12.119
 platform:
   attachments: []
 sensors:
   camera:
     - model: orbbec_gemini_335l
-      parent: camera_mount_link
-      xyz: [0.0, 0.0, 0.0]
+      parent: base_link
+      xyz: [-0.575, 0.0, 0.75]
       rpy: [0.0, 0.31, 0.0]
-      ros_parameters:
-        camera_0:
-          name: camera_0
-          source: "rpi5-16-2:8887"
-          stream_path: "/stream"
-          width: 1280
-          height: 720
-          fov_deg: 90.0
+      ros_parameters: {}
     - model: imx296_gs
-      parent: camera_mount_link
-      xyz: [0.0, 0.0, 0.0]
+      parent: base_link
+      xyz: [0.405, 0.4746, 0.5]
       rpy: [0.0, 0.31, 0.0]
       ros_parameters:
         camera_1:
           name: camera_1
-          source: "rpi5-16-2:8888"
+          host: *host
+          port: 8888
           stream_path: ""
           width: 1456
           height: 1088
           fov_deg: 54.0
+  ptu:
+    - model: pca9685_servo
+      parent: camera_mount_link
+      xyz: [0.0, 0.0, 0.0]
+      rpy: [0.0, 0.0, 0.0]
+      ros_parameters:
+        ptu_0:
+          rgpiod_host: *host
+          rgpiod_port: "8889"
+          i2c_bus: 1
+          pca9685_addr: 64
+          pan_channel: 1
+          tilt_channel: 0
+          pan_center: 90.0
+          tilt_center: 180.0
+          pan_joint: ptu_0_pan
+          tilt_joint: ptu_0_tilt
+          publish_rate: 20.0
   gps:
     - model: gpsd
       parent: base_link
       ros_parameters:
         gps:
-          host: rpi5-16-2
+          host: *host
         nmea_navsat_driver:
-          ip: rpi5-16-2
+          ip: *host
           port: 9001
           buffer_size: 4096
           frame_id: gps_link

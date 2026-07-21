@@ -317,7 +317,7 @@ pub async fn run_line_follower(
     };
     let mut images = node
         .create_subscriber::<CompressedImage>(&image_topic, Some(Profile::sensor_data()))?;
-    let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel_autonomy", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
+    let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     let mut enable = node.create_server::<SetBool>("~/enable", None)?;
     let overlay_channel =
         foxglove::ChannelBuilder::new("/line/overlay").build::<ImageAnnotations>();
