@@ -53,7 +53,7 @@ fn read_mesh_asset(uri: &str) -> Result<Vec<u8>, String> {
         .filter(|name| !name.is_empty() && !name.contains('/') && !name.contains(".."))
         .ok_or_else(|| format!("unknown asset {uri}"))?;
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("robot_description")
+        .join("description")
         .join("meshes")
         .join(filename);
     fs::read(&path).map_err(|error| format!("read {}: {error}", path.display()))

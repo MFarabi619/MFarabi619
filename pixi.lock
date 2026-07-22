@@ -937,7 +937,6 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-turtlesim-msgs-1.10.9-np2py314h1e5664e_22.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-twist-mux-4.5.1-np2py314h1e5664e_22.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-twist-mux-msgs-3.0.1-np2py314h1e5664e_22.conda
-      - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-twist-stamper-0.0.5-np2py314h1e5664e_22.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-type-description-interfaces-2.4.5-np2py314h1e5664e_22.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-uncrustify-vendor-3.2.0-np2py314h1e5664e_22.conda
       - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-unique-identifier-msgs-2.8.1-np2py314h1e5664e_22.conda
@@ -1952,7 +1951,6 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-turtlesim-msgs-1.10.9-np2py314hb48eaa3_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-twist-mux-4.5.1-np2py314hb48eaa3_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-twist-mux-msgs-3.0.1-np2py314hb48eaa3_22.conda
-      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-twist-stamper-0.0.5-np2py314hb48eaa3_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-type-description-interfaces-2.4.5-np2py314hb48eaa3_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-uncrustify-vendor-3.2.0-np2py314hb48eaa3_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-unique-identifier-msgs-2.8.1-np2py314hb48eaa3_22.conda
@@ -28654,26 +28652,6 @@ packages:
   run_exports: {}
   size: 257512
   timestamp: 1782734374545
-- conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-twist-stamper-0.0.5-np2py314hb48eaa3_22.conda
-  sha256: 81fb1a949a0d2110e1f52fcc575224359e6efa31545a534b8832e6236ba53c82
-  md5: 0a1dee975a039934138cddd03a07342f
-  depends:
-  - python
-  - ros-lyrical-geometry-msgs
-  - ros-lyrical-rclpy
-  - ros-lyrical-ros-workspace
-  - ros-lyrical-std-msgs
-  - ros2-distro-mutex 0.18.* lyrical_*
-  - libstdcxx >=14
-  - libgcc >=14
-  - __glibc >=2.28,<3.0.a0
-  - ros2-distro-mutex >=0.18.0,<0.19.0a0
-  - python_abi 3.14.* *_cp314
-  - numpy >=1.25,<3
-  license: Apache-2.0
-  run_exports: {}
-  size: 21189
-  timestamp: 1783457029924
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-type-description-interfaces-2.4.5-np2py314hb48eaa3_22.conda
   sha256: 501367221b836b33bc1f153727497a8db81bba1f5b594eba9a96c74f522db596
   md5: 1b3cece497821c1dac3f585235072c90
@@ -37729,25 +37707,6 @@ packages:
   run_exports: {}
   size: 224334
   timestamp: 1782735979012
-- conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-twist-stamper-0.0.5-np2py314h1e5664e_22.conda
-  sha256: 642e98da3ec57dd82500474f04e4dc9fccc00ba1d8a85ed6b8feed49a1c13a5c
-  md5: dd835d503dde37e8b1c3c65940399e0d
-  depends:
-  - python
-  - ros-lyrical-geometry-msgs
-  - ros-lyrical-rclpy
-  - ros-lyrical-ros-workspace
-  - ros-lyrical-std-msgs
-  - ros2-distro-mutex 0.18.* lyrical_*
-  - __osx >=11.0
-  - libcxx >=18
-  - python_abi 3.14.* *_cp314
-  - ros2-distro-mutex >=0.18.0,<0.19.0a0
-  - numpy >=1.25,<3
-  license: Apache-2.0
-  run_exports: {}
-  size: 22128
-  timestamp: 1783457121499
 - conda: https://prefix.dev/robostack-lyrical/osx-arm64/ros-lyrical-type-description-interfaces-2.4.5-np2py314h1e5664e_22.conda
   sha256: e2ea6e54f78268f8a7fa1b0bc564038abe081194a2c2153d6ff5e79dc3b1dce0
   md5: 9a4f15e4356eefd652a5af1ca41433d0

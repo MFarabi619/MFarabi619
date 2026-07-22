@@ -1,3 +1,0 @@
-gps:
-  ros__parameters:
-    host: '192.168.12.119'

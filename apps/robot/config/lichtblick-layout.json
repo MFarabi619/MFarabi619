@@ -1,0 +1,788 @@
+{
+  "configById": {
+    "Image!qhp1ob": {
+      "cameraState": {
+        "distance": 20,
+        "perspective": true,
+        "phi": 60,
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOffset": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "thetaOffset": 45,
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "scene": {
+        "enableStats": false
+      },
+      "transforms": {
+        "frame:camera_color_optical_frame": {
+          "visible": false
+        }
+      },
+      "topics": {
+        "/robot_description": {
+          "visible": false
+        },
+        "/initialpose": {
+          "visible": false
+        },
+        "/move_base_simple/goal": {
+          "visible": false
+        },
+        "/sensors/camera_0/points": {
+          "visible": true,
+          "colorField": "rgb",
+          "colorMode": "rgb",
+          "colorMap": "turbo"
+        }
+      },
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {
+        "imageTopic": "/sensors/camera_0/color/image_raw/compressed",
+        "contrast": 50,
+        "annotations": {
+          "/hand/landmarks": {
+            "visible": true
+          },
+          "/line/overlay": {
+            "visible": true
+          },
+          "/row/overlay": {
+            "visible": true
+          },
+          "/perception/gestures/overlay": {
+            "visible": true
+          },
+          "/perception/vision/overlay": {
+            "visible": true
+          }
+        },
+        "calibrationTopic": "/sensors/camera_0/color/camera_info"
+      }
+    },
+    "Plot!48ztyvd": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.orientation.x",
+          "enabled": true,
+          "color": "#4e98e2",
+          "label": ""
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.orientation.y",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": ""
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.orientation.z",
+          "enabled": true,
+          "color": "#f7df71",
+          "label": ""
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.orientation.w",
+          "enabled": true,
+          "color": "#61cbff",
+          "label": ""
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.angular_velocity.z",
+          "enabled": true,
+          "color": "#5cd6a9",
+          "label": ""
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.angular_velocity.x",
+          "enabled": true,
+          "color": "#a395e2",
+          "label": ""
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.angular_velocity.y",
+          "enabled": true,
+          "color": "#e276b1",
+          "label": ""
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "sidebarDimension": 310.29296875,
+      "lichtblickPanelTitle": "IMU Orientation"
+    },
+    "3D!4dlh3n9": {
+      "cameraState": {
+        "perspective": true,
+        "distance": 3.3216676797267324,
+        "phi": 56.900635590137696,
+        "thetaOffset": 95.43983540925609,
+        "targetOffset": [
+          0.3770756872151623,
+          -0.007578116556174412,
+          0.13624966863268934
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "targetOrientation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "fovy": 45,
+        "near": 0.5,
+        "far": 5000
+      },
+      "followMode": "follow-pose",
+      "followTf": "base_link",
+      "scene": {
+        "enableStats": false,
+        "syncCamera": true
+      },
+      "transforms": {
+        "frame:odom": {
+          "visible": false
+        },
+        "frame:base_link": {
+          "visible": false
+        },
+        "frame:camera_link": {
+          "visible": false
+        },
+        "frame:wheel_fl": {
+          "visible": false
+        },
+        "frame:chassis": {
+          "visible": false
+        },
+        "frame:wheel_fr": {
+          "visible": false
+        },
+        "frame:wheel_rl": {
+          "visible": false
+        },
+        "frame:wheel_rr": {
+          "visible": false
+        },
+        "frame:camera_optical_frame": {
+          "visible": false
+        },
+        "frame:mount_fl": {
+          "visible": false
+        },
+        "frame:mount_rl": {
+          "visible": false
+        },
+        "frame:mount_rr": {
+          "visible": false
+        },
+        "frame:motor_rl": {
+          "visible": false
+        },
+        "frame:motor_rr": {
+          "visible": false
+        },
+        "frame:mount_fr": {
+          "visible": false
+        },
+        "frame:motor_fl": {
+          "visible": false
+        },
+        "frame:motor_fr": {
+          "visible": false
+        },
+        "frame:base_footprint": {
+          "visible": false
+        },
+        "frame:rear_left_wheel_link": {
+          "visible": false
+        },
+        "frame:rear_left_motor_link": {
+          "visible": false
+        },
+        "frame:rear_right_wheel_link": {
+          "visible": false
+        },
+        "frame:rear_right_motor_link": {
+          "visible": false
+        },
+        "frame:front_left_wheel_link": {
+          "visible": false
+        },
+        "frame:front_left_motor_link": {
+          "visible": false
+        },
+        "frame:front_right_wheel_link": {
+          "visible": false
+        },
+        "frame:front_right_motor_link": {
+          "visible": false
+        },
+        "frame:rear_left_mount_link": {
+          "visible": false
+        },
+        "frame:rear_right_mount_link": {
+          "visible": false
+        },
+        "frame:front_left_mount_link": {
+          "visible": false
+        },
+        "frame:front_right_mount_link": {
+          "visible": false
+        },
+        "frame:camera_mount_link": {
+          "visible": false
+        },
+        "frame:gps_link": {
+          "visible": false
+        },
+        "frame:": {
+          "visible": false
+        },
+        "frame:inertial_link": {
+          "visible": false
+        },
+        "frame:camera_0_link": {
+          "visible": false
+        },
+        "frame:camera_0_color_optical_frame": {
+          "visible": false
+        },
+        "frame:camera_1_link": {
+          "visible": false
+        },
+        "frame:camera_1_color_optical_frame": {
+          "visible": false
+        },
+        "frame:ptu_0_tilt_link": {
+          "visible": false
+        },
+        "frame:ptu_0_base_link": {
+          "visible": false
+        },
+        "frame:ptu_0_pan_link": {
+          "visible": false
+        },
+        "frame:camera_0_depth_frame": {
+          "visible": false
+        },
+        "frame:camera_0_color_frame": {
+          "visible": false
+        },
+        "frame:camera_0_depth_optical_frame": {
+          "visible": false
+        },
+        "frame:imu_0_link": {
+          "visible": false
+        }
+      },
+      "topics": {
+        "/robot_description": {
+          "visible": true,
+          "displayMode": "auto"
+        },
+        "/image": {
+          "visible": true
+        },
+        "/simulator/camera/image_raw/camera_info": {
+          "visible": true
+        },
+        "/simulator/camera/image_raw/compressed": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/simulator/camera/image_raw/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/camera/image_raw/compressed": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/camera/image_raw/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/camera/image_raw/camera_info": {
+          "visible": true
+        },
+        "/pose": {
+          "visible": true
+        },
+        "/semantic_map": {
+          "visible": true
+        },
+        "/CAM_BACK/camera_info": {
+          "visible": true
+        },
+        "/CAM_BACK/image_rect_compressed": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/CAM_BACK/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/CAM_BACK_LEFT/camera_info": {
+          "visible": true
+        },
+        "/CAM_BACK_LEFT/image_rect_compressed": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/CAM_BACK_LEFT/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/markers/car": {
+          "visible": true
+        },
+        "/RADAR_BACK_LEFT": {
+          "visible": true,
+          "colorField": "z",
+          "colorMode": "colormap",
+          "colorMap": "turbo"
+        },
+        "/RADAR_BACK_RIGHT": {
+          "visible": true,
+          "colorField": "z",
+          "colorMode": "colormap",
+          "colorMap": "turbo"
+        },
+        "/RADAR_FRONT": {
+          "visible": true,
+          "colorField": "z",
+          "colorMode": "colormap",
+          "colorMap": "turbo"
+        },
+        "/RADAR_FRONT_LEFT": {
+          "visible": true,
+          "colorField": "z",
+          "colorMode": "colormap",
+          "colorMap": "turbo"
+        },
+        "/RADAR_FRONT_RIGHT": {
+          "visible": true,
+          "colorField": "z",
+          "colorMode": "colormap",
+          "colorMap": "turbo"
+        },
+        "/map": {
+          "visible": true,
+          "colorField": "alpha",
+          "colorMode": "rgba-fields",
+          "colorMap": "turbo"
+        },
+        "/markers/annotations": {
+          "visible": true
+        },
+        "/LIDAR_TOP": {
+          "visible": true,
+          "colorField": "intensity",
+          "colorMode": "colormap",
+          "colorMap": "turbo"
+        },
+        "/drivable_area": {
+          "visible": true,
+          "colorField": "drivable_area",
+          "colorMode": "colormap",
+          "colorMap": "turbo"
+        },
+        "/CAM_BACK_RIGHT/camera_info": {
+          "visible": true
+        },
+        "/CAM_BACK_RIGHT/image_rect_compressed": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/CAM_BACK_RIGHT/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/CAM_FRONT/camera_info": {
+          "visible": true
+        },
+        "/CAM_FRONT/image_rect_compressed": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/CAM_FRONT/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/CAM_FRONT_LEFT/camera_info": {
+          "visible": true
+        },
+        "/CAM_FRONT_LEFT/image_rect_compressed": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/CAM_FRONT_LEFT/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/CAM_FRONT_RIGHT/camera_info": {
+          "visible": true
+        },
+        "/CAM_FRONT_RIGHT/image_rect_compressed": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/CAM_FRONT_RIGHT/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/initialpose": {
+          "visible": false
+        },
+        "/sensors/camera_0/color/camera_info": {
+          "visible": true
+        },
+        "/sensors/camera_0/color/image/compressed": {
+          "visible": false
+        },
+        "/sensors/camera_1/color/camera_info": {
+          "visible": true
+        },
+        "/sensors/camera_1/color/image/compressed": {
+          "visible": false
+        },
+        "/move_base_simple/goal": {
+          "visible": false
+        },
+        "/sensors/camera_0/color/image": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/sensors/camera_0/color/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/sensors/camera_0/color/image/zstd": {
+          "visible": false
+        },
+        "/sensors/camera_0/color/image/compressedDepth": {
+          "visible": false
+        },
+        "/sensors/camera_1/color/image": {
+          "visible": true,
+          "frameLocked": true,
+          "cameraInfoTopic": "/sensors/camera_1/color/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/camera/color/camera_info": {
+          "visible": false
+        },
+        "/camera/color/image_raw": {
+          "visible": false,
+          "frameLocked": true,
+          "cameraInfoTopic": "/camera/color/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/camera/depth/camera_info": {
+          "visible": false
+        },
+        "/camera/depth/image_raw": {
+          "visible": false,
+          "frameLocked": true,
+          "cameraInfoTopic": "/camera/depth/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        },
+        "/sensors/camera_0/points": {
+          "visible": false
+        },
+        "/camera/color/image_raw/compressed": {
+          "visible": false
+        },
+        "/sensors/camera_0/color/image_raw/compressed": {
+          "visible": true,
+          "cameraInfoTopic": "/sensors/camera_0/color/camera_info"
+        },
+        "/sensors/camera_0/color/image_raw/compressedDepth": {
+          "visible": false
+        },
+        "/sensors/camera_0/color/image_raw": {
+          "visible": false,
+          "frameLocked": true,
+          "cameraInfoTopic": "/sensors/camera_0/color/camera_info",
+          "distance": 1,
+          "planarProjectionFactor": 0,
+          "color": "#ffffff",
+          "brightness": 50,
+          "contrast": 50
+        }
+      },
+      "layers": {},
+      "publish": {
+        "type": "point",
+        "poseTopic": "/move_base_simple/goal",
+        "pointTopic": "/clicked_point",
+        "poseEstimateTopic": "/initialpose",
+        "poseEstimateXDeviation": 0.5,
+        "poseEstimateYDeviation": 0.5,
+        "poseEstimateThetaDeviation": 0.26179939
+      },
+      "imageMode": {}
+    },
+    "foxglove-teleop-twist-keyboard.Teleop Twist!2axpcm7": {
+      "publishRate": 5,
+      "maxLinearSpeed": 1,
+      "maxAngularSpeed": 1,
+      "topic": "/joy_teleop/cmd_vel",
+      "messageSchema": "geometry_msgs/msg/TwistStamped"
+    },
+    "Plot!imuaccel": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.linear_acceleration.x",
+          "enabled": true,
+          "color": "#4e98e2",
+          "label": "accel x"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.linear_acceleration.y",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": "accel y"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/data.linear_acceleration.z",
+          "enabled": true,
+          "color": "#f7df71",
+          "label": "accel z"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/linear_acceleration.vector.x",
+          "enabled": true,
+          "color": "#61cbff",
+          "label": "no-gravity x"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/linear_acceleration.vector.y",
+          "enabled": true,
+          "color": "#5cd6a9",
+          "label": "no-gravity y"
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/linear_acceleration.vector.z",
+          "enabled": true,
+          "color": "#a395e2",
+          "label": "no-gravity z"
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "lichtblickPanelTitle": "IMU Acceleration"
+    },
+    "Plot!imumag": {
+      "paths": [
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/mag.magnetic_field.x",
+          "enabled": true,
+          "color": "#4e98e2",
+          "label": ""
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/mag.magnetic_field.y",
+          "enabled": true,
+          "color": "#f5774d",
+          "label": ""
+        },
+        {
+          "timestampMethod": "receiveTime",
+          "value": "/sensors/imu_0/mag.magnetic_field.z",
+          "enabled": true,
+          "color": "#f7df71",
+          "label": ""
+        }
+      ],
+      "showXAxisLabels": true,
+      "showYAxisLabels": true,
+      "showLegend": true,
+      "legendDisplay": "floating",
+      "showPlotValuesInLegend": true,
+      "isSynced": true,
+      "xAxisVal": "timestamp",
+      "lichtblickPanelTitle": "IMU Magnetometer"
+    },
+    "RawMessages!imustab": {
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "expansion": "auto",
+      "showFullMessageForDiff": false,
+      "topicPath": "/sensors/imu_0/stability"
+    },
+    "RawMessages!imuact": {
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "expansion": "auto",
+      "showFullMessageForDiff": false,
+      "topicPath": "/sensors/imu_0/activity"
+    },
+    "RawMessages!imusteps": {
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "expansion": "auto",
+      "showFullMessageForDiff": false,
+      "topicPath": "/sensors/imu_0/steps"
+    },
+    "RawMessages!imushake": {
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "expansion": "auto",
+      "showFullMessageForDiff": false,
+      "topicPath": "/sensors/imu_0/shake"
+    },
+    "Tab!imustate": {
+      "activeTabIdx": 0,
+      "tabs": [
+        {
+          "title": "stability",
+          "layout": "RawMessages!imustab"
+        },
+        {
+          "title": "activity",
+          "layout": "RawMessages!imuact"
+        },
+        {
+          "title": "steps",
+          "layout": "RawMessages!imusteps"
+        },
+        {
+          "title": "shake",
+          "layout": "RawMessages!imushake"
+        },
+        {
+          "title": "calibration",
+          "layout": "RawMessages!imucal"
+        }
+      ]
+    },
+    "RawMessages!imucal": {
+      "diffEnabled": false,
+      "diffMethod": "custom",
+      "diffTopicPath": "",
+      "expansion": "auto",
+      "showFullMessageForDiff": false,
+      "topicPath": "/sensors/imu_0/calibration_status"
+    }
+  },
+  "globalVariables": {},
+  "userNodes": {},
+  "playbackConfig": {
+    "speed": 1
+  },
+  "layout": {
+    "direction": "row",
+    "first": "Image!qhp1ob",
+    "second": {
+      "first": {
+        "direction": "column",
+        "first": "Plot!48ztyvd",
+        "second": {
+          "direction": "row",
+          "first": "Plot!imuaccel",
+          "second": {
+            "direction": "row",
+            "first": "Plot!imumag",
+            "second": "Tab!imustate"
+          }
+        }
+      },
+      "second": {
+        "first": "3D!4dlh3n9",
+        "second": "foxglove-teleop-twist-keyboard.Teleop Twist!2axpcm7",
+        "direction": "row"
+      },
+      "direction": "column"
+    },
+    "splitPercentage": 59.36343449296817
+  }
+}

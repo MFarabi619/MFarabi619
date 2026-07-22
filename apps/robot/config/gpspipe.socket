@@ -1,0 +1,14 @@
+[Unit]
+Description=Raw NMEA (from gpsd) over TCP
+PartOf=robot.target
+
+[Socket]
+ListenStream=0.0.0.0:9001
+Accept=yes
+
+[Install]
+WantedBy=robot.target
+
+# sudo cp gpspipe.socket gpspipe@.service /etc/systemd/system/
+# sudo systemctl daemon-reload
+# sudo systemctl enable --now gpspipe.socket

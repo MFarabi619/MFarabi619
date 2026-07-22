@@ -5,12 +5,12 @@ edition = "2021"
 default-run = "base_controller"
 
 [dependencies]
-robot_description = { path = "robot_description" }
-robot_drivers = { path = "robot_drivers" }
-robot_control = { path = "robot_control" }
-robot_diagnostics = { path = "robot_diagnostics" }
-robot_sensors = { path = "robot_sensors" }
-robot_perception = { path = "robot_perception", optional = true }
+robot_description = { path = "description" }
+robot_drivers = { path = "drivers" }
+robot_control = { path = "control" }
+robot_diagnostics = { path = "diagnostics" }
+robot_sensors = { path = "sensors" }
+robot_perception = { path = "perception", optional = true }
 oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
 zenoh = { version = "1", features = ["unstable"] }
 zenoh-ext = { version = "1", features = ["unstable"] }
@@ -28,12 +28,14 @@ perception = ["dep:robot_perception"]
 pixi = ["dep:rattler_shell", "dep:rattler_conda_types"]
 
 [dev-dependencies]
-robot_simulator = { path = "robot_simulator" }
+robot_simulator = { path = "simulator" }
 tokio-tungstenite = "0.26"
 futures-util = "0.3"
 comfy-table = "7"
 ratatui = { workspace = true, features = ["crossterm", "all-widgets"] }
 crossterm = { version = "0.29", features = ["event-stream"] }
+mousefood = { version = "0.5", features = ["fonts"] }
+embedded-graphics = "0.8"
 
 [[bin]]
 name = "ros2"

@@ -1,0 +1,21 @@
+[Unit]
+Description=NMEA navsat driver (gpspipe socket to /sensors/gps_0/fix)
+After=zenoh-router.service gpspipe.socket
+Wants=zenoh-router.service gpspipe.socket
+PartOf=robot.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=mfarabi
+Environment=RMW_IMPLEMENTATION=rmw_zenoh_cpp
+Environment=ROS_DOMAIN_ID=0
+Environment='ZENOH_CONFIG_OVERRIDE=mode="client";connect/endpoints=["tcp/localhost:7447"]'
+ExecStartPre=/bin/bash -c 'until (exec 3<>/dev/tcp/127.0.0.1/7447) 2>/dev/null; do sleep 1; done'
+ExecStart=/home/mfarabi/.pixi/bin/ros2 run nmea_navsat_driver nmea_tcpclient_driver --ros-args -r __node:=nmea_navsat_driver -r fix:=sensors/gps_0/fix -r vel:=sensors/gps_0/vel -r time_reference:=sensors/gps_0/time_reference -r heading:=sensors/gps_0/heading --params-file /home/mfarabi/robot_ws/config/nmea_navsat_driver.yaml
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=5
+
+[Install]
+WantedBy=robot.target

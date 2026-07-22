@@ -16,14 +16,14 @@ members = [
     "libs/zephyr-ztest-fancy",
     "libs/zephyr-lib-oh-my-zephyr",
     "libs/zephyr-lib-sqlite/samples/rust",
-    "apps/robot/robot_cad",
-    "apps/robot/robot_sensors",
-    "apps/robot/robot_drivers",
-    "apps/robot/robot_control",
-    "apps/robot/robot_simulator",
-    "apps/robot/robot_perception",
-    "apps/robot/robot_description",
-    "apps/robot/robot_diagnostics",
+    "apps/robot/cad",
+    "apps/robot/sensors",
+    "apps/robot/drivers",
+    "apps/robot/control",
+    "apps/robot/simulator",
+    "apps/robot/perception",
+    "apps/robot/description",
+    "apps/robot/diagnostics",
 ]
 
 [workspace.dependencies]

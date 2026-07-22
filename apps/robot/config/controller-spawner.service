@@ -1,0 +1,21 @@
+[Unit]
+Description=spawn joint_state_broadcaster and diff_drive_controller
+After=controller-manager.service
+Wants=controller-manager.service
+PartOf=controller-manager.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=mfarabi
+Environment=RMW_IMPLEMENTATION=rmw_zenoh_cpp
+Environment=ROS_DOMAIN_ID=0
+Environment='ZENOH_CONFIG_OVERRIDE=mode="client";connect/endpoints=["tcp/localhost:7447"]'
+ExecStartPre=/bin/bash -c 'until (exec 3<>/dev/tcp/127.0.0.1/7447) 2>/dev/null; do sleep 1; done'
+ExecStart=/home/mfarabi/.pixi/bin/pixi run --manifest-path /home/mfarabi/robot_ws/pixi.toml controller-spawner
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=5
+
+[Install]
+WantedBy=controller-manager.service

@@ -1,9 +1,0 @@
-camera_1:
-  ros__parameters:
-    name: 'camera_1'
-    host: '192.168.12.119'
-    port: 8888
-    stream_path: ''
-    width: 1456
-    height: 1088
-    fov_deg: 54.0

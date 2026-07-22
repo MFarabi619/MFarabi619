@@ -1,0 +1,6 @@
+imu_0:
+  ros__parameters:
+    i2c_bus: 1
+    i2c_address: 74
+    frame_id: 'imu_0_link'
+    rate_hz: 25.0

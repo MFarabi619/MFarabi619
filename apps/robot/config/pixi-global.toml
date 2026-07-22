@@ -1,0 +1,15 @@
+version = 1
+
+[envs.robot]
+channels = ["robostack-jazzy", "conda-forge"]
+exposed.ros2 = "ros2"
+
+[envs.robot.dependencies]
+ros-jazzy-ros2run = "*"
+ros-jazzy-ros2launch = "*"
+ros-jazzy-rmw-zenoh-cpp = "*"
+ros-jazzy-orbbec-camera = "*"
+ros-jazzy-foxglove-bridge = "*"
+ros-jazzy-nmea-navsat-driver = "*"
+ros-jazzy-robot-state-publisher = "*"
+ros-jazzy-image-transport-plugins = "*"

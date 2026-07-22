@@ -4,7 +4,7 @@ use oxidros::prelude::*;
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
-const ROBOT_URDF: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/robot_description/urdf/robot.urdf");
+const ROBOT_URDF: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/description/urdf/robot.urdf");
 const PACKAGE_ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/..");
 
 fn spawn(

@@ -6,7 +6,7 @@ use oxidros::{
     prelude::*,
 };
 
-const ROBOT_URDF: &str = include_str!("../robot_description/urdf/robot.urdf");
+const ROBOT_URDF: &str = include_str!("../description/urdf/robot.urdf");
 
 pub fn spawn_robot_description(
     context: &Arc<Context>,
