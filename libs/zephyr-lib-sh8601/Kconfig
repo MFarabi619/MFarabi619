@@ -8,12 +8,15 @@ config SH8601
 	  DCS driver for the Sino Wealth SH8601 AMOLED controller over the
 	  MIPI-DBI API.
 
+DT_COMPAT_MIPI_DBI_ESP32_QSPI := mipi-dbi-esp32-qspi
+
 config MIPI_DBI_ESP32_QSPI
 	bool "ESP32-S3 GPSPI quad-SPI MIPI-DBI transport"
 	default y
 	depends on DT_HAS_MIPI_DBI_ESP32_QSPI_ENABLED
 	depends on MIPI_DBI
 	depends on SOC_SERIES_ESP32S3
+	select DMA if $(dt_compat_any_has_prop,$(DT_COMPAT_MIPI_DBI_ESP32_QSPI),dmas)
 	help
 	  MIPI-DBI transport for QSPI DCS panels driven by the ESP32-S3 GPSPI
 	  peripheral, with commands on one data line and pixel data on four.

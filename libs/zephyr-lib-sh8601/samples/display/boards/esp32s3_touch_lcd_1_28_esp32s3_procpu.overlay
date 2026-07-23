@@ -23,6 +23,8 @@
 		cs-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
 		reset-gpios = <&io_expander 0 GPIO_ACTIVE_LOW>;
 		clock-frequency = <40000000>;
+		dmas = <&dma 0>;
+		dma-names = "tx";
 		#address-cells = <1>;
 		#size-cells = <0>;
 
@@ -85,4 +87,8 @@
 			output-high;
 		};
 	};
+};
+
+&dma {
+	status = "okay";
 };

@@ -4,6 +4,7 @@
 #include <zephyr/drivers/display.h>
 #include <zephyr/drivers/mipi_dbi.h>
 #include <zephyr/display/mipi_display.h>
+#include <zephyr/dt-bindings/display/panel.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
@@ -27,6 +28,7 @@ struct sh8601_config {
 	struct mipi_dbi_config dbi_config;
 	uint16_t width;
 	uint16_t height;
+	uint8_t pixel_format;
 };
 
 static int sh8601_command(const struct device *dev, uint8_t cmd, const uint8_t *data, size_t len)
@@ -146,6 +148,15 @@ static int sh8601_init(const struct device *dev)
 		LOG_ERR("MIPI DBI device not ready");
 		return -ENODEV;
 	}
+	if (config->width > SH8601_WIDTH_PIXELS_MAX) {
+		LOG_ERR("Panel width %u exceeds row buffer width %u", config->width,
+			SH8601_WIDTH_PIXELS_MAX);
+		return -EINVAL;
+	}
+	if (config->pixel_format != PANEL_PIXEL_FORMAT_RGB_565) {
+		LOG_ERR("Unsupported pixel format 0x%02x", config->pixel_format);
+		return -ENOTSUP;
+	}
 
 	ret = mipi_dbi_reset(config->mipi_dbi, SH8601_RESET_PULSE_MS);
 	if (ret < 0 && ret != -ENOTSUP) {
@@ -210,6 +221,7 @@ static DEVICE_API(display, sh8601_api) = {
 		.dbi_config = {0},                                                                 \
 		.width = DT_INST_PROP(inst, width),                                                \
 		.height = DT_INST_PROP(inst, height),                                              \
+		.pixel_format = DT_INST_PROP(inst, pixel_format),                                  \
 	};                                                                                         \
 	DEVICE_DT_INST_DEFINE(inst, sh8601_init, NULL, NULL, &sh8601_config_##inst, POST_KERNEL,   \
 			      CONFIG_DISPLAY_INIT_PRIORITY, &sh8601_api);

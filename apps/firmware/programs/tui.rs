@@ -19,7 +19,7 @@ use zephyr::raw::{
     __device_dts_ord_24, __device_dts_ord_49, __device_dts_ord_53, led_off, led_set_brightness,
 };
 #[cfg(CONFIG_SH8601)]
-use zephyr::raw::__device_dts_ord_25;
+use zephyr::raw::__device_dts_ord_26;
 
 use crate::ui::{self, Action, TouchState};
 
@@ -30,7 +30,7 @@ const _: () = assert!(zephyr::devicetree::pwmleds::ORD == 49);
 #[cfg(CONFIG_ILI9341)]
 const _: () = assert!(zephyr::devicetree::labels::pwmleds_backlight::ORD == 53);
 #[cfg(CONFIG_SH8601)]
-const _: () = assert!(zephyr::devicetree::labels::sh8601::ORD == 25);
+const _: () = assert!(zephyr::devicetree::labels::sh8601::ORD == 26);
 
 const SYS_REBOOT_COLD: i32 = 1;
 
@@ -76,7 +76,7 @@ fn display_device() -> *const device {
 
 #[cfg(CONFIG_SH8601)]
 fn display_device() -> *const device {
-    unsafe { &__device_dts_ord_25 as *const device }
+    unsafe { &__device_dts_ord_26 as *const device }
 }
 
 #[cfg(CONFIG_ILI9341)]

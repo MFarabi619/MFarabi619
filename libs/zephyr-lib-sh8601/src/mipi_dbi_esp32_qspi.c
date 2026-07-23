@@ -1,7 +1,10 @@
 #define DT_DRV_COMPAT mipi_dbi_esp32_qspi
 
+#include <zephyr/cache.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/clock_control.h>
+#include <zephyr/drivers/dma.h>
+#include <zephyr/drivers/dma/dma_esp32.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/mipi_dbi.h>
 #include <zephyr/display/mipi_display.h>
@@ -18,19 +21,22 @@ LOG_MODULE_REGISTER(mipi_dbi_esp32_qspi, CONFIG_DISPLAY_LOG_LEVEL);
 #define QSPI_OPCODE_COMMAND 0x02
 #define QSPI_OPCODE_PIXEL   0x32
 #define QSPI_FIFO_SIZE      64
-#define QSPI_DONE_TIMEOUT_US 50000
+#define QSPI_TRANSACTION_TIMEOUT_US 50000
 #define QSPI_DUTY_CYCLE_50_PERCENT 128
 #define QSPI_RESET_GPIOS_MAX 4
+#define QSPI_DMA_MAX_BUFFER_SIZE 4092
 
 struct mipi_dbi_esp32_qspi_config {
 	const struct device *clock_dev;
 	clock_control_subsys_t clock_subsys;
+	const struct device *dma_dev;
+	uint8_t dma_tx_channel;
 	int spi_host;
 	int sclk_pin;
 	int sio_pins[4];
 	struct gpio_dt_spec cs;
-	struct gpio_dt_spec resets[QSPI_RESET_GPIOS_MAX];
-	int reset_count;
+	struct gpio_dt_spec reset_gpios[QSPI_RESET_GPIOS_MAX];
+	size_t num_reset_gpios;
 	uint32_t frequency;
 };
 
@@ -65,22 +71,70 @@ static int mipi_dbi_esp32_qspi_transact(const struct device *dev, uint8_t opcode
 		.cs_keep_active = 0,
 	};
 
-	gpio_pin_set_dt(&config->cs, 1);
+	bool use_dma = config->dma_dev != NULL && len > QSPI_FIFO_SIZE;
+	int ret = gpio_pin_set_dt(&config->cs, 1);
+
+	if (ret < 0) {
+		return ret;
+	}
 	spi_hal_setup_trans(hal, &data->hal_dev, &trans);
-	if (len > 0) {
+	if (use_dma) {
+		struct dma_block_config dma_block = {
+			.source_address = (uint32_t)data_buf,
+			.block_size = len,
+		};
+		struct dma_config dma_cfg = {
+			.channel_direction = MEMORY_TO_PERIPHERAL,
+			.dma_slot = (uint32_t)(ESP_GDMA_TRIG_PERIPH_SPI2 + (config->spi_host - 1)),
+			.block_count = 1,
+			.head_block = &dma_block,
+		};
+
+		sys_cache_data_flush_range((void *)data_buf, len);
+		ret = dma_config(config->dma_dev, config->dma_tx_channel, &dma_cfg);
+		if (ret < 0) {
+			(void)gpio_pin_set_dt(&config->cs, 0);
+			LOG_ERR("Could not configure DMA (%d)", ret);
+			return ret;
+		}
+		spi_ll_dma_tx_fifo_reset(hal->hw);
+		spi_ll_outfifo_empty_clr(hal->hw);
+		spi_ll_dma_tx_enable(hal->hw, 1);
+		ret = dma_start(config->dma_dev, config->dma_tx_channel);
+		if (ret < 0) {
+			spi_ll_dma_tx_enable(hal->hw, 0);
+			(void)gpio_pin_set_dt(&config->cs, 0);
+			LOG_ERR("Could not start DMA (%d)", ret);
+			return ret;
+		}
+	} else if (len > 0) {
 		spi_hal_push_tx_buffer(hal, &trans);
 	}
 	spi_hal_enable_data_line(hal->hw, len > 0, false);
 	spi_hal_user_start(hal);
 
-	if (!WAIT_FOR(spi_hal_usr_is_done(hal), QSPI_DONE_TIMEOUT_US, NULL)) {
-		gpio_pin_set_dt(&config->cs, 0);
+	if (!WAIT_FOR(spi_hal_usr_is_done(hal), QSPI_TRANSACTION_TIMEOUT_US, NULL)) {
+		if (use_dma) {
+			(void)dma_stop(config->dma_dev, config->dma_tx_channel);
+			spi_ll_dma_tx_enable(hal->hw, 0);
+		}
+		(void)gpio_pin_set_dt(&config->cs, 0);
 		LOG_ERR("Transaction timed out (opcode 0x%02x, cmd 0x%02x)", opcode, cmd);
+		spi_hal_init(hal, config->spi_host);
+		spi_hal_setup_device(hal, &data->hal_dev);
 		return -ETIMEDOUT;
 	}
-	gpio_pin_set_dt(&config->cs, 0);
 
-	return 0;
+	if (use_dma) {
+		ret = dma_stop(config->dma_dev, config->dma_tx_channel);
+		spi_ll_dma_tx_enable(hal->hw, 0);
+		if (ret < 0) {
+			(void)gpio_pin_set_dt(&config->cs, 0);
+			return ret;
+		}
+	}
+
+	return gpio_pin_set_dt(&config->cs, 0);
 }
 
 static int mipi_dbi_esp32_qspi_command_write(const struct device *dev,
@@ -117,9 +171,12 @@ static int mipi_dbi_esp32_qspi_write_display(const struct device *dev,
 	ARG_UNUSED(dbi_config);
 	ARG_UNUSED(pixfmt);
 
+	const struct mipi_dbi_esp32_qspi_config *config = dev->config;
+	size_t max_chunk = config->dma_dev != NULL ? QSPI_DMA_MAX_BUFFER_SIZE : QSPI_FIFO_SIZE;
+
 	k_mutex_lock(&data->lock, K_FOREVER);
 	while (remaining > 0) {
-		size_t chunk = MIN(remaining, (size_t)QSPI_FIFO_SIZE);
+		size_t chunk = MIN(remaining, max_chunk);
 
 		ret = mipi_dbi_esp32_qspi_transact(dev, QSPI_OPCODE_PIXEL, cmd, framebuf, chunk, 4);
 		if (ret < 0) {
@@ -139,19 +196,19 @@ static int mipi_dbi_esp32_qspi_reset(const struct device *dev, k_timeout_t delay
 	const struct mipi_dbi_esp32_qspi_config *config = dev->config;
 	int ret;
 
-	if (config->reset_count == 0) {
+	if (config->num_reset_gpios == 0) {
 		return -ENOTSUP;
 	}
 
-	for (int i = 0; i < config->reset_count; i++) {
-		ret = gpio_pin_set_dt(&config->resets[i], 1);
+	for (size_t i = 0; i < config->num_reset_gpios; i++) {
+		ret = gpio_pin_set_dt(&config->reset_gpios[i], 1);
 		if (ret < 0) {
 			return ret;
 		}
 	}
 	k_sleep(delay);
-	for (int i = 0; i < config->reset_count; i++) {
-		ret = gpio_pin_set_dt(&config->resets[i], 0);
+	for (size_t i = 0; i < config->num_reset_gpios; i++) {
+		ret = gpio_pin_set_dt(&config->reset_gpios[i], 0);
 		if (ret < 0) {
 			return ret;
 		}
@@ -180,12 +237,17 @@ static int mipi_dbi_esp32_qspi_init(const struct device *dev)
 		return ret;
 	}
 
+	if (config->dma_dev != NULL && !device_is_ready(config->dma_dev)) {
+		LOG_ERR("DMA device not ready");
+		return -ENODEV;
+	}
+
 	ret = gpio_pin_configure_dt(&config->cs, GPIO_OUTPUT_INACTIVE);
 	if (ret < 0) {
 		return ret;
 	}
-	for (int i = 0; i < config->reset_count; i++) {
-		ret = gpio_pin_configure_dt(&config->resets[i], GPIO_OUTPUT_INACTIVE);
+	for (size_t i = 0; i < config->num_reset_gpios; i++) {
+		ret = gpio_pin_configure_dt(&config->reset_gpios[i], GPIO_OUTPUT_INACTIVE);
 		if (ret < 0) {
 			return ret;
 		}
@@ -245,9 +307,15 @@ static DEVICE_API(mipi_dbi, mipi_dbi_esp32_qspi_api) = {
 };
 
 #define MIPI_DBI_ESP32_QSPI_DEFINE(inst)                                                           \
+	BUILD_ASSERT(DT_INST_PROP_LEN_OR(inst, reset_gpios, 0) <= QSPI_RESET_GPIOS_MAX,            \
+		     "reset-gpios supports at most " STRINGIFY(QSPI_RESET_GPIOS_MAX) " entries");  \
+	BUILD_ASSERT(!DT_INST_NODE_HAS_PROP(inst, dmas) || DT_INST_PROP(inst, spi_host) >= 1,      \
+		     "DMA requires a GPSPI host with a GDMA trigger (spi-host 1 or 2)");           \
 	static const struct mipi_dbi_esp32_qspi_config mipi_dbi_esp32_qspi_config_##inst = {       \
 		.clock_dev = DEVICE_DT_GET(DT_INST_CLOCKS_CTLR(inst)),                             \
 		.clock_subsys = (clock_control_subsys_t)DT_INST_CLOCKS_CELL(inst, offset),         \
+		.dma_dev = ESP32_DT_INST_DMA_CTLR(inst, tx),                                       \
+		.dma_tx_channel = ESP32_DT_INST_DMA_CELL(inst, tx, channel),                       \
 		.spi_host = DT_INST_PROP(inst, spi_host),                                          \
 		.sclk_pin = DT_INST_PROP(inst, sclk_pin),                                          \
 		.sio_pins = {DT_INST_PROP_BY_IDX(inst, sio_pins, 0),                               \
@@ -255,11 +323,11 @@ static DEVICE_API(mipi_dbi, mipi_dbi_esp32_qspi_api) = {
 			     DT_INST_PROP_BY_IDX(inst, sio_pins, 2),                               \
 			     DT_INST_PROP_BY_IDX(inst, sio_pins, 3)},                              \
 		.cs = GPIO_DT_SPEC_INST_GET(inst, cs_gpios),                                       \
-		.resets = COND_CODE_1(DT_INST_NODE_HAS_PROP(inst, reset_gpios),                    \
+		.reset_gpios = COND_CODE_1(DT_INST_NODE_HAS_PROP(inst, reset_gpios),                    \
 				      ({DT_INST_FOREACH_PROP_ELEM_SEP(inst, reset_gpios,           \
 							GPIO_DT_SPEC_GET_BY_IDX, (,))}),           \
 				      ({0})),                                                      \
-		.reset_count = DT_INST_PROP_LEN_OR(inst, reset_gpios, 0),                          \
+		.num_reset_gpios = DT_INST_PROP_LEN_OR(inst, reset_gpios, 0),                      \
 		.frequency = DT_INST_PROP(inst, clock_frequency),                                  \
 	};                                                                                         \
 	static struct mipi_dbi_esp32_qspi_data mipi_dbi_esp32_qspi_data_##inst;                    \

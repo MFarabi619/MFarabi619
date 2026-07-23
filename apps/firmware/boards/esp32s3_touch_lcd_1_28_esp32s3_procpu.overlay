@@ -18,6 +18,8 @@
 			      <&io_expander 1 GPIO_ACTIVE_LOW>,
 			      <&io_expander 2 GPIO_ACTIVE_LOW>;
 		clock-frequency = <40000000>;
+		dmas = <&dma 0>;
+		dma-names = "tx";
 		#address-cells = <1>;
 		#size-cells = <0>;
 
@@ -152,4 +154,8 @@
 		disk-name = "SD";
 		status = "okay";
 	};
+};
+
+&dma {
+	status = "okay";
 };

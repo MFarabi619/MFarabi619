@@ -16,25 +16,34 @@ properties:
   spi-host:
     type: int
     required: true
+    description: GPSPI host index (0 for SPI1, 1 for SPI2, 2 for SPI3).
 
   sclk-pin:
     type: int
     required: true
+    description: GPIO number routed to the QSPI clock output.
 
   sio-pins:
     type: array
     required: true
+    description: GPIO numbers routed to QSPI data lines SIO0 through SIO3.
 
   cs-gpios:
     type: phandle-array
     required: true
+    description: Chip select line, driven around each transaction.
 
   reset-gpios:
     type: phandle-array
+    description: |
+      Panel domain reset lines, asserted and released together by
+      mipi_dbi_reset. List every line the panel module needs pulsed as one
+      group (reset, power enable, touch reset).
 
   clock-frequency:
     type: int
     required: true
+    description: QSPI clock frequency in Hz.
 
   "#address-cells":
     const: 1
