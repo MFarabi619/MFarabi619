@@ -6,6 +6,7 @@ list(APPEND EXTRA_ZEPHYR_MODULES
   ${CMAKE_CURRENT_LIST_DIR}
   ${LIBS_DIR}/zephyr-lib-sqlite
   ${LIBS_DIR}/zephyr-lib-oh-my-zephyr
+  ${LIBS_DIR}/zephyr-lib-sh8601
   ${LIBS_DIR}/zephyr-ztest-fancy
 )
 

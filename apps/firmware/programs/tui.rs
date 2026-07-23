@@ -10,17 +10,27 @@ use embedded_graphics::{
 use mousefood::{EmbeddedBackend, EmbeddedBackendConfig, fonts};
 use ratatui::Terminal;
 use zephyr::raw::{
-    INPUT_ABS_X, INPUT_ABS_Y, INPUT_BTN_TOUCH, INPUT_EV_ABS, INPUT_EV_KEY, __device_dts_ord_24,
-    __device_dts_ord_49, __device_dts_ord_53, device, display_blanking_off,
-    display_buffer_descriptor, display_capabilities, display_get_capabilities, display_write,
-    input_callback, input_event, k_msleep, led_off, led_set_brightness, sys_reboot,
+    INPUT_ABS_X, INPUT_ABS_Y, INPUT_BTN_TOUCH, INPUT_EV_ABS, INPUT_EV_KEY, device,
+    display_blanking_off, display_buffer_descriptor, display_capabilities,
+    display_get_capabilities, display_write, input_callback, input_event, k_msleep, sys_reboot,
 };
+#[cfg(CONFIG_ILI9341)]
+use zephyr::raw::{
+    __device_dts_ord_24, __device_dts_ord_49, __device_dts_ord_53, led_off, led_set_brightness,
+};
+#[cfg(CONFIG_SH8601)]
+use zephyr::raw::__device_dts_ord_25;
 
 use crate::ui::{self, Action, TouchState};
 
+#[cfg(CONFIG_ILI9341)]
 const _: () = assert!(zephyr::devicetree::labels::ili9341::ORD == 24);
+#[cfg(CONFIG_ILI9341)]
 const _: () = assert!(zephyr::devicetree::pwmleds::ORD == 49);
+#[cfg(CONFIG_ILI9341)]
 const _: () = assert!(zephyr::devicetree::labels::pwmleds_backlight::ORD == 53);
+#[cfg(CONFIG_SH8601)]
+const _: () = assert!(zephyr::devicetree::labels::sh8601::ORD == 25);
 
 const SYS_REBOOT_COLD: i32 = 1;
 
@@ -59,14 +69,22 @@ static TOUCH_CB: InputCallbackEntry = InputCallbackEntry(input_callback {
     user_data: core::ptr::null_mut(),
 });
 
+#[cfg(CONFIG_ILI9341)]
 fn display_device() -> *const device {
     unsafe { &__device_dts_ord_24 as *const device }
 }
 
+#[cfg(CONFIG_SH8601)]
+fn display_device() -> *const device {
+    unsafe { &__device_dts_ord_25 as *const device }
+}
+
+#[cfg(CONFIG_ILI9341)]
 fn led_device() -> *const device {
     unsafe { &__device_dts_ord_49 as *const device }
 }
 
+#[cfg(CONFIG_ILI9341)]
 fn backlight_device() -> *const device {
     unsafe { &__device_dts_ord_53 as *const device }
 }
@@ -186,9 +204,12 @@ pub fn display_loop() {
         log::warn!("ui: display_blanking_off rc={}", blanking_rc);
     }
 
-    let bl_rc = unsafe { led_set_brightness(backlight_device(), 0, 100) };
-    if bl_rc != 0 {
-        log::warn!("ui: led_set_brightness(backlight) rc={}", bl_rc);
+    #[cfg(CONFIG_ILI9341)]
+    {
+        let bl_rc = unsafe { led_set_brightness(backlight_device(), 0, 100) };
+        if bl_rc != 0 {
+            log::warn!("ui: led_set_brightness(backlight) rc={}", bl_rc);
+        }
     }
 
     let mut caps: display_capabilities = unsafe { core::mem::zeroed() };
@@ -228,6 +249,7 @@ pub fn display_loop() {
         match action {
             Some(Action::LedOff) => {
                 log::info!("ui: LED OFF tapped");
+                #[cfg(CONFIG_ILI9341)]
                 unsafe {
                     let _ = led_off(led_device(), 0);
                     let _ = led_off(led_device(), 1);
