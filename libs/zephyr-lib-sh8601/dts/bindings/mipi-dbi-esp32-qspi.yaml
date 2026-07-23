@@ -1,0 +1,43 @@
+description: ESP32 GPSPI quad-SPI MIPI-DBI transport for DCS panels
+
+compatible: "mipi-dbi-esp32-qspi"
+
+include: base.yaml
+
+bus: mipi-dbi
+
+properties:
+  reg:
+    required: true
+
+  clocks:
+    required: true
+
+  spi-host:
+    type: int
+    required: true
+
+  sclk-pin:
+    type: int
+    required: true
+
+  sio-pins:
+    type: array
+    required: true
+
+  cs-gpios:
+    type: phandle-array
+    required: true
+
+  reset-gpios:
+    type: phandle-array
+
+  clock-frequency:
+    type: int
+    required: true
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 0

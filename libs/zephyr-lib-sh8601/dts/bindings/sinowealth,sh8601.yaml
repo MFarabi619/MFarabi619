@@ -1,0 +1,11 @@
+description: SH8601 AMOLED display controller
+
+compatible: "sinowealth,sh8601"
+
+on-bus: mipi-dbi
+
+include: [base.yaml, display-controller.yaml, lcd-controller.yaml]
+
+properties:
+  reg:
+    required: true

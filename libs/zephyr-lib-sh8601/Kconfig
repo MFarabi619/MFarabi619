@@ -1,0 +1,19 @@
+config SH8601
+	bool "SH8601 AMOLED display controller"
+	default y
+	depends on DT_HAS_SINOWEALTH_SH8601_ENABLED
+	depends on DISPLAY
+	select MIPI_DBI
+	help
+	  DCS driver for the Sino Wealth SH8601 AMOLED controller over the
+	  MIPI-DBI API.
+
+config MIPI_DBI_ESP32_QSPI
+	bool "ESP32-S3 GPSPI quad-SPI MIPI-DBI transport"
+	default y
+	depends on DT_HAS_MIPI_DBI_ESP32_QSPI_ENABLED
+	depends on MIPI_DBI
+	depends on SOC_SERIES_ESP32S3
+	help
+	  MIPI-DBI transport for QSPI DCS panels driven by the ESP32-S3 GPSPI
+	  peripheral, with commands on one data line and pixel data on four.

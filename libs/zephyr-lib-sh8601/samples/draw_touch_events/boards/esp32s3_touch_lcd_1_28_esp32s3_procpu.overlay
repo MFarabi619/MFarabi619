@@ -1,0 +1,98 @@
+/ {
+	chosen {
+		zephyr,console = &usb_serial;
+		zephyr,shell-uart = &usb_serial;
+		zephyr,display = &sh8601;
+		zephyr,touch = &ft3168;
+	};
+
+	pwmleds {
+		status = "disabled";
+	};
+
+	mipi_dbi {
+		status = "disabled";
+	};
+
+	mipi_dbi_qspi: mipi-dbi-qspi@60024000 {
+		compatible = "mipi-dbi-esp32-qspi";
+		reg = <0x60024000 DT_SIZE_K(4)>;
+		clocks = <&clock ESP32_SPI2_MODULE>;
+		spi-host = <1>;
+		sclk-pin = <11>;
+		sio-pins = <4 5 6 7>;
+		cs-gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&io_expander 0 GPIO_ACTIVE_LOW>,
+			      <&io_expander 1 GPIO_ACTIVE_LOW>,
+			      <&io_expander 2 GPIO_ACTIVE_LOW>;
+		clock-frequency = <40000000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		sh8601: sh8601@0 {
+			compatible = "sinowealth,sh8601";
+			reg = <0>;
+			pixel-format = <PANEL_PIXEL_FORMAT_RGB_565>;
+			width = <368>;
+			height = <448>;
+		};
+	};
+};
+
+&usb_serial {
+	status = "okay";
+};
+
+&ledc0 {
+	status = "disabled";
+};
+
+&spi2 {
+	status = "disabled";
+};
+
+&gc9a01 {
+	status = "disabled";
+};
+
+&cst816s {
+	status = "disabled";
+};
+
+&pinctrl {
+	i2c1_amoled: i2c1_amoled {
+		group1 {
+			pinmux = <I2C1_SDA_GPIO15>, <I2C1_SCL_GPIO14>;
+			bias-pull-up;
+			drive-open-drain;
+			output-high;
+		};
+	};
+};
+
+&i2c1 {
+	pinctrl-0 = <&i2c1_amoled>;
+
+	io_expander: tca9554@20 {
+		compatible = "nxp,pca9554";
+		reg = <0x20>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		ngpios = <8>;
+		no-auto-reset;
+
+		panel_power_hog {
+			gpio-hog;
+			gpios = <1 GPIO_ACTIVE_HIGH>, <2 GPIO_ACTIVE_HIGH>,
+				<7 GPIO_ACTIVE_HIGH>;
+			output-high;
+		};
+	};
+
+	ft3168: ft3168@38 {
+		compatible = "focaltech,ft5336";
+		reg = <0x38>;
+		int-gpios = <&gpio0 21 GPIO_ACTIVE_LOW>;
+		swapped-x-y;
+	};
+};
