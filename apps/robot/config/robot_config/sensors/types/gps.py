@@ -49,5 +49,5 @@ class BaseGPS(BaseSensor):
         }
 
 
-class Gpsd(BaseGPS):
-    SENSOR_MODEL = 'gpsd'
+class AdafruitUltimateGpsHat(BaseGPS):
+    SENSOR_MODEL = 'adafruit_ultimate_gps_hat'

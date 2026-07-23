@@ -160,26 +160,6 @@ impl<'a> Drivetrain<'a> {
     }
 }
 
-pub fn drivetrain<'a>(chip: &'a Chip<'a>) -> Result<Drivetrain<'a>, Error> {
-    use robot_description::wiring;
-    Ok(Drivetrain::new(
-        Motor::pwm_dir(
-            chip,
-            wiring::LEFT_DIR_PIN,
-            wiring::LEFT_PWM_PIN,
-            wiring::LEFT_FORWARD_LEVEL,
-            wiring::PWM_FREQUENCY_HZ,
-        )?,
-        Motor::pwm_dir(
-            chip,
-            wiring::RIGHT_DIR_PIN,
-            wiring::RIGHT_PWM_PIN,
-            wiring::RIGHT_FORWARD_LEVEL,
-            wiring::PWM_FREQUENCY_HZ,
-        )?,
-    ))
-}
-
 impl Drop for Drivetrain<'_> {
     fn drop(&mut self) {
         let _ = self.drive(HALT);

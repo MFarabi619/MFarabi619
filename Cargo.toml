@@ -16,7 +16,7 @@ members = [
     "libs/zephyr-ztest-fancy",
     "libs/zephyr-lib-oh-my-zephyr",
     "libs/zephyr-lib-sqlite/samples/rust",
-    "apps/robot/cad",
+    "apps/robot/generator_common",
     "apps/robot/sensors",
     "apps/robot/drivers",
     "apps/robot/control",

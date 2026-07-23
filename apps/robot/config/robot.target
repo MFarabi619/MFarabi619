@@ -1,5 +1,0 @@
-[Unit]
-Description=robot services
-
-[Install]
-WantedBy=multi-user.target

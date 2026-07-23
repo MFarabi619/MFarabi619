@@ -8,11 +8,15 @@ from robot_config.common.utils.yaml import read_yaml
 from robot_config.robot_config import RobotConfig
 
 
-# Repo default: apps/robot/config/sample/rover.yaml, resolved relative
-# to this file's location in the source tree.
-DEFAULT_CONFIG_PATH = os.path.normpath(os.path.join(
+ROBOTS_PATH = os.path.normpath(os.path.join(
     os.path.dirname(os.path.realpath(__file__)), '..', '..',
-    'config', 'sample', 'rover.yaml'))
+    'config', 'robots'))
+
+
+def robot_names():
+    return sorted(
+        name for name in os.listdir(ROBOTS_PATH)
+        if os.path.isfile(os.path.join(ROBOTS_PATH, name, 'robot.yaml')))
 
 
 class Package():
@@ -159,15 +163,8 @@ class ParamFile():
 
 class BaseGenerator():
 
-    def __init__(self, setup_path: str = None) -> None:
-        if setup_path is not None:
-            self.config_path = os.path.join(setup_path, 'robot.yaml')
-        else:
-            self.config_path = DEFAULT_CONFIG_PATH
-
-        if not os.path.exists(self.config_path):
-            self.config_path = DEFAULT_CONFIG_PATH
-
+    def __init__(self, setup_path: str) -> None:
+        self.config_path = os.path.join(setup_path, 'robot.yaml')
         self.setup_path = setup_path
 
         self.raw_config = read_yaml(self.config_path)

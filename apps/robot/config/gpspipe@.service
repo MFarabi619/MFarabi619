@@ -1,9 +1,0 @@
-[Unit]
-After=gpsd.socket
-Requires=gpsd.socket
-Description=Stream filtered NMEA (GGA/RMC) to socket-activated TCP client
-
-[Service]
-StandardInput=socket
-StandardOutput=socket
-ExecStart=/bin/sh -c "exec gpspipe -r | grep --line-buffered -E \"G[PNLAB]GGA|G[PNLAB]RMC\""

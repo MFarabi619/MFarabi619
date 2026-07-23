@@ -1,22 +1,19 @@
 #!/usr/bin/env python3
 
-import argparse
 import os
 
 from robot_config.sensors.types.camera import OrbbecGemini335L
-from robot_generator_common.common import BaseGenerator, ParamFile
+from robot_generator_common.common import ROBOTS_PATH, BaseGenerator, ParamFile, robot_names
 from robot_generator_common.param.writer import ParamWriter
 
 
-DEFAULT_OUTPUT_PATH = os.path.normpath(os.path.join(
+OUTPUT_ROOT = os.path.normpath(os.path.join(
     os.path.dirname(os.path.realpath(__file__)), '..', '..', '..',
     'bringup', 'config', 'generated'))
 
 
 class ParamGenerator(BaseGenerator):
-    def __init__(self,
-                 setup_path: str = None,
-                 output_path: str = DEFAULT_OUTPUT_PATH) -> None:
+    def __init__(self, setup_path: str, output_path: str) -> None:
         super().__init__(setup_path)
         self.output_path = output_path
         os.makedirs(self.output_path, exist_ok=True)
@@ -42,34 +39,11 @@ class ParamGenerator(BaseGenerator):
                 print(f'Generated config: {param_file.full_path}')
 
 
-def get_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-s',
-        '--setup-path',
-        type=str,
-        action='store',
-        dest='setup_path',
-        default=None,
-        help='Setup path, i.e. the directory containing robot.yaml.',
-    )
-    parser.add_argument(
-        '-o',
-        '--output-path',
-        type=str,
-        action='store',
-        dest='output_path',
-        default=DEFAULT_OUTPUT_PATH,
-        help='Output directory for the generated parameter files.',
-    )
-    args = parser.parse_args()
-    return args.setup_path, args.output_path
-
-
 def main():
-    setup_path, output_path = get_args()
-    generator = ParamGenerator(setup_path, output_path)
-    generator.generate()
+    for robot_name in robot_names():
+        ParamGenerator(
+            os.path.join(ROBOTS_PATH, robot_name),
+            os.path.join(OUTPUT_ROOT, robot_name)).generate()
 
 
 if __name__ == '__main__':

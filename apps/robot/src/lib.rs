@@ -1,26 +1,16 @@
-pub mod bridge;
-pub mod camera_mount;
 pub mod config;
 pub mod driver;
 #[cfg(feature = "pixi")]
 pub mod pixi;
-pub mod robot_state_publisher;
-pub mod rosout;
 
 use std::sync::Arc;
 
-pub use bridge::run_bridge;
-pub use camera_mount::{rover_camera_mount, run_camera_mount};
-pub use robot_sensors::{run_camera, run_gps, CameraProfile};
-pub use config::{BRIDGE_PORT, CAMERA_PORT};
 pub use driver::{run_driver, Config};
 use oxidros::prelude::*;
 #[cfg(feature = "perception")]
 pub use robot_perception::{
     run_gesture, run_green_approach, run_line_follower, run_row_follower, LineColor,
 };
-pub use robot_state_publisher::spawn_robot_description;
-pub use rosout::{init_logging_with_console, init_rosout_only};
 
 pub fn spawn_logged(
     task_name: &'static str,
@@ -33,34 +23,6 @@ pub fn spawn_logged(
             tracing::error!("{task_name} stopped: {error}");
         }
     });
-}
-
-pub fn spawn_bridge(
-    context: &Arc<Context>,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let node = context.create_node("bridge", None)?;
-    tracing::info!("bridge on ws://localhost:{BRIDGE_PORT}");
-    spawn_logged("bridge", run_bridge(node, BRIDGE_PORT));
-    Ok(())
-}
-
-pub fn spawn_sensors(
-    context: &Arc<Context>,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let camera_node = context.create_node("camera", None)?;
-    spawn_logged(
-        "camera",
-        run_camera(
-            camera_node,
-            config::RGPIOD_HOST.to_string(),
-            CAMERA_PORT,
-            config::CAMERA,
-        ),
-    );
-    let gps_node = context.create_node("gps", None)?;
-    spawn_logged("gps", run_gps(gps_node, config::RGPIOD_HOST));
-    spawn_bridge(context)?;
-    Ok(())
 }
 
 #[cfg(feature = "pixi")]
@@ -96,12 +58,12 @@ pub fn spawn_perception(
     );
     let row_node = context.create_node("row_follower", None)?;
     spawn_logged("row_follower", run_row_follower(row_node, false));
-    let gesture_node = context.create_node("gesture", None)?;
-    spawn_logged("gesture", run_gesture(gesture_node, false));
+    let gesture_node = context.create_node("gesture_recognizer", None)?;
+    spawn_logged("gesture_recognizer", run_gesture(gesture_node, false));
     Ok(())
 }
 
-pub fn rover_chip(
+pub fn robot0_chip(
 ) -> Result<&'static robot_drivers::gpio::Chip<'static>, Box<dyn std::error::Error + Send + Sync>> {
     let connection: &'static robot_drivers::gpio::Connection = Box::leak(Box::new(
         robot_drivers::gpio::Connection::connect(config::RGPIOD_HOST, config::RGPIOD_PORT)?,
@@ -111,16 +73,14 @@ pub fn rover_chip(
     )))
 }
 
-pub fn spawn_rover_driver(
+pub fn spawn_robot0_driver(
     context: &Arc<Context>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let drivetrain = robot_drivers::motor::drivetrain(rover_chip()?)?;
-    spawn_sensors(context)?;
-    spawn_robot_description(context)?;
+    let drivetrain = config::robot0_drivetrain(robot0_chip()?)?;
     let driver_node = context.create_node("base_controller", None)?;
     spawn_logged(
         "driver",
-        run_driver(driver_node, drivetrain, config::rover_config()),
+        run_driver(driver_node, drivetrain, config::robot0_config()),
     );
     Ok(())
 }

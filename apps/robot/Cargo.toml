@@ -28,7 +28,6 @@ perception = ["dep:robot_perception"]
 pixi = ["dep:rattler_shell", "dep:rattler_conda_types"]
 
 [dev-dependencies]
-robot_simulator = { path = "simulator" }
 tokio-tungstenite = "0.26"
 futures-util = "0.3"
 comfy-table = "7"
@@ -44,18 +43,6 @@ required-features = ["pixi"]
 [[example]]
 name = "task"
 required-features = ["pixi"]
-
-[[example]]
-name = "gazebo"
-required-features = ["pixi"]
-
-[[example]]
-name = "simulator"
-required-features = ["perception"]
-
-[[example]]
-name = "green_approach"
-required-features = ["perception"]
 
 [lints.clippy]
 all = "deny"

@@ -1,9 +1,18 @@
 [workspace]
-preview = ["pixi-build"]
 requires-pixi = ">=0.72.2"
-channels = ["https://prefix.dev/conda-forge"]
-platforms = [{ platform = "linux-64", glibc = "2.34" }, "osx-arm64"]
-# https://robostack.github.io/GettingStarted.html
+channels = [
+    "https://prefix.dev/robostack-lyrical",
+    "https://prefix.dev/conda-forge",
+]
+platforms = [
+    { platform = "linux-64", glibc = "2.34" },
+    "osx-arm64",
+    "linux-aarch64",
+]
+
+[activation]
+scripts = ["install/setup.sh"]
+env = { ROS_DOMAIN_ID = "0", RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l" }
 
 [dependencies]
 python = "*"
@@ -11,72 +20,102 @@ python = "*"
 make = "*"
 ninja = "*"
 cmake = "*"
+rosdep = "*"
+requests = "*"
 compilers = "*"
 pkg-config = "*"
 # ROS specific tools
-rosdep = "*"
 transforms3d = "*"
+ros-lyrical-twist-mux = "*"
 colcon-common-extensions = "*"
+ros-lyrical-desktop-full = "*"
+ros-lyrical-ros2-control = "*"
+ros-lyrical-foxglove-bridge = "*"
+ros-lyrical-ros2-controllers = "*"
+
+[pypi-dependencies]
+better-launch = { git = "https://github.com/dfki-ric/better_launch", rev = "99aea170405745f342df1fa83a1a92810598c9ec" }
 
 [target.linux.dependencies]
 libgl-devel = "*"
 
-[environments]
-default.features = ["ros2"]
+[target.linux-aarch64.dependencies]
+sysroot_linux-aarch64 = ">=2.28"
+ros-lyrical-diagnostic-aggregator = "*"
 
-[feature.ros2]
-channels = ["https://prefix.dev/robostack-lyrical"]
+[target.linux-aarch64.pypi-dependencies]
+gpiod = "*"
+adafruit-extended-bus = "*"
+adafruit-circuitpython-bno08x = "*"
 
-[feature.ros2.activation]
-scripts = ["install/setup.sh"]
-env = { ROS_DOMAIN_ID = "0", RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l" }
+[target.osx-arm64.pypi-dependencies]
+mediapipe = "*"
 
-[feature.ros2.dependencies]
-ros-lyrical-twist-mux = "*"
+[target.osx-arm64.dependencies]
 ros-lyrical-vision-msgs = "*"
-ros-lyrical-desktop-full = "*"
-ros-lyrical-ros2-control = "*"
 ros-lyrical-foxglove-msgs = "*"
-ros-lyrical-foxglove-bridge = "*"
 ros-lyrical-gz-ros2-control = "*"
-ros-lyrical-ros2-controllers = "*"
-ros-lyrical-nmea-navsat-driver = "*"
 
-[feature.ros2.tasks]
-_build = { cmd = "colcon build --symlink-install --base-paths apps/robot" }
+[feature.jazzy]
+channels = ["https://prefix.dev/robostack-jazzy"]
+platforms = ["linux-aarch64"]
 
-_generate = { cmd = "ros2 run robot_generator_common generate_param && ros2 run robot_generator_gz generate_gz_launch && ros2 run robot_generator_sensors generate_sensor_launch", depends-on = [
-    "_build",
+[feature.jazzy.dependencies]
+python = "3.12.*"
+ros-jazzy-rclpy = "*"
+ros-jazzy-rmw-zenoh-cpp = "*"
+ros-jazzy-orbbec-camera = "*"
+ros-jazzy-nmea-navsat-driver = "*"
+ros-jazzy-image-transport-plugins = "*"
+
+[feature.jazzy.pypi-dependencies]
+pyorbbecsdk2 = "*"
+
+[environments]
+jazzy = { features = ["jazzy"], no-default-feature = true }
+
+[tasks]
+build = "colcon build --symlink-install --merge-install --base-paths apps/robot"
+
+generate-param = { cmd = "ros2 run robot_generator_common generate_param", depends-on = [
+    "build",
+] }
+
+generate-gz-launch = { cmd = "ros2 run robot_generator_gz generate_gz_launch", depends-on = [
+    "build",
+] }
+
+generate-sensor-launch = { cmd = "ros2 run robot_generator_sensors generate_sensor_launch", depends-on = [
+    "build",
+] }
+
+generate = { depends-on = [
+    "generate-param",
+    "generate-gz-launch",
+    "generate-sensor-launch",
 ] }
 
 launch = { cmd = "ros2 launch robot_bringup bringup.launch.py", depends-on = [
-    "_generate",
+    "build",
 ] }
 
 sim = { cmd = "ros2 launch robot_gz simulation.launch.py", depends-on = [
-    "_generate",
+    "generate",
 ] }
 
 sim-headless = { cmd = "ros2 launch robot_gz simulation.launch.py headless:=true", depends-on = [
-    "_generate",
+    "generate",
 ] }
 
-teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file apps/robot/config/teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/10.0.0.222:7447"]' } }
+teleop = { cmd = """ZENOH_CONFIG_OVERRIDE='mode="client";connect/endpoints=["tcp/{{ host }}:7447"]' ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file apps/robot/config/teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel""", args = [
+    { arg = "host", default = "beagleyai" },
+] }
 
 teleop-sim = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file apps/robot/config/teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel"
 
-turtlesim = "ros2 launch robot_bringup turtlesim.launch.py"
-
-fetch-gesture-model = { cmd = "curl -fsSL --create-dirs -o apps/robot/perception/robot_perception/models/gesture_recognizer.task https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task", outputs = [
-    "apps/robot/perception/robot_perception/models/gesture_recognizer.task",
+deploy = { cmd = "python apps/robot/config/deploy.py {{ robot }}", args = [
+    { arg = "robot", default = "robot0" },
 ] }
 
-vision = "python apps/robot/perception/robot_perception/vision.py"
-
-gesture = { cmd = "python apps/robot/perception/robot_perception/gesture_node.py", depends-on = [
-    "fetch-gesture-model",
-] }
-
-[feature.ros2.pypi-dependencies]
-mediapipe = "*"
-better-launch = { git = "https://github.com/dfki-ric/better_launch", rev = "99aea170405745f342df1fa83a1a92810598c9ec" }
+[target.linux-aarch64.tasks]
+robot = "ros2 launch robot_bringup robot.launch.py"

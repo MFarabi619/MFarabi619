@@ -1,0 +1,82 @@
+serial_number: robot-0000
+version: 0
+system:
+  namespace: ""
+  hosts:
+    - hostname: beagleyai
+      ip: &host 10.0.0.222
+platform:
+  attachments: []
+  drivetrain:
+    gpio_chip: 3
+    pwm_frequency_hz: 20000.0
+    max_linear_velocity_mps: 2.0
+    left:
+      pwm_chip: 4 # EHRPWM1_B pin 38
+      pwm_channel: 1
+      dir_pin: 7 # pin 36
+      forward_level: true
+    right:
+      pwm_chip: 3 # EHRPWM0_B pin 32
+      pwm_channel: 1
+      dir_pin: 12 # pin 35
+      forward_level: false
+sensors:
+  camera:
+    - model: orbbec_gemini_335l
+      parent: base_link
+      xyz: [0.575, 0.5, 0.31]
+      rpy: [0.0, 0.31, 0.0]
+      ros_parameters:
+        camera_0:
+          enable_color: true
+          color_width: 640
+          color_height: 480
+          color_fps: 30
+          color_format: MJPG
+          enable_depth: false
+          depth_width: 848
+          depth_height: 480
+          depth_fps: 15
+          depth_registration: false
+          align_mode: HW
+          enable_point_cloud: false
+          enable_noise_removal_filter: false
+    - model: imx296_gs
+      parent: base_link
+      xyz: [0.405, 0.4746, 0.5]
+      rpy: [0.0, 0.31, 0.0]
+      launch_enabled: false
+      ros_parameters:
+        camera_1:
+          name: camera_1
+          host: *host
+          port: 8888
+          stream_path: ""
+          width: 1456
+          height: 1088
+          fov_deg: 54.0
+  imu:
+    - model: bno085
+      parent: base_link
+      xyz: [0.0, 0.0, 0.3]
+      rpy: [0.0, 0.0, 0.0]
+      ros_parameters:
+        imu_0:
+          i2c_bus: 1
+          i2c_address: 74
+          frame_id: imu_0_link
+          rate_hz: 25.0
+  gps:
+    - model: adafruit_ultimate_gps_hat
+      parent: base_link
+      ros_parameters:
+        nmea_navsat_driver:
+          port: /dev/ttyAMA0
+          baud: 9600
+          frame_id: gps_link
+mounts:
+  camera_mount:
+    - parent: base_link
+      xyz: [0.2, 0.0, 0.75]
+      rpy: [0.0, 0.0, 0.0]

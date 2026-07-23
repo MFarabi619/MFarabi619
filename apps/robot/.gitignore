@@ -1,3 +1,4 @@
 robot/*_parameters.py
 meshes/
 assets/*.glb
+perception/models/

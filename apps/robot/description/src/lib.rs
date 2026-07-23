@@ -6,7 +6,6 @@ pub mod link;
 pub mod parameters;
 pub mod placement;
 pub mod time;
-pub mod wiring;
 
 use crate::{frames::BASE_LINK, time::now_stamp};
 

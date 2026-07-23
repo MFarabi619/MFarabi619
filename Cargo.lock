@@ -12164,7 +12164,6 @@ dependencies = [
  "robot_drivers",
  "robot_perception",
  "robot_sensors",
- "robot_simulator",
  "serde_json",
  "tokio",
  "tokio-tungstenite 0.26.2",
@@ -12172,17 +12171,6 @@ dependencies = [
  "tracing-subscriber",
  "zenoh",
  "zenoh-ext",
-]
-
-[[package]]
-name = "robot_cad"
-version = "0.1.0"
-dependencies = [
- "cadrum",
- "comfy-table",
- "robot_description",
- "serde",
- "serde_yaml",
 ]
 
 [[package]]
@@ -12217,7 +12205,17 @@ version = "0.1.0"
 dependencies = [
  "cc",
  "fetch-source",
+]
+
+[[package]]
+name = "robot_generator_common"
+version = "0.1.0"
+dependencies = [
+ "cadrum",
+ "comfy-table",
  "robot_description",
+ "serde",
+ "serde_yaml",
 ]
 
 [[package]]

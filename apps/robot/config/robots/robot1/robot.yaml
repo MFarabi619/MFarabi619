@@ -1,0 +1,13 @@
+serial_number: robot-0001
+version: 0
+system:
+  namespace: ""
+  hosts:
+    - hostname: rpi5-16-2
+      ip: 100.121.127.109
+sensors:
+  camera: []
+  imu: []
+  gps: []
+mounts:
+  camera_mount: []

@@ -8,10 +8,7 @@ package_name = 'robot_generator_sensors'
 setup(
     name=package_name,
     version='0.1.0',
-    packages=[
-        package_name,
-        package_name + '.launch',
-    ],
+    py_modules=['sensor_launch_generator'],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -27,7 +24,7 @@ setup(
     license='GPL-3.0-only',
     entry_points={
         'console_scripts': [
-            'generate_sensor_launch = robot_generator_sensors.launch.generator:main',
+            'generate_sensor_launch = sensor_launch_generator:main',
         ],
     },
 )

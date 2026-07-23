@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <library path="robot_hardware_interfaces">
-  <class name="robot_hardware_interfaces/RobotHardware"
-         type="robot_hardware_interfaces::RobotHardware"
+  <class name="robot_hardware_interfaces/DiffDriveHardware"
+         type="robot_hardware_interfaces::DiffDriveHardware"
          base_class_type="hardware_interface::SystemInterface">
     <description>
-      ros2_control SystemInterface for the rover, driving the motors over remote GPIO (rgpiod).
+      Diff drive hardware interface — publishes platform/motors/cmd_drive, consumes platform/motors/feedback.
     </description>
   </class>
 </library>

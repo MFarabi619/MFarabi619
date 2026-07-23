@@ -5,12 +5,6 @@ from setuptools import setup
 
 package_name = 'robot_config'
 
-# Samples
-samples = []
-for path, dirs, files in os.walk('sample'):
-    for file in files:
-        samples.append(os.path.join(path, file))
-
 setup(
     name=package_name,
     version='0.1.0',
@@ -32,7 +26,6 @@ setup(
             ['resource/' + package_name]),
         # Include the package.xml file
         (os.path.join('share', package_name), ['package.xml']),
-        (os.path.join('share', package_name, 'sample'), samples),
     ],
     install_requires=[
         'setuptools',

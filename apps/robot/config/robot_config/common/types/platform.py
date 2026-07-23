@@ -1,15 +1,15 @@
 # Platform
 # - all supported platforms
 class Platform:
-    # MD30C rover
-    ROVER = 'rover'
+    # MD30C drivetrain
+    ROBOT = 'robot'
     # Freenove
     FREENOVE = 'freenove'
     # Generic Robot
     GENERIC = 'generic'
 
     ALL = [
-        ROVER,
+        ROBOT,
         FREENOVE,
         GENERIC,
     ]
@@ -22,7 +22,7 @@ class Platform:
         Unsupported platforms may become supported in a future release, and there are no plans
         to remove it; it simply is not (yet) compatible with the current ROS release.
 
-        @param platform  The platform-identifying serial number prefix (e.g. 'rover', 'freenove')
+        @param platform  The platform-identifying serial number prefix (e.g. 'robot', 'freenove')
 
         @exception UnsupportedPlatformException if the platform is not supported
         """
@@ -36,7 +36,7 @@ class Platform:
 
         Deprecated platforms may have their support removed in a future version
 
-        @param platform  The platform-identifying serial number prefix (e.g. 'rover', 'freenove')
+        @param platform  The platform-identifying serial number prefix (e.g. 'robot', 'freenove')
         """
         # currently nothing is deprecated, so nothing to do here (yet)
         pass

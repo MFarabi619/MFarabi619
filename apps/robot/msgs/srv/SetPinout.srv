@@ -1,0 +1,5 @@
+bool state  # On/Off initial state
+uint32 toggle_period # Toggle period in ms. Minimum 100ms. A period of 0 implies no toggling.
+---
+bool success # indicate successful run of triggered service
+string message # informational, e.g. for error messages

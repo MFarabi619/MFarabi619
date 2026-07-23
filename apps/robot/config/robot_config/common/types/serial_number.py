@@ -3,7 +3,7 @@ from robot_config.common.types.platform import Platform
 
 # SerialNumber
 # - our robot's serial number
-# - ex. rover-0000
+# - ex. robot-0000
 class SerialNumber:
     SERIAL_NUMBER = 'serial_number'
 
@@ -25,17 +25,10 @@ class SerialNumber:
         if not isinstance(sn, str):
             raise TypeError(f'Serial Number "{sn}" must be string')
         sn_tokens = sn.lower().strip().split('-')
-        if len(sn_tokens) <= 0 or len(sn_tokens) >= 4:
+        if len(sn_tokens) <= 0 or len(sn_tokens) >= 3:
             raise ValueError(
-                f'Serial number {sn}" must be delimited by hypens "-" and have 2 or 3 fields (e.g. cpr-rover-00001 or rover-00001), or 1 (generic) field'  # noqa: E501
+                f'Serial number "{sn}" must be delimited by hyphens "-" and have 2 fields (e.g. robot-00001), or 1 (generic) field'  # noqa: E501
             )
-        # Remove CPR Prefix
-        if len(sn_tokens) == 3:
-            if sn_tokens[0] != 'cpr':
-                raise ValueError(
-                    f'Serial number with 3 fields must start with "cpr" not "{sn_tokens[0]}"'
-                )
-            sn_tokens = sn_tokens[1:]
         # Match to Robot
         if sn_tokens[0] not in Platform.ALL:
             raise ValueError(
@@ -63,8 +56,5 @@ class SerialNumber:
     def get_unit(self) -> str:
         return self.unit
 
-    def get_serial(self, prefix=False) -> str:
-        if prefix:
-            return '-'.join(['cpr', self.model, self.unit])
-        else:
-            return '-'.join([self.model, self.unit])
+    def get_serial(self) -> str:
+        return '-'.join([self.model, self.unit])

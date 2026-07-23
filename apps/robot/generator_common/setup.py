@@ -29,7 +29,6 @@ setup(
     entry_points={
         'console_scripts': [
             'generate_param = robot_generator_common.param.generator:main',
-            'generate_launch = robot_generator_common.launch.generator:main',
         ],
     },
 )

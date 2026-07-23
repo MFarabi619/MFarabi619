@@ -1,0 +1,16 @@
+/dts-v1/;
+/plugin/;
+
+&main_pmx0 {
+	robot_dir_pins: robot-dir-pins {
+		pinctrl-single,pins = <
+			0x01ec 0x00040007
+			0x019c 0x00040007
+		>;
+	};
+};
+
+&main_gpio1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&robot_dir_pins>;
+};

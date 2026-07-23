@@ -1,0 +1,20 @@
+diagnostic_aggregator:
+  ros__parameters:
+    path: Robot Diagnostics
+    drive:
+      type: diagnostic_aggregator/AnalyzerGroup
+      path: Drive System
+      analyzers:
+        controllers:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Controllers
+          expected: [
+            'controller_manager: Controller Manager Activity',
+            'controller_manager: Controllers Activity',
+            'controller_manager: Hardware Components Activity',
+          ]
+          contains: [ 'controller_manager' ]
+        teleop:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Teleop
+          contains: [ 'twist_mux' ]

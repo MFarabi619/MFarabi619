@@ -8,7 +8,7 @@ package_name = 'robot_perception'
 setup(
     name=package_name,
     version='0.1.0',
-    packages=[package_name],
+    py_modules=['detect_crop_row', 'detect_hand_gestures', 'foxglove_panels'],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -24,7 +24,9 @@ setup(
     license='GPL-3.0-only',
     entry_points={
         'console_scripts': [
-            'gesture_node = robot_perception.gesture_node:main',
+            'detect_crop_row = detect_crop_row:main',
+            'detect_hand_gestures = detect_hand_gestures:main',
+            'foxglove_panels = foxglove_panels:main',
         ],
     },
 )

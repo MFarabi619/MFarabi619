@@ -88,8 +88,8 @@ class BaseConfig:
         set_in_dict(d=self._config, map=keys, val=value)
 
     @classmethod
-    def get_serial_number(cls, prefix: bool = False) -> str:
-        return BaseConfig._SERIAL_NUMBER.get_serial(prefix=prefix)
+    def get_serial_number(cls) -> str:
+        return BaseConfig._SERIAL_NUMBER.get_serial()
 
     @classmethod
     def set_serial_number(cls, sn: str) -> None:
