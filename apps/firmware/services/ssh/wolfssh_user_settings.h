@@ -1,9 +1,3 @@
-/*
- * Apidae Systems — wolfSSH settings for Walter.
- * Adapted from modules/lib/wolfssh/zephyr/samples/tests/wolfssh_user_settings.h
- * with test-only buffer overrides removed.
- */
-
 #ifndef WOLFSSH_USER_SETTINGS_H
 #define WOLFSSH_USER_SETTINGS_H
 

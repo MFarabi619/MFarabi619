@@ -133,4 +133,13 @@ if(hd44780_path)
   target_sources(app PRIVATE programs/lcd.c)
 endif()
 
+dt_comp_path(esp_hosted_sdio_path COMPATIBLE "espressif,esp-hosted-sdio")
+if(esp_hosted_sdio_path)
+  target_sources(app PRIVATE
+    networking/esp_hosted/esp_hosted_transport.c
+    networking/esp_hosted/esp_hosted_netif.c
+  )
+  target_include_directories(app PRIVATE networking/esp_hosted)
+endif()
+
 rust_cargo_application(CRATE_NAME firmware)

@@ -1,0 +1,21 @@
+description: |
+  ESP-Hosted Wi-Fi co-processor reached over SDIO. For boards where an
+  ESP32-C6 (or similar) radio is wired to the host SoC's SDIO bus and runs
+  esp-hosted-mcu slave firmware.
+
+compatible: "espressif,esp-hosted-sdio"
+
+include: base.yaml
+
+properties:
+  sdhc:
+    type: phandle
+    required: true
+    description: SDHC slot the co-processor's SDIO interface is connected to.
+
+  reset-gpios:
+    type: phandle-array
+    required: true
+    description: |
+      Co-processor enable/reset line. Active-high on this board: driven high
+      enables the co-processor, low holds it in reset.

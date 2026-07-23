@@ -8,6 +8,14 @@ config FORCE_RUST_SUPPORTED
 	default y
 	select RUST_SUPPORTED
 
+config ESP_HOSTED_WIFI
+	bool "esp-hosted Wi-Fi driver (ESP32-C6 over SDIO)"
+	depends on WIFI && NETWORKING
+	select WIFI_USE_NATIVE_NETWORKING
+	help
+	  App-level esp-hosted Wi-Fi driver: an ESP32-C6 co-processor reached
+	  over SDIO, presented as a native-networking Ethernet-L2 net_if.
+
 configdefault FILE_SYSTEM_SHELL
 	default y if SHELL && FILE_SYSTEM
 

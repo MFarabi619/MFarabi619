@@ -1,0 +1,95 @@
+diff --git a/drivers/sdhc/sdhc_esp32.c b/drivers/sdhc/sdhc_esp32.c
+index e50915f4cd1..88755f5d27d 100644
+--- a/drivers/sdhc/sdhc_esp32.c
++++ b/drivers/sdhc/sdhc_esp32.c
+@@ -27,6 +27,8 @@
+ #include <hal/gpio_ll.h>
+ #include <soc/io_mux_struct.h>
+ #include <soc/gpio_struct.h>
++#include <soc/gpio_sig_map.h>
++#include <esp_rom_gpio.h>
+ #else
+ #include <hal/rtc_io_hal.h>
+ #endif
+@@ -946,6 +948,31 @@ static void configure_pin_iomux(int gpio_num)
+ #endif
+ }
+ 
++#if defined(CONFIG_SOC_SERIES_ESP32P4)
++/*
++ * ESP32-P4 SDMMC slot 1 has no IOMUX pins (only slot 0 does), so its CLK/CMD/DAT
++ * lines are routed to arbitrary GPIOs through the GPIO matrix, matching IDF's
++ * sdmmc_host_init_slot. CLK is output-only; CMD and DAT are bidirectional.
++ */
++static void configure_pin_matrix(int gpio_num, uint32_t sig_out, int sig_in)
++{
++	if (gpio_num == GPIO_NUM_NC) {
++		return;
++	}
++
++	gpio_ll_pulldown_dis(GPIO_LL_GET_HW(0), gpio_num);
++	gpio_ll_pullup_en(GPIO_LL_GET_HW(0), gpio_num);
++	gpio_ll_input_enable(GPIO_LL_GET_HW(0), gpio_num);
++	gpio_ll_set_drive_capability(GPIO_LL_GET_HW(0), gpio_num, GPIO_DRIVE_CAP_3);
++	esp_rom_gpio_pad_select_gpio(gpio_num);
++
++	esp_rom_gpio_connect_out_signal(gpio_num, sig_out, false, false);
++	if (sig_in >= 0) {
++		esp_rom_gpio_connect_in_signal(gpio_num, (uint32_t)sig_in, false);
++	}
++}
++#endif
++
+ /**********************************************************************
+  * Zephyr API
+  **********************************************************************/
+@@ -1220,6 +1247,12 @@ static int sdhc_esp32_request(const struct device *dev, struct sdhc_command *cmd
+ 		esp_cmd.flags = SCF_CMD_AC | SCF_RSP_R5;
+ 		break;
+ 
++	case SDIO_RW_EXTENDED:
++		/* CMD53 data transfer; direction is bit 31 of the argument. */
++		esp_cmd.flags = SCF_CMD_ADTC | SCF_RSP_R5 |
++				((cmd->arg & BIT(31)) ? 0 : SCF_CMD_READ);
++		break;
++
+ 	case SDIO_SEND_OP_COND:
+ 		esp_cmd.flags = SCF_CMD_BCR | SCF_RSP_R4;
+ 		break;
+@@ -1408,12 +1441,30 @@ static int sdhc_esp32_init(const struct device *dev)
+ 	 * Pins below are only defined for ESP32. For SoC's with GPIO matrix feature
+ 	 * please use pinctrl for pin configuration.
+ 	 */
+-	configure_pin_iomux(cfg->clk_pin);
+-	configure_pin_iomux(cfg->cmd_pin);
+-	configure_pin_iomux(cfg->d0_pin);
+-	configure_pin_iomux(cfg->d1_pin);
+-	configure_pin_iomux(cfg->d2_pin);
+-	configure_pin_iomux(cfg->d3_pin);
++#if defined(CONFIG_SOC_SERIES_ESP32P4)
++	if (cfg->slot == 1) {
++		/* Slot 1 is GPIO-matrix only on the P4 (e.g. an on-board SDIO radio). */
++		configure_pin_matrix(cfg->clk_pin, SD_CARD_CCLK_2_PAD_OUT_IDX, -1);
++		configure_pin_matrix(cfg->cmd_pin, SD_CARD_CCMD_2_PAD_OUT_IDX,
++				     SD_CARD_CCMD_2_PAD_IN_IDX);
++		configure_pin_matrix(cfg->d0_pin, SD_CARD_CDATA0_2_PAD_OUT_IDX,
++				     SD_CARD_CDATA0_2_PAD_IN_IDX);
++		configure_pin_matrix(cfg->d1_pin, SD_CARD_CDATA1_2_PAD_OUT_IDX,
++				     SD_CARD_CDATA1_2_PAD_IN_IDX);
++		configure_pin_matrix(cfg->d2_pin, SD_CARD_CDATA2_2_PAD_OUT_IDX,
++				     SD_CARD_CDATA2_2_PAD_IN_IDX);
++		configure_pin_matrix(cfg->d3_pin, SD_CARD_CDATA3_2_PAD_OUT_IDX,
++				     SD_CARD_CDATA3_2_PAD_IN_IDX);
++	} else
++#endif
++	{
++		configure_pin_iomux(cfg->clk_pin);
++		configure_pin_iomux(cfg->cmd_pin);
++		configure_pin_iomux(cfg->d0_pin);
++		configure_pin_iomux(cfg->d1_pin);
++		configure_pin_iomux(cfg->d2_pin);
++		configure_pin_iomux(cfg->d3_pin);
++	}
+ 
+ 	/* GPIO matrix routed pins */
+ 	if (cfg->pcfg != NULL) {

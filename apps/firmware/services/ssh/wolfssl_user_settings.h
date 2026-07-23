@@ -1,10 +1,3 @@
-/*
- * Apidae Systems — wolfSSL settings for Walter (ESP32-S3 / Zephyr).
- * Adapted from modules/lib/wolfssh/zephyr/samples/tests/wolfssl_user_settings.h.
- * Bypasses the default zephyr/user_settings.h PSA path (which has header-ordering
- * issues when MBEDTLS_PSA_CRYPTO_C is already enabled via wpa_supplicant).
- */
-
 #ifndef WOLFSSL_USER_SETTINGS_H
 #define WOLFSSL_USER_SETTINGS_H
 

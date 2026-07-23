@@ -22,6 +22,10 @@ pub mod services;
 #[cfg(all(target_os = "none", target_arch = "xtensa", CONFIG_NETWORKING))]
 pub mod networking;
 
+#[cfg(all(target_os = "none", CONFIG_ESP_HOSTED_WIFI))]
+#[path = "networking/esp_hosted/mod.rs"]
+mod esp_hosted;
+
 #[cfg_attr(target_arch = "xtensa",                               path = "arch/xtensa.rs")]
 #[cfg_attr(all(target_os = "none", not(target_arch = "xtensa")), path = "arch/cortex_m.rs")]
 #[cfg(target_os = "none")]

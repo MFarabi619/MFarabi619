@@ -1,3 +1,16 @@
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/*
+ * NOTE: the esp32 SDHC driver allows only ONE enabled esp32-sdhc-slot at a
+ * time (BUILD_ASSERT in sdhc_esp32.c). The onboard microSD (sdhc0) and the C6
+ * Wi-Fi (sdhc1) are therefore mutually exclusive. The microSD is disabled here
+ * while the C6 is active; to go back to the SD card, re-enable &sdhc0 + the
+ * fstab entry and disable the esp-hosted node / &sdhc1 below.
+ */
+&sdhc0 {
+	status = "disabled";
+};
+
 / {
 	fstab {
 		compatible = "zephyr,fstab";
@@ -6,7 +19,28 @@
 			mount-point = "/SD:";
 			disk-access;
 			automount;
+			status = "disabled";
 		};
+	};
+};
+
+&sdhc1 {
+	status = "okay";
+	bus-width = <4>;
+	max-bus-freq = <40000000>;
+	clk-pin = <18>;
+	cmd-pin = <19>;
+	d0-pin = <14>;
+	d1-pin = <15>;
+	d2-pin = <16>;
+	d3-pin = <17>;
+};
+
+/ {
+	esp_hosted: esp-hosted {
+		compatible = "espressif,esp-hosted-sdio";
+		sdhc = <&sdhc1>;
+		reset-gpios = <&gpio1 22 GPIO_ACTIVE_HIGH>;
 	};
 };
 
