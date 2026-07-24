@@ -1,0 +1,50 @@
+# cfg = the Kconfig that instantiates the device; without it the generated
+# code references a device symbol that doesn't exist.
+
+- name: sqn-gm02s
+  cfg: CONFIG_MODEM_CELLULAR
+  rules:
+    - !Compatible
+      names:
+        - sqn,gm02s
+      level: 0
+  actions:
+    - !Instance
+      raw: !Myself
+      device: crate::device::RawDevice
+
+- name: ili9341
+  cfg: CONFIG_ILI9341
+  rules:
+    - !Compatible
+      names:
+        - ilitek,ili9341
+      level: 0
+  actions:
+    - !Instance
+      raw: !Myself
+      device: crate::device::RawDevice
+
+- name: sh8601
+  cfg: CONFIG_SH8601
+  rules:
+    - !Compatible
+      names:
+        - sinowealth,sh8601
+      level: 0
+  actions:
+    - !Instance
+      raw: !Myself
+      device: crate::device::RawDevice
+
+- name: pwm-leds
+  cfg: CONFIG_LED_PWM
+  rules:
+    - !Compatible
+      names:
+        - pwm-leds
+      level: 0
+  actions:
+    - !Instance
+      raw: !Myself
+      device: crate::device::RawDevice

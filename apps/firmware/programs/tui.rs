@@ -12,25 +12,12 @@ use ratatui::Terminal;
 use zephyr::raw::{
     INPUT_ABS_X, INPUT_ABS_Y, INPUT_BTN_TOUCH, INPUT_EV_ABS, INPUT_EV_KEY, device,
     display_blanking_off, display_buffer_descriptor, display_capabilities,
-    display_get_capabilities, display_write, input_callback, input_event, k_msleep, sys_reboot,
+    display_get_capabilities, display_write, input_event, k_msleep, sys_reboot,
 };
 #[cfg(CONFIG_ILI9341)]
-use zephyr::raw::{
-    __device_dts_ord_24, __device_dts_ord_49, __device_dts_ord_53, led_off, led_set_brightness,
-};
-#[cfg(CONFIG_SH8601)]
-use zephyr::raw::__device_dts_ord_26;
+use zephyr::raw::{led_off, led_set_brightness};
 
 use crate::ui::{self, Action, TouchState};
-
-#[cfg(CONFIG_ILI9341)]
-const _: () = assert!(zephyr::devicetree::labels::ili9341::ORD == 24);
-#[cfg(CONFIG_ILI9341)]
-const _: () = assert!(zephyr::devicetree::pwmleds::ORD == 49);
-#[cfg(CONFIG_ILI9341)]
-const _: () = assert!(zephyr::devicetree::labels::pwmleds_backlight::ORD == 53);
-#[cfg(CONFIG_SH8601)]
-const _: () = assert!(zephyr::devicetree::labels::sh8601::ORD == 26);
 
 const SYS_REBOOT_COLD: i32 = 1;
 
@@ -53,40 +40,26 @@ unsafe extern "C" fn on_touch(evt: *mut input_event, _user: *mut core::ffi::c_vo
     }
 }
 
-// Hand-rolled iterable-section entry equivalent to INPUT_CALLBACK_DEFINE.
-// Section name reconstructed from STRUCT_SECTION_ITERABLE expansion:
-// `._<struct_type>.static.<varname>_` per zephyr/sys/iterable_sections.h.
-// dev = NULL → receives events from all input devices.
-#[repr(transparent)]
-struct InputCallbackEntry(input_callback);
-unsafe impl Sync for InputCallbackEntry {}
-
-#[link_section = "._input_callback.static._input_callback__touch_"]
-#[used]
-static TOUCH_CB: InputCallbackEntry = InputCallbackEntry(input_callback {
-    dev: core::ptr::null(),
-    callback: Some(on_touch),
-    user_data: core::ptr::null_mut(),
-});
+zephyr::input_callback!(core::ptr::null(), on_touch, core::ptr::null_mut());
 
 #[cfg(CONFIG_ILI9341)]
 fn display_device() -> *const device {
-    unsafe { &__device_dts_ord_24 as *const device }
+    unsafe { zephyr::devicetree::labels::ili9341::get_instance_raw() }
 }
 
 #[cfg(CONFIG_SH8601)]
 fn display_device() -> *const device {
-    unsafe { &__device_dts_ord_26 as *const device }
+    unsafe { zephyr::devicetree::labels::sh8601::get_instance_raw() }
 }
 
 #[cfg(CONFIG_ILI9341)]
 fn led_device() -> *const device {
-    unsafe { &__device_dts_ord_49 as *const device }
+    unsafe { zephyr::devicetree::pwmleds::get_instance_raw() }
 }
 
 #[cfg(CONFIG_ILI9341)]
 fn backlight_device() -> *const device {
-    unsafe { &__device_dts_ord_53 as *const device }
+    unsafe { zephyr::devicetree::labels::pwmleds_backlight::get_instance_raw() }
 }
 
 pub struct ZephyrDisplay {

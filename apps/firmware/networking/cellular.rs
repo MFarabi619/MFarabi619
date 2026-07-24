@@ -2,7 +2,7 @@ use core::{ffi::c_char, sync::atomic::AtomicPtr};
 use zephyr::{
     error::to_result_void,
     raw::{
-        __device_dts_ord_107, cellular_driver_api, cellular_modem_info_type, device,
+        cellular_driver_api, cellular_modem_info_type, device,
         device_is_ready, k_timeout_t, net_addr_state_NET_ADDR_PREFERRED, net_if,
         net_if_get_first_by_type, net_if_ipv4_get_global_addr, net_if_set_default, net_if_up,
         net_in_addr, net_l2, net_mgmt_event_wait_on_iface,
@@ -12,11 +12,6 @@ use zephyr::{
     sync::atomic::Ordering,
     time::Duration,
 };
-
-// Compile-time check: `__device_dts_ord_<N>` symbol name is hand-coded; assert
-// it matches what the build generates so a DT reorder fails loudly instead of
-// silently grabbing a different device.
-const _: () = assert!(zephyr::devicetree::labels::modem::ORD == 107);
 
 use log::{info, warn};
 
@@ -69,31 +64,15 @@ extern "C" {
     fn gpio_hold_dis(pin: i32) -> i32;
 }
 
-// SYS_INIT equivalent — places an `init_entry` in Zephyr's PRE_KERNEL_2/prio-0
-// init section. The macro `SYS_INIT(fn, PRE_KERNEL_2, 0)` in C expands to a
-// static struct in `.z_init_PRE_KERNEL_2_P_0_SUB_0_`; we reproduce that here.
-// Hand-coded GPIO number 13 = walter modem reset (DT: gpio1 13). The ORD
-// assert above catches DT reorders that would imply different pin numbering.
+// Hand-coded GPIO number 13 = walter modem reset (DT: gpio1 13).
 unsafe extern "C" fn modem_reset_release() -> core::ffi::c_int {
     unsafe { gpio_hold_dis(13) }
 }
 
-#[repr(transparent)]
-struct InitEntry(zephyr::raw::init_entry);
-unsafe impl Sync for InitEntry {}
-
-#[link_section = ".z_init_PRE_KERNEL_2_P_0_SUB_0_"]
-#[used]
-static MODEM_RESET_RELEASE: InitEntry = InitEntry(zephyr::raw::init_entry {
-    init_fn: Some(modem_reset_release),
-    dev: core::ptr::null(),
-});
+zephyr::sys_init!(modem_reset_release, PRE_KERNEL_2, 0);
 
 fn modem_device() -> *const device {
-    // SAFETY: `__device_dts_ord_<N>` is a static device emitted by Zephyr's
-    // build for every DT node. The ORD assert above pins N=107 to the `modem`
-    // alias; bindgen exposes the symbol via zephyr-sys.
-    unsafe { &__device_dts_ord_107 as *const device }
+    unsafe { zephyr::devicetree::labels::modem::get_instance_raw() }
 }
 
 // Replicates the upstream `static inline cellular_get_modem_info` from

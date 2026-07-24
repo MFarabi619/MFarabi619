@@ -1,8 +1,23 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index be31379..fcda1cb 100644
+index be31379..afee771 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -44,8 +44,19 @@ function(_rust_map_target)
+@@ -39,13 +39,34 @@ function(_rust_map_target)
+     else()
+       message(FATAL_ERROR "Unknown Cortex-M target.")
+     endif()
++  elseif(CONFIG_CPU_AARCH32_CORTEX_R)
++    if(CONFIG_CPU_CORTEX_R4 OR CONFIG_CPU_CORTEX_R5)
++      if(CONFIG_FP_HARDABI OR FORCE_FP_HARDABI)
++        set(RUST_TARGET "armv7r-none-eabihf" PARENT_SCOPE)
++      else()
++        set(RUST_TARGET "armv7r-none-eabi" PARENT_SCOPE)
++      endif()
++    else()
++      message(FATAL_ERROR "Unknown Cortex-R target.")
++    endif()
+   elseif(CONFIG_RISCV)
+     if(CONFIG_RISCV_ISA_RV64I)
        # TODO: Should fail if the extensions don't match.
        set(RUST_TARGET "riscv64imac-unknown-none-elf" PARENT_SCOPE)
      elseif(CONFIG_RISCV_ISA_RV32I)
@@ -24,7 +39,7 @@ index be31379..fcda1cb 100644
      else()
        message(FATAL_ERROR "Rust: Unsupported riscv ISA")
      endif()
-@@ -53,6 +64,16 @@ function(_rust_map_target)
+@@ -53,6 +74,16 @@ function(_rust_map_target)
      set(RUST_TARGET "x86_64-unknown-none" PARENT_SCOPE)
    elseif(CONFIG_ARCH_POSIX AND CONFIG_64BIT AND (${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "aarch64"))
      set(RUST_TARGET "aarch64-unknown-none" PARENT_SCOPE)
@@ -41,7 +56,7 @@ index be31379..fcda1cb 100644
    else()
      message(FATAL_ERROR "Rust: Add support for other target")
    endif()
-@@ -104,7 +125,7 @@ function(add_cargo_target_with_zephyr_env target)
+@@ -104,7 +135,7 @@ function(add_cargo_target_with_zephyr_env target)
        WRAPPER_FILE="${WRAPPER_FILE}"
        DT_AUGMENTS="${DT_AUGMENTS}"
        BINARY_DIR_INCLUDE_GENERATED="${BINARY_DIR_INCLUDE_GENERATED}"
@@ -50,7 +65,7 @@ index be31379..fcda1cb 100644
        ${rust_build_type_arg}
  
        # Set a replacement so that packages can just use `zephyr-sys` as a package
-@@ -128,6 +149,16 @@ function(add_cargo_target_with_zephyr_env target)
+@@ -128,6 +159,16 @@ function(add_cargo_target_with_zephyr_env target)
  endfunction()
  
  function(rust_cargo_application)
@@ -67,7 +82,7 @@ index be31379..fcda1cb 100644
    # For now, hard-code the Zephyr crate directly here.  Once we have
    # more than one crate, these should be added by the modules
    # themselves.
-@@ -154,7 +185,7 @@ function(rust_cargo_application)
+@@ -154,7 +195,7 @@ function(rust_cargo_application)
    set(BUILD_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${RUST_TARGET}/${RUST_BUILD_TYPE}")
  
    set(CARGO_TARGET_DIR "${CMAKE_CURRENT_BINARY_DIR}/rust/target")
@@ -76,7 +91,7 @@ index be31379..fcda1cb 100644
    set(SAMPLE_CARGO_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/rust/sample-cargo-config.toml")
  
    # The generated C binding wrappers. These are bindgen-generated wrappers for the inline functions
-@@ -179,10 +210,6 @@ function(rust_cargo_application)
+@@ -179,10 +220,6 @@ function(rust_cargo_application)
        "${config_paths}\
  ${module}.path = \"$CACHE{RUST_MODULE_DIR}/${module}\"
  ")
@@ -87,7 +102,7 @@ index be31379..fcda1cb 100644
    endforeach()
  
    # Write out a cargo config file that can be copied into `.cargo/config.toml` (or made a
-@@ -213,26 +240,14 @@ ${config_paths}
+@@ -213,26 +250,14 @@ ${config_paths}
  ")
  
    # The library is built by invoking Cargo.
@@ -116,7 +131,7 @@ index be31379..fcda1cb 100644
    # Command to generate the rust docs.
    add_cargo_target_with_zephyr_env(rustdoc
      OUTPUT generate_rust_docs
-@@ -249,7 +264,7 @@ ${config_paths}
+@@ -249,7 +274,7 @@ ${config_paths}
    # Example of warning reported by ld when this fix is not in place:
    # <path>/ld.bfd: rust/target/riscv64imac-unknown-none-elf/debug/librustapp.a(45c91108d938afe8-clzdi2.o): unsupported relocation type 0x3d
    target_link_libraries(app PUBLIC $<TARGET_PROPERTY:linker,rt_library> -Wl,--allow-multiple-definition ${RUST_LIBRARY})
@@ -126,7 +141,7 @@ index be31379..fcda1cb 100644
    # Presumably, Rust applications will have no C source files, but cmake will require them.
    # Add an empty file so that this will build.  The main will come from the rust library.
 diff --git a/zephyr-build/src/lib.rs b/zephyr-build/src/lib.rs
-index 6fd4f77..182ae22 100644
+index 6fd4f77..47ee9b1 100644
 --- a/zephyr-build/src/lib.rs
 +++ b/zephyr-build/src/lib.rs
 @@ -25,6 +25,22 @@ use devicetree::{Augment, DeviceTree};
@@ -204,7 +219,7 @@ index 6fd4f77..182ae22 100644
              writeln!(&mut f, "pub const {}: &str = {};", &caps[1], &caps[2]).unwrap();
          }
      }
-@@ -100,10 +127,18 @@ fn import_dt() -> DeviceTree {
+@@ -100,14 +127,28 @@ fn import_dt() -> DeviceTree {
  }
  
  pub fn build_dts() {
@@ -225,7 +240,18 @@ index 6fd4f77..182ae22 100644
      let mut out = File::create(&out_path).expect("Unable to create devicetree.rs");
  
      let augments = env::var("DT_AUGMENTS").expect("DT_AUGMENTS must be set");
-@@ -141,6 +176,10 @@ pub fn build_dts() {
+-    let augments: Vec<String> = augments.split_whitespace().map(String::from).collect();
++    // CMake's ninja generator backslash-escapes spaces in env values, so
++    // multi-file lists must be able to arrive `;`-separated.
++    let augments: Vec<String> = augments
++        .split(|ch: char| ch.is_whitespace() || ch == ';')
++        .filter(|name| !name.is_empty())
++        .map(String::from)
++        .collect();
+ 
+     // Make sure that cargo knows to run if this changes, or any file mentioned changes.
+     println!("cargo:rerun-if-env-changed=DT_AUGMENTS");
+@@ -141,6 +182,10 @@ pub fn build_dts() {
  /// This assumes that build_dts was already run by the `zephyr` crate, which should happen if this
  /// is called from a user application.
  pub fn dt_cfgs() {
@@ -421,3 +447,151 @@ index dbb3842..94be370 100644
  const uint32_t ZR_POLL_TYPE_DATA_AVAILABLE = K_POLL_TYPE_DATA_AVAILABLE;
  
  #ifdef CONFIG_GPIO_ENABLE_DISABLE_INTERRUPT
+diff --git a/zephyr/src/device.rs b/zephyr/src/device.rs
+index 3951c37..4ed140f 100644
+--- a/zephyr/src/device.rs
++++ b/zephyr/src/device.rs
+@@ -53,3 +53,38 @@ impl NoStatic {
+         Self
+     }
+ }
++
++/// A devicetree device with no class-specific wrapper API.
++///
++/// Applications can generate instances of this for arbitrary devicetree nodes
++/// through a custom `DT_AUGMENTS` rule, getting `get_instance_raw()` and the
++/// usual single-instancing `get_instance()` for device classes that have no
++/// dedicated wrapper yet.  Callers use the raw device pointer with the C API
++/// directly.
++pub struct RawDevice {
++    device: *const crate::raw::device,
++}
++
++impl RawDevice {
++    #[allow(dead_code)]
++    pub(crate) unsafe fn new(
++        unique: &Unique,
++        _static: &NoStatic,
++        device: *const crate::raw::device,
++    ) -> Option<RawDevice> {
++        if !unique.once() {
++            return None;
++        }
++        Some(RawDevice { device })
++    }
++
++    /// The underlying `const struct device *`.
++    pub fn raw(&self) -> *const crate::raw::device {
++        self.device
++    }
++
++    /// Whether the device initialized successfully.
++    pub fn is_ready(&self) -> bool {
++        unsafe { crate::raw::device_is_ready(self.device) }
++    }
++}
+diff --git a/zephyr/src/init.rs b/zephyr/src/init.rs
+new file mode 100644
+index 0000000..384398a
+--- /dev/null
++++ b/zephyr/src/init.rs
+@@ -0,0 +1,42 @@
++//! Registration of `SYS_INIT` entries from Rust.
++//!
++//! Mirrors C's `SYS_INIT(fn, level, prio)`: an [`InitEntry`] static placed in
++//! the `.z_init_<LEVEL>_P_<prio>_SUB_0_` section, which the kernel's
++//! `z_sys_init_run_level` walks at boot.
++
++/// A `#[repr(transparent)]` wrapper allowing a raw `init_entry` to be a
++/// shared static.  Only public for use by [`crate::sys_init!`].
++#[doc(hidden)]
++#[repr(transparent)]
++pub struct InitEntry(pub crate::raw::init_entry);
++
++// SAFETY: the kernel only reads the entry, and only during single-threaded
++// early boot.
++unsafe impl Sync for InitEntry {}
++
++/// Register an `unsafe extern "C" fn() -> core::ffi::c_int` to run during
++/// system initialization, equivalent to C's `SYS_INIT(init_fn, level, prio)`.
++///
++/// `level` is one of the init level idents (`EARLY`, `PRE_KERNEL_1`,
++/// `PRE_KERNEL_2`, `POST_KERNEL`, `APPLICATION`, `SMP`); `prio` is the
++/// integer priority literal within that level.
++#[macro_export]
++macro_rules! sys_init {
++    ($init_fn:path, $level:ident, $prio:literal) => {
++        const _: () = {
++            #[link_section = concat!(
++                ".z_init_",
++                stringify!($level),
++                "_P_",
++                stringify!($prio),
++                "_SUB_0_"
++            )]
++            #[used]
++            static ENTRY: $crate::init::InitEntry =
++                $crate::init::InitEntry($crate::raw::init_entry {
++                    init_fn: Some($init_fn),
++                    dev: ::core::ptr::null(),
++                });
++        };
++    };
++}
+diff --git a/zephyr/src/input.rs b/zephyr/src/input.rs
+new file mode 100644
+index 0000000..4f9ae05
+--- /dev/null
++++ b/zephyr/src/input.rs
+@@ -0,0 +1,37 @@
++//! Registration of input callbacks from Rust.
++//!
++//! Mirrors C's `INPUT_CALLBACK_DEFINE(dev, callback, user_data)`: an
++//! [`InputCallbackEntry`] static placed in the `._input_callback.static.*_`
++//! iterable section that the input subsystem walks to dispatch events.
++
++/// A `#[repr(transparent)]` wrapper allowing a raw `input_callback` to be a
++/// shared static.  Only public for use by [`crate::input_callback!`].
++#[doc(hidden)]
++#[repr(transparent)]
++pub struct InputCallbackEntry(pub crate::raw::input_callback);
++
++// SAFETY: the entry is read-only dispatch data; Zephyr never mutates it.
++unsafe impl Sync for InputCallbackEntry {}
++
++/// Register `callback` for input events, equivalent to C's
++/// `INPUT_CALLBACK_DEFINE(dev, callback, user_data)`.  A null `dev` receives
++/// events from all input devices.
++#[macro_export]
++macro_rules! input_callback {
++    ($dev:expr, $callback:ident, $user_data:expr) => {
++        const _: () = {
++            #[link_section = concat!(
++                "._input_callback.static._input_callback__",
++                stringify!($callback),
++                "_"
++            )]
++            #[used]
++            static ENTRY: $crate::input::InputCallbackEntry =
++                $crate::input::InputCallbackEntry($crate::raw::input_callback {
++                    dev: $dev,
++                    callback: Some($callback),
++                    user_data: $user_data,
++                });
++        };
++    };
++}
+diff --git a/zephyr/src/lib.rs b/zephyr/src/lib.rs
+index cccdfaf..9d9de60 100644
+--- a/zephyr/src/lib.rs
++++ b/zephyr/src/lib.rs
+@@ -72,6 +72,9 @@ pub mod align;
+ pub mod device;
+ pub mod embassy;
+ pub mod error;
++pub mod init;
++#[cfg(CONFIG_INPUT)]
++pub mod input;
+ pub mod logging;
+ pub mod object;
+ #[cfg(CONFIG_RUST_ALLOC)]

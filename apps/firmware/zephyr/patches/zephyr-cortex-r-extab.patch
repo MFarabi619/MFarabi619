@@ -1,0 +1,20 @@
+diff --git a/include/zephyr/arch/arm/cortex_a_r/scripts/linker.ld b/include/zephyr/arch/arm/cortex_a_r/scripts/linker.ld
+index b2078036afa..afd00294489 100644
+--- a/include/zephyr/arch/arm/cortex_a_r/scripts/linker.ld
++++ b/include/zephyr/arch/arm/cortex_a_r/scripts/linker.ld
+@@ -196,7 +196,6 @@ SECTIONS
+         __rodata_region_start = .;
+     } GROUP_LINK_IN(ROMABLE_REGION)
+ 
+-#if defined (CONFIG_CPP) || defined(CONFIG_ARCH_STACKWALK)
+     SECTION_PROLOGUE(.ARM.extab,,)
+     {
+         /*
+@@ -204,7 +203,6 @@ SECTIONS
+          */
+         *(.ARM.extab* .gnu.linkonce.armextab.*)
+     } GROUP_LINK_IN(ROMABLE_REGION)
+-#endif
+ 
+     SECTION_PROLOGUE(.ARM.exidx,,)
+     {

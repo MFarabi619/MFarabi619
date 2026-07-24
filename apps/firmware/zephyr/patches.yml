@@ -56,7 +56,7 @@ patches:
           three Queue methods zephyr uses are unchanged between versions.
 
     - path: lang-rust.patch
-      sha256sum: 2ebf5ce2aac3c607cdbead63b3a81b857baa3a3df2e0145338f8da531f9cc1e9
+      sha256sum: a4483e71c30f1c57cb1aac6e580db9ae7424b56a4160e6a815cf9a38bdf18635
       module: lang-rust
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -75,7 +75,12 @@ patches:
                 downstream via `select RUST_SUPPORTED` in
                 apps/firmware/zephyr/Kconfig — no upstream patch needed for that.)
 
-             b. Refine the RV32I branch (upstream's own TODO comment on
+             b. Add a CONFIG_CPU_AARCH32_CORTEX_R branch: R4/R5 →
+                armv7r-none-eabihf when CONFIG_FP_HARDABI (BeagleY-AI R5F
+                sets it), else armv7r-none-eabi. Same shape as the
+                Cortex-M FP gating.
+
+             c. Refine the RV32I branch (upstream's own TODO comment on
                 line 47 asks for this). Upstream unconditionally returns
                 `riscv32i-unknown-none-elf` regardless of which ISA
                 extensions the SoC selects. qemu_riscv32 (SiFive Freedom
@@ -165,6 +170,30 @@ patches:
              allowlist, gated on CONFIG_INPUT / CONFIG_LED, for hand-rolled
              INPUT_CALLBACK_DEFINE and direct led_off() from Rust. (was input-led-allowlist)
 
+          6. zephyr/src/device.rs: add `RawDevice`, a class-agnostic device
+             wrapper for app DT_AUGMENTS rules — generates get_instance_raw()
+             for nodes whose device class has no dedicated wrapper, replacing
+             hand-coded `__device_dts_ord_<N>` externs (which break on every
+             DT reorder; see apps/firmware/zephyr/dt-augments.yaml).
+
+          7. zephyr/src/init.rs (new) + lib.rs: `sys_init!` macro placing an
+             init_entry in `.z_init_<LEVEL>_P_<prio>_SUB_0_`, the Rust
+             equivalent of C's SYS_INIT() — replaces the hand-rolled
+             link_section static in apps/firmware/networking/cellular.rs.
+
+          8. zephyr-build/src/lib.rs: accept `;` as a DT_AUGMENTS separator.
+             Upstream's space-separated multi-file list has never been
+             exercised (their CMake passes one file) and is broken as
+             shipped: CMake's ninja generator backslash-escapes spaces in
+             the env value. A CMake `list(APPEND DT_AUGMENTS ...)` now
+             passes through intact.
+
+          9. zephyr/src/input.rs (new) + lib.rs: `input_callback!` macro
+             placing an entry in the `._input_callback.static.*_` iterable
+             section, the Rust equivalent of C's INPUT_CALLBACK_DEFINE() —
+             replaces the hand-rolled link_section static in
+             apps/firmware/programs/tui.rs. Gated on CONFIG_INPUT.
+
     - path: lang-rust-dt-rust-gpio-flags.patch
       sha256sum: 7ab4ba487d117f440d5ea31e70ed7c6898dbb2f42e4c585227e1e9eddb1ae5fa
       module: lang-rust
@@ -181,7 +210,7 @@ patches:
           fails to compile. Addresses the handler's own TODO about cell counts.
 
     - path: zephyr-cellular.patch
-      sha256sum: fc47f2592ca9d2f248e857d9c488b263d339ac100a5692494712982bfaaff0c5
+      sha256sum: 830dd415364785c904e5d91f59cefb4c93beefc148740a999547084ec020ede0
       module: zephyrproject/zephyr
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -327,7 +356,7 @@ patches:
           maintenance, not split for upstreaming.
 
           1. subsys/shell/Kconfig — bump SHELL_PROMPT_BUFF_SIZE upper bound
-             from 40 to 1024. A full powerline string (background+foreground
+             from 40 to 4096. A full powerline string (background+foreground
              color codes per segment, U+E0B0 separators, Nerd Font glyphs,
              right-alignment via \x1b[<col>G) easily runs 200-500 bytes. The
              40-byte cap predates VT100_COLORS being widely used and is
@@ -416,6 +445,20 @@ patches:
           5. src/system/zephyr/system.c: Z_THREADS_NUM 4 -> 3. A client runs the
              read + lease tasks; 4 static MAIN_STACK_SIZE stacks (thread_stack_area)
              over-provisions internal DRAM by one slot.
+
+    - path: zephyr-cortex-r-extab.patch
+      sha256sum: cf3f97a1dd1866a89b23d0967068a4e0a364457937b02dc24f5081a805f264de
+      module: zephyrproject/zephyr
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-07-23
+      upstreamable: true
+      comments: |
+          cortex_a_r linker.ld: place .ARM.extab unconditionally, not only
+          under CONFIG_CPP/CONFIG_ARCH_STACKWALK. Hard-float v7-r libgcc
+          (unwind-arm.o, pr-support.o) emits .ARM.extab regardless, tripping
+          orphan-section warnings; .ARM.exidx just below is already
+          unconditional.
 
     - path: zephyr-mcpwm.patch
       sha256sum: 7e000733cef5747700e318162c03e78fa14c2f0fb15cb09743d82968a00da2c3

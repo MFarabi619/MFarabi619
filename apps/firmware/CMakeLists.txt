@@ -12,6 +12,9 @@ list(APPEND EXTRA_ZEPHYR_MODULES
 
 set(BOARD_FLASH_RUNNER probe-rs)
 
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/rust)
+file(WRITE ${CMAKE_BINARY_DIR}/rust/probe_rs_meta.rs "")
+
 macro(app_set_runner_args)
   get_property(_app_runner_args_queued GLOBAL PROPERTY _APP_RUNNER_ARGS_QUEUED SET)
   if(NOT _app_runner_args_queued)
@@ -48,14 +51,12 @@ macro(app_set_runner_args)
         set(_prev_was_chip 1)
       endif()
     endforeach()
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/rust)
     if(_chip)
       file(WRITE ${CMAKE_BINARY_DIR}/rust/probe_rs_meta.rs
 "probe_rs_meta::chip!(b\"${_chip}\");
 probe_rs_meta::timeout!(60);
 ")
     else()
-      file(WRITE ${CMAKE_BINARY_DIR}/rust/probe_rs_meta.rs "")
       message(STATUS "No --chip= in probe-rs runner args for ${BOARD}; probe-rs-meta omitted")
     endif()
 
@@ -143,4 +144,5 @@ if(esp_hosted_sdio_path)
   target_include_directories(app PRIVATE networking/esp_hosted)
 endif()
 
+list(APPEND DT_AUGMENTS "${CMAKE_CURRENT_SOURCE_DIR}/zephyr/dt-augments.yaml")
 rust_cargo_application(CRATE_NAME firmware)
