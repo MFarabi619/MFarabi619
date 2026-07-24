@@ -97,11 +97,16 @@ extern "C" fn rust_main() {
 
     spawn_embassy_executor();
 
-    #[cfg(all(CONFIG_DISPLAY, any(CONFIG_ILI9341, CONFIG_SH8601)))]
+    #[cfg(all(CONFIG_DISPLAY, not(CONFIG_LVGL), any(CONFIG_ILI9341, CONFIG_SH8601)))]
     spawn_ui_thread();
 }
 
-#[cfg(all(CONFIG_DISPLAY, any(CONFIG_ILI9341, CONFIG_SH8601), not(CONFIG_ZTEST)))]
+#[cfg(all(
+    CONFIG_DISPLAY,
+    not(CONFIG_LVGL),
+    any(CONFIG_ILI9341, CONFIG_SH8601),
+    not(CONFIG_ZTEST)
+))]
 fn spawn_ui_thread() {
     let stack = UI_STACK.init_once(()).unwrap();
     let mut thread = UI_THREAD.init_once(stack).unwrap();

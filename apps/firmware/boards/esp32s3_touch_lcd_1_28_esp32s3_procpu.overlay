@@ -32,6 +32,11 @@
 		};
 	};
 
+	lvgl_pointer {
+		compatible = "zephyr,lvgl-pointer-input";
+		input = <&ft3168>;
+	};
+
 	fstab {
 		compatible = "zephyr,fstab";
 		sd: sd {
