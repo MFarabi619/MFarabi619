@@ -1,6 +1,8 @@
 use alloc::{vec, vec::Vec};
-use core::convert::Infallible;
-use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
+use core::{
+    convert::Infallible,
+    sync::atomic::{AtomicBool, AtomicI32, Ordering},
+};
 
 use embedded_graphics::{
     pixelcolor::{raw::ToBytes, Rgb565},

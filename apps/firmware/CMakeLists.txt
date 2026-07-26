@@ -124,7 +124,7 @@ if(CONFIG_ZENOH_PICO)
     target_sources(app PRIVATE programs/cmd_vel.c programs/freenove_fnk0077.c)
   endif()
   if(CONFIG_LVGL)
-    target_sources(app PRIVATE programs/teleop.c)
+    target_sources(app PRIVATE programs/teleop_zenoh.c)
   endif()
 endif()
 

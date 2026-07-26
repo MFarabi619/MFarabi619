@@ -99,6 +99,9 @@ extern "C" fn rust_main() {
 
     #[cfg(all(CONFIG_DISPLAY, not(CONFIG_LVGL), any(CONFIG_ILI9341, CONFIG_SH8601)))]
     spawn_ui_thread();
+
+    #[cfg(all(CONFIG_LVGL, CONFIG_ZENOH_PICO))]
+    spawn_teleop_threads();
 }
 
 #[cfg(all(
@@ -137,6 +140,26 @@ fn spawn_embassy_executor() {
 zephyr::kobj_define! {
     static EMBASSY_THREAD: StaticThread;
     static EMBASSY_STACK: ThreadStack<2048>;
+}
+
+#[cfg(all(CONFIG_LVGL, CONFIG_ZENOH_PICO, not(CONFIG_ZTEST)))]
+#[zephyr::thread(stack_size = 8192)]
+fn teleop_network_thread() {
+    crate::programs::teleop::network_thread_body();
+}
+
+#[cfg(all(CONFIG_LVGL, CONFIG_ZENOH_PICO, not(CONFIG_ZTEST)))]
+#[zephyr::thread(stack_size = 16128)]
+fn teleop_ui_thread() {
+    crate::programs::teleop::ui_thread_body();
+}
+
+#[cfg(all(CONFIG_LVGL, CONFIG_ZENOH_PICO, not(CONFIG_ZTEST)))]
+fn spawn_teleop_threads() {
+    for thread in [teleop_network_thread(), teleop_ui_thread()] {
+        thread.set_priority(7);
+        thread.start();
+    }
 }
 
 #[cfg(all(CONFIG_DISPLAY, not(CONFIG_ZTEST)))]

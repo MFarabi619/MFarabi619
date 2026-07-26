@@ -56,7 +56,7 @@ patches:
           three Queue methods zephyr uses are unchanged between versions.
 
     - path: lang-rust.patch
-      sha256sum: a4483e71c30f1c57cb1aac6e580db9ae7424b56a4160e6a815cf9a38bdf18635
+      sha256sum: 0fe1cea60b08475f4df7882d8202740ce41e5b9ef9051e805d42cda4c6c0303f
       module: lang-rust
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -76,9 +76,8 @@ patches:
                 apps/firmware/zephyr/Kconfig — no upstream patch needed for that.)
 
              b. Add a CONFIG_CPU_AARCH32_CORTEX_R branch: R4/R5 →
-                armv7r-none-eabihf when CONFIG_FP_HARDABI (BeagleY-AI R5F
-                sets it), else armv7r-none-eabi. Same shape as the
-                Cortex-M FP gating.
+                armv7r-none-eabihf when CONFIG_FP_HARDABI, else
+                armv7r-none-eabi. Same shape as the Cortex-M FP gating.
 
              c. Refine the RV32I branch (upstream's own TODO comment on
                 line 47 asks for this). Upstream unconditionally returns
@@ -171,15 +170,14 @@ patches:
              INPUT_CALLBACK_DEFINE and direct led_off() from Rust. (was input-led-allowlist)
 
           6. zephyr/src/device.rs: add `RawDevice`, a class-agnostic device
-             wrapper for app DT_AUGMENTS rules — generates get_instance_raw()
-             for nodes whose device class has no dedicated wrapper, replacing
-             hand-coded `__device_dts_ord_<N>` externs (which break on every
-             DT reorder; see apps/firmware/zephyr/dt-augments.yaml).
+             wrapper for DT_AUGMENTS rules — gives nodes whose device class
+             has no dedicated wrapper a generated get_instance_raw(),
+             instead of hand-coded `__device_dts_ord_<N>` externs that break
+             on every DT reorder.
 
           7. zephyr/src/init.rs (new) + lib.rs: `sys_init!` macro placing an
              init_entry in `.z_init_<LEVEL>_P_<prio>_SUB_0_`, the Rust
-             equivalent of C's SYS_INIT() — replaces the hand-rolled
-             link_section static in apps/firmware/networking/cellular.rs.
+             equivalent of C's SYS_INIT().
 
           8. zephyr-build/src/lib.rs: accept `;` as a DT_AUGMENTS separator.
              Upstream's space-separated multi-file list has never been
@@ -190,9 +188,11 @@ patches:
 
           9. zephyr/src/input.rs (new) + lib.rs: `input_callback!` macro
              placing an entry in the `._input_callback.static.*_` iterable
-             section, the Rust equivalent of C's INPUT_CALLBACK_DEFINE() —
-             replaces the hand-rolled link_section static in
-             apps/firmware/programs/tui.rs. Gated on CONFIG_INPUT.
+             section, the Rust equivalent of C's INPUT_CALLBACK_DEFINE().
+             Gated on CONFIG_INPUT.
+
+          10. zephyr-sys/{wrapper.h,build.rs}: LVGL bindgen surface
+              (lv_*/LV_*), gated on CONFIG_LVGL.
 
     - path: lang-rust-dt-rust-gpio-flags.patch
       sha256sum: 7ab4ba487d117f440d5ea31e70ed7c6898dbb2f42e4c585227e1e9eddb1ae5fa

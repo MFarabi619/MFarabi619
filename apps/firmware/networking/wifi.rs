@@ -1,7 +1,10 @@
 use core::ffi::{c_char, c_void};
+
+use log::{info, warn};
 use zephyr::{
+    error::to_result_void,
     raw::{
-        conn_mgr_ignore_iface, k_timeout_t, net_addr_state_NET_ADDR_PREFERRED,
+        conn_mgr_ignore_iface, net_addr_state_NET_ADDR_PREFERRED,
         net_addr_type_NET_ADDR_MANUAL, net_dhcpv4_server_start, net_if,
         net_if_get_wifi_sap, net_if_get_wifi_sta, net_if_ipv4_addr_add,
         net_if_ipv4_get_global_addr, net_if_ipv4_get_gw, net_if_ipv4_set_gw,
@@ -16,10 +19,6 @@ use zephyr::{
     },
     time::Duration,
 };
-
-use log::{info, warn};
-
-use zephyr::error::to_result_void;
 
 const WIFI_CHANNEL_ANY: u8 = 255;
 const ENODEV: i32 = -19;
@@ -300,11 +299,12 @@ pub mod sta {
         unsafe { !net_if_ipv4_get_global_addr(iface, net_addr_state_NET_ADDR_PREFERRED).is_null() }
     }
 
-    pub(super) fn wait_for_ipv4(timeout: Duration) -> zephyr::Result<()> {
+    pub fn wait_for_ipv4(timeout: impl Into<zephyr::time::Timeout>) -> zephyr::Result<()> {
         let iface = unsafe { net_if_get_wifi_sta() };
         if iface.is_null() {
             return to_result_void(ENODEV);
         }
+        let timeout: zephyr::time::Timeout = timeout.into();
 
         // Fast path: already has IPv4 (e.g. on a soft reboot)
         if !unsafe { net_if_ipv4_get_global_addr(iface, net_addr_state_NET_ADDR_PREFERRED) }
@@ -324,11 +324,11 @@ pub mod sta {
                 &mut raised,
                 core::ptr::null_mut(),
                 core::ptr::null_mut(),
-                k_timeout_t { ticks: timeout.ticks() as i64 },
+                timeout.0,
             )
         };
         if rc != 0 {
-            warn!("no wifi IPv4 after {} ms", timeout.to_millis() as u32);
+            warn!("no wifi IPv4 within timeout");
             return to_result_void(ETIMEDOUT);
         }
 

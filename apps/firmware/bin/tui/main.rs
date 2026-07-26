@@ -1,11 +1,15 @@
-use std::io::{self, stdout};
-use std::time::Duration;
-
-use crossterm::event::{
-    self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind, MouseButton,
-    MouseEventKind,
+use std::{
+    io::{self, stdout},
+    time::Duration,
 };
-use crossterm::execute;
+
+use crossterm::{
+    event::{
+        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind,
+        MouseButton, MouseEventKind,
+    },
+    execute,
+};
 
 use firmware::ui::{self, Action, FONT_H, FONT_W, TouchState};
 
