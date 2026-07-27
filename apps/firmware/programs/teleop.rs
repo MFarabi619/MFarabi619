@@ -1,6 +1,6 @@
 use core::{
     f32::consts::FRAC_1_SQRT_2,
-    ffi::{c_char, c_int, c_void, CStr},
+    ffi::{c_char, c_int, c_void},
 };
 
 use log::{info, warn};
@@ -9,10 +9,10 @@ use static_cell::StaticCell;
 use zephyr::{
     raw::{
         self, net_if_get_wifi_sta, net_mgmt_NET_REQUEST_WIFI_PS, sys_rand_get,
-        wifi_ps_params, wifi_ps_WIFI_PS_DISABLED,
+        wifi_ps_WIFI_PS_DISABLED, wifi_ps_params,
     },
     sync::{
-        atomic::{AtomicI64, AtomicU32, Ordering},
+        atomic::{AtomicBool, AtomicI64, AtomicU32, Ordering},
         SpinMutex,
     },
     time::{sleep, Duration},
@@ -29,19 +29,51 @@ extern "C" {
         payload_length: usize,
         attachment: *const u8,
         attachment_length: usize,
-    );
+    ) -> c_int;
 }
 
 macro_rules! zenoh_locator {
     () => {
-        "tcp/10.0.0.222:7447"
+        "tcp/192.168.8.1:7447"
+    };
+}
+
+macro_rules! ros_domain_id {
+    () => {
+        "0"
+    };
+}
+
+macro_rules! cmd_vel_topic {
+    () => {
+        "joy_teleop/cmd_vel"
+    };
+}
+
+macro_rules! twist_stamped_dds_type {
+    () => {
+        "geometry_msgs::msg::dds_::TwistStamped_"
+    };
+}
+
+// Hash from `ros2 topic info /joy_teleop/cmd_vel --verbose` against the robot.
+macro_rules! twist_stamped_type_hash {
+    () => {
+        "RIHS01_5f0fcd4f81d5d06ad9b4c4c63e3ea51b82d6ae4d0558f1d475229b1121db6f64"
     };
 }
 
 const ZENOH_LOCATOR: &str = concat!(zenoh_locator!(), "\0");
-// rmw_zenoh keyexpr: <domain>/<topic>/<dds type>/<hash>; hash from
-// `ros2 topic info /joy_teleop/cmd_vel --verbose` against the robot.
-const CMD_VEL_KEYEXPR: &CStr = c"0/joy_teleop/cmd_vel/geometry_msgs::msg::dds_::TwistStamped_/RIHS01_5f0fcd4f81d5d06ad9b4c4c63e3ea51b82d6ae4d0558f1d475229b1121db6f64";
+const CMD_VEL_KEYEXPR: &str = concat!(
+    ros_domain_id!(),
+    "/",
+    cmd_vel_topic!(),
+    "/",
+    twist_stamped_dds_type!(),
+    "/",
+    twist_stamped_type_hash!(),
+    "\0"
+);
 
 const STOP_SYMBOL: &str = concat!("\u{F04D}", "\0");
 
@@ -51,6 +83,9 @@ const ANGULAR_SPEED: f64 = 1.0;
 const PUBLISH_PERIOD_MS: u32 = 200;
 const STATUS_REFRESH_PERIOD_MS: u32 = 500;
 const RECONNECT_DELAY_MS: u64 = 2000;
+// Bounded because each session close/reopen consumes one of zenoh-pico's
+// three static executor stacks for good; retry the declare in place first.
+const DECLARE_ATTEMPTS_PER_SESSION: usize = 3;
 const WIFI_WAIT_PERIOD_SECS: u64 = 30;
 const LVGL_INIT_POLL_PERIOD_MS: u64 = 50;
 const SYS_CLOCK_REALTIME: c_int = 1;
@@ -61,13 +96,18 @@ enum LinkState {
     WaitingForNetwork = 0,
     Connecting = 1,
     Ready = 2,
+    Reconnecting = 3,
+    WaitingForSubscriber = 4,
 }
 
 impl LinkState {
     fn status_text(self) -> &'static str {
         match self {
             LinkState::WaitingForNetwork => concat!("wifi \u{F021}", "\0"),
-            LinkState::Connecting => concat!("zenoh \u{F021}", "\0"),
+            LinkState::Connecting | LinkState::Reconnecting => {
+                concat!("zenoh \u{F021}", "\0")
+            }
+            LinkState::WaitingForSubscriber => concat!("robot \u{F021}", "\0"),
             LinkState::Ready => concat!("\u{F1EB} ", zenoh_locator!(), "\0"),
         }
     }
@@ -83,7 +123,42 @@ fn link_state() -> LinkState {
     match LINK_STATE.load(Ordering::Acquire) {
         state if state == LinkState::Connecting as u32 => LinkState::Connecting,
         state if state == LinkState::Ready as u32 => LinkState::Ready,
+        state if state == LinkState::Reconnecting as u32 => LinkState::Reconnecting,
+        state if state == LinkState::WaitingForSubscriber as u32 => LinkState::WaitingForSubscriber,
         _ => LinkState::WaitingForNetwork,
+    }
+}
+
+static SUBSCRIBER_MATCHED: AtomicBool = AtomicBool::new(false);
+
+fn post_declare_state() -> LinkState {
+    if SUBSCRIBER_MATCHED.load(Ordering::Acquire) {
+        LinkState::Ready
+    } else {
+        LinkState::WaitingForSubscriber
+    }
+}
+
+#[no_mangle]
+extern "C" fn teleop_zenoh_on_transport_event(connected: bool) {
+    match link_state() {
+        LinkState::Ready | LinkState::WaitingForSubscriber | LinkState::Reconnecting => {
+            set_link_state(if connected {
+                post_declare_state()
+            } else {
+                LinkState::Reconnecting
+            });
+        }
+        LinkState::WaitingForNetwork | LinkState::Connecting => {}
+    }
+}
+
+#[no_mangle]
+extern "C" fn teleop_zenoh_on_matching_status(matching: bool) {
+    SUBSCRIBER_MATCHED.store(matching, Ordering::Release);
+    match link_state() {
+        LinkState::Ready | LinkState::WaitingForSubscriber => set_link_state(post_declare_state()),
+        _ => {}
     }
 }
 
@@ -135,8 +210,7 @@ fn encode_twist_stamped(
 
     out[STAMP_SEC_OFFSET..][..4].copy_from_slice(&stamp_sec.to_le_bytes());
     out[STAMP_NANOSEC_OFFSET..][..4].copy_from_slice(&stamp_nanosec.to_le_bytes());
-    out[FRAME_ID_LENGTH_OFFSET..][..4]
-        .copy_from_slice(&(FRAME_ID.len() as u32).to_le_bytes());
+    out[FRAME_ID_LENGTH_OFFSET..][..4].copy_from_slice(&(FRAME_ID.len() as u32).to_le_bytes());
     out[FRAME_ID_OFFSET..][..FRAME_ID.len()].copy_from_slice(FRAME_ID);
     out[TWIST_LINEAR_X_OFFSET..][..8].copy_from_slice(&command.linear_x.to_le_bytes());
     out[TWIST_ANGULAR_Z_OFFSET..][..8].copy_from_slice(&command.angular_z.to_le_bytes());
@@ -155,8 +229,9 @@ fn encode_attachment(
 }
 
 fn publish_command(command: DriveCommand) {
-    if link_state() != LinkState::Ready {
-        return;
+    match link_state() {
+        LinkState::WaitingForNetwork | LinkState::Connecting => return,
+        LinkState::Ready | LinkState::Reconnecting | LinkState::WaitingForSubscriber => {}
     }
 
     let mut wall_clock = Timespec::default();
@@ -176,13 +251,24 @@ fn publish_command(command: DriveCommand) {
     let mut attachment = [0u8; ATTACHMENT_BYTES];
     encode_attachment(&mut attachment, source_timestamp_nanoseconds, &gid);
 
-    unsafe {
+    let put_result = unsafe {
         teleop_zenoh_publish(
             twist_stamped.as_ptr(),
             TWIST_STAMPED_CDR_BYTES,
             attachment.as_ptr(),
             ATTACHMENT_BYTES,
-        );
+        )
+    };
+    if put_result != 0 {
+        match link_state() {
+            LinkState::Ready | LinkState::WaitingForSubscriber => {
+                warn!("teleop: publish failed ({put_result}), zenoh reconnecting");
+                set_link_state(LinkState::Reconnecting);
+            }
+            _ => {}
+        }
+    } else if link_state() == LinkState::Reconnecting {
+        set_link_state(post_declare_state());
     }
 }
 
@@ -215,15 +301,13 @@ pub fn network_thread_body() {
     }
 
     loop {
-        while let Err(error) = wifi::sta::wait_for_ipv4(Duration::secs(WIFI_WAIT_PERIOD_SECS))
-        {
+        while let Err(error) = wifi::sta::wait_for_ipv4(Duration::secs(WIFI_WAIT_PERIOD_SECS)) {
             warn!("teleop: wait for ipv4: {error}");
         }
         disable_wifi_power_save();
         set_link_state(LinkState::Connecting);
 
-        let open_result =
-            unsafe { teleop_zenoh_open(ZENOH_LOCATOR.as_ptr() as *const c_char) };
+        let open_result = unsafe { teleop_zenoh_open(ZENOH_LOCATOR.as_ptr() as *const c_char) };
         if open_result != 0 {
             warn!("teleop: z_open failed ({open_result}), retrying");
             set_link_state(LinkState::WaitingForNetwork);
@@ -231,11 +315,21 @@ pub fn network_thread_body() {
             continue;
         }
 
-        let declare_result =
-            unsafe { teleop_zenoh_declare_publisher(CMD_VEL_KEYEXPR.as_ptr()) };
-        if declare_result != 0 {
+        let mut declared = false;
+        for _ in 0..DECLARE_ATTEMPTS_PER_SESSION {
+            let declare_result = unsafe {
+                teleop_zenoh_declare_publisher(CMD_VEL_KEYEXPR.as_ptr() as *const c_char)
+            };
+            if declare_result == 0 {
+                declared = true;
+                break;
+            }
             warn!("teleop: declare_publisher failed ({declare_result}), retrying");
+            sleep(Duration::millis(RECONNECT_DELAY_MS));
+        }
+        if !declared {
             unsafe { teleop_zenoh_close() };
+            SUBSCRIBER_MATCHED.store(false, Ordering::Release);
             set_link_state(LinkState::WaitingForNetwork);
             sleep(Duration::millis(RECONNECT_DELAY_MS));
             continue;
@@ -243,8 +337,11 @@ pub fn network_thread_body() {
         break;
     }
 
-    info!("teleop: publishing on {}", CMD_VEL_KEYEXPR.to_str().unwrap());
-    set_link_state(LinkState::Ready);
+    info!(
+        "teleop: publishing on {}",
+        CMD_VEL_KEYEXPR.trim_end_matches('\0')
+    );
+    set_link_state(post_declare_state());
 }
 
 const PAD_GRID_SIZE: usize = 3;
@@ -279,8 +376,13 @@ static ROW_TEMPLATE: [i32; 4] = COLUMN_TEMPLATE;
 // Arrow polyline: shaft, then both head strokes through the tip. Glyph
 // rotation would render each arrow through an ~8 KB intermediate layer,
 // which the LVGL pool cannot hold.
-const ARROW_OUTLINE: [(f32, f32); 5] =
-    [(0.0, 16.0), (0.0, -16.0), (-10.0, -6.0), (0.0, -16.0), (10.0, -6.0)];
+const ARROW_OUTLINE: [(f32, f32); 5] = [
+    (0.0, 16.0),
+    (0.0, -16.0),
+    (-10.0, -6.0),
+    (0.0, -16.0),
+    (10.0, -6.0),
+];
 const ARROW_POINT_COUNT: usize = ARROW_OUTLINE.len();
 
 // (sine, cosine) of the arrow heading, up = 0 degrees, clockwise.
@@ -299,7 +401,10 @@ struct PadCell {
 impl PadCell {
     const fn arrow(linear_x: f64, angular_z: f64, sine: f32, cosine: f32) -> PadCell {
         PadCell {
-            command: DriveCommand { linear_x, angular_z },
+            command: DriveCommand {
+                linear_x,
+                angular_z,
+            },
             arrow_heading: Some(ArrowHeading { sine, cosine }),
         }
     }
@@ -350,15 +455,12 @@ unsafe extern "C" fn on_pad_event(event: *mut raw::lv_event_t) {
     {
         return;
     }
-    let publish_timer =
-        unsafe { raw::lv_event_get_user_data(event) } as *mut raw::lv_timer_t;
+    let publish_timer = unsafe { raw::lv_event_get_user_data(event) } as *mut raw::lv_timer_t;
     let button = unsafe { raw::lv_event_get_target(event) } as *const raw::lv_obj_t;
     let cell_index = unsafe { raw::lv_obj_get_index(button) } as usize;
     let cell = PAD_CELLS[cell_index / PAD_GRID_SIZE][cell_index % PAD_GRID_SIZE];
 
-    if unsafe { raw::lv_event_get_code(event) }
-        == raw::lv_event_code_t_LV_EVENT_PRESSED
-    {
+    if unsafe { raw::lv_event_get_code(event) } == raw::lv_event_code_t_LV_EVENT_PRESSED {
         let command = DriveCommand {
             linear_x: LINEAR_SPEED * cell.command.linear_x,
             angular_z: ANGULAR_SPEED * cell.command.angular_z,
@@ -382,9 +484,7 @@ unsafe extern "C" fn on_status_refresh(timer: *mut raw::lv_timer_t) {
     DISPLAYED_STATE.store(state as u32, Ordering::Relaxed);
 
     let status_label = unsafe { raw::lv_timer_get_user_data(timer) } as *mut raw::lv_obj_t;
-    unsafe {
-        raw::lv_label_set_text(status_label, state.status_text().as_ptr() as *const c_char)
-    };
+    unsafe { raw::lv_label_set_text(status_label, state.status_text().as_ptr() as *const c_char) };
 }
 
 fn build_pad() {
@@ -398,10 +498,7 @@ fn build_pad() {
     unsafe {
         raw::lv_style_init(pad_cell_style);
         raw::lv_style_set_bg_color(pad_cell_style, raw::lv_color_hex(GRUVBOX_CELL));
-        raw::lv_style_set_border_color(
-            pad_cell_style,
-            raw::lv_color_hex(GRUVBOX_CELL_BORDER),
-        );
+        raw::lv_style_set_border_color(pad_cell_style, raw::lv_color_hex(GRUVBOX_CELL_BORDER));
         raw::lv_style_set_border_width(pad_cell_style, 1);
         raw::lv_style_set_radius(pad_cell_style, CELL_RADIUS);
         raw::lv_style_init(pad_cell_pressed_style);
@@ -464,10 +561,7 @@ fn build_pad() {
                 match PAD_CELLS[row][column].arrow_heading {
                     None => {
                         let stop_label = raw::lv_label_create(button);
-                        raw::lv_label_set_text(
-                            stop_label,
-                            STOP_SYMBOL.as_ptr() as *const c_char,
-                        );
+                        raw::lv_label_set_text(stop_label, STOP_SYMBOL.as_ptr() as *const c_char);
                         raw::lv_obj_set_style_text_color(
                             stop_label,
                             raw::lv_color_hex(GRUVBOX_STOP),
@@ -477,29 +571,18 @@ fn build_pad() {
                     }
                     Some(heading) => {
                         let points = &mut arrow_points[row][column];
-                        for (point, (base_x, base_y)) in
-                            points.iter_mut().zip(ARROW_OUTLINE)
-                        {
+                        for (point, (base_x, base_y)) in points.iter_mut().zip(ARROW_OUTLINE) {
                             let x = base_x * heading.cosine - base_y * heading.sine;
                             let y = base_x * heading.sine + base_y * heading.cosine;
-                            point.x = ((ARROW_BOX_SIZE / 2) as f32 + x)
-                                as raw::lv_value_precise_t;
-                            point.y = ((ARROW_BOX_SIZE / 2) as f32 + y)
-                                as raw::lv_value_precise_t;
+                            point.x = ((ARROW_BOX_SIZE / 2) as f32 + x) as raw::lv_value_precise_t;
+                            point.y = ((ARROW_BOX_SIZE / 2) as f32 + y) as raw::lv_value_precise_t;
                         }
                         let arrow = raw::lv_line_create(button);
                         raw::lv_obj_set_size(arrow, ARROW_BOX_SIZE, ARROW_BOX_SIZE);
                         raw::lv_obj_center(arrow);
-                        raw::lv_line_set_points(
-                            arrow,
-                            points.as_ptr(),
-                            ARROW_POINT_COUNT as u32,
-                        );
+                        raw::lv_line_set_points(arrow, points.as_ptr(), ARROW_POINT_COUNT as u32);
                         raw::lv_obj_add_style(arrow, arrow_line_style, 0);
-                        raw::lv_obj_remove_flag(
-                            arrow,
-                            raw::lv_obj_flag_t_LV_OBJ_FLAG_CLICKABLE,
-                        );
+                        raw::lv_obj_remove_flag(arrow, raw::lv_obj_flag_t_LV_OBJ_FLAG_CLICKABLE);
                     }
                 }
 
@@ -511,8 +594,11 @@ fn build_pad() {
             }
         }
 
-        let publish_timer =
-            raw::lv_timer_create(Some(on_publish_tick), PUBLISH_PERIOD_MS, core::ptr::null_mut());
+        let publish_timer = raw::lv_timer_create(
+            Some(on_publish_tick),
+            PUBLISH_PERIOD_MS,
+            core::ptr::null_mut(),
+        );
         raw::lv_timer_pause(publish_timer);
 
         for event_code in [
@@ -550,6 +636,8 @@ pub fn ui_thread_body() {
 
     loop {
         let sleep_milliseconds = unsafe { raw::lv_timer_handler() };
-        sleep(Duration::millis(u64::from(sleep_milliseconds.clamp(5, 100))));
+        sleep(Duration::millis(u64::from(
+            sleep_milliseconds.clamp(5, 100),
+        )));
     }
 }

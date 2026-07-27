@@ -5,28 +5,72 @@
 
 #include "teleop_zenoh.h"
 
+void teleop_zenoh_on_transport_event(bool connected);
+void teleop_zenoh_on_matching_status(bool matching);
+
 static z_owned_session_t session;
 static z_owned_publisher_t publisher;
+
+static void forward_transport_event(z_loaned_transport_event_t *event,
+                                    void *context) {
+  (void)context;
+  teleop_zenoh_on_transport_event(z_transport_event_kind(event) ==
+                                  Z_SAMPLE_KIND_PUT);
+}
+
+static void forward_matching_status(const z_matching_status_t *status,
+                                    void *context) {
+  (void)context;
+  teleop_zenoh_on_matching_status(status->matching);
+}
 
 int teleop_zenoh_open(const char *locator) {
   z_owned_config_t config;
   z_config_default(&config);
   zp_config_insert(z_loan_mut(config), Z_CONFIG_MODE_KEY, "client");
   zp_config_insert(z_loan_mut(config), Z_CONFIG_CONNECT_KEY, locator);
-  return z_open(&session, z_move(config), NULL);
+  int result = z_open(&session, z_move(config), NULL);
+  if (result != 0) {
+    return result;
+  }
+
+  z_owned_closure_transport_event_t transport_events;
+  z_closure_transport_event(&transport_events, forward_transport_event, NULL,
+                            NULL);
+  result = z_declare_background_transport_events_listener(
+      z_loan(session), z_move(transport_events), NULL);
+  if (result != 0) {
+    z_drop(z_move(session));
+  }
+  return result;
 }
 
-void teleop_zenoh_close(void) { z_drop(z_move(session)); }
+void teleop_zenoh_close(void) {
+  z_drop(z_move(publisher));
+  z_drop(z_move(session));
+}
 
 int teleop_zenoh_declare_publisher(const char *keyexpr) {
   z_view_keyexpr_t view;
   z_view_keyexpr_from_str_unchecked(&view, keyexpr);
-  return z_declare_publisher(z_loan(session), &publisher, z_loan(view), NULL);
+  int result = z_declare_publisher(z_loan(session), &publisher, z_loan(view),
+                                   NULL);
+  if (result != 0) {
+    return result;
+  }
+
+  z_owned_closure_matching_status_t matching;
+  z_closure_matching_status(&matching, forward_matching_status, NULL, NULL);
+  result = z_publisher_declare_background_matching_listener(z_loan(publisher),
+                                                            z_move(matching));
+  if (result != 0) {
+    z_drop(z_move(publisher));
+  }
+  return result;
 }
 
-void teleop_zenoh_publish(const uint8_t *payload, size_t payload_length,
-                          const uint8_t *attachment,
-                          size_t attachment_length) {
+int teleop_zenoh_publish(const uint8_t *payload, size_t payload_length,
+                         const uint8_t *attachment, size_t attachment_length) {
   z_owned_bytes_t payload_bytes;
   z_bytes_copy_from_buf(&payload_bytes, payload, payload_length);
   z_owned_bytes_t attachment_bytes;
@@ -35,5 +79,5 @@ void teleop_zenoh_publish(const uint8_t *payload, size_t payload_length,
   z_publisher_put_options_t options;
   z_publisher_put_options_default(&options);
   options.attachment = z_move(attachment_bytes);
-  z_publisher_put(z_loan(publisher), z_move(payload_bytes), &options);
+  return z_publisher_put(z_loan(publisher), z_move(payload_bytes), &options);
 }

@@ -143,7 +143,7 @@ zephyr::kobj_define! {
 }
 
 #[cfg(all(CONFIG_LVGL, CONFIG_ZENOH_PICO, not(CONFIG_ZTEST)))]
-#[zephyr::thread(stack_size = 8192)]
+#[zephyr::thread(stack_size = 16384)]
 fn teleop_network_thread() {
     crate::programs::teleop::network_thread_body();
 }

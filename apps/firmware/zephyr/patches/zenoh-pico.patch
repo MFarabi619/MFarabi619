@@ -70,7 +70,7 @@ index 5b383e61..a8a5979e 100644
  #ifdef CONFIG_TEST_EXTRA_STACK_SIZE
  #define Z_PTHREAD_STACK_SIZE_DEFAULT CONFIG_MAIN_STACK_SIZE + CONFIG_TEST_EXTRA_STACK_SIZE
 diff --git a/zephyr/CMakeLists.txt b/zephyr/CMakeLists.txt
-index 651fdb27..9166693b 100644
+index 651fdb27..05089422 100644
 --- a/zephyr/CMakeLists.txt
 +++ b/zephyr/CMakeLists.txt
 @@ -7,9 +7,9 @@ zephyr_library()
@@ -101,8 +101,8 @@ index 651fdb27..9166693b 100644
 +configure_zenoh_feature(CONFIG_ZENOH_PICO_BATCHING)
 +configure_zenoh_feature(CONFIG_ZENOH_PICO_UNICAST_PEER)
 +configure_zenoh_feature(CONFIG_ZENOH_PICO_AUTO_RECONNECT)
++configure_zenoh_feature(CONFIG_ZENOH_PICO_CONNECTIVITY)
 +
-+set(Z_FEATURE_CONNECTIVITY 0)
 +set(Z_FEATURE_ADVANCED_PUBLICATION 0)
 +set(Z_FEATURE_ADVANCED_SUBSCRIPTION 0)
 +set(Z_FEATURE_LINK_BLUETOOTH 0)
@@ -146,10 +146,10 @@ index 651fdb27..9166693b 100644
    "../src/transport/*.c"
    "../src/utils/*.c"
 diff --git a/zephyr/Kconfig.zenoh b/zephyr/Kconfig.zenoh
-index 820e899a..79c4a09c 100644
+index 820e899a..617b65e5 100644
 --- a/zephyr/Kconfig.zenoh
 +++ b/zephyr/Kconfig.zenoh
-@@ -65,5 +65,65 @@ config ZENOH_PICO_LINK_WS
+@@ -65,5 +65,70 @@ config ZENOH_PICO_LINK_WS
  	help
  	  WS Link
  
@@ -212,6 +212,11 @@ index 820e899a..79c4a09c 100644
 +	bool "Automatic reconnection"
 +	help
 +	  Automatically reconnect a dropped session
++
++config ZENOH_PICO_CONNECTIVITY
++	bool "Connectivity events"
++	help
++	  Transport and link connectivity event listeners
 +
  endif
  

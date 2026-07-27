@@ -407,11 +407,11 @@ patches:
              overlay reg now drives the address.
 
     - path: zenoh-pico.patch
-      sha256sum: d3709c216b5de5c1b7082f051854b0250ed2e9ecb3f05e725d0c3c524b42a661
+      sha256sum: ed55461899380ca352ce0f4dd8e0efb0e25bd407d963d99b2004f952e470019e
       module: zenoh-pico
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
-      date: 2026-07-10
+      date: 2026-07-26
       upstreamable: true
       comments: |
           Make the Zephyr module build against current zenoh-pico + Zephyr.
@@ -423,8 +423,9 @@ patches:
              so every Z_FEATURE_* falls to 0 and the build fails on the missing
              header. Switch configure_zenoh_feature to CMake vars, expose the
              missing features as Kconfig options (UNICAST_TRANSPORT + LIVELINESS
-             on for ROS 2 over TCP), set the remaining feature + sizing defaults,
-             and configure_file config.h.in into the build include path.
+             on for ROS 2 over TCP, CONNECTIVITY for transport/link event
+             listeners), set the remaining feature + sizing defaults, and
+             configure_file config.h.in into the build include path.
 
           2. zephyr/CMakeLists.txt: add ../src/runtime/*.c to the source glob.
              The async executor (background_executor.c) lives in a src/runtime
