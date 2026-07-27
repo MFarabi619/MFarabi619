@@ -9,15 +9,15 @@
 #include "motor.h"
 
 #define ZENOH_LOCATOR "tcp/10.0.0.161:7447"
-#define CMD_VEL_KEYEXPR "0/cmd_vel/**"
+#define CMD_VEL_KEYEXPR "0/joy_teleop/cmd_vel/**"
 
 #define CDR_ENCAPSULATION_HEADER_BYTES 4
+#define HEADER_STAMP_BYTES 8
+#define CDR_STRING_LENGTH_BYTES 4
 #define TWIST_FIELD_BYTES sizeof(double)
-#define TWIST_LINEAR_X_OFFSET                                                  \
-  (CDR_ENCAPSULATION_HEADER_BYTES + 0 * TWIST_FIELD_BYTES)
-#define TWIST_ANGULAR_Z_OFFSET                                                 \
-  (CDR_ENCAPSULATION_HEADER_BYTES + 5 * TWIST_FIELD_BYTES)
-#define TWIST_CDR_BYTES (CDR_ENCAPSULATION_HEADER_BYTES + 6 * TWIST_FIELD_BYTES)
+#define FRAME_ID_LENGTH_BODY_OFFSET HEADER_STAMP_BYTES
+#define FRAME_ID_CHARS_BODY_OFFSET (HEADER_STAMP_BYTES + CDR_STRING_LENGTH_BYTES)
+#define TWIST_ANGULAR_Z_FIELD_INDEX 5
 
 #define SHAPING_DEADZONE 0.05
 #define SHAPING_MIN_SPEED 0.35
@@ -81,6 +81,17 @@ static void deadman_thread(void) {
   }
 }
 
+static size_t align_up(size_t offset, size_t alignment) {
+  size_t remainder = offset % alignment;
+  return remainder == 0 ? offset : offset + (alignment - remainder);
+}
+
+static uint32_t read_cdr_uint32(const uint8_t *bytes) {
+  uint32_t value;
+  memcpy(&value, bytes, sizeof(value));
+  return value;
+}
+
 static void on_cmd_vel(z_loaned_sample_t *sample, void *arg) {
   ARG_UNUSED(arg);
   z_owned_slice_t payload;
@@ -88,14 +99,25 @@ static void on_cmd_vel(z_loaned_sample_t *sample, void *arg) {
   const uint8_t *payload_bytes = z_slice_data(z_loan(payload));
   size_t payload_length = z_slice_len(z_loan(payload));
 
-  if (payload_length >= TWIST_CDR_BYTES) {
-    double linear_x;
-    double angular_z;
-    memcpy(&linear_x, payload_bytes + TWIST_LINEAR_X_OFFSET, TWIST_FIELD_BYTES);
-    memcpy(&angular_z, payload_bytes + TWIST_ANGULAR_Z_OFFSET,
-           TWIST_FIELD_BYTES);
-    drive_twist(linear_x, angular_z);
-    k_timer_start(&deadman_timer, K_MSEC(DEADMAN_TIMEOUT_MS), K_NO_WAIT);
+  size_t frame_id_length_offset =
+      CDR_ENCAPSULATION_HEADER_BYTES + FRAME_ID_LENGTH_BODY_OFFSET;
+  if (payload_length >= frame_id_length_offset + CDR_STRING_LENGTH_BYTES) {
+    uint32_t frame_id_length =
+        read_cdr_uint32(payload_bytes + frame_id_length_offset);
+    size_t twist_body_offset =
+        align_up(FRAME_ID_CHARS_BODY_OFFSET + frame_id_length, TWIST_FIELD_BYTES);
+    size_t linear_x_offset = CDR_ENCAPSULATION_HEADER_BYTES + twist_body_offset;
+    size_t angular_z_offset =
+        linear_x_offset + TWIST_ANGULAR_Z_FIELD_INDEX * TWIST_FIELD_BYTES;
+
+    if (payload_length >= angular_z_offset + TWIST_FIELD_BYTES) {
+      double linear_x;
+      double angular_z;
+      memcpy(&linear_x, payload_bytes + linear_x_offset, TWIST_FIELD_BYTES);
+      memcpy(&angular_z, payload_bytes + angular_z_offset, TWIST_FIELD_BYTES);
+      drive_twist(linear_x, angular_z);
+      k_timer_start(&deadman_timer, K_MSEC(DEADMAN_TIMEOUT_MS), K_NO_WAIT);
+    }
   }
 
   z_drop(z_move(payload));
