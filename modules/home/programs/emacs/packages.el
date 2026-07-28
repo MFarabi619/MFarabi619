@@ -84,7 +84,6 @@
 
   ;; ================
   (package! abc-mode)
-  (package! scad-mode)
   (package! ob-mermaid)
   (package! mermaid-mode)
 

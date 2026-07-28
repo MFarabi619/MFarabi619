@@ -95,6 +95,7 @@
   ;; shell          ; simple shell REPL for Emacs
   ;; term           ; basic terminal emulator for Emacs
   vterm             ; the best terminal emulation in Emacs
+  ;;ghostel           ; the best terminal emulation in Emacs
 
   :checkers
   (syntax           ; tasing you for every semicolon you forget
@@ -232,6 +233,7 @@
   (rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
     +lsp
     +tree-sitter)
+  scad              ; trust the preview, regret the render
   ;;scala            ; java, but good
   (scheme +guile)    ; a fully conniving family of lisps
   (sh +lsp           ; she sells {ba,z,fi}sh shells on the C xor

@@ -48,7 +48,6 @@
         abc-mode
         kdl-mode
         bats-mode
-        scad-mode
         sqlup-mode
         eldoc-cmake
         kconfig-ref
@@ -78,7 +77,6 @@
         empv
         circe
         # gptel
-        # ghostel
         magit-todos
         magit-delta
         claude-code
