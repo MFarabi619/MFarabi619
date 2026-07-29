@@ -5,6 +5,13 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+const mailpitServiceYAML = `    - Mailpit:
+        href: http://localhost:8025
+        icon: mdi-email-outline
+        server: local
+        container: mailpit
+`
+
 func createMailpit(ctx *pulumi.Context, network *docker.Network) error {
 	credential, err := decryptSecret("MP_SEND_API_AUTH")
 	if err != nil {

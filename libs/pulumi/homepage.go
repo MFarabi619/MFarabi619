@@ -5,7 +5,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func createHomepage(ctx *pulumi.Context, network *docker.Network) error {
+func createHomepage(ctx *pulumi.Context, network *docker.Network, servicesYAML string) error {
 	image, err := pullImage(ctx, "homepage", "ghcr.io/gethomepage/homepage:latest")
 	if err != nil {
 		return err
@@ -34,12 +34,16 @@ func createHomepage(ctx *pulumi.Context, network *docker.Network) error {
 			"max-file": pulumi.String("3"),
 		},
 		Envs: pulumi.StringArray{
-			pulumi.String("HOMEPAGE_ALLOWED_HOSTS=localhost:3000"),
+			pulumi.String("HOMEPAGE_ALLOWED_HOSTS=localhost,localhost:3000"),
 		},
 		Uploads: docker.ContainerUploadArray{
 			&docker.ContainerUploadArgs{
 				File:   pulumi.String("/app/config/settings.yaml"),
 				Source: pulumi.String("homepage-dashboard/settings.yaml"),
+			},
+			&docker.ContainerUploadArgs{
+				File:    pulumi.String("/app/config/services.yaml"),
+				Content: pulumi.String(servicesYAML),
 			},
 			&docker.ContainerUploadArgs{
 				File:   pulumi.String("/app/config/widgets.yaml"),

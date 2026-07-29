@@ -20,15 +20,22 @@ func main() {
 			return err
 		}
 
-		if err := createMailpit(ctx, network); err != nil {
-			return err
-		}
-		if err := createHomepage(ctx, network); err != nil {
-			return err
-		}
 		if err := createCaddy(ctx, network); err != nil {
 			return err
 		}
+
+		if err := createMailpit(ctx, network); err != nil {
+			return err
+		}
+
+		servicesYAML := "- Services:\n" + caddyServiceYAML + mailpitServiceYAML
+		if err := createHomepage(ctx, network, servicesYAML); err != nil {
+			return err
+		}
+
+		//		if err := createBore(ctx, network); err != nil {
+		//			return err
+		//		}
 
 		return nil
 	})

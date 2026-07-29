@@ -1,11 +1,25 @@
 package main
 
 import (
+	"os"
+
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+const caddyServiceYAML = `    - Caddy:
+        href: http://localhost
+        icon: mdi-web
+        server: local
+        container: caddy
+`
+
 func createCaddy(ctx *pulumi.Context, network *docker.Network) error {
+	caddyfile, err := os.ReadFile("Caddyfile")
+	if err != nil {
+		return err
+	}
+
 	image, err := pullImage(ctx, "caddy", "caddy:latest")
 	if err != nil {
 		return err
@@ -17,8 +31,8 @@ func createCaddy(ctx *pulumi.Context, network *docker.Network) error {
 		Restart: pulumi.String("unless-stopped"),
 		Uploads: docker.ContainerUploadArray{
 			&docker.ContainerUploadArgs{
-				File:   pulumi.String("/etc/caddy/Caddyfile"),
-				Source: pulumi.String("Caddyfile"),
+				File:    pulumi.String("/etc/caddy/Caddyfile"),
+				Content: pulumi.String(string(caddyfile)),
 			},
 		},
 		Ports: docker.ContainerPortArray{
