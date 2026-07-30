@@ -1,9 +1,25 @@
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 from typing import List
 
-from robot_config.common.types.config import BaseConfig
-from robot_config.common.types.list import OrderedListConfig
+from robot_config.common.definitions.config import BaseConfig
+from robot_config.common.definitions.list import OrderedListConfig
 from robot_config.common.utils.dictionary import flip_dict
-from robot_config.mounts.types.mount import BaseMount, CameraMount
+from robot_config.mounts.definitions.mount import BaseMount, CameraMount
 
 
 class Mount():
@@ -13,7 +29,7 @@ class Mount():
         CAMERA_MOUNT: CameraMount,
     }
 
-    def __new__(cls, model: str) -> BaseMount:
+    def __new__(cls, model: str) -> BaseMount:  # type: ignore[misc]
         if model not in Mount.MODEL:
             raise ValueError(f'Model "{model}" must be one of "{Mount.MODEL.keys()}"')
         return Mount.MODEL[model]()
@@ -44,14 +60,14 @@ class MountsConfig(BaseConfig):
 
     KEYS = flip_dict(TEMPLATE)
 
-    DEFAULTS = {
+    DEFAULTS: dict = {
         CAMERA_MOUNT: [],
     }
 
     def __init__(
             self,
             config: dict = {},
-            camera_mount: List[CameraMount] = DEFAULTS[CAMERA_MOUNT],
+            camera_mount: List[dict] = DEFAULTS[CAMERA_MOUNT],
             ) -> None:
         # Initialization
         self.camera_mount = camera_mount
@@ -77,7 +93,7 @@ class MountsConfig(BaseConfig):
             if not isinstance(i, dict):
                 raise TypeError(f'Camera mount {i} must be of type "dict"')
         mounts = MountListConfig()
-        mount_list = []
+        mount_list: List[BaseMount] = []
         for d in value:
             mount = CameraMount()
             mount.from_dict(d)

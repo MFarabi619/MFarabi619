@@ -1,34 +1,30 @@
-/**
- *
- *  \file
- *  \brief      Class representing diff drive hardware
- *  \author     Roni Kreinin <rkreinin@clearpathrobotics.com>
- *  \author     Tony Baltovski <tbaltovski@clearpathrobotics.com>
- *  \copyright  Copyright (c) 2023, Clearpath Robotics, Inc.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of Clearpath Robotics, Inc. nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL CLEARPATH ROBOTICS, INC. BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+// Copyright 2023 Clearpath Robotics, Inc.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//    * Redistributions of source code must retain the above copyright
+//      notice, this list of conditions and the following disclaimer.
+//
+//    * Redistributions in binary form must reproduce the above copyright
+//      notice, this list of conditions and the following disclaimer in the
+//      documentation and/or other materials provided with the distribution.
+//
+//    * Neither the name of the Clearpath Robotics, Inc. nor the names of its
+//      contributors may be used to endorse or promote products derived from
+//      this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 #include <cmath>
 #include <string>
@@ -42,10 +38,10 @@
 namespace robot_hardware_interfaces
 {
 
-static const std::string LEFT_CMD_JOINT_NAME = "front_left_wheel_joint";
-static const std::string RIGHT_CMD_JOINT_NAME = "front_right_wheel_joint";
-static const std::string LEFT_ALT_JOINT_NAME = "rear_left_wheel_joint";
-static const std::string RIGHT_ALT_JOINT_NAME = "rear_right_wheel_joint";
+static const char LEFT_CMD_JOINT_NAME[] = "front_left_wheel_joint";
+static const char RIGHT_CMD_JOINT_NAME[] = "front_right_wheel_joint";
+static const char LEFT_ALT_JOINT_NAME[] = "rear_left_wheel_joint";
+static const char RIGHT_ALT_JOINT_NAME[] = "rear_right_wheel_joint";
 
 /**
  * @brief Write commanded velocities to the motor driver
@@ -82,21 +78,16 @@ void DiffDriveHardware::updateJointsFromHardware()
 
   auto side = robot_platform_msgs::msg::Drive::LEFT;
   for (auto i = 0u; i < hw_states_position_.size(); i++) {
-    if (num_joints_ == DIFF_DRIVE_TWO_JOINTS)
-    {
-      if (i == wheel_joints_[RIGHT_CMD_JOINT_NAME]){
+    if (num_joints_ == DIFF_DRIVE_TWO_JOINTS) {
+      if (i == wheel_joints_[RIGHT_CMD_JOINT_NAME]) {
         side = robot_platform_msgs::msg::Drive::RIGHT;
-      }
-      else {
+      } else {
         side = robot_platform_msgs::msg::Drive::LEFT;
       }
-    }
-    else if (num_joints_ == DIFF_DRIVE_FOUR_JOINTS)
-    {
-      if (i == wheel_joints_[RIGHT_CMD_JOINT_NAME] || i == wheel_joints_[RIGHT_ALT_JOINT_NAME]){
+    } else if (num_joints_ == DIFF_DRIVE_FOUR_JOINTS) {
+      if (i == wheel_joints_[RIGHT_CMD_JOINT_NAME] || i == wheel_joints_[RIGHT_ALT_JOINT_NAME]) {
         side = robot_platform_msgs::msg::Drive::RIGHT;
-      }
-      else {
+      } else {
         side = robot_platform_msgs::msg::Drive::LEFT;
       }
     }
@@ -119,10 +110,12 @@ void DiffDriveHardware::updateJointsFromHardware()
   }
 }
 
-hardware_interface::CallbackReturn DiffDriveHardware::getHardwareInfo(const hardware_interface::HardwareComponentInterfaceParams & params)
+hardware_interface::CallbackReturn DiffDriveHardware::getHardwareInfo(
+  const hardware_interface::HardwareComponentInterfaceParams & params)
 {
   // Get info from URDF
-  if (hardware_interface::SystemInterface::on_init(params) != hardware_interface::CallbackReturn::SUCCESS)
+  if (hardware_interface::SystemInterface::on_init(params) !=
+    hardware_interface::CallbackReturn::SUCCESS)
   {
     return hardware_interface::CallbackReturn::ERROR;
   }
@@ -133,8 +126,7 @@ hardware_interface::CallbackReturn DiffDriveHardware::getHardwareInfo(const hard
   RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Name: %s", hw_name_.c_str());
 
   // Check for valid number of joints
-  if (num_joints_ != DIFF_DRIVE_FOUR_JOINTS && num_joints_ != DIFF_DRIVE_TWO_JOINTS)
-  {
+  if (num_joints_ != DIFF_DRIVE_FOUR_JOINTS && num_joints_ != DIFF_DRIVE_TWO_JOINTS) {
     RCLCPP_ERROR(rclcpp::get_logger(hw_name_), "Invalid number of joints %u", num_joints_);
     return hardware_interface::CallbackReturn::ERROR;
   }
@@ -151,11 +143,9 @@ hardware_interface::CallbackReturn DiffDriveHardware::getHardwareInfo(const hard
 
 hardware_interface::CallbackReturn DiffDriveHardware::validateJoints()
 {
-  for (const hardware_interface::ComponentInfo & joint : info_.joints)
-  {
+  for (const hardware_interface::ComponentInfo & joint : info_.joints) {
     // DiffDriveHardware has exactly two states and one command interface on each joint
-    if (joint.command_interfaces.size() != 1)
-    {
+    if (joint.command_interfaces.size() != 1) {
       RCLCPP_FATAL(
         rclcpp::get_logger(hw_name_),
         "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
@@ -163,8 +153,7 @@ hardware_interface::CallbackReturn DiffDriveHardware::validateJoints()
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY)
-    {
+    if (joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY) {
       RCLCPP_FATAL(
         rclcpp::get_logger(hw_name_),
         "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
@@ -172,8 +161,7 @@ hardware_interface::CallbackReturn DiffDriveHardware::validateJoints()
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces.size() != 2)
-    {
+    if (joint.state_interfaces.size() != 2) {
       RCLCPP_FATAL(
         rclcpp::get_logger(hw_name_),
         "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
@@ -181,8 +169,7 @@ hardware_interface::CallbackReturn DiffDriveHardware::validateJoints()
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
-    {
+    if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION) {
       RCLCPP_FATAL(
         rclcpp::get_logger(hw_name_),
         "Joint '%s' have '%s' as first state interface. '%s' expected.",
@@ -191,8 +178,7 @@ hardware_interface::CallbackReturn DiffDriveHardware::validateJoints()
       return hardware_interface::CallbackReturn::ERROR;
     }
 
-    if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
-    {
+    if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY) {
       RCLCPP_FATAL(
         rclcpp::get_logger(hw_name_),
         "Joint '%s' have '%s' as second state interface. '%s' expected.", joint.name.c_str(),
@@ -208,30 +194,28 @@ hardware_interface::CallbackReturn DiffDriveHardware::initHardwareInterface()
 {
   node_ = std::make_shared<DiffDriveHardwareInterface>("diff_drive_hardware_interface");
 
-  if (node_ == nullptr)
-  {
+  if (node_ == nullptr) {
     return hardware_interface::CallbackReturn::ERROR;
   }
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn DiffDriveHardware::on_init(const hardware_interface::HardwareComponentInterfaceParams & params)
+hardware_interface::CallbackReturn DiffDriveHardware::on_init(
+  const hardware_interface::HardwareComponentInterfaceParams & params)
 {
   hardware_interface::CallbackReturn ret;
   // Get Hardware name and joints
   ret = getHardwareInfo(params);
 
-  if (ret != hardware_interface::CallbackReturn::SUCCESS)
-  {
+  if (ret != hardware_interface::CallbackReturn::SUCCESS) {
     return ret;
   }
 
   // Validate joints
   ret = validateJoints();
 
-  if (ret != hardware_interface::CallbackReturn::SUCCESS)
-  {
+  if (ret != hardware_interface::CallbackReturn::SUCCESS) {
     return ret;
   }
 
@@ -270,7 +254,8 @@ std::vector<hardware_interface::CommandInterface> DiffDriveHardware::export_comm
   return command_interfaces;
 }
 
-hardware_interface::CallbackReturn DiffDriveHardware::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)
+hardware_interface::CallbackReturn DiffDriveHardware::on_activate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Starting ...please wait...");
 
@@ -289,7 +274,8 @@ hardware_interface::CallbackReturn DiffDriveHardware::on_activate(const rclcpp_l
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::CallbackReturn DiffDriveHardware::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
+hardware_interface::CallbackReturn DiffDriveHardware::on_deactivate(
+  const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger(hw_name_), "Stopping ...please wait...");
 
@@ -298,7 +284,9 @@ hardware_interface::CallbackReturn DiffDriveHardware::on_deactivate(const rclcpp
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type DiffDriveHardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+hardware_interface::return_type DiffDriveHardware::read(
+  const rclcpp::Time & /*time*/,
+  const rclcpp::Duration & /*period*/)
 {
   RCLCPP_DEBUG(rclcpp::get_logger(hw_name_), "Reading from hardware");
 
@@ -309,7 +297,9 @@ hardware_interface::return_type DiffDriveHardware::read(const rclcpp::Time & /*t
   return hardware_interface::return_type::OK;
 }
 
-hardware_interface::return_type DiffDriveHardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+hardware_interface::return_type DiffDriveHardware::write(
+  const rclcpp::Time & /*time*/,
+  const rclcpp::Duration & /*period*/)
 {
   RCLCPP_DEBUG(rclcpp::get_logger(hw_name_), "Writing to hardware");
 
@@ -322,4 +312,5 @@ hardware_interface::return_type DiffDriveHardware::write(const rclcpp::Time & /*
 
 }  // namespace robot_hardware_interfaces
 
-PLUGINLIB_EXPORT_CLASS(robot_hardware_interfaces::DiffDriveHardware, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(robot_hardware_interfaces::DiffDriveHardware,
+  hardware_interface::SystemInterface)

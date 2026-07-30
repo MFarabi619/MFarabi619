@@ -2,3 +2,6 @@ robot/*_parameters.py
 meshes/
 assets/*.glb
 perception/models/
+
+.pytest_cache/
+

@@ -1,3 +1,19 @@
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 import socket
 import time
 
@@ -14,7 +30,7 @@ def wait_for_router(attempts=50):
     for _ in range(attempts):
         try:
             socket.create_connection(
-                ("127.0.0.1", ZENOH_ROUTER_PORT), timeout=0.2).close()
+                ('127.0.0.1', ZENOH_ROUTER_PORT), timeout=0.2).close()
             return
         except OSError:
             time.sleep(0.2)
@@ -24,35 +40,42 @@ def wait_for_router(attempts=50):
 def bringup():
     bl = BetterLaunch()
     bl.process(
-        "ros2 run rmw_zenoh_cpp rmw_zenohd",
-        name="zenoh_router",
-        env={"ZENOH_CONFIG_OVERRIDE": ROUTER_CONFIG_OVERRIDE},
+        'ros2 run rmw_zenoh_cpp rmw_zenohd',
+        name='zenoh_router',
+        env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
         max_respawns=-1,
         respawn_delay=2.0,
     )
     wait_for_router()
     bl.node(
-        package="foxglove_bridge",
-        executable="foxglove_bridge",
-        name="foxglove_bridge",
+        package='foxglove_bridge',
+        executable='foxglove_bridge',
+        name='foxglove_bridge',
         params={
-            "send_buffer_limit": 1000000,
-            "max_qos_depth": 5,
-            "best_effort_qos_topic_whitelist": ["/sensors/camera_0/.*"],
+            'send_buffer_limit': 1000000,
+            'max_qos_depth': 5,
+            'best_effort_qos_topic_whitelist': ['/sensors/camera_0/.*'],
         },
-        env={"ZENOH_CONFIG_OVERRIDE": CLIENT_CONFIG_OVERRIDE},
+        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
         max_respawns=-1,
         respawn_delay=2.0,
     )
     bl.node(
-        package="robot_perception",
-        executable="detect_hand_gestures",
-        name="gesture_recognizer",
-        env={"ZENOH_CONFIG_OVERRIDE": CLIENT_CONFIG_OVERRIDE},
+        package='robot_perception',
+        executable='gesture_teleop',
+        name='gesture_teleop',
+        params={'image_topic': '/image'},
+        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
     )
     bl.node(
-        package="robot_perception",
-        executable="foxglove_panels",
-        name="foxglove_panels",
-        env={"ZENOH_CONFIG_OVERRIDE": CLIENT_CONFIG_OVERRIDE},
+        package='robot_perception',
+        executable='gesture_to_cmd_vel',
+        name='gesture_to_cmd_vel',
+        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+    )
+    bl.node(
+        package='robot_perception',
+        executable='foxglove_panels',
+        name='foxglove_panels',
+        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
     )

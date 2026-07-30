@@ -1,5 +1,5 @@
 [Unit]
-Description=robot stack (better_launch process tree)
+Description=ROS2 process stack
 After=network-online.target
 Wants=network-online.target
 StartLimitIntervalSec=0
@@ -8,7 +8,7 @@ StartLimitIntervalSec=0
 Type=simple
 User=mfarabi
 WorkingDirectory=/home/mfarabi/MFarabi619
-ExecStart=/home/mfarabi/.nix-profile/bin/pixi run robot
+ExecStart=/home/mfarabi/.pixi/bin/pixi run robot
 LimitRTPRIO=95
 LimitMEMLOCK=infinity
 Restart=on-failure

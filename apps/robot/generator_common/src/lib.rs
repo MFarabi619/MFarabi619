@@ -26,7 +26,11 @@ pub fn robot_dir() -> PathBuf {
 }
 
 pub fn asset(name: &str) -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join(name)
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("step").join(name)
+}
+
+pub fn mesh(name: &str) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("stl").join(name)
 }
 
 #[macro_export]

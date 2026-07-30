@@ -1,3 +1,19 @@
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 import os
 
 from typing import List
@@ -8,9 +24,7 @@ from robot_config.common.utils.yaml import read_yaml
 from robot_config.robot_config import RobotConfig
 
 
-ROBOTS_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), '..', '..',
-    'config', 'robots'))
+ROBOTS_PATH = os.path.join('apps', 'robot', 'config', 'robots')
 
 
 def robot_names():
@@ -66,7 +80,7 @@ class LaunchFile():
 
         def __init__(self,
                      name: str,
-                     package: 'Package',
+                     package: str,
                      executable: str,
                      namespace: str = '',
                      parameters: List[dict] | List[str] = [],
@@ -106,9 +120,9 @@ class LaunchFile():
     def __init__(self,
                  name: str,
                  path: str = 'launch',
-                 package: Package = None,
-                 args: List[tuple] = None,
-                 filename: str = None,
+                 package: Package | None = None,
+                 args: List[tuple] | None = None,
+                 filename: str | None = None,
                  ) -> None:
         self.package = package
         self.path = path

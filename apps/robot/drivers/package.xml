@@ -7,11 +7,26 @@
   <maintainer email="mfarabi619@gmail.com">Mumtahin Farabi</maintainer>
   <license>MIT</license>
 
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <build_depend>rclcpp</build_depend>
+  <build_depend>robot_platform_msgs</build_depend>
+  <build_depend>ament_index_cpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+
   <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>robot_platform_msgs</exec_depend>
+  <exec_depend>ament_index_cpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_mypy</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

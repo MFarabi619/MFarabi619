@@ -1,3 +1,19 @@
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 from functools import reduce
 import operator
 from typing import MutableMapping
@@ -40,18 +56,12 @@ def merge_dict(a, b, path=None, priority=0):
     return a
 
 
-def _unflatten_dict_gen(d: dict, k: str, v: object, dlim: str = '.'):
-    keys = k.split(dlim)
-    if len(keys) > 1:
-        return _unflatten_dict_gen()
-
-
 def unflatten_dict(d: MutableMapping, parent_key: str = '', dlim: str = '.'):
-    _d = {}
+    _d: dict = {}
     for k, v in d.items():
         if isinstance(v, dict):
             v = unflatten_dict(v, parent_key, dlim)
-        _d_curr = {}
+        _d_curr: dict = {}
         _d_next = {}
         keys = k.split(dlim)
         keys.reverse()

@@ -1,7 +1,23 @@
-from robot_config.common.types.config import BaseConfig
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+from robot_config.common.definitions.config import BaseConfig
 from robot_config.common.utils.yaml import read_yaml, write_yaml
 from robot_config.mounts.mounts import MountsConfig
-from robot_config.platform.platform import PlatformConfig
+from robot_config.platform_config.platform_config import PlatformConfig
 from robot_config.sensors.sensors import SensorConfig
 from robot_config.system.system import SystemConfig
 
@@ -28,7 +44,7 @@ class RobotConfig(BaseConfig):
 
     KEYS = TEMPLATE
 
-    DEFAULTS = {
+    DEFAULTS: dict = {
         SERIAL_NUMBER: 'generic',
         VERSION: 0,
         SYSTEM: SystemConfig.DEFAULTS,
@@ -37,7 +53,7 @@ class RobotConfig(BaseConfig):
         MOUNTS: MountsConfig.DEFAULTS,
     }
 
-    def __init__(self, config: dict | str = None) -> None:
+    def __init__(self, config: dict | str | None = None) -> None:
         # Read YAML
         if isinstance(config, str):
             config = self.read(config)
@@ -62,9 +78,11 @@ class RobotConfig(BaseConfig):
             self.MOUNTS: RobotConfig.mounts,
         }
         # Set from Config
+        if config is None:
+            config = {}
         super().__init__(setters, config)
 
-    def read(self, file: str | dict) -> None:
+    def read(self, file: str | dict) -> dict:
         self._file = None
         if isinstance(file, dict):
             return file

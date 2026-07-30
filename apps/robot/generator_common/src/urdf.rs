@@ -143,6 +143,34 @@ fn sim_sensor_plugins(config: &RobotConfig) -> String {
 "#,
         );
     }
+    push_frame(&mut xml, "lidar_link", "base_link", [0.0, 0.0, 0.4], [0.0, 0.0, 0.0]);
+    xml.push_str(
+        r#"  <gazebo reference="lidar_link">
+    <sensor name="lidar" type="gpu_lidar">
+      <update_rate>10</update_rate>
+      <always_on>true</always_on>
+      <frame_id>lidar_link</frame_id>
+      <topic>scan</topic>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.141592</min_angle>
+            <max_angle>3.141592</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.2</min>
+          <max>20.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </lidar>
+    </sensor>
+  </gazebo>
+
+"#,
+    );
     xml
 }
 
@@ -185,7 +213,7 @@ fn read_binary_stl_corners(path: &Path) -> Result<Vec<DVec3>, Box<dyn Error>> {
 }
 
 fn orbbec_gemini_335l_mesh() -> Result<Mesh, Box<dyn Error>> {
-    let corners = read_binary_stl_corners(&crate::asset(ORBBEC_GEMINI_335L_STL))?;
+    let corners = read_binary_stl_corners(&crate::mesh(ORBBEC_GEMINI_335L_STL))?;
     let mut vertices: Vec<DVec3> = Vec::new();
     let mut vertex_index_by_position: HashMap<[u64; 3], usize> = HashMap::new();
     let mut indices = Vec::with_capacity(corners.len());

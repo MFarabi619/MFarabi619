@@ -1,13 +1,13 @@
 [workspace]
 requires-pixi = ">=0.72.1"
 channels = [
-    "https://prefix.dev/robostack-lyrical",
-    "https://prefix.dev/conda-forge",
+  "https://prefix.dev/robostack-lyrical",
+  "https://prefix.dev/conda-forge",
 ]
 platforms = [
-    { platform = "linux-64", glibc = "2.34" },
-    "osx-arm64",
-    "linux-aarch64",
+  { platform = "linux-64", glibc = "2.34" },
+  "osx-arm64",
+  "linux-aarch64",
 ]
 
 [activation]
@@ -32,6 +32,7 @@ ros-lyrical-desktop-full = "*"
 ros-lyrical-ros2-control = "*"
 ros-lyrical-foxglove-bridge = "*"
 ros-lyrical-ros2-controllers = "*"
+rich = ">=15.0.0,<16"
 
 [pypi-dependencies]
 better-launch = { git = "https://github.com/dfki-ric/better_launch", rev = "99aea170405745f342df1fa83a1a92810598c9ec" }
@@ -39,9 +40,19 @@ better-launch = { git = "https://github.com/dfki-ric/better_launch", rev = "99ae
 [target.linux.dependencies]
 libgl-devel = "*"
 
+[target.linux-64.dependencies]
+ros-lyrical-gz-ros2-control = "*"
+ros-lyrical-foxglove-msgs = "*"
+
+[target.linux-64.pypi-dependencies]
+mediapipe = ">=1.0.0"
+
 [target.linux-aarch64.dependencies]
 sysroot_linux-aarch64 = ">=2.28"
+ros-lyrical-foxglove-msgs = "*"
 ros-lyrical-diagnostic-aggregator = "*"
+ros-lyrical-depth-image-proc = "*"
+ros-lyrical-pointcloud-to-laserscan = "*"
 
 [target.linux-aarch64.pypi-dependencies]
 gpiod = "*"
@@ -51,71 +62,115 @@ adafruit-circuitpython-bno08x = "*"
 [target.osx-arm64.pypi-dependencies]
 mediapipe = "*"
 
+[target.osx-arm64.activation.env]
+# ZENOH_CONFIG_OVERRIDE = 'mode="client";scouting/multicast/enabled=true;connect/endpoints=["tcp/192.168.1.134:7447"]'
+ZENOH_CONFIG_OVERRIDE = 'mode="client";scouting/multicast/enabled=true;connect/endpoints=["tcp/10.0.0.247:7447"]'
+
 [target.osx-arm64.dependencies]
 ros-lyrical-vision-msgs = "*"
 ros-lyrical-foxglove-msgs = "*"
 ros-lyrical-gz-ros2-control = "*"
 
-[feature.jazzy]
-channels = ["https://prefix.dev/robostack-jazzy"]
-platforms = ["linux-aarch64"]
-
-[feature.jazzy.dependencies]
-python = "3.12.*"
-ros-jazzy-rclpy = "*"
-ros-jazzy-rmw-zenoh-cpp = "*"
-ros-jazzy-orbbec-camera = "*"
-ros-jazzy-nmea-navsat-driver = "*"
-ros-jazzy-image-transport-plugins = "*"
-
-[feature.jazzy.pypi-dependencies]
-pyorbbecsdk2 = "*"
-
 [environments]
 jazzy = { features = ["jazzy"], no-default-feature = true }
 
+[feature.jazzy]
+channels = [
+  "https://prefix.dev/robostack-jazzy",
+  "https://prefix.dev/conda-forge",
+]
+platforms = ["linux-aarch64", "osx-arm64"]
+
+[feature.jazzy.activation.env]
+RMW_IMPLEMENTATION = "rmw_zenoh_cpp"
+ROS_DOMAIN_ID = "0"
+ZENOH_CONFIG_OVERRIDE = "mode='client'"
+
+[feature.jazzy.dependencies]
+python = "3.12.*"
+ros-jazzy-rmw-zenoh-cpp = "*"
+ros-jazzy-slam-toolbox = "*"
+ros-jazzy-nav2-amcl = "*"
+ros-jazzy-nav2-planner = "*"
+ros-jazzy-nav2-smoother = "*"
+ros-jazzy-nav2-behaviors = "*"
+ros-jazzy-nav2-map-server = "*"
+ros-jazzy-nav2-controller = "*"
+ros-jazzy-nav2-bt-navigator = "*"
+ros-jazzy-nav2-navfn-planner = "*"
+ros-jazzy-nav2-mppi-controller = "*"
+ros-jazzy-nav2-velocity-smoother = "*"
+ros-jazzy-nav2-lifecycle-manager = "*"
+ros-jazzy-nav2-collision-monitor = "*"
+
+[feature.jazzy.target.linux-aarch64.dependencies]
+ros-jazzy-rclpy = "*"
+ros-jazzy-nmea-navsat-driver = "*"
+
+[feature.jazzy.target.osx-arm64.dependencies]
+ros-jazzy-ros2cli = "*"
+ros-jazzy-ros2topic = "*"
+ros-jazzy-ros2node = "*"
+ros-jazzy-std-msgs = "*"
+ros-jazzy-nav2-bringup = "*"
+
 [tasks]
-build = "colcon build --symlink-install --merge-install --base-paths apps/robot"
+build = "colcon build --merge-install --base-paths apps/robot"
 
 generate-param = { cmd = "ros2 run robot_generator_common generate_param", depends-on = [
-    "build",
+  "build",
 ] }
 
 generate-gz-launch = { cmd = "ros2 run robot_generator_gz generate_gz_launch", depends-on = [
-    "build",
+  "build",
 ] }
 
-generate-sensor-launch = { cmd = "ros2 run robot_generator_sensors generate_sensor_launch", depends-on = [
-    "build",
+lint = { cmd = "colcon test --base-paths apps/robot --merge-install --ctest-args -L linter --pytest-args -m linter --event-handlers console_direct+ && colcon test-result --verbose", depends-on = [
+  "build",
 ] }
 
-generate = { depends-on = [
-    "generate-param",
-    "generate-gz-launch",
-    "generate-sensor-launch",
+generate = { depends-on = ["generate-param", "generate-gz-launch"] }
+
+launch = { cmd = "python apps/robot/bringup/launch/bringup.launch.py", depends-on = [
+  "build",
 ] }
 
-launch = { cmd = "ros2 launch robot_bringup bringup.launch.py", depends-on = [
-    "build",
+sim = { cmd = "python apps/robot/simulator/gz/launch/simulation.launch.py", depends-on = [
+  "generate",
 ] }
 
-sim = { cmd = "ros2 launch robot_gz simulation.launch.py", depends-on = [
-    "generate",
+sim-server = { cmd = "python apps/robot/simulator/gz/launch/simulation.launch.py --headless true", depends-on = [
+  "generate",
 ] }
 
-sim-headless = { cmd = "ros2 launch robot_gz simulation.launch.py headless:=true", depends-on = [
-    "generate",
+teleop = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file apps/robot/config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel"
+
+approach = { cmd = "python apps/robot/perception/launch/approach.launch.py --standoff_distance {{ standoff }}", args = [
+  { arg = "standoff", default = "1.0" },
 ] }
 
-teleop = { cmd = """ZENOH_CONFIG_OVERRIDE='mode="client";connect/endpoints=["tcp/{{ host }}:7447"]' ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file apps/robot/config/teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel""", args = [
-    { arg = "host", default = "beagleyai" },
+row-follow = { cmd = "python apps/robot/perception/launch/row_follow.launch.py --target_offset {{ target }}", args = [
+  { arg = "target", default = "0.0" },
 ] }
 
-teleop-sim = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file apps/robot/config/teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel"
+crop-row = "python apps/robot/perception/src/row_detector.py"
+
+e2e = "python apps/robot/e2e/drive_profile.py --ros-args -p use_sim_time:=true"
+
+cone-drill = "python apps/robot/e2e/cone_drill.py --ros-args -p use_sim_time:=true"
+
+camera-check = "python apps/robot/e2e/camera_path.py"
+
+slam-sim = "python apps/robot/navigation/launch/slam.launch.py --env jazzy --use_sim_time true --scan_topic /scan"
+
+test = { cmd = "pytest -c apps/robot/pytest.ini apps/robot/config/test apps/robot/perception/test -m 'not linter'", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
+
+test-cov = { cmd = "pytest -c apps/robot/pytest.ini apps/robot/config/test -m 'not linter' -p pytest_cov --cov=robot_config --cov-report=term-missing", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
 
 deploy = { cmd = "python apps/robot/config/deploy.py {{ robot }}", args = [
-    { arg = "robot", default = "robot0" },
+  { arg = "robot", default = "robot0" },
 ] }
 
 [target.linux-aarch64.tasks]
-robot = "ros2 launch robot_bringup robot.launch.py"
+robot = "python apps/robot/bringup/launch/robot.launch.py"
+slam = "python apps/robot/navigation/launch/slam.launch.py"

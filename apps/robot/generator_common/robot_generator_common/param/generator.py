@@ -1,15 +1,29 @@
 #!/usr/bin/env python3
 
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 import os
 
-from robot_config.sensors.types.camera import OrbbecGemini335L
-from robot_generator_common.common import ROBOTS_PATH, BaseGenerator, ParamFile, robot_names
+from robot_config.sensors.definitions.camera import OrbbecGemini335L
+from robot_generator_common.common import BaseGenerator, ParamFile, robot_names, ROBOTS_PATH
 from robot_generator_common.param.writer import ParamWriter
 
 
-OUTPUT_ROOT = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), '..', '..', '..',
-    'bringup', 'config', 'generated'))
+OUTPUT_ROOT = os.path.join('apps', 'robot', 'bringup', 'config', 'generated')
 
 
 class ParamGenerator(BaseGenerator):

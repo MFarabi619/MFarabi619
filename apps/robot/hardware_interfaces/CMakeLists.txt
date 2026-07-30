@@ -38,4 +38,9 @@ install(DIRECTORY include/ DESTINATION include)
 ament_export_targets(export_robot_hardware_interfaces HAS_LIBRARY_TARGET)
 ament_export_dependencies(hardware_interface pluginlib rclcpp rclcpp_lifecycle robot_platform_msgs)
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_package()

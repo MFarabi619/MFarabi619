@@ -1,0 +1,35 @@
+/dts-v1/;
+/plugin/;
+
+/* Waveshare RS485 CAN HAT: MCP2515 on header SPI pins 19/21/23/24 (mcu_gpio0
+ * bit-bang; no hardware SPI reaches these pins), INT on pin 22 (main_gpio0 42).
+ * Oscillator value must match the crystal printed on the HAT (8 or 12 MHz). */
+
+&{/} {
+	can_oscillator: can-oscillator {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <12000000>;
+	};
+
+	spi_gpio_can {
+		compatible = "spi-gpio";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		sck-gpios = <&mcu_gpio0 2 0>;
+		miso-gpios = <&mcu_gpio0 4 0>;
+		mosi-gpios = <&mcu_gpio0 3 0>;
+		cs-gpios = <&mcu_gpio0 0 0>;
+		num-chipselects = <1>;
+		status = "okay";
+
+		mcp2515: can@0 {
+			compatible = "microchip,mcp2515";
+			reg = <0>;
+			spi-max-frequency = <2000000>;
+			clocks = <&can_oscillator>;
+			interrupt-parent = <&main_gpio0>;
+			interrupts = <42 8>;
+		};
+	};
+};

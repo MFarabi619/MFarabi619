@@ -1,18 +1,35 @@
 #!/usr/bin/env python3
 
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 import argparse
+from pathlib import Path
 import shlex
 import subprocess
 import sys
-from pathlib import Path
 
 import yaml
 
-MIRROR = '/home/mfarabi/MFarabi619'
+MIRROR_ROOT = '/home/mfarabi/MFarabi619'
+PIXI = '/home/mfarabi/.pixi/bin/pixi'
 
 RUNTIME_SUBTREES = [
     'config', 'control', 'description', 'bringup', 'hardware_interfaces',
-    'msgs', 'sensors', 'drivers', 'diagnostics',
+    'msgs', 'sensors', 'drivers', 'diagnostics', 'navigation', 'perception',
 ]
 
 OLD_LAYOUT_ENTRIES = [
@@ -32,7 +49,7 @@ def ssh(host, remote_command):
     run('ssh', '-q', host, remote_command)
 
 
-def ssh_with_sudo_prompt(host, remote_command):
+def ssh_with_terminal(host, remote_command):
     run('ssh', '-q', '-t', host, remote_command)
 
 
@@ -41,43 +58,46 @@ def shell_chain(*commands):
 
 
 def sync(host):
-    sources = [
-        'pixi.toml',
-        'pixi.lock',
-        *(f'apps/robot/{subtree}' for subtree in RUNTIME_SUBTREES),
-    ]
-    run('rsync', '-aR', '--delete', '-e', 'ssh -q', *sources, f'{host}:{MIRROR}/',
-        working_directory=REPO_ROOT)
+    run('rsync', '-a', '-e', 'ssh -q', 'pixi.toml', 'pixi.lock',
+        f'{host}:{MIRROR_ROOT}/', working_directory=REPO_ROOT)
+    for subtree in RUNTIME_SUBTREES:
+        run('rsync', '-a', '--delete', '-e', 'ssh -q',
+            f'apps/robot/{subtree}/',
+            f'{host}:{MIRROR_ROOT}/apps/robot/{subtree}/',
+            working_directory=REPO_ROOT)
 
 
 def build(host, config):
     commands = [
-        ['cd', f'{MIRROR}/apps/robot'],
+        ['cd', f'{MIRROR_ROOT}/apps/robot'],
         ['rm', '-rf', *OLD_LAYOUT_ENTRIES],
-        ['cd', MIRROR],
+        ['cd', MIRROR_ROOT],
     ]
     if config.get('sensors'):
-        commands.append(['pixi', 'install', '-e', 'jazzy'])
-    commands.append(['pixi', 'run', 'build'])
-    ssh(host, shell_chain(*commands))
+        commands.append([PIXI, 'install', '-e', 'jazzy'])
+    commands.append([
+        PIXI, 'run', 'build',
+        ' '.join(f'apps/robot/{subtree}' for subtree in RUNTIME_SUBTREES),
+    ])
+    ssh_with_terminal(host, shell_chain(*commands))
 
 
 def install_units(host, robot_name):
-    unit = f'{MIRROR}/apps/robot/config/services/robot.service'
+    unit = f'{MIRROR_ROOT}/apps/robot/config/services/robot.service'
     commands = [
         ['sudo', 'install', '-m', '644', '-o', 'root', '-g', 'root',
          unit, '/etc/systemd/system/'],
     ]
     restart_units = ['robot.service']
     if (ROBOTS_PATH / robot_name / 'hostapd.conf').is_file():
-        hostapd_config = f'{MIRROR}/apps/robot/config/robots/{robot_name}/hostapd.conf'
+        hostapd_config = f'{MIRROR_ROOT}/apps/robot/config/robots/{robot_name}/hostapd.conf'
         commands.append(
             ['sudo', 'install', '-m', '600', '-o', 'root', '-g', 'root',
              hostapd_config, '/etc/hostapd/hostapd.conf'])
         restart_units.insert(0, 'hostapd')
     commands.append(['sudo', 'systemctl', 'daemon-reload'])
     commands.append(['sudo', 'systemctl', 'try-restart', *restart_units])
-    ssh_with_sudo_prompt(host, shell_chain(*commands))
+    ssh_with_terminal(host, shell_chain(*commands))
 
 
 def main():
@@ -93,9 +113,13 @@ def main():
     host = config['system']['hosts'][0]['hostname']
 
     try:
+        print(f'syncing {host}')
         sync(host)
+        print('building')
         build(host, config)
+        print('installing units')
         install_units(host, robot_name)
+        print('deployed')
     except subprocess.CalledProcessError as error:
         sys.exit(error.returncode)
 

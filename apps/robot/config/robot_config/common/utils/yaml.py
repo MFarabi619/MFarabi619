@@ -1,3 +1,19 @@
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 import os
 
 import yaml
@@ -30,7 +46,8 @@ def read_yaml(path: str) -> dict:
         raise FileNotFoundError(f'YAML file {orig} could not be found')
     # Check YAML can be Opened
     try:
-        config = yaml.load(open(path), Loader=yaml.SafeLoader)
+        with open(path) as file:
+            config = yaml.load(file, Loader=yaml.SafeLoader)
     except ScannerError:
         raise ScannerError(f'YAML file {orig} is not well-formed')
     except ConstructorError:
@@ -43,12 +60,12 @@ def read_yaml(path: str) -> dict:
 
 def write_yaml(path: str, config: dict) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    yaml_file = open(path, 'w+')
     yaml.Dumper.ignore_aliases = lambda *args: True
-    yaml.dump(
-        config,
-        yaml_file,
-        sort_keys=False,
-        default_flow_style=False,
-        allow_unicode=True,
-    )
+    with open(path, 'w+') as yaml_file:
+        yaml.dump(
+            config,
+            yaml_file,
+            sort_keys=False,
+            default_flow_style=False,
+            allow_unicode=True,
+        )

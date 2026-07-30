@@ -1,0 +1,60 @@
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+from better_launch import BetterLaunch, launch_this
+
+
+@launch_this
+def robot0_gz_bridges():
+    bl = BetterLaunch()
+
+    bl.node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        name='clock_bridge',
+        cmd_args=[
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+        ],
+    )
+
+    bl.node(
+        package='ros_gz_image',
+        executable='image_bridge',
+        name='image_bridge',
+        cmd_args=[
+            'sensors/camera_0/color/image',
+            'sensors/camera_1/color/image',
+        ],
+        params={
+            'sensors.camera_0.color.image.enable_pub_plugins': [
+                'image_transport/compressed',
+            ],
+            'sensors.camera_1.color.image.enable_pub_plugins': [
+                'image_transport/compressed',
+            ],
+        },
+    )
+
+    bl.node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        name='sensors_bridge',
+        cmd_args=[
+            '/sensors/camera_0/color/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/sensors/camera_1/color/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/sensors/gps_0/fix@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat',
+        ],
+    )

@@ -14,8 +14,8 @@ fn to_gltf_y_up(solid: Solid) -> Solid {
 }
 
 pub const TESSELLATION: Tessellation = Tessellation {
-    deflection_linear: 0.01,
-    deflection_angular: 0.05,
+    deflection_linear: 0.05,
+    deflection_angular: 0.2,
     relative_linear: true,
     is_parallel: true,
 };

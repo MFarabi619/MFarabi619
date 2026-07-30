@@ -11,13 +11,13 @@ setup(
     packages=[
         package_name,
         package_name + '.common',
-        package_name + '.common.types',
+        package_name + '.common.definitions',
         package_name + '.common.utils',
         package_name + '.mounts',
-        package_name + '.mounts.types',
-        package_name + '.platform',
+        package_name + '.mounts.definitions',
+        package_name + '.platform_config',
         package_name + '.sensors',
-        package_name + '.sensors.types',
+        package_name + '.sensors.definitions',
         package_name + '.system',
     ],
     data_files=[

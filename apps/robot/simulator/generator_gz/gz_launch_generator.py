@@ -1,15 +1,29 @@
 #!/usr/bin/env python3
 
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 import os
 
-from robot_generator_common.common import ROBOTS_PATH, LaunchFile, robot_names
+from robot_generator_common.common import LaunchFile, robot_names, ROBOTS_PATH
 from robot_generator_common.launch.generator import LaunchGenerator
 from robot_generator_common.launch.writer import LaunchWriter
 
 
-OUTPUT_ROOT = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), '..',
-    'gz', 'launch', 'generated'))
+OUTPUT_ROOT = os.path.join('apps', 'robot', 'simulator', 'gz', 'launch', 'generated')
 
 
 class GzLaunchGenerator(LaunchGenerator):
@@ -27,8 +41,9 @@ class GzLaunchGenerator(LaunchGenerator):
         else:
             self.robot_name = self.namespace + '/' + self.robot_config.get_platform_model()
 
+        robot_dir = os.path.basename(output_path)
         self.gz_bridges_launch_file = LaunchFile(
-            name='robot_gz_bridges',
+            name=f'{robot_dir}_gz_bridges',
             path=self.output_path)
 
         # clock bridge
@@ -43,12 +58,16 @@ class GzLaunchGenerator(LaunchGenerator):
 
         cameras = self.robot_config.sensors.get_all_cameras()
 
-        # camera images via ros_gz_image (also republishes .../compressed)
         self.image_bridge_node = LaunchFile.Node(
             package='ros_gz_image',
             executable='image_bridge',
             name='image_bridge',
             namespace=self.namespace,
+            parameters=[{
+                f'sensors.{camera.get_name()}.color.image.enable_pub_plugins':
+                    ['image_transport/compressed']
+                for camera in cameras
+            }],
             arguments=[
                 f'sensors/{camera.get_name()}/color/image'
                 for camera in cameras

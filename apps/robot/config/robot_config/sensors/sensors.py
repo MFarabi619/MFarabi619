@@ -1,17 +1,33 @@
-from typing import List
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from robot_config.common.types.config import BaseConfig
-from robot_config.common.types.list import OrderedListConfig
+
+from typing import cast, List
+
+from robot_config.common.definitions.config import BaseConfig
+from robot_config.common.definitions.list import OrderedListConfig
 from robot_config.common.utils.dictionary import flip_dict
-from robot_config.sensors.types.camera import (
+from robot_config.sensors.definitions.camera import (
     BaseCamera,
     IMX296GS,
     OrbbecGemini335L,
     USBWebcam,
 )
-from robot_config.sensors.types.gps import AdafruitUltimateGpsHat, BaseGPS
-from robot_config.sensors.types.imu import BaseIMU, Bno085
-from robot_config.sensors.types.sensor import BaseSensor
+from robot_config.sensors.definitions.gps import AdafruitUltimateGpsHat, BaseGPS
+from robot_config.sensors.definitions.imu import BaseIMU, Bno085
+from robot_config.sensors.definitions.sensor import BaseSensor
 
 
 class Camera():
@@ -30,7 +46,7 @@ class Camera():
         if model not in cls.MODEL:
             raise ValueError(f'Model "{model}" must be one of "{cls.MODEL.keys()}"')
 
-    def __new__(cls, model: str) -> BaseCamera:
+    def __new__(cls, model: str) -> BaseCamera:  # type: ignore[misc]
         cls.assert_model(model)
         return cls.MODEL[model]()
 
@@ -47,7 +63,7 @@ class GlobalPositioningSystem():
         if model not in cls.MODEL:
             raise ValueError(f'Model "{model}" must be one of "{cls.MODEL.keys()}"')
 
-    def __new__(cls, model: str) -> BaseGPS:
+    def __new__(cls, model: str) -> BaseGPS:  # type: ignore[misc]
         cls.assert_model(model)
         return cls.MODEL[model]()
 
@@ -64,7 +80,7 @@ class InertialMeasurementUnit():
         if model not in cls.MODEL:
             raise ValueError(f'Model "{model}" must be one of "{cls.MODEL.keys()}"')
 
-    def __new__(cls, model: str) -> BaseIMU:
+    def __new__(cls, model: str) -> BaseIMU:  # type: ignore[misc]
         cls.assert_model(model)
         return cls.MODEL[model]()
 
@@ -98,7 +114,7 @@ class SensorConfig(BaseConfig):
 
     KEYS = flip_dict(TEMPLATE)
 
-    DEFAULTS = {
+    DEFAULTS: dict = {
         CAMERA: [],
         GPS: [],
         IMU: [],
@@ -107,9 +123,9 @@ class SensorConfig(BaseConfig):
     def __init__(
             self,
             config: dict = {},
-            camera: List[BaseCamera] = DEFAULTS[CAMERA],
-            gps: List[BaseGPS] = DEFAULTS[GPS],
-            imu: List[BaseIMU] = DEFAULTS[IMU],
+            camera: List[dict] = DEFAULTS[CAMERA],
+            gps: List[dict] = DEFAULTS[GPS],
+            imu: List[dict] = DEFAULTS[IMU],
             ) -> None:
         # List Initialization
         self._camera = SensorListConfig()
@@ -144,9 +160,9 @@ class SensorConfig(BaseConfig):
                 raise TypeError(f'Camera {d} must be of type "dict"')
             if 'model' not in d:
                 raise ValueError(f'Camera {d} does not have a "model" parameter')
-        sensor_list = []
+        sensor_list: List[BaseSensor] = []
         for d in value:
-            sensor = Camera(d['model'])
+            sensor = cast(BaseCamera, Camera(d['model']))
             sensor.from_dict(d)
             sensor_list.append(sensor)
         self._camera.set_all(sensor_list)
@@ -168,9 +184,9 @@ class SensorConfig(BaseConfig):
                 raise TypeError(f'GPS {d} must be of type "dict"')
             if 'model' not in d:
                 raise ValueError(f'GPS {d} does not have a "model" parameter')
-        sensor_list = []
+        sensor_list: List[BaseSensor] = []
         for d in value:
-            sensor = GlobalPositioningSystem(d['model'])
+            sensor = cast(BaseGPS, GlobalPositioningSystem(d['model']))
             sensor.from_dict(d)
             sensor_list.append(sensor)
         self._gps.set_all(sensor_list)
@@ -192,16 +208,16 @@ class SensorConfig(BaseConfig):
                 raise TypeError(f'IMU {d} must be of type "dict"')
             if 'model' not in d:
                 raise ValueError(f'IMU {d} does not have a "model" parameter')
-        sensor_list = []
+        sensor_list: List[BaseSensor] = []
         for d in value:
-            sensor = InertialMeasurementUnit(d['model'])
+            sensor = cast(BaseIMU, InertialMeasurementUnit(d['model']))
             sensor.from_dict(d)
             sensor_list.append(sensor)
         self._imu.set_all(sensor_list)
 
     # Get All Sensors
     def get_all_sensors(self) -> List[BaseSensor]:
-        sensors = []
+        sensors: List[BaseSensor] = []
         sensors.extend(self.get_all_cameras())
         sensors.extend(self.get_all_gps())
         sensors.extend(self.get_all_imu())
@@ -209,12 +225,12 @@ class SensorConfig(BaseConfig):
 
     # Camera: Get All
     def get_all_cameras(self) -> List[BaseCamera]:
-        return self._camera.get_all()
+        return cast(List[BaseCamera], self._camera.get_all())
 
     # GPS: Get All
     def get_all_gps(self) -> List[BaseGPS]:
-        return self._gps.get_all()
+        return cast(List[BaseGPS], self._gps.get_all())
 
     # IMU: Get All
     def get_all_imu(self) -> List[BaseIMU]:
-        return self._imu.get_all()
+        return cast(List[BaseIMU], self._imu.get_all())

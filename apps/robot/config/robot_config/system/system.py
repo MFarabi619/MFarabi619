@@ -1,7 +1,23 @@
+# Copyright 2026 Mumtahin Farabi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 from typing import List
 
-from robot_config.common.types.config import BaseConfig
-from robot_config.common.types.namespace import Namespace
+from robot_config.common.definitions.config import BaseConfig
+from robot_config.common.definitions.namespace import Namespace
 from robot_config.common.utils.dictionary import flip_dict
 from robot_config.system.hosts import HostConfig, HostListConfig
 
@@ -21,7 +37,7 @@ class SystemConfig(BaseConfig):
 
     KEYS = flip_dict(TEMPLATE)
 
-    DEFAULTS = {
+    DEFAULTS: dict = {
         # HOSTS: hostnames and IP's for all computers involved with the system
         HOSTS: HostListConfig.DEFAULTS,
         # NAMESPACE: robot namespace, empty by default

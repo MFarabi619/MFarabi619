@@ -29,19 +29,14 @@ sensors:
       rpy: [0.0, 0.31, 0.0]
       ros_parameters:
         camera_0:
-          enable_color: true
-          color_width: 640
-          color_height: 480
-          color_fps: 30
-          color_format: MJPG
-          enable_depth: false
+          color_width: 1280
+          color_height: 720
+          color_fps: 15
+          enable_depth: true
           depth_width: 848
           depth_height: 480
           depth_fps: 15
-          depth_registration: false
-          align_mode: HW
-          enable_point_cloud: false
-          enable_noise_removal_filter: false
+          depth_decimation: 2
     - model: imx296_gs
       parent: base_link
       xyz: [0.405, 0.4746, 0.5]
@@ -67,14 +62,15 @@ sensors:
           i2c_address: 74
           frame_id: imu_0_link
           rate_hz: 25.0
-  gps:
-    - model: adafruit_ultimate_gps_hat
-      parent: base_link
-      ros_parameters:
-        nmea_navsat_driver:
-          port: /dev/ttyAMA0
-          baud: 9600
-          frame_id: gps_link
+  # gps disabled 2026-07-27 — no data on the UART (suspected module TX→pin-10 wiring); re-enable after bench check
+  # gps:
+  #   - model: adafruit_ultimate_gps_hat
+  #     parent: base_link
+  #     ros_parameters:
+  #       nmea_navsat_driver:
+  #         port: /dev/ttyAMA0
+  #         baud: 9600
+  #         frame_id: gps_link
 mounts:
   camera_mount:
     - parent: base_link
