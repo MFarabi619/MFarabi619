@@ -1,0 +1,87 @@
+packages:
+  - apps/robot/www
+  - apps/robot/promo
+
+catalogMode: strict
+minimumReleaseAge: 1440
+verifyDepsBeforeRun: install
+
+allowBuilds:
+  esbuild: true
+  protobufjs: true
+  sharp: true
+
+overrides:
+  sharp: 0.35.3
+
+catalog:
+  "@biomejs/biome": "^2.5.3"
+  "@iconify/json": "^2.2.499"
+  "@orama/orama": "^3.1.18"
+  "@svgr/core": "^8.1.0"
+  "@svgr/plugin-jsx": "^8.1.0"
+  "@types/node": "^24.13.2"
+  "lucide-react": "^1.24.0"
+  "orgast-util-to-string": "^1.1.0"
+  "sharp": "^0.35.3"
+  "takumi-js": "^2.2.0"
+  "tailwindcss": "^4.3.2"
+  "typescript": "~6.0.2"
+  "uniorg-parse": "^3.2.2"
+  "uniorg-rehype": "^2.2.0"
+  "unist-util-visit": "^5.1.0"
+  "unplugin-icons": "^23.0.1"
+  "workbox-window": "^7.4.1"
+  '@inspira-ui/plugins': ^0.0.2
+  motion-v: ^2.3.0
+  '@iconify/vue': ^5.0.1
+
+catalogs:
+  astro:
+    "@astrojs/markdown-remark": "^7.2.1"
+    "@astrojs/mdx": "^7.0.3"
+    "@astrojs/react": "^6.0.1"
+    "@astrojs/vue": "^7.0.1"
+    astro: "^7.0.9"
+    astro-org: "^4.0.0"
+  vite:
+    "@tailwindcss/vite": "^4.3.2"
+    "@vite-pwa/assets-generator": "^1.0.2"
+    "@vite-pwa/astro": "^1.2.0"
+    vite: "^8.1.1"
+  react:
+    "@types/react": "^19.2.17"
+    "@types/react-dom": "^19.2.3"
+    react: "^19.2.7"
+    react-dom: "^19.2.7"
+  fumadocs:
+    fumadocs-core: "16.11.4"
+    fumadocs-ui: "npm:@fumadocs/base-ui@16.11.4"
+  vue:
+    "@vitejs/plugin-vue": "^6.0.7"
+    "@vue/tsconfig": "^0.9.1"
+    vue: "^3.5.39"
+    vue-tsc: "^3.3.5"
+  tres:
+    "@tresjs/cientos": "^5.8.1"
+    "@tresjs/core": "^5.8.3"
+    "@types/three": "^0.185.1"
+    three: "^0.185.1"
+  storybook:
+    "@chromatic-com/storybook": "^5.2.1"
+    "@storybook/addon-a11y": "^10.5.0"
+    "@storybook/addon-docs": "^10.5.0"
+    "@storybook/addon-vitest": "^10.5.0"
+    "@storybook/vue3-vite": "^10.5.0"
+    storybook: "^10.5.0"
+  vitest:
+    "@vitest/browser-playwright": "^4.1.10"
+    "@vitest/coverage-v8": "^4.1.10"
+    playwright: "^1.61.1"
+    vitest: "^4.1.10"
+  remotion:
+    "@remotion/cli": "4.0.489"
+    "@remotion/google-fonts": "4.0.489"
+    "@remotion/media-utils": "4.0.489"
+    "@remotion/three": "4.0.489"
+    remotion: "4.0.489"

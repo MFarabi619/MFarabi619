@@ -1,0 +1,9 @@
+:PROPERTIES:
+:ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d08
+:END:
+#+title: Orbbec Gemini 335L
+#+description: Orbbec Gemini 335L stereo-vision depth camera.
+#+icon: Camera
+
+[[https://www.orbbec.com/products/stereo-vision-camera/gemini-335l/][Orbbec
+Gemini 335L]] — a stereo-vision depth camera with an on-board color sensor.

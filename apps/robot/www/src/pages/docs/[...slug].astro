@@ -1,0 +1,67 @@
+---
+import { render } from "astro:content";
+import { Docs } from "@/layouts/fumadocs";
+import defaultMdxComponents from "fumadocs-ui/mdx";
+import "@/styles.css";
+import { docsStaticPaths, getPageImage, source } from "@/lib/source";
+import { getBacklinks } from "@/lib/backlinks";
+import Layout from "@/layouts/layout.astro";
+import type { TOCItemType } from "fumadocs-core/toc";
+
+export const getStaticPaths = docsStaticPaths;
+
+const slugs =
+  typeof Astro.params.slug === "string" ? Astro.params.slug.split("/") : [];
+const entry = source.getPage(slugs)?.data._raw;
+if (!entry) throw new Error(`No docs page for /${slugs.join("/")}`);
+
+const { Content, headings } = await render(entry);
+const image = getPageImage(slugs).url;
+const backlinks = await getBacklinks(
+  slugs.length > 0 ? `/docs/${slugs.join("/")}` : "/docs",
+);
+
+const toc: TOCItemType[] =
+  entry.data.headings ??
+  headings.map((heading) => ({
+    depth: heading.depth,
+    title: heading.text,
+    url: "#" + heading.slug,
+  }));
+---
+
+<Layout>
+  <title>{entry.data.title}</title>
+  <meta name="title" content={entry.data.title} />
+  <meta name="description" content={entry.data.description} />
+  <meta property="og:image" content={image} />
+  <Docs
+    tree={await source.serializePageTree(source.getPageTree())}
+    pathname={Astro.url.pathname}
+    params={Astro.params}
+    page={{ toc }}
+    client:load
+  >
+    <h1 class="font-semibold text-3xl">{entry.data.title}</h1>
+    <p class="text-lg text-fd-muted-foreground mb-8">{entry.data.description}</p>
+    <div class="prose flex-1">
+      <Content components={{ ...defaultMdxComponents }} />
+    </div>
+    {
+      backlinks.length > 0 && (
+        <section class="mt-12 border-t border-fd-border pt-6">
+          <h2 class="font-display mb-4 text-lg">Backlinks</h2>
+          <ul class="flex flex-col gap-2">
+            {backlinks.map((backlink) => (
+              <li>
+                <a href={backlink.url} class="text-fd-primary hover:underline">
+                  {backlink.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </Docs>
+</Layout>

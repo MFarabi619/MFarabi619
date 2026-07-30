@@ -1,0 +1,10 @@
+:PROPERTIES:
+:ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d09
+:END:
+#+title: RPi Global Shutter Camera
+#+description: Raspberry Pi Global Shutter Camera (Sony IMX296).
+#+icon: Aperture
+
+[[https://www.pishop.ca/product/raspberry-pi-global-shutter-camera/][Raspberry
+Pi Global Shutter Camera]] — a Sony IMX296 global-shutter sensor with a
+C/CS-mount for interchangeable lenses.

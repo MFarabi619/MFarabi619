@@ -1,0 +1,88 @@
+:PROPERTIES:
+:ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d06
+:END:
+#+title: Cytron MD20A
+#+description: Single-channel 20 A DC motor driver.
+#+icon: CircuitBoard
+
+[[https://www.cytron.io/p-20amp-6v-30v-dc-motor-driver][Cytron MD20A]] — a
+single-channel bidirectional driver for one brushed DC motor, 20 A continuous
+(60 A peak). Discrete NMOS H-bridge, no heatsink needed.
+
+* Board layout
+
+[[/cytron-md20a/board-layout.webp]]
+
+| Component             | Detail                                        |
+|-----------------------+-----------------------------------------------|
+| Power input terminal  | ~VB+~ / ~VB−~                                 |
+| Motor output terminal | ~MA~ / ~MB~                                    |
+| PWM/DIR input         | ~DIR~ / ~PWM~ / ~GND~                          |
+| Power LED             | On when powered                               |
+| Motor status LEDs     | ~MA~ forward, ~MB~ backward                    |
+| Overcurrent LED       | On while current limiting is active           |
+| Error LED             | On during undervoltage shutdown or fault      |
+| Test buttons          | ~MA~ forward / ~MB~ backward, at full speed    |
+
+* Control interface
+
+Three pins on the ~PWM/DIR~ header drive the one motor:
+
+| Pin | Function                          |
+|-----+-----------------------------------|
+| DIR | Direction — static high / low     |
+| PWM | Speed — square wave, up to 20 kHz |
+| GND | Shared ground with the controller |
+
+Logic inputs accept a wide 1.5–15 V, so a Raspberry Pi or Arduino GPIO drives it
+directly.
+
+* Truth table
+
+Motor direction also depends on how ~MA~/~MB~ are wired — swap them to reverse.
+
+| PWM  | DIR        | Output MA | Output MB | Motor    |
+|------+------------+-----------+-----------+----------|
+| Low  | don't care | Low       | Low       | Brake    |
+| High | Low        | High      | Low       | Forward  |
+| High | High       | Low       | High      | Backward |
+
+* Wiring
+
+[[/cytron-md20a/wiring-diagram.webp]]
+
+* Electrical limits
+
+Absolute maximums — exceed and you damage the board.
+
+| # | Parameter                     | Min | Max | Unit |
+|---+-------------------------------+-----+-----+------|
+| 1 | Power input voltage           |   6 |  30 | V    |
+| 2 | Continuous motor current      |   – |  20 | A    |
+| 3 | Peak motor current[fn:1]      |   – |  60 | A    |
+| 4 | Logic input — low level       |   0 | 0.8 | V    |
+| 5 | Logic input — high level      | 1.5 |  15 | V    |
+| 6 | PWM frequency — standard      |  DC |  20 | kHz  |
+| 7 | PWM frequency — extended[fn:2] |  20 |  40 | kHz  |
+
+[fn:1] Limited by the overcurrent circuit; the value shown is at 25–30 °C. The
+limit drops as the board heats up.
+
+[fn:2] Running in the extended range reduces the continuous current rating.
+
+* Protection
+
+- *Overcurrent* — active current limiting chops the PWM to hold current at the
+  limit, so a stall or oversized motor won't destroy the board.
+- *Temperature* — the current-limit threshold falls as the board heats up.
+- *Undervoltage* — the output shuts down when the supply sags too low to drive
+  the MOSFETs fully.
+
+There is *no reverse-polarity protection* — wiring ~VB+~/~VB−~ backwards damages
+the driver instantly.
+
+* Mechanical
+
+86 × 52 mm, with 81 × 47 mm between the four ⌀3 mm mounting holes.
+
+[[/cytron-md20a/dimensions.webp]]

@@ -1,0 +1,51 @@
+:PROPERTIES:
+:ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d04
+:END:
+#+title: Ultimate GPS HAT
+#+description: Adafruit Ultimate GPS HAT for the Raspberry Pi.
+#+icon: Satellite
+
+[[https://www.adafruit.com/product/2324][Adafruit Ultimate GPS HAT]] — a
+GPS receiver that stacks on the Raspberry Pi's 40-pin header, with a battery
+backup for warm starts.
+
+#+ATTR_HTML: :alt Adafruit Ultimate GPS HAT
+[[/adafruit-ultimate-gps-hat.jpg]]
+
+* Specifications
+
+Built around the MediaTek PA1616D (MT3333) module.
+
+| Parameter         | Value            |
+|-------------------+------------------|
+| Satellite systems | GPS + GLONASS    |
+| Channels          | 66 tracking / 99 search |
+| Update rate       | up to 10 Hz      |
+| Sensitivity       | −165 dBm         |
+| Backup battery    | CR1220 coin cell |
+
+* Interface
+
+The HAT talks to the Pi over the hardware UART on the 40-pin header — nothing to
+wire.
+
+| Signal | Pin        | Notes                              |
+|--------+------------+------------------------------------|
+| TX/RX  | UART0      | NMEA sentences, 9600 baud default  |
+| PPS    | GPIO4      | One pulse-per-second timing output |
+| ANT    | u.FL       | Optional external active antenna   |
+
+The HAT takes over the Pi's hardware UART, so the serial console must be freed
+first (it can't share the port).
+
+* Onboard features
+
+- *FIX LED* — blinks while searching, ~once every 15 s once it has a fix.
+- *CR1220 backup* — keeps the RTC and last almanac alive for warm starts; the
+  cell is sold separately.
+- *Prototyping area* — a small pad field for soldering extra parts.
+- *Patch antenna* on board, with the u.FL connector for an external one.
+
+* Mechanical
+
+65 × 56 × 7 mm, HAT footprint.

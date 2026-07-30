@@ -1,0 +1,135 @@
+:PROPERTIES:
+:ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d01
+:END:
+#+title: User Manual
+#+description: Setup, operation, and safety for the rover.
+#+icon: BookOpen
+
+The *rover* is a rugged, semi-autonomous mobile robot
+built for agricultural field work. This manual covers ~unboxing~, first power-on,
+day-to-day /operation/, and safety. For tutorials and API reference, see the
+[[https://www.tandemrobotics.ca][documentation home]].
+
+#+begin_quote
+Read *Safety Considerations* before operating the rover for the first time.
+#+end_quote
+
+* Introduction
+
+** Shipment Contents
+
+Every rover ships with the following:
+
+- Rover chassis
+  - Four-wheel drivetrain with independent suspension
+  - Sealed battery bay
+- Battery pack and charger
+- Wireless stop remote
+- Optional add-ons
+  - Payload mounting kit
+  - Futaba RC controller
+
+** Hardware Overview
+
+*** System Architecture
+
+The rover runs a two-tier compute stack:
+
+- Onboard computer :: Runs ROS 2 and the autonomy stack (planning, perception, localization).
+- Microcontroller :: Handles real-time motor control and hardware safety cutoffs.
+
+Motor control runs through the
+[[id:9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d02][Cytron HAT-MDD10]] driver board.
+
+*** Body Lights
+
+Body-light color maps directly to rover state:
+
+| Color | State                   |
+|-------+-------------------------|
+| Green | Ready / autonomous      |
+| Blue  | Manual / teleop         |
+| Red   | Emergency-stopped       |
+| Amber | Fault / needs attention |
+
+** System Specifications
+
+| Property   | Value |
+|------------+-------|
+| Dimensions | TODO  |
+| Weight     | TODO  |
+| Max Speed  | TODO  |
+| Battery    | TODO  |
+| Runtime    | TODO  |
+| Payload    | TODO  |
+
+* Getting Started
+
+** Powering Up
+
+1. Insert the battery and latch the retention clip.
+2. Turn the main key switch to ~ON~.
+3. Wait for the body lights to turn *green* before commanding motion.
+
+On a healthy boot you should see:
+
+#+begin_example
+[  ok  ] tandem-bringup.service
+[  ok  ] ros2-daemon.service
+rover ready — state: IDLE
+#+end_example
+
+** Using ROS
+
+Bring up the driver and list the active topics:
+
+#+begin_src bash
+ros2 launch tandem_bringup rover.launch.py
+ros2 topic list
+#+end_src
+
+Drive the rover by publishing a velocity command to =/cmd_vel=:
+
+#+begin_src bash
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}}"
+#+end_src
+
+The legacy +/tandem/cmd+ topic has been replaced by =/cmd_vel=.
+
+** Network Configuration
+
+Set the field network in the rover config, then restart the bringup service:
+
+#+begin_src yaml
+wifi:
+  ssid: tandem-field
+  password: changeme
+#+end_src
+
+* Safety Considerations
+
+#+begin_quote
+*Warning:* In autonomous mode the rover can begin moving without further input.
+Keep the wireless stop remote within reach at all times.
+#+end_quote
+
+** Pinch Points
+
+Keep hands clear of the suspension travel and wheel wells while the rover is
+powered, even when idle.
+
+** Stop Buttons
+
+Press any physical stop button, or the wireless remote, to cut motor power
+immediately.[fn:estop]
+
+-----
+
+[fn:estop] Every stop path is hardware-level and independent of the software
+stack, so it works even if the onboard computer has hung.
+
+* Support
+
+- [[https://github.com/tandemrobotics][GitHub]] — source code and issue tracker
+- [[https://www.linkedin.com/company/tandemrobotics/][LinkedIn]] — company updates
+- Email :: support@tandemrobotics.ca

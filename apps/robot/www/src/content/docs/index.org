@@ -1,0 +1,13 @@
+#+title: Overview
+#+description: Metal to Motion
+#+icon: House
+
+#+ATTR_HTML: :alt Tandem Robotics
+[[/tandem-robotics-banner.webp]]
+
+Welcome to the documentation site for Tandem Robotics.
+
+* Where to start
+
+- [[/docs/user-manual][User Manual]] — unboxing, first power-on, operation, and safety
+- [[/docs/common-issues][Common Issues]] — quick fixes for the problems you'll hit first

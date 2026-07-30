@@ -1,0 +1,22 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "mfarabi",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mfarabi619/mfarabi619"
+  },
+  "scripts": {
+    "dev": "pnpm --filter tandemrobotics dev",
+    "build": "pnpm --filter tandemrobotics build",
+    "preview": "pnpm --filter tandemrobotics preview",
+    "lint": "pnpm --filter tandemrobotics lint",
+    "format": "pnpm --filter tandemrobotics format",
+    "inspect": "pnpm --filter tandemrobotics inspect",
+    "storybook": "pnpm --filter tandemrobotics storybook",
+    "build-storybook": "pnpm --filter tandemrobotics build-storybook",
+    "promo": "pnpm --filter promo studio",
+    "promo:render": "pnpm --filter promo render"
+  }
+}

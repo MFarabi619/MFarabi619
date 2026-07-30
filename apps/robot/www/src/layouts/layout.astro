@@ -1,0 +1,59 @@
+---
+import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+import { pwaInfo } from "virtual:pwa-info";
+import { pwaAssetsHead } from "virtual:pwa-assets/head";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <Font cssVariable="--font-jetbrains-mono" preload />
+    <Font cssVariable="--font-silkscreen" />
+    {pwaAssetsHead.themeColor && (
+      <meta name="theme-color" content={pwaAssetsHead.themeColor.content} />
+    )}
+    {pwaAssetsHead.links.map((link) => (
+      <link {...link} />
+    ))}
+    {pwaInfo?.webManifest?.linkTag && (
+      <Fragment set:html={pwaInfo.webManifest.linkTag} />
+    )}
+    <script>
+      if (import.meta.env.PROD) {
+        const { registerSW } = await import("virtual:pwa-register");
+        registerSW({ immediate: true });
+      } else {
+        // Dev: unregister any service worker left over from `astro preview` on
+        // this origin, else it serves a stale cached build and requests to the
+        // fresh dev server fail with ERR_CONNECTION_REFUSED.
+        navigator.serviceWorker
+          ?.getRegistrations()
+          .then((regs) => regs.forEach((reg) => reg.unregister()));
+      }
+    </script>
+    <script is:inline>
+      (() => {
+        const apply = () => {
+          const stored = localStorage.getItem("theme") || "system";
+          const dark =
+            stored === "dark" ||
+            (stored === "system" &&
+              matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.toggle("dark", dark);
+        };
+        apply();
+        document.addEventListener("astro:after-swap", apply);
+      })();
+    </script>
+    <ClientRouter />
+  </head>
+  <body
+    class="flex flex-col min-h-screen"
+    transition:persist
+    transition:animate="none"
+    transition:name="page-layout"
+  >
+    <slot />
+  </body>
+</html>

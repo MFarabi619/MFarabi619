@@ -1,0 +1,127 @@
+:PROPERTIES:
+:ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d02
+:END:
+#+title: Cytron HAT-MDD10
+#+description: Dual-channel 10 A DC motor driver HAT for the Raspberry Pi.
+#+icon: CircuitBoard
+
+[[https://www.cytron.io/p-hat-mdd10][Cytron HAT-MDD10]] — a dual-channel motor
+driver HAT (10 A continuous per channel) that stacks on the Raspberry Pi's
+40-pin header.
+
+#+attr_html: :class flex flex-wrap gap-4 [&_p]:contents [&_img]:flex-1 [&_img]:min-w-0
+#+begin_imgrow
+[[/cytron-hat-mdd10/isometric.webp]]
+[[/cytron-hat-mdd10/top.webp]]
+[[/cytron-hat-mdd10/contents.webp]]
+#+end_imgrow
+
+-----
+
+#+attr_html: :class flex flex-wrap gap-4 [&_p]:contents [&_img]:flex-1 [&_img]:min-w-0
+#+begin_imgrow
+[[/cytron-hat-mdd10/board-layout.png]]
+[[/cytron-hat-mdd10/bottom.webp]]
+#+end_imgrow
+
+| Label | Component               | Driver                  |
+|-------+-------------------------+-------------------------|
+| A     | Motor terminal block    | M1A/M1B/VM/GND/M2A/M2B  |
+| B     | Motor 1 LED (A side)    |                         |
+| C     | Motor 2 LED (A side)    |                         |
+| D     | Motor 1 test switch     |                         |
+| E     | Motor 2 test switch     |                         |
+| F     | Raspberry Pi connector  | 40-pin PC104            |
+| G     | Power LED               |                         |
+| H     | PWM1 input              | ~AN1~ → ~GPIO12~         |
+| I     | DIR1 input              | ~DIG1~ → ~GPIO26~        |
+| J     | PWM2 input              | ~AN2~ → ~GPIO13~         |
+| K     | DIR2 input              | ~DIG2~ → ~GPIO24~        |
+
+* Driver mapping
+
+=robot/hat_mdd10sm.py= identifiers ↔ vendor labels ↔ RPi BCM
+GPIOs:
+
+| Code   | Board    | RPi BCM  | Function            |
+|--------+----------+----------+---------------------|
+| ~AN1~  | H / PWM1 | ~GPIO12~ | Motor 1 speed (PWM) |
+| ~DIG1~ | I / DIR1 | ~GPIO26~ | Motor 1 direction   |
+| ~AN2~  | J / PWM2 | ~GPIO13~ | Motor 2 speed (PWM) |
+| ~DIG2~ | K / DIR2 | ~GPIO24~ | Motor 2 direction   |
+
+Vendor uses =PWM1/PWM2/DIR1/DIR2=; we use =AN1/AN2/DIG1/DIG2=. When grepping the
+datasheet, expect =PWM/DIR=.
+
+* Terminal block (label A)
+
+| Pin | Function                        |
+|-----+---------------------------------|
+| M1A | Motor 1 — terminal A            |
+| M1B | Motor 1 — terminal B            |
+| VM  | Motor supply (6–24 V, max 30 A) |
+| GND | Common ground                   |
+| M2A | Motor 2 — terminal A            |
+| M2B | Motor 2 — terminal B            |
+
+VM/GND feed both channels. Logic 3.3 V comes from the Pi over the 40-pin header
+— *no separate logic supply needed*.
+
+* Truth table
+
+| PWM  | DIR        | Output A | Output B | Effect                  |
+|------+------------+----------+----------+-------------------------|
+| Low  | don't care | Low      | Low      | Coast (motor off)       |
+| High | Low        | High     | Low      | Drive A → B (one way)   |
+| High | High       | Low      | High     | Drive B → A (other way) |
+
+* PWM modes
+
+/Sign-magnitude (ours)./ Two distinct signals per channel: square-wave PWM on
+~ANx~ for speed, static high/low on ~DIGx~ for direction. Direction transitions
+are clean. See ~HatMDD10SM.on_cmd_vel~ for the duty-cycle mapping from
+~/cmd_vel~.
+
+/Locked-antiphase./ ~ANx~ tied permanently high (driver enable), ~DIGx~ driven
+with PWM. 50 % duty → stop; < 50 % → one direction; > 50 % → other. Useful when
+PWM peripherals are scarce. *We don't use this mode.*
+
+* Indicators & test buttons
+
+| Label | Component   | Behavior                                                     |
+|-------+-------------+--------------------------------------------------------------|
+| B, C  | LED A-side  | Lit when output A high, B low — current A → B                |
+| B, C  | LED B-side  | Lit when output B high, A low — current B → A                |
+| G     | Power LED   | On whenever VM is present                                    |
+| D, E  | Test button | Drives the H-bridge directly while pressed — bypasses the Pi |
+
+The test buttons let you confirm wiring + supply + bridge work without involving
+the Pi — useful for first bring-up.
+
+* Electrical limits
+
+Absolute maximums — exceed and you damage the board.
+
+| #  | Parameter                            | Min | Typ | Max | Unit |
+|----+--------------------------------------+-----+-----+-----+------|
+|  1 | Motor supply voltage (~VM~)          |   6 |  –  |  24 | V    |
+|  2 | Continuous motor current per channel |  –  |  –  |  10 | A    |
+|  3 | Peak motor current[fn:1]             |  –  |  –  |  30 | A    |
+|  4 | Logic input — high level             | 3.0 |  –  | 5.5 | V    |
+|  5 | Logic input — low level              | 0.0 | 0   | 0.5 | V    |
+|  6 | PWM frequency[fn:2]                  |  –  |  –  |  20 | kHz  |
+
+[fn:1] No more than 10 seconds; vendor spec at 25 °C ambient.
+
+[fn:2] Output frequency matches input frequency one-to-one.
+
+* Mechanical
+
+67.5 × 59 mm. Fusion 360 source (=cytron-hat-mdd10.f3d=) and a
+=.step= export live with the board assets in the repo.
+
+[[/cytron-hat-mdd10/dimensions.png]]
+
+* Wiring example
+
+[[/cytron-hat-mdd10/wiring-diagram.png]]

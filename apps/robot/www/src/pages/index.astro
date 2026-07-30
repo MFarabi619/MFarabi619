@@ -1,0 +1,23 @@
+---
+import { LandingPage } from "@/components/landing";
+import Hero from "@/components/hero.vue";
+import Contact from "@/components/contact.vue";
+import HowItWorks from "@/components/how-it-works.vue";
+import Features from "@/components/features.vue";
+import Layout from "@/layouts/layout.astro";
+import "@/styles.css";
+---
+
+<Layout>
+  <title>Tandem Robotics</title>
+  <LandingPage
+    pathname={Astro.url.pathname}
+    params={Astro.params}
+    client:load
+  >
+    <Hero client:only="vue" />
+    <Contact client:visible slot="contact" />
+    <HowItWorks client:only="vue" slot="howItWorks" />
+    <Features client:visible slot="features" />
+  </LandingPage>
+</Layout>

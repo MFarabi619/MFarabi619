@@ -1,0 +1,12 @@
+:PROPERTIES:
+:ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d03
+:END:
+#+title: BNO085 9-DOF IMU
+#+description: Adafruit BNO085 9-DOF orientation IMU fusion breakout.
+#+icon: Compass
+
+[[https://www.adafruit.com/product/4754][Adafruit BNO085]] — a 9-DOF
+orientation IMU with on-board sensor fusion, over I2C, UART, or SPI.
+
+#+ATTR_HTML: :alt Adafruit BNO085 9-DOF IMU
+[[/4754 BNO085 STEMMA QT.jpg]]

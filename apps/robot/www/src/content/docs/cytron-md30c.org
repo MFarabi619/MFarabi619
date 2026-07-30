@@ -1,0 +1,96 @@
+:PROPERTIES:
+:ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d05
+:END:
+#+title: Cytron MD30C
+#+description: Single-channel 30 A DC motor driver.
+#+icon: CircuitBoard
+
+[[https://www.cytron.io/p-30amp-5v-30v-dc-motor-driver][Cytron MD30C]] — a
+single-channel bidirectional driver for one brushed DC motor, 30 A continuous
+(80 A peak). Full NMOS H-bridge, so no heatsink or fan. This is Revision 2.0.
+
+* Board layout
+
+[[/cytron-md30c/board-layout.webp]]
+
+| #  | Component                                             |
+|----+-------------------------------------------------------|
+|  1 | Power terminal block                                  |
+|  2 | Input header — ~GND~ / ~PWM~ / ~DIR~                  |
+|  3 | PWM source selector (~JP4~ / ~JP6~)                   |
+|  4 | Internal PWM potentiometer                            |
+|  5 | External PWM potentiometer port (10 kΩ)               |
+|  6 | Test button A — output A → B                          |
+|  7 | Test button B — output B → A                          |
+|  8 | Motor terminal block                                  |
+|  9 | Red LED A — lit when output A high, B low             |
+| 10 | Red LED B — lit when output B high, A low             |
+| 11 | Green power LED                                        |
+
+* Control interface
+
+Two logic inputs on the ~INPUT~ header drive the one motor:
+
+| Pin | Function                          |
+|-----+-----------------------------------|
+| GND | Shared ground with the controller |
+| PWM | Speed — square wave, up to 20 kHz |
+| DIR | Direction — static high / low     |
+
+Logic inputs accept 3.3 V or 5 V, so a Raspberry Pi or Arduino GPIO drives it
+directly. This is *not* an RC (radio-control) PWM signal.
+
+* PWM source
+
+The ~JP4~/~JP6~ jumpers pick where the speed signal comes from. We feed an
+external PWM signal from the controller (bottom row):
+
+| Source                 | ~JP4~   | ~JP6~   |
+|------------------------+---------+---------|
+| Internal potentiometer | INT POT | INT PWM |
+| External potentiometer | EXT POT | INT PWM |
+| External PWM signal    | X       | EXT PWM |
+
+* Truth table
+
+| PWM  | DIR        | Motor              |
+|------+------------+--------------------|
+| Low  | don't care | Stop (coast)       |
+| High | Low        | Turn one way       |
+| High | High       | Turn the other way |
+
+* PWM modes
+
+/Sign-magnitude./ ~PWM~ carries speed, ~DIR~ carries direction. Direction
+transitions are clean. This is how we drive it.
+
+/Locked-antiphase./ ~DIR~ is fed a PWM signal: 50 % duty is stop, either side of
+50 % picks a direction and speed. Frees up a PWM channel when they're scarce.
+
+* Electrical limits
+
+Absolute maximums — exceed and you damage the board.
+
+| # | Parameter                    | Min | Typ | Max | Unit |
+|---+------------------------------+-----+-----+-----+------|
+| 1 | Power input voltage          |   5 |   – |  30 | V    |
+| 2 | Continuous motor current     |   – |   – |  30 | A    |
+| 3 | Peak motor current[fn:1]     |   – |   – |  80 | A    |
+| 4 | Idle current                 |   – |   – | 100 | mA   |
+| 5 | Logic input — high level     |   3 |   – | 5.5 | V    |
+| 6 | Logic input — low level      |   0 |   0 | 0.5 | V    |
+| 7 | PWM frequency[fn:2]          |   – |   – |  20 | kHz  |
+
+[fn:1] Must not exceed 1 second.
+
+[fn:2] Output frequency matches input frequency one-to-one.
+
+Reverse-polarity protection guards the power input. For currents above 20 A,
+solder the wires directly to the bottom-layer pads rather than using the screw
+terminals.
+
+* Mechanical
+
+78.74 × 93.98 mm overall, with 71.12 × 86.36 mm between mounting holes.
+
+[[/cytron-md30c/dimensions.webp]]

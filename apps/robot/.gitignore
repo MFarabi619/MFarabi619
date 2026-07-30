@@ -5,3 +5,9 @@ perception/models/
 
 .pytest_cache/
 
+.astro/
+dev-dist/
+.env
+.env.production
+storybook-static/
+*storybook.log
