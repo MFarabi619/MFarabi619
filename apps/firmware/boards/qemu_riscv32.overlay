@@ -15,6 +15,22 @@
 		};
 	};
 
+	aliases {
+		gnss = &gnss;
+	};
+
+	emulated_uart: uart-emul {
+		compatible = "zephyr,uart-emul";
+		current-speed = <0>;
+		loopback;
+		tx-fifo-size = <8192>;
+		rx-fifo-size = <1024>;
+
+		gnss: gnss-nmea-generic {
+			compatible = "gnss-nmea-generic";
+		};
+	};
+
 	sim_flash: sim_flash {
 		compatible = "zephyr,sim-flash";
 		#address-cells = <1>;
