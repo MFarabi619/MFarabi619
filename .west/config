@@ -7,7 +7,11 @@ base = zephyrproject/zephyr
 
 [build]
 pristine = auto
-# sysbuild = true
+sysbuild = true
+board    = xiao_esp32s3/esp32s3/procpu
+# board    = beagley_ai/j722s/mcu_r5f0_0
+# board    = esp32s3_touch_lcd_1_28/esp32s3/procpu
+# board    = esp32p4_function_ev_board/esp32p4/hpcore
 # cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
 [flash]
@@ -15,4 +19,5 @@ rebuild = true
 
 [alias]
 menuconfig = build apps/firmware -p=never -t menuconfig
+pc         = west patch -sm apps/firmware clean; west patch -sm apps/firmware apply
 dt         = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/firmware/zephyr/zephyr.dts
