@@ -1,5 +1,5 @@
 [workspace]
-requires-pixi = ">=0.72.2"
+requires-pixi = ">=0.72.1"
 channels = [
     "https://prefix.dev/robostack-lyrical",
     "https://prefix.dev/conda-forge",
