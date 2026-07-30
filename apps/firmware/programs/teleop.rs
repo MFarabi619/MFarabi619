@@ -1,10 +1,9 @@
 use core::{
     f32::consts::FRAC_1_SQRT_2,
-    ffi::{c_char, c_int, c_void},
+    ffi::{c_char, c_int, c_void, CStr},
 };
 
 use log::{info, warn};
-use oh_my_zephyr::{sys_clock_gettime, Timespec};
 use static_cell::StaticCell;
 use zephyr::{
     raw::{
@@ -30,12 +29,7 @@ extern "C" {
         attachment: *const u8,
         attachment_length: usize,
     ) -> c_int;
-}
-
-macro_rules! zenoh_locator {
-    () => {
-        "tcp/192.168.8.1:7447"
-    };
+    fn zenoh_locator_get() -> *const c_char;
 }
 
 macro_rules! ros_domain_id {
@@ -63,7 +57,6 @@ macro_rules! twist_stamped_type_hash {
     };
 }
 
-const ZENOH_LOCATOR: &str = concat!(zenoh_locator!(), "\0");
 const CMD_VEL_KEYEXPR: &str = concat!(
     ros_domain_id!(),
     "/",
@@ -88,7 +81,6 @@ const RECONNECT_DELAY_MS: u64 = 2000;
 const DECLARE_ATTEMPTS_PER_SESSION: usize = 3;
 const WIFI_WAIT_PERIOD_SECS: u64 = 30;
 const LVGL_INIT_POLL_PERIOD_MS: u64 = 50;
-const SYS_CLOCK_REALTIME: c_int = 1;
 
 #[derive(Clone, Copy, PartialEq)]
 #[repr(u32)]
@@ -101,14 +93,14 @@ enum LinkState {
 }
 
 impl LinkState {
-    fn status_text(self) -> &'static str {
+    fn static_status_text(self) -> Option<&'static str> {
         match self {
-            LinkState::WaitingForNetwork => concat!("wifi \u{F021}", "\0"),
+            LinkState::WaitingForNetwork => Some(concat!("wifi \u{F021}", "\0")),
             LinkState::Connecting | LinkState::Reconnecting => {
-                concat!("zenoh \u{F021}", "\0")
+                Some(concat!("zenoh \u{F021}", "\0"))
             }
-            LinkState::WaitingForSubscriber => concat!("robot \u{F021}", "\0"),
-            LinkState::Ready => concat!("\u{F1EB} ", zenoh_locator!(), "\0"),
+            LinkState::WaitingForSubscriber => Some(concat!("robot \u{F021}", "\0")),
+            LinkState::Ready => None,
         }
     }
 }
@@ -136,20 +128,6 @@ fn post_declare_state() -> LinkState {
         LinkState::Ready
     } else {
         LinkState::WaitingForSubscriber
-    }
-}
-
-#[no_mangle]
-extern "C" fn teleop_zenoh_on_transport_event(connected: bool) {
-    match link_state() {
-        LinkState::Ready | LinkState::WaitingForSubscriber | LinkState::Reconnecting => {
-            set_link_state(if connected {
-                post_declare_state()
-            } else {
-                LinkState::Reconnecting
-            });
-        }
-        LinkState::WaitingForNetwork | LinkState::Connecting => {}
     }
 }
 
@@ -234,22 +212,17 @@ fn publish_command(command: DriveCommand) {
         LinkState::Ready | LinkState::Reconnecting | LinkState::WaitingForSubscriber => {}
     }
 
-    let mut wall_clock = Timespec::default();
-    unsafe { sys_clock_gettime(SYS_CLOCK_REALTIME, &mut wall_clock) };
-    let source_timestamp_nanoseconds =
-        wall_clock.tv_sec * 1_000_000_000 + wall_clock.tv_nsec as i64;
-
+    // Zero header stamp: the pendant has no synced wall clock on the isolated robot
+    // AP (no DNS/NTP), so a real stamp reads ~1970 and diff_drive_controller rejects
+    // every command as older than cmd_vel_timeout. A zero stamp is the ROS "use time
+    // of receipt" convention -- the controller restamps it to now() on arrival, and
+    // twist_mux's reception timeout still provides the deadman.
     let mut twist_stamped = [0u8; TWIST_STAMPED_CDR_BYTES];
-    encode_twist_stamped(
-        &mut twist_stamped,
-        wall_clock.tv_sec as i32,
-        wall_clock.tv_nsec as u32,
-        command,
-    );
+    encode_twist_stamped(&mut twist_stamped, 0, 0, command);
 
     let gid = *ATTACHMENT_GID.lock().unwrap();
     let mut attachment = [0u8; ATTACHMENT_BYTES];
-    encode_attachment(&mut attachment, source_timestamp_nanoseconds, &gid);
+    encode_attachment(&mut attachment, 0, &gid);
 
     let put_result = unsafe {
         teleop_zenoh_publish(
@@ -307,7 +280,7 @@ pub fn network_thread_body() {
         disable_wifi_power_save();
         set_link_state(LinkState::Connecting);
 
-        let open_result = unsafe { teleop_zenoh_open(ZENOH_LOCATOR.as_ptr() as *const c_char) };
+        let open_result = unsafe { teleop_zenoh_open(zenoh_locator_get()) };
         if open_result != 0 {
             warn!("teleop: z_open failed ({open_result}), retrying");
             set_link_state(LinkState::WaitingForNetwork);
@@ -475,6 +448,20 @@ unsafe extern "C" fn on_pad_event(event: *mut raw::lv_event_t) {
     }
 }
 
+const READY_PREFIX: &str = "\u{F1EB} ";
+// Icon prefix + locator (kept <= LOCATOR_MAX_LEN = 64 in zenoh_locator.c) + NUL.
+// A longer stored locator is truncated to fit, never overflowed.
+const READY_LABEL_LEN: usize = READY_PREFIX.len() + 64 + 1;
+
+fn render_ready_label(buffer: &mut [u8; READY_LABEL_LEN]) {
+    let prefix = READY_PREFIX.as_bytes();
+    buffer[..prefix.len()].copy_from_slice(prefix);
+    let locator = unsafe { CStr::from_ptr(zenoh_locator_get()) }.to_bytes();
+    let count = locator.len().min(buffer.len() - prefix.len() - 1);
+    buffer[prefix.len()..prefix.len() + count].copy_from_slice(&locator[..count]);
+    buffer[prefix.len() + count] = 0;
+}
+
 unsafe extern "C" fn on_status_refresh(timer: *mut raw::lv_timer_t) {
     static DISPLAYED_STATE: AtomicU32 = AtomicU32::new(u32::MAX);
     let state = link_state();
@@ -484,7 +471,16 @@ unsafe extern "C" fn on_status_refresh(timer: *mut raw::lv_timer_t) {
     DISPLAYED_STATE.store(state as u32, Ordering::Relaxed);
 
     let status_label = unsafe { raw::lv_timer_get_user_data(timer) } as *mut raw::lv_obj_t;
-    unsafe { raw::lv_label_set_text(status_label, state.status_text().as_ptr() as *const c_char) };
+    match state.static_status_text() {
+        Some(text) => unsafe {
+            raw::lv_label_set_text(status_label, text.as_ptr() as *const c_char)
+        },
+        None => {
+            let mut buffer = [0u8; READY_LABEL_LEN];
+            render_ready_label(&mut buffer);
+            unsafe { raw::lv_label_set_text(status_label, buffer.as_ptr() as *const c_char) };
+        }
+    }
 }
 
 fn build_pad() {

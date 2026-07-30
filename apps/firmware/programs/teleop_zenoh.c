@@ -5,18 +5,10 @@
 
 #include "teleop_zenoh.h"
 
-void teleop_zenoh_on_transport_event(bool connected);
 void teleop_zenoh_on_matching_status(bool matching);
 
 static z_owned_session_t session;
 static z_owned_publisher_t publisher;
-
-static void forward_transport_event(z_loaned_transport_event_t *event,
-                                    void *context) {
-  (void)context;
-  teleop_zenoh_on_transport_event(z_transport_event_kind(event) ==
-                                  Z_SAMPLE_KIND_PUT);
-}
 
 static void forward_matching_status(const z_matching_status_t *status,
                                     void *context) {
@@ -29,20 +21,12 @@ int teleop_zenoh_open(const char *locator) {
   z_config_default(&config);
   zp_config_insert(z_loan_mut(config), Z_CONFIG_MODE_KEY, "client");
   zp_config_insert(z_loan_mut(config), Z_CONFIG_CONNECT_KEY, locator);
-  int result = z_open(&session, z_move(config), NULL);
-  if (result != 0) {
-    return result;
-  }
 
-  z_owned_closure_transport_event_t transport_events;
-  z_closure_transport_event(&transport_events, forward_transport_event, NULL,
-                            NULL);
-  result = z_declare_background_transport_events_listener(
-      z_loan(session), z_move(transport_events), NULL);
-  if (result != 0) {
-    z_drop(z_move(session));
-  }
-  return result;
+  /* No transport-events listener here: z_declare_background_transport_events_listener
+   * crashes in the bumped zenoh-pico (commit 6b009cd0). Its connectivity intmap insert
+   * calls a garbage hash-function pointer (fault PC 0xaa..). That listener only fed the
+   * on-screen link indicator; publishing is unaffected. Restore once upstream is fixed. */
+  return z_open(&session, z_move(config), NULL);
 }
 
 void teleop_zenoh_close(void) {

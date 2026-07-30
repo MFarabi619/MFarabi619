@@ -292,4 +292,12 @@ endchoice
 
 endif # SOC_SERIES_ESP32S3
 
+config ZENOH_LOCATOR_DEFAULT
+	string "Default zenoh locator this board connects to at boot"
+	depends on ZENOH_PICO
+	default "tcp/127.0.0.1:7447"
+	help
+	  Compile-time zenoh endpoint used until overridden at runtime via the
+	  settings-backed zenoh_locator module. Set per board in the board .conf.
+
 source "Kconfig.zephyr"

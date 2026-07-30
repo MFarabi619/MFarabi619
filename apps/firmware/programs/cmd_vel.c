@@ -7,8 +7,8 @@
 #include <zephyr/net/net_mgmt.h>
 
 #include "motor.h"
+#include "zenoh_locator.h"
 
-#define ZENOH_LOCATOR "tcp/10.0.0.161:7447"
 #define CMD_VEL_KEYEXPR "0/joy_teleop/cmd_vel/**"
 
 #define CDR_ENCAPSULATION_HEADER_BYTES 4
@@ -153,13 +153,13 @@ static void cmd_vel_thread(void) {
     if (ipv4 != NULL) {
       const uint8_t *octets = ipv4;
       printk("cmd_vel: ip %u.%u.%u.%u, opening %s\n", octets[0], octets[1],
-             octets[2], octets[3], ZENOH_LOCATOR);
+             octets[2], octets[3], zenoh_locator_get());
     }
 
     z_owned_config_t config;
     z_config_default(&config);
     zp_config_insert(z_loan_mut(config), Z_CONFIG_MODE_KEY, "client");
-    zp_config_insert(z_loan_mut(config), Z_CONFIG_CONNECT_KEY, ZENOH_LOCATOR);
+    zp_config_insert(z_loan_mut(config), Z_CONFIG_CONNECT_KEY, zenoh_locator_get());
     int open_result = z_open(&session, z_move(config), NULL);
     if (open_result == 0) {
       break;
@@ -167,12 +167,7 @@ static void cmd_vel_thread(void) {
     printk("cmd_vel: z_open failed (%d), retrying\n", open_result);
     k_sleep(K_SECONDS(RECONNECT_DELAY_S));
   }
-  printk("cmd_vel: session open, connecting %s\n", ZENOH_LOCATOR);
-
-  if (zp_start_lease_task(z_loan_mut(session), NULL) < 0) {
-    printk("cmd_vel: start_lease_task failed\n");
-    return;
-  }
+  printk("cmd_vel: session open, connecting %s\n", zenoh_locator_get());
 
   z_owned_closure_sample_t callback;
   z_closure(&callback, on_cmd_vel, NULL, NULL);
