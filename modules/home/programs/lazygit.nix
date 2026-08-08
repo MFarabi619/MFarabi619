@@ -6,7 +6,6 @@
   programs.lazygit = {
     enable = config.programs.git.enable;
     enableZshIntegration = false; # NOTE: always drops you into root of monorepo otherwise
-
     settings = {
       notARepository = "quit";
       disableStartupPopups = true;
@@ -32,7 +31,7 @@
         overrideGpg = false;
         commit.signOff = true;
         branchPrefix = "${config.me.username}/";
-        pagers = [ { pager = "delta --paging=never"; } ];
+        diffRenderers = [ { command = "delta --paging=never"; } ];
       };
     };
   };

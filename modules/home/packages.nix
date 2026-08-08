@@ -57,7 +57,7 @@
       ]
       ++ [
         virt-viewer
-        virt-manager
+        # virt-manager # FIXME: builder failed with exit code 1... If @flags includes VIR_DOMAIN_CHECKPOINT_CREATE_QUIESCE ...
       ]
       ++ [
         llvm

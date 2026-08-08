@@ -33,6 +33,7 @@ in
 
     environment.TZ = config.time.timeZone; # docker service update --env-add TZ=America/Toronto dokploy_dokploy
     auth.secretFile = "/var/lib/dokploy-secrets/auth-secret";
+    encryption.keyFile = "/var/lib/dokploy-secrets/encryption-key";
     database.passwordFile = "/var/lib/dokploy-secrets/db-password";
 
     swarm = {
