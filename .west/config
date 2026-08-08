@@ -19,5 +19,6 @@ rebuild = true
 
 [alias]
 menuconfig = build apps/firmware -p=never -t menuconfig
-pc         = west patch -sm apps/firmware clean; west patch -sm apps/firmware apply
+pc         = patch -sm apps/firmware clean
+pa         = patch -sm apps/firmware apply
 dt         = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/firmware/zephyr/zephyr.dts
