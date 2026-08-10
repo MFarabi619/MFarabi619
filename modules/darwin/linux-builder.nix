@@ -10,7 +10,7 @@
   nix.linux-builder = {
     maxJobs = 4;
     # enable = pkgs.stdenv.isAarch64;
-    enable = false;
+    enable = true;
     package = pkgs.darwin.linux-builder-vz;
 
     config = {
