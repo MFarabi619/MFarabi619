@@ -11,6 +11,7 @@
     maxJobs = 4;
     # enable = pkgs.stdenv.isAarch64;
     enable = false;
+    package = pkgs.darwin.linux-builder-vz;
 
     config = {
       imports = [
