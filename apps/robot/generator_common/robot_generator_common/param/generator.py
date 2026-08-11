@@ -23,7 +23,7 @@ from robot_generator_common.common import BaseGenerator, ParamFile, robot_names,
 from robot_generator_common.param.writer import ParamWriter
 
 
-OUTPUT_ROOT = os.path.join('apps', 'robot', 'bringup', 'config', 'generated')
+OUTPUT_ROOT = os.path.join('bringup', 'config', 'generated')
 
 
 class ParamGenerator(BaseGenerator):

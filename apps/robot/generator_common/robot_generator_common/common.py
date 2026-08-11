@@ -24,7 +24,7 @@ from robot_config.common.utils.yaml import read_yaml
 from robot_config.robot_config import RobotConfig
 
 
-ROBOTS_PATH = os.path.join('apps', 'robot', 'config', 'robots')
+ROBOTS_PATH = os.path.join('config', 'robots')
 
 
 def robot_names():

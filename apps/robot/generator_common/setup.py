@@ -11,7 +11,6 @@ setup(
     packages=[
         package_name,
         package_name + '.param',
-        package_name + '.launch',
     ],
     data_files=[
         ('share/ament_index/resource_index/packages',
