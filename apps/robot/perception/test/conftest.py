@@ -23,12 +23,16 @@ import rclpy
 SRC_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 
-def load_node_class(module_name, class_name):
+def load_module(module_name):
     path = os.path.join(SRC_DIRECTORY, f'{module_name}.py')
     spec = importlib.util.spec_from_file_location(module_name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return getattr(module, class_name)
+    return module
+
+
+def load_node_class(module_name, class_name):
+    return getattr(load_module(module_name), class_name)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -48,5 +52,42 @@ def approach_node():
 @pytest.fixture
 def row_follow_node():
     node = load_node_class('row_follow', 'RowFollow')()
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def green_detector_node():
+    node = load_node_class('green_detector', 'GreenDetector')()
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def row_navigator_node():
+    node = load_node_class('row_navigator', 'RowNavigator')()
+    node.drive_enabled = True
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def canopy_detector_node():
+    node = load_node_class('canopy_detector', 'CanopyDetector')()
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def cloud_optical_relay_node():
+    node = load_node_class('cloud_optical_relay', 'CloudOpticalRelay')()
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def canopy_navigator_node():
+    node = load_node_class('canopy_navigator', 'CanopyNavigator')()
+    node.drive_enabled = True
     yield node
     node.destroy_node()

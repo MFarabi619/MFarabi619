@@ -25,6 +25,7 @@ from foxglove_msgs.msg import (
     TextAnnotation,
 )
 import numpy as np
+import onnxruntime
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -38,34 +39,44 @@ from vision_msgs.msg import (
     Pose2D,
 )
 
-ROW_COLOR = Color(r=0.2, g=1.0, b=0.4, a=1.0)
-CENTER_ROW_COLOR = Color(r=1.0, g=0.6, b=0.1, a=1.0)
+SIDEWALK_COLOR = Color(r=0.2, g=0.6, b=1.0, a=1.0)
+CENTER_COLOR = Color(r=1.0, g=0.6, b=0.1, a=1.0)
 TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 
 LABEL_MARGIN_PIXELS = 6.0
 
+IMAGENET_MEAN = np.array([0.485, 0.456, 0.406], np.float32)
+IMAGENET_STD = np.array([0.229, 0.224, 0.225], np.float32)
 
-class RowDetector(Node):
+
+class SidewalkDetector(Node):
     def __init__(self):
-        super().__init__('row_detector')
+        super().__init__('sidewalk_detector')
         self.image_topic = self.declare_parameter(
-            'image_topic', 'sensors/camera_0/color/image/compressed'
+            'image_topic', 'sensors/camera_0/color/image_raw/compressed'
         ).value
         detections_topic = self.declare_parameter('detections_topic', 'detections').value
         overlay_topic = self.declare_parameter(
             'overlay_topic', 'perception/vision/overlay'
         ).value
-        self.class_label = self.declare_parameter('class_label', 'crop_row').value
-        self.roi_top = self.declare_parameter('roi_top', 0.5).value
+        model_path = self.declare_parameter(
+            'model_path', 'perception/models/sidewalk-segformer-b0.onnx'
+        ).value
+        self.class_label = self.declare_parameter('class_label', 'sidewalk').value
+        self.sidewalk_class_ids = self.declare_parameter(
+            'sidewalk_class_ids', [2, 3]
+        ).value
+        self.input_size = self.declare_parameter('input_size', 512).value
+        self.roi_top = self.declare_parameter('roi_top', 0.4).value
         self.roi_bottom = self.declare_parameter('roi_bottom', 1.0).value
-        self.hue_min = self.declare_parameter('hue_min', 35.0).value
-        self.hue_max = self.declare_parameter('hue_max', 87.0).value
-        self.min_saturation = self.declare_parameter('min_saturation', 0.30).value
-        self.min_value = self.declare_parameter('min_value', 0.06).value
-        self.min_fraction = self.declare_parameter('min_fraction', 0.40).value
-        self.min_row_width = self.declare_parameter('min_row_width', 0.04).value
+        self.min_fraction = self.declare_parameter('min_fraction', 0.5).value
+        self.min_run_width = self.declare_parameter('min_run_width', 0.10).value
         self.smooth_window = self.declare_parameter('smooth_window', 9).value
+
+        self.session = onnxruntime.InferenceSession(
+            model_path, providers=['CPUExecutionProvider'])
+        self.input_name = self.session.get_inputs()[0].name
 
         self.detections_publisher = self.create_publisher(
             Detection2DArray, detections_topic, qos_profile_sensor_data
@@ -76,7 +87,8 @@ class RowDetector(Node):
         self.create_subscription(
             CompressedImage, self.image_topic, self.on_image, qos_profile_sensor_data
         )
-        self.get_logger().info(f'row detector {self.class_label}: {self.image_topic}')
+        self.get_logger().info(
+            f'sidewalk detector {model_path}: {self.image_topic}')
 
     def on_image(self, message):
         bgr = cv2.imdecode(np.frombuffer(message.data, np.uint8), cv2.IMREAD_COLOR)
@@ -86,11 +98,13 @@ class RowDetector(Node):
         top = int(height * self.roi_top)
         bottom = int(height * self.roi_bottom)
 
-        fraction = self.row_fraction(bgr[top:bottom])
+        mask = self.sidewalk_mask(bgr)
+        fraction = self.column_fraction(mask[top:bottom])
+        above_threshold = fraction >= self.min_fraction
         runs = [
-            (start, end)
-            for start, end in self.contiguous_runs(fraction >= self.min_fraction)
-            if (end - start) >= self.min_row_width * width
+            (int(run.start), int(run.stop))
+            for run in np.ma.clump_masked(np.ma.masked_array(above_threshold, above_threshold))
+            if (run.stop - run.start) >= self.min_run_width * width
         ]
         center_run = min(
             runs, key=lambda run: abs((run[0] + run[1]) / 2.0 - width / 2.0), default=None
@@ -111,25 +125,21 @@ class RowDetector(Node):
         self.detections_publisher.publish(detections)
         self.overlay_publisher.publish(overlay)
 
-    def row_fraction(self, roi_band):
-        hsv = cv2.cvtColor(roi_band, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(
-            hsv,
-            (self.hue_min, self.min_saturation * 255.0, self.min_value * 255.0),
-            (self.hue_max, 255.0, 255.0),
-        )
-        column_fraction = mask.mean(axis=0) / 255.0
+    def sidewalk_mask(self, bgr):
+        height, width = bgr.shape[:2]
+        rgb = cv2.cvtColor(
+            cv2.resize(bgr, (self.input_size, self.input_size)), cv2.COLOR_BGR2RGB)
+        normalized = (rgb.astype(np.float32) / 255.0 - IMAGENET_MEAN) / IMAGENET_STD
+        batch = normalized.transpose(2, 0, 1)[np.newaxis]
+        logits = self.session.run(None, {self.input_name: batch})[0]
+        classes = logits[0].argmax(axis=0).astype(np.uint8)
+        mask = np.isin(classes, self.sidewalk_class_ids).astype(np.uint8)
+        return cv2.resize(mask, (width, height), interpolation=cv2.INTER_NEAREST)
+
+    def column_fraction(self, mask_band):
+        column_fraction = mask_band.mean(axis=0)
         kernel = np.ones(self.smooth_window) / self.smooth_window
         return np.convolve(column_fraction, kernel, mode='same')
-
-    def contiguous_runs(self, is_above_threshold):
-        edges = np.flatnonzero(np.diff(is_above_threshold.astype(np.int8)))
-        bounds = np.concatenate(([0], edges + 1, [is_above_threshold.size]))
-        return [
-            (int(bounds[i]), int(bounds[i + 1]))
-            for i in range(len(bounds) - 1)
-            if is_above_threshold[bounds[i]]
-        ]
 
     def detection(self, stamp, run, fraction, top, bottom):
         start, end = run
@@ -160,7 +170,7 @@ class RowDetector(Node):
             Point2(x=x0, y=float(bottom - 1)),
         ]
         is_center = run == center_run
-        annotation.outline_color = CENTER_ROW_COLOR if is_center else ROW_COLOR
+        annotation.outline_color = CENTER_COLOR if is_center else SIDEWALK_COLOR
         annotation.thickness = 3.0 if is_center else 2.0
         return annotation
 
@@ -178,7 +188,7 @@ class RowDetector(Node):
 
 def main():
     rclpy.init()
-    node = RowDetector()
+    node = SidewalkDetector()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

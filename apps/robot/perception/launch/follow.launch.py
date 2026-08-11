@@ -18,35 +18,25 @@
 
 from better_launch import BetterLaunch, launch_this
 
-CONE_ROWS_TOPIC = '/perception/cone_rows'
-COLOR_IMAGE_TOPIC = '/sensors/camera_0/color/image_raw/compressed'
+OPERATOR_TOPIC = '/perception/operator'
 
 
 @launch_this
-def row_follow(target_offset: float = 0.0):
+def follow(standoff_distance: float = 1.5, reacquire_frames: int = 8):
     bl = BetterLaunch()
     bl.node(
         package='robot_perception',
-        executable='row_detector',
-        name='cone_row_detector',
-        params={
-            'image_topic': COLOR_IMAGE_TOPIC,
-            'class_label': 'cone_row',
-            'hue_min': 2.0,
-            'hue_max': 25.0,
-            'min_saturation': 0.45,
-            'min_value': 0.30,
-            'min_fraction': 0.02,
-            'min_row_width': 0.02,
-            'roi_top': 0.4,
-            'roi_bottom': 0.95,
-        },
-        remaps={'detections': CONE_ROWS_TOPIC},
+        executable='green_detector',
+        name='green_detector',
+        remaps={'detections': OPERATOR_TOPIC},
     )
     bl.node(
         package='robot_perception',
-        executable='row_follow',
-        name='row_follow',
-        params={'target_offset': target_offset},
-        remaps={'detections': CONE_ROWS_TOPIC},
+        executable='approach',
+        name='operator_approach',
+        params={
+            'standoff_distance': standoff_distance,
+            'reacquire_frames': reacquire_frames,
+        },
+        remaps={'detections': OPERATOR_TOPIC},
     )

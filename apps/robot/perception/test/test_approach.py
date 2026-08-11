@@ -36,7 +36,7 @@ def cones(*positions):
 def capture(node):
     twists = []
     node.cmd_vel_publisher.publish = twists.append
-    node.enabled = True
+    node.is_enabled = True
     return twists
 
 
@@ -87,3 +87,22 @@ def test_stays_still_when_disabled(approach_node):
     approach_node.cmd_vel_publisher.publish = twists.append
     approach_node.on_detections(cones((0.0, 0.0, 3.0)))
     assert twists == []
+
+
+def test_holds_last_bearing_within_reacquire_window(approach_node):
+    approach_node.reacquire_frames = 3
+    twists = capture(approach_node)
+    approach_node.on_detections(cones((1.0, 0.0, 2.0)))
+    approach_node.on_detections(Detection2DArray())
+    assert twists[-1].twist.linear.x == pytest.approx(0.0)
+    assert twists[-1].twist.angular.z == pytest.approx(-0.6)
+
+
+def test_halts_after_reacquire_window(approach_node):
+    approach_node.reacquire_frames = 2
+    twists = capture(approach_node)
+    approach_node.on_detections(cones((1.0, 0.0, 2.0)))
+    for _ in range(3):
+        approach_node.on_detections(Detection2DArray())
+    assert twists[-1].twist.linear.x == pytest.approx(0.0)
+    assert twists[-1].twist.angular.z == pytest.approx(0.0)

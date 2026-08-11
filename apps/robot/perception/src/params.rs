@@ -1,6 +1,6 @@
 use oxidros::{core::parameter::Parameters, prelude::*};
 
-pub const DEFAULT_IMAGE_TOPIC: &str = "sensors/camera_0/color/image/compressed";
+pub const DEFAULT_IMAGE_TOPIC: &str = "sensors/camera_0/color/image_raw/compressed";
 
 pub fn f64_param(store: &Parameters, name: &str, default: f64) -> f64 {
     match store.get_parameter(name).map(|parameter| &parameter.value) {

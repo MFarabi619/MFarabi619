@@ -30,32 +30,39 @@ from foxglove_msgs.msg import (
 )
 from geometry_msgs.msg import Point, Pose, Quaternion, TwistStamped, Vector3
 import numpy as np
-from rcl_interfaces.msg import SetParametersResult
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from std_srvs.srv import SetBool
-from vision_msgs.msg import Detection2DArray
+from vision_msgs.msg import Detection2DArray, Detection3DArray
 
 STANDOFF_COLOR = Color(r=0.1, g=0.9, b=1.0, a=0.8)
 VELOCITY_COLOR = Color(r=0.2, g=1.0, b=0.4, a=1.0)
-CONE_COLOR = Color(r=1.0, g=0.5, b=0.0, a=0.35)
+TARGET_COLOR = Color(r=1.0, g=0.5, b=0.0, a=0.35)
 TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 
 IDENTITY_ORIENTATION = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
 SCENE_LIFETIME = Duration(sec=0, nanosec=500000000)
-CONE_MARKER_DIAMETER = 0.15
+TARGET_MARKER_DIAMETER_M = 0.15
 RING_SEGMENTS = 48
 LIVE_PARAMETERS = frozenset({
     'standoff_distance', 'distance_gain', 'max_forward_speed',
-    'steer_gain', 'max_angular_speed',
+    'steer_gain', 'max_angular_speed', 'reacquire_frames',
+    'target_class', 'command_smoothing', 'distance_deadband',
+    'steer_deadband', 'distance_damping', 'steer_damping',
+    'max_retreat_speed',
 })
+MAX_MEASUREMENT_INTERVAL_S = 0.2
 
 
 class Approach(Node):
     def __init__(self):
         super().__init__('approach')
         detections_topic = self.declare_parameter('detections_topic', 'detections').value
+        detections_3d_topic = self.declare_parameter(
+            'detections_3d_topic', 'detections_3d'
+        ).value
+        self.target_class = self.declare_parameter('target_class', '').value
         cmd_vel_topic = self.declare_parameter('cmd_vel_topic', 'cmd_vel').value
         scene_topic = self.declare_parameter('scene_topic', 'perception/vision/scene').value
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
@@ -64,84 +71,138 @@ class Approach(Node):
         self.max_forward_speed = self.declare_parameter('max_forward_speed', 0.6).value
         self.steer_gain = self.declare_parameter('steer_gain', 1.2).value
         self.max_angular_speed = self.declare_parameter('max_angular_speed', 0.8).value
+        self.reacquire_frames = self.declare_parameter('reacquire_frames', 0).value
+        self.command_smoothing = self.declare_parameter('command_smoothing', 1.0).value
+        self.distance_deadband = self.declare_parameter('distance_deadband', 0.0).value
+        self.steer_deadband = self.declare_parameter('steer_deadband', 0.0).value
+        self.distance_damping = self.declare_parameter('distance_damping', 0.0).value
+        self.steer_damping = self.declare_parameter('steer_damping', 0.0).value
+        self.max_retreat_speed = self.declare_parameter('max_retreat_speed', 0.0).value
 
-        self.enabled = False
+        self.is_enabled = self.declare_parameter('start_enabled', False).value
+        self.missing_frames = 0
+        self.last_angular_speed = 0.0
+        self.smoothed_forward_speed = 0.0
+        self.smoothed_angular_speed = 0.0
+        self.previous_stamp_s = None
+        self.previous_offset = 0.0
+        self.previous_distance = 0.0
         self.cmd_vel_publisher = self.create_publisher(
-            TwistStamped, cmd_vel_topic, qos_profile_sensor_data
+            TwistStamped, cmd_vel_topic, 10
         )
         self.scene_publisher = self.create_publisher(SceneUpdate, scene_topic, 10)
-        self.add_on_set_parameters_callback(self.on_set_parameters)
+        self.add_post_set_parameters_callback(self.on_parameters_set)
         self.create_service(SetBool, '~/enable', self.on_enable)
         self.create_subscription(
             Detection2DArray, detections_topic, self.on_detections, qos_profile_sensor_data
         )
+        self.create_subscription(
+            Detection3DArray, detections_3d_topic, self.on_detections,
+            qos_profile_sensor_data
+        )
         self.get_logger().info(f'approach: {detections_topic} -> {cmd_vel_topic}')
 
     def on_detections(self, message):
-        cone = self.nearest_cone(message.detections)
-        if cone is None:
-            self.drive(0.0, 0.0)
+        target = self.nearest_target(message.detections)
+        if target is None:
+            self.missing_frames += 1
+            angular_speed = (
+                self.last_angular_speed
+                if self.missing_frames <= self.reacquire_frames else 0.0
+            )
+            self.previous_stamp_s = None
+            self.drive(0.0, angular_speed)
             self.publish_scene(message.header.stamp, message.header.frame_id, None, 0.0)
             return
-        forward_speed = self.approach_speed(cone.z)
-        self.drive(forward_speed, -self.steer_gain * cone.x / cone.z)
-        self.publish_scene(message.header.stamp, message.header.frame_id, cone, forward_speed)
+        self.missing_frames = 0
+        lateral_offset = target.x if abs(target.x) > self.steer_deadband else 0.0
+        offset = lateral_offset / target.z
+        stamp_s = message.header.stamp.sec + message.header.stamp.nanosec * 1e-9
+        offset_rate = 0.0
+        distance_rate = 0.0
+        if (self.previous_stamp_s is not None
+                and 0.0 < stamp_s - self.previous_stamp_s < MAX_MEASUREMENT_INTERVAL_S):
+            interval = stamp_s - self.previous_stamp_s
+            offset_rate = (offset - self.previous_offset) / interval
+            distance_rate = (target.z - self.previous_distance) / interval
+        self.previous_stamp_s = stamp_s
+        self.previous_offset = offset
+        self.previous_distance = target.z
+        forward_speed = self.approach_speed(target.z, distance_rate)
+        self.last_angular_speed = float(np.clip(
+            -(self.steer_gain * offset + self.steer_damping * offset_rate),
+            -self.max_angular_speed, self.max_angular_speed))
+        self.drive(forward_speed, self.last_angular_speed)
+        self.publish_scene(message.header.stamp, message.header.frame_id, target, forward_speed)
 
-    def nearest_cone(self, detections):
+    def nearest_target(self, detections):
         nearest = None
         for detection in detections:
             if not detection.results:
                 continue
-            point = detection.results[0].pose.pose.position
+            result = detection.results[0]
+            if self.target_class and result.hypothesis.class_id != self.target_class:
+                continue
+            point = result.pose.pose.position
             if point.z <= 0.0:
                 continue
             if nearest is None or point.z < nearest.z:
                 nearest = point
         return nearest
 
-    def approach_speed(self, distance):
+    def approach_speed(self, distance, distance_rate):
         error = distance - self.standoff_distance
-        return float(np.clip(self.distance_gain * error, 0.0, self.max_forward_speed))
+        if abs(error) < self.distance_deadband:
+            return 0.0
+        return float(np.clip(
+            self.distance_gain * error + self.distance_damping * distance_rate,
+            -self.max_retreat_speed, self.max_forward_speed))
 
     def drive(self, forward_speed, angular_speed):
-        if not self.enabled:
+        if not self.is_enabled:
             return
+        self.smoothed_forward_speed += self.command_smoothing * (
+            forward_speed - self.smoothed_forward_speed)
+        self.smoothed_angular_speed += self.command_smoothing * (
+            angular_speed - self.smoothed_angular_speed)
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(forward_speed)
+        message.twist.linear.x = float(self.smoothed_forward_speed)
         message.twist.angular.z = float(
-            np.clip(angular_speed, -self.max_angular_speed, self.max_angular_speed)
+            np.clip(
+                self.smoothed_angular_speed,
+                -self.max_angular_speed, self.max_angular_speed,
+            )
         )
         self.cmd_vel_publisher.publish(message)
 
     def on_enable(self, request, response):
-        self.enabled = request.data
+        self.is_enabled = request.data
         response.success = True
         response.message = 'enabled' if request.data else 'disabled'
         return response
 
-    def on_set_parameters(self, parameters):
+    def on_parameters_set(self, parameters):
         for parameter in parameters:
             if parameter.name in LIVE_PARAMETERS:
                 setattr(self, parameter.name, parameter.value)
-        return SetParametersResult(successful=True)
 
-    def publish_scene(self, stamp, cone_frame_id, point, forward_speed):
+    def publish_scene(self, stamp, target_frame_id, point, forward_speed):
         scene = SceneUpdate()
         scene.entities.append(self.standoff_entity(stamp))
         scene.entities.append(self.velocity_entity(stamp, forward_speed))
         if point is not None:
-            scene.entities.append(self.cone_entity(stamp, cone_frame_id, point))
+            scene.entities.append(self.target_entity(stamp, target_frame_id, point))
         self.scene_publisher.publish(scene)
 
-    def cone_entity(self, stamp, frame_id, point):
-        entity = self.scene_entity(stamp, frame_id, 'cone')
+    def target_entity(self, stamp, frame_id, point):
+        entity = self.scene_entity(stamp, frame_id, 'target')
         sphere = SpherePrimitive()
         sphere.pose = Pose(position=point, orientation=IDENTITY_ORIENTATION)
         sphere.size = Vector3(
-            x=CONE_MARKER_DIAMETER, y=CONE_MARKER_DIAMETER, z=CONE_MARKER_DIAMETER)
-        sphere.color = CONE_COLOR
+            x=TARGET_MARKER_DIAMETER_M, y=TARGET_MARKER_DIAMETER_M, z=TARGET_MARKER_DIAMETER_M)
+        sphere.color = TARGET_COLOR
         entity.spheres.append(sphere)
         label = TextPrimitive()
         label.pose = Pose(position=point, orientation=IDENTITY_ORIENTATION)
@@ -201,6 +262,8 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        node.smoothed_forward_speed = 0.0
+        node.smoothed_angular_speed = 0.0
         node.drive(0.0, 0.0)
         node.destroy_node()
         rclpy.shutdown()

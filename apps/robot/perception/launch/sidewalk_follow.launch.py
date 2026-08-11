@@ -18,23 +18,24 @@
 
 from better_launch import BetterLaunch, launch_this
 
-CONES_TOPIC = '/perception/cones'
+SIDEWALK_TOPIC = '/perception/sidewalk'
+COLOR_IMAGE_TOPIC = '/sensors/camera_0/color/image_raw/compressed'
 
 
 @launch_this
-def approach(standoff_distance: float = 1.0):
+def sidewalk_follow(target_offset: float = 0.0):
     bl = BetterLaunch()
     bl.node(
         package='robot_perception',
-        executable='color_blob_detector',
-        name='cone_detector',
-        params={'class_label': 'cone'},
-        remaps={'detections': CONES_TOPIC},
+        executable='sidewalk_detector',
+        name='sidewalk_detector',
+        params={'image_topic': COLOR_IMAGE_TOPIC},
+        remaps={'detections': SIDEWALK_TOPIC},
     )
     bl.node(
         package='robot_perception',
-        executable='approach',
-        name='approach',
-        params={'standoff_distance': standoff_distance},
-        remaps={'detections': CONES_TOPIC},
+        executable='row_follow',
+        name='sidewalk_follow',
+        params={'target_offset': target_offset},
+        remaps={'detections': SIDEWALK_TOPIC},
     )
