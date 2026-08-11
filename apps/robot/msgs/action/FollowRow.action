@@ -1,0 +1,12 @@
+float32 travel_distance_m
+float32 forward_speed_mps
+---
+string OUTCOME_DISTANCE_REACHED="distance_reached"
+string OUTCOME_ROW_LOST="row_lost"
+string OUTCOME_CANCELED="canceled"
+float32 distance_traveled_m
+string outcome
+---
+float32 lateral_error_m
+float32 heading_error_rad
+float32 distance_traveled_m

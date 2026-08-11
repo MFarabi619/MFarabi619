@@ -27,6 +27,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   msg/Temperature.msg
   srv/ConfigureMcu.srv
   srv/SetPinout.srv
+  action/FollowRow.action
   DEPENDENCIES std_msgs builtin_interfaces action_msgs
 )
 
