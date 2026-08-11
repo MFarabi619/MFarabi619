@@ -1,0 +1,9 @@
+{
+  "mode": "client",
+  "connect": {
+    "endpoints": ["tcp/localhost:7447"]
+  },
+  "timestamping": {
+    "enabled": true
+  }
+}
