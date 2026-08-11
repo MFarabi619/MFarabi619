@@ -1,0 +1,52 @@
+collision_monitor:
+  ros__parameters:
+    base_frame_id: base_link
+    odom_frame_id: odom
+    cmd_vel_in_topic: /platform/cmd_vel_raw
+    cmd_vel_out_topic: /platform/cmd_vel
+    state_topic: /platform/collision_monitor_state
+    transform_tolerance: 0.3
+    source_timeout: 2.0
+    base_shift_correction: false
+    stop_pub_timeout: 2.0
+    enable_stamped_cmd_vel: true
+    polygons: ["FootprintApproach", "PolygonSlow"]
+    FootprintApproach:
+      type: polygon
+      action_type: approach
+      points: "[[0.6, 0.6], [0.6, -0.6], [-0.6, -0.6], [-0.6, 0.6]]"
+      time_before_collision: 1.2
+      simulation_time_step: 0.1
+      min_points: 6
+      visualize: true
+      polygon_pub_topic: /platform/polygon_stop
+      enabled: true
+    PolygonSlow:
+      type: velocity_polygon
+      action_type: slowdown
+      slowdown_ratio: 0.4
+      min_points: 12
+      visualize: true
+      polygon_pub_topic: /platform/polygon_slowdown
+      enabled: true
+      holonomic: false
+      velocity_polygons: ["forward"]
+      forward:
+        points: "[[2.6, 0.5], [2.6, -0.5], [0.55, -0.5], [0.55, 0.5]]"
+        linear_min: 0.01
+        linear_max: 2.0
+        theta_min: -3.0
+        theta_max: 3.0
+    observation_sources: ["depth_cloud"]
+    depth_cloud:
+      type: pointcloud
+      topic: /sensors/camera_0/depth/points
+      min_height: 0.15
+      max_height: 2.0
+      enabled: true
+
+collision_lifecycle_manager:
+  ros__parameters:
+    node_names: ["collision_monitor"]
+    autostart: true
+    bond_timeout: 0.0
