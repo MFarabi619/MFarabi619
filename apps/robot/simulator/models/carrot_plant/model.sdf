@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="carrot_plant">
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry><mesh><uri>model://carrot_plant/meshes/carrot_plant.dae</uri></mesh></geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

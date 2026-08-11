@@ -188,7 +188,7 @@ pub async fn run_simulator(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut cmd_vel = node.create_subscriber::<TwistStamped>("platform/cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     let image_pub = node.create_publisher::<CompressedImage>(
-        "sensors/camera_0/color/image/compressed",
+        "sensors/camera_0/color/image_raw/compressed",
         Some(Profile::sensor_data()),
     )?;
     let camera_info_pub = node

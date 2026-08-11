@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="onion_plant">
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry><mesh><uri>model://onion_plant/meshes/onion_plant.dae</uri></mesh></geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

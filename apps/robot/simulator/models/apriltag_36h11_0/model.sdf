@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="apriltag_36h11_0">
+    <static>true</static>
+    <link name="link">
+      <visual name="board">
+        <pose>0 0 0.69375 0 0 0</pose>
+        <geometry><mesh><uri>model://apriltag_36h11_0/meshes/apriltag_36h11_0.dae</uri></mesh></geometry>
+      </visual>
+      <visual name="post">
+        <pose>-0.01 0 0.3 0 0 0</pose>
+        <geometry><box><size>0.02 0.03 0.6</size></box></geometry>
+        <material><ambient>0.3 0.3 0.3 1</ambient><diffuse>0.5 0.5 0.5 1</diffuse></material>
+      </visual>
+      <collision name="collision">
+        <pose>-0.01 0 0.3 0 0 0</pose>
+        <geometry><box><size>0.02 0.03 0.6</size></box></geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

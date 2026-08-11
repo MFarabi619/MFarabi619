@@ -1,0 +1,4758 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <world name="plasticulture">
+    <physics name="default_physics" type="ignored">
+      <max_step_size>0.01</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"></plugin>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"></plugin>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"></plugin>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat"></plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"></plugin>
+
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>45.395134</latitude_deg>
+      <longitude_deg>-75.572868</longitude_deg>
+      <elevation>70.0</elevation>
+      <heading_deg>0.0</heading_deg>
+    </spherical_coordinates>
+
+    <scene>
+      <ambient>0.55 0.55 0.55 1</ambient>
+      <background>0.7 0.8 0.9 1</background>
+      <sky><clouds><speed>2</speed></clouds></sky>
+      <grid>false</grid>
+    </scene>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.85 0.85 0.85 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <light type="directional" name="fill">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.35 0.35 0.35 1</diffuse>
+      <specular>0 0 0 1</specular>
+      <direction>0.5 -0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>200 200</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/grass_plane.dae</uri></mesh></geometry>
+        </visual>
+        <visual name="dirt_visual">
+          <pose>0 0 0.005 0 0 0</pose>
+          <geometry><mesh><uri>model://materials/dirt_patch.dae</uri></mesh></geometry>
+        </visual>
+        <visual name="flat_tarp_visual">
+          <pose>0 -10.2 0.008 0 0 0</pose>
+          <geometry><mesh><uri>model://materials/flat_tarp.dae</uri></mesh></geometry>
+        </visual>
+      </link>
+    </model>
+
+    <model name="bed_0">
+      <static>true</static>
+      <pose>0 -5.4 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_1">
+      <static>true</static>
+      <pose>0 -4.2 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_2">
+      <static>true</static>
+      <pose>0 -3 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_3">
+      <static>true</static>
+      <pose>0 -1.8 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_4">
+      <static>true</static>
+      <pose>0 -0.6 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_5">
+      <static>true</static>
+      <pose>0 0.6 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_6">
+      <static>true</static>
+      <pose>0 1.8 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_7">
+      <static>true</static>
+      <pose>0 3 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_8">
+      <static>true</static>
+      <pose>0 4.2 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_a.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_9">
+      <static>true</static>
+      <pose>0 5.4 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </visual>
+        <collision name="collision">
+          <geometry><mesh><uri>model://materials/plasticulture_bed_b.dae</uri></mesh></geometry>
+        </collision>
+      </link>
+    </model>
+
+    <include>
+      <name>cone_red_6_0</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-9.486 1.790 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_1</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-8.464 1.786 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_2</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-7.521 1.769 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_3</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-6.531 1.834 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_4</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-5.497 1.836 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_5</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-4.462 1.799 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_6</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-3.513 1.815 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_7</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-2.539 1.772 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_8</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-1.463 1.765 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_9</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>-0.502 1.803 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_10</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>0.521 1.823 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_11</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>1.486 1.782 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_12</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>2.507 1.811 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_13</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>3.490 1.791 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_14</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>4.535 1.795 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_15</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>5.498 1.835 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_16</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>6.462 1.783 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_17</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>7.477 1.798 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_18</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>8.468 1.822 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_red_6_19</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_red</uri>
+      <pose>9.536 1.836 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_0</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-9.528 2.961 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_1</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-8.469 2.970 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_2</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-7.529 3.037 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_3</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-6.478 2.999 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_4</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-5.468 2.994 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_5</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-4.501 2.972 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_6</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-3.528 3.002 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_7</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-2.498 2.980 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_8</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-1.498 2.997 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_9</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>-0.469 3.007 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_10</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>0.497 3.017 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_11</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>1.471 2.978 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_12</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>2.505 3.032 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_13</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>3.480 2.968 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_14</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>4.480 2.979 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_15</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>5.489 3.023 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_16</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>6.539 3.013 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_17</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>7.508 3.030 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_18</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>8.472 2.980 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_orange_7_19</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_orange</uri>
+      <pose>9.483 2.962 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_0</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-9.516 4.166 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_1</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-8.488 4.172 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_2</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-7.474 4.178 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_3</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-6.515 4.222 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_4</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-5.512 4.221 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_5</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-4.535 4.199 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_6</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-3.462 4.206 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_7</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-2.471 4.160 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_8</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-1.503 4.220 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_9</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>-0.480 4.200 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_10</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>0.501 4.196 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_11</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>1.532 4.231 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_12</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>2.513 4.189 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_13</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>3.532 4.171 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_14</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>4.538 4.175 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_15</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>5.509 4.189 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_16</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>6.470 4.216 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_17</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>7.473 4.238 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_18</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>8.485 4.222 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_yellow_8_19</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_yellow</uri>
+      <pose>9.518 4.184 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_0</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-9.523 5.435 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_1</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-8.511 5.416 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_2</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-7.531 5.429 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_3</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-6.469 5.385 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_4</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-5.512 5.409 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_5</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-4.483 5.401 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_6</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-3.529 5.430 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_7</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-2.527 5.429 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_8</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-1.461 5.382 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_9</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>-0.514 5.375 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_10</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>0.508 5.424 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_11</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>1.531 5.410 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_12</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>2.486 5.389 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_13</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>3.484 5.439 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_14</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>4.531 5.405 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_15</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>5.499 5.389 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_16</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>6.493 5.413 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_17</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>7.509 5.394 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_18</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>8.470 5.374 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>cone_blue_9_19</name>
+      <uri>https://fuel.gazebosim.org/1.0/fruffers/models/cone_blue</uri>
+      <pose>9.510 5.380 0.04 0 0 0</pose>
+    </include>
+
+
+
+    <include>
+      <name>maize_0_0</name>
+      <uri>model://maize_01</uri>
+      <pose>-9.621 -5.381 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>maize_0_1</name>
+      <uri>model://maize_02</uri>
+      <pose>-9.240 -5.384 0.04 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>maize_0_2</name>
+      <uri>model://maize_01</uri>
+      <pose>-8.935 -5.380 0.04 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>maize_0_3</name>
+      <uri>model://maize_02</uri>
+      <pose>-8.549 -5.397 0.04 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>maize_0_4</name>
+      <uri>model://maize_01</uri>
+      <pose>-8.188 -5.368 0.04 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>maize_0_5</name>
+      <uri>model://maize_02</uri>
+      <pose>-7.840 -5.389 0.04 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>maize_0_6</name>
+      <uri>model://maize_01</uri>
+      <pose>-7.505 -5.380 0.04 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>maize_0_7</name>
+      <uri>model://maize_02</uri>
+      <pose>-7.132 -5.402 0.04 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>maize_0_8</name>
+      <uri>model://maize_01</uri>
+      <pose>-6.794 -5.376 0.04 0 0 1</pose>
+    </include>
+    <include>
+      <name>maize_0_9</name>
+      <uri>model://maize_02</uri>
+      <pose>-6.484 -5.416 0.04 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>maize_0_10</name>
+      <uri>model://maize_01</uri>
+      <pose>-6.132 -5.383 0.04 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>maize_0_11</name>
+      <uri>model://maize_02</uri>
+      <pose>-5.776 -5.412 0.04 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>maize_0_12</name>
+      <uri>model://maize_01</uri>
+      <pose>-5.437 -5.387 0.04 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>maize_0_13</name>
+      <uri>model://maize_02</uri>
+      <pose>-5.021 -5.364 0.04 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>maize_0_14</name>
+      <uri>model://maize_01</uri>
+      <pose>-4.700 -5.429 0.04 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>maize_0_15</name>
+      <uri>model://maize_02</uri>
+      <pose>-4.328 -5.391 0.04 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>maize_0_16</name>
+      <uri>model://maize_01</uri>
+      <pose>-3.971 -5.423 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>maize_0_17</name>
+      <uri>model://maize_02</uri>
+      <pose>-3.690 -5.390 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>maize_0_18</name>
+      <uri>model://maize_01</uri>
+      <pose>-3.330 -5.394 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>maize_0_19</name>
+      <uri>model://maize_02</uri>
+      <pose>-2.968 -5.374 0.04 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>maize_0_20</name>
+      <uri>model://maize_01</uri>
+      <pose>-2.575 -5.406 0.04 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>maize_0_21</name>
+      <uri>model://maize_02</uri>
+      <pose>-2.257 -5.402 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>maize_0_22</name>
+      <uri>model://maize_01</uri>
+      <pose>-1.865 -5.411 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>maize_0_23</name>
+      <uri>model://maize_02</uri>
+      <pose>-1.529 -5.422 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>maize_0_24</name>
+      <uri>model://maize_01</uri>
+      <pose>-1.188 -5.404 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>maize_0_25</name>
+      <uri>model://maize_02</uri>
+      <pose>-0.880 -5.421 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>maize_0_26</name>
+      <uri>model://maize_01</uri>
+      <pose>-0.485 -5.384 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>maize_0_27</name>
+      <uri>model://maize_02</uri>
+      <pose>-0.124 -5.364 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>maize_0_28</name>
+      <uri>model://maize_01</uri>
+      <pose>0.174 -5.388 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>maize_0_29</name>
+      <uri>model://maize_02</uri>
+      <pose>0.537 -5.426 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>maize_0_30</name>
+      <uri>model://maize_01</uri>
+      <pose>0.924 -5.406 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>maize_0_31</name>
+      <uri>model://maize_02</uri>
+      <pose>1.271 -5.397 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>maize_0_32</name>
+      <uri>model://maize_01</uri>
+      <pose>1.565 -5.406 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>maize_0_33</name>
+      <uri>model://maize_02</uri>
+      <pose>1.970 -5.407 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>maize_0_34</name>
+      <uri>model://maize_01</uri>
+      <pose>2.306 -5.390 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>maize_0_35</name>
+      <uri>model://maize_02</uri>
+      <pose>2.667 -5.428 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>maize_0_36</name>
+      <uri>model://maize_01</uri>
+      <pose>3.025 -5.379 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>maize_0_37</name>
+      <uri>model://maize_02</uri>
+      <pose>3.388 -5.367 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>maize_0_38</name>
+      <uri>model://maize_01</uri>
+      <pose>3.703 -5.367 0.04 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>maize_0_39</name>
+      <uri>model://maize_02</uri>
+      <pose>4.051 -5.412 0.04 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>maize_0_40</name>
+      <uri>model://maize_01</uri>
+      <pose>4.395 -5.407 0.04 0 0 5</pose>
+    </include>
+    <include>
+      <name>maize_0_41</name>
+      <uri>model://maize_02</uri>
+      <pose>4.763 -5.421 0.04 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>maize_0_42</name>
+      <uri>model://maize_01</uri>
+      <pose>5.088 -5.369 0.04 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>maize_0_43</name>
+      <uri>model://maize_02</uri>
+      <pose>5.432 -5.374 0.04 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>maize_0_44</name>
+      <uri>model://maize_01</uri>
+      <pose>5.768 -5.407 0.04 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>maize_0_45</name>
+      <uri>model://maize_02</uri>
+      <pose>6.111 -5.427 0.04 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>maize_0_46</name>
+      <uri>model://maize_01</uri>
+      <pose>6.484 -5.366 0.04 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>maize_0_47</name>
+      <uri>model://maize_02</uri>
+      <pose>6.845 -5.392 0.04 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>maize_0_48</name>
+      <uri>model://maize_01</uri>
+      <pose>7.189 -5.389 0.04 0 0 6</pose>
+    </include>
+    <include>
+      <name>maize_0_49</name>
+      <uri>model://maize_02</uri>
+      <pose>7.542 -5.436 0.04 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>maize_0_50</name>
+      <uri>model://maize_01</uri>
+      <pose>7.872 -5.368 0.04 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>maize_0_51</name>
+      <uri>model://maize_02</uri>
+      <pose>8.216 -5.408 0.04 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>maize_0_52</name>
+      <uri>model://maize_01</uri>
+      <pose>8.602 -5.372 0.04 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>maize_0_53</name>
+      <uri>model://maize_02</uri>
+      <pose>8.927 -5.387 0.04 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>maize_0_54</name>
+      <uri>model://maize_01</uri>
+      <pose>9.297 -5.362 0.04 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>maize_0_55</name>
+      <uri>model://maize_02</uri>
+      <pose>9.676 -5.361 0.04 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_0</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-9.607 -4.300 0.04 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_1</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-9.337 -4.324 0.04 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_2</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-9.113 -4.316 0.04 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_3</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-8.871 -4.268 0.04 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_4</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-8.583 -4.320 0.04 0 0 1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_5</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-8.375 -4.266 0.04 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_6</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-8.096 -4.286 0.04 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_7</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-7.812 -4.317 0.04 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_8</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-7.565 -4.314 0.04 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_9</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-7.334 -4.312 0.04 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_10</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-7.126 -4.289 0.04 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_11</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-6.889 -4.325 0.04 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_12</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-6.632 -4.300 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_13</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-6.339 -4.281 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_14</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-6.132 -4.299 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_15</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-5.812 -4.333 0.04 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_16</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-5.587 -4.321 0.04 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_17</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-5.352 -4.328 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_18</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-5.104 -4.335 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_19</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-4.863 -4.332 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_20</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-4.565 -4.289 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_21</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-4.335 -4.261 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_22</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-4.064 -4.265 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_23</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-3.834 -4.279 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_24</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-3.562 -4.288 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_25</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-3.323 -4.290 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_26</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-3.075 -4.328 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_27</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-2.880 -4.304 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_28</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-2.565 -4.264 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_29</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-2.366 -4.291 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_30</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-2.064 -4.336 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_31</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-1.852 -4.265 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_32</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-1.576 -4.293 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_33</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-1.382 -4.322 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_34</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-1.103 -4.280 0.04 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_35</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-0.872 -4.296 0.04 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_36</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-0.575 -4.281 0.04 0 0 5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_37</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-0.377 -4.284 0.04 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_38</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-0.087 -4.269 0.04 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_39</name>
+      <uri>model://carrot_plant</uri>
+      <pose>0.167 -4.265 0.04 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_40</name>
+      <uri>model://carrot_plant</uri>
+      <pose>0.396 -4.331 0.04 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_41</name>
+      <uri>model://carrot_plant</uri>
+      <pose>0.617 -4.322 0.04 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_42</name>
+      <uri>model://carrot_plant</uri>
+      <pose>0.927 -4.269 0.04 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_43</name>
+      <uri>model://carrot_plant</uri>
+      <pose>1.149 -4.297 0.04 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_44</name>
+      <uri>model://carrot_plant</uri>
+      <pose>1.425 -4.297 0.04 0 0 6</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_45</name>
+      <uri>model://carrot_plant</uri>
+      <pose>1.641 -4.278 0.04 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_46</name>
+      <uri>model://carrot_plant</uri>
+      <pose>1.892 -4.295 0.04 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_47</name>
+      <uri>model://carrot_plant</uri>
+      <pose>2.114 -4.319 0.04 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_48</name>
+      <uri>model://carrot_plant</uri>
+      <pose>2.372 -4.289 0.04 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_49</name>
+      <uri>model://carrot_plant</uri>
+      <pose>2.628 -4.320 0.04 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_50</name>
+      <uri>model://carrot_plant</uri>
+      <pose>2.865 -4.324 0.04 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_51</name>
+      <uri>model://carrot_plant</uri>
+      <pose>3.117 -4.302 0.04 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_52</name>
+      <uri>model://carrot_plant</uri>
+      <pose>3.402 -4.305 0.04 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_53</name>
+      <uri>model://carrot_plant</uri>
+      <pose>3.662 -4.279 0.04 0 0 2.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_54</name>
+      <uri>model://carrot_plant</uri>
+      <pose>3.911 -4.262 0.04 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_55</name>
+      <uri>model://carrot_plant</uri>
+      <pose>4.120 -4.269 0.04 0 0 5.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_56</name>
+      <uri>model://carrot_plant</uri>
+      <pose>4.387 -4.340 0.04 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_57</name>
+      <uri>model://carrot_plant</uri>
+      <pose>4.620 -4.283 0.04 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_58</name>
+      <uri>model://carrot_plant</uri>
+      <pose>4.915 -4.265 0.04 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_59</name>
+      <uri>model://carrot_plant</uri>
+      <pose>5.187 -4.270 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_60</name>
+      <uri>model://carrot_plant</uri>
+      <pose>5.418 -4.275 0.04 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_61</name>
+      <uri>model://carrot_plant</uri>
+      <pose>5.685 -4.269 0.04 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_62</name>
+      <uri>model://carrot_plant</uri>
+      <pose>5.894 -4.329 0.04 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_63</name>
+      <uri>model://carrot_plant</uri>
+      <pose>6.164 -4.323 0.04 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_64</name>
+      <uri>model://carrot_plant</uri>
+      <pose>6.434 -4.333 0.04 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_65</name>
+      <uri>model://carrot_plant</uri>
+      <pose>6.610 -4.295 0.04 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_66</name>
+      <uri>model://carrot_plant</uri>
+      <pose>6.880 -4.276 0.04 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_67</name>
+      <uri>model://carrot_plant</uri>
+      <pose>7.183 -4.269 0.04 0 0 1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_68</name>
+      <uri>model://carrot_plant</uri>
+      <pose>7.402 -4.308 0.04 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_69</name>
+      <uri>model://carrot_plant</uri>
+      <pose>7.625 -4.335 0.04 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_70</name>
+      <uri>model://carrot_plant</uri>
+      <pose>7.880 -4.327 0.04 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_71</name>
+      <uri>model://carrot_plant</uri>
+      <pose>8.163 -4.271 0.04 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_72</name>
+      <uri>model://carrot_plant</uri>
+      <pose>8.414 -4.313 0.04 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_73</name>
+      <uri>model://carrot_plant</uri>
+      <pose>8.653 -4.289 0.04 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_74</name>
+      <uri>model://carrot_plant</uri>
+      <pose>8.928 -4.292 0.04 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_75</name>
+      <uri>model://carrot_plant</uri>
+      <pose>9.158 -4.294 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_76</name>
+      <uri>model://carrot_plant</uri>
+      <pose>9.418 -4.282 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_0_77</name>
+      <uri>model://carrot_plant</uri>
+      <pose>9.679 -4.313 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_0</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-9.584 -4.107 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_1</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-9.351 -4.113 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_2</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-9.079 -4.077 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_3</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-8.887 -4.120 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_4</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-8.613 -4.086 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_5</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-8.353 -4.096 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_6</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-8.099 -4.121 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_7</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-7.839 -4.135 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_8</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-7.566 -4.075 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_9</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-7.329 -4.064 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_10</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-7.060 -4.073 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_11</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-6.840 -4.125 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_12</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-6.594 -4.062 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_13</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-6.342 -4.111 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_14</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-6.079 -4.130 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_15</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-5.863 -4.093 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_16</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-5.596 -4.097 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_17</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-5.382 -4.066 0.04 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_18</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-5.074 -4.106 0.04 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_19</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-4.880 -4.134 0.04 0 0 5</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_20</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-4.607 -4.090 0.04 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_21</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-4.376 -4.101 0.04 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_22</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-4.109 -4.100 0.04 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_23</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-3.811 -4.102 0.04 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_24</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-3.610 -4.100 0.04 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_25</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-3.366 -4.068 0.04 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_26</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-3.124 -4.136 0.04 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_27</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-2.889 -4.063 0.04 0 0 6</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_28</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-2.629 -4.117 0.04 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_29</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-2.366 -4.111 0.04 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_30</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-2.111 -4.122 0.04 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_31</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-1.840 -4.099 0.04 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_32</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-1.576 -4.122 0.04 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_33</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-1.384 -4.103 0.04 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_34</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-1.121 -4.109 0.04 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_35</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-0.851 -4.102 0.04 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_36</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-0.585 -4.116 0.04 0 0 2.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_37</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-0.360 -4.093 0.04 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_38</name>
+      <uri>model://carrot_plant</uri>
+      <pose>-0.116 -4.075 0.04 0 0 5.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_39</name>
+      <uri>model://carrot_plant</uri>
+      <pose>0.172 -4.120 0.04 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_40</name>
+      <uri>model://carrot_plant</uri>
+      <pose>0.409 -4.089 0.04 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_41</name>
+      <uri>model://carrot_plant</uri>
+      <pose>0.622 -4.083 0.04 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_42</name>
+      <uri>model://carrot_plant</uri>
+      <pose>0.912 -4.108 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_43</name>
+      <uri>model://carrot_plant</uri>
+      <pose>1.173 -4.110 0.04 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_44</name>
+      <uri>model://carrot_plant</uri>
+      <pose>1.414 -4.130 0.04 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_45</name>
+      <uri>model://carrot_plant</uri>
+      <pose>1.673 -4.085 0.04 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_46</name>
+      <uri>model://carrot_plant</uri>
+      <pose>1.863 -4.072 0.04 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_47</name>
+      <uri>model://carrot_plant</uri>
+      <pose>2.159 -4.070 0.04 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_48</name>
+      <uri>model://carrot_plant</uri>
+      <pose>2.382 -4.071 0.04 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_49</name>
+      <uri>model://carrot_plant</uri>
+      <pose>2.676 -4.125 0.04 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_50</name>
+      <uri>model://carrot_plant</uri>
+      <pose>2.926 -4.125 0.04 0 0 1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_51</name>
+      <uri>model://carrot_plant</uri>
+      <pose>3.140 -4.134 0.04 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_52</name>
+      <uri>model://carrot_plant</uri>
+      <pose>3.381 -4.074 0.04 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_53</name>
+      <uri>model://carrot_plant</uri>
+      <pose>3.686 -4.098 0.04 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_54</name>
+      <uri>model://carrot_plant</uri>
+      <pose>3.936 -4.094 0.04 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_55</name>
+      <uri>model://carrot_plant</uri>
+      <pose>4.126 -4.093 0.04 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_56</name>
+      <uri>model://carrot_plant</uri>
+      <pose>4.435 -4.103 0.04 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_57</name>
+      <uri>model://carrot_plant</uri>
+      <pose>4.658 -4.068 0.04 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_58</name>
+      <uri>model://carrot_plant</uri>
+      <pose>4.899 -4.102 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_59</name>
+      <uri>model://carrot_plant</uri>
+      <pose>5.185 -4.106 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_60</name>
+      <uri>model://carrot_plant</uri>
+      <pose>5.419 -4.110 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_61</name>
+      <uri>model://carrot_plant</uri>
+      <pose>5.621 -4.087 0.04 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_62</name>
+      <uri>model://carrot_plant</uri>
+      <pose>5.916 -4.133 0.04 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_63</name>
+      <uri>model://carrot_plant</uri>
+      <pose>6.160 -4.100 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_64</name>
+      <uri>model://carrot_plant</uri>
+      <pose>6.399 -4.092 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_65</name>
+      <uri>model://carrot_plant</uri>
+      <pose>6.625 -4.096 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_66</name>
+      <uri>model://carrot_plant</uri>
+      <pose>6.872 -4.074 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_67</name>
+      <uri>model://carrot_plant</uri>
+      <pose>7.134 -4.131 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_68</name>
+      <uri>model://carrot_plant</uri>
+      <pose>7.373 -4.094 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_69</name>
+      <uri>model://carrot_plant</uri>
+      <pose>7.673 -4.093 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_70</name>
+      <uri>model://carrot_plant</uri>
+      <pose>7.884 -4.072 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_71</name>
+      <uri>model://carrot_plant</uri>
+      <pose>8.165 -4.091 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_72</name>
+      <uri>model://carrot_plant</uri>
+      <pose>8.431 -4.084 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_73</name>
+      <uri>model://carrot_plant</uri>
+      <pose>8.689 -4.084 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_74</name>
+      <uri>model://carrot_plant</uri>
+      <pose>8.898 -4.136 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_75</name>
+      <uri>model://carrot_plant</uri>
+      <pose>9.152 -4.111 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_76</name>
+      <uri>model://carrot_plant</uri>
+      <pose>9.369 -4.097 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>carrot_1_1_77</name>
+      <uri>model://carrot_plant</uri>
+      <pose>9.628 -4.124 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>potato_2_0_0</name>
+      <uri>model://potato_plant</uri>
+      <pose>-9.578 -3.086 0.04 0 0 1</pose>
+    </include>
+    <include>
+      <name>potato_2_0_1</name>
+      <uri>model://potato_plant</uri>
+      <pose>-9.176 -3.070 0.04 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>potato_2_0_2</name>
+      <uri>model://potato_plant</uri>
+      <pose>-8.784 -3.067 0.04 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>potato_2_0_3</name>
+      <uri>model://potato_plant</uri>
+      <pose>-8.419 -3.113 0.04 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>potato_2_0_4</name>
+      <uri>model://potato_plant</uri>
+      <pose>-8.012 -3.094 0.04 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>potato_2_0_5</name>
+      <uri>model://potato_plant</uri>
+      <pose>-7.584 -3.137 0.04 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>potato_2_0_6</name>
+      <uri>model://potato_plant</uri>
+      <pose>-7.195 -3.068 0.04 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>potato_2_0_7</name>
+      <uri>model://potato_plant</uri>
+      <pose>-6.818 -3.113 0.04 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>potato_2_0_8</name>
+      <uri>model://potato_plant</uri>
+      <pose>-6.396 -3.104 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>potato_2_0_9</name>
+      <uri>model://potato_plant</uri>
+      <pose>-6.033 -3.110 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>potato_2_0_10</name>
+      <uri>model://potato_plant</uri>
+      <pose>-5.603 -3.093 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>potato_2_0_11</name>
+      <uri>model://potato_plant</uri>
+      <pose>-5.194 -3.128 0.04 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>potato_2_0_12</name>
+      <uri>model://potato_plant</uri>
+      <pose>-4.762 -3.091 0.04 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>potato_2_0_13</name>
+      <uri>model://potato_plant</uri>
+      <pose>-4.365 -3.082 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>potato_2_0_14</name>
+      <uri>model://potato_plant</uri>
+      <pose>-4.033 -3.070 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>potato_2_0_15</name>
+      <uri>model://potato_plant</uri>
+      <pose>-3.613 -3.072 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>potato_2_0_16</name>
+      <uri>model://potato_plant</uri>
+      <pose>-3.239 -3.065 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>potato_2_0_17</name>
+      <uri>model://potato_plant</uri>
+      <pose>-2.836 -3.139 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>potato_2_0_18</name>
+      <uri>model://potato_plant</uri>
+      <pose>-2.414 -3.139 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>potato_2_0_19</name>
+      <uri>model://potato_plant</uri>
+      <pose>-1.965 -3.131 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>potato_2_0_20</name>
+      <uri>model://potato_plant</uri>
+      <pose>-1.578 -3.125 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>potato_2_0_21</name>
+      <uri>model://potato_plant</uri>
+      <pose>-1.166 -3.085 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>potato_2_0_22</name>
+      <uri>model://potato_plant</uri>
+      <pose>-0.765 -3.085 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>potato_2_0_23</name>
+      <uri>model://potato_plant</uri>
+      <pose>-0.363 -3.102 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>potato_2_0_24</name>
+      <uri>model://potato_plant</uri>
+      <pose>0.010 -3.103 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>potato_2_0_25</name>
+      <uri>model://potato_plant</uri>
+      <pose>0.415 -3.119 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>potato_2_0_26</name>
+      <uri>model://potato_plant</uri>
+      <pose>0.816 -3.135 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>potato_2_0_27</name>
+      <uri>model://potato_plant</uri>
+      <pose>1.197 -3.081 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>potato_2_0_28</name>
+      <uri>model://potato_plant</uri>
+      <pose>1.635 -3.130 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>potato_2_0_29</name>
+      <uri>model://potato_plant</uri>
+      <pose>2.025 -3.127 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>potato_2_0_30</name>
+      <uri>model://potato_plant</uri>
+      <pose>2.412 -3.118 0.04 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>potato_2_0_31</name>
+      <uri>model://potato_plant</uri>
+      <pose>2.811 -3.065 0.04 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>potato_2_0_32</name>
+      <uri>model://potato_plant</uri>
+      <pose>3.181 -3.126 0.04 0 0 5</pose>
+    </include>
+    <include>
+      <name>potato_2_0_33</name>
+      <uri>model://potato_plant</uri>
+      <pose>3.603 -3.073 0.04 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>potato_2_0_34</name>
+      <uri>model://potato_plant</uri>
+      <pose>3.965 -3.136 0.04 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>potato_2_0_35</name>
+      <uri>model://potato_plant</uri>
+      <pose>4.386 -3.136 0.04 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>potato_2_0_36</name>
+      <uri>model://potato_plant</uri>
+      <pose>4.832 -3.128 0.04 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>potato_2_0_37</name>
+      <uri>model://potato_plant</uri>
+      <pose>5.172 -3.077 0.04 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>potato_2_0_38</name>
+      <uri>model://potato_plant</uri>
+      <pose>5.591 -3.117 0.04 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>potato_2_0_39</name>
+      <uri>model://potato_plant</uri>
+      <pose>5.964 -3.105 0.04 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>potato_2_0_40</name>
+      <uri>model://potato_plant</uri>
+      <pose>6.418 -3.138 0.04 0 0 6</pose>
+    </include>
+    <include>
+      <name>potato_2_0_41</name>
+      <uri>model://potato_plant</uri>
+      <pose>6.823 -3.125 0.04 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>potato_2_0_42</name>
+      <uri>model://potato_plant</uri>
+      <pose>7.162 -3.124 0.04 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>potato_2_0_43</name>
+      <uri>model://potato_plant</uri>
+      <pose>7.573 -3.081 0.04 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>potato_2_0_44</name>
+      <uri>model://potato_plant</uri>
+      <pose>8.020 -3.125 0.04 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>potato_2_0_45</name>
+      <uri>model://potato_plant</uri>
+      <pose>8.414 -3.070 0.04 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>potato_2_0_46</name>
+      <uri>model://potato_plant</uri>
+      <pose>8.782 -3.087 0.04 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>potato_2_0_47</name>
+      <uri>model://potato_plant</uri>
+      <pose>9.218 -3.122 0.04 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>potato_2_0_48</name>
+      <uri>model://potato_plant</uri>
+      <pose>9.632 -3.110 0.04 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>potato_2_1_0</name>
+      <uri>model://potato_plant</uri>
+      <pose>-9.567 -2.874 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>potato_2_1_1</name>
+      <uri>model://potato_plant</uri>
+      <pose>-9.191 -2.916 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>potato_2_1_2</name>
+      <uri>model://potato_plant</uri>
+      <pose>-8.804 -2.881 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>potato_2_1_3</name>
+      <uri>model://potato_plant</uri>
+      <pose>-8.421 -2.881 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>potato_2_1_4</name>
+      <uri>model://potato_plant</uri>
+      <pose>-7.989 -2.869 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>potato_2_1_5</name>
+      <uri>model://potato_plant</uri>
+      <pose>-7.605 -2.940 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>potato_2_1_6</name>
+      <uri>model://potato_plant</uri>
+      <pose>-7.193 -2.876 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>potato_2_1_7</name>
+      <uri>model://potato_plant</uri>
+      <pose>-6.832 -2.925 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>potato_2_1_8</name>
+      <uri>model://potato_plant</uri>
+      <pose>-6.405 -2.890 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>potato_2_1_9</name>
+      <uri>model://potato_plant</uri>
+      <pose>-6.023 -2.873 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>potato_2_1_10</name>
+      <uri>model://potato_plant</uri>
+      <pose>-5.594 -2.864 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>potato_2_1_11</name>
+      <uri>model://potato_plant</uri>
+      <pose>-5.188 -2.876 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>potato_2_1_12</name>
+      <uri>model://potato_plant</uri>
+      <pose>-4.826 -2.939 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>potato_2_1_13</name>
+      <uri>model://potato_plant</uri>
+      <pose>-4.407 -2.932 0.04 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>potato_2_1_14</name>
+      <uri>model://potato_plant</uri>
+      <pose>-4.024 -2.868 0.04 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>potato_2_1_15</name>
+      <uri>model://potato_plant</uri>
+      <pose>-3.638 -2.896 0.04 0 0 5</pose>
+    </include>
+    <include>
+      <name>potato_2_1_16</name>
+      <uri>model://potato_plant</uri>
+      <pose>-3.214 -2.918 0.04 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>potato_2_1_17</name>
+      <uri>model://potato_plant</uri>
+      <pose>-2.802 -2.915 0.04 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>potato_2_1_18</name>
+      <uri>model://potato_plant</uri>
+      <pose>-2.364 -2.916 0.04 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>potato_2_1_19</name>
+      <uri>model://potato_plant</uri>
+      <pose>-1.981 -2.931 0.04 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>potato_2_1_20</name>
+      <uri>model://potato_plant</uri>
+      <pose>-1.638 -2.930 0.04 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>potato_2_1_21</name>
+      <uri>model://potato_plant</uri>
+      <pose>-1.174 -2.865 0.04 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>potato_2_1_22</name>
+      <uri>model://potato_plant</uri>
+      <pose>-0.837 -2.862 0.04 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>potato_2_1_23</name>
+      <uri>model://potato_plant</uri>
+      <pose>-0.365 -2.864 0.04 0 0 6</pose>
+    </include>
+    <include>
+      <name>potato_2_1_24</name>
+      <uri>model://potato_plant</uri>
+      <pose>-0.032 -2.918 0.04 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>potato_2_1_25</name>
+      <uri>model://potato_plant</uri>
+      <pose>0.381 -2.871 0.04 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>potato_2_1_26</name>
+      <uri>model://potato_plant</uri>
+      <pose>0.781 -2.923 0.04 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>potato_2_1_27</name>
+      <uri>model://potato_plant</uri>
+      <pose>1.220 -2.910 0.04 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>potato_2_1_28</name>
+      <uri>model://potato_plant</uri>
+      <pose>1.614 -2.870 0.04 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>potato_2_1_29</name>
+      <uri>model://potato_plant</uri>
+      <pose>1.977 -2.886 0.04 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>potato_2_1_30</name>
+      <uri>model://potato_plant</uri>
+      <pose>2.407 -2.901 0.04 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>potato_2_1_31</name>
+      <uri>model://potato_plant</uri>
+      <pose>2.823 -2.940 0.04 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>potato_2_1_32</name>
+      <uri>model://potato_plant</uri>
+      <pose>3.185 -2.909 0.04 0 0 2.4</pose>
+    </include>
+    <include>
+      <name>potato_2_1_33</name>
+      <uri>model://potato_plant</uri>
+      <pose>3.623 -2.933 0.04 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>potato_2_1_34</name>
+      <uri>model://potato_plant</uri>
+      <pose>4.018 -2.940 0.04 0 0 5.8</pose>
+    </include>
+    <include>
+      <name>potato_2_1_35</name>
+      <uri>model://potato_plant</uri>
+      <pose>4.412 -2.931 0.04 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>potato_2_1_36</name>
+      <uri>model://potato_plant</uri>
+      <pose>4.789 -2.909 0.04 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>potato_2_1_37</name>
+      <uri>model://potato_plant</uri>
+      <pose>5.165 -2.867 0.04 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>potato_2_1_38</name>
+      <uri>model://potato_plant</uri>
+      <pose>5.623 -2.924 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>potato_2_1_39</name>
+      <uri>model://potato_plant</uri>
+      <pose>6.019 -2.913 0.04 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>potato_2_1_40</name>
+      <uri>model://potato_plant</uri>
+      <pose>6.387 -2.894 0.04 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>potato_2_1_41</name>
+      <uri>model://potato_plant</uri>
+      <pose>6.831 -2.865 0.04 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>potato_2_1_42</name>
+      <uri>model://potato_plant</uri>
+      <pose>7.219 -2.926 0.04 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>potato_2_1_43</name>
+      <uri>model://potato_plant</uri>
+      <pose>7.625 -2.917 0.04 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>potato_2_1_44</name>
+      <uri>model://potato_plant</uri>
+      <pose>7.976 -2.906 0.04 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>potato_2_1_45</name>
+      <uri>model://potato_plant</uri>
+      <pose>8.405 -2.919 0.04 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>potato_2_1_46</name>
+      <uri>model://potato_plant</uri>
+      <pose>8.839 -2.917 0.04 0 0 1</pose>
+    </include>
+    <include>
+      <name>potato_2_1_47</name>
+      <uri>model://potato_plant</uri>
+      <pose>9.215 -2.882 0.04 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>potato_2_1_48</name>
+      <uri>model://potato_plant</uri>
+      <pose>9.626 -2.901 0.04 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_0</name>
+      <uri>model://onion_plant</uri>
+      <pose>-9.567 -1.930 0.04 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_1</name>
+      <uri>model://onion_plant</uri>
+      <pose>-9.333 -1.912 0.04 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_2</name>
+      <uri>model://onion_plant</uri>
+      <pose>-9.139 -1.888 0.04 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>onion_3_0_3</name>
+      <uri>model://onion_plant</uri>
+      <pose>-8.879 -1.932 0.04 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_4</name>
+      <uri>model://onion_plant</uri>
+      <pose>-8.580 -1.889 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_5</name>
+      <uri>model://onion_plant</uri>
+      <pose>-8.315 -1.939 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>onion_3_0_6</name>
+      <uri>model://onion_plant</uri>
+      <pose>-8.113 -1.902 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_7</name>
+      <uri>model://onion_plant</uri>
+      <pose>-7.854 -1.894 0.04 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>onion_3_0_8</name>
+      <uri>model://onion_plant</uri>
+      <pose>-7.578 -1.870 0.04 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_9</name>
+      <uri>model://onion_plant</uri>
+      <pose>-7.336 -1.880 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_10</name>
+      <uri>model://onion_plant</uri>
+      <pose>-7.117 -1.891 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>onion_3_0_11</name>
+      <uri>model://onion_plant</uri>
+      <pose>-6.855 -1.896 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_12</name>
+      <uri>model://onion_plant</uri>
+      <pose>-6.562 -1.879 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_13</name>
+      <uri>model://onion_plant</uri>
+      <pose>-6.359 -1.884 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>onion_3_0_14</name>
+      <uri>model://onion_plant</uri>
+      <pose>-6.066 -1.893 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>onion_3_0_15</name>
+      <uri>model://onion_plant</uri>
+      <pose>-5.838 -1.919 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>onion_3_0_16</name>
+      <uri>model://onion_plant</uri>
+      <pose>-5.568 -1.886 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_17</name>
+      <uri>model://onion_plant</uri>
+      <pose>-5.314 -1.880 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_18</name>
+      <uri>model://onion_plant</uri>
+      <pose>-5.105 -1.863 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>onion_3_0_19</name>
+      <uri>model://onion_plant</uri>
+      <pose>-4.845 -1.892 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_20</name>
+      <uri>model://onion_plant</uri>
+      <pose>-4.625 -1.929 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_21</name>
+      <uri>model://onion_plant</uri>
+      <pose>-4.333 -1.918 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>onion_3_0_22</name>
+      <uri>model://onion_plant</uri>
+      <pose>-4.123 -1.893 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>onion_3_0_23</name>
+      <uri>model://onion_plant</uri>
+      <pose>-3.880 -1.865 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>onion_3_0_24</name>
+      <uri>model://onion_plant</uri>
+      <pose>-3.595 -1.870 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_25</name>
+      <uri>model://onion_plant</uri>
+      <pose>-3.350 -1.935 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_26</name>
+      <uri>model://onion_plant</uri>
+      <pose>-3.089 -1.911 0.04 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>onion_3_0_27</name>
+      <uri>model://onion_plant</uri>
+      <pose>-2.873 -1.879 0.04 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_28</name>
+      <uri>model://onion_plant</uri>
+      <pose>-2.579 -1.865 0.04 0 0 5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_29</name>
+      <uri>model://onion_plant</uri>
+      <pose>-2.342 -1.918 0.04 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_30</name>
+      <uri>model://onion_plant</uri>
+      <pose>-2.071 -1.865 0.04 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>onion_3_0_31</name>
+      <uri>model://onion_plant</uri>
+      <pose>-1.847 -1.939 0.04 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>onion_3_0_32</name>
+      <uri>model://onion_plant</uri>
+      <pose>-1.635 -1.898 0.04 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_33</name>
+      <uri>model://onion_plant</uri>
+      <pose>-1.361 -1.867 0.04 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>onion_3_0_34</name>
+      <uri>model://onion_plant</uri>
+      <pose>-1.115 -1.877 0.04 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>onion_3_0_35</name>
+      <uri>model://onion_plant</uri>
+      <pose>-0.881 -1.870 0.04 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_36</name>
+      <uri>model://onion_plant</uri>
+      <pose>-0.621 -1.864 0.04 0 0 6</pose>
+    </include>
+    <include>
+      <name>onion_3_0_37</name>
+      <uri>model://onion_plant</uri>
+      <pose>-0.362 -1.930 0.04 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_38</name>
+      <uri>model://onion_plant</uri>
+      <pose>-0.106 -1.906 0.04 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>onion_3_0_39</name>
+      <uri>model://onion_plant</uri>
+      <pose>0.152 -1.917 0.04 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>onion_3_0_40</name>
+      <uri>model://onion_plant</uri>
+      <pose>0.404 -1.920 0.04 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_41</name>
+      <uri>model://onion_plant</uri>
+      <pose>0.648 -1.875 0.04 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>onion_3_0_42</name>
+      <uri>model://onion_plant</uri>
+      <pose>0.928 -1.865 0.04 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>onion_3_0_43</name>
+      <uri>model://onion_plant</uri>
+      <pose>1.136 -1.863 0.04 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_44</name>
+      <uri>model://onion_plant</uri>
+      <pose>1.388 -1.865 0.04 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>onion_3_0_45</name>
+      <uri>model://onion_plant</uri>
+      <pose>1.677 -1.908 0.04 0 0 2.4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_46</name>
+      <uri>model://onion_plant</uri>
+      <pose>1.936 -1.932 0.04 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>onion_3_0_47</name>
+      <uri>model://onion_plant</uri>
+      <pose>2.164 -1.900 0.04 0 0 5.8</pose>
+    </include>
+    <include>
+      <name>onion_3_0_48</name>
+      <uri>model://onion_plant</uri>
+      <pose>2.419 -1.906 0.04 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_49</name>
+      <uri>model://onion_plant</uri>
+      <pose>2.653 -1.874 0.04 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>onion_3_0_50</name>
+      <uri>model://onion_plant</uri>
+      <pose>2.907 -1.870 0.04 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>onion_3_0_51</name>
+      <uri>model://onion_plant</uri>
+      <pose>3.116 -1.904 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>onion_3_0_52</name>
+      <uri>model://onion_plant</uri>
+      <pose>3.396 -1.870 0.04 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>onion_3_0_53</name>
+      <uri>model://onion_plant</uri>
+      <pose>3.628 -1.923 0.04 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_54</name>
+      <uri>model://onion_plant</uri>
+      <pose>3.876 -1.862 0.04 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>onion_3_0_55</name>
+      <uri>model://onion_plant</uri>
+      <pose>4.129 -1.933 0.04 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_56</name>
+      <uri>model://onion_plant</uri>
+      <pose>4.428 -1.902 0.04 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_57</name>
+      <uri>model://onion_plant</uri>
+      <pose>4.668 -1.911 0.04 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>onion_3_0_58</name>
+      <uri>model://onion_plant</uri>
+      <pose>4.892 -1.885 0.04 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>onion_3_0_59</name>
+      <uri>model://onion_plant</uri>
+      <pose>5.138 -1.899 0.04 0 0 1</pose>
+    </include>
+    <include>
+      <name>onion_3_0_60</name>
+      <uri>model://onion_plant</uri>
+      <pose>5.429 -1.933 0.04 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>onion_3_0_61</name>
+      <uri>model://onion_plant</uri>
+      <pose>5.644 -1.863 0.04 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_62</name>
+      <uri>model://onion_plant</uri>
+      <pose>5.930 -1.912 0.04 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>onion_3_0_63</name>
+      <uri>model://onion_plant</uri>
+      <pose>6.119 -1.937 0.04 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_64</name>
+      <uri>model://onion_plant</uri>
+      <pose>6.425 -1.897 0.04 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_65</name>
+      <uri>model://onion_plant</uri>
+      <pose>6.642 -1.860 0.04 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>onion_3_0_66</name>
+      <uri>model://onion_plant</uri>
+      <pose>6.919 -1.908 0.04 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_67</name>
+      <uri>model://onion_plant</uri>
+      <pose>7.130 -1.887 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_68</name>
+      <uri>model://onion_plant</uri>
+      <pose>7.364 -1.929 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>onion_3_0_69</name>
+      <uri>model://onion_plant</uri>
+      <pose>7.614 -1.913 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>onion_3_0_70</name>
+      <uri>model://onion_plant</uri>
+      <pose>7.923 -1.885 0.04 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>onion_3_0_71</name>
+      <uri>model://onion_plant</uri>
+      <pose>8.116 -1.873 0.04 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>onion_3_0_72</name>
+      <uri>model://onion_plant</uri>
+      <pose>8.420 -1.882 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>onion_3_0_73</name>
+      <uri>model://onion_plant</uri>
+      <pose>8.656 -1.875 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>onion_3_0_74</name>
+      <uri>model://onion_plant</uri>
+      <pose>8.864 -1.925 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_75</name>
+      <uri>model://onion_plant</uri>
+      <pose>9.138 -1.878 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>onion_3_0_76</name>
+      <uri>model://onion_plant</uri>
+      <pose>9.368 -1.923 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>onion_3_0_77</name>
+      <uri>model://onion_plant</uri>
+      <pose>9.615 -1.913 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_0</name>
+      <uri>model://onion_plant</uri>
+      <pose>-9.587 -1.696 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_1</name>
+      <uri>model://onion_plant</uri>
+      <pose>-9.359 -1.728 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_2</name>
+      <uri>model://onion_plant</uri>
+      <pose>-9.133 -1.700 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_3</name>
+      <uri>model://onion_plant</uri>
+      <pose>-8.842 -1.670 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_4</name>
+      <uri>model://onion_plant</uri>
+      <pose>-8.591 -1.711 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>onion_3_1_5</name>
+      <uri>model://onion_plant</uri>
+      <pose>-8.312 -1.720 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_6</name>
+      <uri>model://onion_plant</uri>
+      <pose>-8.073 -1.723 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>onion_3_1_7</name>
+      <uri>model://onion_plant</uri>
+      <pose>-7.845 -1.717 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_8</name>
+      <uri>model://onion_plant</uri>
+      <pose>-7.640 -1.703 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_9</name>
+      <uri>model://onion_plant</uri>
+      <pose>-7.376 -1.732 0.04 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_10</name>
+      <uri>model://onion_plant</uri>
+      <pose>-7.107 -1.693 0.04 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_11</name>
+      <uri>model://onion_plant</uri>
+      <pose>-6.888 -1.675 0.04 0 0 5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_12</name>
+      <uri>model://onion_plant</uri>
+      <pose>-6.590 -1.701 0.04 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_13</name>
+      <uri>model://onion_plant</uri>
+      <pose>-6.350 -1.688 0.04 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_14</name>
+      <uri>model://onion_plant</uri>
+      <pose>-6.079 -1.717 0.04 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>onion_3_1_15</name>
+      <uri>model://onion_plant</uri>
+      <pose>-5.870 -1.707 0.04 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_16</name>
+      <uri>model://onion_plant</uri>
+      <pose>-5.628 -1.685 0.04 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>onion_3_1_17</name>
+      <uri>model://onion_plant</uri>
+      <pose>-5.371 -1.723 0.04 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_18</name>
+      <uri>model://onion_plant</uri>
+      <pose>-5.112 -1.662 0.04 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_19</name>
+      <uri>model://onion_plant</uri>
+      <pose>-4.841 -1.732 0.04 0 0 6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_20</name>
+      <uri>model://onion_plant</uri>
+      <pose>-4.589 -1.679 0.04 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_21</name>
+      <uri>model://onion_plant</uri>
+      <pose>-4.385 -1.661 0.04 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_22</name>
+      <uri>model://onion_plant</uri>
+      <pose>-4.108 -1.727 0.04 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>onion_3_1_23</name>
+      <uri>model://onion_plant</uri>
+      <pose>-3.864 -1.732 0.04 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_24</name>
+      <uri>model://onion_plant</uri>
+      <pose>-3.565 -1.736 0.04 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>onion_3_1_25</name>
+      <uri>model://onion_plant</uri>
+      <pose>-3.347 -1.679 0.04 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_26</name>
+      <uri>model://onion_plant</uri>
+      <pose>-3.136 -1.729 0.04 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_27</name>
+      <uri>model://onion_plant</uri>
+      <pose>-2.824 -1.672 0.04 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>onion_3_1_28</name>
+      <uri>model://onion_plant</uri>
+      <pose>-2.562 -1.688 0.04 0 0 2.4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_29</name>
+      <uri>model://onion_plant</uri>
+      <pose>-2.374 -1.676 0.04 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_30</name>
+      <uri>model://onion_plant</uri>
+      <pose>-2.094 -1.736 0.04 0 0 5.8</pose>
+    </include>
+    <include>
+      <name>onion_3_1_31</name>
+      <uri>model://onion_plant</uri>
+      <pose>-1.848 -1.700 0.04 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_32</name>
+      <uri>model://onion_plant</uri>
+      <pose>-1.621 -1.719 0.04 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>onion_3_1_33</name>
+      <uri>model://onion_plant</uri>
+      <pose>-1.317 -1.705 0.04 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_34</name>
+      <uri>model://onion_plant</uri>
+      <pose>-1.086 -1.675 0.04 0 0 0</pose>
+    </include>
+    <include>
+      <name>onion_3_1_35</name>
+      <uri>model://onion_plant</uri>
+      <pose>-0.846 -1.700 0.04 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>onion_3_1_36</name>
+      <uri>model://onion_plant</uri>
+      <pose>-0.596 -1.738 0.04 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_37</name>
+      <uri>model://onion_plant</uri>
+      <pose>-0.335 -1.712 0.04 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_38</name>
+      <uri>model://onion_plant</uri>
+      <pose>-0.065 -1.730 0.04 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_39</name>
+      <uri>model://onion_plant</uri>
+      <pose>0.179 -1.738 0.04 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_40</name>
+      <uri>model://onion_plant</uri>
+      <pose>0.373 -1.714 0.04 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>onion_3_1_41</name>
+      <uri>model://onion_plant</uri>
+      <pose>0.665 -1.733 0.04 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_42</name>
+      <uri>model://onion_plant</uri>
+      <pose>0.910 -1.676 0.04 0 0 1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_43</name>
+      <uri>model://onion_plant</uri>
+      <pose>1.176 -1.702 0.04 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>onion_3_1_44</name>
+      <uri>model://onion_plant</uri>
+      <pose>1.392 -1.697 0.04 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_45</name>
+      <uri>model://onion_plant</uri>
+      <pose>1.689 -1.682 0.04 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_46</name>
+      <uri>model://onion_plant</uri>
+      <pose>1.895 -1.718 0.04 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_47</name>
+      <uri>model://onion_plant</uri>
+      <pose>2.152 -1.695 0.04 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_48</name>
+      <uri>model://onion_plant</uri>
+      <pose>2.433 -1.700 0.04 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>onion_3_1_49</name>
+      <uri>model://onion_plant</uri>
+      <pose>2.615 -1.710 0.04 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_50</name>
+      <uri>model://onion_plant</uri>
+      <pose>2.875 -1.737 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_51</name>
+      <uri>model://onion_plant</uri>
+      <pose>3.177 -1.673 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>onion_3_1_52</name>
+      <uri>model://onion_plant</uri>
+      <pose>3.393 -1.706 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_53</name>
+      <uri>model://onion_plant</uri>
+      <pose>3.649 -1.717 0.04 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>onion_3_1_54</name>
+      <uri>model://onion_plant</uri>
+      <pose>3.898 -1.677 0.04 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_55</name>
+      <uri>model://onion_plant</uri>
+      <pose>4.129 -1.678 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_56</name>
+      <uri>model://onion_plant</uri>
+      <pose>4.411 -1.674 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>onion_3_1_57</name>
+      <uri>model://onion_plant</uri>
+      <pose>4.656 -1.723 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_58</name>
+      <uri>model://onion_plant</uri>
+      <pose>4.930 -1.678 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_59</name>
+      <uri>model://onion_plant</uri>
+      <pose>5.165 -1.669 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>onion_3_1_60</name>
+      <uri>model://onion_plant</uri>
+      <pose>5.392 -1.733 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_61</name>
+      <uri>model://onion_plant</uri>
+      <pose>5.616 -1.739 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>onion_3_1_62</name>
+      <uri>model://onion_plant</uri>
+      <pose>5.903 -1.719 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_63</name>
+      <uri>model://onion_plant</uri>
+      <pose>6.164 -1.682 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_64</name>
+      <uri>model://onion_plant</uri>
+      <pose>6.427 -1.662 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_65</name>
+      <uri>model://onion_plant</uri>
+      <pose>6.671 -1.683 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_66</name>
+      <uri>model://onion_plant</uri>
+      <pose>6.891 -1.670 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_67</name>
+      <uri>model://onion_plant</uri>
+      <pose>7.136 -1.730 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>onion_3_1_68</name>
+      <uri>model://onion_plant</uri>
+      <pose>7.430 -1.694 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_69</name>
+      <uri>model://onion_plant</uri>
+      <pose>7.614 -1.692 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>onion_3_1_70</name>
+      <uri>model://onion_plant</uri>
+      <pose>7.868 -1.686 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_71</name>
+      <uri>model://onion_plant</uri>
+      <pose>8.174 -1.685 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>onion_3_1_72</name>
+      <uri>model://onion_plant</uri>
+      <pose>8.424 -1.733 0.04 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>onion_3_1_73</name>
+      <uri>model://onion_plant</uri>
+      <pose>8.658 -1.695 0.04 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>onion_3_1_74</name>
+      <uri>model://onion_plant</uri>
+      <pose>8.864 -1.669 0.04 0 0 5</pose>
+    </include>
+    <include>
+      <name>onion_3_1_75</name>
+      <uri>model://onion_plant</uri>
+      <pose>9.166 -1.708 0.04 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>onion_3_1_76</name>
+      <uri>model://onion_plant</uri>
+      <pose>9.405 -1.694 0.04 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>onion_3_1_77</name>
+      <uri>model://onion_plant</uri>
+      <pose>9.646 -1.720 0.04 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_0</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-9.581 -0.579 0.04 0 0 2</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_1</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-8.720 -0.594 0.04 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_2</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-7.793 -0.587 0.04 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_3</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-6.928 -0.617 0.04 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_4</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-6.003 -0.609 0.04 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_5</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-5.094 -0.603 0.04 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_6</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-4.221 -0.624 0.04 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_7</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-3.276 -0.561 0.04 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_8</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-2.437 -0.566 0.04 0 0 3</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_9</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-1.463 -0.635 0.04 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_10</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>-0.574 -0.637 0.04 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_11</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>0.332 -0.638 0.04 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_12</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>1.197 -0.564 0.04 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_13</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>2.074 -0.578 0.04 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_14</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>3.015 -0.622 0.04 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_15</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>3.928 -0.602 0.04 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_16</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>4.824 -0.614 0.04 0 0 4</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_17</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>5.690 -0.622 0.04 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_18</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>6.600 -0.579 0.04 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_19</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>7.507 -0.627 0.04 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_20</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>8.377 -0.625 0.04 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>pumpkin_4_0_21</name>
+      <uri>model://pumpkin_plant</uri>
+      <pose>9.335 -0.561 0.04 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>turtle_5_0</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-9.516 0.576 0.04 0 0 0</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_1</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-8.673 0.610 0.04 0 0 2.9</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_2</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-7.922 0.583 0.04 0 0 5.8</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_3</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-7.123 0.587 0.04 0 0 2.4</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_4</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-6.270 0.587 0.04 0 0 5.3</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_5</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-5.461 0.606 0.04 0 0 1.9</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_6</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-4.721 0.628 0.04 0 0 4.8</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_7</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-3.893 0.592 0.04 0 0 1.4</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_8</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-3.070 0.574 0.04 0 0 4.3</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_9</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-2.304 0.622 0.04 0 0 0.9</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_10</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-1.522 0.577 0.04 0 0 3.8</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_11</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>-0.740 0.624 0.04 0 0 0.4</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_12</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>0.136 0.591 0.04 0 0 3.3</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_13</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>0.870 0.590 0.04 0 0 6.2</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_14</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>1.696 0.614 0.04 0 0 2.8</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_15</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>2.528 0.569 0.04 0 0 5.7</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_16</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>3.305 0.572 0.04 0 0 2.3</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_17</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>4.078 0.610 0.04 0 0 5.2</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_18</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>4.896 0.637 0.04 0 0 1.8</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_19</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>5.695 0.600 0.04 0 0 4.7</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_20</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>6.472 0.570 0.04 0 0 1.3</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_21</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>7.309 0.608 0.04 0 0 4.2</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_22</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>8.069 0.571 0.04 0 0 0.8</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>turtle_5_23</name>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+      <pose>8.920 0.585 0.04 0 0 3.7</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>pepper_0_0</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-9.603 -13.789 0.01 0 0 0</pose>
+    </include>
+    <include>
+      <name>pepper_0_1</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.998 -13.763 0.01 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>pepper_0_2</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.405 -13.795 0.01 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>pepper_0_3</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.772 -13.835 0.01 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>pepper_0_4</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.213 -13.817 0.01 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>pepper_0_5</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.568 -13.801 0.01 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>pepper_0_6</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.975 -13.827 0.01 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>pepper_0_7</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.424 -13.831 0.01 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>pepper_0_8</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.829 -13.768 0.01 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>pepper_0_9</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.229 -13.802 0.01 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>pepper_0_10</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.580 -13.781 0.01 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>pepper_0_11</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.973 -13.814 0.01 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>pepper_0_12</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.388 -13.799 0.01 0 0 3</pose>
+    </include>
+    <include>
+      <name>pepper_0_13</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.816 -13.811 0.01 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>pepper_0_14</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.205 -13.776 0.01 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>pepper_0_15</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.568 -13.830 0.01 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>pepper_0_16</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.018 -13.781 0.01 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>pepper_0_17</name>
+      <uri>model://pepper_plant</uri>
+      <pose>0.631 -13.838 0.01 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>pepper_0_18</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.180 -13.763 0.01 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>pepper_0_19</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.761 -13.776 0.01 0 0 5.8</pose>
+    </include>
+    <include>
+      <name>pepper_0_20</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.397 -13.786 0.01 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>pepper_0_21</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.011 -13.779 0.01 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>pepper_0_22</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.624 -13.794 0.01 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>pepper_0_23</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.165 -13.827 0.01 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>pepper_0_24</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.766 -13.783 0.01 0 0 6</pose>
+    </include>
+    <include>
+      <name>pepper_0_25</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.403 -13.838 0.01 0 0 1</pose>
+    </include>
+    <include>
+      <name>pepper_0_26</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.989 -13.800 0.01 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>pepper_0_27</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.596 -13.811 0.01 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>pepper_0_28</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.215 -13.762 0.01 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>pepper_0_29</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.763 -13.812 0.01 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>pepper_0_30</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.403 -13.818 0.01 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>pepper_0_31</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.028 -13.781 0.01 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>pepper_0_32</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.629 -13.778 0.01 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>pepper_1_0</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-9.578 -12.606 0.01 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>pepper_1_1</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.992 -12.626 0.01 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>pepper_1_2</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.412 -12.612 0.01 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>pepper_1_3</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.785 -12.624 0.01 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>pepper_1_4</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.228 -12.627 0.01 0 0 3</pose>
+    </include>
+    <include>
+      <name>pepper_1_5</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.585 -12.568 0.01 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>pepper_1_6</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.981 -12.635 0.01 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>pepper_1_7</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.411 -12.618 0.01 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>pepper_1_8</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.767 -12.589 0.01 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>pepper_1_9</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.232 -12.624 0.01 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>pepper_1_10</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.577 -12.634 0.01 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>pepper_1_11</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.979 -12.597 0.01 0 0 5.8</pose>
+    </include>
+    <include>
+      <name>pepper_1_12</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.435 -12.621 0.01 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>pepper_1_13</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.840 -12.619 0.01 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>pepper_1_14</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.164 -12.590 0.01 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>pepper_1_15</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.580 -12.636 0.01 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>pepper_1_16</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.005 -12.589 0.01 0 0 6</pose>
+    </include>
+    <include>
+      <name>pepper_1_17</name>
+      <uri>model://pepper_plant</uri>
+      <pose>0.635 -12.584 0.01 0 0 1</pose>
+    </include>
+    <include>
+      <name>pepper_1_18</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.180 -12.590 0.01 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>pepper_1_19</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.764 -12.614 0.01 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>pepper_1_20</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.394 -12.580 0.01 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>pepper_1_21</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.011 -12.623 0.01 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>pepper_1_22</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.615 -12.625 0.01 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>pepper_1_23</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.192 -12.593 0.01 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>pepper_1_24</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.766 -12.607 0.01 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>pepper_1_25</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.420 -12.596 0.01 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>pepper_1_26</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.006 -12.620 0.01 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>pepper_1_27</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.584 -12.589 0.01 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>pepper_1_28</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.238 -12.576 0.01 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>pepper_1_29</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.837 -12.570 0.01 0 0 4</pose>
+    </include>
+    <include>
+      <name>pepper_1_30</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.379 -12.594 0.01 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>pepper_1_31</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.986 -12.608 0.01 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>pepper_1_32</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.592 -12.610 0.01 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>pepper_2_0</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-9.588 -11.394 0.01 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>pepper_2_1</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.983 -11.398 0.01 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>pepper_2_2</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.384 -11.391 0.01 0 0 4.5</pose>
+    </include>
+    <include>
+      <name>pepper_2_3</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.830 -11.434 0.01 0 0 5.8</pose>
+    </include>
+    <include>
+      <name>pepper_2_4</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.175 -11.384 0.01 0 0 0.8</pose>
+    </include>
+    <include>
+      <name>pepper_2_5</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.588 -11.363 0.01 0 0 2.1</pose>
+    </include>
+    <include>
+      <name>pepper_2_6</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.013 -11.362 0.01 0 0 3.4</pose>
+    </include>
+    <include>
+      <name>pepper_2_7</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.438 -11.416 0.01 0 0 4.7</pose>
+    </include>
+    <include>
+      <name>pepper_2_8</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.817 -11.433 0.01 0 0 6</pose>
+    </include>
+    <include>
+      <name>pepper_2_9</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.177 -11.376 0.01 0 0 1</pose>
+    </include>
+    <include>
+      <name>pepper_2_10</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.620 -11.368 0.01 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>pepper_2_11</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.976 -11.368 0.01 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>pepper_2_12</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.383 -11.415 0.01 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>pepper_2_13</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.832 -11.433 0.01 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>pepper_2_14</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.185 -11.434 0.01 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>pepper_2_15</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.631 -11.403 0.01 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>pepper_2_16</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.012 -11.431 0.01 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>pepper_2_17</name>
+      <uri>model://pepper_plant</uri>
+      <pose>0.580 -11.368 0.01 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>pepper_2_18</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.183 -11.391 0.01 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>pepper_2_19</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.825 -11.406 0.01 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>pepper_2_20</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.399 -11.431 0.01 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>pepper_2_21</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.036 -11.397 0.01 0 0 4</pose>
+    </include>
+    <include>
+      <name>pepper_2_22</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.621 -11.402 0.01 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>pepper_2_23</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.205 -11.410 0.01 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>pepper_2_24</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.800 -11.368 0.01 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>pepper_2_25</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.377 -11.396 0.01 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>pepper_2_26</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.995 -11.410 0.01 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>pepper_2_27</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.589 -11.371 0.01 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>pepper_2_28</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.177 -11.434 0.01 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>pepper_2_29</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.831 -11.379 0.01 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>pepper_2_30</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.438 -11.411 0.01 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>pepper_2_31</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.004 -11.379 0.01 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>pepper_2_32</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.575 -11.386 0.01 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>pepper_3_0</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-9.609 -10.237 0.01 0 0 6</pose>
+    </include>
+    <include>
+      <name>pepper_3_1</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.981 -10.218 0.01 0 0 1</pose>
+    </include>
+    <include>
+      <name>pepper_3_2</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.369 -10.208 0.01 0 0 2.3</pose>
+    </include>
+    <include>
+      <name>pepper_3_3</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.778 -10.172 0.01 0 0 3.6</pose>
+    </include>
+    <include>
+      <name>pepper_3_4</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.191 -10.189 0.01 0 0 4.9</pose>
+    </include>
+    <include>
+      <name>pepper_3_5</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.567 -10.197 0.01 0 0 6.2</pose>
+    </include>
+    <include>
+      <name>pepper_3_6</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.968 -10.184 0.01 0 0 1.2</pose>
+    </include>
+    <include>
+      <name>pepper_3_7</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.364 -10.216 0.01 0 0 2.5</pose>
+    </include>
+    <include>
+      <name>pepper_3_8</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.801 -10.220 0.01 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>pepper_3_9</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.179 -10.230 0.01 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>pepper_3_10</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.581 -10.221 0.01 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>pepper_3_11</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.987 -10.177 0.01 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>pepper_3_12</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.367 -10.186 0.01 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>pepper_3_13</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.814 -10.188 0.01 0 0 4</pose>
+    </include>
+    <include>
+      <name>pepper_3_14</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.194 -10.215 0.01 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>pepper_3_15</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.599 -10.170 0.01 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>pepper_3_16</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.000 -10.203 0.01 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>pepper_3_17</name>
+      <uri>model://pepper_plant</uri>
+      <pose>0.603 -10.161 0.01 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>pepper_3_18</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.192 -10.231 0.01 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>pepper_3_19</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.809 -10.164 0.01 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>pepper_3_20</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.400 -10.231 0.01 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>pepper_3_21</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.035 -10.179 0.01 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>pepper_3_22</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.618 -10.208 0.01 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>pepper_3_23</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.177 -10.167 0.01 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>pepper_3_24</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.803 -10.214 0.01 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>pepper_3_25</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.412 -10.176 0.01 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>pepper_3_26</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.970 -10.176 0.01 0 0 2</pose>
+    </include>
+    <include>
+      <name>pepper_3_27</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.620 -10.181 0.01 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>pepper_3_28</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.195 -10.222 0.01 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>pepper_3_29</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.826 -10.177 0.01 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>pepper_3_30</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.377 -10.214 0.01 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>pepper_3_31</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.980 -10.212 0.01 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>pepper_3_32</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.608 -10.182 0.01 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>pepper_4_0</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-9.564 -8.974 0.01 0 0 3.8</pose>
+    </include>
+    <include>
+      <name>pepper_4_1</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.960 -9.020 0.01 0 0 5.1</pose>
+    </include>
+    <include>
+      <name>pepper_4_2</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.363 -8.964 0.01 0 0 0.1</pose>
+    </include>
+    <include>
+      <name>pepper_4_3</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.760 -9.013 0.01 0 0 1.4</pose>
+    </include>
+    <include>
+      <name>pepper_4_4</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.220 -9.023 0.01 0 0 2.7</pose>
+    </include>
+    <include>
+      <name>pepper_4_5</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.619 -9.029 0.01 0 0 4</pose>
+    </include>
+    <include>
+      <name>pepper_4_6</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.016 -9.033 0.01 0 0 5.3</pose>
+    </include>
+    <include>
+      <name>pepper_4_7</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.399 -9.009 0.01 0 0 0.3</pose>
+    </include>
+    <include>
+      <name>pepper_4_8</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.768 -9.018 0.01 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>pepper_4_9</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.193 -8.991 0.01 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>pepper_4_10</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.564 -9.029 0.01 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>pepper_4_11</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.023 -8.988 0.01 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>pepper_4_12</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.428 -8.969 0.01 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>pepper_4_13</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.778 -8.987 0.01 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>pepper_4_14</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.204 -9.018 0.01 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>pepper_4_15</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.596 -9.018 0.01 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>pepper_4_16</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.020 -9.013 0.01 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>pepper_4_17</name>
+      <uri>model://pepper_plant</uri>
+      <pose>0.603 -9.032 0.01 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>pepper_4_18</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.239 -9.004 0.01 0 0 2</pose>
+    </include>
+    <include>
+      <name>pepper_4_19</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.782 -9.022 0.01 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>pepper_4_20</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.371 -8.990 0.01 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>pepper_4_21</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.039 -8.964 0.01 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>pepper_4_22</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.611 -9.039 0.01 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>pepper_4_23</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.191 -8.997 0.01 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>pepper_4_24</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.805 -9.026 0.01 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>pepper_4_25</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.389 -9.023 0.01 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>pepper_4_26</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.004 -8.976 0.01 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>pepper_4_27</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.568 -9.035 0.01 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>pepper_4_28</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.214 -8.995 0.01 0 0 2.4</pose>
+    </include>
+    <include>
+      <name>pepper_4_29</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.792 -8.970 0.01 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>pepper_4_30</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.414 -8.995 0.01 0 0 5</pose>
+    </include>
+    <include>
+      <name>pepper_4_31</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.974 -8.999 0.01 0 0 0</pose>
+    </include>
+    <include>
+      <name>pepper_4_32</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.569 -9.009 0.01 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>pepper_5_0</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-9.565 -7.775 0.01 0 0 1.6</pose>
+    </include>
+    <include>
+      <name>pepper_5_1</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.962 -7.801 0.01 0 0 2.9</pose>
+    </include>
+    <include>
+      <name>pepper_5_2</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.397 -7.818 0.01 0 0 4.2</pose>
+    </include>
+    <include>
+      <name>pepper_5_3</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.783 -7.792 0.01 0 0 5.5</pose>
+    </include>
+    <include>
+      <name>pepper_5_4</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.189 -7.777 0.01 0 0 0.5</pose>
+    </include>
+    <include>
+      <name>pepper_5_5</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.598 -7.819 0.01 0 0 1.8</pose>
+    </include>
+    <include>
+      <name>pepper_5_6</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.019 -7.810 0.01 0 0 3.1</pose>
+    </include>
+    <include>
+      <name>pepper_5_7</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.361 -7.815 0.01 0 0 4.4</pose>
+    </include>
+    <include>
+      <name>pepper_5_8</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.777 -7.839 0.01 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>pepper_5_9</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.229 -7.835 0.01 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>pepper_5_10</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.583 -7.823 0.01 0 0 2</pose>
+    </include>
+    <include>
+      <name>pepper_5_11</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.029 -7.774 0.01 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>pepper_5_12</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.410 -7.838 0.01 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>pepper_5_13</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.772 -7.810 0.01 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>pepper_5_14</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.173 -7.804 0.01 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>pepper_5_15</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.595 -7.766 0.01 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>pepper_5_16</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.035 -7.776 0.01 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>pepper_5_17</name>
+      <uri>model://pepper_plant</uri>
+      <pose>0.596 -7.767 0.01 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>pepper_5_18</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.187 -7.806 0.01 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>pepper_5_19</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.798 -7.817 0.01 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>pepper_5_20</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.398 -7.809 0.01 0 0 2.4</pose>
+    </include>
+    <include>
+      <name>pepper_5_21</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.989 -7.771 0.01 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>pepper_5_22</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.609 -7.773 0.01 0 0 5</pose>
+    </include>
+    <include>
+      <name>pepper_5_23</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.213 -7.794 0.01 0 0 0</pose>
+    </include>
+    <include>
+      <name>pepper_5_24</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.794 -7.769 0.01 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>pepper_5_25</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.375 -7.789 0.01 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>pepper_5_26</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.024 -7.780 0.01 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>pepper_5_27</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.604 -7.777 0.01 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>pepper_5_28</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.162 -7.771 0.01 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>pepper_5_29</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.822 -7.831 0.01 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>pepper_5_30</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.428 -7.778 0.01 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>pepper_5_31</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.027 -7.832 0.01 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>pepper_5_32</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.574 -7.830 0.01 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>pepper_6_0</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-9.630 -6.567 0.01 0 0 5.7</pose>
+    </include>
+    <include>
+      <name>pepper_6_1</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.995 -6.635 0.01 0 0 0.7</pose>
+    </include>
+    <include>
+      <name>pepper_6_2</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-8.363 -6.608 0.01 0 0 2</pose>
+    </include>
+    <include>
+      <name>pepper_6_3</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.771 -6.563 0.01 0 0 3.3</pose>
+    </include>
+    <include>
+      <name>pepper_6_4</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-7.234 -6.608 0.01 0 0 4.6</pose>
+    </include>
+    <include>
+      <name>pepper_6_5</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.593 -6.573 0.01 0 0 5.9</pose>
+    </include>
+    <include>
+      <name>pepper_6_6</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-6.027 -6.637 0.01 0 0 0.9</pose>
+    </include>
+    <include>
+      <name>pepper_6_7</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-5.433 -6.601 0.01 0 0 2.2</pose>
+    </include>
+    <include>
+      <name>pepper_6_8</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.772 -6.584 0.01 0 0 3.5</pose>
+    </include>
+    <include>
+      <name>pepper_6_9</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-4.214 -6.597 0.01 0 0 4.8</pose>
+    </include>
+    <include>
+      <name>pepper_6_10</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.639 -6.632 0.01 0 0 6.1</pose>
+    </include>
+    <include>
+      <name>pepper_6_11</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-3.032 -6.625 0.01 0 0 1.1</pose>
+    </include>
+    <include>
+      <name>pepper_6_12</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-2.420 -6.590 0.01 0 0 2.4</pose>
+    </include>
+    <include>
+      <name>pepper_6_13</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.805 -6.597 0.01 0 0 3.7</pose>
+    </include>
+    <include>
+      <name>pepper_6_14</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-1.217 -6.587 0.01 0 0 5</pose>
+    </include>
+    <include>
+      <name>pepper_6_15</name>
+      <uri>model://pepper_plant</uri>
+      <pose>-0.615 -6.604 0.01 0 0 0</pose>
+    </include>
+    <include>
+      <name>pepper_6_16</name>
+      <uri>model://pepper_plant</uri>
+      <pose>0.026 -6.574 0.01 0 0 1.3</pose>
+    </include>
+    <include>
+      <name>pepper_6_17</name>
+      <uri>model://pepper_plant</uri>
+      <pose>0.621 -6.585 0.01 0 0 2.6</pose>
+    </include>
+    <include>
+      <name>pepper_6_18</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.227 -6.593 0.01 0 0 3.9</pose>
+    </include>
+    <include>
+      <name>pepper_6_19</name>
+      <uri>model://pepper_plant</uri>
+      <pose>1.804 -6.606 0.01 0 0 5.2</pose>
+    </include>
+    <include>
+      <name>pepper_6_20</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.433 -6.598 0.01 0 0 0.2</pose>
+    </include>
+    <include>
+      <name>pepper_6_21</name>
+      <uri>model://pepper_plant</uri>
+      <pose>2.993 -6.616 0.01 0 0 1.5</pose>
+    </include>
+    <include>
+      <name>pepper_6_22</name>
+      <uri>model://pepper_plant</uri>
+      <pose>3.599 -6.602 0.01 0 0 2.8</pose>
+    </include>
+    <include>
+      <name>pepper_6_23</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.205 -6.639 0.01 0 0 4.1</pose>
+    </include>
+    <include>
+      <name>pepper_6_24</name>
+      <uri>model://pepper_plant</uri>
+      <pose>4.839 -6.593 0.01 0 0 5.4</pose>
+    </include>
+    <include>
+      <name>pepper_6_25</name>
+      <uri>model://pepper_plant</uri>
+      <pose>5.366 -6.628 0.01 0 0 0.4</pose>
+    </include>
+    <include>
+      <name>pepper_6_26</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.039 -6.567 0.01 0 0 1.7</pose>
+    </include>
+    <include>
+      <name>pepper_6_27</name>
+      <uri>model://pepper_plant</uri>
+      <pose>6.622 -6.603 0.01 0 0 3</pose>
+    </include>
+    <include>
+      <name>pepper_6_28</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.205 -6.577 0.01 0 0 4.3</pose>
+    </include>
+    <include>
+      <name>pepper_6_29</name>
+      <uri>model://pepper_plant</uri>
+      <pose>7.829 -6.614 0.01 0 0 5.6</pose>
+    </include>
+    <include>
+      <name>pepper_6_30</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.417 -6.619 0.01 0 0 0.6</pose>
+    </include>
+    <include>
+      <name>pepper_6_31</name>
+      <uri>model://pepper_plant</uri>
+      <pose>8.984 -6.563 0.01 0 0 1.9</pose>
+    </include>
+    <include>
+      <name>pepper_6_32</name>
+      <uri>model://pepper_plant</uri>
+      <pose>9.593 -6.564 0.01 0 0 3.2</pose>
+    </include>
+    <include>
+      <name>weed_0</name>
+      <uri>model://nettle</uri>
+      <pose>-3.438 -0.968 0 0 0 6.07</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_1</name>
+      <uri>model://unknown_weed</uri>
+      <pose>4.114 3.787 0 0 0 6.03</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_2</name>
+      <uri>model://nettle</uri>
+      <pose>3.857 0.602 0 0 0 5.64</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_3</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-5.035 -3.328 0 0 0 3.76</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_4</name>
+      <uri>model://nettle</uri>
+      <pose>10.530 6.389 0 0 0 1.34</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_5</name>
+      <uri>model://unknown_weed</uri>
+      <pose>10.304 -0.754 0 0 0 3.74</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_6</name>
+      <uri>model://nettle</uri>
+      <pose>10.221 -3.603 0 0 0 2.50</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_7</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-7.894 -0.979 0 0 0 2.60</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_8</name>
+      <uri>model://nettle</uri>
+      <pose>8.751 -3.723 0 0 0 0.07</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_9</name>
+      <uri>model://unknown_weed</uri>
+      <pose>3.353 0.018 0 0 0 3.67</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_10</name>
+      <uri>model://nettle</uri>
+      <pose>8.671 -6.588 0 0 0 2.82</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_11</name>
+      <uri>model://unknown_weed</uri>
+      <pose>5.390 -4.268 0 0 0 1.53</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_12</name>
+      <uri>model://nettle</uri>
+      <pose>5.472 5.440 0 0 0 1.81</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_13</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-6.863 -0.837 0 0 0 3.24</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_14</name>
+      <uri>model://nettle</uri>
+      <pose>-11.976 0.093 0 0 0 3.74</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_15</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-8.452 -1.695 0 0 0 1.71</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_16</name>
+      <uri>model://nettle</uri>
+      <pose>-0.008 6.097 0 0 0 4.76</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_17</name>
+      <uri>model://unknown_weed</uri>
+      <pose>4.349 -6.969 0 0 0 5.92</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_18</name>
+      <uri>model://nettle</uri>
+      <pose>-11.330 -0.081 0 0 0 4.88</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_19</name>
+      <uri>model://unknown_weed</uri>
+      <pose>7.228 1.158 0 0 0 6.04</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_20</name>
+      <uri>model://nettle</uri>
+      <pose>5.500 0.802 0 0 0 4.21</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_21</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-10.409 1.226 0 0 0 2.42</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_22</name>
+      <uri>model://nettle</uri>
+      <pose>-8.580 -5.156 0 0 0 4.53</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_23</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-1.955 5.369 0 0 0 4.91</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_24</name>
+      <uri>model://nettle</uri>
+      <pose>10.179 3.656 0 0 0 3.57</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_25</name>
+      <uri>model://unknown_weed</uri>
+      <pose>2.883 -3.948 0 0 0 5.37</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_26</name>
+      <uri>model://nettle</uri>
+      <pose>10.220 1.119 0 0 0 0.02</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_27</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-8.703 4.693 0 0 0 3.31</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_28</name>
+      <uri>model://nettle</uri>
+      <pose>7.863 6.720 0 0 0 0.43</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_29</name>
+      <uri>model://unknown_weed</uri>
+      <pose>2.759 -5.540 0 0 0 0.53</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_30</name>
+      <uri>model://nettle</uri>
+      <pose>5.216 2.621 0 0 0 6.23</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_31</name>
+      <uri>model://unknown_weed</uri>
+      <pose>9.886 -3.364 0 0 0 3.38</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_32</name>
+      <uri>model://nettle</uri>
+      <pose>-6.727 -1.400 0 0 0 1.87</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_33</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-8.923 -5.148 0 0 0 3.74</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_34</name>
+      <uri>model://nettle</uri>
+      <pose>-9.305 -3.886 0 0 0 1.73</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_35</name>
+      <uri>model://unknown_weed</uri>
+      <pose>3.095 1.747 0 0 0 5.13</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_36</name>
+      <uri>model://nettle</uri>
+      <pose>1.838 -0.820 0 0 0 1.19</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_37</name>
+      <uri>model://unknown_weed</uri>
+      <pose>7.136 -0.338 0 0 0 3.18</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_38</name>
+      <uri>model://nettle</uri>
+      <pose>-8.523 0.408 0 0 0 0.43</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_39</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-8.331 -5.523 0 0 0 4.01</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_40</name>
+      <uri>model://nettle</uri>
+      <pose>1.590 -4.519 0 0 0 1.34</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_41</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-8.689 -0.015 0 0 0 3.02</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_42</name>
+      <uri>model://nettle</uri>
+      <pose>1.949 -7.034 0 0 0 5.69</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_43</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-9.670 1.519 0 0 0 2.39</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_44</name>
+      <uri>model://nettle</uri>
+      <pose>7.682 -6.367 0 0 0 2.72</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_45</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-10.823 -5.115 0 0 0 3.40</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_46</name>
+      <uri>model://nettle</uri>
+      <pose>2.630 0.481 0 0 0 4.79</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_47</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-1.582 6.517 0 0 0 4.05</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_48</name>
+      <uri>model://nettle</uri>
+      <pose>-4.245 -6.010 0 0 0 0.43</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_49</name>
+      <uri>model://unknown_weed</uri>
+      <pose>8.197 5.073 0 0 0 0.91</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_50</name>
+      <uri>model://nettle</uri>
+      <pose>-2.231 7.261 0 0 0 5.77</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_51</name>
+      <uri>model://unknown_weed</uri>
+      <pose>5.049 2.614 0 0 0 4.38</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_52</name>
+      <uri>model://nettle</uri>
+      <pose>4.622 4.153 0 0 0 6.07</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_53</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-7.664 6.002 0 0 0 3.82</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_54</name>
+      <uri>model://nettle</uri>
+      <pose>-10.596 2.588 0 0 0 0.00</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_55</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-1.713 -7.385 0 0 0 5.92</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_56</name>
+      <uri>model://nettle</uri>
+      <pose>-9.859 4.500 0 0 0 0.83</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_57</name>
+      <uri>model://unknown_weed</uri>
+      <pose>6.009 -0.751 0 0 0 3.01</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_58</name>
+      <uri>model://nettle</uri>
+      <pose>-9.833 -2.246 0 0 0 6.27</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_59</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-5.999 0.597 0 0 0 1.12</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_60</name>
+      <uri>model://nettle</uri>
+      <pose>-2.100 4.687 0 0 0 1.73</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_61</name>
+      <uri>model://unknown_weed</uri>
+      <pose>6.750 7.136 0 0 0 3.55</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_62</name>
+      <uri>model://nettle</uri>
+      <pose>-0.229 4.530 0 0 0 4.58</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_63</name>
+      <uri>model://unknown_weed</uri>
+      <pose>0.240 6.766 0 0 0 1.82</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_64</name>
+      <uri>model://nettle</uri>
+      <pose>3.891 -7.316 0 0 0 2.39</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_65</name>
+      <uri>model://unknown_weed</uri>
+      <pose>3.565 6.238 0 0 0 1.20</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_66</name>
+      <uri>model://nettle</uri>
+      <pose>8.078 -3.901 0 0 0 4.29</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_67</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-6.215 -2.025 0 0 0 0.39</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_68</name>
+      <uri>model://nettle</uri>
+      <pose>-10.722 1.578 0 0 0 0.41</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>weed_69</name>
+      <uri>model://unknown_weed</uri>
+      <pose>-7.015 1.594 0 0 0 5.57</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <name>apriltag_36h11_0</name>
+      <uri>model://apriltag_36h11_0</uri>
+      <pose>11.5 -6.8 0 0 0 0</pose>
+    </include>
+  </world>
+</sdf>
