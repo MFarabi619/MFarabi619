@@ -32,6 +32,7 @@
 #include <ament_index_cpp/get_package_share_path.hpp>
 #include <libobsensor/ObSensor.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -51,6 +52,7 @@ constexpr int NANOSECONDS_PER_MICROSECOND = 1000;
 constexpr int MILLISECONDS_PER_SECOND = 1000;
 constexpr size_t BYTES_PER_DEPTH_PIXEL = 2;
 constexpr size_t BYTES_PER_COLOR_PIXEL = 3;
+constexpr double MAX_VIZ_DEPTH_MM = 8000.0;
 
 builtin_interfaces::msg::Time stamp_from_microseconds(uint64_t timestamp_us)
 {
@@ -164,6 +166,8 @@ public:
           "depth unaligned, publishing in depth frame");
       depth_image_publisher_ = create_publisher<sensor_msgs::msg::Image>(
         "depth/image_raw", rclcpp::SensorDataQoS());
+      depth_compressed_publisher_ = create_publisher<sensor_msgs::msg::CompressedImage>(
+        "depth/image_raw/compressed", rclcpp::SensorDataQoS());
       depth_camera_info_publisher_ =
         create_publisher<sensor_msgs::msg::CameraInfo>("depth/camera_info", 10);
     }
@@ -304,6 +308,18 @@ private:
           scale == 1.0f ? value : static_cast<uint16_t>(value * scale);
       }
     }
+    if (depth_compressed_publisher_->get_subscription_count() > 0) {
+      cv::Mat depth16(height, width, CV_16UC1, image->data.data());
+      cv::Mat depth8;
+      depth16.convertTo(depth8, CV_8UC1, 255.0 / MAX_VIZ_DEPTH_MM);
+      cv::Mat colored;
+      cv::applyColorMap(depth8, colored, cv::COLORMAP_JET);
+      auto preview = std::make_unique<sensor_msgs::msg::CompressedImage>();
+      preview->header = image->header;
+      preview->format = "jpeg";
+      cv::imencode(".jpg", colored, preview->data, {cv::IMWRITE_JPEG_QUALITY, jpeg_quality_});
+      depth_compressed_publisher_->publish(std::move(preview));
+    }
     depth_image_publisher_->publish(std::move(image));
 
     if (!depth_camera_info_) {
@@ -337,6 +353,7 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_publisher_;
+  rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr depth_compressed_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr depth_camera_info_publisher_;
 };
 

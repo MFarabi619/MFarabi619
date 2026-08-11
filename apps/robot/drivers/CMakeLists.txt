@@ -17,6 +17,39 @@ find_package(ament_cmake_python REQUIRED)
 
 ament_python_install_module(src/adafruit_bno085.py)
 install(FILES src/pwm_dir_motor_driver.py src/rpicam_mjpeg.py DESTINATION "${PYTHON_INSTALL_DIR}")
+install(PROGRAMS src/oak_d_sr.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_sr)
+
+find_package(rclcpp REQUIRED)
+find_package(robot_platform_msgs REQUIRED)
+find_package(Threads REQUIRED)
+
+include(FetchContent)
+fetchcontent_declare(lg
+  URL https://github.com/joan2937/lg/archive/refs/tags/v0.2.2.tar.gz
+  URL_HASH SHA256=b08d8569d6dc8fa91a42ba1e37f620fdcb19d6bf2330e4b7d7301431ddbe124c
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+fetchcontent_makeavailable(lg)
+
+set(rgpio_shim ${CMAKE_CURRENT_SOURCE_DIR}/src/rgpio)
+add_library(rgpio_client STATIC
+  ${lg_SOURCE_DIR}/rgpio.c
+  ${lg_SOURCE_DIR}/lgCfg.c
+  ${lg_SOURCE_DIR}/lgErr.c
+  ${lg_SOURCE_DIR}/lgDbg.c
+  ${lg_SOURCE_DIR}/lgMD5.c)
+target_include_directories(rgpio_client PUBLIC ${lg_SOURCE_DIR} PRIVATE ${rgpio_shim})
+target_compile_options(rgpio_client PRIVATE -w -include ${rgpio_shim}/portability.h)
+set_target_properties(rgpio_client PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+add_executable(rgpio_pwm_dir_motor_driver src/rgpio_pwm_dir_motor_driver.cpp)
+target_compile_features(rgpio_pwm_dir_motor_driver PUBLIC cxx_std_17)
+target_link_libraries(rgpio_pwm_dir_motor_driver
+  rgpio_client
+  Threads::Threads
+  rclcpp::rclcpp
+  ${robot_platform_msgs_TARGETS})
+install(TARGETS rgpio_pwm_dir_motor_driver DESTINATION lib/${PROJECT_NAME})
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -41,6 +74,22 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     rclcpp::rclcpp
     ${robot_platform_msgs_TARGETS})
   install(TARGETS pwm_dir_motor_driver DESTINATION lib/${PROJECT_NAME})
+
+  add_executable(rc_pulse_motor_driver src/rc_pulse_motor_driver.cpp)
+  target_compile_features(rc_pulse_motor_driver PUBLIC cxx_std_17)
+  target_link_libraries(rc_pulse_motor_driver
+    rclcpp::rclcpp
+    ${robot_platform_msgs_TARGETS})
+  install(TARGETS rc_pulse_motor_driver DESTINATION lib/${PROJECT_NAME})
+
+  add_executable(rc_receiver_joy src/rc_receiver_joy.cpp)
+  target_compile_features(rc_receiver_joy PUBLIC cxx_std_17)
+  target_compile_options(rc_receiver_joy PRIVATE "-idirafter${GPIOD_INCLUDE_DIR}")
+  target_link_libraries(rc_receiver_joy
+    ${GPIOD_LIBRARY}
+    rclcpp::rclcpp
+    ${sensor_msgs_TARGETS})
+  install(TARGETS rc_receiver_joy DESTINATION lib/${PROJECT_NAME})
 
   add_library(orbbec_camera_component SHARED src/orbbec_gemini_335l.cpp)
   target_compile_features(orbbec_camera_component PUBLIC cxx_std_17)

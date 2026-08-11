@@ -77,10 +77,10 @@ class PwmChannel:
 
 
 class WheelDriver:
-    def __init__(self, dir_request, pwm_chip, pwm_channel, dir_pin,
+    def __init__(self, dir_request, pwm_chip, pwm_channel, dir_line,
                  forward_level, period_ns):
         self.dir_request = dir_request
-        self.dir_pin = dir_pin
+        self.dir_line = dir_line
         self.forward_level = forward_level
         self.pwm = PwmChannel(pwm_chip, pwm_channel, period_ns)
         self.last_dir_level = None
@@ -93,7 +93,7 @@ class WheelDriver:
         dir_level = 1 if (wheel_speed >= 0.0) == self.forward_level else 0
         if dir_level != self.last_dir_level:
             self.dir_request.set_value(
-                self.dir_pin, Value.ACTIVE if dir_level else Value.INACTIVE)
+                self.dir_line, Value.ACTIVE if dir_level else Value.INACTIVE)
             self.last_dir_level = dir_level
         duty_fraction = min(abs(wheel_speed) / max_wheel_speed, 1.0)
         self.pwm.write_duty_ns(int(duty_fraction * self.pwm.period_ns))
@@ -116,33 +116,33 @@ class PwmDirMotorDriver(Node):
         for side in ('left', 'right'):
             self.declare_parameter(f'{side}_pwm_chip', 0)
             self.declare_parameter(f'{side}_pwm_channel', 0)
-            self.declare_parameter(f'{side}_dir_pin', 0)
+            self.declare_parameter(f'{side}_dir_line', 0)
             self.declare_parameter(f'{side}_forward_level', True)
 
         self.max_wheel_speed = self.get_parameter('max_wheel_speed').value
         period_ns = int(
             NANOSECONDS_PER_SECOND / self.get_parameter('pwm_frequency_hz').value)
-        dir_pins = [
-            self.get_parameter(f'{side}_dir_pin').value
+        dir_lines = [
+            self.get_parameter(f'{side}_dir_line').value
             for side in ('left', 'right')
         ]
         self.dir_request = gpiod.request_lines(
             f'/dev/gpiochip{self.get_parameter("gpio_chip").value}',
             consumer='pwm_dir_motor_driver',
             config={
-                dir_pin: gpiod.LineSettings(
+                dir_line: gpiod.LineSettings(
                     direction=Direction.OUTPUT, output_value=Value.INACTIVE)
-                for dir_pin in dir_pins
+                for dir_line in dir_lines
             })
         self.wheels = [
             WheelDriver(
                 self.dir_request,
                 self.get_parameter(f'{side}_pwm_chip').value,
                 self.get_parameter(f'{side}_pwm_channel').value,
-                dir_pin,
+                dir_line,
                 self.get_parameter(f'{side}_forward_level').value,
                 period_ns)
-            for side, dir_pin in zip(('left', 'right'), dir_pins)
+            for side, dir_line in zip(('left', 'right'), dir_lines)
         ]
 
         self.commanded_mode = Drive.MODE_NONE
