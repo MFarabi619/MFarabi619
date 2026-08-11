@@ -9,11 +9,11 @@ from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import CompressedImage
 
 CAMERAS = ["camera_0", "camera_1"]
-COMPRESSED_SUFFIX = "/color/image/compressed"
+COMPRESSED_SUFFIX = "/color/image_raw/compressed"
 FORBIDDEN_SUFFIXES = [
-    "/color/image/compressedDepth",
-    "/color/image/zstd",
-    "/color/image/theora",
+    "/color/image_raw/compressedDepth",
+    "/color/image_raw/zstd",
+    "/color/image_raw/theora",
 ]
 WARMUP_TIMEOUT_SECONDS = 6.0
 COLLECT_SECONDS = 4.0
