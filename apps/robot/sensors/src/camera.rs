@@ -100,7 +100,7 @@ pub async fn run_camera(
         let port = f64_param(&store, "port", default_port as f64) as u16;
         (
             format!("{host}:{port}"),
-            format!("sensors/{name}/color/image/compressed"),
+            format!("sensors/{name}/color/image_raw/compressed"),
             format!("sensors/{name}/color/camera_info"),
             format!("{name}_color_optical_frame"),
         )

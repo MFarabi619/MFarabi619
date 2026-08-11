@@ -43,7 +43,7 @@ class MjpegCamera(Node):
         self.host = self.declare_parameter('host', '192.168.12.119').value
         self.port = self.declare_parameter('port', 8887).value
         self.image_topic = self.declare_parameter(
-            'image_topic', 'color/image/compressed'
+            'image_topic', 'color/image_raw/compressed'
         ).value
         self.camera_info_topic = self.declare_parameter(
             'camera_info_topic', 'color/camera_info'
