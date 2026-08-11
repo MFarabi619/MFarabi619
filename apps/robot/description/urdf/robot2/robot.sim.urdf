@@ -192,37 +192,6 @@
     <axis xyz="0.0 1.0 0.0"/>
   </joint>
 
-  <link name="lidar_link"/>
-  <joint name="lidar_link_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="lidar_link"/>
-    <origin xyz="0.0000 0.0000 0.4000" rpy="0.0000 0.0000 0.0000"/>
-  </joint>
-
-  <gazebo reference="lidar_link">
-    <sensor name="lidar" type="gpu_lidar">
-      <update_rate>10</update_rate>
-      <always_on>true</always_on>
-      <frame_id>lidar_link</frame_id>
-      <topic>scan</topic>
-      <lidar>
-        <scan>
-          <horizontal>
-            <samples>360</samples>
-            <resolution>1</resolution>
-            <min_angle>-3.141592</min_angle>
-            <max_angle>3.141592</max_angle>
-          </horizontal>
-        </scan>
-        <range>
-          <min>0.2</min>
-          <max>20.0</max>
-          <resolution>0.01</resolution>
-        </range>
-      </lidar>
-    </sensor>
-  </gazebo>
-
   <ros2_control name="DiffDriveHardware" type="system">
     <hardware>
       <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -253,13 +222,13 @@
     <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
       <parameters>package://robot_control/config/control.yaml</parameters>
       <ros>
-        <remapping>~/cmd_vel:=/platform/cmd_vel</remapping>
-        <remapping>~/reference:=/platform/cmd_vel</remapping>
-        <remapping>~/odom:=/odom</remapping>
-        <remapping>~/odometry:=/odom</remapping>
-        <remapping>/tf:=tf</remapping>
-        <remapping>/tf_static:=tf_static</remapping>
-        <remapping>joint_states:=/joint_states</remapping>
+        <namespace>robot2</namespace>
+        <remapping>~/cmd_vel:=platform/cmd_vel</remapping>
+        <remapping>~/reference:=platform/cmd_vel</remapping>
+        <remapping>~/odom:=odom</remapping>
+        <remapping>~/odometry:=odom</remapping>
+        <remapping>joint_states:=joint_states</remapping>
+        <remapping>robot_description:=/robot_description</remapping>
       </ros>
     </plugin>
   </gazebo>

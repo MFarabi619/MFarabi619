@@ -192,6 +192,22 @@
     <axis xyz="0.0 1.0 0.0"/>
   </joint>
 
+  <link name="camera_0_link">
+    <visual><geometry><mesh filename="package://robot_description/meshes/orbbec_gemini_335l.dae"/></geometry></visual>
+  </link>
+  <joint name="camera_0_link_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_0_link"/>
+    <origin xyz="0.5750 0.5000 0.3100" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
+  <link name="camera_0_color_optical_frame"/>
+  <joint name="camera_0_color_optical_frame_joint" type="fixed">
+    <parent link="camera_0_link"/>
+    <child link="camera_0_color_optical_frame"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="-1.5708 0.0000 -1.5708"/>
+  </joint>
+
   <ros2_control name="DiffDriveHardware" type="system">
     <hardware>
       <plugin>robot_hardware_interfaces/DiffDriveHardware</plugin>
