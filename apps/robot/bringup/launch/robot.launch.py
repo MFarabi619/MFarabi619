@@ -27,12 +27,13 @@ CLIENT_CONFIG_OVERRIDE = 'mode="client"'
 ROUTER_CONFIG_OVERRIDE = 'mode="router"'
 PIXI = os.path.expanduser('~/.pixi/bin/pixi')
 JAZZY_ENV = os.path.abspath('.pixi/envs/jazzy')
+RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 
 GPS_TOPICS = ['fix', 'vel', 'time_reference', 'heading']
 
 CONTROL_PARAM_FILES = [
-    'apps/robot/control/config/control.yaml',
-    'apps/robot/control/config/drivetrain.generated.yaml',
+    'control/config/control.yaml',
+    'control/config/drivetrain.generated.yaml',
 ]
 
 IMU_TOPICS = [
@@ -53,7 +54,7 @@ def wait_for_router(attempts=120):
 
 def robot_identity():
     hostname = socket.gethostname()
-    robots_path = 'apps/robot/config/robots'
+    robots_path = 'config/robots'
     for robot_name in sorted(os.listdir(robots_path)):
         config_path = os.path.join(robots_path, robot_name, 'robot.yaml')
         if not os.path.isfile(config_path):
@@ -66,14 +67,63 @@ def robot_identity():
     raise RuntimeError(f'no robot.yaml lists hostname {hostname}')
 
 
+def board_pins(robot_config):
+    board = robot_config['system']['hosts'][0]['board']
+    with open(f'config/boards/{board}.yaml') as file:
+        return yaml.safe_load(file)['pins']
+
+
+def resolve_line(pins, pin):
+    entry = pins[pin]
+    return entry['gpio_chip'], entry['line']
+
+
+def resolve_pwm(pins, pin):
+    entry = pins[pin]
+    return entry['pwm_chip'], entry['pwm_channel']
+
+
 @launch_this
 def robot():
     robot_name, robot_config = robot_identity()
+    if robot_config.get('version', 0) < 1:
+        raise RuntimeError(
+            f'{robot_name} robot.yaml is schema version 0; wiring is now header'
+            ' pins resolved through config/boards/ (version 1)')
     sensors = robot_config.get('sensors') or {}
     drivetrain = robot_config['platform']['drivetrain']
-    with open('apps/robot/control/config/drivetrain.generated.yaml') as file:
-        wheel_radius = yaml.safe_load(
-            file)['diff_drive_controller']['ros__parameters']['wheel_radius']
+    rc_receiver = robot_config['platform'].get('rc_receiver')
+    if rc_receiver and not rc_receiver.get('launch_enabled', True):
+        rc_receiver = None
+    pins = board_pins(robot_config)
+    drivetrain_model = drivetrain.get('model', 'pwm_dir')
+    with open('control/config/drivetrain.generated.yaml') as file:
+        drivetrain_sections = yaml.safe_load(file)
+    wheel_radius = next(
+        section['ros__parameters']['wheel_radius']
+        for name, section in drivetrain_sections.items()
+        if name.endswith('diff_drive_controller'))
+
+    oak_camera = next(
+        (camera for camera in sensors.get('camera', [])
+         if camera['model'] == 'oak_d_sr'
+         and camera.get('launch_enabled', True)),
+        None)
+    orbbec_camera = next(
+        (camera for camera in sensors.get('camera', [])
+         if camera['model'] == 'orbbec_gemini_335l'
+         and camera.get('launch_enabled', True)),
+        None)
+    if oak_camera:
+        scan_camera_name = next(iter(oak_camera['ros_parameters']))
+    elif orbbec_camera and next(
+            iter(orbbec_camera['ros_parameters'].values()))['enable_depth']:
+        scan_camera_name = 'camera_0'
+    else:
+        scan_camera_name = None
+    collision_monitor_binary = f'{JAZZY_ENV}/lib/nav2_collision_monitor/collision_monitor'
+    guarded = (robot_config['platform'].get('guarded', False)
+               and scan_camera_name is not None)
 
     bl = BetterLaunch()
 
@@ -81,39 +131,57 @@ def robot():
         'ros2 run rmw_zenoh_cpp rmw_zenohd',
         name='zenoh_router',
         env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
-        max_respawns=-1,
-        respawn_delay=2.0,
+        **RESPAWN,
     )
     os.environ['ZENOH_CONFIG_OVERRIDE'] = CLIENT_CONFIG_OVERRIDE
     wait_for_router()
 
-    with open(f'apps/robot/description/urdf/{robot_name}/robot.urdf') as file:
-        robot_description = file.read()
     robot_state_publisher(
-        robot_description,
+        os.path.abspath(f'description/urdf/{robot_name}/robot.urdf'),
         node_name='robot_state_publisher',
         anonymous=False,
     )
 
-    bl.node(
-        package='robot_drivers',
-        executable='pwm_dir_motor_driver',
-        params={
-            'gpio_chip': drivetrain['gpio_chip'],
-            'pwm_frequency_hz': drivetrain['pwm_frequency_hz'],
-            'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
-            'left_pwm_chip': drivetrain['left']['pwm_chip'],
-            'left_pwm_channel': drivetrain['left']['pwm_channel'],
-            'left_dir_pin': drivetrain['left']['dir_pin'],
-            'left_forward_level': drivetrain['left']['forward_level'],
-            'right_pwm_chip': drivetrain['right']['pwm_chip'],
-            'right_pwm_channel': drivetrain['right']['pwm_channel'],
-            'right_dir_pin': drivetrain['right']['dir_pin'],
-            'right_forward_level': drivetrain['right']['forward_level'],
-        },
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
+    left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain['left']['pwm_pin'])
+    right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain['right']['pwm_pin'])
+    if drivetrain_model == 'rc_pulse':
+        bl.node(
+            package='robot_drivers',
+            executable='rc_pulse_motor_driver',
+            params={
+                'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                'left_pwm_chip': left_pwm_chip,
+                'left_pwm_channel': left_pwm_channel,
+                'left_reversed': drivetrain['left']['reversed'],
+                'right_pwm_chip': right_pwm_chip,
+                'right_pwm_channel': right_pwm_channel,
+                'right_reversed': drivetrain['right']['reversed'],
+            },
+            **RESPAWN,
+        )
+    else:
+        left_dir_chip, left_dir_line = resolve_line(pins, drivetrain['left']['dir_pin'])
+        right_dir_chip, right_dir_line = resolve_line(pins, drivetrain['right']['dir_pin'])
+        if left_dir_chip != right_dir_chip:
+            raise RuntimeError('left and right dir pins must share one gpio chip')
+        bl.node(
+            package='robot_drivers',
+            executable='pwm_dir_motor_driver',
+            params={
+                'gpio_chip': left_dir_chip,
+                'pwm_frequency_hz': drivetrain['pwm_frequency_hz'],
+                'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                'left_pwm_chip': left_pwm_chip,
+                'left_pwm_channel': left_pwm_channel,
+                'left_dir_line': left_dir_line,
+                'left_forward_level': drivetrain['left']['forward_level'],
+                'right_pwm_chip': right_pwm_chip,
+                'right_pwm_channel': right_pwm_channel,
+                'right_dir_line': right_dir_line,
+                'right_forward_level': drivetrain['right']['forward_level'],
+            },
+            **RESPAWN,
+        )
 
     def spawn_controllers():
         if bl.is_shutdown:
@@ -124,8 +192,8 @@ def robot():
             name='controller_spawner',
             cmd_args=[
                 'joint_state_broadcaster', 'diff_drive_controller',
-                '--param-file', 'apps/robot/control/config/control.yaml',
-                '--param-file', 'apps/robot/control/config/drivetrain.generated.yaml',
+                '--param-file', 'control/config/control.yaml',
+                '--param-file', 'control/config/drivetrain.generated.yaml',
                 '--controller-manager-timeout', '60',
                 '--controller-ros-args', '-r ~/cmd_vel:=/platform/cmd_vel',
             ],
@@ -138,21 +206,74 @@ def robot():
         remaps={'~/robot_description': '/robot_description'},
         param_files=CONTROL_PARAM_FILES,
         remap_qualifier='controller_manager',
-        max_respawns=-1,
-        respawn_delay=2.0,
+        **RESPAWN,
         on_exit=spawn_controllers,
     )
     spawn_controllers()
+
+    if rc_receiver:
+        channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver['channel_1_pin'])
+        channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver['channel_2_pin'])
+        if channel_1_chip != channel_2_chip:
+            raise RuntimeError('rc channel pins must share one gpio chip')
+        bl.node(
+            package='robot_drivers',
+            executable='rc_receiver_joy',
+            name='rc_receiver_joy',
+            params={
+                'gpio_chip': channel_1_chip,
+                'channel_1_line': channel_1_line,
+                'channel_2_line': channel_2_line,
+                'tank_mixed': rc_receiver.get('tank_mixed', False),
+            },
+            remaps={'joy': 'joy_teleop/joy'},
+            **RESPAWN,
+        )
+        bl.node(
+            package='teleop_twist_joy',
+            executable='teleop_node',
+            name='rc_teleop',
+            param_files=['config/rc_teleop.yaml'],
+            remaps={
+                'joy': 'joy_teleop/joy',
+                'cmd_vel': 'joy_teleop/cmd_vel',
+            },
+            **RESPAWN,
+        )
 
     bl.node(
         package='twist_mux',
         executable='twist_mux',
         name='twist_mux',
-        remaps={'cmd_vel_out': '/platform/cmd_vel'},
-        param_files=['apps/robot/control/config/twist_mux.yaml'],
-        max_respawns=-1,
-        respawn_delay=2.0,
+        remaps={
+            'cmd_vel_out': '/platform/cmd_vel_raw' if guarded else '/platform/cmd_vel',
+        },
+        param_files=['control/config/twist_mux.yaml'],
+        **RESPAWN,
     )
+
+    if guarded:
+        bl.process(
+            f'{PIXI} run --clean-env -e jazzy'
+            f' {collision_monitor_binary}'
+            ' --ros-args'
+            ' --params-file control/config/collision_monitor.yaml'
+            f' -p scan.topic:=/sensors/{scan_camera_name}/scan',
+            name='collision_monitor',
+            env={'HOME': os.environ['HOME']},
+            isolate_env=True,
+            **RESPAWN,
+        )
+        bl.process(
+            f'{PIXI} run --clean-env -e jazzy'
+            f' {JAZZY_ENV}/lib/nav2_lifecycle_manager/lifecycle_manager'
+            ' --ros-args -r __node:=collision_lifecycle_manager'
+            ' --params-file control/config/collision_monitor.yaml',
+            name='collision_lifecycle_manager',
+            env={'HOME': os.environ['HOME']},
+            isolate_env=True,
+            **RESPAWN,
+        )
 
     bl.node(
         package='foxglove_bridge',
@@ -161,19 +282,32 @@ def robot():
         params={
             'send_buffer_limit': 20000000,
             'max_qos_depth': 5,
-            'best_effort_qos_topic_whitelist': ['/sensors/camera_0/.*'],
+            'best_effort_qos_topic_whitelist': ['/sensors/camera_[0-9]+/.*'],
+            'topic_whitelist': [
+                '/sensors/camera_[0-9]+/(color|depth)/image_raw(/compressed|/compressedDepth)?$',
+                '/sensors/camera_[0-9]+/(color|depth)/camera_info$',
+                '/sensors/camera_[0-9]+/depth/points$',
+                '/sensors/camera_[0-9]+/scan$',
+                '/sensors/(gps|imu)_[0-9]+/.*',
+                '/perception/.*',
+                '/platform/.*',
+                '/joy_teleop/cmd_vel$',
+                '/tf(_static)?$',
+                '/map$',
+                '/slam_toolbox/.*',
+                '/diagnostics.*',
+                '/robot_description$',
+            ],
         },
-        max_respawns=-1,
-        respawn_delay=2.0,
+        **RESPAWN,
     )
 
     bl.node(
         package='diagnostic_aggregator',
         executable='aggregator_node',
         name='diagnostic_aggregator',
-        param_files=['apps/robot/diagnostics/config/diagnostic_aggregator.yaml'],
-        max_respawns=-1,
-        respawn_delay=2.0,
+        param_files=['diagnostics/config/diagnostic_aggregator.yaml'],
+        **RESPAWN,
     )
 
     if sensors.get('gps'):
@@ -183,13 +317,12 @@ def robot():
             f' {JAZZY_ENV}/bin/python'
             f' {JAZZY_ENV}/lib/nmea_navsat_driver/nmea_serial_driver'
             f' --ros-args -r __node:=nmea_navsat_driver {gps_remaps}'
-            ' --params-file apps/robot/bringup/config/generated/'
+            ' --params-file bringup/config/generated/'
             f'{robot_name}/nmea_navsat_driver.yaml',
             name='nmea_navsat_driver',
             env={'HOME': os.environ['HOME']},
             isolate_env=True,
-            max_respawns=-1,
-            respawn_delay=2.0,
+            **RESPAWN,
         )
 
     if sensors.get('imu'):
@@ -198,16 +331,112 @@ def robot():
             executable='imu',
             name='imu_0',
             remaps={topic: f'/sensors/imu_0/{topic}' for topic in IMU_TOPICS},
-            param_files=[f'apps/robot/bringup/config/generated/{robot_name}/imu_0.yaml'],
-            max_respawns=-1,
-            respawn_delay=2.0,
+            param_files=[f'bringup/config/generated/{robot_name}/imu_0.yaml'],
+            **RESPAWN,
         )
 
-    orbbec_camera = next(
-        (camera for camera in sensors.get('camera', [])
-         if camera['model'] == 'orbbec_gemini_335l'
-         and camera.get('launch_enabled', True)),
-        None)
+    if oak_camera:
+        camera_name = next(iter(oak_camera['ros_parameters']))
+        bl.node(
+            package='robot_drivers',
+            executable='oak_d_sr',
+            name='oak_d_sr',
+            params={
+                'frame_id': f'{camera_name}_link_right_camera_optical_frame',
+                'fps': 15.0,
+                'jpeg_quality': 60,
+            },
+            remaps={
+                'color/image_raw/compressed':
+                    f'/sensors/{camera_name}/color/image_raw/compressed',
+                'color/camera_info': f'/sensors/{camera_name}/color/camera_info',
+                'depth/image_raw': f'/sensors/{camera_name}/depth/image_raw',
+                'depth/image_raw/compressed':
+                    f'/sensors/{camera_name}/depth/image_raw/compressed',
+                'depth/camera_info': f'/sensors/{camera_name}/depth/camera_info',
+            },
+            **RESPAWN,
+        )
+        bl.node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='oak_optical_frame_bridge',
+            cmd_args=[
+                '--roll', '-1.5708', '--yaw', '-1.5708',
+                '--frame-id', f'{camera_name}_link',
+                '--child-frame-id',
+                f'{camera_name}_link_right_camera_optical_frame',
+            ],
+            **RESPAWN,
+        )
+        bl.node(
+            package='depth_image_proc',
+            executable='point_cloud_xyz_node',
+            name='oak_depth_to_pointcloud',
+            remaps={
+                'image_rect': f'/sensors/{camera_name}/depth/image_raw',
+                'camera_info': f'/sensors/{camera_name}/depth/camera_info',
+                'points': f'/sensors/{camera_name}/depth/points',
+            },
+            **RESPAWN,
+        )
+        bl.node(
+            package='pointcloud_to_laserscan',
+            executable='pointcloud_to_laserscan_node',
+            name='oak_pointcloud_to_laserscan',
+            remaps={
+                'cloud_in': f'/sensors/{camera_name}/depth/points',
+                'scan': f'/sensors/{camera_name}/scan',
+            },
+            params={
+                'target_frame': 'base_link',
+                'min_height': 0.1,
+                'max_height': 0.6,
+                'range_min': 0.2,
+                'range_max': 3.0,
+                'scan_time': 0.05,
+            },
+            **RESPAWN,
+        )
+        bl.node(
+            package='robot_perception',
+            executable='color_blob_detector',
+            name='laptop_detector',
+            params={
+                'image_topic': f'/sensors/{camera_name}/color/image_raw/compressed',
+                'depth_topic': f'/sensors/{camera_name}/depth/image_raw',
+                'depth_camera_info_topic':
+                    f'/sensors/{camera_name}/depth/camera_info',
+                'class_label': 'laptop',
+                'hue_min': 20.0,
+                'hue_max': 35.0,
+                'min_saturation': 0.45,
+                'min_value': 0.35,
+                'min_area': 800,
+                'min_triangularity': 0.0,
+                'min_aspect_ratio': 0.0,
+                'fallback_range': 3.0,
+                'overlay_topic': '/perception/laptop/overlay',
+            },
+            remaps={'detections': '/perception/laptop'},
+            **RESPAWN,
+        )
+        bl.node(
+            package='robot_perception',
+            executable='approach',
+            name='laptop_approach',
+            params={
+                'standoff_distance': 0.25,
+                'reacquire_frames': 8,
+                'scene_topic': '/perception/laptop/scene',
+            },
+            remaps={
+                'detections': '/perception/laptop',
+                'detections_3d': '/perception/targets',
+            },
+            **RESPAWN,
+        )
+
     if orbbec_camera:
         camera_parameters = next(iter(orbbec_camera['ros_parameters'].values()))
         bl.node(
@@ -229,26 +458,11 @@ def robot():
                     '/sensors/camera_0/color/image_raw/compressed',
                 'color/camera_info': '/sensors/camera_0/color/camera_info',
                 'depth/image_raw': '/sensors/camera_0/depth/image_raw',
+                'depth/image_raw/compressed':
+                    '/sensors/camera_0/depth/image_raw/compressed',
                 'depth/camera_info': '/sensors/camera_0/depth/camera_info',
             },
-            max_respawns=-1,
-            respawn_delay=2.0,
-        )
-        bl.node(
-            package='robot_perception',
-            executable='cone_detector',
-            name='cone_detector',
-            remaps={'detections': '/perception/cones'},
-            max_respawns=-1,
-            respawn_delay=2.0,
-        )
-        bl.node(
-            package='robot_perception',
-            executable='approach',
-            name='approach',
-            remaps={'detections': '/perception/cones'},
-            max_respawns=-1,
-            respawn_delay=2.0,
+            **RESPAWN,
         )
         if camera_parameters['enable_depth']:
             bl.node(
@@ -260,8 +474,7 @@ def robot():
                     'camera_info': '/sensors/camera_0/depth/camera_info',
                     'points': '/sensors/camera_0/depth/points',
                 },
-                max_respawns=-1,
-                respawn_delay=2.0,
+                **RESPAWN,
             )
             bl.node(
                 package='pointcloud_to_laserscan',
@@ -273,12 +486,22 @@ def robot():
                 },
                 params={
                     'target_frame': 'base_link',
-                    'min_height': 0.15,
+                    'min_height': 0.1,
                     'max_height': 0.5,
                     'range_min': 0.25,
                     'range_max': 8.0,
                     'scan_time': 1.0 / camera_parameters['depth_fps'],
                 },
-                max_respawns=-1,
-                respawn_delay=2.0,
+                **RESPAWN,
+            )
+            bl.node(
+                package='robot_perception',
+                executable='collision_overlay',
+                name='collision_overlay',
+                params={
+                    'cloud_topic': '/sensors/camera_0/depth/points',
+                    'camera_info_topic': '/sensors/camera_0/color/camera_info',
+                    'overlay_topic': '/perception/collision/overlay',
+                },
+                **RESPAWN,
             )

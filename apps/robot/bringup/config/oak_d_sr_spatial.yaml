@@ -1,0 +1,20 @@
+/**:
+  ros__parameters:
+    camera:
+      i_pipeline_type: RGBD
+      i_nn_type: spatial
+      i_enable_imu: false
+      i_publish_tf_from_calibration: true
+    right:
+      i_publish_topic: true
+      i_fps: 20.0
+    stereo:
+      i_align_depth: true
+      i_subpixel: true
+      i_lr_check: true
+      i_fps: 15.0
+      i_enable_decimation_filter: true
+      i_decimation_filter_decimation_factor: 2
+    nn:
+      i_nn_config_path: depthai_ros_driver/mobilenet
+      i_enable_passthrough: false
