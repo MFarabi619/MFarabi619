@@ -53,6 +53,8 @@ LIVE_PARAMETERS = frozenset({
     'max_retreat_speed',
 })
 MAX_MEASUREMENT_INTERVAL_S = 0.2
+TARGET_MATCH_RADIUS_M = 0.6
+NEARER_TAKEOVER_MARGIN_M = 0.4
 
 
 class Approach(Node):
@@ -87,6 +89,7 @@ class Approach(Node):
         self.previous_stamp_s = None
         self.previous_offset = 0.0
         self.previous_distance = 0.0
+        self.tracked_position = None
         self.cmd_vel_publisher = self.create_publisher(
             TwistStamped, cmd_vel_topic, 10
         )
@@ -103,9 +106,11 @@ class Approach(Node):
         self.get_logger().info(f'approach: {detections_topic} -> {cmd_vel_topic}')
 
     def on_detections(self, message):
-        target = self.nearest_target(message.detections)
+        target = self.select_target(self.candidate_points(message.detections))
         if target is None:
             self.missing_frames += 1
+            if self.missing_frames > self.reacquire_frames:
+                self.tracked_position = None
             angular_speed = (
                 self.last_angular_speed
                 if self.missing_frames <= self.reacquire_frames else 0.0
@@ -135,8 +140,8 @@ class Approach(Node):
         self.drive(forward_speed, self.last_angular_speed)
         self.publish_scene(message.header.stamp, message.header.frame_id, target, forward_speed)
 
-    def nearest_target(self, detections):
-        nearest = None
+    def candidate_points(self, detections):
+        points = []
         for detection in detections:
             if not detection.results:
                 continue
@@ -146,9 +151,34 @@ class Approach(Node):
             point = result.pose.pose.position
             if point.z <= 0.0:
                 continue
-            if nearest is None or point.z < nearest.z:
-                nearest = point
-        return nearest
+            points.append(point)
+        return points
+
+    def select_target(self, candidates):
+        if not candidates:
+            return None
+        nearest = min(candidates, key=lambda point: point.z)
+        tracked = self.tracked_candidate(candidates)
+        target = nearest
+        if (tracked is not None
+                and nearest.z > tracked.z - NEARER_TAKEOVER_MARGIN_M):
+            target = tracked
+        if target is not tracked:
+            self.previous_stamp_s = None
+        self.tracked_position = target
+        return target
+
+    def tracked_candidate(self, candidates):
+        if self.tracked_position is None:
+            return None
+        closest = min(candidates, key=self.distance_to_tracked)
+        if self.distance_to_tracked(closest) > TARGET_MATCH_RADIUS_M:
+            return None
+        return closest
+
+    def distance_to_tracked(self, point):
+        return math.hypot(
+            point.x - self.tracked_position.x, point.z - self.tracked_position.z)
 
     def approach_speed(self, distance, distance_rate):
         error = distance - self.standoff_distance

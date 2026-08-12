@@ -77,6 +77,7 @@ LIVE_PARAMETERS = frozenset({
     'roi_top_fraction', 'row_pitch_m', 'forward_speed_mps', 'lateral_gain',
     'heading_gain', 'max_angular_speed_radps', 'drive_enabled',
     'camera_lateral_offset_m', 'camera_height_m', 'lateral_trim_m',
+    'command_smoothing',
 })
 
 
@@ -125,6 +126,7 @@ class CanopyNavigator(Node):
         self.heading_gain = self.declare_parameter('heading_gain', 1.2).value
         self.max_angular_speed_radps = self.declare_parameter(
             'max_angular_speed_radps', 0.8).value
+        self.command_smoothing = self.declare_parameter('command_smoothing', 1.0).value
         self.drive_enabled = self.declare_parameter('drive_enabled', False).value
 
         self.camera_focal_columns = None
@@ -140,6 +142,9 @@ class CanopyNavigator(Node):
         self.row_miss_count = 0
         self.goal_outcome = None
         self.tracked_lateral_error = None
+        self.last_steering = 0.0
+        self.smoothed_forward_speed = 0.0
+        self.smoothed_angular_speed = 0.0
         self.fit_report = ''
         self.callback_group = ReentrantCallbackGroup()
         self.cmd_vel_publisher = self.create_publisher(
@@ -194,7 +199,7 @@ class CanopyNavigator(Node):
                 break
             time.sleep(GOAL_POLL_S)
         self.goal_handle = None
-        self.drive(0.0, 0.0)
+        self.halt()
         result = FollowRow.Result()
         result.distance_traveled_m = float(self.distance_traveled_m)
         result.outcome = self.goal_outcome or FollowRow.Result.OUTCOME_CANCELED
@@ -258,8 +263,12 @@ class CanopyNavigator(Node):
             self.row_miss_count += 1
             if self.row_miss_count >= ROW_LOST_MISS_LIMIT:
                 self.tracked_lateral_error = None
+                if self.row_miss_count == ROW_LOST_MISS_LIMIT:
+                    self.halt()
                 if self.goal_handle is not None:
                     self.goal_outcome = FollowRow.Result.OUTCOME_ROW_LOST
+            elif self.drive_enabled or self.goal_handle is not None:
+                self.drive(self.commanded_forward_speed(), self.last_steering)
             return
         lateral_error, heading_error, strip_points = fit
         self.overlay_publisher.publish(
@@ -272,8 +281,8 @@ class CanopyNavigator(Node):
             feedback.distance_traveled_m = float(self.distance_traveled_m)
             self.goal_handle.publish_feedback(feedback)
         if self.drive_enabled or self.goal_handle is not None:
-            self.drive(self.commanded_forward_speed(),
-                       self.steering(lateral_error, heading_error))
+            self.last_steering = self.steering(lateral_error, heading_error)
+            self.drive(self.commanded_forward_speed(), self.last_steering)
 
     def lattice_fit(self, mask):
         height, width = mask.shape
@@ -386,12 +395,24 @@ class CanopyNavigator(Node):
         return self.forward_speed_mps
 
     def drive(self, forward_speed, angular_speed):
+        self.smoothed_forward_speed += self.command_smoothing * (
+            forward_speed - self.smoothed_forward_speed)
+        self.smoothed_angular_speed += self.command_smoothing * (
+            angular_speed - self.smoothed_angular_speed)
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(forward_speed)
-        message.twist.angular.z = float(angular_speed)
+        message.twist.linear.x = float(self.smoothed_forward_speed)
+        message.twist.angular.z = float(np.clip(
+            self.smoothed_angular_speed,
+            -self.max_angular_speed_radps, self.max_angular_speed_radps))
         self.cmd_vel_publisher.publish(message)
+
+    def halt(self):
+        self.last_steering = 0.0
+        self.smoothed_forward_speed = 0.0
+        self.smoothed_angular_speed = 0.0
+        self.drive(0.0, 0.0)
 
     def ground_pixel(self, distance, lateral):
         return Point2(
