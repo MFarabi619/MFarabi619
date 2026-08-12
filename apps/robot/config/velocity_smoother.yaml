@@ -1,0 +1,12 @@
+velocity_smoother:
+  ros__parameters:
+    smoothing_frequency: 20.0
+    feedback: OPEN_LOOP
+    scale_velocities: false
+    max_velocity: [1.0, 0.0, 1.0]
+    min_velocity: [-1.0, 0.0, -1.0]
+    max_accel: [8.0, 0.0, 10.0]
+    max_decel: [-8.0, 0.0, -10.0]
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0
+    enable_stamped_cmd_vel: true

@@ -22,6 +22,7 @@ from robot_config.common.utils.dictionary import flip_dict
 from robot_config.sensors.definitions.camera import (
     BaseCamera,
     IMX296GS,
+    OakDSR,
     OrbbecGemini335L,
     USBWebcam,
 )
@@ -33,11 +34,13 @@ from robot_config.sensors.definitions.sensor import BaseSensor
 class Camera():
     IMX296_GS = IMX296GS.SENSOR_MODEL
     USB_WEBCAM = USBWebcam.SENSOR_MODEL
+    OAK_D_SR = OakDSR.SENSOR_MODEL
     ORBBEC_GEMINI_335L = OrbbecGemini335L.SENSOR_MODEL
 
     MODEL = {
         IMX296_GS: IMX296GS,
         USB_WEBCAM: USBWebcam,
+        OAK_D_SR: OakDSR,
         ORBBEC_GEMINI_335L: OrbbecGemini335L,
     }
 

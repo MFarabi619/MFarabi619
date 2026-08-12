@@ -1,0 +1,21 @@
+{
+  "mode": "client",
+  "connect": {
+    "endpoints": [
+      "tcp/beagleyai.local:7447",
+      "tcp/192.168.8.1:7447",
+      "tcp/192.168.0.84:7447",
+      "tcp/192.168.0.87:7447",
+      "tcp/10.0.0.247:7447",
+      "tcp/10.81.190.74:7447",
+      "tcp/192.168.1.134:7447",
+      "tcp/beagleyai:7447",
+      "tcp/rpi5-16-2:7447"
+    ]
+  },
+  "scouting": {
+    "multicast": {
+      "enabled": true
+    }
+  }
+}

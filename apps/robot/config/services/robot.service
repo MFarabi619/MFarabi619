@@ -7,7 +7,7 @@ StartLimitIntervalSec=0
 [Service]
 Type=simple
 User=mfarabi
-WorkingDirectory=/home/mfarabi/MFarabi619
+WorkingDirectory=/home/mfarabi/MFarabi619/apps/robot
 ExecStart=/home/mfarabi/.pixi/bin/pixi run robot
 LimitRTPRIO=95
 LimitMEMLOCK=infinity

@@ -178,6 +178,8 @@ sim-server = { cmd = "python simulator/launch/simulation.launch.py --headless tr
 teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_SESSION_CONFIG_URI = "config/zenoh/client_session.json5" } }
 
 teleop-robot1 = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
+follow-robot1 = { cmd = "python bringup/launch/follow.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = ["build"] }
+crop-row-robot1 = { cmd = "python bringup/launch/crop_row.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = ["build"] }
 
 approach = { cmd = "python perception/launch/approach.launch.py --standoff_distance {{ standoff }}", args = [
   { arg = "standoff", default = "1.0" },
@@ -205,6 +207,7 @@ canopy = { cmd = "python perception/src/canopy_detector.py", env = { ZENOH_CONFI
 
 # e2e = "python e2e/drive_profile.py --ros-args -p use_sim_time:=true"
 e2e = { cmd = "python e2e/cmd_vel.py", env = { ZENOH_SESSION_CONFIG_URI = "config/zenoh/client_session.json5" } }
+e2e-robot1 = { cmd = "python e2e/cmd_vel.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
 
 cone-drill = "python e2e/cone_drill.py --ros-args -p use_sim_time:=true"
 

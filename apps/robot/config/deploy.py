@@ -40,6 +40,8 @@ OLD_LAYOUT_ENTRIES = [
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ROBOTS_PATH = REPO_ROOT / 'apps/robot/config/robots'
 
+RSYNC_FLAGS = ['-rlpgoD', '--checksum']
+
 
 def run(*command, working_directory=None):
     subprocess.run(command, check=True, cwd=working_directory)
@@ -58,10 +60,11 @@ def shell_chain(*commands):
 
 
 def sync(host):
-    run('rsync', '-a', '-e', 'ssh -q', 'pixi.toml', 'pixi.lock',
-        f'{host}:{MIRROR_ROOT}/', working_directory=REPO_ROOT)
+    run('rsync', *RSYNC_FLAGS, '-e', 'ssh -q',
+        'apps/robot/pixi.toml', 'apps/robot/pixi.lock',
+        f'{host}:{MIRROR_ROOT}/apps/robot/', working_directory=REPO_ROOT)
     for subtree in RUNTIME_SUBTREES:
-        run('rsync', '-a', '--delete', '-e', 'ssh -q',
+        run('rsync', *RSYNC_FLAGS, '--delete', '-e', 'ssh -q',
             f'apps/robot/{subtree}/',
             f'{host}:{MIRROR_ROOT}/apps/robot/{subtree}/',
             working_directory=REPO_ROOT)
@@ -71,38 +74,39 @@ def build(host, config):
     commands = [
         ['cd', f'{MIRROR_ROOT}/apps/robot'],
         ['rm', '-rf', *OLD_LAYOUT_ENTRIES],
-        ['cd', MIRROR_ROOT],
     ]
     if config.get('sensors'):
         commands.append([PIXI, 'install', '-e', 'jazzy'])
     commands.append([
         PIXI, 'run', 'build',
-        ' '.join(f'apps/robot/{subtree}' for subtree in RUNTIME_SUBTREES),
+        ' '.join(RUNTIME_SUBTREES),
     ])
     ssh_with_terminal(host, shell_chain(*commands))
 
 
 def install_units(host, robot_name):
-    unit = f'{MIRROR_ROOT}/apps/robot/config/services/robot.service'
+    services = f'{MIRROR_ROOT}/apps/robot/config/services'
+    has_ap = (ROBOTS_PATH / robot_name / 'hostapd.conf').is_file()
     commands = [
         ['sudo', 'install', '-m', '644', '-o', 'root', '-g', 'root',
-         unit, '/etc/systemd/system/'],
+         f'{services}/robot.service', '/etc/systemd/system/'],
     ]
-    restart_units = ['robot.service']
-    if (ROBOTS_PATH / robot_name / 'hostapd.conf').is_file():
+    if has_ap:
         hostapd_config = f'{MIRROR_ROOT}/apps/robot/config/robots/{robot_name}/hostapd.conf'
-        commands.append(
+        commands += [
             ['sudo', 'install', '-m', '600', '-o', 'root', '-g', 'root',
-             hostapd_config, '/etc/hostapd/hostapd.conf'])
-        restart_units.insert(0, 'hostapd')
+             hostapd_config, '/etc/hostapd/hostapd.conf'],
+            ['sudo', 'systemctl', 'enable', 'hostapd'],
+        ]
     commands.append(['sudo', 'systemctl', 'daemon-reload'])
-    commands.append(['sudo', 'systemctl', 'try-restart', *restart_units])
+    commands.append(['sudo', 'systemctl', 'enable', 'robot.service'])
+    commands.append(['sudo', 'systemctl', 'restart', 'robot.service'])
     ssh_with_terminal(host, shell_chain(*commands))
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('robot', nargs='?', default='robot0')
+    parser.add_argument('robot', nargs='?', default='robot1')
     robot_name = parser.parse_args().robot
 
     config_path = ROBOTS_PATH / robot_name / 'robot.yaml'

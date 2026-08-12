@@ -1,0 +1,10 @@
+# pwm_chip numbers follow kernel probe order and can drift across kernel updates;
+# verify against pwm_name (SoC datasheet) and line_name (gpioinfo) after upgrades
+pins:
+  15: {gpio_chip: 2, line: 41, line_name: GPIO22}
+  16: {gpio_chip: 1, line: 7, line_name: GPIO23}
+  18: {gpio_chip: 1, line: 10, line_name: GPIO24}
+  31: {gpio_chip: 3, line: 17, line_name: GPIO6}
+  32: {pwm_chip: 3, pwm_channel: 1, pwm_name: EHRPWM0_B}
+  36: {gpio_chip: 3, line: 7, line_name: GPIO16}
+  38: {pwm_chip: 4, pwm_channel: 1, pwm_name: EHRPWM1_B}

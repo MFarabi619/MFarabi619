@@ -1,0 +1,11 @@
+{
+  "mode": "client",
+  "connect": {
+    "endpoints": ["tcp/rpi5-16-2:7447"]
+  },
+  "scouting": {
+    "multicast": {
+      "enabled": false
+    }
+  }
+}

@@ -1,0 +1,13 @@
+rc_teleop:
+  ros__parameters:
+    publish_stamped_twist: true
+    frame: base_link
+    require_enable_button: false
+    axis_linear:
+      x: 1
+    scale_linear:
+      x: 2.0
+    axis_angular:
+      yaw: 0
+    scale_angular:
+      yaw: 2.0

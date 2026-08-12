@@ -1,25 +1,23 @@
 serial_number: robot-0002
-version: 0
+version: 1
 system:
-  namespace: ""
+  namespace: robot2
   hosts:
     - hostname: pocketbeagle-2
       ip: 100.74.213.30
+      board: pocketbeagle_2
 platform:
   attachments: []
   drivetrain:
-    gpio_chip: 3
     pwm_frequency_hz: 20000.0
     max_linear_velocity_mps: 2.0
     left:
-      pwm_chip: 1 # EHRPWM2_A P1.36
-      pwm_channel: 0
-      dir_pin: 29 # P1.33
+      pwm_pin: P1.36
+      dir_pin: P1.33
       forward_level: true
     right:
-      pwm_chip: 0 # ECAP2 APWM P2.01
-      pwm_channel: 0
-      dir_pin: 9 # P2.03
+      pwm_pin: P2.01
+      dir_pin: P2.03
       forward_level: false
 sensors:
   camera: []

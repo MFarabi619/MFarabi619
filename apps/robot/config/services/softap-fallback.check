@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Raise the SoftAP only while wlan0 is not associated to an upstream network.
+# Single shared decision, called from both the dispatcher hook and the boot
+# timer, so the station-first policy lives in exactly one place.
+
+if nmcli --terse --fields DEVICE,STATE device status | grep --quiet '^wlan0:connected$'; then
+    systemctl stop hostapd
+else
+    systemctl start hostapd
+fi

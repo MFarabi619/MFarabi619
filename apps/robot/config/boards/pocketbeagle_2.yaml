@@ -1,0 +1,7 @@
+# pwm_chip numbers follow kernel probe order and can drift across kernel updates;
+# verify against pwm_name (SoC datasheet) after upgrades
+pins:
+  P1.33: {gpio_chip: 3, line: 29}
+  P1.36: {pwm_chip: 1, pwm_channel: 0, pwm_name: EHRPWM2_A}
+  P2.01: {pwm_chip: 0, pwm_channel: 0, pwm_name: ECAP2_APWM}
+  P2.03: {gpio_chip: 3, line: 9}

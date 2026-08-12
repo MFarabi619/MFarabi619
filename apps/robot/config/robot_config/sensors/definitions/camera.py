@@ -29,7 +29,7 @@ class BaseCamera(BaseSensor):
         COLOR_IMAGE = 'color_image'
         COLOR_CAMERA_INFO = 'color_camera_info'
         NAME = {
-            COLOR_IMAGE: 'color/image',
+            COLOR_IMAGE: 'color/image_raw',
             COLOR_CAMERA_INFO: 'color/camera_info'
         }
         TYPE = {
@@ -74,3 +74,7 @@ class USBWebcam(BaseCamera):
 
 class OrbbecGemini335L(BaseCamera):
     SENSOR_MODEL = 'orbbec_gemini_335l'
+
+
+class OakDSR(BaseCamera):
+    SENSOR_MODEL = 'oak_d_sr'

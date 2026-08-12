@@ -1,0 +1,9 @@
+[Unit]
+Description=Delayed SoftAP fallback check after boot
+
+[Timer]
+OnBootSec=30s
+Unit=softap-fallback.service
+
+[Install]
+WantedBy=timers.target

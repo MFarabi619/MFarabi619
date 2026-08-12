@@ -1,26 +1,36 @@
 serial_number: robot-0000
-version: 0
+version: 1
 system:
-  namespace: ""
+  namespace: robot0
   hosts:
     - hostname: beagleyai
       ip: &host 10.0.0.222
+      board: beagley_ai
 platform:
   attachments: []
+  # HotRC F-06A: receiver row `+` -> pin 2 (5V), row `-` -> pin 6 (GND);
+  # each signal through a divider (2.2k series, 3.3k to GND) -- 3.3V-only GPIOs
+  rc_receiver:
+    launch_enabled: false
+    tank_mixed: true
+    channel_1_pin: 16
+    channel_2_pin: 18
+  # RC ESC: signal + ground ONLY per channel -- never the CH `+` pin (5V BEC out);
+  # header GND pin 39 -> controller GND
   drivetrain:
-    gpio_chip: 3
-    pwm_frequency_hz: 20000.0
+    model: rc_pulse
     max_linear_velocity_mps: 2.0
     left:
-      pwm_chip: 4 # EHRPWM1_B pin 38
-      pwm_channel: 1
-      dir_pin: 7 # pin 36
-      forward_level: true
+      pwm_pin: 38 # -> CH1 s
+      reversed: false
     right:
-      pwm_chip: 3 # EHRPWM0_B pin 32
-      pwm_channel: 1
-      dir_pin: 12 # pin 35
-      forward_level: false
+      pwm_pin: 32 # -> CH2 s
+      reversed: false
+  # Parked MDD10A wiring (model: pwm_dir): GND pin 39 -> driver GND;
+  # motors on M1A/M1B (left), M2A/M2B (right)
+  #   pwm_frequency_hz: 20000.0
+  #   left:  {pwm_pin: 38, dir_pin: 36, forward_level: true}   # PWM1 / DIR1
+  #   right: {pwm_pin: 32, dir_pin: 31, forward_level: false}  # PWM2 / DIR2
 sensors:
   camera:
     - model: orbbec_gemini_335l
@@ -29,28 +39,23 @@ sensors:
       rpy: [0.0, 0.31, 0.0]
       ros_parameters:
         camera_0:
-          color_width: 1280
-          color_height: 720
-          color_fps: 15
+          color_width: 640
+          color_height: 480
+          color_fps: 10
+          jpeg_quality: 60
           enable_depth: true
           depth_width: 848
           depth_height: 480
           depth_fps: 15
           depth_decimation: 2
-    - model: imx296_gs
-      parent: base_link
-      xyz: [0.405, 0.4746, 0.5]
-      rpy: [0.0, 0.31, 0.0]
+    # Parked OAK-D SR (beagle moved to the big robot 2026-08-06)
+    - model: oak_d_sr
       launch_enabled: false
+      parent: base_link
+      xyz: [0.575, 0.5, 0.31]
+      rpy: [0.0, 0.31, 0.0]
       ros_parameters:
-        camera_1:
-          name: camera_1
-          host: *host
-          port: 8888
-          stream_path: ""
-          width: 1456
-          height: 1088
-          fov_deg: 54.0
+        camera_0: {}
   imu:
     - model: bno085
       parent: base_link

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# NetworkManager dispatcher hook: re-evaluate the SoftAP whenever wlan0 gains
+# or loses its upstream connection. $1 is the interface, $2 the action. Only
+# wlan0 events matter — SoftAp0's own events are ignored to avoid a loop.
+
+[ "$1" = wlan0 ] || exit 0
+
+case "$2" in
+    up | down)
+        /usr/local/bin/softap-fallback-check
+        ;;
+esac

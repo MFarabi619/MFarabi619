@@ -1,0 +1,25 @@
+serial_number: robot-0004
+version: 1
+system:
+  namespace: robot4
+  hosts:
+    - hostname: rpi5-16
+      ip: 10.81.190.160
+      board: rpi_5
+platform:
+  attachments: []
+  # HAT-MDD10 fly-wired straight-through, pin i -> HAT socket i: 3V3 pin 17
+  # (logic power, mandatory), GND pin 39; motors on M1A/M1B (left), M2A/M2B (right)
+  drivetrain:
+    model: pwm_dir
+    pwm_frequency_hz: 20000.0
+    max_linear_velocity_mps: 1.0
+    left:
+      pwm_pin: 32 # PWM1 input
+      dir_pin: 37 # DIR1 input
+      forward_level: true
+    right:
+      pwm_pin: 33 # PWM2 input
+      dir_pin: 18 # DIR2 input
+      forward_level: true
+sensors: {}

@@ -1,0 +1,8 @@
+[Unit]
+Description=Raise the SoftAP when no upstream Wi-Fi is present
+After=NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/softap-fallback-check
