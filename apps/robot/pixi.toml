@@ -68,6 +68,7 @@ depthai = ">=2.24,<3"
 
 [target.osx-arm64.pypi-dependencies]
 mediapipe = "*"
+depthai = ">=2.24,<3"
 better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editable = true }
 
 [target.osx-arm64.dependencies]
