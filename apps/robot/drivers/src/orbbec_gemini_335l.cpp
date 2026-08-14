@@ -20,6 +20,7 @@
 
 
 #include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
@@ -47,6 +48,7 @@ namespace
 
 constexpr uint32_t FRAME_TIMEOUT_MS = 1000;
 constexpr int FRAME_TIMEOUTS_BEFORE_DEVICE_LOST = 5;
+constexpr auto DEVICE_RETRY_DELAY = std::chrono::seconds(2);
 constexpr int64_t MICROSECONDS_PER_SECOND = 1'000'000;
 constexpr int NANOSECONDS_PER_MICROSECOND = 1000;
 constexpr int MILLISECONDS_PER_SECOND = 1000;
@@ -133,8 +135,21 @@ public:
     ob::Context::setExtensionsDirectory(extensions.c_str());
     ob::Context::setLoggerSeverity(OB_LOG_SEVERITY_WARN);
 
+    while (rclcpp::ok()) {
+      try {
+        pipeline_.emplace();
+        break;
+      } catch (const ob::Error & error) {
+        RCLCPP_WARN(get_logger(), "waiting for camera: %s", error.what());
+        std::this_thread::sleep_for(DEVICE_RETRY_DELAY);
+      }
+    }
+    if (!pipeline_) {
+      throw std::runtime_error("shutdown before camera appeared");
+    }
+
     auto config = std::make_shared<ob::Config>();
-    auto color_profile = pipeline_.getStreamProfileList(OB_SENSOR_COLOR)
+    auto color_profile = pipeline_->getStreamProfileList(OB_SENSOR_COLOR)
       ->getVideoStreamProfile(
         get_parameter("color_width").as_int(), get_parameter("color_height").as_int(),
         OB_FORMAT_BGR, get_parameter("color_fps").as_int());
@@ -147,11 +162,11 @@ public:
       }
     }
     try {
-      pipeline_.getDevice()->enableGlobalTimestamp(true);
+      pipeline_->getDevice()->enableGlobalTimestamp(true);
     } catch (const ob::Error & error) {
       RCLCPP_WARN(get_logger(), "global timestamps unavailable: %s", error.what());
     }
-    pipeline_.start(config);
+    pipeline_->start(config);
 
     compressed_publisher_ = create_publisher<sensor_msgs::msg::CompressedImage>(
       "color/image_raw/compressed", rclcpp::SensorDataQoS());
@@ -182,7 +197,7 @@ public:
     if (frame_thread_.joinable()) {
       frame_thread_.join();
     }
-    pipeline_.stop();
+    pipeline_->stop();
   }
 
 private:
@@ -190,7 +205,7 @@ private:
   {
     int consecutive_timeouts = 0;
     while (running_ && rclcpp::ok()) {
-      auto frame_set = pipeline_.waitForFrameset(FRAME_TIMEOUT_MS);
+      auto frame_set = pipeline_->waitForFrameset(FRAME_TIMEOUT_MS);
       auto color_frame = frame_set ? frame_set->colorFrame() : nullptr;
       auto depth_frame = frame_set ? frame_set->depthFrame() : nullptr;
       if (!color_frame && !depth_frame) {
@@ -219,7 +234,7 @@ private:
     int height = get_parameter("depth_height").as_int();
     int fps = get_parameter("depth_fps").as_int();
     auto aligned_profiles =
-      pipeline_.getD2CDepthProfileList(color_profile, ALIGN_D2C_HW_MODE);
+      pipeline_->getD2CDepthProfileList(color_profile, ALIGN_D2C_HW_MODE);
     for (uint32_t index = 0; index < aligned_profiles->getCount(); ++index) {
       auto profile = aligned_profiles->getProfile(index)->as<ob::VideoStreamProfile>();
       if (profile->getFps() == static_cast<uint32_t>(fps)) {
@@ -231,7 +246,7 @@ private:
       is_depth_aligned_ = true;
       return aligned_profiles->getProfile(0);
     }
-    return pipeline_.getStreamProfileList(OB_SENSOR_DEPTH)
+    return pipeline_->getStreamProfileList(OB_SENSOR_DEPTH)
            ->getVideoStreamProfile(width, height, OB_FORMAT_Y16, fps);
   }
 
@@ -256,7 +271,7 @@ private:
     }
 
     if (!camera_info_) {
-      auto camera_param = pipeline_.getCameraParam();
+      auto camera_param = pipeline_->getCameraParam();
       if (camera_param.rgbIntrinsic.width == 0) {
         return;
       }
@@ -323,7 +338,7 @@ private:
     depth_image_publisher_->publish(std::move(image));
 
     if (!depth_camera_info_) {
-      auto camera_param = pipeline_.getCameraParam();
+      auto camera_param = pipeline_->getCameraParam();
       const auto & intrinsic =
         is_depth_aligned_ ? camera_param.rgbIntrinsic : camera_param.depthIntrinsic;
       const auto & distortion =
@@ -339,7 +354,7 @@ private:
     depth_camera_info_publisher_->publish(*depth_camera_info_);
   }
 
-  ob::Pipeline pipeline_;
+  std::optional<ob::Pipeline> pipeline_;
   std::string frame_id_;
   std::string depth_frame_id_;
   bool enable_depth_ = false;

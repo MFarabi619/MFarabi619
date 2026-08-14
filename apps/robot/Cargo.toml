@@ -8,12 +8,15 @@ default-run = "base_controller"
 robot_description.path = "description"
 robot_drivers.path = "drivers"
 robot_control.path = "control"
-robot_diagnostics.path = "diagnostics"
 robot_sensors.path = "sensors"
 robot_perception = { path = "perception", optional = true }
 oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = [
   "zenoh",
 ] }
+ros2-types = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = [
+  "derive",
+] }
+oxidros-msg = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7" }
 zenoh = { version = "1", features = ["unstable"] }
 zenoh-ext = { version = "1", features = ["unstable"] }
 tokio = { version = "1", features = ["full"] }
@@ -28,6 +31,9 @@ rattler_conda_types = { version = "0.48", optional = true }
 default = ["perception", "pixi"]
 perception = ["dep:robot_perception"]
 pixi = ["dep:rattler_shell", "dep:rattler_conda_types"]
+
+[build-dependencies]
+oxidros-build = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7" }
 
 [dev-dependencies]
 tokio-tungstenite = "0.26"
@@ -45,6 +51,9 @@ required-features = ["pixi"]
 [[example]]
 name = "task"
 required-features = ["pixi"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(feature, values("rcl"))'] }
 
 [lints.clippy]
 all = "deny"

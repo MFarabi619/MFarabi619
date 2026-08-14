@@ -1,5 +1,16 @@
 pub mod config;
+pub mod diagnostics;
 pub mod driver;
+#[allow(
+    dead_code,
+    unused_imports,
+    non_camel_case_types,
+    clippy::all,
+    clippy::upper_case_acronyms
+)]
+pub mod platform_msgs {
+    include!(concat!(env!("OUT_DIR"), "/generated/mod.rs"));
+}
 #[cfg(feature = "pixi")]
 pub mod pixi;
 

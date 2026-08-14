@@ -18,6 +18,8 @@ find_package(ament_cmake_python REQUIRED)
 ament_python_install_module(src/adafruit_bno085.py)
 install(FILES src/pwm_dir_motor_driver.py src/rpicam_mjpeg.py DESTINATION "${PYTHON_INSTALL_DIR}")
 install(PROGRAMS src/oak_d_sr.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_sr)
+install(PROGRAMS src/oak_d_pro_w_poe.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_pro_w_poe)
+install(PROGRAMS src/odrive_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME odrive_motor_driver)
 
 find_package(rclcpp REQUIRED)
 find_package(robot_platform_msgs REQUIRED)

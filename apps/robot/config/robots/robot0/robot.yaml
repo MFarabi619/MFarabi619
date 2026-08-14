@@ -48,14 +48,6 @@ sensors:
           depth_height: 480
           depth_fps: 15
           depth_decimation: 2
-    # Parked OAK-D SR (beagle moved to the big robot 2026-08-06)
-    - model: oak_d_sr
-      launch_enabled: false
-      parent: base_link
-      xyz: [0.575, 0.5, 0.31]
-      rpy: [0.0, 0.31, 0.0]
-      ros_parameters:
-        camera_0: {}
   imu:
     - model: bno085
       parent: base_link

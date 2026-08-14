@@ -95,7 +95,6 @@ def robot():
     rc_receiver = robot_config['platform'].get('rc_receiver')
     if rc_receiver and not rc_receiver.get('launch_enabled', True):
         rc_receiver = None
-    pins = board_pins(robot_config)
     drivetrain_model = drivetrain.get('model', 'pwm_dir')
     with open('control/config/drivetrain.generated.yaml') as file:
         drivetrain_sections = yaml.safe_load(file)
@@ -106,7 +105,7 @@ def robot():
 
     oak_camera = next(
         (camera for camera in sensors.get('camera', [])
-         if camera['model'] == 'oak_d_sr'
+         if camera['model'] in ('oak_d_sr', 'oak_d_pro_w_poe')
          and camera.get('launch_enabled', True)),
         None)
     orbbec_camera = next(
@@ -142,9 +141,24 @@ def robot():
         anonymous=False,
     )
 
-    left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain['left']['pwm_pin'])
-    right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain['right']['pwm_pin'])
-    if drivetrain_model == 'rc_pulse':
+    if drivetrain_model == 'odrive_usb':
+        bl.node(
+            package='robot_drivers',
+            executable='odrive_motor_driver',
+            params={
+                'gear_ratio': drivetrain['gear_ratio'],
+                'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                'left_serial': drivetrain['left']['serial'],
+                'left_reversed': drivetrain['left']['reversed'],
+                'right_serial': drivetrain['right']['serial'],
+                'right_reversed': drivetrain['right']['reversed'],
+            },
+            **RESPAWN,
+        )
+    elif drivetrain_model == 'rc_pulse':
+        pins = board_pins(robot_config)
+        left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain['left']['pwm_pin'])
+        right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain['right']['pwm_pin'])
         bl.node(
             package='robot_drivers',
             executable='rc_pulse_motor_driver',
@@ -160,6 +174,9 @@ def robot():
             **RESPAWN,
         )
     else:
+        pins = board_pins(robot_config)
+        left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain['left']['pwm_pin'])
+        right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain['right']['pwm_pin'])
         left_dir_chip, left_dir_line = resolve_line(pins, drivetrain['left']['dir_pin'])
         right_dir_chip, right_dir_line = resolve_line(pins, drivetrain['right']['dir_pin'])
         if left_dir_chip != right_dir_chip:
@@ -212,6 +229,7 @@ def robot():
     spawn_controllers()
 
     if rc_receiver:
+        pins = board_pins(robot_config)
         channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver['channel_1_pin'])
         channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver['channel_2_pin'])
         if channel_1_chip != channel_2_chip:
@@ -306,7 +324,7 @@ def robot():
         package='diagnostic_aggregator',
         executable='aggregator_node',
         name='diagnostic_aggregator',
-        param_files=['diagnostics/config/diagnostic_aggregator.yaml'],
+        param_files=['config/diagnostic_aggregator.yaml'],
         **RESPAWN,
     )
 
@@ -337,15 +355,26 @@ def robot():
 
     if oak_camera:
         camera_name = next(iter(oak_camera['ros_parameters']))
-        bl.node(
-            package='robot_drivers',
-            executable='oak_d_sr',
-            name='oak_d_sr',
-            params={
-                'frame_id': f'{camera_name}_link_right_camera_optical_frame',
+        if oak_camera['model'] == 'oak_d_pro_w_poe':
+            optical_frame = f'{camera_name}_link_color_optical_frame'
+            oak_params = {
+                'ip': oak_camera['ros_parameters'][camera_name]['ip'],
+                'frame_id': optical_frame,
+                'fps': 30.0,
+                'jpeg_quality': 60,
+            }
+        else:
+            optical_frame = f'{camera_name}_link_right_camera_optical_frame'
+            oak_params = {
+                'frame_id': optical_frame,
                 'fps': 15.0,
                 'jpeg_quality': 60,
-            },
+            }
+        bl.node(
+            package='robot_drivers',
+            executable=oak_camera['model'],
+            name=oak_camera['model'],
+            params=oak_params,
             remaps={
                 'color/image_raw/compressed':
                     f'/sensors/{camera_name}/color/image_raw/compressed',
@@ -354,6 +383,8 @@ def robot():
                 'depth/image_raw/compressed':
                     f'/sensors/{camera_name}/depth/image_raw/compressed',
                 'depth/camera_info': f'/sensors/{camera_name}/depth/camera_info',
+                'depth/points': f'/sensors/{camera_name}/depth/points',
+                'imu/data': f'/sensors/{camera_name}/imu/data',
             },
             **RESPAWN,
         )
@@ -364,22 +395,22 @@ def robot():
             cmd_args=[
                 '--roll', '-1.5708', '--yaw', '-1.5708',
                 '--frame-id', f'{camera_name}_link',
-                '--child-frame-id',
-                f'{camera_name}_link_right_camera_optical_frame',
+                '--child-frame-id', optical_frame,
             ],
             **RESPAWN,
         )
-        bl.node(
-            package='depth_image_proc',
-            executable='point_cloud_xyz_node',
-            name='oak_depth_to_pointcloud',
-            remaps={
-                'image_rect': f'/sensors/{camera_name}/depth/image_raw',
-                'camera_info': f'/sensors/{camera_name}/depth/camera_info',
-                'points': f'/sensors/{camera_name}/depth/points',
-            },
-            **RESPAWN,
-        )
+        if oak_camera['model'] == 'oak_d_sr':
+            bl.node(
+                package='depth_image_proc',
+                executable='point_cloud_xyz_node',
+                name='oak_depth_to_pointcloud',
+                remaps={
+                    'image_rect': f'/sensors/{camera_name}/depth/image_raw',
+                    'camera_info': f'/sensors/{camera_name}/depth/camera_info',
+                    'points': f'/sensors/{camera_name}/depth/points',
+                },
+                **RESPAWN,
+            )
         bl.node(
             package='pointcloud_to_laserscan',
             executable='pointcloud_to_laserscan_node',
@@ -388,6 +419,7 @@ def robot():
                 'cloud_in': f'/sensors/{camera_name}/depth/points',
                 'scan': f'/sensors/{camera_name}/scan',
             },
+            # TODO: rescope range_max to the OAK-D SR's 1.5m usable depth band
             params={
                 'target_frame': 'base_link',
                 'min_height': 0.1,
@@ -395,44 +427,6 @@ def robot():
                 'range_min': 0.2,
                 'range_max': 3.0,
                 'scan_time': 0.05,
-            },
-            **RESPAWN,
-        )
-        bl.node(
-            package='robot_perception',
-            executable='color_blob_detector',
-            name='laptop_detector',
-            params={
-                'image_topic': f'/sensors/{camera_name}/color/image_raw/compressed',
-                'depth_topic': f'/sensors/{camera_name}/depth/image_raw',
-                'depth_camera_info_topic':
-                    f'/sensors/{camera_name}/depth/camera_info',
-                'class_label': 'laptop',
-                'hue_min': 20.0,
-                'hue_max': 35.0,
-                'min_saturation': 0.45,
-                'min_value': 0.35,
-                'min_area': 800,
-                'min_triangularity': 0.0,
-                'min_aspect_ratio': 0.0,
-                'fallback_range': 3.0,
-                'overlay_topic': '/perception/laptop/overlay',
-            },
-            remaps={'detections': '/perception/laptop'},
-            **RESPAWN,
-        )
-        bl.node(
-            package='robot_perception',
-            executable='approach',
-            name='laptop_approach',
-            params={
-                'standoff_distance': 0.25,
-                'reacquire_frames': 8,
-                'scene_topic': '/perception/laptop/scene',
-            },
-            remaps={
-                'detections': '/perception/laptop',
-                'detections_3d': '/perception/targets',
             },
             **RESPAWN,
         )

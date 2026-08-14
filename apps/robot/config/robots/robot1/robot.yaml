@@ -4,7 +4,7 @@ system:
   namespace: robot1
   hosts:
     - hostname: rpi5-16-2
-      ip: 10.0.0.28
+      ip: 10.81.190.228
       board: rpi_5
 platform:
   attachments: []
@@ -19,10 +19,6 @@ platform:
     right:
       pwm_pin: 33 # -> CH1 s (physical right motor)
       reversed: false
-  # Parked dual-MD30C wiring (model: pwm_dir): GND -> BOTH drivers' GND (common ground)
-  #   pwm_frequency_hz: 20000.0
-  #   left:  {pwm_pin: 33, dir_pin: 36, forward_level: true}   # left MD30C PWM / DIR
-  #   right: {pwm_pin: 32, dir_pin: 40, forward_level: false}  # right MD30C PWM / DIR
 sensors:
   camera:
     - model: orbbec_gemini_335l

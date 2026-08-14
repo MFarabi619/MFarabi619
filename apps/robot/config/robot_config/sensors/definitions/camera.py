@@ -78,3 +78,7 @@ class OrbbecGemini335L(BaseCamera):
 
 class OakDSR(BaseCamera):
     SENSOR_MODEL = 'oak_d_sr'
+
+
+class OakDProWPoe(BaseCamera):
+    SENSOR_MODEL = 'oak_d_pro_w_poe'

@@ -21,6 +21,8 @@
 # THE SOFTWARE.
 
 
+import time
+
 import cv2
 import depthai as dai
 import numpy as np
@@ -31,11 +33,16 @@ from sensor_msgs.msg import CameraInfo, CompressedImage, Image
 
 
 QUEUE_POLL_RATE_HZ = 60.0
+DEVICE_RETRY_DELAY_SECONDS = 2.0
 MAX_VIZ_DEPTH_MM = 3000.0
 SENSOR_WIDTH = 1280
 SENSOR_HEIGHT = 800
 
 
+# TODO: align depth to CAM_B color on device
+# TODO: add on-device threshold filter clamped to the 0.2-1.5m band
+# TODO: publish the onboard BMI270 imu
+# TODO: run spatial person detection on camera
 def build_pipeline(fps, jpeg_quality, resolution_divisor):
     pipeline = dai.Pipeline()
     left = pipeline.create(dai.node.ColorCamera)
@@ -83,7 +90,7 @@ class OakDSr(Node):
         pipeline = build_pipeline(
             self.get_parameter('fps').value, self.jpeg_quality,
             resolution_divisor)
-        self.device = dai.Device(pipeline)
+        self.device = self.wait_for_device(pipeline)
         self.color_queue = self.device.getOutputQueue(
             'color', maxSize=2, blocking=False)
         self.depth_queue = self.device.getOutputQueue(
@@ -109,6 +116,15 @@ class OakDSr(Node):
         self.get_logger().info(
             f'connected {self.device.getDeviceName()} '
             f'usb={self.device.getUsbSpeed().name}')
+
+    def wait_for_device(self, pipeline):
+        while rclpy.ok():
+            try:
+                return dai.Device(pipeline)
+            except RuntimeError as error:
+                self.get_logger().warning(f'waiting for camera: {error}')
+                time.sleep(DEVICE_RETRY_DELAY_SECONDS)
+        raise RuntimeError('shutdown before camera appeared')
 
     def read_camera_info(self, calibration, socket):
         intrinsics = calibration.getCameraIntrinsics(

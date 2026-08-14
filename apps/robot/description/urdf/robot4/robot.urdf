@@ -192,20 +192,11 @@
     <axis xyz="0.0 1.0 0.0"/>
   </joint>
 
-  <link name="camera_mount_link"/>
-  <joint name="camera_mount_link_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_mount_link"/>
-    <origin xyz="0.2000 0.0000 0.7500" rpy="0.0000 0.0000 0.0000"/>
-  </joint>
-
-  <link name="camera_0_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/orbbec_gemini_335l.dae"/></geometry></visual>
-  </link>
+  <link name="camera_0_link"/>
   <joint name="camera_0_link_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_0_link"/>
-    <origin xyz="0.5750 0.5000 0.3100" rpy="0.0000 0.3100 0.0000"/>
+    <origin xyz="0.5750 0.5000 0.3100" rpy="0.0000 0.0000 0.0000"/>
   </joint>
 
   <link name="camera_0_color_optical_frame"/>
@@ -215,49 +206,9 @@
     <origin xyz="0.0000 0.0000 0.0000" rpy="-1.5708 0.0000 -1.5708"/>
   </joint>
 
-  <link name="imu_0_link"/>
-  <joint name="imu_0_link_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="imu_0_link"/>
-    <origin xyz="0.0000 0.0000 0.3000" rpy="0.0000 0.0000 0.0000"/>
-  </joint>
-
-  <gazebo reference="camera_0_link">
-    <sensor name="camera_0" type="rgbd_camera">
-      <update_rate>10</update_rate>
-      <always_on>true</always_on>
-      <frame_id>camera_0_color_optical_frame</frame_id>
-      <camera>
-        <horizontal_fov>1.2217</horizontal_fov>
-        <image>
-          <width>640</width>
-          <height>480</height>
-        </image>
-        <clip>
-          <near>0.1</near>
-          <far>100.0</far>
-        </clip>
-        <depth_camera>
-          <clip>
-            <near>0.25</near>
-            <far>20</far>
-          </clip>
-        </depth_camera>
-      </camera>
-    </sensor>
-  </gazebo>
-
-  <gazebo reference="imu_0_link">
-    <sensor name="imu_0" type="imu">
-      <update_rate>25</update_rate>
-      <always_on>true</always_on>
-      <frame_id>imu_0_link</frame_id>
-    </sensor>
-  </gazebo>
-
   <ros2_control name="DiffDriveHardware" type="system">
     <hardware>
-      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      <plugin>robot_hardware_interfaces/DiffDriveHardware</plugin>
     </hardware>
     <joint name="front_left_wheel_joint">
       <command_interface name="velocity"/>
@@ -280,29 +231,5 @@
       <state_interface name="velocity"/>
     </joint>
   </ros2_control>
-
-  <gazebo>
-    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-      <parameters>package://robot_control/config/control.yaml</parameters>
-      <ros>
-        <namespace>robot0</namespace>
-        <remapping>~/cmd_vel:=platform/cmd_vel</remapping>
-        <remapping>~/reference:=platform/cmd_vel</remapping>
-        <remapping>~/odom:=odom</remapping>
-        <remapping>~/odometry:=odom</remapping>
-        <remapping>joint_states:=joint_states</remapping>
-        <remapping>robot_description:=/robot_description</remapping>
-      </ros>
-    </plugin>
-  </gazebo>
-
-  <gazebo>
-    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
-      <publish_link_pose>true</publish_link_pose>
-      <publish_nested_model_pose>true</publish_nested_model_pose>
-      <use_pose_vector_msg>true</use_pose_vector_msg>
-      <update_frequency>50</update_frequency>
-    </plugin>
-  </gazebo>
 
 </robot>

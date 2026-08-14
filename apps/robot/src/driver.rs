@@ -19,8 +19,8 @@ use robot_control::{
         axis_limits, RuckigProfile, DEFAULT_ANGULAR, DEFAULT_LINEAR, DEFAULT_UPDATE_RATE,
     },
 };
-use robot_diagnostics::{diagnostic_array, Status};
-use robot_drivers::motor::{mix, shape, Drivetrain, Shaping, DriveCommand, HALT};
+use crate::diagnostics::{diagnostic_array, Status};
+use robot_drivers::motor::{mix, shape, Shaping, DriveCommand, WheelDrive, HALT};
 
 const DEFAULT_ODOMETRY_RATE: f64 = 30.0;
 const DEFAULT_DIAGNOSTICS_RATE: f64 = 1.0;
@@ -41,7 +41,7 @@ fn diagnostics(host: &str, cmd_vel_age_seconds: f64, deadman_seconds: f64) -> Di
         DiagnosticStatus::OK
     };
     diagnostic_array(vec![
-        Status::new(DiagnosticStatus::OK, "rgpiod", host).message("connected"),
+        Status::new(DiagnosticStatus::OK, "drive", host).message("connected"),
         Status::new(cmd_vel_level, "cmd_vel", host)
             .message(&format!("{cmd_vel_age_seconds:.1}s since last command"))
             .value("age_seconds", &format!("{cmd_vel_age_seconds:.2}")),
@@ -50,7 +50,7 @@ fn diagnostics(host: &str, cmd_vel_age_seconds: f64, deadman_seconds: f64) -> Di
 
 pub async fn run_driver(
     node: Arc<Node>,
-    drivetrain: Drivetrain<'_>,
+    mut drivetrain: impl WheelDrive,
     config: Config,
 ) -> Result<(), BoxError> {
     let mut cmd_vel = node.create_subscriber::<TwistStamped>("platform/cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
@@ -101,7 +101,7 @@ pub async fn run_driver(
     let mut odometry_tick = interval(Duration::from_secs_f64(1.0 / odometry_rate));
     let mut diagnostics_tick = interval(Duration::from_secs_f64(1.0 / diagnostics_rate));
 
-    tracing::info!("driving on cmd_vel via rgpiod at {}", config.host);
+    tracing::info!("driving on cmd_vel via {}", config.host);
     let ctrl_c = tokio::signal::ctrl_c();
     tokio::pin!(ctrl_c);
     loop {

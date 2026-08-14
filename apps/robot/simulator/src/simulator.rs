@@ -29,7 +29,7 @@ use robot_control::{
     integrate_pose, kinematics::wheel_angular_velocities, odometry::joint_state_message,
 };
 use robot_description::time::now_stamp;
-use robot_diagnostics::{battery_diagnostic_level, diagnostic_array, Status};
+use robot::diagnostics::{battery_diagnostic_level, diagnostic_array, Status};
 
 const IMAGE_WIDTH: usize = 1280;
 const IMAGE_HEIGHT: usize = 800;

@@ -22,8 +22,14 @@ from better_launch import BetterLaunch, launch_this
 ZENOH_ROUTER_PORT = 7447
 ROUTER_CONFIG_OVERRIDE = (
     f'connect/endpoints=["tcp/beagleyai:{ZENOH_ROUTER_PORT}",'
-    f'"tcp/pocketbeagle-2:{ZENOH_ROUTER_PORT}"]')
+    f'"tcp/pocketbeagle-2:{ZENOH_ROUTER_PORT}",'
+    f'"tcp/rpi5-16-2:{ZENOH_ROUTER_PORT}"]')
 CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ZENOH_ROUTER_PORT}"]'
+
+GESTURE_CAMERA_TOPICS = {
+    'webcam': '/image',
+    'robot': '/sensors/camera_0/color/image_raw/compressed',
+}
 
 
 def wait_for_router(attempts=50):
@@ -37,7 +43,7 @@ def wait_for_router(attempts=50):
 
 
 @launch_this
-def bringup():
+def bringup(gesture_camera: str = 'webcam'):
     bl = BetterLaunch()
     bl.process(
         'ros2 run rmw_zenoh_cpp rmw_zenohd',
@@ -64,7 +70,7 @@ def bringup():
         package='robot_perception',
         executable='gesture_teleop',
         name='gesture_teleop',
-        params={'image_topic': '/image'},
+        params={'image_topic': GESTURE_CAMERA_TOPICS[gesture_camera]},
         env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
     )
     bl.node(

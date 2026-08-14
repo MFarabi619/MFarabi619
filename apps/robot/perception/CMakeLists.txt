@@ -2,6 +2,23 @@ cmake_minimum_required(VERSION 3.16)
 project(robot_perception)
 
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(foxglove_msgs REQUIRED)
+find_package(image_geometry REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+
+add_executable(collision_overlay_cpp src/collision_overlay.cpp)
+target_compile_features(collision_overlay_cpp PUBLIC cxx_std_17)
+target_link_libraries(collision_overlay_cpp
+  rclcpp::rclcpp
+  image_geometry::image_geometry
+  tf2_ros::tf2_ros
+  ${sensor_msgs_TARGETS}
+  ${foxglove_msgs_TARGETS}
+  ${tf2_geometry_msgs_TARGETS})
+install(TARGETS collision_overlay_cpp DESTINATION lib/${PROJECT_NAME})
 
 install(PROGRAMS src/color_blob_detector.py DESTINATION lib/${PROJECT_NAME} RENAME color_blob_detector)
 install(PROGRAMS src/green_detector.py DESTINATION lib/${PROJECT_NAME} RENAME green_detector)

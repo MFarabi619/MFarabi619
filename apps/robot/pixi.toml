@@ -88,6 +88,7 @@ qt6-webengine = "*"
 ros-lyrical-vision-msgs = "*"
 ros-lyrical-foxglove-msgs = "*"
 ros-lyrical-gz-ros2-control = "*"
+ros-lyrical-diagnostic-aggregator = "*"
 
 [environments]
 jazzy = { features = ["jazzy"], no-default-feature = true }
@@ -162,7 +163,13 @@ generate = { depends-on = ["_generate-param"] }
 
 generate-world = "python simulator/plasticulture_generator.py"
 
-launch = { cmd = "python bringup/launch/bringup.launch.py", depends-on = [
+launch = { cmd = "python bringup/launch/bringup.launch.py --gesture_camera {{ camera }}", args = [
+  { arg = "camera", default = "webcam" },
+], depends-on = [
+  "build",
+] }
+
+gesture-teleop = { cmd = "python bringup/launch/bringup.launch.py --gesture_camera robot", depends-on = [
   "build",
 ] }
 
@@ -180,6 +187,9 @@ sim-server = { cmd = "python simulator/launch/simulation.launch.py --headless tr
 teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_SESSION_CONFIG_URI = "config/zenoh/client_session.json5" } }
 
 teleop-robot1 = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
+teleop-robot4 = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16.local:7447"]' } }
+teleop-robot5 = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/localhost:7447"]' } }
+e2e-robot5 = { cmd = "python e2e/cmd_vel.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/localhost:7447"]' } }
 follow-robot1 = { cmd = "python bringup/launch/follow.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = ["build"] }
 crop-row-robot1 = { cmd = "python bringup/launch/crop_row.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = ["build"] }
 
@@ -193,10 +203,6 @@ sidewalk-follow = { cmd = "python perception/launch/sidewalk_follow.launch.py --
 
 sidewalk = "python perception/src/sidewalk_detector.py"
 
-laptop-follow = { cmd = "python perception/launch/laptop_follow.launch.py --standoff_distance {{ standoff }}", args = [
-  { arg = "standoff", default = "0.25" },
-], env = { ZENOH_SESSION_CONFIG_URI = "config/zenoh/client_session.json5" } }
-
 row-navigate = { cmd = "python perception/src/row_navigator.py --ros-args -r scan:=/sensors/camera_0/scan -r path:=/perception/row_path", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2:7447"]' } }
 
 follow-row = { cmd = 'ros2 action send_goal --feedback /follow_row robot_platform_msgs/action/FollowRow "{travel_distance_m: {{ distance }}}"', args = [
@@ -209,6 +215,7 @@ canopy = { cmd = "python perception/src/canopy_detector.py", env = { ZENOH_CONFI
 
 # e2e = "python e2e/drive_profile.py --ros-args -p use_sim_time:=true"
 e2e = { cmd = "python e2e/cmd_vel.py", env = { ZENOH_SESSION_CONFIG_URI = "config/zenoh/client_session.json5" } }
+e2e-odrive = "python e2e/odrive_velocity.py"
 e2e-robot1 = { cmd = "python e2e/cmd_vel.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
 
 cone-drill = "python e2e/cone_drill.py --ros-args -p use_sim_time:=true"
@@ -225,7 +232,8 @@ deploy = { cmd = "python config/deploy.py {{ robot }}", args = [
   { arg = "robot", default = "robot1" },
 ] }
 
-[target.linux-aarch64.tasks]
 robot = "python bringup/launch/robot.launch.py"
+
+[target.linux-aarch64.tasks]
 slam = "python navigation/launch/slam.launch.py"
 oak-d-sr = "python drivers/src/oak_d_sr.py --ros-args -r __ns:=/sensors/camera_0 -p frame_id:=camera_0_link_right_camera_optical_frame"

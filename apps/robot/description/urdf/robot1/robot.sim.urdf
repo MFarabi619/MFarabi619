@@ -210,7 +210,7 @@
 
   <gazebo reference="camera_0_link">
     <sensor name="camera_0" type="rgbd_camera">
-      <update_rate>10</update_rate>
+      <update_rate>30</update_rate>
       <always_on>true</always_on>
       <frame_id>camera_0_color_optical_frame</frame_id>
       <camera>

@@ -1,56 +1,42 @@
+use std::path::Path;
+
 use oxidros::prelude::*;
 use robot::Config;
 use robot_drivers::{
-    gpio::Connection,
-    motor::{Drivetrain, Motor, Shaping},
+    motor::Shaping,
+    sysfs_pwm::{PulseChannel, PulseDrivetrain},
 };
 
-const RGPIOD_HOST: &str = "rpi5-16-2";
-const RGPIOD_PORT: u16 = 8889;
-const GPIO_CHIP: u32 = 0;
-const PWM_FREQUENCY_HZ: f32 = 1000.0;
-
-const LEFT_DIR_PIN: u32 = 26;
-const LEFT_PWM_PIN: u32 = 12;
-const LEFT_FORWARD_LEVEL: bool = true;
-const RIGHT_DIR_PIN: u32 = 24;
-const RIGHT_PWM_PIN: u32 = 13;
-const RIGHT_FORWARD_LEVEL: bool = false;
+const SYSFS_PWM_ROOT: &str = "/sys/class/pwm";
+const PWM_CHIP: u32 = 0;
+const LEFT_PWM_CHANNEL: u32 = 0;
+const RIGHT_PWM_CHANNEL: u32 = 1;
+const LEFT_REVERSED: bool = false;
+const RIGHT_REVERSED: bool = false;
+const MAX_SPEED_MPS: f64 = 2.0;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     init_ros_logging("robot1");
     let context = Context::new()?;
 
-    let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
-    let chip = connection.open_chip(GPIO_CHIP)?;
-    let drivetrain = Drivetrain::new(
-        Motor::pwm_dir(
-            &chip,
-            LEFT_DIR_PIN,
-            LEFT_PWM_PIN,
-            LEFT_FORWARD_LEVEL,
-            PWM_FREQUENCY_HZ,
-        )?,
-        Motor::pwm_dir(
-            &chip,
-            RIGHT_DIR_PIN,
-            RIGHT_PWM_PIN,
-            RIGHT_FORWARD_LEVEL,
-            PWM_FREQUENCY_HZ,
-        )?,
+    let sysfs_root = Path::new(SYSFS_PWM_ROOT);
+    let drivetrain = PulseDrivetrain::new(
+        PulseChannel::new(sysfs_root, PWM_CHIP, LEFT_PWM_CHANNEL, LEFT_REVERSED)?,
+        PulseChannel::new(sysfs_root, PWM_CHIP, RIGHT_PWM_CHANNEL, RIGHT_REVERSED)?,
+        MAX_SPEED_MPS,
     );
 
-    let driver_node = context.create_node("robot1", None)?;
+    let driver_node = context.create_node("base_controller", None)?;
     robot::run_driver(
         driver_node,
         drivetrain,
         Config {
-            host: RGPIOD_HOST.to_string(),
+            host: SYSFS_PWM_ROOT.to_string(),
             deadman_seconds: 0.5,
             shaping: Shaping {
                 deadzone: 0.05,
-                min_duty: 0.35,
+                min_duty: 0.0,
                 scale: 1.0,
             },
             publish_odometry: true,

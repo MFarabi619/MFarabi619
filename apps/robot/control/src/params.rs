@@ -8,6 +8,13 @@ pub fn f64_param(store: &Parameters, name: &str, default: f64) -> f64 {
     }
 }
 
+pub fn i64_param(store: &Parameters, name: &str, default: i64) -> i64 {
+    match store.get_parameter(name).map(|parameter| &parameter.value) {
+        Some(Value::I64(value)) => *value,
+        _ => default,
+    }
+}
+
 pub fn bool_param(store: &Parameters, name: &str, default: bool) -> bool {
     match store.get_parameter(name).map(|parameter| &parameter.value) {
         Some(Value::Bool(value)) => *value,

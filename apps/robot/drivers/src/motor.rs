@@ -144,6 +144,13 @@ impl<'a> Motor<'a> {
     }
 }
 
+pub trait WheelDrive {
+    fn drive(
+        &mut self,
+        command: DriveCommand,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
+}
+
 pub struct Drivetrain<'a> {
     left: Motor<'a>,
     right: Motor<'a>,
@@ -160,9 +167,18 @@ impl<'a> Drivetrain<'a> {
     }
 }
 
+impl WheelDrive for Drivetrain<'_> {
+    fn drive(
+        &mut self,
+        command: DriveCommand,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        Drivetrain::drive(self, command).map_err(Into::into)
+    }
+}
+
 impl Drop for Drivetrain<'_> {
     fn drop(&mut self) {
-        let _ = self.drive(HALT);
+        let _ = Drivetrain::drive(self, HALT);
     }
 }
 
