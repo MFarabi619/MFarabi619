@@ -6,5 +6,5 @@ import {
 export default defineConfig({
   headLinkOptions: { preset: "2023" },
   preset,
-  images: ["../assets/public/symbol.png"],
+  images: ["../../robot/assets/public/symbol.png"],
 });

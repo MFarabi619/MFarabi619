@@ -6,14 +6,9 @@ import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { draco } from "@gltf-transform/functions";
 import draco3d from "draco3dgltf";
 
-// Draco-compresses the robot_cad-generated source (apps/robot/assets/robot.glb)
-// into the served public glb. Wired as `prebuild`, so it regenerates locally
-// when the mesh changes and no-ops in CI: the source is gitignored, so clones
-// have no source and build from the committed public glb. Also runnable
-// directly: `pnpm robot:glb`.
 const here = dirname(fileURLToPath(import.meta.url));
-const source = resolve(here, "../../assets/robot.glb");
-const destination = resolve(here, "../../assets/public/robot.glb");
+const source = resolve(here, "../../../robot/assets/robot.glb");
+const destination = resolve(here, "../../../robot/assets/public/robot.glb");
 
 if (!existsSync(source)) {
   console.log(`skip: no source at ${source} (using committed ${destination})`);

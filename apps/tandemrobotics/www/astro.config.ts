@@ -42,7 +42,6 @@ type UnifiedOptions = NonNullable<Parameters<typeof unified>[0]>;
 
 export default defineConfig({
   server: {
-    // open: "/",
     port: 4321,
     host: true,
     allowedHosts: [".tandemrobotics.ca"],
@@ -50,7 +49,7 @@ export default defineConfig({
 
   site: "https://www.tandemrobotics.ca",
   srcDir: "./src",
-  publicDir: "../assets/public",
+  publicDir: "../../robot/assets/public",
   fonts: [
     {
       provider: fontProviders.fontsource(),
@@ -113,9 +112,4 @@ export default defineConfig({
       allowedHosts: [".tandemrobotics.ca"],
     },
   },
-
-
-  // security: {
-  //   allowedDomains: [{}]
-  // },
 });

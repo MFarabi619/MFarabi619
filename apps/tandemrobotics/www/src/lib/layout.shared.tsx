@@ -13,11 +13,6 @@ export const baseOptions: BaseLayoutProps = {
     ),
   },
   links: [
-    // {
-    //   text: "Demo",
-    //   url: "https://app.tandemrobotics.ca/?ds=foxglove-websocket&ds.url=wss://bridge.tandemrobotics.ca",
-    //   external: true,
-    // },
     {
       type: "icon",
       label: "Documentation",
