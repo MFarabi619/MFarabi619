@@ -12,7 +12,8 @@ const SLA_BATTERY_DENSITY_KG_PER_M3: f64 = 2400.0;
 const PLYWOOD_COLOR: [u8; 3] = [0xc8, 0xa0, 0x6e];
 const ALUMINUM_COLOR: [u8; 3] = [0xb0, 0xb3, 0xb8];
 const STEEL_COLOR: [u8; 3] = [0x5a, 0x5d, 0x63];
-const PLASTIC_COLOR: [u8; 3] = [0x10, 0x10, 0x10];
+const BLACK_PLASTIC_COLOR: [u8; 3] = [0x10, 0x10, 0x10];
+const GRAY_PLASTIC_COLOR: [u8; 3] = [0xd8, 0xd8, 0xd8];
 const RUBBER_COLOR: [u8; 3] = [0x0c, 0x0c, 0x0c];
 const SLA_BATTERY_COLOR: [u8; 3] = [0x14, 0x14, 0x14];
 const ANODIZED_ALUMINUM_COLOR: [u8; 3] = [0x9d, 0xcf, 0xed];
@@ -34,18 +35,20 @@ pub enum Material {
     Aluminum,
     AnodizedAluminum,
     Steel,
-    Plastic,
+    BlackPlastic,
+    GrayPlastic,
     Plywood,
     Rubber,
     SlaBattery,
 }
 
 impl Material {
-    pub const ALL: [Material; 7] = [
+    pub const ALL: [Material; 8] = [
         Material::Aluminum,
         Material::AnodizedAluminum,
         Material::Steel,
-        Material::Plastic,
+        Material::BlackPlastic,
+        Material::GrayPlastic,
         Material::Plywood,
         Material::Rubber,
         Material::SlaBattery,
@@ -56,7 +59,8 @@ impl Material {
             Material::Aluminum => "aluminum",
             Material::AnodizedAluminum => "anodized_aluminum",
             Material::Steel => "steel",
-            Material::Plastic => "plastic",
+            Material::BlackPlastic => "black_plastic",
+            Material::GrayPlastic => "gray_plastic",
             Material::Plywood => "plywood",
             Material::Rubber => "rubber",
             Material::SlaBattery => "sla_battery",
@@ -67,7 +71,7 @@ impl Material {
         match self {
             Material::Aluminum | Material::AnodizedAluminum => ALUMINUM_DENSITY_KG_PER_M3,
             Material::Steel => STEEL_DENSITY_KG_PER_M3,
-            Material::Plastic => PLASTIC_DENSITY_KG_PER_M3,
+            Material::BlackPlastic | Material::GrayPlastic => PLASTIC_DENSITY_KG_PER_M3,
             Material::Plywood => PLYWOOD_DENSITY_KG_PER_M3,
             Material::Rubber => RUBBER_DENSITY_KG_PER_M3,
             Material::SlaBattery => SLA_BATTERY_DENSITY_KG_PER_M3,
@@ -88,7 +92,7 @@ impl Material {
                 metallic: 0.35,
                 roughness: 0.75,
             },
-            Material::Plastic => Pbr {
+            Material::BlackPlastic | Material::GrayPlastic => Pbr {
                 metallic: 0.0,
                 roughness: 0.6,
             },
@@ -112,7 +116,8 @@ impl Material {
             Material::Aluminum => ALUMINUM_COLOR,
             Material::AnodizedAluminum => ANODIZED_ALUMINUM_COLOR,
             Material::Steel => STEEL_COLOR,
-            Material::Plastic => PLASTIC_COLOR,
+            Material::BlackPlastic => BLACK_PLASTIC_COLOR,
+            Material::GrayPlastic => GRAY_PLASTIC_COLOR,
             Material::Plywood => PLYWOOD_COLOR,
             Material::Rubber => RUBBER_COLOR,
             Material::SlaBattery => SLA_BATTERY_COLOR,

@@ -13,11 +13,11 @@
     <collision><geometry><sphere radius="0.1396"/></geometry></collision>
   </link>
   <link name="chassis">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/chassis.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/chassis.dae"/></geometry></visual>
     <collision><origin xyz="0 0 0.2873"/><geometry><box size="1.2192 1.0000 0.0254"/></geometry></collision>
   </link>
   <link name="rear_left_mount_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_left_mount_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_left_mount_link.dae"/></geometry></visual>
     <inertial>
       <origin xyz="-0.0091 0.0135 -0.0392"/>
       <mass value="0.2518"/>
@@ -25,10 +25,10 @@
     </inertial>
   </link>
   <link name="rear_left_motor_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_left_motor_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_left_motor_link.dae"/></geometry></visual>
   </link>
   <link name="rear_left_wheel_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_left_wheel_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_left_wheel_link.dae"/></geometry></visual>
     <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
     <inertial>
       <origin xyz="0.0000 0.0000 -0.0000"/>
@@ -37,7 +37,7 @@
     </inertial>
   </link>
   <link name="rear_right_mount_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_right_mount_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_right_mount_link.dae"/></geometry></visual>
     <inertial>
       <origin xyz="-0.0091 -0.0135 -0.0392"/>
       <mass value="0.2518"/>
@@ -45,10 +45,10 @@
     </inertial>
   </link>
   <link name="rear_right_motor_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_right_motor_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_right_motor_link.dae"/></geometry></visual>
   </link>
   <link name="rear_right_wheel_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_right_wheel_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_right_wheel_link.dae"/></geometry></visual>
     <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
     <inertial>
       <origin xyz="0.0000 -0.0000 -0.0000"/>
@@ -132,9 +132,25 @@
     <axis xyz="0.0 1.0 0.0"/>
   </joint>
 
+  <gazebo reference="front_left_caster_link">
+    <mu1>0</mu1>
+    <mu2>0</mu2>
+    <kp>1000000</kp>
+    <kd>100</kd>
+    <minDepth>0.001</minDepth>
+  </gazebo>
+
+  <gazebo reference="front_right_caster_link">
+    <mu1>0</mu1>
+    <mu2>0</mu2>
+    <kp>1000000</kp>
+    <kd>100</kd>
+    <minDepth>0.001</minDepth>
+  </gazebo>
+
   <ros2_control name="DiffDriveHardware" type="system">
     <hardware>
-      <plugin>robot_hardware_interfaces/DiffDriveHardware</plugin>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
     </hardware>
     <joint name="rear_left_wheel_joint">
       <command_interface name="velocity"/>
@@ -147,5 +163,29 @@
       <state_interface name="velocity"/>
     </joint>
   </ros2_control>
+
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>package://robot_control/config/control.yaml</parameters>
+      <ros>
+        <namespace>robot6</namespace>
+        <remapping>~/cmd_vel:=platform/cmd_vel</remapping>
+        <remapping>~/reference:=platform/cmd_vel</remapping>
+        <remapping>~/odom:=odom</remapping>
+        <remapping>~/odometry:=odom</remapping>
+        <remapping>joint_states:=joint_states</remapping>
+        <remapping>robot_description:=/robot_description</remapping>
+      </ros>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+      <publish_link_pose>true</publish_link_pose>
+      <publish_nested_model_pose>true</publish_nested_model_pose>
+      <use_pose_vector_msg>true</use_pose_vector_msg>
+      <update_frequency>50</update_frequency>
+    </plugin>
+  </gazebo>
 
 </robot>

@@ -28,7 +28,8 @@ def spawn_robot(bl, robot, world, x, y, z, yaw, depth_scan=False):
     control_config_path = os.path.join(
         get_package_share_directory('robot_control'), 'config', 'control.yaml')
     drivetrain_config_path = os.path.join(
-        get_package_share_directory('robot_control'), 'config', 'drivetrain.generated.yaml')
+        get_package_share_directory('robot_control'), 'config', 'generated',
+        robot, 'drivetrain.yaml')
     robot_description = robot_description.replace(
         'package://robot_control/config/control.yaml', control_config_path)
 

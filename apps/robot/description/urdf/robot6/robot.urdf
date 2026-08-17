@@ -13,11 +13,11 @@
     <collision><geometry><sphere radius="0.1396"/></geometry></collision>
   </link>
   <link name="chassis">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/chassis.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/chassis.dae"/></geometry></visual>
     <collision><origin xyz="0 0 0.2873"/><geometry><box size="1.2192 1.0000 0.0254"/></geometry></collision>
   </link>
   <link name="rear_left_mount_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_left_mount_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_left_mount_link.dae"/></geometry></visual>
     <inertial>
       <origin xyz="-0.0091 0.0135 -0.0392"/>
       <mass value="0.2518"/>
@@ -25,10 +25,10 @@
     </inertial>
   </link>
   <link name="rear_left_motor_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_left_motor_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_left_motor_link.dae"/></geometry></visual>
   </link>
   <link name="rear_left_wheel_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_left_wheel_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_left_wheel_link.dae"/></geometry></visual>
     <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
     <inertial>
       <origin xyz="0.0000 0.0000 -0.0000"/>
@@ -37,7 +37,7 @@
     </inertial>
   </link>
   <link name="rear_right_mount_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_right_mount_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_right_mount_link.dae"/></geometry></visual>
     <inertial>
       <origin xyz="-0.0091 -0.0135 -0.0392"/>
       <mass value="0.2518"/>
@@ -45,10 +45,10 @@
     </inertial>
   </link>
   <link name="rear_right_motor_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_right_motor_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_right_motor_link.dae"/></geometry></visual>
   </link>
   <link name="rear_right_wheel_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot4/rear_right_wheel_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/robot6/rear_right_wheel_link.dae"/></geometry></visual>
     <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
     <inertial>
       <origin xyz="0.0000 -0.0000 -0.0000"/>

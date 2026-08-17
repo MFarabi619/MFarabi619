@@ -18,7 +18,7 @@ pub struct Link {
     pub solids: Vec<Solid>,
 }
 
-pub fn robot_dir() -> PathBuf {
+pub fn robot_directory() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .expect("generator crate lives under the robot package")
@@ -29,9 +29,6 @@ pub fn asset(name: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("step").join(name)
 }
 
-pub fn mesh(name: &str) -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("stl").join(name)
-}
 
 #[macro_export]
 macro_rules! time_it {

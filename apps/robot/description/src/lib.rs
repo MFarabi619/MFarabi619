@@ -1,6 +1,7 @@
 use oxidros::msg::{common_interfaces::geometry_msgs::msg::TwistStamped, msg::RosString};
 
 pub mod datums;
+pub mod dimensions;
 pub mod frames;
 pub mod link;
 pub mod parameters;

@@ -66,21 +66,20 @@ fn number(value: String, color: Color) -> Cell {
     Cell::new(value).fg(color)
 }
 
-pub fn report_drivetrain() {
+pub fn report_drivetrain(dimensions: &robot_description::dimensions::Dimensions) {
     use robot_description::{
         datums::WHEEL_TREAD_DIAMETER_MM,
         placement::{ground_z, wheel_origin, Corner},
     };
-    let front = wheel_origin(Corner::FrontLeft);
-    let rear = wheel_origin(Corner::RearLeft);
+    let rear = wheel_origin(Corner::RearLeft, dimensions);
     let mut table = styled_table();
     table.set_header(header([("drivetrain", Color::Cyan), ("mm", Color::Yellow)]));
     for (label, value) in [
-        ("track", 2.0 * front.y),
-        ("front axle x", front.x),
+        ("track", 2.0 * rear.y),
+        ("caster pivot x", Corner::FrontLeft.axle_x(dimensions)),
         ("rear axle x", rear.x),
         ("tread radius", WHEEL_TREAD_DIAMETER_MM / 2.0),
-        ("ground clearance", ground_z()),
+        ("ground clearance", ground_z(dimensions)),
     ] {
         table.add_row(vec![
             Cell::new(label).fg(Color::Cyan),

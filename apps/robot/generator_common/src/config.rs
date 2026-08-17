@@ -25,6 +25,7 @@ pub struct Drivetrain {
     #[serde(default)]
     pub pwm_frequency_hz: f32,
     pub max_linear_velocity_mps: f64,
+    pub wheel_separation_m: Option<f64>,
     pub left: DrivetrainSide,
     pub right: DrivetrainSide,
 }

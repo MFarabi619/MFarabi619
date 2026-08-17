@@ -62,7 +62,6 @@ def follow_stack(bl):
             'image_topic': 'sensors/camera_0/color/image_raw/compressed',
             'depth_topic': 'sensors/camera_0/depth/image_raw',
             'depth_camera_info_topic': 'sensors/camera_0/depth/camera_info',
-            'model_path': 'perception/models/ssd_mobilenet_v1_12.onnx',
             'min_score': 0.3,
             'overlay_topic': 'perception/person/overlay',
         },
@@ -76,7 +75,7 @@ def follow_stack(bl):
         name='person_approach',
         params={
             'standoff_distance': 1.5,
-            'reacquire_frames': 8,
+            'max_missing_frames': 8,
             'scene_topic': 'perception/person/scene',
         },
         remaps={
@@ -127,7 +126,7 @@ def robot_stack(bl, robot, world, pose, depth_scan):
 
 
 @launch_this(use_sim_time=True)
-def simulation(world: str = 'plasticulture', robots: str = 'robot1', headless: bool = False,
+def simulation(world: str = 'plasticulture', robots: str = 'robot0', headless: bool = False,
                depth_scan: bool = False):
     bl = BetterLaunch()
     bl.process(

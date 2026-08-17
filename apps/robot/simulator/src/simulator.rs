@@ -248,7 +248,13 @@ pub async fn run_simulator(
     let mut latitude_origin = read_f64("latitude_origin", LATITUDE_ORIGIN);
     let mut longitude_origin = read_f64("longitude_origin", LONGITUDE_ORIGIN);
 
-    let camera_height = -placement::ground_z() * MM_TO_M;
+    let camera_height = -placement::ground_z(&robot_description::dimensions::Dimensions {
+        frame_length_mm: 1219.2,
+        frame_width_mm: 1000.0,
+        frame_top_z_mm: 300.0,
+        rear_axle_inset_mm: 85.0,
+        has_deck_equipment: true,
+    }) * MM_TO_M;
     let camera_renderer = CameraRenderer::new(
         scene,
         IMAGE_WIDTH as u32,
