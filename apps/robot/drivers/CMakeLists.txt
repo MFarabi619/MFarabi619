@@ -20,6 +20,7 @@ install(FILES src/pwm_dir_motor_driver.py src/rpicam_mjpeg.py DESTINATION "${PYT
 install(PROGRAMS src/oak_d_sr.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_sr)
 install(PROGRAMS src/oak_d_pro_w_poe.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_pro_w_poe)
 install(PROGRAMS src/odrive_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME odrive_motor_driver)
+install(PROGRAMS src/svd48v_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME svd48v_motor_driver)
 
 find_package(rclcpp REQUIRED)
 find_package(robot_platform_msgs REQUIRED)
