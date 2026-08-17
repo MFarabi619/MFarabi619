@@ -245,7 +245,7 @@
       ++ lib.optionals (!config.targets.genericLinux.enable) [
         nvtopPackages.full # btop for gpu; genericLinux hosts set their own variant per-host
       ]
-      ++ lib.optionals (stdenv.isLinux && stdenv.isx86_64) [ ]
+      ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.isx86_64) [ ]
       ++ [
         exercism
         presenterm
@@ -288,14 +288,14 @@
         discordo
         jellyfin-tui
       ]
-      ++ lib.optionals stdenv.isDarwin [
+      ++ lib.optionals stdenv.hostPlatform.isDarwin [
         utm # virtual machines on macos
         ttyd # ttyd -aWB -t fontSize=16 -t fontFamily="'JetBrainsMono Nerd Font'" -t enableSixel=true -t enableZmodem=true -t enableTrzsz=true zsh
         # quickemu # broken as of Sun May 10 18:29:41 EDT 2026. error: Cannot build '/nix/store/3swsq60jxg8qdrpv7kjm19xah38r64d4-samba-4.23.5.drv'.
         binsider
         vscode-extensions.llvm-vs-code-extensions.lldb-dap
       ]
-      ++ lib.optionals stdenv.isLinux (
+      ++ lib.optionals stdenv.hostPlatform.isLinux (
         [
           pixi
         ]
@@ -372,7 +372,7 @@
       };
 
       "/Library/Application Support/kanata/kanata.kbd" = {
-        enable = pkgs.stdenv.isDarwin;
+        enable = pkgs.stdenv.hostPlatform.isDarwin;
         source = ../darwin/kanata.kbd;
       };
     };

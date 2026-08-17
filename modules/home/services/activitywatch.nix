@@ -4,7 +4,7 @@
   ...
 }:
 {
-  services.activitywatch = lib.mkIf pkgs.stdenv.isLinux {
+  services.activitywatch = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
    enable = false;
     # settings = {
     #   port = 3012;

@@ -9,9 +9,9 @@
   nix = {
     gc.automatic = true;
     optimise.automatic = true;
-    channel.enable = pkgs.stdenv.isDarwin;
-    distributedBuilds = pkgs.stdenv.isDarwin;
-    buildMachines = lib.optionals pkgs.stdenv.isDarwin [
+    channel.enable = pkgs.stdenv.hostPlatform.isDarwin;
+    distributedBuilds = pkgs.stdenv.hostPlatform.isDarwin;
+    buildMachines = lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       {
         maxJobs = 8;
         sshUser = "mfarabi";
@@ -42,11 +42,11 @@
       keep-derivations = true;
       max-substitution-jobs = 32;
       builders-use-substitutes = true;
-      # builders-use-substitutes = pkgs.stdenv.isLinux;
+      # builders-use-substitutes = pkgs.stdenv.hostPlatform.isLinux;
       # FIXME: showing as unknown option despite - https://nix.dev/manual/nix/2.24/command-ref/conf-file.html#conf-download-buffer-size
       # download-buffer-size = 6710886400;
       # download-buffer-size = 17179869184;
-      auto-optimise-store = pkgs.stdenv.isLinux;
+      auto-optimise-store = pkgs.stdenv.hostPlatform.isLinux;
 
       experimental-features = [
         "flakes"
@@ -55,8 +55,8 @@
       ];
 
       trusted-users =
-        lib.optionals pkgs.stdenv.isLinux [ "root" ]
-        ++ lib.optionals pkgs.stdenv.isDarwin [ "@admin" ]
+        lib.optionals pkgs.stdenv.hostPlatform.isLinux [ "root" ]
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ "@admin" ]
         ++ config.myusers;
 
       substituters =
@@ -71,7 +71,7 @@
           "https://nix-community.cachix.org"
           "https://doom-emacs-unstraightened.cachix.org"
         ]
-        ++ lib.optionals pkgs.stdenv.isDarwin [ "https://nix-darwin.cachix.org" ];
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ "https://nix-darwin.cachix.org" ];
 
       trusted-substituters =
         substituters
@@ -91,7 +91,7 @@
       ++ lib.optionals (!(config.services.atticd.enable or false)) [
         "mfarabi:9j4mW1ebyKidbRB59Wjxer85IyggTyl0/nPRF2W3M7Y="
       ]
-      ++ lib.optionals pkgs.stdenv.isDarwin [
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
         "nix-darwin.cachix.org-1:LxMyKzQk7Uqkc1Pfq5uhm9GSn07xkERpy+7cpwc006A="
       ]
       ++ lib.optionals (config.services.proxmox-ve.enable or false) [

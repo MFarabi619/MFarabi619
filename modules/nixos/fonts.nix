@@ -16,7 +16,7 @@
       twemoji-color-font
       nerd-fonts.jetbrains-mono
     ]
-    ++ lib.optionals stdenv.isDarwin [
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
       nerd-fonts.noto
       sketchybar-app-font
     ];

@@ -11,7 +11,7 @@ in
 {
   name = "microvisor";
   scripts.docs.exec = "bunx likec4 start ${config.git.root}/docs";
-  packages = with pkgs-unstable; lib.optionals pkgs.stdenv.isLinux [ openssl ];
+  packages = with pkgs-unstable; lib.optionals pkgs.stdenv.hostPlatform.isLinux [ openssl ];
 
   certificates = lib.mkIf config.services.caddy.enable [ "*.localhost" ];
   hosts = lib.mkIf config.services.caddy.enable (

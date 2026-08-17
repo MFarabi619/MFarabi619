@@ -9,8 +9,8 @@
   # sudo ssh linux-builder
   nix.linux-builder = {
     maxJobs = 4;
-    # enable = pkgs.stdenv.isAarch64;
-    enable = true;
+    # enable = pkgs.stdenv.hostPlatform.isAarch64;
+    # enable = true;
     package = pkgs.darwin.linux-builder-vz;
 
     config = {

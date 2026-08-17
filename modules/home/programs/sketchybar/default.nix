@@ -40,7 +40,7 @@
     # };
   };
 
-  programs.sketchybar = lib.mkIf pkgs.stdenv.isDarwin {
+  programs.sketchybar = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     enable = false;
     # configType = "lua";
     # luaPackage = pkgs.lua5_4;

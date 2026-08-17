@@ -280,7 +280,7 @@ let
 in
 with lib;
 {
-  programs.waybar = lib.mkIf pkgs.stdenv.isLinux {
+  programs.waybar = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = config.wayland.windowManager.hyprland.enable;
     systemd = {
       enable = true;

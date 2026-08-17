@@ -4,7 +4,7 @@
 }:
 {
   programs.chromium = {
-    enable = pkgs.stdenv.isLinux;
+    enable = pkgs.stdenv.hostPlatform.isLinux;
     commandLineArgs = [ ];
     nativeMessagingHosts = [ ];
 

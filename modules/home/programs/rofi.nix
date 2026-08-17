@@ -5,7 +5,7 @@
   ...
 }:
 {
-  programs.rofi = lib.mkIf pkgs.stdenv.isLinux {
+  programs.rofi = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = config.wayland.windowManager.hyprland.enable;
     location = "center";
     # font = "JetBrainsMono Nerd Font Mono 12";

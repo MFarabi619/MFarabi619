@@ -4,7 +4,7 @@
   ...
 }:
 {
-  services.mbsync = lib.mkIf pkgs.stdenv.isLinux {
+  services.mbsync = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = true;
     verbose = true;
     frequency = "*:0/15";

@@ -77,7 +77,7 @@
       # ++ lib.filter (name: config.services.${name}.enable) [
       #   "tailscale"
       # ]
-      ++ lib.optionals pkgs.stdenv.isDarwin [
+      ++ lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
         "brew"
         "dash"
         "macos"

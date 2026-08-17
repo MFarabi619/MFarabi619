@@ -8,7 +8,7 @@
   services.openssh = {
     enable = true;
   }
-  // lib.optionalAttrs pkgs.stdenv.isLinux {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
     settings = {
       PermitRootLogin = "yes";
     }

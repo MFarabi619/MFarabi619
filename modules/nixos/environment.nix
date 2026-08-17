@@ -15,10 +15,10 @@
     pathsToLink = [
       "/share/bash-completion"
     ]
-    ++ lib.optionals (config.programs.zsh.enable || pkgs.stdenv.isDarwin) [ "/share/zsh" ]
+    ++ lib.optionals (config.programs.zsh.enable || pkgs.stdenv.hostPlatform.isDarwin) [ "/share/zsh" ]
     ++ lib.optionals config.programs.fish.enable [ "/share/fish" ];
   }
-  // lib.optionalAttrs pkgs.stdenv.isLinux {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
     variables = {
       NIXOS_OZONE_WL = "1";
       LIBVIRT_DEFAULT_URI = "qemu:///system";
@@ -75,7 +75,7 @@
       "/share/xdg-desktop-portal"
     ];
   }
-  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
     pathsToLink = [ "/Applications" ];
 
     systemPackages =
@@ -86,7 +86,7 @@
         coreutils-full
         kanata-with-cmd
       ]
-      ++ lib.optionals stdenv.isAarch64 [ macmon ];
+      ++ lib.optionals stdenv.hostPlatform.isAarch64 [ macmon ];
 
     systemPath = [
       "/usr/local/bin"

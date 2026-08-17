@@ -4,7 +4,7 @@
   ...
 }:
 {
-  services.glance = lib.mkIf pkgs.stdenv.isLinux {
+  services.glance = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = false;
     settings = {
       pages = [

@@ -5,14 +5,14 @@
 }:
 {
   services.netdata = {
-    # enable = pkgs.stdenv.isLinux;
+    # enable = pkgs.stdenv.hostPlatform.isLinux;
     enable = false;
 
     package = pkgs.netdata.override {
       withCloudUi = true;
     };
   }
-  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
     logDir = "/var/log/netdata"; # default
     workDir = "/var/lib/netdata"; # default
     cacheDir = "/var/cache/netdata"; # default
@@ -25,7 +25,7 @@
       error log = syslog
     '';
   }
-  // lib.optionalAttrs pkgs.stdenv.isLinux {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
     deadlineBeforeStopSec = 120;
     enableAnalyticsReporting = false;
 

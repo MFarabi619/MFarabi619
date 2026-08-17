@@ -3,5 +3,5 @@
   ...
 }:
 {
-  programs.cargo.enable = pkgs.stdenv.isLinux;
+  programs.cargo.enable = pkgs.stdenv.hostPlatform.isLinux;
 }

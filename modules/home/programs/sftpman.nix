@@ -4,7 +4,7 @@
   ...
 }:
 {
-  programs.sftpman = lib.mkIf pkgs.stdenv.isLinux {
+  programs.sftpman = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = true;
     # mounts = {
     #   mountOptions = {

@@ -5,7 +5,7 @@
 {
   programs.aria2 = {
     enable = true;
-    systemd.enable = pkgs.stdenv.isLinux;
+    systemd.enable = pkgs.stdenv.hostPlatform.isLinux;
 
     settings = {
       split = 16;

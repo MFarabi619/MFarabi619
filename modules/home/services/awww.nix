@@ -5,7 +5,7 @@
   ...
 }:
 {
-  services.awww = lib.mkIf pkgs.stdenv.isLinux {
+  services.awww = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = config.wayland.windowManager.hyprland.enable;
     # extraArgs = [
     #   "--no-cache"

@@ -7,10 +7,10 @@
   services.tailscale = {
     enable = true;
   }
-  // lib.optionalAttrs pkgs.stdenv.isDarwin {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
     overrideLocalDns = false;
   }
-  // lib.optionalAttrs pkgs.stdenv.isLinux {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
     permitCertUid = null;
     useRoutingFeatures = "both"; # one of "none", "client", "server", "both"
     authKeyFile = "/run/secrets/tailscale_key";

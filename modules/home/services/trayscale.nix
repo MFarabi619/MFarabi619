@@ -4,7 +4,7 @@
   ...
 }:
 {
-  services.trayscale = lib.mkIf pkgs.stdenv.isLinux {
+  services.trayscale = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = false;
     hideWindow = true;
   };

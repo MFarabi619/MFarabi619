@@ -6,7 +6,7 @@
   ...
 }:
 {
-  wayland.windowManager.hyprland = lib.mkIf pkgs.stdenv.isLinux {
+  wayland.windowManager.hyprland = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = true;
     package = if config.targets.genericLinux.enable then pkgs.hyprland else null;
 

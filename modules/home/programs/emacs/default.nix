@@ -21,7 +21,7 @@
         );
       in
       with epkgs;
-      lib.optionals pkgs.stdenv.isDarwin [ consult-spotlight ]
+      lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ consult-spotlight ]
       ++ [ sops ]
       ++ [
         eask
