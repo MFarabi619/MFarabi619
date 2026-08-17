@@ -33,6 +33,20 @@ def cones(*positions):
     return message
 
 
+def persons(*entries):
+    message = Detection2DArray()
+    for track_id, x, z in entries:
+        detection = Detection2D()
+        detection.id = str(track_id) if track_id is not None else ''
+        hypothesis = ObjectHypothesisWithPose()
+        hypothesis.hypothesis.class_id = 'person'
+        hypothesis.hypothesis.score = 1.0
+        hypothesis.pose.pose.position = Point(x=float(x), y=0.0, z=float(z))
+        detection.results.append(hypothesis)
+        message.detections.append(detection)
+    return message
+
+
 def capture(node):
     twists = []
     node.cmd_vel_publisher.publish = twists.append
@@ -89,8 +103,50 @@ def test_stays_still_when_disabled(approach_node):
     assert twists == []
 
 
+def test_keeps_tracked_id_over_slightly_nearer_stranger(approach_node):
+    capture(approach_node)
+    approach_node.on_detections(persons((7, 0.0, 2.0)))
+    assert approach_node.tracked_id == 7
+    approach_node.on_detections(persons((7, 1.0, 2.2), (9, 0.0, 2.0)))
+    assert approach_node.tracked_id == 7
+    assert approach_node.tracked_position.x == pytest.approx(1.0)
+
+
+def test_switches_to_substantially_nearer_person(approach_node):
+    capture(approach_node)
+    approach_node.on_detections(persons((7, 0.0, 2.2)))
+    approach_node.on_detections(persons((7, 0.0, 2.2), (9, 0.0, 1.5)))
+    assert approach_node.tracked_id == 9
+
+
+def test_position_fallback_bridges_lost_id(approach_node):
+    capture(approach_node)
+    approach_node.on_detections(persons((7, 0.5, 2.0)))
+    approach_node.on_detections(persons((None, 0.55, 2.05)))
+    assert approach_node.tracked_id is None
+    assert approach_node.tracked_position.x == pytest.approx(0.55)
+
+
+def test_crossing_people_do_not_swap_target(approach_node):
+    capture(approach_node)
+    approach_node.on_detections(persons((7, 0.5, 2.0)))
+    approach_node.on_detections(persons((7, 0.6, 2.1), (9, 0.5, 2.0)))
+    assert approach_node.tracked_id == 7
+    assert approach_node.tracked_position.x == pytest.approx(0.6)
+
+
+def test_reacquire_timeout_clears_id_and_position(approach_node):
+    capture(approach_node)
+    approach_node.max_missing_frames = 1
+    approach_node.on_detections(persons((7, 0.0, 2.0)))
+    approach_node.on_detections(Detection2DArray())
+    approach_node.on_detections(Detection2DArray())
+    assert approach_node.tracked_id is None
+    assert approach_node.tracked_position is None
+
+
 def test_holds_last_bearing_within_reacquire_window(approach_node):
-    approach_node.reacquire_frames = 3
+    approach_node.max_missing_frames = 3
     twists = capture(approach_node)
     approach_node.on_detections(cones((1.0, 0.0, 2.0)))
     approach_node.on_detections(Detection2DArray())
@@ -99,7 +155,7 @@ def test_holds_last_bearing_within_reacquire_window(approach_node):
 
 
 def test_halts_after_reacquire_window(approach_node):
-    approach_node.reacquire_frames = 2
+    approach_node.max_missing_frames = 2
     twists = capture(approach_node)
     approach_node.on_detections(cones((1.0, 0.0, 2.0)))
     for _ in range(3):

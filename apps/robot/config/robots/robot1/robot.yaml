@@ -3,40 +3,38 @@ version: 1
 system:
   namespace: robot1
   hosts:
-    - hostname: rpi5-16-2
-      ip: 10.81.190.228
+    - hostname: rpi5-16
+      ip: 0.0.0.0
       board: rpi_5
 platform:
   attachments: []
-  # RC ESC: signal + ground ONLY per channel -- never the CH `+` pin (5V BEC out);
-  # header GND pin 39 -> controller GND
   drivetrain:
-    model: rc_pulse
+    model: pwm_dir
+    pwm_frequency_hz: 20000.0
     max_linear_velocity_mps: 2.0
     left:
-      pwm_pin: 32 # -> CH2 s (physical left motor)
-      reversed: false
+      pwm_pin: 32
+      dir_pin: 36
+      forward_level: true
     right:
-      pwm_pin: 33 # -> CH1 s (physical right motor)
-      reversed: false
+      pwm_pin: 33
+      dir_pin: 37
+      forward_level: false
 sensors:
   camera:
-    - model: orbbec_gemini_335l
+    - model: oak_d_pro_w_poe
       parent: base_link
-      xyz: [0.575, 0.5, 0.31]
+      xyz: [0.35, 0.0, 0.36]
       rpy: [0.0, 0.0, 0.0]
       ros_parameters:
         camera_0:
-          color_width: 640
-          color_height: 480
-          color_fps: 30
-          jpeg_quality: 60
-          enable_depth: true
-          depth_width: 848
-          depth_height: 480
-          depth_fps: 15
-          depth_decimation: 2
-  imu: []
-  gps: []
-mounts:
-  camera_mount: []
+          ip: 169.254.1.222
+          fps: 30.0
+          color_resolution_divisor: 2
+          depth_resolution_divisor: 4
+    # - model: oak_d_sr
+    #   parent: base_link
+    #   xyz: [0.575, 0.5, 0.31]
+    #   rpy: [0.0, 0.0, 0.0]
+    #   ros_parameters:
+    #     camera_0: {}

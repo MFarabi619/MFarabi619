@@ -21,7 +21,7 @@ pub const RIGHT_DIR_PIN: u32 = 12; // 35
 pub const RIGHT_PWM_PIN: u32 = 16; // 32
 pub const RIGHT_FORWARD_LEVEL: bool = false;
 
-pub fn robot0_drivetrain<'a>(chip: &'a Chip<'a>) -> Result<Drivetrain<'a>, Error> {
+pub fn robot3_drivetrain<'a>(chip: &'a Chip<'a>) -> Result<Drivetrain<'a>, Error> {
     Ok(Drivetrain::new(
         Motor::pwm_dir(chip, LEFT_DIR_PIN, LEFT_PWM_PIN, LEFT_FORWARD_LEVEL, PWM_FREQUENCY_HZ)?,
         Motor::pwm_dir(
@@ -34,7 +34,7 @@ pub fn robot0_drivetrain<'a>(chip: &'a Chip<'a>) -> Result<Drivetrain<'a>, Error
     ))
 }
 
-pub fn robot0_config() -> Config {
+pub fn robot3_config() -> Config {
     Config {
         host: RGPIOD_HOST.to_string(),
         deadman_seconds: 0.5,

@@ -41,16 +41,18 @@ from sensor_msgs.msg import (
 
 QUEUE_POLL_RATE_HZ = 60.0
 DEVICE_RETRY_DELAY_SECONDS = 2.0
-MAX_VIZ_DEPTH_MM = 8000.0
+MAX_PREVIEW_DEPTH_MM = 8000.0
 SENSOR_WIDTH = 1280
 SENSOR_HEIGHT = 800
 IMU_RATE_HZ = 100
 POINTCLOUD_RATE_HZ = 10.0
 METERS_PER_MILLIMETER = 0.001
 BYTES_PER_CLOUD_POINT = 12
+BYTES_PER_DEPTH_PIXEL = 2
 
 
-def build_pipeline(fps, jpeg_quality, resolution_divisor):
+def build_pipeline(
+        fps, jpeg_quality, color_resolution_divisor, depth_resolution_divisor):
     pipeline = dai.Pipeline()
     color = pipeline.create(dai.node.ColorCamera)
     left = pipeline.create(dai.node.MonoCamera)
@@ -71,7 +73,7 @@ def build_pipeline(fps, jpeg_quality, resolution_divisor):
     color.setResolution(dai.ColorCameraProperties.SensorResolution.THE_800_P)
     color.setCamera('color')
     color.setFps(fps)
-    color.setIspScale(1, resolution_divisor)
+    color.setIspScale(1, color_resolution_divisor)
     for camera, socket in ((left, 'left'), (right, 'right')):
         camera.setResolution(dai.MonoCameraProperties.SensorResolution.THE_800_P)
         camera.setCamera(socket)
@@ -81,9 +83,11 @@ def build_pipeline(fps, jpeg_quality, resolution_divisor):
     stereo.initialConfig.setMedianFilter(dai.MedianFilter.KERNEL_7x7)
     stereo.setLeftRightCheck(True)
     stereo.setSubpixel(True)
+    stereo.setExtendedDisparity(True)
     stereo.setDepthAlign(dai.CameraBoardSocket.CAM_A)
     stereo.setOutputSize(
-        SENSOR_WIDTH // resolution_divisor, SENSOR_HEIGHT // resolution_divisor)
+        SENSOR_WIDTH // depth_resolution_divisor,
+        SENSOR_HEIGHT // depth_resolution_divisor)
     color_encoder.setDefaultProfilePreset(
         fps, dai.VideoEncoderProperties.Profile.MJPEG)
     color_encoder.setQuality(jpeg_quality)
@@ -111,31 +115,25 @@ class OakDProWPoe(Node):
         self.declare_parameter('fps', 15.0)
         self.declare_parameter('jpeg_quality', 60)
         self.declare_parameter('frame_id', 'camera_0_link')
-        self.declare_parameter('resolution_divisor', 2)
+        self.declare_parameter('color_resolution_divisor', 2)
+        self.declare_parameter('depth_resolution_divisor', 4)
         self.declare_parameter('ir_dot_projector_intensity', 0.5)
         self.declare_parameter('ir_flood_light_intensity', 0.0)
         self.frame_id = self.get_parameter('frame_id').value
         self.jpeg_quality = self.get_parameter('jpeg_quality').value
-        resolution_divisor = self.get_parameter('resolution_divisor').value
-        self.frame_width = SENSOR_WIDTH // resolution_divisor
-        self.frame_height = SENSOR_HEIGHT // resolution_divisor
-        pipeline = build_pipeline(
+        color_resolution_divisor = self.get_parameter(
+            'color_resolution_divisor').value
+        depth_resolution_divisor = self.get_parameter(
+            'depth_resolution_divisor').value
+        self.color_width = SENSOR_WIDTH // color_resolution_divisor
+        self.color_height = SENSOR_HEIGHT // color_resolution_divisor
+        self.depth_width = SENSOR_WIDTH // depth_resolution_divisor
+        self.depth_height = SENSOR_HEIGHT // depth_resolution_divisor
+        self.pipeline = build_pipeline(
             self.get_parameter('fps').value, self.jpeg_quality,
-            resolution_divisor)
-        self.device = self.wait_for_device(
-            pipeline, self.get_parameter('ip').value)
-        self.device.setIrLaserDotProjectorIntensity(
-            self.get_parameter('ir_dot_projector_intensity').value)
-        self.device.setIrFloodLightIntensity(
-            self.get_parameter('ir_flood_light_intensity').value)
-        self.color_queue = self.device.getOutputQueue(
-            'color', maxSize=2, blocking=False)
-        self.depth_queue = self.device.getOutputQueue(
-            'depth', maxSize=2, blocking=False)
-        self.imu_queue = self.device.getOutputQueue(
-            'imu', maxSize=20, blocking=False)
-        self.points_queue = self.device.getOutputQueue(
-            'points', maxSize=2, blocking=False)
+            color_resolution_divisor, depth_resolution_divisor)
+        self.ip = self.get_parameter('ip').value
+        self.connect()
         self.color_publisher = self.create_publisher(
             CompressedImage, 'color/image_raw/compressed', qos_profile_sensor_data)
         self.depth_publisher = self.create_publisher(
@@ -151,13 +149,38 @@ class OakDProWPoe(Node):
             Imu, 'imu/data', qos_profile_sensor_data)
         self.points_publisher = self.create_publisher(
             PointCloud2, 'depth/points', qos_profile_sensor_data)
-        calibration = self.device.readCalibration()
-        self.camera_info = self.read_camera_info(
-            calibration, dai.CameraBoardSocket.CAM_A)
         self.poll_timer = self.create_timer(
             1.0 / QUEUE_POLL_RATE_HZ, self.poll_queues)
+
+    def connect(self):
+        self.device = self.wait_for_device(self.pipeline, self.ip)
+        self.device.setIrLaserDotProjectorIntensity(
+            self.get_parameter('ir_dot_projector_intensity').value)
+        self.device.setIrFloodLightIntensity(
+            self.get_parameter('ir_flood_light_intensity').value)
+        self.color_queue = self.device.getOutputQueue(
+            'color', maxSize=2, blocking=False)
+        self.depth_queue = self.device.getOutputQueue(
+            'depth', maxSize=2, blocking=False)
+        self.imu_queue = self.device.getOutputQueue(
+            'imu', maxSize=20, blocking=False)
+        self.points_queue = self.device.getOutputQueue(
+            'points', maxSize=2, blocking=False)
+        calibration = self.device.readCalibration()
+        self.color_camera_info = self.read_camera_info(
+            calibration, dai.CameraBoardSocket.CAM_A,
+            self.color_width, self.color_height)
+        self.depth_camera_info = self.read_camera_info(
+            calibration, dai.CameraBoardSocket.CAM_A,
+            self.depth_width, self.depth_height)
         self.get_logger().info(
             f'connected {self.device.getDeviceName()}')
+
+    def release_device(self):
+        try:
+            self.device.close()
+        except RuntimeError:
+            pass
 
     def wait_for_device(self, pipeline, ip):
         while rclpy.ok():
@@ -169,15 +192,14 @@ class OakDProWPoe(Node):
                 time.sleep(DEVICE_RETRY_DELAY_SECONDS)
         raise RuntimeError('shutdown before camera appeared')
 
-    def read_camera_info(self, calibration, socket):
-        intrinsics = calibration.getCameraIntrinsics(
-            socket, self.frame_width, self.frame_height)
+    def read_camera_info(self, calibration, socket, width, height):
+        intrinsics = calibration.getCameraIntrinsics(socket, width, height)
         distortion_coefficients = calibration.getDistortionCoefficients(socket)
         is_fisheye = (
             calibration.getDistortionModel(socket) == dai.CameraModel.Fisheye)
         camera_info = CameraInfo()
-        camera_info.width = self.frame_width
-        camera_info.height = self.frame_height
+        camera_info.width = width
+        camera_info.height = height
         camera_info.distortion_model = (
             'equidistant' if is_fisheye else 'rational_polynomial')
         camera_info.d = (
@@ -193,14 +215,19 @@ class OakDProWPoe(Node):
         return camera_info
 
     def poll_queues(self):
-        for frame in self.color_queue.tryGetAll():
-            self.publish_color(frame)
-        for frame in self.depth_queue.tryGetAll():
-            self.publish_depth(frame)
-        for imu_data in self.imu_queue.tryGetAll():
-            self.publish_imu(imu_data)
-        for cloud in self.points_queue.tryGetAll():
-            self.publish_points(cloud)
+        try:
+            for frame in self.color_queue.tryGetAll():
+                self.publish_color(frame)
+            for frame in self.depth_queue.tryGetAll():
+                self.publish_depth(frame)
+            for imu_data in self.imu_queue.tryGetAll():
+                self.publish_imu(imu_data)
+            for cloud in self.points_queue.tryGetAll():
+                self.publish_points(cloud)
+        except RuntimeError as error:
+            self.get_logger().warning(f'camera lost, reconnecting: {error}')
+            self.release_device()
+            self.connect()
 
     def publish_imu(self, imu_data):
         if self.imu_publisher.get_subscription_count() == 0:
@@ -243,8 +270,8 @@ class OakDProWPoe(Node):
         message.header.frame_id = self.frame_id
 
     def publish_color(self, frame):
-        self.stamp_header(self.camera_info)
-        self.color_camera_info_publisher.publish(self.camera_info)
+        self.stamp_header(self.color_camera_info)
+        self.color_camera_info_publisher.publish(self.color_camera_info)
         if self.color_publisher.get_subscription_count() == 0:
             return
         message = CompressedImage()
@@ -254,8 +281,8 @@ class OakDProWPoe(Node):
         self.color_publisher.publish(message)
 
     def publish_depth(self, frame):
-        self.stamp_header(self.camera_info)
-        self.depth_camera_info_publisher.publish(self.camera_info)
+        self.stamp_header(self.depth_camera_info)
+        self.depth_camera_info_publisher.publish(self.depth_camera_info)
         wants_raw = self.depth_publisher.get_subscription_count() > 0
         wants_preview = (
             self.depth_preview_publisher.get_subscription_count() > 0)
@@ -267,11 +294,11 @@ class OakDProWPoe(Node):
             self.stamp_header(message)
             message.height, message.width = depth.shape
             message.encoding = '16UC1'
-            message.step = message.width * 2
+            message.step = message.width * BYTES_PER_DEPTH_PIXEL
             message.data = depth.tobytes()
             self.depth_publisher.publish(message)
         if wants_preview:
-            scaled = cv2.convertScaleAbs(depth, alpha=255.0 / MAX_VIZ_DEPTH_MM)
+            scaled = cv2.convertScaleAbs(depth, alpha=255.0 / MAX_PREVIEW_DEPTH_MM)
             colored = cv2.applyColorMap(scaled, cv2.COLORMAP_JET)
             success, encoded = cv2.imencode(
                 '.jpg', colored,
@@ -293,7 +320,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        node.device.close()
+        node.release_device()
 
 
 if __name__ == '__main__':

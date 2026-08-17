@@ -78,10 +78,11 @@ class PwmChannel:
 
 class WheelDriver:
     def __init__(self, dir_request, pwm_chip, pwm_channel, dir_line,
-                 forward_level, period_ns):
+                 forward_level, period_ns, min_duty):
         self.dir_request = dir_request
         self.dir_line = dir_line
         self.forward_level = forward_level
+        self.min_duty = min_duty
         self.pwm = PwmChannel(pwm_chip, pwm_channel, period_ns)
         self.last_dir_level = None
         self.duty_fraction = 0.0
@@ -95,7 +96,10 @@ class WheelDriver:
             self.dir_request.set_value(
                 self.dir_line, Value.ACTIVE if dir_level else Value.INACTIVE)
             self.last_dir_level = dir_level
-        duty_fraction = min(abs(wheel_speed) / max_wheel_speed, 1.0)
+        speed_fraction = min(abs(wheel_speed) / max_wheel_speed, 1.0)
+        duty_fraction = (
+            0.0 if speed_fraction == 0.0
+            else self.min_duty + speed_fraction * (1.0 - self.min_duty))
         self.pwm.write_duty_ns(int(duty_fraction * self.pwm.period_ns))
         self.duty_fraction = (
             duty_fraction if wheel_speed >= 0.0 else -duty_fraction)
@@ -113,6 +117,7 @@ class PwmDirMotorDriver(Node):
         self.declare_parameter('gpio_chip', 0)
         self.declare_parameter('pwm_frequency_hz', 20000.0)
         self.declare_parameter('max_wheel_speed', 1.0)
+        self.declare_parameter('min_duty', 0.0)
         for side in ('left', 'right'):
             self.declare_parameter(f'{side}_pwm_chip', 0)
             self.declare_parameter(f'{side}_pwm_channel', 0)
@@ -141,7 +146,8 @@ class PwmDirMotorDriver(Node):
                 self.get_parameter(f'{side}_pwm_channel').value,
                 dir_line,
                 self.get_parameter(f'{side}_forward_level').value,
-                period_ns)
+                period_ns,
+                self.get_parameter('min_duty').value)
             for side, dir_line in zip(('left', 'right'), dir_lines)
         ]
 

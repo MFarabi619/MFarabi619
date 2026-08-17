@@ -17,6 +17,7 @@
 
 
 import math
+from typing import NamedTuple
 
 from builtin_interfaces.msg import Duration
 from foxglove_msgs.msg import (
@@ -47,14 +48,20 @@ TARGET_MARKER_DIAMETER_M = 0.15
 RING_SEGMENTS = 48
 LIVE_PARAMETERS = frozenset({
     'standoff_distance', 'distance_gain', 'max_forward_speed',
-    'steer_gain', 'max_angular_speed', 'reacquire_frames',
+    'steer_gain', 'max_angular_speed', 'max_missing_frames',
     'target_class', 'command_smoothing', 'distance_deadband',
     'steer_deadband', 'distance_damping', 'steer_damping',
-    'max_retreat_speed',
+    'max_retreat_speed', 'lost_spin_decay',
 })
+NANOSECONDS_PER_SECOND = 1e9
 MAX_MEASUREMENT_INTERVAL_S = 0.2
 TARGET_MATCH_RADIUS_M = 0.6
 NEARER_TAKEOVER_MARGIN_M = 0.4
+
+
+class Candidate(NamedTuple):
+    track_id: int | None
+    point: Point
 
 
 class Approach(Node):
@@ -73,13 +80,14 @@ class Approach(Node):
         self.max_forward_speed = self.declare_parameter('max_forward_speed', 0.6).value
         self.steer_gain = self.declare_parameter('steer_gain', 1.2).value
         self.max_angular_speed = self.declare_parameter('max_angular_speed', 0.8).value
-        self.reacquire_frames = self.declare_parameter('reacquire_frames', 0).value
+        self.max_missing_frames = self.declare_parameter('max_missing_frames', 0).value
         self.command_smoothing = self.declare_parameter('command_smoothing', 1.0).value
         self.distance_deadband = self.declare_parameter('distance_deadband', 0.0).value
         self.steer_deadband = self.declare_parameter('steer_deadband', 0.0).value
         self.distance_damping = self.declare_parameter('distance_damping', 0.0).value
         self.steer_damping = self.declare_parameter('steer_damping', 0.0).value
         self.max_retreat_speed = self.declare_parameter('max_retreat_speed', 0.0).value
+        self.lost_spin_decay = self.declare_parameter('lost_spin_decay', 1.0).value
 
         self.is_enabled = self.declare_parameter('start_enabled', False).value
         self.missing_frames = 0
@@ -90,6 +98,7 @@ class Approach(Node):
         self.previous_offset = 0.0
         self.previous_distance = 0.0
         self.tracked_position = None
+        self.tracked_id = None
         self.cmd_vel_publisher = self.create_publisher(
             TwistStamped, cmd_vel_topic, 10
         )
@@ -109,11 +118,13 @@ class Approach(Node):
         target = self.select_target(self.candidate_points(message.detections))
         if target is None:
             self.missing_frames += 1
-            if self.missing_frames > self.reacquire_frames:
+            if self.missing_frames > self.max_missing_frames:
                 self.tracked_position = None
+                self.tracked_id = None
+            self.last_angular_speed *= self.lost_spin_decay
             angular_speed = (
                 self.last_angular_speed
-                if self.missing_frames <= self.reacquire_frames else 0.0
+                if self.missing_frames <= self.max_missing_frames else 0.0
             )
             self.previous_stamp_s = None
             self.drive(0.0, angular_speed)
@@ -122,7 +133,9 @@ class Approach(Node):
         self.missing_frames = 0
         lateral_offset = target.x if abs(target.x) > self.steer_deadband else 0.0
         offset = lateral_offset / target.z
-        stamp_s = message.header.stamp.sec + message.header.stamp.nanosec * 1e-9
+        stamp_s = (
+            message.header.stamp.sec
+            + message.header.stamp.nanosec / NANOSECONDS_PER_SECOND)
         offset_rate = 0.0
         distance_rate = 0.0
         if (self.previous_stamp_s is not None
@@ -141,7 +154,7 @@ class Approach(Node):
         self.publish_scene(message.header.stamp, message.header.frame_id, target, forward_speed)
 
     def candidate_points(self, detections):
-        points = []
+        candidates = []
         for detection in detections:
             if not detection.results:
                 continue
@@ -151,30 +164,38 @@ class Approach(Node):
             point = result.pose.pose.position
             if point.z <= 0.0:
                 continue
-            points.append(point)
-        return points
+            track_id = int(detection.id) if detection.id.isdigit() else None
+            candidates.append(Candidate(track_id, point))
+        return candidates
 
     def select_target(self, candidates):
         if not candidates:
             return None
-        nearest = min(candidates, key=lambda point: point.z)
+        nearest = min(candidates, key=lambda candidate: candidate.point.z)
         tracked = self.tracked_candidate(candidates)
         target = nearest
         if (tracked is not None
-                and nearest.z > tracked.z - NEARER_TAKEOVER_MARGIN_M):
+                and nearest.point.z > tracked.point.z - NEARER_TAKEOVER_MARGIN_M):
             target = tracked
-        if target is not tracked:
+        if tracked is None or target is not tracked:
             self.previous_stamp_s = None
-        self.tracked_position = target
-        return target
+        self.tracked_id = target.track_id
+        self.tracked_position = target.point
+        return target.point
 
     def tracked_candidate(self, candidates):
+        if self.tracked_id is not None:
+            for candidate in candidates:
+                if candidate.track_id == self.tracked_id:
+                    return candidate
         if self.tracked_position is None:
             return None
-        closest = min(candidates, key=self.distance_to_tracked)
-        if self.distance_to_tracked(closest) > TARGET_MATCH_RADIUS_M:
+        nearest_to_tracked = min(
+            candidates,
+            key=lambda candidate: self.distance_to_tracked(candidate.point))
+        if self.distance_to_tracked(nearest_to_tracked.point) > TARGET_MATCH_RADIUS_M:
             return None
-        return closest
+        return nearest_to_tracked
 
     def distance_to_tracked(self, point):
         return math.hypot(

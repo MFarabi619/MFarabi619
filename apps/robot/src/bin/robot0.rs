@@ -17,7 +17,7 @@ const MAX_SPEED_MPS: f64 = 2.0;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    init_ros_logging("robot1");
+    init_ros_logging("robot0");
     let context = Context::new()?;
 
     let sysfs_root = Path::new(SYSFS_PWM_ROOT);

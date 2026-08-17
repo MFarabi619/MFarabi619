@@ -3,28 +3,25 @@ version: 1
 system:
   namespace: robot4
   hosts:
-    - hostname: rpi5-16
-      ip: 10.81.190.24
-      board: rpi_5
+    - hostname: pocketbeagle-2
+      ip: 100.74.213.30
+      board: pocketbeagle_2
 platform:
   attachments: []
   drivetrain:
-    model: pwm_dir
     pwm_frequency_hz: 20000.0
     max_linear_velocity_mps: 2.0
     left:
-      pwm_pin: 32 # PWM1 input
-      dir_pin: 36 # DIR1 input
+      pwm_pin: P1.36
+      dir_pin: P1.33
       forward_level: true
     right:
-      pwm_pin: 33 # PWM2 input
-      dir_pin: 37 # DIR2 input
+      pwm_pin: P2.01
+      dir_pin: P2.03
       forward_level: false
 sensors:
-  camera:
-    - model: oak_d_sr
-      parent: base_link
-      xyz: [0.575, 0.5, 0.31]
-      rpy: [0.0, 0.0, 0.0]
-      ros_parameters:
-        camera_0: {}
+  camera: []
+  imu: []
+  gps: []
+mounts:
+  camera_mount: []

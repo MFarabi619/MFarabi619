@@ -22,7 +22,7 @@ OPERATOR_TOPIC = '/perception/operator'
 
 
 @launch_this
-def follow(standoff_distance: float = 1.5, reacquire_frames: int = 8):
+def follow(standoff_distance: float = 1.5, max_missing_frames: int = 8):
     bl = BetterLaunch()
     bl.node(
         package='robot_perception',
@@ -36,7 +36,7 @@ def follow(standoff_distance: float = 1.5, reacquire_frames: int = 8):
         name='operator_approach',
         params={
             'standoff_distance': standoff_distance,
-            'reacquire_frames': reacquire_frames,
+            'max_missing_frames': max_missing_frames,
         },
         remaps={'detections': OPERATOR_TOPIC},
     )

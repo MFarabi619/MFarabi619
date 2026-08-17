@@ -127,10 +127,10 @@ mod tests {
     use super::*;
 
     fn fake_channel(root: &Path, chip: u32, channel: u32) {
-        let channel_dir = root.join(format!("pwmchip{chip}/pwm{channel}"));
-        fs::create_dir_all(&channel_dir).unwrap();
+        let channel_directory = root.join(format!("pwmchip{chip}/pwm{channel}"));
+        fs::create_dir_all(&channel_directory).unwrap();
         for attribute in ["duty_cycle", "period", "enable"] {
-            fs::write(channel_dir.join(attribute), "").unwrap();
+            fs::write(channel_directory.join(attribute), "").unwrap();
         }
     }
 

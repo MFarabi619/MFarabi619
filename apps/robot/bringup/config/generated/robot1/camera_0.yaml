@@ -1,0 +1,7 @@
+robot1:
+  camera_0:
+    ros__parameters:
+      ip: '169.254.1.222'
+      fps: 30.0
+      color_resolution_divisor: 2
+      depth_resolution_divisor: 4

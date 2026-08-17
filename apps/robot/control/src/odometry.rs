@@ -14,7 +14,7 @@ use oxidros::{
 
 use robot_description::time::now_stamp;
 
-use crate::kinematics::{wheel_angular_velocities, WHEELS};
+use crate::kinematics::{wheel_angular_velocities, DRIVE_WHEELS};
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -99,13 +99,13 @@ pub fn joint_state_message(left_wheel_angle: f64, right_wheel_angle: f64) -> Joi
     message.header.stamp.sec = sec;
     message.header.stamp.nanosec = nanosec;
 
-    let mut names = RosStringSeq::<0, 0>::new(WHEELS.len()).unwrap();
-    for (slot, wheel) in names.as_mut_slice().iter_mut().zip(WHEELS.iter()) {
+    let mut names = RosStringSeq::<0, 0>::new(DRIVE_WHEELS.len()).unwrap();
+    for (slot, wheel) in names.as_mut_slice().iter_mut().zip(DRIVE_WHEELS.iter()) {
         slot.assign(wheel.joint_name);
     }
     message.name = names;
 
-    let positions: Vec<f64> = WHEELS
+    let positions: Vec<f64> = DRIVE_WHEELS
         .iter()
         .map(|wheel| match wheel.corner.side() {
             Side::Left => left_wheel_angle,

@@ -55,3 +55,5 @@ dtoverlay=nospi10
 dtparam=uart0=on
 # Drivetrain PWM0 channels 0/1 on GPIO12/13 (pins 32/33)
 dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4
+# Non-PD robot converter: lift the 600mA USB cap for the Gemini 335L
+usb_max_current_enable=1

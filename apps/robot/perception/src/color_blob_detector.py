@@ -56,6 +56,8 @@ BRACKET_FRACTION = 0.25
 MILLIMETERS_PER_METER = 1000.0
 MILLIMETER_DEPTH_ENCODING = '16UC1'
 METER_DEPTH_ENCODING = '32FC1'
+BYTES_PER_MILLIMETER_DEPTH_PIXEL = 2
+BYTES_PER_METER_DEPTH_PIXEL = 4
 LIVE_PARAMETERS = frozenset({
     'hue_min', 'hue_max', 'min_saturation', 'max_saturation', 'min_value',
     'min_area', 'min_triangularity', 'min_aspect_ratio',
@@ -129,14 +131,17 @@ class ColorBlobDetector(Node):
     def on_depth(self, message):
         if message.encoding == MILLIMETER_DEPTH_ENCODING:
             depth = np.frombuffer(message.data, np.uint16).reshape(
-                message.height, message.step // 2
+                message.height, message.step // BYTES_PER_MILLIMETER_DEPTH_PIXEL
             )[:, :message.width]
             if message.is_bigendian:
                 depth = depth.byteswap()
         elif message.encoding == METER_DEPTH_ENCODING:
             depth = np.frombuffer(message.data, np.float32).reshape(
-                message.height, message.step // 4
-            )[:, :message.width] * MILLIMETERS_PER_METER
+                message.height, message.step // BYTES_PER_METER_DEPTH_PIXEL
+            )[:, :message.width]
+            if message.is_bigendian:
+                depth = depth.byteswap()
+            depth = depth * MILLIMETERS_PER_METER
         else:
             self.get_logger().warning(
                 f'expected {MILLIMETER_DEPTH_ENCODING} or {METER_DEPTH_ENCODING}'

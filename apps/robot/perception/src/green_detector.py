@@ -51,6 +51,7 @@ BRACKET_FRACTION = 0.25
 MILLIMETERS_PER_METER = 1000.0
 NANOSECONDS_PER_SECOND = 1e9
 DEPTH_ENCODING = '16UC1'
+BYTES_PER_DEPTH_PIXEL = 2
 LIVE_PARAMETERS = frozenset({
     'hue_min', 'hue_max', 'min_saturation', 'min_value', 'min_blob_area', 'max_range',
 })
@@ -118,7 +119,7 @@ class GreenDetector(Node):
             )
             return
         depth = np.frombuffer(message.data, np.uint16).reshape(
-            message.height, message.step // 2
+            message.height, message.step // BYTES_PER_DEPTH_PIXEL
         )[:, :message.width]
         if message.is_bigendian:
             depth = depth.byteswap()

@@ -20,7 +20,12 @@ RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 
 
 @launch_this
-def follow():
+def follow(
+        max_forward_speed: float = 2.0, max_missing_frames: int = 24,
+        max_angular_speed: float = 3.0, steer_gain: float = 3.0,
+        steer_damping: float = 0.55, distance_damping: float = 0.4,
+        command_smoothing: float = 0.6, steer_deadband: float = 0.05,
+        lost_spin_decay: float = 1.0, max_retreat_speed: float = 1.5):
     bl = BetterLaunch()
     bl.node(
         package='robot_perception',
@@ -35,18 +40,19 @@ def follow():
         name='person_approach',
         params={
             'standoff_distance': 1.5,
-            'reacquire_frames': 24,
+            'max_missing_frames': max_missing_frames,
             'start_enabled': True,
-            'max_forward_speed': 2.0,
-            'max_angular_speed': 3.0,
-            'max_retreat_speed': 1.5,
+            'max_forward_speed': max_forward_speed,
+            'max_angular_speed': max_angular_speed,
+            'max_retreat_speed': max_retreat_speed,
             'distance_gain': 2.5,
-            'distance_damping': 0.4,
-            'steer_gain': 3.0,
-            'steer_damping': 0.55,
-            'command_smoothing': 0.6,
+            'distance_damping': distance_damping,
+            'steer_gain': steer_gain,
+            'steer_damping': steer_damping,
+            'command_smoothing': command_smoothing,
             'distance_deadband': 0.1,
-            'steer_deadband': 0.05,
+            'steer_deadband': steer_deadband,
+            'lost_spin_decay': lost_spin_decay,
         },
         **RESPAWN,
     )

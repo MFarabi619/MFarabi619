@@ -2,20 +2,21 @@ use std::sync::LazyLock;
 
 use robot_description::{
     datums::WHEEL_TREAD_DIAMETER_MM,
+    dimensions::Dimensions,
     placement::{joint_table, wheel_origin, Corner},
     MM_TO_M,
 };
 
-pub const WHEEL_RADIUS_METERS: f64 = WHEEL_TREAD_DIAMETER_MM / 2.0 * MM_TO_M;
+pub const WHEEL_RADIUS_M: f64 = WHEEL_TREAD_DIAMETER_MM / 2.0 * MM_TO_M;
 
 pub struct Wheel {
     pub joint_name: &'static str,
     pub corner: Corner,
 }
 
-pub static WHEELS: LazyLock<[Wheel; 4]> = LazyLock::new(|| {
+pub static DRIVE_WHEELS: LazyLock<[Wheel; 2]> = LazyLock::new(|| {
     let joints = joint_table();
-    Corner::ALL.map(|corner| {
+    Corner::REAR.map(|corner| {
         let wheel_link = corner.wheel_link();
         let joint_name = joints
             .iter()
@@ -26,14 +27,21 @@ pub static WHEELS: LazyLock<[Wheel; 4]> = LazyLock::new(|| {
     })
 });
 
-pub fn half_track_meters() -> f64 {
-    wheel_origin(Corner::FrontLeft).y * MM_TO_M
+pub fn half_track_m() -> f64 {
+    let dimensions = Dimensions {
+        frame_length_mm: 1219.2,
+        frame_width_mm: 1000.0,
+        frame_top_z_mm: 300.0,
+        rear_axle_inset_mm: 85.0,
+        has_deck_equipment: true,
+    };
+    wheel_origin(Corner::RearLeft, &dimensions).y * MM_TO_M
 }
 
-pub fn wheel_angular_velocities(linear_mps: f64, angular_rad_s: f64) -> (f64, f64) {
-    let half_track = half_track_meters();
-    let left = (linear_mps - angular_rad_s * half_track) / WHEEL_RADIUS_METERS;
-    let right = (linear_mps + angular_rad_s * half_track) / WHEEL_RADIUS_METERS;
+pub fn wheel_angular_velocities(linear_m_per_s: f64, angular_rad_per_s: f64) -> (f64, f64) {
+    let half_track = half_track_m();
+    let left = (linear_m_per_s - angular_rad_per_s * half_track) / WHEEL_RADIUS_M;
+    let right = (linear_m_per_s + angular_rad_per_s * half_track) / WHEEL_RADIUS_M;
     (left, right)
 }
 

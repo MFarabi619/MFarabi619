@@ -74,7 +74,7 @@ pub fn spawn_perception(
     Ok(())
 }
 
-pub fn robot0_chip(
+pub fn robot3_chip(
 ) -> Result<&'static robot_drivers::gpio::Chip<'static>, Box<dyn std::error::Error + Send + Sync>> {
     let connection: &'static robot_drivers::gpio::Connection = Box::leak(Box::new(
         robot_drivers::gpio::Connection::connect(config::RGPIOD_HOST, config::RGPIOD_PORT)?,
@@ -84,14 +84,14 @@ pub fn robot0_chip(
     )))
 }
 
-pub fn spawn_robot0_driver(
+pub fn spawn_robot3_driver(
     context: &Arc<Context>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let drivetrain = config::robot0_drivetrain(robot0_chip()?)?;
+    let drivetrain = config::robot3_drivetrain(robot3_chip()?)?;
     let driver_node = context.create_node("base_controller", None)?;
     spawn_logged(
         "driver",
-        run_driver(driver_node, drivetrain, config::robot0_config()),
+        run_driver(driver_node, drivetrain, config::robot3_config()),
     );
     Ok(())
 }

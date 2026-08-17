@@ -54,7 +54,7 @@ constexpr int NANOSECONDS_PER_MICROSECOND = 1000;
 constexpr int MILLISECONDS_PER_SECOND = 1000;
 constexpr size_t BYTES_PER_DEPTH_PIXEL = 2;
 constexpr size_t BYTES_PER_COLOR_PIXEL = 3;
-constexpr double MAX_VIZ_DEPTH_MM = 8000.0;
+constexpr double MAX_PREVIEW_DEPTH_MM = 8000.0;
 
 builtin_interfaces::msg::Time stamp_from_microseconds(uint64_t timestamp_us)
 {
@@ -326,7 +326,7 @@ private:
     if (depth_compressed_publisher_->get_subscription_count() > 0) {
       cv::Mat depth16(height, width, CV_16UC1, image->data.data());
       cv::Mat depth8;
-      depth16.convertTo(depth8, CV_8UC1, 255.0 / MAX_VIZ_DEPTH_MM);
+      depth16.convertTo(depth8, CV_8UC1, 255.0 / MAX_PREVIEW_DEPTH_MM);
       cv::Mat colored;
       cv::applyColorMap(depth8, colored, cv::COLORMAP_JET);
       auto preview = std::make_unique<sensor_msgs::msg::CompressedImage>();

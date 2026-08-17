@@ -31,10 +31,11 @@ RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 
 GPS_TOPICS = ['fix', 'vel', 'time_reference', 'heading']
 
-CONTROL_PARAM_FILES = [
-    'control/config/control.yaml',
-    'control/config/drivetrain.generated.yaml',
-]
+def control_param_files(robot_name):
+    return [
+        'control/config/control.yaml',
+        f'control/config/generated/{robot_name}/drivetrain.yaml',
+    ]
 
 IMU_TOPICS = [
     'data', 'mag', 'linear_acceleration', 'stability',
@@ -96,27 +97,27 @@ def robot():
     if rc_receiver and not rc_receiver.get('launch_enabled', True):
         rc_receiver = None
     drivetrain_model = drivetrain.get('model', 'pwm_dir')
-    with open('control/config/drivetrain.generated.yaml') as file:
+    with open(f'control/config/generated/{robot_name}/drivetrain.yaml') as file:
         drivetrain_sections = yaml.safe_load(file)
     wheel_radius = next(
         section['ros__parameters']['wheel_radius']
         for name, section in drivetrain_sections.items()
         if name.endswith('diff_drive_controller'))
 
-    oak_camera = next(
+    oak_d_camera_config = next(
         (camera for camera in sensors.get('camera', [])
          if camera['model'] in ('oak_d_sr', 'oak_d_pro_w_poe')
          and camera.get('launch_enabled', True)),
         None)
-    orbbec_camera = next(
+    orbbec_gemini_335l_camera_config = next(
         (camera for camera in sensors.get('camera', [])
          if camera['model'] == 'orbbec_gemini_335l'
          and camera.get('launch_enabled', True)),
         None)
-    if oak_camera:
-        scan_camera_name = next(iter(oak_camera['ros_parameters']))
-    elif orbbec_camera and next(
-            iter(orbbec_camera['ros_parameters'].values()))['enable_depth']:
+    if oak_d_camera_config:
+        scan_camera_name = next(iter(oak_d_camera_config['ros_parameters']))
+    elif orbbec_gemini_335l_camera_config and next(
+            iter(orbbec_gemini_335l_camera_config['ros_parameters'].values()))['enable_depth']:
         scan_camera_name = 'camera_0'
     else:
         scan_camera_name = None
@@ -155,6 +156,21 @@ def robot():
             },
             **RESPAWN,
         )
+    elif drivetrain_model == 'svd48v':
+        bl.node(
+            package='robot_drivers',
+            executable='svd48v_motor_driver',
+            params={
+                'serial_port': drivetrain['serial_port'],
+                'baud_rate': drivetrain['baud_rate'],
+                'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                'acceleration_rpm_per_second': drivetrain['acceleration_rpm_per_second'],
+                'speed_smoothing_time': drivetrain['speed_smoothing_time'],
+                'left_reversed': drivetrain['left']['reversed'],
+                'right_reversed': drivetrain['right']['reversed'],
+            },
+            **RESPAWN,
+        )
     elif drivetrain_model == 'rc_pulse':
         pins = board_pins(robot_config)
         left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain['left']['pwm_pin'])
@@ -180,7 +196,7 @@ def robot():
         left_dir_chip, left_dir_line = resolve_line(pins, drivetrain['left']['dir_pin'])
         right_dir_chip, right_dir_line = resolve_line(pins, drivetrain['right']['dir_pin'])
         if left_dir_chip != right_dir_chip:
-            raise RuntimeError('left and right dir pins must share one gpio chip')
+            raise RuntimeError('left and right direction pins must share one gpio chip')
         bl.node(
             package='robot_drivers',
             executable='pwm_dir_motor_driver',
@@ -188,6 +204,7 @@ def robot():
                 'gpio_chip': left_dir_chip,
                 'pwm_frequency_hz': drivetrain['pwm_frequency_hz'],
                 'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                'min_duty': drivetrain.get('min_duty', 0.0),
                 'left_pwm_chip': left_pwm_chip,
                 'left_pwm_channel': left_pwm_channel,
                 'left_dir_line': left_dir_line,
@@ -210,7 +227,8 @@ def robot():
             cmd_args=[
                 'joint_state_broadcaster', 'diff_drive_controller',
                 '--param-file', 'control/config/control.yaml',
-                '--param-file', 'control/config/drivetrain.generated.yaml',
+                '--param-file',
+                f'control/config/generated/{robot_name}/drivetrain.yaml',
                 '--controller-manager-timeout', '60',
                 '--controller-ros-args', '-r ~/cmd_vel:=/platform/cmd_vel',
             ],
@@ -221,7 +239,7 @@ def robot():
         executable='ros2_control_node',
         name='controller_manager',
         remaps={'~/robot_description': '/robot_description'},
-        param_files=CONTROL_PARAM_FILES,
+        param_files=control_param_files(robot_name),
         remap_qualifier='controller_manager',
         **RESPAWN,
         on_exit=spawn_controllers,
@@ -353,28 +371,28 @@ def robot():
             **RESPAWN,
         )
 
-    if oak_camera:
-        camera_name = next(iter(oak_camera['ros_parameters']))
-        if oak_camera['model'] == 'oak_d_pro_w_poe':
+    if oak_d_camera_config:
+        camera_name = next(iter(oak_d_camera_config['ros_parameters']))
+        if oak_d_camera_config['model'] == 'oak_d_pro_w_poe':
             optical_frame = f'{camera_name}_link_color_optical_frame'
-            oak_params = {
-                'ip': oak_camera['ros_parameters'][camera_name]['ip'],
+            oak_d_camera_driver_parameters = {
+                'ip': oak_d_camera_config['ros_parameters'][camera_name]['ip'],
                 'frame_id': optical_frame,
                 'fps': 30.0,
                 'jpeg_quality': 60,
             }
         else:
             optical_frame = f'{camera_name}_link_right_camera_optical_frame'
-            oak_params = {
+            oak_d_camera_driver_parameters = {
                 'frame_id': optical_frame,
                 'fps': 15.0,
                 'jpeg_quality': 60,
             }
         bl.node(
             package='robot_drivers',
-            executable=oak_camera['model'],
-            name=oak_camera['model'],
-            params=oak_params,
+            executable=oak_d_camera_config['model'],
+            name=oak_d_camera_config['model'],
+            params=oak_d_camera_driver_parameters,
             remaps={
                 'color/image_raw/compressed':
                     f'/sensors/{camera_name}/color/image_raw/compressed',
@@ -391,7 +409,7 @@ def robot():
         bl.node(
             package='tf2_ros',
             executable='static_transform_publisher',
-            name='oak_optical_frame_bridge',
+            name='oak_d_optical_frame_bridge',
             cmd_args=[
                 '--roll', '-1.5708', '--yaw', '-1.5708',
                 '--frame-id', f'{camera_name}_link',
@@ -399,11 +417,11 @@ def robot():
             ],
             **RESPAWN,
         )
-        if oak_camera['model'] == 'oak_d_sr':
+        if oak_d_camera_config['model'] == 'oak_d_sr':
             bl.node(
                 package='depth_image_proc',
                 executable='point_cloud_xyz_node',
-                name='oak_depth_to_pointcloud',
+                name='oak_d_sr_depth_to_pointcloud',
                 remaps={
                     'image_rect': f'/sensors/{camera_name}/depth/image_raw',
                     'camera_info': f'/sensors/{camera_name}/depth/camera_info',
@@ -414,7 +432,7 @@ def robot():
         bl.node(
             package='pointcloud_to_laserscan',
             executable='pointcloud_to_laserscan_node',
-            name='oak_pointcloud_to_laserscan',
+            name='oak_d_pointcloud_to_laserscan',
             remaps={
                 'cloud_in': f'/sensors/{camera_name}/depth/points',
                 'scan': f'/sensors/{camera_name}/scan',
@@ -431,8 +449,9 @@ def robot():
             **RESPAWN,
         )
 
-    if orbbec_camera:
-        camera_parameters = next(iter(orbbec_camera['ros_parameters'].values()))
+    if orbbec_gemini_335l_camera_config:
+        camera_parameters = next(
+            iter(orbbec_gemini_335l_camera_config['ros_parameters'].values()))
         bl.node(
             package='robot_drivers',
             executable='orbbec_gemini_335l',

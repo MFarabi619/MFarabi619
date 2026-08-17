@@ -346,7 +346,7 @@ class DriveProfile(Node):
                 Align.center(
                     Text(f"waiting for odometry on {self.odom_topic}", style="yellow")
                 ),
-                title="robot0 · drive-profile e2e",
+                title="robot3 · drive-profile e2e",
                 border_style=IDLE_COLOR,
             )
         phase = PHASES[min(self.phase_index, len(PHASES) - 1)]
@@ -410,7 +410,7 @@ class DriveProfile(Node):
         )
         return Panel(
             Group(head, Text(""), gauges, Text(""), tally),
-            title="🌾 robot0 · drive-profile e2e",
+            title="🌾 robot3 · drive-profile e2e",
             border_style=color,
         )
 

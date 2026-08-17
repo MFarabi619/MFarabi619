@@ -1,4 +1,4 @@
-robot0:
+robot3:
   imu_0:
     ros__parameters:
       i2c_bus: 1

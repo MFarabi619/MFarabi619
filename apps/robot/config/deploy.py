@@ -129,7 +129,7 @@ def install_units(host, robot_name):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('robot', nargs='?', default='robot1')
+    parser.add_argument('robot', nargs='?', default='robot0')
     robot_name = parser.parse_args().robot
 
     config_path = ROBOTS_PATH / robot_name / 'robot.yaml'

@@ -1,26 +1,28 @@
 serial_number: robot-0002
-version: 1
+version: 0
 system:
   namespace: robot2
   hosts:
-    - hostname: pocketbeagle-2
-      ip: 100.74.213.30
-      board: pocketbeagle_2
+    - hostname: xiao
+      ip: 0.0.0.0
 platform:
   attachments: []
-  drivetrain:
-    pwm_frequency_hz: 20000.0
-    max_linear_velocity_mps: 2.0
-    left:
-      pwm_pin: P1.36
-      dir_pin: P1.33
-      forward_level: true
-    right:
-      pwm_pin: P2.01
-      dir_pin: P2.03
-      forward_level: false
 sensors:
-  camera: []
+  camera:
+    - model: imx296_gs
+      parent: base_link
+      xyz: [0.0, 0.0, 0.1]
+      rpy: [0.0, 0.0, 0.0]
+      launch_enabled: false
+      ros_parameters:
+        camera_0:
+          name: camera_0
+          host: 0.0.0.0
+          port: 8888
+          stream_path: ""
+          width: 1456
+          height: 1088
+          fov_deg: 54.0
   imu: []
   gps: []
 mounts:

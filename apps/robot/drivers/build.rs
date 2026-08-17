@@ -7,17 +7,17 @@ const RGPIO_SOURCES: [&str; 5] = ["rgpio.c", "lgCfg.c", "lgErr.c", "lgDbg.c", "l
 fn main() {
     println!("cargo:rerun-if-changed=Cargo.toml");
 
-    let manifest_dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-    let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+    let manifest_directory = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+    let output_directory = PathBuf::from(std::env::var("OUT_DIR").unwrap());
 
-    let mut cache = Cache::load_or_create(&out_dir).expect("open fetch-source cache");
-    let (name, source) = load_sources(&manifest_dir)
+    let mut cache = Cache::load_or_create(&output_directory).expect("open fetch-source cache");
+    let (name, source) = load_sources(&manifest_directory)
         .expect("read fetch-source metadata")
         .into_iter()
         .next()
         .expect("a fetch-source entry");
 
-    let lg_dir = if cache.items().contains(&source) {
+    let lg_directory = if cache.items().contains(&source) {
         cache.items().get(&source).unwrap().path().to_path_buf()
     } else {
         let dest = cache
@@ -32,13 +32,13 @@ fn main() {
         path
     };
 
-    let rgpio_src = manifest_dir.join("src").join("rgpio");
+    let rgpio_source = manifest_directory.join("src").join("rgpio");
     cc::Build::new()
-        .include(&rgpio_src)
-        .include(&lg_dir)
+        .include(&rgpio_source)
+        .include(&lg_directory)
         .flag("-include")
-        .flag(rgpio_src.join("portability.h").to_str().unwrap())
-        .files(RGPIO_SOURCES.iter().map(|file| lg_dir.join(file)))
+        .flag(rgpio_source.join("portability.h").to_str().unwrap())
+        .files(RGPIO_SOURCES.iter().map(|file| lg_directory.join(file)))
         .warnings(false)
         .compile("rgpio");
 

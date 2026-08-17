@@ -25,7 +25,6 @@ import time
 
 import cv2
 import depthai as dai
-import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -34,9 +33,10 @@ from sensor_msgs.msg import CameraInfo, CompressedImage, Image
 
 QUEUE_POLL_RATE_HZ = 60.0
 DEVICE_RETRY_DELAY_SECONDS = 2.0
-MAX_VIZ_DEPTH_MM = 3000.0
+MAX_PREVIEW_DEPTH_MM = 3000.0
 SENSOR_WIDTH = 1280
 SENSOR_HEIGHT = 800
+BYTES_PER_DEPTH_PIXEL = 2
 
 
 # TODO: align depth to CAM_B color on device
@@ -87,14 +87,10 @@ class OakDSr(Node):
         resolution_divisor = self.get_parameter('resolution_divisor').value
         self.frame_width = SENSOR_WIDTH // resolution_divisor
         self.frame_height = SENSOR_HEIGHT // resolution_divisor
-        pipeline = build_pipeline(
+        self.pipeline = build_pipeline(
             self.get_parameter('fps').value, self.jpeg_quality,
             resolution_divisor)
-        self.device = self.wait_for_device(pipeline)
-        self.color_queue = self.device.getOutputQueue(
-            'color', maxSize=2, blocking=False)
-        self.depth_queue = self.device.getOutputQueue(
-            'depth', maxSize=2, blocking=False)
+        self.connect()
         self.color_publisher = self.create_publisher(
             CompressedImage, 'color/image_raw/compressed', qos_profile_sensor_data)
         self.depth_publisher = self.create_publisher(
@@ -106,16 +102,29 @@ class OakDSr(Node):
             CameraInfo, 'color/camera_info', qos_profile_sensor_data)
         self.depth_camera_info_publisher = self.create_publisher(
             CameraInfo, 'depth/camera_info', qos_profile_sensor_data)
+        self.poll_timer = self.create_timer(
+            1.0 / QUEUE_POLL_RATE_HZ, self.poll_queues)
+
+    def connect(self):
+        self.device = self.wait_for_device(self.pipeline)
+        self.color_queue = self.device.getOutputQueue(
+            'color', maxSize=2, blocking=False)
+        self.depth_queue = self.device.getOutputQueue(
+            'depth', maxSize=2, blocking=False)
         calibration = self.device.readCalibration()
         self.color_camera_info = self.read_camera_info(
             calibration, dai.CameraBoardSocket.CAM_B)
         self.depth_camera_info = self.read_camera_info(
             calibration, dai.CameraBoardSocket.CAM_C)
-        self.poll_timer = self.create_timer(
-            1.0 / QUEUE_POLL_RATE_HZ, self.poll_queues)
         self.get_logger().info(
             f'connected {self.device.getDeviceName()} '
             f'usb={self.device.getUsbSpeed().name}')
+
+    def release_device(self):
+        try:
+            self.device.close()
+        except RuntimeError:
+            pass
 
     def wait_for_device(self, pipeline):
         while rclpy.ok():
@@ -144,10 +153,15 @@ class OakDSr(Node):
         return camera_info
 
     def poll_queues(self):
-        for frame in self.color_queue.tryGetAll():
-            self.publish_color(frame)
-        for frame in self.depth_queue.tryGetAll():
-            self.publish_depth(frame)
+        try:
+            for frame in self.color_queue.tryGetAll():
+                self.publish_color(frame)
+            for frame in self.depth_queue.tryGetAll():
+                self.publish_depth(frame)
+        except RuntimeError as error:
+            self.get_logger().warning(f'camera lost, reconnecting: {error}')
+            self.release_device()
+            self.connect()
 
     def stamp_header(self, message):
         message.header.stamp = self.get_clock().now().to_msg()
@@ -178,13 +192,12 @@ class OakDSr(Node):
             self.stamp_header(message)
             message.height, message.width = depth.shape
             message.encoding = '16UC1'
-            message.step = message.width * 2
+            message.step = message.width * BYTES_PER_DEPTH_PIXEL
             message.data = depth.tobytes()
             self.depth_publisher.publish(message)
         if wants_preview:
-            scaled = np.clip(depth * (255.0 / MAX_VIZ_DEPTH_MM), 0, 255)
-            colored = cv2.applyColorMap(
-                scaled.astype(np.uint8), cv2.COLORMAP_JET)
+            scaled = cv2.convertScaleAbs(depth, alpha=255.0 / MAX_PREVIEW_DEPTH_MM)
+            colored = cv2.applyColorMap(scaled, cv2.COLORMAP_JET)
             success, encoded = cv2.imencode(
                 '.jpg', colored,
                 [cv2.IMWRITE_JPEG_QUALITY, self.jpeg_quality])
@@ -205,7 +218,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        node.device.close()
+        node.release_device()
 
 
 if __name__ == '__main__':

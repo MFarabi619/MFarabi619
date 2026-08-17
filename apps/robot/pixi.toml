@@ -12,7 +12,7 @@ platforms = [
 
 [activation]
 scripts = ["install/setup.sh"]
-env = { ROS_DOMAIN_ID = "0", RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l" }
+env = { ROS_DOMAIN_ID = "0", RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l", YOLO_AUTOINSTALL = "false" }
 
 [dependencies]
 python = "*"
@@ -23,22 +23,23 @@ ninja = "*"
 cmake = "*"
 rosdep = "*"
 requests = "*"
+pyserial = "*"
 compilers = "*"
 pkg-config = "*"
 # ROS specific tools
 transforms3d = "*"
 rich = ">=15.0.0,<16"
-ros-lyrical-twist-mux = "*"
-ros-lyrical-pointcloud-to-laserscan = "*"
 ros-lyrical-py-trees = "*"
+ros-lyrical-twist-mux = "*"
 ros-lyrical-py-trees-ros = "*"
-ros-lyrical-py-trees-ros-interfaces = "*"
-ros-lyrical-geographic-msgs = "*"
 colcon-common-extensions = "*"
 ros-lyrical-desktop-full = "*"
 ros-lyrical-ros2-control = "*"
+ros-lyrical-geographic-msgs = "*"
 ros-lyrical-foxglove-bridge = "*"
 ros-lyrical-ros2-controllers = "*"
+ros-lyrical-pointcloud-to-laserscan = "*"
+ros-lyrical-py-trees-ros-interfaces = "*"
 
 [target.linux.pypi-dependencies]
 better-launch = { git = "https://github.com/dfki-ric/better_launch", rev = "99aea170405745f342df1fa83a1a92810598c9ec" }
@@ -57,8 +58,8 @@ mediapipe = ">=1.0.0"
 [target.linux-aarch64.dependencies]
 sysroot_linux-aarch64 = ">=2.28"
 ros-lyrical-foxglove-msgs = "*"
-ros-lyrical-diagnostic-aggregator = "*"
 ros-lyrical-depth-image-proc = "*"
+ros-lyrical-diagnostic-aggregator = "*"
 
 [target.linux-aarch64.pypi-dependencies]
 gpiod = "*"
@@ -68,23 +69,28 @@ depthai = ">=2.24,<3"
 
 [target.osx-arm64.pypi-dependencies]
 mediapipe = "*"
-depthai = ">=2.24,<3"
 odrive = ">=0.6.11"
+depthai = ">=2.24,<3"
 better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editable = true }
 
 [target.osx-arm64.dependencies]
+lap = "*"
+onnx = "*"
 pyside6 = "*"
+torchvision = "*"
+ultralytics = ">=8.4"
+
 qt6-3d = "*"
+qt6-scxml = "*"
 qt6-charts = "*"
-qt6-datavis3d = "*"
 qt6-graphs = "*"
+qt6-quick3d = "*"
+qt6-sensors = "*"
+qt6-datavis3d = "*"
+qt6-webengine = "*"
+qt6-serialport = "*"
 qt6-multimedia = "*"
 qt6-networkauth = "*"
-qt6-quick3d = "*"
-qt6-scxml = "*"
-qt6-sensors = "*"
-qt6-serialport = "*"
-qt6-webengine = "*"
 ros-lyrical-vision-msgs = "*"
 ros-lyrical-foxglove-msgs = "*"
 ros-lyrical-gz-ros2-control = "*"
@@ -100,16 +106,15 @@ channels = [
 ]
 
 [feature.jazzy.activation.env]
-RMW_IMPLEMENTATION = "rmw_zenoh_cpp"
 ROS_DOMAIN_ID = "0"
+RMW_IMPLEMENTATION = "rmw_zenoh_cpp"
 ZENOH_CONFIG_OVERRIDE = "mode='client'"
 ZENOH_SESSION_CONFIG_URI = "navigation/config/zenoh_local_client.json5"
 
 [feature.jazzy.dependencies]
 python = "3.12.*"
-ros-jazzy-rmw-zenoh-cpp = ">=0.2.9"
-ros-jazzy-slam-toolbox = "*"
 ros-jazzy-nav2-amcl = "*"
+ros-jazzy-slam-toolbox = "*"
 ros-jazzy-nav2-planner = "*"
 ros-jazzy-nav2-smoother = "*"
 ros-jazzy-nav2-behaviors = "*"
@@ -117,6 +122,7 @@ ros-jazzy-nav2-map-server = "*"
 ros-jazzy-nav2-controller = "*"
 ros-jazzy-nav2-bt-navigator = "*"
 ros-jazzy-nav2-navfn-planner = "*"
+ros-jazzy-rmw-zenoh-cpp = ">=0.2.9"
 ros-jazzy-nav2-mppi-controller = "*"
 ros-jazzy-nav2-velocity-smoother = "*"
 ros-jazzy-nav2-lifecycle-manager = "*"
@@ -124,20 +130,20 @@ ros-jazzy-nav2-collision-monitor = "*"
 
 [feature.jazzy.target.linux-aarch64.dependencies]
 ros-jazzy-rclpy = "*"
+ros-jazzy-depthai-ros-msgs = "*"
 ros-jazzy-nmea-navsat-driver = "*"
 ros-jazzy-depthai-ros-driver = "*"
-ros-jazzy-depthai-ros-msgs = "*"
 ros-jazzy-image-transport-plugins = "*"
 
 [feature.jazzy.target.osx-arm64.dependencies]
 ros-jazzy-ros2cli = "*"
+ros-jazzy-ros2run = "*"
 ros-jazzy-ros2node = "*"
 ros-jazzy-std-msgs = "*"
 ros-jazzy-ros2topic = "*"
 ros-jazzy-nav2-bringup = "*"
-ros-jazzy-ros2run = "*"
-ros-jazzy-teleop-twist-keyboard = "*"
 ros-jazzy-apriltag-msgs = "*"
+ros-jazzy-teleop-twist-keyboard = "*"
 ros-jazzy-image-transport-plugins = "*"
 
 [feature.jazzy.target.osx-arm64.pypi-dependencies]
@@ -174,7 +180,7 @@ gesture-teleop = { cmd = "python bringup/launch/bringup.launch.py --gesture_came
 ] }
 
 sim = { cmd = "python simulator/launch/simulation.launch.py --robots {{ robots }} --depth_scan {{ scan }}", args = [
-  { arg = "robots", default = "robot1" },
+  { arg = "robots", default = "robot0" },
   { arg = "scan", default = "false" },
 ], depends-on = [
   "generate",
@@ -184,20 +190,24 @@ sim-server = { cmd = "python simulator/launch/simulation.launch.py --headless tr
   "generate",
 ] }
 
-teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_SESSION_CONFIG_URI = "config/zenoh/client_session.json5" } }
-
-teleop-robot1 = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
-teleop-robot4 = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16.local:7447"]' } }
-teleop-robot5 = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/localhost:7447"]' } }
-e2e-robot5 = { cmd = "python e2e/cmd_vel.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/localhost:7447"]' } }
-follow-robot1 = { cmd = "python bringup/launch/follow.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = ["build"] }
-crop-row-robot1 = { cmd = "python bringup/launch/crop_row.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = ["build"] }
+teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file config/keyboard_teleop.yaml -r cmd_vel:=joy_teleop/cmd_vel", args = [
+  { arg = "host" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]' } }
+follow-robot0 = { cmd = "python bringup/launch/follow.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = [
+  "build",
+] }
+follow-robot1 = { cmd = "python bringup/launch/follow.launch.py --max_forward_speed 0.8 --max_missing_frames 48 --max_angular_speed 0.3 --steer_gain 0.8 --steer_damping 0.6 --distance_damping 0.2 --command_smoothing 0.25 --steer_deadband 0.1 --lost_spin_decay 0.85 --max_retreat_speed 0.5", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16.local:7447"]' }, depends-on = [
+  "build",
+] }
+crop-row-robot0 = { cmd = "python bringup/launch/crop_row.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = [
+  "build",
+] }
 
 approach = { cmd = "python perception/launch/approach.launch.py --standoff_distance {{ standoff }}", args = [
   { arg = "standoff", default = "1.0" },
 ] }
 
-sidewalk-follow = { cmd = "python perception/launch/sidewalk_follow.launch.py --target_offset {{ target }}", args = [
+follow-sidewalk = { cmd = "python perception/launch/sidewalk_follow.launch.py --target_offset {{ target }}", args = [
   { arg = "target", default = "0.0" },
 ] }
 
@@ -209,14 +219,17 @@ follow-row = { cmd = 'ros2 action send_goal --feedback /follow_row robot_platfor
   { arg = "distance", default = "18" },
 ], env = { ZENOH_SESSION_CONFIG_URI = "config/zenoh/client_session.json5" } }
 
-follow-me = { cmd = "python perception/launch/apriltag_follow.launch.py --standoff_distance {{ standoff }}", args = [{ arg = "standoff", default = "1.5" }], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2:7447"]' } }
+follow-apriltag-robot0 = { cmd = "python perception/launch/apriltag_follow.launch.py --standoff_distance {{ standoff }}", args = [
+  { arg = "standoff", default = "1.5" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2:7447"]' } }
 
 canopy = { cmd = "python perception/src/canopy_detector.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2:7447"]' } }
 
 # e2e = "python e2e/drive_profile.py --ros-args -p use_sim_time:=true"
-e2e = { cmd = "python e2e/cmd_vel.py", env = { ZENOH_SESSION_CONFIG_URI = "config/zenoh/client_session.json5" } }
+e2e = { cmd = "python e2e/cmd_vel.py", args = [
+  { arg = "host" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]' } }
 e2e-odrive = "python e2e/odrive_velocity.py"
-e2e-robot1 = { cmd = "python e2e/cmd_vel.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
 
 cone-drill = "python e2e/cone_drill.py --ros-args -p use_sim_time:=true"
 
@@ -229,7 +242,7 @@ test = { cmd = "pytest -c pytest.ini config/test perception/test simulator/test 
 test-cov = { cmd = "pytest -c pytest.ini config/test -m 'not linter' -p pytest_cov --cov=robot_config --cov-report=term-missing", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
 
 deploy = { cmd = "python config/deploy.py {{ robot }}", args = [
-  { arg = "robot", default = "robot1" },
+  { arg = "robot", default = "robot0" },
 ] }
 
 robot = "python bringup/launch/robot.launch.py"
