@@ -17,6 +17,7 @@ static const struct gpio_dt_spec reset_gpio = GPIO_DT_SPEC_GET(ESP_HOSTED_NODE, 
 
 /* ESP slave SLCHOST registers, masked to the low 10 bits for SDIO access. */
 #define ESP_ADDR_MASK      0x3FF
+#define ESP_TOKEN_RDATA    0x044
 #define ESP_INT_RAW_REG    0x050
 #define ESP_PACKET_LEN_REG 0x060
 #define ESP_INT_CLR_REG    0x0D4
@@ -29,6 +30,10 @@ static const struct gpio_dt_spec reset_gpio = GPIO_DT_SPEC_GET(ESP_HOSTED_NODE, 
 #define ESP_LEN_MASK       0xFFFFF
 #define ESP_RX_BYTE_MAX    0x100000
 #define ESP_RX_BUFFER_SIZE 1536
+#define ESP_TX_BUFFER_MAX  0x1000
+#define ESP_TX_BUFFER_MASK (ESP_TX_BUFFER_MAX - 1)
+#define ESP_TX_BUF_RETRY_MAX 50
+#define ESP_TX_BUF_RETRY_US  400
 #define ESP_OPEN_DATA_PATH 0
 
 #define CCCR_INT_ENABLE 0x04
@@ -56,7 +61,10 @@ struct esp_payload_header {
 static struct sd_card card;
 static struct sdio_func func1;
 static uint32_t rx_byte_count;
-static uint8_t rx_buf[ESP_BLOCK_SIZE * 4] __aligned(32);
+static uint32_t rx_stream_len;
+static uint32_t rx_stream_pos;
+static uint16_t tx_buf_used;
+static uint8_t rx_buf[ESP_BLOCK_SIZE * 16] __aligned(32);
 static uint8_t tx_buf[ESP_BLOCK_SIZE * 4] __aligned(32);
 
 static int reg_read(uint32_t reg, void *buf, uint16_t len)
@@ -193,6 +201,9 @@ int esp_hosted_transport_init(void)
 	sdio_write_byte(&card.func0, CCCR_INT_ENABLE, ie | BIT(0) | BIT(1));
 
 	rx_byte_count = 0;
+	rx_stream_len = 0;
+	rx_stream_pos = 0;
+	tx_buf_used = 0;
 
 	/* Signal the slave to open its data path. */
 	ret = reg_write(ESP_HOST_TO_SLAVE, &open, 1);
@@ -208,11 +219,31 @@ int esp_hosted_transport_init(void)
 static K_MUTEX_DEFINE(tx_mutex);
 static uint16_t tx_seq_num;
 
+/* The slave silently drops a write when it has no free RX buffer. TOKEN1 (bits 27:16
+ * of TOKEN_RDATA) is its running count of loaded buffers; free = TOKEN1 - buffers used. */
+static int tx_buffers_available(uint32_t needed)
+{
+	uint8_t token[4];
+	int ret = reg_read(ESP_TOKEN_RDATA, token, sizeof(token));
+
+	if (ret) {
+		return ret;
+	}
+
+	uint32_t loaded = (sys_get_le32(token) >> 16) & ESP_TX_BUFFER_MASK;
+	uint32_t free = (loaded + ESP_TX_BUFFER_MAX - tx_buf_used) % ESP_TX_BUFFER_MAX;
+
+	return free >= needed ? 0 : -EAGAIN;
+}
+
 int esp_hosted_tx(uint8_t if_type, uint8_t if_num, const uint8_t *payload, uint16_t len)
 {
 	struct esp_payload_header *hdr = (struct esp_payload_header *)tx_buf;
 	uint32_t total = ESP_HEADER_LEN + len;
 	uint32_t block_len = ROUND_UP(total, ESP_BLOCK_SIZE);
+	uint32_t needed = DIV_ROUND_UP(total, ESP_RX_BUFFER_SIZE);
+	uint16_t checksum = 0;
+	int retries = 0;
 	int ret;
 
 	if (block_len > sizeof(tx_buf)) {
@@ -220,6 +251,19 @@ int esp_hosted_tx(uint8_t if_type, uint8_t if_num, const uint8_t *payload, uint1
 	}
 
 	k_mutex_lock(&tx_mutex, K_FOREVER);
+
+	while ((ret = tx_buffers_available(needed)) == -EAGAIN) {
+		if (++retries > ESP_TX_BUF_RETRY_MAX) {
+			k_mutex_unlock(&tx_mutex);
+			return -ENOBUFS;
+		}
+		k_usleep(ESP_TX_BUF_RETRY_US);
+	}
+	if (ret) {
+		k_mutex_unlock(&tx_mutex);
+		return ret;
+	}
+
 	memset(tx_buf, 0, block_len);
 	hdr->if_type = if_type;
 	hdr->if_num = if_num;
@@ -228,58 +272,90 @@ int esp_hosted_tx(uint8_t if_type, uint8_t if_num, const uint8_t *payload, uint1
 	hdr->seq_num = sys_cpu_to_le16(tx_seq_num++);
 	memcpy(tx_buf + ESP_HEADER_LEN, payload, len);
 
+	/* Slave checks this over header (field zeroed) + payload and drops on mismatch
+	 * when its checksum option is on; a correct value is ignored when it's off. */
+	for (uint32_t i = 0; i < total; i++) {
+		checksum += tx_buf[i];
+	}
+	hdr->checksum = sys_cpu_to_le16(checksum);
+
+	/* Address encodes the unpadded length; the block-padded byte count is only the
+	 * CMD53 transfer size, and the slave discards the padding past `total`. */
 	ret = sdio_write_addr(&func1, ESP_CMD53_END_ADDR - total, tx_buf, block_len);
+	if (ret == 0) {
+		tx_buf_used = (tx_buf_used + needed) % ESP_TX_BUFFER_MAX;
+	}
 	k_mutex_unlock(&tx_mutex);
 	return ret;
 }
 
 int esp_hosted_rx(uint8_t *if_type, uint8_t **payload, uint16_t *len)
 {
-	uint8_t reg[ESP_REG_WINDOW];
-	int ret;
+	/* One slave read returns a stream of concatenated packets. Drain them one per
+	 * call from rx_buf; only touch the bus once the current stream is exhausted. */
+	if (rx_stream_pos >= rx_stream_len) {
+		uint8_t reg[ESP_REG_WINDOW];
+		int ret = reg_read(ESP_INT_RAW_REG, reg, ESP_REG_WINDOW);
 
-	ret = reg_read(ESP_INT_RAW_REG, reg, ESP_REG_WINDOW);
-	if (ret) {
-		return ret;
+		if (ret) {
+			return ret;
+		}
+
+		uint32_t interrupts = sys_get_le32(&reg[0]);
+		uint32_t cumulative = sys_get_le32(&reg[ESP_PKT_LEN_OFFSET]) & ESP_LEN_MASK;
+		uint32_t rx_size = (cumulative + ESP_RX_BYTE_MAX - rx_byte_count) % ESP_RX_BYTE_MAX;
+
+		if (rx_size == 0) {
+			return 0;
+		}
+
+		reg_write(ESP_INT_CLR_REG, &interrupts, sizeof(interrupts));
+
+		uint32_t block_len = ROUND_UP(rx_size, ESP_BLOCK_SIZE);
+
+		/* Advance the counter even when the stream won't fit, or rx_byte_count never
+		 * catches up to the slave's cumulative counter and RX wedges permanently. */
+		rx_byte_count = (rx_byte_count + rx_size) % ESP_RX_BYTE_MAX;
+		if (block_len > sizeof(rx_buf)) {
+			return 0;
+		}
+
+		ret = sdio_read_addr(&func1, ESP_CMD53_END_ADDR - rx_size, rx_buf, block_len);
+		if (ret) {
+			return ret;
+		}
+		rx_stream_len = rx_size;
+		rx_stream_pos = 0;
 	}
 
-	uint32_t interrupts = sys_get_le32(&reg[0]);
-	uint32_t cumulative = sys_get_le32(&reg[ESP_PKT_LEN_OFFSET]) & ESP_LEN_MASK;
-	uint32_t rx_size = (cumulative + ESP_RX_BYTE_MAX - rx_byte_count) % ESP_RX_BYTE_MAX;
+	while (rx_stream_pos + ESP_HEADER_LEN <= rx_stream_len) {
+		struct esp_payload_header *hdr =
+			(struct esp_payload_header *)(rx_buf + rx_stream_pos);
+		uint16_t plen = sys_le16_to_cpu(hdr->len);
+		uint16_t poff = sys_le16_to_cpu(hdr->offset);
+		uint8_t itype = hdr->if_type;
+		uint32_t packet_len = (uint32_t)poff + plen;
 
-	if (rx_size == 0 || rx_size > ESP_RX_BUFFER_SIZE) {
-		return 0;
+		if (plen == 0 || poff != ESP_HEADER_LEN ||
+		    rx_stream_pos + packet_len > rx_stream_len) {
+			rx_stream_pos = rx_stream_len; /* framing lost; abandon the rest */
+			return 0;
+		}
+
+		uint8_t *data = rx_buf + rx_stream_pos + poff;
+
+		rx_stream_pos += packet_len;
+
+		if (itype == ESP_PRIV_IF) {
+			handle_priv_event(data, plen);
+			continue;
+		}
+
+		*if_type = itype;
+		*payload = data;
+		*len = plen;
+		return 1;
 	}
 
-	reg_write(ESP_INT_CLR_REG, &interrupts, sizeof(interrupts));
-
-	uint32_t block_len = ROUND_UP(rx_size, ESP_BLOCK_SIZE);
-
-	if (block_len > sizeof(rx_buf)) {
-		return -EMSGSIZE;
-	}
-
-	ret = sdio_read_addr(&func1, ESP_CMD53_END_ADDR - rx_size, rx_buf, block_len);
-	if (ret) {
-		return ret;
-	}
-	rx_byte_count = (rx_byte_count + rx_size) % ESP_RX_BYTE_MAX;
-
-	struct esp_payload_header *hdr = (struct esp_payload_header *)rx_buf;
-	uint16_t plen = sys_le16_to_cpu(hdr->len);
-	uint16_t poff = sys_le16_to_cpu(hdr->offset);
-
-	if (plen == 0 || poff != ESP_HEADER_LEN || (uint32_t)(poff + plen) > block_len) {
-		return 0;
-	}
-
-	if (hdr->if_type == ESP_PRIV_IF) {
-		handle_priv_event(rx_buf + poff, plen);
-		return 0;
-	}
-
-	*if_type = hdr->if_type;
-	*payload = rx_buf + poff;
-	*len = plen;
-	return 1;
+	return 0;
 }

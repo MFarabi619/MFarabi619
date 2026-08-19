@@ -1,7 +1,7 @@
 use alloc::vec::Vec;
 use core::{
     ffi::c_void,
-    sync::atomic::{AtomicU32, Ordering},
+    sync::atomic::{AtomicBool, AtomicU32, Ordering},
 };
 
 use log::{error, info};
@@ -104,8 +104,7 @@ fn put_bytes(out: &mut Vec<u8>, field: u32, bytes: &[u8]) {
 
 fn push_tlv_header(out: &mut Vec<u8>, tag: u8, len: usize) {
     out.push(tag);
-    out.push((len & 0xff) as u8);
-    out.push(((len >> 8) & 0xff) as u8);
+    out.extend_from_slice(&(len as u16).to_le_bytes());
 }
 
 fn payload_wifi_mode() -> Vec<u8> {
@@ -244,12 +243,12 @@ fn strip_tlv(frame: &[u8]) -> Option<&[u8]> {
     if frame.len() < TLV_HEADER_LEN || frame[0] != TLV_ENDPOINT_NAME {
         return None;
     }
-    let endpoint_len = frame[1] as usize | ((frame[2] as usize) << 8);
+    let endpoint_len = u16::from_le_bytes([frame[1], frame[2]]) as usize;
     let mut pos = TLV_HEADER_LEN + endpoint_len;
     if frame.len() < pos + TLV_HEADER_LEN || frame[pos] != TLV_DATA {
         return None;
     }
-    let protobuf_len = frame[pos + 1] as usize | ((frame[pos + 2] as usize) << 8);
+    let protobuf_len = u16::from_le_bytes([frame[pos + 1], frame[pos + 2]]) as usize;
     pos += TLV_HEADER_LEN;
     if frame.len() < pos + protobuf_len {
         return None;
@@ -281,9 +280,7 @@ fn extract_mac(payload: &[u8]) -> Option<[u8; 6]> {
     let mut reader = Reader::new(payload);
     while let Some((field, value)) = reader.next() {
         if let (MAC_FIELD_ADDRESS, Field::Bytes(b)) = (field, value) {
-            if b.len() == 6 {
-                let mut mac = [0u8; 6];
-                mac.copy_from_slice(b);
+            if let Ok(mac) = b.try_into() {
                 return Some(mac);
             }
         }
@@ -481,9 +478,15 @@ pub extern "C" fn esp_hosted_wifi_connect(
     let ssid = unsafe { core::slice::from_raw_parts(ssid, ssid_len as usize) };
     let psk = unsafe { core::slice::from_raw_parts(psk, psk_len as usize) };
 
-    if rpc_call_awaiting(REQUEST_WIFI_SET_CONFIG, &payload_wifi_set_config(ssid, psk)).is_err() {
-        error!("set_config failed");
-        return -EIO;
+    // Config goes out once. Re-sending it makes the slave re-apply mid-association
+    // (force disconnect + self-reconnect), so station_connected never settles and it
+    // drops our STA TX. The reference reconnects with connect only.
+    if !CONFIG_APPLIED.load(Ordering::Relaxed) {
+        if rpc_call_awaiting(REQUEST_WIFI_SET_CONFIG, &payload_wifi_set_config(ssid, psk)).is_err() {
+            error!("set_config failed");
+            return -EIO;
+        }
+        CONFIG_APPLIED.store(true, Ordering::Relaxed);
     }
     if rpc_call_awaiting(REQUEST_WIFI_CONNECT, &[]).is_err() {
         error!("connect failed");
@@ -491,6 +494,8 @@ pub extern "C" fn esp_hosted_wifi_connect(
     }
     0
 }
+
+static CONFIG_APPLIED: AtomicBool = AtomicBool::new(false);
 
 #[no_mangle]
 pub extern "C" fn esp_hosted_wifi_query_dhcp() -> i32 {

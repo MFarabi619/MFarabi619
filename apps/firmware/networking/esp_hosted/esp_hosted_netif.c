@@ -43,6 +43,14 @@ void esp_hosted_netif_recv(uint8_t if_type, const uint8_t *frame, uint16_t len)
 	struct net_pkt *pkt;
 
 	ARG_UNUSED(if_type);
+	/* Diagnostic: a unicast dst (I/G bit clear) is the only way a DHCP OFFER reaches
+	 * us. If this never fires, the C6 isn't forwarding unicast to our MAC. */
+	if (len >= 14 && !(frame[0] & 0x01)) {
+		LOG_INF("rx UNICAST dst=%02x:%02x:%02x:%02x:%02x:%02x src=%02x:%02x:%02x:%02x:%02x:%02x type=%02x%02x",
+			frame[0], frame[1], frame[2], frame[3], frame[4], frame[5],
+			frame[6], frame[7], frame[8], frame[9], frame[10], frame[11],
+			frame[12], frame[13]);
+	}
 	if (len >= 38 && frame[12] == 0x08 && frame[13] == 0x00) {
 		LOG_INF("rx ip4 proto=%u src=%u.%u.%u.%u dst=%u.%u.%u.%u dport=%u",
 			frame[23], frame[26], frame[27], frame[28], frame[29],
