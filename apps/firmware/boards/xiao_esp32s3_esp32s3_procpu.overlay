@@ -2,6 +2,13 @@
 	size = <DT_SIZE_M(8)>;
 };
 
+&i2c0 {
+	bno086: bno086@4a {
+		compatible = "i2c-device";
+		reg = <0x4a>;
+	};
+};
+
 #include "hats/pwm-motors.overlay"
 // #include "hats/freenove-fnk0077.overlay"
 // #include "hats/adeept-robot-hat.overlay"
