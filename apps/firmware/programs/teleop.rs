@@ -38,9 +38,15 @@ macro_rules! ros_domain_id {
     };
 }
 
+macro_rules! robot_namespace {
+    () => {
+        env!("ROBOT_NAMESPACE")
+    };
+}
+
 macro_rules! cmd_vel_topic {
     () => {
-        "joy_teleop/cmd_vel"
+        concat!(robot_namespace!(), "joy_teleop/cmd_vel")
     };
 }
 

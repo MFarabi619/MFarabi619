@@ -15,4 +15,10 @@ fn main() {
             zephyr_build::dt_cfgs();
         }
     }
+
+    println!(
+        "cargo:rustc-env=ROBOT_NAMESPACE={}",
+        std::env::var("ROBOT_NAMESPACE").unwrap_or_default()
+    );
+    println!("cargo:rerun-if-env-changed=ROBOT_NAMESPACE");
 }
