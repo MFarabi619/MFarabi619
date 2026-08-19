@@ -45,3 +45,6 @@
 				 LED_COLOR_ID_BLUE>;
 	};
 };
+
+#include "hats/pwm-motors.overlay"
+// #include "lcd1602.overlay"
