@@ -1,0 +1,6 @@
+&i2c1 {
+	unit_8servos: unit_8servos@25 {
+		compatible = "m5stack,unit-8servos";
+		reg = <0x25>;
+	};
+};

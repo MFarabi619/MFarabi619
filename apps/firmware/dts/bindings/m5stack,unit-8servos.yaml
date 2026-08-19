@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
+include: [i2c-device.yaml]
+compatible: "m5stack,unit-8servos"
+description: I2C 8-channel servo/GPIO/ADC/PWM/NeoPixel expander.
