@@ -1,3 +1,0 @@
-ifneq ($(CONFIG_APPS_NUTTX_ZIG),)
-CONFIGURED_APPS += $(APPDIR)/../../apps/nuttx-zig
-endif

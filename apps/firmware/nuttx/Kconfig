@@ -1,8 +1,10 @@
 config APPS_NUTTX_ZIG
-	tristate "Hello-Zig demo app"
+	tristate "Zig teleop pendant (zigzag TUI)"
 	default n
 	---help---
-		Minimal Zig demo for NuttX. Prints a greeting then exits.
+		Zig teleop pendant built on the zigzag TUI framework, rendered
+		over the serial console. Arrow keys / WASD set linear and angular
+		commands; space stops; q quits.
 
 if APPS_NUTTX_ZIG
 
@@ -16,6 +18,6 @@ config APPS_NUTTX_ZIG_PRIORITY
 
 config APPS_NUTTX_ZIG_STACKSIZE
 	int "Stack size"
-	default DEFAULT_TASK_STACKSIZE
+	default 32768
 
 endif

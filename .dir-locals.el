@@ -141,6 +141,5 @@
                  (setq-local lsp-file-watch-ignored-directories
                              (append lsp-file-watch-ignored-directories
                                      '("[/\\\\]zephyrproject\\'"
-                                       "[/\\\\]nuttxspace\\'"
                                        "[/\\\\]\\.pixi\\'")))))
        )))

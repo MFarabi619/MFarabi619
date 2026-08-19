@@ -476,3 +476,48 @@ patches:
           prescale/(prescale+1) * timer_prescale/(timer_prescale+1) off. It also
           divided by zero when either prescale was 0, and prescale-timerN defaults
           to 0. Add the +1 on both lines to match the hardware.
+
+    - path: nuttx-espressif.patch
+      sha256sum: 74f3995b09abc45d15389e52c9aec0128b442e4245630feae4465a667afd4926
+      module: zephyrproject/nuttx
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-07-30
+      upstreamable: true
+      comments: |
+          Build NuttX master for esp32s3-8048S043 with the current Espressif
+          toolchain (gcc 15 + esptool v5). Two fixes:
+
+          1. tools/{espressif,esp32s3}/Config.mk + check_esptool.py: invoke
+             `esptool`, not `esptool.py`. esptool v5 removed the `.py` console
+             script; `esptool` exists in v4.8+ and v5 alike.
+
+          2. arch/xtensa/src/lx7/Toolchain.defs: pin ARCHCFLAGS to -std=gnu17.
+             gcc 15 defaults to gnu23, which deleted ATOMIC_VAR_INIT (deprecated
+             in C17); esp-hal still uses it. esp-idf builds esp-hal at gnu17, and
+             lx7 already pins CONFIG_CXX_STANDARD for C++ but left C at the
+             compiler default.
+
+    - path: better-launch-macos-psutil.patch
+      sha256sum: 21d2a2a27fac5534467034812439b9591c8d2eed5edf87131ebc8ce29018d6c2
+      module: zephyrproject/modules/lib/better_launch
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-08-01
+      upstreamable: true
+      comments: |
+          foreign_node.py: also catch psutil.AccessDenied / NoSuchProcess when
+          scanning processes for ROS nodes, not just ZombieProcess. On macOS
+          p.cmdline() on pid 1 (launchd) raises AccessDenied, which crashed
+          get_unique_name and so every anonymous node (e.g. the Gazebo
+          spawn_model create). Linux reads /proc/1/cmdline fine, so the gap
+          only surfaces on macOS. Both scan sites fixed
+          (find_ros2_node_processes, find_process_for_node).
+
+    - path: lichtblick.patch
+      sha256sum: 680e75533978f05bbe3f21fcd2b31aa3cd19c777c3211ad9831c94714ffb2945
+      module: zephyrproject/lichtblick
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-08-01
+      upstreamable: false

@@ -1,0 +1,22 @@
+diff --git a/better_launch/elements/foreign_node.py b/better_launch/elements/foreign_node.py
+index e501c42..0426d15 100644
+--- a/better_launch/elements/foreign_node.py
++++ b/better_launch/elements/foreign_node.py
+@@ -53,7 +53,7 @@ def find_ros2_node_processes() -> list[psutil.Process]:
+                 or "__name:=" in cmd
+             ):
+                 ret.append(p)
+-        except psutil.ZombieProcess:
++        except (psutil.ZombieProcess, psutil.AccessDenied, psutil.NoSuchProcess):
+             pass
+ 
+     return ret
+@@ -94,7 +94,7 @@ def find_process_for_node(namespace: str, name: str) -> list[psutil.Process]:
+                 if pkg_match and name_match:
+                     candidates.append(p)
+                     break
+-        except psutil.ZombieProcess:
++        except (psutil.ZombieProcess, psutil.AccessDenied, psutil.NoSuchProcess):
+             pass
+ 
+     return candidates

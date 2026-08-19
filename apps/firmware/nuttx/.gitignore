@@ -1,0 +1,7 @@
+*.o
+Make.dep
+.depend
+.built
+zig-pkg/
+zig-out/
+.zig-cache/

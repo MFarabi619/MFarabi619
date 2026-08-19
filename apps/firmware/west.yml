@@ -83,3 +83,23 @@ manifest:
           revision: 9fb469aa072007e7f9b410e25d06057518892c30 # 2026-07-25
           path: zephyrproject/modules/lib/zenoh-pico
           url: https://github.com/eclipse-zenoh/zenoh-pico
+
+        - name: better_launch
+          revision: 99aea170405745f342df1fa83a1a92810598c9ec # dfki-ric/better_launch (macOS psutil patch)
+          path: zephyrproject/modules/lib/better_launch
+          url: https://github.com/dfki-ric/better_launch
+
+        - name: nuttx
+          revision: ab4890df16b63af85f546d05d7a7fe3a3ebf3980 # 2026-07-30
+          path: zephyrproject/nuttx
+          url: https://github.com/apache/nuttx
+
+        - name: nuttx-apps
+          revision: 2492317f15bcf69787249060a6b16915170cc3a3 # 2026-07-28
+          path: zephyrproject/apps
+          url: https://github.com/apache/nuttx-apps
+
+        - name: lichtblick
+          revision: c3d6b2f845fbe5259f19e9eb2544b8b966448a6a # v1.28.0-284 (fork base)
+          path: zephyrproject/lichtblick
+          url: https://github.com/lichtblick-suite/lichtblick

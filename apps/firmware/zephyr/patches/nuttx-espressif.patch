@@ -1,0 +1,115 @@
+diff --git a/arch/xtensa/src/lx7/Toolchain.defs b/arch/xtensa/src/lx7/Toolchain.defs
+index cd4e593230..4549f2ef42 100644
+--- a/arch/xtensa/src/lx7/Toolchain.defs
++++ b/arch/xtensa/src/lx7/Toolchain.defs
+@@ -120,6 +120,8 @@ endif
+ ARCHCFLAGS += -fno-common
+ ARCHCXXFLAGS += -fno-common
+ 
++ARCHCFLAGS += -std=gnu17
++
+ ARCHCFLAGS += -Wall -Wstrict-prototypes -Wshadow -Wundef -Wno-attributes -Wno-unknown-pragmas
+ ARCHCXXFLAGS += -Wall -Wshadow -Wundef -Wno-attributes -Wno-unknown-pragmas
+ 
+diff --git a/tools/esp32s3/Config.mk b/tools/esp32s3/Config.mk
+index cf4808d34c..2685f96861 100644
+--- a/tools/esp32s3/Config.mk
++++ b/tools/esp32s3/Config.mk
+@@ -234,7 +234,7 @@ define MERGEBIN
+ 			$(ESPTOOL_FLASH_OPTS)                                                \
+ 		)                                                                        \
+ 	)
+-	esptool.py -c esp32s3 merge_bin $(ESPTOOL_MERGEBIN_OPTS) --output nuttx.merged.bin $(ESPTOOL_BINS)
++	esptool -c esp32s3 merge_bin $(ESPTOOL_MERGEBIN_OPTS) --output nuttx.merged.bin $(ESPTOOL_BINS)
+ 	$(Q) echo nuttx.merged.bin >> nuttx.manifest
+ 	$(Q) echo "Generated: nuttx.merged.bin"
+ endef
+@@ -249,7 +249,7 @@ define MKIMAGE
+ 		echo "Missing Flash memory size configuration for the ESP32-S3 chip."; \
+ 		exit 1; \
+ 	fi
+-	esptool.py -c esp32s3 elf2image $(ESPTOOL_FLASH_OPTS) -o nuttx.bin nuttx
++	esptool -c esp32s3 elf2image $(ESPTOOL_FLASH_OPTS) -o nuttx.bin nuttx
+ 	$(Q) echo nuttx.bin >> nuttx.manifest
+ 	$(Q) echo "Generated: nuttx.bin (ESP32-S3 compatible)"
+ endef
+@@ -276,7 +276,7 @@ define MKIMAGE
+ 		exit 1; \
+ 	fi
+ 	$(eval ELF2IMAGE_OPTS := $(if $(CONFIG_ESPRESSIF_SIMPLE_BOOT),--ram-only-header) -fs $(FLASH_SIZE) -fm $(FLASH_MODE) -ff $(FLASH_FREQ))
+-	esptool.py -c esp32s3 elf2image $(ELF2IMAGE_OPTS) -o nuttx.bin nuttx
++	esptool -c esp32s3 elf2image $(ELF2IMAGE_OPTS) -o nuttx.bin nuttx
+ 	$(Q) echo nuttx.bin >> nuttx.manifest
+ 	$(Q) echo "Generated: nuttx.bin"
+ endef
+@@ -285,7 +285,7 @@ endif
+ # MAKEUF2 -- Merge raw binary files into uf2 format
+ 
+ define MAKEUF2
+-	esptool.py -c $(CHIP_SERIES) merge_bin --format uf2 -o nuttx.merged.uf2 -fs $(FLASH_SIZE) -fm $(FLASH_MODE) $(ESPTOOL_BINS)
++	esptool -c $(CHIP_SERIES) merge_bin --format uf2 -o nuttx.merged.uf2 -fs $(FLASH_SIZE) -fm $(FLASH_MODE) $(ESPTOOL_BINS)
+ 	$(Q) echo "Generated: nuttx.merged.uf2"
+ endef
+ 
+@@ -325,7 +325,7 @@ define FLASH
+ 	$(eval ESPTOOL_OPTS := -c esp32s3 -p $(ESPTOOL_PORT) -b $(ESPTOOL_BAUD) $(if $(CONFIG_ESP32S3_ESPTOOLPY_NO_STUB),--no-stub))
+ 
+ 	$(Q) if [ -z $(UF2) ]; then \
+-		esptool.py $(ESPTOOL_OPTS) write_flash $(ESPTOOL_WRITEFLASH_OPTS) $(ESPTOOL_BINS); \
++		esptool $(ESPTOOL_OPTS) write_flash $(ESPTOOL_WRITEFLASH_OPTS) $(ESPTOOL_BINS); \
+ 	else \
+ 		echo "Flashing using UF2 file."; \
+ 		cp nuttx.merged.uf2 $(ESPTOOL_PORT); \
+diff --git a/tools/espressif/Config.mk b/tools/espressif/Config.mk
+index 1c705c294a..373f0e6c9a 100644
+--- a/tools/espressif/Config.mk
++++ b/tools/espressif/Config.mk
+@@ -226,7 +226,7 @@ define MERGEBIN
+ 		echo "Missing Flash memory size configuration."; \
+ 		exit 1; \
+ 	fi
+-	esptool.py -c $(CHIP_SERIES) merge_bin --fill-flash-size $(FLASH_SIZE) --output nuttx.merged.bin $(ESPTOOL_BINS)
++	esptool -c $(CHIP_SERIES) merge_bin --fill-flash-size $(FLASH_SIZE) --output nuttx.merged.bin $(ESPTOOL_BINS)
+ 	$(Q) echo nuttx.merged.bin >> nuttx.manifest
+ 	$(Q) echo "Generated: nuttx.merged.bin"
+ endef
+@@ -256,7 +256,7 @@ define MKIMAGE
+ 		exit 1; \
+ 	fi
+ 	$(eval ELF2IMAGE_OPTS := $(if $(CONFIG_ESPRESSIF_SIMPLE_BOOT),--ram-only-header) -fs $(FLASH_SIZE) -fm $(FLASH_MODE) -ff $(FLASH_FREQ))
+-	esptool.py -c $(CHIP_SERIES) elf2image $(ELF2IMAGE_OPTS) -o nuttx.bin nuttx
++	esptool -c $(CHIP_SERIES) elf2image $(ELF2IMAGE_OPTS) -o nuttx.bin nuttx
+ 	$(Q) echo nuttx.bin >> nuttx.manifest
+ 	$(Q) echo "Generated: nuttx.bin"
+ endef
+@@ -265,7 +265,7 @@ endif
+ # MAKEUF2 -- Merge raw binary files into uf2 format
+ 
+ define MAKEUF2
+-	esptool.py -c $(CHIP_SERIES) merge_bin --format uf2 -o nuttx.merged.uf2 -fs $(FLASH_SIZE) -fm $(FLASH_MODE) $(ESPTOOL_BINS)
++	esptool -c $(CHIP_SERIES) merge_bin --format uf2 -o nuttx.merged.uf2 -fs $(FLASH_SIZE) -fm $(FLASH_MODE) $(ESPTOOL_BINS)
+ 	$(Q) echo "Generated: nuttx.merged.uf2"
+ endef
+ 
+@@ -297,7 +297,7 @@ define FLASH
+ 	$(eval WRITEFLASH_OPTS := $(if $(CONFIG_ESPRESSIF_MERGE_BINS),$(ESPTOOL_WRITEFLASH_OPTS) 0x0 nuttx.merged.bin,$(ESPTOOL_WRITEFLASH_OPTS) $(ESPTOOL_BINS)))
+ 
+ 	$(Q) if [ -z $(UF2) ]; then \
+-		esptool.py $(ESPTOOL_OPTS) write_flash $(WRITEFLASH_OPTS); \
++		esptool $(ESPTOOL_OPTS) write_flash $(WRITEFLASH_OPTS); \
+ 	else \
+ 		echo "Flashing using UF2 file."; \
+ 		cp nuttx.merged.uf2 $(ESPTOOL_PORT); \
+diff --git a/tools/espressif/check_esptool.py b/tools/espressif/check_esptool.py
+index e25d8e8035..2d3f5af28e 100644
+--- a/tools/espressif/check_esptool.py
++++ b/tools/espressif/check_esptool.py
+@@ -57,7 +57,7 @@ def check_version(min_esptool_version: str) -> bool:
+     try:
+         # Run esptool.py version command
+         result = subprocess.run(
+-            ["esptool.py", "version"], capture_output=True, text=True, check=True
++            ["esptool", "version"], capture_output=True, text=True, check=True
+         )
+         version_str = result.stdout.strip()
+     except (subprocess.CalledProcessError, FileNotFoundError):
