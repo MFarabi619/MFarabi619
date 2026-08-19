@@ -187,6 +187,9 @@
       ]
       ++ [ ruby-lsp ]
       ++ [
+        pyright
+      ]
+      ++ [
         buf # protobuf lsp
         protobuf
         protoc-gen-go
