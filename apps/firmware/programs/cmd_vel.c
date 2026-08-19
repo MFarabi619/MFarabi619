@@ -5,6 +5,7 @@
 #include <zephyr/net/net_event.h>
 #include <zephyr/net/net_if.h>
 #include <zephyr/net/net_mgmt.h>
+#include <zephyr/net/wifi_mgmt.h>
 
 #include "motor.h"
 #include "zenoh_locator.h"
@@ -123,6 +124,18 @@ static void on_cmd_vel(z_loaned_sample_t *sample, void *arg) {
   z_drop(z_move(payload));
 }
 
+static void disable_wifi_power_save(void) {
+  struct net_if *station = net_if_get_wifi_sta();
+  if (station == NULL) {
+    return;
+  }
+  struct wifi_ps_params params = {.enabled = WIFI_PS_DISABLED};
+  int result = net_mgmt(NET_REQUEST_WIFI_PS, station, &params, sizeof(params));
+  if (result < 0) {
+    printk("cmd_vel: wifi ps off failed (%d)\n", result);
+  }
+}
+
 static void wait_for_network(void) {
   struct net_if *station = net_if_get_wifi_sta();
   if (station == NULL) {
@@ -145,6 +158,7 @@ static void cmd_vel_thread(void) {
   z_owned_session_t session;
   while (1) {
     wait_for_network();
+    disable_wifi_power_save();
 
     struct net_if *station = net_if_get_wifi_sta();
     void *ipv4 = station == NULL
