@@ -25,7 +25,6 @@ manifest:
                   - hal_infineon
                   - hal_intel
                   - hal_microchip
-                  - hal_nordic
                   - hal_nuvoton
                   - hal_nxp
                   - hal_openisa
