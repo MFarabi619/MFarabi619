@@ -16,6 +16,12 @@ config ESP_HOSTED_WIFI
 	  App-level esp-hosted Wi-Fi driver: an ESP32-C6 co-processor reached
 	  over SDIO, presented as a native-networking Ethernet-L2 net_if.
 
+config EPWM_ACCESS_PROBE
+	bool "BeagleY-AI EPWM firewall access probe"
+	help
+	  Boot-time register reads proving whether this core may reach the
+	  main-domain EPWM, CTRL_MMR, and secure-proxy regions.
+
 configdefault FILE_SYSTEM_SHELL
 	default y if SHELL && FILE_SYSTEM
 

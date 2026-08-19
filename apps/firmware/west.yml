@@ -36,7 +36,6 @@ manifest:
                   - hal_silabs
                   - hal_tdk
                   - hal_telink
-                  - hal_ti
                   - hal_wch
                   - hal_wurthelektronik
 

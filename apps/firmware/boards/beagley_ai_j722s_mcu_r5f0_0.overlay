@@ -1,0 +1,39 @@
+#include <zephyr/dt-bindings/memory-attr/memory-attr.h>
+#include <zephyr/dt-bindings/memory-attr/memory-attr-arm.h>
+
+/ {
+	ctrl_mmr_io: memory@100000 {
+		compatible = "zephyr,memory-region";
+		reg = <0x00100000 0x20000>;
+		zephyr,memory-region = "CTRL_MMR_IO";
+		zephyr,memory-attr = <( DT_MEM_ARM(ATTR_MPU_IO) )>;
+	};
+
+	epwm_io: memory@23000000 {
+		compatible = "zephyr,memory-region";
+		reg = <0x23000000 0x20000>;
+		zephyr,memory-region = "EPWM_IO";
+		zephyr,memory-attr = <( DT_MEM_ARM(ATTR_MPU_IO) )>;
+	};
+
+	secproxy_scfg_io: memory@4a400000 {
+		compatible = "zephyr,memory-region";
+		reg = <0x4a400000 0x80000>;
+		zephyr,memory-region = "SECPROXY_SCFG_IO";
+		zephyr,memory-attr = <( DT_MEM_ARM(ATTR_MPU_IO) )>;
+	};
+
+	secproxy_rt_io: memory@4a600000 {
+		compatible = "zephyr,memory-region";
+		reg = <0x4a600000 0x80000>;
+		zephyr,memory-region = "SECPROXY_RT_IO";
+		zephyr,memory-attr = <( DT_MEM_ARM(ATTR_MPU_IO) )>;
+	};
+
+	secproxy_target_io: memory@4d000000 {
+		compatible = "zephyr,memory-region";
+		reg = <0x4d000000 0x80000>;
+		zephyr,memory-region = "SECPROXY_TARGET_IO";
+		zephyr,memory-attr = <( DT_MEM_ARM(ATTR_MPU_IO) )>;
+	};
+};
