@@ -1,6 +1,10 @@
-name: local
-runtime: go
-main: libs/pulumi
+name: tandemrobotics
+runtime:
+  name: nodejs
+  options:
+    packagemanager: pnpm
+    typescript: false
+main: apps/tandemrobotics
 config:
   docker:host:
     value: unix:///Users/mfarabi/.colima/default/docker.sock

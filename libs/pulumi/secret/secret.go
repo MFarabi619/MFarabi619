@@ -1,4 +1,4 @@
-package main
+package secret
 
 import (
 	"path/filepath"
@@ -9,7 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func decryptSecret(key string) (pulumi.Output, error) {
+func Decrypt(key string) (pulumi.Output, error) {
 	sopsFile, err := sopsconfig.FindConfigFile(".")
 	if err != nil {
 		return nil, err

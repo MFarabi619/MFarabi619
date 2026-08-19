@@ -1,11 +1,14 @@
-package main
+package service
 
 import (
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+
+	"libs/pulumi/image"
+	"libs/pulumi/secret"
 )
 
-const boreServiceYAML = `    - Bore:
+const BoreYAML = `    - Bore:
         href: https://github.com/ekzhang/bore
         description: TCP tunnels for everyone
         icon: mdi-tunnel
@@ -19,13 +22,13 @@ const (
 	boreMaxPort     = 30010
 )
 
-func createBore(ctx *pulumi.Context, network *docker.Network) error {
-	secret, err := decryptSecret("BORE_SECRET")
+func Bore(ctx *pulumi.Context, network *docker.Network) error {
+	credential, err := secret.Decrypt("BORE_SECRET")
 	if err != nil {
 		return err
 	}
 
-	image, err := pullImage(ctx, "bore", "ekzhang/bore:latest")
+	img, err := image.Pull(ctx, "bore", "ekzhang/bore:latest")
 	if err != nil {
 		return err
 	}
@@ -44,7 +47,7 @@ func createBore(ctx *pulumi.Context, network *docker.Network) error {
 	}
 
 	_, err = docker.NewContainer(ctx, "bore", &docker.ContainerArgs{
-		Image:               image.ImageId,
+		Image:               img.ImageId,
 		Name:                pulumi.String("bore"),
 		Hostname:            pulumi.String("bore"),
 		Restart:             pulumi.String("unless-stopped"),
@@ -67,7 +70,7 @@ func createBore(ctx *pulumi.Context, network *docker.Network) error {
 		Command: pulumi.StringArray{
 			pulumi.String("server"),
 			pulumi.String("--secret"),
-			pulumi.Sprintf("%s", secret),
+			pulumi.Sprintf("%s", credential),
 			pulumi.String("--min-port"),
 			pulumi.Sprintf("%d", boreMinPort),
 			pulumi.String("--max-port"),
@@ -80,9 +83,6 @@ func createBore(ctx *pulumi.Context, network *docker.Network) error {
 			},
 		},
 	}, pulumi.AdditionalSecretOutputs([]string{"command"}))
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

@@ -1,15 +1,18 @@
 packages:
   - apps/robot/www
   - apps/robot/promo
+  - apps/tandemrobotics
 
 catalogMode: strict
 minimumReleaseAge: 1440
 verifyDepsBeforeRun: install
 
 allowBuilds:
+  sharp: true
   esbuild: true
   protobufjs: true
-  sharp: true
+  '@pulumi/docker-build': true
+  playwright-chromium: true
 
 overrides:
   sharp: 0.35.3

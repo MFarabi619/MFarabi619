@@ -1,18 +1,52 @@
-package main
+package service
 
 import (
+	"embed"
+
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+
+	"libs/pulumi/image"
 )
 
-func createHomepage(ctx *pulumi.Context, network *docker.Network, servicesYAML string) error {
-	image, err := pullImage(ctx, "homepage", "ghcr.io/gethomepage/homepage:latest")
+//go:embed homepage-dashboard
+var homepageAssets embed.FS
+
+func Homepage(ctx *pulumi.Context, network *docker.Network, servicesYAML string) error {
+	img, err := image.Pull(ctx, "homepage", "ghcr.io/gethomepage/homepage:latest")
 	if err != nil {
 		return err
 	}
 
+	uploads := docker.ContainerUploadArray{
+		&docker.ContainerUploadArgs{
+			File:    pulumi.String("/app/config/services.yaml"),
+			Content: pulumi.String(servicesYAML),
+		},
+	}
+	assets := []struct {
+		file  string
+		asset string
+	}{
+		{"/app/config/settings.yaml", "homepage-dashboard/settings.yaml"},
+		{"/app/config/widgets.yaml", "homepage-dashboard/widgets.yaml"},
+		{"/app/config/bookmarks.yaml", "homepage-dashboard/bookmarks.yaml"},
+		{"/app/config/docker.yaml", "homepage-dashboard/docker.yaml"},
+		{"/app/config/custom.css", "homepage-dashboard/custom.css"},
+	}
+	for _, entry := range assets {
+		content, err := homepageAssets.ReadFile(entry.asset)
+		if err != nil {
+			return err
+		}
+		uploads = append(uploads, &docker.ContainerUploadArgs{
+			File:    pulumi.String(entry.file),
+			Content: pulumi.String(string(content)),
+		})
+	}
+
 	_, err = docker.NewContainer(ctx, "homepage", &docker.ContainerArgs{
-		Image:               image.ImageId,
+		Image:               img.ImageId,
 		Name:                pulumi.String("homepage"),
 		Hostname:            pulumi.String("homepage"),
 		Init:                pulumi.Bool(true),
@@ -36,36 +70,7 @@ func createHomepage(ctx *pulumi.Context, network *docker.Network, servicesYAML s
 		Envs: pulumi.StringArray{
 			pulumi.String("HOMEPAGE_ALLOWED_HOSTS=localhost,localhost:3000"),
 		},
-		Uploads: docker.ContainerUploadArray{
-			&docker.ContainerUploadArgs{
-				File:   pulumi.String("/app/config/settings.yaml"),
-				Source: pulumi.String("homepage-dashboard/settings.yaml"),
-			},
-			&docker.ContainerUploadArgs{
-				File:    pulumi.String("/app/config/services.yaml"),
-				Content: pulumi.String(servicesYAML),
-			},
-			&docker.ContainerUploadArgs{
-				File:   pulumi.String("/app/config/widgets.yaml"),
-				Source: pulumi.String("homepage-dashboard/widgets.yaml"),
-			},
-			&docker.ContainerUploadArgs{
-				File:   pulumi.String("/app/config/bookmarks.yaml"),
-				Source: pulumi.String("homepage-dashboard/bookmarks.yaml"),
-			},
-			&docker.ContainerUploadArgs{
-				File:   pulumi.String("/app/config/docker.yaml"),
-				Source: pulumi.String("homepage-dashboard/docker.yaml"),
-			},
-			&docker.ContainerUploadArgs{
-				File:   pulumi.String("/app/config/custom.css"),
-				Source: pulumi.String("homepage-dashboard/custom.css"),
-			},
-			&docker.ContainerUploadArgs{
-				File:   pulumi.String("/app/public/images/tandem-robotics-banner-bg.png"),
-				Source: pulumi.String("../../apps/robot/assets/public/tandem-robotics-banner-bg.png"),
-			},
-		},
+		Uploads: uploads,
 		Volumes: docker.ContainerVolumeArray{
 			&docker.ContainerVolumeArgs{
 				HostPath:      pulumi.String("/var/run/docker.sock"),
@@ -95,9 +100,6 @@ func createHomepage(ctx *pulumi.Context, network *docker.Network, servicesYAML s
 			StartPeriod: pulumi.String("10s"),
 		},
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

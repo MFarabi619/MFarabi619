@@ -1,0 +1,15 @@
+{
+  "name": "tandemrobotics-pulumi",
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "dependencies": {
+    "@pulumi/pulumi": "catalog:pulumi",
+    "@pulumi/docker": "catalog:pulumi",
+    "@pulumi/docker-build": "catalog:pulumi"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:typescript",
+    "typescript": "catalog:typescript"
+  }
+}

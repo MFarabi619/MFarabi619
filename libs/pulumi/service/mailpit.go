@@ -1,30 +1,33 @@
-package main
+package service
 
 import (
 	"github.com/pulumi/pulumi-docker/sdk/v5/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+
+	"libs/pulumi/image"
+	"libs/pulumi/secret"
 )
 
-const mailpitServiceYAML = `    - Mailpit:
+const MailpitYAML = `    - Mailpit:
         href: http://localhost:8025
         icon: mdi-email-outline
         server: local
         container: mailpit
 `
 
-func createMailpit(ctx *pulumi.Context, network *docker.Network) error {
-	credential, err := decryptSecret("MP_SEND_API_AUTH")
+func Mailpit(ctx *pulumi.Context, network *docker.Network) error {
+	credential, err := secret.Decrypt("MP_SEND_API_AUTH")
 	if err != nil {
 		return err
 	}
 
-	image, err := pullImage(ctx, "mailpit", "axllent/mailpit:latest")
+	img, err := image.Pull(ctx, "mailpit", "axllent/mailpit:latest")
 	if err != nil {
 		return err
 	}
 
 	_, err = docker.NewContainer(ctx, "mailpit", &docker.ContainerArgs{
-		Image:   image.ImageId,
+		Image:   img.ImageId,
 		Name:    pulumi.String("mailpit"),
 		Restart: pulumi.String("unless-stopped"),
 		Envs: pulumi.StringArray{
@@ -46,9 +49,6 @@ func createMailpit(ctx *pulumi.Context, network *docker.Network) error {
 			},
 		},
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
