@@ -8,11 +8,13 @@ base = zephyrproject/zephyr
 [build]
 pristine = auto
 sysbuild = true
-board    = xiao_esp32s3/esp32s3/procpu
+# board    = xiao_esp32s3/esp32s3/procpu
+# board    = m5stack_atoms3_lite/esp32s3/procpu
 # board    = beagley_ai/j722s/mcu_r5f0_0
 # board    = esp32s3_touch_lcd_1_28/esp32s3/procpu
 # board    = esp32p4_function_ev_board/esp32p4/hpcore
 # cmake-args = -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_VERBOSE_MAKEFILE=ON
+board    = esp32s3_devkitc/esp32s3/procpu
 
 [flash]
 rebuild = true
