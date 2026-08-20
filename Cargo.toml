@@ -24,6 +24,7 @@ members = [
     "apps/robot/perception",
     "apps/robot/description",
     "apps/robot/diagnostics",
+  "libs/lazyros",
 ]
 
 [workspace.dependencies]
