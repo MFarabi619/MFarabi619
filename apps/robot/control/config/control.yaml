@@ -10,13 +10,13 @@
     left_wheel_names: ["rear_left_wheel_joint"]
     right_wheel_names: ["rear_right_wheel_joint"]
     wheels_per_side: 1
-    # wheel_separation / wheel_radius: generated from CAD datums into drivetrain.generated.yaml (robot_generator_common)
+    # wheel_separation / wheel_radius: derived from the URDF at launch (wheel_geometry)
     publish_rate: 20.0
     odom_frame_id: odom
     base_frame_id: base_link
     pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
     twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.01]
-    tf_frame_prefix: ""
+    tf_frame_prefix_enable: false
     open_loop: true
     enable_odom_tf: true
     cmd_vel_timeout: 0.5

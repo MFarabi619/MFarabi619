@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-robot_description = { path = "../description" }
+robot_description = { path = "../mech" }
 oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
 rsruckig = "2.2.1"
 tokio = { version = "1", features = ["full"] }

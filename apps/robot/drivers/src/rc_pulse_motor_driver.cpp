@@ -48,6 +48,14 @@ constexpr int64_t PULSE_PERIOD_NS = 20'000'000;
 constexpr int64_t PULSE_NEUTRAL_NS = 1'500'000;
 constexpr int64_t PULSE_HALF_RANGE_NS = 500'000;
 
+int64_t read_sysfs_int(const std::string & path)
+{
+  std::ifstream file(path);
+  int64_t value = -1;
+  file >> value;
+  return value;
+}
+
 void write_sysfs(const std::string & path, const std::string & value)
 {
   std::ofstream file(path);
@@ -77,8 +85,11 @@ public:
       }
       std::this_thread::sleep_for(PWM_EXPORT_RETRY_DELAY);
     }
-    write_sysfs(duty_path, "0");
-    write_sysfs(channel_path + "/period", std::to_string(PULSE_PERIOD_NS));
+    if (read_sysfs_int(channel_path + "/period") != PULSE_PERIOD_NS) {
+      write_sysfs(duty_path, "0");
+      write_sysfs(channel_path + "/period", std::to_string(PULSE_PERIOD_NS));
+    }
+    write_sysfs(duty_path, std::to_string(PULSE_NEUTRAL_NS));
     write_sysfs(channel_path + "/enable", "1");
     duty_file = std::fopen(duty_path.c_str(), "w");
     if (duty_file == nullptr) {
@@ -89,12 +100,10 @@ public:
 
   ~PulseChannel()
   {
+    // leave the PWM enabled at neutral: the ESC must keep hearing "stop" across
+    // driver restarts, or another pulse source can seize it during the gap
     halt();
     std::fclose(duty_file);
-    try {
-      write_sysfs(channel_path + "/enable", "0");
-    } catch (const std::runtime_error &) {
-    }
   }
 
   void drive(double wheel_speed, double max_wheel_speed)

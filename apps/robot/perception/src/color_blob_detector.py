@@ -61,7 +61,7 @@ BYTES_PER_METER_DEPTH_PIXEL = 4
 LIVE_PARAMETERS = frozenset({
     'hue_min', 'hue_max', 'min_saturation', 'max_saturation', 'min_value',
     'min_area', 'min_triangularity', 'min_aspect_ratio',
-    'fallback_range', 'max_fallback_box_fraction',
+    'fallback_range', 'max_fallback_box_fraction', 'roi_top_fraction',
 })
 
 
@@ -96,6 +96,7 @@ class ColorBlobDetector(Node):
         self.max_fallback_box_fraction = self.declare_parameter(
             'max_fallback_box_fraction', 0.25
         ).value
+        self.roi_top_fraction = self.declare_parameter('roi_top_fraction', 0.0).value
 
         self.latest_depth = None
         self.latest_depth_time = None
@@ -179,6 +180,7 @@ class ColorBlobDetector(Node):
             (self.hue_min, self.min_saturation * 255.0, self.min_value * 255.0),
             (self.hue_max, self.max_saturation * 255.0, 255.0),
         )
+        mask[:int(self.roi_top_fraction * mask.shape[0])] = 0
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, DENOISE_KERNEL)
         return cv2.morphologyEx(mask, cv2.MORPH_CLOSE, MERGE_KERNEL)
 

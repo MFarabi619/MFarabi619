@@ -10,7 +10,7 @@ fn main() {
     let staged_msg_directory = staged_share.join("robot_platform_msgs/msg");
     fs::create_dir_all(&staged_msg_directory).unwrap();
     for file_name in PLATFORM_MESSAGE_FILES {
-        let source = manifest_directory.join("msgs/msg").join(file_name);
+        let source = manifest_directory.join("interfaces/msg").join(file_name);
         println!("cargo:rerun-if-changed={}", source.display());
         fs::copy(&source, staged_msg_directory.join(file_name)).unwrap();
     }

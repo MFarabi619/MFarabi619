@@ -7876,6 +7876,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "lazyros-core"
+version = "0.1.0"
+dependencies = [
+ "crossterm 0.29.0",
+ "futures",
+ "oxidros",
+ "ratatui",
+ "tokio",
+]
+
+[[package]]
 name = "lazyzephyr"
 version = "0.1.0"
 dependencies = [
@@ -12155,15 +12166,16 @@ dependencies = [
  "futures-util",
  "mousefood",
  "oxidros",
+ "oxidros-build",
+ "oxidros-msg",
  "ratatui",
  "rattler_conda_types",
  "rattler_shell",
  "robot_control",
  "robot_description",
- "robot_diagnostics",
  "robot_drivers",
  "robot_perception",
- "robot_sensors",
+ "ros2-types",
  "serde_json",
  "tokio",
  "tokio-tungstenite 0.26.2",
@@ -12188,15 +12200,12 @@ dependencies = [
 name = "robot_description"
 version = "0.1.0"
 dependencies = [
+ "cadrum",
+ "comfy-table",
  "glam",
  "oxidros",
-]
-
-[[package]]
-name = "robot_diagnostics"
-version = "0.1.0"
-dependencies = [
- "oxidros",
+ "serde",
+ "serde_yaml",
 ]
 
 [[package]]
@@ -12205,17 +12214,12 @@ version = "0.1.0"
 dependencies = [
  "cc",
  "fetch-source",
-]
-
-[[package]]
-name = "robot_generator_common"
-version = "0.1.0"
-dependencies = [
- "cadrum",
- "comfy-table",
+ "oxidros",
+ "robot_control",
  "robot_description",
- "serde",
- "serde_yaml",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -12232,27 +12236,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "robot_sensors"
-version = "0.1.0"
-dependencies = [
- "oxidros",
- "robot_control",
- "robot_description",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "robot_simulator"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
  "jpeg-encoder",
  "oxidros",
+ "robot",
  "robot_control",
  "robot_description",
- "robot_diagnostics",
  "tokio",
  "tracing",
  "wgpu",

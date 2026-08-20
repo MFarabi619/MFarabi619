@@ -1,0 +1,11 @@
+CompileFlags:
+  CompilationDatabase: build
+  Add:
+    - -std=c++17
+---
+If:
+  PathMatch: (\.pixi|build|install|log)/.*
+Index:
+  Background: Skip
+Diagnostics:
+  Suppress: '*'

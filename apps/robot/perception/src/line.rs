@@ -38,7 +38,7 @@ pub enum LineColor {
 
 pub struct Config {
     // ROI band as fractions of the frame height — the road just ahead of the robot.
-    pub roi_top: f64,
+    pub roi_top_fraction: f64,
     pub roi_bottom: f64,
     // White = bright and unsaturated.
     pub white_max_saturation: f64,
@@ -55,7 +55,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            roi_top: 0.55,
+            roi_top_fraction: 0.55,
             roi_bottom: 1.0,
             white_max_saturation: 0.25,
             white_min_value: 0.65,
@@ -143,7 +143,7 @@ pub fn detect(
     width: usize,
     height: usize,
 ) -> LineDetection {
-    let row_start = (config.roi_top * height as f64) as usize;
+    let row_start = (config.roi_top_fraction * height as f64) as usize;
     let row_end = ((config.roi_bottom * height as f64) as usize).min(height);
 
     let (mut sum_x, mut sum_y, mut count) = (0.0, 0.0, 0usize);
@@ -240,7 +240,7 @@ fn overlay(
     let mut annotations = ImageAnnotations::default();
     let roi = BoundingBox {
         min_x: 0.0,
-        min_y: config.roi_top * height as f64,
+        min_y: config.roi_top_fraction * height as f64,
         max_x: width as f64 - 1.0,
         max_y: config.roi_bottom * height as f64 - 1.0,
     };

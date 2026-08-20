@@ -45,7 +45,7 @@ from rich.rule import Rule
 from rich.table import Table
 from rich.text import Text
 
-COMMAND_TOPIC = "/joy_teleop/cmd_vel"
+COMMAND_TOPIC = "joy_teleop/cmd_vel"
 FRAME_ID = "base_link"
 RATE_HZ = 20.0
 SETTLE_SECONDS = 1.0
@@ -563,7 +563,7 @@ def main():
         preview()
         return
     program = build_program(fuzz_count())
-    rclpy.init()
+    rclpy.init(args=sys.argv)
     node = rclpy.create_node("cmd_vel_test")
     publisher = node.create_publisher(TwistStamped, COMMAND_TOPIC, 10)
     clock = node.get_clock()

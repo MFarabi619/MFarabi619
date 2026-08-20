@@ -1,0 +1,27 @@
+serial_number: mark-4
+version: 1
+system:
+  namespace: robot4
+  hosts:
+    - hostname: pocketbeagle-2
+      ip: 100.74.213.30
+      board: pocketbeagle_2
+platform:
+  attachments: []
+  drivetrain:
+    pwm_frequency_hz: 20000.0
+    max_linear_velocity_mps: 2.0
+    left:
+      pwm_pin: P1.36
+      dir_pin: P1.33
+      forward_level: true
+    right:
+      pwm_pin: P2.01
+      dir_pin: P2.03
+      forward_level: false
+sensors:
+  camera: []
+  imu: []
+  gps: []
+mounts:
+  camera_mount: []

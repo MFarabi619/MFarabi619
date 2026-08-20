@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<library path="diff_drive_hardware">
+  <class name="robot_drivers/DiffDriveHardware"
+         type="robot_drivers::DiffDriveHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Diff drive hardware interface — publishes platform/motors/cmd_drive, consumes platform/motors/feedback.
+    </description>
+  </class>
+</library>

@@ -2,29 +2,26 @@
 resolver = "3"
 default-members = ["apps/robot"]
 members = [
-    "apps/tui",
-    "apps/web",
-    "apps/robot",
-    "apps/server",
-    "apps/readme",
-    "apps/firmware",
-    "apps/ceratina",
-    "libs/lazyzephyr",
-    "apps/lazyzephyr",
-    "apps/server/migration",
-    "libs/zephyr-lib-sqlite",
-    "libs/zephyr-ztest-fancy",
-    "libs/zephyr-lib-oh-my-zephyr",
-    "libs/zephyr-lib-sqlite/samples/rust",
-    "apps/robot/generator_common",
-    "apps/robot/sensors",
-    "apps/robot/drivers",
-    "apps/robot/control",
-    "apps/robot/simulator",
-    "apps/robot/perception",
-    "apps/robot/description",
-    "apps/robot/diagnostics",
+  "apps/tui",
+  "apps/web",
+  "apps/robot",
+  "apps/server",
+  "apps/readme",
+  "apps/firmware",
+  "apps/ceratina",
+  "libs/lazyzephyr",
+  "apps/lazyzephyr",
   "libs/lazyros",
+  "apps/server/migration",
+  "libs/zephyr-lib-sqlite",
+  "libs/zephyr-ztest-fancy",
+  "libs/zephyr-lib-oh-my-zephyr",
+  "libs/zephyr-lib-sqlite/samples/rust",
+  "apps/robot/drivers",
+  "apps/robot/control",
+  "apps/robot/simulation",
+  "apps/robot/perception",
+  "apps/robot/mech",
 ]
 
 [workspace.dependencies]
@@ -68,6 +65,6 @@ overflow-checks = true # was false — silent integer wrapping is dangerous for 
 # debug-assertions = false  # already the default for release
 
 [patch.crates-io]
-cadrum = { path = "/Users/mfarabi/workspace/cadrum" }
+cadrum.path = "/Users/mfarabi/workspace/cadrum"
 probe-rs = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" }        # 2026-06-08
 probe-rs-target = { git = "https://github.com/probe-rs/probe-rs", rev = "8a7d9ebf9241ac80fca826181c97580f5211ad04" } # 2026-06-08

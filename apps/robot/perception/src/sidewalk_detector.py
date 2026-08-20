@@ -46,8 +46,8 @@ TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 
 LABEL_MARGIN_PIXELS = 6.0
 
-IMAGENET_MEAN = np.array([0.485, 0.456, 0.406], np.float32)
-IMAGENET_STD = np.array([0.229, 0.224, 0.225], np.float32)
+IMAGENET_MEAN_RGB = (123.675, 116.28, 103.53, 0.0)
+IMAGENET_RECIPROCAL_STD_RGB = (1.0 / 58.395, 1.0 / 57.12, 1.0 / 57.375, 0.0)
 
 
 class SidewalkDetector(Node):
@@ -68,7 +68,7 @@ class SidewalkDetector(Node):
             'sidewalk_class_ids', [2, 3]
         ).value
         self.input_size = self.declare_parameter('input_size', 512).value
-        self.roi_top = self.declare_parameter('roi_top', 0.4).value
+        self.roi_top_fraction = self.declare_parameter('roi_top_fraction', 0.4).value
         self.roi_bottom = self.declare_parameter('roi_bottom', 1.0).value
         self.min_fraction = self.declare_parameter('min_fraction', 0.5).value
         self.min_run_width = self.declare_parameter('min_run_width', 0.10).value
@@ -77,6 +77,12 @@ class SidewalkDetector(Node):
         self.session = onnxruntime.InferenceSession(
             model_path, providers=['CPUExecutionProvider'])
         self.input_name = self.session.get_inputs()[0].name
+        self.blob_params = cv2.dnn.Image2BlobParams()
+        self.blob_params.size = (self.input_size, self.input_size)
+        self.blob_params.swapRB = True
+        self.blob_params.mean = IMAGENET_MEAN_RGB
+        self.blob_params.scalefactor = IMAGENET_RECIPROCAL_STD_RGB
+        self.blob_params.ddepth = cv2.CV_32F
 
         self.detections_publisher = self.create_publisher(
             Detection2DArray, detections_topic, qos_profile_sensor_data
@@ -95,7 +101,7 @@ class SidewalkDetector(Node):
         if bgr is None:
             return
         height, width = bgr.shape[:2]
-        top = int(height * self.roi_top)
+        top = int(height * self.roi_top_fraction)
         bottom = int(height * self.roi_bottom)
 
         mask = self.sidewalk_mask(bgr)
@@ -127,10 +133,7 @@ class SidewalkDetector(Node):
 
     def sidewalk_mask(self, bgr):
         height, width = bgr.shape[:2]
-        rgb = cv2.cvtColor(
-            cv2.resize(bgr, (self.input_size, self.input_size)), cv2.COLOR_BGR2RGB)
-        normalized = (rgb.astype(np.float32) / 255.0 - IMAGENET_MEAN) / IMAGENET_STD
-        batch = normalized.transpose(2, 0, 1)[np.newaxis]
+        batch = cv2.dnn.blobFromImageWithParams(bgr, self.blob_params)
         logits = self.session.run(None, {self.input_name: batch})[0]
         classes = logits[0].argmax(axis=0).astype(np.uint8)
         mask = np.isin(classes, self.sidewalk_class_ids).astype(np.uint8)

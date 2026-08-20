@@ -17,6 +17,8 @@ find_package(ament_cmake_python REQUIRED)
 
 ament_python_install_module(src/adafruit_bno085.py)
 install(FILES src/pwm_dir_motor_driver.py src/rpicam_mjpeg.py DESTINATION "${PYTHON_INSTALL_DIR}")
+install(PROGRAMS src/imu.py DESTINATION lib/${PROJECT_NAME} RENAME imu)
+install(PROGRAMS src/camera.py DESTINATION lib/${PROJECT_NAME} RENAME camera)
 install(PROGRAMS src/oak_d_sr.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_sr)
 install(PROGRAMS src/oak_d_pro_w_poe.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_pro_w_poe)
 install(PROGRAMS src/odrive_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME odrive_motor_driver)
@@ -53,6 +55,26 @@ target_link_libraries(rgpio_pwm_dir_motor_driver
   rclcpp::rclcpp
   ${robot_platform_msgs_TARGETS})
 install(TARGETS rgpio_pwm_dir_motor_driver DESTINATION lib/${PROJECT_NAME})
+
+find_package(hardware_interface REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(realtime_tools REQUIRED)
+
+add_library(diff_drive_hardware SHARED src/diff_drive_hardware.cpp)
+target_compile_features(diff_drive_hardware PUBLIC cxx_std_17)
+target_link_libraries(diff_drive_hardware PUBLIC
+  hardware_interface::hardware_interface
+  pluginlib::pluginlib
+  rclcpp::rclcpp
+  rclcpp_lifecycle::rclcpp_lifecycle
+  realtime_tools::realtime_tools
+  ${robot_platform_msgs_TARGETS})
+pluginlib_export_plugin_description_file(hardware_interface diff_drive_hardware.xml)
+install(TARGETS diff_drive_hardware
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")

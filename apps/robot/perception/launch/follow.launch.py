@@ -32,8 +32,8 @@ def follow(standoff_distance: float = 1.5, max_missing_frames: int = 8):
     )
     bl.node(
         package='robot_perception',
-        executable='approach',
-        name='operator_approach',
+        executable='tracked_approach',
+        name='operator_follow',
         params={
             'standoff_distance': standoff_distance,
             'max_missing_frames': max_missing_frames,

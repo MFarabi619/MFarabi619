@@ -1,4 +1,0 @@
-robot5:
-  camera_0:
-    ros__parameters:
-      ip: '10.0.0.206'

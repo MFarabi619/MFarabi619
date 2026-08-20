@@ -2058,7 +2058,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-zstd-cmake-module-0.33.3-np2py314hb48eaa3_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-zstd-image-transport-6.2.5-np2py314hb48eaa3_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-distro-mutex-0.18.0-lyrical_22.conda
-      - pypi: git+https://github.com/dfki-ric/better_launch?rev=99aea170405745f342df1fa83a1a92810598c9ec#99aea170405745f342df1fa83a1a92810598c9ec
+      - pypi: ../../zephyrproject/modules/lib/better_launch
       - pypi: https://files.pythonhosted.org/packages/1e/0a/478e441fd049002cf308520c0d62dd8333e7c6cc8d997f0dda07b9fbcc46/sounddevice-0.5.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/58/0a/a10b45aab35b175aded078a462dc8d0c698f5b13946e7cb0869097b78bb6/absl_py-2.5.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/84/03/0d3ce49e2505ae70cf43bc5bb3033955d2fc9f932163e84dc0779cc47f48/prompt_toolkit-3.0.52-py3-none-any.whl
@@ -3075,7 +3075,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-zstd-cmake-module-0.33.3-np2py314h2824dc6_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-zstd-image-transport-6.2.5-np2py314h2824dc6_22.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-distro-mutex-0.18.0-lyrical_22.conda
-      - pypi: git+https://github.com/dfki-ric/better_launch?rev=99aea170405745f342df1fa83a1a92810598c9ec#99aea170405745f342df1fa83a1a92810598c9ec
+      - pypi: ../../zephyrproject/modules/lib/better_launch
       - pypi: https://files.pythonhosted.org/packages/01/8c/15a2de09cc3c30793336cf79798948768611463ddfb2b2669f51569228fb/adafruit_circuitpython_requests-4.1.17-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/19/9d/28e9d12f36e13c5f2acba3098187b0e931290ecd1d8df924391b5ad2db19/Adafruit_PureIO-1.1.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/28/b8/27e6312e86408a44fe16bd28ee12dd98608b39f7e7e57884a24e8f29b573/pyusb-1.3.1-py3-none-any.whl
@@ -82894,17 +82894,6 @@ packages:
   timestamp: 1782731908883
 - pypi: ../../zephyrproject/modules/lib/better_launch
   name: better-launch
-  requires_dist:
-  - click
-  - docstring-parser
-  - osrf-pycommon
-  - pyyaml
-  - setproctitle
-  - prompt-toolkit
-  - psutil
-- pypi: git+https://github.com/dfki-ric/better_launch?rev=99aea170405745f342df1fa83a1a92810598c9ec#99aea170405745f342df1fa83a1a92810598c9ec
-  name: better-launch
-  version: 1.0.2
   requires_dist:
   - click
   - docstring-parser

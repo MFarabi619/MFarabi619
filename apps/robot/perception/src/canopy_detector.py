@@ -25,6 +25,8 @@ from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import Float32
 
 JPEG_QUALITY = 80
+EXCESS_GREEN_BGR_WEIGHTS = np.array([[-1.0, 2.0, -1.0]], dtype=np.float32)
+DENOISE_KERNEL = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
 
 class CanopyDetector(Node):
@@ -36,10 +38,6 @@ class CanopyDetector(Node):
             'mask_topic', 'perception/canopy/mask/compressed').value
         fraction_topic = self.declare_parameter(
             'fraction_topic', 'perception/canopy/fraction').value
-        self.red_green_ratio_max = self.declare_parameter(
-            'red_green_ratio_max', 0.95).value
-        self.blue_green_ratio_max = self.declare_parameter(
-            'blue_green_ratio_max', 0.95).value
         self.excess_green_min = self.declare_parameter('excess_green_min', 20.0).value
 
         self.mask_publisher = self.create_publisher(
@@ -53,14 +51,13 @@ class CanopyDetector(Node):
         image = cv2.imdecode(np.frombuffer(message.data, np.uint8), cv2.IMREAD_COLOR)
         if image is None:
             return
-        blue, green, red = cv2.split(image.astype(np.float32))
-        is_green = (
-            (green > 0.0)
-            & (red < self.red_green_ratio_max * green)
-            & (blue < self.blue_green_ratio_max * green)
-            & (2.0 * green - red - blue > self.excess_green_min)
-        )
-        mask = np.where(is_green, 255, 0).astype(np.uint8)
+        excess_green = cv2.transform(image, EXCESS_GREEN_BGR_WEIGHTS)
+        otsu_threshold, _ = cv2.threshold(
+            excess_green, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        _, mask = cv2.threshold(
+            excess_green, max(otsu_threshold, self.excess_green_min), 255,
+            cv2.THRESH_BINARY)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, DENOISE_KERNEL)
         encoded, buffer = cv2.imencode(
             '.jpg', mask, [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
         if not encoded:
@@ -70,7 +67,7 @@ class CanopyDetector(Node):
         mask_message.format = 'jpeg'
         mask_message.data = buffer.tobytes()
         self.mask_publisher.publish(mask_message)
-        self.fraction_publisher.publish(Float32(data=float(is_green.mean())))
+        self.fraction_publisher.publish(Float32(data=float(mask.mean() / 255.0)))
 
 
 def main():

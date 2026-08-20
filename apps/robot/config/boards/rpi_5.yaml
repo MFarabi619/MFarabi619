@@ -1,8 +1,0 @@
-# pwm entries require dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4 (config.txt)
-pins:
-  18: {gpio_chip: 0, line: 24, line_name: GPIO24}
-  32: {gpio_chip: 0, line: 12, line_name: GPIO12, pwm_chip: 0, pwm_channel: 0, pwm_name: PWM0_CHAN0}
-  33: {gpio_chip: 0, line: 13, line_name: GPIO13, pwm_chip: 0, pwm_channel: 1, pwm_name: PWM0_CHAN1}
-  36: {gpio_chip: 0, line: 16, line_name: GPIO16}
-  37: {gpio_chip: 0, line: 26, line_name: GPIO26}
-  40: {gpio_chip: 0, line: 21, line_name: GPIO21}

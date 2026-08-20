@@ -168,6 +168,8 @@ public:
     }
     pipeline_->start(config);
 
+    raw_publisher_ = create_publisher<sensor_msgs::msg::Image>(
+      "color/image_raw", rclcpp::SensorDataQoS());
     compressed_publisher_ = create_publisher<sensor_msgs::msg::CompressedImage>(
       "color/image_raw/compressed", rclcpp::SensorDataQoS());
     camera_info_publisher_ =
@@ -211,8 +213,9 @@ private:
       if (!color_frame && !depth_frame) {
         if (++consecutive_timeouts >= FRAME_TIMEOUTS_BEFORE_DEVICE_LOST) {
           RCLCPP_ERROR(
-            get_logger(), "no frames for %ds, device lost",
+            get_logger(), "no frames for %ds, device lost, exiting for respawn",
             consecutive_timeouts * static_cast<int>(FRAME_TIMEOUT_MS) / MILLISECONDS_PER_SECOND);
+          rclcpp::shutdown();
           return;
         }
         continue;
@@ -256,18 +259,25 @@ private:
     uint32_t width = color_frame->getWidth();
     uint32_t height = color_frame->getHeight();
 
-    if (compressed_publisher_->get_subscription_count() > 0) {
-      sensor_msgs::msg::Image image;
-      image.header.stamp = stamp;
-      image.header.frame_id = frame_id_;
-      image.height = height;
-      image.width = width;
-      image.encoding = "bgr8";
-      image.is_bigendian = false;
-      image.step = width * BYTES_PER_COLOR_PIXEL;
+    const bool raw_wanted = raw_publisher_->get_subscription_count() > 0;
+    const bool compressed_wanted = compressed_publisher_->get_subscription_count() > 0;
+    if (raw_wanted || compressed_wanted) {
+      auto image = std::make_unique<sensor_msgs::msg::Image>();
+      image->header.stamp = stamp;
+      image->header.frame_id = frame_id_;
+      image->height = height;
+      image->width = width;
+      image->encoding = "bgr8";
+      image->is_bigendian = false;
+      image->step = width * BYTES_PER_COLOR_PIXEL;
       const uint8_t * pixels = static_cast<const uint8_t *>(color_frame->getData());
-      image.data.assign(pixels, pixels + color_frame->dataSize());
-      publish_compressed(image, stamp);
+      image->data.assign(pixels, pixels + color_frame->dataSize());
+      if (compressed_wanted) {
+        publish_compressed(*image, stamp);
+      }
+      if (raw_wanted) {
+        raw_publisher_->publish(std::move(image));
+      }
     }
 
     if (!camera_info_) {
@@ -365,6 +375,7 @@ private:
   std::thread frame_thread_;
   std::optional<sensor_msgs::msg::CameraInfo> camera_info_;
   std::optional<sensor_msgs::msg::CameraInfo> depth_camera_info_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr raw_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::CompressedImage>::SharedPtr compressed_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_publisher_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr depth_image_publisher_;

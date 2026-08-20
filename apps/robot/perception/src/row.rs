@@ -31,7 +31,7 @@ const DEFAULT_STEERING_GAIN: f64 = 0.8;
 
 pub struct Config {
     // ROI band as fractions of the frame height — the ground just ahead of the robot.
-    pub roi_top: f64,
+    pub roi_top_fraction: f64,
     pub roi_bottom: f64,
     // A crop pixel is chromatic and sits in the green or the red/burgundy hue band; bare
     // soil is orange-tan and drops out of both, so plain green-excess would miss the red rows.
@@ -52,7 +52,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            roi_top: 0.5,
+            roi_top_fraction: 0.5,
             roi_bottom: 1.0,
             min_saturation: 0.30,
             min_value: 0.06,
@@ -127,7 +127,7 @@ fn nearer_to_center(
 }
 
 pub fn detect(config: &Config, rgb: &[u8], width: usize, height: usize) -> RowDetection {
-    let row_start = (config.roi_top * height as f64) as usize;
+    let row_start = (config.roi_top_fraction * height as f64) as usize;
     let row_end = ((config.roi_bottom * height as f64) as usize).min(height);
     let roi_rows = row_end.saturating_sub(row_start);
     if roi_rows == 0 || width == 0 {
@@ -198,7 +198,7 @@ fn overlay(
     let mut annotations = ImageAnnotations::default();
     let roi = BoundingBox {
         min_x: 0.0,
-        min_y: config.roi_top * height as f64,
+        min_y: config.roi_top_fraction * height as f64,
         max_x: width as f64 - 1.0,
         max_y: config.roi_bottom * height as f64 - 1.0,
     };

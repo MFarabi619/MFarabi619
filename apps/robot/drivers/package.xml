@@ -11,6 +11,10 @@
   <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <build_depend>rclcpp</build_depend>
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>realtime_tools</depend>
   <build_depend>robot_platform_msgs</build_depend>
   <build_depend>ament_index_cpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
@@ -19,6 +23,8 @@
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>robot_platform_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
   <exec_depend>ament_index_cpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
 

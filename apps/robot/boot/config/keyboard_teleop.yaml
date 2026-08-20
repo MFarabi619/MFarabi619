@@ -1,0 +1,6 @@
+teleop_twist_keyboard:
+  ros__parameters:
+    turn: 2.0
+    speed: 1.0
+    stamped: true
+    frame_id: base_link

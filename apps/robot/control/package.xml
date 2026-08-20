@@ -4,7 +4,7 @@
   <name>robot_control</name>
   <version>0.1.0</version>
   <description>
-    Controllers and bringup for the rover — diff_drive_controller over ros2_control
+    Controllers and boot wiring for the robot — diff_drive_controller over ros2_control
   </description>
 
   <maintainer email="mfarabi619@gmail.com">Mumtahin Farabi</maintainer>

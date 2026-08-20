@@ -7,6 +7,12 @@ edition = "2021"
 lg = { git = "https://github.com/joan2937/lg.git", tag = "v0.2.2" }
 
 [dependencies]
+robot_description = { path = "../mech" }
+robot_control = { path = "../control" }
+oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+serde_json = "1"
 
 [build-dependencies]
 fetch-source = "0.1.2"

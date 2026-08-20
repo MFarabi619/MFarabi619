@@ -34,7 +34,7 @@ pub struct Config {
     pub min_saturation: f64,
     pub min_value: f64,
     // The near-field band as a fraction of the frame height — the ground right in front of the robot.
-    pub near_roi_top: f64,
+    pub near_roi_top_fraction: f64,
     // Fraction of that band that must be green to count as "reached".
     pub coverage_threshold: f64,
 }
@@ -46,7 +46,7 @@ impl Default for Config {
             hue_max: 165.0,
             min_saturation: 0.25,
             min_value: 0.20,
-            near_roi_top: 0.75,
+            near_roi_top_fraction: 0.75,
             coverage_threshold: 0.30,
         }
     }
@@ -65,7 +65,7 @@ fn is_green(hue: f64, saturation: f64, value: f64, config: &Config) -> bool {
 }
 
 pub fn detect_green(config: &Config, rgb: &[u8], width: usize, height: usize) -> GreenGate {
-    let row_start = (config.near_roi_top * height as f64) as usize;
+    let row_start = (config.near_roi_top_fraction * height as f64) as usize;
     let total = ((height - row_start) * width).max(1);
     let mut green = 0usize;
     for y in row_start..height {
@@ -88,7 +88,7 @@ fn overlay(gate: &GreenGate, config: &Config, width: usize, height: usize) -> Im
     let mut annotations = ImageAnnotations::default();
     let band = BoundingBox {
         min_x: 0.0,
-        min_y: config.near_roi_top * height as f64,
+        min_y: config.near_roi_top_fraction * height as f64,
         max_x: width as f64 - 1.0,
         max_y: height as f64 - 1.0,
     };

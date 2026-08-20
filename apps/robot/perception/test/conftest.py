@@ -43,8 +43,8 @@ def ros_context():
 
 
 @pytest.fixture
-def approach_node():
-    node = load_node_class('approach', 'Approach')()
+def tracked_approach_node():
+    node = load_node_class('tracked_approach', 'Approach')()
     yield node
     node.destroy_node()
 
@@ -86,8 +86,8 @@ def cloud_optical_relay_node():
 
 
 @pytest.fixture
-def canopy_navigator_node():
-    node = load_node_class('canopy_navigator', 'CanopyNavigator')()
+def harvest_lane_navigator_node():
+    node = load_node_class('harvest_lane_navigator', 'HarvestLaneNavigator')()
     node.drive_enabled = True
     yield node
     node.destroy_node()

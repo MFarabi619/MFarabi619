@@ -1,5 +1,0 @@
-nmea_navsat_driver:
-  ros__parameters:
-    port: '/dev/ttyAMA0'
-    baud: 9600
-    frame_id: 'gps_link'

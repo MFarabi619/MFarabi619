@@ -1,0 +1,44 @@
+serial_number: mark-0
+version: 1
+system:
+  namespace: taro
+  hosts:
+    - hostname: rpi5-16-2
+      ip: 10.81.190.228
+      board: rpi_5
+platform:
+  attachments: []
+  rc_receiver:
+    launch_enabled: false
+    channel_1_pin: 29
+    channel_2_pin: 31
+  drivetrain:
+    model: rc_pulse
+    max_linear_velocity_mps: 1.37
+    left:
+      pwm_pin: 32
+      reversed: false
+    right:
+      pwm_pin: 33
+      reversed: false
+sensors:
+  camera:
+    - model: orbbec_gemini_335l
+      parent: base_link
+      xyz: [0.53, 0.475, 0.566]
+      rpy: [0.0, 0.0, 0.0]
+      ros_parameters:
+        camera_0:
+          color_width: 640
+          color_height: 480
+          color_fps: 30
+          jpeg_quality: 60
+          enable_depth: true
+          depth_width: 848
+          depth_height: 480
+          depth_fps: 15
+          depth_decimation: 2
+  imu: []
+  gps: []
+mounts:
+  camera_mount: []
