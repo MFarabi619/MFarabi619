@@ -1,20 +1,6 @@
 patches:
-    - path: zephyr-esp32-sdhc-sdio.patch
-      sha256sum: 374e8830a5eae106e18d918c16e46a616f2a72c486c5fa00ac17e4461547691b
-      module: zephyrproject/zephyr
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-07-20
-      upstreamable: true
-      comments: |
-          sdhc_esp32.c: make the SDIO path usable on the ESP32-P4.
-          Route slot-1 CLK/CMD/DAT through the GPIO matrix (SD_CARD_*_2 signals);
-          slot 1 has no IOMUX pins, so the old func_sel-only setup never reached
-          an on-board SDIO radio like the C6. Add the CMD53 (SDIO_RW_EXTENDED)
-          case so block data transfers work.
-
     - path: zephyr-probe-rs.patch
-      sha256sum: 829fb2003ed75f0ad12c92d734c83bff6749546a05270322b11dd51b9828a535
+      sha256sum: 37fb241642392902d54e40ce177a8a4f6a34c04835218570604b8047aed3608f
       module: zephyrproject/zephyr
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com

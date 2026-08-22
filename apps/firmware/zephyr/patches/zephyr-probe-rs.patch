@@ -45,7 +45,7 @@ index abb6568458f..76910de20f9 100644
  include(${ZEPHYR_BASE}/boards/common/stlink_gdbserver.board.cmake)
 +include(${ZEPHYR_BASE}/boards/common/probe-rs.board.cmake)
 diff --git a/scripts/west_commands/runners/probe_rs.py b/scripts/west_commands/runners/probe_rs.py
-index 909f1e28454..89c88bf2267 100644
+index 1c460596b29..9c09dbf9dc9 100644
 --- a/scripts/west_commands/runners/probe_rs.py
 +++ b/scripts/west_commands/runners/probe_rs.py
 @@ -22,6 +22,8 @@ class ProbeRsBinaryRunner(ZephyrBinaryRunner):
@@ -145,10 +145,10 @@ index 909f1e28454..89c88bf2267 100644
 +            except subprocess.TimeoutExpired:
 +                server.kill()
  
-     def do_attach(self, **kwargs):
+     def do_rtt(self, **kwargs):
          '''Attach to RTT logging using probe-rs attach command.'''
 diff --git a/soc/espressif/common/CMakeLists.txt b/soc/espressif/common/CMakeLists.txt
-index 7eed56d2066..42595d5abfe 100644
+index f118a858ec4..e225cf3c501 100644
 --- a/soc/espressif/common/CMakeLists.txt
 +++ b/soc/espressif/common/CMakeLists.txt
 @@ -104,8 +104,17 @@ board_runner_args(esp32 "--esp-flash-size=${esptoolpy_flashsize}MB")
