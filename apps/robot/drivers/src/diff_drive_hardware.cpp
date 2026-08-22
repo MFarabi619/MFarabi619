@@ -145,7 +145,9 @@ void DiffDriveHardware::updateJointsFromHardware()
         rclcpp::get_logger(hardware_name_), "Dropping overflow measurement from encoder");
     }
 
-    set_state(joint_velocity_names_[i], feedback.drivers[side].measured_velocity);
+    set_state(
+      joint_velocity_names_[i],
+      static_cast<double>(feedback.drivers[side].measured_velocity));
   }
 }
 
