@@ -13,6 +13,25 @@
     doomDir = ./.;
     experimentalFetchTree = config.targets.genericLinux.enable;
 
+    emacsPackageOverrides = eself: esuper: {
+      pdf-tools = esuper.pdf-tools.overrideAttrs (old: {
+        buildInputs = map (
+          input:
+          if lib.getName input == "poppler-glib" then
+            pkgs.poppler.overrideAttrs (_: {
+              version = "25.10.0";
+              src = pkgs.fetchurl {
+                url = "https://poppler.freedesktop.org/poppler-25.10.0.tar.xz";
+                hash = "sha256-a16btk2rsVeHoU2xZ1KRx6+vk4dDjMk6T7f2rsTub+A=";
+              };
+              doCheck = false;
+            })
+          else
+            input
+        ) old.buildInputs;
+      });
+    };
+
     extraPackages =
       epkgs:
       let
@@ -30,7 +49,6 @@
         eldoc-eask
         company-eask
         flymake-eask
-        flycheck-eask
       ]
       ++ [
         vui
