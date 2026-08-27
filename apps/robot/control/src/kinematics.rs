@@ -34,6 +34,7 @@ pub fn half_track_m() -> f64 {
         frame_top_z_mm: 300.0,
         rear_axle_inset_mm: 85.0,
         has_deck_equipment: true,
+        has_cross_rails: false,
     };
     wheel_origin(Corner::RearLeft, &dimensions).y * MM_TO_M
 }
