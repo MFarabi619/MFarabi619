@@ -72,6 +72,7 @@
                 (insert "\"Do not proceed with a mess; messes just grow with time.\" ― Bjarne Stroustrup\n\n")))
         (cl-subseq +doom-dashboard-functions (1+ pos))))))
 (use-package! org-anki)
+(use-package! fireplace)
 ;; (use-package! codemetrics)
 ;; (use-package! gptel-integrations)
 (use-package! kbd-mode              :defer t)
@@ -227,7 +228,6 @@
 (add-hook! '(sql-mode-hook sql-interactive-mode-hook) (setq-local sql-default-directory (projectile-project-root)) (sql-highlight-postgres-keywords))
 
 (set-popup-rule! "^\\*compilation\\*.*$"           :side 'right  :quit t :slot 1 :ttl nil :vslot 0 :height 0.30 :width 0.50 :select nil :modeline nil)
-(set-popup-rule! "^\\*Flycheck errors\\*$"         :side 'bottom                                   :height 0.40 :width 0.40 :select t   :modeline nil)
 (set-popup-rule! "^\\*doom:vterm-popup:.*\\*$"     :side 'right  :quit t :slot 0 :ttl nil :vslot 0 :height 0.50 :width 0.50 :select t   :modeline nil)
 (set-popup-rule! "^\\*process-compose-log:.*\\*$" :side 'right   :quit t :slot 1 :ttl nil :vslot 0 :height 0.30 :width 0.50 :select nil :modeline nil)
 
