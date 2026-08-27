@@ -106,8 +106,8 @@
           "slides.apidae.systems" = "http://macos:3030";
           "http://microvisor.systems" = "http://10.0.0.236";
           "canopeo.apidae.systems" = "http://127.0.0.1:8080";
-          "http://tandemrobotics.ca" = "http://127.0.0.1:4321";
-          # "http://tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
+          "tandemrobotics.ca" = "http://127.0.0.1:4321";
+          # "tandemrobotics.ca" = config.services.anubis.instances.tandemrobotics.settings.BIND;
         }
       )
       {
@@ -119,7 +119,7 @@
         "http://www.manzikert.ca".extraConfig = "reverse_proxy :81";
         "http://apidaesystems.ca".extraConfig = "redir https://www.apidaesystems.ca";
 
-        "http://app.tandemrobotics.ca".extraConfig = ''
+        "app.tandemrobotics.ca".extraConfig = ''
           reverse_proxy :3001 {
             header_up X-Forwarded-For {client_ip}
             header_up X-Real-IP {client_ip}
@@ -134,7 +134,7 @@
           }
         '';
 
-        "http://bridge.tandemrobotics.ca".extraConfig = ''
+        "bridge.tandemrobotics.ca".extraConfig = ''
           reverse_proxy :8765 {
             header_up X-Forwarded-For {client_ip}
             header_up X-Real-IP {client_ip}
