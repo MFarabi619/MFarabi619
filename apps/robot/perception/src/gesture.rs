@@ -78,7 +78,7 @@ pub enum Gesture {
 }
 
 fn default_landmark_model() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("assets/hand_landmarks.onnx")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("models/hand_landmarks.onnx")
 }
 
 struct CropRect {

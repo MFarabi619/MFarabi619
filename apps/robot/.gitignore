@@ -1,7 +1,9 @@
 robot/*_parameters.py
 meshes/
 assets/*.glb
-perception/models/
+perception/models/*
+!perception/models/palm_detection.onnx
+!perception/models/hand_landmarks.onnx
 
 .pytest_cache/
 

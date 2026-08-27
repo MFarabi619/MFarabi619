@@ -28,7 +28,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             model_path: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("assets/palm_detection.onnx"),
+                .join("models/palm_detection.onnx"),
             min_score: MIN_SCORE,
         }
     }
