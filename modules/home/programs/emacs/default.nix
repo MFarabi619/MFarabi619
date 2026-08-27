@@ -40,6 +40,7 @@
       ]
       ++ [
         dag-draw
+        pdf-tools
         websocket
       ]
       ++ [

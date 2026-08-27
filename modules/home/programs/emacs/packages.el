@@ -100,7 +100,6 @@
 ;; (package! pg     :recipe (:host github :repo "emarsden/pg-el")  :pin "67f50311947a54913d91852ebd6880dbe68930bc")
 ;; (package! pgmacs :recipe (:host github :repo "emarsden/pgmacs") :pin "04df50eb6cb1cc997deae9c5120ba66353601d3a")
 
-(package! org-pdftools :disable t)
 
 (package! kbd-mode       :recipe (:host github :repo "kmonad/kbd-mode")                  :pin "1c81889f00de92483b48a16bb32b4c2a5eddcfc1")
 (package! monet          :recipe (:host github :repo "stevemolitor/monet")               :pin "ee2e35557e8ae07de842c435486f7c152f3750e0")

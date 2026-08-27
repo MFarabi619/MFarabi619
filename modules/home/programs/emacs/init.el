@@ -90,6 +90,7 @@
     +icons
     +dirvish)
   electric          ; smarter, keyword-based electric-indent
+  ;;eww             ; the internet is gross
   (ibuffer +icons)  ; interactive buffer management
   tramp             ; remote files at your arthritic fingertips
   (undo +tree)      ; persistent, smarter undo for your inevitable mistakes
@@ -114,7 +115,7 @@
   ;;ansible
   biblio            ; Writes a PhD for you (citation needed)
   ;; (collab +tunnel)  ; buffers with friends
-  (debugger +lsp)   ; FIXME stepping through code, to help you add bugs
+  debugger          ; stepping through code, to help you add bugs
   direnv
   (docker
     +lsp
@@ -122,6 +123,7 @@
   editorconfig      ; let someone else argue about tabs vs spaces
   ein               ; tame Jupyter notebooks with emacs
   (eval +overlay)   ; run code, run (also, repls)
+  ;; llm             ; when I said you needed friends, I didn't mean...
   (lookup           ; navigate your code and its documentation
     +dictionary)
   (lsp +peek)       ; M-x vscode
@@ -139,6 +141,7 @@
   (tty +osc)         ; improve the terminal Emacs experience
 
   :lang
+  ;;ada             ; In strong typing we (blindly) trust
   ;;agda            ; types of types of types of types...
   ;;beancount       ; mind the GAAP
   (cc               ; C > C++ == 1
@@ -160,9 +163,7 @@
   ;; (erlang           ; an elegant language for a more civilized age
   ;;   +lsp
   ;;   +tree-sitter)
-  (ess              ; emacs speaks statistics
-    +stan
-    +tree-sitter)
+  (ess +stan)       ; emacs speaks statistics
   ;;factor
   ;;faust           ; dsp, but you get to keep your soul
   ;;fortran         ; in FORTRAN, GOD is REAL (unless declared INTEGER)
@@ -180,6 +181,7 @@
   (json             ; At least it ain't XML
     +lsp
     +tree-sitter)
+  ;;janet           ; Fun fact: Janet is me!
   ;; (java +lsp     ; the poster child for carpal tunnel syndrome
   ;;       +tree-sitter)
   (javascript       ; all(hope(abandon(ye(who(enter(here))))))
@@ -204,6 +206,7 @@
     +lsp
     +tree-sitter)
   ;;ocaml           ; an objective camel
+  ;;odin            ; C, minus its footguns
   (org              ; organize your plain life in plain text
     +roam
     +crypt
@@ -244,8 +247,7 @@
   (scheme +guile)    ; a fully conniving family of lisps
   (sh +lsp           ; she sells {ba,z,fi}sh shells on the C xor
     +fish
-    +powershell
-    +tree-sitter)
+    +powershell)
   ;;sml
   ;; (solidity +lsp)    ; do you need a blockchain? No.
   ;;swift            ; who asked for emoji variables?
