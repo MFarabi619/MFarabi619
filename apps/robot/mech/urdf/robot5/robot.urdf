@@ -57,9 +57,9 @@
 
   <link name="inertial_link">
     <inertial>
-      <origin xyz="0.1571 0.0038 0.3435"/>
-      <mass value="63.6981"/>
-      <inertia ixx="1.661315e1" ixy="3.692125e-2" ixz="1.842789e0" iyy="1.102772e1" iyz="1.885838e-2" izz="2.404056e1"/>
+      <origin xyz="0.1741 0.0057 0.3489"/>
+      <mass value="58.0389"/>
+      <inertia ixx="1.619229e1" ixy="1.327190e-2" ixz="1.906442e0" iyy="8.876115e0" iyz="2.835256e-2" izz="2.151318e1"/>
     </inertial>
   </link>
   <joint name="inertial_joint" type="fixed">

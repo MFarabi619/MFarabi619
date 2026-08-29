@@ -59,9 +59,9 @@
 
   <link name="inertial_link">
     <inertial>
-      <origin xyz="0.1571 0.0038 0.3435"/>
-      <mass value="63.6981"/>
-      <inertia ixx="1.661315e1" ixy="3.692125e-2" ixz="1.842789e0" iyy="1.102772e1" iyz="1.885838e-2" izz="2.404056e1"/>
+      <origin xyz="0.1741 0.0057 0.3489"/>
+      <mass value="58.0389"/>
+      <inertia ixx="1.619229e1" ixy="1.327190e-2" ixz="1.906442e0" iyy="8.876115e0" iyz="2.835256e-2" izz="2.151318e1"/>
     </inertial>
   </link>
   <joint name="inertial_joint" type="fixed">
@@ -178,19 +178,29 @@
 
   <gazebo reference="camera_0_link">
     <sensor name="camera_0" type="rgbd_camera">
-      <update_rate>10</update_rate>
+      <pose>0.025 0 0 0 0 0</pose>
+      <update_rate>30</update_rate>
       <always_on>true</always_on>
       <frame_id>camera_0_color_optical_frame</frame_id>
       <camera>
-        <horizontal_fov>1.2217</horizontal_fov>
+        <horizontal_fov>1.4312</horizontal_fov>
         <image>
           <width>640</width>
           <height>480</height>
         </image>
         <clip>
           <near>0.1</near>
-          <far>100</far>
+          <far>40</far>
         </clip>
+        <lens>
+          <intrinsics>
+            <fx>368.1</fx>
+            <fy>368.1</fy>
+            <cx>316.1</cx>
+            <cy>234.9</cy>
+            <s>0</s>
+          </intrinsics>
+        </lens>
         <depth_camera>
           <clip>
             <near>0.25</near>
@@ -235,7 +245,7 @@
         <remapping>~/odom:=odom</remapping>
         <remapping>~/odometry:=odom</remapping>
         <remapping>joint_states:=joint_states</remapping>
-        <remapping>robot_description:=/robot_description</remapping>
+        <remapping>robot_description:=/robot3/robot_description</remapping>
       </ros>
     </plugin>
   </gazebo>

@@ -26,6 +26,11 @@ fn gz_ros2_control_system(namespace: &str) -> String {
     } else {
         format!("        <namespace>{namespace}</namespace>\n")
     };
+    let description_topic = if namespace.is_empty() {
+        String::from("/robot_description")
+    } else {
+        format!("/{namespace}/robot_description")
+    };
     format!(
         r#"  <gazebo>
     <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
@@ -36,7 +41,7 @@ fn gz_ros2_control_system(namespace: &str) -> String {
         <remapping>~/odom:=odom</remapping>
         <remapping>~/odometry:=odom</remapping>
         <remapping>joint_states:=joint_states</remapping>
-        <remapping>robot_description:=/robot_description</remapping>
+        <remapping>robot_description:={description_topic}</remapping>
       </ros>
     </plugin>
   </gazebo>
@@ -91,11 +96,16 @@ const CASTER_CONTACT_MIN_DEPTH_M: f64 = 0.001;
 const POSE_PUBLISHER_UPDATE_RATE_HZ: u32 = 50;
 const GPS_UPDATE_RATE_HZ: u32 = 1;
 const CAMERA_CLIP_NEAR_M: f64 = 0.1;
-const CAMERA_CLIP_FAR_M: f64 = 100.0;
-const CAMERA_DEFAULT_WIDTH: u32 = 1280;
-const CAMERA_DEFAULT_HEIGHT: u32 = 800;
-const CAMERA_DEFAULT_FPS: u32 = 30;
-const CAMERA_HORIZONTAL_FOV_RAD: f64 = 1.2217;
+const CAMERA_CLIP_FAR_M: f64 = 40.0;
+const SIMULATION_CAMERA_WIDTH: u32 = 640;
+const SIMULATION_CAMERA_HEIGHT: u32 = 480;
+const SIMULATION_CAMERA_RATE_HZ: f64 = 30.0;
+const CAMERA_LENS_OFFSET_M: f64 = 0.025;
+const CAMERA_FOCAL_COLUMNS: f64 = 368.1;
+const CAMERA_FOCAL_ROWS: f64 = 368.1;
+const CAMERA_CENTER_COLUMN: f64 = 316.1;
+const CAMERA_CENTER_ROW: f64 = 234.9;
+const CAMERA_HORIZONTAL_FOV_RAD: f64 = 1.4312;
 const DEPTH_CLIP_NEAR_M: f64 = 0.25;
 const DEPTH_CLIP_FAR_M: f64 = 20.0;
 const IMU_DEFAULT_RATE_HZ: f64 = 25.0;
@@ -126,15 +136,9 @@ fn simulation_sensor_plugins(config: &RobotConfig) -> String {
             .ros_parameters
             .get(&name)
             .or_else(|| camera.ros_parameters.values().next());
-        let width = parameters
-            .and_then(|parameters| parameters.color_width)
-            .unwrap_or(CAMERA_DEFAULT_WIDTH);
-        let height = parameters
-            .and_then(|parameters| parameters.color_height)
-            .unwrap_or(CAMERA_DEFAULT_HEIGHT);
-        let update_rate = parameters
-            .and_then(|parameters| parameters.color_fps)
-            .unwrap_or(CAMERA_DEFAULT_FPS);
+        let width = SIMULATION_CAMERA_WIDTH;
+        let height = SIMULATION_CAMERA_HEIGHT;
+        let update_rate = SIMULATION_CAMERA_RATE_HZ;
         let has_depth = parameters.is_some_and(|parameters| parameters.enable_depth);
         let (sensor_type, depth_clip_element) = if has_depth {
             (
@@ -149,6 +153,7 @@ fn simulation_sensor_plugins(config: &RobotConfig) -> String {
         xml.push_str(&format!(
             r#"  <gazebo reference="{link}">
     <sensor name="{name}" type="{sensor_type}">
+      <pose>{CAMERA_LENS_OFFSET_M} 0 0 0 0 0</pose>
       <update_rate>{update_rate}</update_rate>
       <always_on>true</always_on>
       <frame_id>{optical}</frame_id>
@@ -161,7 +166,16 @@ fn simulation_sensor_plugins(config: &RobotConfig) -> String {
         <clip>
           <near>{CAMERA_CLIP_NEAR_M}</near>
           <far>{CAMERA_CLIP_FAR_M}</far>
-        </clip>{depth_clip_element}
+        </clip>
+        <lens>
+          <intrinsics>
+            <fx>{CAMERA_FOCAL_COLUMNS}</fx>
+            <fy>{CAMERA_FOCAL_ROWS}</fy>
+            <cx>{CAMERA_CENTER_COLUMN}</cx>
+            <cy>{CAMERA_CENTER_ROW}</cy>
+            <s>0</s>
+          </intrinsics>
+        </lens>{depth_clip_element}
       </camera>
     </sensor>
   </gazebo>

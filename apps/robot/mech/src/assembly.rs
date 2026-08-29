@@ -29,7 +29,7 @@ use crate::{
 };
 
 const CASTER_TIRE_MIN_DIAMETER_MM: f64 = 250.0;
-const OAK_FRONT_WINDOW_MAX_THICKNESS_MM: f64 = 0.65;
+const CAMERA_FRONT_WINDOW_MAX_THICKNESS_MM: f64 = 0.65;
 const EDGE_COINCIDENCE_EPSILON_MM: f64 = 1e-6;
 const CUTTER_OVERSHOOT_MM: f64 = 1.0;
 const CAVITY_OVERSHOOT_MM: f64 = 0.5;
@@ -159,7 +159,7 @@ fn frame(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
     let side_rail = perforated_rail(dimensions.frame_length_mm)?;
     let cross_rail = perforated_rail(cross_length)?.rotate_z(FRAC_PI_2);
 
-    Ok([
+    let mut rails = vec![
         side_rail.clone().translate(DVec3::new(
             0.0,
             side_rail_center_y,
@@ -170,14 +170,19 @@ fn frame(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
             -side_rail_center_y,
             dimensions.frame_top_z_mm,
         )),
-        cross_rail
-            .clone()
-            .translate(DVec3::new(front_x, 0.0, dimensions.frame_top_z_mm)),
-        cross_rail.translate(DVec3::new(rear_x, 0.0, dimensions.frame_top_z_mm)),
-    ]
-    .into_iter()
-    .map(|rail| rail.with_material(Material::Aluminum))
-    .collect())
+    ];
+    if dimensions.has_cross_rails {
+        rails.push(
+            cross_rail
+                .clone()
+                .translate(DVec3::new(rear_x, 0.0, dimensions.frame_top_z_mm)),
+        );
+        rails.push(cross_rail.translate(DVec3::new(front_x, 0.0, dimensions.frame_top_z_mm)));
+    }
+    Ok(rails
+        .into_iter()
+        .map(|rail| rail.with_material(Material::Aluminum))
+        .collect())
 }
 
 fn vertical_posts(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
@@ -572,6 +577,9 @@ fn post_caps(dimensions: &Dimensions) -> Result<Vec<Solid>, cadrum::Error> {
 }
 
 fn gussets(dimensions: &Dimensions) -> Result<Vec<Solid>, Box<dyn Error>> {
+    if !dimensions.has_cross_rails {
+        return Ok(Vec::new());
+    }
     let gusset_template = corner_gusset()?.with_material(Material::Steel);
 
     let rear_outer_x = -dimensions.frame_length_mm / 2.0;
@@ -745,8 +753,14 @@ fn side_mounted_enclosure(
 
 const BALL_HEAD_MOUNT_CENTER_DROP_FROM_POST_TOP_MM: f64 = 38.1;
 
+/// Places the camera at `camera_center_mm` when robot.yaml configures one, so the
+/// solid and the URDF joint come from the same number. The bracket is clamped to
+/// the post underneath whatever it carries, so it follows the camera rather than
+/// the other way round. Without a configured camera both keep their pre-config
+/// position on the post.
 fn orbbec_gemini_335l_on_ball_head_mount(
     dimensions: &Dimensions,
+    camera_center_mm: Option<DVec3>,
 ) -> Result<Vec<Solid>, Box<dyn Error>> {
     let imported = Solid::read_step(&mut File::open(cad_asset(BALL_HEAD_MOUNT_STEP))?)?;
     let oriented: Vec<Solid> = imported
@@ -759,35 +773,48 @@ fn orbbec_gemini_335l_on_ball_head_mount(
         .collect();
     let [mount_min, mount_max] = combined_bounds(&oriented);
 
+    let camera_imported = Solid::read_step(&mut File::open(cad_asset(ORBBEC_GEMINI_335L_STEP))?)?;
+    let camera_oriented: Vec<Solid> = camera_imported
+        .into_iter()
+        .map(|solid| {
+            let solid = solid.rotate_z(-FRAC_PI_2).rotate_y(FRAC_PI_2).rotate_x(PI);
+            let [min, max] = solid.bounding_box();
+            let thinnest_extent = (max - min).min_element();
+            let material = if thinnest_extent < CAMERA_FRONT_WINDOW_MAX_THICKNESS_MM {
+                Material::BlackPlastic
+            } else {
+                Material::Steel
+            };
+            solid.with_material(material)
+        })
+        .collect();
+    let [camera_min, camera_max] = combined_bounds(&camera_oriented);
+
     let post_x_extent = dimensions.frame_length_mm / 2.0 - POST_INSET_FROM_END_MM;
     let post_front_face_x = post_x_extent + RAIL_CROSS_HEIGHT_MM / 2.0;
     let side_rail_center_y = dimensions.frame_width_mm / 2.0 - RAIL_CROSS_WIDTH_MM / 2.0;
     let post_top_z = dimensions.frame_top_z_mm + POST_HEIGHT_MM;
+    let mount_center_z_on_post = post_top_z - BALL_HEAD_MOUNT_CENTER_DROP_FROM_POST_TOP_MM;
+
+    let camera_center = camera_center_mm.unwrap_or_else(|| {
+        let mount_front_x = post_front_face_x + (mount_max.x - mount_min.x);
+        DVec3::new(
+            mount_front_x + (camera_max.x - camera_min.x) / 2.0,
+            side_rail_center_y,
+            mount_center_z_on_post,
+        )
+    });
+    let camera_offset = camera_center - (camera_min + camera_max) / 2.0;
     let mount_offset = DVec3::new(
-        post_front_face_x - mount_min.x,
+        camera_min.x + camera_offset.x - mount_max.x,
         side_rail_center_y - (mount_min.y + mount_max.y) / 2.0,
-        post_top_z
-            - BALL_HEAD_MOUNT_CENTER_DROP_FROM_POST_TOP_MM
-            - (mount_min.z + mount_max.z) / 2.0,
+        camera_center.z - (mount_min.z + mount_max.z) / 2.0,
     );
+
     let mut parts: Vec<Solid> = oriented
         .into_iter()
         .map(|solid| solid.translate(mount_offset))
         .collect();
-
-    let camera_imported = Solid::read_step(&mut File::open(cad_asset(ORBBEC_GEMINI_335L_STEP))?)?;
-    let camera_oriented: Vec<Solid> = camera_imported
-        .into_iter()
-        .map(|solid| solid.rotate_z(-FRAC_PI_2).rotate_y(FRAC_PI_2))
-        .collect();
-    let [camera_min, camera_max] = combined_bounds(&camera_oriented);
-    let mount_front_x = mount_max.x + mount_offset.x;
-    let mount_center_z = (mount_min.z + mount_max.z) / 2.0 + mount_offset.z;
-    let camera_offset = DVec3::new(
-        mount_front_x - camera_min.x,
-        side_rail_center_y - (camera_min.y + camera_max.y) / 2.0,
-        mount_center_z - (camera_min.z + camera_max.z) / 2.0,
-    );
     parts.extend(
         camera_oriented
             .into_iter()
@@ -833,7 +860,7 @@ fn oak_d_pro_w_poe_on_ball_head_mount(
         .map(|solid| {
             let [min, max] = solid.bounding_box();
             let thinnest_extent = (max - min).min_element();
-            let material = if thinnest_extent < OAK_FRONT_WINDOW_MAX_THICKNESS_MM {
+            let material = if thinnest_extent < CAMERA_FRONT_WINDOW_MAX_THICKNESS_MM {
                 Material::BlackPlastic
             } else {
                 Material::Steel
@@ -1154,7 +1181,10 @@ pub fn mount_and_motor() -> Result<Vec<Link>, Box<dyn Error>> {
     ])
 }
 
-pub fn robot(dimensions: &Dimensions) -> Result<Vec<Link>, Box<dyn Error>> {
+pub fn robot(
+    dimensions: &Dimensions,
+    camera_center_mm: Option<DVec3>,
+) -> Result<Vec<Link>, Box<dyn Error>> {
     let mut chassis_solids: Vec<Solid> = Vec::new();
     chassis_solids.extend(time_it!("frame", frame(dimensions))?);
     chassis_solids.extend(time_it!("gussets", gussets(dimensions))?);
@@ -1179,7 +1209,7 @@ pub fn robot(dimensions: &Dimensions) -> Result<Vec<Link>, Box<dyn Error>> {
         chassis_solids.extend(time_it!("crossover_bars", crossover_bars(dimensions))?);
         chassis_solids.extend(time_it!(
             "orbbec_gemini_335l_on_ball_head_mount",
-            orbbec_gemini_335l_on_ball_head_mount(dimensions)
+            orbbec_gemini_335l_on_ball_head_mount(dimensions, camera_center_mm)
         )?);
         chassis_solids.extend(time_it!(
             "enclosure_box_on_left_bar",

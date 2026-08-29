@@ -105,7 +105,7 @@ pub struct CameraSensor {
 pub struct CameraParameters {
     pub color_width: Option<u32>,
     pub color_height: Option<u32>,
-    pub color_fps: Option<u32>,
+    pub color_fps: Option<f64>,
     #[serde(default)]
     pub enable_depth: bool,
 }

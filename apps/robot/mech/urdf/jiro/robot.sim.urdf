@@ -164,19 +164,29 @@
 
   <gazebo reference="camera_0_link">
     <sensor name="camera_0" type="camera">
+      <pose>0.025 0 0 0 0 0</pose>
       <update_rate>30</update_rate>
       <always_on>true</always_on>
       <frame_id>camera_0_color_optical_frame</frame_id>
       <camera>
-        <horizontal_fov>1.2217</horizontal_fov>
+        <horizontal_fov>1.4312</horizontal_fov>
         <image>
-          <width>1280</width>
-          <height>800</height>
+          <width>640</width>
+          <height>480</height>
         </image>
         <clip>
           <near>0.1</near>
-          <far>100</far>
+          <far>40</far>
         </clip>
+        <lens>
+          <intrinsics>
+            <fx>368.1</fx>
+            <fy>368.1</fy>
+            <cx>316.1</cx>
+            <cy>234.9</cy>
+            <s>0</s>
+          </intrinsics>
+        </lens>
       </camera>
     </sensor>
   </gazebo>
@@ -207,7 +217,7 @@
         <remapping>~/odom:=odom</remapping>
         <remapping>~/odometry:=odom</remapping>
         <remapping>joint_states:=joint_states</remapping>
-        <remapping>robot_description:=/robot_description</remapping>
+        <remapping>robot_description:=/jiro/robot_description</remapping>
       </ros>
     </plugin>
   </gazebo>

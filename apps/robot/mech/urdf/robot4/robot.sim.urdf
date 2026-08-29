@@ -59,9 +59,9 @@
 
   <link name="inertial_link">
     <inertial>
-      <origin xyz="0.1571 0.0038 0.3435"/>
-      <mass value="63.6981"/>
-      <inertia ixx="1.661315e1" ixy="3.692125e-2" ixz="1.842789e0" iyy="1.102772e1" iyz="1.885838e-2" izz="2.404056e1"/>
+      <origin xyz="0.1740 0.0056 0.3497"/>
+      <mass value="58.0389"/>
+      <inertia ixx="1.619191e1" ixy="1.774421e-2" ixz="1.892390e0" iyy="8.874765e0" iyz="8.859720e-3" izz="2.150497e1"/>
     </inertial>
   </link>
   <joint name="inertial_joint" type="fixed">
@@ -174,7 +174,7 @@
         <remapping>~/odom:=odom</remapping>
         <remapping>~/odometry:=odom</remapping>
         <remapping>joint_states:=joint_states</remapping>
-        <remapping>robot_description:=/robot_description</remapping>
+        <remapping>robot_description:=/robot4/robot_description</remapping>
       </ros>
     </plugin>
   </gazebo>

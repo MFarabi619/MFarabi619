@@ -57,9 +57,9 @@
 
   <link name="inertial_link">
     <inertial>
-      <origin xyz="0.1571 0.0038 0.3435"/>
-      <mass value="63.6981"/>
-      <inertia ixx="1.661315e1" ixy="3.692125e-2" ixz="1.842789e0" iyy="1.102772e1" iyz="1.885838e-2" izz="2.404056e1"/>
+      <origin xyz="0.1740 0.0056 0.3494"/>
+      <mass value="58.0389"/>
+      <inertia ixx="1.618829e1" ixy="1.802047e-2" ixz="1.897531e0" iyy="8.870676e0" iyz="1.609729e-2" izz="2.150461e1"/>
     </inertial>
   </link>
   <joint name="inertial_joint" type="fixed">
@@ -134,7 +134,7 @@
   <joint name="camera_0_link_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_0_link"/>
-    <origin xyz="0.5300 0.4750 0.5660" rpy="0.0000 0.0000 0.0000"/>
+    <origin xyz="0.5300 0.4750 0.4690" rpy="0.0000 0.0000 0.0000"/>
   </joint>
 
   <link name="camera_0_color_optical_frame"/>
