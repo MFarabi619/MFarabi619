@@ -15,9 +15,29 @@
 
 
 import os
+import subprocess
+import threading
+import time
 
 from ament_index_python.packages import get_package_share_directory
 from better_launch import BetterLaunch, launch_this
+
+VIEW_CONTROL_SENSITIVITY = 0.25
+SENSITIVITY_RETRY_DELAY_S = 2.0
+SENSITIVITY_MAX_ATTEMPTS = 60
+
+
+def calm_view_control_sensitivity():
+    command = [
+        'gz', 'service', '-s', '/gui/camera/view_control/sensitivity',
+        '--reqtype', 'gz.msgs.Double', '--reptype', 'gz.msgs.Boolean',
+        '--timeout', '1000', '--req', f'data: {VIEW_CONTROL_SENSITIVITY}',
+    ]
+    for _ in range(SENSITIVITY_MAX_ATTEMPTS):
+        result = subprocess.run(command, capture_output=True)
+        if result.returncode == 0:
+            return
+        time.sleep(SENSITIVITY_RETRY_DELAY_S)
 
 
 @launch_this
@@ -54,4 +74,5 @@ def gz_sim(world: str = 'maize', headless: bool = False):
             env['LIBGL_DRIVERS_PATH'] = os.path.join(nixos_driver_root, 'lib/dri')
     else:
         command += ['--gui-config', os.path.join(share, 'gui.config')]
+        threading.Thread(target=calm_view_control_sensitivity, daemon=True).start()
     bl.process(command, name='gazebo', env=env, on_exit=gazebo_exited)

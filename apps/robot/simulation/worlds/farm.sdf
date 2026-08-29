@@ -1,0 +1,754 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="farm">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+      <background_color>0.6 0.75 0.9</background_color>
+    </plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>
+
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>45.395134</latitude_deg>
+      <longitude_deg>-75.572868</longitude_deg>
+      <elevation>70.0</elevation>
+      <heading_deg>0.0</heading_deg>
+    </spherical_coordinates>
+
+    <scene>
+      <ambient>0.35 0.35 0.35 1</ambient>
+      <background>0.7 0.8 0.9 1</background>
+      <sky><clouds><speed>2</speed></clouds></sky>
+      <grid>false</grid>
+      <shadows>true</shadows>
+      <fog>
+        <type>linear</type>
+        <color>0.78 0.84 0.90 1</color>
+        <start>45</start>
+        <end>140</end>
+        <density>0.35</density>
+      </fog>
+    </scene>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <intensity>1.4</intensity>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.85 0.85 0.85 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <light type="directional" name="fill">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.35 0.35 0.35 1</diffuse>
+      <specular>0 0 0 1</specular>
+      <direction>0.5 -0.1 -0.9</direction>
+    </light>
+
+    <model name="ground_collision">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal>
+            <size>90.0 120.0</size></plane></geometry>
+        </collision>
+      </link>
+    </model>
+
+    <model name="farm_ground">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_ground.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_ground.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>14</label>
+      </plugin>
+    </model>
+    <model name="farm_road">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_road.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_road.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>13</label>
+      </plugin>
+    </model>
+    <model name="farm_curb_face_left">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_curb_face_left.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_curb_face_left.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="farm_curb_top_left">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_curb_top_left.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_curb_top_left.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="farm_sidewalk_left">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_sidewalk_left.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_sidewalk_left.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>12</label>
+      </plugin>
+    </model>
+    <model name="farm_curb_face_right">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_curb_face_right.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_curb_face_right.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="farm_curb_top_right">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_curb_top_right.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_curb_top_right.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="farm_sidewalk_right">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_sidewalk_right.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_sidewalk_right.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>12</label>
+      </plugin>
+    </model>
+    <model name="farm_track_0">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_track_0.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_track_0.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="farm_track_1">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_track_1.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_track_1.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="farm_track_2">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_track_2.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_track_2.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="field_dirt">
+      <static>true</static>
+      <pose>22.000 0.000 0.002 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_field_dirt.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="bed_0">
+      <static>true</static>
+      <pose>22.000 -5.400 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_1">
+      <static>true</static>
+      <pose>22.000 -4.200 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_2">
+      <static>true</static>
+      <pose>22.000 -3.000 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_3">
+      <static>true</static>
+      <pose>22.000 -1.800 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_4">
+      <static>true</static>
+      <pose>22.000 -0.600 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_5">
+      <static>true</static>
+      <pose>22.000 0.600 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_6">
+      <static>true</static>
+      <pose>22.000 1.800 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_7">
+      <static>true</static>
+      <pose>22.000 3.000 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_8">
+      <static>true</static>
+      <pose>22.000 4.200 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_a.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <model name="bed_9">
+      <static>true</static>
+      <pose>22.000 5.400 0 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_bed_b.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+    <include>
+      <name>house_0</name>
+      <pose>9.801 15.396 0 0 0 -2.917</pose>
+      <uri>https://fuel.gazebosim.org/1.0/hisuki/models/house</uri>
+    </include>
+    <include>
+      <name>car_0</name>
+      <static>true</static>
+      <pose>1.950 -43.190 0 0 0 1.387</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Prius Hybrid with sensors</uri>
+    </include>
+    <include>
+      <name>car_1</name>
+      <static>true</static>
+      <pose>4.063 -12.868 0 0 0 1.640</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRoboticsTest/models/Hatchback copy</uri>
+    </include>
+    <include>
+      <name>car_2</name>
+      <static>true</static>
+      <pose>-1.890 20.611 0 0 0 1.802</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/SUV</uri>
+    </include>
+    <include>
+      <name>tree_0</name>
+      <pose>-5.061 -58.808 0 0 0 0</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Pine Tree</uri>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>20</label>
+      </plugin>
+    </include>
+    <include>
+      <name>tree_1</name>
+      <pose>7.653 -49.826 0 0 0 0</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Oak tree</uri>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>20</label>
+      </plugin>
+    </include>
+    <include>
+      <name>tree_2</name>
+      <pose>-0.507 -36.745 0 0 0 0</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Oak tree</uri>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>20</label>
+      </plugin>
+    </include>
+    <include>
+      <name>tree_3</name>
+      <pose>11.013 -26.530 0 0 0 0</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Pine Tree</uri>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>20</label>
+      </plugin>
+    </include>
+    <include>
+      <name>tree_4</name>
+      <pose>-0.328 -4.487 0 0 0 0</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Oak tree</uri>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>20</label>
+      </plugin>
+    </include>
+    <include>
+      <name>tree_5</name>
+      <pose>2.786 31.099 0 0 0 0</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Oak tree</uri>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>20</label>
+      </plugin>
+    </include>
+    <include>
+      <name>tree_6</name>
+      <pose>-9.584 40.450 0 0 0 0</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Pine Tree</uri>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>20</label>
+      </plugin>
+    </include>
+    <include>
+      <name>tree_7</name>
+      <pose>-0.553 52.838 0 0 0 0</pose>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Oak tree</uri>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>20</label>
+      </plugin>
+    </include>
+    <model name="pepper_plant_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_pepper_plant.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="potato_plant_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_potato_plant.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="onion_plant_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_onion_plant.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="carrot_plant_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_carrot_plant.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="pumpkin_plant_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_pumpkin_plant.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="maize_01_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_maize_01.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="maize_02_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_maize_02.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <include>
+      <name>scatter_0</name>
+      <static>true</static>
+      <pose>12.419 3.031 0.04 0 0 3.5</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_1</name>
+      <static>true</static>
+      <pose>13.202 2.974 0.04 0 0 5.2</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_2</name>
+      <static>true</static>
+      <pose>13.971 3.004 0.04 0 0 0.6</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_3</name>
+      <static>true</static>
+      <pose>14.776 2.984 0.04 0 0 2.3</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_4</name>
+      <static>true</static>
+      <pose>15.614 2.961 0.04 0 0 4</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_5</name>
+      <static>true</static>
+      <pose>16.365 2.987 0.04 0 0 5.7</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_6</name>
+      <static>true</static>
+      <pose>17.219 3.008 0.04 0 0 1.1</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_7</name>
+      <static>true</static>
+      <pose>17.997 3.021 0.04 0 0 2.8</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_8</name>
+      <static>true</static>
+      <pose>18.814 3.012 0.04 0 0 4.5</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_9</name>
+      <static>true</static>
+      <pose>19.578 2.965 0.04 0 0 6.2</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_10</name>
+      <static>true</static>
+      <pose>20.411 2.998 0.04 0 0 1.6</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_11</name>
+      <static>true</static>
+      <pose>21.214 2.997 0.04 0 0 3.3</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_12</name>
+      <static>true</static>
+      <pose>22.011 2.973 0.04 0 0 5</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_13</name>
+      <static>true</static>
+      <pose>22.765 2.997 0.04 0 0 0.4</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_14</name>
+      <static>true</static>
+      <pose>23.633 3.002 0.04 0 0 2.1</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_15</name>
+      <static>true</static>
+      <pose>24.398 3.015 0.04 0 0 3.8</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_16</name>
+      <static>true</static>
+      <pose>25.214 3.022 0.04 0 0 5.5</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_17</name>
+      <static>true</static>
+      <pose>25.973 3.024 0.04 0 0 0.9</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_18</name>
+      <static>true</static>
+      <pose>26.799 3.029 0.04 0 0 2.6</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_19</name>
+      <static>true</static>
+      <pose>27.624 2.997 0.04 0 0 4.3</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_20</name>
+      <static>true</static>
+      <pose>28.398 2.978 0.04 0 0 6</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_21</name>
+      <static>true</static>
+      <pose>29.209 2.990 0.04 0 0 1.4</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_22</name>
+      <static>true</static>
+      <pose>30.018 2.972 0.04 0 0 3.1</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_23</name>
+      <static>true</static>
+      <pose>30.768 2.972 0.04 0 0 4.8</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <include>
+      <name>scatter_24</name>
+      <static>true</static>
+      <pose>31.621 3.020 0.04 0 0 0.2</pose>
+      <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
+    </include>
+    <model name="nettle_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_nettle.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+    <model name="unknown_weed_field">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <mesh><uri>model://materials/farm_unknown_weed.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

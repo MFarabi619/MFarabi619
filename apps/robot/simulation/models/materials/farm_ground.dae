@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset><unit name="meter" meter="1"/><up_axis>Z_UP</up_axis></asset>
+  <library_images><image id="farm_ground_image"><init_from>textures/grass_color.jpg</init_from></image></library_images>
+  <library_effects>
+    <effect id="farm_ground_effect">
+      <profile_COMMON>
+        <newparam sid="farm_ground_surface"><surface type="2D"><init_from>farm_ground_image</init_from></surface></newparam><newparam sid="farm_ground_sampler"><sampler2D><source>farm_ground_surface</source><wrap_s>WRAP</wrap_s><wrap_t>WRAP</wrap_t></sampler2D></newparam>
+        <technique sid="common"><lambert><diffuse><texture texture="farm_ground_sampler" texcoord="UVSET0"/></diffuse></lambert></technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="farm_ground_material"><instance_effect url="#farm_ground_effect"/></material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="farm_ground_geometry">
+      <mesh>
+        <source id="farm_ground_positions">
+          <float_array id="farm_ground_positions_array" count="12">-45 -60 0 -45 60 0 45 60 0 45 -60 0</float_array>
+          <technique_common><accessor source="#farm_ground_positions_array" count="4" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
+        </source>
+        <source id="farm_ground_normals">
+          <float_array id="farm_ground_normals_array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common><accessor source="#farm_ground_normals_array" count="4" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
+        </source>
+        <source id="farm_ground_uv">
+          <float_array id="farm_ground_uv_array" count="8">0 0 0 40 30 40 30 0</float_array>
+          <technique_common><accessor source="#farm_ground_uv_array" count="4" stride="2"><param name="S" type="float"/><param name="T" type="float"/></accessor></technique_common>
+        </source>
+        <vertices id="farm_ground_vertices"><input semantic="POSITION" source="#farm_ground_positions"/></vertices>
+        <triangles material="farm_ground_material" count="2">
+          <input semantic="VERTEX" source="#farm_ground_vertices" offset="0"/>
+          <input semantic="NORMAL" source="#farm_ground_normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#farm_ground_uv" offset="2" set="0"/>
+          <p>0 0 0 2 2 2 1 1 1 0 0 0 3 3 3 2 2 2</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="farm_ground_scene">
+      <node id="farm_ground_node">
+        <instance_geometry url="#farm_ground_geometry">
+          <bind_material><technique_common>
+            <instance_material symbol="farm_ground_material" target="#farm_ground_material"><bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0"/></instance_material>
+          </technique_common></bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene><instance_visual_scene url="#farm_ground_scene"/></scene>
+</COLLADA>

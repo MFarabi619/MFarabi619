@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset><unit name="meter" meter="1"/><up_axis>Z_UP</up_axis></asset>
+  <library_images><image id="farm_field_dirt_image"><init_from>textures/dirt_path_tile.jpg</init_from></image></library_images>
+  <library_effects>
+    <effect id="farm_field_dirt_effect">
+      <profile_COMMON>
+        <newparam sid="farm_field_dirt_surface"><surface type="2D"><init_from>farm_field_dirt_image</init_from></surface></newparam><newparam sid="farm_field_dirt_sampler"><sampler2D><source>farm_field_dirt_surface</source><wrap_s>WRAP</wrap_s><wrap_t>WRAP</wrap_t></sampler2D></newparam>
+        <technique sid="common"><lambert><diffuse><texture texture="farm_field_dirt_sampler" texcoord="UVSET0"/></diffuse></lambert></technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="farm_field_dirt_material"><instance_effect url="#farm_field_dirt_effect"/></material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="farm_field_dirt_geometry">
+      <mesh>
+        <source id="farm_field_dirt_positions">
+          <float_array id="farm_field_dirt_positions_array" count="12">-11.6 -7.32 0 -11.6 7.32 0 11.6 7.32 0 11.6 -7.32 0</float_array>
+          <technique_common><accessor source="#farm_field_dirt_positions_array" count="4" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
+        </source>
+        <source id="farm_field_dirt_normals">
+          <float_array id="farm_field_dirt_normals_array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common><accessor source="#farm_field_dirt_normals_array" count="4" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
+        </source>
+        <source id="farm_field_dirt_uv">
+          <float_array id="farm_field_dirt_uv_array" count="8">0 0 0 7.32 11.6 7.32 11.6 0</float_array>
+          <technique_common><accessor source="#farm_field_dirt_uv_array" count="4" stride="2"><param name="S" type="float"/><param name="T" type="float"/></accessor></technique_common>
+        </source>
+        <vertices id="farm_field_dirt_vertices"><input semantic="POSITION" source="#farm_field_dirt_positions"/></vertices>
+        <triangles material="farm_field_dirt_material" count="2">
+          <input semantic="VERTEX" source="#farm_field_dirt_vertices" offset="0"/>
+          <input semantic="NORMAL" source="#farm_field_dirt_normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#farm_field_dirt_uv" offset="2" set="0"/>
+          <p>0 0 0 2 2 2 1 1 1 0 0 0 3 3 3 2 2 2</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="farm_field_dirt_scene">
+      <node id="farm_field_dirt_node">
+        <instance_geometry url="#farm_field_dirt_geometry">
+          <bind_material><technique_common>
+            <instance_material symbol="farm_field_dirt_material" target="#farm_field_dirt_material"><bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0"/></instance_material>
+          </technique_common></bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene><instance_visual_scene url="#farm_field_dirt_scene"/></scene>
+</COLLADA>

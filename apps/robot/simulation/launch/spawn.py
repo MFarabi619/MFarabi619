@@ -90,13 +90,15 @@ def spawn_robot(bl, robot, world, x, y, z, yaw, depth_scan=False):
     robot_description = robot_description.replace(
         'package://robot_control/config/control.yaml', control_config_path)
 
+    # Absolute '/robot_description' escaped the per-robot group, so every robot
+    # published its urdf to one topic and each spawn raced for whichever landed
+    # last — two robots, one description.
     robot_state_publisher(
         robot_description,
         node_name='robot_state_publisher',
         anonymous=False,
-        remaps={'robot_description': '/robot_description'},
     )
-    spawn_model(robot, '/robot_description', 'topic',
+    spawn_model(robot, f'/{robot}/robot_description', 'topic',
                 spawn_args=get_gazebo_axes_args(x=x, y=y, z=z, yaw=yaw))
 
     def shutdown_if_spawner_failed():

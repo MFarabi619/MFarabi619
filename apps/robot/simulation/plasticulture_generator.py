@@ -18,6 +18,7 @@
 
 import os
 
+import collada_mesh
 import cv2
 import numpy as np
 
@@ -76,114 +77,12 @@ cv2.imwrite(f'{SIMULATOR_DIR}/models/materials/textures/plastic_mulch.jpg', mulc
             [cv2.IMWRITE_JPEG_QUALITY, 90])
 
 
-def collada(geometry_id, positions, normals, triangles, texture=None, uvs=None,
-            color=None):
-    def floats(values):
-        return ' '.join(f'{value:g}' for row in values for value in row)
-    position_count = len(positions)
-    if texture:
-        image_library = (
-            f'<library_images><image id="{geometry_id}_image">'
-            f'<init_from>{texture}</init_from></image></library_images>')
-        surface = (
-            f'<newparam sid="{geometry_id}_surface"><surface type="2D">'
-            f'<init_from>{geometry_id}_image</init_from></surface></newparam>'
-            f'<newparam sid="{geometry_id}_sampler"><sampler2D>'
-            f'<source>{geometry_id}_surface</source>'
-            f'<wrap_s>WRAP</wrap_s><wrap_t>WRAP</wrap_t></sampler2D></newparam>')
-        diffuse = f'<texture texture="{geometry_id}_sampler" texcoord="UVSET0"/>'
-        uv_source = f'''
-        <source id="{geometry_id}_uv">
-          <float_array id="{geometry_id}_uv_array" count="{position_count * 2}">{floats(uvs)}</float_array>
-          <technique_common><accessor source="#{geometry_id}_uv_array" count="{position_count}" stride="2"><param name="S" type="float"/><param name="T" type="float"/></accessor></technique_common>
-        </source>'''
-        uv_input = f'<input semantic="TEXCOORD" source="#{geometry_id}_uv" offset="2" set="0"/>'
-        bind_uv = '<bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD" input_set="0"/>'
-        normal_offset = 1
-        triangle_entries = ' '.join(
-            f'{v} {v} {v}' for triangle in triangles for v in triangle)
-    else:
-        image_library = ''
-        surface = ''
-        red, green, blue = color
-        diffuse = f'<color>{red} {green} {blue} 1</color>'
-        uv_source = ''
-        uv_input = ''
-        bind_uv = ''
-        normal_offset = 0
-        triangle_entries = ' '.join(str(v) for triangle in triangles for v in triangle)
-    return f'''<?xml version="1.0" encoding="utf-8"?>
-<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
-  <asset><unit name="meter" meter="1"/><up_axis>Z_UP</up_axis></asset>
-  {image_library}
-  <library_effects>
-    <effect id="{geometry_id}_effect">
-      <profile_COMMON>
-        {surface}
-        <technique sid="common"><lambert><diffuse>{diffuse}</diffuse></lambert></technique>
-      </profile_COMMON>
-    </effect>
-  </library_effects>
-  <library_materials>
-    <material id="{geometry_id}_material"><instance_effect url="#{geometry_id}_effect"/></material>
-  </library_materials>
-  <library_geometries>
-    <geometry id="{geometry_id}_geometry">
-      <mesh>
-        <source id="{geometry_id}_positions">
-          <float_array id="{geometry_id}_positions_array" count="{position_count * 3}">{floats(positions)}</float_array>
-          <technique_common><accessor source="#{geometry_id}_positions_array" count="{position_count}" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
-        </source>
-        <source id="{geometry_id}_normals">
-          <float_array id="{geometry_id}_normals_array" count="{position_count * 3}">{floats(normals)}</float_array>
-          <technique_common><accessor source="#{geometry_id}_normals_array" count="{position_count}" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common>
-        </source>{uv_source}
-        <vertices id="{geometry_id}_vertices"><input semantic="POSITION" source="#{geometry_id}_positions"/></vertices>
-        <triangles material="{geometry_id}_material" count="{len(triangles)}">
-          <input semantic="VERTEX" source="#{geometry_id}_vertices" offset="0"/>
-          <input semantic="NORMAL" source="#{geometry_id}_normals" offset="{normal_offset}"/>
-          {uv_input}
-          <p>{triangle_entries}</p>
-        </triangles>
-      </mesh>
-    </geometry>
-  </library_geometries>
-  <library_visual_scenes>
-    <visual_scene id="{geometry_id}_scene">
-      <node id="{geometry_id}_node">
-        <instance_geometry url="#{geometry_id}_geometry">
-          <bind_material><technique_common>
-            <instance_material symbol="{geometry_id}_material" target="#{geometry_id}_material">{bind_uv}</instance_material>
-          </technique_common></bind_material>
-        </instance_geometry>
-      </node>
-    </visual_scene>
-  </library_visual_scenes>
-  <scene><instance_visual_scene url="#{geometry_id}_scene"/></scene>
-</COLLADA>
-'''
-
-
-class TexturedMesh:
-    def __init__(self):
-        self.positions = []
-        self.normals = []
-        self.uvs = []
-        self.triangles = []
-
-    def quad(self, corners, normal, uv_corners):
-        base = len(self.positions)
-        self.positions.extend(corners)
-        self.normals.extend([normal] * 4)
-        self.uvs.extend(uv_corners)
-        self.triangles.append((base, base + 1, base + 2))
-        self.triangles.append((base, base + 2, base + 3))
 
 
 def bed_mesh(variant, texture_phase):
     half = BED_LENGTH / 2.0
     tiles = BED_LENGTH / TEXTURE_METERS_PER_TILE
-    mesh = TexturedMesh()
+    mesh = collada_mesh.TexturedMesh()
     slope = np.array([BED_BOTTOM_HALF_WIDTH - BED_TOP_HALF_WIDTH, BED_HEIGHT])
     side = slope / np.linalg.norm(slope)
     mesh.quad(
@@ -208,21 +107,21 @@ def bed_mesh(variant, texture_phase):
         if sign > 0:
             corners.reverse()
         mesh.quad(corners, normal, [(0, 0), (0.15, 0), (0.85, 0.15), (1, 0.15)])
-    return collada(f'plasticulture_bed_{variant}', mesh.positions, mesh.normals,
+    return collada_mesh.document(f'plasticulture_bed_{variant}', mesh.positions, mesh.normals,
                    mesh.triangles, texture='textures/plastic_mulch.jpg', uvs=mesh.uvs)
 
 
 def flat_tarp_mesh():
     half_length = FLAT_TARP_LENGTH / 2.0
     half_width = FLAT_TARP_WIDTH / 2.0
-    mesh = TexturedMesh()
+    mesh = collada_mesh.TexturedMesh()
     mesh.quad(
         [(-half_length, -half_width, 0.0), (half_length, -half_width, 0.0),
          (half_length, half_width, 0.0), (-half_length, half_width, 0.0)],
         (0.0, 0.0, 1.0),
         [(0, 0), (FLAT_TARP_LENGTH, 0), (FLAT_TARP_LENGTH, FLAT_TARP_WIDTH),
          (0, FLAT_TARP_WIDTH)])
-    return collada('flat_tarp', mesh.positions, mesh.normals, mesh.triangles,
+    return collada_mesh.document('flat_tarp', mesh.positions, mesh.normals, mesh.triangles,
                    texture='textures/plastic_mulch.jpg', uvs=mesh.uvs)
 
 
@@ -231,13 +130,13 @@ def dirt_mesh():
     half_width = BED_COUNT * BED_PITCH / 2.0 + 1.0
     tiles_x = 2 * half_length / TEXTURE_METERS_PER_TILE
     tiles_y = 2 * half_width / TEXTURE_METERS_PER_TILE
-    mesh = TexturedMesh()
+    mesh = collada_mesh.TexturedMesh()
     mesh.quad(
         [(-half_length, -half_width, 0.0), (half_length, -half_width, 0.0),
          (half_length, half_width, 0.0), (-half_length, half_width, 0.0)],
         (0.0, 0.0, 1.0),
         [(0, 0), (tiles_x, 0), (tiles_x, tiles_y), (0, tiles_y)])
-    return collada('dirt_patch', mesh.positions, mesh.normals, mesh.triangles,
+    return collada_mesh.document('dirt_patch', mesh.positions, mesh.normals, mesh.triangles,
                    texture='textures/dirt_diffusespecular.png', uvs=mesh.uvs)
 
 
@@ -316,7 +215,7 @@ def crop_mesh(crop):
             angle = index * 2 * np.pi / 5 + rng.uniform(0, 0.5)
             mesh.leaf(angle, 0.04 + rng.uniform(0, 0.04), 0.14 + rng.uniform(0, 0.05),
                       0.10 + rng.uniform(0, 0.08))
-    return collada(f'{crop}_plant', mesh.positions, mesh.normals, mesh.triangles,
+    return collada_mesh.document(f'{crop}_plant', mesh.positions, mesh.normals, mesh.triangles,
                    color=CROPS[crop]['color'])
 
 
@@ -367,14 +266,14 @@ def apriltag_model():
     board_edge = (APRILTAG_BLACK_EDGE_M * padded.shape[0]
                   / APRILTAG_TEXTURE_PIXELS)
     half = board_edge / 2.0
-    mesh = TexturedMesh()
+    mesh = collada_mesh.TexturedMesh()
     mesh.quad(
         [(0.0, half, -half), (0.0, -half, -half),
          (0.0, -half, half), (0.0, half, half)],
         (1.0, 0.0, 0.0),
         [(0, 0), (1, 0), (1, 1), (0, 1)])
     with open(f'{model_directory}/meshes/{name}.dae', 'w') as mesh_file:
-        mesh_file.write(collada(name, mesh.positions, mesh.normals, mesh.triangles,
+        mesh_file.write(collada_mesh.document(name, mesh.positions, mesh.normals, mesh.triangles,
                                 texture=f'{name}.png', uvs=mesh.uvs))
     with open(f'{model_directory}/model.config', 'w') as config_file:
         config_file.write(MODEL_CONFIG.format(
