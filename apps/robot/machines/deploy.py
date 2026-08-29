@@ -172,6 +172,17 @@ def verify_health(robot_name):
         time.sleep(HEALTH_RETRY_DELAY_S)
 
 
+def verify_machine(robot_name):
+    check_script = MACHINES_PATH / robot_name / 'check.sh'
+    if not check_script.is_file():
+        return
+    check = subprocess.run(
+        ['sh', str(check_script)], capture_output=True, text=True)
+    findings = (check.stdout + check.stderr).strip()
+    if findings:
+        sys.exit(f'{robot_name} machine check failed:\n{findings}')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('robot', nargs='?', default='taro')
@@ -185,6 +196,8 @@ def main():
     host = f"{config['system']['hosts'][0]['hostname']}.local"
 
     try:
+        print('verifying machine')
+        verify_machine(robot_name)
         print(f'mirroring {host}')
         mirror(host)
         print('provisioning')
