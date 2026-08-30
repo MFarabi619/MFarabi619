@@ -44,7 +44,7 @@ def harvest_lane():
         executable='harvest_lane_navigator',
         name='harvest_lane_navigator',
         params={
-            'drive_enabled': True,
+            'start_enabled': True,
             'odom_topic': '/diff_drive_controller/odom',
             'forward_speed_mps': 0.6,
             'command_smoothing_seconds': 0.1,
