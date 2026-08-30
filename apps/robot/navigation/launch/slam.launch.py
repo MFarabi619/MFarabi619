@@ -1,4 +1,5 @@
 import os
+import shlex
 import threading
 import time
 
@@ -23,14 +24,25 @@ def activate_slam_toolbox(bl, node):
 
 
 @launch_this
-def slam(environment: str = 'jazzy', use_sim_time: bool = False,
-         scan_topic: str = '/sensors/camera_0/scan'):
+def slam(robot: str = '', environment: str = 'jazzy', use_sim_time: bool = False,
+         scan_topic: str = ''):
     bl = BetterLaunch()
+    if not scan_topic:
+        scan_topic = (f'/{robot}/sensors/camera_0/scan' if robot
+                      else '/sensors/camera_0/scan')
     environment_path = os.path.abspath(f".pixi/envs/{environment}")
+    zenoh_override = os.environ.get('ZENOH_CONFIG_OVERRIDE')
+    environment_overrides = (
+        f" /usr/bin/env ZENOH_CONFIG_OVERRIDE={shlex.quote(zenoh_override)}"
+        if zenoh_override else '')
+    tf_remaps = (f" -r /tf:=/{robot}/tf -r /tf_static:=/{robot}/tf_static"
+                 if robot else '')
     node = bl.process(
         f"pixi run --clean-env -e {environment}"
+        f"{environment_overrides}"
         f" {environment_path}/lib/slam_toolbox/sync_slam_toolbox_node"
         " --ros-args -r __node:=slam_toolbox"
+        f"{tf_remaps}"
         " --params-file navigation/config/slam.yaml"
         f" -p scan_topic:={scan_topic}"
         f" -p use_sim_time:={'true' if use_sim_time else 'false'}",

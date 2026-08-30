@@ -44,7 +44,7 @@ METERS_PER_DEGREE_LATITUDE = 111_320.0
 MOTION_EPSILON = 0.01
 
 ARROW_COLOR = Color(r=0.2, g=1.0, b=0.4, a=0.9)
-LABEL_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
+TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 
 
 def track_geojson(coordinates):
@@ -120,7 +120,7 @@ class FoxglovePanels(Node):
         label.billboard = True
         label.font_size = 14.0
         label.scale_invariant = True
-        label.color = LABEL_COLOR
+        label.color = TEXT_COLOR
         label.text = f'{forward_speed:+.1f} m/s  {turn_speed:+.1f} rad/s'
 
         if abs(forward_speed) > MOTION_EPSILON or abs(turn_speed) > MOTION_EPSILON:

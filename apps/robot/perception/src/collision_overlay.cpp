@@ -35,10 +35,10 @@ using foxglove_msgs::msg::ImageAnnotations;
 using foxglove_msgs::msg::Point2;
 using foxglove_msgs::msg::TextAnnotation;
 
-constexpr double POINT_DIAMETER_PX = 5.0;
-constexpr double POINT_THICKNESS_PX = 1.0;
+constexpr double POINT_DIAMETER_PIXELS = 5.0;
+constexpr double POINT_THICKNESS_PIXELS = 1.0;
 constexpr size_t MAX_POINTS_PER_ZONE = 200;
-constexpr double LABEL_MARGIN_PX = 10.0;
+constexpr double LABEL_MARGIN_PIXELS = 10.0;
 constexpr double LABEL_FONT_SIZE = 18.0;
 
 Color make_color(float red, float green, float blue, float alpha)
@@ -70,8 +70,8 @@ class CollisionOverlay : public rclcpp::Node
 public:
   CollisionOverlay()
   : Node("collision_overlay"),
-    tf_buffer(get_clock()),
-    tf_listener(tf_buffer)
+    tf_buffer_(get_clock()),
+    tf_listener_(tf_buffer_)
   {
     const std::string cloud_topic =
       declare_parameter("cloud_topic", std::string("sensors/camera_0/depth/points"));
@@ -79,21 +79,21 @@ public:
       declare_parameter("camera_info_topic", std::string("sensors/camera_0/color/camera_info"));
     const std::string overlay_topic =
       declare_parameter("overlay_topic", std::string("perception/collision/overlay"));
-    base_frame = declare_parameter("base_frame", std::string("base_link"));
-    min_height = declare_parameter("min_height", 0.15);
-    max_height = declare_parameter("max_height", 2.0);
-    stop_x_range = declare_parameter("stop_x_range", std::vector<double>{0.0, 1.45});
-    stop_half_width = declare_parameter("stop_half_width", 0.45);
-    slowdown_x_range = declare_parameter("slowdown_x_range", std::vector<double>{0.55, 2.6});
-    slowdown_half_width = declare_parameter("slowdown_half_width", 0.5);
-    sample_stride = declare_parameter("sample_stride", 4);
+    base_frame_ = declare_parameter("base_frame_", std::string("base_link"));
+    min_height_ = declare_parameter("min_height_", 0.15);
+    max_height_ = declare_parameter("max_height_", 2.0);
+    stop_x_range_ = declare_parameter("stop_x_range_", std::vector<double>{0.0, 1.45});
+    stop_half_width_ = declare_parameter("stop_half_width_", 0.45);
+    slowdown_x_range_ = declare_parameter("slowdown_x_range_", std::vector<double>{0.55, 2.6});
+    slowdown_half_width_ = declare_parameter("slowdown_half_width_", 0.5);
+    sample_stride_ = declare_parameter("sample_stride_", 4);
 
-    overlay_publisher =
+    overlay_publisher_ =
       create_publisher<ImageAnnotations>(overlay_topic, rclcpp::SensorDataQoS());
-    camera_info_subscription = create_subscription<sensor_msgs::msg::CameraInfo>(
+    camera_info_subscription_ = create_subscription<sensor_msgs::msg::CameraInfo>(
       camera_info_topic, rclcpp::SensorDataQoS(),
       [this](const sensor_msgs::msg::CameraInfo & message) {on_camera_info(message);});
-    cloud_subscription = create_subscription<sensor_msgs::msg::PointCloud2>(
+    cloud_subscription_ = create_subscription<sensor_msgs::msg::PointCloud2>(
       cloud_topic, rclcpp::SensorDataQoS(),
       [this](const sensor_msgs::msg::PointCloud2 & message) {on_cloud(message);});
     RCLCPP_INFO(
@@ -104,21 +104,21 @@ public:
 private:
   void on_camera_info(const sensor_msgs::msg::CameraInfo & message)
   {
-    camera_model.fromCameraInfo(message);
-    image_width = message.width;
-    image_height = message.height;
-    has_camera_model = true;
+    camera_model_.fromCameraInfo(message);
+    image_width_ = message.width;
+    image_height_ = message.height;
+    has_camera_model_ = true;
   }
 
   void on_cloud(const sensor_msgs::msg::PointCloud2 & message)
   {
-    if (!has_camera_model) {
+    if (!has_camera_model_) {
       return;
     }
     geometry_msgs::msg::TransformStamped transform_message;
     try {
-      transform_message = tf_buffer.lookupTransform(
-        base_frame, message.header.frame_id, tf2::TimePointZero);
+      transform_message = tf_buffer_.lookupTransform(
+        base_frame_, message.header.frame_id, tf2::TimePointZero);
     } catch (const tf2::TransformException &) {
       return;
     }
@@ -135,7 +135,7 @@ private:
     for (; x_iterator != x_iterator.end();
       ++x_iterator, ++y_iterator, ++z_iterator, ++point_index)
     {
-      if (point_index % static_cast<size_t>(sample_stride) != 0) {
+      if (point_index % static_cast<size_t>(sample_stride_) != 0) {
         continue;
       }
       const tf2::Vector3 optical(*x_iterator, *y_iterator, *z_iterator);
@@ -145,14 +145,14 @@ private:
         continue;
       }
       const tf2::Vector3 base = to_base * optical;
-      if (base.z() < min_height || base.z() > max_height) {
+      if (base.z() < min_height_ || base.z() > max_height_) {
         continue;
       }
-      const bool in_stop = base.x() >= stop_x_range[0] && base.x() <= stop_x_range[1] &&
-        std::abs(base.y()) <= stop_half_width;
+      const bool in_stop = base.x() >= stop_x_range_[0] && base.x() <= stop_x_range_[1] &&
+        std::abs(base.y()) <= stop_half_width_;
       const bool in_slowdown = !in_stop &&
-        base.x() >= slowdown_x_range[0] && base.x() <= slowdown_x_range[1] &&
-        std::abs(base.y()) <= slowdown_half_width;
+        base.x() >= slowdown_x_range_[0] && base.x() <= slowdown_x_range_[1] &&
+        std::abs(base.y()) <= slowdown_half_width_;
       if (in_stop) {
         accumulate(stop_zone, optical, base.x(), message.header.stamp);
       } else if (in_slowdown) {
@@ -168,7 +168,7 @@ private:
         TextAnnotation label;
         label.timestamp = message.header.stamp;
         label.position.x = zone->nearest_pixel.x;
-        label.position.y = std::max(zone->nearest_pixel.y - LABEL_MARGIN_PX, 0.0);
+        label.position.y = std::max(zone->nearest_pixel.y - LABEL_MARGIN_PIXELS, 0.0);
         char text[16];
         std::snprintf(text, sizeof(text), "%.1fm", zone->nearest_distance);
         label.text = text;
@@ -178,7 +178,7 @@ private:
         overlay.texts.push_back(label);
       }
     }
-    overlay_publisher->publish(overlay);
+    overlay_publisher_->publish(overlay);
   }
 
   void accumulate(
@@ -193,16 +193,16 @@ private:
       return;
     }
     const cv::Point2d pixel =
-      camera_model.project3dToPixel(cv::Point3d(optical.x(), optical.y(), optical.z()));
-    if (pixel.x < 0.0 || pixel.x >= image_width || pixel.y < 0.0 || pixel.y >= image_height) {
+      camera_model_.project3dToPixel(cv::Point3d(optical.x(), optical.y(), optical.z()));
+    if (pixel.x < 0.0 || pixel.x >= image_width_ || pixel.y < 0.0 || pixel.y >= image_height_) {
       return;
     }
     CircleAnnotation marker;
     marker.timestamp = stamp;
     marker.position.x = pixel.x;
     marker.position.y = pixel.y;
-    marker.diameter = POINT_DIAMETER_PX;
-    marker.thickness = POINT_THICKNESS_PX;
+    marker.diameter = POINT_DIAMETER_PIXELS;
+    marker.thickness = POINT_THICKNESS_PIXELS;
     marker.fill_color = zone.color;
     marker.outline_color = zone.color;
     zone.markers.push_back(marker);
@@ -213,23 +213,23 @@ private:
     }
   }
 
-  tf2_ros::Buffer tf_buffer;
-  tf2_ros::TransformListener tf_listener;
-  image_geometry::PinholeCameraModel camera_model;
-  bool has_camera_model = false;
-  double image_width = 0.0;
-  double image_height = 0.0;
-  std::string base_frame;
-  double min_height;
-  double max_height;
-  std::vector<double> stop_x_range;
-  double stop_half_width;
-  std::vector<double> slowdown_x_range;
-  double slowdown_half_width;
-  int64_t sample_stride;
-  rclcpp::Publisher<ImageAnnotations>::SharedPtr overlay_publisher;
-  rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_subscription;
-  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_subscription;
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
+  image_geometry::PinholeCameraModel camera_model_;
+  bool has_camera_model_ = false;
+  double image_width_ = 0.0;
+  double image_height_ = 0.0;
+  std::string base_frame_;
+  double min_height_;
+  double max_height_;
+  std::vector<double> stop_x_range_;
+  double stop_half_width_;
+  std::vector<double> slowdown_x_range_;
+  double slowdown_half_width_;
+  int64_t sample_stride_;
+  rclcpp::Publisher<ImageAnnotations>::SharedPtr overlay_publisher_;
+  rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_subscription_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_subscription_;
 };
 
 int main(int argc, char ** argv)

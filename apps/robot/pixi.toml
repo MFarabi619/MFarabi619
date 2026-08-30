@@ -1,13 +1,13 @@
 [workspace]
 requires-pixi = ">=0.72.1"
 channels = [
-  "https://prefix.dev/robostack-lyrical",
-  "https://prefix.dev/conda-forge",
+    "https://prefix.dev/robostack-lyrical",
+    "https://prefix.dev/conda-forge",
 ]
 platforms = [
-  { platform = "linux-64", glibc = "2.34" },
-  "osx-arm64",
-  { platform = "linux-aarch64", glibc = "2.36" },
+    { platform = "linux-64", glibc = "2.34" },
+    "osx-arm64",
+    { platform = "linux-aarch64", glibc = "2.36" },
 ]
 
 [activation]
@@ -24,7 +24,9 @@ requests = "*"
 pyserial = "*"
 compilers = "*"
 pkg-config = "*"
+portaudio = "*"
 onnxruntime = "*"
+onnxruntime-cpp = "*"
 # ROS specific tools
 transforms3d = "*"
 rich = ">=15.0.0,<16"
@@ -62,6 +64,7 @@ ros-lyrical-diagnostic-aggregator = "*"
 
 [target.linux-aarch64.pypi-dependencies]
 gpiod = "*"
+sherpa-onnx = ">=1.13"
 depthai = ">=2.24,<3"
 adafruit-extended-bus = "*"
 adafruit-circuitpython-bno08x = "*"
@@ -69,6 +72,7 @@ adafruit-circuitpython-bno08x = "*"
 [target.osx-arm64.pypi-dependencies]
 mediapipe = "*"
 odrive = ">=0.6.11"
+sherpa-onnx = ">=1.13"
 depthai = ">=2.24,<3"
 better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editable = true }
 
@@ -100,8 +104,8 @@ jazzy = { features = ["jazzy"], no-default-feature = true }
 
 [feature.jazzy]
 channels = [
-  "https://prefix.dev/robostack-jazzy",
-  "https://prefix.dev/conda-forge",
+    "https://prefix.dev/robostack-jazzy",
+    "https://prefix.dev/conda-forge",
 ]
 
 [feature.jazzy.activation.env]
@@ -123,6 +127,10 @@ ros-jazzy-nav2-bt-navigator = "*"
 ros-jazzy-nav2-navfn-planner = "*"
 ros-jazzy-rmw-zenoh-cpp = ">=0.2.9"
 ros-jazzy-nav2-mppi-controller = "*"
+ros-jazzy-nav2-regulated-pure-pursuit-controller = "*"
+ros-jazzy-vision-msgs = "*"
+ros-jazzy-foxglove-msgs = "*"
+requests = "*"
 ros-jazzy-nav2-velocity-smoother = "*"
 ros-jazzy-nav2-lifecycle-manager = "*"
 ros-jazzy-nav2-collision-monitor = "*"
@@ -133,6 +141,9 @@ ros-jazzy-depthai-ros-msgs = "*"
 ros-jazzy-nmea-navsat-driver = "*"
 ros-jazzy-depthai-ros-driver = "*"
 ros-jazzy-image-transport-plugins = "*"
+
+[feature.jazzy.target.linux-aarch64.pypi-dependencies]
+mediapipe = "*"
 
 [feature.jazzy.target.osx-arm64.dependencies]
 ros-jazzy-ros2cli = "*"
@@ -150,82 +161,136 @@ better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editab
 
 [feature.jazzy.tasks]
 teleop-xiao = { cmd = "python boot/launch/teleop_xiao.launch.py --smooth {{ smooth }}", args = [
-  { arg = "smooth", default = "false" },
+    { arg = "smooth", default = "false" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/10.0.0.247:7447"]' } }
 
 [tasks]
 build = "colcon build --merge-install --base-paths . --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 
 lint = { cmd = "colcon test --base-paths . --merge-install --ctest-args -L linter --pytest-args -m linter --event-handlers console_direct+ && colcon test-result --verbose", depends-on = [
-  "build",
+    "build",
 ] }
 
 generate-world = "python simulation/plasticulture_generator.py"
 
-launch = { cmd = "python boot/launch/boot.launch.py --gesture_camera {{ camera }}", args = [
-  { arg = "camera", default = "webcam" },
+launch = { cmd = "python boot/launch/boot.launch.py --gesture_camera {{ camera }} --robot {{ robot }}", args = [
+    { arg = "camera", default = "webcam" },
+    { arg = "robot", default = "taro" },
 ], depends-on = [
-  "build",
+    "build",
 ] }
 
-gesture-teleop = { cmd = "python boot/launch/boot.launch.py --gesture_camera robot", depends-on = [
-  "build",
+hand-gesture-teleop = { cmd = "python boot/launch/boot.launch.py --gesture_camera robot --robot {{ robot }}", args = [
+    { arg = "robot", default = "taro" },
+], depends-on = [
+    "build",
 ] }
 
-sim = { cmd = "python simulation/launch/simulation.launch.py --robots {{ robots }} --depth_scan {{ scan }}", args = [
-  { arg = "robots", default = "taro" },
-  { arg = "scan", default = "false" },
+sim = { cmd = "python simulation/launch/simulation.launch.py --world {{ world }} --robots {{ robots }} --depth_scan {{ scan }}", args = [
+    { arg = "world", default = "farm" },
+    { arg = "robots", default = "taro,jiro" },
+    { arg = "scan", default = "false" },
 ], depends-on = [
-  "build",
+    "build",
 ] }
 
 sim-server = { cmd = "python simulation/launch/simulation.launch.py --headless true", depends-on = [
-  "build",
+    "build",
 ] }
 
-teleop-taro = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml -r cmd_vel:=/taro/joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
-teleop-jiro = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml -r cmd_vel:=/jiro/joy_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16.local:7447"]' } }
-follow-taro = { cmd = 'ros2 service call /taro/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
-  { arg = "enabled", default = "true" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
-follow-jiro = { cmd = 'ros2 service call /jiro/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
-  { arg = "enabled", default = "true" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16.local:7447"]' } }
+teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml -r cmd_vel:=/{{ robot }}/joy_teleop/cmd_vel", args = [
+    { arg = "robot", default = "taro" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2.local{% elif robot == "jiro" %}rpi5-16.local{% else %}localhost{% endif %}:7447"]' } }
+follow-person-enable = { cmd = 'ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "taro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 harvest-lane-taro = { cmd = "python boot/launch/harvest_lane.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = [
-  "build",
+    "build",
 ] }
 
 approach = { cmd = "python perception/launch/approach.launch.py --standoff_distance {{ standoff }}", args = [
-  { arg = "standoff", default = "1.0" },
+    { arg = "standoff", default = "1.0" },
 ] }
 
-follow-sidewalk = { cmd = "python perception/launch/sidewalk_follow.launch.py --target_offset {{ target }}", args = [
-  { arg = "target", default = "0.0" },
+follow-line-enable = { cmd = 'ros2 service call /{{ robot }}/line_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/line_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "jiro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
+follow-path-enable = { cmd = 'ros2 service call /{{ robot }}/path_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/path_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "jiro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
+follow-park-path-enable = { cmd = 'ros2 service call /{{ robot }}/park_path_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/park_path_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "jiro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
+follow-sidewalk-enable = { cmd = 'ros2 service call /{{ robot }}/sidewalk_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/sidewalk_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "taro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
+follow-harvest-lane-enable = { cmd = 'ros2 service call /{{ robot }}/harvest_lane_navigator/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/canopy_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "taro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
+detect-canopy-enable = { cmd = 'ros2 service call /{{ robot }}/canopy_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "taro" },
+    { arg = "enabled", default = "true" },
 ] }
 
-follow-line-jiro = { cmd = "python perception/launch/line_follow.launch.py --robot jiro --target_offset {{ target }}", args = [
-  { arg = "target", default = "0.0" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16.local:7447"]' } }
+follow-nav2-enable = { cmd = 'ros2 service call /{{ robot }}/person_goal_bridge/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "taro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
-sidewalk = "python perception/src/sidewalk_detector.py"
+voice-teleop = { cmd = "python boot/launch/voice.launch.py --robot {{ robot }}", args = [
+    { arg = "robot", default = "taro" },
+], depends-on = [
+    "build",
+] }
+
+audio-output-enable = { cmd = "python boot/launch/audio.launch.py --robot {{ robot }}", args = [
+    { arg = "robot", default = "taro" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' }, depends-on = [
+    "build",
+] }
+
+hand-gesture-teleop-enable = { cmd = 'ros2 service call /{{ robot }}/hand_gesture_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/hand_gesture_teleop/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "taro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
+weeding-enable = { cmd = 'ros2 service call /{{ robot }}/weeding_creep/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "taro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
+surface = "python perception/src/surface_detector.py"
 
 row-navigate = { cmd = "python perception/src/row_navigator.py --ros-args -r scan:=/sensors/camera_0/scan -r path:=/perception/row_path", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
 
 follow-row = { cmd = 'ros2 action send_goal --feedback /follow_row robot_platform_msgs/action/FollowRow "{travel_distance_m: {{ distance }}}"', args = [
-  { arg = "distance", default = "18" },
+    { arg = "distance", default = "18" },
 ], env = { ZENOH_SESSION_CONFIG_URI = "networking/zenoh/development.json5" } }
 
 follow-apriltag-taro = { cmd = "python perception/launch/apriltag_follow.launch.py --standoff_distance {{ standoff }}", args = [
-  { arg = "standoff", default = "1.5" },
+    { arg = "standoff", default = "1.5" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2:7447"]' } }
 
 canopy = { cmd = "python perception/src/canopy_detector.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
 
-# e2e = "python e2e/drive_profile.py --ros-args -p use_sim_time:=true"
-e2e-taro = { cmd = "python e2e/cmd_vel.py --ros-args -r __ns:=/taro", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
-e2e-jiro = { cmd = "python e2e/cmd_vel.py --ros-args -r __ns:=/jiro", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16.local:7447"]' } }
-health-taro = "python e2e/robot_health.py taro"
-health-jiro = "python e2e/robot_health.py jiro"
+# e2e-drive-profile = "python e2e/drive_profile.py --ros-args -p use_sim_time:=true"
+e2e = { cmd = "python e2e/cmd_vel.py --ros-args -r __ns:=/{{ robot }}", args = [
+    { arg = "robot", default = "taro" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+health = { cmd = "python e2e/robot_health.py {{ robot }}", args = [
+    { arg = "robot", default = "taro" },
+] }
 e2e-odrive = "python e2e/odrive_velocity.py"
 
 cone-drill = "python e2e/cone_drill.py --ros-args -p use_sim_time:=true"
@@ -234,16 +299,21 @@ camera-check = "python e2e/camera_path.py"
 
 slam-sim = "python navigation/launch/slam.launch.py --environment jazzy --use_sim_time true --scan_topic /sensors/camera_0/scan"
 
-test = { cmd = "pytest -c pytest.ini machines/test perception/test simulation/test -m 'not linter'", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
+slam = { cmd = "python navigation/launch/slam.launch.py --robot {{ robot }}", args = [
+    { arg = "robot", default = "jiro" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2.local{% elif robot == "jiro" %}rpi5-16.local{% else %}localhost{% endif %}:7447"]' } }
+
+test = { cmd = "pytest -c pytest.ini {{ suites }} -m 'not linter'", args = [
+    { arg = "suites", default = "drivers/test machines/test perception/test simulation/test" },
+], env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
 
 test-cov = { cmd = "pytest -c pytest.ini machines/test -m 'not linter' -p pytest_cov --cov=robot_config --cov-report=term-missing", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
 
 deploy = { cmd = "python machines/deploy.py {{ robot }}", args = [
-  { arg = "robot", default = "taro" },
+    { arg = "robot", default = "taro" },
 ] }
 
 robot = "python boot/launch/robot.launch.py"
 
 [target.linux-aarch64.tasks]
-slam = "python navigation/launch/slam.launch.py"
 oak-d-sr = "python drivers/src/oak_d_sr.py --ros-args -r __ns:=/sensors/camera_0 -p frame_id:=camera_0_link_right_camera_optical_frame"

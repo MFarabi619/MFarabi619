@@ -16,12 +16,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import math
+
 from geometry_msgs.msg import TwistStamped
 import numpy as np
 from rcl_interfaces.msg import SetParametersResult
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from std_srvs.srv import SetBool
 from vision_msgs.msg import Detection2DArray
 
 FOLLOW = 'follow'
@@ -31,6 +34,10 @@ LIVE_PARAMETERS = frozenset({
     'target_offset', 'forward_speed', 'steer_gain', 'max_angular_speed',
     'turn_speed', 'end_of_row_frames', 'reacquire_offset',
 })
+
+
+def finite_or(value, fallback):
+    return value if math.isfinite(value) else fallback
 
 
 class RowFollow(Node):
@@ -47,6 +54,7 @@ class RowFollow(Node):
         self.turn_speed = self.declare_parameter('turn_speed', 0.6).value
         self.end_of_row_frames = self.declare_parameter('end_of_row_frames', 8).value
         self.reacquire_offset = self.declare_parameter('reacquire_offset', 0.35).value
+        self.is_enabled = self.declare_parameter('start_enabled', False).value
 
         self.state = FOLLOW
         self.missing_frames = 0
@@ -54,13 +62,26 @@ class RowFollow(Node):
         self.cmd_vel_publisher = self.create_publisher(
             TwistStamped, cmd_vel_topic, qos_profile_sensor_data
         )
+        self.create_service(SetBool, '~/enable', self.on_enable)
         self.add_on_set_parameters_callback(self.on_set_parameters)
         self.create_subscription(
             Detection2DArray, detections_topic, self.on_detections, qos_profile_sensor_data
         )
         self.get_logger().info(f'row follow: {detections_topic} -> {cmd_vel_topic}')
 
+    def on_enable(self, request, response):
+        self.is_enabled = request.data
+        self.state = FOLLOW
+        self.missing_frames = 0
+        if not request.data:
+            self.halt()
+        response.success = True
+        response.message = 'enabled' if request.data else 'disabled'
+        return response
+
     def on_detections(self, message):
+        if not self.is_enabled:
+            return
         error = self.center_error(message.detections)
         if error is None:
             self.missing_frames += 1
@@ -71,13 +92,15 @@ class RowFollow(Node):
             if self.state == TURN and abs(error) <= self.reacquire_offset:
                 self.state = FOLLOW
 
-        if error is not None and self.state == FOLLOW:
+        if self.state == TURN:
+            self.drive(0.0, self.turn_speed)
+        elif error is not None:
             self.drive(
                 self.forward_speed * (1.0 - SPEED_FALLOFF * abs(error)),
                 -self.steer_gain * error,
             )
         else:
-            self.drive(0.0, self.turn_speed)
+            self.drive(self.forward_speed, 0.0)
 
     def center_error(self, detections):
         half_width = self.image_width / 2.0
@@ -89,17 +112,31 @@ class RowFollow(Node):
             return None
         return min(offsets, key=abs) - self.target_offset
 
+    def halt(self):
+        self.drive(0.0, 0.0)
+
     def drive(self, forward_speed, angular_speed):
+        max_forward_speed = max(finite_or(self.forward_speed, 0.0), 0.0)
+        max_angular_speed = abs(finite_or(self.max_angular_speed, 0.0))
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(forward_speed)
+        message.twist.linear.x = float(
+            np.clip(finite_or(forward_speed, 0.0), -max_forward_speed, max_forward_speed)
+        )
         message.twist.angular.z = float(
-            np.clip(angular_speed, -self.max_angular_speed, self.max_angular_speed)
+            np.clip(finite_or(angular_speed, 0.0), -max_angular_speed, max_angular_speed)
         )
         self.cmd_vel_publisher.publish(message)
 
     def on_set_parameters(self, parameters):
+        for parameter in parameters:
+            if parameter.name not in LIVE_PARAMETERS:
+                continue
+            if isinstance(parameter.value, float) and not math.isfinite(parameter.value):
+                return SetParametersResult(
+                    successful=False,
+                    reason=f'{parameter.name} must be a finite number')
         for parameter in parameters:
             if parameter.name in LIVE_PARAMETERS:
                 setattr(self, parameter.name, parameter.value)
@@ -114,7 +151,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        node.drive(0.0, 0.0)
+        node.halt()
         node.destroy_node()
         rclpy.shutdown()
 

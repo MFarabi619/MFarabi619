@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 3.16)
+project(depthai_vendor)
+
+find_package(ament_cmake REQUIRED)
+
+if(APPLE)
+  ament_package()
+  return()
+endif()
+
+include(ExternalProject)
+ExternalProject_Add(depthai_core
+  GIT_REPOSITORY https://github.com/luxonis/depthai-core
+  GIT_TAG v2.32.0
+  GIT_SHALLOW ON
+  GIT_SUBMODULES_RECURSE ON
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CMAKE_POLICY_VERSION_MINIMUM=3.5
+    ${CMAKE_COMMAND} -S <SOURCE_DIR> -B <BINARY_DIR>
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    -DBUILD_SHARED_LIBS=OFF
+    -DDEPTHAI_BUILD_TESTS=OFF
+    -DDEPTHAI_BUILD_EXAMPLES=OFF
+    -DDEPTHAI_BUILD_DOCS=OFF
+    -DDEPTHAI_OPENCV_SUPPORT=OFF
+  BUILD_COMMAND ${CMAKE_COMMAND} -E env CMAKE_POLICY_VERSION_MINIMUM=3.5
+    ${CMAKE_COMMAND} --build <BINARY_DIR> --parallel
+  INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR>
+  BUILD_BYPRODUCTS ${CMAKE_INSTALL_PREFIX}/lib/libdepthai-core.a
+)
+
+ament_package()

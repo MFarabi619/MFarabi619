@@ -28,7 +28,7 @@ def approach(standoff_distance: float = 1.0):
         package='robot_perception',
         executable='color_blob_detector',
         name='cone_detector',
-        params={'class_label': 'cone'},
+        params={'class_label': 'cone', 'start_enabled': True},
         remaps={'detections': CONES_TOPIC},
     )
     bl.node(

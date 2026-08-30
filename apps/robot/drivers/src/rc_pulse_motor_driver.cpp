@@ -108,6 +108,12 @@ public:
 
   void drive(double wheel_speed, double max_wheel_speed)
   {
+    if (!std::isfinite(wheel_speed) || !std::isfinite(max_wheel_speed) ||
+      max_wheel_speed <= 0.0)
+    {
+      halt();
+      return;
+    }
     double fraction = std::clamp(wheel_speed / max_wheel_speed, -1.0, 1.0);
     if (reversed) {
       fraction = -fraction;

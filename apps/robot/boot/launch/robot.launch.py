@@ -31,9 +31,34 @@ ROUTER_CONFIG_OVERRIDE = 'mode="router"'
 PIXI = os.path.expanduser('~/.pixi/bin/pixi')
 JAZZY_ENV = os.path.abspath('.pixi/envs/jazzy')
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
+FOLLOWED_SURFACES = {
+    'sidewalk': {'surface_class_ids': [2, 3]},
+    'park_path': {'surface_class_ids': [1, 2, 3]},
+    'path': {
+        'mask_source': 'brightness',
+        'max_saturation': 0.75,
+        'max_value': 0.35,
+        'roi_top_fraction': 0.6,
+        'min_fraction': 0.6,
+        'max_detections_per_second': 15.0,
+    },
+}
 TF_REMAPS = {'/tf': 'tf', '/tf_static': 'tf_static'}
 
 GPS_TOPICS = ['fix', 'vel', 'time_reference', 'heading']
+
+def ground_offset(urdf_path):
+    robot = ElementTree.parse(urdf_path).getroot()
+    for joint in robot.iter('joint'):
+        child = joint.find('child')
+        if child is None or child.get('link') != 'base_footprint':
+            continue
+        origin = joint.find('origin')
+        if origin is None:
+            break
+        return float(origin.get('xyz', '0 0 0').split()[2])
+    return 0.0
+
 
 def wheel_geometry(urdf_path):
     robot = ElementTree.parse(urdf_path).getroot()
@@ -168,9 +193,24 @@ def robot():
         depth_camera_name = 'camera_0'
     else:
         depth_camera_name = None
+    depth_camera_config = oak_d_camera_config or orbbec_gemini_335l_camera_config
+    camera_mount_xyz = (
+        depth_camera_config.get('xyz', [0.0, 0.0, 0.0])
+        if depth_camera_config else [0.0, 0.0, 0.0])
+    # The depth cloud, the scan derived from it and the collision overlay all
+    # read every depth frame. Nothing needs them unless navigation or mapping is
+    # running, and on a loaded robot they starve the detector that does.
+    depth_cloud_enabled = robot_config.get('depth_cloud', {}).get('enabled', True)
+    camera_height_m = float(camera_mount_xyz[2]) - ground_offset(
+        f'mech/urdf/{robot_name}/robot.urdf')
     collision_monitor_binary = f'{JAZZY_ENV}/lib/nav2_collision_monitor/collision_monitor'
-    guarded = (robot_config['platform'].get('guarded', False)
-               and depth_camera_name is not None)
+    collision_guarded = (
+        robot_config['platform'].get('collision_guarded', False)
+        and depth_camera_name is not None)
+    detects_on_camera = bool(
+        oak_d_camera_config
+        and oak_d_camera_config['model'] == 'oak_d_pro_w_poe'
+        and oak_d_camera_config.get('detects_on_camera', False))
 
     bl = BetterLaunch()
 
@@ -334,13 +374,14 @@ def robot():
             executable='twist_mux',
             name='twist_mux',
             remaps={
-                'cmd_vel_out': 'platform/cmd_vel_raw' if guarded else 'platform/cmd_vel',
+                'cmd_vel_out': ('platform/cmd_vel_raw' if collision_guarded
+                                else 'platform/cmd_vel'),
             },
             param_files=['control/config/twist_mux.yaml'],
             **RESPAWN,
         )
 
-        if guarded:
+        if collision_guarded:
             bl.process(
                 f'{PIXI} run --clean-env -e jazzy'
                 f' {collision_monitor_binary}'
@@ -366,34 +407,119 @@ def robot():
                 **RESPAWN,
             )
 
-        bl.node(
-            package='foxglove_bridge',
-            executable='foxglove_bridge',
-            name='foxglove_bridge',
-            params={
-                'send_buffer_limit': 20000000,
-                'max_qos_depth': 5,
-                'best_effort_qos_topic_whitelist': [
-                    f'/{namespace}/sensors/camera_[0-9]+/.*',
-                ],
-                'topic_whitelist': [
-                    f'/{namespace}/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$',
-                    f'/{namespace}/sensors/camera_[0-9]+/(color|depth)/camera_info$',
-                    f'/{namespace}/sensors/camera_[0-9]+/depth/points$',
-                    f'/{namespace}/sensors/camera_[0-9]+/scan$',
-                    f'/{namespace}/sensors/(gps|imu)_[0-9]+/.*',
-                    f'/{namespace}/perception/.*',
-                    f'/{namespace}/platform/.*',
-                    f'/{namespace}/joy_teleop/cmd_vel$',
-                    f'/{namespace}/tf(_static)?$',
-                    f'/{namespace}/map$',
-                    f'/{namespace}/slam_toolbox/.*',
-                    f'/{namespace}/diagnostics.*',
-                    f'/{namespace}/robot_description$',
-                ],
-            },
-            **RESPAWN,
-        )
+        if robot_config.get('hand_gesture', {}).get('enabled', False):
+            bl.process(
+                f'{PIXI} run --clean-env -e jazzy'
+                f' python {os.path.abspath("perception/src/hand_gesture_detector.py")}'
+                ' --ros-args'
+                f' -r __ns:=/{namespace}'
+                ' -p image_topic:=sensors/camera_0/color/image_raw/compressed'
+                ' -p start_enabled:=false'
+                ' -p num_hands:=2'
+                ' -p min_hand_detection_confidence:=0.4'
+                ' -r /joy_teleop/cmd_vel:=joy_teleop/cmd_vel',
+                name='hand_gesture_detector',
+                env={'HOME': os.environ['HOME']},
+                isolate_env=True,
+                **RESPAWN,
+            )
+            bl.node(
+                package='robot_perception',
+                executable='hand_gesture_teleop',
+                name='hand_gesture_teleop',
+                params={'start_enabled': False},
+                remaps={'/joy_teleop/cmd_vel': 'joy_teleop/cmd_vel'},
+                **RESPAWN,
+            )
+            bl.process(
+                f'{PIXI} run --clean-env -e jazzy'
+                f' python {os.path.abspath("perception/src/weeding_creep.py")}'
+                ' --ros-args'
+                f' -r __ns:=/{namespace}'
+                ' -r /tf:=tf -r /tf_static:=tf_static'
+                ' -p start_enabled:=false',
+                name='weeding_creep',
+                env={'HOME': os.environ['HOME']},
+                isolate_env=True,
+                **RESPAWN,
+            )
+
+        if robot_config.get('follow_nav2', {}).get('enabled', False):
+            follow_parameters = os.path.abspath('navigation/config/follow.yaml')
+            follow_point_tree = os.path.abspath('navigation/config/follow_point.xml')
+            for package, server in (
+                    ('nav2_controller', 'controller_server'),
+                    ('nav2_planner', 'planner_server'),
+                    ('nav2_bt_navigator', 'bt_navigator')):
+                tree_argument = (
+                    f' -p default_nav_to_pose_bt_xml:={follow_point_tree}'
+                    if server == 'bt_navigator' else '')
+                bl.process(
+                    f'{PIXI} run --clean-env -e jazzy'
+                    f' {JAZZY_ENV}/lib/{package}/{server}'
+                    ' --ros-args'
+                    f' -r __ns:=/{namespace}'
+                    ' -r /tf:=tf -r /tf_static:=tf_static'
+                    f' --params-file {follow_parameters}'
+                    f'{tree_argument}',
+                    name=server,
+                    env={'HOME': os.environ['HOME']},
+                    isolate_env=True,
+                    **RESPAWN,
+                )
+            bl.process(
+                f'{PIXI} run --clean-env -e jazzy'
+                f' python {os.path.abspath("perception/src/person_goal_bridge.py")}'
+                ' --ros-args'
+                f' -r __ns:=/{namespace}'
+                ' -r /tf:=tf -r /tf_static:=tf_static',
+                name='person_goal_bridge',
+                env={'HOME': os.environ['HOME']},
+                isolate_env=True,
+                **RESPAWN,
+            )
+            bl.process(
+                f'{PIXI} run --clean-env -e jazzy'
+                f' {JAZZY_ENV}/lib/nav2_lifecycle_manager/lifecycle_manager'
+                ' --ros-args -r __node:=follow_lifecycle_manager'
+                f' -r __ns:=/{namespace}'
+                f' --params-file {follow_parameters}',
+                name='follow_lifecycle_manager',
+                env={'HOME': os.environ['HOME']},
+                isolate_env=True,
+            )
+
+        if robot_config.get('foxglove', {}).get('enabled', True):
+            bl.node(
+                package='foxglove_bridge',
+                executable='foxglove_bridge',
+                name='foxglove_bridge',
+                params={
+                    'send_buffer_limit': 20000000,
+                    'max_qos_depth': 5,
+                    'best_effort_qos_topic_whitelist': [
+                        f'/{namespace}/sensors/camera_[0-9]+/.*',
+                    ],
+                    'topic_whitelist': [
+                        f'/{namespace}/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$',
+                        f'/{namespace}/sensors/camera_[0-9]+/(color|depth)/camera_info$',
+                        f'/{namespace}/sensors/camera_[0-9]+/depth/points$',
+                        f'/{namespace}/sensors/camera_[0-9]+/scan$',
+                        f'/{namespace}/sensors/(gps|imu)_[0-9]+/.*',
+                        f'/{namespace}/perception/.*',
+                        f'/{namespace}/platform/.*',
+                        f'/{namespace}/joy_teleop/cmd_vel$',
+                        f'/{namespace}/tf(_static)?$',
+                        f'/{namespace}/map$',
+                        f'/{namespace}/local_costmap/costmap$',
+                        f'/{namespace}/plan$',
+                        f'/{namespace}/slam_toolbox/.*',
+                        f'/{namespace}/diagnostics.*',
+                        f'/{namespace}/robot_description$',
+                    ],
+                },
+                **RESPAWN,
+            )
 
         bl.node(
             package='diagnostic_aggregator',
@@ -436,11 +562,15 @@ def robot():
             if oak_d_camera_config['model'] == 'oak_d_pro_w_poe':
                 optical_frame = f'{camera_name}_link_color_optical_frame'
                 oak_d_camera_driver_parameters = {
-                    'ip': oak_d_camera_config['ros_parameters'][camera_name]['ip'],
                     'frame_id': optical_frame,
-                    'fps': 30.0,
+                    'depth_fps': 30.0,
+                    'color_fps': 60.0,
                     'jpeg_quality': 60,
-                }
+                } | oak_d_camera_config['ros_parameters'][camera_name]
+                if detects_on_camera:
+                    oak_d_camera_driver_parameters['model_path'] = (
+                        os.path.abspath(
+                            'perception/models/yolov8n_coco_640x352.blob'))
             else:
                 optical_frame = f'{camera_name}_link_right_camera_optical_frame'
                 oak_d_camera_driver_parameters = {
@@ -450,7 +580,8 @@ def robot():
                 }
             bl.node(
                 package='robot_drivers',
-                executable=oak_d_camera_config['model'],
+                executable=('oak_d_pro_w_poe_spatial' if detects_on_camera
+                            else oak_d_camera_config['model']),
                 name=oak_d_camera_config['model'],
                 params=oak_d_camera_driver_parameters,
                 remaps={
@@ -478,7 +609,7 @@ def robot():
                 remaps=TF_REMAPS,
                 **RESPAWN,
             )
-            if oak_d_camera_config['model'] == 'oak_d_sr':
+            if oak_d_camera_config['model'] == 'oak_d_sr' and depth_cloud_enabled:
                 bl.node(
                     package='depth_image_proc',
                     executable='point_cloud_xyz_node',
@@ -490,25 +621,26 @@ def robot():
                     },
                     **RESPAWN,
                 )
-            bl.node(
-                package='pointcloud_to_laserscan',
-                executable='pointcloud_to_laserscan_node',
-                name='oak_d_pointcloud_to_laserscan',
-                remaps=TF_REMAPS | {
-                    'cloud_in': f'sensors/{camera_name}/depth/points',
-                    'scan': f'sensors/{camera_name}/scan',
-                },
-                # TODO: rescope range_max to the OAK-D SR's 1.5m usable depth band
-                params={
-                    'target_frame': 'base_link',
-                    'min_height': 0.1,
-                    'max_height': 0.6,
-                    'range_min': 0.2,
-                    'range_max': 3.0,
-                    'scan_time': 0.05,
-                },
-                **RESPAWN,
-            )
+            if depth_cloud_enabled:
+                bl.node(
+                    package='pointcloud_to_laserscan',
+                    executable='pointcloud_to_laserscan_node',
+                    name='oak_d_pointcloud_to_laserscan',
+                    remaps=TF_REMAPS | {
+                        'cloud_in': f'sensors/{camera_name}/depth/points',
+                        'scan': f'sensors/{camera_name}/scan',
+                    },
+                    # TODO: rescope range_max to the OAK-D SR's 1.5m usable depth band
+                    params={
+                        'target_frame': 'base_link',
+                        'min_height': 0.1,
+                        'max_height': 0.6,
+                        'range_min': 0.2,
+                        'range_max': 3.0,
+                        'scan_time': 0.05,
+                    },
+                    **RESPAWN,
+                )
 
         if orbbec_gemini_335l_camera_config:
             camera_parameters = next(
@@ -539,7 +671,7 @@ def robot():
                 },
                 **RESPAWN,
             )
-            if camera_parameters['enable_depth']:
+            if camera_parameters['enable_depth'] and depth_cloud_enabled:
                 bl.node(
                     package='depth_image_proc',
                     executable='point_cloud_xyz_node',
@@ -570,37 +702,39 @@ def robot():
                     **RESPAWN,
                 )
         if depth_camera_name is not None:
-            bl.node(
-                package='robot_perception',
-                executable='collision_overlay',
-                name='collision_overlay',
-                remaps=TF_REMAPS,
-                params={
-                    'cloud_topic': f'sensors/{depth_camera_name}/depth/points',
-                    'camera_info_topic':
-                        f'sensors/{depth_camera_name}/color/camera_info',
-                    'overlay_topic': 'perception/collision/overlay',
-                },
-                **RESPAWN,
-            )
+            if depth_cloud_enabled:
+                bl.node(
+                    package='robot_perception',
+                    executable='collision_overlay',
+                    name='collision_overlay',
+                    remaps=TF_REMAPS,
+                    params={
+                        'cloud_topic': f'sensors/{depth_camera_name}/depth/points',
+                        'camera_info_topic':
+                            f'sensors/{depth_camera_name}/color/camera_info',
+                        'overlay_topic': 'perception/collision/overlay',
+                    },
+                    **RESPAWN,
+                )
             if oak_d_camera_config:
                 detector_image_topic = (
                     f'sensors/{depth_camera_name}/color/image_raw/compressed')
             else:
                 detector_image_topic = f'sensors/{depth_camera_name}/color/image_raw'
-            bl.node(
-                package='robot_perception',
-                executable='ssd_mobilenet_person_detector',
-                name='person_detector',
-                params={
-                    'image_topic': detector_image_topic,
-                    'depth_topic': f'sensors/{depth_camera_name}/depth/image_raw',
-                    'depth_camera_info_topic': f'sensors/{depth_camera_name}/depth/camera_info',
-                    'min_score': 0.3,
-                    'max_detections_per_second': 10.0,
-                },
-                **RESPAWN,
-            )
+            if not detects_on_camera:
+                bl.node(
+                    package='robot_perception',
+                    executable='person_detector',
+                    name='person_detector',
+                    params={
+                        'image_topic': detector_image_topic,
+                        'depth_topic': f'sensors/{depth_camera_name}/depth/image_raw',
+                        'depth_camera_info_topic': f'sensors/{depth_camera_name}/depth/camera_info',
+                        'min_score': 0.3,
+                        'max_detections_per_second': 10.0,
+                    } | robot_config.get('detector', {}),
+                    **RESPAWN,
+                )
             person_follow_parameters = {
                 'standoff_distance': 1.5,
                 'max_missing_frames': 24,
@@ -623,3 +757,105 @@ def robot():
                 params=person_follow_parameters,
                 **RESPAWN,
             )
+
+            line_config = robot_config.get('line', {})
+            if line_config.get('enabled', False):
+                bl.node(
+                    package='robot_perception',
+                    executable='color_blob_detector',
+                    name='line_detector',
+                    params={
+                        'image_topic':
+                            f'sensors/{depth_camera_name}/color/image_raw/compressed',
+                        'depth_topic': f'sensors/{depth_camera_name}/depth/image_raw',
+                        'depth_camera_info_topic':
+                            f'sensors/{depth_camera_name}/depth/camera_info',
+                        'detections_topic': 'perception/line/detections',
+                        'overlay_topic': 'perception/line/overlay',
+                        'class_label': 'line',
+                        'hue_min': 0.0,
+                        'hue_max': 180.0,
+                        'min_saturation': 0.0,
+                        'max_saturation': 0.25,
+                        'min_value': 0.6,
+                        'min_triangularity': 0.0,
+                        'min_aspect_ratio': 0.0,
+                        'min_area': 800,
+                        'roi_top_fraction': 0.55,
+                        'start_enabled': False,
+                    } | line_config.get('detector', {}),
+                    **RESPAWN,
+                )
+                bl.node(
+                    package='robot_perception',
+                    executable='row_follow',
+                    name='line_follow',
+                    params={
+                        'detections_topic': 'perception/line/detections',
+                        'start_enabled': False,
+                    } | line_config.get('follow', {}),
+                    **RESPAWN,
+                )
+
+            for surface, surface_defaults in FOLLOWED_SURFACES.items():
+                surface_config = robot_config.get(surface, {})
+                if not surface_config.get('enabled', False):
+                    continue
+                bl.node(
+                    package='robot_perception',
+                    executable='surface_detector',
+                    name=f'{surface}_detector',
+                    params={
+                        'image_topic':
+                            f'sensors/{depth_camera_name}/color/image_raw/compressed',
+                        'detections_topic': f'perception/{surface}/detections',
+                        'overlay_topic': f'perception/{surface}/overlay',
+                        'class_label': surface,
+                        'max_detections_per_second': 5.0,
+                    } | surface_defaults | surface_config.get('detector', {}),
+                    **RESPAWN,
+                )
+                bl.node(
+                    package='robot_perception',
+                    executable='surface_follow',
+                    name=f'{surface}_follow',
+                    params={
+                        'detections_topic': f'perception/{surface}/detections',
+                        'camera_info_topic':
+                            f'sensors/{depth_camera_name}/color/camera_info',
+                        'camera_height_m': camera_height_m,
+                        'start_enabled': False,
+                    } | surface_config.get('follow', {}),
+                    **RESPAWN,
+                )
+
+            harvest_lane_config = robot_config.get('harvest_lane', {})
+            if harvest_lane_config.get('enabled', False):
+                bl.node(
+                    package='robot_perception',
+                    executable='canopy_detector',
+                    name='canopy_detector',
+                    params={
+                        'image_topic':
+                            f'sensors/{depth_camera_name}/color/image_raw/compressed',
+                        'mask_topic': 'perception/canopy/mask/compressed',
+                        'fraction_topic': 'perception/canopy/fraction',
+                    } | harvest_lane_config.get('detector', {}),
+                    **RESPAWN,
+                )
+                bl.node(
+                    package='robot_perception',
+                    executable='harvest_lane_navigator',
+                    name='harvest_lane_navigator',
+                    params={
+                        'mask_topic': 'perception/canopy/mask/compressed',
+                        'camera_info_topic':
+                            f'sensors/{depth_camera_name}/color/camera_info',
+                        'depth_topic': f'sensors/{depth_camera_name}/depth/image_raw',
+                        'odom_topic': 'diff_drive_controller/odom',
+                        'camera_height_m': camera_height_m,
+                        'camera_lateral_offset_m': float(camera_mount_xyz[1]),
+                        'start_enabled': False,
+                    } | harvest_lane_config.get('navigator', {}),
+                    **RESPAWN,
+                )

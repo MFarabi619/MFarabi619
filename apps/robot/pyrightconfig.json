@@ -1,0 +1,25 @@
+{
+  "typeCheckingMode": "basic",
+  "venvPath": ".pixi/envs",
+  "venv": "default",
+  "extraPaths": [
+    "install/lib/python3.14/site-packages",
+    ".pixi/envs/jazzy/lib/python3.12/site-packages",
+    "../../zephyrproject/modules/lib/better_launch"
+  ],
+  "reportArgumentType": "none",
+  "reportCallIssue": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportIndexIssue": "none",
+  "reportOperatorIssue": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportOptionalOperand": "none",
+  "reportOptionalSubscript": "none",
+  "exclude": [
+    ".pixi",
+    "build",
+    "install",
+    "log",
+    "**/__pycache__"
+  ]
+}

@@ -37,9 +37,20 @@ def load_node_class(module_name, class_name):
 
 @pytest.fixture(scope='session', autouse=True)
 def ros_context():
-    rclpy.init()
+    owns_context = not rclpy.ok()
+    if owns_context:
+        rclpy.init()
     yield
-    rclpy.shutdown()
+    if owns_context and rclpy.ok():
+        rclpy.shutdown()
+
+
+@pytest.fixture
+def approach_node():
+    node = load_node_class('approach', 'Approach')()
+    node.is_enabled = True
+    yield node
+    node.destroy_node()
 
 
 @pytest.fixture
@@ -52,6 +63,38 @@ def tracked_approach_node():
 @pytest.fixture
 def row_follow_node():
     node = load_node_class('row_follow', 'RowFollow')()
+    node.is_enabled = True
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def color_blob_detector_node():
+    node = load_node_class('color_blob_detector', 'ColorBlobDetector')()
+    node.is_enabled = False
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def brightness_detector_node():
+    node = load_node_class('surface_detector', 'SurfaceDetector')(
+        parameter_overrides=[
+            rclpy.parameter.Parameter('mask_source', value='brightness'),
+            rclpy.parameter.Parameter('max_value', value=0.35),
+            rclpy.parameter.Parameter('max_saturation', value=0.75),
+            rclpy.parameter.Parameter('roi_top_fraction', value=0.5),
+            rclpy.parameter.Parameter('min_fraction', value=0.6),
+            rclpy.parameter.Parameter('max_detections_per_second', value=1000.0),
+        ])
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def surface_follow_node():
+    node = load_node_class('surface_follow', 'SurfaceFollow')()
+    node.is_enabled = True
     yield node
     node.destroy_node()
 
@@ -59,6 +102,7 @@ def row_follow_node():
 @pytest.fixture
 def green_detector_node():
     node = load_node_class('green_detector', 'GreenDetector')()
+    node.is_enabled = True
     yield node
     node.destroy_node()
 
@@ -71,9 +115,58 @@ def row_navigator_node():
     node.destroy_node()
 
 
+@pytest.fixture(scope='session')
+def voice_word_detector_module():
+    return load_module('voice_word_detector')
+
+
+@pytest.fixture
+def voice_word_detector_node(voice_word_detector_module):
+    node = voice_word_detector_module.VoiceWordDetector()
+    node.is_enabled = True
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture(scope='session')
+def voice_speaker_module():
+    return load_module('voice_speaker')
+
+
+@pytest.fixture
+def voice_speaker_node(voice_speaker_module):
+    node = voice_speaker_module.VoiceSpeaker()
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture(scope='session')
+def voice_teleop_module():
+    return load_module('voice_teleop')
+
+
+@pytest.fixture
+def voice_teleop_node(voice_teleop_module):
+    node = voice_teleop_module.VoiceTeleop()
+    node.is_enabled = True
+    yield node
+    node.destroy_node()
+
+
 @pytest.fixture
 def canopy_detector_node():
     node = load_node_class('canopy_detector', 'CanopyDetector')()
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture
+def normalized_canopy_detector_node():
+    node = load_node_class('canopy_detector', 'CanopyDetector')(
+        parameter_overrides=[
+            rclpy.parameter.Parameter('normalize_exposure', value=True),
+            rclpy.parameter.Parameter('normalized_green_min', value=0.06),
+        ])
     yield node
     node.destroy_node()
 
@@ -88,6 +181,6 @@ def cloud_optical_relay_node():
 @pytest.fixture
 def harvest_lane_navigator_node():
     node = load_node_class('harvest_lane_navigator', 'HarvestLaneNavigator')()
-    node.drive_enabled = True
+    node.is_enabled = True
     yield node
     node.destroy_node()

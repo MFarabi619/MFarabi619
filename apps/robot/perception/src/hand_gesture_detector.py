@@ -37,44 +37,43 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
-import requests
 from sensor_msgs.msg import CompressedImage
+from std_srvs.srv import SetBool
 from vision_msgs.msg import Detection2D, Detection2DArray, ObjectHypothesisWithPose
 
-DEFAULT_MODEL_PATH = os.path.join(
-    os.path.dirname(__file__), 'models', 'gesture_recognizer.task')
-MODEL_URL = (
-    'https://storage.googleapis.com/mediapipe-models/gesture_recognizer/'
-    'gesture_recognizer/float16/1/gesture_recognizer.task'
-)
+MODEL_FILENAME = 'gesture_recognizer.task'
+
+
+def default_model_path():
+    directory = os.path.dirname(__file__)
+    alongside = os.path.join(directory, 'models', MODEL_FILENAME)
+    if os.path.exists(alongside):
+        return alongside
+    return os.path.normpath(
+        os.path.join(directory, '..', 'models', MODEL_FILENAME))
+
+
+DEFAULT_MODEL_PATH = default_model_path()
 
 FORWARD_COLOR = Color(r=0.722, g=0.733, b=0.149, a=1.0)
 REVERSE_COLOR = Color(r=0.996, g=0.502, b=0.098, a=1.0)
 TURN_COLOR = Color(r=0.980, g=0.741, b=0.184, a=1.0)
 STOP_COLOR = Color(r=0.984, g=0.286, b=0.204, a=1.0)
-JOINT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
-LABEL_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
-LABEL_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.65)
+LANDMARK_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
+TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.65)
 
 MOTION_EPSILON = 0.02
 LABEL_MARGIN_PIXELS = 8.0
+LABEL_FONT_SIZE = 18.0
 
 
 def with_alpha(color, alpha):
     return Color(r=color.r, g=color.g, b=color.b, a=alpha)
 
 
-def download_model(path):
-    response = requests.get(MODEL_URL)
-    response.raise_for_status()
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'wb') as file:
-        file.write(response.content)
-
-
-class GestureTeleop(Node):
+class HandGestureDetector(Node):
     def __init__(self):
-        super().__init__('gesture_teleop')
+        super().__init__('hand_gesture_detector')
         self.image_topic = self.declare_parameter(
             'image_topic', 'sensors/camera_0/color/image_raw/compressed'
         ).value
@@ -86,15 +85,14 @@ class GestureTeleop(Node):
         ).value
         model_path = self.declare_parameter('model', DEFAULT_MODEL_PATH).value
         num_hands = self.declare_parameter('num_hands', 1).value
-
-        if not os.path.isfile(model_path):
-            self.get_logger().info(f'{model_path} not found, downloading...')
-            download_model(model_path)
+        min_hand_detection_confidence = self.declare_parameter(
+            'min_hand_detection_confidence', 0.5).value
 
         options = vision.GestureRecognizerOptions(
             base_options=mp_python.BaseOptions(model_asset_path=model_path),
             running_mode=vision.RunningMode.VIDEO,
             num_hands=num_hands,
+            min_hand_detection_confidence=min_hand_detection_confidence,
             min_tracking_confidence=0.5,
             canned_gesture_classifier_options=ClassifierOptions(
                 score_threshold=0.6, category_denylist=['None']
@@ -102,15 +100,17 @@ class GestureTeleop(Node):
         )
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
         self.last_timestamp_ms = 0
-        self.linear = 0.0
-        self.angular = 0.0
+        self.forward_speed = 0.0
+        self.turn_speed = 0.0
 
+        self.is_enabled = self.declare_parameter('start_enabled', False).value
         self.detections_publisher = self.create_publisher(
             Detection2DArray, detections_topic, qos_profile_sensor_data
         )
         self.overlay_publisher = self.create_publisher(
             ImageAnnotations, overlay_topic, qos_profile_sensor_data
         )
+        self.create_service(SetBool, '~/enable', self.on_enable)
         self.create_subscription(
             CompressedImage, self.image_topic, self.on_image, qos_profile_sensor_data
         )
@@ -119,25 +119,33 @@ class GestureTeleop(Node):
             qos_profile_sensor_data
         )
         self.get_logger().info(
-            f'gesture recognizer: {self.image_topic} -> {detections_topic} (+ {overlay_topic})'
+            f'hand gesture detector: {self.image_topic} -> {detections_topic} (+ {overlay_topic})'
         )
 
     def on_cmd_vel(self, message):
-        self.linear = message.twist.linear.x
-        self.angular = message.twist.angular.z
+        self.forward_speed = message.twist.linear.x
+        self.turn_speed = message.twist.angular.z
 
     def motion_style(self):
-        if abs(self.linear) > MOTION_EPSILON:
-            if self.linear > 0.0:
-                return FORWARD_COLOR, f'▲ FORWARD  {self.linear:.1f} m/s'
-            return REVERSE_COLOR, f'▼ REVERSE  {abs(self.linear):.1f} m/s'
-        if abs(self.angular) > MOTION_EPSILON:
-            if self.angular > 0.0:
-                return TURN_COLOR, f'◀ LEFT  {self.angular:.1f} rad/s'
-            return TURN_COLOR, f'▶ RIGHT  {abs(self.angular):.1f} rad/s'
+        if abs(self.forward_speed) > MOTION_EPSILON:
+            if self.forward_speed > 0.0:
+                return FORWARD_COLOR, f'▲ FORWARD  {self.forward_speed:.1f} m/s'
+            return REVERSE_COLOR, f'▼ REVERSE  {abs(self.forward_speed):.1f} m/s'
+        if abs(self.turn_speed) > MOTION_EPSILON:
+            if self.turn_speed > 0.0:
+                return TURN_COLOR, f'◀ LEFT  {self.turn_speed:.1f} rad/s'
+            return TURN_COLOR, f'▶ RIGHT  {abs(self.turn_speed):.1f} rad/s'
         return STOP_COLOR, '■ STOP'
 
+    def on_enable(self, request, response):
+        self.is_enabled = request.data
+        response.success = True
+        response.message = 'enabled' if request.data else 'disabled'
+        return response
+
     def on_image(self, message):
+        if not self.is_enabled:
+            return
         rgb = cv2.imdecode(np.frombuffer(message.data, np.uint8), cv2.IMREAD_COLOR_RGB)
         if rgb is None:
             return
@@ -155,10 +163,17 @@ class GestureTeleop(Node):
         detections.header = message.header
         overlay = ImageAnnotations()
         height, width = rgb.shape[:2]
-        for gestures, landmarks in zip(result.gestures, result.hand_landmarks):
-            if not gestures:
+        for gestures, landmarks, handedness in zip(
+                result.gestures, result.hand_landmarks, result.handedness):
+            if gestures:
+                top_gesture = gestures[0]
+                class_id = top_gesture.category_name
+                score = float(top_gesture.score)
+            elif handedness:
+                class_id = 'Hand'
+                score = float(handedness[0].score)
+            else:
                 continue
-            top_gesture = gestures[0]
             xs = [landmark.x for landmark in landmarks]
             ys = [landmark.y for landmark in landmarks]
             x0, x1 = min(xs) * width, max(xs) * width
@@ -167,8 +182,8 @@ class GestureTeleop(Node):
             detection = Detection2D()
             detection.header = message.header
             hypothesis = ObjectHypothesisWithPose()
-            hypothesis.hypothesis.class_id = top_gesture.category_name
-            hypothesis.hypothesis.score = float(top_gesture.score)
+            hypothesis.hypothesis.class_id = class_id
+            hypothesis.hypothesis.score = score
             detection.results.append(hypothesis)
             detection.bbox.center.position.x = (x0 + x1) / 2.0
             detection.bbox.center.position.y = (y0 + y1) / 2.0
@@ -176,11 +191,13 @@ class GestureTeleop(Node):
             detection.bbox.size_y = y1 - y0
             detections.detections.append(detection)
 
-            label = f'{top_gesture.category_name} {top_gesture.score:.0%}   {motion_label}'
+            label_text = f'{class_id} {score:.0%}   {motion_label}'
             overlay.points.append(self.box(stamp, x0, y0, x1, y1, color))
-            overlay.points.append(self.bones(stamp, landmarks, width, height, color))
-            overlay.points.append(self.joints(stamp, landmarks, width, height))
-            overlay.texts.append(self.label(stamp, x0, y0, label, color))
+            overlay.points.append(
+                self.connections(stamp, landmarks, width, height, color))
+            overlay.points.append(
+                self.landmark_points(stamp, landmarks, width, height))
+            overlay.texts.append(self.label(stamp, x0, y0, label_text, color))
 
         self.detections_publisher.publish(detections)
         self.overlay_publisher.publish(overlay)
@@ -199,7 +216,7 @@ class GestureTeleop(Node):
         annotation.thickness = 3.0
         return annotation
 
-    def bones(self, stamp, landmarks, width, height, color):
+    def connections(self, stamp, landmarks, width, height, color):
         annotation = PointsAnnotation()
         annotation.timestamp = stamp
         annotation.type = PointsAnnotation.LINE_LIST
@@ -212,7 +229,7 @@ class GestureTeleop(Node):
         annotation.thickness = 2.0
         return annotation
 
-    def joints(self, stamp, landmarks, width, height):
+    def landmark_points(self, stamp, landmarks, width, height):
         annotation = PointsAnnotation()
         annotation.timestamp = stamp
         annotation.type = PointsAnnotation.POINTS
@@ -220,7 +237,7 @@ class GestureTeleop(Node):
             Point2(x=landmark.x * width, y=landmark.y * height)
             for landmark in landmarks
         ]
-        annotation.outline_color = JOINT_COLOR
+        annotation.outline_color = LANDMARK_COLOR
         annotation.thickness = 5.0
         return annotation
 
@@ -229,15 +246,15 @@ class GestureTeleop(Node):
         annotation.timestamp = stamp
         annotation.position = Point2(x=x0, y=max(y0 - LABEL_MARGIN_PIXELS, 0.0))
         annotation.text = text
-        annotation.font_size = 18.0
+        annotation.font_size = LABEL_FONT_SIZE
         annotation.text_color = color
-        annotation.background_color = LABEL_BACKGROUND_COLOR
+        annotation.background_color = TEXT_BACKGROUND_COLOR
         return annotation
 
 
 def main():
     rclpy.init()
-    node = GestureTeleop()
+    node = HandGestureDetector()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

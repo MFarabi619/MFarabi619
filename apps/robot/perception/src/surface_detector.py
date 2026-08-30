@@ -26,10 +26,13 @@ from foxglove_msgs.msg import (
 )
 import numpy as np
 import onnxruntime
+from rcl_interfaces.msg import SetParametersResult
 import rclpy
+from rclpy.duration import Duration
 from rclpy.node import Node
-from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import qos_profile_sensor_data, QoSProfile, ReliabilityPolicy
 from sensor_msgs.msg import CompressedImage
+from std_srvs.srv import SetBool
 from vision_msgs.msg import (
     BoundingBox2D,
     Detection2D,
@@ -39,20 +42,42 @@ from vision_msgs.msg import (
     Pose2D,
 )
 
-SIDEWALK_COLOR = Color(r=0.2, g=0.6, b=1.0, a=1.0)
+SURFACE_COLOR = Color(r=0.2, g=0.6, b=1.0, a=1.0)
 CENTER_COLOR = Color(r=1.0, g=0.6, b=0.1, a=1.0)
 TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 
 LABEL_MARGIN_PIXELS = 6.0
 
+LIVE_PARAMETERS = frozenset({
+    'surface_class_ids', 'min_fraction', 'min_run_width', 'roi_top_fraction',
+    'roi_bottom', 'smooth_window', 'max_saturation', 'max_value',
+})
+
+UNIT_RANGE_PARAMETERS = frozenset({
+    'max_saturation', 'max_value', 'min_fraction', 'min_run_width',
+    'roi_top_fraction', 'roi_bottom',
+})
+FIXED_PARAMETERS = frozenset({
+    'mask_source', 'model_path', 'image_topic', 'detections_topic',
+    'overlay_topic', 'class_label', 'input_size', 'inference_threads',
+    'max_detections_per_second', 'start_enabled',
+})
+
+SEGMENTATION_MASK = 'segmentation'
+BRIGHTNESS_MASK = 'brightness'
+DENOISE_KERNEL = np.ones((5, 5), np.uint8)
+MERGE_KERNEL = np.ones((15, 15), np.uint8)
+
+LATEST_IMAGE_QOS = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
+
 IMAGENET_MEAN_RGB = (123.675, 116.28, 103.53, 0.0)
 IMAGENET_RECIPROCAL_STD_RGB = (1.0 / 58.395, 1.0 / 57.12, 1.0 / 57.375, 0.0)
 
 
-class SidewalkDetector(Node):
-    def __init__(self):
-        super().__init__('sidewalk_detector')
+class SurfaceDetector(Node):
+    def __init__(self, **node_arguments):
+        super().__init__('surface_detector', **node_arguments)
         self.image_topic = self.declare_parameter(
             'image_topic', 'sensors/camera_0/color/image_raw/compressed'
         ).value
@@ -63,9 +88,9 @@ class SidewalkDetector(Node):
         model_path = self.declare_parameter(
             'model_path', 'perception/models/sidewalk-segformer-b0.onnx'
         ).value
-        self.class_label = self.declare_parameter('class_label', 'sidewalk').value
-        self.sidewalk_class_ids = self.declare_parameter(
-            'sidewalk_class_ids', [2, 3]
+        self.class_label = self.declare_parameter('class_label', 'surface').value
+        self.surface_class_ids = self.declare_parameter(
+            'surface_class_ids', [2, 3]
         ).value
         self.input_size = self.declare_parameter('input_size', 512).value
         self.roi_top_fraction = self.declare_parameter('roi_top_fraction', 0.4).value
@@ -73,16 +98,28 @@ class SidewalkDetector(Node):
         self.min_fraction = self.declare_parameter('min_fraction', 0.5).value
         self.min_run_width = self.declare_parameter('min_run_width', 0.10).value
         self.smooth_window = self.declare_parameter('smooth_window', 9).value
+        self.mask_source = self.declare_parameter(
+            'mask_source', SEGMENTATION_MASK).value
+        if self.mask_source not in (SEGMENTATION_MASK, BRIGHTNESS_MASK):
+            self.get_logger().error(
+                f'unknown mask_source {self.mask_source!r}, '
+                f'falling back to {BRIGHTNESS_MASK}')
+            self.mask_source = BRIGHTNESS_MASK
+        self.max_saturation = self.declare_parameter('max_saturation', 0.75).value
+        self.max_value = self.declare_parameter('max_value', 0.29).value
+        max_detections_per_second = self.declare_parameter(
+            'max_detections_per_second', 5.0).value
+        self.min_detection_interval = Duration(
+            seconds=1.0 / max_detections_per_second if max_detections_per_second > 0.0
+            else 0.0)
+        self.previous_detection_time = None
 
-        self.session = onnxruntime.InferenceSession(
-            model_path, providers=['CPUExecutionProvider'])
-        self.input_name = self.session.get_inputs()[0].name
-        self.blob_params = cv2.dnn.Image2BlobParams()
-        self.blob_params.size = (self.input_size, self.input_size)
-        self.blob_params.swapRB = True
-        self.blob_params.mean = IMAGENET_MEAN_RGB
-        self.blob_params.scalefactor = IMAGENET_RECIPROCAL_STD_RGB
-        self.blob_params.ddepth = cv2.CV_32F
+        inference_threads = self.declare_parameter('inference_threads', 2).value
+        self.is_enabled = self.declare_parameter('start_enabled', False).value
+
+        self.session = None
+        if self.mask_source == SEGMENTATION_MASK:
+            self.session = self.build_session(model_path, inference_threads)
 
         self.detections_publisher = self.create_publisher(
             Detection2DArray, detections_topic, qos_profile_sensor_data
@@ -90,13 +127,72 @@ class SidewalkDetector(Node):
         self.overlay_publisher = self.create_publisher(
             ImageAnnotations, overlay_topic, qos_profile_sensor_data
         )
+        self.create_service(SetBool, '~/enable', self.on_enable)
+        self.add_on_set_parameters_callback(self.validate_parameters)
+        self.add_post_set_parameters_callback(self.on_parameters_set)
         self.create_subscription(
-            CompressedImage, self.image_topic, self.on_image, qos_profile_sensor_data
+            CompressedImage, self.image_topic, self.on_image, LATEST_IMAGE_QOS
         )
         self.get_logger().info(
-            f'sidewalk detector {model_path}: {self.image_topic}')
+            f'{self.mask_source} detector: {self.image_topic}')
+
+    def build_session(self, model_path, inference_threads):
+        session_options = onnxruntime.SessionOptions()
+        session_options.intra_op_num_threads = inference_threads
+        session_options.add_session_config_entry('session.intra_op.allow_spinning', '0')
+        session = onnxruntime.InferenceSession(
+            model_path, session_options, providers=['CPUExecutionProvider'])
+        self.input_name = session.get_inputs()[0].name
+        self.blob_params = cv2.dnn.Image2BlobParams()
+        self.blob_params.size = (self.input_size, self.input_size)
+        self.blob_params.swapRB = True
+        self.blob_params.mean = IMAGENET_MEAN_RGB
+        self.blob_params.scalefactor = IMAGENET_RECIPROCAL_STD_RGB
+        self.blob_params.ddepth = cv2.CV_32F
+        return session
+
+    def validate_parameters(self, parameters):
+        for parameter in parameters:
+            if parameter.name in FIXED_PARAMETERS:
+                return SetParametersResult(
+                    successful=False,
+                    reason=f'{parameter.name} is fixed at launch')
+            if parameter.name == 'smooth_window' and parameter.value < 1:
+                return SetParametersResult(
+                    successful=False, reason='smooth_window must be at least 1')
+            if parameter.name in UNIT_RANGE_PARAMETERS and not (
+                    0.0 <= parameter.value <= 1.0):
+                return SetParametersResult(
+                    successful=False,
+                    reason=f'{parameter.name} must be between 0 and 1')
+        return SetParametersResult(successful=True)
+
+    def on_parameters_set(self, parameters):
+        for parameter in parameters:
+            if parameter.name in LIVE_PARAMETERS:
+                setattr(self, parameter.name, parameter.value)
+
+    def on_enable(self, request, response):
+        self.is_enabled = request.data
+        self.previous_detection_time = None
+        response.success = True
+        response.message = 'enabled' if request.data else 'disabled'
+        return response
+
+    def claim_detection_slot(self):
+        if not self.is_enabled:
+            return False
+        now = self.get_clock().now()
+        if (self.previous_detection_time is not None
+                and now - self.previous_detection_time < self.min_detection_interval):
+            return False
+        self.previous_detection_time = now
+        return True
 
     def on_image(self, message):
+        if not self.claim_detection_slot():
+            return
+
         bgr = cv2.imdecode(np.frombuffer(message.data, np.uint8), cv2.IMREAD_COLOR)
         if bgr is None:
             return
@@ -104,7 +200,7 @@ class SidewalkDetector(Node):
         top = int(height * self.roi_top_fraction)
         bottom = int(height * self.roi_bottom)
 
-        mask = self.sidewalk_mask(bgr)
+        mask = self.surface_mask(bgr)
         fraction = self.column_fraction(mask[top:bottom])
         above_threshold = fraction >= self.min_fraction
         runs = [
@@ -131,12 +227,26 @@ class SidewalkDetector(Node):
         self.detections_publisher.publish(detections)
         self.overlay_publisher.publish(overlay)
 
-    def sidewalk_mask(self, bgr):
+    def surface_mask(self, bgr):
+        if self.mask_source == BRIGHTNESS_MASK:
+            return self.brightness_mask(bgr)
+        return self.segmentation_mask(bgr)
+
+    def brightness_mask(self, bgr):
+        hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(
+            hsv, (0, 0, 0),
+            (180, self.max_saturation * 255.0, self.max_value * 255.0))
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, DENOISE_KERNEL)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, MERGE_KERNEL)
+        return (mask > 0).astype(np.uint8)
+
+    def segmentation_mask(self, bgr):
         height, width = bgr.shape[:2]
         batch = cv2.dnn.blobFromImageWithParams(bgr, self.blob_params)
         logits = self.session.run(None, {self.input_name: batch})[0]
         classes = logits[0].argmax(axis=0).astype(np.uint8)
-        mask = np.isin(classes, self.sidewalk_class_ids).astype(np.uint8)
+        mask = np.isin(classes, self.surface_class_ids).astype(np.uint8)
         return cv2.resize(mask, (width, height), interpolation=cv2.INTER_NEAREST)
 
     def column_fraction(self, mask_band):
@@ -173,7 +283,7 @@ class SidewalkDetector(Node):
             Point2(x=x0, y=float(bottom - 1)),
         ]
         is_center = run == center_run
-        annotation.outline_color = CENTER_COLOR if is_center else SIDEWALK_COLOR
+        annotation.outline_color = CENTER_COLOR if is_center else SURFACE_COLOR
         annotation.thickness = 3.0 if is_center else 2.0
         return annotation
 
@@ -191,7 +301,7 @@ class SidewalkDetector(Node):
 
 def main():
     rclpy.init()
-    node = SidewalkDetector()
+    node = SurfaceDetector()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

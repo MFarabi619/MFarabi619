@@ -28,6 +28,7 @@ def follow(standoff_distance: float = 1.5, max_missing_frames: int = 8):
         package='robot_perception',
         executable='green_detector',
         name='green_detector',
+        params={'start_enabled': True},
         remaps={'detections': OPERATOR_TOPIC},
     )
     bl.node(

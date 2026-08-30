@@ -32,6 +32,7 @@ from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import CameraInfo, CompressedImage, Image
+from std_srvs.srv import SetBool
 from vision_msgs.msg import (
     BoundingBox2D,
     Detection2D,
@@ -51,7 +52,7 @@ BRACKET_FRACTION = 0.25
 MILLIMETERS_PER_METER = 1000.0
 NANOSECONDS_PER_SECOND = 1e9
 DEPTH_ENCODING = '16UC1'
-BYTES_PER_DEPTH_PIXEL = 2
+BYTES_PER_MILLIMETER_DEPTH_PIXEL = 2
 LIVE_PARAMETERS = frozenset({
     'hue_min', 'hue_max', 'min_saturation', 'min_value', 'min_blob_area', 'max_range',
 })
@@ -81,9 +82,10 @@ class GreenDetector(Node):
         self.min_blob_area = self.declare_parameter('min_blob_area', 500).value
         self.max_range = self.declare_parameter('max_range', 4.0).value
         self.depth_sample_radius = self.declare_parameter('depth_sample_radius', 4).value
-        self.depth_timeout = self.declare_parameter('depth_timeout', 0.5).value
+        self.depth_timeout_seconds = self.declare_parameter(
+            'depth_timeout_seconds', 0.5).value
 
-        self.latest_depth = None
+        self.latest_depth_millimeters = None
         self.latest_depth_time = None
         self.camera_model = None
         self.depth_frame_id = ''
@@ -92,6 +94,8 @@ class GreenDetector(Node):
             Detection2DArray, detections_topic, qos_profile_sensor_data
         )
         self.overlay_publisher = self.create_publisher(ImageAnnotations, overlay_topic, 10)
+        self.is_enabled = self.declare_parameter('start_enabled', False).value
+        self.create_service(SetBool, '~/enable', self.on_enable)
         self.add_post_set_parameters_callback(self.on_parameters_set)
         self.create_subscription(
             CameraInfo, self.depth_camera_info_topic, self.on_depth_camera_info,
@@ -119,14 +123,22 @@ class GreenDetector(Node):
             )
             return
         depth = np.frombuffer(message.data, np.uint16).reshape(
-            message.height, message.step // BYTES_PER_DEPTH_PIXEL
+            message.height, message.step // BYTES_PER_MILLIMETER_DEPTH_PIXEL
         )[:, :message.width]
         if message.is_bigendian:
             depth = depth.byteswap()
-        self.latest_depth = depth
+        self.latest_depth_millimeters = depth
         self.latest_depth_time = self.get_clock().now()
 
+    def on_enable(self, request, response):
+        self.is_enabled = request.data
+        response.success = True
+        response.message = 'enabled' if request.data else 'disabled'
+        return response
+
     def on_image(self, message):
+        if not self.is_enabled:
+            return
         bgr = cv2.imdecode(np.frombuffer(message.data, np.uint8), cv2.IMREAD_COLOR)
         if bgr is None:
             return
@@ -168,14 +180,14 @@ class GreenDetector(Node):
         return blobs
 
     def bounding_box_range(self, bounding_box, color_width, color_height):
-        if self.latest_depth is None or self.depth_is_stale():
+        if self.latest_depth_millimeters is None or self.depth_is_stale():
             return None, None
         x, y, w, h = bounding_box
-        depth_height, depth_width = self.latest_depth.shape[:2]
+        depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
         depth_x = int((x + w / 2.0) / color_width * depth_width)
         depth_y = int((y + h / 2.0) / color_height * depth_height)
         radius = self.depth_sample_radius
-        depth_patch = self.latest_depth[
+        depth_patch = self.latest_depth_millimeters[
             max(depth_y - radius, 0):depth_y + radius + 1,
             max(depth_x - radius, 0):depth_x + radius + 1,
         ]
@@ -199,7 +211,7 @@ class GreenDetector(Node):
         if self.latest_depth_time is None:
             return True
         age = self.get_clock().now() - self.latest_depth_time
-        return age > Duration(seconds=self.depth_timeout)
+        return age > Duration(seconds=self.depth_timeout_seconds)
 
     def detection(self, stamp, bounding_box, fill, point):
         x, y, w, h = bounding_box

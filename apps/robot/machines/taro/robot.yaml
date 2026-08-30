@@ -25,7 +25,7 @@ sensors:
   camera:
     - model: orbbec_gemini_335l
       parent: base_link
-      xyz: [0.53, 0.475, 0.566]
+      xyz: [0.53, 0.475, 0.469]
       rpy: [0.0, 0.0, 0.0]
       ros_parameters:
         camera_0:
@@ -42,3 +42,27 @@ sensors:
   gps: []
 mounts:
   camera_mount: []
+depth_cloud:
+  enabled: false
+detector:
+  max_detections_per_second: 10.0
+follow_nav2:
+  enabled: false
+hand_gesture:
+  enabled: false
+harvest_lane:
+  enabled: true
+  detector:
+    normalize_exposure: true
+    normalized_green_min: 0.06
+  navigator:
+    row_pitch_m: 1.17
+    forward_speed_mps: 0.3
+    max_forward_speed_mps: 0.5
+    max_angular_speed_radps: 0.55
+sidewalk:
+  enabled: false
+  follow:
+    forward_speed: 0.4
+    steer_gain: 1.2
+    max_angular_speed: 0.8

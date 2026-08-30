@@ -41,6 +41,7 @@ def line_follow(robot: str = 'jiro', target_offset: float = 0.0):
             'min_aspect_ratio': 0.0,
             'min_area': 800,
             'roi_top_fraction': 0.55,
+            'start_enabled': True,
         },
         remaps={
             'detections': line_topic,

@@ -27,14 +27,20 @@ ROUTER_CONFIG_OVERRIDE = (
 CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ZENOH_ROUTER_PORT}"]'
 
 
+def router_is_listening():
+    try:
+        socket.create_connection(
+            ('127.0.0.1', ZENOH_ROUTER_PORT), timeout=0.2).close()
+        return True
+    except OSError:
+        return False
+
+
 def wait_for_router(attempts=50):
     for _ in range(attempts):
-        try:
-            socket.create_connection(
-                ('127.0.0.1', ZENOH_ROUTER_PORT), timeout=0.2).close()
+        if router_is_listening():
             return
-        except OSError:
-            time.sleep(0.2)
+        time.sleep(0.2)
 
 
 @launch_this
@@ -44,14 +50,24 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
         'webcam': '/image',
         'robot': f'/{robot}/sensors/camera_0/color/image_raw/compressed',
     }
-    bl.process(
-        'ros2 run rmw_zenoh_cpp rmw_zenohd',
-        name='zenoh_router',
-        env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
-    wait_for_router()
+    if not router_is_listening():
+        bl.process(
+            'ros2 run rmw_zenoh_cpp rmw_zenohd',
+            name='zenoh_router',
+            env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
+            max_respawns=-1,
+            respawn_delay=2.0,
+        )
+        wait_for_router()
+    if gesture_camera == 'webcam':
+        bl.node(
+            package='robot_drivers',
+            executable='usb_webcam',
+            name='usb_webcam',
+            env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+            max_respawns=-1,
+            respawn_delay=2.0,
+        )
     bl.node(
         package='foxglove_bridge',
         executable='foxglove_bridge',
@@ -67,15 +83,18 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
     )
     bl.node(
         package='robot_perception',
-        executable='gesture_teleop',
-        name='gesture_teleop',
-        params={'image_topic': gesture_camera_topics[gesture_camera]},
+        executable='hand_gesture_detector',
+        name='hand_gesture_detector',
+        params={
+            'image_topic': gesture_camera_topics[gesture_camera],
+            'start_enabled': True,
+        },
         env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
     )
     bl.node(
         package='robot_perception',
-        executable='gesture_to_cmd_vel',
-        name='gesture_to_cmd_vel',
+        executable='hand_gesture_teleop',
+        name='hand_gesture_teleop',
         remaps={'/joy_teleop/cmd_vel': f'/{robot}/joy_teleop/cmd_vel'},
         env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
     )

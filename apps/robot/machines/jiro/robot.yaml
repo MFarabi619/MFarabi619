@@ -8,6 +8,7 @@ system:
       board: rpi_5
 platform:
   attachments: []
+  collision_guarded: false
   drivetrain:
     model: pwm_dir
     pwm_frequency_hz: 20000.0
@@ -23,13 +24,15 @@ platform:
 sensors:
   camera:
     - model: oak_d_pro_w_poe
+      detects_on_camera: false
       parent: base_link
       xyz: [0.35, 0.0, 0.36]
       rpy: [0.0, 0.0, 0.0]
       ros_parameters:
         camera_0:
           ip: 169.254.1.222
-          fps: 30.0
+          depth_fps: 30.0
+          color_fps: 60.0
           color_resolution_divisor: 2
           depth_resolution_divisor: 4
     # - model: oak_d_sr
@@ -39,7 +42,43 @@ sensors:
     #   ros_parameters:
     #     camera_0: {}
 
+foxglove:
+  enabled: false
+detector:
+  max_detections_per_second: 30.0
+  model_path: perception/models/ssd_mobilenet_v1_12_int8.onnx
 follow:
-  max_forward_speed: 0.8
-  max_backward_speed: 0.8
-  max_angular_speed: 2.0
+  max_forward_speed: 2.0
+  max_backward_speed: 1.5
+  max_angular_speed: 5.0
+  distance_gain: 2.0
+  distance_deadband: 0.25
+  steer_gain: 2.0
+hand_gesture:
+  enabled: false
+line:
+  enabled: true
+  follow:
+    image_width: 640
+sidewalk:
+  enabled: true
+  follow:
+    forward_speed: 0.5
+    steer_gain: 1.5
+    max_angular_speed: 1.5
+park_path:
+  enabled: true
+  detector:
+    roi_top_fraction: 0.6
+    min_fraction: 0.95
+  follow:
+    forward_speed: 0.9
+    steer_gain: 1.5
+    max_angular_speed: 1.5
+path:
+  enabled: true
+  follow:
+    forward_speed: 0.9
+    steer_gain: 1.5
+    max_angular_speed: 1.5
+    lateral_offset_m: 0.35

@@ -36,6 +36,7 @@ from rclpy.qos import (
     qos_profile_sensor_data,
 )
 from sensor_msgs.msg import CameraInfo, CompressedImage, Image
+from std_srvs.srv import SetBool
 from vision_msgs.msg import (
     BoundingBox2D,
     Detection2D,
@@ -60,7 +61,7 @@ BYTES_PER_MILLIMETER_DEPTH_PIXEL = 2
 BYTES_PER_METER_DEPTH_PIXEL = 4
 LIVE_PARAMETERS = frozenset({
     'hue_min', 'hue_max', 'min_saturation', 'max_saturation', 'min_value',
-    'min_area', 'min_triangularity', 'min_aspect_ratio',
+    'max_value', 'min_area', 'min_triangularity', 'min_aspect_ratio',
     'fallback_range', 'max_fallback_box_fraction', 'roi_top_fraction',
 })
 
@@ -82,23 +83,26 @@ class ColorBlobDetector(Node):
             'overlay_topic', 'perception/vision/overlay'
         ).value
         self.class_label = self.declare_parameter('class_label', 'blob').value
+        self.is_enabled = self.declare_parameter('start_enabled', False).value
         self.hue_min = self.declare_parameter('hue_min', 5.0).value
         self.hue_max = self.declare_parameter('hue_max', 22.0).value
         self.min_saturation = self.declare_parameter('min_saturation', 0.5).value
         self.max_saturation = self.declare_parameter('max_saturation', 1.0).value
         self.min_value = self.declare_parameter('min_value', 0.35).value
+        self.max_value = self.declare_parameter('max_value', 1.0).value
         self.min_area = self.declare_parameter('min_area', 400).value
         self.min_triangularity = self.declare_parameter('min_triangularity', 0.6).value
         self.min_aspect_ratio = self.declare_parameter('min_aspect_ratio', 1.0).value
         self.depth_sample_radius = self.declare_parameter('depth_sample_radius', 4).value
-        self.depth_timeout = self.declare_parameter('depth_timeout', 0.5).value
+        self.depth_timeout_seconds = self.declare_parameter(
+            'depth_timeout_seconds', 0.5).value
         self.fallback_range = self.declare_parameter('fallback_range', 0.0).value
         self.max_fallback_box_fraction = self.declare_parameter(
             'max_fallback_box_fraction', 0.25
         ).value
         self.roi_top_fraction = self.declare_parameter('roi_top_fraction', 0.0).value
 
-        self.latest_depth = None
+        self.latest_depth_millimeters = None
         self.latest_depth_time = None
         self.camera_model = None
         self.depth_frame_id = ''
@@ -108,6 +112,7 @@ class ColorBlobDetector(Node):
         )
         self.overlay_publisher = self.create_publisher(ImageAnnotations, overlay_topic, 10)
         self.add_post_set_parameters_callback(self.on_parameters_set)
+        self.create_service(SetBool, '~/enable', self.on_enable)
         self.create_subscription(
             CameraInfo, self.depth_camera_info_topic, self.on_depth_camera_info,
             qos_profile_sensor_data
@@ -150,10 +155,18 @@ class ColorBlobDetector(Node):
                 throttle_duration_sec=5.0,
             )
             return
-        self.latest_depth = depth
+        self.latest_depth_millimeters = depth
         self.latest_depth_time = self.get_clock().now()
 
+    def on_enable(self, request, response):
+        self.is_enabled = request.data
+        response.success = True
+        response.message = 'enabled' if request.data else 'disabled'
+        return response
+
     def on_image(self, message):
+        if not self.is_enabled:
+            return
         bgr = cv2.imdecode(np.frombuffer(message.data, np.uint8), cv2.IMREAD_COLOR)
         if bgr is None:
             return
@@ -178,7 +191,7 @@ class ColorBlobDetector(Node):
         mask = cv2.inRange(
             hsv,
             (self.hue_min, self.min_saturation * 255.0, self.min_value * 255.0),
-            (self.hue_max, self.max_saturation * 255.0, 255.0),
+            (self.hue_max, self.max_saturation * 255.0, self.max_value * 255.0),
         )
         mask[:int(self.roi_top_fraction * mask.shape[0])] = 0
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, DENOISE_KERNEL)
@@ -204,14 +217,14 @@ class ColorBlobDetector(Node):
         return blobs
 
     def bounding_box_range(self, bounding_box, color_width, color_height):
-        if self.latest_depth is None or self.depth_is_stale():
+        if self.latest_depth_millimeters is None or self.depth_is_stale():
             return None, None
         x, y, w, h = bounding_box
-        depth_height, depth_width = self.latest_depth.shape[:2]
+        depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
         depth_x = int((x + w / 2.0) / color_width * depth_width)
         depth_y = int((y + h / 2.0) / color_height * depth_height)
         radius = self.depth_sample_radius
-        depth_patch = self.latest_depth[
+        depth_patch = self.latest_depth_millimeters[
             max(depth_y - radius, 0):depth_y + radius + 1,
             max(depth_x - radius, 0):depth_x + radius + 1,
         ]
@@ -245,7 +258,7 @@ class ColorBlobDetector(Node):
         if self.latest_depth_time is None:
             return True
         age = self.get_clock().now() - self.latest_depth_time
-        return age > Duration(seconds=self.depth_timeout)
+        return age > Duration(seconds=self.depth_timeout_seconds)
 
     def detection(self, stamp, bounding_box, triangularity, point):
         x, y, w, h = bounding_box

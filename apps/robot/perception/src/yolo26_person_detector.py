@@ -36,6 +36,7 @@ from rclpy.qos import (
     qos_profile_sensor_data,
 )
 from sensor_msgs.msg import CameraInfo, CompressedImage, Image
+from std_srvs.srv import SetBool
 from ultralytics import YOLO
 from vision_msgs.msg import (
     BoundingBox2D,
@@ -82,14 +83,15 @@ class PersonDetector(Node):
         self.person_class_id = self.declare_parameter('person_class_id', 0).value
         self.min_score = self.declare_parameter('min_score', 0.5).value
         self.depth_sample_radius = self.declare_parameter('depth_sample_radius', 4).value
-        self.depth_timeout = self.declare_parameter('depth_timeout', 0.5).value
+        self.depth_timeout_seconds = self.declare_parameter(
+            'depth_timeout_seconds', 0.5).value
         self.device = self.declare_parameter('device', 'mps').value
         self.tracker_config = self.declare_parameter(
             'tracker_config', 'perception/config/person_tracker.yaml').value
 
         self.model = YOLO(model_path)
 
-        self.latest_depth = None
+        self.latest_depth_millimeters = None
         self.latest_depth_time = None
         self.camera_model = None
         self.depth_frame_id = ''
@@ -98,18 +100,20 @@ class PersonDetector(Node):
             Detection2DArray, detections_topic, qos_profile_sensor_data
         )
         self.overlay_publisher = self.create_publisher(ImageAnnotations, overlay_topic, 10)
+        self.is_enabled = self.declare_parameter('start_enabled', False).value
+        self.create_service(SetBool, '~/enable', self.on_enable)
         self.add_post_set_parameters_callback(self.on_parameters_set)
         self.create_subscription(
             CameraInfo, self.depth_camera_info_topic, self.on_depth_camera_info,
             qos_profile_sensor_data
         )
-        freshest_frame_qos = QoSProfile(
+        freshest_frame = QoSProfile(
             depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
         self.create_subscription(
-            Image, self.depth_topic, self.on_depth, freshest_frame_qos
+            Image, self.depth_topic, self.on_depth, freshest_frame
         )
         self.create_subscription(
-            CompressedImage, self.image_topic, self.on_image, freshest_frame_qos
+            CompressedImage, self.image_topic, self.on_image, freshest_frame
         )
         self.get_logger().info(
             f'{self.class_label} detector {model_path}: {self.image_topic}')
@@ -141,10 +145,18 @@ class PersonDetector(Node):
                 throttle_duration_sec=5.0,
             )
             return
-        self.latest_depth = depth
+        self.latest_depth_millimeters = depth
         self.latest_depth_time = self.get_clock().now()
 
+    def on_enable(self, request, response):
+        self.is_enabled = request.data
+        response.success = True
+        response.message = 'enabled' if request.data else 'disabled'
+        return response
+
     def on_image(self, message):
+        if not self.is_enabled:
+            return
         bgr = cv2.imdecode(np.frombuffer(message.data, np.uint8), cv2.IMREAD_COLOR)
         if bgr is None:
             return
@@ -169,14 +181,14 @@ class PersonDetector(Node):
         self.overlay_publisher.publish(overlay)
 
     def bounding_box_range(self, box):
-        if self.latest_depth is None or self.depth_is_stale():
+        if self.latest_depth_millimeters is None or self.depth_is_stale():
             return None, None
         center_x_fraction, center_y_fraction = box.xywhn[0].tolist()[:2]
-        depth_height, depth_width = self.latest_depth.shape[:2]
+        depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
         depth_x = int(center_x_fraction * depth_width)
         depth_y = int(center_y_fraction * depth_height)
         radius = self.depth_sample_radius
-        depth_patch = self.latest_depth[
+        depth_patch = self.latest_depth_millimeters[
             max(depth_y - radius, 0):depth_y + radius + 1,
             max(depth_x - radius, 0):depth_x + radius + 1,
         ]
@@ -200,7 +212,7 @@ class PersonDetector(Node):
         if self.latest_depth_time is None:
             return True
         age = self.get_clock().now() - self.latest_depth_time
-        return age > Duration(seconds=self.depth_timeout)
+        return age > Duration(seconds=self.depth_timeout_seconds)
 
     def detection(self, stamp, box, score, point, track_id):
         center_x, center_y, box_width, box_height = box.xywh[0].tolist()

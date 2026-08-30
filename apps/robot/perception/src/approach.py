@@ -17,6 +17,7 @@
 
 
 import math
+from typing import NamedTuple
 
 from builtin_interfaces.msg import Duration
 from foxglove_msgs.msg import (
@@ -31,28 +32,41 @@ from foxglove_msgs.msg import (
 from geometry_msgs.msg import Point, Pose, Quaternion, TwistStamped, Vector3
 import numpy as np
 import rclpy
+from rclpy.duration import Duration as ClockDuration
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from std_srvs.srv import SetBool
 from vision_msgs.msg import Detection2DArray, Detection3DArray
 
+TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
+TARGET_COLOR = Color(r=1.0, g=0.5, b=0.0, a=0.35)
 STANDOFF_COLOR = Color(r=0.1, g=0.9, b=1.0, a=0.8)
 VELOCITY_COLOR = Color(r=0.2, g=1.0, b=0.4, a=1.0)
-TARGET_COLOR = Color(r=1.0, g=0.5, b=0.0, a=0.35)
-TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 
-IDENTITY_ORIENTATION = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
-SCENE_LIFETIME = Duration(sec=0, nanosec=500000000)
-TARGET_MARKER_DIAMETER_M = 0.15
 RING_SEGMENTS = 48
+CONTROL_PERIOD_S = 0.05
+MINIMUM_TARGET_TIMEOUT_S = 0.2
+MAX_MEASUREMENT_INTERVAL_S = 0.3
+
+TARGET_MARKER_DIAMETER_M = 0.15
+SCENE_LIFETIME = Duration(sec=0, nanosec=500000000)
+IDENTITY_ORIENTATION = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
+
 LIVE_PARAMETERS = frozenset({
+    'target_timeout_seconds',
     'standoff_distance', 'distance_gain', 'max_forward_speed',
     'steer_gain', 'max_angular_speed', 'max_missing_frames',
     'target_class', 'command_smoothing_seconds', 'distance_deadband',
     'steer_deadband', 'distance_damping', 'steer_damping',
     'max_backward_speed',
 })
-MAX_MEASUREMENT_INTERVAL_S = 0.3
+
+def finite_or(value, fallback):
+    return value if math.isfinite(value) else fallback
+
+class DriveCommand(NamedTuple):
+    forward_speed: float
+    angular_speed: float
 REACQUIRE_ANGULAR_DECAY = 0.85
 TARGET_MATCH_RADIUS_M = 0.6
 NEARER_TAKEOVER_MARGIN_M = 0.4
@@ -84,6 +98,10 @@ class Approach(Node):
         self.max_backward_speed = self.declare_parameter('max_backward_speed', 0.0).value
 
         self.is_enabled = self.declare_parameter('start_enabled', False).value
+        self.target_timeout_seconds = self.declare_parameter(
+            'target_timeout_seconds', 1.0).value
+        self.latest_command = None
+        self.latest_detection_time = None
         self.missing_frames = 0
         self.last_angular_speed = 0.0
         self.smoothed_forward_speed = 0.0
@@ -98,6 +116,7 @@ class Approach(Node):
         )
         self.scene_publisher = self.create_publisher(SceneUpdate, scene_topic, 10)
         self.add_post_set_parameters_callback(self.on_parameters_set)
+        self.create_timer(CONTROL_PERIOD_S, self.on_control_period)
         self.create_service(SetBool, '~/enable', self.on_enable)
         self.create_subscription(
             Detection2DArray, detections_topic, self.on_detections, qos_profile_sensor_data
@@ -109,6 +128,7 @@ class Approach(Node):
         self.get_logger().info(f'approach: {detections_topic} -> {cmd_vel_topic}')
 
     def on_detections(self, message):
+        self.latest_detection_time = self.get_clock().now()
         target = self.select_target(self.candidate_points(message.detections))
         if target is None:
             self.missing_frames += 1
@@ -120,7 +140,7 @@ class Approach(Node):
                 self.tracked_position = None
                 angular_speed = 0.0
             self.previous_stamp_s = None
-            self.drive(0.0, angular_speed)
+            self.latest_command = DriveCommand(0.0, angular_speed)
             self.publish_scene(message.header.stamp, message.header.frame_id, None, 0.0)
             return
         self.missing_frames = 0
@@ -141,8 +161,31 @@ class Approach(Node):
         self.last_angular_speed = float(np.clip(
             -(self.steer_gain * offset + self.steer_damping * offset_rate),
             -self.max_angular_speed, self.max_angular_speed))
-        self.drive(forward_speed, self.last_angular_speed)
+        self.latest_command = DriveCommand(forward_speed, self.last_angular_speed)
         self.publish_scene(message.header.stamp, message.header.frame_id, target, forward_speed)
+
+    def on_control_period(self):
+        if not self.is_enabled or self.latest_command is None:
+            return
+        if self.detections_are_stale():
+            self.halt()
+            return
+        self.drive(self.latest_command.forward_speed, self.latest_command.angular_speed)
+
+    def detections_are_stale(self):
+        if self.latest_detection_time is None:
+            return True
+        timeout = ClockDuration(seconds=max(
+            finite_or(self.target_timeout_seconds, MINIMUM_TARGET_TIMEOUT_S),
+            MINIMUM_TARGET_TIMEOUT_S))
+        return self.get_clock().now() - self.latest_detection_time > timeout
+
+    def halt(self):
+        self.last_angular_speed = 0.0
+        self.smoothed_forward_speed = 0.0
+        self.smoothed_angular_speed = 0.0
+        self.previous_drive_time_s = None
+        self.publish_twist(0.0, 0.0)
 
     def candidate_points(self, detections):
         points = []
@@ -201,27 +244,34 @@ class Approach(Node):
         return 1.0 - math.exp(-(now_s - previous_s) / self.command_smoothing_seconds)
 
     def drive(self, forward_speed, angular_speed):
-        if not self.is_enabled:
-            return
         fraction = self.claim_smoothing_fraction()
         self.smoothed_forward_speed += fraction * (
-            forward_speed - self.smoothed_forward_speed)
+            finite_or(forward_speed, 0.0) - self.smoothed_forward_speed)
         self.smoothed_angular_speed += fraction * (
-            angular_speed - self.smoothed_angular_speed)
+            finite_or(angular_speed, 0.0) - self.smoothed_angular_speed)
+        self.publish_twist(self.smoothed_forward_speed, self.smoothed_angular_speed)
+
+    def publish_twist(self, forward_speed, angular_speed):
+        max_forward_speed = max(finite_or(self.max_forward_speed, 0.0), 0.0)
+        max_backward_speed = max(finite_or(self.max_backward_speed, 0.0), 0.0)
+        max_angular_speed = abs(finite_or(self.max_angular_speed, 0.0))
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(self.smoothed_forward_speed)
-        message.twist.angular.z = float(
-            np.clip(
-                self.smoothed_angular_speed,
-                -self.max_angular_speed, self.max_angular_speed,
-            )
-        )
+        message.twist.linear.x = float(np.clip(
+            finite_or(forward_speed, 0.0), -max_backward_speed, max_forward_speed))
+        message.twist.angular.z = float(np.clip(
+            finite_or(angular_speed, 0.0), -max_angular_speed, max_angular_speed))
         self.cmd_vel_publisher.publish(message)
 
     def on_enable(self, request, response):
         self.is_enabled = request.data
+        self.latest_command = None
+        self.latest_detection_time = None
+        self.missing_frames = 0
+        self.tracked_position = None
+        if not request.data:
+            self.halt()
         response.success = True
         response.message = 'enabled' if request.data else 'disabled'
         return response
@@ -305,9 +355,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        node.smoothed_forward_speed = 0.0
-        node.smoothed_angular_speed = 0.0
-        node.drive(0.0, 0.0)
+        node.halt()
         node.destroy_node()
         rclpy.shutdown()
 

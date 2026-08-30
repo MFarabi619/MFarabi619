@@ -19,15 +19,18 @@
 from better_launch import BetterLaunch, launch_this
 
 @launch_this
-def sidewalk_follow(robot: str = 'taro', target_offset: float = 0.0):
+def sidewalk_follow(robot: str = 'taro', lateral_offset_m: float = 0.0):
     bl = BetterLaunch()
     camera_namespace = f'/{robot}/sensors/camera_0'
     sidewalk_topic = f'/{robot}/perception/sidewalk'
     bl.node(
         package='robot_perception',
-        executable='sidewalk_detector',
+        executable='surface_detector',
         name='sidewalk_detector',
-        params={'image_topic': f'{camera_namespace}/color/image_raw/compressed'},
+        params={
+            'image_topic': f'{camera_namespace}/color/image_raw/compressed',
+            'start_enabled': True,
+        },
         remaps={
             'detections': sidewalk_topic,
             'perception/vision/overlay': f'/{robot}/perception/sidewalk/overlay',
@@ -35,9 +38,13 @@ def sidewalk_follow(robot: str = 'taro', target_offset: float = 0.0):
     )
     bl.node(
         package='robot_perception',
-        executable='row_follow',
+        executable='surface_follow',
         name='sidewalk_follow',
-        params={'target_offset': target_offset, 'image_width': 640},
+        params={
+            'lateral_offset_m': lateral_offset_m,
+            'camera_info_topic': f'{camera_namespace}/color/camera_info',
+            'start_enabled': True,
+        },
         remaps={
             'detections': sidewalk_topic,
             'cmd_vel': f'/{robot}/cmd_vel',

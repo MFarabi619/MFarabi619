@@ -52,7 +52,8 @@ BYTES_PER_DEPTH_PIXEL = 2
 
 
 def build_pipeline(
-        fps, jpeg_quality, color_resolution_divisor, depth_resolution_divisor):
+        depth_fps, color_fps, jpeg_quality, color_resolution_divisor,
+        depth_resolution_divisor):
     pipeline = dai.Pipeline()
     color = pipeline.create(dai.node.ColorCamera)
     left = pipeline.create(dai.node.MonoCamera)
@@ -72,12 +73,12 @@ def build_pipeline(
     points_output.setFpsLimit(POINTCLOUD_RATE_HZ)
     color.setResolution(dai.ColorCameraProperties.SensorResolution.THE_800_P)
     color.setCamera('color')
-    color.setFps(fps)
+    color.setFps(color_fps)
     color.setIspScale(1, color_resolution_divisor)
     for camera, socket in ((left, 'left'), (right, 'right')):
         camera.setResolution(dai.MonoCameraProperties.SensorResolution.THE_800_P)
         camera.setCamera(socket)
-        camera.setFps(fps)
+        camera.setFps(depth_fps)
     stereo.setDefaultProfilePreset(
         dai.node.StereoDepth.PresetMode.DEFAULT)
     stereo.initialConfig.setMedianFilter(dai.MedianFilter.KERNEL_7x7)
@@ -89,7 +90,7 @@ def build_pipeline(
         SENSOR_WIDTH // depth_resolution_divisor,
         SENSOR_HEIGHT // depth_resolution_divisor)
     color_encoder.setDefaultProfilePreset(
-        fps, dai.VideoEncoderProperties.Profile.MJPEG)
+        color_fps, dai.VideoEncoderProperties.Profile.MJPEG)
     color_encoder.setQuality(jpeg_quality)
     imu.enableIMUSensor(
         [dai.IMUSensor.ACCELEROMETER_RAW, dai.IMUSensor.GYROSCOPE_RAW],
@@ -112,7 +113,8 @@ class OakDProWPoe(Node):
     def __init__(self):
         super().__init__('oak_d_pro_w_poe')
         self.declare_parameter('ip', '')
-        self.declare_parameter('fps', 15.0)
+        self.declare_parameter('depth_fps', 15.0)
+        self.declare_parameter('color_fps', 0.0)
         self.declare_parameter('jpeg_quality', 60)
         self.declare_parameter('frame_id', 'camera_0_link')
         self.declare_parameter('color_resolution_divisor', 2)
@@ -129,8 +131,10 @@ class OakDProWPoe(Node):
         self.color_height = SENSOR_HEIGHT // color_resolution_divisor
         self.depth_width = SENSOR_WIDTH // depth_resolution_divisor
         self.depth_height = SENSOR_HEIGHT // depth_resolution_divisor
+        depth_fps = self.get_parameter('depth_fps').value
+        color_fps = self.get_parameter('color_fps').value or depth_fps
         self.pipeline = build_pipeline(
-            self.get_parameter('fps').value, self.jpeg_quality,
+            depth_fps, color_fps, self.jpeg_quality,
             color_resolution_divisor, depth_resolution_divisor)
         self.ip = self.get_parameter('ip').value
         self.connect()

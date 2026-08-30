@@ -4,10 +4,15 @@ project(robot_perception)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(vision_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 find_package(foxglove_msgs REQUIRED)
 find_package(image_geometry REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS imgcodecs imgproc)
+find_package(onnxruntime CONFIG REQUIRED)
 
 add_executable(collision_overlay src/collision_overlay.cpp)
 target_compile_features(collision_overlay PUBLIC cxx_std_17)
@@ -20,6 +25,21 @@ target_link_libraries(collision_overlay
   ${tf2_geometry_msgs_TARGETS})
 install(TARGETS collision_overlay DESTINATION lib/${PROJECT_NAME})
 
+add_executable(person_detector src/person_detector.cpp)
+target_compile_features(person_detector PUBLIC cxx_std_17)
+target_link_libraries(person_detector
+  rclcpp::rclcpp
+  image_geometry::image_geometry
+  onnxruntime::onnxruntime
+  opencv_imgcodecs
+  opencv_imgproc
+  ${sensor_msgs_TARGETS}
+  ${vision_msgs_TARGETS}
+  ${geometry_msgs_TARGETS}
+  ${std_srvs_TARGETS}
+  ${foxglove_msgs_TARGETS})
+install(TARGETS person_detector DESTINATION lib/${PROJECT_NAME})
+
 install(PROGRAMS src/color_blob_detector.py DESTINATION lib/${PROJECT_NAME} RENAME color_blob_detector)
 install(PROGRAMS src/green_detector.py DESTINATION lib/${PROJECT_NAME} RENAME green_detector)
 install(PROGRAMS src/row_navigator.py DESTINATION lib/${PROJECT_NAME} RENAME row_navigator)
@@ -28,15 +48,22 @@ install(PROGRAMS src/cloud_optical_relay.py DESTINATION lib/${PROJECT_NAME} RENA
 install(PROGRAMS src/harvest_lane_navigator.py DESTINATION lib/${PROJECT_NAME} RENAME harvest_lane_navigator)
 install(PROGRAMS src/row_shuttle.py DESTINATION lib/${PROJECT_NAME} RENAME row_shuttle)
 install(PROGRAMS src/apriltag_operator_adapter.py DESTINATION lib/${PROJECT_NAME} RENAME apriltag_operator_adapter)
-install(PROGRAMS src/sidewalk_detector.py DESTINATION lib/${PROJECT_NAME} RENAME sidewalk_detector)
+install(PROGRAMS src/surface_detector.py DESTINATION lib/${PROJECT_NAME} RENAME surface_detector)
 install(PROGRAMS src/ssd_mobilenet_person_detector.py DESTINATION lib/${PROJECT_NAME} RENAME ssd_mobilenet_person_detector)
 install(PROGRAMS src/yolo26_person_detector.py DESTINATION lib/${PROJECT_NAME} RENAME yolo26_person_detector)
 install(PROGRAMS src/approach.py DESTINATION lib/${PROJECT_NAME} RENAME approach)
+install(PROGRAMS src/person_goal_bridge.py DESTINATION lib/${PROJECT_NAME} RENAME person_goal_bridge)
+install(PROGRAMS src/weeding_creep.py DESTINATION lib/${PROJECT_NAME} RENAME weeding_creep)
 install(PROGRAMS src/tracked_approach.py DESTINATION lib/${PROJECT_NAME} RENAME tracked_approach)
 install(PROGRAMS src/row_follow.py DESTINATION lib/${PROJECT_NAME} RENAME row_follow)
-install(PROGRAMS src/gesture_teleop.py DESTINATION lib/${PROJECT_NAME} RENAME gesture_teleop)
+install(PROGRAMS src/surface_follow.py DESTINATION lib/${PROJECT_NAME} RENAME surface_follow)
+install(DIRECTORY models DESTINATION lib/${PROJECT_NAME})
+install(PROGRAMS src/voice_word_detector.py DESTINATION lib/${PROJECT_NAME} RENAME voice_word_detector)
+install(PROGRAMS src/voice_teleop.py DESTINATION lib/${PROJECT_NAME} RENAME voice_teleop)
+install(PROGRAMS src/voice_speaker.py DESTINATION lib/${PROJECT_NAME} RENAME voice_speaker)
+install(PROGRAMS src/hand_gesture_detector.py DESTINATION lib/${PROJECT_NAME} RENAME hand_gesture_detector)
 install(PROGRAMS src/foxglove_panels.py DESTINATION lib/${PROJECT_NAME} RENAME foxglove_panels)
-install(PROGRAMS src/gesture_to_cmd_vel.py DESTINATION lib/${PROJECT_NAME} RENAME gesture_to_cmd_vel)
+install(PROGRAMS src/hand_gesture_teleop.py DESTINATION lib/${PROJECT_NAME} RENAME hand_gesture_teleop)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

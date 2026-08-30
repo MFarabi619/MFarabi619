@@ -127,6 +127,12 @@ public:
 
   void drive(double wheel_speed, double max_wheel_speed)
   {
+    if (!std::isfinite(wheel_speed) || !std::isfinite(max_wheel_speed) ||
+      max_wheel_speed <= 0.0)
+    {
+      halt();
+      return;
+    }
     const int dir_level = ((wheel_speed >= 0.0) == forward_level) ? 1 : 0;
     if (dir_level != last_dir_level) {
       gpiod_line_request_set_value(

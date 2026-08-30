@@ -22,6 +22,8 @@ install(PROGRAMS src/camera.py DESTINATION lib/${PROJECT_NAME} RENAME camera)
 install(PROGRAMS src/oak_d_sr.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_sr)
 install(PROGRAMS src/oak_d_pro_w_poe.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_pro_w_poe)
 install(PROGRAMS src/odrive_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME odrive_motor_driver)
+install(PROGRAMS src/reverse_beeper.py DESTINATION lib/${PROJECT_NAME} RENAME reverse_beeper)
+install(PROGRAMS src/usb_webcam.py DESTINATION lib/${PROJECT_NAME} RENAME usb_webcam)
 install(PROGRAMS src/svd48v_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME svd48v_motor_driver)
 
 find_package(rclcpp REQUIRED)
@@ -140,6 +142,25 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   install(FILES ${orbbec_libraries} DESTINATION lib)
   install(FILES ${orbbec_sdk_SOURCE_DIR}/lib/OrbbecSDKConfig.xml DESTINATION lib)
   install(DIRECTORY ${orbbec_sdk_SOURCE_DIR}/lib/extensions/ DESTINATION share/${PROJECT_NAME}/extensions)
+
+  find_package(depthai CONFIG REQUIRED)
+  find_package(vision_msgs REQUIRED)
+  find_package(geometry_msgs REQUIRED)
+  find_package(foxglove_msgs REQUIRED)
+
+  add_executable(oak_d_pro_w_poe_spatial src/oak_d_pro_w_poe_spatial.cpp)
+  target_compile_features(oak_d_pro_w_poe_spatial PUBLIC cxx_std_17)
+  target_include_directories(oak_d_pro_w_poe_spatial PRIVATE ${OpenCV_INCLUDE_DIRS})
+  target_link_libraries(oak_d_pro_w_poe_spatial
+    depthai::core
+    Threads::Threads
+    rclcpp::rclcpp
+    ${OpenCV_LIBS}
+    ${sensor_msgs_TARGETS}
+    ${vision_msgs_TARGETS}
+    ${geometry_msgs_TARGETS}
+    ${foxglove_msgs_TARGETS})
+  install(TARGETS oak_d_pro_w_poe_spatial DESTINATION lib/${PROJECT_NAME})
 endif()
 
 if(BUILD_TESTING)

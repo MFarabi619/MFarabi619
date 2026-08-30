@@ -14,6 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import math
+
 import pytest
 from vision_msgs.msg import BoundingBox2D, Detection2D, Detection2DArray, Point2D, Pose2D
 
@@ -65,6 +67,19 @@ def test_turns_at_end_of_row(row_follow_node):
     assert row_follow_node.state == 'turn'
     assert twists[-1].twist.linear.x == pytest.approx(0.0)
     assert twists[-1].twist.angular.z == pytest.approx(0.6)
+
+
+def test_never_publishes_non_finite_or_reverse(row_follow_node):
+    twists = capture(row_follow_node)
+    row_follow_node.target_offset = float('nan')
+    row_follow_node.on_detections(strips(60.0, 960.0))
+    row_follow_node.target_offset = 2.5
+    row_follow_node.on_detections(strips(60.0, 960.0))
+    assert twists
+    for twist in twists:
+        assert math.isfinite(twist.twist.linear.x)
+        assert math.isfinite(twist.twist.angular.z)
+        assert abs(twist.twist.linear.x) <= row_follow_node.forward_speed
 
 
 def test_reacquires_row_after_turn(row_follow_node):

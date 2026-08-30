@@ -1,0 +1,77 @@
+/**/controller_server:
+  ros__parameters:
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.3
+    enable_stamped_cmd_vel: true
+    FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      desired_linear_vel: 1.0
+      use_cost_regulated_linear_velocity_scaling: false
+      approach_velocity_scaling_dist: 1.0
+      max_robot_pose_search_dist: 10.0
+      use_rotate_to_heading: false
+
+/**/local_costmap:
+  ros__parameters:
+    publish_frequency: 2.0
+    global_frame: odom
+    rolling_window: true
+    width: 6
+    height: 6
+    resolution: 0.05
+    robot_radius: 0.65
+    plugins: ["obstacle_layer", "inflation_layer"]
+    obstacle_layer:
+      plugin: "nav2_costmap_2d::ObstacleLayer"
+      observation_sources: scan
+      scan:
+        topic: sensors/camera_0/scan
+        max_obstacle_height: 2.0
+        clearing: True
+    inflation_layer:
+      plugin: "nav2_costmap_2d::InflationLayer"
+      cost_scaling_factor: 3.0
+      inflation_radius: 0.70
+    always_send_full_costmap: True
+
+/**/planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0
+
+/**/global_costmap:
+  ros__parameters:
+    update_frequency: 2.0
+    global_frame: odom
+    rolling_window: true
+    width: 10
+    height: 10
+    robot_radius: 0.65
+    plugins: ["obstacle_layer", "inflation_layer"]
+    obstacle_layer:
+      plugin: "nav2_costmap_2d::ObstacleLayer"
+      observation_sources: scan
+      scan:
+        topic: sensors/camera_0/scan
+        max_obstacle_height: 2.0
+        clearing: True
+    inflation_layer:
+      plugin: "nav2_costmap_2d::InflationLayer"
+      cost_scaling_factor: 3.0
+      inflation_radius: 0.70
+    always_send_full_costmap: True
+
+/**/bt_navigator:
+  ros__parameters:
+    global_frame: odom
+    odom_topic: diff_drive_controller/odom
+    navigators: ["navigate_to_pose"]
+    navigate_to_pose:
+      plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
+
+/**/follow_lifecycle_manager:
+  ros__parameters:
+    autostart: true
+    bond_timeout: 0.0
+    node_names: ["controller_server", "planner_server", "bt_navigator"]
