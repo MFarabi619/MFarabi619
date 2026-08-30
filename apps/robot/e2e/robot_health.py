@@ -83,13 +83,40 @@ def main():
             f'/{namespace}/sensors/camera_0/color/image_raw/compressed',
             record('camera'), qos_profile_sensor_data)
 
+    nav2_server_states = {}
+    if config.get('follow_nav2', {}).get('enabled', False):
+        from lifecycle_msgs.srv import GetState
+
+        required_checks.append('nav2_follow')
+        clients = {
+            server: node.create_client(
+                GetState, f'/{namespace}/{server}/get_state')
+            for server in ('controller_server', 'planner_server', 'bt_navigator')
+        }
+
+        def poll_nav2_states():
+            for server, client in clients.items():
+                if server in nav2_server_states or not client.service_is_ready():
+                    continue
+                future = client.call_async(GetState.Request())
+                rclpy.spin_until_future_complete(node, future, timeout_sec=2.0)
+                if future.done() and future.result() is not None:
+                    nav2_server_states[server] = future.result().current_state.label
+            if all(state == 'active' for state in nav2_server_states.values()) \
+                    and len(nav2_server_states) == len(clients):
+                received['nav2_follow'] = nav2_server_states
+
     deadline = time.monotonic() + CHECK_TIMEOUT_S
     while time.monotonic() < deadline and not all(key in received for key in required_checks):
         rclpy.spin_once(node, timeout_sec=0.2)
+        if 'nav2_follow' in required_checks and 'nav2_follow' not in received:
+            poll_nav2_states()
 
     failures = [key for key in required_checks if key not in received]
     for key in required_checks:
         print(f"{'FAIL' if key in failures else 'ok  '}  {key}")
+    if 'nav2_follow' in failures and nav2_server_states:
+        print(f'      nav2 states: {nav2_server_states}')
     if 'urdf' in received and '<robot' not in received['urdf'].data:
         failures.append('urdf_content')
         print('FAIL  urdf_content (robot_description is not a URDF)')
