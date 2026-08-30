@@ -102,6 +102,20 @@ def test_heading_error_steers_to_realign(harvest_lane_navigator_node):
     assert commands[0].twist.angular.z > 0.02
 
 
+def test_badly_misaligned_robot_pivots_instead_of_driving_on(
+        harvest_lane_navigator_node):
+    commands, overlays = capture(harvest_lane_navigator_node)
+    harvest_lane_navigator_node.on_mask(projected_mask([(0.0, 0.5)]))
+    assert commands[0].twist.linear.x == pytest.approx(0.0, abs=1e-6)
+    assert abs(commands[0].twist.angular.z) > 0.1
+
+
+def test_slightly_off_row_slows_without_stopping(harvest_lane_navigator_node):
+    commands, overlays = capture(harvest_lane_navigator_node)
+    harvest_lane_navigator_node.on_mask(projected_mask([(0.12, 0.0)]))
+    assert 0.0 < commands[0].twist.linear.x < 0.4
+
+
 def test_offset_label_reports_meters(harvest_lane_navigator_node):
     commands, overlays = capture(harvest_lane_navigator_node)
     harvest_lane_navigator_node.on_mask(projected_mask([(0.15, 0.0)]))
@@ -198,6 +212,16 @@ def test_depth_makes_elevated_canopy_exact(harvest_lane_navigator_node):
     assert commands[0].twist.angular.z == pytest.approx(0.0, abs=0.06)
 
 
+def test_decimated_depth_is_still_used(harvest_lane_navigator_node):
+    commands, overlays = capture(harvest_lane_navigator_node)
+    mask, depth = elevated_canopy([(0.0, 0.0)], 0.15)
+    decimated = BRIDGE.cv2_to_imgmsg(
+        np.ascontiguousarray(BRIDGE.imgmsg_to_cv2(depth)[::2, ::2]))
+    harvest_lane_navigator_node.on_depth(decimated)
+    harvest_lane_navigator_node.on_mask(mask)
+    assert commands[0].twist.angular.z == pytest.approx(0.0, abs=0.06)
+
+
 def test_depth_recovers_offset_of_elevated_canopy(harvest_lane_navigator_node):
     commands, overlays = capture(harvest_lane_navigator_node)
     mask, depth = elevated_canopy([(0.15, 0.0)], 0.15)
@@ -248,7 +272,7 @@ def odometry(x, y):
 
 
 def test_goal_drives_and_streams_feedback(harvest_lane_navigator_node):
-    harvest_lane_navigator_node.drive_enabled = False
+    harvest_lane_navigator_node.is_enabled = False
     commands, overlays = capture(harvest_lane_navigator_node)
     handle = begin_goal(harvest_lane_navigator_node)
     harvest_lane_navigator_node.on_mask(projected_mask([(0.0, 0.0)]))
@@ -258,7 +282,7 @@ def test_goal_drives_and_streams_feedback(harvest_lane_navigator_node):
 
 
 def test_goal_speed_overrides_parameter(harvest_lane_navigator_node):
-    harvest_lane_navigator_node.drive_enabled = False
+    harvest_lane_navigator_node.is_enabled = False
     commands, overlays = capture(harvest_lane_navigator_node)
     begin_goal(harvest_lane_navigator_node, forward_speed_mps=0.8)
     harvest_lane_navigator_node.on_mask(projected_mask([(0.0, 0.0)]))

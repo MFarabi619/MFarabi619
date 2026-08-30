@@ -38,6 +38,7 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from robot_platform_msgs.action import FollowRow
 from sensor_msgs.msg import CameraInfo, CompressedImage, Image
+from std_srvs.srv import SetBool
 
 CENTERED_COLOR = Color(r=0.35, g=1.0, b=0.55, a=1.0)
 DRIFTING_COLOR = Color(r=1.0, g=0.75, b=0.15, a=1.0)
@@ -61,6 +62,9 @@ RING_THICKNESS_PX = 2.5
 RING_FILL_ALPHA_RATIO = 0.2
 LABEL_MARGIN_PX = 16.0
 MASK_THRESHOLD = 127
+MILLIMETER_DEPTH_ENCODING = '16UC1'
+METER_DEPTH_ENCODING = '32FC1'
+MILLIMETERS_PER_METER = 1000.0
 STRIP_COUNT = 6
 MIN_PIXELS_PER_STRIP = 30
 MIN_VALID_STRIPS = 2
@@ -71,14 +75,26 @@ MAX_PHASE_RESIDUAL_M = 0.12
 MAX_LATERAL_JUMP_M = 0.3
 MAX_LATERAL_CORRECTION_M = 0.3
 MIN_ROW_TRAVEL_M = 3.0
+ALIGNED_HEADING_ERROR_RAD = math.radians(6.0)
+PIVOT_HEADING_ERROR_RAD = math.radians(18.0)
+ALIGNED_LATERAL_ERROR_M = 0.06
+PIVOT_LATERAL_ERROR_M = 0.22
 ROW_LOST_MISS_LIMIT = 12
 GOAL_POLL_S = 0.05
 LIVE_PARAMETERS = frozenset({
     'roi_top_fraction', 'row_pitch_m', 'forward_speed_mps', 'lateral_gain',
-    'heading_gain', 'max_angular_speed_radps', 'drive_enabled',
+    'heading_gain', 'max_angular_speed_radps', 'max_forward_speed_mps',
     'camera_lateral_offset_m', 'camera_height_m', 'lateral_trim_m',
     'command_smoothing_seconds',
 })
+
+
+def finite_or(value, fallback):
+    return value if math.isfinite(value) else fallback
+
+
+def alignment_fraction(error, aligned, pivoting):
+    return float(np.clip((pivoting - abs(error)) / (pivoting - aligned), 0.0, 1.0))
 
 
 def blended(start, end, fraction):
@@ -126,9 +142,11 @@ class HarvestLaneNavigator(Node):
         self.heading_gain = self.declare_parameter('heading_gain', 1.2).value
         self.max_angular_speed_radps = self.declare_parameter(
             'max_angular_speed_radps', 0.8).value
+        self.max_forward_speed_mps = self.declare_parameter(
+            'max_forward_speed_mps', 1.0).value
         self.command_smoothing_seconds = self.declare_parameter(
             'command_smoothing_seconds', 0.0).value
-        self.drive_enabled = self.declare_parameter('drive_enabled', False).value
+        self.is_enabled = self.declare_parameter('start_enabled', False).value
 
         self.camera_focal_columns = None
         self.camera_center_column = None
@@ -166,6 +184,7 @@ class HarvestLaneNavigator(Node):
         self.create_subscription(
             CompressedImage, mask_topic, self.on_mask, qos_profile_sensor_data,
             callback_group=self.callback_group)
+        self.create_service(SetBool, '~/enable', self.on_enable)
         self.action_server = ActionServer(
             self, FollowRow, 'follow_row',
             execute_callback=self.execute_follow_row,
@@ -173,6 +192,16 @@ class HarvestLaneNavigator(Node):
             cancel_callback=self.on_cancel_request,
             callback_group=self.callback_group)
         self.get_logger().info(f'harvest lane navigator: {mask_topic} -> {cmd_vel_topic}')
+
+    def on_enable(self, request, response):
+        self.is_enabled = request.data
+        self.tracked_lateral_error = None
+        self.row_miss_count = 0
+        if not request.data:
+            self.halt()
+        response.success = True
+        response.message = 'enabled' if request.data else 'disabled'
+        return response
 
     def on_goal_request(self, request):
         if self.goal_handle is not None:
@@ -235,11 +264,28 @@ class HarvestLaneNavigator(Node):
         if 0.0 < self.goal_distance_m <= self.distance_traveled_m:
             self.goal_outcome = FollowRow.Result.OUTCOME_DISTANCE_REACHED
 
+    def depth_at_mask_resolution(self, shape):
+        if self.depth_image is None:
+            return None
+        if self.depth_image.shape == shape:
+            return self.depth_image
+        return cv2.resize(
+            self.depth_image, (shape[1], shape[0]), interpolation=cv2.INTER_NEAREST)
+
     def on_depth(self, message):
-        if message.encoding != '32FC1':
-            return
-        self.depth_image = np.frombuffer(message.data, np.float32).reshape(
-            message.height, message.width)
+        # The Orbbec driver publishes 16UC1 millimetres, not 32FC1.
+        if message.encoding == MILLIMETER_DEPTH_ENCODING:
+            depth = np.frombuffer(message.data, np.uint16).reshape(
+                message.height, message.step // 2)[:, :message.width]
+            if message.is_bigendian:
+                depth = depth.byteswap()
+            self.depth_image = depth.astype(np.float32) / MILLIMETERS_PER_METER
+        elif message.encoding == METER_DEPTH_ENCODING:
+            depth = np.frombuffer(message.data, np.float32).reshape(
+                message.height, message.step // 4)[:, :message.width]
+            if message.is_bigendian:
+                depth = depth.byteswap()
+            self.depth_image = depth
 
     def on_camera_info(self, message):
         self.camera_focal_columns = message.k[0]
@@ -280,9 +326,11 @@ class HarvestLaneNavigator(Node):
             feedback.heading_error_rad = float(heading_error)
             feedback.distance_traveled_m = float(self.distance_traveled_m)
             self.goal_handle.publish_feedback(feedback)
-        if self.drive_enabled or self.goal_handle is not None:
+        if self.is_enabled or self.goal_handle is not None:
             self.last_steering = self.steering(lateral_error, heading_error)
-            self.drive(self.commanded_forward_speed(), self.last_steering)
+            self.drive(
+                self.commanded_forward_speed(lateral_error, heading_error),
+                self.last_steering)
 
     def lattice_fit(self, mask):
         height, width = mask.shape
@@ -293,13 +341,16 @@ class HarvestLaneNavigator(Node):
         strip_points = []
         strip_reports = []
         self.fit_report = ''
-        depth_is_aligned = (self.depth_image is not None
-                     and self.depth_image.shape == mask.shape)
+        depth = self.depth_at_mask_resolution(mask.shape)
+        if depth is None:
+            self.get_logger().warning(
+                'no depth: falling back to level-ground distances',
+                throttle_duration_sec=10.0)
         for strip_top, strip_bottom in zip(strip_edges, strip_edges[1:]):
             pixel_rows, pixel_columns = np.nonzero(
                 mask[strip_top:strip_bottom, :] > MASK_THRESHOLD)
-            if depth_is_aligned:
-                depths = self.depth_image[pixel_rows + strip_top, pixel_columns]
+            if depth is not None:
+                depths = depth[pixel_rows + strip_top, pixel_columns]
                 valid = (np.isfinite(depths) & (depths >= MIN_DEPTH_M)
                          & (depths <= MAX_TRACKING_DISTANCE_M))
                 if valid.sum() < MIN_PIXELS_PER_STRIP:
@@ -389,10 +440,16 @@ class HarvestLaneNavigator(Node):
               + self.heading_gain * heading_error),
             -self.max_angular_speed_radps, self.max_angular_speed_radps))
 
-    def commanded_forward_speed(self):
+    def commanded_forward_speed(self, lateral_error, heading_error):
         if self.goal_handle is not None and self.goal_forward_speed_mps > 0.0:
-            return self.goal_forward_speed_mps
-        return self.forward_speed_mps
+            speed = self.goal_forward_speed_mps
+        else:
+            speed = self.forward_speed_mps
+        return speed * min(
+            alignment_fraction(
+                heading_error, ALIGNED_HEADING_ERROR_RAD, PIVOT_HEADING_ERROR_RAD),
+            alignment_fraction(
+                lateral_error, ALIGNED_LATERAL_ERROR_M, PIVOT_LATERAL_ERROR_M))
 
     def claim_smoothing_fraction(self):
         now_s = self.get_clock().now().nanoseconds * 1e-9
@@ -405,16 +462,22 @@ class HarvestLaneNavigator(Node):
     def drive(self, forward_speed, angular_speed):
         fraction = self.claim_smoothing_fraction()
         self.smoothed_forward_speed += fraction * (
-            forward_speed - self.smoothed_forward_speed)
+            finite_or(forward_speed, 0.0) - self.smoothed_forward_speed)
         self.smoothed_angular_speed += fraction * (
-            angular_speed - self.smoothed_angular_speed)
+            finite_or(angular_speed, 0.0) - self.smoothed_angular_speed)
+        # A non-finite command reaches the driver as a negative comparison and
+        # selects the reverse branch, so every value is forced finite first.
+        max_forward_speed = max(finite_or(self.max_forward_speed_mps, 0.0), 0.0)
+        max_angular_speed = abs(finite_or(self.max_angular_speed_radps, 0.0))
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(self.smoothed_forward_speed)
+        message.twist.linear.x = float(np.clip(
+            finite_or(self.smoothed_forward_speed, 0.0),
+            -max_forward_speed, max_forward_speed))
         message.twist.angular.z = float(np.clip(
-            self.smoothed_angular_speed,
-            -self.max_angular_speed_radps, self.max_angular_speed_radps))
+            finite_or(self.smoothed_angular_speed, 0.0),
+            -max_angular_speed, max_angular_speed))
         self.cmd_vel_publisher.publish(message)
 
     def halt(self):
@@ -520,8 +583,10 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        if rclpy.ok():
+            node.halt()
+            rclpy.shutdown()
         node.destroy_node()
-        rclpy.shutdown()
 
 
 if __name__ == '__main__':

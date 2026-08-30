@@ -46,7 +46,8 @@ def harvest_lane():
         params={
             'start_enabled': True,
             'odom_topic': '/diff_drive_controller/odom',
-            'forward_speed_mps': 0.6,
+            'forward_speed_mps': 0.3,
+            'max_angular_speed_radps': 0.6,
             'command_smoothing_seconds': 0.1,
         },
         **RESPAWN,
