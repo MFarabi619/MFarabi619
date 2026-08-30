@@ -61,7 +61,7 @@ DEAD_LAYOUT_ENTRIES = [
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MACHINES_PATH = REPO_ROOT / 'apps/robot/machines'
 
-RSYNC_FLAGS = ['-rlpgoD', '--checksum']
+RSYNC_FLAGS = ['-rlpgoD', '--checksum', '-P']
 
 PWM_OVERLAY = 'dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4'
 FIRMWARE_CONFIG_PATH = '/boot/firmware/config.txt'
