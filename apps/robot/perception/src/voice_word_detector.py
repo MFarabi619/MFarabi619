@@ -55,14 +55,13 @@ class AutomaticGainControl:
         return samples * gain
 
 
-def default_model_directory():
+def default_model_directory(bundle_name):
     directory = os.path.dirname(__file__)
-    installed_directory = os.path.join(
-        directory, 'models', 'voice_word_detector')
+    installed_directory = os.path.join(directory, 'models', bundle_name)
     if os.path.isdir(installed_directory):
         return installed_directory
     return os.path.normpath(
-        os.path.join(directory, '..', 'models', 'voice_word_detector'))
+        os.path.join(directory, '..', 'models', bundle_name))
 
 
 def normalized_samples(message):
@@ -109,7 +108,8 @@ class VoiceWordDetector(Node):
         word_topic = self.declare_parameter(
             'word_topic', 'perception/voice/word').value
         model_directory = self.declare_parameter(
-            'model_directory', default_model_directory()).value
+            'model_directory',
+            default_model_directory('voice_word_detector')).value
         keyword_boost = self.declare_parameter('keyword_boost', 1.5).value
         keyword_threshold = self.declare_parameter(
             'keyword_threshold', 0.2).value

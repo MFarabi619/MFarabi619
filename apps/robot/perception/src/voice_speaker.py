@@ -25,17 +25,10 @@ from rclpy.qos import qos_profile_sensor_data
 import sherpa_onnx
 from std_msgs.msg import String
 
+from voice_word_detector import default_model_directory
+
 PORTAUDIO_FLOAT32 = 1
 LIVE_PARAMETERS = frozenset({'language', 'speaker_id'})
-
-
-def default_model_directory():
-    directory = os.path.dirname(__file__)
-    installed_directory = os.path.join(directory, 'models', 'voice_speaker')
-    if os.path.isdir(installed_directory):
-        return installed_directory
-    return os.path.normpath(
-        os.path.join(directory, '..', 'models', 'voice_speaker'))
 
 
 class KokoroSynthesizer:
@@ -79,7 +72,7 @@ class VoiceSpeaker(Node):
             'speech_topic', 'perception/voice/speech').value
         audio_topic = self.declare_parameter('audio_topic', 'audio').value
         model_directory = self.declare_parameter(
-            'model_directory', default_model_directory()).value
+            'model_directory', default_model_directory('voice_speaker')).value
         self.language = self.declare_parameter('language', 'en').value
         self.speaker_id = self.declare_parameter('speaker_id', 21).value
 

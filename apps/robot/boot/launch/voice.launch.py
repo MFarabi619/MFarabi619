@@ -17,14 +17,27 @@
 import socket
 import time
 
+import yaml
 from better_launch import BetterLaunch, launch_this
 
 ZENOH_ROUTER_PORT = 7447
-ROUTER_CONFIG_OVERRIDE = (
-    f'connect/endpoints=["tcp/rpi5-16-2.local:{ZENOH_ROUTER_PORT}",'
-    f'"tcp/rpi5-16.local:{ZENOH_ROUTER_PORT}",'
-    f'"tcp/beagleyai.local:{ZENOH_ROUTER_PORT}"]')
+CONNECT_TIMEOUT_MS = 3000
+CONNECT_PROBE_TIMEOUT_SECONDS = 0.2
+ROUTER_POLL_INTERVAL_SECONDS = 0.2
 CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ZENOH_ROUTER_PORT}"]'
+
+
+def robot_hostname(robot_name):
+    with open(f'machines/{robot_name}/robot.yaml') as file:
+        return yaml.safe_load(file)['system']['hosts'][0]['hostname']
+
+
+def bridging_peer_config_override(robot_name):
+    return (
+        'mode="peer";connect/endpoints='
+        f'["tcp/localhost:{ZENOH_ROUTER_PORT}",'
+        f'"tcp/{robot_hostname(robot_name)}.local:{ZENOH_ROUTER_PORT}"];'
+        f'connect/timeout_ms={CONNECT_TIMEOUT_MS}')
 
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 
@@ -32,7 +45,8 @@ RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 def router_is_listening():
     try:
         socket.create_connection(
-            ('127.0.0.1', ZENOH_ROUTER_PORT), timeout=0.2).close()
+            ('127.0.0.1', ZENOH_ROUTER_PORT),
+            timeout=CONNECT_PROBE_TIMEOUT_SECONDS).close()
         return True
     except OSError:
         return False
@@ -42,7 +56,7 @@ def wait_for_router(attempts=50):
     for _ in range(attempts):
         if router_is_listening():
             return
-        time.sleep(0.2)
+        time.sleep(ROUTER_POLL_INTERVAL_SECONDS)
 
 
 @launch_this
@@ -52,7 +66,6 @@ def voice(robot: str = 'taro'):
         bl.process(
             'ros2 run rmw_zenoh_cpp rmw_zenohd',
             name='zenoh_router',
-            env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
             **RESPAWN,
         )
         wait_for_router()
@@ -74,11 +87,19 @@ def voice(robot: str = 'taro'):
     )
     bl.node(
         package='robot_perception',
+        executable='voice_transcriber',
+        name='voice_transcriber',
+        params={'start_enabled': True},
+        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+        **RESPAWN,
+    )
+    bl.node(
+        package='robot_perception',
         executable='voice_teleop',
         name='voice_teleop',
         params={'start_enabled': True},
         remaps={'/joy_teleop/cmd_vel': f'/{robot}/joy_teleop/cmd_vel'},
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+        env={'ZENOH_CONFIG_OVERRIDE': bridging_peer_config_override(robot)},
         **RESPAWN,
     )
     bl.node(

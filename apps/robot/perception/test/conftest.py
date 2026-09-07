@@ -16,11 +16,14 @@
 
 import importlib.util
 import os
+import sys
 
 import pytest
 import rclpy
 
 SRC_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
+if SRC_DIRECTORY not in sys.path:
+    sys.path.insert(0, SRC_DIRECTORY)
 
 
 def load_module(module_name):
@@ -129,6 +132,19 @@ def voice_word_detector_node(voice_word_detector_module):
 
 
 @pytest.fixture(scope='session')
+def voice_transcriber_module():
+    return load_module('voice_transcriber')
+
+
+@pytest.fixture
+def voice_transcriber_node(voice_transcriber_module):
+    node = voice_transcriber_module.VoiceTranscriber()
+    node.is_enabled = True
+    yield node
+    node.destroy_node()
+
+
+@pytest.fixture(scope='session')
 def voice_speaker_module():
     return load_module('voice_speaker')
 
@@ -176,6 +192,23 @@ def cloud_optical_adapter_node():
     node = load_node_class('cloud_optical_adapter', 'CloudOpticalAdapter')()
     yield node
     node.destroy_node()
+
+
+@pytest.fixture
+def lay_down_weeding_elbow_teleop_node():
+    node = load_node_class(
+        'lay_down_weeding_elbow_teleop', 'LayDownWeedingElbowTeleop')(
+        parameter_overrides=[
+            rclpy.parameter.Parameter('neutral_sample_frames', value=4),
+            rclpy.parameter.Parameter('commit_frames', value=2),
+            rclpy.parameter.Parameter('command_smoothing_seconds', value=0.0),
+            rclpy.parameter.Parameter('max_detections_per_second', value=0.0),
+        ])
+    pose_landmarker = node.landmarker
+    node.is_enabled = True
+    yield node
+    node.destroy_node()
+    pose_landmarker.close()
 
 
 @pytest.fixture

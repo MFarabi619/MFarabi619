@@ -125,9 +125,11 @@ class VoiceTeleop(Node):
             self.acknowledge()
             return
         if word == 'stop':
+            is_repeated_stop = is_composing and self.motion == STOP
             self.motion = STOP
             self.publish_twist()
-            self.acknowledge()
+            if not is_repeated_stop:
+                self.acknowledge()
             return
         if word in PIVOT_WORDS:
             self.motion = Motion(0.0, 0.0, PIVOT_WORDS[word])

@@ -65,6 +65,16 @@ def test_every_accepted_word_is_acknowledged(voice_teleop_node):
     assert [response.data for response in responses] == ['acknowledged']
 
 
+def test_a_repeated_stop_is_acknowledged_once(voice_teleop_node):
+    responses = []
+    voice_teleop_node.speech_publisher.publish = responses.append
+    capture(voice_teleop_node)
+    voice_teleop_node.on_word(spoken('forward'))
+    voice_teleop_node.on_word(spoken('stop'))
+    voice_teleop_node.on_word(spoken('stop'))
+    assert len(responses) == 2
+
+
 def test_acknowledgements_rotate_through_the_phrases(
         voice_teleop_node, voice_teleop_module):
     responses = []
