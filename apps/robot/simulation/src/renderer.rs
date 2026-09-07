@@ -51,7 +51,7 @@ impl CameraRenderer {
         scene: Scene,
         width: u32,
         height: u32,
-        fov_deg: f64,
+        fov_degrees: f64,
         camera_mount_height_meters: f64,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let instance = wgpu::Instance::default();
@@ -172,7 +172,7 @@ impl CameraRenderer {
             readback,
             width,
             height,
-            tan_half_fov: (fov_deg.to_radians() / 2.0).tan() as f32,
+            tan_half_fov: (fov_degrees.to_radians() / 2.0).tan() as f32,
             aspect: width as f32 / height as f32,
             camera_mount_height_meters: camera_mount_height_meters as f32,
         })

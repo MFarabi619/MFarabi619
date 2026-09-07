@@ -33,10 +33,10 @@ def body_cloud(points):
     return point_cloud2.create_cloud_xyz32(header, points)
 
 
-def test_body_points_become_optical(cloud_optical_relay_node):
+def test_body_points_become_optical(cloud_optical_adapter_node):
     clouds = []
-    cloud_optical_relay_node.optical_cloud_publisher.publish = clouds.append
-    cloud_optical_relay_node.on_cloud(
+    cloud_optical_adapter_node.optical_cloud_publisher.publish = clouds.append
+    cloud_optical_adapter_node.on_cloud(
         body_cloud([FORWARD_BODY, LEFT_BODY, UP_BODY]))
     converted = point_cloud2.read_points_numpy(
         clouds[0], field_names=('x', 'y', 'z'))

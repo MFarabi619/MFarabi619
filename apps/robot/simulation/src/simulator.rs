@@ -33,7 +33,7 @@ use robot::diagnostics::{battery_diagnostic_level, diagnostic_array, Status};
 
 const IMAGE_WIDTH: usize = 1280;
 const IMAGE_HEIGHT: usize = 800;
-const CAMERA_FOV_DEG: f64 = 70.0;
+const CAMERA_FOV_DEGREES: f64 = 70.0;
 const GPS_POSITION_COVARIANCE: [f64; 9] = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 4.0];
 const JPEG_QUALITY: u8 = 80;
 const LATITUDE_ORIGIN: f64 = 45.4215;
@@ -158,7 +158,7 @@ impl SimulatorState {
 
 fn camera_messages(jpeg: Vec<u8>) -> (CompressedImage, CameraInfo) {
     let (sec, nanosec) = now_stamp();
-    let (fx, fy, cx, cy) = camera_intrinsics(IMAGE_WIDTH, IMAGE_HEIGHT, CAMERA_FOV_DEG);
+    let (fx, fy, cx, cy) = camera_intrinsics(IMAGE_WIDTH, IMAGE_HEIGHT, CAMERA_FOV_DEGREES);
 
     let mut image = CompressedImage::new().unwrap();
     image.header.stamp.sec = sec;
@@ -187,17 +187,17 @@ pub async fn run_simulator(
     scene: Scene,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut cmd_vel = node.create_subscriber::<TwistStamped>("platform/cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
-    let image_pub = node.create_publisher::<CompressedImage>(
+    let image_publisher = node.create_publisher::<CompressedImage>(
         "sensors/camera_0/color/image_raw/compressed",
         Some(Profile::sensor_data()),
     )?;
-    let camera_info_pub = node
+    let camera_info_publisher = node
         .create_publisher::<CameraInfo>("sensors/camera_0/color/camera_info", Some(Profile::sensor_data()))?;
-    let gps_pub = node.create_publisher::<NavSatFix>("sensors/gps_0/fix", Some(Profile::sensor_data()))?;
-    let battery_pub = node.create_publisher::<BatteryState>("battery", None)?;
-    let diagnostics_pub = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
-    let odom_pub = node.create_publisher::<Odometry>("odom", None)?;
-    let joint_state_pub = node.create_publisher::<JointState>("joint_states", None)?;
+    let gps_publisher = node.create_publisher::<NavSatFix>("sensors/gps_0/fix", Some(Profile::sensor_data()))?;
+    let battery_publisher = node.create_publisher::<BatteryState>("battery", None)?;
+    let diagnostics_publisher = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
+    let odom_publisher = node.create_publisher::<Odometry>("odom", None)?;
+    let joint_state_publisher = node.create_publisher::<JointState>("joint_states", None)?;
 
     let mut param_server = node.create_parameter_server()?;
     {
@@ -248,18 +248,15 @@ pub async fn run_simulator(
     let mut latitude_origin = read_f64("latitude_origin", LATITUDE_ORIGIN);
     let mut longitude_origin = read_f64("longitude_origin", LONGITUDE_ORIGIN);
 
-    let camera_height = -placement::ground_z(&robot_description::dimensions::Dimensions {
-        frame_length_mm: 1219.2,
-        frame_width_mm: 1000.0,
-        frame_top_z_mm: 300.0,
-        rear_axle_inset_mm: 85.0,
-        has_deck_equipment: true,
-    }) * MM_TO_M;
+    let camera_height = -placement::ground_z(
+        &robot_description::dimensions::for_robot("taro")
+            .expect("taro is listed in ROBOT_DIMENSIONS"),
+    ) * MM_TO_M;
     let camera_renderer = CameraRenderer::new(
         scene,
         IMAGE_WIDTH as u32,
         IMAGE_HEIGHT as u32,
-        CAMERA_FOV_DEG,
+        CAMERA_FOV_DEGREES,
         camera_height,
     )
     .await?;
@@ -281,8 +278,8 @@ pub async fn run_simulator(
                 )
                 .ok();
             let (image, info) = camera_messages(jpeg);
-            let _ = image_pub.send(&image);
-            let _ = camera_info_pub.send(&info);
+            let _ = image_publisher.send(&image);
+            let _ = camera_info_publisher.send(&info);
         }
     });
 
@@ -325,14 +322,14 @@ pub async fn run_simulator(
                 state.integrate(delta_seconds);
                 let _ = pose_tx.send((state.x, state.y, state.heading));
             }
-            _ = gps_tick.tick() => gps_pub.send(&state.gps(latitude_origin, longitude_origin))?,
+            _ = gps_tick.tick() => gps_publisher.send(&state.gps(latitude_origin, longitude_origin))?,
             _ = odom_tick.tick() => {
-                odom_pub.send(&state.odom())?;
-                joint_state_pub.send(&joint_state_message(state.left_wheel_angle, state.right_wheel_angle))?;
+                odom_publisher.send(&state.odom())?;
+                joint_state_publisher.send(&joint_state_message(state.left_wheel_angle, state.right_wheel_angle))?;
             }
             _ = battery_tick.tick() => {
-                battery_pub.send(&state.step_battery())?;
-                diagnostics_pub.send(&state.diagnostics())?;
+                battery_publisher.send(&state.step_battery())?;
+                diagnostics_publisher.send(&state.diagnostics())?;
             }
         }
     }

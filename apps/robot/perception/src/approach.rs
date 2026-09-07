@@ -113,7 +113,7 @@ fn overlay(gate: &GreenGate, config: &Config, width: usize, height: usize) -> Im
 
 pub async fn run_green_approach(node: Arc<Node>) -> Result<(), BoxError> {
     let config = Config::default();
-    let image_topic = crate::params::DEFAULT_IMAGE_TOPIC;
+    let image_topic = crate::parameters::DEFAULT_IMAGE_TOPIC;
     let mut images = node.create_subscriber::<CompressedImage>(
         image_topic,
         Some(Profile::sensor_data()),

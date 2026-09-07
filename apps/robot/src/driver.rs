@@ -14,7 +14,7 @@ use tokio::time::interval;
 
 use robot_control::{
     odometry::Odometry,
-    params::{bool_param, f64_param},
+    parameters::{bool_parameter, f64_parameter},
     ruckig_profile::{
         axis_limits, RuckigProfile, DEFAULT_ANGULAR, DEFAULT_LINEAR, DEFAULT_UPDATE_RATE,
     },
@@ -54,7 +54,7 @@ pub async fn run_driver(
     config: Config,
 ) -> Result<(), BoxError> {
     let mut cmd_vel = node.create_subscriber::<TwistStamped>("platform/cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
-    let diagnostics_pub = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
+    let diagnostics_publisher = node.create_publisher::<DiagnosticArray>("/diagnostics", None)?;
 
     let (
         update_rate,
@@ -69,16 +69,16 @@ pub async fn run_driver(
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
         (
-            f64_param(&store, "update_rate", DEFAULT_UPDATE_RATE),
-            f64_param(&store, "odometry_rate", DEFAULT_ODOMETRY_RATE),
-            f64_param(&store, "diagnostics_rate", DEFAULT_DIAGNOSTICS_RATE),
-            f64_param(&store, "cmd_vel_timeout", config.deadman_seconds),
+            f64_parameter(&store, "update_rate", DEFAULT_UPDATE_RATE),
+            f64_parameter(&store, "odometry_rate", DEFAULT_ODOMETRY_RATE),
+            f64_parameter(&store, "diagnostics_rate", DEFAULT_DIAGNOSTICS_RATE),
+            f64_parameter(&store, "cmd_vel_timeout", config.deadman_seconds),
             Shaping {
-                deadzone: f64_param(&store, "shaping.deadzone", config.shaping.deadzone),
-                min_duty: f64_param(&store, "shaping.min_duty", config.shaping.min_duty),
-                scale: f64_param(&store, "shaping.scale", config.shaping.scale),
+                deadzone: f64_parameter(&store, "shaping.deadzone", config.shaping.deadzone),
+                min_duty: f64_parameter(&store, "shaping.min_duty", config.shaping.min_duty),
+                scale: f64_parameter(&store, "shaping.scale", config.shaping.scale),
             },
-            bool_param(&store, "publish_odometry", config.publish_odometry),
+            bool_parameter(&store, "publish_odometry", config.publish_odometry),
             axis_limits(&store, "linear.x", DEFAULT_LINEAR),
             axis_limits(&store, "angular.z", DEFAULT_ANGULAR),
         )
@@ -142,7 +142,7 @@ pub async fn run_driver(
             }
             _ = diagnostics_tick.tick() => {
                 let age_seconds = last_command.elapsed().as_secs_f64();
-                diagnostics_pub.send(&diagnostics(
+                diagnostics_publisher.send(&diagnostics(
                     &config.host,
                     age_seconds,
                     deadman_seconds,

@@ -22,7 +22,7 @@ sensors:
           stream_path: ""
           width: 1456
           height: 1088
-          fov_deg: 54.0
+          fov_degrees: 54.0
   imu: []
   gps: []
 mounts:

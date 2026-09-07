@@ -186,10 +186,10 @@ hand-gesture-teleop = { cmd = "python boot/launch/boot.launch.py --gesture_camer
     "build",
 ] }
 
-sim = { cmd = "python simulation/launch/simulation.launch.py --world {{ world }} --robots {{ robots }} --depth_scan {{ scan }}", args = [
+sim = { cmd = "python simulation/launch/simulation.launch.py --world {{ world }} --robots {{ robots }} --depth_scan {{ depth_scan }}", args = [
     { arg = "world", default = "farm" },
     { arg = "robots", default = "taro,jiro" },
-    { arg = "scan", default = "false" },
+    { arg = "depth_scan", default = "false" },
 ], depends-on = [
     "build",
 ] }
@@ -200,7 +200,7 @@ sim-server = { cmd = "python simulation/launch/simulation.launch.py --headless t
 
 teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml -r cmd_vel:=/{{ robot }}/joy_teleop/cmd_vel", args = [
     { arg = "robot", default = "taro" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2.local{% elif robot == "jiro" %}rpi5-16.local{% else %}localhost{% endif %}:7447"]' } }
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="peer";connect/endpoints=["tcp/localhost:7447"{% if robot == "taro" %},"tcp/rpi5-16-2.local:7447"{% elif robot == "jiro" %},"tcp/rpi5-16.local:7447"{% endif %}];connect/timeout_ms=3000' } }
 follow-person-enable = { cmd = 'ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
     { arg = "enabled", default = "true" },
@@ -295,7 +295,7 @@ e2e-odrive = "python e2e/odrive_velocity.py"
 
 cone-drill = "python e2e/cone_drill.py --ros-args -p use_sim_time:=true"
 
-camera-check = "python e2e/camera_path.py"
+camera-transport-check = "python e2e/camera_transport.py"
 
 slam-sim = "python navigation/launch/slam.launch.py --environment jazzy --use_sim_time true --scan_topic /sensors/camera_0/scan"
 

@@ -1,6 +1,6 @@
 use oxidros::{core::parameter::Parameters, prelude::*};
 
-pub fn f64_param(store: &Parameters, name: &str, default: f64) -> f64 {
+pub fn f64_parameter(store: &Parameters, name: &str, default: f64) -> f64 {
     match store.get_parameter(name).map(|parameter| &parameter.value) {
         Some(Value::F64(value)) => *value,
         Some(Value::I64(value)) => *value as f64,
@@ -8,21 +8,21 @@ pub fn f64_param(store: &Parameters, name: &str, default: f64) -> f64 {
     }
 }
 
-pub fn i64_param(store: &Parameters, name: &str, default: i64) -> i64 {
+pub fn i64_parameter(store: &Parameters, name: &str, default: i64) -> i64 {
     match store.get_parameter(name).map(|parameter| &parameter.value) {
         Some(Value::I64(value)) => *value,
         _ => default,
     }
 }
 
-pub fn bool_param(store: &Parameters, name: &str, default: bool) -> bool {
+pub fn bool_parameter(store: &Parameters, name: &str, default: bool) -> bool {
     match store.get_parameter(name).map(|parameter| &parameter.value) {
         Some(Value::Bool(value)) => *value,
         _ => default,
     }
 }
 
-pub fn string_param(store: &Parameters, name: &str, default: &str) -> String {
+pub fn string_parameter(store: &Parameters, name: &str, default: &str) -> String {
     match store.get_parameter(name).map(|parameter| &parameter.value) {
         Some(Value::String(value)) => value.clone(),
         _ => default.to_string(),

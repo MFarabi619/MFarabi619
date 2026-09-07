@@ -31,8 +31,8 @@ from rpicam_mjpeg import frames
 from sensor_msgs.msg import CameraInfo, CompressedImage
 
 
-def pinhole_intrinsics(width, height, fov_deg):
-    focal = (width / 2.0) / math.tan(math.radians(fov_deg) / 2.0)
+def pinhole_intrinsics(width, height, fov_degrees):
+    focal = (width / 2.0) / math.tan(math.radians(fov_degrees) / 2.0)
     return focal, focal, width / 2.0, height / 2.0
 
 
@@ -54,7 +54,7 @@ class MjpegCamera(Node):
         self.stream_path = self.declare_parameter('stream_path', '/stream').value
         width = self.declare_parameter('width', 1280).value
         height = self.declare_parameter('height', 720).value
-        fov_deg = self.declare_parameter('fov_deg', 90.0).value
+        fov_degrees = self.declare_parameter('fov_degrees', 90.0).value
         self.publish_period = 1.0 / self.declare_parameter('publish_rate', 20.0).value
 
         self.image_publisher = self.create_publisher(
@@ -63,14 +63,14 @@ class MjpegCamera(Node):
         self.camera_info_publisher = self.create_publisher(
             CameraInfo, self.camera_info_topic, qos_profile_sensor_data
         )
-        self.camera_info = self._build_camera_info(width, height, fov_deg)
+        self.camera_info = self._build_camera_info(width, height, fov_degrees)
 
         self.stopped = threading.Event()
         self.reader = threading.Thread(target=self._read_loop, daemon=True)
         self.reader.start()
 
-    def _build_camera_info(self, width, height, fov_deg):
-        focal_x, focal_y, center_x, center_y = pinhole_intrinsics(width, height, fov_deg)
+    def _build_camera_info(self, width, height, fov_degrees):
+        focal_x, focal_y, center_x, center_y = pinhole_intrinsics(width, height, fov_degrees)
         info = CameraInfo()
         info.width = int(width)
         info.height = int(height)

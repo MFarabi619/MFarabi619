@@ -86,7 +86,7 @@ PHASES = [
     Phase("arc right", "ramp", 1.0, -1.0, 1.3, 2.0, "arc"),
     Phase("halt", "ramp", 0.0, 0.0, 1.4, 0.6, "none"),
     Phase("fast reversal", "swing", LINEAR_MAX_VELOCITY, 0.0, 0.0, 4.0, "swing", swing_seconds=0.5),
-    Phase("accel probe", "swing", LINEAR_MAX_VELOCITY, 0.0, 0.0, 5.0, "accel", swing_seconds=1.6),
+    Phase("acceleration probe", "swing", LINEAR_MAX_VELOCITY, 0.0, 0.0, 5.0, "acceleration", swing_seconds=1.6),
     Phase("halt", "ramp", 0.0, 0.0, 1.2, 1.0, "none"),
 ]
 
@@ -283,7 +283,7 @@ class DriveProfile(Node):
         if measured is None:
             self.results.append(PhaseResult(phase.name, "-", "no odom", "-", False))
             return
-        if phase.check == "accel":
+        if phase.check == "acceleration":
             floor = LINEAR_MAX_ACCELERATION * (1.0 - ACCELERATION_TOLERANCE_FRACTION)
             passed = floor <= measured <= ceiling
             self.results.append(

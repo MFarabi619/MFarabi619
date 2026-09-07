@@ -165,15 +165,15 @@ def normalized_canopy_detector_node():
     node = load_node_class('canopy_detector', 'CanopyDetector')(
         parameter_overrides=[
             rclpy.parameter.Parameter('normalize_exposure', value=True),
-            rclpy.parameter.Parameter('normalized_green_min', value=0.06),
+            rclpy.parameter.Parameter('normalized_excess_green_min', value=0.06),
         ])
     yield node
     node.destroy_node()
 
 
 @pytest.fixture
-def cloud_optical_relay_node():
-    node = load_node_class('cloud_optical_relay', 'CloudOpticalRelay')()
+def cloud_optical_adapter_node():
+    node = load_node_class('cloud_optical_adapter', 'CloudOpticalAdapter')()
     yield node
     node.destroy_node()
 

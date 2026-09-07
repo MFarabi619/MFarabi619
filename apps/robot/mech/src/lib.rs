@@ -27,8 +27,8 @@ pub fn stamped_twist(linear: f64, angular: f64) -> TwistStamped {
     message
 }
 
-pub fn camera_intrinsics(width: usize, height: usize, fov_deg: f64) -> (f64, f64, f64, f64) {
-    let focal = (width as f64 / 2.0) / (fov_deg.to_radians() / 2.0).tan();
+pub fn camera_intrinsics(width: usize, height: usize, fov_degrees: f64) -> (f64, f64, f64, f64) {
+    let focal = (width as f64 / 2.0) / (fov_degrees.to_radians() / 2.0).tan();
     (focal, focal, width as f64 / 2.0, height as f64 / 2.0)
 }
 

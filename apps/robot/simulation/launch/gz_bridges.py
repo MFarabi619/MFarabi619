@@ -59,7 +59,7 @@ def load_sim_sensors(robot):
     return cameras, len(sensors.get('imu', [])), bool(sensors.get('gps', []))
 
 
-def spawn_sim_bridges(bl, robot, world, model, enable_scan=False):
+def spawn_sim_bridges(bl, robot, world, model, depth_scan=False):
     cameras, imu_count, has_gps = load_sim_sensors(robot)
     world = resolve_world_name(world)
 
@@ -115,14 +115,14 @@ def spawn_sim_bridges(bl, robot, world, model, enable_scan=False):
             continue
         bl.node(
             package='robot_perception',
-            executable='cloud_optical_relay',
-            name=f'{camera.name}_cloud_optical_relay',
+            executable='cloud_optical_adapter',
+            name=f'{camera.name}_cloud_optical_adapter',
             params={
                 'body_cloud_topic': f'sensors/{camera.name}/depth/points_body',
                 'optical_cloud_topic': f'sensors/{camera.name}/depth/points',
                 'optical_frame': f'{camera.name}_color_optical_frame',
             })
-        if not enable_scan:
+        if not depth_scan:
             continue
         bl.node(
             package='pointcloud_to_laserscan',

@@ -11,7 +11,7 @@
         timeout: 0.5
         priority: 1
     locks:
-      e_stop:
+      emergency_stop:
         topic: platform/emergency_stop
         timeout: 0.0
         priority: 255

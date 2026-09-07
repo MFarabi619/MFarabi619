@@ -197,10 +197,7 @@ def robot():
     camera_mount_xyz = (
         depth_camera_config.get('xyz', [0.0, 0.0, 0.0])
         if depth_camera_config else [0.0, 0.0, 0.0])
-    # The depth cloud, the scan derived from it and the collision overlay all
-    # read every depth frame. Nothing needs them unless navigation or mapping is
-    # running, and on a loaded robot they starve the detector that does.
-    depth_cloud_enabled = robot_config.get('depth_cloud', {}).get('enabled', True)
+    point_cloud_enabled = robot_config.get('point_cloud', {}).get('enabled', True)
     camera_height_m = float(camera_mount_xyz[2]) - ground_offset(
         f'mech/urdf/{robot_name}/robot.urdf')
     collision_monitor_binary = f'{JAZZY_ENV}/lib/nav2_collision_monitor/collision_monitor'
@@ -600,7 +597,7 @@ def robot():
             bl.node(
                 package='tf2_ros',
                 executable='static_transform_publisher',
-                name='oak_d_optical_frame_bridge',
+                name='oak_d_optical_frame_publisher',
                 cmd_args=[
                     '--roll', '-1.5708', '--yaw', '-1.5708',
                     '--frame-id', f'{camera_name}_link',
@@ -609,7 +606,7 @@ def robot():
                 remaps=TF_REMAPS,
                 **RESPAWN,
             )
-            if oak_d_camera_config['model'] == 'oak_d_sr' and depth_cloud_enabled:
+            if oak_d_camera_config['model'] == 'oak_d_sr' and point_cloud_enabled:
                 bl.node(
                     package='depth_image_proc',
                     executable='point_cloud_xyz_node',
@@ -621,7 +618,7 @@ def robot():
                     },
                     **RESPAWN,
                 )
-            if depth_cloud_enabled:
+            if point_cloud_enabled:
                 bl.node(
                     package='pointcloud_to_laserscan',
                     executable='pointcloud_to_laserscan_node',
@@ -671,7 +668,7 @@ def robot():
                 },
                 **RESPAWN,
             )
-            if camera_parameters['enable_depth'] and depth_cloud_enabled:
+            if camera_parameters['enable_depth'] and point_cloud_enabled:
                 bl.node(
                     package='depth_image_proc',
                     executable='point_cloud_xyz_node',
@@ -702,7 +699,7 @@ def robot():
                     **RESPAWN,
                 )
         if depth_camera_name is not None:
-            if depth_cloud_enabled:
+            if point_cloud_enabled:
                 bl.node(
                     package='robot_perception',
                     executable='collision_overlay',

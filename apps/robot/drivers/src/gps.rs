@@ -7,7 +7,7 @@ use oxidros::{
     },
     prelude::*,
 };
-use robot_control::params::string_param;
+use robot_control::parameters::string_parameter;
 use robot_description::{frames::GPS_LINK, time::now_stamp};
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
@@ -81,7 +81,7 @@ pub async fn run_gps(node: Arc<Node>, default_host: &str) -> Result<(), BoxError
     let host = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
-        string_param(&store, "host", default_host)
+        string_parameter(&store, "host", default_host)
     };
     let publisher =
         node.create_publisher::<NavSatFix>("sensors/gps_0/fix", Some(Profile::sensor_data()))?;

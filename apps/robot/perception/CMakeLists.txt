@@ -44,7 +44,7 @@ install(PROGRAMS src/color_blob_detector.py DESTINATION lib/${PROJECT_NAME} RENA
 install(PROGRAMS src/green_detector.py DESTINATION lib/${PROJECT_NAME} RENAME green_detector)
 install(PROGRAMS src/row_navigator.py DESTINATION lib/${PROJECT_NAME} RENAME row_navigator)
 install(PROGRAMS src/canopy_detector.py DESTINATION lib/${PROJECT_NAME} RENAME canopy_detector)
-install(PROGRAMS src/cloud_optical_relay.py DESTINATION lib/${PROJECT_NAME} RENAME cloud_optical_relay)
+install(PROGRAMS src/cloud_optical_adapter.py DESTINATION lib/${PROJECT_NAME} RENAME cloud_optical_adapter)
 install(PROGRAMS src/harvest_lane_navigator.py DESTINATION lib/${PROJECT_NAME} RENAME harvest_lane_navigator)
 install(PROGRAMS src/row_shuttle.py DESTINATION lib/${PROJECT_NAME} RENAME row_shuttle)
 install(PROGRAMS src/apriltag_operator_adapter.py DESTINATION lib/${PROJECT_NAME} RENAME apriltag_operator_adapter)

@@ -307,12 +307,12 @@ pub async fn run_line_follower(
 ) -> Result<(), BoxError> {
     let config = Config::default();
     let (image_topic, forward_speed, steering_gain) = {
-        let params = node.create_parameter_server()?;
-        let store = params.params.read();
+        let parameters = node.create_parameter_server()?;
+        let store = parameters.params.read();
         (
-            crate::params::string_param(&store, "image_topic", crate::params::DEFAULT_IMAGE_TOPIC),
-            crate::params::f64_param(&store, "forward_speed", DEFAULT_FORWARD_SPEED),
-            crate::params::f64_param(&store, "steering_gain", DEFAULT_STEERING_GAIN),
+            crate::parameters::string_parameter(&store, "image_topic", crate::parameters::DEFAULT_IMAGE_TOPIC),
+            crate::parameters::f64_parameter(&store, "forward_speed", DEFAULT_FORWARD_SPEED),
+            crate::parameters::f64_parameter(&store, "steering_gain", DEFAULT_STEERING_GAIN),
         )
     };
     let mut images = node

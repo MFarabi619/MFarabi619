@@ -4,7 +4,7 @@ use rsruckig::prelude::{
     RuckigResult,
 };
 
-use crate::params::f64_param;
+use crate::parameters::f64_parameter;
 
 const LINEAR: usize = 0;
 const ANGULAR: usize = 1;
@@ -19,9 +19,9 @@ pub struct AxisLimits {
 
 pub fn axis_limits(store: &Parameters, axis: &str, default: AxisLimits) -> AxisLimits {
     AxisLimits {
-        max_acceleration: f64_param(store, &format!("{axis}.max_acceleration"), default.max_acceleration),
-        max_deceleration: f64_param(store, &format!("{axis}.max_deceleration"), default.max_deceleration),
-        max_jerk: f64_param(store, &format!("{axis}.max_jerk"), default.max_jerk),
+        max_acceleration: f64_parameter(store, &format!("{axis}.max_acceleration"), default.max_acceleration),
+        max_deceleration: f64_parameter(store, &format!("{axis}.max_deceleration"), default.max_deceleration),
+        max_jerk: f64_parameter(store, &format!("{axis}.max_jerk"), default.max_jerk),
     }
 }
 

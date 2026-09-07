@@ -78,7 +78,7 @@ def test_enabling_resumes_publishing(canopy_detector_node):
 
 def test_the_threshold_retunes_without_a_restart(normalized_canopy_detector_node):
     normalized_canopy_detector_node.set_parameters(
-        [rclpy.parameter.Parameter('normalized_green_min', value=0.9)])
+        [rclpy.parameter.Parameter('normalized_excess_green_min', value=0.9)])
     mask = normalized_canopy_detector_node.normalized_mask(lit_and_shaded_foliage())
     assert not mask.any()
 

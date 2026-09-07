@@ -29,7 +29,7 @@ JPEG_QUALITY = 80
 EXCESS_GREEN_BGR_WEIGHTS = np.array([[-1.0, 2.0, -1.0]], dtype=np.float32)
 DENOISE_KERNEL = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 LIVE_PARAMETERS = frozenset({
-    'excess_green_min', 'normalize_exposure', 'normalized_green_min',
+    'excess_green_min', 'normalize_exposure', 'normalized_excess_green_min',
 })
 
 
@@ -47,8 +47,8 @@ class CanopyDetector(Node):
         # near field falls under the threshold while the sunlit distance passes.
         self.normalize_exposure = self.declare_parameter(
             'normalize_exposure', False).value
-        self.normalized_green_min = self.declare_parameter(
-            'normalized_green_min', 0.06).value
+        self.normalized_excess_green_min = self.declare_parameter(
+            'normalized_excess_green_min', 0.06).value
         self.is_enabled = self.declare_parameter('start_enabled', False).value
 
         self.mask_publisher = self.create_publisher(
@@ -102,7 +102,7 @@ class CanopyDetector(Node):
         normalized = np.divide(
             excess_green, intensity,
             out=np.zeros_like(excess_green), where=intensity > 0.0)
-        return ((normalized > self.normalized_green_min) * 255).astype(np.uint8)
+        return ((normalized > self.normalized_excess_green_min) * 255).astype(np.uint8)
 
     def on_parameters_set(self, parameters):
         for parameter in parameters:

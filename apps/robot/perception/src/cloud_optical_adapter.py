@@ -34,9 +34,9 @@ def body_to_optical_transform(optical_frame):
     return transform
 
 
-class CloudOpticalRelay(Node):
+class CloudOpticalAdapter(Node):
     def __init__(self):
-        super().__init__('cloud_optical_relay')
+        super().__init__('cloud_optical_adapter')
         body_cloud_topic = self.declare_parameter(
             'body_cloud_topic', '/sensors/camera_0/depth/points_body').value
         optical_cloud_topic = self.declare_parameter(
@@ -50,7 +50,7 @@ class CloudOpticalRelay(Node):
         self.create_subscription(
             PointCloud2, body_cloud_topic, self.on_cloud, qos_profile_sensor_data)
         self.get_logger().info(
-            f'cloud optical relay: {body_cloud_topic} -> {optical_cloud_topic}')
+            f'cloud optical adapter: {body_cloud_topic} -> {optical_cloud_topic}')
 
     def on_cloud(self, message):
         optical_cloud = do_transform_cloud(message, self.body_to_optical)
@@ -60,7 +60,7 @@ class CloudOpticalRelay(Node):
 
 def main():
     rclpy.init()
-    node = CloudOpticalRelay()
+    node = CloudOpticalAdapter()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

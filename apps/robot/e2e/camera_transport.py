@@ -36,9 +36,9 @@ def evaluate(cameras, advertised, frame_counts, window_seconds, minimum_rate_hz)
     return failures
 
 
-class CameraPathCheck(Node):
+class CameraTransportCheck(Node):
     def __init__(self):
-        super().__init__("camera_path_check")
+        super().__init__("camera_transport_check")
         self.frame_counts = {camera: 0 for camera in CAMERAS}
         for camera in CAMERAS:
             self.create_subscription(
@@ -71,7 +71,7 @@ def wait_for_first_frame(node, timeout_seconds):
 
 def main():
     rclpy.init()
-    node = CameraPathCheck()
+    node = CameraTransportCheck()
     wait_for_first_frame(node, WARMUP_TIMEOUT_SECONDS)
     for camera in CAMERAS:
         node.frame_counts[camera] = 0

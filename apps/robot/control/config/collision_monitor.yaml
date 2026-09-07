@@ -37,8 +37,8 @@
         linear_max: 2.0
         theta_min: -3.0
         theta_max: 3.0
-    observation_sources: ["depth_cloud"]
-    depth_cloud:
+    observation_sources: ["point_cloud"]
+    point_cloud:
       type: pointcloud
       topic: sensors/camera_0/depth/points
       min_height: 0.15

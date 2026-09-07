@@ -402,12 +402,12 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
     let landmarker = LandmarkDetector::load(&default_landmark_model())?;
 
     let (image_topic, forward_speed, turn_speed) = {
-        let params = node.create_parameter_server()?;
-        let store = params.params.read();
+        let parameters = node.create_parameter_server()?;
+        let store = parameters.params.read();
         (
-            crate::params::string_param(&store, "image_topic", crate::params::DEFAULT_IMAGE_TOPIC),
-            crate::params::f64_param(&store, "forward_speed", DEFAULT_FORWARD_SPEED),
-            crate::params::f64_param(&store, "turn_speed", DEFAULT_TURN_SPEED),
+            crate::parameters::string_parameter(&store, "image_topic", crate::parameters::DEFAULT_IMAGE_TOPIC),
+            crate::parameters::f64_parameter(&store, "forward_speed", DEFAULT_FORWARD_SPEED),
+            crate::parameters::f64_parameter(&store, "turn_speed", DEFAULT_TURN_SPEED),
         )
     };
 

@@ -10,7 +10,7 @@ use oxidros::{
     },
     prelude::*,
 };
-use robot_control::params::{f64_param, string_param};
+use robot_control::parameters::{f64_parameter, string_parameter};
 use robot_description::{camera_intrinsics, time::now_stamp};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
@@ -25,23 +25,23 @@ const READ_CHUNK_BYTES: usize = 65536;
 pub struct CameraProfile {
     pub width: usize,
     pub height: usize,
-    pub fov_deg: f64,
+    pub fov_degrees: f64,
 }
 
 pub const IMX296_GS: CameraProfile = CameraProfile {
     width: 1456,
     height: 1088,
-    fov_deg: 54.0,
+    fov_degrees: 54.0,
 };
 pub const USB_WEBCAM: CameraProfile = CameraProfile {
     width: 1920,
     height: 1200,
-    fov_deg: 54.0,
+    fov_degrees: 54.0,
 };
 pub const ORBBEC_GEMINI_335L: CameraProfile = CameraProfile {
     width: 1280,
     height: 720,
-    fov_deg: 90.0,
+    fov_degrees: 90.0,
 };
 const STREAM_PATH: &str = "/stream";
 const PUBLISH_INTERVAL: Duration = Duration::from_millis(50);
@@ -71,7 +71,7 @@ fn compressed_image(jpeg: &[u8], frame_id: &str, (sec, nanosec): (i32, u32)) -> 
 }
 
 fn camera_info(profile: CameraProfile, frame_id: &str, (sec, nanosec): (i32, u32)) -> CameraInfo {
-    let (fx, fy, cx, cy) = camera_intrinsics(profile.width, profile.height, profile.fov_deg);
+    let (fx, fy, cx, cy) = camera_intrinsics(profile.width, profile.height, profile.fov_degrees);
     let mut info = CameraInfo::new().unwrap();
     info.header.stamp.sec = sec;
     info.header.stamp.nanosec = nanosec;
@@ -95,9 +95,9 @@ pub async fn run_camera(
     let (source, image_topic, info_topic, frame_id) = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
-        let name = string_param(&store, "name", "camera_0");
-        let host = string_param(&store, "host", &default_host);
-        let port = f64_param(&store, "port", default_port as f64) as u16;
+        let name = string_parameter(&store, "name", "camera_0");
+        let host = string_parameter(&store, "host", &default_host);
+        let port = f64_parameter(&store, "port", default_port as f64) as u16;
         (
             format!("{host}:{port}"),
             format!("sensors/{name}/color/image_raw/compressed"),
@@ -105,9 +105,9 @@ pub async fn run_camera(
             format!("{name}_color_optical_frame"),
         )
     };
-    let image_pub =
+    let image_publisher =
         node.create_publisher::<CompressedImage>(&image_topic, Some(Profile::sensor_data()))?;
-    let info_pub =
+    let camera_info_publisher =
         node.create_publisher::<CameraInfo>(&info_topic, Some(Profile::sensor_data()))?;
 
     tracing::info!("streaming camera from {source} -> {image_topic}");
@@ -130,8 +130,8 @@ pub async fn run_camera(
             }
             last_publish = Some(Instant::now());
             let stamp = now_stamp();
-            let _ = image_pub.send(&compressed_image(&frame, &frame_id, stamp));
-            let _ = info_pub.send(&camera_info(profile, &frame_id, stamp));
+            let _ = image_publisher.send(&compressed_image(&frame, &frame_id, stamp));
+            let _ = camera_info_publisher.send(&camera_info(profile, &frame_id, stamp));
         }
     }
 

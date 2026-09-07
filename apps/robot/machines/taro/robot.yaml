@@ -42,8 +42,8 @@ sensors:
   gps: []
 mounts:
   camera_mount: []
-depth_cloud:
-  enabled: false
+point_cloud:
+  enabled: true
 detector:
   max_detections_per_second: 10.0
 follow_nav2:
@@ -54,7 +54,7 @@ harvest_lane:
   enabled: true
   detector:
     normalize_exposure: true
-    normalized_green_min: 0.06
+    normalized_excess_green_min: 0.06
   navigator:
     row_pitch_m: 1.17
     forward_speed_mps: 0.3

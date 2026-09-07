@@ -2,7 +2,7 @@ use std::time::Duration;
 
 pub(crate) use robot_description::stamped_twist as twist;
 
-pub mod params;
+pub mod parameters;
 pub mod approach;
 pub mod gesture;
 pub mod line;

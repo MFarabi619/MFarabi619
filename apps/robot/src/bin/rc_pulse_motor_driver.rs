@@ -10,7 +10,7 @@ use robot::{
     driver::command_is_stale,
     platform_msgs::robot_platform_msgs::msg::{Drive, Feedback},
 };
-use robot_control::params::{bool_param, f64_param, i64_param};
+use robot_control::parameters::{bool_parameter, f64_parameter, i64_parameter};
 use robot_drivers::sysfs_pwm::PulseChannel;
 
 const SYSFS_PWM_ROOT: &str = "/sys/class/pwm";
@@ -85,12 +85,12 @@ async fn main() -> Result<(), BoxError> {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
         (
-            f64_param(&store, "max_wheel_speed", DEFAULT_MAX_WHEEL_SPEED),
+            f64_parameter(&store, "max_wheel_speed", DEFAULT_MAX_WHEEL_SPEED),
             ["left", "right"].map(|side| {
                 (
-                    i64_param(&store, &format!("{side}_pwm_chip"), 0) as u32,
-                    i64_param(&store, &format!("{side}_pwm_channel"), 0) as u32,
-                    bool_param(&store, &format!("{side}_reversed"), false),
+                    i64_parameter(&store, &format!("{side}_pwm_chip"), 0) as u32,
+                    i64_parameter(&store, &format!("{side}_pwm_channel"), 0) as u32,
+                    bool_parameter(&store, &format!("{side}_reversed"), false),
                 )
             }),
         )
