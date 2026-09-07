@@ -46,6 +46,9 @@ FOLLOWED_SURFACES = {
 TF_REMAPS = {'/tf': 'tf', '/tf_static': 'tf_static'}
 
 GPS_TOPICS = ['fix', 'vel', 'time_reference', 'heading']
+NTRIP_CASTER_HOST = 'rtk2go.com'
+NTRIP_SERIAL_OUTPUT = 2
+NTRIP_RESPAWN = {'max_respawns': -1, 'respawn_delay': 10.0}
 
 def ground_offset(urdf_path):
     robot = ElementTree.parse(urdf_path).getroot()
@@ -440,6 +443,17 @@ def robot():
                 isolate_env=True,
                 **RESPAWN,
             )
+            bl.process(
+                f'{PIXI} run --clean-env -e jazzy'
+                f' python {os.path.abspath("perception/src/lay_down_weeding_elbow_teleop.py")}'
+                ' --ros-args'
+                f' -r __ns:=/{namespace}'
+                ' -p start_enabled:=false',
+                name='lay_down_weeding_elbow_teleop',
+                env={'HOME': os.environ['HOME']},
+                isolate_env=True,
+                **RESPAWN,
+            )
 
         if robot_config.get('follow_nav2', {}).get('enabled', False):
             follow_parameters = os.path.abspath('navigation/config/follow.yaml')
@@ -543,6 +557,21 @@ def robot():
                 isolate_env=True,
                 **RESPAWN,
             )
+            ntrip = sensors['gps'][0].get('ntrip')
+            if ntrip:
+                bl.process(
+                    f'{PIXI} run --clean-env -e jazzy'
+                    f' {JAZZY_ENV}/bin/gnssntripclient'
+                    f' --server {NTRIP_CASTER_HOST} --ntripversion 1.0'
+                    f' --mountpoint {ntrip["mountpoint"]}'
+                    f' --ntripuser {ntrip["username"]} --ntrippassword none'
+                    f' --clioutput {NTRIP_SERIAL_OUTPUT}'
+                    f' --output {gps_parameters["port"]}@{gps_parameters["baud"]}',
+                    name='ntrip_client',
+                    env={'HOME': os.environ['HOME']},
+                    isolate_env=True,
+                    **NTRIP_RESPAWN,
+                )
 
         if sensors.get('imu'):
             bl.node(

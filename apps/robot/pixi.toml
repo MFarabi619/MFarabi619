@@ -116,6 +116,7 @@ ZENOH_SESSION_CONFIG_URI = "networking/zenoh/robot.json5"
 
 [feature.jazzy.dependencies]
 python = "3.12.*"
+pygnssutils = "*"
 ros-jazzy-nav2-amcl = "*"
 ros-jazzy-slam-toolbox = "*"
 ros-jazzy-nav2-planner = "*"
@@ -155,6 +156,7 @@ ros-jazzy-nav2-bringup = "*"
 ros-jazzy-apriltag-msgs = "*"
 ros-jazzy-teleop-twist-keyboard = "*"
 ros-jazzy-image-transport-plugins = "*"
+ros-jazzy-nmea-navsat-driver = "*"
 
 [feature.jazzy.target.osx-arm64.pypi-dependencies]
 better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editable = true }
@@ -163,6 +165,11 @@ better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editab
 teleop-xiao = { cmd = "python boot/launch/teleop_xiao.launch.py --smooth {{ smooth }}", args = [
     { arg = "smooth", default = "false" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/10.0.0.247:7447"]' } }
+
+gps = { cmd = "python boot/launch/gps.launch.py --port {{ port }} --baud {{ baud }}", args = [
+    { arg = "port", default = "/dev/cu.usbmodem2101" },
+    { arg = "baud", default = "115200" },
+] }
 
 [tasks]
 build = "colcon build --merge-install --base-paths . --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"

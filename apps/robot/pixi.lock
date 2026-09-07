@@ -3159,17 +3159,28 @@ environments:
       - conda: https://prefix.dev/conda-forge/noarch/pydocstyle-6.3.0-pyhd8ed1ab_1.conda
       - conda: https://prefix.dev/conda-forge/noarch/pyflakes-3.4.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pygments-2.20.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pygnssutils-1.2.7-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pynmeagps-1.1.7-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pyparsing-3.3.2-pyhcf101f3_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyqgc-1.0.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyrtcm-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pysbf2-1.0.4-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyserial-3.5-pyhcf101f3_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/pysocks-1.7.1-pyha55dd90_7.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyspartn-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pytest-9.1.1-pyhc364b38_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/python-dateutil-2.9.0.post0-pyhe01879c_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/python-gil-3.12.13-hd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/python_abi-3.12-8_cp312.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyubx2-1.3.6-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyubxutils-1.0.6-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyunigps-1.0.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/setuptools-83.0.0-pyh332efcf_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
       - conda: https://prefix.dev/conda-forge/noarch/snowballstemmer-3.1.1-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/tomli-2.4.1-pyhcf101f3_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/transforms3d-0.4.2-pyhd8ed1ab_1.conda
       - conda: https://prefix.dev/conda-forge/noarch/typeguard-4.6.0-pyhcf101f3_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/typing_extensions-4.16.0-pyhcf101f3_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/tzdata-2026c-h151e31d_0.conda
@@ -3720,6 +3731,8 @@ environments:
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-nav2-voxel-grid-1.3.12-np2py312hd441986_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-nav2-waypoint-follower-1.3.12-np2py312hd441986_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-navigation2-1.3.12-np2py312hd441986_18.conda
+      - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-nmea-msgs-2.1.0-np2py312hd441986_18.conda
+      - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-nmea-navsat-driver-2.0.1-np2py312hd441986_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-ompl-1.7.0-py312hd01b2e8_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-opennav-docking-1.3.12-np2py312hd441986_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-opennav-docking-bt-1.3.12-np2py312hd441986_18.conda
@@ -3821,6 +3834,7 @@ environments:
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-std-srvs-5.3.7-np2py312hd441986_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-tcb-span-1.3.1-np2py312hd441986_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-teleop-twist-keyboard-2.4.1-np2py312hd441986_18.conda
+      - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-tf-transformations-1.1.1-np2py312hd441986_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-tf2-0.36.20-np2py312hd441986_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-tf2-eigen-0.36.20-np2py312h16b58fb_18.conda
       - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-tf2-geometry-msgs-0.36.20-np2py312hd441986_18.conda
@@ -4130,11 +4144,21 @@ environments:
       - conda: https://prefix.dev/conda-forge/noarch/pydocstyle-6.3.0-pyhd8ed1ab_1.conda
       - conda: https://prefix.dev/conda-forge/noarch/pyflakes-3.4.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pygments-2.20.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pygnssutils-1.2.7-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pynmeagps-1.1.7-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pyparsing-3.3.2-pyhcf101f3_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyqgc-1.0.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyrtcm-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pysbf2-1.0.4-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyserial-3.5-pyhcf101f3_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/pysocks-1.7.1-pyha55dd90_7.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyspartn-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pytest-9.1.1-pyhc364b38_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/python-dateutil-2.9.0.post0-pyhe01879c_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/python_abi-3.12-8_cp312.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyubx2-1.3.6-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyubxutils-1.0.6-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyunigps-1.0.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/setuptools-83.0.0-pyh332efcf_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
@@ -4691,13 +4715,22 @@ environments:
       - conda: https://prefix.dev/conda-forge/noarch/pydocstyle-6.3.0-pyhd8ed1ab_1.conda
       - conda: https://prefix.dev/conda-forge/noarch/pyflakes-3.4.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pygments-2.20.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pygnssutils-1.2.7-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pynmeagps-1.1.7-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pyparsing-3.3.2-pyhcf101f3_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyqgc-1.0.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyrtcm-1.2.0-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pysbf2-1.0.4-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pyserial-3.5-pyhcf101f3_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/pysocks-1.7.1-pyha55dd90_7.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyspartn-1.1.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/pytest-9.1.1-pyhc364b38_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/python-dateutil-2.9.0.post0-pyhe01879c_2.conda
       - conda: https://prefix.dev/conda-forge/noarch/python-gil-3.12.13-hd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/python_abi-3.12-8_cp312.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyubx2-1.3.6-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyubxutils-1.0.6-pyhd8ed1ab_0.conda
+      - conda: https://prefix.dev/conda-forge/noarch/pyunigps-1.0.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/setuptools-83.0.0-pyh332efcf_0.conda
       - conda: https://prefix.dev/conda-forge/noarch/six-1.17.0-pyhe01879c_1.conda
@@ -16265,7 +16298,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/brotli?source=compressed-mapping
+  - pkg:pypi/brotli?source=hash-mapping
   run_exports: {}
   size: 367476
   timestamp: 1786622919850
@@ -27108,6 +27141,39 @@ packages:
   run_exports: {}
   size: 893031
   timestamp: 1774796815820
+- conda: https://prefix.dev/conda-forge/noarch/pygnssutils-1.2.7-pyhd8ed1ab_0.conda
+  sha256: febe66f92cc4cb414c27e0b659bdcb6dd5344b79a5143b7586a2f31647b1a8cd
+  md5: 062fb38806b2b209b2eaeebe55b50efb
+  depends:
+  - certifi >=2025.0.0
+  - pynmeagps >=1.1.7
+  - pyqgc >=1.0.0
+  - pysbf2 >=1.0.4
+  - pyserial >=3.5
+  - pyspartn >=1.1.0
+  - python >=3.10
+  - pyubx2 >=1.3.6
+  - pyubxutils >=1.0.6
+  - pyunigps >=1.0.0
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pygnssutils?source=hash-mapping
+  run_exports: {}
+  size: 105380
+  timestamp: 1787829550734
+- conda: https://prefix.dev/conda-forge/noarch/pynmeagps-1.1.7-pyhd8ed1ab_0.conda
+  sha256: 50b22573553891919542012718f3428ea3f174df84342aee57350c98db4dbf0d
+  md5: 4173ee71ea9e00017d5d4a387431c365
+  depends:
+  - python >=3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pynmeagps?source=hash-mapping
+  run_exports: {}
+  size: 59958
+  timestamp: 1786383238582
 - conda: https://prefix.dev/conda-forge/noarch/pyparsing-3.3.2-pyhcf101f3_0.conda
   sha256: 417fba4783e528ee732afa82999300859b065dc59927344b4859c64aae7182de
   md5: 3687cc0b82a8b4c17e1f0eb7e47163d5
@@ -27121,6 +27187,20 @@ packages:
   run_exports: {}
   size: 110893
   timestamp: 1769003998136
+- conda: https://prefix.dev/conda-forge/noarch/pyqgc-1.0.0-pyhd8ed1ab_0.conda
+  sha256: 6b6d6b11f9bf8d2b2029c99c6b39f23012a5203a19958147abad78e317d0c8ab
+  md5: 6322c6079f512119d229d57fadb01824
+  depends:
+  - pynmeagps >=1.1.4
+  - pyrtcm >=1.1.12
+  - python >=3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pyqgc?source=hash-mapping
+  run_exports: {}
+  size: 30071
+  timestamp: 1781183290259
 - conda: https://prefix.dev/conda-forge/noarch/pyqt-builder-1.18.2-pyhd8ed1ab_1.conda
   sha256: 8aa0bcdce10de9b36e03993172d020c81e36d9e59e6b60042f956603cf3fc62b
   md5: 83a4542a3495b651ccc8c06c01206f16
@@ -27136,6 +27216,33 @@ packages:
   run_exports: {}
   size: 2952282
   timestamp: 1766858321453
+- conda: https://prefix.dev/conda-forge/noarch/pyrtcm-1.2.0-pyhd8ed1ab_0.conda
+  sha256: 0640e01c9afbee1ef67c33bba6c84cb2bf27ad6686c19722531fcf1b5542309e
+  md5: 61e6b5905d039065d200f7d862105f97
+  depends:
+  - pynmeagps >=1.1.5
+  - python >=3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pyrtcm?source=hash-mapping
+  run_exports: {}
+  size: 42412
+  timestamp: 1784013180548
+- conda: https://prefix.dev/conda-forge/noarch/pysbf2-1.0.4-pyhd8ed1ab_0.conda
+  sha256: 27ee76b8ab8ca230f149137641349571e7211721dec4cc3355b3ff10ba17a030
+  md5: 574c90cef9e56473465fc787eb7646c8
+  depends:
+  - pynmeagps >=1.1.2
+  - pyrtcm >=1.1.10
+  - python >=3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pysbf2?source=hash-mapping
+  run_exports: {}
+  size: 36690
+  timestamp: 1773056799672
 - conda: https://prefix.dev/conda-forge/noarch/pyserial-3.5-pyhcf101f3_2.conda
   sha256: 8c618e8ca376d73133c9971abe45463a48c9cfb529788d609fd19568764941ba
   md5: b27a6cd32160c34682ce6053b04c12c6
@@ -27162,6 +27269,18 @@ packages:
   run_exports: {}
   size: 21085
   timestamp: 1733217331982
+- conda: https://prefix.dev/conda-forge/noarch/pyspartn-1.1.0-pyhd8ed1ab_0.conda
+  sha256: 876ba2f7569f3be0aa776593097bd1587dfd7018ce1886a92ead1e3112e3af73
+  md5: a5dd5fc7c10a1d8d65835210f066fa12
+  depends:
+  - python >=3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pyspartn?source=hash-mapping
+  run_exports: {}
+  size: 36666
+  timestamp: 1784361804694
 - conda: https://prefix.dev/conda-forge/noarch/pytest-9.1.0-pyhc364b38_0.conda
   sha256: 5aa4f03f578998719d3f12e1e79d53956f6cc915429f8ac66fc1bd2107b7ec65
   md5: 4ea6d6c745192579ca81b75021b68334
@@ -27344,6 +27463,48 @@ packages:
   run_exports: {}
   size: 6989
   timestamp: 1752805904792
+- conda: https://prefix.dev/conda-forge/noarch/pyubx2-1.3.6-pyhd8ed1ab_0.conda
+  sha256: 9aa2081bae082065794fcfef9f0a32b1583faf9b94730f468e8b8d82d5326813
+  md5: 9f42d0cfea0d09824f918b8cfdfa337b
+  depends:
+  - pynmeagps >=1.1.5
+  - pyrtcm >=1.2.0
+  - python >=3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pyubx2?source=hash-mapping
+  run_exports: {}
+  size: 70659
+  timestamp: 1784368471658
+- conda: https://prefix.dev/conda-forge/noarch/pyubxutils-1.0.6-pyhd8ed1ab_0.conda
+  sha256: 8c0144718fc63b34de44baa81cc497d8bd60589db83340396403b67a0991398e
+  md5: 626e43e56cf4d280fe4f4f7bb0e8b8a7
+  depends:
+  - pyserial >=3.5
+  - python >=3.10
+  - pyubx2 >=1.2.59
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pyubxutils?source=hash-mapping
+  run_exports: {}
+  size: 30857
+  timestamp: 1770834157473
+- conda: https://prefix.dev/conda-forge/noarch/pyunigps-1.0.0-pyhd8ed1ab_0.conda
+  sha256: 66957e14c3a1918fb16482f1b7962524072653fabd53787bf070cca7eb7a19f8
+  md5: 1eb106648f36052fd5ec8e67717ca173
+  depends:
+  - pynmeagps >=1.1.2
+  - pyrtcm >=1.1.12
+  - python >=3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/pyunigps?source=hash-mapping
+  run_exports: {}
+  size: 35022
+  timestamp: 1774514973691
 - conda: https://prefix.dev/conda-forge/noarch/requests-2.34.2-pyhcf101f3_0.conda
   sha256: 1715246b19c9f85ee022933b4845f2fc14ac9184981b7b7d9b728bec8e9588da
   md5: 4a85203c1d80c1059086ae860836ffb9
@@ -51957,6 +52118,48 @@ packages:
   run_exports: {}
   size: 24309
   timestamp: 1782341362962
+- conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-nmea-msgs-2.1.0-np2py312hd441986_18.conda
+  sha256: b12607b045f514a4147d37049df3bf9841150aa3fb9f32bca8d631b1e364fc3e
+  md5: 119efb2400333963b34523599b6a8438
+  depends:
+  - python
+  - ros-jazzy-builtin-interfaces
+  - ros-jazzy-ros-workspace
+  - ros-jazzy-rosidl-default-runtime
+  - ros-jazzy-std-msgs
+  - ros2-distro-mutex 0.15.* jazzy_*
+  - __osx >=11.0
+  - libcxx >=19
+  - python_abi 3.12.* *_cp312
+  - numpy >=1.25,<3
+  - ros2-distro-mutex >=0.15.0,<0.16.0a0
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 189816
+  timestamp: 1782304374970
+- conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-nmea-navsat-driver-2.0.1-np2py312hd441986_18.conda
+  sha256: 12e933372980709a4898746210d3d9e4a0f2648fe9701a0a36aa6492168f1aab
+  md5: c82a291a841263843616a6b6ffd3b93e
+  depends:
+  - numpy
+  - pyserial
+  - python
+  - ros-jazzy-geometry-msgs
+  - ros-jazzy-nmea-msgs
+  - ros-jazzy-rclpy
+  - ros-jazzy-ros-workspace
+  - ros-jazzy-sensor-msgs
+  - ros-jazzy-tf-transformations
+  - ros2-distro-mutex 0.15.* jazzy_*
+  - libcxx >=19
+  - __osx >=11.0
+  - numpy >=1.25,<3
+  - python_abi 3.12.* *_cp312
+  - ros2-distro-mutex >=0.15.0,<0.16.0a0
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 38517
+  timestamp: 1782306689608
 - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-ompl-1.7.0-py312hd01b2e8_18.conda
   sha256: ef018cb724af9efe04ff9a5a184c7230917aff1d66175a060fece921b3dc9a47
   md5: facf950331a99c83112ea9993d13af79
@@ -54300,6 +54503,24 @@ packages:
   run_exports: {}
   size: 25303
   timestamp: 1782307241809
+- conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-tf-transformations-1.1.1-np2py312hd441986_18.conda
+  sha256: e87d66a09ccee9ad6f5e6678dc0d710f8525ce9da6f39820af582af30316d0ca
+  md5: 69b42e386e2c5f1daaaa75325a5d5693
+  depends:
+  - numpy
+  - python
+  - ros-jazzy-ros-workspace
+  - ros2-distro-mutex 0.15.* jazzy_*
+  - transforms3d
+  - libcxx >=19
+  - __osx >=11.0
+  - python_abi 3.12.* *_cp312
+  - ros2-distro-mutex >=0.15.0,<0.16.0a0
+  - numpy >=1.25,<3
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 40048
+  timestamp: 1782299833078
 - conda: https://prefix.dev/robostack-jazzy/osx-arm64/ros-jazzy-tf2-0.36.20-np2py312hd441986_18.conda
   sha256: c7583b2a43b86e57f0493abb47e0a3420ecdfb800fc6daa6daa317224084717f
   md5: 74c11d2a4404c65aa1a4da03e2d5f914

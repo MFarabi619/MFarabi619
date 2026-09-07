@@ -39,7 +39,17 @@ sensors:
           depth_fps: 15
           depth_decimation: 2
   imu: []
-  gps: []
+  gps:
+    - model: ublox_zed_f9p
+      parent: base_link
+      ros_parameters:
+        nmea_navsat_driver:
+          port: /dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00
+          baud: 115200
+          frame_id: gps_link
+      ntrip:
+        mountpoint: OsgoodeFarms
+        username: farabi@tandemrobotics.ca
 mounts:
   camera_mount: []
 point_cloud:

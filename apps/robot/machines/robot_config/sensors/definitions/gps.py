@@ -67,3 +67,7 @@ class BaseGPS(BaseSensor):
 
 class AdafruitUltimateGpsHat(BaseGPS):
     SENSOR_MODEL = 'adafruit_ultimate_gps_hat'
+
+
+class UbloxZedF9p(BaseGPS):
+    SENSOR_MODEL = 'ublox_zed_f9p'

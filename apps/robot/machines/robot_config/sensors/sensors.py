@@ -27,7 +27,11 @@ from robot_config.sensors.definitions.camera import (
     OrbbecGemini335L,
     USBWebcam,
 )
-from robot_config.sensors.definitions.gps import AdafruitUltimateGpsHat, BaseGPS
+from robot_config.sensors.definitions.gps import (
+    AdafruitUltimateGpsHat,
+    BaseGPS,
+    UbloxZedF9p,
+)
 from robot_config.sensors.definitions.imu import BaseIMU, Bno085
 from robot_config.sensors.definitions.sensor import BaseSensor
 
@@ -59,9 +63,11 @@ class Camera():
 
 class GlobalPositioningSystem():
     ADAFRUIT_ULTIMATE_GPS_HAT = AdafruitUltimateGpsHat.SENSOR_MODEL
+    UBLOX_ZED_F9P = UbloxZedF9p.SENSOR_MODEL
 
     MODEL = {
         ADAFRUIT_ULTIMATE_GPS_HAT: AdafruitUltimateGpsHat,
+        UBLOX_ZED_F9P: UbloxZedF9p,
     }
 
     @classmethod
