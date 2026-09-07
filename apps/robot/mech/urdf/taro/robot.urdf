@@ -144,6 +144,13 @@
     <origin xyz="0.0000 0.0000 0.0000" rpy="-1.5708 0.0000 -1.5708"/>
   </joint>
 
+  <link name="gps_link"/>
+  <joint name="gps_link_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="gps_link"/>
+    <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.0000 0.0000"/>
+  </joint>
+
   <ros2_control name="DiffDriveHardware" type="system">
     <hardware>
       <plugin>robot_drivers/DiffDriveHardware</plugin>

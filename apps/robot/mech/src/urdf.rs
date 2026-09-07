@@ -11,7 +11,7 @@ use crate::{
     dimensions::Dimensions,
     link::LinkId,
     parameters::RAIL_CROSS_HEIGHT_MM,
-    placement::CAMERA_OPTICAL_RPY,
+    placement::{caster_wheel_center, ground_z, Corner, CAMERA_OPTICAL_RPY},
     MESH_URI_PREFIX, MM_TO_M,
 };
 
@@ -88,9 +88,11 @@ fn ros2_control_block(variant: UrdfVariant, namespace: &str, drivetrain_model: &
     block
 }
 
-const CASTER_FRICTION_COEFFICIENT: f64 = 0.0;
+const CASTER_ROLLING_FRICTION_COEFFICIENT: f64 = 0.0;
+const CASTER_LATERAL_FRICTION_COEFFICIENT: f64 = 0.2;
+const CASTER_ROLLING_DIRECTION: &str = "1 0 0";
 const CASTER_CONTACT_STIFFNESS_N_PER_M: f64 = 1_000_000.0;
-const CASTER_CONTACT_DAMPING_N_S_PER_M: f64 = 100.0;
+const CASTER_CONTACT_DAMPING_N_S_PER_M: f64 = 5_000.0;
 const CASTER_CONTACT_MIN_DEPTH_M: f64 = 0.001;
 
 const POSE_PUBLISHER_UPDATE_RATE_HZ: u32 = 50;
@@ -115,7 +117,7 @@ fn caster_contact_surfaces(links: &[Link]) -> String {
     for link in links {
         if matches!(link.id, LinkId::CasterFrontLeft | LinkId::CasterFrontRight) {
             xml.push_str(&format!(
-                "  <gazebo reference=\"{}\">\n    <mu1>{CASTER_FRICTION_COEFFICIENT}</mu1>\n    <mu2>{CASTER_FRICTION_COEFFICIENT}</mu2>\n    <kp>{CASTER_CONTACT_STIFFNESS_N_PER_M}</kp>\n    <kd>{CASTER_CONTACT_DAMPING_N_S_PER_M}</kd>\n    <minDepth>{CASTER_CONTACT_MIN_DEPTH_M}</minDepth>\n  </gazebo>\n\n",
+                "  <gazebo reference=\"{}\">\n    <mu1>{CASTER_ROLLING_FRICTION_COEFFICIENT}</mu1>\n    <mu2>{CASTER_LATERAL_FRICTION_COEFFICIENT}</mu2>\n    <fdir1>{CASTER_ROLLING_DIRECTION}</fdir1>\n    <kp>{CASTER_CONTACT_STIFFNESS_N_PER_M}</kp>\n    <kd>{CASTER_CONTACT_DAMPING_N_S_PER_M}</kd>\n    <minDepth>{CASTER_CONTACT_MIN_DEPTH_M}</minDepth>\n  </gazebo>\n\n",
                 link.id.link_name(),
             ));
         }
@@ -407,9 +409,18 @@ fn collision_xml(id: LinkId, dimensions: &Dimensions, variant: UrdfVariant) -> O
         LinkId::CasterFrontLeft | LinkId::CasterFrontRight => (variant
             == UrdfVariant::Simulation)
             .then(|| {
+                let caster_wheel_radius_mm = CASTER_WHEEL_DIAMETER_MM / 2.0;
+                let caster_wheel_bottom_z_mm =
+                    caster_wheel_center(Corner::FrontLeft, dimensions).z
+                        - caster_wheel_radius_mm;
+                let contact_lift_mm =
+                    ground_z(dimensions) - caster_wheel_bottom_z_mm;
                 format!(
-                    "    <collision><geometry><sphere radius=\"{:.4}\"/></geometry></collision>\n",
-                    CASTER_WHEEL_DIAMETER_MM / 2.0 * MM_TO_M,
+                    "    <collision><origin xyz=\"0 0 {:.4}\" rpy=\"{:.4} 0 0\"/><geometry><cylinder radius=\"{:.4}\" length=\"{:.4}\"/></geometry></collision>\n",
+                    contact_lift_mm * MM_TO_M,
+                    std::f64::consts::FRAC_PI_2,
+                    caster_wheel_radius_mm * MM_TO_M,
+                    WHEEL_TREAD_WIDTH_MM * MM_TO_M,
                 )
             }),
         LinkId::Chassis => Some(format!(

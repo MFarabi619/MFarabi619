@@ -7,10 +7,10 @@
   <link name="base_footprint">
   </link>
   <link name="front_left_caster_link">
-    <collision><geometry><sphere radius="0.1396"/></geometry></collision>
+    <collision><origin xyz="0 0 0.0439" rpy="1.5708 0 0"/><geometry><cylinder radius="0.1396" length="0.1000"/></geometry></collision>
   </link>
   <link name="front_right_caster_link">
-    <collision><geometry><sphere radius="0.1396"/></geometry></collision>
+    <collision><origin xyz="0 0 0.0439" rpy="1.5708 0 0"/><geometry><cylinder radius="0.1396" length="0.1000"/></geometry></collision>
   </link>
   <link name="chassis">
     <visual><geometry><mesh filename="package://robot_description/meshes/robot3/chassis.dae"/></geometry></visual>
@@ -162,17 +162,19 @@
 
   <gazebo reference="front_left_caster_link">
     <mu1>0</mu1>
-    <mu2>0</mu2>
+    <mu2>0.2</mu2>
+    <fdir1>1 0 0</fdir1>
     <kp>1000000</kp>
-    <kd>100</kd>
+    <kd>5000</kd>
     <minDepth>0.001</minDepth>
   </gazebo>
 
   <gazebo reference="front_right_caster_link">
     <mu1>0</mu1>
-    <mu2>0</mu2>
+    <mu2>0.2</mu2>
+    <fdir1>1 0 0</fdir1>
     <kp>1000000</kp>
-    <kd>100</kd>
+    <kd>5000</kd>
     <minDepth>0.001</minDepth>
   </gazebo>
 
