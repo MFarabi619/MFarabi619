@@ -150,6 +150,24 @@
         <label>12</label>
       </plugin>
     </model>
+    <model name="farm_verge_left">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_verge_left.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_verge_left.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>14</label>
+      </plugin>
+    </model>
     <model name="farm_curb_face_right">
       <static>true</static>
       <link name="link">
@@ -196,6 +214,24 @@
       </link>
       <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
         <label>12</label>
+      </plugin>
+    </model>
+    <model name="farm_verge_right">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://materials/farm_verge_right.dae</uri></mesh>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <mesh><uri>model://materials/farm_verge_right.dae</uri></mesh>
+          </geometry>
+        </collision>
+      </link>
+      <plugin filename="gz-sim-label-system" name="gz::sim::systems::Label">
+        <label>14</label>
       </plugin>
     </model>
     <model name="farm_track_0">

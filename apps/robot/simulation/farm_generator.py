@@ -229,6 +229,31 @@ def curb_face(frames, offset, meters_per_tile):
     return mesh
 
 
+def verge(frames, inner_offset, outer_offset, meters_per_tile):
+    mesh = collada_mesh.TexturedMesh()
+    across_offset = outer_offset - inner_offset
+    across_tiles = math.hypot(across_offset, CURB_HEIGHT) / meters_per_tile
+    for start, end, normal, start_distance, end_distance in frames:
+        inner_start = (start[0] + normal[0] * inner_offset, start[1] + normal[1] * inner_offset)
+        outer_start = (start[0] + normal[0] * outer_offset, start[1] + normal[1] * outer_offset)
+        inner_end = (end[0] + normal[0] * inner_offset, end[1] + normal[1] * inner_offset)
+        outer_end = (end[0] + normal[0] * outer_offset, end[1] + normal[1] * outer_offset)
+        surface_normal = (normal[0] * CURB_HEIGHT, normal[1] * CURB_HEIGHT, across_offset)
+        if across_offset < 0.0:
+            surface_normal = tuple(-component for component in surface_normal)
+        magnitude = math.hypot(*surface_normal)
+        surface_normal = tuple(component / magnitude for component in surface_normal)
+        start_tile = start_distance / meters_per_tile
+        end_tile = end_distance / meters_per_tile
+        mesh.quad(
+            [(inner_start[0], inner_start[1], CURB_HEIGHT), (outer_start[0], outer_start[1], 0.0),
+             (outer_end[0], outer_end[1], 0.0), (inner_end[0], inner_end[1], CURB_HEIGHT)],
+            surface_normal,
+            [(start_tile, 0.0), (start_tile, across_tiles),
+             (end_tile, across_tiles), (end_tile, 0.0)])
+    return mesh
+
+
 def straight_ribbon(center_y, start_x, end_x, width, meters_per_tile):
     mesh = collada_mesh.TexturedMesh()
     along_tiles = abs(end_x - start_x) / meters_per_tile
@@ -686,6 +711,12 @@ def build():
             ribbon(frames, curb_outer * side, sidewalk_outer * side, CURB_HEIGHT,
                    METERS_PER_SIDEWALK_TILE),
             'textures/sidewalk_tile.jpg')
+        counts[f'verge_{side_name}'] = write_mesh(
+            f'farm_verge_{side_name}',
+            verge(frames, sidewalk_outer * side,
+                  (sidewalk_outer + VERGE_WIDTH) * side,
+                  METERS_PER_GRASS_TILE),
+            'textures/grass_color.jpg')
 
     dirt_half_x, dirt_half_y, _ = field_extents()
     counts['field_dirt'] = write_mesh(
@@ -716,9 +747,9 @@ def world_models():
         static_visual('farm_road', 'farm_road', ROAD_LABEL),
     ] + [
         static_visual(f'farm_{surface}_{side}', f'farm_{surface}_{side}',
-                      SIDEWALK_LABEL if surface == 'sidewalk' else None)
+                      {'sidewalk': SIDEWALK_LABEL, 'verge': GRASS_LABEL}.get(surface))
         for side in ('left', 'right')
-        for surface in ('curb_face', 'curb_top', 'sidewalk')
+        for surface in ('curb_face', 'curb_top', 'sidewalk', 'verge')
     ] + [
         static_visual(f'farm_track_{index}', f'farm_track_{index}')
         for index in range(len(TRACK_STATIONS))
