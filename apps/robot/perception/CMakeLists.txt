@@ -54,6 +54,7 @@ install(PROGRAMS src/yolo26_person_detector.py DESTINATION lib/${PROJECT_NAME} R
 install(PROGRAMS src/approach.py DESTINATION lib/${PROJECT_NAME} RENAME approach)
 install(PROGRAMS src/person_goal_bridge.py DESTINATION lib/${PROJECT_NAME} RENAME person_goal_bridge)
 install(PROGRAMS src/weeding_creep.py DESTINATION lib/${PROJECT_NAME} RENAME weeding_creep)
+install(PROGRAMS src/lay_down_weeding_elbow_teleop.py DESTINATION lib/${PROJECT_NAME} RENAME lay_down_weeding_elbow_teleop)
 install(PROGRAMS src/tracked_approach.py DESTINATION lib/${PROJECT_NAME} RENAME tracked_approach)
 install(PROGRAMS src/row_follow.py DESTINATION lib/${PROJECT_NAME} RENAME row_follow)
 install(PROGRAMS src/surface_follow.py DESTINATION lib/${PROJECT_NAME} RENAME surface_follow)
