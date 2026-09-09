@@ -43,7 +43,7 @@ sensors:
     #     camera_0: {}
 
 foxglove:
-  enabled: false
+  enabled: true
 detector:
   max_detections_per_second: 30.0
   model_path: perception/models/ssd_mobilenet_v1_12_int8.onnx
