@@ -2,7 +2,7 @@
   "$schema": "https://www.schemastore.org/package.json",
   "name": "mfarabi",
   "private": true,
-  "packageManager": "pnpm@11.22.0",
+  "packageManager": "pnpm@11.24.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mfarabi619/mfarabi619"
