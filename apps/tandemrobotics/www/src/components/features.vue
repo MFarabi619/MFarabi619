@@ -22,7 +22,7 @@ const features = [
   {
     label: "01",
     title: "Runs the rows on its own",
-    body: "Map your field once and Tandem drives it for you — planning its path, holding the line down every row, and steering around obstacles as they appear. Depth cameras, an IMU, and GPS keep it located to field-grade accuracy.",
+    body: "Map your field once and Tandem drives it for you, planning its path, holding the line down every row, and steering around obstacles as they appear. Depth cameras, an IMU, and GPS keep it located to field-grade accuracy.",
     image: "/robot-backyard-1.webp",
     stack: ["ROS 2", "Zephyr"],
   },
@@ -36,7 +36,7 @@ const features = [
   {
     label: "03",
     title: "Yours to keep",
-    body: "You own it end to end — no subscriptions, no lock-in, no strings. Full right to repair, right down to the source.",
+    body: "You own it end to end. No subscriptions, no lock-in, no strings. Full right to repair, right down to the source.",
     image: "/rutebega-data-logger-with-robot.webp",
     stack: ["Rust", "Zig", "Nix", "C++"],
   },

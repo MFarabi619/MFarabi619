@@ -9,5 +9,5 @@ Welcome to the documentation site for Tandem Robotics.
 
 * Where to start
 
-- [[/docs/user-manual][User Manual]] — unboxing, first power-on, operation, and safety
-- [[/docs/common-issues][Common Issues]] — quick fixes for the problems you'll hit first
+- [[/docs/user-manual][User Manual]]: unboxing, first power-on, operation, and safety
+- [[/docs/common-issues][Common Issues]]: quick fixes for the problems you'll hit first

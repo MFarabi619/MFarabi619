@@ -94,7 +94,7 @@ export default defineConfig({
       manifest: {
         name: "Tandem Robotics",
         short_name: "Tandem",
-        description: "Autonomous mobile robots built for real-world work.",
+        description: "Autonomous mobile robots built for farms.",
         theme_color: "#282828",
         background_color: "#282828",
         display: "standalone",

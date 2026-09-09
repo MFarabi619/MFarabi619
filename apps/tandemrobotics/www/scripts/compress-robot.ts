@@ -7,7 +7,7 @@ import { draco } from "@gltf-transform/functions";
 import draco3d from "draco3dgltf";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const source = resolve(here, "../../../robot/assets/robot0.glb");
+const source = resolve(here, "../../../robot/assets/meshes/taro.glb");
 const destination = resolve(here, "../../../robot/assets/public/robot.glb");
 
 if (!existsSync(source)) {

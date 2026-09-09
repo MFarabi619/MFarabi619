@@ -1,3 +1,19 @@
 {
-  "pages": ["--- Showcase ---", "index", "user-manual", "--- Reference ---", "cytron-hat-mdd10", "cytron-md30c", "cytron-md20a", "bno085-imu", "adafruit-ultimate-gps-hat", "hc-sr04-ultrasonic", "orbbec-gemini-335l", "rpi-global-shutter-camera", "--- Troubleshooting ---", "common-issues"]
+  "pages": [
+    "--- Showcase ---",
+    "index",
+    "user-manual",
+    "past-robots",
+    "--- Reference ---",
+    "cytron-hat-mdd10",
+    "cytron-md30c",
+    "cytron-md20a",
+    "bno085-imu",
+    "adafruit-ultimate-gps-hat",
+    "hc-sr04-ultrasonic",
+    "orbbec-gemini-335l",
+    "rpi-global-shutter-camera",
+    "--- Troubleshooting ---",
+    "common-issues"
+  ]
 }

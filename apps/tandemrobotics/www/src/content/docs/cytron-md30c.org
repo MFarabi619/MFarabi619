@@ -2,11 +2,10 @@
 :ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d05
 :END:
 #+title: Cytron MD30C
-#+description: Single-channel 30 A DC motor driver.
+#+description: Single-channel 30A DC motor driver.
 #+icon: CircuitBoard
 
-[[https://www.cytron.io/p-30amp-5v-30v-dc-motor-driver][Cytron MD30C]] — a
-single-channel bidirectional driver for one brushed DC motor, 30 A continuous
+A single-channel bidirectional driver for one brushed DC motor, 30 A continuous
 (80 A peak). Full NMOS H-bridge, so no heatsink or fan. This is Revision 2.0.
 
 * Board layout
@@ -71,15 +70,15 @@ transitions are clean. This is how we drive it.
 
 Absolute maximums — exceed and you damage the board.
 
-| # | Parameter                    | Min | Typ | Max | Unit |
-|---+------------------------------+-----+-----+-----+------|
-| 1 | Power input voltage          |   5 |   – |  30 | V    |
-| 2 | Continuous motor current     |   – |   – |  30 | A    |
-| 3 | Peak motor current[fn:1]     |   – |   – |  80 | A    |
-| 4 | Idle current                 |   – |   – | 100 | mA   |
-| 5 | Logic input — high level     |   3 |   – | 5.5 | V    |
-| 6 | Logic input — low level      |   0 |   0 | 0.5 | V    |
-| 7 | PWM frequency[fn:2]          |   – |   – |  20 | kHz  |
+| # | Parameter                | Min | Typ | Max | Unit |
+|---+--------------------------+-----+-----+-----+------|
+| 1 | Power input voltage      | 5   | –   |  30 | V    |
+| 2 | Continuous motor current | –   | –   |  30 | A    |
+| 3 | Peak motor current[fn:1]     | –   | –   |  80 | A    |
+| 4 | Idle current             | –   | –   | 100 | mA   |
+| 5 | Logic input — high level | 3   | –   | 5.5 | V    |
+| 6 | Logic input — low level  | 0   | 0   | 0.5 | V    |
+| 7 | PWM frequency[fn:2]          | –   | –   |  20 | kHz  |
 
 [fn:1] Must not exceed 1 second.
 
@@ -94,3 +93,5 @@ terminals.
 78.74 × 93.98 mm overall, with 71.12 × 86.36 mm between mounting holes.
 
 [[/cytron-md30c/dimensions.webp]]
+
+[[https://www.cytron.io/p-30amp-5v-30v-dc-motor-driver][Cytron MD30C]]

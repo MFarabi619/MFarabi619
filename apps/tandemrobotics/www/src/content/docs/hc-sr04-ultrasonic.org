@@ -1,9 +1,8 @@
 :PROPERTIES:
 :ID:       9a3c1e70-8b21-4d55-9e10-1f2a3b4c5d07
 :END:
-#+title: HC-SR04 Ultrasonic
-#+description: HC-SR04 ultrasonic distance sensor.
+#+title: HC-SR04 Ultrasonic Sensor
 #+icon: Radar
 
-HC-SR04 — an ultrasonic ranging module (~2–400 cm) using a trigger pulse and
+An ultrasonic ranging module (~2–400 cm) using a trigger pulse and
 echo return over two GPIO pins.

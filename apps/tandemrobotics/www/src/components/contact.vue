@@ -11,7 +11,7 @@ import BorderBeam from "@/components/border-beam.vue";
     />
     <h1 class="font-display mb-6 text-3xl sm:text-5xl">Tandem Robotics</h1>
     <p class="mx-auto mb-8 max-w-2xl text-lg text-fd-muted-foreground">
-      Autonomous mobile robots built for real-world work.
+      Autonomous mobile robots built for farm work.
     </p>
     <div class="flex flex-wrap justify-center gap-3">
       <a

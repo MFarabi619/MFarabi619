@@ -1,0 +1,11 @@
+#+title: Past Robots
+#+description: Beep boop.
+#+icon: Wrench
+
+#+attr_html: :class flex flex-wrap gap-4 [&_p]:contents [&_img]:flex-1 [&_img]:min-w-0
+#+begin_imgrow
+[[/robot-backyard-1.webp]]
+[[/robot-backyard-2.webp]]
+#+end_imgrow
+
+-----

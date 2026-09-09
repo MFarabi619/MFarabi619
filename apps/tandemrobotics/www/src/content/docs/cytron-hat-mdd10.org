@@ -5,10 +5,6 @@
 #+description: Dual-channel 10 A DC motor driver HAT for the Raspberry Pi.
 #+icon: CircuitBoard
 
-[[https://www.cytron.io/p-hat-mdd10][Cytron HAT-MDD10]] — a dual-channel motor
-driver HAT (10 A continuous per channel) that stacks on the Raspberry Pi's
-40-pin header.
-
 #+attr_html: :class flex flex-wrap gap-4 [&_p]:contents [&_img]:flex-1 [&_img]:min-w-0
 #+begin_imgrow
 [[/cytron-hat-mdd10/isometric.webp]]
@@ -117,7 +113,7 @@ Absolute maximums — exceed and you damage the board.
 
 * Mechanical
 
-67.5 × 59 mm. Fusion 360 source (=cytron-hat-mdd10.f3d=) and a
+67.5 × 59 mm. Fusion 360 source (=cytron_hat_mdd10.f3d=) and a
 =.step= export live with the board assets in the repo.
 
 [[/cytron-hat-mdd10/dimensions.png]]
@@ -125,3 +121,5 @@ Absolute maximums — exceed and you damage the board.
 * Wiring example
 
 [[/cytron-hat-mdd10/wiring-diagram.png]]
+
+[[https://www.cytron.io/p-hat-mdd10][Cytron HAT-MDD10]]

@@ -35,9 +35,8 @@ onUnmounted(() => {
         Autonomous Robots for the Rows
       </h1>
       <p class="mx-auto mt-12 max-w-2xl text-lg text-fd-foreground text-balance">
-        Skilled hands are scarce and the rows never stop. Tandem maps your field,
-        drives the rows on its own, and steers around whatever's in the way —
-        watched live from any browser.
+        Skilled hands are scarce and the rows never stop. Taro maps your field,
+        drives the rows on its own, and steers around whatever's in the way.
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-3">
         <a
