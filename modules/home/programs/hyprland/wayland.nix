@@ -172,10 +172,7 @@
         };
       };
 
-      dwindle = {
-        preserve_split = true;
-        pseudotile = true;
-      };
+      dwindle.preserve_split = true;
 
       master = {
         new_status = "master";
