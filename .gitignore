@@ -45,6 +45,7 @@ devenv.local.yaml
 local.properties
 .webui_secret_key
 .pre-commit-config.yaml
+apps/tandemrobotics/www/.astro
 
 #====================================================
 #                  MISCELLANEOUS
