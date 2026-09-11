@@ -2,7 +2,7 @@
   "$schema": "https://www.schemastore.org/package.json",
   "name": "mfarabi",
   "private": true,
-  "packageManager": "pnpm@11.24.0",
+  "packageManager": "pnpm@12.3.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mfarabi619/mfarabi619"
@@ -17,6 +17,9 @@
     "storybook": "pnpm --filter tandemrobotics storybook",
     "build-storybook": "pnpm --filter tandemrobotics build-storybook",
     "promo": "pnpm --filter promo studio",
-    "promo:render": "pnpm --filter promo render"
+    "promo:render": "pnpm --filter promo render",
+    "slides": "pnpm --filter tandemrobotics-slides dev",
+    "slides:build": "pnpm --filter tandemrobotics-slides build",
+    "slides:export": "pnpm --filter tandemrobotics-slides export"
   }
 }
