@@ -200,7 +200,6 @@
 
       misc = {
         vrr = 2; # Variable Refresh Rate  Might need to set to 0 for NVIDIA/AQ_DRM_DEVICES
-        vfr = true; # Variable Frame Rate
         enable_swallow = false;
         force_default_wallpaper = 0;
         disable_hyprland_logo = true;
