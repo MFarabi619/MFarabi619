@@ -34,7 +34,6 @@ in
       # fw-fanctrl
       wl-screenrec
 
-      kubectl
       minikube
       # microk8s
 
