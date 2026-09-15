@@ -20,6 +20,10 @@ name = "assembly"
 required-features = ["generator"]
 
 [[bin]]
+name = "headrest_mount"
+required-features = ["generator"]
+
+[[bin]]
 name = "wheel"
 required-features = ["generator"]
 

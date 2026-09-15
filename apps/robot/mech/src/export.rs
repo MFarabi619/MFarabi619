@@ -9,8 +9,18 @@ use crate::{
     gltf::write_shaded_glb, mass_properties::LinkSummary, material::Material, time_it, Link,
 };
 
-fn to_gltf_y_up(solid: Solid) -> Solid {
+pub fn to_gltf_y_up(solid: Solid) -> Solid {
     solid.align_z(DVec3::Y, DVec3::X)
+}
+
+pub fn write_solids_glb(viewer_solids: &[Solid], glb_path: &Path) -> Result<(), Box<dyn Error>> {
+    let mesh = time_it!("tessellation", Solid::mesh(viewer_solids, TESSELLATION))?;
+    time_it!(
+        "gltf write",
+        write_shaded_glb(&mesh, Material::pbr_for_rgb, &mut File::create(glb_path)?)
+    )?;
+    println!("wrote {}", glb_path.display());
+    Ok(())
 }
 
 pub const TESSELLATION: Tessellation = Tessellation {

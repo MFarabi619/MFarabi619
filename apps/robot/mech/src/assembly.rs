@@ -50,11 +50,11 @@ pub const PRE_DRILLED_1X1_ALUMINUM_BAR_STEP: &str = "pre_drilled_1x1_aluminum_ba
 pub const ORBBEC_GEMINI_335L_STEP: &str = "orbbec_gemini_335l.step";
 pub const OAK_D_PRO_W_POE_STEP: &str = "oak_d_pro_w_poe.step";
 
-fn box_centered(size: DVec3, center: DVec3) -> Solid {
+pub fn box_centered(size: DVec3, center: DVec3) -> Solid {
     Solid::cube(center - size / 2.0, center + size / 2.0)
 }
 
-fn hole_row(
+pub fn hole_row(
     hole_radius: f64,
     cutter_axis: DVec3,
     first_center: DVec3,
@@ -67,7 +67,7 @@ fn hole_row(
     })
 }
 
-fn subtract_cutters(shape: &Solid, cutters: &[Solid]) -> Result<Solid, cadrum::Error> {
+pub fn subtract_cutters(shape: &Solid, cutters: &[Solid]) -> Result<Solid, cadrum::Error> {
     cutters
         .iter()
         .fold(Boolean::from(shape), |difference, cutter| {
