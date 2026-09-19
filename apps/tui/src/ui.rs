@@ -59,7 +59,7 @@ fn draw_text(frame: &mut Frame, area: Rect) {
     let text = vec![
         Line::from(""),
         Line::from(vec![Span::styled(
-            " ⚓ Open-Source @ Microvisor Systems & LikeC4 core team 🧊",
+            " ⚓ Open-Source @ Tandem Robotics 🧊",
             Style::default()
                 .fg(Color::LightCyan)
                 .add_modifier(Modifier::BOLD),
@@ -78,7 +78,7 @@ fn draw_text(frame: &mut Frame, area: Rect) {
         )),
         Line::from(""),
         Line::from("👹 DoomBSD:                 🏗"),
-        Line::from("🧮 Microvisor:              🏗"),
+        Line::from("🧮 Microvisor:              cgit.mfarabi.sh/MFarabi619/tree"),
         Line::from("🦕 Mira AMM:                mira.ly"),
         Line::from("⌨  cuHacking 2025 Platform: docs.cuhacking.ca"),
         Line::from(""),
@@ -107,7 +107,7 @@ fn draw_text(frame: &mut Frame, area: Rect) {
         Line::from(" [ ] Add markdown support"),
         Line::from(" [x] Set up CI"),
         Line::from(" [ ] Create regression test suite"),
-        Line::from(" [ ] Teach others how to do it too"),
+        Line::from(" [-] Teach others how to do it too"),
         Line::from(""),
         Line::from(Span::styled(
             "🐞 https://cgit.mfarabi.sh/?p=about",
