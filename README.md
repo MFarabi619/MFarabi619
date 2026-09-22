@@ -147,7 +147,7 @@ On occasions I've worked with as many as 8 different languages in a single day. 
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://www.freebsd.org" target="_blank" rel="noreferrer">
-<img src="assets/freebsd-symbol-orb.png" alt="FreeBSD Logo" width="40" height="40" />
+<img src="assets/icons/freebsd-symbol-orb.png" alt="FreeBSD Logo" width="40" height="40" />
 </a>
 </td><td align="center" style="padding: 8px;">
 <a href="https://nixos.org/" target="_blank" rel="noreferrer">

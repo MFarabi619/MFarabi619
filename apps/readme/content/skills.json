@@ -133,7 +133,7 @@
       {
         "name": "FreeBSD",
         "url": "https://www.freebsd.org",
-        "icon": "assets/freebsd-symbol-orb.png"
+        "icon": "assets/icons/freebsd-symbol-orb.png"
       },
       {
         "name": "NixOS",
