@@ -16,8 +16,10 @@
 
 import socket
 import time
+from pathlib import Path
 
 from better_launch import BetterLaunch, launch_this
+import yaml
 
 ZENOH_ROUTER_PORT = 7447
 ROUTER_CONFIG_OVERRIDE = (
@@ -43,6 +45,12 @@ def wait_for_router(attempts=50):
         time.sleep(0.2)
 
 
+def robot_runs_on_this_machine(robot):
+    config = yaml.safe_load(
+        (Path('machines') / robot / 'robot.yaml').read_text())
+    return config['system']['hosts'][0].get('board') == 'macos'
+
+
 @launch_this
 def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
     bl = BetterLaunch()
@@ -50,6 +58,14 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
         'webcam': '/image',
         'robot': f'/{robot}/sensors/camera_0/color/image_raw/compressed',
     }
+    if robot_runs_on_this_machine(robot):
+        bl.process(
+            f'python boot/launch/robot.launch.py --name {robot}',
+            name=f'{robot}_stack',
+            max_respawns=-1,
+            respawn_delay=2.0,
+        )
+        wait_for_router()
     if not router_is_listening():
         bl.process(
             'ros2 run rmw_zenoh_cpp rmw_zenohd',
