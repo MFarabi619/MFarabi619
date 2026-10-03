@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    steer_gain: 1.5
+    distance_gain: 1.2
+    steer_deadband: 0.05
+    distance_deadband: 0.1
+    standoff_distance: 1.3
+    max_angular_speed: 2.0
+    max_forward_speed: 1.2
+    max_backward_speed: 1.0
+    command_smoothing_seconds: 0.1
