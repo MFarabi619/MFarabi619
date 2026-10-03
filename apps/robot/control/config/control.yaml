@@ -21,9 +21,3 @@
     enable_odom_tf: true
     cmd_vel_timeout: 0.5
 
-    linear.x.max_velocity: 2.0
-    linear.x.max_acceleration: 8.0
-    linear.x.max_jerk: 60.0
-    angular.z.max_velocity: 3.0
-    angular.z.max_acceleration: 10.0
-    angular.z.max_jerk: 70.0

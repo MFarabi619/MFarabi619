@@ -89,7 +89,7 @@ fn ros2_control_block(variant: UrdfVariant, namespace: &str, drivetrain_model: &
 }
 
 const CASTER_ROLLING_FRICTION_COEFFICIENT: f64 = 0.0;
-const CASTER_LATERAL_FRICTION_COEFFICIENT: f64 = 0.2;
+const CASTER_LATERAL_FRICTION_COEFFICIENT: f64 = 0.0;
 const CASTER_ROLLING_DIRECTION: &str = "1 0 0";
 const CASTER_CONTACT_STIFFNESS_N_PER_M: f64 = 1_000_000.0;
 const CASTER_CONTACT_DAMPING_N_S_PER_M: f64 = 5_000.0;

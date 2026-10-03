@@ -1,4 +1,4 @@
-diagnostic_aggregator:
+/**/diagnostic_aggregator:
   ros__parameters:
     path: Robot Diagnostics
     drive:
@@ -18,3 +18,7 @@ diagnostic_aggregator:
           type: diagnostic_aggregator/GenericAnalyzer
           path: Teleop
           contains: [ 'twist_mux' ]
+        motors:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: Motors
+          contains: [ 'roboteq' ]

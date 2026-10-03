@@ -25,6 +25,7 @@ install(PROGRAMS src/odrive_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENA
 install(PROGRAMS src/reverse_beeper.py DESTINATION lib/${PROJECT_NAME} RENAME reverse_beeper)
 install(PROGRAMS src/usb_webcam.py DESTINATION lib/${PROJECT_NAME} RENAME usb_webcam)
 install(PROGRAMS src/svd48v_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME svd48v_motor_driver)
+install(PROGRAMS src/roboteq_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME roboteq_motor_driver)
 
 find_package(rclcpp REQUIRED)
 find_package(robot_platform_msgs REQUIRED)

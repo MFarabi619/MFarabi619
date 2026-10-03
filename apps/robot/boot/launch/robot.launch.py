@@ -103,14 +103,30 @@ def wheel_geometry(urdf_path):
     return wheel_separation, radii.pop()
 
 
-def write_drivetrain_parameters(wheel_separation, wheel_radius):
+MOTION_LIMIT_PARAMETERS = {
+    'max_linear_velocity_meters_per_second': 'linear.x.max_velocity',
+    'max_linear_acceleration_meters_per_second_squared':
+        'linear.x.max_acceleration',
+    'max_linear_jerk_meters_per_second_cubed': 'linear.x.max_jerk',
+    'max_angular_velocity_radians_per_second': 'angular.z.max_velocity',
+    'max_angular_acceleration_radians_per_second_squared':
+        'angular.z.max_acceleration',
+    'max_angular_jerk_radians_per_second_cubed': 'angular.z.max_jerk',
+}
+
+
+def write_drivetrain_parameters(wheel_separation, wheel_radius, motion_limits):
+    ros_parameters = {
+        'wheel_separation': wheel_separation,
+        'wheel_radius': wheel_radius,
+    }
+    for drivetrain_field, controller_parameter in (
+            MOTION_LIMIT_PARAMETERS.items()):
+        if drivetrain_field in motion_limits:
+            ros_parameters[controller_parameter] = (
+                motion_limits[drivetrain_field])
     parameters = {
-        '/**/diff_drive_controller': {
-            'ros__parameters': {
-                'wheel_separation': wheel_separation,
-                'wheel_radius': wheel_radius,
-            },
-        },
+        '/**/diff_drive_controller': {'ros__parameters': ros_parameters},
     }
     parameters_file = tempfile.NamedTemporaryFile(
         mode='w', prefix='drivetrain_', suffix='.yaml', delete=False)
@@ -124,17 +140,28 @@ IMU_TOPICS = [
 ]
 
 
+def router_is_listening():
+    try:
+        socket.create_connection(
+            ('127.0.0.1', ZENOH_ROUTER_PORT), timeout=0.5).close()
+        return True
+    except OSError:
+        return False
+
+
 def wait_for_router(attempts=120):
     for _ in range(attempts):
-        try:
-            socket.create_connection(
-                ('127.0.0.1', ZENOH_ROUTER_PORT), timeout=0.5).close()
+        if router_is_listening():
             return
-        except OSError:
-            time.sleep(1.0)
+        time.sleep(1.0)
 
 
-def robot_identity():
+def robot_identity(name=''):
+    if name:
+        config_path = Path('machines') / name / 'robot.yaml'
+        if not config_path.is_file():
+            raise RuntimeError(f'no robot.yaml under machines/{name}')
+        return name, yaml.safe_load(config_path.read_text())
     hostname = socket.gethostname()
     for config_path in sorted(Path('machines').glob('*/robot.yaml')):
         config = yaml.safe_load(config_path.read_text())
@@ -161,8 +188,8 @@ def resolve_pwm(pins, pin):
 
 
 @launch_this
-def robot():
-    robot_name, robot_config = robot_identity()
+def robot(name: str = '', drivetrain_model: str = ''):
+    robot_name, robot_config = robot_identity(name)
     if robot_config.get('version', 0) < 1:
         raise RuntimeError(
             f'{robot_name} robot.yaml is schema version 0; wiring is now header'
@@ -173,11 +200,25 @@ def robot():
     rc_receiver = robot_config['platform'].get('rc_receiver')
     if rc_receiver and not rc_receiver.get('launch_enabled', True):
         rc_receiver = None
-    drivetrain_model = drivetrain.get('model', 'pwm_dir')
+    drivetrain_model = drivetrain_model or drivetrain.get('model', 'pwm_dir')
     wheel_separation, wheel_radius = wheel_geometry(
         f'mech/urdf/{robot_name}/robot.urdf')
+    model_scoped = drivetrain.get(drivetrain_model, {})
+    motion_limits = {
+        field: model_scoped.get(field, drivetrain.get(field))
+        for field in MOTION_LIMIT_PARAMETERS
+    }
+    motion_limits = {
+        field: value for field, value in motion_limits.items()
+        if value is not None
+    }
+    max_linear_velocity = motion_limits.get(
+        'max_linear_velocity_meters_per_second')
+    max_wheel_speed = (
+        max_linear_velocity / wheel_radius
+        if max_linear_velocity is not None else None)
     drivetrain_parameters_path = write_drivetrain_parameters(
-        wheel_separation, wheel_radius)
+        wheel_separation, wheel_radius, motion_limits)
 
     oak_d_camera_config = next(
         (camera for camera in sensors.get('camera', [])
@@ -214,12 +255,13 @@ def robot():
 
     bl = BetterLaunch()
 
-    bl.process(
-        'ros2 run rmw_zenoh_cpp rmw_zenohd',
-        name='zenoh_router',
-        env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
-        **RESPAWN,
-    )
+    if not router_is_listening():
+        bl.process(
+            'ros2 run rmw_zenoh_cpp rmw_zenohd',
+            name='zenoh_router',
+            env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
+            **RESPAWN,
+        )
     os.environ['ZENOH_CONFIG_OVERRIDE'] = CLIENT_CONFIG_OVERRIDE
     wait_for_router()
 
@@ -237,7 +279,7 @@ def robot():
                 executable='odrive_motor_driver',
                 params={
                     'gear_ratio': drivetrain['gear_ratio'],
-                    'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                    'max_wheel_speed': max_wheel_speed,
                     'left_serial': drivetrain['left']['serial'],
                     'left_reversed': drivetrain['left']['reversed'],
                     'right_serial': drivetrain['right']['serial'],
@@ -252,12 +294,29 @@ def robot():
                 params={
                     'serial_port': drivetrain['serial_port'],
                     'baud_rate': drivetrain['baud_rate'],
-                    'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                    'max_wheel_speed': max_wheel_speed,
                     'acceleration_rpm_per_second': drivetrain['acceleration_rpm_per_second'],
                     'speed_smoothing_time': drivetrain['speed_smoothing_time'],
                     'left_reversed': drivetrain['left']['reversed'],
                     'right_reversed': drivetrain['right']['reversed'],
                 },
+                **RESPAWN,
+            )
+        elif drivetrain_model == 'roboteq':
+            roboteq_parameters = {
+                'serial_port': drivetrain['serial_port'],
+                'baud_rate': drivetrain['baud_rate'],
+                'counts_per_revolution': drivetrain['counts_per_revolution'],
+                'control_mode': drivetrain.get('control_mode', 'speed'),
+                'left_reversed': drivetrain['left']['reversed'],
+                'right_reversed': drivetrain['right']['reversed'],
+            }
+            if max_wheel_speed is not None:
+                roboteq_parameters['max_wheel_speed'] = max_wheel_speed
+            bl.node(
+                package='robot_drivers',
+                executable='roboteq_motor_driver',
+                params=roboteq_parameters,
                 **RESPAWN,
             )
         elif drivetrain_model == 'mock':
@@ -270,7 +329,7 @@ def robot():
                 package='robot_drivers',
                 executable='rc_pulse_motor_driver',
                 params={
-                    'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                    'max_wheel_speed': max_wheel_speed,
                     'left_pwm_chip': left_pwm_chip,
                     'left_pwm_channel': left_pwm_channel,
                     'left_reversed': drivetrain['left']['reversed'],
@@ -294,7 +353,7 @@ def robot():
                 params={
                     'gpio_chip': left_dir_chip,
                     'pwm_frequency_hz': drivetrain['pwm_frequency_hz'],
-                    'max_wheel_speed': drivetrain['max_linear_velocity_mps'] / wheel_radius,
+                    'max_wheel_speed': max_wheel_speed,
                     'min_duty': drivetrain.get('min_duty', 0.0),
                     'left_pwm_chip': left_pwm_chip,
                     'left_pwm_channel': left_pwm_channel,

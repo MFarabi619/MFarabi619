@@ -26,7 +26,6 @@ pub struct Drivetrain {
     pub model: String,
     #[serde(default)]
     pub pwm_frequency_hz: f32,
-    pub max_linear_velocity_mps: f64,
     pub left: DrivetrainSide,
     pub right: DrivetrainSide,
 }

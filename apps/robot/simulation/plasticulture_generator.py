@@ -23,7 +23,9 @@ import cv2
 import numpy as np
 
 SIMULATOR_DIR = os.path.dirname(os.path.abspath(__file__))
-TARP_PHOTO_PATH = os.path.join(SIMULATOR_DIR, '..', 'assets', 'plasticulture-tarp.jpeg')
+GROUND_FABRIC_PHOTO_PATH = os.path.join(
+    SIMULATOR_DIR, '..', 'assets', 'datasets', 'fieldtrip_farm', 'hoophouse_exteriors',
+    'woven_ground_fabric_closeup_20260817_151847.jpg')
 
 BED_LENGTH = 20.0
 BED_BOTTOM_HALF_WIDTH = 0.32
@@ -32,7 +34,7 @@ BED_HEIGHT = 0.04
 BED_COUNT = 10
 BED_PITCH = 1.2
 PLANT_LINE_OFFSET = 0.1
-TEXTURE_METERS_PER_TILE = 1.0
+TEXTURE_METERS_PER_TILE = 0.5
 
 CROPS = {
     'carrot': {'spacing': 0.25, 'lines': 2, 'color': (0.30, 0.60, 0.20)},
@@ -69,12 +71,11 @@ FUEL_PROPS = [
     # ('foldable_chair', 'will0993/models/foldable_chair', (-12.3, -4.0, 0.0, 1.0)),
 ]
 
-mulch_texture = cv2.imread(TARP_PHOTO_PATH)[300:560, 380:620]
-mulch_texture = cv2.rotate(mulch_texture, cv2.ROTATE_90_CLOCKWISE)
-mulch_texture = cv2.resize(mulch_texture, (384, 384), interpolation=cv2.INTER_AREA)
-mulch_texture = cv2.GaussianBlur(mulch_texture, (3, 3), 0)
-cv2.imwrite(f'{SIMULATOR_DIR}/models/materials/textures/plastic_mulch.jpg', mulch_texture,
-            [cv2.IMWRITE_JPEG_QUALITY, 90])
+fabric_texture = cv2.imread(GROUND_FABRIC_PHOTO_PATH)
+fabric_texture = cv2.rotate(fabric_texture, cv2.ROTATE_90_CLOCKWISE)
+fabric_texture = cv2.resize(fabric_texture, (512, 512), interpolation=cv2.INTER_AREA)
+cv2.imwrite(f'{SIMULATOR_DIR}/models/materials/textures/woven_ground_fabric.jpg',
+            fabric_texture, [cv2.IMWRITE_JPEG_QUALITY, 90])
 
 
 
@@ -108,7 +109,7 @@ def bed_mesh(variant, texture_phase):
             corners.reverse()
         mesh.quad(corners, normal, [(0, 0), (0.15, 0), (0.85, 0.15), (1, 0.15)])
     return collada_mesh.document(f'plasticulture_bed_{variant}', mesh.positions, mesh.normals,
-                   mesh.triangles, texture='textures/plastic_mulch.jpg', uvs=mesh.uvs)
+                   mesh.triangles, texture='textures/woven_ground_fabric.jpg', uvs=mesh.uvs)
 
 
 def flat_tarp_mesh():
@@ -122,7 +123,7 @@ def flat_tarp_mesh():
         [(0, 0), (FLAT_TARP_LENGTH, 0), (FLAT_TARP_LENGTH, FLAT_TARP_WIDTH),
          (0, FLAT_TARP_WIDTH)])
     return collada_mesh.document('flat_tarp', mesh.positions, mesh.normals, mesh.triangles,
-                   texture='textures/plastic_mulch.jpg', uvs=mesh.uvs)
+                   texture='textures/woven_ground_fabric.jpg', uvs=mesh.uvs)
 
 
 def dirt_mesh():

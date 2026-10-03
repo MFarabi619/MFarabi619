@@ -180,9 +180,16 @@ lint = { cmd = "colcon test --base-paths . --merge-install --ctest-args -L linte
 
 generate-world = "python simulation/plasticulture_generator.py"
 
-launch = { cmd = "python boot/launch/boot.launch.py --gesture_camera {{ camera }} --robot {{ robot }}", args = [
-    { arg = "camera", default = "webcam" },
+roboteq = { cmd = "python boot/launch/roboteq.launch.py --port {{ port }} --counts_per_revolution {{ counts_per_revolution }}", args = [
+    { arg = "port", default = "/dev/cu.usbmodem2072356748451" },
+    { arg = "counts_per_revolution", default = "90" },
+], depends-on = [
+    "build",
+] }
+
+launch = { cmd = "python boot/launch/boot.launch.py --robot {{ robot }} --gesture_camera {{ camera }}", args = [
     { arg = "robot", default = "taro" },
+    { arg = "camera", default = "webcam" },
 ], depends-on = [
     "build",
 ] }
@@ -208,8 +215,12 @@ sim-server = { cmd = "python simulation/launch/simulation.launch.py --headless t
 teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml -r cmd_vel:=/{{ robot }}/joy_teleop/cmd_vel", args = [
     { arg = "robot", default = "taro" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="peer";connect/endpoints=["tcp/localhost:7447"{% if robot == "taro" %},"tcp/rpi5-16-2.local:7447"{% elif robot == "jiro" %},"tcp/rpi5-16.local:7447"{% endif %}];connect/timeout_ms=3000' } }
-follow-person-enable = { cmd = 'ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+follow-person-enable = { cmd = '{% if enabled == "true" %}ros2 service call /{{ robot }}/person_follow/reset_parameters std_srvs/srv/Trigger "{}" && {% endif %}ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
+    { arg = "enabled", default = "true" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+follow-person-slow-enable = { cmd = '{% if enabled == "true" %}ros2 param load /{{ robot }}/person_follow boot/config/person_follow_slow.yaml && {% endif %}ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
+    { arg = "robot", default = "jiro" },
     { arg = "enabled", default = "true" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 harvest-lane-taro = { cmd = "python boot/launch/harvest_lane.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = [
@@ -294,7 +305,7 @@ canopy = { cmd = "python perception/src/canopy_detector.py", env = { ZENOH_CONFI
 # e2e-drive-profile = "python e2e/drive_profile.py --ros-args -p use_sim_time:=true"
 e2e = { cmd = "python e2e/cmd_vel.py --ros-args -r __ns:=/{{ robot }}", args = [
     { arg = "robot", default = "taro" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="peer";connect/endpoints=["tcp/localhost:7447"{% if robot == "taro" %},"tcp/rpi5-16-2.local:7447"{% elif robot == "jiro" %},"tcp/rpi5-16.local:7447"{% endif %}];connect/timeout_ms=3000' } }
 health = { cmd = "python e2e/robot_health.py {{ robot }}", args = [
     { arg = "robot", default = "taro" },
 ] }
@@ -320,7 +331,10 @@ deploy = { cmd = "python machines/deploy.py {{ robot }}", args = [
     { arg = "robot", default = "taro" },
 ] }
 
-robot = "python boot/launch/robot.launch.py"
+robot = { cmd = "python boot/launch/robot.launch.py --name '{{ name }}' --drivetrain_model '{{ drivetrain_model }}'", args = [
+    { arg = "name", default = "" },
+    { arg = "drivetrain_model", default = "" },
+] }
 
 [target.linux-aarch64.tasks]
 oak-d-sr = "python drivers/src/oak_d_sr.py --ros-args -r __ns:=/sensors/camera_0 -p frame_id:=camera_0_link_right_camera_optical_frame"

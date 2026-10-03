@@ -34,8 +34,9 @@ import numpy as np
 import rclpy
 from rclpy.duration import Duration as ClockDuration
 from rclpy.node import Node
+from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
-from std_srvs.srv import SetBool
+from std_srvs.srv import SetBool, Trigger
 from vision_msgs.msg import Detection2DArray, Detection3DArray
 
 TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
@@ -115,9 +116,12 @@ class Approach(Node):
             TwistStamped, cmd_vel_topic, 10
         )
         self.scene_publisher = self.create_publisher(SceneUpdate, scene_topic, 10)
+        self.launch_parameter_values = {
+            name: getattr(self, name) for name in LIVE_PARAMETERS}
         self.add_post_set_parameters_callback(self.on_parameters_set)
         self.create_timer(CONTROL_PERIOD_S, self.on_control_period)
         self.create_service(SetBool, '~/enable', self.on_enable)
+        self.create_service(Trigger, '~/reset_parameters', self.on_reset_parameters)
         self.create_subscription(
             Detection2DArray, detections_topic, self.on_detections, qos_profile_sensor_data
         )
@@ -280,6 +284,14 @@ class Approach(Node):
         for parameter in parameters:
             if parameter.name in LIVE_PARAMETERS:
                 setattr(self, parameter.name, parameter.value)
+
+    def on_reset_parameters(self, request, response):
+        self.set_parameters_atomically([
+            Parameter(name, value=value)
+            for name, value in self.launch_parameter_values.items()])
+        response.success = True
+        response.message = 'launch parameters restored'
+        return response
 
     def publish_scene(self, stamp, target_frame_id, point, forward_speed):
         scene = SceneUpdate()

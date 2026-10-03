@@ -17,7 +17,12 @@ platform:
     channel_2_pin: 18
   drivetrain:
     model: rc_pulse
-    max_linear_velocity_mps: 2.0
+    max_linear_velocity_meters_per_second: 2.0
+    max_angular_velocity_radians_per_second: 3.0
+    max_linear_acceleration_meters_per_second_squared: 8.0
+    max_linear_jerk_meters_per_second_cubed: 60.0
+    max_angular_acceleration_radians_per_second_squared: 10.0
+    max_angular_jerk_radians_per_second_cubed: 70.0
     left:
       pwm_pin: 38
       reversed: false

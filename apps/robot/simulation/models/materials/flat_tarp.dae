@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
   <asset><unit name="meter" meter="1"/><up_axis>Z_UP</up_axis></asset>
-  <library_images><image id="flat_tarp_image"><init_from>textures/plastic_mulch.jpg</init_from></image></library_images>
+  <library_images><image id="flat_tarp_image"><init_from>textures/woven_ground_fabric.jpg</init_from></image></library_images>
   <library_effects>
     <effect id="flat_tarp_effect">
       <profile_COMMON>

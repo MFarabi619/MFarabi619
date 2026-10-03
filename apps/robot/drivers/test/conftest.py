@@ -61,3 +61,58 @@ def usb_webcam_node():
             rclpy.parameter.Parameter('device_index', value=99)])
     yield node
     node.destroy_node()
+
+
+class ScriptedSerialPort:
+    def __init__(self):
+        self.written = []
+        self.read_queue = []
+
+    def write(self, data):
+        self.written.append(bytes(data))
+
+    def read_until(self, expected=b'\n'):
+        return self.read_queue.pop(0) if self.read_queue else b''
+
+    def reset_input_buffer(self):
+        pass
+
+    def close(self):
+        pass
+
+
+@pytest.fixture(scope='session')
+def roboteq_motor_driver_module():
+    return load_module('roboteq_motor_driver')
+
+
+@pytest.fixture
+def make_roboteq_driver(roboteq_motor_driver_module, monkeypatch):
+    nodes = []
+
+    def make(connect_replies=(), **parameters):
+        parameters = {
+            'counts_per_revolution': 90,
+            'max_wheel_speed': 10.0,
+            **parameters,
+        }
+        parameters = {
+            name: value for name, value in parameters.items()
+            if value is not None
+        }
+        scripted_port = ScriptedSerialPort()
+        scripted_port.read_queue = list(connect_replies)
+        monkeypatch.setattr(
+            roboteq_motor_driver_module.serial, 'Serial',
+            lambda *args, **kwargs: scripted_port)
+        node = roboteq_motor_driver_module.RoboteqMotorDriver(
+            parameter_overrides=[
+                rclpy.parameter.Parameter(name, value=value)
+                for name, value in parameters.items()
+            ])
+        nodes.append(node)
+        return node, scripted_port
+
+    yield make
+    for node in nodes:
+        node.destroy_node()

@@ -16,8 +16,9 @@
 
 import math
 
+import rclpy
 from rclpy.duration import Duration
-from std_srvs.srv import SetBool
+from std_srvs.srv import SetBool, Trigger
 from vision_msgs.msg import (
     Detection3D,
     Detection3DArray,
@@ -126,3 +127,33 @@ def test_forward_speed_is_clamped_to_the_configured_limit(approach_node):
     twists = capture(approach_node)
     approach_node.publish_twist(1000.0, 0.0)
     assert twists[-1].twist.linear.x == approach_node.max_forward_speed
+
+
+def test_resetting_restores_launch_speed_parameters(approach_node):
+    launch_forward_speed = approach_node.max_forward_speed
+    launch_steer_gain = approach_node.steer_gain
+    approach_node.on_parameters_set([
+        rclpy.parameter.Parameter('max_forward_speed', value=0.1),
+        rclpy.parameter.Parameter('steer_gain', value=0.2),
+    ])
+    approach_node.on_reset_parameters(Trigger.Request(), Trigger.Response())
+    assert approach_node.max_forward_speed == launch_forward_speed
+    assert approach_node.steer_gain == launch_steer_gain
+
+
+def test_resetting_applies_all_parameters_in_one_atomic_call(approach_node):
+    atomic_batches = []
+    approach_node.set_parameters_atomically = (
+        lambda parameters: atomic_batches.append(parameters))
+    approach_node.on_reset_parameters(Trigger.Request(), Trigger.Response())
+    assert len(atomic_batches) == 1
+    assert ({parameter.name for parameter in atomic_batches[0]}
+            == set(approach_node.launch_parameter_values))
+
+
+def test_resetting_updates_the_parameter_server(approach_node):
+    approach_node.set_parameters(
+        [rclpy.parameter.Parameter('max_forward_speed', value=0.1)])
+    approach_node.on_reset_parameters(Trigger.Request(), Trigger.Response())
+    assert (approach_node.get_parameter('max_forward_speed').value
+            == approach_node.max_forward_speed)
