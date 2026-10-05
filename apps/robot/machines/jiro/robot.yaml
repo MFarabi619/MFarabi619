@@ -9,6 +9,9 @@ system:
 platform:
   attachments: []
   collision_guarded: false
+  rc_receiver:
+    channel_1_pin: 11
+    channel_2_pin: 13
   drivetrain:
     model: pwm_dir
     pwm_frequency_hz: 20000.0

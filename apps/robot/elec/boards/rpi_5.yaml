@@ -1,4 +1,6 @@
 pins:
+  11: {gpio_chip: 0, line: 17, line_name: GPIO17}
+  13: {gpio_chip: 0, line: 27, line_name: GPIO27}
   18: {gpio_chip: 0, line: 24, line_name: GPIO24}
   29: {gpio_chip: 0, line: 5, line_name: GPIO5}
   31: {gpio_chip: 0, line: 6, line_name: GPIO6}
