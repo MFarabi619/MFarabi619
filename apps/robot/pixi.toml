@@ -135,6 +135,9 @@ requests = "*"
 ros-jazzy-nav2-velocity-smoother = "*"
 ros-jazzy-nav2-lifecycle-manager = "*"
 ros-jazzy-nav2-collision-monitor = "*"
+ros-jazzy-robot-localization = "*"
+ros-jazzy-nav2-waypoint-follower = "*"
+ros-jazzy-nav2-simple-commander = "*"
 
 [feature.jazzy.target.linux-aarch64.dependencies]
 ros-jazzy-rclpy = "*"
@@ -165,6 +168,14 @@ better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editab
 teleop-xiao = { cmd = "python boot/launch/teleop_xiao.launch.py --smooth {{ smooth }}", args = [
     { arg = "smooth", default = "false" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/10.0.0.247:7447"]' } }
+
+set-home = { cmd = "python navigation/src/set_home.py --robot {{ robot }}", args = [
+    { arg = "robot", default = "taro" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
+return-home = { cmd = "python navigation/src/return_home.py --robot {{ robot }}", args = [
+    { arg = "robot", default = "taro" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 gps = { cmd = "python boot/launch/gps.launch.py --port {{ port }} --baud {{ baud }}", args = [
     { arg = "port", default = "/dev/cu.usbmodem2101" },

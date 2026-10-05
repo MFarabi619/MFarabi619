@@ -636,6 +636,34 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     isolate_env=True,
                     **NTRIP_RESPAWN,
                 )
+            localization_parameters = os.path.abspath(
+                'control/config/localization.yaml')
+            bl.process(
+                f'{PIXI} run --clean-env -e jazzy'
+                f' {JAZZY_ENV}/lib/robot_localization/ekf_node'
+                ' --ros-args -r __node:=ekf_global'
+                f' -r __ns:=/{namespace}'
+                ' -r /tf:=tf -r /tf_static:=tf_static'
+                f' --params-file {localization_parameters}',
+                name='ekf_global',
+                env={'HOME': os.environ['HOME']},
+                isolate_env=True,
+                **RESPAWN,
+            )
+            bl.process(
+                f'{PIXI} run --clean-env -e jazzy'
+                f' {JAZZY_ENV}/lib/robot_localization/navsat_transform_node'
+                ' --ros-args -r __node:=navsat_transform'
+                f' -r __ns:=/{namespace}'
+                ' -r /tf:=tf -r /tf_static:=tf_static'
+                ' -r gps/fix:=sensors/gps_0/fix'
+                ' -r gps/filtered:=sensors/gps_0/filtered'
+                f' --params-file {localization_parameters}',
+                name='navsat_transform',
+                env={'HOME': os.environ['HOME']},
+                isolate_env=True,
+                **RESPAWN,
+            )
 
         if sensors.get('imu'):
             bl.node(
@@ -947,5 +975,43 @@ def robot(name: str = '', drivetrain_model: str = ''):
                         'camera_lateral_offset_m': float(camera_mount_xyz[1]),
                         'start_enabled': False,
                     } | harvest_lane_config.get('navigator', {}),
+                    **RESPAWN,
+                )
+
+        if (robot_config.get('gps_navigation', {}).get('enabled', False)
+                and sensors.get('gps')):
+            bl.wait_for_service(f'/{namespace}/fromLL', timeout=120.0)
+            gps_navigation_parameters = os.path.abspath(
+                'navigation/config/gps_navigation.yaml')
+            navigate_to_pose_tree = os.path.abspath(
+                'navigation/config/navigate_to_pose.xml')
+            for package, server in (
+                    ('nav2_controller', 'controller_server'),
+                    ('nav2_planner', 'planner_server'),
+                    ('nav2_bt_navigator', 'bt_navigator'),
+                    ('nav2_waypoint_follower', 'waypoint_follower')):
+                tree_argument = (
+                    f' -p default_nav_to_pose_bt_xml:={navigate_to_pose_tree}'
+                    if server == 'bt_navigator' else '')
+                from_ll_argument = (
+                    ' -r /fromLL:=fromLL'
+                    if server == 'waypoint_follower' else '')
+                linear_velocity = robot_config['gps_navigation'].get(
+                    'linear_velocity_meters_per_second')
+                velocity_argument = (
+                    f' -p FollowPath.desired_linear_vel:={float(linear_velocity)}'
+                    if linear_velocity is not None
+                    and server == 'controller_server' else '')
+                bl.process(
+                    f'{PIXI} run --clean-env -e jazzy'
+                    f' {JAZZY_ENV}/lib/{package}/{server}'
+                    ' --ros-args'
+                    f' -r __ns:=/{namespace}'
+                    ' -r /tf:=tf -r /tf_static:=tf_static'
+                    f' --params-file {gps_navigation_parameters}'
+                    f'{tree_argument}{from_ll_argument}{velocity_argument}',
+                    name=server,
+                    env={'HOME': os.environ['HOME']},
+                    isolate_env=True,
                     **RESPAWN,
                 )

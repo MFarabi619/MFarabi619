@@ -71,8 +71,27 @@ point_cloud:
   enabled: true
 detector:
   max_detections_per_second: 10.0
+follow:
+  max_forward_speed: 0.7
+  max_backward_speed: 0.7
+  max_angular_speed: 0.7
+  standoff_distance: 1.5
+  distance_gain: 0.9
+  distance_damping: 0.4
+  distance_deadband: 0.25
+  steer_gain: 0.5
+  steer_damping: 0.7
+  steer_deadband: 0.15
+  command_smoothing_seconds: 0.3
+  max_missing_frames: 24
 follow_nav2:
   enabled: false
+gps_navigation:
+  enabled: true
+  linear_velocity_meters_per_second: 0.7
+home:
+  latitude: 45.4662575
+  longitude: -75.48316016666666
 hand_gesture:
   enabled: false
 harvest_lane:
