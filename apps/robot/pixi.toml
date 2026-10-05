@@ -212,7 +212,11 @@ sim-server = { cmd = "python simulation/launch/simulation.launch.py --headless t
     "build",
 ] }
 
-teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml -r cmd_vel:=/{{ robot }}/joy_teleop/cmd_vel", args = [
+sim-teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml -p use_sim_time:=true -r __ns:=/{{ robot }} -r cmd_vel:=joy_teleop/cmd_vel", args = [
+    { arg = "robot", default = "taro" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="peer";connect/endpoints=["tcp/localhost:7447"];connect/timeout_ms=3000' } }
+
+teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml -r __ns:=/{{ robot }} -r cmd_vel:=joy_teleop/cmd_vel", args = [
     { arg = "robot", default = "taro" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="peer";connect/endpoints=["tcp/localhost:7447"{% if robot == "taro" %},"tcp/rpi5-16-2.local:7447"{% elif robot == "jiro" %},"tcp/rpi5-16.local:7447"{% endif %}];connect/timeout_ms=3000' } }
 follow-person-enable = { cmd = '{% if enabled == "true" %}ros2 service call /{{ robot }}/person_follow/reset_parameters std_srvs/srv/Trigger "{}" && {% endif %}ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [

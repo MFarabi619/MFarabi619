@@ -62,7 +62,8 @@ def test_without_max_wheel_speed_commands_are_unclamped(make_roboteq_driver):
 def test_torque_mode_reads_full_scale_rpm_at_connect(make_roboteq_driver):
     node, port = make_roboteq_driver(
         control_mode='torque', connect_replies=[b'MXRPM=3000:1500\r'])
-    assert node.full_scale_rpm == [3000, 1500]
+    assert node.full_scale_wheel_speeds == pytest.approx(
+        [100 * math.pi, 50 * math.pi])
     assert b'~MXRPM\r' in port.written
 
 
@@ -73,6 +74,25 @@ def test_torque_mode_scales_velocity_to_torque_fraction(make_roboteq_driver):
     node.on_drive(command(Drive.MODE_VELOCITY, [25 * math.tau, -50 * math.tau]))
     assert b'!G 1 500\r' in port.written
     assert b'!G 2 -1000\r' in port.written
+
+
+def test_full_scale_wheel_speed_overrides_controller_scaling(
+        make_roboteq_driver):
+    node, port = make_roboteq_driver(
+        control_mode='open_loop', max_wheel_speed=None,
+        full_scale_wheel_speed=10.0)
+    node.on_drive(command(Drive.MODE_VELOCITY, [5.0, -20.0]))
+    assert b'~MXRPM\r' not in port.written
+    assert b'!G 1 500\r' in port.written
+    assert b'!G 2 -1000\r' in port.written
+
+
+def test_open_loop_mode_scales_velocity_to_power_fraction(make_roboteq_driver):
+    node, port = make_roboteq_driver(
+        control_mode='open_loop', max_wheel_speed=None,
+        connect_replies=[b'MXRPM=3000:3000\r'])
+    node.on_drive(command(Drive.MODE_VELOCITY, [25 * math.tau, 0.0]))
+    assert b'!G 1 500\r' in port.written
 
 
 def test_torque_mode_timeout_commands_zero_torque(make_roboteq_driver):

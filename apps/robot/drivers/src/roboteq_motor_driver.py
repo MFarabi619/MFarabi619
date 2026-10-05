@@ -149,6 +149,7 @@ class RoboteqMotorDriver(Node):
         self.declare_parameter('counts_per_revolution', 90)
         self.declare_parameter('max_wheel_speed', math.inf)
         self.declare_parameter('control_mode', 'speed')
+        self.declare_parameter('full_scale_wheel_speed', 0.0)
         for side in ('left', 'right'):
             self.declare_parameter(f'{side}_reversed', False)
 
@@ -164,9 +165,19 @@ class RoboteqMotorDriver(Node):
             self.get_parameter('baud_rate').value,
         )
         self.control_mode = self.get_parameter('control_mode').value
-        self.full_scale_rpm = (
-            pair(self.bus.query_configuration('MXRPM', 2))
-            if self.control_mode == 'torque' else [0, 0])
+        self.commands_fractions = self.control_mode in ('torque', 'open_loop')
+        full_scale_wheel_speed = self.get_parameter(
+            'full_scale_wheel_speed').value
+        if full_scale_wheel_speed > 0.0:
+            self.full_scale_wheel_speeds = [
+                full_scale_wheel_speed, full_scale_wheel_speed]
+        elif self.commands_fractions:
+            self.full_scale_wheel_speeds = [
+                rpm / RPM_PER_RADIAN_PER_SECOND
+                for rpm in pair(self.bus.query_configuration('MXRPM', 2))
+            ]
+        else:
+            self.full_scale_wheel_speeds = [0.0, 0.0]
         self.last_fault_flags = 0
         self.currents = [0.0, 0.0]
         self.mcu_temperature = 0.0
@@ -198,8 +209,8 @@ class RoboteqMotorDriver(Node):
         return int(direction_sign * clamped_speed * RPM_PER_RADIAN_PER_SECOND)
 
     def command_velocities(self, wheel_speeds):
-        if self.control_mode == 'torque':
-            self.command_torque_fractions(wheel_speeds)
+        if self.commands_fractions:
+            self.command_fractions(wheel_speeds)
         else:
             self.command_speeds(wheel_speeds)
 
@@ -210,14 +221,16 @@ class RoboteqMotorDriver(Node):
                 f'!S {channel} '
                 f'{self.rpm_from_wheel_speed(wheel_speed, direction_sign)}')
 
-    def command_torque_fractions(self, wheel_speeds):
+    def command_fractions(self, wheel_speeds):
         for channel, (wheel_speed, direction_sign) in enumerate(
                 zip(wheel_speeds, self.direction_signs), start=1):
-            rpm = self.rpm_from_wheel_speed(wheel_speed, direction_sign)
+            clamped_speed = direction_sign * max(
+                -self.max_wheel_speed,
+                min(wheel_speed, self.max_wheel_speed))
             fraction = int(max(
                 -FULL_POWER_COMMAND,
-                min(rpm * FULL_POWER_COMMAND
-                    / self.full_scale_rpm[channel - 1],
+                min(clamped_speed * FULL_POWER_COMMAND
+                    / self.full_scale_wheel_speeds[channel - 1],
                     FULL_POWER_COMMAND)))
             self.bus.write_command(f'!G {channel} {fraction}')
 

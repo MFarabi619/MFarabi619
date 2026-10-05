@@ -313,6 +313,11 @@ def robot(name: str = '', drivetrain_model: str = ''):
             }
             if max_wheel_speed is not None:
                 roboteq_parameters['max_wheel_speed'] = max_wheel_speed
+            full_scale_linear_velocity = drivetrain.get(
+                'full_scale_linear_velocity_meters_per_second')
+            if full_scale_linear_velocity is not None:
+                roboteq_parameters['full_scale_wheel_speed'] = (
+                    full_scale_linear_velocity / wheel_radius)
             bl.node(
                 package='robot_drivers',
                 executable='roboteq_motor_driver',

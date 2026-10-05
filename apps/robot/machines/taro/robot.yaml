@@ -18,7 +18,11 @@ platform:
     serial_port: /dev/serial/by-id/usb-RoboteQ_RoboteQ_SBLMG2360T_GwBAABhQRUhMNTIg_207235674845-if00
     baud_rate: 115200
     counts_per_revolution: 90
-    control_mode: torque
+    control_mode: open_loop
+    full_scale_linear_velocity_meters_per_second: 2.0
+    roboteq:
+      max_linear_acceleration_meters_per_second_squared: 5.0
+      max_angular_acceleration_radians_per_second_squared: 7.5
     rc_pulse:
       max_linear_velocity_meters_per_second: 1.37
       max_angular_velocity_radians_per_second: 3.0
