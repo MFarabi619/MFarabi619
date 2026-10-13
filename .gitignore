@@ -20,6 +20,8 @@ config/data.sqld
 .pixi/
 install/
 build/
+install-arm/
+build-arm/
 out/
 log/
 **/twister-out*/

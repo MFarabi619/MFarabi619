@@ -89,6 +89,31 @@ manifest:
           path: zephyrproject/modules/lib/better_launch
           url: https://github.com/dfki-ric/better_launch
 
+        - name: ros2_link6
+          revision: 17e78b57f89a9277746a3286c0723890d2e20627 # jazzy 2026-10-12
+          path: zephyrproject/modules/ros/ros2_link6
+          url: https://github.com/Kinovarobotics/ros2_link6
+
+        - name: cartesian_controllers
+          revision: f8aad77697802d9b9ca08d044b87ce58167e4bf9 # ros2 2026-10-12
+          path: zephyrproject/modules/ros/cartesian_controllers
+          url: https://github.com/fzi-forschungszentrum-informatik/cartesian_controllers
+
+        - name: ros2_robotiq_gripper
+          revision: a74d007d8f2f06dc6a503ad21038ba869d4999a6 # main 2026-10-12
+          path: zephyrproject/modules/ros/ros2_robotiq_gripper
+          url: https://github.com/PickNikRobotics/ros2_robotiq_gripper
+
+        - name: picknik_controllers
+          revision: 8b5f4ab308ee82198c55e1722de23ed60142a37d # main 2026-10-12
+          path: zephyrproject/modules/ros/picknik_controllers
+          url: https://github.com/picknikrobotics/picknik_controllers
+
+        - name: serial
+          revision: d8d160678aa0b31cdf467c052b954fa287cc6cdf # ros2 2026-10-12
+          path: zephyrproject/modules/ros/serial
+          url: https://github.com/tylerjw/serial
+
         - name: nuttx
           revision: ab4890df16b63af85f546d05d7a7fe3a3ebf3980 # 2026-07-30
           path: zephyrproject/nuttx

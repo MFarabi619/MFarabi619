@@ -1,0 +1,13 @@
+serial_number: mark-8
+version: 1
+system:
+  hosts: []
+arm:
+  model: kinova_link_6
+  gripper: robotiq_2f_85
+  bringup_package: link6_bringup
+  control_package: link6_control
+  moveit_package: link6_moveit_config
+  moveit_robot_name: link6
+manipulation:
+  demonstration_joint_positions: [0.5, -0.4, 0.6, 0.0, 0.5, 0.0]
