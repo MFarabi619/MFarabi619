@@ -90,8 +90,8 @@ gps_navigation:
   enabled: true
   linear_velocity_meters_per_second: 0.7
 home:
-  latitude: 45.4662575
-  longitude: -75.48316016666666
+  latitude: 45.465033166666664
+  longitude: -75.48172833333334
 hand_gesture:
   enabled: false
 harvest_lane:

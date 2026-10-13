@@ -996,6 +996,13 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 from_ll_argument = (
                     ' -r /fromLL:=fromLL'
                     if server == 'waypoint_follower' else '')
+                costmap_name = {
+                    'controller_server': 'local_costmap',
+                    'planner_server': 'global_costmap'}.get(server)
+                scan_argument = (
+                    f' -r /{namespace}/{costmap_name}/sensors/camera_0/scan'
+                    f':=/{namespace}/sensors/camera_0/scan'
+                    if costmap_name else '')
                 linear_velocity = robot_config['gps_navigation'].get(
                     'linear_velocity_meters_per_second')
                 velocity_argument = (
@@ -1009,7 +1016,8 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     f' -r __ns:=/{namespace}'
                     ' -r /tf:=tf -r /tf_static:=tf_static'
                     f' --params-file {gps_navigation_parameters}'
-                    f'{tree_argument}{from_ll_argument}{velocity_argument}',
+                    f'{tree_argument}{from_ll_argument}{scan_argument}'
+                    f'{velocity_argument}',
                     name=server,
                     env={'HOME': os.environ['HOME']},
                     isolate_env=True,
