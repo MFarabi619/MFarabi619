@@ -1,0 +1,55 @@
+diff --git a/better_launch/elements/foreign_node.py b/better_launch/elements/foreign_node.py
+index e501c42..0426d15 100644
+--- a/better_launch/elements/foreign_node.py
++++ b/better_launch/elements/foreign_node.py
+@@ -53,7 +53,7 @@ def find_ros2_node_processes() -> list[psutil.Process]:
+                 or "__name:=" in cmd
+             ):
+                 ret.append(p)
+-        except psutil.ZombieProcess:
++        except (psutil.ZombieProcess, psutil.AccessDenied, psutil.NoSuchProcess):
+             pass
+ 
+     return ret
+@@ -94,7 +94,7 @@ def find_process_for_node(namespace: str, name: str) -> list[psutil.Process]:
+                 if pkg_match and name_match:
+                     candidates.append(p)
+                     break
+-        except psutil.ZombieProcess:
++        except (psutil.ZombieProcess, psutil.AccessDenied, psutil.NoSuchProcess):
+             pass
+ 
+     return candidates
+diff --git a/better_launch/elements/node.py b/better_launch/elements/node.py
+index aaeeb95..c7bfb8b 100644
+--- a/better_launch/elements/node.py
++++ b/better_launch/elements/node.py
+@@ -311,6 +311,8 @@ class Node(AbstractNode, LiveParamsMixin):
+                         break
+                     q.put(line.rstrip("\n\r"))
+             except Exception:
++                pass
++            finally:
+                 # Signal error/EOF
+                 q.put(None)
+ 
+diff --git a/better_launch/elements/ros2_launch_wrapper.py b/better_launch/elements/ros2_launch_wrapper.py
+index 150d998..05419e9 100644
+--- a/better_launch/elements/ros2_launch_wrapper.py
++++ b/better_launch/elements/ros2_launch_wrapper.py
+@@ -43,14 +43,7 @@ def _launchservice_worker(
+     # The child process will have clones of the host process' signal handlers installed (i.e. those
+     # defined in launch_this), so we should rewire these, otherwise we'll get parallel calls
+     def _on_sigint(signum: int, frame):
+-        try:
+-            ret = launch_service._shutdown(reason="SIGINT", due_to_sigint=True)
+-            if ret:
+-                # This way we suppress the "coroutine was never awaited" warning
+-                ret.close()
+-        finally:
+-            # Recommended to use this special _exit call in child processes
+-            os._exit(os.EX_OK)
++        launch_service.shutdown()
+ 
+     def _on_sigterm(signum: int, frame):
+         # Recommended to use this special _exit call in child processes

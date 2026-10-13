@@ -484,12 +484,12 @@ patches:
              lx7 already pins CONFIG_CXX_STANDARD for C++ but left C at the
              compiler default.
 
-    - path: better-launch-macos-psutil.patch
-      sha256sum: 21d2a2a27fac5534467034812439b9591c8d2eed5edf87131ebc8ce29018d6c2
+    - path: better-launch.patch
+      sha256sum: 6404ffc87d524d98284dbbfac54a8ec5805ef68dc45d96ea5079768c111971e5
       module: zephyrproject/modules/lib/better_launch
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
-      date: 2026-08-01
+      date: 2026-10-12
       upstreamable: true
       comments: |
           foreign_node.py: also catch psutil.AccessDenied / NoSuchProcess when
