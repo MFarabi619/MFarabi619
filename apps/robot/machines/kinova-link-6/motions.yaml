@@ -1,0 +1,17 @@
+/**:
+  ros__parameters:
+    motions:
+      wave:
+        joints: [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
+        positions: [0.785, 0.3, -1.5, 0.0, -0.6, 1.57,
+                    0.785, 0.3, -1.85, 0.0, -0.25, 1.57,
+                    0.785, 0.3, -1.5, 0.0, -0.6, 1.57,
+                    0.785, 0.3, -1.85, 0.0, -0.25, 1.57,
+                    0.785, 0.3, -1.5, 0.0, -0.6, 1.57,
+                    0.785, 0.3, -1.85, 0.0, -0.25, 1.57,
+                    0.785, 0.3, -1.5, 0.0, -0.6, 1.57]
+        times_from_start: [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+        meta:
+          name: Wave
+          usage: demo
+          description: 'Bent-elbow raised hand, forearm swinging from the elbow'

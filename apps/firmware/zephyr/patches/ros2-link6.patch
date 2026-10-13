@@ -1,0 +1,71 @@
+diff --git a/link6_control/config/kortex3_sim_controllers.yaml b/link6_control/config/kortex3_sim_controllers.yaml
+index 8873901..26af7ec 100644
+--- a/link6_control/config/kortex3_sim_controllers.yaml
++++ b/link6_control/config/kortex3_sim_controllers.yaml
+@@ -116,17 +116,17 @@ joint_trajectory_controller:
+       stopped_velocity_tolerance: 0.01
+       goal_time: 0.0
+       joint_1:
+-        goal: 0.001
++        goal: 0.01
+       joint_2:
+-        goal: 0.001
++        goal: 0.01
+       joint_3:
+-        goal: 0.001
++        goal: 0.01
+       joint_4:
+-        goal: 0.001
++        goal: 0.01
+       joint_5:
+-        goal: 0.001
++        goal: 0.01
+       joint_6:
+-        goal: 0.001
++        goal: 0.01
+         
+     gains:
+       joint_1:
+@@ -134,34 +134,34 @@ joint_trajectory_controller:
+         i: 0.0
+         i_clamp: 0.0
+         d: 0.3
+-        ff_velocity_scale: 0.0
++        ff_velocity_scale: 1.0
+       joint_2:
+         p: 3.0
+         i: 0.0
+         i_clamp: 0.0
+         d: 0.3
+-        ff_velocity_scale: 0.0
++        ff_velocity_scale: 1.0
+       joint_3:
+         p: 3.0
+         i: 0.0
+         i_clamp: 0.0
+         d: 0.3
+-        ff_velocity_scale: 0.0
++        ff_velocity_scale: 1.0
+       joint_4:
+         p: 3.0
+         i: 0.0
+         i_clamp: 0.0
+         d: 0.3
+-        ff_velocity_scale: 0.0
++        ff_velocity_scale: 1.0
+       joint_5:
+         p: 3.0
+         i: 0.0
+         i_clamp: 0.0
+         d: 0.3
+-        ff_velocity_scale: 0.0
++        ff_velocity_scale: 1.0
+       joint_6:
+         p: 3.0
+         i: 0.0
+         i_clamp: 0.0
+         d: 0.3
+-        ff_velocity_scale: 0.0
+\ No newline at end of file
++        ff_velocity_scale: 1.0
+\ No newline at end of file

@@ -114,6 +114,11 @@ manifest:
           path: zephyrproject/modules/ros/serial
           url: https://github.com/tylerjw/serial
 
+        - name: play_motion2
+          revision: 5e41e66d7b9adf057b5a6f8bdd3a00d3918993b2 # humble-devel 2026-10-13
+          path: zephyrproject/modules/ros/play_motion2
+          url: https://github.com/pal-robotics/play_motion2
+
         - name: nuttx
           revision: ab4890df16b63af85f546d05d7a7fe3a3ebf3980 # 2026-07-30
           path: zephyrproject/nuttx

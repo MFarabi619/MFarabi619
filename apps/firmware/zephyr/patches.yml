@@ -492,13 +492,45 @@ patches:
       date: 2026-10-12
       upstreamable: true
       comments: |
-          foreign_node.py: also catch psutil.AccessDenied / NoSuchProcess when
-          scanning processes for ROS nodes, not just ZombieProcess. On macOS
-          p.cmdline() on pid 1 (launchd) raises AccessDenied, which crashed
-          get_unique_name and so every anonymous node (e.g. the Gazebo
-          spawn_model create). Linux reads /proc/1/cmdline fine, so the gap
-          only surfaces on macOS. Both scan sites fixed
-          (find_ros2_node_processes, find_process_for_node).
+          Two fixes, three files:
+
+          1. foreign_node.py + node.py: also catch psutil.AccessDenied /
+             NoSuchProcess when scanning processes for ROS nodes, not just
+             ZombieProcess. On macOS p.cmdline() on pid 1 (launchd) raises
+             AccessDenied, which crashed get_unique_name and so every
+             anonymous node (e.g. the Gazebo spawn_model create). Linux reads
+             /proc/1/cmdline fine, so the gap only surfaces on macOS.
+
+          2. ros2_launch_wrapper.py: _launchservice_worker's _on_sigint
+             created the launch_service._shutdown coroutine, .close()d it
+             unawaited, then os._exit'd — every bl.include'd launch tree
+             orphaned its children (gz, rsp, bridges) on Ctrl-C. Fix: call
+             the public thread-safe launch_service.shutdown() and let the
+             worker exit naturally.
+
+    - path: ros2-link6.patch
+      sha256sum: 1966d70bb9eebd53bd60b54b440199f922e39ff221618dbb7d42f33ff7caecc5
+      module: zephyrproject/modules/ros/ros2_link6
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-10-13
+      upstreamable: true
+      comments: |
+          link6_control/config/kortex3_sim_controllers.yaml, two jtc fixes:
+
+          1. ff_velocity_scale 0.0 -> 1.0 on all six joints. The sim joints
+             are velocity-commanded, so without velocity feedforward the
+             controller tracks on accumulated position error alone: fine at
+             rviz's 0.1 speed scaling, but at full speed it lags the
+             trajectory, overshoots at stops, and strands the arm in
+             self-colliding poses that fail every later
+             CheckStartStateCollision.
+
+          2. per-joint goal tolerance 0.001 -> 0.01 rad. 0.06 degrees is
+             tighter than the velocity-PID sim arm settles to in bounded
+             time; goals that visibly completed never report success and
+             clients (play_motion2's 2x+1 result budget) cancel them as
+             timeouts.
 
     - path: lichtblick.patch
       sha256sum: 680e75533978f05bbe3f21fcd2b31aa3cd19c777c3211ad9831c94714ffb2945

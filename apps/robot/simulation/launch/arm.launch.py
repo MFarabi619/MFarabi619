@@ -95,6 +95,14 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
             pass_launch_func_args=False,
             use_sim_time='true',
         )
+        bl.include(
+            'play_motion2', 'play_motion2.launch.py',
+            pass_launch_func_args=False,
+            motions_file=os.path.abspath(f'machines/{robot}/motions.yaml'),
+            motion_planner_config=os.path.abspath(
+                'manipulation/config/motion_planner.yaml'),
+            use_sim_time='true',
+        )
         rviz_config = os.path.abspath('manipulation/config/moveit.rviz')
     else:
         rviz_config = os.path.join(

@@ -116,8 +116,14 @@ ZENOH_CONFIG_OVERRIDE = "mode='client'"
 ZENOH_SESSION_CONFIG_URI = "networking/zenoh/robot.json5"
 
 [feature.jazzy.dependencies]
+requests = "*"
 python = "3.12.*"
 pygnssutils = "*"
+
+ros-jazzy-vision-msgs = "*"
+ros-jazzy-foxglove-msgs = "*"
+ros-jazzy-robot-localization = "*"
+
 ros-jazzy-nav2-amcl = "*"
 ros-jazzy-slam-toolbox = "*"
 ros-jazzy-nav2-planner = "*"
@@ -129,16 +135,12 @@ ros-jazzy-nav2-bt-navigator = "*"
 ros-jazzy-nav2-navfn-planner = "*"
 ros-jazzy-rmw-zenoh-cpp = ">=0.2.9"
 ros-jazzy-nav2-mppi-controller = "*"
-ros-jazzy-nav2-regulated-pure-pursuit-controller = "*"
-ros-jazzy-vision-msgs = "*"
-ros-jazzy-foxglove-msgs = "*"
-requests = "*"
+ros-jazzy-nav2-simple-commander = "*"
 ros-jazzy-nav2-velocity-smoother = "*"
 ros-jazzy-nav2-lifecycle-manager = "*"
 ros-jazzy-nav2-collision-monitor = "*"
-ros-jazzy-robot-localization = "*"
 ros-jazzy-nav2-waypoint-follower = "*"
-ros-jazzy-nav2-simple-commander = "*"
+ros-jazzy-nav2-regulated-pure-pursuit-controller = "*"
 
 [feature.jazzy.target.linux-aarch64.dependencies]
 ros-jazzy-rclpy = "*"
@@ -170,6 +172,7 @@ ros-jazzy-ros2node = "*"
 ros-jazzy-std-msgs = "*"
 ros-jazzy-ros2topic = "*"
 ros-jazzy-ros-gz-sim = "*"
+ros-jazzy-ros2action = "*"
 ros-jazzy-ros2launch = "*"
 ros-jazzy-topic-tools = "*"
 ros-jazzy-nav2-bringup = "*"
@@ -181,6 +184,7 @@ ros-jazzy-sdformat-urdf = "*"
 colcon-common-extensions = "*"
 ros-jazzy-moveit-planners = "*"
 ros-jazzy-gz-ros2-control = "*"
+ros-jazzy-ament-cmake-auto = "*"
 ros-jazzy-moveit-kinematics = "*"
 ros-jazzy-nav2-rviz-plugins = "*"
 ros-jazzy-controller-manager = "*"
@@ -223,7 +227,7 @@ gps = { cmd = "python boot/launch/gps.launch.py --port {{ port }} --baud {{ baud
     { arg = "baud", default = "115200" },
 ] }
 
-build-arm = "colcon build --merge-install --base-paths ../../zephyrproject/modules/ros --build-base build-arm --install-base install-arm --packages-ignore kortex3_hardware cartesian_controller_simulation cartesian_controller_tests --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-dead_strip_dylibs"
+build-arm = "colcon build --merge-install --base-paths ../../zephyrproject/modules/ros --build-base build-arm --install-base install-arm --packages-ignore kortex3_hardware cartesian_controller_simulation cartesian_controller_tests --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-dead_strip_dylibs -DCMAKE_EXE_LINKER_FLAGS=-Wl,-dead_strip_dylibs"
 
 sim-arm = { cmd = "python simulation/launch/arm.launch.py --robot {{ robot }} --mode {{ mode }} --headless {{ headless }} {% if gripper %}--gripper {{ gripper }}{% endif %}", args = [
     { arg = "robot", default = "kinova-link-6" },
@@ -242,6 +246,14 @@ arm-rviz = { cmd = "rviz2 -d install-arm/share/link6_control/config/link6_config
 
 arm-grip = { cmd = 'ros2 action send_goal /robotiq_gripper_controller/gripper_cmd control_msgs/action/GripperCommand "{command: {position: {% if state == "open" %}0.0{% else %}0.8{% endif %}, max_effort: 60.0}}"', args = [
     { arg = "state", default = "open" },
+], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+
+arm-motion = { cmd = 'ros2 action send_goal /robotiq_gripper_controller/gripper_cmd control_msgs/action/GripperCommand "{command: {position: 0.0, max_effort: 60.0}}" && ros2 play_motion run {{ motion }}', args = [
+    { arg = "motion", default = "wave" },
+], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+
+arm-motion-load = { cmd = "python manipulation/src/load_motions.py --robot {{ robot }}", args = [
+    { arg = "robot", default = "kinova-link-6" },
 ], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-reach = { cmd = "python manipulation/src/reach.py --robot {{ robot }} {% if target %}--target {{ target }}{% endif %} {% if x %}--x {{ x }} --y {{ y }} --z {{ z }}{% endif %}", args = [
