@@ -86,6 +86,7 @@
       "freecad"
       "vivaldi"
       "claude-code"
+      "balenaetcher"
       "bambu-studio"
       "tailscale-app"
       "docker-desktop"
