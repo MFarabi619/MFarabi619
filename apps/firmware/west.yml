@@ -85,7 +85,7 @@ manifest:
           url: https://github.com/eclipse-zenoh/zenoh-pico
 
         - name: better_launch
-          revision: 99aea170405745f342df1fa83a1a92810598c9ec # dfki-ric/better_launch (macOS psutil patch)
+          revision: 26f5be8bea20a6371138314cae47b0877933d0f5 # 2026-10-12
           path: zephyrproject/modules/lib/better_launch
           url: https://github.com/dfki-ric/better_launch
 
