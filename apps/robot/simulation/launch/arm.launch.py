@@ -15,14 +15,24 @@
 
 
 import os
+import re
 import subprocess
+import tempfile
 import threading
 import time
 
 import yaml
 
 from better_launch import BetterLaunch, launch_this
+from better_launch.gazebo import get_gazebo_axes_args, spawn_model
 
+WORLD_SPAWN_POINTS = {'farm': (11.3, 3.0), 'maize': (0.3, 16.0)}
+PERSON_AHEAD_M = 3.0
+PERSON_SPAWN_POSES = {
+    'plasticulture': {'x': -14.5, 'y': -3.0},
+    'farm': {'x': 6.5, 'y': 3.6},
+}
+CAMERA_OFFSET = (1.8, -1.8, 1.2, 0.0, 0.25, 2.36)
 VIEW_CONTROL_SENSITIVITY = 0.25
 SENSITIVITY_RETRY_DELAY_S = 2.0
 SENSITIVITY_MAX_ATTEMPTS = 60
@@ -58,17 +68,25 @@ def calm_view_control_sensitivity():
 
 @launch_this(use_sim_time=True)
 def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
-                   headless: bool = False, mode: str = 'drag'):
+                   headless: bool = False, mode: str = 'drag',
+                   world: str = 'farm'):
     headless = str(headless).lower() in ('true', '1')
     with open(f'machines/{robot}/robot.yaml') as machine_file:
         arm = yaml.safe_load(machine_file)['arm']
     gripper = gripper or arm['gripper']
     install_arm = os.path.abspath('install-arm')
+    spawn_x, spawn_y = WORLD_SPAWN_POINTS.get(world, (0.0, 0.0))
+    if world == 'empty':
+        world_file = 'empty.sdf'
+    else:
+        world_file = os.path.abspath(f'simulation/worlds/{world}.sdf')
     os.environ.pop('ZENOH_CONFIG_OVERRIDE', None)
     os.environ.pop('ZENOH_SESSION_CONFIG_URI', None)
     os.environ['GZ_SIM_RESOURCE_PATH'] = ':'.join(filter(None, [
         os.environ.get('GZ_SIM_RESOURCE_PATH', ''),
-        os.path.join(install_arm, 'share')]))
+        os.path.join(install_arm, 'share'),
+        os.path.abspath('simulation/worlds'),
+        os.path.abspath('simulation/models')]))
     os.environ['GZ_SIM_SYSTEM_PLUGIN_PATH'] = os.path.join(
         os.environ.get('CONDA_PREFIX', ''), 'lib')
 
@@ -85,8 +103,18 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
         pass_launch_func_args=False,
         gripper=gripper,
         gui='false',
-        gz_args='-s -r -v 2 empty.sdf',
+        gz_args=f'-s -r -v 2 {world_file}',
+        spawn_x=str(spawn_x),
+        spawn_y=str(spawn_y),
     )
+    person_pose = PERSON_SPAWN_POSES.get(world, {
+        'x': spawn_x + PERSON_AHEAD_M,
+        'y': spawn_y,
+    })
+    spawn_model(
+        'person',
+        os.path.abspath('simulation/models/person/model.sdf'), 'file',
+        spawn_args=get_gazebo_axes_args(**person_pose))
     if mode == 'drag':
         threading.Thread(target=activate_drag_mode, daemon=True).start()
     if mode == 'moveit':
@@ -109,9 +137,19 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
             install_arm, 'share', arm['control_package'], 'config',
             'link6_config.rviz')
     if not headless:
+        camera = (spawn_x + CAMERA_OFFSET[0], spawn_y + CAMERA_OFFSET[1],
+                  *CAMERA_OFFSET[2:])
+        with open(os.path.abspath('simulation/arm_gui.config')) as template:
+            gui_config = re.sub(
+                r'<camera_pose>[^<]*</camera_pose>',
+                '<camera_pose>{} {} {} {} {} {}</camera_pose>'.format(*camera),
+                template.read())
+        gui_config_file = tempfile.NamedTemporaryFile(
+            mode='w', suffix='.config', delete=False)
+        gui_config_file.write(gui_config)
+        gui_config_file.close()
         bl.process(
-            'gz sim -g --force-version 8 --gui-config '
-            + os.path.abspath('simulation/arm_gui.config'),
+            'gz sim -g --force-version 8 --gui-config ' + gui_config_file.name,
             name='gazebo_gui',
         )
         threading.Thread(

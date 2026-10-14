@@ -49,6 +49,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut assemblies: Vec<(AssemblyKey, Vec<Link>, Vec<LinkSummary>)> = Vec::new();
     let mut written_glbs: Vec<Option<std::path::PathBuf>> = Vec::new();
     for robot_name in &robot_names {
+        let machine_yaml: serde_yaml::Value = serde_yaml::from_reader(
+            std::fs::File::open(robot_root.join(format!("machines/{robot_name}/robot.yaml")))?,
+        )?;
+        if machine_yaml.get("arm").is_some() {
+            continue;
+        }
         let robot_dimensions = dimensions::for_robot(robot_name).ok_or_else(|| {
             format!("machines/{robot_name} has no entry in mech/src/dimensions.rs")
         })?;
