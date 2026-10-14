@@ -509,13 +509,29 @@ patches:
              worker exit naturally.
 
     - path: ros2-link6.patch
-      sha256sum: 1966d70bb9eebd53bd60b54b440199f922e39ff221618dbb7d42f33ff7caecc5
+      sha256sum: e439ab1d5383e5b562ad0fc1c95a8a310443ceeea354055a2c0ceff205ca691e
       module: zephyrproject/modules/ros/ros2_link6
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
       date: 2026-10-13
       upstreamable: true
       comments: |
+          link6_bringup/launch/link6_sim.launch.py: spawn_x/spawn_y/spawn_z
+          launch arguments (default 0.0) passed to the ros_gz_sim create
+          call, so the arm can spawn away from the world origin (the farm
+          worlds are planted there).
+
+          link6_description/urdf/link6.urdf.xacro + link6_gz.urdf.xacro:
+          Kinova accessories from the official STEP files (meshes live in
+          our robot_description pkg, mech/urdf/kinova-link-6/meshes/).
+          Visual-only controller_link (controller box + teach pendant +
+          bracket) fixed to base_link; with a gripper, a visual
+          flange_adapter_link (KR22096, 26.5 mm measured) sits on
+          end_effector_link and the gripper macro re-parents to
+          gripper_mount_link at z=0.0265 — sim/MoveIt TCP now matches the
+          physical adapter stack-up. NOT upstreamable as-is (mesh paths
+          point into our package); the spawn args and adapter idea are.
+
           link6_control/config/kortex3_sim_controllers.yaml, two jtc fixes:
 
           1. ff_velocity_scale 0.0 -> 1.0 on all six joints. The sim joints

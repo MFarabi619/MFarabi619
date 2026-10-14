@@ -1,3 +1,47 @@
+diff --git a/link6_bringup/launch/link6_sim.launch.py b/link6_bringup/launch/link6_sim.launch.py
+index d6c95a3..bd8e5fb 100644
+--- a/link6_bringup/launch/link6_sim.launch.py
++++ b/link6_bringup/launch/link6_sim.launch.py
+@@ -72,7 +72,10 @@ def launch_setup(context, *args, **kwargs):
+         arguments  = [
+             "-name",  "link6",
+             "-topic", "robot_description",
+-            "-allow_renaming", "true"
++            "-allow_renaming", "true",
++            "-x", LaunchConfiguration("spawn_x"),
++            "-y", LaunchConfiguration("spawn_y"),
++            "-z", LaunchConfiguration("spawn_z"),
+         ],
+     )
+ 
+@@ -222,6 +225,27 @@ def generate_launch_description():
+             description='Whether to run the Gazebo GUI.'
+         )
+     )
++    declared_arguments.append(
++        DeclareLaunchArgument(
++            "spawn_x",
++            default_value="0.0",
++            description='X position at which to spawn the arm in the world.'
++        )
++    )
++    declared_arguments.append(
++        DeclareLaunchArgument(
++            "spawn_y",
++            default_value="0.0",
++            description='Y position at which to spawn the arm in the world.'
++        )
++    )
++    declared_arguments.append(
++        DeclareLaunchArgument(
++            "spawn_z",
++            default_value="0.0",
++            description='Z position at which to spawn the arm in the world.'
++        )
++    )
+     declared_arguments.append(
+         DeclareLaunchArgument(
+             "gz_args",
 diff --git a/link6_control/config/kortex3_sim_controllers.yaml b/link6_control/config/kortex3_sim_controllers.yaml
 index 8873901..26af7ec 100644
 --- a/link6_control/config/kortex3_sim_controllers.yaml
@@ -69,3 +113,154 @@ index 8873901..26af7ec 100644
 \ No newline at end of file
 +        ff_velocity_scale: 1.0
 \ No newline at end of file
+diff --git a/link6_description/urdf/link6.urdf.xacro b/link6_description/urdf/link6.urdf.xacro
+index eeb5af4..4214146 100644
+--- a/link6_description/urdf/link6.urdf.xacro
++++ b/link6_description/urdf/link6.urdf.xacro
+@@ -74,12 +74,69 @@
+         </joint>
+     </xacro:if>
+ 
++    <link name="$(arg prefix)controller_link">
++        <visual>
++            <origin xyz="-0.4466 0.08 0.2082" rpy="1.5708 0 0" />
++            <geometry>
++                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/controller.stl" scale="0.001 0.001 0.001" />
++            </geometry>
++            <material name="controller_material">
++                <color rgba="0.35 0.35 0.37 1" />
++            </material>
++        </visual>
++        <visual>
++            <origin xyz="-0.45 0.36987 0.15725" rpy="0 0 0" />
++            <geometry>
++                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/pendant_bracket.stl" scale="0.001 0.001 0.001" />
++            </geometry>
++            <material name="pendant_bracket_material">
++                <color rgba="0.2 0.2 0.2 1" />
++            </material>
++        </visual>
++        <visual>
++            <origin xyz="-0.45 0.39165 0.16661" rpy="0 0 0" />
++            <geometry>
++                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/teach_pendant.stl" scale="0.001 0.001 0.001" />
++            </geometry>
++            <material name="teach_pendant_material">
++                <color rgba="0.12 0.12 0.12 1" />
++            </material>
++        </visual>
++    </link>
++    <joint name="$(arg prefix)controller_joint" type="fixed">
++        <origin xyz="0 0 0" rpy="0 0 0" />
++        <parent link="$(arg prefix)base_link" />
++        <child link="$(arg prefix)controller_link" />
++    </joint>
++
+     <!-- Include and load the gripper if defined -->
+     <xacro:unless value="${not gripper}">
++        <link name="$(arg prefix)flange_adapter_link">
++            <visual>
++                <origin xyz="0 0 0.02311" rpy="0 -1.5708 0" />
++                <geometry>
++                    <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/flange_adapter.stl" scale="0.001 0.001 0.001" />
++                </geometry>
++                <material name="flange_adapter_material">
++                    <color rgba="0.15 0.15 0.15 1" />
++                </material>
++            </visual>
++        </link>
++        <joint name="$(arg prefix)flange_adapter_joint" type="fixed">
++            <origin xyz="0 0 0" rpy="0 0 0" />
++            <parent link="$(arg prefix)end_effector_link" />
++            <child link="$(arg prefix)flange_adapter_link" />
++        </joint>
++        <link name="$(arg prefix)gripper_mount_link" />
++        <joint name="$(arg prefix)gripper_mount_joint" type="fixed">
++            <origin xyz="0 0 0.0265" rpy="0 0 0" />
++            <parent link="$(arg prefix)flange_adapter_link" />
++            <child link="$(arg prefix)gripper_mount_link" />
++        </joint>
+         <xacro:include filename="$(find link6_description)/urdf/grippers/$(arg gripper)_macro.xacro" />
+         <xacro:load_gripper
+             prefix="$(arg prefix)"
+-            parent="$(arg prefix)end_effector_link"
++            parent="$(arg prefix)gripper_mount_link"
+             sim_gazebo="$(arg sim_gazebo)"
+             use_fake_hardware="$(arg use_fake_hardware)"
+             mock_sensor_commands="$(arg mock_sensor_commands)"
+diff --git a/link6_description/urdf/link6_gz.urdf.xacro b/link6_description/urdf/link6_gz.urdf.xacro
+index 85266e9..ecc6910 100644
+--- a/link6_description/urdf/link6_gz.urdf.xacro
++++ b/link6_description/urdf/link6_gz.urdf.xacro
+@@ -260,13 +260,70 @@
+         <axis xyz="0 0 0" />
+       </joint>
+     </xacro:unless>
++    <link name="controller_link">
++        <visual>
++            <origin xyz="-0.4466 0.08 0.2082" rpy="1.5708 0 0" />
++            <geometry>
++                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/controller.stl" scale="0.001 0.001 0.001" />
++            </geometry>
++            <material name="controller_material">
++                <color rgba="0.35 0.35 0.37 1" />
++            </material>
++        </visual>
++        <visual>
++            <origin xyz="-0.45 0.36987 0.15725" rpy="0 0 0" />
++            <geometry>
++                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/pendant_bracket.stl" scale="0.001 0.001 0.001" />
++            </geometry>
++            <material name="pendant_bracket_material">
++                <color rgba="0.2 0.2 0.2 1" />
++            </material>
++        </visual>
++        <visual>
++            <origin xyz="-0.45 0.39165 0.16661" rpy="0 0 0" />
++            <geometry>
++                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/teach_pendant.stl" scale="0.001 0.001 0.001" />
++            </geometry>
++            <material name="teach_pendant_material">
++                <color rgba="0.12 0.12 0.12 1" />
++            </material>
++        </visual>
++    </link>
++    <joint name="controller_joint" type="fixed">
++        <origin xyz="0 0 0" rpy="0 0 0" />
++        <parent link="base_link" />
++        <child link="controller_link" />
++    </joint>
++
+     <!-- Include and load the gripper if defined -->
+     <xacro:if value="${'$(arg gripper)' != ''}">
++        <link name="flange_adapter_link">
++            <visual>
++                <origin xyz="0 0 0.02311" rpy="0 -1.5708 0" />
++                <geometry>
++                    <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/flange_adapter.stl" scale="0.001 0.001 0.001" />
++                </geometry>
++                <material name="flange_adapter_material">
++                    <color rgba="0.15 0.15 0.15 1" />
++                </material>
++            </visual>
++        </link>
++        <joint name="flange_adapter_joint" type="fixed">
++            <origin xyz="0 0 0" rpy="0 0 0" />
++            <parent link="end_effector_link" />
++            <child link="flange_adapter_link" />
++        </joint>
++        <link name="gripper_mount_link" />
++        <joint name="gripper_mount_joint" type="fixed">
++            <origin xyz="0 0 0.0265" rpy="0 0 0" />
++            <parent link="flange_adapter_link" />
++            <child link="gripper_mount_link" />
++        </joint>
+         <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro" />
+         <xacro:robotiq_gripper
+             name="RobotiqGripperHardwareInterface"
+             prefix=""
+-            parent="end_effector_link"
++            parent="gripper_mount_link"
+             include_ros2_control="true"
+             com_port="/dev/ttyUSB0"
+             use_fake_hardware="false"
