@@ -89,6 +89,11 @@ manifest:
           path: zephyrproject/modules/lib/better_launch
           url: https://github.com/dfki-ric/better_launch
 
+        - name: cadrum
+          revision: 77285e51ea2527285101a0dc403b7382971f8717 # 0.9.0 2026-10-13
+          path: zephyrproject/modules/lib/cadrum
+          url: https://github.com/lzpel/cadrum
+
         - name: ros2_link6
           revision: 17e78b57f89a9277746a3286c0723890d2e20627 # jazzy 2026-10-12
           path: zephyrproject/modules/ros/ros2_link6

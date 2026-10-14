@@ -10,7 +10,7 @@ generator = ["dep:cadrum", "dep:comfy-table", "dep:serde", "dep:serde_yaml"]
 [dependencies]
 glam = "0.33"
 oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = ["zenoh"] }
-cadrum = { version = "^0.8", optional = true }
+cadrum = { version = "0.9", optional = true }
 comfy-table = { version = "7", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_yaml = { version = "0.9", optional = true }

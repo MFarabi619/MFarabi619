@@ -532,6 +532,21 @@ patches:
              clients (play_motion2's 2x+1 result budget) cancel them as
              timeouts.
 
+    - path: cadrum.patch
+      sha256sum: c328f3b99c3cde862df89727af6187f3bb9d593da271aaff980709cb7bc6fa05
+      module: zephyrproject/modules/lib/cadrum
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-10-13
+      upstreamable: true
+      comments: |
+          Thread an `is_parallel` Tessellation flag through
+          src/ffi.{cpp,h,rs} + src/occt/io.rs + src/traits.rs into
+          BRepMesh_IncrementalMesh's parallel argument (OpenCASCADE's own
+          face-level thread pool; default false preserves upstream
+          behavior). Ported to the 0.9.0 FFI layout from the pre-west
+          ~/workspace/cadrum checkout; upstream still hardcodes false.
+
     - path: lichtblick.patch
       sha256sum: 680e75533978f05bbe3f21fcd2b31aa3cd19c777c3211ad9831c94714ffb2945
       module: zephyrproject/lichtblick

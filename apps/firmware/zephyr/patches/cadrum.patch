@@ -1,0 +1,81 @@
+diff --git a/src/ffi.cpp b/src/ffi.cpp
+index 4679ea9..d8e8746 100644
+--- a/src/ffi.cpp
++++ b/src/ffi.cpp
+@@ -618,13 +618,13 @@ void shape_bounding_box(const TopoDS_Solid& shape,
+ 
+ // ==================== Meshing ====================
+ 
+-MeshData mesh_shape(const std::vector<TopoDS_Solid>& solids, double linear, double angular, bool relative) {
++MeshData mesh_shape(const std::vector<TopoDS_Solid>& solids, double linear, double angular, bool relative, bool parallel) {
+     MeshData result;
+     result.success = false;
+     TopoDS_Compound shape = compound_of(solids);
+ 
+     // BRepMesh_IncrementalMesh(shape, linDeflection, isRelative, angDeflection, isInParallel)
+-    BRepMesh_IncrementalMesh mesher(shape, linear, relative, angular, false);
++    BRepMesh_IncrementalMesh mesher(shape, linear, relative, angular, parallel);
+     if (!mesher.IsDone()) {
+         return result;
+     }
+diff --git a/src/ffi.h b/src/ffi.h
+index 82aab64..af2b463 100644
+--- a/src/ffi.h
++++ b/src/ffi.h
+@@ -169,7 +169,7 @@ void shape_bounding_box(const TopoDS_Solid& shape,
+ 
+ // ==================== Meshing ====================
+ 
+-MeshData mesh_shape(const std::vector<TopoDS_Solid>& solids, double linear, double angular, bool relative);
++MeshData mesh_shape(const std::vector<TopoDS_Solid>& solids, double linear, double angular, bool relative, bool parallel);
+ 
+ // ==================== Topology enumeration ====================
+ 
+diff --git a/src/ffi.rs b/src/ffi.rs
+index 58445a7..01cd4fe 100644
+--- a/src/ffi.rs
++++ b/src/ffi.rs
+@@ -95,7 +95,7 @@ mod ffi_bridge {
+ 
+ 		// ==================== Meshing ====================
+ 
+-		fn mesh_shape(shape: &CxxVector<TopoDS_Solid>, linear: f64, angular: f64, relative: bool) -> MeshData;
++		fn mesh_shape(shape: &CxxVector<TopoDS_Solid>, linear: f64, angular: f64, relative: bool, parallel: bool) -> MeshData;
+ 
+ 		// ==================== Topology enumeration ====================
+ 
+diff --git a/src/occt/io.rs b/src/occt/io.rs
+index f09cfa4..2accac5 100644
+--- a/src/occt/io.rs
++++ b/src/occt/io.rs
+@@ -150,7 +150,7 @@ pub(super) fn mesh<'a>(solids: impl IntoIterator<Item = &'a Solid>, options: cra
+ 		map
+ 	};
+ 
+-	let data = ffi::mesh_shape(&Solid::to_ffi(solids.iter().copied()), options.deflection_linear, options.deflection_angular, options.relative_linear);
++	let data = ffi::mesh_shape(&Solid::to_ffi(solids.iter().copied()), options.deflection_linear, options.deflection_angular, options.relative_linear, options.is_parallel);
+ 	if !data.success {
+ 		return Err(Error::Tesselation);
+ 	}
+diff --git a/src/traits.rs b/src/traits.rs
+index a46440b..1ec5e91 100644
+--- a/src/traits.rs
++++ b/src/traits.rs
+@@ -125,13 +125,16 @@ pub struct Tessellation {
+ 	/// Interpret `deflection_linear` as relative to the local feature size
+ 	/// (each edge's bounding-box max dimension) instead of an absolute distance.
+ 	pub relative_linear: bool,
++	/// Run BRepMesh's incremental mesher in parallel across the sub-faces of the
++	/// compound. Uses OpenCASCADE's own thread pool; safe by construction.
++	pub is_parallel: bool,
+ }
+ 
+ impl Default for Tessellation {
+ 	fn default() -> Self {
+ 		// Relative 0.4% linear + 0.5 rad angular: scale-independent and "just
+ 		// right" for most shapes without over-tessellating.
+-		Self { deflection_linear: 0.004, deflection_angular: 0.5, relative_linear: true }
++		Self { deflection_linear: 0.004, deflection_angular: 0.5, relative_linear: true, is_parallel: false }
+ 	}
+ }
+ 
