@@ -135,11 +135,11 @@
       ]
       ++ [
         lighttpd
-        radicle-tui
+        # radicle-tui # FIXME: marked insecure, hit on 1:49 PM, Oct 1, 2026
         # radicle-job
-        radicle-httpd
-        radicle-desktop
-        radicle-explorer
+        # radicle-httpd
+        # radicle-desktop
+        # radicle-explorer
       ]
       ++ [
         grafana

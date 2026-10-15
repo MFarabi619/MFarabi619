@@ -4,7 +4,7 @@
 }:
 {
   programs.radicle = {
-    enable = true;
+    enable = false; # FIXME: marked insecure, hit on 1:49 PM, Oct 1, 2026
     # uri.web-rad.enable = true;
     uri.rad.vscode.enable = config.programs.vscode.enable;
 
