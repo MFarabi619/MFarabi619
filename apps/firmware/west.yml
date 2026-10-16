@@ -124,6 +124,11 @@ manifest:
           path: zephyrproject/modules/ros/play_motion2
           url: https://github.com/pal-robotics/play_motion2
 
+        - name: mujoco_ros2_control
+          revision: 8a083ffb1fb75e33ecd8c602d7fb06845f7cc6b8 # main 2026-10-14
+          path: zephyrproject/modules/ros/mujoco_ros2_control
+          url: https://github.com/ros-controls/mujoco_ros2_control
+
         - name: nuttx
           revision: ab4890df16b63af85f546d05d7a7fe3a3ebf3980 # 2026-07-30
           path: zephyrproject/nuttx
