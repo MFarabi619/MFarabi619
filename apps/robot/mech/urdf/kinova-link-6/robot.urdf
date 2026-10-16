@@ -481,7 +481,7 @@
       </material>
     </visual>
     <visual>
-      <origin rpy="0 0 0" xyz="-0.45 0.39165 0.16661"/>
+      <origin rpy="1.5708 0 0" xyz="-0.45 0.074 0.2484"/>
       <geometry>
         <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/teach_pendant.stl" scale="0.001 0.001 0.001"/>
       </geometry>
