@@ -563,6 +563,22 @@ patches:
           behavior). Ported to the 0.9.0 FFI layout from the pre-west
           ~/workspace/cadrum checkout; upstream still hardcodes false.
 
+    - path: mujoco-ros2-control.patch
+      sha256sum: 9e139e1e9ffc83ec9d3908a16c1bdbf8e66212488b1c9bce7663b71ab9f563b4
+      module: zephyrproject/modules/ros/mujoco_ros2_control
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-10-14
+      upstreamable: true
+      comments: |
+          macOS build port, re-derived from upstream's stale pixi-osx-arm64
+          branch onto current main. CMakeLists: EGL find/link only outside
+          APPLE (macOS has no EGL), GNU-ld --push-state tinyxml2 workaround
+          guarded NOT APPLE (ld64 lacks it), @loader_path INSTALL_RPATH on
+          APPLE. camera_plugin: EGL includes/members/functions compiled out
+          and init degrades to a logged no-op on APPLE (GLFW needs the main
+          thread, which the ROS executor owns; no headless camera path).
+
     - path: lichtblick.patch
       sha256sum: 680e75533978f05bbe3f21fcd2b31aa3cd19c777c3211ad9831c94714ffb2945
       module: zephyrproject/lichtblick

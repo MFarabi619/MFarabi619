@@ -1,0 +1,179 @@
+diff --git a/mujoco_ros2_control/CMakeLists.txt b/mujoco_ros2_control/CMakeLists.txt
+index b8b0dda..ee5f63c 100644
+--- a/mujoco_ros2_control/CMakeLists.txt
++++ b/mujoco_ros2_control/CMakeLists.txt
+@@ -160,19 +160,28 @@ add_library(mujoco_ros2_control SHARED
+ # Ensure MuJoCo library can be found at runtime regardless of how it was installed above.
+ # mujoco_vendor installs libmujoco.so under opt/mujoco_vendor/lib/ relative to the
+ # install prefix, so that directory must be in the RPATH alongside the standard lib/.
+-set_target_properties(mujoco_ros2_control PROPERTIES
+-  INSTALL_RPATH "\$ORIGIN/../lib;\$ORIGIN/../opt/mujoco_vendor/lib;${CMAKE_INSTALL_PREFIX}/lib"
+-)
++if(APPLE)
++  set_target_properties(mujoco_ros2_control PROPERTIES
++    INSTALL_RPATH "@loader_path/../lib;@loader_path/../opt/mujoco_vendor/lib;${CMAKE_INSTALL_PREFIX}/lib"
++  )
++else()
++  set_target_properties(mujoco_ros2_control PROPERTIES
++    INSTALL_RPATH "\$ORIGIN/../lib;\$ORIGIN/../opt/mujoco_vendor/lib;${CMAKE_INSTALL_PREFIX}/lib"
++  )
++endif()
+ # MuJoCo has TinyXML2 statically linked, which conflicts with the system TinyXML2
+ # used by FastDDS. We need to ensure the system TinyXML2 is loaded first.
+ # Force tinyxml2 to appear first in the DT_NEEDED entries by using LINK_OPTIONS.
+ # TODO: Remove this after the following is resolved and the next ROS sync
+ # https://github.com/pal-robotics/mujoco_vendor/issues/2
+-target_link_options(mujoco_ros2_control PUBLIC
+-  "LINKER:--push-state,--no-as-needed"
+-  "$<TARGET_LINKER_FILE:tinyxml2::tinyxml2>"
+-  "LINKER:--pop-state"
+-)
++# The flags are GNU ld specific; macOS ld64 has no as-needed semantics to override.
++if(NOT APPLE)
++  target_link_options(mujoco_ros2_control PUBLIC
++    "LINKER:--push-state,--no-as-needed"
++    "$<TARGET_LINKER_FILE:tinyxml2::tinyxml2>"
++    "LINKER:--pop-state"
++  )
++endif()
+ target_link_libraries(mujoco_ros2_control
+ PUBLIC
+   ament_index_cpp::ament_index_cpp
+diff --git a/mujoco_ros2_control_plugins/CMakeLists.txt b/mujoco_ros2_control_plugins/CMakeLists.txt
+index 24ed698..dbbcfed 100644
+--- a/mujoco_ros2_control_plugins/CMakeLists.txt
++++ b/mujoco_ros2_control_plugins/CMakeLists.txt
+@@ -18,7 +18,13 @@ find_package(std_srvs REQUIRED)
+ find_package(visualization_msgs REQUIRED)
+ find_package(mujoco_ros2_control_msgs REQUIRED)
+ find_package(glfw3 REQUIRED)
+-find_package(OpenGL REQUIRED COMPONENTS EGL)
++if(APPLE)
++  find_package(OpenGL REQUIRED)
++  set(_opengl_libs OpenGL::GL)
++else()
++  find_package(OpenGL REQUIRED COMPONENTS EGL)
++  set(_opengl_libs OpenGL::EGL OpenGL::OpenGL)
++endif()
+ 
+ # Attempt to link MuJoCo via the vendor package, if available
+ find_package(mujoco_vendor QUIET)
+@@ -67,8 +73,7 @@ target_link_libraries(mujoco_ros2_control_plugins_impl PUBLIC
+   ${visualization_msgs_TARGETS}
+   ${mujoco_ros2_control_msgs_TARGETS}
+   glfw
+-  OpenGL::EGL
+-  OpenGL::OpenGL
++  ${_opengl_libs}
+ )
+ target_compile_definitions(mujoco_ros2_control_plugins_impl PRIVATE
+   REALTIME_TOOLS_VERSION_MAJOR=${realtime_tools_VERSION_MAJOR}
+diff --git a/mujoco_ros2_control_plugins/src/camera_plugin.cpp b/mujoco_ros2_control_plugins/src/camera_plugin.cpp
+index 74741ff..64744bf 100644
+--- a/mujoco_ros2_control_plugins/src/camera_plugin.cpp
++++ b/mujoco_ros2_control_plugins/src/camera_plugin.cpp
+@@ -30,6 +30,13 @@ bool CameraPlugin::init(rclcpp::Node::SharedPtr node, const mjModel* model, mjDa
+ 
+ bool CameraPlugin::init(rclcpp::Node::SharedPtr node, const mjModel* model, mjData* data, GlfwInitFn glfw_init_fn)
+ {
++#ifdef __APPLE__
++  (void)glfw_init_fn;
++  RCLCPP_WARN(node->get_logger(),
++              "Camera rendering is not supported on macOS: GLFW requires the main thread and EGL "
++              "is unavailable. Camera topics will not be published.");
++  return true;
++#else
+   node_ = node;
+   mj_model_ = model;
+   mj_data_ = data;
+@@ -62,6 +69,7 @@ bool CameraPlugin::init(rclcpp::Node::SharedPtr node, const mjModel* model, mjDa
+   }
+   rendering_thread_ = std::thread(&CameraPlugin::update_loop, this);
+   return true;
++#endif
+ }
+ 
+ void CameraPlugin::update(const mjModel* model_arg, mjData* data)
+@@ -326,6 +334,7 @@ void CameraPlugin::close()
+   }
+ }
+ 
++#ifndef __APPLE__
+ bool CameraPlugin::init_egl_context()
+ {
+   // Get EGL display
+@@ -432,11 +441,13 @@ void CameraPlugin::cleanup_egl_context()
+     egl_display_ = EGL_NO_DISPLAY;
+   }
+ }
++#endif
+ 
+ void CameraPlugin::update_loop()
+ {
+   GLFWwindow* window = nullptr;
+ 
++#ifndef __APPLE__
+   if (use_egl_)
+   {
+     // Initialize EGL for headless rendering
+@@ -448,6 +459,7 @@ void CameraPlugin::update_loop()
+     }
+   }
+   else
++#endif
+   {
+     // Use GLFW for offscreen context (display available)
+     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+@@ -530,11 +542,15 @@ void CameraPlugin::update_loop()
+   mjr_freeContext(&mjr_con_);
+   mj_deleteData(mj_camera_data_);
+ 
++#ifndef __APPLE__
+   if (use_egl_)
+   {
+     cleanup_egl_context();
+   }
+   else if (window)
++#else
++  if (window)
++#endif
+   {
+     glfwDestroyWindow(window);
+   }
+diff --git a/mujoco_ros2_control_plugins/src/camera_plugin.hpp b/mujoco_ros2_control_plugins/src/camera_plugin.hpp
+index 89b4dda..467b00b 100644
+--- a/mujoco_ros2_control_plugins/src/camera_plugin.hpp
++++ b/mujoco_ros2_control_plugins/src/camera_plugin.hpp
+@@ -34,8 +34,10 @@
+ 
+ #include "mujoco_ros2_control_plugins/mujoco_ros2_control_plugins_base.hpp"
+ 
++#ifndef __APPLE__
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
++#endif
+ #include <GLFW/glfw3.h>
+ #include <mujoco/mujoco.h>
+ 
+@@ -267,11 +269,12 @@ private:
+   std::condition_variable data_cv_;
+   bool new_data_{ false };
+ 
++  bool use_egl_{ false };
++#ifndef __APPLE__
+   // EGL context for headless rendering (used when GLFW is unavailable)
+   EGLDisplay egl_display_{ EGL_NO_DISPLAY };
+   EGLContext egl_context_{ EGL_NO_CONTEXT };
+   EGLSurface egl_surface_{ EGL_NO_SURFACE };
+-  bool use_egl_{ false };
+ 
+   /**
+    * @brief Initializes EGL context for headless rendering.
+@@ -283,6 +286,7 @@ private:
+    * @brief Cleans up EGL resources.
+    */
+   void cleanup_egl_context();
++#endif
+ };
+ 
+ }  // namespace mujoco_ros2_control_plugins
