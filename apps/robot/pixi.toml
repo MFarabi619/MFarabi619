@@ -111,7 +111,9 @@ pytest = ">=9.1"
 kortex-api = { url = "https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl" } # matches link6 firmware 3.4.0
 
 [feature.kortex.tasks]
-e2e-arm = { cmd = "pytest e2e/kinova_link6.py -v -s --robot-password {{ password }}", args = [{ arg = "password", default = "admin" }] }
+e2e-arm = { cmd = "pytest e2e/kinova_link6.py -v -s --robot-password {{ password }}", args = [
+    { arg = "password", default = "admin" },
+] }
 arm-recover = { cmd = 'python manipulation/src/kinova_link6_recover.py --program "{{ program }}" --robot-password "{{ password }}"', args = [
     { arg = "program", default = "Home Position" },
     { arg = "password", default = "admin" },
@@ -222,7 +224,10 @@ better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editab
 
 [feature.jazzy.tasks]
 teleop-xiao = { cmd = "python boot/launch/teleop_xiao.launch.py --smooth {{ smooth }}", args = [
-    { arg = "smooth", default = "false", choices = ["false", "true"] },
+    { arg = "smooth", default = "false", choices = [
+        "false",
+        "true",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/10.0.0.247:7447"]' } }
 
 set-home = { cmd = "python navigation/src/set_home.py --robot {{ robot }}", args = [
@@ -246,9 +251,26 @@ build-arm = "colcon build --merge-install --base-paths ../../zephyrproject/modul
 
 sim-arm = { cmd = "python simulation/launch/arm.launch.py --robot {{ robot }} --mode {{ mode }} --headless {{ headless }} --world {{ world }} {% if gripper %}--gripper {{ gripper }}{% endif %}", args = [
     { arg = "robot", default = "kinova-link-6" },
-    { arg = "mode", default = "drag", choices = ["drag", "moveit"] },
-    { arg = "headless", default = "false", choices = ["false", "true"] },
-    { arg = "world", default = "farm", choices = ["construction", "empty", "farm", "maize", "office", "orchard", "pipeline", "plasticulture", "solar_farm", "warehouse"] },
+    { arg = "mode", default = "drag", choices = [
+        "drag",
+        "moveit",
+    ] },
+    { arg = "headless", default = "false", choices = [
+        "false",
+        "true",
+    ] },
+    { arg = "world", default = "farm", choices = [
+        "construction",
+        "empty",
+        "farm",
+        "maize",
+        "office",
+        "orchard",
+        "pipeline",
+        "plasticulture",
+        "solar_farm",
+        "warehouse",
+    ] },
     { arg = "gripper", default = "" },
 ], depends-on = [
     "build-arm",
@@ -264,13 +286,19 @@ arm = { cmd = "python manipulation/launch/arm.launch.py --robot {{ robot }} --ro
 teleop-arm = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r cmd_vel:=arm_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-drag = { cmd = 'ros2 control switch_controllers {% if enabled == "true" %}--activate motion_control_handle cartesian_motion_controller --deactivate joint_trajectory_controller{% else %}--activate joint_trajectory_controller --deactivate motion_control_handle cartesian_motion_controller{% endif %}', args = [
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-rviz = { cmd = "rviz2 -d install-arm/share/link6_control/config/link6_config.rviz --ros-args -p use_sim_time:=true", env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-grip = { cmd = 'ros2 action send_goal /robotiq_gripper_controller/gripper_cmd control_msgs/action/GripperCommand "{command: {position: {% if state == "open" %}0.0{% else %}0.8{% endif %}, max_effort: 60.0}}"', args = [
-    { arg = "state", default = "open", choices = ["open", "close"] },
+    { arg = "state", default = "open", choices = [
+        "open",
+        "close",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-motion = { cmd = 'python manipulation/src/load_motions.py && ros2 action send_goal /robotiq_gripper_controller/gripper_cmd control_msgs/action/GripperCommand "{command: {position: 0.0, max_effort: 60.0}}" && ros2 play_motion run {{ motion }}', args = [
@@ -303,7 +331,10 @@ roboteq = { cmd = "python boot/launch/roboteq.launch.py --port {{ port }} --coun
 
 launch = { cmd = "python boot/launch/boot.launch.py --robot {{ robot }} --gesture_camera {{ camera }}", args = [
     { arg = "robot", default = "taro" },
-    { arg = "camera", default = "webcam", choices = ["webcam", "robot"] },
+    { arg = "camera", default = "webcam", choices = [
+        "webcam",
+        "robot",
+    ] },
 ], depends-on = [
     "build",
 ] }
@@ -315,9 +346,23 @@ hand-gesture-teleop = { cmd = "python boot/launch/boot.launch.py --gesture_camer
 ] }
 
 sim = { cmd = "python simulation/launch/simulation.launch.py --world {{ world }} --robots {{ robots }} --depth_scan {{ depth_scan }}", args = [
-    { arg = "world", default = "farm", choices = ["construction", "empty", "farm", "maize", "office", "orchard", "pipeline", "plasticulture", "solar_farm", "warehouse"] },
+    { arg = "world", default = "farm", choices = [
+        "construction",
+        "empty",
+        "farm",
+        "maize",
+        "office",
+        "orchard",
+        "pipeline",
+        "plasticulture",
+        "solar_farm",
+        "warehouse",
+    ] },
     { arg = "robots", default = "taro,jiro" },
-    { arg = "depth_scan", default = "false", choices = ["false", "true"] },
+    { arg = "depth_scan", default = "false", choices = [
+        "false",
+        "true",
+    ] },
 ], depends-on = [
     "build",
 ] }
@@ -335,11 +380,17 @@ teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-arg
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="peer";connect/endpoints=["tcp/localhost:7447"{% if robot == "taro" %},"tcp/rpi5-16-2.local:7447"{% elif robot == "jiro" %},"tcp/rpi5-16.local:7447"{% endif %}];connect/timeout_ms=3000' } }
 follow-person-enable = { cmd = '{% if enabled == "true" %}ros2 service call /{{ robot }}/person_follow/reset_parameters std_srvs/srv/Trigger "{}" && {% endif %}ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 follow-person-slow-enable = { cmd = '{% if enabled == "true" %}ros2 param load /{{ robot }}/person_follow boot/config/person_follow_slow.yaml && {% endif %}ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "jiro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 harvest-lane-taro = { cmd = "python boot/launch/harvest_lane.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = [
     "build",
@@ -351,37 +402,58 @@ approach = { cmd = "python perception/launch/approach.launch.py --standoff_dista
 
 follow-line-enable = { cmd = 'ros2 service call /{{ robot }}/line_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/line_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "jiro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 follow-path-enable = { cmd = 'ros2 service call /{{ robot }}/path_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/path_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "jiro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 follow-park-path-enable = { cmd = 'ros2 service call /{{ robot }}/park_path_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/park_path_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "jiro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 follow-sidewalk-enable = { cmd = 'ros2 service call /{{ robot }}/sidewalk_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/sidewalk_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 follow-harvest-lane-enable = { cmd = 'ros2 service call /{{ robot }}/harvest_lane_navigator/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/canopy_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 detect-canopy-enable = { cmd = 'ros2 service call /{{ robot }}/canopy_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ] }
 
 follow-nav2-enable = { cmd = 'ros2 service call /{{ robot }}/person_goal_bridge/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 voice-teleop = { cmd = "python boot/launch/voice.launch.py --robot {{ robot }}", args = [
@@ -398,12 +470,18 @@ audio-output-enable = { cmd = "python boot/launch/audio.launch.py --robot {{ rob
 
 hand-gesture-teleop-enable = { cmd = 'ros2 service call /{{ robot }}/hand_gesture_detector/enable std_srvs/srv/SetBool "{data: {{ enabled }}}" && ros2 service call /{{ robot }}/hand_gesture_teleop/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 weeding-enable = { cmd = 'ros2 service call /{{ robot }}/weeding_creep/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
-    { arg = "enabled", default = "true", choices = ["true", "false"] },
+    { arg = "enabled", default = "true", choices = [
+        "true",
+        "false",
+    ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 surface = "python perception/src/surface_detector.py"
