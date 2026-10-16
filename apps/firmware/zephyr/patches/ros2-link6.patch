@@ -42,35 +42,69 @@ index d6c95a3..bd8e5fb 100644
      declared_arguments.append(
          DeclareLaunchArgument(
              "gz_args",
+diff --git a/link6_control/config/kortex3_controllers.yaml b/link6_control/config/kortex3_controllers.yaml
+index ebc629e..3713d39 100644
+--- a/link6_control/config/kortex3_controllers.yaml
++++ b/link6_control/config/kortex3_controllers.yaml
+@@ -109,6 +109,8 @@ joint_trajectory_controller:
+ 
+     open_loop_control: true
+ 
++    allow_nonzero_velocity_at_trajectory_end: true
++
+     constraints:
+       stopped_velocity_tolerance: 0.01
+       goal_time: 0.0
 diff --git a/link6_control/config/kortex3_sim_controllers.yaml b/link6_control/config/kortex3_sim_controllers.yaml
-index 8873901..26af7ec 100644
+index 8873901..579c92d 100644
 --- a/link6_control/config/kortex3_sim_controllers.yaml
 +++ b/link6_control/config/kortex3_sim_controllers.yaml
-@@ -116,17 +116,17 @@ joint_trajectory_controller:
+@@ -94,6 +94,7 @@ robotiq_gripper_controller:
+     default: true
+     joint: robotiq_85_left_knuckle_joint
+     allow_stalling: true
++    stall_velocity_threshold: 0.01
+ 
+ joint_trajectory_controller:
+   ros__parameters:
+@@ -106,27 +107,29 @@ joint_trajectory_controller:
+       - joint_6
+ 
+     command_interfaces:
+-      - velocity
++      - position
+ 
+     state_interfaces:
+       - position
+       - velocity
+ 
++    allow_nonzero_velocity_at_trajectory_end: true
++
+     constraints:
        stopped_velocity_tolerance: 0.01
        goal_time: 0.0
        joint_1:
 -        goal: 0.001
-+        goal: 0.01
++        goal: 0.025
        joint_2:
 -        goal: 0.001
-+        goal: 0.01
++        goal: 0.025
        joint_3:
 -        goal: 0.001
-+        goal: 0.01
++        goal: 0.025
        joint_4:
 -        goal: 0.001
-+        goal: 0.01
++        goal: 0.025
        joint_5:
 -        goal: 0.001
-+        goal: 0.01
++        goal: 0.025
        joint_6:
 -        goal: 0.001
-+        goal: 0.01
++        goal: 0.025
          
      gains:
        joint_1:
-@@ -134,34 +134,34 @@ joint_trajectory_controller:
+@@ -134,34 +137,34 @@ joint_trajectory_controller:
          i: 0.0
          i_clamp: 0.0
          d: 0.3
@@ -113,11 +147,227 @@ index 8873901..26af7ec 100644
 \ No newline at end of file
 +        ff_velocity_scale: 1.0
 \ No newline at end of file
+diff --git a/link6_description/urdf/link6.ros2_control.xacro b/link6_description/urdf/link6.ros2_control.xacro
+index a4920fe..e7a904c 100644
+--- a/link6_description/urdf/link6.ros2_control.xacro
++++ b/link6_description/urdf/link6.ros2_control.xacro
+@@ -20,6 +20,8 @@
+     use_fake_hardware:=false
+     mock_sensor_commands:=false
+     sim_gazebo:=false
++    sim_mujoco:=false
++    mujoco_headless:=true
+     low_level_mode:=false
+     safety_mode:=reduced
+     initial_positions:=${dict(joint_1=0.0,joint_2=0.0,joint_3=0.0,joint_4=0.0,joint_5=0.0,joint_6=0.0)}">
+@@ -29,12 +31,17 @@
+         <xacro:if value="${sim_gazebo}">
+           <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+         </xacro:if>
+-        <xacro:if value="${use_fake_hardware}">
++        <xacro:if value="${sim_mujoco}">
++          <plugin>mujoco_ros2_control/MujocoSystemInterface</plugin>
++          <param name="headless">${mujoco_headless}</param>
++          <param name="sim_speed_factor">1.0</param>
++        </xacro:if>
++        <xacro:if value="${use_fake_hardware and not sim_mujoco}">
+           <plugin>mock_components/GenericSystem</plugin>
+           <param name="mock_sensor_commands">${mock_sensor_commands}</param>
+           <param name="calculate_dynamics">true</param>
+         </xacro:if>
+-        <xacro:unless value="${use_fake_hardware or sim_gazebo}">
++        <xacro:unless value="${use_fake_hardware or sim_gazebo or sim_mujoco}">
+           <xacro:unless value="${low_level_mode}">
+             <plugin>kortex3_driver/Kortex3HardwareInterface</plugin>
+             <param name="robot_ip">${robot_ip}</param>
+@@ -73,10 +80,18 @@
+       <xacro:unless value="${low_level_mode}">
+ 
+         <joint name="${prefix}joint_1">
+-          <command_interface name="velocity">
+-            <param name="min">-3.14</param>
+-            <param name="max">3.14</param>
+-          </command_interface>
++          <xacro:if value="${sim_mujoco}">
++            <command_interface name="position">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:if>
++          <xacro:unless value="${sim_mujoco}">
++            <command_interface name="velocity">
++              <param name="min">-3.14</param>
++              <param name="max">3.14</param>
++            </command_interface>
++          </xacro:unless>
+           <state_interface name="position">
+             <param name="initial_value">${initial_positions['joint_1']}</param>
+           </state_interface>
+@@ -85,10 +100,18 @@
+         </joint>
+ 
+         <joint name="${prefix}joint_2">
+-          <command_interface name="velocity">
+-            <param name="min">-3.14</param>
+-            <param name="max">3.14</param>
+-          </command_interface>
++          <xacro:if value="${sim_mujoco}">
++            <command_interface name="position">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:if>
++          <xacro:unless value="${sim_mujoco}">
++            <command_interface name="velocity">
++              <param name="min">-3.14</param>
++              <param name="max">3.14</param>
++            </command_interface>
++          </xacro:unless>
+           <state_interface name="position">
+             <param name="initial_value">${initial_positions['joint_2']}</param>
+           </state_interface>
+@@ -97,10 +120,18 @@
+         </joint>
+ 
+         <joint name="${prefix}joint_3">
+-          <command_interface name="velocity">
+-            <param name="min">-3.14</param>
+-            <param name="max">3.14</param>
+-          </command_interface>
++          <xacro:if value="${sim_mujoco}">
++            <command_interface name="position">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:if>
++          <xacro:unless value="${sim_mujoco}">
++            <command_interface name="velocity">
++              <param name="min">-3.14</param>
++              <param name="max">3.14</param>
++            </command_interface>
++          </xacro:unless>
+           <state_interface name="position">
+             <param name="initial_value">${initial_positions['joint_3']}</param>
+           </state_interface>
+@@ -109,10 +140,18 @@
+         </joint>
+ 
+         <joint name="${prefix}joint_4">
+-          <command_interface name="velocity">
+-            <param name="min">-6.28</param>
+-            <param name="max">6.28</param>
+-          </command_interface>
++          <xacro:if value="${sim_mujoco}">
++            <command_interface name="position">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:if>
++          <xacro:unless value="${sim_mujoco}">
++            <command_interface name="velocity">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:unless>
+           <state_interface name="position">
+             <param name="initial_value">${initial_positions['joint_4']}</param>
+           </state_interface>
+@@ -121,10 +160,18 @@
+         </joint>
+ 
+         <joint name="${prefix}joint_5">
+-          <command_interface name="velocity">
+-            <param name="min">-6.28</param>
+-            <param name="max">6.28</param>
+-          </command_interface>
++          <xacro:if value="${sim_mujoco}">
++            <command_interface name="position">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:if>
++          <xacro:unless value="${sim_mujoco}">
++            <command_interface name="velocity">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:unless>
+           <state_interface name="position">
+             <param name="initial_value">${initial_positions['joint_5']}</param>
+           </state_interface>
+@@ -133,16 +180,36 @@
+         </joint>
+ 
+         <joint name="${prefix}joint_6">
+-          <command_interface name="velocity">
+-            <param name="min">-6.28</param>
+-            <param name="max">6.28</param>
+-          </command_interface>
++          <xacro:if value="${sim_mujoco}">
++            <command_interface name="position">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:if>
++          <xacro:unless value="${sim_mujoco}">
++            <command_interface name="velocity">
++              <param name="min">-6.28</param>
++              <param name="max">6.28</param>
++            </command_interface>
++          </xacro:unless>
+           <state_interface name="position">
+             <param name="initial_value">${initial_positions['joint_6']}</param>
+           </state_interface>
+           <state_interface name="velocity" />
+           <state_interface name="effort" />
+         </joint>
++        <xacro:if value="${sim_mujoco and gripper != ''}">
++          <joint name="${prefix}robotiq_85_left_knuckle_joint">
++            <command_interface name="position">
++              <param name="min">0.0</param>
++              <param name="max">0.8</param>
++            </command_interface>
++            <state_interface name="position">
++              <param name="initial_value">0.0</param>
++            </state_interface>
++            <state_interface name="velocity" />
++          </joint>
++        </xacro:if>
+       </xacro:unless>
+ 
+       <xacro:if value="${low_level_mode}">
+@@ -244,7 +311,7 @@
+       </xacro:if>
+ 
+       <!-- If using the real robot, we need to define gripper joints for the hardware interface -->
+-      <xacro:unless value="${use_fake_hardware or sim_gazebo}">
++      <xacro:unless value="${use_fake_hardware or sim_gazebo or sim_mujoco}">
+         <xacro:unless value="${not gripper}">
+           <xacro:if value="${use_internal_bus_gripper_comm}">
+ 
 diff --git a/link6_description/urdf/link6.urdf.xacro b/link6_description/urdf/link6.urdf.xacro
-index eeb5af4..4214146 100644
+index eeb5af4..59f5aab 100644
 --- a/link6_description/urdf/link6.urdf.xacro
 +++ b/link6_description/urdf/link6.urdf.xacro
-@@ -74,12 +74,69 @@
+@@ -17,6 +17,8 @@
+     <xacro:arg name="gripper_max_velocity" default="100.0" />
+     <xacro:arg name="gripper_max_force" default="100.0" />
+     <xacro:arg name="sim_gazebo" default="false" />
++    <xacro:arg name="sim_mujoco" default="false" />
++    <xacro:arg name="mujoco_headless" default="true" />
+     <xacro:arg name="prefix" default="" />
+     <xacro:arg name="use_fake_hardware" default="false" />
+     <xacro:arg name="mock_sensor_commands" default="false" />
+@@ -53,6 +55,8 @@
+         use_fake_hardware="$(arg use_fake_hardware)"
+         mock_sensor_commands="$(arg mock_sensor_commands)"
+         sim_gazebo="$(arg sim_gazebo)"
++        sim_mujoco="$(arg sim_mujoco)"
++        mujoco_headless="$(arg mujoco_headless)"
+         low_level_mode="$(arg low_level_mode)"
+         safety_mode="$(arg safety_mode)"
+         initial_positions_file="$(arg initial_positions_file)"
+@@ -74,12 +78,69 @@
          </joint>
      </xacro:if>
  
@@ -128,7 +378,7 @@ index eeb5af4..4214146 100644
 +                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/controller.stl" scale="0.001 0.001 0.001" />
 +            </geometry>
 +            <material name="controller_material">
-+                <color rgba="0.35 0.35 0.37 1" />
++                <color rgba="0.85 0.85 0.85 1" />
 +            </material>
 +        </visual>
 +        <visual>
@@ -141,7 +391,7 @@ index eeb5af4..4214146 100644
 +            </material>
 +        </visual>
 +        <visual>
-+            <origin xyz="-0.45 0.39165 0.16661" rpy="0 0 0" />
++            <origin xyz="-0.45 0.074 0.2484" rpy="1.5708 0 0" />
 +            <geometry>
 +                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/teach_pendant.stl" scale="0.001 0.001 0.001" />
 +            </geometry>
@@ -189,7 +439,7 @@ index eeb5af4..4214146 100644
              use_fake_hardware="$(arg use_fake_hardware)"
              mock_sensor_commands="$(arg mock_sensor_commands)"
 diff --git a/link6_description/urdf/link6_gz.urdf.xacro b/link6_description/urdf/link6_gz.urdf.xacro
-index 85266e9..ecc6910 100644
+index 85266e9..1c18f8a 100644
 --- a/link6_description/urdf/link6_gz.urdf.xacro
 +++ b/link6_description/urdf/link6_gz.urdf.xacro
 @@ -260,13 +260,70 @@
@@ -203,7 +453,7 @@ index 85266e9..ecc6910 100644
 +                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/controller.stl" scale="0.001 0.001 0.001" />
 +            </geometry>
 +            <material name="controller_material">
-+                <color rgba="0.35 0.35 0.37 1" />
++                <color rgba="0.85 0.85 0.85 1" />
 +            </material>
 +        </visual>
 +        <visual>
@@ -216,7 +466,7 @@ index 85266e9..ecc6910 100644
 +            </material>
 +        </visual>
 +        <visual>
-+            <origin xyz="-0.45 0.39165 0.16661" rpy="0 0 0" />
++            <origin xyz="-0.45 0.074 0.2484" rpy="1.5708 0 0" />
 +            <geometry>
 +                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/teach_pendant.stl" scale="0.001 0.001 0.001" />
 +            </geometry>
@@ -264,3 +514,70 @@ index 85266e9..ecc6910 100644
              include_ros2_control="true"
              com_port="/dev/ttyUSB0"
              use_fake_hardware="false"
+diff --git a/link6_description/urdf/link6_macro.xacro b/link6_description/urdf/link6_macro.xacro
+index 7ba47d1..cce7ff0 100644
+--- a/link6_description/urdf/link6_macro.xacro
++++ b/link6_description/urdf/link6_macro.xacro
+@@ -21,6 +21,8 @@
+     use_fake_hardware:=false
+     mock_sensor_commands:=false
+     sim_gazebo:=false
++    sim_mujoco:=false
++    mujoco_headless:=true
+     low_level_mode:=false
+     safety_mode:=reduced
+     initial_positions_file:='$(find link6_description)/config/initial_positions.yaml'
+@@ -81,6 +83,8 @@
+       use_fake_hardware="${use_fake_hardware}"
+       mock_sensor_commands="${mock_sensor_commands}"
+       sim_gazebo="${sim_gazebo}"
++      sim_mujoco="${sim_mujoco}"
++      mujoco_headless="${mujoco_headless}"
+       low_level_mode="${low_level_mode}"
+       safety_mode="${safety_mode}"
+       initial_positions="${initial_positions}" />
+@@ -88,10 +92,10 @@
+ 
+     <!-- Define material colors -->
+     <material name="lightgray">
+-      <color rgba="0.5294117647058824 0.5294117647058824 0.5294117647058824 1" />
++      <color rgba="0.85 0.85 0.85 1" />
+     </material>
+     <material name="darkgray">
+-      <color rgba="0.19607843137254902 0.19607843137254902 0.19607843137254902 1" />
++      <color rgba="0.12 0.12 0.12 1" />
+     </material>
+     <material name="kinovablue">
+       <color rgba="0.0 0.0784313725490196 0.5372549019607843 1" />
+@@ -117,7 +121,7 @@
+         <geometry>
+           <mesh filename="file://$(find link6_description)/meshes/base_link.STL" />
+         </geometry>
+-        <material name="lightgray" />
++        <material name="kinovablue" />
+       </visual>
+       <collision>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+@@ -446,7 +450,7 @@
+         <geometry>
+           <mesh filename="file://$(find link6_description)/meshes/wrist_interface_link.STL" />
+         </geometry>
+-        <material name="darkgray" />
++        <material name="kinovablue" />
+       </visual>
+       <collision>
+         <origin xyz="0 0 -0.02647703" rpy="0 0 0" />
+diff --git a/link6_moveit_config/config/moveit_controllers.yaml b/link6_moveit_config/config/moveit_controllers.yaml
+index ec7403c..eab27a7 100644
+--- a/link6_moveit_config/config/moveit_controllers.yaml
++++ b/link6_moveit_config/config/moveit_controllers.yaml
+@@ -3,7 +3,8 @@
+ trajectory_execution:
+     allowed_execution_duration_scaling: 3.0
+     allowed_goal_duration_margin: 2.0
+-    allowed_start_tolerance: 0.01
++    allowed_start_tolerance: 0.05
++    execution_duration_monitoring: false
+     trajectory_duration_monitoring: true
+ 
+ moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager

@@ -509,44 +509,31 @@ patches:
              worker exit naturally.
 
     - path: ros2-link6.patch
-      sha256sum: e439ab1d5383e5b562ad0fc1c95a8a310443ceeea354055a2c0ceff205ca691e
+      sha256sum: 478945339020b65e3a9f9b4630df9291952ab06eb70e3dc97fe6a82344dd8546
       module: zephyrproject/modules/ros/ros2_link6
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
       date: 2026-10-13
       upstreamable: true
       comments: |
-          link6_bringup/launch/link6_sim.launch.py: spawn_x/spawn_y/spawn_z
-          launch arguments (default 0.0) passed to the ros_gz_sim create
-          call, so the arm can spawn away from the world origin (the farm
-          worlds are planted there).
-
-          link6_description/urdf/link6.urdf.xacro + link6_gz.urdf.xacro:
-          Kinova accessories from the official STEP files (meshes live in
-          our robot_description pkg, mech/urdf/kinova-link-6/meshes/).
-          Visual-only controller_link (controller box + teach pendant +
-          bracket) fixed to base_link; with a gripper, a visual
-          flange_adapter_link (KR22096, 26.5 mm measured) sits on
-          end_effector_link and the gripper macro re-parents to
-          gripper_mount_link at z=0.0265 — sim/MoveIt TCP now matches the
-          physical adapter stack-up. NOT upstreamable as-is (mesh paths
-          point into our package); the spawn args and adapter idea are.
-
-          link6_control/config/kortex3_sim_controllers.yaml, two jtc fixes:
-
-          1. ff_velocity_scale 0.0 -> 1.0 on all six joints. The sim joints
-             are velocity-commanded, so without velocity feedforward the
-             controller tracks on accumulated position error alone: fine at
-             rviz's 0.1 speed scaling, but at full speed it lags the
-             trajectory, overshoots at stops, and strands the arm in
-             self-colliding poses that fail every later
-             CheckStartStateCollision.
-
-          2. per-joint goal tolerance 0.001 -> 0.01 rad. 0.06 degrees is
-             tighter than the velocity-PID sim arm settles to in bounded
-             time; goals that visibly completed never report success and
-             clients (play_motion2's 2x+1 result budget) cancel them as
-             timeouts.
+          link6_sim.launch.py: spawn_x/y/z args (farm worlds sit off origin).
+          link6_description: sim_mujoco arg chain emits MujocoSystemInterface,
+          wins over use_fake_hardware, adds the gripper knuckle to the MuJoCo
+          block (mimics in manipulation/config/mujoco_inputs.xml); arm uses
+          position command interfaces under sim_mujoco, velocity on hardware.
+          link6.urdf.xacro + link6_gz.urdf.xacro: accessory visuals (controller
+          box, pendant, KR22096 flange adapter 26.5 mm) from our
+          robot_description meshes; TCP matches the physical stack-up. Mesh
+          paths point into our package, so not upstreamable as-is.
+          link6_macro.xacro: brighter palette + kinovablue accents.
+          kortex3_sim_controllers.yaml: jtc command_interfaces [position],
+          ff_velocity_scale 1.0, goal tolerances 0.025,
+          allow_nonzero_velocity_at_trajectory_end; gripper
+          stall_velocity_threshold 0.01 (compliant objects creep just above
+          the 0.001 default, defeating stall-as-grasped detection).
+          kortex3_controllers.yaml: allow_nonzero_velocity_at_trajectory_end.
+          moveit_controllers.yaml: execution_duration_monitoring off,
+          allowed_start_tolerance 0.05 (sim settles wider than 0.01 default).
 
     - path: cadrum.patch
       sha256sum: c328f3b99c3cde862df89727af6187f3bb9d593da271aaff980709cb7bc6fa05
