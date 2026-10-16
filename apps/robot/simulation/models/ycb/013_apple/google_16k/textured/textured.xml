@@ -1,0 +1,21 @@
+<mujoco model="textured">
+  <default>
+    <default class="visual">
+      <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+    </default>
+    <default class="collision">
+      <geom group="3" type="mesh"/>
+    </default>
+  </default>
+  <asset>
+    <texture type="2d" name="texture_map" file="texture_map.png"/>
+    <material name="material_0" texture="texture_map" specular="0.5" shininess="0.5"/>
+    <mesh file="textured.obj"/>
+  </asset>
+  <worldbody>
+    <body name="textured">
+      <geom material="material_0" mesh="textured" class="visual"/>
+      <geom mesh="textured" class="collision"/>
+    </body>
+  </worldbody>
+</mujoco>

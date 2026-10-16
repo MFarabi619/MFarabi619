@@ -1,0 +1,61 @@
+<mujoco_inputs>
+  <raw_inputs>
+    <option integrator="implicitfast"/>
+
+    <default>
+      <default class="visual">
+        <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+      </default>
+      <default class="collision">
+        <geom group="3" type="mesh"/>
+      </default>
+    </default>
+
+    <actuator>
+      <position name="joint_1" joint="joint_1" kp="2000" kv="100" forcerange="-210 210" ctrlrange="-6.2832 6.2832"/>
+      <position name="joint_2" joint="joint_2" kp="2000" kv="100" forcerange="-210 210" ctrlrange="-6.2832 6.2832"/>
+      <position name="joint_3" joint="joint_3" kp="2000" kv="100" forcerange="-210 210" ctrlrange="-6.2832 6.2832"/>
+      <position name="joint_4" joint="joint_4" kp="500" kv="50" forcerange="-100 100" ctrlrange="-6.2832 6.2832"/>
+      <position name="joint_5" joint="joint_5" kp="500" kv="50" forcerange="-100 100" ctrlrange="-6.2832 6.2832"/>
+      <position name="joint_6" joint="joint_6" kp="500" kv="50" forcerange="-100 100" ctrlrange="-6.2832 6.2832"/>
+      <position name="robotiq_85_left_knuckle_joint" joint="robotiq_85_left_knuckle_joint" kp="100" kv="10" forcerange="-5 5" ctrlrange="0 0.8"/>
+    </actuator>
+
+    <equality>
+      <joint joint1="robotiq_85_right_knuckle_joint" joint2="robotiq_85_left_knuckle_joint" polycoef="0 -1 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+      <joint joint1="robotiq_85_left_inner_knuckle_joint" joint2="robotiq_85_left_knuckle_joint" polycoef="0 1 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+      <joint joint1="robotiq_85_right_inner_knuckle_joint" joint2="robotiq_85_left_knuckle_joint" polycoef="0 -1 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+      <joint joint1="robotiq_85_left_finger_tip_joint" joint2="robotiq_85_left_knuckle_joint" polycoef="0 -1 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+      <joint joint1="robotiq_85_right_finger_tip_joint" joint2="robotiq_85_left_knuckle_joint" polycoef="0 1 0 0 0" solimp="0.95 0.99 0.001" solref="0.005 1"/>
+    </equality>
+  </raw_inputs>
+
+  <processed_inputs>
+    <modify_element type="body" name="shoulder_link" gravcomp="1.0"/>
+    <modify_element type="body" name="arm_link" gravcomp="1.0"/>
+    <modify_element type="body" name="forearm_link" gravcomp="1.0"/>
+    <modify_element type="body" name="lower_wrist_link" gravcomp="1.0"/>
+    <modify_element type="body" name="upper_wrist_link" gravcomp="1.0"/>
+    <modify_element type="body" name="wrist_interface_link" gravcomp="1.0"/>
+    <modify_element type="joint" name="joint_1" armature="0.1"/>
+    <modify_element type="joint" name="joint_2" armature="0.1"/>
+    <modify_element type="joint" name="joint_3" armature="0.1"/>
+    <modify_element type="joint" name="joint_4" armature="0.1"/>
+    <modify_element type="joint" name="joint_5" armature="0.1"/>
+    <modify_element type="joint" name="joint_6" armature="0.1"/>
+    <modify_element type="geom" mesh="left_knuckle" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="right_knuckle" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="left_finger_0" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="left_finger_1" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="right_finger_0" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="right_finger_1" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="left_inner_knuckle_0" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="left_inner_knuckle_1" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="right_inner_knuckle_0" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="right_inner_knuckle_1" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="left_finger_tip_0" class="collision" friction="0.7" priority="1" solimp="0.95 0.99 0.001" solref="0.004 1"/>
+    <modify_element type="geom" mesh="left_finger_tip_1" class="collision" friction="0.7" priority="1" solimp="0.95 0.99 0.001" solref="0.004 1"/>
+    <modify_element type="geom" mesh="right_finger_tip_0" class="collision" friction="0.7" priority="1" solimp="0.95 0.99 0.001" solref="0.004 1"/>
+    <modify_element type="geom" mesh="right_finger_tip_1" class="collision" friction="0.7" priority="1" solimp="0.95 0.99 0.001" solref="0.004 1"/>
+  </processed_inputs>
+</mujoco_inputs>

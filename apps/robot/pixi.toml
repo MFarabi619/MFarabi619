@@ -176,51 +176,70 @@ scripts = ["install-arm/setup.sh"]
 make = "*"
 cmake = "*"
 ninja = "*"
-eigen = "3.*"
 filelock = "*"
 compilers = "*"
 pkg-config = "*"
-ros-jazzy-rviz2 = "*"
-ros-jazzy-xacro = "*"
+colcon-common-extensions = "*"
+ros-jazzy-ament-cmake-auto = "*"
+
+fmt = "*"
+glfw = "*"
+eigen = "3.*"
+
 ros-jazzy-ros2cli = "*"
 ros-jazzy-ros2run = "*"
-ros-jazzy-moveit-py = "*"
 ros-jazzy-ros2node = "*"
-ros-jazzy-std-msgs = "*"
 ros-jazzy-ros2topic = "*"
-ros-jazzy-ros-gz-sim = "*"
 ros-jazzy-ros2action = "*"
 ros-jazzy-ros2launch = "*"
 ros-jazzy-topic-tools = "*"
-ros-jazzy-nav2-bringup = "*"
-ros-jazzy-ros-gz-image = "*"
-ros-jazzy-ros2-control = "*"
+
+ros-jazzy-rviz2 = "*"
+ros-jazzy-xacro = "*"
+ros-jazzy-std-msgs = "*"
 ros-jazzy-apriltag-msgs = "*"
-ros-jazzy-ros-gz-bridge = "*"
 ros-jazzy-sdformat-urdf = "*"
-colcon-common-extensions = "*"
-ros-jazzy-moveit-planners = "*"
-ros-jazzy-gz-ros2-control = "*"
-ros-jazzy-ament-cmake-auto = "*"
-ros-jazzy-moveit-kinematics = "*"
-ros-jazzy-nav2-rviz-plugins = "*"
-ros-jazzy-controller-manager = "*"
 ros-jazzy-example-interfaces = "*"
 ros-jazzy-nmea-navsat-driver = "*"
-ros-jazzy-gripper-controllers = "*"
-ros-jazzy-moveit-configs-utils = "*"
-ros-jazzy-moveit-ros-move-group = "*"
-ros-jazzy-velocity-controllers = "*"
 ros-jazzy-robot-state-publisher = "*"
 ros-jazzy-teleop-twist-keyboard = "*"
 ros-jazzy-image-transport-plugins = "*"
+
+ros-jazzy-ros-gz-sim = "*"
+ros-jazzy-ros-gz-image = "*"
+ros-jazzy-ros-gz-bridge = "*"
+ros-jazzy-gz-ros2-control = "*"
+
+ros-jazzy-ros2-control = "*"
+ros-jazzy-control-toolbox = "*"
+ros-jazzy-controller-manager = "*"
+ros-jazzy-gripper-controllers = "*"
+ros-jazzy-velocity-controllers = "*"
 ros-jazzy-joint-state-broadcaster = "*"
-ros-jazzy-moveit-ros-visualization = "*"
 ros-jazzy-joint-trajectory-controller = "*"
+
+ros-jazzy-moveit-py = "*"
+ros-jazzy-moveit-planners = "*"
+ros-jazzy-moveit-kinematics = "*"
+ros-jazzy-moveit-configs-utils = "*"
+ros-jazzy-moveit-ros-move-group = "*"
+ros-jazzy-moveit-ros-visualization = "*"
+ros-jazzy-moveit-task-constructor-core = "*"
 ros-jazzy-moveit-simple-controller-manager = "*"
+ros-jazzy-moveit-task-constructor-capabilities = "*"
+
+ros-jazzy-nav2-bringup = "*"
+ros-jazzy-nav2-rviz-plugins = "*"
+
+ros-jazzy-mujoco-vendor = "*"
 
 [feature.jazzy.target.osx-arm64.pypi-dependencies]
 better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editable = true }
+
+mujoco = "*"
+obj2mjcf = "*"
+pycollada = "*"
+trimesh = "*"
 
 [feature.jazzy.tasks]
 teleop-xiao = { cmd = "python boot/launch/teleop_xiao.launch.py --smooth {{ smooth }}", args = [
@@ -247,7 +266,7 @@ gps = { cmd = "python boot/launch/gps.launch.py --port {{ port }} --baud {{ baud
     { arg = "baud", default = "115200" },
 ] }
 
-build-arm = "colcon build --merge-install --base-paths ../../zephyrproject/modules/ros mech --build-base build-arm --install-base install-arm --packages-ignore kortex3_hardware cartesian_controller_simulation cartesian_controller_tests --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-dead_strip_dylibs -DCMAKE_EXE_LINKER_FLAGS=-Wl,-dead_strip_dylibs"
+build-arm = "colcon build --merge-install --base-paths ../../zephyrproject/modules/ros manipulation mech --build-base build-arm --install-base install-arm --packages-ignore kortex3_hardware cartesian_controller_simulation cartesian_controller_tests --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-dead_strip_dylibs -DCMAKE_EXE_LINKER_FLAGS=-Wl,-dead_strip_dylibs"
 
 sim-arm = { cmd = "python simulation/launch/arm.launch.py --robot {{ robot }} --mode {{ mode }} --headless {{ headless }} --world {{ world }} {% if gripper %}--gripper {{ gripper }}{% endif %}", args = [
     { arg = "robot", default = "kinova-link-6" },
@@ -285,6 +304,16 @@ arm = { cmd = "python manipulation/launch/arm.launch.py --robot {{ robot }} --ro
 
 teleop-arm = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -p stamped:=true -r cmd_vel:=arm_teleop/cmd_vel", env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
+sim-arm-mujoco = { cmd = "python simulation/launch/arm_mujoco.launch.py --robot {{ robot }} --mode {{ mode }}", args = [
+    { arg = "robot", default = "kinova-link-6" },
+    { arg = "mode", default = "moveit", choices = [
+        "plain",
+        "moveit",
+    ] },
+], depends-on = [
+    "build-arm",
+] }
+
 arm-drag = { cmd = 'ros2 control switch_controllers {% if enabled == "true" %}--activate motion_control_handle cartesian_motion_controller --deactivate joint_trajectory_controller{% else %}--activate joint_trajectory_controller --deactivate motion_control_handle cartesian_motion_controller{% endif %}', args = [
     { arg = "enabled", default = "true", choices = [
         "true",
@@ -292,7 +321,6 @@ arm-drag = { cmd = 'ros2 control switch_controllers {% if enabled == "true" %}--
     ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
-arm-rviz = { cmd = "rviz2 -d install-arm/share/link6_control/config/link6_config.rviz --ros-args -p use_sim_time:=true", env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-grip = { cmd = 'ros2 action send_goal /robotiq_gripper_controller/gripper_cmd control_msgs/action/GripperCommand "{command: {position: {% if state == "open" %}0.0{% else %}0.8{% endif %}, max_effort: 60.0}}"', args = [
     { arg = "state", default = "open", choices = [
@@ -305,6 +333,10 @@ arm-motion = { cmd = 'python manipulation/src/load_motions.py && ros2 action sen
     { arg = "motion", default = "wave" },
 ], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
+arm-pick = { cmd = "python manipulation/launch/kinova_link6_pick.launch.py --object {{ object }}", args = [
+    { arg = "object", default = "apple" },
+], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+
 arm-reach = { cmd = "python manipulation/src/reach.py --robot {{ robot }} {% if target %}--target {{ target }}{% endif %} {% if x %}--x {{ x }} --y {{ y }} --z {{ z }}{% endif %}", args = [
     { arg = "robot", default = "kinova-link-6" },
     { arg = "target", default = "" },
@@ -314,7 +346,7 @@ arm-reach = { cmd = "python manipulation/src/reach.py --robot {{ robot }} {% if 
 ], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 [tasks]
-build = "colcon build --merge-install --base-paths . --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+build = "colcon build --merge-install --base-paths . --packages-ignore robot_manipulation --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 
 lint = { cmd = "colcon test --base-paths . --merge-install --ctest-args -L linter --pytest-args -m linter --event-handlers console_direct+ && colcon test-result --verbose", depends-on = [
     "build",

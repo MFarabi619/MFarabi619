@@ -19,14 +19,18 @@ Visualization Manager:
       Velocity_Scaling_Factor: 1.0
       Planned Path:
         Loop Animation: false
+        Show Robot Visual: false
         State Display Time: 0.05 s
         Trajectory Topic: display_planned_path
+      Planning Request:
+        Query Goal State: false
+        Query Start State: false
       Planning Scene Topic: monitored_planning_scene
       Robot Description: robot_description
       Scene Geometry:
         Scene Alpha: 1
       Scene Robot:
-        Robot Alpha: 0.5
+        Robot Alpha: 1
       Value: true
   Global Options:
     Fixed Frame: world

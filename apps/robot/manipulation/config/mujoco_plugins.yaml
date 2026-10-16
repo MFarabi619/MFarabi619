@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    mujoco_plugins:
+      free_joint_state_publisher:
+        type: "mujoco_ros2_control_plugins/FreeJointStatePublisherPlugin"
+        frame_id: ""
+        publish_rate: 20.0
