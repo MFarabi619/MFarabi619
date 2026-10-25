@@ -4,7 +4,8 @@
 }:
 {
   services.open-webui = {
-    enable = config.networking.hostName == "framework-desktop";
+    enable = false; # FIXME: broken, last try on Oct 25, 2026 4:01pm
+    # enable = config.networking.hostName == "framework-desktop";
     port = 7777;
     environmentFile = "/var/lib/secrets/open-webui";
     environment = rec {

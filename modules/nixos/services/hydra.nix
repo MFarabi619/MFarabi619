@@ -19,7 +19,6 @@
     minimumDiskFreeEvaluator = 0;
     hydraURL = "http:/localhost:9870";
     notificationSender = "hydra@localhost";
-    dbi = "dbi:Pg:dbname=hydra;user=hydra;";
     gcRootsDir = "/nix/var/nix/gcroots/hydra";
     # logo = ./;
   };
