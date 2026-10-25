@@ -26,7 +26,7 @@
       ]
       ++ [
         # kicad
-        fritzing
+        # fritzing # FIXME: broken, last try on Oct 25, 2026 4:01pm
         octaveFull
         openscad
         openscad-lsp
@@ -264,7 +264,7 @@
         deadnix
         # nix-ld      # run unpatched dynamic binaries
         nix-btm # nix process monitor
-        nix-top # nix process visualizer
+        # nix-top # nix process visualizer
         nix-web # web gui
         nix-inspect # flake explorer tui
         nix-weather # check binary cache availability
