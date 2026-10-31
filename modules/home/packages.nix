@@ -47,6 +47,7 @@
         trunk
         libyaml
         binaryen
+        cocogitto
         rustywind
         dioxus-cli
         sea-orm-cli
