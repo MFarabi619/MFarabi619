@@ -32,6 +32,7 @@ from kortex_api.RouterClient import RouterClient
 
 JOINT_COUNT = 6
 POSE_TOLERANCE_DEG = 1.0
+OUT_OF_RANGE_OFFSET_DEG = 1000.0
 EXECUTE_TIMEOUT_SECONDS = 120.0
 RECOVERY_TIMEOUT_SECONDS = 90.0
 MODE_SETTLE_SECONDS = 2.0
@@ -157,10 +158,10 @@ def execute_waypoints(base, waypoints_deg,
 
     def on_action_event(notification):
         if notification.action_event == Base_pb2.ACTION_END:
-            outcome['ok'] = True
+            outcome['succeeded'] = True
             finished.set()
         elif notification.action_event == Base_pb2.ACTION_ABORT:
-            outcome['ok'] = False
+            outcome['succeeded'] = False
             outcome['error'] = str(notification)
             finished.set()
 
@@ -171,15 +172,14 @@ def execute_waypoints(base, waypoints_deg,
     base.Unsubscribe(subscription)
     assert completed, \
         f'no completion event within {EXECUTE_TIMEOUT_SECONDS:.0f}s'
-    assert outcome['ok'], f"trajectory aborted: {outcome.get('error')}"
+    assert outcome['succeeded'], \
+        f"trajectory aborted: {outcome.get('error')}"
     time.sleep(MOTION_SETTLE_SECONDS)
 
 
 def assert_at_pose(base_cyclic, pose_deg):
-    positions_deg = current_positions_deg(base_cyclic)
-    for index, (measured, target) in enumerate(zip(positions_deg, pose_deg)):
-        assert abs(measured - target) < POSE_TOLERANCE_DEG, \
-            f'joint_{index + 1} at {measured:.2f} deg, expected {target:.2f}'
+    assert current_positions_deg(base_cyclic) == pytest.approx(
+        pose_deg, abs=POSE_TOLERANCE_DEG)
 
 
 def test_robot_identifies_itself(base):
@@ -220,24 +220,24 @@ def test_validation_is_a_dry_run(base, base_cyclic):
     """ValidateWaypointList checks a trajectory on the controller without
     motion: an absurd target is rejected, a sane one is accepted."""
     current_pose_deg = current_positions_deg(base_cyclic)
-    absurd_waypoint_list = Base_pb2.WaypointList()
-    waypoint = absurd_waypoint_list.waypoints.add()
-    waypoint.name = 'absurd'
+    out_of_range_waypoint_list = Base_pb2.WaypointList()
+    waypoint = out_of_range_waypoint_list.waypoints.add()
+    waypoint.name = 'out_of_range'
     waypoint.angular_waypoint.angles.extend(
-        [angle + 1000.0 for angle in current_pose_deg])
+        [angle + OUT_OF_RANGE_OFFSET_DEG for angle in current_pose_deg])
     report = base.ValidateWaypointList(
-        absurd_waypoint_list).trajectory_error_report
+        out_of_range_waypoint_list).trajectory_error_report
     assert report.trajectory_error_elements, \
-        'a +1000 deg waypoint should fail validation'
-    print('absurd waypoint rejected with',
+        f'a +{OUT_OF_RANGE_OFFSET_DEG:.0f} deg waypoint should fail validation'
+    print('out-of-range waypoint rejected with',
           len(report.trajectory_error_elements), 'error elements')
 
-    sane_waypoint_list = Base_pb2.WaypointList()
-    waypoint = sane_waypoint_list.waypoints.add()
-    waypoint.name = 'sane'
+    hold_position_waypoint_list = Base_pb2.WaypointList()
+    waypoint = hold_position_waypoint_list.waypoints.add()
+    waypoint.name = 'hold_position'
     waypoint.angular_waypoint.angles.extend(current_pose_deg)
     report = base.ValidateWaypointList(
-        sane_waypoint_list).trajectory_error_report
+        hold_position_waypoint_list).trajectory_error_report
     assert not report.trajectory_error_elements
     print('hold-position waypoint accepted')
 
