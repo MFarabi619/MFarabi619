@@ -509,31 +509,27 @@ patches:
              worker exit naturally.
 
     - path: ros2-link6.patch
-      sha256sum: 478945339020b65e3a9f9b4630df9291952ab06eb70e3dc97fe6a82344dd8546
+      sha256sum: 9b93e315332f34aa26f26eea1c6abb93a2c76f937586e1a2410b5a309f0d0d03
       module: zephyrproject/modules/ros/ros2_link6
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
       date: 2026-10-13
       upstreamable: true
       comments: |
-          link6_sim.launch.py: spawn_x/y/z args (farm worlds sit off origin).
-          link6_description: sim_mujoco arg chain emits MujocoSystemInterface,
-          wins over use_fake_hardware, adds the gripper knuckle to the MuJoCo
-          block (mimics in manipulation/config/mujoco_inputs.xml); arm uses
-          position command interfaces under sim_mujoco, velocity on hardware.
-          link6.urdf.xacro + link6_gz.urdf.xacro: accessory visuals (controller
-          box, pendant, KR22096 flange adapter 26.5 mm) from our
-          robot_description meshes; TCP matches the physical stack-up. Mesh
-          paths point into our package, so not upstreamable as-is.
-          link6_macro.xacro: brighter palette + kinovablue accents.
-          kortex3_sim_controllers.yaml: jtc command_interfaces [position],
-          ff_velocity_scale 1.0, goal tolerances 0.025,
-          allow_nonzero_velocity_at_trajectory_end; gripper
-          stall_velocity_threshold 0.01 (compliant objects creep just above
-          the 0.001 default, defeating stall-as-grasped detection).
-          kortex3_controllers.yaml: allow_nonzero_velocity_at_trajectory_end.
-          moveit_controllers.yaml: execution_duration_monitoring off,
-          allowed_start_tolerance 0.05 (sim settles wider than 0.01 default).
+          link6_sim.launch.py: spawn_x/y/z args.
+          link6_description: sim_mujoco arg chain -> MujocoSystemInterface,
+          gripper knuckle in the MuJoCo block, position command interfaces
+          in sim (velocity on hardware); accessory visuals (controller box,
+          pendant, KR22096 adapter) + one collision box over the assembly;
+          brighter palette.
+          kortex3_sim_controllers.yaml: jtc [position], goal tolerances
+          0.025, nonzero end velocity allowed; gripper stall threshold
+          0.01, stall timeout 0.5.
+          kortex3_controllers.yaml: nonzero end velocity allowed.
+          moveit_controllers.yaml: duration monitoring off, start
+          tolerance 0.05.
+          link6.srdf: controller_link adjacent pairs disabled.
+          Not upstreamable as-is (mesh paths point into our package).
 
     - path: cadrum.patch
       sha256sum: c328f3b99c3cde862df89727af6187f3bb9d593da271aaff980709cb7bc6fa05

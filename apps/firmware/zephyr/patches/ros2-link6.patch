@@ -56,18 +56,19 @@ index ebc629e..3713d39 100644
        stopped_velocity_tolerance: 0.01
        goal_time: 0.0
 diff --git a/link6_control/config/kortex3_sim_controllers.yaml b/link6_control/config/kortex3_sim_controllers.yaml
-index 8873901..579c92d 100644
+index 8873901..88e04f2 100644
 --- a/link6_control/config/kortex3_sim_controllers.yaml
 +++ b/link6_control/config/kortex3_sim_controllers.yaml
-@@ -94,6 +94,7 @@ robotiq_gripper_controller:
+@@ -94,6 +94,8 @@ robotiq_gripper_controller:
      default: true
      joint: robotiq_85_left_knuckle_joint
      allow_stalling: true
 +    stall_velocity_threshold: 0.01
++    stall_timeout: 0.5
  
  joint_trajectory_controller:
    ros__parameters:
-@@ -106,27 +107,29 @@ joint_trajectory_controller:
+@@ -106,27 +108,29 @@ joint_trajectory_controller:
        - joint_6
  
      command_interfaces:
@@ -104,7 +105,7 @@ index 8873901..579c92d 100644
          
      gains:
        joint_1:
-@@ -134,34 +137,34 @@ joint_trajectory_controller:
+@@ -134,34 +138,34 @@ joint_trajectory_controller:
          i: 0.0
          i_clamp: 0.0
          d: 0.3
@@ -346,7 +347,7 @@ index a4920fe..e7a904c 100644
            <xacro:if value="${use_internal_bus_gripper_comm}">
  
 diff --git a/link6_description/urdf/link6.urdf.xacro b/link6_description/urdf/link6.urdf.xacro
-index eeb5af4..59f5aab 100644
+index eeb5af4..a248f66 100644
 --- a/link6_description/urdf/link6.urdf.xacro
 +++ b/link6_description/urdf/link6.urdf.xacro
 @@ -17,6 +17,8 @@
@@ -367,7 +368,7 @@ index eeb5af4..59f5aab 100644
          low_level_mode="$(arg low_level_mode)"
          safety_mode="$(arg safety_mode)"
          initial_positions_file="$(arg initial_positions_file)"
-@@ -74,12 +78,69 @@
+@@ -74,12 +78,75 @@
          </joint>
      </xacro:if>
  
@@ -399,6 +400,12 @@ index eeb5af4..59f5aab 100644
 +                <color rgba="0.12 0.12 0.12 1" />
 +            </material>
 +        </visual>
++        <collision>
++            <origin xyz="-0.4501 0.1015 0.1345" rpy="0 0 0" />
++            <geometry>
++                <box size="0.3954 0.4973 0.2686" />
++            </geometry>
++        </collision>
 +    </link>
 +    <joint name="$(arg prefix)controller_joint" type="fixed">
 +        <origin xyz="0 0 0" rpy="0 0 0" />
@@ -439,10 +446,10 @@ index eeb5af4..59f5aab 100644
              use_fake_hardware="$(arg use_fake_hardware)"
              mock_sensor_commands="$(arg mock_sensor_commands)"
 diff --git a/link6_description/urdf/link6_gz.urdf.xacro b/link6_description/urdf/link6_gz.urdf.xacro
-index 85266e9..1c18f8a 100644
+index 85266e9..5daba2d 100644
 --- a/link6_description/urdf/link6_gz.urdf.xacro
 +++ b/link6_description/urdf/link6_gz.urdf.xacro
-@@ -260,13 +260,70 @@
+@@ -260,13 +260,76 @@
          <axis xyz="0 0 0" />
        </joint>
      </xacro:unless>
@@ -474,6 +481,12 @@ index 85266e9..1c18f8a 100644
 +                <color rgba="0.12 0.12 0.12 1" />
 +            </material>
 +        </visual>
++        <collision>
++            <origin xyz="-0.4501 0.1015 0.1345" rpy="0 0 0" />
++            <geometry>
++                <box size="0.3954 0.4973 0.2686" />
++            </geometry>
++        </collision>
 +    </link>
 +    <joint name="controller_joint" type="fixed">
 +        <origin xyz="0 0 0" rpy="0 0 0" />
@@ -567,6 +580,19 @@ index 7ba47d1..cce7ff0 100644
        </visual>
        <collision>
          <origin xyz="0 0 -0.02647703" rpy="0 0 0" />
+diff --git a/link6_moveit_config/config/link6.srdf b/link6_moveit_config/config/link6.srdf
+index 7089a1e..ca075e3 100644
+--- a/link6_moveit_config/config/link6.srdf
++++ b/link6_moveit_config/config/link6.srdf
+@@ -53,6 +53,8 @@
+     <disable_collisions link1="arm_link" link2="forearm_link" reason="Adjacent"/>
+     <disable_collisions link1="arm_link" link2="shoulder_link" reason="Adjacent"/>
+     <disable_collisions link1="base_link" link2="shoulder_link" reason="Adjacent"/>
++    <disable_collisions link1="base_link" link2="controller_link" reason="Adjacent"/>
++    <disable_collisions link1="controller_link" link2="shoulder_link" reason="Never"/>
+     <disable_collisions link1="forearm_link" link2="lower_wrist_link" reason="Adjacent"/>
+     <disable_collisions link1="forearm_link" link2="robotiq_85_base_link" reason="Never"/>
+     <disable_collisions link1="forearm_link" link2="shoulder_link" reason="Never"/>
 diff --git a/link6_moveit_config/config/moveit_controllers.yaml b/link6_moveit_config/config/moveit_controllers.yaml
 index ec7403c..eab27a7 100644
 --- a/link6_moveit_config/config/moveit_controllers.yaml
