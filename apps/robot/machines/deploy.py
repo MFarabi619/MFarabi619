@@ -28,7 +28,8 @@ import yaml
 MIRROR_ROOT = '/home/mfarabi/MFarabi619'
 PIXI = '/home/mfarabi/.pixi/bin/pixi'
 
-ROBOT_LOCAL_ENTRIES = ['.pixi', 'build', 'install', 'log']
+ROBOT_LOCAL_ENTRIES = [
+    '.pixi', 'build', 'install', 'log', 'build-arm', 'install-arm']
 
 DEVELOPMENT_ONLY_ENTRIES = ['__pycache__', 'assets']
 
