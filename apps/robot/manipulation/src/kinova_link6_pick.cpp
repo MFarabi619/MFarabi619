@@ -28,6 +28,7 @@
 #include <geometry_msgs/msg/vector3_stamped.hpp>
 #include <moveit/task_constructor/solvers/cartesian_path.h>
 #include <moveit/task_constructor/solvers/joint_interpolation.h>
+#include <moveit/task_constructor/solvers/multi_planner.h>
 #include <moveit/task_constructor/solvers/pipeline_planner.h>
 #include <moveit/task_constructor/stages/connect.h>
 #include <moveit/task_constructor/stages/current_state.h>
@@ -72,6 +73,8 @@ constexpr size_t MAX_SOLUTIONS = 2;
 constexpr bool INTROSPECTION_ENABLED = false;
 constexpr double MAX_VELOCITY_SCALING_FACTOR = 0.5;
 constexpr double MAX_ACCELERATION_SCALING_FACTOR = 0.5;
+constexpr double LIFT_VELOCITY_SCALING_FACTOR = 0.2;
+constexpr double LIFT_ACCELERATION_SCALING_FACTOR = 0.15;
 
 shape_msgs::msg::Mesh object_mesh(const std::string& object) {
 	moveit::planning_interface::PlanningSceneInterface scene;
@@ -157,10 +160,19 @@ int main(int argc, char** argv) {
 	task.setName("pick " + object);
 	task.loadRobotModel(node);
 
+	auto point_to_point_planner = std::make_shared<solvers::PipelinePlanner>(
+	    node, "pilz_industrial_motion_planner", "PTP");
+	point_to_point_planner->setMaxVelocityScalingFactor(
+	    MAX_VELOCITY_SCALING_FACTOR);
+	point_to_point_planner->setMaxAccelerationScalingFactor(
+	    MAX_ACCELERATION_SCALING_FACTOR);
 	auto sampling_planner = std::make_shared<solvers::PipelinePlanner>(node);
 	sampling_planner->setMaxVelocityScalingFactor(MAX_VELOCITY_SCALING_FACTOR);
 	sampling_planner->setMaxAccelerationScalingFactor(
 	    MAX_ACCELERATION_SCALING_FACTOR);
+	auto transit_planner = std::make_shared<solvers::MultiPlanner>();
+	transit_planner->push_back(point_to_point_planner);
+	transit_planner->push_back(sampling_planner);
 	auto interpolation_planner =
 	    std::make_shared<solvers::JointInterpolationPlanner>();
 	interpolation_planner->setMaxVelocityScalingFactor(
@@ -187,7 +199,7 @@ int main(int argc, char** argv) {
 	auto move_to_pick = std::make_unique<stages::Connect>(
 	    "move to pick",
 	    stages::Connect::GroupPlannerVector{
-	        {ARM_GROUP, sampling_planner},
+	        {ARM_GROUP, transit_planner},
 	        {GRIPPER_GROUP, interpolation_planner}});
 	move_to_pick->setProperty("merge_mode", stages::Connect::SEQUENTIAL);
 	task.add(std::move(move_to_pick));
@@ -230,8 +242,13 @@ int main(int argc, char** argv) {
 
 	task.add(std::move(grasp));
 
+	auto lift_solver = std::make_shared<solvers::CartesianPath>();
+	lift_solver->setMaxVelocityScalingFactor(LIFT_VELOCITY_SCALING_FACTOR);
+	lift_solver->setMaxAccelerationScalingFactor(
+	    LIFT_ACCELERATION_SCALING_FACTOR);
+
 	auto lift =
-	    std::make_unique<stages::MoveRelative>("lift object", cartesian_solver);
+	    std::make_unique<stages::MoveRelative>("lift object", lift_solver);
 	lift->setGroup(ARM_GROUP);
 	lift->setIKFrame(IK_FRAME_LINK);
 	geometry_msgs::msg::Vector3Stamped lift_motion;

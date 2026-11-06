@@ -27,7 +27,8 @@ def kinova_link6_pick(robot: str = 'kinova-link-6', object: str = 'apple'):
     moveit_configuration = (
         MoveItConfigsBuilder(
             arm['moveit_robot_name'], package_name=arm['moveit_package'])
-        .planning_pipelines(pipelines=['ompl'])
+        .planning_pipelines(
+            pipelines=['ompl', 'pilz_industrial_motion_planner'])
         .to_moveit_configs().to_dict())
 
     bl = BetterLaunch()

@@ -25,6 +25,9 @@ from moveit_configs_utils import MoveItConfigsBuilder
 import rclpy
 import yaml
 
+GOAL_FRAME = 'base_link'
+END_EFFECTOR_LINK = 'end_effector_link'
+
 
 def machine_configuration(robot):
     with open(f'machines/{robot}/robot.yaml') as machine_file:
@@ -54,11 +57,10 @@ def ensure_trajectory_mode():
 
 def goal_pose(x, y, z):
     pose = PoseStamped()
-    pose.header.frame_id = 'base_link'
+    pose.header.frame_id = GOAL_FRAME
     pose.pose.position.x = x
     pose.pose.position.y = y
     pose.pose.position.z = z
-    pose.pose.orientation.w = 1.0
     return pose
 
 
@@ -74,26 +76,26 @@ def main():
 
     ensure_trajectory_mode()
     rclpy.init()
-    arm = MoveItPy(
+    moveit = MoveItPy(
         node_name='reach', config_dict=arm_configuration(machine['arm']))
-    planner = arm.get_planning_component('arm')
-    planner.set_start_state_to_current_state()
+    planning_component = moveit.get_planning_component('arm')
+    planning_component.set_start_state_to_current_state()
     if arguments.target:
-        planner.set_goal_state(configuration_name=arguments.target)
+        planning_component.set_goal_state(configuration_name=arguments.target)
     elif arguments.x is not None:
-        planner.set_goal_state(
+        planning_component.set_goal_state(
             pose_stamped_msg=goal_pose(arguments.x, arguments.y, arguments.z),
-            pose_link='end_effector_link')
+            pose_link=END_EFFECTOR_LINK)
     else:
-        goal_state = RobotState(arm.get_robot_model())
+        goal_state = RobotState(moveit.get_robot_model())
         goal_state.set_joint_group_positions(
             'arm', machine['manipulation']['demonstration_joint_positions'])
-        planner.set_goal_state(robot_state=goal_state)
-    plan = planner.plan()
-    if not plan:
+        planning_component.set_goal_state(robot_state=goal_state)
+    plan_result = planning_component.plan()
+    if not plan_result:
         print('reach: planning failed', flush=True)
         os._exit(1)
-    status = arm.execute(plan.trajectory, controllers=[])
+    status = moveit.execute(plan_result.trajectory, controllers=[])
     if 'SUCCEEDED' not in status.status:
         print(f'reach: execution failed ({status.status})', flush=True)
         os._exit(1)

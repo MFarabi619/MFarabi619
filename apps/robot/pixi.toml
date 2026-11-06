@@ -122,6 +122,31 @@ arm-recover = { cmd = 'python manipulation/src/kinova_link6_recover.py --program
     { arg = "program", default = "Home Position" },
     { arg = "password", default = "admin" },
 ] }
+arm-pick-record = { cmd = "python manipulation/src/kinova_link6_pick_hardware.py --record {{ pose }}", args = [
+    { arg = "pose", default = "grasp" },
+] }
+arm-pick-hardware = { cmd = "python manipulation/src/kinova_link6_pick_hardware.py --grasp-pose {{ grasp }} --force {{ force }} --velocity {{ velocity }} --joint-speed {{ speed }}", args = [
+    { arg = "grasp", default = "grasp" },
+    { arg = "force", default = "10" },
+    { arg = "velocity", default = "50" },
+    { arg = "speed", default = "30" },
+] }
+arm-place-hardware = { cmd = "python manipulation/src/kinova_link6_pick_hardware.py --place --grasp-pose {{ grasp }} --velocity {{ velocity }} --joint-speed {{ speed }}", args = [
+    { arg = "grasp", default = "grasp" },
+    { arg = "velocity", default = "50" },
+    { arg = "speed", default = "30" },
+] }
+arm-deliver-hardware = { cmd = "python manipulation/src/kinova_link6_pick_hardware.py --deliver --grasp-pose {{ grasp }} --destination {{ dest }} --force {{ force }} --velocity {{ velocity }} --joint-speed {{ speed }}", args = [
+    { arg = "grasp", default = "grasp" },
+    { arg = "dest", default = "dropoff" },
+    { arg = "force", default = "10" },
+    { arg = "velocity", default = "50" },
+    { arg = "speed", default = "30" },
+] }
+arm-demo-hardware = { cmd = "python manipulation/src/kinova_link6_pick_hardware.py --tour grasp dropoff third_stop fourth_stop grasp --force {{ force }} --joint-speed {{ speed }}", args = [
+    { arg = "force", default = "10" },
+    { arg = "speed", default = "30" },
+] }
 
 [feature.jazzy]
 channels = [
@@ -338,6 +363,11 @@ arm-motion = { cmd = 'python manipulation/src/load_motions.py && ros2 action sen
 ], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-pick = { cmd = "python manipulation/launch/kinova_link6_pick.launch.py --object {{ object }}", args = [
+    { arg = "object", default = "apple" },
+], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+
+arm-release = { cmd = "python manipulation/src/kinova_link6_release.py --robot {{ robot }} --object {{ object }}", args = [
+    { arg = "robot", default = "kinova-link-6" },
     { arg = "object", default = "apple" },
 ], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 

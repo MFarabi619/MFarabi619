@@ -22,8 +22,10 @@ from play_motion2_msgs.srv import AddMotion
 import rclpy
 import yaml
 
+SERVER_TIMEOUT_SECONDS = 10.0
 
-def catalog(robot):
+
+def motions(robot):
     with open(f'machines/{robot}/motions.yaml') as motions_file:
         return yaml.safe_load(motions_file)['/**']['ros__parameters']['motions']
 
@@ -36,25 +38,27 @@ def main():
     rclpy.init()
     node = rclpy.create_node('load_motions')
     client = node.create_client(AddMotion, '/play_motion2/add_motion')
-    if not client.wait_for_service(timeout_sec=10.0):
+    if not client.wait_for_service(timeout_sec=SERVER_TIMEOUT_SECONDS):
         print('load_motions: /play_motion2/add_motion unavailable', flush=True)
         os._exit(1)
 
     failures = 0
-    for key, entry in catalog(arguments.robot).items():
+    for key, motion_definition in motions(arguments.robot).items():
         motion = Motion()
         motion.key = key
-        motion.joints = entry['joints']
-        motion.positions = [float(value) for value in entry['positions']]
+        motion.joints = motion_definition['joints']
+        motion.positions = [
+            float(value) for value in motion_definition['positions']]
         motion.times_from_start = [
-            float(value) for value in entry['times_from_start']]
-        meta = entry.get('meta', {})
+            float(value) for value in motion_definition['times_from_start']]
+        meta = motion_definition.get('meta', {})
         motion.name = meta.get('name', key)
         motion.usage = meta.get('usage', '')
         motion.description = meta.get('description', '')
         request = AddMotion.Request(motion=motion, overwrite=True)
         future = client.call_async(request)
-        rclpy.spin_until_future_complete(node, future, timeout_sec=10.0)
+        rclpy.spin_until_future_complete(
+            node, future, timeout_sec=SERVER_TIMEOUT_SECONDS)
         if future.result() is None or not future.result().success:
             print(f'load_motions: {key} rejected', flush=True)
             failures += 1
