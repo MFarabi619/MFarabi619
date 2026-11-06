@@ -23,6 +23,15 @@ platform:
     roboteq:
       max_linear_acceleration_meters_per_second_squared: 5.0
       max_angular_acceleration_radians_per_second_squared: 7.5
+      flash:
+        # Controller flash asserted by roboteq_motor_driver at connect.
+        # RC receiver: connector pins 15/2 = pulse inputs 7/8.
+        PMOD: {7: 1, 8: 1}  # 1 = capture RC pulse width
+        PINA: {7: 17, 8: 33}  # use + motor: 17 = command motor 1, 33 = command motor 2
+        PPOL: {7: 0, 8: 1}  # input 8 inverted: mirrored right motor, RC path only
+        PMIN: {7: 0, 8: 0}  # microseconds mapped to full reverse
+        PMAX: {7: 3000, 8: 3000}  # stick spans 1000-2000, so this window caps RC at 33% (floor: PMIN can't go below 0)
+        RWD: 1000  # serial watchdog ms: RC takes over after 1 s of ROS silence
     rc_pulse:
       max_linear_velocity_meters_per_second: 1.37
       max_angular_velocity_radians_per_second: 3.0
@@ -57,6 +66,10 @@ sensors:
   gps:
     - model: ublox_zed_f9p
       parent: base_link
+      flash:
+        # Receiver flash asserted by drivers/src/ublox_flash.py at launch.
+        CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
+        CFG_RATE_NAV: 1  # navigation solutions per measurement
       ros_parameters:
         nmea_navsat_driver:
           port: /dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00

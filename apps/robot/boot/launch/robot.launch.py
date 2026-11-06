@@ -17,6 +17,8 @@
 import os
 from pathlib import Path
 import socket
+import subprocess
+import sys
 import tempfile
 import time
 import xml.etree.ElementTree as ElementTree
@@ -187,6 +189,30 @@ def resolve_pwm(pins, pin):
     return entry['pwm_chip'], entry['pwm_channel']
 
 
+def assert_gnss_flash(port, flash):
+    completed = subprocess.run(
+        [sys.executable, 'drivers/src/ublox_flash.py', '--port', port]
+        + [f'{key}={value}' for key, value in flash.items()],
+        capture_output=True, text=True)
+    for line in completed.stdout.splitlines():
+        print(line)
+    if completed.returncode != 0:
+        print(f'GNSS flash configuration failed: {completed.stderr.strip()}')
+
+
+def flash_declarations(flash):
+    declarations = []
+    for code, setting in flash.items():
+        if isinstance(setting, dict):
+            declarations += [
+                f'{code} {channel} {value}'
+                for channel, value in setting.items()
+            ]
+        else:
+            declarations.append(f'{code} {setting}')
+    return declarations
+
+
 @launch_this
 def robot(name: str = '', drivetrain_model: str = ''):
     robot_name, robot_config = robot_identity(name)
@@ -313,6 +339,9 @@ def robot(name: str = '', drivetrain_model: str = ''):
             }
             if max_wheel_speed is not None:
                 roboteq_parameters['max_wheel_speed'] = max_wheel_speed
+            flash = drivetrain.get('roboteq', {}).get('flash')
+            if flash:
+                roboteq_parameters['flash'] = flash_declarations(flash)
             full_scale_linear_velocity = drivetrain.get(
                 'full_scale_linear_velocity_meters_per_second')
             if full_scale_linear_velocity is not None:
@@ -610,6 +639,9 @@ def robot(name: str = '', drivetrain_model: str = ''):
             gps_parameters = next(iter(sensors['gps'][0]['ros_parameters'].values()))
             gps_parameter_args = ' '.join(
                 f'-p {name}:={value}' for name, value in gps_parameters.items())
+            gnss_flash = sensors['gps'][0].get('flash')
+            if gnss_flash:
+                assert_gnss_flash(gps_parameters['port'], gnss_flash)
             bl.process(
                 f'{PIXI} run --clean-env -e jazzy'
                 f' {JAZZY_ENV}/bin/python'

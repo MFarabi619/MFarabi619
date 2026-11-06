@@ -42,6 +42,9 @@ ros-lyrical-ros2-controllers = "*"
 ros-lyrical-pointcloud-to-laserscan = "*"
 ros-lyrical-py-trees-ros-interfaces = "*"
 
+[pypi-dependencies]
+pyubx2 = ">=1.3"
+
 [target.linux.pypi-dependencies]
 better-launch = { path = "../../zephyrproject/modules/lib/better_launch", editable = true }
 
@@ -106,6 +109,7 @@ kortex = { features = ["kortex"], no-default-feature = true }
 [feature.kortex.dependencies]
 python = "3.11.*"
 pytest = ">=9.1"
+pyyaml = ">=6"
 
 [feature.kortex.pypi-dependencies]
 kortex-api = { url = "https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl" } # matches link6 firmware 3.4.0
