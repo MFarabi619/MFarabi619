@@ -86,6 +86,11 @@ def roboteq_motor_driver_module():
     return load_module('roboteq_motor_driver')
 
 
+@pytest.fixture(scope='session')
+def ublox_flash_module():
+    return load_module('ublox_flash')
+
+
 @pytest.fixture
 def make_roboteq_driver(roboteq_motor_driver_module, monkeypatch):
     nodes = []
