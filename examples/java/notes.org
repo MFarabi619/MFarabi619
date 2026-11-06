@@ -1,0 +1,15 @@
+Spring Boot project ideas
+
+- serial reader & flasher
+- hackathon management platform
+- conference management platform
+- hardware booking tool
+- platformio frontend
+- arduino lib browser
+- ROS package browser
+- tandem robotics website
+- free mock data API server
+- dokploy clone
+- devpost clone (hava)
+- resume protocol
+- carleton central clone
