@@ -111,9 +111,10 @@ class RoboteqPort:
                 return line[len(prefix):]
         raise TimeoutError(f'no reply to {request}')
 
-    def query_configuration(self, code, minimum_values=1):
+    def query_configuration(self, code, minimum_values=1, argument=None):
         self.port.reset_input_buffer()
-        self.port.write(f'~{code}\r'.encode('ascii'))
+        request = f'~{code}' if argument is None else f'~{code} {argument}'
+        self.port.write(f'{request}\r'.encode('ascii'))
         prefix = f'{code}='
         for _ in range(QUERY_READ_ATTEMPTS):
             line = self.port.read_until(b'\r').decode('ascii', 'replace').strip()
@@ -150,6 +151,7 @@ class RoboteqMotorDriver(Node):
         self.declare_parameter('max_wheel_speed', math.inf)
         self.declare_parameter('control_mode', 'speed')
         self.declare_parameter('full_scale_wheel_speed', 0.0)
+        self.declare_parameter('flash', [''])
         for side in ('left', 'right'):
             self.declare_parameter(f'{side}_reversed', False)
 
@@ -164,6 +166,7 @@ class RoboteqMotorDriver(Node):
             self.get_parameter('serial_port').value,
             self.get_parameter('baud_rate').value,
         )
+        self.assert_flash_configuration()
         self.control_mode = self.get_parameter('control_mode').value
         self.commands_fractions = self.control_mode in ('torque', 'open_loop')
         full_scale_wheel_speed = self.get_parameter(
@@ -194,6 +197,7 @@ class RoboteqMotorDriver(Node):
             DiagnosticArray, 'diagnostics', 10)
 
         self.commanded_mode = Drive.MODE_NONE
+        self.motors_stopped = False
         self.last_command_time = self.get_clock().now()
         self.drive_subscription = self.create_subscription(
             Drive, 'platform/motors/cmd_drive', self.on_drive,
@@ -202,6 +206,37 @@ class RoboteqMotorDriver(Node):
             Feedback, 'platform/motors/feedback', qos_profile_sensor_data)
         self.feedback_timer = self.create_timer(
             1.0 / FEEDBACK_RATE_HZ, self.publish_feedback)
+
+    def read_flash_value(self, declaration):
+        code, *arguments = declaration
+        channel = arguments[0] if len(arguments) == 2 else None
+        return self.bus.query_configuration(code, argument=channel)[0]
+
+    def assert_flash_configuration(self):
+        declarations = [
+            entry.split()
+            for entry in self.get_parameter('flash').value
+            if entry.strip()
+        ]
+        drifted = [
+            declaration for declaration in declarations
+            if self.read_flash_value(declaration) != int(declaration[-1])
+        ]
+        if not drifted:
+            return
+        for declaration in drifted:
+            self.bus.write_command('^' + ' '.join(declaration))
+            self.get_logger().warning(
+                f'flash configuration corrected: {" ".join(declaration)}')
+        self.bus.write_command('%EESAV')
+        rejected = [
+            ' '.join(declaration) for declaration in drifted
+            if self.read_flash_value(declaration) != int(declaration[-1])
+        ]
+        if rejected:
+            raise RuntimeError(
+                f'controller rejected flash configuration: '
+                f'{", ".join(rejected)}')
 
     def rpm_from_wheel_speed(self, wheel_speed, direction_sign):
         clamped_speed = max(
@@ -242,16 +277,28 @@ class RoboteqMotorDriver(Node):
                 min(power_fraction * FULL_POWER_COMMAND, FULL_POWER_COMMAND)))
             self.bus.write_command(f'!G {channel} {power}')
 
+    def send_drive_command(self, send, values):
+        # A repeated stop is withheld so the serial watchdog (RWD) can
+        # expire and hand control to the RC pulse inputs.
+        is_stop = all(value == 0.0 for value in values)
+        if is_stop and self.motors_stopped:
+            return
+        self.motors_stopped = is_stop
+        send(values)
+
     def on_drive(self, message):
         self.last_command_time = self.get_clock().now()
         self.commanded_mode = message.mode
         if message.mode == Drive.MODE_VELOCITY:
-            self.command_velocities(
+            self.send_drive_command(
+                self.command_velocities,
                 [float(value) for value in message.drivers])
         elif message.mode == Drive.MODE_PWM:
-            self.command_powers([float(value) for value in message.drivers])
+            self.send_drive_command(
+                self.command_powers,
+                [float(value) for value in message.drivers])
         else:
-            self.command_velocities([0.0, 0.0])
+            self.send_drive_command(self.command_velocities, [0.0, 0.0])
 
     def read_slow_telemetry(self, stamp):
         self.currents = [
@@ -344,7 +391,7 @@ class RoboteqMotorDriver(Node):
             now - self.last_command_time
             > Duration(seconds=COMMAND_TIMEOUT_SECONDS))
         if has_timed_out:
-            self.command_velocities([0.0, 0.0])
+            self.send_drive_command(self.command_velocities, [0.0, 0.0])
 
         self.feedback_tick += 1
         try:

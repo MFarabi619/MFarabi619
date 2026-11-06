@@ -40,6 +40,31 @@ def test_connect_disables_echo(make_roboteq_driver):
     assert port.written[0] == b'^ECHOF 1\r'
 
 
+def test_flash_drift_is_corrected_and_saved(make_roboteq_driver):
+    node, port = make_roboteq_driver(
+        flash=['PMOD 7 1', 'RWD 1000'],
+        connect_replies=[b'PMOD=0\r', b'RWD=1000\r', b'PMOD=1\r'])
+    assert b'~PMOD 7\r' in port.written
+    assert b'^PMOD 7 1\r' in port.written
+    assert b'%EESAV\r' in port.written
+    assert b'^RWD 1000\r' not in port.written
+
+
+def test_flash_in_sync_writes_nothing(make_roboteq_driver):
+    node, port = make_roboteq_driver(
+        flash=['PMOD 7 1', 'RWD 1000'],
+        connect_replies=[b'PMOD=1\r', b'RWD=1000\r'])
+    assert b'^PMOD 7 1\r' not in port.written
+    assert b'%EESAV\r' not in port.written
+
+
+def test_flash_rejected_write_fails_startup(make_roboteq_driver):
+    with pytest.raises(RuntimeError, match='PMIN 7 500'):
+        make_roboteq_driver(
+            flash=['PMIN 7 500'],
+            connect_replies=[b'PMIN=1000\r', b'PMIN=1000\r'])
+
+
 def test_velocity_command_sends_rpm_per_channel(make_roboteq_driver):
     node, port = make_roboteq_driver()
     node.on_drive(command(Drive.MODE_VELOCITY, [math.tau, -math.tau]))
@@ -112,6 +137,36 @@ def test_pwm_command_clamps_to_full_power(make_roboteq_driver):
     node.on_drive(command(Drive.MODE_PWM, [0.5, -2.0]))
     assert b'!G 1 500\r' in port.written
     assert b'!G 2 -1000\r' in port.written
+
+
+def test_repeated_stops_go_serial_silent_for_rc_handover(make_roboteq_driver):
+    node, port = make_roboteq_driver()
+    node.on_drive(command(Drive.MODE_VELOCITY, [0.0, 0.0]))
+    node.on_drive(command(Drive.MODE_VELOCITY, [0.0, 0.0]))
+    node.on_drive(command(Drive.MODE_NONE, [0.0, 0.0]))
+    assert port.written.count(b'!S 1 0\r') == 1
+    assert port.written.count(b'!S 2 0\r') == 1
+
+
+def test_timeout_stop_is_sent_once(make_roboteq_driver):
+    node, port = make_roboteq_driver()
+    capture(node)
+    node.last_command_time -= Duration(seconds=1.0)
+    port.read_queue = list(IDLE_FAST_REPLIES)
+    node.publish_feedback()
+    port.read_queue = list(IDLE_FAST_REPLIES)
+    node.publish_feedback()
+    assert port.written.count(b'!S 1 0\r') == 1
+
+
+def test_motion_resumes_after_a_withheld_stop(make_roboteq_driver):
+    node, port = make_roboteq_driver()
+    node.on_drive(command(Drive.MODE_VELOCITY, [0.0, 0.0]))
+    node.on_drive(command(Drive.MODE_VELOCITY, [0.0, 0.0]))
+    node.on_drive(command(Drive.MODE_VELOCITY, [math.tau, math.tau]))
+    node.on_drive(command(Drive.MODE_VELOCITY, [0.0, 0.0]))
+    assert port.written.count(b'!S 1 60\r') == 1
+    assert port.written.count(b'!S 1 0\r') == 2
 
 
 def test_mode_none_stops_both_wheels(make_roboteq_driver):
