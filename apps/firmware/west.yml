@@ -95,7 +95,7 @@ manifest:
           url: https://github.com/lzpel/cadrum
 
         - name: ros2_link6
-          revision: 17e78b57f89a9277746a3286c0723890d2e20627 # jazzy 2026-10-12
+          revision: f48e2d79bcd94b671e03b85594dcbe1e11aa434c # jazzy 2026-11-02
           path: zephyrproject/modules/ros/ros2_link6
           url: https://github.com/Kinovarobotics/ros2_link6
 
