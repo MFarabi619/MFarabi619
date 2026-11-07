@@ -509,18 +509,19 @@ patches:
              worker exit naturally.
 
     - path: ros2-link6.patch
-      sha256sum: 9b93e315332f34aa26f26eea1c6abb93a2c76f937586e1a2410b5a309f0d0d03
+      sha256sum: d7ee6f93b99ac3e26f1d17e193b8a5d543c9ae46a89edb411901fc0d744304a7
       module: zephyrproject/modules/ros/ros2_link6
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
-      date: 2026-10-13
+      date: 2026-11-07
       upstreamable: true
       comments: |
           link6_sim.launch.py: spawn_x/y/z args.
           link6_description: sim_mujoco arg chain -> MujocoSystemInterface,
           gripper knuckle in the MuJoCo block, position command interfaces
           in sim (velocity on hardware); accessory visuals (controller box,
-          pendant, KR22096 adapter) + one collision box over the assembly;
+          pendant docked on its bracket, KR22096 adapter) + one collision
+          box over the assembly;
           brighter palette.
           kortex3_sim_controllers.yaml: jtc [position], goal tolerances
           0.025, nonzero end velocity allowed; gripper stall threshold

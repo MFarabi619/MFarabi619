@@ -347,7 +347,7 @@ index a4920fe..e7a904c 100644
            <xacro:if value="${use_internal_bus_gripper_comm}">
  
 diff --git a/link6_description/urdf/link6.urdf.xacro b/link6_description/urdf/link6.urdf.xacro
-index eeb5af4..a248f66 100644
+index eeb5af4..82e46e6 100644
 --- a/link6_description/urdf/link6.urdf.xacro
 +++ b/link6_description/urdf/link6.urdf.xacro
 @@ -17,6 +17,8 @@
@@ -392,7 +392,7 @@ index eeb5af4..a248f66 100644
 +            </material>
 +        </visual>
 +        <visual>
-+            <origin xyz="-0.45 0.074 0.2484" rpy="1.5708 0 0" />
++            <origin xyz="-0.45 0.390 0.157" rpy="0 0 0" />
 +            <geometry>
 +                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/teach_pendant.stl" scale="0.001 0.001 0.001" />
 +            </geometry>
@@ -446,7 +446,7 @@ index eeb5af4..a248f66 100644
              use_fake_hardware="$(arg use_fake_hardware)"
              mock_sensor_commands="$(arg mock_sensor_commands)"
 diff --git a/link6_description/urdf/link6_gz.urdf.xacro b/link6_description/urdf/link6_gz.urdf.xacro
-index 85266e9..5daba2d 100644
+index 85266e9..781650b 100644
 --- a/link6_description/urdf/link6_gz.urdf.xacro
 +++ b/link6_description/urdf/link6_gz.urdf.xacro
 @@ -260,13 +260,76 @@
@@ -473,7 +473,7 @@ index 85266e9..5daba2d 100644
 +            </material>
 +        </visual>
 +        <visual>
-+            <origin xyz="-0.45 0.074 0.2484" rpy="1.5708 0 0" />
++            <origin xyz="-0.45 0.390 0.157" rpy="0 0 0" />
 +            <geometry>
 +                <mesh filename="package://robot_description/urdf/kinova-link-6/meshes/teach_pendant.stl" scale="0.001 0.001 0.001" />
 +            </geometry>
