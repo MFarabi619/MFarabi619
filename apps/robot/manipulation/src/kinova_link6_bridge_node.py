@@ -167,6 +167,7 @@ class KinovaLink6BridgeNode(Node):
         message.name = list(positions)
         message.position = [positions[name] for name in message.name]
         message.velocity = [velocities.get(name, 0.0) for name in message.name]
+        message.effort = [0.0] * len(message.name)
         self.joint_state_publisher.publish(message)
 
     def execute_trajectory(self, goal_handle):

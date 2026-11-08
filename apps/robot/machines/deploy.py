@@ -84,17 +84,32 @@ def shell_chain(*commands):
     return ' && '.join(shlex.join(command) for command in commands)
 
 
-def mirror(host):
+def is_arm_only_machine(config):
+    return 'arm' in config and 'platform' not in config
+
+
+def mirror(host, config):
     ssh(host, shell_chain(
         ['mkdir', '-p', f'{MIRROR_ROOT}/apps/robot',
-         f'{MIRROR_ROOT}/zephyrproject/modules/lib/better_launch'],
+         f'{MIRROR_ROOT}/vendor/better_launch',
+         f'{MIRROR_ROOT}/vendor/audio_common',
+         f'{MIRROR_ROOT}/vendor/navigation2'],
         ['cd', f'{MIRROR_ROOT}/apps/robot'],
         ['rm', '-rf', *DEAD_LAYOUT_ENTRIES],
     ))
-    run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git', '-e', 'ssh -q',
-        'zephyrproject/modules/lib/better_launch/',
-        f'{host}:{MIRROR_ROOT}/zephyrproject/modules/lib/better_launch/',
-        working_directory=REPO_ROOT)
+    for vendor_tree in ('better_launch', 'audio_common', 'navigation2'):
+        run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git',
+            '-e', 'ssh -q', f'vendor/{vendor_tree}/',
+            f'{host}:{MIRROR_ROOT}/vendor/{vendor_tree}/',
+            working_directory=REPO_ROOT)
+    if is_arm_only_machine(config):
+        ssh(host, shell_chain(
+            ['mkdir', '-p', f'{MIRROR_ROOT}/vendor/ros'],
+        ))
+        run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git',
+            '-e', 'ssh -q', 'vendor/ros/',
+            f'{host}:{MIRROR_ROOT}/vendor/ros/',
+            working_directory=REPO_ROOT)
     run('rsync', *RSYNC_FLAGS, '--delete',
         *[f'--exclude={entry}' for entry in ROBOT_LOCAL_ENTRIES],
         *[f'--filter=H {entry}' for entry in DEVELOPMENT_ONLY_ENTRIES],
@@ -106,9 +121,14 @@ def build(host, config):
     commands = [
         ['cd', f'{MIRROR_ROOT}/apps/robot'],
     ]
-    if config.get('sensors'):
+    if is_arm_only_machine(config):
         commands.append([PIXI, 'install', '-e', 'jazzy'])
-    commands.append([PIXI, 'run', 'build', '--cmake-clean-cache'])
+        commands.append([PIXI, 'install', '-e', 'kortex'])
+        commands.append([PIXI, 'run', 'build-arm'])
+    else:
+        if config.get('sensors'):
+            commands.append([PIXI, 'install', '-e', 'jazzy'])
+        commands.append([PIXI, 'run', 'build', '--cmake-clean-cache'])
     ssh_with_terminal(host, shell_chain(*commands))
 
 
@@ -200,7 +220,7 @@ def main():
         print('verifying machine')
         verify_machine(robot_name)
         print(f'mirroring {host}')
-        mirror(host)
+        mirror(host, config)
         print('provisioning')
         provision(host, config)
         print('building')

@@ -14,10 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import os
 import socket
 import time
 
 from better_launch import BetterLaunch, launch_this
+import yaml
 
 ZENOH_ROUTER_PORT = 7447
 CONNECT_PROBE_TIMEOUT_SECONDS = 0.2
@@ -42,17 +44,37 @@ def wait_for_router(attempts=50):
         time.sleep(ROUTER_POLL_INTERVAL_SECONDS)
 
 
+def flash_declarations(flash):
+    declarations = []
+    for code, setting in flash.items():
+        if isinstance(setting, dict):
+            declarations += [
+                f'{code} {channel} {value}'
+                for channel, value in setting.items()
+            ]
+        else:
+            declarations.append(f'{code} {setting}')
+    return declarations
+
+
 @launch_this
 def roboteq(
     port: str = '/dev/cu.usbmodem2072356748451',
     baud: int = 115200,
     counts_per_revolution: int = 90,
+    robot: str = 'taro',
 ):
+    with open(f'machines/{robot}/robot.yaml') as machine_file:
+        drivetrain = yaml.safe_load(machine_file)['platform']['drivetrain']
+    flash = drivetrain.get('roboteq', {}).get('flash', {})
     bl = BetterLaunch()
     if not router_is_listening():
         bl.process(
-            '.pixi/envs/default/lib/rmw_zenoh_cpp/rmw_zenohd',
+            os.path.join(
+                os.environ['CONDA_PREFIX'], 'lib', 'rmw_zenoh_cpp',
+                'rmw_zenohd'),
             name='zenoh_router',
+            env={'ZENOH_CONFIG_OVERRIDE': 'mode="router"'},
             **RESPAWN,
         )
         wait_for_router()
@@ -64,6 +86,7 @@ def roboteq(
             'serial_port': port,
             'baud_rate': baud,
             'counts_per_revolution': counts_per_revolution,
+            'flash': flash_declarations(flash),
         },
         **RESPAWN,
     )

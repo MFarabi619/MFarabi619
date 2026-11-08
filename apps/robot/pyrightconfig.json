@@ -5,7 +5,7 @@
   "extraPaths": [
     "install/lib/python3.14/site-packages",
     ".pixi/envs/jazzy/lib/python3.12/site-packages",
-    "../../zephyrproject/modules/lib/better_launch"
+    "../../vendor/better_launch"
   ],
   "reportArgumentType": "none",
   "reportCallIssue": "none",

@@ -23,4 +23,6 @@ rebuild = true
 menuconfig = build apps/firmware -p=never -t menuconfig
 pc         = patch -sm apps/firmware clean
 pa         = patch -sm apps/firmware apply
+rpc        = patch -sm apps/robot -l patches.yml -b patches clean
+rpa        = patch -sm apps/robot -l patches.yml -b patches apply
 dt         = dtsh --preferences apps/firmware/dtsh/preferences.ini --theme apps/firmware/dtsh/theme.ini build/firmware/zephyr/zephyr.dts

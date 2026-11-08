@@ -35,12 +35,66 @@ def robot_configuration():
     return yaml.safe_load(config_path.read_text())
 
 
+def check_arm_health(config, hostname):
+    import rclpy
+    from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
+    from sensor_msgs.msg import CompressedImage, JointState
+    from std_msgs.msg import String
+
+    try:
+        rclpy.init()
+    except Exception:
+        print(f'{hostname}.local router unreachable, robot still booting?')
+        sys.exit(1)
+    node = rclpy.create_node('robot_health_check')
+    received = {}
+
+    def record(key):
+        def callback(message):
+            received[key] = message
+        return callback
+
+    latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+    node.create_subscription(
+        String, '/robot_description', record('urdf'), latched)
+    node.create_subscription(
+        JointState, '/joint_states', record('joint_states'), 10)
+
+    required_checks = ['urdf', 'joint_states']
+    sensors = config.get('sensors') or {}
+    if any(camera.get('launch_enabled', True)
+           for camera in sensors.get('camera', [])):
+        required_checks.append('camera')
+        node.create_subscription(
+            CompressedImage, '/sensors/camera_0/color/image_raw/compressed',
+            record('camera'), qos_profile_sensor_data)
+
+    deadline = time.monotonic() + CHECK_TIMEOUT_S
+    while time.monotonic() < deadline \
+            and not all(key in received for key in required_checks):
+        rclpy.spin_once(node, timeout_sec=0.2)
+
+    failures = [key for key in required_checks if key not in received]
+    for key in required_checks:
+        print(f"{'FAIL' if key in failures else 'ok  '}  {key}")
+    if 'urdf' in received and '<robot' not in received['urdf'].data:
+        failures.append('urdf_content')
+        print('FAIL  urdf_content (robot_description is not a URDF)')
+
+    node.destroy_node()
+    rclpy.shutdown()
+    sys.exit(1 if failures else 0)
+
+
 def main():
     config = robot_configuration()
-    namespace = config['system']['namespace']
     hostname = config['system']['hosts'][0]['hostname']
     os.environ['ZENOH_CONFIG_OVERRIDE'] = (
         f'mode="client";connect/endpoints=["tcp/{hostname}.local:7447"]')
+    if 'arm' in config and 'platform' not in config:
+        check_arm_health(config, hostname)
+        return
+    namespace = config['system']['namespace']
 
     import rclpy
     from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data

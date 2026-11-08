@@ -220,6 +220,16 @@ def robot(name: str = '', drivetrain_model: str = ''):
         raise RuntimeError(
             f'{robot_name} robot.yaml is schema version 0; wiring is now header'
             ' pins resolved through elec/boards/ (version 1)')
+    if 'arm' in robot_config and 'platform' not in robot_config:
+        bl = BetterLaunch()
+        robot_password = 'admin'
+        rviz = 'false'
+        bl.process(
+            [PIXI, 'run', 'arm', robot_name, robot_password, rviz],
+            name='arm_launch',
+            **RESPAWN,
+        )
+        return
     namespace = robot_config['system']['namespace']
     sensors = robot_config.get('sensors') or {}
     drivetrain = robot_config['platform']['drivetrain']

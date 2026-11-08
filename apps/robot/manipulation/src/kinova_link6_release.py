@@ -33,10 +33,10 @@ DEMONSTRATION_MOVE_DURATION_SECONDS = 4
 SERVER_TIMEOUT_SECONDS = 10.0
 
 
-def demonstration_joint_positions(robot):
+def demonstration_joint_positions_radians(robot):
     with open(f'machines/{robot}/robot.yaml') as machine_file:
         machine = yaml.safe_load(machine_file)
-    return machine['manipulation']['demonstration_joint_positions']
+    return machine['manipulation']['demonstration_joint_positions_radians']
 
 
 def run_action(node, action_type, action_name, goal):
@@ -107,7 +107,7 @@ def main():
     open_gripper(node)
     remove_object(node, arguments.object)
     move_to_demonstration_pose(
-        node, demonstration_joint_positions(arguments.robot))
+        node, demonstration_joint_positions_radians(arguments.robot))
     print(f"released '{arguments.object}'")
 
 

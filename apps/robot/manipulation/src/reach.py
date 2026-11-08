@@ -89,7 +89,8 @@ def main():
     else:
         goal_state = RobotState(moveit.get_robot_model())
         goal_state.set_joint_group_positions(
-            'arm', machine['manipulation']['demonstration_joint_positions'])
+            'arm',
+            machine['manipulation']['demonstration_joint_positions_radians'])
         planning_component.set_goal_state(robot_state=goal_state)
     plan_result = planning_component.plan()
     if not plan_result:

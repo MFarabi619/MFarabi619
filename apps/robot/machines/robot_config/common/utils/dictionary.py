@@ -61,6 +61,9 @@ def unflatten_dict(d: MutableMapping, parent_key: str = '', dlim: str = '.'):
     for k, v in d.items():
         if isinstance(v, dict):
             v = unflatten_dict(v, parent_key, dlim)
+        if not isinstance(k, str):
+            _d[k] = v
+            continue
         _d_curr: dict = {}
         _d_next = {}
         keys = k.split(dlim)

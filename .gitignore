@@ -73,5 +73,6 @@ apps/tandemrobotics/www/.astro
 .pnp.js
 
 /zephyrproject/
+/vendor/
 
 /compile_commands.json

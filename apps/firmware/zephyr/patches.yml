@@ -484,54 +484,6 @@ patches:
              lx7 already pins CONFIG_CXX_STANDARD for C++ but left C at the
              compiler default.
 
-    - path: better-launch.patch
-      sha256sum: 6404ffc87d524d98284dbbfac54a8ec5805ef68dc45d96ea5079768c111971e5
-      module: zephyrproject/modules/lib/better_launch
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-10-12
-      upstreamable: true
-      comments: |
-          Two fixes, three files:
-
-          1. foreign_node.py + node.py: also catch psutil.AccessDenied /
-             NoSuchProcess when scanning processes for ROS nodes, not just
-             ZombieProcess. On macOS p.cmdline() on pid 1 (launchd) raises
-             AccessDenied, which crashed get_unique_name and so every
-             anonymous node (e.g. the Gazebo spawn_model create). Linux reads
-             /proc/1/cmdline fine, so the gap only surfaces on macOS.
-
-          2. ros2_launch_wrapper.py: _launchservice_worker's _on_sigint
-             created the launch_service._shutdown coroutine, .close()d it
-             unawaited, then os._exit'd — every bl.include'd launch tree
-             orphaned its children (gz, rsp, bridges) on Ctrl-C. Fix: call
-             the public thread-safe launch_service.shutdown() and let the
-             worker exit naturally.
-
-    - path: ros2-link6.patch
-      sha256sum: d7ee6f93b99ac3e26f1d17e193b8a5d543c9ae46a89edb411901fc0d744304a7
-      module: zephyrproject/modules/ros/ros2_link6
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-11-07
-      upstreamable: true
-      comments: |
-          link6_sim.launch.py: spawn_x/y/z args.
-          link6_description: sim_mujoco arg chain -> MujocoSystemInterface,
-          gripper knuckle in the MuJoCo block, position command interfaces
-          in sim (velocity on hardware); accessory visuals (controller box,
-          pendant docked on its bracket, KR22096 adapter) + one collision
-          box over the assembly;
-          brighter palette.
-          kortex3_sim_controllers.yaml: jtc [position], goal tolerances
-          0.025, nonzero end velocity allowed; gripper stall threshold
-          0.01, stall timeout 0.5.
-          kortex3_controllers.yaml: nonzero end velocity allowed.
-          moveit_controllers.yaml: duration monitoring off, start
-          tolerance 0.05.
-          link6.srdf: controller_link adjacent pairs disabled.
-          Not upstreamable as-is (mesh paths point into our package).
-
     - path: cadrum.patch
       sha256sum: c328f3b99c3cde862df89727af6187f3bb9d593da271aaff980709cb7bc6fa05
       module: zephyrproject/modules/lib/cadrum
@@ -546,22 +498,6 @@ patches:
           face-level thread pool; default false preserves upstream
           behavior). Ported to the 0.9.0 FFI layout from the pre-west
           ~/workspace/cadrum checkout; upstream still hardcodes false.
-
-    - path: mujoco-ros2-control.patch
-      sha256sum: 9e139e1e9ffc83ec9d3908a16c1bdbf8e66212488b1c9bce7663b71ab9f563b4
-      module: zephyrproject/modules/ros/mujoco_ros2_control
-      author: Mumtahin Farabi
-      email: mfarabi619@gmail.com
-      date: 2026-10-14
-      upstreamable: true
-      comments: |
-          macOS build port, re-derived from upstream's stale pixi-osx-arm64
-          branch onto current main. CMakeLists: EGL find/link only outside
-          APPLE (macOS has no EGL), GNU-ld --push-state tinyxml2 workaround
-          guarded NOT APPLE (ld64 lacks it), @loader_path INSTALL_RPATH on
-          APPLE. camera_plugin: EGL includes/members/functions compiled out
-          and init degrades to a logged no-op on APPLE (GLFW needs the main
-          thread, which the ROS executor owns; no headless camera path).
 
     - path: lichtblick.patch
       sha256sum: 680e75533978f05bbe3f21fcd2b31aa3cd19c777c3211ad9831c94714ffb2945

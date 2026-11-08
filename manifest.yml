@@ -2,3 +2,4 @@ manifest:
     self:
         import:
             - apps/firmware/west.yml
+            - apps/robot/west.yml

@@ -36,7 +36,9 @@ def configured_cameras(machine):
     config = yaml.safe_load(
         open(os.path.join(ROBOT_ROOT, 'machines', machine, 'robot.yaml')))
     cameras = (config.get('sensors') or {}).get('camera') or []
-    return [camera for camera in cameras if camera.get('launch_enabled', True)]
+    return [camera for camera in cameras
+            if camera.get('launch_enabled', True)
+            and camera.get('urdf_enabled', True)]
 
 
 def joint_origins(urdf_path):

@@ -26,6 +26,7 @@ from robot_config.sensors.definitions.camera import (
     OakDSR,
     OrbbecGemini335L,
     USBWebcam,
+    Zed2,
 )
 from robot_config.sensors.definitions.gps import (
     AdafruitUltimateGpsHat,
@@ -42,6 +43,7 @@ class Camera():
     OAK_D_SR = OakDSR.SENSOR_MODEL
     OAK_D_PRO_W_POE = OakDProWPoe.SENSOR_MODEL
     ORBBEC_GEMINI_335L = OrbbecGemini335L.SENSOR_MODEL
+    ZED_2 = Zed2.SENSOR_MODEL
 
     MODEL = {
         IMX296_GS: IMX296GS,
@@ -49,6 +51,7 @@ class Camera():
         OAK_D_SR: OakDSR,
         OAK_D_PRO_W_POE: OakDProWPoe,
         ORBBEC_GEMINI_335L: OrbbecGemini335L,
+        ZED_2: Zed2,
     }
 
     @classmethod

@@ -1,0 +1,61 @@
+manifest:
+    projects:
+        - name: better_launch
+          revision: 26f5be8bea20a6371138314cae47b0877933d0f5 # 2026-10-12
+          path: vendor/better_launch
+          url: https://github.com/dfki-ric/better_launch
+
+        - name: ros2_link6
+          revision: f48e2d79bcd94b671e03b85594dcbe1e11aa434c # jazzy 2026-11-02
+          path: vendor/ros/ros2_link6
+          url: https://github.com/Kinovarobotics/ros2_link6
+
+        - name: cartesian_controllers
+          revision: f8aad77697802d9b9ca08d044b87ce58167e4bf9 # ros2 2026-10-12
+          path: vendor/ros/cartesian_controllers
+          url: https://github.com/fzi-forschungszentrum-informatik/cartesian_controllers
+
+        - name: ros2_robotiq_gripper
+          revision: a74d007d8f2f06dc6a503ad21038ba869d4999a6 # main 2026-10-12
+          path: vendor/ros/ros2_robotiq_gripper
+          url: https://github.com/PickNikRobotics/ros2_robotiq_gripper
+
+        - name: picknik_controllers
+          revision: 8b5f4ab308ee82198c55e1722de23ed60142a37d # main 2026-10-12
+          path: vendor/ros/picknik_controllers
+          url: https://github.com/picknikrobotics/picknik_controllers
+
+        - name: serial
+          revision: d8d160678aa0b31cdf467c052b954fa287cc6cdf # ros2 2026-10-12
+          path: vendor/ros/serial
+          url: https://github.com/tylerjw/serial
+
+        - name: play_motion2
+          revision: 5e41e66d7b9adf057b5a6f8bdd3a00d3918993b2 # humble-devel 2026-10-13
+          path: vendor/ros/play_motion2
+          url: https://github.com/pal-robotics/play_motion2
+
+        - name: mujoco_ros2_control
+          revision: 8a083ffb1fb75e33ecd8c602d7fb06845f7cc6b8 # main 2026-10-14
+          path: vendor/ros/mujoco_ros2_control
+          url: https://github.com/ros-controls/mujoco_ros2_control
+
+        - name: zed-ros2-wrapper
+          revision: f134486a814111b1c737a41211113dee41921776 # master 2026-11-02
+          path: vendor/ros/zed-ros2-wrapper
+          url: https://github.com/stereolabs/zed-ros2-wrapper
+
+        - name: audio_common
+          revision: da763260562878a710c6cf70632099771eecc00c # 4.0.10
+          path: vendor/audio_common
+          url: https://github.com/mgonzs13/audio_common
+
+        - name: navigation2
+          revision: f4108e5b1c2bce804a1aa0c7be6673a8eb4a1501 # 1.3.13
+          path: vendor/navigation2
+          url: https://github.com/ros-navigation/navigation2
+
+        - name: phenobench-baselines
+          revision: 78db625441e54c5b64efabeb0d886d020961665b # main 2024-01-23
+          path: vendor/phenobench-baselines
+          url: https://github.com/PRBonn/phenobench-baselines

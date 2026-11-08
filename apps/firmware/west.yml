@@ -84,50 +84,10 @@ manifest:
           path: zephyrproject/modules/lib/zenoh-pico
           url: https://github.com/eclipse-zenoh/zenoh-pico
 
-        - name: better_launch
-          revision: 26f5be8bea20a6371138314cae47b0877933d0f5 # 2026-10-12
-          path: zephyrproject/modules/lib/better_launch
-          url: https://github.com/dfki-ric/better_launch
-
         - name: cadrum
           revision: 77285e51ea2527285101a0dc403b7382971f8717 # 0.9.0 2026-10-13
           path: zephyrproject/modules/lib/cadrum
           url: https://github.com/lzpel/cadrum
-
-        - name: ros2_link6
-          revision: f48e2d79bcd94b671e03b85594dcbe1e11aa434c # jazzy 2026-11-02
-          path: zephyrproject/modules/ros/ros2_link6
-          url: https://github.com/Kinovarobotics/ros2_link6
-
-        - name: cartesian_controllers
-          revision: f8aad77697802d9b9ca08d044b87ce58167e4bf9 # ros2 2026-10-12
-          path: zephyrproject/modules/ros/cartesian_controllers
-          url: https://github.com/fzi-forschungszentrum-informatik/cartesian_controllers
-
-        - name: ros2_robotiq_gripper
-          revision: a74d007d8f2f06dc6a503ad21038ba869d4999a6 # main 2026-10-12
-          path: zephyrproject/modules/ros/ros2_robotiq_gripper
-          url: https://github.com/PickNikRobotics/ros2_robotiq_gripper
-
-        - name: picknik_controllers
-          revision: 8b5f4ab308ee82198c55e1722de23ed60142a37d # main 2026-10-12
-          path: zephyrproject/modules/ros/picknik_controllers
-          url: https://github.com/picknikrobotics/picknik_controllers
-
-        - name: serial
-          revision: d8d160678aa0b31cdf467c052b954fa287cc6cdf # ros2 2026-10-12
-          path: zephyrproject/modules/ros/serial
-          url: https://github.com/tylerjw/serial
-
-        - name: play_motion2
-          revision: 5e41e66d7b9adf057b5a6f8bdd3a00d3918993b2 # humble-devel 2026-10-13
-          path: zephyrproject/modules/ros/play_motion2
-          url: https://github.com/pal-robotics/play_motion2
-
-        - name: mujoco_ros2_control
-          revision: 8a083ffb1fb75e33ecd8c602d7fb06845f7cc6b8 # main 2026-10-14
-          path: zephyrproject/modules/ros/mujoco_ros2_control
-          url: https://github.com/ros-controls/mujoco_ros2_control
 
         - name: nuttx
           revision: ab4890df16b63af85f546d05d7a7fe3a3ebf3980 # 2026-07-30
