@@ -90,6 +90,7 @@
       "bambu-studio"
       "tailscale-app"
       "docker-desktop"
+      "qgroundcontrol"
       "visual-studio-code"
       "raspberry-pi-imager"
     ]
