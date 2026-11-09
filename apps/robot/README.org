@@ -1,8 +1,12 @@
 WIP.
 
-* Remote GPIO
+** Getting Started
 
-** [[https://www.beagleboard.org/boards/beagley-ai][BeagleY-AI]]
+Install [[https://pixi.prefix.dev/latest/][Pixi]].
+
+*** Remote GPIO
+
+**** [[https://www.beagleboard.org/boards/beagley-ai][BeagleY-AI]]
 
 #+BEGIN_SRC sh
 mkdir ~/workspace
@@ -41,7 +45,7 @@ sudo ss -ltnp | grep 8889
 nc -vz beagleyai 8889
 #+END_SRC
 
-** GPS
+**** GPS via gpsd
 
 #+BEGIN_SRC conf /boot/firmware/config.txt
 dtparam=uart0=on
@@ -55,4 +59,91 @@ sudo apt install -y gpsd gpsd-clients
 #+BEGIN_SRC sh
 sudo systemctl enable --now gpsd.socket
 cgps
+#+END_SRC
+
+*** [[https://developer.nvidia.com/embedded/jetpack][NVIDIA Jetson Orin Nano]] (JetPack 7.2.1, L4T R39.2.1, Ubuntu 24.04)
+
+**** Access
+
+#+BEGIN_SRC sh
+ssh-copy-id mfarabi@jetson-orin-nano.local
+#+END_SRC
+
+Passwordless sudo, so =deploy= runs unattended:
+
+#+BEGIN_SRC sh
+echo 'mfarabi ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/010-mfarabi-nopasswd
+sudo chmod 0440 /etc/sudoers.d/010-mfarabi-nopasswd
+#+END_SRC
+
+Serial device access — Ubuntu does not add users to =dialout= (Raspberry Pi
+OS does), so without this the Roboteq driver crash-loops on =Permission denied=:
+
+#+BEGIN_SRC sh
+sudo usermod -aG dialout mfarabi
+#+END_SRC
+
+**** Verify JetPack + CUDA
+
+#+BEGIN_SRC sh
+head -1 /etc/nv_tegra_release
+dpkg-query -W -f '${Status}\n' nvidia-jetpack   # want: install ok installed
+test -x /usr/local/cuda/bin/nvcc && /usr/local/cuda/bin/nvcc --version
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo apt install nvidia-jetpack   # if missing; CUDA 13.2 + cuDNN + TensorRT
+#+END_SRC
+
+**** Unlock MAXN_SUPER + grow swap
+
+#+BEGIN_SRC sh
+sudo ln -sf /etc/nvpmodel/nvpmodel_p3767_0003_super.conf /etc/nvpmodel.conf
+sudo nvpmodel -m 2
+sudo jetson_clocks   # optional, per-boot
+#+END_SRC
+
+#+BEGIN_SRC sh
+sudo swapoff /swapfile
+sudo fallocate -l 8G /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+#+END_SRC
+
+**** Repo + toolchain
+
+#+BEGIN_SRC sh
+git clone https://github.com/MFarabi619/MFarabi619 ~/MFarabi619
+curl -fsSL https://pixi.sh/install.sh | bash
+pixi global install west --with jsonschema
+#+END_SRC
+
+#+BEGIN_SRC sh
+cd ~/MFarabi619
+west update better_launch ros2_link6 cartesian_controllers ros2_robotiq_gripper picknik_controllers serial play_motion2 mujoco_ros2_control
+west update zephyr   # provides the `west patch` extension
+west pa
+pixi install -m apps/robot
+#+END_SRC
+
+**** Kinova Link 6 ethernet (arm at 192.168.1.10)
+
+#+BEGIN_SRC sh
+sudo nmcli con add type ethernet ifname enP8p1s0 con-name kinova-link-6 \
+    ipv4.method manual ipv4.addresses 192.168.1.11/24 ipv6.method disabled
+ping -c 2 192.168.1.10
+#+END_SRC
+
+#+BEGIN_SRC sh
+pixi install -m apps/robot -e kortex   # python kortex_api, drives the arm
+pixi install -m apps/robot -e jazzy    # ROS 2 side
+#+END_SRC
+
+**** ZED SDK (ZED 2 over USB 3)
+
+#+BEGIN_SRC sh
+curl -L -o ~/Downloads/ZED_SDK_Tegra_L4T39.2_v5.5.1.zstd.run \
+    https://download.stereolabs.com/zedsdk/5.5/l4t39.2/jetsons
+chmod +x ~/Downloads/ZED_SDK_Tegra_L4T39.2_v5.5.1.zstd.run
+./Downloads/ZED_SDK_Tegra_L4T39.2_v5.5.1.zstd.run   # AI module: yes
 #+END_SRC
