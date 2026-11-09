@@ -47,7 +47,7 @@ add_library(rgpio_client STATIC
   ${lg_SOURCE_DIR}/lgDbg.c
   ${lg_SOURCE_DIR}/lgMD5.c)
 target_include_directories(rgpio_client PUBLIC ${lg_SOURCE_DIR} PRIVATE ${rgpio_shim})
-target_compile_options(rgpio_client PRIVATE -w -include ${rgpio_shim}/portability.h)
+target_compile_options(rgpio_client PRIVATE -std=gnu17 -w -include ${rgpio_shim}/portability.h)
 set_target_properties(rgpio_client PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_executable(rgpio_pwm_dir_motor_driver src/rgpio_pwm_dir_motor_driver.cpp)
@@ -84,12 +84,10 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     add_compile_options(-Wall -Wextra)
   endif()
 
-  find_package(rclcpp REQUIRED)
   find_package(rclcpp_components REQUIRED)
-  find_package(robot_platform_msgs REQUIRED)
   find_package(ament_index_cpp REQUIRED)
   find_package(sensor_msgs REQUIRED)
-  find_package(OpenCV REQUIRED)
+  find_package(OpenCV REQUIRED COMPONENTS imgcodecs imgproc)
 
   find_path(GPIOD_INCLUDE_DIR gpiod.h PATHS /usr/include REQUIRED)
   find_library(GPIOD_LIBRARY gpiod PATHS /usr/lib/aarch64-linux-gnu /usr/lib REQUIRED)
@@ -121,13 +119,13 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
 
   add_library(orbbec_camera_component SHARED src/orbbec_gemini_335l.cpp)
   target_compile_features(orbbec_camera_component PUBLIC cxx_std_17)
-  target_include_directories(orbbec_camera_component PRIVATE ${OpenCV_INCLUDE_DIRS})
   target_link_libraries(orbbec_camera_component
     ob::OrbbecSDK
     ament_index_cpp::ament_index_cpp
     rclcpp::rclcpp
     rclcpp_components::component
-    ${OpenCV_LIBS}
+    opencv_imgcodecs
+    opencv_imgproc
     ${sensor_msgs_TARGETS})
   rclcpp_components_register_node(orbbec_camera_component
     PLUGIN "robot_drivers::OrbbecCamera"
@@ -151,12 +149,12 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
 
   add_executable(oak_d_pro_w_poe_spatial src/oak_d_pro_w_poe_spatial.cpp)
   target_compile_features(oak_d_pro_w_poe_spatial PUBLIC cxx_std_17)
-  target_include_directories(oak_d_pro_w_poe_spatial PRIVATE ${OpenCV_INCLUDE_DIRS})
   target_link_libraries(oak_d_pro_w_poe_spatial
     depthai::core
     Threads::Threads
     rclcpp::rclcpp
-    ${OpenCV_LIBS}
+    opencv_imgcodecs
+    opencv_imgproc
     ${sensor_msgs_TARGETS}
     ${vision_msgs_TARGETS}
     ${geometry_msgs_TARGETS}
