@@ -21,6 +21,7 @@
   <build_depend>sensor_msgs</build_depend>
 
   <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>robot_platform_msgs</exec_depend>

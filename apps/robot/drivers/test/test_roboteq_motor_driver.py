@@ -18,6 +18,7 @@ import math
 
 import pytest
 from rclpy.duration import Duration
+from std_srvs.srv import Trigger
 
 from robot_platform_msgs.msg import Drive
 
@@ -107,7 +108,7 @@ def test_full_scale_wheel_speed_overrides_controller_scaling(
         control_mode='open_loop', max_wheel_speed=None,
         full_scale_wheel_speed=10.0)
     node.on_drive(command(Drive.MODE_VELOCITY, [5.0, -20.0]))
-    assert b'~MXRPM\r' not in port.written
+    assert node.full_scale_wheel_speeds == [10.0, 10.0]
     assert b'!G 1 500\r' in port.written
     assert b'!G 2 -1000\r' in port.written
 
@@ -266,7 +267,7 @@ def test_diagnostics_report_volts_amps_and_loop_error(make_roboteq_driver):
     node.feedback_tick = node.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1
     port.read_queue = list(IDLE_FAST_REPLIES) + list(SLOW_REPLIES)
     node.publish_feedback()
-    controller, channel_1, channel_2 = diagnostics[0].status
+    controller, channel_1, channel_2, _configuration = diagnostics[0].status
     values = {entry.key: entry.value for entry in controller.values}
     assert values['battery_volts'] == '24.6'
     assert values['internal_volts'] == '13.5'
@@ -297,6 +298,39 @@ def test_power_stage_off_warns_on_controller_status(make_roboteq_driver):
     controller = diagnostics[0].status[0]
     assert controller.level == controller.WARN
     assert 'power stage off' in controller.message
+
+
+def test_configuration_snapshot_reads_at_connect(make_roboteq_driver):
+    node, port = make_roboteq_driver(
+        connect_replies=[b'TRN=SBLMG2360T\r', b'FID=v3.0d\r', b'MMOD=5:5\r'])
+    assert b'~MMOD\r' in port.written
+    assert node.configuration_snapshot['MMOD'] == '5:5'
+    assert node.configuration_snapshot['ALIM'] == 'unavailable'
+
+
+def test_refresh_configuration_service_rereads(make_roboteq_driver):
+    node, port = make_roboteq_driver()
+    port.read_queue = [b'MMOD=5:5\r', b'ALIM=450:450\r']
+    response = node.on_refresh_configuration(None, Trigger.Response())
+    assert response.success
+    assert node.configuration_snapshot['MMOD'] == '5:5'
+    assert node.configuration_snapshot['ALIM'] == '450:450'
+    assert response.message.startswith('2/')
+
+
+def test_diagnostics_include_configuration_snapshot(make_roboteq_driver):
+    node, port = make_roboteq_driver(
+        connect_replies=[b'TRN=SBLMG2360T\r', b'FID=v3.0d\r', b'MMOD=5:5\r'])
+    capture(node)
+    diagnostics = capture_diagnostics(node)
+    node.feedback_tick = node.FEEDBACK_TICKS_PER_SLOW_TELEMETRY_READ - 1
+    port.read_queue = list(IDLE_FAST_REPLIES) + list(SLOW_REPLIES)
+    node.publish_feedback()
+    configuration = diagnostics[0].status[3]
+    assert configuration.name == 'roboteq: configuration'
+    values = {entry.key: entry.value for entry in configuration.values}
+    assert values['MMOD'] == '5:5'
+    assert values['ALIM'] == 'unavailable'
 
 
 def test_short_temperature_reply_warns_instead_of_crashing(make_roboteq_driver):

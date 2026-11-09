@@ -33,6 +33,7 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 import serial
 from std_msgs.msg import Header
+from std_srvs.srv import Trigger
 
 from robot_platform_msgs.msg import Drive, Feedback
 
@@ -46,6 +47,12 @@ QUERY_READ_ATTEMPTS = 5
 DECI_PER_UNIT = 10.0
 
 MILLI_PER_UNIT = 1000.0
+
+CONFIGURATION_CODES = (
+    'MMOD', 'ALIM', 'ATRIG', 'ATGD', 'ATGA', 'THLD', 'MXPF', 'MXPR',
+    'MAC', 'MDEC', 'MXRPM', 'MNRPM', 'TNM', 'NOMA', 'TPAL',
+    'KPF', 'KIF', 'KPG', 'KIG', 'KDG', 'KP', 'KI', 'KD', 'BLFB',
+    'MDIR', 'PMOD', 'PINA', 'PPOL', 'PMIN', 'PMAX', 'RWD', 'OVL', 'UVL')
 
 FAULT_BIT_NAMES = {
     0: 'overheat',
@@ -206,6 +213,30 @@ class RoboteqMotorDriver(Node):
             Feedback, 'platform/motors/feedback', qos_profile_sensor_data)
         self.feedback_timer = self.create_timer(
             1.0 / FEEDBACK_RATE_HZ, self.publish_feedback)
+
+        self.configuration_snapshot = {}
+        self.read_configuration_snapshot()
+        self.refresh_configuration_service = self.create_service(
+            Trigger, 'platform/motors/refresh_configuration',
+            self.on_refresh_configuration)
+
+    def read_configuration_snapshot(self):
+        for code in CONFIGURATION_CODES:
+            try:
+                values = self.bus.query_configuration(code)
+                self.configuration_snapshot[code] = ':'.join(
+                    str(value) for value in values)
+            except (TimeoutError, ValueError):
+                self.configuration_snapshot.setdefault(code, 'unavailable')
+
+    def on_refresh_configuration(self, request, response):
+        self.read_configuration_snapshot()
+        read = sum(
+            1 for value in self.configuration_snapshot.values()
+            if value != 'unavailable')
+        response.success = read > 0
+        response.message = f'{read}/{len(CONFIGURATION_CODES)} values read'
+        return response
 
     def read_flash_value(self, declaration):
         code, *arguments = declaration
@@ -381,9 +412,17 @@ class RoboteqMotorDriver(Node):
                     KeyValue(key='bridge_temperature',
                              value=str(self.bridge_temperatures[index])),
                 ]))
+        configuration = DiagnosticStatus(
+            name='roboteq: configuration',
+            level=DiagnosticStatus.OK,
+            message='ok',
+            values=[
+                KeyValue(key=code, value=self.configuration_snapshot[code])
+                for code in CONFIGURATION_CODES
+            ])
         self.diagnostics_publisher.publish(DiagnosticArray(
             header=Header(stamp=stamp),
-            status=[controller, *channels]))
+            status=[controller, *channels, configuration]))
 
     def publish_feedback(self):
         now = self.get_clock().now()
