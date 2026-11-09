@@ -46,7 +46,11 @@ constexpr double LABEL_MARGIN_PIXELS = 8.0;
 constexpr double LABEL_FONT_SIZE = 18.0;
 constexpr double BOX_THICKNESS = 2.0;
 constexpr char MILLIMETER_DEPTH_ENCODING[] = "16UC1";
+constexpr char MONO16_DEPTH_ENCODING[] = "mono16";
 constexpr char METER_DEPTH_ENCODING[] = "32FC1";
+constexpr char RGB_COLOR_ENCODING[] = "rgb8";
+constexpr char BGR_COLOR_ENCODING[] = "bgr8";
+constexpr char BGRA_COLOR_ENCODING[] = "bgra8";
 constexpr std::string_view COMPRESSED_TOPIC_SUFFIX = "/compressed";
 
 foxglove_msgs::msg::Color make_color(float red, float green, float blue, float alpha)
@@ -197,7 +201,9 @@ private:
 
   void on_depth(sensor_msgs::msg::Image::ConstSharedPtr message)
   {
-    if (message->encoding == MILLIMETER_DEPTH_ENCODING) {
+    if (message->encoding == MILLIMETER_DEPTH_ENCODING ||
+      message->encoding == MONO16_DEPTH_ENCODING)
+    {
       cv::Mat depth(
         message->height, message->width, CV_16UC1,
         const_cast<uint8_t *>(message->data.data()), message->step);
@@ -216,8 +222,9 @@ private:
     } else {
       RCLCPP_WARN_THROTTLE(
         get_logger(), *get_clock(), 5000,
-        "expected %s or %s depth, got %s",
-        MILLIMETER_DEPTH_ENCODING, METER_DEPTH_ENCODING, message->encoding.c_str());
+        "expected %s, %s or %s depth, got %s",
+        MILLIMETER_DEPTH_ENCODING, MONO16_DEPTH_ENCODING, METER_DEPTH_ENCODING,
+        message->encoding.c_str());
       return;
     }
     latest_depth_time_ = now();
@@ -267,11 +274,30 @@ private:
     if (!claim_detection_slot()) {
       return;
     }
-    const cv::Mat bgr(
-      message->height, message->width, CV_8UC3,
-      const_cast<uint8_t *>(message->data.data()), message->step);
     cv::Mat rgb;
-    cv::cvtColor(bgr, rgb, cv::COLOR_BGR2RGB);
+    if (message->encoding == BGRA_COLOR_ENCODING) {
+      const cv::Mat bgra(
+        message->height, message->width, CV_8UC4,
+        const_cast<uint8_t *>(message->data.data()), message->step);
+      cv::cvtColor(bgra, rgb, cv::COLOR_BGRA2RGB);
+    } else if (message->encoding == RGB_COLOR_ENCODING) {
+      const cv::Mat source(
+        message->height, message->width, CV_8UC3,
+        const_cast<uint8_t *>(message->data.data()), message->step);
+      rgb = source.clone();
+    } else if (message->encoding == BGR_COLOR_ENCODING) {
+      const cv::Mat bgr(
+        message->height, message->width, CV_8UC3,
+        const_cast<uint8_t *>(message->data.data()), message->step);
+      cv::cvtColor(bgr, rgb, cv::COLOR_BGR2RGB);
+    } else {
+      RCLCPP_WARN_THROTTLE(
+        get_logger(), *get_clock(), 5000,
+        "expected %s, %s or %s color, got %s",
+        BGRA_COLOR_ENCODING, RGB_COLOR_ENCODING, BGR_COLOR_ENCODING,
+        message->encoding.c_str());
+      return;
+    }
     detect(rgb, message->header.stamp);
   }
 
