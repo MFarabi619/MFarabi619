@@ -1,7 +1,7 @@
-serial_number: mark-3
+serial_number: mark-5
 version: 1
 system:
-  namespace: robot3
+  namespace: beagleyai
   hosts:
     - hostname: beagleyai
       ip: &host 10.0.0.222
@@ -34,6 +34,20 @@ platform:
   #   pwm_frequency_hz: 20000.0
   #   left:  {pwm_pin: 38, dir_pin: 36, forward_level: true}   # PWM1 / DIR1
   #   right: {pwm_pin: 32, dir_pin: 31, forward_level: false}  # PWM2 / DIR2
+  # Parked SVD48V bench (ex machines/svd48v, mark-6): replace drivetrain with
+  #   model: svd48v
+  #   max_linear_velocity_meters_per_second: 1.0
+  #   serial_port: /dev/ttyUSB0
+  #   baud_rate: 115200
+  #   acceleration_rpm_per_second: 1000
+  #   speed_smoothing_time: 50
+  #   left:  {reversed: false}
+  #   right: {reversed: false}
+  # Parked ODrive bench (ex machines/odrive, mark-5): replace drivetrain with
+  #   model: odrive_usb
+  #   gear_ratio: 8.0
+  #   left:  {serial: 9779026C334D, reversed: true}
+  #   right: {serial: 7442026C334D, reversed: false}
 sensors:
   camera:
     - model: orbbec_gemini_335l

@@ -1,5 +1,6 @@
 use oxidros::prelude::*;
-use robot::config::{robot3_config, robot3_drivetrain};
+use robot::config::{beagleyai_config, beagleyai_drivetrain};
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -9,11 +10,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     init_ros_logging("base_controller");
     let context = Context::new()?;
 
-    let drivetrain = robot3_drivetrain(robot::robot3_chip()?)?;
+    let drivetrain = beagleyai_drivetrain(robot::beagleyai_chip()?)?;
 
     #[cfg(feature = "perception")]
     robot::spawn_perception(&context)?;
 
     let driver_node = context.create_node("base_controller", None)?;
-    robot::run_driver(driver_node, drivetrain, robot3_config()).await
+    robot::run_driver(driver_node, drivetrain, beagleyai_config()).await
 }

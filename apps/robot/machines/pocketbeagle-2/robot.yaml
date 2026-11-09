@@ -1,7 +1,7 @@
-serial_number: mark-4
+serial_number: mark-6
 version: 1
 system:
-  namespace: robot4
+  namespace: pocketbeagle_2
   hosts:
     - hostname: pocketbeagle-2
       ip: 100.74.213.30

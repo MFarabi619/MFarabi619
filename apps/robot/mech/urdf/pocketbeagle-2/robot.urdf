@@ -11,11 +11,11 @@
   <link name="front_right_caster_link">
   </link>
   <link name="chassis">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot2/chassis.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/pocketbeagle-2/chassis.dae"/></geometry></visual>
     <collision><origin xyz="0 0 0.2873"/><geometry><box size="1.2192 1.0000 0.0254"/></geometry></collision>
   </link>
   <link name="rear_left_mount_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot2/rear_left_mount_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/pocketbeagle-2/rear_left_mount_link.dae"/></geometry></visual>
     <inertial>
       <origin xyz="-0.0091 0.0135 -0.0392"/>
       <mass value="0.2518"/>
@@ -23,10 +23,10 @@
     </inertial>
   </link>
   <link name="rear_left_motor_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot2/rear_left_motor_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/pocketbeagle-2/rear_left_motor_link.dae"/></geometry></visual>
   </link>
   <link name="rear_left_wheel_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot2/rear_left_wheel_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/pocketbeagle-2/rear_left_wheel_link.dae"/></geometry></visual>
     <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
     <inertial>
       <origin xyz="0.0000 0.0000 -0.0000"/>
@@ -35,7 +35,7 @@
     </inertial>
   </link>
   <link name="rear_right_mount_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot2/rear_right_mount_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/pocketbeagle-2/rear_right_mount_link.dae"/></geometry></visual>
     <inertial>
       <origin xyz="-0.0091 -0.0135 -0.0392"/>
       <mass value="0.2518"/>
@@ -43,10 +43,10 @@
     </inertial>
   </link>
   <link name="rear_right_motor_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot2/rear_right_motor_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/pocketbeagle-2/rear_right_motor_link.dae"/></geometry></visual>
   </link>
   <link name="rear_right_wheel_link">
-    <visual><geometry><mesh filename="package://robot_description/meshes/robot2/rear_right_wheel_link.dae"/></geometry></visual>
+    <visual><geometry><mesh filename="package://robot_description/meshes/pocketbeagle-2/rear_right_wheel_link.dae"/></geometry></visual>
     <collision><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.1749" length="0.1000"/></geometry></collision>
     <inertial>
       <origin xyz="0.0000 -0.0000 -0.0000"/>
@@ -128,20 +128,6 @@
     <child link="rear_right_wheel_link"/>
     <origin xyz="0.0000 -0.0450 0.0000" rpy="0.0000 0.0000 0.0000"/>
     <axis xyz="0.0 1.0 0.0"/>
-  </joint>
-
-  <link name="camera_0_link"/>
-  <joint name="camera_0_link_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_0_link"/>
-    <origin xyz="0.0000 0.0000 0.1000" rpy="0.0000 0.0000 0.0000"/>
-  </joint>
-
-  <link name="camera_0_color_optical_frame"/>
-  <joint name="camera_0_color_optical_frame_joint" type="fixed">
-    <parent link="camera_0_link"/>
-    <child link="camera_0_color_optical_frame"/>
-    <origin xyz="0.0000 0.0000 0.0000" rpy="-1.5708 0.0000 -1.5708"/>
   </joint>
 
   <ros2_control name="DiffDriveHardware" type="system">

@@ -91,6 +91,8 @@ pub struct CameraSensor {
     pub model: String,
     #[serde(default = "enabled_by_default")]
     pub launch_enabled: bool,
+    #[serde(default = "enabled_by_default")]
+    pub urdf_enabled: bool,
     pub parent: String,
     #[serde(default)]
     pub xyz: [f64; 3],

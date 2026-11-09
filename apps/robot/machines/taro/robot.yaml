@@ -1,4 +1,4 @@
-serial_number: mark-0
+serial_number: mark-1
 version: 1
 system:
   namespace: taro
@@ -32,7 +32,7 @@ platform:
         PMIN: {7: 0, 8: 0}        # microseconds mapped to full reverse
         PMAX: {7: 3000, 8: 3000}  # with PMIN as a pair, symmetric around 1500; stick spans 1000-2000:
                                   # PMIN/PMAX 0/3000 = 33%, 500/2500 = 50%, 750/2250 = 57%, 1000/2000 = 100%
-        MDIR: {1: 1, 2: 1}        # 1 = inverted
+        MDIR: {1: 0, 2: 0}        # 0 = direct
         MMOD: {1: 0, 2: 0}        # 0 = open loop
         ALIM: {1: 300, 2: 300}    # deciamps
         RWD: 1000                 # serial watchdog ms: RC takes over after 1 s of ROS silence

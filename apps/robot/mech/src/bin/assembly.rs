@@ -15,7 +15,7 @@ fn camera_center_mm(robot_config: &config::RobotConfig) -> Option<DVec3> {
         .sensors
         .camera
         .iter()
-        .find(|camera| camera.launch_enabled)
+        .find(|camera| camera.launch_enabled && camera.urdf_enabled)
         .map(|camera| DVec3::from_array(camera.xyz) / MM_TO_M)
 }
 
@@ -55,9 +55,20 @@ fn main() -> Result<(), Box<dyn Error>> {
         if machine_yaml.get("arm").is_some() {
             continue;
         }
-        let robot_dimensions = dimensions::for_robot(robot_name).ok_or_else(|| {
-            format!("machines/{robot_name} has no entry in mech/src/dimensions.rs")
-        })?;
+        let vendor_urdf = package_directory
+            .join("urdf")
+            .join(robot_name)
+            .join("robot.urdf");
+        let robot_dimensions = match dimensions::for_robot(robot_name) {
+            Some(dimensions) => dimensions,
+            None if vendor_urdf.is_file() => continue,
+            None => {
+                return Err(format!(
+                    "machines/{robot_name} has no entry in mech/src/dimensions.rs"
+                )
+                .into())
+            }
+        };
         let robot_config =
             config::load(&robot_root.join(format!("machines/{robot_name}/robot.yaml")))?;
         let camera_center_mm = camera_center_mm(&robot_config);
