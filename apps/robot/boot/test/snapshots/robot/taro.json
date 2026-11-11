@@ -1,0 +1,524 @@
+{
+  "environment": {
+    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[robot/taro] (call)",
+    "ZENOH_CONFIG_OVERRIDE": "mode=\"client\""
+  },
+  "events": [
+    {
+      "env": {
+        "ZENOH_CONFIG_OVERRIDE": "mode=\"router\""
+      },
+      "executable": "rmw_zenohd",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "zenoh_router",
+      "namespace": "/",
+      "package": "rmw_zenoh_cpp",
+      "raw": true,
+      "respawn_delay": 2.0,
+      "ros_waittime": null
+    },
+    {
+      "group": "taro",
+      "kind": "group",
+      "namespace": "/taro",
+      "use_sim_time": null
+    },
+    {
+      "anonymous": false,
+      "executable": "robot_state_publisher",
+      "kind": "node",
+      "name": "robot_state_publisher",
+      "namespace": "/taro",
+      "package": "robot_state_publisher",
+      "params": {
+        "robot_description": "mech/urdf/taro/robot.urdf"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "xacro_args": null
+    },
+    {
+      "executable": "roboteq_motor_driver",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": null,
+      "namespace": "/taro",
+      "package": "robot_drivers",
+      "params": {
+        "baud_rate": 115200,
+        "control_mode": "open_loop",
+        "counts_per_revolution": 90,
+        "flash": [
+          "PMOD 7 1",
+          "PMOD 8 1",
+          "PINA 7 17",
+          "PINA 8 33",
+          "PPOL 7 0",
+          "PPOL 8 1",
+          "PMIN 7 0",
+          "PMIN 8 0",
+          "PMAX 7 3000",
+          "PMAX 8 3000",
+          "MDIR 1 0",
+          "MDIR 2 0",
+          "MMOD 1 0",
+          "MMOD 2 0",
+          "ALIM 1 300",
+          "ALIM 2 300",
+          "RWD 1000"
+        ],
+        "full_scale_wheel_speed": 11.435105774728417,
+        "left_reversed": false,
+        "right_reversed": true,
+        "serial_port": "/dev/serial/by-id/usb-RoboteQ_RoboteQ_SBLMG2360T_GwBAABhQRUhMNTIg_207235674845-if00"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "ros2_control_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "controller_manager",
+      "namespace": "/taro",
+      "on_exit": "<callable spawn_controllers>",
+      "package": "controller_manager",
+      "param_files": [
+        "control/config/control.yaml",
+        {
+          "tempfile": {
+            "/**/diff_drive_controller": {
+              "ros__parameters": {
+                "angular.z.max_acceleration": 7.5,
+                "linear.x.max_acceleration": 5.0,
+                "wheel_radius": 0.1749,
+                "wheel_separation": 1.1704
+              }
+            }
+          }
+        }
+      ],
+      "remap_qualifier": "controller_manager",
+      "remaps": {
+        "~/robot_description": "robot_description"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "cmd_args": [
+        "joint_state_broadcaster",
+        "diff_drive_controller",
+        "--param-file",
+        "control/config/control.yaml",
+        "--param-file",
+        {
+          "tempfile": {
+            "/**/diff_drive_controller": {
+              "ros__parameters": {
+                "angular.z.max_acceleration": 7.5,
+                "linear.x.max_acceleration": 5.0,
+                "wheel_radius": 0.1749,
+                "wheel_separation": 1.1704
+              }
+            }
+          }
+        },
+        "--controller-manager-timeout",
+        "60",
+        "--controller-ros-args",
+        "-r ~/cmd_vel:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static"
+      ],
+      "executable": "spawner",
+      "kind": "node",
+      "name": "controller_spawner",
+      "namespace": "/taro",
+      "package": "controller_manager"
+    },
+    {
+      "executable": "twist_mux",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "twist_mux",
+      "namespace": "/taro",
+      "package": "twist_mux",
+      "param_files": [
+        "control/config/twist_mux.yaml"
+      ],
+      "remaps": {
+        "cmd_vel_out": "platform/cmd_vel"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "foxglove_bridge",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "foxglove_bridge",
+      "namespace": "/taro",
+      "package": "foxglove_bridge",
+      "params": {
+        "best_effort_qos_topic_whitelist": [
+          "/taro/sensors/camera_[0-9]+/.*"
+        ],
+        "max_qos_depth": 5,
+        "send_buffer_limit": 20000000,
+        "topic_whitelist": [
+          "/taro/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$",
+          "/taro/sensors/camera_[0-9]+/depth/image_view(/compressed)?$",
+          "/taro/sensors/camera_[0-9]+/(color|depth)/camera_info$",
+          "/taro/sensors/camera_[0-9]+/depth/points$",
+          "/taro/sensors/camera_[0-9]+/scan$",
+          "/taro/sensors/(gps|imu)_[0-9]+/.*",
+          "/taro/perception/.*",
+          "/taro/platform/.*",
+          "/taro/joy_teleop/cmd_vel$",
+          "/taro/tf(_static)?$",
+          "/taro/map$",
+          "/taro/local_costmap/costmap$",
+          "/taro/plan$",
+          "/taro/slam_toolbox/.*",
+          "/taro/diagnostics.*",
+          "/taro/robot_description$"
+        ]
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "aggregator_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "diagnostic_aggregator",
+      "namespace": "/taro",
+      "package": "diagnostic_aggregator",
+      "param_files": [
+        "boot/config/diagnostic_aggregator.yaml"
+      ],
+      "respawn_delay": 2.0
+    },
+    {
+      "argv": [
+        "<python>",
+        "drivers/src/ublox_flash.py",
+        "--port",
+        "/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00",
+        "CFG_RATE_MEAS=200",
+        "CFG_RATE_NAV=1"
+      ],
+      "kind": "subprocess",
+      "namespace": "/taro"
+    },
+    {
+      "executable": "nmea_serial_driver",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "nmea_navsat_driver",
+      "namespace": "/taro",
+      "package": "nmea_navsat_driver",
+      "params": {
+        "baud": 115200,
+        "frame_id": "gps_link",
+        "port": "/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00"
+      },
+      "remaps": {
+        "fix": "sensors/gps_0/fix",
+        "heading": "sensors/gps_0/heading",
+        "time_reference": "sensors/gps_0/time_reference",
+        "vel": "sensors/gps_0/vel"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "cmd": "gnssntripclient --server rtk2go.com --ntripversion 1.0 --mountpoint OsgoodeFarms --ntripuser farabi@tandemrobotics.ca --ntrippassword none --clioutput 2 --output /dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00@115200",
+      "kind": "process",
+      "max_respawns": -1,
+      "name": "ntrip_client",
+      "namespace": "/taro",
+      "respawn_delay": 10.0
+    },
+    {
+      "executable": "ekf_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "ekf_global",
+      "namespace": "/taro",
+      "package": "robot_localization",
+      "param_files": [
+        "control/config/localization.yaml"
+      ],
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "navsat_transform_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "navsat_transform",
+      "namespace": "/taro",
+      "package": "robot_localization",
+      "param_files": [
+        "control/config/localization.yaml"
+      ],
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static",
+        "gps/filtered": "sensors/gps_0/filtered",
+        "gps/fix": "sensors/gps_0/fix"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "orbbec_gemini_335l",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "orbbec_gemini_335l",
+      "namespace": "/taro",
+      "package": "robot_drivers",
+      "params": {
+        "color_fps": 30,
+        "color_height": 480,
+        "color_width": 640,
+        "depth_decimation": 2,
+        "depth_fps": 15,
+        "depth_height": 480,
+        "depth_width": 848,
+        "enable_depth": true
+      },
+      "remaps": {
+        "color/camera_info": "sensors/camera_0/color/camera_info",
+        "color/image_raw": "sensors/camera_0/color/image_raw",
+        "color/image_raw/compressed": "sensors/camera_0/color/image_raw/compressed",
+        "depth/camera_info": "sensors/camera_0/depth/camera_info",
+        "depth/image_raw": "sensors/camera_0/depth/image_raw",
+        "depth/image_raw/compressed": "sensors/camera_0/depth/image_raw/compressed"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "point_cloud_xyz_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "depth_to_pointcloud",
+      "namespace": "/taro",
+      "package": "depth_image_proc",
+      "remaps": {
+        "camera_info": "sensors/camera_0/depth/camera_info",
+        "image_rect": "sensors/camera_0/depth/image_raw",
+        "points": "sensors/camera_0/depth/points"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "pointcloud_to_laserscan_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "pointcloud_to_laserscan",
+      "namespace": "/taro",
+      "package": "pointcloud_to_laserscan",
+      "params": {
+        "max_height": 0.5,
+        "min_height": 0.1,
+        "range_max": 8.0,
+        "range_min": 0.25,
+        "scan_time": 0.06666666666666667,
+        "target_frame": "base_link"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static",
+        "cloud_in": "sensors/camera_0/depth/points",
+        "scan": "sensors/camera_0/scan"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "collision_overlay",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "collision_overlay",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
+        "cloud_topic": "sensors/camera_0/depth/points",
+        "overlay_topic": "perception/collision/overlay"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "person_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_detector",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
+        "depth_topic": "sensors/camera_0/depth/image_raw",
+        "image_topic": "sensors/camera_0/color/image_raw",
+        "max_detections_per_second": 10.0,
+        "min_score": 0.3
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "approach",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_follow",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "command_smoothing_seconds": 0.3,
+        "distance_damping": 0.4,
+        "distance_deadband": 0.25,
+        "distance_gain": 0.9,
+        "max_angular_speed": 0.7,
+        "max_backward_speed": 0.7,
+        "max_forward_speed": 0.7,
+        "max_missing_frames": 24,
+        "standoff_distance": 1.5,
+        "start_enabled": false,
+        "steer_damping": 0.7,
+        "steer_deadband": 0.15,
+        "steer_gain": 0.5
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "canopy_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "canopy_detector",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "fraction_topic": "perception/canopy/fraction",
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "mask_topic": "perception/canopy/mask/compressed",
+        "normalize_exposure": true,
+        "normalized_excess_green_min": 0.06
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "harvest_lane_navigator",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "harvest_lane_navigator",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "camera_height_m": 0.4426,
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
+        "camera_lateral_offset_m": 0.475,
+        "depth_topic": "sensors/camera_0/depth/image_raw",
+        "forward_speed_mps": 0.3,
+        "mask_topic": "perception/canopy/mask/compressed",
+        "max_angular_speed_radps": 0.55,
+        "max_forward_speed_mps": 0.5,
+        "odom_topic": "diff_drive_controller/odom",
+        "row_pitch_m": 1.17,
+        "start_enabled": false
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "kind": "wait_for_service",
+      "namespace": "/taro",
+      "service": "/taro/fromLL",
+      "timeout": 120.0
+    },
+    {
+      "executable": "controller_server",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "controller_server",
+      "namespace": "/taro",
+      "package": "nav2_controller",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml"
+      ],
+      "params": {
+        "FollowPath.desired_linear_vel": 0.7
+      },
+      "remaps": {
+        "/taro/local_costmap/sensors/camera_0/scan": "/taro/sensors/camera_0/scan",
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "planner_server",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "planner_server",
+      "namespace": "/taro",
+      "package": "nav2_planner",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml"
+      ],
+      "params": {},
+      "remaps": {
+        "/taro/global_costmap/sensors/camera_0/scan": "/taro/sensors/camera_0/scan",
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "bt_navigator",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "bt_navigator",
+      "namespace": "/taro",
+      "package": "nav2_bt_navigator",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml"
+      ],
+      "params": {
+        "default_nav_to_pose_bt_xml": "navigation/config/navigate_to_pose.xml"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "waypoint_follower",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "waypoint_follower",
+      "namespace": "/taro",
+      "package": "nav2_waypoint_follower",
+      "param_files": [
+        "navigation/config/gps_navigation.yaml"
+      ],
+      "params": {},
+      "remaps": {
+        "/fromLL": "fromLL",
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    }
+  ],
+  "launch": {
+    "arguments": {
+      "name": "taro"
+    },
+    "file": "boot/launch/robot.launch.py",
+    "function": "robot",
+    "launch_this": {}
+  }
+}

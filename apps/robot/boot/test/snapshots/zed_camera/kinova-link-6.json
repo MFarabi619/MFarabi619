@@ -1,0 +1,340 @@
+{
+  "environment": {
+    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[zed_camera/kinova-link-6] (call)"
+  },
+  "events": [
+    {
+      "kind": "compose",
+      "language": "cpp",
+      "name": "camera_0_container",
+      "namespace": "/",
+      "variant": "multithreading"
+    },
+    {
+      "container": "camera_0_container",
+      "kind": "component",
+      "name": "camera_0",
+      "namespace": "/",
+      "package": "zed_components",
+      "params": {
+        "advanced": {
+          "change_thread_priority": false,
+          "thread_grab_priority": 50,
+          "thread_pointcloud_priority": 60,
+          "thread_sched_policy": "SCHED_BATCH",
+          "thread_sensor_priority": 70
+        },
+        "body_tracking": {
+          "allow_reduced_precision_inference": false,
+          "body_format": "BODY_34",
+          "body_kp_selection": "FULL",
+          "bt_enabled": false,
+          "confidence_threshold": 50.0,
+          "enable_body_fitting": true,
+          "enable_tracking": true,
+          "max_range": 15.0,
+          "minimum_keypoints_threshold": 5,
+          "model": "HUMAN_BODY_MEDIUM",
+          "model_gen": "GEN_2",
+          "prediction_timeout_s": 0.5
+        },
+        "debug": {
+          "debug_advanced": false,
+          "debug_body_tracking": false,
+          "debug_camera_controls": false,
+          "debug_common": false,
+          "debug_dyn_params": false,
+          "debug_gnss": false,
+          "debug_grab": false,
+          "debug_mapping": false,
+          "debug_nitros": false,
+          "debug_object_detection": false,
+          "debug_point_cloud": false,
+          "debug_positional_tracking": false,
+          "debug_roi": false,
+          "debug_sensors": false,
+          "debug_sim": false,
+          "debug_streaming": false,
+          "debug_terrain_mapping": false,
+          "debug_tf": false,
+          "debug_video_depth": false,
+          "disable_nitros": false,
+          "sdk_verbose": 1,
+          "sdk_verbose_log_file": "",
+          "use_pub_timestamps": false
+        },
+        "depth": {
+          "allow_depth_cuda_graph": false,
+          "depth_confidence": 95,
+          "depth_mode": "NEURAL_PLUS",
+          "depth_precision": "FP16",
+          "depth_stabilization": -1,
+          "depth_texture_conf": 100,
+          "max_depth": 15.0,
+          "min_depth": 0.01,
+          "openni_depth_mode": true,
+          "point_cloud_freq": 15.0,
+          "point_cloud_res": "COMPACT",
+          "publish_depth_confidence": false,
+          "publish_depth_image": true,
+          "publish_depth_info": false,
+          "publish_depth_map": true,
+          "publish_disparity": false,
+          "publish_point_cloud": true,
+          "remove_saturated_areas": true,
+          "voxel_point_cloud": false,
+          "voxel_resolution_mode": "STEREO_UNCERTAINTY",
+          "voxel_resolution_scale": 0.2,
+          "voxel_size_mm": -1.0
+        },
+        "general": {
+          "async_image_retrieval": false,
+          "buffer_backend": "cuda",
+          "camera_flip": false,
+          "camera_max_reconnect": 5,
+          "camera_model": "zed2",
+          "camera_name": "camera_0",
+          "camera_timeout_sec": 5,
+          "enable_image_validity_check": 1,
+          "gpu_id": -1,
+          "grab_compute_capping_fps": 0.0,
+          "grab_frame_rate": 30,
+          "grab_resolution": "HD720",
+          "max_system_clock_step_ms": 4.0,
+          "optional_opencv_calibration_file": "",
+          "pub_downscale_factor": 2.0,
+          "pub_frame_rate": 0.0,
+          "pub_resolution": "NATIVE",
+          "publish_status": true,
+          "sdk_timestamp_clock": "SYSTEM_CLOCK",
+          "sdk_use_monotonic_clock": false,
+          "self_calib": true,
+          "serial_number": 0,
+          "timestamp_reference": "IMAGE"
+        },
+        "gnss_fusion": {
+          "broadcast_utm_transform_as_parent_frame": false,
+          "enable_reinitialization": false,
+          "enable_rolling_calibration": true,
+          "enable_translation_uncertainty_target": false,
+          "gnss_fix_topic": "/fix",
+          "gnss_fusion_enabled": false,
+          "gnss_vio_reinit_threshold": 5.0,
+          "gnss_zero_altitude": false,
+          "h_covariance_mul": 1.0,
+          "publish_utm_tf": true,
+          "target_translation_uncertainty": 0.1,
+          "target_yaw_uncertainty": 0.1,
+          "v_covariance_mul": 1.0
+        },
+        "mapping": {
+          "clicked_point_topic": "/clicked_point",
+          "fused_pointcloud_freq": 1.0,
+          "mapping_enabled": false,
+          "max_mapping_range": 5.0,
+          "pd_max_distance_threshold": 0.15,
+          "pd_normal_similarity_threshold": 15.0,
+          "publish_det_plane": false,
+          "resolution": 0.05
+        },
+        "object_detection": {
+          "allow_reduced_precision_inference": false,
+          "detection_model": "MULTI_CLASS_BOX_FAST",
+          "enable_tracking": true,
+          "filtering_mode": "NMS3D",
+          "max_range": 40.0,
+          "od_enabled": true,
+          "prediction_timeout": 2.0
+        },
+        "pos_tracking": {
+          "area_file_path": "",
+          "area_memory": true,
+          "compute_preference": "AUTO",
+          "depth_min_range": 0.0,
+          "enable_localization_only": false,
+          "fixed_z_value": 0.0,
+          "floor_alignment": false,
+          "imu_fusion": true,
+          "initial_base_pose": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "map_frame": "map",
+          "odometry_frame": "odom",
+          "path_max_count": -1,
+          "path_pub_rate": 2.0,
+          "pos_tracking_enabled": false,
+          "pos_tracking_mode": "AUTO",
+          "publish_3d_landmarks": false,
+          "publish_cam_path": false,
+          "publish_lm_skip_frame": 5,
+          "publish_map_tf": false,
+          "publish_odom_pose": true,
+          "publish_pose_cov": false,
+          "publish_tf": false,
+          "reset_odom_with_loop_closure": true,
+          "reset_pose_with_svo_loop": true,
+          "save_area_memory_on_closing": false,
+          "set_as_static": false,
+          "set_gravity_as_origin": true,
+          "transform_time_offset": 0.0,
+          "two_d_mode": false
+        },
+        "region_of_interest": {
+          "apply_to_body_tracking": true,
+          "apply_to_depth": true,
+          "apply_to_object_detection": true,
+          "apply_to_positional_tracking": true,
+          "apply_to_spatial_mapping": true,
+          "automatic_roi": false,
+          "depth_far_threshold_meters": 2.5,
+          "image_height_ratio_cutoff": 0.5,
+          "publish_roi_mask": false
+        },
+        "sensors": {
+          "publish_baro": false,
+          "publish_cam_imu_transf": false,
+          "publish_imu": true,
+          "publish_imu_raw": false,
+          "publish_imu_tf": false,
+          "publish_mag": false,
+          "publish_temp": false,
+          "sensors_image_sync": false,
+          "sensors_pub_rate": 100.0
+        },
+        "simulation": {
+          "sim_address": "127.0.0.1",
+          "sim_enabled": false,
+          "sim_port": 30000
+        },
+        "stream_server": {
+          "adaptative_bitrate": false,
+          "bitrate": 12500,
+          "chunk_size": 16084,
+          "codec": "H265",
+          "gop_size": -1,
+          "port": 30000,
+          "stream_enabled": false,
+          "target_framerate": 0
+        },
+        "svo": {
+          "decryption_key": "",
+          "encryption_key": "",
+          "play_from_frame": 0,
+          "publish_svo_clock": false,
+          "replay_rate": 1.0,
+          "svo_encoding_preset": "DEFAULT",
+          "svo_loop": false,
+          "svo_path": "live",
+          "svo_realtime": false,
+          "use_svo_timestamps": true
+        },
+        "use_sim_time": false,
+        "video": {
+          "auto_exposure_gain": true,
+          "auto_whitebalance": true,
+          "brightness": 4,
+          "contrast": 4,
+          "enable_24bit_output": false,
+          "exposure": 80,
+          "gain": 80,
+          "gamma": 8,
+          "hue": 0,
+          "publish_gray": false,
+          "publish_left_right": false,
+          "publish_raw": false,
+          "publish_rgb": true,
+          "publish_stereo": false,
+          "saturation": 4,
+          "sharpness": 4,
+          "whitebalance_temperature": 42
+        }
+      },
+      "plugin": "stereolabs::ZedCamera",
+      "remaps": {
+        "/tf": "/tf",
+        "/tf_static": "/tf_static",
+        "~/depth/depth_registered": "/sensors/camera_0/depth/image_raw",
+        "~/image/depth_image": "/sensors/camera_0/depth/image_view",
+        "~/imu/data": "/sensors/camera_0/imu/data",
+        "~/obj_det/objects": "/sensors/camera_0/objects",
+        "~/point_cloud/cloud_registered": "/sensors/camera_0/depth/points",
+        "~/rgb/color/rect/image": "/sensors/camera_0/color/image_raw"
+      }
+    },
+    {
+      "anonymous": true,
+      "executable": "robot_state_publisher",
+      "kind": "node",
+      "name": "camera_0_state_publisher",
+      "namespace": "/",
+      "package": "robot_state_publisher",
+      "params": {
+        "robot_description": {
+          "bytes": 43,
+          "xml_sha256": "0d122cc8aed257c1571ca4f71be72c013892d191a041f91b04b3d311bb5a8b42"
+        }
+      },
+      "remaps": {
+        "/tf": "/tf",
+        "/tf_static": "/tf_static",
+        "robot_description": "/camera_0_description"
+      },
+      "xacro_args": [
+        "camera_name:=camera_0",
+        "camera_model:=zed2"
+      ]
+    },
+    {
+      "cmd_args": [
+        "--x",
+        "1.0",
+        "--y",
+        "0.0",
+        "--z",
+        "0.5",
+        "--roll",
+        "0.0",
+        "--pitch",
+        "0.0",
+        "--yaw",
+        "3.1416",
+        "--frame-id",
+        "base_link",
+        "--child-frame-id",
+        "camera_0_camera_link"
+      ],
+      "executable": "static_transform_publisher",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "camera_0_mount_publisher",
+      "namespace": "/",
+      "package": "tf2_ros",
+      "remaps": {
+        "/tf": "/tf",
+        "/tf_static": "/tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "cmd": "python perception/src/zed_object_overlay.py --ros-args -p objects_topic:=/sensors/camera_0/objects -p detections_topic:=/detections -p overlay_topic:=/perception/vision/overlay",
+      "kind": "process",
+      "max_respawns": -1,
+      "name": "zed_object_overlay",
+      "namespace": "/",
+      "respawn_delay": 2.0
+    }
+  ],
+  "launch": {
+    "arguments": {
+      "robot": "kinova-link-6"
+    },
+    "file": "boot/launch/zed_camera.launch.py",
+    "function": "zed_camera",
+    "launch_this": {}
+  }
+}

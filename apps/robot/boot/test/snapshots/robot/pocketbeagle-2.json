@@ -1,0 +1,203 @@
+{
+  "environment": {
+    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[robot/pocketbeagle-2] (call)",
+    "ZENOH_CONFIG_OVERRIDE": "mode=\"client\""
+  },
+  "events": [
+    {
+      "env": {
+        "ZENOH_CONFIG_OVERRIDE": "mode=\"router\""
+      },
+      "executable": "rmw_zenohd",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "zenoh_router",
+      "namespace": "/",
+      "package": "rmw_zenoh_cpp",
+      "raw": true,
+      "respawn_delay": 2.0,
+      "ros_waittime": null
+    },
+    {
+      "group": "pocketbeagle_2",
+      "kind": "group",
+      "namespace": "/pocketbeagle_2",
+      "use_sim_time": null
+    },
+    {
+      "anonymous": false,
+      "executable": "robot_state_publisher",
+      "kind": "node",
+      "name": "robot_state_publisher",
+      "namespace": "/pocketbeagle_2",
+      "package": "robot_state_publisher",
+      "params": {
+        "robot_description": "mech/urdf/pocketbeagle-2/robot.urdf"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "xacro_args": null
+    },
+    {
+      "executable": "pwm_dir_motor_driver",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": null,
+      "namespace": "/pocketbeagle_2",
+      "package": "robot_drivers",
+      "params": {
+        "gpio_chip": 3,
+        "left_dir_line": 29,
+        "left_forward_level": true,
+        "left_pwm_channel": 0,
+        "left_pwm_chip": 1,
+        "max_wheel_speed": 11.435105774728417,
+        "min_duty": 0.0,
+        "pwm_frequency_hz": 20000.0,
+        "right_dir_line": 9,
+        "right_forward_level": false,
+        "right_pwm_channel": 0,
+        "right_pwm_chip": 0
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "ros2_control_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "controller_manager",
+      "namespace": "/pocketbeagle_2",
+      "on_exit": "<callable spawn_controllers>",
+      "package": "controller_manager",
+      "param_files": [
+        "control/config/control.yaml",
+        {
+          "tempfile": {
+            "/**/diff_drive_controller": {
+              "ros__parameters": {
+                "angular.z.max_acceleration": 10.0,
+                "angular.z.max_jerk": 70.0,
+                "angular.z.max_velocity": 3.0,
+                "linear.x.max_acceleration": 8.0,
+                "linear.x.max_jerk": 60.0,
+                "linear.x.max_velocity": 2.0,
+                "wheel_radius": 0.1749,
+                "wheel_separation": 1.1704
+              }
+            }
+          }
+        }
+      ],
+      "remap_qualifier": "controller_manager",
+      "remaps": {
+        "~/robot_description": "robot_description"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "cmd_args": [
+        "joint_state_broadcaster",
+        "diff_drive_controller",
+        "--param-file",
+        "control/config/control.yaml",
+        "--param-file",
+        {
+          "tempfile": {
+            "/**/diff_drive_controller": {
+              "ros__parameters": {
+                "angular.z.max_acceleration": 10.0,
+                "angular.z.max_jerk": 70.0,
+                "angular.z.max_velocity": 3.0,
+                "linear.x.max_acceleration": 8.0,
+                "linear.x.max_jerk": 60.0,
+                "linear.x.max_velocity": 2.0,
+                "wheel_radius": 0.1749,
+                "wheel_separation": 1.1704
+              }
+            }
+          }
+        },
+        "--controller-manager-timeout",
+        "60",
+        "--controller-ros-args",
+        "-r ~/cmd_vel:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static"
+      ],
+      "executable": "spawner",
+      "kind": "node",
+      "name": "controller_spawner",
+      "namespace": "/pocketbeagle_2",
+      "package": "controller_manager"
+    },
+    {
+      "executable": "twist_mux",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "twist_mux",
+      "namespace": "/pocketbeagle_2",
+      "package": "twist_mux",
+      "param_files": [
+        "control/config/twist_mux.yaml"
+      ],
+      "remaps": {
+        "cmd_vel_out": "platform/cmd_vel"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "foxglove_bridge",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "foxglove_bridge",
+      "namespace": "/pocketbeagle_2",
+      "package": "foxglove_bridge",
+      "params": {
+        "best_effort_qos_topic_whitelist": [
+          "/pocketbeagle_2/sensors/camera_[0-9]+/.*"
+        ],
+        "max_qos_depth": 5,
+        "send_buffer_limit": 20000000,
+        "topic_whitelist": [
+          "/pocketbeagle_2/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$",
+          "/pocketbeagle_2/sensors/camera_[0-9]+/depth/image_view(/compressed)?$",
+          "/pocketbeagle_2/sensors/camera_[0-9]+/(color|depth)/camera_info$",
+          "/pocketbeagle_2/sensors/camera_[0-9]+/depth/points$",
+          "/pocketbeagle_2/sensors/camera_[0-9]+/scan$",
+          "/pocketbeagle_2/sensors/(gps|imu)_[0-9]+/.*",
+          "/pocketbeagle_2/perception/.*",
+          "/pocketbeagle_2/platform/.*",
+          "/pocketbeagle_2/joy_teleop/cmd_vel$",
+          "/pocketbeagle_2/tf(_static)?$",
+          "/pocketbeagle_2/map$",
+          "/pocketbeagle_2/local_costmap/costmap$",
+          "/pocketbeagle_2/plan$",
+          "/pocketbeagle_2/slam_toolbox/.*",
+          "/pocketbeagle_2/diagnostics.*",
+          "/pocketbeagle_2/robot_description$"
+        ]
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "aggregator_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "diagnostic_aggregator",
+      "namespace": "/pocketbeagle_2",
+      "package": "diagnostic_aggregator",
+      "param_files": [
+        "boot/config/diagnostic_aggregator.yaml"
+      ],
+      "respawn_delay": 2.0
+    }
+  ],
+  "launch": {
+    "arguments": {
+      "name": "pocketbeagle-2"
+    },
+    "file": "boot/launch/robot.launch.py",
+    "function": "robot",
+    "launch_this": {}
+  }
+}

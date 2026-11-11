@@ -1,0 +1,499 @@
+{
+  "environment": {
+    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[simulation/taro-jiro] (call)"
+  },
+  "events": [
+    {
+      "env": null,
+      "executable": "rmw_zenohd",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "zenoh_router",
+      "namespace": "/",
+      "package": "rmw_zenoh_cpp",
+      "raw": true,
+      "respawn_delay": 2.0,
+      "ros_waittime": null
+    },
+    {
+      "executable": "foxglove_bridge",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "foxglove_bridge",
+      "namespace": "/",
+      "package": "foxglove_bridge",
+      "params": {
+        "best_effort_qos_topic_whitelist": [
+          ".*/sensors/camera_.*"
+        ],
+        "max_qos_depth": 5,
+        "port": 8765,
+        "send_buffer_limit": 1000000
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "bridges": [
+        {
+          "direction": "gz2ros",
+          "gazebo_type": null,
+          "remaps": null,
+          "ros2_type": "rosgraph_msgs/msg/Clock",
+          "topic": "/clock"
+        }
+      ],
+      "kind": "topic_bridge",
+      "name": "clock_bridge",
+      "namespace": "/"
+    },
+    {
+      "args": {
+        "headless": false,
+        "world": "farm"
+      },
+      "kind": "include",
+      "launchfile": "gz_sim.launch.py",
+      "namespace": "/",
+      "package": "robot_simulator",
+      "subdir": null
+    },
+    {
+      "group": "taro",
+      "kind": "group",
+      "namespace": "/taro",
+      "use_sim_time": null
+    },
+    {
+      "anonymous": false,
+      "executable": "robot_state_publisher",
+      "kind": "node",
+      "name": "robot_state_publisher",
+      "namespace": "/taro",
+      "package": "robot_state_publisher",
+      "params": {
+        "robot_description": {
+          "bytes": 9242,
+          "xml_sha256": "21897b85494956cd8d384e9746ffcf2b49a81c840ae8c611c251820b7156b0fc"
+        }
+      },
+      "remaps": {},
+      "xacro_args": null
+    },
+    {
+      "kind": "spawn_model",
+      "model": "/taro/robot_description",
+      "model_name": "taro",
+      "model_source": "topic",
+      "namespace": "/taro",
+      "spawn_args": {
+        "P": 0.0,
+        "R": 0.0,
+        "Y": 0.0,
+        "x": 11.2,
+        "y": -0.6,
+        "z": 0.4
+      }
+    },
+    {
+      "cmd_args": [
+        "joint_state_broadcaster",
+        "diff_drive_controller",
+        "--param-file",
+        "control/config/control.yaml",
+        "--param-file",
+        {
+          "tempfile": {
+            "/**/diff_drive_controller": {
+              "ros__parameters": {
+                "wheel_radius": 0.1749,
+                "wheel_separation": 1.1704
+              }
+            }
+          }
+        },
+        "--controller-manager-timeout",
+        "60",
+        "--controller-ros-args",
+        "-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel"
+      ],
+      "env": {
+        "ROS_SUPER_CLIENT": "True"
+      },
+      "executable": "spawner",
+      "kind": "node",
+      "name": "controller_spawner",
+      "namespace": "/taro",
+      "on_exit": "<callable shutdown_if_spawner_failed>",
+      "package": "controller_manager"
+    },
+    {
+      "bridges": [
+        {
+          "direction": "gz2ros",
+          "gazebo_type": null,
+          "remaps": {
+            "/world/farm/model/taro/link/base_link/sensor/camera_0/camera_info": "sensors/camera_0/color/camera_info"
+          },
+          "ros2_type": "sensor_msgs/msg/CameraInfo",
+          "topic": "/world/farm/model/taro/link/base_link/sensor/camera_0/camera_info"
+        },
+        {
+          "direction": "gz2ros",
+          "gazebo_type": null,
+          "remaps": {
+            "/world/farm/model/taro/link/base_link/sensor/camera_0/points": "sensors/camera_0/depth/points_body"
+          },
+          "ros2_type": "sensor_msgs/msg/PointCloud2",
+          "topic": "/world/farm/model/taro/link/base_link/sensor/camera_0/points"
+        },
+        {
+          "direction": "gz2ros",
+          "gazebo_type": null,
+          "remaps": {
+            "/world/farm/model/taro/link/base_link/sensor/gps/navsat": "sensors/gps_0/fix"
+          },
+          "ros2_type": "sensor_msgs/msg/NavSatFix",
+          "topic": "/world/farm/model/taro/link/base_link/sensor/gps/navsat"
+        }
+      ],
+      "kind": "topic_bridge",
+      "name": "gz_bridge",
+      "namespace": "/taro"
+    },
+    {
+      "bridges": [
+        "/world/farm/model/taro/link/base_link/sensor/camera_0/image",
+        "/world/farm/model/taro/link/base_link/sensor/camera_0/depth_image"
+      ],
+      "kind": "image_bridge",
+      "name": "image_bridge",
+      "namespace": "/taro",
+      "params": {
+        "sensors.camera_0.color.image_raw.enable_pub_plugins": [
+          "image_transport/compressed"
+        ],
+        "sensors.camera_0.depth.image_raw.enable_pub_plugins": [
+          "image_transport/raw"
+        ]
+      },
+      "remaps": {
+        "/world/farm/model/taro/link/base_link/sensor/camera_0/depth_image": "sensors/camera_0/depth/image_raw",
+        "/world/farm/model/taro/link/base_link/sensor/camera_0/image": "sensors/camera_0/color/image_raw"
+      }
+    },
+    {
+      "executable": "cloud_optical_adapter",
+      "kind": "node",
+      "name": "camera_0_cloud_optical_adapter",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "body_cloud_topic": "sensors/camera_0/depth/points_body",
+        "optical_cloud_topic": "sensors/camera_0/depth/points",
+        "optical_frame": "camera_0_color_optical_frame"
+      }
+    },
+    {
+      "executable": "twist_mux",
+      "kind": "node",
+      "name": "twist_mux",
+      "namespace": "/taro",
+      "package": "twist_mux",
+      "param_files": "control/config/twist_mux.yaml",
+      "remaps": {
+        "cmd_vel_out": "platform/cmd_vel"
+      }
+    },
+    {
+      "executable": "canopy_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "canopy_detector",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "fraction_topic": "perception/canopy/fraction",
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "mask_topic": "perception/canopy/mask/compressed",
+        "normalize_exposure": true,
+        "normalized_excess_green_min": 0.06
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "harvest_lane_navigator",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "harvest_lane_navigator",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "camera_height_m": 0.4426,
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
+        "camera_lateral_offset_m": 0.475,
+        "depth_topic": "sensors/camera_0/depth/image_raw",
+        "forward_speed_mps": 0.3,
+        "mask_topic": "perception/canopy/mask/compressed",
+        "max_angular_speed_radps": 0.55,
+        "max_forward_speed_mps": 0.5,
+        "odom_topic": "diff_drive_controller/odom",
+        "row_pitch_m": 1.17,
+        "start_enabled": false
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "person_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_detector",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
+        "depth_topic": "sensors/camera_0/depth/image_raw",
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "min_score": 0.3,
+        "overlay_topic": "perception/person/overlay",
+        "start_enabled": false
+      },
+      "remaps": {
+        "detections": "perception/person"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "approach",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_follow",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "params": {
+        "max_missing_frames": 8,
+        "scene_topic": "perception/person/scene",
+        "standoff_distance": 1.5
+      },
+      "remaps": {
+        "detections": "perception/person",
+        "detections_3d": "perception/targets"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "row_shuttle",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "row_shuttle",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "behavior_server",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "behavior_server",
+      "namespace": "/taro",
+      "package": "nav2_behaviors",
+      "param_files": [
+        "navigation/config/behaviors.yaml"
+      ],
+      "respawn_delay": 2.0
+    },
+    {
+      "group": "jiro",
+      "kind": "group",
+      "namespace": "/jiro",
+      "use_sim_time": null
+    },
+    {
+      "anonymous": false,
+      "executable": "robot_state_publisher",
+      "kind": "node",
+      "name": "robot_state_publisher",
+      "namespace": "/jiro",
+      "package": "robot_state_publisher",
+      "params": {
+        "robot_description": {
+          "bytes": 8693,
+          "xml_sha256": "0d07585846ca4c0a6513172cc96bfe34351b64aaa9ada0083fda68fec69d64f5"
+        }
+      },
+      "remaps": {},
+      "xacro_args": null
+    },
+    {
+      "kind": "spawn_model",
+      "model": "/jiro/robot_description",
+      "model_name": "jiro",
+      "model_source": "topic",
+      "namespace": "/jiro",
+      "spawn_args": {
+        "P": 0.0,
+        "R": 0.0,
+        "Y": 1.747,
+        "x": 0.333,
+        "y": 0.848,
+        "z": 0.33
+      }
+    },
+    {
+      "cmd_args": [
+        "joint_state_broadcaster",
+        "diff_drive_controller",
+        "--param-file",
+        "control/config/control.yaml",
+        "--param-file",
+        {
+          "tempfile": {
+            "/**/diff_drive_controller": {
+              "ros__parameters": {
+                "wheel_radius": 0.1749,
+                "wheel_separation": 0.5704
+              }
+            }
+          }
+        },
+        "--controller-manager-timeout",
+        "60",
+        "--controller-ros-args",
+        "-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel"
+      ],
+      "env": {
+        "ROS_SUPER_CLIENT": "True"
+      },
+      "executable": "spawner",
+      "kind": "node",
+      "name": "controller_spawner",
+      "namespace": "/jiro",
+      "on_exit": "<callable shutdown_if_spawner_failed>",
+      "package": "controller_manager"
+    },
+    {
+      "bridges": [
+        {
+          "direction": "gz2ros",
+          "gazebo_type": null,
+          "remaps": {
+            "/world/farm/model/jiro/link/base_link/sensor/camera_0/camera_info": "sensors/camera_0/color/camera_info"
+          },
+          "ros2_type": "sensor_msgs/msg/CameraInfo",
+          "topic": "/world/farm/model/jiro/link/base_link/sensor/camera_0/camera_info"
+        }
+      ],
+      "kind": "topic_bridge",
+      "name": "gz_bridge",
+      "namespace": "/jiro"
+    },
+    {
+      "bridges": [
+        "/world/farm/model/jiro/link/base_link/sensor/camera_0/image"
+      ],
+      "kind": "image_bridge",
+      "name": "image_bridge",
+      "namespace": "/jiro",
+      "params": {
+        "sensors.camera_0.color.image_raw.enable_pub_plugins": [
+          "image_transport/compressed"
+        ]
+      },
+      "remaps": {
+        "/world/farm/model/jiro/link/base_link/sensor/camera_0/image": "sensors/camera_0/color/image_raw"
+      }
+    },
+    {
+      "executable": "twist_mux",
+      "kind": "node",
+      "name": "twist_mux",
+      "namespace": "/jiro",
+      "package": "twist_mux",
+      "param_files": "control/config/twist_mux.yaml",
+      "remaps": {
+        "cmd_vel_out": "platform/cmd_vel"
+      }
+    },
+    {
+      "executable": "person_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_detector",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
+        "depth_topic": "sensors/camera_0/depth/image_raw",
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "min_score": 0.3,
+        "overlay_topic": "perception/person/overlay",
+        "start_enabled": false
+      },
+      "remaps": {
+        "detections": "perception/person"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "approach",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_follow",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "max_missing_frames": 8,
+        "scene_topic": "perception/person/scene",
+        "standoff_distance": 1.5
+      },
+      "remaps": {
+        "detections": "perception/person",
+        "detections_3d": "perception/targets"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "row_shuttle",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "row_shuttle",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "behavior_server",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "behavior_server",
+      "namespace": "/jiro",
+      "package": "nav2_behaviors",
+      "param_files": [
+        "navigation/config/behaviors.yaml"
+      ],
+      "respawn_delay": 2.0
+    },
+    {
+      "kind": "spawn_model",
+      "model": "simulation/models/person/model.sdf",
+      "model_name": "person",
+      "model_source": "file",
+      "namespace": "/",
+      "spawn_args": {
+        "P": 0.0,
+        "R": 0.0,
+        "Y": 0.0,
+        "x": 6.5,
+        "y": 3.6,
+        "z": 0.0
+      }
+    }
+  ],
+  "launch": {
+    "arguments": {},
+    "file": "simulation/launch/simulation.launch.py",
+    "function": "simulation",
+    "launch_this": {
+      "use_sim_time": true
+    }
+  }
+}

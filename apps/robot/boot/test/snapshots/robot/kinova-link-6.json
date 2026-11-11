@@ -1,0 +1,30 @@
+{
+  "environment": {
+    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[robot/kinova-link-6] (call)"
+  },
+  "events": [
+    {
+      "cmd": [
+        "~/.pixi/bin/pixi",
+        "run",
+        "arm",
+        "kinova-link-6",
+        "admin",
+        "false"
+      ],
+      "kind": "process",
+      "max_respawns": -1,
+      "name": "arm_launch",
+      "namespace": "/",
+      "respawn_delay": 2.0
+    }
+  ],
+  "launch": {
+    "arguments": {
+      "name": "kinova-link-6"
+    },
+    "file": "boot/launch/robot.launch.py",
+    "function": "robot",
+    "launch_this": {}
+  }
+}

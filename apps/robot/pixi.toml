@@ -162,7 +162,7 @@ lint = { cmd = "colcon test --base-paths . --ctest-args -L linter && colcon test
 ] }
 
 test = { cmd = "pytest -c pytest.ini {{ suites }}", args = [
-    { arg = "suites", default = "drivers/test machines/test perception/test simulation/test" },
+    { arg = "suites", default = "boot/test drivers/test machines/test perception/test simulation/test" },
 ], env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
 
 deploy = { cmd = "python machines/deploy.py {{ robot }}", args = [

@@ -1,0 +1,529 @@
+{
+  "environment": {
+    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[robot/jiro] (call)",
+    "ZENOH_CONFIG_OVERRIDE": "mode=\"client\""
+  },
+  "events": [
+    {
+      "env": {
+        "ZENOH_CONFIG_OVERRIDE": "mode=\"router\""
+      },
+      "executable": "rmw_zenohd",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "zenoh_router",
+      "namespace": "/",
+      "package": "rmw_zenoh_cpp",
+      "raw": true,
+      "respawn_delay": 2.0,
+      "ros_waittime": null
+    },
+    {
+      "group": "jiro",
+      "kind": "group",
+      "namespace": "/jiro",
+      "use_sim_time": null
+    },
+    {
+      "anonymous": false,
+      "executable": "robot_state_publisher",
+      "kind": "node",
+      "name": "robot_state_publisher",
+      "namespace": "/jiro",
+      "package": "robot_state_publisher",
+      "params": {
+        "robot_description": "mech/urdf/jiro/robot.urdf"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "xacro_args": null
+    },
+    {
+      "executable": "pwm_dir_motor_driver",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": null,
+      "namespace": "/jiro",
+      "package": "robot_drivers",
+      "params": {
+        "gpio_chip": 0,
+        "left_dir_line": 16,
+        "left_forward_level": true,
+        "left_pwm_channel": 0,
+        "left_pwm_chip": 0,
+        "max_wheel_speed": 13.093196112064037,
+        "min_duty": 0.0,
+        "pwm_frequency_hz": 20000.0,
+        "right_dir_line": 26,
+        "right_forward_level": false,
+        "right_pwm_channel": 1,
+        "right_pwm_chip": 0
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "ros2_control_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "controller_manager",
+      "namespace": "/jiro",
+      "on_exit": "<callable spawn_controllers>",
+      "package": "controller_manager",
+      "param_files": [
+        "control/config/control.yaml",
+        {
+          "tempfile": {
+            "/**/diff_drive_controller": {
+              "ros__parameters": {
+                "angular.z.max_acceleration": 10.0,
+                "angular.z.max_jerk": 70.0,
+                "angular.z.max_velocity": 3.0,
+                "linear.x.max_acceleration": 8.0,
+                "linear.x.max_jerk": 60.0,
+                "linear.x.max_velocity": 2.29,
+                "wheel_radius": 0.1749,
+                "wheel_separation": 0.5704
+              }
+            }
+          }
+        }
+      ],
+      "remap_qualifier": "controller_manager",
+      "remaps": {
+        "~/robot_description": "robot_description"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "cmd_args": [
+        "joint_state_broadcaster",
+        "diff_drive_controller",
+        "--param-file",
+        "control/config/control.yaml",
+        "--param-file",
+        {
+          "tempfile": {
+            "/**/diff_drive_controller": {
+              "ros__parameters": {
+                "angular.z.max_acceleration": 10.0,
+                "angular.z.max_jerk": 70.0,
+                "angular.z.max_velocity": 3.0,
+                "linear.x.max_acceleration": 8.0,
+                "linear.x.max_jerk": 60.0,
+                "linear.x.max_velocity": 2.29,
+                "wheel_radius": 0.1749,
+                "wheel_separation": 0.5704
+              }
+            }
+          }
+        },
+        "--controller-manager-timeout",
+        "60",
+        "--controller-ros-args",
+        "-r ~/cmd_vel:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static"
+      ],
+      "executable": "spawner",
+      "kind": "node",
+      "name": "controller_spawner",
+      "namespace": "/jiro",
+      "package": "controller_manager"
+    },
+    {
+      "executable": "rc_receiver_joy",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "rc_receiver_joy",
+      "namespace": "/jiro",
+      "package": "robot_drivers",
+      "params": {
+        "channel_1_line": 17,
+        "channel_2_line": 27,
+        "gpio_chip": 0,
+        "tank_mixed": false
+      },
+      "remaps": {
+        "joy": "joy_teleop/joy"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "teleop_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "rc_teleop",
+      "namespace": "/jiro",
+      "package": "teleop_twist_joy",
+      "param_files": [
+        "boot/config/rc_teleop.yaml"
+      ],
+      "remaps": {
+        "cmd_vel": "joy_teleop/cmd_vel",
+        "joy": "joy_teleop/joy"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "twist_mux",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "twist_mux",
+      "namespace": "/jiro",
+      "package": "twist_mux",
+      "param_files": [
+        "control/config/twist_mux.yaml"
+      ],
+      "remaps": {
+        "cmd_vel_out": "platform/cmd_vel"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "foxglove_bridge",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "foxglove_bridge",
+      "namespace": "/jiro",
+      "package": "foxglove_bridge",
+      "params": {
+        "best_effort_qos_topic_whitelist": [
+          "/jiro/sensors/camera_[0-9]+/.*"
+        ],
+        "max_qos_depth": 5,
+        "send_buffer_limit": 20000000,
+        "topic_whitelist": [
+          "/jiro/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$",
+          "/jiro/sensors/camera_[0-9]+/depth/image_view(/compressed)?$",
+          "/jiro/sensors/camera_[0-9]+/(color|depth)/camera_info$",
+          "/jiro/sensors/camera_[0-9]+/depth/points$",
+          "/jiro/sensors/camera_[0-9]+/scan$",
+          "/jiro/sensors/(gps|imu)_[0-9]+/.*",
+          "/jiro/perception/.*",
+          "/jiro/platform/.*",
+          "/jiro/joy_teleop/cmd_vel$",
+          "/jiro/tf(_static)?$",
+          "/jiro/map$",
+          "/jiro/local_costmap/costmap$",
+          "/jiro/plan$",
+          "/jiro/slam_toolbox/.*",
+          "/jiro/diagnostics.*",
+          "/jiro/robot_description$"
+        ]
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "aggregator_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "diagnostic_aggregator",
+      "namespace": "/jiro",
+      "package": "diagnostic_aggregator",
+      "param_files": [
+        "boot/config/diagnostic_aggregator.yaml"
+      ],
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "oak_d_pro_w_poe",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "oak_d_pro_w_poe",
+      "namespace": "/jiro",
+      "package": "robot_drivers",
+      "params": {
+        "color_fps": 60.0,
+        "color_resolution_divisor": 2,
+        "depth_fps": 30.0,
+        "depth_resolution_divisor": 4,
+        "frame_id": "camera_0_link_color_optical_frame",
+        "ip": "169.254.1.222",
+        "jpeg_quality": 60
+      },
+      "remaps": {
+        "color/camera_info": "sensors/camera_0/color/camera_info",
+        "color/image_raw/compressed": "sensors/camera_0/color/image_raw/compressed",
+        "depth/camera_info": "sensors/camera_0/depth/camera_info",
+        "depth/image_raw": "sensors/camera_0/depth/image_raw",
+        "depth/image_raw/compressed": "sensors/camera_0/depth/image_raw/compressed",
+        "depth/points": "sensors/camera_0/depth/points",
+        "imu/data": "sensors/camera_0/imu/data"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "cmd_args": [
+        "--roll",
+        "-1.5708",
+        "--yaw",
+        "-1.5708",
+        "--frame-id",
+        "camera_0_link",
+        "--child-frame-id",
+        "camera_0_link_color_optical_frame"
+      ],
+      "executable": "static_transform_publisher",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "oak_d_optical_frame_publisher",
+      "namespace": "/jiro",
+      "package": "tf2_ros",
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "pointcloud_to_laserscan_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "oak_d_pointcloud_to_laserscan",
+      "namespace": "/jiro",
+      "package": "pointcloud_to_laserscan",
+      "params": {
+        "max_height": 0.6,
+        "min_height": 0.1,
+        "range_max": 3.0,
+        "range_min": 0.2,
+        "scan_time": 0.05,
+        "target_frame": "base_link"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static",
+        "cloud_in": "sensors/camera_0/depth/points",
+        "scan": "sensors/camera_0/scan"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "collision_overlay",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "collision_overlay",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
+        "cloud_topic": "sensors/camera_0/depth/points",
+        "overlay_topic": "perception/collision/overlay"
+      },
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "person_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_detector",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
+        "depth_topic": "sensors/camera_0/depth/image_raw",
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "max_detections_per_second": 30.0,
+        "min_score": 0.3,
+        "model_path": "perception/models/ssd_mobilenet_v1_12_int8.onnx"
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "approach",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "person_follow",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "command_smoothing_seconds": 0.1,
+        "distance_damping": 0.4,
+        "distance_deadband": 0.25,
+        "distance_gain": 2.0,
+        "max_angular_speed": 5.0,
+        "max_backward_speed": 1.5,
+        "max_forward_speed": 2.0,
+        "max_missing_frames": 24,
+        "standoff_distance": 1.5,
+        "start_enabled": false,
+        "steer_damping": 0.7,
+        "steer_deadband": 0.05,
+        "steer_gain": 2.0
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "color_blob_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "line_detector",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "class_label": "line",
+        "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
+        "depth_topic": "sensors/camera_0/depth/image_raw",
+        "detections_topic": "perception/line/detections",
+        "hue_max": 180.0,
+        "hue_min": 0.0,
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "max_saturation": 0.25,
+        "min_area": 800,
+        "min_aspect_ratio": 0.0,
+        "min_saturation": 0.0,
+        "min_triangularity": 0.0,
+        "min_value": 0.6,
+        "overlay_topic": "perception/line/overlay",
+        "roi_top_fraction": 0.55,
+        "start_enabled": false
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "row_follow",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "line_follow",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "detections_topic": "perception/line/detections",
+        "image_width": 640,
+        "start_enabled": false
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "surface_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "sidewalk_detector",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "class_label": "sidewalk",
+        "detections_topic": "perception/sidewalk/detections",
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "max_detections_per_second": 5.0,
+        "overlay_topic": "perception/sidewalk/overlay",
+        "surface_class_ids": [
+          2,
+          3
+        ]
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "surface_follow",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "sidewalk_follow",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "camera_height_m": 0.3336,
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
+        "detections_topic": "perception/sidewalk/detections",
+        "forward_speed": 0.5,
+        "max_angular_speed": 1.5,
+        "start_enabled": false,
+        "steer_gain": 1.5
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "surface_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "park_path_detector",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "class_label": "park_path",
+        "detections_topic": "perception/park_path/detections",
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "max_detections_per_second": 5.0,
+        "min_fraction": 0.95,
+        "overlay_topic": "perception/park_path/overlay",
+        "roi_top_fraction": 0.6,
+        "surface_class_ids": [
+          1,
+          2,
+          3
+        ]
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "surface_follow",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "park_path_follow",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "camera_height_m": 0.3336,
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
+        "detections_topic": "perception/park_path/detections",
+        "forward_speed": 0.9,
+        "max_angular_speed": 1.5,
+        "start_enabled": false,
+        "steer_gain": 1.5
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "surface_detector",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "path_detector",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "class_label": "path",
+        "detections_topic": "perception/path/detections",
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "mask_source": "brightness",
+        "max_detections_per_second": 15.0,
+        "max_saturation": 0.75,
+        "max_value": 0.35,
+        "min_fraction": 0.6,
+        "overlay_topic": "perception/path/overlay",
+        "roi_top_fraction": 0.6
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "executable": "surface_follow",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "path_follow",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "params": {
+        "camera_height_m": 0.3336,
+        "camera_info_topic": "sensors/camera_0/color/camera_info",
+        "detections_topic": "perception/path/detections",
+        "forward_speed": 0.9,
+        "lateral_offset_m": 0.35,
+        "max_angular_speed": 1.5,
+        "start_enabled": false,
+        "steer_gain": 1.5
+      },
+      "respawn_delay": 2.0
+    }
+  ],
+  "launch": {
+    "arguments": {
+      "name": "jiro"
+    },
+    "file": "boot/launch/robot.launch.py",
+    "function": "robot",
+    "launch_this": {}
+  }
+}
