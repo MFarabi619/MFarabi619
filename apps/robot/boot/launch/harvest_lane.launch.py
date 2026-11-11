@@ -14,20 +14,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import os
-
 from better_launch import BetterLaunch, launch_this
 
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
-JAZZY_ENV = os.path.abspath('.pixi/envs/jazzy')
-
-
-def jazzy_environment():
-    return {
-        'HOME': os.environ['HOME'],
-        'PATH': os.environ['PATH'],
-        'ZENOH_CONFIG_OVERRIDE': os.environ.get('ZENOH_CONFIG_OVERRIDE', ''),
-    }
 
 
 @launch_this
@@ -58,24 +47,10 @@ def harvest_lane():
         name='row_shuttle',
         **RESPAWN,
     )
-    bl.process(
-        'pixi run --clean-env -e jazzy'
-        f' {JAZZY_ENV}/lib/nav2_behaviors/behavior_server'
-        ' --ros-args -r __node:=behavior_server'
-        ' --params-file navigation/config/behaviors.yaml',
+    bl.node(
+        package='nav2_behaviors',
+        executable='behavior_server',
         name='behavior_server',
-        env=jazzy_environment(),
-        isolate_env=True,
-        **RESPAWN,
-    )
-    bl.process(
-        'pixi run --clean-env -e jazzy'
-        f' {JAZZY_ENV}/lib/nav2_lifecycle_manager/lifecycle_manager'
-        ' --ros-args -r __node:=behavior_lifecycle_manager'
-        ' -p autostart:=true -p node_names:=[behavior_server]'
-        ' -p bond_timeout:=0.0',
-        name='behavior_lifecycle_manager',
-        env=jazzy_environment(),
-        isolate_env=True,
+        param_files=['navigation/config/behaviors.yaml'],
         **RESPAWN,
     )

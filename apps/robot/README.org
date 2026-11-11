@@ -136,7 +136,6 @@ ping -c 2 192.168.1.10
 
 #+BEGIN_SRC sh
 pixi install -m apps/robot -e kortex   # python kortex_api, drives the arm
-pixi install -m apps/robot -e jazzy    # ROS 2 side
 #+END_SRC
 
 **** ZED SDK (ZED 2 over USB 3)

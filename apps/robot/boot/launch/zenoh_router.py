@@ -14,7 +14,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import os
 import socket
 import time
 
@@ -41,21 +40,15 @@ def wait_for_router(attempts=50, poll_seconds=0.2):
     return False
 
 
-def ensure_router(bl, executable=None, env=None, isolate_env=False,
-                  attempts=50, poll_seconds=0.2):
+def ensure_router(bl, env=None, attempts=50, poll_seconds=0.2):
     if not router_is_listening():
-        if executable is None:
-            executable = os.path.join(
-                os.environ['CONDA_PREFIX'], 'lib', 'rmw_zenoh_cpp',
-                'rmw_zenohd')
         bl.node(
-            package='',
-            executable=os.path.abspath(executable),
+            package='rmw_zenoh_cpp',
+            executable='rmw_zenohd',
             name='zenoh_router',
             raw=True,
             ros_waittime=None,
             env=env,
-            isolate_env=isolate_env,
             **RESPAWN,
         )
     return wait_for_router(attempts, poll_seconds)

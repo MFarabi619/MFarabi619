@@ -19,6 +19,10 @@ import tempfile
 
 import yaml
 
+from ament_index_python.packages import (
+    get_package_prefix,
+    get_package_share_directory,
+)
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import (
     read_robot_description,
@@ -48,7 +52,7 @@ def arm_mujoco_simulation(
         headless: bool = False):
     with open(f'machines/{robot}/robot.yaml') as machine_file:
         arm = yaml.safe_load(machine_file)['arm']
-    install_arm_directory = os.path.abspath('install-arm')
+    control_share_directory = get_package_share_directory(arm['control_package'])
     os.environ.pop('ZENOH_CONFIG_OVERRIDE', None)
     os.environ.pop('ZENOH_SESSION_CONFIG_URI', None)
 
@@ -67,8 +71,8 @@ def arm_mujoco_simulation(
         description, node_name='robot_state_publisher', anonymous=False)
     bl.process(
         ['python',
-         os.path.join(install_arm_directory, 'lib', 'mujoco_ros2_control',
-                      'make_mjcf_from_robot_description.py'),
+         os.path.join(get_package_prefix('mujoco_ros2_control'), 'lib',
+                      'mujoco_ros2_control', 'make_mjcf_from_robot_description.py'),
          '--publish_topic', '/mujoco_robot_description',
          '--convert_stl_to_obj',
          '--mujoco_inputs',
@@ -77,23 +81,22 @@ def arm_mujoco_simulation(
          write_rendered_scene_file()],
         name='mjcf_converter',
     )
-    controller_params = os.path.join(
-        install_arm_directory, 'share', arm['control_package'], 'config',
-        'kortex3_sim_controllers.yaml')
+    controller_parameters_path = os.path.join(
+        control_share_directory, 'config', 'kortex3_sim_controllers.yaml')
     bl.node(
         'controller_manager', 'ros2_control_node',
         name='controller_manager',
         anonymous=False,
         remap_qualifier='controller_manager',
         param_files=[
-            controller_params,
+            controller_parameters_path,
             os.path.abspath('manipulation/config/mujoco_plugins.yaml'),
         ],
         use_sim_time=True,
     )
     spawn_controller('joint_state_broadcaster')
-    spawn_controller('joint_trajectory_controller', params=[controller_params])
-    spawn_controller('robotiq_gripper_controller', params=[controller_params])
+    spawn_controller('joint_trajectory_controller', params=[controller_parameters_path])
+    spawn_controller('robotiq_gripper_controller', params=[controller_parameters_path])
 
     if mode == 'moveit':
         bl.process(
@@ -122,9 +125,7 @@ def arm_mujoco_simulation(
             )
     elif not headless:
         bl.process(
-            'rviz2 -d ' + os.path.join(
-                install_arm_directory, 'share', arm['control_package'], 'config',
-                'link6_config.rviz')
+            'rviz2 -d ' + os.path.join(control_share_directory, 'config', 'link6_config.rviz')
             + ' --ros-args -p use_sim_time:=true',
             name='rviz',
         )

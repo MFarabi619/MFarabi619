@@ -23,6 +23,8 @@ import time
 
 import yaml
 
+from ament_index_python.packages import get_package_share_directory
+from ament_index_python.search_paths import get_search_paths
 from better_launch import BetterLaunch, launch_this
 from better_launch.gazebo import get_gazebo_axes_args, spawn_model
 from zenoh_router import ensure_router
@@ -74,7 +76,6 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
     with open(f'machines/{robot}/robot.yaml') as machine_file:
         arm = yaml.safe_load(machine_file)['arm']
     gripper = gripper or arm['gripper']
-    install_arm = os.path.abspath('install-arm')
     spawn_x, spawn_y = WORLD_SPAWN_POINTS.get(world, (0.0, 0.0))
     if world == 'empty':
         world_file = 'empty.sdf'
@@ -82,9 +83,11 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
         world_file = os.path.abspath(f'simulation/worlds/{world}.sdf')
     os.environ.pop('ZENOH_CONFIG_OVERRIDE', None)
     os.environ.pop('ZENOH_SESSION_CONFIG_URI', None)
+    share_directories = [
+        os.path.join(prefix, 'share') for prefix in get_search_paths()]
     os.environ['GZ_SIM_RESOURCE_PATH'] = ':'.join(filter(None, [
         os.environ.get('GZ_SIM_RESOURCE_PATH', ''),
-        os.path.join(install_arm, 'share'),
+        *share_directories,
         os.path.abspath('simulation/worlds'),
         os.path.abspath('simulation/models')]))
     os.environ['GZ_SIM_SYSTEM_PLUGIN_PATH'] = os.path.join(
@@ -128,7 +131,7 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
         rviz_config = os.path.abspath('manipulation/config/moveit.rviz')
     else:
         rviz_config = os.path.join(
-            install_arm, 'share', arm['control_package'], 'config',
+            get_package_share_directory(arm['control_package']), 'config',
             'link6_config.rviz')
     if not headless:
         camera = (spawn_x + CAMERA_OFFSET[0], spawn_y + CAMERA_OFFSET[1],

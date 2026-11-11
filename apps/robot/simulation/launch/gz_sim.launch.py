@@ -20,6 +20,7 @@ import threading
 import time
 
 from ament_index_python.packages import get_package_share_directory
+from ament_index_python.search_paths import get_search_paths
 from better_launch import BetterLaunch, launch_this
 
 VIEW_CONTROL_SENSITIVITY = 0.25
@@ -46,9 +47,9 @@ def gz_sim(world: str = 'maize', headless: bool = False):
     share = get_package_share_directory('robot_simulator')
     worlds = os.path.join(share, 'worlds')
     models = os.path.join(share, 'models')
-    shares = [os.path.join(prefix, 'share')
-              for prefix in os.environ.get('AMENT_PREFIX_PATH', '').split(':') if prefix]
-    resource_path = os.pathsep.join([worlds, models] + shares)
+    share_directories = [
+        os.path.join(prefix, 'share') for prefix in get_search_paths()]
+    resource_path = os.pathsep.join([worlds, models] + share_directories)
     world_file = os.path.join(worlds, f'{world}.sdf')
     plugin_path = os.path.join(os.environ.get('CONDA_PREFIX', ''), 'lib')
 

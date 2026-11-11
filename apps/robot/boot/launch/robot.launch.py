@@ -30,7 +30,6 @@ from zenoh_router import ensure_router
 CLIENT_CONFIG_OVERRIDE = 'mode="client"'
 ROUTER_CONFIG_OVERRIDE = 'mode="router"'
 PIXI = os.path.expanduser('~/.pixi/bin/pixi')
-JAZZY_ENV = os.path.abspath('.pixi/envs/jazzy')
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 FOLLOWED_SURFACES = {
     'sidewalk': {'surface_class_ids': [2, 3]},
@@ -590,66 +589,49 @@ def robot(name: str = '', drivetrain_model: str = ''):
         )
 
         if sensors.get('gps'):
-            gps_remap_args = ' '.join(
-                f'-r {topic}:=sensors/gps_0/{topic}' for topic in GPS_TOPICS)
             gps_parameters = next(iter(sensors['gps'][0]['ros_parameters'].values()))
-            gps_parameter_args = ' '.join(
-                f'-p {name}:={value}' for name, value in gps_parameters.items())
             gnss_flash = sensors['gps'][0].get('flash')
             if gnss_flash:
                 assert_gnss_flash(gps_parameters['port'], gnss_flash)
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' {JAZZY_ENV}/bin/python'
-                f' {JAZZY_ENV}/lib/nmea_navsat_driver/nmea_serial_driver'
-                f' --ros-args -r __node:=nmea_navsat_driver'
-                f' -r __ns:=/{namespace} {gps_remap_args} {gps_parameter_args}',
+            bl.node(
+                package='nmea_navsat_driver',
+                executable='nmea_serial_driver',
                 name='nmea_navsat_driver',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
+                params=gps_parameters,
+                remaps={topic: f'sensors/gps_0/{topic}' for topic in GPS_TOPICS},
                 **RESPAWN,
             )
             ntrip = sensors['gps'][0].get('ntrip')
             if ntrip:
                 bl.process(
-                    f'{PIXI} run --clean-env -e jazzy'
-                    f' {JAZZY_ENV}/bin/gnssntripclient'
+                    'gnssntripclient'
                     f' --server {NTRIP_CASTER_HOST} --ntripversion 1.0'
                     f' --mountpoint {ntrip["mountpoint"]}'
                     f' --ntripuser {ntrip["username"]} --ntrippassword none'
                     f' --clioutput {NTRIP_SERIAL_OUTPUT}'
                     f' --output {gps_parameters["port"]}@{gps_parameters["baud"]}',
                     name='ntrip_client',
-                    env={'HOME': os.environ['HOME']},
-                    isolate_env=True,
                     **NTRIP_RESPAWN,
                 )
-            localization_parameters = os.path.abspath(
+            localization_parameters_path = os.path.abspath(
                 'control/config/localization.yaml')
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' {JAZZY_ENV}/lib/robot_localization/ekf_node'
-                ' --ros-args -r __node:=ekf_global'
-                f' -r __ns:=/{namespace}'
-                ' -r /tf:=tf -r /tf_static:=tf_static'
-                f' --params-file {localization_parameters}',
+            bl.node(
+                package='robot_localization',
+                executable='ekf_node',
                 name='ekf_global',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
+                param_files=[localization_parameters_path],
+                remaps=TF_REMAPS,
                 **RESPAWN,
             )
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' {JAZZY_ENV}/lib/robot_localization/navsat_transform_node'
-                ' --ros-args -r __node:=navsat_transform'
-                f' -r __ns:=/{namespace}'
-                ' -r /tf:=tf -r /tf_static:=tf_static'
-                ' -r gps/fix:=sensors/gps_0/fix'
-                ' -r gps/filtered:=sensors/gps_0/filtered'
-                f' --params-file {localization_parameters}',
+            bl.node(
+                package='robot_localization',
+                executable='navsat_transform_node',
                 name='navsat_transform',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
+                param_files=[localization_parameters_path],
+                remaps=TF_REMAPS | {
+                    'gps/fix': 'sensors/gps_0/fix',
+                    'gps/filtered': 'sensors/gps_0/filtered',
+                },
                 **RESPAWN,
             )
 
@@ -1000,7 +982,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
         if (robot_config.get('gps_navigation', {}).get('enabled', False)
                 and sensors.get('gps')):
             bl.wait_for_service(f'/{namespace}/fromLL', timeout=120.0)
-            gps_navigation_parameters = os.path.abspath(
+            gps_navigation_parameters_path = os.path.abspath(
                 'navigation/config/gps_navigation.yaml')
             navigate_to_pose_tree = os.path.abspath(
                 'navigation/config/navigate_to_pose.xml')
@@ -1009,36 +991,31 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     ('nav2_planner', 'planner_server'),
                     ('nav2_bt_navigator', 'bt_navigator'),
                     ('nav2_waypoint_follower', 'waypoint_follower')):
-                tree_argument = (
-                    f' -p default_nav_to_pose_bt_xml:={navigate_to_pose_tree}'
-                    if server == 'bt_navigator' else '')
-                from_ll_argument = (
-                    ' -r /fromLL:=fromLL'
-                    if server == 'waypoint_follower' else '')
+                server_parameters = {}
+                server_remaps = dict(TF_REMAPS)
+                if server == 'bt_navigator':
+                    server_parameters['default_nav_to_pose_bt_xml'] = (
+                        navigate_to_pose_tree)
+                if server == 'waypoint_follower':
+                    server_remaps['/fromLL'] = 'fromLL'
                 costmap_name = {
                     'controller_server': 'local_costmap',
                     'planner_server': 'global_costmap'}.get(server)
-                scan_argument = (
-                    f' -r /{namespace}/{costmap_name}/sensors/camera_0/scan'
-                    f':=/{namespace}/sensors/camera_0/scan'
-                    if costmap_name else '')
+                if costmap_name:
+                    server_remaps[
+                        f'/{namespace}/{costmap_name}/sensors/camera_0/scan'] = (
+                        f'/{namespace}/sensors/camera_0/scan')
                 linear_velocity = robot_config['gps_navigation'].get(
                     'linear_velocity_meters_per_second')
-                velocity_argument = (
-                    f' -p FollowPath.desired_linear_vel:={float(linear_velocity)}'
-                    if linear_velocity is not None
-                    and server == 'controller_server' else '')
-                bl.process(
-                    f'{PIXI} run --clean-env -e jazzy'
-                    f' {JAZZY_ENV}/lib/{package}/{server}'
-                    ' --ros-args'
-                    f' -r __ns:=/{namespace}'
-                    ' -r /tf:=tf -r /tf_static:=tf_static'
-                    f' --params-file {gps_navigation_parameters}'
-                    f'{tree_argument}{from_ll_argument}{scan_argument}'
-                    f'{velocity_argument}',
+                if linear_velocity is not None and server == 'controller_server':
+                    server_parameters['FollowPath.desired_linear_vel'] = float(
+                        linear_velocity)
+                bl.node(
+                    package=package,
+                    executable=server,
                     name=server,
-                    env={'HOME': os.environ['HOME']},
-                    isolate_env=True,
+                    params=server_parameters,
+                    param_files=[gps_navigation_parameters_path],
+                    remaps=server_remaps,
                     **RESPAWN,
                 )

@@ -3,8 +3,6 @@
   "venvPath": ".pixi/envs",
   "venv": "default",
   "extraPaths": [
-    "install/lib/python3.14/site-packages",
-    ".pixi/envs/jazzy/lib/python3.12/site-packages",
     "../../vendor/better_launch"
   ],
   "reportArgumentType": "none",

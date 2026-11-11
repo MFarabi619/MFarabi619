@@ -1,5 +1,18 @@
 build:
-  merge-install: true
+  base-paths: &base_paths
+    - .
+    - ../../vendor/audio_common
+    - ../../vendor/nmea_navsat_driver
+    - ../../vendor/ros2_link6
+    - ../../vendor/cartesian_controllers
+    - ../../vendor/mujoco_ros2_control
+    - ../../vendor/play_motion2
+    - ../../vendor/ros2_robotiq_gripper
+    - ../../vendor/picknik_controllers
+    - ../../vendor/serial
+    - ../../vendor/ros2_controllers/gripper_controllers
+    - ../../vendor/zed-ros2-wrapper
+    - ../../vendor/zed-ros2-interfaces
   event-handlers: ["console_direct+"]
   cmake-args:
     - -DCMAKE_BUILD_TYPE=Release
@@ -7,6 +20,7 @@ build:
     - -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     - -DCMAKE_C_COMPILER_LAUNCHER=ccache
     - -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+list:
+  base-paths: *base_paths
 test:
-  merge-install: true
   event-handlers: ["console_direct+"]

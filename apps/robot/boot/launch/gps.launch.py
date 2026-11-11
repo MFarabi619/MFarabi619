@@ -14,8 +14,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import os
-
 from better_launch import BetterLaunch, launch_this
 from pygnssutils import OUTPUT_SERIAL
 from zenoh_router import ensure_router
@@ -34,12 +32,7 @@ def gps(
     ntrip_username: str = 'farabi@tandemrobotics.ca',
 ):
     bl = BetterLaunch()
-    ensure_router(
-        bl,
-        executable=os.path.abspath(
-            '.pixi/envs/jazzy/lib/rmw_zenoh_cpp/rmw_zenohd'),
-        env={'HOME': os.environ['HOME']},
-        isolate_env=True)
+    ensure_router(bl)
     if mountpoint:
         bl.process(
             ['gnssntripclient', '--server', NTRIP_CASTER_HOST,

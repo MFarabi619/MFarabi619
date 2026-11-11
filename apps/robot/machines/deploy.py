@@ -17,7 +17,6 @@
 
 
 import argparse
-import hashlib
 from pathlib import Path
 import shlex
 import subprocess
@@ -27,68 +26,16 @@ import time
 import yaml
 
 MIRROR_ROOT = '/home/mfarabi/MFarabi619'
+MIRROR_ROBOT_PATH = f'{MIRROR_ROOT}/apps/robot'
 PIXI = '/home/mfarabi/.pixi/bin/pixi'
 
-ROBOT_LOCAL_ENTRIES = [
-    '.pixi', 'build', 'install', 'log', 'build-arm', 'install-arm']
+ROBOT_LOCAL_ENTRIES = ['.pixi', 'build', 'install', 'log']
 
 DEVELOPMENT_ONLY_ENTRIES = ['__pycache__', 'assets']
 
-DEAD_LAYOUT_ENTRIES = [
-    'build/robot_config',
-    'build/robot_bringup', 'install/share/robot_bringup',
-    'build/robot_sensors', 'install/share/robot_sensors',
-    'install/lib/robot_sensors',
-    'build/robot_hardware_interfaces',
-    'install/share/robot_hardware_interfaces',
-    'install/include/robot_hardware_interfaces',
-    'install/lib/librobot_hardware_interfaces.so',
-    'install/share/ament_index/resource_index/packages/robot_bringup',
-    'build/robot_generator_common', 'install/share/robot_generator_common',
-    'install/lib/robot_generator_common',
-    'install/lib/robot_description/generate_param',
-    'install/lib/python3.14/site-packages/robot_generator_common',
-    'install/share/ament_index/resource_index/packages/robot_generator_common',
-    'install/share/ament_index/resource_index/packages/robot_hardware_interfaces',
-    'install/share/ament_index/resource_index/packages/robot_sensors',
-    'install/share/ament_index/resource_index/'
-    'hardware_interface__pluginlib__plugin/robot_hardware_interfaces',
-    'install/share/robot_simulator/config',
-    'install/lib/robot_perception/collision_overlay_cpp',
-    'install/lib/robot_perception/collision_overlay.py',
-    'install/share/robot_control/config/generated',
-    'install/share/robot_control/config/drivetrain.generated.yaml',
-    'build/zed_description', 'install/share/zed_description',
-    'install/share/ament_index/resource_index/packages/zed_description',
-    'build/nav2_common', 'build/nav2_msgs',
-    'install/include/nav2_msgs',
-    'install/lib/libnav2_msgs__rosidl_generator_c.so',
-    'install/lib/libnav2_msgs__rosidl_generator_py.so',
-    'install/lib/libnav2_msgs__rosidl_typesupport_c.so',
-    'install/lib/libnav2_msgs__rosidl_typesupport_cpp.so',
-    'install/lib/libnav2_msgs__rosidl_typesupport_fastrtps_c.so',
-    'install/lib/libnav2_msgs__rosidl_typesupport_fastrtps_cpp.so',
-    'install/lib/libnav2_msgs__rosidl_typesupport_introspection_c.so',
-    'install/lib/libnav2_msgs__rosidl_typesupport_introspection_cpp.so',
-    'install/lib/python3.14/site-packages/nav2_common',
-    'install/lib/python3.14/site-packages/nav2_common-1.3.13-py3.14.egg-info',
-    'install/lib/python3.14/site-packages/nav2_msgs',
-    'install/lib/python3.14/site-packages/nav2_msgs-1.3.13-py3.14.egg-info',
-    'install/share/nav2_common', 'install/share/nav2_msgs',
-    'install/share/ament_index/resource_index/package_run_dependencies/nav2_common',
-    'install/share/ament_index/resource_index/package_run_dependencies/nav2_msgs',
-    'install/share/ament_index/resource_index/packages/nav2_common',
-    'install/share/ament_index/resource_index/packages/nav2_msgs',
-    'install/share/ament_index/resource_index/parent_prefix_path/nav2_common',
-    'install/share/ament_index/resource_index/parent_prefix_path/nav2_msgs',
-    'install/share/ament_index/resource_index/rosidl_interfaces/nav2_msgs',
-    'install/share/ament_index/resource_index/rust_packages/nav2_msgs',
-    'install/share/colcon-core/packages/nav2_common',
-    'install/share/colcon-core/packages/nav2_msgs',
-]
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
-MACHINES_PATH = REPO_ROOT / 'apps/robot/machines'
+ROBOT_PATH = REPO_ROOT / 'apps/robot'
+MACHINES_PATH = ROBOT_PATH / 'machines'
 
 RSYNC_FLAGS = ['-rlptgoD', '-P']
 
@@ -97,6 +44,13 @@ FIRMWARE_CONFIG_PATH = '/boot/firmware/config.txt'
 
 USB_AUTOSUSPEND_OFF = 'usbcore.autosuspend=-1'
 EXTLINUX_CONFIG_PATH = '/boot/extlinux/extlinux.conf'
+
+FLEET_VENDOR_TREES = ['better_launch', 'audio_common', 'nmea_navsat_driver']
+ARM_VENDOR_TREES = [
+    'ros2_link6', 'cartesian_controllers', 'mujoco_ros2_control',
+    'play_motion2', 'ros2_robotiq_gripper', 'picknik_controllers', 'serial',
+    'ros2_controllers']
+ZED_VENDOR_TREES = ['zed-ros2-wrapper', 'zed-ros2-interfaces']
 
 
 def run(*command, working_directory=None):
@@ -115,81 +69,75 @@ def shell_chain(*commands):
     return ' && '.join(shlex.join(command) for command in commands)
 
 
-def is_arm_only_machine(config):
-    return 'arm' in config and 'platform' not in config
-
-
 def has_zed_camera(config):
     return any(
         camera['model'] == 'zed_2'
         for camera in (config.get('sensors') or {}).get('camera', []))
 
 
-def environment_changes(host):
-    local_lock = hashlib.sha256(
-        (REPO_ROOT / 'apps/robot/pixi.lock').read_bytes()).hexdigest()
-    remote_lock = subprocess.run(
-        ['ssh', '-q', host,
-         f'sha256sum {MIRROR_ROOT}/apps/robot/pixi.lock'],
-        capture_output=True, text=True)
-    return (remote_lock.returncode != 0
-            or not remote_lock.stdout.startswith(local_lock))
+def vendor_trees(config):
+    trees = list(FLEET_VENDOR_TREES)
+    if 'arm' in config:
+        trees += ARM_VENDOR_TREES
+    if has_zed_camera(config):
+        trees += ZED_VENDOR_TREES
+    return trees
+
+
+def mirrored_package_names(host):
+    listing = subprocess.run(
+        ['ssh', '-q', host, shell_chain(
+            ['cd', MIRROR_ROBOT_PATH],
+            [PIXI, 'run', 'colcon', 'list', '--names-only'])],
+        capture_output=True, text=True, check=True)
+    return listing.stdout.split()
+
+
+def remove_unmirrored_build_entries(host):
+    keep_package_expression = [
+        argument for package in mirrored_package_names(host)
+        for argument in ('!', '-name', package)]
+    ssh(host, shell_chain(
+        ['cd', MIRROR_ROBOT_PATH],
+        ['mkdir', '-p', 'build', 'install'],
+        ['find', 'build', 'install', '-mindepth', '1', '-maxdepth', '1',
+         *keep_package_expression, '-exec', 'rm', '-rf', '{}', '+'],
+    ))
 
 
 def mirror(host, config):
     ssh(host, shell_chain(
-        ['mkdir', '-p', f'{MIRROR_ROOT}/apps/robot',
-         f'{MIRROR_ROOT}/vendor/better_launch',
-         f'{MIRROR_ROOT}/vendor/audio_common'],
-        ['rm', '-rf', f'{MIRROR_ROOT}/vendor/navigation2'],
-        ['cd', f'{MIRROR_ROOT}/apps/robot'],
-        ['rm', '-rf', *DEAD_LAYOUT_ENTRIES],
+        ['mkdir', '-p', MIRROR_ROBOT_PATH, f'{MIRROR_ROOT}/vendor'],
     ))
-    for vendor_tree in ('better_launch', 'audio_common'):
-        run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git',
-            '-e', 'ssh -q', f'vendor/{vendor_tree}/',
-            f'{host}:{MIRROR_ROOT}/vendor/{vendor_tree}/',
-            working_directory=REPO_ROOT)
-    if is_arm_only_machine(config) or has_zed_camera(config):
-        for vendor_tree in (
-                'ros2_link6', 'cartesian_controllers', 'mujoco_ros2_control',
-                'play_motion2', 'ros2_robotiq_gripper', 'picknik_controllers',
-                'serial', 'ros2_controllers', 'zed-ros2-wrapper',
-                'zed-ros2-interfaces'):
-            run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git',
-                '-e', 'ssh -q', f'vendor/{vendor_tree}/',
-                f'{host}:{MIRROR_ROOT}/vendor/{vendor_tree}/',
-                working_directory=REPO_ROOT)
+    run('rsync', *RSYNC_FLAGS, '--delete', '--delete-excluded',
+        '--exclude', '.git',
+        *[f'--include=/{vendor_tree}/' for vendor_tree in vendor_trees(config)],
+        '--exclude=/*',
+        '-e', 'ssh -q', 'vendor/', f'{host}:{MIRROR_ROOT}/vendor/',
+        working_directory=REPO_ROOT)
     run('rsync', *RSYNC_FLAGS, '--delete',
         *[f'--exclude={entry}' for entry in ROBOT_LOCAL_ENTRIES],
         *[f'--filter=H {entry}' for entry in DEVELOPMENT_ONLY_ENTRIES],
         '-e', 'ssh -q', 'apps/robot/',
-        f'{host}:{MIRROR_ROOT}/apps/robot/', working_directory=REPO_ROOT)
+        f'{host}:{MIRROR_ROBOT_PATH}/', working_directory=REPO_ROOT)
 
 
-def build(host, config, environment_changed):
+def build(host, config):
+    remove_unmirrored_build_entries(host)
     commands = [
-        ['cd', f'{MIRROR_ROOT}/apps/robot'],
+        ['cd', MIRROR_ROBOT_PATH],
     ]
-    if environment_changed:
-        commands.append(['rm', '-rf', 'build', 'build-arm'])
-    if is_arm_only_machine(config):
+    if 'arm' in config:
         commands.append([PIXI, 'install', '-e', 'kortex'])
-        commands.append([PIXI, 'run', 'build-arm'])
-    else:
-        if (config.get('sensors') or {}).get('gps'):
-            commands.append([PIXI, 'install', '-e', 'jazzy'])
-        if has_zed_camera(config):
-            commands.append([PIXI, 'run', 'build-zed'])
-        commands.append([PIXI, 'run', 'build'])
+    commands.append([PIXI, 'run', 'build'])
     ssh_with_terminal(host, shell_chain(*commands))
 
 
 def provision(host, config):
     ssh(host, 'test -x ~/.pixi/bin/pixi'
         ' || curl -fsSL https://pixi.sh/install.sh | bash')
-    udev = f'{MIRROR_ROOT}/apps/robot/drivers/udev'
-    services = f'{MIRROR_ROOT}/apps/robot/boot/systemd'
+    udev = f'{MIRROR_ROBOT_PATH}/drivers/udev'
+    services = f'{MIRROR_ROBOT_PATH}/boot/systemd'
     ssh_with_terminal(host, shell_chain(
         ['sudo', 'install', '-m', '644', '-o', 'root', '-g', 'root',
          f'{udev}/80-movidius.rules', f'{udev}/99-obsensor-libusb.rules',
@@ -213,7 +161,7 @@ def provision(host, config):
 
 
 def install_units(host, robot_name):
-    services = f'{MIRROR_ROOT}/apps/robot/boot/systemd'
+    services = f'{MIRROR_ROBOT_PATH}/boot/systemd'
     has_hostapd_config = (MACHINES_PATH / robot_name / 'hostapd.conf').is_file()
     commands = [
         ['sudo', 'install', '-m', '644', '-o', 'root', '-g', 'root',
@@ -221,7 +169,7 @@ def install_units(host, robot_name):
         ['sync', '/etc/systemd/system/robot.service'],
     ]
     if has_hostapd_config:
-        hostapd_config = f'{MIRROR_ROOT}/apps/robot/machines/{robot_name}/hostapd.conf'
+        hostapd_config = f'{MIRROR_ROBOT_PATH}/machines/{robot_name}/hostapd.conf'
         commands += [
             ['sudo', 'install', '-m', '600', '-o', 'root', '-g', 'root',
              hostapd_config, '/etc/hostapd/hostapd.conf'],
@@ -242,7 +190,7 @@ def verify_health(robot_name):
     while True:
         check = subprocess.run(
             [sys.executable, 'e2e/robot_health.py', robot_name],
-            cwd=REPO_ROOT / 'apps/robot')
+            cwd=ROBOT_PATH)
         if check.returncode == 0:
             return
         if time.monotonic() >= deadline:
@@ -277,12 +225,11 @@ def main():
         print('verifying machine')
         verify_machine(robot_name)
         print(f'mirroring {host}')
-        environment_changed = environment_changes(host)
         mirror(host, config)
         print('provisioning')
         provision(host, config)
         print('building')
-        build(host, config, environment_changed)
+        build(host, config)
         print('installing units')
         install_units(host, robot_name)
         print('verifying health')
