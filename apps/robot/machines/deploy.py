@@ -39,6 +39,9 @@ MACHINES_PATH = ROBOT_PATH / 'machines'
 
 RSYNC_FLAGS = ['-rlptgoD', '-P']
 
+BUILD_WORKERS = 2
+COMPILE_JOBS_PER_WORKER = 3
+
 PWM_OVERLAY = 'dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4'
 FIRMWARE_CONFIG_PATH = '/boot/firmware/config.txt'
 
@@ -122,6 +125,12 @@ def mirror(host, config):
         f'{host}:{MIRROR_ROBOT_PATH}/', working_directory=REPO_ROOT)
 
 
+def stop_robot_service(host):
+    ssh_with_terminal(
+        host, '! systemctl is-active --quiet robot.service'
+        ' || sudo systemctl stop robot.service')
+
+
 def build(host, config):
     remove_unmirrored_build_entries(host)
     commands = [
@@ -129,7 +138,10 @@ def build(host, config):
     ]
     if 'arm' in config:
         commands.append([PIXI, 'install', '-e', 'kortex'])
-    commands.append([PIXI, 'run', 'build'])
+    commands.append([
+        'env', f'MAKEFLAGS=-j{COMPILE_JOBS_PER_WORKER}',
+        f'CMAKE_BUILD_PARALLEL_LEVEL={COMPILE_JOBS_PER_WORKER}',
+        PIXI, 'run', 'build', '--parallel-workers', str(BUILD_WORKERS)])
     ssh_with_terminal(host, shell_chain(*commands))
 
 
@@ -228,6 +240,8 @@ def main():
         mirror(host, config)
         print('provisioning')
         provision(host, config)
+        print('stopping robot service')
+        stop_robot_service(host)
         print('building')
         build(host, config)
         print('installing units')
