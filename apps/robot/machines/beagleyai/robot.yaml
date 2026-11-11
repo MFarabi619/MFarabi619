@@ -25,10 +25,10 @@ platform:
     max_angular_jerk_radians_per_second_cubed: 70.0
     left:
       pwm_pin: 38
-      reversed: false
+      is_reversed: false
     right:
       pwm_pin: 32
-      reversed: false
+      is_reversed: false
   # Parked MDD10A wiring (model: pwm_dir): GND pin 39 -> driver GND;
   # motors on M1A/M1B (left), M2A/M2B (right)
   #   pwm_frequency_hz: 20000.0
@@ -41,13 +41,13 @@ platform:
   #   baud_rate: 115200
   #   acceleration_rpm_per_second: 1000
   #   speed_smoothing_time: 50
-  #   left:  {reversed: false}
-  #   right: {reversed: false}
+  #   left:  {is_reversed: false}
+  #   right: {is_reversed: false}
   # Parked ODrive bench (ex machines/odrive, mark-5): replace drivetrain with
   #   model: odrive_usb
   #   gear_ratio: 8.0
-  #   left:  {serial: 9779026C334D, reversed: true}
-  #   right: {serial: 7442026C334D, reversed: false}
+  #   left:  {serial: 9779026C334D, is_reversed: true}
+  #   right: {serial: 7442026C334D, is_reversed: false}
 sensors:
   camera:
     - model: orbbec_gemini_335l

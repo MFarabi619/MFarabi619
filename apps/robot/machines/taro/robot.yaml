@@ -45,10 +45,10 @@ platform:
       max_angular_jerk_radians_per_second_cubed: 70.0
     left:
       pwm_pin: 32
-      reversed: false
+      is_reversed: false
     right:
       pwm_pin: 33
-      reversed: true
+      is_reversed: true
 sensors:
   camera:
     - model: orbbec_gemini_335l

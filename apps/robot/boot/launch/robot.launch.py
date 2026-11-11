@@ -306,9 +306,9 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     'gear_ratio': drivetrain['gear_ratio'],
                     'max_wheel_speed': max_wheel_speed,
                     'left_serial': drivetrain['left']['serial'],
-                    'left_reversed': drivetrain['left']['reversed'],
+                    'left_reversed': drivetrain['left']['is_reversed'],
                     'right_serial': drivetrain['right']['serial'],
-                    'right_reversed': drivetrain['right']['reversed'],
+                    'right_reversed': drivetrain['right']['is_reversed'],
                 },
                 **RESPAWN,
             )
@@ -322,8 +322,8 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     'max_wheel_speed': max_wheel_speed,
                     'acceleration_rpm_per_second': drivetrain['acceleration_rpm_per_second'],
                     'speed_smoothing_time': drivetrain['speed_smoothing_time'],
-                    'left_reversed': drivetrain['left']['reversed'],
-                    'right_reversed': drivetrain['right']['reversed'],
+                    'left_reversed': drivetrain['left']['is_reversed'],
+                    'right_reversed': drivetrain['right']['is_reversed'],
                 },
                 **RESPAWN,
             )
@@ -333,8 +333,8 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 'baud_rate': drivetrain['baud_rate'],
                 'counts_per_revolution': drivetrain['counts_per_revolution'],
                 'control_mode': drivetrain.get('control_mode', 'speed'),
-                'left_reversed': drivetrain['left']['reversed'],
-                'right_reversed': drivetrain['right']['reversed'],
+                'left_reversed': drivetrain['left']['is_reversed'],
+                'right_reversed': drivetrain['right']['is_reversed'],
             }
             if max_wheel_speed is not None:
                 roboteq_parameters['max_wheel_speed'] = max_wheel_speed
@@ -365,10 +365,10 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     'max_wheel_speed': max_wheel_speed,
                     'left_pwm_chip': left_pwm_chip,
                     'left_pwm_channel': left_pwm_channel,
-                    'left_reversed': drivetrain['left']['reversed'],
+                    'left_reversed': drivetrain['left']['is_reversed'],
                     'right_pwm_chip': right_pwm_chip,
                     'right_pwm_channel': right_pwm_channel,
-                    'right_reversed': drivetrain['right']['reversed'],
+                    'right_reversed': drivetrain['right']['is_reversed'],
                 },
                 **RESPAWN,
             )
