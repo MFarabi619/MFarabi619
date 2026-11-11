@@ -21,7 +21,7 @@ index e501c42..0426d15 100644
  
      return candidates
 diff --git a/better_launch/elements/node.py b/better_launch/elements/node.py
-index aaeeb95..c7bfb8b 100644
+index aaeeb95..04731cd 100644
 --- a/better_launch/elements/node.py
 +++ b/better_launch/elements/node.py
 @@ -311,6 +311,8 @@ class Node(AbstractNode, LiveParamsMixin):
@@ -32,6 +32,22 @@ index aaeeb95..c7bfb8b 100644
 +            finally:
                  # Signal error/EOF
                  q.put(None)
+ 
+@@ -447,6 +449,15 @@ class Node(AbstractNode, LiveParamsMixin):
+                 # another watcher thread before this one here exits. Should be fine, just not
+                 # elegant.
+                 self.start()
++
++                # Lifecycle activation normally happens in BetterLaunch.node, which a respawn
++                # bypasses. Without this the node comes back UNCONFIGURED forever.
++                if (
++                    not self.raw
++                    and self.is_ros2_connected(3.0)
++                    and self.is_lifecycle_node(0.01)
++                ):
++                    self.lifecycle.transition(LifecycleStage.ACTIVE)
+             else:
+                 self._on_shutdown()
  
 diff --git a/better_launch/elements/ros2_launch_wrapper.py b/better_launch/elements/ros2_launch_wrapper.py
 index 150d998..05419e9 100644
@@ -53,3 +69,32 @@ index 150d998..05419e9 100644
  
      def _on_sigterm(signum: int, frame):
          # Recommended to use this special _exit call in child processes
+diff --git a/better_launch/launcher.py b/better_launch/launcher.py
+index fb2df55..99ec1f5 100644
+--- a/better_launch/launcher.py
++++ b/better_launch/launcher.py
+@@ -188,6 +188,7 @@ class BetterLaunch(metaclass=BetterLaunchMeta):
+         self._sigint_received = False
+         self._sigterm_received = False
+         self._shutdown_future = Future()
++        self._shutdown_requested = False
+         self._shutdown_callbacks = []
+ 
+         self.short_unique_names = short_unique_names
+@@ -604,7 +605,7 @@ Please fasten your seatbelts and secure all baggage underneath your chair.
+     @property
+     def is_shutdown(self) -> bool:
+         """Whether *better_launch* has shutdown."""
+-        return self._shutdown_future.done()
++        return self._shutdown_requested or self._shutdown_future.done()
+ 
+     def add_shutdown_callback(self, callback: Callable[[], Any]) -> None:
+         """Adds a callback which will be called when *better_launch* shuts down.
+@@ -626,6 +627,7 @@ Please fasten your seatbelts and secure all baggage underneath your chair.
+         signum : int, optional
+             The signal to send to child processes.
+         """
++        self._shutdown_requested = True
+         if reason is None:
+             try:
+                 frame = find_function_frame(self.shutdown)

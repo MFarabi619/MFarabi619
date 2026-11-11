@@ -1,6 +1,6 @@
 patches:
     - path: better-launch.patch
-      sha256sum: 6404ffc87d524d98284dbbfac54a8ec5805ef68dc45d96ea5079768c111971e5
+      sha256sum: 25468137784c03dff42375f8cebf1e0665ef637607e156488d951d7f28e9d1c4
       module: vendor/better_launch
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -10,6 +10,8 @@ patches:
           foreign_node.py + node.py: catch psutil AccessDenied/NoSuchProcess
           when scanning processes (macOS pid 1).
           ros2_launch_wrapper.py: SIGINT calls launch_service.shutdown().
+          launcher.py: is_shutdown true before children are signalled.
+          node.py: respawn re-activates lifecycle nodes.
 
     - path: ros2-link6.patch
       sha256sum: 12ad921c3d9594dc8d6e02a7ee009b4771cf39bada5a06217888ba667043627a
