@@ -355,6 +355,10 @@ arm = { cmd = "python manipulation/launch/arm.launch.py --robot {{ robot }} --ro
     "build-arm",
 ] }
 
+e2e-arm-sim = { cmd = "pytest e2e/arm_sim.py -v -s", depends-on = [
+    "build-arm",
+] }
+
 sim-arm-mujoco = { cmd = "python simulation/launch/arm_mujoco.launch.py --robot {{ robot }} --mode {{ mode }}", args = [
     { arg = "robot", default = "kinova-link-6" },
     { arg = "mode", default = "moveit", choices = [
@@ -391,8 +395,7 @@ arm-pick = { cmd = "python manipulation/launch/kinova_link6_pick.launch.py --obj
     { arg = "host", default = "jetson-orin-nano.local" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
-arm-release = { cmd = "python manipulation/src/kinova_link6_release.py --robot {{ robot }} --object {{ object }}", args = [
-    { arg = "robot", default = "kinova-link-6" },
+arm-place = { cmd = "python manipulation/src/kinova_link6_place.py --object {{ object }}", args = [
     { arg = "object", default = "apple" },
     { arg = "host", default = "jetson-orin-nano.local" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }

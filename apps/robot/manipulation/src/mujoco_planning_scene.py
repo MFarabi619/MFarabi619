@@ -16,7 +16,7 @@
 
 from pathlib import Path
 
-from geometry_msgs.msg import Point, Pose
+from geometry_msgs.msg import Point, Pose, PoseStamped
 from moveit_msgs.msg import (AllowedCollisionEntry, CollisionObject,
                              ObjectColor, PlanningScene,
                              PlanningSceneComponents)
@@ -110,6 +110,8 @@ class MujocoPlanningScene(Node):
                 robot_root / model['file'])
         self.scene_publisher = self.create_publisher(
             PlanningScene, 'planning_scene', 10)
+        self.pre_attach_poses = {}
+        self.pre_attach_publishers = {}
         self.scene_applier = self.create_client(
             ApplyPlanningScene, 'apply_planning_scene')
         self.scene_reader = self.create_client(
@@ -130,12 +132,30 @@ class MujocoPlanningScene(Node):
     def on_monitored_scene(self, message):
         for attached_object in message.robot_state.attached_collision_objects:
             if attached_object.object.operation == CollisionObject.ADD:
-                self.attached_objects.add(attached_object.object.id)
+                name = attached_object.object.id
+                if name not in self.attached_objects and name in self.latest_poses:
+                    self.pre_attach_poses[name] = self.latest_poses[name]
+                self.attached_objects.add(name)
             elif attached_object.object.operation == CollisionObject.REMOVE:
                 self.attached_objects.discard(attached_object.object.id)
                 self.added_objects.discard(attached_object.object.id)
 
+    def publish_pre_attach_poses(self):
+        for name in self.attached_objects:
+            pose = self.pre_attach_poses.get(name)
+            if pose is None:
+                continue
+            if name not in self.pre_attach_publishers:
+                self.pre_attach_publishers[name] = self.create_publisher(
+                    PoseStamped, f'pre_attach_pose/{name}', 10)
+            message = PoseStamped()
+            message.header.frame_id = PLANNING_FRAME
+            message.header.stamp = self.get_clock().now().to_msg()
+            message.pose = pose
+            self.pre_attach_publishers[name].publish(message)
+
     def publish_scene(self):
+        self.publish_pre_attach_poses()
         if not self.latest_poses:
             return
         scene_diff = PlanningScene()
