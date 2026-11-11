@@ -1,0 +1,70 @@
+diff --git a/src/libnmea_navsat_driver/driver.py b/src/libnmea_navsat_driver/driver.py
+index 5bd7f93..2fc6aba 100644
+--- a/src/libnmea_navsat_driver/driver.py
++++ b/src/libnmea_navsat_driver/driver.py
+@@ -129,8 +129,8 @@ class Ros2NMEADriver(Node):
+     # nmea_string
+     def add_sentence(self, nmea_string, frame_id, timestamp=None):
+         if not check_nmea_checksum(nmea_string):
+-            self.get_logger().warn("Received a sentence with an invalid checksum. " +
+-                                   "Sentence was: %s" % nmea_string)
++            self.get_logger().warning("Received a sentence with an invalid checksum. " +
++                                      "Sentence was: %s" % nmea_string)
+             return False
+ 
+         parsed_sentence = parser.parse_nmea_sentence(nmea_string)
+diff --git a/src/libnmea_navsat_driver/nodes/nmea_serial_driver.py b/src/libnmea_navsat_driver/nodes/nmea_serial_driver.py
+index ce60838..615094c 100755
+--- a/src/libnmea_navsat_driver/nodes/nmea_serial_driver.py
++++ b/src/libnmea_navsat_driver/nodes/nmea_serial_driver.py
+@@ -57,7 +57,7 @@ def main(args=None):
+                         data = data.decode("utf-8")
+                     driver.add_sentence(data, frame_id)
+                 except ValueError as e:
+-                    driver.get_logger().warn(
++                    driver.get_logger().warning(
+                         "Value error, likely due to missing fields in the NMEA message. Error was: %s. "
+                         "Please report this issue at github.com/ros-drivers/nmea_navsat_driver, including a bag file "
+                         "with the NMEA sentences that caused it." % e)
+diff --git a/src/libnmea_navsat_driver/nodes/nmea_socket_driver.py b/src/libnmea_navsat_driver/nodes/nmea_socket_driver.py
+index 6c46e86..8711728 100755
+--- a/src/libnmea_navsat_driver/nodes/nmea_socket_driver.py
++++ b/src/libnmea_navsat_driver/nodes/nmea_socket_driver.py
+@@ -85,7 +85,7 @@ def main(args=None):
+                     try:
+                         driver.add_sentence(data, frame_id)
+                     except ValueError as e:
+-                        driver.get_logger().warn(
++                        driver.get_logger().warning(
+                             "Value error, likely due to missing fields in the NMEA message. "
+                             "Error was: %s. Please report this issue at github.com/ros-drivers/nmea_navsat_driver, "
+                             "including a bag file with the NMEA sentences that caused it." % e)
+diff --git a/src/libnmea_navsat_driver/nodes/nmea_tcpclient_driver.py b/src/libnmea_navsat_driver/nodes/nmea_tcpclient_driver.py
+index d06a1ff..35eadd4 100644
+--- a/src/libnmea_navsat_driver/nodes/nmea_tcpclient_driver.py
++++ b/src/libnmea_navsat_driver/nodes/nmea_tcpclient_driver.py
+@@ -68,9 +68,9 @@ def main(args=None):
+                         if driver.add_sentence(data, frame_id):
+                             driver.get_logger().info("Received sentence: %s" % data)
+                         else:
+-                            driver.get_logger().warn("Error with sentence: %s" % data)
++                            driver.get_logger().warning("Error with sentence: %s" % data)
+                     except ValueError as e:
+-                        driver.get_logger().warn(
++                        driver.get_logger().warning(
+                             "Value error, likely due to missing fields in the NMEA message. "
+                             "Error was: %s. Please report this issue to me. " % e)
+ 
+diff --git a/src/libnmea_navsat_driver/nodes/nmea_topic_driver.py b/src/libnmea_navsat_driver/nodes/nmea_topic_driver.py
+index 064071d..0acc53b 100755
+--- a/src/libnmea_navsat_driver/nodes/nmea_topic_driver.py
++++ b/src/libnmea_navsat_driver/nodes/nmea_topic_driver.py
+@@ -44,7 +44,7 @@ def nmea_sentence_callback(nmea_sentence, driver):
+         driver.add_sentence(nmea_sentence.sentence, frame_id=nmea_sentence.header.frame_id,
+                             timestamp=nmea_sentence.header.stamp)
+     except ValueError as e:
+-        rclpy.get_logger().warn(
++        rclpy.get_logger().warning(
+             "Value error, likely due to missing fields in the NMEA message. Error was: %s. "
+             "Please report this issue at github.com/ros-drivers/nmea_navsat_driver, including a bag file with "
+             "the NMEA sentences that caused it." % e)

@@ -85,3 +85,13 @@ patches:
       comments: |
           clang-format lint made optional; ament_cmake_clang_format is not
           in the pixi envs.
+
+    - path: nmea-navsat-driver.patch
+      sha256sum: a5bbe615d52da2d8e430bf120aba3cf8cb178fe07cffb16695d825014848c585
+      module: vendor/nmea_navsat_driver
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-11-11
+      upstreamable: true
+      comments: |
+          Logger .warn() -> .warning(); rclpy on lyrical dropped the alias.
