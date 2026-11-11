@@ -1,17 +1,20 @@
 patches:
     - path: better-launch.patch
-      sha256sum: 25468137784c03dff42375f8cebf1e0665ef637607e156488d951d7f28e9d1c4
+      sha256sum: 7a3509c0b7125fdd233558cdd4b5dc671154a3862df5550972ba191072dc05db
       module: vendor/better_launch
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
-      date: 2026-10-12
+      date: 2026-11-11
       upstreamable: true
       comments: |
-          foreign_node.py + node.py: catch psutil AccessDenied/NoSuchProcess
-          when scanning processes (macOS pid 1).
+          processes.py: catch psutil AccessDenied/NoSuchProcess when scanning
+          processes (macOS pid 1); prctl only on Linux; setpriority only when
+          a niceness is requested (raising priority fails under a niced parent).
+          node.py: niceness rlimit check only on Linux (RLIMIT_NICE is
+          Linux-only); output reader always signals EOF; respawn re-activates
+          lifecycle nodes.
           ros2_launch_wrapper.py: SIGINT calls launch_service.shutdown().
           launcher.py: is_shutdown true before children are signalled.
-          node.py: respawn re-activates lifecycle nodes.
 
     - path: ros2-link6.patch
       sha256sum: a8c808ba2fe18a6b9a5b1a3eb5921fc0ef97917a4f2caf35a9ef1d6a1ad6b289

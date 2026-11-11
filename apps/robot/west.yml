@@ -1,7 +1,7 @@
 manifest:
     projects:
         - name: better_launch
-          revision: 26f5be8bea20a6371138314cae47b0877933d0f5 # 2026-10-12
+          revision: 73f48b4cf8269bad69b15d8559eaaf7f7007deb3 # devel 2026-11-10
           path: vendor/better_launch
           url: https://github.com/dfki-ric/better_launch
 

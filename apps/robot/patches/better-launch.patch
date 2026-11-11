@@ -1,30 +1,17 @@
-diff --git a/better_launch/elements/foreign_node.py b/better_launch/elements/foreign_node.py
-index e501c42..0426d15 100644
---- a/better_launch/elements/foreign_node.py
-+++ b/better_launch/elements/foreign_node.py
-@@ -53,7 +53,7 @@ def find_ros2_node_processes() -> list[psutil.Process]:
-                 or "__name:=" in cmd
-             ):
-                 ret.append(p)
--        except psutil.ZombieProcess:
-+        except (psutil.ZombieProcess, psutil.AccessDenied, psutil.NoSuchProcess):
-             pass
- 
-     return ret
-@@ -94,7 +94,7 @@ def find_process_for_node(namespace: str, name: str) -> list[psutil.Process]:
-                 if pkg_match and name_match:
-                     candidates.append(p)
-                     break
--        except psutil.ZombieProcess:
-+        except (psutil.ZombieProcess, psutil.AccessDenied, psutil.NoSuchProcess):
-             pass
- 
-     return candidates
 diff --git a/better_launch/elements/node.py b/better_launch/elements/node.py
-index aaeeb95..04731cd 100644
+index c69f418..7012fce 100644
 --- a/better_launch/elements/node.py
 +++ b/better_launch/elements/node.py
-@@ -311,6 +311,8 @@ class Node(AbstractNode, LiveParamsMixin):
+@@ -118,7 +118,7 @@ class Node(AbstractNode, LiveParamsMixin):
+ 
+         # Windows is a more permissive here and uses priority classes instead. It also doesn't
+         # have the resource module.
+-        if sys.platform != "win32":
++        if sys.platform == "linux":
+             import resource
+ 
+             # Kernel niceness goes from 1 to 40
+@@ -328,6 +328,8 @@ class Node(AbstractNode, LiveParamsMixin):
                          break
                      q.put(line.rstrip("\n\r"))
              except Exception:
@@ -33,11 +20,10 @@ index aaeeb95..04731cd 100644
                  # Signal error/EOF
                  q.put(None)
  
-@@ -447,6 +449,15 @@ class Node(AbstractNode, LiveParamsMixin):
-                 # another watcher thread before this one here exits. Should be fine, just not
+@@ -465,6 +467,15 @@ class Node(AbstractNode, LiveParamsMixin):
                  # elegant.
                  self.start()
-+
+ 
 +                # Lifecycle activation normally happens in BetterLaunch.node, which a respawn
 +                # bypasses. Without this the node comes back UNCONFIGURED forever.
 +                if (
@@ -46,14 +32,15 @@ index aaeeb95..04731cd 100644
 +                    and self.is_lifecycle_node(0.01)
 +                ):
 +                    self.lifecycle.transition(LifecycleStage.ACTIVE)
-             else:
-                 self._on_shutdown()
- 
++
+     def shutdown(
+         self, reason: str, timeout: float = 0.0, signum: int = signal.SIGTERM
+     ) -> int:
 diff --git a/better_launch/elements/ros2_launch_wrapper.py b/better_launch/elements/ros2_launch_wrapper.py
-index 150d998..05419e9 100644
+index cdeb092..0bcf43a 100644
 --- a/better_launch/elements/ros2_launch_wrapper.py
 +++ b/better_launch/elements/ros2_launch_wrapper.py
-@@ -43,14 +43,7 @@ def _launchservice_worker(
+@@ -45,14 +45,7 @@ def _launchservice_worker(
      # The child process will have clones of the host process' signal handlers installed (i.e. those
      # defined in launch_this), so we should rewire these, otherwise we'll get parallel calls
      def _on_sigint(signum: int, frame):
@@ -70,18 +57,18 @@ index 150d998..05419e9 100644
      def _on_sigterm(signum: int, frame):
          # Recommended to use this special _exit call in child processes
 diff --git a/better_launch/launcher.py b/better_launch/launcher.py
-index fb2df55..99ec1f5 100644
+index 84736d4..c0277d8 100644
 --- a/better_launch/launcher.py
 +++ b/better_launch/launcher.py
-@@ -188,6 +188,7 @@ class BetterLaunch(metaclass=BetterLaunchMeta):
-         self._sigint_received = False
+@@ -189,6 +189,7 @@ class BetterLaunch(metaclass=BetterLaunchMeta):
          self._sigterm_received = False
+         self._shutdown_lock = threading.Lock()
          self._shutdown_future = Future()
 +        self._shutdown_requested = False
          self._shutdown_callbacks = []
  
          self.short_unique_names = short_unique_names
-@@ -604,7 +605,7 @@ Please fasten your seatbelts and secure all baggage underneath your chair.
+@@ -615,7 +616,7 @@ Please fasten your seatbelts and secure all baggage underneath your chair.
      @property
      def is_shutdown(self) -> bool:
          """Whether *better_launch* has shutdown."""
@@ -90,11 +77,52 @@ index fb2df55..99ec1f5 100644
  
      def add_shutdown_callback(self, callback: Callable[[], Any]) -> None:
          """Adds a callback which will be called when *better_launch* shuts down.
-@@ -626,6 +627,7 @@ Please fasten your seatbelts and secure all baggage underneath your chair.
+@@ -641,6 +642,7 @@ Please fasten your seatbelts and secure all baggage underneath your chair.
          signum : int, optional
              The signal to send to child processes.
          """
 +        self._shutdown_requested = True
-         if reason is None:
-             try:
-                 frame = find_function_frame(self.shutdown)
+         # Check if there's already a shutdown in progress
+         if not self._shutdown_lock.acquire(blocking=False):
+             return
+diff --git a/better_launch/utils/processes.py b/better_launch/utils/processes.py
+index dba3928..deaff3b 100644
+--- a/better_launch/utils/processes.py
++++ b/better_launch/utils/processes.py
+@@ -21,12 +21,14 @@ def _spawn_node_process_linux(
+     def setup_process():
+         # Make the process its own process group so ctrl-c doesn't hit it directly
+         os.setpgrp()
+-        os.setpriority(os.PRIO_PROCESS, 0, niceness)
++        if niceness:
++            os.setpriority(os.PRIO_PROCESS, 0, niceness)
+ 
+         # Tell the kernel the process should be killed if our root process dies
+-        PR_SET_PDEATHSIG = 1
+-        libc = ctypes.CDLL("libc.so.6", use_errno=True)
+-        libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
++        if sys.platform == "linux":
++            PR_SET_PDEATHSIG = 1
++            libc = ctypes.CDLL("libc.so.6", use_errno=True)
++            libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
+ 
+     return subprocess.Popen(cmd, preexec_fn=setup_process, **kwargs)
+ 
+@@ -178,7 +180,7 @@ def find_ros2_node_processes() -> list[psutil.Process]:
+                 or "__name:=" in cmd
+             ):
+                 ret.append(p)
+-        except psutil.ZombieProcess:
++        except (psutil.ZombieProcess, psutil.AccessDenied, psutil.NoSuchProcess):
+             pass
+ 
+     return ret
+@@ -219,7 +221,7 @@ def find_process_for_node(namespace: str, name: str) -> list[psutil.Process]:
+                 if pkg_match and name_match:
+                     candidates.append(p)
+                     break
+-        except psutil.ZombieProcess:
++        except (psutil.ZombieProcess, psutil.AccessDenied, psutil.NoSuchProcess):
+             pass
+ 
+     return candidates
