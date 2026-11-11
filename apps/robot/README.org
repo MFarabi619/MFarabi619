@@ -134,10 +134,6 @@ sudo nmcli con add type ethernet ifname enP8p1s0 con-name kinova-link-6 \
 ping -c 2 192.168.1.10
 #+END_SRC
 
-#+BEGIN_SRC sh
-pixi install -m apps/robot -e kortex   # python kortex_api, drives the arm
-#+END_SRC
-
 **** ZED SDK (ZED 2 over USB 3)
 
 #+BEGIN_SRC sh

@@ -131,18 +131,14 @@ def stop_robot_service(host):
         ' || sudo systemctl stop robot.service')
 
 
-def build(host, config):
+def build(host):
     remove_unmirrored_build_entries(host)
-    commands = [
+    ssh_with_terminal(host, shell_chain(
         ['cd', MIRROR_ROBOT_PATH],
-    ]
-    if 'arm' in config:
-        commands.append([PIXI, 'install', '-e', 'kortex'])
-    commands.append([
-        'env', f'MAKEFLAGS=-j{COMPILE_JOBS_PER_WORKER}',
-        f'CMAKE_BUILD_PARALLEL_LEVEL={COMPILE_JOBS_PER_WORKER}',
-        PIXI, 'run', 'build', '--parallel-workers', str(BUILD_WORKERS)])
-    ssh_with_terminal(host, shell_chain(*commands))
+        ['env', f'MAKEFLAGS=-j{COMPILE_JOBS_PER_WORKER}',
+         f'CMAKE_BUILD_PARALLEL_LEVEL={COMPILE_JOBS_PER_WORKER}',
+         PIXI, 'run', 'build', '--parallel-workers', str(BUILD_WORKERS)],
+    ))
 
 
 def provision(host, config):
@@ -243,7 +239,7 @@ def main():
         print('stopping robot service')
         stop_robot_service(host)
         print('building')
-        build(host, config)
+        build(host)
         print('installing units')
         install_units(host, robot_name)
         print('verifying health')

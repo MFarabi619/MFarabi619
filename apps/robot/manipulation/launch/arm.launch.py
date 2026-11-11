@@ -42,11 +42,9 @@ def arm_hardware(
     bl = BetterLaunch()
     ensure_router(bl)
     bl.process(
-        [os.path.abspath('.pixi/envs/kortex/bin/python'),
-         'manipulation/src/kinova_link6_bridge.py',
+        ['python', 'manipulation/src/kinova_link6_bridge.py',
          '--robot-password', robot_password],
         name='kinova_link6_bridge',
-        env={'PYTHONPATH': ''},
         **RESPAWN,
     )
     description = read_robot_description(

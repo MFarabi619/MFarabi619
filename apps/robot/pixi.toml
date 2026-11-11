@@ -81,6 +81,11 @@ ros-lyrical-py-trees-ros-interfaces = "*"
 
 [pypi-dependencies]
 pyubx2 = ">=1.3"
+kortex-api = { url = "https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl" }
+
+[pypi-options.dependency-overrides]
+protobuf = ">=5.27.2"
+deprecated = ">=1.2.7"
 
 [target.linux.pypi-dependencies]
 better-launch = { path = "../../vendor/better_launch", editable = true }
@@ -590,38 +595,6 @@ python manipulation/src/reach.py \
     { arg = "host", default = "jetson-orin-nano.local" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
-[target.osx-arm64.tasks]
-build = """
-colcon build \
-    --packages-ignore \
-        audio_aec \
-        kortex3_hardware \
-        cartesian_controller_simulation \
-        cartesian_controller_tests \
-        robotiq_hardware_tests \
-        mujoco_ros2_control_demos \
-        mujoco_ros2_control_tests \
-        zed_components \
-        zed_debug \
-        zed_ros2 \
-        zed_wrapper\
-"""
-
-[target.linux-aarch64.tasks]
-oak-d-sr = "python drivers/src/oak_d_sr.py --ros-args -r __ns:=/sensors/camera_0 -p frame_id:=camera_0_link_right_camera_optical_frame"
-
-[environments]
-kortex = { features = ["kortex"], no-default-feature = true }
-
-[feature.kortex.dependencies]
-python = "3.11.*"
-pytest = ">=9.1"
-pyyaml = ">=6"
-
-[feature.kortex.pypi-dependencies]
-kortex-api = { url = "https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/3.4.0/kortex_api-3.4.0.15-py3-none-any.whl" } # matches link6 firmware 3.4.0
-
-[feature.kortex.tasks]
 e2e-arm = { cmd = "pytest e2e/kinova_link6.py -v -s --robot-password {{ password }}", args = [
     { arg = "password", default = "admin" },
 ] }
@@ -685,3 +658,23 @@ python manipulation/src/kinova_link6_pick_hardware.py \
     { arg = "force", default = "10" },
     { arg = "speed", default = "30" },
 ] }
+
+[target.osx-arm64.tasks]
+build = """
+colcon build \
+    --packages-ignore \
+        audio_aec \
+        kortex3_hardware \
+        cartesian_controller_simulation \
+        cartesian_controller_tests \
+        robotiq_hardware_tests \
+        mujoco_ros2_control_demos \
+        mujoco_ros2_control_tests \
+        zed_components \
+        zed_debug \
+        zed_ros2 \
+        zed_wrapper\
+"""
+
+[target.linux-aarch64.tasks]
+oak-d-sr = "python drivers/src/oak_d_sr.py --ros-args -r __ns:=/sensors/camera_0 -p frame_id:=camera_0_link_right_camera_optical_frame"
