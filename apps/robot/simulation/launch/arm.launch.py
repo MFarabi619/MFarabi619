@@ -71,7 +71,6 @@ def calm_view_control_sensitivity():
 def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
                    headless: bool = False, mode: str = 'drag',
                    world: str = 'farm'):
-    headless = str(headless).lower() in ('true', '1')
     with open(f'machines/{robot}/robot.yaml') as machine_file:
         arm = yaml.safe_load(machine_file)['arm']
     gripper = gripper or arm['gripper']

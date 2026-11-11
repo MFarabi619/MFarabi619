@@ -42,7 +42,6 @@ def calm_view_control_sensitivity():
 
 @launch_this
 def gz_sim(world: str = 'maize', headless: bool = False):
-    headless = str(headless).lower() in ('true', '1')
     bl = BetterLaunch()
     share = get_package_share_directory('robot_simulator')
     worlds = os.path.join(share, 'worlds')
