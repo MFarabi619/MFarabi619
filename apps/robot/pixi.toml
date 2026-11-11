@@ -157,21 +157,13 @@ clean = { cmd = "rm -rf build/{{ package }} install/{{ package }} {{ 'log' if no
     { arg = "package", default = "" },
 ] }
 
-lint = { cmd = "colcon test --base-paths . --ctest-args -L linter --pytest-args -m linter && colcon test-result --verbose", depends-on = [
+lint = { cmd = "colcon test --base-paths . --ctest-args -L linter && colcon test-result --verbose", depends-on = [
     "build",
 ] }
 
-test = { cmd = "pytest -c pytest.ini {{ suites }} -m 'not linter'", args = [
+test = { cmd = "pytest -c pytest.ini {{ suites }}", args = [
     { arg = "suites", default = "drivers/test machines/test perception/test simulation/test" },
 ], env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
-
-test-cov = { cmd = """
-pytest -c pytest.ini machines/test \
-    -m 'not linter' \
-    -p pytest_cov \
-    --cov=robot_config \
-    --cov-report=term-missing\
-""", env = { PYTEST_DISABLE_PLUGIN_AUTOLOAD = "1" } }
 
 deploy = { cmd = "python machines/deploy.py {{ robot }}", args = [
     { arg = "robot", default = "taro" },
