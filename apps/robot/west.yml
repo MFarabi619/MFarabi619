@@ -55,6 +55,11 @@ manifest:
           path: vendor/zed-ros2-interfaces
           url: https://github.com/stereolabs/zed-ros2-interfaces
 
+        - name: nmea_navsat_driver
+          revision: 0ffe0aa764d60395437ab232ba913bdbe0c73f8a # ros2 2026-10-18
+          path: vendor/nmea_navsat_driver
+          url: https://github.com/ros-drivers/nmea_navsat_driver
+
         - name: audio_common
           revision: cf6360ff871cfa69f4a7e7c774969d330bf119a8 # main 2026-10-29
           path: vendor/audio_common
