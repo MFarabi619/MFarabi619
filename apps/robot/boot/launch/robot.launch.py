@@ -20,14 +20,13 @@ import socket
 import subprocess
 import sys
 import tempfile
-import time
 import xml.etree.ElementTree as ElementTree
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import robot_state_publisher
 import yaml
+from zenoh_router import ensure_router
 
-ZENOH_ROUTER_PORT = 7447
 CLIENT_CONFIG_OVERRIDE = 'mode="client"'
 ROUTER_CONFIG_OVERRIDE = 'mode="router"'
 PIXI = os.path.expanduser('~/.pixi/bin/pixi')
@@ -140,22 +139,6 @@ IMU_TOPICS = [
     'data', 'mag', 'linear_acceleration', 'stability',
     'activity', 'steps', 'shake', 'calibration_status',
 ]
-
-
-def router_is_listening():
-    try:
-        socket.create_connection(
-            ('127.0.0.1', ZENOH_ROUTER_PORT), timeout=0.5).close()
-        return True
-    except OSError:
-        return False
-
-
-def wait_for_router(attempts=120):
-    for _ in range(attempts):
-        if router_is_listening():
-            return
-        time.sleep(1.0)
 
 
 def robot_identity(name=''):
@@ -303,15 +286,10 @@ def robot(name: str = '', drivetrain_model: str = ''):
 
     bl = BetterLaunch()
 
-    if not router_is_listening():
-        bl.process(
-            'ros2 run rmw_zenoh_cpp rmw_zenohd',
-            name='zenoh_router',
-            env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
-            **RESPAWN,
-        )
     os.environ['ZENOH_CONFIG_OVERRIDE'] = CLIENT_CONFIG_OVERRIDE
-    wait_for_router()
+    ensure_router(
+        bl, env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
+        attempts=120, poll_seconds=1.0)
 
     with bl.group(namespace):
         robot_state_publisher(

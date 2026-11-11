@@ -25,6 +25,7 @@ from better_launch.convenience import (
     robot_state_publisher,
     spawn_controller,
 )
+from zenoh_router import ensure_router
 
 
 def write_rendered_scene_file():
@@ -52,13 +53,7 @@ def arm_mujoco_simulation(
     os.environ.pop('ZENOH_SESSION_CONFIG_URI', None)
 
     bl = BetterLaunch()
-    bl.process(
-        os.path.join(
-            os.environ['CONDA_PREFIX'], 'lib', 'rmw_zenoh_cpp', 'rmw_zenohd'),
-        name='zenoh_router',
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
+    ensure_router(bl)
     description = read_robot_description(
         arm['description_package'],
         f"{arm['moveit_robot_name']}.urdf.xacro",

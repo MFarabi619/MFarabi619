@@ -23,6 +23,7 @@ from better_launch.convenience import (
     read_robot_description,
     robot_state_publisher,
 )
+from zenoh_router import ensure_router
 
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 
@@ -39,12 +40,7 @@ def arm_hardware(
     os.environ.pop('ZENOH_SESSION_CONFIG_URI', None)
 
     bl = BetterLaunch()
-    bl.process(
-        os.path.join(
-            os.environ['CONDA_PREFIX'], 'lib', 'rmw_zenoh_cpp', 'rmw_zenohd'),
-        name='zenoh_router',
-        **RESPAWN,
-    )
+    ensure_router(bl)
     bl.process(
         [os.path.abspath('.pixi/envs/kortex/bin/python'),
          'manipulation/src/kinova_link6_bridge.py',

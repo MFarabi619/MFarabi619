@@ -25,6 +25,7 @@ import yaml
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.gazebo import get_gazebo_axes_args, spawn_model
+from zenoh_router import ensure_router
 
 WORLD_SPAWN_POINTS = {'farm': (11.3, 3.0), 'maize': (0.3, 16.0)}
 PERSON_AHEAD_M = 3.0
@@ -91,13 +92,7 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
         os.environ.get('CONDA_PREFIX', ''), 'lib')
 
     bl = BetterLaunch()
-    bl.process(
-        os.path.join(
-            os.environ['CONDA_PREFIX'], 'lib', 'rmw_zenoh_cpp', 'rmw_zenohd'),
-        name='zenoh_router',
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
+    ensure_router(bl)
     bl.include(
         arm['bringup_package'], 'link6_sim.launch.py',
         pass_launch_func_args=False,

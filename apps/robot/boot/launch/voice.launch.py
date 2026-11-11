@@ -14,17 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import socket
-import time
-
 import yaml
 from better_launch import BetterLaunch, launch_this
+from zenoh_router import ROUTER_PORT, ensure_router
 
-ZENOH_ROUTER_PORT = 7447
 CONNECT_TIMEOUT_MS = 3000
-CONNECT_PROBE_TIMEOUT_SECONDS = 0.2
-ROUTER_POLL_INTERVAL_SECONDS = 0.2
-CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ZENOH_ROUTER_PORT}"]'
+CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ROUTER_PORT}"]'
 
 
 def robot_hostname(robot_name):
@@ -35,40 +30,17 @@ def robot_hostname(robot_name):
 def bridging_peer_config_override(robot_name):
     return (
         'mode="peer";connect/endpoints='
-        f'["tcp/localhost:{ZENOH_ROUTER_PORT}",'
-        f'"tcp/{robot_hostname(robot_name)}.local:{ZENOH_ROUTER_PORT}"];'
+        f'["tcp/localhost:{ROUTER_PORT}",'
+        f'"tcp/{robot_hostname(robot_name)}.local:{ROUTER_PORT}"];'
         f'connect/timeout_ms={CONNECT_TIMEOUT_MS}')
 
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 
 
-def router_is_listening():
-    try:
-        socket.create_connection(
-            ('127.0.0.1', ZENOH_ROUTER_PORT),
-            timeout=CONNECT_PROBE_TIMEOUT_SECONDS).close()
-        return True
-    except OSError:
-        return False
-
-
-def wait_for_router(attempts=50):
-    for _ in range(attempts):
-        if router_is_listening():
-            return
-        time.sleep(ROUTER_POLL_INTERVAL_SECONDS)
-
-
 @launch_this
 def voice(robot: str = 'taro'):
     bl = BetterLaunch()
-    if not router_is_listening():
-        bl.process(
-            'ros2 run rmw_zenoh_cpp rmw_zenohd',
-            name='zenoh_router',
-            **RESPAWN,
-        )
-        wait_for_router()
+    ensure_router(bl)
     bl.node(
         package='audio_common',
         executable='audio_capturer_node',

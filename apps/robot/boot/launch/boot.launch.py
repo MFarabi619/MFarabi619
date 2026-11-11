@@ -14,35 +14,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import socket
-import time
 from pathlib import Path
 
 from better_launch import BetterLaunch, launch_this
 import yaml
+from zenoh_router import ROUTER_PORT, ensure_router, wait_for_router
 
-ZENOH_ROUTER_PORT = 7447
 ROUTER_CONFIG_OVERRIDE = (
-    f'connect/endpoints=["tcp/rpi5-16-2.local:{ZENOH_ROUTER_PORT}",'
-    f'"tcp/rpi5-16.local:{ZENOH_ROUTER_PORT}",'
-    f'"tcp/beagleyai.local:{ZENOH_ROUTER_PORT}"]')
-CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ZENOH_ROUTER_PORT}"]'
-
-
-def router_is_listening():
-    try:
-        socket.create_connection(
-            ('127.0.0.1', ZENOH_ROUTER_PORT), timeout=0.2).close()
-        return True
-    except OSError:
-        return False
-
-
-def wait_for_router(attempts=50):
-    for _ in range(attempts):
-        if router_is_listening():
-            return
-        time.sleep(0.2)
+    f'connect/endpoints=["tcp/rpi5-16-2.local:{ROUTER_PORT}",'
+    f'"tcp/rpi5-16.local:{ROUTER_PORT}",'
+    f'"tcp/beagleyai.local:{ROUTER_PORT}"]')
+CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ROUTER_PORT}"]'
 
 
 def robot_runs_on_this_machine(robot):
@@ -66,15 +48,7 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
             respawn_delay=2.0,
         )
         wait_for_router()
-    if not router_is_listening():
-        bl.process(
-            'ros2 run rmw_zenoh_cpp rmw_zenohd',
-            name='zenoh_router',
-            env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
-            max_respawns=-1,
-            respawn_delay=2.0,
-        )
-        wait_for_router()
+    ensure_router(bl, env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE})
     if gesture_camera == 'webcam':
         bl.node(
             package='robot_drivers',

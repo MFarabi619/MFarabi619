@@ -15,36 +15,15 @@
 
 
 import os
-import socket
-import time
 
 from better_launch import BetterLaunch, launch_this
 from pygnssutils import OUTPUT_SERIAL
+from zenoh_router import ensure_router
 
-ZENOH_ROUTER_PORT = 7447
-CONNECT_PROBE_TIMEOUT_SECONDS = 0.2
-ROUTER_POLL_INTERVAL_SECONDS = 0.2
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 NTRIP_RESPAWN = {'max_respawns': -1, 'respawn_delay': 10.0}
 NTRIP_CASTER_HOST = 'rtk2go.com'
 GPS_TOPICS = ['fix', 'vel', 'time_reference', 'heading']
-
-
-def router_is_listening():
-    try:
-        socket.create_connection(
-            ('127.0.0.1', ZENOH_ROUTER_PORT),
-            timeout=CONNECT_PROBE_TIMEOUT_SECONDS).close()
-        return True
-    except OSError:
-        return False
-
-
-def wait_for_router(attempts=50):
-    for _ in range(attempts):
-        if router_is_listening():
-            return
-        time.sleep(ROUTER_POLL_INTERVAL_SECONDS)
 
 
 @launch_this
@@ -55,15 +34,12 @@ def gps(
     ntrip_username: str = 'farabi@tandemrobotics.ca',
 ):
     bl = BetterLaunch()
-    if not router_is_listening():
-        bl.process(
-            os.path.abspath('.pixi/envs/jazzy/lib/rmw_zenoh_cpp/rmw_zenohd'),
-            name='zenoh_router',
-            env={'HOME': os.environ['HOME']},
-            isolate_env=True,
-            **RESPAWN,
-        )
-        wait_for_router()
+    ensure_router(
+        bl,
+        executable=os.path.abspath(
+            '.pixi/envs/jazzy/lib/rmw_zenoh_cpp/rmw_zenohd'),
+        env={'HOME': os.environ['HOME']},
+        isolate_env=True)
     if mountpoint:
         bl.process(
             ['gnssntripclient', '--server', NTRIP_CASTER_HOST,

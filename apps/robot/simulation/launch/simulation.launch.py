@@ -27,6 +27,7 @@ from better_launch.gazebo import (
     spawn_topic_bridge,
 )
 from spawn import spawn_robot
+from zenoh_router import ensure_router
 
 WORLD_SPAWN_POSES = {
     'maize': {'x': -14.0, 'y': -19.0, 'z': 0.8, 'yaw': 0.0},
@@ -171,12 +172,7 @@ def robot_stack(bl, robot, world, pose, depth_scan):
 def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = False,
                depth_scan: bool = False):
     bl = BetterLaunch()
-    bl.process(
-        'ros2 run rmw_zenoh_cpp rmw_zenohd',
-        name='zenoh_router',
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
+    ensure_router(bl)
     bl.node(
         package='foxglove_bridge',
         executable='foxglove_bridge',
