@@ -266,14 +266,23 @@ def robot(name: str = '', drivetrain_model: str = ''):
          if camera['model'] == 'orbbec_gemini_335l'
          and camera.get('launch_enabled', True)),
         None)
+    zed_camera_config = next(
+        (camera for camera in sensors.get('camera', [])
+         if camera['model'] == 'zed_2'
+         and camera.get('launch_enabled', True)),
+        None)
     if oak_d_camera_config:
         depth_camera_name = next(iter(oak_d_camera_config['ros_parameters']))
     elif orbbec_gemini_335l_camera_config and next(
             iter(orbbec_gemini_335l_camera_config['ros_parameters'].values()))['enable_depth']:
         depth_camera_name = 'camera_0'
+    elif zed_camera_config:
+        depth_camera_name = next(iter(zed_camera_config['ros_parameters']))
     else:
         depth_camera_name = None
-    depth_camera_config = oak_d_camera_config or orbbec_gemini_335l_camera_config
+    depth_camera_config = (
+        oak_d_camera_config or orbbec_gemini_335l_camera_config
+        or zed_camera_config)
     camera_mount_xyz = (
         depth_camera_config.get('xyz', [0.0, 0.0, 0.0])
         if depth_camera_config else [0.0, 0.0, 0.0])
@@ -288,6 +297,10 @@ def robot(name: str = '', drivetrain_model: str = ''):
         oak_d_camera_config
         and oak_d_camera_config['model'] == 'oak_d_pro_w_poe'
         and oak_d_camera_config.get('detects_on_camera', False))
+    zed_detects = bool(
+        zed_camera_config
+        and next(iter(zed_camera_config['ros_parameters'].values()))
+        .get('object_detection', {}).get('od_enabled', False))
 
     bl = BetterLaunch()
 
@@ -861,6 +874,37 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     },
                     **RESPAWN,
                 )
+        if zed_camera_config:
+            bl.process(
+                ['python', 'boot/launch/zed_camera.launch.py',
+                 '--robot', robot_name],
+                name='zed_camera',
+                **RESPAWN,
+            )
+            camera_parameters = next(
+                iter(zed_camera_config['ros_parameters'].values()))
+            if point_cloud_enabled:
+                point_cloud_freq = camera_parameters.get(
+                    'depth', {}).get('point_cloud_freq', 10.0)
+                bl.node(
+                    package='pointcloud_to_laserscan',
+                    executable='pointcloud_to_laserscan_node',
+                    name='pointcloud_to_laserscan',
+                    remaps=TF_REMAPS | {
+                        'cloud_in': 'sensors/camera_0/depth/points',
+                        'scan': 'sensors/camera_0/scan',
+                    },
+                    params={
+                        'target_frame': 'base_link',
+                        'min_height': 0.1,
+                        'max_height': 0.5,
+                        'range_min': 0.25,
+                        'range_max': 8.0,
+                        'scan_time': 1.0 / point_cloud_freq,
+                    },
+                    **RESPAWN,
+                )
+
         if depth_camera_name is not None:
             if point_cloud_enabled:
                 bl.node(
@@ -881,7 +925,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     f'sensors/{depth_camera_name}/color/image_raw/compressed')
             else:
                 detector_image_topic = f'sensors/{depth_camera_name}/color/image_raw'
-            if not detects_on_camera:
+            if not detects_on_camera and not zed_detects:
                 bl.node(
                     package='robot_perception',
                     executable='person_detector',

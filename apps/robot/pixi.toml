@@ -62,6 +62,7 @@ mediapipe = ">=1.0.0"
 [target.linux-aarch64.dependencies]
 sysroot_linux-aarch64 = ">=2.28"
 ros-lyrical-foxglove-msgs = "*"
+ros-lyrical-zed-description = "*"
 ros-lyrical-depth-image-proc = "*"
 ros-lyrical-diagnostic-aggregator = "*"
 
@@ -631,3 +632,4 @@ robot = { cmd = "python boot/launch/robot.launch.py --name '{{ name }}' --drivet
 
 [target.linux-aarch64.tasks]
 oak-d-sr = "python drivers/src/oak_d_sr.py --ros-args -r __ns:=/sensors/camera_0 -p frame_id:=camera_0_link_right_camera_optical_frame"
+build-zed = "colcon build --base-paths ../../vendor/ros/zed-ros2-wrapper ../../vendor/ros/zed-ros2-interfaces --packages-up-to zed_wrapper"

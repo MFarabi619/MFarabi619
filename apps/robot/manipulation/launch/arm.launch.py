@@ -23,63 +23,8 @@ from better_launch.convenience import (
     read_robot_description,
     robot_state_publisher,
 )
-from better_launch.utils.glob_dict import deep_merge
-
-ZED_SDK_ROOT = '/usr/local/zed'
 
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
-
-
-def zed_wrapper_defaults(bl, config_name):
-    with open(bl.find('zed_wrapper', config_name)) as config_file:
-        return yaml.safe_load(config_file)['/**']['ros__parameters']
-
-
-def launch_zed_camera(bl, camera):
-    camera_name = next(iter(camera['ros_parameters']))
-    parameters = zed_wrapper_defaults(bl, 'common_stereo.yaml')
-    parameters = deep_merge(parameters, zed_wrapper_defaults(bl, 'zed2.yaml'))
-    parameters = deep_merge(parameters, camera['ros_parameters'][camera_name])
-    parameters = deep_merge(parameters, {
-        'general': {'camera_name': camera_name, 'camera_model': 'zed2'},
-        'svo': {'svo_path': 'live'},
-    })
-    with bl.compose(f'{camera_name}_container', variant='multithreading'):
-        bl.component(
-            'zed_components', 'stereolabs::ZedCamera', camera_name,
-            params=parameters,
-            remaps={
-                '~/rgb/color/rect/image':
-                    f'/sensors/{camera_name}/color/image_raw',
-                '~/depth/depth_registered':
-                    f'/sensors/{camera_name}/depth/image_raw',
-                '~/point_cloud/cloud_registered':
-                    f'/sensors/{camera_name}/depth/points',
-                '~/image/depth_image':
-                    f'/sensors/{camera_name}/depth/image_view',
-                '~/imu/data': f'/sensors/{camera_name}/imu/data',
-            },
-        )
-    robot_state_publisher(
-        bl.find('zed_description', 'zed_descr.urdf.xacro'),
-        node_name=f'{camera_name}_state_publisher',
-        xacro_args=[f'camera_name:={camera_name}', 'camera_model:=zed2'],
-        remaps={'robot_description': f'{camera_name}_description'},
-    )
-    xyz = camera.get('xyz', [0.0, 0.0, 0.0])
-    rpy = camera.get('rpy', [0.0, 0.0, 0.0])
-    bl.node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name=f'{camera_name}_mount_publisher',
-        cmd_args=[
-            '--x', str(xyz[0]), '--y', str(xyz[1]), '--z', str(xyz[2]),
-            '--roll', str(rpy[0]), '--pitch', str(rpy[1]), '--yaw', str(rpy[2]),
-            '--frame-id', camera.get('parent', 'base_link'),
-            '--child-frame-id', f'{camera_name}_camera_link',
-        ],
-        **RESPAWN,
-    )
 
 
 @launch_this
@@ -135,14 +80,6 @@ def arm_hardware(
             'manipulation/config/motion_planner.yaml'),
         use_sim_time='false',
     )
-
-    cameras = (robot_config.get('sensors') or {}).get('camera', [])
-    zed_camera_config = next(
-        (camera for camera in cameras
-         if camera['model'] == 'zed_2' and camera.get('launch_enabled', True)),
-        None)
-    if zed_camera_config and os.path.isdir(ZED_SDK_ROOT):
-        launch_zed_camera(bl, zed_camera_config)
 
     if robot_config.get('foxglove', {}).get('enabled', True):
         bl.node(

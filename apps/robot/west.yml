@@ -45,6 +45,11 @@ manifest:
           path: vendor/ros/zed-ros2-wrapper
           url: https://github.com/stereolabs/zed-ros2-wrapper
 
+        - name: zed-ros2-interfaces
+          revision: 8f86e35268881258cd3df98ab67afd2da5478e4d # master 2026-11-07
+          path: vendor/ros/zed-ros2-interfaces
+          url: https://github.com/stereolabs/zed-ros2-interfaces
+
         - name: audio_common
           revision: da763260562878a710c6cf70632099771eecc00c # 4.0.10
           path: vendor/audio_common
