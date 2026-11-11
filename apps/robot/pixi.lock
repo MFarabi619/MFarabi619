@@ -638,6 +638,7 @@ environments:
       - conda: https://prefix.dev/conda-forge/noarch/wslink-2.6.0-pyhd8ed1ab_0.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-control-toolbox-6.4.0-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-desktop-full-0.13.0-hb0f4dca_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-diagnostic-aggregator-4.4.7-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-foxglove-bridge-3.6.0-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-foxglove-msgs-3.6.0-hb0f4dca_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-geographic-msgs-1.0.6-hb0f4dca_30.conda
@@ -757,6 +758,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-depthimage-to-laserscan-2.5.1-np2py314hb935b5b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-desktop-0.13.0-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-desktop-full-0.13.0-np2py314h53a0733_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-aggregator-4.4.7-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-msgs-5.9.3-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-updater-4.4.7-np2py314h53a0733_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diff-drive-controller-6.9.0-np2py314h53a0733_30.conda
@@ -1168,10 +1170,13 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/85/63/b92c752d9ec4e3da67d4daa7d4b25dfbca557c0be4d13bf9640424edc7fe/types_protobuf-5.27.0.20240920-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/86/67/717b257855c5550a3449907e110954506a306bf3e127717f7ab45450f0da/mediapipe-1.2.2-py3-none-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/8b/39/f87d154d2dca8e9815ca9e4f925aee41e5931162da730d17f3200e7786f3/opencv_contrib_python-5.0.0.93-cp37-abi3-manylinux_2_28_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/97/da/792289f2b5c48b3cd981fa78387e1d01886f65418dbc7ad461b4537dc67b/depthai-2.33.0.0-cp314-cp314-manylinux_2_28_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/9a/4e/d946cc081864c8c242e787a73dd2ea61f861445f3d4207787d873e4dc65d/sherpa_onnx_core-2.0.1-py3-none-manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/a7/5f/ed01f9a3cdffbd5a008556fc7b2a08ddb1cc6ace7effa7340604b1d16699/docstring_parser-0.18.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/96/6b3818e7f63a30f13bbe97b1ea0a51509a20b5b2d48c95e526c3054343d5/setproctitle-1.3.8-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/7d/01e62f59e4166af1be6238d9f2b7f3453630c51b8044b412d05b5606532a/absl_py-2.5.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e8/ec/5ffcf8f5f53757e01afdece10c664e694ac60d2f17c2036811b85b842a5b/mypy_protobuf-5.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/f1/cd/b4b4acf8dec04661bd616f430d76a4043734dc6acf1888be354d1ced58d3/sherpa_onnx-2.0.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/f8/dd/4b75dcba025f8647bc9862ac17299e0d7d12d3beadbf026d8c8d74215c12/paho-mqtt-1.6.1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/fa/e8/0485850748dfdba9443f4151c7b2442cfa4987ba6cd871038eb5d6b8eca9/wcwidth-0.9.4-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       linux-aarch64-glibc-2-36:
@@ -1785,6 +1790,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-foxglove-bridge-3.6.0-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-foxglove-msgs-3.6.0-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-geographic-msgs-1.0.6-he8cfe8b_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-gz-ros2-control-3.0.9-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-moveit-configs-utils-2.15.2-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-moveit-kinematics-2.15.2-he8cfe8b_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-moveit-planners-2.15.2-he8cfe8b_30.conda
@@ -1959,6 +1965,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-physics-vendor-0.4.8-np2py314h7ae5cee_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-plugin-vendor-0.3.1-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-rendering-vendor-0.4.4-np2py314hd47f1ea_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-ros2-control-3.0.9-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-sensors-vendor-0.3.5-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-sim-vendor-0.4.6-np2py314h9cdc4f4_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-tools-vendor-0.2.2-np2py314h36e155a_30.conda
@@ -2135,6 +2142,7 @@ environments:
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros-gz-sim-demos-3.0.10-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros-workspace-1.0.3-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros2-control-6.10.1-np2py314h36e155a_30.conda
+      - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros2-control-cmake-0.3.0-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros2-control-test-assets-6.10.1-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros2-controllers-6.9.0-np2py314h36e155a_30.conda
       - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros2action-0.40.9-np2py314h36e155a_30.conda
@@ -29596,6 +29604,16 @@ packages:
   run_exports: {}
   size: 2075
   timestamp: 1792768749628
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-diagnostic-aggregator-4.4.7-hb0f4dca_30.conda
+  sha256: 18d1888e7da0b810bc6ca4975c09dd1a0dadefbb87a0e6bc9abed02db19ed359
+  md5: 2a4791ca6b0a92d773fba3d13106a90e
+  attestations_sha256: 10ad6fa59f6c73c28a842de742606df60981d39fa93ce2bcd375b0ed6c9e2a41
+  depends:
+  - ros2-diagnostic-aggregator ==4.4.7
+  - ros2-distro-mutex 0.22.* lyrical_*
+  run_exports: {}
+  size: 2115
+  timestamp: 1792758873560
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros-lyrical-foxglove-bridge-3.6.0-hb0f4dca_30.conda
   sha256: c004544771b32fa5954bc6b40dac3215f5a70b1b6f4c730cb80b1c2dc9a6c3b6
   md5: 18c0e0f6de57c78ff4ab32af94e33aae
@@ -31904,6 +31922,25 @@ packages:
   run_exports: {}
   size: 23527
   timestamp: 1792768725568
+- conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-aggregator-4.4.7-np2py314h53a0733_30.conda
+  sha256: 28e9378dfc543f234ef835c6a75a64576a1da4007ada86c873c01751ba86c82e
+  md5: 7cca378d906fd800238df51e490f69d2
+  attestations_sha256: 1bcf4b1705000ed0dbb082a0de6d8509e574b370d18dc3f4436f1377c217df20
+  depends:
+  - python
+  - ros2-distro-mutex 0.22.* lyrical_*
+  - ros2-rclpy
+  - ros2-ros-workspace
+  - __glibc >=2.28,<3.0.a0
+  - libgcc >=15
+  - libstdcxx >=15
+  - python_abi 3.14.* *_cp314
+  - numpy >=1.25,<3
+  - ros2-distro-mutex >=0.22.0,<0.23.0a0
+  license: BSD-3-Clause
+  run_exports: {}
+  size: 463847
+  timestamp: 1792758841035
 - conda: https://prefix.dev/robostack-lyrical/linux-64/ros2-diagnostic-msgs-5.9.3-np2py314h53a0733_30.conda
   sha256: 0f6f0e03d0af60cf6f1767f32fb01bf7cd7383713528a192b0b646ff45966069
   md5: c847a12805277d60f3a96149edf38e26
@@ -42290,6 +42327,16 @@ packages:
   run_exports: {}
   size: 2094
   timestamp: 1792758094214
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-gz-ros2-control-3.0.9-he8cfe8b_30.conda
+  sha256: 7fc594964a2e08b46f8794c757b028c74ab3206c3838843630346f5e26d07929
+  md5: 856da5aebc81afc7882fbea27865fdcc
+  attestations_sha256: 1c3b3e7857d78cc015074a8e34575a669005ffdd103182512f5bea4b93a6eb3c
+  depends:
+  - ros2-gz-ros2-control ==3.0.9
+  - ros2-distro-mutex 0.22.* lyrical_*
+  run_exports: {}
+  size: 2091
+  timestamp: 1792762578160
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros-lyrical-moveit-configs-utils-2.15.2-he8cfe8b_30.conda
   sha256: 429039c7e268200a55fd3419c854685d7a20c7956a0278c5b4844116814e3bf0
   md5: 1dfe2ba125d4e4d040a850e3ce2491bc
@@ -45988,6 +46035,35 @@ packages:
   run_exports: {}
   size: 54907
   timestamp: 1792755122869
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-ros2-control-3.0.9-np2py314h36e155a_30.conda
+  sha256: c3aebd1e85562ecbbb3cca44eeaa7e66af3f7ea0a0943cb8dc54217171615fc3
+  md5: c8f6de7ac4816466eed4524f42ea8fbc
+  attestations_sha256: 4b4909281c1154abd87a8d14e72a5f99874c5ab31c56cd77aff3f3b93e482d53
+  depends:
+  - python
+  - ros2-controller-manager
+  - ros2-distro-mutex 0.22.* lyrical_*
+  - ros2-gz-plugin-vendor
+  - ros2-gz-sim-vendor
+  - ros2-hardware-interface
+  - ros2-pluginlib
+  - ros2-rclcpp
+  - ros2-rclcpp-lifecycle
+  - ros2-ros-workspace
+  - ros2-ros2-control-cmake
+  - ros2-yaml-cpp-vendor
+  - libgcc >=15
+  - __glibc >=2.28,<3.0.a0
+  - libstdcxx >=15
+  - numpy >=1.25,<3
+  - ros2-distro-mutex >=0.22.0,<0.23.0a0
+  - libopengl >=1.7.0,<2.0a0
+  - python_abi 3.14.* *_cp314
+  - libgl >=1.7.0,<2.0a0
+  license: Apache-2.0
+  run_exports: {}
+  size: 322738
+  timestamp: 1792762535434
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-gz-sensors-vendor-0.3.5-np2py314h36e155a_30.conda
   sha256: 86514e6aa562f072c4d90e207067a8944cac22956b8bdfb9bb44c22174596d53
   md5: 2c5bc4f72665a532c81ea9ba6b3a74a9
@@ -50725,6 +50801,24 @@ packages:
   run_exports: {}
   size: 23614
   timestamp: 1792763294587
+- conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros2-control-cmake-0.3.0-np2py314h36e155a_30.conda
+  sha256: 6d801f704c1e2c9d20f8fd5f48bd14b51a49bbcb84064b450b04393a0561732c
+  md5: e50b2a39bf7b58bf79efe7399c058184
+  attestations_sha256: 802cad4620248756a2b508a95f4779880e482ac5e1093c0976869b28d8d98b39
+  depends:
+  - python
+  - ros2-distro-mutex 0.22.* lyrical_*
+  - ros2-ros-workspace
+  - libgcc >=15
+  - __glibc >=2.28,<3.0.a0
+  - libstdcxx >=15
+  - ros2-distro-mutex >=0.22.0,<0.23.0a0
+  - numpy >=1.25,<3
+  - python_abi 3.14.* *_cp314
+  license: Apache-2.0
+  run_exports: {}
+  size: 29600
+  timestamp: 1792753473928
 - conda: https://prefix.dev/robostack-lyrical/linux-aarch64/ros2-ros2-control-test-assets-6.10.1-np2py314h36e155a_30.conda
   sha256: 2141f48b9c9c5507abed8897f0c5763cd81f29517edaf5523529a2a407486e05
   md5: ab0054c8fd8498e238aa8a3fbc13d9d3
@@ -67452,6 +67546,11 @@ packages:
   - pillow ; extra == 'usd'
   - usd-core ; extra == 'usd'
   requires_python: '>=3.11'
+- pypi: https://files.pythonhosted.org/packages/97/da/792289f2b5c48b3cd981fa78387e1d01886f65418dbc7ad461b4537dc67b/depthai-2.33.0.0-cp314-cp314-manylinux_2_28_x86_64.whl
+  name: depthai
+  version: 2.33.0.0
+  sha256: a8180ec3a1927926fd488aec5c843b7313a50ecf38a73feb373964571c298401
+  requires_python: '>=3.9'
 - pypi: https://files.pythonhosted.org/packages/99/5d/8268b644392ee874ee82a635cd0df1773de230bde356c38de28e298392cc/parso-0.8.7-py2.py3-none-any.whl
   name: parso
   version: 0.8.7
@@ -67463,6 +67562,10 @@ packages:
   - docopt ; extra == 'testing'
   - pytest ; extra == 'testing'
   requires_python: '>=3.6'
+- pypi: https://files.pythonhosted.org/packages/9a/4e/d946cc081864c8c242e787a73dd2ea61f861445f3d4207787d873e4dc65d/sherpa_onnx_core-2.0.1-py3-none-manylinux2014_x86_64.whl
+  name: sherpa-onnx-core
+  version: 2.0.1
+  sha256: f4ee0ab91c4ae596e0e49d7de32522a946295e038a652f1c1884d89014ee4ec2
 - pypi: https://files.pythonhosted.org/packages/9e/c3/059298687310d527a58bb01f3b1965787ee3b40dce76752eda8b44e9a2c5/pexpect-4.9.0-py2.py3-none-any.whl
   name: pexpect
   version: 4.9.0
@@ -67734,6 +67837,13 @@ packages:
   - pygments ; extra == 'tests'
   - littleutils ; extra == 'tests'
   - cython ; extra == 'tests'
+- pypi: https://files.pythonhosted.org/packages/f1/cd/b4b4acf8dec04661bd616f430d76a4043734dc6acf1888be354d1ced58d3/sherpa_onnx-2.0.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+  name: sherpa-onnx
+  version: 2.0.1
+  sha256: 634b9dbdc7f789efa4a3273f8fb94ab0480c9cd5e5be0ca2d9a7f0f090c7da3d
+  requires_dist:
+  - sherpa-onnx-core==2.0.1
+  requires_python: '>=3.7'
 - pypi: https://files.pythonhosted.org/packages/f7/5c/ca1c31afec1a1dc3ff6e1cc94091ac288d0fa8663567398809372fec73b9/opencv_contrib_python-5.0.0.93-cp37-abi3-macosx_13_0_arm64.whl
   name: opencv-contrib-python
   version: 5.0.0.93
