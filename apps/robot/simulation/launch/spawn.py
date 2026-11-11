@@ -101,8 +101,12 @@ def spawn_robot(bl, robot, world, x, y, z, yaw, depth_scan=False):
     spawn_model(robot, f'/{robot}/robot_description', 'topic',
                 spawn_args=get_gazebo_axes_args(x=x, y=y, z=z, yaw=yaw))
 
+    spawner = None
+
     def shutdown_if_spawner_failed():
-        if spawner._process.returncode != 0 and not bl.is_shutdown:
+        if spawner is None:
+            return
+        if spawner.join() != 0 and not bl.is_shutdown:
             bl.shutdown('controller spawn failed, refusing to run an undrivable sim')
 
     spawner = bl.node(
