@@ -16,26 +16,24 @@
 
 import argparse
 import os
-from pathlib import Path
 import sys
 import time
 
-import yaml
+from machine import MachineError, load_machine
 
 CHECK_TIMEOUT_S = 15.0
 
 
-def robot_configuration():
+def machine_from_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('robot')
-    robot_name = parser.parse_args().robot
-    config_path = Path(__file__).parents[1] / 'machines' / robot_name / 'robot.yaml'
-    if not config_path.is_file():
-        sys.exit(f'{robot_name} has no robot.yaml')
-    return yaml.safe_load(config_path.read_text())
+    try:
+        return load_machine(parser.parse_args().robot)
+    except MachineError as error:
+        sys.exit(str(error))
 
 
-def check_arm_health(config, hostname):
+def check_arm_health(machine, hostname):
     import rclpy
     from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
     from sensor_msgs.msg import CompressedImage, JointState
@@ -61,9 +59,7 @@ def check_arm_health(config, hostname):
         JointState, '/joint_states', record('joint_states'), 10)
 
     required_checks = ['urdf', 'joint_states']
-    sensors = config.get('sensors') or {}
-    if any(camera.get('launch_enabled', True)
-           for camera in sensors.get('camera', [])):
+    if machine.enabled_cameras:
         required_checks.append('camera')
         node.create_subscription(
             CompressedImage, '/sensors/camera_0/color/image_raw/compressed',
@@ -87,14 +83,14 @@ def check_arm_health(config, hostname):
 
 
 def main():
-    config = robot_configuration()
-    hostname = config['system']['hosts'][0]['hostname']
+    machine = machine_from_arguments()
+    hostname = machine.hostname
     os.environ['ZENOH_CONFIG_OVERRIDE'] = (
         f'mode="client";connect/endpoints=["tcp/{hostname}.local:7447"]')
-    if 'arm' in config and 'platform' not in config:
-        check_arm_health(config, hostname)
+    if machine.is_arm_only:
+        check_arm_health(machine, hostname)
         return
-    namespace = config['system']['namespace']
+    namespace = machine.namespace
 
     import rclpy
     from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
@@ -127,10 +123,7 @@ def main():
         qos_profile_sensor_data)
 
     required_checks = ['urdf', 'tf', 'motor_feedback']
-    sensors = config.get('sensors') or {}
-    has_camera = any(
-        camera.get('launch_enabled', True) for camera in sensors.get('camera', []))
-    if has_camera:
+    if machine.enabled_cameras:
         required_checks.append('camera')
         node.create_subscription(
             CompressedImage,
@@ -138,7 +131,7 @@ def main():
             record('camera'), qos_profile_sensor_data)
 
     nav2_server_states = {}
-    if config.get('follow_nav2', {}).get('enabled', False):
+    if machine.follow_nav2.get('enabled', False):
         from lifecycle_msgs.srv import GetState
 
         required_checks.append('nav2_follow')

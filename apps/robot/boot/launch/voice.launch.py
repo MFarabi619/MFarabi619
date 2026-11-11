@@ -14,8 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import yaml
 from better_launch import BetterLaunch, launch_this
+from machine import load_machine
 from zenoh_router import ROUTER_PORT, ensure_router
 
 CONNECT_TIMEOUT_MS = 3000
@@ -23,8 +23,7 @@ CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ROUT
 
 
 def robot_hostname(robot_name):
-    with open(f'machines/{robot_name}/robot.yaml') as file:
-        return yaml.safe_load(file)['system']['hosts'][0]['hostname']
+    return load_machine(robot_name).hostname
 
 
 def bridging_peer_config_override(robot_name):

@@ -23,7 +23,7 @@ import subprocess
 import sys
 import time
 
-import yaml
+from machine import MachineError, load_machine
 
 MIRROR_ROOT = '/home/mfarabi/MFarabi619'
 MIRROR_ROBOT_PATH = f'{MIRROR_ROOT}/apps/robot'
@@ -72,17 +72,11 @@ def shell_chain(*commands):
     return ' && '.join(shlex.join(command) for command in commands)
 
 
-def has_zed_camera(config):
-    return any(
-        camera['model'] == 'zed_2'
-        for camera in (config.get('sensors') or {}).get('camera', []))
-
-
-def vendor_trees(config):
+def vendor_trees(machine):
     trees = list(FLEET_VENDOR_TREES)
-    if 'arm' in config:
+    if machine.has_arm:
         trees += ARM_VENDOR_TREES
-    if has_zed_camera(config):
+    if machine.has_zed_camera:
         trees += ZED_VENDOR_TREES
     return trees
 
@@ -108,13 +102,13 @@ def remove_unmirrored_build_entries(host):
     ))
 
 
-def mirror(host, config):
+def mirror(host, machine):
     ssh(host, shell_chain(
         ['mkdir', '-p', MIRROR_ROBOT_PATH, f'{MIRROR_ROOT}/vendor'],
     ))
     run('rsync', *RSYNC_FLAGS, '--delete', '--delete-excluded',
         '--exclude', '.git',
-        *[f'--include=/{vendor_tree}/' for vendor_tree in vendor_trees(config)],
+        *[f'--include=/{vendor_tree}/' for vendor_tree in vendor_trees(machine)],
         '--exclude=/*',
         '-e', 'ssh -q', 'vendor/', f'{host}:{MIRROR_ROOT}/vendor/',
         working_directory=REPO_ROOT)
@@ -141,7 +135,7 @@ def build(host):
     ))
 
 
-def provision(host, config):
+def provision(host, machine):
     ssh(host, 'test -x ~/.pixi/bin/pixi'
         ' || curl -fsSL https://pixi.sh/install.sh | bash')
     udev = f'{MIRROR_ROBOT_PATH}/drivers/udev'
@@ -157,12 +151,12 @@ def provision(host, config):
         ['sudo', 'systemctl', 'restart', 'systemd-journald'],
         ['sudo', 'systemctl', 'set-default', 'multi-user.target'],
     ))
-    if config['system']['hosts'][0]['board'] == 'rpi_5':
+    if machine.board == 'rpi_5':
         ssh(host, f'grep -q "^{PWM_OVERLAY}" {FIRMWARE_CONFIG_PATH}'
             f' || echo "{PWM_OVERLAY}" | sudo tee -a {FIRMWARE_CONFIG_PATH} >/dev/null')
         ssh(host, 'command -v uhubctl >/dev/null'
             ' || sudo apt-get install -y uhubctl')
-    if config['system']['hosts'][0]['board'] == 'jetson_orin_nano':
+    if machine.board == 'jetson_orin_nano':
         ssh(host, f'grep -q "{USB_AUTOSUSPEND_OFF}" {EXTLINUX_CONFIG_PATH}'
             f' || sudo sed -i "/^      APPEND / s/$/ {USB_AUTOSUSPEND_OFF}/"'
             f' {EXTLINUX_CONFIG_PATH}')
@@ -222,20 +216,19 @@ def main():
     parser.add_argument('robot', nargs='?', default='taro')
     robot_name = parser.parse_args().robot
 
-    config_path = MACHINES_PATH / robot_name / 'robot.yaml'
-    if not config_path.is_file():
-        sys.exit(f'{robot_name} has no robot.yaml')
-    config = yaml.safe_load(config_path.read_text())
-
-    host = f"{config['system']['hosts'][0]['hostname']}.local"
+    try:
+        machine = load_machine(robot_name)
+    except MachineError as error:
+        sys.exit(str(error))
+    host = f'{machine.hostname}.local'
 
     try:
         print('verifying machine')
         verify_machine(robot_name)
         print(f'mirroring {host}')
-        mirror(host, config)
+        mirror(host, machine)
         print('provisioning')
-        provision(host, config)
+        provision(host, machine)
         print('stopping robot service')
         stop_robot_service(host)
         print('building')

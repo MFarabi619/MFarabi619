@@ -14,10 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from pathlib import Path
-
 from better_launch import BetterLaunch, launch_this
-import yaml
+from machine import load_machine
 from zenoh_router import ROUTER_PORT, ensure_router, wait_for_router
 
 ROUTER_CONFIG_OVERRIDE = (
@@ -27,10 +25,8 @@ ROUTER_CONFIG_OVERRIDE = (
 CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ROUTER_PORT}"]'
 
 
-def robot_runs_on_this_machine(robot):
-    config = yaml.safe_load(
-        (Path('machines') / robot / 'robot.yaml').read_text())
-    return config['system']['hosts'][0].get('board') == 'macos'
+def robot_runs_on_this_host(robot):
+    return load_machine(robot).board == 'macos'
 
 
 @launch_this
@@ -40,7 +36,7 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
         'webcam': '/image',
         'robot': f'/{robot}/sensors/camera_0/color/image_raw/compressed',
     }
-    if robot_runs_on_this_machine(robot):
+    if robot_runs_on_this_host(robot):
         bl.process(
             f'python boot/launch/robot.launch.py --name {robot}',
             name=f'{robot}_stack',

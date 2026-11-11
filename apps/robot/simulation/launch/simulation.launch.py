@@ -18,7 +18,6 @@ import math
 import os
 import xml.etree.ElementTree as ElementTree
 
-import yaml
 from better_launch import BetterLaunch, launch_this
 from better_launch.gazebo import (
     GazeboBridge,
@@ -26,6 +25,7 @@ from better_launch.gazebo import (
     spawn_model,
     spawn_topic_bridge,
 )
+from machine import load_machine
 from spawn import spawn_robot
 from zenoh_router import ensure_router
 
@@ -49,11 +49,6 @@ PERSON_SPAWN_POSES = {
 }
 
 
-def machine_config(robot):
-    with open(f'machines/{robot}/robot.yaml') as file:
-        return yaml.safe_load(file)
-
-
 def ground_offset(urdf_path):
     robot = ElementTree.parse(urdf_path).getroot()
     for joint in robot.iter('joint'):
@@ -68,10 +63,10 @@ def ground_offset(urdf_path):
 
 
 def harvest_lane_stack(bl, robot, machine):
-    config = machine.get('harvest_lane', {})
-    if not config.get('enabled', False):
+    harvest_lane_config = machine.harvest_lane
+    if not harvest_lane_config.get('enabled', False):
         return
-    camera_mount_xyz = machine['sensors']['camera'][0]['xyz']
+    camera_mount_xyz = machine.sensors.camera[0].xyz
     bl.node(
         package='robot_perception',
         executable='canopy_detector',
@@ -80,7 +75,7 @@ def harvest_lane_stack(bl, robot, machine):
             'image_topic': 'sensors/camera_0/color/image_raw/compressed',
             'mask_topic': 'perception/canopy/mask/compressed',
             'fraction_topic': 'perception/canopy/fraction',
-        } | config.get('detector', {}),
+        } | harvest_lane_config.get('detector', {}),
         max_respawns=-1,
         respawn_delay=2.0,
     )
@@ -97,7 +92,7 @@ def harvest_lane_stack(bl, robot, machine):
                 f'mech/urdf/{robot}/robot.sim.urdf'),
             'camera_lateral_offset_m': float(camera_mount_xyz[1]),
             'start_enabled': False,
-        } | config.get('navigator', {}),
+        } | harvest_lane_config.get('navigator', {}),
         max_respawns=-1,
         respawn_delay=2.0,
     )
@@ -139,7 +134,7 @@ def follow_stack(bl):
 
 
 def robot_stack(bl, robot, world, pose, depth_scan):
-    machine = machine_config(robot)
+    machine = load_machine(robot)
     with bl.group(robot):
         spawn_robot(bl, robot, world, depth_scan=depth_scan, **pose)
         bl.node(

@@ -14,11 +14,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import os
+import sys
+
 from rich.box import ROUNDED
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 PASS_COLOR = '#b8bb26'
 FAIL_COLOR = '#fb4934'

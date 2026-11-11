@@ -17,8 +17,8 @@
 import os
 import re
 
-import yaml
 from better_launch.gazebo import GazeboBridge, spawn_image_bridge, spawn_topic_bridge
+from machine import load_machine
 
 LUMPED_SENSOR_LINK = 'base_link'
 SCAN_TARGET_FRAME = 'base_link'
@@ -40,23 +40,21 @@ def resolve_world_name(world):
 
 
 class SimCamera:
-    def __init__(self, index, entry):
+    def __init__(self, index, camera):
         self.name = f'camera_{index}'
         self.link = f'camera_{index}_link'
-        parameters = next(iter(entry.get('ros_parameters', {}).values()), {})
-        self.has_depth = parameters.get('enable_depth', False)
-        self.depth_fps = parameters.get('depth_fps', SCAN_DEFAULT_DEPTH_FPS)
+        self.has_depth = camera.node_parameters.get('enable_depth', False)
+        self.depth_fps = camera.node_parameters.get('depth_fps', SCAN_DEFAULT_DEPTH_FPS)
 
 
 def load_sim_sensors(robot):
-    with open(os.path.join('machines', robot, 'robot.yaml')) as robot_config:
-        sensors = yaml.safe_load(robot_config).get('sensors', {})
+    sensors = load_machine(robot).sensors
     cameras = [
-        SimCamera(index, entry)
-        for index, entry in enumerate(sensors.get('camera', []))
-        if entry.get('launch_enabled', True)
+        SimCamera(index, camera)
+        for index, camera in enumerate(sensors.camera)
+        if camera.launch_enabled
     ]
-    return cameras, len(sensors.get('imu', [])), bool(sensors.get('gps', []))
+    return cameras, len(sensors.imu), bool(sensors.gps)
 
 
 def spawn_sim_bridges(bl, robot, world, model, depth_scan=False):
