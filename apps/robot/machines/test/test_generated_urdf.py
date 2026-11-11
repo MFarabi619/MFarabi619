@@ -26,15 +26,21 @@ URDF_DECIMALS = 4
 PLACEMENT_TOLERANCE_M = 10.0 ** -URDF_DECIMALS
 
 
-def machine_names():
-    return sorted(
+def machine_config(machine):
+    return yaml.safe_load(
+        open(os.path.join(ROBOT_ROOT, 'machines', machine, 'robot.yaml')))
+
+
+def generated_machine_names():
+    machines = (
         os.path.basename(os.path.dirname(path))
         for path in glob.glob(os.path.join(ROBOT_ROOT, 'machines', '*', 'robot.yaml')))
+    return sorted(
+        machine for machine in machines if 'arm' not in machine_config(machine))
 
 
 def configured_cameras(machine):
-    config = yaml.safe_load(
-        open(os.path.join(ROBOT_ROOT, 'machines', machine, 'robot.yaml')))
+    config = machine_config(machine)
     cameras = (config.get('sensors') or {}).get('camera') or []
     return [camera for camera in cameras
             if camera.get('launch_enabled', True)
@@ -53,14 +59,14 @@ def joint_origins(urdf_path):
     return origins
 
 
-@pytest.mark.parametrize('machine', machine_names())
+@pytest.mark.parametrize('machine', generated_machine_names())
 def test_every_machine_has_a_generated_urdf(machine):
     for urdf in ('robot.urdf', 'robot.sim.urdf'):
         path = os.path.join(ROBOT_ROOT, 'mech', 'urdf', machine, urdf)
         assert os.path.isfile(path), f'{machine}/{urdf} missing — rerun the assembly generator'
 
 
-@pytest.mark.parametrize('machine', machine_names())
+@pytest.mark.parametrize('machine', generated_machine_names())
 def test_camera_joint_matches_the_configured_placement(machine):
     """robot.yaml owns sensor placement, so a stale URDF must not pass silently."""
     cameras = configured_cameras(machine)

@@ -14,7 +14,7 @@ patches:
           node.py: respawn re-activates lifecycle nodes.
 
     - path: ros2-link6.patch
-      sha256sum: 12ad921c3d9594dc8d6e02a7ee009b4771cf39bada5a06217888ba667043627a
+      sha256sum: a8c808ba2fe18a6b9a5b1a3eb5921fc0ef97917a4f2caf35a9ef1d6a1ad6b289
       module: vendor/ros2_link6
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
@@ -26,7 +26,8 @@ patches:
           link6_description: sim_mujoco arg chain -> MujocoSystemInterface;
           position command interfaces in sim (gz also velocity); accessory
           visuals + collision box; brighter palette; spawn at SRDF home;
-          gripper spawns open in sim.
+          gripper spawns open in sim; mesh URIs package:// instead of
+          file://$(find).
           kortex3_sim_controllers.yaml: jtc [position], goal tolerances
           0.025, nonzero end velocity, gripper stall 0.01/0.5s,
           enforce_command_limits off.

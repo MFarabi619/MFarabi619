@@ -54,9 +54,6 @@ def arm_hardware(
         f"{arm['moveit_robot_name']}.urdf.xacro",
         xacro_args=[f"gripper:={arm['gripper']}"],
     )
-    share_prefix = os.path.abspath('install-arm/share') + '/'
-    description = description.replace('file://' + share_prefix, 'package://')
-    description = description.replace(share_prefix, 'package://')
     robot_state_publisher(description)
     bl.process(
         'python manipulation/src/kinova_link6_bridge_node.py --ros-args'

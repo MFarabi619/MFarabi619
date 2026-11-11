@@ -659,7 +659,7 @@ index 85266e9..f334fc0 100644
          <param name="initial_value">0.0</param>
        </state_interface>
 diff --git a/link6_description/urdf/link6_macro.xacro b/link6_description/urdf/link6_macro.xacro
-index 7ba47d1..cce7ff0 100644
+index 7ba47d1..91d3c3c 100644
 --- a/link6_description/urdf/link6_macro.xacro
 +++ b/link6_description/urdf/link6_macro.xacro
 @@ -21,6 +21,8 @@
@@ -693,18 +693,69 @@ index 7ba47d1..cce7ff0 100644
      </material>
      <material name="kinovablue">
        <color rgba="0.0 0.0784313725490196 0.5372549019607843 1" />
-@@ -117,7 +121,7 @@
+@@ -115,9 +119,9 @@
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
          <geometry>
-           <mesh filename="file://$(find link6_description)/meshes/base_link.STL" />
+-          <mesh filename="file://$(find link6_description)/meshes/base_link.STL" />
++          <mesh filename="package://link6_description/meshes/base_link.STL" />
          </geometry>
 -        <material name="lightgray" />
 +        <material name="kinovablue" />
        </visual>
        <collision>
          <origin xyz="0 0 0" rpy="0 0 0" />
-@@ -446,7 +450,7 @@
+@@ -136,7 +140,7 @@
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
          <geometry>
-           <mesh filename="file://$(find link6_description)/meshes/wrist_interface_link.STL" />
+-          <mesh filename="file://$(find link6_description)/meshes/shoulder_link.STL" />
++          <mesh filename="package://link6_description/meshes/shoulder_link.STL" />
+         </geometry>
+         <material name="lightgray" />
+       </visual>
+@@ -189,7 +193,7 @@
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+-          <mesh filename="file://$(find link6_description)/meshes/arm_link.STL" />
++          <mesh filename="package://link6_description/meshes/arm_link.STL" />
+         </geometry>
+         <material name="lightgray" />
+       </visual>
+@@ -278,7 +282,7 @@
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+-          <mesh filename="file://$(find link6_description)/meshes/forearm_link.STL" />
++          <mesh filename="package://link6_description/meshes/forearm_link.STL" />
+         </geometry>
+         <material name="lightgray" />
+       </visual>
+@@ -331,7 +335,7 @@
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+-          <mesh filename="file://$(find link6_description)/meshes/lower_wrist_link.STL" />
++          <mesh filename="package://link6_description/meshes/lower_wrist_link.STL" />
+         </geometry>
+         <material name="darkgray" />
+       </visual>
+@@ -391,7 +395,7 @@
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+-          <mesh filename="file://$(find link6_description)/meshes/upper_wrist_link.STL" />
++          <mesh filename="package://link6_description/meshes/upper_wrist_link.STL" />
+         </geometry>
+         <material name="darkgray" />
+       </visual>
+@@ -444,9 +448,9 @@
+       <visual>
+         <origin xyz="0 0 0" rpy="0 0 0" />
+         <geometry>
+-          <mesh filename="file://$(find link6_description)/meshes/wrist_interface_link.STL" />
++          <mesh filename="package://link6_description/meshes/wrist_interface_link.STL" />
          </geometry>
 -        <material name="darkgray" />
 +        <material name="kinovablue" />
