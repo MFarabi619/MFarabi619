@@ -57,7 +57,7 @@ def gps(
     bl = BetterLaunch()
     if not router_is_listening():
         bl.process(
-            '.pixi/envs/jazzy/lib/rmw_zenoh_cpp/rmw_zenohd',
+            os.path.abspath('.pixi/envs/jazzy/lib/rmw_zenoh_cpp/rmw_zenohd'),
             name='zenoh_router',
             env={'HOME': os.environ['HOME']},
             isolate_env=True,
