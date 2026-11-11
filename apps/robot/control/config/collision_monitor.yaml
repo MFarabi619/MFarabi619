@@ -44,9 +44,3 @@
       min_height: 0.15
       max_height: 2.0
       enabled: true
-
-/**/collision_lifecycle_manager:
-  ros__parameters:
-    node_names: ["collision_monitor"]
-    autostart: true
-    bond_timeout: 0.0

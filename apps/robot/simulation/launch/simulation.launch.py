@@ -26,11 +26,6 @@ from better_launch.gazebo import (
     spawn_model,
     spawn_topic_bridge,
 )
-from jazzy_command import (
-    behavior_lifecycle_manager_command,
-    behavior_server_command,
-    jazzy_environment,
-)
 from spawn import spawn_robot
 
 WORLD_SPAWN_POSES = {
@@ -107,17 +102,6 @@ def harvest_lane_stack(bl, robot, machine):
     )
 
 
-def jazzy_process(bl, name, command):
-    bl.process(
-        command,
-        name=name,
-        env=jazzy_environment(),
-        isolate_env=True,
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
-
-
 def follow_stack(bl):
     bl.node(
         package='robot_perception',
@@ -173,9 +157,14 @@ def robot_stack(bl, robot, world, pose, depth_scan):
             max_respawns=-1,
             respawn_delay=2.0,
         )
-        jazzy_process(bl, f'{robot}_behavior_server', behavior_server_command(robot))
-        jazzy_process(bl, f'{robot}_behavior_lifecycle_manager',
-                      behavior_lifecycle_manager_command(robot))
+        bl.node(
+            package='nav2_behaviors',
+            executable='behavior_server',
+            name='behavior_server',
+            param_files=['navigation/config/behaviors.yaml'],
+            max_respawns=-1,
+            respawn_delay=2.0,
+        )
 
 
 @launch_this(use_sim_time=True)

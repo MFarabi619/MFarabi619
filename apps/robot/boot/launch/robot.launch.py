@@ -289,7 +289,6 @@ def robot(name: str = '', drivetrain_model: str = ''):
     point_cloud_enabled = robot_config.get('point_cloud', {}).get('enabled', True)
     camera_height_m = float(camera_mount_xyz[2]) - ground_offset(
         f'mech/urdf/{robot_name}/robot.urdf')
-    collision_monitor_binary = f'{JAZZY_ENV}/lib/nav2_collision_monitor/collision_monitor'
     collision_guarded = (
         robot_config['platform'].get('collision_guarded', False)
         and depth_camera_name is not None)
@@ -498,45 +497,28 @@ def robot(name: str = '', drivetrain_model: str = ''):
         )
 
         if collision_guarded:
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' {collision_monitor_binary}'
-                ' --ros-args'
-                f' -r __ns:=/{namespace}'
-                ' -r /tf:=tf -r /tf_static:=tf_static'
-                ' --params-file control/config/collision_monitor.yaml'
-                f' -p scan.topic:=sensors/{depth_camera_name}/scan',
+            bl.node(
+                package='nav2_collision_monitor',
+                executable='collision_monitor',
                 name='collision_monitor',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
-                **RESPAWN,
-            )
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' {JAZZY_ENV}/lib/nav2_lifecycle_manager/lifecycle_manager'
-                ' --ros-args -r __node:=collision_lifecycle_manager'
-                f' -r __ns:=/{namespace}'
-                ' --params-file control/config/collision_monitor.yaml',
-                name='collision_lifecycle_manager',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
+                params={'scan.topic': f'sensors/{depth_camera_name}/scan'},
+                param_files=['control/config/collision_monitor.yaml'],
+                remaps=TF_REMAPS,
                 **RESPAWN,
             )
 
         if robot_config.get('hand_gesture', {}).get('enabled', False):
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' python {os.path.abspath("perception/src/hand_gesture_detector.py")}'
-                ' --ros-args'
-                f' -r __ns:=/{namespace}'
-                ' -p image_topic:=sensors/camera_0/color/image_raw/compressed'
-                ' -p start_enabled:=false'
-                ' -p num_hands:=2'
-                ' -p min_hand_detection_confidence:=0.4'
-                ' -r /joy_teleop/cmd_vel:=joy_teleop/cmd_vel',
+            bl.node(
+                package='robot_perception',
+                executable='hand_gesture_detector',
                 name='hand_gesture_detector',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
+                params={
+                    'image_topic': 'sensors/camera_0/color/image_raw/compressed',
+                    'start_enabled': False,
+                    'num_hands': 2,
+                    'min_hand_detection_confidence': 0.4,
+                },
+                remaps={'/joy_teleop/cmd_vel': 'joy_teleop/cmd_vel'},
                 **RESPAWN,
             )
             bl.node(
@@ -547,27 +529,19 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 remaps={'/joy_teleop/cmd_vel': 'joy_teleop/cmd_vel'},
                 **RESPAWN,
             )
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' python {os.path.abspath("perception/src/weeding_creep.py")}'
-                ' --ros-args'
-                f' -r __ns:=/{namespace}'
-                ' -r /tf:=tf -r /tf_static:=tf_static'
-                ' -p start_enabled:=false',
+            bl.node(
+                package='robot_perception',
+                executable='weeding_creep',
                 name='weeding_creep',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
+                params={'start_enabled': False},
+                remaps=TF_REMAPS,
                 **RESPAWN,
             )
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' python {os.path.abspath("perception/src/lay_down_weeding_elbow_teleop.py")}'
-                ' --ros-args'
-                f' -r __ns:=/{namespace}'
-                ' -p start_enabled:=false',
+            bl.node(
+                package='robot_perception',
+                executable='lay_down_weeding_elbow_teleop',
                 name='lay_down_weeding_elbow_teleop',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
+                params={'start_enabled': False},
                 **RESPAWN,
             )
 
@@ -578,42 +552,22 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     ('nav2_controller', 'controller_server'),
                     ('nav2_planner', 'planner_server'),
                     ('nav2_bt_navigator', 'bt_navigator')):
-                tree_argument = (
-                    f' -p default_nav_to_pose_bt_xml:={follow_point_tree}'
-                    if server == 'bt_navigator' else '')
-                bl.process(
-                    f'{PIXI} run --clean-env -e jazzy'
-                    f' {JAZZY_ENV}/lib/{package}/{server}'
-                    ' --ros-args'
-                    f' -r __ns:=/{namespace}'
-                    ' -r /tf:=tf -r /tf_static:=tf_static'
-                    f' --params-file {follow_parameters}'
-                    f'{tree_argument}',
+                bl.node(
+                    package=package,
+                    executable=server,
                     name=server,
-                    env={'HOME': os.environ['HOME']},
-                    isolate_env=True,
+                    params=({'default_nav_to_pose_bt_xml': follow_point_tree}
+                            if server == 'bt_navigator' else {}),
+                    param_files=[follow_parameters],
+                    remaps=TF_REMAPS,
                     **RESPAWN,
                 )
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' python {os.path.abspath("perception/src/person_goal_bridge.py")}'
-                ' --ros-args'
-                f' -r __ns:=/{namespace}'
-                ' -r /tf:=tf -r /tf_static:=tf_static',
+            bl.node(
+                package='robot_perception',
+                executable='person_goal_bridge',
                 name='person_goal_bridge',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
+                remaps=TF_REMAPS,
                 **RESPAWN,
-            )
-            bl.process(
-                f'{PIXI} run --clean-env -e jazzy'
-                f' {JAZZY_ENV}/lib/nav2_lifecycle_manager/lifecycle_manager'
-                ' --ros-args -r __node:=follow_lifecycle_manager'
-                f' -r __ns:=/{namespace}'
-                f' --params-file {follow_parameters}',
-                name='follow_lifecycle_manager',
-                env={'HOME': os.environ['HOME']},
-                isolate_env=True,
             )
 
         if robot_config.get('foxglove', {}).get('enabled', True):
@@ -629,6 +583,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     ],
                     'topic_whitelist': [
                         f'/{namespace}/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$',
+                        f'/{namespace}/sensors/camera_[0-9]+/depth/image_view(/compressed)?$',
                         f'/{namespace}/sensors/camera_[0-9]+/(color|depth)/camera_info$',
                         f'/{namespace}/sensors/camera_[0-9]+/depth/points$',
                         f'/{namespace}/sensors/camera_[0-9]+/scan$',

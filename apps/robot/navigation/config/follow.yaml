@@ -69,9 +69,3 @@
     navigators: ["navigate_to_pose"]
     navigate_to_pose:
       plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
-
-/**/follow_lifecycle_manager:
-  ros__parameters:
-    autostart: true
-    bond_timeout: 0.0
-    node_names: ["controller_server", "planner_server", "bt_navigator"]
