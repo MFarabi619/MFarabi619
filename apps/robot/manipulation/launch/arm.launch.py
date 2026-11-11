@@ -32,7 +32,6 @@ def arm_hardware(
         robot: str = 'kinova-link-6',
         robot_password: str = 'admin',
         rviz: bool = True):
-    rviz = str(rviz).lower() in ('true', '1')
     with open(f'machines/{robot}/robot.yaml') as machine_file:
         robot_config = yaml.safe_load(machine_file)
     arm = robot_config['arm']
@@ -98,6 +97,7 @@ def arm_hardware(
                     '/sensors/camera_[0-9]+/.*',
                 ],
                 'topic_whitelist': [
+                    '/perception/.*',
                     '/sensors/camera_[0-9]+/color/image_raw/compressed$',
                     '/sensors/camera_[0-9]+/depth/image_view/compressed$',
                     '/sensors/camera_[0-9]+/(color|depth)/camera_info$',

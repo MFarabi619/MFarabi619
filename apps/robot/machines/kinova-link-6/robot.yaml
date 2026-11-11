@@ -1,10 +1,10 @@
 serial_number: mark-4
 version: 1
 system:
-  hosts:
-    - hostname: jetson-orin-nano
-      ip: 10.0.0.180
-      board: jetson_orin_nano
+  hosts: []
+  # - hostname: jetson-orin-nano
+  #   ip: 10.0.0.180
+  #   board: jetson_orin_nano
 arm:
   model: kinova_link_6
   gripper: robotiq_2f_85
@@ -33,6 +33,8 @@ sensors:
             openni_depth_mode: true
             publish_depth_image: true
             point_cloud_freq: 15.0
+          object_detection:
+            od_enabled: true
           pos_tracking:
             pos_tracking_enabled: false
             publish_tf: false

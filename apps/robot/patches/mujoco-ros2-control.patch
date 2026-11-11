@@ -1,8 +1,8 @@
 diff --git a/mujoco_ros2_control/CMakeLists.txt b/mujoco_ros2_control/CMakeLists.txt
-index b8b0dda..ee5f63c 100644
+index 7331be0..a5042ca 100644
 --- a/mujoco_ros2_control/CMakeLists.txt
 +++ b/mujoco_ros2_control/CMakeLists.txt
-@@ -160,19 +160,28 @@ add_library(mujoco_ros2_control SHARED
+@@ -65,19 +65,28 @@ export_windows_symbols()
  # Ensure MuJoCo library can be found at runtime regardless of how it was installed above.
  # mujoco_vendor installs libmujoco.so under opt/mujoco_vendor/lib/ relative to the
  # install prefix, so that directory must be in the RPATH alongside the standard lib/.
@@ -40,10 +40,20 @@ index b8b0dda..ee5f63c 100644
  PUBLIC
    ament_index_cpp::ament_index_cpp
 diff --git a/mujoco_ros2_control_plugins/CMakeLists.txt b/mujoco_ros2_control_plugins/CMakeLists.txt
-index 24ed698..dbbcfed 100644
+index fd3cb0e..8fda94e 100644
 --- a/mujoco_ros2_control_plugins/CMakeLists.txt
 +++ b/mujoco_ros2_control_plugins/CMakeLists.txt
-@@ -18,7 +18,13 @@ find_package(std_srvs REQUIRED)
+@@ -3,6 +3,9 @@ project(mujoco_ros2_control_plugins)
+ 
+ find_package(ros2_control_cmake REQUIRED)
+ set_compiler_options()
++if(APPLE)
++  add_compile_options(-Wno-error=conversion)
++endif()
+ export_windows_symbols()
+ 
+ # find dependencies
+@@ -18,7 +21,13 @@ find_package(std_srvs REQUIRED)
  find_package(visualization_msgs REQUIRED)
  find_package(mujoco_ros2_control_msgs REQUIRED)
  find_package(glfw3 REQUIRED)
@@ -58,7 +68,7 @@ index 24ed698..dbbcfed 100644
  
  # Attempt to link MuJoCo via the vendor package, if available
  find_package(mujoco_vendor QUIET)
-@@ -67,8 +73,7 @@ target_link_libraries(mujoco_ros2_control_plugins_impl PUBLIC
+@@ -67,8 +76,7 @@ target_link_libraries(mujoco_ros2_control_plugins_impl PUBLIC
    ${visualization_msgs_TARGETS}
    ${mujoco_ros2_control_msgs_TARGETS}
    glfw
@@ -69,7 +79,7 @@ index 24ed698..dbbcfed 100644
  target_compile_definitions(mujoco_ros2_control_plugins_impl PRIVATE
    REALTIME_TOOLS_VERSION_MAJOR=${realtime_tools_VERSION_MAJOR}
 diff --git a/mujoco_ros2_control_plugins/src/camera_plugin.cpp b/mujoco_ros2_control_plugins/src/camera_plugin.cpp
-index 74741ff..64744bf 100644
+index e42b507..371b886 100644
 --- a/mujoco_ros2_control_plugins/src/camera_plugin.cpp
 +++ b/mujoco_ros2_control_plugins/src/camera_plugin.cpp
 @@ -30,6 +30,13 @@ bool CameraPlugin::init(rclcpp::Node::SharedPtr node, const mjModel* model, mjDa
@@ -93,7 +103,7 @@ index 74741ff..64744bf 100644
 +#endif
  }
  
- void CameraPlugin::update(const mjModel* model_arg, mjData* data)
+ void CameraPlugin::update_write(const mjModel* model_arg, mjData* data)
 @@ -326,6 +334,7 @@ void CameraPlugin::close()
    }
  }
@@ -141,7 +151,7 @@ index 74741ff..64744bf 100644
      glfwDestroyWindow(window);
    }
 diff --git a/mujoco_ros2_control_plugins/src/camera_plugin.hpp b/mujoco_ros2_control_plugins/src/camera_plugin.hpp
-index 89b4dda..467b00b 100644
+index a2a64b9..57c7474 100644
 --- a/mujoco_ros2_control_plugins/src/camera_plugin.hpp
 +++ b/mujoco_ros2_control_plugins/src/camera_plugin.hpp
 @@ -34,8 +34,10 @@
@@ -177,3 +187,27 @@ index 89b4dda..467b00b 100644
  };
  
  }  // namespace mujoco_ros2_control_plugins
+diff --git a/mujoco_ros2_control_plugins/src/heartbeat_publisher_plugin.cpp b/mujoco_ros2_control_plugins/src/heartbeat_publisher_plugin.cpp
+index eb2e45a..a19e9da 100644
+--- a/mujoco_ros2_control_plugins/src/heartbeat_publisher_plugin.cpp
++++ b/mujoco_ros2_control_plugins/src/heartbeat_publisher_plugin.cpp
+@@ -50,7 +50,8 @@ void HeartbeatPublisherPlugin::update_write(const mjModel* /*model*/, mjData* da
+ 
+     heartbeat_publisher_->publish(message);
+ 
+-    RCLCPP_DEBUG(logger_, "Published heartbeat #%lu at simulation time %.3f", message_count_, data->time);
++    RCLCPP_DEBUG(logger_, "Published heartbeat #%llu at simulation time %.3f",
++                 static_cast<unsigned long long>(message_count_), data->time);
+ 
+     message_count_++;
+     last_publish_time_ = current_time;
+@@ -59,7 +60,8 @@ void HeartbeatPublisherPlugin::update_write(const mjModel* /*model*/, mjData* da
+ 
+ void HeartbeatPublisherPlugin::cleanup()
+ {
+-  RCLCPP_INFO(logger_, "HeartbeatPublisherPlugin cleanup. Published %lu messages total.", message_count_);
++  RCLCPP_INFO(logger_, "HeartbeatPublisherPlugin cleanup. Published %llu messages total.",
++              static_cast<unsigned long long>(message_count_));
+ 
+   heartbeat_publisher_.reset();
+   node_.reset();

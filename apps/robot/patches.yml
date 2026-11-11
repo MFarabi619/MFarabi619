@@ -7,74 +7,74 @@ patches:
       date: 2026-10-12
       upstreamable: true
       comments: |
-          Two fixes, three files:
-
-          1. foreign_node.py + node.py: also catch psutil.AccessDenied /
-             NoSuchProcess when scanning processes for ROS nodes, not just
-             ZombieProcess. On macOS p.cmdline() on pid 1 (launchd) raises
-             AccessDenied, which crashed get_unique_name and so every
-             anonymous node (e.g. the Gazebo spawn_model create). Linux reads
-             /proc/1/cmdline fine, so the gap only surfaces on macOS.
-
-          2. ros2_launch_wrapper.py: _launchservice_worker's _on_sigint
-             created the launch_service._shutdown coroutine, .close()d it
-             unawaited, then os._exit'd — every bl.include'd launch tree
-             orphaned its children (gz, rsp, bridges) on Ctrl-C. Fix: call
-             the public thread-safe launch_service.shutdown() and let the
-             worker exit naturally.
+          foreign_node.py + node.py: catch psutil AccessDenied/NoSuchProcess
+          when scanning processes (macOS pid 1).
+          ros2_launch_wrapper.py: SIGINT calls launch_service.shutdown().
 
     - path: ros2-link6.patch
-      sha256sum: d7ee6f93b99ac3e26f1d17e193b8a5d543c9ae46a89edb411901fc0d744304a7
-      module: vendor/ros/ros2_link6
+      sha256sum: 12ad921c3d9594dc8d6e02a7ee009b4771cf39bada5a06217888ba667043627a
+      module: vendor/ros2_link6
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
-      date: 2026-11-07
+      date: 2026-11-08
       upstreamable: true
       comments: |
-          link6_sim.launch.py: spawn_x/y/z args.
-          link6_description: sim_mujoco arg chain -> MujocoSystemInterface,
-          gripper knuckle in the MuJoCo block, position command interfaces
-          in sim (velocity on hardware); accessory visuals (controller box,
-          pendant docked on its bracket, KR22096 adapter) + one collision
-          box over the assembly;
-          brighter palette.
+          link6_sim.launch.py: spawn_x/y/z args; spawners get --param-file;
+          joint_velocity_controller spawner dropped.
+          link6_description: sim_mujoco arg chain -> MujocoSystemInterface;
+          position command interfaces in sim (gz also velocity); accessory
+          visuals + collision box; brighter palette; spawn at SRDF home;
+          gripper spawns open in sim.
           kortex3_sim_controllers.yaml: jtc [position], goal tolerances
-          0.025, nonzero end velocity allowed; gripper stall threshold
-          0.01, stall timeout 0.5.
-          kortex3_controllers.yaml: nonzero end velocity allowed.
+          0.025, nonzero end velocity, gripper stall 0.01/0.5s,
+          enforce_command_limits off.
+          kortex3_controllers.yaml: nonzero end velocity.
           moveit_controllers.yaml: duration monitoring off, start
           tolerance 0.05.
           link6.srdf: controller_link adjacent pairs disabled.
           Not upstreamable as-is (mesh paths point into our package).
 
     - path: mujoco-ros2-control.patch
-      sha256sum: 9e139e1e9ffc83ec9d3908a16c1bdbf8e66212488b1c9bce7663b71ab9f563b4
-      module: vendor/ros/mujoco_ros2_control
+      sha256sum: 75c47ca920ca4a08cfb8ea10981c1e193bb43787d959ff7425e07c0c9041f467
+      module: vendor/mujoco_ros2_control
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
-      date: 2026-10-14
+      date: 2026-11-08
       upstreamable: true
       comments: |
-          macOS build port, re-derived from upstream's stale pixi-osx-arm64
-          branch onto current main. CMakeLists: EGL find/link only outside
-          APPLE (macOS has no EGL), GNU-ld --push-state tinyxml2 workaround
-          guarded NOT APPLE (ld64 lacks it), @loader_path INSTALL_RPATH on
-          APPLE. camera_plugin: EGL includes/members/functions compiled out
-          and init degrades to a logged no-op on APPLE (GLFW needs the main
-          thread, which the ROS executor owns; no headless camera path).
+          macOS build port. CMakeLists: EGL and GNU-ld workarounds gated
+          off APPLE, @loader_path INSTALL_RPATH on APPLE. camera_plugin:
+          no-op on APPLE. heartbeat %lu -> %llu; -Wno-error=conversion
+          on APPLE.
 
-    - path: phenobench-baselines.patch
-      sha256sum: d9fd1f781109bfef86b4bf5bd04dc70643e06a9196a9984921afa358252720bc
-      module: vendor/phenobench-baselines
+    - path: ros2-controllers.patch
+      sha256sum: 3e19ed643093a482d9e86fff656145a404404906064d1ec37ec6d83ab836e104
+      module: vendor/ros2_controllers
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com
-      date: 2026-11-07
+      date: 2026-11-08
       upstreamable: false
       comments: |
-          COLCON_IGNORE so the fleet build sweep skips the baselines tree.
+          Vendored for gripper_controllers (removed upstream #1652).
+          COLCON_IGNORE at root. ament_target_dependencies ->
+          target_link_libraries; get_value() -> get_optional().
+
+    - path: cartesian-controllers.patch
+      sha256sum: 6ea17a5d8daaf4254d2ed1c8268a7feb0efbfa10652fcf58c1ff13e760959f7b
+      module: vendor/cartesian_controllers
+      author: Mumtahin Farabi
+      email: mfarabi619@gmail.com
+      date: 2026-11-08
+      upstreamable: false
+      comments: |
+          Lyrical port (upstream frozen 2024-10). CMakeLists: distro gate
+          accepts lyrical, Eigen3 floor dropped, vendored jazzy
+          ament_target_dependencies macro. realtime_publisher.h -> .hpp;
+          get_value() -> get_optional(); RealtimePublisher -> try_publish;
+          handle vectors clear+reserve before get_ordered_interfaces.
 
     - path: audio-common.patch
-      sha256sum: 77caaa471dbf1d6c89ac1fc3eebc51ea4f1906b6fcb4edc5b660e670714aa84a
+      sha256sum: 9a23095b60e0a4ff53216b34f3d754750b57e22569fad126d5612a368ed62a12
       module: vendor/audio_common
       author: Mumtahin Farabi
       email: mfarabi619@gmail.com

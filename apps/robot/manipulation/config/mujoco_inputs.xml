@@ -43,6 +43,10 @@
     <modify_element type="joint" name="joint_4" armature="0.1"/>
     <modify_element type="joint" name="joint_5" armature="0.1"/>
     <modify_element type="joint" name="joint_6" armature="0.1"/>
+    <modify_element type="geom" mesh="base_link" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="controller" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="pendant_bracket" class="collision" contype="0" conaffinity="0"/>
+    <modify_element type="geom" mesh="teach_pendant" class="collision" contype="0" conaffinity="0"/>
     <modify_element type="geom" mesh="left_knuckle" class="collision" contype="0" conaffinity="0"/>
     <modify_element type="geom" mesh="right_knuckle" class="collision" contype="0" conaffinity="0"/>
     <modify_element type="geom" mesh="left_finger_0" class="collision" contype="0" conaffinity="0"/>

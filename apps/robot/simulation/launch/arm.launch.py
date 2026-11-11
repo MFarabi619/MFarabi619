@@ -149,7 +149,7 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
         gui_config_file.write(gui_config)
         gui_config_file.close()
         bl.process(
-            'gz sim -g --force-version 8 --gui-config ' + gui_config_file.name,
+            'gz sim -g --gui-config ' + gui_config_file.name,
             name='gazebo_gui',
         )
         threading.Thread(

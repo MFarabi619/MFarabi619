@@ -1,5 +1,5 @@
 diff --git a/link6_bringup/launch/link6_sim.launch.py b/link6_bringup/launch/link6_sim.launch.py
-index d6c95a3..bd8e5fb 100644
+index d6c95a3..07d1f46 100644
 --- a/link6_bringup/launch/link6_sim.launch.py
 +++ b/link6_bringup/launch/link6_sim.launch.py
 @@ -72,7 +72,10 @@ def launch_setup(context, *args, **kwargs):
@@ -14,7 +14,66 @@ index d6c95a3..bd8e5fb 100644
          ],
      )
  
-@@ -222,6 +225,27 @@ def generate_launch_description():
+@@ -92,19 +95,6 @@ def launch_setup(context, *args, **kwargs):
+         output     = "screen",
+     )
+ 
+-    velocity_controller = Node(
+-        package    = "controller_manager",
+-        executable = "spawner",
+-        parameters = [{"use_sim_time": True}],
+-        arguments  = [
+-            "joint_velocity_controller",
+-            "--param-file", robot_controllers,
+-            "--controller-manager", "/controller_manager",
+-            "--inactive"
+-        ],
+-        output     = "screen",
+-    )
+-
+     joint_trajectory_controller = Node(
+         package    = "controller_manager",
+         executable = "spawner",
+@@ -122,8 +112,9 @@ def launch_setup(context, *args, **kwargs):
+         executable = "spawner",
+         parameters = [{"use_sim_time": True}],
+         arguments=[
+-            "cartesian_motion_controller", 
+-            "--controller-manager", 
++            "cartesian_motion_controller",
++            "--param-file", robot_controllers,
++            "--controller-manager",
+             "/controller_manager",
+             "--inactive"],
+         output     = "screen",
+@@ -133,14 +124,14 @@ def launch_setup(context, *args, **kwargs):
+         package="controller_manager",
+         executable="spawner",
+         parameters = [{"use_sim_time": True}],
+-        arguments=["motion_control_handle", "--inactive", "--controller-manager", "/controller_manager"],
++        arguments=["motion_control_handle", "--param-file", robot_controllers, "--inactive", "--controller-manager", "/controller_manager"],
+         output="screen",
+     )
+ 
+     robot_hand_controller_spawner = Node(
+         package="controller_manager",
+         executable="spawner",
+-        arguments=["robotiq_gripper_controller", "--activate", "--controller-manager", "/controller_manager"],
++        arguments=["robotiq_gripper_controller", "--param-file", robot_controllers, "--activate", "--controller-manager", "/controller_manager"],
+         condition=IfCondition(PythonExpression(["'", gripper, "' != ''"])),
+     )
+ 
+@@ -166,8 +157,7 @@ def launch_setup(context, *args, **kwargs):
+         OnProcessExit(
+             target_action = joint_state_broadcaster_spawner,
+             on_exit=[
+-                velocity_controller,
+-                joint_trajectory_controller, 
++                joint_trajectory_controller,
+                 cartesian_motion_controller_spawner,
+                 motion_control_handle_spawner,
+                 robot_hand_controller_spawner,
+@@ -222,6 +212,27 @@ def generate_launch_description():
              description='Whether to run the Gazebo GUI.'
          )
      )
@@ -56,10 +115,18 @@ index ebc629e..3713d39 100644
        stopped_velocity_tolerance: 0.01
        goal_time: 0.0
 diff --git a/link6_control/config/kortex3_sim_controllers.yaml b/link6_control/config/kortex3_sim_controllers.yaml
-index 8873901..88e04f2 100644
+index 8873901..182cb66 100644
 --- a/link6_control/config/kortex3_sim_controllers.yaml
 +++ b/link6_control/config/kortex3_sim_controllers.yaml
-@@ -94,6 +94,8 @@ robotiq_gripper_controller:
+@@ -1,6 +1,7 @@
+ controller_manager:
+   ros__parameters:
+     update_rate: 1000 # Hz
++    enforce_command_limits: false
+ 
+ 
+     joint_state_broadcaster:
+@@ -94,6 +95,8 @@ robotiq_gripper_controller:
      default: true
      joint: robotiq_85_left_knuckle_joint
      allow_stalling: true
@@ -68,7 +135,7 @@ index 8873901..88e04f2 100644
  
  joint_trajectory_controller:
    ros__parameters:
-@@ -106,27 +108,29 @@ joint_trajectory_controller:
+@@ -106,27 +109,29 @@ joint_trajectory_controller:
        - joint_6
  
      command_interfaces:
@@ -105,7 +172,7 @@ index 8873901..88e04f2 100644
          
      gains:
        joint_1:
-@@ -134,34 +138,34 @@ joint_trajectory_controller:
+@@ -134,34 +139,34 @@ joint_trajectory_controller:
          i: 0.0
          i_clamp: 0.0
          d: 0.3
@@ -148,8 +215,20 @@ index 8873901..88e04f2 100644
 \ No newline at end of file
 +        ff_velocity_scale: 1.0
 \ No newline at end of file
+diff --git a/link6_description/urdf/grippers/robotiq_2f_85_macro.xacro b/link6_description/urdf/grippers/robotiq_2f_85_macro.xacro
+index a1238d6..e12af6b 100644
+--- a/link6_description/urdf/grippers/robotiq_2f_85_macro.xacro
++++ b/link6_description/urdf/grippers/robotiq_2f_85_macro.xacro
+@@ -30,6 +30,7 @@
+         use_fake_hardware="${use_fake_hardware}"
+         mock_sensor_commands="${mock_sensor_commands}"
+         include_ros2_control="${sim_gazebo}"
++        gripper_closed_position="${0.0 if sim_gazebo else 0.7929}"
+         com_port="${com_port}">
+         <origin xyz="0 0 0" rpy="0 0 0" />
+     </xacro:robotiq_gripper>
 diff --git a/link6_description/urdf/link6.ros2_control.xacro b/link6_description/urdf/link6.ros2_control.xacro
-index a4920fe..e7a904c 100644
+index a4920fe..08f323f 100644
 --- a/link6_description/urdf/link6.ros2_control.xacro
 +++ b/link6_description/urdf/link6.ros2_control.xacro
 @@ -20,6 +20,8 @@
@@ -189,7 +268,7 @@ index a4920fe..e7a904c 100644
 -            <param name="min">-3.14</param>
 -            <param name="max">3.14</param>
 -          </command_interface>
-+          <xacro:if value="${sim_mujoco}">
++          <xacro:if value="${sim_mujoco or sim_gazebo}">
 +            <command_interface name="position">
 +              <param name="min">-6.28</param>
 +              <param name="max">6.28</param>
@@ -212,7 +291,7 @@ index a4920fe..e7a904c 100644
 -            <param name="min">-3.14</param>
 -            <param name="max">3.14</param>
 -          </command_interface>
-+          <xacro:if value="${sim_mujoco}">
++          <xacro:if value="${sim_mujoco or sim_gazebo}">
 +            <command_interface name="position">
 +              <param name="min">-6.28</param>
 +              <param name="max">6.28</param>
@@ -235,7 +314,7 @@ index a4920fe..e7a904c 100644
 -            <param name="min">-3.14</param>
 -            <param name="max">3.14</param>
 -          </command_interface>
-+          <xacro:if value="${sim_mujoco}">
++          <xacro:if value="${sim_mujoco or sim_gazebo}">
 +            <command_interface name="position">
 +              <param name="min">-6.28</param>
 +              <param name="max">6.28</param>
@@ -258,7 +337,7 @@ index a4920fe..e7a904c 100644
 -            <param name="min">-6.28</param>
 -            <param name="max">6.28</param>
 -          </command_interface>
-+          <xacro:if value="${sim_mujoco}">
++          <xacro:if value="${sim_mujoco or sim_gazebo}">
 +            <command_interface name="position">
 +              <param name="min">-6.28</param>
 +              <param name="max">6.28</param>
@@ -281,7 +360,7 @@ index a4920fe..e7a904c 100644
 -            <param name="min">-6.28</param>
 -            <param name="max">6.28</param>
 -          </command_interface>
-+          <xacro:if value="${sim_mujoco}">
++          <xacro:if value="${sim_mujoco or sim_gazebo}">
 +            <command_interface name="position">
 +              <param name="min">-6.28</param>
 +              <param name="max">6.28</param>
@@ -304,7 +383,7 @@ index a4920fe..e7a904c 100644
 -            <param name="min">-6.28</param>
 -            <param name="max">6.28</param>
 -          </command_interface>
-+          <xacro:if value="${sim_mujoco}">
++          <xacro:if value="${sim_mujoco or sim_gazebo}">
 +            <command_interface name="position">
 +              <param name="min">-6.28</param>
 +              <param name="max">6.28</param>
@@ -446,10 +525,10 @@ index eeb5af4..82e46e6 100644
              use_fake_hardware="$(arg use_fake_hardware)"
              mock_sensor_commands="$(arg mock_sensor_commands)"
 diff --git a/link6_description/urdf/link6_gz.urdf.xacro b/link6_description/urdf/link6_gz.urdf.xacro
-index 85266e9..781650b 100644
+index 85266e9..f334fc0 100644
 --- a/link6_description/urdf/link6_gz.urdf.xacro
 +++ b/link6_description/urdf/link6_gz.urdf.xacro
-@@ -260,13 +260,76 @@
+@@ -260,19 +260,83 @@
          <axis xyz="0 0 0" />
        </joint>
      </xacro:unless>
@@ -527,6 +606,58 @@ index 85266e9..781650b 100644
              include_ros2_control="true"
              com_port="/dev/ttyUSB0"
              use_fake_hardware="false"
+             mock_sensor_commands="false"
+             sim_gazebo="true"
+             sim_isaac="false"
++            gripper_closed_position="0.0"
+             isaac_joint_commands="/isaac_joint_commands"
+             isaac_joint_states="/isaac_joint_states">
+             <origin xyz="0 0 0" rpy="0 0 0" />
+@@ -286,37 +350,37 @@
+       <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+     </hardware>
+ 
+-    <joint name="joint_1"><command_interface name="velocity"/>
++    <joint name="joint_1"><command_interface name="position"/>
+       <state_interface name="position">
+         <param name="initial_value">0.0</param>
+       </state_interface>
+       <state_interface   name="velocity"/>
+       <state_interface   name="effort"/></joint>
+-    <joint name="joint_2"><command_interface name="velocity"/>
++    <joint name="joint_2"><command_interface name="position"/>
+       <state_interface name="position">
+         <param name="initial_value">0.0</param>
+       </state_interface>
+       <state_interface   name="velocity"/>
+       <state_interface   name="effort"/></joint>
+-    <joint name="joint_3"><command_interface name="velocity"/>
++    <joint name="joint_3"><command_interface name="position"/>
+       <state_interface name="position">
+-        <param name="initial_value">1.57079632679</param>    
++        <param name="initial_value">0.0</param>
+       </state_interface>
+       <state_interface   name="velocity"/>
+       <state_interface   name="effort"/></joint>
+-    <joint name="joint_4"><command_interface name="velocity"/>
++    <joint name="joint_4"><command_interface name="position"/>
+       <state_interface name="position">
+         <param name="initial_value">0.0</param>
+       </state_interface>
+       <state_interface   name="velocity"/>
+       <state_interface   name="effort"/></joint>
+-    <joint name="joint_5"><command_interface name="velocity"/>
++    <joint name="joint_5"><command_interface name="position"/>
+       <state_interface name="position">
+         <param name="initial_value">0.0</param>
+       </state_interface>
+       <state_interface   name="velocity"/>
+       <state_interface   name="effort"/></joint>
+-    <joint name="joint_6"><command_interface name="velocity"/>
++    <joint name="joint_6"><command_interface name="position"/>
+       <state_interface name="position">
+         <param name="initial_value">0.0</param>
+       </state_interface>
 diff --git a/link6_description/urdf/link6_macro.xacro b/link6_description/urdf/link6_macro.xacro
 index 7ba47d1..cce7ff0 100644
 --- a/link6_description/urdf/link6_macro.xacro

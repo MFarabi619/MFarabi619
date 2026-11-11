@@ -1,0 +1,61 @@
+diff --git a/COLCON_IGNORE b/COLCON_IGNORE
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/gripper_controllers/CMakeLists.txt b/gripper_controllers/CMakeLists.txt
+index 4ee1c4bb..0fca3ae0 100644
+--- a/gripper_controllers/CMakeLists.txt
++++ b/gripper_controllers/CMakeLists.txt
+@@ -37,8 +37,15 @@ target_include_directories(gripper_action_controller PUBLIC
+ )
+ target_link_libraries(gripper_action_controller PUBLIC
+   gripper_action_controller_parameters
++  control_toolbox::control_toolbox
++  controller_interface::controller_interface
++  hardware_interface::hardware_interface
++  pluginlib::pluginlib
++  rclcpp::rclcpp
++  rclcpp_action::rclcpp_action
++  realtime_tools::realtime_tools
++  ${control_msgs_TARGETS}
+ )
+-ament_target_dependencies(gripper_action_controller PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
+ 
+ pluginlib_export_plugin_description_file(controller_interface ros_control_plugins.xml)
+ 
+diff --git a/gripper_controllers/include/gripper_controllers/gripper_action_controller_impl.hpp b/gripper_controllers/include/gripper_controllers/gripper_action_controller_impl.hpp
+index a94e163d..f8300672 100644
+--- a/gripper_controllers/include/gripper_controllers/gripper_action_controller_impl.hpp
++++ b/gripper_controllers/include/gripper_controllers/gripper_action_controller_impl.hpp
+@@ -65,8 +65,10 @@ controller_interface::return_type GripperActionController<HardwareInterface>::up
+ {
+   command_struct_rt_ = *(command_.readFromRT());
+ 
+-  const double current_position = joint_position_state_interface_->get().get_value();
+-  const double current_velocity = joint_velocity_state_interface_->get().get_value();
++  const double current_position =
++    joint_position_state_interface_->get().get_optional().value_or(command_struct_rt_.position_);
++  const double current_velocity =
++    joint_velocity_state_interface_->get().get_optional().value_or(0.0);
+ 
+   const double error_position = command_struct_rt_.position_ - current_position;
+   const double error_velocity = -current_velocity;
+@@ -147,7 +149,8 @@ rclcpp_action::CancelResponse GripperActionController<HardwareInterface>::cancel
+ template <const char * HardwareInterface>
+ void GripperActionController<HardwareInterface>::set_hold_position()
+ {
+-  command_struct_.position_ = joint_position_state_interface_->get().get_value();
++  command_struct_.position_ =
++    joint_position_state_interface_->get().get_optional().value_or(command_struct_.position_);
+   command_struct_.max_effort_ = params_.max_effort;
+   command_.writeFromNonRT(command_struct_);
+ }
+@@ -285,7 +288,8 @@ controller_interface::CallbackReturn GripperActionController<HardwareInterface>:
+   hw_iface_adapter_.init(joint_command_interface_, get_node());
+ 
+   // Command - non RT version
+-  command_struct_.position_ = joint_position_state_interface_->get().get_value();
++  command_struct_.position_ =
++    joint_position_state_interface_->get().get_optional().value_or(0.0);
+   command_struct_.max_effort_ = params_.max_effort;
+   command_.initRT(command_struct_);
+ 

@@ -1,0 +1,411 @@
+diff --git a/cartesian_compliance_controller/CMakeLists.txt b/cartesian_compliance_controller/CMakeLists.txt
+index 9268f54..7efb54d 100644
+--- a/cartesian_compliance_controller/CMakeLists.txt
++++ b/cartesian_compliance_controller/CMakeLists.txt
+@@ -10,9 +10,11 @@ if(NOT CMAKE_BUILD_TYPE)
+   set(CMAKE_BUILD_TYPE Release)
+ endif(NOT CMAKE_BUILD_TYPE)
+ 
+-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
++find_package(Eigen3 REQUIRED NO_MODULE)
+ add_definitions(-DEIGEN_MPL2_ONLY)
+ find_package(ament_cmake REQUIRED)
++find_package(ament_cmake_target_dependencies REQUIRED)
++include("${CMAKE_CURRENT_LIST_DIR}/../cmake/ament_target_dependencies.cmake")
+ find_package(rclcpp REQUIRED)
+ find_package(cartesian_controller_base REQUIRED)
+ find_package(cartesian_motion_controller REQUIRED)
+diff --git a/cartesian_controller_base/CMakeLists.txt b/cartesian_controller_base/CMakeLists.txt
+index 1f6ff9b..dfa5d27 100644
+--- a/cartesian_controller_base/CMakeLists.txt
++++ b/cartesian_controller_base/CMakeLists.txt
+@@ -13,7 +13,7 @@ endif(NOT CMAKE_BUILD_TYPE)
+ 
+ # Use CMake to pass the current ROS_DISTRO via variables into a preprocessor template.
+ # We then include this file and switch between the different APIs.
+-if($ENV{ROS_DISTRO} STREQUAL "jazzy")
++if($ENV{ROS_DISTRO} STREQUAL "jazzy" OR $ENV{ROS_DISTRO} STREQUAL "lyrical")
+   set(CARTESIAN_CONTROLLERS_JAZZY TRUE)
+ elseif($ENV{ROS_DISTRO} STREQUAL "iron")
+   set(CARTESIAN_CONTROLLERS_IRON TRUE)
+@@ -27,10 +27,12 @@ configure_file(include/cartesian_controller_base/ROS2VersionConfig.h.in ROS2Vers
+ ## Find catkin macros and libraries
+ ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+ ## is used, also find other catkin packages
+-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
++find_package(Eigen3 REQUIRED NO_MODULE)
+ add_definitions(-DEIGEN_MPL2_ONLY)
+ 
+ find_package(ament_cmake REQUIRED)
++find_package(ament_cmake_target_dependencies REQUIRED)
++include("${CMAKE_CURRENT_LIST_DIR}/../cmake/ament_target_dependencies.cmake")
+ find_package(rclcpp REQUIRED)
+ find_package(controller_interface REQUIRED)
+ find_package(kdl_parser REQUIRED)
+diff --git a/cartesian_controller_base/include/cartesian_controller_base/cartesian_controller_base.h b/cartesian_controller_base/include/cartesian_controller_base/cartesian_controller_base.h
+index 7d02dfd..c0e981f 100644
+--- a/cartesian_controller_base/include/cartesian_controller_base/cartesian_controller_base.h
++++ b/cartesian_controller_base/include/cartesian_controller_base/cartesian_controller_base.h
+@@ -43,7 +43,7 @@
+ #include <cartesian_controller_base/IKSolver.h>
+ #include <cartesian_controller_base/SpatialPDController.h>
+ #include <cartesian_controller_base/Utility.h>
+-#include <realtime_tools/realtime_publisher.h>
++#include <realtime_tools/realtime_publisher.hpp>
+ 
+ #include <controller_interface/controller_interface.hpp>
+ #include <functional>
+diff --git a/cartesian_controller_base/src/IKSolver.cpp b/cartesian_controller_base/src/IKSolver.cpp
+index b149ea2..3bfdf05 100644
+--- a/cartesian_controller_base/src/IKSolver.cpp
++++ b/cartesian_controller_base/src/IKSolver.cpp
+@@ -72,7 +72,8 @@ bool IKSolver::setStartState(
+     // Add additional plausibility check just in case.
+     if (joint_pos_handles[i].get().get_interface_name() == hardware_interface::HW_IF_POSITION)
+     {
+-      m_current_positions(i) = joint_pos_handles[i].get().get_value();
++      m_current_positions(i) =
++        joint_pos_handles[i].get().get_optional().value_or(m_current_positions(i));
+       m_current_velocities(i) = 0.0;
+       m_current_accelerations(i) = 0.0;
+       m_last_positions(i) = m_current_positions(i);
+@@ -96,7 +97,8 @@ void IKSolver::synchronizeJointPositions(
+     // Add additional plausibility check just in case.
+     if (joint_pos_handles[i].get().get_interface_name() == hardware_interface::HW_IF_POSITION)
+     {
+-      m_current_positions(i) = joint_pos_handles[i].get().get_value();
++      m_current_positions(i) =
++        joint_pos_handles[i].get().get_optional().value_or(m_current_positions(i));
+       m_last_positions(i) = m_current_positions(i);
+     }
+   }
+diff --git a/cartesian_controller_base/src/cartesian_controller_base.cpp b/cartesian_controller_base/src/cartesian_controller_base.cpp
+index 528bf3a..95c7157 100644
+--- a/cartesian_controller_base/src/cartesian_controller_base.cpp
++++ b/cartesian_controller_base/src/cartesian_controller_base.cpp
+@@ -278,6 +278,10 @@ CartesianControllerBase::on_activate(const rclcpp_lifecycle::State & previous_st
+   }
+ 
+   // Get command handles.
++  m_joint_cmd_pos_handles.clear();
++  m_joint_cmd_pos_handles.reserve(m_joint_names.size());
++  m_joint_cmd_vel_handles.clear();
++  m_joint_cmd_vel_handles.reserve(m_joint_names.size());
+   for (const auto & type : m_cmd_interface_types)
+   {
+     if (!controller_interface::get_ordered_interfaces(command_interfaces_, m_joint_names, type,
+@@ -294,6 +298,8 @@ CartesianControllerBase::on_activate(const rclcpp_lifecycle::State & previous_st
+   }
+ 
+   // Get state handles.
++  m_joint_state_pos_handles.clear();
++  m_joint_state_pos_handles.reserve(m_joint_names.size());
+   if (!controller_interface::get_ordered_interfaces(state_interfaces_, m_joint_names,
+                                                     hardware_interface::HW_IF_POSITION,
+                                                     m_joint_state_pos_handles))
+@@ -474,37 +480,30 @@ void CartesianControllerBase::publishStateFeedback()
+ {
+   // End-effector pose
+   auto pose = m_ik_solver->getEndEffectorPose();
+-  if (m_feedback_pose_publisher->trylock())
+-  {
+-    m_feedback_pose_publisher->msg_.header.stamp = get_node()->now();
+-    m_feedback_pose_publisher->msg_.header.frame_id = m_robot_base_link;
+-    m_feedback_pose_publisher->msg_.pose.position.x = pose.p.x();
+-    m_feedback_pose_publisher->msg_.pose.position.y = pose.p.y();
+-    m_feedback_pose_publisher->msg_.pose.position.z = pose.p.z();
+-
+-    pose.M.GetQuaternion(m_feedback_pose_publisher->msg_.pose.orientation.x,
+-                         m_feedback_pose_publisher->msg_.pose.orientation.y,
+-                         m_feedback_pose_publisher->msg_.pose.orientation.z,
+-                         m_feedback_pose_publisher->msg_.pose.orientation.w);
+-
+-    m_feedback_pose_publisher->unlockAndPublish();
+-  }
++  geometry_msgs::msg::PoseStamped pose_msg;
++  pose_msg.header.stamp = get_node()->now();
++  pose_msg.header.frame_id = m_robot_base_link;
++  pose_msg.pose.position.x = pose.p.x();
++  pose_msg.pose.position.y = pose.p.y();
++  pose_msg.pose.position.z = pose.p.z();
++  pose.M.GetQuaternion(pose_msg.pose.orientation.x,
++                       pose_msg.pose.orientation.y,
++                       pose_msg.pose.orientation.z,
++                       pose_msg.pose.orientation.w);
++  m_feedback_pose_publisher->try_publish(pose_msg);
+ 
+   // End-effector twist
+   auto twist = m_ik_solver->getEndEffectorVel();
+-  if (m_feedback_twist_publisher->trylock())
+-  {
+-    m_feedback_twist_publisher->msg_.header.stamp = get_node()->now();
+-    m_feedback_twist_publisher->msg_.header.frame_id = m_robot_base_link;
+-    m_feedback_twist_publisher->msg_.twist.linear.x = twist[0];
+-    m_feedback_twist_publisher->msg_.twist.linear.y = twist[1];
+-    m_feedback_twist_publisher->msg_.twist.linear.z = twist[2];
+-    m_feedback_twist_publisher->msg_.twist.angular.x = twist[3];
+-    m_feedback_twist_publisher->msg_.twist.angular.y = twist[4];
+-    m_feedback_twist_publisher->msg_.twist.angular.z = twist[5];
+-
+-    m_feedback_twist_publisher->unlockAndPublish();
+-  }
++  geometry_msgs::msg::TwistStamped twist_msg;
++  twist_msg.header.stamp = get_node()->now();
++  twist_msg.header.frame_id = m_robot_base_link;
++  twist_msg.twist.linear.x = twist[0];
++  twist_msg.twist.linear.y = twist[1];
++  twist_msg.twist.linear.z = twist[2];
++  twist_msg.twist.angular.x = twist[3];
++  twist_msg.twist.angular.y = twist[4];
++  twist_msg.twist.angular.z = twist[5];
++  m_feedback_twist_publisher->try_publish(twist_msg);
+ }
+ 
+ }  // namespace cartesian_controller_base
+diff --git a/cartesian_controller_handles/CMakeLists.txt b/cartesian_controller_handles/CMakeLists.txt
+index 0a517fe..90b1465 100644
+--- a/cartesian_controller_handles/CMakeLists.txt
++++ b/cartesian_controller_handles/CMakeLists.txt
+@@ -6,6 +6,8 @@ set(ADDITIONAL_COMPILE_OPTIONS -Wall -Wextra -Wpedantic -Wno-unused-parameter)
+ add_compile_options(${ADDITIONAL_COMPILE_OPTIONS})
+ 
+ find_package(ament_cmake REQUIRED)
++find_package(ament_cmake_target_dependencies REQUIRED)
++include("${CMAKE_CURRENT_LIST_DIR}/../cmake/ament_target_dependencies.cmake")
+ find_package(cartesian_controller_base REQUIRED) # For ROS2 version handling
+ find_package(controller_interface REQUIRED)
+ find_package(geometry_msgs REQUIRED)
+diff --git a/cartesian_controller_handles/src/motion_control_handle.cpp b/cartesian_controller_handles/src/motion_control_handle.cpp
+index 29c28fb..0d8e135 100644
+--- a/cartesian_controller_handles/src/motion_control_handle.cpp
++++ b/cartesian_controller_handles/src/motion_control_handle.cpp
+@@ -59,6 +59,8 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+ MotionControlHandle::on_activate(const rclcpp_lifecycle::State & previous_state)
+ {
+   // Get state handles.
++  m_joint_handles.clear();
++  m_joint_handles.reserve(m_joint_names.size());
+   if (!controller_interface::get_ordered_interfaces(
+         state_interfaces_, m_joint_names, hardware_interface::HW_IF_POSITION, m_joint_handles))
+   {
+@@ -313,7 +315,7 @@ geometry_msgs::msg::PoseStamped MotionControlHandle::getEndEffectorPose()
+   KDL::JntArray positions(m_joint_handles.size());
+   for (size_t i = 0; i < m_joint_handles.size(); ++i)
+   {
+-    positions(i) = m_joint_handles[i].get().get_value();
++    positions(i) = m_joint_handles[i].get().get_optional().value_or(positions(i));
+   }
+ 
+   KDL::Frame tmp;
+diff --git a/cartesian_controller_simulation/CMakeLists.txt b/cartesian_controller_simulation/CMakeLists.txt
+index df171c4..cb85da9 100644
+--- a/cartesian_controller_simulation/CMakeLists.txt
++++ b/cartesian_controller_simulation/CMakeLists.txt
+@@ -15,6 +15,8 @@ endif()
+ 
+ # find dependencies
+ find_package(ament_cmake REQUIRED)
++find_package(ament_cmake_target_dependencies REQUIRED)
++include("${CMAKE_CURRENT_LIST_DIR}/../cmake/ament_target_dependencies.cmake")
+ find_package(cartesian_controller_base REQUIRED)
+ find_package(hardware_interface REQUIRED)
+ find_package(pluginlib REQUIRED)
+diff --git a/cartesian_force_controller/CMakeLists.txt b/cartesian_force_controller/CMakeLists.txt
+index e96942e..74bd334 100644
+--- a/cartesian_force_controller/CMakeLists.txt
++++ b/cartesian_force_controller/CMakeLists.txt
+@@ -10,9 +10,11 @@ if(NOT CMAKE_BUILD_TYPE)
+   set(CMAKE_BUILD_TYPE Release)
+ endif(NOT CMAKE_BUILD_TYPE)
+ 
+-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
++find_package(Eigen3 REQUIRED NO_MODULE)
+ add_definitions(-DEIGEN_MPL2_ONLY)
+ find_package(ament_cmake REQUIRED)
++find_package(ament_cmake_target_dependencies REQUIRED)
++include("${CMAKE_CURRENT_LIST_DIR}/../cmake/ament_target_dependencies.cmake")
+ find_package(rclcpp REQUIRED)
+ find_package(cartesian_controller_base REQUIRED)
+ 
+diff --git a/cartesian_motion_controller/CMakeLists.txt b/cartesian_motion_controller/CMakeLists.txt
+index 3114b14..591c614 100644
+--- a/cartesian_motion_controller/CMakeLists.txt
++++ b/cartesian_motion_controller/CMakeLists.txt
+@@ -10,9 +10,11 @@ if(NOT CMAKE_BUILD_TYPE)
+   set(CMAKE_BUILD_TYPE Release)
+ endif(NOT CMAKE_BUILD_TYPE)
+ 
+-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
++find_package(Eigen3 REQUIRED NO_MODULE)
+ add_definitions(-DEIGEN_MPL2_ONLY)
+ find_package(ament_cmake REQUIRED)
++find_package(ament_cmake_target_dependencies REQUIRED)
++include("${CMAKE_CURRENT_LIST_DIR}/../cmake/ament_target_dependencies.cmake")
+ find_package(rclcpp REQUIRED)
+ find_package(cartesian_controller_base REQUIRED)
+ 
+diff --git a/cmake/ament_target_dependencies.cmake b/cmake/ament_target_dependencies.cmake
+new file mode 100644
+index 0000000..946ebcc
+--- /dev/null
++++ b/cmake/ament_target_dependencies.cmake
+@@ -0,0 +1,159 @@
++# Copyright 2014-2020 Open Source Robotics Foundation, Inc.
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++#
++# Add the interface targets or definitions, include directories and libraries
++# of packages to a target.
++#
++# Each package name must have been find_package()-ed before.
++# Additionally the exported variables must have a prefix with the same case
++# and the suffixes must be either _INTERFACES or _DEFINITIONS, _INCLUDE_DIRS,
++# _LIBRARIES, _LIBRARY_DIRS, and _LINK_FLAGS.
++# If _INTERFACES is not empty it will be used exclusively, otherwise the other
++# variables are being used.
++# If _LIBRARY_DIRS is not empty, _LIBRARIES which are not absolute paths already
++# will be searched in those directories and their absolute paths will be used instead.
++#
++# :param target: the target name
++# :type target: string
++# :param ARGN: a list of package names, which can optionally start
++#   with a SYSTEM keyword, followed by an INTERFACE or PUBLIC keyword.
++#   If it starts with a SYSTEM keyword, it will be used in
++#   target_include_directories() calls.
++#   If it starts (or follows) with an INTERFACE or PUBLIC keyword,
++#   this keyword will be used in the target_*() calls.
++# :type ARGN: list of strings
++#
++# @public
++#
++function(ament_target_dependencies target)
++  if(NOT TARGET ${target})
++    message(FATAL_ERROR "ament_target_dependencies() the first argument must be a valid target name")
++  endif()
++  if(${ARGC} GREATER 0)
++    cmake_parse_arguments(ARG "INTERFACE;PUBLIC;SYSTEM" "" "" ${ARGN})
++    set(ARGVIND 1)
++    set(system_keyword "")
++    set(optional_keyword "")
++    set(required_keyword "PUBLIC")
++    if(ARG_SYSTEM)
++      if(NOT "${ARGV${ARGVIND}}" STREQUAL "SYSTEM")
++        message(FATAL_ERROR "ament_target_dependencies() SYSTEM keyword is only allowed before the package names and other keywords")
++      endif()
++      set(system_keyword SYSTEM)
++      math(EXPR ARGVIND "${ARGVIND} + 1")
++    endif()
++    if(ARG_INTERFACE)
++      if(NOT "${ARGV${ARGVIND}}" STREQUAL "INTERFACE")
++        message(FATAL_ERROR "ament_target_dependencies() INTERFACE keyword is only allowed before the package names")
++      endif()
++      set(optional_keyword INTERFACE)
++      set(required_keyword INTERFACE)
++    endif()
++    if(ARG_PUBLIC)
++      if(NOT "${ARGV${ARGVIND}}" STREQUAL "PUBLIC")
++        message(FATAL_ERROR "ament_target_dependencies() PUBLIC keyword is only allowed before the package names")
++      endif()
++      set(optional_keyword PUBLIC)
++    endif()
++    set(definitions "")
++    set(include_dirs "")
++    set(interfaces "")
++    set(libraries "")
++    set(link_flags "")
++    foreach(package_name ${ARG_UNPARSED_ARGUMENTS})
++      if(NOT "${${package_name}_FOUND}")
++        message(FATAL_ERROR "ament_target_dependencies() the passed package name '${package_name}' was not found before")
++      endif()
++      # if a package provides modern CMake interface targets use them
++      # exclusively assuming the classic CMake variables only exist for
++      # backward compatibility
++      set(use_modern_cmake FALSE)
++      if(NOT "${${package_name}_TARGETS}" STREQUAL "")
++        foreach(_target ${${package_name}_TARGETS})
++          # only use actual targets
++          # in case a package uses this variable for other content
++          if(TARGET "${_target}")
++            list_append_unique(interfaces ${_target})
++            set(use_modern_cmake TRUE)
++          endif()
++        endforeach()
++      endif()
++      if(NOT use_modern_cmake AND NOT "${${package_name}_INTERFACES}" STREQUAL "")
++        foreach(_interface ${${package_name}_INTERFACES})
++          # only use actual targets
++          # in case a package uses this variable for other content
++          if(TARGET "${_interface}")
++            list_append_unique(interfaces ${_interface})
++            set(use_modern_cmake TRUE)
++          endif()
++        endforeach()
++        if(use_modern_cmake)
++          message(DEPRECATION
++            "Package ${package_name} is exporting the variable "
++            "${package_name}_INTERFACES which is deprecated, it should export
++            ${package_name}_TARGETS instead")
++        endif()
++      endif()
++      if(NOT use_modern_cmake)
++        # otherwise use the classic CMake variables
++        list_append_unique(definitions ${${package_name}_DEFINITIONS})
++        list_append_unique(include_dirs ${${package_name}_INCLUDE_DIRS})
++        foreach(library ${${package_name}_LIBRARIES})
++          if(NOT "${${package_name}_LIBRARY_DIRS}" STREQUAL "")
++            if(NOT IS_ABSOLUTE ${library} OR NOT EXISTS ${library})
++              unset(lib CACHE)
++              find_library(lib NAMES ${library} PATHS ${${package_name}_LIBRARY_DIRS} NO_DEFAULT_PATH)
++              if(lib)
++                set(library ${lib})
++              endif()
++            endif()
++          endif()
++          list(APPEND libraries ${library})
++        endforeach()
++        list_append_unique(link_flags ${${package_name}_LINK_FLAGS})
++      endif()
++    endforeach()
++    if(NOT ARG_INTERFACE)
++      target_compile_definitions(${target}
++        ${required_keyword} ${definitions})
++      # the interface include dirs must be ordered
++      set(interface_include_dirs)
++      foreach(interface ${interfaces})
++        get_target_property(_include_dirs ${interface} INTERFACE_INCLUDE_DIRECTORIES)
++        if(_include_dirs)
++          list_append_unique(interface_include_dirs ${_include_dirs})
++        endif()
++      endforeach()
++      ament_include_directories_order(ordered_interface_include_dirs ${interface_include_dirs})
++      # the interface include dirs are used privately to ensure proper order
++      # and the interfaces cover the public case
++      target_include_directories(${target} ${system_keyword}
++        PRIVATE ${ordered_interface_include_dirs})
++    endif()
++    ament_include_directories_order(ordered_include_dirs ${include_dirs})
++    target_link_libraries(${target}
++      ${optional_keyword} ${interfaces})
++    target_include_directories(${target} ${system_keyword}
++      ${required_keyword} ${ordered_include_dirs})
++    if(NOT ARG_INTERFACE)
++      ament_libraries_deduplicate(unique_libraries ${libraries})
++      target_link_libraries(${target}
++        ${optional_keyword} ${unique_libraries})
++      foreach(link_flag IN LISTS link_flags)
++        set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " ${link_flag} ")
++      endforeach()
++    endif()
++  endif()
++endfunction()

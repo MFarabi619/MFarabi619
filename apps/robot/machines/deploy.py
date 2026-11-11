@@ -57,6 +57,31 @@ DEAD_LAYOUT_ENTRIES = [
     'install/lib/robot_perception/collision_overlay.py',
     'install/share/robot_control/config/generated',
     'install/share/robot_control/config/drivetrain.generated.yaml',
+    'build/nav2_common', 'build/nav2_msgs',
+    'install/include/nav2_msgs',
+    'install/lib/libnav2_msgs__rosidl_generator_c.so',
+    'install/lib/libnav2_msgs__rosidl_generator_py.so',
+    'install/lib/libnav2_msgs__rosidl_typesupport_c.so',
+    'install/lib/libnav2_msgs__rosidl_typesupport_cpp.so',
+    'install/lib/libnav2_msgs__rosidl_typesupport_fastrtps_c.so',
+    'install/lib/libnav2_msgs__rosidl_typesupport_fastrtps_cpp.so',
+    'install/lib/libnav2_msgs__rosidl_typesupport_introspection_c.so',
+    'install/lib/libnav2_msgs__rosidl_typesupport_introspection_cpp.so',
+    'install/lib/python3.14/site-packages/nav2_common',
+    'install/lib/python3.14/site-packages/nav2_common-1.3.13-py3.14.egg-info',
+    'install/lib/python3.14/site-packages/nav2_msgs',
+    'install/lib/python3.14/site-packages/nav2_msgs-1.3.13-py3.14.egg-info',
+    'install/share/nav2_common', 'install/share/nav2_msgs',
+    'install/share/ament_index/resource_index/package_run_dependencies/nav2_common',
+    'install/share/ament_index/resource_index/package_run_dependencies/nav2_msgs',
+    'install/share/ament_index/resource_index/packages/nav2_common',
+    'install/share/ament_index/resource_index/packages/nav2_msgs',
+    'install/share/ament_index/resource_index/parent_prefix_path/nav2_common',
+    'install/share/ament_index/resource_index/parent_prefix_path/nav2_msgs',
+    'install/share/ament_index/resource_index/rosidl_interfaces/nav2_msgs',
+    'install/share/ament_index/resource_index/rust_packages/nav2_msgs',
+    'install/share/colcon-core/packages/nav2_common',
+    'install/share/colcon-core/packages/nav2_msgs',
 ]
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -92,24 +117,25 @@ def mirror(host, config):
     ssh(host, shell_chain(
         ['mkdir', '-p', f'{MIRROR_ROOT}/apps/robot',
          f'{MIRROR_ROOT}/vendor/better_launch',
-         f'{MIRROR_ROOT}/vendor/audio_common',
-         f'{MIRROR_ROOT}/vendor/navigation2'],
+         f'{MIRROR_ROOT}/vendor/audio_common'],
+        ['rm', '-rf', f'{MIRROR_ROOT}/vendor/navigation2'],
         ['cd', f'{MIRROR_ROOT}/apps/robot'],
         ['rm', '-rf', *DEAD_LAYOUT_ENTRIES],
     ))
-    for vendor_tree in ('better_launch', 'audio_common', 'navigation2'):
+    for vendor_tree in ('better_launch', 'audio_common'):
         run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git',
             '-e', 'ssh -q', f'vendor/{vendor_tree}/',
             f'{host}:{MIRROR_ROOT}/vendor/{vendor_tree}/',
             working_directory=REPO_ROOT)
     if is_arm_only_machine(config):
-        ssh(host, shell_chain(
-            ['mkdir', '-p', f'{MIRROR_ROOT}/vendor/ros'],
-        ))
-        run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git',
-            '-e', 'ssh -q', 'vendor/ros/',
-            f'{host}:{MIRROR_ROOT}/vendor/ros/',
-            working_directory=REPO_ROOT)
+        for vendor_tree in (
+                'ros2_link6', 'cartesian_controllers', 'mujoco_ros2_control',
+                'play_motion2', 'ros2_robotiq_gripper', 'picknik_controllers',
+                'serial', 'ros2_controllers'):
+            run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git',
+                '-e', 'ssh -q', f'vendor/{vendor_tree}/',
+                f'{host}:{MIRROR_ROOT}/vendor/{vendor_tree}/',
+                working_directory=REPO_ROOT)
     run('rsync', *RSYNC_FLAGS, '--delete',
         *[f'--exclude={entry}' for entry in ROBOT_LOCAL_ENTRIES],
         *[f'--filter=H {entry}' for entry in DEVELOPMENT_ONLY_ENTRIES],

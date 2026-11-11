@@ -11,17 +11,19 @@ platforms = [
 ]
 
 [activation]
-scripts = ["install/setup.sh"]
-env = { ROS_DOMAIN_ID = "0", RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l", YOLO_AUTOINSTALL = "false" }
+scripts = ["install/setup.sh", "install-arm/setup.sh"]
+env = { ROS_DOMAIN_ID = "0", RMW_IMPLEMENTATION = "rmw_zenoh_cpp", ROS_SUPER_CLIENT = "True", BL_TUI_KEYBINDS = "nodes: c-n; loglevel: c-l", YOLO_AUTOINSTALL = "false", COLCON_DEFAULTS_FILE = "colcon-defaults.yaml" }
 
 [dependencies]
 make = "*"
 ninja = "*"
 cmake = "*"
+ccache = "*"
 python = "*"
 rosdep = "*"
 requests = "*"
 pyserial = "*"
+libopencv = "*"
 compilers = "*"
 pkg-config = "*"
 portaudio = "*"
@@ -32,10 +34,31 @@ transforms3d = "*"
 rich = ">=15.0.0,<16"
 ros-lyrical-py-trees = "*"
 ros-lyrical-twist-mux = "*"
+ros-lyrical-topic-tools = "*"
+ros-lyrical-nav2-msgs = "*"
 ros-lyrical-py-trees-ros = "*"
 colcon-common-extensions = "*"
 ros-lyrical-desktop-full = "*"
+ros-lyrical-nav2-planner = "*"
 ros-lyrical-ros2-control = "*"
+ros-lyrical-slam-toolbox = "*"
+ros-lyrical-nav2-behaviors = "*"
+ros-lyrical-nav2-controller = "*"
+ros-lyrical-nav2-bt-navigator = "*"
+ros-lyrical-nav2-rviz-plugins = "*"
+ros-lyrical-nav2-collision-monitor = "*"
+
+fmt = "*"
+eigen = "*"
+ros-lyrical-moveit-py = "*"
+ros-lyrical-control-toolbox = "*"
+ros-lyrical-moveit-planners = "*"
+ros-lyrical-moveit-kinematics = "*"
+ros-lyrical-moveit-configs-utils = "*"
+ros-lyrical-moveit-ros-move-group = "*"
+ros-lyrical-moveit-task-constructor-core = "*"
+ros-lyrical-moveit-simple-controller-manager = "*"
+ros-lyrical-moveit-task-constructor-capabilities = "*"
 ros-lyrical-geographic-msgs = "*"
 ros-lyrical-foxglove-bridge = "*"
 ros-lyrical-ros2-controllers = "*"
@@ -61,20 +84,28 @@ mediapipe = ">=1.0.0"
 
 [target.linux-aarch64.dependencies]
 sysroot_linux-aarch64 = ">=2.28"
+nlohmann_json = "*"
+ros-lyrical-nmea-msgs = "*"
 ros-lyrical-foxglove-msgs = "*"
 ros-lyrical-zed-description = "*"
+ros-lyrical-robot-localization = "*"
 ros-lyrical-depth-image-proc = "*"
 ros-lyrical-diagnostic-aggregator = "*"
 
 [target.linux-aarch64.pypi-dependencies]
 gpiod = "*"
+mediapipe = "*"
 sherpa-onnx = ">=1.13"
 depthai = ">=2.24,<3"
 adafruit-extended-bus = "*"
 adafruit-circuitpython-bno08x = "*"
 
 [target.osx-arm64.pypi-dependencies]
+mujoco = "*"
+trimesh = "*"
+obj2mjcf = "*"
 mediapipe = "*"
+pycollada = "*"
 odrive = ">=0.6.11"
 sherpa-onnx = ">=1.13"
 depthai = ">=2.24,<3"
@@ -82,23 +113,19 @@ better-launch = { path = "../../vendor/better_launch", editable = true }
 
 [target.osx-arm64.dependencies]
 lap = "*"
+glfw = "*"
 onnx = "*"
-pyside6 = "*"
 torchvision = "*"
 ultralytics = ">=8.4"
 
-qt6-3d = "*"
-qt6-scxml = "*"
-qt6-charts = "*"
-qt6-graphs = "*"
-qt6-quick3d = "*"
-qt6-sensors = "*"
-qt6-datavis3d = "*"
-qt6-webengine = "*"
-qt6-serialport = "*"
-qt6-multimedia = "*"
-qt6-networkauth = "*"
+ros-lyrical-ros-gz-sim = "*"
 ros-lyrical-vision-msgs = "*"
+ros-lyrical-ros-gz-image = "*"
+ros-lyrical-ros-gz-bridge = "*"
+ros-lyrical-sdformat-urdf = "*"
+ros-lyrical-mujoco-vendor = "*"
+ros-lyrical-apriltag-msgs = "*"
+ros-lyrical-moveit-ros-visualization = "*"
 ros-lyrical-foxglove-msgs = "*"
 ros-lyrical-gz-ros2-control = "*"
 ros-lyrical-diagnostic-aggregator = "*"
@@ -158,6 +185,7 @@ channels = [
 [feature.jazzy.activation.env]
 ROS_DISTRO = "jazzy"
 ROS_DOMAIN_ID = "0"
+COLCON_DEFAULTS_FILE = "colcon-defaults.yaml"
 RMW_IMPLEMENTATION = "rmw_zenoh_cpp"
 ZENOH_CONFIG_OVERRIDE = "mode='client'"
 ZENOH_SESSION_CONFIG_URI = "networking/zenoh/robot.json5"
@@ -167,18 +195,6 @@ requests = "*"
 python = "3.12.*"
 pygnssutils = "*"
 
-make = "*"
-cmake = "*"
-ninja = "*"
-filelock = "*"
-compilers = "*"
-pkg-config = "*"
-colcon-common-extensions = "*"
-ros-jazzy-ament-cmake-auto = "*"
-
-fmt = "*"
-eigen = "*"
-
 ros-jazzy-ros2cli = "*"
 ros-jazzy-ros2run = "*"
 ros-jazzy-ros2node = "*"
@@ -187,35 +203,11 @@ ros-jazzy-ros2action = "*"
 ros-jazzy-ros2launch = "*"
 ros-jazzy-topic-tools = "*"
 
-ros-jazzy-xacro = "*"
 ros-jazzy-std-msgs = "*"
-ros-jazzy-robot-state-publisher = "*"
-ros-jazzy-teleop-twist-keyboard = "*"
-
-ros-jazzy-ros2-control = "*"
-ros-jazzy-control-toolbox = "*"
-ros-jazzy-controller-manager = "*"
-ros-jazzy-gripper-controllers = "*"
-ros-jazzy-velocity-controllers = "*"
-ros-jazzy-joint-state-broadcaster = "*"
-ros-jazzy-joint-trajectory-controller = "*"
-
-ros-jazzy-moveit-py = "*"
-ros-jazzy-moveit-planners = "*"
-ros-jazzy-moveit-kinematics = "*"
-ros-jazzy-moveit-configs-utils = "*"
-ros-jazzy-moveit-ros-move-group = "*"
-ros-jazzy-moveit-task-constructor-core = "*"
-ros-jazzy-moveit-simple-controller-manager = "*"
-ros-jazzy-moveit-task-constructor-capabilities = "*"
-
-ros-jazzy-vision-msgs = "*"
-ros-jazzy-foxglove-msgs = "*"
-ros-jazzy-foxglove-bridge = "*"
+ros-jazzy-geographic-msgs = "*"
 ros-jazzy-robot-localization = "*"
 
 ros-jazzy-nav2-amcl = "*"
-ros-jazzy-slam-toolbox = "*"
 ros-jazzy-nav2-planner = "*"
 ros-jazzy-nav2-smoother = "*"
 ros-jazzy-nav2-behaviors = "*"
@@ -234,71 +226,17 @@ ros-jazzy-nav2-regulated-pure-pursuit-controller = "*"
 
 [feature.jazzy.target.linux-aarch64.dependencies]
 ros-jazzy-rclpy = "*"
-ros-jazzy-depthai-ros-msgs = "*"
 ros-jazzy-nmea-navsat-driver = "*"
-ros-jazzy-depthai-ros-driver = "*"
-ros-jazzy-image-transport-plugins = "*"
-
-nlohmann_json = "*"
-ros-jazzy-zed-msgs = "*"
-ros-jazzy-nmea-msgs = "*"
-ros-jazzy-zed-description = "*"
-ros-jazzy-geographic-msgs = "*"
-ros-jazzy-diagnostic-updater = "*"
-ros-jazzy-point-cloud-transport = "*"
-
-[feature.jazzy.target.linux-aarch64.activation]
-scripts = ["install-arm/setup.sh"]
-
-[feature.jazzy.target.linux-aarch64.pypi-dependencies]
-mediapipe = "*"
-better-launch = { path = "../../vendor/better_launch", editable = true }
-
-[feature.jazzy.target.osx-arm64.activation]
-scripts = ["install-arm/setup.sh"]
 
 [feature.jazzy.target.osx-arm64.dependencies]
-glfw = "*"
-eigen = "3.*"
-
-ros-jazzy-rviz2 = "*"
-ros-jazzy-apriltag-msgs = "*"
-ros-jazzy-sdformat-urdf = "*"
-ros-jazzy-example-interfaces = "*"
 ros-jazzy-nmea-navsat-driver = "*"
-ros-jazzy-image-transport-plugins = "*"
-
-ros-jazzy-ros-gz-sim = "*"
-ros-jazzy-ros-gz-image = "*"
-ros-jazzy-ros-gz-bridge = "*"
-ros-jazzy-gz-ros2-control = "*"
-
-ros-jazzy-moveit-ros-visualization = "*"
-
 ros-jazzy-nav2-bringup = "*"
 ros-jazzy-nav2-rviz-plugins = "*"
-
-ros-jazzy-mujoco-vendor = "*"
 
 [feature.jazzy.target.osx-arm64.pypi-dependencies]
 better-launch = { path = "../../vendor/better_launch", editable = true }
 
-mujoco = "*"
-obj2mjcf = "*"
-pycollada = "*"
-trimesh = "*"
-
-[feature.jazzy.target.osx-arm64.tasks]
-build-arm = "colcon build --merge-install --base-paths ../../vendor/ros manipulation mech --build-base build-arm --install-base install-arm --packages-ignore kortex3_hardware cartesian_controller_simulation cartesian_controller_tests zed_components zed_wrapper zed_ros2 zed_debug --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-dead_strip_dylibs -DCMAKE_EXE_LINKER_FLAGS=-Wl,-dead_strip_dylibs"
-
 [feature.jazzy.tasks]
-teleop-xiao = { cmd = "python boot/launch/teleop_xiao.launch.py --smooth {{ smooth }}", args = [
-    { arg = "smooth", default = "false", choices = [
-        "false",
-        "true",
-    ] },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/10.0.0.247:7447"]' } }
-
 set-home = { cmd = "python navigation/src/set_home.py --robot {{ robot }}", args = [
     { arg = "robot", default = "taro" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
@@ -307,16 +245,15 @@ return-home = { cmd = "python navigation/src/return_home.py --robot {{ robot }}"
     { arg = "robot", default = "taro" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
-waypoints = { cmd = "rviz2 -d navigation/config/waypoints.rviz --ros-args -r __ns:=/{{ robot }} -r /tf:=tf -r /tf_static:=tf_static", args = [
-    { arg = "robot", default = "taro" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
-
 gps = { cmd = "python boot/launch/gps.launch.py --port {{ port }} --baud {{ baud }}", args = [
     { arg = "port", default = "/dev/cu.usbmodem2101" },
     { arg = "baud", default = "115200" },
 ] }
 
-build-arm = "colcon build --merge-install --base-paths ../../vendor/ros manipulation mech --build-base build-arm --install-base install-arm --packages-up-to robot_manipulation robot_description link6_moveit_config play_motion2 zed_wrapper --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF"
+[tasks]
+build = "colcon build --base-paths . ../../vendor/audio_common --packages-ignore robot_manipulation audio_aec"
+
+build-arm = "colcon build --base-paths ../../vendor/ros2_link6 ../../vendor/cartesian_controllers ../../vendor/mujoco_ros2_control ../../vendor/play_motion2 ../../vendor/ros2_robotiq_gripper ../../vendor/picknik_controllers ../../vendor/serial manipulation mech --build-base build-arm --install-base install-arm --packages-up-to robot_manipulation robot_description link6_moveit_config play_motion2 --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -GNinja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
 
 sim-arm = { cmd = "python simulation/launch/arm.launch.py --robot {{ robot }} --mode {{ mode }} --headless {{ headless }} --world {{ world }} {% if gripper %}--gripper {{ gripper }}{% endif %}", args = [
     { arg = "robot", default = "kinova-link-6" },
@@ -360,11 +297,15 @@ e2e-arm-sim = { cmd = "pytest e2e/arm_sim.py -v -s", depends-on = [
     "build-arm",
 ] }
 
-sim-arm-mujoco = { cmd = "python simulation/launch/arm_mujoco.launch.py --robot {{ robot }} --mode {{ mode }}", args = [
+sim-arm-mujoco = { cmd = "python simulation/launch/arm_mujoco.launch.py --robot {{ robot }} --mode {{ mode }} --headless {{ headless }}", args = [
     { arg = "robot", default = "kinova-link-6" },
     { arg = "mode", default = "moveit", choices = [
         "plain",
         "moveit",
+    ] },
+    { arg = "headless", default = "false", choices = [
+        "false",
+        "true",
     ] },
 ], depends-on = [
     "build-arm",
@@ -375,8 +316,7 @@ arm-drag = { cmd = 'ros2 control switch_controllers {% if enabled == "true" %}--
         "true",
         "false",
     ] },
-], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
-
+], env = { ZENOH_CONFIG_OVERRIDE = "", ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-grip = { cmd = 'ros2 action send_goal /robotiq_gripper_controller/gripper_cmd control_msgs/action/GripperCommand "{command: {position: {% if state == "open" %}0.0{% else %}0.8{% endif %}, max_effort: 60.0}}"', args = [
     { arg = "state", default = "open", choices = [
@@ -384,22 +324,22 @@ arm-grip = { cmd = 'ros2 action send_goal /robotiq_gripper_controller/gripper_cm
         "close",
     ] },
     { arg = "host", default = "jetson-orin-nano.local" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-motion = { cmd = 'python manipulation/src/load_motions.py && ros2 action send_goal /robotiq_gripper_controller/gripper_cmd control_msgs/action/GripperCommand "{command: {position: 0.0, max_effort: 60.0}}" && ros2 play_motion run {{ motion }}', args = [
     { arg = "motion", default = "wave" },
     { arg = "host", default = "jetson-orin-nano.local" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-pick = { cmd = "python manipulation/launch/kinova_link6_pick.launch.py --object {{ object }}", args = [
     { arg = "object", default = "apple" },
     { arg = "host", default = "jetson-orin-nano.local" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-place = { cmd = "python manipulation/src/kinova_link6_place.py --object {{ object }}", args = [
     { arg = "object", default = "apple" },
     { arg = "host", default = "jetson-orin-nano.local" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
 arm-reach = { cmd = "python manipulation/src/reach.py --robot {{ robot }} {% if target %}--target {{ target }}{% endif %} {% if x %}--x {{ x }} --y {{ y }} --z {{ z }}{% endif %}", args = [
     { arg = "robot", default = "kinova-link-6" },
@@ -408,16 +348,24 @@ arm-reach = { cmd = "python manipulation/src/reach.py --robot {{ robot }} {% if 
     { arg = "y", default = "" },
     { arg = "z", default = "" },
     { arg = "host", default = "jetson-orin-nano.local" },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/jazzy/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
-[tasks]
-build = "colcon build --merge-install --base-paths . ../../vendor/audio_common ../../vendor/navigation2/nav2_common ../../vendor/navigation2/nav2_msgs --packages-ignore robot_manipulation --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
-
-lint = { cmd = "colcon test --base-paths . --merge-install --ctest-args -L linter --pytest-args -m linter --event-handlers console_direct+ && colcon test-result --verbose", depends-on = [
+lint = { cmd = "colcon test --base-paths . --ctest-args -L linter --pytest-args -m linter && colcon test-result --verbose", depends-on = [
     "build",
 ] }
 
 generate-world = "python simulation/plasticulture_generator.py"
+
+teleop-xiao = { cmd = "python boot/launch/teleop_xiao.launch.py --smooth {{ smooth }}", args = [
+    { arg = "smooth", default = "false", choices = [
+        "false",
+        "true",
+    ] },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/10.0.0.247:7447"]' } }
+
+waypoints = { cmd = "rviz2 -d navigation/config/waypoints.rviz --ros-args -r __ns:=/{{ robot }} -r /tf:=tf -r /tf_static:=tf_static", args = [
+    { arg = "robot", default = "taro" },
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
 roboteq = { cmd = "python boot/launch/roboteq.launch.py --port {{ port }} --counts_per_revolution {{ counts_per_revolution }} --robot {{ robot }}", args = [
     { arg = "port", default = "/dev/cu.usbmodem2072356748451" },
@@ -475,14 +423,16 @@ sim-teleop = { cmd = "ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros
 
 teleop = { cmd = 'ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --params-file boot/config/keyboard_teleop.yaml{% if robot != "kinova-link-6" %} -r __ns:=/{{ robot }}{% endif %} -r cmd_vel:=joy_teleop/cmd_vel', args = [
     { arg = "robot", default = "taro" },
-], env = { ZENOH_CONFIG_OVERRIDE = '{% if robot == "kinova-link-6" %}mode="client";connect/endpoints=["tcp/jetson-orin-nano.local:7447"]{% else %}mode="peer";connect/endpoints=["tcp/localhost:7447"{% if robot == "taro" %},"tcp/rpi5-16-2.local:7447"{% elif robot == "jiro" %},"tcp/rpi5-16.local:7447"{% endif %}];connect/timeout_ms=3000{% endif %}' } }
+], env = { ZENOH_CONFIG_OVERRIDE = '{% if robot == "kinova-link-6" %}mode="client";connect/endpoints=["tcp/jetson-orin-nano.local:7447"]{% else %}mode="peer";connect/endpoints=["tcp/localhost:7447"{% if robot == "taro" %},"tcp/rpi5-16-2.local:7447"{% elif robot == "jiro" %},"tcp/rpi5-16.local:7447"{% elif robot == "saburo" %},"tcp/jetson-orin-nano.local:7447"{% endif %}];connect/timeout_ms=3000{% endif %}' } }
+
 follow-person-enable = { cmd = '{% if enabled == "true" %}ros2 service call /{{ robot }}/person_follow/reset_parameters std_srvs/srv/Trigger "{}" && {% endif %}ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "taro" },
     { arg = "enabled", default = "true", choices = [
         "true",
         "false",
     ] },
-], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2.local{% elif robot == "saburo" %}jetson-orin-nano.local{% else %}rpi5-16.local{% endif %}:7447"]' } }
+
 follow-person-slow-enable = { cmd = '{% if enabled == "true" %}ros2 param load /{{ robot }}/person_follow boot/config/person_follow_slow.yaml && {% endif %}ros2 service call /{{ robot }}/person_follow/enable std_srvs/srv/SetBool "{data: {{ enabled }}}"', args = [
     { arg = "robot", default = "jiro" },
     { arg = "enabled", default = "true", choices = [
@@ -490,6 +440,7 @@ follow-person-slow-enable = { cmd = '{% if enabled == "true" %}ros2 param load /
         "false",
     ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
+
 harvest-lane-taro = { cmd = "python boot/launch/harvest_lane.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = [
     "build",
 ] }
@@ -596,7 +547,6 @@ follow-apriltag-taro = { cmd = "python perception/launch/apriltag_follow.launch.
 
 canopy = { cmd = "python perception/src/canopy_detector.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' } }
 
-# e2e-drive-profile = "python e2e/drive_profile.py --ros-args -p use_sim_time:=true"
 e2e = { cmd = "python e2e/cmd_vel.py --ros-args -r __ns:=/{{ robot }}", args = [
     { arg = "robot", default = "taro" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="peer";connect/endpoints=["tcp/localhost:7447"{% if robot == "taro" %},"tcp/rpi5-16-2.local:7447"{% elif robot == "jiro" %},"tcp/rpi5-16.local:7447"{% endif %}];connect/timeout_ms=3000' } }
@@ -609,7 +559,7 @@ cone-drill = "python e2e/cone_drill.py --ros-args -p use_sim_time:=true"
 
 camera-transport-check = "python e2e/camera_transport.py"
 
-slam-sim = "python navigation/launch/slam.launch.py --environment jazzy --use_sim_time true --scan_topic /sensors/camera_0/scan"
+slam-sim = "python navigation/launch/slam.launch.py --use_sim_time true --scan_topic /sensors/camera_0/scan"
 
 slam = { cmd = "python navigation/launch/slam.launch.py --robot {{ robot }}", args = [
     { arg = "robot", default = "jiro" },
@@ -630,6 +580,9 @@ robot = { cmd = "python boot/launch/robot.launch.py --name '{{ name }}' --drivet
     { arg = "drivetrain_model", default = "" },
 ] }
 
+[target.osx-arm64.tasks]
+build-arm = "colcon build --base-paths ../../vendor/ros2_link6 ../../vendor/cartesian_controllers ../../vendor/mujoco_ros2_control ../../vendor/play_motion2 ../../vendor/ros2_robotiq_gripper ../../vendor/picknik_controllers ../../vendor/serial ../../vendor/ros2_controllers/gripper_controllers manipulation mech --build-base build-arm --install-base install-arm --packages-up-to robot_manipulation robot_description link6_moveit_config link6_bringup play_motion2 play_motion2_cli gripper_controllers mujoco_ros2_control cartesian_motion_controller cartesian_controller_handles picknik_twist_controller picknik_reset_fault_controller robotiq_description --packages-ignore kortex3_hardware --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -GNinja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_SHARED_LINKER_FLAGS=-Wl,-dead_strip_dylibs -DCMAKE_EXE_LINKER_FLAGS=-Wl,-dead_strip_dylibs"
+
 [target.linux-aarch64.tasks]
 oak-d-sr = "python drivers/src/oak_d_sr.py --ros-args -r __ns:=/sensors/camera_0 -p frame_id:=camera_0_link_right_camera_optical_frame"
-build-zed = "colcon build --base-paths ../../vendor/ros/zed-ros2-wrapper ../../vendor/ros/zed-ros2-interfaces --packages-up-to zed_wrapper"
+build-zed = "colcon build --base-paths ../../vendor/zed-ros2-wrapper ../../vendor/zed-ros2-interfaces --packages-up-to zed_wrapper"

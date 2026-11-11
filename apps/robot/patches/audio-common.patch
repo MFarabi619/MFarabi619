@@ -1,17 +1,17 @@
 diff --git a/audio_common/CMakeLists.txt b/audio_common/CMakeLists.txt
-index b6fd54f..f1f86bc 100644
+index 2222394..9d0ec8e 100644
 --- a/audio_common/CMakeLists.txt
 +++ b/audio_common/CMakeLists.txt
-@@ -106,8 +106,10 @@ install(DIRECTORY include/
- )
+@@ -112,8 +112,10 @@ install(DIRECTORY include/
  
  if(BUILD_TESTING)
+   find_package(ament_cmake_gtest REQUIRED)
 -  find_package(ament_cmake_clang_format REQUIRED)
 -  ament_clang_format(CONFIG_FILE .clang-format)
 +  find_package(ament_cmake_clang_format QUIET)
 +  if(ament_cmake_clang_format_FOUND)
 +    ament_clang_format(CONFIG_FILE .clang-format)
 +  endif()
- endif()
  
- ament_export_dependencies(${DEPENDENCIES})
+   ament_add_gtest(wave_file_test
+     test/wave_file_test.cpp

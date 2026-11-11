@@ -1,0 +1,12 @@
+build:
+  merge-install: true
+  event-handlers: ["console_direct+"]
+  cmake-args:
+    - -DCMAKE_BUILD_TYPE=Release
+    - -GNinja
+    - -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    - -DCMAKE_C_COMPILER_LAUNCHER=ccache
+    - -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+test:
+  merge-install: true
+  event-handlers: ["console_direct+"]
