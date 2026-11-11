@@ -57,6 +57,8 @@ DEAD_LAYOUT_ENTRIES = [
     'install/lib/robot_perception/collision_overlay.py',
     'install/share/robot_control/config/generated',
     'install/share/robot_control/config/drivetrain.generated.yaml',
+    'build/zed_description', 'install/share/zed_description',
+    'install/share/ament_index/resource_index/packages/zed_description',
     'build/nav2_common', 'build/nav2_msgs',
     'install/include/nav2_msgs',
     'install/lib/libnav2_msgs__rosidl_generator_c.so',
@@ -92,6 +94,9 @@ RSYNC_FLAGS = ['-rlpgoD', '--checksum', '-P']
 PWM_OVERLAY = 'dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4'
 FIRMWARE_CONFIG_PATH = '/boot/firmware/config.txt'
 
+USB_AUTOSUSPEND_OFF = 'usbcore.autosuspend=-1'
+EXTLINUX_CONFIG_PATH = '/boot/extlinux/extlinux.conf'
+
 
 def run(*command, working_directory=None):
     subprocess.run(command, check=True, cwd=working_directory)
@@ -113,6 +118,12 @@ def is_arm_only_machine(config):
     return 'arm' in config and 'platform' not in config
 
 
+def has_zed_camera(config):
+    return any(
+        camera['model'] == 'zed_2'
+        for camera in (config.get('sensors') or {}).get('camera', []))
+
+
 def mirror(host, config):
     ssh(host, shell_chain(
         ['mkdir', '-p', f'{MIRROR_ROOT}/apps/robot',
@@ -127,11 +138,12 @@ def mirror(host, config):
             '-e', 'ssh -q', f'vendor/{vendor_tree}/',
             f'{host}:{MIRROR_ROOT}/vendor/{vendor_tree}/',
             working_directory=REPO_ROOT)
-    if is_arm_only_machine(config):
+    if is_arm_only_machine(config) or has_zed_camera(config):
         for vendor_tree in (
                 'ros2_link6', 'cartesian_controllers', 'mujoco_ros2_control',
                 'play_motion2', 'ros2_robotiq_gripper', 'picknik_controllers',
-                'serial', 'ros2_controllers'):
+                'serial', 'ros2_controllers', 'zed-ros2-wrapper',
+                'zed-ros2-interfaces'):
             run('rsync', *RSYNC_FLAGS, '--delete', '--exclude', '.git',
                 '-e', 'ssh -q', f'vendor/{vendor_tree}/',
                 f'{host}:{MIRROR_ROOT}/vendor/{vendor_tree}/',
@@ -153,6 +165,8 @@ def build(host, config):
     else:
         if (config.get('sensors') or {}).get('gps'):
             commands.append([PIXI, 'install', '-e', 'jazzy'])
+        if has_zed_camera(config):
+            commands.append([PIXI, 'run', 'build-zed'])
         commands.append([PIXI, 'run', 'build', '--cmake-clean-cache'])
     ssh_with_terminal(host, shell_chain(*commands))
 
@@ -178,6 +192,10 @@ def provision(host, config):
             f' || echo "{PWM_OVERLAY}" | sudo tee -a {FIRMWARE_CONFIG_PATH} >/dev/null')
         ssh(host, 'command -v uhubctl >/dev/null'
             ' || sudo apt-get install -y uhubctl')
+    if config['system']['hosts'][0]['board'] == 'jetson_orin_nano':
+        ssh(host, f'grep -q "{USB_AUTOSUSPEND_OFF}" {EXTLINUX_CONFIG_PATH}'
+            f' || sudo sed -i "/^      APPEND / s/$/ {USB_AUTOSUSPEND_OFF}/"'
+            f' {EXTLINUX_CONFIG_PATH}')
 
 
 def install_units(host, robot_name):
