@@ -17,6 +17,7 @@
 
 
 import argparse
+import hashlib
 from pathlib import Path
 import shlex
 import subprocess
@@ -89,7 +90,7 @@ DEAD_LAYOUT_ENTRIES = [
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MACHINES_PATH = REPO_ROOT / 'apps/robot/machines'
 
-RSYNC_FLAGS = ['-rlpgoD', '--checksum', '-P']
+RSYNC_FLAGS = ['-rlptgoD', '-P']
 
 PWM_OVERLAY = 'dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4'
 FIRMWARE_CONFIG_PATH = '/boot/firmware/config.txt'
@@ -124,6 +125,17 @@ def has_zed_camera(config):
         for camera in (config.get('sensors') or {}).get('camera', []))
 
 
+def environment_changes(host):
+    local_lock = hashlib.sha256(
+        (REPO_ROOT / 'apps/robot/pixi.lock').read_bytes()).hexdigest()
+    remote_lock = subprocess.run(
+        ['ssh', '-q', host,
+         f'sha256sum {MIRROR_ROOT}/apps/robot/pixi.lock'],
+        capture_output=True, text=True)
+    return (remote_lock.returncode != 0
+            or not remote_lock.stdout.startswith(local_lock))
+
+
 def mirror(host, config):
     ssh(host, shell_chain(
         ['mkdir', '-p', f'{MIRROR_ROOT}/apps/robot',
@@ -155,10 +167,12 @@ def mirror(host, config):
         f'{host}:{MIRROR_ROOT}/apps/robot/', working_directory=REPO_ROOT)
 
 
-def build(host, config):
+def build(host, config, environment_changed):
     commands = [
         ['cd', f'{MIRROR_ROOT}/apps/robot'],
     ]
+    if environment_changed:
+        commands.append(['rm', '-rf', 'build', 'build-arm'])
     if is_arm_only_machine(config):
         commands.append([PIXI, 'install', '-e', 'kortex'])
         commands.append([PIXI, 'run', 'build-arm'])
@@ -167,7 +181,7 @@ def build(host, config):
             commands.append([PIXI, 'install', '-e', 'jazzy'])
         if has_zed_camera(config):
             commands.append([PIXI, 'run', 'build-zed'])
-        commands.append([PIXI, 'run', 'build', '--cmake-clean-cache'])
+        commands.append([PIXI, 'run', 'build'])
     ssh_with_terminal(host, shell_chain(*commands))
 
 
@@ -263,11 +277,12 @@ def main():
         print('verifying machine')
         verify_machine(robot_name)
         print(f'mirroring {host}')
+        environment_changed = environment_changes(host)
         mirror(host, config)
         print('provisioning')
         provision(host, config)
         print('building')
-        build(host, config)
+        build(host, config, environment_changed)
         print('installing units')
         install_units(host, robot_name)
         print('verifying health')
