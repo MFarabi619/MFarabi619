@@ -148,11 +148,10 @@ def build(host, config):
         ['cd', f'{MIRROR_ROOT}/apps/robot'],
     ]
     if is_arm_only_machine(config):
-        commands.append([PIXI, 'install', '-e', 'jazzy'])
         commands.append([PIXI, 'install', '-e', 'kortex'])
         commands.append([PIXI, 'run', 'build-arm'])
     else:
-        if config.get('sensors'):
+        if (config.get('sensors') or {}).get('gps'):
             commands.append([PIXI, 'install', '-e', 'jazzy'])
         commands.append([PIXI, 'run', 'build', '--cmake-clean-cache'])
     ssh_with_terminal(host, shell_chain(*commands))
