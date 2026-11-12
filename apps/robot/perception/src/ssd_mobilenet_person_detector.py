@@ -52,13 +52,17 @@ TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 
 LABEL_MARGIN_PIXELS = 8.0
+LABEL_FONT_SIZE_PIXELS = 18.0
+BOX_THICKNESS_PIXELS = 2.0
 MILLIMETERS_PER_METER = 1000.0
 MILLIMETER_DEPTH_ENCODING = '16UC1'
 METER_DEPTH_ENCODING = '32FC1'
+BYTES_PER_MILLIMETER_DEPTH_PIXEL = 2
+BYTES_PER_METER_DEPTH_PIXEL = 4
 LIVE_PARAMETERS = frozenset({'min_score'})
 
 
-class PersonDetector(Node):
+class SsdMobilenetPersonDetector(Node):
     def __init__(self):
         super().__init__('person_detector')
         self.image_topic = self.declare_parameter(
@@ -80,7 +84,8 @@ class PersonDetector(Node):
         self.class_label = self.declare_parameter('class_label', 'person').value
         self.person_class_id = self.declare_parameter('person_class_id', 1).value
         self.min_score = self.declare_parameter('min_score', 0.5).value
-        self.depth_sample_radius = self.declare_parameter('depth_sample_radius', 4).value
+        self.depth_sample_radius_pixels = self.declare_parameter(
+            'depth_sample_radius_pixels', 4).value
         self.depth_timeout_seconds = self.declare_parameter(
             'depth_timeout_seconds', 0.5).value
         inference_threads = self.declare_parameter('inference_threads', 2).value
@@ -137,13 +142,13 @@ class PersonDetector(Node):
     def on_depth(self, message):
         if message.encoding == MILLIMETER_DEPTH_ENCODING:
             depth = np.frombuffer(message.data, np.uint16).reshape(
-                message.height, message.step // 2
+                message.height, message.step // BYTES_PER_MILLIMETER_DEPTH_PIXEL
             )[:, :message.width]
             if message.is_bigendian:
                 depth = depth.byteswap()
         elif message.encoding == METER_DEPTH_ENCODING:
             depth = np.frombuffer(message.data, np.float32).reshape(
-                message.height, message.step // 4
+                message.height, message.step // BYTES_PER_METER_DEPTH_PIXEL
             )[:, :message.width]
             if message.is_bigendian:
                 depth = depth.byteswap()
@@ -219,11 +224,11 @@ class PersonDetector(Node):
     def bounding_box_range(self, bounding_box, color_width, color_height):
         if self.latest_depth_millimeters is None or self.depth_is_stale():
             return None, None
-        x, y, w, h = bounding_box
+        x, y, width, height = bounding_box
         depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
-        depth_x = int((x + w / 2.0) / color_width * depth_width)
-        depth_y = int((y + h / 2.0) / color_height * depth_height)
-        radius = self.depth_sample_radius
+        depth_x = int((x + width / 2.0) / color_width * depth_width)
+        depth_y = int((y + height / 2.0) / color_height * depth_height)
+        radius = self.depth_sample_radius_pixels
         depth_patch = self.latest_depth_millimeters[
             max(depth_y - radius, 0):depth_y + radius + 1,
             max(depth_x - radius, 0):depth_x + radius + 1,
@@ -251,15 +256,15 @@ class PersonDetector(Node):
         return age > Duration(seconds=self.depth_timeout_seconds)
 
     def detection(self, stamp, bounding_box, score, point):
-        x, y, w, h = bounding_box
+        x, y, width, height = bounding_box
         detection = Detection2D()
         detection.header.stamp = stamp
         detection.header.frame_id = self.depth_frame_id
         detection.id = self.class_label
         detection.bbox = BoundingBox2D(
-            center=Pose2D(position=Point2D(x=x + w / 2.0, y=y + h / 2.0), theta=0.0),
-            size_x=float(w),
-            size_y=float(h),
+            center=Pose2D(position=Point2D(x=x + width / 2.0, y=y + height / 2.0), theta=0.0),
+            size_x=float(width),
+            size_y=float(height),
         )
         hypothesis = ObjectHypothesisWithPose()
         hypothesis.hypothesis.class_id = self.class_label
@@ -270,18 +275,18 @@ class PersonDetector(Node):
         return detection
 
     def annotate(self, overlay, stamp, bounding_box, distance):
-        x, y, w, h = bounding_box
+        x, y, width, height = bounding_box
         box = PointsAnnotation()
         box.timestamp = stamp
         box.type = PointsAnnotation.LINE_LOOP
         box.points = [
             Point2(x=float(x), y=float(y)),
-            Point2(x=float(x + w), y=float(y)),
-            Point2(x=float(x + w), y=float(y + h)),
-            Point2(x=float(x), y=float(y + h)),
+            Point2(x=float(x + width), y=float(y)),
+            Point2(x=float(x + width), y=float(y + height)),
+            Point2(x=float(x), y=float(y + height)),
         ]
         box.outline_color = PERSON_COLOR
-        box.thickness = 2.0
+        box.thickness = BOX_THICKNESS_PIXELS
         overlay.points.append(box)
         label = TextAnnotation()
         label.timestamp = stamp
@@ -289,7 +294,7 @@ class PersonDetector(Node):
             x=float(x), y=max(float(y) - LABEL_MARGIN_PIXELS, 0.0))
         distance_text = f'{distance:.1f}m' if distance is not None else '?'
         label.text = f'{self.class_label} {distance_text}'
-        label.font_size = 18.0
+        label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR
         label.background_color = TEXT_BACKGROUND_COLOR
         overlay.texts.append(label)
@@ -302,7 +307,7 @@ class PersonDetector(Node):
 
 def main():
     rclpy.init()
-    node = PersonDetector()
+    node = SsdMobilenetPersonDetector()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

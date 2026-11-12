@@ -16,7 +16,7 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 MASK_TOPIC = 'perception/canopy/mask/compressed'
 
@@ -24,14 +24,14 @@ MASK_TOPIC = 'perception/canopy/mask/compressed'
 @launch_this
 def harvest_lane(
     camera: str = 'camera_0',
-    camera_height_m: float = 0.0,
-    camera_lateral_offset_m: float = 0.0,
+    camera_height_meters: float = 0.0,
+    camera_lateral_offset_meters: float = 0.0,
     odom_topic: str = 'diff_drive_controller/odom',
     start_enabled: bool = False,
     overrides_file: str = '',
 ):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     param_files = [overrides_file] if overrides_file else []
     bl.node(
         package='robot_perception',
@@ -54,8 +54,8 @@ def harvest_lane(
             'camera_info_topic': f'sensors/{camera}/color/camera_info',
             'depth_topic': f'sensors/{camera}/depth/image_raw',
             'odom_topic': odom_topic,
-            'camera_height_m': camera_height_m,
-            'camera_lateral_offset_m': camera_lateral_offset_m,
+            'camera_height_meters': camera_height_meters,
+            'camera_lateral_offset_meters': camera_lateral_offset_meters,
             'start_enabled': start_enabled,
         },
         param_files=param_files,

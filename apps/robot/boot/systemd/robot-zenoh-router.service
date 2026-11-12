@@ -1,0 +1,17 @@
+[Unit]
+Description=Robot zenoh router
+PartOf=robot.service
+After=robot.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=mfarabi
+WorkingDirectory=/home/mfarabi/MFarabi619/apps/robot
+ExecStart=/home/mfarabi/.pixi/bin/pixi run zenoh-router
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=10
+
+[Install]
+WantedBy=robot.service

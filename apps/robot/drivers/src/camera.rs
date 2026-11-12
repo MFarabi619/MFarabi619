@@ -23,24 +23,24 @@ const READ_CHUNK_BYTES: usize = 65536;
 
 #[derive(Clone, Copy)]
 pub struct CameraProfile {
-    pub width: usize,
-    pub height: usize,
+    pub width_pixels: usize,
+    pub height_pixels: usize,
     pub fov_degrees: f64,
 }
 
-pub const IMX296_GS: CameraProfile = CameraProfile {
-    width: 1456,
-    height: 1088,
+pub const SONY_IMX296_GLOBAL_SHUTTER: CameraProfile = CameraProfile {
+    width_pixels: 1456,
+    height_pixels: 1088,
     fov_degrees: 54.0,
 };
 pub const USB_WEBCAM: CameraProfile = CameraProfile {
-    width: 1920,
-    height: 1200,
+    width_pixels: 1920,
+    height_pixels: 1200,
     fov_degrees: 54.0,
 };
 pub const ORBBEC_GEMINI_335L: CameraProfile = CameraProfile {
-    width: 1280,
-    height: 720,
+    width_pixels: 1280,
+    height_pixels: 720,
     fov_degrees: 90.0,
 };
 const STREAM_PATH: &str = "/stream";
@@ -71,13 +71,14 @@ fn compressed_image(jpeg: &[u8], frame_id: &str, (sec, nanosec): (i32, u32)) -> 
 }
 
 fn camera_info(profile: CameraProfile, frame_id: &str, (sec, nanosec): (i32, u32)) -> CameraInfo {
-    let (fx, fy, cx, cy) = camera_intrinsics(profile.width, profile.height, profile.fov_degrees);
+    let (fx, fy, cx, cy) =
+        camera_intrinsics(profile.width_pixels, profile.height_pixels, profile.fov_degrees);
     let mut info = CameraInfo::new().unwrap();
     info.header.stamp.sec = sec;
     info.header.stamp.nanosec = nanosec;
     info.header.frame_id = RosString::new(frame_id).unwrap();
-    info.width = profile.width as u32;
-    info.height = profile.height as u32;
+    info.width = profile.width_pixels as u32;
+    info.height = profile.height_pixels as u32;
     info.distortion_model = RosString::new("plumb_bob").unwrap();
     info.d = F64Seq::new(5).unwrap();
     info.k = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0];

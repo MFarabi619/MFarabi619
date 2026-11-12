@@ -15,8 +15,8 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN, TF_REMAPS
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.launch_policy import DEFAULT_DEPTH_FRAMES_PER_SECOND, RESPAWN, TF_REMAPS
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
@@ -27,10 +27,10 @@ def pointcloud_to_laserscan(
     max_height: float = 0.5,
     range_min: float = 0.25,
     range_max: float = 8.0,
-    scan_time: float = 1.0 / 15,
+    scan_time: float = 1.0 / DEFAULT_DEPTH_FRAMES_PER_SECOND,
 ):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     bl.node(
         package='pointcloud_to_laserscan',
         executable='pointcloud_to_laserscan_node',

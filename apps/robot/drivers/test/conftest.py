@@ -21,11 +21,11 @@ import pytest
 import rclpy
 import rclpy.parameter
 
-SRC_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
+SOURCE_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 
 def load_module(module_name):
-    path = os.path.join(SRC_DIRECTORY, f'{module_name}.py')
+    path = os.path.join(SOURCE_DIRECTORY, f'{module_name}.py')
     spec = importlib.util.spec_from_file_location(module_name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

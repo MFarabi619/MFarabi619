@@ -47,8 +47,8 @@ RELEASE_CLEARANCE_METERS = 0.008
 POSITION_TOLERANCE_METERS = 0.005
 ORIENTATION_TOLERANCE_RADIANS = 0.05
 JOINT_TOLERANCE_RADIANS = 0.01
-VELOCITY_SCALING = 0.5
-ACCELERATION_SCALING = 0.5
+VELOCITY_SCALING_FACTOR = 0.5
+ACCELERATION_SCALING_FACTOR = 0.5
 PLANNING_TIME_SECONDS = 5.0
 PLANNING_ATTEMPTS = 3
 
@@ -173,8 +173,8 @@ def move_group_goal(constraints):
     goal = MoveGroup.Goal()
     goal.request.group_name = PLANNING_GROUP
     goal.request.goal_constraints = [constraints]
-    goal.request.max_velocity_scaling_factor = VELOCITY_SCALING
-    goal.request.max_acceleration_scaling_factor = ACCELERATION_SCALING
+    goal.request.max_velocity_scaling_factor = VELOCITY_SCALING_FACTOR
+    goal.request.max_acceleration_scaling_factor = ACCELERATION_SCALING_FACTOR
     goal.request.allowed_planning_time = PLANNING_TIME_SECONDS
     goal.request.num_planning_attempts = PLANNING_ATTEMPTS
     goal.planning_options.plan_only = False

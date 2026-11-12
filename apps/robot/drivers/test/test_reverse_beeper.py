@@ -92,10 +92,10 @@ def test_chunks_carry_the_declared_audio_format(
         reverse_beeper_node, reverse_beeper_module):
     beeps = capture(reverse_beeper_node)
     reverse_beeper_node.on_cmd_vel(command(-0.3))
-    info = beeps[0].audio.info
+    audio_info = beeps[0].audio.info
     samples = beeps[0].audio.audio_data.float32_data
-    assert info.format == reverse_beeper_module.PORTAUDIO_FLOAT32
-    assert info.channels == 1
-    assert info.rate == reverse_beeper_module.SAMPLE_RATE_HZ
-    assert info.chunk == len(samples)
+    assert audio_info.format == reverse_beeper_module.PORTAUDIO_FLOAT32
+    assert audio_info.channels == 1
+    assert audio_info.rate == reverse_beeper_module.SAMPLE_RATE_HZ
+    assert audio_info.chunk == len(samples)
     assert max(samples) <= 1.0 and min(samples) >= -1.0

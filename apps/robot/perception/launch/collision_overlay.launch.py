@@ -16,13 +16,13 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN, TF_REMAPS
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
 def collision_overlay(camera: str = 'camera_0'):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     bl.node(
         package='robot_perception',
         executable='collision_overlay',

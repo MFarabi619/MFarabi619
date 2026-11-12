@@ -16,7 +16,7 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 CMD_VEL_REMAPS = {'/joy_teleop/cmd_vel': 'joy_teleop/cmd_vel'}
 
@@ -29,7 +29,7 @@ def hand_gesture_teleop(
     min_hand_detection_confidence: float = 0.4,
 ):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     bl.node(
         package='robot_perception',
         executable='hand_gesture_detector',

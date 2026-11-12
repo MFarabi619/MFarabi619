@@ -15,11 +15,10 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.drivetrain_parameters import write_drivetrain_parameters
+from robot_boot.drivetrain_parameters import (
+    CONTROLLER_MANAGER_TIMEOUT_SECONDS, write_drivetrain_parameters_file)
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ensure_router
-
-CONTROLLER_MANAGER_TIMEOUT_SECONDS = '60'
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
@@ -35,9 +34,9 @@ def controller_manager(
     max_angular_jerk_radians_per_second_cubed: float = 0.0,
 ):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_control', 'control.yaml')
-    drivetrain_parameters_path = write_drivetrain_parameters(
+    drivetrain_parameters_file = write_drivetrain_parameters_file(
         wheel_separation, wheel_radius, {
             'max_linear_velocity_meters_per_second': max_linear_velocity_meters_per_second,
             'max_angular_velocity_radians_per_second': max_angular_velocity_radians_per_second,
@@ -59,7 +58,7 @@ def controller_manager(
             cmd_args=[
                 'joint_state_broadcaster', 'diff_drive_controller',
                 '--param-file', params_file,
-                '--param-file', drivetrain_parameters_path,
+                '--param-file', drivetrain_parameters_file,
                 '--controller-manager-timeout', CONTROLLER_MANAGER_TIMEOUT_SECONDS,
                 '--controller-ros-args',
                 '-r ~/cmd_vel:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static',
@@ -71,7 +70,7 @@ def controller_manager(
         executable='ros2_control_node',
         name='controller_manager',
         remaps={'~/robot_description': 'robot_description'},
-        param_files=[params_file, drivetrain_parameters_path],
+        param_files=[params_file, drivetrain_parameters_file],
         remap_qualifier='controller_manager',
         **RESPAWN,
         on_exit=spawn_controllers,

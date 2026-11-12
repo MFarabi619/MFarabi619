@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../robot.schema.json
 system:
   namespace: jiro
   hosts:
@@ -29,23 +30,52 @@ platform:
       forward_level: false
 sensors:
   camera:
-    - model: oak_d_pro_w_poe
+    - model: luxonis_oak_d_pro_w_poe
       detects_on_camera: false
       parent: base_link
       xyz: [0.35, 0.0, 0.36]
       rpy: [0.0, 0.0, 0.0]
       parameters:
         ip: 169.254.1.222
-        depth_fps: 30.0
-        color_fps: 60.0
+        depth_frames_per_second: 30.0
+        color_frames_per_second: 60.0
         color_resolution_divisor: 2
         depth_resolution_divisor: 4
-    # - model: oak_d_sr
+    # - model: luxonis_oak_d_sr
     #   parent: base_link
     #   xyz: [0.575, 0.5, 0.31]
     #   rpy: [0.0, 0.0, 0.0]
 behaviors:
-  line: true
-  sidewalk: true
-  park_path: true
-  path: true
+  line_follow: true
+  sidewalk_follow: true
+  park_path_follow: true
+  path_follow: true
+ros_parameters:
+  person_detector:
+    max_detections_per_second: 30.0
+    model_path: ssd_mobilenet_v1_12_int8.onnx
+  person_follow:
+    max_forward_speed_meters_per_second: 2.0
+    max_backward_speed_meters_per_second: 1.5
+    max_angular_speed_radians_per_second: 5.0
+    distance_gain: 2.0
+    distance_deadband_meters: 0.25
+    steer_gain: 2.0
+  line_follow:
+    image_width_pixels: 640
+  sidewalk_follow:
+    forward_speed_meters_per_second: 0.5
+    steer_gain: 1.5
+    max_angular_speed_radians_per_second: 1.5
+  park_path_detector:
+    roi_top_fraction: 0.6
+    min_fraction: 0.95
+  park_path_follow:
+    forward_speed_meters_per_second: 0.9
+    steer_gain: 1.5
+    max_angular_speed_radians_per_second: 1.5
+  path_follow:
+    forward_speed_meters_per_second: 0.9
+    steer_gain: 1.5
+    max_angular_speed_radians_per_second: 1.5
+    lateral_offset_meters: 0.35

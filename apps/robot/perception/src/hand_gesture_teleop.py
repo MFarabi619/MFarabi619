@@ -39,8 +39,10 @@ class HandGestureTeleop(Node):
     def __init__(self):
         super().__init__('hand_gesture_teleop')
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
-        self.linear_speed = self.declare_parameter('linear_speed', 1.0).value
-        self.angular_speed = self.declare_parameter('angular_speed', 1.0).value
+        self.forward_speed_meters_per_second = self.declare_parameter(
+            'forward_speed_meters_per_second', 1.0).value
+        self.angular_speed_radians_per_second = self.declare_parameter(
+            'angular_speed_radians_per_second', 1.0).value
         self.confidence_threshold = self.declare_parameter(
             'confidence_threshold', 0.6).value
         self.commit_frames = self.declare_parameter('commit_frames', 3).value
@@ -88,7 +90,9 @@ class HandGestureTeleop(Node):
             self.candidate_count = 1
         if self.candidate_count >= self.commit_frames:
             linear, angular = GESTURE_DIRECTIONS[gesture]
-            self.committed = (linear * self.linear_speed, angular * self.angular_speed)
+            self.committed = (
+                linear * self.forward_speed_meters_per_second,
+                angular * self.angular_speed_radians_per_second)
         self.publish_twist(self.committed)
 
     def confident_gesture(self, message):

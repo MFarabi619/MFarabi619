@@ -16,13 +16,17 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
+
+ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES = 20000000
 
 
 @launch_this
-def foxglove_bridge(params_file: str = '', send_buffer_limit_bytes: int = 20000000):
+def foxglove_bridge(
+        params_file: str = '',
+        send_buffer_limit_bytes: int = ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_boot', 'foxglove_bridge.yaml')
     bl.node(
         package='foxglove_bridge',

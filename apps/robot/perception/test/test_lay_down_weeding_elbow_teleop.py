@@ -32,7 +32,7 @@ class SingleResultLandmarker:
     def __init__(self, result):
         self.result = result
 
-    def detect_for_video(self, image, timestamp_ms):
+    def detect_for_video(self, image, timestamp_milliseconds):
         return self.result
 
 
@@ -99,7 +99,7 @@ def test_elbow_pushed_forward_creeps_forward(lay_down_weeding_elbow_teleop_node)
     twists = capture(node)
     calibrate(node)
     feed(node, pose(left_elbow=landmark(y=0.6)), node.commit_frames)
-    assert twists[-1].twist.linear.x == pytest.approx(node.forward_speed_mps)
+    assert twists[-1].twist.linear.x == pytest.approx(node.forward_speed_meters_per_second)
 
 
 def test_elbow_pulled_back_creeps_in_reverse(lay_down_weeding_elbow_teleop_node):
@@ -107,7 +107,7 @@ def test_elbow_pulled_back_creeps_in_reverse(lay_down_weeding_elbow_teleop_node)
     twists = capture(node)
     calibrate(node)
     feed(node, pose(left_elbow=landmark(y=0.4)), node.commit_frames)
-    assert twists[-1].twist.linear.x == pytest.approx(-node.reverse_speed_mps)
+    assert twists[-1].twist.linear.x == pytest.approx(-node.reverse_speed_meters_per_second)
 
 
 def test_elbow_near_neutral_holds(lay_down_weeding_elbow_teleop_node):
@@ -136,7 +136,7 @@ def test_an_inverted_drive_axis_flips_direction(
     twists = capture(node)
     calibrate(node)
     feed(node, pose(left_elbow=landmark(y=0.6)), node.commit_frames)
-    assert twists[-1].twist.linear.x == pytest.approx(-node.reverse_speed_mps)
+    assert twists[-1].twist.linear.x == pytest.approx(-node.reverse_speed_meters_per_second)
 
 
 def test_a_horizontal_drive_axis_reads_elbow_x(lay_down_weeding_elbow_teleop_node):
@@ -145,7 +145,7 @@ def test_a_horizontal_drive_axis_reads_elbow_x(lay_down_weeding_elbow_teleop_nod
     twists = capture(node)
     calibrate(node)
     feed(node, pose(left_elbow=landmark(x=0.6)), node.commit_frames)
-    assert twists[-1].twist.linear.x == pytest.approx(node.forward_speed_mps)
+    assert twists[-1].twist.linear.x == pytest.approx(node.forward_speed_meters_per_second)
 
 
 def test_a_zone_flip_halts_before_the_new_commit(
@@ -187,7 +187,7 @@ def test_either_arm_follows_the_more_visible_elbow(
          pose(left_elbow=landmark(y=0.6, visibility=0.9),
               right_elbow=landmark(y=0.5, visibility=0.6)),
          node.commit_frames)
-    assert twists[-1].twist.linear.x == pytest.approx(node.forward_speed_mps)
+    assert twists[-1].twist.linear.x == pytest.approx(node.forward_speed_meters_per_second)
 
 
 def test_a_disabled_node_publishes_nothing(lay_down_weeding_elbow_teleop_node):
@@ -236,7 +236,7 @@ def test_recalibration_can_follow_the_other_arm(
     node.on_enable(SetBool.Request(data=True), SetBool.Response())
     feed(node, pose(right_elbow=landmark(y=0.5)), node.neutral_sample_frames)
     feed(node, pose(right_elbow=landmark(y=0.6)), node.commit_frames)
-    assert twists[-1].twist.linear.x == pytest.approx(node.forward_speed_mps)
+    assert twists[-1].twist.linear.x == pytest.approx(node.forward_speed_meters_per_second)
 
 
 def test_an_interrupted_calibration_starts_over(

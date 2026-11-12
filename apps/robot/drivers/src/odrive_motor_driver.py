@@ -60,7 +60,7 @@ class WheelDriver:
     def __init__(self, device, is_reversed, gear_ratio, max_wheel_speed, logger):
         self.axis = device.axis0
         self.logger = logger
-        self.serial = f'{device.serial_number:X}'
+        self.serial_number = f'{device.serial_number:X}'
         self.direction_sign = -1.0 if is_reversed else 1.0
         self.gear_ratio = gear_ratio
         self.travel_origin_turns = self.axis.encoder.pos_estimate
@@ -92,7 +92,7 @@ class WheelDriver:
             return
         self.last_rearm_time = now
         self.logger.warning(
-            f'motor {self.serial}: cleared axis error {error_code:#x}, '
+            f'motor {self.serial_number}: cleared axis error {error_code:#x}, '
             f'motor error {self.axis.motor.error:#x}')
         self.device.clear_errors()
         self.axis.watchdog_feed()
@@ -124,21 +124,22 @@ class WheelDriver:
         self.axis.requested_state = AXIS_STATE_IDLE
 
 
-def find_wheels(serials, reversed_flags, gear_ratio, max_wheel_speed, logger):
-    devices = odrive.find_sync(count=len(serials), timeout=FIND_TIMEOUT_SECONDS)
-    devices_by_serial = {
+def find_wheels(serial_numbers, is_reversed_flags, gear_ratio, max_wheel_speed, logger):
+    devices = odrive.find_sync(count=len(serial_numbers), timeout=FIND_TIMEOUT_SECONDS)
+    devices_by_serial_number = {
         f"{device.serial_number:X}": device for device in devices}
-    missing_serials = [
-        serial for serial in serials if serial not in devices_by_serial]
-    if missing_serials:
+    missing_serial_numbers = [
+        serial_number for serial_number in serial_numbers
+        if serial_number not in devices_by_serial_number]
+    if missing_serial_numbers:
         raise RuntimeError(
-            f"motors {missing_serials} not found, "
-            f"connected: {list(devices_by_serial)}")
+            f"motors {missing_serial_numbers} not found, "
+            f"connected: {list(devices_by_serial_number)}")
     return [
         WheelDriver(
-            devices_by_serial[serial], is_reversed, gear_ratio,
+            devices_by_serial_number[serial_number], is_reversed, gear_ratio,
             max_wheel_speed, logger)
-        for serial, is_reversed in zip(serials, reversed_flags)
+        for serial_number, is_reversed in zip(serial_numbers, is_reversed_flags)
     ]
 
 
@@ -148,12 +149,12 @@ class OdriveMotorDriver(Node):
         self.declare_parameter('gear_ratio', 8.0)
         self.declare_parameter('max_wheel_speed', 1.0)
         for side in ('left', 'right'):
-            self.declare_parameter(f'{side}_serial', '')
+            self.declare_parameter(f'{side}_serial_number', '')
             self.declare_parameter(f'{side}_reversed', False)
 
         self.max_wheel_speed = self.get_parameter('max_wheel_speed').value
         self.wheels = find_wheels(
-            [self.get_parameter(f'{side}_serial').value for side in ('left', 'right')],
+            [self.get_parameter(f'{side}_serial_number').value for side in ('left', 'right')],
             [self.get_parameter(f'{side}_reversed').value for side in ('left', 'right')],
             self.get_parameter('gear_ratio').value,
             self.max_wheel_speed,
@@ -189,9 +190,9 @@ class OdriveMotorDriver(Node):
 
     def publish_feedback(self):
         now = self.get_clock().now()
-        elapsed_ns = (now - self.last_command_time).nanoseconds
+        elapsed_nanoseconds = (now - self.last_command_time).nanoseconds
         has_timed_out = (
-            elapsed_ns > COMMAND_TIMEOUT_SECONDS * NANOSECONDS_PER_SECOND)
+            elapsed_nanoseconds > COMMAND_TIMEOUT_SECONDS * NANOSECONDS_PER_SECOND)
         if has_timed_out:
             for wheel in self.wheels:
                 wheel.halt()

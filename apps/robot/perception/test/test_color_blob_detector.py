@@ -63,8 +63,8 @@ def test_enabling_starts_publishing(color_blob_detector_node):
 
 def test_max_value_ceiling_excludes_pixels_brighter_than_the_limit(
         color_blob_detector_node):
-    color_blob_detector_node.hue_min = 0.0
-    color_blob_detector_node.hue_max = 180.0
+    color_blob_detector_node.min_hue = 0.0
+    color_blob_detector_node.max_hue = 180.0
     color_blob_detector_node.min_saturation = 0.0
     color_blob_detector_node.min_value = 0.0
     frame = frame_with_bright_line()

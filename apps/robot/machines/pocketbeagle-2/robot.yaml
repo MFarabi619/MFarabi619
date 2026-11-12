@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../robot.schema.json
 system:
   namespace: pocketbeagle_2
   hosts:

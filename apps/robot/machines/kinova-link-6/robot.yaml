@@ -1,10 +1,11 @@
+# yaml-language-server: $schema=../robot.schema.json
 system:
   hosts: []
   # - hostname: jetson-orin-nano
   #   ip: 10.0.0.180
   #   board: jetson_orin_nano
 arm:
-  model: kinova_link_6
+  model: kinova_link6
   gripper: robotiq_2f_85
   bringup_package: link6_bringup
   description_package: link6_description
@@ -15,7 +16,7 @@ manipulation:
   demonstration_joint_positions_radians: [0.5, -0.4, 0.6, 0.0, 0.5, 0.0]
 sensors:
   camera:
-    - model: zed_2
+    - model: stereolabs_zed
       urdf_enabled: false
       parent: base_link
       xyz: [1.0, 0.0, 0.5]

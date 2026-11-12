@@ -31,7 +31,7 @@ from mediapipe.tasks.python.components.processors.classifier_options import (
 import numpy as np
 
 ROBOT_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-MODELS_DIR = os.path.join(ROBOT_ROOT, 'perception', 'models')
+MODELS_DIRECTORY = os.path.join(ROBOT_ROOT, 'perception', 'models')
 
 PEPPER_COLOR = (255, 230, 77)
 WEED_COLOR = (0, 0, 255)
@@ -110,7 +110,7 @@ def build_gesture_recognizer():
     return vision.GestureRecognizer.create_from_options(
         vision.GestureRecognizerOptions(
             base_options=mp_python.BaseOptions(
-                model_asset_path=os.path.join(MODELS_DIR,
+                model_asset_path=os.path.join(MODELS_DIRECTORY,
                                               'gesture_recognizer.task')),
             running_mode=vision.RunningMode.IMAGE,
             num_hands=2,
@@ -168,18 +168,18 @@ def merge_boxes(boxes):
     changed = True
     while changed:
         changed = False
-        for i in range(len(merged)):
-            for j in range(i + 1, len(merged)):
-                if boxes_are_mergeable(merged[i], merged[j]):
-                    first_x, first_y, first_width, first_height = merged[i]
-                    second_x, second_y, second_width, second_height = merged[j]
+        for index in range(len(merged)):
+            for other_index in range(index + 1, len(merged)):
+                if boxes_are_mergeable(merged[index], merged[other_index]):
+                    first_x, first_y, first_width, first_height = merged[index]
+                    second_x, second_y, second_width, second_height = merged[other_index]
                     left = min(first_x, second_x)
                     top = min(first_y, second_y)
                     right = max(first_x + first_width, second_x + second_width)
                     bottom = max(first_y + first_height,
                                  second_y + second_height)
-                    merged[i] = (left, top, right - left, bottom - top)
-                    merged.pop(j)
+                    merged[index] = (left, top, right - left, bottom - top)
+                    merged.pop(other_index)
                     changed = True
                     break
             if changed:
@@ -286,8 +286,8 @@ def bed_name_for_frame(name, last_bed_start_frame_index):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('frames_dir')
-    parser.add_argument('output_dir')
+    parser.add_argument('frames_directory')
+    parser.add_argument('output_directory')
     parser.add_argument('--skip', type=comma_separated_names, default=set())
     parser.add_argument('--rotate-counterclockwise', type=comma_separated_names,
                         default=set())
@@ -297,12 +297,12 @@ def main():
 
     recognizer = build_gesture_recognizer()
 
-    os.makedirs(arguments.output_dir, exist_ok=True)
-    for name in sorted(os.listdir(arguments.frames_dir)):
+    os.makedirs(arguments.output_directory, exist_ok=True)
+    for name in sorted(os.listdir(arguments.frames_directory)):
         stem, extension = os.path.splitext(name)
         if extension not in ('.png', '.jpg', '.jpeg') or name in arguments.skip:
             continue
-        image = cv2.imread(os.path.join(arguments.frames_dir, name))
+        image = cv2.imread(os.path.join(arguments.frames_directory, name))
         is_rotated = name in arguments.rotate_counterclockwise
         if is_rotated:
             image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
@@ -318,7 +318,7 @@ def main():
             draw_arm(image, ARM_OVERLAYS[name])
         suffix = '_upright_annotated' if is_rotated else '_annotated'
         cv2.imwrite(
-            os.path.join(arguments.output_dir, f'{stem}{suffix}.png'), image)
+            os.path.join(arguments.output_directory, f'{stem}{suffix}.png'), image)
         print(f'{name}: hands={hand_count}', flush=True)
 
 

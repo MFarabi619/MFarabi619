@@ -22,18 +22,18 @@ import collada_mesh
 import cv2
 import numpy as np
 
-SIMULATOR_DIR = os.path.dirname(os.path.abspath(__file__))
+SIMULATION_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 GROUND_FABRIC_PHOTO_PATH = os.path.join(
-    SIMULATOR_DIR, '..', 'assets', 'datasets', 'fieldtrip_farm', 'hoophouse_exteriors',
+    SIMULATION_DIRECTORY, '..', 'assets', 'datasets', 'fieldtrip_farm', 'hoophouse_exteriors',
     'woven_ground_fabric_closeup_20260817_151847.jpg')
 
-BED_LENGTH = 20.0
-BED_BOTTOM_HALF_WIDTH = 0.32
-BED_TOP_HALF_WIDTH = 0.18
-BED_HEIGHT = 0.04
+BED_LENGTH_METERS = 20.0
+BED_BOTTOM_HALF_WIDTH_METERS = 0.32
+BED_TOP_HALF_WIDTH_METERS = 0.18
+BED_HEIGHT_METERS = 0.04
 BED_COUNT = 10
-BED_PITCH = 1.2
-PLANT_LINE_OFFSET = 0.1
+BED_PITCH_METERS = 1.2
+PLANT_LINE_OFFSET_METERS = 0.1
 TEXTURE_METERS_PER_TILE = 0.5
 
 CROPS = {
@@ -44,25 +44,25 @@ CROPS = {
     'pepper': {'spacing': 0.6, 'lines': 1, 'color': (0.20, 0.42, 0.16)},
 }
 
-FLAT_TARP_LENGTH = 20.0
-FLAT_TARP_WIDTH = 8.4
-FLAT_TARP_CENTER_X = 0.0
-FLAT_TARP_CENTER_Y = -10.2
-FLAT_TARP_ROW_PITCH = 1.2
+FLAT_TARP_LENGTH_METERS = 20.0
+FLAT_TARP_WIDTH_METERS = 8.4
+FLAT_TARP_CENTER_X_METERS = 0.0
+FLAT_TARP_CENTER_Y_METERS = -10.2
+FLAT_TARP_ROW_PITCH_METERS = 1.2
 BED_CONTENTS = ['maize', 'carrot', 'potato', 'onion', 'pumpkin',
                 'turtle', 'cone_red', 'cone_orange', 'cone_yellow', 'cone_blue']
 
-CONE_PLANT_SPACING = 1.0
-MAIZE_PLANT_SPACING = 0.35
-TURTLE_PLANT_SPACING = 0.8
+CONE_PLANT_SPACING_METERS = 1.0
+MAIZE_PLANT_SPACING_METERS = 0.35
+TURTLE_PLANT_SPACING_METERS = 0.8
 WEED_COUNT = 70
-PLANT_JITTER_M = 0.04
+PLANT_JITTER_METERS = 0.04
 
 APRILTAG_ID = 0
 APRILTAG_TEXTURE_PIXELS = 400
 APRILTAG_QUIET_ZONE_PIXELS = 50
-APRILTAG_BLACK_EDGE_M = 0.15
-APRILTAG_POST_HEIGHT_M = 0.6
+APRILTAG_BLACK_EDGE_METERS = 0.15
+APRILTAG_POST_HEIGHT_METERS = 0.6
 
 FUEL_PROPS = [
     # ('House', 'hisuki/models/House', (18.5, -1.8, -0.19, 1.5708)),
@@ -74,37 +74,45 @@ FUEL_PROPS = [
 fabric_texture = cv2.imread(GROUND_FABRIC_PHOTO_PATH)
 fabric_texture = cv2.rotate(fabric_texture, cv2.ROTATE_90_CLOCKWISE)
 fabric_texture = cv2.resize(fabric_texture, (512, 512), interpolation=cv2.INTER_AREA)
-cv2.imwrite(f'{SIMULATOR_DIR}/models/materials/textures/woven_ground_fabric.jpg',
+cv2.imwrite(f'{SIMULATION_DIRECTORY}/models/materials/textures/woven_ground_fabric.jpg',
             fabric_texture, [cv2.IMWRITE_JPEG_QUALITY, 90])
 
 
 
 
 def bed_mesh(variant, texture_phase):
-    half = BED_LENGTH / 2.0
-    tiles = BED_LENGTH / TEXTURE_METERS_PER_TILE
+    half = BED_LENGTH_METERS / 2.0
+    tiles = BED_LENGTH_METERS / TEXTURE_METERS_PER_TILE
     mesh = collada_mesh.TexturedMesh()
-    slope = np.array([BED_BOTTOM_HALF_WIDTH - BED_TOP_HALF_WIDTH, BED_HEIGHT])
+    slope = np.array([BED_BOTTOM_HALF_WIDTH_METERS - BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS])
     side = slope / np.linalg.norm(slope)
     mesh.quad(
-        [(-half, -BED_TOP_HALF_WIDTH, BED_HEIGHT), (half, -BED_TOP_HALF_WIDTH, BED_HEIGHT),
-         (half, BED_TOP_HALF_WIDTH, BED_HEIGHT), (-half, BED_TOP_HALF_WIDTH, BED_HEIGHT)],
+        [(-half, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+         (half, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+         (half, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+         (-half, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS)],
         (0.0, 0.0, 1.0),
         [(texture_phase, 0.3), (texture_phase + tiles, 0.3), (texture_phase + tiles, 0.7), (texture_phase, 0.7)])
     mesh.quad(
-        [(-half, -BED_BOTTOM_HALF_WIDTH, 0.0), (half, -BED_BOTTOM_HALF_WIDTH, 0.0),
-         (half, -BED_TOP_HALF_WIDTH, BED_HEIGHT), (-half, -BED_TOP_HALF_WIDTH, BED_HEIGHT)],
+        [(-half, -BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
+         (half, -BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
+         (half, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+         (-half, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS)],
         (0.0, float(-side[1]), float(side[0])),
         [(texture_phase, 0), (texture_phase + tiles, 0), (texture_phase + tiles, 0.28), (texture_phase, 0.28)])
     mesh.quad(
-        [(-half, BED_TOP_HALF_WIDTH, BED_HEIGHT), (half, BED_TOP_HALF_WIDTH, BED_HEIGHT),
-         (half, BED_BOTTOM_HALF_WIDTH, 0.0), (-half, BED_BOTTOM_HALF_WIDTH, 0.0)],
+        [(-half, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+         (half, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+         (half, BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
+         (-half, BED_BOTTOM_HALF_WIDTH_METERS, 0.0)],
         (0.0, float(side[1]), float(side[0])),
         [(texture_phase, 0.72), (texture_phase + tiles, 0.72), (texture_phase + tiles, 1.0), (texture_phase, 1.0)])
     for sign, normal in ((-1, (-1.0, 0.0, 0.0)), (1, (1.0, 0.0, 0.0))):
         x = sign * half
-        corners = [(x, -BED_BOTTOM_HALF_WIDTH, 0.0), (x, -BED_TOP_HALF_WIDTH, BED_HEIGHT),
-                   (x, BED_TOP_HALF_WIDTH, BED_HEIGHT), (x, BED_BOTTOM_HALF_WIDTH, 0.0)]
+        corners = [(x, -BED_BOTTOM_HALF_WIDTH_METERS, 0.0),
+                   (x, -BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+                   (x, BED_TOP_HALF_WIDTH_METERS, BED_HEIGHT_METERS),
+                   (x, BED_BOTTOM_HALF_WIDTH_METERS, 0.0)]
         if sign > 0:
             corners.reverse()
         mesh.quad(corners, normal, [(0, 0), (0.15, 0), (0.85, 0.15), (1, 0.15)])
@@ -113,22 +121,22 @@ def bed_mesh(variant, texture_phase):
 
 
 def flat_tarp_mesh():
-    half_length = FLAT_TARP_LENGTH / 2.0
-    half_width = FLAT_TARP_WIDTH / 2.0
+    half_length = FLAT_TARP_LENGTH_METERS / 2.0
+    half_width = FLAT_TARP_WIDTH_METERS / 2.0
     mesh = collada_mesh.TexturedMesh()
     mesh.quad(
         [(-half_length, -half_width, 0.0), (half_length, -half_width, 0.0),
          (half_length, half_width, 0.0), (-half_length, half_width, 0.0)],
         (0.0, 0.0, 1.0),
-        [(0, 0), (FLAT_TARP_LENGTH, 0), (FLAT_TARP_LENGTH, FLAT_TARP_WIDTH),
-         (0, FLAT_TARP_WIDTH)])
+        [(0, 0), (FLAT_TARP_LENGTH_METERS, 0), (FLAT_TARP_LENGTH_METERS, FLAT_TARP_WIDTH_METERS),
+         (0, FLAT_TARP_WIDTH_METERS)])
     return collada_mesh.document('flat_tarp', mesh.positions, mesh.normals, mesh.triangles,
                    texture='textures/woven_ground_fabric.jpg', uvs=mesh.uvs)
 
 
 def dirt_mesh():
-    half_length = BED_LENGTH / 2.0 + 2.0
-    half_width = BED_COUNT * BED_PITCH / 2.0 + 1.0
+    half_length = BED_LENGTH_METERS / 2.0 + 2.0
+    half_width = BED_COUNT * BED_PITCH_METERS / 2.0 + 1.0
     tiles_x = 2 * half_length / TEXTURE_METERS_PER_TILE
     tiles_y = 2 * half_width / TEXTURE_METERS_PER_TILE
     mesh = collada_mesh.TexturedMesh()
@@ -245,7 +253,7 @@ MODEL_SDF = '''<?xml version="1.0"?>
 
 for crop in CROPS:
     name = f'{crop}_plant'
-    model_directory = f'{SIMULATOR_DIR}/models/{name}'
+    model_directory = f'{SIMULATION_DIRECTORY}/models/{name}'
     os.makedirs(f'{model_directory}/meshes', exist_ok=True)
     with open(f'{model_directory}/model.config', 'w') as f:
         f.write(MODEL_CONFIG.format(name=name, description=f'Low-poly {crop} transplant'))
@@ -261,10 +269,10 @@ def apriltag_model():
     padded = cv2.copyMakeBorder(
         tag, *([APRILTAG_QUIET_ZONE_PIXELS] * 4), cv2.BORDER_CONSTANT, value=255)
     name = f'apriltag_36h11_{APRILTAG_ID}'
-    model_directory = f'{SIMULATOR_DIR}/models/{name}'
+    model_directory = f'{SIMULATION_DIRECTORY}/models/{name}'
     os.makedirs(f'{model_directory}/meshes', exist_ok=True)
     cv2.imwrite(f'{model_directory}/meshes/{name}.png', cv2.flip(padded, 0))
-    board_edge = (APRILTAG_BLACK_EDGE_M * padded.shape[0]
+    board_edge = (APRILTAG_BLACK_EDGE_METERS * padded.shape[0]
                   / APRILTAG_TEXTURE_PIXELS)
     half = board_edge / 2.0
     mesh = collada_mesh.TexturedMesh()
@@ -279,7 +287,7 @@ def apriltag_model():
     with open(f'{model_directory}/model.config', 'w') as config_file:
         config_file.write(MODEL_CONFIG.format(
             name=name, description=f'AprilTag 36h11 id {APRILTAG_ID} on a post'))
-    board_center = APRILTAG_POST_HEIGHT_M + half
+    board_center = APRILTAG_POST_HEIGHT_METERS + half
     with open(f'{model_directory}/model.sdf', 'w') as sdf_file:
         sdf_file.write(f"""<?xml version="1.0"?>
 <sdf version="1.9">
@@ -291,13 +299,13 @@ def apriltag_model():
         <geometry><mesh><uri>model://{name}/meshes/{name}.dae</uri></mesh></geometry>
       </visual>
       <visual name="post">
-        <pose>-0.01 0 {APRILTAG_POST_HEIGHT_M / 2:g} 0 0 0</pose>
-        <geometry><box><size>0.02 0.03 {APRILTAG_POST_HEIGHT_M:g}</size></box></geometry>
+        <pose>-0.01 0 {APRILTAG_POST_HEIGHT_METERS / 2:g} 0 0 0</pose>
+        <geometry><box><size>0.02 0.03 {APRILTAG_POST_HEIGHT_METERS:g}</size></box></geometry>
         <material><ambient>0.3 0.3 0.3 1</ambient><diffuse>0.5 0.5 0.5 1</diffuse></material>
       </visual>
       <collision name="collision">
-        <pose>-0.01 0 {APRILTAG_POST_HEIGHT_M / 2:g} 0 0 0</pose>
-        <geometry><box><size>0.02 0.03 {APRILTAG_POST_HEIGHT_M:g}</size></box></geometry>
+        <pose>-0.01 0 {APRILTAG_POST_HEIGHT_METERS / 2:g} 0 0 0</pose>
+        <geometry><box><size>0.02 0.03 {APRILTAG_POST_HEIGHT_METERS:g}</size></box></geometry>
       </collision>
     </link>
   </model>
@@ -308,16 +316,16 @@ def apriltag_model():
 
 apriltag_name = apriltag_model()
 
-with open(f'{SIMULATOR_DIR}/models/materials/plasticulture_bed_a.dae', 'w') as f:
+with open(f'{SIMULATION_DIRECTORY}/models/materials/plasticulture_bed_a.dae', 'w') as f:
     f.write(bed_mesh('a', 0.0))
-with open(f'{SIMULATOR_DIR}/models/materials/plasticulture_bed_b.dae', 'w') as f:
+with open(f'{SIMULATION_DIRECTORY}/models/materials/plasticulture_bed_b.dae', 'w') as f:
     f.write(bed_mesh('b', 7.3))
-with open(f'{SIMULATOR_DIR}/models/materials/dirt_patch.dae', 'w') as f:
+with open(f'{SIMULATION_DIRECTORY}/models/materials/dirt_patch.dae', 'w') as f:
     f.write(dirt_mesh())
-with open(f'{SIMULATOR_DIR}/models/materials/flat_tarp.dae', 'w') as f:
+with open(f'{SIMULATION_DIRECTORY}/models/materials/flat_tarp.dae', 'w') as f:
     f.write(flat_tarp_mesh())
 
-bed_centers = [(index - (BED_COUNT - 1) / 2.0) * BED_PITCH for index in range(BED_COUNT)]
+bed_centers = [(index - (BED_COUNT - 1) / 2.0) * BED_PITCH_METERS for index in range(BED_COUNT)]
 
 beds = []
 for index, center in enumerate(bed_centers):
@@ -340,7 +348,7 @@ jitter_rng = np.random.default_rng(20260808)
 
 
 def jittered(value):
-    return value + jitter_rng.uniform(-PLANT_JITTER_M, PLANT_JITTER_M)
+    return value + jitter_rng.uniform(-PLANT_JITTER_METERS, PLANT_JITTER_METERS)
 
 
 plants = []
@@ -350,54 +358,56 @@ for bed_index, center in enumerate(bed_centers):
     if content in CROPS:
         crop_spec = CROPS[content]
         offsets = ([0.0] if crop_spec['lines'] == 1
-                   else [-PLANT_LINE_OFFSET, PLANT_LINE_OFFSET])
-        plant_x = np.arange(-BED_LENGTH / 2.0 + 0.4, BED_LENGTH / 2.0 - 0.3,
+                   else [-PLANT_LINE_OFFSET_METERS, PLANT_LINE_OFFSET_METERS])
+        plant_x = np.arange(-BED_LENGTH_METERS / 2.0 + 0.4, BED_LENGTH_METERS / 2.0 - 0.3,
                             crop_spec['spacing'])
         for line_index, offset in enumerate(offsets):
             for plant_index, x in enumerate(plant_x):
                 yaw = (bed_index * 131 + line_index * 37 + plant_index * 17) % 63 / 10.0
+                pose = (f'{jittered(x):.3f} {jittered(center + offset):.3f}'
+                        f' {BED_HEIGHT_METERS:g} 0 0 {yaw:g}')
                 plants.append(f'''    <include>
       <name>{content}_{bed_index}_{line_index}_{plant_index}</name>
       <uri>model://{content}_plant</uri>
-      <pose>{jittered(x):.3f} {jittered(center + offset):.3f} {BED_HEIGHT:g} 0 0 {yaw:g}</pose>
+      <pose>{pose}</pose>
     </include>''')
     elif content == 'maize':
-        plant_x = np.arange(-BED_LENGTH / 2.0 + 0.4, BED_LENGTH / 2.0 - 0.3,
-                            MAIZE_PLANT_SPACING)
+        plant_x = np.arange(-BED_LENGTH_METERS / 2.0 + 0.4, BED_LENGTH_METERS / 2.0 - 0.3,
+                            MAIZE_PLANT_SPACING_METERS)
         for plant_index, x in enumerate(plant_x):
             model = f'maize_0{plant_index % 2 + 1}'
             yaw = (bed_index * 131 + plant_index * 17) % 63 / 10.0
             plants.append(f'''    <include>
       <name>maize_{bed_index}_{plant_index}</name>
       <uri>model://{model}</uri>
-      <pose>{jittered(x):.3f} {jittered(center):.3f} {BED_HEIGHT:g} 0 0 {yaw:g}</pose>
+      <pose>{jittered(x):.3f} {jittered(center):.3f} {BED_HEIGHT_METERS:g} 0 0 {yaw:g}</pose>
     </include>''')
     elif content == 'turtle':
-        plant_x = np.arange(-BED_LENGTH / 2.0 + 0.5, BED_LENGTH / 2.0 - 0.4,
-                            TURTLE_PLANT_SPACING)
+        plant_x = np.arange(-BED_LENGTH_METERS / 2.0 + 0.5, BED_LENGTH_METERS / 2.0 - 0.4,
+                            TURTLE_PLANT_SPACING_METERS)
         for plant_index, x in enumerate(plant_x):
             yaw = (plant_index * 29) % 63 / 10.0
             plants.append(f'''    <include>
       <name>turtle_{bed_index}_{plant_index}</name>
       <uri>https://fuel.gazebosim.org/1.0/JAMONCITO/models/turtle</uri>
-      <pose>{jittered(x):.3f} {jittered(center):.3f} {BED_HEIGHT:g} 0 0 {yaw:g}</pose>
+      <pose>{jittered(x):.3f} {jittered(center):.3f} {BED_HEIGHT_METERS:g} 0 0 {yaw:g}</pose>
       <static>true</static>
     </include>''')
     else:
-        cone_x = np.arange(-BED_LENGTH / 2.0 + 0.5, BED_LENGTH / 2.0 - 0.4,
-                           CONE_PLANT_SPACING)
+        cone_x = np.arange(-BED_LENGTH_METERS / 2.0 + 0.5, BED_LENGTH_METERS / 2.0 - 0.4,
+                           CONE_PLANT_SPACING_METERS)
         for cone_index, x in enumerate(cone_x):
             cones.append(f'''    <include>
       <name>{content}_{bed_index}_{cone_index}</name>
       <uri>https://fuel.gazebosim.org/1.0/fruffers/models/{content}</uri>
-      <pose>{jittered(x):.3f} {jittered(center):.3f} {BED_HEIGHT:g} 0 0 0</pose>
+      <pose>{jittered(x):.3f} {jittered(center):.3f} {BED_HEIGHT_METERS:g} 0 0 0</pose>
     </include>''')
 
-flat_row_count = int(FLAT_TARP_WIDTH / FLAT_TARP_ROW_PITCH)
-flat_row_centers = [FLAT_TARP_CENTER_Y + (index - (flat_row_count - 1) / 2.0)
-                    * FLAT_TARP_ROW_PITCH for index in range(flat_row_count)]
-pepper_x = np.arange(FLAT_TARP_CENTER_X - FLAT_TARP_LENGTH / 2.0 + 0.4,
-                     FLAT_TARP_CENTER_X + FLAT_TARP_LENGTH / 2.0 - 0.3,
+flat_row_count = int(FLAT_TARP_WIDTH_METERS / FLAT_TARP_ROW_PITCH_METERS)
+flat_row_centers = [FLAT_TARP_CENTER_Y_METERS + (index - (flat_row_count - 1) / 2.0)
+                    * FLAT_TARP_ROW_PITCH_METERS for index in range(flat_row_count)]
+pepper_x = np.arange(FLAT_TARP_CENTER_X_METERS - FLAT_TARP_LENGTH_METERS / 2.0 + 0.4,
+                     FLAT_TARP_CENTER_X_METERS + FLAT_TARP_LENGTH_METERS / 2.0 - 0.3,
                      CROPS['pepper']['spacing'])
 for row_index, row_center in enumerate(flat_row_centers):
     for plant_index, x in enumerate(pepper_x):
@@ -411,10 +421,10 @@ for row_index, row_center in enumerate(flat_row_centers):
 weeds = []
 for weed_index in range(WEED_COUNT):
     model = ('nettle', 'unknown_weed')[weed_index % 2]
-    x = jitter_rng.uniform(-BED_LENGTH / 2.0 - 2.0, FLAT_TARP_CENTER_X
-                           + FLAT_TARP_LENGTH / 2.0 + 1.0)
-    y = jitter_rng.uniform(-BED_COUNT * BED_PITCH / 2.0 - 1.5,
-                           BED_COUNT * BED_PITCH / 2.0 + 1.5)
+    x = jitter_rng.uniform(-BED_LENGTH_METERS / 2.0 - 2.0, FLAT_TARP_CENTER_X_METERS
+                           + FLAT_TARP_LENGTH_METERS / 2.0 + 1.0)
+    y = jitter_rng.uniform(-BED_COUNT * BED_PITCH_METERS / 2.0 - 1.5,
+                           BED_COUNT * BED_PITCH_METERS / 2.0 + 1.5)
     yaw = jitter_rng.uniform(0, 2 * np.pi)
     weeds.append(f'''    <include>
       <name>weed_{weed_index}</name>
@@ -507,7 +517,7 @@ world = f'''<?xml version="1.0"?>
           <geometry><mesh><uri>model://materials/dirt_patch.dae</uri></mesh></geometry>
         </visual>
         <visual name="flat_tarp_visual">
-          <pose>{FLAT_TARP_CENTER_X:g} {FLAT_TARP_CENTER_Y:g} 0.008 0 0 0</pose>
+          <pose>{FLAT_TARP_CENTER_X_METERS:g} {FLAT_TARP_CENTER_Y_METERS:g} 0.008 0 0 0</pose>
           <geometry><mesh><uri>model://materials/flat_tarp.dae</uri></mesh></geometry>
         </visual>
       </link>
@@ -524,7 +534,7 @@ world = f'''<?xml version="1.0"?>
 </sdf>
 '''
 
-with open(f'{SIMULATOR_DIR}/worlds/plasticulture.sdf', 'w') as f:
+with open(f'{SIMULATION_DIRECTORY}/worlds/plasticulture.sdf', 'w') as f:
     f.write(world)
 print(f'{BED_COUNT} beds ({", ".join(BED_CONTENTS)}), '
       f'{len(plants)} plant/weed includes, {len(cones)} cones, world written')

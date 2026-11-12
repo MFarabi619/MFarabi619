@@ -16,13 +16,13 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
 def diagnostic_aggregator(params_file: str = ''):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_boot', 'diagnostic_aggregator.yaml')
     bl.node(
         package='diagnostic_aggregator',

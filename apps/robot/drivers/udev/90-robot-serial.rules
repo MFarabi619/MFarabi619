@@ -1,0 +1,2 @@
+SUBSYSTEM=="tty", ENV{ID_VENDOR}=="RoboteQ", ENV{ID_MODEL}=="RoboteQ_SBLMG2360T", SYMLINK+="robot/roboteq"
+SUBSYSTEM=="tty", ENV{ID_VENDOR}=="u-blox_AG_-_www.u-blox.com", ENV{ID_MODEL}=="u-blox_GNSS_receiver", SYMLINK+="robot/gnss"

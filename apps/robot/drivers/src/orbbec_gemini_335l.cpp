@@ -46,7 +46,7 @@ namespace robot_drivers
 namespace
 {
 
-constexpr uint32_t FRAME_TIMEOUT_MS = 1000;
+constexpr uint32_t FRAME_TIMEOUT_MILLISECONDS = 1000;
 constexpr int FRAME_TIMEOUTS_BEFORE_DEVICE_LOST = 5;
 constexpr auto DEVICE_RETRY_DELAY = std::chrono::seconds(2);
 constexpr int64_t MICROSECONDS_PER_SECOND = 1'000'000;
@@ -54,21 +54,22 @@ constexpr int NANOSECONDS_PER_MICROSECOND = 1000;
 constexpr int MILLISECONDS_PER_SECOND = 1000;
 constexpr size_t BYTES_PER_DEPTH_PIXEL = 2;
 constexpr size_t BYTES_PER_COLOR_PIXEL = 3;
-constexpr double MAX_PREVIEW_DEPTH_MM = 8000.0;
+constexpr double MAX_PREVIEW_DEPTH_MILLIMETERS = 8000.0;
 
-builtin_interfaces::msg::Time stamp_from_microseconds(uint64_t timestamp_us)
+builtin_interfaces::msg::Time stamp_from_microseconds(uint64_t timestamp_microseconds)
 {
   builtin_interfaces::msg::Time stamp;
-  stamp.sec = static_cast<int32_t>(timestamp_us / MICROSECONDS_PER_SECOND);
+  stamp.sec = static_cast<int32_t>(timestamp_microseconds / MICROSECONDS_PER_SECOND);
   stamp.nanosec = static_cast<uint32_t>(
-    (timestamp_us % MICROSECONDS_PER_SECOND) * NANOSECONDS_PER_MICROSECOND);
+    (timestamp_microseconds % MICROSECONDS_PER_SECOND) * NANOSECONDS_PER_MICROSECOND);
   return stamp;
 }
 
-uint64_t frame_timestamp_us(const std::shared_ptr<ob::Frame> & frame)
+uint64_t frame_timestamp_microseconds(const std::shared_ptr<ob::Frame> & frame)
 {
-  uint64_t global_timestamp_us = frame->getGlobalTimeStampUs();
-  return global_timestamp_us != 0 ? global_timestamp_us : frame->getSystemTimeStampUs();
+  uint64_t global_timestamp_microseconds = frame->getGlobalTimeStampUs();
+  return global_timestamp_microseconds != 0 ?
+         global_timestamp_microseconds : frame->getSystemTimeStampUs();
 }
 
 sensor_msgs::msg::CameraInfo camera_info_message(
@@ -108,20 +109,20 @@ void scale_camera_info(sensor_msgs::msg::CameraInfo & camera_info, int decimatio
 
 }  // namespace
 
-class OrbbecCamera : public rclcpp::Node
+class OrbbecGemini335l : public rclcpp::Node
 {
 public:
-  explicit OrbbecCamera(const rclcpp::NodeOptions & options)
-  : Node("camera", options)
+  explicit OrbbecGemini335l(const rclcpp::NodeOptions & options)
+  : Node("orbbec_gemini_335l", options)
   {
-    declare_parameter("color_width", 640);
-    declare_parameter("color_height", 480);
-    declare_parameter("color_fps", 15);
+    declare_parameter("color_width_pixels", 640);
+    declare_parameter("color_height_pixels", 480);
+    declare_parameter("color_frames_per_second", 15);
     declare_parameter("jpeg_quality", 80);
     declare_parameter("enable_depth", false);
-    declare_parameter("depth_width", 848);
-    declare_parameter("depth_height", 480);
-    declare_parameter("depth_fps", 15);
+    declare_parameter("depth_width_pixels", 848);
+    declare_parameter("depth_height_pixels", 480);
+    declare_parameter("depth_frames_per_second", 15);
     declare_parameter("depth_decimation", 1);
     declare_parameter("frame_id", std::string("camera_0_color_optical_frame"));
     declare_parameter("depth_frame_id", std::string("camera_0_depth_optical_frame"));
@@ -151,8 +152,9 @@ public:
     auto config = std::make_shared<ob::Config>();
     auto color_profile = pipeline_->getStreamProfileList(OB_SENSOR_COLOR)
       ->getVideoStreamProfile(
-        get_parameter("color_width").as_int(), get_parameter("color_height").as_int(),
-        OB_FORMAT_BGR, get_parameter("color_fps").as_int());
+        get_parameter("color_width_pixels").as_int(),
+        get_parameter("color_height_pixels").as_int(),
+        OB_FORMAT_BGR, get_parameter("color_frames_per_second").as_int());
     config->enableStream(color_profile);
     if (enable_depth_) {
       auto depth_profile = select_depth_profile(color_profile);
@@ -193,7 +195,7 @@ public:
     frame_thread_ = std::thread([this]() {pump_frames();});
   }
 
-  ~OrbbecCamera() override
+  ~OrbbecGemini335l() override
   {
     running_ = false;
     if (frame_thread_.joinable()) {
@@ -207,14 +209,15 @@ private:
   {
     int consecutive_timeouts = 0;
     while (running_ && rclcpp::ok()) {
-      auto frame_set = pipeline_->waitForFrameset(FRAME_TIMEOUT_MS);
+      auto frame_set = pipeline_->waitForFrameset(FRAME_TIMEOUT_MILLISECONDS);
       auto color_frame = frame_set ? frame_set->colorFrame() : nullptr;
       auto depth_frame = frame_set ? frame_set->depthFrame() : nullptr;
       if (!color_frame && !depth_frame) {
         if (++consecutive_timeouts >= FRAME_TIMEOUTS_BEFORE_DEVICE_LOST) {
           RCLCPP_ERROR(
             get_logger(), "no frames for %ds, device lost, exiting for respawn",
-            consecutive_timeouts * static_cast<int>(FRAME_TIMEOUT_MS) / MILLISECONDS_PER_SECOND);
+            consecutive_timeouts * static_cast<int>(FRAME_TIMEOUT_MILLISECONDS) /
+            MILLISECONDS_PER_SECOND);
           rclcpp::shutdown();
           return;
         }
@@ -233,14 +236,14 @@ private:
   std::shared_ptr<ob::StreamProfile> select_depth_profile(
     const std::shared_ptr<ob::VideoStreamProfile> & color_profile)
   {
-    int width = get_parameter("depth_width").as_int();
-    int height = get_parameter("depth_height").as_int();
-    int fps = get_parameter("depth_fps").as_int();
+    int depth_width_pixels = get_parameter("depth_width_pixels").as_int();
+    int depth_height_pixels = get_parameter("depth_height_pixels").as_int();
+    int depth_frames_per_second = get_parameter("depth_frames_per_second").as_int();
     auto aligned_profiles =
       pipeline_->getD2CDepthProfileList(color_profile, ALIGN_D2C_HW_MODE);
     for (uint32_t index = 0; index < aligned_profiles->getCount(); ++index) {
       auto profile = aligned_profiles->getProfile(index)->as<ob::VideoStreamProfile>();
-      if (profile->getFps() == static_cast<uint32_t>(fps)) {
+      if (profile->getFps() == static_cast<uint32_t>(depth_frames_per_second)) {
         is_depth_aligned_ = true;
         return profile;
       }
@@ -250,12 +253,13 @@ private:
       return aligned_profiles->getProfile(0);
     }
     return pipeline_->getStreamProfileList(OB_SENSOR_DEPTH)
-           ->getVideoStreamProfile(width, height, OB_FORMAT_Y16, fps);
+           ->getVideoStreamProfile(
+      depth_width_pixels, depth_height_pixels, OB_FORMAT_Y16, depth_frames_per_second);
   }
 
   void publish_color(const std::shared_ptr<ob::ColorFrame> & color_frame)
   {
-    auto stamp = stamp_from_microseconds(frame_timestamp_us(color_frame));
+    auto stamp = stamp_from_microseconds(frame_timestamp_microseconds(color_frame));
     uint32_t width = color_frame->getWidth();
     uint32_t height = color_frame->getHeight();
 
@@ -307,7 +311,7 @@ private:
 
   void publish_depth(const std::shared_ptr<ob::DepthFrame> & depth_frame)
   {
-    auto stamp = stamp_from_microseconds(frame_timestamp_us(depth_frame));
+    auto stamp = stamp_from_microseconds(frame_timestamp_microseconds(depth_frame));
     uint32_t source_width = depth_frame->getWidth();
     uint32_t source_height = depth_frame->getHeight();
     uint32_t width = (source_width + depth_decimation_ - 1) / depth_decimation_;
@@ -336,7 +340,7 @@ private:
     if (depth_compressed_publisher_->get_subscription_count() > 0) {
       cv::Mat depth16(height, width, CV_16UC1, image->data.data());
       cv::Mat depth8;
-      depth16.convertTo(depth8, CV_8UC1, 255.0 / MAX_PREVIEW_DEPTH_MM);
+      depth16.convertTo(depth8, CV_8UC1, 255.0 / MAX_PREVIEW_DEPTH_MILLIMETERS);
       cv::Mat colored;
       cv::applyColorMap(depth8, colored, cv::COLORMAP_JET);
       auto preview = std::make_unique<sensor_msgs::msg::CompressedImage>();
@@ -385,4 +389,4 @@ private:
 
 }  // namespace robot_drivers
 
-RCLCPP_COMPONENTS_REGISTER_NODE(robot_drivers::OrbbecCamera)
+RCLCPP_COMPONENTS_REGISTER_NODE(robot_drivers::OrbbecGemini335l)

@@ -23,19 +23,21 @@ import subprocess
 import sys
 import time
 
-from robot_machines.machine import MachineError, load_machine
+from robot_machines.machine import DOMAINS, MachineError, load_machine
 
 MIRROR_ROOT = '/home/mfarabi/MFarabi619'
-MIRROR_ROBOT_PATH = f'{MIRROR_ROOT}/apps/robot'
-PIXI = '/home/mfarabi/.pixi/bin/pixi'
+UNITS = ('robot.service', 'robot-zenoh-router.service', 'robot@.service')
+MIRROR_ROBOT_ROOT = f'{MIRROR_ROOT}/apps/robot'
+PIXI_PATH = '/home/mfarabi/.pixi/bin/pixi'
 
 ROBOT_LOCAL_ENTRIES = ['.pixi', 'build', 'install', 'log']
 
 DEVELOPMENT_ONLY_ENTRIES = ['__pycache__', 'assets']
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-ROBOT_PATH = REPO_ROOT / 'apps/robot'
-MACHINES_PATH = ROBOT_PATH / 'machines'
+ROBOT_ROOT = REPO_ROOT / 'apps/robot'
+MACHINES_DIRECTORY = ROBOT_ROOT / 'machines'
+UDEV_RULES_DIRECTORY = ROBOT_ROOT / 'drivers' / 'udev'
 
 RSYNC_FLAGS = ['-rlptgoD', '-P']
 
@@ -53,19 +55,19 @@ ARM_VENDOR_TREES = [
     'ros2_link6', 'cartesian_controllers', 'mujoco_ros2_control',
     'play_motion2', 'ros2_robotiq_gripper', 'picknik_controllers', 'serial',
     'ros2_controllers']
-ZED_VENDOR_TREES = ['zed-ros2-wrapper', 'zed-ros2-interfaces']
+STEREOLABS_ZED_VENDOR_TREES = ['zed-ros2-wrapper', 'zed-ros2-interfaces']
 
 
 def run(*command, working_directory=None):
     subprocess.run(command, check=True, cwd=working_directory)
 
 
-def ssh(host, remote_command):
-    run('ssh', '-q', host, remote_command)
+def ssh(mdns_hostname, remote_command):
+    run('ssh', '-q', mdns_hostname, remote_command)
 
 
-def ssh_with_terminal(host, remote_command):
-    run('ssh', '-q', '-t', host, remote_command)
+def ssh_with_terminal(mdns_hostname, remote_command):
+    run('ssh', '-q', '-t', mdns_hostname, remote_command)
 
 
 def shell_chain(*commands):
@@ -76,137 +78,145 @@ def vendor_trees(machine):
     trees = list(FLEET_VENDOR_TREES)
     if machine.has_arm:
         trees += ARM_VENDOR_TREES
-    if machine.has_zed_camera:
-        trees += ZED_VENDOR_TREES
+    if machine.has_stereolabs_zed:
+        trees += STEREOLABS_ZED_VENDOR_TREES
     return trees
 
 
-def mirrored_package_names(host):
-    listing = subprocess.run(
-        ['ssh', '-q', host, shell_chain(
-            ['cd', MIRROR_ROBOT_PATH],
-            [PIXI, 'run', 'colcon', 'list', '--names-only'])],
+def mirrored_package_names(mdns_hostname):
+    completed = subprocess.run(
+        ['ssh', '-q', mdns_hostname, shell_chain(
+            ['cd', MIRROR_ROBOT_ROOT],
+            [PIXI_PATH, 'run', 'colcon', 'list', '--names-only'])],
         capture_output=True, text=True, check=True)
-    return listing.stdout.split()
+    return completed.stdout.split()
 
 
-def remove_unmirrored_build_entries(host):
+def remove_unmirrored_build_entries(mdns_hostname):
     keep_package_expression = [
-        argument for package in mirrored_package_names(host)
+        argument for package in mirrored_package_names(mdns_hostname)
         for argument in ('!', '-name', package)]
-    ssh(host, shell_chain(
-        ['cd', MIRROR_ROBOT_PATH],
+    ssh(mdns_hostname, shell_chain(
+        ['cd', MIRROR_ROBOT_ROOT],
         ['mkdir', '-p', 'build', 'install'],
         ['find', 'build', 'install', '-mindepth', '1', '-maxdepth', '1',
          *keep_package_expression, '-exec', 'rm', '-rf', '{}', '+'],
     ))
 
 
-def mirror(host, machine):
-    ssh(host, shell_chain(
-        ['mkdir', '-p', MIRROR_ROBOT_PATH, f'{MIRROR_ROOT}/vendor'],
+def mirror(mdns_hostname, machine):
+    ssh(mdns_hostname, shell_chain(
+        ['mkdir', '-p', MIRROR_ROBOT_ROOT, f'{MIRROR_ROOT}/vendor'],
     ))
     run('rsync', *RSYNC_FLAGS, '--delete', '--delete-excluded',
         '--exclude', '.git',
         *[f'--include=/{vendor_tree}/' for vendor_tree in vendor_trees(machine)],
         '--exclude=/*',
-        '-e', 'ssh -q', 'vendor/', f'{host}:{MIRROR_ROOT}/vendor/',
+        '-e', 'ssh -q', 'vendor/', f'{mdns_hostname}:{MIRROR_ROOT}/vendor/',
         working_directory=REPO_ROOT)
     run('rsync', *RSYNC_FLAGS, '--delete',
         *[f'--exclude={entry}' for entry in ROBOT_LOCAL_ENTRIES],
         *[f'--filter=H {entry}' for entry in DEVELOPMENT_ONLY_ENTRIES],
         '-e', 'ssh -q', 'apps/robot/',
-        f'{host}:{MIRROR_ROBOT_PATH}/', working_directory=REPO_ROOT)
+        f'{mdns_hostname}:{MIRROR_ROBOT_ROOT}/', working_directory=REPO_ROOT)
 
 
-def stop_robot_service(host):
+def stop_robot_service(mdns_hostname):
     ssh_with_terminal(
-        host, '! systemctl is-active --quiet robot.service'
+        mdns_hostname, '! systemctl is-active --quiet robot.service'
         ' || sudo systemctl stop robot.service')
 
 
-def build(host):
-    remove_unmirrored_build_entries(host)
-    ssh_with_terminal(host, shell_chain(
-        ['cd', MIRROR_ROBOT_PATH],
+def build(mdns_hostname):
+    remove_unmirrored_build_entries(mdns_hostname)
+    ssh_with_terminal(mdns_hostname, shell_chain(
+        ['cd', MIRROR_ROBOT_ROOT],
         ['env', f'MAKEFLAGS=-j{COMPILE_JOBS_PER_WORKER}',
          f'CMAKE_BUILD_PARALLEL_LEVEL={COMPILE_JOBS_PER_WORKER}',
-         PIXI, 'run', 'build', '--parallel-workers', str(BUILD_WORKERS)],
+         PIXI_PATH, 'run', 'build', '--parallel-workers', str(BUILD_WORKERS)],
     ))
 
 
-def provision(host, machine):
-    ssh(host, 'test -x ~/.pixi/bin/pixi'
+def provision(mdns_hostname, machine):
+    ssh(mdns_hostname, 'test -x ~/.pixi/bin/pixi'
         ' || curl -fsSL https://pixi.sh/install.sh | bash')
-    udev = f'{MIRROR_ROBOT_PATH}/drivers/udev'
-    services = f'{MIRROR_ROBOT_PATH}/boot/systemd'
-    ssh_with_terminal(host, shell_chain(
+    udev_rules_directory = f'{MIRROR_ROBOT_ROOT}/drivers/udev'
+    systemd_directory = f'{MIRROR_ROBOT_ROOT}/boot/systemd'
+    ssh_with_terminal(mdns_hostname, shell_chain(
         ['sudo', 'install', '-m', '644', '-o', 'root', '-g', 'root',
-         f'{udev}/80-movidius.rules', f'{udev}/99-obsensor-libusb.rules',
+         *[f'{udev_rules_directory}/{rules_file.name}'
+           for rules_file in sorted(UDEV_RULES_DIRECTORY.glob('*.rules'))],
          '/etc/udev/rules.d/'],
         ['sudo', 'udevadm', 'control', '--reload-rules'],
+        ['sudo', 'udevadm', 'trigger'],
         ['sudo', 'install', '-m', '644', '-o', 'root', '-g', 'root', '-D',
-         f'{services}/journald-persistent.conf',
+         f'{systemd_directory}/journald-persistent.conf',
          '/etc/systemd/journald.conf.d/50-persistent.conf'],
         ['sudo', 'systemctl', 'restart', 'systemd-journald'],
         ['sudo', 'systemctl', 'set-default', 'multi-user.target'],
     ))
     if machine.board == 'rpi_5':
-        ssh(host, f'grep -q "^{PWM_OVERLAY}" {FIRMWARE_CONFIG_PATH}'
+        ssh(mdns_hostname, f'grep -q "^{PWM_OVERLAY}" {FIRMWARE_CONFIG_PATH}'
             f' || echo "{PWM_OVERLAY}" | sudo tee -a {FIRMWARE_CONFIG_PATH} >/dev/null')
-        ssh(host, 'command -v uhubctl >/dev/null'
+        ssh(mdns_hostname, 'command -v uhubctl >/dev/null'
             ' || sudo apt-get install -y uhubctl')
     if machine.board == 'jetson_orin_nano':
-        ssh(host, f'grep -q "{USB_AUTOSUSPEND_OFF}" {EXTLINUX_CONFIG_PATH}'
+        ssh(mdns_hostname, f'grep -q "{USB_AUTOSUSPEND_OFF}" {EXTLINUX_CONFIG_PATH}'
             f' || sudo sed -i "/^      APPEND / s/$/ {USB_AUTOSUSPEND_OFF}/"'
             f' {EXTLINUX_CONFIG_PATH}')
 
 
-def install_units(host, robot_name):
-    services = f'{MIRROR_ROBOT_PATH}/boot/systemd'
-    has_hostapd_config = (MACHINES_PATH / robot_name / 'hostapd.conf').is_file()
+def install_units(mdns_hostname, machine):
+    systemd_directory = f'{MIRROR_ROBOT_ROOT}/boot/systemd'
+    has_hostapd_config = (MACHINES_DIRECTORY / machine.name / 'hostapd.conf').is_file()
     commands = [
         ['sudo', 'install', '-m', '644', '-o', 'root', '-g', 'root',
-         f'{services}/robot.service', '/etc/systemd/system/'],
-        ['sync', '/etc/systemd/system/robot.service'],
+         *[f'{systemd_directory}/{unit}' for unit in UNITS], '/etc/systemd/system/'],
+        ['sudo', 'install', '-m', '755', '-o', 'root', '-g', 'root',
+         f'{systemd_directory}/robot-yaml-watch', '/usr/local/bin/'],
+        ['sync', *[f'/etc/systemd/system/{unit}' for unit in UNITS]],
     ]
     if has_hostapd_config:
-        hostapd_config = f'{MIRROR_ROBOT_PATH}/machines/{robot_name}/hostapd.conf'
+        hostapd_config_path = f'{MIRROR_ROBOT_ROOT}/machines/{machine.name}/hostapd.conf'
         commands += [
             ['sudo', 'install', '-m', '600', '-o', 'root', '-g', 'root',
-             hostapd_config, '/etc/hostapd/hostapd.conf'],
+             hostapd_config_path, '/etc/hostapd/hostapd.conf'],
             ['sudo', 'systemctl', 'enable', 'hostapd'],
         ]
     commands.append(['sudo', 'systemctl', 'daemon-reload'])
-    commands.append(['sudo', 'systemctl', 'enable', 'robot.service'])
+    for domain in DOMAINS:
+        verb = 'enable' if domain in machine.domains else 'disable'
+        commands.append(['sudo', 'systemctl', verb, f'robot@{domain}.service'])
+    commands.append(
+        ['sudo', 'systemctl', 'enable', 'robot.service', 'robot-zenoh-router.service'])
     commands.append(['sudo', 'systemctl', 'restart', 'robot.service'])
-    ssh_with_terminal(host, shell_chain(*commands))
+    ssh_with_terminal(mdns_hostname, shell_chain(*commands))
 
 
-HEALTH_DEADLINE_S = 150.0
-HEALTH_RETRY_DELAY_S = 10.0
+HEALTH_DEADLINE_SECONDS = 150.0
+HEALTH_RETRY_DELAY_SECONDS = 10.0
 
 
 def verify_health(robot_name):
-    deadline = time.monotonic() + HEALTH_DEADLINE_S
+    deadline = time.monotonic() + HEALTH_DEADLINE_SECONDS
     while True:
-        check = subprocess.run(
+        completed = subprocess.run(
             [sys.executable, 'e2e/robot_health.py', robot_name],
-            cwd=ROBOT_PATH)
-        if check.returncode == 0:
+            cwd=ROBOT_ROOT)
+        if completed.returncode == 0:
             return
         if time.monotonic() >= deadline:
             sys.exit(f'{robot_name} deployed but failed its health check')
-        time.sleep(HEALTH_RETRY_DELAY_S)
+        time.sleep(HEALTH_RETRY_DELAY_SECONDS)
 
 
 def verify_machine(robot_name):
-    check_script = MACHINES_PATH / robot_name / 'check.sh'
+    check_script = MACHINES_DIRECTORY / robot_name / 'check.sh'
     if not check_script.is_file():
         return
-    check = subprocess.run(
+    completed = subprocess.run(
         ['sh', str(check_script)], capture_output=True, text=True)
-    findings = (check.stdout + check.stderr).strip()
+    findings = (completed.stdout + completed.stderr).strip()
     if findings:
         sys.exit(f'{robot_name} machine check failed:\n{findings}')
 
@@ -214,29 +224,29 @@ def verify_machine(robot_name):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('robot', nargs='?', default='taro')
-    robot_name = parser.parse_args().robot
+    robot = parser.parse_args().robot
 
     try:
-        machine = load_machine(robot_name)
+        machine = load_machine(robot)
     except MachineError as error:
         sys.exit(str(error))
-    host = f'{machine.hostname}.local'
+    mdns_hostname = f'{machine.hostname}.local'
 
     try:
         print('verifying machine')
-        verify_machine(robot_name)
-        print(f'mirroring {host}')
-        mirror(host, machine)
+        verify_machine(robot)
+        print(f'mirroring {mdns_hostname}')
+        mirror(mdns_hostname, machine)
         print('provisioning')
-        provision(host, machine)
+        provision(mdns_hostname, machine)
         print('stopping robot service')
-        stop_robot_service(host)
+        stop_robot_service(mdns_hostname)
         print('building')
-        build(host)
+        build(mdns_hostname)
         print('installing units')
-        install_units(host, robot_name)
+        install_units(mdns_hostname, machine)
         print('verifying health')
-        verify_health(robot_name)
+        verify_health(robot)
         print('deployed healthy')
     except subprocess.CalledProcessError as error:
         sys.exit(error.returncode)

@@ -32,19 +32,20 @@ import yaml
 
 ROBOT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 REPO_ROOT = os.path.abspath(os.path.join(ROBOT_ROOT, '..', '..'))
-SOURCE_PACKAGES = {
+PYTHON_SOURCE_DIRECTORIES = {
     'robot_boot': os.path.join(ROBOT_ROOT, 'boot', 'src'),
-    'robot_simulator': os.path.join(ROBOT_ROOT, 'simulation', 'src'),
+    'robot_simulation': os.path.join(ROBOT_ROOT, 'simulation', 'src'),
     'robot_machines': os.path.join(ROBOT_ROOT, 'machines', 'src'),
 }
-PACKAGE_DIRECTORIES = {
+AMENT_PACKAGE_DIRECTORIES = {
     'robot_description': os.path.join(ROBOT_ROOT, 'mech'),
     'robot_control': os.path.join(ROBOT_ROOT, 'control'),
     'robot_boot': os.path.join(ROBOT_ROOT, 'boot'),
+    'robot_drivers': os.path.join(ROBOT_ROOT, 'drivers'),
     'robot_perception': os.path.join(ROBOT_ROOT, 'perception'),
     'robot_navigation': os.path.join(ROBOT_ROOT, 'navigation'),
     'robot_manipulation': os.path.join(ROBOT_ROOT, 'manipulation'),
-    'robot_simulator': os.path.join(ROBOT_ROOT, 'simulation'),
+    'robot_simulation': os.path.join(ROBOT_ROOT, 'simulation'),
     'zed_wrapper': os.path.join(REPO_ROOT, 'vendor', 'zed-ros2-wrapper', 'zed_wrapper'),
 }
 
@@ -74,8 +75,14 @@ class LaunchRecorder:
     def is_shutdown(self):
         return False
 
-    def router_is_recorded(self):
-        return any(event.get('executable') == 'rmw_zenohd' for event in self.events)
+    @property
+    def group_tip(self):
+        return types.SimpleNamespace(assemble_namespace=lambda: self.namespace)
+
+    def zenoh_router_is_recorded(self):
+        return any(
+            event.get('executable') == self.zenoh_router_executable
+            for event in self.events)
 
     def record(self, kind, **fields):
         event = {'kind': kind, 'namespace': self.namespace, **fields}
@@ -84,7 +91,7 @@ class LaunchRecorder:
 
     @contextlib.contextmanager
     def group(self, namespace, use_sim_time=None):
-        saved_group_stack = self.group_stack[:]
+        group_stack_before = self.group_stack[:]
         if namespace.startswith('/'):
             self.group_stack = []
         self.group_stack += filter(None, namespace.split('/'))
@@ -92,7 +99,7 @@ class LaunchRecorder:
         try:
             yield self.namespace
         finally:
-            self.group_stack = saved_group_stack
+            self.group_stack = group_stack_before
 
     def node(self, package, executable, name=None, **kwargs):
         return RecordedNode(
@@ -120,7 +127,7 @@ class LaunchRecorder:
         self.record(
             'include', package=package, launchfile=launchfile, subdir=subdir,
             arguments=arguments)
-        if package in PACKAGE_DIRECTORIES:
+        if package in AMENT_PACKAGE_DIRECTORIES:
             module = load_launch(self.find(package, launchfile, subdir))
             launch_function(module)(**arguments)
 
@@ -136,9 +143,9 @@ class LaunchRecorder:
         if filename and os.path.isabs(filename):
             return filename
         package_name = (package or '').partition('/')[0]
-        if package_name in PACKAGE_DIRECTORIES:
+        if package_name in AMENT_PACKAGE_DIRECTORIES:
             pattern = os.path.join(
-                PACKAGE_DIRECTORIES[package_name], '**', subdir or '**', filename)
+                AMENT_PACKAGE_DIRECTORIES[package_name], '**', subdir or '**', filename)
             matches = glob.glob(pattern, recursive=True)
             if matches:
                 return matches[0]
@@ -165,11 +172,11 @@ def fake_better_launch(recorder):
         def instance(cls):
             return recorder
 
-    def launch_this(launch_function=None, **settings):
+    def launch_this(decorated=None, **settings):
         def decorate(function):
             function.launch_this_settings = settings
             return function
-        return decorate if launch_function is None else decorate(launch_function)
+        return decorate if decorated is None else decorate(decorated)
 
     package = types.ModuleType('better_launch')
     package.__path__ = []
@@ -250,9 +257,9 @@ def isolate_launch_environment(recorder, monkeypatch):
     for name, module in fake_better_launch(recorder).items():
         monkeypatch.setitem(sys.modules, name, module)
     for name in list(sys.modules):
-        if name.partition('.')[0] in SOURCE_PACKAGES:
+        if name.partition('.')[0] in PYTHON_SOURCE_DIRECTORIES:
             monkeypatch.delitem(sys.modules, name)
-    for name, directory in SOURCE_PACKAGES.items():
+    for name, directory in PYTHON_SOURCE_DIRECTORIES.items():
         monkeypatch.setitem(sys.modules, name, import_source_package(name, directory))
     monkeypatch.chdir(ROBOT_ROOT)
     monkeypatch.setattr(tempfile, 'tempdir', recorder.temporary_directory)
@@ -267,11 +274,13 @@ def isolate_launch_environment(recorder, monkeypatch):
     monkeypatch.setattr(subprocess, 'run', record_subprocess)
     monkeypatch.setattr(
         ament_index_python.packages, 'get_package_share_directory',
-        PACKAGE_DIRECTORIES.__getitem__)
+        AMENT_PACKAGE_DIRECTORIES.__getitem__)
     monkeypatch.setattr(ament_index_python.search_paths, 'get_search_paths', lambda: [])
     from robot_boot import zenoh_router
-    monkeypatch.setattr(zenoh_router, 'router_is_listening', recorder.router_is_recorded)
-    monkeypatch.setattr(zenoh_router, 'wait_for_router', lambda *_, **__: True)
+    recorder.zenoh_router_executable = zenoh_router.ZENOH_ROUTER_EXECUTABLE
+    monkeypatch.setattr(
+        zenoh_router, 'zenoh_router_is_listening', recorder.zenoh_router_is_recorded)
+    monkeypatch.setattr(zenoh_router, 'wait_for_zenoh_router', lambda *_, **__: True)
 
 
 def import_source_package(name, directory):

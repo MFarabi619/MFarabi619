@@ -18,8 +18,8 @@ import os
 import shlex
 import subprocess
 
-ROBOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-STARTUP_GRACE_S = 10
+ROBOT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+STARTUP_GRACE_SECONDS = 10
 LAUNCH_FAILURES = (
     'unexpected argument',
     'No such file or directory',
@@ -32,30 +32,30 @@ LAUNCH_FAILURES = (
 
 def spawned_output(command):
     process = subprocess.Popen(
-        shlex.split(command), cwd=ROBOT_DIR,
+        shlex.split(command), cwd=ROBOT_ROOT,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     try:
-        process.wait(timeout=STARTUP_GRACE_S)
-        alive = False
+        process.wait(timeout=STARTUP_GRACE_SECONDS)
+        is_alive = False
     except subprocess.TimeoutExpired:
-        alive = True
+        is_alive = True
     process.terminate()
     try:
-        output, _ = process.communicate(timeout=10)
+        output, _ = process.communicate(timeout=STARTUP_GRACE_SECONDS)
     except subprocess.TimeoutExpired:
         process.kill()
         output, _ = process.communicate()
-    return alive, output
+    return is_alive, output
 
 
 def test_behavior_server_launches_and_reaches_zenoh():
     executable = os.path.join(
-        ROBOT_DIR, '.pixi', 'envs', 'default', 'lib',
+        ROBOT_ROOT, '.pixi', 'envs', 'default', 'lib',
         'nav2_behaviors', 'behavior_server')
-    alive, output = spawned_output(
+    is_alive, output = spawned_output(
         f'{executable} --ros-args -r __node:=behavior_server'
         ' --params-file navigation/config/behaviors.yaml'
         ' -p use_sim_time:=true')
     for failure in LAUNCH_FAILURES:
         assert failure not in output, output[-2000:]
-    assert alive or 'localhost:7447' in output, output[-2000:]
+    assert is_alive or 'localhost:7447' in output, output[-2000:]

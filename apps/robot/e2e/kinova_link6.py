@@ -31,21 +31,21 @@ from kortex_api.MqttTransport import MqttTransport
 from kortex_api.RouterClient import RouterClient
 
 JOINT_COUNT = 6
-POSE_TOLERANCE_DEG = 1.0
-OUT_OF_RANGE_OFFSET_DEG = 1000.0
+POSE_TOLERANCE_DEGREES = 1.0
+OUT_OF_RANGE_OFFSET_DEGREES = 1000.0
 EXECUTE_TIMEOUT_SECONDS = 120.0
 RECOVERY_TIMEOUT_SECONDS = 90.0
 MODE_SETTLE_SECONDS = 2.0
 MOTION_SETTLE_SECONDS = 0.3
 FAULT_CLEAR_SETTLE_SECONDS = 1.0
 ARM_STATE_POLL_SECONDS = 0.5
-SESSION_INACTIVITY_TIMEOUT_MS = 60000
-CONNECTION_INACTIVITY_TIMEOUT_MS = 2000
+SESSION_INACTIVITY_TIMEOUT_MILLISECONDS = 60000
+CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS = 2000
 STOP_AT_WAYPOINT_BLENDING = 0.0
-TRAVEL_MAX_VELOCITY_DEG_PER_SECOND = 20.0
-SWEEP_BASE_POSE_DEG = [0.0, 10.0, 25.0, 0.0, 0.0, 0.0]
-HOME_POSE_DEG = [0.0, -20.0, 110.0, 0.0, 40.0, 0.0]
-SWEEP_RANGES_DEG = {
+TRAVEL_MAX_VELOCITY_DEGREES_PER_SECOND = 20.0
+SWEEP_BASE_POSE_DEGREES = [0.0, 10.0, 25.0, 0.0, 0.0, 0.0]
+HOME_POSE_DEGREES = [0.0, -20.0, 110.0, 0.0, 40.0, 0.0]
+SWEEP_RANGES_DEGREES = {
     1: (-170.0, 170.0),
     2: (-30.0, 30.0),
     3: (-30.0, 30.0),
@@ -53,42 +53,42 @@ SWEEP_RANGES_DEG = {
     5: (-60.0, 60.0),
     6: (-90.0, 90.0),
 }
-SWEEP_MAX_VELOCITIES_DEG_PER_SECOND = {
+SWEEP_MAX_VELOCITIES_DEGREES_PER_SECOND = {
     1: 60.0, 2: 20.0, 3: 20.0, 4: 60.0, 5: 60.0, 6: 80.0}
 
 
 @pytest.fixture(scope='session')
-def router(request):
+def kortex_router(request):
     transport = MqttTransport()
     transport.connect(request.config.getoption('--robot-ip'))
-    router = RouterClient(transport, errorCallback=None)
-    session_info = Session_pb2.CreateSessionInfo()
-    session_info.username = request.config.getoption('--robot-username')
-    session_info.password = request.config.getoption('--robot-password')
-    session_info.session_inactivity_timeout = SESSION_INACTIVITY_TIMEOUT_MS
-    session_info.connection_inactivity_timeout = (
-        CONNECTION_INACTIVITY_TIMEOUT_MS)
-    session_client = SessionClient(router)
-    session_client.CreateSession(session_info)
-    yield router
+    kortex_router = RouterClient(transport, errorCallback=None)
+    session = Session_pb2.CreateSessionInfo()
+    session.username = request.config.getoption('--robot-username')
+    session.password = request.config.getoption('--robot-password')
+    session.session_inactivity_timeout = SESSION_INACTIVITY_TIMEOUT_MILLISECONDS
+    session.connection_inactivity_timeout = (
+        CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS)
+    session_client = SessionClient(kortex_router)
+    session_client.CreateSession(session)
+    yield kortex_router
     session_client.CloseSession()
-    router.SetActivationStatus(False)
+    kortex_router.SetActivationStatus(False)
     transport.disconnect()
 
 
 @pytest.fixture(scope='session')
-def base(router):
-    return BaseClient(router)
+def base(kortex_router):
+    return BaseClient(kortex_router)
 
 
 @pytest.fixture(scope='session')
-def base_cyclic(router):
-    return BaseCyclicClient(router)
+def base_cyclic(kortex_router):
+    return BaseCyclicClient(kortex_router)
 
 
 @pytest.fixture(scope='session')
-def program_runner(router):
-    return ProgramRunnerClient(router)
+def program_runner(kortex_router):
+    return ProgramRunnerClient(kortex_router)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -117,7 +117,7 @@ def operational_arm(base):
             pass
 
 
-def current_positions_deg(base_cyclic):
+def current_positions_degrees(base_cyclic):
     return [actuator.position for actuator
             in base_cyclic.RefreshFeedback().actuators]
 
@@ -136,16 +136,16 @@ def ensure_operating_mode(base, operating_mode):
         time.sleep(MODE_SETTLE_SECONDS)
 
 
-def execute_waypoints(base, waypoints_deg,
-                      max_velocity_deg_per_second=
-                      TRAVEL_MAX_VELOCITY_DEG_PER_SECOND):
+def execute_waypoints(base, waypoints_degrees,
+                      max_velocity_degrees_per_second=
+                      TRAVEL_MAX_VELOCITY_DEGREES_PER_SECOND):
     waypoint_list = Base_pb2.WaypointList()
-    for index, angles in enumerate(waypoints_deg):
+    for index, angles in enumerate(waypoints_degrees):
         waypoint = waypoint_list.waypoints.add()
         waypoint.name = f'waypoint_{index}'
         waypoint.angular_waypoint.angles.extend(angles)
         waypoint.angular_waypoint.maximum_velocities.extend(
-            [max_velocity_deg_per_second] * JOINT_COUNT)
+            [max_velocity_degrees_per_second] * JOINT_COUNT)
         waypoint.angular_waypoint.blending = STOP_AT_WAYPOINT_BLENDING
     validation = base.ValidateWaypointList(waypoint_list)
     assert not validation.trajectory_error_report.trajectory_error_elements, \
@@ -177,9 +177,9 @@ def execute_waypoints(base, waypoints_deg,
     time.sleep(MOTION_SETTLE_SECONDS)
 
 
-def assert_at_pose(base_cyclic, pose_deg):
-    assert current_positions_deg(base_cyclic) == pytest.approx(
-        pose_deg, abs=POSE_TOLERANCE_DEG)
+def assert_at_pose(base_cyclic, pose_degrees):
+    assert current_positions_degrees(base_cyclic) == pytest.approx(
+        pose_degrees, abs=POSE_TOLERANCE_DEGREES)
 
 
 def test_robot_identifies_itself(base):
@@ -219,23 +219,23 @@ def test_webapp_programs_are_listable(program_runner):
 def test_validation_is_a_dry_run(base, base_cyclic):
     """ValidateWaypointList checks a trajectory on the controller without
     motion: an absurd target is rejected, a sane one is accepted."""
-    current_pose_deg = current_positions_deg(base_cyclic)
+    current_pose_degrees = current_positions_degrees(base_cyclic)
     out_of_range_waypoint_list = Base_pb2.WaypointList()
     waypoint = out_of_range_waypoint_list.waypoints.add()
     waypoint.name = 'out_of_range'
     waypoint.angular_waypoint.angles.extend(
-        [angle + OUT_OF_RANGE_OFFSET_DEG for angle in current_pose_deg])
+        [angle + OUT_OF_RANGE_OFFSET_DEGREES for angle in current_pose_degrees])
     report = base.ValidateWaypointList(
         out_of_range_waypoint_list).trajectory_error_report
     assert report.trajectory_error_elements, \
-        f'a +{OUT_OF_RANGE_OFFSET_DEG:.0f} deg waypoint should fail validation'
+        f'a +{OUT_OF_RANGE_OFFSET_DEGREES:.0f} deg waypoint should fail validation'
     print('out-of-range waypoint rejected with',
           len(report.trajectory_error_elements), 'error elements')
 
     hold_position_waypoint_list = Base_pb2.WaypointList()
     waypoint = hold_position_waypoint_list.waypoints.add()
     waypoint.name = 'hold_position'
-    waypoint.angular_waypoint.angles.extend(current_pose_deg)
+    waypoint.angular_waypoint.angles.extend(current_pose_degrees)
     report = base.ValidateWaypointList(
         hold_position_waypoint_list).trajectory_error_report
     assert not report.trajectory_error_elements
@@ -245,32 +245,32 @@ def test_validation_is_a_dry_run(base, base_cyclic):
 def test_moves_to_sweep_base_pose(base, base_cyclic):
     """First motion: ExecuteWaypointTrajectory in AUTO mode to the sweep
     base pose, which stays clear of the singular straight-arm alignments."""
-    execute_waypoints(base, [SWEEP_BASE_POSE_DEG])
-    assert_at_pose(base_cyclic, SWEEP_BASE_POSE_DEG)
+    execute_waypoints(base, [SWEEP_BASE_POSE_DEGREES])
+    assert_at_pose(base_cyclic, SWEEP_BASE_POSE_DEGREES)
 
 
 @pytest.mark.parametrize('joint_number', [1, 2, 3, 4, 5, 6],
                          ids=lambda joint_number: f'joint_{joint_number}')
 def test_sweeps_joint_through_range(base, base_cyclic, joint_number):
-    """Sweeps one joint min, max, base inside SWEEP_RANGES_DEG, this file's
+    """Sweeps one joint min, max, base inside SWEEP_RANGES_DEGREES, this file's
     safety envelope for a table mount; the controller validates each sweep
     against the robot's configured limits before any motion."""
-    low, high = SWEEP_RANGES_DEG[joint_number]
-    max_velocity_deg_per_second = (
-        SWEEP_MAX_VELOCITIES_DEG_PER_SECOND[joint_number])
+    low, high = SWEEP_RANGES_DEGREES[joint_number]
+    max_velocity_degrees_per_second = (
+        SWEEP_MAX_VELOCITIES_DEGREES_PER_SECOND[joint_number])
     print(f'sweeping joint_{joint_number} through {low:.0f} to {high:.0f} deg '
-          f'at {max_velocity_deg_per_second:.0f} deg/s')
-    base_value = SWEEP_BASE_POSE_DEG[joint_number - 1]
-    sweep_waypoints_deg = []
+          f'at {max_velocity_degrees_per_second:.0f} deg/s')
+    base_value = SWEEP_BASE_POSE_DEGREES[joint_number - 1]
+    sweep_waypoints_degrees = []
     for target in (low, high, base_value):
-        pose_deg = list(SWEEP_BASE_POSE_DEG)
-        pose_deg[joint_number - 1] = target
-        sweep_waypoints_deg.append(pose_deg)
-    execute_waypoints(base, sweep_waypoints_deg, max_velocity_deg_per_second)
-    assert_at_pose(base_cyclic, SWEEP_BASE_POSE_DEG)
+        pose_degrees = list(SWEEP_BASE_POSE_DEGREES)
+        pose_degrees[joint_number - 1] = target
+        sweep_waypoints_degrees.append(pose_degrees)
+    execute_waypoints(base, sweep_waypoints_degrees, max_velocity_degrees_per_second)
+    assert_at_pose(base_cyclic, SWEEP_BASE_POSE_DEGREES)
 
 
 def test_returns_to_home_pose(base, base_cyclic):
     """The suite ends by leaving the arm at the factory home pose."""
-    execute_waypoints(base, [HOME_POSE_DEG])
-    assert_at_pose(base_cyclic, HOME_POSE_DEG)
+    execute_waypoints(base, [HOME_POSE_DEGREES])
+    assert_at_pose(base_cyclic, HOME_POSE_DEGREES)

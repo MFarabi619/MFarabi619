@@ -16,7 +16,7 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 DETECTIONS_TOPIC = 'perception/line/detections'
 
@@ -29,7 +29,7 @@ def line_follow(
     overrides_file: str = '',
 ):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_perception', 'line_follow.yaml')
     param_files = [params_file] + ([overrides_file] if overrides_file else [])
     bl.node(
@@ -50,7 +50,7 @@ def line_follow(
     )
     bl.node(
         package='robot_perception',
-        executable='row_follow',
+        executable='line_follow',
         name='line_follow',
         params={
             'detections_topic': DETECTIONS_TOPIC,

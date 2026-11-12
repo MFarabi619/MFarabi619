@@ -46,7 +46,7 @@ constexpr double MILLIMETERS_PER_METER = 1000.0;
 constexpr int RGB_CHANNELS = 3;
 constexpr double LABEL_MARGIN_PIXELS = 8.0;
 constexpr double LABEL_FONT_SIZE = 18.0;
-constexpr double BOX_THICKNESS = 2.0;
+constexpr double BOX_THICKNESS_PIXELS = 2.0;
 constexpr char MILLIMETER_DEPTH_ENCODING[] = "16UC1";
 constexpr char MONO16_DEPTH_ENCODING[] = "mono16";
 constexpr char METER_DEPTH_ENCODING[] = "32FC1";
@@ -129,7 +129,7 @@ public:
     class_label_ = declare_parameter("class_label", std::string("person"));
     person_class_id_ = declare_parameter("person_class_id", 1);
     min_score_ = declare_parameter("min_score", 0.5);
-    depth_sample_radius_ = declare_parameter("depth_sample_radius", 4);
+    depth_sample_radius_pixels_ = declare_parameter("depth_sample_radius_pixels", 4);
     depth_timeout_seconds_ = declare_parameter("depth_timeout_seconds", 0.5);
     max_detections_per_second_ = declare_parameter("max_detections_per_second", 10.0);
     min_detection_interval_ = max_detections_per_second_ > 0.0
@@ -139,7 +139,8 @@ public:
 
     const int inference_threads =
       static_cast<int>(declare_parameter("inference_threads", 2));
-    inference_size_ = static_cast<int>(declare_parameter("inference_size", 300));
+    inference_size_pixels_ =
+      static_cast<int>(declare_parameter("inference_size_pixels", 300));
     Ort::SessionOptions session_options;
     session_options.SetIntraOpNumThreads(inference_threads);
     session_options.AddConfigEntry("session.intra_op.allow_spinning", "0");
@@ -318,11 +319,11 @@ private:
     const int height = rgb.rows;
     const int width = rgb.cols;
     cv::Mat inference_input = rgb;
-    if (inference_size_ > 0 &&
-      (rgb.cols != inference_size_ || rgb.rows != inference_size_))
+    if (inference_size_pixels_ > 0 &&
+      (rgb.cols != inference_size_pixels_ || rgb.rows != inference_size_pixels_))
     {
       cv::resize(
-        rgb, inference_input, cv::Size(inference_size_, inference_size_), 0, 0,
+        rgb, inference_input, cv::Size(inference_size_pixels_, inference_size_pixels_), 0, 0,
         cv::INTER_LINEAR);
     }
     const std::array<int64_t, 4> input_shape{
@@ -361,10 +362,10 @@ private:
       const double right = boxes[index * 4 + 3] * width;
       const std::array<double, 4> bounding_box{
         left, top, right - left, bottom - top};
-      const auto [distance, point] = bounding_box_range(bounding_box, width, height);
+      const auto [distance_meters, point] = bounding_box_range(bounding_box, width, height);
       detections.detections.push_back(detection(stamp, bounding_box, score, point));
       if (wants_overlay) {
-        annotate(overlay, stamp, bounding_box, distance);
+        annotate(overlay, stamp, bounding_box, distance_meters);
       }
     }
     detections_publisher_->publish(detections);
@@ -385,11 +386,11 @@ private:
     const int depth_height = latest_depth_millimeters_.rows;
     const int depth_x = static_cast<int>((x + w / 2.0) / color_width * depth_width);
     const int depth_y = static_cast<int>((y + h / 2.0) / color_height * depth_height);
-    const int radius = depth_sample_radius_;
-    const int row_begin = std::max(depth_y - radius, 0);
-    const int row_end = std::min(depth_y + radius + 1, depth_height);
-    const int column_begin = std::max(depth_x - radius, 0);
-    const int column_end = std::min(depth_x + radius + 1, depth_width);
+    const int radius_pixels = depth_sample_radius_pixels_;
+    const int row_begin = std::max(depth_y - radius_pixels, 0);
+    const int row_end = std::min(depth_y + radius_pixels + 1, depth_height);
+    const int column_begin = std::max(depth_x - radius_pixels, 0);
+    const int column_end = std::min(depth_x + radius_pixels + 1, depth_width);
     std::vector<float> valid_depths;
     for (int row = row_begin; row < row_end; ++row) {
       const float * values = latest_depth_millimeters_.ptr<float>(row);
@@ -409,12 +410,12 @@ private:
       const auto lower_median = std::max_element(valid_depths.begin(), middle);
       median = (median + *lower_median) / 2.0;
     }
-    const double distance = median / MILLIMETERS_PER_METER;
-    return {distance, deproject(depth_x, depth_y, distance)};
+    const double distance_meters = median / MILLIMETERS_PER_METER;
+    return {distance_meters, deproject(depth_x, depth_y, distance_meters)};
   }
 
   std::optional<geometry_msgs::msg::Point> deproject(
-    int depth_x, int depth_y, double distance)
+    int depth_x, int depth_y, double distance_meters)
   {
     if (!has_camera_model_) {
       return std::nullopt;
@@ -422,9 +423,9 @@ private:
     const cv::Point3d ray =
       camera_model_.projectPixelTo3dRay(cv::Point2d(depth_x, depth_y));
     geometry_msgs::msg::Point point;
-    point.x = ray.x / ray.z * distance;
-    point.y = ray.y / ray.z * distance;
-    point.z = distance;
+    point.x = ray.x / ray.z * distance_meters;
+    point.y = ray.y / ray.z * distance_meters;
+    point.z = distance_meters;
     return point;
   }
 
@@ -465,7 +466,7 @@ private:
   void annotate(
     foxglove_msgs::msg::ImageAnnotations & overlay,
     const builtin_interfaces::msg::Time & stamp,
-    const std::array<double, 4> & bounding_box, std::optional<double> distance)
+    const std::array<double, 4> & bounding_box, std::optional<double> distance_meters)
   {
     const auto [x, y, w, h] = bounding_box;
     foxglove_msgs::msg::PointsAnnotation box;
@@ -475,14 +476,14 @@ private:
       make_point(x, y), make_point(x + w, y),
       make_point(x + w, y + h), make_point(x, y + h)};
     box.outline_color = PERSON_COLOR;
-    box.thickness = BOX_THICKNESS;
+    box.thickness = BOX_THICKNESS_PIXELS;
     overlay.points.push_back(box);
     foxglove_msgs::msg::TextAnnotation label;
     label.timestamp = stamp;
     label.position = make_point(x, std::max(y - LABEL_MARGIN_PIXELS, 0.0));
     char distance_text[32];
-    if (distance.has_value()) {
-      snprintf(distance_text, sizeof(distance_text), "%.1fm", *distance);
+    if (distance_meters.has_value()) {
+      snprintf(distance_text, sizeof(distance_text), "%.1fm", *distance_meters);
     } else {
       snprintf(distance_text, sizeof(distance_text), "?");
     }
@@ -512,9 +513,9 @@ private:
   std::string class_label_;
   std::string depth_frame_id_;
   int person_class_id_ = 1;
-  int inference_size_ = 300;
+  int inference_size_pixels_ = 300;
   double min_score_ = 0.5;
-  int depth_sample_radius_ = 4;
+  int depth_sample_radius_pixels_ = 4;
   double depth_timeout_seconds_ = 0.5;
   double max_detections_per_second_ = 10.0;
   rclcpp::Duration min_detection_interval_{0, 0};

@@ -18,24 +18,23 @@ import os
 import sys
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN, include
-from robot_boot.zenoh_router import ROUTER_PORT, ensure_router, wait_for_router
+from robot_boot.launch_policy import OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES, RESPAWN, include
+from robot_boot.zenoh_router import (
+    ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE, ZENOH_ROUTER_PORT, ensure_zenoh_router,
+    wait_for_zenoh_router)
 from robot_machines.machine import load_machine, machine_names
 
-CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ROUTER_PORT}"]'
-BENCH_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES = 1000000
 
-
-def fleet_router_config_override():
+def fleet_zenoh_router_config_override():
     endpoints = [
-        f'"tcp/{host.hostname}.local:{ROUTER_PORT}"'
+        f'"tcp/{host.hostname}.local:{ZENOH_ROUTER_PORT}"'
         for name in machine_names()
         for host in load_machine(name).system.hosts]
     return f'connect/endpoints=[{",".join(endpoints)}]'
 
 
-def robot_runs_on_this_host(robot):
-    return load_machine(robot).board == 'macos'
+def robot_runs_on_this_host(robot_name):
+    return load_machine(robot_name).board == 'macos'
 
 
 @launch_this
@@ -47,13 +46,14 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
     }
     if robot_runs_on_this_host(robot):
         bl.process(
-            [sys.executable, bl.find('robot_boot', 'robot.launch.py'), '--name', robot],
+            [sys.executable, bl.find('robot_boot', 'robot.launch.py'), '--robot', robot],
             name=f'{robot}_stack',
             **RESPAWN,
         )
-        wait_for_router()
-    ensure_router(bl, env={'ZENOH_CONFIG_OVERRIDE': fleet_router_config_override()})
-    os.environ['ZENOH_CONFIG_OVERRIDE'] = CLIENT_CONFIG_OVERRIDE
+        wait_for_zenoh_router()
+    ensure_zenoh_router(
+        bl, env={'ZENOH_CONFIG_OVERRIDE': fleet_zenoh_router_config_override()})
+    os.environ['ZENOH_CONFIG_OVERRIDE'] = ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE
     if gesture_camera == 'webcam':
         bl.node(
             package='robot_drivers',
@@ -63,7 +63,7 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
         )
     include(
         'robot_boot', 'foxglove_bridge.launch.py',
-        send_buffer_limit_bytes=BENCH_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES)
+        send_buffer_limit_bytes=OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES)
     with bl.group(robot):
         include(
             'robot_perception', 'hand_gesture_teleop.launch.py',

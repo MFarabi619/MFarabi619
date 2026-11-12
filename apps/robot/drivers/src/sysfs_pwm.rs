@@ -8,17 +8,17 @@ use std::{
 
 use crate::motor::{DriveCommand, WheelDrive};
 
-pub const PULSE_PERIOD_NS: i64 = 20_000_000;
-pub const PULSE_NEUTRAL_NS: i64 = 1_500_000;
-pub const PULSE_HALF_RANGE_NS: i64 = 500_000;
+pub const PULSE_PERIOD_NANOSECONDS: i64 = 20_000_000;
+pub const PULSE_NEUTRAL_NANOSECONDS: i64 = 1_500_000;
+pub const PULSE_HALF_RANGE_NANOSECONDS: i64 = 500_000;
 const EXPORT_RETRIES: u32 = 500;
 const EXPORT_RETRY_DELAY: Duration = Duration::from_millis(10);
 
 pub struct PulseChannel {
-    channel_path: PathBuf,
+    channel_directory: PathBuf,
     duty_file: fs::File,
     reversed: bool,
-    last_pulse_ns: i64,
+    last_pulse_nanoseconds: i64,
 }
 
 impl PulseChannel {
@@ -28,22 +28,25 @@ impl PulseChannel {
         channel: u32,
         reversed: bool,
     ) -> std::io::Result<Self> {
-        let chip_path = sysfs_root.join(format!("pwmchip{chip}"));
-        let channel_path = chip_path.join(format!("pwm{channel}"));
-        if !channel_path.exists() {
-            fs::write(chip_path.join("export"), channel.to_string())?;
+        let chip_directory = sysfs_root.join(format!("pwmchip{chip}"));
+        let channel_directory = chip_directory.join(format!("pwm{channel}"));
+        if !channel_directory.exists() {
+            fs::write(chip_directory.join("export"), channel.to_string())?;
         }
-        let duty_path = channel_path.join("duty_cycle");
+        let duty_path = channel_directory.join("duty_cycle");
         let mut duty_file = open_when_writable(&duty_path)?;
         duty_file.write_all(b"0")?;
         duty_file.flush()?;
-        fs::write(channel_path.join("period"), PULSE_PERIOD_NS.to_string())?;
-        fs::write(channel_path.join("enable"), "1")?;
+        fs::write(
+            channel_directory.join("period"),
+            PULSE_PERIOD_NANOSECONDS.to_string(),
+        )?;
+        fs::write(channel_directory.join("enable"), "1")?;
         let mut pulse_channel = Self {
-            channel_path,
+            channel_directory,
             duty_file,
             reversed,
-            last_pulse_ns: 0,
+            last_pulse_nanoseconds: 0,
         };
         pulse_channel.halt()?;
         Ok(pulse_channel)
@@ -52,22 +55,25 @@ impl PulseChannel {
     pub fn drive(&mut self, fraction: f64) -> std::io::Result<f64> {
         let fraction = fraction.clamp(-1.0, 1.0);
         let applied = if self.reversed { -fraction } else { fraction };
-        self.write_pulse_ns(PULSE_NEUTRAL_NS + (applied * PULSE_HALF_RANGE_NS as f64) as i64)?;
+        self.write_pulse_nanoseconds(
+            PULSE_NEUTRAL_NANOSECONDS + (applied * PULSE_HALF_RANGE_NANOSECONDS as f64) as i64,
+        )?;
         Ok(fraction)
     }
 
     pub fn halt(&mut self) -> std::io::Result<()> {
-        self.write_pulse_ns(PULSE_NEUTRAL_NS)
+        self.write_pulse_nanoseconds(PULSE_NEUTRAL_NANOSECONDS)
     }
 
-    fn write_pulse_ns(&mut self, pulse_ns: i64) -> std::io::Result<()> {
-        if pulse_ns == self.last_pulse_ns {
+    fn write_pulse_nanoseconds(&mut self, pulse_nanoseconds: i64) -> std::io::Result<()> {
+        if pulse_nanoseconds == self.last_pulse_nanoseconds {
             return Ok(());
         }
         self.duty_file.seek(SeekFrom::Start(0))?;
-        self.duty_file.write_all(pulse_ns.to_string().as_bytes())?;
+        self.duty_file
+            .write_all(pulse_nanoseconds.to_string().as_bytes())?;
         self.duty_file.flush()?;
-        self.last_pulse_ns = pulse_ns;
+        self.last_pulse_nanoseconds = pulse_nanoseconds;
         Ok(())
     }
 }
@@ -75,22 +81,22 @@ impl PulseChannel {
 impl Drop for PulseChannel {
     fn drop(&mut self) {
         let _ = self.halt();
-        let _ = fs::write(self.channel_path.join("enable"), "0");
+        let _ = fs::write(self.channel_directory.join("enable"), "0");
     }
 }
 
 pub struct PulseDrivetrain {
     left: PulseChannel,
     right: PulseChannel,
-    max_speed_mps: f64,
+    max_speed_meters_per_second: f64,
 }
 
 impl PulseDrivetrain {
-    pub fn new(left: PulseChannel, right: PulseChannel, max_speed_mps: f64) -> Self {
+    pub fn new(left: PulseChannel, right: PulseChannel, max_speed_meters_per_second: f64) -> Self {
         Self {
             left,
             right,
-            max_speed_mps,
+            max_speed_meters_per_second,
         }
     }
 }
@@ -100,8 +106,10 @@ impl WheelDrive for PulseDrivetrain {
         &mut self,
         command: DriveCommand,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        self.left.drive(command.left / self.max_speed_mps)?;
-        self.right.drive(command.right / self.max_speed_mps)?;
+        self.left
+            .drive(command.left / self.max_speed_meters_per_second)?;
+        self.right
+            .drive(command.right / self.max_speed_meters_per_second)?;
         Ok(())
     }
 }
@@ -155,11 +163,14 @@ mod tests {
     fn configures_channel_and_parks_at_neutral() {
         let root = fake_sysfs("configure");
         let _channel = PulseChannel::new(&root, 2, 1, false).unwrap();
-        assert_eq!(read_attribute(&root, "period"), PULSE_PERIOD_NS.to_string());
+        assert_eq!(
+            read_attribute(&root, "period"),
+            PULSE_PERIOD_NANOSECONDS.to_string()
+        );
         assert_eq!(read_attribute(&root, "enable"), "1");
         assert_eq!(
             read_attribute(&root, "duty_cycle"),
-            PULSE_NEUTRAL_NS.to_string()
+            PULSE_NEUTRAL_NANOSECONDS.to_string()
         );
     }
 
@@ -219,7 +230,7 @@ mod tests {
         assert_eq!(read_attribute(&root, "enable"), "0");
         assert_eq!(
             read_attribute(&root, "duty_cycle"),
-            PULSE_NEUTRAL_NS.to_string()
+            PULSE_NEUTRAL_NANOSECONDS.to_string()
         );
     }
 }

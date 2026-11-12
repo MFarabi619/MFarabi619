@@ -16,22 +16,23 @@
 
 from better_launch.convenience import read_robot_description, robot_state_publisher
 from better_launch.gazebo import get_gazebo_axes_args, spawn_model
-from robot_boot.drivetrain_parameters import write_drivetrain_parameters
+from robot_boot.drivetrain_parameters import (
+    CONTROLLER_MANAGER_TIMEOUT_SECONDS, write_drivetrain_parameters_file)
 from robot_boot.urdf import wheel_geometry
-from robot_simulator.gz_bridges import spawn_sim_bridges
+from robot_simulation.gz_bridges import spawn_simulation_bridges
 
 
-def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan=False):
+def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan_enabled=False):
     robot = machine.name
     urdf_path = bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{robot}')
     robot_description = read_robot_description(
         'robot_description/share', 'robot.sim.urdf', subdir=f'urdf/{robot}')
-    control_config_path = bl.find('robot_control', 'control.yaml')
+    control_parameters_file = bl.find('robot_control', 'control.yaml')
     drivetrain = machine.platform.drivetrain
-    drivetrain_parameters_path = write_drivetrain_parameters(
+    drivetrain_parameters_file = write_drivetrain_parameters_file(
         *wheel_geometry(urdf_path), drivetrain.motion_limits(drivetrain.model))
     robot_description = robot_description.replace(
-        'package://robot_control/config/control.yaml', control_config_path)
+        'package://robot_control/config/control.yaml', control_parameters_file)
 
     # Absolute '/robot_description' escaped the per-robot group, so every robot
     # published its urdf to one topic and each spawn raced for whichever landed
@@ -57,12 +58,12 @@ def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan=False):
         executable='spawner',
         name='controller_spawner',
         cmd_args=['joint_state_broadcaster', 'diff_drive_controller',
-                  '--param-file', control_config_path,
-                  '--param-file', drivetrain_parameters_path,
-                  '--controller-manager-timeout', '60',
+                  '--param-file', control_parameters_file,
+                  '--param-file', drivetrain_parameters_file,
+                  '--controller-manager-timeout', CONTROLLER_MANAGER_TIMEOUT_SECONDS,
                   '--controller-ros-args',
                   '-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel'],
         env={'ROS_SUPER_CLIENT': 'True'},
         on_exit=shutdown_if_spawner_failed)
 
-    spawn_sim_bridges(bl, machine, world, robot, depth_scan)
+    spawn_simulation_bridges(bl, machine, world, robot, depth_scan_enabled)

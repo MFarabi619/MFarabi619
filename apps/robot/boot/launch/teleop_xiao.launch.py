@@ -25,9 +25,9 @@ TELEOP_OUTPUT_TOPIC = 'joy_teleop/cmd_vel'
 
 
 @launch_this
-def teleop_xiao(smooth: bool = False):
+def teleop_xiao(smoothing_enabled: bool = False):
     bl = BetterLaunch()
-    if smooth:
+    if smoothing_enabled:
         bl.node(
             package='nav2_velocity_smoother',
             executable='velocity_smoother',
@@ -35,7 +35,7 @@ def teleop_xiao(smooth: bool = False):
             param_files=bl.find('robot_boot', 'velocity_smoother.yaml'),
             remaps={'cmd_vel': SMOOTHER_INPUT_TOPIC, 'cmd_vel_smoothed': TELEOP_OUTPUT_TOPIC},
         )
-    teleop_topic = SMOOTHER_INPUT_TOPIC if smooth else TELEOP_OUTPUT_TOPIC
+    teleop_topic = SMOOTHER_INPUT_TOPIC if smoothing_enabled else TELEOP_OUTPUT_TOPIC
     subprocess.run([
         'ros2', 'run', 'teleop_twist_keyboard', 'teleop_twist_keyboard',
         '--ros-args',

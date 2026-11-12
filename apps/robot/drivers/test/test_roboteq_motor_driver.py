@@ -260,7 +260,7 @@ def test_fault_flags_mark_both_drivers_faulted(make_roboteq_driver):
     assert right.bridge_temperature == pytest.approx(41.0)
 
 
-def test_diagnostics_report_volts_amps_and_loop_error(make_roboteq_driver):
+def test_diagnostics_report_volts_amperes_and_loop_error(make_roboteq_driver):
     node, port = make_roboteq_driver()
     capture(node)
     diagnostics = capture_diagnostics(node)
@@ -274,14 +274,14 @@ def test_diagnostics_report_volts_amps_and_loop_error(make_roboteq_driver):
     assert values['five_volt_rail'] == '4.73'
     assert values['mcu_temperature'] == '35.0'
     channel_1_values = {entry.key: entry.value for entry in channel_1.values}
-    assert channel_1_values['battery_amps'] == '3.1'
+    assert channel_1_values['battery_amperes'] == '3.1'
     assert channel_1_values['loop_error_rpm'] == '12'
     assert channel_1_values['hall_sensor_errors'] == '3'
-    assert channel_1_values['peak_amps'] == '6.1'
-    assert channel_1_values['foc_flux_amps'] == '0.2'
-    assert channel_1_values['foc_torque_amps'] == '3.0'
+    assert channel_1_values['peak_amperes'] == '6.1'
+    assert channel_1_values['foc_flux_amperes'] == '0.2'
+    assert channel_1_values['foc_torque_amperes'] == '3.0'
     assert 'motor stalled' in channel_1.message
-    assert channel_2.values[0].key == 'motor_amps'
+    assert channel_2.values[0].key == 'motor_amperes'
 
 
 def test_power_stage_off_warns_on_controller_status(make_roboteq_driver):

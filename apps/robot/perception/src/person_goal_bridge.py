@@ -30,7 +30,7 @@ import tf2_geometry_msgs  # noqa: F401
 from tf2_ros import Buffer, TransformListener
 from vision_msgs.msg import Detection2DArray
 
-TRANSFORM_TIMEOUT = Duration(seconds=0.2)
+TRANSFORM_TIMEOUT_SECONDS = 0.2
 
 
 class PersonGoalBridge(Node):
@@ -85,7 +85,7 @@ class PersonGoalBridge(Node):
         pose.pose.orientation.w = 1.0
         try:
             goal_pose = self.tf_buffer.transform(
-                pose, self.goal_frame, timeout=TRANSFORM_TIMEOUT)
+                pose, self.goal_frame, timeout=Duration(seconds=TRANSFORM_TIMEOUT_SECONDS))
             base_transform = self.tf_buffer.lookup_transform(
                 self.goal_frame, self.base_frame, rclpy.time.Time())
         except Exception as error:
@@ -93,12 +93,12 @@ class PersonGoalBridge(Node):
                 f'transform to {self.goal_frame} failed: {error}',
                 throttle_duration_sec=5.0)
             return None
-        heading = math.atan2(
+        heading_radians = math.atan2(
             goal_pose.pose.position.y - base_transform.transform.translation.y,
             goal_pose.pose.position.x - base_transform.transform.translation.x)
         goal_pose.pose.position.z = 0.0
-        goal_pose.pose.orientation.z = math.sin(heading / 2.0)
-        goal_pose.pose.orientation.w = math.cos(heading / 2.0)
+        goal_pose.pose.orientation.z = math.sin(heading_radians / 2.0)
+        goal_pose.pose.orientation.w = math.cos(heading_radians / 2.0)
         return goal_pose
 
     def best_person_point(self, message):

@@ -23,8 +23,8 @@ from sensor_msgs.msg import CameraInfo
 from std_srvs.srv import SetBool
 from vision_msgs.msg import BoundingBox2D, Detection2D, Detection2DArray, Point2D, Pose2D
 
-IMAGE_WIDTH = 640
-IMAGE_CENTER_X = IMAGE_WIDTH / 2.0
+IMAGE_WIDTH_PIXELS = 640
+IMAGE_CENTER_X_PIXELS = IMAGE_WIDTH_PIXELS / 2.0
 
 
 def surface_detections(*centers):
@@ -47,7 +47,7 @@ def capture(node):
     return twists
 
 
-def report_camera_width(node, width=IMAGE_WIDTH):
+def report_camera_width(node, width=IMAGE_WIDTH_PIXELS):
     message = CameraInfo(width=width, height=400)
     message.k = [282.726, 0.0, width / 2.0,
                  0.0, 282.599, 202.800,
@@ -67,7 +67,7 @@ def age_latest_surface_time(node, seconds):
 def test_follows_centered_surface(surface_follow_node):
     twists = capture(surface_follow_node)
     report_camera_width(surface_follow_node)
-    send_detections(surface_follow_node, surface_detections(IMAGE_CENTER_X))
+    send_detections(surface_follow_node, surface_detections(IMAGE_CENTER_X_PIXELS))
     assert twists[0].twist.linear.x == pytest.approx(0.4)
     assert twists[0].twist.angular.z == pytest.approx(0.0)
 
@@ -90,7 +90,7 @@ def test_steers_toward_surface_left_of_center(surface_follow_node):
 def test_tracks_centermost_surface(surface_follow_node):
     twists = capture(surface_follow_node)
     report_camera_width(surface_follow_node)
-    send_detections(surface_follow_node, surface_detections(80.0, IMAGE_CENTER_X))
+    send_detections(surface_follow_node, surface_detections(80.0, IMAGE_CENTER_X_PIXELS))
     assert twists[0].twist.angular.z == pytest.approx(0.0)
 
 
@@ -159,7 +159,9 @@ def test_floors_a_zero_timeout_instead_of_freezing(surface_follow_node):
 
 
 def test_rejects_non_finite_parameters(surface_follow_node):
-    for name in ('forward_speed', 'max_angular_speed', 'surface_timeout_seconds'):
+    for name in (
+            'forward_speed_meters_per_second', 'max_angular_speed_radians_per_second',
+            'surface_timeout_seconds'):
         for value in (float('nan'), float('inf')):
             result = surface_follow_node.set_parameters(
                 [rclpy.parameter.Parameter(name, value=value)])
@@ -168,8 +170,8 @@ def test_rejects_non_finite_parameters(surface_follow_node):
 
 def test_publishes_zero_even_when_speeds_are_not_finite(surface_follow_node):
     twists = capture(surface_follow_node)
-    surface_follow_node.forward_speed = float('nan')
-    surface_follow_node.max_angular_speed = float('nan')
+    surface_follow_node.forward_speed_meters_per_second = float('nan')
+    surface_follow_node.max_angular_speed_radians_per_second = float('nan')
     surface_follow_node.halt()
     surface_follow_node.drive(1.0, 1.0)
     assert all(
@@ -223,7 +225,7 @@ def surface_run(center_x, width, center_y=380.0):
 def test_follows_the_surface_underfoot_not_the_one_nearer_frame_centre(
         surface_follow_node):
     report_camera_width(surface_follow_node)
-    surface_follow_node.lateral_offset_m = 0.35
+    surface_follow_node.lateral_offset_meters = 0.35
     underfoot = surface_run(400.0, 400.0)
     neighbour = surface_run(250.0, 60.0)
     alone = surface_follow_node.center_error([underfoot])
@@ -234,8 +236,8 @@ def test_follows_the_surface_underfoot_not_the_one_nearer_frame_centre(
 def test_follows_the_surface_underfoot_not_the_one_sitting_on_the_target(
         surface_follow_node):
     report_camera_width(surface_follow_node)
-    surface_follow_node.lateral_offset_m = 0.35
-    underfoot = surface_run(IMAGE_CENTER_X, 120.0)
+    surface_follow_node.lateral_offset_meters = 0.35
+    underfoot = surface_run(IMAGE_CENTER_X_PIXELS, 120.0)
     on_target = surface_run(147.0, 60.0)
     alone = surface_follow_node.center_error([underfoot])
     together = surface_follow_node.center_error([underfoot, on_target])
@@ -246,29 +248,29 @@ def test_follows_the_surface_underfoot_not_the_one_sitting_on_the_target(
 def test_riding_right_of_centre_steers_right_of_a_centred_surface(surface_follow_node):
     twists = capture(surface_follow_node)
     report_camera_width(surface_follow_node)
-    surface_follow_node.lateral_offset_m = 0.35
-    send_detections(surface_follow_node, surface_detections(IMAGE_CENTER_X))
+    surface_follow_node.lateral_offset_meters = 0.35
+    send_detections(surface_follow_node, surface_detections(IMAGE_CENTER_X_PIXELS))
     assert twists[-1].twist.angular.z < 0.0
 
 
 def test_uncalibrated_camera_applies_no_lateral_bias(surface_follow_node):
-    surface_follow_node.lateral_offset_m = 0.35
-    surface_follow_node.on_camera_info(CameraInfo(width=IMAGE_WIDTH, height=400))
+    surface_follow_node.lateral_offset_meters = 0.35
+    surface_follow_node.on_camera_info(CameraInfo(width=IMAGE_WIDTH_PIXELS, height=400))
     assert surface_follow_node.focal_length_x is None
     assert surface_follow_node.target_offset(390.0) == 0.0
 
 
 def test_unusable_camera_height_applies_no_lateral_bias(surface_follow_node):
     report_camera_width(surface_follow_node)
-    surface_follow_node.lateral_offset_m = 0.35
+    surface_follow_node.lateral_offset_meters = 0.35
     for height in (0.0, -0.4):
-        surface_follow_node.camera_height_m = height
+        surface_follow_node.camera_height_meters = height
         assert surface_follow_node.target_offset(390.0) == 0.0
 
 
 def test_rows_above_the_horizon_apply_no_lateral_bias(surface_follow_node):
     report_camera_width(surface_follow_node)
-    surface_follow_node.lateral_offset_m = 0.35
+    surface_follow_node.lateral_offset_meters = 0.35
     above = surface_follow_node.principal_point_y - 1.0
     assert surface_follow_node.target_offset(above) == 0.0
 
@@ -276,7 +278,7 @@ def test_rows_above_the_horizon_apply_no_lateral_bias(surface_follow_node):
 def test_lateral_offset_shrinks_in_pixels_as_the_surface_gets_further_away(
         surface_follow_node):
     report_camera_width(surface_follow_node)
-    surface_follow_node.lateral_offset_m = 0.35
+    surface_follow_node.lateral_offset_meters = 0.35
     near = abs(surface_follow_node.target_offset(390.0))
     far = abs(surface_follow_node.target_offset(260.0))
     assert 0.0 < far < near
@@ -315,7 +317,7 @@ def test_disable_publishes_stop(surface_follow_node):
 def test_never_commands_reverse(surface_follow_node):
     twists = capture(surface_follow_node)
     report_camera_width(surface_follow_node)
-    surface_follow_node.lateral_offset_m = 30.0
+    surface_follow_node.lateral_offset_meters = 30.0
     send_detections(surface_follow_node, surface_detections(480.0))
     assert twists[-1].twist.linear.x == pytest.approx(0.0)
 
@@ -323,7 +325,7 @@ def test_never_commands_reverse(surface_follow_node):
 def test_negative_forward_speed_never_commands_reverse(surface_follow_node):
     twists = capture(surface_follow_node)
     report_camera_width(surface_follow_node)
-    surface_follow_node.forward_speed = -0.5
+    surface_follow_node.forward_speed_meters_per_second = -0.5
     send_detections(surface_follow_node, surface_detections(480.0))
     surface_follow_node.halt()
     assert all(twist.twist.linear.x >= 0.0 for twist in twists)
@@ -334,4 +336,5 @@ def test_clamps_angular_speed(surface_follow_node):
     report_camera_width(surface_follow_node)
     surface_follow_node.steer_gain = 100.0
     send_detections(surface_follow_node, surface_detections(0.0))
-    assert abs(twists[-1].twist.angular.z) <= surface_follow_node.max_angular_speed
+    assert (abs(twists[-1].twist.angular.z)
+            <= surface_follow_node.max_angular_speed_radians_per_second)

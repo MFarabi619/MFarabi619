@@ -71,11 +71,11 @@ def test_playback_carries_the_synthesis_format(
     audio_messages = capture(voice_speaker_node)
     recording_synthesizers(voice_speaker_node)
     voice_speaker_node.on_speech(spoken('acknowledged'))
-    info = audio_messages[0].audio.info
-    assert info.format == voice_speaker_module.PORTAUDIO_FLOAT32
-    assert info.channels == 1
-    assert info.rate == CannedSynthesis.sample_rate
-    assert info.chunk == len(CannedSynthesis.samples)
+    audio_info = audio_messages[0].audio.info
+    assert audio_info.format == voice_speaker_module.PORTAUDIO_FLOAT32
+    assert audio_info.channels == 1
+    assert audio_info.rate == CannedSynthesis.sample_rate
+    assert audio_info.chunk == len(CannedSynthesis.samples)
 
 
 def test_empty_text_is_not_spoken(voice_speaker_node):

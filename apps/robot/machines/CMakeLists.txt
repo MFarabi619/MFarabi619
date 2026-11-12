@@ -9,12 +9,15 @@ install(
   DIRECTORY src/ DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
   FILES_MATCHING PATTERN "*.py")
 install(DIRECTORY ../elec/boards DESTINATION share/${PROJECT_NAME})
-file(GLOB machine_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-  */robot.yaml */motions.yaml */params/*.yaml)
-foreach(machine_file ${machine_files})
-  get_filename_component(machine ${machine_file} DIRECTORY)
-  install(FILES ${machine_file} DESTINATION share/${PROJECT_NAME}/${machine})
-endforeach()
+install(
+  DIRECTORY . DESTINATION share/${PROJECT_NAME}
+  FILES_MATCHING
+  PATTERN "robot.yaml"
+  PATTERN "motions.yaml"
+  PATTERN "src" EXCLUDE
+  PATTERN "test" EXCLUDE
+  PATTERN "maps" EXCLUDE
+  PATTERN "__pycache__" EXCLUDE)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

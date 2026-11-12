@@ -14,9 +14,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import json
+from pathlib import Path
+
 import pytest
 
-from robot_machines.machine import MachineError, load_machine, machine_names
+from robot_machines.machine import (
+    CAMERA_MODELS, GPS_MODELS, IMU_MODELS, MachineError, load_machine, machine_names)
+from robot_machines.schema import SCHEMA_PATH, robot_schema
+
+DRIVER_LAUNCH_DIRECTORY = Path(__file__).resolve().parents[2] / 'drivers' / 'launch'
+SCHEMA_MODELINE = '# yaml-language-server: $schema=../robot.schema.json'
 
 
 @pytest.mark.parametrize('name', machine_names())
@@ -45,36 +53,63 @@ def test_missing_machine_file_is_named(tmp_path):
 def test_two_nav2_owners_are_refused(tmp_path):
     write_machine(
         tmp_path, 'twice',
-        'platform: {}\nbehaviors: {follow_nav2: true, gps_navigation: true}\n')
+        'platform: {}\nbehaviors: {nav2_person_follow: true, gps_navigation: true}\n')
     with pytest.raises(MachineError, match='enable one'):
         load_machine('twice', tmp_path)
+
+
+def test_unknown_sensor_models_are_listed_against_the_known_ones(tmp_path):
+    write_machine(tmp_path, 'typo', 'platform: {}\nsensors:\n  camera:\n    - {model: oak_d}\n')
+    with pytest.raises(MachineError, match="Input should be 'luxonis_oak_d_sr'.*'stereolabs_zed'"):
+        load_machine('typo', tmp_path)
+
+
+@pytest.mark.parametrize('model', CAMERA_MODELS + IMU_MODELS + GPS_MODELS)
+def test_every_sensor_model_has_a_driver_launch_file(model):
+    assert (DRIVER_LAUNCH_DIRECTORY / f'{model}.launch.py').is_file()
 
 
 def test_sensors_are_named_by_index(tmp_path):
     write_machine(
         tmp_path, 'eyes',
-        'platform: {}\nsensors:\n  camera:\n    - {model: oak_d_sr}\n'
+        'platform: {}\nsensors:\n  camera:\n    - {model: luxonis_oak_d_sr}\n'
         '    - {model: orbbec_gemini_335l, parameters: {enable_depth: true}}\n')
     cameras = load_machine('eyes', tmp_path).sensors.camera
     assert [camera.name for camera in cameras] == ['camera_0', 'camera_1']
 
 
 def test_depth_camera_prefers_oak_then_orbbec_then_zed():
-    assert load_machine('jiro').depth_camera.model == 'oak_d_pro_w_poe'
+    assert load_machine('jiro').depth_camera.model == 'luxonis_oak_d_pro_w_poe'
     assert load_machine('taro').depth_camera.model == 'orbbec_gemini_335l'
-    assert load_machine('kinova-link-6').depth_camera.model == 'zed_2'
+    assert load_machine('kinova-link-6').depth_camera.model == 'stereolabs_zed'
     assert load_machine('pocketbeagle-2').depth_camera is None
 
 
-def test_on_camera_detection_follows_the_camera_model():
+def test_has_on_camera_detector_follows_the_camera_model():
     assert load_machine('kinova-link-6').depth_camera.has_on_camera_detector
     assert not load_machine('jiro').depth_camera.has_on_camera_detector
 
 
-def test_params_files_are_per_machine_and_optional():
-    assert load_machine('jiro').params_file('line_follow').endswith(
-        'jiro/params/line_follow.yaml')
-    assert load_machine('taro').params_file('line_follow') == ''
+def test_committed_schema_matches_the_model():
+    assert json.loads(SCHEMA_PATH.read_text()) == robot_schema()
+
+
+@pytest.mark.parametrize('name', machine_names())
+def test_every_machine_file_points_editors_at_the_schema(name):
+    first_line = (SCHEMA_PATH.parent / name / 'robot.yaml').read_text().splitlines()[0]
+    assert first_line == SCHEMA_MODELINE
+
+
+def test_domains_follow_the_hardware_and_behaviors():
+    assert load_machine('taro').domains == ('platform', 'sensors', 'perception', 'navigation')
+    assert load_machine('kinova-link-6').domains == ('sensors', 'perception', 'manipulation')
+    assert load_machine('pocketbeagle-2').domains == ('platform',)
+
+
+def test_node_tuning_is_keyed_by_node_name():
+    assert load_machine('jiro').ros_parameters['line_follow'] == {'image_width_pixels': 640}
+    assert 'line_follow' not in load_machine('taro').ros_parameters
+    assert load_machine('pocketbeagle-2').ros_parameters == {}
 
 
 def test_model_scoped_motion_limits_override_the_drivetrain_limits():
@@ -91,10 +126,10 @@ def test_arm_only_machine_has_no_platform():
     assert not load_machine('taro').has_arm
 
 
-def test_camera_queries():
+def test_camera_queries_by_model():
     kinova = load_machine('kinova-link-6')
-    assert kinova.has_zed_camera
-    assert kinova.first_enabled_camera('zed_2').name == 'camera_0'
+    assert kinova.has_stereolabs_zed
+    assert kinova.first_enabled_camera('stereolabs_zed').name == 'camera_0'
     assert load_machine('pocketbeagle-2').enabled_cameras == []
 
 

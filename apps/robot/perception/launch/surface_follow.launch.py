@@ -16,20 +16,20 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
 def surface_follow(
     surface: str = 'sidewalk',
     camera: str = 'camera_0',
-    camera_height_m: float = 0.0,
+    camera_height_meters: float = 0.0,
     start_enabled: bool = False,
     params_file: str = '',
     overrides_file: str = '',
 ):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_perception', 'surface_follow.yaml')
     param_files = [params_file] + ([overrides_file] if overrides_file else [])
     detections_topic = f'perception/{surface}/detections'
@@ -53,7 +53,7 @@ def surface_follow(
         params={
             'detections_topic': detections_topic,
             'camera_info_topic': f'sensors/{camera}/color/camera_info',
-            'camera_height_m': camera_height_m,
+            'camera_height_meters': camera_height_meters,
             'start_enabled': start_enabled,
         },
         param_files=param_files,

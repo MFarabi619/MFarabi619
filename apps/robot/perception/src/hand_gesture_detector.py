@@ -64,7 +64,12 @@ TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.65)
 
 MOTION_EPSILON = 0.02
 LABEL_MARGIN_PIXELS = 8.0
-LABEL_FONT_SIZE = 18.0
+LABEL_FONT_SIZE_PIXELS = 18.0
+BOX_THICKNESS_PIXELS = 3.0
+CONNECTION_THICKNESS_PIXELS = 2.0
+LANDMARK_THICKNESS_PIXELS = 5.0
+MILLISECONDS_PER_SECOND = 1000
+NANOSECONDS_PER_MILLISECOND = 1_000_000
 
 
 def with_alpha(color, alpha):
@@ -83,7 +88,7 @@ class HandGestureDetector(Node):
         overlay_topic = self.declare_parameter(
             'overlay_topic', 'perception/gestures/overlay'
         ).value
-        model_path = self.declare_parameter('model', DEFAULT_MODEL_PATH).value
+        model_path = self.declare_parameter('model_path', DEFAULT_MODEL_PATH).value
         num_hands = self.declare_parameter('num_hands', 1).value
         min_hand_detection_confidence = self.declare_parameter(
             'min_hand_detection_confidence', 0.5).value
@@ -99,9 +104,9 @@ class HandGestureDetector(Node):
             ),
         )
         self.recognizer = vision.GestureRecognizer.create_from_options(options)
-        self.last_timestamp_ms = 0
-        self.forward_speed = 0.0
-        self.turn_speed = 0.0
+        self.last_timestamp_milliseconds = 0
+        self.forward_speed_meters_per_second = 0.0
+        self.angular_speed_radians_per_second = 0.0
 
         self.is_enabled = self.declare_parameter('start_enabled', False).value
         self.detections_publisher = self.create_publisher(
@@ -123,18 +128,18 @@ class HandGestureDetector(Node):
         )
 
     def on_cmd_vel(self, message):
-        self.forward_speed = message.twist.linear.x
-        self.turn_speed = message.twist.angular.z
+        self.forward_speed_meters_per_second = message.twist.linear.x
+        self.angular_speed_radians_per_second = message.twist.angular.z
 
     def motion_style(self):
-        if abs(self.forward_speed) > MOTION_EPSILON:
-            if self.forward_speed > 0.0:
-                return FORWARD_COLOR, f'▲ FORWARD  {self.forward_speed:.1f} m/s'
-            return REVERSE_COLOR, f'▼ REVERSE  {abs(self.forward_speed):.1f} m/s'
-        if abs(self.turn_speed) > MOTION_EPSILON:
-            if self.turn_speed > 0.0:
-                return TURN_COLOR, f'◀ LEFT  {self.turn_speed:.1f} rad/s'
-            return TURN_COLOR, f'▶ RIGHT  {abs(self.turn_speed):.1f} rad/s'
+        if abs(self.forward_speed_meters_per_second) > MOTION_EPSILON:
+            if self.forward_speed_meters_per_second > 0.0:
+                return FORWARD_COLOR, f'▲ FORWARD  {self.forward_speed_meters_per_second:.1f} m/s'
+            return REVERSE_COLOR, f'▼ REVERSE  {abs(self.forward_speed_meters_per_second):.1f} m/s'
+        if abs(self.angular_speed_radians_per_second) > MOTION_EPSILON:
+            if self.angular_speed_radians_per_second > 0.0:
+                return TURN_COLOR, f'◀ LEFT  {self.angular_speed_radians_per_second:.1f} rad/s'
+            return TURN_COLOR, f'▶ RIGHT  {abs(self.angular_speed_radians_per_second):.1f} rad/s'
         return STOP_COLOR, '■ STOP'
 
     def on_enable(self, request, response):
@@ -150,12 +155,14 @@ class HandGestureDetector(Node):
         if rgb is None:
             return
         stamp = message.header.stamp
-        timestamp_ms = max(
-            self.last_timestamp_ms + 1, stamp.sec * 1000 + stamp.nanosec // 1_000_000
+        timestamp_milliseconds = max(
+            self.last_timestamp_milliseconds + 1,
+            stamp.sec * MILLISECONDS_PER_SECOND
+            + stamp.nanosec // NANOSECONDS_PER_MILLISECOND,
         )
-        self.last_timestamp_ms = timestamp_ms
+        self.last_timestamp_milliseconds = timestamp_milliseconds
         result = self.recognizer.recognize_for_video(
-            mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), timestamp_ms
+            mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), timestamp_milliseconds
         )
 
         color, motion_label = self.motion_style()
@@ -213,7 +220,7 @@ class HandGestureDetector(Node):
             Point2(x=x0, y=y1),
         ]
         annotation.outline_color = color
-        annotation.thickness = 3.0
+        annotation.thickness = BOX_THICKNESS_PIXELS
         return annotation
 
     def connections(self, stamp, landmarks, width, height, color):
@@ -226,7 +233,7 @@ class HandGestureDetector(Node):
                 points.append(Point2(x=landmarks[index].x * width, y=landmarks[index].y * height))
         annotation.points = points
         annotation.outline_color = with_alpha(color, 0.85)
-        annotation.thickness = 2.0
+        annotation.thickness = CONNECTION_THICKNESS_PIXELS
         return annotation
 
     def landmark_points(self, stamp, landmarks, width, height):
@@ -238,7 +245,7 @@ class HandGestureDetector(Node):
             for landmark in landmarks
         ]
         annotation.outline_color = LANDMARK_COLOR
-        annotation.thickness = 5.0
+        annotation.thickness = LANDMARK_THICKNESS_PIXELS
         return annotation
 
     def label(self, stamp, x0, y0, text, color):
@@ -246,7 +253,7 @@ class HandGestureDetector(Node):
         annotation.timestamp = stamp
         annotation.position = Point2(x=x0, y=max(y0 - LABEL_MARGIN_PIXELS, 0.0))
         annotation.text = text
-        annotation.font_size = LABEL_FONT_SIZE
+        annotation.font_size = LABEL_FONT_SIZE_PIXELS
         annotation.text_color = color
         annotation.background_color = TEXT_BACKGROUND_COLOR
         return annotation

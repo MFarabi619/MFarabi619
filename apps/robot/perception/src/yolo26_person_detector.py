@@ -52,6 +52,8 @@ TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 
 LABEL_MARGIN_PIXELS = 8.0
+LABEL_FONT_SIZE_PIXELS = 18.0
+BOX_THICKNESS_PIXELS = 2.0
 MILLIMETERS_PER_METER = 1000.0
 MILLIMETER_DEPTH_ENCODING = '16UC1'
 METER_DEPTH_ENCODING = '32FC1'
@@ -60,7 +62,7 @@ BYTES_PER_METER_DEPTH_PIXEL = 4
 LIVE_PARAMETERS = frozenset({'min_score'})
 
 
-class PersonDetector(Node):
+class Yolo26PersonDetector(Node):
     def __init__(self):
         super().__init__('person_detector')
         self.image_topic = self.declare_parameter(
@@ -82,7 +84,8 @@ class PersonDetector(Node):
         self.class_label = self.declare_parameter('class_label', 'person').value
         self.person_class_id = self.declare_parameter('person_class_id', 0).value
         self.min_score = self.declare_parameter('min_score', 0.5).value
-        self.depth_sample_radius = self.declare_parameter('depth_sample_radius', 4).value
+        self.depth_sample_radius_pixels = self.declare_parameter(
+            'depth_sample_radius_pixels', 4).value
         self.depth_timeout_seconds = self.declare_parameter(
             'depth_timeout_seconds', 0.5).value
         self.device = self.declare_parameter('device', 'mps').value
@@ -187,7 +190,7 @@ class PersonDetector(Node):
         depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
         depth_x = int(center_x_fraction * depth_width)
         depth_y = int(center_y_fraction * depth_height)
-        radius = self.depth_sample_radius
+        radius = self.depth_sample_radius_pixels
         depth_patch = self.latest_depth_millimeters[
             max(depth_y - radius, 0):depth_y + radius + 1,
             max(depth_x - radius, 0):depth_x + radius + 1,
@@ -245,7 +248,7 @@ class PersonDetector(Node):
             Point2(x=left, y=bottom),
         ]
         outline.outline_color = PERSON_COLOR
-        outline.thickness = 2.0
+        outline.thickness = BOX_THICKNESS_PIXELS
         overlay.points.append(outline)
         label = TextAnnotation()
         label.timestamp = stamp
@@ -256,7 +259,7 @@ class PersonDetector(Node):
             f'{self.class_label} {track_id}' if track_id is not None
             else self.class_label)
         label.text = f'{identity_text} {distance_text}'
-        label.font_size = 18.0
+        label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR
         label.background_color = TEXT_BACKGROUND_COLOR
         overlay.texts.append(label)
@@ -269,7 +272,7 @@ class PersonDetector(Node):
 
 def main():
     rclpy.init()
-    node = PersonDetector()
+    node = Yolo26PersonDetector()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

@@ -33,25 +33,25 @@ from adafruit_bno08x import (
 from adafruit_bno08x.i2c import BNO08X_I2C
 from adafruit_extended_bus import ExtendedI2C
 
-MEDIUM_REPORT_INTERVAL_US = 100_000
-SLOW_REPORT_INTERVAL_US = 1_000_000
+MEDIUM_REPORT_INTERVAL_MICROSECONDS = 100_000
+SLOW_REPORT_INTERVAL_MICROSECONDS = 1_000_000
 
 
 class AdafruitBno085:
-    def __init__(self, i2c_bus, i2c_address, fast_interval_us):
-        self.fast_interval_us = fast_interval_us
+    def __init__(self, i2c_bus, i2c_address, fast_interval_microseconds):
+        self.fast_interval_microseconds = fast_interval_microseconds
         self.device = BNO08X_I2C(ExtendedI2C(i2c_bus), address=i2c_address)
         self.configure_features()
 
     def configure_features(self):
         for feature in (BNO_REPORT_ACCELEROMETER, BNO_REPORT_GYROSCOPE,
                         BNO_REPORT_ROTATION_VECTOR):
-            self.device.enable_feature(feature, self.fast_interval_us)
+            self.device.enable_feature(feature, self.fast_interval_microseconds)
         for feature in (BNO_REPORT_MAGNETOMETER, BNO_REPORT_LINEAR_ACCELERATION):
-            self.device.enable_feature(feature, MEDIUM_REPORT_INTERVAL_US)
+            self.device.enable_feature(feature, MEDIUM_REPORT_INTERVAL_MICROSECONDS)
         for feature in (BNO_REPORT_STABILITY_CLASSIFIER, BNO_REPORT_ACTIVITY_CLASSIFIER,
                         BNO_REPORT_STEP_COUNTER, BNO_REPORT_SHAKE_DETECTOR):
-            self.device.enable_feature(feature, SLOW_REPORT_INTERVAL_US)
+            self.device.enable_feature(feature, SLOW_REPORT_INTERVAL_MICROSECONDS)
 
     def soft_reset(self):
         self.device.soft_reset()

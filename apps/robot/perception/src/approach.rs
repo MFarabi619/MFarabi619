@@ -24,13 +24,13 @@ use super::{
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 const LOG_STRIDE_FRAMES: u64 = 15;
-const LABEL_SIZE: f64 = 28.0;
+const LABEL_FONT_SIZE_PIXELS: f64 = 28.0;
 // Normalized forward command while approaching — deliberately gentle.
 const FORWARD_SPEED: f64 = 0.35;
 
 pub struct Config {
-    pub hue_min: f64,
-    pub hue_max: f64,
+    pub min_hue: f64,
+    pub max_hue: f64,
     pub min_saturation: f64,
     pub min_value: f64,
     // The near-field band as a fraction of the frame height — the ground right in front of the robot.
@@ -42,8 +42,8 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            hue_min: 70.0,
-            hue_max: 165.0,
+            min_hue: 70.0,
+            max_hue: 165.0,
             min_saturation: 0.25,
             min_value: 0.20,
             near_roi_top_fraction: 0.75,
@@ -58,8 +58,8 @@ pub struct GreenGate {
 }
 
 fn is_green(hue: f64, saturation: f64, value: f64, config: &Config) -> bool {
-    hue >= config.hue_min
-        && hue <= config.hue_max
+    hue >= config.min_hue
+        && hue <= config.max_hue
         && saturation >= config.min_saturation
         && value >= config.min_value
 }
@@ -107,7 +107,7 @@ fn overlay(gate: &GreenGate, config: &Config, width: usize, height: usize) -> Im
     };
     annotations
         .texts
-        .push(label(text, 8.0, band.min_y - LABEL_SIZE, status_color));
+        .push(label(text, 8.0, band.min_y - LABEL_FONT_SIZE_PIXELS, status_color));
     annotations
 }
 

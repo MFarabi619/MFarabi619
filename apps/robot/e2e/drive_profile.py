@@ -19,13 +19,13 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-LINEAR_MAX_VELOCITY = 2.0
-ANGULAR_MAX_VELOCITY = 3.0
-LINEAR_MAX_ACCELERATION = 8.0
-LINEAR_MAX_JERK = 60.0
+LINEAR_MAX_VELOCITY_METERS_PER_SECOND = 2.0
+ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND = 3.0
+LINEAR_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 8.0
+LINEAR_MAX_JERK_METERS_PER_SECOND_CUBED = 60.0
 
-RAMP_LINEAR_ACCELERATION = 1.5
-RAMP_ANGULAR_ACCELERATION = 2.5
+RAMP_LINEAR_ACCELERATION_METERS_PER_SECOND_SQUARED = 1.5
+RAMP_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 2.5
 
 CONTROL_RATE_HZ = 50.0
 RENDER_RATE_HZ = 15.0
@@ -33,12 +33,12 @@ SETTLE_WINDOW_SECONDS = 0.75
 ODOM_TIMEOUT_SECONDS = 15.0
 MOTION_EPSILON = 0.02
 
-SETTLE_LINEAR_TOLERANCE = 0.12
-SETTLE_ANGULAR_TOLERANCE = 0.2
-ACCELERATION_TOLERANCE_FRACTION = 0.25
-ACCELERATION_CEILING_FRACTION = 1.15
+SETTLE_LINEAR_TOLERANCE_METERS_PER_SECOND = 0.12
+SETTLE_ANGULAR_TOLERANCE_RADIANS_PER_SECOND = 0.2
+ACCELERATION_LOWER_TOLERANCE_FRACTION = 0.25
+ACCELERATION_UPPER_TOLERANCE_FRACTION = 1.15
 
-PROGRESS_BAR_WIDTH = 30
+PROGRESS_BAR_WIDTH_CHARACTERS = 30
 SPARK_SAMPLE_COUNT = 48
 
 FORWARD_COLOR = "#b8bb26"
@@ -75,18 +75,24 @@ class PhaseResult:
 
 
 PHASES = [
-    Phase("ramp up", "ramp", LINEAR_MAX_VELOCITY, 0.0, 1.6, 2.0, "linear"),
+    Phase("ramp up", "ramp", LINEAR_MAX_VELOCITY_METERS_PER_SECOND, 0.0, 1.6, 2.0, "linear"),
     Phase("ramp down", "ramp", 0.0, 0.0, 1.6, 1.0, "linear"),
-    Phase("reverse", "ramp", -LINEAR_MAX_VELOCITY, 0.0, 1.6, 2.0, "linear"),
+    Phase("reverse", "ramp", -LINEAR_MAX_VELOCITY_METERS_PER_SECOND, 0.0, 1.6, 2.0, "linear"),
     Phase("halt", "ramp", 0.0, 0.0, 1.4, 0.6, "none"),
-    Phase("spin ccw", "ramp", 0.0, ANGULAR_MAX_VELOCITY, 1.3, 2.0, "angular"),
-    Phase("spin cw", "ramp", 0.0, -ANGULAR_MAX_VELOCITY, 1.3, 2.0, "angular"),
+    Phase("spin ccw", "ramp", 0.0, ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND, 1.3, 2.0, "angular"),
+    Phase("spin cw", "ramp", 0.0, -ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND, 1.3, 2.0, "angular"),
     Phase("halt", "ramp", 0.0, 0.0, 1.4, 0.6, "none"),
     Phase("arc left", "ramp", 1.0, 1.0, 1.3, 2.0, "arc"),
     Phase("arc right", "ramp", 1.0, -1.0, 1.3, 2.0, "arc"),
     Phase("halt", "ramp", 0.0, 0.0, 1.4, 0.6, "none"),
-    Phase("fast reversal", "swing", LINEAR_MAX_VELOCITY, 0.0, 0.0, 4.0, "swing", swing_seconds=0.5),
-    Phase("acceleration probe", "swing", LINEAR_MAX_VELOCITY, 0.0, 0.0, 5.0, "acceleration", swing_seconds=1.6),
+    Phase(
+        "fast reversal", "swing", LINEAR_MAX_VELOCITY_METERS_PER_SECOND, 0.0, 0.0, 4.0,
+        "swing", swing_seconds=0.5,
+    ),
+    Phase(
+        "acceleration probe", "swing", LINEAR_MAX_VELOCITY_METERS_PER_SECOND, 0.0, 0.0, 5.0,
+        "acceleration", swing_seconds=1.6,
+    ),
     Phase("halt", "ramp", 0.0, 0.0, 1.2, 1.0, "none"),
 ]
 
@@ -151,21 +157,21 @@ class DriveProfile(Node):
             return
 
         phase = PHASES[self.phase_index]
-        elapsed = (now - self.phase_start).nanoseconds * 1e-9
-        target_linear, target_angular = self.target(phase, elapsed)
+        elapsed_seconds = (now - self.phase_start).nanoseconds * 1e-9
+        target_linear, target_angular = self.target(phase, elapsed_seconds)
         self.step_command(phase, target_linear, target_angular)
         self.publish()
 
-        if elapsed >= phase.duration_seconds:
+        if elapsed_seconds >= phase.duration_seconds:
             self.verify(phase)
             self.phase_index += 1
             self.phase_start = now
             if self.phase_index >= len(PHASES):
                 self.finish()
 
-    def target(self, phase, elapsed):
+    def target(self, phase, elapsed_seconds):
         if phase.kind == "swing":
-            sign = 1.0 if int(elapsed / phase.swing_seconds) % 2 == 0 else -1.0
+            sign = 1.0 if int(elapsed_seconds / phase.swing_seconds) % 2 == 0 else -1.0
             return sign * phase.linear, phase.angular
         return phase.linear, phase.angular
 
@@ -174,9 +180,11 @@ class DriveProfile(Node):
             self.command_linear = target_linear
             self.command_angular = target_angular
             return
-        dt = 1.0 / CONTROL_RATE_HZ
-        linear_step = RAMP_LINEAR_ACCELERATION * dt
-        angular_step = RAMP_ANGULAR_ACCELERATION * dt
+        control_period_seconds = 1.0 / CONTROL_RATE_HZ
+        linear_step = RAMP_LINEAR_ACCELERATION_METERS_PER_SECOND_SQUARED * control_period_seconds
+        angular_step = (
+            RAMP_ANGULAR_ACCELERATION_RADIANS_PER_SECOND_SQUARED * control_period_seconds
+        )
         self.command_linear += float(
             np.clip(target_linear - self.command_linear, -linear_step, linear_step)
         )
@@ -201,8 +209,8 @@ class DriveProfile(Node):
         )
         if not messages:
             return None, None
-        linear = float(np.mean([m.twist.twist.linear.x for m in messages]))
-        angular = float(np.mean([m.twist.twist.angular.z for m in messages]))
+        linear = float(np.mean([message.twist.twist.linear.x for message in messages]))
+        angular = float(np.mean([message.twist.twist.angular.z for message in messages]))
         return linear, angular
 
     def phase_series(self):
@@ -213,9 +221,12 @@ class DriveProfile(Node):
         if len(messages) < 5:
             return None, None
         times = np.array(
-            [rclpy.time.Time.from_msg(m.header.stamp).nanoseconds * 1e-9 for m in messages]
+            [
+                rclpy.time.Time.from_msg(message.header.stamp).nanoseconds * 1e-9
+                for message in messages
+            ]
         )
-        linear = np.array([m.twist.twist.linear.x for m in messages])
+        linear = np.array([message.twist.twist.linear.x for message in messages])
         return times, linear
 
     def acceleration_metrics(self):
@@ -223,9 +234,12 @@ class DriveProfile(Node):
         if times is None:
             return None, None
         smoothed = moving_average(linear, 3)
-        acceleration = np.gradient(smoothed, times)
-        jerk = np.gradient(acceleration, times)
-        return float(np.max(np.abs(acceleration))), float(np.max(np.abs(jerk)))
+        acceleration_meters_per_second_squared = np.gradient(smoothed, times)
+        jerk_meters_per_second_cubed = np.gradient(acceleration_meters_per_second_squared, times)
+        return (
+            float(np.max(np.abs(acceleration_meters_per_second_squared))),
+            float(np.max(np.abs(jerk_meters_per_second_cubed))),
+        )
 
     def verify(self, phase):
         if phase.check == "none":
@@ -241,7 +255,7 @@ class DriveProfile(Node):
             self.results.append(PhaseResult(phase.name, "-", "no odom", "-", False))
             return
         if phase.check == "linear":
-            passed = abs(linear - phase.linear) <= SETTLE_LINEAR_TOLERANCE
+            passed = abs(linear - phase.linear) <= SETTLE_LINEAR_TOLERANCE_METERS_PER_SECOND
             self.results.append(
                 PhaseResult(
                     phase.name,
@@ -252,7 +266,7 @@ class DriveProfile(Node):
                 )
             )
         elif phase.check == "angular":
-            passed = abs(angular - phase.angular) <= SETTLE_ANGULAR_TOLERANCE
+            passed = abs(angular - phase.angular) <= SETTLE_ANGULAR_TOLERANCE_RADIANS_PER_SECOND
             self.results.append(
                 PhaseResult(
                     phase.name,
@@ -264,8 +278,8 @@ class DriveProfile(Node):
             )
         else:
             passed = (
-                abs(linear - phase.linear) <= SETTLE_LINEAR_TOLERANCE
-                and abs(angular - phase.angular) <= SETTLE_ANGULAR_TOLERANCE
+                abs(linear - phase.linear) <= SETTLE_LINEAR_TOLERANCE_METERS_PER_SECOND
+                and abs(angular - phase.angular) <= SETTLE_ANGULAR_TOLERANCE_RADIANS_PER_SECOND
             )
             self.results.append(
                 PhaseResult(
@@ -279,30 +293,35 @@ class DriveProfile(Node):
 
     def verify_acceleration(self, phase):
         measured, jerk = self.acceleration_metrics()
-        ceiling = LINEAR_MAX_ACCELERATION * ACCELERATION_CEILING_FRACTION
+        upper_bound = (
+            LINEAR_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED
+            * ACCELERATION_UPPER_TOLERANCE_FRACTION
+        )
         if measured is None:
             self.results.append(PhaseResult(phase.name, "-", "no odom", "-", False))
             return
         if phase.check == "acceleration":
-            floor = LINEAR_MAX_ACCELERATION * (1.0 - ACCELERATION_TOLERANCE_FRACTION)
-            passed = floor <= measured <= ceiling
+            lower_bound = LINEAR_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED * (
+                1.0 - ACCELERATION_LOWER_TOLERANCE_FRACTION
+            )
+            passed = lower_bound <= measured <= upper_bound
             self.results.append(
                 PhaseResult(
                     phase.name,
-                    f"≈{LINEAR_MAX_ACCELERATION:.1f} m/s²",
+                    f"≈{LINEAR_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED:.1f} m/s²",
                     f"{measured:.1f} m/s²  jerk≈{jerk:.0f}",
-                    f"{abs(measured - LINEAR_MAX_ACCELERATION):.1f}",
+                    f"{abs(measured - LINEAR_MAX_ACCELERATION_METERS_PER_SECOND_SQUARED):.1f}",
                     passed,
                 )
             )
         else:
-            passed = measured <= ceiling
+            passed = measured <= upper_bound
             self.results.append(
                 PhaseResult(
                     phase.name,
-                    f"≤{ceiling:.1f} m/s²",
+                    f"≤{upper_bound:.1f} m/s²",
                     f"{measured:.1f} m/s²",
-                    f"{max(0.0, measured - ceiling):.1f}",
+                    f"{max(0.0, measured - upper_bound):.1f}",
                     passed,
                 )
             )
@@ -334,7 +353,7 @@ class DriveProfile(Node):
         if not self.linear_samples:
             return Text("")
         values = np.asarray(self.linear_samples)
-        span = max(LINEAR_MAX_VELOCITY, float(np.max(np.abs(values))), 1e-6)
+        span = max(LINEAR_MAX_VELOCITY_METERS_PER_SECOND, float(np.max(np.abs(values))), 1e-6)
         steps = len(SPARK_GLYPHS) - 1
         index = np.clip(((values + span) / (2.0 * span) * steps), 0, steps).astype(int)
         glyphs = "".join(SPARK_GLYPHS[i] for i in index)
@@ -350,9 +369,10 @@ class DriveProfile(Node):
                 border_style=IDLE_COLOR,
             )
         phase = PHASES[min(self.phase_index, len(PHASES) - 1)]
-        elapsed = (self.get_clock().now() - self.phase_start).nanoseconds * 1e-9
+        elapsed_seconds = (self.get_clock().now() - self.phase_start).nanoseconds * 1e-9
         progress = int(
-            np.clip(elapsed / max(phase.duration_seconds, 1e-6), 0, 1) * PROGRESS_BAR_WIDTH
+            np.clip(elapsed_seconds / max(phase.duration_seconds, 1e-6), 0, 1)
+            * PROGRESS_BAR_WIDTH_CHARACTERS
         )
         color = self.color_for(self.command_linear, self.command_angular)
 
@@ -364,8 +384,8 @@ class DriveProfile(Node):
             Text(f"phase {self.phase_index + 1}/{len(PHASES)}  ·  {phase.kind}", style="dim"),
         )
         head.add_row(
-            Text("█" * progress + "░" * (PROGRESS_BAR_WIDTH - progress), style=color),
-            Text(f"{elapsed:4.1f}s / {phase.duration_seconds:.1f}s", style="dim"),
+            Text("█" * progress + "░" * (PROGRESS_BAR_WIDTH_CHARACTERS - progress), style=color),
+            Text(f"{elapsed_seconds:4.1f}s / {phase.duration_seconds:.1f}s", style="dim"),
         )
 
         measured_linear = (
@@ -380,28 +400,28 @@ class DriveProfile(Node):
         gauges.add_column(justify="right", width=14)
         gauges.add_row(
             Text("cmd linear", style="dim"),
-            self.bar(self.command_linear, LINEAR_MAX_VELOCITY, color),
+            self.bar(self.command_linear, LINEAR_MAX_VELOCITY_METERS_PER_SECOND, color),
             Text(f"{self.command_linear:+.2f} m/s", style=color),
         )
         gauges.add_row(
             Text("odom linear", style="dim"),
-            self.bar(measured_linear, LINEAR_MAX_VELOCITY, color),
+            self.bar(measured_linear, LINEAR_MAX_VELOCITY_METERS_PER_SECOND, color),
             Text(f"{measured_linear:+.2f} m/s", style=color),
         )
         turn_color = TURN_COLOR if abs(self.command_angular) > MOTION_EPSILON else IDLE_COLOR
         gauges.add_row(
             Text("cmd angular", style="dim"),
-            self.bar(self.command_angular, ANGULAR_MAX_VELOCITY, turn_color),
+            self.bar(self.command_angular, ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND, turn_color),
             Text(f"{self.command_angular:+.2f} rad/s", style=turn_color),
         )
         gauges.add_row(
             Text("odom angular", style="dim"),
-            self.bar(measured_angular, ANGULAR_MAX_VELOCITY, turn_color),
+            self.bar(measured_angular, ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND, turn_color),
             Text(f"{measured_angular:+.2f} rad/s", style=turn_color),
         )
         gauges.add_row(Text("odom vx", style="dim"), self.sparkline(), Text(""))
 
-        passed_count = sum(1 for r in self.results if r.passed)
+        passed_count = sum(1 for result in self.results if result.passed)
         tally = Text.assemble(
             ("✓ ", FORWARD_COLOR),
             (f"{passed_count} passed   ", "default"),
@@ -430,7 +450,7 @@ class DriveProfile(Node):
                 "FAIL", style=f"bold {STOP_COLOR}"
             )
             table.add_row(result.name, result.commanded, result.measured, result.delta, mark)
-        passed_count = sum(1 for r in self.results if r.passed)
+        passed_count = sum(1 for result in self.results if result.passed)
         table.caption = f"{passed_count}/{len(self.results)} passed"
         table.caption_style = "bold"
         return table

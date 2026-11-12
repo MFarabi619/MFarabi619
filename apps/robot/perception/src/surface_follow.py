@@ -32,12 +32,12 @@ from std_srvs.srv import SetBool
 from vision_msgs.msg import Detection2DArray
 
 SPEED_FALLOFF = 0.5
-CAMERA_INFO_WARNING_INTERVAL_S = 5.0
-CONTROL_PERIOD_S = 0.05
-MINIMUM_SURFACE_TIMEOUT_S = 0.1
+CAMERA_INFO_WARNING_INTERVAL_SECONDS = 5.0
+CONTROL_PERIOD_SECONDS = 0.05
+MIN_SURFACE_TIMEOUT_SECONDS = 0.1
 LIVE_PARAMETERS = frozenset({
-    'lateral_offset_m', 'camera_height_m', 'forward_speed', 'steer_gain',
-    'max_angular_speed', 'surface_timeout_seconds',
+    'lateral_offset_meters', 'camera_height_meters', 'forward_speed_meters_per_second',
+    'steer_gain', 'max_angular_speed_radians_per_second', 'surface_timeout_seconds',
 })
 FIXED_PARAMETERS = frozenset({
     'detections_topic', 'camera_info_topic', 'cmd_vel_topic', 'frame_id',
@@ -49,9 +49,9 @@ def finite_or(value, fallback):
     return value if math.isfinite(value) else fallback
 
 
-class DriveCommand(NamedTuple):
-    forward_speed: float
-    angular_speed: float
+class TwistCommand(NamedTuple):
+    forward_speed_meters_per_second: float
+    angular_speed_radians_per_second: float
 
 
 class SurfaceFollow(Node):
@@ -62,16 +62,18 @@ class SurfaceFollow(Node):
             'camera_info_topic', 'sensors/camera_0/color/camera_info').value
         cmd_vel_topic = self.declare_parameter('cmd_vel_topic', 'cmd_vel').value
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
-        self.lateral_offset_m = self.declare_parameter('lateral_offset_m', 0.0).value
-        self.camera_height_m = self.declare_parameter('camera_height_m', 0.36).value
-        self.forward_speed = self.declare_parameter('forward_speed', 0.4).value
+        self.lateral_offset_meters = self.declare_parameter('lateral_offset_meters', 0.0).value
+        self.camera_height_meters = self.declare_parameter('camera_height_meters', 0.36).value
+        self.forward_speed_meters_per_second = self.declare_parameter(
+            'forward_speed_meters_per_second', 0.4).value
         self.steer_gain = self.declare_parameter('steer_gain', 1.2).value
-        self.max_angular_speed = self.declare_parameter('max_angular_speed', 0.8).value
+        self.max_angular_speed_radians_per_second = self.declare_parameter(
+            'max_angular_speed_radians_per_second', 0.8).value
         self.surface_timeout_seconds = self.declare_parameter(
             'surface_timeout_seconds', 2.0).value
         self.is_enabled = self.declare_parameter('start_enabled', False).value
 
-        self.image_width = None
+        self.image_width_pixels = None
         self.focal_length_x = None
         self.focal_length_y = None
         self.principal_point_y = None
@@ -79,7 +81,7 @@ class SurfaceFollow(Node):
         self.latest_surface_time = None
 
         self.cmd_vel_publisher = self.create_publisher(TwistStamped, cmd_vel_topic, 10)
-        self.create_timer(CONTROL_PERIOD_S, self.on_control_period)
+        self.create_timer(CONTROL_PERIOD_SECONDS, self.on_control_period)
         self.create_service(SetBool, '~/enable', self.on_enable)
         self.add_on_set_parameters_callback(self.validate_parameters)
         self.add_post_set_parameters_callback(self.on_parameters_set)
@@ -93,7 +95,7 @@ class SurfaceFollow(Node):
 
     def on_camera_info(self, message):
         if message.width > 0:
-            self.image_width = message.width
+            self.image_width_pixels = message.width
         if message.k[0] > 0.0 and message.k[4] > 0.0:
             self.focal_length_x = message.k[0]
             self.focal_length_y = message.k[4]
@@ -102,25 +104,25 @@ class SurfaceFollow(Node):
     def on_detections(self, message):
         if not self.is_enabled:
             return
-        if self.image_width is None:
+        if self.image_width_pixels is None:
             self.get_logger().warning(
                 'waiting for camera info before steering',
-                throttle_duration_sec=CAMERA_INFO_WARNING_INTERVAL_S)
+                throttle_duration_sec=CAMERA_INFO_WARNING_INTERVAL_SECONDS)
             return
         error = self.center_error(message.detections)
         if error is None:
-            self.latest_command = DriveCommand(self.coasting_speed(), 0.0)
+            self.latest_command = TwistCommand(self.coasting_speed(), 0.0)
             return
         self.latest_surface_time = self.get_clock().now()
-        self.latest_command = DriveCommand(
-            self.forward_speed * (1.0 - SPEED_FALLOFF * abs(error)),
+        self.latest_command = TwistCommand(
+            self.forward_speed_meters_per_second * (1.0 - SPEED_FALLOFF * abs(error)),
             -self.steer_gain * error,
         )
 
     def coasting_speed(self):
         if self.latest_command is None:
             return 0.0
-        return self.latest_command.forward_speed
+        return self.latest_command.forward_speed_meters_per_second
 
     def on_control_period(self):
         if not self.is_enabled or self.latest_command is None:
@@ -129,18 +131,19 @@ class SurfaceFollow(Node):
             self.halt()
             return
         self.drive(
-            self.latest_command.forward_speed, self.latest_command.angular_speed)
+            self.latest_command.forward_speed_meters_per_second,
+            self.latest_command.angular_speed_radians_per_second)
 
     def surface_is_stale(self):
         if self.latest_surface_time is None:
             return True
         timeout = Duration(seconds=max(
-            finite_or(self.surface_timeout_seconds, MINIMUM_SURFACE_TIMEOUT_S),
-            MINIMUM_SURFACE_TIMEOUT_S))
+            finite_or(self.surface_timeout_seconds, MIN_SURFACE_TIMEOUT_SECONDS),
+            MIN_SURFACE_TIMEOUT_SECONDS))
         return self.get_clock().now() - self.latest_surface_time > timeout
 
     def center_error(self, detections):
-        half_width = self.image_width / 2.0
+        half_width = self.image_width_pixels / 2.0
         candidates = [
             ((detection.bbox.center.position.x - half_width) / half_width,
              self.target_offset(detection.bbox.center.position.y),
@@ -157,37 +160,42 @@ class SurfaceFollow(Node):
         return offset - target
 
     def target_offset(self, row):
-        lateral_offset_m = finite_or(self.lateral_offset_m, 0.0)
-        camera_height_m = finite_or(self.camera_height_m, 0.0)
-        if lateral_offset_m == 0.0 or camera_height_m <= 0.0:
+        lateral_offset_meters = finite_or(self.lateral_offset_meters, 0.0)
+        camera_height_meters = finite_or(self.camera_height_meters, 0.0)
+        if lateral_offset_meters == 0.0 or camera_height_meters <= 0.0:
             return 0.0
         if self.focal_length_x is None:
             return 0.0
         rows_below_horizon = row - self.principal_point_y
         if rows_below_horizon <= 0.0:
             return 0.0
-        ground_range_m = camera_height_m * self.focal_length_y / rows_below_horizon
-        pixels = -lateral_offset_m * self.focal_length_x / ground_range_m
-        return pixels / (self.image_width / 2.0)
+        ground_range_meters = camera_height_meters * self.focal_length_y / rows_below_horizon
+        pixels = -lateral_offset_meters * self.focal_length_x / ground_range_meters
+        return pixels / (self.image_width_pixels / 2.0)
 
     def halt(self):
         self.publish_twist(0.0, 0.0)
 
-    def drive(self, forward_speed, angular_speed):
-        max_forward_speed = max(finite_or(self.forward_speed, 0.0), 0.0)
-        max_angular_speed = abs(finite_or(self.max_angular_speed, 0.0))
+    def drive(self, forward_speed_meters_per_second, angular_speed_radians_per_second):
+        max_forward_speed_meters_per_second = max(
+            finite_or(self.forward_speed_meters_per_second, 0.0), 0.0)
+        max_angular_speed_radians_per_second = abs(
+            finite_or(self.max_angular_speed_radians_per_second, 0.0))
         self.publish_twist(
-            float(np.clip(finite_or(forward_speed, 0.0), 0.0, max_forward_speed)),
             float(np.clip(
-                finite_or(angular_speed, 0.0), -max_angular_speed, max_angular_speed)),
+                finite_or(forward_speed_meters_per_second, 0.0),
+                0.0, max_forward_speed_meters_per_second)),
+            float(np.clip(
+                finite_or(angular_speed_radians_per_second, 0.0),
+                -max_angular_speed_radians_per_second, max_angular_speed_radians_per_second)),
         )
 
-    def publish_twist(self, forward_speed, angular_speed):
+    def publish_twist(self, forward_speed_meters_per_second, angular_speed_radians_per_second):
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = forward_speed
-        message.twist.angular.z = angular_speed
+        message.twist.linear.x = forward_speed_meters_per_second
+        message.twist.angular.z = angular_speed_radians_per_second
         self.cmd_vel_publisher.publish(message)
 
     def on_enable(self, request, response):
@@ -212,9 +220,9 @@ class SurfaceFollow(Node):
                 return SetParametersResult(
                     successful=False,
                     reason=f'{parameter.name} must be a finite number')
-            if parameter.name == 'camera_height_m' and parameter.value <= 0.0:
+            if parameter.name == 'camera_height_meters' and parameter.value <= 0.0:
                 return SetParametersResult(
-                    successful=False, reason='camera_height_m must be positive')
+                    successful=False, reason='camera_height_meters must be positive')
         return SetParametersResult(successful=True)
 
     def on_parameters_set(self, parameters):

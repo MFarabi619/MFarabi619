@@ -1,8 +1,9 @@
+# yaml-language-server: $schema=../robot.schema.json
 system:
   namespace: beagleyai
   hosts:
     - hostname: beagleyai
-      ip: &host 10.0.0.222
+      ip: 10.0.0.222
       board: beagley_ai
 platform:
   attachments: []
@@ -27,7 +28,6 @@ platform:
     right:
       pwm_pin: 32
       is_reversed: false
-  # Parked MDD10A wiring (model: pwm_dir): GND pin 39 -> driver GND;
   # motors on M1A/M1B (left), M2A/M2B (right)
   #   pwm_frequency_hz: 20000.0
   #   left:  {pwm_pin: 38, dir_pin: 36, forward_level: true}   # PWM1 / DIR1
@@ -44,8 +44,8 @@ platform:
   # Parked ODrive bench (ex machines/odrive, mark-5): replace drivetrain with
   #   model: odrive_usb
   #   gear_ratio: 8.0
-  #   left:  {serial: 9779026C334D, is_reversed: true}
-  #   right: {serial: 7442026C334D, is_reversed: false}
+  #   left:  {serial_number: 9779026C334D, is_reversed: true}
+  #   right: {serial_number: 7442026C334D, is_reversed: false}
 sensors:
   camera:
     - model: orbbec_gemini_335l
@@ -53,16 +53,16 @@ sensors:
       xyz: [0.575, 0.5, 0.31]
       rpy: [0.0, 0.31, 0.0]
       parameters:
-        color_width: 640
-        color_height: 480
-        color_fps: 10
+        color_width_pixels: 640
+        color_height_pixels: 480
+        color_frames_per_second: 10
         enable_depth: true
-        depth_width: 848
-        depth_height: 480
-        depth_fps: 15
+        depth_width_pixels: 848
+        depth_height_pixels: 480
+        depth_frames_per_second: 15
         depth_decimation: 2
   imu:
-    - model: bno085
+    - model: adafruit_bno085
       parent: base_link
       xyz: [0.0, 0.0, 0.3]
       rpy: [0.0, 0.0, 0.0]
@@ -70,8 +70,7 @@ sensors:
         i2c_bus: 1
         i2c_address: 74
         frame_id: imu_0_link
-        rate_hz: 25.0
-  # gps disabled 2026-07-27 — no data on the UART (suspected module TX→pin-10 wiring); re-enable after bench check
+        publish_rate_hz: 25.0
   # gps:
   #   - model: adafruit_ultimate_gps_hat
   #     parent: base_link

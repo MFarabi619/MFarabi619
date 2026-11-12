@@ -61,9 +61,9 @@ CALIBRATING = 'calibrating'
 OPERATOR_ABSENT = 'absent'
 
 LIVE_PARAMETERS = frozenset({
-    'forward_speed_mps', 'reverse_speed_mps', 'forward_threshold_fraction',
-    'reverse_threshold_fraction', 'commit_frames', 'command_smoothing_seconds',
-    'min_elbow_visibility', 'invert_drive_axis',
+    'forward_speed_meters_per_second', 'reverse_speed_meters_per_second',
+    'forward_threshold_fraction', 'reverse_threshold_fraction', 'commit_frames',
+    'command_smoothing_seconds', 'min_elbow_visibility', 'invert_drive_axis',
 })
 RECALIBRATING_PARAMETERS = frozenset({'drive_axis', 'arm_side'})
 
@@ -79,9 +79,12 @@ STATE_COLORS = {
     ZONE_REVERSE: REVERSE_COLOR,
     CALIBRATING: CALIBRATION_COLOR,
 }
-STATUS_FONT_SIZE = 24.0
-BOUNDARY_THICKNESS = 2.0
-ELBOW_MARKER_THICKNESS = 8.0
+STATUS_FONT_SIZE_PIXELS = 24.0
+BOUNDARY_THICKNESS_PIXELS = 2.0
+ELBOW_MARKER_THICKNESS_PIXELS = 8.0
+MILLISECONDS_PER_SECOND = 1000
+NANOSECONDS_PER_MILLISECOND = 1_000_000
+NANOSECONDS_PER_SECOND = 1_000_000_000
 
 
 class LayDownWeedingElbowTeleop(Node):
@@ -92,7 +95,7 @@ class LayDownWeedingElbowTeleop(Node):
         cmd_vel_topic = self.declare_parameter('cmd_vel_topic', 'cmd_vel').value
         overlay_topic = self.declare_parameter(
             'overlay_topic', 'perception/weeding/elbow_overlay').value
-        model_path = self.declare_parameter('model', DEFAULT_MODEL_PATH).value
+        model_path = self.declare_parameter('model_path', DEFAULT_MODEL_PATH).value
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
         self.arm_side = self.declare_parameter('arm_side', 'either').value
         self.drive_axis = self.declare_parameter('drive_axis', 'y').value
@@ -102,10 +105,10 @@ class LayDownWeedingElbowTeleop(Node):
             'forward_threshold_fraction', 0.06).value
         self.reverse_threshold_fraction = self.declare_parameter(
             'reverse_threshold_fraction', 0.06).value
-        self.forward_speed_mps = self.declare_parameter(
-            'forward_speed_mps', 0.12).value
-        self.reverse_speed_mps = self.declare_parameter(
-            'reverse_speed_mps', 0.12).value
+        self.forward_speed_meters_per_second = self.declare_parameter(
+            'forward_speed_meters_per_second', 0.12).value
+        self.reverse_speed_meters_per_second = self.declare_parameter(
+            'reverse_speed_meters_per_second', 0.12).value
         self.commit_frames = self.declare_parameter('commit_frames', 5).value
         self.neutral_sample_frames = self.declare_parameter(
             'neutral_sample_frames', 10).value
@@ -123,16 +126,16 @@ class LayDownWeedingElbowTeleop(Node):
                 running_mode=vision.RunningMode.VIDEO,
                 num_poses=1))
 
-        self.last_timestamp_ms = 0
+        self.last_timestamp_milliseconds = 0
         self.neutral_samples = []
         self.neutral_position = None
         self.tracked_side = None
         self.pending_zone = ZONE_HOLD
         self.zone_frames = 0
-        self.smoothed_forward_speed = 0.0
-        self.previous_drive_time_s = None
-        self.previous_detection_time_s = None
-        self.min_detection_interval_s = (
+        self.smoothed_forward_speed_meters_per_second = 0.0
+        self.previous_drive_time_seconds = None
+        self.previous_detection_time_seconds = None
+        self.min_detection_interval_seconds = (
             1.0 / self.max_detections_per_second
             if self.max_detections_per_second > 0.0 else 0.0)
 
@@ -175,12 +178,13 @@ class LayDownWeedingElbowTeleop(Node):
             self.halt()
             return
         stamp = message.header.stamp
-        timestamp_ms = max(
-            self.last_timestamp_ms + 1,
-            stamp.sec * 1000 + stamp.nanosec // 1_000_000)
-        self.last_timestamp_ms = timestamp_ms
+        timestamp_milliseconds = max(
+            self.last_timestamp_milliseconds + 1,
+            stamp.sec * MILLISECONDS_PER_SECOND
+            + stamp.nanosec // NANOSECONDS_PER_MILLISECOND)
+        self.last_timestamp_milliseconds = timestamp_milliseconds
         result = self.landmarker.detect_for_video(
-            mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), timestamp_ms)
+            mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), timestamp_milliseconds)
         height, width = rgb.shape[:2]
         selected = self.select_elbow(result.pose_landmarks)
         if selected is None:
@@ -247,55 +251,55 @@ class LayDownWeedingElbowTeleop(Node):
         if zone != self.pending_zone:
             self.pending_zone = zone
             self.zone_frames = 0
-            self.smoothed_forward_speed = 0.0
-            self.previous_drive_time_s = None
+            self.smoothed_forward_speed_meters_per_second = 0.0
+            self.previous_drive_time_seconds = None
         self.zone_frames += 1
         if not self.is_creeping():
             self.publish(0.0)
             return
         if zone == ZONE_FORWARD:
-            self.drive(self.forward_speed_mps)
+            self.drive(self.forward_speed_meters_per_second)
         else:
-            self.drive(-self.reverse_speed_mps)
+            self.drive(-self.reverse_speed_meters_per_second)
 
     def is_creeping(self):
         return self.zone_frames >= self.commit_frames
 
     def claim_detection_slot(self):
-        now_s = self.get_clock().now().nanoseconds * 1e-9
-        previous_s = self.previous_detection_time_s
-        if (previous_s is not None
-                and now_s - previous_s < self.min_detection_interval_s):
+        now_seconds = self.get_clock().now().nanoseconds / NANOSECONDS_PER_SECOND
+        previous_seconds = self.previous_detection_time_seconds
+        if (previous_seconds is not None
+                and now_seconds - previous_seconds < self.min_detection_interval_seconds):
             return False
-        self.previous_detection_time_s = now_s
+        self.previous_detection_time_seconds = now_seconds
         return True
 
     def halt(self):
         self.pending_zone = ZONE_HOLD
         self.zone_frames = 0
-        self.smoothed_forward_speed = 0.0
-        self.previous_drive_time_s = None
+        self.smoothed_forward_speed_meters_per_second = 0.0
+        self.previous_drive_time_seconds = None
         self.publish(0.0)
 
     def claim_smoothing_fraction(self):
-        now_s = self.get_clock().now().nanoseconds * 1e-9
-        previous_s = self.previous_drive_time_s
-        self.previous_drive_time_s = now_s
-        if self.command_smoothing_seconds <= 0.0 or previous_s is None:
+        now_seconds = self.get_clock().now().nanoseconds / NANOSECONDS_PER_SECOND
+        previous_seconds = self.previous_drive_time_seconds
+        self.previous_drive_time_seconds = now_seconds
+        if self.command_smoothing_seconds <= 0.0 or previous_seconds is None:
             return 1.0
-        return 1.0 - math.exp(-(now_s - previous_s) / self.command_smoothing_seconds)
+        return 1.0 - math.exp(-(now_seconds - previous_seconds) / self.command_smoothing_seconds)
 
-    def drive(self, forward_speed):
+    def drive(self, forward_speed_meters_per_second):
         fraction = self.claim_smoothing_fraction()
-        self.smoothed_forward_speed += fraction * (
-            forward_speed - self.smoothed_forward_speed)
-        self.publish(self.smoothed_forward_speed)
+        self.smoothed_forward_speed_meters_per_second += fraction * (
+            forward_speed_meters_per_second - self.smoothed_forward_speed_meters_per_second)
+        self.publish(self.smoothed_forward_speed_meters_per_second)
 
-    def publish(self, forward_speed):
+    def publish(self, forward_speed_meters_per_second):
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(forward_speed)
+        message.twist.linear.x = float(forward_speed_meters_per_second)
         self.cmd_vel_publisher.publish(message)
 
     def publish_overlay(self, stamp, elbow, state, width, height):
@@ -308,13 +312,13 @@ class LayDownWeedingElbowTeleop(Node):
             marker.type = PointsAnnotation.POINTS
             marker.points = [Point2(x=elbow.x * width, y=elbow.y * height)]
             marker.outline_color = STATE_COLORS.get(state, HOLD_COLOR)
-            marker.thickness = ELBOW_MARKER_THICKNESS
+            marker.thickness = ELBOW_MARKER_THICKNESS_PIXELS
             overlay.points.append(marker)
         status = TextAnnotation()
         status.timestamp = stamp
         status.position = Point2(x=8.0, y=8.0)
         status.text = self.status_text(state)
-        status.font_size = STATUS_FONT_SIZE
+        status.font_size = STATUS_FONT_SIZE_PIXELS
         status.text_color = TEXT_COLOR
         status.background_color = TEXT_BACKGROUND_COLOR
         overlay.texts.append(status)
@@ -345,14 +349,14 @@ class LayDownWeedingElbowTeleop(Node):
                 ]
         annotation.points = points
         annotation.outline_color = BOUNDARY_COLOR
-        annotation.thickness = BOUNDARY_THICKNESS
+        annotation.thickness = BOUNDARY_THICKNESS_PIXELS
         return annotation
 
     def status_text(self, state):
         if state == ZONE_FORWARD and self.is_creeping():
-            return f'ELBOW ▲ FORWARD {self.smoothed_forward_speed:.2f} m/s'
+            return f'ELBOW ▲ FORWARD {self.smoothed_forward_speed_meters_per_second:.2f} m/s'
         if state == ZONE_REVERSE and self.is_creeping():
-            return f'ELBOW ▼ REVERSE {abs(self.smoothed_forward_speed):.2f} m/s'
+            return f'ELBOW ▼ REVERSE {abs(self.smoothed_forward_speed_meters_per_second):.2f} m/s'
         if state == CALIBRATING:
             return 'ELBOW … CALIBRATING (hold still)'
         if state == OPERATOR_ABSENT:

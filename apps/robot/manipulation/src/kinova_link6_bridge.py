@@ -37,9 +37,9 @@ BRIDGE_PORT = 10900
 JOINT_COUNT = 6
 EXECUTE_TIMEOUT_SECONDS = 300.0
 MODE_SETTLE_SECONDS = 2.0
-SESSION_INACTIVITY_TIMEOUT_MS = 60000
-CONNECTION_INACTIVITY_TIMEOUT_MS = 2000
-MAX_JOINT_VELOCITY_DEG_PER_SECOND = 60.0
+SESSION_INACTIVITY_TIMEOUT_MILLISECONDS = 60000
+CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS = 2000
+MAX_JOINT_VELOCITY_DEGREES_PER_SECOND = 60.0
 SMOOTH_BLENDING = 1.0
 STOP_AT_WAYPOINT_BLENDING = 0.0
 TWIST_WATCHDOG_SECONDS = 0.7
@@ -54,18 +54,18 @@ args = parser.parse_args()
 
 transport = MqttTransport()
 transport.connect(args.robot_ip)
-router = RouterClient(transport, errorCallback=None)
+kortex_router = RouterClient(transport, errorCallback=None)
 
-session_info = Session_pb2.CreateSessionInfo()
-session_info.username = args.robot_username
-session_info.password = args.robot_password
-session_info.session_inactivity_timeout = SESSION_INACTIVITY_TIMEOUT_MS
-session_info.connection_inactivity_timeout = CONNECTION_INACTIVITY_TIMEOUT_MS
-session_client = SessionClient(router)
-session_client.CreateSession(session_info)
+session = Session_pb2.CreateSessionInfo()
+session.username = args.robot_username
+session.password = args.robot_password
+session.session_inactivity_timeout = SESSION_INACTIVITY_TIMEOUT_MILLISECONDS
+session.connection_inactivity_timeout = CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS
+session_client = SessionClient(kortex_router)
+session_client.CreateSession(session)
 
-base = BaseClient(router)
-base_cyclic = BaseCyclicClient(router)
+base = BaseClient(kortex_router)
+base_cyclic = BaseCyclicClient(kortex_router)
 motion_lock = threading.Lock()
 twist_lock = threading.Lock()
 twist_deadline = None
@@ -74,8 +74,8 @@ twist_deadline = None
 def read_state():
     feedback = base_cyclic.RefreshFeedback()
     return {
-        'positions_deg': [actuator.position for actuator in feedback.actuators],
-        'velocities_deg': [actuator.velocity for actuator in feedback.actuators],
+        'positions_degrees': [actuator.position for actuator in feedback.actuators],
+        'velocities_degrees_per_second': [actuator.velocity for actuator in feedback.actuators],
     }
 
 
@@ -124,17 +124,17 @@ def run_twist_watchdog():
                 twist_deadline = None
 
 
-def execute_waypoints(waypoints_deg):
+def execute_waypoints(waypoints_degrees):
     waypoint_list = Base_pb2.WaypointList()
     waypoint_list.use_optimal_blending = True
-    for index, angles in enumerate(waypoints_deg):
+    for index, angles in enumerate(waypoints_degrees):
         waypoint = waypoint_list.waypoints.add()
         waypoint.name = f'waypoint_{index}'
         waypoint.angular_waypoint.angles.extend(angles)
         waypoint.angular_waypoint.maximum_velocities.extend(
-            [MAX_JOINT_VELOCITY_DEG_PER_SECOND] * JOINT_COUNT)
+            [MAX_JOINT_VELOCITY_DEGREES_PER_SECOND] * JOINT_COUNT)
         waypoint.angular_waypoint.blending = (
-            STOP_AT_WAYPOINT_BLENDING if index == len(waypoints_deg) - 1
+            STOP_AT_WAYPOINT_BLENDING if index == len(waypoints_degrees) - 1
             else SMOOTH_BLENDING)
     validation = base.ValidateWaypointList(waypoint_list)
     if validation.trajectory_error_report.trajectory_error_elements:
@@ -164,7 +164,7 @@ def execute_waypoints(waypoints_deg):
     return outcome
 
 
-class BridgeRequestHandler(socketserver.StreamRequestHandler):
+class KinovaLink6BridgeRequestHandler(socketserver.StreamRequestHandler):
     def handle(self):
         for line in self.rfile:
             try:
@@ -174,7 +174,7 @@ class BridgeRequestHandler(socketserver.StreamRequestHandler):
                     reply = read_state()
                 elif operation == 'execute':
                     with motion_lock:
-                        reply = execute_waypoints(request['waypoints_deg'])
+                        reply = execute_waypoints(request['waypoints_degrees'])
                 elif operation == 'twist':
                     reply = apply_twist(
                         request['linear'], request['angular'])
@@ -188,7 +188,7 @@ class BridgeRequestHandler(socketserver.StreamRequestHandler):
             self.wfile.write((json.dumps(reply) + '\n').encode())
 
 
-class BridgeServer(socketserver.ThreadingTCPServer):
+class KinovaLink6BridgeServer(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
     daemon_threads = True
 
@@ -196,12 +196,13 @@ class BridgeServer(socketserver.ThreadingTCPServer):
 print(f'kinova link6 bridge connected to {args.robot_ip}, '
       f'serving on {BRIDGE_HOST}:{BRIDGE_PORT}')
 threading.Thread(target=run_twist_watchdog, daemon=True).start()
-server = BridgeServer((BRIDGE_HOST, BRIDGE_PORT), BridgeRequestHandler)
+server = KinovaLink6BridgeServer(
+    (BRIDGE_HOST, BRIDGE_PORT), KinovaLink6BridgeRequestHandler)
 try:
     server.serve_forever()
 except KeyboardInterrupt:
     pass
 finally:
     session_client.CloseSession()
-    router.SetActivationStatus(False)
+    kortex_router.SetActivationStatus(False)
     transport.disconnect()

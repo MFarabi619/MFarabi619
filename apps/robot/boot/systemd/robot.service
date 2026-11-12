@@ -1,5 +1,5 @@
 [Unit]
-Description=ROS2 process stack
+Description=Robot stack
 After=network-online.target
 Wants=network-online.target
 StartLimitIntervalSec=0
@@ -8,12 +8,9 @@ StartLimitIntervalSec=0
 Type=simple
 User=mfarabi
 WorkingDirectory=/home/mfarabi/MFarabi619/apps/robot
-ExecStart=/home/mfarabi/.pixi/bin/pixi run robot
-LimitRTPRIO=95
-LimitMEMLOCK=infinity
+ExecStart=/usr/local/bin/robot-yaml-watch
 Restart=on-failure
 RestartSec=2
-TimeoutStopSec=10
 
 [Install]
 WantedBy=multi-user.target

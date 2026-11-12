@@ -16,13 +16,13 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
 def twist_mux(params_file: str = '', cmd_vel_out: str = 'platform/cmd_vel'):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_control', 'twist_mux.yaml')
     bl.node(
         package='twist_mux',

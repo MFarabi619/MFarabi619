@@ -24,15 +24,15 @@ import rclpy.parameter
 from sensor_msgs.msg import CompressedImage
 from std_srvs.srv import SetBool
 
-FIELD_FRAMES = os.path.abspath(os.path.join(
+FIELD_FRAMES_DIRECTORY = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', '..',
     'assets', 'datasets', 'area_xo', 'taro_harvest_lane_frames'))
-NEAR_FIELD_TOP = 0.78
-SKY_BOTTOM = 0.40
+NEAR_FIELD_TOP_FRACTION = 0.78
+SKY_BOTTOM_FRACTION = 0.40
 
 
 def field_frames():
-    return sorted(glob.glob(os.path.join(FIELD_FRAMES, '*.jpg')))
+    return sorted(glob.glob(os.path.join(FIELD_FRAMES_DIRECTORY, '*.jpg')))
 
 
 def coverage(mask, top_fraction, bottom_fraction):
@@ -115,8 +115,8 @@ def test_normalized_index_finds_more_near_canopy_on_the_real_rows(
     assert image is not None, frame_path
     absolute = canopy_detector_node.absolute_mask(image)
     normalized = normalized_canopy_detector_node.normalized_mask(image)
-    assert (coverage(normalized, NEAR_FIELD_TOP, 1.0)
-            > coverage(absolute, NEAR_FIELD_TOP, 1.0))
+    assert (coverage(normalized, NEAR_FIELD_TOP_FRACTION, 1.0)
+            > coverage(absolute, NEAR_FIELD_TOP_FRACTION, 1.0))
 
 
 @pytest.mark.parametrize('frame_path', field_frames())
@@ -125,4 +125,4 @@ def test_neither_index_mistakes_sky_for_canopy(
     image = cv2.imread(frame_path)
     for mask in (canopy_detector_node.absolute_mask(image),
                  normalized_canopy_detector_node.normalized_mask(image)):
-        assert coverage(mask, 0.0, SKY_BOTTOM) < 0.01
+        assert coverage(mask, 0.0, SKY_BOTTOM_FRACTION) < 0.01

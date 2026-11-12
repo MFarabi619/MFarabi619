@@ -21,6 +21,8 @@ import yaml
 
 RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 TF_REMAPS = {'/tf': 'tf', '/tf_static': 'tf_static'}
+OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES = 1000000
+DEFAULT_DEPTH_FRAMES_PER_SECOND = 15
 
 
 def include(package, launchfile, **arguments):
@@ -28,15 +30,15 @@ def include(package, launchfile, **arguments):
         package, launchfile, pass_launch_func_args=False, **arguments)
 
 
-def parameter_overrides_file(overrides_by_node):
+def write_parameter_overrides_file(overrides_by_node):
     overrides_by_node = {node: values for node, values in overrides_by_node.items() if values}
     if not overrides_by_node:
         return ''
-    overrides = tempfile.NamedTemporaryFile(
+    overrides_tempfile = tempfile.NamedTemporaryFile(
         mode='w', prefix='overrides_', suffix='.yaml', delete=False)
     yaml.safe_dump({
         f'/**/{node}': {'ros__parameters': values}
         for node, values in overrides_by_node.items()
-    }, overrides)
-    overrides.close()
-    return overrides.name
+    }, overrides_tempfile)
+    overrides_tempfile.close()
+    return overrides_tempfile.name

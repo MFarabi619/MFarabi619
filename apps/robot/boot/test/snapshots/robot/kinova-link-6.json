@@ -23,6 +23,49 @@
       "ros_waittime": null
     },
     {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "foxglove_bridge.launch.py",
+      "namespace": "/",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
+      "executable": "foxglove_bridge",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "foxglove_bridge",
+      "namespace": "/",
+      "package": "foxglove_bridge",
+      "param_files": [
+        "boot/config/foxglove_bridge.yaml"
+      ],
+      "params": {
+        "send_buffer_limit": 20000000
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "diagnostic_aggregator.launch.py",
+      "namespace": "/",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
+      "executable": "aggregator_node",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "diagnostic_aggregator",
+      "namespace": "/",
+      "package": "diagnostic_aggregator",
+      "param_files": [
+        "boot/config/diagnostic_aggregator.yaml"
+      ],
+      "respawn_delay": 2.0
+    },
+    {
       "arguments": {
         "description_package": "link6_description",
         "gripper": "robotiq_2f_85",
@@ -87,7 +130,7 @@
           "xml_sha256": "19747957f4975393a3d08f70704cb08b8f68ee3f6b33eb5cc183deb901d4a8dc"
         },
         "moveit_package": "link6_moveit_config",
-        "rviz": false
+        "rviz_enabled": false
       },
       "kind": "include",
       "launchfile": "kinova_link6_moveit.launch.py",
@@ -119,49 +162,6 @@
       "namespace": "/",
       "package": "play_motion2",
       "subdir": null
-    },
-    {
-      "arguments": {},
-      "kind": "include",
-      "launchfile": "foxglove_bridge.launch.py",
-      "namespace": "/",
-      "package": "robot_boot",
-      "subdir": null
-    },
-    {
-      "executable": "foxglove_bridge",
-      "kind": "node",
-      "max_respawns": -1,
-      "name": "foxglove_bridge",
-      "namespace": "/",
-      "package": "foxglove_bridge",
-      "param_files": [
-        "boot/config/foxglove_bridge.yaml"
-      ],
-      "params": {
-        "send_buffer_limit": 20000000
-      },
-      "respawn_delay": 2.0
-    },
-    {
-      "arguments": {},
-      "kind": "include",
-      "launchfile": "diagnostic_aggregator.launch.py",
-      "namespace": "/",
-      "package": "robot_boot",
-      "subdir": null
-    },
-    {
-      "executable": "aggregator_node",
-      "kind": "node",
-      "max_respawns": -1,
-      "name": "diagnostic_aggregator",
-      "namespace": "/",
-      "package": "diagnostic_aggregator",
-      "param_files": [
-        "boot/config/diagnostic_aggregator.yaml"
-      ],
-      "respawn_delay": 2.0
     },
     {
       "arguments": {
@@ -205,23 +205,29 @@
         "z": 0.5
       },
       "kind": "include",
-      "launchfile": "zed_camera.launch.py",
+      "launchfile": "stereolabs_zed.launch.py",
       "namespace": "/",
-      "package": "robot_boot",
+      "package": "robot_drivers",
       "subdir": null
+    },
+    {
+      "group": "sensors/camera_0",
+      "kind": "group",
+      "namespace": "/sensors/camera_0",
+      "use_sim_time": null
     },
     {
       "kind": "compose",
       "language": "cpp",
-      "name": "camera_0_container",
-      "namespace": "/",
+      "name": "zed_container",
+      "namespace": "/sensors/camera_0",
       "variant": "multithreading"
     },
     {
-      "container": "camera_0_container",
+      "container": "zed_container",
       "kind": "component",
-      "name": "camera_0",
-      "namespace": "/",
+      "name": "zed_node",
+      "namespace": "/sensors/camera_0",
       "package": "zed_components",
       "params": {
         "advanced": {
@@ -463,14 +469,14 @@
       },
       "plugin": "stereolabs::ZedCamera",
       "remaps": {
-        "/tf": "tf",
-        "/tf_static": "tf_static",
-        "~/depth/depth_registered": "sensors/camera_0/depth/image_raw",
-        "~/image/depth_image": "sensors/camera_0/depth/image_view",
-        "~/imu/data": "sensors/camera_0/imu/data",
-        "~/obj_det/objects": "sensors/camera_0/objects",
-        "~/point_cloud/cloud_registered": "sensors/camera_0/depth/points",
-        "~/rgb/color/rect/image": "sensors/camera_0/color/image_raw"
+        "/tf": "/tf",
+        "/tf_static": "/tf_static",
+        "~/depth/depth_registered": "depth/image_raw",
+        "~/image/depth_image": "depth/image_view",
+        "~/imu/data": "imu/data",
+        "~/obj_det/objects": "objects",
+        "~/point_cloud/cloud_registered": "depth/points",
+        "~/rgb/color/rect/image": "color/image_raw"
       }
     },
     {
@@ -528,10 +534,10 @@
       "respawn_delay": 2.0
     },
     {
-      "executable": "zed_object_overlay",
+      "executable": "stereolabs_zed_object_overlay",
       "kind": "node",
       "max_respawns": -1,
-      "name": "zed_object_overlay",
+      "name": "stereolabs_zed_object_overlay",
       "namespace": "/",
       "package": "robot_perception",
       "params": {
@@ -606,25 +612,25 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "detects_on_camera": true,
+        "has_on_camera_detector": true,
         "image_topic": "",
         "overrides_file": ""
       },
       "kind": "include",
-      "launchfile": "person_follow.launch.py",
+      "launchfile": "follow.launch.py",
       "namespace": "/",
       "package": "robot_perception",
       "subdir": null
     },
     {
-      "executable": "approach",
+      "executable": "follow",
       "kind": "node",
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml"
+        "perception/config/follow.yaml"
       ],
       "params": {
         "start_enabled": false
@@ -634,7 +640,7 @@
   ],
   "launch": {
     "arguments": {
-      "name": "kinova-link-6"
+      "robot": "kinova-link-6"
     },
     "file": "boot/launch/robot.launch.py",
     "function": "robot",

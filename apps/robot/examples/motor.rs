@@ -9,10 +9,10 @@ use robot_drivers::{
     motor::{mix, Drivetrain, Motor, HALT},
 };
 
-const LEFT_PWM_PIN: u32 = 12;
-const LEFT_DIR_PIN: u32 = 6;
-const RIGHT_PWM_PIN: u32 = 13;
-const RIGHT_DIR_PIN: u32 = 5;
+const LEFT_PWM_LINE: u32 = 12;
+const LEFT_DIR_LINE: u32 = 6;
+const RIGHT_PWM_LINE: u32 = 13;
+const RIGHT_DIR_LINE: u32 = 5;
 const LEFT_FORWARD_LEVEL: bool = true;
 const RIGHT_FORWARD_LEVEL: bool = false;
 const PWM_FREQUENCY_HZ: f32 = 10000.0;
@@ -39,14 +39,14 @@ fn config_table() -> Table {
         );
     table.add_row(vec![
         Cell::new("left").fg(Color::Green),
-        Cell::new(LEFT_PWM_PIN),
-        Cell::new(LEFT_DIR_PIN),
+        Cell::new(LEFT_PWM_LINE),
+        Cell::new(LEFT_DIR_LINE),
         Cell::new(LEFT_FORWARD_LEVEL),
     ]);
     table.add_row(vec![
         Cell::new("right").fg(Color::Green),
-        Cell::new(RIGHT_PWM_PIN),
-        Cell::new(RIGHT_DIR_PIN),
+        Cell::new(RIGHT_PWM_LINE),
+        Cell::new(RIGHT_DIR_LINE),
         Cell::new(RIGHT_FORWARD_LEVEL),
     ]);
     table
@@ -58,15 +58,15 @@ fn movement_sequence() -> Result<(), Box<dyn Error>> {
     let drivetrain = Drivetrain::new(
         Motor::pwm_dir(
             &chip,
-            LEFT_DIR_PIN,
-            LEFT_PWM_PIN,
+            LEFT_DIR_LINE,
+            LEFT_PWM_LINE,
             LEFT_FORWARD_LEVEL,
             PWM_FREQUENCY_HZ,
         )?,
         Motor::pwm_dir(
             &chip,
-            RIGHT_DIR_PIN,
-            RIGHT_PWM_PIN,
+            RIGHT_DIR_LINE,
+            RIGHT_PWM_LINE,
             RIGHT_FORWARD_LEVEL,
             PWM_FREQUENCY_HZ,
         )?,
@@ -91,7 +91,7 @@ fn movement_sequence() -> Result<(), Box<dyn Error>> {
 fn dir_combination_sweep() -> Result<(), Box<dyn Error>> {
     let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
-    for pin in [LEFT_PWM_PIN, LEFT_DIR_PIN, RIGHT_PWM_PIN, RIGHT_DIR_PIN] {
+    for pin in [LEFT_PWM_LINE, LEFT_DIR_LINE, RIGHT_PWM_LINE, RIGHT_DIR_LINE] {
         chip.claim_output(pin, false)?;
     }
 
@@ -103,13 +103,13 @@ fn dir_combination_sweep() -> Result<(), Box<dyn Error>> {
     ];
     for (label, left_high, right_high) in combinations {
         println!("  → {label}");
-        chip.write(LEFT_DIR_PIN, left_high)?;
-        chip.write(RIGHT_DIR_PIN, right_high)?;
-        chip.pwm(LEFT_PWM_PIN, PWM_FREQUENCY_HZ, DIAGNOSTIC_DUTY)?;
-        chip.pwm(RIGHT_PWM_PIN, PWM_FREQUENCY_HZ, DIAGNOSTIC_DUTY)?;
+        chip.write(LEFT_DIR_LINE, left_high)?;
+        chip.write(RIGHT_DIR_LINE, right_high)?;
+        chip.pwm(LEFT_PWM_LINE, PWM_FREQUENCY_HZ, DIAGNOSTIC_DUTY)?;
+        chip.pwm(RIGHT_PWM_LINE, PWM_FREQUENCY_HZ, DIAGNOSTIC_DUTY)?;
         sleep(HOLD);
-        chip.pwm(LEFT_PWM_PIN, PWM_FREQUENCY_HZ, 0.0)?;
-        chip.pwm(RIGHT_PWM_PIN, PWM_FREQUENCY_HZ, 0.0)?;
+        chip.pwm(LEFT_PWM_LINE, PWM_FREQUENCY_HZ, 0.0)?;
+        chip.pwm(RIGHT_PWM_LINE, PWM_FREQUENCY_HZ, 0.0)?;
         sleep(SETTLE);
     }
     Ok(())
@@ -118,13 +118,13 @@ fn dir_combination_sweep() -> Result<(), Box<dyn Error>> {
 fn per_side_direction_sweep() -> Result<(), Box<dyn Error>> {
     let connection = Connection::connect(RGPIOD_HOST, RGPIOD_PORT)?;
     let chip = connection.open_chip(GPIO_CHIP)?;
-    for pin in [LEFT_PWM_PIN, LEFT_DIR_PIN, RIGHT_PWM_PIN, RIGHT_DIR_PIN] {
+    for pin in [LEFT_PWM_LINE, LEFT_DIR_LINE, RIGHT_PWM_LINE, RIGHT_DIR_LINE] {
         chip.claim_output(pin, false)?;
     }
 
     let sides = [
-        ("left", LEFT_DIR_PIN, LEFT_PWM_PIN),
-        ("right", RIGHT_DIR_PIN, RIGHT_PWM_PIN),
+        ("left", LEFT_DIR_LINE, LEFT_PWM_LINE),
+        ("right", RIGHT_DIR_LINE, RIGHT_PWM_LINE),
     ];
     for (label, dir_pin, pwm_pin) in sides {
         for direction_high in [false, true] {

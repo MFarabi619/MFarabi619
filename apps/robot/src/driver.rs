@@ -28,21 +28,25 @@ const DEFAULT_DIAGNOSTICS_RATE: f64 = 1.0;
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 pub struct Config {
-    pub host: String,
+    pub hardware_id: String,
     pub deadman_seconds: f64,
     pub shaping: Shaping,
     pub publish_odometry: bool,
 }
 
-fn diagnostics(host: &str, cmd_vel_age_seconds: f64, deadman_seconds: f64) -> DiagnosticArray {
+fn diagnostics(
+    hardware_id: &str,
+    cmd_vel_age_seconds: f64,
+    deadman_seconds: f64,
+) -> DiagnosticArray {
     let cmd_vel_level = if command_is_stale(cmd_vel_age_seconds, deadman_seconds) {
         DiagnosticStatus::WARN
     } else {
         DiagnosticStatus::OK
     };
     diagnostic_array(vec![
-        Status::new(DiagnosticStatus::OK, "drive", host).message("connected"),
-        Status::new(cmd_vel_level, "cmd_vel", host)
+        Status::new(DiagnosticStatus::OK, "drive", hardware_id).message("connected"),
+        Status::new(cmd_vel_level, "cmd_vel", hardware_id)
             .message(&format!("{cmd_vel_age_seconds:.1}s since last command"))
             .value("age_seconds", &format!("{cmd_vel_age_seconds:.2}")),
     ])
@@ -74,9 +78,21 @@ pub async fn run_driver(
             f64_parameter(&store, "diagnostics_rate", DEFAULT_DIAGNOSTICS_RATE),
             f64_parameter(&store, "cmd_vel_timeout", config.deadman_seconds),
             Shaping {
-                deadzone: f64_parameter(&store, "shaping.deadzone", config.shaping.deadzone),
-                min_duty: f64_parameter(&store, "shaping.min_duty", config.shaping.min_duty),
-                scale: f64_parameter(&store, "shaping.scale", config.shaping.scale),
+                deadzone_fraction: f64_parameter(
+                    &store,
+                    "shaping.deadzone_fraction",
+                    config.shaping.deadzone_fraction,
+                ),
+                min_duty_fraction: f64_parameter(
+                    &store,
+                    "shaping.min_duty_fraction",
+                    config.shaping.min_duty_fraction,
+                ),
+                scale_factor: f64_parameter(
+                    &store,
+                    "shaping.scale_factor",
+                    config.shaping.scale_factor,
+                ),
             },
             bool_parameter(&store, "publish_odometry", config.publish_odometry),
             axis_limits(&store, "linear.x", DEFAULT_LINEAR),
@@ -101,7 +117,7 @@ pub async fn run_driver(
     let mut odometry_tick = interval(Duration::from_secs_f64(1.0 / odometry_rate));
     let mut diagnostics_tick = interval(Duration::from_secs_f64(1.0 / diagnostics_rate));
 
-    tracing::info!("driving on cmd_vel via {}", config.host);
+    tracing::info!("driving on cmd_vel via {}", config.hardware_id);
     let ctrl_c = tokio::signal::ctrl_c();
     tokio::pin!(ctrl_c);
     loop {
@@ -143,7 +159,7 @@ pub async fn run_driver(
             _ = diagnostics_tick.tick() => {
                 let age_seconds = last_command.elapsed().as_secs_f64();
                 diagnostics_publisher.send(&diagnostics(
-                    &config.host,
+                    &config.hardware_id,
                     age_seconds,
                     deadman_seconds,
                 ))?;

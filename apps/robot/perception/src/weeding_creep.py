@@ -35,9 +35,12 @@ from std_srvs.srv import SetBool
 from tf2_ros import Buffer, TransformListener
 
 MILLIMETERS_PER_METER = 1000.0
+NANOSECONDS_PER_SECOND = 1_000_000_000
 MILLIMETER_DEPTH_ENCODING = '16UC1'
 METER_DEPTH_ENCODING = '32FC1'
-TRANSFORM_TIMEOUT = Duration(seconds=0.5)
+BYTES_PER_MILLIMETER_DEPTH_PIXEL = 2
+BYTES_PER_METER_DEPTH_PIXEL = 4
+TRANSFORM_TIMEOUT_SECONDS = 0.5
 BODY_SKIN_CLASS = 2
 MIN_SKIN_PIXELS = 60
 MIN_CLEARANCE_SAMPLES = 60
@@ -51,7 +54,7 @@ SKIN_LIFTED = 'lifted'
 SKIN_GROUNDED = 'grounded'
 
 LIVE_PARAMETERS = frozenset({
-    'lift_clearance_meters', 'creep_speed_mps', 'commit_frames',
+    'lift_clearance_meters', 'creep_speed_meters_per_second', 'commit_frames',
     'allow_creep_without_skin', 'command_smoothing_seconds', 'depth_timeout_seconds',
 })
 
@@ -59,9 +62,10 @@ LIFTED_COLOR = Color(r=0.2, g=1.0, b=0.4, a=1.0)
 GROUNDED_COLOR = Color(r=1.0, g=0.3, b=0.2, a=1.0)
 TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
-STATUS_FONT_SIZE = 24.0
-LABEL_FONT_SIZE = 16.0
+STATUS_FONT_SIZE_PIXELS = 24.0
+LABEL_FONT_SIZE_PIXELS = 16.0
 LABEL_MARGIN_PIXELS = 22.0
+BOX_THICKNESS_PIXELS = 3.0
 CENTIMETERS_PER_METER = 100.0
 
 DEFAULT_MODEL_PATH = os.path.normpath(os.path.join(
@@ -80,12 +84,13 @@ class WeedingCreep(Node):
         cmd_vel_topic = self.declare_parameter('cmd_vel_topic', 'cmd_vel').value
         overlay_topic = self.declare_parameter(
             'overlay_topic', 'perception/weeding/overlay').value
-        model_path = self.declare_parameter('model', DEFAULT_MODEL_PATH).value
+        model_path = self.declare_parameter('model_path', DEFAULT_MODEL_PATH).value
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
         self.ground_frame = self.declare_parameter('ground_frame', 'base_footprint').value
         self.lift_clearance_meters = self.declare_parameter(
             'lift_clearance_meters', 0.08).value
-        self.creep_speed_mps = self.declare_parameter('creep_speed_mps', 0.12).value
+        self.creep_speed_meters_per_second = self.declare_parameter(
+            'creep_speed_meters_per_second', 0.12).value
         self.commit_frames = self.declare_parameter('commit_frames', 5).value
         self.command_smoothing_seconds = self.declare_parameter(
             'command_smoothing_seconds', 0.4).value
@@ -109,10 +114,10 @@ class WeedingCreep(Node):
         self.depth_intrinsics = None
         self.ground_depth_map = None
         self.lifted_frames = 0
-        self.smoothed_forward_speed = 0.0
-        self.previous_drive_time_s = None
-        self.previous_segmentation_time_s = None
-        self.min_segmentation_interval_s = (
+        self.smoothed_forward_speed_meters_per_second = 0.0
+        self.previous_drive_time_seconds = None
+        self.previous_segmentation_time_seconds = None
+        self.min_segmentation_interval_seconds = (
             1.0 / self.max_segmentations_per_second
             if self.max_segmentations_per_second > 0.0 else 0.0)
 
@@ -155,14 +160,16 @@ class WeedingCreep(Node):
     def on_depth(self, message):
         if message.encoding == MILLIMETER_DEPTH_ENCODING:
             depth = np.frombuffer(message.data, np.uint16).reshape(
-                message.height, message.step // 2)[:, :message.width]
+                message.height, message.step // BYTES_PER_MILLIMETER_DEPTH_PIXEL
+            )[:, :message.width]
             if message.is_bigendian:
                 depth = depth.byteswap()
             self.latest_depth_meters = depth.astype(np.float32) / MILLIMETERS_PER_METER
             self.latest_depth_time = self.get_clock().now()
         elif message.encoding == METER_DEPTH_ENCODING:
             depth = np.frombuffer(message.data, np.float32).reshape(
-                message.height, message.step // 4)[:, :message.width]
+                message.height, message.step // BYTES_PER_METER_DEPTH_PIXEL
+            )[:, :message.width]
             if message.is_bigendian:
                 depth = depth.byteswap()
             self.latest_depth_meters = depth
@@ -179,7 +186,7 @@ class WeedingCreep(Node):
         try:
             transform = self.tf_buffer.lookup_transform(
                 self.depth_frame_id, self.ground_frame, rclpy.time.Time(),
-                timeout=TRANSFORM_TIMEOUT)
+                timeout=Duration(seconds=TRANSFORM_TIMEOUT_SECONDS))
         except Exception as error:
             self.get_logger().warning(
                 f'ground transform failed: {error}', throttle_duration_sec=5.0)
@@ -256,7 +263,7 @@ class WeedingCreep(Node):
         if can_creep:
             self.lifted_frames += 1
             if self.is_creeping():
-                self.drive(self.creep_speed_mps)
+                self.drive(self.creep_speed_meters_per_second)
         else:
             self.halt()
         self.publish_overlay(message.header.stamp, skin, skin_state, low_clearance,
@@ -268,20 +275,24 @@ class WeedingCreep(Node):
         _, _, region_stats, _ = cv2.connectedComponentsWithStats(
             skin.astype(np.uint8))
         mask_height, mask_width = skin.shape[:2]
-        for x, y, w, h, area in region_stats[1:]:
+        for x, y, box_width, box_height, area in region_stats[1:]:
             if area < MIN_REGION_AREA_PIXELS:
                 continue
             box = PointsAnnotation()
             box.timestamp = stamp
             box.type = PointsAnnotation.LINE_LOOP
             box.points = [
-                Point2(x=x * width / mask_width, y=y * height / mask_height),
-                Point2(x=(x + w) * width / mask_width, y=y * height / mask_height),
-                Point2(x=(x + w) * width / mask_width, y=(y + h) * height / mask_height),
-                Point2(x=x * width / mask_width, y=(y + h) * height / mask_height),
+                Point2(x=x * width / mask_width,
+                       y=y * height / mask_height),
+                Point2(x=(x + box_width) * width / mask_width,
+                       y=y * height / mask_height),
+                Point2(x=(x + box_width) * width / mask_width,
+                       y=(y + box_height) * height / mask_height),
+                Point2(x=x * width / mask_width,
+                       y=(y + box_height) * height / mask_height),
             ]
             box.outline_color = state_color
-            box.thickness = 3.0
+            box.thickness = BOX_THICKNESS_PIXELS
             overlay.points.append(box)
         if low_clearance is not None and overlay.points:
             clearance_label = TextAnnotation()
@@ -290,7 +301,7 @@ class WeedingCreep(Node):
                 x=overlay.points[0].points[0].x,
                 y=max(overlay.points[0].points[0].y - LABEL_MARGIN_PIXELS, 0.0))
             clearance_label.text = f'{low_clearance * CENTIMETERS_PER_METER:.0f}cm'
-            clearance_label.font_size = LABEL_FONT_SIZE
+            clearance_label.font_size = LABEL_FONT_SIZE_PIXELS
             clearance_label.text_color = state_color
             clearance_label.background_color = TEXT_BACKGROUND_COLOR
             overlay.texts.append(clearance_label)
@@ -299,7 +310,8 @@ class WeedingCreep(Node):
         status.timestamp = stamp
         status.position = Point2(x=8.0, y=8.0)
         if self.is_creeping():
-            status.text = f'WEEDING ▲ CREEP {self.smoothed_forward_speed:.2f} m/s'
+            status.text = (
+                f'WEEDING ▲ CREEP {self.smoothed_forward_speed_meters_per_second:.2f} m/s')
         elif skin_state == SKIN_GROUNDED:
             status.text = 'WEEDING ■ HOLD (hands down)'
         elif skin_state == SKIN_ABSENT:
@@ -308,19 +320,19 @@ class WeedingCreep(Node):
             status.text = 'WEEDING ■ HOLD (no depth)'
         else:
             status.text = 'WEEDING ■ HOLD'
-        status.font_size = STATUS_FONT_SIZE
+        status.font_size = STATUS_FONT_SIZE_PIXELS
         status.text_color = TEXT_COLOR
         status.background_color = TEXT_BACKGROUND_COLOR
         overlay.texts.append(status)
         self.overlay_publisher.publish(overlay)
 
     def claim_segmentation_slot(self):
-        now_s = self.get_clock().now().nanoseconds * 1e-9
-        previous_s = self.previous_segmentation_time_s
-        if (previous_s is not None
-                and now_s - previous_s < self.min_segmentation_interval_s):
+        now_seconds = self.get_clock().now().nanoseconds / NANOSECONDS_PER_SECOND
+        previous_seconds = self.previous_segmentation_time_seconds
+        if (previous_seconds is not None
+                and now_seconds - previous_seconds < self.min_segmentation_interval_seconds):
             return False
-        self.previous_segmentation_time_s = now_s
+        self.previous_segmentation_time_seconds = now_seconds
         return True
 
     def is_creeping(self):
@@ -334,29 +346,29 @@ class WeedingCreep(Node):
 
     def halt(self):
         self.lifted_frames = 0
-        self.smoothed_forward_speed = 0.0
-        self.previous_drive_time_s = None
+        self.smoothed_forward_speed_meters_per_second = 0.0
+        self.previous_drive_time_seconds = None
         self.publish(0.0)
 
     def claim_smoothing_fraction(self):
-        now_s = self.get_clock().now().nanoseconds * 1e-9
-        previous_s = self.previous_drive_time_s
-        self.previous_drive_time_s = now_s
-        if self.command_smoothing_seconds <= 0.0 or previous_s is None:
+        now_seconds = self.get_clock().now().nanoseconds / NANOSECONDS_PER_SECOND
+        previous_seconds = self.previous_drive_time_seconds
+        self.previous_drive_time_seconds = now_seconds
+        if self.command_smoothing_seconds <= 0.0 or previous_seconds is None:
             return 1.0
-        return 1.0 - math.exp(-(now_s - previous_s) / self.command_smoothing_seconds)
+        return 1.0 - math.exp(-(now_seconds - previous_seconds) / self.command_smoothing_seconds)
 
-    def drive(self, forward_speed):
+    def drive(self, forward_speed_meters_per_second):
         fraction = self.claim_smoothing_fraction()
-        self.smoothed_forward_speed += fraction * (
-            forward_speed - self.smoothed_forward_speed)
-        self.publish(self.smoothed_forward_speed)
+        self.smoothed_forward_speed_meters_per_second += fraction * (
+            forward_speed_meters_per_second - self.smoothed_forward_speed_meters_per_second)
+        self.publish(self.smoothed_forward_speed_meters_per_second)
 
-    def publish(self, forward_speed):
+    def publish(self, forward_speed_meters_per_second):
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(forward_speed)
+        message.twist.linear.x = float(forward_speed_meters_per_second)
         self.cmd_vel_publisher.publish(message)
 
 

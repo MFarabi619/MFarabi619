@@ -38,10 +38,10 @@ GRIPPER_PLUGIN_NAMESPACE = 'robotiq_plugin'
 GRIPPER_NAME = 'Gripper A'
 GRIPPER_FULL_SCALE = 255
 JOINT_COUNT = 6
-MAX_JOINT_VELOCITY_DEG_PER_SECOND = 30.0
+MAX_JOINT_VELOCITY_DEGREES_PER_SECOND = 30.0
 STOP_AT_WAYPOINT_BLENDING = 0.0
-SESSION_INACTIVITY_TIMEOUT_MS = 60000
-CONNECTION_INACTIVITY_TIMEOUT_MS = 2000
+SESSION_INACTIVITY_TIMEOUT_MILLISECONDS = 60000
+CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS = 2000
 MODE_SETTLE_SECONDS = 1.0
 EXECUTE_TIMEOUT_SECONDS = 60.0
 GRIPPER_TIMEOUT_SECONDS = 15.0
@@ -60,25 +60,25 @@ def save_poses(poses):
         yaml.safe_dump(poses, poses_file, sort_keys=False)
 
 
-class Arm:
+class KinovaLink6Arm:
     def __init__(self, address, username, password,
-                 joint_speed_deg_per_second=MAX_JOINT_VELOCITY_DEG_PER_SECOND):
-        self.joint_speed_deg_per_second = joint_speed_deg_per_second
+                 joint_speed_degrees_per_second=MAX_JOINT_VELOCITY_DEGREES_PER_SECOND):
+        self.joint_speed_degrees_per_second = joint_speed_degrees_per_second
         self.transport = MqttTransport()
         self.transport.connect(address)
-        self.router = RouterClient(self.transport, errorCallback=None)
+        self.kortex_router = RouterClient(self.transport, errorCallback=None)
         session = Session_pb2.CreateSessionInfo()
         session.username = username
         session.password = password
-        session.session_inactivity_timeout = SESSION_INACTIVITY_TIMEOUT_MS
+        session.session_inactivity_timeout = SESSION_INACTIVITY_TIMEOUT_MILLISECONDS
         session.connection_inactivity_timeout = (
-            CONNECTION_INACTIVITY_TIMEOUT_MS)
-        self.session_client = SessionClient(self.router)
+            CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS)
+        self.session_client = SessionClient(self.kortex_router)
         self.session_client.CreateSession(session)
-        self.base = BaseClient(self.router)
-        self.base_cyclic = BaseCyclicClient(self.router)
+        self.base = BaseClient(self.kortex_router)
+        self.base_cyclic = BaseCyclicClient(self.kortex_router)
         self.gripper_plugin = PluginClient(
-            self.router, GRIPPER_PLUGIN_NAMESPACE)
+            self.kortex_router, GRIPPER_PLUGIN_NAMESPACE)
 
     def close(self):
         self.session_client.CloseSession()
@@ -94,7 +94,7 @@ class Arm:
         except KServerException:
             pass
 
-    def joint_positions_deg(self):
+    def joint_positions_degrees(self):
         feedback = self.base_cyclic.RefreshFeedback()
         return [actuator.position for actuator in feedback.actuators]
 
@@ -111,15 +111,15 @@ class Arm:
                 ModeSelection(operating_mode=operating_mode))
             time.sleep(MODE_SETTLE_SECONDS)
 
-    def move_through(self, waypoints_deg):
+    def move_through(self, waypoints_degrees):
         waypoint_list = Base_pb2.WaypointList()
         waypoint_list.use_optimal_blending = False
-        for index, angles in enumerate(waypoints_deg):
+        for index, angles in enumerate(waypoints_degrees):
             waypoint = waypoint_list.waypoints.add()
             waypoint.name = f'waypoint_{index}'
             waypoint.angular_waypoint.angles.extend(angles)
             waypoint.angular_waypoint.maximum_velocities.extend(
-                [self.joint_speed_deg_per_second] * JOINT_COUNT)
+                [self.joint_speed_degrees_per_second] * JOINT_COUNT)
             waypoint.angular_waypoint.blending = STOP_AT_WAYPOINT_BLENDING
         validation = self.base.ValidateWaypointList(waypoint_list)
         if validation.trajectory_error_report.trajectory_error_elements:
@@ -195,19 +195,19 @@ class Arm:
 
 def record(arm, pose_name):
     poses = load_poses()
-    poses[pose_name] = [round(angle, 3) for angle in arm.joint_positions_deg()]
+    poses[pose_name] = [round(angle, 3) for angle in arm.joint_positions_degrees()]
     save_poses(poses)
     print(f"recorded '{pose_name}': {poses[pose_name]}")
 
 
-START_TOLERANCE_DEG = 15.0
+START_TOLERANCE_DEGREES = 15.0
 
 
 def require_arm_at_home(arm, poses):
     offsets = [
         abs((actual - taught + 180.0) % 360.0 - 180.0)
-        for taught, actual in zip(poses['home'], arm.joint_positions_deg())]
-    if max(offsets) > START_TOLERANCE_DEG:
+        for taught, actual in zip(poses['home'], arm.joint_positions_degrees())]
+    if max(offsets) > START_TOLERANCE_DEGREES:
         raise RuntimeError(
             f'arm is not at home (largest joint offset {max(offsets):.1f} '
             'deg). Hand-guide it back to home along the taught route first; '
@@ -316,11 +316,11 @@ def main():
     parser.add_argument('--force', type=int, default=10)
     parser.add_argument('--velocity', type=int, default=50)
     parser.add_argument('--joint-speed', type=float,
-                        default=MAX_JOINT_VELOCITY_DEG_PER_SECOND)
+                        default=MAX_JOINT_VELOCITY_DEGREES_PER_SECOND)
     arguments = parser.parse_args()
-    arm = Arm(arguments.robot_ip, arguments.robot_username,
-              arguments.robot_password,
-              joint_speed_deg_per_second=arguments.joint_speed)
+    arm = KinovaLink6Arm(arguments.robot_ip, arguments.robot_username,
+                         arguments.robot_password,
+                         joint_speed_degrees_per_second=arguments.joint_speed)
     try:
         if arguments.record:
             record(arm, arguments.record)

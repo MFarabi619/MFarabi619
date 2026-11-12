@@ -17,11 +17,11 @@ find_package(ament_cmake_python REQUIRED)
 
 ament_python_install_module(src/adafruit_bno085.py)
 install(FILES src/pwm_dir_motor_driver.py src/rpicam_mjpeg.py DESTINATION "${PYTHON_INSTALL_DIR}")
-install(PROGRAMS src/imu.py DESTINATION lib/${PROJECT_NAME} RENAME imu)
+install(PROGRAMS src/adafruit_bno085_driver.py DESTINATION lib/${PROJECT_NAME} RENAME adafruit_bno085)
 install(PROGRAMS src/ublox_flash.py DESTINATION lib/${PROJECT_NAME} RENAME ublox_flash)
-install(PROGRAMS src/camera.py DESTINATION lib/${PROJECT_NAME} RENAME camera)
-install(PROGRAMS src/oak_d_sr.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_sr)
-install(PROGRAMS src/oak_d_pro_w_poe.py DESTINATION lib/${PROJECT_NAME} RENAME oak_d_pro_w_poe)
+install(PROGRAMS src/rpicam_mjpeg_client.py DESTINATION lib/${PROJECT_NAME} RENAME rpicam_mjpeg_client)
+install(PROGRAMS src/luxonis_oak_d_sr.py DESTINATION lib/${PROJECT_NAME} RENAME luxonis_oak_d_sr)
+install(PROGRAMS src/luxonis_oak_d_pro_w_poe.py DESTINATION lib/${PROJECT_NAME} RENAME luxonis_oak_d_pro_w_poe)
 install(PROGRAMS src/odrive_motor_driver.py DESTINATION lib/${PROJECT_NAME} RENAME odrive_motor_driver)
 install(PROGRAMS src/reverse_beeper.py DESTINATION lib/${PROJECT_NAME} RENAME reverse_beeper)
 install(PROGRAMS src/usb_webcam.py DESTINATION lib/${PROJECT_NAME} RENAME usb_webcam)
@@ -118,9 +118,9 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     ${sensor_msgs_TARGETS})
   install(TARGETS rc_receiver_joy DESTINATION lib/${PROJECT_NAME})
 
-  add_library(orbbec_camera_component SHARED src/orbbec_gemini_335l.cpp)
-  target_compile_features(orbbec_camera_component PUBLIC cxx_std_17)
-  target_link_libraries(orbbec_camera_component
+  add_library(orbbec_gemini_335l_component SHARED src/orbbec_gemini_335l.cpp)
+  target_compile_features(orbbec_gemini_335l_component PUBLIC cxx_std_17)
+  target_link_libraries(orbbec_gemini_335l_component
     ob::OrbbecSDK
     ament_index_cpp::ament_index_cpp
     rclcpp::rclcpp
@@ -128,11 +128,11 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     opencv_imgcodecs
     opencv_imgproc
     ${sensor_msgs_TARGETS})
-  rclcpp_components_register_node(orbbec_camera_component
-    PLUGIN "robot_drivers::OrbbecCamera"
+  rclcpp_components_register_node(orbbec_gemini_335l_component
+    PLUGIN "robot_drivers::OrbbecGemini335l"
     EXECUTABLE orbbec_gemini_335l)
-  set_target_properties(orbbec_camera_component PROPERTIES INSTALL_RPATH "$ORIGIN")
-  install(TARGETS orbbec_camera_component
+  set_target_properties(orbbec_gemini_335l_component PROPERTIES INSTALL_RPATH "$ORIGIN")
+  install(TARGETS orbbec_gemini_335l_component
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION lib/${PROJECT_NAME})
@@ -148,9 +148,9 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   find_package(geometry_msgs REQUIRED)
   find_package(foxglove_msgs REQUIRED)
 
-  add_executable(oak_d_pro_w_poe_spatial src/oak_d_pro_w_poe_spatial.cpp)
-  target_compile_features(oak_d_pro_w_poe_spatial PUBLIC cxx_std_17)
-  target_link_libraries(oak_d_pro_w_poe_spatial
+  add_executable(luxonis_oak_d_pro_w_poe_spatial src/luxonis_oak_d_pro_w_poe_spatial.cpp)
+  target_compile_features(luxonis_oak_d_pro_w_poe_spatial PUBLIC cxx_std_17)
+  target_link_libraries(luxonis_oak_d_pro_w_poe_spatial
     depthai::core
     Threads::Threads
     rclcpp::rclcpp
@@ -160,8 +160,10 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
     ${vision_msgs_TARGETS}
     ${geometry_msgs_TARGETS}
     ${foxglove_msgs_TARGETS})
-  install(TARGETS oak_d_pro_w_poe_spatial DESTINATION lib/${PROJECT_NAME})
+  install(TARGETS luxonis_oak_d_pro_w_poe_spatial DESTINATION lib/${PROJECT_NAME})
 endif()
+
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME} PATTERN "__pycache__" EXCLUDE)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

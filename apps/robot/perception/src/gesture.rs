@@ -33,12 +33,12 @@ const PRESENCE_THRESHOLD: f32 = 0.6;
 const HANDEDNESS_MARGIN: f32 = 0.05;
 const LOG_STRIDE_FRAMES: u64 = 10;
 const CROP_EXPANSION: f64 = 2.7;
-const FINGER_OPEN_ANGLE_RAD: f32 = 2.8;
-const THUMB_OPEN_ANGLE_RAD: f32 = 2.4;
-const GESTURE_LABEL_SIZE: f64 = 28.0;
+const FINGER_OPEN_ANGLE_RADIANS: f32 = 2.8;
+const THUMB_OPEN_ANGLE_RADIANS: f32 = 2.4;
+const LABEL_FONT_SIZE_PIXELS: f64 = 28.0;
 const DEBOUNCE_FRAMES: usize = 4;
-const DEFAULT_FORWARD_SPEED: f64 = 0.1;
-const DEFAULT_TURN_SPEED: f64 = 0.1;
+const DEFAULT_FORWARD_SPEED_METERS_PER_SECOND: f64 = 0.1;
+const DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND: f64 = 0.1;
 const SLEW_LINEAR: f64 = 0.05;
 const SLEW_ANGULAR: f64 = 0.1;
 
@@ -235,7 +235,7 @@ const PINKY_FINGER: Finger = Finger {
 fn finger_is_open(
     landmarks: &[[f32; 3]; LANDMARK_COUNT],
     finger: &Finger,
-    open_angle: f32,
+    open_angle_radians: f32,
 ) -> bool {
     let toward_base = (
         landmarks[finger.metacarpal][0] - landmarks[finger.proximal][0],
@@ -251,16 +251,16 @@ fn finger_is_open(
     if base_length == 0.0 || tip_length == 0.0 {
         return false;
     }
-    let angle = (dot / (base_length * tip_length)).clamp(-1.0, 1.0).acos();
-    angle > open_angle
+    let angle_radians = (dot / (base_length * tip_length)).clamp(-1.0, 1.0).acos();
+    angle_radians > open_angle_radians
 }
 
 pub fn classify_gesture(landmarks: &[[f32; 3]; LANDMARK_COUNT]) -> Gesture {
-    let thumb = finger_is_open(landmarks, &THUMB, THUMB_OPEN_ANGLE_RAD);
-    let index = finger_is_open(landmarks, &INDEX_FINGER, FINGER_OPEN_ANGLE_RAD);
-    let middle = finger_is_open(landmarks, &MIDDLE_FINGER, FINGER_OPEN_ANGLE_RAD);
-    let ring = finger_is_open(landmarks, &RING_FINGER, FINGER_OPEN_ANGLE_RAD);
-    let pinky = finger_is_open(landmarks, &PINKY_FINGER, FINGER_OPEN_ANGLE_RAD);
+    let thumb = finger_is_open(landmarks, &THUMB, THUMB_OPEN_ANGLE_RADIANS);
+    let index = finger_is_open(landmarks, &INDEX_FINGER, FINGER_OPEN_ANGLE_RADIANS);
+    let middle = finger_is_open(landmarks, &MIDDLE_FINGER, FINGER_OPEN_ANGLE_RADIANS);
+    let ring = finger_is_open(landmarks, &RING_FINGER, FINGER_OPEN_ANGLE_RADIANS);
+    let pinky = finger_is_open(landmarks, &PINKY_FINGER, FINGER_OPEN_ANGLE_RADIANS);
     match (thumb, index, middle, ring, pinky) {
         (_, true, true, true, true) => Gesture::OpenPalm,
         (true, false, false, false, false) => Gesture::ThumbUp,
@@ -314,10 +314,10 @@ fn skeleton_annotations(
     annotations.texts.push(TextAnnotation {
         position: Some(Point2 {
             x: (rect.center_x - rect.side / 2.0).max(0.0),
-            y: (rect.center_y - rect.side / 2.0).max(GESTURE_LABEL_SIZE),
+            y: (rect.center_y - rect.side / 2.0).max(LABEL_FONT_SIZE_PIXELS),
         }),
         text: format!("{gesture:?}"),
-        font_size: GESTURE_LABEL_SIZE,
+        font_size: LABEL_FONT_SIZE_PIXELS,
         text_color: Some(skeleton_color()),
         background_color: Some(Color {
             r: 0.0,
@@ -330,12 +330,12 @@ fn skeleton_annotations(
     annotations
 }
 
-fn behavior_velocity(gesture: Gesture, forward_speed: f64, turn_speed: f64) -> (f64, f64) {
+fn behavior_velocity(gesture: Gesture, forward_speed_meters_per_second: f64, angular_speed_radians_per_second: f64) -> (f64, f64) {
     match gesture {
-        Gesture::ThumbUp => (forward_speed, 0.0),
-        Gesture::Fist => (-forward_speed, 0.0),
-        Gesture::Point => (0.0, turn_speed),
-        Gesture::Victory => (0.0, -turn_speed),
+        Gesture::ThumbUp => (forward_speed_meters_per_second, 0.0),
+        Gesture::Fist => (-forward_speed_meters_per_second, 0.0),
+        Gesture::Point => (0.0, angular_speed_radians_per_second),
+        Gesture::Victory => (0.0, -angular_speed_radians_per_second),
         Gesture::OpenPalm | Gesture::None => (0.0, 0.0),
     }
 }
@@ -350,20 +350,20 @@ struct GestureBrain {
     candidate_frames: usize,
     linear: f64,
     angular: f64,
-    forward_speed: f64,
-    turn_speed: f64,
+    forward_speed_meters_per_second: f64,
+    angular_speed_radians_per_second: f64,
 }
 
 impl GestureBrain {
-    fn new(forward_speed: f64, turn_speed: f64) -> Self {
+    fn new(forward_speed_meters_per_second: f64, angular_speed_radians_per_second: f64) -> Self {
         Self {
             committed: Gesture::None,
             candidate: Gesture::None,
             candidate_frames: 0,
             linear: 0.0,
             angular: 0.0,
-            forward_speed,
-            turn_speed,
+            forward_speed_meters_per_second,
+            angular_speed_radians_per_second,
         }
     }
 
@@ -386,13 +386,13 @@ impl GestureBrain {
             self.committed = self.candidate;
         }
         let (target_linear, target_angular) =
-            behavior_velocity(self.committed, self.forward_speed, self.turn_speed);
+            behavior_velocity(self.committed, self.forward_speed_meters_per_second, self.angular_speed_radians_per_second);
         self.linear = slew(self.linear, target_linear, SLEW_LINEAR);
         self.angular = slew(self.angular, target_angular, SLEW_ANGULAR);
     }
 
     fn halt(&mut self) {
-        *self = Self::new(self.forward_speed, self.turn_speed);
+        *self = Self::new(self.forward_speed_meters_per_second, self.angular_speed_radians_per_second);
     }
 }
 
@@ -401,13 +401,13 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
     let palm = PalmDetector::load(&palm_config)?;
     let landmarker = LandmarkDetector::load(&default_landmark_model())?;
 
-    let (image_topic, forward_speed, turn_speed) = {
+    let (image_topic, forward_speed_meters_per_second, angular_speed_radians_per_second) = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
         (
             crate::parameters::string_parameter(&store, "image_topic", crate::parameters::DEFAULT_IMAGE_TOPIC),
-            crate::parameters::f64_parameter(&store, "forward_speed", DEFAULT_FORWARD_SPEED),
-            crate::parameters::f64_parameter(&store, "turn_speed", DEFAULT_TURN_SPEED),
+            crate::parameters::f64_parameter(&store, "forward_speed_meters_per_second", DEFAULT_FORWARD_SPEED_METERS_PER_SECOND),
+            crate::parameters::f64_parameter(&store, "angular_speed_radians_per_second", DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND),
         )
     };
 
@@ -416,12 +416,12 @@ pub async fn run_gesture(node: Arc<Node>, start_enabled: bool) -> Result<(), Box
     let cmd_vel = node.create_publisher::<TwistStamped>("cmd_vel", Some(Profile { depth: 1, ..Profile::sensor_data() }))?;
     let mut enable = node.create_server::<SetBool>("~/enable", None)?;
     let skeleton = foxglove::ChannelBuilder::new("/hand/landmarks").build::<ImageAnnotations>();
-    let mut brain = GestureBrain::new(forward_speed, turn_speed);
+    let mut brain = GestureBrain::new(forward_speed_meters_per_second, angular_speed_radians_per_second);
     let mut last_committed = brain.committed();
     let mut enabled = start_enabled;
 
     tracing::info!(
-        "gesture control reading {} -> cmd_vel (forward {forward_speed} m/s, turn {turn_speed} rad/s)",
+        "gesture control reading {} -> cmd_vel (forward {forward_speed_meters_per_second} m/s, turn {angular_speed_radians_per_second} rad/s)",
         images.fully_qualified_topic_name()
     );
     let ctrl_c = tokio::signal::ctrl_c();
@@ -521,7 +521,7 @@ mod tests {
 
     #[test]
     fn brain_debounces_before_committing() {
-        let mut brain = GestureBrain::new(DEFAULT_FORWARD_SPEED, DEFAULT_TURN_SPEED);
+        let mut brain = GestureBrain::new(DEFAULT_FORWARD_SPEED_METERS_PER_SECOND, DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND);
         for _ in 0..DEBOUNCE_FRAMES - 1 {
             brain.update(Gesture::Point);
         }
@@ -532,7 +532,7 @@ mod tests {
 
     #[test]
     fn watchdog_halt_disarms() {
-        let mut brain = GestureBrain::new(DEFAULT_FORWARD_SPEED, DEFAULT_TURN_SPEED);
+        let mut brain = GestureBrain::new(DEFAULT_FORWARD_SPEED_METERS_PER_SECOND, DEFAULT_ANGULAR_SPEED_RADIANS_PER_SECOND);
         for _ in 0..DEBOUNCE_FRAMES {
             brain.update(Gesture::Point);
         }

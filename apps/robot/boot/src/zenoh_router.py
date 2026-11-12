@@ -19,37 +19,52 @@ import time
 
 from robot_boot.launch_policy import RESPAWN
 
-ROUTER_PORT = 7447
-CONNECT_PROBE_TIMEOUT_SECONDS = 0.2
+ZENOH_ROUTER_EXECUTABLE = 'rmw_zenohd'
+ZENOH_ROUTER_PORT = 7447
+ZENOH_ROUTER_CONNECT_PROBE_TIMEOUT_SECONDS = 0.2
+ZENOH_ROUTER_MAX_ATTEMPTS = 50
+ZENOH_ROUTER_RETRY_DELAY_SECONDS = 0.2
+ZENOH_ROUTER_CONFIG_OVERRIDE = 'mode="router"'
+ZENOH_CLIENT_CONFIG_OVERRIDE = 'mode="client"'
+ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE = (
+    f'mode="client";connect/endpoints=["tcp/localhost:{ZENOH_ROUTER_PORT}"]')
 
 
-def router_is_listening():
+def zenoh_router_is_listening():
     try:
         socket.create_connection(
-            ('127.0.0.1', ROUTER_PORT),
-            timeout=CONNECT_PROBE_TIMEOUT_SECONDS).close()
+            ('127.0.0.1', ZENOH_ROUTER_PORT),
+            timeout=ZENOH_ROUTER_CONNECT_PROBE_TIMEOUT_SECONDS).close()
         return True
     except OSError:
         return False
 
 
-def wait_for_router(attempts=50, poll_seconds=0.2):
-    for _ in range(attempts):
-        if router_is_listening():
+def wait_for_zenoh_router(
+        max_attempts=ZENOH_ROUTER_MAX_ATTEMPTS,
+        retry_delay_seconds=ZENOH_ROUTER_RETRY_DELAY_SECONDS):
+    for _ in range(max_attempts):
+        if zenoh_router_is_listening():
             return True
-        time.sleep(poll_seconds)
+        time.sleep(retry_delay_seconds)
     return False
 
 
-def ensure_router(bl, env=None, attempts=50, poll_seconds=0.2):
-    if not router_is_listening():
-        bl.node(
-            package='rmw_zenoh_cpp',
-            executable='rmw_zenohd',
-            name='zenoh_router',
-            raw=True,
-            ros_waittime=None,
-            env=env,
-            **RESPAWN,
-        )
-    return wait_for_router(attempts, poll_seconds)
+def start_zenoh_router(bl, env=None):
+    bl.node(
+        package='rmw_zenoh_cpp',
+        executable=ZENOH_ROUTER_EXECUTABLE,
+        name='zenoh_router',
+        raw=True,
+        ros_waittime=None,
+        env=env,
+        **RESPAWN,
+    )
+
+
+def ensure_zenoh_router(
+        bl, env=None, max_attempts=ZENOH_ROUTER_MAX_ATTEMPTS,
+        retry_delay_seconds=ZENOH_ROUTER_RETRY_DELAY_SECONDS):
+    if not zenoh_router_is_listening():
+        start_zenoh_router(bl, env)
+    wait_for_zenoh_router(max_attempts, retry_delay_seconds)

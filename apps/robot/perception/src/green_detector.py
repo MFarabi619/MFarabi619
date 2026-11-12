@@ -48,13 +48,16 @@ TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 
 DENOISE_KERNEL = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 LABEL_MARGIN_PIXELS = 8.0
+LABEL_FONT_SIZE_PIXELS = 18.0
 BRACKET_FRACTION = 0.25
+BRACKET_THICKNESS_PIXELS = 3.0
 MILLIMETERS_PER_METER = 1000.0
-NANOSECONDS_PER_SECOND = 1e9
+NANOSECONDS_PER_SECOND = 1_000_000_000
 DEPTH_ENCODING = '16UC1'
 BYTES_PER_MILLIMETER_DEPTH_PIXEL = 2
 LIVE_PARAMETERS = frozenset({
-    'hue_min', 'hue_max', 'min_saturation', 'min_value', 'min_blob_area', 'max_range',
+    'min_hue', 'max_hue', 'min_saturation', 'min_value', 'min_blob_area',
+    'max_range_meters',
 })
 
 
@@ -75,13 +78,14 @@ class GreenDetector(Node):
             'overlay_topic', 'perception/vision/overlay'
         ).value
         self.class_label = self.declare_parameter('class_label', 'operator').value
-        self.hue_min = self.declare_parameter('hue_min', 50.0).value
-        self.hue_max = self.declare_parameter('hue_max', 70.0).value
+        self.min_hue = self.declare_parameter('min_hue', 50.0).value
+        self.max_hue = self.declare_parameter('max_hue', 70.0).value
         self.min_saturation = self.declare_parameter('min_saturation', 0.35).value
         self.min_value = self.declare_parameter('min_value', 0.47).value
         self.min_blob_area = self.declare_parameter('min_blob_area', 500).value
-        self.max_range = self.declare_parameter('max_range', 4.0).value
-        self.depth_sample_radius = self.declare_parameter('depth_sample_radius', 4).value
+        self.max_range_meters = self.declare_parameter('max_range_meters', 4.0).value
+        self.depth_sample_radius_pixels = self.declare_parameter(
+            'depth_sample_radius_pixels', 4).value
         self.depth_timeout_seconds = self.declare_parameter(
             'depth_timeout_seconds', 0.5).value
 
@@ -150,7 +154,7 @@ class GreenDetector(Node):
         overlay = ImageAnnotations()
         for bounding_box, fill in self.detect_blobs(self.green_mask(bgr)):
             distance, point = self.bounding_box_range(bounding_box, width, height)
-            if point is None or distance is None or distance > self.max_range:
+            if point is None or distance is None or distance > self.max_range_meters:
                 continue
             detections.detections.append(
                 self.detection(message.header.stamp, bounding_box, fill, point))
@@ -162,8 +166,8 @@ class GreenDetector(Node):
         hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(
             hsv,
-            (self.hue_min, self.min_saturation * 255.0, self.min_value * 255.0),
-            (self.hue_max, 255.0, 255.0),
+            (self.min_hue, self.min_saturation * 255.0, self.min_value * 255.0),
+            (self.max_hue, 255.0, 255.0),
         )
         return cv2.morphologyEx(mask, cv2.MORPH_OPEN, DENOISE_KERNEL)
 
@@ -174,22 +178,22 @@ class GreenDetector(Node):
             area = cv2.contourArea(contour)
             if area < self.min_blob_area:
                 continue
-            x, y, w, h = cv2.boundingRect(contour)
-            fill = area / float(w * h) if w * h > 0 else 0.0
-            blobs.append(((x, y, w, h), fill))
+            x, y, width, height = cv2.boundingRect(contour)
+            fill = area / float(width * height) if width * height > 0 else 0.0
+            blobs.append(((x, y, width, height), fill))
         return blobs
 
     def bounding_box_range(self, bounding_box, color_width, color_height):
         if self.latest_depth_millimeters is None or self.depth_is_stale():
             return None, None
-        x, y, w, h = bounding_box
+        x, y, width, height = bounding_box
         depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
-        depth_x = int((x + w / 2.0) / color_width * depth_width)
-        depth_y = int((y + h / 2.0) / color_height * depth_height)
-        radius = self.depth_sample_radius
+        depth_x = int((x + width / 2.0) / color_width * depth_width)
+        depth_y = int((y + height / 2.0) / color_height * depth_height)
+        radius_pixels = self.depth_sample_radius_pixels
         depth_patch = self.latest_depth_millimeters[
-            max(depth_y - radius, 0):depth_y + radius + 1,
-            max(depth_x - radius, 0):depth_x + radius + 1,
+            max(depth_y - radius_pixels, 0):depth_y + radius_pixels + 1,
+            max(depth_x - radius_pixels, 0):depth_x + radius_pixels + 1,
         ]
         valid_depths = depth_patch[depth_patch > 0]
         if valid_depths.size == 0:
@@ -214,15 +218,15 @@ class GreenDetector(Node):
         return age > Duration(seconds=self.depth_timeout_seconds)
 
     def detection(self, stamp, bounding_box, fill, point):
-        x, y, w, h = bounding_box
+        x, y, width, height = bounding_box
         detection = Detection2D()
         detection.header.stamp = stamp
         detection.header.frame_id = self.depth_frame_id
         detection.id = self.class_label
         detection.bbox = BoundingBox2D(
-            center=Pose2D(position=Point2D(x=x + w / 2.0, y=y + h / 2.0), theta=0.0),
-            size_x=float(w),
-            size_y=float(h),
+            center=Pose2D(position=Point2D(x=x + width / 2.0, y=y + height / 2.0), theta=0.0),
+            size_x=float(width),
+            size_y=float(height),
         )
         hypothesis = ObjectHypothesisWithPose()
         hypothesis.hypothesis.class_id = self.class_label
@@ -232,9 +236,9 @@ class GreenDetector(Node):
         return detection
 
     def annotate(self, overlay, stamp, bounding_box, distance):
-        x, y, w, h = bounding_box
-        left, right, top, bottom = float(x), float(x + w), float(y), float(y + h)
-        bracket = BRACKET_FRACTION * min(w, h)
+        x, y, width, height = bounding_box
+        left, right, top, bottom = float(x), float(x + width), float(y), float(y + height)
+        bracket = BRACKET_FRACTION * min(width, height)
         brackets = PointsAnnotation()
         brackets.timestamp = stamp
         brackets.type = PointsAnnotation.LINE_LIST
@@ -249,13 +253,13 @@ class GreenDetector(Node):
             Point2(x=left, y=bottom), Point2(x=left, y=bottom - bracket),
         ]
         brackets.outline_color = OPERATOR_COLOR
-        brackets.thickness = 3.0
+        brackets.thickness = BRACKET_THICKNESS_PIXELS
         overlay.points.append(brackets)
         label = TextAnnotation()
         label.timestamp = stamp
         label.position = Point2(x=float(x), y=max(float(y) - LABEL_MARGIN_PIXELS, 0.0))
         label.text = f'{self.class_label} {distance:.2f} m'
-        label.font_size = 18.0
+        label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR
         label.background_color = TEXT_BACKGROUND_COLOR
         overlay.texts.append(label)

@@ -17,7 +17,7 @@
 import xml.etree.ElementTree as ElementTree
 
 
-def ground_offset(urdf_path):
+def ground_offset_meters(urdf_path):
     robot = ElementTree.parse(urdf_path).getroot()
     for joint in robot.iter('joint'):
         child = joint.find('child')
@@ -44,27 +44,27 @@ def wheel_geometry(urdf_path):
             parent.get('link'), float(xyz.split()[1]),
             any(float(angle) != 0.0 for angle in rpy.split()), joint.get('name'))
 
-    def lateral_offset(link):
-        offset = 0.0
+    def lateral_offset_meters(link):
+        offset_meters = 0.0
         while link in joint_by_child:
             link, y, is_rotated, joint_name = joint_by_child[link]
             if is_rotated:
                 raise RuntimeError(
                     f'{joint_name} has a rotated origin;'
                     ' wheel_geometry only handles pure-translation wheel chains')
-            offset += y
-        return offset
+            offset_meters += y
+        return offset_meters
 
     wheel_separation = abs(
-        lateral_offset('rear_left_wheel_link')
-        - lateral_offset('rear_right_wheel_link'))
+        lateral_offset_meters('rear_left_wheel_link')
+        - lateral_offset_meters('rear_right_wheel_link'))
 
-    radii = {
+    radii_meters = {
         float(cylinder.get('radius'))
         for link in robot.iter('link')
         if link.get('name').endswith('_wheel_link')
         for cylinder in link.find('collision').iter('cylinder')
     }
-    if len(radii) != 1:
-        raise RuntimeError(f'expected one wheel collision radius, found {radii}')
-    return wheel_separation, radii.pop()
+    if len(radii_meters) != 1:
+        raise RuntimeError(f'expected one wheel collision radius, found {radii_meters}')
+    return wheel_separation, radii_meters.pop()

@@ -33,7 +33,7 @@ from rclpy.qos import qos_profile_sensor_data
 from robot_platform_msgs.msg import Drive, Feedback
 
 
-PWM_EXPORT_RETRIES = 500
+PWM_EXPORT_MAX_ATTEMPTS = 500
 PWM_EXPORT_RETRY_DELAY_SECONDS = 0.01
 NANOSECONDS_PER_SECOND = 1_000_000_000
 FEEDBACK_RATE_HZ = 50.0
@@ -46,44 +46,44 @@ def write_sysfs(path, value):
 
 
 class PwmChannel:
-    def __init__(self, chip, channel, period_ns):
-        self.period_ns = period_ns
-        self.channel_path = f'/sys/class/pwm/pwmchip{chip}/pwm{channel}'
-        duty_path = f'{self.channel_path}/duty_cycle'
-        if not os.access(self.channel_path, os.F_OK):
+    def __init__(self, chip, channel, period_nanoseconds):
+        self.period_nanoseconds = period_nanoseconds
+        self.channel_directory = f'/sys/class/pwm/pwmchip{chip}/pwm{channel}'
+        duty_path = f'{self.channel_directory}/duty_cycle'
+        if not os.access(self.channel_directory, os.F_OK):
             write_sysfs(f'/sys/class/pwm/pwmchip{chip}/export', str(channel))
-        for _ in range(PWM_EXPORT_RETRIES):
+        for _ in range(PWM_EXPORT_MAX_ATTEMPTS):
             if os.access(duty_path, os.W_OK):
                 break
             time.sleep(PWM_EXPORT_RETRY_DELAY_SECONDS)
         write_sysfs(duty_path, '0')
-        write_sysfs(f'{self.channel_path}/period', str(period_ns))
-        write_sysfs(f'{self.channel_path}/enable', '1')
+        write_sysfs(f'{self.channel_directory}/period', str(period_nanoseconds))
+        write_sysfs(f'{self.channel_directory}/enable', '1')
         self.duty_file = open(duty_path, 'w')
-        self.last_duty_ns = 0
+        self.last_duty_nanoseconds = 0
 
-    def write_duty_ns(self, duty_ns):
-        if duty_ns == self.last_duty_ns:
+    def write_duty_nanoseconds(self, duty_nanoseconds):
+        if duty_nanoseconds == self.last_duty_nanoseconds:
             return
         self.duty_file.seek(0)
-        self.duty_file.write(str(duty_ns))
+        self.duty_file.write(str(duty_nanoseconds))
         self.duty_file.flush()
-        self.last_duty_ns = duty_ns
+        self.last_duty_nanoseconds = duty_nanoseconds
 
     def close(self):
-        self.write_duty_ns(0)
-        write_sysfs(f'{self.channel_path}/enable', '0')
+        self.write_duty_nanoseconds(0)
+        write_sysfs(f'{self.channel_directory}/enable', '0')
         self.duty_file.close()
 
 
 class WheelDriver:
     def __init__(self, dir_request, pwm_chip, pwm_channel, dir_line,
-                 forward_level, period_ns, min_duty):
+                 forward_level, period_nanoseconds, min_duty_fraction):
         self.dir_request = dir_request
         self.dir_line = dir_line
         self.forward_level = forward_level
-        self.min_duty = min_duty
-        self.pwm = PwmChannel(pwm_chip, pwm_channel, period_ns)
+        self.min_duty_fraction = min_duty_fraction
+        self.pwm = PwmChannel(pwm_chip, pwm_channel, period_nanoseconds)
         self.last_dir_level = None
         self.duty_fraction = 0.0
         self.velocity = 0.0
@@ -99,14 +99,14 @@ class WheelDriver:
         speed_fraction = min(abs(wheel_speed) / max_wheel_speed, 1.0)
         duty_fraction = (
             0.0 if speed_fraction == 0.0
-            else self.min_duty + speed_fraction * (1.0 - self.min_duty))
-        self.pwm.write_duty_ns(int(duty_fraction * self.pwm.period_ns))
+            else self.min_duty_fraction + speed_fraction * (1.0 - self.min_duty_fraction))
+        self.pwm.write_duty_nanoseconds(int(duty_fraction * self.pwm.period_nanoseconds))
         self.duty_fraction = (
             duty_fraction if wheel_speed >= 0.0 else -duty_fraction)
         self.velocity = wheel_speed
 
     def halt(self):
-        self.pwm.write_duty_ns(0)
+        self.pwm.write_duty_nanoseconds(0)
         self.duty_fraction = 0.0
         self.velocity = 0.0
 
@@ -117,7 +117,7 @@ class PwmDirMotorDriver(Node):
         self.declare_parameter('gpio_chip', 0)
         self.declare_parameter('pwm_frequency_hz', 20000.0)
         self.declare_parameter('max_wheel_speed', 1.0)
-        self.declare_parameter('min_duty', 0.0)
+        self.declare_parameter('min_duty_fraction', 0.0)
         for side in ('left', 'right'):
             self.declare_parameter(f'{side}_pwm_chip', 0)
             self.declare_parameter(f'{side}_pwm_channel', 0)
@@ -125,7 +125,7 @@ class PwmDirMotorDriver(Node):
             self.declare_parameter(f'{side}_forward_level', True)
 
         self.max_wheel_speed = self.get_parameter('max_wheel_speed').value
-        period_ns = int(
+        period_nanoseconds = int(
             NANOSECONDS_PER_SECOND / self.get_parameter('pwm_frequency_hz').value)
         dir_lines = [
             self.get_parameter(f'{side}_dir_line').value
@@ -146,8 +146,8 @@ class PwmDirMotorDriver(Node):
                 self.get_parameter(f'{side}_pwm_channel').value,
                 dir_line,
                 self.get_parameter(f'{side}_forward_level').value,
-                period_ns,
-                self.get_parameter('min_duty').value)
+                period_nanoseconds,
+                self.get_parameter('min_duty_fraction').value)
             for side, dir_line in zip(('left', 'right'), dir_lines)
         ]
 
@@ -178,9 +178,9 @@ class PwmDirMotorDriver(Node):
 
     def publish_feedback(self):
         now = self.get_clock().now()
-        elapsed_ns = (now - self.last_command_time).nanoseconds
+        elapsed_nanoseconds = (now - self.last_command_time).nanoseconds
         has_timed_out = (
-            elapsed_ns > COMMAND_TIMEOUT_SECONDS * NANOSECONDS_PER_SECOND)
+            elapsed_nanoseconds > COMMAND_TIMEOUT_SECONDS * NANOSECONDS_PER_SECOND)
         if has_timed_out:
             for wheel in self.wheels:
                 wheel.halt()

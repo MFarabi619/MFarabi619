@@ -25,7 +25,7 @@ fn main() {
             .append(cache.items().relative_path(&source));
         let artefact = source
             .fetch(&*dest)
-            .unwrap_or_else(|err| panic!("failed to fetch {name}: {err}"));
+            .unwrap_or_else(|error| panic!("failed to fetch {name}: {error}"));
         let path = artefact.path().to_path_buf();
         cache.items_mut().insert(artefact);
         cache.save().expect("save fetch-source cache");

@@ -23,8 +23,8 @@ const RIGHT_BACKWARD_PIN: u32 = 6;
 const ARM_LIFT_PIN: u32 = 12;
 const ARM_GRIPPER_PIN: u32 = 13;
 
-const ARM_LIFT_RAISED_DEG: f64 = 150.0;
-const ARM_GRIPPER_HOME_DEG: f64 = 140.0;
+const ARM_LIFT_RAISED_DEGREES: f64 = 150.0;
+const ARM_GRIPPER_HOME_DEGREES: f64 = 140.0;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -38,15 +38,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         Motor::dual_pwm(&chip, RIGHT_FORWARD_PIN, RIGHT_BACKWARD_PIN, PWM_FREQUENCY_HZ)?,
     );
 
-    Servo::new(&chip, ARM_LIFT_PIN, SERVO_FREQUENCY_HZ)?.angle(ARM_LIFT_RAISED_DEG)?;
-    Servo::new(&chip, ARM_GRIPPER_PIN, SERVO_FREQUENCY_HZ)?.angle(ARM_GRIPPER_HOME_DEG)?;
+    Servo::new(&chip, ARM_LIFT_PIN, SERVO_FREQUENCY_HZ)?.angle(ARM_LIFT_RAISED_DEGREES)?;
+    Servo::new(&chip, ARM_GRIPPER_PIN, SERVO_FREQUENCY_HZ)?.angle(ARM_GRIPPER_HOME_DEGREES)?;
 
     let mut leds = LedStrip::open(&connection)?;
     leds.color_wipe(GREEN, Duration::from_millis(120))?;
 
-    let camera_node = context.create_node("camera", None)?;
+    let camera_node = context.create_node("orbbec_gemini_335l", None)?;
     robot::spawn_logged(
-        "camera",
+        "orbbec_gemini_335l",
         robot_drivers::run_camera(
             camera_node,
             RGPIOD_HOST.to_string(),
@@ -60,12 +60,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         driver_node,
         drivetrain,
         Config {
-            host: RGPIOD_HOST.to_string(),
+            hardware_id: RGPIOD_HOST.to_string(),
             deadman_seconds: 0.5,
             shaping: Shaping {
-                deadzone: 0.05,
-                min_duty: 0.35,
-                scale: 1.0,
+                deadzone_fraction: 0.05,
+                min_duty_fraction: 0.35,
+                scale_factor: 1.0,
             },
             publish_odometry: true,
         },

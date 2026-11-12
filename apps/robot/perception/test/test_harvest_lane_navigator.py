@@ -22,43 +22,43 @@ import numpy as np
 import pytest
 from sensor_msgs.msg import CameraInfo
 
-MASK_WIDTH = 640
-MASK_HEIGHT = 480
-FOCAL_LENGTH = 456.0
-CENTER_COLUMN = 320.0
-CENTER_ROW = 240.0
-CAMERA_LATERAL_OFFSET_M = 0.5
-CAMERA_HEIGHT_M = 0.31
-ROW_WIDTH_M = 0.14
+MASK_WIDTH_PIXELS = 640
+MASK_HEIGHT_PIXELS = 480
+FOCAL_LENGTH_PIXELS = 456.0
+CENTER_COLUMN_PIXELS = 320.0
+CENTER_ROW_PIXELS = 240.0
+CAMERA_LATERAL_OFFSET_METERS = 0.5
+CAMERA_HEIGHT_METERS = 0.31
+ROW_WIDTH_METERS = 0.14
 BRIDGE = CvBridge()
 
 
 def camera_info():
     message = CameraInfo()
-    message.width = MASK_WIDTH
-    message.height = MASK_HEIGHT
-    message.k = [FOCAL_LENGTH, 0.0, CENTER_COLUMN,
-                 0.0, FOCAL_LENGTH, CENTER_ROW,
+    message.width = MASK_WIDTH_PIXELS
+    message.height = MASK_HEIGHT_PIXELS
+    message.k = [FOCAL_LENGTH_PIXELS, 0.0, CENTER_COLUMN_PIXELS,
+                 0.0, FOCAL_LENGTH_PIXELS, CENTER_ROW_PIXELS,
                  0.0, 0.0, 1.0]
     return message
 
 
-def draw_row(mask, row_lateral_m, row_slope):
-    for pixel_row in range(int(CENTER_ROW) + 8, MASK_HEIGHT):
-        distance = FOCAL_LENGTH * CAMERA_HEIGHT_M / (pixel_row - CENTER_ROW)
-        row_lateral = row_lateral_m + row_slope * distance
-        center = CENTER_COLUMN + FOCAL_LENGTH * (
-            CAMERA_LATERAL_OFFSET_M - row_lateral) / distance
-        half_width = FOCAL_LENGTH * ROW_WIDTH_M / 2.0 / distance
-        start = int(np.clip(center - half_width, 0, MASK_WIDTH))
-        end = int(np.clip(center + half_width, 0, MASK_WIDTH))
+def draw_row(mask, row_lateral_meters, row_slope):
+    for pixel_row in range(int(CENTER_ROW_PIXELS) + 8, MASK_HEIGHT_PIXELS):
+        distance = FOCAL_LENGTH_PIXELS * CAMERA_HEIGHT_METERS / (pixel_row - CENTER_ROW_PIXELS)
+        row_lateral = row_lateral_meters + row_slope * distance
+        center = CENTER_COLUMN_PIXELS + FOCAL_LENGTH_PIXELS * (
+            CAMERA_LATERAL_OFFSET_METERS - row_lateral) / distance
+        half_width = FOCAL_LENGTH_PIXELS * ROW_WIDTH_METERS / 2.0 / distance
+        start = int(np.clip(center - half_width, 0, MASK_WIDTH_PIXELS))
+        end = int(np.clip(center + half_width, 0, MASK_WIDTH_PIXELS))
         mask[pixel_row, start:end] = 255
 
 
 def projected_mask(rows):
-    mask = np.zeros((MASK_HEIGHT, MASK_WIDTH), np.uint8)
-    for row_lateral_m, row_slope in rows:
-        draw_row(mask, row_lateral_m, row_slope)
+    mask = np.zeros((MASK_HEIGHT_PIXELS, MASK_WIDTH_PIXELS), np.uint8)
+    for row_lateral_meters, row_slope in rows:
+        draw_row(mask, row_lateral_meters, row_slope)
     return BRIDGE.cv2_to_compressed_imgmsg(mask, dst_format='png')
 
 
@@ -178,19 +178,19 @@ def test_bare_mask_holds_position(harvest_lane_navigator_node):
     assert overlays[0].points == []
 
 
-def elevated_canopy(rows, foliage_height_m):
-    mask = np.zeros((MASK_HEIGHT, MASK_WIDTH), np.uint8)
-    depth = np.full((MASK_HEIGHT, MASK_WIDTH), np.inf, np.float32)
-    camera_above_foliage = CAMERA_HEIGHT_M - foliage_height_m
-    for pixel_row in range(int(CENTER_ROW) + 8, MASK_HEIGHT):
-        distance = FOCAL_LENGTH * camera_above_foliage / (pixel_row - CENTER_ROW)
-        for row_lateral_m, row_slope in rows:
-            row_lateral = row_lateral_m + row_slope * distance
-            center = CENTER_COLUMN + FOCAL_LENGTH * (
-                CAMERA_LATERAL_OFFSET_M - row_lateral) / distance
-            half_width = FOCAL_LENGTH * ROW_WIDTH_M / 2.0 / distance
-            start = int(np.clip(center - half_width, 0, MASK_WIDTH))
-            end = int(np.clip(center + half_width, 0, MASK_WIDTH))
+def elevated_canopy(rows, foliage_height_meters):
+    mask = np.zeros((MASK_HEIGHT_PIXELS, MASK_WIDTH_PIXELS), np.uint8)
+    depth = np.full((MASK_HEIGHT_PIXELS, MASK_WIDTH_PIXELS), np.inf, np.float32)
+    camera_above_foliage = CAMERA_HEIGHT_METERS - foliage_height_meters
+    for pixel_row in range(int(CENTER_ROW_PIXELS) + 8, MASK_HEIGHT_PIXELS):
+        distance = FOCAL_LENGTH_PIXELS * camera_above_foliage / (pixel_row - CENTER_ROW_PIXELS)
+        for row_lateral_meters, row_slope in rows:
+            row_lateral = row_lateral_meters + row_slope * distance
+            center = CENTER_COLUMN_PIXELS + FOCAL_LENGTH_PIXELS * (
+                CAMERA_LATERAL_OFFSET_METERS - row_lateral) / distance
+            half_width = FOCAL_LENGTH_PIXELS * ROW_WIDTH_METERS / 2.0 / distance
+            start = int(np.clip(center - half_width, 0, MASK_WIDTH_PIXELS))
+            end = int(np.clip(center + half_width, 0, MASK_WIDTH_PIXELS))
             mask[pixel_row, start:end] = 255
             depth[pixel_row, start:end] = distance
     return (BRIDGE.cv2_to_compressed_imgmsg(mask, dst_format='png'),
@@ -231,9 +231,10 @@ def test_depth_recovers_offset_of_elevated_canopy(harvest_lane_navigator_node):
 
 
 class FakeGoalHandle:
-    def __init__(self, distance_m=0.0, forward_speed_mps=0.0):
+    def __init__(self, distance_meters=0.0, forward_speed_meters_per_second=0.0):
         self.request = type('Request', (), {
-            'travel_distance_m': distance_m, 'forward_speed_mps': forward_speed_mps})()
+            'travel_distance_m': distance_meters,
+            'forward_speed_mps': forward_speed_meters_per_second})()
         self.is_cancel_requested = False
         self.feedbacks = []
         self.status = None
@@ -251,12 +252,12 @@ class FakeGoalHandle:
         self.status = 'canceled'
 
 
-def begin_goal(node, distance_m=0.0, forward_speed_mps=0.0):
-    handle = FakeGoalHandle(distance_m, forward_speed_mps)
+def begin_goal(node, distance_meters=0.0, forward_speed_meters_per_second=0.0):
+    handle = FakeGoalHandle(distance_meters, forward_speed_meters_per_second)
     node.goal_handle = handle
-    node.goal_distance_m = distance_m
-    node.goal_forward_speed_mps = forward_speed_mps
-    node.distance_traveled_m = 0.0
+    node.goal_distance_meters = distance_meters
+    node.goal_forward_speed_meters_per_second = forward_speed_meters_per_second
+    node.distance_traveled_meters = 0.0
     node.previous_odom_position = None
     node.row_miss_count = 0
     node.goal_outcome = None
@@ -284,24 +285,24 @@ def test_goal_drives_and_streams_feedback(harvest_lane_navigator_node):
 def test_goal_speed_overrides_parameter(harvest_lane_navigator_node):
     harvest_lane_navigator_node.is_enabled = False
     commands, overlays = capture(harvest_lane_navigator_node)
-    begin_goal(harvest_lane_navigator_node, forward_speed_mps=0.8)
+    begin_goal(harvest_lane_navigator_node, forward_speed_meters_per_second=0.8)
     harvest_lane_navigator_node.on_mask(projected_mask([(0.0, 0.0)]))
     assert commands[0].twist.linear.x == pytest.approx(0.8)
 
 
 def test_odometry_reaches_goal_distance(harvest_lane_navigator_node):
-    begin_goal(harvest_lane_navigator_node, distance_m=2.0)
+    begin_goal(harvest_lane_navigator_node, distance_meters=2.0)
     harvest_lane_navigator_node.on_odom(odometry(0.0, 0.0))
     harvest_lane_navigator_node.on_odom(odometry(1.2, 0.0))
     assert harvest_lane_navigator_node.goal_outcome is None
     harvest_lane_navigator_node.on_odom(odometry(2.1, 0.0))
     assert harvest_lane_navigator_node.goal_outcome == 'distance_reached'
-    assert harvest_lane_navigator_node.distance_traveled_m == pytest.approx(2.1)
+    assert harvest_lane_navigator_node.distance_traveled_meters == pytest.approx(2.1)
 
 
 def test_losing_the_row_aborts_the_goal(harvest_lane_navigator_node):
     commands, overlays = capture(harvest_lane_navigator_node)
-    begin_goal(harvest_lane_navigator_node, distance_m=10.0)
+    begin_goal(harvest_lane_navigator_node, distance_meters=10.0)
     for _ in range(12):
         harvest_lane_navigator_node.on_mask(projected_mask([]))
     assert harvest_lane_navigator_node.goal_outcome == 'row_lost'
@@ -309,48 +310,48 @@ def test_losing_the_row_aborts_the_goal(harvest_lane_navigator_node):
 
 def test_end_of_row_completes_untargeted_goal(harvest_lane_navigator_node):
     handle = begin_goal(harvest_lane_navigator_node)
-    harvest_lane_navigator_node.distance_traveled_m = 5.0
+    harvest_lane_navigator_node.distance_traveled_meters = 5.0
     harvest_lane_navigator_node.conclude(handle, 'row_lost')
     assert handle.status == 'succeeded'
 
 
 def test_row_lost_fails_distance_goal(harvest_lane_navigator_node):
-    handle = begin_goal(harvest_lane_navigator_node, distance_m=10.0)
+    handle = begin_goal(harvest_lane_navigator_node, distance_meters=10.0)
     harvest_lane_navigator_node.conclude(handle, 'row_lost')
     assert handle.status == 'aborted'
 
 
 def test_phantom_row_lost_before_minimum_travel_fails(harvest_lane_navigator_node):
     handle = begin_goal(harvest_lane_navigator_node)
-    harvest_lane_navigator_node.distance_traveled_m = 1.0
+    harvest_lane_navigator_node.distance_traveled_meters = 1.0
     harvest_lane_navigator_node.conclude(handle, 'row_lost')
     assert handle.status == 'aborted'
 
 
-BED_LEAF_SPREAD_M = {-2.4: 0.4, -1.2: 0.12, 0.0: 0.12, 1.2: 0.12, 2.4: 0.4}
+BED_LEAF_SPREAD_METERS = {-2.4: 0.4, -1.2: 0.12, 0.0: 0.12, 1.2: 0.12, 2.4: 0.4}
 BED_PLANT_DRAWS = {-2.4: 20, -1.2: 6, 0.0: 6, 1.2: 6, 2.4: 20}
 
 
-def scattered_canopy_mask(row_lateral_m, row_start_distance_m=0.8,
+def scattered_canopy_mask(row_lateral_meters, row_start_distance_meters=0.8,
                           weed_fraction=0.02):
     generator = np.random.default_rng(3)
-    mask = np.zeros((MASK_HEIGHT, MASK_WIDTH), np.uint8)
-    for pixel_row in range(int(CENTER_ROW) + 4, MASK_HEIGHT):
-        distance = FOCAL_LENGTH * CAMERA_HEIGHT_M / (pixel_row - CENTER_ROW)
-        if distance < row_start_distance_m:
+    mask = np.zeros((MASK_HEIGHT_PIXELS, MASK_WIDTH_PIXELS), np.uint8)
+    for pixel_row in range(int(CENTER_ROW_PIXELS) + 4, MASK_HEIGHT_PIXELS):
+        distance = FOCAL_LENGTH_PIXELS * CAMERA_HEIGHT_METERS / (pixel_row - CENTER_ROW_PIXELS)
+        if distance < row_start_distance_meters:
             continue
-        for bed_offset, leaf_spread_m in BED_LEAF_SPREAD_M.items():
+        for bed_offset, leaf_spread_meters in BED_LEAF_SPREAD_METERS.items():
             for _ in range(BED_PLANT_DRAWS[bed_offset]):
-                lateral = (row_lateral_m + bed_offset
-                           + generator.normal(0.0, leaf_spread_m))
-                column = CENTER_COLUMN + FOCAL_LENGTH * (
-                    CAMERA_LATERAL_OFFSET_M - lateral) / distance
+                lateral = (row_lateral_meters + bed_offset
+                           + generator.normal(0.0, leaf_spread_meters))
+                column = CENTER_COLUMN_PIXELS + FOCAL_LENGTH_PIXELS * (
+                    CAMERA_LATERAL_OFFSET_METERS - lateral) / distance
                 blob_width = max(2, int(8.0 / distance))
-                if 0 <= column < MASK_WIDTH and generator.random() < 0.7:
+                if 0 <= column < MASK_WIDTH_PIXELS and generator.random() < 0.7:
                     mask[pixel_row,
                          int(column):int(column) + blob_width] = 255
-    weeds = generator.random((MASK_HEIGHT, MASK_WIDTH)) < weed_fraction
-    weeds[:int(CENTER_ROW) + 4] = False
+    weeds = generator.random((MASK_HEIGHT_PIXELS, MASK_WIDTH_PIXELS)) < weed_fraction
+    weeds[:int(CENTER_ROW_PIXELS) + 4] = False
     mask[weeds] = 255
     return BRIDGE.cv2_to_compressed_imgmsg(mask, dst_format='png')
 
@@ -365,14 +366,14 @@ def test_scattered_real_canopy_still_locks(harvest_lane_navigator_node):
 def test_row_starting_ahead_of_robot_still_locks(harvest_lane_navigator_node):
     commands, overlays = capture(harvest_lane_navigator_node)
     harvest_lane_navigator_node.on_mask(
-        scattered_canopy_mask(0.0, row_start_distance_m=1.5))
+        scattered_canopy_mask(0.0, row_start_distance_meters=1.5))
     assert len(commands) == 1
     assert reported_lateral_error(overlays[0]) == pytest.approx(0.0, abs=0.07)
 
 
 def speckle_mask(coverage_fraction):
     generator = np.random.default_rng(7)
-    speckle = generator.random((MASK_HEIGHT, MASK_WIDTH)) < coverage_fraction
+    speckle = generator.random((MASK_HEIGHT_PIXELS, MASK_WIDTH_PIXELS)) < coverage_fraction
     return BRIDGE.cv2_to_compressed_imgmsg(
         speckle.astype(np.uint8) * 255, dst_format='png')
 

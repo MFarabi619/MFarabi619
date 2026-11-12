@@ -52,7 +52,7 @@
         "left_pwm_channel": 0,
         "left_pwm_chip": 1,
         "max_wheel_speed": 11.435105774728417,
-        "min_duty": 0.0,
+        "min_duty_fraction": 0.0,
         "pwm_frequency_hz": 20000.0,
         "right_dir_line": 9,
         "right_forward_level": false,
@@ -62,7 +62,7 @@
       "kind": "include",
       "launchfile": "pwm_dir_motor_driver.launch.py",
       "namespace": "/pocketbeagle_2",
-      "package": "robot_boot",
+      "package": "robot_drivers",
       "subdir": null
     },
     {
@@ -79,7 +79,7 @@
         "left_pwm_channel": 0,
         "left_pwm_chip": 1,
         "max_wheel_speed": 11.435105774728417,
-        "min_duty": 0.0,
+        "min_duty_fraction": 0.0,
         "pwm_frequency_hz": 20000.0,
         "right_dir_line": 9,
         "right_forward_level": false,
@@ -243,7 +243,7 @@
   ],
   "launch": {
     "arguments": {
-      "name": "pocketbeagle-2"
+      "robot": "pocketbeagle-2"
     },
     "file": "boot/launch/robot.launch.py",
     "function": "robot",

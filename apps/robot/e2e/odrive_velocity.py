@@ -37,22 +37,22 @@ from rich.table import Table
 
 FIND_TIMEOUT_SECONDS = 15.0
 EXTRA_MOTOR_TIMEOUT_SECONDS = 2.0
-SAMPLE_RATE_HZ = 50.0
+TELEMETRY_SAMPLE_RATE_HZ = 50.0
 SETTLE_MARGIN_SECONDS = 0.5
 STATE_ENTRY_TIMEOUT_SECONDS = 2.0
 STATE_POLL_SECONDS = 0.05
 VEL_RAMP_RATE = 8.0
 # TODO: run anticogging calibration to tighten low-speed tracking
-TRACKING_TOLERANCE = 0.35
-SWEEP_START = 4.0
-SWEEP_STEP = 2.0
-SWEEP_LIMIT = 30.0
+TRACKING_TOLERANCE_TURNS_PER_SECOND = 0.35
+SWEEP_START_TURNS_PER_SECOND = 4.0
+SWEEP_STEP_TURNS_PER_SECOND = 2.0
+SWEEP_LIMIT_TURNS_PER_SECOND = 30.0
 SWEEP_HOLD_SECONDS = 1.5
 SWEEP_SHORTFALL_FRACTION = 0.85
 SWEEP_SAMPLE_COUNT = 10
-SWEEP_VEL_LIMIT_MARGIN = 4.0
-VBUS_MINIMUM = 16.0
-VBUS_MAXIMUM = 28.0
+SWEEP_VELOCITY_LIMIT_MARGIN_TURNS_PER_SECOND = 4.0
+VBUS_MIN_VOLTS = 16.0
+VBUS_MAX_VOLTS = 28.0
 TRAP_VEL_LIMIT = 2.0
 TRAP_ACCEL_LIMIT = 4.0
 TRAP_TRAVEL_TURNS = 2.0
@@ -62,26 +62,26 @@ WATCHDOG_TIMEOUT_SECONDS = 0.5
 WATCHDOG_FEED_PHASE_SECONDS = 1.0
 WATCHDOG_FEED_INTERVAL_SECONDS = 0.1
 WATCHDOG_STARVE_SECONDS = 1.5
-WATCHDOG_TRIP_VELOCITY = 0.5
+WATCHDOG_TRIP_VELOCITY_TURNS_PER_SECOND = 0.5
 
-PASS_STYLE = "#689d6a"
-FAIL_STYLE = "#fb4934"
+PASS_COLOR = "#b8bb26"
+FAIL_COLOR = "#fb4934"
 
 
 @dataclass
 class Segment:
     name: str
-    velocity: float
+    velocity_turns_per_second: float
     duration_seconds: float
 
 
 @dataclass
 class SegmentResult:
     segment: Segment
-    mean_error: float
-    worst_error: float
-    lowest_vbus: float
-    peak_current: float
+    mean_error_turns_per_second: float
+    worst_error_turns_per_second: float
+    lowest_vbus_volts: float
+    peak_current_amperes: float
     fet_temperature: float
 
 
@@ -118,56 +118,68 @@ def enter_state(device, state):
     return False
 
 
-def run_segment(device, segment, previous_velocity):
-    device.axis0.controller.input_vel = segment.velocity
-    ramp_seconds = abs(segment.velocity - previous_velocity) / VEL_RAMP_RATE
-    settle_ticks = int((ramp_seconds + SETTLE_MARGIN_SECONDS) * SAMPLE_RATE_HZ)
-    total_ticks = int(segment.duration_seconds * SAMPLE_RATE_HZ)
-    errors = []
-    lowest_vbus = device.vbus_voltage
-    peak_current = 0.0
+def run_segment(device, segment, previous_velocity_turns_per_second):
+    device.axis0.controller.input_vel = segment.velocity_turns_per_second
+    ramp_seconds = (
+        abs(segment.velocity_turns_per_second - previous_velocity_turns_per_second)
+        / VEL_RAMP_RATE
+    )
+    settle_ticks = int((ramp_seconds + SETTLE_MARGIN_SECONDS) * TELEMETRY_SAMPLE_RATE_HZ)
+    total_ticks = int(segment.duration_seconds * TELEMETRY_SAMPLE_RATE_HZ)
+    errors_turns_per_second = []
+    lowest_vbus_volts = device.vbus_voltage
+    peak_current_amperes = 0.0
     for tick in range(total_ticks):
-        lowest_vbus = min(lowest_vbus, device.vbus_voltage)
-        peak_current = max(
-            peak_current, abs(device.axis0.motor.current_control.Iq_measured)
+        lowest_vbus_volts = min(lowest_vbus_volts, device.vbus_voltage)
+        peak_current_amperes = max(
+            peak_current_amperes, abs(device.axis0.motor.current_control.Iq_measured)
         )
         if tick >= settle_ticks:
-            errors.append(abs(device.axis0.encoder.vel_estimate - segment.velocity))
-        time.sleep(1.0 / SAMPLE_RATE_HZ)
-    if not errors:
-        errors.append(abs(device.axis0.encoder.vel_estimate - segment.velocity))
+            errors_turns_per_second.append(
+                abs(device.axis0.encoder.vel_estimate - segment.velocity_turns_per_second)
+            )
+        time.sleep(1.0 / TELEMETRY_SAMPLE_RATE_HZ)
+    if not errors_turns_per_second:
+        errors_turns_per_second.append(
+            abs(device.axis0.encoder.vel_estimate - segment.velocity_turns_per_second)
+        )
     return SegmentResult(
         segment,
-        statistics.fmean(errors),
-        max(errors),
-        lowest_vbus,
-        peak_current,
+        statistics.fmean(errors_turns_per_second),
+        max(errors_turns_per_second),
+        lowest_vbus_volts,
+        peak_current_amperes,
         fet_temperature(device),
     )
 
 
 def run_speed_sweep(device, console, failures):
-    device.axis0.controller.config.vel_limit = SWEEP_LIMIT + SWEEP_VEL_LIMIT_MARGIN
-    top_tracked_velocity = 0.0
-    commanded_velocity = SWEEP_START
-    while commanded_velocity <= SWEEP_LIMIT:
-        device.axis0.controller.input_vel = commanded_velocity
+    device.axis0.controller.config.vel_limit = (
+        SWEEP_LIMIT_TURNS_PER_SECOND + SWEEP_VELOCITY_LIMIT_MARGIN_TURNS_PER_SECOND
+    )
+    top_tracked_velocity_turns_per_second = 0.0
+    commanded_velocity_turns_per_second = SWEEP_START_TURNS_PER_SECOND
+    while commanded_velocity_turns_per_second <= SWEEP_LIMIT_TURNS_PER_SECOND:
+        device.axis0.controller.input_vel = commanded_velocity_turns_per_second
         time.sleep(SWEEP_HOLD_SECONDS)
-        estimated_velocity = statistics.fmean(
+        estimated_velocity_turns_per_second = statistics.fmean(
             device.axis0.encoder.vel_estimate for _ in range(SWEEP_SAMPLE_COUNT)
         )
         if has_any_error(device):
             dump_errors(device, clear=True)
             break
-        if estimated_velocity < commanded_velocity * SWEEP_SHORTFALL_FRACTION:
+        if (
+            estimated_velocity_turns_per_second
+            < commanded_velocity_turns_per_second * SWEEP_SHORTFALL_FRACTION
+        ):
             break
-        top_tracked_velocity = estimated_velocity
-        commanded_velocity += SWEEP_STEP
+        top_tracked_velocity_turns_per_second = estimated_velocity_turns_per_second
+        commanded_velocity_turns_per_second += SWEEP_STEP_TURNS_PER_SECOND
     device.axis0.controller.input_vel = 0.0
-    console.print(f"  top speed: {top_tracked_velocity:.1f} turn/s")
-    if top_tracked_velocity == 0.0:
+    console.print(f"  top speed: {top_tracked_velocity_turns_per_second:.1f} turn/s")
+    if top_tracked_velocity_turns_per_second == 0.0:
         failures.append("speed sweep never tracked a step")
-    return top_tracked_velocity
+    return top_tracked_velocity_turns_per_second
 
 
 def run_trap_position(device, console, failures):
@@ -177,22 +189,22 @@ def run_trap_position(device, console, failures):
     device.axis0.trap_traj.config.vel_limit = TRAP_VEL_LIMIT
     device.axis0.trap_traj.config.accel_limit = TRAP_ACCEL_LIMIT
     device.axis0.trap_traj.config.decel_limit = TRAP_ACCEL_LIMIT
-    start = device.axis0.encoder.pos_estimate
-    controller.input_pos = start
-    for target in (start + TRAP_TRAVEL_TURNS, start):
-        console.print(f"  trap move to {target - start:+.1f} turns")
-        controller.input_pos = target
+    start_turns = device.axis0.encoder.pos_estimate
+    controller.input_pos = start_turns
+    for target_turns in (start_turns + TRAP_TRAVEL_TURNS, start_turns):
+        console.print(f"  trap move to {target_turns - start_turns:+.1f} turns")
+        controller.input_pos = target_turns
         deadline = time.monotonic() + POSITION_TIMEOUT_SECONDS
         while time.monotonic() < deadline:
             if (
-                abs(device.axis0.encoder.pos_estimate - target)
+                abs(device.axis0.encoder.pos_estimate - target_turns)
                 <= POSITION_TOLERANCE_TURNS
             ):
                 break
-            time.sleep(1.0 / SAMPLE_RATE_HZ)
-        final_error = abs(device.axis0.encoder.pos_estimate - target)
-        if final_error > POSITION_TOLERANCE_TURNS:
-            failures.append(f"trap move missed target by {final_error:.3f} turns")
+            time.sleep(1.0 / TELEMETRY_SAMPLE_RATE_HZ)
+        final_error_turns = abs(device.axis0.encoder.pos_estimate - target_turns)
+        if final_error_turns > POSITION_TOLERANCE_TURNS:
+            failures.append(f"trap move missed target by {final_error_turns:.3f} turns")
 
 
 def run_watchdog_trip(device, console, failures):
@@ -205,7 +217,7 @@ def run_watchdog_trip(device, console, failures):
     if not enter_state(device, AXIS_STATE_CLOSED_LOOP_CONTROL):
         failures.append("watchdog phase: closed loop entry refused")
         return
-    device.axis0.controller.input_vel = WATCHDOG_TRIP_VELOCITY
+    device.axis0.controller.input_vel = WATCHDOG_TRIP_VELOCITY_TURNS_PER_SECOND
     feed_deadline = time.monotonic() + WATCHDOG_FEED_PHASE_SECONDS
     while time.monotonic() < feed_deadline:
         device.axis0.watchdog_feed()
@@ -221,24 +233,26 @@ def run_watchdog_trip(device, console, failures):
     device.clear_errors()
 
 
-def results_table(results, serial):
-    table = Table("segment", title=f"odrive e2e {serial}")
+def results_table(results, serial_number):
+    table = Table("segment", title=f"odrive e2e {serial_number}")
     for header in ("target", "mean err", "worst err", "vbus low", "peak Iq", "fet"):
         table.add_column(header, justify="right")
     table.add_column("verdict")
     for result in results:
-        is_within_tolerance = result.worst_error <= TRACKING_TOLERANCE
+        is_within_tolerance = (
+            result.worst_error_turns_per_second <= TRACKING_TOLERANCE_TURNS_PER_SECOND
+        )
         table.add_row(
             result.segment.name,
-            f"{result.segment.velocity:+.1f}",
-            f"{result.mean_error:.3f}",
-            f"{result.worst_error:.3f}",
-            f"{result.lowest_vbus:.1f}V",
-            f"{result.peak_current:.1f}A",
+            f"{result.segment.velocity_turns_per_second:+.1f}",
+            f"{result.mean_error_turns_per_second:.3f}",
+            f"{result.worst_error_turns_per_second:.3f}",
+            f"{result.lowest_vbus_volts:.1f}V",
+            f"{result.peak_current_amperes:.1f}A",
             f"{result.fet_temperature:.0f}C",
-            f"[{PASS_STYLE}]ok[/]"
+            f"[{PASS_COLOR}]ok[/]"
             if is_within_tolerance
-            else f"[{FAIL_STYLE}]FAIL[/]",
+            else f"[{FAIL_COLOR}]FAIL[/]",
         )
     return table
 
@@ -255,8 +269,8 @@ def find_all_motors():
 
 
 def run_suite(device, console):
-    serial = f"{device.serial_number:X}"
-    console.print(f"motor {serial}", style="bold")
+    serial_number = f"{device.serial_number:X}"
+    console.print(f"motor {serial_number}", style="bold")
 
     failures = []
     if has_any_error(device):
@@ -264,13 +278,13 @@ def run_suite(device, console):
         dump_errors(device, clear=True)
     if has_any_error(device):
         failures.append("errors persist after clearing")
-    if not VBUS_MINIMUM <= device.vbus_voltage <= VBUS_MAXIMUM:
+    if not VBUS_MIN_VOLTS <= device.vbus_voltage <= VBUS_MAX_VOLTS:
         failures.append(
             f"vbus {device.vbus_voltage:.1f}V"
-            f" outside {VBUS_MINIMUM:.0f}-{VBUS_MAXIMUM:.0f}V"
+            f" outside {VBUS_MIN_VOLTS:.0f}-{VBUS_MAX_VOLTS:.0f}V"
         )
     if failures:
-        return [f"{serial}: {failure}" for failure in failures]
+        return [f"{serial_number}: {failure}" for failure in failures]
 
     device.axis0.controller.config.control_mode = CONTROL_MODE_VELOCITY_CONTROL
     device.axis0.controller.config.input_mode = INPUT_MODE_VEL_RAMP
@@ -281,11 +295,15 @@ def run_suite(device, console):
         if not enter_state(device, AXIS_STATE_CLOSED_LOOP_CONTROL):
             failures.append("closed loop entry refused")
         else:
-            previous_velocity = 0.0
+            previous_velocity_turns_per_second = 0.0
             for segment in PROGRAM:
-                console.print(f"  {segment.name}: {segment.velocity:+.1f} turn/s")
-                results.append(run_segment(device, segment, previous_velocity))
-                previous_velocity = segment.velocity
+                console.print(
+                    f"  {segment.name}: {segment.velocity_turns_per_second:+.1f} turn/s"
+                )
+                results.append(
+                    run_segment(device, segment, previous_velocity_turns_per_second)
+                )
+                previous_velocity_turns_per_second = segment.velocity_turns_per_second
             run_speed_sweep(device, console, failures)
             run_trap_position(device, console, failures)
             device.axis0.requested_state = AXIS_STATE_IDLE
@@ -299,17 +317,18 @@ def run_suite(device, console):
         failures.append("errors after run:")
         dump_errors(device)
     failures.extend(
-        f"{result.segment.name}: worst error {result.worst_error:.3f} turn/s"
+        f"{result.segment.name}: worst error"
+        f" {result.worst_error_turns_per_second:.3f} turn/s"
         for result in results
-        if result.worst_error > TRACKING_TOLERANCE
+        if result.worst_error_turns_per_second > TRACKING_TOLERANCE_TURNS_PER_SECOND
     )
     failures.extend(
-        f"{result.segment.name}: vbus sagged to {result.lowest_vbus:.1f}V"
+        f"{result.segment.name}: vbus sagged to {result.lowest_vbus_volts:.1f}V"
         for result in results
-        if result.lowest_vbus < VBUS_MINIMUM
+        if result.lowest_vbus_volts < VBUS_MIN_VOLTS
     )
-    console.print(results_table(results, serial))
-    return [f"{serial}: {failure}" for failure in failures]
+    console.print(results_table(results, serial_number))
+    return [f"{serial_number}: {failure}" for failure in failures]
 
 
 def main():
@@ -321,9 +340,9 @@ def main():
     for device in devices:
         failures.extend(run_suite(device, console))
     verdict = "PASS" if not failures else "FAIL"
-    console.print(verdict, style=PASS_STYLE if not failures else FAIL_STYLE)
+    console.print(verdict, style=PASS_COLOR if not failures else FAIL_COLOR)
     for failure in failures:
-        console.print(failure, style=FAIL_STYLE)
+        console.print(failure, style=FAIL_COLOR)
     sys.exit(1 if failures else 0)
 
 

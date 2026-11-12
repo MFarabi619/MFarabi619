@@ -48,19 +48,22 @@ TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 
 LABEL_MARGIN_PIXELS = 6.0
+LABEL_FONT_SIZE_PIXELS = 18.0
+CENTER_THICKNESS_PIXELS = 3.0
+SURFACE_THICKNESS_PIXELS = 2.0
 
 LIVE_PARAMETERS = frozenset({
-    'surface_class_ids', 'min_fraction', 'min_run_width', 'roi_top_fraction',
-    'roi_bottom', 'smooth_window', 'max_saturation', 'max_value',
+    'surface_class_ids', 'min_fraction', 'min_run_width_fraction', 'roi_top_fraction',
+    'roi_bottom_fraction', 'smooth_window', 'max_saturation', 'max_value',
 })
 
 UNIT_RANGE_PARAMETERS = frozenset({
-    'max_saturation', 'max_value', 'min_fraction', 'min_run_width',
-    'roi_top_fraction', 'roi_bottom',
+    'max_saturation', 'max_value', 'min_fraction', 'min_run_width_fraction',
+    'roi_top_fraction', 'roi_bottom_fraction',
 })
 FIXED_PARAMETERS = frozenset({
     'mask_source', 'model_path', 'image_topic', 'detections_topic',
-    'overlay_topic', 'class_label', 'input_size', 'inference_threads',
+    'overlay_topic', 'class_label', 'inference_size_pixels', 'inference_threads',
     'max_detections_per_second', 'start_enabled',
 })
 
@@ -92,11 +95,12 @@ class SurfaceDetector(Node):
         self.surface_class_ids = self.declare_parameter(
             'surface_class_ids', [2, 3]
         ).value
-        self.input_size = self.declare_parameter('input_size', 512).value
+        self.inference_size_pixels = self.declare_parameter('inference_size_pixels', 512).value
         self.roi_top_fraction = self.declare_parameter('roi_top_fraction', 0.4).value
-        self.roi_bottom = self.declare_parameter('roi_bottom', 1.0).value
+        self.roi_bottom_fraction = self.declare_parameter('roi_bottom_fraction', 1.0).value
         self.min_fraction = self.declare_parameter('min_fraction', 0.5).value
-        self.min_run_width = self.declare_parameter('min_run_width', 0.10).value
+        self.min_run_width_fraction = self.declare_parameter(
+            'min_run_width_fraction', 0.10).value
         self.smooth_window = self.declare_parameter('smooth_window', 9).value
         self.mask_source = self.declare_parameter(
             'mask_source', SEGMENTATION_MASK).value
@@ -144,7 +148,7 @@ class SurfaceDetector(Node):
             model_path, session_options, providers=['CPUExecutionProvider'])
         self.input_name = session.get_inputs()[0].name
         self.blob_params = cv2.dnn.Image2BlobParams()
-        self.blob_params.size = (self.input_size, self.input_size)
+        self.blob_params.size = (self.inference_size_pixels, self.inference_size_pixels)
         self.blob_params.swapRB = True
         self.blob_params.mean = IMAGENET_MEAN_RGB
         self.blob_params.scalefactor = IMAGENET_RECIPROCAL_STD_RGB
@@ -198,7 +202,7 @@ class SurfaceDetector(Node):
             return
         height, width = bgr.shape[:2]
         top = int(height * self.roi_top_fraction)
-        bottom = int(height * self.roi_bottom)
+        bottom = int(height * self.roi_bottom_fraction)
 
         mask = self.surface_mask(bgr)
         fraction = self.column_fraction(mask[top:bottom])
@@ -206,7 +210,7 @@ class SurfaceDetector(Node):
         runs = [
             (int(run.start), int(run.stop))
             for run in np.ma.clump_masked(np.ma.masked_array(above_threshold, above_threshold))
-            if (run.stop - run.start) >= self.min_run_width * width
+            if (run.stop - run.start) >= self.min_run_width_fraction * width
         ]
         center_run = min(
             runs, key=lambda run: abs((run[0] + run[1]) / 2.0 - width / 2.0), default=None
@@ -222,8 +226,10 @@ class SurfaceDetector(Node):
             overlay.points.append(
                 self.run_box(message.header.stamp, run, top, bottom, center_run))
         if center_run is not None:
-            offset = ((center_run[0] + center_run[1]) / 2.0 - width / 2.0) / (width / 2.0)
-            overlay.texts.append(self.offset_label(message.header.stamp, center_run, top, offset))
+            offset_fraction = (
+                ((center_run[0] + center_run[1]) / 2.0 - width / 2.0) / (width / 2.0))
+            overlay.texts.append(
+                self.offset_label(message.header.stamp, center_run, top, offset_fraction))
         self.detections_publisher.publish(detections)
         self.overlay_publisher.publish(overlay)
 
@@ -284,16 +290,17 @@ class SurfaceDetector(Node):
         ]
         is_center = run == center_run
         annotation.outline_color = CENTER_COLOR if is_center else SURFACE_COLOR
-        annotation.thickness = 3.0 if is_center else 2.0
+        annotation.thickness = (
+            CENTER_THICKNESS_PIXELS if is_center else SURFACE_THICKNESS_PIXELS)
         return annotation
 
-    def offset_label(self, stamp, run, top, offset):
+    def offset_label(self, stamp, run, top, offset_fraction):
         annotation = TextAnnotation()
         annotation.timestamp = stamp
         annotation.position = Point2(
             x=float(run[0]), y=max(float(top) - LABEL_MARGIN_PIXELS, 0.0))
-        annotation.text = f'{self.class_label} offset {offset:+.2f}'
-        annotation.font_size = 18.0
+        annotation.text = f'{self.class_label} offset {offset_fraction:+.2f}'
+        annotation.font_size = LABEL_FONT_SIZE_PIXELS
         annotation.text_color = TEXT_COLOR
         annotation.background_color = TEXT_BACKGROUND_COLOR
         return annotation

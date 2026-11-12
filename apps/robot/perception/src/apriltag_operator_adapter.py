@@ -44,8 +44,10 @@ OPERATOR_FILL_COLOR = Color(r=0.1, g=0.9, b=1.0, a=0.25)
 TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 OPERATOR_DIAMETER_PIXELS = 26.0
+MARKER_THICKNESS_PIXELS = 2.5
 LABEL_MARGIN_PIXELS = 8.0
-LIVE_PARAMETERS = frozenset({'transform_timeout'})
+LABEL_FONT_SIZE_PIXELS = 18.0
+LIVE_PARAMETERS = frozenset({'transform_timeout_seconds'})
 
 
 class AprilTagOperatorAdapter(Node):
@@ -60,12 +62,13 @@ class AprilTagOperatorAdapter(Node):
             'camera_frame', 'camera_0_color_optical_frame').value
         self.tag_frame = self.declare_parameter('tag_frame', OPERATOR_LABEL).value
         self.publish_rate_hz = self.declare_parameter('publish_rate_hz', 20.0).value
-        self.transform_timeout = self.declare_parameter('transform_timeout', 0.4).value
+        self.transform_timeout_seconds = self.declare_parameter(
+            'transform_timeout_seconds', 0.4).value
 
         self.camera_model = None
 
-        self.buffer = Buffer()
-        self.listener = TransformListener(self.buffer, self)
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
         self.detections_publisher = self.create_publisher(
             Detection2DArray, detections_topic, qos_profile_sensor_data)
         self.overlay_publisher = self.create_publisher(
@@ -97,13 +100,13 @@ class AprilTagOperatorAdapter(Node):
 
     def latest_translation(self):
         try:
-            transform = self.buffer.lookup_transform(
+            transform = self.tf_buffer.lookup_transform(
                 self.camera_frame, self.tag_frame, rclpy.time.Time())
         except (LookupException, ConnectivityException, ExtrapolationException):
             return None
         age = self.get_clock().now() - rclpy.time.Time.from_msg(
             transform.header.stamp)
-        if age > Duration(seconds=self.transform_timeout):
+        if age > Duration(seconds=self.transform_timeout_seconds):
             return None
         return transform.transform.translation
 
@@ -130,7 +133,7 @@ class AprilTagOperatorAdapter(Node):
         marker.timestamp = stamp
         marker.position = Point2(x=column, y=row)
         marker.diameter = OPERATOR_DIAMETER_PIXELS
-        marker.thickness = 2.5
+        marker.thickness = MARKER_THICKNESS_PIXELS
         marker.outline_color = OPERATOR_COLOR
         marker.fill_color = OPERATOR_FILL_COLOR
         overlay.circles.append(marker)
@@ -139,7 +142,7 @@ class AprilTagOperatorAdapter(Node):
         label.position = Point2(
             x=column, y=max(row - OPERATOR_DIAMETER_PIXELS / 2.0 - LABEL_MARGIN_PIXELS, 0.0))
         label.text = f'{OPERATOR_LABEL} {translation.z:.2f} m'
-        label.font_size = 18.0
+        label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR
         label.background_color = TEXT_BACKGROUND_COLOR
         overlay.texts.append(label)

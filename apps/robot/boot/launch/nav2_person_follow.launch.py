@@ -16,7 +16,7 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN, TF_REMAPS
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 NAV2_SERVERS = (
     ('nav2_controller', 'controller_server'),
@@ -26,17 +26,17 @@ NAV2_SERVERS = (
 
 
 @launch_this
-def nav2_person_follow(params_file: str = '', behavior_tree: str = ''):
+def nav2_person_follow(params_file: str = '', behavior_tree_file: str = ''):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_navigation', 'follow.yaml')
-    behavior_tree = behavior_tree or bl.find('robot_navigation', 'follow_point.xml')
+    behavior_tree_file = behavior_tree_file or bl.find('robot_navigation', 'follow_point.xml')
     for package, server in NAV2_SERVERS:
         bl.node(
             package=package,
             executable=server,
             name=server,
-            params=({'default_nav_to_pose_bt_xml': behavior_tree}
+            params=({'default_nav_to_pose_bt_xml': behavior_tree_file}
                     if server == 'bt_navigator' else {}),
             param_files=[params_file],
             remaps=TF_REMAPS,

@@ -23,7 +23,7 @@ from robot_machines.machine import load_machine, machine_names
 
 ROBOT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 URDF_DECIMALS = 4
-PLACEMENT_TOLERANCE_M = 10.0 ** -URDF_DECIMALS
+PLACEMENT_TOLERANCE_METERS = 10.0 ** -URDF_DECIMALS
 
 
 def generated_machine_names():
@@ -49,10 +49,10 @@ def joint_origins(urdf_path):
 
 @pytest.mark.parametrize('machine_name', generated_machine_names())
 def test_every_machine_has_a_generated_urdf(machine_name):
-    for urdf in ('robot.urdf', 'robot.sim.urdf'):
-        path = os.path.join(ROBOT_ROOT, 'mech', 'urdf', machine_name, urdf)
+    for urdf_filename in ('robot.urdf', 'robot.sim.urdf'):
+        path = os.path.join(ROBOT_ROOT, 'mech', 'urdf', machine_name, urdf_filename)
         assert os.path.isfile(path), (
-            f'{machine_name}/{urdf} missing — rerun the assembly generator')
+            f'{machine_name}/{urdf_filename} missing — rerun the assembly generator')
 
 
 @pytest.mark.parametrize('machine_name', generated_machine_names())
@@ -61,13 +61,14 @@ def test_camera_joint_matches_the_configured_placement(machine_name):
     cameras = configured_cameras(machine_name)
     if not cameras:
         return
-    for urdf in ('robot.urdf', 'robot.sim.urdf'):
-        origins = joint_origins(os.path.join(ROBOT_ROOT, 'mech', 'urdf', machine_name, urdf))
+    for urdf_filename in ('robot.urdf', 'robot.sim.urdf'):
+        origins = joint_origins(
+            os.path.join(ROBOT_ROOT, 'mech', 'urdf', machine_name, urdf_filename))
         for index, camera in enumerate(cameras):
             link = f'camera_{index}_link'
-            assert link in origins, f'{machine_name}/{urdf} has no {link}'
+            assert link in origins, f'{machine_name}/{urdf_filename} has no {link}'
             for axis, configured in enumerate(camera.xyz):
                 assert origins[link][axis] == pytest.approx(
-                    configured, abs=PLACEMENT_TOLERANCE_M), (
-                        f'{machine_name}/{urdf} {link} disagrees with robot.yaml'
+                    configured, abs=PLACEMENT_TOLERANCE_METERS), (
+                        f'{machine_name}/{urdf_filename} {link} disagrees with robot.yaml'
                         ' — rerun the assembly generator')

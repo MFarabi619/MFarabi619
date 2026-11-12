@@ -26,9 +26,9 @@ use super::{
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 const LOG_STRIDE_FRAMES: u64 = 15;
-const LABEL_SIZE: f64 = 24.0;
-const DEFAULT_FORWARD_SPEED: f64 = 0.4;
-const DEFAULT_STEERING_GAIN: f64 = 0.8;
+const LABEL_FONT_SIZE_PIXELS: f64 = 24.0;
+const DEFAULT_FORWARD_SPEED_METERS_PER_SECOND: f64 = 0.4;
+const DEFAULT_STEER_GAIN: f64 = 0.8;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum LineColor {
@@ -44,8 +44,8 @@ pub struct Config {
     pub white_max_saturation: f64,
     pub white_min_value: f64,
     // Yellow = a saturated hue band.
-    pub yellow_hue_min: f64,
-    pub yellow_hue_max: f64,
+    pub yellow_min_hue: f64,
+    pub yellow_max_hue: f64,
     pub yellow_min_saturation: f64,
     pub yellow_min_value: f64,
     // Fewer matched pixels than this reads as "no line" rather than noise.
@@ -59,8 +59,8 @@ impl Default for Config {
             roi_bottom: 1.0,
             white_max_saturation: 0.25,
             white_min_value: 0.65,
-            yellow_hue_min: 35.0,
-            yellow_hue_max: 70.0,
+            yellow_min_hue: 35.0,
+            yellow_max_hue: 70.0,
             yellow_min_saturation: 0.35,
             yellow_min_value: 0.45,
             min_pixels: 60,
@@ -125,8 +125,8 @@ pub(crate) fn rgb_to_hsv(red: u8, green: u8, blue: u8) -> (f64, f64, f64) {
 fn classify(hue: f64, saturation: f64, value: f64, config: &Config) -> Option<LineColor> {
     if saturation <= config.white_max_saturation && value >= config.white_min_value {
         Some(LineColor::White)
-    } else if hue >= config.yellow_hue_min
-        && hue <= config.yellow_hue_max
+    } else if hue >= config.yellow_min_hue
+        && hue <= config.yellow_max_hue
         && saturation >= config.yellow_min_saturation
         && value >= config.yellow_min_value
     {
@@ -222,9 +222,9 @@ pub(crate) fn box_outline(
 
 pub(crate) fn label(text: String, x: f64, y: f64, text_color: Color) -> TextAnnotation {
     TextAnnotation {
-        position: Some(point(x.max(0.0), y.max(LABEL_SIZE))),
+        position: Some(point(x.max(0.0), y.max(LABEL_FONT_SIZE_PIXELS))),
         text,
-        font_size: LABEL_SIZE,
+        font_size: LABEL_FONT_SIZE_PIXELS,
         text_color: Some(text_color),
         background_color: Some(color(0.0, 0.0, 0.0, 0.6)),
         ..Default::default()
@@ -278,7 +278,7 @@ fn overlay(
         annotations.texts.push(label(
             format!("{color_label}  offset {:+.2}", detection.offset),
             detection.bounding_box.min_x,
-            detection.bounding_box.min_y - LABEL_SIZE,
+            detection.bounding_box.min_y - LABEL_FONT_SIZE_PIXELS,
             line_color,
         ));
     } else {
@@ -292,9 +292,9 @@ fn overlay(
     annotations
 }
 
-fn follow(detection: &LineDetection, forward_speed: f64, steering_gain: f64) -> TwistStamped {
+fn follow(detection: &LineDetection, forward_speed_meters_per_second: f64, steer_gain: f64) -> TwistStamped {
     if detection.found {
-        twist(forward_speed, -steering_gain * detection.offset)
+        twist(forward_speed_meters_per_second, -steer_gain * detection.offset)
     } else {
         twist(0.0, 0.0)
     }
@@ -306,13 +306,13 @@ pub async fn run_line_follower(
     start_enabled: bool,
 ) -> Result<(), BoxError> {
     let config = Config::default();
-    let (image_topic, forward_speed, steering_gain) = {
+    let (image_topic, forward_speed_meters_per_second, steer_gain) = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
         (
             crate::parameters::string_parameter(&store, "image_topic", crate::parameters::DEFAULT_IMAGE_TOPIC),
-            crate::parameters::f64_parameter(&store, "forward_speed", DEFAULT_FORWARD_SPEED),
-            crate::parameters::f64_parameter(&store, "steering_gain", DEFAULT_STEERING_GAIN),
+            crate::parameters::f64_parameter(&store, "forward_speed_meters_per_second", DEFAULT_FORWARD_SPEED_METERS_PER_SECOND),
+            crate::parameters::f64_parameter(&store, "steer_gain", DEFAULT_STEER_GAIN),
         )
     };
     let mut images = node
@@ -325,7 +325,7 @@ pub async fn run_line_follower(
     let mut enabled = start_enabled;
 
     tracing::info!(
-        "line follower on {} -> cmd_vel + /line/overlay (forward {forward_speed} m/s)",
+        "line follower on {} -> cmd_vel + /line/overlay (forward {forward_speed_meters_per_second} m/s)",
         images.fully_qualified_topic_name()
     );
     let ctrl_c = tokio::signal::ctrl_c();
@@ -362,7 +362,7 @@ pub async fn run_line_follower(
                         let detection = detect(&config, target_color, &rgb, width, height);
                         overlay_channel.log(&overlay(&detection, &config, width, height));
                         if enabled {
-                            cmd_vel.send(&follow(&detection, forward_speed, steering_gain))?;
+                            cmd_vel.send(&follow(&detection, forward_speed_meters_per_second, steer_gain))?;
                         }
                         if frames.fetch_add(1, Ordering::Relaxed).is_multiple_of(LOG_STRIDE_FRAMES) {
                             match detection.color {

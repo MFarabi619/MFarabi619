@@ -27,9 +27,10 @@ from rclpy.qos import qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
 
 LIVE_PARAMETERS = frozenset({
-    'min_range', 'max_range', 'corridor_half_width', 'min_wall_points',
-    'default_half_width', 'lookahead_distance', 'path_step', 'forward_speed',
-    'lateral_gain', 'heading_gain', 'max_angular_speed', 'drive_enabled',
+    'min_range_meters', 'max_range_meters', 'corridor_half_width_meters',
+    'min_wall_points', 'default_half_width_meters', 'lookahead_distance_meters',
+    'path_step_meters', 'forward_speed_meters_per_second', 'lateral_gain',
+    'heading_gain', 'max_angular_speed_radians_per_second', 'drive_enabled',
 })
 
 
@@ -49,21 +50,22 @@ class RowNavigator(Node):
         path_topic = self.declare_parameter('path_topic', 'path').value
         cmd_vel_topic = self.declare_parameter('cmd_vel_topic', 'cmd_vel').value
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
-        self.min_range = self.declare_parameter('min_range', 0.3).value
-        self.max_range = self.declare_parameter('max_range', 4.0).value
-        self.corridor_half_width = self.declare_parameter(
-            'corridor_half_width', 1.5).value
+        self.min_range_meters = self.declare_parameter('min_range_meters', 0.3).value
+        self.max_range_meters = self.declare_parameter('max_range_meters', 4.0).value
+        self.corridor_half_width_meters = self.declare_parameter(
+            'corridor_half_width_meters', 1.5).value
         self.min_wall_points = self.declare_parameter('min_wall_points', 6).value
-        self.default_half_width = self.declare_parameter(
-            'default_half_width', 0.5).value
-        self.lookahead_distance = self.declare_parameter(
-            'lookahead_distance', 2.5).value
-        self.path_step = self.declare_parameter('path_step', 0.25).value
-        self.forward_speed = self.declare_parameter('forward_speed', 0.4).value
+        self.default_half_width_meters = self.declare_parameter(
+            'default_half_width_meters', 0.5).value
+        self.lookahead_distance_meters = self.declare_parameter(
+            'lookahead_distance_meters', 2.5).value
+        self.path_step_meters = self.declare_parameter('path_step_meters', 0.25).value
+        self.forward_speed_meters_per_second = self.declare_parameter(
+            'forward_speed_meters_per_second', 0.4).value
         self.lateral_gain = self.declare_parameter('lateral_gain', 0.8).value
         self.heading_gain = self.declare_parameter('heading_gain', 0.6).value
-        self.max_angular_speed = self.declare_parameter(
-            'max_angular_speed', 0.8).value
+        self.max_angular_speed_radians_per_second = self.declare_parameter(
+            'max_angular_speed_radians_per_second', 0.8).value
         self.drive_enabled = self.declare_parameter('drive_enabled', False).value
 
         self.path_publisher = self.create_publisher(
@@ -88,21 +90,21 @@ class RowNavigator(Node):
             return
         self.path_publisher.publish(self.path(message.header.stamp, centerline))
         if self.drive_enabled:
-            self.drive(self.forward_speed, self.steering(centerline))
+            self.drive(self.forward_speed_meters_per_second, self.steering(centerline))
 
     def scan_points(self, message):
         ranges = np.asarray(message.ranges)
         angles = message.angle_min + np.arange(ranges.size) * message.angle_increment
         valid = (
             np.isfinite(ranges)
-            & (ranges >= max(self.min_range, message.range_min))
-            & (ranges <= min(self.max_range, message.range_max))
+            & (ranges >= max(self.min_range_meters, message.range_min))
+            & (ranges <= min(self.max_range_meters, message.range_max))
         )
         ranges = ranges[valid]
         angles = angles[valid]
         x = ranges * np.cos(angles)
         y = ranges * np.sin(angles)
-        near = np.abs(y) <= self.corridor_half_width
+        near = np.abs(y) <= self.corridor_half_width_meters
         return x[near], y[near]
 
     def fit_wall(self, x, y):
@@ -123,9 +125,9 @@ class RowNavigator(Node):
                 (left.slope + right.slope) / 2.0,
                 (left.intercept + right.intercept) / 2.0)
         if left is not None:
-            return Wall(left.slope, left.intercept - self.default_half_width)
+            return Wall(left.slope, left.intercept - self.default_half_width_meters)
         if right is not None:
-            return Wall(right.slope, right.intercept + self.default_half_width)
+            return Wall(right.slope, right.intercept + self.default_half_width_meters)
         return None
 
     def path(self, stamp, centerline):
@@ -133,9 +135,9 @@ class RowNavigator(Node):
         message.header.stamp = stamp
         message.header.frame_id = self.frame_id
         yaw = math.atan(centerline.slope)
-        steps = max(int(self.lookahead_distance / self.path_step), 1)
+        steps = max(int(self.lookahead_distance_meters / self.path_step_meters), 1)
         for index in range(steps + 1):
-            x = index * self.path_step
+            x = index * self.path_step_meters
             pose = PoseStamped()
             pose.header = message.header
             pose.pose.position.x = x
@@ -153,17 +155,19 @@ class RowNavigator(Node):
 
     def steering(self, centerline):
         lateral = centerline.intercept
-        heading = math.atan(centerline.slope)
-        angular = self.lateral_gain * lateral + self.heading_gain * heading
+        heading_radians = math.atan(centerline.slope)
+        angular = self.lateral_gain * lateral + self.heading_gain * heading_radians
         return float(np.clip(
-            angular, -self.max_angular_speed, self.max_angular_speed))
+            angular,
+            -self.max_angular_speed_radians_per_second,
+            self.max_angular_speed_radians_per_second))
 
-    def drive(self, forward_speed, angular_speed):
+    def drive(self, forward_speed_meters_per_second, angular_speed_radians_per_second):
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(forward_speed)
-        message.twist.angular.z = float(angular_speed)
+        message.twist.linear.x = float(forward_speed_meters_per_second)
+        message.twist.angular.z = float(angular_speed_radians_per_second)
         self.cmd_vel_publisher.publish(message)
 
     def on_parameters_set(self, parameters):

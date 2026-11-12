@@ -16,13 +16,13 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN, TF_REMAPS
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
 def robot_localization(params_file: str = '', gps_topic_prefix: str = 'sensors/gps_0'):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_control', 'localization.yaml')
     bl.node(
         package='robot_localization',

@@ -23,11 +23,11 @@ pub struct Odometry {
     odom: Publisher<OdometryMsg>,
     x: f64,
     y: f64,
-    heading: f64,
-    linear: f64,
-    angular: f64,
-    left_wheel_angle: f64,
-    right_wheel_angle: f64,
+    heading_radians: f64,
+    linear_meters_per_second: f64,
+    angular_radians_per_second: f64,
+    left_wheel_angle_radians: f64,
+    right_wheel_angle_radians: f64,
     last_update: Instant,
 }
 
@@ -38,33 +38,46 @@ impl Odometry {
             odom: node.create_publisher::<OdometryMsg>("odom", None)?,
             x: 0.0,
             y: 0.0,
-            heading: 0.0,
-            linear: 0.0,
-            angular: 0.0,
-            left_wheel_angle: 0.0,
-            right_wheel_angle: 0.0,
+            heading_radians: 0.0,
+            linear_meters_per_second: 0.0,
+            angular_radians_per_second: 0.0,
+            left_wheel_angle_radians: 0.0,
+            right_wheel_angle_radians: 0.0,
             last_update: Instant::now(),
         })
     }
 
-    pub fn set_velocity_command(&mut self, linear: f64, angular: f64) {
-        self.linear = linear;
-        self.angular = angular;
+    pub fn set_velocity_command(
+        &mut self,
+        linear_meters_per_second: f64,
+        angular_radians_per_second: f64,
+    ) {
+        self.linear_meters_per_second = linear_meters_per_second;
+        self.angular_radians_per_second = angular_radians_per_second;
     }
 
     pub fn stop(&mut self) {
-        self.linear = 0.0;
-        self.angular = 0.0;
+        self.linear_meters_per_second = 0.0;
+        self.angular_radians_per_second = 0.0;
     }
 
     pub fn publish(&mut self) -> Result<(), BoxError> {
         let delta_seconds = self.last_update.elapsed().as_secs_f64();
         self.last_update = Instant::now();
-        (self.x, self.y, self.heading) =
-            integrate_pose(self.x, self.y, self.heading, self.linear, self.angular, delta_seconds);
-        let (left_velocity, right_velocity) = wheel_angular_velocities(self.linear, self.angular);
-        self.left_wheel_angle += left_velocity * delta_seconds;
-        self.right_wheel_angle += right_velocity * delta_seconds;
+        (self.x, self.y, self.heading_radians) = integrate_pose(
+            self.x,
+            self.y,
+            self.heading_radians,
+            self.linear_meters_per_second,
+            self.angular_radians_per_second,
+            delta_seconds,
+        );
+        let (left_velocity, right_velocity) = wheel_angular_velocities(
+            self.linear_meters_per_second,
+            self.angular_radians_per_second,
+        );
+        self.left_wheel_angle_radians += left_velocity * delta_seconds;
+        self.right_wheel_angle_radians += right_velocity * delta_seconds;
 
         self.joint_states.send(&self.joint_state())?;
         self.odom.send(&self.odom_message())?;
@@ -72,7 +85,7 @@ impl Odometry {
     }
 
     fn joint_state(&self) -> JointState {
-        joint_state_message(self.left_wheel_angle, self.right_wheel_angle)
+        joint_state_message(self.left_wheel_angle_radians, self.right_wheel_angle_radians)
     }
 
     fn odom_message(&self) -> OdometryMsg {
@@ -84,16 +97,19 @@ impl Odometry {
         message.child_frame_id = RosString::new(BASE_LINK).unwrap();
         message.pose.pose.position.x = self.x;
         message.pose.pose.position.y = self.y;
-        let (z, w) = (self.heading / 2.0).sin_cos();
+        let (z, w) = (self.heading_radians / 2.0).sin_cos();
         message.pose.pose.orientation.z = z;
         message.pose.pose.orientation.w = w;
-        message.twist.twist.linear.x = self.linear;
-        message.twist.twist.angular.z = self.angular;
+        message.twist.twist.linear.x = self.linear_meters_per_second;
+        message.twist.twist.angular.z = self.angular_radians_per_second;
         message
     }
 }
 
-pub fn joint_state_message(left_wheel_angle: f64, right_wheel_angle: f64) -> JointState {
+pub fn joint_state_message(
+    left_wheel_angle_radians: f64,
+    right_wheel_angle_radians: f64,
+) -> JointState {
     let (sec, nanosec) = now_stamp();
     let mut message = JointState::new().unwrap();
     message.header.stamp.sec = sec;
@@ -108,8 +124,8 @@ pub fn joint_state_message(left_wheel_angle: f64, right_wheel_angle: f64) -> Joi
     let positions: Vec<f64> = DRIVE_WHEELS
         .iter()
         .map(|wheel| match wheel.corner.side() {
-            Side::Left => left_wheel_angle,
-            Side::Right => right_wheel_angle,
+            Side::Left => left_wheel_angle_radians,
+            Side::Right => right_wheel_angle_radians,
         })
         .collect();
     message.position = positions.as_slice().try_into().unwrap();
@@ -119,15 +135,15 @@ pub fn joint_state_message(left_wheel_angle: f64, right_wheel_angle: f64) -> Joi
 pub fn integrate_pose(
     x: f64,
     y: f64,
-    heading: f64,
-    linear: f64,
-    angular: f64,
+    heading_radians: f64,
+    linear_meters_per_second: f64,
+    angular_radians_per_second: f64,
     delta_seconds: f64,
 ) -> (f64, f64, f64) {
-    let heading = heading + angular * delta_seconds;
-    let x = x + linear * heading.cos() * delta_seconds;
-    let y = y + linear * heading.sin() * delta_seconds;
-    (x, y, heading)
+    let heading_radians = heading_radians + angular_radians_per_second * delta_seconds;
+    let x = x + linear_meters_per_second * heading_radians.cos() * delta_seconds;
+    let y = y + linear_meters_per_second * heading_radians.sin() * delta_seconds;
+    (x, y, heading_radians)
 }
 
 #[cfg(test)]
@@ -136,16 +152,16 @@ mod tests {
 
     #[test]
     fn driving_straight_moves_along_x() {
-        let (x, y, heading) = integrate_pose(0.0, 0.0, 0.0, 1.0, 0.0, 1.0);
+        let (x, y, heading_radians) = integrate_pose(0.0, 0.0, 0.0, 1.0, 0.0, 1.0);
         assert!(x > 0.0);
         assert_eq!(y, 0.0);
-        assert_eq!(heading, 0.0);
+        assert_eq!(heading_radians, 0.0);
     }
 
     #[test]
     fn turning_changes_heading() {
-        let (_, _, heading) = integrate_pose(0.0, 0.0, 0.0, 0.0, 1.0, 0.5);
-        assert!(heading > 0.0);
+        let (_, _, heading_radians) = integrate_pose(0.0, 0.0, 0.0, 0.0, 1.0, 0.5);
+        assert!(heading_radians > 0.0);
     }
 
     #[test]

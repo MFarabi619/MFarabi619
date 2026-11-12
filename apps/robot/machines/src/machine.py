@@ -16,16 +16,29 @@
 
 from pathlib import Path
 import socket
+from typing import Literal, get_args
 
 from ament_index_python.packages import get_package_share_directory
 from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError, model_validator
 import yaml
 
-ZED_CAMERA_MODEL = 'zed_2'
-ORBBEC_CAMERA_MODEL = 'orbbec_gemini_335l'
-OAK_CAMERA_MODELS = ('oak_d_sr', 'oak_d_pro_w_poe')
-DEPTH_CAMERA_PRECEDENCE = (OAK_CAMERA_MODELS, (ORBBEC_CAMERA_MODEL,), (ZED_CAMERA_MODEL,))
-DRIVETRAIN_MODELS = ('roboteq', 'rc_pulse', 'pwm_dir', 'odrive_usb', 'svd48v')
+CameraModel = Literal[
+    'luxonis_oak_d_sr', 'luxonis_oak_d_pro_w_poe', 'orbbec_gemini_335l', 'stereolabs_zed']
+ImuModel = Literal['adafruit_bno085']
+GpsModel = Literal['ublox_zed_f9p']
+DrivetrainModel = Literal['roboteq', 'rc_pulse', 'pwm_dir', 'odrive_usb', 'svd48v', 'mock']
+ArmModel = Literal['kinova_link6']
+CAMERA_MODELS = get_args(CameraModel)
+IMU_MODELS = get_args(ImuModel)
+GPS_MODELS = get_args(GpsModel)
+STEREOLABS_ZED_MODEL = 'stereolabs_zed'
+ORBBEC_GEMINI_335L_MODEL = 'orbbec_gemini_335l'
+LUXONIS_OAK_D_PRO_W_POE_MODEL = 'luxonis_oak_d_pro_w_poe'
+LUXONIS_OAK_MODELS = ('luxonis_oak_d_sr', LUXONIS_OAK_D_PRO_W_POE_MODEL)
+DEPTH_CAMERA_PRECEDENCE = (
+    LUXONIS_OAK_MODELS, (ORBBEC_GEMINI_335L_MODEL,), (STEREOLABS_ZED_MODEL,))
+DRIVETRAIN_MODELS = get_args(DrivetrainModel)
+DOMAINS = ('platform', 'sensors', 'perception', 'navigation', 'manipulation')
 MOTION_LIMIT_KEYS = (
     'max_linear_velocity_meters_per_second',
     'max_angular_velocity_radians_per_second',
@@ -36,19 +49,19 @@ MOTION_LIMIT_KEYS = (
 )
 
 
-def source_checkout():
+def machines_source_directory():
     machines = Path(__file__).resolve().parents[1]
     return machines if any(machines.glob('*/robot.yaml')) else None
 
 
-def machines_share():
-    return source_checkout() or Path(get_package_share_directory('robot_machines'))
+def machines_directory():
+    return machines_source_directory() or Path(get_package_share_directory('robot_machines'))
 
 
 def boards_directory():
-    checkout = source_checkout()
-    if checkout:
-        return checkout.parent / 'elec' / 'boards'
+    source = machines_source_directory()
+    if source:
+        return source.parent / 'elec' / 'boards'
     return Path(get_package_share_directory('robot_machines')) / 'boards'
 
 
@@ -56,31 +69,31 @@ class MachineError(Exception):
     pass
 
 
-class Record(BaseModel):
+class StrictRecord(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
 
-class Host(Record):
+class Host(StrictRecord):
     hostname: str
     ip: str
     board: str
 
 
-class System(Record):
+class System(StrictRecord):
     hosts: list[Host] = []
     namespace: str = ''
 
 
-class DrivetrainSide(Record):
+class DrivetrainSide(StrictRecord):
     pwm_pin: str | int | None = None
     dir_pin: str | int | None = None
     forward_level: bool | None = None
     is_reversed: bool = False
-    serial: str | None = None
+    serial_number: str | None = None
 
 
-class Drivetrain(Record):
-    model: str = 'pwm_dir'
+class Drivetrain(StrictRecord):
+    model: DrivetrainModel = 'pwm_dir'
     left: DrivetrainSide = DrivetrainSide()
     right: DrivetrainSide = DrivetrainSide()
     serial_port: str | None = None
@@ -89,7 +102,7 @@ class Drivetrain(Record):
     control_mode: str | None = None
     full_scale_linear_velocity_meters_per_second: float | None = None
     pwm_frequency_hz: float | None = None
-    min_duty: float | None = None
+    min_duty_fraction: float | None = None
     gear_ratio: float | None = None
     acceleration_rpm_per_second: float | None = None
     speed_smoothing_time: float | None = None
@@ -106,7 +119,7 @@ class Drivetrain(Record):
     svd48v: dict = {}
 
     def model_settings(self, model):
-        return getattr(self, model) if model in DRIVETRAIN_MODELS else {}
+        return getattr(self, model, {})
 
     def motion_limits(self, model):
         settings = self.model_settings(model)
@@ -115,21 +128,21 @@ class Drivetrain(Record):
             if (value := settings.get(key, getattr(self, key))) is not None}
 
 
-class RcReceiver(Record):
+class RcReceiver(StrictRecord):
     channel_1_pin: str | int
     channel_2_pin: str | int
     tank_mixed: bool = False
     launch_enabled: bool = True
 
 
-class Platform(Record):
+class Platform(StrictRecord):
     drivetrain: Drivetrain = Drivetrain()
     rc_receiver: RcReceiver | None = None
     attachments: list = []
     collision_guarded: bool = False
 
 
-class Sensor(Record):
+class Sensor(StrictRecord):
     model: str
     parent: str = 'base_link'
     xyz: list[float] = [0.0, 0.0, 0.0]
@@ -143,39 +156,41 @@ class Sensor(Record):
 
 
 class Camera(Sensor):
+    model: CameraModel
     launch_enabled: bool = True
     urdf_enabled: bool = True
     detects_on_camera: bool = False
 
     @property
     def has_depth(self):
-        if self.model == ORBBEC_CAMERA_MODEL:
+        if self.model == ORBBEC_GEMINI_335L_MODEL:
             return bool(self.parameters.get('enable_depth', False))
         return True
 
     @property
     def publishes_compressed_color(self):
-        return self.model in OAK_CAMERA_MODELS
+        return self.model in LUXONIS_OAK_MODELS
 
     @property
     def has_on_camera_detector(self):
-        if self.model == 'oak_d_pro_w_poe':
+        if self.model == LUXONIS_OAK_D_PRO_W_POE_MODEL:
             return self.detects_on_camera
-        if self.model == ZED_CAMERA_MODEL:
+        if self.model == STEREOLABS_ZED_MODEL:
             return bool(self.parameters.get('object_detection', {}).get('od_enabled', False))
         return False
 
 
 class Imu(Sensor):
-    pass
+    model: ImuModel
 
 
 class Gps(Sensor):
+    model: GpsModel
     flash: dict = {}
     ntrip: dict | None = None
 
 
-class Sensors(Record):
+class Sensors(StrictRecord):
     camera: list[Camera] = []
     imu: list[Imu] = []
     gps: list[Gps] = []
@@ -188,18 +203,18 @@ class Sensors(Record):
         return self
 
 
-class Mount(Record):
+class Mount(StrictRecord):
     parent: str = 'base_link'
     xyz: list[float] = [0.0, 0.0, 0.0]
     rpy: list[float] = [0.0, 0.0, 0.0]
 
 
-class Mounts(Record):
+class Mounts(StrictRecord):
     camera_mount: list[Mount] = []
 
 
-class Arm(Record):
-    model: str
+class Arm(StrictRecord):
+    model: ArmModel
     gripper: str
     bringup_package: str
     description_package: str
@@ -208,28 +223,26 @@ class Arm(Record):
     moveit_robot_name: str
 
 
-class Behaviors(Record):
-    foxglove: bool = True
-    point_cloud: bool = True
-    hand_gesture: bool = False
+class Behaviors(StrictRecord):
+    hand_gesture_teleop: bool = False
     weeding: bool = False
-    follow_nav2: bool = False
+    nav2_person_follow: bool = False
     gps_navigation: bool = False
     harvest_lane: bool = False
-    line: bool = False
-    sidewalk: bool = False
-    park_path: bool = False
-    path: bool = False
+    line_follow: bool = False
+    sidewalk_follow: bool = False
+    park_path_follow: bool = False
+    path_follow: bool = False
 
     @model_validator(mode='after')
-    def one_nav2_owner(self):
-        if self.follow_nav2 and self.gps_navigation:
+    def refuse_two_nav2_owners(self):
+        if self.nav2_person_follow and self.gps_navigation:
             raise ValueError(
-                'follow_nav2 and gps_navigation both start the nav2 servers; enable one')
+                'nav2_person_follow and gps_navigation both start the nav2 servers; enable one')
         return self
 
 
-class Machine(Record):
+class Machine(StrictRecord):
     name: str
     system: System = System()
     platform: Platform | None = None
@@ -237,6 +250,9 @@ class Machine(Record):
     sensors: Sensors = Sensors()
     mounts: Mounts = Mounts()
     behaviors: Behaviors = Behaviors()
+    foxglove_enabled: bool = True
+    point_cloud_enabled: bool = True
+    ros_parameters: dict[str, dict] = {}
     home: dict = {}
     manipulation: dict = {}
 
@@ -271,8 +287,8 @@ class Machine(Record):
         return [camera for camera in self.sensors.camera if camera.launch_enabled]
 
     @property
-    def has_zed_camera(self):
-        return any(camera.model == ZED_CAMERA_MODEL for camera in self.sensors.camera)
+    def has_stereolabs_zed(self):
+        return any(camera.model == STEREOLABS_ZED_MODEL for camera in self.sensors.camera)
 
     def first_enabled_camera(self, *models):
         return next(
@@ -287,35 +303,43 @@ class Machine(Record):
         return None
 
     @property
+    def domains(self):
+        sensors = self.sensors
+        present = {
+            'platform': self.platform is not None,
+            'sensors': bool(self.enabled_cameras or sensors.imu or sensors.gps),
+            'perception': self.depth_camera is not None,
+            'navigation': self.behaviors.nav2_person_follow or self.behaviors.gps_navigation,
+            'manipulation': self.has_arm,
+        }
+        return tuple(domain for domain in DOMAINS if present[domain])
+
+    @property
     def board_pins(self):
         board_path = boards_directory() / f'{self.board}.yaml'
         return yaml.safe_load(board_path.read_text())['pins']
 
-    def params_file(self, component):
-        path = machines_share() / self.name / 'params' / f'{component}.yaml'
-        return str(path) if path.is_file() else ''
+
+def machine_names(directory=None):
+    directory = directory or machines_directory()
+    return sorted(path.parent.name for path in directory.glob('*/robot.yaml'))
 
 
-def machine_names(machines_root=None):
-    machines_root = machines_root or machines_share()
-    return sorted(path.parent.name for path in machines_root.glob('*/robot.yaml'))
+def load_machine(name, directory=None):
+    directory = directory or machines_directory()
+    return parse_machine_file(name, directory / name / 'robot.yaml')
 
 
-def load_machine(name, machines_root=None):
-    machines_root = machines_root or machines_share()
-    return read_machine(name, machines_root / name / 'robot.yaml')
-
-
-def load_machine_for_this_host(machines_root=None):
+def load_machine_for_this_host(directory=None):
     hostname = socket.gethostname()
-    for candidate_name in machine_names(machines_root):
-        machine = load_machine(candidate_name, machines_root)
+    for candidate_name in machine_names(directory):
+        machine = load_machine(candidate_name, directory)
         if any(host.hostname == hostname for host in machine.system.hosts):
             return machine
     raise MachineError(f'no robot.yaml lists hostname {hostname}')
 
 
-def read_machine(name, path):
+def parse_machine_file(name, path):
     if not path.is_file():
         raise MachineError(f'{name} has no robot.yaml')
     mapping = yaml.safe_load(path.read_text()) or {}

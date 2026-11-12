@@ -53,16 +53,18 @@ TEXT_BACKGROUND_COLOR = Color(r=0.0, g=0.0, b=0.0, a=0.6)
 DENOISE_KERNEL = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 MERGE_KERNEL = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
 LABEL_MARGIN_PIXELS = 8.0
+LABEL_FONT_SIZE_PIXELS = 18.0
 BRACKET_FRACTION = 0.25
+BRACKET_THICKNESS_PIXELS = 3.0
 MILLIMETERS_PER_METER = 1000.0
 MILLIMETER_DEPTH_ENCODING = '16UC1'
 METER_DEPTH_ENCODING = '32FC1'
 BYTES_PER_MILLIMETER_DEPTH_PIXEL = 2
 BYTES_PER_METER_DEPTH_PIXEL = 4
 LIVE_PARAMETERS = frozenset({
-    'hue_min', 'hue_max', 'min_saturation', 'max_saturation', 'min_value',
-    'max_value', 'min_area', 'min_triangularity', 'min_aspect_ratio',
-    'fallback_range', 'max_fallback_box_fraction', 'roi_top_fraction',
+    'min_hue', 'max_hue', 'min_saturation', 'max_saturation', 'min_value',
+    'max_value', 'min_blob_area', 'min_triangularity', 'min_aspect_ratio',
+    'fallback_range_meters', 'max_fallback_box_fraction', 'roi_top_fraction',
 })
 
 
@@ -84,19 +86,21 @@ class ColorBlobDetector(Node):
         ).value
         self.class_label = self.declare_parameter('class_label', 'blob').value
         self.is_enabled = self.declare_parameter('start_enabled', False).value
-        self.hue_min = self.declare_parameter('hue_min', 5.0).value
-        self.hue_max = self.declare_parameter('hue_max', 22.0).value
+        self.min_hue = self.declare_parameter('min_hue', 5.0).value
+        self.max_hue = self.declare_parameter('max_hue', 22.0).value
         self.min_saturation = self.declare_parameter('min_saturation', 0.5).value
         self.max_saturation = self.declare_parameter('max_saturation', 1.0).value
         self.min_value = self.declare_parameter('min_value', 0.35).value
         self.max_value = self.declare_parameter('max_value', 1.0).value
-        self.min_area = self.declare_parameter('min_area', 400).value
+        self.min_blob_area = self.declare_parameter('min_blob_area', 400).value
         self.min_triangularity = self.declare_parameter('min_triangularity', 0.6).value
         self.min_aspect_ratio = self.declare_parameter('min_aspect_ratio', 1.0).value
-        self.depth_sample_radius = self.declare_parameter('depth_sample_radius', 4).value
+        self.depth_sample_radius_pixels = self.declare_parameter(
+            'depth_sample_radius_pixels', 4).value
         self.depth_timeout_seconds = self.declare_parameter(
             'depth_timeout_seconds', 0.5).value
-        self.fallback_range = self.declare_parameter('fallback_range', 0.0).value
+        self.fallback_range_meters = self.declare_parameter(
+            'fallback_range_meters', 0.0).value
         self.max_fallback_box_fraction = self.declare_parameter(
             'max_fallback_box_fraction', 0.25
         ).value
@@ -190,8 +194,8 @@ class ColorBlobDetector(Node):
         hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(
             hsv,
-            (self.hue_min, self.min_saturation * 255.0, self.min_value * 255.0),
-            (self.hue_max, self.max_saturation * 255.0, self.max_value * 255.0),
+            (self.min_hue, self.min_saturation * 255.0, self.min_value * 255.0),
+            (self.max_hue, self.max_saturation * 255.0, self.max_value * 255.0),
         )
         mask[:int(self.roi_top_fraction * mask.shape[0])] = 0
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, DENOISE_KERNEL)
@@ -202,7 +206,7 @@ class ColorBlobDetector(Node):
         blobs = []
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area < self.min_area:
+            if area < self.min_blob_area:
                 continue
             triangle_area, _ = cv2.minEnclosingTriangle(contour)
             if triangle_area <= 0.0:
@@ -210,23 +214,23 @@ class ColorBlobDetector(Node):
             triangularity = area / triangle_area
             if triangularity < self.min_triangularity:
                 continue
-            x, y, w, h = cv2.boundingRect(contour)
-            if h / w < self.min_aspect_ratio:
+            x, y, width, height = cv2.boundingRect(contour)
+            if height / width < self.min_aspect_ratio:
                 continue
-            blobs.append(((x, y, w, h), triangularity))
+            blobs.append(((x, y, width, height), triangularity))
         return blobs
 
     def bounding_box_range(self, bounding_box, color_width, color_height):
         if self.latest_depth_millimeters is None or self.depth_is_stale():
             return None, None
-        x, y, w, h = bounding_box
+        x, y, width, height = bounding_box
         depth_height, depth_width = self.latest_depth_millimeters.shape[:2]
-        depth_x = int((x + w / 2.0) / color_width * depth_width)
-        depth_y = int((y + h / 2.0) / color_height * depth_height)
-        radius = self.depth_sample_radius
+        depth_x = int((x + width / 2.0) / color_width * depth_width)
+        depth_y = int((y + height / 2.0) / color_height * depth_height)
+        radius_pixels = self.depth_sample_radius_pixels
         depth_patch = self.latest_depth_millimeters[
-            max(depth_y - radius, 0):depth_y + radius + 1,
-            max(depth_x - radius, 0):depth_x + radius + 1,
+            max(depth_y - radius_pixels, 0):depth_y + radius_pixels + 1,
+            max(depth_x - radius_pixels, 0):depth_x + radius_pixels + 1,
         ]
         valid_depths = depth_patch[np.isfinite(depth_patch) & (depth_patch > 0)]
         if valid_depths.size == 0:
@@ -235,14 +239,14 @@ class ColorBlobDetector(Node):
         return distance, self.deproject(depth_x, depth_y, distance)
 
     def fallback_point(self, bounding_box, color_width, color_height):
-        if self.fallback_range <= 0.0 or self.camera_model is None:
+        if self.fallback_range_meters <= 0.0 or self.camera_model is None:
             return None
-        x, y, w, h = bounding_box
-        if max(w / color_width, h / color_height) > self.max_fallback_box_fraction:
+        x, y, width, height = bounding_box
+        if max(width / color_width, height / color_height) > self.max_fallback_box_fraction:
             return None
-        depth_x = int((x + w / 2.0) / color_width * self.camera_model.width)
-        depth_y = int((y + h / 2.0) / color_height * self.camera_model.height)
-        return self.deproject(depth_x, depth_y, self.fallback_range)
+        depth_x = int((x + width / 2.0) / color_width * self.camera_model.width)
+        depth_y = int((y + height / 2.0) / color_height * self.camera_model.height)
+        return self.deproject(depth_x, depth_y, self.fallback_range_meters)
 
     def deproject(self, depth_x, depth_y, distance):
         if self.camera_model is None:
@@ -261,15 +265,15 @@ class ColorBlobDetector(Node):
         return age > Duration(seconds=self.depth_timeout_seconds)
 
     def detection(self, stamp, bounding_box, triangularity, point):
-        x, y, w, h = bounding_box
+        x, y, width, height = bounding_box
         detection = Detection2D()
         detection.header.stamp = stamp
         detection.header.frame_id = self.depth_frame_id
         detection.id = self.class_label
         detection.bbox = BoundingBox2D(
-            center=Pose2D(position=Point2D(x=x + w / 2.0, y=y + h / 2.0), theta=0.0),
-            size_x=float(w),
-            size_y=float(h),
+            center=Pose2D(position=Point2D(x=x + width / 2.0, y=y + height / 2.0), theta=0.0),
+            size_x=float(width),
+            size_y=float(height),
         )
         hypothesis = ObjectHypothesisWithPose()
         hypothesis.hypothesis.class_id = self.class_label
@@ -280,9 +284,9 @@ class ColorBlobDetector(Node):
         return detection
 
     def annotate(self, overlay, stamp, bounding_box, distance):
-        x, y, w, h = bounding_box
-        left, right, top, bottom = float(x), float(x + w), float(y), float(y + h)
-        bracket = BRACKET_FRACTION * min(w, h)
+        x, y, width, height = bounding_box
+        left, right, top, bottom = float(x), float(x + width), float(y), float(y + height)
+        bracket = BRACKET_FRACTION * min(width, height)
         brackets = PointsAnnotation()
         brackets.timestamp = stamp
         brackets.type = PointsAnnotation.LINE_LIST
@@ -297,14 +301,14 @@ class ColorBlobDetector(Node):
             Point2(x=left, y=bottom), Point2(x=left, y=bottom - bracket),
         ]
         brackets.outline_color = BLOB_COLOR
-        brackets.thickness = 3.0
+        brackets.thickness = BRACKET_THICKNESS_PIXELS
         overlay.points.append(brackets)
         label = TextAnnotation()
         label.timestamp = stamp
         label.position = Point2(x=float(x), y=max(float(y) - LABEL_MARGIN_PIXELS, 0.0))
         distance_text = '?' if distance is None else f'{distance:.2f} m'
         label.text = f'{self.class_label} {distance_text}'
-        label.font_size = 18.0
+        label.font_size = LABEL_FONT_SIZE_PIXELS
         label.text_color = TEXT_COLOR
         label.background_color = TEXT_BACKGROUND_COLOR
         overlay.texts.append(label)

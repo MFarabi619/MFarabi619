@@ -1,0 +1,12 @@
+#!/bin/sh
+checksum() {
+    md5sum machines/*/robot.yaml
+}
+initial_checksum=$(checksum)
+while true; do
+    sleep 1
+    if [ "$(checksum)" != "$initial_checksum" ]; then
+        echo 'robot.yaml changed; restarting the robot stack' >&2
+        exit 1
+    fi
+done

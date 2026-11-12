@@ -43,17 +43,17 @@ def test_forward_drives_immediately_and_keeps_driving(voice_teleop_node):
     voice_teleop_node.publish_held_twist()
     assert len(twists) == 3
     assert all(
-        twist.twist.linear.x == voice_teleop_node.forward_speed_mps
+        twist.twist.linear.x == voice_teleop_node.forward_speed_meters_per_second
         for twist in twists)
 
 
 def test_straight_and_back_are_synonyms(voice_teleop_node):
     twists = capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('straight'))
-    assert twists[-1].twist.linear.x == voice_teleop_node.forward_speed_mps
+    assert twists[-1].twist.linear.x == voice_teleop_node.forward_speed_meters_per_second
     voice_teleop_node.on_word(spoken('stop'))
     voice_teleop_node.on_word(spoken('back'))
-    assert twists[-1].twist.linear.x == -voice_teleop_node.forward_speed_mps
+    assert twists[-1].twist.linear.x == -voice_teleop_node.forward_speed_meters_per_second
 
 
 def test_every_accepted_word_is_acknowledged(voice_teleop_node):
@@ -90,51 +90,51 @@ def test_acknowledgements_rotate_through_the_phrases(
 def test_backward_drives_in_reverse(voice_teleop_node):
     twists = capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('backward'))
-    assert twists[-1].twist.linear.x == -voice_teleop_node.forward_speed_mps
+    assert twists[-1].twist.linear.x == -voice_teleop_node.forward_speed_meters_per_second
     assert twists[-1].twist.angular.z == 0.0
 
 
 def test_counterclockwise_pivots_with_positive_z(voice_teleop_node):
     twists = capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('counterclockwise'))
-    assert twists[-1].twist.angular.z == voice_teleop_node.angular_speed_radps
+    assert twists[-1].twist.angular.z == voice_teleop_node.angular_speed_radians_per_second
     assert twists[-1].twist.linear.x == 0.0
 
 
 def test_clockwise_pivots_with_negative_z(voice_teleop_node):
     twists = capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('clockwise'))
-    assert twists[-1].twist.angular.z == -voice_teleop_node.angular_speed_radps
+    assert twists[-1].twist.angular.z == -voice_teleop_node.angular_speed_radians_per_second
 
 
 def test_left_alone_arcs_forward_and_leftward(voice_teleop_node):
     twists = capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('left'))
-    assert twists[-1].twist.linear.x == voice_teleop_node.forward_speed_mps
-    assert twists[-1].twist.angular.z == voice_teleop_node.angular_speed_radps
+    assert twists[-1].twist.linear.x == voice_teleop_node.forward_speed_meters_per_second
+    assert twists[-1].twist.angular.z == voice_teleop_node.angular_speed_radians_per_second
 
 
 def test_right_alone_arcs_forward_and_rightward(voice_teleop_node):
     twists = capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('right'))
-    assert twists[-1].twist.linear.x == voice_teleop_node.forward_speed_mps
-    assert twists[-1].twist.angular.z == -voice_teleop_node.angular_speed_radps
+    assert twists[-1].twist.linear.x == voice_teleop_node.forward_speed_meters_per_second
+    assert twists[-1].twist.angular.z == -voice_teleop_node.angular_speed_radians_per_second
 
 
 def test_left_backward_arcs_the_path_to_the_rear_left(voice_teleop_node):
     twists = capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('left'))
     voice_teleop_node.on_word(spoken('backward'))
-    assert twists[-1].twist.linear.x == -voice_teleop_node.forward_speed_mps
-    assert twists[-1].twist.angular.z == -voice_teleop_node.angular_speed_radps
+    assert twists[-1].twist.linear.x == -voice_teleop_node.forward_speed_meters_per_second
+    assert twists[-1].twist.angular.z == -voice_teleop_node.angular_speed_radians_per_second
 
 
 def test_backward_left_matches_left_backward(voice_teleop_node):
     twists = capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('backward'))
     voice_teleop_node.on_word(spoken('left'))
-    assert twists[-1].twist.linear.x == -voice_teleop_node.forward_speed_mps
-    assert twists[-1].twist.angular.z == -voice_teleop_node.angular_speed_radps
+    assert twists[-1].twist.linear.x == -voice_teleop_node.forward_speed_meters_per_second
+    assert twists[-1].twist.angular.z == -voice_teleop_node.angular_speed_radians_per_second
 
 
 def test_forward_long_after_an_arc_goes_straight(
@@ -143,7 +143,7 @@ def test_forward_long_after_an_arc_goes_straight(
     voice_teleop_node.on_word(spoken('left'))
     age_last_word(voice_teleop_node, voice_teleop_module)
     voice_teleop_node.on_word(spoken('forward'))
-    assert twists[-1].twist.linear.x == voice_teleop_node.forward_speed_mps
+    assert twists[-1].twist.linear.x == voice_teleop_node.forward_speed_meters_per_second
     assert twists[-1].twist.angular.z == 0.0
 
 
@@ -151,14 +151,14 @@ def test_spoken_linear_two_sets_the_forward_speed(voice_teleop_node):
     capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('linear'))
     voice_teleop_node.on_word(spoken('two'))
-    assert voice_teleop_node.forward_speed_mps == 2.0
+    assert voice_teleop_node.forward_speed_meters_per_second == 2.0
 
 
-def test_spoken_angular_one_sets_the_turn_speed(voice_teleop_node):
+def test_spoken_angular_one_sets_the_angular_speed(voice_teleop_node):
     capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('angular'))
     voice_teleop_node.on_word(spoken('one'))
-    assert voice_teleop_node.angular_speed_radps == 1.0
+    assert voice_teleop_node.angular_speed_radians_per_second == 1.0
 
 
 def test_a_speed_change_rescales_the_current_motion(voice_teleop_node):
@@ -173,11 +173,11 @@ def test_a_speed_change_rescales_the_current_motion(voice_teleop_node):
 def test_a_digit_long_after_linear_changes_nothing(
         voice_teleop_node, voice_teleop_module):
     capture(voice_teleop_node)
-    original = voice_teleop_node.forward_speed_mps
+    original = voice_teleop_node.forward_speed_meters_per_second
     voice_teleop_node.on_word(spoken('linear'))
     age_last_word(voice_teleop_node, voice_teleop_module)
     voice_teleop_node.on_word(spoken('two'))
-    assert voice_teleop_node.forward_speed_mps == original
+    assert voice_teleop_node.forward_speed_meters_per_second == original
 
 
 def test_a_lone_digit_changes_nothing(voice_teleop_node):
@@ -189,15 +189,15 @@ def test_a_lone_digit_changes_nothing(voice_teleop_node):
 
 def test_the_speed_parameters_retune_without_a_restart(voice_teleop_node):
     voice_teleop_node.on_parameters_set([
-        Parameter('forward_speed_mps', value=0.8)])
-    assert voice_teleop_node.forward_speed_mps == 0.8
+        Parameter('forward_speed_meters_per_second', value=0.8)])
+    assert voice_teleop_node.forward_speed_meters_per_second == 0.8
 
 
 def test_a_spoken_speed_keeps_the_parameter_store_truthful(voice_teleop_node):
     capture(voice_teleop_node)
     voice_teleop_node.on_word(spoken('linear'))
     voice_teleop_node.on_word(spoken('two'))
-    assert voice_teleop_node.get_parameter('forward_speed_mps').value == 2.0
+    assert voice_teleop_node.get_parameter('forward_speed_meters_per_second').value == 2.0
 
 
 def test_stop_publishes_one_zero_then_goes_quiet(voice_teleop_node):

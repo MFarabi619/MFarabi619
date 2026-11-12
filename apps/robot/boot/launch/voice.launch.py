@@ -16,11 +16,11 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
-from robot_boot.zenoh_router import ROUTER_PORT, ensure_router
+from robot_boot.zenoh_router import (
+    ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE, ZENOH_ROUTER_PORT, ensure_zenoh_router)
 from robot_machines.machine import load_machine
 
-CONNECT_TIMEOUT_MS = 3000
-CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ROUTER_PORT}"]'
+CONNECT_TIMEOUT_MILLISECONDS = 3000
 
 
 def robot_hostname(robot_name):
@@ -30,21 +30,21 @@ def robot_hostname(robot_name):
 def bridging_peer_config_override(robot_name):
     return (
         'mode="peer";connect/endpoints='
-        f'["tcp/localhost:{ROUTER_PORT}",'
-        f'"tcp/{robot_hostname(robot_name)}.local:{ROUTER_PORT}"];'
-        f'connect/timeout_ms={CONNECT_TIMEOUT_MS}')
+        f'["tcp/localhost:{ZENOH_ROUTER_PORT}",'
+        f'"tcp/{robot_hostname(robot_name)}.local:{ZENOH_ROUTER_PORT}"];'
+        f'connect/timeout_ms={CONNECT_TIMEOUT_MILLISECONDS}')
 
 
 @launch_this
 def voice(robot: str = 'taro'):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     bl.node(
         package='audio_common',
         executable='audio_capturer_node',
         name='audio_capturer_node',
         remaps={'audio': 'microphone/audio'},
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+        env={'ZENOH_CONFIG_OVERRIDE': ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE},
         **RESPAWN,
     )
     bl.node(
@@ -52,7 +52,7 @@ def voice(robot: str = 'taro'):
         executable='voice_word_detector',
         name='voice_word_detector',
         params={'start_enabled': True},
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+        env={'ZENOH_CONFIG_OVERRIDE': ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE},
         **RESPAWN,
     )
     bl.node(
@@ -60,7 +60,7 @@ def voice(robot: str = 'taro'):
         executable='voice_transcriber',
         name='voice_transcriber',
         params={'start_enabled': True},
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+        env={'ZENOH_CONFIG_OVERRIDE': ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE},
         **RESPAWN,
     )
     bl.node(
@@ -76,7 +76,7 @@ def voice(robot: str = 'taro'):
         package='robot_perception',
         executable='voice_speaker',
         name='voice_speaker',
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+        env={'ZENOH_CONFIG_OVERRIDE': ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE},
         **RESPAWN,
     )
     bl.node(
@@ -84,6 +84,6 @@ def voice(robot: str = 'taro'):
         executable='audio_player_node',
         name='audio_player_node',
         params={'channels': 1},
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
+        env={'ZENOH_CONFIG_OVERRIDE': ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE},
         **RESPAWN,
     )

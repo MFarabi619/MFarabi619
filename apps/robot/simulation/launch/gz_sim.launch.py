@@ -15,43 +15,26 @@
 
 
 import os
-import subprocess
 import threading
-import time
 
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.search_paths import get_search_paths
 from better_launch import BetterLaunch, launch_this
-
-VIEW_CONTROL_SENSITIVITY = 0.25
-SENSITIVITY_RETRY_DELAY_S = 2.0
-SENSITIVITY_MAX_ATTEMPTS = 60
-
-
-def calm_view_control_sensitivity():
-    command = [
-        'gz', 'service', '-s', '/gui/camera/view_control/sensitivity',
-        '--reqtype', 'gz.msgs.Double', '--reptype', 'gz.msgs.Boolean',
-        '--timeout', '1000', '--req', f'data: {VIEW_CONTROL_SENSITIVITY}',
-    ]
-    for _ in range(SENSITIVITY_MAX_ATTEMPTS):
-        result = subprocess.run(command, capture_output=True)
-        if result.returncode == 0:
-            return
-        time.sleep(SENSITIVITY_RETRY_DELAY_S)
+from robot_simulation.view_control import set_view_control_sensitivity
 
 
 @launch_this
 def gz_sim(world: str = 'maize', headless: bool = False):
     bl = BetterLaunch()
-    share = get_package_share_directory('robot_simulator')
-    worlds = os.path.join(share, 'worlds')
-    models = os.path.join(share, 'models')
+    share_directory = get_package_share_directory('robot_simulation')
+    worlds_directory = os.path.join(share_directory, 'worlds')
+    models_directory = os.path.join(share_directory, 'models')
     share_directories = [
         os.path.join(prefix, 'share') for prefix in get_search_paths()]
-    resource_path = os.pathsep.join([worlds, models] + share_directories)
-    world_file = os.path.join(worlds, f'{world}.sdf')
-    plugin_path = os.path.join(os.environ.get('CONDA_PREFIX', ''), 'lib')
+    resource_path = os.pathsep.join(
+        [worlds_directory, models_directory] + share_directories)
+    world_file = os.path.join(worlds_directory, f'{world}.sdf')
+    plugin_directory = os.path.join(os.environ.get('CONDA_PREFIX', ''), 'lib')
 
     def gazebo_exited():
         if not bl.is_shutdown:
@@ -60,7 +43,7 @@ def gz_sim(world: str = 'maize', headless: bool = False):
     command = ['gz', 'sim', world_file, '-r', '-v', '4']
     env = {
         'GZ_SIM_RESOURCE_PATH': resource_path,
-        'GZ_SIM_SYSTEM_PLUGIN_PATH': plugin_path,
+        'GZ_SIM_SYSTEM_PLUGIN_PATH': plugin_directory,
         'OGRE2_RESOURCE_PATH': os.path.join(
             os.environ.get('CONDA_PREFIX', ''), 'lib', 'OGRE-Next'),
     }
@@ -68,11 +51,11 @@ def gz_sim(world: str = 'maize', headless: bool = False):
         command += ['-s', '--headless-rendering']
         env['DISPLAY'] = ''
         nixos_driver_root = '/run/opengl-driver'
-        egl_vendor_dir = os.path.join(nixos_driver_root, 'share/glvnd/egl_vendor.d')
-        if os.path.isdir(egl_vendor_dir):
-            env['__EGL_VENDOR_LIBRARY_DIRS'] = egl_vendor_dir
+        egl_vendor_directory = os.path.join(nixos_driver_root, 'share/glvnd/egl_vendor.d')
+        if os.path.isdir(egl_vendor_directory):
+            env['__EGL_VENDOR_LIBRARY_DIRS'] = egl_vendor_directory
             env['LIBGL_DRIVERS_PATH'] = os.path.join(nixos_driver_root, 'lib/dri')
     else:
-        command += ['--gui-config', os.path.join(share, 'gui.config')]
-        threading.Thread(target=calm_view_control_sensitivity, daemon=True).start()
+        command += ['--gui-config', os.path.join(share_directory, 'gui.config')]
+        threading.Thread(target=set_view_control_sensitivity, daemon=True).start()
     bl.process(command, name='gazebo', env=env, on_exit=gazebo_exited)

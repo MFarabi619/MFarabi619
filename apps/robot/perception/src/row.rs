@@ -26,8 +26,8 @@ type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 const LOG_STRIDE_FRAMES: u64 = 15;
 const LABEL_OFFSET: f64 = 24.0;
-const DEFAULT_FORWARD_SPEED: f64 = 0.4;
-const DEFAULT_STEERING_GAIN: f64 = 0.8;
+const DEFAULT_FORWARD_SPEED_METERS_PER_SECOND: f64 = 0.4;
+const DEFAULT_STEER_GAIN: f64 = 0.8;
 
 pub struct Config {
     // ROI band as fractions of the frame height — the ground just ahead of the robot.
@@ -37,10 +37,10 @@ pub struct Config {
     // soil is orange-tan and drops out of both, so plain green-excess would miss the red rows.
     pub min_saturation: f64,
     pub min_value: f64,
-    pub green_hue_min: f64,
-    pub green_hue_max: f64,
-    pub red_hue_min: f64,
-    pub red_hue_max: f64,
+    pub green_min_hue: f64,
+    pub green_max_hue: f64,
+    pub red_min_hue: f64,
+    pub red_max_hue: f64,
     // A column whose crop fraction rises above this reads as a crop row to straddle; the robot
     // centers the row so the bed passes under it and the wheels ride the aisles either side.
     pub crop_min_fraction: f64,
@@ -56,10 +56,10 @@ impl Default for Config {
             roi_bottom: 1.0,
             min_saturation: 0.30,
             min_value: 0.06,
-            green_hue_min: 70.0,
-            green_hue_max: 175.0,
-            red_hue_min: 315.0,
-            red_hue_max: 18.0,
+            green_min_hue: 70.0,
+            green_max_hue: 175.0,
+            red_min_hue: 315.0,
+            red_max_hue: 18.0,
             crop_min_fraction: 0.40,
             min_row_width: 0.04,
             smooth_window: 9,
@@ -93,8 +93,8 @@ fn is_crop(hue: f64, saturation: f64, value: f64, config: &Config) -> bool {
     if saturation < config.min_saturation || value < config.min_value {
         return false;
     }
-    let green = hue >= config.green_hue_min && hue <= config.green_hue_max;
-    let red = hue >= config.red_hue_min || hue <= config.red_hue_max;
+    let green = hue >= config.green_min_hue && hue <= config.green_max_hue;
+    let red = hue >= config.red_min_hue || hue <= config.red_max_hue;
     green || red
 }
 
@@ -238,9 +238,9 @@ fn overlay(
     annotations
 }
 
-fn follow(detection: &RowDetection, forward_speed: f64, steering_gain: f64) -> TwistStamped {
+fn follow(detection: &RowDetection, forward_speed_meters_per_second: f64, steer_gain: f64) -> TwistStamped {
     if detection.found {
-        twist(forward_speed, -steering_gain * detection.offset)
+        twist(forward_speed_meters_per_second, -steer_gain * detection.offset)
     } else {
         twist(0.0, 0.0)
     }
@@ -248,13 +248,13 @@ fn follow(detection: &RowDetection, forward_speed: f64, steering_gain: f64) -> T
 
 pub async fn run_row_follower(node: Arc<Node>, start_enabled: bool) -> Result<(), BoxError> {
     let config = Config::default();
-    let (image_topic, forward_speed, steering_gain) = {
+    let (image_topic, forward_speed_meters_per_second, steer_gain) = {
         let parameters = node.create_parameter_server()?;
         let store = parameters.params.read();
         (
             crate::parameters::string_parameter(&store, "image_topic", crate::parameters::DEFAULT_IMAGE_TOPIC),
-            crate::parameters::f64_parameter(&store, "forward_speed", DEFAULT_FORWARD_SPEED),
-            crate::parameters::f64_parameter(&store, "steering_gain", DEFAULT_STEERING_GAIN),
+            crate::parameters::f64_parameter(&store, "forward_speed_meters_per_second", DEFAULT_FORWARD_SPEED_METERS_PER_SECOND),
+            crate::parameters::f64_parameter(&store, "steer_gain", DEFAULT_STEER_GAIN),
         )
     };
     let mut images = node
@@ -266,7 +266,7 @@ pub async fn run_row_follower(node: Arc<Node>, start_enabled: bool) -> Result<()
     let mut enabled = start_enabled;
 
     tracing::info!(
-        "row follower on {} -> cmd_vel + /row/overlay (forward {forward_speed} m/s)",
+        "row follower on {} -> cmd_vel + /row/overlay (forward {forward_speed_meters_per_second} m/s)",
         images.fully_qualified_topic_name()
     );
     let ctrl_c = tokio::signal::ctrl_c();
@@ -303,7 +303,7 @@ pub async fn run_row_follower(node: Arc<Node>, start_enabled: bool) -> Result<()
                         let detection = detect(&config, &rgb, width, height);
                         overlay_channel.log(&overlay(&detection, &config, width, height));
                         if enabled {
-                            cmd_vel.send(&follow(&detection, forward_speed, steering_gain))?;
+                            cmd_vel.send(&follow(&detection, forward_speed_meters_per_second, steer_gain))?;
                         }
                         if frames.fetch_add(1, Ordering::Relaxed).is_multiple_of(LOG_STRIDE_FRAMES) {
                             if detection.found {

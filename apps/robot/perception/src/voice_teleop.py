@@ -40,8 +40,8 @@ DIGIT_WORDS = {
     'three': 3.0, 'four': 4.0, 'five': 5.0,
 }
 SPEED_PARAMETER_WORDS = {
-    'linear': 'forward_speed_mps',
-    'angular': 'angular_speed_radps',
+    'linear': 'forward_speed_meters_per_second',
+    'angular': 'angular_speed_radians_per_second',
 }
 LIVE_PARAMETERS = frozenset(SPEED_PARAMETER_WORDS.values())
 
@@ -50,6 +50,7 @@ class Motion(NamedTuple):
     longitudinal: float
     steer: float
     pivot: float
+
 
 STOP = Motion(0.0, 0.0, 0.0)
 
@@ -60,10 +61,10 @@ class VoiceTeleop(Node):
         word_topic = self.declare_parameter(
             'word_topic', 'perception/voice/word').value
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
-        self.forward_speed_mps = self.declare_parameter(
-            'forward_speed_mps', 0.3).value
-        self.angular_speed_radps = self.declare_parameter(
-            'angular_speed_radps', 0.5).value
+        self.forward_speed_meters_per_second = self.declare_parameter(
+            'forward_speed_meters_per_second', 0.3).value
+        self.angular_speed_radians_per_second = self.declare_parameter(
+            'angular_speed_radians_per_second', 0.5).value
         self.is_enabled = self.declare_parameter('start_enabled', False).value
 
         self.motion = STOP
@@ -159,11 +160,11 @@ class VoiceTeleop(Node):
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = self.motion.longitudinal * self.forward_speed_mps
+        message.twist.linear.x = self.motion.longitudinal * self.forward_speed_meters_per_second
         message.twist.angular.z = (
-            self.motion.pivot * self.angular_speed_radps
+            self.motion.pivot * self.angular_speed_radians_per_second
             + self.motion.longitudinal * self.motion.steer
-            * self.angular_speed_radps)
+            * self.angular_speed_radians_per_second)
         self.cmd_vel_publisher.publish(message)
 
 

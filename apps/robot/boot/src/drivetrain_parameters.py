@@ -26,9 +26,10 @@ CONTROLLER_PARAMETERS_BY_LIMIT = {
     'max_angular_acceleration_radians_per_second_squared': 'angular.z.max_acceleration',
     'max_angular_jerk_radians_per_second_cubed': 'angular.z.max_jerk',
 }
+CONTROLLER_MANAGER_TIMEOUT_SECONDS = '60'
 
 
-def write_drivetrain_parameters(wheel_separation, wheel_radius, motion_limits):
+def write_drivetrain_parameters_file(wheel_separation, wheel_radius, motion_limits):
     ros_parameters = {
         'wheel_separation': wheel_separation,
         'wheel_radius': wheel_radius,
@@ -39,8 +40,8 @@ def write_drivetrain_parameters(wheel_separation, wheel_radius, motion_limits):
     parameters = {
         '/**/diff_drive_controller': {'ros__parameters': ros_parameters},
     }
-    parameters_file = tempfile.NamedTemporaryFile(
+    parameters_tempfile = tempfile.NamedTemporaryFile(
         mode='w', prefix='drivetrain_', suffix='.yaml', delete=False)
-    yaml.safe_dump(parameters, parameters_file)
-    parameters_file.close()
-    return parameters_file.name
+    yaml.safe_dump(parameters, parameters_tempfile)
+    parameters_tempfile.close()
+    return parameters_tempfile.name

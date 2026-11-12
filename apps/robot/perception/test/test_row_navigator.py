@@ -20,16 +20,16 @@ import pytest
 from sensor_msgs.msg import LaserScan
 
 BEAM_COUNT = 241
-FIELD_OF_VIEW = 1.2
-BED_PITCH = 1.2
-PLANT_LINE_OFFSET = 0.1
+FIELD_OF_VIEW_RADIANS = 1.2
+BED_PITCH_METERS = 1.2
+PLANT_LINE_OFFSET_METERS = 0.1
 
 
 def scan_from_plants(plants):
     message = LaserScan()
-    message.angle_min = -FIELD_OF_VIEW / 2.0
-    message.angle_max = FIELD_OF_VIEW / 2.0
-    message.angle_increment = FIELD_OF_VIEW / (BEAM_COUNT - 1)
+    message.angle_min = -FIELD_OF_VIEW_RADIANS / 2.0
+    message.angle_max = FIELD_OF_VIEW_RADIANS / 2.0
+    message.angle_increment = FIELD_OF_VIEW_RADIANS / (BEAM_COUNT - 1)
     message.range_min = 0.1
     message.range_max = 10.0
     ranges = [float('inf')] * BEAM_COUNT
@@ -58,7 +58,7 @@ def capture(node):
 def test_straddled_plant_lines_hold_center(row_navigator_node):
     commands, paths = capture(row_navigator_node)
     scan = scan_from_plants(
-        plant_line(PLANT_LINE_OFFSET) + plant_line(-PLANT_LINE_OFFSET))
+        plant_line(PLANT_LINE_OFFSET_METERS) + plant_line(-PLANT_LINE_OFFSET_METERS))
     row_navigator_node.on_scan(scan)
     assert len(commands) == 1
     assert commands[0].twist.linear.x == pytest.approx(0.4)
@@ -70,7 +70,8 @@ def test_lateral_offset_steers_back_toward_row(row_navigator_node):
     commands, paths = capture(row_navigator_node)
     drift = 0.06
     scan = scan_from_plants(
-        plant_line(PLANT_LINE_OFFSET - drift) + plant_line(-PLANT_LINE_OFFSET - drift))
+        plant_line(PLANT_LINE_OFFSET_METERS - drift)
+        + plant_line(-PLANT_LINE_OFFSET_METERS - drift))
     row_navigator_node.on_scan(scan)
     assert len(commands) == 1
     assert commands[0].twist.angular.z < -0.01
@@ -79,8 +80,8 @@ def test_lateral_offset_steers_back_toward_row(row_navigator_node):
 def test_furrow_between_beds_ignores_far_rows(row_navigator_node):
     commands, paths = capture(row_navigator_node)
     scan = scan_from_plants(
-        plant_line(BED_PITCH / 2.0) + plant_line(-BED_PITCH / 2.0)
-        + plant_line(1.5 * BED_PITCH) + plant_line(-1.5 * BED_PITCH))
+        plant_line(BED_PITCH_METERS / 2.0) + plant_line(-BED_PITCH_METERS / 2.0)
+        + plant_line(1.5 * BED_PITCH_METERS) + plant_line(-1.5 * BED_PITCH_METERS))
     row_navigator_node.on_scan(scan)
     assert len(commands) == 1
     assert commands[0].twist.linear.x == pytest.approx(0.4)
@@ -95,7 +96,7 @@ def test_sparse_returns_publish_no_command(row_navigator_node):
     assert paths[0].poses == []
 
 
-def test_single_wall_follows_at_default_half_width(row_navigator_node):
+def test_single_wall_follows_at_default_half_width_meters(row_navigator_node):
     commands, paths = capture(row_navigator_node)
     scan = scan_from_plants(plant_line(0.5))
     row_navigator_node.on_scan(scan)

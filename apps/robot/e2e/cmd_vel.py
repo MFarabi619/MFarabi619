@@ -49,26 +49,26 @@ COMMAND_TOPIC = "joy_teleop/cmd_vel"
 FRAME_ID = "base_link"
 RATE_HZ = 20.0
 SETTLE_SECONDS = 1.0
-GAUGE_WIDTH = 26
-SCOPE_WIDTH = 60
+GAUGE_WIDTH_CHARACTERS = 26
+SCOPE_WIDTH_CHARACTERS = 60
 
-LINEAR_LIMIT = 15.0
-ANGULAR_LIMIT = 15.0
+LINEAR_MAX_VELOCITY_METERS_PER_SECOND = 15.0
+ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND = 15.0
 
-DEFAULT_FUZZ = 6
+DEFAULT_FUZZ_COUNT = 6
 FUZZ_SEED = 42
 FUZZ_KINDS = ["hold", "ramp", "trapezoid", "sine", "reversal"]
 KNOWN_KINDS = {"hold", "ramp", "trapezoid", "sine", "reversal", "chirp"}
 
 BLOCKS = " ▁▂▃▄▅▆▇█"
 
-DONE = "#689d6a"
-PENDING = "#504945"
-WARN = "#fb4934"
-FRAME = "#665c54"
-POSITIVE = "#b8bb26"
-NEGATIVE = "#fb4934"
-ACCENT = "#83a598"
+DONE_COLOR = "#689d6a"
+PENDING_COLOR = "#504945"
+WARN_COLOR = "#fb4934"
+FRAME_COLOR = "#665c54"
+POSITIVE_COLOR = "#b8bb26"
+NEGATIVE_COLOR = "#fb4934"
+ACCENT_COLOR = "#83a598"
 
 
 @dataclass
@@ -77,9 +77,9 @@ class Segment:
     glyph: str
     color: str
     phase: str
-    duration: float
+    duration_seconds: float
     kind: str
-    params: dict
+    parameters: dict
 
 
 @dataclass
@@ -104,66 +104,88 @@ def trapezoid_scale(fraction, rise, fall):
     return 1.0
 
 
-def sample(kind, params, fraction):
+def sample(kind, parameters, fraction):
     if kind == "hold":
-        return params["lin"], params["ang"]
+        return parameters["linear"], parameters["angular"]
     if kind == "ramp":
-        lin = params["lin0"] + (params["lin1"] - params["lin0"]) * fraction
-        ang = params["ang0"] + (params["ang1"] - params["ang0"]) * fraction
-        return lin, ang
+        linear = parameters["linear_start"] + (
+            parameters["linear_end"] - parameters["linear_start"]
+        ) * fraction
+        angular = parameters["angular_start"] + (
+            parameters["angular_end"] - parameters["angular_start"]
+        ) * fraction
+        return linear, angular
     if kind == "trapezoid":
         scale = trapezoid_scale(
-            fraction, params.get("rise", 0.25), params.get("fall", 0.25)
+            fraction, parameters.get("rise", 0.25), parameters.get("fall", 0.25)
         )
-        return params["lin"] * scale, params["ang"] * scale
+        return parameters["linear"] * scale, parameters["angular"] * scale
     if kind == "sine":
-        wave = math.sin(2 * math.pi * params["cycles"] * fraction)
-        return params["lin"], params["ang"] * wave
+        wave = math.sin(2 * math.pi * parameters["cycles"] * fraction)
+        return parameters["linear"], parameters["angular"] * wave
     if kind == "reversal":
-        sign = 1.0 if int(fraction * params["flips"]) % 2 == 0 else -1.0
-        return params["lin"] * sign, params["ang"] * sign
+        sign = 1.0 if int(fraction * parameters["flips"]) % 2 == 0 else -1.0
+        return parameters["linear"] * sign, parameters["angular"] * sign
     if kind == "chirp":
-        low, high = params["c0"], params["c1"]
-        angle = 2 * math.pi * (low * fraction + (high - low) * fraction * fraction / 2)
-        return params["lin"], params["ang"] * math.sin(angle)
+        low, high = parameters["c0"], parameters["c1"]
+        phase_radians = 2 * math.pi * (
+            low * fraction + (high - low) * fraction * fraction / 2
+        )
+        return parameters["linear"], parameters["angular"] * math.sin(phase_radians)
     return 0.0, 0.0
 
 
 def scaled_sample(segment, fraction):
-    linear, angular = sample(segment.kind, segment.params, fraction)
-    return linear * LINEAR_LIMIT, angular * ANGULAR_LIMIT
+    linear, angular = sample(segment.kind, segment.parameters, fraction)
+    return (
+        linear * LINEAR_MAX_VELOCITY_METERS_PER_SECOND,
+        angular * ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND,
+    )
 
 
 def segment_ticks(segment):
-    return max(1, round(segment.duration * RATE_HZ))
+    return max(1, round(segment.duration_seconds * RATE_HZ))
 
 
-def fuzz_params(kind, linear, angular, rng):
+def fuzz_parameters(kind, linear, angular, random_source):
     if kind == "ramp":
-        return {"lin0": 0.0, "ang0": 0.0, "lin1": linear, "ang1": angular}
+        return {
+            "linear_start": 0.0,
+            "angular_start": 0.0,
+            "linear_end": linear,
+            "angular_end": angular,
+        }
     if kind == "sine":
-        return {"lin": linear, "ang": abs(angular), "cycles": rng.randint(2, 6)}
+        return {
+            "linear": linear,
+            "angular": abs(angular),
+            "cycles": random_source.randint(2, 6),
+        }
     if kind == "reversal":
-        return {"lin": linear, "ang": angular, "flips": rng.randint(3, 8)}
-    return {"lin": linear, "ang": angular}
+        return {
+            "linear": linear,
+            "angular": angular,
+            "flips": random_source.randint(3, 8),
+        }
+    return {"linear": linear, "angular": angular}
 
 
-def fuzz_segments(count, rng):
+def fuzz_segments(count, random_source):
     segments = []
     for number in range(1, count + 1):
-        kind = rng.choice(FUZZ_KINDS)
-        linear = round(rng.uniform(-1.0, 1.0), 2)
-        angular = round(rng.uniform(-1.0, 1.0), 2)
-        duration = round(rng.uniform(1.0, 2.5), 1)
+        kind = random_source.choice(FUZZ_KINDS)
+        linear = round(random_source.uniform(-1.0, 1.0), 2)
+        angular = round(random_source.uniform(-1.0, 1.0), 2)
+        duration_seconds = round(random_source.uniform(1.0, 2.5), 1)
         segments.append(
             Segment(
                 f"fuzz {number}",
                 "⁇",
                 "#928374",
                 "fuzz",
-                duration,
+                duration_seconds,
                 kind,
-                fuzz_params(kind, linear, angular, rng),
+                fuzz_parameters(kind, linear, angular, random_source),
             )
         )
     return segments
@@ -178,7 +200,7 @@ def build_program(fuzz):
             "straights",
             3.0,
             "trapezoid",
-            {"lin": 1.0, "ang": 0.0},
+            {"linear": 1.0, "angular": 0.0},
         ),
         Segment(
             "ease reverse",
@@ -187,7 +209,7 @@ def build_program(fuzz):
             "straights",
             3.0,
             "trapezoid",
-            {"lin": -1.0, "ang": 0.0},
+            {"linear": -1.0, "angular": 0.0},
         ),
         Segment(
             "accelerate",
@@ -196,7 +218,12 @@ def build_program(fuzz):
             "straights",
             2.0,
             "ramp",
-            {"lin0": 0.0, "ang0": 0.0, "lin1": 1.0, "ang1": 0.0},
+            {
+                "linear_start": 0.0,
+                "angular_start": 0.0,
+                "linear_end": 1.0,
+                "angular_end": 0.0,
+            },
         ),
         Segment(
             "brake",
@@ -205,7 +232,12 @@ def build_program(fuzz):
             "straights",
             1.5,
             "ramp",
-            {"lin0": 1.0, "ang0": 0.0, "lin1": 0.0, "ang1": 0.0},
+            {
+                "linear_start": 1.0,
+                "angular_start": 0.0,
+                "linear_end": 0.0,
+                "angular_end": 0.0,
+            },
         ),
         Segment(
             "spin left",
@@ -214,7 +246,7 @@ def build_program(fuzz):
             "spins",
             2.5,
             "trapezoid",
-            {"lin": 0.0, "ang": 1.0},
+            {"linear": 0.0, "angular": 1.0},
         ),
         Segment(
             "spin right",
@@ -223,10 +255,10 @@ def build_program(fuzz):
             "spins",
             2.5,
             "trapezoid",
-            {"lin": 0.0, "ang": -1.0},
+            {"linear": 0.0, "angular": -1.0},
         ),
         Segment(
-            "flick left", "↰", "#8ec07c", "turns", 0.5, "hold", {"lin": 0.0, "ang": 1.0}
+            "flick left", "↰", "#8ec07c", "turns", 0.5, "hold", {"linear": 0.0, "angular": 1.0}
         ),
         Segment(
             "flick right",
@@ -235,7 +267,7 @@ def build_program(fuzz):
             "turns",
             0.5,
             "hold",
-            {"lin": 0.0, "ang": -1.0},
+            {"linear": 0.0, "angular": -1.0},
         ),
         Segment(
             "slalom",
@@ -244,13 +276,19 @@ def build_program(fuzz):
             "turns",
             4.0,
             "sine",
-            {"lin": 0.5, "ang": 1.0, "cycles": 4},
+            {"linear": 0.5, "angular": 1.0, "cycles": 4},
         ),
         Segment(
-            "arc left", "↖", "#8ec07c", "arcs", 2.5, "hold", {"lin": 0.8, "ang": 0.8}
+            "arc left", "↖", "#8ec07c", "arcs", 2.5, "hold", {"linear": 0.8, "angular": 0.8}
         ),
         Segment(
-            "arc right", "↗", "#fe8019", "arcs", 2.5, "hold", {"lin": 0.8, "ang": -0.8}
+            "arc right",
+            "↗",
+            "#fe8019",
+            "arcs",
+            2.5,
+            "hold",
+            {"linear": 0.8, "angular": -0.8},
         ),
         Segment(
             "s-curve",
@@ -259,7 +297,7 @@ def build_program(fuzz):
             "arcs",
             4.0,
             "sine",
-            {"lin": 0.7, "ang": 0.9, "cycles": 2},
+            {"linear": 0.7, "angular": 0.9, "cycles": 2},
         ),
         Segment(
             "whiplash",
@@ -268,7 +306,7 @@ def build_program(fuzz):
             "reversals",
             3.0,
             "reversal",
-            {"lin": 1.0, "ang": 0.0, "flips": 6},
+            {"linear": 1.0, "angular": 0.0, "flips": 6},
         ),
         Segment(
             "spin whiplash",
@@ -277,7 +315,7 @@ def build_program(fuzz):
             "reversals",
             3.0,
             "reversal",
-            {"lin": 0.0, "ang": 1.0, "flips": 6},
+            {"linear": 0.0, "angular": 1.0, "flips": 6},
         ),
         Segment(
             "chirp turn",
@@ -286,7 +324,7 @@ def build_program(fuzz):
             "sweep",
             5.0,
             "chirp",
-            {"lin": 0.3, "ang": 1.0, "c0": 1.0, "c1": 6.0},
+            {"linear": 0.3, "angular": 1.0, "c0": 1.0, "c1": 6.0},
         ),
         Segment(
             "full envelope",
@@ -295,13 +333,21 @@ def build_program(fuzz):
             "sweep",
             5.0,
             "sine",
-            {"lin": 1.0, "ang": 1.0, "cycles": 3},
+            {"linear": 1.0, "angular": 1.0, "cycles": 3},
         ),
     ]
     if fuzz:
         program.extend(fuzz_segments(fuzz, random.Random(FUZZ_SEED)))
     program.append(
-        Segment("stop", "■", "#928374", "settle", 1.0, "hold", {"lin": 0.0, "ang": 0.0})
+        Segment(
+            "stop",
+            "■",
+            "#928374",
+            "settle",
+            1.0,
+            "hold",
+            {"linear": 0.0, "angular": 0.0},
+        )
     )
     return program
 
@@ -322,9 +368,9 @@ def velocity_bar(value, limit, color):
         size=2.0,
         begin=center + min(normalized, 0.0),
         end=center + max(normalized, 0.0),
-        width=GAUGE_WIDTH,
+        width=GAUGE_WIDTH_CHARACTERS,
         color=color,
-        bgcolor=PENDING,
+        bgcolor=PENDING_COLOR,
     )
 
 
@@ -334,11 +380,13 @@ def gauge_grid(linear, angular, color):
     grid.add_column()
     grid.add_column(justify="left")
     grid.add_row(
-        "linear.x", velocity_bar(linear, LINEAR_LIMIT, color), f"{linear:+.2f} m/s"
+        "linear.x",
+        velocity_bar(linear, LINEAR_MAX_VELOCITY_METERS_PER_SECOND, color),
+        f"{linear:+.2f} m/s",
     )
     grid.add_row(
         "angular.z",
-        velocity_bar(angular, ANGULAR_LIMIT, color),
+        velocity_bar(angular, ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND, color),
         f"{angular:+.2f} rad/s",
     )
     return grid
@@ -346,7 +394,7 @@ def gauge_grid(linear, angular, color):
 
 def sparkline(values, limit, positive, negative):
     line = Text()
-    for value in list(values)[-SCOPE_WIDTH:]:
+    for value in list(values)[-SCOPE_WIDTH_CHARACTERS:]:
         magnitude = min(1.0, abs(value) / limit) if limit else 0.0
         line.append(
             BLOCKS[int(magnitude * (len(BLOCKS) - 1))],
@@ -363,7 +411,7 @@ def current_panel(segment, index, total, fraction, linear, angular):
     bar = ProgressBar(
         total=1.0,
         completed=fraction,
-        width=GAUGE_WIDTH,
+        width=GAUGE_WIDTH_CHARACTERS,
         complete_style=segment.color,
         finished_style=segment.color,
     )
@@ -387,11 +435,25 @@ def scope_panel(linear_history, angular_history):
     grid = Table.grid(padding=(0, 2))
     grid.add_column(justify="right", style="dim")
     grid.add_column()
-    grid.add_row("linear", sparkline(linear_history, LINEAR_LIMIT, POSITIVE, NEGATIVE))
     grid.add_row(
-        "angular", sparkline(angular_history, ANGULAR_LIMIT, ACCENT, "#d3869b")
+        "linear",
+        sparkline(
+            linear_history,
+            LINEAR_MAX_VELOCITY_METERS_PER_SECOND,
+            POSITIVE_COLOR,
+            NEGATIVE_COLOR,
+        ),
     )
-    return Panel(grid, title="scope", border_style=FRAME)
+    grid.add_row(
+        "angular",
+        sparkline(
+            angular_history,
+            ANGULAR_MAX_VELOCITY_RADIANS_PER_SECOND,
+            ACCENT_COLOR,
+            "#d3869b",
+        ),
+    )
+    return Panel(grid, title="scope", border_style=FRAME_COLOR)
 
 
 def phases_panel(program, index):
@@ -405,20 +467,24 @@ def phases_panel(program, index):
     grid.add_column(justify="left")
     grid.add_column(justify="right", style="dim")
     for phase in order:
-        members = [i for i, s in enumerate(program) if s.phase == phase]
-        done = sum(1 for i in members if i < index)
+        members = [
+            member_index
+            for member_index, segment in enumerate(program)
+            if segment.phase == phase
+        ]
+        done = sum(1 for member_index in members if member_index < index)
         if phase == current:
             marker, style = "▶", "#fabd2f"
         elif done == len(members):
-            marker, style = "✓", DONE
+            marker, style = "✓", DONE_COLOR
         else:
-            marker, style = "·", PENDING
+            marker, style = "·", PENDING_COLOR
         grid.add_row(
             Text(marker, style=style),
             Text(phase, style=style),
             Text(f"{done}/{len(members)}", style=style),
         )
-    return Panel(grid, title="phases", border_style=FRAME)
+    return Panel(grid, title="phases", border_style=FRAME_COLOR)
 
 
 def checks_panel(subscribers, sent, peak_linear, peak_angular):
@@ -430,17 +496,19 @@ def checks_panel(subscribers, sent, peak_linear, peak_angular):
         "listeners",
         Text(
             f"{subscribers}  {'✓' if listening else '⚠ none'}",
-            style=DONE if listening else WARN,
+            style=DONE_COLOR if listening else WARN_COLOR,
         ),
     )
-    grid.add_row("sent", Text(str(sent), style=ACCENT))
-    grid.add_row("peak lin", Text(f"{peak_linear:.2f} m/s", style=POSITIVE))
+    grid.add_row("sent", Text(str(sent), style=ACCENT_COLOR))
+    grid.add_row("peak lin", Text(f"{peak_linear:.2f} m/s", style=POSITIVE_COLOR))
     grid.add_row("peak ang", Text(f"{peak_angular:.2f} rad/s", style="#8ec07c"))
-    return Panel(grid, title="checks", border_style=DONE if listening else WARN)
+    return Panel(
+        grid, title="checks", border_style=DONE_COLOR if listening else WARN_COLOR
+    )
 
 
 def header():
-    return Rule(Text(f" cmd_vel · {COMMAND_TOPIC} ", style="bold"), style=FRAME)
+    return Rule(Text(f" cmd_vel · {COMMAND_TOPIC} ", style="bold"), style=FRAME_COLOR)
 
 
 def make_overall():
@@ -494,7 +562,9 @@ def render(layout, frame):
             frame.subscribers, frame.sent, frame.peak_linear, frame.peak_angular
         )
     )
-    layout["footer"].update(Panel(frame.progress, border_style=FRAME, padding=(0, 1)))
+    layout["footer"].update(
+        Panel(frame.progress, border_style=FRAME_COLOR, padding=(0, 1))
+    )
 
 
 def fuzz_count():
@@ -503,7 +573,7 @@ def fuzz_count():
     for arg in sys.argv:
         if arg.startswith("--fuzz="):
             return int(arg.split("=", 1)[1])
-    return DEFAULT_FUZZ
+    return DEFAULT_FUZZ_COUNT
 
 
 def selftest():
@@ -517,32 +587,46 @@ def selftest():
     check("trapezoid rise", trapezoid_scale(0.0, 0.25, 0.25) == 0.0)
     check("trapezoid cruise", trapezoid_scale(0.5, 0.25, 0.25) == 1.0)
     check("trapezoid fall", abs(trapezoid_scale(1.0, 0.25, 0.25)) < 1e-9)
-    check("hold", sample("hold", {"lin": 1.0, "ang": 0.0}, 0.5) == (1.0, 0.0))
-    ramp_lin, _ = sample(
-        "ramp", {"lin0": 0.0, "ang0": 0.0, "lin1": 1.0, "ang1": 0.0}, 0.5
+    check("hold", sample("hold", {"linear": 1.0, "angular": 0.0}, 0.5) == (1.0, 0.0))
+    ramp_linear, _ = sample(
+        "ramp",
+        {
+            "linear_start": 0.0,
+            "angular_start": 0.0,
+            "linear_end": 1.0,
+            "angular_end": 0.0,
+        },
+        0.5,
     )
-    check("ramp midpoint", abs(ramp_lin - 0.5) < 1e-9)
-    forward = sample("reversal", {"lin": 1.0, "ang": 0.0, "flips": 2}, 0.1)[0]
-    backward = sample("reversal", {"lin": 1.0, "ang": 0.0, "flips": 2}, 0.6)[0]
+    check("ramp midpoint", abs(ramp_linear - 0.5) < 1e-9)
+    forward = sample("reversal", {"linear": 1.0, "angular": 0.0, "flips": 2}, 0.1)[0]
+    backward = sample("reversal", {"linear": 1.0, "angular": 0.0, "flips": 2}, 0.6)[0]
     check("reversal flips", forward == 1.0 and backward == -1.0)
-    _, sine_ang = sample("sine", {"lin": 0.0, "ang": 1.0, "cycles": 1}, 0.25)
-    check("sine peak", abs(sine_ang - 1.0) < 1e-9)
+    _, sine_angular = sample(
+        "sine", {"linear": 0.0, "angular": 1.0, "cycles": 1}, 0.25
+    )
+    check("sine peak", abs(sine_angular - 1.0) < 1e-9)
     program = build_program(4)
     check("program builds", len(program) > 16)
-    check("kinds known", all(s.kind in KNOWN_KINDS for s in program))
-    check("durations positive", all(s.duration > 0 for s in program))
+    check("kinds known", all(segment.kind in KNOWN_KINDS for segment in program))
+    check(
+        "durations positive",
+        all(segment.duration_seconds > 0 for segment in program),
+    )
     print(f"\n{'PASS' if not failures else 'FAIL'}")
     return 1 if failures else 0
 
 
 def preview():
     program = build_program(fuzz_count())
-    index = next(i for i, s in enumerate(program) if s.kind == "sine")
+    index = next(
+        index for index, segment in enumerate(program) if segment.kind == "sine"
+    )
     segment = program[index]
-    linear_history = deque(maxlen=SCOPE_WIDTH)
-    angular_history = deque(maxlen=SCOPE_WIDTH)
-    for step in range(SCOPE_WIDTH):
-        linear, angular = scaled_sample(segment, step / SCOPE_WIDTH)
+    linear_history = deque(maxlen=SCOPE_WIDTH_CHARACTERS)
+    angular_history = deque(maxlen=SCOPE_WIDTH_CHARACTERS)
+    for step in range(SCOPE_WIDTH_CHARACTERS):
+        linear, angular = scaled_sample(segment, step / SCOPE_WIDTH_CHARACTERS)
         linear_history.append(linear)
         angular_history.append(angular)
     progress = make_overall()
@@ -567,16 +651,18 @@ def main():
     node = rclpy.create_node("cmd_vel_test")
     publisher = node.create_publisher(TwistStamped, COMMAND_TOPIC, 10)
     clock = node.get_clock()
-    period = 1.0 / RATE_HZ
+    period_seconds = 1.0 / RATE_HZ
     layout = build_layout()
     progress = make_overall()
-    task = progress.add_task("run", total=sum(segment_ticks(s) for s in program))
+    task = progress.add_task(
+        "run", total=sum(segment_ticks(segment) for segment in program)
+    )
     frame = Frame(
         program,
         0,
         0.0,
-        deque(maxlen=SCOPE_WIDTH),
-        deque(maxlen=SCOPE_WIDTH),
+        deque(maxlen=SCOPE_WIDTH_CHARACTERS),
+        deque(maxlen=SCOPE_WIDTH_CHARACTERS),
         0,
         0,
         0.0,
@@ -588,7 +674,7 @@ def main():
             publisher.publish(command(clock, 0.0, 0.0))
             frame.sent += 1
             rclpy.spin_once(node, timeout_sec=0.0)
-            time.sleep(period)
+            time.sleep(period_seconds)
         with Live(layout, refresh_per_second=RATE_HZ, screen=True):
             for index, segment in enumerate(program):
                 ticks = segment_ticks(segment)
@@ -606,7 +692,7 @@ def main():
                     progress.advance(task)
                     render(layout, frame)
                     rclpy.spin_once(node, timeout_sec=0.0)
-                    time.sleep(period)
+                    time.sleep(period_seconds)
     except KeyboardInterrupt:
         pass
     finally:

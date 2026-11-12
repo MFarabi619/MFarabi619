@@ -36,9 +36,9 @@ def evaluate(cameras, advertised, frame_counts, window_seconds, minimum_rate_hz)
     return failures
 
 
-class CameraTransportCheck(Node):
+class CameraTransport(Node):
     def __init__(self):
-        super().__init__("camera_transport_check")
+        super().__init__("camera_transport")
         self.frame_counts = {camera: 0 for camera in CAMERAS}
         for camera in CAMERAS:
             self.create_subscription(
@@ -71,7 +71,7 @@ def wait_for_first_frame(node, timeout_seconds):
 
 def main():
     rclpy.init()
-    node = CameraTransportCheck()
+    node = CameraTransport()
     wait_for_first_frame(node, WARMUP_TIMEOUT_SECONDS)
     for camera in CAMERAS:
         node.frame_counts[camera] = 0
@@ -88,7 +88,9 @@ def main():
         for failure in failures:
             print(f"  - {failure}")
         sys.exit(1)
-    rates = ", ".join(f"{c} {counts[c] / COLLECT_SECONDS:.1f} Hz" for c in CAMERAS)
+    rates = ", ".join(
+        f"{camera} {counts[camera] / COLLECT_SECONDS:.1f} Hz" for camera in CAMERAS
+    )
     print(f"CAMERA PATH OK — compressed flowing ({rates}), no junk transports")
 
 

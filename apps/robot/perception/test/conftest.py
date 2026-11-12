@@ -21,13 +21,13 @@ import sys
 import pytest
 import rclpy
 
-SRC_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
-if SRC_DIRECTORY not in sys.path:
-    sys.path.insert(0, SRC_DIRECTORY)
+SOURCE_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
+if SOURCE_DIRECTORY not in sys.path:
+    sys.path.insert(0, SOURCE_DIRECTORY)
 
 
 def load_module(module_name):
-    path = os.path.join(SRC_DIRECTORY, f'{module_name}.py')
+    path = os.path.join(SOURCE_DIRECTORY, f'{module_name}.py')
     spec = importlib.util.spec_from_file_location(module_name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -49,8 +49,8 @@ def ros_context():
 
 
 @pytest.fixture
-def approach_node():
-    node = load_node_class('approach', 'Approach')()
+def follow_node():
+    node = load_node_class('follow', 'Follow')()
     node.is_enabled = True
     yield node
     node.destroy_node()
@@ -58,14 +58,14 @@ def approach_node():
 
 @pytest.fixture
 def tracked_approach_node():
-    node = load_node_class('tracked_approach', 'Approach')()
+    node = load_node_class('tracked_approach', 'TrackedApproach')()
     yield node
     node.destroy_node()
 
 
 @pytest.fixture
-def row_follow_node():
-    node = load_node_class('row_follow', 'RowFollow')()
+def line_follow_node():
+    node = load_node_class('line_follow', 'LineFollow')()
     node.is_enabled = True
     yield node
     node.destroy_node()

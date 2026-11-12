@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(robot_simulator NONE)
+project(robot_simulation NONE)
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)

@@ -20,9 +20,9 @@ pub fn mix(linear: f64, angular: f64) -> DriveCommand {
 
 #[derive(Clone, Copy)]
 pub struct Shaping {
-    pub deadzone: f64,
-    pub min_duty: f64,
-    pub scale: f64,
+    pub deadzone_fraction: f64,
+    pub min_duty_fraction: f64,
+    pub scale_factor: f64,
 }
 
 pub fn shape(command: DriveCommand, shaping: Shaping) -> DriveCommand {
@@ -33,12 +33,14 @@ pub fn shape(command: DriveCommand, shaping: Shaping) -> DriveCommand {
 }
 
 fn shape_side(side_command: f64, shaping: Shaping) -> f64 {
-    if side_command.abs() < shaping.deadzone {
+    if side_command.abs() < shaping.deadzone_fraction {
         0.0
     } else {
-        let travel =
-            ((side_command.abs() - shaping.deadzone) / (1.0 - shaping.deadzone)).clamp(0.0, 1.0);
-        (shaping.min_duty + travel * shaping.scale * (1.0 - shaping.min_duty))
+        let travel = ((side_command.abs() - shaping.deadzone_fraction)
+            / (1.0 - shaping.deadzone_fraction))
+            .clamp(0.0, 1.0);
+        (shaping.min_duty_fraction
+            + travel * shaping.scale_factor * (1.0 - shaping.min_duty_fraction))
             .copysign(side_command)
     }
 }
@@ -222,9 +224,9 @@ mod tests {
     #[test]
     fn shaping_zeroes_inside_the_deadzone() {
         let shaping = Shaping {
-            deadzone: 0.1,
-            min_duty: 0.3,
-            scale: 1.0,
+            deadzone_fraction: 0.1,
+            min_duty_fraction: 0.3,
+            scale_factor: 1.0,
         };
         assert_eq!(
             shape(
@@ -248,9 +250,9 @@ mod tests {
     #[test]
     fn shaping_starts_at_min_duty_past_the_deadzone() {
         let shaping = Shaping {
-            deadzone: 0.1,
-            min_duty: 0.3,
-            scale: 1.0,
+            deadzone_fraction: 0.1,
+            min_duty_fraction: 0.3,
+            scale_factor: 1.0,
         };
         let shaped = shape(
             DriveCommand {
@@ -266,9 +268,9 @@ mod tests {
     #[test]
     fn shaping_full_input_reaches_full_duty() {
         let shaping = Shaping {
-            deadzone: 0.1,
-            min_duty: 0.3,
-            scale: 1.0,
+            deadzone_fraction: 0.1,
+            min_duty_fraction: 0.3,
+            scale_factor: 1.0,
         };
         let shaped = shape(
             DriveCommand {
@@ -284,9 +286,9 @@ mod tests {
     #[test]
     fn shaping_is_proportional_between_floor_and_full() {
         let shaping = Shaping {
-            deadzone: 0.1,
-            min_duty: 0.3,
-            scale: 1.0,
+            deadzone_fraction: 0.1,
+            min_duty_fraction: 0.3,
+            scale_factor: 1.0,
         };
         // halfway across the live range (0.1..1.0) -> halfway between min_duty and 1.0
         let shaped = shape(
@@ -303,9 +305,9 @@ mod tests {
     #[test]
     fn shaping_scale_governs_top_speed() {
         let shaping = Shaping {
-            deadzone: 0.1,
-            min_duty: 0.3,
-            scale: 0.5,
+            deadzone_fraction: 0.1,
+            min_duty_fraction: 0.3,
+            scale_factor: 0.5,
         };
         let shaped = shape(
             DriveCommand {

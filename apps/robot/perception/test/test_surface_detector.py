@@ -20,18 +20,18 @@ import rclpy.parameter
 from sensor_msgs.msg import CompressedImage
 from std_srvs.srv import SetBool
 
-IMAGE_WIDTH = 640
-IMAGE_HEIGHT = 400
-PATH_LEFT = 260
-PATH_RIGHT = 380
+IMAGE_WIDTH_PIXELS = 640
+IMAGE_HEIGHT_PIXELS = 400
+PATH_LEFT_PIXELS = 260
+PATH_RIGHT_PIXELS = 380
 BRIGHT_SURROUND = (120, 150, 160)
 DARK_PATH = (60, 60, 62)
 
 
 def frame_with_dark_path():
-    image = np.zeros((IMAGE_HEIGHT, IMAGE_WIDTH, 3), np.uint8)
+    image = np.zeros((IMAGE_HEIGHT_PIXELS, IMAGE_WIDTH_PIXELS, 3), np.uint8)
     image[:] = BRIGHT_SURROUND
-    image[:, PATH_LEFT:PATH_RIGHT] = DARK_PATH
+    image[:, PATH_LEFT_PIXELS:PATH_RIGHT_PIXELS] = DARK_PATH
     return image
 
 
@@ -75,14 +75,14 @@ def test_enabled_detector_finds_the_dark_path(brightness_detector_node):
     found = detections[0].detections
     assert len(found) == 1
     centre = found[0].bbox.center.position.x
-    assert PATH_LEFT < centre < PATH_RIGHT
+    assert PATH_LEFT_PIXELS < centre < PATH_RIGHT_PIXELS
 
 
 def test_brightness_mask_rejects_surfaces_brighter_than_the_ceiling(
         brightness_detector_node):
     detections = capture(brightness_detector_node)
     enable(brightness_detector_node)
-    uniform = np.zeros((IMAGE_HEIGHT, IMAGE_WIDTH, 3), np.uint8)
+    uniform = np.zeros((IMAGE_HEIGHT_PIXELS, IMAGE_WIDTH_PIXELS, 3), np.uint8)
     uniform[:] = BRIGHT_SURROUND
     brightness_detector_node.on_image(compressed(uniform))
     assert detections[0].detections == []

@@ -44,9 +44,9 @@ constexpr int PWM_EXPORT_RETRIES = 500;
 constexpr auto PWM_EXPORT_RETRY_DELAY = std::chrono::milliseconds(10);
 constexpr double FEEDBACK_RATE_HZ = 50.0;
 constexpr double COMMAND_TIMEOUT_SECONDS = 0.5;
-constexpr int64_t PULSE_PERIOD_NS = 20'000'000;
-constexpr int64_t PULSE_NEUTRAL_NS = 1'500'000;
-constexpr int64_t PULSE_HALF_RANGE_NS = 500'000;
+constexpr int64_t PULSE_PERIOD_NANOSECONDS = 20'000'000;
+constexpr int64_t PULSE_NEUTRAL_NANOSECONDS = 1'500'000;
+constexpr int64_t PULSE_HALF_RANGE_NANOSECONDS = 500'000;
 
 int64_t read_sysfs_int(const std::string & path)
 {
@@ -71,11 +71,11 @@ class PulseChannel
 public:
   PulseChannel(int64_t chip, int64_t channel, bool reversed)
   : reversed(reversed),
-    channel_path(
+    channel_directory(
       "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/pwm" + std::to_string(channel))
   {
-    const std::string duty_path = channel_path + "/duty_cycle";
-    if (access(channel_path.c_str(), F_OK) != 0) {
+    const std::string duty_path = channel_directory + "/duty_cycle";
+    if (access(channel_directory.c_str(), F_OK) != 0) {
       write_sysfs(
         "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/export", std::to_string(channel));
     }
@@ -85,12 +85,12 @@ public:
       }
       std::this_thread::sleep_for(PWM_EXPORT_RETRY_DELAY);
     }
-    if (read_sysfs_int(channel_path + "/period") != PULSE_PERIOD_NS) {
+    if (read_sysfs_int(channel_directory + "/period") != PULSE_PERIOD_NANOSECONDS) {
       write_sysfs(duty_path, "0");
-      write_sysfs(channel_path + "/period", std::to_string(PULSE_PERIOD_NS));
+      write_sysfs(channel_directory + "/period", std::to_string(PULSE_PERIOD_NANOSECONDS));
     }
-    write_sysfs(duty_path, std::to_string(PULSE_NEUTRAL_NS));
-    write_sysfs(channel_path + "/enable", "1");
+    write_sysfs(duty_path, std::to_string(PULSE_NEUTRAL_NANOSECONDS));
+    write_sysfs(channel_directory + "/enable", "1");
     duty_file = std::fopen(duty_path.c_str(), "w");
     if (duty_file == nullptr) {
       throw std::runtime_error("failed opening " + duty_path);
@@ -118,15 +118,15 @@ public:
     if (reversed) {
       fraction = -fraction;
     }
-    write_pulse_ns(
-      PULSE_NEUTRAL_NS + static_cast<int64_t>(fraction * PULSE_HALF_RANGE_NS));
+    write_pulse_nanoseconds(
+      PULSE_NEUTRAL_NANOSECONDS + static_cast<int64_t>(fraction * PULSE_HALF_RANGE_NANOSECONDS));
     command_fraction = wheel_speed >= 0.0 ? std::abs(fraction) : -std::abs(fraction);
     velocity = wheel_speed;
   }
 
   void halt()
   {
-    write_pulse_ns(PULSE_NEUTRAL_NS);
+    write_pulse_nanoseconds(PULSE_NEUTRAL_NANOSECONDS);
     command_fraction = 0.0;
     velocity = 0.0;
   }
@@ -136,21 +136,21 @@ public:
   double travel = 0.0;
 
 private:
-  void write_pulse_ns(int64_t pulse_ns)
+  void write_pulse_nanoseconds(int64_t pulse_nanoseconds)
   {
-    if (pulse_ns == last_pulse_ns) {
+    if (pulse_nanoseconds == last_pulse_nanoseconds) {
       return;
     }
     std::rewind(duty_file);
-    std::fprintf(duty_file, "%s", std::to_string(pulse_ns).c_str());
+    std::fprintf(duty_file, "%s", std::to_string(pulse_nanoseconds).c_str());
     std::fflush(duty_file);
-    last_pulse_ns = pulse_ns;
+    last_pulse_nanoseconds = pulse_nanoseconds;
   }
 
   const bool reversed;
-  const std::string channel_path;
+  const std::string channel_directory;
   std::FILE *duty_file;
-  int64_t last_pulse_ns = 0;
+  int64_t last_pulse_nanoseconds = 0;
 };
 
 class RcPulseMotorDriver : public rclcpp::Node

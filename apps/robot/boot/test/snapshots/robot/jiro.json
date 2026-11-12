@@ -52,7 +52,7 @@
         "left_pwm_channel": 0,
         "left_pwm_chip": 0,
         "max_wheel_speed": 13.093196112064037,
-        "min_duty": 0.0,
+        "min_duty_fraction": 0.0,
         "pwm_frequency_hz": 20000.0,
         "right_dir_line": 26,
         "right_forward_level": false,
@@ -62,7 +62,7 @@
       "kind": "include",
       "launchfile": "pwm_dir_motor_driver.launch.py",
       "namespace": "/jiro",
-      "package": "robot_boot",
+      "package": "robot_drivers",
       "subdir": null
     },
     {
@@ -79,7 +79,7 @@
         "left_pwm_channel": 0,
         "left_pwm_chip": 0,
         "max_wheel_speed": 13.093196112064037,
-        "min_duty": 0.0,
+        "min_duty_fraction": 0.0,
         "pwm_frequency_hz": 20000.0,
         "right_dir_line": 26,
         "right_forward_level": false,
@@ -182,7 +182,7 @@
       "kind": "include",
       "launchfile": "rc_teleop.launch.py",
       "namespace": "/jiro",
-      "package": "robot_boot",
+      "package": "robot_drivers",
       "subdir": null
     },
     {
@@ -290,67 +290,41 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "color_fps": 60.0,
+        "color_frames_per_second": 60.0,
         "color_resolution_divisor": 2,
-        "depth_fps": 30.0,
+        "depth_frames_per_second": 30.0,
         "depth_resolution_divisor": 4,
         "detects_on_camera": false,
         "ip": "169.254.1.222",
         "model_path": "perception/models/yolov8n_coco_640x352.blob"
       },
       "kind": "include",
-      "launchfile": "oak_d_pro_w_poe.launch.py",
+      "launchfile": "luxonis_oak_d_pro_w_poe.launch.py",
       "namespace": "/jiro",
-      "package": "robot_boot",
+      "package": "robot_drivers",
       "subdir": null
     },
     {
-      "executable": "oak_d_pro_w_poe",
-      "kind": "node",
-      "max_respawns": -1,
-      "name": "oak_d_pro_w_poe",
-      "namespace": "/jiro",
-      "package": "robot_drivers",
-      "params": {
-        "color_fps": 60.0,
-        "color_resolution_divisor": 2,
-        "depth_fps": 30.0,
-        "depth_resolution_divisor": 4,
-        "frame_id": "camera_0_link_color_optical_frame",
-        "ip": "169.254.1.222",
-        "jpeg_quality": 60
-      },
-      "remaps": {
-        "color/camera_info": "sensors/camera_0/color/camera_info",
-        "color/image_raw/compressed": "sensors/camera_0/color/image_raw/compressed",
-        "depth/camera_info": "sensors/camera_0/depth/camera_info",
-        "depth/image_raw": "sensors/camera_0/depth/image_raw",
-        "depth/image_raw/compressed": "sensors/camera_0/depth/image_raw/compressed",
-        "depth/points": "sensors/camera_0/depth/points",
-        "imu/data": "sensors/camera_0/imu/data"
-      },
-      "respawn_delay": 2.0
+      "group": "sensors/camera_0",
+      "kind": "group",
+      "namespace": "/jiro/sensors/camera_0",
+      "use_sim_time": null
     },
     {
-      "cmd_args": [
-        "--roll",
-        "-1.5708",
-        "--yaw",
-        "-1.5708",
-        "--frame-id",
-        "camera_0_link",
-        "--child-frame-id",
-        "camera_0_link_color_optical_frame"
-      ],
-      "executable": "static_transform_publisher",
+      "executable": "luxonis_oak_d_pro_w_poe",
       "kind": "node",
       "max_respawns": -1,
-      "name": "oak_d_optical_frame_publisher",
-      "namespace": "/jiro",
-      "package": "tf2_ros",
-      "remaps": {
-        "/tf": "tf",
-        "/tf_static": "tf_static"
+      "name": "luxonis_oak_d_pro_w_poe",
+      "namespace": "/jiro/sensors/camera_0",
+      "package": "robot_drivers",
+      "params": {
+        "color_frames_per_second": 60.0,
+        "color_resolution_divisor": 2,
+        "depth_frames_per_second": 30.0,
+        "depth_resolution_divisor": 4,
+        "frame_id": "camera_0_color_optical_frame",
+        "ip": "169.254.1.222",
+        "jpeg_quality": 60
       },
       "respawn_delay": 2.0
     },
@@ -422,12 +396,64 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "detects_on_camera": false,
+        "has_on_camera_detector": false,
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "overrides_file": "machines/jiro/params/person_follow.yaml"
+        "overrides_file": {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       },
       "kind": "include",
-      "launchfile": "person_follow.launch.py",
+      "launchfile": "follow.launch.py",
       "namespace": "/jiro",
       "package": "robot_perception",
       "subdir": null
@@ -440,26 +466,132 @@
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml",
-        "machines/jiro/params/person_follow.yaml"
+        "perception/config/follow.yaml",
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
+        "class_label": "person",
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw/compressed"
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "start_enabled": false
       },
       "respawn_delay": 2.0
     },
     {
-      "executable": "approach",
+      "executable": "follow",
       "kind": "node",
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml",
-        "machines/jiro/params/person_follow.yaml"
+        "perception/config/follow.yaml",
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
         "start_enabled": false
@@ -469,7 +601,59 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "overrides_file": "machines/jiro/params/line_follow.yaml"
+        "overrides_file": {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       },
       "kind": "include",
       "launchfile": "line_follow.launch.py",
@@ -486,7 +670,59 @@
       "package": "robot_perception",
       "param_files": [
         "perception/config/line_follow.yaml",
-        "machines/jiro/params/line_follow.yaml"
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
         "class_label": "line",
@@ -500,7 +736,7 @@
       "respawn_delay": 2.0
     },
     {
-      "executable": "row_follow",
+      "executable": "line_follow",
       "kind": "node",
       "max_respawns": -1,
       "name": "line_follow",
@@ -508,7 +744,59 @@
       "package": "robot_perception",
       "param_files": [
         "perception/config/line_follow.yaml",
-        "machines/jiro/params/line_follow.yaml"
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
         "detections_topic": "perception/line/detections",
@@ -519,8 +807,60 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "camera_height_m": 0.3336,
-        "overrides_file": "machines/jiro/params/surface_follow.yaml",
+        "camera_height_meters": 0.3336,
+        "overrides_file": {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        },
         "surface": "sidewalk"
       },
       "kind": "include",
@@ -538,7 +878,59 @@
       "package": "robot_perception",
       "param_files": [
         "perception/config/surface_follow.yaml",
-        "machines/jiro/params/surface_follow.yaml"
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
         "class_label": "sidewalk",
@@ -557,10 +949,62 @@
       "package": "robot_perception",
       "param_files": [
         "perception/config/surface_follow.yaml",
-        "machines/jiro/params/surface_follow.yaml"
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
-        "camera_height_m": 0.3336,
+        "camera_height_meters": 0.3336,
         "camera_info_topic": "sensors/camera_0/color/camera_info",
         "detections_topic": "perception/sidewalk/detections",
         "start_enabled": false
@@ -570,8 +1014,60 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "camera_height_m": 0.3336,
-        "overrides_file": "machines/jiro/params/surface_follow.yaml",
+        "camera_height_meters": 0.3336,
+        "overrides_file": {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        },
         "surface": "park_path"
       },
       "kind": "include",
@@ -589,7 +1085,59 @@
       "package": "robot_perception",
       "param_files": [
         "perception/config/surface_follow.yaml",
-        "machines/jiro/params/surface_follow.yaml"
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
         "class_label": "park_path",
@@ -608,10 +1156,62 @@
       "package": "robot_perception",
       "param_files": [
         "perception/config/surface_follow.yaml",
-        "machines/jiro/params/surface_follow.yaml"
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
-        "camera_height_m": 0.3336,
+        "camera_height_meters": 0.3336,
         "camera_info_topic": "sensors/camera_0/color/camera_info",
         "detections_topic": "perception/park_path/detections",
         "start_enabled": false
@@ -621,8 +1221,60 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "camera_height_m": 0.3336,
-        "overrides_file": "machines/jiro/params/surface_follow.yaml",
+        "camera_height_meters": 0.3336,
+        "overrides_file": {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        },
         "surface": "path"
       },
       "kind": "include",
@@ -640,7 +1292,59 @@
       "package": "robot_perception",
       "param_files": [
         "perception/config/surface_follow.yaml",
-        "machines/jiro/params/surface_follow.yaml"
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
         "class_label": "path",
@@ -659,10 +1363,62 @@
       "package": "robot_perception",
       "param_files": [
         "perception/config/surface_follow.yaml",
-        "machines/jiro/params/surface_follow.yaml"
+        {
+          "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            }
+          }
+        }
       ],
       "params": {
-        "camera_height_m": 0.3336,
+        "camera_height_meters": 0.3336,
         "camera_info_topic": "sensors/camera_0/color/camera_info",
         "detections_topic": "perception/path/detections",
         "start_enabled": false
@@ -672,7 +1428,7 @@
   ],
   "launch": {
     "arguments": {
-      "name": "jiro"
+      "robot": "jiro"
     },
     "file": "boot/launch/robot.launch.py",
     "function": "robot",

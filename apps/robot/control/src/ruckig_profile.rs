@@ -125,19 +125,19 @@ mod tests {
         const CRUISE: f64 = 8.0;
         let mut profile = RuckigProfile::new(DT, LIMITS, LIMITS);
 
-        let mut accel_ticks = 0;
+        let mut acceleration_ticks = 0;
         while profile.step(CRUISE, 0.0).0 < CRUISE - 0.01 {
-            accel_ticks += 1;
-            assert!(accel_ticks < 1000, "never reached cruise");
+            acceleration_ticks += 1;
+            assert!(acceleration_ticks < 1000, "never reached cruise");
         }
-        let mut decel_ticks = 0;
+        let mut deceleration_ticks = 0;
         while profile.step(0.0, 0.0).0 > 0.01 {
-            decel_ticks += 1;
-            assert!(decel_ticks < 1000, "never stopped");
+            deceleration_ticks += 1;
+            assert!(deceleration_ticks < 1000, "never stopped");
         }
         assert!(
-            decel_ticks < accel_ticks,
-            "stop ({decel_ticks} ticks) should beat launch ({accel_ticks} ticks)"
+            deceleration_ticks < acceleration_ticks,
+            "stop ({deceleration_ticks} ticks) should beat launch ({acceleration_ticks} ticks)"
         );
     }
 

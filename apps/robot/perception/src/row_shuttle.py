@@ -25,21 +25,21 @@ import py_trees_ros
 import rclpy
 from robot_platform_msgs.action import FollowRow
 
-ROBOT_LENGTH_M = 1.15
-ROBOT_WIDTH_M = 1.27
-PIVOT_RADIUS_M = math.hypot(ROBOT_LENGTH_M, ROBOT_WIDTH_M) / 2.0
-ROW_LOST_UNCERTAINTY_M = 0.7
-HEADLAND_CLEARANCE_M = (ROBOT_LENGTH_M + PIVOT_RADIUS_M
-                        + ROW_LOST_UNCERTAINTY_M)
-CLEAR_SPEED_MPS = 0.3
-TURN_SHORTFALL_RAD = 0.05
-TURN_TARGET_RAD = math.pi - TURN_SHORTFALL_RAD
-TIME_ALLOWANCE_S = 60
-TICK_PERIOD_MS = 100.0
+ROBOT_LENGTH_METERS = 1.15
+ROBOT_WIDTH_METERS = 1.27
+PIVOT_RADIUS_METERS = math.hypot(ROBOT_LENGTH_METERS, ROBOT_WIDTH_METERS) / 2.0
+ROW_LOST_UNCERTAINTY_METERS = 0.7
+HEADLAND_CLEARANCE_METERS = (
+    ROBOT_LENGTH_METERS + PIVOT_RADIUS_METERS + ROW_LOST_UNCERTAINTY_METERS)
+CLEAR_SPEED_METERS_PER_SECOND = 0.3
+TURN_SHORTFALL_RADIANS = 0.05
+TURN_TARGET_RADIANS = math.pi - TURN_SHORTFALL_RADIANS
+TIME_ALLOWANCE_SECONDS = 60
+TICK_PERIOD_MILLISECONDS = 100.0
 
 
 def time_allowance():
-    return rclpy.duration.Duration(seconds=TIME_ALLOWANCE_S).to_msg()
+    return rclpy.duration.Duration(seconds=TIME_ALLOWANCE_SECONDS).to_msg()
 
 
 def follow_row_goal():
@@ -48,15 +48,15 @@ def follow_row_goal():
 
 def clear_headland_goal():
     goal = DriveOnHeading.Goal()
-    goal.target = Point(x=HEADLAND_CLEARANCE_M)
-    goal.speed = CLEAR_SPEED_MPS
+    goal.target = Point(x=HEADLAND_CLEARANCE_METERS)
+    goal.speed = CLEAR_SPEED_METERS_PER_SECOND
     goal.time_allowance = time_allowance()
     return goal
 
 
 def turn_around_goal():
     goal = Spin.Goal()
-    goal.target_yaw = TURN_TARGET_RAD
+    goal.target_yaw = TURN_TARGET_RADIANS
     goal.time_allowance = time_allowance()
     return goal
 
@@ -96,7 +96,7 @@ def main():
     tree = py_trees_ros.trees.BehaviourTree(mission())
     tree.setup(node_name='row_shuttle')
     tree.add_post_tick_handler(halt_when_failed)
-    tree.tick_tock(period_ms=TICK_PERIOD_MS)
+    tree.tick_tock(period_ms=TICK_PERIOD_MILLISECONDS)
     try:
         rclpy.spin(tree.node)
     except KeyboardInterrupt:

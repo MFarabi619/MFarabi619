@@ -1,0 +1,20 @@
+[Unit]
+Description=Robot %i stack
+PartOf=robot.service
+After=robot.service robot-zenoh-router.service
+Wants=robot-zenoh-router.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=mfarabi
+WorkingDirectory=/home/mfarabi/MFarabi619/apps/robot
+ExecStart=/home/mfarabi/.pixi/bin/pixi run robot --domain %i
+LimitRTPRIO=95
+LimitMEMLOCK=infinity
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=10
+
+[Install]
+WantedBy=robot.service

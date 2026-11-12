@@ -32,8 +32,8 @@ PROGRAM_TIMEOUT_SECONDS = 120.0
 MODE_SETTLE_SECONDS = 2.0
 FAULT_CLEAR_SETTLE_SECONDS = 1.0
 ARM_STATE_POLL_SECONDS = 0.5
-SESSION_INACTIVITY_TIMEOUT_MS = 60000
-CONNECTION_INACTIVITY_TIMEOUT_MS = 2000
+SESSION_INACTIVITY_TIMEOUT_MILLISECONDS = 60000
+CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS = 2000
 FAULT_STATES = (Base_pb2.ARMSTATE_IN_FAULT,
                 Base_pb2.ARMSTATE_IN_FAULT_POWERED_OFF)
 
@@ -46,18 +46,18 @@ args = parser.parse_args()
 
 transport = MqttTransport()
 transport.connect(args.robot_ip)
-router = RouterClient(transport, errorCallback=None)
+kortex_router = RouterClient(transport, errorCallback=None)
 
-session_info = Session_pb2.CreateSessionInfo()
-session_info.username = args.robot_username
-session_info.password = args.robot_password
-session_info.session_inactivity_timeout = SESSION_INACTIVITY_TIMEOUT_MS
-session_info.connection_inactivity_timeout = CONNECTION_INACTIVITY_TIMEOUT_MS
-session_client = SessionClient(router)
-session_client.CreateSession(session_info)
+session = Session_pb2.CreateSessionInfo()
+session.username = args.robot_username
+session.password = args.robot_password
+session.session_inactivity_timeout = SESSION_INACTIVITY_TIMEOUT_MILLISECONDS
+session.connection_inactivity_timeout = CONNECTION_INACTIVITY_TIMEOUT_MILLISECONDS
+session_client = SessionClient(kortex_router)
+session_client.CreateSession(session)
 
-base = BaseClient(router)
-program_runner = ProgramRunnerClient(router)
+base = BaseClient(kortex_router)
+program_runner = ProgramRunnerClient(kortex_router)
 
 
 def arm_state():
@@ -155,5 +155,5 @@ try:
     run_program(args.program)
 finally:
     session_client.CloseSession()
-    router.SetActivationStatus(False)
+    kortex_router.SetActivationStatus(False)
     transport.disconnect()

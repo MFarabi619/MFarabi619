@@ -105,12 +105,12 @@ class MujocoPlanningScene(Node):
         self.added_objects = set()
         self.adding_objects = set()
         self.attached_objects = set()
-        simulator_share = Path(get_package_share_directory('robot_simulator'))
+        simulation_share_directory = Path(get_package_share_directory('robot_simulation'))
         self.meshes = {}
         self.centroids = {}
         for name, model in BODY_MODELS.items():
             self.meshes[name], self.centroids[name] = load_centered_mesh(
-                simulator_share / model['file'])
+                simulation_share_directory / model['file'])
         self.scene_publisher = self.create_publisher(
             PlanningScene, 'planning_scene', 10)
         self.pre_attach_poses = {}

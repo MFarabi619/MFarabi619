@@ -16,7 +16,7 @@
 
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import include
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
@@ -25,12 +25,12 @@ def kinova_link6_moveit(
     motions_file: str = '',
     use_sim_time: bool = False,
     capabilities: str = '',
-    rviz: bool = False,
+    rviz_enabled: bool = False,
 ):
     bl = BetterLaunch()
-    ensure_router(bl)
-    sim_time = 'true' if use_sim_time else 'false'
-    move_group_arguments = {'use_sim_time': sim_time}
+    ensure_zenoh_router(bl)
+    use_sim_time_argument = 'true' if use_sim_time else 'false'
+    move_group_arguments = {'use_sim_time': use_sim_time_argument}
     if capabilities:
         move_group_arguments['capabilities'] = capabilities
     include(moveit_package, 'move_group.launch.py', **move_group_arguments)
@@ -38,11 +38,11 @@ def kinova_link6_moveit(
         'play_motion2', 'play_motion2.launch.py',
         motions_file=motions_file,
         motion_planner_config=bl.find('robot_manipulation', 'motion_planner.yaml'),
-        use_sim_time=sim_time,
+        use_sim_time=use_sim_time_argument,
     )
-    if rviz:
+    if rviz_enabled:
         bl.process(
             ['rviz2', '-d', bl.find('robot_manipulation', 'moveit.rviz'),
-             '--ros-args', '-p', f'use_sim_time:={sim_time}'],
+             '--ros-args', '-p', f'use_sim_time:={use_sim_time_argument}'],
             name='rviz',
         )

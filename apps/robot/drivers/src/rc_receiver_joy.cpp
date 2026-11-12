@@ -40,21 +40,21 @@ using sensor_msgs::msg::Joy;
 
 constexpr double JOY_RATE_HZ = 50.0;
 constexpr int64_t NANOSECONDS_PER_MICROSECOND = 1'000;
-constexpr int64_t PULSE_TIMEOUT_NS = 100'000'000;
-constexpr int64_t EVENT_WAIT_TIMEOUT_NS = 100'000'000;
-constexpr int64_t PULSE_CENTER_US = 1500;
-constexpr int64_t PULSE_HALF_RANGE_US = 500;
-constexpr int64_t PULSE_MIN_VALID_US = 800;
-constexpr int64_t PULSE_MAX_VALID_US = 2200;
-constexpr unsigned long DEBOUNCE_PERIOD_US = 50;
+constexpr int64_t PULSE_TIMEOUT_NANOSECONDS = 100'000'000;
+constexpr int64_t EVENT_WAIT_TIMEOUT_NANOSECONDS = 100'000'000;
+constexpr int64_t PULSE_CENTER_MICROSECONDS = 1500;
+constexpr int64_t PULSE_HALF_RANGE_MICROSECONDS = 500;
+constexpr int64_t PULSE_MIN_VALID_MICROSECONDS = 800;
+constexpr int64_t PULSE_MAX_VALID_MICROSECONDS = 2200;
+constexpr unsigned long DEBOUNCE_PERIOD_MICROSECONDS = 50;
 constexpr size_t EVENT_BUFFER_CAPACITY = 64;
 
 struct RcChannel
 {
   unsigned int line = 0;
-  int64_t rising_ns = 0;
+  int64_t rising_nanoseconds = 0;
   std::atomic<double> position{0.0};
-  std::atomic<int64_t> last_pulse_ns{0};
+  std::atomic<int64_t> last_pulse_nanoseconds{0};
 };
 
 class RcReceiverJoy : public rclcpp::Node
@@ -88,7 +88,7 @@ public:
     gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_INPUT);
     gpiod_line_settings_set_edge_detection(settings, GPIOD_LINE_EDGE_BOTH);
     gpiod_line_settings_set_event_clock(settings, GPIOD_LINE_CLOCK_MONOTONIC);
-    gpiod_line_settings_set_debounce_period_us(settings, DEBOUNCE_PERIOD_US);
+    gpiod_line_settings_set_debounce_period_us(settings, DEBOUNCE_PERIOD_MICROSECONDS);
     gpiod_line_config *line_config = gpiod_line_config_new();
     gpiod_line_config_add_line_settings(line_config, lines.data(), lines.size(), settings);
     gpiod_request_config *request_config = gpiod_request_config_new();
@@ -124,7 +124,7 @@ private:
   {
     while (is_running) {
       const int wait_result =
-        gpiod_line_request_wait_edge_events(request, EVENT_WAIT_TIMEOUT_NS);
+        gpiod_line_request_wait_edge_events(request, EVENT_WAIT_TIMEOUT_NANOSECONDS);
       if (wait_result <= 0) {
         continue;
       }
@@ -134,40 +134,44 @@ private:
         gpiod_edge_event *event =
           gpiod_edge_event_buffer_get_event(event_buffer, event_index);
         const unsigned int line = gpiod_edge_event_get_line_offset(event);
-        const auto timestamp_ns =
+        const auto timestamp_nanoseconds =
           static_cast<int64_t>(gpiod_edge_event_get_timestamp_ns(event));
         for (auto & channel : channels) {
           if (channel.line == line) {
-            on_edge(channel, gpiod_edge_event_get_event_type(event), timestamp_ns);
+            on_edge(channel, gpiod_edge_event_get_event_type(event), timestamp_nanoseconds);
           }
         }
       }
     }
   }
 
-  void on_edge(RcChannel & channel, gpiod_edge_event_type event_type, int64_t timestamp_ns)
+  void on_edge(
+    RcChannel & channel, gpiod_edge_event_type event_type, int64_t timestamp_nanoseconds)
   {
     if (event_type == GPIOD_EDGE_EVENT_RISING_EDGE) {
-      channel.rising_ns = timestamp_ns;
+      channel.rising_nanoseconds = timestamp_nanoseconds;
       return;
     }
-    if (channel.rising_ns == 0) {
+    if (channel.rising_nanoseconds == 0) {
       return;
     }
-    const int64_t pulse_width_us =
-      (timestamp_ns - channel.rising_ns) / NANOSECONDS_PER_MICROSECOND;
-    channel.rising_ns = 0;
-    if (pulse_width_us < PULSE_MIN_VALID_US || pulse_width_us > PULSE_MAX_VALID_US) {
+    const int64_t pulse_width_microseconds =
+      (timestamp_nanoseconds - channel.rising_nanoseconds) / NANOSECONDS_PER_MICROSECOND;
+    channel.rising_nanoseconds = 0;
+    if (pulse_width_microseconds < PULSE_MIN_VALID_MICROSECONDS ||
+      pulse_width_microseconds > PULSE_MAX_VALID_MICROSECONDS)
+    {
       return;
     }
-    channel.position.store(normalize(pulse_width_us));
-    channel.last_pulse_ns.store(timestamp_ns);
+    channel.position.store(normalize(pulse_width_microseconds));
+    channel.last_pulse_nanoseconds.store(timestamp_nanoseconds);
   }
 
-  double normalize(int64_t pulse_width_us) const
+  double normalize(int64_t pulse_width_microseconds) const
   {
     const double raw_position = std::clamp(
-      static_cast<double>(pulse_width_us - PULSE_CENTER_US) / PULSE_HALF_RANGE_US, -1.0, 1.0);
+      static_cast<double>(pulse_width_microseconds - PULSE_CENTER_MICROSECONDS) /
+      PULSE_HALF_RANGE_MICROSECONDS, -1.0, 1.0);
     if (std::abs(raw_position) < deadzone) {
       return 0.0;
     }
@@ -177,10 +181,10 @@ private:
 
   void publish_joy()
   {
-    const int64_t now_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    const int64_t now_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(
       std::chrono::steady_clock::now().time_since_epoch()).count();
     for (const auto & channel : channels) {
-      if (now_ns - channel.last_pulse_ns.load() > PULSE_TIMEOUT_NS) {
+      if (now_nanoseconds - channel.last_pulse_nanoseconds.load() > PULSE_TIMEOUT_NANOSECONDS) {
         return;
       }
     }

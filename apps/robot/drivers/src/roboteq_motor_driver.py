@@ -43,10 +43,10 @@ COMMAND_TIMEOUT_SECONDS = 0.5
 SERIAL_TIMEOUT_SECONDS = 0.1
 RPM_PER_RADIAN_PER_SECOND = 60.0 / math.tau
 FULL_POWER_COMMAND = 1000
-QUERY_READ_ATTEMPTS = 5
-DECI_PER_UNIT = 10.0
+QUERY_READ_MAX_ATTEMPTS = 5
+TENTHS_PER_UNIT = 10.0
 
-MILLI_PER_UNIT = 1000.0
+THOUSANDTHS_PER_UNIT = 1000.0
 
 CONFIGURATION_CODES = (
     'MMOD', 'ALIM', 'ATRIG', 'ATGD', 'ATGA', 'THLD', 'MXPF', 'MXPR',
@@ -98,7 +98,7 @@ def pair(values):
     return (list(values) + [0, 0])[:2]
 
 
-class RoboteqPort:
+class RoboteqBus:
     def __init__(self, port, baud):
         self.port = serial.Serial(port, baud, timeout=SERIAL_TIMEOUT_SECONDS)
         self.port.write(b'^ECHOF 1\r')
@@ -112,7 +112,7 @@ class RoboteqPort:
         request = f'?{code}' if argument is None else f'?{code} {argument}'
         self.port.write(f'{request}\r'.encode('ascii'))
         prefix = f'{code}='
-        for _ in range(QUERY_READ_ATTEMPTS):
+        for _ in range(QUERY_READ_MAX_ATTEMPTS):
             line = self.port.read_until(b'\r').decode('ascii', 'replace').strip()
             if line.startswith(prefix):
                 return line[len(prefix):]
@@ -123,7 +123,7 @@ class RoboteqPort:
         request = f'~{code}' if argument is None else f'~{code} {argument}'
         self.port.write(f'{request}\r'.encode('ascii'))
         prefix = f'{code}='
-        for _ in range(QUERY_READ_ATTEMPTS):
+        for _ in range(QUERY_READ_MAX_ATTEMPTS):
             line = self.port.read_until(b'\r').decode('ascii', 'replace').strip()
             if line.startswith(prefix):
                 values = [int(value) for value in line[len(prefix):].split(':')]
@@ -169,7 +169,7 @@ class RoboteqMotorDriver(Node):
             -1.0 if self.get_parameter(f'{side}_reversed').value else 1.0
             for side in ('left', 'right')
         ]
-        self.bus = RoboteqPort(
+        self.bus = RoboteqBus(
             self.get_parameter('serial_port').value,
             self.get_parameter('baud_rate').value,
         )
@@ -333,7 +333,7 @@ class RoboteqMotorDriver(Node):
 
     def read_slow_telemetry(self, stamp):
         self.currents = [
-            value / DECI_PER_UNIT for value in self.bus.query('A', 2)]
+            value / TENTHS_PER_UNIT for value in self.bus.query('A', 2)]
         temperatures = self.bus.query('T', 2)
         if len(temperatures) > 2:
             self.mcu_temperature = float(temperatures[0])
@@ -351,23 +351,23 @@ class RoboteqMotorDriver(Node):
                     f'{self.bus.query("STT", argument=2)[0]:#x}')
         status_flags = self.bus.query('FS')[0]
         volts = self.bus.query('V', 3)
-        battery_amps = [
-            value / DECI_PER_UNIT for value in self.bus.query('BA', 2)]
+        battery_amperes = [
+            value / TENTHS_PER_UNIT for value in self.bus.query('BA', 2)]
         loop_errors = pair(self.bus.query('E'))
         runtime_flags = pair(self.bus.query('FM'))
         sensor_errors = pair(self.bus.query('SEC'))
-        peak_amps = [
-            value / DECI_PER_UNIT for value in self.bus.query('DPA', 2)]
-        foc_amps = [
-            value / DECI_PER_UNIT
+        peak_amperes = [
+            value / TENTHS_PER_UNIT for value in self.bus.query('DPA', 2)]
+        foc_amperes = [
+            value / TENTHS_PER_UNIT
             for value in (self.bus.query('MA') + [0, 0, 0, 0])[:4]]
         self.publish_diagnostics(
-            stamp, fault_flags, status_flags, volts, battery_amps,
-            loop_errors, runtime_flags, sensor_errors, peak_amps, foc_amps)
+            stamp, fault_flags, status_flags, volts, battery_amperes,
+            loop_errors, runtime_flags, sensor_errors, peak_amperes, foc_amperes)
 
     def publish_diagnostics(
-            self, stamp, fault_flags, status_flags, volts, battery_amps,
-            loop_errors, runtime_flags, sensor_errors, peak_amps, foc_amps):
+            self, stamp, fault_flags, status_flags, volts, battery_amperes,
+            loop_errors, runtime_flags, sensor_errors, peak_amperes, foc_amperes):
         status_message = decode_bits(STATUS_BIT_NAMES, status_flags)
         controller = DiagnosticStatus(
             name='roboteq: controller',
@@ -377,11 +377,11 @@ class RoboteqMotorDriver(Node):
             message=decode_fault_bits(fault_flags) or status_message or 'ok',
             values=[
                 KeyValue(key='battery_volts',
-                         value=str(volts[1] / DECI_PER_UNIT)),
+                         value=str(volts[1] / TENTHS_PER_UNIT)),
                 KeyValue(key='internal_volts',
-                         value=str(volts[0] / DECI_PER_UNIT)),
+                         value=str(volts[0] / TENTHS_PER_UNIT)),
                 KeyValue(key='five_volt_rail',
-                         value=str(volts[2] / MILLI_PER_UNIT)),
+                         value=str(volts[2] / THOUSANDTHS_PER_UNIT)),
                 KeyValue(key='mcu_temperature',
                          value=str(self.mcu_temperature)),
                 KeyValue(key='fault_flags', value=hex(fault_flags)),
@@ -395,20 +395,20 @@ class RoboteqMotorDriver(Node):
                        else DiagnosticStatus.OK),
                 message=decode_bits(RUNTIME_BIT_NAMES, flags) or 'ok',
                 values=[
-                    KeyValue(key='motor_amps',
+                    KeyValue(key='motor_amperes',
                              value=str(self.currents[index])),
-                    KeyValue(key='battery_amps',
-                             value=str(battery_amps[index])),
+                    KeyValue(key='battery_amperes',
+                             value=str(battery_amperes[index])),
                     KeyValue(key='loop_error_rpm',
                              value=str(loop_errors[index])),
                     KeyValue(key='hall_sensor_errors',
                              value=str(sensor_errors[index])),
-                    KeyValue(key='peak_amps',
-                             value=str(peak_amps[index])),
-                    KeyValue(key='foc_flux_amps',
-                             value=str(foc_amps[2 * index])),
-                    KeyValue(key='foc_torque_amps',
-                             value=str(foc_amps[2 * index + 1])),
+                    KeyValue(key='peak_amperes',
+                             value=str(peak_amperes[index])),
+                    KeyValue(key='foc_flux_amperes',
+                             value=str(foc_amperes[2 * index])),
+                    KeyValue(key='foc_torque_amperes',
+                             value=str(foc_amperes[2 * index + 1])),
                     KeyValue(key='bridge_temperature',
                              value=str(self.bridge_temperatures[index])),
                 ]))

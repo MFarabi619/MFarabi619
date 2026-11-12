@@ -42,9 +42,9 @@ STATE_RATE_HZ = 20.0
 MAX_WAYPOINTS = 30
 STATE_SOCKET_TIMEOUT_SECONDS = 2.0
 TELEOP_LINEAR_GAIN = 0.1
-TELEOP_ANGULAR_GAIN_DEG_PER_RADIAN = 20.0
+TELEOP_ANGULAR_GAIN_DEGREES_PER_RADIAN = 20.0
 TELEOP_MAX_LINEAR_METERS_PER_SECOND = 0.25
-TELEOP_MAX_ANGULAR_DEG_PER_SECOND = 45.0
+TELEOP_MAX_ANGULAR_DEGREES_PER_SECOND = 45.0
 
 
 def clamp(value, limit):
@@ -136,8 +136,8 @@ class KinovaLink6BridgeNode(Node):
                   TELEOP_MAX_LINEAR_METERS_PER_SECOND)
             for axis in (twist.linear.x, twist.linear.y, twist.linear.z)]
         angular = [
-            clamp(axis * TELEOP_ANGULAR_GAIN_DEG_PER_RADIAN,
-                  TELEOP_MAX_ANGULAR_DEG_PER_SECOND)
+            clamp(axis * TELEOP_ANGULAR_GAIN_DEGREES_PER_RADIAN,
+                  TELEOP_MAX_ANGULAR_DEGREES_PER_SECOND)
             for axis in (twist.angular.x, twist.angular.y, twist.angular.z)]
         try:
             self.teleop_connection.request(
@@ -153,12 +153,12 @@ class KinovaLink6BridgeNode(Node):
             self.get_logger().warning(
                 f'bridge unreachable: {error}', throttle_duration_sec=5.0)
             return
-        positions = {name: math.radians(position_deg) for name, position_deg
-                     in zip(ARM_JOINTS, state['positions_deg'])}
+        positions = {name: math.radians(position_degrees) for name, position_degrees
+                     in zip(ARM_JOINTS, state['positions_degrees'])}
         velocities = {
-            name: math.radians(velocity_deg_per_second)
-            for name, velocity_deg_per_second
-            in zip(ARM_JOINTS, state['velocities_deg'])}
+            name: math.radians(velocity_degrees_per_second)
+            for name, velocity_degrees_per_second
+            in zip(ARM_JOINTS, state['velocities_degrees_per_second'])}
         positions[GRIPPER_JOINT] = self.commanded_gripper_position
         for name in self.passive_joints:
             positions[name] = 0.0
@@ -188,7 +188,7 @@ class KinovaLink6BridgeNode(Node):
         kept_points = list(points[::stride])
         if kept_points[-1] is not points[-1]:
             kept_points.append(points[-1])
-        waypoints_deg = [
+        waypoints_degrees = [
             [math.degrees(point.positions[index])
              for index in arm_joint_indices]
             for point in kept_points]
@@ -197,7 +197,7 @@ class KinovaLink6BridgeNode(Node):
             f'as {len(kept_points)} waypoints')
         try:
             reply = self.motion_connection.request(
-                {'op': 'execute', 'waypoints_deg': waypoints_deg})
+                {'op': 'execute', 'waypoints_degrees': waypoints_degrees})
         except Exception as error:
             reply = {'ok': False, 'error': str(error)}
         if reply.get('ok'):

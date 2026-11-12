@@ -79,14 +79,16 @@ public:
       declare_parameter("camera_info_topic", std::string("sensors/camera_0/color/camera_info"));
     const std::string overlay_topic =
       declare_parameter("overlay_topic", std::string("perception/collision/overlay"));
-    base_frame_ = declare_parameter("base_frame_", std::string("base_link"));
-    min_height_ = declare_parameter("min_height_", 0.15);
-    max_height_ = declare_parameter("max_height_", 2.0);
-    stop_x_range_ = declare_parameter("stop_x_range_", std::vector<double>{0.0, 1.45});
-    stop_half_width_ = declare_parameter("stop_half_width_", 0.45);
-    slowdown_x_range_ = declare_parameter("slowdown_x_range_", std::vector<double>{0.55, 2.6});
-    slowdown_half_width_ = declare_parameter("slowdown_half_width_", 0.5);
-    sample_stride_ = declare_parameter("sample_stride_", 4);
+    base_frame_ = declare_parameter("base_frame", std::string("base_link"));
+    min_height_meters_ = declare_parameter("min_height_meters", 0.15);
+    max_height_meters_ = declare_parameter("max_height_meters", 2.0);
+    stop_x_range_meters_ =
+      declare_parameter("stop_x_range_meters", std::vector<double>{0.0, 1.45});
+    stop_half_width_meters_ = declare_parameter("stop_half_width_meters", 0.45);
+    slowdown_x_range_meters_ =
+      declare_parameter("slowdown_x_range_meters", std::vector<double>{0.55, 2.6});
+    slowdown_half_width_meters_ = declare_parameter("slowdown_half_width_meters", 0.5);
+    sample_stride_pixels_ = declare_parameter("sample_stride_pixels", 4);
 
     overlay_publisher_ =
       create_publisher<ImageAnnotations>(overlay_topic, rclcpp::SensorDataQoS());
@@ -135,7 +137,7 @@ private:
     for (; x_iterator != x_iterator.end();
       ++x_iterator, ++y_iterator, ++z_iterator, ++point_index)
     {
-      if (point_index % static_cast<size_t>(sample_stride_) != 0) {
+      if (point_index % static_cast<size_t>(sample_stride_pixels_) != 0) {
         continue;
       }
       const tf2::Vector3 optical(*x_iterator, *y_iterator, *z_iterator);
@@ -145,14 +147,15 @@ private:
         continue;
       }
       const tf2::Vector3 base = to_base * optical;
-      if (base.z() < min_height_ || base.z() > max_height_) {
+      if (base.z() < min_height_meters_ || base.z() > max_height_meters_) {
         continue;
       }
-      const bool in_stop = base.x() >= stop_x_range_[0] && base.x() <= stop_x_range_[1] &&
-        std::abs(base.y()) <= stop_half_width_;
+      const bool in_stop =
+        base.x() >= stop_x_range_meters_[0] && base.x() <= stop_x_range_meters_[1] &&
+        std::abs(base.y()) <= stop_half_width_meters_;
       const bool in_slowdown = !in_stop &&
-        base.x() >= slowdown_x_range_[0] && base.x() <= slowdown_x_range_[1] &&
-        std::abs(base.y()) <= slowdown_half_width_;
+        base.x() >= slowdown_x_range_meters_[0] && base.x() <= slowdown_x_range_meters_[1] &&
+        std::abs(base.y()) <= slowdown_half_width_meters_;
       if (in_stop) {
         accumulate(stop_zone, optical, base.x(), message.header.stamp);
       } else if (in_slowdown) {
@@ -220,13 +223,13 @@ private:
   double image_width_ = 0.0;
   double image_height_ = 0.0;
   std::string base_frame_;
-  double min_height_;
-  double max_height_;
-  std::vector<double> stop_x_range_;
-  double stop_half_width_;
-  std::vector<double> slowdown_x_range_;
-  double slowdown_half_width_;
-  int64_t sample_stride_;
+  double min_height_meters_;
+  double max_height_meters_;
+  std::vector<double> stop_x_range_meters_;
+  double stop_half_width_meters_;
+  std::vector<double> slowdown_x_range_meters_;
+  double slowdown_half_width_meters_;
+  int64_t sample_stride_pixels_;
   rclcpp::Publisher<ImageAnnotations>::SharedPtr overlay_publisher_;
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_subscription_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_subscription_;

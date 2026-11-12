@@ -12,25 +12,26 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-RED = "#fb4934"
-ORANGE = "#fe8019"
-YELLOW = "#fabd2f"
-BLUE = "#83a598"
-GREEN = "#b8bb26"
-IDLE = "#665c54"
+RED_CONE_COLOR = "#fb4934"
+ORANGE_CONE_COLOR = "#fe8019"
+YELLOW_CONE_COLOR = "#fabd2f"
+BLUE_CONE_COLOR = "#83a598"
+CLEARED_COLOR = "#b8bb26"
+RUNNING_COLOR = "#fabd2f"
+IDLE_COLOR = "#665c54"
 
-SPAWN_X = -14.0
-SPAWN_Y = -19.0
-CONE_LINE_Y = -19.0
-GATE_BAND = 4.0
-START_LINE_X = -13.0
+SPAWN_X_METERS = -14.0
+SPAWN_Y_METERS = -19.0
+CONE_LINE_Y_METERS = -19.0
+GATE_BAND_METERS = 4.0
+START_LINE_X_METERS = -13.0
 RENDER_RATE_HZ = 15.0
 
 CONE_LAYOUT = [
-    ("red", -12.0, RED),
-    ("orange", -10.0, ORANGE),
-    ("yellow", -8.0, YELLOW),
-    ("blue", -6.0, BLUE),
+    ("red", -12.0, RED_CONE_COLOR),
+    ("orange", -10.0, ORANGE_CONE_COLOR),
+    ("yellow", -8.0, YELLOW_CONE_COLOR),
+    ("blue", -6.0, BLUE_CONE_COLOR),
 ]
 
 
@@ -57,19 +58,19 @@ class ConeDrill(Node):
 
     def on_odom(self, message):
         position = message.pose.pose.position
-        self.robot = (SPAWN_X + position.x, SPAWN_Y + position.y)
+        self.robot = (SPAWN_X_METERS + position.x, SPAWN_Y_METERS + position.y)
         self.update_score()
 
     def update_score(self):
         now = self.get_clock().now()
         if not self.started:
-            if self.robot[0] < START_LINE_X:
+            if self.robot[0] < START_LINE_X_METERS:
                 return
             self.started = True
             self.start_time = now
         while (self.gates_cleared < len(CONE_LAYOUT)
                and self.robot[0] >= CONE_LAYOUT[self.gates_cleared][1]
-               and abs(self.robot[1] - CONE_LINE_Y) < GATE_BAND):
+               and abs(self.robot[1] - CONE_LINE_Y_METERS) < GATE_BAND_METERS):
             self.gates_cleared += 1
         if self.gates_cleared >= len(CONE_LAYOUT) and not self.finished:
             self.finished = True
@@ -85,33 +86,34 @@ class ConeDrill(Node):
         if self.robot is None:
             return Panel(
                 Align.center(Text("waiting for odometry…", style="yellow")),
-                title="🚦 cone drill", border_style=IDLE)
+                title="🚦 cone drill", border_style=IDLE_COLOR)
 
         table = Table.grid(padding=(0, 3))
         table.add_column()
         table.add_column()
         for index, (label, _, color) in enumerate(CONE_LAYOUT):
-            gate = (Text("✓ gate", style=GREEN) if index < self.gates_cleared
-                    else Text("○ gate", style=IDLE))
+            gate = (Text("✓ gate", style=CLEARED_COLOR) if index < self.gates_cleared
+                    else Text("○ gate", style=IDLE_COLOR))
             table.add_row(Text(f"◉ {label}", style=color), gate)
 
         footer = Text.assemble(
-            ("gates ", "dim"), (f"{self.gates_cleared}/{len(CONE_LAYOUT)}", GREEN),
+            ("gates ", "dim"), (f"{self.gates_cleared}/{len(CONE_LAYOUT)}", CLEARED_COLOR),
             ("   time ", "dim"), (f"{self.elapsed():5.1f}s", "default"),
             ("   pos ", "dim"), (f"({self.robot[0]:+.1f}, {self.robot[1]:+.1f})", "dim"))
 
         body = [table, Text(""), footer]
         if self.finished:
             body += [Text(""), self.scorecard()]
-        border = GREEN if self.finished else YELLOW if self.started else IDLE
+        border = (CLEARED_COLOR if self.finished
+                  else RUNNING_COLOR if self.started else IDLE_COLOR)
         return Panel(Group(*body), title="🚦 cone drill", border_style=border)
 
     def scorecard(self):
         summary = Text.assemble(
-            ("FINISHED", f"bold {GREEN}"), ("    ", "default"),
+            ("FINISHED", f"bold {CLEARED_COLOR}"), ("    ", "default"),
             (f"{self.elapsed():.1f}s", "bold"),
             (f"    {self.gates_cleared}/{len(CONE_LAYOUT)} gates", "default"))
-        return Panel(summary, border_style=GREEN, box=ROUNDED)
+        return Panel(summary, border_style=CLEARED_COLOR, box=ROUNDED)
 
     def on_render(self):
         if self.live is not None:

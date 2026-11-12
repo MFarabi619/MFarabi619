@@ -12194,7 +12194,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "robot_simulator"
+name = "robot_simulation"
 version = "0.1.0"
 dependencies = [
  "bytemuck",

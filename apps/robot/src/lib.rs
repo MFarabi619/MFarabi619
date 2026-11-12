@@ -38,8 +38,11 @@ pub fn spawn_logged(
 
 #[cfg(feature = "pixi")]
 pub async fn ensure_router() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    const ROUTER_ENDPOINT: &str = "127.0.0.1:7447";
-    if tokio::net::TcpStream::connect(ROUTER_ENDPOINT).await.is_ok() {
+    const ZENOH_ROUTER_ENDPOINT: &str = "127.0.0.1:7447";
+    if tokio::net::TcpStream::connect(ZENOH_ROUTER_ENDPOINT)
+        .await
+        .is_ok()
+    {
         return Ok(());
     }
     tokio::spawn(async {
@@ -51,7 +54,10 @@ pub async fn ensure_router() -> Result<(), Box<dyn std::error::Error + Send + Sy
     });
     for _ in 0..50 {
         tokio::time::sleep(std::time::Duration::from_millis(200)).await;
-        if tokio::net::TcpStream::connect(ROUTER_ENDPOINT).await.is_ok() {
+        if tokio::net::TcpStream::connect(ZENOH_ROUTER_ENDPOINT)
+            .await
+            .is_ok()
+        {
             return Ok(());
         }
     }

@@ -33,9 +33,9 @@ import numpy as np
 import onnxruntime
 
 ROBOT_ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-MODELS_DIR = os.path.join(ROBOT_ROOT, 'perception', 'models')
+MODELS_DIRECTORY = os.path.join(ROBOT_ROOT, 'perception', 'models')
 SEGMENTATION_MODEL_PATH = os.path.join(
-    MODELS_DIR, 'phenobench_semantic_erfnet.onnx')
+    MODELS_DIRECTORY, 'phenobench_semantic_erfnet.onnx')
 
 CROP_CLASS, WEED_CLASS = 1, 2
 CROP_TINT = (90, 220, 60)
@@ -48,7 +48,7 @@ CROP_BOX_COLOR = (0, 255, 0)
 WEED_BOX_COLOR = (0, 0, 255)
 MIN_PLANT_DETECTION_SCORE = 0.6
 PLANT_DETECTION_MODEL_PATH = os.path.join(
-    MODELS_DIR, 'phenobench_plant_detection_fasterrcnn.pt')
+    MODELS_DIRECTORY, 'phenobench_plant_detection_fasterrcnn.pt')
 SKELETON_COLOR = (102, 255, 51)
 JOINT_COLOR = (0, 200, 255)
 TEXT_BACKGROUND_COLOR = (0, 0, 0)
@@ -112,7 +112,7 @@ def build_gesture_recognizer():
     return vision.GestureRecognizer.create_from_options(
         vision.GestureRecognizerOptions(
             base_options=mp_python.BaseOptions(
-                model_asset_path=os.path.join(MODELS_DIR,
+                model_asset_path=os.path.join(MODELS_DIRECTORY,
                                               'gesture_recognizer.task')),
             running_mode=vision.RunningMode.IMAGE,
             num_hands=2,
@@ -157,7 +157,7 @@ def build_person_segmenter():
         vision.ImageSegmenterOptions(
             base_options=mp_python.BaseOptions(
                 model_asset_path=os.path.join(
-                    MODELS_DIR, 'selfie_multiclass_256x256.tflite')),
+                    MODELS_DIRECTORY, 'selfie_multiclass_256x256.tflite')),
             output_confidence_masks=True,
             output_category_mask=False))
 
@@ -364,8 +364,8 @@ def draw_arm(image, arm):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('frames_dir')
-    parser.add_argument('output_dir')
+    parser.add_argument('frames_directory')
+    parser.add_argument('output_directory')
     parser.add_argument('--skip', type=comma_separated_names, default=set())
     parser.add_argument('--rotate-counterclockwise', type=comma_separated_names,
                         default=set())
@@ -380,12 +380,12 @@ def main():
     segmenter = build_person_segmenter()
     detector = build_plant_detector() if arguments.plant_boxes else None
 
-    os.makedirs(arguments.output_dir, exist_ok=True)
-    for name in sorted(os.listdir(arguments.frames_dir)):
+    os.makedirs(arguments.output_directory, exist_ok=True)
+    for name in sorted(os.listdir(arguments.frames_directory)):
         stem, extension = os.path.splitext(name)
         if extension not in ('.png', '.jpg', '.jpeg') or name in arguments.skip:
             continue
-        image = cv2.imread(os.path.join(arguments.frames_dir, name))
+        image = cv2.imread(os.path.join(arguments.frames_directory, name))
         is_rotated = name in arguments.rotate_counterclockwise
         if is_rotated:
             image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
@@ -405,7 +405,7 @@ def main():
                 draw_arm(image, ARM_OVERLAYS[name])
         suffix = '_upright_annotated' if is_rotated else '_annotated'
         cv2.imwrite(
-            os.path.join(arguments.output_dir, f'{stem}{suffix}.png'), image)
+            os.path.join(arguments.output_directory, f'{stem}{suffix}.png'), image)
         print(f'{name}: hands={hand_count}', flush=True)
 
 

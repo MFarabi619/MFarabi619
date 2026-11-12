@@ -14,18 +14,18 @@ fn project_root() -> Option<PathBuf> {
     let current = std::env::current_dir().ok()?;
     current
         .ancestors()
-        .find(|dir| dir.join("pixi.toml").exists())
+        .find(|directory| directory.join("pixi.toml").exists())
         .map(Path::to_path_buf)
 }
 
 pub async fn run(
     command: &[String],
     extra_env: &[(&str, &str)],
-    cwd: Option<&str>,
+    working_directory: Option<&str>,
 ) -> Result<ExitStatus, BoxError> {
     let root = project_root().ok_or("no pixi.toml found above the current directory")?;
     let prefix = root.join(".pixi/envs/default");
-    let working_dir = cwd.map(|relative| root.join(relative));
+    let working_directory = working_directory.map(|relative| root.join(relative));
 
     let env: HashMap<String, String> = ACTIVATION_ENV
         .iter()
@@ -38,7 +38,7 @@ pub async fn run(
         command,
         ShellEnum::default(),
         &env,
-        working_dir.as_deref(),
+        working_directory.as_deref(),
     )
     .await?)
 }

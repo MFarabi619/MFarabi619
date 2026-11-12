@@ -45,6 +45,12 @@ MOTION_EPSILON = 0.01
 
 ARROW_COLOR = Color(r=0.2, g=1.0, b=0.4, a=0.9)
 TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
+LABEL_FONT_SIZE_PIXELS = 14.0
+ARROW_SHAFT_DIAMETER_METERS = 0.05
+ARROW_HEAD_LENGTH_METERS = 0.2
+ARROW_HEAD_DIAMETER_METERS = 0.15
+SCENE_LIFETIME_SECONDS = 0.5
+NANOSECONDS_PER_SECOND = 1_000_000_000
 
 
 def track_geojson(coordinates):
@@ -94,36 +100,43 @@ class FoxglovePanels(Node):
         self.track_publisher.publish(GeoJSON(geojson=track_geojson(self.track)))
 
     def on_cmd_vel(self, message):
-        forward_speed = message.twist.linear.x
-        turn_speed = message.twist.angular.z
-        yaw = turn_speed if forward_speed >= 0.0 else turn_speed + math.pi
+        forward_speed_meters_per_second = message.twist.linear.x
+        angular_speed_radians_per_second = message.twist.angular.z
+        yaw = (
+            angular_speed_radians_per_second
+            if forward_speed_meters_per_second >= 0.0
+            else angular_speed_radians_per_second + math.pi)
 
         entity = SceneEntity()
         entity.timestamp = self.get_clock().now().to_msg()
         entity.frame_id = 'base_link'
         entity.id = 'cmd_vel'
-        entity.lifetime = Duration(nanosec=500_000_000)
+        entity.lifetime = Duration(
+            sec=0, nanosec=int(SCENE_LIFETIME_SECONDS * NANOSECONDS_PER_SECOND))
         entity.frame_locked = True
 
         arrow = ArrowPrimitive()
         arrow.pose.position.z = 0.1
         arrow.pose.orientation.z = math.sin(yaw / 2.0)
         arrow.pose.orientation.w = math.cos(yaw / 2.0)
-        arrow.shaft_length = abs(forward_speed)
-        arrow.shaft_diameter = 0.05
-        arrow.head_length = 0.2
-        arrow.head_diameter = 0.15
+        arrow.shaft_length = abs(forward_speed_meters_per_second)
+        arrow.shaft_diameter = ARROW_SHAFT_DIAMETER_METERS
+        arrow.head_length = ARROW_HEAD_LENGTH_METERS
+        arrow.head_diameter = ARROW_HEAD_DIAMETER_METERS
         arrow.color = ARROW_COLOR
 
         label = TextPrimitive()
         label.pose.position.z = 1.0
         label.billboard = True
-        label.font_size = 14.0
+        label.font_size = LABEL_FONT_SIZE_PIXELS
         label.scale_invariant = True
         label.color = TEXT_COLOR
-        label.text = f'{forward_speed:+.1f} m/s  {turn_speed:+.1f} rad/s'
+        label.text = (
+            f'{forward_speed_meters_per_second:+.1f} m/s'
+            f'  {angular_speed_radians_per_second:+.1f} rad/s')
 
-        if abs(forward_speed) > MOTION_EPSILON or abs(turn_speed) > MOTION_EPSILON:
+        if (abs(forward_speed_meters_per_second) > MOTION_EPSILON
+                or abs(angular_speed_radians_per_second) > MOTION_EPSILON):
             entity.arrows = [arrow]
             entity.texts = [label]
         self.scene_publisher.publish(SceneUpdate(entities=[entity]))

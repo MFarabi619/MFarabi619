@@ -66,7 +66,7 @@
       "kind": "include",
       "launchfile": "gz_sim.launch.py",
       "namespace": "/",
-      "package": "robot_simulator",
+      "package": "robot_simulation",
       "subdir": null
     },
     {
@@ -254,9 +254,61 @@
     },
     {
       "arguments": {
-        "camera_height_m": 0.4426,
-        "camera_lateral_offset_m": 0.475,
-        "overrides_file": "machines/taro/params/harvest_lane.yaml"
+        "camera_height_meters": 0.4426,
+        "camera_lateral_offset_meters": 0.475,
+        "overrides_file": {
+          "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 0.7
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
+              }
+            }
+          }
+        }
       },
       "kind": "include",
       "launchfile": "harvest_lane.launch.py",
@@ -272,7 +324,59 @@
       "namespace": "/taro",
       "package": "robot_perception",
       "param_files": [
-        "machines/taro/params/harvest_lane.yaml"
+        {
+          "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 0.7
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
+              }
+            }
+          }
+        }
       ],
       "params": {
         "fraction_topic": "perception/canopy/fraction",
@@ -289,12 +393,64 @@
       "namespace": "/taro",
       "package": "robot_perception",
       "param_files": [
-        "machines/taro/params/harvest_lane.yaml"
+        {
+          "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 0.7
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
+            "/**/person_follow": {
+              "ros__parameters": {
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
+              }
+            }
+          }
+        }
       ],
       "params": {
-        "camera_height_m": 0.4426,
+        "camera_height_meters": 0.4426,
         "camera_info_topic": "sensors/camera_0/color/camera_info",
-        "camera_lateral_offset_m": 0.475,
+        "camera_lateral_offset_meters": 0.475,
         "depth_topic": "sensors/camera_0/depth/image_raw",
         "mask_topic": "perception/canopy/mask/compressed",
         "odom_topic": "diff_drive_controller/odom",
@@ -304,19 +460,66 @@
     },
     {
       "arguments": {
+        "detector": "person_detector",
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
         "overrides_file": {
           "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 0.7
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
-                "max_missing_frames": 8
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
               }
             }
           }
-        }
+        },
+        "start_enabled": false,
+        "target": "person"
       },
       "kind": "include",
-      "launchfile": "person_follow.launch.py",
+      "launchfile": "follow.launch.py",
       "namespace": "/taro",
       "package": "robot_perception",
       "subdir": null
@@ -329,38 +532,128 @@
       "namespace": "/taro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml",
+        "perception/config/follow.yaml",
         {
           "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 0.7
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
-                "max_missing_frames": 8
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
               }
             }
           }
         }
       ],
       "params": {
+        "class_label": "person",
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw/compressed"
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "start_enabled": false
       },
       "respawn_delay": 2.0
     },
     {
-      "executable": "approach",
+      "executable": "follow",
       "kind": "node",
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/taro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml",
+        "perception/config/follow.yaml",
         {
           "tempfile": {
+            "/**/canopy_detector": {
+              "ros__parameters": {
+                "normalize_exposure": true,
+                "normalized_excess_green_min": 0.06
+              }
+            },
+            "/**/controller_server": {
+              "ros__parameters": {
+                "FollowPath": {
+                  "desired_linear_vel": 0.7
+                }
+              }
+            },
+            "/**/harvest_lane_navigator": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.3,
+                "max_angular_speed_radians_per_second": 0.55,
+                "max_forward_speed_meters_per_second": 0.5,
+                "row_pitch_meters": 1.17
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 10.0
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
-                "max_missing_frames": 8
+                "command_smoothing_seconds": 0.3,
+                "distance_damping": 0.4,
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 0.9,
+                "max_angular_speed_radians_per_second": 0.7,
+                "max_backward_speed_meters_per_second": 0.7,
+                "max_forward_speed_meters_per_second": 0.7,
+                "max_missing_frames": 8,
+                "standoff_distance_meters": 1.5,
+                "steer_damping": 0.7,
+                "steer_deadband_meters": 0.15,
+                "steer_gain": 0.5
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.4,
+                "max_angular_speed_radians_per_second": 0.8,
+                "steer_gain": 1.2
               }
             }
           }
@@ -524,19 +817,67 @@
     },
     {
       "arguments": {
+        "detector": "person_detector",
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
         "overrides_file": {
           "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
-                "max_missing_frames": 8
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "max_missing_frames": 8,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
               }
             }
           }
-        }
+        },
+        "start_enabled": false,
+        "target": "person"
       },
       "kind": "include",
-      "launchfile": "person_follow.launch.py",
+      "launchfile": "follow.launch.py",
       "namespace": "/jiro",
       "package": "robot_perception",
       "subdir": null
@@ -549,38 +890,130 @@
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml",
+        "perception/config/follow.yaml",
         {
           "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
-                "max_missing_frames": 8
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "max_missing_frames": 8,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
               }
             }
           }
         }
       ],
       "params": {
+        "class_label": "person",
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw/compressed"
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "start_enabled": false
       },
       "respawn_delay": 2.0
     },
     {
-      "executable": "approach",
+      "executable": "follow",
       "kind": "node",
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml",
+        "perception/config/follow.yaml",
         {
           "tempfile": {
+            "/**/line_follow": {
+              "ros__parameters": {
+                "image_width_pixels": 640
+              }
+            },
+            "/**/park_path_detector": {
+              "ros__parameters": {
+                "min_fraction": 0.95,
+                "roi_top_fraction": 0.6
+              }
+            },
+            "/**/park_path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/path_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.9,
+                "lateral_offset_meters": 0.35,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
+              }
+            },
+            "/**/person_detector": {
+              "ros__parameters": {
+                "max_detections_per_second": 30.0,
+                "model_path": "ssd_mobilenet_v1_12_int8.onnx"
+              }
+            },
             "/**/person_follow": {
               "ros__parameters": {
-                "max_missing_frames": 8
+                "distance_deadband_meters": 0.25,
+                "distance_gain": 2.0,
+                "max_angular_speed_radians_per_second": 5.0,
+                "max_backward_speed_meters_per_second": 1.5,
+                "max_forward_speed_meters_per_second": 2.0,
+                "max_missing_frames": 8,
+                "steer_gain": 2.0
+              }
+            },
+            "/**/sidewalk_follow": {
+              "ros__parameters": {
+                "forward_speed_meters_per_second": 0.5,
+                "max_angular_speed_radians_per_second": 1.5,
+                "steer_gain": 1.5
               }
             }
           }

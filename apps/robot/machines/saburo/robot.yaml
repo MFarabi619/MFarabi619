@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../robot.schema.json
 system:
   namespace: saburo
   hosts:
@@ -8,7 +9,7 @@ platform:
   attachments: []
   drivetrain:
     model: roboteq
-    serial_port: /dev/serial/by-id/usb-RoboteQ_RoboteQ_SBLMG2360T_GwBAABhQRUhMNTIg_207235674845-if00
+    serial_port: /dev/robot/roboteq
     baud_rate: 115200
     counts_per_revolution: 90
     control_mode: open_loop
@@ -37,7 +38,7 @@ platform:
       is_reversed: true
 sensors:
   camera:
-    - model: zed_2
+    - model: stereolabs_zed
       urdf_enabled: false
       parent: base_link
       xyz: [0.4, 0.0, 0.4]
@@ -69,7 +70,7 @@ sensors:
         CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
         CFG_RATE_NAV: 1  # navigation solutions per measurement
       parameters:
-        port: /dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00
+        port: /dev/robot/gnss
         baud: 115200
         frame_id: gps_link
       ntrip:

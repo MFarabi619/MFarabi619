@@ -32,16 +32,17 @@ TONE_SECONDS = 0.6
 BEEP_PERIOD_SECONDS = 1.0
 TICK_SECONDS = 0.05
 COMMAND_TIMEOUT_SECONDS = 0.5
-REVERSING_THRESHOLD_MPS = -0.01
-TONE_AMPLITUDE = 0.6
+REVERSING_THRESHOLD_METERS_PER_SECOND = -0.01
+TONE_AMPLITUDE_FRACTION = 0.6
 PORTAUDIO_FLOAT32 = 1
+NANOSECONDS_PER_SECOND = 1_000_000_000
 
 
 def period_samples():
     tone_sample_count = int(SAMPLE_RATE_HZ * TONE_SECONDS)
     period_sample_count = int(SAMPLE_RATE_HZ * BEEP_PERIOD_SECONDS)
     samples = array.array('f', (
-        TONE_AMPLITUDE * math.sin(math.tau * TONE_HZ * index / SAMPLE_RATE_HZ)
+        TONE_AMPLITUDE_FRACTION * math.sin(math.tau * TONE_HZ * index / SAMPLE_RATE_HZ)
         for index in range(tone_sample_count)))
     samples.extend([0.0] * (period_sample_count - tone_sample_count))
     return samples
@@ -71,7 +72,7 @@ class ReverseBeeper(Node):
         now = self.get_clock().now()
         self.last_command_time = now
         was_reversing = self.is_reversing
-        self.is_reversing = message.twist.linear.x < REVERSING_THRESHOLD_MPS
+        self.is_reversing = message.twist.linear.x < REVERSING_THRESHOLD_METERS_PER_SECOND
         if self.is_reversing and not was_reversing:
             self.beep_start_time = now
             self.published_period_count = 0
@@ -84,7 +85,8 @@ class ReverseBeeper(Node):
         if now - self.last_command_time > Duration(
                 seconds=COMMAND_TIMEOUT_SECONDS):
             return
-        elapsed_seconds = (now - self.beep_start_time).nanoseconds * 1e-9
+        elapsed_seconds = (
+            (now - self.beep_start_time).nanoseconds / NANOSECONDS_PER_SECOND)
         due_period_count = int(elapsed_seconds / BEEP_PERIOD_SECONDS) + 1
         if self.published_period_count >= due_period_count:
             return

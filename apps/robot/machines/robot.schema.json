@@ -1,0 +1,952 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Arm": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "const": "kinova_link6",
+          "title": "Model",
+          "type": "string"
+        },
+        "gripper": {
+          "title": "Gripper",
+          "type": "string"
+        },
+        "bringup_package": {
+          "title": "Bringup Package",
+          "type": "string"
+        },
+        "description_package": {
+          "title": "Description Package",
+          "type": "string"
+        },
+        "control_package": {
+          "title": "Control Package",
+          "type": "string"
+        },
+        "moveit_package": {
+          "title": "Moveit Package",
+          "type": "string"
+        },
+        "moveit_robot_name": {
+          "title": "Moveit Robot Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model",
+        "gripper",
+        "bringup_package",
+        "description_package",
+        "control_package",
+        "moveit_package",
+        "moveit_robot_name"
+      ],
+      "title": "Arm",
+      "type": "object"
+    },
+    "Behaviors": {
+      "additionalProperties": false,
+      "properties": {
+        "hand_gesture_teleop": {
+          "default": false,
+          "title": "Hand Gesture Teleop",
+          "type": "boolean"
+        },
+        "weeding": {
+          "default": false,
+          "title": "Weeding",
+          "type": "boolean"
+        },
+        "nav2_person_follow": {
+          "default": false,
+          "title": "Nav2 Person Follow",
+          "type": "boolean"
+        },
+        "gps_navigation": {
+          "default": false,
+          "title": "Gps Navigation",
+          "type": "boolean"
+        },
+        "harvest_lane": {
+          "default": false,
+          "title": "Harvest Lane",
+          "type": "boolean"
+        },
+        "line_follow": {
+          "default": false,
+          "title": "Line Follow",
+          "type": "boolean"
+        },
+        "sidewalk_follow": {
+          "default": false,
+          "title": "Sidewalk Follow",
+          "type": "boolean"
+        },
+        "park_path_follow": {
+          "default": false,
+          "title": "Park Path Follow",
+          "type": "boolean"
+        },
+        "path_follow": {
+          "default": false,
+          "title": "Path Follow",
+          "type": "boolean"
+        }
+      },
+      "title": "Behaviors",
+      "type": "object"
+    },
+    "Camera": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "enum": [
+            "luxonis_oak_d_sr",
+            "luxonis_oak_d_pro_w_poe",
+            "orbbec_gemini_335l",
+            "stereolabs_zed"
+          ],
+          "title": "Model",
+          "type": "string"
+        },
+        "parent": {
+          "default": "base_link",
+          "title": "Parent",
+          "type": "string"
+        },
+        "xyz": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Xyz",
+          "type": "array"
+        },
+        "rpy": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Rpy",
+          "type": "array"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Parameters",
+          "type": "object"
+        },
+        "launch_enabled": {
+          "default": true,
+          "title": "Launch Enabled",
+          "type": "boolean"
+        },
+        "urdf_enabled": {
+          "default": true,
+          "title": "Urdf Enabled",
+          "type": "boolean"
+        },
+        "detects_on_camera": {
+          "default": false,
+          "title": "Detects On Camera",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "title": "Camera",
+      "type": "object"
+    },
+    "Drivetrain": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "default": "pwm_dir",
+          "enum": [
+            "roboteq",
+            "rc_pulse",
+            "pwm_dir",
+            "odrive_usb",
+            "svd48v",
+            "mock"
+          ],
+          "title": "Model",
+          "type": "string"
+        },
+        "left": {
+          "$ref": "#/$defs/DrivetrainSide",
+          "default": {
+            "pwm_pin": null,
+            "dir_pin": null,
+            "forward_level": null,
+            "is_reversed": false,
+            "serial_number": null
+          }
+        },
+        "right": {
+          "$ref": "#/$defs/DrivetrainSide",
+          "default": {
+            "pwm_pin": null,
+            "dir_pin": null,
+            "forward_level": null,
+            "is_reversed": false,
+            "serial_number": null
+          }
+        },
+        "serial_port": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Serial Port"
+        },
+        "baud_rate": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baud Rate"
+        },
+        "counts_per_revolution": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Counts Per Revolution"
+        },
+        "control_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Control Mode"
+        },
+        "full_scale_linear_velocity_meters_per_second": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Full Scale Linear Velocity Meters Per Second"
+        },
+        "pwm_frequency_hz": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pwm Frequency Hz"
+        },
+        "min_duty_fraction": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Duty Fraction"
+        },
+        "gear_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gear Ratio"
+        },
+        "acceleration_rpm_per_second": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Acceleration Rpm Per Second"
+        },
+        "speed_smoothing_time": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speed Smoothing Time"
+        },
+        "max_linear_velocity_meters_per_second": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Linear Velocity Meters Per Second"
+        },
+        "max_angular_velocity_radians_per_second": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Angular Velocity Radians Per Second"
+        },
+        "max_linear_acceleration_meters_per_second_squared": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Linear Acceleration Meters Per Second Squared"
+        },
+        "max_linear_jerk_meters_per_second_cubed": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Linear Jerk Meters Per Second Cubed"
+        },
+        "max_angular_acceleration_radians_per_second_squared": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Angular Acceleration Radians Per Second Squared"
+        },
+        "max_angular_jerk_radians_per_second_cubed": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Angular Jerk Radians Per Second Cubed"
+        },
+        "roboteq": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Roboteq",
+          "type": "object"
+        },
+        "rc_pulse": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Rc Pulse",
+          "type": "object"
+        },
+        "pwm_dir": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Pwm Dir",
+          "type": "object"
+        },
+        "odrive_usb": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Odrive Usb",
+          "type": "object"
+        },
+        "svd48v": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Svd48V",
+          "type": "object"
+        }
+      },
+      "title": "Drivetrain",
+      "type": "object"
+    },
+    "DrivetrainSide": {
+      "additionalProperties": false,
+      "properties": {
+        "pwm_pin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pwm Pin"
+        },
+        "dir_pin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dir Pin"
+        },
+        "forward_level": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Forward Level"
+        },
+        "is_reversed": {
+          "default": false,
+          "title": "Is Reversed",
+          "type": "boolean"
+        },
+        "serial_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Serial Number"
+        }
+      },
+      "title": "DrivetrainSide",
+      "type": "object"
+    },
+    "Gps": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "const": "ublox_zed_f9p",
+          "title": "Model",
+          "type": "string"
+        },
+        "parent": {
+          "default": "base_link",
+          "title": "Parent",
+          "type": "string"
+        },
+        "xyz": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Xyz",
+          "type": "array"
+        },
+        "rpy": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Rpy",
+          "type": "array"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Parameters",
+          "type": "object"
+        },
+        "flash": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Flash",
+          "type": "object"
+        },
+        "ntrip": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ntrip"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "title": "Gps",
+      "type": "object"
+    },
+    "Host": {
+      "additionalProperties": false,
+      "properties": {
+        "hostname": {
+          "title": "Hostname",
+          "type": "string"
+        },
+        "ip": {
+          "title": "Ip",
+          "type": "string"
+        },
+        "board": {
+          "title": "Board",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hostname",
+        "ip",
+        "board"
+      ],
+      "title": "Host",
+      "type": "object"
+    },
+    "Imu": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "const": "adafruit_bno085",
+          "title": "Model",
+          "type": "string"
+        },
+        "parent": {
+          "default": "base_link",
+          "title": "Parent",
+          "type": "string"
+        },
+        "xyz": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Xyz",
+          "type": "array"
+        },
+        "rpy": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Rpy",
+          "type": "array"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "default": {},
+          "title": "Parameters",
+          "type": "object"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "title": "Imu",
+      "type": "object"
+    },
+    "Mount": {
+      "additionalProperties": false,
+      "properties": {
+        "parent": {
+          "default": "base_link",
+          "title": "Parent",
+          "type": "string"
+        },
+        "xyz": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Xyz",
+          "type": "array"
+        },
+        "rpy": {
+          "default": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "items": {
+            "type": "number"
+          },
+          "title": "Rpy",
+          "type": "array"
+        }
+      },
+      "title": "Mount",
+      "type": "object"
+    },
+    "Mounts": {
+      "additionalProperties": false,
+      "properties": {
+        "camera_mount": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Mount"
+          },
+          "title": "Camera Mount",
+          "type": "array"
+        }
+      },
+      "title": "Mounts",
+      "type": "object"
+    },
+    "Platform": {
+      "additionalProperties": false,
+      "properties": {
+        "drivetrain": {
+          "$ref": "#/$defs/Drivetrain",
+          "default": {
+            "model": "pwm_dir",
+            "left": {
+              "dir_pin": null,
+              "forward_level": null,
+              "is_reversed": false,
+              "pwm_pin": null,
+              "serial_number": null
+            },
+            "right": {
+              "dir_pin": null,
+              "forward_level": null,
+              "is_reversed": false,
+              "pwm_pin": null,
+              "serial_number": null
+            },
+            "serial_port": null,
+            "baud_rate": null,
+            "counts_per_revolution": null,
+            "control_mode": null,
+            "full_scale_linear_velocity_meters_per_second": null,
+            "pwm_frequency_hz": null,
+            "min_duty_fraction": null,
+            "gear_ratio": null,
+            "acceleration_rpm_per_second": null,
+            "speed_smoothing_time": null,
+            "max_linear_velocity_meters_per_second": null,
+            "max_angular_velocity_radians_per_second": null,
+            "max_linear_acceleration_meters_per_second_squared": null,
+            "max_linear_jerk_meters_per_second_cubed": null,
+            "max_angular_acceleration_radians_per_second_squared": null,
+            "max_angular_jerk_radians_per_second_cubed": null,
+            "roboteq": {},
+            "rc_pulse": {},
+            "pwm_dir": {},
+            "odrive_usb": {},
+            "svd48v": {}
+          }
+        },
+        "rc_receiver": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RcReceiver"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "attachments": {
+          "default": [],
+          "items": {},
+          "title": "Attachments",
+          "type": "array"
+        },
+        "collision_guarded": {
+          "default": false,
+          "title": "Collision Guarded",
+          "type": "boolean"
+        }
+      },
+      "title": "Platform",
+      "type": "object"
+    },
+    "RcReceiver": {
+      "additionalProperties": false,
+      "properties": {
+        "channel_1_pin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Channel 1 Pin"
+        },
+        "channel_2_pin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "title": "Channel 2 Pin"
+        },
+        "tank_mixed": {
+          "default": false,
+          "title": "Tank Mixed",
+          "type": "boolean"
+        },
+        "launch_enabled": {
+          "default": true,
+          "title": "Launch Enabled",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "channel_1_pin",
+        "channel_2_pin"
+      ],
+      "title": "RcReceiver",
+      "type": "object"
+    },
+    "Sensors": {
+      "additionalProperties": false,
+      "properties": {
+        "camera": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Camera"
+          },
+          "title": "Camera",
+          "type": "array"
+        },
+        "imu": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Imu"
+          },
+          "title": "Imu",
+          "type": "array"
+        },
+        "gps": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Gps"
+          },
+          "title": "Gps",
+          "type": "array"
+        }
+      },
+      "title": "Sensors",
+      "type": "object"
+    },
+    "System": {
+      "additionalProperties": false,
+      "properties": {
+        "hosts": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Host"
+          },
+          "title": "Hosts",
+          "type": "array"
+        },
+        "namespace": {
+          "default": "",
+          "title": "Namespace",
+          "type": "string"
+        }
+      },
+      "title": "System",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "system": {
+      "$ref": "#/$defs/System",
+      "default": {
+        "hosts": [],
+        "namespace": ""
+      }
+    },
+    "platform": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Platform"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "arm": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Arm"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "sensors": {
+      "$ref": "#/$defs/Sensors",
+      "default": {
+        "camera": [],
+        "imu": [],
+        "gps": []
+      }
+    },
+    "mounts": {
+      "$ref": "#/$defs/Mounts",
+      "default": {
+        "camera_mount": []
+      }
+    },
+    "behaviors": {
+      "$ref": "#/$defs/Behaviors",
+      "default": {
+        "hand_gesture_teleop": false,
+        "weeding": false,
+        "nav2_person_follow": false,
+        "gps_navigation": false,
+        "harvest_lane": false,
+        "line_follow": false,
+        "sidewalk_follow": false,
+        "park_path_follow": false,
+        "path_follow": false
+      }
+    },
+    "foxglove_enabled": {
+      "default": true,
+      "title": "Foxglove Enabled",
+      "type": "boolean"
+    },
+    "point_cloud_enabled": {
+      "default": true,
+      "title": "Point Cloud Enabled",
+      "type": "boolean"
+    },
+    "ros_parameters": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "default": {},
+      "title": "Ros Parameters",
+      "type": "object"
+    },
+    "home": {
+      "additionalProperties": true,
+      "default": {},
+      "title": "Home",
+      "type": "object"
+    },
+    "manipulation": {
+      "additionalProperties": true,
+      "default": {},
+      "title": "Manipulation",
+      "type": "object"
+    }
+  },
+  "required": [],
+  "title": "robot.yaml",
+  "type": "object"
+}

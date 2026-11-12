@@ -58,13 +58,13 @@ void write_sysfs(const std::string & path, const std::string & value)
 class PwmChannel
 {
 public:
-  PwmChannel(int64_t chip, int64_t channel, int64_t period_ns)
-  : period_ns(period_ns),
-    channel_path(
+  PwmChannel(int64_t chip, int64_t channel, int64_t period_nanoseconds)
+  : period_nanoseconds(period_nanoseconds),
+    channel_directory(
       "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/pwm" + std::to_string(channel))
   {
-    const std::string duty_path = channel_path + "/duty_cycle";
-    if (access(channel_path.c_str(), F_OK) != 0) {
+    const std::string duty_path = channel_directory + "/duty_cycle";
+    if (access(channel_directory.c_str(), F_OK) != 0) {
       write_sysfs(
         "/sys/class/pwm/pwmchip" + std::to_string(chip) + "/export", std::to_string(channel));
     }
@@ -75,8 +75,8 @@ public:
       std::this_thread::sleep_for(PWM_EXPORT_RETRY_DELAY);
     }
     write_sysfs(duty_path, "0");
-    write_sysfs(channel_path + "/period", std::to_string(period_ns));
-    write_sysfs(channel_path + "/enable", "1");
+    write_sysfs(channel_directory + "/period", std::to_string(period_nanoseconds));
+    write_sysfs(channel_directory + "/enable", "1");
     duty_file = std::fopen(duty_path.c_str(), "w");
     if (duty_file == nullptr) {
       throw std::runtime_error("failed opening " + duty_path);
@@ -85,31 +85,31 @@ public:
 
   ~PwmChannel()
   {
-    write_duty_ns(0);
+    write_duty_nanoseconds(0);
     std::fclose(duty_file);
     try {
-      write_sysfs(channel_path + "/enable", "0");
+      write_sysfs(channel_directory + "/enable", "0");
     } catch (const std::runtime_error &) {
     }
   }
 
-  void write_duty_ns(int64_t duty_ns)
+  void write_duty_nanoseconds(int64_t duty_nanoseconds)
   {
-    if (duty_ns == last_duty_ns) {
+    if (duty_nanoseconds == last_duty_nanoseconds) {
       return;
     }
     std::rewind(duty_file);
-    std::fprintf(duty_file, "%s", std::to_string(duty_ns).c_str());
+    std::fprintf(duty_file, "%s", std::to_string(duty_nanoseconds).c_str());
     std::fflush(duty_file);
-    last_duty_ns = duty_ns;
+    last_duty_nanoseconds = duty_nanoseconds;
   }
 
-  const int64_t period_ns;
+  const int64_t period_nanoseconds;
 
 private:
-  const std::string channel_path;
+  const std::string channel_directory;
   std::FILE *duty_file;
-  int64_t last_duty_ns = 0;
+  int64_t last_duty_nanoseconds = 0;
 };
 
 class WheelDriver
@@ -117,11 +117,11 @@ class WheelDriver
 public:
   WheelDriver(
     gpiod_line_request *dir_request, unsigned int dir_line, bool forward_level,
-    int64_t pwm_chip, int64_t pwm_channel, int64_t period_ns)
+    int64_t pwm_chip, int64_t pwm_channel, int64_t period_nanoseconds)
   : dir_request(dir_request),
     dir_line(dir_line),
     forward_level(forward_level),
-    pwm(pwm_chip, pwm_channel, period_ns)
+    pwm(pwm_chip, pwm_channel, period_nanoseconds)
   {
   }
 
@@ -141,14 +141,14 @@ public:
       last_dir_level = dir_level;
     }
     double fraction = std::min(std::abs(wheel_speed) / max_wheel_speed, 1.0);
-    pwm.write_duty_ns(static_cast<int64_t>(fraction * pwm.period_ns));
+    pwm.write_duty_nanoseconds(static_cast<int64_t>(fraction * pwm.period_nanoseconds));
     duty_fraction = wheel_speed >= 0.0 ? fraction : -fraction;
     velocity = wheel_speed;
   }
 
   void halt()
   {
-    pwm.write_duty_ns(0);
+    pwm.write_duty_nanoseconds(0);
     duty_fraction = 0.0;
     velocity = 0.0;
   }
@@ -182,7 +182,7 @@ public:
     }
 
     max_wheel_speed = get_parameter("max_wheel_speed").as_double();
-    const auto period_ns = static_cast<int64_t>(
+    const auto period_nanoseconds = static_cast<int64_t>(
       NANOSECONDS_PER_SECOND / get_parameter("pwm_frequency_hz").as_double());
     const std::array<unsigned int, 2> dir_lines = {
       static_cast<unsigned int>(get_parameter("left_dir_line").as_int()),
@@ -217,7 +217,7 @@ public:
         get_parameter(side + "_forward_level").as_bool(),
         get_parameter(side + "_pwm_chip").as_int(),
         get_parameter(side + "_pwm_channel").as_int(),
-        period_ns);
+        period_nanoseconds);
     }
 
     last_command_time = now();

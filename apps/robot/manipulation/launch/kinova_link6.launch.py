@@ -17,7 +17,7 @@
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import read_robot_description, robot_state_publisher
 from robot_boot.launch_policy import RESPAWN, include
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
@@ -28,10 +28,10 @@ def kinova_link6(
     gripper: str = 'robotiq_2f_85',
     robot_password: str = 'admin',
     motions_file: str = '',
-    rviz: bool = False,
+    rviz_enabled: bool = False,
 ):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     bl.process(
         [bl.find('robot_manipulation', 'kinova_link6_bridge'), '--robot-password', robot_password],
         name='kinova_link6_bridge',
@@ -50,5 +50,5 @@ def kinova_link6(
         'robot_manipulation', 'kinova_link6_moveit.launch.py',
         moveit_package=moveit_package,
         motions_file=motions_file,
-        rviz=rviz,
+        rviz_enabled=rviz_enabled,
     )

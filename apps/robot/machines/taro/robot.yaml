@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../robot.schema.json
 system:
   namespace: taro
   hosts:
@@ -13,7 +14,7 @@ platform:
   drivetrain:
     # model: rc_pulse
     model: roboteq
-    serial_port: /dev/serial/by-id/usb-RoboteQ_RoboteQ_SBLMG2360T_GwBAABhQRUhMNTIg_207235674845-if00
+    serial_port: /dev/robot/roboteq
     baud_rate: 115200
     counts_per_revolution: 90
     control_mode: open_loop
@@ -54,13 +55,13 @@ sensors:
       xyz: [0.53, 0.475, 0.469]
       rpy: [0.0, 0.0, 0.0]
       parameters:
-        color_width: 640
-        color_height: 480
-        color_fps: 30
+        color_width_pixels: 640
+        color_height_pixels: 480
+        color_frames_per_second: 30
         enable_depth: true
-        depth_width: 848
-        depth_height: 480
-        depth_fps: 15
+        depth_width_pixels: 848
+        depth_height_pixels: 480
+        depth_frames_per_second: 15
         depth_decimation: 2
   imu: []
   gps:
@@ -71,7 +72,7 @@ sensors:
         CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
         CFG_RATE_NAV: 1  # navigation solutions per measurement
       parameters:
-        port: /dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00
+        port: /dev/robot/gnss
         baud: 115200
         frame_id: gps_link
       ntrip:
@@ -85,3 +86,34 @@ behaviors:
 home:
   latitude: 45.465033166666664
   longitude: -75.48172833333334
+ros_parameters:
+  person_detector:
+    max_detections_per_second: 10.0
+  person_follow:
+    max_forward_speed_meters_per_second: 0.7
+    max_backward_speed_meters_per_second: 0.7
+    max_angular_speed_radians_per_second: 0.7
+    standoff_distance_meters: 1.5
+    distance_gain: 0.9
+    distance_damping: 0.4
+    distance_deadband_meters: 0.25
+    steer_gain: 0.5
+    steer_damping: 0.7
+    steer_deadband_meters: 0.15
+    command_smoothing_seconds: 0.3
+    max_missing_frames: 24
+  canopy_detector:
+    normalize_exposure: true
+    normalized_excess_green_min: 0.06
+  harvest_lane_navigator:
+    row_pitch_meters: 1.17
+    forward_speed_meters_per_second: 0.3
+    max_forward_speed_meters_per_second: 0.5
+    max_angular_speed_radians_per_second: 0.55
+  sidewalk_follow:
+    forward_speed_meters_per_second: 0.4
+    steer_gain: 1.2
+    max_angular_speed_radians_per_second: 0.8
+  controller_server:
+    FollowPath:
+      desired_linear_vel: 0.7

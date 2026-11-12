@@ -46,7 +46,7 @@ def test_mission_repeats_indefinitely(row_shuttle):
 
 
 def test_clearance_spans_footprint_pivot_and_lost_point(row_shuttle):
-    assert row_shuttle.HEADLAND_CLEARANCE_M == pytest.approx(2.71, abs=0.01)
+    assert row_shuttle.HEADLAND_CLEARANCE_METERS == pytest.approx(2.71, abs=0.01)
 
 
 def stub_tree(status):
@@ -71,10 +71,10 @@ def test_running_mission_keeps_ticking(row_shuttle):
 
 def test_clear_goal_drives_the_clearance_distance(row_shuttle):
     goal = row_shuttle.clear_headland_goal()
-    assert goal.target.x == pytest.approx(row_shuttle.HEADLAND_CLEARANCE_M)
-    assert goal.speed == pytest.approx(row_shuttle.CLEAR_SPEED_MPS)
+    assert goal.target.x == pytest.approx(row_shuttle.HEADLAND_CLEARANCE_METERS)
+    assert goal.speed == pytest.approx(row_shuttle.CLEAR_SPEED_METERS_PER_SECOND)
 
 
 def test_turn_goal_spins_just_short_of_half_turn(row_shuttle):
     goal = row_shuttle.turn_around_goal()
-    assert goal.target_yaw == pytest.approx(math.pi - row_shuttle.TURN_SHORTFALL_RAD)
+    assert goal.target_yaw == pytest.approx(math.pi - row_shuttle.TURN_SHORTFALL_RADIANS)

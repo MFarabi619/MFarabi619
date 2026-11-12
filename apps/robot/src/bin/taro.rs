@@ -13,7 +13,7 @@ const LEFT_PWM_CHANNEL: u32 = 0;
 const RIGHT_PWM_CHANNEL: u32 = 1;
 const LEFT_REVERSED: bool = false;
 const RIGHT_REVERSED: bool = false;
-const MAX_SPEED_MPS: f64 = 2.0;
+const MAX_SPEED_METERS_PER_SECOND: f64 = 2.0;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -24,7 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let drivetrain = PulseDrivetrain::new(
         PulseChannel::new(sysfs_root, PWM_CHIP, LEFT_PWM_CHANNEL, LEFT_REVERSED)?,
         PulseChannel::new(sysfs_root, PWM_CHIP, RIGHT_PWM_CHANNEL, RIGHT_REVERSED)?,
-        MAX_SPEED_MPS,
+        MAX_SPEED_METERS_PER_SECOND,
     );
 
     let driver_node = context.create_node("base_controller", None)?;
@@ -32,12 +32,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         driver_node,
         drivetrain,
         Config {
-            host: SYSFS_PWM_ROOT.to_string(),
+            hardware_id: SYSFS_PWM_ROOT.to_string(),
             deadman_seconds: 0.5,
             shaping: Shaping {
-                deadzone: 0.05,
-                min_duty: 0.0,
-                scale: 1.0,
+                deadzone_fraction: 0.05,
+                min_duty_fraction: 0.0,
+                scale_factor: 1.0,
             },
             publish_odometry: true,
         },

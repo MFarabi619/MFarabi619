@@ -15,14 +15,14 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from robot_boot.launch_policy import RESPAWN, TF_REMAPS, parameter_overrides_file
-from robot_boot.zenoh_router import ensure_router
+from robot_boot.launch_policy import RESPAWN, TF_REMAPS, write_parameter_overrides_file
+from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
 def collision_monitor(params_file: str = '', cloud_topic: str = 'sensors/camera_0/depth/points'):
     bl = BetterLaunch()
-    ensure_router(bl)
+    ensure_zenoh_router(bl)
     params_file = params_file or bl.find('robot_control', 'collision_monitor.yaml')
     bl.node(
         package='nav2_collision_monitor',
@@ -30,7 +30,7 @@ def collision_monitor(params_file: str = '', cloud_topic: str = 'sensors/camera_
         name='collision_monitor',
         param_files=[
             params_file,
-            parameter_overrides_file(
+            write_parameter_overrides_file(
                 {'collision_monitor': {'point_cloud': {'topic': cloud_topic}}}),
         ],
         remaps=TF_REMAPS,

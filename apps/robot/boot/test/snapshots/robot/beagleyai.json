@@ -57,7 +57,7 @@
       "kind": "include",
       "launchfile": "rc_pulse_motor_driver.launch.py",
       "namespace": "/beagleyai",
-      "package": "robot_boot",
+      "package": "robot_drivers",
       "subdir": null
     },
     {
@@ -235,84 +235,78 @@
         "frame_id": "imu_0_link",
         "i2c_address": 74,
         "i2c_bus": 1,
-        "rate_hz": 25.0,
-        "topic_prefix": "sensors/imu_0"
+        "imu": "imu_0",
+        "publish_rate_hz": 25.0
       },
       "kind": "include",
-      "launchfile": "imu.launch.py",
+      "launchfile": "adafruit_bno085.launch.py",
       "namespace": "/beagleyai",
-      "package": "robot_boot",
+      "package": "robot_drivers",
       "subdir": null
     },
     {
-      "executable": "imu",
+      "group": "sensors/imu_0",
+      "kind": "group",
+      "namespace": "/beagleyai/sensors/imu_0",
+      "use_sim_time": null
+    },
+    {
+      "executable": "adafruit_bno085",
       "kind": "node",
       "max_respawns": -1,
-      "name": "imu_0",
-      "namespace": "/beagleyai",
+      "name": "adafruit_bno085",
+      "namespace": "/beagleyai/sensors/imu_0",
       "package": "robot_drivers",
       "params": {
         "frame_id": "imu_0_link",
         "i2c_address": 74,
         "i2c_bus": 1,
-        "rate_hz": 25.0
-      },
-      "remaps": {
-        "activity": "sensors/imu_0/activity",
-        "calibration_status": "sensors/imu_0/calibration_status",
-        "data": "sensors/imu_0/data",
-        "linear_acceleration": "sensors/imu_0/linear_acceleration",
-        "mag": "sensors/imu_0/mag",
-        "shake": "sensors/imu_0/shake",
-        "stability": "sensors/imu_0/stability",
-        "steps": "sensors/imu_0/steps"
+        "publish_rate_hz": 25.0
       },
       "respawn_delay": 2.0
     },
     {
       "arguments": {
         "camera": "camera_0",
-        "color_fps": 10,
-        "color_height": 480,
-        "color_width": 640,
+        "color_frames_per_second": 10,
+        "color_height_pixels": 480,
+        "color_width_pixels": 640,
         "depth_decimation": 2,
-        "depth_fps": 15,
-        "depth_height": 480,
-        "depth_width": 848,
+        "depth_frames_per_second": 15,
+        "depth_height_pixels": 480,
+        "depth_width_pixels": 848,
         "enable_depth": true,
-        "point_cloud": true
+        "point_cloud_enabled": true
       },
       "kind": "include",
       "launchfile": "orbbec_gemini_335l.launch.py",
       "namespace": "/beagleyai",
-      "package": "robot_boot",
+      "package": "robot_drivers",
       "subdir": null
+    },
+    {
+      "group": "sensors/camera_0",
+      "kind": "group",
+      "namespace": "/beagleyai/sensors/camera_0",
+      "use_sim_time": null
     },
     {
       "executable": "orbbec_gemini_335l",
       "kind": "node",
       "max_respawns": -1,
       "name": "orbbec_gemini_335l",
-      "namespace": "/beagleyai",
+      "namespace": "/beagleyai/sensors/camera_0",
       "package": "robot_drivers",
       "params": {
-        "color_fps": 10,
-        "color_height": 480,
-        "color_width": 640,
+        "color_frames_per_second": 10,
+        "color_height_pixels": 480,
+        "color_width_pixels": 640,
         "depth_decimation": 2,
-        "depth_fps": 15,
-        "depth_height": 480,
-        "depth_width": 848,
+        "depth_frames_per_second": 15,
+        "depth_height_pixels": 480,
+        "depth_width_pixels": 848,
         "enable_depth": true,
         "jpeg_quality": 80
-      },
-      "remaps": {
-        "color/camera_info": "sensors/camera_0/color/camera_info",
-        "color/image_raw": "sensors/camera_0/color/image_raw",
-        "color/image_raw/compressed": "sensors/camera_0/color/image_raw/compressed",
-        "depth/camera_info": "sensors/camera_0/depth/camera_info",
-        "depth/image_raw": "sensors/camera_0/depth/image_raw",
-        "depth/image_raw/compressed": "sensors/camera_0/depth/image_raw/compressed"
       },
       "respawn_delay": 2.0
     },
@@ -321,12 +315,12 @@
       "kind": "node",
       "max_respawns": -1,
       "name": "depth_to_pointcloud",
-      "namespace": "/beagleyai",
+      "namespace": "/beagleyai/sensors/camera_0",
       "package": "depth_image_proc",
       "remaps": {
-        "camera_info": "sensors/camera_0/depth/camera_info",
-        "image_rect": "sensors/camera_0/depth/image_raw",
-        "points": "sensors/camera_0/depth/points"
+        "camera_info": "depth/camera_info",
+        "image_rect": "depth/image_raw",
+        "points": "depth/points"
       },
       "respawn_delay": 2.0
     },
@@ -395,12 +389,12 @@
     {
       "arguments": {
         "camera": "camera_0",
-        "detects_on_camera": false,
+        "has_on_camera_detector": false,
         "image_topic": "",
         "overrides_file": ""
       },
       "kind": "include",
-      "launchfile": "person_follow.launch.py",
+      "launchfile": "follow.launch.py",
       "namespace": "/beagleyai",
       "package": "robot_perception",
       "subdir": null
@@ -413,24 +407,26 @@
       "namespace": "/beagleyai",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml"
+        "perception/config/follow.yaml"
       ],
       "params": {
+        "class_label": "person",
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw"
+        "image_topic": "sensors/camera_0/color/image_raw",
+        "start_enabled": false
       },
       "respawn_delay": 2.0
     },
     {
-      "executable": "approach",
+      "executable": "follow",
       "kind": "node",
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/beagleyai",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/person_follow.yaml"
+        "perception/config/follow.yaml"
       ],
       "params": {
         "start_enabled": false
@@ -440,7 +436,7 @@
   ],
   "launch": {
     "arguments": {
-      "name": "beagleyai"
+      "robot": "beagleyai"
     },
     "file": "boot/launch/robot.launch.py",
     "function": "robot",

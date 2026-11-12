@@ -43,20 +43,25 @@ TARGET_COLOR = Color(r=1.0, g=0.5, b=0.0, a=0.35)
 TEXT_COLOR = Color(r=1.0, g=1.0, b=1.0, a=1.0)
 
 IDENTITY_ORIENTATION = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
-SCENE_LIFETIME = Duration(sec=0, nanosec=500000000)
-TARGET_MARKER_DIAMETER_M = 0.15
+SCENE_LIFETIME_SECONDS = 0.5
+TARGET_MARKER_DIAMETER_METERS = 0.15
+LABEL_FONT_SIZE_PIXELS = 14.0
+RING_THICKNESS_METERS = 0.03
+ARROW_SHAFT_DIAMETER_METERS = 0.03
+ARROW_HEAD_LENGTH_METERS = 0.08
+ARROW_HEAD_DIAMETER_METERS = 0.07
 RING_SEGMENTS = 48
 LIVE_PARAMETERS = frozenset({
-    'standoff_distance', 'distance_gain', 'max_forward_speed',
-    'steer_gain', 'max_angular_speed', 'max_missing_frames',
-    'target_class', 'command_smoothing_seconds', 'distance_deadband',
-    'steer_deadband', 'distance_damping', 'steer_damping',
-    'max_backward_speed', 'reacquire_angular_decay',
+    'standoff_distance_meters', 'distance_gain', 'max_forward_speed_meters_per_second',
+    'steer_gain', 'max_angular_speed_radians_per_second', 'max_missing_frames',
+    'target_class', 'command_smoothing_seconds', 'distance_deadband_meters',
+    'steer_deadband_meters', 'distance_damping', 'steer_damping',
+    'max_backward_speed_meters_per_second', 'reacquire_angular_decay',
 })
-NANOSECONDS_PER_SECOND = 1e9
-MAX_MEASUREMENT_INTERVAL_S = 0.2
-TARGET_MATCH_RADIUS_M = 0.6
-NEARER_TAKEOVER_MARGIN_M = 0.4
+NANOSECONDS_PER_SECOND = 1_000_000_000
+MAX_MEASUREMENT_INTERVAL_SECONDS = 0.2
+TARGET_MATCH_RADIUS_METERS = 0.6
+NEARER_TAKEOVER_MARGIN_METERS = 0.4
 
 
 class Candidate(NamedTuple):
@@ -64,9 +69,9 @@ class Candidate(NamedTuple):
     point: Point
 
 
-class Approach(Node):
+class TrackedApproach(Node):
     def __init__(self):
-        super().__init__('approach')
+        super().__init__('tracked_approach')
         detections_topic = self.declare_parameter('detections_topic', 'detections').value
         detections_3d_topic = self.declare_parameter(
             'detections_3d_topic', 'detections_3d'
@@ -75,30 +80,36 @@ class Approach(Node):
         cmd_vel_topic = self.declare_parameter('cmd_vel_topic', 'cmd_vel').value
         scene_topic = self.declare_parameter('scene_topic', 'perception/vision/scene').value
         self.frame_id = self.declare_parameter('frame_id', 'base_link').value
-        self.standoff_distance = self.declare_parameter('standoff_distance', 1.0).value
+        self.standoff_distance_meters = self.declare_parameter(
+            'standoff_distance_meters', 1.0).value
         self.distance_gain = self.declare_parameter('distance_gain', 0.6).value
-        self.max_forward_speed = self.declare_parameter('max_forward_speed', 0.6).value
+        self.max_forward_speed_meters_per_second = self.declare_parameter(
+            'max_forward_speed_meters_per_second', 0.6).value
         self.steer_gain = self.declare_parameter('steer_gain', 1.2).value
-        self.max_angular_speed = self.declare_parameter('max_angular_speed', 0.8).value
+        self.max_angular_speed_radians_per_second = self.declare_parameter(
+            'max_angular_speed_radians_per_second', 0.8).value
         self.max_missing_frames = self.declare_parameter('max_missing_frames', 0).value
         self.command_smoothing_seconds = self.declare_parameter(
             'command_smoothing_seconds', 0.0).value
-        self.distance_deadband = self.declare_parameter('distance_deadband', 0.0).value
-        self.steer_deadband = self.declare_parameter('steer_deadband', 0.0).value
+        self.distance_deadband_meters = self.declare_parameter(
+            'distance_deadband_meters', 0.0).value
+        self.steer_deadband_meters = self.declare_parameter(
+            'steer_deadband_meters', 0.0).value
         self.distance_damping = self.declare_parameter('distance_damping', 0.0).value
         self.steer_damping = self.declare_parameter('steer_damping', 0.0).value
-        self.max_backward_speed = self.declare_parameter('max_backward_speed', 0.0).value
+        self.max_backward_speed_meters_per_second = self.declare_parameter(
+            'max_backward_speed_meters_per_second', 0.0).value
         self.reacquire_angular_decay = self.declare_parameter(
             'reacquire_angular_decay', 1.0).value
 
         self.is_enabled = self.declare_parameter('start_enabled', False).value
         self.missing_frames = 0
-        self.last_angular_speed = 0.0
-        self.smoothed_forward_speed = 0.0
-        self.smoothed_angular_speed = 0.0
-        self.previous_drive_time_s = None
-        self.previous_stamp_s = None
-        self.previous_offset = 0.0
+        self.latest_angular_speed_radians_per_second = 0.0
+        self.smoothed_forward_speed_meters_per_second = 0.0
+        self.smoothed_angular_speed_radians_per_second = 0.0
+        self.previous_drive_time_seconds = None
+        self.previous_stamp_seconds = None
+        self.previous_normalized_offset = 0.0
         self.previous_distance = 0.0
         self.tracked_position = None
         self.tracked_id = None
@@ -115,46 +126,55 @@ class Approach(Node):
             Detection3DArray, detections_3d_topic, self.on_detections,
             qos_profile_sensor_data
         )
-        self.get_logger().info(f'approach: {detections_topic} -> {cmd_vel_topic}')
+        self.get_logger().info(f'tracked_approach: {detections_topic} -> {cmd_vel_topic}')
 
     def on_detections(self, message):
-        target = self.select_target(self.candidate_points(message.detections))
+        target = self.track_target(self.candidate_points(message.detections))
         if target is None:
             self.missing_frames += 1
             if self.missing_frames > self.max_missing_frames:
                 self.tracked_position = None
                 self.tracked_id = None
-            self.last_angular_speed *= self.reacquire_angular_decay
-            angular_speed = (
-                self.last_angular_speed
+            self.latest_angular_speed_radians_per_second *= self.reacquire_angular_decay
+            angular_speed_radians_per_second = (
+                self.latest_angular_speed_radians_per_second
                 if self.missing_frames <= self.max_missing_frames else 0.0
             )
-            self.previous_stamp_s = None
-            self.drive(0.0, angular_speed)
+            self.previous_stamp_seconds = None
+            self.drive(0.0, angular_speed_radians_per_second)
             self.publish_scene(message.header.stamp, message.header.frame_id, None, 0.0)
             return
         self.missing_frames = 0
-        lateral_offset = target.x if abs(target.x) > self.steer_deadband else 0.0
-        offset = lateral_offset / target.z
-        stamp_s = (
+        lateral_offset_meters = (
+            target.x if abs(target.x) > self.steer_deadband_meters else 0.0)
+        normalized_offset = lateral_offset_meters / target.z
+        stamp_seconds = (
             message.header.stamp.sec
             + message.header.stamp.nanosec / NANOSECONDS_PER_SECOND)
-        offset_rate = 0.0
-        distance_rate = 0.0
-        if (self.previous_stamp_s is not None
-                and 0.0 < stamp_s - self.previous_stamp_s < MAX_MEASUREMENT_INTERVAL_S):
-            interval = stamp_s - self.previous_stamp_s
-            offset_rate = (offset - self.previous_offset) / interval
-            distance_rate = (target.z - self.previous_distance) / interval
-        self.previous_stamp_s = stamp_s
-        self.previous_offset = offset
+        normalized_offset_rate_per_second = 0.0
+        distance_rate_meters_per_second = 0.0
+        if (self.previous_stamp_seconds is not None
+                and 0.0 < stamp_seconds - self.previous_stamp_seconds
+                < MAX_MEASUREMENT_INTERVAL_SECONDS):
+            interval_seconds = stamp_seconds - self.previous_stamp_seconds
+            normalized_offset_rate_per_second = (
+                normalized_offset - self.previous_normalized_offset) / interval_seconds
+            distance_rate_meters_per_second = (
+                target.z - self.previous_distance) / interval_seconds
+        self.previous_stamp_seconds = stamp_seconds
+        self.previous_normalized_offset = normalized_offset
         self.previous_distance = target.z
-        forward_speed = self.approach_speed(target.z, distance_rate)
-        self.last_angular_speed = float(np.clip(
-            -(self.steer_gain * offset + self.steer_damping * offset_rate),
-            -self.max_angular_speed, self.max_angular_speed))
-        self.drive(forward_speed, self.last_angular_speed)
-        self.publish_scene(message.header.stamp, message.header.frame_id, target, forward_speed)
+        forward_speed_meters_per_second = self.approach_speed(
+            target.z, distance_rate_meters_per_second)
+        self.latest_angular_speed_radians_per_second = float(np.clip(
+            -(self.steer_gain * normalized_offset
+              + self.steer_damping * normalized_offset_rate_per_second),
+            -self.max_angular_speed_radians_per_second,
+            self.max_angular_speed_radians_per_second))
+        self.drive(forward_speed_meters_per_second, self.latest_angular_speed_radians_per_second)
+        self.publish_scene(
+            message.header.stamp, message.header.frame_id, target,
+            forward_speed_meters_per_second)
 
     def candidate_points(self, detections):
         candidates = []
@@ -171,17 +191,17 @@ class Approach(Node):
             candidates.append(Candidate(track_id, point))
         return candidates
 
-    def select_target(self, candidates):
+    def track_target(self, candidates):
         if not candidates:
             return None
         nearest = min(candidates, key=lambda candidate: candidate.point.z)
         tracked = self.tracked_candidate(candidates)
         target = nearest
         if (tracked is not None
-                and nearest.point.z > tracked.point.z - NEARER_TAKEOVER_MARGIN_M):
+                and nearest.point.z > tracked.point.z - NEARER_TAKEOVER_MARGIN_METERS):
             target = tracked
         if tracked is None or target is not tracked:
-            self.previous_stamp_s = None
+            self.previous_stamp_seconds = None
         self.tracked_id = target.track_id
         self.tracked_position = target.point
         return target.point
@@ -196,7 +216,7 @@ class Approach(Node):
         nearest_to_tracked = min(
             candidates,
             key=lambda candidate: self.distance_to_tracked(candidate.point))
-        if self.distance_to_tracked(nearest_to_tracked.point) > TARGET_MATCH_RADIUS_M:
+        if self.distance_to_tracked(nearest_to_tracked.point) > TARGET_MATCH_RADIUS_METERS:
             return None
         return nearest_to_tracked
 
@@ -204,38 +224,40 @@ class Approach(Node):
         return math.hypot(
             point.x - self.tracked_position.x, point.z - self.tracked_position.z)
 
-    def approach_speed(self, distance, distance_rate):
-        error = distance - self.standoff_distance
-        if abs(error) < self.distance_deadband:
+    def approach_speed(self, distance_meters, distance_rate_meters_per_second):
+        error = distance_meters - self.standoff_distance_meters
+        if abs(error) < self.distance_deadband_meters:
             return 0.0
         return float(np.clip(
-            self.distance_gain * error + self.distance_damping * distance_rate,
-            -self.max_backward_speed, self.max_forward_speed))
+            self.distance_gain * error + self.distance_damping * distance_rate_meters_per_second,
+            -self.max_backward_speed_meters_per_second,
+            self.max_forward_speed_meters_per_second))
 
     def claim_smoothing_fraction(self):
-        now_s = self.get_clock().now().nanoseconds * 1e-9
-        previous_s = self.previous_drive_time_s
-        self.previous_drive_time_s = now_s
-        if self.command_smoothing_seconds <= 0.0 or previous_s is None:
+        now_seconds = self.get_clock().now().nanoseconds / NANOSECONDS_PER_SECOND
+        previous_seconds = self.previous_drive_time_seconds
+        self.previous_drive_time_seconds = now_seconds
+        if self.command_smoothing_seconds <= 0.0 or previous_seconds is None:
             return 1.0
-        return 1.0 - math.exp(-(now_s - previous_s) / self.command_smoothing_seconds)
+        return 1.0 - math.exp(-(now_seconds - previous_seconds) / self.command_smoothing_seconds)
 
-    def drive(self, forward_speed, angular_speed):
+    def drive(self, forward_speed_meters_per_second, angular_speed_radians_per_second):
         if not self.is_enabled:
             return
         fraction = self.claim_smoothing_fraction()
-        self.smoothed_forward_speed += fraction * (
-            forward_speed - self.smoothed_forward_speed)
-        self.smoothed_angular_speed += fraction * (
-            angular_speed - self.smoothed_angular_speed)
+        self.smoothed_forward_speed_meters_per_second += fraction * (
+            forward_speed_meters_per_second - self.smoothed_forward_speed_meters_per_second)
+        self.smoothed_angular_speed_radians_per_second += fraction * (
+            angular_speed_radians_per_second - self.smoothed_angular_speed_radians_per_second)
         message = TwistStamped()
         message.header.stamp = self.get_clock().now().to_msg()
         message.header.frame_id = self.frame_id
-        message.twist.linear.x = float(self.smoothed_forward_speed)
+        message.twist.linear.x = float(self.smoothed_forward_speed_meters_per_second)
         message.twist.angular.z = float(
             np.clip(
-                self.smoothed_angular_speed,
-                -self.max_angular_speed, self.max_angular_speed,
+                self.smoothed_angular_speed_radians_per_second,
+                -self.max_angular_speed_radians_per_second,
+                self.max_angular_speed_radians_per_second,
             )
         )
         self.cmd_vel_publisher.publish(message)
@@ -251,10 +273,10 @@ class Approach(Node):
             if parameter.name in LIVE_PARAMETERS:
                 setattr(self, parameter.name, parameter.value)
 
-    def publish_scene(self, stamp, target_frame_id, point, forward_speed):
+    def publish_scene(self, stamp, target_frame_id, point, forward_speed_meters_per_second):
         scene = SceneUpdate()
         scene.entities.append(self.standoff_entity(stamp))
-        scene.entities.append(self.velocity_entity(stamp, forward_speed))
+        scene.entities.append(self.velocity_entity(stamp, forward_speed_meters_per_second))
         if point is not None:
             scene.entities.append(self.target_entity(stamp, target_frame_id, point))
         self.scene_publisher.publish(scene)
@@ -264,13 +286,15 @@ class Approach(Node):
         sphere = SpherePrimitive()
         sphere.pose = Pose(position=point, orientation=IDENTITY_ORIENTATION)
         sphere.size = Vector3(
-            x=TARGET_MARKER_DIAMETER_M, y=TARGET_MARKER_DIAMETER_M, z=TARGET_MARKER_DIAMETER_M)
+            x=TARGET_MARKER_DIAMETER_METERS,
+            y=TARGET_MARKER_DIAMETER_METERS,
+            z=TARGET_MARKER_DIAMETER_METERS)
         sphere.color = TARGET_COLOR
         entity.spheres.append(sphere)
         label = TextPrimitive()
         label.pose = Pose(position=point, orientation=IDENTITY_ORIENTATION)
         label.billboard = True
-        label.font_size = 14.0
+        label.font_size = LABEL_FONT_SIZE_PIXELS
         label.scale_invariant = True
         label.color = TEXT_COLOR
         label.text = f'{point.z:.2f} m'
@@ -282,12 +306,14 @@ class Approach(Node):
         ring = LinePrimitive()
         ring.type = LinePrimitive.LINE_LOOP
         ring.pose = Pose(orientation=IDENTITY_ORIENTATION)
-        ring.thickness = 0.03
+        ring.thickness = RING_THICKNESS_METERS
         ring.color = STANDOFF_COLOR
         ring.points = [
             Point(
-                x=self.standoff_distance * math.cos(2.0 * math.pi * index / RING_SEGMENTS),
-                y=self.standoff_distance * math.sin(2.0 * math.pi * index / RING_SEGMENTS),
+                x=self.standoff_distance_meters
+                * math.cos(2.0 * math.pi * index / RING_SEGMENTS),
+                y=self.standoff_distance_meters
+                * math.sin(2.0 * math.pi * index / RING_SEGMENTS),
                 z=0.0,
             )
             for index in range(RING_SEGMENTS)
@@ -295,14 +321,14 @@ class Approach(Node):
         entity.lines.append(ring)
         return entity
 
-    def velocity_entity(self, stamp, forward_speed):
+    def velocity_entity(self, stamp, forward_speed_meters_per_second):
         entity = self.scene_entity(stamp, self.frame_id, 'velocity')
         arrow = ArrowPrimitive()
         arrow.pose = Pose(orientation=IDENTITY_ORIENTATION)
-        arrow.shaft_length = forward_speed
-        arrow.shaft_diameter = 0.03
-        arrow.head_length = 0.08
-        arrow.head_diameter = 0.07
+        arrow.shaft_length = forward_speed_meters_per_second
+        arrow.shaft_diameter = ARROW_SHAFT_DIAMETER_METERS
+        arrow.head_length = ARROW_HEAD_LENGTH_METERS
+        arrow.head_diameter = ARROW_HEAD_DIAMETER_METERS
         arrow.color = VELOCITY_COLOR
         entity.arrows.append(arrow)
         return entity
@@ -312,21 +338,22 @@ class Approach(Node):
         entity.timestamp = stamp
         entity.frame_id = frame_id
         entity.id = entity_id
-        entity.lifetime = SCENE_LIFETIME
+        entity.lifetime = Duration(
+            sec=0, nanosec=int(SCENE_LIFETIME_SECONDS * NANOSECONDS_PER_SECOND))
         entity.frame_locked = True
         return entity
 
 
 def main():
     rclpy.init()
-    node = Approach()
+    node = TrackedApproach()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
     finally:
-        node.smoothed_forward_speed = 0.0
-        node.smoothed_angular_speed = 0.0
+        node.smoothed_forward_speed_meters_per_second = 0.0
+        node.smoothed_angular_speed_radians_per_second = 0.0
         node.drive(0.0, 0.0)
         node.destroy_node()
         rclpy.shutdown()
