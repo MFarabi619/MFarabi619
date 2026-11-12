@@ -15,8 +15,6 @@
 
 
 import os
-from pathlib import Path
-import socket
 import subprocess
 import sys
 import tempfile
@@ -24,6 +22,7 @@ import xml.etree.ElementTree as ElementTree
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import robot_state_publisher
+from machine import ZED_CAMERA_MODEL, load_machine, load_machine_for_this_host
 import yaml
 from zenoh_router import ensure_router
 
@@ -140,24 +139,8 @@ IMU_TOPICS = [
 ]
 
 
-def robot_identity(name=''):
-    if name:
-        config_path = Path('machines') / name / 'robot.yaml'
-        if not config_path.is_file():
-            raise RuntimeError(f'no robot.yaml under machines/{name}')
-        return name, yaml.safe_load(config_path.read_text())
-    hostname = socket.gethostname()
-    for config_path in sorted(Path('machines').glob('*/robot.yaml')):
-        config = yaml.safe_load(config_path.read_text())
-        for host in config['system']['hosts']:
-            if host['hostname'] == hostname:
-                return config_path.parent.name, config
-    raise RuntimeError(f'no robot.yaml lists hostname {hostname}')
-
-
-def board_pins(robot_config):
-    board = robot_config['system']['hosts'][0]['board']
-    with open(f'elec/boards/{board}.yaml') as file:
+def board_pins(machine):
+    with open(f'elec/boards/{machine.board}.yaml') as file:
         return yaml.safe_load(file)['pins']
 
 
@@ -197,39 +180,27 @@ def flash_declarations(flash):
 
 @launch_this
 def robot(name: str = '', drivetrain_model: str = ''):
-    robot_name, robot_config = robot_identity(name)
-    if robot_config.get('version', 0) < 1:
-        raise RuntimeError(
-            f'{robot_name} robot.yaml is schema version 0; wiring is now header'
-            ' pins resolved through elec/boards/ (version 1)')
-    if 'arm' in robot_config and 'platform' not in robot_config:
+    machine = load_machine(name) if name else load_machine_for_this_host()
+    if machine.is_arm_only:
         bl = BetterLaunch()
         robot_password = 'admin'
         rviz = 'false'
         bl.process(
-            [PIXI, 'run', 'arm', robot_name, robot_password, rviz],
+            [PIXI, 'run', 'arm', machine.name, robot_password, rviz],
             name='arm_launch',
             **RESPAWN,
         )
         return
-    namespace = robot_config['system']['namespace']
-    sensors = robot_config.get('sensors') or {}
-    drivetrain = robot_config['platform']['drivetrain']
-    rc_receiver = robot_config['platform'].get('rc_receiver')
-    if rc_receiver and not rc_receiver.get('launch_enabled', True):
+    namespace = machine.namespace
+    sensors = machine.sensors
+    drivetrain = machine.platform.drivetrain
+    rc_receiver = machine.platform.rc_receiver
+    if rc_receiver and not rc_receiver.launch_enabled:
         rc_receiver = None
-    drivetrain_model = drivetrain_model or drivetrain.get('model', 'pwm_dir')
+    drivetrain_model = drivetrain_model or drivetrain.model
     wheel_separation, wheel_radius = wheel_geometry(
-        f'mech/urdf/{robot_name}/robot.urdf')
-    model_scoped = drivetrain.get(drivetrain_model, {})
-    motion_limits = {
-        field: model_scoped.get(field, drivetrain.get(field))
-        for field in MOTION_LIMIT_PARAMETERS
-    }
-    motion_limits = {
-        field: value for field, value in motion_limits.items()
-        if value is not None
-    }
+        f'mech/urdf/{machine.name}/robot.urdf')
+    motion_limits = drivetrain.motion_limits(drivetrain_model)
     max_linear_velocity = motion_limits.get(
         'max_linear_velocity_meters_per_second')
     max_wheel_speed = (
@@ -238,49 +209,33 @@ def robot(name: str = '', drivetrain_model: str = ''):
     drivetrain_parameters_path = write_drivetrain_parameters(
         wheel_separation, wheel_radius, motion_limits)
 
-    oak_d_camera_config = next(
-        (camera for camera in sensors.get('camera', [])
-         if camera['model'] in ('oak_d_sr', 'oak_d_pro_w_poe')
-         and camera.get('launch_enabled', True)),
-        None)
-    orbbec_gemini_335l_camera_config = next(
-        (camera for camera in sensors.get('camera', [])
-         if camera['model'] == 'orbbec_gemini_335l'
-         and camera.get('launch_enabled', True)),
-        None)
-    zed_camera_config = next(
-        (camera for camera in sensors.get('camera', [])
-         if camera['model'] == 'zed_2'
-         and camera.get('launch_enabled', True)),
-        None)
+    oak_d_camera_config = machine.first_enabled_camera('oak_d_sr', 'oak_d_pro_w_poe')
+    orbbec_gemini_335l_camera_config = machine.first_enabled_camera('orbbec_gemini_335l')
+    zed_camera_config = machine.first_enabled_camera(ZED_CAMERA_MODEL)
     if oak_d_camera_config:
-        depth_camera_name = next(iter(oak_d_camera_config['ros_parameters']))
-    elif orbbec_gemini_335l_camera_config and next(
-            iter(orbbec_gemini_335l_camera_config['ros_parameters'].values()))['enable_depth']:
+        depth_camera_name = oak_d_camera_config.node_name
+    elif (orbbec_gemini_335l_camera_config
+            and orbbec_gemini_335l_camera_config.node_parameters['enable_depth']):
         depth_camera_name = 'camera_0'
     elif zed_camera_config:
-        depth_camera_name = next(iter(zed_camera_config['ros_parameters']))
+        depth_camera_name = zed_camera_config.node_name
     else:
         depth_camera_name = None
     depth_camera_config = (
         oak_d_camera_config or orbbec_gemini_335l_camera_config
         or zed_camera_config)
-    camera_mount_xyz = (
-        depth_camera_config.get('xyz', [0.0, 0.0, 0.0])
-        if depth_camera_config else [0.0, 0.0, 0.0])
-    point_cloud_enabled = robot_config.get('point_cloud', {}).get('enabled', True)
+    camera_mount_xyz = depth_camera_config.xyz if depth_camera_config else [0.0, 0.0, 0.0]
+    point_cloud_enabled = machine.point_cloud.get('enabled', True)
     camera_height_m = float(camera_mount_xyz[2]) - ground_offset(
-        f'mech/urdf/{robot_name}/robot.urdf')
-    collision_guarded = (
-        robot_config['platform'].get('collision_guarded', False)
-        and depth_camera_name is not None)
+        f'mech/urdf/{machine.name}/robot.urdf')
+    collision_guarded = machine.platform.collision_guarded and depth_camera_name is not None
     detects_on_camera = bool(
         oak_d_camera_config
-        and oak_d_camera_config['model'] == 'oak_d_pro_w_poe'
-        and oak_d_camera_config.get('detects_on_camera', False))
+        and oak_d_camera_config.model == 'oak_d_pro_w_poe'
+        and oak_d_camera_config.detects_on_camera)
     zed_detects = bool(
         zed_camera_config
-        and next(iter(zed_camera_config['ros_parameters'].values()))
+        and zed_camera_config.node_parameters
         .get('object_detection', {}).get('od_enabled', False))
 
     bl = BetterLaunch()
@@ -292,7 +247,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
 
     with bl.group(namespace):
         robot_state_publisher(
-            os.path.abspath(f'mech/urdf/{robot_name}/robot.urdf'),
+            os.path.abspath(f'mech/urdf/{machine.name}/robot.urdf'),
             node_name='robot_state_publisher',
             anonymous=False,
             remaps=TF_REMAPS,
@@ -303,12 +258,12 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 package='robot_drivers',
                 executable='odrive_motor_driver',
                 params={
-                    'gear_ratio': drivetrain['gear_ratio'],
+                    'gear_ratio': drivetrain.gear_ratio,
                     'max_wheel_speed': max_wheel_speed,
-                    'left_serial': drivetrain['left']['serial'],
-                    'left_reversed': drivetrain['left']['is_reversed'],
-                    'right_serial': drivetrain['right']['serial'],
-                    'right_reversed': drivetrain['right']['is_reversed'],
+                    'left_serial': drivetrain.left.serial,
+                    'left_reversed': drivetrain.left.is_reversed,
+                    'right_serial': drivetrain.right.serial,
+                    'right_reversed': drivetrain.right.is_reversed,
                 },
                 **RESPAWN,
             )
@@ -317,32 +272,32 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 package='robot_drivers',
                 executable='svd48v_motor_driver',
                 params={
-                    'serial_port': drivetrain['serial_port'],
-                    'baud_rate': drivetrain['baud_rate'],
+                    'serial_port': drivetrain.serial_port,
+                    'baud_rate': drivetrain.baud_rate,
                     'max_wheel_speed': max_wheel_speed,
-                    'acceleration_rpm_per_second': drivetrain['acceleration_rpm_per_second'],
-                    'speed_smoothing_time': drivetrain['speed_smoothing_time'],
-                    'left_reversed': drivetrain['left']['is_reversed'],
-                    'right_reversed': drivetrain['right']['is_reversed'],
+                    'acceleration_rpm_per_second': drivetrain.acceleration_rpm_per_second,
+                    'speed_smoothing_time': drivetrain.speed_smoothing_time,
+                    'left_reversed': drivetrain.left.is_reversed,
+                    'right_reversed': drivetrain.right.is_reversed,
                 },
                 **RESPAWN,
             )
         elif drivetrain_model == 'roboteq':
             roboteq_parameters = {
-                'serial_port': drivetrain['serial_port'],
-                'baud_rate': drivetrain['baud_rate'],
-                'counts_per_revolution': drivetrain['counts_per_revolution'],
-                'control_mode': drivetrain.get('control_mode', 'speed'),
-                'left_reversed': drivetrain['left']['is_reversed'],
-                'right_reversed': drivetrain['right']['is_reversed'],
+                'serial_port': drivetrain.serial_port,
+                'baud_rate': drivetrain.baud_rate,
+                'counts_per_revolution': drivetrain.counts_per_revolution,
+                'control_mode': (
+                    'speed' if drivetrain.control_mode is None else drivetrain.control_mode),
+                'left_reversed': drivetrain.left.is_reversed,
+                'right_reversed': drivetrain.right.is_reversed,
             }
             if max_wheel_speed is not None:
                 roboteq_parameters['max_wheel_speed'] = max_wheel_speed
-            flash = drivetrain.get('roboteq', {}).get('flash')
+            flash = drivetrain.roboteq.get('flash')
             if flash:
                 roboteq_parameters['flash'] = flash_declarations(flash)
-            full_scale_linear_velocity = drivetrain.get(
-                'full_scale_linear_velocity_meters_per_second')
+            full_scale_linear_velocity = drivetrain.full_scale_linear_velocity_meters_per_second
             if full_scale_linear_velocity is not None:
                 roboteq_parameters['full_scale_wheel_speed'] = (
                     full_scale_linear_velocity / wheel_radius)
@@ -355,9 +310,9 @@ def robot(name: str = '', drivetrain_model: str = ''):
         elif drivetrain_model == 'mock':
             pass
         elif drivetrain_model == 'rc_pulse':
-            pins = board_pins(robot_config)
-            left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain['left']['pwm_pin'])
-            right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain['right']['pwm_pin'])
+            pins = board_pins(machine)
+            left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain.left.pwm_pin)
+            right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain.right.pwm_pin)
             bl.node(
                 package='robot_drivers',
                 executable='rc_pulse_motor_driver',
@@ -365,19 +320,19 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     'max_wheel_speed': max_wheel_speed,
                     'left_pwm_chip': left_pwm_chip,
                     'left_pwm_channel': left_pwm_channel,
-                    'left_reversed': drivetrain['left']['is_reversed'],
+                    'left_reversed': drivetrain.left.is_reversed,
                     'right_pwm_chip': right_pwm_chip,
                     'right_pwm_channel': right_pwm_channel,
-                    'right_reversed': drivetrain['right']['is_reversed'],
+                    'right_reversed': drivetrain.right.is_reversed,
                 },
                 **RESPAWN,
             )
         else:
-            pins = board_pins(robot_config)
-            left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain['left']['pwm_pin'])
-            right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain['right']['pwm_pin'])
-            left_dir_chip, left_dir_line = resolve_line(pins, drivetrain['left']['dir_pin'])
-            right_dir_chip, right_dir_line = resolve_line(pins, drivetrain['right']['dir_pin'])
+            pins = board_pins(machine)
+            left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain.left.pwm_pin)
+            right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain.right.pwm_pin)
+            left_dir_chip, left_dir_line = resolve_line(pins, drivetrain.left.dir_pin)
+            right_dir_chip, right_dir_line = resolve_line(pins, drivetrain.right.dir_pin)
             if left_dir_chip != right_dir_chip:
                 raise RuntimeError('left and right direction pins must share one gpio chip')
             bl.node(
@@ -385,17 +340,17 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 executable='pwm_dir_motor_driver',
                 params={
                     'gpio_chip': left_dir_chip,
-                    'pwm_frequency_hz': drivetrain['pwm_frequency_hz'],
+                    'pwm_frequency_hz': drivetrain.pwm_frequency_hz,
                     'max_wheel_speed': max_wheel_speed,
-                    'min_duty': drivetrain.get('min_duty', 0.0),
+                    'min_duty': 0.0 if drivetrain.min_duty is None else drivetrain.min_duty,
                     'left_pwm_chip': left_pwm_chip,
                     'left_pwm_channel': left_pwm_channel,
                     'left_dir_line': left_dir_line,
-                    'left_forward_level': drivetrain['left']['forward_level'],
+                    'left_forward_level': drivetrain.left.forward_level,
                     'right_pwm_chip': right_pwm_chip,
                     'right_pwm_channel': right_pwm_channel,
                     'right_dir_line': right_dir_line,
-                    'right_forward_level': drivetrain['right']['forward_level'],
+                    'right_forward_level': drivetrain.right.forward_level,
                 },
                 **RESPAWN,
             )
@@ -431,9 +386,9 @@ def robot(name: str = '', drivetrain_model: str = ''):
         spawn_controllers()
 
         if rc_receiver:
-            pins = board_pins(robot_config)
-            channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver['channel_1_pin'])
-            channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver['channel_2_pin'])
+            pins = board_pins(machine)
+            channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver.channel_1_pin)
+            channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver.channel_2_pin)
             if channel_1_chip != channel_2_chip:
                 raise RuntimeError('rc channel pins must share one gpio chip')
             bl.node(
@@ -444,7 +399,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     'gpio_chip': channel_1_chip,
                     'channel_1_line': channel_1_line,
                     'channel_2_line': channel_2_line,
-                    'tank_mixed': rc_receiver.get('tank_mixed', False),
+                    'tank_mixed': rc_receiver.tank_mixed,
                 },
                 remaps={'joy': 'joy_teleop/joy'},
                 **RESPAWN,
@@ -484,7 +439,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 **RESPAWN,
             )
 
-        if robot_config.get('hand_gesture', {}).get('enabled', False):
+        if machine.hand_gesture.get('enabled', False):
             bl.node(
                 package='robot_perception',
                 executable='hand_gesture_detector',
@@ -522,7 +477,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 **RESPAWN,
             )
 
-        if robot_config.get('follow_nav2', {}).get('enabled', False):
+        if machine.follow_nav2.get('enabled', False):
             follow_parameters = os.path.abspath('navigation/config/follow.yaml')
             follow_point_tree = os.path.abspath('navigation/config/follow_point.xml')
             for package, server in (
@@ -547,7 +502,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 **RESPAWN,
             )
 
-        if robot_config.get('foxglove', {}).get('enabled', True):
+        if machine.foxglove.get('enabled', True):
             bl.node(
                 package='foxglove_bridge',
                 executable='foxglove_bridge',
@@ -588,9 +543,9 @@ def robot(name: str = '', drivetrain_model: str = ''):
             **RESPAWN,
         )
 
-        if sensors.get('gps'):
-            gps_parameters = next(iter(sensors['gps'][0]['ros_parameters'].values()))
-            gnss_flash = sensors['gps'][0].get('flash')
+        if sensors.gps:
+            gps_parameters = sensors.gps[0].node_parameters
+            gnss_flash = sensors.gps[0].flash
             if gnss_flash:
                 assert_gnss_flash(gps_parameters['port'], gnss_flash)
             bl.node(
@@ -601,7 +556,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 remaps={topic: f'sensors/gps_0/{topic}' for topic in GPS_TOPICS},
                 **RESPAWN,
             )
-            ntrip = sensors['gps'][0].get('ntrip')
+            ntrip = sensors.gps[0].ntrip
             if ntrip:
                 bl.process(
                     'gnssntripclient'
@@ -635,26 +590,26 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 **RESPAWN,
             )
 
-        if sensors.get('imu'):
+        if sensors.imu:
             bl.node(
                 package='robot_drivers',
                 executable='imu',
                 name='imu_0',
                 remaps={topic: f'sensors/imu_0/{topic}' for topic in IMU_TOPICS},
-                params=next(iter(sensors['imu'][0]['ros_parameters'].values())),
+                params=sensors.imu[0].node_parameters,
                 **RESPAWN,
             )
 
         if oak_d_camera_config:
-            camera_name = next(iter(oak_d_camera_config['ros_parameters']))
-            if oak_d_camera_config['model'] == 'oak_d_pro_w_poe':
+            camera_name = oak_d_camera_config.node_name
+            if oak_d_camera_config.model == 'oak_d_pro_w_poe':
                 optical_frame = f'{camera_name}_link_color_optical_frame'
                 oak_d_camera_driver_parameters = {
                     'frame_id': optical_frame,
                     'depth_fps': 30.0,
                     'color_fps': 60.0,
                     'jpeg_quality': 60,
-                } | oak_d_camera_config['ros_parameters'][camera_name]
+                } | oak_d_camera_config.node_parameters
                 if detects_on_camera:
                     oak_d_camera_driver_parameters['model_path'] = (
                         os.path.abspath(
@@ -669,8 +624,8 @@ def robot(name: str = '', drivetrain_model: str = ''):
             bl.node(
                 package='robot_drivers',
                 executable=('oak_d_pro_w_poe_spatial' if detects_on_camera
-                            else oak_d_camera_config['model']),
-                name=oak_d_camera_config['model'],
+                            else oak_d_camera_config.model),
+                name=oak_d_camera_config.model,
                 params=oak_d_camera_driver_parameters,
                 remaps={
                     'color/image_raw/compressed':
@@ -697,7 +652,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 remaps=TF_REMAPS,
                 **RESPAWN,
             )
-            if oak_d_camera_config['model'] == 'oak_d_sr' and point_cloud_enabled:
+            if oak_d_camera_config.model == 'oak_d_sr' and point_cloud_enabled:
                 bl.node(
                     package='depth_image_proc',
                     executable='point_cloud_xyz_node',
@@ -731,8 +686,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 )
 
         if orbbec_gemini_335l_camera_config:
-            camera_parameters = next(
-                iter(orbbec_gemini_335l_camera_config['ros_parameters'].values()))
+            camera_parameters = orbbec_gemini_335l_camera_config.node_parameters
             bl.node(
                 package='robot_drivers',
                 executable='orbbec_gemini_335l',
@@ -792,12 +746,11 @@ def robot(name: str = '', drivetrain_model: str = ''):
         if zed_camera_config:
             bl.process(
                 ['python', 'boot/launch/zed_camera.launch.py',
-                 '--robot', robot_name],
+                 '--robot', machine.name],
                 name='zed_camera',
                 **RESPAWN,
             )
-            camera_parameters = next(
-                iter(zed_camera_config['ros_parameters'].values()))
+            camera_parameters = zed_camera_config.node_parameters
             if point_cloud_enabled:
                 point_cloud_freq = camera_parameters.get(
                     'depth', {}).get('point_cloud_freq', 10.0)
@@ -851,7 +804,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                         'depth_camera_info_topic': f'sensors/{depth_camera_name}/depth/camera_info',
                         'min_score': 0.3,
                         'max_detections_per_second': 10.0,
-                    } | robot_config.get('detector', {}),
+                    } | machine.detector,
                     **RESPAWN,
                 )
             person_follow_parameters = {
@@ -868,7 +821,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 'command_smoothing_seconds': 0.1,
                 'distance_deadband': 0.1,
                 'steer_deadband': 0.05,
-            } | robot_config.get('follow', {})
+            } | machine.follow
             bl.node(
                 package='robot_perception',
                 executable='approach',
@@ -877,7 +830,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 **RESPAWN,
             )
 
-            line_config = robot_config.get('line', {})
+            line_config = machine.line
             if line_config.get('enabled', False):
                 bl.node(
                     package='robot_perception',
@@ -917,7 +870,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                 )
 
             for surface, surface_defaults in FOLLOWED_SURFACES.items():
-                surface_config = robot_config.get(surface, {})
+                surface_config = getattr(machine, surface)
                 if not surface_config.get('enabled', False):
                     continue
                 bl.node(
@@ -948,7 +901,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     **RESPAWN,
                 )
 
-            harvest_lane_config = robot_config.get('harvest_lane', {})
+            harvest_lane_config = machine.harvest_lane
             if harvest_lane_config.get('enabled', False):
                 bl.node(
                     package='robot_perception',
@@ -979,8 +932,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     **RESPAWN,
                 )
 
-        if (robot_config.get('gps_navigation', {}).get('enabled', False)
-                and sensors.get('gps')):
+        if machine.gps_navigation.get('enabled', False) and sensors.gps:
             bl.wait_for_service(f'/{namespace}/fromLL', timeout=120.0)
             gps_navigation_parameters_path = os.path.abspath(
                 'navigation/config/gps_navigation.yaml')
@@ -1005,7 +957,7 @@ def robot(name: str = '', drivetrain_model: str = ''):
                     server_remaps[
                         f'/{namespace}/{costmap_name}/sensors/camera_0/scan'] = (
                         f'/{namespace}/sensors/camera_0/scan')
-                linear_velocity = robot_config['gps_navigation'].get(
+                linear_velocity = machine.gps_navigation.get(
                     'linear_velocity_meters_per_second')
                 if linear_velocity is not None and server == 'controller_server':
                     server_parameters['FollowPath.desired_linear_vel'] = float(

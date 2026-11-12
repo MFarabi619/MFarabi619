@@ -245,9 +245,9 @@ class Machine:
     def has_zed_camera(self):
         return any(camera.model == ZED_CAMERA_MODEL for camera in self.sensors.camera)
 
-    def first_enabled_camera(self, model):
+    def first_enabled_camera(self, *models):
         return next(
-            (camera for camera in self.enabled_cameras if camera.model == model), None)
+            (camera for camera in self.enabled_cameras if camera.model in models), None)
 
     @property
     def urdf_path(self):
