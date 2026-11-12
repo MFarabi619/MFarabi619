@@ -18,44 +18,36 @@ from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
 from robot_boot.zenoh_router import ensure_zenoh_router
 
-DETECTIONS_TOPIC = 'perception/line/detections'
+CMD_VEL_REMAPS = {'/joy_teleop/cmd_vel': 'joy_teleop/cmd_vel'}
 
 
 @launch_this
-def line_follow(
-    camera: str = 'camera_0',
+def hand_gesture_teleop(
+    image_topic: str = 'sensors/camera_0/color/image_raw/compressed',
     start_enabled: bool = False,
-    params_file: str = '',
-    overrides_file: str = '',
+    num_hands: int = 2,
+    min_hand_detection_confidence: float = 0.4,
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
-    params_file = params_file or bl.find('robot_perception', 'line_follow.yaml')
-    param_files = [params_file] + ([overrides_file] if overrides_file else [])
     bl.node(
         package='robot_perception',
-        executable='color_blob_detector',
-        name='line_detector',
+        executable='hand_gesture_detector',
+        name='hand_gesture_detector',
         params={
-            'image_topic': f'sensors/{camera}/color/image_raw/compressed',
-            'depth_topic': f'sensors/{camera}/depth/image_raw',
-            'depth_camera_info_topic': f'sensors/{camera}/depth/camera_info',
-            'detections_topic': DETECTIONS_TOPIC,
-            'overlay_topic': 'perception/line/overlay',
-            'class_label': 'line',
+            'image_topic': image_topic,
             'start_enabled': start_enabled,
+            'num_hands': num_hands,
+            'min_hand_detection_confidence': min_hand_detection_confidence,
         },
-        param_files=param_files,
+        remaps=CMD_VEL_REMAPS,
         **RESPAWN,
     )
     bl.node(
-        package='robot_perception',
-        executable='line_follow',
-        name='line_follow',
-        params={
-            'detections_topic': DETECTIONS_TOPIC,
-            'start_enabled': start_enabled,
-        },
-        param_files=param_files,
+        package='robot_navigation',
+        executable='hand_gesture_teleop',
+        name='hand_gesture_teleop',
+        params={'start_enabled': start_enabled},
+        remaps=CMD_VEL_REMAPS,
         **RESPAWN,
     )

@@ -72,7 +72,7 @@ def walkable_surfaces(farm_generator):
     return {
         'ground': farm_generator.ground_mesh(),
         'road': farm_generator.ribbon(
-            segments, -half_road, half_road, 0.01,
+            segments, -half_road, half_road, farm_generator.ROAD_SURFACE_HEIGHT_METERS,
             farm_generator.METERS_PER_ROAD_TEXTURE_TILE),
         'curb_top': farm_generator.ribbon(
             segments, half_road, curb_outer, farm_generator.CURB_HEIGHT_METERS,
@@ -92,7 +92,7 @@ def textured_surfaces(farm_generator):
     segments = farm_generator.centerline_frames(farm_generator.road_centerline())
     return walkable_surfaces(farm_generator) | {
         'curb_face': farm_generator.curb_face(
-            segments, farm_generator.ROAD_WIDTH_METERS / 2.0,
+            segments, farm_generator.ROAD_WIDTH_METERS / 2.0, 1.0,
             farm_generator.METERS_PER_CURB_TEXTURE_TILE),
         'bed': farm_generator.bed_mesh(0.0),
     }
@@ -144,6 +144,62 @@ def texture_stretch(mesh):
 def test_textures_are_applied_without_stretching(farm_generator):
     for name, mesh in textured_surfaces(farm_generator).items():
         assert texture_stretch(mesh) == pytest.approx(1.0, abs=0.01), name
+
+
+@pytest.fixture(scope='module')
+def target_spawn_poses():
+    spec = importlib.util.spec_from_file_location(
+        'target', os.path.join(SIMULATION_DIRECTORY, 'src', 'target.py'))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.TARGET_SPAWN_POSES
+
+
+def signed_distance_from_centerline(farm_generator, x, y):
+    nearest_distance, nearest_side = math.inf, 1.0
+    for start, end, normal, _, _ in farm_generator.centerline_frames(
+            farm_generator.road_centerline()):
+        along_x, along_y = end[0] - start[0], end[1] - start[1]
+        fraction = ((x - start[0]) * along_x + (y - start[1]) * along_y) / (
+            along_x * along_x + along_y * along_y)
+        fraction = min(1.0, max(0.0, fraction))
+        offset_x = x - (start[0] + fraction * along_x)
+        offset_y = y - (start[1] + fraction * along_y)
+        distance = math.hypot(offset_x, offset_y)
+        if distance < nearest_distance:
+            nearest_distance = distance
+            nearest_side = 1.0 if offset_x * normal[0] + offset_y * normal[1] >= 0.0 else -1.0
+    return nearest_side * nearest_distance
+
+
+def test_curb_faces_face_the_road_on_both_sides(farm_generator):
+    segments = farm_generator.centerline_frames(farm_generator.road_centerline())
+    half_road = farm_generator.ROAD_WIDTH_METERS / 2.0
+    for side in (1.0, -1.0):
+        mesh = farm_generator.curb_face(
+            segments, half_road * side, side, farm_generator.METERS_PER_CURB_TEXTURE_TILE)
+        for quad, (start, _, _, _, _) in enumerate(segments):
+            corner = mesh.positions[quad * 4]
+            face_normal = mesh.normals[quad * 4]
+            toward_road = (start[0] - corner[0], start[1] - corner[1])
+            assert face_normal[0] * toward_road[0] + face_normal[1] * toward_road[1] > 0.0, side
+
+
+def test_parked_cars_stay_inside_the_road(farm_generator):
+    frames = farm_generator.centerline_frames(farm_generator.road_centerline())
+    half_widths = [half_width for _, _, half_width in farm_generator.CAR_MODELS]
+    for (uri, x, y, _), half_width in zip(farm_generator.car_placements(frames), half_widths):
+        outer_edge = abs(signed_distance_from_centerline(farm_generator, x, y)) + half_width
+        assert outer_edge <= farm_generator.ROAD_WIDTH_METERS / 2.0, uri
+
+
+def test_the_farm_person_stands_on_the_sidewalk(farm_generator, target_spawn_poses):
+    pose = target_spawn_poses['farm']
+    curb_outer = farm_generator.ROAD_WIDTH_METERS / 2.0 + farm_generator.CURB_WIDTH_METERS
+    sidewalk_outer = curb_outer + farm_generator.SIDEWALK_WIDTH_METERS
+    distance = abs(signed_distance_from_centerline(farm_generator, pose['x'], pose['y']))
+    assert curb_outer < distance < sidewalk_outer
+    assert pose['z'] == pytest.approx(farm_generator.CURB_HEIGHT_METERS)
 
 
 def test_launch_spawn_pose_matches_the_generated_field(farm_generator, launch_constants):

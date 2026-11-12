@@ -43,7 +43,7 @@ def nav2_person_follow(params_file: str = '', behavior_tree_file: str = ''):
             **RESPAWN,
         )
     bl.node(
-        package='robot_perception',
+        package='robot_navigation',
         executable='person_goal_bridge',
         name='person_goal_bridge',
         remaps=TF_REMAPS,

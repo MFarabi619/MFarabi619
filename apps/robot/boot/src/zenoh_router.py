@@ -14,20 +14,42 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import os
 import socket
 import time
 
 from robot_boot.launch_policy import RESPAWN
+from robot_machines.machine import load_machine
 
 ZENOH_ROUTER_EXECUTABLE = 'rmw_zenohd'
 ZENOH_ROUTER_PORT = 7447
 ZENOH_ROUTER_CONNECT_PROBE_TIMEOUT_SECONDS = 0.2
+ZENOH_CONNECT_TIMEOUT_MILLISECONDS = 3000
 ZENOH_ROUTER_MAX_ATTEMPTS = 50
 ZENOH_ROUTER_RETRY_DELAY_SECONDS = 0.2
 ZENOH_ROUTER_CONFIG_OVERRIDE = 'mode="router"'
 ZENOH_CLIENT_CONFIG_OVERRIDE = 'mode="client"'
 ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE = (
     f'mode="client";connect/endpoints=["tcp/localhost:{ZENOH_ROUTER_PORT}"]')
+
+
+def zenoh_router_endpoint(robot_name):
+    return f'tcp/{load_machine(robot_name).hostname}.local:{ZENOH_ROUTER_PORT}'
+
+
+def zenoh_client_config_override(robot_name):
+    return f'mode="client";connect/endpoints=["{zenoh_router_endpoint(robot_name)}"]'
+
+
+def connect_to_zenoh_router(robot_name):
+    os.environ['ZENOH_CONFIG_OVERRIDE'] = zenoh_client_config_override(robot_name)
+
+
+def zenoh_bridging_peer_config_override(robot_name):
+    return (
+        'mode="peer";connect/endpoints='
+        f'["tcp/localhost:{ZENOH_ROUTER_PORT}","{zenoh_router_endpoint(robot_name)}"];'
+        f'connect/timeout_ms={ZENOH_CONNECT_TIMEOUT_MILLISECONDS}')
 
 
 def zenoh_router_is_listening():

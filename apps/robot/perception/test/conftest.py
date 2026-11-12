@@ -49,29 +49,6 @@ def ros_context():
 
 
 @pytest.fixture
-def follow_node():
-    node = load_node_class('follow', 'Follow')()
-    node.is_enabled = True
-    yield node
-    node.destroy_node()
-
-
-@pytest.fixture
-def tracked_approach_node():
-    node = load_node_class('tracked_approach', 'TrackedApproach')()
-    yield node
-    node.destroy_node()
-
-
-@pytest.fixture
-def line_follow_node():
-    node = load_node_class('line_follow', 'LineFollow')()
-    node.is_enabled = True
-    yield node
-    node.destroy_node()
-
-
-@pytest.fixture
 def color_blob_detector_node():
     node = load_node_class('color_blob_detector', 'ColorBlobDetector')()
     node.is_enabled = False
@@ -95,25 +72,9 @@ def brightness_detector_node():
 
 
 @pytest.fixture
-def surface_follow_node():
-    node = load_node_class('surface_follow', 'SurfaceFollow')()
-    node.is_enabled = True
-    yield node
-    node.destroy_node()
-
-
-@pytest.fixture
 def green_detector_node():
     node = load_node_class('green_detector', 'GreenDetector')()
     node.is_enabled = True
-    yield node
-    node.destroy_node()
-
-
-@pytest.fixture
-def row_navigator_node():
-    node = load_node_class('row_navigator', 'RowNavigator')()
-    node.drive_enabled = True
     yield node
     node.destroy_node()
 
@@ -156,19 +117,6 @@ def voice_speaker_node(voice_speaker_module):
     node.destroy_node()
 
 
-@pytest.fixture(scope='session')
-def voice_teleop_module():
-    return load_module('voice_teleop')
-
-
-@pytest.fixture
-def voice_teleop_node(voice_teleop_module):
-    node = voice_teleop_module.VoiceTeleop()
-    node.is_enabled = True
-    yield node
-    node.destroy_node()
-
-
 @pytest.fixture
 def canopy_detector_node():
     node = load_node_class('canopy_detector', 'CanopyDetector')()
@@ -190,30 +138,5 @@ def normalized_canopy_detector_node():
 @pytest.fixture
 def point_cloud_optical_adapter_node():
     node = load_node_class('point_cloud_optical_adapter', 'PointCloudOpticalAdapter')()
-    yield node
-    node.destroy_node()
-
-
-@pytest.fixture
-def lay_down_weeding_elbow_teleop_node():
-    node = load_node_class(
-        'lay_down_weeding_elbow_teleop', 'LayDownWeedingElbowTeleop')(
-        parameter_overrides=[
-            rclpy.parameter.Parameter('neutral_sample_frames', value=4),
-            rclpy.parameter.Parameter('commit_frames', value=2),
-            rclpy.parameter.Parameter('command_smoothing_seconds', value=0.0),
-            rclpy.parameter.Parameter('max_detections_per_second', value=0.0),
-        ])
-    pose_landmarker = node.landmarker
-    node.is_enabled = True
-    yield node
-    node.destroy_node()
-    pose_landmarker.close()
-
-
-@pytest.fixture
-def harvest_lane_navigator_node():
-    node = load_node_class('harvest_lane_navigator', 'HarvestLaneNavigator')()
-    node.is_enabled = True
     yield node
     node.destroy_node()

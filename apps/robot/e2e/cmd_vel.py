@@ -16,6 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import argparse
 from collections import deque
 from dataclasses import dataclass
 import math
@@ -589,13 +590,18 @@ def render(layout, frame):
     )
 
 
-def fuzz_count():
-    if "--no-fuzz" in sys.argv:
-        return 0
-    for arg in sys.argv:
-        if arg.startswith("--fuzz="):
-            return int(arg.split("=", 1)[1])
-    return DEFAULT_FUZZ_COUNT
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--robot', default='taro')
+    parser.add_argument('--fuzz', type=int, default=DEFAULT_FUZZ_COUNT)
+    parser.add_argument('--no-fuzz', action='store_true')
+    parser.add_argument('--selftest', action='store_true')
+    parser.add_argument('--preview', action='store_true')
+    return parser.parse_args()
+
+
+def fuzz_count(arguments):
+    return 0 if arguments.no_fuzz else arguments.fuzz
 
 
 def selftest():
@@ -639,8 +645,8 @@ def selftest():
     return 1 if failures else 0
 
 
-def preview():
-    program = build_program(fuzz_count())
+def preview(fuzz):
+    program = build_program(fuzz)
     index = next(
         index for index, segment in enumerate(program) if segment.kind == "sine"
     )
@@ -674,14 +680,21 @@ def preview():
 
 
 def main():
-    if "--selftest" in sys.argv:
+    arguments = parse_arguments()
+    if arguments.selftest:
         sys.exit(selftest())
-    if "--preview" in sys.argv:
-        preview()
+    if arguments.preview:
+        preview(fuzz_count(arguments))
         return
-    program = build_program(fuzz_count())
-    rclpy.init(args=sys.argv)
-    node = rclpy.create_node("cmd_vel")
+    program = build_program(fuzz_count(arguments))
+
+    from robot_boot.zenoh_router import connect_to_zenoh_router
+    from robot_machines.machine import load_machine
+
+    namespace = load_machine(arguments.robot).namespace
+    connect_to_zenoh_router(arguments.robot)
+    rclpy.init()
+    node = rclpy.create_node("cmd_vel", namespace=f'/{namespace}')
     publisher = node.create_publisher(TwistStamped, COMMAND_TOPIC, 10)
     clock = node.get_clock()
     period_seconds = 1.0 / COMMAND_RATE_HZ

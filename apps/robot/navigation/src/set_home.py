@@ -20,6 +20,7 @@ import re
 import sys
 
 import rclpy
+from robot_boot.zenoh_router import connect_to_zenoh_router
 from sensor_msgs.msg import NavSatFix
 
 FIX_WAIT_SECONDS = 15.0
@@ -45,6 +46,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--robot', default='taro')
     robot = parser.parse_args().robot
+    connect_to_zenoh_router(robot)
     fix = current_fix(robot)
 
     config_path = pathlib.Path(__file__).resolve().parents[2] / 'machines' / robot / 'robot.yaml'

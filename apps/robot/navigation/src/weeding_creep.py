@@ -19,6 +19,7 @@
 import math
 import os
 
+from ament_index_python.packages import get_package_prefix
 import cv2
 from foxglove_msgs.msg import Color, ImageAnnotations, Point2, PointsAnnotation, TextAnnotation
 from geometry_msgs.msg import TwistStamped
@@ -68,8 +69,20 @@ LABEL_MARGIN_PIXELS = 22.0
 BOX_THICKNESS_PIXELS = 3.0
 CENTIMETERS_PER_METER = 100.0
 
-DEFAULT_MODEL_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(__file__), '..', 'models', 'selfie_multiclass_256x256.tflite'))
+MODEL_FILENAME = 'selfie_multiclass_256x256.tflite'
+
+
+def default_model_path():
+    source_model = os.path.normpath(os.path.join(
+        os.path.dirname(__file__), '..', '..', 'perception', 'models', MODEL_FILENAME))
+    if os.path.exists(source_model):
+        return source_model
+    return os.path.join(
+        get_package_prefix('robot_perception'), 'lib', 'robot_perception', 'models',
+        MODEL_FILENAME)
+
+
+DEFAULT_MODEL_PATH = default_model_path()
 
 
 class WeedingCreep(Node):

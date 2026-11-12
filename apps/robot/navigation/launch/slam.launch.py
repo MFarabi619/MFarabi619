@@ -15,10 +15,13 @@
 
 
 from better_launch import BetterLaunch, launch_this
+from robot_boot.zenoh_router import connect_to_zenoh_router
 
 
 @launch_this
 def slam(robot: str = '', use_sim_time: bool = False, scan_topic: str = ''):
+    if robot:
+        connect_to_zenoh_router(robot)
     bl = BetterLaunch()
     if not scan_topic:
         scan_topic = (f'/{robot}/sensors/camera_0/scan' if robot

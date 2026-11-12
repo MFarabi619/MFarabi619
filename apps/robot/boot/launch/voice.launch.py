@@ -17,22 +17,8 @@
 from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
 from robot_boot.zenoh_router import (
-    ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE, ZENOH_ROUTER_PORT, ensure_zenoh_router)
-from robot_machines.machine import load_machine
-
-CONNECT_TIMEOUT_MILLISECONDS = 3000
-
-
-def robot_hostname(robot_name):
-    return load_machine(robot_name).hostname
-
-
-def bridging_peer_config_override(robot_name):
-    return (
-        'mode="peer";connect/endpoints='
-        f'["tcp/localhost:{ZENOH_ROUTER_PORT}",'
-        f'"tcp/{robot_hostname(robot_name)}.local:{ZENOH_ROUTER_PORT}"];'
-        f'connect/timeout_ms={CONNECT_TIMEOUT_MILLISECONDS}')
+    ZENOH_LOCAL_ROUTER_CLIENT_CONFIG_OVERRIDE, ensure_zenoh_router,
+    zenoh_bridging_peer_config_override)
 
 
 @launch_this
@@ -64,12 +50,12 @@ def voice(robot: str = 'taro'):
         **RESPAWN,
     )
     bl.node(
-        package='robot_perception',
+        package='robot_navigation',
         executable='voice_teleop',
         name='voice_teleop',
         params={'start_enabled': True},
         remaps={'/joy_teleop/cmd_vel': f'/{robot}/joy_teleop/cmd_vel'},
-        env={'ZENOH_CONFIG_OVERRIDE': bridging_peer_config_override(robot)},
+        env={'ZENOH_CONFIG_OVERRIDE': zenoh_bridging_peer_config_override(robot)},
         **RESPAWN,
     )
     bl.node(

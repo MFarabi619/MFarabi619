@@ -18,10 +18,9 @@ use oxidros::{
     prelude::*,
 };
 
-use super::{
-    palm::{decode_rgb, RGB_CHANNELS},
-    twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT,
-};
+use robot_perception::palm::{decode_rgb, RGB_CHANNELS};
+
+use super::{twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT};
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 

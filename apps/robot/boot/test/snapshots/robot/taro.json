@@ -524,7 +524,7 @@
       "kind": "include",
       "launchfile": "follow.launch.py",
       "namespace": "/taro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -535,7 +535,7 @@
       "namespace": "/taro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/follow.yaml",
+        "navigation/config/follow.yaml",
         {
           "tempfile": {
             "/**/canopy_detector": {
@@ -605,9 +605,9 @@
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/taro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/follow.yaml",
+        "navigation/config/follow.yaml",
         {
           "tempfile": {
             "/**/canopy_detector": {
@@ -729,7 +729,7 @@
       "kind": "include",
       "launchfile": "harvest_lane.launch.py",
       "namespace": "/taro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -807,7 +807,7 @@
       "max_respawns": -1,
       "name": "harvest_lane_navigator",
       "namespace": "/taro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
         {
           "tempfile": {

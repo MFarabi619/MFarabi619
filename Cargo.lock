@@ -12132,6 +12132,7 @@ dependencies = [
  "robot_control",
  "robot_description",
  "robot_drivers",
+ "robot_navigation",
  "robot_perception",
  "ros2-types",
  "serde_json",
@@ -12176,6 +12177,18 @@ dependencies = [
  "robot_control",
  "robot_description",
  "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "robot_navigation"
+version = "0.1.0"
+dependencies = [
+ "foxglove",
+ "oxidros",
+ "robot_description",
+ "robot_perception",
  "tokio",
  "tracing",
 ]

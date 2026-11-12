@@ -19,6 +19,7 @@
 import math
 import os
 
+from ament_index_python.packages import get_package_prefix
 import cv2
 from foxglove_msgs.msg import (
     Color,
@@ -42,12 +43,13 @@ MODEL_FILENAME = 'pose_landmarker_full.task'
 
 
 def default_model_path():
-    directory = os.path.dirname(__file__)
-    alongside = os.path.join(directory, 'models', MODEL_FILENAME)
-    if os.path.exists(alongside):
-        return alongside
-    return os.path.normpath(
-        os.path.join(directory, '..', 'models', MODEL_FILENAME))
+    source_model = os.path.normpath(os.path.join(
+        os.path.dirname(__file__), '..', '..', 'perception', 'models', MODEL_FILENAME))
+    if os.path.exists(source_model):
+        return source_model
+    return os.path.join(
+        get_package_prefix('robot_perception'), 'lib', 'robot_perception', 'models',
+        MODEL_FILENAME)
 
 
 DEFAULT_MODEL_PATH = default_model_path()

@@ -19,7 +19,7 @@ use std::sync::Arc;
 pub use driver::{run_driver, Config};
 use oxidros::prelude::*;
 #[cfg(feature = "perception")]
-pub use robot_perception::{
+pub use robot_navigation::{
     run_gesture, run_green_approach, run_line_follower, run_row_follower, LineColor,
 };
 

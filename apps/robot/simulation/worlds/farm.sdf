@@ -452,25 +452,25 @@
     </model>
     <include>
       <name>house_0</name>
-      <pose>9.801 15.396 0 0 0 -2.917</pose>
+      <pose>9.801 15.396 -0.188 0 0 -2.917</pose>
       <uri>https://fuel.gazebosim.org/1.0/hisuki/models/house</uri>
     </include>
     <include>
       <name>car_0</name>
       <static>true</static>
-      <pose>1.950 -43.190 0 0 0 1.387</pose>
+      <pose>2.107 -43.219 0.01 0 0 2.958</pose>
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Prius Hybrid with sensors</uri>
     </include>
     <include>
       <name>car_1</name>
       <static>true</static>
-      <pose>4.063 -12.868 0 0 0 1.640</pose>
+      <pose>4.282 -12.853 0.01 0 0 1.640</pose>
       <uri>https://fuel.gazebosim.org/1.0/OpenRoboticsTest/models/Hatchback copy</uri>
     </include>
     <include>
       <name>car_2</name>
       <static>true</static>
-      <pose>-1.890 20.611 0 0 0 1.802</pose>
+      <pose>-1.413 20.723 0.01 0 0 1.802</pose>
       <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/SUV</uri>
     </include>
     <include>

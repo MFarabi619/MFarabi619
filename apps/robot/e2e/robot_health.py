@@ -15,11 +15,10 @@
 
 
 import argparse
-import os
 import sys
 import time
 
-from robot_boot.zenoh_router import ZENOH_ROUTER_PORT
+from robot_boot.zenoh_router import connect_to_zenoh_router
 from robot_machines.machine import MachineError, load_machine
 
 CHECK_TIMEOUT_SECONDS = 15.0
@@ -27,7 +26,7 @@ CHECK_TIMEOUT_SECONDS = 15.0
 
 def machine_from_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('robot')
+    parser.add_argument('--robot', default='taro')
     try:
         return load_machine(parser.parse_args().robot)
     except MachineError as error:
@@ -86,8 +85,7 @@ def check_arm_health(machine, hostname):
 def main():
     machine = machine_from_arguments()
     hostname = machine.hostname
-    os.environ['ZENOH_CONFIG_OVERRIDE'] = (
-        f'mode="client";connect/endpoints=["tcp/{hostname}.local:{ZENOH_ROUTER_PORT}"]')
+    connect_to_zenoh_router(machine.name)
     if machine.is_arm_only:
         check_arm_health(machine, hostname)
         return

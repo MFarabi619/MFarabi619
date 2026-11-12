@@ -26,6 +26,7 @@ from better_launch.gazebo import (
 from robot_boot.launch_policy import (
     OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES,
     RESPAWN,
+    TF_REMAPS,
     include,
     write_parameter_overrides_file,
 )
@@ -69,14 +70,14 @@ def robot_stack(bl, robot, world, pose, depth_scan_enabled, target):
         include('robot_boot', 'twist_mux.launch.py')
         if machine.behaviors.harvest_lane:
             include(
-                'robot_perception', 'harvest_lane.launch.py',
+                'robot_navigation', 'harvest_lane.launch.py',
                 camera_height_meters=float(camera.xyz[2]) - ground_offset_meters(
                     bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{robot}')),
                 camera_lateral_offset_meters=float(camera.xyz[1]),
                 overrides_file=overrides_file,
             )
         include(
-            'robot_perception', 'follow.launch.py',
+            'robot_navigation', 'follow.launch.py',
             image_topic='sensors/camera_0/color/image_raw/compressed',
             detector=DETECTOR_BY_TARGET[target],
             target=target,
@@ -84,16 +85,11 @@ def robot_stack(bl, robot, world, pose, depth_scan_enabled, target):
             overrides_file=overrides_file,
         )
         bl.node(
-            package='robot_perception',
-            executable='row_shuttle',
-            name='row_shuttle',
-            **RESPAWN,
-        )
-        bl.node(
             package='nav2_behaviors',
             executable='behavior_server',
             name='behavior_server',
             param_files=[bl.find('robot_navigation', 'behaviors.yaml')],
+            remaps=TF_REMAPS,
             **RESPAWN,
         )
 

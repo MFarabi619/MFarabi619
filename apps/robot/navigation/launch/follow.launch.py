@@ -20,42 +20,40 @@ from robot_boot.zenoh_router import ensure_zenoh_router
 
 
 @launch_this
-def surface_follow(
-    surface: str = 'sidewalk',
+def follow(
     camera: str = 'camera_0',
-    camera_height_meters: float = 0.0,
+    image_topic: str = '',
+    detector: str = 'person_detector',
+    target: str = 'person',
+    has_on_camera_detector: bool = False,
     start_enabled: bool = False,
     params_file: str = '',
     overrides_file: str = '',
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
-    params_file = params_file or bl.find('robot_perception', 'surface_follow.yaml')
+    params_file = params_file or bl.find('robot_navigation', 'follow.yaml')
     param_files = [params_file] + ([overrides_file] if overrides_file else [])
-    detections_topic = f'perception/{surface}/detections'
+    if not has_on_camera_detector:
+        bl.node(
+            package='robot_perception',
+            executable=detector,
+            name=f'{target}_detector',
+            params={
+                'image_topic': image_topic or f'sensors/{camera}/color/image_raw',
+                'depth_topic': f'sensors/{camera}/depth/image_raw',
+                'depth_camera_info_topic': f'sensors/{camera}/depth/camera_info',
+                'class_label': target,
+                'start_enabled': start_enabled,
+            },
+            param_files=param_files,
+            **RESPAWN,
+        )
     bl.node(
-        package='robot_perception',
-        executable='surface_detector',
-        name=f'{surface}_detector',
-        params={
-            'image_topic': f'sensors/{camera}/color/image_raw/compressed',
-            'detections_topic': detections_topic,
-            'overlay_topic': f'perception/{surface}/overlay',
-            'class_label': surface,
-        },
-        param_files=param_files,
-        **RESPAWN,
-    )
-    bl.node(
-        package='robot_perception',
-        executable='surface_follow',
-        name=f'{surface}_follow',
-        params={
-            'detections_topic': detections_topic,
-            'camera_info_topic': f'sensors/{camera}/color/camera_info',
-            'camera_height_meters': camera_height_meters,
-            'start_enabled': start_enabled,
-        },
+        package='robot_navigation',
+        executable='follow',
+        name=f'{target}_follow',
+        params={'start_enabled': start_enabled},
         param_files=param_files,
         **RESPAWN,
     )

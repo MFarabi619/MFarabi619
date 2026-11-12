@@ -455,7 +455,7 @@
       "kind": "include",
       "launchfile": "follow.launch.py",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -466,7 +466,7 @@
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/follow.yaml",
+        "navigation/config/follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -536,9 +536,9 @@
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/follow.yaml",
+        "navigation/config/follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -658,7 +658,7 @@
       "kind": "include",
       "launchfile": "line_follow.launch.py",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -669,7 +669,7 @@
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/line_follow.yaml",
+        "navigation/config/line_follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -741,9 +741,9 @@
       "max_respawns": -1,
       "name": "line_follow",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/line_follow.yaml",
+        "navigation/config/line_follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -866,7 +866,7 @@
       "kind": "include",
       "launchfile": "surface_follow.launch.py",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -877,7 +877,7 @@
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/surface_follow.yaml",
+        "navigation/config/surface_follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -946,9 +946,9 @@
       "max_respawns": -1,
       "name": "sidewalk_follow",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/surface_follow.yaml",
+        "navigation/config/surface_follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -1073,7 +1073,7 @@
       "kind": "include",
       "launchfile": "surface_follow.launch.py",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -1084,7 +1084,7 @@
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/surface_follow.yaml",
+        "navigation/config/surface_follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -1153,9 +1153,9 @@
       "max_respawns": -1,
       "name": "park_path_follow",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/surface_follow.yaml",
+        "navigation/config/surface_follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -1280,7 +1280,7 @@
       "kind": "include",
       "launchfile": "surface_follow.launch.py",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -1291,7 +1291,7 @@
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/surface_follow.yaml",
+        "navigation/config/surface_follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -1360,9 +1360,9 @@
       "max_respawns": -1,
       "name": "path_follow",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/surface_follow.yaml",
+        "navigation/config/surface_follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {

@@ -66,7 +66,7 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
         send_buffer_limit_bytes=OFF_ROBOT_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES)
     with bl.group(robot):
         include(
-            'robot_perception', 'hand_gesture_teleop.launch.py',
+            'robot_navigation', 'hand_gesture_teleop.launch.py',
             image_topic=gesture_camera_topics[gesture_camera],
             start_enabled=True,
         )

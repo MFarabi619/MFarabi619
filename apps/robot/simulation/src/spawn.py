@@ -18,6 +18,7 @@ from better_launch.convenience import read_robot_description, robot_state_publis
 from better_launch.gazebo import get_gazebo_axes_args, spawn_model
 from robot_boot.drivetrain_parameters import (
     CONTROLLER_MANAGER_TIMEOUT_SECONDS, write_drivetrain_parameters_file)
+from robot_boot.launch_policy import TF_REMAPS
 from robot_boot.urdf import wheel_geometry
 from robot_simulation.gz_bridges import spawn_simulation_bridges
 
@@ -41,6 +42,7 @@ def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan_enabled=False):
         robot_description,
         node_name='robot_state_publisher',
         anonymous=False,
+        remaps=TF_REMAPS,
     )
     spawn_model(robot, f'/{robot}/robot_description', 'topic',
                 spawn_args=get_gazebo_axes_args(x=x, y=y, z=z, yaw=yaw))
@@ -62,7 +64,8 @@ def spawn_robot(bl, machine, world, x, y, z, yaw, depth_scan_enabled=False):
                   '--param-file', drivetrain_parameters_file,
                   '--controller-manager-timeout', CONTROLLER_MANAGER_TIMEOUT_SECONDS,
                   '--controller-ros-args',
-                  '-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel'],
+                  '-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel'
+                  ' -r /tf:=tf -r /tf_static:=tf_static'],
         env={'ROS_SUPER_CLIENT': 'True'},
         on_exit=shutdown_if_spawner_failed)
 

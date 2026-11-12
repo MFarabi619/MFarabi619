@@ -15,9 +15,10 @@ use oxidros::{
     prelude::*,
 };
 
+use robot_perception::palm::{decode_rgb, RGB_CHANNELS};
+
 use super::{
     line::{box_outline, color, label, rgb_to_hsv, BoundingBox},
-    palm::{decode_rgb, RGB_CHANNELS},
     twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT,
 };
 

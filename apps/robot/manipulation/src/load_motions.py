@@ -20,6 +20,7 @@ import os
 from play_motion2_msgs.msg import Motion
 from play_motion2_msgs.srv import AddMotion
 import rclpy
+from robot_boot.zenoh_router import connect_to_zenoh_router
 import yaml
 
 SERVER_TIMEOUT_SECONDS = 10.0
@@ -35,6 +36,7 @@ def main():
     parser.add_argument('--robot', default='kinova-link-6')
     arguments = parser.parse_args()
 
+    connect_to_zenoh_router(arguments.robot)
     rclpy.init()
     node = rclpy.create_node('load_motions')
     client = node.create_client(AddMotion, '/play_motion2/add_motion')

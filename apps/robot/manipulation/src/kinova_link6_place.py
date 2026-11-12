@@ -29,6 +29,7 @@ import numpy
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
+from robot_boot.zenoh_router import connect_to_zenoh_router
 from shape_msgs.msg import SolidPrimitive
 from tf2_ros import Buffer, TransformListener
 from trimesh import transformations
@@ -217,8 +218,10 @@ def move_to_joint_positions(node, positions):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--robot', default='kinova-link-6')
     parser.add_argument('--target_object', default='apple')
     arguments = parser.parse_args()
+    connect_to_zenoh_router(arguments.robot)
     rclpy.init()
     node = Node('kinova_link6_place')
     tf_buffer = Buffer()

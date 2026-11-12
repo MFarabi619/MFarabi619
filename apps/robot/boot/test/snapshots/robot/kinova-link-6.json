@@ -619,7 +619,7 @@
       "kind": "include",
       "launchfile": "follow.launch.py",
       "namespace": "/",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -628,9 +628,9 @@
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/follow.yaml"
+        "navigation/config/follow.yaml"
       ],
       "params": {
         "start_enabled": false

@@ -9,6 +9,7 @@ robot_description.path = "mech"
 robot_drivers.path = "drivers"
 robot_control.path = "control"
 robot_perception = { path = "perception", optional = true }
+robot_navigation = { path = "navigation", optional = true }
 oxidros = { git = "https://github.com/jazi007/oxidros", rev = "566e2efdff31e39b372bab54fb75b2e836ba5ca7", features = [
   "zenoh",
 ] }
@@ -28,7 +29,7 @@ rattler_conda_types = { version = "0.48", optional = true }
 
 [features]
 default = ["perception", "pixi"]
-perception = ["dep:robot_perception"]
+perception = ["dep:robot_perception", "dep:robot_navigation"]
 pixi = ["dep:rattler_shell", "dep:rattler_conda_types"]
 
 [build-dependencies]

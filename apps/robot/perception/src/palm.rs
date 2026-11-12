@@ -10,7 +10,7 @@ use super::onnx::OnnxModel;
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
 const MODEL_INPUT: usize = 192;
-pub(crate) const RGB_CHANNELS: usize = 3;
+pub const RGB_CHANNELS: usize = 3;
 const PALM_ANCHOR_COUNT: usize = 2016;
 const REGRESSOR_WIDTH: usize = 18;
 // Regressor row = [dx, dy, dw, dh] then 7 (x, y) palm keypoints.
@@ -27,8 +27,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            model_path: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("models/palm_detection.onnx"),
+            model_path: crate::models_dir().join("palm_detection.onnx"),
             min_score: MIN_SCORE,
         }
     }
@@ -44,7 +43,7 @@ pub struct Hand {
     pub rotation: f64,
 }
 
-pub(crate) fn decode_rgb(jpeg: &[u8]) -> Result<(Vec<u8>, usize, usize), BoxError> {
+pub fn decode_rgb(jpeg: &[u8]) -> Result<(Vec<u8>, usize, usize), BoxError> {
     let options = DecoderOptions::default().jpeg_set_out_colorspace(ColorSpace::RGB);
     let mut decoder = JpegDecoder::new_with_options(jpeg, options);
     let pixels = decoder

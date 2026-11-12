@@ -24,7 +24,7 @@ def weeding(start_enabled: bool = False):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
     bl.node(
-        package='robot_perception',
+        package='robot_navigation',
         executable='weeding_creep',
         name='weeding_creep',
         params={'start_enabled': start_enabled},
@@ -32,7 +32,7 @@ def weeding(start_enabled: bool = False):
         **RESPAWN,
     )
     bl.node(
-        package='robot_perception',
+        package='robot_navigation',
         executable='lay_down_weeding_elbow_teleop',
         name='lay_down_weeding_elbow_teleop',
         params={'start_enabled': start_enabled},

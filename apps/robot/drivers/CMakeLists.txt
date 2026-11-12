@@ -88,7 +88,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   find_package(rclcpp_components REQUIRED)
   find_package(ament_index_cpp REQUIRED)
   find_package(sensor_msgs REQUIRED)
-  find_package(OpenCV REQUIRED COMPONENTS imgcodecs imgproc)
+  find_package(OpenCV 5 REQUIRED COMPONENTS imgcodecs imgproc)
 
   find_path(GPIOD_INCLUDE_DIR gpiod.h PATHS /usr/include REQUIRED)
   find_library(GPIOD_LIBRARY gpiod PATHS /usr/lib/aarch64-linux-gnu /usr/lib REQUIRED)

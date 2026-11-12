@@ -396,7 +396,7 @@
       "kind": "include",
       "launchfile": "follow.launch.py",
       "namespace": "/beagleyai",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -407,7 +407,7 @@
       "namespace": "/beagleyai",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/follow.yaml"
+        "navigation/config/follow.yaml"
       ],
       "params": {
         "class_label": "person",
@@ -424,9 +424,9 @@
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/beagleyai",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/follow.yaml"
+        "navigation/config/follow.yaml"
       ],
       "params": {
         "start_enabled": false

@@ -21,6 +21,7 @@ members = [
   "apps/robot/control",
   "apps/robot/simulation",
   "apps/robot/perception",
+  "apps/robot/navigation",
   "apps/robot/mech",
 ]
 

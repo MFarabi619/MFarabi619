@@ -24,6 +24,7 @@ from moveit.planning import MoveItPy
 from ament_index_python.packages import get_package_share_directory
 from moveit_configs_utils import MoveItConfigsBuilder
 import rclpy
+from robot_boot.zenoh_router import connect_to_zenoh_router
 from robot_machines.machine import load_machine
 
 GOAL_FRAME = 'base_link'
@@ -70,6 +71,7 @@ def main():
     arguments = parser.parse_args()
     machine = load_machine(arguments.robot)
 
+    connect_to_zenoh_router(arguments.robot)
     ensure_trajectory_mode()
     rclpy.init()
     moveit = MoveItPy(node_name='reach', config_dict=arm_configuration(machine.arm))

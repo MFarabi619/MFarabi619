@@ -14,8 +14,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import os
+
 from better_launch import BetterLaunch, launch_this
 from moveit_configs_utils import MoveItConfigsBuilder
+from robot_boot.zenoh_router import zenoh_client_config_override
 from robot_machines.machine import load_machine
 
 
@@ -27,6 +30,7 @@ def kinova_link6_pick(robot: str = 'kinova-link-6', target_object: str = 'apple'
         .planning_pipelines(pipelines=['ompl', 'pilz_industrial_motion_planner'])
         .to_moveit_configs().to_dict())
 
+    os.environ['ZENOH_CONFIG_OVERRIDE'] = zenoh_client_config_override(robot)
     bl = BetterLaunch()
     bl.node(
         'robot_manipulation', 'kinova_link6_pick',

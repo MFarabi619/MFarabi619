@@ -19,11 +19,12 @@ use oxidros::{
     prelude::*,
 };
 
-use super::{
+use robot_perception::{
     onnx::OnnxModel,
     palm::{decode_rgb, Config as PalmConfig, Detector as PalmDetector, Hand, RGB_CHANNELS},
-    twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT,
 };
+
+use super::{twist, LOG_STRIDE_FRAMES, WATCHDOG_TIMEOUT};
 
 type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -77,7 +78,7 @@ pub enum Gesture {
 }
 
 fn default_landmark_model() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("models/hand_landmarks.onnx")
+    robot_perception::models_dir().join("hand_landmarks.onnx")
 }
 
 struct CropRect {
@@ -513,7 +514,7 @@ mod tests {
     #[test]
     #[ignore]
     fn landmark_model_executes_through_tract() {
-        let model = crate::onnx::OnnxModel::load(&default_landmark_model())
+        let model = OnnxModel::load(&default_landmark_model())
             .expect("load landmark model");
         let outputs = model
             .run(

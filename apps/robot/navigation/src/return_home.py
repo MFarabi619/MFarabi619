@@ -19,6 +19,7 @@ import argparse
 from geographic_msgs.msg import GeoPose
 from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
+from robot_boot.zenoh_router import connect_to_zenoh_router
 from robot_machines.machine import load_machine
 
 
@@ -32,6 +33,7 @@ def main():
     robot = parser.parse_args().robot
     home = home_coordinate(robot)
 
+    connect_to_zenoh_router(robot)
     rclpy.init()
     navigator = BasicNavigator(namespace=f'/{robot}')
     goal = GeoPose()

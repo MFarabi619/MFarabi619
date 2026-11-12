@@ -7,10 +7,8 @@
   <link name="base_footprint">
   </link>
   <link name="front_left_caster_link">
-    <collision><origin xyz="0 0 0.0439" rpy="1.5708 0 0"/><geometry><cylinder radius="0.1396" length="0.1000"/></geometry></collision>
   </link>
   <link name="front_right_caster_link">
-    <collision><origin xyz="0 0 0.0439" rpy="1.5708 0 0"/><geometry><cylinder radius="0.1396" length="0.1000"/></geometry></collision>
   </link>
   <link name="chassis">
     <visual><geometry><mesh filename="package://robot_description/meshes/taro/chassis.dae"/></geometry></visual>
@@ -153,22 +151,28 @@
     <origin xyz="0.0000 0.0000 0.0000" rpy="0.0000 0.0000 0.0000"/>
   </joint>
 
-  <gazebo reference="front_left_caster_link">
-    <mu1>0</mu1>
-    <mu2>0</mu2>
-    <fdir1>1 0 0</fdir1>
-    <kp>1000000</kp>
-    <kd>5000</kd>
-    <minDepth>0.001</minDepth>
+  <gazebo>
+    <link name="front_left_caster_link_ball">
+      <pose relative_to="front_left_caster_link">0 0 0.0439 0 0 0</pose>
+      <inertial><mass>0.5</mass><inertia><ixx>0.003900</ixx><iyy>0.003900</iyy><izz>0.003900</izz></inertia></inertial>
+      <collision name="collision"><geometry><sphere><radius>0.1396</radius></sphere></geometry></collision>
+    </link>
+    <joint name="front_left_caster_link_ball_joint" type="ball">
+      <parent>base_link</parent>
+      <child>front_left_caster_link_ball</child>
+    </joint>
   </gazebo>
 
-  <gazebo reference="front_right_caster_link">
-    <mu1>0</mu1>
-    <mu2>0</mu2>
-    <fdir1>1 0 0</fdir1>
-    <kp>1000000</kp>
-    <kd>5000</kd>
-    <minDepth>0.001</minDepth>
+  <gazebo>
+    <link name="front_right_caster_link_ball">
+      <pose relative_to="front_right_caster_link">0 0 0.0439 0 0 0</pose>
+      <inertial><mass>0.5</mass><inertia><ixx>0.003900</ixx><iyy>0.003900</iyy><izz>0.003900</izz></inertia></inertial>
+      <collision name="collision"><geometry><sphere><radius>0.1396</radius></sphere></geometry></collision>
+    </link>
+    <joint name="front_right_caster_link_ball_joint" type="ball">
+      <parent>base_link</parent>
+      <child>front_right_caster_link_ball</child>
+    </joint>
   </gazebo>
 
   <gazebo reference="camera_0_link">

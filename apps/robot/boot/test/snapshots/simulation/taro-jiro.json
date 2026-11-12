@@ -106,11 +106,14 @@
       "package": "robot_state_publisher",
       "params": {
         "robot_description": {
-          "bytes": 9242,
-          "xml_sha256": "21897b85494956cd8d384e9746ffcf2b49a81c840ae8c611c251820b7156b0fc"
+          "bytes": 9685,
+          "xml_sha256": "5bd8a5f54521c5f4b9aecc5170f987da678cc44bdec48b81128538ce77522716"
         }
       },
-      "remaps": {},
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
       "xacro_args": null
     },
     {
@@ -150,7 +153,7 @@
         "--controller-manager-timeout",
         "60",
         "--controller-ros-args",
-        "-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel"
+        "-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static"
       ],
       "env": {
         "ROS_SUPER_CLIENT": "True"
@@ -313,7 +316,7 @@
       "kind": "include",
       "launchfile": "harvest_lane.launch.py",
       "namespace": "/taro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -391,7 +394,7 @@
       "max_respawns": -1,
       "name": "harvest_lane_navigator",
       "namespace": "/taro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
         {
           "tempfile": {
@@ -521,7 +524,7 @@
       "kind": "include",
       "launchfile": "follow.launch.py",
       "namespace": "/taro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -532,7 +535,7 @@
       "namespace": "/taro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/follow.yaml",
+        "navigation/config/follow.yaml",
         {
           "tempfile": {
             "/**/canopy_detector": {
@@ -602,9 +605,9 @@
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/taro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/follow.yaml",
+        "navigation/config/follow.yaml",
         {
           "tempfile": {
             "/**/canopy_detector": {
@@ -665,15 +668,6 @@
       "respawn_delay": 2.0
     },
     {
-      "executable": "row_shuttle",
-      "kind": "node",
-      "max_respawns": -1,
-      "name": "row_shuttle",
-      "namespace": "/taro",
-      "package": "robot_perception",
-      "respawn_delay": 2.0
-    },
-    {
       "executable": "behavior_server",
       "kind": "node",
       "max_respawns": -1,
@@ -683,6 +677,10 @@
       "param_files": [
         "navigation/config/behaviors.yaml"
       ],
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -700,11 +698,14 @@
       "package": "robot_state_publisher",
       "params": {
         "robot_description": {
-          "bytes": 8693,
-          "xml_sha256": "0d07585846ca4c0a6513172cc96bfe34351b64aaa9ada0083fda68fec69d64f5"
+          "bytes": 9136,
+          "xml_sha256": "e50b585c3e5e66dcaca7dfc035464b2b63b2ca317ee0139142c068c7e1d807e9"
         }
       },
-      "remaps": {},
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
       "xacro_args": null
     },
     {
@@ -748,7 +749,7 @@
         "--controller-manager-timeout",
         "60",
         "--controller-ros-args",
-        "-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel"
+        "-r ~/cmd_vel:=platform/cmd_vel -r ~/reference:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static"
       ],
       "env": {
         "ROS_SUPER_CLIENT": "True"
@@ -879,7 +880,7 @@
       "kind": "include",
       "launchfile": "follow.launch.py",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "subdir": null
     },
     {
@@ -890,7 +891,7 @@
       "namespace": "/jiro",
       "package": "robot_perception",
       "param_files": [
-        "perception/config/follow.yaml",
+        "navigation/config/follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -961,9 +962,9 @@
       "max_respawns": -1,
       "name": "person_follow",
       "namespace": "/jiro",
-      "package": "robot_perception",
+      "package": "robot_navigation",
       "param_files": [
-        "perception/config/follow.yaml",
+        "navigation/config/follow.yaml",
         {
           "tempfile": {
             "/**/line_follow": {
@@ -1025,15 +1026,6 @@
       "respawn_delay": 2.0
     },
     {
-      "executable": "row_shuttle",
-      "kind": "node",
-      "max_respawns": -1,
-      "name": "row_shuttle",
-      "namespace": "/jiro",
-      "package": "robot_perception",
-      "respawn_delay": 2.0
-    },
-    {
       "executable": "behavior_server",
       "kind": "node",
       "max_respawns": -1,
@@ -1043,6 +1035,10 @@
       "param_files": [
         "navigation/config/behaviors.yaml"
       ],
+      "remaps": {
+        "/tf": "tf",
+        "/tf_static": "tf_static"
+      },
       "respawn_delay": 2.0
     },
     {
@@ -1055,9 +1051,9 @@
         "P": 0.0,
         "R": 0.0,
         "Y": 0.0,
-        "x": 6.5,
-        "y": 3.6,
-        "z": 0.0
+        "x": 7.29,
+        "y": 4.06,
+        "z": 0.05
       }
     }
   ],

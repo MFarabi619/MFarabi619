@@ -267,15 +267,15 @@ def launch_sensors(bl, machine):
 def launch_perception(machine, depth_camera, camera_height_meters, overrides_file):
     behaviors = machine.behaviors
     if behaviors.hand_gesture_teleop:
-        include('robot_perception', 'hand_gesture_teleop.launch.py')
+        include('robot_navigation', 'hand_gesture_teleop.launch.py')
     if behaviors.weeding:
-        include('robot_perception', 'weeding.launch.py')
+        include('robot_navigation', 'weeding.launch.py')
     if depth_camera is None:
         return
     if machine.point_cloud_enabled:
         include('robot_perception', 'collision_overlay.launch.py', camera=depth_camera.name)
     include(
-        'robot_perception', 'follow.launch.py',
+        'robot_navigation', 'follow.launch.py',
         camera=depth_camera.name,
         image_topic=(
             f'sensors/{depth_camera.name}/color/image_raw/compressed'
@@ -285,14 +285,14 @@ def launch_perception(machine, depth_camera, camera_height_meters, overrides_fil
     )
     if behaviors.line_follow:
         include(
-            'robot_perception', 'line_follow.launch.py',
+            'robot_navigation', 'line_follow.launch.py',
             camera=depth_camera.name,
             overrides_file=overrides_file,
         )
     for surface in FOLLOWED_SURFACES:
         if getattr(behaviors, f'{surface}_follow'):
             include(
-                'robot_perception', 'surface_follow.launch.py',
+                'robot_navigation', 'surface_follow.launch.py',
                 surface=surface,
                 camera=depth_camera.name,
                 camera_height_meters=camera_height_meters,
@@ -300,7 +300,7 @@ def launch_perception(machine, depth_camera, camera_height_meters, overrides_fil
             )
     if behaviors.harvest_lane:
         include(
-            'robot_perception', 'harvest_lane.launch.py',
+            'robot_navigation', 'harvest_lane.launch.py',
             camera=depth_camera.name,
             camera_height_meters=camera_height_meters,
             camera_lateral_offset_meters=float(depth_camera.xyz[1]),

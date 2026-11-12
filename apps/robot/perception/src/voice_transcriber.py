@@ -26,15 +26,10 @@ import sherpa_onnx
 from std_msgs.msg import String
 from std_srvs.srv import SetBool
 
-from voice_teleop import (
-    DIGIT_WORDS, LONGITUDINAL_WORDS, PIVOT_WORDS, SPEED_PARAMETER_WORDS,
-    STEER_WORDS)
+from voice_vocabulary import TELEOP_WORDS
 from voice_word_detector import (
     AutomaticGainControl, default_model_directory, normalized_samples)
 
-TELEOP_WORDS = frozenset(
-    ['stop', *LONGITUDINAL_WORDS, *STEER_WORDS, *PIVOT_WORDS, *DIGIT_WORDS,
-     *SPEED_PARAMETER_WORDS])
 DECODE_ALIASES = {
     'to': 'two', 'too': 'two', 'for': 'four',
     'backwards': 'backward', 'forwards': 'forward',

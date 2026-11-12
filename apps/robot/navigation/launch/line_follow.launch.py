@@ -18,36 +18,44 @@ from better_launch import BetterLaunch, launch_this
 from robot_boot.launch_policy import RESPAWN
 from robot_boot.zenoh_router import ensure_zenoh_router
 
-CMD_VEL_REMAPS = {'/joy_teleop/cmd_vel': 'joy_teleop/cmd_vel'}
+DETECTIONS_TOPIC = 'perception/line/detections'
 
 
 @launch_this
-def hand_gesture_teleop(
-    image_topic: str = 'sensors/camera_0/color/image_raw/compressed',
+def line_follow(
+    camera: str = 'camera_0',
     start_enabled: bool = False,
-    num_hands: int = 2,
-    min_hand_detection_confidence: float = 0.4,
+    params_file: str = '',
+    overrides_file: str = '',
 ):
     bl = BetterLaunch()
     ensure_zenoh_router(bl)
+    params_file = params_file or bl.find('robot_navigation', 'line_follow.yaml')
+    param_files = [params_file] + ([overrides_file] if overrides_file else [])
     bl.node(
         package='robot_perception',
-        executable='hand_gesture_detector',
-        name='hand_gesture_detector',
+        executable='color_blob_detector',
+        name='line_detector',
         params={
-            'image_topic': image_topic,
+            'image_topic': f'sensors/{camera}/color/image_raw/compressed',
+            'depth_topic': f'sensors/{camera}/depth/image_raw',
+            'depth_camera_info_topic': f'sensors/{camera}/depth/camera_info',
+            'detections_topic': DETECTIONS_TOPIC,
+            'overlay_topic': 'perception/line/overlay',
+            'class_label': 'line',
             'start_enabled': start_enabled,
-            'num_hands': num_hands,
-            'min_hand_detection_confidence': min_hand_detection_confidence,
         },
-        remaps=CMD_VEL_REMAPS,
+        param_files=param_files,
         **RESPAWN,
     )
     bl.node(
-        package='robot_perception',
-        executable='hand_gesture_teleop',
-        name='hand_gesture_teleop',
-        params={'start_enabled': start_enabled},
-        remaps=CMD_VEL_REMAPS,
+        package='robot_navigation',
+        executable='line_follow',
+        name='line_follow',
+        params={
+            'detections_topic': DETECTIONS_TOPIC,
+            'start_enabled': start_enabled,
+        },
+        param_files=param_files,
         **RESPAWN,
     )

@@ -26,23 +26,12 @@ from rclpy.parameter import Parameter
 from rclpy.qos import qos_profile_sensor_data
 from std_msgs.msg import String
 from std_srvs.srv import SetBool
+from voice_vocabulary import (
+    DIGIT_WORDS, LONGITUDINAL_WORDS, PIVOT_WORDS, SPEED_PARAMETER_WORDS, STEER_WORDS)
 
 PUBLISH_PERIOD_SECONDS = 0.1
 COMPOSITION_WINDOW_SECONDS = 1.5
-LONGITUDINAL_WORDS = {
-    'forward': 1.0, 'straight': 1.0, 'backward': -1.0, 'back': -1.0,
-}
 ACKNOWLEDGEMENTS = ('acknowledged', 'yes', 'sure', 'of course')
-STEER_WORDS = {'left': 1.0, 'right': -1.0}
-PIVOT_WORDS = {'clockwise': -1.0, 'counterclockwise': 1.0}
-DIGIT_WORDS = {
-    'zero': 0.0, 'one': 1.0, 'two': 2.0,
-    'three': 3.0, 'four': 4.0, 'five': 5.0,
-}
-SPEED_PARAMETER_WORDS = {
-    'linear': 'forward_speed_meters_per_second',
-    'angular': 'angular_speed_radians_per_second',
-}
 LIVE_PARAMETERS = frozenset(SPEED_PARAMETER_WORDS.values())
 
 

@@ -46,7 +46,7 @@ def harvest_lane(
         **RESPAWN,
     )
     bl.node(
-        package='robot_perception',
+        package='robot_navigation',
         executable='harvest_lane_navigator',
         name='harvest_lane_navigator',
         params={

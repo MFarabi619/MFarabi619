@@ -88,12 +88,12 @@ fn ros2_control_block(variant: UrdfVariant, namespace: &str, drivetrain_model: &
     block
 }
 
-const CASTER_ROLLING_FRICTION_COEFFICIENT: f64 = 0.0;
-const CASTER_LATERAL_FRICTION_COEFFICIENT: f64 = 0.0;
-const CASTER_ROLLING_DIRECTION: &str = "1 0 0";
-const CASTER_CONTACT_STIFFNESS_NEWTONS_PER_METER: f64 = 1_000_000.0;
-const CASTER_CONTACT_DAMPING_NEWTON_SECONDS_PER_METER: f64 = 5_000.0;
-const CASTER_CONTACT_MIN_DEPTH_METERS: f64 = 0.001;
+// const CASTER_ROLLING_FRICTION_COEFFICIENT: f64 = 0.0;
+// const CASTER_LATERAL_FRICTION_COEFFICIENT: f64 = 0.0;
+// const CASTER_ROLLING_DIRECTION: &str = "1 0 0";
+// const CASTER_CONTACT_STIFFNESS_NEWTONS_PER_METER: f64 = 1_000_000.0;
+// const CASTER_CONTACT_DAMPING_NEWTON_SECONDS_PER_METER: f64 = 5_000.0;
+// const CASTER_CONTACT_MIN_DEPTH_METERS: f64 = 0.001;
 
 const POSE_PUBLISHER_UPDATE_RATE_HZ: u32 = 50;
 const GPS_UPDATE_RATE_HZ: u32 = 1;
@@ -112,18 +112,39 @@ const DEPTH_CLIP_NEAR_METERS: f64 = 0.25;
 const DEPTH_CLIP_FAR_METERS: f64 = 20.0;
 const IMU_DEFAULT_RATE_HZ: f64 = 25.0;
 
-fn caster_contact_surfaces(links: &[Link]) -> String {
+const CASTER_BALL_MASS_KILOGRAMS: f64 = 0.5;
+
+fn simulation_caster_balls(links: &[Link], dimensions: &Dimensions) -> String {
+    let radius_meters = CASTER_WHEEL_DIAMETER_MILLIMETERS / 2.0 * METERS_PER_MILLIMETER;
+    let wheel_bottom_z_millimeters =
+        caster_wheel_center(Corner::FrontLeft, dimensions).z - CASTER_WHEEL_DIAMETER_MILLIMETERS / 2.0;
+    let center_lift_meters = (ground_z(dimensions) - wheel_bottom_z_millimeters) * METERS_PER_MILLIMETER;
+    let moment_of_inertia = 0.4 * CASTER_BALL_MASS_KILOGRAMS * radius_meters * radius_meters;
     let mut xml = String::new();
     for link in links {
         if matches!(link.id, LinkId::CasterFrontLeft | LinkId::CasterFrontRight) {
+            let caster = link.id.link_name();
             xml.push_str(&format!(
-                "  <gazebo reference=\"{}\">\n    <mu1>{CASTER_ROLLING_FRICTION_COEFFICIENT}</mu1>\n    <mu2>{CASTER_LATERAL_FRICTION_COEFFICIENT}</mu2>\n    <fdir1>{CASTER_ROLLING_DIRECTION}</fdir1>\n    <kp>{CASTER_CONTACT_STIFFNESS_NEWTONS_PER_METER}</kp>\n    <kd>{CASTER_CONTACT_DAMPING_NEWTON_SECONDS_PER_METER}</kd>\n    <minDepth>{CASTER_CONTACT_MIN_DEPTH_METERS}</minDepth>\n  </gazebo>\n\n",
-                link.id.link_name(),
+                "  <gazebo>\n    <link name=\"{caster}_ball\">\n      <pose relative_to=\"{caster}\">0 0 {center_lift_meters:.4} 0 0 0</pose>\n      <inertial><mass>{CASTER_BALL_MASS_KILOGRAMS}</mass><inertia><ixx>{moment_of_inertia:.6}</ixx><iyy>{moment_of_inertia:.6}</iyy><izz>{moment_of_inertia:.6}</izz></inertia></inertial>\n      <collision name=\"collision\"><geometry><sphere><radius>{radius_meters:.4}</radius></sphere></geometry></collision>\n    </link>\n    <joint name=\"{caster}_ball_joint\" type=\"ball\">\n      <parent>{}</parent>\n      <child>{caster}_ball</child>\n    </joint>\n  </gazebo>\n\n",
+                LinkId::BaseLink.link_name(),
             ));
         }
     }
     xml
 }
+
+// fn caster_contact_surfaces(links: &[Link]) -> String {
+//     let mut xml = String::new();
+//     for link in links {
+//         if matches!(link.id, LinkId::CasterFrontLeft | LinkId::CasterFrontRight) {
+//             xml.push_str(&format!(
+//                 "  <gazebo reference=\"{}\">\n    <mu1>{CASTER_ROLLING_FRICTION_COEFFICIENT}</mu1>\n    <mu2>{CASTER_LATERAL_FRICTION_COEFFICIENT}</mu2>\n    <fdir1>{CASTER_ROLLING_DIRECTION}</fdir1>\n    <kp>{CASTER_CONTACT_STIFFNESS_NEWTONS_PER_METER}</kp>\n    <kd>{CASTER_CONTACT_DAMPING_NEWTON_SECONDS_PER_METER}</kd>\n    <minDepth>{CASTER_CONTACT_MIN_DEPTH_METERS}</minDepth>\n  </gazebo>\n\n",
+//                 link.id.link_name(),
+//             ));
+//         }
+//     }
+//     xml
+// }
 
 fn simulation_sensor_plugins(config: &RobotConfig) -> String {
     let mut xml = String::new();
@@ -370,7 +391,8 @@ pub fn write(
     let simulation_urdf = format!(
         "{header}{}{}{}{}</robot>\n",
         body_xml(UrdfVariant::Simulation),
-        caster_contact_surfaces(links),
+        // caster_contact_surfaces(links),
+        simulation_caster_balls(links, dimensions),
         simulation_sensor_plugins(config),
         ros2_control_block(UrdfVariant::Simulation, namespace, &config.platform.drivetrain.model)
     );
@@ -386,7 +408,7 @@ fn mesh_filename(id: LinkId) -> String {
     format!("{}.dae", id.link_name())
 }
 
-fn collision_xml(id: LinkId, dimensions: &Dimensions, variant: UrdfVariant) -> Option<String> {
+fn collision_xml(id: LinkId, dimensions: &Dimensions, _variant: UrdfVariant) -> Option<String> {
     match id {
         LinkId::WheelFrontLeft
         | LinkId::WheelFrontRight
@@ -397,23 +419,23 @@ fn collision_xml(id: LinkId, dimensions: &Dimensions, variant: UrdfVariant) -> O
             WHEEL_TREAD_DIAMETER_MILLIMETERS / 2.0 * METERS_PER_MILLIMETER,
             WHEEL_TREAD_WIDTH_MILLIMETERS * METERS_PER_MILLIMETER,
         )),
-        LinkId::CasterFrontLeft | LinkId::CasterFrontRight => (variant
-            == UrdfVariant::Simulation)
-            .then(|| {
-                let caster_wheel_radius_millimeters = CASTER_WHEEL_DIAMETER_MILLIMETERS / 2.0;
-                let caster_wheel_bottom_z_millimeters =
-                    caster_wheel_center(Corner::FrontLeft, dimensions).z
-                        - caster_wheel_radius_millimeters;
-                let contact_lift_millimeters =
-                    ground_z(dimensions) - caster_wheel_bottom_z_millimeters;
-                format!(
-                    "    <collision><origin xyz=\"0 0 {:.4}\" rpy=\"{:.4} 0 0\"/><geometry><cylinder radius=\"{:.4}\" length=\"{:.4}\"/></geometry></collision>\n",
-                    contact_lift_millimeters * METERS_PER_MILLIMETER,
-                    std::f64::consts::FRAC_PI_2,
-                    caster_wheel_radius_millimeters * METERS_PER_MILLIMETER,
-                    WHEEL_TREAD_WIDTH_MILLIMETERS * METERS_PER_MILLIMETER,
-                )
-            }),
+        // LinkId::CasterFrontLeft | LinkId::CasterFrontRight => (variant
+        //     == UrdfVariant::Simulation)
+        //     .then(|| {
+        //         let caster_wheel_radius_millimeters = CASTER_WHEEL_DIAMETER_MILLIMETERS / 2.0;
+        //         let caster_wheel_bottom_z_millimeters =
+        //             caster_wheel_center(Corner::FrontLeft, dimensions).z
+        //                 - caster_wheel_radius_millimeters;
+        //         let contact_lift_millimeters =
+        //             ground_z(dimensions) - caster_wheel_bottom_z_millimeters;
+        //         format!(
+        //             "    <collision><origin xyz=\"0 0 {:.4}\" rpy=\"{:.4} 0 0\"/><geometry><cylinder radius=\"{:.4}\" length=\"{:.4}\"/></geometry></collision>\n",
+        //             contact_lift_millimeters * METERS_PER_MILLIMETER,
+        //             std::f64::consts::FRAC_PI_2,
+        //             caster_wheel_radius_millimeters * METERS_PER_MILLIMETER,
+        //             WHEEL_TREAD_WIDTH_MILLIMETERS * METERS_PER_MILLIMETER,
+        //         )
+        //     }),
         LinkId::Chassis => Some(format!(
             "    <collision><origin xyz=\"0 0 {:.4}\"/><geometry><box size=\"{:.4} {:.4} {:.4}\"/></geometry></collision>\n",
             (dimensions.frame_top_z_millimeters - RAIL_CROSS_HEIGHT_MILLIMETERS / 2.0) * METERS_PER_MILLIMETER,

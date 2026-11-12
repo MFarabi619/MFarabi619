@@ -20,13 +20,6 @@ from types import SimpleNamespace
 import py_trees
 import pytest
 
-from conftest import load_module
-
-
-@pytest.fixture(scope='module')
-def row_shuttle():
-    return load_module('row_shuttle')
-
 
 def test_pass_runs_follow_clear_turn(row_shuttle):
     names = [child.name for child in row_shuttle.shuttle_pass().children]

@@ -34,12 +34,13 @@ SITE_HALF_LENGTH_METERS = 60.0
 SITE_HALF_WIDTH_METERS = 45.0
 
 ROAD_WIDTH_METERS = 5.4
+ROAD_SURFACE_HEIGHT_METERS = 0.01
 ROAD_CURVE_AMPLITUDE_METERS = 6.0
 ROAD_CURVE_CYCLES = 0.75
 ROAD_SEGMENTS = 160
 
 CURB_WIDTH_METERS = 0.16
-CURB_HEIGHT_METERS = 0.13
+CURB_HEIGHT_METERS = 0.05
 SIDEWALK_WIDTH_METERS = 1.7
 VERGE_WIDTH_METERS = 1.1
 
@@ -123,18 +124,20 @@ CAR_KEEP_CLEAR_METERS = 4.5
 SPAWN_KEEP_CLEAR_METERS = 4.0
 
 COTTAGE_URI = 'https://fuel.gazebosim.org/1.0/hisuki/models/house'
+COTTAGE_MESH_BASE_HEIGHT_METERS = 0.188
 ROADSIDE_HOUSES = (
-    (COTTAGE_URI, 0.62, 8.5),
+    (COTTAGE_URI, 0.62, 8.5, COTTAGE_MESH_BASE_HEIGHT_METERS),
 )
 SIDEWALK_SPAWN_STATION = 0.52
 
-CAR_URIS = (
-    'https://fuel.gazebosim.org/1.0/OpenRobotics/models/Prius Hybrid with sensors',
-    'https://fuel.gazebosim.org/1.0/OpenRoboticsTest/models/Hatchback copy',
-    'https://fuel.gazebosim.org/1.0/OpenRobotics/models/SUV',
+CAR_MODELS = (
+    ('https://fuel.gazebosim.org/1.0/OpenRobotics/models/Prius Hybrid with sensors',
+     math.pi / 2.0, 1.01),
+    ('https://fuel.gazebosim.org/1.0/OpenRoboticsTest/models/Hatchback copy', 0.0, 1.07),
+    ('https://fuel.gazebosim.org/1.0/OpenRobotics/models/SUV', 0.0, 1.34),
 )
 CAR_STATIONS = (0.14, 0.40, 0.68)
-CAR_HALF_WIDTH_METERS = 1.0
+CAR_CURB_CLEARANCE_METERS = 0.15
 
 def seamless(image):
     height, width = image.shape[:2]
@@ -212,7 +215,7 @@ def ribbon(frames, inner_offset, outer_offset, height, meters_per_texture_tile):
     return mesh
 
 
-def curb_face(frames, offset, meters_per_texture_tile):
+def curb_face(frames, offset, side, meters_per_texture_tile):
     mesh = collada_mesh.TexturedMesh()
     across_tiles = CURB_HEIGHT_METERS / meters_per_texture_tile
     for start, end, normal, start_distance, end_distance in frames:
@@ -225,7 +228,7 @@ def curb_face(frames, offset, meters_per_texture_tile):
              (face_start[0], face_start[1], CURB_HEIGHT_METERS),
              (face_end[0], face_end[1], CURB_HEIGHT_METERS),
              (face_end[0], face_end[1], 0.0)],
-            (-normal[0], -normal[1], 0.0),
+            (-normal[0] * side, -normal[1] * side, 0.0),
             [(start_tile, 0.0), (start_tile, across_tiles),
              (end_tile, across_tiles), (end_tile, 0.0)])
     return mesh
@@ -599,33 +602,35 @@ def away_from_field(start, normal):
 
 
 def house_placements(frames):
-    for uri, station, verge_offset in ROADSIDE_HOUSES:
+    for uri, station, verge_offset, mesh_base_height_meters in ROADSIDE_HOUSES:
         start, _, normal, _, _ = frames[int(station * (len(frames) - 1))]
         side = -away_from_field(start, normal)
         yield (uri,
                start[0] + normal[0] * verge_offset * side,
                start[1] + normal[1] * verge_offset * side,
+               -mesh_base_height_meters,
                math.atan2(-normal[1] * side, -normal[0] * side))
 
 
 def car_placements(frames):
-    for uri, station in zip(CAR_URIS, CAR_STATIONS):
+    for (uri, length_axis_yaw, half_width_meters), station in zip(CAR_MODELS, CAR_STATIONS):
         start, _, normal, _, _ = frames[int(station * (len(frames) - 1))]
-        offset = (ROAD_WIDTH_METERS / 2.0 - CAR_HALF_WIDTH_METERS) * away_from_field(start, normal)
+        offset = ((ROAD_WIDTH_METERS / 2.0 - half_width_meters - CAR_CURB_CLEARANCE_METERS)
+                  * away_from_field(start, normal))
         yield (uri,
                start[0] + normal[0] * offset,
                start[1] + normal[1] * offset,
-               math.atan2(-normal[0], normal[1]))
+               math.atan2(-normal[0], normal[1]) + length_axis_yaw)
 
 
 def roadside_houses(points):
     return [f'''
     <include>
       <name>house_{index}</name>
-      <pose>{x:.3f} {y:.3f} 0 0 0 {heading:.3f}</pose>
+      <pose>{x:.3f} {y:.3f} {z:.3f} 0 0 {heading:.3f}</pose>
       <uri>{uri}</uri>
     </include>'''
-            for index, (uri, x, y, heading)
+            for index, (uri, x, y, z, heading)
             in enumerate(house_placements(centerline_frames(points)))]
 
 
@@ -634,7 +639,7 @@ def roadside_cars(points):
     <include>
       <name>car_{index}</name>
       <static>true</static>
-      <pose>{x:.3f} {y:.3f} 0 0 0 {heading:.3f}</pose>
+      <pose>{x:.3f} {y:.3f} {ROAD_SURFACE_HEIGHT_METERS} 0 0 {heading:.3f}</pose>
       <uri>{uri}</uri>
     </include>'''
             for index, (uri, x, y, heading)
@@ -642,7 +647,7 @@ def roadside_cars(points):
 
 
 def occupied_ground(frames):
-    return ([(x, y, HOUSE_KEEP_CLEAR_METERS) for _, x, y, _ in house_placements(frames)]
+    return ([(x, y, HOUSE_KEEP_CLEAR_METERS) for _, x, y, _, _ in house_placements(frames)]
             + [(x, y, CAR_KEEP_CLEAR_METERS) for _, x, y, _ in car_placements(frames)]
             + [(*sidewalk_spawn_pose()[:2], SPAWN_KEEP_CLEAR_METERS)])
 
@@ -705,7 +710,8 @@ def build():
     counts = {}
     counts['ground'] = write_mesh('farm_ground', ground_mesh(), 'textures/grass_color.jpg')
     counts['road'] = write_mesh(
-        'farm_road', ribbon(frames, -half_road, half_road, 0.01, METERS_PER_ROAD_TEXTURE_TILE),
+        'farm_road', ribbon(frames, -half_road, half_road, ROAD_SURFACE_HEIGHT_METERS,
+                            METERS_PER_ROAD_TEXTURE_TILE),
         'textures/road_tile.jpg')
     for side_name, side in (('left', 1.0), ('right', -1.0)):
         counts[f'curb_top_{side_name}'] = write_mesh(
@@ -715,7 +721,7 @@ def build():
             'textures/curb_tile.jpg')
         counts[f'curb_face_{side_name}'] = write_mesh(
             f'farm_curb_face_{side_name}',
-            curb_face(frames, half_road * side, METERS_PER_CURB_TEXTURE_TILE),
+            curb_face(frames, half_road * side, side, METERS_PER_CURB_TEXTURE_TILE),
             'textures/curb_tile.jpg')
         counts[f'sidewalk_{side_name}'] = write_mesh(
             f'farm_sidewalk_{side_name}',

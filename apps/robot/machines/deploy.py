@@ -201,7 +201,7 @@ def verify_health(robot_name):
     deadline = time.monotonic() + HEALTH_DEADLINE_SECONDS
     while True:
         completed = subprocess.run(
-            [sys.executable, 'e2e/robot_health.py', robot_name],
+            [sys.executable, 'e2e/robot_health.py', '--robot', robot_name],
             cwd=ROBOT_ROOT)
         if completed.returncode == 0:
             return
