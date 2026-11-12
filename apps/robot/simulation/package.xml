@@ -23,6 +23,9 @@
   <exec_depend>robot_description</exec_depend>
   <exec_depend>robot_control</exec_depend>
   <exec_depend>robot_machines</exec_depend>
+  <exec_depend>robot_boot</exec_depend>
+  <exec_depend>robot_perception</exec_depend>
+  <exec_depend>robot_navigation</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>

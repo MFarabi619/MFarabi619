@@ -4,7 +4,17 @@ project(robot_machines NONE)
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
-ament_python_install_module(machine.py)
+ament_get_python_install_dir(PYTHON_INSTALL_DIR)
+install(
+  DIRECTORY src/ DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
+  FILES_MATCHING PATTERN "*.py")
+install(DIRECTORY ../elec/boards DESTINATION share/${PROJECT_NAME})
+file(GLOB machine_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+  */robot.yaml */motions.yaml */params/*.yaml)
+foreach(machine_file ${machine_files})
+  get_filename_component(machine ${machine_file} DIRECTORY)
+  install(FILES ${machine_file} DESTINATION share/${PROJECT_NAME}/${machine})
+endforeach()
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

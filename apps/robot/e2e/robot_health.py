@@ -19,7 +19,7 @@ import os
 import sys
 import time
 
-from machine import MachineError, load_machine
+from robot_machines.machine import MachineError, load_machine
 
 CHECK_TIMEOUT_S = 15.0
 
@@ -131,7 +131,7 @@ def main():
             record('camera'), qos_profile_sensor_data)
 
     nav2_server_states = {}
-    if machine.follow_nav2.get('enabled', False):
+    if machine.behaviors.follow_nav2:
         from lifecycle_msgs.srv import GetState
 
         required_checks.append('nav2_follow')

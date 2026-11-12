@@ -1,6 +1,10 @@
 {
   "environment": {
-    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[simulation/taro-jiro] (call)"
+    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[simulation/taro-jiro] (call)",
+    "ZED_SDK_ROOT": {
+      "bytes": 17,
+      "xml_sha256": "cd286e60d342c8f3faddc6a7379fcd6326cbdfcb6e16055a9e2af03498c91bcb"
+    }
   },
   "events": [
     {
@@ -16,18 +20,26 @@
       "ros_waittime": null
     },
     {
+      "arguments": {
+        "send_buffer_limit_bytes": 1000000
+      },
+      "kind": "include",
+      "launchfile": "foxglove_bridge.launch.py",
+      "namespace": "/",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "foxglove_bridge",
       "kind": "node",
       "max_respawns": -1,
       "name": "foxglove_bridge",
       "namespace": "/",
       "package": "foxglove_bridge",
+      "param_files": [
+        "boot/config/foxglove_bridge.yaml"
+      ],
       "params": {
-        "best_effort_qos_topic_whitelist": [
-          ".*/sensors/camera_.*"
-        ],
-        "max_qos_depth": 5,
-        "port": 8765,
         "send_buffer_limit": 1000000
       },
       "respawn_delay": 2.0
@@ -47,8 +59,8 @@
       "namespace": "/"
     },
     {
-      "args": {
-        "headless": false,
+      "arguments": {
+        "headless": true,
         "world": "farm"
       },
       "kind": "include",
@@ -56,6 +68,28 @@
       "namespace": "/",
       "package": "robot_simulator",
       "subdir": null
+    },
+    {
+      "cmd": [
+        "gz",
+        "sim",
+        "simulation/worlds/farm.sdf",
+        "-r",
+        "-v",
+        "4",
+        "-s",
+        "--headless-rendering"
+      ],
+      "env": {
+        "DISPLAY": "",
+        "GZ_SIM_RESOURCE_PATH": "simulation/worlds:simulation/models",
+        "GZ_SIM_SYSTEM_PLUGIN_PATH": ".pixi/envs/default/lib",
+        "OGRE2_RESOURCE_PATH": ".pixi/envs/default/lib/OGRE-Next"
+      },
+      "kind": "process",
+      "name": "gazebo",
+      "namespace": "/",
+      "on_exit": "<callable gazebo_exited>"
     },
     {
       "group": "taro",
@@ -105,6 +139,8 @@
           "tempfile": {
             "/**/diff_drive_controller": {
               "ros__parameters": {
+                "angular.z.max_acceleration": 7.5,
+                "linear.x.max_acceleration": 5.0,
                 "wheel_radius": 0.1749,
                 "wheel_separation": 1.1704
               }
@@ -194,15 +230,39 @@
       }
     },
     {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "twist_mux.launch.py",
+      "namespace": "/taro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "twist_mux",
       "kind": "node",
+      "max_respawns": -1,
       "name": "twist_mux",
       "namespace": "/taro",
       "package": "twist_mux",
-      "param_files": "control/config/twist_mux.yaml",
+      "param_files": [
+        "control/config/twist_mux.yaml"
+      ],
       "remaps": {
         "cmd_vel_out": "platform/cmd_vel"
-      }
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "camera_height_m": 0.4426,
+        "camera_lateral_offset_m": 0.475,
+        "overrides_file": "machines/taro/params/harvest_lane.yaml"
+      },
+      "kind": "include",
+      "launchfile": "harvest_lane.launch.py",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "canopy_detector",
@@ -211,12 +271,13 @@
       "name": "canopy_detector",
       "namespace": "/taro",
       "package": "robot_perception",
+      "param_files": [
+        "machines/taro/params/harvest_lane.yaml"
+      ],
       "params": {
         "fraction_topic": "perception/canopy/fraction",
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "mask_topic": "perception/canopy/mask/compressed",
-        "normalize_exposure": true,
-        "normalized_excess_green_min": 0.06
+        "mask_topic": "perception/canopy/mask/compressed"
       },
       "respawn_delay": 2.0
     },
@@ -227,20 +288,38 @@
       "name": "harvest_lane_navigator",
       "namespace": "/taro",
       "package": "robot_perception",
+      "param_files": [
+        "machines/taro/params/harvest_lane.yaml"
+      ],
       "params": {
         "camera_height_m": 0.4426,
         "camera_info_topic": "sensors/camera_0/color/camera_info",
         "camera_lateral_offset_m": 0.475,
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "forward_speed_mps": 0.3,
         "mask_topic": "perception/canopy/mask/compressed",
-        "max_angular_speed_radps": 0.55,
-        "max_forward_speed_mps": 0.5,
         "odom_topic": "diff_drive_controller/odom",
-        "row_pitch_m": 1.17,
         "start_enabled": false
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "overrides_file": {
+          "tempfile": {
+            "/**/person_follow": {
+              "ros__parameters": {
+                "max_missing_frames": 8
+              }
+            }
+          }
+        }
+      },
+      "kind": "include",
+      "launchfile": "person_follow.launch.py",
+      "namespace": "/taro",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "person_detector",
@@ -249,16 +328,22 @@
       "name": "person_detector",
       "namespace": "/taro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/person_follow.yaml",
+        {
+          "tempfile": {
+            "/**/person_follow": {
+              "ros__parameters": {
+                "max_missing_frames": 8
+              }
+            }
+          }
+        }
+      ],
       "params": {
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "min_score": 0.3,
-        "overlay_topic": "perception/person/overlay",
-        "start_enabled": false
-      },
-      "remaps": {
-        "detections": "perception/person"
+        "image_topic": "sensors/camera_0/color/image_raw/compressed"
       },
       "respawn_delay": 2.0
     },
@@ -269,14 +354,20 @@
       "name": "person_follow",
       "namespace": "/taro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/person_follow.yaml",
+        {
+          "tempfile": {
+            "/**/person_follow": {
+              "ros__parameters": {
+                "max_missing_frames": 8
+              }
+            }
+          }
+        }
+      ],
       "params": {
-        "max_missing_frames": 8,
-        "scene_topic": "perception/person/scene",
-        "standoff_distance": 1.5
-      },
-      "remaps": {
-        "detections": "perception/person",
-        "detections_3d": "perception/targets"
+        "start_enabled": false
       },
       "respawn_delay": 2.0
     },
@@ -349,6 +440,12 @@
           "tempfile": {
             "/**/diff_drive_controller": {
               "ros__parameters": {
+                "angular.z.max_acceleration": 10.0,
+                "angular.z.max_jerk": 70.0,
+                "angular.z.max_velocity": 3.0,
+                "linear.x.max_acceleration": 8.0,
+                "linear.x.max_jerk": 60.0,
+                "linear.x.max_velocity": 2.29,
                 "wheel_radius": 0.1749,
                 "wheel_separation": 0.5704
               }
@@ -403,15 +500,46 @@
       }
     },
     {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "twist_mux.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "twist_mux",
       "kind": "node",
+      "max_respawns": -1,
       "name": "twist_mux",
       "namespace": "/jiro",
       "package": "twist_mux",
-      "param_files": "control/config/twist_mux.yaml",
+      "param_files": [
+        "control/config/twist_mux.yaml"
+      ],
       "remaps": {
         "cmd_vel_out": "platform/cmd_vel"
-      }
+      },
+      "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "overrides_file": {
+          "tempfile": {
+            "/**/person_follow": {
+              "ros__parameters": {
+                "max_missing_frames": 8
+              }
+            }
+          }
+        }
+      },
+      "kind": "include",
+      "launchfile": "person_follow.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "person_detector",
@@ -420,16 +548,22 @@
       "name": "person_detector",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/person_follow.yaml",
+        {
+          "tempfile": {
+            "/**/person_follow": {
+              "ros__parameters": {
+                "max_missing_frames": 8
+              }
+            }
+          }
+        }
+      ],
       "params": {
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "min_score": 0.3,
-        "overlay_topic": "perception/person/overlay",
-        "start_enabled": false
-      },
-      "remaps": {
-        "detections": "perception/person"
+        "image_topic": "sensors/camera_0/color/image_raw/compressed"
       },
       "respawn_delay": 2.0
     },
@@ -440,14 +574,20 @@
       "name": "person_follow",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/person_follow.yaml",
+        {
+          "tempfile": {
+            "/**/person_follow": {
+              "ros__parameters": {
+                "max_missing_frames": 8
+              }
+            }
+          }
+        }
+      ],
       "params": {
-        "max_missing_frames": 8,
-        "scene_topic": "perception/person/scene",
-        "standoff_distance": 1.5
-      },
-      "remaps": {
-        "detections": "perception/person",
-        "detections_3d": "perception/targets"
+        "start_enabled": false
       },
       "respawn_delay": 2.0
     },
@@ -489,7 +629,9 @@
     }
   ],
   "launch": {
-    "arguments": {},
+    "arguments": {
+      "headless": true
+    },
     "file": "simulation/launch/simulation.launch.py",
     "function": "simulation",
     "launch_this": {

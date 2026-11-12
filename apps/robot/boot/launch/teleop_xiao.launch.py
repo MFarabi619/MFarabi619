@@ -32,14 +32,14 @@ def teleop_xiao(smooth: bool = False):
             package='nav2_velocity_smoother',
             executable='velocity_smoother',
             name='velocity_smoother',
-            param_files='boot/config/velocity_smoother.yaml',
+            param_files=bl.find('robot_boot', 'velocity_smoother.yaml'),
             remaps={'cmd_vel': SMOOTHER_INPUT_TOPIC, 'cmd_vel_smoothed': TELEOP_OUTPUT_TOPIC},
         )
     teleop_topic = SMOOTHER_INPUT_TOPIC if smooth else TELEOP_OUTPUT_TOPIC
     subprocess.run([
         'ros2', 'run', 'teleop_twist_keyboard', 'teleop_twist_keyboard',
         '--ros-args',
-        '--params-file', 'boot/config/keyboard_teleop.yaml',
+        '--params-file', bl.find('robot_boot', 'keyboard_teleop.yaml'),
         '-r', f'cmd_vel:={teleop_topic}',
     ])
     bl.shutdown('teleop exited')

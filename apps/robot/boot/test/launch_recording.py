@@ -25,17 +25,25 @@ import tempfile
 import time
 import types
 
+import ament_index_python.packages
+import ament_index_python.search_paths
 import pytest
 import yaml
 
 ROBOT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 REPO_ROOT = os.path.abspath(os.path.join(ROBOT_ROOT, '..', '..'))
-IMPORT_DIRECTORIES = ('boot/launch', 'simulation/launch', 'machines')
-REIMPORTED_MODULES = ('zenoh_router', 'spawn', 'gz_bridges', 'machine')
+SOURCE_PACKAGES = {
+    'robot_boot': os.path.join(ROBOT_ROOT, 'boot', 'src'),
+    'robot_simulator': os.path.join(ROBOT_ROOT, 'simulation', 'src'),
+    'robot_machines': os.path.join(ROBOT_ROOT, 'machines', 'src'),
+}
 PACKAGE_DIRECTORIES = {
     'robot_description': os.path.join(ROBOT_ROOT, 'mech'),
     'robot_control': os.path.join(ROBOT_ROOT, 'control'),
     'robot_boot': os.path.join(ROBOT_ROOT, 'boot'),
+    'robot_perception': os.path.join(ROBOT_ROOT, 'perception'),
+    'robot_navigation': os.path.join(ROBOT_ROOT, 'navigation'),
+    'robot_manipulation': os.path.join(ROBOT_ROOT, 'manipulation'),
     'robot_simulator': os.path.join(ROBOT_ROOT, 'simulation'),
     'zed_wrapper': os.path.join(REPO_ROOT, 'vendor', 'zed-ros2-wrapper', 'zed_wrapper'),
 }
@@ -65,6 +73,9 @@ class LaunchRecorder:
     @property
     def is_shutdown(self):
         return False
+
+    def router_is_recorded(self):
+        return any(event.get('executable') == 'rmw_zenohd' for event in self.events)
 
     def record(self, kind, **fields):
         event = {'kind': kind, 'namespace': self.namespace, **fields}
@@ -105,8 +116,13 @@ class LaunchRecorder:
             'component', container=self.composer_name, package=package, plugin=plugin,
             name=name, **kwargs)
 
-    def include(self, package, launchfile, subdir=None, **kwargs):
-        self.record('include', package=package, launchfile=launchfile, subdir=subdir, args=kwargs)
+    def include(self, package, launchfile, subdir=None, pass_launch_func_args=True, **arguments):
+        self.record(
+            'include', package=package, launchfile=launchfile, subdir=subdir,
+            arguments=arguments)
+        if package in PACKAGE_DIRECTORIES:
+            module = load_launch(self.find(package, launchfile, subdir))
+            launch_function(module)(**arguments)
 
     def wait_for_service(self, service, timeout=None):
         self.record('wait_for_service', service=service, timeout=timeout)
@@ -123,7 +139,9 @@ class LaunchRecorder:
         if package_name in PACKAGE_DIRECTORIES:
             pattern = os.path.join(
                 PACKAGE_DIRECTORIES[package_name], '**', subdir or '**', filename)
-            return glob.glob(pattern, recursive=True)[0]
+            matches = glob.glob(pattern, recursive=True)
+            if matches:
+                return matches[0]
         return f'<find:{package}/{filename}>'
 
     def load_params(self, package=None, configfile=None, subdir=None, **_):
@@ -162,6 +180,8 @@ def fake_better_launch(recorder):
 
     def read_robot_description(package, description_file, subdir=None, *, xacro_args=None):
         path = recorder.find(package, description_file, subdir)
+        if not os.path.isfile(path):
+            return f'<robot_description {path} {" ".join(xacro_args or [])}>'
         assert path.endswith('.urdf') and xacro_args is None, 'xacro is not recorded'
         with open(path) as file:
             return file.read()
@@ -229,13 +249,15 @@ def fake_better_launch(recorder):
 def isolate_launch_environment(recorder, monkeypatch):
     for name, module in fake_better_launch(recorder).items():
         monkeypatch.setitem(sys.modules, name, module)
-    for name in REIMPORTED_MODULES:
-        monkeypatch.delitem(sys.modules, name, raising=False)
-    for directory in IMPORT_DIRECTORIES:
-        monkeypatch.syspath_prepend(os.path.join(ROBOT_ROOT, directory))
+    for name in list(sys.modules):
+        if name.partition('.')[0] in SOURCE_PACKAGES:
+            monkeypatch.delitem(sys.modules, name)
+    for name, directory in SOURCE_PACKAGES.items():
+        monkeypatch.setitem(sys.modules, name, import_source_package(name, directory))
     monkeypatch.chdir(ROBOT_ROOT)
     monkeypatch.setattr(tempfile, 'tempdir', recorder.temporary_directory)
     monkeypatch.setattr(socket, 'gethostname', lambda: 'snapshot-host')
+    monkeypatch.setenv('ZED_SDK_ROOT', ROBOT_ROOT)
     monkeypatch.setattr(time, 'sleep', lambda seconds: pytest.fail(f'launch slept {seconds}s'))
 
     def record_subprocess(argv, *_, **__):
@@ -243,16 +265,33 @@ def isolate_launch_environment(recorder, monkeypatch):
         return subprocess.CompletedProcess(argv, 0, '', '')
 
     monkeypatch.setattr(subprocess, 'run', record_subprocess)
-    import spawn
-    import zenoh_router
-    monkeypatch.setattr(zenoh_router, 'router_is_listening', lambda: False)
+    monkeypatch.setattr(
+        ament_index_python.packages, 'get_package_share_directory',
+        PACKAGE_DIRECTORIES.__getitem__)
+    monkeypatch.setattr(ament_index_python.search_paths, 'get_search_paths', lambda: [])
+    from robot_boot import zenoh_router
+    monkeypatch.setattr(zenoh_router, 'router_is_listening', recorder.router_is_recorded)
     monkeypatch.setattr(zenoh_router, 'wait_for_router', lambda *_, **__: True)
-    monkeypatch.setattr(spawn, 'get_package_share_directory', PACKAGE_DIRECTORIES.__getitem__)
 
 
-def load_launch(relative_path, module_name):
+def import_source_package(name, directory):
     spec = importlib.util.spec_from_file_location(
-        module_name, os.path.join(ROBOT_ROOT, relative_path))
+        name, os.path.join(directory, '__init__.py'), submodule_search_locations=[directory])
+    package = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(package)
+    return package
+
+
+def load_launch(path):
+    path = os.path.join(ROBOT_ROOT, path)
+    module_name = os.path.basename(path).replace('.', '_').replace('-', '_')
+    spec = importlib.util.spec_from_file_location(module_name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def launch_function(module):
+    return next(
+        attribute for attribute in vars(module).values()
+        if hasattr(attribute, 'launch_this_settings'))

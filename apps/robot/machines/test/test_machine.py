@@ -16,7 +16,7 @@
 
 import pytest
 
-from machine import MachineError, load_machine, machine_names
+from robot_machines.machine import MachineError, load_machine, machine_names
 
 
 @pytest.mark.parametrize('name', machine_names())
@@ -26,20 +26,55 @@ def test_every_machine_file_matches_the_schema(name):
     assert machine.has_arm or machine.platform is not None
 
 
+def write_machine(root, name, body):
+    (root / name).mkdir()
+    (root / name / 'robot.yaml').write_text(f'system: {{namespace: {name}}}\n{body}')
+
+
 def test_unknown_keys_are_rejected(tmp_path):
-    (tmp_path / 'typo').mkdir()
-    (tmp_path / 'typo' / 'robot.yaml').write_text(
-        'serial_number: mark-0\nversion: 1\nsystem: {namespace: typo}\n'
-        'platform: {drivetrain: {modle: roboteq}}\n')
-    with pytest.raises(MachineError, match=r"drivetrain: unknown keys \['modle'\]"):
+    write_machine(tmp_path, 'typo', 'platform: {drivetrain: {modle: roboteq}}\n')
+    with pytest.raises(MachineError, match=r'platform\.drivetrain\.modle'):
         load_machine('typo', tmp_path)
 
 
-def test_version_zero_is_refused(tmp_path):
-    (tmp_path / 'old').mkdir()
-    (tmp_path / 'old' / 'robot.yaml').write_text('serial_number: mark-0\n')
-    with pytest.raises(MachineError, match='schema version 0'):
-        load_machine('old', tmp_path)
+def test_missing_machine_file_is_named(tmp_path):
+    with pytest.raises(MachineError, match='ghost has no robot.yaml'):
+        load_machine('ghost', tmp_path)
+
+
+def test_two_nav2_owners_are_refused(tmp_path):
+    write_machine(
+        tmp_path, 'twice',
+        'platform: {}\nbehaviors: {follow_nav2: true, gps_navigation: true}\n')
+    with pytest.raises(MachineError, match='enable one'):
+        load_machine('twice', tmp_path)
+
+
+def test_sensors_are_named_by_index(tmp_path):
+    write_machine(
+        tmp_path, 'eyes',
+        'platform: {}\nsensors:\n  camera:\n    - {model: oak_d_sr}\n'
+        '    - {model: orbbec_gemini_335l, parameters: {enable_depth: true}}\n')
+    cameras = load_machine('eyes', tmp_path).sensors.camera
+    assert [camera.name for camera in cameras] == ['camera_0', 'camera_1']
+
+
+def test_depth_camera_prefers_oak_then_orbbec_then_zed():
+    assert load_machine('jiro').depth_camera.model == 'oak_d_pro_w_poe'
+    assert load_machine('taro').depth_camera.model == 'orbbec_gemini_335l'
+    assert load_machine('kinova-link-6').depth_camera.model == 'zed_2'
+    assert load_machine('pocketbeagle-2').depth_camera is None
+
+
+def test_on_camera_detection_follows_the_camera_model():
+    assert load_machine('kinova-link-6').depth_camera.has_on_camera_detector
+    assert not load_machine('jiro').depth_camera.has_on_camera_detector
+
+
+def test_params_files_are_per_machine_and_optional():
+    assert load_machine('jiro').params_file('line_follow').endswith(
+        'jiro/params/line_follow.yaml')
+    assert load_machine('taro').params_file('line_follow') == ''
 
 
 def test_model_scoped_motion_limits_override_the_drivetrain_limits():
@@ -53,13 +88,13 @@ def test_model_scoped_motion_limits_override_the_drivetrain_limits():
 
 def test_arm_only_machine_has_no_platform():
     assert load_machine('kinova-link-6').is_arm_only
-    assert not load_machine('saburo').has_arm
+    assert not load_machine('taro').has_arm
 
 
 def test_camera_queries():
-    saburo = load_machine('saburo')
-    assert saburo.has_zed_camera
-    assert saburo.first_enabled_camera('zed_2').node_name == 'camera_0'
+    kinova = load_machine('kinova-link-6')
+    assert kinova.has_zed_camera
+    assert kinova.first_enabled_camera('zed_2').name == 'camera_0'
     assert load_machine('pocketbeagle-2').enabled_cameras == []
 
 

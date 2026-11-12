@@ -15,8 +15,7 @@
 
 
 from better_launch import BetterLaunch, launch_this
-
-RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
+from robot_boot.launch_policy import RESPAWN
 
 
 @launch_this

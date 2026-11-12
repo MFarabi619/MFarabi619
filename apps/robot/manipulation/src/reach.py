@@ -21,25 +21,21 @@ import subprocess
 from geometry_msgs.msg import PoseStamped
 from moveit.core.robot_state import RobotState
 from moveit.planning import MoveItPy
+from ament_index_python.packages import get_package_share_directory
 from moveit_configs_utils import MoveItConfigsBuilder
 import rclpy
-import yaml
+from robot_machines.machine import load_machine
 
 GOAL_FRAME = 'base_link'
 END_EFFECTOR_LINK = 'end_effector_link'
 
 
-def machine_configuration(robot):
-    with open(f'machines/{robot}/robot.yaml') as machine_file:
-        return yaml.safe_load(machine_file)
-
-
 def arm_configuration(arm):
     configuration = (
-        MoveItConfigsBuilder(
-            arm['moveit_robot_name'], package_name=arm['moveit_package'])
+        MoveItConfigsBuilder(arm.moveit_robot_name, package_name=arm.moveit_package)
         .planning_pipelines(pipelines=['ompl'])
-        .moveit_cpp(os.path.abspath('manipulation/config/moveit_py.yaml'))
+        .moveit_cpp(os.path.join(
+            get_package_share_directory('robot_manipulation'), 'config', 'moveit_py.yaml'))
         .to_moveit_configs().to_dict())
     configuration['use_sim_time'] = True
     configuration.setdefault('trajectory_execution', {})[
@@ -72,12 +68,11 @@ def main():
     parser.add_argument('--y', type=float, default=None)
     parser.add_argument('--z', type=float, default=None)
     arguments = parser.parse_args()
-    machine = machine_configuration(arguments.robot)
+    machine = load_machine(arguments.robot)
 
     ensure_trajectory_mode()
     rclpy.init()
-    moveit = MoveItPy(
-        node_name='reach', config_dict=arm_configuration(machine['arm']))
+    moveit = MoveItPy(node_name='reach', config_dict=arm_configuration(machine.arm))
     planning_component = moveit.get_planning_component('arm')
     planning_component.set_start_state_to_current_state()
     if arguments.target:
@@ -90,7 +85,7 @@ def main():
         goal_state = RobotState(moveit.get_robot_model())
         goal_state.set_joint_group_positions(
             'arm',
-            machine['manipulation']['demonstration_joint_positions_radians'])
+            machine.manipulation['demonstration_joint_positions_radians'])
         planning_component.set_goal_state(robot_state=goal_state)
     plan_result = planning_component.plan()
     if not plan_result:

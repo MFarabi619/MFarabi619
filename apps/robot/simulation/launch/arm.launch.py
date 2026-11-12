@@ -21,13 +21,13 @@ import tempfile
 import threading
 import time
 
-import yaml
-
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.search_paths import get_search_paths
 from better_launch import BetterLaunch, launch_this
 from better_launch.gazebo import get_gazebo_axes_args, spawn_model
-from zenoh_router import ensure_router
+from robot_boot.launch_policy import include
+from robot_boot.zenoh_router import ensure_router
+from robot_machines.machine import load_machine
 
 WORLD_SPAWN_POINTS = {'farm': (11.3, 3.0), 'maize': (0.3, 16.0)}
 PERSON_AHEAD_M = 3.0
@@ -69,35 +69,47 @@ def calm_view_control_sensitivity():
         time.sleep(SENSITIVITY_RETRY_DELAY_S)
 
 
+def gui_config_with_camera(bl, camera):
+    with open(bl.find('robot_simulator', 'arm_gui.config')) as template:
+        gui_config = re.sub(
+            r'<camera_pose>[^<]*</camera_pose>',
+            '<camera_pose>{} {} {} {} {} {}</camera_pose>'.format(*camera),
+            template.read())
+    gui_config_file = tempfile.NamedTemporaryFile(mode='w', suffix='.config', delete=False)
+    gui_config_file.write(gui_config)
+    gui_config_file.close()
+    return gui_config_file.name
+
+
 @launch_this(use_sim_time=True)
 def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
                    headless: bool = False, mode: str = 'drag',
                    world: str = 'farm'):
-    with open(f'machines/{robot}/robot.yaml') as machine_file:
-        arm = yaml.safe_load(machine_file)['arm']
-    gripper = gripper or arm['gripper']
+    machine = load_machine(robot)
+    arm = machine.arm
+    gripper = gripper or arm.gripper
     spawn_x, spawn_y = WORLD_SPAWN_POINTS.get(world, (0.0, 0.0))
-    if world == 'empty':
-        world_file = 'empty.sdf'
-    else:
-        world_file = os.path.abspath(f'simulation/worlds/{world}.sdf')
     os.environ.pop('ZENOH_CONFIG_OVERRIDE', None)
     os.environ.pop('ZENOH_SESSION_CONFIG_URI', None)
+    simulator_share = get_package_share_directory('robot_simulator')
     share_directories = [
         os.path.join(prefix, 'share') for prefix in get_search_paths()]
     os.environ['GZ_SIM_RESOURCE_PATH'] = ':'.join(filter(None, [
         os.environ.get('GZ_SIM_RESOURCE_PATH', ''),
         *share_directories,
-        os.path.abspath('simulation/worlds'),
-        os.path.abspath('simulation/models')]))
+        os.path.join(simulator_share, 'worlds'),
+        os.path.join(simulator_share, 'models')]))
     os.environ['GZ_SIM_SYSTEM_PLUGIN_PATH'] = os.path.join(
         os.environ.get('CONDA_PREFIX', ''), 'lib')
 
     bl = BetterLaunch()
     ensure_router(bl)
-    bl.include(
-        arm['bringup_package'], 'link6_sim.launch.py',
-        pass_launch_func_args=False,
+    if world == 'empty':
+        world_file = 'empty.sdf'
+    else:
+        world_file = bl.find('robot_simulator', f'{world}.sdf', subdir='worlds')
+    include(
+        arm.bringup_package, 'link6_sim.launch.py',
         gripper=gripper,
         gui='false',
         gz_args=f'-s -r -v 2 {world_file}',
@@ -110,48 +122,30 @@ def arm_simulation(robot: str = 'kinova-link-6', gripper: str = '',
     })
     spawn_model(
         'person',
-        os.path.abspath('simulation/models/person/model.sdf'), 'file',
+        bl.find('robot_simulator', 'model.sdf', subdir='models/person'), 'file',
         spawn_args=get_gazebo_axes_args(**person_pose))
     if mode == 'drag':
         threading.Thread(target=activate_drag_mode, daemon=True).start()
     if mode == 'moveit':
-        bl.include(
-            arm['moveit_package'], 'move_group.launch.py',
-            pass_launch_func_args=False,
-            use_sim_time='true',
+        include(
+            'robot_manipulation', 'kinova_link6_moveit.launch.py',
+            moveit_package=arm.moveit_package,
+            motions_file=bl.find('robot_machines', 'motions.yaml', subdir=robot),
+            use_sim_time=True,
+            rviz=not headless,
         )
-        bl.include(
-            'play_motion2', 'play_motion2.launch.py',
-            pass_launch_func_args=False,
-            motions_file=os.path.abspath(f'machines/{robot}/motions.yaml'),
-            motion_planner_config=os.path.abspath(
-                'manipulation/config/motion_planner.yaml'),
-            use_sim_time='true',
-        )
-        rviz_config = os.path.abspath('manipulation/config/moveit.rviz')
-    else:
-        rviz_config = os.path.join(
-            get_package_share_directory(arm['control_package']), 'config',
-            'link6_config.rviz')
     if not headless:
         camera = (spawn_x + CAMERA_OFFSET[0], spawn_y + CAMERA_OFFSET[1],
                   *CAMERA_OFFSET[2:])
-        with open(os.path.abspath('simulation/arm_gui.config')) as template:
-            gui_config = re.sub(
-                r'<camera_pose>[^<]*</camera_pose>',
-                '<camera_pose>{} {} {} {} {} {}</camera_pose>'.format(*camera),
-                template.read())
-        gui_config_file = tempfile.NamedTemporaryFile(
-            mode='w', suffix='.config', delete=False)
-        gui_config_file.write(gui_config)
-        gui_config_file.close()
         bl.process(
-            'gz sim -g --gui-config ' + gui_config_file.name,
+            ['gz', 'sim', '-g', '--gui-config', gui_config_with_camera(bl, camera)],
             name='gazebo_gui',
         )
         threading.Thread(
             target=calm_view_control_sensitivity, daemon=True).start()
-        bl.process(
-            f'rviz2 -d {rviz_config} --ros-args -p use_sim_time:=true',
-            name='rviz',
-        )
+        if mode != 'moveit':
+            bl.process(
+                ['rviz2', '-d', bl.find(arm.control_package, 'link6_config.rviz'),
+                 '--ros-args', '-p', 'use_sim_time:=true'],
+                name='rviz',
+            )

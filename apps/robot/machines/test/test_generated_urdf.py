@@ -19,7 +19,7 @@ import xml.etree.ElementTree as ElementTree
 
 import pytest
 
-from machine import load_machine, machine_names
+from robot_machines.machine import load_machine, machine_names
 
 ROBOT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 URDF_DECIMALS = 4

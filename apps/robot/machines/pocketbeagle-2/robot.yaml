@@ -1,5 +1,3 @@
-serial_number: mark-6
-version: 1
 system:
   namespace: pocketbeagle_2
   hosts:

@@ -15,42 +15,23 @@
 
 
 from better_launch import BetterLaunch, launch_this
-
-RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
+from robot_boot.launch_policy import RESPAWN, TF_REMAPS
+from robot_boot.zenoh_router import ensure_router
 
 
 @launch_this
-def harvest_lane():
+def collision_overlay(camera: str = 'camera_0'):
     bl = BetterLaunch()
+    ensure_router(bl)
     bl.node(
         package='robot_perception',
-        executable='canopy_detector',
-        name='canopy_detector',
-        **RESPAWN,
-    )
-    bl.node(
-        package='robot_perception',
-        executable='harvest_lane_navigator',
-        name='harvest_lane_navigator',
+        executable='collision_overlay',
+        name='collision_overlay',
+        remaps=TF_REMAPS,
         params={
-            'start_enabled': True,
-            'odom_topic': '/diff_drive_controller/odom',
-            'forward_speed_mps': 0.3,
-            'max_angular_speed_radps': 0.6,
-            'command_smoothing_seconds': 0.1,
+            'cloud_topic': f'sensors/{camera}/depth/points',
+            'camera_info_topic': f'sensors/{camera}/color/camera_info',
+            'overlay_topic': 'perception/collision/overlay',
         },
-        **RESPAWN,
-    )
-    bl.node(
-        package='robot_perception',
-        executable='row_shuttle',
-        name='row_shuttle',
-        **RESPAWN,
-    )
-    bl.node(
-        package='nav2_behaviors',
-        executable='behavior_server',
-        name='behavior_server',
-        param_files=['navigation/config/behaviors.yaml'],
         **RESPAWN,
     )

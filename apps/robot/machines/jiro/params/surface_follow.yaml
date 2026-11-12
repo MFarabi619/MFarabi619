@@ -1,0 +1,23 @@
+/**/sidewalk_follow:
+  ros__parameters:
+    forward_speed: 0.5
+    steer_gain: 1.5
+    max_angular_speed: 1.5
+
+/**/park_path_detector:
+  ros__parameters:
+    roi_top_fraction: 0.6
+    min_fraction: 0.95
+
+/**/park_path_follow:
+  ros__parameters:
+    forward_speed: 0.9
+    steer_gain: 1.5
+    max_angular_speed: 1.5
+
+/**/path_follow:
+  ros__parameters:
+    forward_speed: 0.9
+    steer_gain: 1.5
+    max_angular_speed: 1.5
+    lateral_offset_m: 0.35

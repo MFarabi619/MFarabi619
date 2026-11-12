@@ -1,5 +1,3 @@
-serial_number: mark-1
-version: 1
 system:
   namespace: taro
   hosts:
@@ -55,75 +53,35 @@ sensors:
       parent: base_link
       xyz: [0.53, 0.475, 0.469]
       rpy: [0.0, 0.0, 0.0]
-      ros_parameters:
-        camera_0:
-          color_width: 640
-          color_height: 480
-          color_fps: 30
-          jpeg_quality: 60
-          enable_depth: true
-          depth_width: 848
-          depth_height: 480
-          depth_fps: 15
-          depth_decimation: 2
+      parameters:
+        color_width: 640
+        color_height: 480
+        color_fps: 30
+        enable_depth: true
+        depth_width: 848
+        depth_height: 480
+        depth_fps: 15
+        depth_decimation: 2
   imu: []
   gps:
     - model: ublox_zed_f9p
       parent: base_link
       flash:
-        # Receiver flash asserted by drivers/src/ublox_flash.py at launch.
+        # Receiver flash asserted by ublox_flash at launch.
         CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
         CFG_RATE_NAV: 1  # navigation solutions per measurement
-      ros_parameters:
-        nmea_navsat_driver:
-          port: /dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00
-          baud: 115200
-          frame_id: gps_link
+      parameters:
+        port: /dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00
+        baud: 115200
+        frame_id: gps_link
       ntrip:
         mountpoint: OsgoodeFarms
         username: farabi@tandemrobotics.ca
 mounts:
   camera_mount: []
-point_cloud:
-  enabled: true
-detector:
-  max_detections_per_second: 10.0
-follow:
-  max_forward_speed: 0.7
-  max_backward_speed: 0.7
-  max_angular_speed: 0.7
-  standoff_distance: 1.5
-  distance_gain: 0.9
-  distance_damping: 0.4
-  distance_deadband: 0.25
-  steer_gain: 0.5
-  steer_damping: 0.7
-  steer_deadband: 0.15
-  command_smoothing_seconds: 0.3
-  max_missing_frames: 24
-follow_nav2:
-  enabled: false
-gps_navigation:
-  enabled: true
-  linear_velocity_meters_per_second: 0.7
+behaviors:
+  gps_navigation: true
+  harvest_lane: true
 home:
   latitude: 45.465033166666664
   longitude: -75.48172833333334
-hand_gesture:
-  enabled: false
-harvest_lane:
-  enabled: true
-  detector:
-    normalize_exposure: true
-    normalized_excess_green_min: 0.06
-  navigator:
-    row_pitch_m: 1.17
-    forward_speed_mps: 0.3
-    max_forward_speed_mps: 0.5
-    max_angular_speed_radps: 0.55
-sidewalk:
-  enabled: false
-  follow:
-    forward_speed: 0.4
-    steer_gain: 1.2
-    max_angular_speed: 0.8

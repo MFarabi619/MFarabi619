@@ -1,0 +1,13 @@
+/**/person_detector:
+  ros__parameters:
+    max_detections_per_second: 30.0
+    model_path: ssd_mobilenet_v1_12_int8.onnx
+
+/**/person_follow:
+  ros__parameters:
+    max_forward_speed: 2.0
+    max_backward_speed: 1.5
+    max_angular_speed: 5.0
+    distance_gain: 2.0
+    distance_deadband: 0.25
+    steer_gain: 2.0

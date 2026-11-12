@@ -29,5 +29,9 @@ target_link_libraries(kinova_link6_pick
   ${shape_msgs_TARGETS})
 
 install(TARGETS kinova_link6_pick DESTINATION lib/${PROJECT_NAME})
+install(PROGRAMS src/kinova_link6_bridge.py DESTINATION lib/${PROJECT_NAME} RENAME kinova_link6_bridge)
+install(PROGRAMS src/kinova_link6_bridge_node.py DESTINATION lib/${PROJECT_NAME} RENAME kinova_link6_bridge_node)
+install(PROGRAMS src/mujoco_planning_scene.py DESTINATION lib/${PROJECT_NAME} RENAME mujoco_planning_scene)
+install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME} PATTERN "__pycache__" EXCLUDE)
 
 ament_package()

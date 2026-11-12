@@ -14,134 +14,23 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+from contextlib import nullcontext
 import os
-import subprocess
-import sys
-import tempfile
-import xml.etree.ElementTree as ElementTree
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import robot_state_publisher
-from machine import ZED_CAMERA_MODEL, load_machine, load_machine_for_this_host
-import yaml
-from zenoh_router import ensure_router
+from robot_boot.launch_policy import TF_REMAPS, include, parameter_overrides_file
+from robot_boot.urdf import ground_offset, wheel_geometry
+from robot_boot.zenoh_router import ensure_router
+from robot_machines.machine import (
+    ORBBEC_CAMERA_MODEL, ZED_CAMERA_MODEL, load_machine, load_machine_for_this_host)
 
 CLIENT_CONFIG_OVERRIDE = 'mode="client"'
 ROUTER_CONFIG_OVERRIDE = 'mode="router"'
-PIXI = os.path.expanduser('~/.pixi/bin/pixi')
-RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
-FOLLOWED_SURFACES = {
-    'sidewalk': {'surface_class_ids': [2, 3]},
-    'park_path': {'surface_class_ids': [1, 2, 3]},
-    'path': {
-        'mask_source': 'brightness',
-        'max_saturation': 0.75,
-        'max_value': 0.35,
-        'roi_top_fraction': 0.6,
-        'min_fraction': 0.6,
-        'max_detections_per_second': 15.0,
-    },
-}
-TF_REMAPS = {'/tf': 'tf', '/tf_static': 'tf_static'}
-
-GPS_TOPICS = ['fix', 'vel', 'time_reference', 'heading']
-NTRIP_CASTER_HOST = 'rtk2go.com'
-NTRIP_SERIAL_OUTPUT = 2
-NTRIP_RESPAWN = {'max_respawns': -1, 'respawn_delay': 10.0}
-
-def ground_offset(urdf_path):
-    robot = ElementTree.parse(urdf_path).getroot()
-    for joint in robot.iter('joint'):
-        child = joint.find('child')
-        if child is None or child.get('link') != 'base_footprint':
-            continue
-        origin = joint.find('origin')
-        if origin is None:
-            break
-        return float(origin.get('xyz', '0 0 0').split()[2])
-    return 0.0
-
-
-def wheel_geometry(urdf_path):
-    robot = ElementTree.parse(urdf_path).getroot()
-    joint_by_child = {}
-    for joint in robot.iter('joint'):
-        parent = joint.find('parent')
-        if parent is None:
-            continue
-        origin = joint.find('origin')
-        xyz = origin.get('xyz', '0 0 0') if origin is not None else '0 0 0'
-        rpy = origin.get('rpy', '0 0 0') if origin is not None else '0 0 0'
-        joint_by_child[joint.find('child').get('link')] = (
-            parent.get('link'), float(xyz.split()[1]),
-            any(float(angle) != 0.0 for angle in rpy.split()), joint.get('name'))
-
-    def lateral_offset(link):
-        offset = 0.0
-        while link in joint_by_child:
-            link, y, is_rotated, joint_name = joint_by_child[link]
-            if is_rotated:
-                raise RuntimeError(
-                    f'{joint_name} has a rotated origin;'
-                    ' wheel_geometry only handles pure-translation wheel chains')
-            offset += y
-        return offset
-
-    wheel_separation = abs(
-        lateral_offset('rear_left_wheel_link')
-        - lateral_offset('rear_right_wheel_link'))
-
-    radii = {
-        float(cylinder.get('radius'))
-        for link in robot.iter('link')
-        if link.get('name').endswith('_wheel_link')
-        for cylinder in link.find('collision').iter('cylinder')
-    }
-    if len(radii) != 1:
-        raise RuntimeError(f'expected one wheel collision radius, found {radii}')
-    return wheel_separation, radii.pop()
-
-
-MOTION_LIMIT_PARAMETERS = {
-    'max_linear_velocity_meters_per_second': 'linear.x.max_velocity',
-    'max_linear_acceleration_meters_per_second_squared':
-        'linear.x.max_acceleration',
-    'max_linear_jerk_meters_per_second_cubed': 'linear.x.max_jerk',
-    'max_angular_velocity_radians_per_second': 'angular.z.max_velocity',
-    'max_angular_acceleration_radians_per_second_squared':
-        'angular.z.max_acceleration',
-    'max_angular_jerk_radians_per_second_cubed': 'angular.z.max_jerk',
-}
-
-
-def write_drivetrain_parameters(wheel_separation, wheel_radius, motion_limits):
-    ros_parameters = {
-        'wheel_separation': wheel_separation,
-        'wheel_radius': wheel_radius,
-    }
-    for drivetrain_field, controller_parameter in (
-            MOTION_LIMIT_PARAMETERS.items()):
-        if drivetrain_field in motion_limits:
-            ros_parameters[controller_parameter] = (
-                motion_limits[drivetrain_field])
-    parameters = {
-        '/**/diff_drive_controller': {'ros__parameters': ros_parameters},
-    }
-    parameters_file = tempfile.NamedTemporaryFile(
-        mode='w', prefix='drivetrain_', suffix='.yaml', delete=False)
-    yaml.safe_dump(parameters, parameters_file)
-    parameters_file.close()
-    return parameters_file.name
-
-IMU_TOPICS = [
-    'data', 'mag', 'linear_acceleration', 'stability',
-    'activity', 'steps', 'shake', 'calibration_status',
-]
-
-
-def board_pins(machine):
-    with open(f'elec/boards/{machine.board}.yaml') as file:
-        return yaml.safe_load(file)['pins']
+FOLLOWED_SURFACES = ('sidewalk', 'park_path', 'path')
+ARM_LAUNCH_FILES = {'kinova_link_6': 'kinova_link6.launch.py'}
+OAK_LASERSCAN_SETTINGS = {
+    'max_height': 0.6, 'range_min': 0.2, 'range_max': 3.0, 'scan_time': 0.05}
 
 
 def resolve_line(pins, pin):
@@ -152,17 +41,6 @@ def resolve_line(pins, pin):
 def resolve_pwm(pins, pin):
     entry = pins[pin]
     return entry['pwm_chip'], entry['pwm_channel']
-
-
-def assert_gnss_flash(port, flash):
-    completed = subprocess.run(
-        [sys.executable, 'drivers/src/ublox_flash.py', '--port', port]
-        + [f'{key}={value}' for key, value in flash.items()],
-        capture_output=True, text=True)
-    for line in completed.stdout.splitlines():
-        print(line)
-    if completed.returncode != 0:
-        print(f'GNSS flash configuration failed: {completed.stderr.strip()}')
 
 
 def flash_declarations(flash):
@@ -178,796 +56,308 @@ def flash_declarations(flash):
     return declarations
 
 
+def motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius):
+    drivetrain = machine.platform.drivetrain
+    if drivetrain_model == 'odrive_usb':
+        include(
+            'robot_boot', 'odrive_motor_driver.launch.py',
+            gear_ratio=drivetrain.gear_ratio,
+            max_wheel_speed=max_wheel_speed,
+            left_serial=drivetrain.left.serial,
+            left_reversed=drivetrain.left.is_reversed,
+            right_serial=drivetrain.right.serial,
+            right_reversed=drivetrain.right.is_reversed,
+        )
+    elif drivetrain_model == 'svd48v':
+        include(
+            'robot_boot', 'svd48v_motor_driver.launch.py',
+            serial_port=drivetrain.serial_port,
+            baud_rate=drivetrain.baud_rate,
+            max_wheel_speed=max_wheel_speed,
+            acceleration_rpm_per_second=drivetrain.acceleration_rpm_per_second,
+            speed_smoothing_time=drivetrain.speed_smoothing_time,
+            left_reversed=drivetrain.left.is_reversed,
+            right_reversed=drivetrain.right.is_reversed,
+        )
+    elif drivetrain_model == 'roboteq':
+        full_scale_linear_velocity = drivetrain.full_scale_linear_velocity_meters_per_second
+        include(
+            'robot_boot', 'roboteq_motor_driver.launch.py',
+            serial_port=drivetrain.serial_port,
+            baud_rate=drivetrain.baud_rate,
+            counts_per_revolution=drivetrain.counts_per_revolution,
+            control_mode=(
+                'speed' if drivetrain.control_mode is None else drivetrain.control_mode),
+            left_reversed=drivetrain.left.is_reversed,
+            right_reversed=drivetrain.right.is_reversed,
+            max_wheel_speed=max_wheel_speed or 0.0,
+            full_scale_wheel_speed=(
+                full_scale_linear_velocity / wheel_radius
+                if full_scale_linear_velocity is not None else 0.0),
+            flash=','.join(flash_declarations(drivetrain.roboteq.get('flash', {}))),
+        )
+    elif drivetrain_model == 'mock':
+        pass
+    elif drivetrain_model == 'rc_pulse':
+        pins = machine.board_pins
+        left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain.left.pwm_pin)
+        right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain.right.pwm_pin)
+        include(
+            'robot_boot', 'rc_pulse_motor_driver.launch.py',
+            max_wheel_speed=max_wheel_speed,
+            left_pwm_chip=left_pwm_chip,
+            left_pwm_channel=left_pwm_channel,
+            left_reversed=drivetrain.left.is_reversed,
+            right_pwm_chip=right_pwm_chip,
+            right_pwm_channel=right_pwm_channel,
+            right_reversed=drivetrain.right.is_reversed,
+        )
+    else:
+        pins = machine.board_pins
+        left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain.left.pwm_pin)
+        right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain.right.pwm_pin)
+        left_dir_chip, left_dir_line = resolve_line(pins, drivetrain.left.dir_pin)
+        right_dir_chip, right_dir_line = resolve_line(pins, drivetrain.right.dir_pin)
+        if left_dir_chip != right_dir_chip:
+            raise RuntimeError('left and right direction pins must share one gpio chip')
+        include(
+            'robot_boot', 'pwm_dir_motor_driver.launch.py',
+            gpio_chip=left_dir_chip,
+            pwm_frequency_hz=drivetrain.pwm_frequency_hz,
+            max_wheel_speed=max_wheel_speed,
+            min_duty=0.0 if drivetrain.min_duty is None else drivetrain.min_duty,
+            left_pwm_chip=left_pwm_chip,
+            left_pwm_channel=left_pwm_channel,
+            left_dir_line=left_dir_line,
+            left_forward_level=drivetrain.left.forward_level,
+            right_pwm_chip=right_pwm_chip,
+            right_pwm_channel=right_pwm_channel,
+            right_dir_line=right_dir_line,
+            right_forward_level=drivetrain.right.forward_level,
+        )
+
+
+def platform(machine, drivetrain_model, urdf_path, depth_camera):
+    drivetrain = machine.platform.drivetrain
+    drivetrain_model = drivetrain_model or drivetrain.model
+    wheel_separation, wheel_radius = wheel_geometry(urdf_path)
+    motion_limits = drivetrain.motion_limits(drivetrain_model)
+    max_linear_velocity = motion_limits.get('max_linear_velocity_meters_per_second')
+    max_wheel_speed = (
+        max_linear_velocity / wheel_radius if max_linear_velocity is not None else None)
+    collision_guarded = machine.platform.collision_guarded and depth_camera is not None
+
+    robot_state_publisher(
+        urdf_path,
+        node_name='robot_state_publisher',
+        anonymous=False,
+        remaps=TF_REMAPS,
+    )
+    motor_driver(machine, drivetrain_model, max_wheel_speed, wheel_radius)
+    include(
+        'robot_boot', 'controller_manager.launch.py',
+        wheel_separation=wheel_separation,
+        wheel_radius=wheel_radius,
+        **motion_limits,
+    )
+
+    rc_receiver = machine.platform.rc_receiver
+    if rc_receiver and rc_receiver.launch_enabled:
+        pins = machine.board_pins
+        channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver.channel_1_pin)
+        channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver.channel_2_pin)
+        if channel_1_chip != channel_2_chip:
+            raise RuntimeError('rc channel pins must share one gpio chip')
+        include(
+            'robot_boot', 'rc_teleop.launch.py',
+            gpio_chip=channel_1_chip,
+            channel_1_line=channel_1_line,
+            channel_2_line=channel_2_line,
+            tank_mixed=rc_receiver.tank_mixed,
+        )
+
+    include(
+        'robot_boot', 'twist_mux.launch.py',
+        cmd_vel_out='platform/cmd_vel_raw' if collision_guarded else 'platform/cmd_vel',
+    )
+    if collision_guarded:
+        include(
+            'robot_boot', 'collision_monitor.launch.py',
+            cloud_topic=f'sensors/{depth_camera.name}/depth/points')
+
+
+def arm(bl, machine):
+    include(
+        'robot_manipulation', ARM_LAUNCH_FILES[machine.arm.model],
+        description_package=machine.arm.description_package,
+        moveit_package=machine.arm.moveit_package,
+        moveit_robot_name=machine.arm.moveit_robot_name,
+        gripper=machine.arm.gripper,
+        motions_file=bl.find('robot_machines', 'motions.yaml', subdir=machine.name),
+    )
+
+
+def camera_driver(bl, camera, point_cloud):
+    if camera.model == 'oak_d_pro_w_poe':
+        include(
+            'robot_boot', 'oak_d_pro_w_poe.launch.py',
+            camera=camera.name,
+            detects_on_camera=camera.detects_on_camera,
+            model_path=bl.find('robot_perception', 'yolov8n_coco_640x352.blob'),
+            **camera.parameters,
+        )
+    elif camera.model == 'oak_d_sr':
+        include(
+            'robot_boot', 'oak_d_sr.launch.py',
+            camera=camera.name,
+            point_cloud=point_cloud,
+            **camera.parameters,
+        )
+    elif camera.model == ORBBEC_CAMERA_MODEL:
+        include(
+            'robot_boot', 'orbbec_gemini_335l.launch.py',
+            camera=camera.name,
+            point_cloud=point_cloud,
+            **camera.parameters,
+        )
+    elif camera.model == ZED_CAMERA_MODEL:
+        x, y, z = camera.xyz
+        roll, pitch, yaw = camera.rpy
+        include(
+            'robot_boot', 'zed_camera.launch.py',
+            camera=camera.name,
+            parent_frame=camera.parent,
+            x=x, y=y, z=z, roll=roll, pitch=pitch, yaw=yaw,
+            overrides_file=parameter_overrides_file({camera.name: camera.parameters}),
+        )
+    else:
+        raise RuntimeError(f'{camera.name} has no launch file for camera model {camera.model}')
+
+
+def laserscan_settings(camera):
+    if camera.publishes_compressed_color:
+        return OAK_LASERSCAN_SETTINGS
+    if camera.model == ZED_CAMERA_MODEL:
+        point_cloud_freq = camera.parameters.get('depth', {}).get('point_cloud_freq', 10.0)
+        return {'scan_time': 1.0 / point_cloud_freq}
+    return {'scan_time': 1.0 / camera.parameters['depth_fps']}
+
+
+def perception(machine, depth_camera, camera_height_m):
+    include(
+        'robot_perception', 'person_follow.launch.py',
+        camera=depth_camera.name,
+        image_topic=(
+            f'sensors/{depth_camera.name}/color/image_raw/compressed'
+            if depth_camera.publishes_compressed_color else ''),
+        detects_on_camera=depth_camera.has_on_camera_detector,
+        overrides_file=machine.params_file('person_follow'),
+    )
+    if machine.behaviors.line:
+        include(
+            'robot_perception', 'line_follow.launch.py',
+            camera=depth_camera.name,
+            overrides_file=machine.params_file('line_follow'),
+        )
+    for surface in FOLLOWED_SURFACES:
+        if getattr(machine.behaviors, surface):
+            include(
+                'robot_perception', 'surface_follow.launch.py',
+                surface=surface,
+                camera=depth_camera.name,
+                camera_height_m=camera_height_m,
+                overrides_file=machine.params_file('surface_follow'),
+            )
+    if machine.behaviors.harvest_lane:
+        include(
+            'robot_perception', 'harvest_lane.launch.py',
+            camera=depth_camera.name,
+            camera_height_m=camera_height_m,
+            camera_lateral_offset_m=float(depth_camera.xyz[1]),
+            overrides_file=machine.params_file('harvest_lane'),
+        )
+
+
 @launch_this
 def robot(name: str = '', drivetrain_model: str = ''):
     machine = load_machine(name) if name else load_machine_for_this_host()
-    if machine.is_arm_only:
-        bl = BetterLaunch()
-        robot_password = 'admin'
-        rviz = 'false'
-        bl.process(
-            [PIXI, 'run', 'arm', machine.name, robot_password, rviz],
-            name='arm_launch',
-            **RESPAWN,
-        )
-        return
     namespace = machine.namespace
     sensors = machine.sensors
-    drivetrain = machine.platform.drivetrain
-    rc_receiver = machine.platform.rc_receiver
-    if rc_receiver and not rc_receiver.launch_enabled:
-        rc_receiver = None
-    drivetrain_model = drivetrain_model or drivetrain.model
-    wheel_separation, wheel_radius = wheel_geometry(
-        f'mech/urdf/{machine.name}/robot.urdf')
-    motion_limits = drivetrain.motion_limits(drivetrain_model)
-    max_linear_velocity = motion_limits.get(
-        'max_linear_velocity_meters_per_second')
-    max_wheel_speed = (
-        max_linear_velocity / wheel_radius
-        if max_linear_velocity is not None else None)
-    drivetrain_parameters_path = write_drivetrain_parameters(
-        wheel_separation, wheel_radius, motion_limits)
-
-    oak_d_camera_config = machine.first_enabled_camera('oak_d_sr', 'oak_d_pro_w_poe')
-    orbbec_gemini_335l_camera_config = machine.first_enabled_camera('orbbec_gemini_335l')
-    zed_camera_config = machine.first_enabled_camera(ZED_CAMERA_MODEL)
-    if oak_d_camera_config:
-        depth_camera_name = oak_d_camera_config.node_name
-    elif (orbbec_gemini_335l_camera_config
-            and orbbec_gemini_335l_camera_config.node_parameters['enable_depth']):
-        depth_camera_name = 'camera_0'
-    elif zed_camera_config:
-        depth_camera_name = zed_camera_config.node_name
-    else:
-        depth_camera_name = None
-    depth_camera_config = (
-        oak_d_camera_config or orbbec_gemini_335l_camera_config
-        or zed_camera_config)
-    camera_mount_xyz = depth_camera_config.xyz if depth_camera_config else [0.0, 0.0, 0.0]
-    point_cloud_enabled = machine.point_cloud.get('enabled', True)
-    camera_height_m = float(camera_mount_xyz[2]) - ground_offset(
-        f'mech/urdf/{machine.name}/robot.urdf')
-    collision_guarded = machine.platform.collision_guarded and depth_camera_name is not None
-    detects_on_camera = bool(
-        oak_d_camera_config
-        and oak_d_camera_config.model == 'oak_d_pro_w_poe'
-        and oak_d_camera_config.detects_on_camera)
-    zed_detects = bool(
-        zed_camera_config
-        and zed_camera_config.node_parameters
-        .get('object_detection', {}).get('od_enabled', False))
-
+    behaviors = machine.behaviors
+    depth_camera = machine.depth_camera
     bl = BetterLaunch()
+    if machine.platform:
+        urdf_path = bl.find('robot_description', 'robot.urdf', subdir=f'urdf/{machine.name}')
+        ground_offset_m = ground_offset(urdf_path)
+    else:
+        urdf_path = ''
+        ground_offset_m = 0.0
+    camera_height_m = float(depth_camera.xyz[2]) - ground_offset_m if depth_camera else 0.0
 
     os.environ['ZENOH_CONFIG_OVERRIDE'] = CLIENT_CONFIG_OVERRIDE
     ensure_router(
         bl, env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE},
         attempts=120, poll_seconds=1.0)
 
-    with bl.group(namespace):
-        robot_state_publisher(
-            os.path.abspath(f'mech/urdf/{machine.name}/robot.urdf'),
-            node_name='robot_state_publisher',
-            anonymous=False,
-            remaps=TF_REMAPS,
-        )
+    with bl.group(namespace) if namespace else nullcontext():
+        if machine.platform:
+            platform(machine, drivetrain_model, urdf_path, depth_camera)
+        if machine.arm:
+            arm(bl, machine)
 
-        if drivetrain_model == 'odrive_usb':
-            bl.node(
-                package='robot_drivers',
-                executable='odrive_motor_driver',
-                params={
-                    'gear_ratio': drivetrain.gear_ratio,
-                    'max_wheel_speed': max_wheel_speed,
-                    'left_serial': drivetrain.left.serial,
-                    'left_reversed': drivetrain.left.is_reversed,
-                    'right_serial': drivetrain.right.serial,
-                    'right_reversed': drivetrain.right.is_reversed,
-                },
-                **RESPAWN,
-            )
-        elif drivetrain_model == 'svd48v':
-            bl.node(
-                package='robot_drivers',
-                executable='svd48v_motor_driver',
-                params={
-                    'serial_port': drivetrain.serial_port,
-                    'baud_rate': drivetrain.baud_rate,
-                    'max_wheel_speed': max_wheel_speed,
-                    'acceleration_rpm_per_second': drivetrain.acceleration_rpm_per_second,
-                    'speed_smoothing_time': drivetrain.speed_smoothing_time,
-                    'left_reversed': drivetrain.left.is_reversed,
-                    'right_reversed': drivetrain.right.is_reversed,
-                },
-                **RESPAWN,
-            )
-        elif drivetrain_model == 'roboteq':
-            roboteq_parameters = {
-                'serial_port': drivetrain.serial_port,
-                'baud_rate': drivetrain.baud_rate,
-                'counts_per_revolution': drivetrain.counts_per_revolution,
-                'control_mode': (
-                    'speed' if drivetrain.control_mode is None else drivetrain.control_mode),
-                'left_reversed': drivetrain.left.is_reversed,
-                'right_reversed': drivetrain.right.is_reversed,
-            }
-            if max_wheel_speed is not None:
-                roboteq_parameters['max_wheel_speed'] = max_wheel_speed
-            flash = drivetrain.roboteq.get('flash')
-            if flash:
-                roboteq_parameters['flash'] = flash_declarations(flash)
-            full_scale_linear_velocity = drivetrain.full_scale_linear_velocity_meters_per_second
-            if full_scale_linear_velocity is not None:
-                roboteq_parameters['full_scale_wheel_speed'] = (
-                    full_scale_linear_velocity / wheel_radius)
-            bl.node(
-                package='robot_drivers',
-                executable='roboteq_motor_driver',
-                params=roboteq_parameters,
-                **RESPAWN,
-            )
-        elif drivetrain_model == 'mock':
-            pass
-        elif drivetrain_model == 'rc_pulse':
-            pins = board_pins(machine)
-            left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain.left.pwm_pin)
-            right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain.right.pwm_pin)
-            bl.node(
-                package='robot_drivers',
-                executable='rc_pulse_motor_driver',
-                params={
-                    'max_wheel_speed': max_wheel_speed,
-                    'left_pwm_chip': left_pwm_chip,
-                    'left_pwm_channel': left_pwm_channel,
-                    'left_reversed': drivetrain.left.is_reversed,
-                    'right_pwm_chip': right_pwm_chip,
-                    'right_pwm_channel': right_pwm_channel,
-                    'right_reversed': drivetrain.right.is_reversed,
-                },
-                **RESPAWN,
-            )
-        else:
-            pins = board_pins(machine)
-            left_pwm_chip, left_pwm_channel = resolve_pwm(pins, drivetrain.left.pwm_pin)
-            right_pwm_chip, right_pwm_channel = resolve_pwm(pins, drivetrain.right.pwm_pin)
-            left_dir_chip, left_dir_line = resolve_line(pins, drivetrain.left.dir_pin)
-            right_dir_chip, right_dir_line = resolve_line(pins, drivetrain.right.dir_pin)
-            if left_dir_chip != right_dir_chip:
-                raise RuntimeError('left and right direction pins must share one gpio chip')
-            bl.node(
-                package='robot_drivers',
-                executable='pwm_dir_motor_driver',
-                params={
-                    'gpio_chip': left_dir_chip,
-                    'pwm_frequency_hz': drivetrain.pwm_frequency_hz,
-                    'max_wheel_speed': max_wheel_speed,
-                    'min_duty': 0.0 if drivetrain.min_duty is None else drivetrain.min_duty,
-                    'left_pwm_chip': left_pwm_chip,
-                    'left_pwm_channel': left_pwm_channel,
-                    'left_dir_line': left_dir_line,
-                    'left_forward_level': drivetrain.left.forward_level,
-                    'right_pwm_chip': right_pwm_chip,
-                    'right_pwm_channel': right_pwm_channel,
-                    'right_dir_line': right_dir_line,
-                    'right_forward_level': drivetrain.right.forward_level,
-                },
-                **RESPAWN,
-            )
+        if behaviors.hand_gesture:
+            include('robot_perception', 'hand_gesture_teleop.launch.py')
+        if behaviors.weeding:
+            include('robot_perception', 'weeding.launch.py')
+        if behaviors.follow_nav2:
+            include('robot_boot', 'nav2_person_follow.launch.py')
 
-        def spawn_controllers():
-            if bl.is_shutdown:
-                return
-            bl.node(
-                package='controller_manager',
-                executable='spawner',
-                name='controller_spawner',
-                cmd_args=[
-                    'joint_state_broadcaster', 'diff_drive_controller',
-                    '--param-file', 'control/config/control.yaml',
-                    '--param-file', drivetrain_parameters_path,
-                    '--controller-manager-timeout', '60',
-                    '--controller-ros-args',
-                    '-r ~/cmd_vel:=platform/cmd_vel -r /tf:=tf -r /tf_static:=tf_static',
-                ],
-            )
+        if behaviors.foxglove:
+            include('robot_boot', 'foxglove_bridge.launch.py')
 
-        bl.node(
-            package='controller_manager',
-            executable='ros2_control_node',
-            name='controller_manager',
-            remaps={'~/robot_description': 'robot_description'},
-            param_files=[
-                'control/config/control.yaml', drivetrain_parameters_path],
-            remap_qualifier='controller_manager',
-            **RESPAWN,
-            on_exit=spawn_controllers,
-        )
-        spawn_controllers()
-
-        if rc_receiver:
-            pins = board_pins(machine)
-            channel_1_chip, channel_1_line = resolve_line(pins, rc_receiver.channel_1_pin)
-            channel_2_chip, channel_2_line = resolve_line(pins, rc_receiver.channel_2_pin)
-            if channel_1_chip != channel_2_chip:
-                raise RuntimeError('rc channel pins must share one gpio chip')
-            bl.node(
-                package='robot_drivers',
-                executable='rc_receiver_joy',
-                name='rc_receiver_joy',
-                params={
-                    'gpio_chip': channel_1_chip,
-                    'channel_1_line': channel_1_line,
-                    'channel_2_line': channel_2_line,
-                    'tank_mixed': rc_receiver.tank_mixed,
-                },
-                remaps={'joy': 'joy_teleop/joy'},
-                **RESPAWN,
-            )
-            bl.node(
-                package='teleop_twist_joy',
-                executable='teleop_node',
-                name='rc_teleop',
-                param_files=['boot/config/rc_teleop.yaml'],
-                remaps={
-                    'joy': 'joy_teleop/joy',
-                    'cmd_vel': 'joy_teleop/cmd_vel',
-                },
-                **RESPAWN,
-            )
-
-        bl.node(
-            package='twist_mux',
-            executable='twist_mux',
-            name='twist_mux',
-            remaps={
-                'cmd_vel_out': ('platform/cmd_vel_raw' if collision_guarded
-                                else 'platform/cmd_vel'),
-            },
-            param_files=['control/config/twist_mux.yaml'],
-            **RESPAWN,
-        )
-
-        if collision_guarded:
-            bl.node(
-                package='nav2_collision_monitor',
-                executable='collision_monitor',
-                name='collision_monitor',
-                params={'scan.topic': f'sensors/{depth_camera_name}/scan'},
-                param_files=['control/config/collision_monitor.yaml'],
-                remaps=TF_REMAPS,
-                **RESPAWN,
-            )
-
-        if machine.hand_gesture.get('enabled', False):
-            bl.node(
-                package='robot_perception',
-                executable='hand_gesture_detector',
-                name='hand_gesture_detector',
-                params={
-                    'image_topic': 'sensors/camera_0/color/image_raw/compressed',
-                    'start_enabled': False,
-                    'num_hands': 2,
-                    'min_hand_detection_confidence': 0.4,
-                },
-                remaps={'/joy_teleop/cmd_vel': 'joy_teleop/cmd_vel'},
-                **RESPAWN,
-            )
-            bl.node(
-                package='robot_perception',
-                executable='hand_gesture_teleop',
-                name='hand_gesture_teleop',
-                params={'start_enabled': False},
-                remaps={'/joy_teleop/cmd_vel': 'joy_teleop/cmd_vel'},
-                **RESPAWN,
-            )
-            bl.node(
-                package='robot_perception',
-                executable='weeding_creep',
-                name='weeding_creep',
-                params={'start_enabled': False},
-                remaps=TF_REMAPS,
-                **RESPAWN,
-            )
-            bl.node(
-                package='robot_perception',
-                executable='lay_down_weeding_elbow_teleop',
-                name='lay_down_weeding_elbow_teleop',
-                params={'start_enabled': False},
-                **RESPAWN,
-            )
-
-        if machine.follow_nav2.get('enabled', False):
-            follow_parameters = os.path.abspath('navigation/config/follow.yaml')
-            follow_point_tree = os.path.abspath('navigation/config/follow_point.xml')
-            for package, server in (
-                    ('nav2_controller', 'controller_server'),
-                    ('nav2_planner', 'planner_server'),
-                    ('nav2_bt_navigator', 'bt_navigator')):
-                bl.node(
-                    package=package,
-                    executable=server,
-                    name=server,
-                    params=({'default_nav_to_pose_bt_xml': follow_point_tree}
-                            if server == 'bt_navigator' else {}),
-                    param_files=[follow_parameters],
-                    remaps=TF_REMAPS,
-                    **RESPAWN,
-                )
-            bl.node(
-                package='robot_perception',
-                executable='person_goal_bridge',
-                name='person_goal_bridge',
-                remaps=TF_REMAPS,
-                **RESPAWN,
-            )
-
-        if machine.foxglove.get('enabled', True):
-            bl.node(
-                package='foxglove_bridge',
-                executable='foxglove_bridge',
-                name='foxglove_bridge',
-                params={
-                    'send_buffer_limit': 20000000,
-                    'max_qos_depth': 5,
-                    'best_effort_qos_topic_whitelist': [
-                        f'/{namespace}/sensors/camera_[0-9]+/.*',
-                    ],
-                    'topic_whitelist': [
-                        f'/{namespace}/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$',
-                        f'/{namespace}/sensors/camera_[0-9]+/depth/image_view(/compressed)?$',
-                        f'/{namespace}/sensors/camera_[0-9]+/(color|depth)/camera_info$',
-                        f'/{namespace}/sensors/camera_[0-9]+/depth/points$',
-                        f'/{namespace}/sensors/camera_[0-9]+/scan$',
-                        f'/{namespace}/sensors/(gps|imu)_[0-9]+/.*',
-                        f'/{namespace}/perception/.*',
-                        f'/{namespace}/platform/.*',
-                        f'/{namespace}/joy_teleop/cmd_vel$',
-                        f'/{namespace}/tf(_static)?$',
-                        f'/{namespace}/map$',
-                        f'/{namespace}/local_costmap/costmap$',
-                        f'/{namespace}/plan$',
-                        f'/{namespace}/slam_toolbox/.*',
-                        f'/{namespace}/diagnostics.*',
-                        f'/{namespace}/robot_description$',
-                    ],
-                },
-                **RESPAWN,
-            )
-
-        bl.node(
-            package='diagnostic_aggregator',
-            executable='aggregator_node',
-            name='diagnostic_aggregator',
-            param_files=['boot/config/diagnostic_aggregator.yaml'],
-            **RESPAWN,
-        )
+        include('robot_boot', 'diagnostic_aggregator.launch.py')
 
         if sensors.gps:
-            gps_parameters = sensors.gps[0].node_parameters
-            gnss_flash = sensors.gps[0].flash
-            if gnss_flash:
-                assert_gnss_flash(gps_parameters['port'], gnss_flash)
-            bl.node(
-                package='nmea_navsat_driver',
-                executable='nmea_serial_driver',
-                name='nmea_navsat_driver',
-                params=gps_parameters,
-                remaps={topic: f'sensors/gps_0/{topic}' for topic in GPS_TOPICS},
-                **RESPAWN,
+            gps = sensors.gps[0]
+            ntrip = gps.ntrip or {}
+            include(
+                'robot_boot', 'gps.launch.py',
+                port=gps.parameters['port'],
+                baud=gps.parameters['baud'],
+                frame_id=gps.parameters['frame_id'],
+                topic_prefix=f'sensors/{gps.name}',
+                flash=','.join(f'{key}={value}' for key, value in gps.flash.items()),
+                ntrip_mountpoint=ntrip.get('mountpoint', ''),
+                ntrip_username=ntrip.get('username', ''),
             )
-            ntrip = sensors.gps[0].ntrip
-            if ntrip:
-                bl.process(
-                    'gnssntripclient'
-                    f' --server {NTRIP_CASTER_HOST} --ntripversion 1.0'
-                    f' --mountpoint {ntrip["mountpoint"]}'
-                    f' --ntripuser {ntrip["username"]} --ntrippassword none'
-                    f' --clioutput {NTRIP_SERIAL_OUTPUT}'
-                    f' --output {gps_parameters["port"]}@{gps_parameters["baud"]}',
-                    name='ntrip_client',
-                    **NTRIP_RESPAWN,
-                )
-            localization_parameters_path = os.path.abspath(
-                'control/config/localization.yaml')
-            bl.node(
-                package='robot_localization',
-                executable='ekf_node',
-                name='ekf_global',
-                param_files=[localization_parameters_path],
-                remaps=TF_REMAPS,
-                **RESPAWN,
-            )
-            bl.node(
-                package='robot_localization',
-                executable='navsat_transform_node',
-                name='navsat_transform',
-                param_files=[localization_parameters_path],
-                remaps=TF_REMAPS | {
-                    'gps/fix': 'sensors/gps_0/fix',
-                    'gps/filtered': 'sensors/gps_0/filtered',
-                },
-                **RESPAWN,
-            )
+            include(
+                'robot_boot', 'robot_localization.launch.py',
+                gps_topic_prefix=f'sensors/{gps.name}')
 
         if sensors.imu:
-            bl.node(
-                package='robot_drivers',
-                executable='imu',
-                name='imu_0',
-                remaps={topic: f'sensors/imu_0/{topic}' for topic in IMU_TOPICS},
-                params=sensors.imu[0].node_parameters,
-                **RESPAWN,
+            imu = sensors.imu[0]
+            include(
+                'robot_boot', 'imu.launch.py',
+                topic_prefix=f'sensors/{imu.name}', **imu.parameters)
+
+        for camera in machine.enabled_cameras:
+            camera_driver(bl, camera, behaviors.point_cloud)
+            if behaviors.point_cloud and camera.has_depth:
+                include(
+                    'robot_boot', 'pointcloud_to_laserscan.launch.py',
+                    camera=camera.name, **laserscan_settings(camera))
+
+        if depth_camera:
+            if behaviors.point_cloud:
+                include(
+                    'robot_perception', 'collision_overlay.launch.py',
+                    camera=depth_camera.name)
+            perception(machine, depth_camera, camera_height_m)
+
+        if behaviors.gps_navigation and sensors.gps:
+            include(
+                'robot_boot', 'gps_navigation.launch.py',
+                namespace=namespace,
+                scan_topic=f'sensors/{depth_camera.name}/scan' if depth_camera else '',
+                overrides_file=machine.params_file('gps_navigation'),
             )
-
-        if oak_d_camera_config:
-            camera_name = oak_d_camera_config.node_name
-            if oak_d_camera_config.model == 'oak_d_pro_w_poe':
-                optical_frame = f'{camera_name}_link_color_optical_frame'
-                oak_d_camera_driver_parameters = {
-                    'frame_id': optical_frame,
-                    'depth_fps': 30.0,
-                    'color_fps': 60.0,
-                    'jpeg_quality': 60,
-                } | oak_d_camera_config.node_parameters
-                if detects_on_camera:
-                    oak_d_camera_driver_parameters['model_path'] = (
-                        os.path.abspath(
-                            'perception/models/yolov8n_coco_640x352.blob'))
-            else:
-                optical_frame = f'{camera_name}_link_right_camera_optical_frame'
-                oak_d_camera_driver_parameters = {
-                    'frame_id': optical_frame,
-                    'fps': 15.0,
-                    'jpeg_quality': 60,
-                }
-            bl.node(
-                package='robot_drivers',
-                executable=('oak_d_pro_w_poe_spatial' if detects_on_camera
-                            else oak_d_camera_config.model),
-                name=oak_d_camera_config.model,
-                params=oak_d_camera_driver_parameters,
-                remaps={
-                    'color/image_raw/compressed':
-                        f'sensors/{camera_name}/color/image_raw/compressed',
-                    'color/camera_info': f'sensors/{camera_name}/color/camera_info',
-                    'depth/image_raw': f'sensors/{camera_name}/depth/image_raw',
-                    'depth/image_raw/compressed':
-                        f'sensors/{camera_name}/depth/image_raw/compressed',
-                    'depth/camera_info': f'sensors/{camera_name}/depth/camera_info',
-                    'depth/points': f'sensors/{camera_name}/depth/points',
-                    'imu/data': f'sensors/{camera_name}/imu/data',
-                },
-                **RESPAWN,
-            )
-            bl.node(
-                package='tf2_ros',
-                executable='static_transform_publisher',
-                name='oak_d_optical_frame_publisher',
-                cmd_args=[
-                    '--roll', '-1.5708', '--yaw', '-1.5708',
-                    '--frame-id', f'{camera_name}_link',
-                    '--child-frame-id', optical_frame,
-                ],
-                remaps=TF_REMAPS,
-                **RESPAWN,
-            )
-            if oak_d_camera_config.model == 'oak_d_sr' and point_cloud_enabled:
-                bl.node(
-                    package='depth_image_proc',
-                    executable='point_cloud_xyz_node',
-                    name='oak_d_sr_depth_to_pointcloud',
-                    remaps={
-                        'image_rect': f'sensors/{camera_name}/depth/image_raw',
-                        'camera_info': f'sensors/{camera_name}/depth/camera_info',
-                        'points': f'sensors/{camera_name}/depth/points',
-                    },
-                    **RESPAWN,
-                )
-            if point_cloud_enabled:
-                bl.node(
-                    package='pointcloud_to_laserscan',
-                    executable='pointcloud_to_laserscan_node',
-                    name='oak_d_pointcloud_to_laserscan',
-                    remaps=TF_REMAPS | {
-                        'cloud_in': f'sensors/{camera_name}/depth/points',
-                        'scan': f'sensors/{camera_name}/scan',
-                    },
-                    # TODO: rescope range_max to the OAK-D SR's 1.5m usable depth band
-                    params={
-                        'target_frame': 'base_link',
-                        'min_height': 0.1,
-                        'max_height': 0.6,
-                        'range_min': 0.2,
-                        'range_max': 3.0,
-                        'scan_time': 0.05,
-                    },
-                    **RESPAWN,
-                )
-
-        if orbbec_gemini_335l_camera_config:
-            camera_parameters = orbbec_gemini_335l_camera_config.node_parameters
-            bl.node(
-                package='robot_drivers',
-                executable='orbbec_gemini_335l',
-                name='orbbec_gemini_335l',
-                params={
-                    'color_width': camera_parameters['color_width'],
-                    'color_height': camera_parameters['color_height'],
-                    'color_fps': camera_parameters['color_fps'],
-                    'enable_depth': camera_parameters['enable_depth'],
-                    'depth_width': camera_parameters['depth_width'],
-                    'depth_height': camera_parameters['depth_height'],
-                    'depth_fps': camera_parameters['depth_fps'],
-                    'depth_decimation': camera_parameters['depth_decimation'],
-                },
-                remaps={
-                    'color/image_raw': 'sensors/camera_0/color/image_raw',
-                    'color/image_raw/compressed':
-                        'sensors/camera_0/color/image_raw/compressed',
-                    'color/camera_info': 'sensors/camera_0/color/camera_info',
-                    'depth/image_raw': 'sensors/camera_0/depth/image_raw',
-                    'depth/image_raw/compressed':
-                        'sensors/camera_0/depth/image_raw/compressed',
-                    'depth/camera_info': 'sensors/camera_0/depth/camera_info',
-                },
-                **RESPAWN,
-            )
-            if camera_parameters['enable_depth'] and point_cloud_enabled:
-                bl.node(
-                    package='depth_image_proc',
-                    executable='point_cloud_xyz_node',
-                    name='depth_to_pointcloud',
-                    remaps={
-                        'image_rect': 'sensors/camera_0/depth/image_raw',
-                        'camera_info': 'sensors/camera_0/depth/camera_info',
-                        'points': 'sensors/camera_0/depth/points',
-                    },
-                    **RESPAWN,
-                )
-                bl.node(
-                    package='pointcloud_to_laserscan',
-                    executable='pointcloud_to_laserscan_node',
-                    name='pointcloud_to_laserscan',
-                    remaps=TF_REMAPS | {
-                        'cloud_in': 'sensors/camera_0/depth/points',
-                        'scan': 'sensors/camera_0/scan',
-                    },
-                    params={
-                        'target_frame': 'base_link',
-                        'min_height': 0.1,
-                        'max_height': 0.5,
-                        'range_min': 0.25,
-                        'range_max': 8.0,
-                        'scan_time': 1.0 / camera_parameters['depth_fps'],
-                    },
-                    **RESPAWN,
-                )
-        if zed_camera_config:
-            bl.process(
-                ['python', 'boot/launch/zed_camera.launch.py',
-                 '--robot', machine.name],
-                name='zed_camera',
-                **RESPAWN,
-            )
-            camera_parameters = zed_camera_config.node_parameters
-            if point_cloud_enabled:
-                point_cloud_freq = camera_parameters.get(
-                    'depth', {}).get('point_cloud_freq', 10.0)
-                bl.node(
-                    package='pointcloud_to_laserscan',
-                    executable='pointcloud_to_laserscan_node',
-                    name='pointcloud_to_laserscan',
-                    remaps=TF_REMAPS | {
-                        'cloud_in': 'sensors/camera_0/depth/points',
-                        'scan': 'sensors/camera_0/scan',
-                    },
-                    params={
-                        'target_frame': 'base_link',
-                        'min_height': 0.1,
-                        'max_height': 0.5,
-                        'range_min': 0.25,
-                        'range_max': 8.0,
-                        'scan_time': 1.0 / point_cloud_freq,
-                    },
-                    **RESPAWN,
-                )
-
-        if depth_camera_name is not None:
-            if point_cloud_enabled:
-                bl.node(
-                    package='robot_perception',
-                    executable='collision_overlay',
-                    name='collision_overlay',
-                    remaps=TF_REMAPS,
-                    params={
-                        'cloud_topic': f'sensors/{depth_camera_name}/depth/points',
-                        'camera_info_topic':
-                            f'sensors/{depth_camera_name}/color/camera_info',
-                        'overlay_topic': 'perception/collision/overlay',
-                    },
-                    **RESPAWN,
-                )
-            if oak_d_camera_config:
-                detector_image_topic = (
-                    f'sensors/{depth_camera_name}/color/image_raw/compressed')
-            else:
-                detector_image_topic = f'sensors/{depth_camera_name}/color/image_raw'
-            if not detects_on_camera and not zed_detects:
-                bl.node(
-                    package='robot_perception',
-                    executable='person_detector',
-                    name='person_detector',
-                    params={
-                        'image_topic': detector_image_topic,
-                        'depth_topic': f'sensors/{depth_camera_name}/depth/image_raw',
-                        'depth_camera_info_topic': f'sensors/{depth_camera_name}/depth/camera_info',
-                        'min_score': 0.3,
-                        'max_detections_per_second': 10.0,
-                    } | machine.detector,
-                    **RESPAWN,
-                )
-            person_follow_parameters = {
-                'standoff_distance': 1.5,
-                'max_missing_frames': 24,
-                'start_enabled': False,
-                'max_forward_speed': 2.0,
-                'max_angular_speed': 2.0,
-                'max_backward_speed': 2.0,
-                'distance_gain': 2.5,
-                'distance_damping': 0.4,
-                'steer_gain': 1.5,
-                'steer_damping': 0.7,
-                'command_smoothing_seconds': 0.1,
-                'distance_deadband': 0.1,
-                'steer_deadband': 0.05,
-            } | machine.follow
-            bl.node(
-                package='robot_perception',
-                executable='approach',
-                name='person_follow',
-                params=person_follow_parameters,
-                **RESPAWN,
-            )
-
-            line_config = machine.line
-            if line_config.get('enabled', False):
-                bl.node(
-                    package='robot_perception',
-                    executable='color_blob_detector',
-                    name='line_detector',
-                    params={
-                        'image_topic':
-                            f'sensors/{depth_camera_name}/color/image_raw/compressed',
-                        'depth_topic': f'sensors/{depth_camera_name}/depth/image_raw',
-                        'depth_camera_info_topic':
-                            f'sensors/{depth_camera_name}/depth/camera_info',
-                        'detections_topic': 'perception/line/detections',
-                        'overlay_topic': 'perception/line/overlay',
-                        'class_label': 'line',
-                        'hue_min': 0.0,
-                        'hue_max': 180.0,
-                        'min_saturation': 0.0,
-                        'max_saturation': 0.25,
-                        'min_value': 0.6,
-                        'min_triangularity': 0.0,
-                        'min_aspect_ratio': 0.0,
-                        'min_area': 800,
-                        'roi_top_fraction': 0.55,
-                        'start_enabled': False,
-                    } | line_config.get('detector', {}),
-                    **RESPAWN,
-                )
-                bl.node(
-                    package='robot_perception',
-                    executable='row_follow',
-                    name='line_follow',
-                    params={
-                        'detections_topic': 'perception/line/detections',
-                        'start_enabled': False,
-                    } | line_config.get('follow', {}),
-                    **RESPAWN,
-                )
-
-            for surface, surface_defaults in FOLLOWED_SURFACES.items():
-                surface_config = getattr(machine, surface)
-                if not surface_config.get('enabled', False):
-                    continue
-                bl.node(
-                    package='robot_perception',
-                    executable='surface_detector',
-                    name=f'{surface}_detector',
-                    params={
-                        'image_topic':
-                            f'sensors/{depth_camera_name}/color/image_raw/compressed',
-                        'detections_topic': f'perception/{surface}/detections',
-                        'overlay_topic': f'perception/{surface}/overlay',
-                        'class_label': surface,
-                        'max_detections_per_second': 5.0,
-                    } | surface_defaults | surface_config.get('detector', {}),
-                    **RESPAWN,
-                )
-                bl.node(
-                    package='robot_perception',
-                    executable='surface_follow',
-                    name=f'{surface}_follow',
-                    params={
-                        'detections_topic': f'perception/{surface}/detections',
-                        'camera_info_topic':
-                            f'sensors/{depth_camera_name}/color/camera_info',
-                        'camera_height_m': camera_height_m,
-                        'start_enabled': False,
-                    } | surface_config.get('follow', {}),
-                    **RESPAWN,
-                )
-
-            harvest_lane_config = machine.harvest_lane
-            if harvest_lane_config.get('enabled', False):
-                bl.node(
-                    package='robot_perception',
-                    executable='canopy_detector',
-                    name='canopy_detector',
-                    params={
-                        'image_topic':
-                            f'sensors/{depth_camera_name}/color/image_raw/compressed',
-                        'mask_topic': 'perception/canopy/mask/compressed',
-                        'fraction_topic': 'perception/canopy/fraction',
-                    } | harvest_lane_config.get('detector', {}),
-                    **RESPAWN,
-                )
-                bl.node(
-                    package='robot_perception',
-                    executable='harvest_lane_navigator',
-                    name='harvest_lane_navigator',
-                    params={
-                        'mask_topic': 'perception/canopy/mask/compressed',
-                        'camera_info_topic':
-                            f'sensors/{depth_camera_name}/color/camera_info',
-                        'depth_topic': f'sensors/{depth_camera_name}/depth/image_raw',
-                        'odom_topic': 'diff_drive_controller/odom',
-                        'camera_height_m': camera_height_m,
-                        'camera_lateral_offset_m': float(camera_mount_xyz[1]),
-                        'start_enabled': False,
-                    } | harvest_lane_config.get('navigator', {}),
-                    **RESPAWN,
-                )
-
-        if machine.gps_navigation.get('enabled', False) and sensors.gps:
-            bl.wait_for_service(f'/{namespace}/fromLL', timeout=120.0)
-            gps_navigation_parameters_path = os.path.abspath(
-                'navigation/config/gps_navigation.yaml')
-            navigate_to_pose_tree = os.path.abspath(
-                'navigation/config/navigate_to_pose.xml')
-            for package, server in (
-                    ('nav2_controller', 'controller_server'),
-                    ('nav2_planner', 'planner_server'),
-                    ('nav2_bt_navigator', 'bt_navigator'),
-                    ('nav2_waypoint_follower', 'waypoint_follower')):
-                server_parameters = {}
-                server_remaps = dict(TF_REMAPS)
-                if server == 'bt_navigator':
-                    server_parameters['default_nav_to_pose_bt_xml'] = (
-                        navigate_to_pose_tree)
-                if server == 'waypoint_follower':
-                    server_remaps['/fromLL'] = 'fromLL'
-                costmap_name = {
-                    'controller_server': 'local_costmap',
-                    'planner_server': 'global_costmap'}.get(server)
-                if costmap_name:
-                    server_remaps[
-                        f'/{namespace}/{costmap_name}/sensors/camera_0/scan'] = (
-                        f'/{namespace}/sensors/camera_0/scan')
-                linear_velocity = machine.gps_navigation.get(
-                    'linear_velocity_meters_per_second')
-                if linear_velocity is not None and server == 'controller_server':
-                    server_parameters['FollowPath.desired_linear_vel'] = float(
-                        linear_velocity)
-                bl.node(
-                    package=package,
-                    executable=server,
-                    name=server,
-                    params=server_parameters,
-                    param_files=[gps_navigation_parameters_path],
-                    remaps=server_remaps,
-                    **RESPAWN,
-                )

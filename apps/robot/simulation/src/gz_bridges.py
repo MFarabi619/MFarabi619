@@ -14,18 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import os
 import re
 
 from better_launch.gazebo import GazeboBridge, spawn_image_bridge, spawn_topic_bridge
-from machine import load_machine
+from robot_boot.launch_policy import include
 
 LUMPED_SENSOR_LINK = 'base_link'
-SCAN_TARGET_FRAME = 'base_link'
-SCAN_MIN_HEIGHT_M = 0.1
-SCAN_MAX_HEIGHT_M = 0.5
-SCAN_RANGE_MIN_M = 0.25
-SCAN_RANGE_MAX_M = 8.0
 SCAN_DEFAULT_DEPTH_FPS = 15
 
 
@@ -33,33 +27,29 @@ def sensor_topic(world, model, link, sensor, suffix):
     return f'/world/{world}/model/{model}/link/{link}/sensor/{sensor}/{suffix}'
 
 
-def resolve_world_name(world):
-    with open(os.path.join('simulation', 'worlds', f'{world}.sdf')) as world_file:
+def resolve_world_name(bl, world):
+    with open(bl.find('robot_simulator', f'{world}.sdf', subdir='worlds')) as world_file:
         match = re.search(r'<world\s+name=[\'"]([^\'"]+)[\'"]', world_file.read())
     return match.group(1) if match else world
 
 
 class SimCamera:
-    def __init__(self, index, camera):
-        self.name = f'camera_{index}'
-        self.link = f'camera_{index}_link'
-        self.has_depth = camera.node_parameters.get('enable_depth', False)
-        self.depth_fps = camera.node_parameters.get('depth_fps', SCAN_DEFAULT_DEPTH_FPS)
+    def __init__(self, camera):
+        self.name = camera.name
+        self.link = f'{camera.name}_link'
+        self.has_depth = camera.parameters.get('enable_depth', False)
+        self.depth_fps = camera.parameters.get('depth_fps', SCAN_DEFAULT_DEPTH_FPS)
 
 
-def load_sim_sensors(robot):
-    sensors = load_machine(robot).sensors
-    cameras = [
-        SimCamera(index, camera)
-        for index, camera in enumerate(sensors.camera)
-        if camera.launch_enabled
-    ]
+def sim_sensors(machine):
+    sensors = machine.sensors
+    cameras = [SimCamera(camera) for camera in machine.enabled_cameras]
     return cameras, len(sensors.imu), bool(sensors.gps)
 
 
-def spawn_sim_bridges(bl, robot, world, model, depth_scan=False):
-    cameras, imu_count, has_gps = load_sim_sensors(robot)
-    world = resolve_world_name(world)
+def spawn_sim_bridges(bl, machine, world, model, depth_scan=False):
+    cameras, imu_count, has_gps = sim_sensors(machine)
+    world = resolve_world_name(bl, world)
 
     bridges = []
     image_topics = []
@@ -122,19 +112,8 @@ def spawn_sim_bridges(bl, robot, world, model, depth_scan=False):
             })
         if not depth_scan:
             continue
-        bl.node(
-            package='pointcloud_to_laserscan',
-            executable='pointcloud_to_laserscan_node',
-            name=f'{camera.name}_pointcloud_to_laserscan',
-            params={
-                'target_frame': SCAN_TARGET_FRAME,
-                'min_height': SCAN_MIN_HEIGHT_M,
-                'max_height': SCAN_MAX_HEIGHT_M,
-                'range_min': SCAN_RANGE_MIN_M,
-                'range_max': SCAN_RANGE_MAX_M,
-                'scan_time': 1.0 / camera.depth_fps,
-            },
-            remaps={
-                'cloud_in': f'sensors/{camera.name}/depth/points',
-                'scan': f'sensors/{camera.name}/scan',
-            })
+        include(
+            'robot_boot', 'pointcloud_to_laserscan.launch.py',
+            camera=camera.name,
+            scan_time=1.0 / camera.depth_fps,
+        )

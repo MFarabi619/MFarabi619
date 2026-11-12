@@ -47,7 +47,7 @@ def main():
     robot = parser.parse_args().robot
     fix = current_fix(robot)
 
-    config_path = pathlib.Path(f'machines/{robot}/robot.yaml')
+    config_path = pathlib.Path(__file__).resolve().parents[2] / 'machines' / robot / 'robot.yaml'
     config_text = config_path.read_text()
     updated_text, replacements = re.subn(
         r'(home:\n  latitude: )\S+(\n  longitude: )\S+',

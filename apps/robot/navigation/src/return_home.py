@@ -19,12 +19,11 @@ import argparse
 from geographic_msgs.msg import GeoPose
 from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
-import yaml
+from robot_machines.machine import load_machine
 
 
 def home_coordinate(robot):
-    with open(f'machines/{robot}/robot.yaml') as file:
-        return yaml.safe_load(file)['home']
+    return load_machine(robot).home
 
 
 def main():

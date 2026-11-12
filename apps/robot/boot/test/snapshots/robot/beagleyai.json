@@ -1,6 +1,10 @@
 {
   "environment": {
     "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[robot/beagleyai] (call)",
+    "ZED_SDK_ROOT": {
+      "bytes": 17,
+      "xml_sha256": "cd286e60d342c8f3faddc6a7379fcd6326cbdfcb6e16055a9e2af03498c91bcb"
+    },
     "ZENOH_CONFIG_OVERRIDE": "mode=\"client\""
   },
   "events": [
@@ -41,6 +45,22 @@
       "xacro_args": null
     },
     {
+      "arguments": {
+        "left_pwm_channel": 1,
+        "left_pwm_chip": 4,
+        "left_reversed": false,
+        "max_wheel_speed": 11.435105774728417,
+        "right_pwm_channel": 1,
+        "right_pwm_chip": 3,
+        "right_reversed": false
+      },
+      "kind": "include",
+      "launchfile": "rc_pulse_motor_driver.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "rc_pulse_motor_driver",
       "kind": "node",
       "max_respawns": -1,
@@ -57,6 +77,23 @@
         "right_reversed": false
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "max_angular_acceleration_radians_per_second_squared": 10.0,
+        "max_angular_jerk_radians_per_second_cubed": 70.0,
+        "max_angular_velocity_radians_per_second": 3.0,
+        "max_linear_acceleration_meters_per_second_squared": 8.0,
+        "max_linear_jerk_meters_per_second_cubed": 60.0,
+        "max_linear_velocity_meters_per_second": 2.0,
+        "wheel_radius": 0.1749,
+        "wheel_separation": 1.1704
+      },
+      "kind": "include",
+      "launchfile": "controller_manager.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_boot",
+      "subdir": null
     },
     {
       "executable": "ros2_control_node",
@@ -126,6 +163,16 @@
       "package": "controller_manager"
     },
     {
+      "arguments": {
+        "cmd_vel_out": "platform/cmd_vel"
+      },
+      "kind": "include",
+      "launchfile": "twist_mux.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "twist_mux",
       "kind": "node",
       "max_respawns": -1,
@@ -141,38 +188,35 @@
       "respawn_delay": 2.0
     },
     {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "foxglove_bridge.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "foxglove_bridge",
       "kind": "node",
       "max_respawns": -1,
       "name": "foxglove_bridge",
       "namespace": "/beagleyai",
       "package": "foxglove_bridge",
+      "param_files": [
+        "boot/config/foxglove_bridge.yaml"
+      ],
       "params": {
-        "best_effort_qos_topic_whitelist": [
-          "/beagleyai/sensors/camera_[0-9]+/.*"
-        ],
-        "max_qos_depth": 5,
-        "send_buffer_limit": 20000000,
-        "topic_whitelist": [
-          "/beagleyai/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$",
-          "/beagleyai/sensors/camera_[0-9]+/depth/image_view(/compressed)?$",
-          "/beagleyai/sensors/camera_[0-9]+/(color|depth)/camera_info$",
-          "/beagleyai/sensors/camera_[0-9]+/depth/points$",
-          "/beagleyai/sensors/camera_[0-9]+/scan$",
-          "/beagleyai/sensors/(gps|imu)_[0-9]+/.*",
-          "/beagleyai/perception/.*",
-          "/beagleyai/platform/.*",
-          "/beagleyai/joy_teleop/cmd_vel$",
-          "/beagleyai/tf(_static)?$",
-          "/beagleyai/map$",
-          "/beagleyai/local_costmap/costmap$",
-          "/beagleyai/plan$",
-          "/beagleyai/slam_toolbox/.*",
-          "/beagleyai/diagnostics.*",
-          "/beagleyai/robot_description$"
-        ]
+        "send_buffer_limit": 20000000
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "diagnostic_aggregator.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_boot",
+      "subdir": null
     },
     {
       "executable": "aggregator_node",
@@ -185,6 +229,20 @@
         "boot/config/diagnostic_aggregator.yaml"
       ],
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "frame_id": "imu_0_link",
+        "i2c_address": 74,
+        "i2c_bus": 1,
+        "rate_hz": 25.0,
+        "topic_prefix": "sensors/imu_0"
+      },
+      "kind": "include",
+      "launchfile": "imu.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_boot",
+      "subdir": null
     },
     {
       "executable": "imu",
@@ -212,6 +270,25 @@
       "respawn_delay": 2.0
     },
     {
+      "arguments": {
+        "camera": "camera_0",
+        "color_fps": 10,
+        "color_height": 480,
+        "color_width": 640,
+        "depth_decimation": 2,
+        "depth_fps": 15,
+        "depth_height": 480,
+        "depth_width": 848,
+        "enable_depth": true,
+        "point_cloud": true
+      },
+      "kind": "include",
+      "launchfile": "orbbec_gemini_335l.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "orbbec_gemini_335l",
       "kind": "node",
       "max_respawns": -1,
@@ -226,7 +303,8 @@
         "depth_fps": 15,
         "depth_height": 480,
         "depth_width": 848,
-        "enable_depth": true
+        "enable_depth": true,
+        "jpeg_quality": 80
       },
       "remaps": {
         "color/camera_info": "sensors/camera_0/color/camera_info",
@@ -253,10 +331,21 @@
       "respawn_delay": 2.0
     },
     {
+      "arguments": {
+        "camera": "camera_0",
+        "scan_time": 0.06666666666666667
+      },
+      "kind": "include",
+      "launchfile": "pointcloud_to_laserscan.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "pointcloud_to_laserscan_node",
       "kind": "node",
       "max_respawns": -1,
-      "name": "pointcloud_to_laserscan",
+      "name": "camera_0_pointcloud_to_laserscan",
       "namespace": "/beagleyai",
       "package": "pointcloud_to_laserscan",
       "params": {
@@ -274,6 +363,16 @@
         "scan": "sensors/camera_0/scan"
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "camera": "camera_0"
+      },
+      "kind": "include",
+      "launchfile": "collision_overlay.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "collision_overlay",
@@ -294,18 +393,32 @@
       "respawn_delay": 2.0
     },
     {
+      "arguments": {
+        "camera": "camera_0",
+        "detects_on_camera": false,
+        "image_topic": "",
+        "overrides_file": ""
+      },
+      "kind": "include",
+      "launchfile": "person_follow.launch.py",
+      "namespace": "/beagleyai",
+      "package": "robot_perception",
+      "subdir": null
+    },
+    {
       "executable": "person_detector",
       "kind": "node",
       "max_respawns": -1,
       "name": "person_detector",
       "namespace": "/beagleyai",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/person_follow.yaml"
+      ],
       "params": {
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw",
-        "max_detections_per_second": 10.0,
-        "min_score": 0.3
+        "image_topic": "sensors/camera_0/color/image_raw"
       },
       "respawn_delay": 2.0
     },
@@ -316,20 +429,11 @@
       "name": "person_follow",
       "namespace": "/beagleyai",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/person_follow.yaml"
+      ],
       "params": {
-        "command_smoothing_seconds": 0.1,
-        "distance_damping": 0.4,
-        "distance_deadband": 0.1,
-        "distance_gain": 2.5,
-        "max_angular_speed": 2.0,
-        "max_backward_speed": 2.0,
-        "max_forward_speed": 2.0,
-        "max_missing_frames": 24,
-        "standoff_distance": 1.5,
-        "start_enabled": false,
-        "steer_damping": 0.7,
-        "steer_deadband": 0.05,
-        "steer_gain": 1.5
+        "start_enabled": false
       },
       "respawn_delay": 2.0
     }

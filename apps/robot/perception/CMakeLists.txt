@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(robot_perception)
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(vision_msgs REQUIRED)
@@ -29,6 +30,7 @@ add_executable(person_detector src/person_detector.cpp)
 target_compile_features(person_detector PUBLIC cxx_std_17)
 target_link_libraries(person_detector
   rclcpp::rclcpp
+  ament_index_cpp::ament_index_cpp
   image_geometry::image_geometry
   onnxruntime::onnxruntime
   opencv_imgcodecs
@@ -59,6 +61,7 @@ install(PROGRAMS src/tracked_approach.py DESTINATION lib/${PROJECT_NAME} RENAME 
 install(PROGRAMS src/row_follow.py DESTINATION lib/${PROJECT_NAME} RENAME row_follow)
 install(PROGRAMS src/surface_follow.py DESTINATION lib/${PROJECT_NAME} RENAME surface_follow)
 install(DIRECTORY models DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME} PATTERN "__pycache__" EXCLUDE)
 install(PROGRAMS src/voice_word_detector.py DESTINATION lib/${PROJECT_NAME} RENAME voice_word_detector)
 install(PROGRAMS src/voice_teleop.py DESTINATION lib/${PROJECT_NAME} RENAME voice_teleop)
 install(PROGRAMS src/voice_speaker.py DESTINATION lib/${PROJECT_NAME} RENAME voice_speaker)
@@ -67,6 +70,7 @@ install(FILES src/voice_word_detector.py src/voice_teleop.py DESTINATION lib/${P
 install(PROGRAMS src/hand_gesture_detector.py DESTINATION lib/${PROJECT_NAME} RENAME hand_gesture_detector)
 install(PROGRAMS src/foxglove_panels.py DESTINATION lib/${PROJECT_NAME} RENAME foxglove_panels)
 install(PROGRAMS src/hand_gesture_teleop.py DESTINATION lib/${PROJECT_NAME} RENAME hand_gesture_teleop)
+install(PROGRAMS src/zed_object_overlay.py DESTINATION lib/${PROJECT_NAME} RENAME zed_object_overlay)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

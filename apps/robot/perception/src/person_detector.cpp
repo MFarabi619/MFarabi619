@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <array>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -25,6 +26,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include <ament_index_cpp/get_package_prefix.hpp>
 #include <foxglove_msgs/msg/image_annotations.hpp>
 #include <foxglove_msgs/msg/points_annotation.hpp>
 #include <foxglove_msgs/msg/text_annotation.hpp>
@@ -52,6 +54,16 @@ constexpr char RGB_COLOR_ENCODING[] = "rgb8";
 constexpr char BGR_COLOR_ENCODING[] = "bgr8";
 constexpr char BGRA_COLOR_ENCODING[] = "bgra8";
 constexpr std::string_view COMPRESSED_TOPIC_SUFFIX = "/compressed";
+constexpr char MODELS_DIRECTORY[] = "lib/robot_perception/models";
+
+std::string resolve_model_path(const std::string & model_path)
+{
+  if (std::filesystem::path(model_path).is_absolute()) {
+    return model_path;
+  }
+  return (std::filesystem::path(ament_index_cpp::get_package_prefix("robot_perception"))
+    / MODELS_DIRECTORY / model_path).string();
+}
 
 foxglove_msgs::msg::Color make_color(float red, float green, float blue, float alpha)
 {
@@ -112,8 +124,8 @@ public:
       "detections_topic", std::string("detections"));
     const auto overlay_topic = declare_parameter(
       "overlay_topic", std::string("perception/vision/overlay"));
-    const auto model_path = declare_parameter(
-      "model_path", std::string("perception/models/ssd_mobilenet_v1_12.onnx"));
+    const auto model_path = resolve_model_path(
+      declare_parameter("model_path", std::string("ssd_mobilenet_v1_12.onnx")));
     class_label_ = declare_parameter("class_label", std::string("person"));
     person_class_id_ = declare_parameter("person_class_id", 1);
     min_score_ = declare_parameter("min_score", 0.5);

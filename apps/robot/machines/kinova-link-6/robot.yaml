@@ -1,5 +1,3 @@
-serial_number: mark-4
-version: 1
 system:
   hosts: []
   # - hostname: jetson-orin-nano
@@ -22,22 +20,21 @@ sensors:
       parent: base_link
       xyz: [1.0, 0.0, 0.5]
       rpy: [0.0, 0.0, 3.1416]
-      ros_parameters:
-        camera_0:
-          general:
-            grab_resolution: HD720
-            grab_frame_rate: 30
-            pub_frame_rate: 0.0
-          depth:
-            depth_mode: NEURAL_PLUS
-            openni_depth_mode: true
-            publish_depth_image: true
-            point_cloud_freq: 15.0
-          object_detection:
-            od_enabled: true
-          pos_tracking:
-            pos_tracking_enabled: false
-            publish_tf: false
-            publish_map_tf: false
-          sensors:
-            publish_imu_tf: false
+      parameters:
+        general:
+          grab_resolution: HD720
+          grab_frame_rate: 30
+          pub_frame_rate: 0.0
+        depth:
+          depth_mode: NEURAL_PLUS
+          openni_depth_mode: true
+          publish_depth_image: true
+          point_cloud_freq: 15.0
+        object_detection:
+          od_enabled: true
+        pos_tracking:
+          pos_tracking_enabled: false
+          publish_tf: false
+          publish_map_tf: false
+        sensors:
+          publish_imu_tf: false

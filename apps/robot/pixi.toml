@@ -29,6 +29,7 @@ ccache = "*"
 python = "*"
 rosdep = "*"
 requests = "*"
+pydantic = "*"
 pyserial = "*"
 libopencv = "*"
 compilers = "*"
@@ -167,6 +168,8 @@ test = { cmd = "pytest -c pytest.ini {{ suites }}", args = [
 
 deploy = { cmd = "python machines/deploy.py {{ robot }}", args = [
     { arg = "robot", default = "taro" },
+], depends-on = [
+    "build",
 ] }
 
 robot = { cmd = "python boot/launch/robot.launch.py --name '{{ name }}' --drivetrain_model '{{ drivetrain_model }}'", args = [
@@ -271,9 +274,17 @@ audio-output-enable = { cmd = "python boot/launch/audio.launch.py --robot {{ rob
     "build",
 ] }
 
-gps = { cmd = "python boot/launch/gps.launch.py --port {{ port }} --baud {{ baud }}", args = [
+gps = { cmd = """
+python boot/launch/gps.launch.py \
+    --port {{ port }} \
+    --baud {{ baud }} \
+    --ntrip_mountpoint {{ ntrip_mountpoint }} \
+    --ntrip_username {{ ntrip_username }}\
+""", args = [
     { arg = "port", default = "/dev/cu.usbmodem2101" },
     { arg = "baud", default = "115200" },
+    { arg = "ntrip_mountpoint", default = "OsgoodeFarms" },
+    { arg = "ntrip_username", default = "farabi@tandemrobotics.ca" },
 ] }
 
 set-home = { cmd = "python navigation/src/set_home.py --robot {{ robot }}", args = [
@@ -392,7 +403,7 @@ ros2 service call /{{ robot }}/harvest_lane_navigator/enable std_srvs/srv/SetBoo
     ] },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{% if robot == "taro" %}rpi5-16-2{% else %}rpi5-16{% endif %}.local:7447"]' } }
 
-harvest-lane-taro = { cmd = "python boot/launch/harvest_lane.launch.py", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = [
+harvest-lane-taro = { cmd = "python perception/launch/harvest_lane.launch.py --start_enabled true", env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/rpi5-16-2.local:7447"]' }, depends-on = [
     "build",
 ] }
 
@@ -434,10 +445,13 @@ launch = { cmd = "python boot/launch/boot.launch.py --robot {{ robot }} --gestur
     "build",
 ] }
 
-roboteq = { cmd = "python boot/launch/roboteq.launch.py --port {{ port }} --counts_per_revolution {{ counts_per_revolution }} --robot {{ robot }}", args = [
-    { arg = "port", default = "/dev/cu.usbmodem2072356748451" },
+roboteq = { cmd = """
+python boot/launch/roboteq_motor_driver.launch.py \
+    --serial_port {{ serial_port }} \
+    --counts_per_revolution {{ counts_per_revolution }}\
+""", args = [
+    { arg = "serial_port", default = "/dev/cu.usbmodem2072356748451" },
     { arg = "counts_per_revolution", default = "90" },
-    { arg = "robot", default = "taro" },
 ], depends-on = [
     "build",
 ] }
@@ -496,7 +510,12 @@ sim-arm-mujoco = { cmd = "python simulation/launch/arm_mujoco.launch.py --robot 
 
 e2e-arm-sim = { cmd = "pytest e2e/arm_sim.py -v -s", depends-on = ["build"] }
 
-arm = { cmd = "python manipulation/launch/arm.launch.py --robot {{ robot }} --robot_password {{ password }} --rviz {{ rviz }}", args = [
+arm = { cmd = """
+python manipulation/launch/kinova_link6.launch.py \
+    --motions_file machines/{{ robot }}/motions.yaml \
+    --robot_password {{ password }} \
+    --rviz {{ rviz }}\
+""", args = [
     { arg = "robot", default = "kinova-link-6" },
     { arg = "password", default = "admin" },
     { arg = "rviz", default = "true", choices = [
@@ -548,7 +567,7 @@ python manipulation/src/load_motions.py \
     { arg = "host", default = "jetson-orin-nano.local" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }
 
-arm-pick = { cmd = "python manipulation/launch/kinova_link6_pick.launch.py --object {{ object }}", args = [
+arm-pick = { cmd = "python manipulation/launch/kinova_link6_pick.launch.py --target_object {{ object }}", args = [
     { arg = "object", default = "apple" },
     { arg = "host", default = "jetson-orin-nano.local" },
 ], env = { ZENOH_CONFIG_OVERRIDE = 'mode="client";connect/endpoints=["tcp/{{ host }}:7447"]', ZENOH_SESSION_CONFIG_URI = ".pixi/envs/default/share/rmw_zenoh_cpp/config/DEFAULT_RMW_ZENOH_SESSION_CONFIG.json5" } }

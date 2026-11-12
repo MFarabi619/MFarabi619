@@ -1,0 +1,77 @@
+system:
+  namespace: saburo
+  hosts:
+    - hostname: jetson-orin-nano
+      ip: 10.0.0.180
+      board: jetson_orin_nano
+platform:
+  attachments: []
+  drivetrain:
+    model: roboteq
+    serial_port: /dev/serial/by-id/usb-RoboteQ_RoboteQ_SBLMG2360T_GwBAABhQRUhMNTIg_207235674845-if00
+    baud_rate: 115200
+    counts_per_revolution: 90
+    control_mode: open_loop
+    full_scale_linear_velocity_meters_per_second: 2.0
+    roboteq:
+      max_linear_acceleration_meters_per_second_squared: 5.0
+      max_angular_acceleration_radians_per_second_squared: 7.5
+      flash:
+        # Controller flash asserted by roboteq_motor_driver at connect.
+        # RC receiver: connector pins 15/2 = pulse inputs 7/8.
+        PMOD: {7: 1, 8: 1}        # 1 = capture RC pulse width
+        PINA: {7: 17, 8: 33}      # use + motor: 17 = command motor 1, 33 = command motor 2
+        PPOL: {7: 0, 8: 1}        # input 8 inverted: mirrored right motor, RC path only
+        PMIN: {7: 0, 8: 0}        # microseconds mapped to full reverse
+        PMAX: {7: 3000, 8: 3000}  # with PMIN as a pair, symmetric around 1500; stick spans 1000-2000:
+                                  # PMIN/PMAX 0/3000 = 33%, 500/2500 = 50%, 750/2250 = 57%, 1000/2000 = 100%
+        MDIR: {1: 1, 2: 1}        # 1 = inverted
+        MMOD: {1: 0, 2: 0}        # 0 = open loop
+        ALIM: {1: 450, 2: 450}    # deciamps
+        MAC: {1: 30000, 2: 30000} # 0.1 rpm/s
+        THLD: 3                   # short circuit detection off
+        RWD: 1000                 # serial watchdog ms: RC takes over after 1 s of ROS silence
+    left:
+      is_reversed: false
+    right:
+      is_reversed: true
+sensors:
+  camera:
+    - model: zed_2
+      urdf_enabled: false
+      parent: base_link
+      xyz: [0.4, 0.0, 0.4]
+      rpy: [0.0, 0.0, 0.0]
+      parameters:
+        general:
+          grab_resolution: HD720
+          grab_frame_rate: 30
+          pub_frame_rate: 15.0
+        depth:
+          depth_mode: NEURAL_PLUS
+          depth_stabilization: 0
+          openni_depth_mode: true
+          publish_depth_image: true
+          point_cloud_freq: 15.0
+        object_detection:
+          od_enabled: false
+        pos_tracking:
+          pos_tracking_enabled: false
+          publish_tf: false
+          publish_map_tf: false
+        sensors:
+          publish_imu_tf: false
+  gps:
+    - model: ublox_zed_f9p
+      parent: base_link
+      flash:
+        # Receiver flash asserted by ublox_flash at launch.
+        CFG_RATE_MEAS: 200  # milliseconds between measurements = 5 Hz
+        CFG_RATE_NAV: 1  # navigation solutions per measurement
+      parameters:
+        port: /dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00
+        baud: 115200
+        frame_id: gps_link
+      ntrip:
+        mountpoint: OsgoodeFarms
+        username: farabi@tandemrobotics.ca

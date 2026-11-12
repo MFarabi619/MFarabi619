@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright 2026 Mumtahin Farabi
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,27 +15,33 @@
 
 
 from better_launch import BetterLaunch, launch_this
-
-OPERATOR_TOPIC = '/perception/operator'
+from robot_boot.launch_policy import RESPAWN
+from robot_boot.zenoh_router import ensure_router
 
 
 @launch_this
-def follow(standoff_distance: float = 1.5, max_missing_frames: int = 8):
+def rc_pulse_motor_driver(
+    max_wheel_speed: float = 0.0,
+    left_pwm_chip: int = 0,
+    left_pwm_channel: int = 0,
+    left_reversed: bool = False,
+    right_pwm_chip: int = 0,
+    right_pwm_channel: int = 1,
+    right_reversed: bool = False,
+):
     bl = BetterLaunch()
+    ensure_router(bl)
     bl.node(
-        package='robot_perception',
-        executable='green_detector',
-        name='green_detector',
-        params={'start_enabled': True},
-        remaps={'detections': OPERATOR_TOPIC},
-    )
-    bl.node(
-        package='robot_perception',
-        executable='tracked_approach',
-        name='operator_follow',
+        package='robot_drivers',
+        executable='rc_pulse_motor_driver',
         params={
-            'standoff_distance': standoff_distance,
-            'max_missing_frames': max_missing_frames,
+            'max_wheel_speed': max_wheel_speed,
+            'left_pwm_chip': left_pwm_chip,
+            'left_pwm_channel': left_pwm_channel,
+            'left_reversed': left_reversed,
+            'right_pwm_chip': right_pwm_chip,
+            'right_pwm_channel': right_pwm_channel,
+            'right_reversed': right_reversed,
         },
-        remaps={'detections': OPERATOR_TOPIC},
+        **RESPAWN,
     )

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright 2026 Mumtahin Farabi
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,44 +15,47 @@
 
 
 from better_launch import BetterLaunch, launch_this
+from robot_boot.launch_policy import RESPAWN
+from robot_boot.zenoh_router import ensure_router
+
+DETECTIONS_TOPIC = 'perception/line/detections'
+
 
 @launch_this
-def line_follow(robot: str = 'jiro', target_offset: float = 0.0):
+def line_follow(
+    camera: str = 'camera_0',
+    start_enabled: bool = False,
+    params_file: str = '',
+    overrides_file: str = '',
+):
     bl = BetterLaunch()
-    camera_namespace = f'/{robot}/sensors/camera_0'
-    line_topic = f'/{robot}/perception/line'
+    ensure_router(bl)
+    params_file = params_file or bl.find('robot_perception', 'line_follow.yaml')
+    param_files = [params_file] + ([overrides_file] if overrides_file else [])
     bl.node(
         package='robot_perception',
         executable='color_blob_detector',
         name='line_detector',
         params={
-            'image_topic': f'{camera_namespace}/color/image_raw/compressed',
-            'depth_topic': f'{camera_namespace}/depth/image_raw',
-            'depth_camera_info_topic': f'{camera_namespace}/depth/camera_info',
+            'image_topic': f'sensors/{camera}/color/image_raw/compressed',
+            'depth_topic': f'sensors/{camera}/depth/image_raw',
+            'depth_camera_info_topic': f'sensors/{camera}/depth/camera_info',
+            'detections_topic': DETECTIONS_TOPIC,
+            'overlay_topic': 'perception/line/overlay',
             'class_label': 'line',
-            'hue_min': 0.0,
-            'hue_max': 180.0,
-            'min_saturation': 0.0,
-            'max_saturation': 0.25,
-            'min_value': 0.6,
-            'min_triangularity': 0.0,
-            'min_aspect_ratio': 0.0,
-            'min_area': 800,
-            'roi_top_fraction': 0.55,
-            'start_enabled': True,
+            'start_enabled': start_enabled,
         },
-        remaps={
-            'detections': line_topic,
-            'perception/vision/overlay': f'/{robot}/perception/line/overlay',
-        },
+        param_files=param_files,
+        **RESPAWN,
     )
     bl.node(
         package='robot_perception',
         executable='row_follow',
         name='line_follow',
-        params={'target_offset': target_offset, 'image_width': 640},
-        remaps={
-            'detections': line_topic,
-            'cmd_vel': f'/{robot}/cmd_vel',
+        params={
+            'detections_topic': DETECTIONS_TOPIC,
+            'start_enabled': start_enabled,
         },
+        param_files=param_files,
+        **RESPAWN,
     )

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, fs, path::Path};
+use std::{error::Error, fs, path::Path};
 
 use serde::Deserialize;
 
@@ -99,7 +99,7 @@ pub struct CameraSensor {
     #[serde(default)]
     pub rpy: [f64; 3],
     #[serde(default)]
-    pub ros_parameters: HashMap<String, CameraParameters>,
+    pub parameters: CameraParameters,
 }
 
 #[derive(Debug, Default, Deserialize)]
@@ -120,7 +120,7 @@ pub struct ImuSensor {
     #[serde(default)]
     pub rpy: [f64; 3],
     #[serde(default)]
-    pub ros_parameters: HashMap<String, ImuParameters>,
+    pub parameters: ImuParameters,
 }
 
 #[derive(Debug, Default, Deserialize)]

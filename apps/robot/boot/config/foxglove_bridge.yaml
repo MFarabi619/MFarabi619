@@ -1,0 +1,28 @@
+/**/foxglove_bridge:
+  ros__parameters:
+    max_qos_depth: 5
+    asset_uri_allowlist:
+      - '^package://(?:[-\w%]+/)*[-\w%.]+\.(?:dae|fbx|glb|gltf|jpeg|jpg|mtl|obj|png|stl|STL|tif|tiff|urdf|webp|xacro)$'
+    best_effort_qos_topic_whitelist:
+      - '(/[^/]+)?/sensors/camera_[0-9]+/.*'
+    topic_whitelist:
+      - '(/[^/]+)?/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$'
+      - '(/[^/]+)?/sensors/camera_[0-9]+/depth/image_view(/compressed)?$'
+      - '(/[^/]+)?/sensors/camera_[0-9]+/(color|depth)/camera_info$'
+      - '(/[^/]+)?/sensors/camera_[0-9]+/depth/points$'
+      - '(/[^/]+)?/sensors/camera_[0-9]+/scan$'
+      - '(/[^/]+)?/sensors/camera_[0-9]+/imu/data$'
+      - '(/[^/]+)?/sensors/(gps|imu)_[0-9]+/.*'
+      - '(/[^/]+)?/perception/.*'
+      - '(/[^/]+)?/platform/.*'
+      - '(/[^/]+)?/joy_teleop/cmd_vel$'
+      - '(/[^/]+)?/joint_states$'
+      - '(/[^/]+)?/tf(_static)?$'
+      - '(/[^/]+)?/map$'
+      - '(/[^/]+)?/local_costmap/costmap$'
+      - '(/[^/]+)?/plan$'
+      - '(/[^/]+)?/slam_toolbox/.*'
+      - '(/[^/]+)?/diagnostics.*'
+      - '(/[^/]+)?/robot_description$'
+      - '(/[^/]+)?/camera_[0-9]+_description$'
+      - '/clock$'

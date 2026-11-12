@@ -10,6 +10,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
+  <depend>ament_index_cpp</depend>
   <depend>image_geometry</depend>
   <depend>sensor_msgs</depend>
   <depend>foxglove_msgs</depend>

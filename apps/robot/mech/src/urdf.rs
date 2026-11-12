@@ -134,14 +134,10 @@ fn simulation_sensor_plugins(config: &RobotConfig) -> String {
         let name = format!("camera_{index}");
         let link = format!("camera_{index}_link");
         let optical = format!("camera_{index}_color_optical_frame");
-        let parameters = camera
-            .ros_parameters
-            .get(&name)
-            .or_else(|| camera.ros_parameters.values().next());
         let width = SIMULATION_CAMERA_WIDTH;
         let height = SIMULATION_CAMERA_HEIGHT;
         let update_rate = SIMULATION_CAMERA_RATE_HZ;
-        let has_depth = parameters.is_some_and(|parameters| parameters.enable_depth);
+        let has_depth = camera.parameters.enable_depth;
         let (sensor_type, depth_clip_element) = if has_depth {
             (
                 "rgbd_camera",
@@ -186,12 +182,7 @@ fn simulation_sensor_plugins(config: &RobotConfig) -> String {
         ));
     }
     for (index, imu) in config.sensors.imu.iter().enumerate() {
-        let update_rate = imu
-            .ros_parameters
-            .values()
-            .next()
-            .and_then(|parameters| parameters.rate_hz)
-            .unwrap_or(IMU_DEFAULT_RATE_HZ);
+        let update_rate = imu.parameters.rate_hz.unwrap_or(IMU_DEFAULT_RATE_HZ);
         xml.push_str(&format!(
             r#"  <gazebo reference="imu_{index}_link">
     <sensor name="imu_{index}" type="imu">

@@ -1,0 +1,11 @@
+/**/line_detector:
+  ros__parameters:
+    hue_min: 0.0
+    hue_max: 180.0
+    min_saturation: 0.0
+    max_saturation: 0.25
+    min_value: 0.6
+    min_triangularity: 0.0
+    min_aspect_ratio: 0.0
+    min_area: 800
+    roi_top_fraction: 0.55

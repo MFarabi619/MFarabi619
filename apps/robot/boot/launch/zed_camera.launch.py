@@ -18,17 +18,23 @@ import os
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import robot_state_publisher
-from machine import ZED_CAMERA_MODEL, load_machine
+from robot_boot.launch_policy import RESPAWN, TF_REMAPS
+from robot_boot.zenoh_router import ensure_router
 import yaml
 
-ZED_SDK_ROOT = '/usr/local/zed'
-
-RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
+ZED_SDK_ROOT = os.environ.get('ZED_SDK_ROOT', '/usr/local/zed')
 
 
 def zed_wrapper_defaults(bl, config_name):
     with open(bl.find('zed_wrapper', config_name)) as config_file:
         return yaml.safe_load(config_file)['/**']['ros__parameters']
+
+
+def node_overrides(overrides_file, node_name):
+    if not overrides_file:
+        return {}
+    with open(overrides_file) as file:
+        return yaml.safe_load(file).get(f'/**/{node_name}', {}).get('ros__parameters', {})
 
 
 def deep_merge(base, override):
@@ -40,82 +46,71 @@ def deep_merge(base, override):
     return base
 
 
-def launch_zed_camera(bl, camera, topic_prefix):
-    camera_name = camera.node_name
+@launch_this
+def zed_camera(
+    camera: str = 'camera_0',
+    camera_model: str = 'zed2',
+    parent_frame: str = 'base_link',
+    x: float = 0.0,
+    y: float = 0.0,
+    z: float = 0.0,
+    roll: float = 0.0,
+    pitch: float = 0.0,
+    yaw: float = 0.0,
+    overrides_file: str = '',
+):
+    if not os.path.isdir(ZED_SDK_ROOT):
+        raise RuntimeError(f'{ZED_SDK_ROOT} not found; install the ZED SDK')
+    bl = BetterLaunch()
+    ensure_router(bl)
     parameters = zed_wrapper_defaults(bl, 'common_stereo.yaml')
-    parameters = deep_merge(parameters, zed_wrapper_defaults(bl, 'zed2.yaml'))
-    parameters = deep_merge(parameters, camera.node_parameters)
-    parameters = deep_merge(parameters, {
-        'general': {'camera_name': camera_name, 'camera_model': 'zed2'},
+    deep_merge(parameters, zed_wrapper_defaults(bl, f'{camera_model}.yaml'))
+    deep_merge(parameters, node_overrides(overrides_file, camera))
+    deep_merge(parameters, {
+        'general': {'camera_name': camera, 'camera_model': camera_model},
         'svo': {'svo_path': 'live'},
     })
-    tf_remaps = {
-        '/tf': f'{topic_prefix}/tf',
-        '/tf_static': f'{topic_prefix}/tf_static',
-    }
-    with bl.compose(f'{camera_name}_container', variant='multithreading'):
+    with bl.compose(f'{camera}_container', variant='multithreading'):
         bl.component(
-            'zed_components', 'stereolabs::ZedCamera', camera_name,
+            'zed_components', 'stereolabs::ZedCamera', camera,
             params=parameters,
-            remaps=tf_remaps | {
-                '~/rgb/color/rect/image':
-                    f'{topic_prefix}/sensors/{camera_name}/color/image_raw',
-                '~/depth/depth_registered':
-                    f'{topic_prefix}/sensors/{camera_name}/depth/image_raw',
-                '~/point_cloud/cloud_registered':
-                    f'{topic_prefix}/sensors/{camera_name}/depth/points',
-                '~/image/depth_image':
-                    f'{topic_prefix}/sensors/{camera_name}/depth/image_view',
-                '~/obj_det/objects':
-                    f'{topic_prefix}/sensors/{camera_name}/objects',
-                '~/imu/data':
-                    f'{topic_prefix}/sensors/{camera_name}/imu/data',
+            remaps=TF_REMAPS | {
+                '~/rgb/color/rect/image': f'sensors/{camera}/color/image_raw',
+                '~/depth/depth_registered': f'sensors/{camera}/depth/image_raw',
+                '~/point_cloud/cloud_registered': f'sensors/{camera}/depth/points',
+                '~/image/depth_image': f'sensors/{camera}/depth/image_view',
+                '~/obj_det/objects': f'sensors/{camera}/objects',
+                '~/imu/data': f'sensors/{camera}/imu/data',
             },
         )
     robot_state_publisher(
         bl.find('zed_description', 'zed_descr.urdf.xacro'),
-        node_name=f'{camera_name}_state_publisher',
-        xacro_args=[f'camera_name:={camera_name}', 'camera_model:=zed2'],
-        remaps=tf_remaps | {
-            'robot_description': f'{topic_prefix}/{camera_name}_description',
-        },
+        node_name=f'{camera}_state_publisher',
+        xacro_args=[f'camera_name:={camera}', f'camera_model:={camera_model}'],
+        remaps=TF_REMAPS | {'robot_description': f'{camera}_description'},
     )
-    xyz = camera.xyz
-    rpy = camera.rpy
     bl.node(
         package='tf2_ros',
         executable='static_transform_publisher',
-        name=f'{camera_name}_mount_publisher',
+        name=f'{camera}_mount_publisher',
         cmd_args=[
-            '--x', str(xyz[0]), '--y', str(xyz[1]), '--z', str(xyz[2]),
-            '--roll', str(rpy[0]), '--pitch', str(rpy[1]), '--yaw', str(rpy[2]),
-            '--frame-id', camera.parent,
-            '--child-frame-id', f'{camera_name}_camera_link',
+            '--x', str(x), '--y', str(y), '--z', str(z),
+            '--roll', str(roll), '--pitch', str(pitch), '--yaw', str(yaw),
+            '--frame-id', parent_frame,
+            '--child-frame-id', f'{camera}_camera_link',
         ],
-        remaps=tf_remaps,
+        remaps=TF_REMAPS,
         **RESPAWN,
     )
     if parameters.get('object_detection', {}).get('od_enabled', False):
-        bl.process(
-            'python perception/src/zed_object_overlay.py --ros-args'
-            f' -p objects_topic:={topic_prefix}/sensors/{camera_name}/objects'
-            f' -p detections_topic:={topic_prefix}/detections'
-            ' -p overlay_topic:='
-            f'{topic_prefix}/perception/vision/overlay',
+        bl.node(
+            package='robot_perception',
+            executable='zed_object_overlay',
             name='zed_object_overlay',
+            params={
+                'objects_topic': f'sensors/{camera}/objects',
+                'detections_topic': 'detections',
+                'overlay_topic': 'perception/vision/overlay',
+            },
             **RESPAWN,
         )
-
-
-@launch_this
-def zed_camera(robot: str = 'saburo'):
-    machine = load_machine(robot)
-    namespace = machine.namespace
-    topic_prefix = f'/{namespace}' if namespace else ''
-    camera = machine.first_enabled_camera(ZED_CAMERA_MODEL)
-    if camera is None:
-        raise RuntimeError(f'{robot} declares no enabled zed_2 camera')
-    if not os.path.isdir(ZED_SDK_ROOT):
-        raise RuntimeError(f'{ZED_SDK_ROOT} not found; install the ZED SDK')
-    bl = BetterLaunch()
-    launch_zed_camera(bl, camera, topic_prefix)

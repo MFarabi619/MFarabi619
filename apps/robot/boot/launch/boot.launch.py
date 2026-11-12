@@ -14,15 +14,24 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from better_launch import BetterLaunch, launch_this
-from machine import load_machine
-from zenoh_router import ROUTER_PORT, ensure_router, wait_for_router
+import os
+import sys
 
-ROUTER_CONFIG_OVERRIDE = (
-    f'connect/endpoints=["tcp/rpi5-16-2.local:{ROUTER_PORT}",'
-    f'"tcp/rpi5-16.local:{ROUTER_PORT}",'
-    f'"tcp/beagleyai.local:{ROUTER_PORT}"]')
+from better_launch import BetterLaunch, launch_this
+from robot_boot.launch_policy import RESPAWN, include
+from robot_boot.zenoh_router import ROUTER_PORT, ensure_router, wait_for_router
+from robot_machines.machine import load_machine, machine_names
+
 CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ROUTER_PORT}"]'
+BENCH_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES = 1000000
+
+
+def fleet_router_config_override():
+    endpoints = [
+        f'"tcp/{host.hostname}.local:{ROUTER_PORT}"'
+        for name in machine_names()
+        for host in load_machine(name).system.hosts]
+    return f'connect/endpoints=[{",".join(endpoints)}]'
 
 
 def robot_runs_on_this_host(robot):
@@ -38,55 +47,31 @@ def boot(gesture_camera: str = 'webcam', robot: str = 'taro'):
     }
     if robot_runs_on_this_host(robot):
         bl.process(
-            f'python boot/launch/robot.launch.py --name {robot}',
+            [sys.executable, bl.find('robot_boot', 'robot.launch.py'), '--name', robot],
             name=f'{robot}_stack',
-            max_respawns=-1,
-            respawn_delay=2.0,
+            **RESPAWN,
         )
         wait_for_router()
-    ensure_router(bl, env={'ZENOH_CONFIG_OVERRIDE': ROUTER_CONFIG_OVERRIDE})
+    ensure_router(bl, env={'ZENOH_CONFIG_OVERRIDE': fleet_router_config_override()})
+    os.environ['ZENOH_CONFIG_OVERRIDE'] = CLIENT_CONFIG_OVERRIDE
     if gesture_camera == 'webcam':
         bl.node(
             package='robot_drivers',
             executable='usb_webcam',
             name='usb_webcam',
-            env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
-            max_respawns=-1,
-            respawn_delay=2.0,
+            **RESPAWN,
         )
-    bl.node(
-        package='foxglove_bridge',
-        executable='foxglove_bridge',
-        name='foxglove_bridge',
-        params={
-            'send_buffer_limit': 1000000,
-            'max_qos_depth': 5,
-            'best_effort_qos_topic_whitelist': [f'/{robot}/sensors/camera_0/.*'],
-        },
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
-    bl.node(
-        package='robot_perception',
-        executable='hand_gesture_detector',
-        name='hand_gesture_detector',
-        params={
-            'image_topic': gesture_camera_topics[gesture_camera],
-            'start_enabled': True,
-        },
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
-    )
-    bl.node(
-        package='robot_perception',
-        executable='hand_gesture_teleop',
-        name='hand_gesture_teleop',
-        remaps={'/joy_teleop/cmd_vel': f'/{robot}/joy_teleop/cmd_vel'},
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
-    )
+    include(
+        'robot_boot', 'foxglove_bridge.launch.py',
+        send_buffer_limit_bytes=BENCH_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES)
+    with bl.group(robot):
+        include(
+            'robot_perception', 'hand_gesture_teleop.launch.py',
+            image_topic=gesture_camera_topics[gesture_camera],
+            start_enabled=True,
+        )
     bl.node(
         package='robot_perception',
         executable='foxglove_panels',
         name='foxglove_panels',
-        env={'ZENOH_CONFIG_OVERRIDE': CLIENT_CONFIG_OVERRIDE},
     )

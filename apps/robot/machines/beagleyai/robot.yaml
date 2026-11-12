@@ -1,5 +1,3 @@
-serial_number: mark-5
-version: 1
 system:
   namespace: beagleyai
   hosts:
@@ -54,37 +52,33 @@ sensors:
       parent: base_link
       xyz: [0.575, 0.5, 0.31]
       rpy: [0.0, 0.31, 0.0]
-      ros_parameters:
-        camera_0:
-          color_width: 640
-          color_height: 480
-          color_fps: 10
-          jpeg_quality: 60
-          enable_depth: true
-          depth_width: 848
-          depth_height: 480
-          depth_fps: 15
-          depth_decimation: 2
+      parameters:
+        color_width: 640
+        color_height: 480
+        color_fps: 10
+        enable_depth: true
+        depth_width: 848
+        depth_height: 480
+        depth_fps: 15
+        depth_decimation: 2
   imu:
     - model: bno085
       parent: base_link
       xyz: [0.0, 0.0, 0.3]
       rpy: [0.0, 0.0, 0.0]
-      ros_parameters:
-        imu_0:
-          i2c_bus: 1
-          i2c_address: 74
-          frame_id: imu_0_link
-          rate_hz: 25.0
+      parameters:
+        i2c_bus: 1
+        i2c_address: 74
+        frame_id: imu_0_link
+        rate_hz: 25.0
   # gps disabled 2026-07-27 — no data on the UART (suspected module TX→pin-10 wiring); re-enable after bench check
   # gps:
   #   - model: adafruit_ultimate_gps_hat
   #     parent: base_link
-  #     ros_parameters:
-  #       nmea_navsat_driver:
-  #         port: /dev/ttyAMA0
-  #         baud: 9600
-  #         frame_id: gps_link
+  #     parameters:
+  #       port: /dev/ttyAMA0
+  #       baud: 9600
+  #       frame_id: gps_link
 mounts:
   camera_mount:
     - parent: base_link

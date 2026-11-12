@@ -1,0 +1,3 @@
+/**/line_follow:
+  ros__parameters:
+    image_width: 640

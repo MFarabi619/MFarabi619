@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright 2026 Mumtahin Farabi
 #
 # This program is free software: you can redistribute it and/or modify

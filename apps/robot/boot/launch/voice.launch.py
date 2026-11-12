@@ -15,8 +15,9 @@
 
 
 from better_launch import BetterLaunch, launch_this
-from machine import load_machine
-from zenoh_router import ROUTER_PORT, ensure_router
+from robot_boot.launch_policy import RESPAWN
+from robot_boot.zenoh_router import ROUTER_PORT, ensure_router
+from robot_machines.machine import load_machine
 
 CONNECT_TIMEOUT_MS = 3000
 CLIENT_CONFIG_OVERRIDE = f'mode="client";connect/endpoints=["tcp/localhost:{ROUTER_PORT}"]'
@@ -32,8 +33,6 @@ def bridging_peer_config_override(robot_name):
         f'["tcp/localhost:{ROUTER_PORT}",'
         f'"tcp/{robot_hostname(robot_name)}.local:{ROUTER_PORT}"];'
         f'connect/timeout_ms={CONNECT_TIMEOUT_MS}')
-
-RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 
 
 @launch_this

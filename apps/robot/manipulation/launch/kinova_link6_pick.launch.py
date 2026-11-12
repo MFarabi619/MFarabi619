@@ -14,26 +14,22 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import yaml
-
 from better_launch import BetterLaunch, launch_this
 from moveit_configs_utils import MoveItConfigsBuilder
+from robot_machines.machine import load_machine
 
 
 @launch_this(use_sim_time=True)
-def kinova_link6_pick(robot: str = 'kinova-link-6', object: str = 'apple'):
-    with open(f'machines/{robot}/robot.yaml') as machine_file:
-        arm = yaml.safe_load(machine_file)['arm']
+def kinova_link6_pick(robot: str = 'kinova-link-6', target_object: str = 'apple'):
+    arm = load_machine(robot).arm
     moveit_configuration = (
-        MoveItConfigsBuilder(
-            arm['moveit_robot_name'], package_name=arm['moveit_package'])
-        .planning_pipelines(
-            pipelines=['ompl', 'pilz_industrial_motion_planner'])
+        MoveItConfigsBuilder(arm.moveit_robot_name, package_name=arm.moveit_package)
+        .planning_pipelines(pipelines=['ompl', 'pilz_industrial_motion_planner'])
         .to_moveit_configs().to_dict())
 
     bl = BetterLaunch()
     bl.node(
         'robot_manipulation', 'kinova_link6_pick',
         name='pick_task',
-        params={**moveit_configuration, 'object': object},
+        params={**moveit_configuration, 'object': target_object},
     )

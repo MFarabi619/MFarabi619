@@ -14,16 +14,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import Path
 import socket
-import types
-import typing
 
+from ament_index_python.packages import get_package_share_directory
+from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationError, model_validator
 import yaml
 
-SCHEMA_VERSION = 1
 ZED_CAMERA_MODEL = 'zed_2'
+ORBBEC_CAMERA_MODEL = 'orbbec_gemini_335l'
+OAK_CAMERA_MODELS = ('oak_d_sr', 'oak_d_pro_w_poe')
+DEPTH_CAMERA_PRECEDENCE = (OAK_CAMERA_MODELS, (ORBBEC_CAMERA_MODEL,), (ZED_CAMERA_MODEL,))
 DRIVETRAIN_MODELS = ('roboteq', 'rc_pulse', 'pwm_dir', 'odrive_usb', 'svd48v')
 MOTION_LIMIT_KEYS = (
     'max_linear_velocity_meters_per_second',
@@ -35,32 +36,42 @@ MOTION_LIMIT_KEYS = (
 )
 
 
-def robot_root():
-    source_root = Path(__file__).resolve().parent.parent
-    if (source_root / 'machines' / 'machine.py').is_file():
-        return source_root
-    return Path.cwd()
+def source_checkout():
+    machines = Path(__file__).resolve().parents[1]
+    return machines if any(machines.glob('*/robot.yaml')) else None
+
+
+def machines_share():
+    return source_checkout() or Path(get_package_share_directory('robot_machines'))
+
+
+def boards_directory():
+    checkout = source_checkout()
+    if checkout:
+        return checkout.parent / 'elec' / 'boards'
+    return Path(get_package_share_directory('robot_machines')) / 'boards'
 
 
 class MachineError(Exception):
     pass
 
 
-@dataclass
-class Host:
+class Record(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+
+class Host(Record):
     hostname: str
     ip: str
     board: str
 
 
-@dataclass
-class System:
-    hosts: list[Host] = field(default_factory=list)
+class System(Record):
+    hosts: list[Host] = []
     namespace: str = ''
 
 
-@dataclass
-class DrivetrainSide:
+class DrivetrainSide(Record):
     pwm_pin: str | int | None = None
     dir_pin: str | int | None = None
     forward_level: bool | None = None
@@ -68,11 +79,10 @@ class DrivetrainSide:
     serial: str | None = None
 
 
-@dataclass
-class Drivetrain:
+class Drivetrain(Record):
     model: str = 'pwm_dir'
-    left: DrivetrainSide = field(default_factory=DrivetrainSide)
-    right: DrivetrainSide = field(default_factory=DrivetrainSide)
+    left: DrivetrainSide = DrivetrainSide()
+    right: DrivetrainSide = DrivetrainSide()
     serial_port: str | None = None
     baud_rate: int | None = None
     counts_per_revolution: int | None = None
@@ -89,11 +99,11 @@ class Drivetrain:
     max_linear_jerk_meters_per_second_cubed: float | None = None
     max_angular_acceleration_radians_per_second_squared: float | None = None
     max_angular_jerk_radians_per_second_cubed: float | None = None
-    roboteq: dict = field(default_factory=dict)
-    rc_pulse: dict = field(default_factory=dict)
-    pwm_dir: dict = field(default_factory=dict)
-    odrive_usb: dict = field(default_factory=dict)
-    svd48v: dict = field(default_factory=dict)
+    roboteq: dict = {}
+    rc_pulse: dict = {}
+    pwm_dir: dict = {}
+    odrive_usb: dict = {}
+    svd48v: dict = {}
 
     def model_settings(self, model):
         return getattr(self, model) if model in DRIVETRAIN_MODELS else {}
@@ -105,78 +115,90 @@ class Drivetrain:
             if (value := settings.get(key, getattr(self, key))) is not None}
 
 
-@dataclass
-class RcReceiver:
+class RcReceiver(Record):
     channel_1_pin: str | int
     channel_2_pin: str | int
     tank_mixed: bool = False
     launch_enabled: bool = True
 
 
-@dataclass
-class Platform:
-    drivetrain: Drivetrain = field(default_factory=Drivetrain)
+class Platform(Record):
+    drivetrain: Drivetrain = Drivetrain()
     rc_receiver: RcReceiver | None = None
-    attachments: list = field(default_factory=list)
+    attachments: list = []
     collision_guarded: bool = False
 
 
-@dataclass
-class Sensor:
+class Sensor(Record):
     model: str
     parent: str = 'base_link'
-    xyz: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
-    rpy: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
-    ros_parameters: dict[str, dict] = field(default_factory=dict)
+    xyz: list[float] = [0.0, 0.0, 0.0]
+    rpy: list[float] = [0.0, 0.0, 0.0]
+    parameters: dict = {}
+    _name: str = PrivateAttr('')
 
     @property
-    def node_name(self):
-        return next(iter(self.ros_parameters))
-
-    @property
-    def node_parameters(self):
-        return next(iter(self.ros_parameters.values()), {})
+    def name(self):
+        return self._name
 
 
-@dataclass
 class Camera(Sensor):
     launch_enabled: bool = True
     urdf_enabled: bool = True
     detects_on_camera: bool = False
 
+    @property
+    def has_depth(self):
+        if self.model == ORBBEC_CAMERA_MODEL:
+            return bool(self.parameters.get('enable_depth', False))
+        return True
 
-@dataclass
+    @property
+    def publishes_compressed_color(self):
+        return self.model in OAK_CAMERA_MODELS
+
+    @property
+    def has_on_camera_detector(self):
+        if self.model == 'oak_d_pro_w_poe':
+            return self.detects_on_camera
+        if self.model == ZED_CAMERA_MODEL:
+            return bool(self.parameters.get('object_detection', {}).get('od_enabled', False))
+        return False
+
+
 class Imu(Sensor):
     pass
 
 
-@dataclass
 class Gps(Sensor):
-    flash: dict = field(default_factory=dict)
+    flash: dict = {}
     ntrip: dict | None = None
 
 
-@dataclass
-class Sensors:
-    camera: list[Camera] = field(default_factory=list)
-    imu: list[Imu] = field(default_factory=list)
-    gps: list[Gps] = field(default_factory=list)
+class Sensors(Record):
+    camera: list[Camera] = []
+    imu: list[Imu] = []
+    gps: list[Gps] = []
+
+    @model_validator(mode='after')
+    def name_sensors_by_index(self):
+        for kind in ('camera', 'imu', 'gps'):
+            for index, sensor in enumerate(getattr(self, kind)):
+                sensor._name = f'{kind}_{index}'
+        return self
 
 
-@dataclass
-class Mount:
+class Mount(Record):
     parent: str = 'base_link'
-    xyz: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
-    rpy: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
+    xyz: list[float] = [0.0, 0.0, 0.0]
+    rpy: list[float] = [0.0, 0.0, 0.0]
 
 
-@dataclass
-class Mounts:
-    camera_mount: list[Mount] = field(default_factory=list)
+class Mounts(Record):
+    camera_mount: list[Mount] = []
 
 
-@dataclass
-class Arm:
+class Arm(Record):
     model: str
     gripper: str
     bringup_package: str
@@ -186,30 +208,37 @@ class Arm:
     moveit_robot_name: str
 
 
-@dataclass
-class Machine:
+class Behaviors(Record):
+    foxglove: bool = True
+    point_cloud: bool = True
+    hand_gesture: bool = False
+    weeding: bool = False
+    follow_nav2: bool = False
+    gps_navigation: bool = False
+    harvest_lane: bool = False
+    line: bool = False
+    sidewalk: bool = False
+    park_path: bool = False
+    path: bool = False
+
+    @model_validator(mode='after')
+    def one_nav2_owner(self):
+        if self.follow_nav2 and self.gps_navigation:
+            raise ValueError(
+                'follow_nav2 and gps_navigation both start the nav2 servers; enable one')
+        return self
+
+
+class Machine(Record):
     name: str
-    serial_number: str
-    version: int
-    system: System = field(default_factory=System)
+    system: System = System()
     platform: Platform | None = None
     arm: Arm | None = None
-    sensors: Sensors = field(default_factory=Sensors)
-    mounts: Mounts = field(default_factory=Mounts)
-    manipulation: dict = field(default_factory=dict)
-    point_cloud: dict = field(default_factory=dict)
-    foxglove: dict = field(default_factory=dict)
-    detector: dict = field(default_factory=dict)
-    follow: dict = field(default_factory=dict)
-    follow_nav2: dict = field(default_factory=dict)
-    gps_navigation: dict = field(default_factory=dict)
-    home: dict = field(default_factory=dict)
-    hand_gesture: dict = field(default_factory=dict)
-    harvest_lane: dict = field(default_factory=dict)
-    line: dict = field(default_factory=dict)
-    sidewalk: dict = field(default_factory=dict)
-    park_path: dict = field(default_factory=dict)
-    path: dict = field(default_factory=dict)
+    sensors: Sensors = Sensors()
+    mounts: Mounts = Mounts()
+    behaviors: Behaviors = Behaviors()
+    home: dict = {}
+    manipulation: dict = {}
 
     @property
     def namespace(self):
@@ -250,17 +279,30 @@ class Machine:
             (camera for camera in self.enabled_cameras if camera.model in models), None)
 
     @property
-    def urdf_path(self):
-        return robot_root() / 'mech' / 'urdf' / self.name / 'robot.urdf'
+    def depth_camera(self):
+        for models in DEPTH_CAMERA_PRECEDENCE:
+            camera = self.first_enabled_camera(*models)
+            if camera and camera.has_depth:
+                return camera
+        return None
+
+    @property
+    def board_pins(self):
+        board_path = boards_directory() / f'{self.board}.yaml'
+        return yaml.safe_load(board_path.read_text())['pins']
+
+    def params_file(self, component):
+        path = machines_share() / self.name / 'params' / f'{component}.yaml'
+        return str(path) if path.is_file() else ''
 
 
 def machine_names(machines_root=None):
-    machines_root = machines_root or robot_root() / 'machines'
+    machines_root = machines_root or machines_share()
     return sorted(path.parent.name for path in machines_root.glob('*/robot.yaml'))
 
 
 def load_machine(name, machines_root=None):
-    machines_root = machines_root or robot_root() / 'machines'
+    machines_root = machines_root or machines_share()
     return read_machine(name, machines_root / name / 'robot.yaml')
 
 
@@ -277,40 +319,7 @@ def read_machine(name, path):
     if not path.is_file():
         raise MachineError(f'{name} has no robot.yaml')
     mapping = yaml.safe_load(path.read_text()) or {}
-    if mapping.get('version', 0) < SCHEMA_VERSION:
-        raise MachineError(
-            f'{name} robot.yaml is schema version {mapping.get("version", 0)};'
-            f' version {SCHEMA_VERSION} resolves wiring through elec/boards/')
-    return build_record(Machine, {'name': name, **mapping}, name)
-
-
-def build_record(record_type, mapping, location):
-    if not isinstance(mapping, dict):
-        raise MachineError(f'{location}: expected a mapping, found {mapping!r}')
-    type_hints = {attribute.name: attribute.type for attribute in fields(record_type)}
-    unknown_keys = sorted(set(mapping) - type_hints.keys())
-    if unknown_keys:
-        raise MachineError(f'{location}: unknown keys {unknown_keys}')
-    values = {
-        key: convert_field(type_hints[key], value, f'{location}.{key}')
-        for key, value in mapping.items()}
     try:
-        return record_type(**values)
-    except TypeError as error:
-        raise MachineError(f'{location}: {error}') from error
-
-
-def convert_field(annotation, value, location):
-    if is_dataclass(annotation):
-        return build_record(annotation, value or {}, location)
-    origin = typing.get_origin(annotation)
-    arguments = typing.get_args(annotation)
-    if origin is list and arguments and is_dataclass(arguments[0]):
-        return [
-            build_record(arguments[0], item, f'{location}[{index}]')
-            for index, item in enumerate(value or [])]
-    if origin is types.UnionType:
-        nested = [argument for argument in arguments if is_dataclass(argument)]
-        if nested and value is not None:
-            return build_record(nested[0], value, location)
-    return value
+        return Machine.model_validate({'name': name, **mapping})
+    except ValidationError as error:
+        raise MachineError(f'{name} robot.yaml: {error}') from error

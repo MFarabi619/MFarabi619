@@ -17,9 +17,10 @@
 import socket
 import time
 
+from robot_boot.launch_policy import RESPAWN
+
 ROUTER_PORT = 7447
 CONNECT_PROBE_TIMEOUT_SECONDS = 0.2
-RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 
 
 def router_is_listening():

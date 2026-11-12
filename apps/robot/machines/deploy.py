@@ -23,7 +23,7 @@ import subprocess
 import sys
 import time
 
-from machine import MachineError, load_machine
+from robot_machines.machine import MachineError, load_machine
 
 MIRROR_ROOT = '/home/mfarabi/MFarabi619'
 MIRROR_ROBOT_PATH = f'{MIRROR_ROOT}/apps/robot'

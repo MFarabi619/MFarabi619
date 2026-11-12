@@ -1,0 +1,279 @@
+<?xml version="1.0"?>
+<?xml-model href="https://raw.githubusercontent.com/ros/urdfdom/master/xsd/urdf.xsd" ?>
+<robot name="robot">
+
+  <material name="warthog_yellow"><color rgba="0.95 0.816 0.082 1.0"/></material>
+  <material name="clearpath_black"><color rgba="0.15 0.15 0.15 1.0"/></material>
+  <material name="clearpath_dark_grey"><color rgba="0.3 0.3 0.3 1.0"/></material>
+  <material name="clearpath_light_grey"><color rgba="0.6 0.6 0.6 1.0"/></material>
+  <material name="clearpath_red"><color rgba="0.9 0.0 0.0 1.0"/></material>
+  <material name="clearpath_white"><color rgba="0.9 0.9 0.9 1.0"/></material>
+
+  <link name="base_link"/>
+
+  <link name="base_footprint">
+  </link>
+
+  <link name="chassis">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="100"/>
+      <inertia ixx="4.8333" ixy="0" ixz="0" iyy="15.9375" iyz="0" izz="19.2708"/>
+    </inertial>
+    <visual>
+      <geometry><mesh filename="package://robot_description/meshes/w200/chassis.stl"/></geometry>
+      <material name="clearpath_black"/>
+    </visual>
+    <visual>
+      <geometry><mesh filename="package://robot_description/meshes/w200/e-stop.stl"/></geometry>
+      <material name="clearpath_red"/>
+    </visual>
+    <collision>
+      <geometry><mesh filename="package://robot_description/meshes/w200/chassis-collision.stl"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis"/>
+    <origin xyz="0 0 0.025" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin xyz="0 0 -0.2880" rpy="0 0 0"/>
+  </joint>
+
+  <link name="left_diff_unit_link">
+    <inertial>
+      <origin xyz="0 -0.05 0.197" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="1.9804" ixy="0" ixz="0" iyy="9.1354" iyz="0" izz="7.8083"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/fenders.stl"/></geometry>
+      <material name="warthog_yellow"/>
+    </visual>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/rocker.stl"/></geometry>
+      <material name="clearpath_black"/>
+    </visual>
+  </link>
+
+  <joint name="left_diff_unit_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="left_diff_unit_link"/>
+    <origin xyz="0 0.56821 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="right_diff_unit_link">
+    <inertial>
+      <origin xyz="0 0.05 0.197" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="1.9804" ixy="0" ixz="0" iyy="9.1354" iyz="0" izz="7.8083"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 -1.5708"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/fenders.stl"/></geometry>
+      <material name="warthog_yellow"/>
+    </visual>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 -1.5708"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/rocker.stl"/></geometry>
+      <material name="clearpath_black"/>
+    </visual>
+  </link>
+
+  <joint name="right_diff_unit_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="right_diff_unit_link"/>
+    <origin xyz="0 -0.56821 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="left_headlight_link">
+    <visual>
+      <origin xyz="0 -0.0244 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/light.stl"/></geometry>
+      <material name="clearpath_white"/>
+    </visual>
+  </link>
+  <joint name="left_headlight_joint" type="fixed">
+    <parent link="left_diff_unit_link"/>
+    <child link="left_headlight_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="left_taillight_link">
+    <visual>
+      <origin xyz="0 -0.0244 0" rpy="0 0 3.1416"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/light.stl"/></geometry>
+      <material name="clearpath_red"/>
+    </visual>
+  </link>
+  <joint name="left_taillight_joint" type="fixed">
+    <parent link="left_diff_unit_link"/>
+    <child link="left_taillight_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="right_headlight_link">
+    <visual>
+      <origin xyz="0 0.0244 0" rpy="0 0 0"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/light.stl"/></geometry>
+      <material name="clearpath_white"/>
+    </visual>
+  </link>
+  <joint name="right_headlight_joint" type="fixed">
+    <parent link="right_diff_unit_link"/>
+    <child link="right_headlight_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="right_taillight_link">
+    <visual>
+      <origin xyz="0 0.0244 0" rpy="0 0 -3.1416"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/light.stl"/></geometry>
+      <material name="clearpath_red"/>
+    </visual>
+  </link>
+  <joint name="right_taillight_joint" type="fixed">
+    <parent link="right_diff_unit_link"/>
+    <child link="right_taillight_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="diff_link">
+    <visual>
+      <geometry><mesh filename="package://robot_description/meshes/w200/diff-link.stl"/></geometry>
+      <material name="clearpath_light_grey"/>
+    </visual>
+    <visual>
+      <geometry><mesh filename="package://robot_description/meshes/w200/susp-link.stl"/></geometry>
+      <material name="clearpath_light_grey"/>
+    </visual>
+  </link>
+  <joint name="diff_link_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="diff_link"/>
+    <origin xyz="-0.5826 0 0.24979" rpy="0 0 0"/>
+  </joint>
+
+  <link name="front_left_wheel_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="15"/>
+      <inertia ixx="0.4156" ixy="0" ixz="0" iyy="0.675" iyz="0" izz="0.4156"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/wheels/outdoor.stl"/></geometry>
+      <material name="clearpath_dark_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry><cylinder radius="0.3" length="0.25"/></geometry>
+    </collision>
+  </link>
+  <joint name="front_left_wheel_joint" type="continuous">
+    <parent link="left_diff_unit_link"/>
+    <child link="front_left_wheel_link"/>
+    <origin xyz="0.457367 0 -0.012977" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <link name="rear_left_wheel_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="15"/>
+      <inertia ixx="0.4156" ixy="0" ixz="0" iyy="0.675" iyz="0" izz="0.4156"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/wheels/outdoor.stl"/></geometry>
+      <material name="clearpath_dark_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry><cylinder radius="0.3" length="0.25"/></geometry>
+    </collision>
+  </link>
+  <joint name="rear_left_wheel_joint" type="continuous">
+    <parent link="left_diff_unit_link"/>
+    <child link="rear_left_wheel_link"/>
+    <origin xyz="-0.457367 0 -0.012977" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <link name="front_right_wheel_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="15"/>
+      <inertia ixx="0.4156" ixy="0" ixz="0" iyy="0.675" iyz="0" izz="0.4156"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/wheels/outdoor.stl"/></geometry>
+      <material name="clearpath_dark_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry><cylinder radius="0.3" length="0.25"/></geometry>
+    </collision>
+  </link>
+  <joint name="front_right_wheel_joint" type="continuous">
+    <parent link="right_diff_unit_link"/>
+    <child link="front_right_wheel_link"/>
+    <origin xyz="0.457367 0 -0.012977" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <link name="rear_right_wheel_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="15"/>
+      <inertia ixx="0.4156" ixy="0" ixz="0" iyy="0.675" iyz="0" izz="0.4156"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+      <geometry><mesh filename="package://robot_description/meshes/w200/wheels/outdoor.stl"/></geometry>
+      <material name="clearpath_dark_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry><cylinder radius="0.3" length="0.25"/></geometry>
+    </collision>
+  </link>
+  <joint name="rear_right_wheel_joint" type="continuous">
+    <parent link="right_diff_unit_link"/>
+    <child link="rear_right_wheel_link"/>
+    <origin xyz="-0.457367 0 -0.012977" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <link name="gps_link"/>
+  <joint name="gps_link_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="gps_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <ros2_control name="DiffDriveHardware" type="system">
+    <hardware>
+      <plugin>robot_drivers/DiffDriveHardware</plugin>
+    </hardware>
+    <joint name="rear_left_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="rear_right_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>

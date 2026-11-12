@@ -4,8 +4,11 @@ project(robot_boot NONE)
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
-install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME})
-ament_python_install_module(launch/zenoh_router.py)
+install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME} PATTERN "__pycache__" EXCLUDE)
+ament_get_python_install_dir(PYTHON_INSTALL_DIR)
+install(
+  DIRECTORY src/ DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
+  FILES_MATCHING PATTERN "*.py")
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

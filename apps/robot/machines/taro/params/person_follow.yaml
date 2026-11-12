@@ -1,0 +1,18 @@
+/**/person_detector:
+  ros__parameters:
+    max_detections_per_second: 10.0
+
+/**/person_follow:
+  ros__parameters:
+    max_forward_speed: 0.7
+    max_backward_speed: 0.7
+    max_angular_speed: 0.7
+    standoff_distance: 1.5
+    distance_gain: 0.9
+    distance_damping: 0.4
+    distance_deadband: 0.25
+    steer_gain: 0.5
+    steer_damping: 0.7
+    steer_deadband: 0.15
+    command_smoothing_seconds: 0.3
+    max_missing_frames: 24

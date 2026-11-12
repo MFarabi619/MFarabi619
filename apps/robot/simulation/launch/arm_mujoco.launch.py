@@ -17,30 +17,23 @@
 import os
 import tempfile
 
-import yaml
-
-from ament_index_python.packages import (
-    get_package_prefix,
-    get_package_share_directory,
-)
 from better_launch import BetterLaunch, launch_this
 from better_launch.convenience import (
     read_robot_description,
     robot_state_publisher,
     spawn_controller,
 )
-from zenoh_router import ensure_router
+from robot_boot.launch_policy import include
+from robot_boot.zenoh_router import ensure_router
+from robot_machines.machine import load_machine
 
 
-def write_rendered_scene_file():
-    apple_assets_directory = os.path.abspath(
-        'simulation/models/ycb/013_apple/google_16k')
-    with open(os.path.abspath(
-            'manipulation/config/mujoco_scene.xml')) as template:
-        scene = template.read().replace(
-            '${APPLE_ASSETS}', apple_assets_directory)
-    scene_file = tempfile.NamedTemporaryFile(
-        mode='w', suffix='.xml', delete=False)
+def write_rendered_scene_file(bl):
+    apple_assets_directory = os.path.dirname(
+        bl.find('robot_simulator', 'textured.obj', subdir='models/ycb/013_apple/google_16k'))
+    with open(bl.find('robot_manipulation', 'mujoco_scene.xml')) as template:
+        scene = template.read().replace('${APPLE_ASSETS}', apple_assets_directory)
+    scene_file = tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False)
     scene_file.write(scene)
     scene_file.close()
     return scene_file.name
@@ -50,19 +43,17 @@ def write_rendered_scene_file():
 def arm_mujoco_simulation(
         robot: str = 'kinova-link-6', mode: str = 'moveit',
         headless: bool = False):
-    with open(f'machines/{robot}/robot.yaml') as machine_file:
-        arm = yaml.safe_load(machine_file)['arm']
-    control_share_directory = get_package_share_directory(arm['control_package'])
+    arm = load_machine(robot).arm
     os.environ.pop('ZENOH_CONFIG_OVERRIDE', None)
     os.environ.pop('ZENOH_SESSION_CONFIG_URI', None)
 
     bl = BetterLaunch()
     ensure_router(bl)
     description = read_robot_description(
-        arm['description_package'],
-        f"{arm['moveit_robot_name']}.urdf.xacro",
+        arm.description_package,
+        f'{arm.moveit_robot_name}.urdf.xacro',
         xacro_args=[
-            f"gripper:={arm['gripper']}",
+            f'gripper:={arm.gripper}',
             'sim_mujoco:=true',
             'use_fake_hardware:=true',
         ],
@@ -71,18 +62,14 @@ def arm_mujoco_simulation(
         description, node_name='robot_state_publisher', anonymous=False)
     bl.process(
         ['python',
-         os.path.join(get_package_prefix('mujoco_ros2_control'), 'lib',
-                      'mujoco_ros2_control', 'make_mjcf_from_robot_description.py'),
+         bl.find('mujoco_ros2_control', 'make_mjcf_from_robot_description.py'),
          '--publish_topic', '/mujoco_robot_description',
          '--convert_stl_to_obj',
-         '--mujoco_inputs',
-         os.path.abspath('manipulation/config/mujoco_inputs.xml'),
-         '--scene',
-         write_rendered_scene_file()],
+         '--mujoco_inputs', bl.find('robot_manipulation', 'mujoco_inputs.xml'),
+         '--scene', write_rendered_scene_file(bl)],
         name='mjcf_converter',
     )
-    controller_parameters_path = os.path.join(
-        control_share_directory, 'config', 'kortex3_sim_controllers.yaml')
+    controller_parameters_path = bl.find(arm.control_package, 'kortex3_sim_controllers.yaml')
     bl.node(
         'controller_manager', 'ros2_control_node',
         name='controller_manager',
@@ -90,7 +77,7 @@ def arm_mujoco_simulation(
         remap_qualifier='controller_manager',
         param_files=[
             controller_parameters_path,
-            os.path.abspath('manipulation/config/mujoco_plugins.yaml'),
+            bl.find('robot_manipulation', 'mujoco_plugins.yaml'),
         ],
         use_sim_time=True,
     )
@@ -100,32 +87,20 @@ def arm_mujoco_simulation(
 
     if mode == 'moveit':
         bl.process(
-            'python manipulation/src/mujoco_planning_scene.py',
+            [bl.find('robot_manipulation', 'mujoco_planning_scene')],
             name='mujoco_planning_scene',
         )
-        bl.include(
-            arm['moveit_package'], 'move_group.launch.py',
-            pass_launch_func_args=False,
-            use_sim_time='true',
+        include(
+            'robot_manipulation', 'kinova_link6_moveit.launch.py',
+            moveit_package=arm.moveit_package,
+            motions_file=bl.find('robot_machines', 'motions.yaml', subdir=robot),
+            use_sim_time=True,
             capabilities='move_group/ExecuteTaskSolutionCapability',
+            rviz=not headless,
         )
-        bl.include(
-            'play_motion2', 'play_motion2.launch.py',
-            pass_launch_func_args=False,
-            motions_file=os.path.abspath(f'machines/{robot}/motions.yaml'),
-            motion_planner_config=os.path.abspath(
-                'manipulation/config/motion_planner.yaml'),
-            use_sim_time='true',
-        )
-        if not headless:
-            bl.process(
-                'rviz2 -d ' + os.path.abspath('manipulation/config/moveit.rviz')
-                + ' --ros-args -p use_sim_time:=true',
-                name='rviz',
-            )
     elif not headless:
         bl.process(
-            'rviz2 -d ' + os.path.join(control_share_directory, 'config', 'link6_config.rviz')
-            + ' --ros-args -p use_sim_time:=true',
+            ['rviz2', '-d', bl.find(arm.control_package, 'link6_config.rviz'),
+             '--ros-args', '-p', 'use_sim_time:=true'],
             name='rviz',
         )

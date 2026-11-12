@@ -15,8 +15,6 @@
 
 
 import math
-import os
-import xml.etree.ElementTree as ElementTree
 
 from better_launch import BetterLaunch, launch_this
 from better_launch.gazebo import (
@@ -25,9 +23,11 @@ from better_launch.gazebo import (
     spawn_model,
     spawn_topic_bridge,
 )
-from machine import load_machine
-from spawn import spawn_robot
-from zenoh_router import ensure_router
+from robot_boot.launch_policy import RESPAWN, include, parameter_overrides_file
+from robot_boot.urdf import ground_offset
+from robot_boot.zenoh_router import ensure_router
+from robot_machines.machine import load_machine
+from robot_simulator.spawn import spawn_robot
 
 WORLD_SPAWN_POSES = {
     'maize': {'x': -14.0, 'y': -19.0, 'z': 0.8, 'yaw': 0.0},
@@ -47,119 +47,41 @@ PERSON_SPAWN_POSES = {
     'plasticulture': {'x': -14.5, 'y': -3.0},
     'farm': {'x': 6.5, 'y': 3.6},
 }
-
-
-def ground_offset(urdf_path):
-    robot = ElementTree.parse(urdf_path).getroot()
-    for joint in robot.iter('joint'):
-        child = joint.find('child')
-        if child is None or child.get('link') != 'base_footprint':
-            continue
-        origin = joint.find('origin')
-        if origin is None:
-            break
-        return float(origin.get('xyz', '0 0 0').split()[2])
-    return 0.0
-
-
-def harvest_lane_stack(bl, robot, machine):
-    harvest_lane_config = machine.harvest_lane
-    if not harvest_lane_config.get('enabled', False):
-        return
-    camera_mount_xyz = machine.sensors.camera[0].xyz
-    bl.node(
-        package='robot_perception',
-        executable='canopy_detector',
-        name='canopy_detector',
-        params={
-            'image_topic': 'sensors/camera_0/color/image_raw/compressed',
-            'mask_topic': 'perception/canopy/mask/compressed',
-            'fraction_topic': 'perception/canopy/fraction',
-        } | harvest_lane_config.get('detector', {}),
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
-    bl.node(
-        package='robot_perception',
-        executable='harvest_lane_navigator',
-        name='harvest_lane_navigator',
-        params={
-            'mask_topic': 'perception/canopy/mask/compressed',
-            'camera_info_topic': 'sensors/camera_0/color/camera_info',
-            'depth_topic': 'sensors/camera_0/depth/image_raw',
-            'odom_topic': 'diff_drive_controller/odom',
-            'camera_height_m': float(camera_mount_xyz[2]) - ground_offset(
-                f'mech/urdf/{robot}/robot.sim.urdf'),
-            'camera_lateral_offset_m': float(camera_mount_xyz[1]),
-            'start_enabled': False,
-        } | harvest_lane_config.get('navigator', {}),
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
-
-
-def follow_stack(bl):
-    bl.node(
-        package='robot_perception',
-        executable='person_detector',
-        name='person_detector',
-        params={
-            'image_topic': 'sensors/camera_0/color/image_raw/compressed',
-            'depth_topic': 'sensors/camera_0/depth/image_raw',
-            'depth_camera_info_topic': 'sensors/camera_0/depth/camera_info',
-            'min_score': 0.3,
-            'overlay_topic': 'perception/person/overlay',
-            'start_enabled': False,
-        },
-        remaps={'detections': 'perception/person'},
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
-    bl.node(
-        package='robot_perception',
-        executable='approach',
-        name='person_follow',
-        params={
-            'standoff_distance': 1.5,
-            'max_missing_frames': 8,
-            'scene_topic': 'perception/person/scene',
-        },
-        remaps={
-            'detections': 'perception/person',
-            'detections_3d': 'perception/targets',
-        },
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
+SIM_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES = 1000000
+SIM_PERSON_FOLLOW_OVERRIDES = {'person_follow': {'max_missing_frames': 8}}
 
 
 def robot_stack(bl, robot, world, pose, depth_scan):
     machine = load_machine(robot)
+    camera = machine.sensors.camera[0]
     with bl.group(robot):
-        spawn_robot(bl, robot, world, depth_scan=depth_scan, **pose)
-        bl.node(
-            package='twist_mux',
-            executable='twist_mux',
-            name='twist_mux',
-            param_files='control/config/twist_mux.yaml',
-            remaps={'cmd_vel_out': 'platform/cmd_vel'},
+        spawn_robot(bl, machine, world, depth_scan=depth_scan, **pose)
+        include('robot_boot', 'twist_mux.launch.py')
+        if machine.behaviors.harvest_lane:
+            include(
+                'robot_perception', 'harvest_lane.launch.py',
+                camera_height_m=float(camera.xyz[2]) - ground_offset(
+                    bl.find('robot_description', 'robot.sim.urdf', subdir=f'urdf/{robot}')),
+                camera_lateral_offset_m=float(camera.xyz[1]),
+                overrides_file=machine.params_file('harvest_lane'),
+            )
+        include(
+            'robot_perception', 'person_follow.launch.py',
+            image_topic='sensors/camera_0/color/image_raw/compressed',
+            overrides_file=parameter_overrides_file(SIM_PERSON_FOLLOW_OVERRIDES),
         )
-        harvest_lane_stack(bl, robot, machine)
-        follow_stack(bl)
         bl.node(
             package='robot_perception',
             executable='row_shuttle',
             name='row_shuttle',
-            max_respawns=-1,
-            respawn_delay=2.0,
+            **RESPAWN,
         )
         bl.node(
             package='nav2_behaviors',
             executable='behavior_server',
             name='behavior_server',
-            param_files=['navigation/config/behaviors.yaml'],
-            max_respawns=-1,
-            respawn_delay=2.0,
+            param_files=[bl.find('robot_navigation', 'behaviors.yaml')],
+            **RESPAWN,
         )
 
 
@@ -168,19 +90,9 @@ def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = 
                depth_scan: bool = False):
     bl = BetterLaunch()
     ensure_router(bl)
-    bl.node(
-        package='foxglove_bridge',
-        executable='foxglove_bridge',
-        name='foxglove_bridge',
-        params={
-            'port': 8765,
-            'send_buffer_limit': 1000000,
-            'max_qos_depth': 5,
-            'best_effort_qos_topic_whitelist': ['.*/sensors/camera_.*'],
-        },
-        max_respawns=-1,
-        respawn_delay=2.0,
-    )
+    include(
+        'robot_boot', 'foxglove_bridge.launch.py',
+        send_buffer_limit_bytes=SIM_FOXGLOVE_SEND_BUFFER_LIMIT_BYTES)
     spawn_topic_bridge(GazeboBridge.clock_bridge(), node_name='clock_bridge')
     bl.include('robot_simulator', 'gz_sim.launch.py', world=world, headless=headless)
 
@@ -209,5 +121,5 @@ def simulation(world: str = 'farm', robots: str = 'taro,jiro', headless: bool = 
     })
     spawn_model(
         'person',
-        os.path.abspath('simulation/models/person/model.sdf'), 'file',
+        bl.find('robot_simulator', 'model.sdf', subdir='models/person'), 'file',
         spawn_args=get_gazebo_axes_args(**person_pose))

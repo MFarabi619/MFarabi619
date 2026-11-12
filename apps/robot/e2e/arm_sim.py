@@ -128,7 +128,7 @@ def test_picks_apple():
     apple_rest_position['before_pick'] = apple_position()
     pick = subprocess.run(
         [sys.executable, 'manipulation/launch/kinova_link6_pick.launch.py',
-         '--object', 'apple'],
+         '--target_object', 'apple'],
         capture_output=True, text=True, timeout=PICK_TIMEOUT_SECONDS,
         cwd=ROBOT_ROOT)
     assert pick.returncode == 0, pick.stdout + pick.stderr

@@ -14,39 +14,58 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import subprocess
+
 from better_launch import BetterLaunch, launch_this
 from pygnssutils import OUTPUT_SERIAL
-from zenoh_router import ensure_router
+from robot_boot.launch_policy import RESPAWN
+from robot_boot.zenoh_router import ensure_router
 
-RESPAWN = {'max_respawns': -1, 'respawn_delay': 2.0}
 NTRIP_RESPAWN = {'max_respawns': -1, 'respawn_delay': 10.0}
 NTRIP_CASTER_HOST = 'rtk2go.com'
-GPS_TOPICS = ['fix', 'vel', 'time_reference', 'heading']
+GPS_TOPICS = ('fix', 'vel', 'time_reference', 'heading')
+
+
+def assert_receiver_flash(bl, port, flash):
+    completed = subprocess.run(
+        [bl.find('robot_drivers', 'ublox_flash'), '--port', port, *flash.split(',')],
+        capture_output=True, text=True)
+    for line in completed.stdout.splitlines():
+        print(line)
+    if completed.returncode != 0:
+        print(f'GNSS flash configuration failed: {completed.stderr.strip()}')
 
 
 @launch_this
 def gps(
-    port: str = '/dev/cu.usbmodem2101',
+    port: str = '/dev/ttyACM0',
     baud: int = 115200,
-    mountpoint: str = 'OsgoodeFarms',
-    ntrip_username: str = 'farabi@tandemrobotics.ca',
+    frame_id: str = 'gps_link',
+    topic_prefix: str = 'sensors/gps_0',
+    flash: str = '',
+    ntrip_mountpoint: str = '',
+    ntrip_username: str = '',
 ):
     bl = BetterLaunch()
     ensure_router(bl)
-    if mountpoint:
-        bl.process(
-            ['gnssntripclient', '--server', NTRIP_CASTER_HOST,
-             '--ntripversion', '1.0', '--mountpoint', mountpoint,
-             '--ntripuser', ntrip_username, '--ntrippassword', 'none',
-             '--clioutput', str(OUTPUT_SERIAL), '--output', f'{port}@{baud}'],
-            name='ntrip_client',
-            **NTRIP_RESPAWN,
-        )
+    if flash:
+        assert_receiver_flash(bl, port, flash)
     bl.node(
         package='nmea_navsat_driver',
         executable='nmea_serial_driver',
         name='nmea_navsat_driver',
-        params={'port': port, 'baud': baud, 'frame_id': 'gps_link'},
-        remaps={topic: f'sensors/gps_0/{topic}' for topic in GPS_TOPICS},
+        params={'port': port, 'baud': baud, 'frame_id': frame_id},
+        remaps={topic: f'{topic_prefix}/{topic}' for topic in GPS_TOPICS},
         **RESPAWN,
     )
+    if ntrip_mountpoint:
+        bl.process(
+            'gnssntripclient'
+            f' --server {NTRIP_CASTER_HOST} --ntripversion 1.0'
+            f' --mountpoint {ntrip_mountpoint}'
+            f' --ntripuser {ntrip_username} --ntrippassword none'
+            f' --clioutput {OUTPUT_SERIAL}'
+            f' --output {port}@{baud}',
+            name='ntrip_client',
+            **NTRIP_RESPAWN,
+        )

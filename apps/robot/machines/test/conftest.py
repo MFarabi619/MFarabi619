@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import importlib.util
 import os
 import sys
 
@@ -23,7 +24,18 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+def import_source_package(name, directory):
+    spec = importlib.util.spec_from_file_location(
+        name, os.path.join(directory, '__init__.py'), submodule_search_locations=[directory])
+    package = importlib.util.module_from_spec(spec)
+    sys.modules[name] = package
+    spec.loader.exec_module(package)
+    return package
+
+
+import_source_package(
+    'robot_machines', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
 PASS_COLOR = '#b8bb26'
 FAIL_COLOR = '#fb4934'

@@ -1,0 +1,18 @@
+/**/sidewalk_detector:
+  ros__parameters:
+    max_detections_per_second: 5.0
+    surface_class_ids: [2, 3]
+
+/**/park_path_detector:
+  ros__parameters:
+    max_detections_per_second: 5.0
+    surface_class_ids: [1, 2, 3]
+
+/**/path_detector:
+  ros__parameters:
+    max_detections_per_second: 15.0
+    mask_source: brightness
+    max_saturation: 0.75
+    max_value: 0.35
+    roi_top_fraction: 0.6
+    min_fraction: 0.6

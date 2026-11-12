@@ -1,6 +1,10 @@
 {
   "environment": {
     "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[robot/jiro] (call)",
+    "ZED_SDK_ROOT": {
+      "bytes": 17,
+      "xml_sha256": "cd286e60d342c8f3faddc6a7379fcd6326cbdfcb6e16055a9e2af03498c91bcb"
+    },
     "ZENOH_CONFIG_OVERRIDE": "mode=\"client\""
   },
   "events": [
@@ -41,6 +45,27 @@
       "xacro_args": null
     },
     {
+      "arguments": {
+        "gpio_chip": 0,
+        "left_dir_line": 16,
+        "left_forward_level": true,
+        "left_pwm_channel": 0,
+        "left_pwm_chip": 0,
+        "max_wheel_speed": 13.093196112064037,
+        "min_duty": 0.0,
+        "pwm_frequency_hz": 20000.0,
+        "right_dir_line": 26,
+        "right_forward_level": false,
+        "right_pwm_channel": 1,
+        "right_pwm_chip": 0
+      },
+      "kind": "include",
+      "launchfile": "pwm_dir_motor_driver.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "pwm_dir_motor_driver",
       "kind": "node",
       "max_respawns": -1,
@@ -62,6 +87,23 @@
         "right_pwm_chip": 0
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "max_angular_acceleration_radians_per_second_squared": 10.0,
+        "max_angular_jerk_radians_per_second_cubed": 70.0,
+        "max_angular_velocity_radians_per_second": 3.0,
+        "max_linear_acceleration_meters_per_second_squared": 8.0,
+        "max_linear_jerk_meters_per_second_cubed": 60.0,
+        "max_linear_velocity_meters_per_second": 2.29,
+        "wheel_radius": 0.1749,
+        "wheel_separation": 0.5704
+      },
+      "kind": "include",
+      "launchfile": "controller_manager.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
     },
     {
       "executable": "ros2_control_node",
@@ -131,6 +173,19 @@
       "package": "controller_manager"
     },
     {
+      "arguments": {
+        "channel_1_line": 17,
+        "channel_2_line": 27,
+        "gpio_chip": 0,
+        "tank_mixed": false
+      },
+      "kind": "include",
+      "launchfile": "rc_teleop.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "rc_receiver_joy",
       "kind": "node",
       "max_respawns": -1,
@@ -165,6 +220,16 @@
       "respawn_delay": 2.0
     },
     {
+      "arguments": {
+        "cmd_vel_out": "platform/cmd_vel"
+      },
+      "kind": "include",
+      "launchfile": "twist_mux.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "twist_mux",
       "kind": "node",
       "max_respawns": -1,
@@ -180,38 +245,35 @@
       "respawn_delay": 2.0
     },
     {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "foxglove_bridge.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "foxglove_bridge",
       "kind": "node",
       "max_respawns": -1,
       "name": "foxglove_bridge",
       "namespace": "/jiro",
       "package": "foxglove_bridge",
+      "param_files": [
+        "boot/config/foxglove_bridge.yaml"
+      ],
       "params": {
-        "best_effort_qos_topic_whitelist": [
-          "/jiro/sensors/camera_[0-9]+/.*"
-        ],
-        "max_qos_depth": 5,
-        "send_buffer_limit": 20000000,
-        "topic_whitelist": [
-          "/jiro/sensors/camera_[0-9]+/(color|depth)/image_raw/(compressed|compressedDepth)$",
-          "/jiro/sensors/camera_[0-9]+/depth/image_view(/compressed)?$",
-          "/jiro/sensors/camera_[0-9]+/(color|depth)/camera_info$",
-          "/jiro/sensors/camera_[0-9]+/depth/points$",
-          "/jiro/sensors/camera_[0-9]+/scan$",
-          "/jiro/sensors/(gps|imu)_[0-9]+/.*",
-          "/jiro/perception/.*",
-          "/jiro/platform/.*",
-          "/jiro/joy_teleop/cmd_vel$",
-          "/jiro/tf(_static)?$",
-          "/jiro/map$",
-          "/jiro/local_costmap/costmap$",
-          "/jiro/plan$",
-          "/jiro/slam_toolbox/.*",
-          "/jiro/diagnostics.*",
-          "/jiro/robot_description$"
-        ]
+        "send_buffer_limit": 20000000
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {},
+      "kind": "include",
+      "launchfile": "diagnostic_aggregator.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
     },
     {
       "executable": "aggregator_node",
@@ -224,6 +286,23 @@
         "boot/config/diagnostic_aggregator.yaml"
       ],
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "camera": "camera_0",
+        "color_fps": 60.0,
+        "color_resolution_divisor": 2,
+        "depth_fps": 30.0,
+        "depth_resolution_divisor": 4,
+        "detects_on_camera": false,
+        "ip": "169.254.1.222",
+        "model_path": "perception/models/yolov8n_coco_640x352.blob"
+      },
+      "kind": "include",
+      "launchfile": "oak_d_pro_w_poe.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
     },
     {
       "executable": "oak_d_pro_w_poe",
@@ -276,10 +355,24 @@
       "respawn_delay": 2.0
     },
     {
+      "arguments": {
+        "camera": "camera_0",
+        "max_height": 0.6,
+        "range_max": 3.0,
+        "range_min": 0.2,
+        "scan_time": 0.05
+      },
+      "kind": "include",
+      "launchfile": "pointcloud_to_laserscan.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_boot",
+      "subdir": null
+    },
+    {
       "executable": "pointcloud_to_laserscan_node",
       "kind": "node",
       "max_respawns": -1,
-      "name": "oak_d_pointcloud_to_laserscan",
+      "name": "camera_0_pointcloud_to_laserscan",
       "namespace": "/jiro",
       "package": "pointcloud_to_laserscan",
       "params": {
@@ -297,6 +390,16 @@
         "scan": "sensors/camera_0/scan"
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "camera": "camera_0"
+      },
+      "kind": "include",
+      "launchfile": "collision_overlay.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "collision_overlay",
@@ -317,19 +420,33 @@
       "respawn_delay": 2.0
     },
     {
+      "arguments": {
+        "camera": "camera_0",
+        "detects_on_camera": false,
+        "image_topic": "sensors/camera_0/color/image_raw/compressed",
+        "overrides_file": "machines/jiro/params/person_follow.yaml"
+      },
+      "kind": "include",
+      "launchfile": "person_follow.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "subdir": null
+    },
+    {
       "executable": "person_detector",
       "kind": "node",
       "max_respawns": -1,
       "name": "person_detector",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/person_follow.yaml",
+        "machines/jiro/params/person_follow.yaml"
+      ],
       "params": {
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
-        "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "max_detections_per_second": 30.0,
-        "min_score": 0.3,
-        "model_path": "perception/models/ssd_mobilenet_v1_12_int8.onnx"
+        "image_topic": "sensors/camera_0/color/image_raw/compressed"
       },
       "respawn_delay": 2.0
     },
@@ -340,22 +457,25 @@
       "name": "person_follow",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/person_follow.yaml",
+        "machines/jiro/params/person_follow.yaml"
+      ],
       "params": {
-        "command_smoothing_seconds": 0.1,
-        "distance_damping": 0.4,
-        "distance_deadband": 0.25,
-        "distance_gain": 2.0,
-        "max_angular_speed": 5.0,
-        "max_backward_speed": 1.5,
-        "max_forward_speed": 2.0,
-        "max_missing_frames": 24,
-        "standoff_distance": 1.5,
-        "start_enabled": false,
-        "steer_damping": 0.7,
-        "steer_deadband": 0.05,
-        "steer_gain": 2.0
+        "start_enabled": false
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "camera": "camera_0",
+        "overrides_file": "machines/jiro/params/line_follow.yaml"
+      },
+      "kind": "include",
+      "launchfile": "line_follow.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "color_blob_detector",
@@ -364,22 +484,17 @@
       "name": "line_detector",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/line_follow.yaml",
+        "machines/jiro/params/line_follow.yaml"
+      ],
       "params": {
         "class_label": "line",
         "depth_camera_info_topic": "sensors/camera_0/depth/camera_info",
         "depth_topic": "sensors/camera_0/depth/image_raw",
         "detections_topic": "perception/line/detections",
-        "hue_max": 180.0,
-        "hue_min": 0.0,
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "max_saturation": 0.25,
-        "min_area": 800,
-        "min_aspect_ratio": 0.0,
-        "min_saturation": 0.0,
-        "min_triangularity": 0.0,
-        "min_value": 0.6,
         "overlay_topic": "perception/line/overlay",
-        "roi_top_fraction": 0.55,
         "start_enabled": false
       },
       "respawn_delay": 2.0
@@ -391,12 +506,28 @@
       "name": "line_follow",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/line_follow.yaml",
+        "machines/jiro/params/line_follow.yaml"
+      ],
       "params": {
         "detections_topic": "perception/line/detections",
-        "image_width": 640,
         "start_enabled": false
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "camera": "camera_0",
+        "camera_height_m": 0.3336,
+        "overrides_file": "machines/jiro/params/surface_follow.yaml",
+        "surface": "sidewalk"
+      },
+      "kind": "include",
+      "launchfile": "surface_follow.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "surface_detector",
@@ -405,16 +536,15 @@
       "name": "sidewalk_detector",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/surface_follow.yaml",
+        "machines/jiro/params/surface_follow.yaml"
+      ],
       "params": {
         "class_label": "sidewalk",
         "detections_topic": "perception/sidewalk/detections",
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "max_detections_per_second": 5.0,
-        "overlay_topic": "perception/sidewalk/overlay",
-        "surface_class_ids": [
-          2,
-          3
-        ]
+        "overlay_topic": "perception/sidewalk/overlay"
       },
       "respawn_delay": 2.0
     },
@@ -425,16 +555,30 @@
       "name": "sidewalk_follow",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/surface_follow.yaml",
+        "machines/jiro/params/surface_follow.yaml"
+      ],
       "params": {
         "camera_height_m": 0.3336,
         "camera_info_topic": "sensors/camera_0/color/camera_info",
         "detections_topic": "perception/sidewalk/detections",
-        "forward_speed": 0.5,
-        "max_angular_speed": 1.5,
-        "start_enabled": false,
-        "steer_gain": 1.5
+        "start_enabled": false
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "camera": "camera_0",
+        "camera_height_m": 0.3336,
+        "overrides_file": "machines/jiro/params/surface_follow.yaml",
+        "surface": "park_path"
+      },
+      "kind": "include",
+      "launchfile": "surface_follow.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "surface_detector",
@@ -443,19 +587,15 @@
       "name": "park_path_detector",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/surface_follow.yaml",
+        "machines/jiro/params/surface_follow.yaml"
+      ],
       "params": {
         "class_label": "park_path",
         "detections_topic": "perception/park_path/detections",
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "max_detections_per_second": 5.0,
-        "min_fraction": 0.95,
-        "overlay_topic": "perception/park_path/overlay",
-        "roi_top_fraction": 0.6,
-        "surface_class_ids": [
-          1,
-          2,
-          3
-        ]
+        "overlay_topic": "perception/park_path/overlay"
       },
       "respawn_delay": 2.0
     },
@@ -466,16 +606,30 @@
       "name": "park_path_follow",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/surface_follow.yaml",
+        "machines/jiro/params/surface_follow.yaml"
+      ],
       "params": {
         "camera_height_m": 0.3336,
         "camera_info_topic": "sensors/camera_0/color/camera_info",
         "detections_topic": "perception/park_path/detections",
-        "forward_speed": 0.9,
-        "max_angular_speed": 1.5,
-        "start_enabled": false,
-        "steer_gain": 1.5
+        "start_enabled": false
       },
       "respawn_delay": 2.0
+    },
+    {
+      "arguments": {
+        "camera": "camera_0",
+        "camera_height_m": 0.3336,
+        "overrides_file": "machines/jiro/params/surface_follow.yaml",
+        "surface": "path"
+      },
+      "kind": "include",
+      "launchfile": "surface_follow.launch.py",
+      "namespace": "/jiro",
+      "package": "robot_perception",
+      "subdir": null
     },
     {
       "executable": "surface_detector",
@@ -484,17 +638,15 @@
       "name": "path_detector",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/surface_follow.yaml",
+        "machines/jiro/params/surface_follow.yaml"
+      ],
       "params": {
         "class_label": "path",
         "detections_topic": "perception/path/detections",
         "image_topic": "sensors/camera_0/color/image_raw/compressed",
-        "mask_source": "brightness",
-        "max_detections_per_second": 15.0,
-        "max_saturation": 0.75,
-        "max_value": 0.35,
-        "min_fraction": 0.6,
-        "overlay_topic": "perception/path/overlay",
-        "roi_top_fraction": 0.6
+        "overlay_topic": "perception/path/overlay"
       },
       "respawn_delay": 2.0
     },
@@ -505,15 +657,15 @@
       "name": "path_follow",
       "namespace": "/jiro",
       "package": "robot_perception",
+      "param_files": [
+        "perception/config/surface_follow.yaml",
+        "machines/jiro/params/surface_follow.yaml"
+      ],
       "params": {
         "camera_height_m": 0.3336,
         "camera_info_topic": "sensors/camera_0/color/camera_info",
         "detections_topic": "perception/path/detections",
-        "forward_speed": 0.9,
-        "lateral_offset_m": 0.35,
-        "max_angular_speed": 1.5,
-        "start_enabled": false,
-        "steer_gain": 1.5
+        "start_enabled": false
       },
       "respawn_delay": 2.0
     }

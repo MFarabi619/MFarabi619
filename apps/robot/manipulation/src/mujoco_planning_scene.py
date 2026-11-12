@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright 2026 Mumtahin Farabi
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,6 +18,7 @@
 
 from pathlib import Path
 
+from ament_index_python.packages import get_package_share_directory
 from geometry_msgs.msg import Point, Pose, PoseStamped
 from moveit_msgs.msg import (AllowedCollisionEntry, CollisionObject,
                              ObjectColor, PlanningScene,
@@ -47,7 +50,7 @@ GRIPPER_TOUCH_LINKS = [
 ]
 BODY_MODELS = {
     'apple': {
-        'file': 'simulation/models/ycb/013_apple/google_16k/nontextured.stl',
+        'file': 'models/ycb/013_apple/google_16k/nontextured.stl',
         'color': (0.72, 0.08, 0.12, 1.0),
     },
 }
@@ -102,12 +105,12 @@ class MujocoPlanningScene(Node):
         self.added_objects = set()
         self.adding_objects = set()
         self.attached_objects = set()
-        robot_root = Path(__file__).resolve().parents[2]
+        simulator_share = Path(get_package_share_directory('robot_simulator'))
         self.meshes = {}
         self.centroids = {}
         for name, model in BODY_MODELS.items():
             self.meshes[name], self.centroids[name] = load_centered_mesh(
-                robot_root / model['file'])
+                simulator_share / model['file'])
         self.scene_publisher = self.create_publisher(
             PlanningScene, 'planning_scene', 10)
         self.pre_attach_poses = {}

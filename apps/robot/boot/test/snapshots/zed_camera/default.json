@@ -1,8 +1,24 @@
 {
   "environment": {
-    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[zed_camera/kinova-link-6] (call)"
+    "PYTEST_CURRENT_TEST": "boot/test/test_launch_snapshot.py::test_launch_starts_the_same_nodes_as_the_snapshot[zed_camera/default] (call)",
+    "ZED_SDK_ROOT": {
+      "bytes": 17,
+      "xml_sha256": "cd286e60d342c8f3faddc6a7379fcd6326cbdfcb6e16055a9e2af03498c91bcb"
+    }
   },
   "events": [
+    {
+      "env": null,
+      "executable": "rmw_zenohd",
+      "kind": "node",
+      "max_respawns": -1,
+      "name": "zenoh_router",
+      "namespace": "/",
+      "package": "rmw_zenoh_cpp",
+      "raw": true,
+      "respawn_delay": 2.0,
+      "ros_waittime": null
+    },
     {
       "kind": "compose",
       "language": "cpp",
@@ -66,17 +82,17 @@
         "depth": {
           "allow_depth_cuda_graph": false,
           "depth_confidence": 95,
-          "depth_mode": "NEURAL_PLUS",
+          "depth_mode": "NEURAL_LIGHT",
           "depth_precision": "FP16",
           "depth_stabilization": -1,
           "depth_texture_conf": 100,
           "max_depth": 15.0,
           "min_depth": 0.01,
-          "openni_depth_mode": true,
-          "point_cloud_freq": 15.0,
+          "openni_depth_mode": false,
+          "point_cloud_freq": 10.0,
           "point_cloud_res": "COMPACT",
           "publish_depth_confidence": false,
-          "publish_depth_image": true,
+          "publish_depth_image": false,
           "publish_depth_info": false,
           "publish_depth_map": true,
           "publish_disparity": false,
@@ -143,7 +159,7 @@
           "enable_tracking": true,
           "filtering_mode": "NMS3D",
           "max_range": 40.0,
-          "od_enabled": true,
+          "od_enabled": false,
           "prediction_timeout": 2.0
         },
         "pos_tracking": {
@@ -167,15 +183,15 @@
           "odometry_frame": "odom",
           "path_max_count": -1,
           "path_pub_rate": 2.0,
-          "pos_tracking_enabled": false,
+          "pos_tracking_enabled": true,
           "pos_tracking_mode": "AUTO",
           "publish_3d_landmarks": false,
           "publish_cam_path": false,
           "publish_lm_skip_frame": 5,
-          "publish_map_tf": false,
+          "publish_map_tf": true,
           "publish_odom_pose": true,
           "publish_pose_cov": false,
-          "publish_tf": false,
+          "publish_tf": true,
           "reset_odom_with_loop_closure": true,
           "reset_pose_with_svo_loop": true,
           "save_area_memory_on_closing": false,
@@ -200,7 +216,7 @@
           "publish_cam_imu_transf": false,
           "publish_imu": true,
           "publish_imu_raw": false,
-          "publish_imu_tf": false,
+          "publish_imu_tf": true,
           "publish_mag": false,
           "publish_temp": false,
           "sensors_image_sync": false,
@@ -256,14 +272,14 @@
       },
       "plugin": "stereolabs::ZedCamera",
       "remaps": {
-        "/tf": "/tf",
-        "/tf_static": "/tf_static",
-        "~/depth/depth_registered": "/sensors/camera_0/depth/image_raw",
-        "~/image/depth_image": "/sensors/camera_0/depth/image_view",
-        "~/imu/data": "/sensors/camera_0/imu/data",
-        "~/obj_det/objects": "/sensors/camera_0/objects",
-        "~/point_cloud/cloud_registered": "/sensors/camera_0/depth/points",
-        "~/rgb/color/rect/image": "/sensors/camera_0/color/image_raw"
+        "/tf": "tf",
+        "/tf_static": "tf_static",
+        "~/depth/depth_registered": "sensors/camera_0/depth/image_raw",
+        "~/image/depth_image": "sensors/camera_0/depth/image_view",
+        "~/imu/data": "sensors/camera_0/imu/data",
+        "~/obj_det/objects": "sensors/camera_0/objects",
+        "~/point_cloud/cloud_registered": "sensors/camera_0/depth/points",
+        "~/rgb/color/rect/image": "sensors/camera_0/color/image_raw"
       }
     },
     {
@@ -280,9 +296,9 @@
         }
       },
       "remaps": {
-        "/tf": "/tf",
-        "/tf_static": "/tf_static",
-        "robot_description": "/camera_0_description"
+        "/tf": "tf",
+        "/tf_static": "tf_static",
+        "robot_description": "camera_0_description"
       },
       "xacro_args": [
         "camera_name:=camera_0",
@@ -292,17 +308,17 @@
     {
       "cmd_args": [
         "--x",
-        "1.0",
+        "0.0",
         "--y",
         "0.0",
         "--z",
-        "0.5",
+        "0.0",
         "--roll",
         "0.0",
         "--pitch",
         "0.0",
         "--yaw",
-        "3.1416",
+        "0.0",
         "--frame-id",
         "base_link",
         "--child-frame-id",
@@ -315,24 +331,14 @@
       "namespace": "/",
       "package": "tf2_ros",
       "remaps": {
-        "/tf": "/tf",
-        "/tf_static": "/tf_static"
+        "/tf": "tf",
+        "/tf_static": "tf_static"
       },
-      "respawn_delay": 2.0
-    },
-    {
-      "cmd": "python perception/src/zed_object_overlay.py --ros-args -p objects_topic:=/sensors/camera_0/objects -p detections_topic:=/detections -p overlay_topic:=/perception/vision/overlay",
-      "kind": "process",
-      "max_respawns": -1,
-      "name": "zed_object_overlay",
-      "namespace": "/",
       "respawn_delay": 2.0
     }
   ],
   "launch": {
-    "arguments": {
-      "robot": "kinova-link-6"
-    },
+    "arguments": {},
     "file": "boot/launch/zed_camera.launch.py",
     "function": "zed_camera",
     "launch_this": {}
